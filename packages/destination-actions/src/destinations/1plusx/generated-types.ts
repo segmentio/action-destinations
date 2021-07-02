@@ -4,7 +4,7 @@ export interface Settings {
   /**
    * Your 1PlusX Client ID.
    */
-  client_id: string
+  clientId: string
   /**
    * If true, events are sent to `https://tagger-test.opecloud.com` instead of `https://tagger.opecloud.com`
    */

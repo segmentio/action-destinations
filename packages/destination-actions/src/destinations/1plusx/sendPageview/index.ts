@@ -1,7 +1,7 @@
 import type { ActionDefinition } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
-import mapValues from 'lodash/mapValues'
+import lodash from 'lodash/index'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Send Pageview',
@@ -28,9 +28,9 @@ const action: ActionDefinition<Settings, Payload> = {
     //Must also be in the form IDSPACE:ID and multiple should be separated by a comma
     ope_alt_user_ids: {
       label: 'Alternative User IDs',
-      description:
-        'Alternative user ids if there is more than one identifier available, each prefixed with the identifier type and separated by commas',
+      description: 'Alternative user ids if there is more than one identifier available',
       type: 'string',
+      required: false,
       multiple: true
     },
     //Highly recommended to include
@@ -38,6 +38,7 @@ const action: ActionDefinition<Settings, Payload> = {
       label: 'Website URL',
       description: 'The website URL of the page',
       type: 'string',
+      required: false,
       default: {
         '@path': '$.context.page.url'
       }
@@ -46,6 +47,7 @@ const action: ActionDefinition<Settings, Payload> = {
       label: 'Mobile App Version',
       description: 'Version of the mobile app',
       type: 'string',
+      required: false,
       default: {
         '@path': '$.context.app.version'
       }
@@ -54,9 +56,9 @@ const action: ActionDefinition<Settings, Payload> = {
     //Optional to override the time recorded by 1PlusX's API upon receipt
     ope_event_time_ms: {
       label: 'Event Timestamp',
-      description:
-        'Time of when the actual event happened. If not set, timestamp recorded by 1PlusX upon receipt is used.',
+      description: 'Time of when the actual event happened',
       type: 'string',
+      required: false,
       default: {
         '@path': '$.timestamp'
       }
@@ -65,6 +67,7 @@ const action: ActionDefinition<Settings, Payload> = {
       label: 'Browser UserAgent',
       description: 'The user agent as submitted by the browser',
       type: 'string',
+      required: false,
       default: {
         '@path': '$.context.userAgent'
       }
@@ -72,24 +75,21 @@ const action: ActionDefinition<Settings, Payload> = {
     gdpr: {
       label: 'GDPR Consent Flag',
       description: 'Set to 1 if subject to GDPR, set to 0 or leave blank if not subject to GDPR',
-      type: 'integer'
+      type: 'integer',
+      required: false
     },
     gdpr_consent: {
       label: 'GDPR Consent String',
       description: 'If subject to GDPR, populate with appropriate consents',
-      type: 'string'
-    },
-    ope_usp_string: {
-      label: 'US Privacy Consent String',
-      description:
-        'If subject to CCPA, this field should be populated with appropriate consents. 1PlusX will parse the string value and process the event only when the consent indicates no optout from sales. Leave blank or set to 1--- if not subject to CCPA.',
-      type: 'string'
+      type: 'string',
+      required: false
     },
     //This is a custom attribute but Fox wants us to explicitly ask for a mapping so they remember to send this
     platform: {
       label: 'Platform',
       description: 'The platform that data is originating from',
-      type: 'string'
+      type: 'string',
+      required: false
     },
     //To be updated with object data type - in the meantime, all properties are sent as top-level k:v pairs below
     custom_fields: {
@@ -106,11 +106,12 @@ const action: ActionDefinition<Settings, Payload> = {
     const { custom_fields, ...cleanPayload } = payload
 
     //Convert all custom_field values to strings as per 1PlusX requirements
-    const cleanProps = mapValues(custom_fields, (value) => JSON.stringify(value))
+    const cleanProps = lodash.mapValues(payload.custom_fields, (value) => JSON.stringify(value))
+    console.log(cleanProps)
 
     const endpoint = settings.use_test_endpoint
-      ? `https://tagger-test.opecloud.com/${settings.client_id}/v2/native/event`
-      : `https://tagger.opecloud.com/${settings.client_id}/v2/native/event`
+      ? `https://tagger-test.opecloud.com/${settings.clientId}/v2/native/event`
+      : `https://tagger.opecloud.com/${settings.clientId}/v2/native/event`
 
     return request(endpoint, {
       method: 'post',
