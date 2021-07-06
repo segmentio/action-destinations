@@ -1,0 +1,12 @@
+{
+  "extends": "./tsconfig.build.json",
+  "compilerOptions": {
+    "module": "es2020",
+    "outDir": "dist/esm",
+    "target": "es2018",
+    "lib": ["es2018"],
+    "esModuleInterop": true
+  },
+  "exclude": [],
+  "include": ["src"]
+}

@@ -1,0 +1,24 @@
+#!/usr/bin/env node
+
+const path = require('path')
+const fs = require('fs')
+const hasDist = fs.existsSync(path.resolve(__dirname, '../dist'))
+
+if (hasDist) {
+  // skip ts-node when we have a compiled CLI
+  process.env.OCLIF_TS_NODE = 0
+} else {
+  const { register } = require('tsconfig-paths')
+  const tsConfig = require('../tsconfig.json')
+
+  // For now we have to register tsconfig-paths manually
+  register({
+    baseUrl: path.join(__dirname, '../'),
+    paths: tsConfig.compilerOptions.paths
+  })
+}
+
+require('@oclif/command')
+  .run()
+  .then(require('@oclif/command/flush'))
+  .catch(require('@oclif/errors/handle'))

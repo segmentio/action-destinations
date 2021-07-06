@@ -1,0 +1,7 @@
+{
+  "mapping": {
+    "@path": "$.foo",
+    "bar": "baz"
+  },
+  "expectError": "/ should only have one @-prefixed key but it has 2 keys."
+}

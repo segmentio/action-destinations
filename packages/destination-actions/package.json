@@ -1,0 +1,52 @@
+{
+  "name": "@segment/destination-actions",
+  "description": "Destination Actions engine and definitions.",
+  "version": "2.4.2",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/segmentio/action-destinations",
+    "directory": "packages/destination-actions"
+  },
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "files": [
+    "dist",
+    "package.json"
+  ],
+  "engineStrict": true,
+  "license": "UNLICENSED",
+  "publishConfig": {
+    "access": "restricted",
+    "registry": "https://registry.npmjs.org"
+  },
+  "scripts": {
+    "build": "yarn clean && yarn tsc -b tsconfig.build.json",
+    "clean": "tsc -b tsconfig.build.json --clean",
+    "postclean": "rm -rf dist",
+    "prepublishOnly": "yarn build",
+    "test": "jest",
+    "typecheck": "tsc --noEmit"
+  },
+  "devDependencies": {
+    "@types/jest": "^26.0.23",
+    "jest": "^26.6.3",
+    "nock": "^13.0.11"
+  },
+  "dependencies": {
+    "@segment/actions-core": "^2.2.1",
+    "dayjs": "^1.10.3"
+  },
+  "jest": {
+    "preset": "ts-jest",
+    "testEnvironment": "node",
+    "modulePathIgnorePatterns": [
+      "<rootDir>/dist/"
+    ],
+    "moduleNameMapper": {
+      "@segment/actions-core": "<rootDir>/../core/src/index.ts"
+    },
+    "setupFilesAfterEnv": [
+      "<rootDir>/test/setup-after-env.ts"
+    ]
+  }
+}
