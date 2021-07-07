@@ -11,7 +11,7 @@ const destination: DestinationDefinition<Settings> = {
   authentication: {
     scheme: 'custom',
     fields: {
-      clientId: {
+      client_id: {
         label: 'Client ID',
         description: 'Your 1PlusX Client ID.',
         type: 'string',
