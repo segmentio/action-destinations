@@ -42,25 +42,25 @@ jobs:
         id: cli-build-cache
         with:
           path: packages/cli/dist
-          key: ${{ runner.os }}-build-${{ hashFiles(packages/cli/dist/**/*') }}
+          key: ${{ runner.os }}-build-${{ hashFiles('packages/cli/dist/**/*') }}
 
       - uses: actions/cache@v2
         id: core-build-cache
         with:
           path: packages/core/dist
-          key: ${{ runner.os }}-build-${{ hashFiles(packages/core/dist/**/*') }}
+          key: ${{ runner.os }}-build-${{ hashFiles('packages/core/dist/**/*') }}
 
       - uses: actions/cache@v2
         id: destination-actions-build-cache
         with:
           path: packages/destination-actions/dist
-          key: ${{ runner.os }}-build-${{ hashFiles(packages/destination-actions/dist/**/*') }}
+          key: ${{ runner.os }}-build-${{ hashFiles('packages/destination-actions/dist/**/*') }}
 
       - uses: actions/cache@v2
         id: destination-subscriptions-build-cache
         with:
           path: packages/destination-subscriptions/dist
-          key: ${{ runner.os }}-build-${{ hashFiles(packages/destination-subscriptions/dist/**/*') }}
+          key: ${{ runner.os }}-build-${{ hashFiles('packages/destination-subscriptions/dist/**/*') }}
 
       - name: Build
         run: NODE_ENV=production yarn build
