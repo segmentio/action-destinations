@@ -69,7 +69,7 @@ jobs:
         run: yarn lint
 
       - name: Test
-        run: yarn test --since-master
+        run: yarn test --since master
 
   snyk:
     runs-on: ubuntu-latest
