@@ -1,7 +1,7 @@
 {
   "name": "action-destinations",
   "private": true,
-  "license": "UNLICENSED",
+  "license": "MIT",
   "workspaces": {
     "packages": [
       "packages/*"
