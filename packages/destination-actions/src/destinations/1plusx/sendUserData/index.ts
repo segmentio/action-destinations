@@ -107,7 +107,7 @@ const action: ActionDefinition<Settings, Payload> = {
     const { custom_fields, ...cleanPayload } = payload
 
     //Convert all custom_field values to strings as per 1PlusX requirements
-    const cleanProps = mapValues(custom_fields, (value) => JSON.stringify(value))
+    const cleanTraits = mapValues(custom_fields, (value) => (typeof value === 'string' ? value : JSON.stringify(value)))
 
     const endpoint = settings.use_test_endpoint
       ? `https://tagger-test.opecloud.com/${settings.client_id}/v2/native/event`
@@ -117,7 +117,7 @@ const action: ActionDefinition<Settings, Payload> = {
       method: 'post',
       json: {
         ...cleanPayload,
-        ...cleanProps
+        ...cleanTraits
       }
     })
   }

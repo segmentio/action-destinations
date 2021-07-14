@@ -53,9 +53,9 @@ describe('1PlusX', () => {
         ope_user_agent:
           'Mozilla/5.0 (iPhone; CPU iPhone OS 12_1_4 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/16D57',
         ope_app_version: '1.0',
-        assetId: '"12345"',
-        title: '"The Simpsons"',
-        genre: '"Comedy"',
+        assetId: '12345',
+        title: 'The Simpsons',
+        genre: 'Comedy',
         full_episode: 'true'
       })
     })
@@ -94,9 +94,9 @@ describe('1PlusX', () => {
         ope_user_id: 'ANONYMOUSID:anon-user123',
         ope_event_type: 'Test Event',
         ope_event_time_ms: '2021-07-12T23:02:40.563Z',
-        assetId: '"12345"',
-        title: '"The Simpsons"',
-        genre: '"Comedy"',
+        assetId: '12345',
+        title: 'The Simpsons',
+        genre: 'Comedy',
         full_episode: 'true',
         publisher: '{"id":"abc","network":"test-network"}'
       })
@@ -145,11 +145,11 @@ describe('1PlusX', () => {
         ope_event_time_ms: '2021-07-12T23:02:40.563Z',
         ope_user_agent:
           'Mozilla/5.0 (iPhone; CPU iPhone OS 12_1_4 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/16D57',
-        title: '"Segment"',
-        url: '"https://segment.com/"',
-        path: '"/"',
-        referrer: '"https://segment.com/warehouses"',
-        name: '"Homepage"'
+        title: 'Segment',
+        url: 'https://segment.com/',
+        path: '/',
+        referrer: 'https://segment.com/warehouses',
+        name: 'Homepage'
       })
     })
 
@@ -188,8 +188,8 @@ describe('1PlusX', () => {
         ope_event_type: 'Pageview',
         ope_event_time_ms: '2021-07-12T23:02:40.563Z',
         ope_app_version: '1.0',
-        name: '"Home Screen"',
-        screen_type: '"Main"',
+        name: 'Home Screen',
+        screen_type: 'Main',
         push_enabled: 'true'
       })
     })
@@ -237,11 +237,11 @@ describe('1PlusX', () => {
         ope_event_type: 'Pageview',
         ope_item_uri: 'https://segment.com/',
         ope_event_time_ms: '2021-07-12T23:02:40.563Z',
-        title: '"Segment"',
-        url: '"https://segment.com/"',
-        path: '"/"',
-        referrer: '"https://segment.com/warehouses"',
-        name: '"Homepage"',
+        title: 'Segment',
+        url: 'https://segment.com/',
+        path: '/',
+        referrer: 'https://segment.com/warehouses',
+        name: 'Homepage',
         page_info: '{"page_login_state":"logged out","page_content_id":"c1234-5678"}'
       })
     })
@@ -291,9 +291,9 @@ describe('1PlusX', () => {
         ope_user_agent:
           'Mozilla/5.0 (iPhone; CPU iPhone OS 12_1_4 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/16D57',
         ope_app_version: '1.0',
-        gender: '"male"',
-        first_name: '"John"',
-        last_name: '"Smith"',
+        gender: 'male',
+        first_name: 'John',
+        last_name: 'Smith',
         age: '40'
       })
     })
@@ -331,9 +331,9 @@ describe('1PlusX', () => {
         ope_user_id: 'ANONYMOUSID:anon-user123',
         ope_event_type: 'User Identified',
         ope_event_time_ms: '2021-07-12T23:02:40.563Z',
-        gender: '"male"',
-        first_name: '"John"',
-        last_name: '"Smith"',
+        gender: 'male',
+        first_name: 'John',
+        last_name: 'Smith',
         age: '40',
         company: '{"name":"Segment","employees":1000}'
       })
