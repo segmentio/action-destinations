@@ -1927,6 +1927,16 @@
     path-to-regexp "^6.1.0"
     querystring "^0.2.0"
 
+"@segment/destination-actions@^3.1.0":
+  version "3.1.0"
+  resolved "https://registry.yarnpkg.com/@segment/destination-actions/-/destination-actions-3.1.0.tgz#448bf61159a36ef6d071c4ea5daec6cba360c91d"
+  integrity sha512-X/0xdUYuEPQsveiWdYKjbe6s4oLx7w3iX1Vgt4p3gGlGQ6cnMxS98dAFc4TB32HRuhMsvaOTzVjMbdxBHk1ZPw==
+  dependencies:
+    dayjs "^1.10.3"
+    mustache "^4.2.0"
+  optionalDependencies:
+    "@segment/actions-core" "^3.1.0"
+
 "@segment/fql@^1.9.1":
   version "1.10.0"
   resolved "https://registry.yarnpkg.com/@segment/fql/-/fql-1.10.0.tgz#4e50d689c77e078887e673acda2b5fad384e461c"
@@ -6542,7 +6552,7 @@ gzip-size@^6.0.0:
   dependencies:
     duplexer "^0.1.2"
 
-handlebars@^4.7.6:
+handlebars@^4.7.6, handlebars@^4.7.7:
   version "4.7.7"
   resolved "https://registry.yarnpkg.com/handlebars/-/handlebars-4.7.7.tgz#9ce33416aad02dbd6c8fafa8240d5d98004945a1"
   integrity sha512-aAcXm5OAfE/8IXkcZvCepKU3VzW1/39Fb5ZuqMtgI/hT8X2YgoMvBY5dLhq/cpOvw7Lk1nK/UF71aLG/ZnVYRA==
