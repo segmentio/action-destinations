@@ -55,16 +55,6 @@ const fetchProfileExternalIds = async (
   return externalIds
 }
 
-const form = (obj: Record<string, string>): string => {
-  const searchParams = new URLSearchParams()
-
-  for (const [key, value] of Object.entries(obj)) {
-    searchParams.set(key, value)
-  }
-
-  return searchParams.toString()
-}
-
 interface Profile {
   user_id?: string
   anonymous_id?: string
@@ -126,7 +116,7 @@ const action: ActionDefinition<Settings, Payload> = {
         authorization: `Basic ${token}`,
         'content-type': 'application/x-www-form-urlencoded;charset=UTF-8'
       },
-      body: form({
+      body: new URLSearchParams({
         Body: Handlebars.compile(payload.body)({ profile }),
         From: payload.fromNumber,
         To: profile.phone ?? '+17072478800'
