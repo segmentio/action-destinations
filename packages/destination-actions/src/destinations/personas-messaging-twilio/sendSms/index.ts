@@ -81,7 +81,14 @@ const action: ActionDefinition<Settings, Payload> = {
       label: 'User ID',
       description: 'User ID in Segment',
       type: 'string',
-      required: true
+      required: true,
+      default: {
+        '@if': {
+          exists: { '@path': '$.userId' },
+          then: { '@path': '$.userId' },
+          else: { '@path': '$.anonymousId' }
+        }
+      }
     },
     fromNumber: {
       label: 'From Number',
