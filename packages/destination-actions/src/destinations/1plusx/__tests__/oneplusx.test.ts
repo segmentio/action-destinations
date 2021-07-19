@@ -97,8 +97,7 @@ describe('1PlusX', () => {
         assetId: '12345',
         title: 'The Simpsons',
         genre: 'Comedy',
-        full_episode: 'true',
-        publisher: '{"id":"abc","network":"test-network"}'
+        full_episode: 'true'
       })
     })
 
@@ -258,8 +257,7 @@ describe('1PlusX', () => {
         url: 'https://segment.com/',
         path: '/',
         referrer: 'https://segment.com/warehouses',
-        name: 'Homepage',
-        page_info: '{"page_login_state":"logged out","page_content_id":"c1234-5678"}'
+        name: 'Homepage'
       })
     })
 
@@ -522,8 +520,7 @@ describe('1PlusX', () => {
         gender: 'male',
         first_name: 'John',
         last_name: 'Smith',
-        age: '40',
-        company: '{"name":"Segment","employees":1000}'
+        age: '40'
       })
     })
 
