@@ -170,7 +170,10 @@ const action: ActionDefinition<Settings, Payload> = {
       method: 'post',
       body: new URLSearchParams({
         api_key: settings.apiKey,
-        identification: JSON.stringify(payload)
+        identification: JSON.stringify({
+          ...payload,
+          library: 'segment'
+        })
       })
     })
   }

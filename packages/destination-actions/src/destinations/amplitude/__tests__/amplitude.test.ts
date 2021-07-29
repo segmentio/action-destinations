@@ -75,12 +75,14 @@ describe('Amplitude', () => {
           expect.objectContaining({
             event_type: 'Order Completed',
             revenue: 1_999,
-            event_properties: event.properties
+            event_properties: event.properties,
+            library: 'segment'
           }),
           expect.objectContaining({
             event_type: 'Product Purchased',
             // @ts-ignore i know what i'm doing
-            event_properties: event.properties.products[0]
+            event_properties: event.properties.products[0],
+            library: 'segment'
           })
         ])
       })
@@ -218,6 +220,48 @@ describe('Amplitude', () => {
             "undefined",
             "identification",
             "[{\\"group_properties\\":{\\"some-trait-key\\":\\"some-trait-value\\"},\\"group_value\\":\\"some-value\\",\\"group_type\\":\\"some-type\\",\\"library\\":\\"segment\\"}]",
+          ],
+          Symbol(context): null,
+        }
+      `)
+    })
+  })
+
+  describe('identifyUser', () => {
+    const event = createTestEvent({
+      anonymousId: 'some-anonymous-id',
+      timestamp: '2021-04-12T16:32:37.710Z',
+      type: 'group',
+      userId: 'some-user-id',
+      traits: {
+        'some-trait-key': 'some-trait-value'
+      }
+    })
+
+    const mapping = {
+      insert_id: 'some-insert-id',
+      group_type: 'some-type',
+      group_value: 'some-value'
+    }
+
+    it('should fire identify call to Amplitude', async () => {
+      nock('https://api.amplitude.com').post('/identify').reply(200, {})
+
+      const [response] = await testDestination.testAction('identifyUser', {
+        event,
+        mapping,
+        useDefaultMappings: true
+      })
+
+      expect(response.status).toBe(200)
+      expect(response.data).toMatchObject({})
+      expect(response.options.body).toMatchInlineSnapshot(`
+        URLSearchParams {
+          Symbol(query): Array [
+            "api_key",
+            "undefined",
+            "identification",
+            "{\\"user_id\\":\\"some-user-id\\",\\"device_id\\":\\"some-anonymous-id\\",\\"user_properties\\":{\\"some-trait-key\\":\\"some-trait-value\\"},\\"country\\":\\"United States\\",\\"city\\":\\"San Francisco\\",\\"language\\":\\"en-US\\",\\"insert_id\\":\\"some-insert-id\\",\\"library\\":\\"segment\\"}",
           ],
           Symbol(context): null,
         }

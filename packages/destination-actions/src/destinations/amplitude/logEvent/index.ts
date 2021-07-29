@@ -6,6 +6,7 @@ import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 
 interface AmplitudeEvent extends Omit<Payload, 'products' | 'trackRevenuePerProduct' | 'time' | 'session_id'> {
+  library?: string
   time?: number
   session_id?: number
 }
@@ -112,7 +113,8 @@ const action: ActionDefinition<Settings, Payload> = {
       {
         ...properties,
         // Conditionally track revenue with main event
-        ...(products.length && trackRevenuePerProduct ? {} : getRevenueProperties(payload))
+        ...(products.length && trackRevenuePerProduct ? {} : getRevenueProperties(payload)),
+        library: 'segment'
       }
     ]
 
@@ -123,7 +125,8 @@ const action: ActionDefinition<Settings, Payload> = {
         ...(trackRevenuePerProduct ? getRevenueProperties(product as EventRevenue) : {}),
         event_properties: product,
         event_type: 'Product Purchased',
-        insert_id: properties.insert_id ? `${properties.insert_id}-${events.length + 1}` : undefined
+        insert_id: properties.insert_id ? `${properties.insert_id}-${events.length + 1}` : undefined,
+        library: 'segment'
       })
     }
 
