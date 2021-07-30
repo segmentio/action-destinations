@@ -29,6 +29,7 @@ register('60ae8b97dcb6cc52d5d0d5ab', './google-enhanced-conversions')
 register('6101bf0e15772f7e12407fa9', './personas-messaging-sendgrid')
 register('5f7dd8191ad74f868ab1fc48', './pipedrive')
 register('5f7dd8e302173ff732db5cc4', './slack')
+register('salesforce', './salesforce')
 register('602efa1f249b9a5e2bf8a813', './twilio')
 
 function register(id: MetadataId, destinationPath: string) {
