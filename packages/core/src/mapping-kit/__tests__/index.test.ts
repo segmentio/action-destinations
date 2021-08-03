@@ -23,6 +23,12 @@ describe('validations', () => {
     expect(() => {
       transform({ a: 1, b: { '@path': '$.foo.bar' } })
     }).not.toThrow()
+    expect(() => {
+      transform({ '@literal': '123' })
+    }).not.toThrow()
+    expect(() => {
+      transform({ '@literal': false })
+    }).not.toThrow()
   })
 
   test('invalid', () => {
@@ -32,6 +38,9 @@ describe('validations', () => {
     expect(() => {
       transform({ oops: { '@merge': [{}, 123] } })
     }).toThrow()
+    expect(() => {
+      transform({ '@template': false }, {})
+    }).toThrow()
     // Further validation tests are in validate.test.js
   })
 })
@@ -39,11 +48,9 @@ describe('validations', () => {
 describe('payload validations', () => {
   test('invalid type', () => {
     expect(() => {
-      // @ts-expect-error
       transform({ a: 1 }, 123)
     }).toThrowError()
     expect(() => {
-      // @ts-expect-error
       transform({ a: 1 }, [])
     }).toThrowError()
   })

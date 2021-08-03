@@ -1,4 +1,5 @@
 export { Destination, fieldsToJsonSchema } from './destination-kit'
+export { getAuthData } from './destination-kit/parse-settings'
 export { transform } from './mapping-kit'
 export { createTestEvent } from './create-test-event'
 export { createTestIntegration } from './create-test-integration'
@@ -15,7 +16,9 @@ export type { RequestOptions } from './request-client'
 export { default as fetch, Request, Response, Headers } from './fetch'
 
 export type {
+  BaseActionDefinition,
   ActionDefinition,
+  BaseDefinition,
   DestinationDefinition,
   ExecuteInput,
   Subscription,

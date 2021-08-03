@@ -15,9 +15,9 @@
     "cli": "yarn workspace @segment/actions-cli",
     "core": "yarn workspace @segment/actions-core",
     "bootstrap": "lerna bootstrap",
-    "build": "npx segment generate:types && lerna run build --stream",
-    "types": "npx segment generate:types",
-    "lint": "eslint '**/*.ts' --max-warnings=10",
+    "build": "./bin/run generate:types && lerna run build --stream --ignore @segment/actions-cli",
+    "types": "./bin/run generate:types",
+    "lint": "eslint '**/*.ts' --cache",
     "test": "lerna run test --stream",
     "typecheck": "lerna run typecheck --stream"
   },
@@ -44,10 +44,10 @@
   },
   "lint-staged": {
     "**/src/destinations/**/index.ts": [
-      "npx segment generate:types"
+      "./bin/run generate:types"
     ],
     "!(templates)/**/*.ts": [
-      "eslint --fix",
+      "eslint --fix --cache",
       "prettier --write"
     ],
     "*.{yml,md,json}": [

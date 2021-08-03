@@ -1,4 +1,4 @@
-import type { ActionDefinition } from '@segment/actions-core'
+import { ActionDefinition, IntegrationError } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 import {
@@ -8,9 +8,9 @@ import {
   formatLastName,
   formatPhone,
   formatStreet,
-  formatRegion
+  formatRegion,
+  cleanData
 } from './formatter'
-import { pickBy } from 'lodash'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Post Conversion',
@@ -30,6 +30,7 @@ const action: ActionDefinition<Settings, Payload> = {
       description: 'Email address of the customer who triggered the conversion event.',
       type: 'string',
       required: true,
+      format: 'email',
       default: {
         '@if': {
           exists: { '@path': '$.properties.email' },
@@ -60,7 +61,7 @@ const action: ActionDefinition<Settings, Payload> = {
     conversion_time: {
       label: 'Conversion Time',
       description: 'Timestamp of the conversion event.',
-      type: 'string',
+      type: 'datetime',
       required: true,
       default: {
         '@path': '$.timestamp'
@@ -202,6 +203,14 @@ const action: ActionDefinition<Settings, Payload> = {
       country: payload.country
     })
 
+    if (!payload.email && !Object.keys(address).length) {
+      throw new IntegrationError(
+        'Either a valid email address or at least one address property (firstName, lastName, street, city, region, postalCode, or country) is required to send a valid conversion.',
+        'Missing required fields.',
+        400
+      )
+    }
+
     const pii_data = cleanData({
       hashed_email: formatEmail(payload.email),
       hashed_phone_number: [formatPhone(payload.phone_number)]
@@ -215,15 +224,6 @@ const action: ActionDefinition<Settings, Payload> = {
       }
     })
   }
-}
-
-/**
- * Removes all k:v pairs where the value is falsy.
- */
-function cleanData(data: Object) {
-  return pickBy(data, function (value) {
-    return value
-  })
 }
 
 export default action

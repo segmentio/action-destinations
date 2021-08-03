@@ -1,5 +1,5 @@
 import { JSONSchema4, JSONSchema4Type, JSONSchema4TypeName } from 'json-schema'
-import type { InputField, FieldTypeName } from './types'
+import type { InputField, FieldTypeName, Optional } from './types'
 
 function toJsonSchemaType(type: FieldTypeName): JSONSchema4TypeName | JSONSchema4TypeName[] {
   switch (type) {
@@ -14,7 +14,9 @@ function toJsonSchemaType(type: FieldTypeName): JSONSchema4TypeName | JSONSchema
   }
 }
 
-export function fieldsToJsonSchema(fields: Record<string, InputField> = {}): JSONSchema4 {
+type MinimalInputField = Optional<InputField, 'description'>
+
+export function fieldsToJsonSchema(fields: Record<string, MinimalInputField> = {}): JSONSchema4 {
   const required: string[] = []
   const properties: Record<string, JSONSchema4> = {}
 

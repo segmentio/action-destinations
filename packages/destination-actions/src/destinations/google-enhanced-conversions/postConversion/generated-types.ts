@@ -20,7 +20,7 @@ export interface Payload {
   /**
    * Timestamp of the conversion event.
    */
-  conversion_time: string
+  conversion_time: string | number
   /**
    * The monetary value attributed to the conversion event.
    */

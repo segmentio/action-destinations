@@ -37,7 +37,9 @@ describe('GoogleEnhancedConversions', () => {
         event,
         mapping: { conversion_label: conversionLabel },
         useDefaultMappings: true,
-        settings: { conversionTrackingId }
+        settings: {
+          conversionTrackingId
+        }
       })
 
       expect(responses[0].options.body).toMatchInlineSnapshot(

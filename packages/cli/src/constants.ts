@@ -1,5 +1,4 @@
-// @ts-ignore it's ok shhh
-import { DestinationMetadataOption } from './lib/control-plane-service'
+import type { DestinationMetadataOption } from './lib/control-plane-service'
 
 export const RESERVED_FIELD_NAMES = [
   'oauth',
@@ -9,7 +8,14 @@ export const RESERVED_FIELD_NAMES = [
   'acccess_token',
   'refresh-token',
   'refresh_token',
-  'token_type'
+  'token_type',
+  'apikey',
+  'apisecret',
+  'clientsecret',
+  'password',
+  'secretkey',
+  'secret',
+  'securitytoken'
 ]
 
 export const OAUTH_SCHEME = 'oauth2'
@@ -65,19 +71,4 @@ export const OAUTH_OPTIONS: DestinationMetadataOption = {
       }
     }
   ]
-}
-
-export const OAUTH_GENERATE_TYPES = {
-  accessToken: {
-    label: 'Access Token',
-    type: 'string',
-    required: true,
-    description: 'Token issued by the partner API after verifying the identity of the user account'
-  },
-  refreshToken: {
-    label: 'Refresh Token',
-    type: 'string',
-    description:
-      'Token provided by the partner API that can be used to request a fresh access token from the authorization server'
-  }
 }

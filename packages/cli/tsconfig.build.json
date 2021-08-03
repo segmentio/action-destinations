@@ -15,8 +15,8 @@
     "strictPropertyInitialization": false,
     "experimentalDecorators": true,
     "skipLibCheck": true,
-    "importHelpers": true,
-    "outDir": "dist"
+    "outDir": "dist",
+    "importHelpers": true
   },
   "exclude": ["**/__tests__/**/*.ts"],
   "include": ["src"]

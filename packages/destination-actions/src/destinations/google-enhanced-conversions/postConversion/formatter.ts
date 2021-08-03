@@ -1,51 +1,95 @@
 import { createHash } from 'crypto'
 
-export function formatEmail(email: String): String {
-  // Emails must be all lowercase.
-  let lowerCaseEmail = email.toLowerCase()
+/**
+ * Acceptable data types for k:v pairs.
+ */
+type DataValues = Record<string, string | string[] | number | undefined>
 
-  // We have to remove periods before the '@' for all @gmail.com and @googlemail.com email addresses.
-  if (lowerCaseEmail.indexOf('gmail') > -1 || lowerCaseEmail.indexOf('googlemail')) {
-    const [name, domain] = lowerCaseEmail.split('@')
-    const nameNoPeriods = name.replace(/\./g, '')
-    lowerCaseEmail = `${nameNoPeriods}@${domain}`
+/**
+ * Removes all k:v pairs where the value is falsy.
+ */
+export function cleanData(data: DataValues): { [key: string]: unknown } {
+  if (data == null) {
+    return {}
   }
-
-  return createHash('sha256').update(lowerCaseEmail).digest('base64')
+  const obj: { [key: string]: unknown } = {}
+  for (const key in data) {
+    const value = data[key]
+    if (Array.isArray(value)) {
+      // remove empty entries
+      const filtered = value.filter((item) => item)
+      if (filtered.length !== 0) {
+        obj[key] = filtered
+      }
+    } else if (value) {
+      obj[key] = value
+    }
+  }
+  return obj
 }
 
-export function formatPhone(phone?: String): String {
+/**
+ * Convert emails to lower case, remove all spaces, and remove all "." before the "@".
+ */
+export function formatEmail(email: string): string {
+  let formattedEmail
+  if (email.toLowerCase().search('@gmail') > -1 || email.toLowerCase().search('@googlemail.com') > -1) {
+    // remove all spaces + lower case output
+    formattedEmail = email.toLowerCase().replace(/ /g, '')
+
+    // remove all periods before the "@"
+    const name = formattedEmail.substr(0, formattedEmail.indexOf('@')).replace(/\./g, '')
+    const domain = formattedEmail.substr(formattedEmail.indexOf('@'), formattedEmail.length)
+    return hashAndEncode(name.concat(domain))
+  } else {
+    return hashAndEncode(email.toLowerCase().replace(/ /g, ''))
+  }
+}
+
+/**
+ * Convert string to match E.164 phone number pattern (e.g. +1234567890)
+ * Note it is up to the advertiser to pass only valid phone numbers and formats.
+ * This function assumes the input is a correctly formatted phone number maximum of 14 characters long with country code included in the input.
+ */
+export function formatPhone(phone?: string): string {
   if (!phone) return ''
-  return createHash('sha256')
-    .update(`+${phone.replace(/[^0-9]/g, '')}`)
-    .digest('base64')
+
+  const validatedPhone = phone.match(/[0-9]{0,14}/g)
+  if (validatedPhone === null) {
+    throw new Error(`${phone} is not a valid E.164 phone number.`)
+  }
+  // Remove spaces and non-digits; append + to the beginning
+  let formattedPhone = `+${phone.replace(/[^0-9]/g, '')}`
+  // Limit length to 15 characters
+  formattedPhone = formattedPhone.substring(0, 15)
+  return hashAndEncode(formattedPhone)
 }
 
-export function formatFirstName(firstName?: String): String {
+export function formatFirstName(firstName?: string): string {
   if (!firstName) return ''
-  return createHash('sha256')
-    .update(firstName.toLowerCase().replace(/[^a-z]/g, ''))
-    .digest('base64')
+  return hashAndEncode(firstName.toLowerCase().replace(/[^a-z]/g, ''))
 }
 
-export function formatLastName(lastName?: String): String {
+export function formatLastName(lastName?: string): string {
   if (!lastName) return ''
-  return createHash('sha256')
-    .update(lastName.toLowerCase().replace(/[^a-z]/g, ''))
-    .digest('base64')
+  return hashAndEncode(lastName.toLowerCase().replace(/[^a-z]/g, ''))
 }
 
-export function formatStreet(street?: String): String {
+export function formatStreet(street?: string): string {
   if (!street) return ''
-  return createHash('sha256').update(street.toLowerCase()).digest('base64')
+  return hashAndEncode(street.toLowerCase())
 }
 
-export function formatCity(city?: String): String {
+export function formatCity(city?: string): string {
   if (!city) return ''
   return city.toLowerCase().replace(/[^a-z]/g, '')
 }
 
-export function formatRegion(region?: String): String {
+export function formatRegion(region?: string): string {
   if (!region) return ''
   return region.toLowerCase().replace(/[^a-z]/g, '')
+}
+
+function hashAndEncode(property: string) {
+  return createHash('sha256').update(property).digest('base64')
 }

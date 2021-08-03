@@ -76,6 +76,11 @@ registerStringDirective('@template', (template: string, payload) => {
   return render(template, payload)
 })
 
+// Literal should be used in place of 'empty' template strings as they will not resolve correctly
+registerDirective('@literal', (value) => {
+  return value
+})
+
 /**
  * Resolves a mapping value/object by applying the input payload based on directives
  * *WARNING* This function mutates `mapping` when an object
@@ -108,19 +113,19 @@ function resolve(mapping: JSONLike, payload: JSONObject): JSONLike {
  * Validates and transforms a mapping by applying the input payload
  * based on the directives and raw values defined in the mapping object
  * @param mapping - the directives and raw values
- * @param payload - the input data to apply to directives
+ * @param data - the input data to apply to directives
  */
-export function transform(mapping: JSONLikeObject, payload: JSONObject = {}): JSONObject {
-  const payloadType = realTypeOf(payload)
-  if (payloadType !== 'object') {
-    throw new Error(`payload must be an object, got ${payloadType}`)
+export function transform(mapping: JSONLikeObject, data: unknown = {}): JSONObject {
+  const realType = realTypeOf(data)
+  if (realType !== 'object') {
+    throw new Error(`payload must be an object, got ${realType}`)
   }
 
   // throws if the mapping config is invalid
   validate(mapping)
 
   const cloned = cloneJson(mapping)
-  const resolved = resolve(cloned, payload)
+  const resolved = resolve(cloned, data as JSONObject)
   const cleaned = removeUndefined(resolved)
 
   // Cast because we know there are no `undefined` values anymore

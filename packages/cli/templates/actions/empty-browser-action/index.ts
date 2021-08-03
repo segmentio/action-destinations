@@ -6,6 +6,7 @@ import type { Payload } from './generated-types'
 const action: BrowserActionDefinition<Settings, unknown, Payload> = {
   title: '{{name}}',
   description: '{{description}}',
+  platform: 'web',
   fields: {},
   perform: (_client) => {
     // Invoke Partner SDK here

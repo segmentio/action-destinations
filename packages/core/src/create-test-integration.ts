@@ -4,6 +4,7 @@ import { mapValues } from './map-values'
 import type { DestinationDefinition } from './destination-kit'
 import type { JSONObject } from './json-object'
 import type { SegmentEvent } from './segment-event'
+import { AuthTokens } from './destination-kit/parse-settings'
 
 interface InputData<Settings> {
   /**
@@ -28,6 +29,7 @@ interface InputData<Settings> {
    * Set to `true` if you want to test the defaultMappings (along with any mapping passed in)
    */
   useDefaultMappings?: boolean
+  auth?: AuthTokens
 }
 
 class TestDestination<T> extends Destination<T> {
@@ -40,7 +42,7 @@ class TestDestination<T> extends Destination<T> {
   /** Testing method that runs an action e2e while allowing slightly more flexible inputs */
   async testAction(
     action: string,
-    { event, mapping, settings, useDefaultMappings }: InputData<T>
+    { event, mapping, settings, useDefaultMappings, auth }: InputData<T>
   ): Promise<Destination['responses']> {
     mapping = mapping ?? {}
 
@@ -53,7 +55,8 @@ class TestDestination<T> extends Destination<T> {
     await super.executeAction(action, {
       event: createTestEvent(event),
       mapping,
-      settings: settings ?? ({} as T)
+      settings: settings ?? ({} as T),
+      auth
     })
 
     const responses = this.responses

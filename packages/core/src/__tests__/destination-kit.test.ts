@@ -4,6 +4,7 @@ import { SegmentEvent } from '../segment-event'
 
 const destinationCustomAuth: DestinationDefinition<JSONObject> = {
   name: 'Google Analytics 4',
+  mode: 'cloud',
   authentication: {
     scheme: 'custom',
     fields: {
@@ -33,6 +34,7 @@ const destinationCustomAuth: DestinationDefinition<JSONObject> = {
 
 const destinationOAuth2: DestinationDefinition<JSONObject> = {
   name: 'Google Analytics 4',
+  mode: 'cloud',
   authentication: {
     scheme: 'oauth2',
     fields: {
@@ -114,23 +116,24 @@ describe('destination kit', () => {
       }
 
       const res = await destinationTest.onEvent(testEvent, testSettings)
-      expect(res).toEqual([
-        { output: 'MapInput completed', error: null },
-        { output: 'Validate completed', error: null },
-        { output: 'this is a test', error: null }
-      ])
+      expect(res).toEqual([{ output: 'Mappings resolved' }, { output: 'this is a test' }])
     })
   })
 
   describe('refresh token', () => {
     test('should throw a `NotImplemented` error', async () => {
       const destinationTest = new Destination(destinationCustomAuth)
-      const testSettings = { subscription: { subscribe: '', partnerAction: 'customEvent' } }
+      const testSettings = {
+        subscription: { subscribe: '', partnerAction: 'customEvent' }
+      }
+      const oauthData = {
+        accessToken: 'test-access-token',
+        refreshToken: 'refresh-token',
+        clientId: 'test-clientid',
+        clientSecret: 'test-clientsecret'
+      }
       try {
-        await destinationTest.refreshAccessToken(testSettings, {
-          clientId: 'test-clientid',
-          clientSecret: 'test-clientsecret'
-        })
+        await destinationTest.refreshAccessToken(testSettings, oauthData)
         fail('test should have thrown a NotImplemented error')
       } catch (e) {
         expect(e.status).toEqual(501)
@@ -141,11 +144,16 @@ describe('destination kit', () => {
 
     test('should throw a `NotImplemented` error', async () => {
       const destinationTest = new Destination(destinationOAuth2)
-      const testSettings = { subscription: { subscribe: 'type = "track"', partnerAction: 'customEvent' } }
-      const res = await destinationTest.refreshAccessToken(testSettings, {
+      const testSettings = {
+        subscription: { subscribe: 'type = "track"', partnerAction: 'customEvent' }
+      }
+      const oauthData = {
+        accessToken: 'test-access-token',
+        refreshToken: 'refresh-token',
         clientId: 'test-clientid',
         clientSecret: 'test-clientsecret'
-      })
+      }
+      const res = await destinationTest.refreshAccessToken(testSettings, oauthData)
 
       expect(res).toEqual({ accessToken: 'fresh-token' })
     })

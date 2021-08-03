@@ -14,7 +14,7 @@ export function format(code: string): string {
 /**
  * Modifies a property of the default export with a new key
  */
-export function addKeyToDefaultExport(code: string, property: string, variableName: string) {
+export function addKeyToExport(code: string, exportName: string, property: string, variableName: string) {
   const root = j(code)
 
   const newProperty = j.property.from({
@@ -25,15 +25,25 @@ export function addKeyToDefaultExport(code: string, property: string, variableNa
   })
 
   const defaultExport = root.find(j.ExportDefaultDeclaration)
-  if (!defaultExport.length) {
-    throw new Error('Could not parse default export.')
+  if (!defaultExport.length && exportName === 'default') {
+    throw new Error('Could not parse "default" export.')
   }
 
-  let objectToModify = defaultExport.get().node.declaration
-  if (objectToModify.type === 'Identifier') {
+  const namedExport = root.find(j.ExportNamedDeclaration, {
+    declaration: {
+      type: 'VariableDeclaration',
+      declarations: [{ type: 'VariableDeclarator', id: { type: 'Identifier', name: exportName } }]
+    }
+  })
+  if (!namedExport.length && exportName !== 'default') {
+    throw new Error(`Could not parse "${exportName}" export.`)
+  }
+
+  let objectToModify = (exportName === 'default' ? defaultExport : namedExport).get().node.declaration
+  if (objectToModify.type !== 'ObjectExpression') {
     // We need to find the original variable to modify
     const exportedVar = root.find(j.VariableDeclaration, {
-      declarations: [{ id: { type: 'Identifier', name: objectToModify.name } }]
+      declarations: [{ id: { type: 'Identifier', name: objectToModify.name ?? exportName } }]
     })
     if (!exportedVar.length) {
       throw new Error('Unable to find exported variable to modify.')
@@ -43,10 +53,10 @@ export function addKeyToDefaultExport(code: string, property: string, variableNa
   }
 
   if (objectToModify.type !== 'ObjectExpression') {
-    throw new Error(`Invalid default export type: "${objectToModify.type}"`)
+    throw new Error(`Invalid export type: "${objectToModify.type}"`)
   }
 
-  // Make sure the object doesn't already have th property
+  // Make sure the object doesn't already have the property
   // eslint-disable-next-line @typescript-eslint/no-unsafe-call, @typescript-eslint/no-explicit-any
   const existingProperty = objectToModify.properties.find((props: any) => props.key.name === property)
   if (existingProperty) {

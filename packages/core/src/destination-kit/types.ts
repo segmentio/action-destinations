@@ -1,5 +1,26 @@
 import type { RequestOptions } from '../request-client'
-import type { ExecuteInput } from './step'
+import type { JSONObject } from '../json-object'
+import { AuthTokens } from './parse-settings'
+
+export type Optional<T, K extends keyof T> = Pick<Partial<T>, K> & Omit<T, K>
+
+export interface Result {
+  output?: JSONObject | string | null | undefined
+  error?: JSONObject | null
+}
+
+export interface ExecuteInput<Settings, Payload> {
+  /** The subscription mapping definition */
+  readonly mapping?: JSONObject
+  /** The global destination settings */
+  readonly settings: Settings
+  /** The transformed input data, based on `mapping` + `event` */
+  payload: Payload
+  /** The page used in dynamic field requests */
+  page?: string
+  /** The data needed in OAuth requests */
+  readonly auth?: AuthTokens
+}
 
 export interface DynamicFieldResponse {
   body: {
@@ -44,7 +65,7 @@ export interface InputField {
    * Note: this part of the schema is not persisted outside the code
    * but is used for validation and typedefs
    */
-  properties?: Record<string, InputField>
+  properties?: Record<string, Optional<InputField, 'description'>>
   /**
    * Format option to specify more nuanced 'string' types
    * @see {@link https://github.com/ajv-validator/ajv/tree/v6#formats}

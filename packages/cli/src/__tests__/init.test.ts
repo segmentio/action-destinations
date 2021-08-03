@@ -1,3 +1,13 @@
+const ogTimeout = global.setTimeout
+// @ts-expect-error
+jest.spyOn(global, 'setTimeout').mockImplementation(function (handler, delay) {
+  // eslint-disable-next-line @typescript-eslint/no-implied-eval
+  ogTimeout(handler, delay)
+  return {
+    unref: jest.fn()
+  }
+})
+
 import { test } from '@oclif/test'
 import * as fs from 'fs'
 import * as path from 'path'

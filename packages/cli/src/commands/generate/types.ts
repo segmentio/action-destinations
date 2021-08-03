@@ -1,5 +1,7 @@
 import { Command, flags } from '@oclif/command'
-import { fieldsToJsonSchema, InputField } from '@segment/actions-core'
+import { fieldsToJsonSchema } from '@segment/actions-core'
+import type { InputField, DestinationDefinition as CloudDestinationDefinition } from '@segment/actions-core'
+import type { BrowserDestinationDefinition } from '@segment/browser-destinations'
 import chokidar from 'chokidar'
 import fs from 'fs-extra'
 import globby from 'globby'
@@ -7,8 +9,8 @@ import { JSONSchema4 } from 'json-schema'
 import { compile } from 'json-schema-to-typescript'
 import path from 'path'
 import prettier from 'prettier'
-import { loadDestination } from '../../lib/destinations'
-import { OAUTH_GENERATE_TYPES, OAUTH_SCHEME, RESERVED_FIELD_NAMES } from '../../constants'
+import { loadDestination, hasOauthAuthentication } from '../../lib/destinations'
+import { RESERVED_FIELD_NAMES } from '../../constants'
 
 const pretterOptions = prettier.resolveConfig.sync(process.cwd())
 
@@ -16,8 +18,8 @@ export default class GenerateTypes extends Command {
   static description = `Generates TypeScript definitions for an integration.`
 
   static examples = [
-    `$ segment generate:types`,
-    `$ segment generate:types --path ./packages/*/src/destinations/*/index.ts`
+    `$ ./bin/run generate:types`,
+    `$ ./bin/run generate:types --path ./packages/*/src/destinations/*/index.ts`
   ]
 
   // Allow variable length args (to work with tools like lint-staged)
@@ -96,19 +98,21 @@ export default class GenerateTypes extends Command {
 
     const stats = fs.statSync(file)
     const parentDir = stats.isDirectory() ? file : path.dirname(file)
-    let authFields = destination.authentication?.fields
-    if (authFields) {
-      for (const key in authFields) {
+
+    const settings = {
+      ...(destination as BrowserDestinationDefinition).settings,
+      ...(destination as CloudDestinationDefinition).authentication?.fields
+    }
+
+    if (settings && hasOauthAuthentication(destination)) {
+      for (const key in settings) {
         if (RESERVED_FIELD_NAMES.includes(key.toLowerCase())) {
           throw new Error(`Field definition in destination ${destination.name} is using a reserved name: ${key}`)
         }
       }
     }
 
-    if (destination.authentication?.scheme === OAUTH_SCHEME) {
-      authFields = Object.assign({ ...OAUTH_GENERATE_TYPES }, { ...authFields })
-    }
-    const types = await generateTypes(authFields, 'Settings')
+    const types = await generateTypes(settings, 'Settings')
     fs.writeFileSync(path.join(parentDir, './generated-types.ts'), types)
 
     // TODO how to load directory structure consistently?
