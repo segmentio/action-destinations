@@ -3,20 +3,23 @@ import type { Settings } from './generated-types'
 
 const destination: DestinationDefinition<Settings> = {
   name: '{{name}}',
+  slug: '{{slug}}',
+  mode: 'cloud',
+
   authentication: {
     scheme: 'oauth2',
     fields: {},
     testAuthentication: (_request) => {
       // Return a request that tests/validates the user's credentials here
     },
-    refreshAccessToken: async (request, { settings }, oauthConfig) => {
+    refreshAccessToken: async (request, { auth }) => {
       // Return a request that refreshes the access_token if the API supports it
       const res = await request('https://www.example.com/oauth/refresh', {
         method: 'POST',
         body: new URLSearchParams({
-          refresh_token: settings.refreshToken,
-          client_id: oauthConfig.clientId,
-          client_secret: oauthConfig.clientSecret,
+          refresh_token: auth.refreshToken,
+          client_id: auth.clientId,
+          client_secret: auth.clientSecret,
           grant_type: 'refresh_token'
         })
       })
@@ -24,13 +27,14 @@ const destination: DestinationDefinition<Settings> = {
       return { accessToken: res.body.access_token }
     }
   },
-  extendRequest({ settings }) {
+  extendRequest({ auth }) {
     return {
       headers: {
-        authorization: `Bearer ${settings.accessToken}`
+        authorization: `Bearer ${auth?.accessToken}`
       }
     }
   },
+
   actions: {}
 }
 

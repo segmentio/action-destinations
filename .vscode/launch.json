@@ -6,12 +6,31 @@
   "configurations": [
     {
       "type": "node",
+      "request": "launch",
+      "name": "Start dev server",
+      "cwd": "${workspaceFolder}",
+      "runtimeExecutable": "yarn",
+      "runtimeArgs": ["server", "dev"],
+      "restart": true,
+      "console": "integratedTerminal",
+      "port": 47082,
+      "skipFiles": ["<node_internals>/**"]
+    },
+    {
+      "type": "node",
       "request": "attach",
       "name": "Attach to running server",
       "restart": true,
       "address": "localhost",
       "port": 47082,
       "skipFiles": ["<node_internals>/**"]
+    },
+    {
+      "type": "node",
+      "request": "launch",
+      "name": "Run CLI",
+      "program": "${workspaceFolder}/packages/cli/bin/run",
+      "args": ["generate:action", "testy", "-t", "Testy", "-d", "./packages/destination-actions/src/destinations/testy"]
     },
     // Launches Jest tests in debug mode
     // Simply drop a breakpoint and wait for the debugger to pick it up

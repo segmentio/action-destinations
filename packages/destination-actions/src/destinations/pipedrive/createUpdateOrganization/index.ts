@@ -36,21 +36,12 @@ const action: ActionDefinition<Settings, Payload> = {
     }
   },
 
-  cachedFields: {
-    organizationId: {
-      ttl: 60,
-      key: ({ payload }) => payload.identifier,
-      value: async (request, { payload, settings }) => {
-        const search = await request(`https://${settings.domain}.pipedrive.com/api/v1/organizations/search`, {
-          searchParams: { term: payload.identifier }
-        })
-        return get(search.data, 'data.items[0].item.id')
-      }
-    }
-  },
+  perform: async (request, { payload, settings }) => {
+    const search = await request(`https://${settings.domain}.pipedrive.com/api/v1/organizations/search`, {
+      searchParams: { term: payload.identifier }
+    })
 
-  perform: (request, { payload, settings, cachedFields }) => {
-    const organizationId = cachedFields.organizationId
+    const organizationId = get(search.data, 'data.items[0].item.id')
 
     const organization = {
       name: payload.name,

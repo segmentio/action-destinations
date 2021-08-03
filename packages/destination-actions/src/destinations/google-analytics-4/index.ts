@@ -8,9 +8,21 @@ import selectItem from './selectItem'
 import beginCheckout from './beginCheckout'
 import selectPromotion from './selectPromotion'
 import viewItem from './viewItem'
+import search from './search'
+import viewItemList from './viewItemList'
+import signUp from './signUp'
+import viewPromotion from './viewPromotion'
+import viewCart from './viewCart'
+import login from './login'
+import generateLead from './generateLead'
+import addToWishlist from './addToWishlist'
+import addPaymentInfo from './addPaymentInfo'
+import refund from './refund'
+import removeFromCart from './removeFromCart'
 
 const destination: DestinationDefinition<Settings> = {
   name: 'Google Analytics 4',
+  mode: 'cloud',
   authentication: {
     scheme: 'custom',
     fields: {
@@ -51,7 +63,18 @@ const destination: DestinationDefinition<Settings> = {
     selectItem,
     beginCheckout,
     selectPromotion,
-    viewItem
+    viewItem,
+    removeFromCart,
+    viewCart,
+    search,
+    viewItemList,
+    signUp,
+    viewPromotion,
+    addPaymentInfo,
+    refund,
+    login,
+    generateLead,
+    addToWishlist
   }
 }
 

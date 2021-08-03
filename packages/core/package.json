@@ -1,22 +1,24 @@
 {
   "name": "@segment/actions-core",
   "description": "Core runtime for Destinations Actions.",
-  "version": "2.2.1",
+  "version": "3.0.0",
   "repository": {
     "type": "git",
-    "url": "https://github.com/segmentio/action-destinations",
+    "url": "https://github.com/segmentio/fab-5-engine",
     "directory": "packages/core"
   },
-  "main": "dist/cjs/index.js",
-  "module": "dist/esm/index.js",
+  "main": "dist/cjs",
+  "module": "dist/esm",
   "exports": {
     ".": {
       "require": "./dist/cjs/index.js",
-      "default": "./dist/esm/index.js"
+      "import": "./dist/esm/index.js",
+      "default": "./dist/cjs/index.js"
     },
-    "./": {
-      "require": "./dist/cjs/",
-      "default": "./dist/esm/"
+    "./mapping-kit": {
+      "require": "./dist/cjs/mapping-kit/index.js",
+      "import": "./dist/esm/mapping-kit/index.js",
+      "default": "./dist/cjs/mapping-kit/index.js"
     }
   },
   "types": "dist/esm/index.d.ts",
@@ -24,6 +26,9 @@
     "dist",
     "package.json"
   ],
+  "engines": {
+    "node": "^14.16"
+  },
   "engineStrict": true,
   "license": "UNLICENSED",
   "publishConfig": {
@@ -59,7 +64,6 @@
     "btoa-lite": "^1.0.0",
     "cross-fetch": "^3.1.4",
     "dayjs": "^1.10.4",
-    "node-cache": "^5.1.2",
     "ts-custom-error": "^3.2.0"
   },
   "jest": {

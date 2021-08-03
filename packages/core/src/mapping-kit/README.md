@@ -61,6 +61,7 @@ Output:
   - [@if](#if)
   - [@path](#path)
   - [@template](#template)
+  - [@literal](#literal)
 
 <!-- tocstop -->
 
@@ -203,7 +204,7 @@ Valid:
 Mapping configurations can be validated using JSON Schema. The [test
 suite][schema.test.js] is a good source-of-truth for current implementation behavior.
 
-[schema.test.js]: https://github.com/segmentio/action-destinations/blob/master/packages/destination-actions/src/lib/mapping-kit/__tests__
+[schema.test.js]: https://github.com/segmentio/fab-5-engine/blob/master/packages/destination-actions/src/lib/mapping-kit/__tests__
 
 ## Options
 
@@ -430,4 +431,16 @@ Mappings:
 { "@template": "Hello, {{traits.fullName}}!" } => "Hello, !"
 
 { "@template": "{{traits.name}} ({{userId}})" } => "Mr.Rogers (abc123)"
+```
+
+### @literal
+
+The @literal directive resolves to the value with no modification. This is needed primarily to work around literal values being interpreted incorrectly as invalid templates.
+
+```json
+Input:
+n/a
+
+Mappings:
+{ "@literal": true } => true
 ```

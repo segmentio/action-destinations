@@ -2,9 +2,9 @@ import { Command, flags } from '@oclif/command'
 import chalk from 'chalk'
 import ora from 'ora'
 import path from 'path'
-import slugify from 'slugify'
 import toTitleCase from 'to-title-case'
 import { autoPrompt } from '../lib/prompt'
+import { generateSlug } from '../lib/slugs'
 import { renderTemplates } from '../lib/templates'
 import GenerateTypes from './generate/types'
 
@@ -14,8 +14,8 @@ export default class Init extends Command {
   static description = `Scaffolds a new integration with a template. This does not register or deploy the integration.`
 
   static examples = [
-    `$ segment init my-integration`,
-    `$ segment init my-integration --directory packages/destination-actions --template basic-auth`
+    `$ ./bin/run init my-integration`,
+    `$ ./bin/run init my-integration --directory packages/destination-actions --template basic-auth`
   ]
 
   static flags = {
@@ -58,9 +58,9 @@ export default class Init extends Command {
         type: 'text',
         name: 'slug',
         // @ts-ignore the types are wrong
-        initial: (prev) => slugify(flags.name || prev).toLowerCase(),
+        initial: (prev) => generateSlug(`actions-${flags.name || prev}`),
         message: 'Integration slug:',
-        format: (val) => slugify(val).toLowerCase()
+        format: (val) => generateSlug(val)
       },
       {
         type: 'select',
@@ -101,11 +101,10 @@ export default class Init extends Command {
       this.exit()
     }
 
-    // eslint-disable-next-line prefer-const
     let directory = answers.directory
-    // if (template === 'browser' && directory === Init.flags.directory.default) {
-    //   directory = './packages/browser-destinations/src/destinations'
-    // }
+    if (template === 'browser' && directory === Init.flags.directory.default) {
+      directory = './packages/browser-destinations/src/destinations'
+    }
 
     // For now, include the slug in the path, but when we support external repos, we'll have to change this
     const relativePath = path.join(directory, args.path || slug)

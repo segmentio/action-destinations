@@ -1,52 +1,55 @@
 import { Destination, DestinationDefinition } from '@segment/actions-core'
-import amplitude from './amplitude'
-import customerio from './customerio'
-import pipedrive from './pipedrive'
-import slack from './slack'
-import twilio from './twilio'
-import googleAnalytics4 from './google-analytics-4'
-import googleEnhancedConversions from './google-enhanced-conversions'
+import path from 'path'
 
-/**
- * To use register an integration in the `integrations` service,
- * you'll need to add it to the `destinations` export (and corresponding types)
- * as well as the `idToSlug` with the corresponding production id.
- *
- * To test in staging, the ids should match across environments. Typically this is handled by
- * creating the destination in production and syncing those definitions to staging with `sprout`.
- */
-export type ActionDestinationSlug =
-  | 'amplitude'
-  | 'customerio'
-  | 'pipedrive'
-  | 'slack'
-  | 'twilio'
-  | 'google-analytics-4'
-  | 'google-enhanced-conversions'
+type MetadataId = string
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-export const destinations: Record<ActionDestinationSlug, DestinationDefinition<any>> = {
-  amplitude,
-  customerio,
-  pipedrive,
-  slack,
-  twilio,
-  'google-analytics-4': googleAnalytics4,
-  'google-enhanced-conversions': googleEnhancedConversions
+interface ManifestEntry {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  definition: DestinationDefinition<any>
+  directory: string
+  path: string
 }
 
-export const idToSlug: Record<string, string> = {
-  '5f7dd6d21ad74f3842b1fc47': 'amplitude',
-  '5f7dd78fe27ce7ff2b8bfa37': 'customerio',
-  '5f7dd8191ad74f868ab1fc48': 'pipedrive',
-  '5f7dd8e302173ff732db5cc4': 'slack',
-  '602efa1f249b9a5e2bf8a813': 'twilio',
-  '60ad61f9ff47a16b8fb7b5d9': 'google-analytics-4',
-  '60ae8b97dcb6cc52d5d0d5ab': 'google-enhanced-conversions'
+export const destinations: Record<string, DestinationDefinition> = {}
+export const manifest: Record<MetadataId, ManifestEntry> = {}
+
+/**
+ * Register destinations below to make it available in this package's
+ * `destinations` and `manifest` exports used by the `integrations` service
+ *
+ * To test in staging, the ids should match across environments.
+ * It is recommended that you register/create destination definitions
+ * in production and sync them into staging via `sprout`.
+ */
+register('5f7dd6d21ad74f3842b1fc47', './amplitude')
+register('60f9d0d048950c356be2e4da', './braze')
+register('5f7dd78fe27ce7ff2b8bfa37', './customerio')
+register('60ad61f9ff47a16b8fb7b5d9', './google-analytics-4')
+register('60ae8b97dcb6cc52d5d0d5ab', './google-enhanced-conversions')
+register('6101bf0e15772f7e12407fa9', './personas-messaging-sendgrid')
+register('5f7dd8191ad74f868ab1fc48', './pipedrive')
+register('5f7dd8e302173ff732db5cc4', './slack')
+register('602efa1f249b9a5e2bf8a813', './twilio')
+
+function register(id: MetadataId, destinationPath: string) {
+  // eslint-disable-next-line @typescript-eslint/no-var-requires
+  const definition = require(destinationPath).default
+  const resolvedPath = require.resolve(destinationPath)
+  const [directory] = path.dirname(resolvedPath).split(path.sep).reverse()
+
+  manifest[id] = {
+    definition,
+    directory,
+    path: resolvedPath
+  }
+
+  // add to `destinations` export as well (for backwards compatibility)
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  destinations[directory] = definition as DestinationDefinition<any>
 }
 
 /** Attempts to load a destination definition from a given file path */
-export async function getDestinationLazy(slug: string): Promise<null | DestinationDefinition> {
+async function getDestinationLazy(slug: string): Promise<null | DestinationDefinition> {
   const destination = await import(`./${slug}`).then((mod) => mod.default)
 
   // Loose validation on a destination definition
@@ -57,17 +60,27 @@ export async function getDestinationLazy(slug: string): Promise<null | Destinati
   return destination
 }
 
-export async function getDestinationBySlug(slug: string): Promise<Destination> {
-  const destination = destinations[slug as ActionDestinationSlug] ?? (await getDestinationLazy(slug))
+async function getDestinationByPathKey(key: string): Promise<Destination | null> {
+  const destination = destinations[key] ?? (await getDestinationLazy(key))
 
   if (!destination) {
-    throw new Error('Destination not found')
+    return null
   }
 
-  return new Destination(destination)
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  return new Destination(destination as DestinationDefinition<any>)
 }
 
-export async function getDestinationByIdOrSlug(idOrSlug: string): Promise<Destination> {
-  const slug = idToSlug[idOrSlug] ?? idOrSlug
-  return getDestinationBySlug(slug)
+export async function getDestinationById(id: string): Promise<Destination | null> {
+  const destination = manifest[id]
+
+  if (!destination?.definition) {
+    return null
+  }
+
+  return new Destination(destination.definition)
+}
+
+export async function getDestinationByIdOrKey(idOrPathKey: string): Promise<Destination | null> {
+  return getDestinationById(idOrPathKey) ?? getDestinationByPathKey(idOrPathKey)
 }

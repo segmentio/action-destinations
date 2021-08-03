@@ -8,7 +8,7 @@ import ora from 'ora'
 import path from 'path'
 import { autoPrompt } from '../../lib/prompt'
 import { renderTemplates } from '../../lib/templates'
-import { addKeyToDefaultExport } from '../../lib/codemods'
+import { addKeyToExport } from '../../lib/codemods'
 import GenerateTypes from './types'
 
 export default class GenerateAction extends Command {
@@ -17,8 +17,8 @@ export default class GenerateAction extends Command {
   static description = `Scaffolds a new integration action.`
 
   static examples = [
-    `$ segment generate:action ACTION <browser|server>`,
-    `$ segment generate:action postToChannel server --directory=./destinations/slack`
+    `$ ./bin/run generate:action ACTION <browser|server>`,
+    `$ ./bin/run generate:action postToChannel server --directory=./destinations/slack`
   ]
 
   static flags = {
@@ -50,11 +50,10 @@ export default class GenerateAction extends Command {
 
   async run() {
     const { args, flags } = this.parseArgs()
-    // eslint-disable-next-line prefer-const
     let integrationsGlob = './packages/destination-actions/src/destinations/*'
-    // if (args.type === 'browser') {
-    //   integrationsGlob = './packages/browser-destinations/src/destinations/*'
-    // }
+    if (args.type === 'browser') {
+      integrationsGlob = './packages/browser-destinations/src/destinations/*'
+    }
     const integrationDirs = await this.integrationDirs(integrationsGlob)
 
     const answers = await autoPrompt(flags, [
@@ -112,17 +111,13 @@ export default class GenerateAction extends Command {
     try {
       this.spinner.start(chalk`Updating destination definition`)
       const destinationStr = fs.readFileSync(entryFile, 'utf8')
-      const updatedCode = addKeyToDefaultExport(destinationStr, 'actions', slug)
+      const exportName = args.type === 'browser' ? 'destination' : 'default'
+      const updatedCode = addKeyToExport(destinationStr, exportName, 'actions', slug)
       fs.writeFileSync(entryFile, updatedCode, 'utf8')
       this.spinner.succeed()
     } catch (err) {
-      // we can't update browser destination default exports normally due
-      // to the default export being a function call
-
-      if (args.type === 'server') {
-        this.spinner.fail(chalk`Failed to update your destination imports: ${err.message}`)
-        this.exit()
-      }
+      this.spinner.fail(chalk`Failed to update your destination imports: ${err.message}`)
+      this.exit()
     }
 
     try {

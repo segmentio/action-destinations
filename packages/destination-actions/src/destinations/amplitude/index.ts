@@ -52,6 +52,7 @@ const presets: DestinationDefinition['presets'] = [
 
 const destination: DestinationDefinition<Settings> = {
   name: 'Amplitude (Actions)',
+  mode: 'cloud',
   authentication: {
     scheme: 'custom',
     fields: {

@@ -1,43 +1,62 @@
 import { Command, flags } from '@oclif/command'
-import { DestinationDefinition } from '@segment/actions-core'
-import { idToSlug, destinations as actionDestinations } from '@segment/destination-actions'
+import type { DestinationDefinition as CloudDestinationDefinition } from '@segment/actions-core'
+import { manifest as cloudManifest } from '@segment/destination-actions'
+import { manifest as browserManifest, BrowserDestinationDefinition } from '@segment/browser-destinations'
 import chalk from 'chalk'
-import { Dictionary, invert, uniq, pick, omit, sortBy } from 'lodash'
+import { uniq, pick, omit, sortBy, mergeWith } from 'lodash'
 import { diffString } from 'json-diff'
 import ora from 'ora'
 import type {
-  // @ts-ignore it's ok if CPS isn't available
   DestinationMetadata,
-  // @ts-ignore it's ok if CPS isn't available
-  DestinationMetadataAction,
-  // @ts-ignore it's ok if CPS isn't available
   DestinationMetadataActionCreateInput,
-  // @ts-ignore it's ok if CPS isn't available
   DestinationMetadataActionFieldCreateInput,
-  // @ts-ignore it's ok if CPS isn't available
   DestinationMetadataActionsUpdateInput,
-  // @ts-ignore it's ok if CPS isn't available
   DestinationMetadataOptions,
-  // @ts-ignore it's ok if CPS isn't available
-  DestinationMetadataUpdateInput,
-  // @ts-ignore it's ok if CPS isn't available
   DestinationSubscriptionPresetFields,
-  // @ts-ignore it's ok if CPS isn't available
   DestinationSubscriptionPresetInput
 } from '../lib/control-plane-service'
 import { prompt } from '../lib/prompt'
-import { OAUTH_OPTIONS, OAUTH_SCHEME, RESERVED_FIELD_NAMES } from '../constants'
-
-const NOOP_CONTEXT = {}
+import { OAUTH_OPTIONS, RESERVED_FIELD_NAMES } from '../constants'
+import {
+  getDestinationMetadatas,
+  getDestinationMetadataActions,
+  updateDestinationMetadata,
+  updateDestinationMetadataActions,
+  createDestinationMetadataActions,
+  setSubscriptionPresets
+} from '../lib/control-plane-client'
+import { DestinationDefinition, hasOauthAuthentication } from '../lib/destinations'
 
 type BaseActionInput = Omit<DestinationMetadataActionCreateInput, 'metadataId'>
+
+// Right now it's possible for browser destinations and cloud destinations to have the same
+// metadataId. This is because we currently rely on a separate directory for all web actions.
+// So here we need to intelligently merge them until we explore colocating all actions with a single
+// definition file.
+const manifest = mergeWith({}, cloudManifest, browserManifest, (objValue, srcValue) => {
+  if (Object.keys(objValue?.definition?.actions ?? {}).length === 0) {
+    return
+  }
+
+  for (const [actionKey, action] of Object.entries(srcValue.definition?.actions ?? {})) {
+    if (actionKey in objValue.definition.actions) {
+      throw new Error(
+        `Could not merge browser + cloud actions because there is already an action with the same key "${actionKey}"`
+      )
+    }
+
+    objValue.definition.actions[actionKey] = action
+  }
+
+  return objValue
+})
 
 export default class Push extends Command {
   private spinner: ora.Ora = ora()
 
   static description = `Introspects your integration definition to build and upload your integration to Segment. Requires \`robo stage.ssh\` or \`robo prod.ssh\`.`
 
-  static examples = [`$ segment push`]
+  static examples = [`$ ./bin/run push`]
 
   static flags = {
     help: flags.help({ char: 'h' }),
@@ -48,39 +67,34 @@ export default class Push extends Command {
 
   async run() {
     const { flags } = this.parse(Push)
-    const slugToId = invert(idToSlug)
-    const availableSlugs = Object.keys(slugToId)
-    const { chosenSlugs } = await prompt<{ chosenSlugs: string[] }>({
+
+    const { metadataIds } = await prompt<{ metadataIds: string[] }>({
       type: 'multiselect',
-      name: 'chosenSlugs',
-      message: 'Integrations:',
-      choices: availableSlugs.map((s) => ({
-        title: s,
-        value: s
+      name: 'metadataIds',
+      message: 'Pick the definitions you would like to push to Segment:',
+      choices: sortBy(Object.entries(manifest), '[1].definition.name').map(([metadataId, entry]) => ({
+        title: entry.definition.name,
+        value: metadataId
       }))
     })
 
-    const destinationIds: string[] = []
-    for (const slug of chosenSlugs) {
-      const id = slugToId[slug]
-      destinationIds.push(id)
-    }
-
-    if (!destinationIds.length) {
-      this.warn(`You must select at least one destination. Exiting...`)
-      return
+    if (!metadataIds.length) {
+      this.warn(`You must select at least one destination. Exiting.`)
+      this.exit()
     }
 
     this.spinner.start(
-      `Fetching existing definitions for ${chosenSlugs.map((slug) => chalk.greenBright(slug)).join(', ')}...`
+      `Fetching existing definitions for ${metadataIds
+        .map((id) => chalk.greenBright(manifest[id].definition.name))
+        .join(', ')}...`
     )
-    const schemasByDestination = getJsonSchemas(actionDestinations, destinationIds, slugToId)
+
     const [metadatas, actions] = await Promise.all([
-      getDestinationMetadatas(destinationIds),
-      getDestinationMetadataActions(destinationIds)
+      getDestinationMetadatas(metadataIds),
+      getDestinationMetadataActions(metadataIds)
     ])
 
-    if (metadatas.length !== Object.keys(schemasByDestination).length) {
+    if (metadatas.length !== Object.keys(metadataIds).length) {
       this.spinner.fail()
       throw new Error('Number of metadatas must match number of schemas')
     }
@@ -88,8 +102,9 @@ export default class Push extends Command {
     this.spinner.stop()
 
     for (const metadata of metadatas) {
-      const schemaForDestination = schemasByDestination[metadata.id]
-      const slug = schemaForDestination.slug
+      const entry = manifest[metadata.id]
+      const definition = entry.definition
+      const slug = metadata.slug
 
       this.log('')
       this.log(`${chalk.bold.whiteBright(slug)}`)
@@ -99,12 +114,21 @@ export default class Push extends Command {
       const actionsToCreate: DestinationMetadataActionCreateInput[] = []
       const existingActions = actions.filter((a) => a.metadataId === metadata.id)
 
-      for (const [actionKey, action] of Object.entries(schemaForDestination.actions)) {
+      for (const [actionKey, action] of Object.entries(definition.actions)) {
+        const platform = action.platform ?? 'cloud'
+
         // Note: this implies that changing the slug is a breaking change
-        const existingAction = existingActions.find((a) => a.slug === actionKey && a.platform === 'cloud')
+        const existingAction = existingActions.find((a) => a.slug === actionKey && a.platform === platform)
 
         const fields: DestinationMetadataActionFieldCreateInput[] = Object.keys(action.fields).map((fieldKey) => {
           const field = action.fields[fieldKey]
+
+          if (action.platform === 'web' && field.dynamic) {
+            this.error(
+              `The field key "${fieldKey}" is configured to be a "dynamic" field. Web actions do not support dynamic fields.`
+            )
+          }
+
           return {
             fieldKey,
             type: field.type,
@@ -125,7 +149,7 @@ export default class Push extends Command {
           slug: actionKey,
           name: action.title ?? 'Unnamed Action',
           description: action.description ?? '',
-          platform: 'cloud',
+          platform,
           hidden: action.hidden ?? false,
           defaultTrigger: action.defaultSubscription ?? null,
           fields
@@ -138,16 +162,27 @@ export default class Push extends Command {
         }
       }
 
-      const options = getOptions(metadata, schemaForDestination)
+      const hasBrowserActions = Object.values(definition.actions).some((action) => action.platform === 'web')
+      const hasCloudActions = Object.values(definition.actions).some(
+        (action) => !action.platform || action.platform === 'cloud'
+      )
+      const platforms = {
+        browser: hasBrowserActions || hasCloudActions,
+        server: hasCloudActions,
+        mobile: false
+      }
+
+      const options = getOptions(metadata, definition)
       const basicOptions = getBasicOptions(metadata, options)
       const diff = diffString(
         asJson({
           basicOptions: filterOAuth(metadata.basicOptions),
           options: pick(metadata.options, filterOAuth(Object.keys(options))),
+          platforms: metadata.platforms,
           actions: sortBy(
             existingActions.map((action) => ({
               ...omit(action, ['id', 'metadataId', 'createdAt', 'updatedAt']),
-              fields: action.fields?.map((field: object) =>
+              fields: action.fields?.map((field) =>
                 omit(field, ['id', 'metadataActionId', 'sortOrder', 'createdAt', 'updatedAt'])
               )
             })),
@@ -157,13 +192,14 @@ export default class Push extends Command {
         asJson({
           basicOptions: filterOAuth(basicOptions),
           options: pick(options, filterOAuth(Object.keys(options))),
+          platforms,
           // eslint-disable-next-line @typescript-eslint/no-explicit-any
           actions: sortBy(
             ([] as Array<DestinationMetadataActionCreateInput | DestinationMetadataActionsUpdateInput>)
               .concat(actionsToUpdate, actionsToCreate)
               .map((action) => ({
-                ...omit(action, ['id', 'actionId']),
-                fields: action.fields?.map((field: object) =>
+                ...omit(action, ['id', 'actionId', 'metadataId']),
+                fields: action.fields?.map((field) =>
                   omit(field, ['id', 'metadataActionId', 'sortOrder', 'createdAt', 'updatedAt'])
                 )
               })),
@@ -176,7 +212,7 @@ export default class Push extends Command {
         this.spinner.warn(`Detected changes for ${chalk.bold(slug)}, please review:`)
         this.log(`\n${diff}`)
       } else if (flags.force) {
-        const newDefinition = definitionToJson(schemaForDestination)
+        const newDefinition = definitionToJson(definition)
         this.spinner.warn(`No change detected for ${chalk.bold(slug)}. Using force, please review:`)
         this.log(`\n${JSON.stringify(newDefinition, null, 2)}`)
       } else {
@@ -198,7 +234,8 @@ export default class Push extends Command {
       await Promise.all([
         updateDestinationMetadata(metadata.id, {
           basicOptions,
-          options
+          options,
+          platforms
         }),
         updateDestinationMetadataActions(actionsToUpdate),
         createDestinationMetadataActions(actionsToCreate)
@@ -207,7 +244,7 @@ export default class Push extends Command {
       const allActions = await getDestinationMetadataActions([metadata.id])
       const presets: DestinationSubscriptionPresetInput[] = []
 
-      for (const preset of schemaForDestination.presets ?? []) {
+      for (const preset of definition.presets ?? []) {
         const associatedAction = allActions.find((a) => a.slug === preset.partnerAction)
         if (!associatedAction) continue
 
@@ -239,7 +276,6 @@ function definitionToJson(definition: DestinationDefinition) {
 
   for (const action of Object.keys(copy.actions)) {
     delete copy.actions[action].dynamicFields
-    delete copy.actions[action].cachedFields
     copy.actions[action].hidden = copy.actions[action].hidden ?? false
   }
 
@@ -253,29 +289,19 @@ function getBasicOptions(metadata: DestinationMetadata, options: DestinationMeta
 // Note: exporting for testing purposes only
 export function getOptions(
   metadata: DestinationMetadata,
-  destinationSchema: DestinationSchema
+  definition: DestinationDefinition
 ): DestinationMetadataOptions {
   const options: DestinationMetadataOptions = { ...metadata.options }
 
-  // We store all the subscriptions in this legacy field (this will go away when we switch reads to the new tables)
-  if (!options.subscriptions) {
-    options.subscriptions = {
-      default: '',
-      description: '[{"subscribe":{"type":"track"},"partnerAction":"postToChannel","mapping":{...}}]',
-      label: 'Subscriptions',
-      encrypt: false,
-      hidden: false,
-      private: false,
-      scope: 'event_destination',
-      type: 'string',
-      validators: [['required', 'The subscriptions setting is required.']]
-    }
+  const settings = {
+    ...(definition as BrowserDestinationDefinition).settings,
+    ...(definition as CloudDestinationDefinition).authentication?.fields
   }
 
-  for (const [fieldKey, schema] of Object.entries(destinationSchema.authentication?.fields ?? {})) {
+  for (const [fieldKey, schema] of Object.entries(settings)) {
     const validators: string[][] = []
 
-    if (RESERVED_FIELD_NAMES.includes(fieldKey.toLowerCase())) {
+    if (RESERVED_FIELD_NAMES.includes(fieldKey.toLowerCase()) && hasOauthAuthentication(definition)) {
       throw new Error(`Schema contains a field definition that uses a reserved name: ${fieldKey}`)
     }
 
@@ -290,185 +316,18 @@ export function getOptions(
       encrypt: false,
       hidden: false,
       label: schema.label,
+      // TODO fix this for device destinations or allow developers to specify
       private: true,
       scope: 'event_destination',
       type: 'string',
       validators
     }
+  }
 
-    // Add oauth settings
-    if (destinationSchema.authentication?.scheme === OAUTH_SCHEME) {
-      options['oauth'] = OAUTH_OPTIONS
-    }
+  // Add oauth settings
+  if (hasOauthAuthentication(definition)) {
+    options['oauth'] = OAUTH_OPTIONS
   }
 
   return options
-}
-
-async function getDestinationMetadatas(destinationIds: string[]): Promise<DestinationMetadata[]> {
-  // eslint-disable-next-line @typescript-eslint/no-var-requires
-  const { controlPlaneService } = require('../lib/control-plane-service')
-
-  // eslint-disable-next-line @typescript-eslint/no-unsafe-call
-  const { data, error } = await controlPlaneService.getAllDestinationMetadatas(NOOP_CONTEXT, {
-    byIds: destinationIds
-  })
-
-  if (error) {
-    throw error
-  }
-
-  if (!data) {
-    throw new Error('Could not load metadatas')
-  }
-
-  return data.metadatas
-}
-
-async function getDestinationMetadataActions(destinationIds: string[]): Promise<DestinationMetadataAction[]> {
-  // eslint-disable-next-line @typescript-eslint/no-var-requires
-  const { controlPlaneService } = require('../lib/control-plane-service')
-
-  // eslint-disable-next-line @typescript-eslint/no-unsafe-call
-  const { data, error } = await controlPlaneService.getDestinationMetadataActions(NOOP_CONTEXT, {
-    metadataIds: destinationIds
-  })
-
-  if (error) {
-    throw error
-  }
-
-  if (!data) {
-    throw new Error('Could not load actions')
-  }
-
-  return data.actions
-}
-
-async function updateDestinationMetadata(
-  destinationId: string,
-  input: DestinationMetadataUpdateInput
-): Promise<DestinationMetadata> {
-  // eslint-disable-next-line @typescript-eslint/no-var-requires
-  const { controlPlaneService } = require('../lib/control-plane-service')
-
-  // eslint-disable-next-line @typescript-eslint/no-unsafe-call
-  const { data, error } = await controlPlaneService.updateDestinationMetadata(NOOP_CONTEXT, {
-    destinationId,
-    input
-  })
-
-  if (error) {
-    console.log(error)
-    throw error
-  }
-
-  if (!data) {
-    throw new Error('Could not update metadata')
-  }
-
-  return data.metadata
-}
-
-async function setSubscriptionPresets(metadataId: string, presets: DestinationSubscriptionPresetInput[]) {
-  // eslint-disable-next-line @typescript-eslint/no-var-requires
-  const { controlPlaneService } = require('../lib/control-plane-service')
-
-  // eslint-disable-next-line @typescript-eslint/no-unsafe-call
-  const { data, error } = await controlPlaneService.setDestinationSubscriptionPresets(NOOP_CONTEXT, {
-    metadataId,
-    presets
-  })
-
-  if (error) {
-    console.log(error)
-    throw error
-  }
-
-  if (!data) {
-    throw new Error('Could not set subscription presets')
-  }
-
-  return data.presets
-}
-
-async function createDestinationMetadataActions(
-  input: DestinationMetadataActionCreateInput[]
-): Promise<DestinationMetadataAction[]> {
-  if (!input.length) return []
-
-  // eslint-disable-next-line @typescript-eslint/no-var-requires
-  const { controlPlaneService } = require('../lib/control-plane-service')
-
-  // eslint-disable-next-line @typescript-eslint/no-unsafe-call
-  const { data, error } = await controlPlaneService.createDestinationMetadataActions(NOOP_CONTEXT, {
-    input
-  })
-
-  if (error) {
-    console.log(error)
-    throw error
-  }
-
-  if (!data) {
-    throw new Error('Could not create metadata actions')
-  }
-
-  return data.actions
-}
-
-async function updateDestinationMetadataActions(
-  input: DestinationMetadataActionsUpdateInput[]
-): Promise<DestinationMetadataAction[]> {
-  if (!input.length) return []
-
-  // eslint-disable-next-line @typescript-eslint/no-var-requires
-  const { controlPlaneService } = require('../lib/control-plane-service')
-
-  // eslint-disable-next-line @typescript-eslint/no-unsafe-call
-  const { data, error } = await controlPlaneService.updateDestinationMetadataActions(NOOP_CONTEXT, {
-    input
-  })
-
-  if (error) {
-    throw error
-  }
-
-  if (!data) {
-    throw new Error('Could not update metadata actions')
-  }
-
-  return data.actions
-}
-
-interface SchemasByDestination {
-  [destinationId: string]: DestinationSchema
-}
-
-export interface DestinationSchema extends DestinationDefinition {
-  slug: string
-}
-
-function getJsonSchemas(
-  destinations: Record<string, DestinationDefinition<unknown>>,
-  destinationIds: string[],
-  slugToId: Dictionary<string>
-): SchemasByDestination {
-  const schemasByDestination: SchemasByDestination = {}
-
-  for (const destinationSlug in destinations) {
-    const destinationId = slugToId[destinationSlug]
-    if (!destinationIds.includes(destinationId)) {
-      continue
-    }
-
-    const definition = destinations[destinationSlug]
-
-    schemasByDestination[destinationId] = {
-      ...definition,
-      slug: destinationSlug
-    }
-  }
-
-  return schemasByDestination
 }

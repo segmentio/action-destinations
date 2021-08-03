@@ -2,11 +2,12 @@ import { Command, flags } from '@oclif/command'
 import globby from 'globby'
 import ora from 'ora'
 import path from 'path'
-import slugify from 'slugify'
+import os from 'os'
 import { loadDestination } from '../lib/destinations'
-// @ts-ignore it's ok shhh
-import type { CreateDestinationMetadataInput, DestinationMetadataOptions } from '../lib/control-plane-service'
-import { autoPrompt } from '../lib/prompt'
+import { controlPlaneService } from '../lib/control-plane-service'
+import type { CreateDestinationMetadataInput } from '../lib/control-plane-service'
+import { autoPrompt, prompt } from '../lib/prompt'
+import { generateSlug } from '../lib/slugs'
 
 const NOOP_CONTEXT = {}
 
@@ -15,103 +16,90 @@ export default class Register extends Command {
 
   static description = `Creates a new integration on Segment.`
 
-  static examples = [`$ segment register`]
+  static examples = [`$ ./bin/run register`]
 
   static flags = {
-    help: flags.help({ char: 'h' })
+    help: flags.help({ char: 'h' }),
+    path: flags.string({ char: 'p', description: 'Path to the destination to register.' }),
+    env: flags.enum({
+      char: 'e',
+      description: 'Create the destination in a specific environment',
+      options: ['production', 'stage'],
+      default: 'production',
+      // We don't want to show this in `--help`
+      hidden: true
+    })
   }
 
   async run() {
     const { flags } = this.parse(Register)
 
-    // TODO support a command flag for this
-    const integrationsGlob = './packages/destination-actions/src/destinations/*'
-    const integrationDirs = await globby(integrationsGlob, {
-      expandDirectories: false,
-      onlyDirectories: true,
-      gitignore: true,
-      ignore: ['node_modules']
-    })
-
-    const { selectedDestination } = await autoPrompt<{ selectedDestination: { path: string; name: string } }>(flags, {
-      type: 'select',
-      name: 'selectedDestination',
-      message: 'Which integration?',
-      choices: integrationDirs.map((integrationPath) => {
-        const [name] = integrationPath.split(path.sep).reverse()
-        return {
-          title: name,
-          value: { path: integrationPath, name }
-        }
+    let destinationPath = flags.path
+    if (!destinationPath) {
+      const integrationsGlob = './packages/destination-actions/src/destinations/*'
+      const integrationDirs = await globby(integrationsGlob, {
+        expandDirectories: false,
+        onlyDirectories: true,
+        gitignore: true,
+        ignore: ['node_modules']
       })
-    })
 
-    if (!selectedDestination) {
-      this.warn('You must choose a destination. Exiting.')
-      return
+      const { selectedDestination } = await autoPrompt<{ selectedDestination: { path: string; name: string } }>(flags, {
+        type: 'select',
+        name: 'selectedDestination',
+        message: 'Which integration?',
+        choices: integrationDirs.map((integrationPath) => {
+          const [name] = integrationPath.split(path.sep).reverse()
+          return {
+            title: name,
+            value: { path: integrationPath, name }
+          }
+        })
+      })
+
+      if (selectedDestination) {
+        destinationPath = selectedDestination.path
+      }
+    }
+
+    if (!destinationPath) {
+      this.warn('You must select a destination. Exiting.')
+      this.exit()
     }
 
     this.spinner.start(`Introspecting definition`)
-    const destination = await loadDestination(selectedDestination.path)
+    const destination = await loadDestination(destinationPath)
 
     if (!destination) {
       this.spinner.fail()
       this.warn('No destination definition found. Exiting.')
-      return
+      this.exit()
     } else {
       this.spinner.succeed()
     }
 
-    const name = `Actions ${destination.name}`
-    const slug = slugify(destination.slug ?? name).toLowerCase()
+    const name = destination.name.includes('Actions') ? destination.name : `${destination.name} (Actions)`
+    const slug = generateSlug(destination.slug ?? name)
 
     if (destination.slug && destination.slug !== slug) {
       this.warn(`Your destination slug does not meet the requirements. Try \`${slug}\` instead`)
-      return
+      this.exit()
     }
 
     // Ensure we don't already have a destination with this slug...
-    this.spinner.start(`Checking availability for ${slug}`)
-
-    // eslint-disable-next-line @typescript-eslint/no-var-requires
-    const { controlPlaneService } = require('../lib/control-plane-service')
-
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-call
-    const { data, error } = await controlPlaneService.getDestinationMetadataBySlug(NOOP_CONTEXT, { slug })
-    if (error?.statusCode === 404) {
-      this.spinner.succeed()
-    } else if (error) {
-      this.spinner.fail()
-      this.error(`Error checking availablity for ${slug}: ${error.message}`)
-    } else if (data?.metadata) {
-      this.spinner.fail()
-      this.error(
-        `There is already a destination registered for ${slug} named "${data.metadata.name}" that was created ${data.metadata.createdAt}.`
-      )
-    }
+    await this.isDestinationSlugAvailable(slug)
 
     this.spinner.start(`Preparing destination definition`)
 
-    // We store the destination-level JSON Schema in an option with key `metadata`
-    // Currently this is needed to render the UI views for action destinations
-    const initialOptions: DestinationMetadataOptions = {
-      // This setting is required until we switch off the legacy "data model"
-      subscriptions: {
-        label: 'subscriptions',
-        type: 'string',
-        scope: 'event_destination',
-        private: false,
-        encrypt: false,
-        hidden: false,
-        validators: [['required', `The subscriptions property is required.`]]
-      }
-    }
+    const actions = Object.values(destination.actions)
+    const hasBrowserActions = actions.some((action) => action.platform === 'web')
+    const hasCloudActions = actions.some((action) => !action.platform || action.platform === 'cloud')
 
     const definition: CreateDestinationMetadataInput['input'] = {
       name,
       slug,
       type: 'action_destination',
-      description: destination.description ?? '',
+      description: destination.description ?? `${name}`,
       status: 'PRIVATE_BUILDING',
       methods: {
         pageview: true,
@@ -121,26 +109,39 @@ export default class Register extends Command {
         group: true
       },
       platforms: {
-        browser: false,
-        mobile: false,
-        server: true
+        browser: hasBrowserActions,
+        server: hasCloudActions,
+        mobile: false
       },
-      options: initialOptions,
-      basicOptions: Object.keys(initialOptions)
+      options: {},
+      basicOptions: []
     }
 
     this.spinner.succeed()
-    this.log(`Here is the JSON you need to use to create your destination in Partner Portal:`)
-    this.log(JSON.stringify(definition, null, 2))
 
-    // TODO actually create the destination
-    // const { data, error } = await controlPlaneService.createDestinationMetadata(NOOP_CONTEXT, {
-    //   input: {
-    //     options: metadata.options,
-    //   }
-    // })
+    this.log(`Please review the definition before continuing:`)
+    this.log(`\n${JSON.stringify(definition, null, 2)}`)
 
-    return
+    // Loosely verify that we are on the production workbench, unless explicitly targeting stage
+    const hostname = os.hostname()
+    const isWorkbench = hostname.startsWith('workbench-') && hostname.includes(`-${flags.env}-`)
+    if (!isWorkbench && flags.env !== 'stage') {
+      this.warn(`You must be logged into the ${flags.env} workbench to register your destination. Exiting.`)
+      this.exit()
+    }
+
+    const { shouldContinue } = await prompt({
+      type: 'confirm',
+      name: 'shouldContinue',
+      message: `Do you want to register "${name}"?`,
+      initial: false
+    })
+
+    if (!shouldContinue) {
+      this.log('Exiting without registering.')
+    }
+
+    await this.createDestinationMetadata(definition)
   }
 
   async catch(error: unknown) {
@@ -148,5 +149,37 @@ export default class Register extends Command {
       this.spinner.fail()
     }
     throw error
+  }
+
+  private async isDestinationSlugAvailable(slug: string): Promise<boolean> {
+    this.spinner.start(`Checking availability for ${slug}`)
+
+    const { error } = await controlPlaneService.getDestinationMetadataBySlug(NOOP_CONTEXT, { slug })
+    if (error?.statusCode === 404) {
+      this.spinner.succeed()
+      return true
+    } else if (error) {
+      this.spinner.fail()
+      this.error(`Error checking availablity for ${slug}: ${error.message}`)
+    } else {
+      this.spinner.warn()
+      this.warn(`There is already a destination with the slug "${slug}". Exiting.`)
+      this.exit()
+    }
+  }
+
+  private async createDestinationMetadata(input: CreateDestinationMetadataInput['input']): Promise<void> {
+    this.spinner.start(`Registering ${input.name}`)
+
+    const { data, error } = await controlPlaneService.createDestinationMetadata(NOOP_CONTEXT, { input })
+
+    if (data?.metadata) {
+      this.spinner.succeed()
+      this.log(`Successfully registered destination with id:`)
+      this.log(`\n${data.metadata.id}`)
+    } else {
+      this.spinner.fail()
+      this.error(`Error registering destination: ${error?.message}`)
+    }
   }
 }

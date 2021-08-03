@@ -5,10 +5,13 @@ import type { Payload } from './generated-types'
 const action: ActionDefinition<Settings, Payload> = {
   title: '{{name}}',
   description: '{{description}}',
-  defaultSubscription: 'type = "track"',
   fields: {},
-  perform: (_request, _data) => {
+  perform: (request, data) => {
     // Make your partner api request here!
+    // return request('https://example.com', {
+    //   method: 'post',
+    //   json: data.payload
+    // })
   }
 }
 

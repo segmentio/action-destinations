@@ -103,21 +103,12 @@ const action: ActionDefinition<Settings, Payload> = {
     }
   },
 
-  cachedFields: {
-    personId: {
-      ttl: 60,
-      key: ({ payload }) => payload.identifier,
-      value: async (request, { payload, settings }) => {
-        const search = await request(`https://${settings.domain}.pipedrive.com/api/v1/persons/search`, {
-          searchParams: { term: payload.identifier }
-        })
-        return get(search.data, 'data.items[0].item.id')
-      }
-    }
-  },
+  perform: async (request, { payload, settings }) => {
+    const search = await request(`https://${settings.domain}.pipedrive.com/api/v1/persons/search`, {
+      searchParams: { term: payload.identifier }
+    })
 
-  perform: (request, { payload, settings, cachedFields }) => {
-    const personId = cachedFields.personId
+    const personId = get(search.data, 'data.items[0].item.id')
 
     const person: Person = {
       name: payload.name,
