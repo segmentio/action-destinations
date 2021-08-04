@@ -71,7 +71,7 @@ async function getDestinationByPathKey(key: string): Promise<Destination | null>
   return new Destination(destination as DestinationDefinition<any>)
 }
 
-export async function getDestinationById(id: string): Promise<Destination | null> {
+export function getDestinationById(id: string): Destination | null {
   const destination = manifest[id]
 
   if (!destination?.definition) {

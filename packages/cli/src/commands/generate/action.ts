@@ -30,7 +30,7 @@ export default class GenerateAction extends Command {
 
   static args = [
     { name: 'name', description: 'the action name', required: true },
-    { name: 'type', description: 'the type of action (browser, server)', required: true, default: 'server' }
+    { name: 'type', description: 'the type of action (browser, server)', required: true }
   ]
 
   async integrationDirs(glob: string) {
@@ -51,7 +51,7 @@ export default class GenerateAction extends Command {
   async run() {
     const { args, flags } = this.parseArgs()
     let integrationsGlob = './packages/destination-actions/src/destinations/*'
-    if (args.type === 'browser') {
+    if ((args.type as string).includes('browser')) {
       integrationsGlob = './packages/browser-destinations/src/destinations/*'
     }
     const integrationDirs = await this.integrationDirs(integrationsGlob)

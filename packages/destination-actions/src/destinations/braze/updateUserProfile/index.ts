@@ -294,6 +294,13 @@ const action: ActionDefinition<Settings, Payload> = {
       default: {
         '@path': '$.traits'
       }
+    },
+    _update_existing_only: {
+      label: 'Update Existing Only',
+      description:
+        'Setting this flag to true will put the API in "Update Only" mode. When using a "user_alias", "Update Only" mode is always true.',
+      type: 'boolean',
+      default: true
     }
   },
 
@@ -308,7 +315,7 @@ const action: ActionDefinition<Settings, Payload> = {
       )
     }
 
-    return request(`${settings.endpoint}`, {
+    return request(`${settings.endpoint}/users/track`, {
       method: 'post',
       json: {
         attributes: [
@@ -344,7 +351,8 @@ const action: ActionDefinition<Settings, Payload> = {
             push_subscribe: payload.push_subscribe,
             push_tokens: payload.push_tokens,
             time_zone: payload.time_zone,
-            twitter: payload.twitter
+            twitter: payload.twitter,
+            _update_existing_only: payload._update_existing_only
           }
         ]
       }
