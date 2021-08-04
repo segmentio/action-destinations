@@ -136,4 +136,8 @@ export interface Payload {
   custom_attributes?: {
     [k: string]: unknown
   }
+  /**
+   * Setting this flag to true will put the API in "Update Only" mode. When using a "user_alias", "Update Only" mode is always true.
+   */
+  _update_existing_only?: boolean
 }
