@@ -1,6 +1,4 @@
-// @ts-ignore it's ok if CPS isn't available
 import ControlPlaneService from '@segment/control-plane-service-client'
-// @ts-ignore it's ok if CPS isn't available
 export * from '@segment/control-plane-service-client'
 
 export const controlPlaneService = new ControlPlaneService({
