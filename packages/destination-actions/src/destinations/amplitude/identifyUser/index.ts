@@ -163,8 +163,59 @@ const action: ActionDefinition<Settings, Payload> = {
       type: 'string',
       description:
         'Amplitude will deduplicate subsequent events sent with this ID we have already seen before within the past 7 days. Amplitude recommends generating a UUID or using some combination of device ID, user ID, event type, event ID, and time.'
+    },
+    utm_properties: {
+      label: 'UTM Properties',
+      type: 'object',
+      description: 'UTM Tracking Properties',
+      properties: {
+        utm_source: {
+          label: 'UTM Source',
+          type: 'string',
+          default: {
+            '@path': '$.context.campaign.source'
+          }
+        },
+        utm_medium: {
+          label: 'UTM Medium',
+          type: 'string',
+          default: {
+            '@path': '$.context.campaign.medium'
+          }
+        },
+        utm_campaign: {
+          label: 'UTM Campaign',
+          type: 'string',
+          default: {
+            '@path': '$.context.campaign.name'
+          }
+        },
+        utm_term: {
+          label: 'UTM Term',
+          type: 'string',
+          default: {
+            '@path': '$.context.campaign.term'
+          }
+        },
+        utm_content: {
+          label: 'UTM Content',
+          type: 'string',
+          default: {
+            '@path': '$.context.campaign.content'
+          }
+        }
+      }
+    },
+    referrer: {
+      label: 'Referrer',
+      type: 'string',
+      description: '',
+      default: {
+        '@path': '$.context.page.referrer'
+      }
     }
   },
+
   perform: (request, { payload, settings }) => {
     return request('https://api.amplitude.com/identify', {
       method: 'post',
