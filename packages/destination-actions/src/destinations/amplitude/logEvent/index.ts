@@ -4,8 +4,12 @@ import { eventSchema } from '../event-schema'
 import type { ActionDefinition } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
+import type { EventUTM } from '../utm'
+import { getUTMProperties } from '../utm'
 
-interface AmplitudeEvent extends Omit<Payload, 'products' | 'trackRevenuePerProduct' | 'time' | 'session_id'> {
+interface AmplitudeEvent
+  extends EventUTM,
+    Omit<Payload, 'products' | 'trackRevenuePerProduct' | 'time' | 'session_id'> {
   time?: number
   session_id?: number
 }
@@ -97,7 +101,14 @@ const action: ActionDefinition<Settings, Payload> = {
   },
   perform: (request, { payload, settings }) => {
     // Omit revenue properties initially because we will manually stitch those into events as prescribed
-    const { products = [], trackRevenuePerProduct, time, session_id, ...rest } = omit(payload, revenueKeys)
+    const {
+      products = [],
+      trackRevenuePerProduct,
+      time,
+      session_id,
+      utm_properties,
+      ...rest
+    } = omit(payload, revenueKeys)
     const properties = rest as AmplitudeEvent
 
     if (time && dayjs.utc(time).isValid()) {
@@ -112,7 +123,8 @@ const action: ActionDefinition<Settings, Payload> = {
       {
         ...properties,
         // Conditionally track revenue with main event
-        ...(products.length && trackRevenuePerProduct ? {} : getRevenueProperties(payload))
+        ...(products.length && trackRevenuePerProduct ? {} : getRevenueProperties(payload)),
+        ...getUTMProperties(payload)
       }
     ]
 
