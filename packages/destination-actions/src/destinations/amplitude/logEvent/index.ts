@@ -97,18 +97,61 @@ const action: ActionDefinition<Settings, Payload> = {
         "If true, events are sent to Amplitude's `batch` endpoint rather than their `httpapi` events endpoint. Enabling this setting may help reduce 429s – or throttling errors – from Amplitude. More information about Amplitude's throttling is available in [their docs](https://developers.amplitude.com/docs/batch-event-upload-api#429s-in-depth).",
       type: 'boolean',
       default: false
+    },
+    utm_properties: {
+      label: 'UTM Properties',
+      type: 'object',
+      description: 'UTM Tracking Properties',
+      properties: {
+        utm_source: {
+          label: 'UTM Source',
+          type: 'string',
+          default: {
+            '@path': '$.context.campaign.source'
+          }
+        },
+        utm_medium: {
+          label: 'UTM Medium',
+          type: 'string',
+          default: {
+            '@path': '$.context.campaign.medium'
+          }
+        },
+        utm_campaign: {
+          label: 'UTM Campaign',
+          type: 'string',
+          default: {
+            '@path': '$.context.campaign.name'
+          }
+        },
+        utm_term: {
+          label: 'UTM Term',
+          type: 'string',
+          default: {
+            '@path': '$.context.campaign.term'
+          }
+        },
+        utm_content: {
+          label: 'UTM Content',
+          type: 'string',
+          default: {
+            '@path': '$.context.campaign.content'
+          }
+        }
+      }
+    },
+    referrer: {
+      label: 'Referrer',
+      type: 'string',
+      description: '',
+      default: {
+        '@path': '$.context.page.referrer'
+      }
     }
   },
   perform: (request, { payload, settings }) => {
     // Omit revenue properties initially because we will manually stitch those into events as prescribed
-    const {
-      products = [],
-      trackRevenuePerProduct,
-      time,
-      session_id,
-      utm_properties,
-      ...rest
-    } = omit(payload, revenueKeys)
+    const { products = [], trackRevenuePerProduct, time, session_id, ...rest } = omit(payload, revenueKeys)
     const properties = rest as AmplitudeEvent
 
     if (time && dayjs.utc(time).isValid()) {
