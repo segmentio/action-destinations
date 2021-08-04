@@ -85,4 +85,15 @@ export interface Payload {
    * Amplitude will deduplicate subsequent events sent with this ID we have already seen before within the past 7 days. Amplitude recommends generating a UUID or using some combination of device ID, user ID, event type, event ID, and time.
    */
   insert_id?: string
+  /**
+   * UTM Tracking Properties
+   */
+  utm_properties?: {
+    utm_source?: string
+    utm_medium?: string
+    utm_campaign?: string
+    utm_term?: string
+    utm_content?: string
+  }
+  referrer?: string
 }
