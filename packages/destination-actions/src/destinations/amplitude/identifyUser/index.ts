@@ -2,6 +2,7 @@ import { URLSearchParams } from 'url'
 import type { ActionDefinition } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
+import { getUTMProperties } from '../utm'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Identify User',
@@ -217,11 +218,16 @@ const action: ActionDefinition<Settings, Payload> = {
   },
 
   perform: (request, { payload, settings }) => {
+    const { utm_properties, ...rest } = payload
+    const identification = JSON.stringify({
+      ...rest,
+      ...getUTMProperties(payload)
+    })
     return request('https://api.amplitude.com/identify', {
       method: 'post',
       body: new URLSearchParams({
         api_key: settings.apiKey,
-        identification: JSON.stringify(payload)
+        identification
       })
     })
   }
