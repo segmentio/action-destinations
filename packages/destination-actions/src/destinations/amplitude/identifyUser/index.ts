@@ -172,39 +172,31 @@ const action: ActionDefinition<Settings, Payload> = {
       properties: {
         utm_source: {
           label: 'UTM Source',
-          type: 'string',
-          default: {
-            '@path': '$.context.campaign.source'
-          }
+          type: 'string'
         },
         utm_medium: {
           label: 'UTM Medium',
-          type: 'string',
-          default: {
-            '@path': '$.context.campaign.medium'
-          }
+          type: 'string'
         },
         utm_campaign: {
           label: 'UTM Campaign',
-          type: 'string',
-          default: {
-            '@path': '$.context.campaign.name'
-          }
+          type: 'string'
         },
         utm_term: {
           label: 'UTM Term',
-          type: 'string',
-          default: {
-            '@path': '$.context.campaign.term'
-          }
+          type: 'string'
         },
         utm_content: {
           label: 'UTM Content',
-          type: 'string',
-          default: {
-            '@path': '$.context.campaign.content'
-          }
+          type: 'string'
         }
+      },
+      default: {
+        utm_source: { '@path': '$.context.campaign.source' },
+        utm_medium: { '@path': '$.context.campaign.medium' },
+        utm_campaign: { '@path': '$.context.campaign.name' },
+        utm_term: { '@path': '$.context.campaign.term' },
+        utm_content: { '@path': '$.context.campaign.content' }
       }
     },
     referrer: {
