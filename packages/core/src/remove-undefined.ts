@@ -6,7 +6,7 @@ type Dictionary<T = unknown> = {
 
 export function removeUndefined<T = unknown>(value: T): T {
   if (Array.isArray(value)) {
-    return value.map((item) => removeUndefined(item)) as unknown as T
+    return (value.map((item) => removeUndefined(item)) as unknown) as T
   } else if (isObject(value)) {
     const cleaned: Dictionary = Object.assign({}, value)
     Object.keys(cleaned).forEach((key) => {
@@ -16,7 +16,7 @@ export function removeUndefined<T = unknown>(value: T): T {
         cleaned[key] = removeUndefined(cleaned[key])
       }
     })
-    return cleaned as unknown as T
+    return (cleaned as unknown) as T
   }
 
   return value
