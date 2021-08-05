@@ -40,8 +40,7 @@ export const eventSchema: Record<string, InputField> = {
   session_id: {
     label: 'Session ID',
     type: 'datetime',
-    description:
-      'The start time of the session, necessary if you want to associate events with a particular system. To use automatic Amplitude session tracking in browsers, enable Analytics 2.0 on your connected source.',
+    description: 'The start time of the session, necessary if you want to associate events with a particular system. To use automatic Amplitude session tracking in browsers, enable Analytics 2.0 on your connected source.',
     default: {
       '@path': '$.integrations.Amplitude.session_id'
     }
