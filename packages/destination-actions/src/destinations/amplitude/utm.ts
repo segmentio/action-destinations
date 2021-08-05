@@ -23,8 +23,6 @@ export interface EventUTM {
   $setOnce?: InitialUTMProperties
 }
 
-const getKeys = <T>(obj: T) => Object.keys(obj) as Array<keyof T>
-
 /**
  * Take a compatible event type that contains a `utm_properties` key and convert it to an object formatted for amplitude's API
  *
@@ -32,14 +30,18 @@ const getKeys = <T>(obj: T) => Object.keys(obj) as Array<keyof T>
  * @returns an object with $set and $setOnce params set according how amplitude would like us to handle UTM properties
  */
 export function getUTMProperties(payload: PayloadUTM): EventUTM {
+  // Early out if we dont have any UTM properties
   if (!payload.utm_properties) return {}
+
   const set: UTMProperties = {}
   const setOnce: InitialUTMProperties = {}
   const utm = payload.utm_properties
-  getKeys(utm).forEach((key) => {
-    set[key] = utm[key]
-    setOnce[`initial_${key}` as keyof InitialUTMProperties] = utm[key]
+
+  Object.entries(utm).forEach(([key, value]) => {
+    set[key as keyof UTMProperties] = value
+    setOnce[`initial_${key}` as keyof InitialUTMProperties] = value
   })
+
   return {
     $set: set,
     $setOnce: setOnce
