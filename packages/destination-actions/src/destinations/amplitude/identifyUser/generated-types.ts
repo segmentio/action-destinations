@@ -95,5 +95,8 @@ export interface Payload {
     utm_term?: string
     utm_content?: string
   }
+  /**
+   * Referrer
+   */
   referrer?: string
 }
