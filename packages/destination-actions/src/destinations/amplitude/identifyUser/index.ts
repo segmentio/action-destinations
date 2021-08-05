@@ -202,7 +202,7 @@ const action: ActionDefinition<Settings, Payload> = {
     referrer: {
       label: 'Referrer',
       type: 'string',
-      description: '',
+      description: 'Referrer',
       default: {
         '@path': '$.context.page.referrer'
       }
