@@ -103,7 +103,7 @@ export default class Push extends Command {
 
     for (const metadata of metadatas) {
       const entry = manifest[metadata.id]
-      const definition = entry.definition as DestinationDefinition
+      const definition = entry.definition
       const slug = metadata.slug
 
       this.log('')
