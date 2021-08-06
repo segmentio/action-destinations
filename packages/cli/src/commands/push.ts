@@ -7,6 +7,7 @@ import { uniq, pick, omit, sortBy, mergeWith } from 'lodash'
 import { diffString } from 'json-diff'
 import ora from 'ora'
 import type {
+  ClientRequestError,
   DestinationMetadata,
   DestinationMetadataActionCreateInput,
   DestinationMetadataActionFieldCreateInput,
@@ -231,15 +232,23 @@ export default class Push extends Command {
         continue
       }
 
-      await Promise.all([
-        updateDestinationMetadata(metadata.id, {
-          basicOptions,
-          options,
-          platforms
-        }),
-        updateDestinationMetadataActions(actionsToUpdate),
-        createDestinationMetadataActions(actionsToCreate)
-      ])
+      try {
+        await Promise.all([
+          updateDestinationMetadata(metadata.id, {
+            basicOptions,
+            options,
+            platforms
+          }),
+          updateDestinationMetadataActions(actionsToUpdate),
+          createDestinationMetadataActions(actionsToCreate)
+        ])
+      } catch (e) {
+        const error = e as ClientRequestError
+        chalk.red(error.message)
+        if (error.isMultiError) {
+          error.errors.map((error) => error.message).forEach((error) => chalk.red(error))
+        }
+      }
 
       const allActions = await getDestinationMetadataActions([metadata.id])
       const presets: DestinationSubscriptionPresetInput[] = []
