@@ -191,7 +191,7 @@ export interface Payload {
     utm_content?: string
   }
   /**
-   * Referrer
+   * The referrer of the web request. Sent to Amplitude as both last touch “referrer” and first touch “initial_referrer”
    */
   referrer?: string
 }
