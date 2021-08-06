@@ -1,13 +1,16 @@
+import { AmplitudeEvent } from './logEvent'
+
+interface Payload {
+  utm_properties?: UTMProperties
+  user_properties?: AmplitudeUserProperties
+}
+
 interface UTMProperties {
   utm_source?: string
   utm_medium?: string
   utm_campaign?: string
   utm_term?: string
   utm_content?: string
-}
-
-interface PayloadUTM {
-  utm_properties?: UTMProperties
 }
 
 interface InitialUTMProperties {
@@ -18,32 +21,44 @@ interface InitialUTMProperties {
   initial_utm_content?: string
 }
 
-export interface EventUTM {
-  $set?: UTMProperties
-  $setOnce?: InitialUTMProperties
+export interface AmplitudeUserProperties extends Object {
+  $set?: object
+  $setOnce?: object
 }
 
 /**
  * Take a compatible event type that contains a `utm_properties` key and convert it to an object formatted for amplitude's API
  *
  * @param payload an event payload that contains a utm_properties property
- * @returns an object with $set and $setOnce params set according how amplitude would like us to handle UTM properties
+ * @returns a mutated payload with user_properties set based on utm_properties and the utm_properties key removed
  */
-export function getUTMProperties(payload: PayloadUTM): EventUTM {
-  // Early out if we dont have any UTM properties
-  if (!payload.utm_properties) return {}
+export function convertUTMProperties(payload: Payload): AmplitudeUserProperties {
+  const { utm_properties, ...rest } = payload
 
+  if (!utm_properties) return {}
+
+  const cleanedPayload = rest as AmplitudeEvent
   const set: UTMProperties = {}
   const setOnce: InitialUTMProperties = {}
-  const utm = payload.utm_properties
 
-  Object.entries(utm).forEach(([key, value]) => {
+  Object.entries(utm_properties).forEach(([key, value]) => {
     set[key as keyof UTMProperties] = value
     setOnce[`initial_${key}` as keyof InitialUTMProperties] = value
   })
 
-  return {
-    $set: set,
-    $setOnce: setOnce
+  let userProperties: AmplitudeUserProperties
+
+  if (cleanedPayload.user_properties) {
+    userProperties = cleanedPayload.user_properties
+
+    userProperties.$set = { ...userProperties.$set, ...set }
+    userProperties.$setOnce = { ...userProperties.$setOnce, ...setOnce }
+  } else {
+    userProperties = {
+      $set: set,
+      $setOnce: setOnce
+    }
   }
+
+  return userProperties
 }

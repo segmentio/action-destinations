@@ -4,12 +4,10 @@ import { eventSchema } from '../event-schema'
 import type { ActionDefinition } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
-import type { EventUTM } from '../utm'
-import { getUTMProperties } from '../utm'
+import { convertUTMProperties } from '../utm'
+import { convertReferrerProperty } from '../referrer'
 
-interface AmplitudeEvent
-  extends EventUTM,
-    Omit<Payload, 'products' | 'trackRevenuePerProduct' | 'time' | 'session_id'> {
+export interface AmplitudeEvent extends Omit<Payload, 'products' | 'trackRevenuePerProduct' | 'time' | 'session_id'> {
   time?: number
   session_id?: number
 }
@@ -135,7 +133,8 @@ const action: ActionDefinition<Settings, Payload> = {
     referrer: {
       label: 'Referrer',
       type: 'string',
-      description: 'Referrer',
+      description:
+        'The referrer of the web request. Sent to Amplitude as both last touch “referrer” and first touch “initial_referrer”',
       default: {
         '@path': '$.context.page.referrer'
       }
@@ -143,14 +142,7 @@ const action: ActionDefinition<Settings, Payload> = {
   },
   perform: (request, { payload, settings }) => {
     // Omit revenue properties initially because we will manually stitch those into events as prescribed
-    const {
-      products = [],
-      trackRevenuePerProduct,
-      time,
-      session_id,
-      utm_properties,
-      ...rest
-    } = omit(payload, revenueKeys)
+    const { products = [], trackRevenuePerProduct, time, session_id, ...rest } = omit(payload, revenueKeys)
     const properties = rest as AmplitudeEvent
 
     if (time && dayjs.utc(time).isValid()) {
@@ -165,8 +157,7 @@ const action: ActionDefinition<Settings, Payload> = {
       {
         ...properties,
         // Conditionally track revenue with main event
-        ...(products.length && trackRevenuePerProduct ? {} : getRevenueProperties(payload)),
-        ...getUTMProperties(payload)
+        ...(products.length && trackRevenuePerProduct ? {} : getRevenueProperties(payload))
       }
     ]
 
@@ -178,6 +169,15 @@ const action: ActionDefinition<Settings, Payload> = {
         event_properties: product,
         event_type: 'Product Purchased',
         insert_id: properties.insert_id ? `${properties.insert_id}-${events.length + 1}` : undefined
+      })
+    }
+
+    if (payload.utm_properties) {
+      const user_properties = { ...convertUTMProperties(payload), ...convertReferrerProperty(payload) }
+      events.push({
+        ...properties,
+        event_type: '$identify',
+        user_properties
       })
     }
 

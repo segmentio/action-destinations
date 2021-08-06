@@ -2,7 +2,8 @@ import { URLSearchParams } from 'url'
 import type { ActionDefinition } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
-import { getUTMProperties } from '../utm'
+import { convertUTMProperties } from '../utm'
+import { convertReferrerProperty } from '../referrer'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Identify User',
@@ -202,7 +203,8 @@ const action: ActionDefinition<Settings, Payload> = {
     referrer: {
       label: 'Referrer',
       type: 'string',
-      description: 'Referrer',
+      description:
+        'The referrer of the web request. Sent to Amplitude as both last touch “referrer” and first touch “initial_referrer”',
       default: {
         '@path': '$.context.page.referrer'
       }
@@ -210,11 +212,8 @@ const action: ActionDefinition<Settings, Payload> = {
   },
 
   perform: (request, { payload, settings }) => {
-    const { utm_properties, ...rest } = payload
-    const identification = JSON.stringify({
-      ...rest,
-      ...getUTMProperties(payload)
-    })
+    const user_properties = { ...convertUTMProperties(payload), ...convertReferrerProperty(payload) }
+    const identification = JSON.stringify({ ...payload, user_properties })
     return request('https://api.amplitude.com/identify', {
       method: 'post',
       body: new URLSearchParams({
