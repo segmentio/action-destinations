@@ -1,10 +1,15 @@
 import { Payload as IdentifyPayload } from './identifyUser/generated-types'
 import { Payload as LogPayload } from './logEvent/generated-types'
 import { AmplitudeEvent } from './logEvent'
-import { AmplitudeUserProperties } from './utm'
+import { AmplitudeUserProperties } from './merge-user-properties'
 type Payload = IdentifyPayload | LogPayload
 
-//TODO: this needs to handle set and setOnce for referrer just like utm
+/**
+ * takes a payload object and converts it to a valid user_properties object for use in amplitude events
+ *
+ * @param payload an identify or log payload
+ * @returns a valid user_properties object suitable for injection into an AmplitudeEvent
+ */
 export function convertReferrerProperty(payload: Payload): AmplitudeUserProperties {
   const { referrer, ...rest } = payload
 

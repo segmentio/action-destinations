@@ -1,4 +1,5 @@
 import { AmplitudeEvent } from './logEvent'
+import { AmplitudeUserProperties } from './merge-user-properties'
 
 interface Payload {
   utm_properties?: UTMProperties
@@ -21,13 +22,8 @@ interface InitialUTMProperties {
   initial_utm_content?: string
 }
 
-export interface AmplitudeUserProperties extends Object {
-  $set?: object
-  $setOnce?: object
-}
-
 /**
- * Take a compatible event type that contains a `utm_properties` key and convert it to an object formatted for amplitude's API
+ * Take a compatible payload that contains a `utm_properties` key and converts it to a user_properties object suitable for injection into an amplitude event
  *
  * @param payload an event payload that contains a utm_properties property
  * @returns a mutated payload with user_properties set based on utm_properties and the utm_properties key removed
@@ -49,7 +45,7 @@ export function convertUTMProperties(payload: Payload): AmplitudeUserProperties 
   let userProperties: AmplitudeUserProperties
 
   if (cleanedPayload.user_properties) {
-    userProperties = cleanedPayload.user_properties
+    userProperties = { ...cleanedPayload.user_properties }
 
     userProperties.$set = { ...userProperties.$set, ...set }
     userProperties.$setOnce = { ...userProperties.$setOnce, ...setOnce }

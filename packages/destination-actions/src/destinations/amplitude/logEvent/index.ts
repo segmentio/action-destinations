@@ -6,6 +6,7 @@ import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 import { convertUTMProperties } from '../utm'
 import { convertReferrerProperty } from '../referrer'
+import { mergeUserProperties } from '../merge-user-properties'
 
 export interface AmplitudeEvent extends Omit<Payload, 'products' | 'trackRevenuePerProduct' | 'time' | 'session_id'> {
   time?: number
@@ -142,7 +143,14 @@ const action: ActionDefinition<Settings, Payload> = {
   },
   perform: (request, { payload, settings }) => {
     // Omit revenue properties initially because we will manually stitch those into events as prescribed
-    const { products = [], trackRevenuePerProduct, time, session_id, ...rest } = omit(payload, revenueKeys)
+    const {
+      products = [],
+      trackRevenuePerProduct,
+      time,
+      session_id,
+      utm_properties,
+      ...rest
+    } = omit(payload, revenueKeys)
     const properties = rest as AmplitudeEvent
 
     if (time && dayjs.utc(time).isValid()) {
@@ -173,7 +181,7 @@ const action: ActionDefinition<Settings, Payload> = {
     }
 
     if (payload.utm_properties) {
-      const user_properties = { ...convertUTMProperties(payload), ...convertReferrerProperty(payload) }
+      const user_properties = mergeUserProperties(convertUTMProperties(payload), convertReferrerProperty(payload))
       events.push({
         ...properties,
         event_type: '$identify',
