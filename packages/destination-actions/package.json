@@ -1,7 +1,7 @@
 {
   "name": "@segment/action-destinations",
   "description": "Destination Actions engine and definitions.",
-  "version": "3.1.0",
+  "version": "3.1.1-alpha-6",
   "repository": {
     "type": "git",
     "url": "https://github.com/segmentio/action-destinations",
@@ -41,7 +41,7 @@
     "mustache": "^4.2.0"
   },
   "optionalDependencies": {
-    "@segment/actions-core": "^3.1.0"
+    "@segment/actions-core": "^3.1.1-alpha-6"
   },
   "jest": {
     "preset": "ts-jest",
