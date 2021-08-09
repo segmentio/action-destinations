@@ -2301,9 +2301,9 @@
   dependencies:
     unfetch "^3.1.1"
 
-"@segment/control-plane-service-client@git+ssh://git@github.com/segmentio/control-plane-service-js-client.git#master":
+"@segment/control-plane-service-client@github:segmentio/control-plane-service-js-client.git#master":
   version "9.3.0"
-  resolved "git+ssh://git@github.com/segmentio/control-plane-service-js-client.git#9c4a190959f94598e599aea29b4cbcb76a4e371b"
+  resolved "git+ssh://git@github.com/segmentio/control-plane-service-js-client.git#ef6bf196180bca519edd033cadcf9932edca8d86"
   dependencies:
     "@segment/remote-service-client" "^2.4.0"
     aws4 "^1.11.0"
