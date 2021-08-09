@@ -2312,13 +2312,6 @@
     path-to-regexp "^6.1.0"
     querystring "^0.2.0"
 
-"@segment/destination-subscriptions@^3.1.1-alpha.7":
-  version "3.1.1-alpha-7"
-  resolved "https://registry.yarnpkg.com/@segment/destination-subscriptions/-/destination-subscriptions-3.1.1-alpha-7.tgz#499d57eca5031a2a3b571294984b873ce20cdc6f"
-  integrity sha512-GJiHD+lXC4metxJFmZ7ECXT4bHf2uPZL9hqmqHG2LTFJQLvuE4xKJQLVVSfiHnNkOsa42otUGYwrOcKV6KxuFw==
-  dependencies:
-    "@segment/fql" "^1.9.1"
-
 "@segment/fab5-subscriptions@^3.0.0":
   version "3.0.0"
   resolved "https://registry.yarnpkg.com/@segment/fab5-subscriptions/-/fab5-subscriptions-3.0.0.tgz#817959743769989a7308603fb73601d73b2f6437"
