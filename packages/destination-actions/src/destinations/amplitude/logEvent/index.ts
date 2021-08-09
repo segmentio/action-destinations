@@ -181,7 +181,7 @@ const action: ActionDefinition<Settings, Payload> = {
       })
     }
 
-    if (payload.utm_properties) {
+    if (Object.keys(payload.utm_properties ?? {}).length || payload.referrer) {
       const user_properties = mergeUserProperties(convertUTMProperties(payload), convertReferrerProperty(payload))
       events.push({
         ...properties,

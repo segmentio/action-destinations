@@ -280,5 +280,34 @@ describe('Amplitude', () => {
     })
   })
 
-  // it('should support ')
+  it('should not inject userData if the default mapping is not satisfied and utm / referrer are not provided', async () => {
+    const event = createTestEvent({
+      timestamp,
+      event: 'Test Event',
+      traits: {
+        'some-trait-key': 'some-trait-value'
+      },
+      context: {
+        'some-context': 'yep'
+      }
+    })
+    nock('https://api2.amplitude.com/2').post('/httpapi').reply(200, {})
+    const responses = await testDestination.testAction('logEvent', { event, useDefaultMappings: true })
+    expect(responses.length).toBe(1)
+    expect(responses[0].status).toBe(200)
+    expect(responses[0].data).toMatchObject({})
+
+    expect(responses[0].options.json).toMatchObject({
+      events: expect.arrayContaining([
+        expect.objectContaining({
+          event_type: 'Test Event',
+          event_properties: {},
+          user_properties: {
+            'some-trait-key': 'some-trait-value'
+          },
+          use_batch_endpoint: false
+        })
+      ])
+    })
+  })
 })
