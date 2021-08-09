@@ -22,6 +22,7 @@
       "@segment/actions-core": ["../core/src"],
       "@segment/actions-core/*": ["../core/src/*"],
       "@segment/action-destinations": ["../destination-actions/src"],
+      "@segment/browser-destinations": ["../browser-destination/src"],
       "@segment/destination-subscriptions": ["../destination-subscriptions/src"]
     }
   },
