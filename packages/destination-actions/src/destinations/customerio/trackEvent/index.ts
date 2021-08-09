@@ -11,9 +11,16 @@ const action: ActionDefinition<Settings, Payload> = {
       label: 'Person ID',
       description: 'ID of the person who triggered this event.',
       type: 'string',
-      required: true,
       default: {
         '@path': '$.userId'
+      }
+    },
+    anonymous_id: {
+      label: 'Anonymous ID',
+      description: 'Anonymous ID of the person who triggered this event.',
+      type: 'string',
+      default: {
+        '@path': '$.anonymousId'
       }
     },
     name: {
@@ -44,14 +51,26 @@ const action: ActionDefinition<Settings, Payload> = {
   },
 
   perform: (request, { payload }) => {
-    return request(`https://track.customer.io/api/v1/customers/${payload.id}/events`, {
-      method: 'post',
-      json: {
-        name: payload.name,
-        type: payload.type,
-        data: payload.data
-      }
-    })
+    if (payload.id !== undefined) {
+      return request(`https://track.customer.io/api/v1/customers/${payload.id}/events`, {
+        method: 'post',
+        json: {
+          name: payload.name,
+          type: payload.type,
+          data: payload.data
+        }
+      })
+    } else {
+      return request('https://track.customer.io/api/v1/events', {
+        method: 'post',
+        json: {
+          anonymous_id: payload.anonymous_id,
+          name: payload.name,
+          type: payload.type,
+          data: payload.data
+        }
+      })
+    }
   }
 }
 
