@@ -9,7 +9,7 @@ describe('CustomerIO', () => {
   describe('trackEvent', () => {
     it('should work with default mappings when a userId is supplied', async () => {
       const userId = 'abc123'
-      const name = 'test event'
+      const name = 'testEvent'
       const type = 'track'
       const data = {
         property1: 'this is a test'
