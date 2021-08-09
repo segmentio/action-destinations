@@ -149,6 +149,7 @@ const action: ActionDefinition<Settings, Payload> = {
       time,
       session_id,
       utm_properties,
+      referrer,
       ...rest
     } = omit(payload, revenueKeys)
     const properties = rest as AmplitudeEvent

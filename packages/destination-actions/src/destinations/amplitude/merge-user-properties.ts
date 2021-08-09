@@ -6,10 +6,13 @@ export interface AmplitudeUserProperties {
 
 export function mergeUserProperties(...properties: AmplitudeUserProperties[]): AmplitudeUserProperties {
   return properties.reduce((prev, current) => {
+    const hasSet = prev.$set || current.$set
+    const hasSetOnce = prev.$setOnce || current.$setOnce
     return {
+      ...prev,
       ...current,
-      $set: { ...prev.$set, ...current.$set },
-      $setOnce: { ...prev.$setOnce, ...current.$setOnce }
+      ...(hasSet && { $set: { ...prev.$set, ...current.$set } }),
+      ...(hasSetOnce && { $setOnce: { ...prev.$setOnce, ...current.$setOnce } })
     }
   }, {})
 }

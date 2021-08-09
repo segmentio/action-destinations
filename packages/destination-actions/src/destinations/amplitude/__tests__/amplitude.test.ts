@@ -223,5 +223,62 @@ describe('Amplitude', () => {
         }
       `)
     })
+
+    it('should support referrer and utm properties in logEvent call to amplitude', async () => {
+      const event = createTestEvent({
+        timestamp,
+        event: 'Test Event',
+        traits: {
+          'some-trait-key': 'some-trait-value'
+        },
+        context: {
+          page: {
+            referrer: 'some-referrer'
+          },
+          campaign: {
+            name: 'TPS Innovation Newsletter',
+            source: 'Newsletter',
+            medium: 'email',
+            term: 'tps reports',
+            content: 'image link'
+          }
+        }
+      })
+      nock('https://api2.amplitude.com/2').post('/httpapi').reply(200, {})
+      const responses = await testDestination.testAction('logEvent', { event, useDefaultMappings: true })
+      expect(responses.length).toBe(1)
+      expect(responses[0].status).toBe(200)
+      expect(responses[0].data).toMatchObject({})
+      expect(responses[0].options.json).toMatchObject({
+        api_key: undefined,
+        events: expect.arrayContaining([
+          expect.objectContaining({ event_type: 'Test Event' }),
+          expect.objectContaining({
+            event_type: '$identify',
+            user_properties: expect.objectContaining({
+              'some-trait-key': 'some-trait-value',
+              $set: {
+                utm_source: 'Newsletter',
+                utm_medium: 'email',
+                utm_campaign: 'TPS Innovation Newsletter',
+                utm_term: 'tps reports',
+                utm_content: 'image link',
+                referrer: 'some-referrer'
+              },
+              $setOnce: {
+                initial_utm_source: 'Newsletter',
+                initial_utm_medium: 'email',
+                initial_utm_campaign: 'TPS Innovation Newsletter',
+                initial_utm_term: 'tps reports',
+                initial_utm_content: 'image link',
+                initial_referrer: 'some-referrer'
+              }
+            })
+          })
+        ])
+      })
+    })
   })
+
+  // it('should support ')
 })
