@@ -55,7 +55,7 @@
     "@oclif/config": "^1",
     "@oclif/errors": "^1",
     "@oclif/plugin-help": "^3",
-    "@segment/destination-actions": "^3.1.0",
+    "@segment/action-destinations": "^3.1.0",
     "chalk": "^4.1.1",
     "chokidar": "^3.5.1",
     "execa": "^5.1.1",
