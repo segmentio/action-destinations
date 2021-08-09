@@ -1,6 +1,6 @@
 import { Command, flags } from '@oclif/command'
 import type { DestinationDefinition as CloudDestinationDefinition } from '@segment/actions-core'
-import { manifest as cloudManifest } from '@segment/destination-actions'
+import { manifest as cloudManifest } from '@segment/action-destinations'
 import { manifest as browserManifest, BrowserDestinationDefinition } from '@segment/browser-destinations'
 import chalk from 'chalk'
 import { uniq, pick, omit, sortBy, mergeWith } from 'lodash'
