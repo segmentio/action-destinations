@@ -26,7 +26,7 @@ interface InitialUTMProperties {
  * Take a compatible payload that contains a `utm_properties` key and converts it to a user_properties object suitable for injection into an amplitude event
  *
  * @param payload an event payload that contains a utm_properties property
- * @returns a mutated payload with user_properties set based on utm_properties and the utm_properties key removed
+ * @returns a user_properties object suitable for amplitude events
  */
 export function convertUTMProperties(payload: Payload): AmplitudeUserProperties {
   const { utm_properties, ...rest } = payload
