@@ -1,0 +1,17 @@
+{
+  "extends": "../../tsconfig.json",
+  "compilerOptions": {
+    "outDir": "dist",
+    "allowJs": true,
+    "importHelpers": true,
+    "lib": ["es2020", "dom"],
+    "baseUrl": ".",
+    "paths": {
+      "@segment/actions-core": ["../core/src"],
+      "@segment/actions-core/*": ["../core/src/*"]
+    }
+  },
+  "references": [{ "path": "../core" }],
+  "exclude": ["**/__tests__/**/*.ts"],
+  "include": ["src"]
+}
