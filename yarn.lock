@@ -2291,6 +2291,13 @@
     path-to-regexp "^6.1.0"
     querystring "^0.2.0"
 
+"@segment/destination-subscriptions@^3.1.0":
+  version "3.1.0"
+  resolved "https://registry.yarnpkg.com/@segment/destination-subscriptions/-/destination-subscriptions-3.1.0.tgz#aed5d89eda51ba3f3da0a1796c99460a17777d2b"
+  integrity sha512-eeyPMGr8UocI1jeTWUkU7Z84afxqX8WXArK8OrviKeWEcSi5IoXPdnvxw3DFrV0xY62OXIcKxlQidsRf3OBObg==
+  dependencies:
+    "@segment/fql" "^1.9.1"
+
 "@segment/facade@3.3.10":
   version "3.3.10"
   resolved "https://registry.yarnpkg.com/@segment/facade/-/facade-3.3.10.tgz#94381079d326f8d4b2d11e0b2b1a85ca7aac28c4"
