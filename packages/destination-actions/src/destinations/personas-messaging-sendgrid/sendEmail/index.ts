@@ -53,7 +53,7 @@ const action: ActionDefinition<Settings, Payload> = {
       required: true
     }
   },
-  perform: async (request, { settings, payload }) => {
+  perform: async (request, { payload }) => {
     return request('https://api.sendgrid.com/v3/mail/send', {
       method: 'post',
       json: {
@@ -66,8 +66,6 @@ const action: ActionDefinition<Settings, Payload> = {
               }
             ],
             custom_args: {
-              source_id: settings.sourceId,
-              space_id: settings.profileApiSpaceId,
               user_id: payload.userId
             }
           }
