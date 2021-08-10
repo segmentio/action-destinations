@@ -2259,27 +2259,6 @@
   resolved "https://registry.yarnpkg.com/@polka/url/-/url-1.0.0-next.15.tgz#6a9d143f7f4f49db2d782f9e1c8839a29b43ae23"
   integrity sha512-15spi3V28QdevleWBNXE4pIls3nFZmBbUGrW9IVPwiQczuSb9n76TCB4bsk8TSel+I1OkHEdPhu5QKMfY6rQHA==
 
-"@segment/actions-core@^3.1.0":
-  version "3.1.0"
-  resolved "https://registry.yarnpkg.com/@segment/actions-core/-/actions-core-3.1.0.tgz#d85e8073026d1edd8c880e3bc3f82f8293c0aea4"
-  integrity sha512-/+CP2jVGcVCuhdmGvrxScHPmY+Pr+7MwJggP2MnuvgQM37Wyaq1L0jw5XPJbqWIcB/S+D0llfsgjFxAgmmfRRA==
-  dependencies:
-    "@lukeed/uuid" "^2.0.0"
-    "@segment/ajv-human-errors" "^1.1.0"
-    "@segment/fab5-subscriptions" "^3.0.0"
-    abort-controller "^3.0.0"
-    aggregate-error "^3.1.0"
-    ajv "^6.12.4"
-    btoa-lite "^1.0.0"
-    cross-fetch "^3.1.4"
-    dayjs "^1.10.4"
-    ts-custom-error "^3.2.0"
-
-"@segment/ajv-human-errors@^1.1.0":
-  version "1.1.0"
-  resolved "https://registry.yarnpkg.com/@segment/ajv-human-errors/-/ajv-human-errors-1.1.0.tgz#547e4cf4cd81bf06db771f2f673459790afe80c7"
-  integrity sha512-zmnLpOicwOOIvHrPCLyw957rn0W6XyZX82kpGoK8MGSjn8m5/qpwFBr3sBVTWJBaFZ8/3RTXkItlnsO/EtHKtw==
-
 "@segment/analytics-next@^1.19.1":
   version "1.29.2"
   resolved "https://registry.yarnpkg.com/@segment/analytics-next/-/analytics-next-1.29.2.tgz#15722b69832accbad48f956fc3d344a028fb34b2"
@@ -2311,13 +2290,6 @@
     lodash "^4.17.15"
     path-to-regexp "^6.1.0"
     querystring "^0.2.0"
-
-"@segment/fab5-subscriptions@^3.0.0":
-  version "3.0.0"
-  resolved "https://registry.yarnpkg.com/@segment/fab5-subscriptions/-/fab5-subscriptions-3.0.0.tgz#817959743769989a7308603fb73601d73b2f6437"
-  integrity sha512-dt4tR37/00+ufIALDmXw9DOCgFuD8jqCdzjXpukJOjIbg3UG1IZMPM+X8BVtH+xgCHk4x7Qii81gDqtNN7g86w==
-  dependencies:
-    "@segment/fql" "^1.9.1"
 
 "@segment/facade@3.3.10":
   version "3.3.10"
