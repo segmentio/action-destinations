@@ -7,38 +7,11 @@ const timestamp = new Date().toISOString()
 
 for (const environment of ['stage', 'production']) {
   const settings = {
-    sendGridApiKey: 'sendGridApiKey',
-    sourceId: 'sourceId',
-    profileApiEnvironment: environment,
-    profileApiAccessToken: 'profileApiAccessToken',
-    profileApiSpaceId: 'profileApiSpaceId'
+    sendGridApiKey: 'sendGridApiKey'
   }
-
-  const endpoint = `https://profiles.segment.${environment === 'production' ? 'com' : 'build'}`
 
   describe(`${environment} - send Email`, () => {
     it('should send Email', async () => {
-      nock(`${endpoint}/v1/spaces/profileApiSpaceId/collections/users/profiles/user_id:jane`)
-        .get('/traits?limit=200')
-        .reply(200, {
-          traits: {}
-        })
-
-      nock(`${endpoint}/v1/spaces/profileApiSpaceId/collections/users/profiles/user_id:jane`)
-        .get('/external_ids?limit=25')
-        .reply(200, {
-          data: [
-            {
-              type: 'user_id',
-              id: 'jane'
-            },
-            {
-              type: 'email',
-              id: 'test@example.com'
-            }
-          ]
-        })
-
       const expectedSendGridRequest = {
         personalizations: [
           {
@@ -49,8 +22,6 @@ for (const environment of ['stage', 'production']) {
               }
             ],
             custom_args: {
-              source_id: settings.sourceId,
-              space_id: settings.profileApiSpaceId,
               user_id: 'jane'
             }
           }
@@ -87,7 +58,7 @@ for (const environment of ['stage', 'production']) {
           fromName: 'From Name'
         }
       })
-      expect(responses.length).toEqual(3)
+      expect(responses.length).toEqual(1)
       expect(sendGridRequest.isDone()).toEqual(true)
     })
   })
