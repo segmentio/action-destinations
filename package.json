@@ -11,6 +11,7 @@
     "node": ">=12"
   },
   "scripts": {
+    "browser": "yarn workspace @segment/browser-destinations",
     "cloud": "yarn workspace @segment/action-destinations",
     "cli": "yarn workspace @segment/actions-cli",
     "core": "yarn workspace @segment/actions-core",
