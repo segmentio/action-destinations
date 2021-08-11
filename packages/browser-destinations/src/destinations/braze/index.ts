@@ -35,9 +35,7 @@ export const destination: BrowserDestinationDefinition<Settings, typeof appboy> 
       description:
         'Allow Braze to log activity from crawlers. [See more details](https://js.appboycdn.com/web-sdk/latest/doc/modules/appboy.html#initializationoptions)',
       label: 'Allow Crawler Activity',
-      default: {
-        '@literal': false
-      },
+      default: false,
       type: 'boolean',
       required: false
     },
@@ -45,9 +43,7 @@ export const destination: BrowserDestinationDefinition<Settings, typeof appboy> 
       description:
         'To indicate that you trust the Braze dashboard users to write non-malicious Javascript click actions, set this property to true. If enableHtmlInAppMessages is true, this option will also be set to true. [See more details](https://js.appboycdn.com/web-sdk/latest/doc/modules/appboy.html#initializationoptions)',
       label: 'Allow User Supplied Javascript',
-      default: {
-        '@literal': false
-      },
+      default: false,
       type: 'boolean',
       required: false
     },
@@ -84,9 +80,7 @@ export const destination: BrowserDestinationDefinition<Settings, typeof appboy> 
     disablePushTokenMaintenance: {
       label: 'Disable Push Token Maintenance',
       type: 'boolean',
-      default: {
-        '@literal': true
-      },
+      default: true,
       required: false,
       description:
         'By default, users who have already granted web push permission will sync their push token with the Braze backend automatically on new session to ensure deliverability. To disable this behavior, set this option to false'
@@ -94,18 +88,14 @@ export const destination: BrowserDestinationDefinition<Settings, typeof appboy> 
     doNotLoadFontAwesome: {
       label: 'Do Not Load Font Awesome',
       type: 'boolean',
-      default: {
-        '@literal': false
-      },
+      default: false,
       description:
         'Braze automatically loads FontAwesome 4.7.0 from the FontAwesome CDN. To disable this behavior set this option to true.'
     },
     enableHtmlInAppMessages: {
       label: '[Deprecated] Enable HTML In-App Messages',
       type: 'boolean',
-      default: {
-        '@literal': false
-      },
+      default: false,
       description:
         'Set this to true to indicate that you trust the Braze dashboard users to write non-malicious HTML in-app messages. If allowUserSuppliedJavascript is set to true, this option will also be set to true.',
       required: false
@@ -113,9 +103,7 @@ export const destination: BrowserDestinationDefinition<Settings, typeof appboy> 
     enableLogging: {
       label: 'Enable Logging',
       required: false,
-      default: {
-        '@literal': false
-      },
+      default: false,
       type: 'boolean',
       description: 'Set to true to enable logging by default'
     },
@@ -123,14 +111,12 @@ export const destination: BrowserDestinationDefinition<Settings, typeof appboy> 
       label: 'Enable SDK Authentication',
       type: 'boolean',
       required: false,
-      default: {
-        '@literal': false
-      },
+      default: false,
       description: 'Set to true to enable the SDK Authentication feature.'
     },
     inAppMessageZIndex: {
       label: 'In-App Message Z Index',
-      type: 'integer',
+      type: 'number',
       required: false,
       description:
         "By default, the Braze SDK will show In-App Messages with a z-index of 1040 for the screen overlay, 1050 for the actual in-app message, and 1060 for the message's close button. Provide a value for this option to override these default z-indexes."
@@ -146,16 +132,14 @@ export const destination: BrowserDestinationDefinition<Settings, typeof appboy> 
     manageServiceWorkerExternally: {
       label: 'Manage Service Worker Externally',
       type: 'boolean',
-      default: {
-        '@literal': false
-      },
+      default: false,
       required: false,
       description:
         'If you have your own service worker that you register and control the lifecycle of, set this option to true and the Braze SDK will not register or unregister a service worker. [See more details](https://js.appboycdn.com/web-sdk/latest/doc/modules/appboy.html#initializationoptions)'
     },
     minimumIntervalBetweenTriggerActionsInSeconds: {
       label: 'Minimum Interval Between Treigger Actions in Seconds',
-      type: 'integer',
+      type: 'number',
       required: false,
       default: 30,
       description:
@@ -164,9 +148,7 @@ export const destination: BrowserDestinationDefinition<Settings, typeof appboy> 
     noCookies: {
       label: 'No Cookies',
       type: 'boolean',
-      default: {
-        '@literal': false
-      },
+      default: false,
       required: false,
       description:
         'By default, the Braze SDK will store small amounts of data (user ids, session ids), in cookies. Pass true for this option to disable cookie storage and rely entirely on HTML 5 localStorage to identify users and sessions. [See more details](https://js.appboycdn.com/web-sdk/latest/doc/modules/appboy.html#initializationoptions)'
@@ -174,9 +156,7 @@ export const destination: BrowserDestinationDefinition<Settings, typeof appboy> 
     openCardsInNewTab: {
       label: 'Open Cards In New Tab',
       type: 'boolean',
-      default: {
-        '@literal': false
-      },
+      default: false,
       required: false,
       description:
         'By default, links from Card objects load in the current tab or window. Set this option to true to make links from cards open in a new tab or window.'
@@ -184,9 +164,7 @@ export const destination: BrowserDestinationDefinition<Settings, typeof appboy> 
     openInAppMessagesInNewTab: {
       label: 'Open In-App Messages In New Tab',
       type: 'boolean',
-      default: {
-        '@literal': false
-      },
+      default: false,
       required: false,
       description:
         'By default, links from in-app message clicks load in the current tab or a new tab as specified in the dashboard on a message-by-message basis. Set this option to true to force all links from in-app message clicks open in a new tab or window.'
@@ -195,9 +173,7 @@ export const destination: BrowserDestinationDefinition<Settings, typeof appboy> 
       label: 'Require Explicit In-App Message Dismissal',
       type: 'boolean',
       required: false,
-      default: {
-        '@literal': false
-      },
+      default: false,
       description:
         'By default, when an in-app message is showing, pressing the escape button or a click on the greyed-out background of the page will dismiss the message. Set this option to true to prevent this behavior and require an explicit button click to dismiss messages.'
     },
@@ -217,7 +193,7 @@ export const destination: BrowserDestinationDefinition<Settings, typeof appboy> 
     },
     sessionTimeoutInSeconds: {
       label: 'Session Timeout in Seconds',
-      type: 'integer',
+      type: 'number',
       default: 1800, // 30 minutes
       required: false,
       description:

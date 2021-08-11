@@ -1,9 +1,9 @@
-import type { BrowserDestinationDefinition } from 'src/lib/browser-destinations'
+import type { BrowserDestinationDefinition } from '../lib/browser-destinations'
 import path from 'path'
 
 type MetadataId = string
 
-interface ManifestEntry {
+export interface ManifestEntry {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   definition: BrowserDestinationDefinition<any, any>
   directory: string
