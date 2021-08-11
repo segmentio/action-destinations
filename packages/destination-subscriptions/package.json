@@ -1,6 +1,6 @@
 {
 	"name": "@segment/destination-subscriptions",
-	"version": "3.1.1-alpha.0",
+	"version": "3.1.1-alpha.1",
 	"description": "Validate event payload using subscription AST",
 	"repository": {
 		"type": "git",
