@@ -23,7 +23,9 @@ const destination: DestinationDefinition<Settings> = {
         description:
           'If true, events are sent to `https://tagger-test.opecloud.com` instead of `https://tagger.opecloud.com`',
         type: 'boolean',
-        default: false
+        default: {
+          '@literal': false
+        }
       }
     },
     testAuthentication: (_request) => {
