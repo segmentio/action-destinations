@@ -21,7 +21,7 @@ export const destination: BrowserDestinationDefinition<Settings, typeof appboy> 
     api_key: {
       description: 'Created under Developer Console in the Braze Dashboard.',
       label: 'API Key',
-      type: 'string',
+      type: 'password',
       required: true
     },
     endpoint: {
@@ -72,7 +72,7 @@ export const destination: BrowserDestinationDefinition<Settings, typeof appboy> 
     devicePropertyWhitelist: {
       description:
         'This initialization option is deprecated in favor of devicePropertyAllowlist, which has the same functionality.',
-      label: '[Deprecated] Devide Property Whitelist',
+      label: '[Deprecated] Device Property Whitelist',
       type: 'string',
       required: false,
       multiple: true
