@@ -54,6 +54,7 @@ export interface GlobalSetting {
     /** A human-friendly label for the option */
     label: string
   }>
+  required?: boolean
   default?: string | number | boolean
   properties?: InputField['properties']
   format?: InputField['format']

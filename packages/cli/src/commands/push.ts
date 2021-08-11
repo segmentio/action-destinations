@@ -1,7 +1,11 @@
 import { Command, flags } from '@oclif/command'
 import type { DestinationDefinition as CloudDestinationDefinition } from '@segment/actions-core'
-import { manifest as cloudManifest } from '@segment/action-destinations'
-import { manifest as browserManifest, BrowserDestinationDefinition } from '@segment/browser-destinations'
+import { manifest as cloudManifest, ManifestEntry as CloudManifest } from '@segment/action-destinations'
+import {
+  manifest as browserManifest,
+  ManifestEntry as BrowserManifest,
+  BrowserDestinationDefinition
+} from '@segment/browser-destinations'
 import chalk from 'chalk'
 import { uniq, pick, omit, sortBy, mergeWith } from 'lodash'
 import { diffString } from 'json-diff'
@@ -34,23 +38,28 @@ type BaseActionInput = Omit<DestinationMetadataActionCreateInput, 'metadataId'>
 // metadataId. This is because we currently rely on a separate directory for all web actions.
 // So here we need to intelligently merge them until we explore colocating all actions with a single
 // definition file.
-const manifest = mergeWith({}, cloudManifest, browserManifest, (objValue, srcValue) => {
-  if (Object.keys(objValue?.definition?.actions ?? {}).length === 0) {
-    return
-  }
-
-  for (const [actionKey, action] of Object.entries(srcValue.definition?.actions ?? {})) {
-    if (actionKey in objValue.definition.actions) {
-      throw new Error(
-        `Could not merge browser + cloud actions because there is already an action with the same key "${actionKey}"`
-      )
+const manifest: Record<string, CloudManifest | BrowserManifest> = mergeWith(
+  {},
+  cloudManifest,
+  browserManifest,
+  (objValue, srcValue) => {
+    if (Object.keys(objValue?.definition?.actions ?? {}).length === 0) {
+      return
     }
 
-    objValue.definition.actions[actionKey] = action
-  }
+    for (const [actionKey, action] of Object.entries(srcValue.definition?.actions ?? {})) {
+      if (actionKey in objValue.definition.actions) {
+        throw new Error(
+          `Could not merge browser + cloud actions because there is already an action with the same key "${actionKey}"`
+        )
+      }
 
-  return objValue
-})
+      objValue.definition.actions[actionKey] = action
+    }
+
+    return objValue
+  }
+)
 
 export default class Push extends Command {
   private spinner: ora.Ora = ora()
@@ -302,9 +311,12 @@ export function getOptions(
 ): DestinationMetadataOptions {
   const options: DestinationMetadataOptions = { ...metadata.options }
 
+  const publicSettings = (definition as BrowserDestinationDefinition).settings
+  const authFields = (definition as CloudDestinationDefinition).authentication?.fields
+
   const settings = {
-    ...(definition as BrowserDestinationDefinition).settings,
-    ...(definition as CloudDestinationDefinition).authentication?.fields
+    ...publicSettings,
+    ...authFields
   }
 
   for (const [fieldKey, schema] of Object.entries(settings)) {
@@ -318,18 +330,19 @@ export function getOptions(
       validators.push(['required', `The ${fieldKey} property is required.`])
     }
 
+    // Everything in `authentication.fields` should be private. Otherwise, public is fine
+    const isPrivateSetting = typeof authFields === 'object' && fieldKey in authFields
+
     options[fieldKey] = {
-      // Authentication-related fields don't support defaults yet
-      default: '',
+      default: schema.default ?? '',
       description: schema.description,
-      encrypt: false,
+      encrypt: schema.type === 'password',
       hidden: false,
       label: schema.label,
-      // TODO fix this for device destinations or allow developers to specify
-      private: true,
+      private: isPrivateSetting,
       scope: 'event_destination',
-      type: 'string',
-      validators
+      type: schema.type,
+      options: validators
     }
   }
 
