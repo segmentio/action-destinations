@@ -44,6 +44,8 @@ export interface GlobalSetting {
   description: string
   /** A subset of the available DestinationMetadataOption types */
   type: 'boolean' | 'string' | 'password' | 'number'
+  /** Whether or not the field accepts more than one of its `type` */
+  multiple?: boolean
   /**
    * A predefined set of options for the setting.
    * Only relevant for `type: 'string'` or `type: 'number'`.

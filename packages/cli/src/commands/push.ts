@@ -16,6 +16,7 @@ import type {
   DestinationMetadataActionCreateInput,
   DestinationMetadataActionFieldCreateInput,
   DestinationMetadataActionsUpdateInput,
+  DestinationMetadataOption,
   DestinationMetadataOptions,
   DestinationSubscriptionPresetFields,
   DestinationSubscriptionPresetInput
@@ -333,7 +334,19 @@ export function getOptions(
     // Everything in `authentication.fields` should be private. Otherwise, public is fine
     const isPrivateSetting = typeof authFields === 'object' && fieldKey in authFields
 
-    const type = Array.isArray(schema.choices) ? 'select' : schema.type
+    let type: DestinationMetadataOption['type'] = schema.type
+    if (Array.isArray(schema.choices)) {
+      type = 'select'
+    }
+
+    if (schema.multiple) {
+      if (type !== 'string') {
+        throw new Error("`multiple: true` can only be used with `type: 'string'`.")
+      }
+
+      // Use array type for any `multiple` fields
+      type = 'array'
+    }
 
     // Validate that select choices match the specified field type.
     if (type === 'select') {

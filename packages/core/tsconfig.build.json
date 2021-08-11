@@ -3,8 +3,12 @@
   "compilerOptions": {
     "composite": true,
     "outDir": "dist",
-    "rootDir": "src"
+    "baseUrl": ".",
+    "paths": {
+      "@segment/destination-subscriptions": ["../destination-subscriptions/src"]
+    }
   },
+  "references": [{ "path": "../destination-subscriptions" }],
   "exclude": ["**/__tests__/**/*.ts", "benchmarks"],
   "include": ["src"]
 }
