@@ -342,7 +342,12 @@ export function getOptions(
       private: isPrivateSetting,
       scope: 'event_destination',
       type: schema.type,
-      options: validators
+      options: schema.choices?.map((choice) => ({
+        value: choice.value,
+        label: choice.label,
+        text: choice.label
+      })),
+      validators
     }
   }
 
