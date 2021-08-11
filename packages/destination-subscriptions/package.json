@@ -1,6 +1,6 @@
 {
 	"name": "@segment/destination-subscriptions",
-	"version": "3.0.0",
+	"version": "3.1.0",
 	"description": "Validate event payload using subscription AST",
 	"repository": {
 		"type": "git",
@@ -37,7 +37,7 @@
 		"package.json"
 	],
 	"dependencies": {
-		"@segment/fql": "^1.9.1"
+		"@segment/fql-ts": "^1.10.1"
 	},
 	"devDependencies": {
 		"@sindresorhus/tsconfig": "^0.7.0",

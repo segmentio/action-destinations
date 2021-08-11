@@ -1,4 +1,4 @@
-import { lex, Token, types as TokenType } from '@segment/fql'
+import { lex, Token, types as TokenType } from '@segment/fql-ts'
 import {
 	Subscription,
 	Condition,
