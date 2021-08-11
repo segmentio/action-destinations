@@ -8,7 +8,7 @@ This project is a monorepo with multiple packages using Yarn Workspaces:
 
 - `packages/cli` - a set of command line tools for interacting with the repo
 - `packages/core` - the core runtime engine for actions, including mapping-kit transforms
-- `packages/destinations-actions` - an npm package for use in `integrations`
+- `packages/destinations-actions` - destination definitions and their actions
 
 ```
 $ yarn install
