@@ -2,7 +2,6 @@ import { Command, flags } from '@oclif/command'
 import globby from 'globby'
 import ora from 'ora'
 import path from 'path'
-import os from 'os'
 import { loadDestination } from '../lib/destinations'
 import { controlPlaneService } from '../lib/control-plane-service'
 import type { CreateDestinationMetadataInput } from '../lib/control-plane-service'
@@ -121,14 +120,6 @@ export default class Register extends Command {
 
     this.log(`Please review the definition before continuing:`)
     this.log(`\n${JSON.stringify(definition, null, 2)}`)
-
-    // Loosely verify that we are on the production workbench, unless explicitly targeting stage
-    const hostname = os.hostname()
-    const isWorkbench = hostname.startsWith('workbench-') && hostname.includes(`-${flags.env}-`)
-    if (!isWorkbench && flags.env !== 'stage') {
-      this.warn(`You must be logged into the ${flags.env} workbench to register your destination. Exiting.`)
-      this.exit()
-    }
 
     const { shouldContinue } = await prompt({
       type: 'confirm',
