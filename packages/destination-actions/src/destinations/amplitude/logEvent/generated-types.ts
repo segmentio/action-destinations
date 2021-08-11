@@ -180,4 +180,18 @@ export interface Payload {
    * If true, events are sent to Amplitude's `batch` endpoint rather than their `httpapi` events endpoint. Enabling this setting may help reduce 429s – or throttling errors – from Amplitude. More information about Amplitude's throttling is available in [their docs](https://developers.amplitude.com/docs/batch-event-upload-api#429s-in-depth).
    */
   use_batch_endpoint?: boolean
+  /**
+   * UTM Tracking Properties
+   */
+  utm_properties?: {
+    utm_source?: string
+    utm_medium?: string
+    utm_campaign?: string
+    utm_term?: string
+    utm_content?: string
+  }
+  /**
+   * The referrer of the web request. Sent to Amplitude as both last touch “referrer” and first touch “initial_referrer”
+   */
+  referrer?: string
 }
