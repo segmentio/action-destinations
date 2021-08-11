@@ -26,7 +26,8 @@
     "postpack": "rm -f oclif.manifest.json",
     "prepack": "yarn build && oclif-dev manifest && oclif-dev readme",
     "build": "yarn clean && yarn tsc -b tsconfig.build.json",
-    "clean": "rm -rf dist",
+    "clean": "tsc -b tsconfig.build.json --clean",
+    "postclean": "rm -rf dist",
     "create:destination": "./bin/run init",
     "test": "echo '⚠️ ⚠️ ⚠️  @segment/action-cli tests temporarily skipped'",
     "typecheck": "tsc --noEmit"

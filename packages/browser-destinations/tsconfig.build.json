@@ -8,11 +8,10 @@
     "baseUrl": ".",
     "paths": {
       "@segment/actions-core": ["../core/src"],
-      "@segment/actions-core/*": ["../core/src/*"],
-      "@segment/destination-subscriptions": ["../destination-subscriptions/src"]
+      "@segment/actions-core/*": ["../core/src/*"]
     }
   },
-  "references": [{ "path": "../core" }, { "path": "../destination-subscriptions" }],
+  "references": [{ "path": "../core" }],
   "exclude": ["**/__tests__/**/*.ts"],
   "include": ["src"]
 }
