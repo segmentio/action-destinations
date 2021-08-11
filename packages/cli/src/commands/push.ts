@@ -333,6 +333,16 @@ export function getOptions(
     // Everything in `authentication.fields` should be private. Otherwise, public is fine
     const isPrivateSetting = typeof authFields === 'object' && fieldKey in authFields
 
+    const type = Array.isArray(schema.choices) ? 'select' : schema.type
+
+    // Validate that select choices match the specified field type.
+    if (type === 'select') {
+      const allChoicesMatchType = schema.choices?.every((choice) => typeof choice.value === schema.type)
+      if (!allChoicesMatchType) {
+        throw new Error(`All choices must have a value that matches the 'type' for this field.`)
+      }
+    }
+
     options[fieldKey] = {
       default: schema.default ?? '',
       description: schema.description,
@@ -341,7 +351,7 @@ export function getOptions(
       label: schema.label,
       private: isPrivateSetting,
       scope: 'event_destination',
-      type: schema.type,
+      type,
       options: schema.choices?.map((choice) => ({
         value: choice.value,
         label: choice.label,

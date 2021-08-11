@@ -43,14 +43,14 @@ export interface GlobalSetting {
   /** A human-friendly description of the field */
   description: string
   /** A subset of the available DestinationMetadataOption types */
-  type: 'boolean' | 'string' | 'password' | 'number' | 'select'
+  type: 'boolean' | 'string' | 'password' | 'number'
   /**
    * A predefined set of options for the setting.
-   * Requires `type: 'select'`, otherwise ignored.
+   * Only relevant for `type: 'string'` or `type: 'number'`.
    */
   choices?: Array<{
     /** The value of the option */
-    value: string
+    value: string | number
     /** A human-friendly label for the option */
     label: string
   }>
