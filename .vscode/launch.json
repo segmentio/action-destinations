@@ -29,8 +29,16 @@
       "type": "node",
       "request": "launch",
       "name": "Run CLI",
-      "program": "${workspaceFolder}/packages/cli/bin/run",
-      "args": ["generate:action", "testy", "-t", "Testy", "-d", "./packages/destination-actions/src/destinations/testy"]
+      "program": "${workspaceFolder}/bin/run",
+      "args": [
+        "generate:action",
+        "testAction",
+        "browser",
+        "-t",
+        "Test Action",
+        "-d",
+        "./packages/browser-destinations/src/destinations/braze"
+      ]
     },
     // Launches Jest tests in debug mode
     // Simply drop a breakpoint and wait for the debugger to pick it up
