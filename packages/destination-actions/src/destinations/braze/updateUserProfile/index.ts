@@ -34,7 +34,6 @@ function toBrazeGender(gender: string | null | undefined): string | null | undef
     M: ['man', 'male', 'm'],
     F: ['woman', 'female', 'w', 'f'],
     O: ['other', 'o'],
-    U: ['u', 'unknown'],
     N: ['not applicable', 'n'],
     P: ['prefer not to say', 'p']
   }
