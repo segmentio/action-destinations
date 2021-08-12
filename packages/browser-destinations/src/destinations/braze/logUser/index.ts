@@ -189,9 +189,7 @@ const action: BrowserActionDefinition<Settings, typeof appboy, Payload> = {
 
     payload.email !== undefined && user.setEmail(payload.email)
     payload.first_name !== undefined && user.setFirstName(payload.first_name)
-
     payload.gender !== undefined && user.setGender(getGender(payload.gender) as appboy.User.Genders)
-
     payload.home_city !== undefined && user.setHomeCity(payload.home_city)
     payload.language !== undefined && user.setLanguage(payload.language)
     payload.current_location !== undefined &&
