@@ -38,6 +38,7 @@
   },
   "dependencies": {
     "dayjs": "^1.10.3",
+    "lodash": "^4.17.21",
     "mustache": "^4.2.0"
   },
   "optionalDependencies": {
