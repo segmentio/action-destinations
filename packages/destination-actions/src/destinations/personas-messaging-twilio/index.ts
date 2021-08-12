@@ -41,8 +41,8 @@ const destination: DestinationDefinition<Settings> = {
         required: true
       }
     },
-    testAuthentication: (_request) => {
-      // Return a request that tests/validates the user's authentication fields here
+    testAuthentication: (request) => {
+      return request('https://api.twilio.com/2010-04-01')
     }
   },
   actions: {
