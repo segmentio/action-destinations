@@ -1,4 +1,4 @@
-import Handlebars from 'handlebars'
+import Mustache from 'mustache'
 import type { ActionDefinition, RequestOptions } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
@@ -118,7 +118,7 @@ const action: ActionDefinition<Settings, Payload> = {
         authorization: `Basic ${token}`,
       },
       body: new URLSearchParams({
-        Body: Handlebars.compile(payload.body)({ profile }),
+        Body: Mustache.render(payload.body, profile),
         From: payload.fromNumber,
         To: profile.phone
       })
