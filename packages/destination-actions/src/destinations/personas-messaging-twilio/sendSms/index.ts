@@ -121,8 +121,7 @@ const action: ActionDefinition<Settings, Payload> = {
       body: new URLSearchParams({
         Body: Handlebars.compile(payload.body)({ profile }),
         From: payload.fromNumber,
-        // TODO: this number shouldn't be hardcoded for GA
-        To: profile.phone ?? '+17072478800'
+        To: profile.phone
       })
     })
   }
