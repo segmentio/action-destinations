@@ -26,7 +26,8 @@ describe('logUser', () => {
         language: { '@path': '$.traits.language' },
         last_name: { '@path': '$.traits.last_name' },
         phone: { '@path': '$.traits.phone' },
-        push_subscribe: { '@path': '$.traits.push_subscribe' }
+        push_subscribe: { '@path': '$.traits.push_subscribe' },
+        group_id: { '@path': '$.traits.group_id' }
       }
     }
   ]
@@ -161,6 +162,26 @@ describe('logUser', () => {
     expect(userMock.setLastKnownLocation).toHaveBeenCalledWith(-23.54, -46.65)
     expect(userMock.setPhoneNumber).toHaveBeenCalledWith('555 5555')
     expect(userMock.setPushNotificationSubscriptionType).toHaveBeenCalledWith(true)
+  })
+
+  test.only('set custom attribute based on group_id property', async () => {
+    const [logPurchase] = await brazeDestination({
+      api_key: 'b_123',
+      endpoint: 'endpoint',
+      subscriptions
+    })
+
+    await logPurchase.load(Context.system(), {} as Analytics)
+    await logPurchase.identify?.(
+      new Context({
+        type: 'identify',
+        traits: {
+          group_id: '123'
+        }
+      })
+    )
+
+    expect(userMock.setCustomUserAttribute).toHaveBeenCalledWith('ab_segment_group_123', true)
   })
 
   test('can set gender', async () => {

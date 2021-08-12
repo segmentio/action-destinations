@@ -146,6 +146,14 @@ const action: BrowserActionDefinition<Settings, typeof appboy, Payload> = {
       label: 'Push Subscribe',
       description: `The user's push subscription preference: “opted_in” (explicitly registered to receive push messages), “unsubscribed” (explicitly opted out of push messages), and “subscribed” (neither opted in nor out).`,
       type: 'string'
+    },
+    group_id: {
+      label: 'Group ID',
+      description: 'The ID used to identify the group',
+      type: 'string',
+      default: {
+        '@path': '$.traits.group_id'
+      }
     }
   },
 
@@ -182,6 +190,11 @@ const action: BrowserActionDefinition<Settings, typeof appboy, Payload> = {
           user.setCustomUserAttribute(key, value as string | number | boolean | Date | string[] | null)
         }
       })
+    }
+
+    if (payload.group_id !== undefined) {
+      const groupIdKey = `ab_segment_group_${payload.group_id}`
+      user.setCustomUserAttribute(groupIdKey, true)
     }
 
     payload.email_subscribe !== undefined &&
