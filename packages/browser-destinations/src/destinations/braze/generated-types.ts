@@ -2,6 +2,10 @@
 
 export interface Settings {
   /**
+   * The version of the SDK to use. Defaults to 3.3.
+   */
+  sdkVersion?: string
+  /**
    * Created under Developer Console in the Braze Dashboard.
    */
   api_key: string

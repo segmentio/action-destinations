@@ -112,6 +112,8 @@ export default class Register extends Command {
         server: hasCloudActions,
         mobile: false
       },
+      // TODO: register with authentication.fields or settings that are already defined
+      // instead of requiring a subsequent `push`?
       options: {},
       basicOptions: []
     }

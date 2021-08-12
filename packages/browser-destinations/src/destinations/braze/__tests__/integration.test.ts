@@ -101,3 +101,109 @@ test('loads the braze service worker', async () => {
     ]
   `)
 })
+
+describe('loads different versions of braze service worker', () => {
+  test('3.0', async () => {
+    const [logCustomEvent] = await braze({
+      api_key: 'api_key',
+      endpoint: 'sdk.iad-01.braze.com',
+      sdkVersion: '3.0',
+      subscriptions: example
+    })
+
+    await logCustomEvent.load(Context.system(), {} as Analytics)
+
+    const scripts = window.document.querySelectorAll('script')
+    // loads the service worker
+    expect(scripts).toMatchInlineSnapshot(`
+    NodeList [
+      <script
+        src="https://js.appboycdn.com/web-sdk/3.0/service-worker.js"
+        status="loaded"
+        type="text/javascript"
+      />,
+      <script>
+        'hi'
+      </script>,
+    ]
+  `)
+  })
+
+  test('3.1', async () => {
+    const [logCustomEvent] = await braze({
+      api_key: 'api_key',
+      endpoint: 'sdk.iad-01.braze.com',
+      sdkVersion: '3.1',
+      subscriptions: example
+    })
+
+    await logCustomEvent.load(Context.system(), {} as Analytics)
+
+    const scripts = window.document.querySelectorAll('script')
+    // loads the service worker
+    expect(scripts).toMatchInlineSnapshot(`
+    NodeList [
+      <script
+        src="https://js.appboycdn.com/web-sdk/3.1/service-worker.js"
+        status="loaded"
+        type="text/javascript"
+      />,
+      <script>
+        'hi'
+      </script>,
+    ]
+  `)
+  })
+
+  test('3.2', async () => {
+    const [logCustomEvent] = await braze({
+      api_key: 'api_key',
+      endpoint: 'sdk.iad-01.braze.com',
+      sdkVersion: '3.2',
+      subscriptions: example
+    })
+
+    await logCustomEvent.load(Context.system(), {} as Analytics)
+
+    const scripts = window.document.querySelectorAll('script')
+    // loads the service worker
+    expect(scripts).toMatchInlineSnapshot(`
+    NodeList [
+      <script
+        src="https://js.appboycdn.com/web-sdk/3.2/service-worker.js"
+        status="loaded"
+        type="text/javascript"
+      />,
+      <script>
+        'hi'
+      </script>,
+    ]
+  `)
+  })
+
+  test('3.3', async () => {
+    const [logCustomEvent] = await braze({
+      api_key: 'api_key',
+      endpoint: 'sdk.iad-01.braze.com',
+      sdkVersion: '3.3',
+      subscriptions: example
+    })
+
+    await logCustomEvent.load(Context.system(), {} as Analytics)
+
+    const scripts = window.document.querySelectorAll('script')
+    // loads the service worker
+    expect(scripts).toMatchInlineSnapshot(`
+    NodeList [
+      <script
+        src="https://js.appboycdn.com/web-sdk/3.3/service-worker.js"
+        status="loaded"
+        type="text/javascript"
+      />,
+      <script>
+        'hi'
+      </script>,
+    ]
+  `)
+  })
+})
