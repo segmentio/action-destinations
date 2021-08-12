@@ -1,5 +1,5 @@
 import { JSONSchema4, JSONSchema4Type, JSONSchema4TypeName } from 'json-schema'
-import type { InputField, FieldTypeName, Optional } from './types'
+import type { InputField, GlobalSetting, FieldTypeName, Optional } from './types'
 
 function toJsonSchemaType(type: FieldTypeName): JSONSchema4TypeName | JSONSchema4TypeName[] {
   switch (type) {
@@ -14,7 +14,7 @@ function toJsonSchemaType(type: FieldTypeName): JSONSchema4TypeName | JSONSchema
   }
 }
 
-type MinimalInputField = Optional<InputField, 'description'>
+type MinimalInputField = Optional<InputField, 'description'> | Optional<GlobalSetting, 'description'>
 
 export function fieldsToJsonSchema(fields: Record<string, MinimalInputField> = {}): JSONSchema4 {
   const required: string[] = []
@@ -41,12 +41,12 @@ export function fieldsToJsonSchema(fields: Record<string, MinimalInputField> = {
       schema.format = 'text'
     }
 
-    if (field.dynamic) {
+    if ('dynamic' in field && field.dynamic) {
       schema.autocomplete = true
       schema.dynamic = true
     }
 
-    if (field.allowNull) {
+    if ('allowNull' in field && field.allowNull) {
       schema.type = ([] as JSONSchema4TypeName[]).concat(schemaType, 'null')
 
       if (typeof schema.tsType === 'string' && !schema.tsType.includes('null')) {
@@ -54,7 +54,8 @@ export function fieldsToJsonSchema(fields: Record<string, MinimalInputField> = {
       }
     }
 
-    if (field.multiple) {
+    const isMulti = 'multiple' in field && field.multiple
+    if (isMulti) {
       schema.items = { type: schemaType }
       schema.type = 'array'
     }
@@ -62,7 +63,7 @@ export function fieldsToJsonSchema(fields: Record<string, MinimalInputField> = {
     // Note: this is used for the json schema validation and type-generation,
     // but is not stored in the db. It only lives in the code.
     if (schemaType === 'object' && field.properties) {
-      if (field.multiple) {
+      if (isMulti) {
         schema.items = fieldsToJsonSchema(field.properties)
       } else {
         schema = { ...schema, ...fieldsToJsonSchema(field.properties) }
