@@ -38,8 +38,7 @@
   },
   "dependencies": {
     "dayjs": "^1.10.3",
-    "mustache": "^4.2.0",
-    "handlebars": "^4.7.7"
+    "mustache": "^4.2.0"
   },
   "optionalDependencies": {
     "@segment/actions-core": "^3.2.0"
