@@ -2,8 +2,8 @@
   "extends": "./tsconfig.build.json",
   "compilerOptions": {
     "paths": {
-      "@segment/ajv-human-errors": ["../../ajv-human-errors"],
-      "@segment/destination-subscriptions": ["../../destination-subscriptions/src"]
+      "@segment/ajv-human-errors": ["../ajv-human-errors"],
+      "@segment/destination-subscriptions": ["../destination-subscriptions/src"]
     }
   },
   "exclude": [],

@@ -1,7 +1,7 @@
 {
   "name": "@segment/action-destinations",
   "description": "Destination Actions engine and definitions.",
-  "version": "3.2.1-alpha.1",
+  "version": "3.3.0",
   "repository": {
     "type": "git",
     "url": "https://github.com/segmentio/action-destinations",
@@ -17,7 +17,7 @@
     "node": "^14.16"
   },
   "engineStrict": true,
-  "license": "UNLICENSED",
+  "license": "MIT",
   "publishConfig": {
     "access": "restricted",
     "registry": "https://registry.npmjs.org"
@@ -42,7 +42,7 @@
     "mustache": "^4.2.0"
   },
   "optionalDependencies": {
-    "@segment/actions-core": "^3.2.1-alpha.1"
+    "@segment/actions-core": "^3.3.0"
   },
   "jest": {
     "preset": "ts-jest",

@@ -2,6 +2,8 @@ import { URLSearchParams } from 'url'
 import type { ActionDefinition } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
+import { convertUTMProperties } from '../utm'
+import { convertReferrerProperty } from '../referrer'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Identify User',
@@ -163,14 +165,66 @@ const action: ActionDefinition<Settings, Payload> = {
       type: 'string',
       description:
         'Amplitude will deduplicate subsequent events sent with this ID we have already seen before within the past 7 days. Amplitude recommends generating a UUID or using some combination of device ID, user ID, event type, event ID, and time.'
+    },
+    utm_properties: {
+      label: 'UTM Properties',
+      type: 'object',
+      description: 'UTM Tracking Properties',
+      properties: {
+        utm_source: {
+          label: 'UTM Source',
+          type: 'string'
+        },
+        utm_medium: {
+          label: 'UTM Medium',
+          type: 'string'
+        },
+        utm_campaign: {
+          label: 'UTM Campaign',
+          type: 'string'
+        },
+        utm_term: {
+          label: 'UTM Term',
+          type: 'string'
+        },
+        utm_content: {
+          label: 'UTM Content',
+          type: 'string'
+        }
+      },
+      default: {
+        utm_source: { '@path': '$.context.campaign.source' },
+        utm_medium: { '@path': '$.context.campaign.medium' },
+        utm_campaign: { '@path': '$.context.campaign.name' },
+        utm_term: { '@path': '$.context.campaign.term' },
+        utm_content: { '@path': '$.context.campaign.content' }
+      }
+    },
+    referrer: {
+      label: 'Referrer',
+      type: 'string',
+      description:
+        'The referrer of the web request. Sent to Amplitude as both last touch “referrer” and first touch “initial_referrer”',
+      default: {
+        '@path': '$.context.page.referrer'
+      }
     }
   },
+
   perform: (request, { payload, settings }) => {
+    const { utm_properties, referrer, user_properties, ...rest } = payload
+    let userProperties = user_properties
+
+    if (Object.keys(utm_properties ?? {}).length || referrer) {
+      userProperties = { ...convertUTMProperties(payload), ...convertReferrerProperty(payload) }
+    }
+
+    const identification = JSON.stringify({ ...rest, user_properties: userProperties, library: 'segment' })
     return request('https://api.amplitude.com/identify', {
       method: 'post',
       body: new URLSearchParams({
         api_key: settings.apiKey,
-        identification: JSON.stringify(payload)
+        identification
       })
     })
   }

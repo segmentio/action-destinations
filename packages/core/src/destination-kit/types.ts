@@ -36,6 +36,32 @@ export interface DynamicFieldItem {
   value: string
 }
 
+/** The shape of authentication and top-level settings */
+export interface GlobalSetting {
+  /** A short, human-friendly label for the field */
+  label: string
+  /** A human-friendly description of the field */
+  description: string
+  /** A subset of the available DestinationMetadataOption types */
+  type: 'boolean' | 'string' | 'password' | 'number'
+  /** Whether or not the field accepts more than one of its `type` */
+  multiple?: boolean
+  /**
+   * A predefined set of options for the setting.
+   * Only relevant for `type: 'string'` or `type: 'number'`.
+   */
+  choices?: Array<{
+    /** The value of the option */
+    value: string | number
+    /** A human-friendly label for the option */
+    label: string
+  }>
+  required?: boolean
+  default?: string | number | boolean
+  properties?: InputField['properties']
+  format?: InputField['format']
+}
+
 /** The supported field type names */
 export type FieldTypeName = 'string' | 'text' | 'number' | 'integer' | 'datetime' | 'boolean' | 'password' | 'object'
 

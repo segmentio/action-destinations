@@ -2302,10 +2302,10 @@
     new-date "^1.0.3"
     obj-case "0.2.1"
 
-"@segment/fql@^1.9.1":
-  version "1.10.0"
-  resolved "https://registry.yarnpkg.com/@segment/fql/-/fql-1.10.0.tgz#4e50d689c77e078887e673acda2b5fad384e461c"
-  integrity sha512-bQU4o+HC+Oo2fjdxBsxNlYw7EasxgufveKWeg2ORR8huIo6M47riV3oVo34bcLfXyEWsmWISvtgzRQOrI2XbHw==
+"@segment/fql-ts@^1.10.1":
+  version "1.10.1"
+  resolved "https://registry.yarnpkg.com/@segment/fql-ts/-/fql-ts-1.10.1.tgz#16f0056db934085b213a9c7a0115ef7f47480436"
+  integrity sha512-y2JVHeQsRADEWRLNXV5uf8BAP5PowYU5IBxsSiJY9WCIDS3/RT98g6fFRURefKn+9Dalmp7X7pcHUX5wW2ljYw==
 
 "@segment/isodate-traverse@^1.1.1":
   version "1.1.1"

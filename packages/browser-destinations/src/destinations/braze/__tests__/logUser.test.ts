@@ -5,6 +5,32 @@ import brazeDestination from '../index'
 
 describe('logUser', () => {
   let userMock: appboy.User
+
+  const subscriptions = [
+    {
+      partnerAction: 'logUser',
+      name: 'Log User',
+      enabled: true,
+      subscribe: 'type = "identify"',
+      mapping: {
+        country: { '@path': '$.traits.country' },
+        current_location: { '@path': '$.traits.current_location' },
+        custom_attributes: { '@path': '$.traits.custom_attributes' },
+        dob: { '@path': '$.traits.dob' },
+        email: { '@path': '$.traits.email' },
+        email_subscribe: { '@path': '$.traits.email_subscribe' },
+        first_name: { '@path': '$.traits.first_name' },
+        gender: { '@path': '$.traits.gender' },
+        home_city: { '@path': '$.traits.home_city' },
+        image_url: { '@path': '$.traits.image_url' },
+        language: { '@path': '$.traits.language' },
+        last_name: { '@path': '$.traits.last_name' },
+        phone: { '@path': '$.traits.phone' },
+        push_subscribe: { '@path': '$.traits.push_subscribe' }
+      }
+    }
+  ]
+
   beforeEach(async () => {
     jest.restoreAllMocks()
     jest.resetAllMocks()
@@ -89,30 +115,7 @@ describe('logUser', () => {
     const [logPurchase] = await brazeDestination({
       api_key: 'b_123',
       endpoint: 'endpoint',
-      subscriptions: [
-        {
-          partnerAction: 'logUser',
-          name: 'Log User',
-          enabled: true,
-          subscribe: 'type = "identify"',
-          mapping: {
-            country: { '@path': '$.traits.country' },
-            current_location: { '@path': '$.traits.current_location' },
-            custom_attributes: { '@path': '$.traits.custom_attributes' },
-            dob: { '@path': '$.traits.dob' },
-            email: { '@path': '$.traits.email' },
-            email_subscribe: { '@path': '$.traits.email_subscribe' },
-            first_name: { '@path': '$.traits.first_name' },
-            gender: { '@path': '$.traits.gender' },
-            home_city: { '@path': '$.traits.home_city' },
-            image_url: { '@path': '$.traits.image_url' },
-            language: { '@path': '$.traits.language' },
-            last_name: { '@path': '$.traits.last_name' },
-            phone: { '@path': '$.traits.phone' },
-            push_subscribe: { '@path': '$.traits.push_subscribe' }
-          }
-        }
-      ]
+      subscriptions
     })
 
     await logPurchase.load(Context.system(), {} as Analytics)
@@ -158,5 +161,58 @@ describe('logUser', () => {
     expect(userMock.setLastKnownLocation).toHaveBeenCalledWith(-23.54, -46.65)
     expect(userMock.setPhoneNumber).toHaveBeenCalledWith('555 5555')
     expect(userMock.setPushNotificationSubscriptionType).toHaveBeenCalledWith(true)
+  })
+
+  test('can set gender', async () => {
+    const [logPurchase] = await brazeDestination({
+      api_key: 'b_123',
+      endpoint: 'endpoint',
+      subscriptions
+    })
+
+    await logPurchase.load(Context.system(), {} as Analytics)
+    await logPurchase.identify?.(
+      new Context({
+        type: 'identify',
+        traits: {
+          gender: 'Male'
+        }
+      })
+    )
+
+    expect(userMock.setGender).toHaveBeenCalledWith('M')
+
+    await logPurchase.identify?.(
+      new Context({
+        type: 'identify',
+        traits: {
+          gender: 'prefer not to say'
+        }
+      })
+    )
+
+    expect(userMock.setGender).toHaveBeenCalledWith('P')
+
+    await logPurchase.identify?.(
+      new Context({
+        type: 'identify',
+        traits: {
+          gender: 'not defined on mapping'
+        }
+      })
+    )
+
+    expect(userMock.setGender).toHaveBeenCalledWith('not defined on mapping')
+
+    await logPurchase.identify?.(
+      new Context({
+        type: 'identify',
+        traits: {
+          gender: null
+        }
+      })
+    )
+
+    expect(userMock.setGender).toHaveBeenCalledWith(null)
   })
 })

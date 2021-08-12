@@ -4,8 +4,12 @@ import { eventSchema } from '../event-schema'
 import type { ActionDefinition } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
+import { convertUTMProperties } from '../utm'
+import { convertReferrerProperty } from '../referrer'
+import { mergeUserProperties } from '../merge-user-properties'
 
-interface AmplitudeEvent extends Omit<Payload, 'products' | 'trackRevenuePerProduct' | 'time' | 'session_id'> {
+export interface AmplitudeEvent extends Omit<Payload, 'products' | 'trackRevenuePerProduct' | 'time' | 'session_id'> {
+  library?: string
   time?: number
   session_id?: number
 }
@@ -93,11 +97,62 @@ const action: ActionDefinition<Settings, Payload> = {
         "If true, events are sent to Amplitude's `batch` endpoint rather than their `httpapi` events endpoint. Enabling this setting may help reduce 429s – or throttling errors – from Amplitude. More information about Amplitude's throttling is available in [their docs](https://developers.amplitude.com/docs/batch-event-upload-api#429s-in-depth).",
       type: 'boolean',
       default: false
+    },
+    utm_properties: {
+      label: 'UTM Properties',
+      type: 'object',
+      description: 'UTM Tracking Properties',
+      properties: {
+        utm_source: {
+          label: 'UTM Source',
+          type: 'string'
+        },
+        utm_medium: {
+          label: 'UTM Medium',
+          type: 'string'
+        },
+        utm_campaign: {
+          label: 'UTM Campaign',
+          type: 'string'
+        },
+        utm_term: {
+          label: 'UTM Term',
+          type: 'string'
+        },
+        utm_content: {
+          label: 'UTM Content',
+          type: 'string'
+        }
+      },
+      default: {
+        utm_source: { '@path': '$.context.campaign.source' },
+        utm_medium: { '@path': '$.context.campaign.medium' },
+        utm_campaign: { '@path': '$.context.campaign.name' },
+        utm_term: { '@path': '$.context.campaign.term' },
+        utm_content: { '@path': '$.context.campaign.content' }
+      }
+    },
+    referrer: {
+      label: 'Referrer',
+      type: 'string',
+      description:
+        'The referrer of the web request. Sent to Amplitude as both last touch “referrer” and first touch “initial_referrer”',
+      default: {
+        '@path': '$.context.page.referrer'
+      }
     }
   },
   perform: (request, { payload, settings }) => {
     // Omit revenue properties initially because we will manually stitch those into events as prescribed
-    const { products = [], trackRevenuePerProduct, time, session_id, ...rest } = omit(payload, revenueKeys)
+    const {
+      products = [],
+      trackRevenuePerProduct,
+      time,
+      session_id,
+      utm_properties,
+      referrer,
+      ...rest
+    } = omit(payload, revenueKeys)
     const properties = rest as AmplitudeEvent
 
     if (time && dayjs.utc(time).isValid()) {
@@ -112,7 +167,8 @@ const action: ActionDefinition<Settings, Payload> = {
       {
         ...properties,
         // Conditionally track revenue with main event
-        ...(products.length && trackRevenuePerProduct ? {} : getRevenueProperties(payload))
+        ...(products.length && trackRevenuePerProduct ? {} : getRevenueProperties(payload)),
+        library: 'segment'
       }
     ]
 
@@ -123,7 +179,17 @@ const action: ActionDefinition<Settings, Payload> = {
         ...(trackRevenuePerProduct ? getRevenueProperties(product as EventRevenue) : {}),
         event_properties: product,
         event_type: 'Product Purchased',
-        insert_id: properties.insert_id ? `${properties.insert_id}-${events.length + 1}` : undefined
+        insert_id: properties.insert_id ? `${properties.insert_id}-${events.length + 1}` : undefined,
+        library: 'segment'
+      })
+    }
+
+    if (Object.keys(payload.utm_properties ?? {}).length || payload.referrer) {
+      const user_properties = mergeUserProperties(convertUTMProperties(payload), convertReferrerProperty(payload))
+      events.push({
+        ...properties,
+        event_type: '$identify',
+        user_properties
       })
     }
 

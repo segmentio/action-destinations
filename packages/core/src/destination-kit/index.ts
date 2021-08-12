@@ -8,7 +8,7 @@ import { fieldsToJsonSchema } from './fields-to-jsonschema'
 import createRequestClient, { RequestClient } from '../create-request-client'
 import { validateSchema } from '../schema-validation'
 import type { ModifiedResponse } from '../types'
-import type { InputField, RequestExtension, ExecuteInput, Result } from './types'
+import type { GlobalSetting, RequestExtension, ExecuteInput, Result } from './types'
 import type { AllRequestOptions } from '../request-client'
 import { IntegrationError, InvalidAuthenticationError } from '../errors'
 import { AuthTokens, getAuthData, getOAuth2Data, updateOAuthSettings } from './parse-settings'
@@ -109,9 +109,9 @@ interface Authentication<Settings> {
   /** The authentication scheme */
   scheme: 'basic' | 'custom' | 'oauth2'
   /** The fields related to authentication */
-  fields: Record<string, InputField>
-  /** A function that validates the user's authentication inputs */
-  testAuthentication: (request: RequestClient, input: AuthSettings<Settings>) => Promise<unknown> | unknown
+  fields: Record<string, GlobalSetting>
+  /** A function that validates the user's authentication inputs. It is highly encouraged to define this whenever possible. */
+  testAuthentication?: (request: RequestClient, input: AuthSettings<Settings>) => Promise<unknown> | unknown
 }
 
 /**
