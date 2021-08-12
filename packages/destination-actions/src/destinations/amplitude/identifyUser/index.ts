@@ -219,7 +219,7 @@ const action: ActionDefinition<Settings, Payload> = {
       userProperties = { ...convertUTMProperties(payload), ...convertReferrerProperty(payload) }
     }
 
-    const identification = JSON.stringify({ ...rest, user_properties: userProperties })
+    const identification = JSON.stringify({ ...rest, user_properties: userProperties, library: 'segment' })
     return request('https://api.amplitude.com/identify', {
       method: 'post',
       body: new URLSearchParams({
