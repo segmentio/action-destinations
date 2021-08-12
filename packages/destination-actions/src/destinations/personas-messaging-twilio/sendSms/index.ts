@@ -108,6 +108,8 @@ const action: ActionDefinition<Settings, Payload> = {
       return
     }
 
+    // TODO: GROW-259 remove this when we can extend the request
+    // and we no longer need to call the profiles API first
     const token = Buffer.from(`${settings.twilioAccountId}:${settings.twilioAuthToken}`).toString('base64')
 
     return request(`https://api.twilio.com/2010-04-01/Accounts/${settings.twilioAccountId}/Messages.json`, {
@@ -119,6 +121,7 @@ const action: ActionDefinition<Settings, Payload> = {
       body: new URLSearchParams({
         Body: Handlebars.compile(payload.body)({ profile }),
         From: payload.fromNumber,
+        // TODO: this number shouldn't be hardcoded for GA
         To: profile.phone ?? '+17072478800'
       })
     })

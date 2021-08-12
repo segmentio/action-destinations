@@ -45,6 +45,14 @@ const destination: DestinationDefinition<Settings> = {
       return request('https://api.twilio.com/2010-04-01')
     }
   },
+  // TODO: GROW-259 we'll uncomment this once we remove the calls to the profiles API,
+  // but for now this would extend those requests and result in 401s
+  // extendRequest: ({ settings }) => {
+  //   return {
+  //     username: settings.twilioAccountId,
+  //     password: settings.twilioAuthToken
+  //   }
+  // },
   actions: {
     sendSms
   }
