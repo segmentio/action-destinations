@@ -75,12 +75,14 @@ describe('Amplitude', () => {
           expect.objectContaining({
             event_type: 'Order Completed',
             revenue: 1_999,
-            event_properties: event.properties
+            event_properties: event.properties,
+            library: 'segment'
           }),
           expect.objectContaining({
             event_type: 'Product Purchased',
             // @ts-ignore i know what i'm doing
-            event_properties: event.properties.products[0]
+            event_properties: event.properties.products[0],
+            library: 'segment'
           })
         ])
       })
@@ -265,7 +267,7 @@ describe('Amplitude', () => {
             "api_key",
             "undefined",
             "identification",
-            "{\\"user_id\\":\\"some-user-id\\",\\"device_id\\":\\"some-anonymous-id\\",\\"country\\":\\"United States\\",\\"city\\":\\"San Francisco\\",\\"language\\":\\"en-US\\",\\"user_properties\\":{\\"some-trait-key\\":\\"some-trait-value\\"}}",
+            "{\\"user_id\\":\\"some-user-id\\",\\"device_id\\":\\"some-anonymous-id\\",\\"country\\":\\"United States\\",\\"city\\":\\"San Francisco\\",\\"language\\":\\"en-US\\",\\"user_properties\\":{\\"some-trait-key\\":\\"some-trait-value\\"},\\"library\\":\\"segment\\"}",
           ],
           Symbol(context): null,
         }
@@ -306,7 +308,7 @@ describe('Amplitude', () => {
             "api_key",
             "undefined",
             "identification",
-            "{\\"user_id\\":\\"some-user-id\\",\\"device_id\\":\\"some-anonymous-id\\",\\"user_properties\\":{\\"some-trait-key\\":\\"some-trait-value\\",\\"$set\\":{\\"referrer\\":\\"some-referrer\\"},\\"$setOnce\\":{\\"initial_referrer\\":\\"some-referrer\\"}}}",
+            "{\\"user_id\\":\\"some-user-id\\",\\"device_id\\":\\"some-anonymous-id\\",\\"user_properties\\":{\\"some-trait-key\\":\\"some-trait-value\\",\\"$set\\":{\\"referrer\\":\\"some-referrer\\"},\\"$setOnce\\":{\\"initial_referrer\\":\\"some-referrer\\"}},\\"library\\":\\"segment\\"}",
           ],
           Symbol(context): null,
         }
@@ -335,7 +337,7 @@ describe('Amplitude', () => {
             "api_key",
             "undefined",
             "identification",
-            "{\\"user_id\\":\\"some-user-id\\",\\"device_id\\":\\"some-anonymous-id\\",\\"country\\":\\"United States\\",\\"city\\":\\"San Francisco\\",\\"language\\":\\"en-US\\",\\"user_properties\\":{\\"some-trait-key\\":\\"some-trait-value\\"}}",
+            "{\\"user_id\\":\\"some-user-id\\",\\"device_id\\":\\"some-anonymous-id\\",\\"country\\":\\"United States\\",\\"city\\":\\"San Francisco\\",\\"language\\":\\"en-US\\",\\"user_properties\\":{\\"some-trait-key\\":\\"some-trait-value\\"},\\"library\\":\\"segment\\"}",
           ],
           Symbol(context): null,
         }
