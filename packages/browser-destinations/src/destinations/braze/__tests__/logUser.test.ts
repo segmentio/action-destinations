@@ -164,7 +164,7 @@ describe('logUser', () => {
     expect(userMock.setPushNotificationSubscriptionType).toHaveBeenCalledWith(true)
   })
 
-  test.only('set custom attribute based on group_id property', async () => {
+  test('set custom attribute based on group_id property', async () => {
     const [logPurchase] = await brazeDestination({
       api_key: 'b_123',
       endpoint: 'endpoint',
