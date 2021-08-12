@@ -116,7 +116,6 @@ const action: ActionDefinition<Settings, Payload> = {
       method: 'POST',
       headers: {
         authorization: `Basic ${token}`,
-        'content-type': 'application/x-www-form-urlencoded;charset=UTF-8'
       },
       body: new URLSearchParams({
         Body: Handlebars.compile(payload.body)({ profile }),
