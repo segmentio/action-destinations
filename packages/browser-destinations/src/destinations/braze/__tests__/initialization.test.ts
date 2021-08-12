@@ -18,9 +18,6 @@ describe('initialization', () => {
     enableHtmlInAppMessages: true,
     devicePropertyAllowlist: ['ay', 'Dios', 'mio'],
     devicePropertyWhitelist: ['foo', 'bar'],
-    // version: 3,
-    // logPurchaseWhenRevenuePresent: false,
-    // onlyTrackKnownUsersOnWeb: false,
     allowUserSuppliedJavascript: true,
     contentSecurityNonce: 'bar',
     endpoint: 'endpoint'
@@ -81,7 +78,10 @@ describe('initialization', () => {
     await logCustomEvent.load(Context.system(), {} as Analytics)
 
     const { endpoint, ...expectedSettings } = settings
-    expect(initialize).toHaveBeenCalledWith('b_123', { baseUrl: endpoint, ...expectedSettings })
+    expect(initialize).toHaveBeenCalledWith(
+      'b_123',
+      expect.objectContaining({ baseUrl: endpoint, ...expectedSettings })
+    )
   })
 
   test('loads sdk version 3.3 by default', async () => {
