@@ -189,7 +189,7 @@ const action: BrowserActionDefinition<Settings, typeof appboy, Payload> = {
 
     payload.email !== undefined && user.setEmail(payload.email)
     payload.first_name !== undefined && user.setFirstName(payload.first_name)
-    payload.gender !== undefined && user.setGender(getGender(payload.gender) as appboy.User.Genders)
+    payload.gender !== undefined && user.setGender(toBrazeGender(payload.gender) as appboy.User.Genders)
     payload.home_city !== undefined && user.setHomeCity(payload.home_city)
     payload.language !== undefined && user.setLanguage(payload.language)
     payload.current_location !== undefined &&
@@ -201,12 +201,12 @@ const action: BrowserActionDefinition<Settings, typeof appboy, Payload> = {
   }
 }
 
-function getGender(input: string | undefined | null): string | null | undefined {
-  if (!input) {
-    return input
+function toBrazeGender(gender: string | undefined | null): string | null | undefined {
+  if (!gender) {
+    return gender
   }
 
-  const mapping: { [key: string]: string[] } = {
+  const genders: { [key: string]: string[] } = {
     M: ['man', 'male', 'm'],
     F: ['woman', 'female', 'w', 'f'],
     O: ['other', 'o'],
@@ -215,13 +215,8 @@ function getGender(input: string | undefined | null): string | null | undefined 
     P: ['prefer not to say', 'p']
   }
 
-  for (const key of Object.keys(mapping)) {
-    if (mapping[key].includes(input.toLowerCase())) {
-      return key
-    }
-  }
-
-  return input
+  const brazeGender = Object.keys(genders).find((key) => genders[key].includes(gender.toLowerCase()))
+  return brazeGender || gender
 }
 
 export default action
