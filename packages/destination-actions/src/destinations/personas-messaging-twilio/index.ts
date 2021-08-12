@@ -35,8 +35,7 @@ const destination: DestinationDefinition<Settings> = {
       profileApiAccessToken: {
         label: 'Profile API Access Token',
         description: 'Profile API Access Token',
-        type: 'string',
-        format: 'password',
+        type: 'password',
         required: true
       }
     },
