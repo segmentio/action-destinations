@@ -4,6 +4,7 @@ import sendSms from './sendSms'
 
 const destination: DestinationDefinition<Settings> = {
   name: 'Personas Messaging Twilio',
+  mode: 'cloud',
   authentication: {
     scheme: 'custom',
     fields: {
