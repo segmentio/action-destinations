@@ -189,7 +189,7 @@ const action: BrowserActionDefinition<Settings, typeof appboy, Payload> = {
 
     payload.email !== undefined && user.setEmail(payload.email)
     payload.first_name !== undefined && user.setFirstName(payload.first_name)
-    payload.gender !== undefined && user.setGender(payload.gender as appboy.User.Genders)
+    payload.gender !== undefined && user.setGender(toBrazeGender(payload.gender) as appboy.User.Genders)
     payload.home_city !== undefined && user.setHomeCity(payload.home_city)
     payload.language !== undefined && user.setLanguage(payload.language)
     payload.current_location !== undefined &&
@@ -199,6 +199,24 @@ const action: BrowserActionDefinition<Settings, typeof appboy, Payload> = {
     payload.push_subscribe !== undefined &&
       user.setPushNotificationSubscriptionType(payload.push_subscribe as appboy.User.NotificationSubscriptionTypes)
   }
+}
+
+function toBrazeGender(gender: string | undefined | null): string | null | undefined {
+  if (!gender) {
+    return gender
+  }
+
+  const genders: { [key: string]: string[] } = {
+    M: ['man', 'male', 'm'],
+    F: ['woman', 'female', 'w', 'f'],
+    O: ['other', 'o'],
+    U: ['u', 'unknown'],
+    N: ['not applicable', 'n'],
+    P: ['prefer not to say', 'p']
+  }
+
+  const brazeGender = Object.keys(genders).find((key) => genders[key].includes(gender.toLowerCase()))
+  return brazeGender || gender
 }
 
 export default action
