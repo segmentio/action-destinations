@@ -72,19 +72,14 @@ const action: ActionDefinition<Settings, Payload> = {
       description: 'User ID in Segment',
       type: 'string',
       required: true,
-      default: {
-        '@if': {
-          exists: { '@path': '$.userId' },
-          then: { '@path': '$.userId' },
-          else: { '@path': '$.anonymousId' }
-        }
-      }
+      default: {'@path': '$.userId' },
     },
     fromNumber: {
       label: 'From Number',
       description: 'Which number to send SMS from',
       type: 'string',
-      required: true
+      required: true,
+      default: { '@path': '$.properties.fromNumber' }
     },
     body: {
       label: 'Message',
