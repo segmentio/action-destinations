@@ -3,6 +3,7 @@
   "compilerOptions": {
     "composite": true,
     "outDir": "dist",
+    "rootDir": "src",
     "allowJs": true,
     "importHelpers": true,
     "lib": ["es2020", "dom"],
