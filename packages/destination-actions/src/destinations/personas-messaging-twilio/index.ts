@@ -17,8 +17,7 @@ const destination: DestinationDefinition<Settings> = {
       twilioAuthToken: {
         label: 'Twilio Auth Token',
         description: 'Twilio Auth Token',
-        type: 'string',
-        format: 'password',
+        type: 'password',
         required: true
       },
       profileApiEnvironment: {
