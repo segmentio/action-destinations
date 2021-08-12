@@ -152,7 +152,7 @@ const action: BrowserActionDefinition<Settings, typeof appboy, Payload> = {
       description: 'The ID used to identify the group',
       type: 'string',
       default: {
-        '@path': '$.traits.group_id'
+        '@path': '$.traits.groupId'
       }
     }
   },

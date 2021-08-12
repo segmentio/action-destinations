@@ -27,7 +27,7 @@ describe('logUser', () => {
         last_name: { '@path': '$.traits.last_name' },
         phone: { '@path': '$.traits.phone' },
         push_subscribe: { '@path': '$.traits.push_subscribe' },
-        group_id: { '@path': '$.traits.group_id' }
+        group_id: { '@path': '$.traits.groupId' }
       }
     }
   ]
@@ -176,7 +176,7 @@ describe('logUser', () => {
       new Context({
         type: 'identify',
         traits: {
-          group_id: '123'
+          groupId: '123'
         }
       })
     )
