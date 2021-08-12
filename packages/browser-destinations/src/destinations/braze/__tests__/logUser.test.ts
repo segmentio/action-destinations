@@ -27,7 +27,7 @@ describe('logUser', () => {
         last_name: { '@path': '$.traits.last_name' },
         phone: { '@path': '$.traits.phone' },
         push_subscribe: { '@path': '$.traits.push_subscribe' },
-        group_id: { '@path': '$.traits.groupId' }
+        group_id: { '@path': '$.groupId' }
       }
     }
   ]
@@ -175,9 +175,7 @@ describe('logUser', () => {
     await logPurchase.identify?.(
       new Context({
         type: 'identify',
-        traits: {
-          groupId: '123'
-        }
+        groupId: '123'
       })
     )
 
