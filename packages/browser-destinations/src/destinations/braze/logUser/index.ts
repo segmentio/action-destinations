@@ -205,7 +205,7 @@ const action: BrowserActionDefinition<Settings, typeof appboy, Payload> = {
 
 function getGender(input: string | undefined | null): string | null {
   if (!input) {
-    return null
+    return input
   }
 
   const mapping: { [key: string]: string[] } = {
