@@ -1,4 +1,4 @@
-import { IntegrationError } from '@segment/actions-core'
+import { omit, IntegrationError } from '@segment/actions-core'
 import type { ActionDefinition } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
@@ -127,13 +127,16 @@ const action: ActionDefinition<Settings, Payload> = {
       return
     }
 
+    const reservedKeys = Object.keys(action.fields.products.properties ?? {})
+    const properties = omit(payload.properties, reservedKeys)
+
     const base = {
       braze_id,
       external_id,
       user_alias,
       app_id: settings.app_id,
       time: toISO8601(payload.time),
-      properties: payload.properties,
+      properties,
       _update_existing_only: payload._update_existing_only
     }
 
