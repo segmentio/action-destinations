@@ -203,5 +203,16 @@ describe('logUser', () => {
     )
 
     expect(userMock.setGender).toHaveBeenCalledWith('not defined on mapping')
+
+    await logPurchase.identify?.(
+      new Context({
+        type: 'identify',
+        traits: {
+          gender: null
+        }
+      })
+    )
+
+    expect(userMock.setGender).toHaveBeenCalledWith(null)
   })
 })
