@@ -32,10 +32,6 @@ const destination: DestinationDefinition<Settings> = {
         format: 'uri',
         required: true
       }
-    },
-    testAuthentication: (_request) => {
-      // Return a request that tests/validates the user's authentication fields here
-      // TODO explore docs for side-effect free way to handle this
     }
   },
   extendRequest({ settings }) {
