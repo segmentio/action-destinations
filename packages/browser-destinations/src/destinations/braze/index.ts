@@ -12,16 +12,39 @@ declare global {
   }
 }
 
-// Switch from unknown to the partner SDK client types
 export const destination: BrowserDestinationDefinition<Settings, typeof appboy> = {
   name: 'Braze Web Mode',
   slug: 'actions-braze-web',
   mode: 'device',
   settings: {
+    sdkVersion: {
+      description: 'The version of the SDK to use. Defaults to 3.3.',
+      label: 'SDK Version',
+      type: 'string',
+      choices: [
+        {
+          value: '3.0',
+          label: '3.0'
+        },
+        {
+          value: '3.1',
+          label: '3.1'
+        },
+        {
+          value: '3.2',
+          label: '3.2'
+        },
+        {
+          value: '3.3',
+          label: '3.3'
+        }
+      ],
+      required: false
+    },
     api_key: {
       description: 'Created under Developer Console in the Braze Dashboard.',
       label: 'API Key',
-      type: 'string',
+      type: 'password',
       required: true
     },
     endpoint: {
@@ -72,7 +95,7 @@ export const destination: BrowserDestinationDefinition<Settings, typeof appboy> 
     devicePropertyWhitelist: {
       description:
         'This initialization option is deprecated in favor of devicePropertyAllowlist, which has the same functionality.',
-      label: '[Deprecated] Devide Property Whitelist',
+      label: '[Deprecated] Device Property Whitelist',
       type: 'string',
       required: false,
       multiple: true
@@ -201,38 +224,11 @@ export const destination: BrowserDestinationDefinition<Settings, typeof appboy> 
     }
   },
   initialize: async ({ settings }, dependencies) => {
-    // default options set at the legacy appboy destination
-    // not sure if this is needed yet
-    const config: appboy.InitializationOptions = {
-      safariWebsitePushId: settings.safariWebsitePushId,
-      allowCrawlerActivity: settings.allowCrawlerActivity,
-      doNotLoadFontAwesome: settings.doNotLoadFontAwesome,
-      enableLogging: settings.enableLogging,
-      localization: settings.localization,
-      minimumIntervalBetweenTriggerActionsInSeconds: settings.minimumIntervalBetweenTriggerActionsInSeconds,
-      openInAppMessagesInNewTab: settings.openInAppMessagesInNewTab,
-      sessionTimeoutInSeconds: settings.sessionTimeoutInSeconds,
-      requireExplicitInAppMessageDismissal: settings.requireExplicitInAppMessageDismissal,
-      enableHtmlInAppMessages: settings.enableHtmlInAppMessages,
-      devicePropertyAllowlist: settings.devicePropertyAllowlist,
-      devicePropertyWhitelist: settings.devicePropertyWhitelist,
-      // openNewsFeedCardsInNewTab: false,
-      // automaticallyDisplayMessages: true,
-      // trackAllPages: false,
-      // trackNamedPages: false,
-      // customEndpoint: '',
-      // changed from 1 to 3
-      // version: settings.appVersion ?? 3,
-      // logPurchaseWhenRevenuePresent: false,
-      // onlyTrackKnownUsersOnWeb: false,
-      baseUrl: settings.endpoint,
-      allowUserSuppliedJavascript: settings.allowUserSuppliedJavascript,
-      contentSecurityNonce: settings.contentSecurityNonce
-    }
+    const { endpoint, sdkVersion, api_key, ...expectedConfig } = settings
 
-    await dependencies.loadScript('https://js.appboycdn.com/web-sdk/3.3/service-worker.js')
+    await dependencies.loadScript(`https://js.appboycdn.com/web-sdk/${settings.sdkVersion ?? '3.3'}/service-worker.js`)
 
-    const initialized = appboy.initialize(settings.api_key, config)
+    const initialized = appboy.initialize(settings.api_key, { baseUrl: endpoint, ...expectedConfig })
     if (!initialized) {
       throw new Error('Failed to initialize AppBoy')
     }
