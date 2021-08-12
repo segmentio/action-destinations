@@ -1,9 +1,10 @@
-import { Destination, DestinationDefinition } from '@segment/actions-core'
+import type { DestinationDefinition } from '@segment/actions-core'
+import { Destination } from '@segment/actions-core'
 import path from 'path'
 
 type MetadataId = string
 
-interface ManifestEntry {
+export interface ManifestEntry {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   definition: DestinationDefinition<any>
   directory: string

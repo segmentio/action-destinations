@@ -1,13 +1,13 @@
 {
   "extends": "../../tsconfig.json",
   "compilerOptions": {
-    "outDir": "dist",
-    "baseUrl": ".",
-    "paths": {
-      "@segment/actions-core": ["../core/src"]
-    }
+    "composite": true,
+    "rootDir": "src",
+    "outDir": "dist"
   },
-  "references": [{ "path": "../core" }],
   "exclude": ["**/__tests__/**/*.ts"],
-  "include": ["src"]
+  "include": ["src"],
+  "references": [
+    { "path": "../core/tsconfig.build.json" }
+  ]
 }

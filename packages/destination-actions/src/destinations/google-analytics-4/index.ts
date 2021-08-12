@@ -40,11 +40,6 @@ const destination: DestinationDefinition<Settings> = {
         type: 'string',
         required: true
       }
-    },
-    testAuthentication: (_request) => {
-      // Return a request that tests/validates the user's authentication fields here
-      // TODO: maybe run a post to the google measurements protocol debug endpoint
-      return true
     }
   },
   extendRequest({ settings }) {

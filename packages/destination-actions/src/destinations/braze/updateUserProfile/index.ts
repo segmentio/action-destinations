@@ -25,6 +25,23 @@ function toDateFormat(date: DateInput, format: string): DateOutput {
   return d.isValid() ? d.format(format) : undefined
 }
 
+function toBrazeGender(gender: string | null | undefined): string | null | undefined {
+  if (!gender) {
+    return gender
+  }
+
+  const genders: Record<string, string[]> = {
+    M: ['man', 'male', 'm'],
+    F: ['woman', 'female', 'w', 'f'],
+    O: ['other', 'o'],
+    N: ['not applicable', 'n'],
+    P: ['prefer not to say', 'p']
+  }
+
+  const brazeGender = Object.keys(genders).find((key) => genders[key].includes(gender.toLowerCase()))
+  return brazeGender || gender
+}
+
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Update User Profile',
   description: "Update a user's profile attributes in Braze",
@@ -338,7 +355,7 @@ const action: ActionDefinition<Settings, Payload> = {
             email_click_tracking_disabled: payload.email_click_tracking_disabled,
             facebook: payload.facebook,
             first_name: payload.first_name,
-            gender: payload.gender,
+            gender: toBrazeGender(payload.gender),
             home_city: payload.home_city,
             image_url: payload.image_url,
             // TODO format as ISO-639-1 standard ?

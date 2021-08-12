@@ -16,5 +16,11 @@
     "experimentalDecorators": true,
     "skipLibCheck": true
   },
-  "exclude": ["node_modules", "dist", "templates"]
+  "exclude": ["node_modules", "dist", "templates"],
+  "references": [
+    { "path": "./packages/browser-destinations/tsconfig.build.json" },
+    { "path": "./packages/core/tsconfig.build.json" },
+    { "path": "./packages/destination-actions/tsconfig.build.json" },
+    { "path": "./packages/destination-subscriptions/tsconfig.build.json" }
+  ]
 }

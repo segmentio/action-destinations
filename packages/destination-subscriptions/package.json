@@ -1,7 +1,8 @@
 {
 	"name": "@segment/destination-subscriptions",
-	"version": "3.1.1-alpha.1",
+	"version": "3.2.0",
 	"description": "Validate event payload using subscription AST",
+	"license": "MIT",
 	"repository": {
 		"type": "git",
 		"url": "https://github.com/segmentio/action-destinations",
@@ -20,7 +21,7 @@
 	},
 	"main": "dist/cjs/index.js",
 	"module": "dist/esm/index.js",
-	"types": "dist/esm/index.d.ts",
+	"types": "dist/cjs/index.d.ts",
 	"exports": {
 		".": {
 			"require": "./dist/cjs/index.js",
@@ -37,7 +38,7 @@
 		"package.json"
 	],
 	"dependencies": {
-		"@segment/fql": "^1.9.1"
+		"@segment/fql-ts": "^1.10.1"
 	},
 	"devDependencies": {
 		"@sindresorhus/tsconfig": "^0.7.0",

@@ -2,9 +2,12 @@
   "extends": "../../tsconfig.json",
   "compilerOptions": {
     "composite": true,
-    "outDir": "dist",
+    "outDir": "dist/esm",
     "rootDir": "src"
   },
   "exclude": ["**/__tests__/**/*.ts", "benchmarks"],
-  "include": ["src"]
+  "include": ["src"],
+  "references": [
+    { "path": "../destination-subscriptions/tsconfig.build.json" }
+  ]
 }

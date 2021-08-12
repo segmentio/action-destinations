@@ -14,9 +14,6 @@ const destinationCustomAuth: DestinationDefinition<JSONObject> = {
         type: 'string',
         required: true
       }
-    },
-    testAuthentication: (_request) => {
-      return true
     }
   },
   actions: {
@@ -44,9 +41,6 @@ const destinationOAuth2: DestinationDefinition<JSONObject> = {
         type: 'string',
         required: true
       }
-    },
-    testAuthentication: (_request) => {
-      return true
     },
     refreshAccessToken: (_request) => {
       return new Promise((resolve, _reject) => {

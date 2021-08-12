@@ -4,7 +4,11 @@ export interface Payload {
   /**
    * ID of the person who triggered this event.
    */
-  id: string
+  id?: string
+  /**
+   * Anonymous ID of the person who triggered this event.
+   */
+  anonymous_id?: string
   /**
    * Name of the event
    */

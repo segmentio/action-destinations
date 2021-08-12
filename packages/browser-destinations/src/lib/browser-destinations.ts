@@ -4,7 +4,7 @@ import type {
   BaseActionDefinition,
   ExecuteInput,
   JSONLikeObject,
-  InputField
+  GlobalSetting
 } from '@segment/actions-core'
 
 export type ActionInput<Settings, Payload> = ExecuteInput<Settings, Payload> & {
@@ -48,7 +48,7 @@ export interface BrowserDestinationDefinition<Settings = unknown, Client = unkno
    * This is often where you would put initialization settings,
    * SDK keys, API subdomains, etc.
    */
-  settings?: Record<string, InputField>
+  settings?: Record<string, GlobalSetting>
 
   /** Actions */
   actions: Record<string, BrowserActionDefinition<Settings, Client>>
