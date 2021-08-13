@@ -1,5 +1,5 @@
 import type appboy from '@braze/web-sdk'
-import { omit } from '@segment/actions-core/omit'
+import { omit } from '@segment/actions-core'
 import type { BrowserActionDefinition } from '../../../lib/browser-destinations'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
