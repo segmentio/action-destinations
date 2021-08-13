@@ -9,7 +9,7 @@ const known_traits = ['email', 'firstName', 'gender', 'city', 'avatar', 'lastNam
 const action: BrowserActionDefinition<Settings, typeof appboy, Payload> = {
   title: 'Log User',
   description: 'Updates a users profile attributes in Braze',
-  defaultSubscription: 'type = "identify" or type = "group"',
+  defaultSubscription: 'type = "identify"',
   platform: 'web',
   fields: {
     external_id: {
