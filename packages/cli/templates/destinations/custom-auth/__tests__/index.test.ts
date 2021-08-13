@@ -9,12 +9,10 @@ describe('{{name}}', () => {
     it('should validate authentication inputs', async () => {
       nock('https://your.destination.endpoint').get('*').reply(200, {})
 
-      const settings = {
-        username: '<test username>',
-        password: '<test password>'
-      }
+      // This should match your authentication.fields
+      const authData = {}
 
-      await expect(testDestination.testAuthentication(settings)).resolves.not.toThrowError()
+      await expect(testDestination.testAuthentication(authData)).resolves.not.toThrowError()
     })
   })
 })
