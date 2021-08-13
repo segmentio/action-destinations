@@ -1,4 +1,5 @@
 import type appboy from '@braze/web-sdk'
+import { omit } from '@segment/actions-core/omit'
 import type { BrowserActionDefinition } from '../../../lib/browser-destinations'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
@@ -62,13 +63,16 @@ const action: BrowserActionDefinition<Settings, typeof appboy, Payload> = {
       client.changeUser(payload.userId)
     }
 
+    const reservedKeys = Object.keys(action.fields.products.properties ?? {})
+    const purchaseProperties = omit(payload.purchaseProperties, reservedKeys)
+
     payload.products?.forEach((product) => {
       const result = client.logPurchase(
         product.productId,
         product.price,
         product.currencyCode ?? 'USD',
         product.quantity ?? 1,
-        payload.purchaseProperties
+        purchaseProperties
       )
 
       if (!result) {
