@@ -112,6 +112,9 @@ test('reports products when present', async () => {
         enabled: true,
         subscribe: 'type = "track"',
         mapping: {
+          purchaseProperties: {
+            '@path': '$.properties.purchaseProperties'
+          },
           products: {
             '@path': '$.properties.products'
           }
@@ -125,15 +128,15 @@ test('reports products when present', async () => {
     new Context({
       type: 'track',
       properties: {
+        purchaseProperties: {
+          banana: 'yellow'
+        },
         products: [
           {
             productId: 'p_123',
             price: 399,
             currencyCode: 'BGP',
-            quantity: 2,
-            purchaseProperties: {
-              banana: 'yellow'
-            }
+            quantity: 2
           },
           {
             productId: 'p_456',
@@ -163,7 +166,9 @@ test('reports products when present', async () => {
       0,
       "USD",
       1,
-      undefined,
+      Object {
+        "banana": "yellow",
+      },
     ]
   `)
 })

@@ -6,6 +6,12 @@ export interface Payload {
    */
   userId?: string
   /**
+   * Hash of properties for this purchase. Keys are limited to 255 characters in length, cannot begin with a $, and can only contain alphanumeric characters and punctuation. Values can be numeric, boolean, Date objects, strings 255 characters or shorter, or nested objects whose values can be numeric, boolean, Date objects, arrays, strings, or null. Total size of purchase properties cannot exceed 50KB.
+   */
+  purchaseProperties?: {
+    [k: string]: unknown
+  }
+  /**
    * List of products purchased by the user
    */
   products?: {
@@ -25,11 +31,5 @@ export interface Payload {
      * Default 1. The quantity of items purchased expressed as a whole number. Must be at least 1 and at most 100.
      */
     quantity?: number
-    /**
-     * Hash of properties for this purchase. Keys are limited to 255 characters in length, cannot begin with a $, and can only contain alphanumeric characters and punctuation. Values can be numeric, boolean, Date objects, strings 255 characters or shorter, or nested objects whose values can be numeric, boolean, Date objects, arrays, strings, or null. Total size of purchase properties cannot exceed 50KB.
-     */
-    purchaseProperties?: {
-      [k: string]: unknown
-    }
   }[]
 }
