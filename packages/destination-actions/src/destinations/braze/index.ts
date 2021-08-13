@@ -15,7 +15,7 @@ const destination: DestinationDefinition<Settings> = {
       api_key: {
         label: 'API Key',
         description: 'Created under Developer Console in the Braze Dashboard.',
-        type: 'string',
+        type: 'password',
         required: true
       },
       app_id: {
