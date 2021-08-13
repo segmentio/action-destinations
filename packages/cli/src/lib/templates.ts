@@ -21,7 +21,6 @@ export function renderTemplates(templatePath: string, targetDir: string, data: u
 
   fs.copySync(templatePath, target)
   const files = globby.sync(targetDir)
-  console.log(files)
 
   for (const file of files) {
     const template = fs.readFileSync(file, 'utf8')
