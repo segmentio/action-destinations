@@ -1,7 +1,7 @@
 import { Analytics, Context } from '@segment/analytics-next'
 import * as jsdom from 'jsdom'
 import braze, { destination } from '..'
-import { Subscription } from '../../../lib/browser-destinations'
+import type { Subscription } from '../../../lib/browser-destinations'
 
 const example: Subscription[] = [
   {
