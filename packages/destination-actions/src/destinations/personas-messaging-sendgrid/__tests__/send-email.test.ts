@@ -22,7 +22,9 @@ for (const environment of ['stage', 'production']) {
               }
             ],
             custom_args: {
-              user_id: 'jane'
+              user_id: 'jane',
+              source_id: '',
+              space_id: ''
             }
           }
         ],
