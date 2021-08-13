@@ -40,7 +40,8 @@ export const eventSchema: Record<string, InputField> = {
   session_id: {
     label: 'Session ID',
     type: 'datetime',
-    description: 'The start time of the session, necessary if you want to associate events with a particular system. To use automatic Amplitude session tracking in browsers, enable Analytics 2.0 on your connected source.',
+    description:
+      'The start time of the session, necessary if you want to associate events with a particular system. To use automatic Amplitude session tracking in browsers, enable Analytics 2.0 on your connected source.',
     default: {
       '@path': '$.integrations.Amplitude.session_id'
     }
@@ -295,5 +296,20 @@ export const eventSchema: Record<string, InputField> = {
     type: 'string',
     description:
       'Amplitude will deduplicate subsequent events sent with this ID we have already seen before within the past 7 days. Amplitude recommends generating a UUID or using some combination of device ID, user ID, event type, event ID, and time.'
+  },
+  userAgent: {
+    label: 'User Agent',
+    type: 'string',
+    description: 'The user agent of the device sending the event.',
+    default: {
+      '@path': '$.context.userAgent'
+    }
+  },
+  userAgentParsing: {
+    label: 'User Agent Parsing',
+    type: 'boolean',
+    description:
+      'Enabling this setting will set the Device manufacturer, Device Model and OS Name properties based on the user agent string provided in context.userAgent',
+    default: false
   }
 }
