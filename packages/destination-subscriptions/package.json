@@ -38,7 +38,7 @@
 		"package.json"
 	],
 	"dependencies": {
-		"@segment/fql": "^1.9.1"
+		"@segment/fql-ts": "^1.10.1"
 	},
 	"devDependencies": {
 		"@sindresorhus/tsconfig": "^0.7.0",
