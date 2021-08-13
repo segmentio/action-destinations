@@ -152,14 +152,6 @@ export interface Payload {
    */
   insert_id?: string
   /**
-   * The user agent of the device sending the event.
-   */
-  userAgent?: string
-  /**
-   * Enabling this setting will set the Device manufacturer, Device Model and OS Name properties based on the user agent string provided in context.userAgent
-   */
-  userAgentParsing?: boolean
-  /**
    * The list of products purchased.
    */
   products?: {
@@ -188,6 +180,14 @@ export interface Payload {
    * If true, events are sent to Amplitude's `batch` endpoint rather than their `httpapi` events endpoint. Enabling this setting may help reduce 429s – or throttling errors – from Amplitude. More information about Amplitude's throttling is available in [their docs](https://developers.amplitude.com/docs/batch-event-upload-api#429s-in-depth).
    */
   use_batch_endpoint?: boolean
+  /**
+   * The user agent of the device sending the event.
+   */
+  userAgent?: string
+  /**
+   * Enabling this setting will set the Device manufacturer, Device Model and OS Name properties based on the user agent string provided in context.userAgent
+   */
+  userAgentParsing?: boolean
   /**
    * UTM Tracking Properties
    */

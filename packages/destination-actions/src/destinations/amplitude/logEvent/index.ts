@@ -99,6 +99,21 @@ const action: ActionDefinition<Settings, Payload> = {
       type: 'boolean',
       default: false
     },
+    userAgent: {
+      label: 'User Agent',
+      type: 'string',
+      description: 'The user agent of the device sending the event.',
+      default: {
+        '@path': '$.context.userAgent'
+      }
+    },
+    userAgentParsing: {
+      label: 'User Agent Parsing',
+      type: 'boolean',
+      description:
+        'Enabling this setting will set the Device manufacturer, Device Model and OS Name properties based on the user agent string provided in context.userAgent',
+      default: false
+    },
     utm_properties: {
       label: 'UTM Properties',
       type: 'object',
