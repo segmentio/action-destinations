@@ -51,6 +51,17 @@ const action: ActionDefinition<Settings, Payload> = {
       description: 'Subject for the email to be sent',
       type: 'string',
       required: true
+    },
+    spaceId: {
+      label: 'Space ID',
+      description: 'Your Profile API Space ID',
+      type: 'string',
+      default: { '@path': '$.context.personas.space_id' }
+    },
+    sourceId: {
+      label: 'Source ID',
+      description: 'The ID of your Source',
+      type: 'string'
     }
   },
   perform: async (request, { payload }) => {
@@ -66,6 +77,8 @@ const action: ActionDefinition<Settings, Payload> = {
               }
             ],
             custom_args: {
+              source_id: payload.sourceId ? payload.sourceId : '',
+              space_id: payload.spaceId ? payload.spaceId : '',
               user_id: payload.userId
             }
           }

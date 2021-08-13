@@ -11,7 +11,7 @@ const destination: DestinationDefinition<Settings> = {
     fields: {
       sendGridApiKey: {
         label: 'API Key',
-        type: 'string',
+        type: 'password',
         description: 'The Api Key for your sendGrid account',
         required: true
       }
