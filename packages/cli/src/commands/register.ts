@@ -77,7 +77,7 @@ export default class Register extends Command {
       this.spinner.succeed()
     }
 
-    const name = destination.name.includes('Actions') ? destination.name : `${destination.name} (Actions)`
+    const name = destination.name
     const slug = generateSlug(destination.slug ?? name)
 
     if (destination.slug && destination.slug !== slug) {
