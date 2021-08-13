@@ -1,11 +1,8 @@
 /* eslint-disable @typescript-eslint/no-unsafe-call */
 import UaParser from '@amplitude/ua-parser-js'
-import '../../decs.d.ts'
 
 interface Payload {
-  context?: {
-    userAgent?: string
-  }
+  userAgent?: string
 }
 
 interface ParsedUA {
@@ -15,10 +12,10 @@ interface ParsedUA {
 }
 
 export function parseUserAgent(payload: Payload): ParsedUA {
-  if (!payload?.context?.userAgent) {
+  if (!payload?.userAgent) {
     return {}
   }
-  const parser = new UaParser(payload?.context?.userAgent)
+  const parser = new UaParser(payload?.userAgent)
   const device = parser.getDevice()
   const os = parser.getOS()
   return {
