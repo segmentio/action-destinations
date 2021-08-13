@@ -105,6 +105,10 @@ const action: ActionDefinition<Settings, Payload> = {
           label: 'Longitude',
           type: 'number'
         }
+      },
+      default: {
+        latitude: { '@path': '$.context.location.latitude' },
+        longitude: { '@path': '$.context.location.longitude' }
       }
     },
     date_of_first_session: {
