@@ -1,4 +1,5 @@
 import UaParser from '@amplitude/ua-parser-js'
+import { removeUndefined } from '@segment/actions-core'
 import { omit } from 'lodash'
 
 interface Payload {
@@ -8,7 +9,6 @@ interface Payload {
 interface ParsedUA {
   os_name?: string
   os_version?: string
-  device_manufacturer?: string
   device_model?: string
 }
 
@@ -19,10 +19,9 @@ export function parseUserAgent(payload: Payload & ParsedUA): ParsedUA {
   const parser = new UaParser(payload?.userAgent)
   const device = parser.getDevice()
   const os = parser.getOS()
-  return {
+  return removeUndefined({
     os_name: payload.os_name ?? os.name,
     os_version: payload.os_version ?? os.version,
-    device_manufacturer: payload.device_manufacturer ?? device.vendor,
-    device_model: payload.device_manufacturer ?? device.model
-  }
+    device_model: payload.device_model ?? device.model
+  })
 }

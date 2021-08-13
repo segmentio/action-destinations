@@ -215,6 +215,75 @@ describe('Amplitude', () => {
         ])
       })
     })
+
+    it('should support parsing userAgent when the setting is true', async () => {
+      const event = createTestEvent({
+        timestamp,
+        event: 'Test Event',
+        context: {
+          user_agent:
+            'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_11_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/53.0.2785.143 Safari/537.36'
+        }
+      })
+      const mapping = {
+        userAgentParsing: true
+      }
+      nock('https://api2.amplitude.com/2').post('/httpapi').reply(200, {})
+      const responses = await testDestination.testAction('logEvent', { event, mapping, useDefaultMappings: true })
+      expect(responses.length).toBe(1)
+      expect(responses[0].status).toBe(200)
+      expect(responses[0].data).toMatchObject({})
+      expect(responses[0].options.json).toMatchObject({
+        api_key: undefined,
+        events: expect.arrayContaining([
+          expect.objectContaining({
+            event_type: 'Test Event',
+            os_name: 'Mac',
+            os_version: '10.11.6'
+          })
+        ])
+      })
+    })
+  })
+
+  it.only('should not send parsed user agent properties when setting is false', async () => {
+    const event = createTestEvent({
+      timestamp: '2021-04-12T16:32:37.710Z',
+      event: 'Test Event',
+      context: {
+        device: {
+          id: 'foo'
+        },
+        user_agent:
+          'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_11_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/53.0.2785.143 Safari/537.36'
+      }
+    })
+    const mapping = {
+      userAgentParsing: false
+    }
+    nock('https://api2.amplitude.com/2').post('/httpapi').reply(200, {})
+    const responses = await testDestination.testAction('logEvent', { event, mapping, useDefaultMappings: true })
+    expect(responses.length).toBe(1)
+    expect(responses[0].status).toBe(200)
+    expect(responses[0].data).toMatchObject({})
+    expect(responses[0].options.json).toMatchInlineSnapshot(`
+      Object {
+        "api_key": undefined,
+        "events": Array [
+          Object {
+            "device_id": "foo",
+            "event_properties": Object {},
+            "event_type": "Test Event",
+            "idfv": "foo",
+            "library": "segment",
+            "time": 1618245157710,
+            "use_batch_endpoint": false,
+            "user_id": "user1234",
+            "user_properties": Object {},
+          },
+        ],
+      }
+    `)
   })
 
   describe('mapUser', () => {

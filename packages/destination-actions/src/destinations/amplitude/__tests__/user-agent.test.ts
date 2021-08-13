@@ -14,7 +14,6 @@ describe('amplitude - custom user agent parsing', () => {
     expect(result).toEqual({
       os_name: 'Android',
       os_version: '5.0.1',
-      device_manufacturer: 'Lenovo',
       device_model: 'TAB 2 A7'
     })
   })
@@ -34,7 +33,6 @@ describe('amplitude - custom user agent parsing', () => {
     expect(result).toEqual({
       os_name: 'Not Android',
       os_version: '9.9.9',
-      device_manufacturer: 'Lenovo',
       device_model: 'TAB 2 A7'
     })
   })
