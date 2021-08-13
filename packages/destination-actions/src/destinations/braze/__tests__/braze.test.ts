@@ -48,7 +48,10 @@ describe(Braze.name, () => {
               "_update_existing_only": true,
               "braze_id": undefined,
               "country": "United States",
-              "current_location": undefined,
+              "current_location": Object {
+                "latitude": 40.2964197,
+                "longitude": -76.9411617,
+              },
               "date_of_first_session": undefined,
               "date_of_last_session": undefined,
               "dob": undefined,
