@@ -100,6 +100,10 @@ export default class GenerateAction extends Command {
         },
         flags.force
       )
+      fs.renameSync(
+        path.join(targetDirectory, 'index.test.ts'),
+        path.join(process.cwd(), directory, `__tests__/${slug}.test.ts`)
+      )
       this.spinner.succeed(`Scaffold action`)
     } catch (err) {
       this.spinner.fail(`Scaffold action: ${chalk.red(err.message)}`)
@@ -126,19 +130,6 @@ export default class GenerateAction extends Command {
       this.spinner.succeed()
     } catch (err) {
       this.spinner.fail(chalk`Generating types for {magenta ${slug}} action: ${err.message}`)
-      this.exit()
-    }
-
-    try {
-      this.spinner.start(chalk`Generating test for {magenta ${slug}} action`)
-      const testFolderName = args.type === 'server' ? 'empty-action' : 'empty-browser-action'
-      const testTemplatePath = path.join(__dirname, '../../../templates/actions/__tests__', testFolderName)
-      const testTargetDir = path.join(process.cwd(), directory, '__tests__')
-      renderTemplates(testTemplatePath, testTargetDir, {}, true)
-      fs.renameSync(path.join(testTargetDir, 'placeholder.test.ts'), path.join(testTargetDir, `${slug}.test.ts`))
-      this.spinner.succeed()
-    } catch (err) {
-      this.spinner.fail(chalk`Generating test for {magenta ${slug}} action: ${err.message}`)
       this.exit()
     }
 
