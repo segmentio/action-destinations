@@ -1,7 +1,7 @@
 import type { Settings } from './generated-types'
 import type { BrowserDestinationDefinition } from '../../lib/browser-destinations'
 import { browserDestination } from '../../runtime/shim'
-import debouncePlugin from './debouncePlugin'
+import debouncePlugin from '../braze/debounce'
 
 export const destination: BrowserDestinationDefinition<Settings, unknown> = {
   name: 'Braze Cloud Mode (Actions)',
@@ -16,6 +16,7 @@ export const destination: BrowserDestinationDefinition<Settings, unknown> = {
   },
 
   actions: {
+    // @ts-expect-error the types wont match because the Settings are very different (expected)
     debouncePlugin
   }
 }
