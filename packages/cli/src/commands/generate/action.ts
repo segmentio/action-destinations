@@ -129,6 +129,19 @@ export default class GenerateAction extends Command {
       this.exit()
     }
 
+    try {
+      this.spinner.start(chalk`Generating test for {magenta ${slug}} action`)
+      const testFolderName = args.type === 'server' ? 'empty-action' : 'empty-browser-action'
+      const testTemplatePath = path.join(__dirname, '../../../templates/actions/__tests__', testFolderName)
+      const testTargetDir = path.join(process.cwd(), directory, '__tests__')
+      renderTemplates(testTemplatePath, testTargetDir, {}, true)
+      fs.renameSync(path.join(testTargetDir, 'placeholder.test.ts'), path.join(testTargetDir, `${slug}.test.ts`))
+      this.spinner.succeed()
+    } catch (err) {
+      this.spinner.fail(chalk`Generating test for {magenta ${slug}} action: ${err.message}`)
+      this.exit()
+    }
+
     this.log(chalk.green(`Done creating "${args.name}" 🎉`))
     this.log(chalk.green(`Start coding! cd ${targetDirectory}`))
   }
