@@ -72,14 +72,14 @@ const action: ActionDefinition<Settings, Payload> = {
       description: 'User ID in Segment',
       type: 'string',
       required: true,
-      default: {'@path': '$.userId' },
+      default: { '@path': '$.userId' }
     },
     fromNumber: {
       label: 'From Number',
       description: 'Which number to send SMS from',
       type: 'string',
-      required: true,
-      default: { '@path': '$.properties.fromNumber' }
+      required: true
+      // default: { '@path': '$.properties.fromNumber' }
     },
     body: {
       label: 'Message',
@@ -110,7 +110,7 @@ const action: ActionDefinition<Settings, Payload> = {
     return request(`https://api.twilio.com/2010-04-01/Accounts/${settings.twilioAccountId}/Messages.json`, {
       method: 'POST',
       headers: {
-        authorization: `Basic ${token}`,
+        authorization: `Basic ${token}`
       },
       body: new URLSearchParams({
         Body: Mustache.render(payload.body, profile),
