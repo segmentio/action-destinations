@@ -67,4 +67,8 @@ export interface Payload {
    * The user's push subscription preference: “opted_in” (explicitly registered to receive push messages), “unsubscribed” (explicitly opted out of push messages), and “subscribed” (neither opted in nor out).
    */
   push_subscribe?: string
+  /**
+   * The ID used to identify the group
+   */
+  group_id?: string
 }

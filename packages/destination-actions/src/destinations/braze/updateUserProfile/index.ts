@@ -1,4 +1,4 @@
-import { IntegrationError } from '@segment/actions-core'
+import { omit, IntegrationError } from '@segment/actions-core'
 import type { ActionDefinition } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
@@ -23,6 +23,23 @@ function toDateFormat(date: DateInput, format: string): DateOutput {
 
   const d = dayjs(date)
   return d.isValid() ? d.format(format) : undefined
+}
+
+function toBrazeGender(gender: string | null | undefined): string | null | undefined {
+  if (!gender) {
+    return gender
+  }
+
+  const genders: Record<string, string[]> = {
+    M: ['man', 'male', 'm'],
+    F: ['woman', 'female', 'w', 'f'],
+    O: ['other', 'o'],
+    N: ['not applicable', 'n'],
+    P: ['prefer not to say', 'p']
+  }
+
+  const brazeGender = Object.keys(genders).find((key) => genders[key].includes(gender.toLowerCase()))
+  return brazeGender || gender
 }
 
 const action: ActionDefinition<Settings, Payload> = {
@@ -88,6 +105,10 @@ const action: ActionDefinition<Settings, Payload> = {
           label: 'Longitude',
           type: 'number'
         }
+      },
+      default: {
+        latitude: { '@path': '$.context.location.latitude' },
+        longitude: { '@path': '$.context.location.longitude' }
       }
     },
     date_of_first_session: {
@@ -315,13 +336,18 @@ const action: ActionDefinition<Settings, Payload> = {
       )
     }
 
+    // Since we are merge reserved keys on top of custom_attributes we need to remove them
+    // to respect the customers mappings that might resolve `undefined`, without this we'd
+    // potentially send a value from `custom_attributes` that conflicts with their mappings.
+    const reservedKeys = Object.keys(action.fields)
+    const customAttrs = omit(payload.custom_attributes, reservedKeys)
+
     return request(`${settings.endpoint}/users/track`, {
       method: 'post',
       json: {
         attributes: [
           {
-            // Spread custom attributes in a way that doesn't override reserved properties
-            ...payload.custom_attributes,
+            ...customAttrs,
             braze_id,
             external_id,
             user_alias,
@@ -338,7 +364,7 @@ const action: ActionDefinition<Settings, Payload> = {
             email_click_tracking_disabled: payload.email_click_tracking_disabled,
             facebook: payload.facebook,
             first_name: payload.first_name,
-            gender: payload.gender,
+            gender: toBrazeGender(payload.gender),
             home_city: payload.home_city,
             image_url: payload.image_url,
             // TODO format as ISO-639-1 standard ?

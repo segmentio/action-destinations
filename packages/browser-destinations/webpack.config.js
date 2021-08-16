@@ -73,9 +73,11 @@ module.exports = {
     }
   },
   devServer: {
-    contentBase: path.resolve(__dirname),
     liveReload: true,
-    port: 9000
+    port: 9000,
+    static: {
+      directory: path.resolve(__dirname)
+    }
   },
   performance: {
     hints: 'warning'

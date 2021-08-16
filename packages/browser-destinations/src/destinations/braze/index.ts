@@ -5,6 +5,7 @@ import appboy from '@braze/web-sdk'
 import logCustomEvent from './logCustomEvent'
 import logUser from './logUser'
 import logPurchase from './logPurchase'
+import debounce, { resetUserCache } from './debounce'
 
 declare global {
   interface Window {
@@ -23,18 +24,6 @@ export const destination: BrowserDestinationDefinition<Settings, typeof appboy> 
       type: 'string',
       choices: [
         {
-          value: '3.0',
-          label: '3.0'
-        },
-        {
-          value: '3.1',
-          label: '3.1'
-        },
-        {
-          value: '3.2',
-          label: '3.2'
-        },
-        {
           value: '3.3',
           label: '3.3'
         }
@@ -48,10 +37,21 @@ export const destination: BrowserDestinationDefinition<Settings, typeof appboy> 
       required: true
     },
     endpoint: {
-      description: 'Your Braze SDK endpoint. [See more details](https://www.braze.com/docs/api/basics/#endpoints).',
       label: 'SDK Endpoint',
+      description:
+        'Your Braze SDK endpoint. [See more details](https://www.braze.com/docs/user_guide/administrative/access_braze/sdk_endpoints/)',
       type: 'string',
       format: 'uri',
+      choices: [
+        { label: 'US-01	(https://dashboard-01.braze.com)', value: 'sdk.iad-01.braze.com' },
+        { label: 'US-02	(https://dashboard-02.braze.com)', value: 'sdk.iad-02.braze.com' },
+        { label: 'US-03	(https://dashboard-03.braze.com)', value: 'sdk.iad-03.braze.com' },
+        { label: 'US-04	(https://dashboard-04.braze.com)', value: 'sdk.iad-04.braze.com' },
+        { label: 'US-05	(https://dashboard-05.braze.com)', value: 'sdk.iad-05.braze.com' },
+        { label: 'US-06	(https://dashboard-06.braze.com)', value: 'sdk.iad-06.braze.com' },
+        { label: 'US-08	(https://dashboard-08.braze.com)', value: 'sdk.iad-08.braze.com' },
+        { label: 'EU-01	(https://dashboard-01.braze.eu)', value: 'sdk.fra-01.braze.eu' }
+      ],
       required: true
     },
     allowCrawlerActivity: {
@@ -234,13 +234,16 @@ export const destination: BrowserDestinationDefinition<Settings, typeof appboy> 
     }
 
     appboy.openSession()
+    resetUserCache()
+
     return appboy
   },
 
   actions: {
     logUser,
     logCustomEvent,
-    logPurchase
+    logPurchase,
+    debounce
   }
 }
 
