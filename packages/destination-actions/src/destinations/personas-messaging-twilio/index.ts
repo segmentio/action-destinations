@@ -3,7 +3,7 @@ import type { Settings } from './generated-types'
 import sendSms from './sendSms'
 
 const destination: DestinationDefinition<Settings> = {
-  name: 'Personas Messaging Twilio',
+  name: 'Actions Personas Messaging Twilio',
   mode: 'cloud',
   authentication: {
     scheme: 'custom',
