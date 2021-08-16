@@ -61,7 +61,7 @@
   },
   "optionalDependencies": {
     "@segment/actions-core": "^3.4.0",
-    "@segment/analytics-next": "^1.19.1"
+    "@segment/analytics-next": "^1.29.3"
   },
   "prettier": {
     "semi": false,
