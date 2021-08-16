@@ -4,7 +4,7 @@ import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 import { convertUTMProperties } from '../utm'
 import { convertReferrerProperty } from '../referrer'
-import { parseUserAgent } from '../user-agent'
+import { parseAndMergeUserAgentProperties } from '../user-agent'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Identify User',
@@ -239,7 +239,7 @@ const action: ActionDefinition<Settings, Payload> = {
       ...rest,
       user_properties: userProperties,
       // Conditionally parse user agent using amplitude's library, we spread payload here to pick up existing os, browser, and device properties
-      ...(userAgentParsing && { ...parseUserAgent({ userAgent, ...payload }) }),
+      ...(userAgentParsing && { ...parseAndMergeUserAgentProperties({ userAgent, ...rest }) }),
       library: 'segment'
     })
     return request('https://api.amplitude.com/identify', {

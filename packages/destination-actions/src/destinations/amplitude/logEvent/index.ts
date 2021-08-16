@@ -7,7 +7,7 @@ import type { Payload } from './generated-types'
 import { convertUTMProperties } from '../utm'
 import { convertReferrerProperty } from '../referrer'
 import { mergeUserProperties } from '../merge-user-properties'
-import { parseUserAgent } from '../user-agent'
+import { parseAndMergeUserAgentProperties } from '../user-agent'
 
 export interface AmplitudeEvent extends Omit<Payload, 'products' | 'trackRevenuePerProduct' | 'time' | 'session_id'> {
   library?: string
@@ -185,7 +185,7 @@ const action: ActionDefinition<Settings, Payload> = {
       {
         ...properties,
         // Conditionally parse user agent using amplitude's library, we spread payload here to pick up existing os, browser, and device properties
-        ...(userAgentParsing && { ...parseUserAgent({ userAgent, ...payload }) }),
+        ...(userAgentParsing && { ...parseAndMergeUserAgentProperties({ userAgent, ...payload }) }),
         // Conditionally track revenue with main event
         ...(products.length && trackRevenuePerProduct ? {} : getRevenueProperties(payload)),
         library: 'segment'
