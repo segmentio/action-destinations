@@ -52,8 +52,11 @@ const action: BrowserActionDefinition<Settings, typeof appboy, Payload> = {
     const ctx = data.context
 
     // Only send the event to Braze if a trait has changed
-    // TODO: What should be the actual name for this destination at runtime?
-    ctx.updateEvent('integrations.Braze Web Mode (Actions)', shouldSendToBraze(event))
+    // Target all possible Braze integration names
+    const shouldSend = shouldSendToBraze(event)
+    ctx.updateEvent('integrations.Braze Web Mode (Actions)', shouldSend)
+    ctx.updateEvent('integrations.Braze Cloud Mode (Actions)', shouldSend)
+    ctx.updateEvent('integrations.Appboy', shouldSend)
 
     // Ensure analytics.user is defined
     cachedUser.id = analyticsUser.id()
