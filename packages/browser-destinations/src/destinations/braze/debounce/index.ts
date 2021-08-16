@@ -1,6 +1,5 @@
 import type appboy from '@braze/web-sdk'
-import { ID, User } from '@segment/analytics-next'
-import { SegmentFacade, toFacade } from '@segment/analytics-next/dist/pkg/lib/to-facade'
+import { ID, SegmentEvent, User } from '@segment/analytics-next'
 import type { BrowserActionDefinition } from '../../../lib/browser-destinations'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
@@ -25,16 +24,16 @@ export function resetUserCache() {
   }
 }
 
-function shouldSendToBraze(event: SegmentFacade) {
-  if (event.userId() && event.userId() !== cachedUser.id) {
+function shouldSendToBraze(event: SegmentEvent) {
+  if (event.userId && event.userId !== cachedUser.id) {
     return true
   }
 
-  if (event.anonymousId() && event.anonymousId() !== cachedUser.anonymousId) {
+  if (event.anonymousId && event.anonymousId !== cachedUser.anonymousId) {
     return true
   }
 
-  const traits = event.traits()
+  const traits = event.traits ?? {}
   delete traits.id
 
   return JSON.stringify(cachedUser.traits) !== JSON.stringify(traits)
@@ -56,7 +55,7 @@ const action: BrowserActionDefinition<Settings, typeof appboy, Payload> = {
 
     // Only send the event to Braze if a trait has changed
     // TODO: What should be the actual name for this destination at runtime?
-    ctx.updateEvent('integrations.Appboy', shouldSendToBraze(toFacade(event)))
+    ctx.updateEvent('integrations.Appboy', shouldSendToBraze(event))
 
     // Ensure analytics.user is defined
     cachedUser.id = analyticsUser.id()
