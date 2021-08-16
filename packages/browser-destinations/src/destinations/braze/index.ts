@@ -5,6 +5,7 @@ import appboy from '@braze/web-sdk'
 import logCustomEvent from './logCustomEvent'
 import logUser from './logUser'
 import logPurchase from './logPurchase'
+import debounce, { resetUserCache } from './debounce'
 
 declare global {
   interface Window {
@@ -234,13 +235,16 @@ export const destination: BrowserDestinationDefinition<Settings, typeof appboy> 
     }
 
     appboy.openSession()
+    resetUserCache()
+
     return appboy
   },
 
   actions: {
     logUser,
     logCustomEvent,
-    logPurchase
+    logPurchase,
+    debounce
   }
 }
 
