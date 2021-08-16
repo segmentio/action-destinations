@@ -216,7 +216,7 @@ describe('Amplitude', () => {
       })
     })
 
-    it('should support parsing userAgent when the setting is true', async () => {
+    it('should support parsing user_agent when the setting is true', async () => {
       const event = createTestEvent({
         timestamp,
         event: 'Test Event',
@@ -246,7 +246,7 @@ describe('Amplitude', () => {
     })
   })
 
-  it.only('should not send parsed user agent properties when setting is false', async () => {
+  it('should not send parsed user agent properties when setting is false', async () => {
     const event = createTestEvent({
       timestamp: '2021-04-12T16:32:37.710Z',
       event: 'Test Event',
@@ -407,6 +407,87 @@ describe('Amplitude', () => {
             "undefined",
             "identification",
             "{\\"user_id\\":\\"some-user-id\\",\\"device_id\\":\\"some-anonymous-id\\",\\"country\\":\\"United States\\",\\"city\\":\\"San Francisco\\",\\"language\\":\\"en-US\\",\\"user_properties\\":{\\"some-trait-key\\":\\"some-trait-value\\"},\\"library\\":\\"segment\\"}",
+          ],
+          Symbol(context): null,
+        }
+      `)
+    })
+
+    it('should support parsing user_agent when the setting is true', async () => {
+      const event = createTestEvent({
+        anonymousId: 'some-anonymous-id',
+        timestamp: '2021-04-12T16:32:37.710Z',
+        type: 'group',
+        userId: 'some-user-id',
+        event: 'Test Event',
+        traits: {
+          'some-trait-key': 'some-trait-value'
+        },
+        context: {
+          device: {
+            id: 'foo'
+          },
+          user_agent:
+            'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_11_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/53.0.2785.143 Safari/537.36'
+        }
+      })
+
+      const mapping = {
+        userAgentParsing: true
+      }
+
+      nock('https://api.amplitude.com').post('/identify').reply(200, {})
+      const responses = await testDestination.testAction('identifyUser', { event, mapping, useDefaultMappings: true })
+      expect(responses.length).toBe(1)
+      expect(responses[0].status).toBe(200)
+      expect(responses[0].data).toMatchObject({})
+      expect(responses[0].options.body).toMatchInlineSnapshot(`
+        URLSearchParams {
+          Symbol(query): Array [
+            "api_key",
+            "undefined",
+            "identification",
+            "{\\"user_id\\":\\"some-user-id\\",\\"device_id\\":\\"foo\\",\\"user_properties\\":{\\"some-trait-key\\":\\"some-trait-value\\"},\\"os_name\\":\\"Mac\\",\\"os_version\\":\\"10.11.6\\",\\"library\\":\\"segment\\"}",
+          ],
+          Symbol(context): null,
+        }
+      `)
+    })
+    it('should not send parsed user agent properties when setting is false', async () => {
+      const event = createTestEvent({
+        anonymousId: 'some-anonymous-id',
+        timestamp: '2021-04-12T16:32:37.710Z',
+        type: 'group',
+        userId: 'some-user-id',
+        event: 'Test Event',
+        traits: {
+          'some-trait-key': 'some-trait-value'
+        },
+        context: {
+          device: {
+            id: 'foo'
+          },
+          user_agent:
+            'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_11_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/53.0.2785.143 Safari/537.36'
+        }
+      })
+
+      const mapping = {
+        userAgentParsing: false
+      }
+
+      nock('https://api.amplitude.com').post('/identify').reply(200, {})
+      const responses = await testDestination.testAction('identifyUser', { event, mapping, useDefaultMappings: true })
+      expect(responses.length).toBe(1)
+      expect(responses[0].status).toBe(200)
+      expect(responses[0].data).toMatchObject({})
+      expect(responses[0].options.body).toMatchInlineSnapshot(`
+        URLSearchParams {
+          Symbol(query): Array [
+            "api_key",
+            "undefined",
+            "identification",
+            "{\\"user_id\\":\\"some-user-id\\",\\"device_id\\":\\"foo\\",\\"user_properties\\":{\\"some-trait-key\\":\\"some-trait-value\\"},\\"library\\":\\"segment\\"}",
           ],
           Symbol(context): null,
         }
