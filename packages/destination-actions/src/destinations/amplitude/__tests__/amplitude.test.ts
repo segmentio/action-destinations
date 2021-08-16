@@ -215,6 +215,75 @@ describe('Amplitude', () => {
         ])
       })
     })
+
+    it('should support parsing user_agent when the setting is true', async () => {
+      const event = createTestEvent({
+        timestamp,
+        event: 'Test Event',
+        context: {
+          user_agent:
+            'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_11_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/53.0.2785.143 Safari/537.36'
+        }
+      })
+      const mapping = {
+        userAgentParsing: true
+      }
+      nock('https://api2.amplitude.com/2').post('/httpapi').reply(200, {})
+      const responses = await testDestination.testAction('logEvent', { event, mapping, useDefaultMappings: true })
+      expect(responses.length).toBe(1)
+      expect(responses[0].status).toBe(200)
+      expect(responses[0].data).toMatchObject({})
+      expect(responses[0].options.json).toMatchObject({
+        api_key: undefined,
+        events: expect.arrayContaining([
+          expect.objectContaining({
+            event_type: 'Test Event',
+            os_name: 'Mac',
+            os_version: '10.11.6'
+          })
+        ])
+      })
+    })
+  })
+
+  it('should not send parsed user agent properties when setting is false', async () => {
+    const event = createTestEvent({
+      timestamp: '2021-04-12T16:32:37.710Z',
+      event: 'Test Event',
+      context: {
+        device: {
+          id: 'foo'
+        },
+        user_agent:
+          'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_11_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/53.0.2785.143 Safari/537.36'
+      }
+    })
+    const mapping = {
+      userAgentParsing: false
+    }
+    nock('https://api2.amplitude.com/2').post('/httpapi').reply(200, {})
+    const responses = await testDestination.testAction('logEvent', { event, mapping, useDefaultMappings: true })
+    expect(responses.length).toBe(1)
+    expect(responses[0].status).toBe(200)
+    expect(responses[0].data).toMatchObject({})
+    expect(responses[0].options.json).toMatchInlineSnapshot(`
+      Object {
+        "api_key": undefined,
+        "events": Array [
+          Object {
+            "device_id": "foo",
+            "event_properties": Object {},
+            "event_type": "Test Event",
+            "idfv": "foo",
+            "library": "segment",
+            "time": 1618245157710,
+            "use_batch_endpoint": false,
+            "user_id": "user1234",
+            "user_properties": Object {},
+          },
+        ],
+      }
+    `)
   })
 
   describe('mapUser', () => {
@@ -338,6 +407,87 @@ describe('Amplitude', () => {
             "undefined",
             "identification",
             "{\\"user_id\\":\\"some-user-id\\",\\"device_id\\":\\"some-anonymous-id\\",\\"country\\":\\"United States\\",\\"city\\":\\"San Francisco\\",\\"language\\":\\"en-US\\",\\"user_properties\\":{\\"some-trait-key\\":\\"some-trait-value\\"},\\"library\\":\\"segment\\"}",
+          ],
+          Symbol(context): null,
+        }
+      `)
+    })
+
+    it('should support parsing user_agent when the setting is true', async () => {
+      const event = createTestEvent({
+        anonymousId: 'some-anonymous-id',
+        timestamp: '2021-04-12T16:32:37.710Z',
+        type: 'group',
+        userId: 'some-user-id',
+        event: 'Test Event',
+        traits: {
+          'some-trait-key': 'some-trait-value'
+        },
+        context: {
+          device: {
+            id: 'foo'
+          },
+          user_agent:
+            'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_11_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/53.0.2785.143 Safari/537.36'
+        }
+      })
+
+      const mapping = {
+        userAgentParsing: true
+      }
+
+      nock('https://api.amplitude.com').post('/identify').reply(200, {})
+      const responses = await testDestination.testAction('identifyUser', { event, mapping, useDefaultMappings: true })
+      expect(responses.length).toBe(1)
+      expect(responses[0].status).toBe(200)
+      expect(responses[0].data).toMatchObject({})
+      expect(responses[0].options.body).toMatchInlineSnapshot(`
+        URLSearchParams {
+          Symbol(query): Array [
+            "api_key",
+            "undefined",
+            "identification",
+            "{\\"user_id\\":\\"some-user-id\\",\\"device_id\\":\\"foo\\",\\"user_properties\\":{\\"some-trait-key\\":\\"some-trait-value\\"},\\"os_name\\":\\"Mac\\",\\"os_version\\":\\"10.11.6\\",\\"library\\":\\"segment\\"}",
+          ],
+          Symbol(context): null,
+        }
+      `)
+    })
+    it('should not send parsed user agent properties when setting is false', async () => {
+      const event = createTestEvent({
+        anonymousId: 'some-anonymous-id',
+        timestamp: '2021-04-12T16:32:37.710Z',
+        type: 'group',
+        userId: 'some-user-id',
+        event: 'Test Event',
+        traits: {
+          'some-trait-key': 'some-trait-value'
+        },
+        context: {
+          device: {
+            id: 'foo'
+          },
+          user_agent:
+            'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_11_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/53.0.2785.143 Safari/537.36'
+        }
+      })
+
+      const mapping = {
+        userAgentParsing: false
+      }
+
+      nock('https://api.amplitude.com').post('/identify').reply(200, {})
+      const responses = await testDestination.testAction('identifyUser', { event, mapping, useDefaultMappings: true })
+      expect(responses.length).toBe(1)
+      expect(responses[0].status).toBe(200)
+      expect(responses[0].data).toMatchObject({})
+      expect(responses[0].options.body).toMatchInlineSnapshot(`
+        URLSearchParams {
+          Symbol(query): Array [
+            "api_key",
+            "undefined",
+            "identification",
+            "{\\"user_id\\":\\"some-user-id\\",\\"device_id\\":\\"foo\\",\\"user_properties\\":{\\"some-trait-key\\":\\"some-trait-value\\"},\\"library\\":\\"segment\\"}",
           ],
           Symbol(context): null,
         }
