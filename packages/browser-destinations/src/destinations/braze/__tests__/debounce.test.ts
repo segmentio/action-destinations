@@ -35,6 +35,8 @@ describe('debounce', () => {
     documentSpy.mockImplementation(() => jsd.window.document as unknown as Document)
     global.document.domain = 'segment.com'
 
+    jest.spyOn(console, 'error').mockImplementation(() => {})
+
     ajs = new Analytics({
       writeKey: 'w_123'
     })
