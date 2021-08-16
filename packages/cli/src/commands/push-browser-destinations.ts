@@ -106,7 +106,7 @@ export default class PushBrowserDestinations extends Command {
 }
 
 async function build(): Promise<string> {
-  execa.commandSync('lerna run --scope @segment/actions-core build')
+  execa.commandSync('lerna run build')
   if (process.env.NODE_ENV === 'stage') {
     return execa.commandSync('lerna run build-web-stage').stdout
   }

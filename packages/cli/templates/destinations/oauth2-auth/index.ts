@@ -9,8 +9,10 @@ const destination: DestinationDefinition<Settings> = {
   authentication: {
     scheme: 'oauth2',
     fields: {},
-    testAuthentication: (_request) => {
-      // Return a request that tests/validates the user's credentials here
+    testAuthentication: (request) => {
+      // Return a request that tests/validates the user's credentials.
+      // If you do not have a way to validate the authentication fields safely,
+      // you can remove the `testAuthentication` function, though discouraged.
     },
     refreshAccessToken: async (request, { auth }) => {
       // Return a request that refreshes the access_token if the API supports it

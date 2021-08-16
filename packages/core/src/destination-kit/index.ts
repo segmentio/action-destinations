@@ -110,8 +110,8 @@ interface Authentication<Settings> {
   scheme: 'basic' | 'custom' | 'oauth2'
   /** The fields related to authentication */
   fields: Record<string, GlobalSetting>
-  /** A function that validates the user's authentication inputs */
-  testAuthentication: (request: RequestClient, input: AuthSettings<Settings>) => Promise<unknown> | unknown
+  /** A function that validates the user's authentication inputs. It is highly encouraged to define this whenever possible. */
+  testAuthentication?: (request: RequestClient, input: AuthSettings<Settings>) => Promise<unknown> | unknown
 }
 
 /**

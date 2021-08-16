@@ -15,7 +15,7 @@ const destination: DestinationDefinition<Settings> = {
       api_key: {
         label: 'API Key',
         description: 'Created under Developer Console in the Braze Dashboard.',
-        type: 'string',
+        type: 'password',
         required: true
       },
       app_id: {
@@ -30,12 +30,18 @@ const destination: DestinationDefinition<Settings> = {
         description: 'Your Braze REST endpoint. [See more details](https://www.braze.com/docs/api/basics/#endpoints)',
         type: 'string',
         format: 'uri',
+        choices: [
+          { label: 'US-01	(https://dashboard-01.braze.com)', value: 'https://rest.iad-01.braze.com' },
+          { label: 'US-02	(https://dashboard-02.braze.com)', value: 'https://rest.iad-02.braze.com' },
+          { label: 'US-03	(https://dashboard-03.braze.com)', value: 'https://rest.iad-03.braze.com' },
+          { label: 'US-04	(https://dashboard-04.braze.com)', value: 'https://rest.iad-04.braze.com' },
+          { label: 'US-05	(https://dashboard-05.braze.com)', value: 'https://rest.iad-05.braze.com' },
+          { label: 'US-06	(https://dashboard-06.braze.com)', value: 'https://rest.iad-06.braze.com' },
+          { label: 'US-08	(https://dashboard-08.braze.com)', value: 'https://rest.iad-08.braze.com' },
+          { label: 'EU-01	(https://dashboard-01.braze.eu)', value: 'https://rest.fra-01.braze.eu' }
+        ],
         required: true
       }
-    },
-    testAuthentication: (_request) => {
-      // Return a request that tests/validates the user's authentication fields here
-      // TODO explore docs for side-effect free way to handle this
     }
   },
   extendRequest({ settings }) {
