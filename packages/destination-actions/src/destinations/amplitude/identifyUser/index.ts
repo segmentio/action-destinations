@@ -172,7 +172,7 @@ const action: ActionDefinition<Settings, Payload> = {
       type: 'string',
       description: 'The user agent of the device sending the event.',
       default: {
-        '@path': '$.context.userAgent'
+        '@path': '$.context.user_agent'
       }
     },
     userAgentParsing: {
