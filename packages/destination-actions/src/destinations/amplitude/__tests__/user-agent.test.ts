@@ -1,4 +1,4 @@
-import { parseUserAgent } from '../user-agent'
+import { parseAndMergeUserAgentProperties } from '../user-agent'
 
 describe('amplitude - custom user agent parsing', () => {
   it('should parse custom user agent', () => {
@@ -9,7 +9,7 @@ describe('amplitude - custom user agent parsing', () => {
         '"Mozilla/5.0 (Linux; Android 5.0.1; Lenovo TAB 2 A7-30HC Build/LRX21M; wv) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/74.0.3729.157 Safari/537.36"'
     }
 
-    const result = parseUserAgent(event)
+    const result = parseAndMergeUserAgentProperties(event)
 
     expect(result).toEqual({
       os_name: 'Android',
@@ -28,7 +28,7 @@ describe('amplitude - custom user agent parsing', () => {
       os_version: '9.9.9'
     }
 
-    const result = parseUserAgent(event)
+    const result = parseAndMergeUserAgentProperties(event)
 
     expect(result).toEqual({
       os_name: 'Not Android',
