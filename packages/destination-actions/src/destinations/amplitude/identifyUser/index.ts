@@ -180,7 +180,7 @@ const action: ActionDefinition<Settings, Payload> = {
       type: 'boolean',
       description:
         'Enabling this setting will set the Device manufacturer, Device Model and OS Name properties based on the user agent string provided in context.userAgent',
-      default: false
+      default: true
     },
     utm_properties: {
       label: 'UTM Properties',
