@@ -11,7 +11,7 @@ interface ParsedUA {
   device_model?: string
 }
 
-export function parseUserAgent(payload: Payload & ParsedUA): ParsedUA {
+export function parseAndMergeUserAgentProperties(payload: Payload & ParsedUA): ParsedUA {
   if (!payload?.userAgent) {
     return omit(payload, 'userAgent')
   }
