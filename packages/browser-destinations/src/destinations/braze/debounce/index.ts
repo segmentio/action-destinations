@@ -1,5 +1,5 @@
 import type appboy from '@braze/web-sdk'
-import { ID, SegmentEvent, User } from '@segment/analytics-next'
+import type { ID, SegmentEvent, User } from '@segment/analytics-next'
 import type { BrowserActionDefinition } from '../../../lib/browser-destinations'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
@@ -34,8 +34,6 @@ function shouldSendToBraze(event: SegmentEvent) {
   }
 
   const traits = event.traits ?? {}
-  delete traits.id
-
   return JSON.stringify(cachedUser.traits) !== JSON.stringify(traits)
 }
 
@@ -54,8 +52,11 @@ const action: BrowserActionDefinition<Settings, typeof appboy, Payload> = {
     const ctx = data.context
 
     // Only send the event to Braze if a trait has changed
-    // TODO: What should be the actual name for this destination at runtime?
-    ctx.updateEvent('integrations.Appboy', shouldSendToBraze(event))
+    // Target all possible Braze integration names
+    const shouldSend = shouldSendToBraze(event)
+    ctx.updateEvent('integrations.Braze Web Mode (Actions)', shouldSend)
+    ctx.updateEvent('integrations.Braze Cloud Mode (Actions)', shouldSend)
+    ctx.updateEvent('integrations.Appboy', shouldSend)
 
     // Ensure analytics.user is defined
     cachedUser.id = analyticsUser.id()
