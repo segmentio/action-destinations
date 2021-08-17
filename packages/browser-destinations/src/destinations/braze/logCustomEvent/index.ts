@@ -2,7 +2,6 @@ import type { BrowserActionDefinition } from '../../../lib/browser-destinations'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 import type appboy from '@braze/web-sdk'
-import { omit } from '@segment/actions-core'
 
 const action: BrowserActionDefinition<Settings, typeof appboy, Payload> = {
   title: 'Log Custom Event',
@@ -30,9 +29,7 @@ const action: BrowserActionDefinition<Settings, typeof appboy, Payload> = {
     }
   },
   perform: (client, event) => {
-    const reservedKeys = Object.keys(action.fields.eventProperties.properties ?? {})
-    const properties = omit(event.payload.eventProperties, reservedKeys)
-    client.logCustomEvent(event.payload.eventName, properties)
+    client.logCustomEvent(event.payload.eventName, event.payload.eventProperties)
   }
 }
 
