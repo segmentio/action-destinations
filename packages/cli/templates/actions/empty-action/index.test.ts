@@ -1,8 +1,8 @@
 import nock from 'nock'
 import { createTestEvent, createTestIntegration } from '@segment/actions-core'
-import Action from '../index'
+import Destination from '../index'
 
-const testDestination = createTestIntegration(Action)
+const testDestination = createTestIntegration(Destination)
 
 describe('{{destination}}', () => {
   describe('{{name}}', () => {
