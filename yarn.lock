@@ -2266,10 +2266,9 @@
   resolved "https://registry.yarnpkg.com/@polka/url/-/url-1.0.0-next.15.tgz#6a9d143f7f4f49db2d782f9e1c8839a29b43ae23"
   integrity sha512-15spi3V28QdevleWBNXE4pIls3nFZmBbUGrW9IVPwiQczuSb9n76TCB4bsk8TSel+I1OkHEdPhu5QKMfY6rQHA==
 
-"@segment/analytics-next@^1.29.3":
+"@segment/analytics-next@github:segmentio/analytics-next.git#1.29.3":
   version "1.29.3"
-  resolved "https://registry.yarnpkg.com/@segment/analytics-next/-/analytics-next-1.29.3.tgz#51ea4d7e487e95c2862ec5d52fd34a113c20161e"
-  integrity sha512-v1MTOTS8tnxVkrrKSxCboxz5B5F5VUnY/F8bRcMspCsVo+REMZxmBo2Bl1t3GeRp9YaO5h530EIYdDhJQtO8qw==
+  resolved "git+ssh://git@github.com/segmentio/analytics-next.git#c9044adff34d70da83a24da14ff08daec801510b"
   dependencies:
     "@lukeed/uuid" "^2.0.0"
     "@segment/analytics.js-video-plugins" "^0.2.1"
