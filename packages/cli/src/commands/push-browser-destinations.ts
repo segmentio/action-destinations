@@ -110,15 +110,11 @@ async function build(): Promise<string> {
 }
 
 async function syncToS3(): Promise<string> {
-  if (process.env.NODE_ENV === 'production') {
-    const command = `lerna run deploy-prod`
-    return execa.commandSync(command).stdout
-  }
-
   if (process.env.NODE_ENV === 'stage') {
     const command = `lerna run deploy-stage`
     return execa.commandSync(command).stdout
   }
 
-  return 'Nothing to upload.'
+  const command = `lerna run deploy-prod`
+  return execa.commandSync(command).stdout
 }
