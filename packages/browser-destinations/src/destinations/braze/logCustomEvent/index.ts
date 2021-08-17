@@ -30,7 +30,7 @@ const action: BrowserActionDefinition<Settings, typeof appboy, Payload> = {
     }
   },
   perform: (client, event) => {
-    const reservedKeys = Object.keys(action.fields.products.properties ?? {})
+    const reservedKeys = Object.keys(action.fields.eventProperties.properties ?? {})
     const properties = omit(event.payload.eventProperties, reservedKeys)
     client.logCustomEvent(event.payload.eventName, properties)
   }
