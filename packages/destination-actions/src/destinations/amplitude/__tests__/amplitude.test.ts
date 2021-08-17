@@ -3,7 +3,7 @@ import { createTestEvent, createTestIntegration } from '@segment/actions-core'
 import Amplitude from '../index'
 
 const testDestination = createTestIntegration(Amplitude)
-const timestamp = new Date().toISOString()
+const timestamp = '2021-08-17T15:22:15.449Z'
 
 describe('Amplitude', () => {
   describe('logEvent', () => {
@@ -238,14 +238,14 @@ describe('Amplitude', () => {
           "api_key": undefined,
           "events": Array [
             Object {
-              "device_id": "e2ec5c80-d07d-4528-8aca-ac539f9a6db3",
+              "device_id": "6fd32a7e-3c56-44c2-bd32-62bbec44c53d",
               "device_model": undefined,
               "event_properties": Object {},
               "event_type": "Test Event",
               "library": "segment",
               "os_name": "Mac",
               "os_version": "10.11.6",
-              "time": 1629213252572,
+              "time": 1629213735449,
               "use_batch_endpoint": false,
               "user_id": "user1234",
               "user_properties": Object {},

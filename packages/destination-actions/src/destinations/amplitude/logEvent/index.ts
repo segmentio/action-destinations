@@ -1,4 +1,4 @@
-import { omit } from '@segment/actions-core'
+import { omit, removeUndefined } from '@segment/actions-core'
 import dayjs from '../../../lib/dayjs'
 import { eventSchema } from '../event-schema'
 import type { ActionDefinition } from '@segment/actions-core'
@@ -186,7 +186,7 @@ const action: ActionDefinition<Settings, Payload> = {
         // Conditionally parse user agent using amplitude's library
         ...(userAgentParsing && parseUserAgentProperties(userAgent)),
         // Make sure any top-level properties take precedence over user-agent properties
-        ...properties,
+        ...removeUndefined(properties),
         // Conditionally track revenue with main event
         ...(products.length && trackRevenuePerProduct ? {} : getRevenueProperties(payload)),
         library: 'segment'

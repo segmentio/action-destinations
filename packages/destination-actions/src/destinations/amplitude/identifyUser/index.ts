@@ -1,5 +1,5 @@
 import { URLSearchParams } from 'url'
-import type { ActionDefinition } from '@segment/actions-core'
+import { ActionDefinition, removeUndefined } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 import { convertUTMProperties } from '../utm'
@@ -239,7 +239,7 @@ const action: ActionDefinition<Settings, Payload> = {
       // Conditionally parse user agent using amplitude's library
       ...(userAgentParsing && parseUserAgentProperties(userAgent)),
       // Make sure any top-level properties take precedence over user-agent properties
-      ...rest,
+      ...removeUndefined(rest),
       user_properties: userProperties,
       library: 'segment'
     })
