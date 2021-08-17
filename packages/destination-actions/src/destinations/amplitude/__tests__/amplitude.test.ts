@@ -218,6 +218,7 @@ describe('Amplitude', () => {
 
     it('should support parsing user_agent when the setting is true', async () => {
       const event = createTestEvent({
+        anonymousId: '6fd32a7e-3c56-44c2-bd32-62bbec44c53d',
         timestamp,
         event: 'Test Event',
         context: {
