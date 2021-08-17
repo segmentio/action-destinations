@@ -233,16 +233,26 @@ describe('Amplitude', () => {
       expect(responses.length).toBe(1)
       expect(responses[0].status).toBe(200)
       expect(responses[0].data).toMatchObject({})
-      expect(responses[0].options.json).toMatchObject({
-        api_key: undefined,
-        events: expect.arrayContaining([
-          expect.objectContaining({
-            event_type: 'Test Event',
-            os_name: 'Mac',
-            os_version: '10.11.6'
-          })
-        ])
-      })
+      expect(responses[0].options.json).toMatchInlineSnapshot(`
+        Object {
+          "api_key": undefined,
+          "events": Array [
+            Object {
+              "device_id": "e2ec5c80-d07d-4528-8aca-ac539f9a6db3",
+              "device_model": undefined,
+              "event_properties": Object {},
+              "event_type": "Test Event",
+              "library": "segment",
+              "os_name": "Mac",
+              "os_version": "10.11.6",
+              "time": 1629213252572,
+              "use_batch_endpoint": false,
+              "user_id": "user1234",
+              "user_properties": Object {},
+            },
+          ],
+        }
+      `)
     })
   })
 
@@ -447,7 +457,7 @@ describe('Amplitude', () => {
             "api_key",
             "undefined",
             "identification",
-            "{\\"user_id\\":\\"some-user-id\\",\\"device_id\\":\\"foo\\",\\"user_properties\\":{\\"some-trait-key\\":\\"some-trait-value\\"},\\"os_name\\":\\"Mac\\",\\"os_version\\":\\"10.11.6\\",\\"library\\":\\"segment\\"}",
+            "{\\"os_name\\":\\"Mac\\",\\"os_version\\":\\"10.11.6\\",\\"user_id\\":\\"some-user-id\\",\\"device_id\\":\\"foo\\",\\"user_properties\\":{\\"some-trait-key\\":\\"some-trait-value\\"},\\"library\\":\\"segment\\"}",
           ],
           Symbol(context): null,
         }
