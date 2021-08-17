@@ -14,14 +14,18 @@ const action: BrowserActionDefinition<Settings, typeof appboy, Payload> = {
       required: true,
       description: 'The identifier for the event to track.',
       label: 'eventName',
-      default: 'event'
+      default: {
+        '@path': '$.event'
+      }
     },
     eventProperties: {
       type: 'object',
       required: false,
       description: 'Hash of properties for this event.',
       label: 'eventProperties',
-      default: {}
+      default: {
+        '@path': '$.properties'
+      }
     }
   },
   perform: (client, event) => {

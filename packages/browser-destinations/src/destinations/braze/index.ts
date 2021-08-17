@@ -6,12 +6,42 @@ import logCustomEvent from './logCustomEvent'
 import logUser from './logUser'
 import logPurchase from './logPurchase'
 import debounce, { resetUserCache } from './debounce'
+import { defaultValues, DestinationDefinition } from '@segment/actions-core'
 
 declare global {
   interface Window {
     appboy: typeof appboy
   }
 }
+
+const presets: DestinationDefinition['presets'] = [
+  {
+    name: 'Log User',
+    subscribe: 'type = "identify" or type = "group"',
+    partnerAction: 'logUser',
+    mapping: defaultValues(logUser.fields)
+  },
+  {
+    name: 'Log Purchase',
+    subscribe: 'type = "track"',
+    partnerAction: 'logPurchase',
+    mapping: defaultValues(logPurchase.fields)
+  },
+  {
+    name: 'Log Custom Event',
+    subscribe: 'type = "track"',
+    partnerAction: 'logCustomEvent',
+    mapping: {
+      ...defaultValues(logCustomEvent.fields),
+      eventName: {
+        '@path': '$.event'
+      },
+      eventProperties: {
+        '@path': '$.properties'
+      }
+    }
+  }
+]
 
 export const destination: BrowserDestinationDefinition<Settings, typeof appboy> = {
   name: 'Braze Web Mode',
@@ -238,7 +268,7 @@ export const destination: BrowserDestinationDefinition<Settings, typeof appboy> 
 
     return appboy
   },
-
+  presets,
   actions: {
     logUser,
     logCustomEvent,
