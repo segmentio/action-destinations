@@ -116,10 +116,8 @@ async function build(): Promise<string> {
 
 async function syncToS3(): Promise<string> {
   if (process.env.SERVER_ENVIRONMENT === 'production') {
-    const command = `lerna run deploy-prod`
-    return execa.commandSync(command).stdout
+    return execa.commandSync(`lerna run deploy-prod`).stdout
   }
 
-  const command = `lerna run deploy-stage`
-  return execa.commandSync(command).stdout
+  return execa.commandSync(`lerna run deploy-stage`).stdout
 }
