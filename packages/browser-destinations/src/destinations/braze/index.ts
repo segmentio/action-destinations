@@ -31,7 +31,15 @@ const presets: DestinationDefinition['presets'] = [
     name: 'Log Custom Event',
     subscribe: 'type = "track"',
     partnerAction: 'logCustomEvent',
-    mapping: defaultValues(logCustomEvent.fields)
+    mapping: {
+      ...defaultValues(logCustomEvent.fields),
+      eventName: {
+        '@path': '$.event'
+      },
+      eventProperties: {
+        '@path': '$.properties'
+      }
+    }
   }
 ]
 
