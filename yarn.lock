@@ -2,6 +2,11 @@
 # yarn lockfile v1
 
 
+"@amplitude/ua-parser-js@^0.7.24":
+  version "0.7.24"
+  resolved "https://registry.yarnpkg.com/@amplitude/ua-parser-js/-/ua-parser-js-0.7.24.tgz#2ce605af7d2c38d4a01313fb2385df55fbbd69aa"
+  integrity sha512-VbQuJymJ20WEw0HtI2np7EdC3NJGUWi8+Xdbc7uk8WfMIF308T0howpzkQ3JFMN7ejnrcSM/OyNGveeE3TP3TA==
+
 "@apidevtools/json-schema-ref-parser@9.0.9":
   version "9.0.9"
   resolved "https://registry.yarnpkg.com/@apidevtools/json-schema-ref-parser/-/json-schema-ref-parser-9.0.9.tgz#d720f9256e3609621280584f2b47ae165359268b"
@@ -2261,15 +2266,15 @@
   resolved "https://registry.yarnpkg.com/@polka/url/-/url-1.0.0-next.15.tgz#6a9d143f7f4f49db2d782f9e1c8839a29b43ae23"
   integrity sha512-15spi3V28QdevleWBNXE4pIls3nFZmBbUGrW9IVPwiQczuSb9n76TCB4bsk8TSel+I1OkHEdPhu5QKMfY6rQHA==
 
-"@segment/analytics-next@^1.19.1":
-  version "1.29.2"
-  resolved "https://registry.yarnpkg.com/@segment/analytics-next/-/analytics-next-1.29.2.tgz#15722b69832accbad48f956fc3d344a028fb34b2"
-  integrity sha512-nycWwTJp+/Lc9+9U8Z5iqXPVUARDLtOCg+ENx+IiQDqj6ZV3+9fhhbAW73zHpj4DN57AWumUY8Je884Q7B1lLQ==
+"@segment/analytics-next@^1.29.3":
+  version "1.29.3"
+  resolved "https://registry.yarnpkg.com/@segment/analytics-next/-/analytics-next-1.29.3.tgz#51ea4d7e487e95c2862ec5d52fd34a113c20161e"
+  integrity sha512-v1MTOTS8tnxVkrrKSxCboxz5B5F5VUnY/F8bRcMspCsVo+REMZxmBo2Bl1t3GeRp9YaO5h530EIYdDhJQtO8qw==
   dependencies:
     "@lukeed/uuid" "^2.0.0"
     "@segment/analytics.js-video-plugins" "^0.2.1"
     "@segment/facade" "3.3.10"
-    "@segment/tsub" "^0.1.4"
+    "@segment/tsub" "^0.1.9"
     dset "^2.1.0"
     js-cookie "^2.2.1"
     spark-md5 "^3.0.1"
@@ -2334,10 +2339,10 @@
     nanoid "^2.1.7"
     query-string "^6.10.1"
 
-"@segment/tsub@^0.1.4":
-  version "0.1.5"
-  resolved "https://registry.yarnpkg.com/@segment/tsub/-/tsub-0.1.5.tgz#691ffa45d7662127e49fe33e0e7b5438db391070"
-  integrity sha512-TLQkhd0DK+S+v6CnilfEGC6SsNdvI786Y1YK6hinv3nKpJZafHQ2ajrrjDlaKuWfUfnFku+l9H5kU/3hXBT3pQ==
+"@segment/tsub@^0.1.9":
+  version "0.1.9"
+  resolved "https://registry.yarnpkg.com/@segment/tsub/-/tsub-0.1.9.tgz#15690b62b3cd01ddd7ef53db8012a8941770b22b"
+  integrity sha512-m2ZTotDbXx0iW1eh3f3a3YUPwFptpCIEG7Xp/1MpTohPNmsL7Pft0PzQF3Qd7JClMmT6r7dmUjZjtWFEwEIaeQ==
   dependencies:
     dlv "^1.1.3"
     dset "2.1.0"
@@ -5652,10 +5657,10 @@ domutils@^2.6.0:
     domelementtype "^2.2.0"
     domhandler "^4.2.0"
 
-dot-prop@^3.0.0:
-  version "3.0.0"
-  resolved "https://registry.yarnpkg.com/dot-prop/-/dot-prop-3.0.0.tgz#1b708af094a49c9a0e7dbcad790aba539dac1177"
-  integrity sha1-G3CK8JSknJoOfbyteQq6U52sEXc=
+dot-prop@^3.0.0, dot-prop@^4.2.1:
+  version "4.2.1"
+  resolved "https://registry.yarnpkg.com/dot-prop/-/dot-prop-4.2.1.tgz#45884194a71fc2cda71cbb4bceb3a4dd2f433ba4"
+  integrity sha512-l0p4+mIuJIua0mhxGoh4a+iNL9bmeK5DvnSVQa6T0OhrVmaEa1XScX5Etc673FePCJOArq/4Pa2cLGODUWTPOQ==
   dependencies:
     is-obj "^1.0.0"
 
@@ -7165,10 +7170,17 @@ github-slugger@^1.2.1:
   dependencies:
     emoji-regex ">=6.0.0 <=6.1.1"
 
-glob-parent@^3.1.0, glob-parent@^5.1.1, glob-parent@^5.1.2, glob-parent@^6.0.1, glob-parent@~5.1.2:
+glob-parent@^3.1.0, glob-parent@^6.0.1:
   version "6.0.1"
   resolved "https://registry.yarnpkg.com/glob-parent/-/glob-parent-6.0.1.tgz#42054f685eb6a44e7a7d189a96efa40a54971aa7"
   integrity sha512-kEVjS71mQazDBHKcsq4E9u/vUzaLcw1A8EtUeydawvIWQCJM0qQ08G1H7/XTjFUulla6XQiDOG6MXSaG0HDKog==
+  dependencies:
+    is-glob "^4.0.1"
+
+glob-parent@^5.1.1, glob-parent@^5.1.2, glob-parent@~5.1.2:
+  version "5.1.2"
+  resolved "https://registry.yarnpkg.com/glob-parent/-/glob-parent-5.1.2.tgz#869832c58034fe68a4093c17dc15e8340d8401c4"
+  integrity sha512-AOIgSQCepiJYwP3ARnGx+5VnTu2HBYdzbGP45eLw1vr3zB3vZLeyed1sC9hnbcOc9/SrMyM5RPQrkGz4aS9Zow==
   dependencies:
     is-glob "^4.0.1"
 

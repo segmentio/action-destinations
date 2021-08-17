@@ -181,6 +181,14 @@ export interface Payload {
    */
   use_batch_endpoint?: boolean
   /**
+   * The user agent of the device sending the event.
+   */
+  userAgent?: string
+  /**
+   * Enabling this setting will set the Device manufacturer, Device Model and OS Name properties based on the user agent string provided in context.userAgent
+   */
+  userAgentParsing?: boolean
+  /**
    * UTM Tracking Properties
    */
   utm_properties?: {

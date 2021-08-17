@@ -10,7 +10,7 @@ export interface Settings {
    */
   api_key: string
   /**
-   * Your Braze SDK endpoint. [See more details](https://www.braze.com/docs/api/basics/#endpoints).
+   * Your Braze SDK endpoint. [See more details](https://www.braze.com/docs/user_guide/administrative/access_braze/sdk_endpoints/)
    */
   endpoint: string
   /**
