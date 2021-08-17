@@ -6,7 +6,7 @@ import logCustomEvent from './logCustomEvent'
 import logUser from './logUser'
 import logPurchase from './logPurchase'
 import debounce, { resetUserCache } from './debounce'
-import { defaultValues } from '@segment/actions-core'
+import { defaultValues, DestinationDefinition } from '@segment/actions-core'
 
 declare global {
   interface Window {
@@ -18,19 +18,19 @@ const presets: DestinationDefinition['presets'] = [
   {
     name: 'Log User',
     subscribe: 'type = "identify" or type = "group"',
-    parnetAction: 'logUser',
+    partnerAction: 'logUser',
     mapping: defaultValues(logUser.fields)
   },
   {
     name: 'Log Purchase',
     subscribe: 'type = "track"',
-    parnetAction: 'logPurchase',
+    partnerAction: 'logPurchase',
     mapping: defaultValues(logPurchase.fields)
   },
   {
     name: 'Log Custom Event',
     subscribe: 'type = "track"',
-    parnetAction: 'logCustomEvent',
+    partnerAction: 'logCustomEvent',
     mapping: defaultValues(logCustomEvent.fields)
   }
 ]
