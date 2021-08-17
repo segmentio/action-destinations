@@ -61,7 +61,7 @@
   },
   "optionalDependencies": {
     "@segment/actions-core": "^3.4.0",
-    "@segment/analytics-next": "github:segmentio/analytics-next.git#1.29.3"
+    "@segment/analytics-next": "github:https://github.com/segmentio/analytics-next.git#1.29.3"
   },
   "prettier": {
     "semi": false,

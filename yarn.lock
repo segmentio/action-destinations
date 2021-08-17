@@ -2266,7 +2266,7 @@
   resolved "https://registry.yarnpkg.com/@polka/url/-/url-1.0.0-next.15.tgz#6a9d143f7f4f49db2d782f9e1c8839a29b43ae23"
   integrity sha512-15spi3V28QdevleWBNXE4pIls3nFZmBbUGrW9IVPwiQczuSb9n76TCB4bsk8TSel+I1OkHEdPhu5QKMfY6rQHA==
 
-"@segment/analytics-next@github:segmentio/analytics-next.git#1.29.3":
+"@segment/analytics-next@github:https://github.com/segmentio/analytics-next.git#1.29.3":
   version "1.29.3"
   resolved "git+ssh://git@github.com/segmentio/analytics-next.git#c9044adff34d70da83a24da14ff08daec801510b"
   dependencies:
