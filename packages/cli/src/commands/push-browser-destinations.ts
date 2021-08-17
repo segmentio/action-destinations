@@ -85,8 +85,10 @@ export default class PushBrowserDestinations extends Command {
       const existingPlugin = remotePlugins.find((p) => p.metadataId === metadata.id && p.name === metadata.name)
 
       if (existingPlugin) {
+        this.log(`Updating remote plugin for ${metadata.name}`)
         await updateRemotePlugin(input)
       } else {
+        this.log(`Creating remote plugin for ${metadata.name}`)
         await createRemotePlugin(input)
       }
 
