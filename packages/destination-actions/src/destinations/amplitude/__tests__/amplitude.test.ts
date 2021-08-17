@@ -3,7 +3,7 @@ import { createTestEvent, createTestIntegration } from '@segment/actions-core'
 import Amplitude from '../index'
 
 const testDestination = createTestIntegration(Amplitude)
-const timestamp = '2021-08-17T15:22:15.449Z'
+const timestamp = '2021-08-17T15:21:15.449Z'
 
 describe('Amplitude', () => {
   describe('logEvent', () => {
@@ -246,7 +246,7 @@ describe('Amplitude', () => {
               "library": "segment",
               "os_name": "Mac",
               "os_version": "10.11.6",
-              "time": 1629213735449,
+              "time": 1629213675449,
               "use_batch_endpoint": false,
               "user_id": "user1234",
               "user_properties": Object {},
