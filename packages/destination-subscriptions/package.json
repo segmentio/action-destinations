@@ -1,6 +1,6 @@
 {
 	"name": "@segment/destination-subscriptions",
-  "version": "3.3.2",
+	"version": "3.3.3-alpha.0",
 	"description": "Validate event payload using subscription AST",
 	"license": "MIT",
 	"repository": {
@@ -74,7 +74,7 @@
 		]
 	},
 	"publishConfig": {
-    "access": "public",
+		"access": "public",
 		"registry": "https://registry.npmjs.org"
 	},
 	"size-limit": [
