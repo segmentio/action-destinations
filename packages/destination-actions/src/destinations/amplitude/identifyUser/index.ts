@@ -1,10 +1,10 @@
 import { URLSearchParams } from 'url'
-import type { ActionDefinition } from '@segment/actions-core'
+import { ActionDefinition, removeUndefined } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 import { convertUTMProperties } from '../utm'
 import { convertReferrerProperty } from '../referrer'
-import { parseAndMergeUserAgentProperties } from '../user-agent'
+import { parseUserAgentProperties } from '../user-agent'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Identify User',
@@ -236,10 +236,11 @@ const action: ActionDefinition<Settings, Payload> = {
     }
 
     const identification = JSON.stringify({
-      ...rest,
+      // Conditionally parse user agent using amplitude's library
+      ...(userAgentParsing && parseUserAgentProperties(userAgent)),
+      // Make sure any top-level properties take precedence over user-agent properties
+      ...removeUndefined(rest),
       user_properties: userProperties,
-      // Conditionally parse user agent using amplitude's library, we spread payload here to pick up existing os, browser, and device properties
-      ...(userAgentParsing && { ...parseAndMergeUserAgentProperties({ userAgent, ...rest }) }),
       library: 'segment'
     })
     return request('https://api.amplitude.com/identify', {
