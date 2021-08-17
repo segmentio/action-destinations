@@ -152,7 +152,7 @@ const action: ActionDefinition<Settings, Payload> = {
           label: 'Price',
           type: 'number',
           description: 'Price of the product being purchased, in units of the specified currency parameter.'
-        }, 
+        },
         promotion_id: {
           label: 'Promotion ID',
           type: 'string',
@@ -167,9 +167,9 @@ const action: ActionDefinition<Settings, Payload> = {
           label: 'Quantity',
           type: 'integer',
           description: 'Item quantity.'
-        },
+        }
       }
-    },
+    }
   },
   perform: (request, { payload }) => {
     let googleItems: ProductItem[] = []
@@ -208,7 +208,11 @@ const action: ActionDefinition<Settings, Payload> = {
           {
             name: 'select_promotion',
             params: {
+              creative_name: payload.creative_name,
+              creative_slot: payload.creative_slot,
               location_id: payload.location_id,
+              promotion_id: payload.promotion_id,
+              promotion_name: payload.promotion_name,
               items: googleItems
             }
           }
