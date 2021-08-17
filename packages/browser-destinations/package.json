@@ -29,7 +29,7 @@
   "dependencies": {
     "@braze/web-sdk": "^3.3.0",
     "@fullstory/browser": "^1.4.9",
-    "@segment/destination-subscriptions": "^3.3.1",
+    "@segment/destination-subscriptions": "^3.3.2",
     "dayjs": "^1.10.3",
     "tslib": "^2.1.0",
     "vm-browserify": "^1.1.2"
