@@ -108,7 +108,12 @@ export default class PushBrowserDestinations extends Command {
 }
 
 async function build(): Promise<string> {
-  return execa.commandSync('lerna run build').stdout
+  execa.commandSync('lerna run build').stdout
+  if (process.env.SERVER_ENVIRONMENT === 'production') {
+    return execa.commandSync('lerna run build-web').stdout
+  }
+
+  return execa.commandSync('lerna run build-web-stage').stdout
 }
 
 async function syncToS3(): Promise<string> {
