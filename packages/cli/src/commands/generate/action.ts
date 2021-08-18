@@ -84,7 +84,6 @@ export default class GenerateAction extends Command {
     const targetDirectory = path.join(process.cwd(), relativePath)
     const destinationFolder = path.parse(answers.directory).base
     const destination = startCase(camelCase(destinationFolder)).replace(/ /g, '')
-    const testsDirectory = path.join(process.cwd(), directory, '__tests__')
 
     let templatePath = path.join(__dirname, '../../../templates/actions/empty-action')
     if (args.type === 'browser') {
@@ -104,10 +103,6 @@ export default class GenerateAction extends Command {
         },
         flags.force
       )
-      if (!fs.existsSync(testsDirectory)) {
-        fs.mkdirSync(testsDirectory, { recursive: true })
-      }
-      fs.renameSync(path.join(targetDirectory, 'index.test.ts'), path.join(testsDirectory, `${slug}.test.ts`))
       this.spinner.succeed(`Scaffold action`)
     } catch (err) {
       this.spinner.fail(`Scaffold action: ${chalk.red(err.message)}`)
