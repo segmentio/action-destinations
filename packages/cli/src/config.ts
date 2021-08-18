@@ -1,6 +1,5 @@
-export const ASSET_PATH =
-  process.env.NODE_ENV === 'production'
+export function assetPath(env: string): string {
+  return env === 'production'
     ? 'https://cdn.segment.com/next-integrations/actions'
-    : process.env.NODE_ENV === 'stage'
-    ? 'https://cdn.segment.build/next-integrations/actions'
-    : undefined
+    : 'https://cdn.segment.build/next-integrations/actions'
+}
