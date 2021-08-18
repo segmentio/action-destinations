@@ -211,7 +211,9 @@ const parse = (tokens: Token[]): Condition => {
 			const groupTokens: Token[] = []
 			let groupToken = tokens.shift()
 
+			// eslint-disable-next-line @typescript-eslint/no-non-null-assertion
 			while (groupToken!.type !== 'parenright') {
+				// eslint-disable-next-line @typescript-eslint/no-non-null-assertion
 				groupTokens.push(groupToken!)
 				groupToken = tokens.shift()
 			}
