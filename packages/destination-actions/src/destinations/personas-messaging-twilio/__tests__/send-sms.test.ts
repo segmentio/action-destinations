@@ -51,9 +51,13 @@ for (const environment of ['stage', 'production']) {
     })
 
     it('should send SMS', async () => {
-      nock(`${endpoint}/v1/spaces/d/collections/users/profiles/user_id:jane`).get('/traits?limit=200').reply(200, {
-        traits: {}
-      })
+      nock(`${endpoint}/v1/spaces/d/collections/users/profiles/user_id:jane`)
+        .get('/traits?limit=200')
+        .reply(200, {
+          traits: {
+            phone: '+1234567891'
+          }
+        })
 
       nock(`${endpoint}/v1/spaces/d/collections/users/profiles/user_id:jane`)
         .get('/external_ids?limit=25')

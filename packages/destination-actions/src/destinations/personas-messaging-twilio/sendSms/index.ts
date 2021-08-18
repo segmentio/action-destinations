@@ -72,7 +72,7 @@ const action: ActionDefinition<Settings, Payload> = {
       description: 'User ID in Segment',
       type: 'string',
       required: true,
-      default: {'@path': '$.userId' },
+      default: { '@path': '$.userId' }
     },
     fromNumber: {
       label: 'From Number',
@@ -99,7 +99,7 @@ const action: ActionDefinition<Settings, Payload> = {
       traits
     }
 
-    if (!profile.phone) {
+    if (!profile.traits.phone) {
       return
     }
 
@@ -110,12 +110,12 @@ const action: ActionDefinition<Settings, Payload> = {
     return request(`https://api.twilio.com/2010-04-01/Accounts/${settings.twilioAccountId}/Messages.json`, {
       method: 'POST',
       headers: {
-        authorization: `Basic ${token}`,
+        authorization: `Basic ${token}`
       },
       body: new URLSearchParams({
         Body: Mustache.render(payload.body, profile),
         From: payload.fromNumber,
-        To: profile.phone
+        To: profile.traits.phone
       })
     })
   }
