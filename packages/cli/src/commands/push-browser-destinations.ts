@@ -24,7 +24,8 @@ export default class PushBrowserDestinations extends Command {
     help: flags.help({ char: 'h' }),
     env: flags.string({
       char: 'e',
-      default: 'stage'
+      default: 'stage',
+      env: 'NODE_ENV' // or whatever
     })
   }
 
