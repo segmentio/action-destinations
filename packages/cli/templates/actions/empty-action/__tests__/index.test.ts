@@ -4,8 +4,6 @@ import Destination from '../../index'
 
 const testDestination = createTestIntegration(Destination)
 
-describe('{{destination}}', () => {
-  describe('{{name}}', () => {
-    // TODO: Test your action
-  })
+describe('{{destination}}.{{slug}}', () => {
+  // TODO: Test your action
 })
