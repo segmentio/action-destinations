@@ -23,9 +23,7 @@ jobs:
         run: yarn --ignore-engines --ignore-optional
 
       - name: Bootstrap
-        run: |
-          yarn bootstrap
-          sleep 3
+        run: yarn bootstrap --no-ci
 
       - name: Test
         run: yarn test
