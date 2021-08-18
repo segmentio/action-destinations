@@ -6,6 +6,9 @@
   "command": {
     "bootstrap": {
       "npmClientArgs": ["--ignore-engines", "--ignore-optional"]
+    },
+    "version": {
+      "allowBranch": "main"
     }
   }
 }

@@ -9,7 +9,9 @@ import {
 	ErrorCondition
 } from './types'
 
-const stringifyValue = (value: string | boolean | number): string => {
+const stringifyValue = (
+	value: string | boolean | number | undefined
+): string => {
 	if (typeof value === 'boolean' || typeof value === 'number') {
 		return String(value)
 	}
@@ -24,9 +26,9 @@ const fqlExpression = (
 ): string => {
 	switch (operator) {
 		case 'contains':
-			return `contains(${name}, ${stringifyValue(value!)})`
+			return `contains(${name}, ${stringifyValue(value)})`
 		case 'not_contains':
-			return `!contains(${name}, ${stringifyValue(value!)})`
+			return `!contains(${name}, ${stringifyValue(value)})`
 		case 'exists':
 			return `${name} != null`
 		case 'not_exists':
@@ -45,7 +47,7 @@ const fqlExpression = (
 		case '>=':
 			return `${name} ${operator} ${Number(value)}`
 		default:
-			return `${name} ${operator} ${stringifyValue(value!)}`
+			return `${name} ${operator} ${stringifyValue(value)}`
 	}
 }
 
