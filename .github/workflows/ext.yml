@@ -20,12 +20,10 @@ jobs:
           registry-url: 'https://registry.npmjs.org'
 
       - name: Install
-        run: yarn install --ignore-optional
+        run: yarn global add lerna
 
       - name: Bootstrap
-        run: |
-          yarn bootstrap --no-ci
-          lerna exec -- yarn install --ignore-optional --ignore-engines
+        run: yarn bootstrap
 
       - name: Test
         run: yarn test
