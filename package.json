@@ -20,7 +20,7 @@
     "types": "./bin/run generate:types",
     "lint": "eslint '**/*.ts' --cache",
     "subscriptions": "yarn workspace @segment/destination-subscriptions",
-    "test": "lerna run test --stream --ignore @segment/browser-destinations",
+    "test": "lerna run test --stream",
     "typecheck": "lerna run typecheck --stream",
     "alpha": "lerna publish prerelease --pre-dist-tag next --allow-branch '*'"
   },
