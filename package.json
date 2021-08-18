@@ -20,7 +20,7 @@
     "types": "./bin/run generate:types",
     "lint": "eslint '**/*.ts' --cache",
     "subscriptions": "yarn workspace @segment/destination-subscriptions",
-    "test": "lerna run test --stream",
+    "test": "lerna run test --stream --ignore @segment/browser-destinations",
     "typecheck": "lerna run typecheck --stream"
   },
   "devDependencies": {
