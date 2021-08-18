@@ -21,12 +21,17 @@ export default class PushBrowserDestinations extends Command {
   static examples = [`$ ./bin/run push-browser-destinations`]
 
   static flags = {
-    help: flags.help({ char: 'h' })
+    help: flags.help({ char: 'h' }),
+    env: flags.string({
+      char: 'e',
+      default: 'stage'
+    })
   }
 
   static args = []
 
   async run() {
+    const { flags } = this.parse(PushBrowserDestinations)
     const { destinationIds } = await prompt<{ destinationIds: string[] }>({
       type: 'multiselect',
       name: 'destinationIds',
@@ -60,7 +65,7 @@ export default class PushBrowserDestinations extends Command {
 
     try {
       this.spinner.start(`Building libraries`)
-      await build()
+      await build(flags.env)
     } catch (e) {
       this.error(e)
     } finally {
@@ -95,7 +100,7 @@ export default class PushBrowserDestinations extends Command {
 
     try {
       this.spinner.start(`Syncing all plugins to s3`)
-      await syncToS3()
+      await syncToS3(flags.env)
       this.spinner.stop()
       this.log(`Plugins synced to s3`)
     } catch (e) {
@@ -105,17 +110,17 @@ export default class PushBrowserDestinations extends Command {
   }
 }
 
-async function build(): Promise<string> {
+async function build(env: string): Promise<string> {
   execa.commandSync('lerna run build')
-  if (process.env.SERVER_ENVIRONMENT === 'production') {
+  if (env === 'production') {
     return execa.commandSync('lerna run build-web').stdout
   }
 
   return execa.commandSync('lerna run build-web-stage').stdout
 }
 
-async function syncToS3(): Promise<string> {
-  if (process.env.SERVER_ENVIRONMENT === 'production') {
+async function syncToS3(env: string): Promise<string> {
+  if (env === 'production') {
     return execa.commandSync(`lerna run deploy-prod`).stdout
   }
 
