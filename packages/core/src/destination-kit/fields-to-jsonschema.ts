@@ -81,7 +81,6 @@ export function fieldsToJsonSchema(fields: Record<string, MinimalInputField> = {
   return {
     $schema: 'http://json-schema.org/schema#',
     type: 'object',
-    additionalProperties: false,
     properties,
     required
   }
