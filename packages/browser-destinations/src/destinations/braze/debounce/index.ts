@@ -42,7 +42,6 @@ const action: BrowserActionDefinition<Settings, typeof appboy, Payload> = {
   description:
     'When enabled, it ensures that only events where at least one changed trait value are sent to Braze, and events with duplicate traits are not sent.',
   platform: 'web',
-  hidden: true,
   defaultSubscription: 'type = "identify" or type = "group"',
   fields: {},
   lifecycleHook: 'before',
