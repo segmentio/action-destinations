@@ -36,12 +36,12 @@ beforeEach(() => {
 test('changes the userId when present', async () => {
   const changeUser = jest.spyOn(appboy, 'changeUser').mockImplementationOnce(() => {})
 
-  const [logPurchase] = await brazeDestination({
+  const [trackPurchase] = await brazeDestination({
     api_key: 'b_123',
     endpoint: 'endpoint',
     subscriptions: [
       {
-        partnerAction: 'logPurchase',
+        partnerAction: 'trackPurchase',
         name: 'Log Purchase',
         enabled: true,
         subscribe: 'type = "track"',
@@ -54,8 +54,8 @@ test('changes the userId when present', async () => {
     ]
   })
 
-  await logPurchase.load(Context.system(), {} as Analytics)
-  await logPurchase.track?.(
+  await trackPurchase.load(Context.system(), {} as Analytics)
+  await trackPurchase.track?.(
     new Context({
       type: 'track',
       properties: {
@@ -70,12 +70,12 @@ test('changes the userId when present', async () => {
 test('does not change the userId when not present', async () => {
   const changeUser = jest.spyOn(appboy, 'changeUser').mockImplementationOnce(() => {})
 
-  const [logPurchase] = await brazeDestination({
+  const [trackPurchase] = await brazeDestination({
     api_key: 'b_123',
     endpoint: 'endpoint',
     subscriptions: [
       {
-        partnerAction: 'logPurchase',
+        partnerAction: 'trackPurchase',
         name: 'Log Purchase',
         enabled: true,
         subscribe: 'type = "track"',
@@ -88,8 +88,8 @@ test('does not change the userId when not present', async () => {
     ]
   })
 
-  await logPurchase.load(Context.system(), {} as Analytics)
-  await logPurchase.track?.(
+  await trackPurchase.load(Context.system(), {} as Analytics)
+  await trackPurchase.track?.(
     new Context({
       type: 'track',
       properties: {}
@@ -102,12 +102,12 @@ test('does not change the userId when not present', async () => {
 test('reports products when present', async () => {
   const brazeLogPurchase = jest.spyOn(appboy, 'logPurchase').mockReturnValue(true)
 
-  const [logPurchase] = await brazeDestination({
+  const [trackPurchase] = await brazeDestination({
     api_key: 'b_123',
     endpoint: 'endpoint',
     subscriptions: [
       {
-        partnerAction: 'logPurchase',
+        partnerAction: 'trackPurchase',
         name: 'Log Purchase',
         enabled: true,
         subscribe: 'type = "track"',
@@ -123,8 +123,8 @@ test('reports products when present', async () => {
     ]
   })
 
-  await logPurchase.load(Context.system(), {} as Analytics)
-  await logPurchase.track?.(
+  await trackPurchase.load(Context.system(), {} as Analytics)
+  await trackPurchase.track?.(
     new Context({
       type: 'track',
       properties: {

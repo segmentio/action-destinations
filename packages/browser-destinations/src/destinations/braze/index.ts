@@ -4,7 +4,7 @@ import { browserDestination } from '../../runtime/shim'
 import appboy from '@braze/web-sdk'
 import logCustomEvent from './logCustomEvent'
 import logUser from './logUser'
-import logPurchase from './logPurchase'
+import trackPurchase from './trackPurchase'
 import debounce, { resetUserCache } from './debounce'
 import { defaultValues, DestinationDefinition } from '@segment/actions-core'
 
@@ -22,10 +22,10 @@ const presets: DestinationDefinition['presets'] = [
     mapping: defaultValues(logUser.fields)
   },
   {
-    name: 'Log Purchase',
+    name: 'Track Purchase',
     subscribe: 'type = "track"',
-    partnerAction: 'logPurchase',
-    mapping: defaultValues(logPurchase.fields)
+    partnerAction: 'trackPurchase',
+    mapping: defaultValues(trackPurchase.fields)
   },
   {
     name: 'Log Custom Event',
@@ -272,7 +272,7 @@ export const destination: BrowserDestinationDefinition<Settings, typeof appboy> 
   actions: {
     logUser,
     logCustomEvent,
-    logPurchase,
+    trackPurchase,
     debounce
   }
 }
