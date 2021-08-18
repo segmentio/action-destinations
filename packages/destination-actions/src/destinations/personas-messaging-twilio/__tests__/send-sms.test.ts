@@ -43,7 +43,7 @@ for (const environment of ['stage', 'production']) {
         mapping: {
           userId: { '@path': '$.userId' },
           fromNumber: '+1234567890',
-          body: 'Hello world, {{profile.user_id}}!'
+          body: 'Hello world, {{user_id}}!'
         }
       })
 
@@ -89,7 +89,7 @@ for (const environment of ['stage', 'production']) {
         mapping: {
           userId: { '@path': '$.userId' },
           fromNumber: '+1234567890',
-          body: 'Hello world, {{profile.user_id}}!'
+          body: 'Hello world, {{user_id}}!'
         }
       })
 
