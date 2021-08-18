@@ -3,7 +3,7 @@ import execa from 'execa'
 import chalk from 'chalk'
 import { manifest } from '@segment/browser-destinations'
 import ora from 'ora'
-import { ASSET_PATH } from '../config'
+import { assetPath } from '../config'
 import type { RemotePlugin } from '../lib/control-plane-service'
 import { prompt } from '../lib/prompt'
 import {
@@ -41,6 +41,8 @@ export default class PushBrowserDestinations extends Command {
         value: id
       }))
     })
+
+    const path = assetPath(flags.env)
 
     if (!destinationIds.length) {
       this.warn(`You must select at least one destination. Exiting...`)
@@ -82,7 +84,7 @@ export default class PushBrowserDestinations extends Command {
         // This MUST match the way webpack exports the libraryName in the umd bundle
         // TODO make this more automatic for consistency
         libraryName: `${entry.directory}Destination`,
-        url: `${ASSET_PATH}/${entry.directory}.js`
+        url: `${path}/${entry.directory}.js`
       }
 
       // We expect that each definition produces a single Remote Plugin bundle
