@@ -42,36 +42,8 @@ describe('validateSchema', () => {
     expect(payload).toMatchInlineSnapshot(`Object {}`)
   })
 
-  it('should not remove nested keys for valid properties', () => {
-    const payload = {
-      a: 1234,
-      b: {
-        anything: 'goes'
-      },
-      c: {
-        d: 'works!',
-        whatever: 'also works!'
-      },
-      e: 'true',
-      f: '123'
-    }
-
-    validateSchema(payload, schema, `testSchema`)
-    expect(payload).toMatchInlineSnapshot(`
-      Object {
-        "a": "1234",
-        "b": Object {
-          "anything": "goes",
-        },
-        "c": Object {
-          "d": "works!",
-          "whatever": "also works!",
-        },
-        "e": true,
-        "f": 123,
-      }
-    `)
-  })
+  // For now we always remove unknown keys, until builders have a way to specify the behavior
+  it.todo('should not remove nested keys for valid properties')
 
   it('should coerce properties for more flexible but type-safe inputs', () => {
     const payload = {
