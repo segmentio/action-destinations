@@ -21,7 +21,8 @@
     "lint": "eslint '**/*.ts' --cache",
     "subscriptions": "yarn workspace @segment/destination-subscriptions",
     "test": "lerna run test --stream",
-    "typecheck": "lerna run typecheck --stream"
+    "typecheck": "lerna run typecheck --stream",
+    "alpha": "lerna publish prerelease --pre-dist-tag next --allow-branch *"
   },
   "devDependencies": {
     "@types/jest": "^26.0.23",
