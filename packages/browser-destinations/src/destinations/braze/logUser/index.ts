@@ -3,7 +3,6 @@ import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 import appboy from '@braze/web-sdk'
 import dayjs from '../../../lib/dayjs'
-import { omit } from '@segment/actions-core'
 
 const known_traits = ['email', 'firstName', 'gender', 'city', 'avatar', 'lastName', 'phone']
 
@@ -199,15 +198,6 @@ const action: BrowserActionDefinition<Settings, typeof appboy, Payload> = {
     payload.phone !== undefined && user.setPhoneNumber(payload.phone)
     payload.push_subscribe !== undefined &&
       user.setPushNotificationSubscriptionType(payload.push_subscribe as appboy.User.NotificationSubscriptionTypes)
-
-    if (payload.custom_attributes !== undefined) {
-      const reservedKeys = Object.keys(action.fields.custom_attributes ?? {})
-      const customAttributes = omit(payload.custom_attributes, reservedKeys)
-
-      for (const [key, val] of Object.entries(customAttributes)) {
-        user.setCustomUserAttribute(key, val as string | number | boolean | Date | string[] | null)
-      }
-    }
   }
 }
 
