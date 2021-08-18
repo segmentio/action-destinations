@@ -16,7 +16,10 @@ function toJsonSchemaType(type: FieldTypeName): JSONSchema4TypeName | JSONSchema
 
 type MinimalInputField = Optional<InputField, 'description'> | Optional<GlobalSetting, 'description'>
 
-export function fieldsToJsonSchema(fields: Record<string, MinimalInputField> = {}): JSONSchema4 {
+export function fieldsToJsonSchema(
+  fields: Record<string, MinimalInputField> = {},
+  overrides?: JSONSchema4
+): JSONSchema4 {
   const required: string[] = []
   const properties: Record<string, JSONSchema4> = {}
 
@@ -63,10 +66,11 @@ export function fieldsToJsonSchema(fields: Record<string, MinimalInputField> = {
     // Note: this is used for the json schema validation and type-generation,
     // but is not stored in the db. It only lives in the code.
     if (schemaType === 'object' && field.properties) {
+      const additionalProperties = true
       if (isMulti) {
-        schema.items = fieldsToJsonSchema(field.properties)
+        schema.items = fieldsToJsonSchema(field.properties, { additionalProperties })
       } else {
-        schema = { ...schema, ...fieldsToJsonSchema(field.properties) }
+        schema = { ...schema, ...fieldsToJsonSchema(field.properties, { additionalProperties }) }
       }
     }
 
@@ -81,6 +85,7 @@ export function fieldsToJsonSchema(fields: Record<string, MinimalInputField> = {
   return {
     $schema: 'http://json-schema.org/schema#',
     type: 'object',
+    additionalProperties: overrides?.additionalProperties ?? false,
     properties,
     required
   }

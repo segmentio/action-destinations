@@ -9,7 +9,6 @@ import type { DynamicFieldResponse, InputField, RequestExtension, ExecuteInput, 
 import type { NormalizedOptions } from '../request-client'
 import type { JSONSchema4 } from 'json-schema'
 import { validateSchema } from '../schema-validation'
-import { removeUnknownKeys } from '../remove-unknown-keys'
 import { AuthTokens } from './parse-settings'
 
 type MaybePromise<T> = T | Promise<T>
@@ -102,11 +101,8 @@ export class Action<Settings, Payload extends JSONLikeObject> extends EventEmitt
     // TODO cleanup results... not sure it's even used
     const results: Result[] = []
 
-    // Strip out unknown fields so we don't pass them to subsequent steps
-    const mapping = removeUnknownKeys(bundle.mapping, Object.keys(this.definition.fields)) as JSONObject
-
     // Resolve/transform the mapping with the input data
-    const payload = transform(mapping, bundle.data) as Payload
+    const payload = transform(bundle.mapping, bundle.data) as Payload
     results.push({ output: 'Mappings resolved' })
 
     // Validate the resolved payload against the schema
