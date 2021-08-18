@@ -74,7 +74,7 @@
     ],
     "moduleNameMapper": {
       "@segment/ajv-human-errors": "<rootDir>/../ajv-human-errors",
-      "@segment/destination-subscriptions": "<rootDir>/../destination-subscription/src"
+      "@segment/destination-subscriptions": "<rootDir>/../destination-subscriptions/src"
     }
   }
 }
