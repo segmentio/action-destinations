@@ -25,7 +25,7 @@ jobs:
       - name: Bootstrap
         run: |
           yarn bootstrap --no-ci
-          lerna exec yarn install --ignore-optional --ignore-engines
+          lerna exec -- yarn install --ignore-optional --ignore-engines
 
       - name: Test
         run: yarn test
