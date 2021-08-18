@@ -9,6 +9,7 @@ import {
 
 const validateGroupCondition = (
 	condition: GroupCondition,
+	// eslint-disable-next-line @typescript-eslint/no-explicit-any
 	data: any
 ): boolean => {
 	if (condition.operator === 'and') {
@@ -26,6 +27,7 @@ const validateGroupCondition = (
 	return false
 }
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 const validate = (condition: Subscription, data: any): boolean => {
 	if ((condition as ErrorCondition).error || typeof data === 'undefined') {
 		return false
@@ -36,6 +38,7 @@ const validate = (condition: Subscription, data: any): boolean => {
 
 export default validate
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 const validateCondition = (condition: Condition, data: any): boolean => {
 	if (condition.type === 'event-type') {
 		return validateValue(data.type, condition.operator, condition.value)
