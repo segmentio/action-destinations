@@ -22,10 +22,6 @@ export interface Payload {
      */
     item_name?: string
     /**
-     * Item quantity.
-     */
-    quantity?: number
-    /**
      * A product affiliation to designate a supplying company or brick and mortar store location.
      */
     affiliation?: string
@@ -33,6 +29,10 @@ export interface Payload {
      * Coupon code used for a purchase.
      */
     coupon?: string
+    /**
+     * Currency of the purchase or items associated with the event, in 3-letter ISO 4217 format.
+     */
+    currency?: string
     /**
      * Monetary value of discount associated with a purchase.
      */
@@ -50,25 +50,45 @@ export interface Payload {
      */
     item_category?: string
     /**
-     * The name of the list in which the item was presented to the user.
+     * The second category of the product.
      */
-    item_list_name?: string
+    item_category2?: string
+    /**
+     * The third category of the product.
+     */
+    item_category3?: string
+    /**
+     * The fourth category of the product.
+     */
+    item_category4?: string
+    /**
+     * The fifth category of the product.
+     */
+    item_category5?: string
     /**
      * The ID of the list in which the item was presented to the user.
      */
     item_list_id?: string
     /**
+     * The name of the list in which the item was presented to the user.
+     */
+    item_list_name?: string
+    /**
      * Variant of the product (e.g. Black).
      */
     item_variant?: string
+    /**
+     * The location associated with the item.
+     */
+    location_id?: string
     /**
      * Price of the product being purchased, in units of the specified currency parameter.
      */
     price?: number
     /**
-     * Currency of the purchase or items associated with the event, in 3-letter ISO 4217 format.
+     * Item quantity.
      */
-    currency?: string
+    quantity?: number
   }[]
   /**
    * The monetary value of the event, in units of the specified currency parameter.

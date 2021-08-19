@@ -5,7 +5,7 @@ import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 
 const action: BrowserActionDefinition<Settings, typeof appboy, Payload> = {
-  title: 'Log Purchase',
+  title: 'Track Purchase',
   description: 'Reports that the current user made an in-app purchase.',
   platform: 'web',
   fields: {

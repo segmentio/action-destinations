@@ -3,6 +3,7 @@
  * Supports basic path lookup via dot notation `'foo.bar[0].baz'` or an array ['foo', 'bar', '0', 'baz']
  */
 export function get<T = unknown, Default = unknown>(
+	// eslint-disable-next-line @typescript-eslint/no-explicit-any
 	object: any,
 	path: string | string[],
 	defValue?: Default
