@@ -2,7 +2,7 @@ import type { Settings } from './generated-types'
 import type { BrowserDestinationDefinition } from '../../lib/browser-destinations'
 import { browserDestination } from '../../runtime/shim'
 import appboy from '@braze/web-sdk'
-import logCustomEvent from './logCustomEvent'
+import trackEvent from './trackEvent'
 import logUser from './logUser'
 import trackPurchase from './trackPurchase'
 import debounce, { resetUserCache } from './debounce'
@@ -28,11 +28,11 @@ const presets: DestinationDefinition['presets'] = [
     mapping: defaultValues(trackPurchase.fields)
   },
   {
-    name: 'Log Custom Event',
+    name: 'Track Event',
     subscribe: 'type = "track"',
-    partnerAction: 'logCustomEvent',
+    partnerAction: 'trackEvent',
     mapping: {
-      ...defaultValues(logCustomEvent.fields),
+      ...defaultValues(trackEvent.fields),
       eventName: {
         '@path': '$.event'
       },
@@ -271,7 +271,7 @@ export const destination: BrowserDestinationDefinition<Settings, typeof appboy> 
   presets,
   actions: {
     logUser,
-    logCustomEvent,
+    trackEvent,
     trackPurchase,
     debounce
   }
