@@ -1,7 +1,6 @@
 import { DecoratedResponse as Response } from '@segment/actions-core'
 import { IncomingHttpHeaders, OutgoingHttpHeaders } from 'http'
 
-
 export interface Exchange {
     request: RequestToDestination
     response: ResponseFromDestination
