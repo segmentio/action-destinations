@@ -60,6 +60,18 @@ const validateCondition = (condition: Condition, data: any): boolean => {
 		)
 	}
 
+	if (condition.type === 'event-trait') {
+		const properties = ['identify', 'group'].includes(data.type)
+			? data.traits
+			: data.properties
+
+		return validateValue(
+			get(properties, condition.name),
+			condition.operator,
+			condition.value
+		)
+	}
+
 	if (condition.type === 'event-context') {
 		return validateValue(
 			get(data.context, condition.name),

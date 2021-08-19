@@ -4,6 +4,7 @@ import {
 	EventTypeCondition,
 	EventCondition,
 	EventPropertyCondition,
+	EventTraitCondition,
 	EventContextCondition,
 	Operator,
 	ErrorCondition
@@ -68,6 +69,7 @@ const stringifyChildNode = (
 		| EventTypeCondition
 		| EventCondition
 		| EventPropertyCondition
+		| EventTraitCondition
 		| EventContextCondition
 ): string => {
 	let result = ''
@@ -89,6 +91,11 @@ const stringifyChildNode = (
 				node.operator,
 				node.value
 			)
+			break
+		}
+
+		case 'event-trait': {
+			result += fqlExpression(`traits.${node.name}`, node.operator, node.value)
 			break
 		}
 
