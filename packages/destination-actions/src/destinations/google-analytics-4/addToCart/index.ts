@@ -1,7 +1,7 @@
 import { ActionDefinition, IntegrationError } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
-import { CartProductItem } from '../ga4-types'
+import { ProductItem } from '../ga4-types'
 import { CURRENCY_ISO_CODES } from '../constants'
 
 const action: ActionDefinition<Settings, Payload> = {
@@ -140,7 +140,7 @@ const action: ActionDefinition<Settings, Payload> = {
     }
   },
   perform: (request, { payload }) => {
-    let googleItems: CartProductItem[] = []
+    let googleItems: ProductItem[] = []
 
     if (payload.items) {
       googleItems = payload.items.map((product) => {
@@ -156,7 +156,7 @@ const action: ActionDefinition<Settings, Payload> = {
           throw new IntegrationError(`${product.currency} is not a valid currency code.`, 'Incorrect value format', 400)
         }
 
-        return product as CartProductItem
+        return product as ProductItem
       })
     }
 

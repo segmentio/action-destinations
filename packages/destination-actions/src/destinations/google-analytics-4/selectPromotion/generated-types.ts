@@ -18,7 +18,7 @@ export interface Payload {
    */
   location_id?: string
   /**
-   * 	The ID of the promotion associated with the event.
+   * The ID of the promotion associated with the event.
    */
   promotion_id?: string
   /**

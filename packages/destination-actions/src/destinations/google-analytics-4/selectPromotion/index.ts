@@ -1,6 +1,6 @@
 import { ActionDefinition, IntegrationError } from '@segment/actions-core'
 import { CURRENCY_ISO_CODES } from '../constants'
-import { ProductItem } from '../ga4-types'
+import { PromotionProductItem } from '../ga4-types'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 
@@ -40,7 +40,7 @@ const action: ActionDefinition<Settings, Payload> = {
     promotion_id: {
       label: 'Promotion ID',
       type: 'string',
-      description: '	The ID of the promotion associated with the event.'
+      description: 'The ID of the promotion associated with the event.'
     },
     promotion_name: {
       label: 'Promotion Name',
@@ -172,7 +172,7 @@ const action: ActionDefinition<Settings, Payload> = {
     }
   },
   perform: (request, { payload }) => {
-    let googleItems: ProductItem[] = []
+    let googleItems: PromotionProductItem[] = []
 
     if (payload.items) {
       googleItems = payload.items.map((product) => {
@@ -196,7 +196,7 @@ const action: ActionDefinition<Settings, Payload> = {
           )
         }
 
-        return product as ProductItem
+        return product as PromotionProductItem
       })
     }
 
