@@ -3,13 +3,13 @@ import { Analytics, Context } from '@segment/analytics-next'
 import * as jsdom from 'jsdom'
 import brazeDestination from '../index'
 
-describe('logUser', () => {
+describe('updateUserProfile', () => {
   let userMock: appboy.User
 
   const subscriptions = [
     {
-      partnerAction: 'logUser',
-      name: 'Log User',
+      partnerAction: 'updateUserProfile',
+      name: 'Update User Profile',
       enabled: true,
       subscribe: 'type = "identify"',
       mapping: {
@@ -85,7 +85,7 @@ describe('logUser', () => {
       endpoint: 'endpoint',
       subscriptions: [
         {
-          partnerAction: 'logUser',
+          partnerAction: 'updateUserProfile',
           name: 'Log User',
           enabled: true,
           subscribe: 'type = "identify"',
