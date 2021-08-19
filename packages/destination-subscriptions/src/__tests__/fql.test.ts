@@ -294,6 +294,26 @@ test('support contains for event property', () => {
 	})
 })
 
+test('support contains for event trait', () => {
+	testFql('event = "Product Added" and contains(traits.name, "Nike")', {
+		type: 'group',
+		operator: 'and',
+		children: [
+			{
+				type: 'event',
+				operator: '=',
+				value: 'Product Added'
+			},
+			{
+				type: 'event-trait',
+				name: 'name',
+				operator: 'contains',
+				value: 'Nike'
+			}
+		]
+	})
+})
+
 test('support not_contains for event name', () => {
 	testFql('!contains(event, "Nike")', {
 		type: 'group',
@@ -320,6 +340,26 @@ test('support not_contains for event property', () => {
 			},
 			{
 				type: 'event-property',
+				name: 'name',
+				operator: 'not_contains',
+				value: 'Nike'
+			}
+		]
+	})
+})
+
+test('support not_contains for event trait', () => {
+	testFql('event = "Product Added" and !contains(traits.name, "Nike")', {
+		type: 'group',
+		operator: 'and',
+		children: [
+			{
+				type: 'event',
+				operator: '=',
+				value: 'Product Added'
+			},
+			{
+				type: 'event-trait',
 				name: 'name',
 				operator: 'not_contains',
 				value: 'Nike'
