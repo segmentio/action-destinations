@@ -1,9 +1,10 @@
 import { URLSearchParams } from 'url'
-import type { ActionDefinition } from '@segment/actions-core'
+import { ActionDefinition, removeUndefined } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 import { convertUTMProperties } from '../utm'
 import { convertReferrerProperty } from '../referrer'
+import { parseUserAgentProperties } from '../user-agent'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Identify User',
@@ -166,6 +167,21 @@ const action: ActionDefinition<Settings, Payload> = {
       description:
         'Amplitude will deduplicate subsequent events sent with this ID we have already seen before within the past 7 days. Amplitude recommends generating a UUID or using some combination of device ID, user ID, event type, event ID, and time.'
     },
+    userAgent: {
+      label: 'User Agent',
+      type: 'string',
+      description: 'The user agent of the device sending the event.',
+      default: {
+        '@path': '$.context.user_agent'
+      }
+    },
+    userAgentParsing: {
+      label: 'User Agent Parsing',
+      type: 'boolean',
+      description:
+        'Enabling this setting will set the Device manufacturer, Device Model and OS Name properties based on the user agent string provided in the userAgent field',
+      default: true
+    },
     utm_properties: {
       label: 'UTM Properties',
       type: 'object',
@@ -212,14 +228,21 @@ const action: ActionDefinition<Settings, Payload> = {
   },
 
   perform: (request, { payload, settings }) => {
-    const { utm_properties, referrer, user_properties, ...rest } = payload
+    const { utm_properties, referrer, user_properties, userAgent, userAgentParsing, ...rest } = payload
     let userProperties = user_properties
 
     if (Object.keys(utm_properties ?? {}).length || referrer) {
       userProperties = { ...convertUTMProperties(payload), ...convertReferrerProperty(payload) }
     }
 
-    const identification = JSON.stringify({ ...rest, user_properties: userProperties, library: 'segment' })
+    const identification = JSON.stringify({
+      // Conditionally parse user agent using amplitude's library
+      ...(userAgentParsing && parseUserAgentProperties(userAgent)),
+      // Make sure any top-level properties take precedence over user-agent properties
+      ...removeUndefined(rest),
+      user_properties: userProperties,
+      library: 'segment'
+    })
     return request('https://api.amplitude.com/identify', {
       method: 'post',
       body: new URLSearchParams({

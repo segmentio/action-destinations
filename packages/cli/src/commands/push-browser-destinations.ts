@@ -3,7 +3,7 @@ import execa from 'execa'
 import chalk from 'chalk'
 import { manifest } from '@segment/browser-destinations'
 import ora from 'ora'
-import { ASSET_PATH } from '../config'
+import { assetPath } from '../config'
 import type { RemotePlugin } from '../lib/control-plane-service'
 import { prompt } from '../lib/prompt'
 import {
@@ -21,12 +21,18 @@ export default class PushBrowserDestinations extends Command {
   static examples = [`$ ./bin/run push-browser-destinations`]
 
   static flags = {
-    help: flags.help({ char: 'h' })
+    help: flags.help({ char: 'h' }),
+    env: flags.string({
+      char: 'e',
+      default: 'stage',
+      env: 'NODE_ENV'
+    })
   }
 
   static args = []
 
   async run() {
+    const { flags } = this.parse(PushBrowserDestinations)
     const { destinationIds } = await prompt<{ destinationIds: string[] }>({
       type: 'multiselect',
       name: 'destinationIds',
@@ -36,6 +42,8 @@ export default class PushBrowserDestinations extends Command {
         value: id
       }))
     })
+
+    const path = assetPath(flags.env)
 
     if (!destinationIds.length) {
       this.warn(`You must select at least one destination. Exiting...`)
@@ -60,7 +68,7 @@ export default class PushBrowserDestinations extends Command {
 
     try {
       this.spinner.start(`Building libraries`)
-      await build()
+      await build(flags.env)
     } catch (e) {
       this.error(e)
     } finally {
@@ -77,7 +85,7 @@ export default class PushBrowserDestinations extends Command {
         // This MUST match the way webpack exports the libraryName in the umd bundle
         // TODO make this more automatic for consistency
         libraryName: `${entry.directory}Destination`,
-        url: `${ASSET_PATH}/${entry.directory}.js`
+        url: `${path}/${entry.directory}.js`
       }
 
       // We expect that each definition produces a single Remote Plugin bundle
@@ -86,16 +94,16 @@ export default class PushBrowserDestinations extends Command {
 
       if (existingPlugin) {
         await updateRemotePlugin(input)
+        this.spinner.succeed(`Updated existing remote plugin for ${metadata.name}`)
       } else {
         await createRemotePlugin(input)
+        this.spinner.succeed(`Created new remote plugin for ${metadata.name}`)
       }
-
-      this.spinner.succeed(`Saved remote plugin for ${metadata.name}`)
     }
 
     try {
       this.spinner.start(`Syncing all plugins to s3`)
-      await syncToS3()
+      await syncToS3(flags.env)
       this.spinner.stop()
       this.log(`Plugins synced to s3`)
     } catch (e) {
@@ -105,25 +113,19 @@ export default class PushBrowserDestinations extends Command {
   }
 }
 
-async function build(): Promise<string> {
-  execa.commandSync('lerna run --scope @segment/actions-core build')
-  if (process.env.NODE_ENV === 'stage') {
-    return execa.commandSync('lerna run build-web-stage').stdout
+async function build(env: string): Promise<string> {
+  execa.commandSync('lerna run build')
+  if (env === 'production') {
+    return execa.commandSync('lerna run build-web').stdout
   }
 
-  return execa.commandSync('lerna run build-web').stdout
+  return execa.commandSync('lerna run build-web-stage').stdout
 }
 
-async function syncToS3(): Promise<string> {
-  if (process.env.NODE_ENV === 'production') {
-    const command = `lerna run deploy-prod`
-    return execa.commandSync(command).stdout
+async function syncToS3(env: string): Promise<string> {
+  if (env === 'production') {
+    return execa.commandSync(`lerna run deploy-prod`).stdout
   }
 
-  if (process.env.NODE_ENV === 'stage') {
-    const command = `lerna run deploy-stage`
-    return execa.commandSync(command).stdout
-  }
-
-  return 'Nothing to upload.'
+  return execa.commandSync(`lerna run deploy-stage`).stdout
 }

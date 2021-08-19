@@ -4,7 +4,7 @@ import type { Payload } from './generated-types'
 import type appboy from '@braze/web-sdk'
 
 const action: BrowserActionDefinition<Settings, typeof appboy, Payload> = {
-  title: 'Log Custom Event',
+  title: 'Track Event',
   description: 'Reports that the current user performed a custom named event.',
   defaultSubscription: 'type = "track"',
   platform: 'web',
@@ -14,14 +14,18 @@ const action: BrowserActionDefinition<Settings, typeof appboy, Payload> = {
       required: true,
       description: 'The identifier for the event to track.',
       label: 'eventName',
-      default: 'event'
+      default: {
+        '@path': '$.event'
+      }
     },
     eventProperties: {
       type: 'object',
       required: false,
       description: 'Hash of properties for this event.',
       label: 'eventProperties',
-      default: {}
+      default: {
+        '@path': '$.properties'
+      }
     }
   },
   perform: (client, event) => {

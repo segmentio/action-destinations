@@ -1,4 +1,4 @@
-import { IntegrationError } from '@segment/actions-core'
+import { omit, IntegrationError } from '@segment/actions-core'
 import type { ActionDefinition } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
@@ -105,6 +105,10 @@ const action: ActionDefinition<Settings, Payload> = {
           label: 'Longitude',
           type: 'number'
         }
+      },
+      default: {
+        latitude: { '@path': '$.context.location.latitude' },
+        longitude: { '@path': '$.context.location.longitude' }
       }
     },
     date_of_first_session: {
@@ -332,13 +336,18 @@ const action: ActionDefinition<Settings, Payload> = {
       )
     }
 
+    // Since we are merge reserved keys on top of custom_attributes we need to remove them
+    // to respect the customers mappings that might resolve `undefined`, without this we'd
+    // potentially send a value from `custom_attributes` that conflicts with their mappings.
+    const reservedKeys = Object.keys(action.fields)
+    const customAttrs = omit(payload.custom_attributes, reservedKeys)
+
     return request(`${settings.endpoint}/users/track`, {
       method: 'post',
       json: {
         attributes: [
           {
-            // Spread custom attributes in a way that doesn't override reserved properties
-            ...payload.custom_attributes,
+            ...customAttrs,
             braze_id,
             external_id,
             user_alias,

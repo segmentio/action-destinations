@@ -6,9 +6,25 @@ export interface Payload {
    */
   client_id: string
   /**
+   * The name of the promotional creative.
+   */
+  creative_name?: string
+  /**
+   * The name of the promotional creative slot associated with the event.
+   */
+  creative_slot?: string
+  /**
    * The ID of the location.
    */
   location_id?: string
+  /**
+   * The ID of the promotion associated with the event.
+   */
+  promotion_id?: string
+  /**
+   * The name of the promotion associated with the event.
+   */
+  promotion_name?: string
   /**
    * The list of products in the event.
    */
@@ -22,18 +38,6 @@ export interface Payload {
      */
     item_name?: string
     /**
-     * Item quantity.
-     */
-    quantity?: number
-    /**
-     * The ID of a product promotion.
-     */
-    promotion_id?: string
-    /**
-     * The name of a product promotion.
-     */
-    promotion_name?: string
-    /**
      * A product affiliation to designate a supplying company or brick and mortar store location.
      */
     affiliation?: string
@@ -42,17 +46,25 @@ export interface Payload {
      */
     coupon?: string
     /**
-     * The name of a creative used in a promotional spot.
+     * Currency of the purchase or items associated with the event, in 3-letter ISO 4217 format.
+     */
+    currency?: string
+    /**
+     * The name of the promotional creative.
      */
     creative_name?: string
     /**
-     * The name of a creative slot.
+     * The name of the promotional creative slot associated with the item.
      */
     creative_slot?: string
     /**
      * Monetary value of discount associated with a purchase.
      */
     discount?: number
+    /**
+     * The index of the item in a list.
+     */
+    index?: number
     /**
      * Brand associated with the product.
      */
@@ -62,11 +74,35 @@ export interface Payload {
      */
     item_category?: string
     /**
+     * The second category of the product.
+     */
+    item_category2?: string
+    /**
+     * The third category of the product.
+     */
+    item_category3?: string
+    /**
+     * The fourth category of the product.
+     */
+    item_category4?: string
+    /**
+     * The fifth category of the product.
+     */
+    item_category5?: string
+    /**
+     * The ID of the list in which the item was presented to the user.
+     */
+    item_list_id?: string
+    /**
+     * The name of the list in which the item was presented to the user.
+     */
+    item_list_name?: string
+    /**
      * Variant of the product (e.g. Black).
      */
     item_variant?: string
     /**
-     * The location associated with the event. If possible, set to the Google Place ID that corresponds to the associated item. Can also be overridden to a custom location ID string.
+     * The location associated with the item.
      */
     location_id?: string
     /**
@@ -74,8 +110,16 @@ export interface Payload {
      */
     price?: number
     /**
-     * Currency of the purchase or items associated with the event, in 3-letter ISO 4217 format.
+     * The ID of the promotion associated with the item.
      */
-    currency?: string
+    promotion_id?: string
+    /**
+     * The name of the promotion associated with the item.
+     */
+    promotion_name?: string
+    /**
+     * Item quantity.
+     */
+    quantity?: number
   }[]
 }

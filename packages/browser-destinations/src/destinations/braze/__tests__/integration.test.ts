@@ -1,11 +1,11 @@
 import { Analytics, Context } from '@segment/analytics-next'
 import * as jsdom from 'jsdom'
 import braze, { destination } from '..'
-import { Subscription } from '../../../lib/browser-destinations'
+import type { Subscription } from '../../../lib/browser-destinations'
 
 const example: Subscription[] = [
   {
-    partnerAction: 'logCustomEvent',
+    partnerAction: 'trackEvent',
     name: 'Log Custom Event',
     enabled: true,
     subscribe: 'type = "track"',
@@ -52,19 +52,19 @@ beforeEach(async () => {
 })
 
 test('can load braze', async () => {
-  const [logCustomEvent] = await braze({
+  const [trackEvent] = await braze({
     api_key: 'api_key',
     endpoint: 'sdk.iad-01.braze.com',
     subscriptions: example
   })
 
-  jest.spyOn(destination.actions.logCustomEvent, 'perform')
+  jest.spyOn(destination.actions.trackEvent, 'perform')
   jest.spyOn(destination, 'initialize')
 
-  await logCustomEvent.load(Context.system(), {} as Analytics)
+  await trackEvent.load(Context.system(), {} as Analytics)
   expect(destination.initialize).toHaveBeenCalled()
 
-  const ctx = await logCustomEvent.track?.(
+  const ctx = await trackEvent.track?.(
     new Context({
       type: 'track',
       properties: {
@@ -73,18 +73,18 @@ test('can load braze', async () => {
     })
   )
 
-  expect(destination.actions.logCustomEvent.perform).toHaveBeenCalled()
+  expect(destination.actions.trackEvent.perform).toHaveBeenCalled()
   expect(ctx).not.toBeUndefined()
 })
 
 test('loads the braze service worker', async () => {
-  const [logCustomEvent] = await braze({
+  const [trackEvent] = await braze({
     api_key: 'api_key',
     endpoint: 'sdk.iad-01.braze.com',
     subscriptions: example
   })
 
-  await logCustomEvent.load(Context.system(), {} as Analytics)
+  await trackEvent.load(Context.system(), {} as Analytics)
 
   const scripts = window.document.querySelectorAll('script')
   // loads the service worker
@@ -104,14 +104,14 @@ test('loads the braze service worker', async () => {
 
 describe('loads different versions of braze service worker', () => {
   test('3.0', async () => {
-    const [logCustomEvent] = await braze({
+    const [trackEvent] = await braze({
       api_key: 'api_key',
       endpoint: 'sdk.iad-01.braze.com',
       sdkVersion: '3.0',
       subscriptions: example
     })
 
-    await logCustomEvent.load(Context.system(), {} as Analytics)
+    await trackEvent.load(Context.system(), {} as Analytics)
 
     const scripts = window.document.querySelectorAll('script')
     // loads the service worker
@@ -130,14 +130,14 @@ describe('loads different versions of braze service worker', () => {
   })
 
   test('3.1', async () => {
-    const [logCustomEvent] = await braze({
+    const [trackEvent] = await braze({
       api_key: 'api_key',
       endpoint: 'sdk.iad-01.braze.com',
       sdkVersion: '3.1',
       subscriptions: example
     })
 
-    await logCustomEvent.load(Context.system(), {} as Analytics)
+    await trackEvent.load(Context.system(), {} as Analytics)
 
     const scripts = window.document.querySelectorAll('script')
     // loads the service worker
@@ -156,14 +156,14 @@ describe('loads different versions of braze service worker', () => {
   })
 
   test('3.2', async () => {
-    const [logCustomEvent] = await braze({
+    const [trackEvent] = await braze({
       api_key: 'api_key',
       endpoint: 'sdk.iad-01.braze.com',
       sdkVersion: '3.2',
       subscriptions: example
     })
 
-    await logCustomEvent.load(Context.system(), {} as Analytics)
+    await trackEvent.load(Context.system(), {} as Analytics)
 
     const scripts = window.document.querySelectorAll('script')
     // loads the service worker
@@ -182,14 +182,14 @@ describe('loads different versions of braze service worker', () => {
   })
 
   test('3.3', async () => {
-    const [logCustomEvent] = await braze({
+    const [trackEvent] = await braze({
       api_key: 'api_key',
       endpoint: 'sdk.iad-01.braze.com',
       sdkVersion: '3.3',
       subscriptions: example
     })
 
-    await logCustomEvent.load(Context.system(), {} as Analytics)
+    await trackEvent.load(Context.system(), {} as Analytics)
 
     const scripts = window.document.querySelectorAll('script')
     // loads the service worker

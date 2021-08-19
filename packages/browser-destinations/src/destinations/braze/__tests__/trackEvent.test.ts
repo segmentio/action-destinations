@@ -3,7 +3,7 @@ import { Analytics, Context } from '@segment/analytics-next'
 import * as jsdom from 'jsdom'
 import brazeDestination from '../index'
 
-describe('logCustomEvent', () => {
+describe('trackEvent', () => {
   beforeEach(async () => {
     jest.restoreAllMocks()
     jest.resetAllMocks()
@@ -35,12 +35,12 @@ describe('logCustomEvent', () => {
   test('changes the external_id when present', async () => {
     const customEvent = jest.spyOn(appboy, 'logCustomEvent').mockReturnValue(true)
 
-    const [logCustomEvent] = await brazeDestination({
+    const [trackEvent] = await brazeDestination({
       api_key: 'b_123',
       endpoint: 'endpoint',
       subscriptions: [
         {
-          partnerAction: 'logCustomEvent',
+          partnerAction: 'trackEvent',
           name: 'Log Custom Event',
           enabled: true,
           subscribe: 'type = "track"',
@@ -56,8 +56,8 @@ describe('logCustomEvent', () => {
       ]
     })
 
-    await logCustomEvent.load(Context.system(), {} as Analytics)
-    await logCustomEvent.track?.(
+    await trackEvent.load(Context.system(), {} as Analytics)
+    await trackEvent.track?.(
       new Context({
         type: 'track',
         event: 'UFC',
