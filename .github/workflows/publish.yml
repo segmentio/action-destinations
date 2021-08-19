@@ -1,0 +1,14 @@
+name: Publish
+
+on:
+  workflow_dispatch:
+    inputs:
+      bump:
+        description: 'Semver Version Number to bump'
+        required: true
+        default: 'patch'
+
+jobs:
+  echo:
+    steps:
+      - run: echo "Publishing ${{github.event.inputs.bump}}!"
