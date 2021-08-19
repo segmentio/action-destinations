@@ -185,6 +185,26 @@ test('event = "Product Added" and property "price" >= 100', () => {
 	})
 })
 
+test('event = "identify" and traits.logins >= 10', () => {
+	testFql('event = "identify" and traits.logins >= 10', {
+		type: 'group',
+		operator: 'and',
+		children: [
+			{
+				type: 'event',
+				operator: '=',
+				value: 'identify'
+			},
+			{
+				type: 'event-trait',
+				name: 'logins',
+				operator: '>=',
+				value: 10
+			}
+		]
+	})
+})
+
 test('event = "Product Added" and property "price" >= 100 and property "premium" = true', () => {
 	testFql(
 		'event = "Product Added" and properties.price >= 100 and properties.premium = "true"',
@@ -208,6 +228,35 @@ test('event = "Product Added" and property "price" >= 100 and property "premium"
 					name: 'premium',
 					operator: '=',
 					value: 'true'
+				}
+			]
+		}
+	)
+})
+
+test('event = "identify" and traits "logins" >= 10 and traits "plan" = "premium"', () => {
+	testFql(
+		'event = "identify" and traits.logins >= 10 and traits.plan = "premium"',
+		{
+			type: 'group',
+			operator: 'and',
+			children: [
+				{
+					type: 'event',
+					operator: '=',
+					value: 'identify'
+				},
+				{
+					type: 'event-trait',
+					name: 'logins',
+					operator: '>=',
+					value: 10
+				},
+				{
+					type: 'event-trait',
+					name: 'plan',
+					operator: '=',
+					value: 'premium'
 				}
 			]
 		}
@@ -252,6 +301,52 @@ test('(event = "Product Added" and property "price" >= 100) or (event = "Order C
 							name: 'total',
 							operator: '>=',
 							value: 500
+						}
+					]
+				}
+			]
+		}
+	)
+})
+
+test('(event = "identify" and trait "logins" >= 100) or (event = "Signed Up" and trait "age" >= 50)', () => {
+	testFql(
+		'(event = "identify" and traits.logins >= 100) or (event = "Signed Up" and traits.age >= 50)',
+		{
+			type: 'group',
+			operator: 'or',
+			children: [
+				{
+					type: 'group',
+					operator: 'and',
+					children: [
+						{
+							type: 'event',
+							operator: '=',
+							value: 'identify'
+						},
+						{
+							type: 'event-trait',
+							operator: '>=',
+							name: 'logins',
+							value: 100
+						}
+					]
+				},
+				{
+					type: 'group',
+					operator: 'and',
+					children: [
+						{
+							type: 'event',
+							operator: '=',
+							value: 'Signed Up'
+						},
+						{
+							type: 'event-trait',
+							name: 'age',
+							operator: '>=',
+							value: 50
 						}
 					]
 				}
