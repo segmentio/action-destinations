@@ -11,7 +11,7 @@ const tokenToConditionType: Record<string, ConditionType> = {
 	type: 'event-type',
 	event: 'event',
 	properties: 'event-property',
-	traits: 'event-property'
+	traits: 'event-trait'
 }
 
 const getTokenValue = (token: Token): string | number | boolean => {
@@ -70,10 +70,19 @@ const parseFqlFunction = (
 			})
 		}
 
-		if (/^(properties|traits)/.test(nameToken.value)) {
+		if (/^(properties)/.test(nameToken.value)) {
 			nodes.push({
 				type: 'event-property',
-				name: nameToken.value.replace(/^(properties|traits)\./, ''),
+				name: nameToken.value.replace(/^(properties)\./, ''),
+				operator: negate ? 'not_contains' : 'contains',
+				value: String(getTokenValue(valueToken))
+			})
+		}
+
+		if (/^(traits)/.test(nameToken.value)) {
+			nodes.push({
+				type: 'event-trait',
+				name: nameToken.value.replace(/^(traits)\./, ''),
 				operator: negate ? 'not_contains' : 'contains',
 				value: String(getTokenValue(valueToken))
 			})
@@ -121,10 +130,19 @@ const parseFqlFunction = (
 			})
 		}
 
-		if (/^(properties|traits)/.test(nameToken.value)) {
+		if (/^(properties)/.test(nameToken.value)) {
 			nodes.push({
 				type: 'event-property',
-				name: nameToken.value.replace(/^(properties|traits)\./, ''),
+				name: nameToken.value.replace(/^(properties)\./, ''),
+				operator,
+				value
+			})
+		}
+
+		if (/^(traits)/.test(nameToken.value)) {
+			nodes.push({
+				type: 'event-trait',
+				name: nameToken.value.replace(/^(traits)\./, ''),
 				operator,
 				value
 			})
@@ -171,7 +189,7 @@ const parse = (tokens: Token[]): Condition => {
 					if (operatorToken.value === '!=' && valueToken.value === 'null') {
 						nodes.push({
 							type: 'event-property',
-							name: token.value.replace(/^(properties|traits)\./, ''),
+							name: token.value.replace(/^(properties)\./, ''),
 							operator: 'exists'
 						})
 					} else if (
@@ -180,13 +198,37 @@ const parse = (tokens: Token[]): Condition => {
 					) {
 						nodes.push({
 							type: 'event-property',
-							name: token.value.replace(/^(properties|traits)\./, ''),
+							name: token.value.replace(/^(properties)\./, ''),
 							operator: 'not_exists'
 						})
 					} else {
 						nodes.push({
 							type: 'event-property',
-							name: token.value.replace(/^(properties|traits)\./, ''),
+							name: token.value.replace(/^(properties)\./, ''),
+							operator: operatorToken.value as Operator,
+							value: getTokenValue(valueToken)
+						})
+					}
+				} else if (conditionType === 'event-trait') {
+					if (operatorToken.value === '!=' && valueToken.value === 'null') {
+						nodes.push({
+							type: 'event-trait',
+							name: token.value.replace(/^(traits)\./, ''),
+							operator: 'exists'
+						})
+					} else if (
+						operatorToken.value === '=' &&
+						valueToken.value === 'null'
+					) {
+						nodes.push({
+							type: 'event-trait',
+							name: token.value.replace(/^(traits)\./, ''),
+							operator: 'not_exists'
+						})
+					} else {
+						nodes.push({
+							type: 'event-trait',
+							name: token.value.replace(/^(traits)\./, ''),
 							operator: operatorToken.value as Operator,
 							value: getTokenValue(valueToken)
 						})
