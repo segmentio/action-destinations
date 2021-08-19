@@ -179,7 +179,7 @@ const action: ActionDefinition<Settings, Payload> = {
       label: 'User Agent Parsing',
       type: 'boolean',
       description:
-        'Enabling this setting will set the Device manufacturer, Device Model and OS Name properties based on the user agent string provided in context.userAgent',
+        'Enabling this setting will set the Device manufacturer, Device Model and OS Name properties based on the user agent string provided in context.user_agent',
       default: true
     },
     utm_properties: {
