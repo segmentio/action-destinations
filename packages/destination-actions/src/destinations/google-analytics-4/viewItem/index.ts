@@ -76,7 +76,7 @@ const action: ActionDefinition<Settings, Payload> = {
         },
         index: {
           label: 'Index',
-          type: 'integer',
+          type: 'number',
           description: 'The index of the item in a list.'
         },
         item_brand: {
@@ -133,14 +133,14 @@ const action: ActionDefinition<Settings, Payload> = {
           label: 'Price',
           type: 'number',
           description: 'Price of the product being purchased, in units of the specified currency parameter.'
-        }, 
+        },
         quantity: {
           label: 'Quantity',
           type: 'integer',
           description: 'Item quantity.'
-        },
+        }
       }
-    },
+    }
   },
   perform: (request, { payload }) => {
     if (payload.currency && !CURRENCY_ISO_CODES.includes(payload.currency)) {

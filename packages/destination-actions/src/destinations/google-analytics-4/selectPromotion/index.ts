@@ -95,7 +95,7 @@ const action: ActionDefinition<Settings, Payload> = {
         },
         index: {
           label: 'Index',
-          type: 'integer',
+          type: 'number',
           description: 'The index of the item in a list.'
         },
         item_brand: {
