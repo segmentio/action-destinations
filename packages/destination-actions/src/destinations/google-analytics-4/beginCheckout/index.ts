@@ -42,7 +42,7 @@ const action: ActionDefinition<Settings, Payload> = {
     // so will ignore for now
     items: {
       label: 'Products',
-      description: 'The list of products purchased.',
+      description: 'The list of products in the event.',
       type: 'object',
       multiple: true,
       properties: {
@@ -56,11 +56,6 @@ const action: ActionDefinition<Settings, Payload> = {
           type: 'string',
           description: 'Name of the product being purchased.'
         },
-        quantity: {
-          label: 'Quantity',
-          type: 'integer',
-          description: 'Item quantity.'
-        },
         affiliation: {
           label: 'Affiliation',
           type: 'string',
@@ -71,10 +66,20 @@ const action: ActionDefinition<Settings, Payload> = {
           type: 'string',
           description: 'Coupon code used for a purchase.'
         },
+        currency: {
+          label: 'Currency',
+          type: 'string',
+          description: 'Currency of the purchase or items associated with the event, in 3-letter ISO 4217 format.'
+        },
         discount: {
           label: 'Discount',
           type: 'number',
           description: 'Monetary value of discount associated with a purchase.'
+        },
+        index: {
+          label: 'Index',
+          type: 'number',
+          description: 'The index of the item in a list.'
         },
         item_brand: {
           label: 'Brand',
@@ -84,22 +89,57 @@ const action: ActionDefinition<Settings, Payload> = {
         item_category: {
           label: 'Category',
           type: 'string',
-          description: 'Product category.'
+          description: 'Category of the product.'
+        },
+        item_category2: {
+          label: 'Category2',
+          type: 'string',
+          description: 'The second category of the product.'
+        },
+        item_category3: {
+          label: 'Category3',
+          type: 'string',
+          description: 'The third category of the product.'
+        },
+        item_category4: {
+          label: 'Category4',
+          type: 'string',
+          description: 'The fourth category of the product.'
+        },
+        item_category5: {
+          label: 'Category5',
+          type: 'string',
+          description: 'The fifth category of the product.'
+        },
+        item_list_id: {
+          label: 'Item List Name',
+          type: 'string',
+          description: 'The ID of the list in which the item was presented to the user.'
+        },
+        item_list_name: {
+          label: 'Item List Name',
+          type: 'string',
+          description: 'The name of the list in which the item was presented to the user.'
         },
         item_variant: {
           label: 'Variant',
           type: 'string',
           description: 'Variant of the product (e.g. Black).'
         },
+        location_id: {
+          label: 'Location ID',
+          type: 'string',
+          description: 'The location associated with the item.'
+        },
         price: {
           label: 'Price',
           type: 'number',
           description: 'Price of the product being purchased, in units of the specified currency parameter.'
         },
-        currency: {
-          label: 'Currency',
-          type: 'string',
-          description: 'Currency of the purchase or items associated with the event, in 3-letter ISO 4217 format.'
+        quantity: {
+          label: 'Quantity',
+          type: 'integer',
+          description: 'Item quantity.'
         }
       }
     },

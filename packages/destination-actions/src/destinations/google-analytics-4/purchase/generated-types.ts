@@ -18,7 +18,7 @@ export interface Payload {
    */
   currency: string
   /**
-   * The list of products purchased.
+   * The list of products in the event.
    */
   items?: {
     /**
@@ -30,11 +30,7 @@ export interface Payload {
      */
     item_name?: string
     /**
-     * Item quantity.
-     */
-    quantity?: number
-    /**
-     * Store or affiliation from which this transaction occurred (e.g. Google Store).
+     * A product affiliation to designate a supplying company or brick and mortar store location.
      */
     affiliation?: string
     /**
@@ -42,33 +38,65 @@ export interface Payload {
      */
     coupon?: string
     /**
+     * Currency of the purchase or items associated with the event, in 3-letter ISO 4217 format.
+     */
+    currency?: string
+    /**
      * Monetary value of discount associated with a purchase.
      */
     discount?: number
+    /**
+     * The index of the item in a list.
+     */
+    index?: number
     /**
      * Brand associated with the product.
      */
     item_brand?: string
     /**
-     * Product category.
+     * Category of the product.
      */
     item_category?: string
+    /**
+     * The second category of the product.
+     */
+    item_category2?: string
+    /**
+     * The third category of the product.
+     */
+    item_category3?: string
+    /**
+     * The fourth category of the product.
+     */
+    item_category4?: string
+    /**
+     * The fifth category of the product.
+     */
+    item_category5?: string
+    /**
+     * The ID of the list in which the item was presented to the user.
+     */
+    item_list_id?: string
+    /**
+     * The name of the list in which the item was presented to the user.
+     */
+    item_list_name?: string
     /**
      * Variant of the product (e.g. Black).
      */
     item_variant?: string
     /**
-     * Total tax associated with the transaction.
+     * The location associated with the item.
      */
-    tax?: number
+    location_id?: string
     /**
      * Price of the product being purchased, in units of the specified currency parameter.
      */
     price?: number
     /**
-     * Currency of the purchase or items associated with the event, in 3-letter ISO 4217 format.
+     * Item quantity.
      */
-    currency?: string
+    quantity?: number
   }[]
   /**
    * The unique identifier of a transaction.
