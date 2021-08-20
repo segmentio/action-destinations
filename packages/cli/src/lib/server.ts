@@ -52,7 +52,7 @@ app.post(
       }
     } catch (err) {
       spinner.fail()
-      res.status(err.statusCode).json(err.message)
+      res.status(500).send(err.message)
     }
   })
 )
@@ -93,8 +93,6 @@ process.on('unhandledRejection', (error) => {
   handleUncaught(error, 'unhandledRejection')
 })
 
-// Termination signal sent by Docker on stop
-process.on('SIGTERM', () => gracefulShutdown(0))
 // Interrupt signal sent by Ctrl+C
 process.on('SIGINT', () => gracefulShutdown(0))
 
