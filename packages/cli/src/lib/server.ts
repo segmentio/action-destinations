@@ -43,7 +43,7 @@ app.post(
           data: req.body.payload,
           settings: req.body.settings,
           mapping: req.body.payload,
-          auth: undefined
+          auth: req.body.auth || undefined
         })
 
         const debug = await getExchanges(destination.responses)
