@@ -11,7 +11,7 @@ const action: ActionDefinition<Settings, Payload> = {
       label: 'User ID',
       description: 'User ID in Segment',
       type: 'string',
-      required: true,
+      allowNull: true,
       default: { '@path': '$.userId' }
     },
     from: {
@@ -25,6 +25,20 @@ const action: ActionDefinition<Settings, Payload> = {
       description: 'From Name displayed to end user email',
       type: 'string',
       required: true
+    },
+    email: {
+      label: 'To Email',
+      description: 'The Email Address to send an email to',
+      type: 'string',
+      required: true,
+      default: { '@path': '$.properties.email' }
+    },
+    firstName: {
+      label: 'To Name',
+      description: 'The Name of the user to send an email',
+      type: 'string',
+      required: true,
+      default: { '@path': '$.properties.firstName' }
     },
     body: {
       label: 'Body',
@@ -53,25 +67,7 @@ const action: ActionDefinition<Settings, Payload> = {
       label: 'Profile Properties',
       description: 'The Profile/Traits Properties',
       type: 'object',
-      required: true,
-      properties: {
-        email: {
-          label: 'To Email',
-          description: 'The Email Address to send an email to',
-          type: 'string',
-          required: true
-        },
-        firstName: {
-          label: 'To Name',
-          description: 'The Name of the user to send an email',
-          type: 'string',
-          required: true
-        }
-      },
-      default: {
-        email: { '@path': '$.properties.profile.email' },
-        firstName: { '@path': '$.properties.profile.first_name' }
-      }
+      required: true
     }
   },
   perform: async (request, { payload }) => {
@@ -82,8 +78,8 @@ const action: ActionDefinition<Settings, Payload> = {
           {
             to: [
               {
-                email: payload.profile.email,
-                name: payload.profile.firstName
+                email: payload.email,
+                name: payload.firstName
               }
             ],
             custom_args: {

@@ -18,7 +18,7 @@ for (const environment of ['stage', 'production']) {
             to: [
               {
                 email: 'test@example.com',
-                name: 'Test User'
+                name: 'First Name'
               }
             ],
             custom_args: {
@@ -32,11 +32,11 @@ for (const environment of ['stage', 'production']) {
           email: 'from@example.com',
           name: 'From Name'
         },
-        subject: 'Test1',
+        subject: 'Hello Browning First Name.',
         content: [
           {
             type: 'text/html',
-            value: 'Test mail -- Local test2'
+            value: 'Hi First Name, Welcome to segment'
           }
         ]
       }
@@ -52,12 +52,16 @@ for (const environment of ['stage', 'production']) {
         settings,
         mapping: {
           userId: { '@path': '$.userId' },
-          body: 'Test mail -- Local test2',
-          subject: 'Test1',
-          to: 'test@example.com',
-          toName: 'Test User',
+          body: 'Hi {{firstName}}, Welcome to segment',
+          subject: 'Hello {{lastName}} {{firstName}}.',
+          email: 'test@example.com',
+          firstName: 'First Name',
           from: 'from@example.com',
-          fromName: 'From Name'
+          fromName: 'From Name',
+          profile: {
+            firstName: 'First Name',
+            lastName: 'Browning'
+          }
         }
       })
       expect(responses.length).toEqual(1)

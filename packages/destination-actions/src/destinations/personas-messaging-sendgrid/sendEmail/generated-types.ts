@@ -4,7 +4,7 @@ export interface Payload {
   /**
    * User ID in Segment
    */
-  userId: string
+  userId?: string | null
   /**
    * From Email
    */
@@ -13,6 +13,14 @@ export interface Payload {
    * From Name displayed to end user email
    */
   fromName: string
+  /**
+   * The Email Address to send an email to
+   */
+  email: string
+  /**
+   * The Name of the user to send an email
+   */
+  firstName: string
   /**
    * The message body
    */
@@ -33,13 +41,6 @@ export interface Payload {
    * The Profile/Traits Properties
    */
   profile: {
-    /**
-     * The Email Address to send an email to
-     */
-    email: string
-    /**
-     * The Name of the user to send an email
-     */
-    firstName: string
+    [k: string]: unknown
   }
 }
