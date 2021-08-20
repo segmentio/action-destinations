@@ -14,14 +14,6 @@ export interface Payload {
    */
   fromName: string
   /**
-   * The Email Address to send an email to
-   */
-  to: string
-  /**
-   * The Name of the user to send an email
-   */
-  toName: string
-  /**
    * The message body
    */
   body: string
@@ -37,4 +29,17 @@ export interface Payload {
    * The ID of your Source
    */
   sourceId?: string
+  /**
+   * The Profile/Traits Properties
+   */
+  profile: {
+    /**
+     * The Email Address to send an email to
+     */
+    email: string
+    /**
+     * The Name of the user to send an email
+     */
+    firstName: string
+  }
 }

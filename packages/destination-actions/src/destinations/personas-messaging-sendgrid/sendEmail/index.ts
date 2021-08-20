@@ -1,7 +1,7 @@
 import type { ActionDefinition } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
-
+import Mustache from 'mustache'
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Send Email',
   description: 'Sends Email to a user powered by SendGrid',
@@ -26,20 +26,6 @@ const action: ActionDefinition<Settings, Payload> = {
       type: 'string',
       required: true
     },
-    to: {
-      label: 'To Email',
-      description: 'The Email Address to send an email to',
-      type: 'string',
-      required: true,
-      default: { '@path': '$.properties.email' }
-    },
-    toName: {
-      label: 'To Name',
-      description: 'The Name of the user to send an email',
-      type: 'string',
-      required: true,
-      default: { '@path': '$.properties.first_name' }
-    },
     body: {
       label: 'Body',
       description: 'The message body',
@@ -62,6 +48,30 @@ const action: ActionDefinition<Settings, Payload> = {
       label: 'Source ID',
       description: 'The ID of your Source',
       type: 'string'
+    },
+    profile: {
+      label: 'Profile Properties',
+      description: 'The Profile/Traits Properties',
+      type: 'object',
+      required: true,
+      properties: {
+        email: {
+          label: 'To Email',
+          description: 'The Email Address to send an email to',
+          type: 'string',
+          required: true
+        },
+        firstName: {
+          label: 'To Name',
+          description: 'The Name of the user to send an email',
+          type: 'string',
+          required: true
+        }
+      },
+      default: {
+        email: { '@path': '$.properties.profile.email' },
+        firstName: { '@path': '$.properties.profile.first_name' }
+      }
     }
   },
   perform: async (request, { payload }) => {
@@ -72,8 +82,8 @@ const action: ActionDefinition<Settings, Payload> = {
           {
             to: [
               {
-                email: payload.to,
-                name: payload.toName
+                email: payload.profile.email,
+                name: payload.profile.firstName
               }
             ],
             custom_args: {
@@ -88,11 +98,11 @@ const action: ActionDefinition<Settings, Payload> = {
           email: payload.from,
           name: payload.fromName
         },
-        subject: payload.subject,
+        subject: Mustache.render(payload.subject, payload.profile),
         content: [
           {
             type: 'text/html',
-            value: payload.body
+            value: Mustache.render(payload.body, payload.profile)
           }
         ]
       }
