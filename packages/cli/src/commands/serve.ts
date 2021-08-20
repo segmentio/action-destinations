@@ -1,24 +1,49 @@
 import { Command, flags } from '@oclif/command'
-import { Destination } from '@segment/actions-core'
 import { ChildProcess, fork } from 'child_process'
 import chalk from 'chalk'
 import chokidar from 'chokidar'
 import ora from 'ora'
 import path from 'path'
+import { prompt } from '../lib/prompt'
+import { sortBy, mergeWith } from 'lodash'
+import { manifest as cloudManifest, ManifestEntry as CloudManifest } from '@segment/action-destinations'
+import { manifest as browserManifest, ManifestEntry as BrowserManifest } from '@segment/browser-destinations'
+
+const DEFAULT_PORT = 3000
+
+const manifest: Record<string, CloudManifest | BrowserManifest> = mergeWith(
+  {},
+  cloudManifest,
+  browserManifest,
+  (objValue: any, srcValue: any) => {
+    if (Object.keys(objValue?.definition?.actions ?? {}).length === 0) {
+      return
+    }
+
+    for (const [actionKey, action] of Object.entries(srcValue.definition?.actions ?? {})) {
+      if (actionKey in objValue.definition.actions) {
+        throw new Error(
+          `Could not merge browser + cloud actions because there is already an action with the same key "${actionKey}"`
+        )
+      }
+
+      objValue.definition.actions[actionKey] = action
+    }
+
+    return objValue
+  }
+)
 
 export default class Serve extends Command {
   private spinner: ora.Ora = ora()
 
   static description = `Starts a local development server to test your integration.`
 
-  static strict = false
-  static args = [{ name: 'destination', description: 'the destination to serve', required: true }]
-
-  static examples = [`$ ./bin/run serve slack`, `$ PORT=3001 ./bin/run serve slack -p 3001`]
+  static examples = [`$ ./bin/run serve`, `$ PORT=3001 ./bin/run serve`]
 
   static flags = {
     help: flags.help({ char: 'h' }),
-    port: flags.integer({ default: 3000, description: 'port', env: 'PORT' }),
+    port: flags.integer({ default: DEFAULT_PORT, description: 'port', env: 'PORT' }),
     directory: flags.string({
       char: 'd',
       description: 'destination actions directory',
@@ -26,12 +51,21 @@ export default class Serve extends Command {
     })
   }
 
-  static destination: Destination
-
   async run() {
-    const { args, flags } = this.parse(Serve)
+    const argv = this.parse(Serve)
 
-    const folderPath = path.join(process.cwd(), flags.directory, args.destination)
+    const { metadataId } = await prompt<{ metadataId: string }>({
+      type: 'select',
+      name: 'metadataId',
+      message: 'Choose a definition:',
+      choices: sortBy(Object.entries(manifest), '[1].definition.name').map(([metadataId, entry]) => ({
+        title: entry.definition.name,
+        value: metadataId
+      }))
+    })
+
+    const destination = manifest[metadataId].directory
+    const folderPath = path.join(process.cwd(), argv.flags.directory, destination)
 
     let child: ChildProcess | undefined
 
@@ -44,8 +78,8 @@ export default class Serve extends Command {
         cwd: process.cwd(),
         env: {
           ...process.env,
-          DESTINATION: args.destination,
-          DIRECTORY: flags.directory
+          DESTINATION: destination,
+          DIRECTORY: argv.flags.directory
         },
         execArgv: ['-r', 'ts-node/register/transpile-only']
       })
@@ -63,8 +97,8 @@ export default class Serve extends Command {
 
       if (child) {
         // Child is still running, restart upon exit
-        stop(child)
         child.on('exit', start)
+        stop(child)
       } else {
         // Child is already stopped, probably due to a previous error
         start()
