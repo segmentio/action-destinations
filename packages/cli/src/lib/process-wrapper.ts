@@ -9,9 +9,9 @@ process.once('SIGTERM', () => process.listenerCount('SIGTERM') || process.exit(0
 
 // Hook into require() and notify the parent process about required files
 hook(module, (required) => {
-    if (process.connected) {
-        process.send?.({ required, cmd: 'segment' })
-    }
+  if (process.connected) {
+    process.send?.({ required, cmd: 'segment' })
+  }
 })
 
 // Execute the wrapped script

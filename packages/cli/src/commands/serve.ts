@@ -6,24 +6,24 @@ import chokidar from 'chokidar'
 import ora from 'ora'
 import path from 'path'
 
+interface Message {
+  cmd: string
+  required: string
+}
+
 export default class Serve extends Command {
   private spinner: ora.Ora = ora()
 
   static description = `Starts a local development server to test your integration.`
 
   static strict = false
-  static args = [
-    { name: 'destination', description: 'the destination to serve', required: true }
-  ]
+  static args = [{ name: 'destination', description: 'the destination to serve', required: true }]
 
-  static examples = [
-    `$ ./bin/run generate:serve`,
-    `$ ./bin/run generate:serve slack`
-  ]
+  static examples = [`$ ./bin/run serve slack`, `$ PORT=3001 ./bin/run serve slack -p 3001`]
 
   static flags = {
     help: flags.help({ char: 'h' }),
-    port: flags.integer({ char: 'p', default: 3000, description: 'port' }),
+    port: flags.integer({ default: 3000, description: 'port', env: 'PORT' }),
     directory: flags.string({
       char: 'd',
       description: 'destination actions directory',
@@ -35,6 +35,7 @@ export default class Serve extends Command {
 
   async run() {
     const { args, flags } = this.parse(Serve)
+    const { argv } = this.parse(Serve)
 
     const folderPath = path.join(process.cwd(), flags.directory, args.destination)
 
@@ -48,13 +49,13 @@ export default class Serve extends Command {
     const start = () => {
       isRestarting = false
 
+      console.log('argv: ', argv)
       child = fork(require.resolve('../lib/process-wrapper.ts'), ['../lib/server.ts'], {
         cwd: process.cwd(),
         env: {
           ...process.env,
-          port: flags.port.toString(),
-          destination: args.destination,
-          directory: flags.directory
+          DESTINATION: args.destination,
+          DIRECTORY: flags.directory
         },
         execArgv: ['-r', 'ts-node/register/transpile-only']
       })
@@ -67,14 +68,12 @@ export default class Serve extends Command {
       })
 
       // Listen for `required` messages and watch the required file.
-      child.on('message', (message: any) => {
+      child.on('message', (message: Message) => {
         if (!isRestarting && message.cmd === 'segment' && 'required' in message) {
           watcher.add(message.required)
         }
       })
     }
-
-    start()
 
     watcher.on('change', (file) => {
       this.log(chalk.greenBright`Restarting... ${file} has been modified`)
@@ -108,6 +107,8 @@ export default class Serve extends Command {
         process.exit(0)
       }, 1000)
     })
+
+    start()
   }
 
   async catch(error: unknown) {
