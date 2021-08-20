@@ -17,14 +17,6 @@ const action: ActionDefinition<Settings, Payload> = {
         '@path': '$.userId'
       }
     },
-    anonymous_id: {
-      label: 'Anonymous ID',
-      description: 'Anonymous ID to uniquely identify person in Customer.io.',
-      type: 'string',
-      default: {
-        '@path': '$.anonymousId'
-      }
-    },
     email: {
       label: 'Email Address',
       description: "Person's email address.",
@@ -59,8 +51,7 @@ const action: ActionDefinition<Settings, Payload> = {
       json: {
         ...payload.custom_attributes,
         email: payload.email,
-        created_at: payload.created_at ? dayjs.utc(payload.created_at).format('X') : undefined,
-        anonymous_id: payload.anonymous_id
+        created_at: payload.created_at ? dayjs.utc(payload.created_at).format('X') : undefined
       }
     })
   }
