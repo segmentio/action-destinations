@@ -50,6 +50,12 @@ jobs:
       - name: Test
         run: yarn test
 
+      - name: destination-subscriptions size
+        run: |
+          if $(lerna changed | grep -q destination-subscriptions); then
+            yarn subscriptions size
+          fi
+
   snyk:
     runs-on: ubuntu-latest
 

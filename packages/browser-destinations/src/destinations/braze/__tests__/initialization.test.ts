@@ -54,11 +54,11 @@ describe('initialization', () => {
   test('load initialization options', async () => {
     const initialize = jest.spyOn(appboy, 'initialize')
 
-    const [logCustomEvent] = await brazeDestination({
+    const [trackEvent] = await brazeDestination({
       api_key: 'b_123',
       subscriptions: [
         {
-          partnerAction: 'logCustomEvent',
+          partnerAction: 'trackEvent',
           name: 'Log Custom Event',
           enabled: true,
           subscribe: 'type = "track"',
@@ -75,7 +75,7 @@ describe('initialization', () => {
       ...settings
     })
 
-    await logCustomEvent.load(Context.system(), {} as Analytics)
+    await trackEvent.load(Context.system(), {} as Analytics)
 
     const { endpoint, ...expectedSettings } = settings
     expect(initialize).toHaveBeenCalledWith(
