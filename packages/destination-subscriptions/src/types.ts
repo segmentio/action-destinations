@@ -14,6 +14,7 @@ export type Condition =
 	| EventTypeCondition
 	| EventCondition
 	| EventPropertyCondition
+	| EventTraitCondition
 	| EventContextCondition
 
 export type GroupConditionOperator = 'and' | 'or'
@@ -32,6 +33,13 @@ export interface EventCondition {
 
 export interface EventPropertyCondition {
 	type: 'event-property'
+	name: string
+	operator: Operator
+	value?: string | boolean | number
+}
+
+export interface EventTraitCondition {
+	type: 'event-trait'
 	name: string
 	operator: Operator
 	value?: string | boolean | number
@@ -65,6 +73,7 @@ export type ConditionType =
 	| 'event-type'
 	| 'event'
 	| 'event-property'
+	| 'event-trait'
 	| 'event-context'
 
 export type PropertyConditionType = 'event-property' | 'event-context'

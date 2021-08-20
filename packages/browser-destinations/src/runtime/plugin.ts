@@ -62,7 +62,7 @@ export function generatePlugins<S, C>(
       name: `${def.name} ${key}`,
       type: action.lifecycleHook ?? 'destination',
       version: '0.1.0',
-      ready: Promise.resolve,
+      ready: () => Promise.resolve(),
 
       isLoaded: () => hasInitialized,
       load,

@@ -3,13 +3,13 @@ import { Analytics, Context } from '@segment/analytics-next'
 import * as jsdom from 'jsdom'
 import brazeDestination from '../index'
 
-describe('logUser', () => {
+describe('updateUserProfile', () => {
   let userMock: appboy.User
 
   const subscriptions = [
     {
-      partnerAction: 'logUser',
-      name: 'Log User',
+      partnerAction: 'updateUserProfile',
+      name: 'Update User Profile',
       enabled: true,
       subscribe: 'type = "identify"',
       mapping: {
@@ -26,8 +26,7 @@ describe('logUser', () => {
         language: { '@path': '$.traits.language' },
         last_name: { '@path': '$.traits.last_name' },
         phone: { '@path': '$.traits.phone' },
-        push_subscribe: { '@path': '$.traits.push_subscribe' },
-        group_id: { '@path': '$.groupId' }
+        push_subscribe: { '@path': '$.traits.push_subscribe' }
       }
     }
   ]
@@ -81,12 +80,12 @@ describe('logUser', () => {
   test('changes the external_id when present', async () => {
     const changeUser = jest.spyOn(appboy, 'changeUser').mockImplementationOnce(() => {})
 
-    const [logPurchase] = await brazeDestination({
+    const [trackPurchase] = await brazeDestination({
       api_key: 'b_123',
       endpoint: 'endpoint',
       subscriptions: [
         {
-          partnerAction: 'logUser',
+          partnerAction: 'updateUserProfile',
           name: 'Log User',
           enabled: true,
           subscribe: 'type = "identify"',
@@ -99,8 +98,8 @@ describe('logUser', () => {
       ]
     })
 
-    await logPurchase.load(Context.system(), {} as Analytics)
-    await logPurchase.identify?.(
+    await trackPurchase.load(Context.system(), {} as Analytics)
+    await trackPurchase.identify?.(
       new Context({
         type: 'identify',
         traits: {
@@ -113,14 +112,14 @@ describe('logUser', () => {
   })
 
   test('can change user traits', async () => {
-    const [logPurchase] = await brazeDestination({
+    const [trackPurchase] = await brazeDestination({
       api_key: 'b_123',
       endpoint: 'endpoint',
       subscriptions
     })
 
-    await logPurchase.load(Context.system(), {} as Analytics)
-    await logPurchase.identify?.(
+    await trackPurchase.load(Context.system(), {} as Analytics)
+    await trackPurchase.identify?.(
       new Context({
         type: 'identify',
         traits: {
@@ -164,33 +163,15 @@ describe('logUser', () => {
     expect(userMock.setPushNotificationSubscriptionType).toHaveBeenCalledWith(true)
   })
 
-  test('set custom attribute based on group_id property', async () => {
-    const [logPurchase] = await brazeDestination({
-      api_key: 'b_123',
-      endpoint: 'endpoint',
-      subscriptions
-    })
-
-    await logPurchase.load(Context.system(), {} as Analytics)
-    await logPurchase.identify?.(
-      new Context({
-        type: 'identify',
-        groupId: '123'
-      })
-    )
-
-    expect(userMock.setCustomUserAttribute).toHaveBeenCalledWith('ab_segment_group_123', true)
-  })
-
   test('can set gender', async () => {
-    const [logPurchase] = await brazeDestination({
+    const [trackPurchase] = await brazeDestination({
       api_key: 'b_123',
       endpoint: 'endpoint',
       subscriptions
     })
 
-    await logPurchase.load(Context.system(), {} as Analytics)
-    await logPurchase.identify?.(
+    await trackPurchase.load(Context.system(), {} as Analytics)
+    await trackPurchase.identify?.(
       new Context({
         type: 'identify',
         traits: {
@@ -201,7 +182,7 @@ describe('logUser', () => {
 
     expect(userMock.setGender).toHaveBeenCalledWith('M')
 
-    await logPurchase.identify?.(
+    await trackPurchase.identify?.(
       new Context({
         type: 'identify',
         traits: {
@@ -212,7 +193,7 @@ describe('logUser', () => {
 
     expect(userMock.setGender).toHaveBeenCalledWith('P')
 
-    await logPurchase.identify?.(
+    await trackPurchase.identify?.(
       new Context({
         type: 'identify',
         traits: {
@@ -223,7 +204,7 @@ describe('logUser', () => {
 
     expect(userMock.setGender).toHaveBeenCalledWith('not defined on mapping')
 
-    await logPurchase.identify?.(
+    await trackPurchase.identify?.(
       new Context({
         type: 'identify',
         traits: {

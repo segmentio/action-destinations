@@ -185,6 +185,26 @@ test('event = "Product Added" and property "price" >= 100', () => {
 	})
 })
 
+test('event = "identify" and traits.logins >= 10', () => {
+	testFql('event = "identify" and traits.logins >= 10', {
+		type: 'group',
+		operator: 'and',
+		children: [
+			{
+				type: 'event',
+				operator: '=',
+				value: 'identify'
+			},
+			{
+				type: 'event-trait',
+				name: 'logins',
+				operator: '>=',
+				value: 10
+			}
+		]
+	})
+})
+
 test('event = "Product Added" and property "price" >= 100 and property "premium" = true', () => {
 	testFql(
 		'event = "Product Added" and properties.price >= 100 and properties.premium = "true"',
@@ -208,6 +228,35 @@ test('event = "Product Added" and property "price" >= 100 and property "premium"
 					name: 'premium',
 					operator: '=',
 					value: 'true'
+				}
+			]
+		}
+	)
+})
+
+test('event = "identify" and traits "logins" >= 10 and traits "plan" = "premium"', () => {
+	testFql(
+		'event = "identify" and traits.logins >= 10 and traits.plan = "premium"',
+		{
+			type: 'group',
+			operator: 'and',
+			children: [
+				{
+					type: 'event',
+					operator: '=',
+					value: 'identify'
+				},
+				{
+					type: 'event-trait',
+					name: 'logins',
+					operator: '>=',
+					value: 10
+				},
+				{
+					type: 'event-trait',
+					name: 'plan',
+					operator: '=',
+					value: 'premium'
 				}
 			]
 		}
@@ -260,6 +309,52 @@ test('(event = "Product Added" and property "price" >= 100) or (event = "Order C
 	)
 })
 
+test('(event = "identify" and trait "logins" >= 100) or (event = "Signed Up" and trait "age" >= 50)', () => {
+	testFql(
+		'(event = "identify" and traits.logins >= 100) or (event = "Signed Up" and traits.age >= 50)',
+		{
+			type: 'group',
+			operator: 'or',
+			children: [
+				{
+					type: 'group',
+					operator: 'and',
+					children: [
+						{
+							type: 'event',
+							operator: '=',
+							value: 'identify'
+						},
+						{
+							type: 'event-trait',
+							operator: '>=',
+							name: 'logins',
+							value: 100
+						}
+					]
+				},
+				{
+					type: 'group',
+					operator: 'and',
+					children: [
+						{
+							type: 'event',
+							operator: '=',
+							value: 'Signed Up'
+						},
+						{
+							type: 'event-trait',
+							name: 'age',
+							operator: '>=',
+							value: 50
+						}
+					]
+				}
+			]
+		}
+	)
+})
+
 test('support contains for event name', () => {
 	testFql('contains(event, "Nike")', {
 		type: 'group',
@@ -286,6 +381,26 @@ test('support contains for event property', () => {
 			},
 			{
 				type: 'event-property',
+				name: 'name',
+				operator: 'contains',
+				value: 'Nike'
+			}
+		]
+	})
+})
+
+test('support contains for event trait', () => {
+	testFql('event = "Product Added" and contains(traits.name, "Nike")', {
+		type: 'group',
+		operator: 'and',
+		children: [
+			{
+				type: 'event',
+				operator: '=',
+				value: 'Product Added'
+			},
+			{
+				type: 'event-trait',
 				name: 'name',
 				operator: 'contains',
 				value: 'Nike'
@@ -328,6 +443,26 @@ test('support not_contains for event property', () => {
 	})
 })
 
+test('support not_contains for event trait', () => {
+	testFql('event = "Product Added" and !contains(traits.name, "Nike")', {
+		type: 'group',
+		operator: 'and',
+		children: [
+			{
+				type: 'event',
+				operator: '=',
+				value: 'Product Added'
+			},
+			{
+				type: 'event-trait',
+				name: 'name',
+				operator: 'not_contains',
+				value: 'Nike'
+			}
+		]
+	})
+})
+
 test('support starts_with for event name', () => {
 	testFql('match(event, "X*")', {
 		type: 'group',
@@ -354,6 +489,26 @@ test('support starts_with for event property', () => {
 			},
 			{
 				type: 'event-property',
+				name: 'name',
+				operator: 'starts_with',
+				value: 'X'
+			}
+		]
+	})
+})
+
+test('support starts_with for event trait', () => {
+	testFql('event = "Product Added" and match(traits.name, "X*")', {
+		type: 'group',
+		operator: 'and',
+		children: [
+			{
+				type: 'event',
+				operator: '=',
+				value: 'Product Added'
+			},
+			{
+				type: 'event-trait',
 				name: 'name',
 				operator: 'starts_with',
 				value: 'X'
@@ -396,6 +551,26 @@ test('support not_starts_with for event property', () => {
 	})
 })
 
+test('support not_starts_with for event property', () => {
+	testFql('event = "Product Added" and !match(traits.name, "X*")', {
+		type: 'group',
+		operator: 'and',
+		children: [
+			{
+				type: 'event',
+				operator: '=',
+				value: 'Product Added'
+			},
+			{
+				type: 'event-trait',
+				name: 'name',
+				operator: 'not_starts_with',
+				value: 'X'
+			}
+		]
+	})
+})
+
 test('support ends_with for event name', () => {
 	testFql('match(event, "*X")', {
 		type: 'group',
@@ -422,6 +597,26 @@ test('support ends_with for event property', () => {
 			},
 			{
 				type: 'event-property',
+				name: 'name',
+				operator: 'ends_with',
+				value: 'X'
+			}
+		]
+	})
+})
+
+test('support ends_with for event trait', () => {
+	testFql('event = "Product Added" and match(traits.name, "*X")', {
+		type: 'group',
+		operator: 'and',
+		children: [
+			{
+				type: 'event',
+				operator: '=',
+				value: 'Product Added'
+			},
+			{
+				type: 'event-trait',
 				name: 'name',
 				operator: 'ends_with',
 				value: 'X'
@@ -464,6 +659,26 @@ test('support not_ends_with for event property', () => {
 	})
 })
 
+test('support not_ends_with for event trait', () => {
+	testFql('event = "Product Added" and !match(traits.name, "*X")', {
+		type: 'group',
+		operator: 'and',
+		children: [
+			{
+				type: 'event',
+				operator: '=',
+				value: 'Product Added'
+			},
+			{
+				type: 'event-trait',
+				name: 'name',
+				operator: 'not_ends_with',
+				value: 'X'
+			}
+		]
+	})
+})
+
 test('support exists for event property', () => {
 	testFql('event = "Product Added" and properties.name != null', {
 		type: 'group',
@@ -483,6 +698,25 @@ test('support exists for event property', () => {
 	})
 })
 
+test('support exists for event trait', () => {
+	testFql('event = "Product Added" and traits.name != null', {
+		type: 'group',
+		operator: 'and',
+		children: [
+			{
+				type: 'event',
+				operator: '=',
+				value: 'Product Added'
+			},
+			{
+				type: 'event-trait',
+				name: 'name',
+				operator: 'exists'
+			}
+		]
+	})
+})
+
 test('support not_exists for event property', () => {
 	testFql('event = "Product Added" and properties.name = null', {
 		type: 'group',
@@ -495,6 +729,25 @@ test('support not_exists for event property', () => {
 			},
 			{
 				type: 'event-property',
+				name: 'name',
+				operator: 'not_exists'
+			}
+		]
+	})
+})
+
+test('support not_exists for event trait', () => {
+	testFql('event = "Product Added" and traits.name = null', {
+		type: 'group',
+		operator: 'and',
+		children: [
+			{
+				type: 'event',
+				operator: '=',
+				value: 'Product Added'
+			},
+			{
+				type: 'event-trait',
 				name: 'name',
 				operator: 'not_exists'
 			}
