@@ -29,7 +29,11 @@ describe('GA4', () => {
               name: 'Monopoly: 3rd Edition',
               price: 19,
               quantity: 1,
-              category: 'Games'
+              category: 'Games',
+              promotion: 'SUPER SUMMER SALE; 3% off',
+              slot: '2',
+              promo_id: '12345',
+              creative_name: 'Sale'
             }
           ]
         }
@@ -54,6 +58,18 @@ describe('GA4', () => {
               },
               item_id: {
                 '@path': `$.properties.products.0.product_id`
+              },
+              promotion_name: {
+                '@path': `$.properties.products.0.promotion`
+              },
+              creative_slot: {
+                '@path': `$.properties.products.0.slot`
+              },
+              promotion_id: {
+                '@path': `$.properties.products.0.promo_id`
+              },
+              creative_name: {
+                '@path': `$.properties.products.0.creative_name`
               }
             }
           ]
@@ -78,7 +94,7 @@ describe('GA4', () => {
               `)
 
       expect(responses[0].options.body).toMatchInlineSnapshot(
-        `"{\\"client_id\\":\\"3456fff\\",\\"events\\":[{\\"name\\":\\"view_promotion\\",\\"params\\":{\\"creative_slot\\":\\"top_banner_2\\",\\"location_id\\":\\"promo_1\\",\\"promotion_id\\":\\"promo_1\\",\\"promotion_name\\":\\"75% store-wide shoe sale\\",\\"items\\":[{\\"item_name\\":\\"Monopoly: 3rd Edition\\",\\"item_id\\":\\"507f1f77bcf86cd799439011\\"}]}}]}"`
+        `"{\\"client_id\\":\\"3456fff\\",\\"events\\":[{\\"name\\":\\"view_promotion\\",\\"params\\":{\\"creative_slot\\":\\"top_banner_2\\",\\"location_id\\":\\"promo_1\\",\\"promotion_id\\":\\"promo_1\\",\\"promotion_name\\":\\"75% store-wide shoe sale\\",\\"items\\":[{\\"item_name\\":\\"Monopoly: 3rd Edition\\",\\"item_id\\":\\"507f1f77bcf86cd799439011\\",\\"promotion_name\\":\\"SUPER SUMMER SALE; 3% off\\",\\"creative_slot\\":\\"2\\",\\"promotion_id\\":\\"12345\\",\\"creative_name\\":\\"Sale\\"}]}}]}"`
       )
     })
 

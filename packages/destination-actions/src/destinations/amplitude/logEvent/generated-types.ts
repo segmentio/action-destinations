@@ -185,7 +185,7 @@ export interface Payload {
    */
   userAgent?: string
   /**
-   * Enabling this setting will set the Device manufacturer, Device Model and OS Name properties based on the user agent string provided in context.userAgent
+   * Enabling this setting will set the Device manufacturer, Device Model and OS Name properties based on the user agent string provided in the userAgent field
    */
   userAgentParsing?: boolean
   /**

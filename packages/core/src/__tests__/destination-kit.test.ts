@@ -112,6 +112,60 @@ describe('destination kit', () => {
       const res = await destinationTest.onEvent(testEvent, testSettings)
       expect(res).toEqual([{ output: 'Mappings resolved' }, { output: 'this is a test' }])
     })
+
+    test('should succeed when traits filtering is specified', async () => {
+      const destinationTest = new Destination(destinationCustomAuth)
+      const testEvent: SegmentEvent = {
+        properties: { field_one: 'test input' },
+        traits: {
+          a: 'foo'
+        },
+        userId: '3456fff',
+        type: 'identify'
+      }
+      const testSettings = {
+        apiSecret: 'test_key',
+        subscription: {
+          subscribe: 'type = "identify" and traits.a = "foo"',
+          partnerAction: 'customEvent',
+          mapping: {
+            clientId: '23455343467',
+            name: 'fancy_event',
+            parameters: { field_one: 'rogue one' }
+          }
+        }
+      }
+
+      const res = await destinationTest.onEvent(testEvent, testSettings)
+      expect(res).toEqual([{ output: 'Mappings resolved' }, { output: 'this is a test' }])
+    })
+
+    test('should succeed when property filtering is specified', async () => {
+      const destinationTest = new Destination(destinationCustomAuth)
+      const testEvent: SegmentEvent = {
+        properties: { field_one: 'test input' },
+        traits: {
+          a: 'foo'
+        },
+        userId: '3456fff',
+        type: 'identify'
+      }
+      const testSettings = {
+        apiSecret: 'test_key',
+        subscription: {
+          subscribe: 'type = "identify" and properties.a = "foo"',
+          partnerAction: 'customEvent',
+          mapping: {
+            clientId: '23455343467',
+            name: 'fancy_event',
+            parameters: { field_one: 'rogue one' }
+          }
+        }
+      }
+
+      const res = await destinationTest.onEvent(testEvent, testSettings)
+      expect(res).toEqual([{ output: 'Mappings resolved' }, { output: 'this is a test' }])
+    })
   })
 
   describe('refresh token', () => {
