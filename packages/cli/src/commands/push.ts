@@ -33,7 +33,7 @@ import {
   setSubscriptionPresets
 } from '../lib/control-plane-client'
 import { DestinationDefinition, hasOauthAuthentication } from '../lib/destinations'
-import { JSONSchema4 } from 'json-schema'
+import type { JSONSchema4 } from 'json-schema'
 
 type BaseActionInput = Omit<DestinationMetadataActionCreateInput, 'metadataId'>
 
