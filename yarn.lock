@@ -2266,6 +2266,33 @@
   resolved "https://registry.yarnpkg.com/@polka/url/-/url-1.0.0-next.15.tgz#6a9d143f7f4f49db2d782f9e1c8839a29b43ae23"
   integrity sha512-15spi3V28QdevleWBNXE4pIls3nFZmBbUGrW9IVPwiQczuSb9n76TCB4bsk8TSel+I1OkHEdPhu5QKMfY6rQHA==
 
+"@segment/action-destinations@^3.5.2-alpha.0":
+  version "3.5.2-alpha.1"
+  resolved "https://registry.yarnpkg.com/@segment/action-destinations/-/action-destinations-3.5.2-alpha.1.tgz#57fbe01486d21b789742007578fb6e024cf2bf2b"
+  integrity sha512-6mT73wRJ8pWAfOD8A/nnNgk02NOUInNahP9mHKCcMKHFrBZAnDQFzdqZGNm/fzUoJNQgk+4WPwzKIKN7c4IEGg==
+  dependencies:
+    "@amplitude/ua-parser-js" "^0.7.24"
+    dayjs "^1.10.3"
+    mustache "^4.2.0"
+  optionalDependencies:
+    "@segment/actions-core" "^3.5.2-alpha.1"
+
+"@segment/actions-core@^3.5.2-alpha.0", "@segment/actions-core@^3.5.2-alpha.1":
+  version "3.5.2-alpha.1"
+  resolved "https://registry.yarnpkg.com/@segment/actions-core/-/actions-core-3.5.2-alpha.1.tgz#aeb0c93fae198b243d32ea3b22faa4d52482a801"
+  integrity sha512-sqcaNjFLekNzovJBx6kh+QgqsbQfxDStIPBQMRoXL5RwmF/4hhfaqlzfjwCV44dyCMx3IusVkT53mto69AgkEw==
+  dependencies:
+    "@lukeed/uuid" "^2.0.0"
+    "@segment/ajv-human-errors" "^1.3.1"
+    "@segment/destination-subscriptions" "^3.4.3-alpha.1"
+    abort-controller "^3.0.0"
+    aggregate-error "^3.1.0"
+    ajv "^6.12.4"
+    btoa-lite "^1.0.0"
+    cross-fetch "^3.1.4"
+    dayjs "^1.10.4"
+    ts-custom-error "^3.2.0"
+
 "@segment/analytics-next@^1.29.3":
   version "1.29.3"
   resolved "https://registry.yarnpkg.com/@segment/analytics-next/-/analytics-next-1.29.3.tgz#51ea4d7e487e95c2862ec5d52fd34a113c20161e"
@@ -2297,6 +2324,13 @@
     lodash "^4.17.15"
     path-to-regexp "^6.1.0"
     querystring "^0.2.0"
+
+"@segment/destination-subscriptions@^3.4.3-alpha.0", "@segment/destination-subscriptions@^3.4.3-alpha.1":
+  version "3.4.3-alpha.1"
+  resolved "https://registry.yarnpkg.com/@segment/destination-subscriptions/-/destination-subscriptions-3.4.3-alpha.1.tgz#5479614d9cbacad686c13cbff22b9488d2fe4c70"
+  integrity sha512-FuQtFCFjQeFSzxrOIXao+8GI2Kmc07w2ojqcE71z9eWdgRdkEjghaqqCnmgd8ZK4cl+G5U/rE3GPQ15o2Qeisw==
+  dependencies:
+    "@segment/fql-ts" "^1.10.1"
 
 "@segment/facade@3.3.10":
   version "3.3.10"
