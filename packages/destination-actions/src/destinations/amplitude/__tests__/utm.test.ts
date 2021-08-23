@@ -30,7 +30,6 @@ describe('Amplitude - utm utility', () => {
 
     const result = convertUTMProperties(payload)
     expect(result).toEqual({
-      ...user_properties,
       $set: {
         ...utm_properties
       },

@@ -189,9 +189,8 @@ describe('Amplitude', () => {
       expect(responses[0].options.json).toMatchObject({
         api_key: undefined,
         events: expect.arrayContaining([
-          expect.objectContaining({ event_type: 'Test Event' }),
           expect.objectContaining({
-            event_type: '$identify',
+            event_type: 'Test Event',
             user_properties: expect.objectContaining({
               'some-trait-key': 'some-trait-value',
               $set: {

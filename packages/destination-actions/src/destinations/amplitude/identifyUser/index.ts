@@ -1,10 +1,12 @@
 import { URLSearchParams } from 'url'
-import { ActionDefinition, removeUndefined } from '@segment/actions-core'
+import { ActionDefinition, omit, removeUndefined } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 import { convertUTMProperties } from '../utm'
 import { convertReferrerProperty } from '../referrer'
 import { parseUserAgentProperties } from '../user-agent'
+import { mergeUserProperties } from '../merge-user-properties'
+import { AmplitudeEvent } from '../logEvent'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Identify User',
@@ -228,19 +230,23 @@ const action: ActionDefinition<Settings, Payload> = {
   },
 
   perform: (request, { payload, settings }) => {
-    const { utm_properties, referrer, user_properties, userAgent, userAgentParsing, ...rest } = payload
-    let userProperties = user_properties
+    const { utm_properties, referrer, userAgent, userAgentParsing, ...rest } = payload
+
+    const properties = rest as AmplitudeEvent
 
     if (Object.keys(utm_properties ?? {}).length || referrer) {
-      userProperties = { ...convertUTMProperties(payload), ...convertReferrerProperty(payload) }
+      properties.user_properties = mergeUserProperties(
+        omit(properties.user_properties ?? {}, ['utm_properties', 'referrer']),
+        convertUTMProperties(payload),
+        convertReferrerProperty(payload)
+      )
     }
 
     const identification = JSON.stringify({
       // Conditionally parse user agent using amplitude's library
       ...(userAgentParsing && parseUserAgentProperties(userAgent)),
       // Make sure any top-level properties take precedence over user-agent properties
-      ...removeUndefined(rest),
-      user_properties: userProperties,
+      ...removeUndefined(properties),
       library: 'segment'
     })
     return request('https://api.amplitude.com/identify', {

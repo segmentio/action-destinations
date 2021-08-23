@@ -165,10 +165,10 @@ const action: ActionDefinition<Settings, Payload> = {
       trackRevenuePerProduct,
       time,
       session_id,
-      utm_properties,
-      referrer,
       userAgent,
       userAgentParsing,
+      utm_properties,
+      referrer,
       ...rest
     } = omit(payload, revenueKeys)
     const properties = rest as AmplitudeEvent
@@ -179,6 +179,14 @@ const action: ActionDefinition<Settings, Payload> = {
 
     if (session_id && dayjs.utc(session_id).isValid()) {
       properties.session_id = dayjs.utc(session_id).valueOf()
+    }
+
+    if (Object.keys(properties.utm_properties ?? {}).length || properties.referrer) {
+      properties.user_properties = mergeUserProperties(
+        convertUTMProperties(payload),
+        convertReferrerProperty(payload),
+        omit(properties.user_properties ?? {}, ['utm_properties', 'referrer'])
+      )
     }
 
     const events: AmplitudeEvent[] = [
@@ -205,14 +213,14 @@ const action: ActionDefinition<Settings, Payload> = {
       })
     }
 
-    if (Object.keys(payload.utm_properties ?? {}).length || payload.referrer) {
-      const user_properties = mergeUserProperties(convertUTMProperties(payload), convertReferrerProperty(payload))
-      events.push({
-        ...properties,
-        event_type: '$identify',
-        user_properties
-      })
-    }
+    // if (Object.keys(payload.utm_properties ?? {}).length || payload.referrer) {
+    //   const user_properties = mergeUserProperties(convertUTMProperties(payload), convertReferrerProperty(payload))
+    //   events.push({
+    //     ...properties,
+    //     event_type: '$identify',
+    //     user_properties
+    //   })
+    // }
 
     const endpoint = payload.use_batch_endpoint
       ? 'https://api2.amplitude.com/batch'

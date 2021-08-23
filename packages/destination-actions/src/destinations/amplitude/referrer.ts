@@ -1,6 +1,5 @@
 import { Payload as IdentifyPayload } from './identifyUser/generated-types'
 import { Payload as LogPayload } from './logEvent/generated-types'
-import { AmplitudeEvent } from './logEvent'
 import { AmplitudeUserProperties } from './merge-user-properties'
 type Payload = IdentifyPayload | LogPayload
 
@@ -11,22 +10,27 @@ type Payload = IdentifyPayload | LogPayload
  * @returns a valid user_properties object suitable for injection into an AmplitudeEvent
  */
 export function convertReferrerProperty(payload: Payload): AmplitudeUserProperties {
-  const { referrer, ...rest } = payload
+  const { referrer } = payload
 
   if (!referrer) return {}
-  const cleanedPayload = rest as AmplitudeEvent
+  // const cleanedPayload = rest as AmplitudeEvent
 
-  let userProperties: AmplitudeUserProperties
-  if (cleanedPayload.user_properties) {
-    userProperties = cleanedPayload.user_properties
-
-    userProperties.$set = { ...userProperties.$set, referrer }
-    userProperties.$setOnce = { ...userProperties.$setOnce, initial_referrer: referrer }
-  } else {
-    userProperties = {
-      $set: { referrer },
-      $setOnce: { initial_referrer: referrer }
-    }
+  return {
+    $set: { referrer },
+    $setOnce: { initial_referrer: referrer }
   }
-  return userProperties
+
+  // let userProperties: AmplitudeUserProperties
+  // if (cleanedPayload.user_properties) {
+  //   userProperties = cleanedPayload.user_properties
+
+  //   userProperties.$set = { ...userProperties.$set, referrer }
+  //   userProperties.$setOnce = { ...userProperties.$setOnce, initial_referrer: referrer }
+  // } else {
+  //   userProperties = {
+  //     $set: { referrer },
+  //     $setOnce: { initial_referrer: referrer }
+  //   }
+  // }
+  // return userProperties
 }
