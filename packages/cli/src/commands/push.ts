@@ -1,5 +1,5 @@
 import { Command, flags } from '@oclif/command'
-import type { DestinationDefinition as CloudDestinationDefinition } from '@segment/actions-core'
+import { DestinationDefinition as CloudDestinationDefinition, fieldsToJsonSchema } from '@segment/actions-core'
 import { manifest as cloudManifest, ManifestEntry as CloudManifest } from '@segment/action-destinations'
 import {
   manifest as browserManifest,
@@ -32,6 +32,7 @@ import {
   setSubscriptionPresets
 } from '../lib/control-plane-client'
 import { DestinationDefinition, hasOauthAuthentication } from '../lib/destinations'
+import type { MinimalInputField } from '@segment/actions-core'
 
 type BaseActionInput = Omit<DestinationMetadataActionCreateInput, 'metadataId'>
 
@@ -153,7 +154,7 @@ export default class Push extends Command {
             dynamic: field.dynamic ?? false,
             placeholder: field.placeholder ?? '',
             allowNull: field.allowNull ?? false,
-            fieldSchema: field
+            fieldSchema: getFieldPropertySchema(fieldKey, field)
           }
         })
 
@@ -280,6 +281,14 @@ export default class Push extends Command {
       await setSubscriptionPresets(metadata.id, presets)
     }
   }
+}
+
+function getFieldPropertySchema(fieldKey: string, field: MinimalInputField) {
+  const tmpFieldObject: Record<string, MinimalInputField> = {}
+  tmpFieldObject[fieldKey] = field
+  const schemaFormat = fieldsToJsonSchema(tmpFieldObject)
+
+  return schemaFormat.properties ? schemaFormat.properties[fieldKey] : ''
 }
 
 function filterOAuth(optionList: string[]) {
