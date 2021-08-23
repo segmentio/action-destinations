@@ -30,7 +30,8 @@ export type {
   OAuth2ClientCredentials,
   RefreshAccessTokenResult,
   RequestFn,
-  DecoratedResponse
+  DecoratedResponse,
+  MinimalInputField
 } from './destination-kit'
 
 export type {
