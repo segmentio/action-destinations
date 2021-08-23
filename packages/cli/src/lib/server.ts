@@ -17,18 +17,18 @@ const spinner: ora.Ora = ora()
 
 const DEFAULT_PORT = 3000
 const port = process.env.PORT || DEFAULT_PORT
-const dest = process.env.DESTINATION
 const server = http.createServer(app)
 
 app.post(
-  '/:slug/:action',
+  '/:action',
   asyncHandler(async (req: express.Request, res: express.Response) => {
     spinner.start(chalk`Handling ${process.env.DESTINATION} action request`)
 
+    const destinationSlug = process.env.DESTINATION as string
     const directory = process.env.DIRECTORY as string
 
     // For now, include the slug in the path, but when we support external repos, we'll have to change this
-    const targetDirectory = path.join(process.cwd(), directory, req.params.slug, 'index.ts')
+    const targetDirectory = path.join(process.cwd(), directory, destinationSlug, 'index.ts')
 
     try {
       const def = await loadDestination(targetDirectory)
@@ -110,5 +110,5 @@ server.on('error', (err: Error) => {
 })
 
 server.listen(port, () => {
-  logger.info(`Ready to process POST requests at http://localhost:${port}/${dest}/<DESTINATION ACTION>`)
+  logger.info(`Ready to process POST requests at http://localhost:${port}/<DESTINATION ACTION>`)
 })
