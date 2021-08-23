@@ -85,7 +85,8 @@ const action: ActionDefinition<Settings, Payload> = {
       label: 'Message',
       description: 'Message to send',
       type: 'text',
-      required: true
+      required: true,
+      default: { '@path': '$.properties.body' }
     }
   },
   perform: async (request, { settings, payload }) => {
