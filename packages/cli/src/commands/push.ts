@@ -284,6 +284,8 @@ export default class Push extends Command {
 }
 
 function getFieldPropertySchema(fieldKey: string, field: MinimalInputField) {
+  // Build a temporary object in which they key = field name and value = field properties
+  // since that's the structure expected by fieldsToJsonSchema
   const tmpFieldObject: Record<string, MinimalInputField> = {}
   tmpFieldObject[fieldKey] = field
   const schemaFormat = fieldsToJsonSchema(tmpFieldObject)
