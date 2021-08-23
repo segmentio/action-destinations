@@ -181,7 +181,7 @@ const action: ActionDefinition<Settings, Payload> = {
       properties.session_id = dayjs.utc(session_id).valueOf()
     }
 
-    if (Object.keys(properties.utm_properties ?? {}).length || properties.referrer) {
+    if (Object.keys(payload.utm_properties ?? {}).length || payload.referrer) {
       properties.user_properties = mergeUserProperties(
         convertUTMProperties(payload),
         convertReferrerProperty(payload),
