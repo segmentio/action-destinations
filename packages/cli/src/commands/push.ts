@@ -33,6 +33,7 @@ import {
 } from '../lib/control-plane-client'
 import { DestinationDefinition, hasOauthAuthentication } from '../lib/destinations'
 import type { MinimalInputField } from '@segment/actions-core'
+import { JSONSchema4 } from 'json-schema'
 
 type BaseActionInput = Omit<DestinationMetadataActionCreateInput, 'metadataId'>
 
@@ -283,14 +284,12 @@ export default class Push extends Command {
   }
 }
 
-function getFieldPropertySchema(fieldKey: string, field: MinimalInputField) {
+function getFieldPropertySchema(fieldKey: string, field: MinimalInputField): JSONSchema4 {
   // Build a temporary object in which they key = field name and value = field properties
   // since that's the structure expected by fieldsToJsonSchema
   const tmpFieldObject: Record<string, MinimalInputField> = {}
   tmpFieldObject[fieldKey] = field
-  const schemaFormat = fieldsToJsonSchema(tmpFieldObject)
-
-  return schemaFormat.properties ? schemaFormat.properties[fieldKey] : ''
+  return fieldsToJsonSchema(tmpFieldObject)
 }
 
 function filterOAuth(optionList: string[]) {
