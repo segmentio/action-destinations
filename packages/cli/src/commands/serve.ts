@@ -52,7 +52,7 @@ export default class Serve extends Command {
   }
 
   async run() {
-    const argv = this.parse(Serve)
+    const { argv, flags } = this.parse(Serve)
 
     const { metadataId } = await prompt<{ metadataId: string }>({
       type: 'select',
@@ -65,7 +65,7 @@ export default class Serve extends Command {
     })
 
     const destination = manifest[metadataId].directory
-    const folderPath = path.join(process.cwd(), argv.flags.directory, destination)
+    const folderPath = path.join(process.cwd(), flags.directory, destination)
 
     let child: ChildProcess | undefined
 
@@ -79,9 +79,9 @@ export default class Serve extends Command {
         env: {
           ...process.env,
           DESTINATION: destination,
-          DIRECTORY: argv.flags.directory
+          DIRECTORY: flags.directory
         },
-        execArgv: ['-r', 'ts-node/register/transpile-only']
+        execArgv: ['-r', 'ts-node/register/transpile-only', ...argv]
       })
 
       child.once('exit', (code?: number) => {

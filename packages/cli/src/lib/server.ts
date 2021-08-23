@@ -50,10 +50,12 @@ app.post(
           spinner.succeed(chalk`${destination.name} action '${actionSlug}' completed with some code`)
           return res.status(200).json(debug)
         } else {
-          return res.status(400).send('Missing payload and settings in request body')
+          const msg = 'Missing payload and settings in request body'
+          spinner.fail(chalk`${msg}`)
+          return res.status(400).send(msg)
         }
       } else {
-        const msg = 'Action is invalid or not found'
+        const msg = `${destination.name} action '${actionSlug}' is invalid or not found`
         spinner.fail(chalk`${msg}`)
         return res.status(400).send(msg)
       }
