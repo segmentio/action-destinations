@@ -1,5 +1,6 @@
 import { Command, flags } from '@oclif/command'
-import { DestinationDefinition as CloudDestinationDefinition, fieldsToJsonSchema } from '@segment/actions-core'
+import type { DestinationDefinition as CloudDestinationDefinition, MinimalInputField } from '@segment/actions-core'
+import { fieldsToJsonSchema } from '@segment/actions-core'
 import { manifest as cloudManifest, ManifestEntry as CloudManifest } from '@segment/action-destinations'
 import {
   manifest as browserManifest,
@@ -32,7 +33,6 @@ import {
   setSubscriptionPresets
 } from '../lib/control-plane-client'
 import { DestinationDefinition, hasOauthAuthentication } from '../lib/destinations'
-import type { MinimalInputField } from '@segment/actions-core'
 import { JSONSchema4 } from 'json-schema'
 
 type BaseActionInput = Omit<DestinationMetadataActionCreateInput, 'metadataId'>
