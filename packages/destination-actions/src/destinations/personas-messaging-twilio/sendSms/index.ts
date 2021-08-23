@@ -104,7 +104,7 @@ const action: ActionDefinition<Settings, Payload> = {
     }
 
     // TODO: GROW-259 remove this when we can extend the request
-    // and we no longer need to call the profiles API first!
+    // and we no longer need to call the profiles API first
     const token = Buffer.from(`${settings.twilioAccountId}:${settings.twilioAuthToken}`).toString('base64')
 
     return request(`https://api.twilio.com/2010-04-01/Accounts/${settings.twilioAccountId}/Messages.json`, {
