@@ -7,51 +7,24 @@ const timestamp = new Date().toISOString()
 
 for (const environment of ['stage', 'production']) {
   const settings = {
-    sendGridApiKey: 'sendGridApiKey',
-    sourceId: 'sourceId',
-    profileApiEnvironment: environment,
-    profileApiAccessToken: 'profileApiAccessToken',
-    profileApiSpaceId: 'profileApiSpaceId'
+    sendGridApiKey: 'sendGridApiKey'
   }
-
-  const endpoint = `https://profiles.segment.${environment === 'production' ? 'com' : 'build'}`
 
   describe(`${environment} - send Email`, () => {
     it('should send Email', async () => {
-      nock(`${endpoint}/v1/spaces/profileApiSpaceId/collections/users/profiles/user_id:jane`)
-        .get('/traits?limit=200')
-        .reply(200, {
-          traits: {}
-        })
-
-      nock(`${endpoint}/v1/spaces/profileApiSpaceId/collections/users/profiles/user_id:jane`)
-        .get('/external_ids?limit=25')
-        .reply(200, {
-          data: [
-            {
-              type: 'user_id',
-              id: 'jane'
-            },
-            {
-              type: 'email',
-              id: 'test@example.com'
-            }
-          ]
-        })
-
       const expectedSendGridRequest = {
         personalizations: [
           {
             to: [
               {
                 email: 'test@example.com',
-                name: 'Test User'
+                name: 'First Name'
               }
             ],
             custom_args: {
-              source_id: settings.sourceId,
-              space_id: settings.profileApiSpaceId,
-              user_id: 'jane'
+              user_id: 'jane',
+              source_id: '',
+              space_id: ''
             }
           }
         ],
@@ -59,11 +32,11 @@ for (const environment of ['stage', 'production']) {
           email: 'from@example.com',
           name: 'From Name'
         },
-        subject: 'Test1',
+        subject: 'Hello Browning First Name.',
         content: [
           {
             type: 'text/html',
-            value: 'Test mail -- Local test2'
+            value: 'Hi First Name, Welcome to segment'
           }
         ]
       }
@@ -79,15 +52,19 @@ for (const environment of ['stage', 'production']) {
         settings,
         mapping: {
           userId: { '@path': '$.userId' },
-          body: 'Test mail -- Local test2',
-          subject: 'Test1',
-          to: 'test@example.com',
-          toName: 'Test User',
+          body: 'Hi {{firstName}}, Welcome to segment',
+          subject: 'Hello {{lastName}} {{firstName}}.',
+          email: 'test@example.com',
+          firstName: 'First Name',
           from: 'from@example.com',
-          fromName: 'From Name'
+          fromName: 'From Name',
+          profile: {
+            firstName: 'First Name',
+            lastName: 'Browning'
+          }
         }
       })
-      expect(responses.length).toEqual(3)
+      expect(responses.length).toEqual(1)
       expect(sendGridRequest.isDone()).toEqual(true)
     })
   })
