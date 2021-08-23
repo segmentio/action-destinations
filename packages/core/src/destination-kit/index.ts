@@ -4,7 +4,7 @@ import { Action, ActionDefinition, BaseActionDefinition, RequestFn } from './act
 import { time, duration } from '../time'
 import { JSONLikeObject, JSONObject } from '../json-object'
 import { SegmentEvent } from '../segment-event'
-import { fieldsToJsonSchema } from './fields-to-jsonschema'
+import { fieldsToJsonSchema, MinimalInputField } from './fields-to-jsonschema'
 import createRequestClient, { RequestClient } from '../create-request-client'
 import { validateSchema } from '../schema-validation'
 import type { ModifiedResponse } from '../types'
@@ -14,6 +14,7 @@ import { IntegrationError, InvalidAuthenticationError } from '../errors'
 import { AuthTokens, getAuthData, getOAuth2Data, updateOAuthSettings } from './parse-settings'
 
 export type { BaseActionDefinition, ActionDefinition, ExecuteInput, RequestFn }
+export type { MinimalInputField }
 export { fieldsToJsonSchema }
 
 const RETRY_ATTEMPTS = 2

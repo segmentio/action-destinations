@@ -14,7 +14,7 @@ function toJsonSchemaType(type: FieldTypeName): JSONSchema4TypeName | JSONSchema
   }
 }
 
-type MinimalInputField = Optional<InputField, 'description'> | Optional<GlobalSetting, 'description'>
+export type MinimalInputField = Optional<InputField, 'description'> | Optional<GlobalSetting, 'description'>
 
 export function fieldsToJsonSchema(fields: Record<string, MinimalInputField> = {}): JSONSchema4 {
   const required: string[] = []
