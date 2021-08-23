@@ -99,7 +99,7 @@ const action: ActionDefinition<Settings, Payload> = {
       traits
     }
 
-    if (!profile.traits.phone) {
+    if (!profile.phone) {
       return
     }
 
@@ -115,7 +115,7 @@ const action: ActionDefinition<Settings, Payload> = {
       body: new URLSearchParams({
         Body: Mustache.render(payload.body, profile),
         From: payload.fromNumber,
-        To: profile.traits.phone
+        To: profile.phone
       })
     })
   }
