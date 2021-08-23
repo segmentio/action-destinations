@@ -1,4 +1,4 @@
-import { omit } from '@segment/actions-core'
+import { omit, removeUndefined } from '@segment/actions-core'
 import dayjs from '../../../lib/dayjs'
 import { eventSchema } from '../event-schema'
 import type { ActionDefinition } from '@segment/actions-core'
@@ -7,7 +7,7 @@ import type { Payload } from './generated-types'
 import { convertUTMProperties } from '../utm'
 import { convertReferrerProperty } from '../referrer'
 import { mergeUserProperties } from '../merge-user-properties'
-import { parseAndMergeUserAgentProperties } from '../user-agent'
+import { parseUserAgentProperties } from '../user-agent'
 
 export interface AmplitudeEvent extends Omit<Payload, 'products' | 'trackRevenuePerProduct' | 'time' | 'session_id'> {
   library?: string
@@ -111,7 +111,7 @@ const action: ActionDefinition<Settings, Payload> = {
       label: 'User Agent Parsing',
       type: 'boolean',
       description:
-        'Enabling this setting will set the Device manufacturer, Device Model and OS Name properties based on the user agent string provided in context.userAgent',
+        'Enabling this setting will set the Device manufacturer, Device Model and OS Name properties based on the user agent string provided in the userAgent field',
       default: true
     },
     utm_properties: {
@@ -183,9 +183,10 @@ const action: ActionDefinition<Settings, Payload> = {
 
     const events: AmplitudeEvent[] = [
       {
-        ...properties,
-        // Conditionally parse user agent using amplitude's library, we spread payload here to pick up existing os, browser, and device properties
-        ...(userAgentParsing && { ...parseAndMergeUserAgentProperties({ userAgent, ...payload }) }),
+        // Conditionally parse user agent using amplitude's library
+        ...(userAgentParsing && parseUserAgentProperties(userAgent)),
+        // Make sure any top-level properties take precedence over user-agent properties
+        ...removeUndefined(properties),
         // Conditionally track revenue with main event
         ...(products.length && trackRevenuePerProduct ? {} : getRevenueProperties(payload)),
         library: 'segment'

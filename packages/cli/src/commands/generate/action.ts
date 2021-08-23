@@ -2,7 +2,7 @@ import { Command, flags } from '@oclif/command'
 import chalk from 'chalk'
 import fs from 'fs-extra'
 import globby from 'globby'
-import { camelCase } from 'lodash'
+import { camelCase, startCase } from 'lodash'
 import toTitleCase from 'to-title-case'
 import ora from 'ora'
 import path from 'path'
@@ -82,6 +82,8 @@ export default class GenerateAction extends Command {
     const directory = answers.directory || './'
     const relativePath = path.join(directory, slug)
     const targetDirectory = path.join(process.cwd(), relativePath)
+    const destinationFolder = path.parse(answers.directory).base
+    const destination = startCase(camelCase(destinationFolder)).replace(/ /g, '')
 
     let templatePath = path.join(__dirname, '../../../templates/actions/empty-action')
     if (args.type === 'browser') {
@@ -96,7 +98,8 @@ export default class GenerateAction extends Command {
         {
           name: answers.title,
           description: '',
-          slug
+          slug,
+          destination
         },
         flags.force
       )

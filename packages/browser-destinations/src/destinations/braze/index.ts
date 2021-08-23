@@ -2,16 +2,46 @@ import type { Settings } from './generated-types'
 import type { BrowserDestinationDefinition } from '../../lib/browser-destinations'
 import { browserDestination } from '../../runtime/shim'
 import appboy from '@braze/web-sdk'
-import logCustomEvent from './logCustomEvent'
-import logUser from './logUser'
-import logPurchase from './logPurchase'
+import trackEvent from './trackEvent'
+import updateUserProfile from './updateUserProfile'
+import trackPurchase from './trackPurchase'
 import debounce, { resetUserCache } from './debounce'
+import { defaultValues, DestinationDefinition } from '@segment/actions-core'
 
 declare global {
   interface Window {
     appboy: typeof appboy
   }
 }
+
+const presets: DestinationDefinition['presets'] = [
+  {
+    name: 'Update User Profile',
+    subscribe: 'type = "identify" or type = "group"',
+    partnerAction: 'updateUserProfile',
+    mapping: defaultValues(updateUserProfile.fields)
+  },
+  {
+    name: 'Track Purchase',
+    subscribe: 'type = "track"',
+    partnerAction: 'trackPurchase',
+    mapping: defaultValues(trackPurchase.fields)
+  },
+  {
+    name: 'Track Event',
+    subscribe: 'type = "track"',
+    partnerAction: 'trackEvent',
+    mapping: {
+      ...defaultValues(trackEvent.fields),
+      eventName: {
+        '@path': '$.event'
+      },
+      eventProperties: {
+        '@path': '$.properties'
+      }
+    }
+  }
+]
 
 export const destination: BrowserDestinationDefinition<Settings, typeof appboy> = {
   name: 'Braze Web Mode',
@@ -238,11 +268,11 @@ export const destination: BrowserDestinationDefinition<Settings, typeof appboy> 
 
     return appboy
   },
-
+  presets,
   actions: {
-    logUser,
-    logCustomEvent,
-    logPurchase,
+    updateUserProfile,
+    trackEvent,
+    trackPurchase,
     debounce
   }
 }

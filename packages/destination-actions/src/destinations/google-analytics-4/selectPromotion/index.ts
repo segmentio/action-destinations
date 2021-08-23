@@ -1,6 +1,6 @@
 import { ActionDefinition, IntegrationError } from '@segment/actions-core'
 import { CURRENCY_ISO_CODES } from '../constants'
-import { ProductItem } from '../ga4-types'
+import { PromotionProductItem } from '../ga4-types'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 
@@ -22,10 +22,30 @@ const action: ActionDefinition<Settings, Payload> = {
         }
       }
     },
+    creative_name: {
+      label: 'Creative Name',
+      type: 'string',
+      description: 'The name of the promotional creative.'
+    },
+    creative_slot: {
+      label: 'Creative Slot',
+      type: 'string',
+      description: 'The name of the promotional creative slot associated with the event.'
+    },
     location_id: {
       label: 'Location ID',
       type: 'string',
       description: 'The ID of the location.'
+    },
+    promotion_id: {
+      label: 'Promotion ID',
+      type: 'string',
+      description: 'The ID of the promotion associated with the event.'
+    },
+    promotion_name: {
+      label: 'Promotion Name',
+      type: 'string',
+      description: 'The name of the promotion associated with the event.'
     },
     items: {
       label: 'Products',
@@ -43,21 +63,6 @@ const action: ActionDefinition<Settings, Payload> = {
           type: 'string',
           description: 'Name of the product being purchased.'
         },
-        quantity: {
-          label: 'Quantity',
-          type: 'integer',
-          description: 'Item quantity.'
-        },
-        promotion_id: {
-          label: 'Promotion ID',
-          type: 'string',
-          description: 'The ID of a product promotion.'
-        },
-        promotion_name: {
-          label: 'Promotion Name',
-          type: 'string',
-          description: 'The name of a product promotion.'
-        },
         affiliation: {
           label: 'Affiliation',
           type: 'string',
@@ -68,20 +73,30 @@ const action: ActionDefinition<Settings, Payload> = {
           type: 'string',
           description: 'Coupon code used for a purchase.'
         },
+        currency: {
+          label: 'Currency',
+          type: 'string',
+          description: 'Currency of the purchase or items associated with the event, in 3-letter ISO 4217 format.'
+        },
         creative_name: {
           label: 'Creative Name',
           type: 'string',
-          description: 'The name of a creative used in a promotional spot.'
+          description: 'The name of the promotional creative.'
         },
         creative_slot: {
           label: 'Creative Slot',
           type: 'string',
-          description: 'The name of a creative slot.'
+          description: 'The name of the promotional creative slot associated with the item.'
         },
         discount: {
           label: 'Discount',
           type: 'number',
           description: 'Monetary value of discount associated with a purchase.'
+        },
+        index: {
+          label: 'Index',
+          type: 'number',
+          description: 'The index of the item in a list.'
         },
         item_brand: {
           label: 'Brand',
@@ -93,6 +108,36 @@ const action: ActionDefinition<Settings, Payload> = {
           type: 'string',
           description: 'Category of the product.'
         },
+        item_category2: {
+          label: 'Category2',
+          type: 'string',
+          description: 'The second category of the product.'
+        },
+        item_category3: {
+          label: 'Category3',
+          type: 'string',
+          description: 'The third category of the product.'
+        },
+        item_category4: {
+          label: 'Category4',
+          type: 'string',
+          description: 'The fourth category of the product.'
+        },
+        item_category5: {
+          label: 'Category5',
+          type: 'string',
+          description: 'The fifth category of the product.'
+        },
+        item_list_id: {
+          label: 'Item List Name',
+          type: 'string',
+          description: 'The ID of the list in which the item was presented to the user.'
+        },
+        item_list_name: {
+          label: 'Item List Name',
+          type: 'string',
+          description: 'The name of the list in which the item was presented to the user.'
+        },
         item_variant: {
           label: 'Variant',
           type: 'string',
@@ -101,24 +146,33 @@ const action: ActionDefinition<Settings, Payload> = {
         location_id: {
           label: 'Location ID',
           type: 'string',
-          description:
-            'The location associated with the event. If possible, set to the Google Place ID that corresponds to the associated item. Can also be overridden to a custom location ID string.'
+          description: 'The location associated with the item.'
         },
         price: {
           label: 'Price',
           type: 'number',
           description: 'Price of the product being purchased, in units of the specified currency parameter.'
         },
-        currency: {
-          label: 'Currency',
+        promotion_id: {
+          label: 'Promotion ID',
           type: 'string',
-          description: 'Currency of the purchase or items associated with the event, in 3-letter ISO 4217 format.'
+          description: 'The ID of the promotion associated with the item.'
+        },
+        promotion_name: {
+          label: 'Promotion Name',
+          type: 'string',
+          description: 'The name of the promotion associated with the item.'
+        },
+        quantity: {
+          label: 'Quantity',
+          type: 'integer',
+          description: 'Item quantity.'
         }
       }
     }
   },
   perform: (request, { payload }) => {
-    let googleItems: ProductItem[] = []
+    let googleItems: PromotionProductItem[] = []
 
     if (payload.items) {
       googleItems = payload.items.map((product) => {
@@ -142,7 +196,7 @@ const action: ActionDefinition<Settings, Payload> = {
           )
         }
 
-        return product as ProductItem
+        return product as PromotionProductItem
       })
     }
 
@@ -154,7 +208,11 @@ const action: ActionDefinition<Settings, Payload> = {
           {
             name: 'select_promotion',
             params: {
+              creative_name: payload.creative_name,
+              creative_slot: payload.creative_slot,
               location_id: payload.location_id,
+              promotion_id: payload.promotion_id,
+              promotion_name: payload.promotion_name,
               items: googleItems
             }
           }
