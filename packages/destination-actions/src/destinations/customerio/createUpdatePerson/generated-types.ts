@@ -6,6 +6,10 @@ export interface Payload {
    */
   id: string
   /**
+   * Anonymous ID to uniquely identify person in Customer.io.
+   */
+  anonymous_id?: string
+  /**
    * Person's email address.
    */
   email: string
