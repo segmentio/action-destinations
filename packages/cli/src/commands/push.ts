@@ -152,7 +152,8 @@ export default class Push extends Command {
             choices: null,
             dynamic: field.dynamic ?? false,
             placeholder: field.placeholder ?? '',
-            allowNull: field.allowNull ?? false
+            allowNull: field.allowNull ?? false,
+            fieldSchema: field
           }
         })
 
