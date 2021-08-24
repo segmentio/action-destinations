@@ -11,33 +11,8 @@ const destination: DestinationDefinition<Settings> = {
     fields: {
       sendGridApiKey: {
         label: 'API Key',
-        type: 'string',
+        type: 'password',
         description: 'The Api Key for your sendGrid account',
-        required: true
-      },
-      profileApiEnvironment: {
-        label: 'Profile API Environment',
-        description: 'The Environment for Profile API Production/build',
-        type: 'string',
-        required: true
-      },
-      profileApiSpaceId: {
-        label: 'Profile API Space ID',
-        description: 'Your Profile API Space ID',
-        type: 'string',
-        required: true
-      },
-      sourceId: {
-        label: 'Source ID',
-        description: 'The ID of your Source',
-        type: 'string',
-        required: true
-      },
-      profileApiAccessToken: {
-        label: 'Profile API Access Token',
-        description: 'The Profile API Access Token',
-        type: 'string',
-        format: 'password',
         required: true
       }
     },

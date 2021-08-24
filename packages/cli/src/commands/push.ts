@@ -1,5 +1,6 @@
 import { Command, flags } from '@oclif/command'
-import type { DestinationDefinition as CloudDestinationDefinition } from '@segment/actions-core'
+import type { DestinationDefinition as CloudDestinationDefinition, MinimalInputField } from '@segment/actions-core'
+import { fieldsToJsonSchema } from '@segment/actions-core'
 import { manifest as cloudManifest, ManifestEntry as CloudManifest } from '@segment/action-destinations'
 import {
   manifest as browserManifest,
@@ -32,6 +33,7 @@ import {
   setSubscriptionPresets
 } from '../lib/control-plane-client'
 import { DestinationDefinition, hasOauthAuthentication } from '../lib/destinations'
+import type { JSONSchema4 } from 'json-schema'
 
 type BaseActionInput = Omit<DestinationMetadataActionCreateInput, 'metadataId'>
 
@@ -152,7 +154,8 @@ export default class Push extends Command {
             choices: null,
             dynamic: field.dynamic ?? false,
             placeholder: field.placeholder ?? '',
-            allowNull: field.allowNull ?? false
+            allowNull: field.allowNull ?? false,
+            fieldSchema: getFieldPropertySchema(fieldKey, field)
           }
         })
 
@@ -279,6 +282,14 @@ export default class Push extends Command {
       await setSubscriptionPresets(metadata.id, presets)
     }
   }
+}
+
+function getFieldPropertySchema(fieldKey: string, field: MinimalInputField): JSONSchema4 {
+  // Build a temporary object in which they key = field name and value = field properties
+  // since that's the structure expected by fieldsToJsonSchema
+  const tmpFieldObject: Record<string, MinimalInputField> = {}
+  tmpFieldObject[fieldKey] = field
+  return fieldsToJsonSchema(tmpFieldObject)
 }
 
 function filterOAuth(optionList: string[]) {
