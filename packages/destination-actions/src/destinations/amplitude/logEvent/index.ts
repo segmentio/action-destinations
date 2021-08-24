@@ -182,6 +182,7 @@ const action: ActionDefinition<Settings, Payload> = {
       ...rest
     } = omit(payload, revenueKeys)
     const properties = rest as AmplitudeEvent
+    let options
 
     if (time && dayjs.utc(time).isValid()) {
       properties.time = dayjs.utc(time).valueOf()
@@ -200,8 +201,11 @@ const action: ActionDefinition<Settings, Payload> = {
     }
 
     if (min_id_length && min_id_length > 0) {
-      properties.options = { min_id_length }
+      options = { min_id_length }
     }
+
+    // console.log('PROPERTIES', properties)
+    // debugger
 
     const events: AmplitudeEvent[] = [
       {
@@ -235,7 +239,8 @@ const action: ActionDefinition<Settings, Payload> = {
       method: 'post',
       json: {
         api_key: settings.apiKey,
-        events
+        events,
+        options
       }
     })
   }
