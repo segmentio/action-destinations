@@ -1,38 +1,11 @@
 import { Command, flags } from '@oclif/command'
 import { ChildProcess, fork } from 'child_process'
+import { autoPrompt } from '../lib/prompt'
 import chalk from 'chalk'
 import chokidar from 'chokidar'
 import ora from 'ora'
 import path from 'path'
-import { prompt } from '../lib/prompt'
-import { sortBy, mergeWith } from 'lodash'
-import { manifest as cloudManifest, ManifestEntry as CloudManifest } from '@segment/action-destinations'
-import { manifest as browserManifest, ManifestEntry as BrowserManifest } from '@segment/browser-destinations'
-
-const DEFAULT_PORT = 3000
-
-const manifest: Record<string, CloudManifest | BrowserManifest> = mergeWith(
-  {},
-  cloudManifest,
-  browserManifest,
-  (objValue: any, srcValue: any) => {
-    if (Object.keys(objValue?.definition?.actions ?? {}).length === 0) {
-      return
-    }
-
-    for (const [actionKey, action] of Object.entries(srcValue.definition?.actions ?? {})) {
-      if (actionKey in objValue.definition.actions) {
-        throw new Error(
-          `Could not merge browser + cloud actions because there is already an action with the same key "${actionKey}"`
-        )
-      }
-
-      objValue.definition.actions[actionKey] = action
-    }
-
-    return objValue
-  }
-)
+import globby from 'globby'
 
 export default class Serve extends Command {
   private spinner: ora.Ora = ora()
@@ -41,9 +14,10 @@ export default class Serve extends Command {
 
   static examples = [`$ ./bin/run serve`, `$ PORT=3001 ./bin/run serve`]
 
+  static args = [{ name: 'destination', description: 'destination to serve' }]
+
   static flags = {
     help: flags.help({ char: 'h' }),
-    port: flags.integer({ default: DEFAULT_PORT, description: 'port', env: 'PORT' }),
     directory: flags.string({
       char: 'd',
       description: 'destination actions directory',
@@ -52,22 +26,45 @@ export default class Serve extends Command {
   }
 
   async run() {
-    const { argv, flags } = this.parse(Serve)
+    const { args, flags } = this.parse(Serve)
 
-    const { metadataId } = await prompt<{ metadataId: string }>({
-      type: 'select',
-      name: 'metadataId',
-      message: 'Choose a definition:',
-      choices: sortBy(Object.entries(manifest), '[1].definition.name').map(([metadataId, entry]) => ({
-        title: entry.definition.name,
-        value: metadataId
-      }))
-    })
+    let destinationName = args.destination
 
-    const destination = manifest[metadataId].directory
-    const folderPath = path.join(process.cwd(), flags.directory, destination)
+    if (!destinationName) {
+      const integrationsGlob = `${flags.directory}/*`
+      const integrationDirs = await globby(integrationsGlob, {
+        expandDirectories: false,
+        onlyDirectories: true,
+        gitignore: true,
+        ignore: ['node_modules']
+      })
 
-    let child: ChildProcess | undefined
+      const { selectedDestination } = await autoPrompt<{ selectedDestination: { name: string } }>(args, {
+        type: 'select',
+        name: 'selectedDestination',
+        message: 'Which destination?',
+        choices: integrationDirs.map((integrationPath) => {
+          const [name] = integrationPath.split(path.sep).reverse()
+          return {
+            title: name,
+            value: { name }
+          }
+        })
+      })
+
+      if (selectedDestination) {
+        destinationName = selectedDestination.name
+      }
+    }
+
+    if (!destinationName) {
+      this.warn('You must select a destination. Exiting.')
+      this.exit()
+    }
+
+    const folderPath = path.join(process.cwd(), flags.directory, destinationName)
+
+    let child: ChildProcess | null = null
 
     const watcher = chokidar.watch(folderPath, {
       cwd: process.cwd()
@@ -78,10 +75,10 @@ export default class Serve extends Command {
         cwd: process.cwd(),
         env: {
           ...process.env,
-          DESTINATION: destination,
+          DESTINATION: destinationName,
           DIRECTORY: flags.directory
         },
-        execArgv: ['-r', 'ts-node/register/transpile-only', ...argv]
+        execArgv: ['-r', 'ts-node/register/transpile-only']
       })
 
       child.once('exit', (code?: number) => {

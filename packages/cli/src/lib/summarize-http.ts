@@ -1,5 +1,4 @@
 import { DecoratedResponse as Response } from '@segment/actions-core'
-import { IncomingHttpHeaders, OutgoingHttpHeaders } from 'http'
 
 export interface Exchange {
   request: RequestToDestination
@@ -8,7 +7,7 @@ export interface Exchange {
 
 export interface RequestToDestination {
   url: string
-  headers: OutgoingHttpHeaders
+  headers: Headers
   method: string
   body: unknown
 }
@@ -16,7 +15,7 @@ export interface RequestToDestination {
 export interface ResponseFromDestination {
   statusCode: number
   statusMessage?: string
-  headers: IncomingHttpHeaders
+  headers: Headers
   body: unknown
 }
 
@@ -40,7 +39,7 @@ async function summarizeRequest(response: Response): Promise<RequestToDestinatio
   return {
     url: request.url,
     method: request.method,
-    headers: request.headers as any,
+    headers: request.headers,
     body: data ?? ''
   }
 }
@@ -49,7 +48,7 @@ function summarizeResponse(response: Response): ResponseFromDestination {
   return {
     statusCode: response.status,
     statusMessage: response.statusText,
-    headers: response.headers as any,
+    headers: response.headers,
     body: response.data ?? response
   }
 }

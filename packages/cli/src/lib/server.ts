@@ -4,7 +4,7 @@ import { once } from 'lodash'
 import logger from './logger'
 import path from 'path'
 import { loadDestination } from './destinations'
-import { Destination } from '@segment/actions-core'
+import { Destination, DestinationDefinition as CloudDestinationDefinition } from '@segment/actions-core'
 import asyncHandler from './async-handler'
 import getExchanges from './summarize-http'
 import ora from 'ora'
@@ -18,47 +18,46 @@ const spinner: ora.Ora = ora()
 const DEFAULT_PORT = 3000
 const port = process.env.PORT || DEFAULT_PORT
 const server = http.createServer(app)
+const destinationSlug = process.env.DESTINATION as string
+const directory = process.env.DIRECTORY as string
 
 app.post(
   '/:action',
   asyncHandler(async (req: express.Request, res: express.Response) => {
-    spinner.start(chalk`Handling ${process.env.DESTINATION} action request`)
+    const actionSlug = req.params.action
 
-    const destinationSlug = process.env.DESTINATION as string
-    const directory = process.env.DIRECTORY as string
+    spinner.start(chalk`Handling ${process.env.DESTINATION}#${actionSlug} action request`)
 
     // For now, include the slug in the path, but when we support external repos, we'll have to change this
     const targetDirectory = path.join(process.cwd(), directory, destinationSlug, 'index.ts')
 
     try {
       const def = await loadDestination(targetDirectory)
-      const destination = new Destination(def)
-
-      const actionSlug = req.params.action
+      const destination = new Destination(def as CloudDestinationDefinition)
       const action = destination.actions[actionSlug]
 
-      if (action) {
-        if (req.body.payload && req.body.settings) {
-          await action.execute({
-            data: req.body.payload,
-            settings: req.body.settings,
-            mapping: req.body.payload,
-            auth: req.body.auth || undefined
-          })
-
-          const debug = await getExchanges(destination.responses)
-          spinner.succeed(chalk`${destination.name} action '${actionSlug}' completed with some code`)
-          return res.status(200).json(debug)
-        } else {
-          const msg = 'Missing payload and settings in request body'
-          spinner.fail(chalk`${msg}`)
-          return res.status(400).send(msg)
-        }
-      } else {
+      if (!action) {
         const msg = `${destination.name} action '${actionSlug}' is invalid or not found`
         spinner.fail(chalk`${msg}`)
         return res.status(400).send(msg)
       }
+
+      if (!req.body.payload || !req.body.settings) {
+        const msg = 'Missing payload or settings in request body'
+        spinner.fail(chalk`${msg}`)
+        return res.status(400).send(msg)
+      }
+
+      await action.execute({
+        data: req.body.payload,
+        settings: req.body.settings,
+        mapping: req.body.payload,
+        auth: req.body.auth || undefined
+      })
+
+      const debug = await getExchanges(destination.responses)
+      spinner.succeed(chalk`${destination.name} action '${actionSlug}' completed`)
+      return res.status(200).json(debug)
     } catch (err) {
       spinner.fail()
       return res.status(err.status ?? 500).send(err.message)
