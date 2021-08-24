@@ -12,7 +12,11 @@ export default class Serve extends Command {
 
   static description = `Starts a local development server to test your integration.`
 
-  static examples = [`$ ./bin/run serve`, `$ PORT=3001 ./bin/run serve`]
+  static examples = [
+    `$ ./bin/run serve`,
+    `$ PORT=3001 ./bin/run serve`,
+    `$ ./bin/run serve slack`
+  ]
 
   static args = [{ name: 'destination', description: 'destination to serve' }]
 
