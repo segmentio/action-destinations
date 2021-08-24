@@ -42,17 +42,11 @@ app.post(
         return res.status(400).send(msg)
       }
 
-      if (!req.body.payload || !req.body.settings) {
-        const msg = 'Missing payload or settings in request body'
-        spinner.fail(chalk`${msg}`)
-        return res.status(400).send(msg)
-      }
-
       await action.execute({
-        data: req.body.payload,
-        settings: req.body.settings,
-        mapping: req.body.payload,
-        auth: req.body.auth || undefined
+        data: req.body.payload || {},
+        settings: req.body.settings || {},
+        mapping: req.body.payload || {},
+        auth: req.body.auth || {}
       })
 
       const debug = await getExchanges(destination.responses)
