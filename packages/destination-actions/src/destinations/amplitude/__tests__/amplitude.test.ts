@@ -251,6 +251,7 @@ describe('Amplitude', () => {
               "user_properties": Object {},
             },
           ],
+          "options": undefined,
         }
       `)
     })
@@ -292,6 +293,7 @@ describe('Amplitude', () => {
             "user_properties": Object {},
           },
         ],
+        "options": undefined,
       }
     `)
   })
@@ -346,7 +348,9 @@ describe('Amplitude', () => {
             "api_key",
             "undefined",
             "identification",
-            "{\\"user_id\\":\\"some-user-id\\",\\"device_id\\":\\"some-anonymous-id\\",\\"user_properties\\":{\\"some-trait-key\\":\\"some-trait-value\\"},\\"country\\":\\"United States\\",\\"city\\":\\"San Francisco\\",\\"language\\":\\"en-US\\",\\"library\\":\\"segment\\"}",
+            "{\\"user_id\\":\\"some-user-id\\",\\"device_id\\":\\"some-anonymous-id\\",\\"country\\":\\"United States\\",\\"city\\":\\"San Francisco\\",\\"language\\":\\"en-US\\",\\"user_properties\\":{\\"some-trait-key\\":\\"some-trait-value\\"},\\"library\\":\\"segment\\"}",
+            "options",
+            "undefined",
           ],
           Symbol(context): null,
         }
@@ -387,7 +391,9 @@ describe('Amplitude', () => {
             "api_key",
             "undefined",
             "identification",
-            "{\\"user_id\\":\\"some-user-id\\",\\"device_id\\":\\"some-anonymous-id\\",\\"user_properties\\":{\\"some-trait-key\\":\\"some-trait-value\\",\\"$set\\":{\\"utm_source\\":\\"Newsletter\\",\\"utm_medium\\":\\"email\\",\\"utm_campaign\\":\\"TPS Innovation Newsletter\\",\\"utm_term\\":\\"tps reports\\",\\"utm_content\\":\\"image link\\",\\"referrer\\":\\"some-referrer\\"},\\"$setOnce\\":{\\"initial_utm_source\\":\\"Newsletter\\",\\"initial_utm_medium\\":\\"email\\",\\"initial_utm_campaign\\":\\"TPS Innovation Newsletter\\",\\"initial_utm_term\\":\\"tps reports\\",\\"initial_utm_content\\":\\"image link\\",\\"initial_referrer\\":\\"some-referrer\\"}},\\"library\\":\\"segment\\"}",
+            "{\\"user_id\\":\\"some-user-id\\",\\"device_id\\":\\"some-anonymous-id\\",\\"user_properties\\":{\\"some-trait-key\\":\\"some-trait-value\\",\\"$set\\":{\\"referrer\\":\\"some-referrer\\"},\\"$setOnce\\":{\\"initial_referrer\\":\\"some-referrer\\"}},\\"library\\":\\"segment\\"}",
+            "options",
+            "undefined",
           ],
           Symbol(context): null,
         }
@@ -416,7 +422,13 @@ describe('Amplitude', () => {
             "api_key",
             "undefined",
             "identification",
+<<<<<<< HEAD
             "{\\"user_id\\":\\"some-user-id\\",\\"device_id\\":\\"some-anonymous-id\\",\\"user_properties\\":{\\"some-trait-key\\":\\"some-trait-value\\"},\\"country\\":\\"United States\\",\\"city\\":\\"San Francisco\\",\\"language\\":\\"en-US\\",\\"library\\":\\"segment\\"}",
+=======
+            "{\\"user_id\\":\\"some-user-id\\",\\"device_id\\":\\"some-anonymous-id\\",\\"country\\":\\"United States\\",\\"city\\":\\"San Francisco\\",\\"language\\":\\"en-US\\",\\"user_properties\\":{\\"some-trait-key\\":\\"some-trait-value\\"},\\"library\\":\\"segment\\"}",
+            "options",
+            "undefined",
+>>>>>>> d2aee3a (add options to snapshots (undefined because this is not serialized))
           ],
           Symbol(context): null,
         }
@@ -458,6 +470,8 @@ describe('Amplitude', () => {
             "undefined",
             "identification",
             "{\\"os_name\\":\\"Mac\\",\\"os_version\\":\\"10.11.6\\",\\"user_id\\":\\"some-user-id\\",\\"device_id\\":\\"foo\\",\\"user_properties\\":{\\"some-trait-key\\":\\"some-trait-value\\"},\\"library\\":\\"segment\\"}",
+            "options",
+            "undefined",
           ],
           Symbol(context): null,
         }
@@ -498,6 +512,8 @@ describe('Amplitude', () => {
             "undefined",
             "identification",
             "{\\"user_id\\":\\"some-user-id\\",\\"device_id\\":\\"foo\\",\\"user_properties\\":{\\"some-trait-key\\":\\"some-trait-value\\"},\\"library\\":\\"segment\\"}",
+            "options",
+            "undefined",
           ],
           Symbol(context): null,
         }
@@ -541,6 +557,8 @@ describe('Amplitude', () => {
             "undefined",
             "identification",
             "[{\\"device_id\\":\\"some-anonymous-id\\",\\"groups\\":{\\"some-type\\":\\"some-value\\"},\\"insert_id\\":\\"some-insert-id\\",\\"library\\":\\"segment\\",\\"time\\":1618245157710,\\"user_id\\":\\"some-user-id\\",\\"user_properties\\":{\\"some-type\\":\\"some-value\\"}}]",
+            "options",
+            "undefined",
           ],
           Symbol(context): null,
         }
@@ -566,6 +584,8 @@ describe('Amplitude', () => {
             "undefined",
             "identification",
             "[{\\"group_properties\\":{\\"some-trait-key\\":\\"some-trait-value\\"},\\"group_value\\":\\"some-value\\",\\"group_type\\":\\"some-type\\",\\"library\\":\\"segment\\"}]",
+            "options",
+            "undefined",
           ],
           Symbol(context): null,
         }
