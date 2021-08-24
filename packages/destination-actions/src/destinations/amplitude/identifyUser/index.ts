@@ -226,12 +226,19 @@ const action: ActionDefinition<Settings, Payload> = {
       default: {
         '@path': '$.context.page.referrer'
       }
+    },
+    min_id_length: {
+      label: 'Minimum ID Length',
+      description: 'Minimum permitted length for user_id and device_id fields',
+      allowNull: true,
+      type: 'integer'
     }
   },
 
   perform: (request, { payload, settings }) => {
-    const { utm_properties, referrer, userAgent, userAgentParsing, ...rest } = payload
+    const { utm_properties, referrer, userAgent, userAgentParsing, min_id_length, ...rest } = payload
 
+    let options
     const properties = rest as AmplitudeEvent
 
     if (Object.keys(utm_properties ?? {}).length || referrer) {
@@ -240,6 +247,10 @@ const action: ActionDefinition<Settings, Payload> = {
         convertUTMProperties(payload),
         convertReferrerProperty(payload)
       )
+    }
+
+    if (min_id_length && min_id_length > 0) {
+      options = JSON.stringify({ min_id_length })
     }
 
     const identification = JSON.stringify({
@@ -253,7 +264,8 @@ const action: ActionDefinition<Settings, Payload> = {
       method: 'post',
       body: new URLSearchParams({
         api_key: settings.apiKey,
-        identification
+        identification,
+        options
       })
     })
   }

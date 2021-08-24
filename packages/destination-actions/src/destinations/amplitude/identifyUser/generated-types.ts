@@ -107,4 +107,8 @@ export interface Payload {
    * The referrer of the web request. Sent to Amplitude as both last touch “referrer” and first touch “initial_referrer”
    */
   referrer?: string
+  /**
+   * Minimum permitted length for user_id and device_id fields
+   */
+  min_id_length?: number | null
 }
