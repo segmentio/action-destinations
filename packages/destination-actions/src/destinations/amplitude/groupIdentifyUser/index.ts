@@ -67,10 +67,21 @@ const action: ActionDefinition<Settings, Payload> = {
       type: 'string',
       description: 'Value of the group',
       required: true
+    },
+    min_id_length: {
+      label: 'Minimum ID Length',
+      description: 'Minimum permitted length for user_id and device_id fields',
+      allowNull: true,
+      type: 'integer'
     }
   },
   perform: async (request, { payload, settings }) => {
     const groupAssociation = { [payload.group_type]: payload.group_value }
+    const { min_id_length } = payload
+    let options
+    if (min_id_length && min_id_length > 0) {
+      options = JSON.stringify({ min_id_length })
+    }
 
     // Associate user to group
     await request('https://api.amplitude.com/identify', {
@@ -87,7 +98,8 @@ const action: ActionDefinition<Settings, Payload> = {
             user_id: payload.user_id,
             user_properties: groupAssociation
           }
-        ])
+        ]),
+        options
       })
     })
 
@@ -103,7 +115,8 @@ const action: ActionDefinition<Settings, Payload> = {
             group_type: payload.group_type,
             library: 'segment'
           }
-        ])
+        ]),
+        options
       })
     })
   }

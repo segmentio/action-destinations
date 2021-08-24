@@ -31,4 +31,8 @@ export interface Payload {
    * Value of the group
    */
   group_value: string
+  /**
+   * Minimum permitted length for user_id and device_id fields
+   */
+  min_id_length?: number | null
 }
