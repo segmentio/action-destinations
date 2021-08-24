@@ -51,7 +51,8 @@
       "<rootDir>/dist/"
     ],
     "moduleNameMapper": {
-      "@segment/actions-core": "<rootDir>/../core/src/index.ts"
+      "@segment/actions-core": "<rootDir>/../core/src/index.ts",
+      "@segment/destination-subscriptions": "<rootDir>/../destination-subscriptions/src"
     },
     "setupFilesAfterEnv": [
       "<rootDir>/test/setup-after-env.ts"

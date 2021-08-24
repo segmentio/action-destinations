@@ -71,6 +71,10 @@
     "testEnvironment": "node",
     "modulePathIgnorePatterns": [
       "<rootDir>/dist/"
-    ]
+    ],
+    "moduleNameMapper": {
+      "@segment/ajv-human-errors": "<rootDir>/../ajv-human-errors",
+      "@segment/destination-subscriptions": "<rootDir>/../destination-subscriptions/src"
+    }
   }
 }

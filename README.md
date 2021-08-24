@@ -9,9 +9,14 @@ This project is a monorepo with multiple packages using Yarn Workspaces:
 - `packages/cli` - a set of command line tools for interacting with the repo
 - `packages/core` - the core runtime engine for actions, including mapping-kit transforms
 - `packages/destinations-actions` - destination definitions and their actions
+- `packages/destinations-subscriptions` - validates events against an action's subscription AST
 
 ```
-$ yarn install
+git clone https://github.com/segmentio/action-destinations.git
+cd action-destinations
+yarn --ignore-engines --ignore-optional
+yarn bootstrap
+yarn test
 ```
 
 ## Test Actions Locally

@@ -57,7 +57,6 @@
     "@oclif/errors": "^1",
     "@oclif/plugin-help": "^3",
     "@segment/action-destinations": "^3.6.1",
-    "@segment/browser-destinations": "^3.6.0",
     "chalk": "^4.1.1",
     "chokidar": "^3.5.1",
     "execa": "^5.1.1",
@@ -79,6 +78,7 @@
   },
   "optionalDependencies": {
     "@segment/actions-core": "^3.6.0",
+    "@segment/browser-destinations": "^3.6.0",
     "@segment/control-plane-service-client": "github:segmentio/control-plane-service-js-client.git#master"
   },
   "oclif": {

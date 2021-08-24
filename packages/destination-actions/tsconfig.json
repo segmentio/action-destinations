@@ -3,7 +3,8 @@
   "compilerOptions": {
     "baseUrl": ".",
     "paths": {
-      "@segment/actions-core": ["../core/src"]
+      "@segment/actions-core": ["../core/src"],
+      "@segment/destination-subscriptions": ["../destination-subscriptions/src"]
     }
   },
   "exclude": [],

@@ -22,7 +22,7 @@
     "clean": "tsc -b tsconfig.build.json --clean",
     "postclean": "rm -rf dist",
     "prepublishOnly": "yarn build",
-    "test": "jest",
+    "test": "jest --passWithNoTests",
     "typecheck": "tsc --noEmit",
     "dev": "concurrently \"webpack serve\" \"webpack -c webpack.config.js --watch\""
   },
@@ -68,17 +68,5 @@
     "singleQuote": true,
     "trailingComma": "none",
     "printWidth": 120
-  },
-  "jest": {
-    "moduleNameMapper": {
-      "@segment/actions-core": "<rootDir>/../core/src/index.ts"
-    },
-    "transform": {
-      "^.+\\.[t|j]sx?$": "babel-jest"
-    },
-    "transformIgnorePatterns": [
-      "/node_modules/(?!@segment/analytics-next).+\\.js$"
-    ],
-    "forceExit": true
   }
 }
