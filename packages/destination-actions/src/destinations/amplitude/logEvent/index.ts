@@ -183,8 +183,8 @@ const action: ActionDefinition<Settings, Payload> = {
 
     if (Object.keys(payload.utm_properties ?? {}).length || payload.referrer) {
       properties.user_properties = mergeUserProperties(
-        convertUTMProperties(payload),
-        convertReferrerProperty(payload),
+        convertUTMProperties({ utm_properties }),
+        convertReferrerProperty({ referrer }),
         omit(properties.user_properties ?? {}, ['utm_properties', 'referrer'])
       )
     }
@@ -212,15 +212,6 @@ const action: ActionDefinition<Settings, Payload> = {
         library: 'segment'
       })
     }
-
-    // if (Object.keys(payload.utm_properties ?? {}).length || payload.referrer) {
-    //   const user_properties = mergeUserProperties(convertUTMProperties(payload), convertReferrerProperty(payload))
-    //   events.push({
-    //     ...properties,
-    //     event_type: '$identify',
-    //     user_properties
-    //   })
-    // }
 
     const endpoint = payload.use_batch_endpoint
       ? 'https://api2.amplitude.com/batch'
