@@ -35,6 +35,12 @@ if (process.env.ANALYZE) {
   )
 }
 
+plugins.push(
+  new webpack.optimize.LimitChunkCountPlugin({
+    maxChunks: 1
+  })
+)
+
 module.exports = {
   entry: entries,
   mode: process.env.NODE_ENV || 'development',
@@ -97,17 +103,7 @@ module.exports = {
           }
         }
       })
-    ],
-    splitChunks: {
-      cacheGroups: {
-        default: false,
-        defaultVendors: false,
-        commons: {
-          chunks: 'all',
-          minChunks: 2
-        }
-      }
-    }
+    ]
   },
   plugins
 }
