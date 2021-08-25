@@ -61,7 +61,8 @@ export const destination: BrowserDestinationDefinition<Settings, typeof appboy> 
       required: false
     },
     api_key: {
-      description: 'Created under Developer Console in the Braze Dashboard.',
+      description:
+        'Use the API Key to identify your application to Braze during [SDK setup](https://www.braze.com/docs/developer_guide/platform_integration_guides/web/initial_sdk_setup/).',
       label: 'API Key',
       type: 'password',
       required: true
@@ -122,14 +123,6 @@ export const destination: BrowserDestinationDefinition<Settings, typeof appboy> 
       required: false,
       multiple: true
     },
-    devicePropertyWhitelist: {
-      description:
-        'This initialization option is deprecated in favor of devicePropertyAllowlist, which has the same functionality.',
-      label: '[Deprecated] Device Property Whitelist',
-      type: 'string',
-      required: false,
-      multiple: true
-    },
     disablePushTokenMaintenance: {
       label: 'Disable Push Token Maintenance',
       type: 'boolean',
@@ -144,14 +137,6 @@ export const destination: BrowserDestinationDefinition<Settings, typeof appboy> 
       default: false,
       description:
         'Braze automatically loads FontAwesome 4.7.0 from the FontAwesome CDN. To disable this behavior set this option to true.'
-    },
-    enableHtmlInAppMessages: {
-      label: '[Deprecated] Enable HTML In-App Messages',
-      type: 'boolean',
-      default: false,
-      description:
-        'Set this to true to indicate that you trust the Braze dashboard users to write non-malicious HTML in-app messages. If allowUserSuppliedJavascript is set to true, this option will also be set to true.',
-      required: false
     },
     enableLogging: {
       label: 'Enable Logging',
