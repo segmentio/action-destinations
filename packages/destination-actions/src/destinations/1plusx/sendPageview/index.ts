@@ -6,7 +6,7 @@ import mapValues from 'lodash/mapValues'
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Send Pageview',
   description: 'Send an pageview to 1PlusX',
-  defaultSubscription: 'type = "page" || type = "screen"',
+  defaultSubscription: 'type = "page" or type = "screen"',
   fields: {
     //A user identifier must be in the form IDSPACE:ID, i.e. idfa:6D92078A-8246-4BA4-AE5B-76104861E7DC
     ope_user_id: {
