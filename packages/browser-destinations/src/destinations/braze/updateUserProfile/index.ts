@@ -91,6 +91,14 @@ const action: BrowserActionDefinition<Settings, typeof appboy, Payload> = {
         '@path': '$.traits.firstName'
       }
     },
+    last_name: {
+      label: 'Last Name',
+      description: "The user's last name",
+      type: 'string',
+      default: {
+        '@path': '$.traits.lastName'
+      }
+    },
     gender: {
       label: 'Gender',
       description:
@@ -124,14 +132,6 @@ const action: BrowserActionDefinition<Settings, typeof appboy, Payload> = {
       description: "The user's preferred language.",
       type: 'string',
       allowNull: true
-    },
-    last_name: {
-      label: 'Last Name',
-      description: "The user's last name",
-      type: 'string',
-      default: {
-        '@path': '$.traits.lastName'
-      }
     },
     phone: {
       label: 'Phone Number',
