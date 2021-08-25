@@ -6,7 +6,7 @@ export interface Settings {
    */
   sdkVersion?: string
   /**
-   * Created under Developer Console in the Braze Dashboard.
+   * Use the API Key to identify your application to Braze during [SDK setup](https://www.braze.com/docs/developer_guide/platform_integration_guides/web/initial_sdk_setup/).
    */
   api_key: string
   /**
@@ -34,10 +34,6 @@ export interface Settings {
    */
   devicePropertyAllowlist?: string[]
   /**
-   * This initialization option is deprecated in favor of devicePropertyAllowlist, which has the same functionality.
-   */
-  devicePropertyWhitelist?: string[]
-  /**
    * By default, users who have already granted web push permission will sync their push token with the Braze backend automatically on new session to ensure deliverability. To disable this behavior, set this option to false
    */
   disablePushTokenMaintenance?: boolean
@@ -45,10 +41,6 @@ export interface Settings {
    * Braze automatically loads FontAwesome 4.7.0 from the FontAwesome CDN. To disable this behavior set this option to true.
    */
   doNotLoadFontAwesome?: boolean
-  /**
-   * Set this to true to indicate that you trust the Braze dashboard users to write non-malicious HTML in-app messages. If allowUserSuppliedJavascript is set to true, this option will also be set to true.
-   */
-  enableHtmlInAppMessages?: boolean
   /**
    * Set to true to enable logging by default
    */
