@@ -16,20 +16,20 @@ declare global {
 
 const presets: DestinationDefinition['presets'] = [
   {
-    name: 'Update User Profile',
+    name: 'Identify Calls',
     subscribe: 'type = "identify" or type = "group"',
     partnerAction: 'updateUserProfile',
     mapping: defaultValues(updateUserProfile.fields)
   },
   {
-    name: 'Track Purchase',
-    subscribe: 'type = "track"',
+    name: 'Order Completed calls',
+    subscribe: 'type = "track" and event = "Order Completed"',
     partnerAction: 'trackPurchase',
     mapping: defaultValues(trackPurchase.fields)
   },
   {
-    name: 'Track Event',
-    subscribe: 'type = "track"',
+    name: 'Track Calls',
+    subscribe: 'type = "track" and event != "Order Completed"',
     partnerAction: 'trackEvent',
     mapping: {
       ...defaultValues(trackEvent.fields),
