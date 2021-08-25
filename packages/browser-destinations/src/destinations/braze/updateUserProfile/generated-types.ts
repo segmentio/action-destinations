@@ -40,6 +40,10 @@ export interface Payload {
    */
   first_name?: string | null
   /**
+   * The user's last name
+   */
+  last_name?: string
+  /**
    * The user's gender: “M”, “F”, “O” (other), “N” (not applicable), “P” (prefer not to say) or nil (unknown).
    */
   gender?: string | null
@@ -55,10 +59,6 @@ export interface Payload {
    * The user's preferred language.
    */
   language?: string | null
-  /**
-   * The user's last name
-   */
-  last_name?: string
   /**
    * The user's phone number
    */
