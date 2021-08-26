@@ -4,7 +4,7 @@ export interface Settings {
   /**
    * The version of the SDK to use. Defaults to 3.3.
    */
-  sdkVersion?: string
+  sdkVersion: string
   /**
    * Use the API Key to identify your application to Braze during [SDK setup](https://www.braze.com/docs/developer_guide/platform_integration_guides/web/initial_sdk_setup/).
    */

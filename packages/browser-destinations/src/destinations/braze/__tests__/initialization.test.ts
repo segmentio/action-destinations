@@ -85,16 +85,12 @@ describe('initialization', () => {
   })
 
   test('loads sdk version 3.3 by default', async () => {
-    const withVersion = {
-      ...settings
-    }
-
     const dependencies = {
       loadScript: jest.fn()
     }
 
     // @ts-expect-error
-    await destination.initialize({ settings: withVersion }, dependencies)
+    await destination.initialize({ settings }, dependencies)
 
     expect(dependencies.loadScript).toHaveBeenCalledWith(`https://js.appboycdn.com/web-sdk/3.3/service-worker.js`)
   })
