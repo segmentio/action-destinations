@@ -1,5 +1,6 @@
 import type { DestinationDefinition } from '@segment/actions-core'
 import type { Settings } from './generated-types'
+import { defaultValues } from '@segment/actions-core'
 import updateUserProfile from './updateUserProfile'
 import trackEvent from './trackEvent'
 import trackPurchase from './trackPurchase'
@@ -55,7 +56,27 @@ const destination: DestinationDefinition<Settings> = {
     updateUserProfile,
     trackEvent,
     trackPurchase
-  }
+  },
+  presets: [
+    {
+      name: 'Track Events',
+      subscribe: 'type = "track" and event != "Order Completed"',
+      partnerAction: 'trackEvent',
+      mapping: defaultValues(trackEvent.fields)
+    },
+    {
+      name: 'Track Purchases',
+      subscribe: 'event = "Order Completed"',
+      partnerAction: 'trackPurchase',
+      mapping: defaultValues(trackPurchase.fields)
+    },
+    {
+      name: 'Identify Calls',
+      subscribe: 'type = "identify"',
+      partnerAction: 'updateUserProfile',
+      mapping: defaultValues(updateUserProfile.fields)
+    }
+  ]
 }
 
 export default destination
