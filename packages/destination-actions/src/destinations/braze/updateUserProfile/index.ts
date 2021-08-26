@@ -321,7 +321,7 @@ const action: ActionDefinition<Settings, Payload> = {
       description:
         'Setting this flag to true will put the API in "Update Only" mode. When using a "user_alias", "Update Only" mode is always true.',
       type: 'boolean',
-      default: true
+      default: false
     }
   },
 

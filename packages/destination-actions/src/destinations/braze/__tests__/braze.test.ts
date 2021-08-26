@@ -45,7 +45,7 @@ describe(Braze.name, () => {
         Object {
           "attributes": Array [
             Object {
-              "_update_existing_only": true,
+              "_update_existing_only": false,
               "braze_id": undefined,
               "country": "United States",
               "current_location": Object {
