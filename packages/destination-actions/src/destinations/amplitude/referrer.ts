@@ -13,24 +13,9 @@ export function convertReferrerProperty(payload: Payload): AmplitudeUserProperti
   const { referrer } = payload
 
   if (!referrer) return {}
-  // const cleanedPayload = rest as AmplitudeEvent
 
   return {
     $set: { referrer },
     $setOnce: { initial_referrer: referrer }
   }
-
-  // let userProperties: AmplitudeUserProperties
-  // if (cleanedPayload.user_properties) {
-  //   userProperties = cleanedPayload.user_properties
-
-  //   userProperties.$set = { ...userProperties.$set, referrer }
-  //   userProperties.$setOnce = { ...userProperties.$setOnce, initial_referrer: referrer }
-  // } else {
-  //   userProperties = {
-  //     $set: { referrer },
-  //     $setOnce: { initial_referrer: referrer }
-  //   }
-  // }
-  // return userProperties
 }

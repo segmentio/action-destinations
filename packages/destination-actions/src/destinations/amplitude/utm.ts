@@ -44,20 +44,4 @@ export function convertUTMProperties(payload: Payload): AmplitudeUserProperties 
     $set: set,
     $setOnce: setOnce
   }
-
-  // let userProperties: AmplitudeUserProperties
-
-  // if (cleanedPayload.user_properties) {
-  //   userProperties = { ...cleanedPayload.user_properties }
-
-  //   userProperties.$set = { ...userProperties.$set, ...set }
-  //   userProperties.$setOnce = { ...userProperties.$setOnce, ...setOnce }
-  // } else {
-  //   userProperties = {
-  //     $set: set,
-  //     $setOnce: setOnce
-  //   }
-  // }
-
-  // return userProperties
 }
