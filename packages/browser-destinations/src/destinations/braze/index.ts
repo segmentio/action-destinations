@@ -176,7 +176,7 @@ export const destination: BrowserDestinationDefinition<Settings, typeof appboy> 
         'If you have your own service worker that you register and control the lifecycle of, set this option to true and the Braze SDK will not register or unregister a service worker. [See more details](https://js.appboycdn.com/web-sdk/latest/doc/modules/appboy.html#initializationoptions)'
     },
     minimumIntervalBetweenTriggerActionsInSeconds: {
-      label: 'Minimum Interval Between Treigger Actions in Seconds',
+      label: 'Minimum Interval Between Trigger Actions in Seconds',
       type: 'number',
       required: false,
       default: 30,
