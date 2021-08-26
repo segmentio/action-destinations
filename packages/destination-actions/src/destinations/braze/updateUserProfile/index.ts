@@ -1,4 +1,4 @@
-import { omit, IntegrationError } from '@segment/actions-core'
+import { omit, removeUndefined, IntegrationError } from '@segment/actions-core'
 import type { ActionDefinition } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
@@ -23,6 +23,20 @@ function toDateFormat(date: DateInput, format: string): DateOutput {
 
   const d = dayjs(date)
   return d.isValid() ? d.format(format) : undefined
+}
+
+function removeEmpty(obj: unknown) {
+  if (!obj) {
+    return obj
+  }
+
+  const cleaned = removeUndefined(obj)
+  // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+  if (typeof cleaned === 'object' && Object.keys(cleaned!).length > 0) {
+    return cleaned
+  }
+
+  return undefined
 }
 
 function toBrazeGender(gender: string | null | undefined): string | null | undefined {
@@ -354,7 +368,7 @@ const action: ActionDefinition<Settings, Payload> = {
             // TODO format country code according to ISO-3166-1 alpha-2 standard?
             // https://en.wikipedia.org/wiki/ISO_3166-1_alpha-2
             country: payload.country,
-            current_location: payload.current_location,
+            current_location: removeEmpty(payload.current_location),
             date_of_first_session: toISO8601(payload.date_of_first_session),
             date_of_last_session: toISO8601(payload.date_of_last_session),
             dob: toDateFormat(payload.dob, 'YYYY-MM-DD'),
