@@ -13,6 +13,9 @@ export interface AmplitudeEvent extends Omit<Payload, 'products' | 'trackRevenue
   library?: string
   time?: number
   session_id?: number
+  options?: {
+    min_id_length: number
+  }
 }
 
 const revenueKeys = ['revenue', 'price', 'productId', 'quantity', 'revenueType']
@@ -156,6 +159,13 @@ const action: ActionDefinition<Settings, Payload> = {
       default: {
         '@path': '$.context.page.referrer'
       }
+    },
+    min_id_length: {
+      label: 'Minimum ID Length',
+      description:
+        'Amplitude has a default minimum id lenght of 5 characters for user_id and device_id fields. This field allows the minimum to be overridden to allow shorter id lengths.',
+      allowNull: true,
+      type: 'integer'
     }
   },
   perform: (request, { payload, settings }) => {
@@ -169,9 +179,11 @@ const action: ActionDefinition<Settings, Payload> = {
       userAgentParsing,
       utm_properties,
       referrer,
+      min_id_length,
       ...rest
     } = omit(payload, revenueKeys)
     const properties = rest as AmplitudeEvent
+    let options
 
     if (time && dayjs.utc(time).isValid()) {
       properties.time = dayjs.utc(time).valueOf()
@@ -187,6 +199,10 @@ const action: ActionDefinition<Settings, Payload> = {
         convertReferrerProperty({ referrer }),
         omit(properties.user_properties ?? {}, ['utm_properties', 'referrer'])
       )
+    }
+
+    if (min_id_length && min_id_length > 0) {
+      options = { min_id_length }
     }
 
     const events: AmplitudeEvent[] = [
@@ -221,7 +237,8 @@ const action: ActionDefinition<Settings, Payload> = {
       method: 'post',
       json: {
         api_key: settings.apiKey,
-        events
+        events,
+        options
       }
     })
   }
