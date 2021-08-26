@@ -58,7 +58,7 @@ export const destination: BrowserDestinationDefinition<Settings, typeof appboy> 
           label: '3.3'
         }
       ],
-      required: false
+      required: true
     },
     api_key: {
       description:
@@ -239,9 +239,11 @@ export const destination: BrowserDestinationDefinition<Settings, typeof appboy> 
     }
   },
   initialize: async ({ settings }, dependencies) => {
-    const { endpoint, sdkVersion, api_key, ...expectedConfig } = settings
+    const { endpoint, api_key, ...expectedConfig } = settings
 
-    await dependencies.loadScript(`https://js.appboycdn.com/web-sdk/${settings.sdkVersion ?? '3.3'}/service-worker.js`)
+    const sdkVersion = settings.sdkVersion?.length ? settings.sdkVersion : '3.3'
+
+    await dependencies.loadScript(`https://js.appboycdn.com/web-sdk/${sdkVersion}/service-worker.js`)
 
     const initialized = appboy.initialize(settings.api_key, { baseUrl: endpoint, ...expectedConfig })
     if (!initialized) {
