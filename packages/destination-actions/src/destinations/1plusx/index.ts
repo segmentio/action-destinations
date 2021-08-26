@@ -3,7 +3,6 @@ import type { Settings } from './generated-types'
 import sendEvent from './sendEvent'
 import sendPageview from './sendPageview'
 import sendUserData from './sendUserData'
-//import { InvalidAuthenticationError } from '@segment/actions-core'
 
 const destination: DestinationDefinition<Settings> = {
   name: '1plusX',
@@ -25,11 +24,6 @@ const destination: DestinationDefinition<Settings> = {
         type: 'boolean',
         default: false
       }
-    },
-    testAuthentication: (_request) => {
-      //1PlusX does not have a side effect free API
-      //We will return true for now since this is a required argument
-      return true
     }
   },
   actions: {

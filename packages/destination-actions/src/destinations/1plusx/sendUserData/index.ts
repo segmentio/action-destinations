@@ -5,7 +5,7 @@ import mapValues from 'lodash/mapValues'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Send User Data',
-  description: 'Send a user data to 1PlusX',
+  description: 'Send user data to 1PlusX',
   defaultSubscription: 'type = "identify"',
   fields: {
     //A user identifier must be in the form IDSPACE:ID, i.e. idfa:6D92078A-8246-4BA4-AE5B-76104861E7DC
