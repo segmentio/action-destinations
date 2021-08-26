@@ -2,7 +2,7 @@
 
 export interface Settings {
   /**
-   * Your 1PlusX Client ID.
+   * Your 1plusX Client ID.
    */
   client_id: string
   /**

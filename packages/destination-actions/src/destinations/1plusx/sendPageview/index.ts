@@ -5,7 +5,7 @@ import mapValues from 'lodash/mapValues'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Send Pageview',
-  description: 'Send a pageview to 1PlusX',
+  description: 'Send a pageview to 1plusX',
   defaultSubscription: 'type = "page" or type = "screen"',
   fields: {
     //A user identifier must be in the form IDSPACE:ID, i.e. idfa:6D92078A-8246-4BA4-AE5B-76104861E7DC
@@ -51,11 +51,11 @@ const action: ActionDefinition<Settings, Payload> = {
       }
     },
     //The field should contain milliseconds since the Unix epoch
-    //Optional to override the time recorded by 1PlusX's API upon receipt
+    //Optional to override the time recorded by 1plusX's API upon receipt
     ope_event_time_ms: {
       label: 'Event Timestamp',
       description:
-        'Time of when the actual event happened. If not set, timestamp recorded by 1PlusX upon receipt is used.',
+        'Time of when the actual event happened. If not set, timestamp recorded by 1plusX upon receipt is used.',
       type: 'string',
       default: {
         '@path': '$.timestamp'
@@ -82,7 +82,7 @@ const action: ActionDefinition<Settings, Payload> = {
     ope_usp_string: {
       label: 'US Privacy Consent String',
       description:
-        'If subject to CCPA, this field should be populated with appropriate consents. 1PlusX will parse the string value and process the event only when the consent indicates no optout from sales. Leave blank or set to 1--- if not subject to CCPA.',
+        'If subject to CCPA, this field should be populated with appropriate consents. 1plusX will parse the string value and process the event only when the consent indicates no optout from sales. Leave blank or set to 1--- if not subject to CCPA.',
       type: 'string'
     },
     //This is a custom attribute but Fox wants us to explicitly ask for a mapping so they remember to send this
@@ -105,7 +105,7 @@ const action: ActionDefinition<Settings, Payload> = {
     //Create cleanPayload with custom_fields removed as these must be unnested
     const { custom_fields, ...cleanPayload } = payload
 
-    //Convert custom_field values to strings as per 1PlusX requirements
+    //Convert custom_field values to strings as per 1plusX requirements
     const cleanProps = mapValues(custom_fields, function (value) {
       //Drop arrays and objects
       if (typeof value === 'object') return

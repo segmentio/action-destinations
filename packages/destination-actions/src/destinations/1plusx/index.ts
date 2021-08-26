@@ -7,13 +7,13 @@ import sendUserData from './sendUserData'
 const destination: DestinationDefinition<Settings> = {
   name: '1plusX',
   mode: 'cloud',
-  //No authentication required for 1PlusX Data Collection API
+  //No authentication required for 1plusX Data Collection API
   authentication: {
     scheme: 'custom',
     fields: {
       client_id: {
         label: 'Client ID',
-        description: 'Your 1PlusX Client ID.',
+        description: 'Your 1plusX Client ID.',
         type: 'string',
         required: true
       },

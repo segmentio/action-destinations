@@ -22,7 +22,7 @@ export interface Payload {
    */
   ope_app_version?: string
   /**
-   * Time of when the actual event happened. If not set, timestamp recorded by 1PlusX upon receipt is used.
+   * Time of when the actual event happened. If not set, timestamp recorded by 1plusX upon receipt is used.
    */
   ope_event_time_ms?: string
   /**
@@ -38,7 +38,7 @@ export interface Payload {
    */
   gdpr_consent?: string
   /**
-   * If subject to CCPA, this field should be populated with appropriate consents. 1PlusX will parse the string value and process the event only when the consent indicates no optout from sales. Leave blank or set to 1--- if not subject to CCPA.
+   * If subject to CCPA, this field should be populated with appropriate consents. 1plusX will parse the string value and process the event only when the consent indicates no optout from sales. Leave blank or set to 1--- if not subject to CCPA.
    */
   ope_usp_string?: string
   /**

@@ -7,7 +7,7 @@ const testDestination = createTestIntegration(oneplusx)
 const client_id = 'fox'
 const use_test_endpoint = true
 
-describe('1PlusX', () => {
+describe('1plusX', () => {
   describe('sendEvent', () => {
     it('should send track with default mappings', async () => {
       nock('https://tagger-test.opecloud.com').post(`/${client_id}/v2/native/event`).reply(204)
