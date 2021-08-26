@@ -69,4 +69,42 @@ describe('trackEvent', () => {
 
     expect(customEvent).toHaveBeenCalledWith('UFC', { goat: 'hasbulla' })
   })
+
+  test('changes user if userId is present', async () => {
+    const changeUser = jest.spyOn(appboy, 'changeUser')
+
+    const [trackEvent] = await brazeDestination({
+      api_key: 'b_123',
+      endpoint: 'endpoint',
+      subscriptions: [
+        {
+          partnerAction: 'trackEvent',
+          name: 'Log Custom Event',
+          enabled: true,
+          subscribe: 'type = "track"',
+          mapping: {
+            eventName: {
+              '@path': '$.event'
+            },
+            eventProperties: {
+              '@path': '$.properties'
+            }
+          }
+        }
+      ]
+    })
+
+    await trackEvent.load(Context.system(), {} as Analytics)
+    await trackEvent.track?.(
+      new Context({
+        type: 'track',
+        event: 'UFC',
+        properties: {
+          userId: 'some user'
+        }
+      })
+    )
+
+    expect(changeUser).toHaveBeenCalledWith('some user')
+  })
 })
