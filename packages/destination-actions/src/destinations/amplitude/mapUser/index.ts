@@ -23,14 +23,24 @@ const action: ActionDefinition<Settings, Payload> = {
       default: {
         '@path': '$.userId'
       }
+    },
+    min_id_length: {
+      label: 'Minimum ID Length',
+      description:
+        'Amplitude has a default minimum id lenght of 5 characters for user_id and device_id fields. This field allows the minimum to be overridden to allow shorter id lengths.',
+      allowNull: true,
+      type: 'integer'
     }
   },
   perform: (request, { payload, settings }) => {
+    const { min_id_length } = payload
+    const options = min_id_length && min_id_length > 0 ? JSON.stringify({ min_id_length }) : undefined
     return request('https://api.amplitude.com/usermap', {
       method: 'post',
       body: new URLSearchParams({
         api_key: settings.apiKey,
-        mapping: JSON.stringify([payload])
+        mapping: JSON.stringify([payload]),
+        ...(options && { options })
       })
     })
   }
