@@ -1,6 +1,6 @@
 {
   "name": "@segment/browser-destinations",
-  "version": "3.6.0",
+  "version": "3.6.1",
   "description": "Action based browser destinations",
   "author": "Netto Farah",
   "private": true,
@@ -60,7 +60,7 @@
     "webpack-dev-server": "^4.0.0-rc.0"
   },
   "optionalDependencies": {
-    "@segment/actions-core": "^3.6.0",
+    "@segment/actions-core": "^3.6.1",
     "@segment/analytics-next": "^1.29.3"
   },
   "prettier": {
