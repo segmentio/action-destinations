@@ -69,7 +69,7 @@ export default class Serve extends Command {
 
     const folderPath = path.join(process.cwd(), flags.directory, destinationName)
 
-    let child: ChildProcess | null = null
+    let child: ChildProcess | null | undefined = null
 
     const watcher = chokidar.watch(folderPath, {
       cwd: process.cwd()
