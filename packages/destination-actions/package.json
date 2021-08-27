@@ -39,6 +39,7 @@
   "dependencies": {
     "@amplitude/ua-parser-js": "^0.7.24",
     "dayjs": "^1.10.3",
+    "lodash": "^4.17.21",
     "mustache": "^4.2.0"
   },
   "optionalDependencies": {
