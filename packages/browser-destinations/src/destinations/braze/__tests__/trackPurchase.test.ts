@@ -39,6 +39,7 @@ test('changes the userId when present', async () => {
   const [trackPurchase] = await brazeDestination({
     api_key: 'b_123',
     endpoint: 'endpoint',
+    sdkVersion: '3.3',
     subscriptions: [
       {
         partnerAction: 'trackPurchase',
@@ -73,6 +74,7 @@ test('does not change the userId when not present', async () => {
   const [trackPurchase] = await brazeDestination({
     api_key: 'b_123',
     endpoint: 'endpoint',
+    sdkVersion: '3.3',
     subscriptions: [
       {
         partnerAction: 'trackPurchase',
@@ -105,6 +107,7 @@ test('reports products when present', async () => {
   const [trackPurchase] = await brazeDestination({
     api_key: 'b_123',
     endpoint: 'endpoint',
+    sdkVersion: '3.3',
     subscriptions: [
       {
         partnerAction: 'trackPurchase',
