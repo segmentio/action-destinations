@@ -71,7 +71,8 @@ describe('trackEvent', () => {
   })
 
   test('changes user if userId is present', async () => {
-    const changeUser = jest.spyOn(appboy, 'changeUser')
+    const customEvent = jest.spyOn(appboy, 'logCustomEvent').mockReturnValue(true)
+    const changeUser = jest.spyOn(appboy, 'changeUser').mockImplementation(() => true)
 
     const [trackEvent] = await brazeDestination({
       api_key: 'b_123',
@@ -100,15 +101,19 @@ describe('trackEvent', () => {
         type: 'track',
         event: 'UFC',
         properties: {
-          userId: 'some user'
+          goat: 'hasbulla',
+          userId: 'some user id'
         }
       })
     )
 
-    expect(changeUser).toHaveBeenCalledWith('some user')
+    expect(changeUser).toHaveBeenCalledWith('some user id')
+    expect(customEvent).toHaveBeenCalledWith('UFC', { goat: 'hasbulla', userId: 'some user id' })
   })
+
   test('changeUser is not called if userId is not present', async () => {
-    const changeUser = jest.spyOn(appboy, 'changeUser')
+    const customEvent = jest.spyOn(appboy, 'logCustomEvent').mockReturnValue(true)
+    const changeUser = jest.spyOn(appboy, 'changeUser').mockImplementation(() => true)
 
     const [trackEvent] = await brazeDestination({
       api_key: 'b_123',
@@ -140,5 +145,6 @@ describe('trackEvent', () => {
     )
 
     expect(changeUser).not.toHaveBeenCalledWith('some user')
+    expect(customEvent).toHaveBeenCalled()
   })
 })
