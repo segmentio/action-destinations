@@ -4,7 +4,7 @@ import type { Payload } from './generated-types'
 import appboy from '@braze/web-sdk'
 import dayjs from '../../../lib/dayjs'
 
-const knownTraits = [
+const reservedTraits = [
   'avatar',
   'address',
   'birthday',
@@ -201,7 +201,7 @@ const action: BrowserActionDefinition<Settings, typeof appboy, Payload> = {
 
     if (payload.custom_attributes !== undefined) {
       Object.entries(payload.custom_attributes).forEach(([key, value]) => {
-        if (!knownTraits.includes(key)) {
+        if (!reservedTraits.includes(key)) {
           user.setCustomUserAttribute(key, value as string | number | boolean | Date | string[] | null)
         }
       })
