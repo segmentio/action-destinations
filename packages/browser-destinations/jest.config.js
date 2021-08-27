@@ -17,7 +17,6 @@ module.exports = async () => {
     require('@segment/analytics-next')
   } catch (err) {
     if (err.code === 'MODULE_NOT_FOUND') {
-      console.error(err)
       config.testPathIgnorePatterns = [
         '/node_modules/',
         '<rootDir>/',
