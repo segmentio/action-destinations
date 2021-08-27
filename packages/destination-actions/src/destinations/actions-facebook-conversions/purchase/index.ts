@@ -16,7 +16,7 @@ const action: ActionDefinition<Settings, Payload> = {
       label: 'Value',
       description: 'value',
       required: true,
-      type: 'string'
+      type: 'number'
     }
   },
   perform: (request, { payload, settings }) => {

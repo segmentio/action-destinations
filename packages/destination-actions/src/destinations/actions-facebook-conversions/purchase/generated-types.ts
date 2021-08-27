@@ -8,5 +8,5 @@ export interface Payload {
   /**
    * value
    */
-  value: string
+  value: number
 }
