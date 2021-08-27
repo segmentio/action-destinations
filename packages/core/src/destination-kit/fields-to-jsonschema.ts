@@ -16,7 +16,13 @@ function toJsonSchemaType(type: FieldTypeName): JSONSchema4TypeName | JSONSchema
 
 export type MinimalInputField = Optional<InputField, 'description'> | Optional<GlobalSetting, 'description'>
 
-export function fieldsToJsonSchema(fields: Record<string, MinimalInputField> = {}): JSONSchema4 {
+export type MinimalFields = Record<string, MinimalInputField>
+
+interface SchemaOptions {
+  tsType?: boolean
+}
+
+export function fieldsToJsonSchema(fields: MinimalFields = {}, options?: SchemaOptions): JSONSchema4 {
   const required: string[] = []
   const properties: Record<string, JSONSchema4> = {}
 
@@ -33,17 +39,15 @@ export function fieldsToJsonSchema(fields: Record<string, MinimalInputField> = {
 
     if (field.type === 'datetime') {
       schema.format = 'date-like'
-      // Override generated types
-      schema.tsType = 'string | number'
+
+      if (options?.tsType) {
+        // Override generated types
+        schema.tsType = 'string | number'
+      }
     } else if (field.type === 'password') {
       schema.format = 'password'
     } else if (field.type === 'text') {
       schema.format = 'text'
-    }
-
-    if ('dynamic' in field && field.dynamic) {
-      schema.autocomplete = true
-      schema.dynamic = true
     }
 
     if ('allowNull' in field && field.allowNull) {
@@ -60,8 +64,6 @@ export function fieldsToJsonSchema(fields: Record<string, MinimalInputField> = {
       schema.type = 'array'
     }
 
-    // Note: this is used for the json schema validation and type-generation,
-    // but is not stored in the db. It only lives in the code.
     if (schemaType === 'object' && field.properties) {
       if (isMulti) {
         schema.items = fieldsToJsonSchema(field.properties)
