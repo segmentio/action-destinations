@@ -1,8 +1,8 @@
 module.exports = async () => {
   const config = {
-    rootDir: './src/',
+    rootDir: './',
     moduleNameMapper: {
-      '@segment/actions-core': '<rootDir>/../../core/src/index.ts',
+      '@segment/actions-core': '<rootDir>/../core/src/index.ts'
     },
     transform: {
       '^.+\\.[t|j]sx?$': 'babel-jest'
@@ -19,7 +19,7 @@ module.exports = async () => {
     if (err.code === 'MODULE_NOT_FOUND') {
       config.testPathIgnorePatterns = [
         '/node_modules/',
-        '<rootDir>/',
+        '<rootDir>/src',
       ]
       console.warn('optional dependency @segment/analytics-next not found, ignoring all tests')
     }
