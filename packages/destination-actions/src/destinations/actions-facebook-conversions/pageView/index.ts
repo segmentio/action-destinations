@@ -5,7 +5,10 @@ import type { Payload } from './generated-types'
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Page View',
   description: '',
-  fields: {},
+  fields: {
+    //none required?
+    //default pixel tracking page visits
+  },
   perform: (request, data) => {
     // Make your partner api request here!
     // return request('https://example.com', {
