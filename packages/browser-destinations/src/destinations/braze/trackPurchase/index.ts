@@ -52,7 +52,7 @@ const action: BrowserActionDefinition<Settings, typeof appboy, Payload> = {
       type: 'object',
       multiple: true,
       default: {
-        '@path': '$.products'
+        '@path': '$.properties.products'
       }
     }
   },
