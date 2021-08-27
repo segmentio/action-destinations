@@ -4,31 +4,6 @@ import type { Payload } from './generated-types'
 import appboy from '@braze/web-sdk'
 import dayjs from '../../../lib/dayjs'
 
-const reservedTraits = [
-  'avatar',
-  'address',
-  'birthday',
-  'email',
-  'id',
-  'firstName',
-  'gender',
-  'lastName',
-  'phone',
-  'facebook',
-  'twitter',
-  'first_name',
-  'last_name',
-  'dob',
-  'external_id',
-  'country',
-  'home_city',
-  'bio',
-  'gender',
-  'phone',
-  'email_subscribe',
-  'push_subscribe'
-]
-
 const action: BrowserActionDefinition<Settings, typeof appboy, Payload> = {
   title: 'Update User Profile',
   description: 'Updates a users profile attributes in Braze',
@@ -201,7 +176,8 @@ const action: BrowserActionDefinition<Settings, typeof appboy, Payload> = {
 
     if (payload.custom_attributes !== undefined) {
       Object.entries(payload.custom_attributes).forEach(([key, value]) => {
-        if (!reservedTraits.includes(key)) {
+        const reservedFields = Object.keys(action.fields ?? {})
+        if (!reservedFields.includes(key)) {
           user.setCustomUserAttribute(key, value as string | number | boolean | Date | string[] | null)
         }
       })
