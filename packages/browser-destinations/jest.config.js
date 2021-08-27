@@ -1,8 +1,8 @@
 module.exports = async () => {
   const config = {
-    rootDir: './',
+    rootDir: './src/',
     moduleNameMapper: {
-      '@segment/actions-core': '<rootDir>/../core/src/index.ts'
+      '@segment/actions-core': '<rootDir>/../../core/src/index.ts'
     },
     transform: {
       '^.+\\.[t|j]sx?$': 'babel-jest'
