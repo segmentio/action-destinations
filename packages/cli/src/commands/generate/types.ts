@@ -137,7 +137,7 @@ async function generateTypes(fields: Record<string, InputField> = {}, name: stri
 }
 
 function prepareSchema(fields: Record<string, InputField>): JSONSchema4 {
-  let schema = fieldsToJsonSchema(fields)
+  let schema = fieldsToJsonSchema(fields, { tsType: true })
   // Remove titles so it produces cleaner output
   schema = removeTitles(schema)
   return schema
