@@ -18,7 +18,7 @@ module.exports = async () => {
   } catch (_) {
     config.testPathIgnorePatterns = [
       '/node_modules/',
-      '<rootDir>/src/'
+      '<rootDir>/'
     ]
     console.warn('optional dependency @segment/analytics-next not found, ignoring all tests')
   }
