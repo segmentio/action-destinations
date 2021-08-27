@@ -14,13 +14,15 @@ module.exports = async () => {
   }
 
   try {
-    await import('@segment/analytics-next')
-  } catch (_) {
-    config.testPathIgnorePatterns = [
-      '/node_modules/',
-      '<rootDir>/src/'
-    ]
-    console.warn('optional dependency @segment/analytics-next not found, ignoring all tests')
+    require('@segment/analytics-next')
+  } catch (err) {
+    if (err.code === 'MODULE_NOT_FOUND') {
+      config.testPathIgnorePatterns = [
+        '/node_modules/',
+        '<rootDir>/src',
+      ]
+      console.warn('optional dependency @segment/analytics-next not found, ignoring all tests')
+    }
   }
 
   return config

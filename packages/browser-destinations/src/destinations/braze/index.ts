@@ -58,6 +58,7 @@ export const destination: BrowserDestinationDefinition<Settings, typeof appboy> 
           label: '3.3'
         }
       ],
+      default: '3.3',
       required: true
     },
     api_key: {
@@ -83,6 +84,7 @@ export const destination: BrowserDestinationDefinition<Settings, typeof appboy> 
         { label: 'US-08	(https://dashboard-08.braze.com)', value: 'sdk.iad-08.braze.com' },
         { label: 'EU-01	(https://dashboard-01.braze.eu)', value: 'sdk.fra-01.braze.eu' }
       ],
+      default: 'sdk.iad-01.braze.com',
       required: true
     },
     allowCrawlerActivity: {
