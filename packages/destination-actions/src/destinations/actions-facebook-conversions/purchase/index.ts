@@ -4,7 +4,7 @@ import type { Payload } from './generated-types'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Purchase',
-  description: '',
+  description: 'Send a purchase event to FB',
   fields: {
     currency: {
       label: 'Currency',
