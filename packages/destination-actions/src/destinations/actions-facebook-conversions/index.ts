@@ -2,6 +2,11 @@ import type { DestinationDefinition } from '@segment/actions-core'
 import type { Settings } from './generated-types'
 
 import purchase from './purchase'
+import search from './search'
+import pageView from './pageView'
+import viewContent from './viewContent'
+import addToCart from './addToCart'
+import initiateCheckout from './initiateCheckout'
 const destination: DestinationDefinition<Settings> = {
   name: 'Facebook Conversions',
   slug: 'actions-facebook-conversions',
@@ -26,7 +31,12 @@ const destination: DestinationDefinition<Settings> = {
   },
 
   actions: {
-    purchase
+    purchase,
+    search,
+    pageView,
+    viewContent,
+    addToCart,
+    initiateCheckout
   }
 }
 
