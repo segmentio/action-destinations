@@ -1,12 +1,10 @@
 import { createTestEvent, createTestIntegration } from '@segment/actions-core'
-import { Settings } from '../../generated-types'
+import { Settings } from '../generated-types'
 import nock from 'nock'
-import Destination from '../../index'
-import { generateTestData } from '../../../../../../cli/src/lib/test-data'
-import action from '../index'
-import destination from '../../index'
+import { generateTestData } from '../../../../../cli/src/lib/test-data'
+import destination from '../index'
 
-const testDestination = createTestIntegration(Destination)
+const testDestination = createTestIntegration(destination)
 
 beforeAll(() => {
   // Disable external network requests
@@ -19,32 +17,31 @@ beforeAll(() => {
   }
 })
 
-describe('{{destination}}.{{action}}', () => {
-  it('should test snapshot', async () => {
-    const actionSlug = '{{action}}'
+describe('Testing snapshot for {{destination}} action:', () => {
+  for (const actionSlug in destination.actions) {
+    it(actionSlug, async () => {
+      const action = destination.actions[actionSlug]
+      const [eventData, settingsData] = generateTestData(destination, action)
 
-    const [eventData, settingsData] = generateTestData(destination, action)
+      nock(/.*/).persist().get(/.*/).reply(200)
+      nock(/.*/).persist().post(/.*/).reply(200)
+      nock(/.*/).persist().put(/.*/).reply(200)
 
-    nock(/.*/).persist().get(/.*/).reply(200)
-    nock(/.*/).persist().post(/.*/).reply(200)
-    nock(/.*/).persist().put(/.*/).reply(200)
+      const event = createTestEvent({
+        properties: eventData
+      })
 
-    const event = createTestEvent({
-      properties: eventData
+      const responses = await testDestination.testAction(actionSlug, {
+        event,
+        settings: settingsData as Settings,
+        mapping: event.properties,
+        useDefaultMappings: false
+      })
+
+      const requestBody = responses[0].request.body
+      if (requestBody) {
+        expect(requestBody.toString()).toMatchSnapshot()
+      }
     })
-
-    const responses = await testDestination.testAction(actionSlug, {
-      event,
-      settings: settingsData as Settings,
-      mapping: event.properties,
-      useDefaultMappings: false
-    })
-
-    expect(responses[0].status).toBe(200)
-
-    const requestBody = responses[0].request.body
-    if (requestBody) {
-      expect(requestBody.toString()).toMatchInlineSnapshot()
-    }
-  })
+  }
 })

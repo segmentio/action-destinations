@@ -3,7 +3,7 @@ import chalk from 'chalk'
 import path from 'path'
 import ora from 'ora'
 import { renderTemplates } from '../../lib/templates'
-import { exec } from 'child_process';
+import { exec } from 'child_process'
 
 export default class GenerateSnapshots extends Command {
   private spinner: ora.Ora = ora()
@@ -18,15 +18,12 @@ export default class GenerateSnapshots extends Command {
     help: flags.help({ char: 'h' })
   }
 
-  static args = [
-    { name: 'destination', description: 'destination name', required: true },
-    { name: 'action', description: 'the action name', required: true }
-  ]
+  static args = [{ name: 'destination', description: 'destination name', required: true }]
 
   async run() {
     const { args } = this.parse(GenerateSnapshots)
     const integrationsGlob = './packages/destination-actions/src/destinations'
-    const targetPath = `${integrationsGlob}/${args.destination}/${args.action}`
+    const targetPath = `${integrationsGlob}/${args.destination}`
     const templatePath = path.join(__dirname, '../../../templates/actions/snapshot')
 
     try {
@@ -35,7 +32,6 @@ export default class GenerateSnapshots extends Command {
         templatePath,
         targetPath,
         {
-          action: args.action,
           destination: args.destination,
           integrationsGlob
         },
