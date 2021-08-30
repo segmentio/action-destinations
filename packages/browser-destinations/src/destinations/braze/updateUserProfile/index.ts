@@ -174,9 +174,9 @@ const action: BrowserActionDefinition<Settings, typeof appboy, Payload> = {
       }
     }
 
+    const reservedFields = [...Object.keys(action.fields ?? {}), 'firstName', 'lastName']
     if (payload.custom_attributes !== undefined) {
       Object.entries(payload.custom_attributes).forEach(([key, value]) => {
-        const reservedFields = Object.keys(action.fields ?? {})
         if (!reservedFields.includes(key)) {
           user.setCustomUserAttribute(key, value as string | number | boolean | Date | string[] | null)
         }
