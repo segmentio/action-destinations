@@ -6,6 +6,7 @@ import type { Payload } from './generated-types'
 
 const action: BrowserActionDefinition<Settings, typeof appboy, Payload> = {
   title: 'Track Purchase',
+  defaultSubscription: 'type = "track" and event = "Order Completed"',
   description: 'Reports that the current user made an in-app purchase.',
   platform: 'web',
   fields: {
