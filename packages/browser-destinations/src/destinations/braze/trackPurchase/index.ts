@@ -10,11 +10,6 @@ const action: BrowserActionDefinition<Settings, typeof appboy, Payload> = {
   description: 'Reports that the current user made an in-app purchase.',
   platform: 'web',
   fields: {
-    userId: {
-      label: 'User ID',
-      description: "The current user's ID",
-      type: 'string'
-    },
     purchaseProperties: {
       label: 'Purchase Properties',
       type: 'object',
@@ -59,10 +54,6 @@ const action: BrowserActionDefinition<Settings, typeof appboy, Payload> = {
   },
   perform: (client, data) => {
     const payload = data.payload
-
-    if (payload.userId) {
-      client.changeUser(payload.userId)
-    }
 
     const reservedKeys = Object.keys(action.fields.products.properties ?? {})
     const purchaseProperties = omit(payload.purchaseProperties, reservedKeys)
