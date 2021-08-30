@@ -77,8 +77,8 @@ registerStringDirective('@template', (template: string, payload) => {
 })
 
 // Literal should be used in place of 'empty' template strings as they will not resolve correctly
-registerDirective('@literal', (value) => {
-  return value
+registerDirective('@literal', (value, payload) => {
+  return resolve(value, payload)
 })
 
 /**

@@ -68,6 +68,35 @@ describe('no-op', () => {
   })
 })
 
+describe('@literal', () => {
+  test('simple', () => {
+    const output = transform({ simple: { '@literal': false } })
+    expect(output).toStrictEqual({ simple: false })
+  })
+
+  test('nested directives', () => {
+    const output = transform(
+      {
+        nested: {
+          '@literal': {
+            a: {
+              '@path': '$.a'
+            },
+            b: {
+              '@path': '$.b'
+            }
+          }
+        }
+      },
+      {
+        a: 'some value'
+      }
+    )
+
+    expect(output).toStrictEqual({ nested: { a: 'some value' } })
+  })
+})
+
 describe('@if', () => {
   const payload = { a: 1, b: true, c: false, d: null }
 
