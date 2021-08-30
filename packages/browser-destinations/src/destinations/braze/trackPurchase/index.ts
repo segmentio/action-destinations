@@ -27,7 +27,7 @@ const action: BrowserActionDefinition<Settings, typeof appboy, Payload> = {
       label: 'Products',
       description: 'List of products purchased by the user',
       properties: {
-        productId: {
+        product_id: {
           label: 'Product ID',
           type: 'string',
           required: true,
@@ -39,7 +39,7 @@ const action: BrowserActionDefinition<Settings, typeof appboy, Payload> = {
           required: true,
           description: `The price paid. Base units depend on the currency. As an example, USD should be reported as Dollars.Cents, whereas JPY should be reported as a whole number of Yen. All provided values will be rounded to two digits with toFixed(2)`
         },
-        currencyCode: {
+        currency: {
           label: 'Currency Code',
           type: 'string',
           description: `Default USD. Currencies should be represented as an ISO 4217 currency code`
@@ -67,19 +67,21 @@ const action: BrowserActionDefinition<Settings, typeof appboy, Payload> = {
     const reservedKeys = Object.keys(action.fields.products.properties ?? {})
     const purchaseProperties = omit(payload.purchaseProperties, reservedKeys)
 
-    payload.products?.forEach((product) => {
-      const result = client.logPurchase(
-        product.productId,
-        product.price,
-        product.currencyCode ?? 'USD',
-        product.quantity ?? 1,
-        purchaseProperties
-      )
+    if (payload.purchaseProperties?.products && Array.isArray(payload.purchaseProperties?.products)) {
+      payload.purchaseProperties?.products?.forEach((product) => {
+        const result = client.logPurchase(
+          product.product_id,
+          product.price,
+          product.currency ?? 'USD',
+          product.quantity ?? 1,
+          purchaseProperties
+        )
 
-      if (!result) {
-        console.warn('Braze failed to attach purchase to the session for product ', product.productId)
-      }
-    })
+        if (!result) {
+          console.warn('Braze failed to attach purchase to the session for product ', product.productId)
+        }
+      })
+    }
   }
 }
 
