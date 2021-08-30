@@ -67,8 +67,8 @@ const action: BrowserActionDefinition<Settings, typeof appboy, Payload> = {
     const reservedKeys = Object.keys(action.fields.products.properties ?? {})
     const purchaseProperties = omit(payload.purchaseProperties, reservedKeys)
 
-    if (payload.purchaseProperties?.products && Array.isArray(payload.purchaseProperties?.products)) {
-      payload.purchaseProperties?.products?.forEach((product) => {
+    if (purchaseProperties?.products && Array.isArray(purchaseProperties?.products)) {
+      purchaseProperties?.products?.forEach((product) => {
         const result = client.logPurchase(
           product.product_id,
           product.price,
