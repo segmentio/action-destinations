@@ -1,6 +1,6 @@
 import type { DestinationDefinition } from '@segment/actions-core'
 import type { Settings } from './generated-types'
-import sendSMS from './sendSms'
+import sendSms from './sendSms'
 
 const destination: DestinationDefinition<Settings> = {
   name: 'Twilio',
@@ -38,7 +38,7 @@ const destination: DestinationDefinition<Settings> = {
     }
   },
   actions: {
-    sendSMS
+    sendSms
   }
 }
 
