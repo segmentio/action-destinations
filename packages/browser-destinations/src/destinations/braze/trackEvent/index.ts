@@ -29,9 +29,6 @@ const action: BrowserActionDefinition<Settings, typeof appboy, Payload> = {
     }
   },
   perform: (client, event) => {
-    if (event.payload.eventProperties?.userId) {
-      client.changeUser(event.payload.eventProperties.userId as string)
-    }
     client.logCustomEvent(event.payload.eventName, event.payload.eventProperties)
   }
 }
