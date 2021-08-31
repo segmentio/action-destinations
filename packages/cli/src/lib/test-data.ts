@@ -1,4 +1,4 @@
-import { ActionDefinition, DestinationDefinition } from "@segment/actions-core"
+import { ActionDefinition, DestinationDefinition } from '@segment/actions-core'
 
 const testData: { [key: string]: any } = {
   boolean: true,
@@ -6,63 +6,65 @@ const testData: { [key: string]: any } = {
   integer: 1,
   number: 5,
   string: 'test1234',
-  text: 'test text'
+  text: 'test text',
+  object: {
+    testObject: 'data1234'
+  }
 }
 
-export function generateTestData(destination: DestinationDefinition<any>, action: ActionDefinition<any>) {
+function setCustomData(data: any, name: string, format: string | undefined, isMultiple?: boolean) {
+  if (format === 'uri') data[name] = 'https://www.example.com'
+  if (name === 'email') data[name] = 'test@twilio.com'
+  if (name === 'email' && isMultiple) data[name] = ['test@twilio.com']
+  if (name === 'currency') data[name] = 'USD'
+  return data
+}
+
+export function generateTestData(destination: DestinationDefinition<any>, action: ActionDefinition<any>, flag: string) {
+  let eventData: any = {}
   const settingsData: any = {}
+
   const authentication = destination.authentication
   if (authentication) {
     for (const settingKey in authentication.fields) {
       const type = authentication.fields[settingKey].type
-      switch (settingKey) {
-        case 'endpoint' || 'url':
-          settingsData[settingKey] = 'https://www.example.com'
-          break
-        default:
-          settingsData[settingKey] = testData[type]
-          break
+      settingsData[settingKey] = testData[type]
+      if (settingKey === 'endpoint') {
+        settingsData[settingKey] = 'https://www.example.com'
       }
     }
   }
 
-  const eventData: any = {}
-  for (const name in action.fields) {
+  let fields = Object.keys(action.fields)
+
+  if (flag === 'required') {
+    fields = fields.filter((name) => action.fields[name].required || name.includes('id'))
+  }
+
+  for (const name of fields) {
     const field = action.fields[name]
-    const { properties, type } = field
+    const { properties, type, format, multiple } = field
+
     if (properties) {
-      const subData: any = {}
+      let subData: any = {}
       const propertyFields = Object.keys(properties)
-      for (const propertyField of propertyFields) {
-        const property = properties[propertyField]
-        if (property.required) subData[propertyField] = testData[property.type]
-        if (propertyField.includes('id')) subData[propertyField] = 'id123'
+      if (flag === 'required') propertyFields.filter((name) => properties[name].required)
+
+      for (const propField of propertyFields) {
+        const property = properties[propField]
+        const { format, multiple, type } = property
+
+        subData[propField] = multiple ? [testData[type]] : testData[type]
+        subData = setCustomData(subData, propField, format, multiple)
       }
 
-      if (field.multiple) {
-        eventData[name] = [subData]
-      } else {
-        eventData[name] = subData
-      }
-    } else {
-      if (name === 'currency') eventData[name] = 'USD'
-      if (field.required) {
-        switch (name) {
-          case 'url':
-            eventData[name] = 'https://www.example.com'
-            break
-          case 'email':
-            eventData[name] = 'test@twilio.com'
-            break
-          case 'currency':
-            eventData[name] = 'USD'
-            break
-          default:
-            eventData[name] = testData[type]
-            break
-        }
-      }
+      eventData[name] = multiple ? [subData] : subData
+      eventData = setCustomData(eventData, name, format, multiple)
+      continue
     }
+
+    eventData[name] = multiple ? [testData[type]] : testData[type]
+    eventData = setCustomData(eventData, name, format, multiple)
   }
 
   return [eventData, settingsData]
