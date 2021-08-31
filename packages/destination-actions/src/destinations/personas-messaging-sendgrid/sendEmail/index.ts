@@ -11,10 +11,9 @@ const action: ActionDefinition<Settings, Payload> = {
       label: 'User ID',
       description: 'User ID in Segment',
       type: 'string',
-      allowNull: true,
       default: { '@path': '$.userId' }
     },
-    from: {
+    fromEmail: {
       label: 'From Email',
       description: 'From Email',
       type: 'string',
@@ -25,20 +24,6 @@ const action: ActionDefinition<Settings, Payload> = {
       description: 'From Name displayed to end user email',
       type: 'string',
       required: true
-    },
-    email: {
-      label: 'To Email',
-      description: 'The Email Address to send an email to',
-      type: 'string',
-      required: true,
-      default: { '@path': '$.properties.email' }
-    },
-    firstName: {
-      label: 'To Name',
-      description: 'The Name of the user to send an email',
-      type: 'string',
-      required: true,
-      default: { '@path': '$.properties.firstName' }
     },
     body: {
       label: 'Body',
@@ -56,21 +41,67 @@ const action: ActionDefinition<Settings, Payload> = {
       label: 'Space ID',
       description: 'Your Profile API Space ID',
       type: 'string',
+      required: true,
       default: { '@path': '$.context.personas.space_id' }
     },
     sourceId: {
       label: 'Source ID',
       description: 'The ID of your Source',
-      type: 'string'
+      type: 'string',
+      required: true
     },
     profile: {
       label: 'Profile Properties',
       description: 'The Profile/Traits Properties',
       type: 'object',
       required: true
+    },
+    bodyType: {
+      label: 'Body Type',
+      description: 'The type of body which is used generally html | design',
+      type: 'string',
+      required: true
+    },
+    bodyHtml: {
+      label: 'Body Html',
+      description: 'The HTML content of the body',
+      type: 'string',
+      required: true
+    },
+    replyToEmail: {
+      label: 'Reply To Email',
+      description: 'The Email used by user to Reply To',
+      type: 'string',
+      required: true
+    },
+    replyToName: {
+      label: 'Reply To Name',
+      description: 'The Name used by user to Reply To',
+      type: 'string',
+      required: true
+    },
+    bcc: {
+      label: 'BCC',
+      description: 'BCC list of emails',
+      type: 'string',
+      required: true
     }
   },
   perform: async (request, { payload }) => {
+    const profile = payload.profile
+    if (!profile.email) {
+      return
+    }
+    let name
+    if (profile.first_name && profile.last_name) {
+      name = `${profile.first_name} ${profile.last_name}`
+    } else if (profile.firstName && profile.lastName) {
+      name = `${profile.firstName} ${profile.lastName}`
+    } else if (profile.name) {
+      name = profile.name
+    } else {
+      name = profile.first_name || profile.last_name || profile.firstName || profile.lastName || 'User'
+    }
     return request('https://api.sendgrid.com/v3/mail/send', {
       method: 'post',
       json: {
@@ -78,10 +109,11 @@ const action: ActionDefinition<Settings, Payload> = {
           {
             to: [
               {
-                email: payload.email,
-                name: payload.firstName
+                email: profile.email,
+                name: name
               }
             ],
+            bcc: JSON.parse(payload.bcc || '[]'),
             custom_args: {
               source_id: payload.sourceId ? payload.sourceId : '',
               space_id: payload.spaceId ? payload.spaceId : '',
@@ -91,14 +123,18 @@ const action: ActionDefinition<Settings, Payload> = {
         ],
 
         from: {
-          email: payload.from,
+          email: payload.fromEmail,
           name: payload.fromName
         },
-        subject: Mustache.render(payload.subject, payload.profile),
+        reply_to: {
+          email: payload.replyToEmail,
+          name: payload.replyToName
+        },
+        subject: Mustache.render(payload.subject, profile),
         content: [
           {
             type: 'text/html',
-            value: Mustache.render(payload.body, payload.profile)
+            value: Mustache.render(payload.body, profile)
           }
         ]
       }
