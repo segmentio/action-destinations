@@ -4,7 +4,7 @@ export interface Payload {
   /**
    * User ID in Segment
    */
-  userId?: string
+  userId: string
   /**
    * From Email
    */
@@ -32,7 +32,7 @@ export interface Payload {
   /**
    * The Profile/Traits Properties
    */
-  profile: {
+  profile?: {
     [k: string]: unknown
   }
   /**
