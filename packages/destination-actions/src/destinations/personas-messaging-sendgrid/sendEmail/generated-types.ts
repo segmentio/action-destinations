@@ -4,23 +4,15 @@ export interface Payload {
   /**
    * User ID in Segment
    */
-  userId?: string | null
+  userId?: string
   /**
    * From Email
    */
-  from: string
+  fromEmail: string
   /**
    * From Name displayed to end user email
    */
   fromName: string
-  /**
-   * The Email Address to send an email to
-   */
-  email: string
-  /**
-   * The Name of the user to send an email
-   */
-  firstName: string
   /**
    * The message body
    */
@@ -32,15 +24,35 @@ export interface Payload {
   /**
    * Your Profile API Space ID
    */
-  spaceId?: string
+  spaceId: string
   /**
    * The ID of your Source
    */
-  sourceId?: string
+  sourceId: string
   /**
    * The Profile/Traits Properties
    */
   profile: {
     [k: string]: unknown
   }
+  /**
+   * The type of body which is used generally html | design
+   */
+  bodyType: string
+  /**
+   * The HTML content of the body
+   */
+  bodyHtml: string
+  /**
+   * The Email used by user to Reply To
+   */
+  replyToEmail: string
+  /**
+   * The Name used by user to Reply To
+   */
+  replyToName: string
+  /**
+   * BCC list of emails
+   */
+  bcc: string
 }
