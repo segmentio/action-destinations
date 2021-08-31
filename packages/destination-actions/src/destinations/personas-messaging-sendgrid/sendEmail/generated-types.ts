@@ -54,5 +54,5 @@ export interface Payload {
   /**
    * BCC list of emails
    */
-  bcc: string
+  bcc?: string
 }

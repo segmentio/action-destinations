@@ -83,8 +83,7 @@ const action: ActionDefinition<Settings, Payload> = {
     bcc: {
       label: 'BCC',
       description: 'BCC list of emails',
-      type: 'string',
-      required: true
+      type: 'string'
     }
   },
   perform: async (request, { payload }) => {

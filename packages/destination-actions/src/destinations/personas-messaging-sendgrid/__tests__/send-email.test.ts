@@ -18,19 +18,24 @@ for (const environment of ['stage', 'production']) {
             to: [
               {
                 email: 'test@example.com',
-                name: 'First Name'
+                name: 'First Name Browning'
               }
             ],
+            bcc: [],
             custom_args: {
-              user_id: 'jane',
-              source_id: '',
-              space_id: ''
+              source_id: 'sourceId',
+              space_id: 'spaceId',
+              user_id: 'jane'
             }
           }
         ],
         from: {
           email: 'from@example.com',
           name: 'From Name'
+        },
+        reply_to: {
+          email: 'replyto@example.com',
+          name: 'Test user'
         },
         subject: 'Hello Browning First Name.',
         content: [
@@ -54,13 +59,18 @@ for (const environment of ['stage', 'production']) {
           userId: { '@path': '$.userId' },
           body: 'Hi {{firstName}}, Welcome to segment',
           subject: 'Hello {{lastName}} {{firstName}}.',
-          email: 'test@example.com',
-          firstName: 'First Name',
-          from: 'from@example.com',
+          fromEmail: 'from@example.com',
           fromName: 'From Name',
+          spaceId: 'spaceId',
+          sourceId: 'sourceId',
+          bodyHtml: '<p>Some content</p>',
+          replyToEmail: 'replyto@example.com',
+          replyToName: 'Test user',
+          bodyType: 'html',
           profile: {
             firstName: 'First Name',
-            lastName: 'Browning'
+            lastName: 'Browning',
+            email: 'test@example.com'
           }
         }
       })
