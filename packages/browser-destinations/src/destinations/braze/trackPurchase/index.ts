@@ -61,7 +61,7 @@ const action: BrowserActionDefinition<Settings, typeof appboy, Payload> = {
     if (purchaseProperties?.products && Array.isArray(purchaseProperties?.products)) {
       purchaseProperties?.products?.forEach((product) => {
         const result = client.logPurchase(
-          product.product_id,
+          (product.product_id as string | number).toString(),
           product.price,
           product.currency ?? 'USD',
           product.quantity ?? 1,
