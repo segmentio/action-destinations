@@ -1,10 +1,10 @@
 import * as FullStory from '@fullstory/browser'
 import type { BrowserDestinationDefinition } from '../../lib/browser-destinations'
 import { browserDestination } from '../../runtime/shim'
-import event from './event'
 import type { Settings } from './generated-types'
 import { initScript } from './init-script'
-import setUserVars from './setUserVars'
+import trackEvent from './trackEvent'
+import identifyUser from './identifyUser'
 
 export const destination: BrowserDestinationDefinition<Settings, typeof FullStory> = {
   name: 'Fullstory',
@@ -18,8 +18,8 @@ export const destination: BrowserDestinationDefinition<Settings, typeof FullStor
     }
   },
   actions: {
-    event,
-    setUserVars
+    trackEvent,
+    identifyUser
   },
   initialize: async ({ settings }, dependencies) => {
     initScript({ debug: false, org: settings.orgId })
