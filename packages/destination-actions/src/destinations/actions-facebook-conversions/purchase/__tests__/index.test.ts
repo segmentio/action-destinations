@@ -6,7 +6,7 @@ import { token } from '/Users/nicholas.aguilar/Desktop/token'
 const testDestination = createTestIntegration(Destination)
 
 const settings = {
-  pixelId: '545342626773734',
+  pixelId: '123321',
   token: token.token
 }
 
@@ -84,9 +84,10 @@ describe('purchase', () => {
           value: {
             '@path': '$.properties.value'
           }
-          //No user data mapping
+          // No user data mapping included. This should cause action to fail.
         }
       })
+      fail('Did not expect purchase action to succeed')
     } catch (e) {
       expect(e.message).toBe('Must include at least one user data property')
     }

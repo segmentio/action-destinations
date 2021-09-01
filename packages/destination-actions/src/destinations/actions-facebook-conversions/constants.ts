@@ -1,4 +1,4 @@
-export const CURRENCY_ISO_CODES = [
+export const CURRENCY_ISO_CODES = new Set([
   'AED',
   'AFN',
   'ALL',
@@ -178,4 +178,4 @@ export const CURRENCY_ISO_CODES = [
   'ZAR',
   'ZMW',
   'ZWC'
-]
+])

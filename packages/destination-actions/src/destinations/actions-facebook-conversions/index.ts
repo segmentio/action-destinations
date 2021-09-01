@@ -4,8 +4,8 @@ import purchase from './purchase'
 import { token } from '/Users/nicholas.aguilar/Desktop/token'
 
 const destination: DestinationDefinition<Settings> = {
-  name: 'Facebook Conversions',
-  slug: 'actions-facebook-conversions',
+  name: 'Actions Facebook Conversions',
+  slug: 'facebook-conversions-api',
   mode: 'cloud',
 
   authentication: {

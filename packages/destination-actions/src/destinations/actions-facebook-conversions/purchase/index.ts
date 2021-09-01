@@ -24,8 +24,12 @@ const action: ActionDefinition<Settings, Payload> = {
     user_data: user_data
   },
   perform: (request, { payload, settings }) => {
-    if (!CURRENCY_ISO_CODES.includes(payload.currency)) {
-      throw new Error(`${payload.currency} is not a valid currency code.`)
+    if (!CURRENCY_ISO_CODES.has(payload.currency)) {
+      throw new IntegrationError(
+        `${payload.currency} is not a valid currency code.`,
+        'Misconfigured required field',
+        400
+      )
     }
 
     if (!payload.user_data) {
