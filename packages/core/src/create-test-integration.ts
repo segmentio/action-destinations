@@ -5,6 +5,8 @@ import type { DestinationDefinition } from './destination-kit'
 import type { JSONObject } from './json-object'
 import type { SegmentEvent } from './segment-event'
 import { AuthTokens } from './destination-kit/parse-settings'
+import generateTestData from '@segment/action-destinations/src/lib/test-data'
+import nock from 'nock'
 
 interface InputData<Settings> {
   /**
@@ -61,6 +63,28 @@ class TestDestination<T> extends Destination<T> {
 
     const responses = this.responses
     this.responses = []
+
+    return responses
+  }
+
+  async snapshotAction(destination: DestinationDefinition<T>, actionSlug: string, isRequiredOnly: boolean) {
+    const action = destination.actions[actionSlug]
+    const [eventData, settingsData] = generateTestData(destination, action, isRequiredOnly)
+
+    nock(/.*/).persist().get(/.*/).reply(200)
+    nock(/.*/).persist().post(/.*/).reply(200)
+    nock(/.*/).persist().put(/.*/).reply(200)
+
+    const event = createTestEvent({
+      properties: eventData
+    })
+
+    const responses = await this.testAction(actionSlug, {
+      event: event,
+      mapping: event.properties || {},
+      settings: settingsData ?? ({} as T),
+      auth: undefined
+    })
 
     return responses
   }

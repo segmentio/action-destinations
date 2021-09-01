@@ -23,7 +23,7 @@ function setCustomData(data: any, name: string, format: string | undefined, isMu
 export default function generateTestData(
   destination: DestinationDefinition<any>,
   action: ActionDefinition<any>,
-  flag: string
+  isRequiredOnly: boolean
 ) {
   let eventData: any = {}
   const settingsData: any = {}
@@ -40,7 +40,7 @@ export default function generateTestData(
   }
 
   for (const [name, field] of Object.entries(action.fields)) {
-    if (flag === 'required' && !(field.required || name.includes('id'))) {
+    if (isRequiredOnly && !(field.required || name.includes('id'))) {
       continue
     }
 
@@ -49,7 +49,7 @@ export default function generateTestData(
     if (properties) {
       let subData: any = {}
       const propertyFields = Object.keys(properties)
-      if (flag === 'required') propertyFields.filter((name) => properties[name].required)
+      if (isRequiredOnly) propertyFields.filter((name) => properties[name].required)
 
       for (const propField of propertyFields) {
         const property = properties[propField]
