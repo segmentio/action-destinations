@@ -97,7 +97,8 @@ for (const environment of ['stage', 'production']) {
           replyToName: 'Test user',
           bodyType: 'html',
           profile: {},
-          previewText: ''
+          previewText: '',
+          bcc: '[]'
         }
       })
       expect(responses.length).toEqual(3)

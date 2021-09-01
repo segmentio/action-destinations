@@ -131,7 +131,8 @@ const action: ActionDefinition<Settings, Payload> = {
     bcc: {
       label: 'BCC',
       description: 'BCC list of emails',
-      type: 'string'
+      type: 'string',
+      required: true
     },
     previewText: {
       label: 'Preview Text',
