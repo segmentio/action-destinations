@@ -2,15 +2,15 @@ import { ActionDefinition, IntegrationError } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 import { CURRENCY_ISO_CODES } from '../constants'
-import { currency , value, content_name, content_type, contents, num_items, content_ids} from '../fb-capi-properties'
+import { currency, value, content_name, content_type, contents, num_items, content_ids } from '../fb-capi-properties'
 import { user_data } from '../fb-capi-user-data'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Purchase',
   description: 'Send a purchase event to FB',
   fields: {
-    value: {...value, required: true},
-    currency: {...currency, required: true},
+    value: { ...value, required: true },
+    currency: { ...currency, required: true },
     content_name: content_name,
     content_type: content_type,
     contents: contents,
@@ -30,11 +30,7 @@ const action: ActionDefinition<Settings, Payload> = {
     }
 
     if (!payload.user_data) {
-      throw new IntegrationError(
-        'Must include at least one user data property',
-        'Misconfigured required field',
-        400
-      )
+      throw new IntegrationError('Must include at least one user data property', 'Misconfigured required field', 400)
     }
 
     if (payload.action_source === 'website' && payload.user_data.client_user_agent === undefined) {
@@ -44,14 +40,14 @@ const action: ActionDefinition<Settings, Payload> = {
         400
       )
     }
-    
-    return request(`https://graph.facebook.com/v11.0/${settings.pixelId}/events?access_token=${settings.token}`, {
+
+    return request(`https://graph.facebook.com/v11.0/${settings.pixelId}/events`, {
       method: 'POST',
       json: {
         data: [
           {
             event_name: 'Purchase',
-            event_time: 1629827640,
+            event_time: payload,
             action_source: payload.action_source,
             user_data: {
               em: payload.user_data.email,
