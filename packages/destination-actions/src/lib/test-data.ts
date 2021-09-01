@@ -20,7 +20,11 @@ function setCustomData(data: any, name: string, format: string | undefined, isMu
   return data
 }
 
-export function generateTestData(destination: DestinationDefinition<any>, action: ActionDefinition<any>, flag: string) {
+export default function generateTestData(
+  destination: DestinationDefinition<any>,
+  action: ActionDefinition<any>,
+  flag: string
+) {
   let eventData: any = {}
   const settingsData: any = {}
 
