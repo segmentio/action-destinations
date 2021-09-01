@@ -11,7 +11,8 @@ for (const environment of ['stage', 'production']) {
     twilioAuthToken: 'b',
     profileApiEnvironment: environment,
     profileApiAccessToken: 'c',
-    profileApiSpaceId: 'd'
+    spaceId: 'd',
+    sourceId: 'e'
   }
 
   const endpoint = `https://profiles.segment.${environment === 'production' ? 'com' : 'build'}`
@@ -43,7 +44,7 @@ for (const environment of ['stage', 'production']) {
         mapping: {
           userId: { '@path': '$.userId' },
           fromNumber: '+1234567890',
-          body: 'Hello world, {{user_id}}!'
+          body: 'Hello world, {{profile.user_id}}!'
         }
       })
 
@@ -89,7 +90,7 @@ for (const environment of ['stage', 'production']) {
         mapping: {
           userId: { '@path': '$.userId' },
           fromNumber: '+1234567890',
-          body: 'Hello world, {{user_id}}!'
+          body: 'Hello world, {{profile.user_id}}!'
         }
       })
 
