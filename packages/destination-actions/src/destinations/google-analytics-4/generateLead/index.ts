@@ -33,7 +33,7 @@ const action: ActionDefinition<Settings, Payload> = {
     }
   },
   perform: (request, { payload }) => {
-    if (payload.currency && !CURRENCY_ISO_CODES.includes(payload.currency)) {
+    if (payload.currency && !CURRENCY_ISO_CODES.has(payload.currency)) {
       throw new IntegrationError(`${payload.currency} is not a valid currency code.`, 'Incorrect value format', 400)
     }
 
