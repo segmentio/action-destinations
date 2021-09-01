@@ -39,14 +39,11 @@ export default function generateTestData(
     }
   }
 
-  let fields = Object.keys(action.fields)
+  for (const [name, field] of Object.entries(action.fields)) {
+    if (flag === 'required' && !(field.required || name.includes('id'))) {
+      continue
+    }
 
-  if (flag === 'required') {
-    fields = fields.filter((name) => action.fields[name].required || name.includes('id'))
-  }
-
-  for (const name of fields) {
-    const field = action.fields[name]
     const { properties, type, format, multiple } = field
 
     if (properties) {

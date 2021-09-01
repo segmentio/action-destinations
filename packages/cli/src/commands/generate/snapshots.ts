@@ -1,6 +1,6 @@
 import { Command, flags } from '@oclif/command'
 import { renderTemplates } from '../../lib/templates'
-import { exec } from 'child_process'
+import { execSync } from 'child_process'
 import { autoPrompt } from '../../lib/prompt'
 import chalk from 'chalk'
 import path from 'path'
@@ -21,11 +21,12 @@ export default class GenerateSnapshots extends Command {
 
   async run() {
     const { args } = this.parse(GenerateSnapshots)
-    const integrationsGlob = './packages/destination-actions/src/destinations'
+    const destinationActionsPath = './packages/destination-actions'
+    const destinationsPath = `${destinationActionsPath}/src/destinations`
 
     let destinationName = args.destination
     if (!destinationName) {
-      const integrationsPath = `${integrationsGlob}/*`
+      const integrationsPath = `${destinationsPath}/*`
       const integrationDirs = await globby(integrationsPath, {
         expandDirectories: false,
         onlyDirectories: true,
@@ -51,7 +52,7 @@ export default class GenerateSnapshots extends Command {
       }
     }
 
-    const targetPath = `${integrationsGlob}/${destinationName}`
+    const targetPath = `${destinationsPath}/${destinationName}`
     const templatePath = path.join(__dirname, '../../../templates/actions/snapshot')
 
     try {
@@ -61,7 +62,7 @@ export default class GenerateSnapshots extends Command {
         targetPath,
         {
           destination: destinationName,
-          integrationsGlob
+          destinationsPath
         },
         true
       )
@@ -71,17 +72,10 @@ export default class GenerateSnapshots extends Command {
       this.exit()
     }
 
-    exec(`jest --testPathPattern=${targetPath} --updateSnapshot`, (error, stdout, stderr) => {
-      if (error) {
-        console.log('error', error)
-        return
-      }
-
-      if (stderr) {
-        console.log(stderr)
-        return
-      }
-      console.log('stdout: ', stdout)
-    })
+    try {
+      execSync(`jest --testPathPattern=${targetPath} --config ${destinationActionsPath}/package.json`)
+    } catch (err) {
+      this.spinner.fail(`Failed running snapshot tests: ${err}`)
+    }
   }
 }
