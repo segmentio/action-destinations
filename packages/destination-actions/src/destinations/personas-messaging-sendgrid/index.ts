@@ -14,10 +14,33 @@ const destination: DestinationDefinition<Settings> = {
         type: 'password',
         description: 'The Api Key for your sendGrid account',
         required: true
+      },
+      profileApiEnvironment: {
+        label: 'Profile API Environment',
+        description: 'Profile API Environment',
+        type: 'string',
+        required: true
+      },
+      profileApiAccessToken: {
+        label: 'Profile API Access Token',
+        description: 'Profile API Access Token',
+        type: 'password',
+        required: true
+      },
+      spaceId: {
+        label: 'Space ID',
+        description: 'Space ID',
+        type: 'string',
+        required: true
+      },
+      sourceId: {
+        label: 'Source ID',
+        description: 'Source ID',
+        type: 'string',
+        required: true
       }
     },
     testAuthentication: (request) => {
-      // Return a request that tests/validates the user's authentication fields here
       return request('https://api.sendgrid.com/v3/mail_settings')
     }
   },

@@ -4,43 +4,45 @@ export interface Payload {
   /**
    * User ID in Segment
    */
-  userId?: string | null
+  userId: string
   /**
    * From Email
    */
-  from: string
+  fromEmail: string
   /**
    * From Name displayed to end user email
    */
   fromName: string
   /**
-   * The Email Address to send an email to
+   * The Email used by user to Reply To
    */
-  email: string
+  replyToEmail: string
   /**
-   * The Name of the user to send an email
+   * The Name used by user to Reply To
    */
-  firstName: string
+  replyToName: string
   /**
-   * The message body
+   * BCC list of emails
    */
-  body: string
+  bcc: string
+  /**
+   * Preview Text
+   */
+  previewText: string
   /**
    * Subject for the email to be sent
    */
   subject: string
   /**
-   * Your Profile API Space ID
+   * The message body
    */
-  spaceId?: string
+  body: string
   /**
-   * The ID of your Source
+   * The type of body which is used generally html | design
    */
-  sourceId?: string
+  bodyType: string
   /**
-   * The Profile/Traits Properties
+   * The HTML content of the body
    */
-  profile: {
-    [k: string]: unknown
-  }
+  bodyHtml: string
 }
