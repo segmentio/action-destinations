@@ -22,10 +22,6 @@ export interface Payload {
    */
   subject: string
   /**
-   * Your Profile API Space ID
-   */
-  spaceId: string
-  /**
    * The ID of your Source
    */
   sourceId: string

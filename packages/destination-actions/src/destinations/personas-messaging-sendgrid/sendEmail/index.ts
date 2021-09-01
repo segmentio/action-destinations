@@ -17,7 +17,7 @@ const fetchProfileTraits = async (
 ): Promise<Record<string, string>> => {
   const endpoint = getProfileApiEndpoint(settings.profileApiEnvironment)
   const response = await request(
-    `${endpoint}/v1/spaces/${settings.profileApiSpaceId}/collections/users/profiles/user_id:${profileId}/traits?limit=200`,
+    `${endpoint}/v1/spaces/${settings.spaceId}/collections/users/profiles/user_id:${profileId}/traits?limit=200`,
     {
       headers: {
         authorization: `Basic ${Buffer.from(settings.profileApiAccessToken + ':').toString('base64')}`,
@@ -37,7 +37,7 @@ const fetchProfileExternalIds = async (
 ): Promise<Record<string, string>> => {
   const endpoint = getProfileApiEndpoint(settings.profileApiEnvironment)
   const response = await request(
-    `${endpoint}/v1/spaces/${settings.profileApiSpaceId}/collections/users/profiles/user_id:${profileId}/external_ids?limit=25`,
+    `${endpoint}/v1/spaces/${settings.spaceId}/collections/users/profiles/user_id:${profileId}/external_ids?limit=25`,
     {
       headers: {
         authorization: `Basic ${Buffer.from(settings.profileApiAccessToken + ':').toString('base64')}`,
@@ -98,13 +98,6 @@ const action: ActionDefinition<Settings, Payload> = {
       description: 'Subject for the email to be sent',
       type: 'string',
       required: true
-    },
-    spaceId: {
-      label: 'Space ID',
-      description: 'Your Profile API Space ID',
-      type: 'string',
-      required: true,
-      default: { '@path': '$.context.personas.space_id' }
     },
     sourceId: {
       label: 'Source ID',
@@ -186,7 +179,7 @@ const action: ActionDefinition<Settings, Payload> = {
             bcc: JSON.parse(payload.bcc || '[]'),
             custom_args: {
               source_id: payload.sourceId ? payload.sourceId : '',
-              space_id: payload.spaceId ? payload.spaceId : '',
+              space_id: settings.spaceId,
               user_id: payload.userId
             }
           }

@@ -10,12 +10,12 @@ for (const environment of ['stage', 'production']) {
     sendGridApiKey: 'sendGridApiKey',
     profileApiEnvironment: environment,
     profileApiAccessToken: 'c',
-    profileApiSpaceId: 'd'
+    spaceId: 'spaceId'
   }
   const endpoint = `https://profiles.segment.${environment === 'production' ? 'com' : 'build'}`
   describe(`${environment} - send Email`, () => {
     it('should send Email', async () => {
-      nock(`${endpoint}/v1/spaces/d/collections/users/profiles/user_id:jane`)
+      nock(`${endpoint}/v1/spaces/spaceId/collections/users/profiles/user_id:jane`)
         .get('/traits?limit=200')
         .reply(200, {
           traits: {
@@ -24,7 +24,7 @@ for (const environment of ['stage', 'production']) {
           }
         })
 
-      nock(`${endpoint}/v1/spaces/d/collections/users/profiles/user_id:jane`)
+      nock(`${endpoint}/v1/spaces/spaceId/collections/users/profiles/user_id:jane`)
         .get('/external_ids?limit=25')
         .reply(200, {
           data: [
@@ -91,7 +91,6 @@ for (const environment of ['stage', 'production']) {
           subject: 'Hello {{profile.traits.lastName}} {{profile.traits.firstName}}.',
           fromEmail: 'from@example.com',
           fromName: 'From Name',
-          spaceId: 'spaceId',
           sourceId: 'sourceId',
           bodyHtml: '<p>Some content</p>',
           replyToEmail: 'replyto@example.com',
