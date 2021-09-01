@@ -13,7 +13,9 @@ for (const environment of ['stage', 'production']) {
     spaceId: 'spaceId',
     sourceId: 'sourceId'
   }
+
   const endpoint = `https://profiles.segment.${environment === 'production' ? 'com' : 'build'}`
+
   describe(`${environment} - send Email`, () => {
     it('should send Email', async () => {
       nock(`${endpoint}/v1/spaces/spaceId/collections/users/profiles/user_id:jane`)
@@ -43,6 +45,7 @@ for (const environment of ['stage', 'production']) {
             }
           ]
         })
+
       const expectedSendGridRequest = {
         personalizations: [
           {
@@ -52,7 +55,11 @@ for (const environment of ['stage', 'production']) {
                 name: 'First Name Browning'
               }
             ],
-            bcc: [],
+            bcc: [
+              {
+                email: 'test@test.com'
+              }
+            ],
             custom_args: {
               source_id: 'sourceId',
               space_id: 'spaceId',
@@ -76,9 +83,11 @@ for (const environment of ['stage', 'production']) {
           }
         ]
       }
+
       const sendGridRequest = nock('https://api.sendgrid.com')
         .post('/v3/mail/send', expectedSendGridRequest)
         .reply(200, {})
+
       const responses = await sendgrid.testAction('sendEmail', {
         event: createTestEvent({
           timestamp,
@@ -88,19 +97,23 @@ for (const environment of ['stage', 'production']) {
         settings,
         mapping: {
           userId: { '@path': '$.userId' },
-          body: 'Hi {{profile.traits.firstName}}, Welcome to segment',
-          subject: 'Hello {{profile.traits.lastName}} {{profile.traits.firstName}}.',
           fromEmail: 'from@example.com',
           fromName: 'From Name',
-          bodyHtml: '<p>Some content</p>',
           replyToEmail: 'replyto@example.com',
           replyToName: 'Test user',
-          bodyType: 'html',
-          profile: {},
+          bcc: JSON.stringify([
+            {
+              email: 'test@test.com'
+            }
+          ]),
           previewText: '',
-          bcc: '[]'
+          subject: 'Hello {{profile.traits.lastName}} {{profile.traits.firstName}}.',
+          body: 'Hi {{profile.traits.firstName}}, Welcome to segment',
+          bodyType: 'html',
+          bodyHtml: '<p>Some content</p>'
         }
       })
+
       expect(responses.length).toEqual(3)
       expect(sendGridRequest.isDone()).toEqual(true)
     })

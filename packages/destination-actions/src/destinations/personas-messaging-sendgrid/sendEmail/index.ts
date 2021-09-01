@@ -87,35 +87,6 @@ const action: ActionDefinition<Settings, Payload> = {
       type: 'string',
       required: true
     },
-    body: {
-      label: 'Body',
-      description: 'The message body',
-      type: 'text',
-      required: true
-    },
-    subject: {
-      label: 'Subject',
-      description: 'Subject for the email to be sent',
-      type: 'string',
-      required: true
-    },
-    profile: {
-      label: 'Profile Properties',
-      description: 'The Profile/Traits Properties',
-      type: 'object'
-    },
-    bodyType: {
-      label: 'Body Type',
-      description: 'The type of body which is used generally html | design',
-      type: 'string',
-      required: true
-    },
-    bodyHtml: {
-      label: 'Body Html',
-      description: 'The HTML content of the body',
-      type: 'string',
-      required: true
-    },
     replyToEmail: {
       label: 'Reply To Email',
       description: 'The Email used by user to Reply To',
@@ -139,6 +110,30 @@ const action: ActionDefinition<Settings, Payload> = {
       description: 'Preview Text',
       type: 'string',
       required: true
+    },
+    subject: {
+      label: 'Subject',
+      description: 'Subject for the email to be sent',
+      type: 'string',
+      required: true
+    },
+    body: {
+      label: 'Body',
+      description: 'The message body',
+      type: 'text',
+      required: true
+    },
+    bodyType: {
+      label: 'Body Type',
+      description: 'The type of body which is used generally html | design',
+      type: 'string',
+      required: true
+    },
+    bodyHtml: {
+      label: 'Body Html',
+      description: 'The HTML content of the body',
+      type: 'string',
+      required: true
     }
   },
   perform: async (request, { settings, payload }) => {
@@ -151,12 +146,13 @@ const action: ActionDefinition<Settings, Payload> = {
       ...externalIds,
       traits
     }
-    // const profile = payload.profile
 
     if (!profile.email) {
       return
     }
+
     let name
+
     if (traits.first_name && traits.last_name) {
       name = `${traits.first_name} ${traits.last_name}`
     } else if (traits.firstName && traits.lastName) {
@@ -166,6 +162,7 @@ const action: ActionDefinition<Settings, Payload> = {
     } else {
       name = traits.first_name || traits.last_name || traits.firstName || traits.lastName || 'User'
     }
+
     return request('https://api.sendgrid.com/v3/mail/send', {
       method: 'post',
       json: {
@@ -185,7 +182,6 @@ const action: ActionDefinition<Settings, Payload> = {
             }
           }
         ],
-
         from: {
           email: payload.fromEmail,
           name: payload.fromName
@@ -194,11 +190,11 @@ const action: ActionDefinition<Settings, Payload> = {
           email: payload.replyToEmail,
           name: payload.replyToName
         },
-        subject: Mustache.render(payload.subject, { profile: profile }),
+        subject: Mustache.render(payload.subject, { profile }),
         content: [
           {
             type: 'text/html',
-            value: Mustache.render(payload.body, { profile: profile })
+            value: Mustache.render(payload.body, { profile })
           }
         ]
       }

@@ -40,9 +40,7 @@ const destination: DestinationDefinition<Settings> = {
         required: true
       }
     },
-
     testAuthentication: (request) => {
-      // Return a request that tests/validates the user's authentication fields here
       return request('https://api.sendgrid.com/v3/mail_settings')
     }
   },
