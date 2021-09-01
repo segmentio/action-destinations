@@ -1,13 +1,14 @@
 {
   "extends": "../../tsconfig.json",
   "compilerOptions": {
+    "target": "es2018",
+    "lib": ["es2018"],
     "composite": true,
-    "outDir": "dist/esm",
-    "rootDir": "src"
+    "module": "es2020",
+    "rootDir": "src",
+    "outDir": "dist/esm"
   },
   "exclude": ["**/__tests__/**/*.ts", "benchmarks"],
   "include": ["src"],
-  "references": [
-    { "path": "../destination-subscriptions/tsconfig.build.json" }
-  ]
+  "references": [{ "path": "../destination-subscriptions/tsconfig.build.json" }]
 }
