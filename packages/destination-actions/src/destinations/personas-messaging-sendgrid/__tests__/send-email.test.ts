@@ -96,7 +96,8 @@ for (const environment of ['stage', 'production']) {
           replyToEmail: 'replyto@example.com',
           replyToName: 'Test user',
           bodyType: 'html',
-          profile: {}
+          profile: {},
+          previewText: ''
         }
       })
       expect(responses.length).toEqual(3)

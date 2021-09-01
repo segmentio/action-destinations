@@ -132,6 +132,12 @@ const action: ActionDefinition<Settings, Payload> = {
       label: 'BCC',
       description: 'BCC list of emails',
       type: 'string'
+    },
+    previewText: {
+      label: 'Preview Text',
+      description: 'Preview Text',
+      type: 'string',
+      required: true
     }
   },
   perform: async (request, { settings, payload }) => {
