@@ -11,10 +11,7 @@ export default class GenerateSnapshots extends Command {
   private spinner: ora.Ora = ora()
   static description = `Generates TypeScript definitions for an integration.`
 
-  static examples = [`$ ./bin/run generate:snapshots`]
-
-  // Allow variable length args (to work with tools like lint-staged)
-  static strict = false
+  static examples = [`$ ./bin/run generate:snapshots`, `$ ./bin/run generate:snapshots slack`]
 
   static flags = {
     help: flags.help({ char: 'h' })
@@ -81,7 +78,7 @@ export default class GenerateSnapshots extends Command {
       }
 
       if (stderr) {
-        console.log('stderr: ', stderr)
+        console.log(stderr)
         return
       }
       console.log('stdout: ', stdout)
