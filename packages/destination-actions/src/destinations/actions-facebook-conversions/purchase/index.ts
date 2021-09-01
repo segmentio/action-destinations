@@ -24,7 +24,6 @@ const action: ActionDefinition<Settings, Payload> = {
     user_data: user_data
   },
   perform: (request, { payload, settings }) => {
-    console.log('payload', payload)
     if (!CURRENCY_ISO_CODES.includes(payload.currency)) {
       throw new Error(`${payload.currency} is not a valid currency code.`)
     }

@@ -11,8 +11,6 @@ const settings = {
 }
 
 describe('purchase', () => {
-  // TODO: Test your action
-
   it('should handle a basic event', async () => {
     nock(`https://graph.facebook.com/v11.0/${settings.pixelId}`, {
       reqheaders: {
