@@ -22,10 +22,6 @@ export interface Payload {
    */
   subject: string
   /**
-   * The ID of your Source
-   */
-  sourceId: string
-  /**
    * The Profile/Traits Properties
    */
   profile?: {

@@ -17,4 +17,8 @@ export interface Settings {
    * Space ID
    */
   spaceId: string
+  /**
+   * Source ID
+   */
+  sourceId: string
 }

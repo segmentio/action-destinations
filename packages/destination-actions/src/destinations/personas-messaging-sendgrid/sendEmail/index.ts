@@ -99,12 +99,6 @@ const action: ActionDefinition<Settings, Payload> = {
       type: 'string',
       required: true
     },
-    sourceId: {
-      label: 'Source ID',
-      description: 'The ID of your Source',
-      type: 'string',
-      required: true
-    },
     profile: {
       label: 'Profile Properties',
       description: 'The Profile/Traits Properties',
@@ -178,7 +172,7 @@ const action: ActionDefinition<Settings, Payload> = {
             ],
             bcc: JSON.parse(payload.bcc || '[]'),
             custom_args: {
-              source_id: payload.sourceId ? payload.sourceId : '',
+              source_id: settings.sourceId,
               space_id: settings.spaceId,
               user_id: payload.userId
             }

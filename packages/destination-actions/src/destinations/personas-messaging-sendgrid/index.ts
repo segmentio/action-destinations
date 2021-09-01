@@ -32,6 +32,12 @@ const destination: DestinationDefinition<Settings> = {
         description: 'Space ID',
         type: 'string',
         required: true
+      },
+      sourceId: {
+        label: 'Source ID',
+        description: 'Source ID',
+        type: 'string',
+        required: true
       }
     },
 

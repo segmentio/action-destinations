@@ -10,7 +10,8 @@ for (const environment of ['stage', 'production']) {
     sendGridApiKey: 'sendGridApiKey',
     profileApiEnvironment: environment,
     profileApiAccessToken: 'c',
-    spaceId: 'spaceId'
+    spaceId: 'spaceId',
+    sourceId: 'sourceId'
   }
   const endpoint = `https://profiles.segment.${environment === 'production' ? 'com' : 'build'}`
   describe(`${environment} - send Email`, () => {
@@ -91,7 +92,6 @@ for (const environment of ['stage', 'production']) {
           subject: 'Hello {{profile.traits.lastName}} {{profile.traits.firstName}}.',
           fromEmail: 'from@example.com',
           fromName: 'From Name',
-          sourceId: 'sourceId',
           bodyHtml: '<p>Some content</p>',
           replyToEmail: 'replyto@example.com',
           replyToName: 'Test user',
