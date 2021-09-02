@@ -78,15 +78,13 @@ const action: ActionDefinition<Settings, Payload> = {
       label: 'From Number',
       description: 'Which number to send SMS from',
       type: 'string',
-      required: true,
-      default: { '@path': '$.properties.fromNumber' }
+      required: true
     },
     body: {
       label: 'Message',
       description: 'Message to send',
       type: 'text',
-      required: true,
-      default: { '@path': '$.properties.body' }
+      required: true
     }
   },
   perform: async (request, { settings, payload }) => {
