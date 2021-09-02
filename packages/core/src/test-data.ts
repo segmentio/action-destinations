@@ -43,9 +43,9 @@ export function generateTestData(
   const authentication = destination.authentication
   if (authentication) {
     for (const settingKey in authentication.fields) {
-      const type = authentication.fields[settingKey].type
+      const { format, type } = authentication.fields[settingKey]
       settingsData[settingKey] = testData[type]
-      if (settingKey === 'endpoint') {
+      if (format === 'uri') {
         settingsData[settingKey] = 'https://www.example.com'
       }
     }
