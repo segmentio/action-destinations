@@ -5,7 +5,7 @@ import type { DestinationDefinition } from './destination-kit'
 import type { JSONObject } from './json-object'
 import type { SegmentEvent } from './segment-event'
 import { AuthTokens } from './destination-kit/parse-settings'
-import generateTestData from '@segment/action-destinations/src/lib/test-data'
+import { generateTestData } from './test-data'
 import nock from 'nock'
 
 interface InputData<Settings> {

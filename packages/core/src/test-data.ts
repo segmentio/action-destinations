@@ -1,4 +1,4 @@
-import { ActionDefinition, DestinationDefinition } from '@segment/actions-core'
+import { ActionDefinition, DestinationDefinition } from './index'
 
 const testData: { [key: string]: any } = {
   boolean: true,
@@ -20,7 +20,19 @@ function setCustomData(data: any, name: string, format: string | undefined, isMu
   return data
 }
 
-export default function generateTestData(
+function setData(eventData: any, name: string, field: any, data?: any) {
+  const { format, multiple, type } = field
+
+  if (!data) {
+    data = testData[type]
+  }
+
+  eventData[name] = multiple ? [data] : data
+  eventData = setCustomData(eventData, name, format, multiple)
+  return eventData
+}
+
+export function generateTestData(
   destination: DestinationDefinition<any>,
   action: ActionDefinition<any>,
   isRequiredOnly: boolean
@@ -44,28 +56,23 @@ export default function generateTestData(
       continue
     }
 
-    const { properties, type, format, multiple } = field
+    const { properties } = field
 
     if (properties) {
       let subData: any = {}
       const propertyFields = Object.keys(properties)
       if (isRequiredOnly) propertyFields.filter((name) => properties[name].required)
 
-      for (const propField of propertyFields) {
-        const property = properties[propField]
-        const { format, multiple, type } = property
-
-        subData[propField] = multiple ? [testData[type]] : testData[type]
-        subData = setCustomData(subData, propField, format, multiple)
+      for (const propertyName of propertyFields) {
+        const property = properties[propertyName]
+        subData = setData(subData, propertyName, property)
       }
 
-      eventData[name] = multiple ? [subData] : subData
-      eventData = setCustomData(eventData, name, format, multiple)
+      eventData = setData(eventData, name, field, subData)
       continue
     }
 
-    eventData[name] = multiple ? [testData[type]] : testData[type]
-    eventData = setCustomData(eventData, name, format, multiple)
+    eventData = setData(eventData, name, field)
   }
 
   return [eventData, settingsData]

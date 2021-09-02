@@ -73,7 +73,7 @@ export default class GenerateSnapshots extends Command {
     }
 
     try {
-      execSync(`jest --testPathPattern=${targetPath} --config ${destinationActionsPath}/package.json`)
+      execSync(`jest --testPathPattern=${targetPath} --updateSnapshot --config ${destinationActionsPath}/package.json`)
     } catch (err) {
       this.spinner.fail(`Failed running snapshot tests: ${err}`)
     }
