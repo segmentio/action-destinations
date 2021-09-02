@@ -163,6 +163,8 @@ const action: ActionDefinition<Settings, Payload> = {
       name = traits.first_name || traits.last_name || traits.firstName || traits.lastName || 'User'
     }
 
+    const bcc = JSON.parse(payload.bcc ?? '[]')
+
     return request('https://api.sendgrid.com/v3/mail/send', {
       method: 'post',
       json: {
@@ -174,7 +176,7 @@ const action: ActionDefinition<Settings, Payload> = {
                 name: name
               }
             ],
-            bcc: JSON.parse(payload.bcc || '[]'),
+            bcc: bcc.length > 0 ? bcc : undefined,
             custom_args: {
               source_id: settings.sourceId,
               space_id: settings.spaceId,
