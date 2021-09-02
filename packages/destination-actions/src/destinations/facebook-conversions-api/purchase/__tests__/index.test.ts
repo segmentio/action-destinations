@@ -27,7 +27,8 @@ describe('purchase', () => {
       properties: {
         action_source: 'email',
         currency: 'USD',
-        value: 12.12
+        value: 12.12,
+        email: 'nicholas.aguilar@segment.com'
       }
     })
 
@@ -43,7 +44,7 @@ describe('purchase', () => {
         },
         user_data: {
           email: {
-            '@path': '$.userId'
+            '@path': '$.properties.email'
           }
         }
       }

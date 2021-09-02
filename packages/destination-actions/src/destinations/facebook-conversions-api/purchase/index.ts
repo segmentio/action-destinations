@@ -3,7 +3,7 @@ import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 import { CURRENCY_ISO_CODES } from '../constants'
 import { currency, value, content_name, content_type, contents, num_items, content_ids } from '../fb-capi-properties'
-import { user_data } from '../fb-capi-user-data'
+import { user_data_field, hash_user_data } from '../fb-capi-user-data'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Purchase',
@@ -21,7 +21,7 @@ const action: ActionDefinition<Settings, Payload> = {
       description: 'The action source of the event',
       type: 'string'
     },
-    user_data: user_data
+    user_data: user_data_field
   },
   perform: (request, { payload, settings }) => {
     if (!CURRENCY_ISO_CODES.has(payload.currency)) {
@@ -52,10 +52,7 @@ const action: ActionDefinition<Settings, Payload> = {
             event_name: 'Purchase',
             event_time: payload,
             action_source: payload.action_source,
-            user_data: {
-              em: payload.user_data.email,
-              ph: payload.user_data.phone
-            },
+            user_data: hash_user_data(payload.user_data),
             custom_data: {
               currency: payload.currency,
               value: payload.value
