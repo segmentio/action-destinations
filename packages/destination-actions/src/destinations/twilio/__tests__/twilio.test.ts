@@ -7,7 +7,7 @@ const timestamp = new Date().toISOString()
 const accountId = '_account_'
 
 describe('Twilio', () => {
-  describe('sendSms', () => {
+  describe('sendSMS', () => {
     it('should work with default mappings', async () => {
       const event = createTestEvent({
         timestamp,
@@ -20,7 +20,7 @@ describe('Twilio', () => {
 
       nock(`https://api.twilio.com/2010-04-01/Accounts/${accountId}`).post('/Messages.json').reply(201, {})
 
-      const responses = await testDestination.testAction('sendSms', {
+      const responses = await testDestination.testAction('sendSMS', {
         event,
         settings: {
           accountId,
