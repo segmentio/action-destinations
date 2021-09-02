@@ -203,7 +203,7 @@ const action: ActionDefinition<Settings, Payload> = {
         content: [
           {
             type: 'text/html',
-            value: Mustache.render(payload.body, { profile })
+            value: Mustache.render(payload.bodyHtml, { profile })
           }
         ]
       }
