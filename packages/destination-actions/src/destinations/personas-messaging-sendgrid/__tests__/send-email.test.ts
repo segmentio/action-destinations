@@ -110,7 +110,7 @@ for (const environment of ['stage', 'production']) {
           subject: 'Hello {{profile.traits.lastName}} {{profile.traits.firstName}}.',
           body: 'Hi {{profile.traits.firstName}}, Welcome to segment',
           bodyType: 'html',
-          bodyHtml: '<p>Some content</p>'
+          bodyHtml: 'Hi {{profile.traits.firstName}}, Welcome to segment'
         }
       })
 
