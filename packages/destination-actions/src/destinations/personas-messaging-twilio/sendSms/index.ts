@@ -74,6 +74,11 @@ const action: ActionDefinition<Settings, Payload> = {
       required: true,
       default: { '@path': '$.userId' }
     },
+    toNumber: {
+      label: 'To Number',
+      description: 'Number to send SMS to when testing',
+      type: 'string'
+    },
     fromNumber: {
       label: 'From Number',
       description: 'Which number to send SMS from',
@@ -100,7 +105,9 @@ const action: ActionDefinition<Settings, Payload> = {
       traits
     }
 
-    if (!profile.phone) {
+    const phone = payload.toNumber || profile.phone
+
+    if (!phone) {
       return
     }
 
@@ -116,7 +123,7 @@ const action: ActionDefinition<Settings, Payload> = {
       body: new URLSearchParams({
         Body: Mustache.render(payload.body, { profile }),
         From: payload.fromNumber,
-        To: profile.phone
+        To: phone
       })
     })
   }
