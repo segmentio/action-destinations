@@ -76,14 +76,15 @@ export default class Serve extends Command {
     })
 
     const start = () => {
+      console.log(process.cwd())
       child = fork(require.resolve('../lib/server.ts'), {
-        cwd: process.cwd(),
         env: {
           ...process.env,
           DESTINATION: destinationName,
-          DIRECTORY: flags.directory
+          DIRECTORY: flags.directory,
+          TS_NODE_PROJECT: require.resolve('../../tsconfig.json')
         },
-        execArgv: ['-r', 'ts-node/register/transpile-only', ...argv]
+        execArgv: ['-r', 'ts-node/register/transpile-only', '-r', 'tsconfig-paths/register', ...argv]
       })
 
       child.once('exit', (code?: number) => {
