@@ -75,6 +75,11 @@ const action: ActionDefinition<Settings, Payload> = {
       required: true,
       default: { '@path': '$.userId' }
     },
+    toEmail: {
+      label: 'To Email',
+      description: 'Email to send to when testing',
+      type: 'string'
+    },
     fromEmail: {
       label: 'From Email',
       description: 'From Email',
@@ -147,7 +152,9 @@ const action: ActionDefinition<Settings, Payload> = {
       traits
     }
 
-    if (!profile.email) {
+    const toEmail = payload.toEmail || profile.email
+
+    if (!toEmail) {
       return
     }
 
@@ -172,7 +179,7 @@ const action: ActionDefinition<Settings, Payload> = {
           {
             to: [
               {
-                email: profile.email,
+                email: toEmail,
                 name: name
               }
             ],
