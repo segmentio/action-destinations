@@ -83,7 +83,7 @@ export default class Serve extends Command {
           DESTINATION: destinationName,
           DIRECTORY: flags.directory
         },
-        execArgv: ['-r', 'ts-node/register/transpile-only', ...argv]
+        execArgv: ['-r', 'ts-node/register/transpile-only', '-r', 'dotenv/config', ...argv]
       })
 
       child.once('exit', (code?: number) => {
