@@ -6,6 +6,10 @@ export interface Payload {
    */
   userId: string
   /**
+   * Email to send to when testing
+   */
+  toEmail?: string
+  /**
    * From Email
    */
   fromEmail: string
