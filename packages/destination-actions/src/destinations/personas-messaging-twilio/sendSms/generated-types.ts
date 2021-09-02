@@ -6,6 +6,10 @@ export interface Payload {
    */
   userId: string
   /**
+   * Number to send SMS to when testing
+   */
+  toNumber?: string
+  /**
    * Which number to send SMS from
    */
   fromNumber: string
