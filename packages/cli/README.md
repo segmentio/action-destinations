@@ -27,7 +27,6 @@ USAGE
 - [`./bin/run generate:types`](#binrun-generatetypes)
 - [`./bin/run help [COMMAND]`](#binrun-help-command)
 - [`./bin/run init [PATH]`](#binrun-init-path)
-- [`./bin/run register`](#binrun-register)
 - [`./bin/run serve [DESTINATION]`](#binrun-serve-destination)
 
 ## `./bin/run generate:action NAME TYPE`
@@ -122,24 +121,6 @@ EXAMPLES
 ```
 
 _See code: [src/commands/init.ts](https://github.com/segmentio/action-destinations/blob/main/packages/cli/src/commands/init.ts)_
-
-## `./bin/run register`
-
-Creates a new integration on Segment.
-
-```
-USAGE
-  $ ./bin/run register
-
-OPTIONS
-  -h, --help       show CLI help
-  -p, --path=path  Path to the destination to register.
-
-EXAMPLE
-  $ ./bin/run register
-```
-
-_See code: [src/commands/register.ts](https://github.com/segmentio/action-destinations/blob/main/packages/cli/src/commands/register.ts)_
 
 ## `./bin/run serve [DESTINATION]`
 
