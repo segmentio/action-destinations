@@ -33,6 +33,9 @@ USAGE
 
 Scaffolds a new integration action.
 
+NOTE: `browser` actions are considered experimental and major breaking changes may be
+introduced without warning.
+
 ```
 USAGE
   $ ./bin/run generate:action NAME TYPE
