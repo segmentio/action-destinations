@@ -76,8 +76,8 @@ export default class Serve extends Command {
     })
 
     const start = () => {
-      console.log(process.cwd())
       child = fork(require.resolve('../lib/server.ts'), {
+        cwd: process.cwd(),
         env: {
           ...process.env,
           DESTINATION: destinationName,
