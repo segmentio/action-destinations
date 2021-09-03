@@ -29,4 +29,4 @@ jobs:
         run: yarn test
 
       - name: Build
-        run: NODE_ENV=production yarn build --ignore @segment/browser-destinations
+        run: NODE_ENV=production yarn build
