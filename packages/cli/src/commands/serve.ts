@@ -84,7 +84,7 @@ export default class Serve extends Command {
           DIRECTORY: flags.directory,
           TS_NODE_PROJECT: require.resolve('../../tsconfig.json')
         },
-        execArgv: ['-r', 'ts-node/register/transpile-only', '-r', 'tsconfig-paths/register', ...argv]
+        execArgv: ['-r', 'ts-node/register/transpile-only', '-r', 'tsconfig-paths/register', '-r', 'dotenv/config', ...argv]
       })
 
       child.once('exit', (code?: number) => {
