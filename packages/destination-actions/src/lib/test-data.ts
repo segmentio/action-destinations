@@ -1,4 +1,4 @@
-import { ActionDefinition, DestinationDefinition } from './index'
+import { ActionDefinition, DestinationDefinition } from '@segment/actions-core'
 
 const testData: { [key: string]: any } = {
   boolean: true,
