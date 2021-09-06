@@ -50,16 +50,16 @@ const action: ActionDefinition<Settings, Payload> = {
     }
   },
 
-  perform: (request, { payload }) => {
+  perform: (request, { settings, payload }) => {
     const body: Payload = {
       name: payload.name,
       type: payload.type,
       data: payload.data
     }
-    let url = `https://track.customer.io/api/v1/customers/${payload.id}/events`
+    let url = `${settings.accountRegionEndpoint}/api/v1/customers/${payload.id}/events`
 
     if (payload.id === undefined) {
-      url = 'https://track.customer.io/api/v1/events'
+      url = `${settings.accountRegionEndpoint}/api/v1/events`
       body.anonymous_id = payload.anonymous_id
     }
 

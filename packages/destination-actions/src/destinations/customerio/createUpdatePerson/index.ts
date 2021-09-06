@@ -53,8 +53,8 @@ const action: ActionDefinition<Settings, Payload> = {
     }
   },
 
-  perform: (request, { payload }) => {
-    return request(`https://track.customer.io/api/v1/customers/${payload.id}`, {
+  perform: (request, { settings, payload }) => {
+    return request(`${settings.accountRegionEndpoint}/api/v1/customers/${payload.id}`, {
       method: 'put',
       json: {
         ...payload.custom_attributes,

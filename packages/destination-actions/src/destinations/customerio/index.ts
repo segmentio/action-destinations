@@ -27,6 +27,19 @@ const destination: DestinationDefinition<Settings> = {
         label: 'API Key',
         type: 'string',
         required: true
+      },
+      accountRegionEndpoint: {
+        description:
+          'Your Customer.io account region. [Read more about Account Regions](https://customer.io/docs/data-centers/)',
+        label: 'Account Region',
+        type: 'string',
+        format: 'uri',
+        choices: [
+          { label: 'US 🇺🇸', value: 'https://track.customer.io' },
+          { label: 'EU 🇪🇺', value: 'https://track-eu.customer.io' }
+        ],
+        default: 'https://track.customer.io',
+        required: true
       }
     },
     testAuthentication: (request) => {
