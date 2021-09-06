@@ -50,16 +50,28 @@ const action: ActionDefinition<Settings, Payload> = {
       default: {
         '@path': '$.traits'
       }
+    },
+    convert_timestamp: {
+      label: 'Convert timestamps',
+      description: 'Convert `created_at` to a Unix timestamp (seconds since Epoch).',
+      type: 'boolean',
+      default: true
     }
   },
 
   perform: (request, { settings, payload }) => {
+    let createdAt = payload.created_at
+
+    if (createdAt && payload.convert_timestamp) {
+      createdAt = dayjs.utc(createdAt).format('X')
+    }
+
     return request(`${settings.accountRegionEndpoint}/api/v1/customers/${payload.id}`, {
       method: 'put',
       json: {
         ...payload.custom_attributes,
         email: payload.email,
-        created_at: payload.created_at ? dayjs.utc(payload.created_at).format('X') : undefined,
+        created_at: createdAt,
         anonymous_id: payload.anonymous_id
       }
     })

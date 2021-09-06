@@ -52,6 +52,48 @@ describe('CustomerIO', () => {
       })
     })
 
+    it('should not convert last_used to a unix timestamp when convert_timestamp is false', async () => {
+      const settings: Settings = {
+        siteId: '12345',
+        apiKey: 'abcde',
+        accountRegionEndpoint: 'https://track.customer.io'
+      }
+      const userId = 'abc123'
+      const deviceId = 'device_123'
+      const deviceType = 'ios'
+      const lastUsed = dayjs.utc().toISOString()
+      trackService.put(`/customers/${userId}/devices`).reply(200, {})
+      const event = createTestEvent({
+        userId,
+        context: {
+          device: {
+            id: deviceId,
+            type: deviceType,
+            lastUsed
+          }
+        }
+      })
+      const responses = await testDestination.testAction('createUpdateDevice', {
+        event,
+        settings,
+        mapping: {
+          convert_timestamp: false
+        },
+        useDefaultMappings: true
+      })
+
+      expect(responses.length).toBe(1)
+      expect(responses[0].status).toBe(200)
+      expect(responses[0].data).toMatchObject({})
+      expect(responses[0].options.json).toMatchObject({
+        device: {
+          id: deviceId,
+          platform: deviceType,
+          last_used: lastUsed
+        }
+      })
+    })
+
     it('should work with the EU account region', async () => {
       const trackEUService = nock('https://track-eu.customer.io/api/v1')
       const settings: Settings = {

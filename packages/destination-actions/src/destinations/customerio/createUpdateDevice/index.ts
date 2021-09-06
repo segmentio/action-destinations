@@ -43,17 +43,29 @@ const action: ActionDefinition<Settings, Payload> = {
       default: {
         '@path': '$.timestamp'
       }
+    },
+    convert_timestamp: {
+      label: 'Convert timestamps',
+      description: 'Convert `last_used` to a Unix timestamp (seconds since Epoch).',
+      type: 'boolean',
+      default: true
     }
   },
 
   perform: (request, { settings, payload }) => {
+    let lastUsed = payload.last_used
+
+    if (lastUsed && payload.convert_timestamp) {
+      lastUsed = dayjs.utc(lastUsed).format('X')
+    }
+
     return request(`${settings.accountRegionEndpoint}/api/v1/customers/${payload.person_id}/devices`, {
       method: 'put',
       json: {
         device: {
           id: payload.device_id,
           platform: payload.platform,
-          last_used: payload.last_used ? dayjs.utc(payload.last_used).format('X') : undefined
+          last_used: lastUsed
         }
       }
     })
