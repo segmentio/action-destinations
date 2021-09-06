@@ -2,7 +2,6 @@ import { defaultValues } from '@segment/actions-core'
 import createUpdateDevice from './createUpdateDevice'
 import createUpdatePerson from './createUpdatePerson'
 import trackEvent from './trackEvent'
-import triggerCampaign from './triggerCampaign'
 import type { DestinationDefinition } from '@segment/actions-core'
 import type { Settings } from './generated-types'
 
@@ -57,8 +56,7 @@ const destination: DestinationDefinition<Settings> = {
   actions: {
     createUpdateDevice,
     createUpdatePerson,
-    trackEvent,
-    triggerCampaign
+    trackEvent
   },
 
   presets: [
