@@ -1,0 +1,10 @@
+#!/bin/sh
+. "$(dirname "$0")/_/husky.sh"
+
+# fetch changed files on this commit
+git diff --name-only --cached > .husky/.included.txt
+
+# call trufflehog on those files only
+trufflehog .git --rules .husky/trufflehog-rules.json --include_paths .husky/.included.txt --regex --entropy=NO #entropy checks throw too many false positives
+
+rm .husky/.included.txt
