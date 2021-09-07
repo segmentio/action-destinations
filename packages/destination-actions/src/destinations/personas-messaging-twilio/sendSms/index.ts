@@ -75,7 +75,7 @@ const action: ActionDefinition<Settings, Payload> = {
       default: { '@path': '$.userId' }
     },
     toNumber: {
-      label: 'To Number',
+      label: 'Test Number',
       description: 'Number to send SMS to when testing',
       type: 'string'
     },
