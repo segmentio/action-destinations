@@ -1,7 +1,6 @@
 import { createTestEvent, createTestIntegration } from '@segment/actions-core'
 import { generateTestData } from '../../../lib/test-data'
 import destination from '../index'
-import prettier from 'prettier'
 import nock from 'nock'
 
 const testDestination = createTestIntegration(destination)
@@ -32,12 +31,7 @@ describe('Testing snapshot for {{destination}} action:', () => {
       expect(request.headers).toMatchSnapshot()
 
       if (request.body) {
-        const bodyString = decodeURIComponent(request.body.toString())
-        if (bodyString[0] === '{') {
-          expect(prettier.format(request.body.toString(), { parser: 'json' })).toMatchSnapshot()
-        } else {
-          expect(request.body.toString()).toMatchSnapshot()
-        }
+        expect(request.body.toString()).toMatchSnapshot()
       }
     })
 
@@ -63,12 +57,7 @@ describe('Testing snapshot for {{destination}} action:', () => {
       const request = responses[0].request
 
       if (request.body) {
-        const bodyString = decodeURIComponent(request.body.toString())
-        if (bodyString[0] === '{') {
-          expect(prettier.format(request.body.toString(), { parser: 'json' })).toMatchSnapshot()
-        } else {
-          expect(request.body.toString()).toMatchSnapshot()
-        }
+        expect(request.body.toString()).toMatchSnapshot()
       }
     })
   }

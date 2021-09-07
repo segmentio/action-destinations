@@ -1,34 +1,49 @@
 import { ActionDefinition, DestinationDefinition } from '@segment/actions-core'
+import Chance from 'chance'
 
-const testData: { [key: string]: any } = {
-  boolean: true,
-  datetime: '2021-01-17',
-  integer: 1,
-  number: 5,
-  string: 'test1234',
-  text: 'test text',
-  object: {
-    testObject: 'data1234'
+function setTestData(destinationName: string, type: string, fieldName?: string, format?: string) {
+  const chance = new Chance(destinationName)
+
+  let val: any
+  switch (type) {
+    case 'boolean':
+      val = chance.bool()
+      break
+    case 'datetime':
+      val = chance.date()
+      break
+    case 'integer':
+      val = chance.integer()
+      break
+    case 'number':
+      val = chance.floating({ fixed: 2 })
+      break
+    case 'text':
+      val = chance.sentence()
+      break
+    case 'object':
+      val = { testType: chance.string() }
+      break
+    default:
+      val = chance.string()
+      break
   }
+
+  if (format === 'uri') val = chance.url()
+  if (fieldName === 'email') val = chance.email()
+  if (fieldName === 'currency') val = chance.currency()
+
+  return val
 }
 
-function setCustomData(data: any, name: string, format: string | undefined, isMultiple?: boolean) {
-  if (format === 'uri') data[name] = 'https://www.example.com'
-  if (name === 'email') data[name] = 'test@twilio.com'
-  if (name === 'email' && isMultiple) data[name] = ['test@twilio.com']
-  if (name === 'currency') data[name] = 'USD'
-  return data
-}
-
-function setData(eventData: any, name: string, field: any, data?: any) {
+function setData(eventData: any, destinationName: string, fieldName: string, field: any, data?: any) {
   const { format, multiple, type } = field
 
   if (!data) {
-    data = testData[type]
+    data = setTestData(destinationName, type, fieldName, format)
   }
 
-  eventData[name] = multiple ? [data] : data
-  eventData = setCustomData(eventData, name, format, multiple)
+  eventData[fieldName] = multiple ? [data] : data
   return eventData
 }
 
@@ -41,13 +56,11 @@ export function generateTestData(
   const settingsData: any = {}
 
   const authentication = destination.authentication
+  const destinationName = destination.name
   if (authentication) {
     for (const settingKey in authentication.fields) {
       const { format, type } = authentication.fields[settingKey]
-      settingsData[settingKey] = testData[type]
-      if (format === 'uri') {
-        settingsData[settingKey] = 'https://www.example.com'
-      }
+      settingsData[settingKey] = setTestData(destinationName, type, undefined, format)
     }
   }
 
@@ -65,14 +78,14 @@ export function generateTestData(
 
       for (const propertyName of propertyFields) {
         const property = properties[propertyName]
-        subData = setData(subData, propertyName, property)
+        subData = setData(subData, destinationName, propertyName, property)
       }
 
-      eventData = setData(eventData, name, field, subData)
+      eventData = setData(eventData, destinationName, name, field, subData)
       continue
     }
 
-    eventData = setData(eventData, name, field)
+    eventData = setData(eventData, destinationName, name, field)
   }
 
   return [eventData, settingsData]
