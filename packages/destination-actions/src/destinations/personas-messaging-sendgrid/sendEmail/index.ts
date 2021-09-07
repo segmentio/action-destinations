@@ -76,7 +76,7 @@ const action: ActionDefinition<Settings, Payload> = {
       default: { '@path': '$.userId' }
     },
     toEmail: {
-      label: 'To Email',
+      label: 'Test Email',
       description: 'Email to send to when testing',
       type: 'string'
     },
