@@ -46,8 +46,7 @@ module.exports = {
   mode: process.env.NODE_ENV || 'development',
   devtool: 'source-map',
   output: {
-    filename: '[name]/latest/[name].js',
-    chunkFilename: 'vendor/[name].[contenthash].js',
+    filename: '[name]/[contenthash].js',
     path: path.resolve(__dirname, 'dist/web'),
     publicPath: assetPath,
     library: '[name]Destination',

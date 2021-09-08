@@ -2,10 +2,16 @@ import execa from 'execa'
 
 export const DIST_DIR = 'packages/browser-destinations/dist/web/'
 
-export function webBundles(): string[] {
+export function webBundles(): { [destination: string]: string } {
   const command = `ls ${DIST_DIR}`
-  const files = execa.commandSync(command).stdout
-  return files.split('\n')
+  const map: { [destination: string]: string } = {}
+  const destinations = execa.commandSync(command).stdout
+
+  destinations.split('\n').forEach((destination) => {
+    map[destination] = execa.commandSync(`ls ${DIST_DIR}/${destination}`).stdout.split('\n')[0]
+  })
+
+  return map
 }
 
 export function build(env: string): string {

@@ -1,4 +1,5 @@
 import { Command, flags } from '@oclif/command'
+import execa from 'execa'
 import chalk from 'chalk'
 import { manifest } from '@segment/browser-destinations'
 import ora from 'ora'
@@ -11,9 +12,7 @@ import {
   createRemotePlugin,
   updateRemotePlugin
 } from '../lib/control-plane-client'
-import execa from 'execa'
-import { build, buildVersions } from '../lib/web-bundles'
-import { createShaManifestFile } from '../lib/git-manifest'
+import { build, webBundles } from '../lib/web-bundles'
 
 export default class PushBrowserDestinations extends Command {
   private spinner: ora.Ora = ora()
@@ -72,20 +71,14 @@ export default class PushBrowserDestinations extends Command {
       this.spinner.start(`Building libraries`)
       build(flags.env)
     } catch (e) {
-      // @ts-expect-error e: any
       this.error(e)
     } finally {
       this.spinner.stop()
     }
 
-    const shaVersionsManifest: { [library: string]: string } = {}
-
     for (const metadata of metadatas) {
       this.spinner.start(`Saving remote plugin for ${metadata.name}`)
       const entry = manifest[metadata.id]
-
-      buildVersions(entry.version, entry.directory)
-      shaVersionsManifest[entry.directory] = entry.version
 
       const input = {
         metadataId: metadata.id,
@@ -93,7 +86,7 @@ export default class PushBrowserDestinations extends Command {
         // This MUST match the way webpack exports the libraryName in the umd bundle
         // TODO make this more automatic for consistency
         libraryName: `${entry.directory}Destination`,
-        url: `${path}/${entry.directory}/latest/index.js`
+        url: `${path}/${entry.directory}/${webBundles()[entry.directory]}`
       }
 
       // We expect that each definition produces a single Remote Plugin bundle
@@ -108,8 +101,6 @@ export default class PushBrowserDestinations extends Command {
         this.spinner.succeed(`Created new remote plugin for ${metadata.name}`)
       }
     }
-
-    createShaManifestFile(shaVersionsManifest)
 
     try {
       this.spinner.start(`Syncing all plugins to s3`)
