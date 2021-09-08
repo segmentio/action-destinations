@@ -26,16 +26,22 @@ const destination: DestinationDefinition<Settings> = {
         type: 'string',
         required: true
       },
-      profileApiSpaceId: {
-        label: 'Profile API Space ID',
-        description: 'Profile API Space ID',
-        type: 'string',
-        required: true
-      },
       profileApiAccessToken: {
         label: 'Profile API Access Token',
         description: 'Profile API Access Token',
         type: 'password',
+        required: true
+      },
+      spaceId: {
+        label: 'Space ID',
+        description: 'Space ID',
+        type: 'string',
+        required: true
+      },
+      sourceId: {
+        label: 'Source ID',
+        description: 'Source ID',
+        type: 'string',
         required: true
       }
     },
