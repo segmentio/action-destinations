@@ -8,6 +8,7 @@ export interface ManifestEntry {
   definition: BrowserDestinationDefinition<any, any>
   directory: string
   path: string
+  version: string
 }
 
 export const manifest: Record<MetadataId, ManifestEntry> = {}
@@ -17,10 +18,12 @@ function register(id: MetadataId, destinationPath: string) {
   const definition = require(destinationPath).destination
   const resolvedPath = require.resolve(destinationPath)
   const [directory] = path.dirname(resolvedPath).split(path.sep).reverse()
+  const version = definition.version
 
   manifest[id] = {
     definition,
     directory,
+    version: version || 'latest',
     path: resolvedPath
   }
 }

@@ -44,6 +44,7 @@ const presets: DestinationDefinition['presets'] = [
 ]
 
 export const destination: BrowserDestinationDefinition<Settings, typeof appboy> = {
+  version: '0.0.1',
   name: 'Braze Web Mode',
   slug: 'actions-braze-web',
   mode: 'device',
