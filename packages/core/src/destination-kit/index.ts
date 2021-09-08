@@ -2,7 +2,7 @@ import { validate, parseFql, ErrorCondition } from '@segment/destination-subscri
 import type { JSONSchema4 } from 'json-schema'
 import { Action, ActionDefinition, BaseActionDefinition, RequestFn } from './action'
 import { time, duration } from '../time'
-import { JSONLikeObject, JSONObject } from '../json-object'
+import { JSONLikeObject, JSONObject, JSONValue } from '../json-object'
 import { SegmentEvent } from '../segment-event'
 import { fieldsToJsonSchema, MinimalInputField } from './fields-to-jsonschema'
 import createRequestClient, { RequestClient } from '../create-request-client'
@@ -12,12 +12,13 @@ import type { GlobalSetting, RequestExtension, ExecuteInput, Result } from './ty
 import type { AllRequestOptions } from '../request-client'
 import { IntegrationError, InvalidAuthenticationError } from '../errors'
 import { AuthTokens, getAuthData, getOAuth2Data, updateOAuthSettings } from './parse-settings'
+import { InputData } from '../mapping-kit'
+import { retry } from '../retry'
 
 export type { BaseActionDefinition, ActionDefinition, ExecuteInput, RequestFn }
 export type { MinimalInputField }
 export { fieldsToJsonSchema }
 
-const RETRY_ATTEMPTS = 2
 const OAUTH2_SCHEME = 'oauth2'
 
 export interface SubscriptionStats {
@@ -25,7 +26,6 @@ export interface SubscriptionStats {
   destination: string
   action: string
   subscribe: string
-  state: string
   input: JSONLikeObject
   output: Result[] | null
 }
@@ -159,11 +159,23 @@ interface EventInput<Settings> {
   readonly auth?: AuthTokens
 }
 
+interface BatchEventInput<Settings> {
+  readonly events: SegmentEvent[]
+  readonly mapping: JSONObject
+  readonly settings: Settings
+  /** Authentication-related data based on the destination's authentication.fields definition and authentication scheme */
+  readonly auth?: AuthTokens
+}
+
 export interface DecoratedResponse extends ModifiedResponse {
   request: Request
   options: AllRequestOptions
 }
 
+interface OnEventOptions {
+  onTokenRefresh?: (tokens: RefreshAccessTokenResult) => void
+  onComplete?: (stats: SubscriptionStats) => void
+}
 export class Destination<Settings = JSONObject> {
   readonly definition: DestinationDefinition<Settings>
   readonly name: string
@@ -197,7 +209,7 @@ export class Destination<Settings = JSONObject> {
     const auth = getAuthData(settings as unknown as JSONObject)
     const data = { settings: destinationSettings, auth }
 
-    const context: ExecuteInput<Settings, {}> = { settings: destinationSettings, payload: {}, auth }
+    const context: ExecuteInput<Settings, undefined> = { settings: destinationSettings, payload: undefined, auth }
 
     if (this.settingsSchema) {
       validateSchema(settings, this.settingsSchema, `${this.name}:settings`)
@@ -230,9 +242,9 @@ export class Destination<Settings = JSONObject> {
     }
 
     // TODO: clean up context/extendRequest so we don't have to send information that is not needed (payload & cachedFields)
-    const context: ExecuteInput<Settings, {}> = {
+    const context: ExecuteInput<Settings, undefined> = {
       settings,
-      payload: {},
+      payload: undefined,
       auth: getAuthData(settings as unknown as JSONObject)
     }
     const options = this.extendRequest?.(context) ?? {}
@@ -259,45 +271,58 @@ export class Destination<Settings = JSONObject> {
     return this
   }
 
-  protected executeAction(
+  protected async executeAction(
     actionSlug: string,
     { event, mapping, settings, auth }: EventInput<Settings>
   ): Promise<Result[]> {
     const action = this.actions[actionSlug]
     if (!action) {
-      return Promise.resolve([])
+      return []
     }
 
     return action.execute({
       mapping,
-      data: event,
+      data: event as unknown as InputData,
       settings,
       auth
     })
   }
 
+  public async executeBatch(actionSlug: string, { events, mapping, settings, auth }: BatchEventInput<Settings>) {
+    const action = this.actions[actionSlug]
+    if (!action) {
+      return []
+    }
+
+    await action.executeBatch({
+      mapping,
+      data: events as unknown as InputData[],
+      settings,
+      auth
+    })
+
+    return [{ output: 'successfully processed batch of events' }]
+  }
+
   private async onSubscription(
     subscription: Subscription,
-    event: SegmentEvent,
+    data: SegmentEvent | SegmentEvent[],
     settings: Settings,
     auth: AuthTokens,
-    onComplete?: (stats: SubscriptionStats) => void
+    onComplete?: OnEventOptions['onComplete']
   ): Promise<Result[]> {
     const subscriptionStartedAt = time()
     const actionSlug = subscription.partnerAction
     const input = {
-      event,
       mapping: subscription.mapping || {},
       settings,
       auth
     }
 
-    let state = 'pending'
     let results: Result[] | null = null
 
     try {
       if (!subscription.subscribe || typeof subscription.subscribe !== 'string') {
-        state = 'skipped'
         results = [{ output: 'invalid subscription' }]
         return results
       }
@@ -305,24 +330,22 @@ export class Destination<Settings = JSONObject> {
       const parsedSubscription = parseFql(subscription.subscribe)
 
       if ((parsedSubscription as ErrorCondition).error) {
-        state = 'skipped'
         results = [{ output: `invalid subscription : ${(parsedSubscription as ErrorCondition).error.message}` }]
         return results
       }
 
       const isSubscribed = validate(parsedSubscription, event)
       if (!isSubscribed) {
-        state = 'skipped'
         results = [{ output: 'not subscribed' }]
         return results
       }
 
-      results = await this.executeAction(actionSlug, input)
-      state = 'done'
-
-      return results
+      if (Array.isArray(data)) {
+        return await this.executeBatch(actionSlug, { ...input, events: data })
+      } else {
+        return await this.executeAction(actionSlug, { ...input, event: data })
+      }
     } catch (error) {
-      state = 'errored'
       results = [{ error }]
 
       if (error.name === 'AggregateAjvError' || error.name === 'ValidationError') {
@@ -339,9 +362,8 @@ export class Destination<Settings = JSONObject> {
         destination: this.name,
         action: actionSlug,
         subscribe: subscription.subscribe,
-        state,
         input: {
-          event: input.event as unknown as JSONLikeObject,
+          data: data as unknown as JSONValue,
           mapping: input.mapping,
           settings: input.settings as unknown as JSONLikeObject
         },
@@ -350,56 +372,54 @@ export class Destination<Settings = JSONObject> {
     }
   }
 
-  /**
-   * Note: Until we move subscriptions upstream (into int-consumer) we've opted
-   * to have failures abort the set of subscriptions and get potentially retried by centrifuge
-   */
-  public async onEvent(
-    event: SegmentEvent,
-    settings: JSONObject,
-    options?: {
-      onTokenRefresh?: (tokens: RefreshAccessTokenResult) => void
-      onComplete?: (stats: SubscriptionStats) => void
-    }
-  ): Promise<Result[]> {
-    for (let i = 0; i < RETRY_ATTEMPTS; i++) {
-      try {
-        return await this.onEventInternal(event, settings, options?.onComplete)
-      } catch (error) {
-        const statusCode = error?.status ?? error?.response?.status ?? 500
-        // Throw original error if it is unrelated to invalid access tokens and not an oauth2 scheme
-        if (!(statusCode === 401 && this.authentication?.scheme === OAUTH2_SCHEME)) {
-          throw error
-        }
-
-        const destinationSettings = this.getDestinationSettings(settings)
-        const oauthSettings = getOAuth2Data(settings)
-        const newTokens = await this.refreshAccessToken(destinationSettings, oauthSettings)
-        if (!newTokens) {
-          throw new InvalidAuthenticationError('Failed to refresh access token')
-        }
-        settings = updateOAuthSettings(settings, newTokens)
-        options?.onTokenRefresh?.(newTokens)
-      }
-    }
-
-    throw new InvalidAuthenticationError()
+  /** Pass a single event to 0 or more subscriptions */
+  public onEvent(event: SegmentEvent, settings: JSONObject, options?: OnEventOptions): Promise<Result[]> {
+    return this.onSubscriptions(event, settings, options)
   }
 
-  private async onEventInternal(
-    event: SegmentEvent,
+  /** Pass a batch of events to 0 or more subscriptions */
+  public onBatch(events: SegmentEvent[], settings: JSONObject, options?: OnEventOptions): Promise<Result[]> {
+    return this.onSubscriptions(events, settings, options)
+  }
+
+  private async onSubscriptions(
+    data: SegmentEvent | SegmentEvent[],
     settings: JSONObject,
-    onComplete?: (stats: SubscriptionStats) => void
+    options?: OnEventOptions
   ): Promise<Result[]> {
     const subscriptions = this.getSubscriptions(settings)
     const destinationSettings = this.getDestinationSettings(settings)
-    const authData = getAuthData(settings)
 
-    const promises = subscriptions.map((subscription) =>
-      this.onSubscription(subscription, event, destinationSettings, authData, onComplete)
-    )
-    const results = await Promise.all(promises)
-    return ([] as Result[]).concat(...results)
+    const run = async () => {
+      const authData = getAuthData(settings)
+      const promises = subscriptions.map((subscription) =>
+        this.onSubscription(subscription, data, destinationSettings, authData, options?.onComplete)
+      )
+      const results = await Promise.all(promises)
+      return ([] as Result[]).concat(...results)
+    }
+
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const onFailedAttempt = async (error: any) => {
+      const statusCode = error?.status ?? error?.response?.status ?? 500
+
+      // Throw original error if it is unrelated to invalid access tokens and not an oauth2 scheme
+      if (!(statusCode === 401 && this.authentication?.scheme === OAUTH2_SCHEME)) {
+        throw error
+      }
+
+      const oauthSettings = getOAuth2Data(settings)
+      const newTokens = await this.refreshAccessToken(destinationSettings, oauthSettings)
+      if (!newTokens) {
+        throw new InvalidAuthenticationError('Failed to refresh access token')
+      }
+
+      // Update `settings` with new tokens
+      settings = updateOAuthSettings(settings, newTokens)
+      options?.onTokenRefresh?.(newTokens)
+    }
+
+    return await retry(run, { retries: 2, onFailedAttempt })
   }
 
   private getSubscriptions(settings: JSONObject): Subscription[] {

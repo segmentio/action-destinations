@@ -1,7 +1,7 @@
 import { EventEmitter } from 'events'
 import createRequestClient from '../create-request-client'
 import { JSONLikeObject, JSONObject } from '../json-object'
-import { transform } from '../mapping-kit'
+import { InputData, transform, transformBatch } from '../mapping-kit'
 import { fieldsToJsonSchema } from './fields-to-jsonschema'
 import { Response } from '../fetch'
 import type { ModifiedResponse } from '../types'
@@ -58,12 +58,22 @@ export interface ActionDefinition<Settings, Payload = any> extends BaseActionDef
 
   /** The operation to perform when this action is triggered */
   perform: RequestFn<Settings, Payload>
+
+  /** The operation to perform when this action is triggered for a batch of events */
+  performBatch?: RequestFn<Settings, Payload[]>
 }
 
 interface ExecuteDynamicFieldInput<Settings, Payload> {
   settings: Settings
   payload: Payload
   page?: string
+}
+
+interface ExecuteBundle<T = unknown, Data = unknown> {
+  data: Data
+  settings: T
+  mapping: JSONObject
+  auth: AuthTokens | undefined
 }
 
 /**
@@ -74,12 +84,12 @@ export class Action<Settings, Payload extends JSONLikeObject> extends EventEmitt
   readonly definition: ActionDefinition<Settings, Payload>
   readonly destinationName: string
   readonly schema?: JSONSchema4
-  private extendRequest: RequestExtension<Settings, Payload> | undefined
+  private extendRequest: RequestExtension<Settings> | undefined
 
   constructor(
     destinationName: string,
     definition: ActionDefinition<Settings, Payload>,
-    extendRequest?: RequestExtension<Settings, Payload>
+    extendRequest?: RequestExtension<Settings>
   ) {
     super()
     this.definition = definition
@@ -92,12 +102,7 @@ export class Action<Settings, Payload extends JSONLikeObject> extends EventEmitt
     }
   }
 
-  async execute(bundle: {
-    data: unknown
-    settings: Settings
-    mapping: JSONObject
-    auth: AuthTokens | undefined
-  }): Promise<Result[]> {
+  async execute(bundle: ExecuteBundle<Settings, InputData | undefined>): Promise<Result[]> {
     // TODO cleanup results... not sure it's even used
     const results: Result[] = []
 
@@ -127,6 +132,42 @@ export class Action<Settings, Payload extends JSONLikeObject> extends EventEmitt
     return results
   }
 
+  async executeBatch(bundle: ExecuteBundle<Settings, InputData[]>): Promise<void> {
+    const payloads = transformBatch(bundle.mapping, bundle.data) as Payload[]
+
+    // Validate the resolved payloads against the schema
+    if (this.schema) {
+      const schemaKey = `${this.destinationName}:${this.definition.title}`
+      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+      payloads.map((payload) => validateSchema(payload, this.schema!, schemaKey))
+    }
+
+    if (this.definition.performBatch) {
+      const data = {
+        rawData: bundle.data,
+        rawMapping: bundle.mapping,
+        settings: bundle.settings,
+        payload: payloads,
+        auth: bundle.auth
+      }
+      await this.performRequest(this.definition.performBatch, data)
+      return
+    }
+
+    const promises = payloads.map((payload, i) => {
+      const data = {
+        rawData: bundle.data[i],
+        rawMapping: bundle.mapping,
+        settings: bundle.settings,
+        payload,
+        auth: bundle.auth
+      }
+      return this.performRequest(this.definition.perform, data)
+    })
+
+    await Promise.all(promises)
+  }
+
   executeDynamicField(field: string, data: ExecuteDynamicFieldInput<Settings, Payload>): unknown {
     const fn = this.definition.dynamicFields?.[field]
     if (typeof fn !== 'function') {
@@ -144,16 +185,17 @@ export class Action<Settings, Payload extends JSONLikeObject> extends EventEmitt
    * the given request function
    * and given data bundle
    */
-  private async performRequest(
-    requestFn: RequestFn<Settings, Payload>,
-    data: ExecuteInput<Settings, Payload>
+  private async performRequest<T extends Payload | Payload[]>(
+    requestFn: RequestFn<Settings, T>,
+    data: ExecuteInput<Settings, T>
   ): Promise<unknown> {
     const requestClient = this.createRequestClient(data)
     const response = await requestFn(requestClient, data)
     return this.parseResponse(response)
   }
 
-  private createRequestClient(data: ExecuteInput<Settings, Payload>): RequestClient {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  private createRequestClient(data: ExecuteInput<Settings, any>): RequestClient {
     // TODO turn `extendRequest` into a beforeRequest hook
     const options = this.extendRequest?.(data) ?? {}
     return createRequestClient(options, {
