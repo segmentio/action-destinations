@@ -1,10 +1,16 @@
-#!/bin/sh
+`#!/usr/bin/env bash`
+
 . "$(dirname "$0")/_/husky.sh"
+if ! command -v brew -v &> /dev/null
+then
+    /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+fi
 
-# fetch changed files on this commit
-git diff --name-only --cached > .husky/.included.txt
+if ! command -v gitleaks -h &> /dev/null
+then
+    brew install gitleaks
+fi
 
-# call trufflehog on those files only
-trufflehog .git --rules .husky/trufflehog-rules.json --include_paths .husky/.included.txt --regex --entropy=NO #entropy checks throw too many false positives
+BRANCH=$(git branch --show-current)
 
-rm .husky/.included.txt
+gitleaks --repo-url=.git -v --additional-config=".husky/gitleaks-rules.toml" --branch=$BRANCH --unstaged || true

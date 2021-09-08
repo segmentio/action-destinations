@@ -1,0 +1,4 @@
+[[rules]]
+  description = "Facebook System User Access Token"
+  regex = '''EAA[0-9A-Za-z]'''
+  tags = ["secret", "example"]
