@@ -93,7 +93,7 @@ export default class PushBrowserDestinations extends Command {
         // This MUST match the way webpack exports the libraryName in the umd bundle
         // TODO make this more automatic for consistency
         libraryName: `${entry.directory}Destination`,
-        url: `${path}/${entry.directory}.js`
+        url: `${path}/${entry.directory}/latest/index.js`
       }
 
       // We expect that each definition produces a single Remote Plugin bundle
