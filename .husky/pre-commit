@@ -1,16 +1,21 @@
 `#!/usr/bin/env bash`
-
 . "$(dirname "$0")/_/husky.sh"
-if ! command -v brew -v &> /dev/null
-then
-    /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
-fi
+set -exo pipefail
 
 if ! command -v gitleaks -h &> /dev/null
 then
-    brew install gitleaks
+    if -f /.dockerenv
+    then
+        docker pull zricethezav/gitleaks:latest
+        docker run -v ${PWD}:/. zricethezav/gitleaks:latest --path="/."
+    else
+        if ! command -v brew -v &> /dev/null
+        then
+            /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+        fi
+
+        brew install gitleaks
+    fi
 fi
 
-BRANCH=$(git branch --show-current)
-
-gitleaks --repo-url=.git -v --additional-config=".husky/gitleaks-rules.toml" --branch=$BRANCH --unstaged || true
+gitleaks --repo-url=.git -v --additional-config=".husky/gitleaks-rules.toml" --branch=$(git branch --show-current) --unstaged
