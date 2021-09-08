@@ -1,6 +1,6 @@
 {
   "name": "@segment/browser-destinations",
-  "version": "3.8.0",
+  "version": "3.8.3",
   "description": "Action based browser destinations",
   "author": "Netto Farah",
   "private": true,
@@ -22,13 +22,14 @@
     "clean": "tsc -b tsconfig.build.json --clean",
     "postclean": "rm -rf dist",
     "prepublishOnly": "yarn build",
-    "test": "jest --passWithNoTests",
+    "test": "jest",
     "typecheck": "tsc --noEmit",
     "dev": "concurrently \"webpack serve\" \"webpack -c webpack.config.js --watch\""
   },
   "dependencies": {
     "@braze/web-sdk": "^3.3.0",
     "@fullstory/browser": "^1.4.9",
+    "@segment/analytics-next": "^1.29.3",
     "@segment/destination-subscriptions": "^3.5.0",
     "dayjs": "^1.10.3",
     "tslib": "^2.1.0",
@@ -60,13 +61,26 @@
     "webpack-dev-server": "^4.0.0-rc.0"
   },
   "optionalDependencies": {
-    "@segment/actions-core": "^3.8.0",
-    "@segment/analytics-next": "^1.29.3"
+    "@segment/actions-core": "^3.8.1"
   },
   "prettier": {
     "semi": false,
     "singleQuote": true,
     "trailingComma": "none",
     "printWidth": 120
+  },
+  "jest": {
+    "rootDir": "./",
+    "moduleNameMapper": {
+      "@segment/actions-core": "<rootDir>/../core/src/index.ts",
+      "@segment/destination-subscriptions": "<rootDir>/../destination-subscriptions/src/index.ts"
+    },
+    "transform": {
+      "^.+\\.[t|j]sx?$": "babel-jest"
+    },
+    "transformIgnorePatterns": [
+      "/node_modules/(?!@segment/analytics-next).+\\.js$"
+    ],
+    "forceExit": true
   }
 }

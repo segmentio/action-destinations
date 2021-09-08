@@ -5,3 +5,5 @@ dist
 *.tsbuildinfo
 .eslintcache
 /Users/nicholas.aguilar/Desktop
+package-lock.json
+.env

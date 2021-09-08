@@ -62,8 +62,7 @@ export const destination: BrowserDestinationDefinition<Settings, typeof appboy> 
       required: true
     },
     api_key: {
-      description:
-        'Use the API Key to identify your application to Braze during [SDK setup](https://www.braze.com/docs/developer_guide/platform_integration_guides/web/initial_sdk_setup/).',
+      description: 'Found in the Braze Dashboard under Settings → Manage Settings → Apps → Web',
       label: 'API Key',
       type: 'password',
       required: true

@@ -285,10 +285,12 @@ export default class Push extends Command {
 }
 
 function getFieldPropertySchema(fieldKey: string, field: MinimalInputField): JSONSchema4 {
-  // Build a temporary object in which they key = field name and value = field properties
+  // Build a temporary object in which key = field name and value = field properties
   // since that's the structure expected by fieldsToJsonSchema
   const tmpFieldObject: Record<string, MinimalInputField> = {}
-  tmpFieldObject[fieldKey] = field
+  // removing default data since it's available under defaultValue
+  const { default: def, ...fieldWODefault } = field
+  tmpFieldObject[fieldKey] = fieldWODefault
   return fieldsToJsonSchema(tmpFieldObject)
 }
 
