@@ -12,6 +12,7 @@ import {
   updateRemotePlugin
 } from '../lib/control-plane-client'
 import execa from 'execa'
+import { build, buildVersions } from '../lib/web-bundles'
 
 export default class PushBrowserDestinations extends Command {
   private spinner: ora.Ora = ora()
