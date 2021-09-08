@@ -27,12 +27,17 @@ describe('Testing snapshot for {{destination}} action:', () => {
       })
 
       const request = responses[0].request
+      const rawBody = await request.text()
+
+      try {
+        const json = JSON.parse(rawBody)
+        expect(json).toMatchSnapshot()
+        return
+      } catch (err) {
+        expect(rawBody).toMatchSnapshot()
+      }
 
       expect(request.headers).toMatchSnapshot()
-
-      if (request.body) {
-        expect(request.body.toString()).toMatchSnapshot()
-      }
     })
 
     it(`${actionSlug} [all fields]`, async () => {
@@ -55,9 +60,14 @@ describe('Testing snapshot for {{destination}} action:', () => {
       })
 
       const request = responses[0].request
+      const rawBody = await request.text()
 
-      if (request.body) {
-        expect(request.body.toString()).toMatchSnapshot()
+      try {
+        const json = JSON.parse(rawBody)
+        expect(json).toMatchSnapshot()
+        return
+      } catch (err) {
+        expect(rawBody).toMatchSnapshot()
       }
     })
   }
