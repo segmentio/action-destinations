@@ -1,5 +1,4 @@
 import { Command, flags } from '@oclif/command'
-import execa from 'execa'
 import chalk from 'chalk'
 import { manifest } from '@segment/browser-destinations'
 import ora from 'ora'
@@ -12,6 +11,7 @@ import {
   createRemotePlugin,
   updateRemotePlugin
 } from '../lib/control-plane-client'
+import execa from 'execa'
 
 export default class PushBrowserDestinations extends Command {
   private spinner: ora.Ora = ora()
@@ -79,6 +79,8 @@ export default class PushBrowserDestinations extends Command {
       this.spinner.start(`Saving remote plugin for ${metadata.name}`)
       const entry = manifest[metadata.id]
 
+      await buildVersions(entry.version, entry.directory)
+
       const input = {
         metadataId: metadata.id,
         name: metadata.name,
@@ -111,15 +113,6 @@ export default class PushBrowserDestinations extends Command {
       this.error(e)
     }
   }
-}
-
-async function build(env: string): Promise<string> {
-  execa.commandSync('lerna run build')
-  if (env === 'production') {
-    return execa.commandSync('lerna run build-web').stdout
-  }
-
-  return execa.commandSync('lerna run build-web-stage').stdout
 }
 
 async function syncToS3(env: string): Promise<string> {
