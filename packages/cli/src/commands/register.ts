@@ -132,6 +132,7 @@ export default class Register extends Command {
 
     if (!shouldContinue) {
       this.log('Exiting without registering.')
+      this.exit()
     }
 
     await this.createDestinationMetadata(definition)
