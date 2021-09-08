@@ -114,7 +114,7 @@ loadDestination(targetDirectory)
     )
 
     server.listen(port, () => {
-      logger.info(`Listening at http://localhost:${port} ->
+      logger.info(`Listening at http://localhost:${port} -> 
 ${Object.keys(def?.actions ?? {})
   .map((action) => `  POST http://localhost:${port}/${action}`)
   .join('\n')}`)
