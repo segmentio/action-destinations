@@ -13,6 +13,7 @@ import {
 } from '../lib/control-plane-client'
 import execa from 'execa'
 import { build, buildVersions } from '../lib/web-bundles'
+import { createShaManifestFile } from '../lib/git-manifest'
 
 export default class PushBrowserDestinations extends Command {
   private spinner: ora.Ora = ora()
@@ -69,18 +70,22 @@ export default class PushBrowserDestinations extends Command {
 
     try {
       this.spinner.start(`Building libraries`)
-      await build(flags.env)
+      build(flags.env)
     } catch (e) {
+      // @ts-expect-error e: any
       this.error(e)
     } finally {
       this.spinner.stop()
     }
 
+    const shaVersionsManifest: { [library: string]: string } = {}
+
     for (const metadata of metadatas) {
       this.spinner.start(`Saving remote plugin for ${metadata.name}`)
       const entry = manifest[metadata.id]
 
-      await buildVersions(entry.version, entry.directory)
+      buildVersions(entry.version, entry.directory)
+      shaVersionsManifest[entry.directory] = entry.version
 
       const input = {
         metadataId: metadata.id,
@@ -103,6 +108,8 @@ export default class PushBrowserDestinations extends Command {
         this.spinner.succeed(`Created new remote plugin for ${metadata.name}`)
       }
     }
+
+    createShaManifestFile(shaVersionsManifest)
 
     try {
       this.spinner.start(`Syncing all plugins to s3`)

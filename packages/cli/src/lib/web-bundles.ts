@@ -1,6 +1,6 @@
 import execa from 'execa'
 
-const DIST_DIR = 'packages/browser-destinations/dist/web/'
+export const DIST_DIR = 'packages/browser-destinations/dist/web/'
 
 export function webBundles(): string[] {
   const command = `ls ${DIST_DIR}`
@@ -8,7 +8,7 @@ export function webBundles(): string[] {
   return files.split('\n')
 }
 
-export async function build(env: string): Promise<string> {
+export function build(env: string): string {
   execa.commandSync('lerna run build')
   if (env === 'production') {
     return execa.commandSync('lerna run build-web').stdout
@@ -17,7 +17,7 @@ export async function build(env: string): Promise<string> {
   return execa.commandSync('lerna run build-web-stage').stdout
 }
 
-export async function buildVersions(version: string, directory: string): Promise<void> {
+export function buildVersions(version: string, directory: string): void {
   if (version !== 'latest') {
     execa.commandSync(`cp -R ${DIST_DIR}${directory}/latest/ ${DIST_DIR}${directory}/${version}/`)
   }
