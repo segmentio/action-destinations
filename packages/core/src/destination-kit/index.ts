@@ -334,7 +334,7 @@ export class Destination<Settings = JSONObject> {
         return results
       }
 
-      const isSubscribed = validate(parsedSubscription, event)
+      const isSubscribed = validate(parsedSubscription, data)
       if (!isSubscribed) {
         results = [{ output: 'not subscribed' }]
         return results
