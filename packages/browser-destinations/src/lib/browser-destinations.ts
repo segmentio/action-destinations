@@ -34,7 +34,6 @@ export interface BrowserDestinationDependencies {
 export type InitializeOptions<Settings> = { settings: Settings; analytics: Analytics }
 
 export interface BrowserDestinationDefinition<Settings = unknown, Client = unknown> extends BaseDefinition {
-  version?: string
   mode: 'device'
 
   /**

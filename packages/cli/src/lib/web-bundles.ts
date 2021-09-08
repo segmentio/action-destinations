@@ -16,9 +16,3 @@ export function build(env: string): string {
 
   return execa.commandSync('lerna run build-web-stage').stdout
 }
-
-export function buildVersions(version: string, directory: string): void {
-  if (version !== 'latest') {
-    execa.commandSync(`cp -R ${DIST_DIR}${directory}/latest/ ${DIST_DIR}${directory}/${version}/`)
-  }
-}
