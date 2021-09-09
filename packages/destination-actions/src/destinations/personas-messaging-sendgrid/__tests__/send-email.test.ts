@@ -196,9 +196,11 @@ for (const environment of ['stage', 'production']) {
               email: 'test@test.com'
             }
           ]),
-          journeyId: 'journeyId',
-          journeyStateId: 'journeyStateId',
-          audienceId: 'audienceId',
+          customArgs: {
+            journey_id: 'journeyId',
+            journey_state_id: 'journeyStateId',
+            audience_id: 'audienceId',
+          },
           previewText: '',
           subject: 'Test email with metadata',
           body: 'Welcome to segment',

@@ -140,24 +140,12 @@ const action: ActionDefinition<Settings, Payload> = {
       type: 'string',
       required: true
     },
-    journeyId: {
-      label: 'Journey Id',
-      description: 'Journey id used for analytics',
-      type: 'string',
+    customArgs: {
+      label: 'Custom Args',
+      description: 'Additional custom args that we be passed back opaquely on webhook events',
+      type: 'object',
       required: false
     },
-    journeyStateId: {
-      label: 'Journey State Id',
-      description: 'Journey state id used for analytics',
-      type: 'string',
-      required: false
-    },
-    audienceId: {
-      label: 'Audience Id',
-      description: 'Audience id used for analytics',
-      type: 'string',
-      required: false
-    }
   },
   perform: async (request, { settings, payload }) => {
     const [traits, externalIds] = await Promise.all([
@@ -203,12 +191,10 @@ const action: ActionDefinition<Settings, Payload> = {
             ],
             bcc: bcc.length > 0 ? bcc : undefined,
             custom_args: {
+              ...payload.customArgs,
               source_id: settings.sourceId,
               space_id: settings.spaceId,
               user_id: payload.userId,
-              journey_id: payload.journeyId,
-              journey_state_id: payload.journeyStateId,
-              audience_id: payload.audienceId
             }
           }
         ],

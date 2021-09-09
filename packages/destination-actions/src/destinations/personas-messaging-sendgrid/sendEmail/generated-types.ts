@@ -50,15 +50,9 @@ export interface Payload {
    */
   bodyHtml: string
   /**
-   * Journey id used for analytics
+   * Additional custom args that we be passed back opaquely on webhook events
    */
-  journeyId?: string
-  /**
-   * Journey state id used for analytics
-   */
-  journeyStateId?: string
-  /**
-   * Audience id used for analytics
-   */
-  audienceId?: string
+  customArgs?: {
+    [k: string]: unknown
+  }
 }
