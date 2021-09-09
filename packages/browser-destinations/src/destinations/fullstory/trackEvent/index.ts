@@ -10,13 +10,13 @@ const action: BrowserActionDefinition<Settings, typeof FullStory, Payload> = {
   platform: 'web',
   defaultSubscription: 'type = "track"',
   fields: {
-    eventName: {
+    name: {
       description: 'The name of the event.',
       label: 'name',
       required: true,
       type: 'string'
     },
-    eventProperties: {
+    properties: {
       description: 'A JSON object containing additional information about the event that will be indexed by FullStory.',
       label: 'properties',
       required: false,
@@ -24,7 +24,7 @@ const action: BrowserActionDefinition<Settings, typeof FullStory, Payload> = {
     }
   },
   perform: (client, event) => {
-    client.event(event.payload.eventName, event.payload.eventProperties ?? {})
+    client.event(event.payload.name, event.payload.properties ?? {})
   }
 }
 

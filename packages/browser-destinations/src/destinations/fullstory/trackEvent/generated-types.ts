@@ -4,11 +4,11 @@ export interface Payload {
   /**
    * The name of the event.
    */
-  eventName: string
+  name: string
   /**
    * A JSON object containing additional information about the event that will be indexed by FullStory.
    */
-  eventProperties?: {
+  properties?: {
     [k: string]: unknown
   }
 }

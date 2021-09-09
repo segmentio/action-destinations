@@ -9,6 +9,7 @@ import viewedPage from './viewedPage'
 
 export const destination: BrowserDestinationDefinition<Settings, typeof FullStory> = {
   name: 'Fullstory',
+  slug: 'actions-fullstory',
   mode: 'device',
   settings: {
     orgId: {

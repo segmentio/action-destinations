@@ -63,8 +63,8 @@ const action: BrowserActionDefinition<Settings, typeof FullStory, Payload> = {
     } else {
       client.setUserVars({
         ...newTraits,
-        email: event.payload.email,
-        displayName: event.payload.displayName
+        ...(event.payload.email !== undefined && { email: event.payload.email }),
+        ...(event.payload.displayName !== undefined && { displayName: event.payload.displayName })
       })
     }
   }
