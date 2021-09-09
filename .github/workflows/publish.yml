@@ -72,9 +72,11 @@ jobs:
         run: NODE_ENV=production yarn build
 
       - name: Lint
+        if: ${{ github.event_name == 'workflow_dispatch' }}
         run: yarn lint
 
       - name: Test
+        if: ${{ github.event_name == 'workflow_dispatch' }}
         run: yarn test
 
       - name: destination-subscriptions size
