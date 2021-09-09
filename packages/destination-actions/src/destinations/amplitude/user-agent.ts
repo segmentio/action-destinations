@@ -17,10 +17,12 @@ export function parseUserAgentProperties(userAgent?: string): ParsedUA {
   const device = parser.getDevice()
   // eslint-disable-next-line @typescript-eslint/no-unsafe-call
   const os = parser.getOS()
+  // eslint-disable-next-line @typescript-eslint/no-unsafe-call
+  const browser = parser.getBrowser()
 
   return {
-    os_name: os.name,
-    os_version: os.version,
+    os_name: browser.name ?? os.name,
+    os_version: browser.major ?? os.version,
     device_model: device.model
   }
 }

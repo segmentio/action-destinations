@@ -215,13 +215,13 @@ describe('Amplitude', () => {
       })
     })
 
-    it('should support parsing user_agent when the setting is true', async () => {
+    it('should support parsing userAgent when the setting is true', async () => {
       const event = createTestEvent({
         anonymousId: '6fd32a7e-3c56-44c2-bd32-62bbec44c53d',
         timestamp,
         event: 'Test Event',
         context: {
-          user_agent:
+          userAgent:
             'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_11_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/53.0.2785.143 Safari/537.36'
         }
       })
@@ -243,8 +243,8 @@ describe('Amplitude', () => {
               "event_properties": Object {},
               "event_type": "Test Event",
               "library": "segment",
-              "os_name": "Mac",
-              "os_version": "10.11.6",
+              "os_name": "Chrome",
+              "os_version": "53",
               "time": 1629213675449,
               "use_batch_endpoint": false,
               "user_id": "user1234",
@@ -265,7 +265,7 @@ describe('Amplitude', () => {
         device: {
           id: 'foo'
         },
-        user_agent:
+        userAgent:
           'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_11_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/53.0.2785.143 Safari/537.36'
       }
     })
@@ -348,7 +348,7 @@ describe('Amplitude', () => {
             "api_key",
             "undefined",
             "identification",
-            "{\\"user_id\\":\\"some-user-id\\",\\"device_id\\":\\"some-anonymous-id\\",\\"user_properties\\":{\\"some-trait-key\\":\\"some-trait-value\\"},\\"country\\":\\"United States\\",\\"city\\":\\"San Francisco\\",\\"language\\":\\"en-US\\",\\"library\\":\\"segment\\"}",
+            "{\\"os_name\\":\\"Mobile Safari\\",\\"os_version\\":\\"9\\",\\"device_model\\":\\"iPhone\\",\\"user_id\\":\\"some-user-id\\",\\"device_id\\":\\"some-anonymous-id\\",\\"user_properties\\":{\\"some-trait-key\\":\\"some-trait-value\\"},\\"country\\":\\"United States\\",\\"city\\":\\"San Francisco\\",\\"language\\":\\"en-US\\",\\"library\\":\\"segment\\"}",
             "options",
             "undefined",
           ],
@@ -422,7 +422,7 @@ describe('Amplitude', () => {
             "api_key",
             "undefined",
             "identification",
-            "{\\"user_id\\":\\"some-user-id\\",\\"device_id\\":\\"some-anonymous-id\\",\\"user_properties\\":{\\"some-trait-key\\":\\"some-trait-value\\"},\\"country\\":\\"United States\\",\\"city\\":\\"San Francisco\\",\\"language\\":\\"en-US\\",\\"library\\":\\"segment\\"}",
+            "{\\"os_name\\":\\"Mobile Safari\\",\\"os_version\\":\\"9\\",\\"device_model\\":\\"iPhone\\",\\"user_id\\":\\"some-user-id\\",\\"device_id\\":\\"some-anonymous-id\\",\\"user_properties\\":{\\"some-trait-key\\":\\"some-trait-value\\"},\\"country\\":\\"United States\\",\\"city\\":\\"San Francisco\\",\\"language\\":\\"en-US\\",\\"library\\":\\"segment\\"}",
             "options",
             "undefined",
           ],
@@ -431,7 +431,7 @@ describe('Amplitude', () => {
       `)
     })
 
-    it('should support parsing user_agent when the setting is true', async () => {
+    it('should support parsing userAgent when the setting is true', async () => {
       const event = createTestEvent({
         anonymousId: 'some-anonymous-id',
         timestamp: '2021-04-12T16:32:37.710Z',
@@ -445,7 +445,7 @@ describe('Amplitude', () => {
           device: {
             id: 'foo'
           },
-          user_agent:
+          userAgent:
             'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_11_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/53.0.2785.143 Safari/537.36'
         }
       })
@@ -465,7 +465,7 @@ describe('Amplitude', () => {
             "api_key",
             "undefined",
             "identification",
-            "{\\"os_name\\":\\"Mac\\",\\"os_version\\":\\"10.11.6\\",\\"user_id\\":\\"some-user-id\\",\\"device_id\\":\\"foo\\",\\"user_properties\\":{\\"some-trait-key\\":\\"some-trait-value\\"},\\"library\\":\\"segment\\"}",
+            "{\\"os_name\\":\\"Chrome\\",\\"os_version\\":\\"53\\",\\"user_id\\":\\"some-user-id\\",\\"device_id\\":\\"foo\\",\\"user_properties\\":{\\"some-trait-key\\":\\"some-trait-value\\"},\\"library\\":\\"segment\\"}",
             "options",
             "undefined",
           ],
@@ -487,7 +487,7 @@ describe('Amplitude', () => {
           device: {
             id: 'foo'
           },
-          user_agent:
+          userAgent:
             'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_11_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/53.0.2785.143 Safari/537.36'
         }
       })
