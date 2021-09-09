@@ -4,6 +4,7 @@ interface ParsedUA {
   os_name?: string
   os_version?: string
   device_model?: string
+  device_type?: string
 }
 
 export function parseUserAgentProperties(userAgent?: string): ParsedUA {
@@ -23,6 +24,7 @@ export function parseUserAgentProperties(userAgent?: string): ParsedUA {
   return {
     os_name: browser.name ?? os.name,
     os_version: browser.major ?? os.version,
-    device_model: device.model
+    device_model: device.model,
+    device_type: device.type
   }
 }

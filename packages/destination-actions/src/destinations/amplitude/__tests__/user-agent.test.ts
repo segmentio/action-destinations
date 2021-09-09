@@ -12,7 +12,8 @@ describe('amplitude - custom user agent parsing', () => {
     expect(result).toEqual({
       os_name: 'Chrome WebView',
       os_version: '74',
-      device_model: 'TAB 2 A7'
+      device_model: 'TAB 2 A7',
+      device_type: 'tablet'
     })
   })
 
