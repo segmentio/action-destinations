@@ -139,6 +139,24 @@ const action: ActionDefinition<Settings, Payload> = {
       description: 'The HTML content of the body',
       type: 'string',
       required: true
+    },
+    journeyId: {
+      label: 'Journey Id',
+      description: 'Journey id used for analytics',
+      type: 'string',
+      required: false
+    },
+    journeyStateId: {
+      label: 'Journey State Id',
+      description: 'Journey state id used for analytics',
+      type: 'string',
+      required: false
+    },
+    audienceId: {
+      label: 'Audience Id',
+      description: 'Audience id used for analytics',
+      type: 'string',
+      required: false
     }
   },
   perform: async (request, { settings, payload }) => {
@@ -187,7 +205,10 @@ const action: ActionDefinition<Settings, Payload> = {
             custom_args: {
               source_id: settings.sourceId,
               space_id: settings.spaceId,
-              user_id: payload.userId
+              user_id: payload.userId,
+              journey_id: payload.journeyId,
+              journey_state_id: payload.journeyStateId,
+              audience_id: payload.audienceId
             }
           }
         ],

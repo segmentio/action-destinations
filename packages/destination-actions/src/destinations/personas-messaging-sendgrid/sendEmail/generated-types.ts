@@ -49,4 +49,16 @@ export interface Payload {
    * The HTML content of the body
    */
   bodyHtml: string
+  /**
+   * Journey id used for analytics
+   */
+  journeyId?: string
+  /**
+   * Journey state id used for analytics
+   */
+  journeyStateId?: string
+  /**
+   * Audience id used for analytics
+   */
+  audienceId?: string
 }
