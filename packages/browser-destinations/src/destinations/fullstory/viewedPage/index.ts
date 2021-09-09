@@ -14,19 +14,28 @@ const action: BrowserActionDefinition<Settings, typeof FullStory, Payload> = {
       type: 'string',
       required: false,
       description: 'The name of the page that was viewed.',
-      label: 'name'
+      label: 'name',
+      default: {
+        '@path': '$.name'
+      }
     },
     category: {
       type: 'string',
       required: false,
       description: 'The category of the page that was viewed.',
-      label: 'name'
+      label: 'name',
+      default: {
+        '@path': '$.category'
+      }
     },
     properties: {
       type: 'object',
       required: false,
       description: 'The properties of the page that was viewed.',
-      label: 'properties'
+      label: 'properties',
+      default: {
+        '@path': '$.properties'
+      }
     }
   },
   perform: (client, event) => {

@@ -15,31 +15,46 @@ const action: BrowserActionDefinition<Settings, typeof FullStory, Payload> = {
       type: 'string',
       required: false,
       description: "The user's id",
-      label: 'userId'
+      label: 'userId',
+      default: {
+        '@path': '$.userId'
+      }
     },
     anonymousId: {
       type: 'string',
       required: false,
       description: "The user's anonymous id",
-      label: 'anonymous'
+      label: 'anonymous',
+      default: {
+        '@path': '$.anonymousId'
+      }
     },
     displayName: {
       type: 'string',
       required: false,
       description: "The user's display name",
-      label: 'displayName'
+      label: 'displayName',
+      default: {
+        '@path': '$.traits.name'
+      }
     },
     email: {
       type: 'string',
       required: false,
       description: "The user's email",
-      label: 'email'
+      label: 'email',
+      default: {
+        '@path': '$.traits.email'
+      }
     },
     traits: {
       type: 'object',
       required: false,
       description: 'The Segment traits to be forwarded to FullStory',
-      label: 'traits'
+      label: 'traits',
+      default: {
+        '@path': '$.traits'
+      }
     }
   },
   perform: (client, event) => {

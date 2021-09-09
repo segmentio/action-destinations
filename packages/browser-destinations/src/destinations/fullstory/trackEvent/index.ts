@@ -14,13 +14,19 @@ const action: BrowserActionDefinition<Settings, typeof FullStory, Payload> = {
       description: 'The name of the event.',
       label: 'name',
       required: true,
-      type: 'string'
+      type: 'string',
+      default: {
+        '@path': '$.event'
+      }
     },
     properties: {
       description: 'A JSON object containing additional information about the event that will be indexed by FullStory.',
       label: 'properties',
       required: false,
-      type: 'object'
+      type: 'object',
+      default: {
+        '@path': '$.properties'
+      }
     }
   },
   perform: (client, event) => {
