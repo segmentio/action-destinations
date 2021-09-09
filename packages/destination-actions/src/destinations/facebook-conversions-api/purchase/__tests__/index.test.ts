@@ -1,29 +1,24 @@
 import nock from 'nock'
 import { createTestEvent, createTestIntegration } from '@segment/actions-core'
 import Destination from '../../index'
-import { token } from '/Users/nicholas.aguilar/Desktop/token'
 
 const testDestination = createTestIntegration(Destination)
 
 const settings = {
   pixelId: '123321',
-  token: token.token
+  token: process.env.TOKEN
 }
 
 describe('purchase', () => {
   it('should handle a basic event', async () => {
-    nock(`https://graph.facebook.com/v11.0/${settings.pixelId}`, {
-      reqheaders: {
-        bearer: settings.token
-      }
-    })
-      .post('/events')
+    nock(`https://graph.facebook.com/v11.0/${settings.pixelId}`)
+      .post(`/events?access_token=${process.env.TOKEN}`)
       .reply(201, {})
 
     const event = createTestEvent({
       event: 'Order Completed',
       userId: '7b17fb0bd173f625b58636fb796407c22b3d16fc78302d79f0fd30c2fc2fc068', // Pre -hashed for simplicity
-      timestamp: '1629827640',
+      timestamp: '1631210063',
       properties: {
         action_source: 'email',
         currency: 'USD',
@@ -46,6 +41,12 @@ describe('purchase', () => {
           email: {
             '@path': '$.properties.email'
           }
+        },
+        action_source: {
+          '@path': '$.properties.action_source'
+        },
+        event_time: {
+          '@path': '$.timestamp'
         }
       }
     })
@@ -55,18 +56,14 @@ describe('purchase', () => {
   })
 
   it('should throw an error if no user_data keys are included', async () => {
-    nock(`https://graph.facebook.com/v11.0/${settings.pixelId}`, {
-      reqheaders: {
-        bearer: settings.token
-      }
-    })
-      .post('/events')
-      .reply(200, {})
+    nock(`https://graph.facebook.com/v11.0/${settings.pixelId}`)
+      .post(`/events?access_token=${process.env.TOKEN}`)
+      .reply(201, {})
 
     const event = createTestEvent({
       event: 'Order Completed',
       userId: '7b17fb0bd173f625b58636fb796407c22b3d16fc78302d79f0fd30c2fc2fc068', // Pre -hashed for simplicity
-      timestamp: '1629827640',
+      timestamp: '1631210063',
       properties: {
         action_source: 'email',
         currency: 'USD',
@@ -74,23 +71,24 @@ describe('purchase', () => {
       }
     })
 
-    try {
-      await testDestination.testAction('purchase', {
-        event,
-        settings,
-        mapping: {
-          currency: {
-            '@path': '$.properties.currency'
-          },
-          value: {
-            '@path': '$.properties.value'
-          }
-          // No user data mapping included. This should cause action to fail.
+    await expect(testDestination.testAction('purchase', {
+      event,
+      settings,
+      mapping: {
+        currency: {
+          '@path': '$.properties.currency'
+        },
+        value: {
+          '@path': '$.properties.value'
+        },
+        action_source: {
+          '@path': '$.properties.action_source'
+        },
+        event_time: {
+          '@path': '$.timestamp'
         }
-      })
-      fail('Did not expect purchase action to succeed')
-    } catch (e) {
-      expect(e.message).toBe('Must include at least one user data property')
-    }
+        // No user data mapping included. This should cause action to fail.
+      }
+    })).rejects.toThrowError('Must include at least one user data property')
   })
 })

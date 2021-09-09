@@ -10,6 +10,10 @@ export interface Payload {
    */
   currency: string
   /**
+   * Action source
+   */
+  action_source: string
+  /**
    * Name of the page/product.
    */
   content_name?: string
@@ -34,9 +38,9 @@ export interface Payload {
     [k: string]: unknown
   }
   /**
-   * The action source of the event
+   * Time of event
    */
-  action_source?: string
+  event_time: number
   /**
    * User Data
    */

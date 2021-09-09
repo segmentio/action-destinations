@@ -2,7 +2,7 @@ import { ActionDefinition, IntegrationError } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 import { CURRENCY_ISO_CODES } from '../constants'
-import { currency, value, content_name, content_type, contents, num_items, content_ids } from '../fb-capi-properties'
+import { currency, value, content_name, content_type, contents, num_items, content_ids, event_time, action_source } from '../fb-capi-properties'
 import { user_data_field, hash_user_data } from '../fb-capi-user-data'
 
 const action: ActionDefinition<Settings, Payload> = {
@@ -11,16 +11,13 @@ const action: ActionDefinition<Settings, Payload> = {
   fields: {
     value: { ...value, required: true },
     currency: { ...currency, required: true },
+    action_source: { ...action_source, required: true },
     content_name: content_name,
     content_type: content_type,
     contents: contents,
     num_items: num_items,
     content_ids: content_ids,
-    action_source: {
-      label: 'Action Source',
-      description: 'The action source of the event',
-      type: 'string'
-    },
+    event_time: { ...event_time, required: true },
     user_data: user_data_field
   },
   perform: (request, { payload, settings }) => {
@@ -44,18 +41,23 @@ const action: ActionDefinition<Settings, Payload> = {
       )
     }
 
-    return request(`https://graph.facebook.com/v11.0/${settings.pixelId}/events`, {
+    return request(`https://graph.facebook.com/v11.0/${settings.pixelId}/events?access_token=${process.env.TOKEN}`, {
       method: 'POST',
       json: {
         data: [
           {
             event_name: 'Purchase',
-            event_time: payload,
+            event_time: payload.event_time,
             action_source: payload.action_source,
             user_data: hash_user_data(payload.user_data),
             custom_data: {
               currency: payload.currency,
-              value: payload.value
+              value: payload.value,
+              content_ids: payload.content_ids,
+              content_name: payload.content_name,
+              content_type: payload.content_type,
+              contents: payload.contents,
+              num_items: payload.num_items,
             }
           }
         ]

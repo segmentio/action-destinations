@@ -51,3 +51,15 @@ export const num_items: InputField = {
   description: 'Number of Items',
   type: 'number'
 }
+
+export const event_time: InputField = {
+  label: 'Event Time',
+  description: 'Time of event',
+  type: 'number'
+}
+
+export const action_source: InputField = {
+  label: 'Action Source',
+  description: 'Action source',
+  type: 'string'
+}
