@@ -1,4 +1,5 @@
 import { Command, flags } from '@oclif/command'
+import { diffString } from 'json-diff'
 import execa from 'execa'
 import chalk from 'chalk'
 import { manifest } from '@segment/browser-destinations'
@@ -76,6 +77,9 @@ export default class PushBrowserDestinations extends Command {
       this.spinner.stop()
     }
 
+    const pluginsToCreate = []
+    const pluginsToUpdate = []
+
     for (const metadata of metadatas) {
       this.spinner.start(`Saving remote plugin for ${metadata.name}`)
       const entry = manifest[metadata.id]
@@ -94,12 +98,50 @@ export default class PushBrowserDestinations extends Command {
       const existingPlugin = remotePlugins.find((p) => p.metadataId === metadata.id && p.name === metadata.name)
 
       if (existingPlugin) {
-        await updateRemotePlugin(input)
-        this.spinner.succeed(`Updated existing remote plugin for ${metadata.name}`)
+        pluginsToUpdate.push(input)
       } else {
-        await createRemotePlugin(input)
-        this.spinner.succeed(`Created new remote plugin for ${metadata.name}`)
+        pluginsToCreate.push(input)
       }
+    }
+
+    const diff = diffString(
+      asJson({}),
+      asJson({
+        ...pluginsToUpdate,
+        ...pluginsToCreate
+      })
+    )
+
+    if (diff) {
+      this.spinner.warn(`Please review the following changes:`)
+      this.log(`\n${diff}`)
+    } else {
+      this.spinner.info(`No changes. Skipping.`)
+      this.exit()
+    }
+
+    const { shouldContinue } = await prompt({
+      type: 'confirm',
+      name: 'shouldContinue',
+      message: `Publish changes?`,
+      initial: false
+    })
+
+    if (!shouldContinue) {
+      this.exit()
+    }
+
+    try {
+      this.spinner.start('Persisting changes')
+      await Promise.all([
+        pluginsToUpdate.map((p) => updateRemotePlugin(p)),
+        pluginsToCreate.map((p) => createRemotePlugin(p))
+        // this.spinner.succeed(`Updated existing remote plugin for ${metadata.name}`)
+        // this.spinner.succeed(`Created new remote plugin for ${metadata.name}`)
+      ])
+    } catch (e) {
+      this.spinner.stop()
+      this.error(e)
     }
 
     try {
@@ -120,4 +162,8 @@ async function syncToS3(env: string): Promise<string> {
   }
 
   return execa.commandSync(`lerna run deploy-stage`).stdout
+}
+
+function asJson(obj: unknown) {
+  return JSON.parse(JSON.stringify(obj))
 }
