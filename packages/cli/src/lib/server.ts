@@ -99,7 +99,6 @@ loadDestination(targetDirectory)
           spinner.succeed(chalk`${destination.name} action '${actionSlug}' completed`)
           return res.status(200).json(debug)
         } catch (err) {
-          logger.error(`There was an error ${err}`)
           spinner.fail()
           let statusCode = err?.status ?? 500
           let msg = err?.message
