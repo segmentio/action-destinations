@@ -227,9 +227,8 @@ const action: ActionDefinition<Settings, Payload> = {
       hashed_phone_number: [formatPhone(payload.phone_number)]
     })
 
-    let res
     try {
-      res = await request('https://www.google.com/ads/event/api/v1', {
+      return await request('https://www.google.com/ads/event/api/v1', {
         method: 'post',
         json: {
           pii_data: { ...pii_data, address: [address] },
@@ -250,8 +249,9 @@ const action: ActionDefinition<Settings, Payload> = {
           }
         }
       }
+      // throw original error if unrelated to invalid/expired tokens
+      throw err
     }
-    return res
   }
 }
 
