@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { ActionDefinition, DestinationDefinition } from '@segment/actions-core'
 import Chance from 'chance'
 
