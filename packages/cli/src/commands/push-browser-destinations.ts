@@ -136,8 +136,6 @@ export default class PushBrowserDestinations extends Command {
       await Promise.all([
         pluginsToUpdate.map((p) => updateRemotePlugin(p)),
         pluginsToCreate.map((p) => createRemotePlugin(p))
-        // this.spinner.succeed(`Updated existing remote plugin for ${metadata.name}`)
-        // this.spinner.succeed(`Created new remote plugin for ${metadata.name}`)
       ])
     } catch (e) {
       this.spinner.stop()
