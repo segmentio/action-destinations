@@ -2,6 +2,7 @@ import dayjs from '../../../lib/dayjs'
 import type { ActionDefinition } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
+import { trackApiEndpoint } from '../utils'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Create or Update Person',
@@ -62,11 +63,11 @@ const action: ActionDefinition<Settings, Payload> = {
   perform: (request, { settings, payload }) => {
     let createdAt = payload.created_at
 
-    if (createdAt && payload.convert_timestamp) {
+    if (createdAt && payload.convert_timestamp !== false) {
       createdAt = dayjs.utc(createdAt).format('X')
     }
 
-    return request(`${settings.accountRegionEndpoint}/api/v1/customers/${payload.id}`, {
+    return request(`${trackApiEndpoint(settings.accountRegionEndpoint)}/api/v1/customers/${payload.id}`, {
       method: 'put',
       json: {
         ...payload.custom_attributes,

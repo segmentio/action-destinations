@@ -37,8 +37,7 @@ const destination: DestinationDefinition<Settings> = {
           { label: 'US 🇺🇸', value: 'https://track.customer.io' },
           { label: 'EU 🇪🇺', value: 'https://track-eu.customer.io' }
         ],
-        default: 'https://track.customer.io',
-        required: true
+        default: 'https://track.customer.io'
       }
     },
     testAuthentication: (request) => {

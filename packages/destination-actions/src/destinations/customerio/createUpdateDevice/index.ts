@@ -2,6 +2,7 @@ import dayjs from '../../../lib/dayjs'
 import type { ActionDefinition } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
+import { trackApiEndpoint } from '../utils'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Create or Update Device',
@@ -55,20 +56,23 @@ const action: ActionDefinition<Settings, Payload> = {
   perform: (request, { settings, payload }) => {
     let lastUsed = payload.last_used
 
-    if (lastUsed && payload.convert_timestamp) {
+    if (lastUsed && payload.convert_timestamp !== false) {
       lastUsed = dayjs.utc(lastUsed).format('X')
     }
 
-    return request(`${settings.accountRegionEndpoint}/api/v1/customers/${payload.person_id}/devices`, {
-      method: 'put',
-      json: {
-        device: {
-          id: payload.device_id,
-          platform: payload.platform,
-          last_used: lastUsed
+    return request(
+      `${trackApiEndpoint(settings.accountRegionEndpoint)}/api/v1/customers/${payload.person_id}/devices`,
+      {
+        method: 'put',
+        json: {
+          device: {
+            id: payload.device_id,
+            platform: payload.platform,
+            last_used: lastUsed
+          }
         }
       }
-    })
+    )
   }
 }
 

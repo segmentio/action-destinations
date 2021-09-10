@@ -1,5 +1,6 @@
 import type { ActionDefinition } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
+import { trackApiEndpoint } from '../utils'
 import type { Payload } from './generated-types'
 
 const action: ActionDefinition<Settings, Payload> = {
@@ -56,10 +57,10 @@ const action: ActionDefinition<Settings, Payload> = {
       type: payload.type,
       data: payload.data
     }
-    let url = `${settings.accountRegionEndpoint}/api/v1/customers/${payload.id}/events`
+    let url = `${trackApiEndpoint(settings.accountRegionEndpoint)}/api/v1/customers/${payload.id}/events`
 
     if (payload.id === undefined) {
-      url = `${settings.accountRegionEndpoint}/api/v1/events`
+      url = `${trackApiEndpoint(settings.accountRegionEndpoint)}/api/v1/events`
       body.anonymous_id = payload.anonymous_id
     }
 

@@ -131,5 +131,45 @@ describe('CustomerIO', () => {
         anonymous_id: anonymousId
       })
     })
+
+    it('should fall back to the US account region', async () => {
+      const settings: Settings = {
+        siteId: '12345',
+        apiKey: 'abcde'
+      }
+      const userId = 'abc123'
+      const anonymousId = 'unknown_123'
+      const timestamp = dayjs.utc().toISOString()
+      const traits = {
+        full_name: 'Test User',
+        userId: 'test@example.com'
+      }
+      trackDeviceService.put(`/customers/${userId}`).reply(200, {}, { 'x-customerio-region': 'US-fallback' })
+      const event = createTestEvent({
+        userId,
+        anonymousId,
+        timestamp,
+        traits
+      })
+      const responses = await testDestination.testAction('createUpdatePerson', {
+        event,
+        settings,
+        useDefaultMappings: true
+      })
+
+      expect(responses.length).toBe(1)
+      expect(responses[0].status).toBe(200)
+      expect(responses[0].headers.toJSON()).toMatchObject({
+        'x-customerio-region': 'US-fallback',
+        'content-type': 'application/json'
+      })
+      expect(responses[0].data).toMatchObject({})
+      expect(responses[0].options.json).toMatchObject({
+        ...traits,
+        email: traits.userId,
+        created_at: dayjs.utc(timestamp).format('X'),
+        anonymous_id: anonymousId
+      })
+    })
   })
 })

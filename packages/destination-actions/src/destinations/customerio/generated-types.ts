@@ -12,5 +12,5 @@ export interface Settings {
   /**
    * Customer.io account region. Read more about [Account Regions](https://customer.io/docs/data-centers/).
    */
-  accountRegionEndpoint: string
+  accountRegionEndpoint?: string
 }

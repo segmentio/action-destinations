@@ -137,5 +137,47 @@ describe('CustomerIO', () => {
         }
       })
     })
+
+    it('should fall back to the US account region', async () => {
+      const settings: Settings = {
+        siteId: '12345',
+        apiKey: 'abcde'
+      }
+      const userId = 'abc123'
+      const deviceId = 'device_123'
+      const deviceType = 'ios'
+      const lastUsed = dayjs.utc().toISOString()
+      trackService.put(`/customers/${userId}/devices`).reply(200, {}, { 'x-customerio-region': 'US-fallback' })
+      const event = createTestEvent({
+        userId,
+        context: {
+          device: {
+            id: deviceId,
+            type: deviceType,
+            lastUsed
+          }
+        }
+      })
+      const responses = await testDestination.testAction('createUpdateDevice', {
+        event,
+        settings,
+        useDefaultMappings: true
+      })
+
+      expect(responses.length).toBe(1)
+      expect(responses[0].status).toBe(200)
+      expect(responses[0].headers.toJSON()).toMatchObject({
+        'x-customerio-region': 'US-fallback',
+        'content-type': 'application/json'
+      })
+      expect(responses[0].data).toMatchObject({})
+      expect(responses[0].options.json).toMatchObject({
+        device: {
+          id: deviceId,
+          platform: deviceType,
+          last_used: dayjs.utc(lastUsed).format('X')
+        }
+      })
+    })
   })
 })
