@@ -104,13 +104,7 @@ export default class PushBrowserDestinations extends Command {
       }
     }
 
-    const diff = diffString(
-      asJson({}),
-      asJson({
-        ...pluginsToUpdate,
-        ...pluginsToCreate
-      })
-    )
+    const diff = diffString(asJson(remotePlugins), asJson([...pluginsToUpdate, ...pluginsToCreate]))
 
     if (diff) {
       this.spinner.warn(`Please review the following changes:`)
