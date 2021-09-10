@@ -81,11 +81,6 @@ jobs:
         if: ${{ github.event_name == 'workflow_dispatch' }}
         run: yarn test
 
-      - name: destination-subscriptions size
-        run: |
-          if $(lerna changed | grep -q destination-subscriptions); then
-            yarn subscriptions size
-          fi
 
       - name: Set author
         run: |
