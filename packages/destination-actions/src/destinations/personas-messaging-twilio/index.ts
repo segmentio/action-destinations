@@ -3,7 +3,9 @@ import type { Settings } from './generated-types'
 import sendSms from './sendSms'
 
 const destination: DestinationDefinition<Settings> = {
-  name: 'Actions Personas Messaging Twilio',
+  //The name below is creation name however in partner portal this is Actions Personas Messaging Twilio
+  //This is due to integrations-consumer fetches the creation name instead of current name
+  name: 'Personas Messaging Twilio (Actions)',
   mode: 'cloud',
   authentication: {
     scheme: 'custom',
