@@ -20,6 +20,11 @@ const destination: DestinationDefinition<Settings> = {
         description: 'The Pixel ID',
         type: 'string',
         required: true
+      },
+      token: {
+        label: 'Access Token (Testing only, not in final destination)',
+        description: 'Access Token',
+        type: 'string'
       }
     }
   },

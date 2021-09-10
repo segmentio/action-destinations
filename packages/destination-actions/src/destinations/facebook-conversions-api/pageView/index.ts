@@ -13,6 +13,9 @@ const action: ActionDefinition<Settings, Payload> = {
     event_time: { ...event_time, required: true }
   },
   perform: (request, { payload, settings }) => {
+    // For stage testing, prioritize settings token over env token
+    const TOKEN = settings.token ? settings.token : process.env.TOKEN
+
     if (!payload.user_data) {
       throw new IntegrationError('Must include at least one user data property', 'Misconfigured required field', 400)
     }
@@ -24,7 +27,7 @@ const action: ActionDefinition<Settings, Payload> = {
         400
       )
     }
-    return request(`https://graph.facebook.com/v11.0/${settings.pixelId}/events?access_token=${process.env.TOKEN}`, {
+    return request(`https://graph.facebook.com/v11.0/${settings.pixelId}/events?access_token=${TOKEN}`, {
       method: 'POST',
       json: {
         data: [
