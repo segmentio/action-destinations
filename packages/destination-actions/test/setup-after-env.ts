@@ -21,4 +21,6 @@ afterAll(() => {
   nock.restore()
   // Re-enable external network requests
   nock.enableNetConnect()
+  // Removes all remaining mocks
+  nock.cleanAll()
 })

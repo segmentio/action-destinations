@@ -4,11 +4,12 @@ import destination from '../index'
 import nock from 'nock'
 
 const testDestination = createTestIntegration(destination)
+const destinationSlug = '{{destination}}'
 
-describe('Testing snapshot for {{destination}} action:', () => {
+describe(`Testing snapshot for ${destinationSlug} destination:`, () => {
   for (const actionSlug in destination.actions) {
-    it(`${actionSlug} [required]`, async () => {
-      const seedName = `{{destination}}#${actionSlug}`
+    it(`${actionSlug} action - required fields`, async () => {
+      const seedName = `${destinationSlug}#${actionSlug}`
       const action = destination.actions[actionSlug]
       const [eventData, settingsData] = generateTestData(seedName, destination, action, true)
 
@@ -41,8 +42,8 @@ describe('Testing snapshot for {{destination}} action:', () => {
       expect(request.headers).toMatchSnapshot()
     })
 
-    it(`${actionSlug} [all fields]`, async () => {
-      const seedName = `{{destination}}#${actionSlug}`
+    it(`${actionSlug} action - all fields`, async () => {
+      const seedName = `${destinationSlug}#${actionSlug}`
       const action = destination.actions[actionSlug]
       const [eventData, settingsData] = generateTestData(seedName, destination, action, false)
 
