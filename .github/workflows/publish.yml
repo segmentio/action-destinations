@@ -89,8 +89,8 @@ jobs:
 
       - name: Set author
         run: |
-          git config user.email "github-actions@github.com"
-          git config user.name "github-actions"
+          git config user.email "`git log --format='%ae' HEAD^!`"
+          git config user.name "`git log --format='%an' HEAD^!`"
 
       - name: Publish
         env:
