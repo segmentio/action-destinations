@@ -81,7 +81,6 @@ jobs:
         if: ${{ github.event_name == 'workflow_dispatch' }}
         run: yarn test
 
-
       - name: Set author
         run: |
           git config user.email "`git log --format='%ae' HEAD^!`"
@@ -91,4 +90,4 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GH_PAT }}
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
-        run: lerna version ${{ needs.get-version.outputs.version }} --yes
+        run: lerna publish ${{ needs.get-version.outputs.version }} --yes
