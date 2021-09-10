@@ -4,6 +4,8 @@ on:
   pull_request:
     branches: [main]
     types: [closed]
+    paths:
+      - packages/**
   workflow_dispatch:
     inputs:
       version:
