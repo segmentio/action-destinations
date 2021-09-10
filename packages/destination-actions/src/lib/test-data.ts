@@ -2,8 +2,8 @@
 import { ActionDefinition, DestinationDefinition } from '@segment/actions-core'
 import Chance from 'chance'
 
-function setTestData(destinationName: string, type: string, fieldName?: string, format?: string) {
-  const chance = new Chance(destinationName)
+function setTestData(seedName: string, type: string, fieldName?: string, format?: string) {
+  const chance = new Chance(seedName)
 
   let val: any
   switch (type) {
@@ -32,16 +32,16 @@ function setTestData(destinationName: string, type: string, fieldName?: string, 
 
   if (format === 'uri') val = chance.url()
   if (fieldName === 'email') val = chance.email()
-  if (fieldName === 'currency') val = chance.currency()
+  if (fieldName === 'currency') val = chance.currency().code
 
   return val
 }
 
-function setData(eventData: any, destinationName: string, fieldName: string, field: any, data?: any) {
+function setData(eventData: any, chanceName: string, fieldName: string, field: any, data?: any) {
   const { format, multiple, type } = field
 
   if (!data) {
-    data = setTestData(destinationName, type, fieldName, format)
+    data = setTestData(chanceName, type, fieldName, format)
   }
 
   eventData[fieldName] = multiple ? [data] : data
@@ -49,6 +49,7 @@ function setData(eventData: any, destinationName: string, fieldName: string, fie
 }
 
 export function generateTestData(
+  seedName: string,
   destination: DestinationDefinition<any>,
   action: ActionDefinition<any>,
   isRequiredOnly: boolean
@@ -57,11 +58,10 @@ export function generateTestData(
   const settingsData: any = {}
 
   const authentication = destination.authentication
-  const destinationName = destination.name
   if (authentication) {
     for (const settingKey in authentication.fields) {
       const { format, type } = authentication.fields[settingKey]
-      settingsData[settingKey] = setTestData(destinationName, type, undefined, format)
+      settingsData[settingKey] = setTestData(seedName, type, undefined, format)
     }
   }
 
@@ -79,14 +79,14 @@ export function generateTestData(
 
       for (const propertyName of propertyFields) {
         const property = properties[propertyName]
-        subData = setData(subData, destinationName, propertyName, property)
+        subData = setData(subData, seedName, propertyName, property)
       }
 
-      eventData = setData(eventData, destinationName, name, field, subData)
+      eventData = setData(eventData, seedName, name, field, subData)
       continue
     }
 
-    eventData = setData(eventData, destinationName, name, field)
+    eventData = setData(eventData, seedName, name, field)
   }
 
   return [eventData, settingsData]

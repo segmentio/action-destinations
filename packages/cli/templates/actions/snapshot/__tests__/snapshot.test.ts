@@ -8,8 +8,9 @@ const testDestination = createTestIntegration(destination)
 describe('Testing snapshot for {{destination}} action:', () => {
   for (const actionSlug in destination.actions) {
     it(`${actionSlug} [required]`, async () => {
+      const seedName = `{{destination}}#${actionSlug}`
       const action = destination.actions[actionSlug]
-      const [eventData, settingsData] = generateTestData(destination, action, true)
+      const [eventData, settingsData] = generateTestData(seedName, destination, action, true)
 
       nock(/.*/).persist().get(/.*/).reply(200)
       nock(/.*/).persist().post(/.*/).reply(200)
@@ -41,8 +42,9 @@ describe('Testing snapshot for {{destination}} action:', () => {
     })
 
     it(`${actionSlug} [all fields]`, async () => {
+      const seedName = `{{destination}}#${actionSlug}`
       const action = destination.actions[actionSlug]
-      const [eventData, settingsData] = generateTestData(destination, action, false)
+      const [eventData, settingsData] = generateTestData(seedName, destination, action, false)
 
       nock(/.*/).persist().get(/.*/).reply(200)
       nock(/.*/).persist().post(/.*/).reply(200)
