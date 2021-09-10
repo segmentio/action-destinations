@@ -43,6 +43,13 @@ const destination: DestinationDefinition<Settings> = {
         description: 'Source ID',
         type: 'string',
         required: true
+      },
+      webhookUrl: {
+        label: 'Webhook URL',
+        description: 'Webhook URL that will receive all events for the sent message',
+        type: 'string',
+        format: 'uri',
+        required: false
       }
     },
     testAuthentication: (request) => {
