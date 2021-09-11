@@ -139,7 +139,13 @@ const action: ActionDefinition<Settings, Payload> = {
       description: 'The HTML content of the body',
       type: 'string',
       required: true
-    }
+    },
+    customArgs: {
+      label: 'Custom Args',
+      description: 'Additional custom args that we be passed back opaquely on webhook events',
+      type: 'object',
+      required: false
+    },
   },
   perform: async (request, { settings, payload }) => {
     const [traits, externalIds] = await Promise.all([
@@ -185,9 +191,10 @@ const action: ActionDefinition<Settings, Payload> = {
             ],
             bcc: bcc.length > 0 ? bcc : undefined,
             custom_args: {
+              ...payload.customArgs,
               source_id: settings.sourceId,
               space_id: settings.spaceId,
-              user_id: payload.userId
+              user_id: payload.userId,
             }
           }
         ],

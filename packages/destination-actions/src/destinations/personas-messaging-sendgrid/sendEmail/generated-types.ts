@@ -49,4 +49,10 @@ export interface Payload {
    * The HTML content of the body
    */
   bodyHtml: string
+  /**
+   * Additional custom args that we be passed back opaquely on webhook events
+   */
+  customArgs?: {
+    [k: string]: unknown
+  }
 }
