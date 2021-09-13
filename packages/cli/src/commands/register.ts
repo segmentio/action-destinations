@@ -33,7 +33,7 @@ export default class Register extends Command {
 
   async run() {
     try {
-      this.controlPlaneService = await loadCPS()
+      this.controlPlaneService = loadCPS()
     } catch (err) {
       if (err.code === 'MODULE_NOT_FOUND') {
         this.warn(

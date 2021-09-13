@@ -5,10 +5,13 @@ export type * from '@segment/control-plane-service-client'
 
 let client: Client
 
-export default async function loadCPS(): Client {
+export default function loadCPS(): Client {
   if (!client) {
-    const module = await import('@segment/control-plane-service-client')
-    const ControlPlaneService = module.default as Client
+    // eslint-disable-next-line @typescript-eslint/no-var-requires
+    const module = require('@segment/control-plane-service-client')
+    const ControlPlaneService: Client = module.default as Client
+
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-call
     client = new ControlPlaneService({
       name: 'control-plane-service',
       url: 'http://control-plane-service.segment.local',

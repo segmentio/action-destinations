@@ -81,7 +81,7 @@ export default class Push extends Command {
 
   async run() {
     try {
-      await loadCPS()
+      loadCPS()
     } catch (err) {
       if (err.code === 'MODULE_NOT_FOUND') {
         this.warn(

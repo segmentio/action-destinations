@@ -12,7 +12,7 @@ import type {
 const NOOP_CONTEXT = {}
 
 export async function getDestinationMetadatas(destinationIds: string[]): Promise<DestinationMetadata[]> {
-  const controlPlaneService = await loadCPS()
+  const controlPlaneService = loadCPS()
   const { data, error } = await controlPlaneService.getAllDestinationMetadatas(NOOP_CONTEXT, {
     byIds: destinationIds
   })
@@ -29,7 +29,7 @@ export async function getDestinationMetadatas(destinationIds: string[]): Promise
 }
 
 export async function getDestinationMetadataActions(destinationIds: string[]): Promise<DestinationMetadataAction[]> {
-  const controlPlaneService = await loadCPS()
+  const controlPlaneService = loadCPS()
   const { data, error } = await controlPlaneService.getDestinationMetadataActions(NOOP_CONTEXT, {
     metadataIds: destinationIds
   })
@@ -49,7 +49,7 @@ export async function updateDestinationMetadata(
   destinationId: string,
   input: DestinationMetadataUpdateInput
 ): Promise<DestinationMetadata> {
-  const controlPlaneService = await loadCPS()
+  const controlPlaneService = loadCPS()
   const { data, error } = await controlPlaneService.updateDestinationMetadata(NOOP_CONTEXT, {
     destinationId,
     input
@@ -67,7 +67,7 @@ export async function updateDestinationMetadata(
 }
 
 export async function setSubscriptionPresets(metadataId: string, presets: DestinationSubscriptionPresetInput[]) {
-  const controlPlaneService = await loadCPS()
+  const controlPlaneService = loadCPS()
   const { data, error } = await controlPlaneService.setDestinationSubscriptionPresets(NOOP_CONTEXT, {
     metadataId,
     presets
@@ -90,7 +90,7 @@ export async function createDestinationMetadataActions(
 ): Promise<DestinationMetadataAction[]> {
   if (!input.length) return []
 
-  const controlPlaneService = await loadCPS()
+  const controlPlaneService = loadCPS()
   const { data, error } = await controlPlaneService.createDestinationMetadataActions(NOOP_CONTEXT, {
     input
   })
@@ -112,7 +112,7 @@ export async function updateDestinationMetadataActions(
 ): Promise<DestinationMetadataAction[]> {
   if (!input.length) return []
 
-  const controlPlaneService = await loadCPS()
+  const controlPlaneService = loadCPS()
   const { data, error } = await controlPlaneService.updateDestinationMetadataActions(NOOP_CONTEXT, {
     input
   })
@@ -129,7 +129,7 @@ export async function updateDestinationMetadataActions(
 }
 
 export async function getRemotePluginByDestinationIds(metadataIds: string[]): Promise<RemotePlugin[]> {
-  const controlPlaneService = await loadCPS()
+  const controlPlaneService = loadCPS()
   const { data, error } = await controlPlaneService.getRemotePluginsByDestinationMetadataIds(NOOP_CONTEXT, {
     metadataIds
   })
@@ -146,7 +146,7 @@ export async function getRemotePluginByDestinationIds(metadataIds: string[]): Pr
 }
 
 export async function updateRemotePlugin(plugin: RemotePlugin): Promise<RemotePlugin> {
-  const controlPlaneService = await loadCPS()
+  const controlPlaneService = loadCPS()
   const { data, error } = await controlPlaneService.updateRemotePlugin(NOOP_CONTEXT, {
     metadataId: plugin.metadataId,
     name: plugin.name,
@@ -168,7 +168,7 @@ export async function updateRemotePlugin(plugin: RemotePlugin): Promise<RemotePl
 }
 
 export async function createRemotePlugin(plugin: RemotePlugin): Promise<RemotePlugin> {
-  const controlPlaneService = await loadCPS()
+  const controlPlaneService = loadCPS()
   const { data, error } = await controlPlaneService.createRemotePlugin(NOOP_CONTEXT, {
     input: plugin
   })
