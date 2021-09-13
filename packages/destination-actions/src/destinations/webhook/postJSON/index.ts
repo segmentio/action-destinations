@@ -17,7 +17,7 @@ const action: ActionDefinition<Settings, Payload> = {
       label: 'Body',
       description: 'Message to deliver to webhook URL (JSON-encoded).',
       type: 'object',
-      default: { '@path': '$' }
+      default: { '@path': '$.' }
     }
   },
   perform: (request, { payload }) => {

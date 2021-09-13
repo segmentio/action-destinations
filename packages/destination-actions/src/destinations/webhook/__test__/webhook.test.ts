@@ -8,14 +8,15 @@ const timestamp = new Date().toISOString()
 describe('Webhook', () => {
   describe('postJSON', () => {
     it('should work with default mapping', async () => {
-      const url = 'https://my.webhook.com/1234'
+      const url = 'https://my.webhook.com'
       const path = '/1234'
       const event = createTestEvent({
         timestamp,
         event: 'Test Event'
       })
+      const eventObject = JSON.parse(JSON.stringify(event))
 
-      nock(url).post(path).reply(200)
+      nock(url).post(path, eventObject).reply(200)
 
       const responses = await testDestination.testAction('postJSON', {
         event,
