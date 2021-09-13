@@ -27,7 +27,7 @@ const action: ActionDefinition<Settings, Payload> = {
     // For stage testing, prioritize settings token over env token
     const TOKEN = settings.token ? settings.token : process.env.TOKEN
 
-    if (!CURRENCY_ISO_CODES.has(payload.currency)) {
+    if (payload.currency && !CURRENCY_ISO_CODES.has(payload.currency)) {
       throw new IntegrationError(
         `${payload.currency} is not a valid currency code.`,
         'Misconfigured required field',
