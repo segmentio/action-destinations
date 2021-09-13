@@ -112,7 +112,8 @@ export class Action<Settings, Payload extends JSONLikeObject> extends EventEmitt
 
     // Validate the resolved payload against the schema
     if (this.schema) {
-      validateSchema(payload, this.schema, `${this.destinationName}:${this.definition.title}`)
+      const schemaKey = `${this.destinationName}:${this.definition.title}`
+      validateSchema(payload, this.schema, { schemaKey })
       results.push({ output: 'Payload validated' })
     }
 
@@ -133,13 +134,22 @@ export class Action<Settings, Payload extends JSONLikeObject> extends EventEmitt
   }
 
   async executeBatch(bundle: ExecuteBundle<Settings, InputData[]>): Promise<void> {
-    const payloads = transformBatch(bundle.mapping, bundle.data) as Payload[]
+    let payloads = transformBatch(bundle.mapping, bundle.data) as Payload[]
 
     // Validate the resolved payloads against the schema
     if (this.schema) {
+      const schema = this.schema
       const schemaKey = `${this.destinationName}:${this.definition.title}`
-      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-      payloads.map((payload) => validateSchema(payload, this.schema!, schemaKey))
+      payloads = payloads.filter((payload) =>
+        validateSchema(payload, schema, {
+          schemaKey,
+          throwIfInvalid: false
+        })
+      )
+    }
+
+    if (payloads.length === 0) {
+      return
     }
 
     if (this.definition.performBatch) {

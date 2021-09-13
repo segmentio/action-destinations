@@ -212,7 +212,7 @@ export class Destination<Settings = JSONObject> {
     const context: ExecuteInput<Settings, undefined> = { settings: destinationSettings, payload: undefined, auth }
 
     if (this.settingsSchema) {
-      validateSchema(settings, this.settingsSchema, `${this.name}:settings`)
+      validateSchema(settings, this.settingsSchema, { schemaKey: `${this.name}:settings` })
     }
 
     if (!this.authentication?.testAuthentication) {
@@ -306,7 +306,7 @@ export class Destination<Settings = JSONObject> {
 
   private async onSubscription(
     subscription: Subscription,
-    data: SegmentEvent | SegmentEvent[],
+    events: SegmentEvent | SegmentEvent[],
     settings: Settings,
     auth: AuthTokens,
     onComplete?: OnEventOptions['onComplete']
@@ -334,16 +334,16 @@ export class Destination<Settings = JSONObject> {
         return results
       }
 
-      const isSubscribed = validate(parsedSubscription, data)
-      if (!isSubscribed) {
+      events = Array.isArray(events) ? events : [events]
+      const subscribedEvents = events.filter((event) => validate(parsedSubscription, event))
+
+      if (subscribedEvents.length === 1) {
+        return await this.executeAction(actionSlug, { ...input, event: subscribedEvents[0] })
+      } else if (subscribedEvents.length > 1) {
+        return await this.executeBatch(actionSlug, { ...input, events: subscribedEvents })
+      } else {
         results = [{ output: 'not subscribed' }]
         return results
-      }
-
-      if (Array.isArray(data)) {
-        return await this.executeBatch(actionSlug, { ...input, events: data })
-      } else {
-        return await this.executeAction(actionSlug, { ...input, event: data })
       }
     } catch (error) {
       results = [{ error }]
@@ -363,7 +363,7 @@ export class Destination<Settings = JSONObject> {
         action: actionSlug,
         subscribe: subscription.subscribe,
         input: {
-          data: data as unknown as JSONValue,
+          data: events as unknown as JSONValue,
           mapping: input.mapping,
           settings: input.settings as unknown as JSONLikeObject
         },
