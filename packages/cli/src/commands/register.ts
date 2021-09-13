@@ -3,8 +3,8 @@ import globby from 'globby'
 import ora from 'ora'
 import path from 'path'
 import { loadDestination } from '../lib/destinations'
-import { controlPlaneService } from '../lib/control-plane-service'
-import type { CreateDestinationMetadataInput } from '../lib/control-plane-service'
+import loadCPS from '../lib/control-plane-service'
+import type { Client, CreateDestinationMetadataInput } from '../lib/control-plane-service'
 import { autoPrompt, prompt } from '../lib/prompt'
 import { generateSlug } from '../lib/slugs'
 
@@ -12,6 +12,7 @@ const NOOP_CONTEXT = {}
 
 export default class Register extends Command {
   private spinner: ora.Ora = ora()
+  private controlPlaneService: Client
 
   static description = `Creates a new integration on Segment.`
 
@@ -31,6 +32,19 @@ export default class Register extends Command {
   }
 
   async run() {
+    try {
+      this.controlPlaneService = await loadCPS()
+    } catch (err) {
+      if (err.code === 'MODULE_NOT_FOUND') {
+        this.warn(
+          'This command is only available to Segmenters. If you are a Segment internal builder please run `yarn install` and ensure the control-plane-service-client is installed.'
+        )
+      } else {
+        this.error(err.message)
+      }
+      this.exit()
+    }
+
     const { flags } = this.parse(Register)
 
     let destinationPath = flags.path
@@ -148,7 +162,7 @@ export default class Register extends Command {
   private async isDestinationSlugAvailable(slug: string): Promise<boolean> {
     this.spinner.start(`Checking availability for ${slug}`)
 
-    const { error } = await controlPlaneService.getDestinationMetadataBySlug(NOOP_CONTEXT, { slug })
+    const { error } = await this.controlPlaneService.getDestinationMetadataBySlug(NOOP_CONTEXT, { slug })
     if (error?.statusCode === 404) {
       this.spinner.succeed()
       return true
@@ -165,7 +179,7 @@ export default class Register extends Command {
   private async createDestinationMetadata(input: CreateDestinationMetadataInput['input']): Promise<void> {
     this.spinner.start(`Registering ${input.name}`)
 
-    const { data, error } = await controlPlaneService.createDestinationMetadata(NOOP_CONTEXT, { input })
+    const { data, error } = await this.controlPlaneService.createDestinationMetadata(NOOP_CONTEXT, { input })
 
     if (data?.metadata) {
       this.spinner.succeed()

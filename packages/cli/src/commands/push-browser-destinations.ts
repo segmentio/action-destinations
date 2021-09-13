@@ -7,6 +7,7 @@ import ora from 'ora'
 import { assetPath } from '../config'
 import type { RemotePlugin } from '../lib/control-plane-service'
 import { prompt } from '../lib/prompt'
+import loadCPS from '../lib/control-plane-service'
 import {
   getDestinationMetadatas,
   getRemotePluginByDestinationIds,
@@ -34,6 +35,18 @@ export default class PushBrowserDestinations extends Command {
   static args = []
 
   async run() {
+    try {
+      await loadCPS()
+    } catch (err) {
+      if (err.code === 'MODULE_NOT_FOUND') {
+        this.warn(
+          'This command is only available to Segmenters. If you are a Segment internal builder please run `yarn install` and ensure the control-plane-service-client is installed.'
+        )
+      } else {
+        this.error(err.message)
+      }
+      this.exit()
+    }
     const { flags } = this.parse(PushBrowserDestinations)
     const { destinationIds } = await prompt<{ destinationIds: string[] }>({
       type: 'multiselect',

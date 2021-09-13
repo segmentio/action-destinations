@@ -11,6 +11,7 @@ import chalk from 'chalk'
 import { uniq, pick, omit, sortBy, mergeWith } from 'lodash'
 import { diffString } from 'json-diff'
 import ora from 'ora'
+import loadCPS from '../lib/control-plane-service'
 import type {
   ClientRequestError,
   DestinationMetadata,
@@ -79,6 +80,19 @@ export default class Push extends Command {
   static args = []
 
   async run() {
+    try {
+      await loadCPS()
+    } catch (err) {
+      if (err.code === 'MODULE_NOT_FOUND') {
+        this.warn(
+          'This command is only available to Segmenters. If you are a Segment internal builder please run `yarn install` and ensure the control-plane-service-client is installed.'
+        )
+      } else {
+        this.error(err.message)
+      }
+      this.exit()
+    }
+
     const { flags } = this.parse(Push)
 
     const { metadataIds } = await prompt<{ metadataIds: string[] }>({
