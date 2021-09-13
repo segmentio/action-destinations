@@ -14,45 +14,59 @@ for (const environment of ['stage', 'production']) {
     sourceId: 'sourceId'
   }
 
+  const userData = {
+    userId: 'jane',
+    firstName: 'First Name',
+    lastName: 'Browning',
+    phone: '+11235554657',
+    email: 'test@example.com'
+  }
+
   const endpoint = `https://profiles.segment.${environment === 'production' ? 'com' : 'build'}`
+
+  beforeEach(() => {
+    nock(`${endpoint}/v1/spaces/spaceId/collections/users/profiles/user_id:${userData.userId}`)
+      .get('/traits?limit=200')
+      .reply(200, {
+        traits: {
+          firstName: userData.firstName,
+          lastName: userData.lastName
+        }
+      })
+
+    nock(`${endpoint}/v1/spaces/spaceId/collections/users/profiles/user_id:${userData.userId}`)
+      .get('/external_ids?limit=25')
+      .reply(200, {
+        data: [
+          {
+            type: 'user_id',
+            id: userData.userId
+          },
+          {
+            type: 'phone',
+            id: userData.phone
+          },
+          {
+            type: 'email',
+            id: userData.email
+          }
+        ]
+      })
+  })
+
+  afterEach(() => {
+    nock.cleanAll()
+  })
 
   describe(`${environment} - send Email`, () => {
     it('should send Email', async () => {
-      nock(`${endpoint}/v1/spaces/spaceId/collections/users/profiles/user_id:jane`)
-        .get('/traits?limit=200')
-        .reply(200, {
-          traits: {
-            firstName: 'First Name',
-            lastName: 'Browning'
-          }
-        })
-
-      nock(`${endpoint}/v1/spaces/spaceId/collections/users/profiles/user_id:jane`)
-        .get('/external_ids?limit=25')
-        .reply(200, {
-          data: [
-            {
-              type: 'user_id',
-              id: 'jane'
-            },
-            {
-              type: 'phone',
-              id: '+1234567891'
-            },
-            {
-              type: 'email',
-              id: 'test@example.com'
-            }
-          ]
-        })
-
       const expectedSendGridRequest = {
         personalizations: [
           {
             to: [
               {
-                email: 'test@example.com',
-                name: 'First Name Browning'
+                email: userData.email,
+                name: `${userData.firstName} ${userData.lastName}`
               }
             ],
             bcc: [
@@ -63,7 +77,7 @@ for (const environment of ['stage', 'production']) {
             custom_args: {
               source_id: 'sourceId',
               space_id: 'spaceId',
-              user_id: 'jane'
+              user_id: userData.userId
             }
           }
         ],
@@ -75,11 +89,11 @@ for (const environment of ['stage', 'production']) {
           email: 'replyto@example.com',
           name: 'Test user'
         },
-        subject: 'Hello Browning First Name.',
+        subject: `Hello ${userData.lastName} ${userData.firstName}.`,
         content: [
           {
             type: 'text/html',
-            value: 'Hi First Name, Welcome to segment'
+            value: `Hi ${userData.firstName}, Welcome to segment`
           }
         ]
       }
@@ -92,7 +106,7 @@ for (const environment of ['stage', 'production']) {
         event: createTestEvent({
           timestamp,
           event: 'Audience Entered',
-          userId: 'jane'
+          userId: userData.userId
         }),
         settings,
         mapping: {
@@ -115,6 +129,91 @@ for (const environment of ['stage', 'production']) {
       })
 
       expect(responses.length).toEqual(3)
+      expect(sendGridRequest.isDone()).toEqual(true)
+    })
+
+    it('should send email with journey metadata', async () => {
+      const expectedSendGridRequest = {
+        personalizations: [
+          {
+            to: [
+              {
+                email: userData.email,
+                name: `${userData.firstName} ${userData.lastName}`
+              }
+            ],
+            bcc: [
+              {
+                email: 'test@test.com'
+              }
+            ],
+            custom_args: {
+              source_id: 'sourceId',
+              space_id: 'spaceId',
+              user_id: userData.userId,
+              journey_id: 'journeyId',
+              journey_state_id: 'journeyStateId',
+              audience_id: 'audienceId'
+            }
+          }
+        ],
+        from: {
+          email: 'from@example.com',
+          name: 'From Name'
+        },
+        reply_to: {
+          email: 'replyto@example.com',
+          name: 'Test user'
+        },
+        subject: 'Test email with metadata',
+        content: [
+          {
+            type: 'text/html',
+            value: 'Welcome to segment'
+          }
+        ]
+      }
+
+      const sendGridRequest = nock('https://api.sendgrid.com')
+        .post('/v3/mail/send', expectedSendGridRequest)
+        .reply(200, {})
+
+      const responses = await sendgrid.testAction('sendEmail', {
+        event: createTestEvent({
+          timestamp,
+          event: 'Audience Entered',
+          userId: userData.userId
+        }),
+        settings,
+        mapping: {
+          userId: { '@path': '$.userId' },
+          fromEmail: 'from@example.com',
+          fromName: 'From Name',
+          replyToEmail: 'replyto@example.com',
+          replyToName: 'Test user',
+          bcc: JSON.stringify([
+            {
+              email: 'test@test.com'
+            }
+          ]),
+          customArgs: {
+            journey_id: 'journeyId',
+            journey_state_id: 'journeyStateId',
+            audience_id: 'audienceId',
+          },
+          previewText: '',
+          subject: 'Test email with metadata',
+          body: 'Welcome to segment',
+          bodyType: 'html',
+          bodyHtml: 'Welcome to segment'
+        }
+      })
+
+      expect(responses.map((r) => r.url)).toStrictEqual([
+        `${endpoint}/v1/spaces/spaceId/collections/users/profiles/user_id:jane/traits?limit=200`,
+        `${endpoint}/v1/spaces/spaceId/collections/users/profiles/user_id:jane/external_ids?limit=25`,
+        `https://api.sendgrid.com/v3/mail/send`
+      ])
       expect(sendGridRequest.isDone()).toEqual(true)
     })
   })
