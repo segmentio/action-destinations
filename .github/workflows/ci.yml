@@ -6,6 +6,8 @@ jobs:
   test-and-build:
     runs-on: ubuntu-latest
 
+    timeout-minutes: 10
+
     strategy:
       matrix:
         node-version: [14.x]
@@ -58,6 +60,8 @@ jobs:
 
   snyk:
     runs-on: ubuntu-latest
+
+    timeout-minutes: 5
 
     strategy:
       matrix:
