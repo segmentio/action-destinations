@@ -58,7 +58,9 @@ const action: BrowserActionDefinition<Settings, typeof FullStory, Payload> = {
     }
   },
   perform: (client, event) => {
-    let newTraits: any = {}
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    let newTraits: any
+
     if (event.payload.traits) {
       newTraits = Object.entries(event.payload.traits).reduce(
         (acc, [key, value]) => ({
