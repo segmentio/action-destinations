@@ -31,6 +31,13 @@ const action: ActionDefinition<Settings, Payload> = {
       label: 'Method',
       description: 'HTTP method to use.',
       type: 'string',
+      choices: [
+        { label: 'POST', value: 'POST' },
+        { label: 'PUT', value: 'PUT' },
+        { label: 'PATCH', value: 'PATCH' },
+        { label: 'DELETE', value: 'DELETE' },
+        { label: 'GET', value: 'GET' }
+      ],
       default: 'POST',
       required: true
     },
