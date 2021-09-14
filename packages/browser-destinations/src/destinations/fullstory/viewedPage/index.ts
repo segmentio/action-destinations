@@ -49,7 +49,7 @@ const action: BrowserActionDefinition<Settings, typeof FullStory, Payload> = {
     if (name && event.settings.trackNamedPages) {
       // named pages
       if (event.settings.trackPagesWithEvents) {
-        client.event(name, event.payload.properties || {})
+        client.event(`Viewed ${name} Page`, event.payload.properties || {})
       }
 
       // @ts-ignore setVars in beta
@@ -57,7 +57,7 @@ const action: BrowserActionDefinition<Settings, typeof FullStory, Payload> = {
     } else if (event.payload.category && event.settings.trackCategorizedPages) {
       // categorized pages
       if (event.settings.trackPagesWithEvents) {
-        client.event(event.payload.category, event.payload.properties || {})
+        client.event(`Viewed ${event.payload.category} Page`, event.payload.properties || {})
       }
 
       // @ts-ignore setVars in beta
@@ -65,7 +65,7 @@ const action: BrowserActionDefinition<Settings, typeof FullStory, Payload> = {
     } else if (event.settings.trackAllPages) {
       // all pages
       if (event.settings.trackPagesWithEvents) {
-        client.event(event.payload.name || '', event.payload.properties || {})
+        client.event('Loaded a Page', event.payload.properties || {})
       }
 
       // @ts-ignore setVars in beta
