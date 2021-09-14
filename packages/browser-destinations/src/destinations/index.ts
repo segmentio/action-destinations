@@ -30,3 +30,4 @@ register('5f7dd6d21ad74f3842b1fc47', './amplitude-plugins')
 register('60fb01aec459242d3b6f20c1', './braze')
 register('60f9d0d048950c356be2e4da', './braze-cloud-plugins')
 register('6138f272036e7c6650387fa4', './fullstory')
+register('6141153ee7500f15d3838703', './fullstory') // fullstory-prod
