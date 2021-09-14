@@ -146,7 +146,7 @@
       const doc = parser.parseFromString(response, 'text/html')
       const files = Array.from(doc.querySelectorAll('#files li a .name'))
         .map((el) => el.textContent)
-        .filter((file) => file !== '..')
+        .filter((file) => file.endsWith('.js'))
 
       const select = document.querySelector('#destinations')
       files.forEach((file) => {
@@ -224,21 +224,13 @@
       const toLoad = document.querySelector('#destinations').value
       const destination = `${toLoad}Destination`
 
-      const response = await fetch(`/dist/web/${toLoad}/`).then((res) => res.text())
-      const parser = new DOMParser()
-      const doc = parser.parseFromString(response, 'text/html')
-      const file = Array.from(doc.querySelectorAll('#files li a .name'))
-        .map((el) => el.textContent)
-        .filter((file) => file !== '..')[0]
-
       if (window[destination]) {
         alert('Plugin already loaded, please refresh the page')
         return
       }
 
       const script = document.createElement('script')
-      script.setAttribute('src', `/dist/web/${toLoad}/${file}`)
-
+      script.setAttribute('src', `/dist/web/${toLoad}.js`)
       script.onload = async () => {
         await getPlugins(destination, settings)
 
