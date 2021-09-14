@@ -41,35 +41,35 @@ export const destination: BrowserDestinationDefinition<Settings, typeof FullStor
     },
     trackAllPages: {
       description: 'Sends all page calls as tracking events to FullStory.',
-      label: 'trackAllPages',
+      label: 'Track All Pages',
       type: 'boolean',
       required: false,
       default: false
     },
     trackNamedPages: {
       description: 'Sends pages with names to FullStory as tracking events.',
-      label: 'trackNamedPages',
+      label: 'Track Named Pages',
       type: 'boolean',
       required: false,
       default: false
     },
     trackCategorizedPages: {
       description: 'Sends pages that specify a category to Fullstory as tracking events.',
-      label: 'trackCategorizedPages',
+      label: 'Track Categorized Pages',
       type: 'boolean',
       required: false,
       default: false
     },
     trackPagesWithEvents: {
       description: 'Sends pages to FullStory as tracking events.',
-      label: 'trackPagesWithEvents',
+      label: 'Track Pages With Events',
       type: 'boolean',
       required: false,
       default: true
     },
     debug: {
       description: 'Enables FullStory debug mode.',
-      label: 'debug',
+      label: 'Debug mode',
       type: 'boolean',
       required: false,
       default: false
