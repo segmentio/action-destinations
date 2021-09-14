@@ -24,7 +24,7 @@
     "prepublishOnly": "yarn build",
     "test": "jest",
     "typecheck": "tsc --noEmit",
-    "dev": "concurrently \"webpack serve\" \"webpack -c webpack.config.js --watch\""
+    "dev": "yarn postclean && yarn build && concurrently \"webpack serve\" \"webpack -c webpack.config.js --watch\""
   },
   "dependencies": {
     "@braze/web-sdk": "^3.3.0",
