@@ -9,7 +9,7 @@ const action: BrowserActionDefinition<Settings, typeof FullStory, Payload> = {
   title: 'Identify User',
   description: 'Sets user identity variables',
   platform: 'web',
-  defaultSubscription: "type = 'identify'",
+  defaultSubscription: 'type = "identify"',
   fields: {
     userId: {
       type: 'string',

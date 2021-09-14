@@ -7,7 +7,7 @@ import * as FullStory from '@fullstory/browser'
 const action: BrowserActionDefinition<Settings, typeof FullStory, Payload> = {
   title: 'Viewed Page',
   description: 'Page events',
-  defaultSubscription: "type = 'page'",
+  defaultSubscription: 'type = "page"',
   platform: 'web',
   fields: {
     name: {
