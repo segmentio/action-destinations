@@ -83,6 +83,18 @@ export interface InputField {
   placeholder?: string
   /** Whether or not the field supports dynamically fetching options */
   dynamic?: boolean
+  /**
+   * A predefined set of options for the setting.
+   * Only relevant for `type: 'string'` or `type: 'number'`.
+   */
+  choices?:
+    | Array<string>
+    | Array<{
+        /** The value of the option */
+        value: string | number
+        /** A human-friendly label for the option */
+        label: string
+      }>
   /** Whether or not the field is required */
   required?: boolean
   /**
