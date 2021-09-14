@@ -58,7 +58,8 @@ const action: BrowserActionDefinition<Settings, typeof FullStory, Payload> = {
     }
   },
   perform: (client, event) => {
-    let newTraits: any = {}
+    let newTraits: Record<string, unknown> = {}
+
     if (event.payload.traits) {
       newTraits = Object.entries(event.payload.traits).reduce(
         (acc, [key, value]) => ({

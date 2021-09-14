@@ -2,6 +2,14 @@ import type { BrowserActionDefinition } from '../../../lib/browser-destinations'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 import * as FullStory from '@fullstory/browser'
+declare global {
+  interface Window {
+    // setVars is not available on the FS client yet.
+    FS: {
+      setVars: (eventName: string, eventProperties: object) => {}
+    }
+  }
+}
 
 // Change from unknown to the partner SDK types
 const action: BrowserActionDefinition<Settings, typeof FullStory, Payload> = {
@@ -52,7 +60,6 @@ const action: BrowserActionDefinition<Settings, typeof FullStory, Payload> = {
         client.event(`Viewed ${name} Page`, event.payload.properties || {})
       }
 
-      // @ts-ignore setVars in beta
       window.FS.setVars('page', { pageName: name, ...event.payload.properties })
     } else if (event.payload.category && event.settings.trackCategorizedPages) {
       // categorized pages
@@ -60,7 +67,6 @@ const action: BrowserActionDefinition<Settings, typeof FullStory, Payload> = {
         client.event(`Viewed ${event.payload.category} Page`, event.payload.properties || {})
       }
 
-      // @ts-ignore setVars in beta
       window.FS.setVars('page', { pageName: event.payload.category, ...event.payload.properties })
     } else if (event.settings.trackAllPages) {
       // all pages
@@ -68,8 +74,7 @@ const action: BrowserActionDefinition<Settings, typeof FullStory, Payload> = {
         client.event('Loaded a Page', event.payload.properties || {})
       }
 
-      // @ts-ignore setVars in beta
-      window.FS.setVars('page', event.payload.properties)
+      window.FS.setVars('page', event.payload.properties || {})
     }
   }
 }
