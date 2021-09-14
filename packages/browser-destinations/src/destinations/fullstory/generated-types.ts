@@ -21,4 +21,8 @@ export interface Settings {
    * Sends pages to FullStory as tracking events.
    */
   trackPagesWithEvents?: boolean
+  /**
+   * Enables FullStory debug mode.
+   */
+  debug?: boolean
 }
