@@ -145,6 +145,12 @@ describe('@path', () => {
     expect(output).toStrictEqual({ neat: 'bar' })
   })
 
+  test('root path', () => {
+    const obj = { foo: 'bar' }
+    expect(transform({ '@path': '' }, obj)).toStrictEqual(obj)
+    expect(transform({ '@path': '$.' }, obj)).toStrictEqual(obj)
+  })
+
   test('nested path', () => {
     const output = transform({ neat: { '@path': '$.foo.bar' } }, { foo: { bar: 'baz' } })
     expect(output).toStrictEqual({ neat: 'baz' })

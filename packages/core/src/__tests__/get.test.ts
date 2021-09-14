@@ -14,6 +14,7 @@ const obj = {
 }
 
 const fixtures: Record<string, unknown> = {
+  '': obj,
   a: obj.a,
   'a.b': obj.a.b,
   'a.b.c': obj.a.b.c,
@@ -30,14 +31,6 @@ describe('get', () => {
   for (const path of Object.keys(fixtures)) {
     test(`"${path}"`, () => {
       expect(get(obj, path)).toEqual(fixtures[path])
-    })
-
-    test(`"${path}" with default`, () => {
-      if (fixtures[path] === undefined) {
-        expect(get(obj, path, 'default')).toEqual('default')
-      } else {
-        expect(get(obj, path, 'default')).not.toEqual('default')
-      }
     })
   }
 })
