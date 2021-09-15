@@ -3,7 +3,9 @@ import type { Settings } from './generated-types'
 import sendSms from './sendSms'
 
 const destination: DestinationDefinition<Settings> = {
-  name: 'Actions Personas Messaging Twilio',
+  //The name below is creation name however in partner portal this is Actions Personas Messaging Twilio
+  //This is due to integrations-consumer fetches the creation name instead of current name
+  name: 'Personas Messaging Twilio (Actions)',
   mode: 'cloud',
   authentication: {
     scheme: 'custom',
@@ -26,17 +28,30 @@ const destination: DestinationDefinition<Settings> = {
         type: 'string',
         required: true
       },
-      profileApiSpaceId: {
-        label: 'Profile API Space ID',
-        description: 'Profile API Space ID',
-        type: 'string',
-        required: true
-      },
       profileApiAccessToken: {
         label: 'Profile API Access Token',
         description: 'Profile API Access Token',
         type: 'password',
         required: true
+      },
+      spaceId: {
+        label: 'Space ID',
+        description: 'Space ID',
+        type: 'string',
+        required: true
+      },
+      sourceId: {
+        label: 'Source ID',
+        description: 'Source ID',
+        type: 'string',
+        required: true
+      },
+      webhookUrl: {
+        label: 'Webhook URL',
+        description: 'Webhook URL that will receive all events for the sent message',
+        type: 'string',
+        format: 'uri',
+        required: false
       }
     },
     testAuthentication: (request) => {

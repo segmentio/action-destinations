@@ -1,4 +1,5 @@
-import { ActionDefinition, IntegrationError } from '@segment/actions-core'
+import { ActionDefinition, IntegrationError, HTTPError } from '@segment/actions-core'
+import type { ModifiedResponse } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 import {
@@ -12,6 +13,16 @@ import {
   cleanData
 } from './formatter'
 
+interface GoogleError {
+  status: string
+  error_statuses: [
+    {
+      error_code: string
+      error_message: string
+    }
+  ]
+}
+
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Post Conversion',
   description: 'Send a conversion event to Google Ads.',
@@ -20,7 +31,7 @@ const action: ActionDefinition<Settings, Payload> = {
     conversion_label: {
       label: 'Conversion Label',
       description:
-        'The Google Ads conversion label. You can find this value from your Google Ads event snippet. The provided event snippet should have, for example, `send_to: AW-123456789/AbC-D_efG-h12_34-567`. Enter the part after the forward slash, without the AW- prefix, e.g. 123456789',
+        'You will find this information in the event snippet for your conversion action, for example `send_to: AW-CONVERSION_ID/AW-CONVERSION_LABEL`. Enter the conversion label, the string after the forward slash, without the AW- prefix.',
       type: 'string',
       required: true,
       default: ''
@@ -183,7 +194,7 @@ const action: ActionDefinition<Settings, Payload> = {
     }
   },
 
-  perform: (request, { payload }) => {
+  perform: async (request, { payload }) => {
     const conversionData = cleanData({
       oid: payload.transaction_id,
       user_agent: payload.user_agent,
@@ -216,13 +227,31 @@ const action: ActionDefinition<Settings, Payload> = {
       hashed_phone_number: [formatPhone(payload.phone_number)]
     })
 
-    return request('https://www.google.com/ads/event/api/v1', {
-      method: 'post',
-      json: {
-        pii_data: { ...pii_data, address: [address] },
-        ...conversionData
+    try {
+      return await request('https://www.google.com/ads/event/api/v1', {
+        method: 'post',
+        json: {
+          pii_data: { ...pii_data, address: [address] },
+          ...conversionData
+        }
+      })
+    } catch (err) {
+      // Google returns a 400 when using invalid tokens
+      // We'll catch invalid token errors and throw an internal 401 to
+      // trigger the refresh token flow in this transaction
+      if (err instanceof HTTPError) {
+        const statusCode = err.response.status
+        if (statusCode === 400) {
+          const data = (err.response as ModifiedResponse).data as GoogleError
+          const invalidOAuth = data.error_statuses.find((es) => es.error_code === 'INVALID_OAUTH_TOKEN')
+          if (invalidOAuth) {
+            throw new IntegrationError('The OAuth token is missing or invalid.', 'INVALID_OAUTH_TOKEN', 401)
+          }
+        }
       }
-    })
+      // throw original error if unrelated to invalid/expired tokens
+      throw err
+    }
   }
 }
 

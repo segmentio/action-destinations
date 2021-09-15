@@ -68,6 +68,35 @@ describe('no-op', () => {
   })
 })
 
+describe('@literal', () => {
+  test('simple', () => {
+    const output = transform({ simple: { '@literal': false } })
+    expect(output).toStrictEqual({ simple: false })
+  })
+
+  test('nested directives', () => {
+    const output = transform(
+      {
+        nested: {
+          '@literal': {
+            a: {
+              '@path': '$.a'
+            },
+            b: {
+              '@path': '$.b'
+            }
+          }
+        }
+      },
+      {
+        a: 'some value'
+      }
+    )
+
+    expect(output).toStrictEqual({ nested: { a: 'some value' } })
+  })
+})
+
 describe('@if', () => {
   const payload = { a: 1, b: true, c: false, d: null }
 
@@ -114,6 +143,12 @@ describe('@path', () => {
   test('simple', () => {
     const output = transform({ neat: { '@path': '$.foo' } }, { foo: 'bar' })
     expect(output).toStrictEqual({ neat: 'bar' })
+  })
+
+  test('root path', () => {
+    const obj = { foo: 'bar' }
+    expect(transform({ '@path': '' }, obj)).toStrictEqual(obj)
+    expect(transform({ '@path': '$.' }, obj)).toStrictEqual(obj)
   })
 
   test('nested path', () => {

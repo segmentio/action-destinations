@@ -6,6 +6,8 @@ jobs:
   test-and-build:
     runs-on: ubuntu-latest
 
+    timeout-minutes: 10
+
     strategy:
       matrix:
         node-version: [14.x]
@@ -59,6 +61,8 @@ jobs:
   snyk:
     runs-on: ubuntu-latest
 
+    timeout-minutes: 5
+
     strategy:
       matrix:
         node-version: [14.x]
@@ -99,4 +103,4 @@ jobs:
         env:
           SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
         with:
-          args: --severity-threshold=high --fail-on=upgradable --all-projects
+          args: --severity-threshold=high --fail-on=upgradable --all-projects --policy-path=.snyk

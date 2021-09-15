@@ -50,8 +50,22 @@ export function fieldsToJsonSchema(fields: MinimalFields = {}, options?: SchemaO
       schema.format = 'text'
     }
 
+    if (field.choices) {
+      schema.enum = field.choices.map((choice) => {
+        if (typeof choice === 'string') {
+          return choice
+        }
+
+        return choice.value
+      })
+    }
+
     if ('allowNull' in field && field.allowNull) {
       schema.type = ([] as JSONSchema4TypeName[]).concat(schemaType, 'null')
+
+      if (schema.enum) {
+        schema.enum = [...schema.enum, null]
+      }
 
       if (typeof schema.tsType === 'string' && !schema.tsType.includes('null')) {
         schema.tsType += ' | null'
@@ -62,6 +76,12 @@ export function fieldsToJsonSchema(fields: MinimalFields = {}, options?: SchemaO
     if (isMulti) {
       schema.items = { type: schemaType }
       schema.type = 'array'
+
+      // Move to the items level
+      if (schema.enum) {
+        schema.items.enum = schema.enum
+        delete schema.enum
+      }
     }
 
     if (schemaType === 'object' && field.properties) {

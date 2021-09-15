@@ -22,8 +22,9 @@ const destination: DestinationDefinition<Settings> = {
     scheme: 'oauth2',
     fields: {
       conversionTrackingId: {
-        label: 'Conversion Tracking ID',
-        description: 'Tracking id that uniquely identifies your advertiser account.',
+        label: 'Conversion ID',
+        description:
+          'You will find this information in the event snippet for your conversion action, for example `send_to: AW-CONVERSION_ID/AW-CONVERSION_LABEL`. In the sample snippet, AW-CONVERSION_ID stands for the conversion ID unique to your account. Enter the conversion Id, without the AW- prefix.',
         type: 'string',
         required: true
       }

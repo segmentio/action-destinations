@@ -60,13 +60,13 @@ const destination: DestinationDefinition<Settings> = {
   },
   presets: [
     {
-      name: 'Track Events',
+      name: 'Track Calls',
       subscribe: 'type = "track" and event != "Order Completed"',
       partnerAction: 'trackEvent',
       mapping: defaultValues(trackEvent.fields)
     },
     {
-      name: 'Track Purchases',
+      name: 'Order Completed Calls',
       subscribe: 'event = "Order Completed"',
       partnerAction: 'trackPurchase',
       mapping: defaultValues(trackPurchase.fields)

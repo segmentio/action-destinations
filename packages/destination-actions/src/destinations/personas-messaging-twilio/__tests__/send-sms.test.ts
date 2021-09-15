@@ -11,17 +11,25 @@ for (const environment of ['stage', 'production']) {
     twilioAuthToken: 'b',
     profileApiEnvironment: environment,
     profileApiAccessToken: 'c',
-    profileApiSpaceId: 'd'
+    spaceId: 'd',
+    sourceId: 'e'
   }
 
   const endpoint = `https://profiles.segment.${environment === 'production' ? 'com' : 'build'}`
 
+  beforeEach(() => {
+    nock(`${endpoint}/v1/spaces/d/collections/users/profiles/user_id:jane`).get('/traits?limit=200').reply(200, {
+      traits: {}
+    })
+  })
+
+  afterEach(() => {
+    twilio.responses = []
+    nock.cleanAll()
+  })
+
   describe(`${environment} - send SMS`, () => {
     it('should abort when there is no `phone` external ID', async () => {
-      nock(`${endpoint}/v1/spaces/d/collections/users/profiles/user_id:jane`).get('/traits?limit=200').reply(200, {
-        traits: {}
-      })
-
       nock(`${endpoint}/v1/spaces/d/collections/users/profiles/user_id:jane`)
         .get('/external_ids?limit=25')
         .reply(200, {
@@ -43,18 +51,14 @@ for (const environment of ['stage', 'production']) {
         mapping: {
           userId: { '@path': '$.userId' },
           fromNumber: '+1234567890',
-          body: 'Hello world, {{user_id}}!'
+          body: 'Hello world, {{profile.user_id}}!'
         }
       })
 
       expect(responses.length).toEqual(2)
     })
 
-    it('should send SMS', async () => {
-      nock(`${endpoint}/v1/spaces/d/collections/users/profiles/user_id:jane`).get('/traits?limit=200').reply(200, {
-        traits: {}
-      })
-
+    const testSendSms = async (expectedTwilioRequest: any, actionInputData: any) => {
       nock(`${endpoint}/v1/spaces/d/collections/users/profiles/user_id:jane`)
         .get('/external_ids?limit=25')
         .reply(200, {
@@ -70,16 +74,27 @@ for (const environment of ['stage', 'production']) {
           ]
         })
 
-      const expectedTwilioRequest = new URLSearchParams()
-      expectedTwilioRequest.set('Body', 'Hello world, jane!')
-      expectedTwilioRequest.set('From', '+1234567890')
-      expectedTwilioRequest.set('To', '+1234567891')
-
       const twilioRequest = nock('https://api.twilio.com/2010-04-01/Accounts/a')
         .post('/Messages.json', expectedTwilioRequest.toString())
         .reply(201, {})
 
-      const responses = await twilio.testAction('sendSms', {
+      const responses = await twilio.testAction('sendSms', actionInputData)
+
+      expect(responses.map((response) => response.url)).toStrictEqual([
+        `${endpoint}/v1/spaces/d/collections/users/profiles/user_id:jane/traits?limit=200`,
+        `${endpoint}/v1/spaces/d/collections/users/profiles/user_id:jane/external_ids?limit=25`,
+        'https://api.twilio.com/2010-04-01/Accounts/a/Messages.json'
+      ])
+      expect(twilioRequest.isDone()).toEqual(true)
+    }
+
+    it('should send SMS', async () => {
+      const expectedTwilioRequest = new URLSearchParams({
+        Body: 'Hello world, jane!',
+        From: '+1234567890',
+        To: '+1234567891'
+      })
+      const actionInputData = {
         event: createTestEvent({
           timestamp,
           event: 'Audience Entered',
@@ -89,12 +104,81 @@ for (const environment of ['stage', 'production']) {
         mapping: {
           userId: { '@path': '$.userId' },
           fromNumber: '+1234567890',
-          body: 'Hello world, {{user_id}}!'
+          body: 'Hello world, {{profile.user_id}}!'
         }
+      }
+
+      await testSendSms(expectedTwilioRequest, actionInputData)
+    })
+
+    it('should send SMS with custom metadata', async () => {
+      const expectedTwilioRequest = new URLSearchParams({
+        Body: 'Hello world, jane!',
+        From: '+1234567890',
+        To: '+1234567891',
+        StatusCallback: 'http://localhost/?foo=bar'
       })
 
-      expect(responses.length).toEqual(3)
-      expect(twilioRequest.isDone()).toEqual(true)
+      const actionInputData = {
+        event: createTestEvent({
+          timestamp,
+          event: 'Audience Entered',
+          userId: 'jane'
+        }),
+        settings: {
+          ...settings,
+          webhookUrl: 'http://localhost'
+        },
+        mapping: {
+          userId: { '@path': '$.userId' },
+          fromNumber: '+1234567890',
+          body: 'Hello world, {{profile.user_id}}!',
+          customArgs: {
+            foo: 'bar'
+          }
+        }
+      }
+
+      await testSendSms(expectedTwilioRequest, actionInputData)
+    })
+
+    it('should fail on invalid webhook url', async () => {
+      nock(`${endpoint}/v1/spaces/d/collections/users/profiles/user_id:jane`)
+        .get('/external_ids?limit=25')
+        .reply(200, {
+          data: [
+            {
+              type: 'user_id',
+              id: 'jane'
+            },
+            {
+              type: 'phone',
+              id: '+1234567891'
+            }
+          ]
+        })
+
+      const actionInputData = {
+        event: createTestEvent({
+          timestamp,
+          event: 'Audience Entered',
+          userId: 'jane'
+        }),
+        settings: {
+          ...settings,
+          webhookUrl: 'foo'
+        },
+        mapping: {
+          userId: { '@path': '$.userId' },
+          fromNumber: '+1234567890',
+          body: 'Hello world, {{profile.user_id}}!',
+          customArgs: {
+            foo: 'bar'
+          }
+        }
+      }
+
+      await expect(twilio.testAction('sendSms', actionInputData)).rejects.toHaveProperty('code', 'ERR_INVALID_URL')
     })
   })
 }

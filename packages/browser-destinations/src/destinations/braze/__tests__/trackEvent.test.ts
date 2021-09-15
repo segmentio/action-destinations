@@ -38,6 +38,7 @@ describe('trackEvent', () => {
     const [trackEvent] = await brazeDestination({
       api_key: 'b_123',
       endpoint: 'endpoint',
+      sdkVersion: '3.3',
       subscriptions: [
         {
           partnerAction: 'trackEvent',
@@ -68,83 +69,5 @@ describe('trackEvent', () => {
     )
 
     expect(customEvent).toHaveBeenCalledWith('UFC', { goat: 'hasbulla' })
-  })
-
-  test('changes user if userId is present', async () => {
-    const customEvent = jest.spyOn(appboy, 'logCustomEvent').mockReturnValue(true)
-    const changeUser = jest.spyOn(appboy, 'changeUser').mockImplementation(() => true)
-
-    const [trackEvent] = await brazeDestination({
-      api_key: 'b_123',
-      endpoint: 'endpoint',
-      subscriptions: [
-        {
-          partnerAction: 'trackEvent',
-          name: 'Log Custom Event',
-          enabled: true,
-          subscribe: 'type = "track"',
-          mapping: {
-            eventName: {
-              '@path': '$.event'
-            },
-            eventProperties: {
-              '@path': '$.properties'
-            }
-          }
-        }
-      ]
-    })
-
-    await trackEvent.load(Context.system(), {} as Analytics)
-    await trackEvent.track?.(
-      new Context({
-        type: 'track',
-        event: 'UFC',
-        properties: {
-          goat: 'hasbulla',
-          userId: 'some user id'
-        }
-      })
-    )
-
-    expect(changeUser).toHaveBeenCalledWith('some user id')
-    expect(customEvent).toHaveBeenCalledWith('UFC', { goat: 'hasbulla', userId: 'some user id' })
-  })
-
-  test('changeUser is not called if userId is not present', async () => {
-    const customEvent = jest.spyOn(appboy, 'logCustomEvent').mockReturnValue(true)
-    const changeUser = jest.spyOn(appboy, 'changeUser').mockImplementation(() => true)
-
-    const [trackEvent] = await brazeDestination({
-      api_key: 'b_123',
-      endpoint: 'endpoint',
-      subscriptions: [
-        {
-          partnerAction: 'trackEvent',
-          name: 'Log Custom Event',
-          enabled: true,
-          subscribe: 'type = "track"',
-          mapping: {
-            eventName: {
-              '@path': '$.event'
-            },
-            eventProperties: {
-              '@path': '$.properties'
-            }
-          }
-        }
-      ]
-    })
-
-    await trackEvent.load(Context.system(), {} as Analytics)
-    await trackEvent.track?.(
-      new Context({
-        type: 'track',
-        event: 'UFC'
-      })
-    )
-
-    expect(changeUser).not.toHaveBeenCalledWith('some user')
-    expect(customEvent).toHaveBeenCalled()
   })
 })

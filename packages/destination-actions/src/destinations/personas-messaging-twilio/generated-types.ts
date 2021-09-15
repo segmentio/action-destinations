@@ -14,11 +14,19 @@ export interface Settings {
    */
   profileApiEnvironment: string
   /**
-   * Profile API Space ID
-   */
-  profileApiSpaceId: string
-  /**
    * Profile API Access Token
    */
   profileApiAccessToken: string
+  /**
+   * Space ID
+   */
+  spaceId: string
+  /**
+   * Source ID
+   */
+  sourceId: string
+  /**
+   * Webhook URL that will receive all events for the sent message
+   */
+  webhookUrl?: string
 }

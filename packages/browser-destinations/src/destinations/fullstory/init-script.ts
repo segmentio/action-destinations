@@ -1,5 +1,5 @@
-/* eslint-disable no-undef */
-
+/* eslint-disable */
+// @ts-nocheck
 export function initScript({ debug, org }) {
   window._fs_debug = debug
   window._fs_host = 'fullstory.com'

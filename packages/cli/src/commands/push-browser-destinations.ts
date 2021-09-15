@@ -1,4 +1,5 @@
 import { Command, flags } from '@oclif/command'
+import { diffString } from 'json-diff'
 import execa from 'execa'
 import chalk from 'chalk'
 import { manifest } from '@segment/browser-destinations'
@@ -12,6 +13,7 @@ import {
   createRemotePlugin,
   updateRemotePlugin
 } from '../lib/control-plane-client'
+import { build, webBundles } from '../lib/web-bundles'
 
 export default class PushBrowserDestinations extends Command {
   private spinner: ora.Ora = ora()
@@ -68,12 +70,15 @@ export default class PushBrowserDestinations extends Command {
 
     try {
       this.spinner.start(`Building libraries`)
-      await build(flags.env)
+      build(flags.env)
     } catch (e) {
       this.error(e)
     } finally {
       this.spinner.stop()
     }
+
+    const pluginsToCreate = []
+    const pluginsToUpdate = []
 
     for (const metadata of metadatas) {
       this.spinner.start(`Saving remote plugin for ${metadata.name}`)
@@ -85,7 +90,7 @@ export default class PushBrowserDestinations extends Command {
         // This MUST match the way webpack exports the libraryName in the umd bundle
         // TODO make this more automatic for consistency
         libraryName: `${entry.directory}Destination`,
-        url: `${path}/${entry.directory}.js`
+        url: `${path}/${entry.directory}/${webBundles()[entry.directory]}`
       }
 
       // We expect that each definition produces a single Remote Plugin bundle
@@ -93,12 +98,42 @@ export default class PushBrowserDestinations extends Command {
       const existingPlugin = remotePlugins.find((p) => p.metadataId === metadata.id && p.name === metadata.name)
 
       if (existingPlugin) {
-        await updateRemotePlugin(input)
-        this.spinner.succeed(`Updated existing remote plugin for ${metadata.name}`)
+        pluginsToUpdate.push(input)
       } else {
-        await createRemotePlugin(input)
-        this.spinner.succeed(`Created new remote plugin for ${metadata.name}`)
+        pluginsToCreate.push(input)
       }
+    }
+
+    const diff = diffString(asJson(remotePlugins), asJson([...pluginsToUpdate, ...pluginsToCreate]))
+
+    if (diff) {
+      this.spinner.warn(`Please review the following changes:`)
+      this.log(`\n${diff}`)
+    } else {
+      this.spinner.info(`No changes. Skipping.`)
+      this.exit()
+    }
+
+    const { shouldContinue } = await prompt({
+      type: 'confirm',
+      name: 'shouldContinue',
+      message: `Publish changes?`,
+      initial: false
+    })
+
+    if (!shouldContinue) {
+      this.exit()
+    }
+
+    try {
+      this.spinner.start('Persisting changes')
+      await Promise.all([
+        pluginsToUpdate.map((p) => updateRemotePlugin(p)),
+        pluginsToCreate.map((p) => createRemotePlugin(p))
+      ])
+    } catch (e) {
+      this.spinner.stop()
+      this.error(e)
     }
 
     try {
@@ -113,19 +148,14 @@ export default class PushBrowserDestinations extends Command {
   }
 }
 
-async function build(env: string): Promise<string> {
-  execa.commandSync('lerna run build')
-  if (env === 'production') {
-    return execa.commandSync('lerna run build-web').stdout
-  }
-
-  return execa.commandSync('lerna run build-web-stage').stdout
-}
-
 async function syncToS3(env: string): Promise<string> {
   if (env === 'production') {
     return execa.commandSync(`lerna run deploy-prod`).stdout
   }
 
   return execa.commandSync(`lerna run deploy-stage`).stdout
+}
+
+function asJson(obj: unknown) {
+  return JSON.parse(JSON.stringify(obj))
 }

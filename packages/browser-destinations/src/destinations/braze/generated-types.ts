@@ -6,7 +6,7 @@ export interface Settings {
    */
   sdkVersion: string
   /**
-   * Use the API Key to identify your application to Braze during [SDK setup](https://www.braze.com/docs/developer_guide/platform_integration_guides/web/initial_sdk_setup/).
+   * Found in the Braze Dashboard under Settings → Manage Settings → Apps → Web
    */
   api_key: string
   /**

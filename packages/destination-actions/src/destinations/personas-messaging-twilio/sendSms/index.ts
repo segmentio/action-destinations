@@ -16,7 +16,7 @@ const fetchProfileTraits = async (
 ): Promise<Record<string, string>> => {
   const endpoint = getProfileApiEndpoint(settings.profileApiEnvironment)
   const response = await request(
-    `${endpoint}/v1/spaces/${settings.profileApiSpaceId}/collections/users/profiles/user_id:${profileId}/traits?limit=200`,
+    `${endpoint}/v1/spaces/${settings.spaceId}/collections/users/profiles/user_id:${profileId}/traits?limit=200`,
     {
       headers: {
         authorization: `Basic ${Buffer.from(settings.profileApiAccessToken + ':').toString('base64')}`,
@@ -36,7 +36,7 @@ const fetchProfileExternalIds = async (
 ): Promise<Record<string, string>> => {
   const endpoint = getProfileApiEndpoint(settings.profileApiEnvironment)
   const response = await request(
-    `${endpoint}/v1/spaces/${settings.profileApiSpaceId}/collections/users/profiles/user_id:${profileId}/external_ids?limit=25`,
+    `${endpoint}/v1/spaces/${settings.spaceId}/collections/users/profiles/user_id:${profileId}/external_ids?limit=25`,
     {
       headers: {
         authorization: `Basic ${Buffer.from(settings.profileApiAccessToken + ':').toString('base64')}`,
@@ -74,19 +74,28 @@ const action: ActionDefinition<Settings, Payload> = {
       required: true,
       default: { '@path': '$.userId' }
     },
+    toNumber: {
+      label: 'Test Number',
+      description: 'Number to send SMS to when testing',
+      type: 'string'
+    },
     fromNumber: {
       label: 'From Number',
       description: 'Which number to send SMS from',
       type: 'string',
-      required: true,
-      default: { '@path': '$.properties.fromNumber' }
+      required: true
     },
     body: {
       label: 'Message',
       description: 'Message to send',
       type: 'text',
-      required: true,
-      default: { '@path': '$.properties.body' }
+      required: true
+    },
+    customArgs: {
+      label: 'Custom Arguments',
+      description: 'Additional custom arguments that will be opaquely sent back on webhook events',
+      type: 'object',
+      required: false
     }
   },
   perform: async (request, { settings, payload }) => {
@@ -100,7 +109,9 @@ const action: ActionDefinition<Settings, Payload> = {
       traits
     }
 
-    if (!profile.phone) {
+    const phone = payload.toNumber || profile.phone
+
+    if (!phone) {
       return
     }
 
@@ -108,16 +119,31 @@ const action: ActionDefinition<Settings, Payload> = {
     // and we no longer need to call the profiles API first
     const token = Buffer.from(`${settings.twilioAccountId}:${settings.twilioAuthToken}`).toString('base64')
 
+    const body = new URLSearchParams({
+      Body: Mustache.render(payload.body, { profile }),
+      From: payload.fromNumber,
+      To: phone
+    })
+
+    const webhookUrl = settings.webhookUrl
+    const customArgs = payload.customArgs
+    if (webhookUrl && customArgs) {
+      // Webhook URL parsing has a potential of failing. I think it's better that
+      // we fail out of any invocation than silently not getting analytics
+      // data if that's what we're expecting.
+      const webhookUrlWithParams = new URL(webhookUrl)
+      for (const key of Object.keys(customArgs)) {
+        webhookUrlWithParams.searchParams.append(key, String(customArgs[key]))
+      }
+      body.append('StatusCallback', webhookUrlWithParams.toString())
+    }
+
     return request(`https://api.twilio.com/2010-04-01/Accounts/${settings.twilioAccountId}/Messages.json`, {
       method: 'POST',
       headers: {
         authorization: `Basic ${token}`
       },
-      body: new URLSearchParams({
-        Body: Mustache.render(payload.body, profile),
-        From: payload.fromNumber,
-        To: profile.phone
-      })
+      body
     })
   }
 }

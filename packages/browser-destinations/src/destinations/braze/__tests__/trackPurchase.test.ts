@@ -33,74 +33,6 @@ beforeEach(() => {
   jest.spyOn(appboy, 'openSession').mockImplementation(() => true)
 })
 
-test('changes the userId when present', async () => {
-  const changeUser = jest.spyOn(appboy, 'changeUser').mockImplementationOnce(() => {})
-
-  const [trackPurchase] = await brazeDestination({
-    api_key: 'b_123',
-    endpoint: 'endpoint',
-    sdkVersion: '3.3',
-    subscriptions: [
-      {
-        partnerAction: 'trackPurchase',
-        name: 'Log Purchase',
-        enabled: true,
-        subscribe: 'type = "track"',
-        mapping: {
-          userId: {
-            '@path': '$.properties.userId'
-          }
-        }
-      }
-    ]
-  })
-
-  await trackPurchase.load(Context.system(), {} as Analytics)
-  await trackPurchase.track?.(
-    new Context({
-      type: 'track',
-      properties: {
-        userId: 'u_123'
-      }
-    })
-  )
-
-  expect(changeUser).toHaveBeenCalledWith('u_123')
-})
-
-test('does not change the userId when not present', async () => {
-  const changeUser = jest.spyOn(appboy, 'changeUser').mockImplementationOnce(() => {})
-
-  const [trackPurchase] = await brazeDestination({
-    api_key: 'b_123',
-    endpoint: 'endpoint',
-    sdkVersion: '3.3',
-    subscriptions: [
-      {
-        partnerAction: 'trackPurchase',
-        name: 'Log Purchase',
-        enabled: true,
-        subscribe: 'type = "track"',
-        mapping: {
-          userId: {
-            '@path': '$.properties.userId'
-          }
-        }
-      }
-    ]
-  })
-
-  await trackPurchase.load(Context.system(), {} as Analytics)
-  await trackPurchase.track?.(
-    new Context({
-      type: 'track',
-      properties: {}
-    })
-  )
-
-  expect(changeUser).not.toHaveBeenCalledWith()
-})
-
 test('reports products when present', async () => {
   const brazeLogPurchase = jest.spyOn(appboy, 'logPurchase').mockReturnValue(true)
 
@@ -116,7 +48,7 @@ test('reports products when present', async () => {
         subscribe: 'type = "track"',
         mapping: {
           purchaseProperties: {
-            '@path': '$.properties.purchaseProperties'
+            '@path': '$.properties'
           },
           products: {
             '@path': '$.properties.products'
@@ -131,18 +63,16 @@ test('reports products when present', async () => {
     new Context({
       type: 'track',
       properties: {
-        purchaseProperties: {
-          banana: 'yellow'
-        },
+        banana: 'yellow',
         products: [
           {
-            productId: 'p_123',
+            product_id: 'p_123',
             price: 399,
-            currencyCode: 'BGP',
+            currency: 'BGP',
             quantity: 2
           },
           {
-            productId: 'p_456',
+            product_id: 'p_456',
             price: 0
           }
         ]
@@ -158,6 +88,18 @@ test('reports products when present', async () => {
       2,
       Object {
         "banana": "yellow",
+        "products": Array [
+          Object {
+            "currency": "BGP",
+            "price": 399,
+            "product_id": "p_123",
+            "quantity": 2,
+          },
+          Object {
+            "price": 0,
+            "product_id": "p_456",
+          },
+        ],
       },
     ]
   `)
@@ -171,6 +113,18 @@ test('reports products when present', async () => {
       1,
       Object {
         "banana": "yellow",
+        "products": Array [
+          Object {
+            "currency": "BGP",
+            "price": 399,
+            "product_id": "p_123",
+            "quantity": 2,
+          },
+          Object {
+            "price": 0,
+            "product_id": "p_456",
+          },
+        ],
       },
     ]
   `)

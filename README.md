@@ -11,64 +11,47 @@ This project is a monorepo with multiple packages using Yarn Workspaces:
 - `packages/destinations-actions` - destination definitions and their actions
 - `packages/destinations-subscriptions` - validates events against an action's subscription AST
 
-```
+```sh
 git clone https://github.com/segmentio/action-destinations.git
 cd action-destinations
+npm login
+yarn login
+# Requires node 14.17, optionally: nvm use 14.17
 yarn --ignore-engines --ignore-optional
 yarn bootstrap
 yarn test
 ```
 
-## Test Actions Locally
+## Actions CLI
 
-To test actions locally, you send a curl request. For example:
+In order to run the CLI (`./bin/run`), your current working directory needs to be the root of the `action-destinations` repository.
 
 ```sh
-curl --request POST \
-  --url http://localhost:3000/actions/5f7dd8e302173ff732db5cc4 \
-  --header 'content-type: application/cloudevents-batch+json' \
-  --data '[
-  {
-    "id": "dkjfksldfjiuhfenjk",
-    "source": "some-source",
-    "destination": "slack",
-    "data": {
-      "channel": "server",
-      "context": {
-        "library": {
-          "name": "unknown",
-          "version": "unknown"
-        }
-      },
-      "event": "Example Event",
-      "integrations": {},
-      "messageId": "api-1iI59hvBEtckNicjbfqG7VdjRw2",
-      "projectId": "29qHxXL9muph5R19vwAnDP",
-      "properties": {
-        "text": "Hello, from dev :blobcatwave:!"
-      },
-      "receivedAt": "2020-10-01T19:55:15.068Z",
-      "timestamp": "2020-10-01T19:55:15.068Z",
-      "type": "track",
-      "userId": "sloth@segment.com",
-      "version": 2
-    },
-    "settings": {
-      "subscription": {
-        "mapping": {
-          "channel": "test-channel",
-          "url": "https://hooks.slack.com/services/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",
-          "text": {
-            "@template": "Event = {{event}}, properties.text = {{properties.text}}"
-          }
-        },
-        "partnerAction": "postToChannel",
-        "subscribe": "type = \"track\""
-      }
-    }
-  }
-]'
+# see what's supported by the CLI
+./bin/run --help
+
+# scaffold a new destination
+./bin/run init
+
+# scaffold a new action within a destination
+./bin/run generate:action <ACTION_NAME> <browser|server>
+
+# generates TypeScript definitions for an integration
+./bin/run generate:types
+
+# start local development server
+./bin/run serve
 ```
+
+For specific information about each CLI command, please refer to this [README](https://github.com/segmentio/action-destinations/tree/main/packages/cli).
+
+### Troubleshooting CLI
+
+If a CLI command fails to work properly, run the command with `DEBUG=*` at the beginning (e.g. `DEBUG=* ./bin/run serve`). This will produce a verbose debugging output, providing hints as to why something isn't working as expected. All of the CLI commands are also in the `./packages/cli/src/commands` directory if you need to inspect them further.
+
+## Testing
+
+Refer [here](./packages/docs/testing.md) for more information about testing your destination actions.
 
 ## Configuring
 

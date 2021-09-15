@@ -6,6 +6,8 @@ jobs:
   install-and-test:
     runs-on: ubuntu-latest
 
+    timeout-minutes: 10
+
     strategy:
       matrix:
         node-version: [14.x]
@@ -29,4 +31,4 @@ jobs:
         run: yarn test
 
       - name: Build
-        run: NODE_ENV=production yarn build --ignore @segment/browser-destinations
+        run: NODE_ENV=production yarn build
