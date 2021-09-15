@@ -1,18 +1,32 @@
 {
-  "name": "@segment/ajv-human-errors",
-  "version": "1.6.0",
+  "name": "@segmentio/ajv-human-errors",
+  "version": "2.0.0",
   "description": "Human-readable error messages for Ajv (Another JSON Schema Validator).",
   "repository": {
     "type": "git",
     "url": "https://github.com/segmentio/action-destinations",
     "directory": "packages/ajv-human-errors"
   },
-  "main": "index.js",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
   "scripts": {
-    "test": "jest"
+    "prepack": "yarn build",
+    "prebuild": "yarn clean",
+    "build": "tsc --build tsconfig.build.json",
+    "clean": "tsc --build tsconfig.build.json --clean",
+    "postclean": "rm -rf dist",
+    "prepublishOnly": "yarn build",
+    "test": "jest",
+    "typecheck": "tsc --noEmit"
   },
   "license": "MIT",
   "devDependencies": {
-    "ajv": "^6.12.3"
+    "ajv": "^8.6.3",
+    "ajv-formats": "^2.1.1",
+    "jest": "^26.6.3",
+    "typescript": "^4.2.3"
+  },
+  "peerDependencies": {
+    "ajv": "^8.0.0"
   }
 }
