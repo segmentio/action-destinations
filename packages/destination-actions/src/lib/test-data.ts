@@ -74,8 +74,11 @@ export function generateTestData(
 
     if (properties) {
       let subData: any = {}
-      const propertyFields = Object.keys(properties)
-      if (isRequiredOnly) propertyFields.filter((name) => properties[name].required)
+      let propertyFields = Object.keys(properties)
+
+      if (isRequiredOnly) {
+        propertyFields = propertyFields.filter((name) => properties[name].required)
+      }
 
       for (const propertyName of propertyFields) {
         const property = properties[propertyName]
