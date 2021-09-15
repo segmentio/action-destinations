@@ -110,6 +110,7 @@ export default class Init extends Command {
     const relativePath = path.join(directory, args.path || slug)
     const targetDirectory = path.join(process.cwd(), relativePath)
     const templatePath = path.join(__dirname, '../../templates/destinations', template)
+    const snapshotPath = path.join(__dirname, '../../templates/actions/snapshot')
 
     try {
       this.spinner.start(`Creating ${chalk.bold(name)}`)
@@ -126,6 +127,22 @@ export default class Init extends Command {
       this.spinner.succeed()
     } catch (err) {
       this.spinner.fail(chalk`Generating types for {magenta ${slug}} destination: ${err.message}`)
+    }
+
+    try {
+      this.spinner.start(`Creating snapshot tests for ${chalk.bold(slug)} destination`)
+      renderTemplates(
+        snapshotPath,
+        targetDirectory,
+        {
+          destination: slug
+        },
+        true
+      )
+      this.spinner.succeed(`Created snapshot tests for ${slug} destination`)
+    } catch (err) {
+      this.spinner.fail(`Snapshot test creation failed: ${chalk.red(err.message)}`)
+      this.exit()
     }
 
     this.log(chalk.green(`Done creating "${name}" 🎉`))
