@@ -129,3 +129,14 @@ describe('SendGrid', () => {
   })
 })
 ```
+
+## Snapshot Tests
+Snapshot tests help developers understand how their changes affect the request body and the downstream tool. In `action-destinations`, they are automatically generated with both the `init` and `generate:action` CLI commands - the former creating destination-level snapshots and the latter creating action-level snapshots. These tests can be found in the `snapshot.test.ts` file under the `__tests__` folder.
+
+The `snapshot.test.ts` file mocks an HTTP server using `nock`, and generates random test data (w/ `Chance`) based on the destination action's fields and corresponding data type. For each destination action, it creates two snapshot tests - one for all fields and another for just the required fields. To ensure deterministic tests, the `Chance` instance is instantiated with a fixed seed corresponding to the destination action name.
+
+Once the actions under a new destination are complete, developers can run the following command to generate a snapshot file (`snapshot.test.ts.snap`) under `/__tests__/snapshots/`.
+
+```
+yarn jest --testPathPattern='./packages/destination-actions/src/destinations/<DESTINATION SLUG>' --updateSnapshot
+```
