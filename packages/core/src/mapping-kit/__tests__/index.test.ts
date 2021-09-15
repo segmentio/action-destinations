@@ -215,3 +215,43 @@ describe('remove undefined values in objects', () => {
     })
   })
 })
+
+describe('array of objects', () => {
+  test('one object array', () => {
+    // @ts-ignore
+    expect(transform([{ neat: { '@path': '$.foo' } }], { foo: 'bar' })).toEqual([{ neat: 'bar' }])
+  })
+
+  test('multiple objects in array', () => {
+    // @ts-ignore
+    expect(transform([{ neat: { '@path': '$.foo' } }], { foo: [{ manchu: 'bar' }, { fighters: 'dave' }] })).toEqual([
+      { neat: [{ manchu: 'bar' }, { fighters: 'dave' }] }
+    ])
+  })
+
+  test('multiple objects in array with different field specific mappings per iteration', () => {
+    const mapping = [
+      {
+        one: { '@path': '$.foo.0.manchu' },
+        two: { '@path': '$.foo.1.fighters' }
+      }
+    ]
+    // @ts-ignore
+    expect(transform(mapping, { foo: [{ manchu: 'bar' }, { fighters: 'dave' }] })).toEqual([
+      { one: 'bar', two: 'dave' }
+    ])
+  })
+
+  test('multiple objects in array field with field specific mappings', () => {
+    const mapping = { '@path': '$.foo.baz..num' }
+
+    const data = {
+      foo: {
+        bar: 42,
+        baz: [{ num: 1 }, { num: 2 }]
+      },
+      hello: 'world'
+    }
+    expect(transform(mapping, data)).toEqual([1, 2])
+  })
+})
