@@ -1,6 +1,6 @@
 {
   "name": "@segment/browser-destinations",
-  "version": "3.8.4",
+  "version": "3.8.5",
   "description": "Action based browser destinations",
   "author": "Netto Farah",
   "private": true,
@@ -24,7 +24,7 @@
     "prepublishOnly": "yarn build",
     "test": "jest",
     "typecheck": "tsc --noEmit",
-    "dev": "concurrently \"webpack serve\" \"webpack -c webpack.config.js --watch\""
+    "dev": "NODE_ENV=development concurrently \"webpack serve\" \"webpack -c webpack.config.js --watch\""
   },
   "dependencies": {
     "@braze/web-sdk": "^3.3.0",
@@ -41,7 +41,7 @@
     "@babel/plugin-transform-modules-commonjs": "^7.13.8",
     "@babel/preset-env": "^7.13.10",
     "@babel/preset-typescript": "^7.13.0",
-    "@segment/actions-core": "^3.8.2",
+    "@segment/actions-core": "^3.8.3",
     "@types/amplitude-js": "^7.0.1",
     "@types/intercom-web": "^2.8.11",
     "@types/jest": "^26.0.23",

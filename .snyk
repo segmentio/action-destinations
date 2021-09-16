@@ -1,0 +1,13 @@
+# Snyk (https://snyk.io) policy file, patches or ignores known vulnerabilities.
+version: v1.14.1
+# ignores vulnerabilities until expiry date; change duration by modifying expiry date
+ignore:
+  SNYK-JS-ANSIREGEX-1583908:
+    - '*':
+        reason: no commonjs patch
+        expires: 2021-10-13T21:57:12.496Z
+  SNYK-JS-LODASHTEMPLATE-1088054:
+    - '*':
+        reason: no commonjs patch
+        expires: 2021-10-13T21:57:12.496Z
+patch: {}

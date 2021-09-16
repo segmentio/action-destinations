@@ -7,13 +7,13 @@ const receivedAt = '2021-08-03T17:40:04.055Z'
 const settings = {
   app_id: 'my-app-id',
   api_key: 'my-api-key',
-  endpoint: 'https://example.com'
+  endpoint: 'https://rest.iad-01.braze.com' as const
 }
 
 describe(Braze.name, () => {
   describe('updateUserProfile', () => {
     it('should work with default mappings', async () => {
-      nock('https://example.com').post('/users/track').reply(200, {})
+      nock('https://rest.iad-01.braze.com').post('/users/track').reply(200, {})
 
       const event = createTestEvent({
         type: 'identify',
@@ -81,7 +81,7 @@ describe(Braze.name, () => {
     })
 
     it('should require one of braze_id, user_alias, or external_id', async () => {
-      nock('https://example.com').post('/users/track').reply(200, {})
+      nock('https://rest.iad-01.braze.com').post('/users/track').reply(200, {})
 
       const event = createTestEvent({
         type: 'identify',
@@ -102,7 +102,7 @@ describe(Braze.name, () => {
 
   describe('trackEvent', () => {
     it('should work with default mappings', async () => {
-      nock('https://example.com').post('/users/track').reply(200, {})
+      nock('https://rest.iad-01.braze.com').post('/users/track').reply(200, {})
 
       const event = createTestEvent({
         event: 'Test Event',
@@ -152,7 +152,7 @@ describe(Braze.name, () => {
 
   describe('trackPurchase', () => {
     it('should work with default mappings', async () => {
-      nock('https://example.com').post('/users/track').reply(200, {})
+      nock('https://rest.iad-01.braze.com').post('/users/track').reply(200, {})
 
       const event = createTestEvent({
         event: 'Order Completed',
