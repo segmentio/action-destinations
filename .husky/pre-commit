@@ -18,4 +18,4 @@ then
     fi
 fi
 
-gitleaks --repo-url=.git -v --additional-config=".husky/gitleaks-rules.toml" --branch=$(git branch --show-current) --unstaged
+yarn lint-staged -c lint-staged.config.js
