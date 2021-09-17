@@ -20,6 +20,12 @@ export const destination: BrowserDestinationDefinition<Settings, typeof FullStor
       mapping: defaultValues(trackEvent.fields)
     },
     {
+      name: 'Track Page',
+      subscribe: 'type = "page"',
+      partnerAction: 'trackEvent',
+      mapping: defaultValues(trackEvent.fields)
+    },
+    {
       name: 'Identify User',
       subscribe: 'type = "identify"',
       partnerAction: 'identifyUser',
@@ -38,34 +44,6 @@ export const destination: BrowserDestinationDefinition<Settings, typeof FullStor
       label: 'orgId',
       type: 'string',
       required: true
-    },
-    trackAllPages: {
-      description: 'Sends all page calls as tracking events to FullStory.',
-      label: 'Track All Pages',
-      type: 'boolean',
-      required: false,
-      default: false
-    },
-    trackNamedPages: {
-      description: 'Sends pages with names to FullStory as tracking events.',
-      label: 'Track Named Pages',
-      type: 'boolean',
-      required: false,
-      default: false
-    },
-    trackCategorizedPages: {
-      description: 'Sends pages that specify a category to Fullstory as tracking events.',
-      label: 'Track Categorized Pages',
-      type: 'boolean',
-      required: false,
-      default: false
-    },
-    trackPagesWithEvents: {
-      description: 'Sends pages to FullStory as tracking events.',
-      label: 'Track Pages With Events',
-      type: 'boolean',
-      required: false,
-      default: true
     },
     debug: {
       description: 'Enables FullStory debug mode.',
