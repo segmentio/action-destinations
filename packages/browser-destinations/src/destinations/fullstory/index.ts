@@ -9,7 +9,7 @@ import viewedPage from './viewedPage'
 import { defaultValues } from '@segment/actions-core'
 
 export const destination: BrowserDestinationDefinition<Settings, typeof FullStory> = {
-  name: 'Fullstory',
+  name: 'Fullstory (Actions)',
   slug: 'actions-fullstory',
   mode: 'device',
   presets: [
