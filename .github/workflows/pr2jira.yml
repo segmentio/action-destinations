@@ -8,6 +8,7 @@ jobs:
   create-jira:
     runs-on: ubuntu-latest
     name: Create a ticket in Jira to track the pull request
+    if: github.event.pull_request.head.repo.fork
     steps:
       - name: Login
         uses: atlassian/gajira-login@master
@@ -25,7 +26,7 @@ jobs:
             External PR: ${{ github.event.pull_request.title }}
           description: |
             See: ${{ github.event.pull_request.html_url }}
-          fields: '{"customfield_10002": { "key": "BE-132" }'
+          fields: '{"customfield_10002": { "key": "BE-132" }}'
 
       - name: Log created issue
         run: echo "Issue ${{ steps.create.outputs.issue }} was created"
