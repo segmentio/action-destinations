@@ -20,7 +20,7 @@ export const destination: BrowserDestinationDefinition<Settings, typeof FullStor
       mapping: defaultValues(trackEvent.fields)
     },
     {
-      name: 'Track Page',
+      name: 'Track Page Events',
       subscribe: 'type = "page"',
       partnerAction: 'trackEvent',
       mapping: defaultValues(trackEvent.fields)
