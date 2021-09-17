@@ -4,18 +4,12 @@ set -exo pipefail
 
 if ! command -v gitleaks -h &> /dev/null
 then
-    if -f /.dockerenv
+    if ! command -v brew -v &> /dev/null
     then
-        docker pull zricethezav/gitleaks:latest
-        docker run -v ${PWD}:/. zricethezav/gitleaks:latest --path="/."
-    else
-        if ! command -v brew -v &> /dev/null
-        then
-            /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
-        fi
-
-        brew install gitleaks
+        /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
     fi
+
+    brew install gitleaks
 fi
 
 yarn lint-staged -c lint-staged.config.js
