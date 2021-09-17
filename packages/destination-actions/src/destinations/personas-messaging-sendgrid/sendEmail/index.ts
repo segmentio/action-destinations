@@ -146,8 +146,18 @@ const action: ActionDefinition<Settings, Payload> = {
       type: 'object',
       required: false
     },
+    send: {
+      label: 'Send Message',
+      description: 'Send Message can have true/false based on to send message or not',
+      type: 'boolean',
+      required: false,
+      default: { '@template': false }
+    }
   },
   perform: async (request, { settings, payload }) => {
+    if (!payload.send) {
+      return
+    }
     const [traits, externalIds] = await Promise.all([
       fetchProfileTraits(request, settings, payload.userId),
       fetchProfileExternalIds(request, settings, payload.userId)
@@ -194,7 +204,7 @@ const action: ActionDefinition<Settings, Payload> = {
               ...payload.customArgs,
               source_id: settings.sourceId,
               space_id: settings.spaceId,
-              user_id: payload.userId,
+              user_id: payload.userId
             }
           }
         ],

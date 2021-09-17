@@ -55,4 +55,8 @@ export interface Payload {
   customArgs?: {
     [k: string]: unknown
   }
+  /**
+   * Send Message can have true/false based on to send message or not
+   */
+  send?: boolean
 }
