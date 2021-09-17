@@ -41,7 +41,7 @@ export const destination: BrowserDestinationDefinition<Settings, typeof FullStor
   settings: {
     orgId: {
       description: 'The organization ID for FullStory.',
-      label: 'orgId',
+      label: 'FS Org',
       type: 'string',
       required: true
     },
