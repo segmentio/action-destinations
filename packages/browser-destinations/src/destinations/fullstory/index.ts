@@ -37,12 +37,6 @@ export const destination: BrowserDestinationDefinition<Settings, typeof FullStor
       subscribe: 'type = "identify"',
       partnerAction: 'identifyUser',
       mapping: defaultValues(identifyUser.fields)
-    },
-    {
-      name: 'Viewed Page',
-      subscribe: 'type = "page"',
-      partnerAction: 'viewedPage',
-      mapping: defaultValues(viewedPage.fields)
     }
   ],
   settings: {
