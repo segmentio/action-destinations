@@ -2,7 +2,6 @@ import { defaultValues } from '@segment/actions-core'
 import createUpdateDevice from './createUpdateDevice'
 import createUpdatePerson from './createUpdatePerson'
 import trackEvent from './trackEvent'
-import triggerCampaign from './triggerCampaign'
 import type { DestinationDefinition } from '@segment/actions-core'
 import type { Settings } from './generated-types'
 
@@ -27,6 +26,18 @@ const destination: DestinationDefinition<Settings> = {
         label: 'API Key',
         type: 'string',
         required: true
+      },
+      accountRegionEndpoint: {
+        description:
+          'Customer.io account region. Read more about [Account Regions](https://customer.io/docs/data-centers/).',
+        label: 'Account Region',
+        type: 'string',
+        format: 'uri',
+        choices: [
+          { label: 'US 🇺🇸', value: 'https://track.customer.io' },
+          { label: 'EU 🇪🇺', value: 'https://track-eu.customer.io' }
+        ],
+        default: 'https://track.customer.io'
       }
     },
     testAuthentication: (request) => {
@@ -44,8 +55,7 @@ const destination: DestinationDefinition<Settings> = {
   actions: {
     createUpdateDevice,
     createUpdatePerson,
-    trackEvent,
-    triggerCampaign
+    trackEvent
   },
 
   presets: [
