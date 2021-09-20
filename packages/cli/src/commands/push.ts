@@ -142,7 +142,7 @@ export default class Push extends Command {
             )
           }
 
-          let choices: null | { label: string; value: string } = null
+          let choices: undefined | { label: string; value: string } = undefined
           if (Array.isArray(field.choices) && field.choices.length > 0) {
             // eslint-disable-next-line @typescript-eslint/no-unsafe-call
             choices = field.choices.map((choice: string | { label: string; value: string }) => {
