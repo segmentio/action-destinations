@@ -151,7 +151,7 @@ const action: ActionDefinition<Settings, Payload> = {
       description: 'Send Message can have true/false based on to send message or not',
       type: 'boolean',
       required: false,
-      default: { '@template': false }
+      default: false
     }
   },
   perform: async (request, { settings, payload }) => {
