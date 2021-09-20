@@ -7,6 +7,7 @@ import type { Payload } from './generated-types'
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Page View',
   description: 'Send a page view event to FB',
+  defaultSubscription: 'type = "page"',
   fields: {
     user_data: user_data_field,
     action_source: { ...action_source, required: true },

@@ -8,6 +8,7 @@ import { user_data_field, hash_user_data } from '../fb-capi-user-data'
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Search',
   description: 'Send a search event to FB',
+  defaultSubscription: 'type = "track" and event = "Products Searched"',
   fields: {
     user_data: user_data_field,
     event_time: { ...event_time, required: true },

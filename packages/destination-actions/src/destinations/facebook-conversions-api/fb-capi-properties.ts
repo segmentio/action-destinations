@@ -7,13 +7,19 @@ import { InputField } from '@segment/actions-core/src/destination-kit/types'
 export const currency: InputField = {
   label: 'Currency',
   description: 'currency',
-  type: 'string'
+  type: 'string',
+  default: {
+    '@path': '$.properties.currency'
+  }
 }
 
 export const value: InputField = {
   label: 'Value',
   description: 'value',
-  type: 'number'
+  type: 'number',
+  default: {
+    '@path': '$.properties.revenue'
+  }
 }
 
 export const content_category: InputField = {
@@ -25,7 +31,10 @@ export const content_category: InputField = {
 export const content_ids: InputField = {
   label: 'Content IDs',
   description: 'Product IDs associated with the event, such as SKUs (e.g. ["ABC123", "XYZ789"]).',
-  type: 'object'
+  type: 'object',
+  default: {
+    '@path': '$.properties.product_id'
+  }
 }
 
 export const content_name: InputField = {
@@ -43,7 +52,10 @@ export const content_type: InputField = {
 export const contents: InputField = {
   label: 'Contents',
   description: 'An array of JSON objects',
-  type: 'object'
+  type: 'object',
+  default: {
+    '@path': '$.properties.products'
+  }
 }
 
 export const num_items: InputField = {
@@ -55,11 +67,17 @@ export const num_items: InputField = {
 export const event_time: InputField = {
   label: 'Event Time',
   description: 'Time of event',
-  type: 'number'
+  type: 'number',
+  default: {
+    '@path': '$.properties.timestamp'
+  }
 }
 
 export const action_source: InputField = {
   label: 'Action Source',
   description: 'Action source',
-  type: 'string'
+  type: 'string',
+  default: {
+    '@path': '$.properties.action_source'
+  }
 }

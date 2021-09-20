@@ -88,11 +88,11 @@ export interface Payload {
     /**
      * Click ID
      */
-    clickID?: string
+    fbc?: string
     /**
      * Browser ID
      */
-    browserID?: string
+    fbp?: string
     /**
      * Subscription ID
      */

@@ -8,6 +8,7 @@ import { user_data_field, hash_user_data } from '../fb-capi-user-data'
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Purchase',
   description: 'Send a purchase event to FB',
+  defaultSubscription: 'type = "track" and event = "Order Completed"',
   fields: {
     value: { ...value, required: true },
     currency: { ...currency, required: true },

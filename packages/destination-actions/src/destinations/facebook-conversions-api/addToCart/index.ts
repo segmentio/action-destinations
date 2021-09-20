@@ -8,6 +8,7 @@ import { hash_user_data, user_data_field } from '../fb-capi-user-data'
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Add to Cart',
   description: 'Send an add to cart event to FB',
+  defaultSubscription: 'type = "track" and event = "Product Added"',
   fields: {
     content_ids: content_ids,
     content_name: content_name,

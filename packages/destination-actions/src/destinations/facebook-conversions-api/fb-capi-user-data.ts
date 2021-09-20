@@ -1,5 +1,5 @@
 import { InputField } from '@segment/actions-core/src/destination-kit/types'
-import hash from '../../lib/hash'
+import { createHash } from 'crypto'
 
 // Implementation of Facebook user data object
 // https://developers.facebook.com/docs/marketing-api/conversions-api/parameters/customer-information-parameters
@@ -12,12 +12,18 @@ export const user_data_field: InputField = {
     email: {
       label: 'Email',
       description: 'User Email',
-      type: 'string'
+      type: 'string',
+      default: {
+        '@path': '$.context.traits.email'
+      }
     },
     phone: {
       label: 'Phone',
       description: 'User phone number',
-      type: 'string'
+      type: 'string',
+      default: {
+        '@path': '$.context.traits.phone'
+      }
     },
     gender: {
       label: 'Gender',
@@ -27,32 +33,48 @@ export const user_data_field: InputField = {
     dateOfBirth: {
       label: 'Date of Birth',
       description: 'Date of Birth',
-      type: 'string'
+      type: 'string',
+      default: {
+        '@path': '$.context.traits.birthday'
+      }
     },
     lastName: {
       label: 'Last Name',
       description: 'Last Name',
-      type: 'string'
+      type: 'string',
+      default: {
+        '@path': '$.context.traits.lastName'
+      }
     },
     firstName: {
       label: 'First Name',
       description: 'First Name',
-      type: 'string'
+      type: 'string',
+      default: {
+        '@path': '$.context.traits.firstName'
+      }
     },
     city: {
       label: 'City',
       description: 'City',
-      type: 'string'
+      type: 'string',
+      default: '$.context.traits.address.city'
     },
     state: {
       label: 'State',
       description: 'State',
-      type: 'string'
+      type: 'string',
+      default: {
+        '@path': '$.context.traits.address.state'
+      }
     },
     zip: {
       label: 'Zip Code',
       description: 'Zip Code',
-      type: 'string'
+      type: 'string',
+      default: {
+        '@path': '$.context.traits.address.postalCode'
+      }
     },
     country: {
       label: 'Country',
@@ -67,22 +89,34 @@ export const user_data_field: InputField = {
     client_ip_address: {
       label: 'Client IP Address',
       description: 'Client IP Address',
-      type: 'string'
+      type: 'string',
+      default: {
+        '@path': '$.context.ip'
+      }
     },
     client_user_agent: {
       label: 'Client User Agent',
       description: 'Client User Agent',
-      type: 'string'
+      type: 'string',
+      default: {
+        '@path': '$.context.userAgent'
+      }
     },
-    clickID: {
+    fbc: {
       label: 'Click ID',
       description: 'Click ID',
-      type: 'string'
+      type: 'string',
+      default: {
+        '@path': '$.properties.fbc'
+      }
     },
-    browserID: {
+    fbp: {
       label: 'Browser ID',
       description: 'Browser ID',
-      type: 'string'
+      type: 'string',
+      default: {
+        '@path': '$.properties.fbp'
+      }
     },
     subscriptionID: {
       label: 'Subscription ID',
@@ -175,6 +209,14 @@ interface UserData {
    * Facebook Login ID
    */
   fbLoginID?: string
+}
+
+const hash = (value: string | undefined) => {
+  if (value === undefined) return
+
+  const hash = createHash('sha256')
+  hash.update(value)
+  return hash.digest('hex')
 }
 
 export const hash_user_data = (user_data: UserData): Object => {
