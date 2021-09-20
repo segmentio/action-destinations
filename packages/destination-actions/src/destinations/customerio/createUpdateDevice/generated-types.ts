@@ -17,4 +17,8 @@ export interface Payload {
    * Timestamp for when the device was last used. Default is current date and time.
    */
   last_used?: string
+  /**
+   * Convert `last_used` to a Unix timestamp (seconds since Epoch).
+   */
+  convert_timestamp?: boolean
 }
