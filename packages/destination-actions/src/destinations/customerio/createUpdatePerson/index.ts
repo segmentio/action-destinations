@@ -61,10 +61,10 @@ const action: ActionDefinition<Settings, Payload> = {
   },
 
   perform: (request, { settings, payload }) => {
-    let createdAt = payload.created_at
+    let createdAt: string | number | undefined = payload.created_at
 
     if (createdAt && payload.convert_timestamp !== false) {
-      createdAt = dayjs.utc(createdAt).format('X')
+      createdAt = dayjs.utc(createdAt).unix()
     }
 
     return request(`${trackApiEndpoint(settings.accountRegionEndpoint)}/api/v1/customers/${payload.id}`, {

@@ -45,7 +45,7 @@ describe('CustomerIO', () => {
       expect(responses[0].options.json).toMatchObject({
         ...traits,
         email: traits.userId,
-        created_at: dayjs.utc(timestamp).format('X'),
+        created_at: dayjs.utc(timestamp).unix(),
         anonymous_id: anonymousId
       })
     })
@@ -127,7 +127,7 @@ describe('CustomerIO', () => {
       expect(responses[0].options.json).toMatchObject({
         ...traits,
         email: traits.userId,
-        created_at: dayjs.utc(timestamp).format('X'),
+        created_at: dayjs.utc(timestamp).unix(),
         anonymous_id: anonymousId
       })
     })
@@ -167,7 +167,7 @@ describe('CustomerIO', () => {
       expect(responses[0].options.json).toMatchObject({
         ...traits,
         email: traits.userId,
-        created_at: dayjs.utc(timestamp).format('X'),
+        created_at: dayjs.utc(timestamp).unix(),
         anonymous_id: anonymousId
       })
     })

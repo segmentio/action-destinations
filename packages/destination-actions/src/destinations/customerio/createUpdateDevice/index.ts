@@ -54,10 +54,10 @@ const action: ActionDefinition<Settings, Payload> = {
   },
 
   perform: (request, { settings, payload }) => {
-    let lastUsed = payload.last_used
+    let lastUsed: string | number | undefined = payload.last_used
 
     if (lastUsed && payload.convert_timestamp !== false) {
-      lastUsed = dayjs.utc(lastUsed).format('X')
+      lastUsed = dayjs.utc(lastUsed).unix()
     }
 
     return request(

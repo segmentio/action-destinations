@@ -47,7 +47,7 @@ describe('CustomerIO', () => {
         device: {
           id: deviceId,
           platform: deviceType,
-          last_used: dayjs.utc(lastUsed).format('X')
+          last_used: dayjs.utc(lastUsed).unix()
         }
       })
     })
@@ -133,7 +133,7 @@ describe('CustomerIO', () => {
         device: {
           id: deviceId,
           platform: deviceType,
-          last_used: dayjs.utc(lastUsed).format('X')
+          last_used: dayjs.utc(lastUsed).unix()
         }
       })
     })
@@ -175,7 +175,7 @@ describe('CustomerIO', () => {
         device: {
           id: deviceId,
           platform: deviceType,
-          last_used: dayjs.utc(lastUsed).format('X')
+          last_used: dayjs.utc(lastUsed).unix()
         }
       })
     })
