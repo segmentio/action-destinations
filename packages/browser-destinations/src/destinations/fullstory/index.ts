@@ -20,19 +20,6 @@ export const destination: BrowserDestinationDefinition<Settings, typeof FullStor
       mapping: defaultValues(trackEvent.fields)
     },
     {
-      name: 'Track Page Events',
-      subscribe: 'type = "page"',
-      partnerAction: 'trackEvent',
-      mapping: {
-        name: {
-          '@path': '$.name' // Page events will use "name" instead of "event"
-        },
-        properties: {
-          '@path': '$.properties'
-        }
-      }
-    },
-    {
       name: 'Identify User',
       subscribe: 'type = "identify"',
       partnerAction: 'identifyUser',
