@@ -99,7 +99,7 @@ const action: ActionDefinition<Settings, Payload> = {
     },
     send: {
       label: 'Send Message',
-      description: 'Send Message can have true/false based on to send message or not',
+      description: 'Whether or not the message should actually get sent.',
       type: 'boolean',
       required: false,
       default: false
