@@ -84,8 +84,11 @@ describe('ajs-integration', () => {
     })
 
     const updatedCtx = await sessionIdPlugin.track?.(ctx)
+
     // @ts-expect-error Need to fix ajs-next types to allow for complex objects in `integrations`
     expect(updatedCtx?.event.integrations?.Amplitude?.session_id).not.toBeUndefined()
+    // @ts-expect-error Need to fix ajs-next types to allow for complex objects in `integrations`
+    expect(updatedCtx?.event.integrations['Actions Amplitude']?.session_id).not.toBeUndefined()
   })
 
   test('runs as an enrichment middleware', async () => {
