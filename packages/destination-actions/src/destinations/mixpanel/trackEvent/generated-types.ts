@@ -40,6 +40,14 @@ export interface Payload {
     [k: string]: unknown
   }
   /**
+   * The name of your application
+   */
+  app_name?: string
+  /**
+   * The namespace of your application.
+   */
+  app_namespace?: string
+  /**
    * The current build of your application.
    */
   app_build?: string
@@ -59,6 +67,10 @@ export interface Payload {
    * The version of the mobile operating system or browser the user is using.
    */
   os_version?: string
+  /**
+   * The type of the user's device
+   */
+  device_type?: string
   /**
    * The name of the user's device
    */
@@ -83,6 +95,10 @@ export interface Payload {
    * The carrier that the user is using.
    */
   carrier?: string
+  /**
+   * Whether cellular was enabled
+   */
+  cellular?: boolean
   /**
    * The current country of the user.
    */
@@ -131,6 +147,10 @@ export interface Payload {
    * The current Longitude of the user.
    */
   location_lng?: number
+  /**
+   * Library version
+   */
+  library_version?: string
   /**
    * The IP address of the user. Use "$remote" to use the IP address on the upload request. Amplitude will use the IP address to reverse lookup a user's location (city, country, region, and DMA). Amplitude has the ability to drop the location and IP address from events once it reaches our servers. You can submit a request to Amplitude's platform specialist team here to configure this for you.
    */

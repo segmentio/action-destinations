@@ -3,6 +3,9 @@ import { defaultValues } from '@segment/actions-core'
 import trackEvent from './trackEvent'
 import type { Settings } from './generated-types'
 
+import identifyUser from './identifyUser'
+import groupIdentifyUser from './groupIdentifyUser'
+
 /** used in the quick setup */
 const presets: DestinationDefinition['presets'] = [
   {
@@ -32,19 +35,19 @@ const presets: DestinationDefinition['presets'] = [
         '@template': 'Viewed {{name}}'
       }
     }
+  },
+  {
+    name: 'Identify Calls',
+    subscribe: 'type = "identify"',
+    partnerAction: 'identifyUser',
+    mapping: defaultValues(identifyUser.fields)
+  },
+  {
+    name: 'Group Calls',
+    subscribe: 'type = "group"',
+    partnerAction: 'groupIdentifyUser',
+    mapping: defaultValues(groupIdentifyUser.fields)
   }
-  // {
-  //   name: 'Identify Calls',
-  //   subscribe: 'type = "identify"',
-  //   partnerAction: 'identifyUser',
-  //   mapping: defaultValues(identifyUser.fields)
-  // },
-  // {
-  //   name: 'Browser Session Tracking',
-  //   subscribe: 'type = "track" or type = "identify" or type = "group" or type = "page" or type = "alias"',
-  //   partnerAction: 'sessionId',
-  //   mapping: {}
-  // }
 ]
 
 const destination: DestinationDefinition<Settings> = {
@@ -90,10 +93,9 @@ const destination: DestinationDefinition<Settings> = {
   },
   presets,
   actions: {
-    trackEvent
-    // identifyUser,
-    // mapUser,
-    // groupIdentifyUser
+    trackEvent,
+    identifyUser,
+    groupIdentifyUser
   }
 }
 

@@ -83,6 +83,22 @@ const action: ActionDefinition<Settings, Payload> = {
       description:
         'Groups of users for the event as an event-level group. You can only track up to 5 groups. **Note:** This Amplitude feature is only available to Enterprise customers who have purchased the Accounts add-on.'
     },
+    app_name: {
+      label: 'App Name',
+      type: 'string',
+      description: 'The name of your application',
+      default: {
+        '@path': '$.context.app.name'
+      }
+    },
+    app_namespace: {
+      label: 'App Namespace',
+      type: 'string',
+      description: 'The namespace of your application.',
+      default: {
+        '@path': '$.context.app.namespace'
+      }
+    },
     app_build: {
       label: 'App Build',
       type: 'string',
@@ -121,6 +137,14 @@ const action: ActionDefinition<Settings, Payload> = {
       description: 'The version of the mobile operating system or browser the user is using.',
       default: {
         '@path': '$.context.os.version'
+      }
+    },
+    device_type: {
+      label: 'Device Type',
+      type: 'string',
+      description: "The type of the user's device",
+      default: {
+        '@path': '$.context.device.type'
       }
     },
     device_name: {
@@ -169,6 +193,14 @@ const action: ActionDefinition<Settings, Payload> = {
       description: 'The carrier that the user is using.',
       default: {
         '@path': '$.context.network.carrier'
+      }
+    },
+    cellular: {
+      label: 'Cellular Enabled',
+      type: 'boolean',
+      description: 'Whether cellular was enabled',
+      default: {
+        '@path': '$.context.network.cellular'
       }
     },
     country: {
@@ -266,6 +298,14 @@ const action: ActionDefinition<Settings, Payload> = {
       description: 'The current Longitude of the user.',
       default: {
         '@path': '$.context.location.longitude'
+      }
+    },
+    library_version: {
+      label: 'Library Version',
+      type: 'string',
+      description: 'Library version',
+      default: {
+        '@path': '$.context.library.version'
       }
     },
     ip: {
@@ -434,7 +474,10 @@ const action: ActionDefinition<Settings, Payload> = {
     url: {
       label: 'URL',
       type: 'string',
-      description: 'The full URL of the webpage on which the event is triggered.'
+      description: 'The full URL of the webpage on which the event is triggered.',
+      default: {
+        '@path': '$.context.page.url'
+      }
     },
     wifi: {
       label: 'Wifi',
@@ -489,16 +532,22 @@ const action: ActionDefinition<Settings, Payload> = {
         distinct_id: payload.user_id,
         $app_build_number: payload.app_build,
         $app_version_string: payload.app_version,
+        $app_namespace: payload.app_namespace,
+        $app_name: payload.app_name,
         $bluetooth_enabled: payload.bluetooth,
+        $cellular_enabled: payload.cellular,
         // $browser: string // 'Mobile Safari'
         // $browser_version: string // '9.0'
         $carrier: payload.carrier,
         $current_url: payload.url,
         $device: payload.device_name,
         $device_id: payload.device_id,
+        $device_type: payload.device_type,
+        $device_name: payload.device_name,
         $insert_id: payload.insert_id, // TODO: will segment always generate an insert id?
-        // $ios_ifa: string // '7A3CBEA0-BDF5-11E4-8DFC-AA07A5B093DB'
-        $lib_version: 'cloud-beta',
+        $ios_ifa: payload.idfa,
+        $lib_version: payload.library_version,
+        $locale: payload.language,
         $manufacturer: payload.device_manufacturer,
         $model: payload.device_model,
         $os: payload.os_name,
