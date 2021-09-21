@@ -23,4 +23,8 @@ export interface Payload {
   customArgs?: {
     [k: string]: unknown
   }
+  /**
+   * Whether or not the message should actually get sent.
+   */
+  send?: boolean
 }

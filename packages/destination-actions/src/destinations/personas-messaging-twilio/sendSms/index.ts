@@ -96,9 +96,19 @@ const action: ActionDefinition<Settings, Payload> = {
       description: 'Additional custom arguments that will be opaquely sent back on webhook events',
       type: 'object',
       required: false
+    },
+    send: {
+      label: 'Send Message',
+      description: 'Whether or not the message should actually get sent.',
+      type: 'boolean',
+      required: false,
+      default: false
     }
   },
   perform: async (request, { settings, payload }) => {
+    if (!payload.send) {
+      return
+    }
     const [traits, externalIds] = await Promise.all([
       fetchProfileTraits(request, settings, payload.userId),
       fetchProfileExternalIds(request, settings, payload.userId)
