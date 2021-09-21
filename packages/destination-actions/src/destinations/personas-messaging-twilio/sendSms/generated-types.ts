@@ -24,7 +24,7 @@ export interface Payload {
     [k: string]: unknown
   }
   /**
-   * Send Message can have true/false based on to send message or not
+   * Whether or not the message should actually get sent.
    */
   send?: boolean
 }

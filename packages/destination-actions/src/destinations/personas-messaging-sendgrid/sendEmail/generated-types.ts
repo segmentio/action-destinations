@@ -2,6 +2,10 @@
 
 export interface Payload {
   /**
+   * Whether or not the message should actually get sent.
+   */
+  send?: boolean
+  /**
    * User ID in Segment
    */
   userId: string
@@ -55,8 +59,4 @@ export interface Payload {
   customArgs?: {
     [k: string]: unknown
   }
-  /**
-   * Send Message can have true/false based on to send message or not
-   */
-  send?: boolean
 }
