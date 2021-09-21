@@ -14,7 +14,7 @@ export interface ExecuteInput<Settings, Payload> {
   readonly mapping?: JSONObject
   /** The global destination settings */
   readonly settings: Settings
-  /** The transformed input data, based on `mapping` + `event` */
+  /** The transformed input data, based on `mapping` + `event` (or `events` if batched) */
   payload: Payload
   /** The page used in dynamic field requests */
   page?: string
@@ -149,4 +149,4 @@ export type Directive = IfDirective | TemplateDirective | PathDirective
  * A function to configure a request client instance with options
  * that will be applied to every request made by that instance
  */
-export type RequestExtension<Settings, Payload = unknown> = (data: ExecuteInput<Settings, Payload>) => RequestOptions
+export type RequestExtension<Settings, Payload = undefined> = (data: ExecuteInput<Settings, Payload>) => RequestOptions
