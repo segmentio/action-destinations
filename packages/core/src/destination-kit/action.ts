@@ -10,6 +10,7 @@ import type { NormalizedOptions } from '../request-client'
 import type { JSONSchema4 } from 'json-schema'
 import { validateSchema } from '../schema-validation'
 import { AuthTokens } from './parse-settings'
+import { IntegrationError } from '../errors'
 
 type MaybePromise<T> = T | Promise<T>
 type RequestClient = ReturnType<typeof createRequestClient>
@@ -84,6 +85,7 @@ export class Action<Settings, Payload extends JSONLikeObject> extends EventEmitt
   readonly definition: ActionDefinition<Settings, Payload>
   readonly destinationName: string
   readonly schema?: JSONSchema4
+  readonly hasBatchSupport: boolean
   private extendRequest: RequestExtension<Settings> | undefined
 
   constructor(
@@ -95,6 +97,7 @@ export class Action<Settings, Payload extends JSONLikeObject> extends EventEmitt
     this.definition = definition
     this.destinationName = destinationName
     this.extendRequest = extendRequest
+    this.hasBatchSupport = typeof definition.performBatch === 'function'
 
     // Generate json schema based on the field definitions
     if (Object.keys(definition.fields ?? {}).length) {
@@ -134,6 +137,10 @@ export class Action<Settings, Payload extends JSONLikeObject> extends EventEmitt
   }
 
   async executeBatch(bundle: ExecuteBundle<Settings, InputData[]>): Promise<void> {
+    if (!this.hasBatchSupport) {
+      throw new IntegrationError('This action does not support batched requests.', 'NotImplemented', 501)
+    }
+
     let payloads = transformBatch(bundle.mapping, bundle.data) as Payload[]
 
     // Validate the resolved payloads against the schema
@@ -161,21 +168,7 @@ export class Action<Settings, Payload extends JSONLikeObject> extends EventEmitt
         auth: bundle.auth
       }
       await this.performRequest(this.definition.performBatch, data)
-      return
     }
-
-    const promises = payloads.map((payload, i) => {
-      const data = {
-        rawData: bundle.data[i],
-        rawMapping: bundle.mapping,
-        settings: bundle.settings,
-        payload,
-        auth: bundle.auth
-      }
-      return this.performRequest(this.definition.perform, data)
-    })
-
-    await Promise.all(promises)
   }
 
   executeDynamicField(field: string, data: ExecuteDynamicFieldInput<Settings, Payload>): unknown {

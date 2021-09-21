@@ -103,7 +103,7 @@ describe('Batching', () => {
     )
   })
 
-  test('invokes the individual perform function when there is only 1 event', async () => {
+  test('invokes the batch perform function when there is only 1 event', async () => {
     const destination = new Destination(basicBatch)
     const batchSpy = jest.spyOn(basicBatch.actions.testAction, 'performBatch')
     const spy = jest.spyOn(basicBatch.actions.testAction, 'perform')
@@ -111,17 +111,17 @@ describe('Batching', () => {
     // send a single event
     await destination.onBatch([events[0]], basicBatchSettings)
 
-    expect(batchSpy).not.toHaveBeenCalled()
-    expect(spy).toHaveBeenCalledTimes(1)
-    expect(spy).toHaveBeenCalledWith(
+    expect(spy).not.toHaveBeenCalled()
+    expect(batchSpy).toHaveBeenCalledTimes(1)
+    expect(batchSpy).toHaveBeenCalledWith(
       expect.anything(),
       expect.objectContaining({
-        payload: { user_id: 'user_123' }
+        payload: expect.arrayContaining([{ user_id: 'user_123' }])
       })
     )
   })
 
-  test('invokes the individual perform function when there is only 1 subscribed event', async () => {
+  test('invokes the batch perform function even when there is only 1 subscribed event', async () => {
     const destination = new Destination(basicBatch)
     const batchSpy = jest.spyOn(basicBatch.actions.testAction, 'performBatch')
     const spy = jest.spyOn(basicBatch.actions.testAction, 'perform')
@@ -133,9 +133,9 @@ describe('Batching', () => {
     })
 
     await destination.onBatch([unsubscribedEvent, events[0]], basicBatchSettings)
-    expect(batchSpy).not.toHaveBeenCalled()
-    expect(spy).toHaveBeenCalledTimes(1)
-    expect(spy).toHaveBeenCalledWith(
+    expect(spy).not.toHaveBeenCalled()
+    expect(batchSpy).toHaveBeenCalledTimes(1)
+    expect(batchSpy).toHaveBeenCalledWith(
       expect.anything(),
       expect.objectContaining({
         payload: expect.not.arrayContaining([{ user_id: 'nope' }])
@@ -166,7 +166,7 @@ describe('Batching', () => {
   test('doesnt invoke anything if there are no subscribed, valid events', async () => {
     const destination = new Destination(basicBatch)
     const batchSpy = jest.spyOn(basicBatch.actions.testAction, 'performBatch')
-    const spy = jest.spyOn(basicBatch.actions.testAction, 'performBatch')
+    const spy = jest.spyOn(basicBatch.actions.testAction, 'perform')
 
     const unsubscribedEvent = createTestEvent({
       event: 'Test Event',
@@ -181,9 +181,14 @@ describe('Batching', () => {
     })
 
     const promise = destination.onBatch([unsubscribedEvent, invalidEvent], basicBatchSettings)
-    await expect(promise).rejects.toThrowErrorMatchingInlineSnapshot(
-      `"The root value is missing the required field 'user_id'."`
-    )
+    // The promise resolves because invalid events are ignored by the batch handler until we can get per-item responses hooked up
+    await expect(promise).resolves.toMatchInlineSnapshot(`
+            Array [
+              Object {
+                "output": "successfully processed batch of events",
+              },
+            ]
+          `)
     expect(batchSpy).not.toHaveBeenCalled()
     expect(spy).not.toHaveBeenCalled()
   })

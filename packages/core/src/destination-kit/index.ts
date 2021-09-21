@@ -334,16 +334,18 @@ export class Destination<Settings = JSONObject> {
         return results
       }
 
-      events = Array.isArray(events) ? events : [events]
-      const subscribedEvents = events.filter((event) => validate(parsedSubscription, event))
+      const isBatch = Array.isArray(events)
+      const allEvents = (isBatch ? events : [events]) as SegmentEvent[]
+      const subscribedEvents = allEvents.filter((event) => validate(parsedSubscription, event))
 
-      if (subscribedEvents.length === 1) {
-        return await this.executeAction(actionSlug, { ...input, event: subscribedEvents[0] })
-      } else if (subscribedEvents.length > 1) {
-        return await this.executeBatch(actionSlug, { ...input, events: subscribedEvents })
-      } else {
+      if (subscribedEvents.length === 0) {
         results = [{ output: 'not subscribed' }]
         return results
+      } else if (isBatch) {
+        return await this.executeBatch(actionSlug, { ...input, events: subscribedEvents })
+      } else {
+        // there should only be 1 item in the subscribedEvents array
+        return await this.executeAction(actionSlug, { ...input, event: subscribedEvents[0] })
       }
     } catch (error) {
       results = [{ error }]
