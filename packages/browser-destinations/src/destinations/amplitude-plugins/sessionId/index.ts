@@ -56,7 +56,14 @@ const action: BrowserActionDefinition<Settings, {}, Payload> = {
     }
 
     ls.setItem('analytics_session_id.last_access', newSession.toString())
+
+    /**
+     * We're changing the session id plugin to stop writing on the `integrations.Amplitude`
+     * field and start writing `integrations['Actions Amplitude']` instead. In the meantime, we're
+     * writing to both. Once we finish the migration, we'll stop writing to the first.
+     */
     context.updateEvent('integrations.Amplitude.session_id', id)
+    context.updateEvent('integrations.Actions Amplitude.session_id', id)
 
     return
   }
