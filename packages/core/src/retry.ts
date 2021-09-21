@@ -4,11 +4,13 @@ interface RetryOptions {
   onFailedAttempt?: (error: any, attemptCount: number) => PromiseLike<void> | void
 }
 
+const DEFAULT_RETRY_ATTEMPTS = 2
+
 export async function retry<T>(
   input: (attemptCount: number) => PromiseLike<T> | T,
   options?: RetryOptions
 ): Promise<T> {
-  const retries = options?.retries ?? 2
+  const retries = options?.retries ?? DEFAULT_RETRY_ATTEMPTS
 
   for (let attemptCount = 1; attemptCount <= retries; attemptCount++) {
     try {
