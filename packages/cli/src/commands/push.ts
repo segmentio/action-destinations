@@ -173,10 +173,10 @@ export default class Push extends Command {
         // Automatically include a field for customers to control batching behavior, when supported
         if (typeof action.performBatch === 'function') {
           fields.push({
-            fieldKey: 'use_batching',
+            fieldKey: 'enable_batching',
             type: 'boolean',
-            label: 'Use Batching',
-            description: 'Whether to batch events or not',
+            label: 'Enable Batching?',
+            description: 'When enabled, Segment will try to batch events.',
             defaultValue: false,
             required: false,
             multiple: false,
