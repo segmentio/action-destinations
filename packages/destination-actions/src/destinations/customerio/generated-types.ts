@@ -10,7 +10,7 @@ export interface Settings {
    */
   apiKey: string
   /**
-   * Customer.io account region. Read more about [Account Regions](https://customer.io/docs/data-centers/).
+   * Learn about [Account Regions](https://customer.io/docs/data-centers/).
    */
-  accountRegionEndpoint?: string
+  accountRegion?: string
 }

@@ -4,6 +4,9 @@ import createUpdatePerson from './createUpdatePerson'
 import trackEvent from './trackEvent'
 import type { DestinationDefinition } from '@segment/actions-core'
 import type { Settings } from './generated-types'
+import { AccountRegion } from './utils'
+
+import deleteDevice from './deleteDevice'
 
 const destination: DestinationDefinition<Settings> = {
   name: 'Customer.io',
@@ -14,7 +17,6 @@ const destination: DestinationDefinition<Settings> = {
       siteId: {
         description:
           'Customer.io site ID. This can be found on your [API Credentials page](https://fly.customer.io/settings/api_credentials).',
-        // minLength: 20,
         label: 'Site ID',
         type: 'string',
         required: true
@@ -22,21 +24,16 @@ const destination: DestinationDefinition<Settings> = {
       apiKey: {
         description:
           'Customer.io API key. This can be found on your [API Credentials page](https://fly.customer.io/settings/api_credentials).',
-        // minLength: 20,
         label: 'API Key',
         type: 'string',
         required: true
       },
-      accountRegionEndpoint: {
-        description:
-          'Customer.io account region. Read more about [Account Regions](https://customer.io/docs/data-centers/).',
+      accountRegion: {
+        description: 'Learn about [Account Regions](https://customer.io/docs/data-centers/).',
         label: 'Account Region',
         type: 'string',
         format: 'uri',
-        choices: [
-          { label: 'US 🇺🇸', value: 'https://track.customer.io' },
-          { label: 'EU 🇪🇺', value: 'https://track-eu.customer.io' }
-        ],
+        choices: Object.values(AccountRegion).map((dc) => ({ label: dc, value: dc })),
         default: 'https://track.customer.io'
       }
     },
@@ -55,7 +52,8 @@ const destination: DestinationDefinition<Settings> = {
   actions: {
     createUpdateDevice,
     createUpdatePerson,
-    trackEvent
+    trackEvent,
+    deleteDevice
   },
 
   presets: [
@@ -67,7 +65,7 @@ const destination: DestinationDefinition<Settings> = {
     },
     {
       name: 'Create or Update Device',
-      subscribe: 'type = "track" and event = "Application Installed"',
+      subscribe: 'type = "track" and ( event = "Application Installed" or event = "Application Opened" )',
       partnerAction: 'createUpdateDevice',
       mapping: defaultValues(createUpdateDevice.fields)
     },
@@ -76,6 +74,12 @@ const destination: DestinationDefinition<Settings> = {
       subscribe: 'type = "track"',
       partnerAction: 'trackEvent',
       mapping: defaultValues(trackEvent.fields)
+    },
+    {
+      name: 'Track Event',
+      subscribe: 'type = "track" and event = "Application Uninstalled"',
+      partnerAction: 'deleteDevice',
+      mapping: defaultValues(deleteDevice.fields)
     }
   ]
 }
