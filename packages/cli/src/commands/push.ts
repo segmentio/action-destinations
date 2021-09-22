@@ -176,7 +176,7 @@ export default class Push extends Command {
             fieldKey: 'enable_batching',
             type: 'boolean',
             label: 'Enable Batching?',
-            description: 'When enabled, Segment will try to batch events.',
+            description: 'When enabled, Segment will send events in batches.',
             defaultValue: false,
             required: false,
             multiple: false,
