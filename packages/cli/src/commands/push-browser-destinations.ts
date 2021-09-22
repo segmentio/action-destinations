@@ -86,10 +86,7 @@ export default class PushBrowserDestinations extends Command {
 
       const input = {
         metadataId: metadata.id,
-        // This is for us to identify what the remote plugin contains.
-        // It needs to be a stable identifier, because otherwise we'll push a second bundle
-        // for the same destination (which will cause the bundle get loaded twice).
-        name: 'Actions Plugin',
+        name: metadata.name,
         // This MUST match the way webpack exports the libraryName in the umd bundle
         // TODO make this more automatic for consistency
         libraryName: `${entry.directory}Destination`,
@@ -98,11 +95,7 @@ export default class PushBrowserDestinations extends Command {
 
       // We expect that each definition produces a single Remote Plugin bundle
       // `name` + `metadataId` are guaranteed to be unique
-      // We also expect that there cannot be duplicate `libraryName`s
-      // since that would cause conflicts in the browser
-      const existingPlugin = remotePlugins.find((p) => {
-        return p.metadataId === metadata.id && (p.name === metadata.name || p.libraryName === input.libraryName)
-      })
+      const existingPlugin = remotePlugins.find((p) => p.metadataId === metadata.id && p.name === metadata.name)
 
       if (existingPlugin) {
         pluginsToUpdate.push(input)
