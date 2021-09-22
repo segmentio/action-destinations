@@ -7,8 +7,9 @@ const testDestination = createTestIntegration(destination)
 const actionSlug = 'trackEvent'
 const destinationSlug = 'Mixpanel'
 const seedName = `${destinationSlug}#${actionSlug}`
+global.Date.now = jest.fn(() => 1234556)
 
-describe(`Testing snapshot for ${destinationSlug}\'s ${actionSlug} destination action:`, () => {
+describe(`Testing snapshot for ${destinationSlug}'s ${actionSlug} destination action:`, () => {
   it('required fields', async () => {
     const action = destination.actions[actionSlug]
     const [eventData, settingsData] = generateTestData(seedName, destination, action, true)
@@ -20,6 +21,7 @@ describe(`Testing snapshot for ${destinationSlug}\'s ${actionSlug} destination a
     const event = createTestEvent({
       properties: eventData
     })
+    event.timestamp = undefined
 
     const responses = await testDestination.testAction(actionSlug, {
       event: event,
