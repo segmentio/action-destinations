@@ -22,7 +22,7 @@ const action: BrowserActionDefinition<Settings, typeof FullStory, Payload> = {
       type: 'string',
       required: false,
       description: 'The name of the page that was viewed.',
-      label: 'name',
+      label: 'Name',
       default: {
         '@path': '$.name'
       }
@@ -31,7 +31,7 @@ const action: BrowserActionDefinition<Settings, typeof FullStory, Payload> = {
       type: 'string',
       required: false,
       description: 'The category of the page that was viewed.',
-      label: 'name',
+      label: 'Category',
       default: {
         '@path': '$.category'
       }
@@ -40,7 +40,7 @@ const action: BrowserActionDefinition<Settings, typeof FullStory, Payload> = {
       type: 'object',
       required: false,
       description: 'The properties of the page that was viewed.',
-      label: 'properties',
+      label: 'Properties',
       default: {
         '@path': '$.properties'
       }

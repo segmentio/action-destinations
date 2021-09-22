@@ -12,7 +12,7 @@ const action: BrowserActionDefinition<Settings, typeof FullStory, Payload> = {
   fields: {
     name: {
       description: 'The name of the event.',
-      label: 'name',
+      label: 'Name',
       required: true,
       type: 'string',
       default: {
@@ -21,7 +21,7 @@ const action: BrowserActionDefinition<Settings, typeof FullStory, Payload> = {
     },
     properties: {
       description: 'A JSON object containing additional information about the event that will be indexed by FullStory.',
-      label: 'properties',
+      label: 'Properties',
       required: false,
       type: 'object',
       default: {
