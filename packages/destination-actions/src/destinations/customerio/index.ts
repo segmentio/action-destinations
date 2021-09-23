@@ -1,12 +1,12 @@
 import { defaultValues } from '@segment/actions-core'
-import createUpdateDevice from './createUpdateDevice'
+import trackApplicationInstalled from './trackApplicationInstalled'
+import trackApplicationOpened from './trackApplicationOpened'
+import trackApplicationUninstalled from './trackApplicationUninstalled'
 import createUpdatePerson from './createUpdatePerson'
 import trackEvent from './trackEvent'
 import type { DestinationDefinition } from '@segment/actions-core'
 import type { Settings } from './generated-types'
 import { AccountRegion } from './utils'
-
-import deleteDevice from './deleteDevice'
 
 const destination: DestinationDefinition<Settings> = {
   name: 'Customer.io',
@@ -50,10 +50,11 @@ const destination: DestinationDefinition<Settings> = {
   },
 
   actions: {
-    createUpdateDevice,
+    trackApplicationInstalled,
+    trackApplicationUninstalled,
+    trackApplicationOpened,
     createUpdatePerson,
-    trackEvent,
-    deleteDevice
+    trackEvent
   },
 
   presets: [
@@ -64,22 +65,28 @@ const destination: DestinationDefinition<Settings> = {
       mapping: defaultValues(createUpdatePerson.fields)
     },
     {
-      name: 'Create or Update Device',
-      subscribe: 'type = "track" and ( event = "Application Installed" or event = "Application Opened" )',
-      partnerAction: 'createUpdateDevice',
-      mapping: defaultValues(createUpdateDevice.fields)
+      name: 'Track Application Installed Event',
+      subscribe: 'type = "track" and event = "Application Installed"',
+      partnerAction: 'trackApplicationInstalled',
+      mapping: defaultValues(trackApplicationInstalled.fields)
+    },
+    {
+      name: 'Track Application Opened Event',
+      subscribe: 'type = "track" and event = "Application Opened"',
+      partnerAction: 'trackApplicationOpened',
+      mapping: defaultValues(trackApplicationOpened.fields)
+    },
+    {
+      name: 'Track Application Uninstalled Event',
+      subscribe: 'type = "track" and event = "Application Uninstalled"',
+      partnerAction: 'trackApplicationUninstalled',
+      mapping: defaultValues(trackApplicationUninstalled.fields)
     },
     {
       name: 'Track Event',
       subscribe: 'type = "track"',
       partnerAction: 'trackEvent',
       mapping: defaultValues(trackEvent.fields)
-    },
-    {
-      name: 'Track Event',
-      subscribe: 'type = "track" and event = "Application Uninstalled"',
-      partnerAction: 'deleteDevice',
-      mapping: defaultValues(deleteDevice.fields)
     }
   ]
 }

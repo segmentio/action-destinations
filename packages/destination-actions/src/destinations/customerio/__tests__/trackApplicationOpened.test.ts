@@ -9,7 +9,7 @@ const testDestination = createTestIntegration(CustomerIO)
 const trackService = nock('https://track.customer.io/api/v1')
 
 describe('CustomerIO', () => {
-  describe('createUpdateDevice', () => {
+  describe('trackApplicationOpened', () => {
     it('should work with default mappings when userId is supplied', async () => {
       const settings: Settings = {
         siteId: '12345',
@@ -31,7 +31,7 @@ describe('CustomerIO', () => {
           }
         }
       })
-      const responses = await testDestination.testAction('createUpdateDevice', {
+      const responses = await testDestination.testAction('trackApplicationOpened', {
         event,
         settings,
         useDefaultMappings: true
@@ -74,7 +74,7 @@ describe('CustomerIO', () => {
           }
         }
       })
-      const responses = await testDestination.testAction('createUpdateDevice', {
+      const responses = await testDestination.testAction('trackApplicationOpened', {
         event,
         settings,
         mapping: {
@@ -117,7 +117,7 @@ describe('CustomerIO', () => {
           }
         }
       })
-      const responses = await testDestination.testAction('createUpdateDevice', {
+      const responses = await testDestination.testAction('trackApplicationOpened', {
         event,
         settings,
         useDefaultMappings: true
@@ -159,7 +159,7 @@ describe('CustomerIO', () => {
           }
         }
       })
-      const responses = await testDestination.testAction('createUpdateDevice', {
+      const responses = await testDestination.testAction('trackApplicationOpened', {
         event,
         settings,
         useDefaultMappings: true
