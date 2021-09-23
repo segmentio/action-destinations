@@ -390,6 +390,7 @@ describe('Amplitude', () => {
           'some-trait-key': 'some-trait-value'
         }
       })
+
       nock('https://api.amplitude.com').post('/identify').reply(200, {})
       const responses = await testDestination.testAction('identifyUser', { event, useDefaultMappings: true })
       expect(responses.length).toBe(1)
@@ -526,6 +527,7 @@ describe('Amplitude', () => {
         }
       `)
     })
+
     it('should not send parsed user agent properties when setting is false', async () => {
       const event = createTestEvent({
         anonymousId: 'some-anonymous-id',
@@ -561,6 +563,68 @@ describe('Amplitude', () => {
             "undefined",
             "identification",
             "{\\"user_id\\":\\"some-user-id\\",\\"device_id\\":\\"foo\\",\\"user_properties\\":{\\"some-trait-key\\":\\"some-trait-value\\"},\\"library\\":\\"segment\\"}",
+            "options",
+            "undefined",
+          ],
+          Symbol(context): null,
+        }
+      `)
+    })
+
+    it('should change casing for device type when value is android', async () => {
+      const event = createTestEvent({
+        context: {
+          device: {
+            id: 'foo',
+            type: 'android'
+          }
+        }
+      })
+
+      const mapping = {
+        userAgentParsing: false
+      }
+
+      nock('https://api.amplitude.com').post('/identify').reply(200, {})
+      const responses = await testDestination.testAction('identifyUser', { event, mapping, useDefaultMappings: true })
+      expect(responses[0].options.body).toMatchInlineSnapshot(`
+        URLSearchParams {
+          Symbol(query): Array [
+            "api_key",
+            "undefined",
+            "identification",
+            "{\\"user_id\\":\\"user1234\\",\\"device_id\\":\\"foo\\",\\"user_properties\\":{},\\"platform\\":\\"android\\",\\"library\\":\\"segment\\"}",
+            "options",
+            "undefined",
+          ],
+          Symbol(context): null,
+        }
+      `)
+    })
+
+    it('should change casing for device type when value is ios', async () => {
+      const event = createTestEvent({
+        context: {
+          device: {
+            id: 'foo',
+            type: 'ios'
+          }
+        }
+      })
+
+      const mapping = {
+        userAgentParsing: false
+      }
+
+      nock('https://api.amplitude.com').post('/identify').reply(200, {})
+      const responses = await testDestination.testAction('identifyUser', { event, mapping, useDefaultMappings: true })
+      expect(responses[0].options.body).toMatchInlineSnapshot(`
+        URLSearchParams {
+          Symbol(query): Array [
+            "api_key",
+            "undefined",
+            "identification",
+            "{\\"user_id\\":\\"user1234\\",\\"device_id\\":\\"foo\\",\\"user_properties\\":{},\\"platform\\":\\"ios\\",\\"library\\":\\"segment\\"}",
             "options",
             "undefined",
           ],
