@@ -28,6 +28,56 @@ describe('Amplitude', () => {
       })
     })
 
+    it('should change casing for device type when value is ios', async () => {
+      const event = createTestEvent({
+        event: 'Test Event',
+        context: {
+          device: {
+            id: 'foo',
+            type: 'ios'
+          }
+        }
+      })
+
+      nock('https://api2.amplitude.com/2').post('/httpapi').reply(200, {})
+
+      const responses = await testDestination.testAction('logEvent', { event, useDefaultMappings: true })
+      expect(responses[0].options.json).toMatchObject({
+        api_key: undefined,
+        events: expect.arrayContaining([
+          expect.objectContaining({
+            device_id: 'foo',
+            platform: 'ios'
+          })
+        ])
+      })
+    })
+
+    it('should change casing for device type when value is android', async () => {
+      const event = createTestEvent({
+        event: 'Test Event',
+        context: {
+          device: {
+            id: 'foo',
+            type: 'android'
+          }
+        }
+      })
+
+      nock('https://api2.amplitude.com/2').post('/httpapi').reply(200, {})
+
+      const responses = await testDestination.testAction('logEvent', { event, useDefaultMappings: true })
+      expect(responses[0].options.json).toMatchObject({
+        api_key: undefined,
+        events: expect.arrayContaining([
+          expect.objectContaining({
+            device_id: 'foo',
+            platform: 'android'
+          })
+        ])
+      })
+    })
+
     it('should accept null for user_id', async () => {
       const event = createTestEvent({ timestamp, userId: null, event: 'Null User' })
 
