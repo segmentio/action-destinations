@@ -1,6 +1,5 @@
 import nock from 'nock'
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-import { createTestEvent, createTestIntegration } from '@segment/actions-core'
+import { createTestIntegration } from '@segment/actions-core'
 import Definition from '../index'
 
 const testDestination = createTestIntegration(Definition)
