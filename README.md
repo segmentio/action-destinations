@@ -14,6 +14,9 @@ This project is a monorepo with multiple packages using Yarn Workspaces:
 ```sh
 git clone https://github.com/segmentio/action-destinations.git
 cd action-destinations
+npm login
+yarn login
+# Requires node 14.17, optionally: nvm use 14.17
 yarn --ignore-engines --ignore-optional
 yarn bootstrap
 yarn test

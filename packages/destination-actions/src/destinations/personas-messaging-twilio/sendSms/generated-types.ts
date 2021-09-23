@@ -17,4 +17,14 @@ export interface Payload {
    * Message to send
    */
   body: string
+  /**
+   * Additional custom arguments that will be opaquely sent back on webhook events
+   */
+  customArgs?: {
+    [k: string]: unknown
+  }
+  /**
+   * Whether or not the message should actually get sent.
+   */
+  send?: boolean
 }

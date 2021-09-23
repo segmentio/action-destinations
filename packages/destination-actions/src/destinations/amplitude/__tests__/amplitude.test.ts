@@ -256,6 +256,112 @@ describe('Amplitude', () => {
         }
       `)
     })
+
+    describe('session_id', () => {
+      it('should support session_id from `integrations.Amplitude.session_id`', async () => {
+        const event = createTestEvent({
+          timestamp,
+          event: 'Test Event',
+          anonymousId: 'julio',
+          integrations: {
+            // @ts-expect-error integrations should accept complext objects;
+            Amplitude: {
+              session_id: '1234567890'
+            }
+          }
+        })
+
+        nock('https://api2.amplitude.com/2').post('/httpapi').reply(200, {})
+
+        const responses = await testDestination.testAction('logEvent', { event, useDefaultMappings: true })
+
+        expect(responses.length).toBe(1)
+        expect(responses[0].status).toBe(200)
+        expect(responses[0].data).toMatchObject({})
+
+        expect(responses[0].options.json).toMatchInlineSnapshot(`
+          Object {
+            "api_key": undefined,
+            "events": Array [
+              Object {
+                "city": "San Francisco",
+                "country": "United States",
+                "device_id": "julio",
+                "device_model": "iPhone",
+                "device_type": "mobile",
+                "event_properties": Object {},
+                "event_type": "Test Event",
+                "ip": "8.8.8.8",
+                "language": "en-US",
+                "library": "segment",
+                "location_lat": 40.2964197,
+                "location_lng": -76.9411617,
+                "os_name": "Mobile Safari",
+                "os_version": "9",
+                "session_id": -23074351200000,
+                "time": 1629213675449,
+                "use_batch_endpoint": false,
+                "user_id": "user1234",
+                "user_properties": Object {},
+              },
+            ],
+            "options": undefined,
+          }
+        `)
+      })
+
+      it('should support session_id from `integrations.Actions Amplitude.session_id`', async () => {
+        const event = createTestEvent({
+          timestamp,
+          event: 'Test Event',
+          anonymousId: 'julio',
+          integrations: {
+            // @ts-expect-error integrations should accept complext objects;
+            'Actions Amplitude': {
+              session_id: '1234567890'
+            }
+          }
+        })
+
+        nock('https://api2.amplitude.com/2').post('/httpapi').reply(200, {})
+
+        const responses = await testDestination.testAction('logEvent', { event, useDefaultMappings: true })
+
+        expect(responses.length).toBe(1)
+        expect(responses[0].status).toBe(200)
+        expect(responses[0].data).toMatchObject({})
+
+        expect(responses[0].options.json).toMatchInlineSnapshot(`
+          Object {
+            "api_key": undefined,
+            "events": Array [
+              Object {
+                "city": "San Francisco",
+                "country": "United States",
+                "device_id": "julio",
+                "device_model": "iPhone",
+                "device_type": "mobile",
+                "event_properties": Object {},
+                "event_type": "Test Event",
+                "ip": "8.8.8.8",
+                "language": "en-US",
+                "library": "segment",
+                "location_lat": 40.2964197,
+                "location_lng": -76.9411617,
+                "os_name": "Mobile Safari",
+                "os_version": "9",
+                "session_id": -23074351200000,
+                "time": 1629213675449,
+                "use_batch_endpoint": false,
+                "user_id": "user1234",
+                "user_properties": Object {},
+              },
+            ],
+            "options": undefined,
+          }
+        `)
+      })
+    })
   })
 
   it('should not send parsed user agent properties when setting is false', async () => {

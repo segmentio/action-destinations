@@ -34,6 +34,7 @@ register('6116a41e2e8fc680d8daf821', './personas-messaging-twilio')
 register('5f7dd8191ad74f868ab1fc48', './pipedrive')
 register('5f7dd8e302173ff732db5cc4', './slack')
 register('602efa1f249b9a5e2bf8a813', './twilio')
+register('614a3c7d791c91c41bae7599', './webhook')
 
 function register(id: MetadataId, destinationPath: string) {
   // eslint-disable-next-line @typescript-eslint/no-var-requires

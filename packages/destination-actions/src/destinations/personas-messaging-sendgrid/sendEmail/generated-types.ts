@@ -2,6 +2,10 @@
 
 export interface Payload {
   /**
+   * Whether or not the message should actually get sent.
+   */
+  send?: boolean
+  /**
    * User ID in Segment
    */
   userId: string

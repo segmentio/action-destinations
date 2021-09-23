@@ -142,6 +142,18 @@ export default class Push extends Command {
             )
           }
 
+          let choices: null | { label: string; value: string } = null
+          if (Array.isArray(field.choices) && field.choices.length > 0) {
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-call
+            choices = field.choices.map((choice: string | { label: string; value: string }) => {
+              if (typeof choice === 'string') {
+                return { label: choice, value: choice }
+              }
+
+              return choice
+            })
+          }
+
           return {
             fieldKey,
             type: field.type,
@@ -150,14 +162,28 @@ export default class Push extends Command {
             defaultValue: field.default,
             required: field.required ?? false,
             multiple: field.multiple ?? false,
-            // TODO implement
-            choices: null,
+            choices,
             dynamic: field.dynamic ?? false,
             placeholder: field.placeholder ?? '',
             allowNull: field.allowNull ?? false,
             fieldSchema: getFieldPropertySchema(fieldKey, field)
           }
         })
+
+        // Automatically include a field for customers to control batching behavior, when supported
+        if (typeof action.performBatch === 'function') {
+          fields.push({
+            fieldKey: 'enable_batching',
+            type: 'boolean',
+            label: 'Enable Batching?',
+            description: 'When enabled, Segment will send events in batches.',
+            defaultValue: false,
+            required: false,
+            multiple: false,
+            dynamic: false,
+            allowNull: false
+          })
+        }
 
         const base: BaseActionInput = {
           slug: actionKey,

@@ -23,4 +23,8 @@ export interface Payload {
   custom_attributes?: {
     [k: string]: unknown
   }
+  /**
+   * Convert `created_at` to a Unix timestamp (seconds since Epoch).
+   */
+  convert_timestamp?: boolean
 }

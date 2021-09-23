@@ -9,13 +9,13 @@ const action: BrowserActionDefinition<Settings, typeof FullStory, Payload> = {
   title: 'Identify User',
   description: 'Sets user identity variables',
   platform: 'web',
-  defaultSubscription: "type = 'identify'",
+  defaultSubscription: 'type = "identify"',
   fields: {
     userId: {
       type: 'string',
       required: false,
       description: "The user's id",
-      label: 'userId',
+      label: 'User ID',
       default: {
         '@path': '$.userId'
       }
@@ -24,7 +24,7 @@ const action: BrowserActionDefinition<Settings, typeof FullStory, Payload> = {
       type: 'string',
       required: false,
       description: "The user's anonymous id",
-      label: 'anonymous',
+      label: 'Anonymous ID',
       default: {
         '@path': '$.anonymousId'
       }
@@ -33,7 +33,7 @@ const action: BrowserActionDefinition<Settings, typeof FullStory, Payload> = {
       type: 'string',
       required: false,
       description: "The user's display name",
-      label: 'displayName',
+      label: 'Display Name',
       default: {
         '@path': '$.traits.name'
       }
@@ -42,7 +42,7 @@ const action: BrowserActionDefinition<Settings, typeof FullStory, Payload> = {
       type: 'string',
       required: false,
       description: "The user's email",
-      label: 'email',
+      label: 'Email',
       default: {
         '@path': '$.traits.email'
       }
@@ -51,14 +51,15 @@ const action: BrowserActionDefinition<Settings, typeof FullStory, Payload> = {
       type: 'object',
       required: false,
       description: 'The Segment traits to be forwarded to FullStory',
-      label: 'traits',
+      label: 'Traits',
       default: {
         '@path': '$.traits'
       }
     }
   },
   perform: (client, event) => {
-    let newTraits: any = {}
+    let newTraits: Record<string, unknown> = {}
+
     if (event.payload.traits) {
       newTraits = Object.entries(event.payload.traits).reduce(
         (acc, [key, value]) => ({
