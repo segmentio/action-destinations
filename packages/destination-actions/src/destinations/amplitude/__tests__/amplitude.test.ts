@@ -47,7 +47,7 @@ describe('Amplitude', () => {
         events: expect.arrayContaining([
           expect.objectContaining({
             device_id: 'foo',
-            platform: 'ios'
+            platform: 'iOS'
           })
         ])
       })
@@ -72,7 +72,7 @@ describe('Amplitude', () => {
         events: expect.arrayContaining([
           expect.objectContaining({
             device_id: 'foo',
-            platform: 'android'
+            platform: 'Android'
           })
         ])
       })
@@ -643,7 +643,7 @@ describe('Amplitude', () => {
             "api_key",
             "undefined",
             "identification",
-            "{\\"user_id\\":\\"user1234\\",\\"device_id\\":\\"foo\\",\\"user_properties\\":{},\\"platform\\":\\"android\\",\\"library\\":\\"segment\\"}",
+            "{\\"user_id\\":\\"user1234\\",\\"device_id\\":\\"foo\\",\\"user_properties\\":{},\\"platform\\":\\"Android\\",\\"library\\":\\"segment\\"}",
             "options",
             "undefined",
           ],
@@ -674,7 +674,7 @@ describe('Amplitude', () => {
             "api_key",
             "undefined",
             "identification",
-            "{\\"user_id\\":\\"user1234\\",\\"device_id\\":\\"foo\\",\\"user_properties\\":{},\\"platform\\":\\"ios\\",\\"library\\":\\"segment\\"}",
+            "{\\"user_id\\":\\"user1234\\",\\"device_id\\":\\"foo\\",\\"user_properties\\":{},\\"platform\\":\\"iOS\\",\\"library\\":\\"segment\\"}",
             "options",
             "undefined",
           ],
