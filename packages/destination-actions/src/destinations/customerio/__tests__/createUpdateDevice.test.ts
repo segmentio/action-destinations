@@ -18,15 +18,15 @@ describe('CustomerIO', () => {
       const userId = 'abc123'
       const deviceId = 'device_123'
       const deviceType = 'ios'
-      const lastUsed = dayjs.utc().toISOString()
+      const timestamp = dayjs.utc().toISOString()
       trackService.put(`/customers/${userId}/devices`).reply(200, {}, { 'x-customerio-region': 'US' })
       const event = createTestEvent({
         userId,
+        timestamp,
         context: {
           device: {
             id: deviceId,
-            type: deviceType,
-            lastUsed
+            type: deviceType
           }
         }
       })
@@ -47,7 +47,7 @@ describe('CustomerIO', () => {
         device: {
           id: deviceId,
           platform: deviceType,
-          last_used: dayjs.utc(lastUsed).unix()
+          last_used: dayjs.utc(timestamp).unix()
         }
       })
     })
@@ -61,15 +61,15 @@ describe('CustomerIO', () => {
       const userId = 'abc123'
       const deviceId = 'device_123'
       const deviceType = 'ios'
-      const lastUsed = dayjs.utc().toISOString()
+      const timestamp = dayjs.utc().toISOString()
       trackService.put(`/customers/${userId}/devices`).reply(200, {})
       const event = createTestEvent({
         userId,
+        timestamp,
         context: {
           device: {
             id: deviceId,
-            type: deviceType,
-            lastUsed
+            type: deviceType
           }
         }
       })
@@ -89,7 +89,7 @@ describe('CustomerIO', () => {
         device: {
           id: deviceId,
           platform: deviceType,
-          last_used: lastUsed
+          last_used: timestamp
         }
       })
     })
@@ -104,15 +104,15 @@ describe('CustomerIO', () => {
       const userId = 'abc123'
       const deviceId = 'device_123'
       const deviceType = 'ios'
-      const lastUsed = dayjs.utc().toISOString()
+      const timestamp = dayjs.utc().toISOString()
       trackEUService.put(`/customers/${userId}/devices`).reply(200, {}, { 'x-customerio-region': 'EU' })
       const event = createTestEvent({
         userId,
+        timestamp,
         context: {
           device: {
             id: deviceId,
-            type: deviceType,
-            lastUsed
+            type: deviceType
           }
         }
       })
@@ -133,7 +133,7 @@ describe('CustomerIO', () => {
         device: {
           id: deviceId,
           platform: deviceType,
-          last_used: dayjs.utc(lastUsed).unix()
+          last_used: dayjs.utc(timestamp).unix()
         }
       })
     })
@@ -146,15 +146,15 @@ describe('CustomerIO', () => {
       const userId = 'abc123'
       const deviceId = 'device_123'
       const deviceType = 'ios'
-      const lastUsed = dayjs.utc().toISOString()
+      const timestamp = dayjs.utc().toISOString()
       trackService.put(`/customers/${userId}/devices`).reply(200, {}, { 'x-customerio-region': 'US-fallback' })
       const event = createTestEvent({
         userId,
+        timestamp,
         context: {
           device: {
             id: deviceId,
-            type: deviceType,
-            lastUsed
+            type: deviceType
           }
         }
       })
@@ -175,7 +175,7 @@ describe('CustomerIO', () => {
         device: {
           id: deviceId,
           platform: deviceType,
-          last_used: dayjs.utc(lastUsed).unix()
+          last_used: dayjs.utc(timestamp).unix()
         }
       })
     })
