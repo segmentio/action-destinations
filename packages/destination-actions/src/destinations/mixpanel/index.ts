@@ -6,6 +6,8 @@ import type { Settings } from './generated-types'
 import identifyUser from './identifyUser'
 import groupIdentifyUser from './groupIdentifyUser'
 
+import alias from './alias'
+
 /** used in the quick setup */
 const presets: DestinationDefinition['presets'] = [
   {
@@ -70,32 +72,18 @@ const destination: DestinationDefinition<Settings> = {
         required: false
       }
     },
-    testAuthentication: async (request, { settings }) => {
-      try {
-        const response = await request(
-          `https://mixpanel.com/api/2.0/credentials/validate?project_token=${settings.projectToken}`,
-          {
-            username: settings.apiSecret
-          }
-        )
-        const results = await response.json()
-        if (results.status === 'ok') {
-          return true
-        } else {
-          // TODO: is there some way to tell the user what failed?
-          return false
-        }
-      } catch (err) {
-        // TODO: is there some way to tell the user what failed?
-        return false
-      }
+    testAuthentication: (request, { settings }) => {
+      return request(`https://mixpanel.com/api/2.0/credentials/validate?project_token=${settings.projectToken}`, {
+        username: settings.apiSecret
+      })
     }
   },
   presets,
   actions: {
     trackEvent,
     identifyUser,
-    groupIdentifyUser
+    groupIdentifyUser,
+    alias
   }
 }
 

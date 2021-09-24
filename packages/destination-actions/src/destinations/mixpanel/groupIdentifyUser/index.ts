@@ -37,11 +37,6 @@ const action: ActionDefinition<Settings, Payload> = {
     }
   },
   perform: (request, { payload, settings }) => {
-    // Make your partner api request here!
-    // return request('https://example.com', {
-    //   method: 'post',
-    //   json: data.payload
-    // })
     const data = {
       $token: settings.projectToken,
       $distinct_id: payload.group_id,

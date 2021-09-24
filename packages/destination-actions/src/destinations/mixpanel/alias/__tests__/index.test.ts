@@ -5,21 +5,14 @@ import Destination from '../../index'
 const testDestination = createTestIntegration(Destination)
 const MIXPANEL_API_SECRET = 'test-api-key'
 const MIXPANEL_PROJECT_TOKEN = 'test-proj-token'
-const timestamp = '2021-08-17T15:21:15.449Z'
 
-describe('Mixpanel.groupIdentifyUser', () => {
+describe('Mixpanel.alias', () => {
   it('should validate action fields', async () => {
-    const event = createTestEvent({
-      timestamp,
-      event: 'Test Event',
-      groupId: 'test-group-id',
-      context: { name: 'test-name' },
-      traits: { hello: 'world' }
-    })
+    const event = createTestEvent({ previousId: 'test-prev-id' })
 
-    nock('https://api.mixpanel.com').post('/groups').reply(200, {})
+    nock('https://api.mixpanel.com').post('/track').reply(200, {})
 
-    const responses = await testDestination.testAction('groupIdentifyUser', {
+    const responses = await testDestination.testAction('alias', {
       event,
       useDefaultMappings: true,
       settings: {
@@ -33,12 +26,11 @@ describe('Mixpanel.groupIdentifyUser', () => {
     expect(responses[0].options.body).toMatchObject(
       new URLSearchParams({
         data: JSON.stringify({
-          $token: MIXPANEL_PROJECT_TOKEN,
-          $distinct_id: 'test-group-id',
-          $group_key: 'test-name',
-          $group_id: 'test-group-id',
-          $set: {
-            hello: 'world'
+          event: '$create_alias',
+          properties: {
+            distinct_id: 'test-prev-id',
+            alias: 'user1234',
+            token: MIXPANEL_PROJECT_TOKEN
           }
         })
       })

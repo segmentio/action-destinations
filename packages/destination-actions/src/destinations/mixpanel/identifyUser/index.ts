@@ -5,8 +5,7 @@ import type { Payload } from './generated-types'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Identify User',
-  description:
-    'Set the user ID for a particular device ID or update user properties without sending an event to Amplitude.',
+  description: 'Set the user ID for a particular device ID or update user properties',
   defaultSubscription: 'type = "identify"',
   fields: {
     user_id: {
@@ -29,8 +28,6 @@ const action: ActionDefinition<Settings, Payload> = {
   },
 
   perform: (request, { payload, settings }) => {
-    // TODO: do we need to call Mixpanel's identify api
-    // when an anonymousId is present?
     const data = {
       $token: settings.projectToken,
       $distinct_id: payload.user_id,
