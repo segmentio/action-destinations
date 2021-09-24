@@ -31,7 +31,7 @@ const action: ActionDefinition<Settings, Payload> = {
     conversion_label: {
       label: 'Conversion Label',
       description:
-        'You will find this information in the event snippet for your conversion action, for example `send_to: AW-CONVERSION_ID/AW-CONVERSION_LABEL`. Enter the conversion label, the string after the forward slash, without the AW- prefix.',
+        'The Google Ads conversion label. You can find it in your Google Ads account using the instructions in the article [Google Ads conversions](https://support.google.com/tagmanager/answer/6105160?hl=en)',
       type: 'string',
       required: true,
       default: ''
