@@ -64,6 +64,35 @@ class TestDestination<T> extends Destination<T> {
 
     return responses
   }
+
+  async testBatchAction(
+    action: string,
+    { events, mapping, settings, useDefaultMappings, auth }: Omit<InputData<T>, 'event'> & { events?: SegmentEvent[] }
+  ): Promise<Destination['responses']> {
+    mapping = mapping ?? {}
+
+    if (useDefaultMappings) {
+      const fields = this.definition.actions[action].fields
+      const defaultMappings = mapValues(fields, 'default')
+      mapping = { ...defaultMappings, ...mapping } as JSONObject
+    }
+
+    if (!events || !events.length) {
+      events = [{ type: 'track' }]
+    }
+
+    await super.executeBatch(action, {
+      events: events.map((event) => createTestEvent(event)),
+      mapping,
+      settings: settings ?? ({} as T),
+      auth
+    })
+
+    const responses = this.responses
+    this.responses = []
+
+    return responses
+  }
 }
 
 export function createTestIntegration<T>(destination: DestinationDefinition<T>): TestDestination<T> {
