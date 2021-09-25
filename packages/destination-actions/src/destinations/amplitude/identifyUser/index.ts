@@ -243,7 +243,7 @@ const action: ActionDefinition<Settings, Payload> = {
     const properties = rest as AmplitudeEvent
 
     if (properties.platform) {
-      properties.platform = properties.platform.replace('ios', 'iOS').replace('android', 'Android')
+      properties.platform = properties.platform.replace(/ios/i, 'iOS').replace(/android/i, 'Android')
     }
 
     if (Object.keys(utm_properties ?? {}).length || referrer) {
