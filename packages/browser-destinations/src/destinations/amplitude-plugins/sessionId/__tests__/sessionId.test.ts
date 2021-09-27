@@ -86,8 +86,6 @@ describe('ajs-integration', () => {
     const updatedCtx = await sessionIdPlugin.track?.(ctx)
 
     // @ts-expect-error Need to fix ajs-next types to allow for complex objects in `integrations`
-    expect(updatedCtx?.event.integrations?.Amplitude?.session_id).not.toBeUndefined()
-    // @ts-expect-error Need to fix ajs-next types to allow for complex objects in `integrations`
     expect(updatedCtx?.event.integrations['Actions Amplitude']?.session_id).not.toBeUndefined()
   })
 
@@ -137,7 +135,7 @@ describe('sessoinId', () => {
 
       const updatedCtx = await sessionIdPlugin.track?.(ctx)
       // @ts-expect-error Need to fix ajs-next types to allow for complex objects in `integrations`
-      expect(updatedCtx?.event.integrations?.Amplitude?.session_id).toBeWithinOneSecondOf(id())
+      expect(updatedCtx?.event.integrations['Actions Amplitude']?.session_id).toBeWithinOneSecondOf(id())
     })
 
     test('persists the session id', async () => {
@@ -173,7 +171,7 @@ describe('sessoinId', () => {
 
       const updatedCtx = await sessionIdPlugin.track?.(ctx)
       // @ts-expect-error Need to fix ajs-next types to allow for complex objects in `integrations`
-      expect(updatedCtx?.event.integrations?.Amplitude?.session_id).toBeWithinOneSecondOf(then)
+      expect(updatedCtx?.event.integrations['Actions Amplitude']?.session_id).toBeWithinOneSecondOf(then)
     })
 
     test('keeps track of when the session was last accessed', async () => {
@@ -193,7 +191,7 @@ describe('sessoinId', () => {
 
       const updatedCtx = await sessionIdPlugin.track?.(ctx)
       // @ts-expect-error Need to fix ajs-next types to allow for complex objects in `integrations`
-      expect(updatedCtx?.event.integrations?.Amplitude?.session_id).toBeWithinOneSecondOf(then)
+      expect(updatedCtx?.event.integrations['Actions Amplitude']?.session_id).toBeWithinOneSecondOf(then)
 
       expect(window.localStorage.getItem('analytics_session_id.last_access')).toBeWithinOneSecondOf(now)
     })
@@ -218,7 +216,7 @@ describe('sessoinId', () => {
 
       const updatedCtx = await sessionIdPlugin.track?.(ctx)
       // @ts-expect-error Need to fix ajs-next types to allow for complex objects in `integrations`
-      expect(updatedCtx?.event.integrations?.Amplitude?.session_id).toBeWithinOneSecondOf(now)
+      expect(updatedCtx?.event.integrations['Actions Amplitude']?.session_id).toBeWithinOneSecondOf(now)
 
       expect(window.localStorage.getItem('analytics_session_id')).toBeWithinOneSecondOf(now.toString())
       expect(window.localStorage.getItem('analytics_session_id.last_access')).toBeWithinOneSecondOf(now.toString())
