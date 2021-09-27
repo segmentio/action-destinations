@@ -8,7 +8,6 @@ const MIXPANEL_PROJECT_TOKEN = 'test-proj-token'
 const timestamp = '2021-08-17T15:21:15.449Z'
 
 describe('Mixpanel.trackEvent', () => {
-  // TODO: Test your action
   it('should validate action fields', async () => {
     const event = createTestEvent({ timestamp, event: 'Test Event' })
 
