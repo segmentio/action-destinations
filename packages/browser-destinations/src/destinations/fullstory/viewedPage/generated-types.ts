@@ -4,11 +4,7 @@ export interface Payload {
   /**
    * The name of the page that was viewed.
    */
-  name?: string
-  /**
-   * The category of the page that was viewed.
-   */
-  category?: string
+  pageName?: string
   /**
    * The properties of the page that was viewed.
    */
