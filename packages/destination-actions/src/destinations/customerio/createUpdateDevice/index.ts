@@ -5,13 +5,13 @@ import type { Payload } from './generated-types'
 import { trackApiEndpoint } from '../utils'
 
 const action: ActionDefinition<Settings, Payload> = {
-  title: 'Track Application Installed Event',
-  description: `Track an "Application Installed" event, and create or update a person's device in Customer.io.`,
+  title: 'Create or Update Device',
+  description: "Update a person's device in Customer.io or create it if it doesn't exist.",
   defaultSubscription: 'type = "track" and event = "Application Installed"',
   fields: {
     person_id: {
       label: 'Person ID',
-      description: 'The ID of the person that this mobile device belongs to',
+      description: 'ID of the person that this device belongs to.',
       type: 'string',
       required: true,
       default: {
@@ -20,7 +20,7 @@ const action: ActionDefinition<Settings, Payload> = {
     },
     device_id: {
       label: 'Device ID',
-      description: "The device token of a customer's mobile device",
+      description: 'Unique ID for this device.',
       type: 'string',
       required: true,
       default: {
@@ -29,23 +29,24 @@ const action: ActionDefinition<Settings, Payload> = {
     },
     platform: {
       label: 'Platform',
-      description: `The mobile device's platform. ("ios" or "android")`,
+      description: 'The device platform.',
       type: 'string',
       required: true,
+      // enum: ['ios', 'android'],
       default: {
         '@path': '$.context.device.type'
       }
     },
     last_used: {
       label: 'Last Used',
-      description: 'The timestamp for when the mobile device was last used. Default is current date and time.',
+      description: 'Timestamp for when the device was last used. Default is current date and time.',
       type: 'string',
       default: {
         '@path': '$.timestamp'
       }
     },
     convert_timestamp: {
-      label: 'Convert Timestamps',
+      label: 'Convert timestamps',
       description: 'Convert `last_used` to a Unix timestamp (seconds since Epoch).',
       type: 'boolean',
       default: true
@@ -59,16 +60,19 @@ const action: ActionDefinition<Settings, Payload> = {
       lastUsed = dayjs.utc(lastUsed).unix()
     }
 
-    return request(`${trackApiEndpoint(settings.accountRegion)}/api/v1/customers/${payload.person_id}/devices`, {
-      method: 'put',
-      json: {
-        device: {
-          id: payload.device_id,
-          platform: payload.platform,
-          last_used: lastUsed
+    return request(
+      `${trackApiEndpoint(settings.accountRegionEndpoint)}/api/v1/customers/${payload.person_id}/devices`,
+      {
+        method: 'put',
+        json: {
+          device: {
+            id: payload.device_id,
+            platform: payload.platform,
+            last_used: lastUsed
+          }
         }
       }
-    })
+    )
   }
 }
 

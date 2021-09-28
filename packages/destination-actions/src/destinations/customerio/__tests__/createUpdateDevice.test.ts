@@ -3,18 +3,17 @@ import { createTestEvent, createTestIntegration } from '@segment/actions-core'
 import CustomerIO from '../index'
 import { Settings } from '../generated-types'
 import dayjs from '../../../lib/dayjs'
-import { AccountRegion } from '../utils'
 
 const testDestination = createTestIntegration(CustomerIO)
 const trackService = nock('https://track.customer.io/api/v1')
 
 describe('CustomerIO', () => {
-  describe('trackApplicationOpened', () => {
+  describe('createUpdateDevice', () => {
     it('should work with default mappings when userId is supplied', async () => {
       const settings: Settings = {
         siteId: '12345',
         apiKey: 'abcde',
-        accountRegion: AccountRegion.US
+        accountRegionEndpoint: 'https://track.customer.io'
       }
       const userId = 'abc123'
       const deviceId = 'device_123'
@@ -31,7 +30,7 @@ describe('CustomerIO', () => {
           }
         }
       })
-      const responses = await testDestination.testAction('trackApplicationOpened', {
+      const responses = await testDestination.testAction('createUpdateDevice', {
         event,
         settings,
         useDefaultMappings: true
@@ -57,7 +56,7 @@ describe('CustomerIO', () => {
       const settings: Settings = {
         siteId: '12345',
         apiKey: 'abcde',
-        accountRegion: AccountRegion.US
+        accountRegionEndpoint: 'https://track.customer.io'
       }
       const userId = 'abc123'
       const deviceId = 'device_123'
@@ -74,7 +73,7 @@ describe('CustomerIO', () => {
           }
         }
       })
-      const responses = await testDestination.testAction('trackApplicationOpened', {
+      const responses = await testDestination.testAction('createUpdateDevice', {
         event,
         settings,
         mapping: {
@@ -100,7 +99,7 @@ describe('CustomerIO', () => {
       const settings: Settings = {
         siteId: '12345',
         apiKey: 'abcde',
-        accountRegion: AccountRegion.EU
+        accountRegionEndpoint: 'https://track-eu.customer.io'
       }
       const userId = 'abc123'
       const deviceId = 'device_123'
@@ -117,7 +116,7 @@ describe('CustomerIO', () => {
           }
         }
       })
-      const responses = await testDestination.testAction('trackApplicationOpened', {
+      const responses = await testDestination.testAction('createUpdateDevice', {
         event,
         settings,
         useDefaultMappings: true
@@ -159,7 +158,7 @@ describe('CustomerIO', () => {
           }
         }
       })
-      const responses = await testDestination.testAction('trackApplicationOpened', {
+      const responses = await testDestination.testAction('createUpdateDevice', {
         event,
         settings,
         useDefaultMappings: true

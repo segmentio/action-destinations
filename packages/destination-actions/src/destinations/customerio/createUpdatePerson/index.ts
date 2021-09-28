@@ -6,13 +6,12 @@ import { trackApiEndpoint } from '../utils'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Create or Update Person',
-  description: 'Create a person in Customer.io or update them if they exists.',
+  description: "Update a person in Customer.io or create them if they don't exist.",
   defaultSubscription: 'type = "identify"',
   fields: {
     id: {
       label: 'Person ID',
-      description:
-        'The ID used to uniquely identify a person in Customer.io. [Learn more](https://customer.io/docs/identifying-people/#identifiers).',
+      description: 'ID used to uniquely identify person in Customer.io.',
       type: 'string',
       required: true,
       default: {
@@ -21,8 +20,7 @@ const action: ActionDefinition<Settings, Payload> = {
     },
     anonymous_id: {
       label: 'Anonymous ID',
-      description:
-        'An anonymous ID for when no Person ID exists. [Learn more](https://customer.io/docs/anonymous-events/).',
+      description: 'Anonymous ID to uniquely identify person in Customer.io.',
       type: 'string',
       default: {
         '@path': '$.anonymousId'
@@ -30,31 +28,32 @@ const action: ActionDefinition<Settings, Payload> = {
     },
     email: {
       label: 'Email Address',
-      description: "The person's email address.",
+      description: "Person's email address.",
       type: 'string',
+      required: true,
       default: {
-        '@template': '{{traits.email}}'
+        '@template': '{{traits.userId}}'
       }
     },
     created_at: {
       label: 'Created At',
-      description: 'A timestamp of when the person was created. Default is current date and time.',
+      description: 'Timestamp for when the person was created. Default is current date and time.',
       type: 'string',
       default: {
         '@path': '$.timestamp'
       }
     },
     custom_attributes: {
-      label: 'Person Attributes',
+      label: 'Custom Attributes',
       description:
-        'Optional attributes for the person. When updating a person, attributes are added or updated, not removed.',
+        'Optional custom attributes for this person. When updating a person, attributes are added and not removed.',
       type: 'object',
       default: {
         '@path': '$.traits'
       }
     },
     convert_timestamp: {
-      label: 'Convert Timestamps',
+      label: 'Convert timestamps',
       description: 'Convert `created_at` to a Unix timestamp (seconds since Epoch).',
       type: 'boolean',
       default: true
@@ -68,7 +67,7 @@ const action: ActionDefinition<Settings, Payload> = {
       createdAt = dayjs.utc(createdAt).unix()
     }
 
-    return request(`${trackApiEndpoint(settings.accountRegion)}/api/v1/customers/${payload.id}`, {
+    return request(`${trackApiEndpoint(settings.accountRegionEndpoint)}/api/v1/customers/${payload.id}`, {
       method: 'put',
       json: {
         ...payload.custom_attributes,
