@@ -11,7 +11,7 @@ function setTestData(seedName: string, type: string, fieldName?: string, format?
       val = chance.bool()
       break
     case 'datetime':
-      val = chance.date()
+      val = new Date(2021, 1, 1)
       break
     case 'integer':
       val = chance.integer()
