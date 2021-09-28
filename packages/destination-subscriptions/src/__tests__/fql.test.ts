@@ -94,6 +94,33 @@ test('event = "Product Added"', () => {
 	})
 })
 
+test('userId != null', () => {
+	testFql('userId != null', {
+		type: 'group',
+		operator: 'and',
+		children: [
+			{
+				type: 'userId',
+				operator: 'exists'
+			}
+		]
+	})
+})
+
+test('name = "Home"', () => {
+	testFql('name = "Home"', {
+		type: 'group',
+		operator: 'and',
+		children: [
+			{
+				type: 'name',
+				operator: '=',
+				value: 'Home'
+			}
+		]
+	})
+})
+
 test('event = "Product Added" or event = "Order Completed"', () => {
 	testFql('event = "Product Added" or event = "Order Completed"', {
 		type: 'group',
