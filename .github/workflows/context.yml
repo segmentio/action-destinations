@@ -15,5 +15,6 @@ jobs:
       GITHUB_OBJ: ${{ toJson(github) }}
     steps:
       - run: echo "${{ env.GITHUB_OBJ }}"
+      - uses: actions/checkout@v2
       - run: git log --format='%ae' HEAD^!
       - run: git log --format='%an' HEAD^!
