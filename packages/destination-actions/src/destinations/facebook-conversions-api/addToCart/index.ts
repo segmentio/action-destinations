@@ -1,7 +1,7 @@
 import { ActionDefinition, IntegrationError } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
-import { content_ids, content_name, content_type, contents, currency, value, action_source, event_time } from '../fb-capi-properties'
+import { content_ids, content_name, content_type, contents, currency, value, action_source, event_time, event_source_url, event_id } from '../fb-capi-properties'
 import { CURRENCY_ISO_CODES } from '../constants'
 import { hash_user_data, user_data_field } from '../fb-capi-user-data'
 
@@ -18,12 +18,13 @@ const action: ActionDefinition<Settings, Payload> = {
     value: value,
     user_data: user_data_field,
     action_source: { ...action_source, required: true },
-    event_time: { ...event_time, required: true }
+    event_time: { ...event_time, required: true },
+    event_source_url: event_source_url,
+    event_id: event_id
   },
   perform: (request, { payload, settings }) => {
     // For stage testing, prioritize settings token over env token
     const TOKEN = settings.token ? settings.token : process.env.TOKEN
-
     if (payload.currency && !CURRENCY_ISO_CODES.has(payload.currency)) {
       throw new IntegrationError(
         `${payload.currency} is not a valid currency code.`,
@@ -51,6 +52,8 @@ const action: ActionDefinition<Settings, Payload> = {
           {
             event_name: 'AddToCart',
             event_time: payload.event_time,
+            event_source_url: payload.event_source_url,
+            event_id: payload.event_id,
             action_source: payload.action_source,
             user_data: hash_user_data(payload.user_data),
             custom_data: {

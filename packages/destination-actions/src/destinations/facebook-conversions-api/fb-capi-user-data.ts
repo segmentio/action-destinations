@@ -6,132 +6,143 @@ import { createHash } from 'crypto'
 
 export const user_data_field: InputField = {
   label: 'User Data',
-  description: 'User Data',
+  description: 'These parameters are a set of identifiers Facebook can use for targeted attribution. You must provide at least one of the following user_data keys in your request',
   type: 'object',
   properties: {
+    externalId: {
+      label: 'External ID',
+      description: 'Any unique ID from the advertiser, such as loyalty membership IDs, user IDs, and external cookie IDs. You can send one or more external IDs for a given event.',
+      type: 'string'
+    },
     email: {
       label: 'Email',
-      description: 'User Email',
-      type: 'string',
-      default: {
-        '@path': '$.context.traits.email'
-      }
+      description: 'An email address, in lowercase. Example: joe@eg.com',
+      type: 'string'
     },
     phone: {
       label: 'Phone',
-      description: 'User phone number',
-      type: 'string',
-      default: {
-        '@path': '$.context.traits.phone'
-      }
+      description: 'A phone number. Include only digits with country code, area code, and number. Remove symbols, letters, and any leading zeros. In addition, always include the country code as part of the customer phone number, even if all of the data is from the same country, as the country code is used for matching.',
+      type: 'string'
     },
     gender: {
       label: 'Gender',
-      description: 'User gender',
+      description: 'Gender, in lowercase. Either f or m.',
       type: 'string'
     },
     dateOfBirth: {
       label: 'Date of Birth',
-      description: 'Date of Birth',
-      type: 'string',
-      default: {
-        '@path': '$.context.traits.birthday'
-      }
+      description: 'A date of birth given as year, month, and day. Example: 19971226 for December 26, 1997.',
+      type: 'string'
     },
     lastName: {
       label: 'Last Name',
-      description: 'Last Name',
-      type: 'string',
-      default: {
-        '@path': '$.context.traits.lastName'
-      }
+      description: 'A last name in lowercase.',
+      type: 'string'
     },
     firstName: {
       label: 'First Name',
-      description: 'First Name',
-      type: 'string',
-      default: {
-        '@path': '$.context.traits.firstName'
-      }
+      description: 'A first name in lowercase.',
+      type: 'string'
     },
     city: {
       label: 'City',
-      description: 'City',
-      type: 'string',
-      default: '$.context.traits.address.city'
+      description: 'A city in lower-case without spaces or punctuation. Example: menlopark.',
+      type: 'string'
     },
     state: {
       label: 'State',
-      description: 'State',
-      type: 'string',
-      default: {
-        '@path': '$.context.traits.address.state'
-      }
+      description: 'A two-letter state code in lowercase. Example: ca.',
+      type: 'string'
     },
     zip: {
       label: 'Zip Code',
-      description: 'Zip Code',
-      type: 'string',
-      default: {
-        '@path': '$.context.traits.address.postalCode'
-      }
+      description: 'If you are in the United States, this is a five-digit zip code. For other locations, follow each country`s standards. Example: 94035 (for United States)',
+      type: 'string'
     },
     country: {
       label: 'Country',
-      description: 'Country',
-      type: 'string'
-    },
-    externalId: {
-      label: 'External ID',
-      description: 'External ID',
+      description: 'A two-letter country code in lowercase.',
       type: 'string'
     },
     client_ip_address: {
       label: 'Client IP Address',
-      description: 'Client IP Address',
-      type: 'string',
-      default: {
-        '@path': '$.context.ip'
-      }
+      description: 'The IP address of the browser corresponding to the event.',
+      type: 'string'
     },
     client_user_agent: {
       label: 'Client User Agent',
-      description: 'Client User Agent',
-      type: 'string',
-      default: {
-        '@path': '$.context.userAgent'
-      }
+      description: 'The user agent for the browser corresponding to the event.',
+      type: 'string'
     },
     fbc: {
       label: 'Click ID',
-      description: 'Click ID',
-      type: 'string',
-      default: {
-        '@path': '$.properties.fbc'
-      }
+      description: 'The Facebook click ID value stored in the _fbc browser cookie under your domain.',
+      type: 'string'
     },
     fbp: {
       label: 'Browser ID',
-      description: 'Browser ID',
-      type: 'string',
-      default: {
-        '@path': '$.properties.fbp'
-      }
+      description: 'The Facebook browser ID value stored in the _fbp browser cookie under your domain.',
+      type: 'string'
     },
     subscriptionID: {
       label: 'Subscription ID',
-      description: 'Subscription ID',
+      description: 'The subscription ID for the user in this transaction.',
       type: 'string'
     },
     leadID: {
       label: 'Lead ID',
-      description: 'Lead ID',
+      description: 'ID associated with a lead generated by Facebook`s Lead Ads.',
       type: 'string'
     },
     fbLoginID: {
       label: 'Facebook Login ID',
-      description: 'Facebook Login ID',
+      description: 'ID issued by Facebook when a person first logs into an instance of an app.',
       type: 'string'
+    }
+  },
+  default: {
+    externalId: {
+      '@if': {
+        exists: { '@path': '$.properties.userId' },
+        then: { '@path': '$.properties.userId' },
+        else: { '@path': '$.properties.anonymousId' }
+      }
+    },
+    email: {
+      '@path': '$.context.traits.email'
+    },
+    phone: {
+      '@path': '$.context.traits.phone'
+    },
+    dateOfBirth: {
+      '@path': '$.context.traits.birthday'
+    },
+    lastName: {
+      '@path': '$.context.traits.lastName'
+    },
+    firstName: {
+      '@path': '$.context.traits.firstName'
+    },
+    city: {
+      '@path': '$.context.traits.address.city'
+    },
+    state: {
+      '@path': '$.context.traits.address.state'
+    },
+    zip: {
+      '@path': '$.context.traits.address.postalCode'
+    },
+    client_ip_address: {
+      '@path': '$.context.ip'
+    },
+    client_user_agent: {
+      '@path': '$.context.userAgent'
+    },
+    fbc: {
+      '@path': '$.properties.fbc'
+    },
+    fbp: {
+      '@path': '$.properties.fbp'
     }
   }
 }

@@ -1,5 +1,5 @@
 import { ActionDefinition, IntegrationError } from '@segment/actions-core'
-import { action_source, contents, content_category, content_ids, content_name, content_type, currency, event_time, value } from '../fb-capi-properties'
+import { action_source, contents, content_category, content_ids, content_name, content_type, currency, event_id, event_source_url, event_time, value } from '../fb-capi-properties'
 import { user_data_field, hash_user_data } from '../fb-capi-user-data'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
@@ -8,10 +8,13 @@ import { CURRENCY_ISO_CODES } from '../constants'
 const action: ActionDefinition<Settings, Payload> = {
   title: 'View Content',
   description: 'Send a view content event to FB',
+  defaultSubscription: 'type = "track" and event = "Product Viewed"',
   fields: {
     user_data: user_data_field,
     event_time: { ...event_time, required: true },
     action_source: { ...action_source, required: true },
+    event_id: event_id,
+    event_source_url: event_source_url,
     content_ids: content_ids,
     content_category: content_category,
     content_name: content_name,
@@ -53,6 +56,8 @@ const action: ActionDefinition<Settings, Payload> = {
             event_name: 'ViewContent',
             event_time: payload.event_time,
             action_source: payload.action_source,
+            event_id: payload.event_id,
+            event_source_url: payload.event_source_url,
             user_data: hash_user_data(payload.user_data),
             custom_data: {
               currency: payload.currency,

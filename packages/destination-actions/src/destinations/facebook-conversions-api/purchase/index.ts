@@ -2,7 +2,7 @@ import { ActionDefinition, IntegrationError } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 import { CURRENCY_ISO_CODES } from '../constants'
-import { currency, value, content_name, content_type, contents, num_items, content_ids, event_time, action_source } from '../fb-capi-properties'
+import { currency, value, content_name, content_type, contents, num_items, content_ids, event_time, action_source, event_source_url, event_id } from '../fb-capi-properties'
 import { user_data_field, hash_user_data } from '../fb-capi-user-data'
 
 const action: ActionDefinition<Settings, Payload> = {
@@ -19,6 +19,8 @@ const action: ActionDefinition<Settings, Payload> = {
     num_items: num_items,
     content_ids: content_ids,
     event_time: { ...event_time, required: true },
+    event_source_url: event_source_url,
+    event_id: event_id,
     user_data: user_data_field
   },
   perform: (request, { payload, settings }) => {
@@ -53,6 +55,8 @@ const action: ActionDefinition<Settings, Payload> = {
             event_name: 'Purchase',
             event_time: payload.event_time,
             action_source: payload.action_source,
+            event_source_url: payload.event_source_url,
+            event_id: payload.event_id,
             user_data: hash_user_data(payload.user_data),
             custom_data: {
               currency: payload.currency,
