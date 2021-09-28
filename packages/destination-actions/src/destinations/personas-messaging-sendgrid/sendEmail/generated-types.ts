@@ -14,6 +14,10 @@ export interface Payload {
    */
   toEmail?: string
   /**
+   * Verified domain in Sendgrid
+   */
+  fromDomain: string
+  /**
    * From Email
    */
   fromEmail: string
