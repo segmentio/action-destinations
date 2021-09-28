@@ -1,9 +1,12 @@
 import { defaultValues } from '@segment/actions-core'
-import createUpdateDevice from './createUpdateDevice'
+import trackApplicationInstalled from './trackApplicationInstalled'
+import trackApplicationOpened from './trackApplicationOpened'
+import trackApplicationUninstalled from './trackApplicationUninstalled'
 import createUpdatePerson from './createUpdatePerson'
 import trackEvent from './trackEvent'
 import type { DestinationDefinition } from '@segment/actions-core'
 import type { Settings } from './generated-types'
+import { AccountRegion } from './utils'
 
 const destination: DestinationDefinition<Settings> = {
   name: 'Customer.io',
@@ -14,7 +17,6 @@ const destination: DestinationDefinition<Settings> = {
       siteId: {
         description:
           'Customer.io site ID. This can be found on your [API Credentials page](https://fly.customer.io/settings/api_credentials).',
-        // minLength: 20,
         label: 'Site ID',
         type: 'string',
         required: true
@@ -22,21 +24,16 @@ const destination: DestinationDefinition<Settings> = {
       apiKey: {
         description:
           'Customer.io API key. This can be found on your [API Credentials page](https://fly.customer.io/settings/api_credentials).',
-        // minLength: 20,
         label: 'API Key',
         type: 'string',
         required: true
       },
-      accountRegionEndpoint: {
-        description:
-          'Customer.io account region. Read more about [Account Regions](https://customer.io/docs/data-centers/).',
+      accountRegion: {
+        description: 'Learn about [Account Regions](https://customer.io/docs/data-centers/).',
         label: 'Account Region',
         type: 'string',
         format: 'uri',
-        choices: [
-          { label: 'US 🇺🇸', value: 'https://track.customer.io' },
-          { label: 'EU 🇪🇺', value: 'https://track-eu.customer.io' }
-        ],
+        choices: Object.values(AccountRegion).map((dc) => ({ label: dc, value: dc })),
         default: 'https://track.customer.io'
       }
     },
@@ -53,7 +50,9 @@ const destination: DestinationDefinition<Settings> = {
   },
 
   actions: {
-    createUpdateDevice,
+    trackApplicationInstalled,
+    trackApplicationUninstalled,
+    trackApplicationOpened,
     createUpdatePerson,
     trackEvent
   },
@@ -66,10 +65,22 @@ const destination: DestinationDefinition<Settings> = {
       mapping: defaultValues(createUpdatePerson.fields)
     },
     {
-      name: 'Create or Update Device',
+      name: 'Track Application Installed Event',
       subscribe: 'type = "track" and event = "Application Installed"',
-      partnerAction: 'createUpdateDevice',
-      mapping: defaultValues(createUpdateDevice.fields)
+      partnerAction: 'trackApplicationInstalled',
+      mapping: defaultValues(trackApplicationInstalled.fields)
+    },
+    {
+      name: 'Track Application Opened Event',
+      subscribe: 'type = "track" and event = "Application Opened"',
+      partnerAction: 'trackApplicationOpened',
+      mapping: defaultValues(trackApplicationOpened.fields)
+    },
+    {
+      name: 'Track Application Uninstalled Event',
+      subscribe: 'type = "track" and event = "Application Uninstalled"',
+      partnerAction: 'trackApplicationUninstalled',
+      mapping: defaultValues(trackApplicationUninstalled.fields)
     },
     {
       name: 'Track Event',

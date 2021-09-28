@@ -6,10 +6,10 @@ import dayjs from '../../../lib/dayjs'
 import { AccountRegion } from '../utils'
 
 const testDestination = createTestIntegration(CustomerIO)
-const trackDeviceService = nock('https://track.customer.io/api/v1')
+const trackService = nock('https://track.customer.io/api/v1')
 
 describe('CustomerIO', () => {
-  describe('createUpdatePerson', () => {
+  describe('trackApplicationInstalled', () => {
     it('should work with default mappings when userId is supplied', async () => {
       const settings: Settings = {
         siteId: '12345',
@@ -17,20 +17,21 @@ describe('CustomerIO', () => {
         accountRegion: AccountRegion.US
       }
       const userId = 'abc123'
-      const anonymousId = 'unknown_123'
+      const deviceId = 'device_123'
+      const deviceType = 'ios'
       const timestamp = dayjs.utc().toISOString()
-      const traits = {
-        full_name: 'Test User',
-        email: 'test@example.com'
-      }
-      trackDeviceService.put(`/customers/${userId}`).reply(200, {}, { 'x-customerio-region': 'US' })
+      trackService.put(`/customers/${userId}/devices`).reply(200, {}, { 'x-customerio-region': 'US' })
       const event = createTestEvent({
         userId,
-        anonymousId,
         timestamp,
-        traits
+        context: {
+          device: {
+            id: deviceId,
+            type: deviceType
+          }
+        }
       })
-      const responses = await testDestination.testAction('createUpdatePerson', {
+      const responses = await testDestination.testAction('trackApplicationInstalled', {
         event,
         settings,
         useDefaultMappings: true
@@ -44,34 +45,36 @@ describe('CustomerIO', () => {
       })
       expect(responses[0].data).toMatchObject({})
       expect(responses[0].options.json).toMatchObject({
-        ...traits,
-        email: traits.email,
-        created_at: dayjs.utc(timestamp).unix(),
-        anonymous_id: anonymousId
+        device: {
+          id: deviceId,
+          platform: deviceType,
+          last_used: dayjs.utc(timestamp).unix()
+        }
       })
     })
 
-    it('should not convert created_at to a unix timestamp when convert_timestamp is false', async () => {
+    it('should not convert last_used to a unix timestamp when convert_timestamp is false', async () => {
       const settings: Settings = {
         siteId: '12345',
         apiKey: 'abcde',
         accountRegion: AccountRegion.US
       }
       const userId = 'abc123'
-      const anonymousId = 'unknown_123'
+      const deviceId = 'device_123'
+      const deviceType = 'ios'
       const timestamp = dayjs.utc().toISOString()
-      const traits = {
-        full_name: 'Test User',
-        email: 'test@example.com'
-      }
-      trackDeviceService.put(`/customers/${userId}`).reply(200, {})
+      trackService.put(`/customers/${userId}/devices`).reply(200, {})
       const event = createTestEvent({
         userId,
-        anonymousId,
         timestamp,
-        traits
+        context: {
+          device: {
+            id: deviceId,
+            type: deviceType
+          }
+        }
       })
-      const responses = await testDestination.testAction('createUpdatePerson', {
+      const responses = await testDestination.testAction('trackApplicationInstalled', {
         event,
         settings,
         mapping: {
@@ -84,35 +87,37 @@ describe('CustomerIO', () => {
       expect(responses[0].status).toBe(200)
       expect(responses[0].data).toMatchObject({})
       expect(responses[0].options.json).toMatchObject({
-        ...traits,
-        email: traits.email,
-        created_at: timestamp,
-        anonymous_id: anonymousId
+        device: {
+          id: deviceId,
+          platform: deviceType,
+          last_used: timestamp
+        }
       })
     })
 
     it('should work with the EU account region', async () => {
-      const trackEUDeviceService = nock('https://track-eu.customer.io/api/v1')
+      const trackEUService = nock('https://track-eu.customer.io/api/v1')
       const settings: Settings = {
         siteId: '12345',
         apiKey: 'abcde',
         accountRegion: AccountRegion.EU
       }
       const userId = 'abc123'
-      const anonymousId = 'unknown_123'
+      const deviceId = 'device_123'
+      const deviceType = 'ios'
       const timestamp = dayjs.utc().toISOString()
-      const traits = {
-        full_name: 'Test User',
-        email: 'test@example.com'
-      }
-      trackEUDeviceService.put(`/customers/${userId}`).reply(200, {}, { 'x-customerio-region': 'EU' })
+      trackEUService.put(`/customers/${userId}/devices`).reply(200, {}, { 'x-customerio-region': 'EU' })
       const event = createTestEvent({
         userId,
-        anonymousId,
         timestamp,
-        traits
+        context: {
+          device: {
+            id: deviceId,
+            type: deviceType
+          }
+        }
       })
-      const responses = await testDestination.testAction('createUpdatePerson', {
+      const responses = await testDestination.testAction('trackApplicationInstalled', {
         event,
         settings,
         useDefaultMappings: true
@@ -126,10 +131,11 @@ describe('CustomerIO', () => {
       })
       expect(responses[0].data).toMatchObject({})
       expect(responses[0].options.json).toMatchObject({
-        ...traits,
-        email: traits.email,
-        created_at: dayjs.utc(timestamp).unix(),
-        anonymous_id: anonymousId
+        device: {
+          id: deviceId,
+          platform: deviceType,
+          last_used: dayjs.utc(timestamp).unix()
+        }
       })
     })
 
@@ -139,20 +145,21 @@ describe('CustomerIO', () => {
         apiKey: 'abcde'
       }
       const userId = 'abc123'
-      const anonymousId = 'unknown_123'
+      const deviceId = 'device_123'
+      const deviceType = 'ios'
       const timestamp = dayjs.utc().toISOString()
-      const traits = {
-        full_name: 'Test User',
-        email: 'test@example.com'
-      }
-      trackDeviceService.put(`/customers/${userId}`).reply(200, {}, { 'x-customerio-region': 'US-fallback' })
+      trackService.put(`/customers/${userId}/devices`).reply(200, {}, { 'x-customerio-region': 'US-fallback' })
       const event = createTestEvent({
         userId,
-        anonymousId,
         timestamp,
-        traits
+        context: {
+          device: {
+            id: deviceId,
+            type: deviceType
+          }
+        }
       })
-      const responses = await testDestination.testAction('createUpdatePerson', {
+      const responses = await testDestination.testAction('trackApplicationInstalled', {
         event,
         settings,
         useDefaultMappings: true
@@ -166,10 +173,11 @@ describe('CustomerIO', () => {
       })
       expect(responses[0].data).toMatchObject({})
       expect(responses[0].options.json).toMatchObject({
-        ...traits,
-        email: traits.email,
-        created_at: dayjs.utc(timestamp).unix(),
-        anonymous_id: anonymousId
+        device: {
+          id: deviceId,
+          platform: deviceType,
+          last_used: dayjs.utc(timestamp).unix()
+        }
       })
     })
   })
