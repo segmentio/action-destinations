@@ -17,7 +17,6 @@ export type Condition =
 	| EventTraitCondition
 	| EventContextCondition
 	| EventUserIdCondition
-	| EventTimeCondition
 	| EventNameCondition
 
 export type GroupConditionOperator = 'and' | 'or'
