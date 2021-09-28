@@ -87,6 +87,11 @@ const action: ActionDefinition<Settings, Payload> = {
       description: 'Email to send to when testing',
       type: 'string'
     },
+    fromDomain: {
+      label: 'From Domain',
+      description: 'Verified domain in Sendgrid',
+      type: 'string'
+    },
     fromEmail: {
       label: 'From Email',
       description: 'From Email',
