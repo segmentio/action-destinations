@@ -1,0 +1,19 @@
+name: Context
+
+on:
+  pull_request:
+    branches: [main]
+    types:
+      - opened
+      - edited
+      - synchronize
+
+jobs:
+  echo-context:
+    runs-on: ubuntu-latest
+    env:
+      GITHUB_OBJ: ${{ toJson(github) }}
+    steps:
+      - run: echo ${{ env.GITHUB_OBJ }}
+      - run: git log --format='%ae' HEAD^!
+      - run: git log --format='%an' HEAD^!
