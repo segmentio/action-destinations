@@ -8,14 +8,14 @@ export { IntegrationError, InvalidAuthenticationError, RetryableError } from './
 export { get } from './get'
 export { omit } from './omit'
 export { removeUndefined } from './remove-undefined'
-export { time, duration } from './time'
+export { duration } from './time'
 
 export { realTypeOf, isObject, isArray, isString } from './real-type-of'
 
 export type { RequestOptions } from './request-client'
 export { HTTPError } from './request-client'
 export { ModifiedResponse } from './types'
-export { default as fetch, Request, Response, Headers } from './fetch'
+export {  Request, Response, Headers } from './fetch'
 
 export type {
   BaseActionDefinition,

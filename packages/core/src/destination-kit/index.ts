@@ -1,7 +1,7 @@
 import { validate, parseFql, ErrorCondition } from '@segment/destination-subscriptions'
 import type { JSONSchema4 } from 'json-schema'
 import { Action, ActionDefinition, BaseActionDefinition, RequestFn } from './action'
-import { time, duration } from '../time'
+import { duration } from '../time'
 import { JSONLikeObject, JSONObject, JSONValue } from '../json-object'
 import { SegmentEvent } from '../segment-event'
 import { fieldsToJsonSchema, MinimalInputField } from './fields-to-jsonschema'
@@ -311,7 +311,7 @@ export class Destination<Settings = JSONObject> {
     auth: AuthTokens,
     onComplete?: OnEventOptions['onComplete']
   ): Promise<Result[]> {
-    const subscriptionStartedAt = time()
+    const subscriptionStartedAt = Date.now()
     const actionSlug = subscription.partnerAction
     const input = {
       mapping: subscription.mapping || {},
@@ -356,7 +356,7 @@ export class Destination<Settings = JSONObject> {
 
       throw error
     } finally {
-      const subscriptionEndedAt = time()
+      const subscriptionEndedAt = Date.now()
       const subscriptionDuration = duration(subscriptionStartedAt, subscriptionEndedAt)
 
       onComplete?.({

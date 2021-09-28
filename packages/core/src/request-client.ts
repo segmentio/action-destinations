@@ -1,8 +1,8 @@
-import AbortController from 'abort-controller'
 import { CustomError } from 'ts-custom-error'
 import { URL, URLSearchParams } from 'url'
-import fetch, { Headers, Request, Response } from './fetch'
+import { Headers, Request, Response } from './fetch'
 import { isObject } from './real-type-of'
+import AbortController from 'abort-controller'
 
 /**
  * The supported request options you can use with the request client
@@ -293,9 +293,11 @@ class RequestClient {
     }
 
     if (this.options.timeout === false) {
+      print(JSON.stringify(this.request.clone()))
       return fetch(this.request.clone())
     }
 
+      print(JSON.stringify(this.request.clone()))
     return timeoutFetch(this.request.clone(), this.abortController, this.options)
   }
 }
