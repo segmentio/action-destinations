@@ -2,8 +2,6 @@ import nock from 'nock'
 import { createTestEvent, createTestIntegration } from '@segment/actions-core'
 import CustomerIO from '../index'
 import { Settings } from '../generated-types'
-import dayjs from '../../../lib/dayjs'
-import { AccountRegion } from '../utils'
 
 const testDestination = createTestIntegration(CustomerIO)
 const trackEventService = nock('https://track.customer.io/api/v1')
@@ -14,12 +12,11 @@ describe('CustomerIO', () => {
       const settings: Settings = {
         siteId: '12345',
         apiKey: 'abcde',
-        accountRegion: AccountRegion.US
+        accountRegionEndpoint: 'https://track.customer.io'
       }
       const userId = 'abc123'
       const name = 'testEvent'
       const type = 'track'
-      const timestamp = dayjs.utc().toISOString()
       const data = {
         property1: 'this is a test'
       }
@@ -28,8 +25,7 @@ describe('CustomerIO', () => {
         event: name,
         type,
         userId,
-        properties: data,
-        timestamp
+        properties: data
       })
       const responses = await testDestination.testAction('trackEvent', { event, settings, useDefaultMappings: true })
 
@@ -43,8 +39,7 @@ describe('CustomerIO', () => {
       expect(responses[0].options.json).toMatchObject({
         name,
         type,
-        data,
-        timestamp: dayjs.utc(timestamp).unix()
+        data
       })
     })
 
@@ -52,12 +47,11 @@ describe('CustomerIO', () => {
       const settings: Settings = {
         siteId: '12345',
         apiKey: 'abcde',
-        accountRegion: AccountRegion.US
+        accountRegionEndpoint: 'https://track.customer.io'
       }
       const anonymousId = 'anonymous123'
       const name = 'test event'
       const type = 'track'
-      const timestamp = dayjs.utc().toISOString()
       const data = {
         property1: 'this is a test'
       }
@@ -67,8 +61,7 @@ describe('CustomerIO', () => {
         type,
         anonymousId,
         properties: data,
-        userId: undefined,
-        timestamp
+        userId: undefined
       })
 
       const responses = await testDestination.testAction('trackEvent', { event, settings, useDefaultMappings: true })
@@ -80,8 +73,7 @@ describe('CustomerIO', () => {
         name,
         type,
         data,
-        anonymous_id: anonymousId,
-        timestamp: dayjs.utc(timestamp).unix()
+        anonymous_id: anonymousId
       })
     })
 
@@ -89,10 +81,9 @@ describe('CustomerIO', () => {
       const settings: Settings = {
         siteId: '12345',
         apiKey: 'abcde',
-        accountRegion: AccountRegion.US
+        accountRegionEndpoint: 'https://track.customer.io'
       }
       const type = 'track'
-      const timestamp = dayjs.utc().toISOString()
       const data = {
         property1: 'this is a test'
       }
@@ -102,8 +93,7 @@ describe('CustomerIO', () => {
         type,
         properties: data,
         anonymousId: undefined,
-        userId: undefined,
-        timestamp
+        userId: undefined
       })
 
       try {
@@ -114,62 +104,16 @@ describe('CustomerIO', () => {
       }
     })
 
-    it('should not convert tiemstamp to a unix timestamp when convert_timestamp is false', async () => {
-      const settings: Settings = {
-        siteId: '12345',
-        apiKey: 'abcde',
-        accountRegion: AccountRegion.US
-      }
-      const userId = 'abc123'
-      const name = 'testEvent'
-      const type = 'track'
-      const timestamp = dayjs.utc().toISOString()
-      const data = {
-        property1: 'this is a test'
-      }
-      trackEventService.post(`/customers/${userId}/events`).reply(200, {}, { 'x-customerio-region': 'US' })
-      const event = createTestEvent({
-        event: name,
-        type,
-        userId,
-        properties: data,
-        timestamp
-      })
-      const responses = await testDestination.testAction('trackEvent', {
-        event,
-        settings,
-        useDefaultMappings: true,
-        mapping: {
-          convert_timestamp: false
-        }
-      })
-
-      expect(responses.length).toBe(1)
-      expect(responses[0].status).toBe(200)
-      expect(responses[0].headers.toJSON()).toMatchObject({
-        'x-customerio-region': 'US',
-        'content-type': 'application/json'
-      })
-      expect(responses[0].data).toMatchObject({})
-      expect(responses[0].options.json).toMatchObject({
-        name,
-        type,
-        data,
-        timestamp
-      })
-    })
-
     it('should work with the EU account region', async () => {
       const trackEUEventService = nock('https://track-eu.customer.io/api/v1')
       const settings: Settings = {
         siteId: '12345',
         apiKey: 'abcde',
-        accountRegion: AccountRegion.EU
+        accountRegionEndpoint: 'https://track-eu.customer.io'
       }
       const userId = 'abc123'
       const name = 'testEvent'
       const type = 'track'
-      const timestamp = dayjs.utc().toISOString()
       const data = {
         property1: 'this is a test'
       }
@@ -178,7 +122,6 @@ describe('CustomerIO', () => {
         event: name,
         type,
         userId,
-        timestamp,
         properties: data
       })
       const responses = await testDestination.testAction('trackEvent', { event, settings, useDefaultMappings: true })
@@ -193,8 +136,7 @@ describe('CustomerIO', () => {
       expect(responses[0].options.json).toMatchObject({
         name,
         type,
-        data,
-        timestamp: dayjs.utc(timestamp).unix()
+        data
       })
     })
 
@@ -206,7 +148,6 @@ describe('CustomerIO', () => {
       const userId = 'abc123'
       const name = 'testEvent'
       const type = 'track'
-      const timestamp = dayjs.utc().toISOString()
       const data = {
         property1: 'this is a test'
       }
@@ -215,7 +156,6 @@ describe('CustomerIO', () => {
         event: name,
         type,
         userId,
-        timestamp,
         properties: data
       })
       const responses = await testDestination.testAction('trackEvent', { event, settings, useDefaultMappings: true })
@@ -230,8 +170,7 @@ describe('CustomerIO', () => {
       expect(responses[0].options.json).toMatchObject({
         name,
         type,
-        data,
-        timestamp: dayjs.utc(timestamp).unix()
+        data
       })
     })
   })

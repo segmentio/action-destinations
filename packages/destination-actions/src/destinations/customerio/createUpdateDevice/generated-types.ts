@@ -2,19 +2,19 @@
 
 export interface Payload {
   /**
-   * The ID of the person that this mobile device belongs to
+   * ID of the person that this device belongs to.
    */
   person_id: string
   /**
-   * The device token of a customer's mobile device
+   * Unique ID for this device.
    */
   device_id: string
   /**
-   * The mobile device's platform. ("ios" or "android")
+   * The device platform.
    */
   platform: string
   /**
-   * The timestamp for when the mobile device was last used. Default is current date and time.
+   * Timestamp for when the device was last used. Default is current date and time.
    */
   last_used?: string
   /**

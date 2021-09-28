@@ -3,7 +3,6 @@ import { createTestEvent, createTestIntegration } from '@segment/actions-core'
 import CustomerIO from '../index'
 import { Settings } from '../generated-types'
 import dayjs from '../../../lib/dayjs'
-import { AccountRegion } from '../utils'
 
 const testDestination = createTestIntegration(CustomerIO)
 const trackDeviceService = nock('https://track.customer.io/api/v1')
@@ -14,14 +13,14 @@ describe('CustomerIO', () => {
       const settings: Settings = {
         siteId: '12345',
         apiKey: 'abcde',
-        accountRegion: AccountRegion.US
+        accountRegionEndpoint: 'https://track.customer.io'
       }
       const userId = 'abc123'
       const anonymousId = 'unknown_123'
       const timestamp = dayjs.utc().toISOString()
       const traits = {
         full_name: 'Test User',
-        email: 'test@example.com'
+        userId: 'test@example.com'
       }
       trackDeviceService.put(`/customers/${userId}`).reply(200, {}, { 'x-customerio-region': 'US' })
       const event = createTestEvent({
@@ -45,7 +44,7 @@ describe('CustomerIO', () => {
       expect(responses[0].data).toMatchObject({})
       expect(responses[0].options.json).toMatchObject({
         ...traits,
-        email: traits.email,
+        email: traits.userId,
         created_at: dayjs.utc(timestamp).unix(),
         anonymous_id: anonymousId
       })
@@ -55,14 +54,14 @@ describe('CustomerIO', () => {
       const settings: Settings = {
         siteId: '12345',
         apiKey: 'abcde',
-        accountRegion: AccountRegion.US
+        accountRegionEndpoint: 'https://track.customer.io'
       }
       const userId = 'abc123'
       const anonymousId = 'unknown_123'
       const timestamp = dayjs.utc().toISOString()
       const traits = {
         full_name: 'Test User',
-        email: 'test@example.com'
+        userId: 'test@example.com'
       }
       trackDeviceService.put(`/customers/${userId}`).reply(200, {})
       const event = createTestEvent({
@@ -85,7 +84,7 @@ describe('CustomerIO', () => {
       expect(responses[0].data).toMatchObject({})
       expect(responses[0].options.json).toMatchObject({
         ...traits,
-        email: traits.email,
+        email: traits.userId,
         created_at: timestamp,
         anonymous_id: anonymousId
       })
@@ -96,14 +95,14 @@ describe('CustomerIO', () => {
       const settings: Settings = {
         siteId: '12345',
         apiKey: 'abcde',
-        accountRegion: AccountRegion.EU
+        accountRegionEndpoint: 'https://track-eu.customer.io'
       }
       const userId = 'abc123'
       const anonymousId = 'unknown_123'
       const timestamp = dayjs.utc().toISOString()
       const traits = {
         full_name: 'Test User',
-        email: 'test@example.com'
+        userId: 'test@example.com'
       }
       trackEUDeviceService.put(`/customers/${userId}`).reply(200, {}, { 'x-customerio-region': 'EU' })
       const event = createTestEvent({
@@ -127,7 +126,7 @@ describe('CustomerIO', () => {
       expect(responses[0].data).toMatchObject({})
       expect(responses[0].options.json).toMatchObject({
         ...traits,
-        email: traits.email,
+        email: traits.userId,
         created_at: dayjs.utc(timestamp).unix(),
         anonymous_id: anonymousId
       })
@@ -143,7 +142,7 @@ describe('CustomerIO', () => {
       const timestamp = dayjs.utc().toISOString()
       const traits = {
         full_name: 'Test User',
-        email: 'test@example.com'
+        userId: 'test@example.com'
       }
       trackDeviceService.put(`/customers/${userId}`).reply(200, {}, { 'x-customerio-region': 'US-fallback' })
       const event = createTestEvent({
@@ -167,7 +166,7 @@ describe('CustomerIO', () => {
       expect(responses[0].data).toMatchObject({})
       expect(responses[0].options.json).toMatchObject({
         ...traits,
-        email: traits.email,
+        email: traits.userId,
         created_at: dayjs.utc(timestamp).unix(),
         anonymous_id: anonymousId
       })

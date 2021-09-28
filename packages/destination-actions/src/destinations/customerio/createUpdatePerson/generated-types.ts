@@ -2,23 +2,23 @@
 
 export interface Payload {
   /**
-   * The ID used to uniquely identify a person in Customer.io. [Learn more](https://customer.io/docs/identifying-people/#identifiers).
+   * ID used to uniquely identify person in Customer.io.
    */
   id: string
   /**
-   * An anonymous ID for when no Person ID exists. [Learn more](https://customer.io/docs/anonymous-events/).
+   * Anonymous ID to uniquely identify person in Customer.io.
    */
   anonymous_id?: string
   /**
-   * The person's email address.
+   * Person's email address.
    */
-  email?: string
+  email: string
   /**
-   * A timestamp of when the person was created. Default is current date and time.
+   * Timestamp for when the person was created. Default is current date and time.
    */
   created_at?: string
   /**
-   * Optional attributes for the person. When updating a person, attributes are added or updated, not removed.
+   * Optional custom attributes for this person. When updating a person, attributes are added and not removed.
    */
   custom_attributes?: {
     [k: string]: unknown
