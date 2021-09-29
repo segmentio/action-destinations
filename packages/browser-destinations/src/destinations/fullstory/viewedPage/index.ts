@@ -18,22 +18,17 @@ const action: BrowserActionDefinition<Settings, typeof FullStory, Payload> = {
   defaultSubscription: 'type = "page"',
   platform: 'web',
   fields: {
-    name: {
+    pageName: {
       type: 'string',
       required: false,
       description: 'The name of the page that was viewed.',
-      label: 'Name',
+      label: 'Page Name',
       default: {
-        '@path': '$.name'
-      }
-    },
-    category: {
-      type: 'string',
-      required: false,
-      description: 'The category of the page that was viewed.',
-      label: 'Category',
-      default: {
-        '@path': '$.category'
+        '@if': {
+          exists: { '@path': '$.category' },
+          then: { '@path': '$.category' },
+          else: { '@path': '$.name' }
+        }
       }
     },
     properties: {
@@ -47,10 +42,8 @@ const action: BrowserActionDefinition<Settings, typeof FullStory, Payload> = {
     }
   },
   perform: (_, event) => {
-    if (event.payload.category && event.payload.name) {
-      window.FS.setVars('page', { pageName: event.payload.category + event.payload.name, ...event.payload.properties })
-    } else if (event.payload.name) {
-      window.FS.setVars('page', { pageName: event.payload.name, ...event.payload.properties })
+    if (event.payload.pageName) {
+      window.FS.setVars('page', { pageName: event.payload.pageName, ...event.payload.properties })
     } else {
       window.FS.setVars('page', event.payload.properties || {})
     }

@@ -185,6 +185,10 @@ const action: ActionDefinition<Settings, Payload> = {
     const properties = rest as AmplitudeEvent
     let options
 
+    if (properties.platform) {
+      properties.platform = properties.platform.replace(/ios/i, 'iOS').replace(/android/i, 'Android')
+    }
+
     if (time && dayjs.utc(time).isValid()) {
       properties.time = dayjs.utc(time).valueOf()
     }

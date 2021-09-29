@@ -16,6 +16,8 @@ export type Condition =
 	| EventPropertyCondition
 	| EventTraitCondition
 	| EventContextCondition
+	| EventUserIdCondition
+	| EventNameCondition
 
 export type GroupConditionOperator = 'and' | 'or'
 
@@ -27,6 +29,18 @@ export interface EventTypeCondition {
 
 export interface EventCondition {
 	type: 'event'
+	operator: Operator
+	value?: string
+}
+
+export interface EventUserIdCondition {
+	type: 'userId'
+	operator: Operator
+	value?: string
+}
+
+export interface EventNameCondition {
+	type: 'name'
 	operator: Operator
 	value?: string
 }
@@ -75,5 +89,7 @@ export type ConditionType =
 	| 'event-property'
 	| 'event-trait'
 	| 'event-context'
+	| 'name'
+	| 'userId'
 
 export type PropertyConditionType = 'event-property' | 'event-context'

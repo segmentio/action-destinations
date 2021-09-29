@@ -111,6 +111,7 @@ for (const environment of ['stage', 'production']) {
         settings,
         mapping: {
           userId: { '@path': '$.userId' },
+          fromDomain: null,
           fromEmail: 'from@example.com',
           fromName: 'From Name',
           replyToEmail: 'replyto@example.com',
@@ -142,6 +143,7 @@ for (const environment of ['stage', 'production']) {
         settings,
         mapping: {
           userId: { '@path': '$.userId' },
+          fromDomain: null,
           fromEmail: 'from@example.com',
           fromName: 'From Name',
           replyToEmail: 'replyto@example.com',
@@ -173,6 +175,7 @@ for (const environment of ['stage', 'production']) {
         settings,
         mapping: {
           userId: { '@path': '$.userId' },
+          fromDomain: null,
           fromEmail: 'from@example.com',
           fromName: 'From Name',
           replyToEmail: 'replyto@example.com',
@@ -248,6 +251,7 @@ for (const environment of ['stage', 'production']) {
         settings,
         mapping: {
           userId: { '@path': '$.userId' },
+          fromDomain: null,
           fromEmail: 'from@example.com',
           fromName: 'From Name',
           replyToEmail: 'replyto@example.com',
