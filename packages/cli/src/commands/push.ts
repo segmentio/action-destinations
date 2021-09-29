@@ -341,7 +341,7 @@ function definitionToJson(definition: DestinationDefinition) {
 }
 
 function getBasicOptions(metadata: DestinationMetadata, options: DestinationMetadataOptions): string[] {
-  return uniq([...metadata.basicOptions, ...Object.keys(options)])
+  return uniq([...Object.keys(options), ...metadata.basicOptions])
 }
 
 // Note: exporting for testing purposes only
