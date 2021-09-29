@@ -3,7 +3,7 @@ import { action_source, event_time, event_id, event_source_url } from '../fb-cap
 import { user_data_field, hash_user_data } from '../fb-capi-user-data'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
-
+import { API_VERSION } from '../constants'
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Page View',
   description: 'Send a page view event to FB',
@@ -30,7 +30,7 @@ const action: ActionDefinition<Settings, Payload> = {
         400
       )
     }
-    return request(`https://graph.facebook.com/v11.0/${settings.pixelId}/events?access_token=${TOKEN}`, {
+    return request(`https://graph.facebook.com/v${API_VERSION}/${settings.pixelId}/events?access_token=${TOKEN}`, {
       method: 'POST',
       json: {
         data: [

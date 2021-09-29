@@ -6,8 +6,18 @@ const testDestination = createTestIntegration(Destination)
 
 const settings = {
   pixelId: '123321',
-  token: process.env.TOKEN
+  token: 'EAAtest'
 }
+
+describe('authentication', () => {
+  it('should validate authentication inputs', async () => {
+    nock(`https://graph.facebook.com/v11.0/${settings.pixelId}`)
+      .get(`/events?access_token=${settings.token}`)
+      .reply(201, {})
+
+    await expect(testDestination.testAuthentication(settings)).resolves.not.toThrowError()
+  })
+})
 
 describe('purchase', () => {
   it('should handle a basic event', async () => {

@@ -105,7 +105,7 @@ describe('FacebookConversionsApi', () => {
       const event = createTestEvent({
         event: 'Product Added',
         properties: {
-          userId: 'testuser1234',
+          userId: ['testuser1234'],
           action_source: 'email',
           timestamp: '1631210020',
           currency: 'USD',

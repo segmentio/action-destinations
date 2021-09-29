@@ -12,7 +12,8 @@ export const user_data_field: InputField = {
     externalId: {
       label: 'External ID',
       description: 'Any unique ID from the advertiser, such as loyalty membership IDs, user IDs, and external cookie IDs. You can send one or more external IDs for a given event.',
-      type: 'string'
+      type: 'string',
+      multiple: true
     },
     email: {
       label: 'Email',
@@ -71,7 +72,7 @@ export const user_data_field: InputField = {
     },
     client_user_agent: {
       label: 'Client User Agent',
-      description: 'The user agent for the browser corresponding to the event.',
+      description: 'The user agent for the browser corresponding to the event. client_user_agent is required if action_source = “website”; however it is strongly recommended that you include it for any action_source.',
       type: 'string'
     },
     fbc: {
@@ -147,82 +148,7 @@ export const user_data_field: InputField = {
   }
 }
 
-interface UserData {
-  /**
-   * User Email
-   */
-  email?: string
-  /**
-   * User phone number
-   */
-  phone?: string
-  /**
-   * User gender
-   */
-  gender?: string
-  /**
-   * Date of Birth
-   */
-  dateOfBirth?: string
-  /**
-   * Last Name
-   */
-  lastName?: string
-  /**
-   * First Name
-   */
-  firstName?: string
-  /**
-   * City
-   */
-  city?: string
-  /**
-   * State
-   */
-  state?: string
-  /**
-   * Zip Code
-   */
-  zip?: string
-  /**
-   * Country
-   */
-  country?: string
-  /**
-   * External ID
-   */
-  externalId?: string
-  /**
-   * Client IP Address
-   */
-  client_ip_address?: string
-  /**
-   * Client User Agent
-   */
-  client_user_agent?: string
-  /**
-   * Click ID
-   */
-  clickID?: string
-  /**
-   * Browser ID
-   */
-  browserID?: string
-  /**
-   * Subscription ID
-   */
-  subscriptionID?: string
-  /**
-   * Lead ID
-   */
-  leadID?: string
-  /**
-   * Facebook Login ID
-   */
-  fbLoginID?: string
-}
-
-const hash = (value: string | undefined) => {
+const hash = (value: string | undefined): string | undefined => {
   if (value === undefined) return
 
   const hash = createHash('sha256')
@@ -230,25 +156,111 @@ const hash = (value: string | undefined) => {
   return hash.digest('hex')
 }
 
+const hash_array = (value: (string | undefined)[] | undefined) => {
+  if (value === undefined) return
+
+  value.forEach((item, index) => {
+    if (item !== undefined) {
+      value[index] = hash(item)
+    }
+  })
+}
+
 export const hash_user_data = (user_data: UserData): Object => {
   return {
-    em: hash(user_data.email),
-    ph: hash(user_data.phone),
-    ge: hash(user_data.gender),
-    db: hash(user_data.dateOfBirth),
-    ln: hash(user_data.lastName),
-    fn: hash(user_data.firstName),
-    ct: hash(user_data.city),
-    st: hash(user_data.state),
-    zp: hash(user_data.zip),
-    country: hash(user_data.country),
-    external_id: hash(user_data.externalId), // Hashing this is recommended but not required.
-    client_ip_address: user_data.client_ip_address,
-    client_user_agent: user_data.client_user_agent,
-    fbc: user_data.clickID,
-    fbp: user_data.browserID,
-    subscription_id: user_data.subscriptionID,
-    lead_id: user_data.leadID,
-    fb_login_id: user_data.fbLoginID
+    em: hash(user_data?.email),
+    ph: hash(user_data?.phone),
+    ge: hash(user_data?.gender),
+    db: hash(user_data?.dateOfBirth),
+    ln: hash(user_data?.lastName),
+    fn: hash(user_data?.firstName),
+    ct: hash(user_data?.city),
+    st: hash(user_data?.state),
+    zp: hash(user_data?.zip),
+    country: hash(user_data?.country),
+    external_id: hash_array(user_data?.externalId), // Hashing this is recommended but not required.
+    client_ip_address: user_data?.client_ip_address,
+    client_user_agent: user_data?.client_user_agent,
+    fbc: user_data?.fbc,
+    fbp: user_data?.fbp,
+    subscription_id: user_data?.subscriptionID,
+    lead_id: user_data?.leadID,
+    fb_login_id: user_data?.fbLoginID
   }
+}
+
+// Copy of the user_data subfield in the generated-types
+interface UserData {
+      /**
+     * Any unique ID from the advertiser, such as loyalty membership IDs, user IDs, and external cookie IDs. You can send one or more external IDs for a given event.
+     */
+       externalId?: string[]
+       /**
+        * An email address, in lowercase. Example: joe@eg.com
+        */
+       email?: string
+       /**
+        * A phone number. Include only digits with country code, area code, and number. Remove symbols, letters, and any leading zeros. In addition, always include the country code as part of the customer phone number, even if all of the data is from the same country, as the country code is used for matching.
+        */
+       phone?: string
+       /**
+        * Gender, in lowercase. Either f or m.
+        */
+       gender?: string
+       /**
+        * A date of birth given as year, month, and day. Example: 19971226 for December 26, 1997.
+        */
+       dateOfBirth?: string
+       /**
+        * A last name in lowercase.
+        */
+       lastName?: string
+       /**
+        * A first name in lowercase.
+        */
+       firstName?: string
+       /**
+        * A city in lower-case without spaces or punctuation. Example: menlopark.
+        */
+       city?: string
+       /**
+        * A two-letter state code in lowercase. Example: ca.
+        */
+       state?: string
+       /**
+        * If you are in the United States, this is a five-digit zip code. For other locations, follow each country`s standards. Example: 94035 (for United States)
+        */
+       zip?: string
+       /**
+        * A two-letter country code in lowercase.
+        */
+       country?: string
+       /**
+        * The IP address of the browser corresponding to the event.
+        */
+       client_ip_address?: string
+       /**
+        * The user agent for the browser corresponding to the event.
+        */
+       client_user_agent?: string
+       /**
+        * The Facebook click ID value stored in the _fbc browser cookie under your domain.
+        */
+       fbc?: string
+       /**
+        * The Facebook browser ID value stored in the _fbp browser cookie under your domain.
+        */
+       fbp?: string
+       /**
+        * The subscription ID for the user in this transaction.
+        */
+       subscriptionID?: string
+       /**
+        * ID associated with a lead generated by Facebook`s Lead Ads.
+        */
+       leadID?: string
+       /**
+        * ID issued by Facebook when a person first logs into an instance of an app.
+        */
+       fbLoginID?: string
 }

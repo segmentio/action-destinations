@@ -89,7 +89,7 @@ export const action_source: InputField = {
 
 export const event_source_url: InputField = {
   label: 'Event Source URL',
-  description: 'The browser URL where the event happened. The URL must begin with http:// or https:// and should match the verified domain.',
+  description: 'The browser URL where the event happened. The URL must begin with http:// or https:// and should match the verified domain. event_source_url is required if action_source = “website”; however it is strongly recommended that you include it for any action_source.',
   type: 'string',
   default: {
     '@path': '$.context.page.url'

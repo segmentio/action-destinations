@@ -1,7 +1,7 @@
 import { ActionDefinition, IntegrationError } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
-import { CURRENCY_ISO_CODES } from '../constants'
+import { CURRENCY_ISO_CODES, API_VERSION } from '../constants'
 import { currency, value, contents, content_ids, event_time, action_source, content_category, event_id, event_source_url } from '../fb-capi-properties'
 import { user_data_field, hash_user_data } from '../fb-capi-user-data'
 
@@ -53,7 +53,7 @@ const action: ActionDefinition<Settings, Payload> = {
       )
     }
     
-    return request(`https://graph.facebook.com/v11.0/${settings.pixelId}/events?access_token=${TOKEN}`, {
+    return request(`https://graph.facebook.com/v${API_VERSION}/${settings.pixelId}/events?access_token=${TOKEN}`, {
       method: 'POST',
       json: {
         data: [

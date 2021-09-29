@@ -6,6 +6,7 @@ import addToCart from './addToCart'
 import viewContent from './viewContent'
 import search from './search'
 import pageView from './pageView'
+import { API_VERSION } from './constants'
 
 const destination: DestinationDefinition<Settings> = {
   name: 'Actions Facebook Conversions',
@@ -26,6 +27,12 @@ const destination: DestinationDefinition<Settings> = {
         description: 'Access Token',
         type: 'string'
       }
+    },
+    testAuthentication: async (request, { settings }) => {
+      const res = await request(`https://graph.facebook.com/v${API_VERSION}/${settings.pixelId}/events?access_token=${settings.token}`, {
+        method: 'GET'
+      })
+      return res.status === 200
     }
   },
   actions: {
