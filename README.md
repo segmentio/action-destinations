@@ -1,8 +1,15 @@
 # Action Destinations
 
-Action Destinations are a way to build streaming destinations on Segment.
+Action Destinations are a way to build streaming destinations on Segment. To begin, follow the instructions in Get Started below.
 
-## Local Development
+Fore more detailed instruction, see the following READMEs:
+
+- Create a Destination Action
+- [Troubleshooting](./packages/docs/testing.md)
+
+## Get started
+
+### Local development
 
 This project is a monorepo with multiple packages using Yarn Workspaces:
 
@@ -22,7 +29,7 @@ yarn bootstrap
 yarn test
 ```
 
-## Actions CLI
+### Actions CLI
 
 In order to run the CLI (`./bin/run`), your current working directory needs to be the root of the `action-destinations` repository.
 
@@ -45,15 +52,15 @@ In order to run the CLI (`./bin/run`), your current working directory needs to b
 
 For specific information about each CLI command, please refer to this [README](https://github.com/segmentio/action-destinations/tree/main/packages/cli).
 
-### Troubleshooting CLI
+#### Troubleshooting CLI
 
 If a CLI command fails to work properly, run the command with `DEBUG=*` at the beginning (e.g. `DEBUG=* ./bin/run serve`). This will produce a verbose debugging output, providing hints as to why something isn't working as expected. All of the CLI commands are also in the `./packages/cli/src/commands` directory if you need to inspect them further.
 
-## Testing
+### Testing
 
 Refer [here](./packages/docs/testing.md) for more information about testing your destination actions.
 
-## Configuring
+### Configuring
 
 Action destinations are configured using a single Destination setting (`subscriptions`) that should contain a JSON blob of all subscriptions for the destination. The format should look like this:
 
