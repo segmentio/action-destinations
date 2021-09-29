@@ -395,6 +395,9 @@ export function getOptions(
       }
     }
 
+    // Remove the previous entry if it exists so we can respect the order of keys as defined in the repo
+    delete options[fieldKey]
+
     options[fieldKey] = {
       default: schema.default ?? '',
       description: schema.description,
