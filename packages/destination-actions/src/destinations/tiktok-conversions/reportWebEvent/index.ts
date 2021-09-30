@@ -38,10 +38,12 @@ const action: ActionDefinition<Settings, Payload> = {
     }
   },
   perform: (request, { payload, settings }) => {
-    const eventId = payload.event_id ? payload.event_id.toString() + (Math.random() + 1).toString(36).substring(7) : ''
+    const eventId = payload.event_id
+      ? payload.event_id.toString() + '_' + (Math.random() + 1).toString(36).substring(7)
+      : ''
     const event = mapper.mapEvents(payload)
 
-    // Make your partner api request here!
+    // Request to tiktok Events Web API
     return request('https://ads.tiktok.com/open_api/v1.2/pixel/track/', {
       method: 'post',
       headers: {
