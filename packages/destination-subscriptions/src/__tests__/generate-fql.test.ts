@@ -43,11 +43,17 @@ test('should handle ast with multiple childs (or condition)', () => {
 				type: 'event-type',
 				operator: '=',
 				value: 'identify'
+			},
+			{
+				type: 'userId',
+				operator: 'exists'
 			}
 		]
 	}
 
-	expect(generateFql(ast)).toEqual('type = "track" or type = "identify"')
+	expect(generateFql(ast)).toEqual(
+		'type = "track" or type = "identify" or userId != null'
+	)
 })
 
 test('should handle ast with multiple childs (and condition)', () => {

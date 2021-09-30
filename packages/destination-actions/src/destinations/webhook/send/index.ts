@@ -41,6 +41,15 @@ const action: ActionDefinition<Settings, Payload> = {
       method: payload.method as RequestMethod,
       json: payload.data
     })
+  },
+  performBatch: (request, { payload }) => {
+    // Expect these to be the same across the payloads
+    const { url, method } = payload[0]
+
+    return request(url, {
+      method: method as RequestMethod,
+      json: payload.map(({ data }) => data)
+    })
   }
 }
 

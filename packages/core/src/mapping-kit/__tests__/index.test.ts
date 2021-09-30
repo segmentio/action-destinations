@@ -48,9 +48,11 @@ describe('validations', () => {
 describe('payload validations', () => {
   test('invalid type', () => {
     expect(() => {
+      // @ts-expect-error
       transform({ a: 1 }, 123)
     }).toThrowError()
     expect(() => {
+      // @ts-expect-error
       transform({ a: 1 }, [])
     }).toThrowError()
   })
@@ -170,6 +172,34 @@ describe('@path', () => {
     expect(() => {
       transform({ neat: { '@path': {} } }, { foo: 'bar' })
     }).toThrowError()
+  })
+
+  test('spaced nested value', () => {
+    const output = transform(
+      { neat: { '@path': '$.integrations.Actions Amplitude.session_id' } },
+      {
+        integrations: {
+          'Actions Amplitude': {
+            session_id: 'bar'
+          }
+        }
+      }
+    )
+    expect(output).toStrictEqual({ neat: 'bar' })
+  })
+
+  test('invalid bracket-spaced nested value', () => {
+    const output = transform(
+      { neat: { '@path': "$.integrations['Actions Amplitude'].session_id" } },
+      {
+        integrations: {
+          'Actions Amplitude': {
+            session_id: 'bar'
+          }
+        }
+      }
+    )
+    expect(output).toStrictEqual({})
   })
 
   test('invalid nested value type', () => {

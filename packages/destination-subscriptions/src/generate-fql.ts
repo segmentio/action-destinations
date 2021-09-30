@@ -6,6 +6,8 @@ import {
 	EventPropertyCondition,
 	EventTraitCondition,
 	EventContextCondition,
+	EventUserIdCondition,
+	EventNameCondition,
 	Operator,
 	ErrorCondition
 } from './types'
@@ -71,12 +73,16 @@ const stringifyChildNode = (
 		| EventPropertyCondition
 		| EventTraitCondition
 		| EventContextCondition
+		| EventUserIdCondition
+		| EventNameCondition
 ): string => {
 	let result = ''
 
 	switch (node.type) {
+		case 'name':
+		case 'userId':
 		case 'event': {
-			result += fqlExpression('event', node.operator, node.value)
+			result += fqlExpression(node.type, node.operator, node.value)
 			break
 		}
 

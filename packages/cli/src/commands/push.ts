@@ -170,6 +170,21 @@ export default class Push extends Command {
           }
         })
 
+        // Automatically include a field for customers to control batching behavior, when supported
+        if (typeof action.performBatch === 'function') {
+          fields.push({
+            fieldKey: 'enable_batching',
+            type: 'boolean',
+            label: 'Enable Batching?',
+            description: 'When enabled, Segment will send events in batches.',
+            defaultValue: false,
+            required: false,
+            multiple: false,
+            dynamic: false,
+            allowNull: false
+          })
+        }
+
         const base: BaseActionInput = {
           slug: actionKey,
           name: action.title ?? 'Unnamed Action',
@@ -326,7 +341,7 @@ function definitionToJson(definition: DestinationDefinition) {
 }
 
 function getBasicOptions(metadata: DestinationMetadata, options: DestinationMetadataOptions): string[] {
-  return uniq([...metadata.basicOptions, ...Object.keys(options)])
+  return uniq([...Object.keys(options), ...metadata.basicOptions])
 }
 
 // Note: exporting for testing purposes only
@@ -379,6 +394,9 @@ export function getOptions(
         throw new Error(`All choices must have a value that matches the 'type' for this field.`)
       }
     }
+
+    // Remove the previous entry if it exists so we can respect the order of keys as defined in the repo
+    delete options[fieldKey]
 
     options[fieldKey] = {
       default: schema.default ?? '',

@@ -34,11 +34,17 @@ ajv.addFormat('date-like', (data: string) => {
   return date.isValid()
 })
 
+interface ValidationOptions {
+  schemaKey?: string
+  throwIfInvalid?: boolean
+}
+
 /**
  * Validates an object against a json schema
  * and caches the schema for subsequent validations when a key is provided
  */
-export function validateSchema(obj: unknown, schema: object, schemaKey?: string) {
+export function validateSchema(obj: unknown, schema: object, options?: ValidationOptions) {
+  const { schemaKey, throwIfInvalid = true } = options ?? {}
   let validate: Ajv.ValidateFunction
 
   if (schemaKey) {
@@ -48,8 +54,12 @@ export function validateSchema(obj: unknown, schema: object, schemaKey?: string)
     validate = ajv.compile(schema)
   }
 
-  if (!validate(obj)) {
+  const isValid = validate(obj) as boolean
+
+  if (throwIfInvalid && !isValid) {
     // eslint-disable-next-line @typescript-eslint/no-unsafe-call
     throw new AggregateAjvError(validate.errors)
   }
+
+  return isValid
 }

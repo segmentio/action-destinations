@@ -2,6 +2,7 @@ import dayjs from '../../../lib/dayjs'
 import type { ActionDefinition } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
+import { trackApiEndpoint } from '../utils'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Create or Update Device',
@@ -43,20 +44,35 @@ const action: ActionDefinition<Settings, Payload> = {
       default: {
         '@path': '$.timestamp'
       }
+    },
+    convert_timestamp: {
+      label: 'Convert timestamps',
+      description: 'Convert `last_used` to a Unix timestamp (seconds since Epoch).',
+      type: 'boolean',
+      default: true
     }
   },
 
-  perform: (request, { payload }) => {
-    return request(`https://track.customer.io/api/v1/customers/${payload.person_id}/devices`, {
-      method: 'put',
-      json: {
-        device: {
-          id: payload.device_id,
-          platform: payload.platform,
-          last_used: payload.last_used ? dayjs.utc(payload.last_used).format('X') : undefined
+  perform: (request, { settings, payload }) => {
+    let lastUsed: string | number | undefined = payload.last_used
+
+    if (lastUsed && payload.convert_timestamp !== false) {
+      lastUsed = dayjs.utc(lastUsed).unix()
+    }
+
+    return request(
+      `${trackApiEndpoint(settings.accountRegionEndpoint)}/api/v1/customers/${payload.person_id}/devices`,
+      {
+        method: 'put',
+        json: {
+          device: {
+            id: payload.device_id,
+            platform: payload.platform,
+            last_used: lastUsed
+          }
         }
       }
-    })
+    )
   }
 }
 

@@ -14,67 +14,38 @@ declare global {
 // Change from unknown to the partner SDK types
 const action: BrowserActionDefinition<Settings, typeof FullStory, Payload> = {
   title: 'Viewed Page',
-  description: 'Page events',
+  description: 'Sets page properties events',
   defaultSubscription: 'type = "page"',
   platform: 'web',
   fields: {
-    name: {
+    pageName: {
       type: 'string',
       required: false,
       description: 'The name of the page that was viewed.',
-      label: 'name',
+      label: 'Page Name',
       default: {
-        '@path': '$.name'
-      }
-    },
-    category: {
-      type: 'string',
-      required: false,
-      description: 'The category of the page that was viewed.',
-      label: 'name',
-      default: {
-        '@path': '$.category'
+        '@if': {
+          exists: { '@path': '$.category' },
+          then: { '@path': '$.category' },
+          else: { '@path': '$.name' }
+        }
       }
     },
     properties: {
       type: 'object',
       required: false,
       description: 'The properties of the page that was viewed.',
-      label: 'properties',
+      label: 'Properties',
       default: {
         '@path': '$.properties'
       }
     }
   },
-  perform: (client, event) => {
-    //  * Get the page fullName. This is `$category $name` if both are present, and
-    // * just `name` otherwiser.
-    const name =
-      event.payload.name && event.payload.category
-        ? event.payload.category + ' ' + event.payload.name
-        : event.payload.name
-
-    if (name && event.settings.trackNamedPages) {
-      // named pages
-      if (event.settings.trackPagesWithEvents) {
-        client.event(`Viewed ${name} Page`, event.payload.properties || {})
-      }
-
-      window.FS.setVars('page', { pageName: name, ...event.payload.properties })
-    } else if (event.payload.category && event.settings.trackCategorizedPages) {
-      // categorized pages
-      if (event.settings.trackPagesWithEvents) {
-        client.event(`Viewed ${event.payload.category} Page`, event.payload.properties || {})
-      }
-
-      window.FS.setVars('page', { pageName: event.payload.category, ...event.payload.properties })
-    } else if (event.settings.trackAllPages) {
-      // all pages
-      if (event.settings.trackPagesWithEvents) {
-        client.event('Loaded a Page', event.payload.properties || {})
-      }
-
-      window.FS.setVars('page', event.payload.properties || {})
+  perform: (_, event) => {
+    if (event.payload.pageName) {
+      window.FS.setVars('page', { pageName: event.payload.pageName, ...event.payload.properties })
+    } else if (event.payload.properties) {
+      window.FS.setVars('page', event.payload.properties)
     }
   }
 }

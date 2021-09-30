@@ -109,16 +109,18 @@ function resolve(mapping: JSONLike, payload: JSONObject): JSONLike {
   return mapping
 }
 
+export type InputData = { [key: string]: unknown }
+
 /**
  * Validates and transforms a mapping by applying the input payload
  * based on the directives and raw values defined in the mapping object
  * @param mapping - the directives and raw values
  * @param data - the input data to apply to directives
  */
-export function transform(mapping: JSONLikeObject, data: unknown = {}): JSONObject {
+export function transform(mapping: JSONLikeObject, data: InputData | undefined = {}): JSONObject {
   const realType = realTypeOf(data)
   if (realType !== 'object') {
-    throw new Error(`payload must be an object, got ${realType}`)
+    throw new Error(`data must be an object, got ${realType}`)
   }
 
   // throws if the mapping config is invalid
@@ -130,6 +132,31 @@ export function transform(mapping: JSONLikeObject, data: unknown = {}): JSONObje
 
   // Cast because we know there are no `undefined` values anymore
   return cleaned as JSONObject
+}
+
+/**
+ * Validates and transforms a mapping across multiple payloads
+ * @param mapping - the directives and raw values
+ * @param data - the array input data to apply to directives
+ */
+export function transformBatch(mapping: JSONLikeObject, data: Array<InputData> | undefined = []): JSONObject[] {
+  const realType = realTypeOf(data)
+  if (!isArray(data)) {
+    throw new Error(`data must be an array, got ${realType}`)
+  }
+
+  // throws if the mapping config is invalid
+  validate(mapping)
+
+  return removeUndefined(
+    data.map((d) => {
+      const cloned = cloneJson(mapping)
+      const resolved = resolve(cloned, d as JSONObject)
+
+      return resolved
+      // Cast because we know there are no `undefined` values after `removeUndefined`
+    })
+  ) as JSONObject[]
 }
 
 function cloneJson<T>(obj: T): T {
