@@ -73,8 +73,12 @@ const destination: DestinationDefinition<Settings> = {
       }
     },
     testAuthentication: (request, { settings }) => {
-      return request(`https://mixpanel.com/api/2.0/credentials/validate?project_token=${settings.projectToken}`, {
-        username: settings.apiSecret
+      return request(`https://mixpanel.com/app/api/validate-project-token/`, {
+        method: 'post',
+        body: JSON.stringify({
+          api_secret: settings.apiSecret,
+          project_token: settings.projectToken
+        })
       })
     }
   },
