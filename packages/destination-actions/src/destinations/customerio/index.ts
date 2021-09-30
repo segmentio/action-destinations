@@ -1,6 +1,6 @@
 import { defaultValues } from '@segment/actions-core'
 import trackApplicationInstalledOrOpened from './trackApplicationInstalledOrOpened'
-import trackApplicationUninstalled from './trackApplicationUninstalled'
+import deleteDevice from './deleteDevice'
 import createUpdatePerson from './createUpdatePerson'
 import trackEvent from './trackEvent'
 import trackPageView from './trackPageView'
@@ -51,7 +51,7 @@ const destination: DestinationDefinition<Settings> = {
 
   actions: {
     trackApplicationInstalledOrOpened,
-    trackApplicationUninstalled,
+    deleteDevice,
     createUpdatePerson,
     trackEvent,
     trackPageView
@@ -73,8 +73,8 @@ const destination: DestinationDefinition<Settings> = {
     {
       name: 'Track Application Uninstalled Event',
       subscribe: 'type = "track" and event = "Application Uninstalled"',
-      partnerAction: 'trackApplicationUninstalled',
-      mapping: defaultValues(trackApplicationUninstalled.fields)
+      partnerAction: 'deleteDevice',
+      mapping: defaultValues(deleteDevice.fields)
     },
     {
       name: 'Track Event',
