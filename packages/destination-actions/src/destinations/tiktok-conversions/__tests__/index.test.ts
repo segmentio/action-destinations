@@ -5,7 +5,7 @@ import { Settings } from '../generated-types'
 
 const testDestination = createTestIntegration(Definition)
 const timestamp = '2021-09-2T15:21:15.449Z'
-const webEventService = nock('https://your.https://ads.tiktok.com/open_api/v1.2')
+// const webEventService = nock('https://ads.tiktok.com/open_api/v1.2')
 
 describe('Tiktok Conversions', () => {
   describe('reportWebEvent', () => {
@@ -19,17 +19,20 @@ describe('Tiktok Conversions', () => {
 
       const event = createTestEvent({
         timestamp: timestamp,
-        event: 'Checkout Started'
+        event: 'Checkout Started',
+        messageId: 'corey123',
+        type: 'track'
       })
 
-      webEventService.post('/pixel/track').reply(200, {})
-
-      const responses = await testDestination.testAction('reportWebEvent', { event, settings })
+      nock('https://ads.tiktok.com/open_api/v1.2/pixel/track').post('/').reply(200, {})
+      const responses = await testDestination.testAction('reportWebEvent', {
+        event,
+        settings,
+        useDefaultMappings: true
+      })
 
       expect(responses.length).toBe(1)
       expect(responses[0].status).toBe(200)
-
-      console.log(responses)
     })
   })
 })

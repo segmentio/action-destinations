@@ -21,7 +21,6 @@ export class mapper {
           event = ''
       }
     }
-    console.log(event)
     return event
   }
 }
