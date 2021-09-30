@@ -22,7 +22,7 @@ describe('CustomerIO', () => {
         userId,
         context: {
           device: {
-            id: deviceId
+            token: deviceId
           }
         }
       })
@@ -56,7 +56,7 @@ describe('CustomerIO', () => {
         userId,
         context: {
           device: {
-            id: deviceId
+            token: deviceId
           }
         }
       })
@@ -90,7 +90,7 @@ describe('CustomerIO', () => {
         userId,
         context: {
           device: {
-            id: deviceId
+            token: deviceId
           }
         }
       })

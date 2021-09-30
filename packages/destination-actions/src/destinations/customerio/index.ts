@@ -1,6 +1,5 @@
 import { defaultValues } from '@segment/actions-core'
-import trackApplicationInstalled from './trackApplicationInstalled'
-import trackApplicationOpened from './trackApplicationOpened'
+import trackApplicationInstalledOrOpened from './trackApplicationInstalledOrOpened'
 import trackApplicationUninstalled from './trackApplicationUninstalled'
 import createUpdatePerson from './createUpdatePerson'
 import trackEvent from './trackEvent'
@@ -50,9 +49,8 @@ const destination: DestinationDefinition<Settings> = {
   },
 
   actions: {
-    trackApplicationInstalled,
+    trackApplicationInstalledOrOpened,
     trackApplicationUninstalled,
-    trackApplicationOpened,
     createUpdatePerson,
     trackEvent
   },
@@ -65,16 +63,10 @@ const destination: DestinationDefinition<Settings> = {
       mapping: defaultValues(createUpdatePerson.fields)
     },
     {
-      name: 'Track Application Installed Event',
-      subscribe: 'type = "track" and event = "Application Installed"',
-      partnerAction: 'trackApplicationInstalled',
-      mapping: defaultValues(trackApplicationInstalled.fields)
-    },
-    {
-      name: 'Track Application Opened Event',
-      subscribe: 'type = "track" and event = "Application Opened"',
-      partnerAction: 'trackApplicationOpened',
-      mapping: defaultValues(trackApplicationOpened.fields)
+      name: 'Track Application Installed or Application Opened Event',
+      subscribe: 'event = "Application Installed" or event = "Application Opened"',
+      partnerAction: 'trackApplicationInstalledOrOpened',
+      mapping: defaultValues(trackApplicationInstalledOrOpened.fields)
     },
     {
       name: 'Track Application Uninstalled Event',
