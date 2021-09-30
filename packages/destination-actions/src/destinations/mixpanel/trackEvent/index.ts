@@ -339,7 +339,7 @@ const action: ActionDefinition<Settings, Payload> = {
         $screen_width: payload.screen_width,
         $screen_density: payload.screen_density,
         $source: 'segment',
-        $wifi: payload.wifi,
+        $wifi_enabled: payload.wifi,
         id: payload.user_id, // this is just to maintain backwards compatibility with the classic segment integration
         mp_country_code: payload.country,
         mp_lib: 'segment',
