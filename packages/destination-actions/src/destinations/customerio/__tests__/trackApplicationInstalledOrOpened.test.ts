@@ -9,7 +9,7 @@ const testDestination = createTestIntegration(CustomerIO)
 const trackService = nock('https://track.customer.io/api/v1')
 
 describe('CustomerIO', () => {
-  describe('trackApplicationOpened', () => {
+  describe('trackApplicationInstalledOrOpened', () => {
     it('should work with default mappings when userId is supplied', async () => {
       const settings: Settings = {
         siteId: '12345',
@@ -26,12 +26,12 @@ describe('CustomerIO', () => {
         timestamp,
         context: {
           device: {
-            id: deviceId,
+            token: deviceId,
             type: deviceType
           }
         }
       })
-      const responses = await testDestination.testAction('trackApplicationOpened', {
+      const responses = await testDestination.testAction('trackApplicationInstalledOrOpened', {
         event,
         settings,
         useDefaultMappings: true
@@ -69,12 +69,12 @@ describe('CustomerIO', () => {
         timestamp,
         context: {
           device: {
-            id: deviceId,
+            token: deviceId,
             type: deviceType
           }
         }
       })
-      const responses = await testDestination.testAction('trackApplicationOpened', {
+      const responses = await testDestination.testAction('trackApplicationInstalledOrOpened', {
         event,
         settings,
         mapping: {
@@ -112,12 +112,12 @@ describe('CustomerIO', () => {
         timestamp,
         context: {
           device: {
-            id: deviceId,
+            token: deviceId,
             type: deviceType
           }
         }
       })
-      const responses = await testDestination.testAction('trackApplicationOpened', {
+      const responses = await testDestination.testAction('trackApplicationInstalledOrOpened', {
         event,
         settings,
         useDefaultMappings: true
@@ -154,12 +154,12 @@ describe('CustomerIO', () => {
         timestamp,
         context: {
           device: {
-            id: deviceId,
+            token: deviceId,
             type: deviceType
           }
         }
       })
-      const responses = await testDestination.testAction('trackApplicationOpened', {
+      const responses = await testDestination.testAction('trackApplicationInstalledOrOpened', {
         event,
         settings,
         useDefaultMappings: true

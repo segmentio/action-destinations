@@ -5,8 +5,8 @@ import type { Payload } from './generated-types'
 import { trackApiEndpoint } from '../utils'
 
 const action: ActionDefinition<Settings, Payload> = {
-  title: 'Track Application Installed Event',
-  description: `Track an "Application Installed" event, and create or update a person's device in Customer.io.`,
+  title: 'Track Application Installed or Application Opened Event',
+  description: `Track an "Application Installed" or "Application Installed" event to create or update a person's device.`,
   defaultSubscription: 'type = "track" and event = "Application Installed"',
   fields: {
     person_id: {
@@ -24,7 +24,7 @@ const action: ActionDefinition<Settings, Payload> = {
       type: 'string',
       required: true,
       default: {
-        '@path': '$.context.device.id'
+        '@path': '$.context.device.token'
       }
     },
     platform: {

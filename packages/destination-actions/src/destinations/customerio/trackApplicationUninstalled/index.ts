@@ -23,7 +23,7 @@ const action: ActionDefinition<Settings, Payload> = {
       type: 'string',
       required: true,
       default: {
-        '@path': '$.context.device.id'
+        '@path': '$.context.device.token'
       }
     }
   },
