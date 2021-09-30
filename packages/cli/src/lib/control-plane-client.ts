@@ -141,10 +141,13 @@ export async function getRemotePluginByDestinationIds(metadataIds: string[]): Pr
 export async function updateRemotePlugin(plugin: RemotePlugin): Promise<RemotePlugin> {
   const { data, error } = await controlPlaneService.updateRemotePlugin(NOOP_CONTEXT, {
     metadataId: plugin.metadataId,
+    libraryName: plugin.libraryName,
     name: plugin.name,
     input: {
       url: plugin.url,
-      libraryName: plugin.libraryName
+      libraryName: plugin.libraryName,
+      // @ts-expect-error TODO: (@juliofarah) remove `libraryName` from the input as it is no longer editable; remove `name` from the top level params as it is no longer a primary key;
+      name: plugin.name
     }
   })
 
