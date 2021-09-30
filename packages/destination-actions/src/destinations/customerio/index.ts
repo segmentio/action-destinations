@@ -3,6 +3,7 @@ import trackApplicationInstalledOrOpened from './trackApplicationInstalledOrOpen
 import trackApplicationUninstalled from './trackApplicationUninstalled'
 import createUpdatePerson from './createUpdatePerson'
 import trackEvent from './trackEvent'
+import trackPageView from './trackPageView'
 import type { DestinationDefinition } from '@segment/actions-core'
 import type { Settings } from './generated-types'
 import { AccountRegion } from './utils'
@@ -52,7 +53,8 @@ const destination: DestinationDefinition<Settings> = {
     trackApplicationInstalledOrOpened,
     trackApplicationUninstalled,
     createUpdatePerson,
-    trackEvent
+    trackEvent,
+    trackPageView
   },
 
   presets: [
@@ -79,6 +81,12 @@ const destination: DestinationDefinition<Settings> = {
       subscribe: 'type = "track"',
       partnerAction: 'trackEvent',
       mapping: defaultValues(trackEvent.fields)
+    },
+    {
+      name: 'Track Page View',
+      subscribe: 'type = "page"',
+      partnerAction: 'trackPageView',
+      mapping: defaultValues(trackPageView.fields)
     }
   ]
 }
