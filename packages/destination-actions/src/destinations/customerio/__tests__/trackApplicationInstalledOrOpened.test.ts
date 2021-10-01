@@ -3,17 +3,18 @@ import { createTestEvent, createTestIntegration } from '@segment/actions-core'
 import CustomerIO from '../index'
 import { Settings } from '../generated-types'
 import dayjs from '../../../lib/dayjs'
+import { AccountRegion } from '../utils'
 
 const testDestination = createTestIntegration(CustomerIO)
 const trackService = nock('https://track.customer.io/api/v1')
 
 describe('CustomerIO', () => {
-  describe('createUpdateDevice', () => {
+  describe('trackApplicationInstalledOrOpened', () => {
     it('should work with default mappings when userId is supplied', async () => {
       const settings: Settings = {
         siteId: '12345',
         apiKey: 'abcde',
-        accountRegionEndpoint: 'https://track.customer.io'
+        accountRegion: AccountRegion.US
       }
       const userId = 'abc123'
       const deviceId = 'device_123'
@@ -25,12 +26,12 @@ describe('CustomerIO', () => {
         timestamp,
         context: {
           device: {
-            id: deviceId,
+            token: deviceId,
             type: deviceType
           }
         }
       })
-      const responses = await testDestination.testAction('createUpdateDevice', {
+      const responses = await testDestination.testAction('trackApplicationInstalledOrOpened', {
         event,
         settings,
         useDefaultMappings: true
@@ -56,7 +57,7 @@ describe('CustomerIO', () => {
       const settings: Settings = {
         siteId: '12345',
         apiKey: 'abcde',
-        accountRegionEndpoint: 'https://track.customer.io'
+        accountRegion: AccountRegion.US
       }
       const userId = 'abc123'
       const deviceId = 'device_123'
@@ -68,12 +69,12 @@ describe('CustomerIO', () => {
         timestamp,
         context: {
           device: {
-            id: deviceId,
+            token: deviceId,
             type: deviceType
           }
         }
       })
-      const responses = await testDestination.testAction('createUpdateDevice', {
+      const responses = await testDestination.testAction('trackApplicationInstalledOrOpened', {
         event,
         settings,
         mapping: {
@@ -99,7 +100,7 @@ describe('CustomerIO', () => {
       const settings: Settings = {
         siteId: '12345',
         apiKey: 'abcde',
-        accountRegionEndpoint: 'https://track-eu.customer.io'
+        accountRegion: AccountRegion.EU
       }
       const userId = 'abc123'
       const deviceId = 'device_123'
@@ -111,12 +112,12 @@ describe('CustomerIO', () => {
         timestamp,
         context: {
           device: {
-            id: deviceId,
+            token: deviceId,
             type: deviceType
           }
         }
       })
-      const responses = await testDestination.testAction('createUpdateDevice', {
+      const responses = await testDestination.testAction('trackApplicationInstalledOrOpened', {
         event,
         settings,
         useDefaultMappings: true
@@ -153,12 +154,12 @@ describe('CustomerIO', () => {
         timestamp,
         context: {
           device: {
-            id: deviceId,
+            token: deviceId,
             type: deviceType
           }
         }
       })
-      const responses = await testDestination.testAction('createUpdateDevice', {
+      const responses = await testDestination.testAction('trackApplicationInstalledOrOpened', {
         event,
         settings,
         useDefaultMappings: true

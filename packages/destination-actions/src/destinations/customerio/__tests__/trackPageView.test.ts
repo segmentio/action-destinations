@@ -6,10 +6,11 @@ import dayjs from '../../../lib/dayjs'
 import { AccountRegion } from '../utils'
 
 const testDestination = createTestIntegration(CustomerIO)
-const trackEventService = nock('https://track.customer.io/api/v1')
+const trackPageViewService = nock('https://track.customer.io/api/v1')
+const type = 'page'
 
 describe('CustomerIO', () => {
-  describe('trackEvent', () => {
+  describe('trackPageView', () => {
     it('should work with default mappings when a userId is supplied', async () => {
       const settings: Settings = {
         siteId: '12345',
@@ -17,21 +18,19 @@ describe('CustomerIO', () => {
         accountRegion: AccountRegion.US
       }
       const userId = 'abc123'
-      const name = 'testEvent'
-      const type = 'track'
+      const url = 'https://example.com/page-one'
       const timestamp = dayjs.utc().toISOString()
       const data = {
-        property1: 'this is a test'
+        property1: 'this is a test',
+        url
       }
-      trackEventService.post(`/customers/${userId}/events`).reply(200, {}, { 'x-customerio-region': 'US' })
+      trackPageViewService.post(`/customers/${userId}/events`).reply(200, {}, { 'x-customerio-region': 'US' })
       const event = createTestEvent({
-        event: name,
-        type,
         userId,
         properties: data,
         timestamp
       })
-      const responses = await testDestination.testAction('trackEvent', { event, settings, useDefaultMappings: true })
+      const responses = await testDestination.testAction('trackPageView', { event, settings, useDefaultMappings: true })
 
       expect(responses.length).toBe(1)
       expect(responses[0].status).toBe(200)
@@ -41,7 +40,7 @@ describe('CustomerIO', () => {
       })
       expect(responses[0].data).toMatchObject({})
       expect(responses[0].options.json).toMatchObject({
-        name,
+        name: url,
         type,
         data,
         timestamp: dayjs.utc(timestamp).unix()
@@ -55,29 +54,27 @@ describe('CustomerIO', () => {
         accountRegion: AccountRegion.US
       }
       const anonymousId = 'anonymous123'
-      const name = 'test event'
-      const type = 'track'
+      const url = 'https://example.com/page-one'
       const timestamp = dayjs.utc().toISOString()
       const data = {
-        property1: 'this is a test'
+        property1: 'this is a test',
+        url
       }
-      trackEventService.post(`/events`).reply(200, {})
+      trackPageViewService.post(`/events`).reply(200, {})
       const event = createTestEvent({
-        event: name,
-        type,
         anonymousId,
         properties: data,
         userId: undefined,
         timestamp
       })
 
-      const responses = await testDestination.testAction('trackEvent', { event, settings, useDefaultMappings: true })
+      const responses = await testDestination.testAction('trackPageView', { event, settings, useDefaultMappings: true })
 
       expect(responses.length).toBe(1)
       expect(responses[0].status).toBe(200)
       expect(responses[0].data).toMatchObject({})
       expect(responses[0].options.json).toMatchObject({
-        name,
+        name: url,
         type,
         data,
         anonymous_id: anonymousId,
@@ -85,32 +82,25 @@ describe('CustomerIO', () => {
       })
     })
 
-    it('should error when the name field is not supplied', async () => {
+    it('should error when the url field is not supplied', async () => {
       const settings: Settings = {
         siteId: '12345',
         apiKey: 'abcde',
         accountRegion: AccountRegion.US
       }
-      const type = 'track'
       const timestamp = dayjs.utc().toISOString()
-      const data = {
-        property1: 'this is a test'
-      }
-      trackEventService.post(`/events`).reply(200, {})
+      trackPageViewService.post(`/events`).reply(200, {})
       const event = createTestEvent({
-        event: undefined,
-        type,
-        properties: data,
         anonymousId: undefined,
         userId: undefined,
         timestamp
       })
 
       try {
-        await testDestination.testAction('trackEvent', { event, settings, useDefaultMappings: true })
+        await testDestination.testAction('trackPageView', { event, settings, useDefaultMappings: true })
         fail('This test should have thrown an error')
       } catch (e) {
-        expect(e.message).toBe("The root value is missing the required field 'name'.")
+        expect(e.message).toBe("The root value is missing the required field 'url'.")
       }
     })
 
@@ -121,21 +111,19 @@ describe('CustomerIO', () => {
         accountRegion: AccountRegion.US
       }
       const userId = 'abc123'
-      const name = 'testEvent'
-      const type = 'track'
+      const url = 'https://example.com/page-one'
       const timestamp = dayjs.utc().toISOString()
       const data = {
-        property1: 'this is a test'
+        property1: 'this is a test',
+        url
       }
-      trackEventService.post(`/customers/${userId}/events`).reply(200, {}, { 'x-customerio-region': 'US' })
+      trackPageViewService.post(`/customers/${userId}/events`).reply(200, {}, { 'x-customerio-region': 'US' })
       const event = createTestEvent({
-        event: name,
-        type,
         userId,
         properties: data,
         timestamp
       })
-      const responses = await testDestination.testAction('trackEvent', {
+      const responses = await testDestination.testAction('trackPageView', {
         event,
         settings,
         useDefaultMappings: true,
@@ -152,7 +140,7 @@ describe('CustomerIO', () => {
       })
       expect(responses[0].data).toMatchObject({})
       expect(responses[0].options.json).toMatchObject({
-        name,
+        name: url,
         type,
         data,
         timestamp
@@ -167,21 +155,19 @@ describe('CustomerIO', () => {
         accountRegion: AccountRegion.EU
       }
       const userId = 'abc123'
-      const name = 'testEvent'
-      const type = 'track'
+      const url = 'https://example.com/page-one'
       const timestamp = dayjs.utc().toISOString()
       const data = {
-        property1: 'this is a test'
+        property1: 'this is a test',
+        url
       }
       trackEUEventService.post(`/customers/${userId}/events`).reply(200, {}, { 'x-customerio-region': 'EU' })
       const event = createTestEvent({
-        event: name,
-        type,
         userId,
         timestamp,
         properties: data
       })
-      const responses = await testDestination.testAction('trackEvent', { event, settings, useDefaultMappings: true })
+      const responses = await testDestination.testAction('trackPageView', { event, settings, useDefaultMappings: true })
 
       expect(responses.length).toBe(1)
       expect(responses[0].status).toBe(200)
@@ -191,7 +177,7 @@ describe('CustomerIO', () => {
       })
       expect(responses[0].data).toMatchObject({})
       expect(responses[0].options.json).toMatchObject({
-        name,
+        name: url,
         type,
         data,
         timestamp: dayjs.utc(timestamp).unix()
@@ -204,21 +190,19 @@ describe('CustomerIO', () => {
         apiKey: 'abcde'
       }
       const userId = 'abc123'
-      const name = 'testEvent'
-      const type = 'track'
+      const url = 'https://example.com/page-one'
       const timestamp = dayjs.utc().toISOString()
       const data = {
-        property1: 'this is a test'
+        property1: 'this is a test',
+        url
       }
-      trackEventService.post(`/customers/${userId}/events`).reply(200, {}, { 'x-customerio-region': 'US-fallback' })
+      trackPageViewService.post(`/customers/${userId}/events`).reply(200, {}, { 'x-customerio-region': 'US-fallback' })
       const event = createTestEvent({
-        event: name,
-        type,
         userId,
         timestamp,
         properties: data
       })
-      const responses = await testDestination.testAction('trackEvent', { event, settings, useDefaultMappings: true })
+      const responses = await testDestination.testAction('trackPageView', { event, settings, useDefaultMappings: true })
 
       expect(responses.length).toBe(1)
       expect(responses[0].status).toBe(200)
@@ -228,7 +212,7 @@ describe('CustomerIO', () => {
       })
       expect(responses[0].data).toMatchObject({})
       expect(responses[0].options.json).toMatchObject({
-        name,
+        name: url,
         type,
         data,
         timestamp: dayjs.utc(timestamp).unix()
