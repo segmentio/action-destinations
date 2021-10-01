@@ -1,10 +1,8 @@
-# Build & Testing Cloud Destinations
+# Build & Test Cloud Destinations
 
 - [Local End-to-end Testing](#local-end-to-end-testing)
 - [Unit Testing](#unit-testing)
 - [Snapshot Testing](#snapshot-testing)
-
-
 
 ## Local End-to-end Testing
 

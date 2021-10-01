@@ -106,7 +106,6 @@ With this minimal configuration, the destination can connect to the Segment App'
 Actions define what the destination can do. They instruct Segment how to send data to your destination API. For example, consider this "Post to Channel" action from a Slack destination:
 
 ```js
-
 const destination = {
   // ...other properties
   actions: {
@@ -154,3 +153,44 @@ const destination = {
   }
 }
 ```
+
+### Actions best practices
+
+Actions should map to a feature in your platform. Try to keep the action atomic. The action should perform a single operation in the downstream platform.
+
+### Define and scaffold an Action
+
+As mentioned above, actions contain the behavior and logic necessary for sending data to your platform's API.
+
+To create the **Post to Channel** action above, begin by creating the scaffold on top of which you'll build the action. Run `./bin/run generate:action postToChannel server` to create the scaffold.
+
+The `generate:action` command takes two arguments:
+
+- The name of the action
+- The type of action
+
+When you create a scaffold, the CLI also imports the action to the definition of the destination, and generates empty types based on the action's fields.
+
+### Add functionality to the Action
+
+After you've created the scaffold for the action, add logic that defines what the action does. Here, you'll define the fields that the action expects to receive, and write the code that performs the action.
+
+#### Action fields
+
+For each action or authentication scheme, you define a collection of inputs and `fields`. Input fields define what the user sees in the Action Editor within the Segment App. In an action, these fields accept input from the incoming Segment event.
+
+The Segment CLI introspects field definitions when you run `./bin/run generate:types` to generate their TypeScript declarations. This ensures the `perform` function is strongly-typed.
+
+Define fields with a JSON scheme. If your editor or IDE provides good Intellisense and autocompletion, you should see the allowed properties.
+
+As mentioned above, the `perform` function contains the code that defines what the action does.
+
+Segment recommends that you start with a simple task, and evolve it. Get the basics working first. Add one or two fields to start, then run `./bin/run generate:types` when you change the definition of a field. Run this step manually after changes, or run `yarn types --watch` to regenerate types when a change is detected.
+
+## Write tests
+
+Testing ensures that your destination functions the way you expect. For information on testing, see [Build and Test Cloud Destinations](testing.md).
+
+## Write documentation
+
+TBD...
