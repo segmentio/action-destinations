@@ -1,0 +1,8 @@
+{
+  "mapping": {
+    "@if": {
+      "exists": 1,
+      "else": 3
+    }
+  }
+}

@@ -1,0 +1,15 @@
+{
+  "mapping": {
+    "obj": {
+      "@path": "foo.bar",
+      "oops": true
+    },
+    "hash": {
+      "@template": {}
+    }
+  },
+  "expectError": [
+    "/obj should only have one @-prefixed key but it has 2 keys.",
+    "/hash/@template should be a string or a mapping directive but it is an object."
+  ]
+}

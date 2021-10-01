@@ -1,0 +1,109 @@
+{
+  "name": "@segment/actions-cli",
+  "description": "CLI to interact with Segment integrations",
+  "version": "3.11.1",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/segmentio/action-destinations",
+    "directory": "packages/cli"
+  },
+  "engines": {
+    "node": "^14.16"
+  },
+  "engineStrict": true,
+  "bin": {
+    "segment": "./bin/run"
+  },
+  "files": [
+    "/bin",
+    "/dist",
+    "/oclif.manifest.json"
+  ],
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "private": true,
+  "scripts": {
+    "postpack": "rm -f oclif.manifest.json",
+    "prepack": "yarn build && oclif-dev manifest && oclif-dev readme",
+    "build": "yarn clean && yarn tsc -b tsconfig.build.json",
+    "clean": "tsc -b tsconfig.build.json --clean",
+    "postclean": "rm -rf dist",
+    "create:destination": "./bin/run init",
+    "test": "echo '⚠️ ⚠️ ⚠️  @segment/action-cli tests temporarily skipped'",
+    "typecheck": "tsc --noEmit"
+  },
+  "devDependencies": {
+    "@oclif/dev-cli": "^1",
+    "@oclif/test": "^1.2.8",
+    "@types/fs-extra": "^9.0.11",
+    "@types/jest": "^26.0.23",
+    "@types/jscodeshift": "^0.11.0",
+    "@types/json-diff": "^0.5.1",
+    "@types/json-schema": "^7.0.7",
+    "@types/lodash": "^4.14.168",
+    "@types/mustache": "^4.1.0",
+    "@types/node": "^14.0.0",
+    "@types/prompts": "^2.0.10",
+    "@types/rimraf": "^3.0.0",
+    "@types/to-title-case": "^1.0.0",
+    "chai": "^4.3.4",
+    "jest": "26.6.3",
+    "rimraf": "^3.0.2"
+  },
+  "dependencies": {
+    "@oclif/command": "^1",
+    "@oclif/config": "^1",
+    "@oclif/errors": "^1",
+    "@oclif/plugin-help": "^3",
+    "@segment/action-destinations": "^3.11.1",
+    "@segment/actions-core": "^3.10.0",
+    "chalk": "^4.1.1",
+    "chokidar": "^3.5.1",
+    "dotenv": "^10.0.0",
+    "ecs-logs-js": "^1.0.0",
+    "execa": "^5.1.1",
+    "fs-extra": "^9.1.0",
+    "globby": "^11.0.3",
+    "jscodeshift": "^0.12.0",
+    "jscodeshift-add-imports": "^1.0.10",
+    "jsdom": "^16.6.0",
+    "json-diff": "^0.5.4",
+    "json-schema-to-typescript": "^10.1.4",
+    "lodash": "^4.17.20",
+    "mustache": "^4.2.0",
+    "ora": "^5.4.0",
+    "prompts": "^2.4.1",
+    "slugify": "^1.5.0",
+    "to-title-case": "^1.0.0",
+    "tsconfig-paths": "^3.9.0",
+    "tslib": "^2"
+  },
+  "optionalDependencies": {
+    "@segment/browser-destinations": "^3.10.0",
+    "@segment/control-plane-service-client": "github:segmentio/control-plane-service-js-client.git#master"
+  },
+  "oclif": {
+    "commands": "./dist/commands",
+    "bin": "segment",
+    "plugins": [
+      "@oclif/plugin-help"
+    ],
+    "topics": {
+      "generate": {
+        "description": "scaffold resources or types for an integration"
+      }
+    }
+  },
+  "jest": {
+    "preset": "ts-jest",
+    "testEnvironment": "jsdom",
+    "testRegex": "((\\.|/)(test))\\.(tsx?|json)$",
+    "modulePathIgnorePatterns": [
+      "<rootDir>/dist/"
+    ],
+    "moduleNameMapper": {
+      "src/lib/(.*)": "<rootDir>/src/lib/$1"
+    }
+  }
+}

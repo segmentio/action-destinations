@@ -1,0 +1,21 @@
+{
+  "extends": "../../tsconfig.json",
+  "compilerOptions": {
+    "composite": true,
+    "outDir": "dist",
+    "rootDir": "src",
+    "allowJs": true,
+    "importHelpers": true,
+    "lib": ["es2020", "dom"],
+    "baseUrl": ".",
+    "paths": {
+      "@segment/actions-core/*": ["../core/src/*"]
+    }
+  },
+  "exclude": ["**/__tests__/**/*.ts"],
+  "include": ["src"],
+  "references": [
+    { "path": "../core/tsconfig.build.json" },
+    { "path": "../destination-subscriptions/tsconfig.build.json" }
+  ]
+}

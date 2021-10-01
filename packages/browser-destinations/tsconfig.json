@@ -1,0 +1,16 @@
+{
+  "extends": "../../tsconfig.json",
+  "compilerOptions": {
+    "module": "esnext",
+    "removeComments": false,
+    "baseUrl": ".",
+    "paths": {
+      "@segment/actions-core": ["../core/src"],
+      "@segment/actions-core/*": ["../core/src/*"],
+      "@segment/action-destinations": ["../destination-actions/src"],
+      "@segment/destination-subscriptions": ["../destination-subscriptions/src"]
+    }
+  },
+  "include": ["src", "test"],
+  "exclude": ["webpack.config.js"]
+}

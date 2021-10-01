@@ -1,0 +1,245 @@
+<html>
+
+<head>
+  <style>
+    body {
+      font-family: monospace;
+    }
+
+    #event {
+      margin: 2em 0;
+      min-height: 500px;
+      width: 100%;
+    }
+
+    #subscription {
+      margin: 2em 0;
+      min-height: 500px;
+      width: 100%;
+    }
+  </style>
+
+  <script>
+    console.profile('snippet')
+    console.time('snippet')
+    !(function () {
+      var analytics = (window.analytics = window.analytics || [])
+      if (!analytics.initialize)
+        if (analytics.invoked) window.console && console.error && console.error('Segment snippet included twice.')
+        else {
+          analytics.invoked = !0
+          analytics.methods = [
+            'trackSubmit',
+            'trackClick',
+            'trackLink',
+            'trackForm',
+            'pageview',
+            'identify',
+            'reset',
+            'group',
+            'track',
+            'ready',
+            'alias',
+            'debug',
+            'page',
+            'once',
+            'off',
+            'on',
+            'addSourceMiddleware',
+            'addIntegrationMiddleware',
+            'setAnonymousId',
+            'addDestinationMiddleware'
+          ]
+          analytics.factory = function (e) {
+            return function () {
+              var t = Array.prototype.slice.call(arguments)
+              t.unshift(e)
+              analytics.push(t)
+              return analytics
+            }
+          }
+          for (var e = 0; e < analytics.methods.length; e++) {
+            var key = analytics.methods[e]
+            analytics[key] = analytics.factory(key)
+          }
+          analytics.load = function (key, e) {
+            var t = document.createElement('script')
+            t.type = 'text/javascript'
+            t.async = !0
+            t.src = 'https://cdn.segment.com/analytics-next/br/master/latest/standalone.js'
+            var n = document.getElementsByTagName('script')[0]
+            n.parentNode.insertBefore(t, n)
+            analytics._loadOptions = e
+          }
+          analytics.SNIPPET_VERSION = '4.13.1'
+          analytics._writeKey = '2fZvjLp5V9mHNUkdNOYKN2Pmfw7qNlZv'
+          analytics.load()
+          analytics.page()
+        }
+    })()
+  </script>
+</head>
+
+<body>
+  <div>
+    <h2>Destination</h2>
+    <select id="destinations"></select>
+  </div>
+  <div>
+    <h2>Settings</h2>
+    <textarea name="subscription" id="subscription"> </textarea>
+  </div>
+  <button id="load-subscription">Load</button>
+
+  <form>
+    <h2>Event</h2>
+    <textarea name="event" id="event"> </textarea>
+    <div>
+      <button id="track">Track</button>
+      <button id="identify">Identify</button>
+    </div>
+  </form>
+
+  <pre id="ready-logs"></pre>
+  <pre id="logs"></pre>
+
+  <script type="text/javascript">
+    window.analytics.ready(function onReady() {
+      console.profileEnd('snippet')
+      console.timeEnd('snippet')
+      document.querySelector('#ready-logs').textContent = 'ready!'
+    })
+
+    document.querySelector('#track').addEventListener('click', function (e) {
+      e.preventDefault()
+      var contents = document.querySelector('#event').value
+      var evt = JSON.parse(contents)
+      var promise = window.analytics.track(evt.name || '', evt.properties || {}, evt.options || {})
+
+      promise &&
+        promise.then &&
+        promise.then(function (ctx) {
+          document.querySelector('#logs').textContent = JSON.stringify([ctx.event, ctx.logs()], null, '  ')
+          ctx.flush()
+        })
+    })
+
+    document.querySelector('#identify').addEventListener('click', function (e) {
+      e.preventDefault()
+      var contents = document.querySelector('#event').value
+      var evt = JSON.parse(contents)
+      var promise = window.analytics.identify(evt.name || '', evt.properties || {}, evt.options || {})
+
+      promise &&
+        promise.then &&
+        promise.then(function (ctx) {
+          document.querySelector('#logs').textContent = JSON.stringify([ctx.event, ctx.logs()], null, '  ')
+          ctx.flush()
+        })
+    })
+  </script>
+
+  <script type="application/javascript">
+    async function getBundles() {
+      const response = await fetch('/dist/web/').then((res) => res.text())
+      const parser = new DOMParser()
+      const doc = parser.parseFromString(response, 'text/html')
+      const files = Array.from(doc.querySelectorAll('#files li a .name'))
+        .map((el) => el.textContent)
+        .filter((file) => file.endsWith('.js'))
+
+      const select = document.querySelector('#destinations')
+      files.forEach((file) => {
+        const name = file.replace(/\.js$/, '')
+        const option = document.createElement('option')
+        option.textContent = name
+        option.setAttribute('value', name)
+        select.appendChild(option)
+      })
+    }
+
+    document.addEventListener('DOMContentLoaded', async () => {
+      await getBundles()
+
+      const defaultEvent = {
+        name: 'hi',
+        properties: {},
+        traits: {},
+        options: {}
+      }
+
+      const defaultSubscription = {
+        subscriptions: [
+          {
+            partnerAction: 'show',
+            name: 'Show',
+            enabled: true,
+            subscribe: 'type = "track"',
+            mapping: {
+              eventName: {
+                '@path': '$.event'
+              },
+              eventProperties: {
+                '@path': '$.properties'
+              }
+            }
+          }
+        ]
+      }
+
+      document.querySelector('#subscription').value =
+        localStorage.getItem('sub') ?? JSON.stringify(defaultSubscription, null, ' ')
+      document.querySelector('#destinations').value = localStorage.getItem('dest')
+      document.querySelector('#event').value = localStorage.getItem('evt') ?? JSON.stringify(defaultEvent, null, ' ')
+    })
+
+    document.querySelector('#subscription').addEventListener('change', (e) => {
+      const val = e.target.value
+      localStorage.setItem('sub', val)
+    })
+
+    document.querySelector('#event').addEventListener('change', (e) => {
+      const val = e.target.value
+      localStorage.setItem('evt', val)
+    })
+
+    document.querySelector('#destinations').addEventListener('change', (e) => {
+      const val = e.target.value
+      localStorage.setItem('dest', val)
+    })
+
+    async function getPlugins(key, settings = {}) {
+      if (typeof window[key] === 'function') {
+        const plugin = await window[key](settings)
+        await window.analytics.register(...plugin)
+      }
+    }
+
+    document.querySelector('#load-subscription').addEventListener('click', async (e) => {
+      e.preventDefault()
+
+      const raw = document.querySelector('#subscription').value
+      const settings = JSON.parse(raw)
+
+      const toLoad = document.querySelector('#destinations').value
+      const destination = `${toLoad}Destination`
+
+      if (window[destination]) {
+        alert('Plugin already loaded, please refresh the page')
+        return
+      }
+
+      const script = document.createElement('script')
+      script.setAttribute('src', `/dist/web/${toLoad}.js`)
+      script.onload = async () => {
+        await getPlugins(destination, settings)
+
+        document.querySelector('#logs').textContent = JSON.stringify(analytics.queue.plugins, null, 2)
+      }
+
+      document.body.append(script)
+    })
+  </script>
+</body>
+
+</html>

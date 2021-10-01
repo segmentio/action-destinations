@@ -1,0 +1,82 @@
+{
+  "name": "action-destinations",
+  "private": true,
+  "license": "MIT",
+  "workspaces": {
+    "packages": [
+      "packages/*"
+    ]
+  },
+  "engines": {
+    "node": ">=12"
+  },
+  "scripts": {
+    "browser": "yarn workspace @segment/browser-destinations",
+    "cloud": "yarn workspace @segment/action-destinations",
+    "cli": "yarn workspace @segment/actions-cli",
+    "core": "yarn workspace @segment/actions-core",
+    "bootstrap": "lerna bootstrap",
+    "build": "./bin/run generate:types && lerna run build --stream --ignore @segment/actions-cli",
+    "types": "./bin/run generate:types",
+    "lint": "eslint '**/*.ts' --cache",
+    "subscriptions": "yarn workspace @segment/destination-subscriptions",
+    "test": "lerna run test --stream",
+    "typecheck": "lerna run typecheck --stream",
+    "alpha": "lerna publish prerelease --pre-dist-tag next --allow-branch '**' --no-git-tag-version"
+  },
+  "devDependencies": {
+    "@types/chance": "^1.1.3",
+    "@types/jest": "^26.0.23",
+    "@typescript-eslint/eslint-plugin": "^4.14.0",
+    "@typescript-eslint/parser": "^4.14.0",
+    "eslint": "^7.25.0",
+    "eslint-config-prettier": "^6.15.0",
+    "eslint-plugin-jest": "^24.3.6",
+    "husky": "^4.3.8",
+    "jest": "^26.6.3",
+    "lerna": "^4.0.0",
+    "lint-staged": "^10.5.3",
+    "prettier": "^2.2.1",
+    "ts-jest": "^26.5.5",
+    "ts-node": "^9.1.1",
+    "typescript": "^4.1.3"
+  },
+  "resolutions": {
+    "**/@size-limit/preset-small-lib/**/glob-parent": "^6.0.1",
+    "**/analytics-next/**/dot-prop": "^4.2.1"
+  },
+  "husky": {
+    "hooks": {
+      "pre-commit": "lint-staged"
+    }
+  },
+  "lint-staged": {
+    "**/src/destinations/**/index.ts": [
+      "./bin/run generate:types"
+    ],
+    "!(templates)/**/*.ts": [
+      "eslint --fix --cache",
+      "prettier --write"
+    ],
+    "*.{yml,md,json}": [
+      "prettier --write"
+    ]
+  },
+  "prettier": {
+    "semi": false,
+    "singleQuote": true,
+    "trailingComma": "none",
+    "printWidth": 120
+  },
+  "jest": {
+    "preset": "ts-jest",
+    "globals": {
+      "ts-jest": {
+        "isolatedModules": true
+      }
+    }
+  },
+  "dependencies": {
+    "chance": "^1.1.8"
+  }
+}

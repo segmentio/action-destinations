@@ -1,0 +1,6 @@
+{
+  "mapping": {
+    "@oops": {}
+  },
+  "expectError": "/ has an invalid directive: @oops."
+}

@@ -1,0 +1,18 @@
+{
+  "name": "@segment/ajv-human-errors",
+  "version": "1.6.0",
+  "description": "Human-readable error messages for Ajv (Another JSON Schema Validator).",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/segmentio/action-destinations",
+    "directory": "packages/ajv-human-errors"
+  },
+  "main": "index.js",
+  "scripts": {
+    "test": "jest"
+  },
+  "license": "MIT",
+  "devDependencies": {
+    "ajv": "^6.12.3"
+  }
+}

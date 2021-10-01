@@ -1,0 +1,80 @@
+{
+  "name": "@segment/actions-core",
+  "description": "Core runtime for Destinations Actions.",
+  "version": "3.10.0",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/segmentio/fab-5-engine",
+    "directory": "packages/core"
+  },
+  "main": "dist/cjs",
+  "module": "dist/esm",
+  "exports": {
+    ".": {
+      "require": "./dist/cjs/index.js",
+      "import": "./dist/esm/index.js",
+      "default": "./dist/cjs/index.js"
+    },
+    "./mapping-kit": {
+      "require": "./dist/cjs/mapping-kit/index.js",
+      "import": "./dist/esm/mapping-kit/index.js",
+      "default": "./dist/cjs/mapping-kit/index.js"
+    }
+  },
+  "types": "dist/esm/index.d.ts",
+  "files": [
+    "dist",
+    "package.json"
+  ],
+  "engines": {
+    "node": "^14.16"
+  },
+  "engineStrict": true,
+  "license": "MIT",
+  "publishConfig": {
+    "access": "restricted",
+    "registry": "https://registry.npmjs.org"
+  },
+  "scripts": {
+    "build": "yarn clean && yarn build:cjs && yarn build:esm",
+    "build:cjs": "yarn tsc -p tsconfig.build.json -m commonjs --outDir dist/cjs",
+    "build:esm": "yarn tsc -p tsconfig.build.json -m es2015 --outDir dist/esm",
+    "clean": "tsc -b tsconfig.build.json --clean",
+    "postclean": "rm -rf dist",
+    "prepublishOnly": "yarn build",
+    "test": "jest",
+    "typecheck": "tsc --noEmit"
+  },
+  "devDependencies": {
+    "@types/btoa-lite": "^1.0.0",
+    "@types/express": "^4.17.11",
+    "@types/jest": "^26.0.23",
+    "@types/json-schema": "^7.0.7",
+    "benny": "^3.6.15",
+    "create-test-server": "^3.0.1",
+    "jest": "^26.6.3"
+  },
+  "dependencies": {
+    "@lukeed/uuid": "^2.0.0",
+    "@segment/ajv-human-errors": "^1.6.0",
+    "@segment/destination-subscriptions": "^3.6.0",
+    "abort-controller": "^3.0.0",
+    "aggregate-error": "^3.1.0",
+    "ajv": "^6.12.4",
+    "btoa-lite": "^1.0.0",
+    "cross-fetch": "^3.1.4",
+    "dayjs": "^1.10.4",
+    "ts-custom-error": "^3.2.0"
+  },
+  "jest": {
+    "preset": "ts-jest",
+    "testEnvironment": "node",
+    "modulePathIgnorePatterns": [
+      "<rootDir>/dist/"
+    ],
+    "moduleNameMapper": {
+      "@segment/ajv-human-errors": "<rootDir>/../ajv-human-errors",
+      "@segment/destination-subscriptions": "<rootDir>/../destination-subscriptions/src"
+    }
+  }
+}

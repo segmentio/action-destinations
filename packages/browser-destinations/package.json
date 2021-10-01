@@ -1,0 +1,84 @@
+{
+  "name": "@segment/browser-destinations",
+  "version": "3.10.0",
+  "description": "Action based browser destinations",
+  "author": "Netto Farah",
+  "private": true,
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/segmentio/action-destinations",
+    "directory": "packages/browser-destinations"
+  },
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "yarn clean && yarn build-ts && yarn build-web",
+    "build-ts": "yarn tsc -b tsconfig.build.json",
+    "build-web": "NODE_ENV=production ASSET_ENV=production yarn webpack -c webpack.config.js",
+    "build-web-stage": "NODE_ENV=production ASSET_ENV=stage yarn webpack -c webpack.config.js",
+    "deploy-prod": "yarn build-web && aws s3 sync ./dist/web/ s3://segment-ajs-next-destinations-production/next-integrations/actions --grants read=id=$npm_config_prod_cdn_oai,id=$npm_config_prod_custom_domain_oai",
+    "deploy-stage": "yarn build-web-stage && aws-okta exec plat-write -- aws s3 sync ./dist/web/ s3://segment-ajs-next-destinations-stage/next-integrations/actions --grants read=id=$npm_config_stage_cdn_oai,id=$npm_config_stage_custom_domain_oai",
+    "clean": "tsc -b tsconfig.build.json --clean",
+    "postclean": "rm -rf dist",
+    "prepublishOnly": "yarn build",
+    "test": "jest",
+    "typecheck": "tsc --noEmit",
+    "dev": "NODE_ENV=development concurrently \"webpack serve\" \"webpack -c webpack.config.js --watch\""
+  },
+  "dependencies": {
+    "@braze/web-sdk": "^3.3.0",
+    "@fullstory/browser": "^1.4.9",
+    "@segment/analytics-next": "^1.29.3",
+    "@segment/destination-subscriptions": "^3.6.0",
+    "dayjs": "^1.10.3",
+    "tslib": "^2.1.0",
+    "vm-browserify": "^1.1.2"
+  },
+  "devDependencies": {
+    "@babel/core": "^7.13.16",
+    "@babel/plugin-proposal-class-properties": "^7.13.0",
+    "@babel/plugin-transform-modules-commonjs": "^7.13.8",
+    "@babel/preset-env": "^7.13.10",
+    "@babel/preset-typescript": "^7.13.0",
+    "@segment/actions-core": "^3.10.0",
+    "@types/amplitude-js": "^7.0.1",
+    "@types/intercom-web": "^2.8.11",
+    "@types/jest": "^26.0.23",
+    "@types/jsdom": "^16.2.10",
+    "babel-jest": "^26.6.3",
+    "compression-webpack-plugin": "^7.1.2",
+    "concurrently": "^6.2.0",
+    "fs-extra": "^9.1.0",
+    "globby": "^11.0.2",
+    "jest": "^26.6.3",
+    "jsdom": "^16.5.3",
+    "serve": "^12.0.0",
+    "terser-webpack-plugin": "^5.1.1",
+    "ts-loader": "^8.0.17",
+    "webpack": "^5.36.1",
+    "webpack-bundle-analyzer": "^4.4.1",
+    "webpack-cli": "^4.4.0",
+    "webpack-dev-server": "^4.2.0"
+  },
+  "prettier": {
+    "semi": false,
+    "singleQuote": true,
+    "trailingComma": "none",
+    "printWidth": 120
+  },
+  "jest": {
+    "rootDir": "./",
+    "moduleNameMapper": {
+      "@segment/actions-core": "<rootDir>/../core/src/index.ts",
+      "@segment/destination-subscriptions": "<rootDir>/../destination-subscriptions/src/index.ts"
+    },
+    "transform": {
+      "^.+\\.[t|j]sx?$": "babel-jest"
+    },
+    "transformIgnorePatterns": [
+      "/node_modules/(?!@segment/analytics-next).+\\.js$"
+    ],
+    "forceExit": true
+  }
+}

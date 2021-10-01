@@ -1,0 +1,14 @@
+{
+  "packages": ["packages/*"],
+  "npmClient": "yarn",
+  "useWorkspaces": true,
+  "version": "independent",
+  "command": {
+    "bootstrap": {
+      "npmClientArgs": ["--ignore-engines", "--ignore-optional"]
+    },
+    "version": {
+      "allowBranch": "main"
+    }
+  }
+}

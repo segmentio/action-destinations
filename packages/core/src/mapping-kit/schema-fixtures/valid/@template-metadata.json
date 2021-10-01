@@ -1,0 +1,9 @@
+{
+  "mapping": {
+    "@template": "{{foo.bar}}",
+    "_metadata": {
+      "type": "autocomplete",
+      "label": "X"
+    }
+  }
+}
