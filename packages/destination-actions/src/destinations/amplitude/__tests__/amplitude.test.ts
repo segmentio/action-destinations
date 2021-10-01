@@ -172,59 +172,6 @@ describe('Amplitude', () => {
       })
     })
 
-    it.only('should allow alternate revenue names for products array properties', async () => {
-      // for the time being we dont support per element array mapping, but it will make sense to add a test
-      // for that behavior as well
-      nock('https://api2.amplitude.com/2').post('/httpapi').reply(200, {})
-
-      const event = createTestEvent({
-        event: 'Order Completed',
-        timestamp,
-        properties: {
-          bitcoin_rev: 3_999,
-          products: [
-            {
-              quantity: 1,
-              productId: 'Extrodinary Cake',
-              bitcoin_rev: 1_999,
-              revenue: 99
-            }
-          ]
-        }
-      })
-
-      const mapping = {
-        trackRevenuePerProduct: true,
-        products: [
-          {
-            revenue: {
-              '@path': '$.properties.bitcoin_rev'
-            }
-          }
-        ]
-      }
-
-      const responses = await testDestination.testAction('logEvent', { event, mapping, useDefaultMappings: true })
-      expect(responses.length).toBe(1)
-      expect(responses[0].status).toBe(200)
-
-      expect(responses[0].options.json).toMatchObject({
-        api_key: undefined,
-        events: expect.arrayContaining([
-          expect.objectContaining({
-            event_type: 'Order Completed',
-            event_properties: event.properties
-          }),
-          expect.objectContaining({
-            event_type: 'Product Purchased',
-            revenue: 3_999,
-            // @ts-ignore i know what i'm doing
-            event_properties: event.properties.products[0]
-          })
-        ])
-      })
-    })
-
     it('should work with per product revenue tracking', async () => {
       nock('https://api2.amplitude.com/2').post('/httpapi').reply(200, {})
 
