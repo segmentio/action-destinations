@@ -8,7 +8,7 @@ const testDestination = createTestIntegration(CustomerIO)
 const trackService = nock('https://track.customer.io/api/v1')
 
 describe('CustomerIO', () => {
-  describe('trackApplicationUninstalled', () => {
+  describe('deleteDevice', () => {
     it('should work with default mappings when userId is supplied', async () => {
       const settings: Settings = {
         siteId: '12345',
@@ -26,7 +26,7 @@ describe('CustomerIO', () => {
           }
         }
       })
-      const responses = await testDestination.testAction('trackApplicationUninstalled', {
+      const responses = await testDestination.testAction('deleteDevice', {
         event,
         settings,
         useDefaultMappings: true
@@ -60,7 +60,7 @@ describe('CustomerIO', () => {
           }
         }
       })
-      const responses = await testDestination.testAction('trackApplicationUninstalled', {
+      const responses = await testDestination.testAction('deleteDevice', {
         event,
         settings,
         useDefaultMappings: true
@@ -94,7 +94,7 @@ describe('CustomerIO', () => {
           }
         }
       })
-      const responses = await testDestination.testAction('trackApplicationUninstalled', {
+      const responses = await testDestination.testAction('deleteDevice', {
         event,
         settings,
         useDefaultMappings: true
