@@ -6,7 +6,7 @@ import { trackApiEndpoint } from '../utils'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Track Application Installed or Application Opened Event',
-  description: `Track an "Application Installed" or "Application Installed" event to create or update a person's device.`,
+  description: `Track an "Application Installed" or "Application Opened" event to create or update a person's device.`,
   defaultSubscription: 'type = "track" and event = "Application Installed"',
   fields: {
     person_id: {
