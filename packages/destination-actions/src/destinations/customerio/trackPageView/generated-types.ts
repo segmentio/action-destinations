@@ -10,13 +10,9 @@ export interface Payload {
    */
   anonymous_id?: string
   /**
-   * The name of the event.
+   * The URL of the page visited.
    */
-  name: string
-  /**
-   * The event type. For "page view" events, set to page.
-   */
-  type?: string
+  url: string
   /**
    * A timestamp of when the event took place. Default is current date and time.
    */

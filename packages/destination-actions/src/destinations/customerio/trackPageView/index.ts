@@ -4,9 +4,9 @@ import type { Settings } from '../generated-types'
 import { trackApiEndpoint } from '../utils'
 import type { Payload } from './generated-types'
 
-interface TrackEventPayload {
+interface TrackPageViewPayload {
   name: string
-  type?: string
+  type: 'page'
   timestamp?: string | number
   data?: Record<string, any>
   // Required for anonymous events
@@ -14,9 +14,9 @@ interface TrackEventPayload {
 }
 
 const action: ActionDefinition<Settings, Payload> = {
-  title: 'Track Event',
-  description: 'Track an event for a known or anonymous person.',
-  defaultSubscription: 'type = "track"',
+  title: 'Track Page View',
+  description: 'Track a page view for a known or anonymous person.',
+  defaultSubscription: 'type = "page"',
   fields: {
     id: {
       label: 'Person ID',
@@ -36,21 +36,13 @@ const action: ActionDefinition<Settings, Payload> = {
         '@path': '$.anonymousId'
       }
     },
-    name: {
-      label: 'Event Name',
-      description: 'The name of the event.',
+    url: {
+      label: 'Page URL',
+      description: 'The URL of the page visited.',
       type: 'string',
       required: true,
       default: {
-        '@path': '$.event'
-      }
-    },
-    type: {
-      label: 'Event Type',
-      description: 'The event type. For "page view" events, set to page.',
-      type: 'string',
-      default: {
-        '@path': '$.type'
+        '@path': '$.properties.url'
       }
     },
     timestamp: {
@@ -76,7 +68,6 @@ const action: ActionDefinition<Settings, Payload> = {
       default: true
     }
   },
-
   perform: (request, { settings, payload }) => {
     let timestamp: string | number | undefined = payload.timestamp
 
@@ -84,9 +75,9 @@ const action: ActionDefinition<Settings, Payload> = {
       timestamp = dayjs.utc(timestamp).unix()
     }
 
-    const body: TrackEventPayload = {
-      name: payload.name,
-      type: payload.type,
+    const body: TrackPageViewPayload = {
+      name: payload.url,
+      type: 'page',
       data: payload.data,
       timestamp
     }
