@@ -30,7 +30,7 @@ Array [
       "$screen_height": -83997876740423.69,
       "$screen_width": -83997876740423.69,
       "$source": "segment",
-      "$wifi": true,
+      "$wifi_enabled": true,
       "distinct_id": "pNBru",
       "id": "pNBru",
       "mp_country_code": "pNBru",

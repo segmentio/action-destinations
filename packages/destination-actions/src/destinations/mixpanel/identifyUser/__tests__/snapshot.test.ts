@@ -8,7 +8,7 @@ const actionSlug = 'identifyUser'
 const destinationSlug = 'Mixpanel'
 const seedName = `${destinationSlug}#${actionSlug}`
 
-describe(`Testing snapshot for ${destinationSlug}\'s ${actionSlug} destination action:`, () => {
+describe(`Testing snapshot for ${destinationSlug}'s ${actionSlug} destination action:`, () => {
   it('required fields', async () => {
     const action = destination.actions[actionSlug]
     const [eventData, settingsData] = generateTestData(seedName, destination, action, true)
