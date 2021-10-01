@@ -8,12 +8,11 @@ import {
   BrowserDestinationDefinition
 } from '@segment/browser-destinations'
 import chalk from 'chalk'
-import { uniq, pick, omit, sortBy, mergeWith } from 'lodash'
+import { pick, omit, sortBy, mergeWith } from 'lodash'
 import { diffString } from 'json-diff'
 import ora from 'ora'
 import type {
   ClientRequestError,
-  DestinationMetadata,
   DestinationMetadataActionCreateInput,
   DestinationMetadataActionFieldCreateInput,
   DestinationMetadataActionsUpdateInput,
@@ -212,8 +211,8 @@ export default class Push extends Command {
         mobile: false
       }
 
-      const options = getOptions(metadata, definition)
-      const basicOptions = getBasicOptions(metadata, options)
+      const options = getOptions(definition)
+      const basicOptions = getBasicOptions(options)
       const diff = diffString(
         asJson({
           basicOptions: filterOAuth(metadata.basicOptions),
@@ -274,6 +273,7 @@ export default class Push extends Command {
       try {
         await Promise.all([
           updateDestinationMetadata(metadata.id, {
+            advancedOptions: [], // make sure this gets cleared out since we don't use advancedOptions in Actions
             basicOptions,
             options,
             platforms
@@ -340,16 +340,13 @@ function definitionToJson(definition: DestinationDefinition) {
   return copy
 }
 
-function getBasicOptions(metadata: DestinationMetadata, options: DestinationMetadataOptions): string[] {
-  return uniq([...Object.keys(options), ...metadata.basicOptions])
+function getBasicOptions(options: DestinationMetadataOptions): string[] {
+  return Object.keys(options)
 }
 
 // Note: exporting for testing purposes only
-export function getOptions(
-  metadata: DestinationMetadata,
-  definition: DestinationDefinition
-): DestinationMetadataOptions {
-  const options: DestinationMetadataOptions = { ...metadata.options }
+export function getOptions(definition: DestinationDefinition): DestinationMetadataOptions {
+  const options: DestinationMetadataOptions = {}
 
   const publicSettings = (definition as BrowserDestinationDefinition).settings
   const authFields = (definition as CloudDestinationDefinition).authentication?.fields
@@ -394,9 +391,6 @@ export function getOptions(
         throw new Error(`All choices must have a value that matches the 'type' for this field.`)
       }
     }
-
-    // Remove the previous entry if it exists so we can respect the order of keys as defined in the repo
-    delete options[fieldKey]
 
     options[fieldKey] = {
       default: schema.default ?? '',
