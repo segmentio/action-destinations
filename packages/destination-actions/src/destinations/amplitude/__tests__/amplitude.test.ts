@@ -138,6 +138,93 @@ describe('Amplitude', () => {
       })
     })
 
+    it('should allow alternate revenue names at the root level', async () => {
+      //understand that this is basically just testing mapping kit which is already tested
+      nock('https://api2.amplitude.com/2').post('/httpapi').reply(200, {})
+
+      const event = createTestEvent({
+        event: 'Order Completed',
+        timestamp,
+        properties: {
+          revenue: 1_999,
+          bitcoin_rev: 9_999
+        }
+      })
+
+      const mapping = {
+        revenue: {
+          '@path': '$.properties.bitcoin_rev'
+        }
+      }
+
+      const responses = await testDestination.testAction('logEvent', { event, mapping, useDefaultMappings: true })
+      expect(responses.length).toBe(1)
+      expect(responses[0].status).toBe(200)
+      expect(responses[0].options.json).toMatchObject({
+        api_key: undefined,
+        events: expect.arrayContaining([
+          expect.objectContaining({
+            event_type: 'Order Completed',
+            event_properties: event.properties,
+            revenue: 9_999
+          })
+        ])
+      })
+    })
+
+    it.only('should allow alternate revenue names for products array properties', async () => {
+      // for the time being we dont support per element array mapping, but it will make sense to add a test
+      // for that behavior as well
+      nock('https://api2.amplitude.com/2').post('/httpapi').reply(200, {})
+
+      const event = createTestEvent({
+        event: 'Order Completed',
+        timestamp,
+        properties: {
+          bitcoin_rev: 3_999,
+          products: [
+            {
+              quantity: 1,
+              productId: 'Extrodinary Cake',
+              bitcoin_rev: 1_999,
+              revenue: 99
+            }
+          ]
+        }
+      })
+
+      const mapping = {
+        trackRevenuePerProduct: true,
+        products: [
+          {
+            revenue: {
+              '@path': '$.properties.bitcoin_rev'
+            }
+          }
+        ]
+      }
+
+      const responses = await testDestination.testAction('logEvent', { event, mapping, useDefaultMappings: true })
+      expect(responses.length).toBe(1)
+      expect(responses[0].status).toBe(200)
+
+      expect(responses[0].options.json).toMatchObject({
+        api_key: undefined,
+        events: expect.arrayContaining([
+          expect.objectContaining({
+            event_type: 'Order Completed',
+            event_properties: event.properties
+          }),
+          expect.objectContaining({
+            event_type: 'Product Purchased',
+            revenue: 3_999,
+            // @ts-ignore i know what i'm doing
+            event_properties: event.properties.products[0]
+          })
+        ])
+      })
+    })
+
     it('should work with per product revenue tracking', async () => {
       nock('https://api2.amplitude.com/2').post('/httpapi').reply(200, {})
 
@@ -289,7 +376,7 @@ describe('Amplitude', () => {
           "events": Array [
             Object {
               "device_id": "6fd32a7e-3c56-44c2-bd32-62bbec44c53d",
-              "device_model": undefined,
+              "device_model": "Mac OS",
               "device_type": undefined,
               "event_properties": Object {},
               "event_type": "Test Event",
@@ -329,34 +416,35 @@ describe('Amplitude', () => {
       expect(responses[0].data).toMatchObject({})
 
       expect(responses[0].options.json).toMatchInlineSnapshot(`
-          Object {
-            "api_key": undefined,
-            "events": Array [
-              Object {
-                "city": "San Francisco",
-                "country": "United States",
-                "device_id": "julio",
-                "device_model": "iPhone",
-                "device_type": "mobile",
-                "event_properties": Object {},
-                "event_type": "Test Event",
-                "ip": "8.8.8.8",
-                "language": "en-US",
-                "library": "segment",
-                "location_lat": 40.2964197,
-                "location_lng": -76.9411617,
-                "os_name": "Mobile Safari",
-                "os_version": "9",
-                "session_id": -23074351200000,
-                "time": 1629213675449,
-                "use_batch_endpoint": false,
-                "user_id": "user1234",
-                "user_properties": Object {},
-              },
-            ],
-            "options": undefined,
-          }
-        `)
+        Object {
+          "api_key": undefined,
+          "events": Array [
+            Object {
+              "city": "San Francisco",
+              "country": "United States",
+              "device_id": "julio",
+              "device_model": "iPhone",
+              "device_type": "mobile",
+              "event_properties": Object {},
+              "event_type": "Test Event",
+              "ip": "8.8.8.8",
+              "language": "en-US",
+              "library": "segment",
+              "location_lat": 40.2964197,
+              "location_lng": -76.9411617,
+              "os_name": "Mobile Safari",
+              "os_version": "9",
+              "platform": "Web",
+              "session_id": -23074351200000,
+              "time": 1629213675449,
+              "use_batch_endpoint": false,
+              "user_id": "user1234",
+              "user_properties": Object {},
+            },
+          ],
+          "options": undefined,
+        }
+      `)
     })
   })
 
@@ -569,7 +657,7 @@ describe('Amplitude', () => {
             "api_key",
             "undefined",
             "identification",
-            "{\\"os_name\\":\\"Chrome\\",\\"os_version\\":\\"53\\",\\"user_id\\":\\"some-user-id\\",\\"device_id\\":\\"foo\\",\\"user_properties\\":{\\"some-trait-key\\":\\"some-trait-value\\"},\\"library\\":\\"segment\\"}",
+            "{\\"os_name\\":\\"Chrome\\",\\"os_version\\":\\"53\\",\\"device_model\\":\\"Mac OS\\",\\"user_id\\":\\"some-user-id\\",\\"device_id\\":\\"foo\\",\\"user_properties\\":{\\"some-trait-key\\":\\"some-trait-value\\"},\\"library\\":\\"segment\\"}",
             "options",
             "undefined",
           ],
