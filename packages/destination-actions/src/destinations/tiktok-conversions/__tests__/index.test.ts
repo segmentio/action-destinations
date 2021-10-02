@@ -21,10 +21,15 @@ describe('Tiktok Conversions', () => {
         timestamp: timestamp,
         event: 'Checkout Started',
         messageId: 'corey123',
-        type: 'track'
+        type: 'track',
+        properties: {
+          email: 'coreytest1231@gmail.com',
+          phone: '+1555-555-5555'
+        },
+        userId: 'testId123'
       })
 
-      nock('https://ads.tiktok.com/open_api/v1.2/pixel/track').post('/').reply(200, {})
+      nock('https://business-api.tiktok.com/open_api/v1.2/pixel/track').post('/').reply(200, {})
       const responses = await testDestination.testAction('reportWebEvent', {
         event,
         settings,

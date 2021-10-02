@@ -1,7 +1,67 @@
 import type { DestinationDefinition } from '@segment/actions-core'
+import { defaultValues } from '@segment/actions-core'
 import type { Settings } from './generated-types'
 
 import reportWebEvent from './reportWebEvent'
+
+/** used in the quick setup */
+const presets: DestinationDefinition['presets'] = [
+  {
+    name: 'Intiate Checkout',
+    subscribe: 'event = "Checkout Started',
+    partnerAction: 'reportWebEvent',
+    mapping: {
+      ...defaultValues(reportWebEvent.fields),
+      event: {
+        '@template': 'IntiateCheckout'
+      }
+    }
+  },
+  {
+    name: 'View Content',
+    subscribe: 'type="page"',
+    partnerAction: 'reportWebEvent',
+    mapping: {
+      ...defaultValues(reportWebEvent.fields),
+      event: {
+        '@template': 'ViewContent'
+      }
+    }
+  },
+  {
+    name: 'Products Searched',
+    subscribe: 'event = "Products Searched',
+    partnerAction: 'reportWebEvent',
+    mapping: {
+      ...defaultValues(reportWebEvent.fields),
+      event: {
+        '@template': 'Search'
+      }
+    }
+  },
+  {
+    name: 'Add Payment Info',
+    subscribe: 'event = "Payment Info Entered',
+    partnerAction: 'reportWebEvent',
+    mapping: {
+      ...defaultValues(reportWebEvent.fields),
+      event: {
+        '@template': 'AddPaymentInfo'
+      }
+    }
+  },
+  {
+    name: 'Order Completed',
+    subscribe: 'event = "Order Completed',
+    partnerAction: 'reportWebEvent',
+    mapping: {
+      ...defaultValues(reportWebEvent.fields),
+      event: {
+        '@template': 'PlaceOrder'
+      }
+    }
+  }
+]
 
 const destination: DestinationDefinition<Settings> = {
   name: 'Tiktok Conversions',
@@ -50,7 +110,7 @@ const destination: DestinationDefinition<Settings> = {
       })
     }
   },
-
+  presets,
   actions: {
     reportWebEvent
   }
