@@ -1,7 +1,7 @@
 import type { ActionDefinition } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
-import { mapper } from './mapper'
+import { formatEmail, formatPhone, formatUserId } from './formatter'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Report Web Event',
@@ -35,16 +35,67 @@ const action: ActionDefinition<Settings, Payload> = {
       default: {
         '@path': '$.type'
       }
+    },
+    properties: {
+      label: 'Properties associated with the event',
+      description: 'Additional properties such as content info, description, and currency.',
+      type: 'object',
+      required: false
+    },
+    // PII Fields - These fields must be hashed using SHA 256 and encoded as websafe-base64.
+    phone_number: {
+      label: 'Phone Number',
+      description: 'Phone number of the purchaser, in E.164 standard format, e.g. +14150000000',
+      type: 'string',
+      default: {
+        '@if': {
+          exists: { '@path': '$.properties.phone' },
+          then: { '@path': '$.properties.phone' },
+          else: { '@path': '$.traits.phone' }
+        }
+      }
+    },
+    email: {
+      label: 'Email',
+      description: 'Email address of the customer who triggered the conversion event.',
+      type: 'string',
+      required: true,
+      format: 'email',
+      default: {
+        '@if': {
+          exists: { '@path': '$.properties.email' },
+          then: { '@path': '$.properties.email' },
+          else: { '@path': '$.traits.email' }
+        }
+      }
+    },
+    external_id: {
+      label: 'External ID',
+      description: 'Uniquely identifies a user using Segment ID.',
+      type: 'string',
+      required: true,
+      default: {
+        '@if': {
+          exists: { '@path': '$.userId' },
+          then: { '@path': '$.userId' },
+          else: { '@path': '$.anonymousId' }
+        }
+      }
     }
   },
   perform: (request, { payload, settings }) => {
     const eventId = payload.event_id
       ? payload.event_id.toString() + '_' + (Math.random() + 1).toString(36).substring(7)
       : ''
-    const event = mapper.mapEvents(payload)
+
+    const userData = {
+      hashedExternalId: formatUserId(payload.external_id),
+      hashedEmail: formatEmail(payload.email),
+      hashedPhoneNumber: formatPhone(payload.phone_number)
+    }
 
     // Request to tiktok Events Web API
-    return request('https://ads.tiktok.com/open_api/v1.2/pixel/track/', {
+    return request('https://business-api.tiktok.com/open_api/v1.2/pixel/track/', {
       method: 'post',
       headers: {
         'Access-Token': settings.accessToken,
@@ -52,9 +103,16 @@ const action: ActionDefinition<Settings, Payload> = {
       },
       json: {
         pixel_code: settings.pixel_code,
-        event: event,
+        event: payload.event,
         event_id: eventId,
-        timestamp: payload.timestamp
+        timestamp: payload.timestamp,
+        context: {
+          user: {
+            external_id: userData.hashedExternalId,
+            phone_number: userData.hashedPhoneNumber,
+            email: userData.hashedEmail
+          }
+        }
       }
     })
   }
