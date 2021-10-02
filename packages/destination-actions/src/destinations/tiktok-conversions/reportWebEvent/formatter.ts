@@ -36,6 +36,5 @@ export function formatPhone(phone?: string): string {
 }
 
 function hashAndEncode(property: string) {
-  // Format is websafe-base64 encoded according to https://datatracker.ietf.org/doc/html/rfc4648#section-5
   return createHash('sha256').update(property).digest('hex')
 }
