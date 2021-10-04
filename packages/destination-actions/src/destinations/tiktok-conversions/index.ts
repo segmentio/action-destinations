@@ -12,9 +12,7 @@ const presets: DestinationDefinition['presets'] = [
     partnerAction: 'reportWebEvent',
     mapping: {
       ...defaultValues(reportWebEvent.fields),
-      event: {
-        '@template': 'IntiateCheckout'
-      }
+      event: 'IntiateCheckout'
     }
   },
   {
@@ -23,9 +21,7 @@ const presets: DestinationDefinition['presets'] = [
     partnerAction: 'reportWebEvent',
     mapping: {
       ...defaultValues(reportWebEvent.fields),
-      event: {
-        '@template': 'ViewContent'
-      }
+      event: 'ViewContent'
     }
   },
   {
@@ -34,9 +30,7 @@ const presets: DestinationDefinition['presets'] = [
     partnerAction: 'reportWebEvent',
     mapping: {
       ...defaultValues(reportWebEvent.fields),
-      event: {
-        '@template': 'Search'
-      }
+      event: 'Search'
     }
   },
   {
@@ -45,9 +39,7 @@ const presets: DestinationDefinition['presets'] = [
     partnerAction: 'reportWebEvent',
     mapping: {
       ...defaultValues(reportWebEvent.fields),
-      event: {
-        '@template': 'AddPaymentInfo'
-      }
+      event: 'AddPaymentInfo'
     }
   },
   {
@@ -56,9 +48,7 @@ const presets: DestinationDefinition['presets'] = [
     partnerAction: 'reportWebEvent',
     mapping: {
       ...defaultValues(reportWebEvent.fields),
-      event: {
-        '@template': 'PlaceOrder'
-      }
+      event: 'PlaceOrder'
     }
   }
 ]
@@ -108,6 +98,11 @@ const destination: DestinationDefinition<Settings> = {
           secret: settings.secretKey
         }
       })
+    }
+  },
+  extendRequest({ settings }) {
+    return {
+      headers: { 'Access-Token': settings.accessToken }
     }
   },
   presets,

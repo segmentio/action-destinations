@@ -5,12 +5,14 @@ import { formatEmail, formatPhone, formatUserId } from './formatter'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Report Web Event',
-  description: '',
+  description:
+    'Report events directly to TikTok. Data shared can power TikTok solutions like dynamic product ads, custom targeting, campaign optimization and attribution.',
   fields: {
     event: {
       label: 'Event Name',
       type: 'string',
-      description: 'Conversion event name. Please refer to Tiktok "Web Event" section for accepted event names.',
+      description:
+        'Conversion event name. Please refer to Tiktok "Web Event" section on this [page](https://ads.tiktok.com/marketing_api/docs?id=1701890979375106) for accepted event names.',
       default: {
         '@path': '$.event'
       }
@@ -29,8 +31,8 @@ const action: ActionDefinition<Settings, Payload> = {
       description: 'Timestamp that the event took place. Timestamp with ISO 8601 format.'
     },
     type: {
-      label: 'Event Type',
-      description: 'Override event type. Ex. "page".',
+      label: 'Segment Event Type',
+      description: 'The segment event type. Ex. "page".',
       type: 'string',
       default: {
         '@path': '$.type'
@@ -97,10 +99,6 @@ const action: ActionDefinition<Settings, Payload> = {
     // Request to tiktok Events Web API
     return request('https://business-api.tiktok.com/open_api/v1.2/pixel/track/', {
       method: 'post',
-      headers: {
-        'Access-Token': settings.accessToken,
-        'content-type': 'application/json'
-      },
       json: {
         pixel_code: settings.pixel_code,
         event: payload.event,

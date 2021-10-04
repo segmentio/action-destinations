@@ -2,7 +2,7 @@
 
 export interface Payload {
   /**
-   * Conversion event name. Please refer to Tiktok "Web Event" section for accepted event names.
+   * Conversion event name. Please refer to Tiktok "Web Event" section on this [page](https://ads.tiktok.com/marketing_api/docs?id=1701890979375106) for accepted event names.
    */
   event?: string
   /**
@@ -14,7 +14,7 @@ export interface Payload {
    */
   timestamp?: string
   /**
-   * Override event type. Ex. "page".
+   * The segment event type. Ex. "page".
    */
   type?: string
   /**

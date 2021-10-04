@@ -5,7 +5,6 @@ import { Settings } from '../generated-types'
 
 const testDestination = createTestIntegration(Definition)
 const timestamp = '2021-09-2T15:21:15.449Z'
-// const webEventService = nock('https://ads.tiktok.com/open_api/v1.2')
 
 describe('Tiktok Conversions', () => {
   describe('reportWebEvent', () => {
