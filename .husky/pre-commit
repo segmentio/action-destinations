@@ -1,4 +1,4 @@
-`#!/usr/bin/env bash`
+#!/usr/bin/env bash
 . "$(dirname "$0")/_/husky.sh"
 set -exo pipefail
 
