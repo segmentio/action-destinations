@@ -2,6 +2,10 @@
 
 export interface Payload {
   /**
+   * Whether or not the message should actually get sent.
+   */
+  send?: boolean
+  /**
    * User ID in Segment
    */
   userId: string
@@ -9,6 +13,10 @@ export interface Payload {
    * Email to send to when testing
    */
   toEmail?: string
+  /**
+   * Verified domain in Sendgrid
+   */
+  fromDomain?: string
   /**
    * From Email
    */
@@ -49,4 +57,10 @@ export interface Payload {
    * The HTML content of the body
    */
   bodyHtml: string
+  /**
+   * Additional custom args that we be passed back opaquely on webhook events
+   */
+  customArgs?: {
+    [k: string]: unknown
+  }
 }

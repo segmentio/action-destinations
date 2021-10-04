@@ -2,6 +2,14 @@
 
 export interface Payload {
   /**
+   * The user's id
+   */
+  userId?: string
+  /**
+   * The user's anonymous id
+   */
+  anonymousId?: string
+  /**
    * The user's display name
    */
   displayName?: string

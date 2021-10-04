@@ -2,7 +2,7 @@
 
 export interface Payload {
   /**
-   * The Google Ads conversion label. You can find this value from your Google Ads event snippet. The provided event snippet should have, for example, `send_to: AW-123456789/AbC-D_efG-h12_34-567`. Enter the part after the forward slash, without the AW- prefix, e.g. 123456789
+   * The Google Ads conversion label. You can find it in your Google Ads account using the instructions in the article [Google Ads conversions](https://support.google.com/tagmanager/answer/6105160?hl=en)
    */
   conversion_label: string
   /**

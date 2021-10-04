@@ -8,12 +8,11 @@ import {
   BrowserDestinationDefinition
 } from '@segment/browser-destinations'
 import chalk from 'chalk'
-import { uniq, pick, omit, sortBy, mergeWith } from 'lodash'
+import { pick, omit, sortBy, mergeWith } from 'lodash'
 import { diffString } from 'json-diff'
 import ora from 'ora'
 import type {
   ClientRequestError,
-  DestinationMetadata,
   DestinationMetadataActionCreateInput,
   DestinationMetadataActionFieldCreateInput,
   DestinationMetadataActionsUpdateInput,
@@ -142,6 +141,18 @@ export default class Push extends Command {
             )
           }
 
+          let choices: null | { label: string; value: string } = null
+          if (Array.isArray(field.choices) && field.choices.length > 0) {
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-call
+            choices = field.choices.map((choice: string | { label: string; value: string }) => {
+              if (typeof choice === 'string') {
+                return { label: choice, value: choice }
+              }
+
+              return choice
+            })
+          }
+
           return {
             fieldKey,
             type: field.type,
@@ -150,14 +161,28 @@ export default class Push extends Command {
             defaultValue: field.default,
             required: field.required ?? false,
             multiple: field.multiple ?? false,
-            // TODO implement
-            choices: null,
+            choices,
             dynamic: field.dynamic ?? false,
             placeholder: field.placeholder ?? '',
             allowNull: field.allowNull ?? false,
             fieldSchema: getFieldPropertySchema(fieldKey, field)
           }
         })
+
+        // Automatically include a field for customers to control batching behavior, when supported
+        if (typeof action.performBatch === 'function') {
+          fields.push({
+            fieldKey: 'enable_batching',
+            type: 'boolean',
+            label: 'Enable Batching?',
+            description: 'When enabled, Segment will send events in batches.',
+            defaultValue: false,
+            required: false,
+            multiple: false,
+            dynamic: false,
+            allowNull: false
+          })
+        }
 
         const base: BaseActionInput = {
           slug: actionKey,
@@ -186,8 +211,8 @@ export default class Push extends Command {
         mobile: false
       }
 
-      const options = getOptions(metadata, definition)
-      const basicOptions = getBasicOptions(metadata, options)
+      const options = getOptions(definition)
+      const basicOptions = getBasicOptions(options)
       const diff = diffString(
         asJson({
           basicOptions: filterOAuth(metadata.basicOptions),
@@ -248,6 +273,7 @@ export default class Push extends Command {
       try {
         await Promise.all([
           updateDestinationMetadata(metadata.id, {
+            advancedOptions: [], // make sure this gets cleared out since we don't use advancedOptions in Actions
             basicOptions,
             options,
             platforms
@@ -285,10 +311,12 @@ export default class Push extends Command {
 }
 
 function getFieldPropertySchema(fieldKey: string, field: MinimalInputField): JSONSchema4 {
-  // Build a temporary object in which they key = field name and value = field properties
+  // Build a temporary object in which key = field name and value = field properties
   // since that's the structure expected by fieldsToJsonSchema
   const tmpFieldObject: Record<string, MinimalInputField> = {}
-  tmpFieldObject[fieldKey] = field
+  // removing default data since it's available under defaultValue
+  const { default: def, ...fieldWODefault } = field
+  tmpFieldObject[fieldKey] = fieldWODefault
   return fieldsToJsonSchema(tmpFieldObject)
 }
 
@@ -312,16 +340,13 @@ function definitionToJson(definition: DestinationDefinition) {
   return copy
 }
 
-function getBasicOptions(metadata: DestinationMetadata, options: DestinationMetadataOptions): string[] {
-  return uniq([...metadata.basicOptions, ...Object.keys(options)])
+function getBasicOptions(options: DestinationMetadataOptions): string[] {
+  return Object.keys(options)
 }
 
 // Note: exporting for testing purposes only
-export function getOptions(
-  metadata: DestinationMetadata,
-  definition: DestinationDefinition
-): DestinationMetadataOptions {
-  const options: DestinationMetadataOptions = { ...metadata.options }
+export function getOptions(definition: DestinationDefinition): DestinationMetadataOptions {
+  const options: DestinationMetadataOptions = {}
 
   const publicSettings = (definition as BrowserDestinationDefinition).settings
   const authFields = (definition as CloudDestinationDefinition).authentication?.fields

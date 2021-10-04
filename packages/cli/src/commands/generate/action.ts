@@ -84,6 +84,7 @@ export default class GenerateAction extends Command {
     const targetDirectory = path.join(process.cwd(), relativePath)
     const destinationFolder = path.parse(answers.directory).base
     const destination = startCase(camelCase(destinationFolder)).replace(/ /g, '')
+    const snapshotPath = path.join(__dirname, '../../../templates/actions/action-snapshot')
 
     let templatePath = path.join(__dirname, '../../../templates/actions/empty-action')
     if (args.type === 'browser') {
@@ -106,6 +107,23 @@ export default class GenerateAction extends Command {
       this.spinner.succeed(`Scaffold action`)
     } catch (err) {
       this.spinner.fail(`Scaffold action: ${chalk.red(err.message)}`)
+      this.exit()
+    }
+
+    try {
+      this.spinner.start(`Creating snapshot tests for ${chalk.bold(`${destination}'s ${slug}`)} destination action`)
+      renderTemplates(
+        snapshotPath,
+        targetDirectory,
+        {
+          destination: destination,
+          actionSlug: slug
+        },
+        true
+      )
+      this.spinner.succeed(`Creating snapshot tests for ${chalk.bold(`${destination}'s ${slug}`)} destination action`)
+    } catch (err) {
+      this.spinner.fail(`Snapshot test creation failed: ${chalk.red(err.message)}`)
       this.exit()
     }
 

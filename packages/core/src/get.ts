@@ -5,17 +5,18 @@
 export function get<T = unknown, Default = undefined>(
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   obj: any,
-  path: string | string[],
-  defValue?: Default
+  path: string | string[]
 ): T | Default | undefined {
-  // If path is not defined or it has false value
-  if (!path) return defValue
+  // Root value
+  if (path === '' || path === '.') return obj
+
+  // Not defined
+  if (path === null || path == undefined) return undefined
 
   // Check if path is string or array. Regex : ensure that we do not have '.' and brackets.
   // Regex explained: https://regexr.com/58j0k
   const pathArray = Array.isArray(path) ? path : (path.match(/([^[.\]])+/g) as string[])
 
   // Find value if exist return otherwise return undefined value
-  const value = pathArray.reduce((prevObj, key) => prevObj && prevObj[key], obj)
-  return typeof value !== 'undefined' ? value : defValue
+  return pathArray.reduce((prevObj, key) => prevObj && prevObj[key], obj)
 }

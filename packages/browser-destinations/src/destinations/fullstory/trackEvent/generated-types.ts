@@ -2,11 +2,11 @@
 
 export interface Payload {
   /**
-   * The name of the event to be tracked
+   * The name of the event.
    */
   name: string
   /**
-   * A propeties object containing a payload
+   * A JSON object containing additional information about the event that will be indexed by FullStory.
    */
   properties?: {
     [k: string]: unknown

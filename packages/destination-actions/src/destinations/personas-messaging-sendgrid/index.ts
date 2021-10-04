@@ -3,7 +3,7 @@ import type { Settings } from './generated-types'
 import sendEmail from './sendEmail'
 
 const destination: DestinationDefinition<Settings> = {
-  name: 'Personas Messaging Sendgrid',
+  name: 'Actions Personas Messaging Sendgrid',
   mode: 'cloud',
   description: 'This is a personas specific action to send an email',
   authentication: {

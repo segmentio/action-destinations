@@ -90,9 +90,25 @@ const action: ActionDefinition<Settings, Payload> = {
       description: 'Message to send',
       type: 'text',
       required: true
+    },
+    customArgs: {
+      label: 'Custom Arguments',
+      description: 'Additional custom arguments that will be opaquely sent back on webhook events',
+      type: 'object',
+      required: false
+    },
+    send: {
+      label: 'Send Message',
+      description: 'Whether or not the message should actually get sent.',
+      type: 'boolean',
+      required: false,
+      default: false
     }
   },
   perform: async (request, { settings, payload }) => {
+    if (!payload.send) {
+      return
+    }
     const [traits, externalIds] = await Promise.all([
       fetchProfileTraits(request, settings, payload.userId),
       fetchProfileExternalIds(request, settings, payload.userId)
@@ -113,16 +129,31 @@ const action: ActionDefinition<Settings, Payload> = {
     // and we no longer need to call the profiles API first
     const token = Buffer.from(`${settings.twilioAccountId}:${settings.twilioAuthToken}`).toString('base64')
 
+    const body = new URLSearchParams({
+      Body: Mustache.render(payload.body, { profile }),
+      From: payload.fromNumber,
+      To: phone
+    })
+
+    const webhookUrl = settings.webhookUrl
+    const customArgs = payload.customArgs
+    if (webhookUrl && customArgs) {
+      // Webhook URL parsing has a potential of failing. I think it's better that
+      // we fail out of any invocation than silently not getting analytics
+      // data if that's what we're expecting.
+      const webhookUrlWithParams = new URL(webhookUrl)
+      for (const key of Object.keys(customArgs)) {
+        webhookUrlWithParams.searchParams.append(key, String(customArgs[key]))
+      }
+      body.append('StatusCallback', webhookUrlWithParams.toString())
+    }
+
     return request(`https://api.twilio.com/2010-04-01/Accounts/${settings.twilioAccountId}/Messages.json`, {
       method: 'POST',
       headers: {
         authorization: `Basic ${token}`
       },
-      body: new URLSearchParams({
-        Body: Mustache.render(payload.body, { profile }),
-        From: payload.fromNumber,
-        To: phone
-      })
+      body
     })
   }
 }

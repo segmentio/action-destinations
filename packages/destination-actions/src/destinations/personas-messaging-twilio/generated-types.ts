@@ -25,4 +25,8 @@ export interface Settings {
    * Source ID
    */
   sourceId: string
+  /**
+   * Webhook URL that will receive all events for the sent message
+   */
+  webhookUrl?: string
 }

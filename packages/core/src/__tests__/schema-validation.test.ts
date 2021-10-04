@@ -36,7 +36,7 @@ describe('validateSchema', () => {
       nope: 'not a property'
     }
 
-    validateSchema(payload, schema, `testSchema`)
+    validateSchema(payload, schema, { schemaKey: `testSchema` })
 
     expect(payload).not.toHaveProperty('nope')
     expect(payload).toMatchInlineSnapshot(`Object {}`)
@@ -51,7 +51,7 @@ describe('validateSchema', () => {
       d: 'd'
     }
 
-    validateSchema(payload, schema, `testSchema`)
+    validateSchema(payload, schema, { schemaKey: `testSchema` })
     expect(payload).toHaveProperty('b')
     expect(payload.b).toHaveProperty('anything')
     expect(payload).toMatchInlineSnapshot(`
@@ -64,6 +64,22 @@ describe('validateSchema', () => {
     `)
   })
 
+  it('should not throw when throwIfInvalid = false', () => {
+    const requiredSchema = fieldsToJsonSchema({
+      a: {
+        label: 'a',
+        type: 'string',
+        required: true
+      }
+    })
+
+    const payload = {}
+
+    const isValid = validateSchema(payload, requiredSchema, { schemaKey: `testInvalid`, throwIfInvalid: false })
+    expect(isValid).toBe(false)
+    expect(payload).toMatchInlineSnapshot(`Object {}`)
+  })
+
   // For now we always remove unknown keys, until builders have a way to specify the behavior
   it.todo('should not remove nested keys for valid properties')
 
@@ -74,7 +90,7 @@ describe('validateSchema', () => {
       f: '123'
     }
 
-    validateSchema(payload, schema, `testSchema`)
+    validateSchema(payload, schema, { schemaKey: `testSchema` })
     expect(payload).toMatchInlineSnapshot(`
       Object {
         "a": "1234",
