@@ -1,6 +1,12 @@
 import type { DestinationDefinition } from '@segment/actions-core'
 import type { Settings } from './generated-types'
 
+const uuidRegex = /^[0-9a-f]{8}-(?:[0-9a-f]{4}-){3}[0-9a-f]{12}$/
+
+function isUuid(s: string) {
+  return uuidRegex.test(s)
+}
+
 const destination: DestinationDefinition<Settings> = {
   name: 'Friendbuy',
   slug: 'friendbuy',
@@ -8,11 +14,18 @@ const destination: DestinationDefinition<Settings> = {
 
   authentication: {
     scheme: 'custom',
-    fields: {},
-    testAuthentication: (_request) => {
-      // Return a request that tests/validates the user's credentials.
-      // If you do not have a way to validate the authentication fields safely,
-      // you can remove the `testAuthentication` function, though discouraged.
+    fields: {
+      merchantId: {
+        label: 'Merchant ID',
+        description: 'Your Friendbuy Merchant ID.',
+        type: 'string',
+        required: true
+      }
+    },
+    testAuthentication: (_request, { settings }) => {
+      if (!isUuid(settings.merchantId)) {
+        throw new Error('bad merchantId')
+      }
     }
   },
 
