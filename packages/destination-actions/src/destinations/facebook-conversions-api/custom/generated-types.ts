@@ -2,6 +2,10 @@
 
 export interface Payload {
   /**
+   * A Facebook pixel Standard Event or Custom Event name.
+   */
+  event_name: string
+  /**
    * These parameters are a set of identifiers Facebook can use for targeted attribution. You must provide at least one of the following user_data keys in your request
    */
   user_data?: {
@@ -94,34 +98,4 @@ export interface Payload {
    * The browser URL where the event happened. The URL must begin with http:// or https:// and should match the verified domain. event_source_url is required if action_source = “website”; however it is strongly recommended that you include it for any action_source.
    */
   event_source_url?: string
-  /**
-   * Product IDs associated with the event, such as SKUs (e.g. ["ABC123", "XYZ789"]).
-   */
-  content_ids?: string[]
-  /**
-   * Category of the page/product.
-   */
-  content_category?: string
-  /**
-   * Name of the page/product.
-   */
-  content_name?: string
-  /**
-   * Either product or product_group based on the content_ids or contents being passed.
-   */
-  content_type?: string
-  /**
-   * An array of JSON objects that contains the quantity and the International Article Number (EAN) when applicable, or other product or content identifier(s). id and quantity are the required fields.
-   */
-  contents?: {
-    [k: string]: unknown
-  }[]
-  /**
-   * The currency for the value specified.
-   */
-  currency?: string
-  /**
-   * The value of a user performing this event to the business.
-   */
-  value?: number
 }

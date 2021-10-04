@@ -54,7 +54,7 @@ export interface Payload {
      */
     client_ip_address?: string
     /**
-     * The user agent for the browser corresponding to the event.
+     * The user agent for the browser corresponding to the event. client_user_agent is required if action_source = “website”; however it is strongly recommended that you include it for any action_source.
      */
     client_user_agent?: string
     /**
@@ -91,7 +91,7 @@ export interface Payload {
    */
   event_id?: string
   /**
-   * The browser URL where the event happened. The URL must begin with http:// or https:// and should match the verified domain.
+   * The browser URL where the event happened. The URL must begin with http:// or https:// and should match the verified domain. event_source_url is required if action_source = “website”; however it is strongly recommended that you include it for any action_source.
    */
   event_source_url?: string
   /**

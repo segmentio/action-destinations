@@ -8,8 +8,10 @@ import search from './search'
 import pageView from './pageView'
 import { API_VERSION } from './constants'
 
+import custom from './custom'
+
 const destination: DestinationDefinition<Settings> = {
-  name: 'Actions Facebook Conversions',
+  name: 'Facebook Conversions API',
   slug: 'facebook-conversions-api',
   mode: 'cloud',
 
@@ -29,9 +31,12 @@ const destination: DestinationDefinition<Settings> = {
       }
     },
     testAuthentication: async (request, { settings }) => {
-      const res = await request(`https://graph.facebook.com/v${API_VERSION}/${settings.pixelId}/events?access_token=${settings.token}`, {
-        method: 'GET'
-      })
+      const res = await request(
+        `https://graph.facebook.com/v${API_VERSION}/${settings.pixelId}/events?access_token=${settings.token}`,
+        {
+          method: 'GET'
+        }
+      )
       return res.status === 200
     }
   },
@@ -41,7 +46,8 @@ const destination: DestinationDefinition<Settings> = {
     addToCart,
     viewContent,
     search,
-    pageView
+    pageView,
+    custom
   }
 }
 
