@@ -104,6 +104,11 @@ const action: ActionDefinition<Settings, Payload> = {
       type: 'string',
       required: true
     },
+    replyToEqualsFrom: {
+      label: 'Reply To Equals From',
+      description: 'Whether "reply to" settings are the same as "from"',
+      type: 'boolean'
+    },
     replyToEmail: {
       label: 'Reply To Email',
       description: 'The Email used by user to Reply To',
