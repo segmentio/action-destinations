@@ -2289,7 +2289,7 @@
 
 "@segment/control-plane-service-client@github:segmentio/control-plane-service-js-client.git#master":
   version "9.3.0"
-  resolved "git+ssh://git@github.com/segmentio/control-plane-service-js-client.git#a47c79b0156a7639ac7f933a56a489be60fb7e7f"
+  resolved "git+ssh://git@github.com/segmentio/control-plane-service-js-client.git#63bcaae1a383126c558c0633f57174f1570f5477"
   dependencies:
     "@segment/remote-service-client" "^2.4.0"
     aws4 "^1.11.0"
