@@ -68,7 +68,7 @@ describe('destination kit', () => {
     test('should return `invalid subscription` when sending an empty subscribe', async () => {
       const destinationTest = new Destination(destinationCustomAuth)
       const testEvent: SegmentEvent = { type: 'track' }
-      const testSettings = { subscription: { subscribe: '', partnerAction: 'customEvent' } }
+      const testSettings = { apiSecret: 'test_key', subscription: { subscribe: '', partnerAction: 'customEvent' } }
       const res = await destinationTest.onEvent(testEvent, testSettings)
       expect(res).toEqual([{ output: 'invalid subscription' }])
     })
@@ -76,17 +76,34 @@ describe('destination kit', () => {
     test('should return invalid subscription with details when sending an invalid subscribe', async () => {
       const destinationTest = new Destination(destinationCustomAuth)
       const testEvent: SegmentEvent = { type: 'track' }
-      const testSettings = { subscription: { subscribe: 'typo', partnerAction: 'customEvent' } }
+      const testSettings = { apiSecret: 'test_key', subscription: { subscribe: 'typo', partnerAction: 'customEvent' } }
       const res = await destinationTest.onEvent(testEvent, testSettings)
       expect(res).toEqual([{ output: "invalid subscription : Cannot read property 'type' of undefined" }])
     })
 
     test('should return `not subscribed` when providing an empty event', async () => {
       const destinationTest = new Destination(destinationCustomAuth)
-      const testSettings = { subscription: { subscribe: 'type = "track"', partnerAction: 'customEvent' } }
+      const testSettings = {
+        apiSecret: 'test_key',
+        subscription: { subscribe: 'type = "track"', partnerAction: 'customEvent' }
+      }
       // @ts-ignore needed for replicating empty event at runtime
       const res = await destinationTest.onEvent({}, testSettings)
       expect(res).toEqual([{ output: 'not subscribed' }])
+    })
+
+    test('should fail if provided invalid settings', async () => {
+      const destinationTest = new Destination(destinationCustomAuth)
+      const testEvent: SegmentEvent = { type: 'track' }
+      const testSettings = {
+        apiSecret: undefined,
+        subscription: { subscribe: 'type = "track"', partnerAction: 'customEvent' }
+      }
+      // @ts-expect-error we are missing valid settings on purpose!
+      const promise = destinationTest.onEvent(testEvent, testSettings)
+      await expect(promise).rejects.toThrowErrorMatchingInlineSnapshot(
+        `"The root value is missing the required field 'apiSecret'."`
+      )
     })
 
     test('should succeed if provided with a valid event & settings', async () => {
