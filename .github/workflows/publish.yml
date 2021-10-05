@@ -2,8 +2,12 @@ name: Publish
 
 on:
   pull_request:
-    branches: [main]
-    types: [closed]
+    branches: 
+      - main
+    types: 
+      - opened
+      - synchronize
+      - closed
     paths:
       - packages/**
   workflow_dispatch:
@@ -36,14 +40,26 @@ jobs:
     runs-on: ubuntu-latest
 
     needs: get-version
-    if: ${{ needs.get-version.outputs.version }}
+
+    # require a version unless a PR is opened or synchronized
+    # prevents unlabeled PRs from getting published as production packages
+    if: ${{ needs.get-version.outputs.version || github.event.action == 'opened' || github.event.action == 'synchronize' }}
 
     strategy:
       matrix:
         node-version: [14.x]
 
     steps:
+      # if running from workflow_dispatch or closing a PR, checkout main
       - uses: actions/checkout@v2
+        if: ${{ github.event_name == 'workflow_dispatch' || github.event.action == 'closed' }}
+
+      # else checkout branch
+      - uses: actions/checkout@v2
+        if: ${{ github.event_name != 'workflow_dispatch' && github.event.action != 'closed'}}
+        with:
+          ref: ${{ github.head_ref }}
+          fetch-depth: 0  # pull tags for lerna to compare changes
 
       - name: Use Node.js ${{ matrix.node-version }}
         uses: actions/setup-node@v2
@@ -79,17 +95,23 @@ jobs:
         if: ${{ github.event_name == 'workflow_dispatch' }}
         run: yarn test
 
+      # set to the author of the most recent commit
       - name: Set author
         run: |
           git config user.email "`git log --format='%ae' HEAD^!`"
-          git config user.email
           git config user.name "`git log --format='%an' HEAD^!`"
+          git config user.email
           git config user.name
 
       - name: Set NPM Token
         run: |
           npm set '//registry.npmjs.org/:_authToken' ${{ secrets.NPM_TOKEN }}
-          npm whoami 
+          npm whoami
 
-      - name: Publish
-        run: lerna publish ${{ needs.get-version.outputs.version }} --no-verify-access --yes
+      - name: Publish production package
+        if: ${{ github.event_name == 'workflow_dispatch' || github.event.action == 'closed' }}
+        run: lerna publish ${{ needs.get-version.outputs.version }} --conventional-commits --no-changelog --conventional-graduate --no-verify-access --yes
+
+      - name: Publish prerelease from PR
+        if: ${{ github.event.action == 'opened' || github.event.action == 'synchronize' }}
+        run: lerna publish prerelease --preid ${{ github.head_ref }} --pre-dist-tag canary --no-verify-access --yes
