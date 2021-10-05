@@ -206,7 +206,15 @@ export class Destination<Settings = JSONObject> {
 
   validateSettings(settings: Settings): void {
     if (this.settingsSchema) {
-      validateSchema(settings, this.settingsSchema, { schemaKey: `${this.name}:settings` })
+      try {
+        validateSchema(settings, this.settingsSchema, { schemaKey: `${this.name}:settings` })
+      } catch (error) {
+        if (error.name === 'AggregateAjvError' || error.name === 'ValidationError') {
+          error.status = 400
+        }
+
+        throw error
+      }
     }
   }
 
