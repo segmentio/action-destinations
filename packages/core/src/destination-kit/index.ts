@@ -204,6 +204,12 @@ export class Destination<Settings = JSONObject> {
     }
   }
 
+  validateSettings(settings: Settings): void {
+    if (this.settingsSchema) {
+      validateSchema(settings, this.settingsSchema, { schemaKey: `${this.name}:settings` })
+    }
+  }
+
   async testAuthentication(settings: Settings): Promise<void> {
     const destinationSettings = this.getDestinationSettings(settings as unknown as JSONObject)
     const auth = getAuthData(settings as unknown as JSONObject)
@@ -211,9 +217,8 @@ export class Destination<Settings = JSONObject> {
 
     const context: ExecuteInput<Settings, undefined> = { settings: destinationSettings, payload: undefined, auth }
 
-    if (this.settingsSchema) {
-      validateSchema(settings, this.settingsSchema, { schemaKey: `${this.name}:settings` })
-    }
+    // Validate settings according to the destination's `authentication.fields` schema
+    this.validateSettings(destinationSettings)
 
     if (!this.authentication?.testAuthentication) {
       return
@@ -391,6 +396,9 @@ export class Destination<Settings = JSONObject> {
   ): Promise<Result[]> {
     const subscriptions = this.getSubscriptions(settings)
     const destinationSettings = this.getDestinationSettings(settings)
+
+    // Validate settings according to the destination's `authentication.fields` schema
+    this.validateSettings(destinationSettings)
 
     const run = async () => {
       const authData = getAuthData(settings)
