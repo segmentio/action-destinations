@@ -104,3 +104,12 @@ jobs:
           SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
         with:
           args: --severity-threshold=high --fail-on=upgradable --all-projects --policy-path=.snyk
+
+  check-for-secrets:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v1
+      - name: gitleaks-action
+        uses: zricethezav/gitleaks-action@master
+        with:
+          config-path: .husky/gitleaks-rules.toml
