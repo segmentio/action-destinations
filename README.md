@@ -11,21 +11,37 @@ Fore more detailed instruction, see the following READMEs:
 
 ### Local development
 
-This project is a monorepo with multiple packages using Yarn Workspaces:
+This is a monorepo with multiple packages leveraging [`lerna`](https://github.com/lerna/lerna) with [Yarn Workspaces](https://classic.yarnpkg.com/en/docs/workspaces):
 
+- `packages/ajv-human-errors` - a wrapper around [AJV](https://ajv.js.org/) errors to produce more friendly validation messages
+- `packages/browser-destinations` - destination definitions that run on device via Analytics 2.0
 - `packages/cli` - a set of command line tools for interacting with the repo
 - `packages/core` - the core runtime engine for actions, including mapping-kit transforms
 - `packages/destinations-actions` - destination definitions and their actions
 - `packages/destinations-subscriptions` - validates events against an action's subscription AST
 
+### Getting set up
+
+You'll need to have some tools installed locally to build and test action destinations.
+
+- Yarn 1.x
+- Node 14.17 (latest LTS, we recommand using [`nvm`](https://github.com/nvm-sh/nvm) for managing Node versions)
+
+If you are a Segment employee you can directly `git clone` the repository locally. Otherwise you'll want to fork this repository for your organization to submit Pull Requests against the main Segment repository. Once you've got a fork, you can `git clone` that locally.
+
 ```sh
-git clone https://github.com/segmentio/action-destinations.git
+# Clone the repo locally
+git clone <your fork or https://github.com/segmentio/action-destinations.git>
 cd action-destinations
+
 npm login
 yarn login
+
 # Requires node 14.17, optionally: nvm use 14.17
-yarn --ignore-engines --ignore-optional
+yarn --ignore-optional
 yarn bootstrap
+
+# Run unit tests to ensure things are working! All tests should pass :)
 yarn test
 ```
 
@@ -58,7 +74,7 @@ If a CLI command fails to work properly, run the command with `DEBUG=*` at the b
 
 ### Testing
 
-Refer [here](./packages/docs/testing.md) for more information about testing your destination actions.
+Refer [here](./docs/testing.md) for more information about testing your destination actions.
 
 ### Configuring
 
