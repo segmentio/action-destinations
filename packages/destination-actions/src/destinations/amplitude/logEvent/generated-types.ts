@@ -152,6 +152,10 @@ export interface Payload {
    */
   insert_id?: string
   /**
+   * The name of the library that generated the event.
+   */
+  library?: string
+  /**
    * The list of products purchased.
    */
   products?: {

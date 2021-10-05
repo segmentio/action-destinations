@@ -44,8 +44,8 @@ const action: BrowserActionDefinition<Settings, typeof FullStory, Payload> = {
   perform: (_, event) => {
     if (event.payload.pageName) {
       window.FS.setVars('page', { pageName: event.payload.pageName, ...event.payload.properties })
-    } else {
-      window.FS.setVars('page', event.payload.properties || {})
+    } else if (event.payload.properties) {
+      window.FS.setVars('page', event.payload.properties)
     }
   }
 }

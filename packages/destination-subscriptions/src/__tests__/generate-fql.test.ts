@@ -113,3 +113,20 @@ test('should handle ast with nested childs', () => {
 		'type = "track" and (event = "Page Viewed" or event = "Order Completed")'
 	)
 })
+
+test('should handle ast with nested (dot-delimited) properties', () => {
+	const ast: Subscription = {
+		type: 'group',
+		operator: 'and',
+		children: [
+			{
+				type: 'event-property',
+				name: 'foo.bar.baz',
+				operator: '=',
+				value: 'hello'
+			}
+		]
+	}
+
+	expect(generateFql(ast)).toEqual('properties.foo.bar.baz = "hello"')
+})
