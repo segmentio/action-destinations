@@ -34,7 +34,7 @@ const destination: DestinationDefinition<Settings> = {
         type: 'string',
         format: 'uri',
         choices: Object.values(AccountRegion).map((dc) => ({ label: dc, value: dc })),
-        default: 'https://track.customer.io'
+        default: 'US 🇺🇸'
       }
     },
     testAuthentication: (request) => {
