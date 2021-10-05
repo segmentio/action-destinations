@@ -54,6 +54,7 @@ const presets: DestinationDefinition['presets'] = [
 
 const destination: DestinationDefinition<Settings> = {
   name: 'Mixpanel (Actions)',
+  slug: 'actions-mixpanel',
   mode: 'cloud',
   authentication: {
     scheme: 'custom',
