@@ -1,0 +1,18 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Testing snapshot for Mixpanel's alias destination action: all fields 1`] = `"data=%7B%22event%22%3A%22%24create_alias%22%2C%22properties%22%3A%7B%22distinct_id%22%3A%222BBG8JV%25srXc%21qE%22%2C%22alias%22%3A%222BBG8JV%25srXc%21qE%22%2C%22token%22%3A%222BBG8JV%25srXc%21qE%22%7D%7D"`;
+
+exports[`Testing snapshot for Mixpanel's alias destination action: required fields 1`] = `"data=%7B%22event%22%3A%22%24create_alias%22%2C%22properties%22%3A%7B%22distinct_id%22%3A%222BBG8JV%25srXc%21qE%22%2C%22token%22%3A%222BBG8JV%25srXc%21qE%22%7D%7D"`;
+
+exports[`Testing snapshot for Mixpanel's alias destination action: required fields 2`] = `
+Headers {
+  Symbol(map): Object {
+    "Content-Type": Array [
+      "application/x-www-form-urlencoded;charset=UTF-8",
+    ],
+    "user-agent": Array [
+      "Segment",
+    ],
+  },
+}
+`;
