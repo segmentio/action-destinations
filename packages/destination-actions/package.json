@@ -1,7 +1,7 @@
 {
   "name": "@segment/action-destinations",
   "description": "Destination Actions engine and definitions.",
-  "version": "3.13.0",
+  "version": "3.14.0",
   "repository": {
     "type": "git",
     "url": "https://github.com/segmentio/action-destinations",
@@ -56,5 +56,6 @@
     "setupFilesAfterEnv": [
       "<rootDir>/test/setup-after-env.ts"
     ]
-  }
+  },
+  "gitHead": "218a80bcbb810692b119cc7cf3d7c1ea782c447a"
 }
