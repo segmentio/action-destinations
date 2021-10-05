@@ -54,8 +54,8 @@ const presets: DestinationDefinition['presets'] = [
 ]
 
 const destination: DestinationDefinition<Settings> = {
-  name: 'Tiktok Conversions',
-  slug: 'tiktok-conversions',
+  name: 'Actions Tiktok Conversions',
+  slug: 'actions-tiktok-conversions',
   mode: 'cloud',
 
   authentication: {
