@@ -44,8 +44,6 @@ jobs:
 
     steps:
       - uses: actions/checkout@v2
-        with:
-          persist-credentials: false
 
       - name: Use Node.js ${{ matrix.node-version }}
         uses: actions/setup-node@v2
@@ -84,10 +82,14 @@ jobs:
       - name: Set author
         run: |
           git config user.email "`git log --format='%ae' HEAD^!`"
+          git config user.email
           git config user.name "`git log --format='%an' HEAD^!`"
+          git config user.name
+
+      - name: Set NPM Token
+        run: |
+          npm set '//registry.npmjs.org/:_authToken' ${{ secrets.NPM_TOKEN }}
+          npm whoami 
 
       - name: Publish
-        env:
-          GITHUB_TOKEN: ${{ secrets.GH_PAT }}
-          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
-        run: lerna publish ${{ needs.get-version.outputs.version }} --yes
+        run: lerna publish ${{ needs.get-version.outputs.version }} --no-verify-access --yes

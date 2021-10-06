@@ -111,6 +111,71 @@ for (const environment of ['stage', 'production']) {
         settings,
         mapping: {
           userId: { '@path': '$.userId' },
+          fromDomain: null,
+          fromEmail: 'from@example.com',
+          fromName: 'From Name',
+          replyToEmail: 'replyto@example.com',
+          replyToName: 'Test user',
+          bcc: JSON.stringify([
+            {
+              email: 'test@test.com'
+            }
+          ]),
+          previewText: '',
+          subject: 'Hello {{profile.traits.lastName}} {{profile.traits.firstName}}.',
+          body: 'Hi {{profile.traits.firstName}}, Welcome to segment',
+          bodyType: 'html',
+          bodyHtml: 'Hi {{profile.traits.firstName}}, Welcome to segment',
+          send: true
+        }
+      })
+
+      expect(responses.length).toEqual(3)
+      expect(sendGridRequest.isDone()).toEqual(true)
+    })
+    it('should not send Email', async () => {
+      const responses = await sendgrid.testAction('sendEmail', {
+        event: createTestEvent({
+          timestamp,
+          event: 'Audience Entered',
+          userId: userData.userId
+        }),
+        settings,
+        mapping: {
+          userId: { '@path': '$.userId' },
+          fromDomain: null,
+          fromEmail: 'from@example.com',
+          fromName: 'From Name',
+          replyToEmail: 'replyto@example.com',
+          replyToName: 'Test user',
+          bcc: JSON.stringify([
+            {
+              email: 'test@test.com'
+            }
+          ]),
+          previewText: '',
+          subject: 'Hello {{profile.traits.lastName}} {{profile.traits.firstName}}.',
+          body: 'Hi {{profile.traits.firstName}}, Welcome to segment',
+          bodyType: 'html',
+          bodyHtml: 'Hi {{profile.traits.firstName}}, Welcome to segment',
+          send: false
+        }
+      })
+
+      expect(responses.length).toEqual(0)
+    })
+
+    it('should not send Email when send field in not sent', async () => {
+      const responses = await sendgrid.testAction('sendEmail', {
+        event: createTestEvent({
+          timestamp,
+          event: 'Audience Entered',
+          userId: userData.userId
+        }),
+        settings,
+        mapping: {
+          userId: { '@path': '$.userId' },
+          fromDomain: null,
           fromEmail: 'from@example.com',
           fromName: 'From Name',
           replyToEmail: 'replyto@example.com',
@@ -128,8 +193,7 @@ for (const environment of ['stage', 'production']) {
         }
       })
 
-      expect(responses.length).toEqual(3)
-      expect(sendGridRequest.isDone()).toEqual(true)
+      expect(responses.length).toEqual(0)
     })
 
     it('should send email with journey metadata', async () => {
@@ -187,6 +251,7 @@ for (const environment of ['stage', 'production']) {
         settings,
         mapping: {
           userId: { '@path': '$.userId' },
+          fromDomain: null,
           fromEmail: 'from@example.com',
           fromName: 'From Name',
           replyToEmail: 'replyto@example.com',
@@ -199,13 +264,14 @@ for (const environment of ['stage', 'production']) {
           customArgs: {
             journey_id: 'journeyId',
             journey_state_id: 'journeyStateId',
-            audience_id: 'audienceId',
+            audience_id: 'audienceId'
           },
           previewText: '',
           subject: 'Test email with metadata',
           body: 'Welcome to segment',
           bodyType: 'html',
-          bodyHtml: 'Welcome to segment'
+          bodyHtml: 'Welcome to segment',
+          send: true
         }
       })
 

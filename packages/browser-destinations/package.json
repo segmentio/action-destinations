@@ -1,6 +1,6 @@
 {
   "name": "@segment/browser-destinations",
-  "version": "3.8.5",
+  "version": "3.11.1",
   "description": "Action based browser destinations",
   "author": "Netto Farah",
   "private": true,
@@ -30,7 +30,7 @@
     "@braze/web-sdk": "^3.3.0",
     "@fullstory/browser": "^1.4.9",
     "@segment/analytics-next": "^1.29.3",
-    "@segment/destination-subscriptions": "^3.5.0",
+    "@segment/destination-subscriptions": "^3.7.0",
     "dayjs": "^1.10.3",
     "tslib": "^2.1.0",
     "vm-browserify": "^1.1.2"
@@ -41,6 +41,7 @@
     "@babel/plugin-transform-modules-commonjs": "^7.13.8",
     "@babel/preset-env": "^7.13.10",
     "@babel/preset-typescript": "^7.13.0",
+    "@segment/actions-core": "^3.11.1",
     "@types/amplitude-js": "^7.0.1",
     "@types/intercom-web": "^2.8.11",
     "@types/jest": "^26.0.23",
@@ -59,9 +60,6 @@
     "webpack-bundle-analyzer": "^4.4.1",
     "webpack-cli": "^4.4.0",
     "webpack-dev-server": "^4.2.0"
-  },
-  "optionalDependencies": {
-    "@segment/actions-core": "^3.8.3"
   },
   "prettier": {
     "semi": false,

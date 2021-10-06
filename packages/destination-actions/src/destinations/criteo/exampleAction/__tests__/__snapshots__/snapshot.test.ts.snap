@@ -1,0 +1,13 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Testing snapshot for Criteo's exampleAction destination action: all fields 1`] = `
+Object {
+  "greeting": "2vMFL6kn(3qug",
+}
+`;
+
+exports[`Testing snapshot for Criteo's exampleAction destination action: required fields 1`] = `
+Object {
+  "greeting": "2vMFL6kn(3qug",
+}
+`;

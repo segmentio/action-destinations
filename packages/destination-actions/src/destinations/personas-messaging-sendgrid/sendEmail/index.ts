@@ -68,6 +68,13 @@ const action: ActionDefinition<Settings, Payload> = {
   description: 'Sends Email to a user powered by SendGrid',
   defaultSubscription: 'type = "track" and event = "Audience Entered"',
   fields: {
+    send: {
+      label: 'Send Message',
+      description: 'Whether or not the message should actually get sent.',
+      type: 'boolean',
+      required: false,
+      default: false
+    },
     userId: {
       label: 'User ID',
       description: 'User ID in Segment',
@@ -78,6 +85,11 @@ const action: ActionDefinition<Settings, Payload> = {
     toEmail: {
       label: 'Test Email',
       description: 'Email to send to when testing',
+      type: 'string'
+    },
+    fromDomain: {
+      label: 'From Domain',
+      description: 'Verified domain in Sendgrid',
       type: 'string'
     },
     fromEmail: {
@@ -91,6 +103,11 @@ const action: ActionDefinition<Settings, Payload> = {
       description: 'From Name displayed to end user email',
       type: 'string',
       required: true
+    },
+    replyToEqualsFrom: {
+      label: 'Reply To Equals From',
+      description: 'Whether "reply to" settings are the same as "from"',
+      type: 'boolean'
     },
     replyToEmail: {
       label: 'Reply To Email',
@@ -145,9 +162,12 @@ const action: ActionDefinition<Settings, Payload> = {
       description: 'Additional custom args that we be passed back opaquely on webhook events',
       type: 'object',
       required: false
-    },
+    }
   },
   perform: async (request, { settings, payload }) => {
+    if (!payload.send) {
+      return
+    }
     const [traits, externalIds] = await Promise.all([
       fetchProfileTraits(request, settings, payload.userId),
       fetchProfileExternalIds(request, settings, payload.userId)
@@ -194,7 +214,7 @@ const action: ActionDefinition<Settings, Payload> = {
               ...payload.customArgs,
               source_id: settings.sourceId,
               space_id: settings.spaceId,
-              user_id: payload.userId,
+              user_id: payload.userId
             }
           }
         ],

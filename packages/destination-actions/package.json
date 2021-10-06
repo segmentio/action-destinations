@@ -1,7 +1,7 @@
 {
   "name": "@segment/action-destinations",
   "description": "Destination Actions engine and definitions.",
-  "version": "3.8.5",
+  "version": "3.14.1",
   "repository": {
     "type": "git",
     "url": "https://github.com/segmentio/action-destinations",
@@ -37,13 +37,11 @@
     "nock": "^13.0.11"
   },
   "dependencies": {
-    "@amplitude/ua-parser-js": "^0.7.24",
+    "@amplitude/ua-parser-js": "^0.7.25",
+    "@segment/actions-core": "^3.11.1",
     "dayjs": "^1.10.3",
     "lodash": "^4.17.21",
     "mustache": "^4.2.0"
-  },
-  "optionalDependencies": {
-    "@segment/actions-core": "^3.8.3"
   },
   "jest": {
     "preset": "ts-jest",
@@ -58,5 +56,6 @@
     "setupFilesAfterEnv": [
       "<rootDir>/test/setup-after-env.ts"
     ]
-  }
+  },
+  "gitHead": "218a80bcbb810692b119cc7cf3d7c1ea782c447a"
 }

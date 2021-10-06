@@ -43,11 +43,17 @@ test('should handle ast with multiple childs (or condition)', () => {
 				type: 'event-type',
 				operator: '=',
 				value: 'identify'
+			},
+			{
+				type: 'userId',
+				operator: 'exists'
 			}
 		]
 	}
 
-	expect(generateFql(ast)).toEqual('type = "track" or type = "identify"')
+	expect(generateFql(ast)).toEqual(
+		'type = "track" or type = "identify" or userId != null'
+	)
 })
 
 test('should handle ast with multiple childs (and condition)', () => {
@@ -106,4 +112,21 @@ test('should handle ast with nested childs', () => {
 	expect(generateFql(ast)).toEqual(
 		'type = "track" and (event = "Page Viewed" or event = "Order Completed")'
 	)
+})
+
+test('should handle ast with nested (dot-delimited) properties', () => {
+	const ast: Subscription = {
+		type: 'group',
+		operator: 'and',
+		children: [
+			{
+				type: 'event-property',
+				name: 'foo.bar.baz',
+				operator: '=',
+				value: 'hello'
+			}
+		]
+	}
+
+	expect(generateFql(ast)).toEqual('properties.foo.bar.baz = "hello"')
 })

@@ -180,10 +180,19 @@ const action: ActionDefinition<Settings, Payload> = {
       utm_properties,
       referrer,
       min_id_length,
+      library,
       ...rest
     } = omit(payload, revenueKeys)
     const properties = rest as AmplitudeEvent
     let options
+
+    if (properties.platform) {
+      properties.platform = properties.platform.replace(/ios/i, 'iOS').replace(/android/i, 'Android')
+    }
+
+    if (library) {
+      if (library === 'analytics.js') properties.platform = 'Web'
+    }
 
     if (time && dayjs.utc(time).isValid()) {
       properties.time = dayjs.utc(time).valueOf()
