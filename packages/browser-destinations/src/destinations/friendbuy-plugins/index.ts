@@ -8,13 +8,8 @@ export const destination: BrowserDestinationDefinition<Settings, unknown> = {
   slug: 'friendbuy-plugins',
   mode: 'device',
 
-  settings: {
-    // Add any Segment destination settings required here
-  },
-
-  initialize: async ({ _settings, _analytics }, deps) => {
-    await deps.loadScript('<path_to_partner_script>')
-    // initialize client code here
+  initialize: async ({ _settings, _analytics }, _deps) => {
+    return {}
   },
 
   actions: {}
