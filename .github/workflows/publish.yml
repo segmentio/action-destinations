@@ -53,13 +53,15 @@ jobs:
       # if running from workflow_dispatch or closing a PR, checkout main
       - uses: actions/checkout@v2
         if: ${{ github.event_name == 'workflow_dispatch' || github.event.action == 'closed' }}
+        with:
+          fetch-depth: 0  # pulls tags so lerna can compare changes
 
       # else checkout branch
       - uses: actions/checkout@v2
         if: ${{ github.event_name != 'workflow_dispatch' && github.event.action != 'closed'}}
         with:
           ref: ${{ github.head_ref }}
-          fetch-depth: 0  # pull tags for lerna to compare changes
+          fetch-depth: 0
 
       - name: Use Node.js ${{ matrix.node-version }}
         uses: actions/setup-node@v2
@@ -114,4 +116,4 @@ jobs:
 
       - name: Publish prerelease from PR
         if: ${{ github.event.action == 'opened' || github.event.action == 'synchronize' }}
-        run: lerna publish prerelease --preid ${{ github.head_ref }} --pre-dist-tag canary --no-verify-access --yes
+        run: lerna publish prerelease --canary --preid ${{ github.head_ref }} --pre-dist-tag canary --no-verify-access --yes
