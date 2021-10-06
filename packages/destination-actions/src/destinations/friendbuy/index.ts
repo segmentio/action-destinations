@@ -3,6 +3,8 @@ import type { Settings } from './generated-types'
 
 import trackCustomer from './trackCustomer'
 
+export const trackUrl = 'https://public.fbot-sandbox.me/track/'
+
 const uuidRegex = /^[0-9a-f]{8}-(?:[0-9a-f]{4}-){3}[0-9a-f]{12}$/
 
 function isUuid(s: string) {
