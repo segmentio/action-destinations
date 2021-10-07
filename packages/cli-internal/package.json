@@ -1,5 +1,5 @@
 {
-  "name": "@segment/cli-internal",
+  "name": "@segment/actions-cli-internal",
   "description": "CLI to interact with Segment integrations",
   "version": "3.14.1",
   "license": "MIT",
