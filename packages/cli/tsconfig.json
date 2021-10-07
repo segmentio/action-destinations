@@ -2,7 +2,9 @@
   "compilerOptions": {
     "module": "commonjs",
     "target": "es2020",
-    "lib": ["es2020"],
+    "lib": [
+      "es2020"
+    ],
     "declaration": true,
     "moduleResolution": "node",
     "esModuleInterop": true,
@@ -15,16 +17,33 @@
     "experimentalDecorators": true,
     "skipLibCheck": true,
     "outDir": "dist",
-    "rootDirs": ["src"],
+    "rootDirs": [
+      "src"
+    ],
     "importHelpers": true,
     "baseUrl": "./",
     "paths": {
-      "@segment/actions-core": ["../core/src"],
-      "@segment/actions-core/*": ["../core/src/*"],
-      "@segment/action-destinations": ["../destination-actions/src"],
-      "@segment/browser-destinations": ["../browser-destinations/src"],
-      "@segment/destination-subscriptions": ["../destination-subscriptions/src"]
+      "@segment/actions-core": [
+        "../core/src"
+      ],
+      "@segment/actions-core/*": [
+        "../core/src/*"
+      ],
+      "@segment/action-destinations": [
+        "../destination-actions/src"
+      ],
+      "@segment/browser-destinations": [
+        "../browser-destinations/src"
+      ],
+      "@segment/cli-internal": [
+        "../cli-internal/src"
+      ],
+      "@segment/destination-subscriptions": [
+        "../destination-subscriptions/src"
+      ]
     }
   },
-  "include": ["src"]
+  "include": [
+    "src"
+  ]
 }

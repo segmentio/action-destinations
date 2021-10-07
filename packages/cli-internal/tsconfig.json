@@ -1,0 +1,30 @@
+{
+  "compilerOptions": {
+    "module": "commonjs",
+    "target": "es2020",
+    "lib": ["es2020"],
+    "declaration": true,
+    "moduleResolution": "node",
+    "esModuleInterop": true,
+    "resolveJsonModule": true,
+    "strict": true,
+    "sourceMap": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "strictPropertyInitialization": false,
+    "experimentalDecorators": true,
+    "skipLibCheck": true,
+    "outDir": "dist",
+    "rootDirs": ["src"],
+    "importHelpers": true,
+    "baseUrl": "./",
+    "paths": {
+      "@segment/actions-core": ["../core/src"],
+      "@segment/actions-core/*": ["../core/src/*"],
+      "@segment/action-destinations": ["../destination-actions/src"],
+      "@segment/browser-destinations": ["../browser-destinations/src"],
+      "@segment/destination-subscriptions": ["../destination-subscriptions/src"]
+    }
+  },
+  "include": ["src"]
+}

@@ -1,5 +1,5 @@
 {
-  "name": "@segment/actions-cli",
+  "name": "@segment/cli-internal",
   "description": "CLI to interact with Segment integrations",
   "version": "3.14.1",
   "license": "MIT",
@@ -80,22 +80,15 @@
     "tslib": "^2"
   },
   "optionalDependencies": {
-    "@segment/browser-destinations": "^3.11.1"
+    "@segment/browser-destinations": "^3.11.1",
+    "@segment/control-plane-service-client": "github:segmentio/control-plane-service-js-client.git#master"
   },
   "oclif": {
     "commands": "./dist/commands",
     "bin": "segment",
     "plugins": [
       "@oclif/plugin-help"
-    ],
-    "topics": {
-      "generate": {
-        "description": "scaffold resources or types for an integration"
-      }
-    },
-    "hooks": {
-      "init": "./src/hooks/init.ts"
-    }
+    ]
   },
   "jest": {
     "preset": "ts-jest",
