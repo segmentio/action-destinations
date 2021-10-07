@@ -10,7 +10,7 @@ export const destination: BrowserDestinationDefinition<Settings, unknown> = {
   slug: 'friendbuy-plugins',
   mode: 'device',
 
-  initialize: async ({ _settings, _analytics }, _deps) => {
+  initialize: async (_options, _dependencies) => {
     return {}
   },
 

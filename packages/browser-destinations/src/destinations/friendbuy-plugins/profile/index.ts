@@ -12,7 +12,7 @@ const action: BrowserActionDefinition<Settings, unknown, Payload> = {
   defaultSubscription: 'type = "track" or type = "identify"',
   fields: {},
   lifecycleHook: 'enrichment',
-  perform: (_client, { context, _payload }) => {
+  perform: (_client, { context }) => {
     const ls = window.localStorage
     try {
       const friendbuyLocalStorageJson = ls.getItem(friendbuyLocalStorageKey)
