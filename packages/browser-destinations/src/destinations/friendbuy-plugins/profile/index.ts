@@ -9,7 +9,7 @@ const action: BrowserActionDefinition<Settings, unknown, Payload> = {
   title: 'Profile',
   description: 'Attaches the Friendbuy profile to browser events',
   platform: 'web',
-  defaultSubscription: 'type = "track" or type = "identify"',
+  defaultSubscription: 'type = "track" or type = "identify"', // see https://segment.com/docs/config-api/fql/
   fields: {},
   lifecycleHook: 'enrichment',
   perform: (_client, { context }) => {

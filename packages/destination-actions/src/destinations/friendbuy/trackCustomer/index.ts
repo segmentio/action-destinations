@@ -9,7 +9,7 @@ import { get } from '@segment/actions-core'
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Track Customer',
   description: 'Create a customer in Friendbuy or update it if it exists.',
-  defaultSubscription: 'type = "identify"',
+  defaultSubscription: 'type = "identify"', // see https://segment.com/docs/config-api/fql/
   fields: {
     customerId: {
       label: 'Customer ID',
