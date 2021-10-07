@@ -23,6 +23,7 @@ const destination: DestinationDefinition<Settings> = {
         label: 'Merchant ID',
         description: 'Your Friendbuy Merchant ID.',
         type: 'string',
+        format: 'uuid',
         required: true
       }
     },
