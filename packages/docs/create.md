@@ -181,7 +181,7 @@ For each action or authentication scheme, you define a collection of inputs and 
 
 The Segment CLI introspects field definitions when you run `./bin/run generate:types` to generate their TypeScript declarations. This ensures the `perform` function is strongly-typed.
 
-Define fields with a JSON scheme. If your editor or IDE provides good Intellisense and autocompletion, you should see the allowed properties.
+Define fields following the field schema If your editor or IDE provides good Intellisense and autocompletion, you should see the allowed properties.
 
 As mentioned above, the `perform` function contains the code that defines what the action does.
 
