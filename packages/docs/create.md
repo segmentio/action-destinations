@@ -22,7 +22,7 @@ Fork the `segmentio/action-destinations` repository, connect to NPM and Yarn, an
 Run the test suite to ensure the environment is properly configured.
 
 ```sh
-git clone https://github.com/segmentio/action-destinations.git
+git clone https://github.com/<your_gh_org>/action-destinations.git
 cd action-destinations
 npm login
 yarn login
@@ -36,7 +36,7 @@ yarn test
 
 Once you've configured your environment, you're ready to begin building your first destination. All commands, unless noted otherwise, should run from the root of the project folder. For example, `./action-destinations`
 
-> Run `./bin/run --help` at any time to see a list of available commands.
+> Run `./bin/run --help` at any time or visit the [CLI README](/packages/cli/README.md) to see a list of available commands.
 
 ### Scaffold the new destination
 
@@ -44,9 +44,9 @@ To begin, run `./bin/run init` to scaffold the project's directory structure, an
 
 - Integration name
 - Integration slug
-- Authentication template (choose one of Custom Auth, Browser Destination, Basic Auth, OAuth2 Auth, or Minimal)
+- Authentication template (choose one of Custom Auth, Browser Destination (experimental), Basic Auth, OAuth2 Auth, or Minimal)
 
-After completion, the directory structure of the new destination is created at `packages/destination-actions/src/destinations/<slug>`.
+After completion, the directory structure of the new destination is created at `packages/destination-actions/src/destinations/<slug>`. The `init` command does not register or deploy the integration.
 
 The `index.ts` file in this folder contains the beginnings of an Actions-based Destination. For example, a destination named `Test` using `Basic Auth` contains the following:
 
