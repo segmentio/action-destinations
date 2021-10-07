@@ -30,7 +30,7 @@
     "clean": "tsc -b tsconfig.build.json --clean",
     "postclean": "rm -rf dist",
     "create:destination": "./bin/run init",
-    "test": "echo '⚠️ ⚠️ ⚠️  @segment/action-cli tests temporarily skipped'",
+    "test": "echo '⚠️ ⚠️ ⚠️  @segment/action-cli-internal tests temporarily skipped'",
     "typecheck": "tsc --noEmit"
   },
   "devDependencies": {

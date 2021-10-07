@@ -30,7 +30,7 @@
     "clean": "tsc -b tsconfig.build.json --clean",
     "postclean": "rm -rf dist",
     "create:destination": "./bin/run init",
-    "test": "echo '⚠️ ⚠️ ⚠️  @segment/action-cli tests temporarily skipped'",
+    "test": "jest",
     "typecheck": "tsc --noEmit"
   },
   "devDependencies": {
@@ -102,7 +102,8 @@
     "testEnvironment": "jsdom",
     "testRegex": "((\\.|/)(test))\\.(tsx?|json)$",
     "modulePathIgnorePatterns": [
-      "<rootDir>/dist/"
+      "<rootDir>/dist/",
+      "<rootDir>/templates/"
     ],
     "moduleNameMapper": {
       "src/lib/(.*)": "<rootDir>/src/lib/$1"
