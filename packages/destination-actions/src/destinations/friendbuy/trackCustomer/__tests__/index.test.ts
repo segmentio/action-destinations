@@ -20,13 +20,16 @@ describe('Friendbuy.trackCustomer', () => {
 
     const merchantId = '1993d0f1-8206-4336-8c88-64e170f2419e'
     const userId = 'john-doe-12345'
-    const name = 'John Doe'
+    const firstName = 'John'
+    const lastName = 'Doe'
     const email = 'john.doe@example.com'
     const profile = 'JWT profile'
     const event = createTestEvent({
+      type: 'identify',
       userId,
       traits: {
-        name,
+        firstName,
+        lastName,
         email
       },
       integrations: { 'Actions Friendbuy': { profile } as unknown as boolean },
@@ -56,16 +59,17 @@ describe('Friendbuy.trackCustomer', () => {
     const searchParams = r[0].options.searchParams as Record<string, string>
 
     const metadata = JSON.parse(base64Decode(searchParams.metadata))
+    // console.log("metadata", metadata)
     expect(metadata).toMatchObject({
       url: get(event.context, ['page', 'url']),
-      title: get(event.context, ['page', 'title'])
+      title: get(event.context, ['page', 'title']),
+      ipAddress: get(event.context, ['ip'])
     })
 
-    // console.log(r[0].options.searchParams)
     const payload = JSON.parse(decodeURIComponent(base64Decode(searchParams.payload)))
-    // console.log(payload)
+    // console.log("payload", payload)
     expect(payload).toMatchObject({
-      customer: { id: userId, email, name }
+      customer: { id: userId, email, firstName, lastName, name: `${firstName} ${lastName}` }
     })
   })
 })
