@@ -22,14 +22,14 @@ describe('Friendbuy.trackCustomer', () => {
     const userId = 'john-doe-12345'
     const name = 'John Doe'
     const email = 'john.doe@example.com'
-    // const profile = 'JWT profile'
+    const profile = 'JWT profile'
     const event = createTestEvent({
       userId,
       traits: {
         name,
         email
       },
-      // integrations: { 'Actions Friendbuy': { profile } },
+      integrations: { 'Actions Friendbuy': { profile } as unknown as boolean },
       timestamp: '2021-10-05T15:30:35Z'
     })
     // console.log('test event', event)
@@ -50,8 +50,8 @@ describe('Friendbuy.trackCustomer', () => {
       type: 'customer',
       merchantId,
       metadata: expect.any(String),
-      payload: expect.any(String)
-      // tracker: profile
+      payload: expect.any(String),
+      tracker: profile
     })
     const searchParams = r[0].options.searchParams as Record<string, string>
 
