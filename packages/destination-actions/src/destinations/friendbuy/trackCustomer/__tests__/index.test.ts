@@ -4,7 +4,7 @@ import Destination from '../../index'
 
 import { trackUrl } from '../../index'
 import { base64Decode } from '../../base64'
-import { get } from 'lodash'
+import { get } from '@segment/actions-core'
 
 const testDestination = createTestIntegration(Destination)
 
@@ -22,12 +22,14 @@ describe('Friendbuy.trackCustomer', () => {
     const userId = 'john-doe-12345'
     const name = 'John Doe'
     const email = 'john.doe@example.com'
+    // const profile = 'JWT profile'
     const event = createTestEvent({
       userId,
       traits: {
         name,
         email
       },
+      // integrations: { 'Actions Friendbuy': { profile } },
       timestamp: '2021-10-05T15:30:35Z'
     })
     // console.log('test event', event)
@@ -49,6 +51,7 @@ describe('Friendbuy.trackCustomer', () => {
       merchantId,
       metadata: expect.any(String),
       payload: expect.any(String)
+      // tracker: profile
     })
     const searchParams = r[0].options.searchParams as Record<string, string>
 

@@ -4,7 +4,7 @@ import type { Payload } from './generated-types'
 
 import { trackUrl } from '..'
 import { base64Encode } from '../base64'
-import { get } from 'lodash'
+import { get } from '@segment/actions-core'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Track Customer',
@@ -19,18 +19,25 @@ const action: ActionDefinition<Settings, Payload> = {
       default: { '@path': '$.userId' }
     },
     email: {
-      label: 'email',
+      label: 'Email',
       description: "The user's email address.",
       type: 'string',
       required: false,
       default: { '@path': '$.traits.email' }
     },
     name: {
-      label: 'name',
+      label: 'Name',
       description: "The user's name.",
       type: 'string',
       required: false,
       default: { '@path': '$.traits.name' }
+    },
+    profile: {
+      label: 'Profile Tracker',
+      description: "The user's Friendbuy profile from the browser's local storage, set by friendbuy.js.",
+      type: 'string',
+      required: false,
+      default: { '@path': '$.integrations.Actions Friendbuy.profile' }
     }
   },
   perform: (request, data) => {
@@ -50,7 +57,13 @@ const action: ActionDefinition<Settings, Payload> = {
     )
     return request(trackUrl, {
       method: 'get',
-      searchParams: { type: 'customer', merchantId: data.settings.merchantId, metadata, payload }
+      searchParams: {
+        type: 'customer',
+        merchantId: data.settings.merchantId,
+        metadata,
+        payload,
+        ...(data.payload.profile && { tracker: data.payload.profile })
+      }
     })
   }
 }

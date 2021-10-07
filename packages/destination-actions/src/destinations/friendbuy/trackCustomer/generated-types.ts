@@ -13,4 +13,8 @@ export interface Payload {
    * The user's name.
    */
   name?: string
+  /**
+   * The user's Friendbuy profile from the browser's local storage, set by friendbuy.js.
+   */
+  profile?: string
 }
