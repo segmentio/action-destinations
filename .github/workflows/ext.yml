@@ -1,6 +1,6 @@
 name: Test External
 
-on: [push]
+on: [push, pull_request]
 
 jobs:
   install-and-test:
