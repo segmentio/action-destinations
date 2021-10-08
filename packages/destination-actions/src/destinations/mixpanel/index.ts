@@ -22,7 +22,7 @@ const presets: DestinationDefinition['presets'] = [
     partnerAction: 'trackEvent',
     mapping: {
       ...defaultValues(trackEvent.fields),
-      event_type: {
+      event: {
         '@template': 'Viewed {{name}}'
       }
     }
@@ -33,7 +33,7 @@ const presets: DestinationDefinition['presets'] = [
     partnerAction: 'trackEvent',
     mapping: {
       ...defaultValues(trackEvent.fields),
-      event_type: {
+      event: {
         '@template': 'Viewed {{name}}'
       }
     }
