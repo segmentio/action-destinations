@@ -5,7 +5,7 @@ import type { Payload } from './generated-types'
 import { trackApiEndpoint } from '../utils'
 
 const action: ActionDefinition<Settings, Payload> = {
-  title: 'Track Application Installed or Application Opened Event',
+  title: 'Create or Update Device',
   description: `Track an "Application Installed" or "Application Opened" event to create or update a person's device.`,
   defaultSubscription: 'type = "track" and event = "Application Installed"',
   fields: {
