@@ -49,6 +49,9 @@ jobs:
       - name: Lint
         run: yarn lint
 
+      - name: Validate
+        run: yarn validate
+
       - name: Test
         run: yarn test
 
