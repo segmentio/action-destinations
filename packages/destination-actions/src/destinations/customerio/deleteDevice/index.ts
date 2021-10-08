@@ -5,8 +5,8 @@ import type { Payload } from './generated-types'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Delete Device',
-  description: "Delete a person's device in Customer.io.",
-  defaultSubscription: 'type = "track" and event = "Application Uninstalled"',
+  description: `Track an "Application Uninstalled" event to delete a person's device.`,
+  defaultSubscription: 'event = "Application Uninstalled"',
   fields: {
     person_id: {
       label: 'Person ID',
