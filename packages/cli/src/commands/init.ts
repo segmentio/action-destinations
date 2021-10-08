@@ -117,7 +117,7 @@ export default class Init extends Command {
       renderTemplates(templatePath, targetDirectory, answers)
       this.spinner.succeed(`Scaffold integration`)
     } catch (err) {
-      this.spinner.fail(`Scaffold integration: ${chalk.red(err.message)}`)
+      this.spinner.fail(`Scaffold integration: ${chalk.red((err as Error).message)}`)
       this.exit()
     }
 
@@ -126,7 +126,7 @@ export default class Init extends Command {
       await GenerateTypes.run(['--path', `${relativePath}/index.ts`])
       this.spinner.succeed()
     } catch (err) {
-      this.spinner.fail(chalk`Generating types for {magenta ${slug}} destination: ${err.message}`)
+      this.spinner.fail(chalk`Generating types for {magenta ${slug}} destination: ${(err as Error).message}`)
     }
 
     try {
@@ -141,7 +141,7 @@ export default class Init extends Command {
       )
       this.spinner.succeed(`Created snapshot tests for ${slug} destination`)
     } catch (err) {
-      this.spinner.fail(`Snapshot test creation failed: ${chalk.red(err.message)}`)
+      this.spinner.fail(`Snapshot test creation failed: ${chalk.red((err as Error).message)}`)
       this.exit()
     }
 

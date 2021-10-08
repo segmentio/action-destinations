@@ -127,7 +127,7 @@ function validateObject(value: unknown, stack: string[] = []) {
     try {
       validate(obj[k], [...stack, k])
     } catch (e) {
-      errors.push(e)
+      errors.push(e as Error)
     }
   })
 
@@ -162,7 +162,7 @@ function validateObjectWithFields(input: unknown, fields: ValidateFields, stack:
         }
       }
     } catch (error) {
-      errors.push(error)
+      errors.push(error as Error)
     }
   })
 
@@ -192,7 +192,7 @@ function directive(names: string[] | string, fn: DirectiveValidator): void {
           throw e
         }
 
-        throw new ValidationError(e.message, stack)
+        throw new ValidationError((e as Error).message, stack)
       }
     }
   })

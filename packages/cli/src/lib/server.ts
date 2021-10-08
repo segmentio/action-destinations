@@ -98,7 +98,8 @@ loadDestination(targetDirectory)
           const debug = await getExchanges(destination.responses)
           spinner.succeed(chalk`${destination.name} action '${actionSlug}' completed`)
           return res.status(200).json(debug)
-        } catch (err) {
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        } catch (err: any) {
           spinner.fail()
           let statusCode = err?.status ?? 500
           let msg = err?.message
@@ -114,7 +115,7 @@ loadDestination(targetDirectory)
     )
 
     server.listen(port, () => {
-      logger.info(`Listening at http://localhost:${port} -> 
+      logger.info(`Listening at http://localhost:${port} ->
 ${Object.keys(def?.actions ?? {})
   .map((action) => `  POST http://localhost:${port}/${action}`)
   .join('\n')}`)
