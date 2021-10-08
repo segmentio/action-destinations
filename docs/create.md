@@ -19,6 +19,8 @@ The security of customers and partners is a top priority at Segment. Before you 
 
 Fork the `segmentio/action-destinations` repository, connect to NPM and Yarn, and ensure a compatible version of Node is installed.
 
+> **Note:** Action-based destinations run several workflows on pull requests, which requires that GitHub actions be enabled in the repository. To prevent workflow failure, you must enable GitHub Actions on the Actions tab of the forked repository.
+
 Run the test suite to ensure the environment is properly configured.
 
 ```sh
