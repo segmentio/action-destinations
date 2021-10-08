@@ -54,7 +54,7 @@ describe('GA4', () => {
           useDefaultMappings: true
         })
         fail('the test should have thrown an error')
-      } catch (e) {
+      } catch (e: any) {
         expect(e.message).toBe("The root value is missing the required field 'search_term'.")
       }
     })

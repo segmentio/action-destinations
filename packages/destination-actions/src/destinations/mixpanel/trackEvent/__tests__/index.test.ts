@@ -50,7 +50,7 @@ describe('Mixpanel.trackEvent', () => {
 
     try {
       await testDestination.testAction('trackEvent', { event, useDefaultMappings: true })
-    } catch (e) {
+    } catch (e: any) {
       expect(e.message).toBe("The root value is missing the required field 'event'.")
     }
   })

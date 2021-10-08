@@ -109,7 +109,7 @@ describe('CustomerIO', () => {
       try {
         await testDestination.testAction('trackEvent', { event, settings, useDefaultMappings: true })
         fail('This test should have thrown an error')
-      } catch (e) {
+      } catch (e: any) {
         expect(e.message).toBe("The root value is missing the required field 'name'.")
       }
     })

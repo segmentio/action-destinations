@@ -35,7 +35,7 @@ describe(`Testing snapshot for ${destinationSlug}'s ${actionSlug} destination ac
       const json = JSON.parse(rawBody)
       expect(json).toMatchSnapshot()
       return
-    } catch (err) {
+    } catch (err: any) {
       expect(rawBody).toMatchSnapshot()
     }
 
@@ -68,7 +68,7 @@ describe(`Testing snapshot for ${destinationSlug}'s ${actionSlug} destination ac
       const json = JSON.parse(rawBody)
       expect(json).toMatchSnapshot()
       return
-    } catch (err) {
+    } catch (err: any) {
       expect(rawBody).toMatchSnapshot()
     }
   })

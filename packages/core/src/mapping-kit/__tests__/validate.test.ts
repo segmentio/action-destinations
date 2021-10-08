@@ -40,7 +40,7 @@ describe('validation', () => {
 
         try {
           validate(fixture.mapping)
-        } catch (error) {
+        } catch (error: any) {
           if (typeof fixture.expectError === 'string') {
             expect(error.message).toMatch(fixture.expectError)
           } else {

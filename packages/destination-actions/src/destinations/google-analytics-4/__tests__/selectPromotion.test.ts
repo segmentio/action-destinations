@@ -205,7 +205,7 @@ describe('GA4', () => {
           useDefaultMappings: true
         })
         fail('the test should have thrown an error')
-      } catch (e) {
+      } catch (e: any) {
         expect(e.message).toBe('One of product name or product id is required for product or impression data.')
       }
     })
@@ -264,7 +264,7 @@ describe('GA4', () => {
           useDefaultMappings: true
         })
         fail('the test should have thrown an error')
-      } catch (e) {
+      } catch (e: any) {
         expect(e.message).toBe('One of promotion name or promotion id is required.')
       }
     })
@@ -325,7 +325,7 @@ describe('GA4', () => {
           useDefaultMappings: true
         })
         fail('the test should have thrown an error')
-      } catch (e) {
+      } catch (e: any) {
         expect(e.message).toBe('US4D is not a valid currency code.')
       }
     })

@@ -130,7 +130,7 @@ describe('GA4', () => {
           useDefaultMappings: true
         })
         fail('the test should have thrown an error')
-      } catch (e) {
+      } catch (e: any) {
         expect(e.message).toBe('1234 is not a valid currency code.')
       }
     })
@@ -187,7 +187,7 @@ describe('GA4', () => {
           useDefaultMappings: true
         })
         fail('the test should have thrown an error')
-      } catch (e) {
+      } catch (e: any) {
         expect(e.message).toBe('One of product name or product id is required for product or impression data.')
       }
     })

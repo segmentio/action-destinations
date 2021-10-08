@@ -119,7 +119,7 @@ describe('GA4', () => {
           useDefaultMappings: false
         })
         fail('the test should have thrown an error')
-      } catch (e) {
+      } catch (e: any) {
         expect(e.message).toBe("The root value is missing the required field 'items'.")
       }
     })
@@ -175,7 +175,7 @@ describe('GA4', () => {
           useDefaultMappings: true
         })
         fail('the test should have thrown an error')
-      } catch (e) {
+      } catch (e: any) {
         expect(e.message).toBe('Currency is required if value is set.')
       }
     })
@@ -219,7 +219,7 @@ describe('GA4', () => {
           useDefaultMappings: false
         })
         fail('the test should have thrown an error')
-      } catch (e) {
+      } catch (e: any) {
         expect(e.message).toBe('One of item-level currency or top-level currency is required.')
       }
     })

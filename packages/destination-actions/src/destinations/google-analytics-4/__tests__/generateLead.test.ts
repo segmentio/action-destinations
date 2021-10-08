@@ -93,7 +93,7 @@ describe('GA4', () => {
           useDefaultMappings: true
         })
         fail('the test should have thrown an error')
-      } catch (e) {
+      } catch (e: any) {
         expect(e.message).toBe('Currency is required if value is set.')
       }
     })

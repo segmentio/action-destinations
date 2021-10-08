@@ -200,7 +200,7 @@ describe('destination kit', () => {
       try {
         await destinationTest.refreshAccessToken(testSettings, oauthData)
         fail('test should have thrown a NotImplemented error')
-      } catch (e) {
+      } catch (e: any) {
         expect(e.status).toEqual(501)
         expect(e.message).toEqual('refreshAccessToken is only valid with oauth2 authentication scheme')
         expect(e.code).toEqual('NotImplemented')
