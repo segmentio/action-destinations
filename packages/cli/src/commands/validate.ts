@@ -25,7 +25,7 @@ export default class Validate extends Command {
       const errors = this.validatePresets(destination.definition)
       if (errors.length) {
         this.spinner.fail(
-          `Validating presets for ${destination.definition.name}: \n  ${errors.map((e) => e.message).join('\n  ')}`
+          `Validating presets for ${destination.definition.name}: \n    ${errors.map((e) => e.message).join('\n    ')}`
         )
       } else {
         this.spinner.succeed()
