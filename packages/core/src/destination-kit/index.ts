@@ -208,7 +208,8 @@ export class Destination<Settings = JSONObject> {
     if (this.settingsSchema) {
       try {
         validateSchema(settings, this.settingsSchema, { schemaKey: `${this.name}:settings` })
-      } catch (error) {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      } catch (error: any) {
         if (error.name === 'AggregateAjvError' || error.name === 'ValidationError') {
           error.status = 400
         }
@@ -348,7 +349,7 @@ export class Destination<Settings = JSONObject> {
       }
 
       const isBatch = Array.isArray(events)
-      const allEvents = (isBatch ? events : [events]) as SegmentEvent[]
+      const allEvents = isBatch ? events : [events]
       const subscribedEvents = allEvents.filter((event) => validate(parsedSubscription, event))
 
       if (subscribedEvents.length === 0) {
@@ -360,7 +361,8 @@ export class Destination<Settings = JSONObject> {
         // there should only be 1 item in the subscribedEvents array
         return await this.executeAction(actionSlug, { ...input, event: subscribedEvents[0] })
       }
-    } catch (error) {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    } catch (error: any) {
       results = [{ error }]
 
       if (error.name === 'AggregateAjvError' || error.name === 'ValidationError') {
