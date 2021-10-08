@@ -1,5 +1,11 @@
+import {
+  manifest as browserManifest,
+  ManifestEntry as BrowserManifest,
+  BrowserDestinationDefinition
+} from '@segment/browser-destinations'
 import type { DestinationDefinition as CloudDestinationDefinition } from '@segment/actions-core'
-import type { BrowserDestinationDefinition } from '@segment/browser-destinations'
+import { manifest as cloudManifest, ManifestEntry as CloudManifest } from '@segment/action-destinations'
+import { mergeWith } from 'lodash'
 import path from 'path'
 import { clearRequireCache } from './require-cache'
 import { OAUTH_SCHEME } from '../constants'
@@ -29,6 +35,33 @@ export async function loadDestination(filePath: string): Promise<null | Destinat
 
   return destination
 }
+
+// Right now it's possible for browser destinations and cloud destinations to have the same
+// metadataId. This is because we currently rely on a separate directory for all web actions.
+// So here we need to intelligently merge them until we explore colocating all actions with a single
+// definition file.
+export const manifest: Record<string, CloudManifest | BrowserManifest> = mergeWith(
+  {},
+  cloudManifest,
+  browserManifest,
+  (objValue, srcValue) => {
+    if (Object.keys(objValue?.definition?.actions ?? {}).length === 0) {
+      return
+    }
+
+    for (const [actionKey, action] of Object.entries(srcValue.definition?.actions ?? {})) {
+      if (actionKey in objValue.definition.actions) {
+        throw new Error(
+          `Could not merge browser + cloud actions because there is already an action with the same key "${actionKey}"`
+        )
+      }
+
+      objValue.definition.actions[actionKey] = action
+    }
+
+    return objValue
+  }
+)
 
 export function hasOauthAuthentication(definition: DestinationDefinition): boolean {
   return (
