@@ -239,7 +239,7 @@ const action: ActionDefinition<Settings, Payload> = {
   perform: (request, { payload, settings }) => {
     const { utm_properties, referrer, userAgent, userAgentParsing, min_id_length, ...rest } = payload
 
-    let options: string | undefined
+    let options
     const properties = rest as AmplitudeEvent
 
     if (properties.platform) {
@@ -265,19 +265,13 @@ const action: ActionDefinition<Settings, Payload> = {
       ...removeUndefined(properties),
       library: 'segment'
     })
-
-    const params: Record<string, string> = {
-      api_key: settings.apiKey,
-      identification
-    }
-
-    if (options) {
-      params.options = options
-    }
-
     return request('https://api.amplitude.com/identify', {
       method: 'post',
-      body: new URLSearchParams(params)
+      body: new URLSearchParams({
+        api_key: settings.apiKey,
+        identification,
+        options
+      } as Record<string, string>)
     })
   }
 }
