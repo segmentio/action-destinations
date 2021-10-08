@@ -4,8 +4,8 @@ Action Destinations are a way to build streaming destinations on Segment. To beg
 
 Fore more detailed instruction, see the following READMEs:
 
-- [Create a Destination Action](./packages/docs/create.md)
-- [Troubleshooting](./packages/docs/testing.md)
+- [Create a Destination Action](./docs/create.md)
+- [Troubleshooting](./docs/testing.md)
 
 ## Get started
 
