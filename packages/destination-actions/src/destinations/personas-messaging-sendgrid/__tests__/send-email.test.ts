@@ -284,40 +284,43 @@ for (const environment of ['stage', 'production']) {
       expect(sendGridRequest.isDone()).toEqual(true)
     })
 
-    it('should return an error when given a restricted domain', async () => {
-      try {
-        await sendgrid.testAction('sendEmail', {
-          event: createTestEvent({
-            timestamp,
-            event: 'Audience Entered',
-            userId: userData.userId
-          }),
-          settings,
-          mapping: {
-            userId: { '@path': '$.userId' },
-            fromDomain: null,
-            fromEmail: 'from@example.com',
-            fromName: 'From Name',
-            replyToEmail: 'replyto@example.com',
-            replyToName: 'Test user',
-            toEmail: 'lauren@yahoox.com',
-            bcc: JSON.stringify([
-              {
-                email: 'test@test.com'
-              }
-            ]),
-            previewText: '',
-            subject: 'Hello {{profile.traits.lastName}} {{profile.traits.firstName}}.',
-            body: 'Hi {{profile.traits.firstName}}, Welcome to segment',
-            bodyType: 'html',
-            bodyHtml: 'Hi {{profile.traits.firstName}}, Welcome to segment',
-            send: true
-          }
-        })
-        fail('Test should throw an error')
-      } catch (e) {
-        expect(e.message).toBe('Emails with gmailx.com, yahoox.com, aolx.com, and hotmailx.com domains are blocked.')
-      }
-    })
+    const restricted = ['gmailx.com', 'yahoox.com', 'aolx.com', 'hotmailx.com']
+    for (const domain of restricted) {
+      it(`should return an error when given a restricted domain - ${domain}`, async () => {
+        try {
+          await sendgrid.testAction('sendEmail', {
+            event: createTestEvent({
+              timestamp,
+              event: 'Audience Entered',
+              userId: userData.userId
+            }),
+            settings,
+            mapping: {
+              userId: { '@path': '$.userId' },
+              fromDomain: null,
+              fromEmail: 'from@example.com',
+              fromName: 'From Name',
+              replyToEmail: 'replyto@example.com',
+              replyToName: 'Test user',
+              toEmail: `lauren@${domain}`,
+              bcc: JSON.stringify([
+                {
+                  email: 'test@test.com'
+                }
+              ]),
+              previewText: '',
+              subject: 'Hello {{profile.traits.lastName}} {{profile.traits.firstName}}.',
+              body: 'Hi {{profile.traits.firstName}}, Welcome to segment',
+              bodyType: 'html',
+              bodyHtml: 'Hi {{profile.traits.firstName}}, Welcome to segment',
+              send: true
+            }
+          })
+          fail('Test should throw an error')
+        } catch (e) {
+          expect(e.message).toBe('Emails with gmailx.com, yahoox.com, aolx.com, and hotmailx.com domains are blocked.')
+        }
+      })
+    }
   })
 }
