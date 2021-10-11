@@ -1,6 +1,6 @@
 import { Command, flags } from '@oclif/command'
 import ora from 'ora'
-import { manifest, DestinationDefinition } from '../lib/destinations'
+import { getManifest, DestinationDefinition } from '../lib/destinations'
 
 export default class Validate extends Command {
   private spinner: ora.Ora = ora()
@@ -18,7 +18,7 @@ export default class Validate extends Command {
 
   async run() {
     // TODO validate the definition against the schema
-    const destinations = Object.values(manifest)
+    const destinations = Object.values(getManifest())
 
     for (const destination of destinations) {
       this.spinner.start(`Validating presets for ${destination.definition.name}`)
