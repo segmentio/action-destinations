@@ -2,9 +2,11 @@ import type { Settings } from './generated-types'
 import type { BrowserDestinationDefinition } from '../../lib/browser-destinations'
 import { browserDestination } from '../../runtime/shim'
 
+import trackCustomer from './trackCustomer'
+
 declare global {
   interface Window {
-    friendbuyAPI: any
+    friendbuyAPI?: any[]
     friendbuyBaseUrl?: string
   }
 }
@@ -40,7 +42,9 @@ export const destination: BrowserDestinationDefinition<Settings, unknown> = {
     return friendbuyAPI
   },
 
-  actions: {}
+  actions: {
+    trackCustomer
+  }
 }
 
 export default browserDestination(destination)
