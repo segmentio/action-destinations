@@ -11,7 +11,7 @@ const action: ActionDefinition<Settings, Payload> = {
   fields: {
     person_id: {
       label: 'Person ID',
-      description: 'The ID of the person that this mobile device belongs to',
+      description: 'The ID of the person that this mobile device belongs to.',
       type: 'string',
       required: true,
       default: {
@@ -20,7 +20,7 @@ const action: ActionDefinition<Settings, Payload> = {
     },
     device_id: {
       label: 'Device ID',
-      description: "The device token of a customer's mobile device",
+      description: "The device token of a customer's mobile device.",
       type: 'string',
       required: true,
       default: {

@@ -6,7 +6,7 @@ import { trackApiEndpoint } from '../utils'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Create or Update Person',
-  description: 'Create a person in Customer.io or update them if they exists.',
+  description: 'Create a person in Customer.io or update them if they exist.',
   defaultSubscription: 'type = "identify"',
   fields: {
     id: {
