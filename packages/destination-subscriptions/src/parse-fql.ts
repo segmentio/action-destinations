@@ -312,20 +312,22 @@ const normalize = (tokens: Token[]): Token[] => {
 	let index = 0
 
 	while (tokens[index]) {
+		const last = normalizedTokens[normalizedTokens.length - 1]
+		const current = tokens[index]
+		const next = tokens[index + 1]
+
 		if (
-			tokens[index].type === 'ident' &&
-			tokens[index + 1].type === 'dot' &&
-			tokens[index + 2].type === 'ident'
+			last?.type === 'ident' &&
+			current.type === 'dot' &&
+			next?.type === 'ident'
 		) {
+			const previous = normalizedTokens.pop()
 			normalizedTokens.push({
 				type: TokenType.Ident,
-				value:
-					tokens[index].value +
-					tokens[index + 1].value +
-					tokens[index + 2].value
+				value: `${previous?.value}${current.value}${next.value}`
 			})
 
-			index += 3
+			index += 2
 		} else {
 			normalizedTokens.push(tokens[index])
 			index++
