@@ -1,16 +1,12 @@
-import {
-  manifest as browserManifest,
-  ManifestEntry as BrowserManifest,
-  BrowserDestinationDefinition
-} from '@segment/browser-destinations'
+import type { ManifestEntry as BrowserManifest, BrowserDestinationDefinition } from '@segment/browser-destinations'
 import type { DestinationDefinition as CloudDestinationDefinition } from '@segment/actions-core'
-import { manifest as cloudManifest, ManifestEntry as CloudManifest } from '@segment/action-destinations'
-import { mergeWith } from 'lodash'
+import type { ManifestEntry as CloudManifest } from '@segment/action-destinations'
 import path from 'path'
 import { clearRequireCache } from './require-cache'
 import { OAUTH_SCHEME } from '../constants'
 
 export type DestinationDefinition = CloudDestinationDefinition | BrowserDestinationDefinition
+type ManifestEntry = CloudManifest | BrowserManifest
 
 /**
  * Attempts to load a destination definition from a given file path
@@ -23,7 +19,6 @@ export async function loadDestination(filePath: string): Promise<null | Destinat
   clearRequireCache()
 
   // Import the file, assert that it's a destination definition entrypoint
-  // eslint-disable-next-line @typescript-eslint/no-var-requires
   const module = require(importPath)
   // look for `default` or `destination` export
   const destination = module.destination || module.default
@@ -40,11 +35,13 @@ export async function loadDestination(filePath: string): Promise<null | Destinat
 // metadataId. This is because we currently rely on a separate directory for all web actions.
 // So here we need to intelligently merge them until we explore colocating all actions with a single
 // definition file.
-export const manifest: Record<string, CloudManifest | BrowserManifest> = mergeWith(
-  {},
-  cloudManifest,
-  browserManifest,
-  (objValue, srcValue) => {
+export const getManifest: () => Record<string, CloudManifest | BrowserManifest> = () => {
+  const { manifest: browserManifest } = require('@segment/browser-destinations')
+  const { manifest: cloudManifest } = require('@segment/action-destinations')
+  const { mergeWith } = require('lodash')
+
+  // eslint-disable-next-line @typescript-eslint/no-unsafe-call
+  return mergeWith({}, cloudManifest, browserManifest, (objValue: ManifestEntry, srcValue: ManifestEntry) => {
     if (Object.keys(objValue?.definition?.actions ?? {}).length === 0) {
       return
     }
@@ -60,8 +57,8 @@ export const manifest: Record<string, CloudManifest | BrowserManifest> = mergeWi
     }
 
     return objValue
-  }
-)
+  })
+}
 
 export function hasOauthAuthentication(definition: DestinationDefinition): boolean {
   return (

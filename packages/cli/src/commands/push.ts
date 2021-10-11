@@ -26,7 +26,7 @@ import {
   createDestinationMetadataActions,
   setSubscriptionPresets
 } from '../lib/control-plane-client'
-import { DestinationDefinition, manifest, hasOauthAuthentication } from '../lib/destinations'
+import { DestinationDefinition, getManifest, hasOauthAuthentication } from '../lib/destinations'
 import type { JSONSchema4 } from 'json-schema'
 
 type BaseActionInput = Omit<DestinationMetadataActionCreateInput, 'metadataId'>
@@ -47,6 +47,7 @@ export default class Push extends Command {
 
   async run() {
     const { flags } = this.parse(Push)
+    const manifest = getManifest()
 
     const { metadataIds } = await prompt<{ metadataIds: string[] }>({
       type: 'multiselect',

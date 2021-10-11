@@ -61,6 +61,12 @@ module.exports = {
       }
     },
     {
+      files: ['packages/cli/**/*.ts'],
+      rules: {
+        '@typescript-eslint/no-var-requires': 'off'
+      }
+    },
+    {
       files: ['**/benchmarks/**/*.js'],
       env: {
         node: true
