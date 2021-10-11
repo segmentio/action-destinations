@@ -24,6 +24,29 @@ for (const environment of ['stage', 'production']) {
 
   const endpoint = `https://profiles.segment.${environment === 'production' ? 'com' : 'build'}`
 
+  const getDefaultMapping = () => {
+    return {
+      userId: { '@path': '$.userId' },
+      fromDomain: null,
+      fromEmail: 'from@example.com',
+      fromName: 'From Name',
+      replyToEmail: 'replyto@example.com',
+      replyToName: 'Test user',
+      bcc: JSON.stringify([
+        {
+          email: 'test@test.com'
+        }
+      ]),
+      previewText: '',
+      subject: 'Hello {{profile.traits.lastName}} {{profile.traits.firstName}}.',
+      body: 'Hi {{profile.traits.firstName}}, Welcome to segment',
+      bodyType: 'html',
+      bodyHtml: 'Hi {{profile.traits.firstName}}, Welcome to segment',
+      send: true,
+      toEmail: ''
+    }
+  }
+
   beforeEach(() => {
     nock(`${endpoint}/v1/spaces/spaceId/collections/users/profiles/user_id:${userData.userId}`)
       .get('/traits?limit=200')
@@ -109,25 +132,7 @@ for (const environment of ['stage', 'production']) {
           userId: userData.userId
         }),
         settings,
-        mapping: {
-          userId: { '@path': '$.userId' },
-          fromDomain: null,
-          fromEmail: 'from@example.com',
-          fromName: 'From Name',
-          replyToEmail: 'replyto@example.com',
-          replyToName: 'Test user',
-          bcc: JSON.stringify([
-            {
-              email: 'test@test.com'
-            }
-          ]),
-          previewText: '',
-          subject: 'Hello {{profile.traits.lastName}} {{profile.traits.firstName}}.',
-          body: 'Hi {{profile.traits.firstName}}, Welcome to segment',
-          bodyType: 'html',
-          bodyHtml: 'Hi {{profile.traits.firstName}}, Welcome to segment',
-          send: true
-        }
+        mapping: getDefaultMapping()
       })
 
       expect(responses.length).toBeGreaterThan(0)
@@ -135,6 +140,8 @@ for (const environment of ['stage', 'production']) {
     })
 
     it('should not send email when send = false', async () => {
+      const mapping = getDefaultMapping()
+      mapping.send = false
       const responses = await sendgrid.testAction('sendEmail', {
         event: createTestEvent({
           timestamp,
@@ -142,25 +149,7 @@ for (const environment of ['stage', 'production']) {
           userId: userData.userId
         }),
         settings,
-        mapping: {
-          userId: { '@path': '$.userId' },
-          fromDomain: null,
-          fromEmail: 'from@example.com',
-          fromName: 'From Name',
-          replyToEmail: 'replyto@example.com',
-          replyToName: 'Test user',
-          bcc: JSON.stringify([
-            {
-              email: 'test@test.com'
-            }
-          ]),
-          previewText: '',
-          subject: 'Hello {{profile.traits.lastName}} {{profile.traits.firstName}}.',
-          body: 'Hi {{profile.traits.firstName}}, Welcome to segment',
-          bodyType: 'html',
-          bodyHtml: 'Hi {{profile.traits.firstName}}, Welcome to segment',
-          send: false
-        }
+        mapping: mapping
       })
 
       expect(responses.length).toEqual(0)
@@ -287,6 +276,8 @@ for (const environment of ['stage', 'production']) {
     const restricted = ['gmailx.com', 'yahoox.com', 'aolx.com', 'hotmailx.com']
     for (const domain of restricted) {
       it(`should return an error when given a restricted domain - ${domain}`, async () => {
+        const mapping = getDefaultMapping()
+        mapping.toEmail = `lauren@${domain}`
         try {
           await sendgrid.testAction('sendEmail', {
             event: createTestEvent({
@@ -295,26 +286,7 @@ for (const environment of ['stage', 'production']) {
               userId: userData.userId
             }),
             settings,
-            mapping: {
-              userId: { '@path': '$.userId' },
-              fromDomain: null,
-              fromEmail: 'from@example.com',
-              fromName: 'From Name',
-              replyToEmail: 'replyto@example.com',
-              replyToName: 'Test user',
-              toEmail: `lauren@${domain}`,
-              bcc: JSON.stringify([
-                {
-                  email: 'test@test.com'
-                }
-              ]),
-              previewText: '',
-              subject: 'Hello {{profile.traits.lastName}} {{profile.traits.firstName}}.',
-              body: 'Hi {{profile.traits.firstName}}, Welcome to segment',
-              bodyType: 'html',
-              bodyHtml: 'Hi {{profile.traits.firstName}}, Welcome to segment',
-              send: true
-            }
+            mapping: mapping
           })
           fail('Test should throw an error')
         } catch (e) {
