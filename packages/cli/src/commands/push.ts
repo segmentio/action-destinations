@@ -1,14 +1,9 @@
 import { Command, flags } from '@oclif/command'
 import type { DestinationDefinition as CloudDestinationDefinition, MinimalInputField } from '@segment/actions-core'
 import { fieldsToJsonSchema } from '@segment/actions-core'
-import { manifest as cloudManifest, ManifestEntry as CloudManifest } from '@segment/action-destinations'
-import {
-  manifest as browserManifest,
-  ManifestEntry as BrowserManifest,
-  BrowserDestinationDefinition
-} from '@segment/browser-destinations'
+import { BrowserDestinationDefinition } from '@segment/browser-destinations'
 import chalk from 'chalk'
-import { pick, omit, sortBy, mergeWith } from 'lodash'
+import { pick, omit, sortBy } from 'lodash'
 import { diffString } from 'json-diff'
 import ora from 'ora'
 import type {
@@ -31,37 +26,10 @@ import {
   createDestinationMetadataActions,
   setSubscriptionPresets
 } from '../lib/control-plane-client'
-import { DestinationDefinition, hasOauthAuthentication } from '../lib/destinations'
+import { DestinationDefinition, getManifest, hasOauthAuthentication } from '../lib/destinations'
 import type { JSONSchema4 } from 'json-schema'
 
 type BaseActionInput = Omit<DestinationMetadataActionCreateInput, 'metadataId'>
-
-// Right now it's possible for browser destinations and cloud destinations to have the same
-// metadataId. This is because we currently rely on a separate directory for all web actions.
-// So here we need to intelligently merge them until we explore colocating all actions with a single
-// definition file.
-const manifest: Record<string, CloudManifest | BrowserManifest> = mergeWith(
-  {},
-  cloudManifest,
-  browserManifest,
-  (objValue, srcValue) => {
-    if (Object.keys(objValue?.definition?.actions ?? {}).length === 0) {
-      return
-    }
-
-    for (const [actionKey, action] of Object.entries(srcValue.definition?.actions ?? {})) {
-      if (actionKey in objValue.definition.actions) {
-        throw new Error(
-          `Could not merge browser + cloud actions because there is already an action with the same key "${actionKey}"`
-        )
-      }
-
-      objValue.definition.actions[actionKey] = action
-    }
-
-    return objValue
-  }
-)
 
 export default class Push extends Command {
   private spinner: ora.Ora = ora()
@@ -79,6 +47,7 @@ export default class Push extends Command {
 
   async run() {
     const { flags } = this.parse(Push)
+    const manifest = getManifest()
 
     const { metadataIds } = await prompt<{ metadataIds: string[] }>({
       type: 'multiselect',

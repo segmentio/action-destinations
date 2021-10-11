@@ -11,7 +11,7 @@ function setTestData(seedName: string, type: string, fieldName?: string, format?
       val = chance.bool()
       break
     case 'datetime':
-      val = "2021-02-01T00:00:00.000Z"
+      val = '2021-02-01T00:00:00.000Z'
       break
     case 'integer':
       val = chance.integer()
@@ -26,11 +26,32 @@ function setTestData(seedName: string, type: string, fieldName?: string, format?
       val = { testType: chance.string() }
       break
     default:
-      val = chance.string()
+      switch (format) {
+        case 'email':
+          val = chance.email()
+          break
+        case 'hostname':
+          val = chance.domain()
+          break
+        case 'ipv4':
+          val = chance.ip()
+          break
+        case 'ipv6':
+          val = chance.ipv6()
+          break
+        case 'uri':
+          val = chance.url()
+          break
+        case 'uuid':
+          val = chance.guid()
+          break
+        default:
+          val = chance.string()
+          break
+      }
       break
   }
 
-  if (format === 'uri') val = chance.url()
   if (fieldName === 'email') val = chance.email()
   if (fieldName === 'currency') val = chance.currency().code
 

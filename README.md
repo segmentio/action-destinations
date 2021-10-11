@@ -1,28 +1,51 @@
 # Action Destinations
 
-Action Destinations are a way to build streaming destinations on Segment.
+Action Destinations are a way to build streaming destinations on Segment. To begin, follow the instructions in Get Started below.
 
-## Local Development
+Fore more detailed instruction, see the following READMEs:
 
-This project is a monorepo with multiple packages using Yarn Workspaces:
+- [Create a Destination Action](./docs/create.md)
+- [Troubleshooting](./docs/testing.md)
 
+## Get started
+
+### Local development
+
+This is a monorepo with multiple packages leveraging [`lerna`](https://github.com/lerna/lerna) with [Yarn Workspaces](https://classic.yarnpkg.com/en/docs/workspaces):
+
+- `packages/ajv-human-errors` - a wrapper around [AJV](https://ajv.js.org/) errors to produce more friendly validation messages
+- `packages/browser-destinations` - destination definitions that run on device via Analytics 2.0
 - `packages/cli` - a set of command line tools for interacting with the repo
 - `packages/core` - the core runtime engine for actions, including mapping-kit transforms
 - `packages/destinations-actions` - destination definitions and their actions
 - `packages/destinations-subscriptions` - validates events against an action's subscription AST
 
+### Getting set up
+
+You'll need to have some tools installed locally to build and test action destinations.
+
+- Yarn 1.x
+- Node 14.17 (latest LTS, we recommand using [`nvm`](https://github.com/nvm-sh/nvm) for managing Node versions)
+
+If you are a Segment employee you can directly `git clone` the repository locally. Otherwise you'll want to fork this repository for your organization to submit Pull Requests against the main Segment repository. Once you've got a fork, you can `git clone` that locally.
+
 ```sh
-git clone https://github.com/segmentio/action-destinations.git
+# Clone the repo locally
+git clone <your fork or https://github.com/segmentio/action-destinations.git>
 cd action-destinations
+
 npm login
 yarn login
+
 # Requires node 14.17, optionally: nvm use 14.17
-yarn --ignore-engines --ignore-optional
+yarn --ignore-optional
 yarn bootstrap
+
+# Run unit tests to ensure things are working! All tests should pass :)
 yarn test
 ```
 
-## Actions CLI
+### Actions CLI
 
 In order to run the CLI (`./bin/run`), your current working directory needs to be the root of the `action-destinations` repository.
 
@@ -45,15 +68,15 @@ In order to run the CLI (`./bin/run`), your current working directory needs to b
 
 For specific information about each CLI command, please refer to this [README](https://github.com/segmentio/action-destinations/tree/main/packages/cli).
 
-### Troubleshooting CLI
+#### Troubleshooting CLI
 
 If a CLI command fails to work properly, run the command with `DEBUG=*` at the beginning (e.g. `DEBUG=* ./bin/run serve`). This will produce a verbose debugging output, providing hints as to why something isn't working as expected. All of the CLI commands are also in the `./packages/cli/src/commands` directory if you need to inspect them further.
 
-## Testing
+### Testing
 
-Refer [here](./packages/docs/testing.md) for more information about testing your destination actions.
+Refer [here](./docs/testing.md) for more information about testing your destination actions.
 
-## Configuring
+### Configuring
 
 Action destinations are configured using a single Destination setting (`subscriptions`) that should contain a JSON blob of all subscriptions for the destination. The format should look like this:
 
