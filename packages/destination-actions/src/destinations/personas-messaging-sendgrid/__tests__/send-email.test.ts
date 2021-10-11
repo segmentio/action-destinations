@@ -133,7 +133,8 @@ for (const environment of ['stage', 'production']) {
       expect(responses.length).toEqual(3)
       expect(sendGridRequest.isDone()).toEqual(true)
     })
-    it('should not send Email', async () => {
+
+    it('should not send email when send = false', async () => {
       const responses = await sendgrid.testAction('sendEmail', {
         event: createTestEvent({
           timestamp,
@@ -165,7 +166,7 @@ for (const environment of ['stage', 'production']) {
       expect(responses.length).toEqual(0)
     })
 
-    it('should not send Email when send field in not sent', async () => {
+    it('should not send Email when send field not in payload', async () => {
       const responses = await sendgrid.testAction('sendEmail', {
         event: createTestEvent({
           timestamp,
