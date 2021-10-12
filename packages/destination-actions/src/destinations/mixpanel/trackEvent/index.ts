@@ -9,13 +9,18 @@ const action: ActionDefinition<Settings, Payload> = {
   description: 'Send an event to Mixpanel.',
   defaultSubscription: 'type = "track"',
   fields: {
-    user_id: {
-      label: 'User ID',
+    distinct_id: {
+      label: 'Distinct ID',
       type: 'string',
-      allowNull: true,
-      description: 'A readable ID specified by you.',
+      description: 'A distinct ID specified by you.',
       default: {
-        '@path': '$.userId'
+        '@if': {
+          exists: { '@path': '$.userId' },
+          then: { '@path': '$.userId' },
+          else: {
+            '@if': { exists: { '@path': '$.anonymousId' }, then: { '@path': '$.anonymousId' }, else: '' }
+          }
+        }
       }
     },
     device_id: {
@@ -312,7 +317,7 @@ const action: ActionDefinition<Settings, Payload> = {
       properties: {
         time: time,
         $ip: payload.ip,
-        distinct_id: payload.user_id,
+        distinct_id: payload.distinct_id,
         $app_build_number: payload.app_build,
         $app_version_string: payload.app_version,
         $app_namespace: payload.app_namespace,
@@ -340,7 +345,7 @@ const action: ActionDefinition<Settings, Payload> = {
         $screen_density: payload.screen_density,
         $source: 'segment',
         $wifi_enabled: payload.wifi,
-        id: payload.user_id, // this is just to maintain backwards compatibility with the classic segment integration
+        id: payload.distinct_id, // this is just to maintain backwards compatibility with the classic segment integration
         mp_country_code: payload.country,
         mp_lib: 'segment',
         // segment_source_name: string // 'readme'
