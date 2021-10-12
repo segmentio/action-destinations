@@ -5,6 +5,8 @@ import { defaultValues, DestinationDefinition } from '@segment/actions-core'
 
 import trackCustomer from './trackCustomer'
 
+import trackPurchase from './trackPurchase'
+
 export interface FriendbuyAPI extends Array<any> {
   merchantId: string
 }
@@ -42,7 +44,7 @@ export const destination: BrowserDestinationDefinition<Settings, FriendbuyAPI> =
 
   initialize: async ({ settings /* , analytics */ }, dependencies) => {
     let friendbuyAPI: FriendbuyAPI
-    window['friendbuyAPI'] = friendbuyAPI = window['friendbuyAPI'] || ([] as any as FriendbuyAPI)
+    window['friendbuyAPI'] = friendbuyAPI = window['friendbuyAPI'] || ([] as unknown as FriendbuyAPI)
     const friendbuyBaseHost = window.friendbuyBaseHost ?? 'fbot.me'
 
     friendbuyAPI.merchantId = settings.merchantId
@@ -57,7 +59,8 @@ export const destination: BrowserDestinationDefinition<Settings, FriendbuyAPI> =
 
   presets,
   actions: {
-    trackCustomer
+    trackCustomer,
+    trackPurchase
   }
 }
 
