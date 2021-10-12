@@ -105,7 +105,7 @@ describe('GA4', () => {
               "application/json",
             ],
             "user-agent": Array [
-              "Segment",
+              "Segment (Actions)",
             ],
           },
         }
@@ -296,17 +296,17 @@ describe('GA4', () => {
       expect(responses[0].status).toBe(201)
 
       expect(responses[0].request.headers).toMatchInlineSnapshot(`
-          Headers {
-            Symbol(map): Object {
-              "content-type": Array [
-                "application/json",
-              ],
-              "user-agent": Array [
-                "Segment",
-              ],
-            },
-          }
-        `)
+        Headers {
+          Symbol(map): Object {
+            "content-type": Array [
+              "application/json",
+            ],
+            "user-agent": Array [
+              "Segment (Actions)",
+            ],
+          },
+        }
+      `)
 
       expect(responses[0].options.body).toMatchInlineSnapshot(
         `"{\\"client_id\\":\\"3456fff\\",\\"events\\":[{\\"name\\":\\"purchase\\",\\"params\\":{\\"affiliation\\":\\"TI Online Store\\",\\"coupon\\":\\"SUMMER_FEST\\",\\"currency\\":\\"EUR\\",\\"items\\":[],\\"transaction_id\\":\\"5678dd9087-78\\",\\"shipping\\":1.5,\\"value\\":24.48,\\"tax\\":3}}]}"`

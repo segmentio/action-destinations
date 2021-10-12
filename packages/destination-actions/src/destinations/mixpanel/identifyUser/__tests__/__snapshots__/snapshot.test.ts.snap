@@ -11,7 +11,7 @@ Headers {
       "application/x-www-form-urlencoded;charset=UTF-8",
     ],
     "user-agent": Array [
-      "Segment",
+      "Segment (Actions)",
     ],
   },
 }
