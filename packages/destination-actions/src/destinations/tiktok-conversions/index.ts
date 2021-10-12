@@ -77,7 +77,7 @@ const destination: DestinationDefinition<Settings> = {
       appId: {
         label: 'App Id',
         description: 'Tiktok app id. You can find this key in the "Basic Information" tab of your Tiktok app.',
-        type: 'number',
+        type: 'string',
         required: true
       },
       pixel_code: {
@@ -94,7 +94,7 @@ const destination: DestinationDefinition<Settings> = {
       return request('https://business-api.tiktok.com/open_api/v1.2/oauth2/advertiser/get/', {
         json: {
           access_token: settings.accessToken,
-          app_id: settings.appId,
+          app_id: parseInt(settings.appId, 10),
           secret: settings.secretKey
         }
       })

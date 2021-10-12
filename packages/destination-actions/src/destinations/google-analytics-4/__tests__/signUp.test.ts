@@ -34,17 +34,17 @@ describe('GA4', () => {
       expect(responses[0].status).toBe(201)
 
       expect(responses[0].request.headers).toMatchInlineSnapshot(`
-      Headers {
-        Symbol(map): Object {
-          "content-type": Array [
-            "application/json",
-          ],
-          "user-agent": Array [
-            "Segment",
-          ],
-        },
-      }
-    `)
+        Headers {
+          Symbol(map): Object {
+            "content-type": Array [
+              "application/json",
+            ],
+            "user-agent": Array [
+              "Segment (Actions)",
+            ],
+          },
+        }
+      `)
 
       expect(responses[0].options.body).toMatchInlineSnapshot(
         `"{\\"client_id\\":\\"3456fff\\",\\"events\\":[{\\"name\\":\\"sign_up\\",\\"params\\":{\\"method\\":\\"Google\\"}}]}"`
@@ -84,17 +84,17 @@ describe('GA4', () => {
       expect(responses[0].status).toBe(201)
 
       expect(responses[0].request.headers).toMatchInlineSnapshot(`
-      Headers {
-        Symbol(map): Object {
-          "content-type": Array [
-            "application/json",
-          ],
-          "user-agent": Array [
-            "Segment",
-          ],
-        },
-      }
-    `)
+        Headers {
+          Symbol(map): Object {
+            "content-type": Array [
+              "application/json",
+            ],
+            "user-agent": Array [
+              "Segment (Actions)",
+            ],
+          },
+        }
+      `)
 
       expect(responses[0].options.body).toMatchInlineSnapshot(
         `"{\\"client_id\\":\\"3456fff\\",\\"events\\":[{\\"name\\":\\"sign_up\\",\\"params\\":{\\"method\\":\\"Google\\"}}]}"`

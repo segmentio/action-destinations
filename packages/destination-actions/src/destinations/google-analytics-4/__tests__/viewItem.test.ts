@@ -65,17 +65,17 @@ describe('GA4', () => {
       expect(responses[0].status).toBe(201)
 
       expect(responses[0].request.headers).toMatchInlineSnapshot(`
-          Headers {
-            Symbol(map): Object {
-              "content-type": Array [
-                "application/json",
-              ],
-              "user-agent": Array [
-                "Segment",
-              ],
-            },
-          }
-        `)
+        Headers {
+          Symbol(map): Object {
+            "content-type": Array [
+              "application/json",
+            ],
+            "user-agent": Array [
+              "Segment (Actions)",
+            ],
+          },
+        }
+      `)
 
       expect(responses[0].options.body).toMatchInlineSnapshot(
         `"{\\"client_id\\":\\"anon-567890\\",\\"events\\":[{\\"name\\":\\"view_item\\",\\"params\\":{\\"currency\\":\\"USD\\",\\"items\\":[{\\"item_id\\":\\"Monopoly: 3rd Edition\\"}],\\"value\\":18.99}}]}"`
@@ -121,17 +121,17 @@ describe('GA4', () => {
       expect(responses[0].status).toBe(201)
 
       expect(responses[0].request.headers).toMatchInlineSnapshot(`
-          Headers {
-            Symbol(map): Object {
-              "content-type": Array [
-                "application/json",
-              ],
-              "user-agent": Array [
-                "Segment",
-              ],
-            },
-          }
-        `)
+        Headers {
+          Symbol(map): Object {
+            "content-type": Array [
+              "application/json",
+            ],
+            "user-agent": Array [
+              "Segment (Actions)",
+            ],
+          },
+        }
+      `)
 
       expect(responses[0].options.body).toMatchInlineSnapshot(
         `"{\\"client_id\\":\\"3456fff\\",\\"events\\":[{\\"name\\":\\"view_item\\",\\"params\\":{\\"currency\\":\\"USD\\",\\"items\\":[],\\"value\\":18.99}}]}"`

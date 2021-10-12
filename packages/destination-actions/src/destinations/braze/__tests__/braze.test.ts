@@ -36,7 +36,7 @@ describe(Braze.name, () => {
               "Bearer my-api-key",
             ],
             "user-agent": Array [
-              "Segment",
+              "Segment (Actions)",
             ],
           },
         }
@@ -126,7 +126,7 @@ describe(Braze.name, () => {
               "Bearer my-api-key",
             ],
             "user-agent": Array [
-              "Segment",
+              "Segment (Actions)",
             ],
           },
         }
@@ -176,7 +176,7 @@ describe(Braze.name, () => {
               "Bearer my-api-key",
             ],
             "user-agent": Array [
-              "Segment",
+              "Segment (Actions)",
             ],
           },
         }
