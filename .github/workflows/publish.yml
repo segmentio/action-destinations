@@ -42,8 +42,8 @@ jobs:
     needs: get-version
 
     # require a version unless a PR is opened or synchronized
-    # prevents unlabeled PRs from getting published as production packages
-    if: ${{ needs.get-version.outputs.version || github.event.action == 'opened' || github.event.action == 'synchronize' }}
+    # prevents unlabeled and closed PRs from getting published
+    if: ${{ (needs.get-version.outputs.version && github.event.action == 'closed' && github.event.pull_request.merged == true) || github.event_name == 'workflow_dispatch' || github.event.action == 'opened' || github.event.action == 'synchronize' }}
 
     strategy:
       matrix:
@@ -52,13 +52,13 @@ jobs:
     steps:
       # if running from workflow_dispatch or closing a PR, checkout main
       - uses: actions/checkout@v2
-        if: ${{ github.event_name == 'workflow_dispatch' || github.event.action == 'closed' }}
+        if: ${{ github.event_name == 'workflow_dispatch' || (github.event.action == 'closed' && github.event.pull_request.merged == true) }}
         with:
           fetch-depth: 0  # pulls tags so lerna can compare changes
 
       # else checkout branch
       - uses: actions/checkout@v2
-        if: ${{ github.event_name != 'workflow_dispatch' && github.event.action != 'closed'}}
+        if: ${{ github.event.action == 'opened' || github.event.action == 'synchronize' }}
         with:
           ref: ${{ github.head_ref }}
           fetch-depth: 0
@@ -111,7 +111,7 @@ jobs:
           npm whoami
 
       - name: Publish production package
-        if: ${{ github.event_name == 'workflow_dispatch' || github.event.action == 'closed' }}
+        if: ${{ github.event_name == 'workflow_dispatch' || (github.event.action == 'closed' && github.event.pull_request.merged == true) }}
         run: lerna publish ${{ needs.get-version.outputs.version }} --conventional-commits --no-changelog --conventional-graduate --no-verify-access --yes
 
       - name: Publish prerelease from PR
