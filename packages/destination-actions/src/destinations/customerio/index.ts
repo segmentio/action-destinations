@@ -32,9 +32,8 @@ const destination: DestinationDefinition<Settings> = {
         description: 'Learn about [Account Regions](https://customer.io/docs/data-centers/).',
         label: 'Account Region',
         type: 'string',
-        format: 'uri',
         choices: Object.values(AccountRegion).map((dc) => ({ label: dc, value: dc })),
-        default: 'US 🇺🇸'
+        default: AccountRegion.US
       }
     },
     testAuthentication: (request) => {
