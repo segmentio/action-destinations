@@ -4,7 +4,6 @@ import { browserDestination } from '../../runtime/shim'
 import { defaultValues, DestinationDefinition } from '@segment/actions-core'
 
 import trackCustomer from './trackCustomer'
-
 import trackPurchase from './trackPurchase'
 
 export interface FriendbuyAPI extends Array<any> {
@@ -18,12 +17,19 @@ declare global {
   }
 }
 
+// Presets are shown in Segment configuration flow as "Pre-Built Subscriptions".
 const presets: DestinationDefinition['presets'] = [
   {
     name: 'Track Customer',
-    subscribe: 'type = "identify"',
+    subscribe: trackCustomer.defaultSubscription,
     partnerAction: 'trackCustomer',
     mapping: defaultValues(trackCustomer.fields)
+  },
+  {
+    name: 'Track Purchase',
+    subscribe: trackPurchase.defaultSubscription,
+    partnerAction: 'trackPurchase',
+    mapping: defaultValues(trackPurchase.fields)
   }
 ]
 

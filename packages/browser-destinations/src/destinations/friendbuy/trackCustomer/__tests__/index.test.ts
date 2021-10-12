@@ -35,7 +35,6 @@ describe('Friendbuy.trackCustomer', () => {
       merchantId,
       subscriptions
     })
-
     // console.log('trackCustomer', JSON.stringify(trackCustomer, null, 2), trackCustomer)
     expect(trackCustomer).toBeDefined()
 

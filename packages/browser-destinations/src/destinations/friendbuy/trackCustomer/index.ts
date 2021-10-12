@@ -49,7 +49,7 @@ const action: BrowserActionDefinition<Settings, FriendbuyAPI, Payload> = {
     }
   },
   perform: (friendbuyAPI, data) => {
-    // console.log('trackContext.perform', JSON.stringify({ friendbuyAPI, data }, null, 2))
+    // console.log('trackCustomer.perform', JSON.stringify({ friendbuyAPI, data }, null, 2))
     friendbuyAPI.push([
       'track',
       'customer',
