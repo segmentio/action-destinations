@@ -76,6 +76,10 @@ If a CLI command fails to work properly, run the command with `DEBUG=*` at the b
 
 Refer [here](./docs/testing.md) for more information about testing your destination actions.
 
+## Debugging
+
+Pass the Node flag `--inspect` when you run the local server, and then you can attach a debugger from your IDE. The `serve` command will pass any extra args/flags to the underlying Node process. 
+
 ### Configuring
 
 Action destinations are configured using a single Destination setting (`subscriptions`) that should contain a JSON blob of all subscriptions for the destination. The format should look like this:
