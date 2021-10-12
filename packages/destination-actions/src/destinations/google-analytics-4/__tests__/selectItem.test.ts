@@ -81,17 +81,17 @@ describe('GA4', () => {
       expect(responses[0].status).toBe(201)
 
       expect(responses[0].request.headers).toMatchInlineSnapshot(`
-                Headers {
-                  Symbol(map): Object {
-                    "content-type": Array [
-                      "application/json",
-                    ],
-                    "user-agent": Array [
-                      "Segment",
-                    ],
-                  },
-                }
-              `)
+        Headers {
+          Symbol(map): Object {
+            "content-type": Array [
+              "application/json",
+            ],
+            "user-agent": Array [
+              "Segment (Actions)",
+            ],
+          },
+        }
+      `)
 
       expect(responses[0].options.body).toMatchInlineSnapshot(
         `"{\\"client_id\\":\\"anon-567890\\",\\"events\\":[{\\"name\\":\\"select_item\\",\\"params\\":{\\"items\\":[{\\"item_id\\":\\"507f1f77bcf86cd799439011\\",\\"item_name\\":\\"Monopoly: 3rd Edition\\",\\"item_category\\":\\"Games\\",\\"quantity\\":1,\\"coupon\\":\\"MAYDEALS\\",\\"index\\":3,\\"item_brand\\":\\"Hasbro\\",\\"item_variant\\":\\"200 pieces\\",\\"price\\":18.99}]}}]}"`
@@ -135,17 +135,17 @@ describe('GA4', () => {
       expect(responses[0].status).toBe(201)
 
       expect(responses[0].request.headers).toMatchInlineSnapshot(`
-                Headers {
-                  Symbol(map): Object {
-                    "content-type": Array [
-                      "application/json",
-                    ],
-                    "user-agent": Array [
-                      "Segment",
-                    ],
-                  },
-                }
-              `)
+        Headers {
+          Symbol(map): Object {
+            "content-type": Array [
+              "application/json",
+            ],
+            "user-agent": Array [
+              "Segment (Actions)",
+            ],
+          },
+        }
+      `)
 
       expect(responses[0].options.body).toMatchInlineSnapshot(
         `"{\\"client_id\\":\\"3456fff\\",\\"events\\":[{\\"name\\":\\"select_item\\",\\"params\\":{\\"items\\":[]}}]}"`

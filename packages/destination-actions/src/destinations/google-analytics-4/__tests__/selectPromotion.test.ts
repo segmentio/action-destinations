@@ -45,17 +45,17 @@ describe('GA4', () => {
       expect(responses[0].status).toBe(201)
 
       expect(responses[0].request.headers).toMatchInlineSnapshot(`
-                Headers {
-                  Symbol(map): Object {
-                    "content-type": Array [
-                      "application/json",
-                    ],
-                    "user-agent": Array [
-                      "Segment",
-                    ],
-                  },
-                }
-              `)
+        Headers {
+          Symbol(map): Object {
+            "content-type": Array [
+              "application/json",
+            ],
+            "user-agent": Array [
+              "Segment (Actions)",
+            ],
+          },
+        }
+      `)
 
       expect(responses[0].options.body).toMatchInlineSnapshot(
         `"{\\"client_id\\":\\"3456fff\\",\\"events\\":[{\\"name\\":\\"select_promotion\\",\\"params\\":{\\"location_id\\":\\"promo_1\\",\\"items\\":[]}}]}"`
@@ -134,17 +134,17 @@ describe('GA4', () => {
       expect(responses[0].status).toBe(201)
 
       expect(responses[0].request.headers).toMatchInlineSnapshot(`
-                Headers {
-                  Symbol(map): Object {
-                    "content-type": Array [
-                      "application/json",
-                    ],
-                    "user-agent": Array [
-                      "Segment",
-                    ],
-                  },
-                }
-              `)
+        Headers {
+          Symbol(map): Object {
+            "content-type": Array [
+              "application/json",
+            ],
+            "user-agent": Array [
+              "Segment (Actions)",
+            ],
+          },
+        }
+      `)
 
       expect(responses[0].options.body).toMatchInlineSnapshot(
         `"{\\"client_id\\":\\"3456fff\\",\\"events\\":[{\\"name\\":\\"select_promotion\\",\\"params\\":{\\"creative_name\\":\\"top_banner_2\\",\\"creative_slot\\":\\"2\\",\\"location_id\\":\\"home\\",\\"promotion_id\\":\\"promo_1\\",\\"promotion_name\\":\\"75% store-wide shoe sale\\",\\"items\\":[{\\"item_id\\":\\"SKU_12345\\",\\"item_name\\":\\"jeggings\\",\\"coupon\\":\\"SUMMER_FUN\\",\\"discount\\":2.22,\\"promotion_id\\":\\"P_12345\\",\\"promotion_name\\":\\"Summer Sale\\",\\"creative_slot\\":\\"featured_app_1\\",\\"location_id\\":\\"L_12345\\",\\"affiliation\\":\\"Google Store\\",\\"item_brand\\":\\"Gucci\\",\\"item_category\\":\\"pants\\",\\"item_variant\\":\\"Black\\",\\"price\\":9.99,\\"currency\\":\\"USD\\"}]}}]}"`
