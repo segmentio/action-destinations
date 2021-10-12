@@ -12,7 +12,7 @@ export interface Settings {
   /**
    * Tiktok app id. You can find this key in the "Basic Information" tab of your Tiktok app.
    */
-  appId: number
+  appId: string
   /**
    * An ID for your Pixel. Required to send events to this pixel.
    */
