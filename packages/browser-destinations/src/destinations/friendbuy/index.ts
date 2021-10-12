@@ -1,18 +1,31 @@
 import type { Settings } from './generated-types'
 import type { BrowserDestinationDefinition } from '../../lib/browser-destinations'
 import { browserDestination } from '../../runtime/shim'
+import { defaultValues, DestinationDefinition } from '@segment/actions-core'
 
 import trackCustomer from './trackCustomer'
 
+export interface FriendbuyAPI extends Array<any> {
+  merchantId: string
+}
+
 declare global {
   interface Window {
-    friendbuyAPI?: any[]
-    friendbuyBaseUrl?: string
+    friendbuyAPI?: FriendbuyAPI
+    friendbuyBaseHost?: string
   }
 }
 
-// Switch from unknown to the partner SDK client types
-export const destination: BrowserDestinationDefinition<Settings, unknown> = {
+const presets: DestinationDefinition['presets'] = [
+  {
+    name: 'Track Customer',
+    subscribe: 'type = "identify"',
+    partnerAction: 'trackCustomer',
+    mapping: defaultValues(trackCustomer.fields)
+  }
+]
+
+export const destination: BrowserDestinationDefinition<Settings, FriendbuyAPI> = {
   name: 'Friendbuy',
   slug: 'friendbuy',
   mode: 'device',
@@ -28,20 +41,21 @@ export const destination: BrowserDestinationDefinition<Settings, unknown> = {
   },
 
   initialize: async ({ settings /* , analytics */ }, dependencies) => {
-    let friendbuyAPI
-    window['friendbuyAPI'] = friendbuyAPI = window['friendbuyAPI'] || []
-    const friendbuyBaseUrl = window.friendbuyBaseUrl ?? 'fbot.me'
+    let friendbuyAPI: FriendbuyAPI
+    window['friendbuyAPI'] = friendbuyAPI = window['friendbuyAPI'] || ([] as any as FriendbuyAPI)
+    const friendbuyBaseHost = window.friendbuyBaseHost ?? 'fbot.me'
 
     friendbuyAPI.merchantId = settings.merchantId
     friendbuyAPI.push(['merchant', settings.merchantId])
     await Promise.all([
-      dependencies.loadScript(`https://static.${friendbuyBaseUrl}/friendbuy.js`),
-      dependencies.loadScript(`https://campaign.${friendbuyBaseUrl}/${settings.merchantId}/campaigns.js`)
+      dependencies.loadScript(`https://static.${friendbuyBaseHost}/friendbuy.js`),
+      dependencies.loadScript(`https://campaign.${friendbuyBaseHost}/${settings.merchantId}/campaigns.js`)
     ])
 
     return friendbuyAPI
   },
 
+  presets,
   actions: {
     trackCustomer
   }
