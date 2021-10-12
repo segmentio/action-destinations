@@ -17,9 +17,7 @@ const action: ActionDefinition<Settings, Payload> = {
         '@if': {
           exists: { '@path': '$.userId' },
           then: { '@path': '$.userId' },
-          else: {
-            '@if': { exists: { '@path': '$.anonymousId' }, then: { '@path': '$.anonymousId' }, else: '' }
-          }
+          else: { '@path': '$.anonymousId' }
         }
       }
     },
