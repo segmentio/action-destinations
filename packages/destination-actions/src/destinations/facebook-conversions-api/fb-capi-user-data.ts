@@ -1,5 +1,7 @@
+import { fieldsToJsonSchema } from '@segment/actions-core'
 import { InputField } from '@segment/actions-core/src/destination-kit/types'
 import { createHash } from 'crypto'
+import { JSONSchema4 } from 'json-schema'
 
 // Implementation of Facebook user data object
 // https://developers.facebook.com/docs/marketing-api/conversions-api/parameters/customer-information-parameters
@@ -188,6 +190,32 @@ export const hash_user_data = (user_data: UserData): Object => {
     fb_login_id: user_data?.fbLoginID
   }
 }
+
+function prepareSchema(fields: Record<string, InputField>): JSONSchema4 {
+  let schema = fieldsToJsonSchema(fields, { tsType: true })
+  // Remove extra properties so it produces cleaner output
+  schema = removeExtra(schema)
+  return schema
+}
+
+function removeExtra(schema: JSONSchema4) {
+  const copy = { ...schema }
+
+  delete copy.title
+  delete copy.enum
+
+  if (copy.type === 'object' && copy.properties) {
+    for (const [key, property] of Object.entries(copy.properties)) {
+      copy.properties[key] = removeExtra(property)
+    }
+  } else if (copy.type === 'array' && copy.items) {
+    copy.items = removeExtra(copy.items)
+  }
+
+  return copy
+}
+
+export const test_schema = prepareSchema({user_data: user_data_field})
 
 // Copy of the user_data subfield in the generated-types
 interface UserData {
