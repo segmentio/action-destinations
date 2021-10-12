@@ -31,6 +31,13 @@ const action: ActionDefinition<Settings, Payload> = {
       throw new IntegrationError('Must include at least one user data property', 'Misconfigured required field', 400)
     }
 
+    if (
+      !['email', 'website', 'phone_call', 'chat', 'physical_store', 'system_generated', 'other']
+        .includes(payload.action_source)
+    ) {
+      throw new IntegrationError('Provide a valid value for the action source parameter, such as "website"', 'Misconfigured required field', 400)
+    }
+
     return request(`https://graph.facebook.com/v${API_VERSION}/${settings.pixelId}/events?access_token=${TOKEN}`, {
       method: 'POST',
       json: {

@@ -74,7 +74,7 @@ export const event_time: InputField = {
   description: 'A Unix timestamp in seconds indicating when the actual event occurred.',
   type: 'number',
   default: {
-    '@path': '$.properties.timestamp'
+    '@path': '$.timestamp'
   }
 }
 

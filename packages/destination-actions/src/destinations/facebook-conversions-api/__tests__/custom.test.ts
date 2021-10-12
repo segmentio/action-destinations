@@ -37,6 +37,68 @@ describe.only('FacebookConversionsApi', () => {
       })).rejects.toThrowError("The root value is missing the required field 'event_time'.")
     })
 
+    it('should fail if an empty event_name is passed', async () => {
+      nock(`https://graph.facebook.com/v11.0/${settings.pixelId}`)
+      .post(`/events?access_token=${settings.token}`)
+      .reply(201, {})
+
+      const event = createTestEvent({
+        event: '',
+        userId: 'abc123',
+        timestamp: '1631210010',
+        properties: {
+          action_source: 'email',
+          currency: 'FAKE',
+          value: 12.12,
+          email: 'nicholas.aguilar@segment.com'
+        }
+      })
+
+      await expect(testDestination.testAction('custom', {
+        event,
+        settings,
+        mapping: {
+          event_name: {
+            '@path': '$.event'
+          }
+        }
+      })).rejects.toThrowError("The root value is missing the required field 'event_time'.")
+    })
+
+    it('should throw an error for an invalid action_source', async () => {
+      nock(`https://graph.facebook.com/v11.0/${settings.pixelId}`)
+        .post(`/events?access_token=${settings.token}`)
+        .reply(201, {})
+
+        const event = createTestEvent({
+          event: 'custom',
+          userId: 'abc123',
+          timestamp: '1631210010',
+          properties: {
+            action_source: 'fake',
+            currency: 'USD',
+            value: 12.12,
+            email: 'nicholas.aguilar@segment.com'
+          }
+        })
+
+        await expect(testDestination.testAction('custom', {
+          event,
+          settings,
+          mapping: {
+            event_name: {
+              '@path': '$.event'
+            },
+            action_source: {
+              '@path': '$.properties.action_source'
+            },
+            event_time: {
+              '@path': '$.timestamp'
+            }
+          }
+        })).rejects.toThrowError("a")
+    })
+
     it('should map a standard identify event to a custom event', async () => {
       nock(`https://graph.facebook.com/v11.0/${settings.pixelId}`)
       .post(`/events?access_token=${settings.token}`)

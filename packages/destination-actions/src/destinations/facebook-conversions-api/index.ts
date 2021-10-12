@@ -7,7 +7,6 @@ import viewContent from './viewContent'
 import search from './search'
 import pageView from './pageView'
 import { API_VERSION } from './constants'
-
 import custom from './custom'
 
 const destination: DestinationDefinition<Settings> = {
