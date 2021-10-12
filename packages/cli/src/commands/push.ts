@@ -24,7 +24,8 @@ import {
   updateDestinationMetadata,
   updateDestinationMetadataActions,
   createDestinationMetadataActions,
-  setSubscriptionPresets
+  setSubscriptionPresets,
+  getSubscriptionPresets
 } from '../lib/control-plane-client'
 import { DestinationDefinition, getManifest, hasOauthAuthentication } from '../lib/destinations'
 import type { JSONSchema4 } from 'json-schema'
@@ -70,9 +71,10 @@ export default class Push extends Command {
         .join(', ')}...`
     )
 
-    const [metadatas, actions] = await Promise.all([
+    const [metadatas, actions, allPresets] = await Promise.all([
       getDestinationMetadatas(metadataIds),
-      getDestinationMetadataActions(metadataIds)
+      getDestinationMetadataActions(metadataIds),
+      getSubscriptionPresets(metadataIds)
     ])
 
     if (metadatas.length !== Object.keys(metadataIds).length) {
@@ -94,6 +96,14 @@ export default class Push extends Command {
       const actionsToUpdate: DestinationMetadataActionsUpdateInput[] = []
       const actionsToCreate: DestinationMetadataActionCreateInput[] = []
       const existingActions = actions.filter((a) => a.metadataId === metadata.id)
+      const existingPresets = allPresets
+        .filter((p) => p.metadataId === metadata.id)
+        .map((preset) => ({
+          partnerAction: existingActions.find((a) => a.id === preset.actionId)?.slug,
+          name: preset.name,
+          subscribe: preset.trigger,
+          mapping: preset.fields
+        }))
 
       for (const [actionKey, action] of Object.entries(definition.actions)) {
         const platform = action.platform ?? 'cloud'
@@ -195,7 +205,8 @@ export default class Push extends Command {
               )
             })),
             ['name']
-          )
+          ),
+          presets: sortBy(existingPresets, 'name')
         }),
         asJson({
           basicOptions: filterOAuth(basicOptions),
@@ -212,7 +223,8 @@ export default class Push extends Command {
                 )
               })),
             ['name']
-          )
+          ),
+          presets: sortBy(definition.presets ?? [], 'name')
         })
       )
 
