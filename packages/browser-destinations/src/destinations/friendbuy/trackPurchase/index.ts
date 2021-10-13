@@ -4,9 +4,6 @@ import type { Payload } from './generated-types'
 
 import { FriendbuyAPI } from '..'
 
-const amountSourceChoices = ['revenue', 'subtotal', 'total'] as const
-type AmountSource = typeof amountSourceChoices[number]
-
 // Change from unknown to the partner SDK types
 const action: BrowserActionDefinition<Settings, FriendbuyAPI, Payload> = {
   title: 'Track Purchase',
@@ -23,40 +20,29 @@ const action: BrowserActionDefinition<Settings, FriendbuyAPI, Payload> = {
       default: { '@path': '$.properties.order_id' }
     },
 
-    amountSource: {
+    amount: {
       // Values available for amount:
       // - `revenue` is the sum of the costs of the items being ordered.
       // - `subtotal` is `revenue` minus any discount.
       // - `total` is `subtotal` plus tax and shipping.
       label: 'Amount Source',
-      description: 'Source of purchase amount to send to Friendbuy.',
-      type: 'string',
+      description: 'Purchase amount to be considered when evaluating reward rules.',
+      type: 'number',
       required: true,
-      choices: amountSourceChoices as unknown as string[],
-      default: 'total'
+      default: {
+        '@if': {
+          exists: { '@path': '$.properties.total' },
+          then: { '@path': '$.properties.total' },
+          else: {
+            '@if': {
+              exists: { '@path': '$.properties.subtotal' },
+              then: { '@path': '$.properties.subtotal' },
+              else: { '@path': '$.properties.revenue' }
+            }
+          }
+        }
+      }
     },
-    revenue: {
-      label: 'Revenue',
-      description: 'The sum of the costs of the items being purchased.',
-      type: 'number',
-      required: false,
-      default: { '@path': '$.properties.revenue' }
-    },
-    subtotal: {
-      label: 'Subtotal',
-      description: 'Revenue minus any discounts.',
-      type: 'number',
-      required: false,
-      default: { '@path': '$.properties.subtotal' }
-    },
-    total: {
-      label: 'Total',
-      description: 'Subtotal plus tax and shipping.',
-      type: 'number',
-      required: false,
-      default: { '@path': '$.properties.total' }
-    },
-
     currency: {
       label: 'Currency',
       description: 'The currency of the purchase amount.',
@@ -117,15 +103,6 @@ const action: BrowserActionDefinition<Settings, FriendbuyAPI, Payload> = {
 
   perform: (friendbuyAPI, data) => {
     // console.log('trackPurchase.perform', JSON.stringify(data, null, 2))
-    const amount =
-      data.payload[data.payload.amountSource as AmountSource] ||
-      data.payload.total ||
-      data.payload.subtotal ||
-      data.payload.revenue
-    if (amount === undefined) {
-      return
-    }
-
     const products =
       data.payload.products && data.payload.products.length > 0
         ? data.payload.products.map((p) => ({ quantity: 1, ...p }))
@@ -136,7 +113,7 @@ const action: BrowserActionDefinition<Settings, FriendbuyAPI, Payload> = {
       'purchase',
       {
         id: data.payload.orderId,
-        amount,
+        amount: data.payload.amount,
         currency: data.payload.currency,
         couponCode: data.payload.coupon,
         ...(data.payload.customerId && { customer: { id: data.payload.customerId } }),

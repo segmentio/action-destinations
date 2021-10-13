@@ -6,21 +6,9 @@ export interface Payload {
    */
   orderId: string
   /**
-   * Source of purchase amount to send to Friendbuy.
+   * Purchase amount to be considered when evaluating reward rules.
    */
-  amountSource: string
-  /**
-   * The sum of the costs of the items being purchased.
-   */
-  revenue?: number
-  /**
-   * Revenue minus any discounts.
-   */
-  subtotal?: number
-  /**
-   * Subtotal plus tax and shipping.
-   */
-  total?: number
+  amount: number
   /**
    * The currency of the purchase amount.
    */

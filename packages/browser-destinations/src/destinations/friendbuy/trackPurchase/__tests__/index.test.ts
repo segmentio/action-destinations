@@ -46,32 +46,95 @@ describe('Friendbuy.trackPurchase', () => {
     const expectedProducts = products.map((p) => ({ quantity: 1, ...p }))
     const amount = expectedProducts.reduce((acc, p) => acc + p.price * p.quantity, 0)
 
-    const context = new Context({
-      type: 'track',
-      event: 'Order Completed',
-      userId,
-      properties: {
-        order_id: orderId,
-        revenue: amount,
-        currency,
-        products: products as JSONValue
-      }
-    })
-    // console.log('context', JSON.stringify(context, null, 2))
+    {
+      // all fields
+      const context1 = new Context({
+        type: 'track',
+        event: 'Order Completed',
+        userId,
+        properties: {
+          order_id: orderId,
+          revenue: amount,
+          subtotal: amount + 1,
+          total: amount + 2,
+          currency,
+          products: products as JSONValue
+        }
+      })
+      // console.log('context1', JSON.stringify(context1, null, 2))
 
-    trackPurchase.track?.(context)
+      trackPurchase.track?.(context1)
 
-    // console.log('trackPurchase request', JSON.stringify(window.friendbuyAPI.push.mock.calls[0], null, 2))
-    expect(window.friendbuyAPI.push).toHaveBeenCalledWith([
-      'track',
-      'purchase',
-      {
-        id: orderId,
-        amount,
-        currency,
-        customer: { id: userId },
-        products: expectedProducts
-      }
-    ])
+      // console.log('trackPurchase request', JSON.stringify(window.friendbuyAPI.push.mock.calls[0], null, 2))
+      expect(window.friendbuyAPI.push).toHaveBeenNthCalledWith(1, [
+        'track',
+        'purchase',
+        {
+          id: orderId,
+          amount: amount + 2, // amount defaults to total
+          currency,
+          customer: { id: userId },
+          products: expectedProducts
+        }
+      ])
+    }
+
+    {
+      // missing total
+      const context2 = new Context({
+        type: 'track',
+        event: 'Order Completed',
+        userId,
+        properties: {
+          order_id: orderId,
+          subtotal: amount + 1,
+          currency,
+          products: products as JSONValue
+        }
+      })
+
+      trackPurchase.track?.(context2)
+
+      expect(window.friendbuyAPI.push).toHaveBeenNthCalledWith(2, [
+        'track',
+        'purchase',
+        {
+          id: orderId,
+          amount: amount + 1, // amount defaults to subtotal when total missing
+          currency,
+          customer: { id: userId },
+          products: expectedProducts
+        }
+      ])
+    }
+
+    {
+      // missing total and subtotal
+      const context3 = new Context({
+        type: 'track',
+        event: 'Order Completed',
+        userId,
+        properties: {
+          order_id: orderId,
+          revenue: amount,
+          currency,
+          products: products as JSONValue
+        }
+      })
+
+      trackPurchase.track?.(context3)
+
+      expect(window.friendbuyAPI.push).toHaveBeenNthCalledWith(3, [
+        'track',
+        'purchase',
+        {
+          id: orderId,
+          amount, // amount defaults to revenue when total and subtotal missing
+          currency,
+          customer: { id: userId },
+          products: expectedProducts
+        }
+      ])
+    }
   })
 })
