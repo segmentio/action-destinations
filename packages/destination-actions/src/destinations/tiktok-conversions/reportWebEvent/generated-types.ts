@@ -10,11 +10,11 @@ export interface Payload {
    */
   event_id?: string
   /**
-   * Timestamp that the event took place. Timestamp with ISO 8601 format.
+   * Timestamp that the event took place, in ISO 8601 format.
    */
   timestamp?: string
   /**
-   * The segment event type. Ex. "page".
+   * The Segment event type, e.g. "page".
    */
   type?: string
   /**
@@ -24,15 +24,15 @@ export interface Payload {
     [k: string]: unknown
   }
   /**
-   * Phone number of the purchaser, in E.164 standard format, e.g. +14150000000
+   * Phone number of the user who triggered the conversion event, in E.164 standard format, e.g. +14150000000.
    */
   phone_number?: string
   /**
-   * Email address of the customer who triggered the conversion event.
+   * Email address of the user who triggered the conversion event.
    */
   email: string
   /**
-   * Uniquely identifies a user using Segment ID.
+   * Uniquely identifies the user who triggered the conversion event.
    */
   external_id: string
 }
