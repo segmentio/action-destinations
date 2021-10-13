@@ -1,22 +1,23 @@
 import { AggregateAjvError } from '@segment/ajv-human-errors'
 import Ajv, { ValidateFunction } from 'ajv'
+import addFormats from 'ajv-formats'
 import dayjs from 'dayjs'
 
-const ajv = new Ajv({
+// `addFormats` includes many standard formats we use like `uri`, `date`, `email`, etc.
+const ajv = addFormats(new Ajv({
   // Coerce types to be a bit more liberal.
   coerceTypes: true,
   // Return all validation errors, not just the first.
   allErrors: true,
+  // Allow multiple non-null types in `type` keyword.
+  allowUnionTypes: true,
   // Include reference to schema and data in error values.
   verbose: true,
   // Remove properties not defined the schema object
-  removeAdditional: true,
-  // Use a more parse-able format for JSON paths.
-  jsPropertySyntax: true
-})
+  removeAdditional: true
+}))
 
 // Extend with additional supported formats for action `fields`
-ajv.addFormat('password', true)
 ajv.addFormat('text', true)
 ajv.addFormat('date-like', (data: string) => {
   let date = dayjs(data)

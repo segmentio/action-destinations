@@ -56,6 +56,5 @@
     "setupFilesAfterEnv": [
       "<rootDir>/test/setup-after-env.ts"
     ]
-  },
-  "gitHead": "218a80bcbb810692b119cc7cf3d7c1ea782c447a"
+  }
 }
