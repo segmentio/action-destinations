@@ -43,7 +43,13 @@ export const trackCustomerFields: Record<string, InputField> = {
     description: "The user's full name.",
     type: 'string',
     required: false,
-    default: { '@path': '$.traits.name' }
+    default: {
+      '@if': {
+        exists: { '@path': '$.traits.name' },
+        then: { '@path': '$.traits.name' },
+        else: { '@template': '{{traits.firstName}} {{traits.lastName}}' }
+      }
+    }
   }
 }
 
@@ -64,19 +70,10 @@ const action: BrowserActionDefinition<Settings, FriendbuyAPI, Payload> = {
         email: data.payload.email,
         firstName: data.payload.firstName,
         lastName: data.payload.lastName,
-        name: getName(data.payload)
+        name: data.payload.name
       }
     ])
   }
-}
-
-function getName(payload: Payload): string | undefined {
-  // prettier-ignore
-  return (
-    payload.name                          ? payload.name :
-    payload.firstName && payload.lastName ? `${payload.firstName} ${payload.lastName}`
-    :                                       undefined
-  )
 }
 
 export default action

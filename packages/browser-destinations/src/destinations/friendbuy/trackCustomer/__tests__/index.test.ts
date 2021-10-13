@@ -29,6 +29,7 @@ describe('Friendbuy.trackCustomer', () => {
     const userId = 'john-doe-12345'
     const firstName = 'John'
     const lastName = 'Doe'
+    const name = `${firstName} ${lastName}`
     const email = 'john.doe@example.com'
 
     const [trackCustomer] = await friendbuyDestination({
@@ -49,6 +50,7 @@ describe('Friendbuy.trackCustomer', () => {
       traits: {
         firstName,
         lastName,
+        name,
         email
       }
     })
@@ -65,7 +67,7 @@ describe('Friendbuy.trackCustomer', () => {
         email,
         firstName,
         lastName,
-        name: `${firstName} ${lastName}`
+        name
       }
     ])
   })
