@@ -70,7 +70,7 @@ const destination: DestinationDefinition<Settings> = {
       },
       secretKey: {
         label: 'Secret Key',
-        description: 'TikTok app secret key. You can find this key in the "Basic Information" tab of your TikTok app.',
+        description: 'TikTok App Secret Key. You can find this key in the "Basic Information" tab of your TikTok app.',
         type: 'string',
         required: true
       },
