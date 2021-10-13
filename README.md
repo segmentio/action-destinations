@@ -78,7 +78,7 @@ Refer [here](./docs/testing.md) for more information about testing your destinat
 
 ## Debugging
 
-Pass the node flag `--inspect` when you run the local server, and then you can attach a debugger from your IDE.
+Pass the Node flag `--inspect` when you run the local server, and then you can attach a debugger from your IDE. The `serve` command will pass any extra args/flags to the underlying Node process.
 
 ### Configuring
 
