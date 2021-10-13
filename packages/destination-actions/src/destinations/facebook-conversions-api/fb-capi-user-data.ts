@@ -1,21 +1,19 @@
-import { fieldsToJsonSchema } from '@segment/actions-core'
 import { InputField } from '@segment/actions-core/src/destination-kit/types'
 import { createHash } from 'crypto'
-import { JSONSchema4 } from 'json-schema'
 
 // Implementation of Facebook user data object
 // https://developers.facebook.com/docs/marketing-api/conversions-api/parameters/customer-information-parameters
 
 export const user_data_field: InputField = {
   label: 'User Data',
-  description: 'These parameters are a set of identifiers Facebook can use for targeted attribution. You must provide at least one of the following user_data keys in your request',
+  description: 'These parameters are a set of identifiers Facebook can use for targeted attribution. You must provide at least one of the following user_data keys in your request.',
   type: 'object',
+  required: true,
   properties: {
     externalId: {
       label: 'External ID',
       description: 'Any unique ID from the advertiser, such as loyalty membership IDs, user IDs, and external cookie IDs. You can send one or more external IDs for a given event.',
       type: 'string',
-      multiple: true
     },
     email: {
       label: 'Email',
@@ -158,16 +156,6 @@ const hash = (value: string | undefined): string | undefined => {
   return hash.digest('hex')
 }
 
-const hash_array = (value: (string | undefined)[] | undefined) => {
-  if (value === undefined) return
-
-  value.forEach((item, index) => {
-    if (item !== undefined) {
-      value[index] = hash(item)
-    }
-  })
-}
-
 export const hash_user_data = (user_data: UserData): Object => {
   return {
     em: hash(user_data?.email),
@@ -180,7 +168,7 @@ export const hash_user_data = (user_data: UserData): Object => {
     st: hash(user_data?.state),
     zp: hash(user_data?.zip),
     country: hash(user_data?.country),
-    external_id: hash_array(user_data?.externalId), // Hashing this is recommended but not required.
+    external_id: hash(user_data?.externalId), // Hashing this is recommended but not required.
     client_ip_address: user_data?.client_ip_address,
     client_user_agent: user_data?.client_user_agent,
     fbc: user_data?.fbc,
@@ -191,38 +179,12 @@ export const hash_user_data = (user_data: UserData): Object => {
   }
 }
 
-function prepareSchema(fields: Record<string, InputField>): JSONSchema4 {
-  let schema = fieldsToJsonSchema(fields, { tsType: true })
-  // Remove extra properties so it produces cleaner output
-  schema = removeExtra(schema)
-  return schema
-}
-
-function removeExtra(schema: JSONSchema4) {
-  const copy = { ...schema }
-
-  delete copy.title
-  delete copy.enum
-
-  if (copy.type === 'object' && copy.properties) {
-    for (const [key, property] of Object.entries(copy.properties)) {
-      copy.properties[key] = removeExtra(property)
-    }
-  } else if (copy.type === 'array' && copy.items) {
-    copy.items = removeExtra(copy.items)
-  }
-
-  return copy
-}
-
-export const test_schema = prepareSchema({user_data: user_data_field})
-
 // Copy of the user_data subfield in the generated-types
 interface UserData {
   /**
    * Any unique ID from the advertiser, such as loyalty membership IDs, user IDs, and external cookie IDs. You can send one or more external IDs for a given event.
    */
-  externalId?: string[]
+  externalId?: string
   /**
    * An email address, in lowercase. Example: joe@eg.com
    */

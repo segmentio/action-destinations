@@ -9,11 +9,11 @@ const action: ActionDefinition<Settings, Payload> = {
   description: 'Send a page view event to FB',
   defaultSubscription: 'type = "page"',
   fields: {
-    user_data: user_data_field,
     action_source: { ...action_source, required: true },
     event_time: { ...event_time, required: true },
-    event_source_url: event_source_url,
-    event_id: event_id
+    user_data: user_data_field,
+    event_id: event_id,
+    event_source_url: event_source_url
   },
   perform: (request, { payload, settings }) => {
     // For stage testing, prioritize settings token over env token

@@ -2,13 +2,13 @@
 
 export interface Payload {
   /**
-   * These parameters are a set of identifiers Facebook can use for targeted attribution. You must provide at least one of the following user_data keys in your request
+   * These parameters are a set of identifiers Facebook can use for targeted attribution. You must provide at least one of the following user_data keys in your request.
    */
-  user_data?: {
+  user_data: {
     /**
      * Any unique ID from the advertiser, such as loyalty membership IDs, user IDs, and external cookie IDs. You can send one or more external IDs for a given event.
      */
-    externalId?: string[]
+    externalId?: string
     /**
      * An email address, in lowercase. Example: joe@eg.com
      */
@@ -81,7 +81,7 @@ export interface Payload {
   /**
    * A Unix timestamp in seconds indicating when the actual event occurred.
    */
-  event_time: number
+  event_time: string
   /**
    * This field allows you to specify where your conversions occurred.
    */

@@ -2,17 +2,25 @@
 
 export interface Payload {
   /**
+   * This field allows you to specify where your conversions occurred.
+   */
+  action_source: string
+  /**
    * A Facebook pixel Standard Event or Custom Event name.
    */
   event_name: string
   /**
-   * These parameters are a set of identifiers Facebook can use for targeted attribution. You must provide at least one of the following user_data keys in your request
+   * A Unix timestamp in seconds indicating when the actual event occurred.
    */
-  user_data?: {
+  event_time: string
+  /**
+   * These parameters are a set of identifiers Facebook can use for targeted attribution. You must provide at least one of the following user_data keys in your request.
+   */
+  user_data: {
     /**
      * Any unique ID from the advertiser, such as loyalty membership IDs, user IDs, and external cookie IDs. You can send one or more external IDs for a given event.
      */
-    externalId?: string[]
+    externalId?: string
     /**
      * An email address, in lowercase. Example: joe@eg.com
      */
@@ -82,14 +90,6 @@ export interface Payload {
      */
     fbLoginID?: number
   }
-  /**
-   * A Unix timestamp in seconds indicating when the actual event occurred.
-   */
-  event_time: number
-  /**
-   * This field allows you to specify where your conversions occurred.
-   */
-  action_source: string
   /**
    * This ID can be any unique string chosen by the advertiser. event_id is used to deduplicate events sent by both Facebook Pixel and Conversions API.
    */

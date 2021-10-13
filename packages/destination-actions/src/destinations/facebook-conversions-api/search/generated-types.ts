@@ -2,13 +2,21 @@
 
 export interface Payload {
   /**
-   * These parameters are a set of identifiers Facebook can use for targeted attribution. You must provide at least one of the following user_data keys in your request
+   * This field allows you to specify where your conversions occurred.
    */
-  user_data?: {
+  action_source: string
+  /**
+   * A Unix timestamp in seconds indicating when the actual event occurred.
+   */
+  event_time: string
+  /**
+   * These parameters are a set of identifiers Facebook can use for targeted attribution. You must provide at least one of the following user_data keys in your request.
+   */
+  user_data: {
     /**
      * Any unique ID from the advertiser, such as loyalty membership IDs, user IDs, and external cookie IDs. You can send one or more external IDs for a given event.
      */
-    externalId?: string[]
+    externalId?: string
     /**
      * An email address, in lowercase. Example: joe@eg.com
      */
@@ -79,22 +87,6 @@ export interface Payload {
     fbLoginID?: number
   }
   /**
-   * A Unix timestamp in seconds indicating when the actual event occurred.
-   */
-  event_time: number
-  /**
-   * This field allows you to specify where your conversions occurred.
-   */
-  action_source: string
-  /**
-   * This ID can be any unique string chosen by the advertiser. event_id is used to deduplicate events sent by both Facebook Pixel and Conversions API.
-   */
-  event_id?: string
-  /**
-   * The browser URL where the event happened. The URL must begin with http:// or https:// and should match the verified domain. event_source_url is required if action_source = “website”; however it is strongly recommended that you include it for any action_source.
-   */
-  event_source_url?: string
-  /**
    * Category of the page/product.
    */
   content_category?: string
@@ -113,11 +105,19 @@ export interface Payload {
    */
   currency?: string
   /**
-   * The value of a user performing this event to the business.
+   * This ID can be any unique string chosen by the advertiser. event_id is used to deduplicate events sent by both Facebook Pixel and Conversions API.
    */
-  value?: number
+  event_id?: string
+  /**
+   * The browser URL where the event happened. The URL must begin with http:// or https:// and should match the verified domain. event_source_url is required if action_source = “website”; however it is strongly recommended that you include it for any action_source.
+   */
+  event_source_url?: string
   /**
    * Search String
    */
   search_string?: string
+  /**
+   * The value of a user performing this event to the business.
+   */
+  value?: number
 }

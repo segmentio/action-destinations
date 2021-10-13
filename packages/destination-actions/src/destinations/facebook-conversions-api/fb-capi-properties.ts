@@ -72,7 +72,7 @@ export const num_items: InputField = {
 export const event_time: InputField = {
   label: 'Event Time',
   description: 'A Unix timestamp in seconds indicating when the actual event occurred.',
-  type: 'number',
+  type: 'string',
   default: {
     '@path': '$.timestamp'
   }

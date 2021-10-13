@@ -10,17 +10,17 @@ const action: ActionDefinition<Settings, Payload> = {
   description: 'Send an initiate checkout event to FB',
   defaultSubscription: 'type = "track" and event = "Checkout Started"',
   fields: {
+    action_source: { ...action_source, required: true },
+    event_time: { ...event_time, required: true },
+    user_data: user_data_field,
     content_category: content_category,
     content_ids: content_ids,
     contents: contents,
     currency: currency,
+    event_id: event_id,
+    event_source_url: event_source_url,
     num_items: num_items,
     value: value,
-    user_data: user_data_field,
-    event_time: { ...event_time, required: true },
-    action_source: { ...action_source, required: true },
-    event_source_url: event_source_url,
-    event_id: event_id
   },
   perform: (request, { payload, settings }) => {
     // For stage testing, prioritize settings token over env token

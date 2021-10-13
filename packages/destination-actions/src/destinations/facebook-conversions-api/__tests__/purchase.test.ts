@@ -113,10 +113,15 @@ describe('purchase', () => {
         },
         event_time: {
           '@path': '$.timestamp'
+        },
+        user_data: {
+          email: {
+            '@path': '$.properties.context.traits.email'
+          }
         }
       },
       useDefaultMappings: false
-    })).rejects.toThrowError("The root value is missing the required field 'value'. The root value is missing the required field 'currency'.")
+    })).rejects.toThrowError("The root value is missing the required field 'currency'. The root value is missing the required field 'value'.")
   })
   
   it('should throw an error if no user_data keys are included', async () => {
@@ -153,6 +158,6 @@ describe('purchase', () => {
         }
         // No user data mapping included. This should cause action to fail.
       }
-    })).rejects.toThrowError('Must include at least one user data property')
+    })).rejects.toThrowError("The root value is missing the required field 'user_data'.")
   })
 })

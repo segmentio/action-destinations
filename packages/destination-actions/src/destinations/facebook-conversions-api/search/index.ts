@@ -10,16 +10,15 @@ const action: ActionDefinition<Settings, Payload> = {
   description: 'Send a search event to FB',
   defaultSubscription: 'type = "track" and event = "Products Searched"',
   fields: {
-    user_data: user_data_field,
-    event_time: { ...event_time, required: true },
     action_source: { ...action_source, required: true },
-    event_id: event_id,
-    event_source_url: event_source_url,
+    event_time: { ...event_time, required: true },
+    user_data: user_data_field,
     content_category: content_category,
     content_ids: content_ids,
     contents: contents,
     currency: currency,
-    value: value,
+    event_id: event_id,
+    event_source_url: event_source_url,
     search_string: {
       label: 'Search String',
       description: 'Search String',
@@ -27,7 +26,8 @@ const action: ActionDefinition<Settings, Payload> = {
       default: {
         '@path': '$.properties.query'
       }
-    }
+    },
+    value: value
   },
   perform: (request, { payload, settings }) => {
     // For stage testing, prioritize settings token over env token

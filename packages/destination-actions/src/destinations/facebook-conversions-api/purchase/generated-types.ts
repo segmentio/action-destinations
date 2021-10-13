@@ -2,59 +2,25 @@
 
 export interface Payload {
   /**
-   * The value of a user performing this event to the business.
+   * This field allows you to specify where your conversions occurred.
    */
-  value: number
+  action_source: string
   /**
    * The currency for the value specified.
    */
   currency: string
   /**
-   * This field allows you to specify where your conversions occurred.
-   */
-  action_source: string
-  /**
-   * Name of the page/product.
-   */
-  content_name?: string
-  /**
-   * Either product or product_group based on the content_ids or contents being passed.
-   */
-  content_type?: string
-  /**
-   * An array of JSON objects that contains the quantity and the International Article Number (EAN) when applicable, or other product or content identifier(s). id and quantity are the required fields.
-   */
-  contents?: {
-    [k: string]: unknown
-  }[]
-  /**
-   * The number of items when checkout was initiated.
-   */
-  num_items?: number
-  /**
-   * Product IDs associated with the event, such as SKUs (e.g. ["ABC123", "XYZ789"]).
-   */
-  content_ids?: string[]
-  /**
    * A Unix timestamp in seconds indicating when the actual event occurred.
    */
-  event_time: number
+  event_time: string
   /**
-   * The browser URL where the event happened. The URL must begin with http:// or https:// and should match the verified domain. event_source_url is required if action_source = “website”; however it is strongly recommended that you include it for any action_source.
+   * These parameters are a set of identifiers Facebook can use for targeted attribution. You must provide at least one of the following user_data keys in your request.
    */
-  event_source_url?: string
-  /**
-   * This ID can be any unique string chosen by the advertiser. event_id is used to deduplicate events sent by both Facebook Pixel and Conversions API.
-   */
-  event_id?: string
-  /**
-   * These parameters are a set of identifiers Facebook can use for targeted attribution. You must provide at least one of the following user_data keys in your request
-   */
-  user_data?: {
+  user_data: {
     /**
      * Any unique ID from the advertiser, such as loyalty membership IDs, user IDs, and external cookie IDs. You can send one or more external IDs for a given event.
      */
-    externalId?: string[]
+    externalId?: string
     /**
      * An email address, in lowercase. Example: joe@eg.com
      */
@@ -124,4 +90,38 @@ export interface Payload {
      */
     fbLoginID?: number
   }
+  /**
+   * The value of a user performing this event to the business.
+   */
+  value: number
+  /**
+   * Product IDs associated with the event, such as SKUs (e.g. ["ABC123", "XYZ789"]).
+   */
+  content_ids?: string[]
+  /**
+   * Name of the page/product.
+   */
+  content_name?: string
+  /**
+   * Either product or product_group based on the content_ids or contents being passed.
+   */
+  content_type?: string
+  /**
+   * An array of JSON objects that contains the quantity and the International Article Number (EAN) when applicable, or other product or content identifier(s). id and quantity are the required fields.
+   */
+  contents?: {
+    [k: string]: unknown
+  }[]
+  /**
+   * This ID can be any unique string chosen by the advertiser. event_id is used to deduplicate events sent by both Facebook Pixel and Conversions API.
+   */
+  event_id?: string
+  /**
+   * The browser URL where the event happened. The URL must begin with http:// or https:// and should match the verified domain. event_source_url is required if action_source = “website”; however it is strongly recommended that you include it for any action_source.
+   */
+  event_source_url?: string
+  /**
+   * The number of items when checkout was initiated.
+   */
+  num_items?: number
 }

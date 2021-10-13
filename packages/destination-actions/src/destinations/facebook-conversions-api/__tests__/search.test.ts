@@ -104,7 +104,7 @@ describe('FacebookConversionsApi', () => {
           }
           // No user data mapping included. This should cause action to fail.
         }
-      })).rejects.toThrowError('Must include at least one user data property')
+      })).rejects.toThrowError("The root value is missing the required field 'user_data'.")
     })
   })
 })

@@ -77,7 +77,7 @@ describe('FacebookConversionsApi', () => {
       const event = createTestEvent({
         event: 'Product Added',
         properties: {
-          userId: ['testuser1234'],
+          userId: 'testuser1234',
           action_source: 'email',
           timestamp: 1631210020
         }
@@ -125,7 +125,7 @@ describe('FacebookConversionsApi', () => {
           }
           // No user data mapping included. This should cause action to fail.
         }
-      })).rejects.toThrowError('Must include at least one user data property')
+      })).rejects.toThrowError("The root value is missing the required field 'user_data'.")
     })
   })
 })

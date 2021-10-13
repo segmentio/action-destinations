@@ -9,6 +9,7 @@ const action: ActionDefinition<Settings, Payload> = {
   description: 'Track your own custom events.',
   defaultSubscription: 'type = "identify"',
   fields: {
+    action_source: { ...action_source, required: true},
     event_name: {
       label: 'Event Name',
       description: 'A Facebook pixel Standard Event or Custom Event name.',
@@ -18,9 +19,8 @@ const action: ActionDefinition<Settings, Payload> = {
         '@path': '$.event'
       }
     },
-    user_data: user_data_field,
     event_time: { ...event_time, required: true },
-    action_source: { ...action_source, required: true},
+    user_data: user_data_field,
     event_id: event_id,
     event_source_url: event_source_url,
   },
