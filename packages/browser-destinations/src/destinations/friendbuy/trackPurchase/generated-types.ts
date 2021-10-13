@@ -32,7 +32,7 @@ export interface Payload {
   /**
    * Products purchased
    */
-  products: {
+  products?: {
     sku: string
     name?: string
     price: number

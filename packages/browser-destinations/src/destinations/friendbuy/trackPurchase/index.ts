@@ -78,7 +78,7 @@ const action: BrowserActionDefinition<Settings, FriendbuyAPI, Payload> = {
       description: 'Products purchased',
       type: 'object',
       multiple: true,
-      required: true,
+      required: false,
       properties: {
         sku: {
           label: 'Product SKU',
