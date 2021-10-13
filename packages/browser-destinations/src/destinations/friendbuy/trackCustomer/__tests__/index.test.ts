@@ -1,6 +1,6 @@
 import { Analytics, Context } from '@segment/analytics-next'
 import friendbuyDestination from '../../index'
-import trackCustomer from '../index'
+import trackCustomerObject, { trackCustomerDefaultSubscription, trackCustomerFields } from '../index'
 
 import { loadScript } from '../../../../runtime/load-script'
 jest.mock('../../../../runtime/load-script')
@@ -15,10 +15,10 @@ describe('Friendbuy.trackCustomer', () => {
   const subscriptions = [
     {
       partnerAction: 'trackCustomer',
-      name: trackCustomer.title,
+      name: trackCustomerObject.title,
       enabled: true,
-      subscribe: trackCustomer.defaultSubscription,
-      mapping: Object.fromEntries(Object.entries(trackCustomer.fields).map(([name, value]) => [name, value.default]))
+      subscribe: trackCustomerDefaultSubscription,
+      mapping: Object.fromEntries(Object.entries(trackCustomerFields).map(([name, value]) => [name, value.default]))
     }
   ]
 
@@ -41,7 +41,7 @@ describe('Friendbuy.trackCustomer', () => {
     await trackCustomer.load(Context.system(), {} as Analytics)
 
     // console.log(window.friendbuyAPI)
-    jest.spyOn(window.friendbuyAPI, 'push').mockImplementation(() => true)
+    jest.spyOn(window.friendbuyAPI as any, 'push')
 
     const context = new Context({
       type: 'identify',
@@ -57,7 +57,7 @@ describe('Friendbuy.trackCustomer', () => {
     trackCustomer.identify?.(context)
 
     // console.log('trackCustomer request', JSON.stringify(window.friendbuyAPI.push.mock.calls[0], null, 2))
-    expect(window.friendbuyAPI.push).toHaveBeenCalledWith([
+    expect(window.friendbuyAPI?.push).toHaveBeenCalledWith([
       'track',
       'customer',
       {

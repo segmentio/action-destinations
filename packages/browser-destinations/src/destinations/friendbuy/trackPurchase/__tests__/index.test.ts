@@ -1,6 +1,6 @@
-import { Analytics, Context } from '@segment/analytics-next'
+import { Analytics, Context, JSONValue } from '@segment/analytics-next'
 import friendbuyDestination from '../../index'
-import trackPurchase from '../index'
+import trackPurchaseObject, { trackPurchaseDefaultSubscription, trackPurchaseFields } from '../index'
 
 import { loadScript } from '../../../../runtime/load-script'
 jest.mock('../../../../runtime/load-script')
@@ -13,10 +13,10 @@ describe('Friendbuy.trackPurchase', () => {
   const subscriptions = [
     {
       partnerAction: 'trackPurchase',
-      name: trackPurchase.title,
+      name: trackPurchaseObject.title,
       enabled: true,
-      subscribe: trackPurchase.defaultSubscription,
-      mapping: Object.fromEntries(Object.entries(trackPurchase.fields).map(([name, value]) => [name, value.default]))
+      subscribe: trackPurchaseDefaultSubscription,
+      mapping: Object.fromEntries(Object.entries(trackPurchaseFields).map(([name, value]) => [name, value.default]))
     }
   ]
 
@@ -41,7 +41,7 @@ describe('Friendbuy.trackPurchase', () => {
     await trackPurchase.load(Context.system(), {} as Analytics)
 
     // console.log(window.friendbuyAPI)
-    jest.spyOn(window.friendbuyAPI, 'push').mockImplementation(() => true)
+    jest.spyOn(window.friendbuyAPI as any, 'push')
 
     const expectedProducts = products.map((p) => ({ quantity: 1, ...p }))
     const amount = expectedProducts.reduce((acc, p) => acc + p.price * p.quantity, 0)
@@ -66,7 +66,7 @@ describe('Friendbuy.trackPurchase', () => {
       trackPurchase.track?.(context1)
 
       // console.log('trackPurchase request', JSON.stringify(window.friendbuyAPI.push.mock.calls[0], null, 2))
-      expect(window.friendbuyAPI.push).toHaveBeenNthCalledWith(1, [
+      expect(window.friendbuyAPI?.push).toHaveBeenNthCalledWith(1, [
         'track',
         'purchase',
         {
@@ -95,7 +95,7 @@ describe('Friendbuy.trackPurchase', () => {
 
       trackPurchase.track?.(context2)
 
-      expect(window.friendbuyAPI.push).toHaveBeenNthCalledWith(2, [
+      expect(window.friendbuyAPI?.push).toHaveBeenNthCalledWith(2, [
         'track',
         'purchase',
         {
@@ -124,7 +124,7 @@ describe('Friendbuy.trackPurchase', () => {
 
       trackPurchase.track?.(context3)
 
-      expect(window.friendbuyAPI.push).toHaveBeenNthCalledWith(3, [
+      expect(window.friendbuyAPI?.push).toHaveBeenNthCalledWith(3, [
         'track',
         'purchase',
         {

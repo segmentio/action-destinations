@@ -3,8 +3,8 @@ import type { BrowserDestinationDefinition } from '../../lib/browser-destination
 import { browserDestination } from '../../runtime/shim'
 import { defaultValues, DestinationDefinition } from '@segment/actions-core'
 
-import trackCustomer from './trackCustomer'
-import trackPurchase from './trackPurchase'
+import trackCustomer, { trackCustomerDefaultSubscription, trackCustomerFields } from './trackCustomer'
+import trackPurchase, { trackPurchaseDefaultSubscription, trackPurchaseFields } from './trackPurchase'
 
 export interface FriendbuyAPI extends Array<unknown> {
   merchantId: string
@@ -21,15 +21,15 @@ declare global {
 const presets: DestinationDefinition['presets'] = [
   {
     name: 'Track Customer',
-    subscribe: trackCustomer.defaultSubscription,
+    subscribe: trackCustomerDefaultSubscription,
     partnerAction: 'trackCustomer',
-    mapping: defaultValues(trackCustomer.fields)
+    mapping: defaultValues(trackCustomerFields)
   },
   {
     name: 'Track Purchase',
-    subscribe: trackPurchase.defaultSubscription,
+    subscribe: trackPurchaseDefaultSubscription,
     partnerAction: 'trackPurchase',
-    mapping: defaultValues(trackPurchase.fields)
+    mapping: defaultValues(trackPurchaseFields)
   }
 ]
 
@@ -49,6 +49,8 @@ export const destination: BrowserDestinationDefinition<Settings, FriendbuyAPI> =
   },
 
   initialize: async ({ settings /* , analytics */ }, dependencies) => {
+    // console.log("friendbuy.initialize", settings)
+
     let friendbuyAPI: FriendbuyAPI
     window['friendbuyAPI'] = friendbuyAPI = window['friendbuyAPI'] || ([] as unknown as FriendbuyAPI)
     const friendbuyBaseHost = window.friendbuyBaseHost ?? 'fbot.me'

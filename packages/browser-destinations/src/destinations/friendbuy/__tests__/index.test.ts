@@ -34,7 +34,7 @@ describe('Friendbuy', () => {
     expect(staticNock.isDone()).toBe(true)
     expect(campaignNock.isDone()).toBe(true)
 
-    const expectedFriendbuyAPI = [['merchant', merchantId]]
+    const expectedFriendbuyAPI = [['merchant', merchantId]] as any
     expectedFriendbuyAPI.merchantId = merchantId
     expect(window.friendbuyAPI).toEqual(expectedFriendbuyAPI)
   })
