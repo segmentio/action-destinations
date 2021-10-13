@@ -83,7 +83,7 @@ const destination: DestinationDefinition<Settings> = {
       pixel_code: {
         label: 'Pixel Code',
         type: 'string',
-        description: 'An ID for your Pixel. Required to send events to this pixel.',
+        description: 'An ID for your pixel. Required to send events to the TikTok pixel.',
         required: true
       }
     },
