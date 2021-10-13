@@ -50,7 +50,8 @@
       "<rootDir>/dist/"
     ],
     "moduleNameMapper": {
-      "@segment/actions-core": "<rootDir>/../core/src/index.ts",
+      "@segment/ajv-human-errors": "<rootDir>/../ajv-human-errors/src",
+      "@segment/actions-core": "<rootDir>/../core/src",
       "@segment/destination-subscriptions": "<rootDir>/../destination-subscriptions/src"
     },
     "setupFilesAfterEnv": [
