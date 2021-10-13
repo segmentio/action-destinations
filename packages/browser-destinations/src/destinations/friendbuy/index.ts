@@ -6,7 +6,7 @@ import { defaultValues, DestinationDefinition } from '@segment/actions-core'
 import trackCustomer from './trackCustomer'
 import trackPurchase from './trackPurchase'
 
-export interface FriendbuyAPI extends Array<any> {
+export interface FriendbuyAPI extends Array<unknown> {
   merchantId: string
 }
 
