@@ -54,7 +54,10 @@ const presets: DestinationDefinition['presets'] = [
 ]
 
 const destination: DestinationDefinition<Settings> = {
-  name: 'TikTok Conversions',
+  // Need to leave this Destination Name as "Tiktok" since it was registered with a lower case t.
+  // The name here needs to match the value at creation time.
+  // In Partner Portal, the name is changed to "TikTok" so it is spelled correctly in the catalog.
+  name: 'Tiktok Conversions',
   slug: 'tiktok-conversions',
   mode: 'cloud',
 
@@ -64,7 +67,7 @@ const destination: DestinationDefinition<Settings> = {
       accessToken: {
         label: 'Access Token',
         description:
-          'TikTok Long Term Access Token. You can generate this from the TikTok Marketing API portal. Please following TikToks [Authorization guide](https://ads.tiktok.com/athena/docs/index.html?plat_id=-1&doc_id=100010&id=100681&key=e98b971a296ae45d8e35a22fba032d1c06f5973de9aab73ce07b82f230cf3afd) for more info.',
+          "TikTok Long Term Access Token. You can generate this from the TikTok Marketing API portal. Please follow TikTok's [Authorization guide](https://ads.tiktok.com/athena/docs/index.html?plat_id=-1&doc_id=100010&id=100681&key=e98b971a296ae45d8e35a22fba032d1c06f5973de9aab73ce07b82f230cf3afd) for more info.",
         type: 'string',
         required: true
       },
