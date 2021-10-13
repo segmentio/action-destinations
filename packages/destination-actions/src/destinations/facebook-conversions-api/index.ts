@@ -11,7 +11,7 @@ import custom from './custom'
 
 const destination: DestinationDefinition<Settings> = {
   name: 'Facebook Conversions API',
-  slug: 'facebook-conversions-api',
+  slug: 'actions-facebook-conversions-api',
   mode: 'cloud',
 
   authentication: {
