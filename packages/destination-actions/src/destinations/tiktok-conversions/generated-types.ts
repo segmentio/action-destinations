@@ -2,15 +2,15 @@
 
 export interface Settings {
   /**
-   * Tiktok Long Term Access Token. You can generate this from the TikTok Marketing API portal. Please following Tiktoks Authorization guide for more info.
+   * TikTok Long Term Access Token. You can generate this from the TikTok Marketing API portal. Please following TikToks Authorization guide for more info.
    */
   accessToken: string
   /**
-   * Tiktok app secret key. You can find this key in the "Basic Information" tab of your Tiktok app.
+   * TikTok app secret key. You can find this key in the "Basic Information" tab of your TikTok app.
    */
   secretKey: string
   /**
-   * Tiktok app id. You can find this key in the "Basic Information" tab of your Tiktok app.
+   * TikTok app id. You can find this key in the "Basic Information" tab of your TikTok app.
    */
   appId: string
   /**

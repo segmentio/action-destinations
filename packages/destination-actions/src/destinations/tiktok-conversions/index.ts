@@ -8,7 +8,7 @@ import reportWebEvent from './reportWebEvent'
 const presets: DestinationDefinition['presets'] = [
   {
     name: 'Intiate Checkout',
-    subscribe: 'event = "Checkout Started',
+    subscribe: 'event = "Checkout Started"',
     partnerAction: 'reportWebEvent',
     mapping: {
       ...defaultValues(reportWebEvent.fields),
@@ -26,7 +26,7 @@ const presets: DestinationDefinition['presets'] = [
   },
   {
     name: 'Products Searched',
-    subscribe: 'event = "Products Searched',
+    subscribe: 'event = "Products Searched"',
     partnerAction: 'reportWebEvent',
     mapping: {
       ...defaultValues(reportWebEvent.fields),
@@ -35,7 +35,7 @@ const presets: DestinationDefinition['presets'] = [
   },
   {
     name: 'Add Payment Info',
-    subscribe: 'event = "Payment Info Entered',
+    subscribe: 'event = "Payment Info Entered"',
     partnerAction: 'reportWebEvent',
     mapping: {
       ...defaultValues(reportWebEvent.fields),
@@ -44,7 +44,7 @@ const presets: DestinationDefinition['presets'] = [
   },
   {
     name: 'Order Completed',
-    subscribe: 'event = "Order Completed',
+    subscribe: 'event = "Order Completed"',
     partnerAction: 'reportWebEvent',
     mapping: {
       ...defaultValues(reportWebEvent.fields),
@@ -54,7 +54,7 @@ const presets: DestinationDefinition['presets'] = [
 ]
 
 const destination: DestinationDefinition<Settings> = {
-  name: 'Actions Tiktok Conversions',
+  name: 'Actions TikTok Conversions',
   slug: 'actions-tiktok-conversions',
   mode: 'cloud',
 
@@ -64,19 +64,19 @@ const destination: DestinationDefinition<Settings> = {
       accessToken: {
         label: 'Access Token',
         description:
-          'Tiktok Long Term Access Token. You can generate this from the TikTok Marketing API portal. Please following Tiktoks Authorization guide for more info.',
+          'TikTok Long Term Access Token. You can generate this from the TikTok Marketing API portal. Please following TikToks Authorization guide for more info.',
         type: 'string',
         required: true
       },
       secretKey: {
         label: 'Secret Key',
-        description: 'Tiktok app secret key. You can find this key in the "Basic Information" tab of your Tiktok app.',
+        description: 'TikTok app secret key. You can find this key in the "Basic Information" tab of your TikTok app.',
         type: 'string',
         required: true
       },
       appId: {
         label: 'App Id',
-        description: 'Tiktok app id. You can find this key in the "Basic Information" tab of your Tiktok app.',
+        description: 'TikTok app id. You can find this key in the "Basic Information" tab of your TikTok app.',
         type: 'string',
         required: true
       },
