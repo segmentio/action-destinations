@@ -7,12 +7,15 @@
     "url": "https://github.com/segmentio/action-destinations",
     "directory": "packages/ajv-human-errors"
   },
-  "main": "dist/index.js",
-  "types": "dist/index.d.ts",
+  "main": "dist/cjs/index.js",
+  "module": "dist/esm/index.js",
+  "types": "dist/cjs/index.d.ts",
   "scripts": {
     "prepack": "yarn build",
     "prebuild": "yarn clean",
-    "build": "tsc --build tsconfig.build.json",
+    "build": "yarn build:cjs && yarn build:esm",
+    "build:cjs": "tsc -p tsconfig.build.json -m commonjs --outDir dist/cjs",
+    "build:esm": "tsc -p tsconfig.build.json -m es2015 --outDir dist/esm",
     "clean": "tsc --build tsconfig.build.json --clean",
     "postclean": "rm -rf dist",
     "prepublishOnly": "yarn build",

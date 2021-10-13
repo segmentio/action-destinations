@@ -1,52 +1,52 @@
-import { ErrorObject } from 'ajv';
+import { ErrorObject } from 'ajv'
 
-import { HumanError, Options } from './entities';
-import { getMessage } from './formatting';
-import { capitalize, jsonPath } from './util';
+import { HumanError, Options } from './entities'
+import { getMessage } from './formatting'
+import { capitalize, jsonPath } from './util'
 
 const defaultOpts: Options = {
   fieldLabels: 'title',
   includeOriginalError: false,
-  includeData: false,
-};
+  includeData: false
+}
 
 export class AjvError extends Error {
-  private options: Options = {};
-  pointer: ErrorObject['instancePath'];
-  path: string;
-  redundant = false;
-  data: ErrorObject['data'];
-  original?: ErrorObject;
+  private options: Options = {}
+  pointer: ErrorObject['instancePath']
+  path: string
+  redundant = false
+  data: ErrorObject['data']
+  original?: ErrorObject
 
   // https://github.com/ajv-validator/ajv#validation-_errors
   constructor(ajvErr: ErrorObject, options: Options = {}) {
-    super();
+    super()
 
     this.options = {
       ...defaultOpts,
-      ...options,
-    };
+      ...options
+    }
 
-    this.pointer = ajvErr.instancePath;
-    this.path = jsonPath(ajvErr.instancePath);
+    this.pointer = ajvErr.instancePath
+    this.path = jsonPath(ajvErr.instancePath)
 
-    const message = getMessage(ajvErr, this.options);
+    const message = getMessage(ajvErr, this.options)
 
     // TODO
     // we need a better way of indicating that an error should be filtered out
     // (e.g. sub-_errors for 'propertyNames' validations on object properties)
     if (message === null) {
-      this.redundant = true;
-      return;
+      this.redundant = true
+      return
     }
 
-    this.message = `${capitalize(message)}.`;
+    this.message = `${capitalize(message)}.`
 
     if (this.options.includeOriginalError) {
-      this.original = ajvErr;
+      this.original = ajvErr
     }
     if (this.options.includeData) {
-      this.data = ajvErr.data;
+      this.data = ajvErr.data
     }
   }
 
@@ -54,42 +54,37 @@ export class AjvError extends Error {
     const humanError: HumanError = {
       path: this.path,
       pointer: this.pointer,
-      message: this.message,
-    };
+      message: this.message
+    }
 
     if (this.options.includeOriginalError) {
-      humanError.original = this.original;
+      humanError.original = this.original
     }
     if (this.options.includeData) {
-      humanError.data = this.data;
+      humanError.data = this.data
     }
 
-    return humanError;
+    return humanError
   }
 }
 
 export class AggregateAjvError extends Error {
-  private errors: AjvError[];
+  private errors: AjvError[]
 
   constructor(ajvErrors: ErrorObject[], opts: Options = {}) {
-    super();
-
-    this.name = 'AggregateAjvError';
-
-    this.errors = ajvErrors
-      .map(error => new AjvError(error, opts))
-      .filter(error => !error.redundant);
-
-    this.message = this.errors.map(error => error.message).join(' ');
+    super()
+    this.name = 'AggregateAjvError'
+    this.errors = (ajvErrors ?? []).map((error) => new AjvError(error, opts)).filter((error) => !error.redundant)
+    this.message = this.errors.map((error) => error.message).join(' ')
   }
 
   toJSON() {
-    return this.errors.map(error => error.toJSON());
+    return this.errors.map((error) => error.toJSON())
   }
 
-  * [Symbol.iterator]() {
+  *[Symbol.iterator]() {
     for (const err of this.errors) {
-      yield err;
+      yield err
     }
   }
 }
