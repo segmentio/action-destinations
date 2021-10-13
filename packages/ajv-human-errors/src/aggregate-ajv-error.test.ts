@@ -1,9 +1,7 @@
-import Ajv, { JSONSchemaType, Schema } from 'ajv';
-import addFormats from 'ajv-formats';
-
-import { FieldLabels } from '.';
-import { AggregateAjvError, AjvError } from './aggregate-ajv-error';
-import { Options } from './entities';
+import Ajv, { JSONSchemaType, Schema } from 'ajv'
+import addFormats from 'ajv-formats'
+import { AggregateAjvError, AjvError } from './aggregate-ajv-error'
+import type { Options, FieldLabels } from './entities'
 
 const ajv = addFormats(new Ajv({
   allErrors: true,

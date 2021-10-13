@@ -1,6 +1,6 @@
 import { ErrorObject } from 'ajv'
 
-import { HumanError, Options } from './entities'
+import type { HumanError, Options } from './entities'
 import { getMessage } from './formatting'
 import { capitalize, jsonPath } from './util'
 

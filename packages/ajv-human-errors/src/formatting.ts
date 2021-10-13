@@ -1,6 +1,5 @@
 import { ErrorObject } from 'ajv'
-
-import { Options } from './entities'
+import type { Options } from './entities'
 import { humanizeList, humanizeTypeOf, indefiniteArticle, jsonPath, pluralize } from './util'
 
 // TODO (http://json-schema.org/understanding-json-schema/reference/string.html#built-in-formats)
