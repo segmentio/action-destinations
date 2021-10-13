@@ -76,7 +76,7 @@ const destination: DestinationDefinition<Settings> = {
       },
       appId: {
         label: 'App Id',
-        description: 'TikTok app id. You can find this key in the "Basic Information" tab of your TikTok app.',
+        description: 'TikTok App Id. You can find this key in the "Basic Information" tab of your TikTok app.',
         type: 'string',
         required: true
       },
