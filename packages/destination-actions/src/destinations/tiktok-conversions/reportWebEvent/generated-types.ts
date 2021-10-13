@@ -2,7 +2,7 @@
 
 export interface Payload {
   /**
-   * Conversion event name. Please refer to TikTok "Web Event" section on this [page](https://ads.tiktok.com/marketing_api/docs?id=1701890979375106) for accepted event names.
+   * Conversion event name. Please refer to the "Supported Web Events" section on this [page](https://ads.tiktok.com/marketing_api/docs?id=1701890979375106) for accepted event names.
    */
   event?: string
   /**
