@@ -1,4 +1,20 @@
+title = "Action-Destination Custom Additional Rules"
+
 [[rules]]
   description = "Facebook System User Access Token"
-  regex = '''EAA[0-9A-Za-z]'''
-  tags = ["secret", "example"]
+  regex = '''EAA[0-9A-Za-z]{100,}'''
+  tags = ["token", "Facebook Token"]
+
+[[rules]]
+  description = "Tik-Tok accessToken"
+  tags = ["token", "Tik-Tok"]
+  regex = '''[0-9A-Za-z]{40}'''
+  [[rules.entropies]]
+    Min = "3.5"
+    Max = "4.5"
+
+[allowlist]
+  description = "Allowlisted files"
+  files = [
+    '''yarn.lock'''
+  ]
