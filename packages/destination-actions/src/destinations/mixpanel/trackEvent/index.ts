@@ -315,7 +315,7 @@ const action: ActionDefinition<Settings, Payload> = {
       properties: {
         time: time,
         $ip: payload.ip,
-        distinct_id: payload.distinct_id,
+        distinct_id: String(payload.distinct_id), // need this to be string, cast just in case
         $app_build_number: payload.app_build,
         $app_version_string: payload.app_version,
         $app_namespace: payload.app_namespace,
