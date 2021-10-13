@@ -1,4 +1,6 @@
 import { Command, flags } from '@oclif/command'
+import type { BaseActionDefinition } from '@segment/actions-core'
+import { ErrorCondition, parseFql } from '@segment/destination-subscriptions'
 import ora from 'ora'
 import { getManifest, DestinationDefinition } from '../lib/destinations'
 
@@ -21,11 +23,15 @@ export default class Validate extends Command {
     const destinations = Object.values(getManifest())
 
     for (const destination of destinations) {
-      this.spinner.start(`Validating presets for ${destination.definition.name}`)
-      const errors = this.validatePresets(destination.definition)
+      this.spinner.start(`Validating definition for ${destination.definition.name}`)
+
+      const errors = [...this.validatePresets(destination.definition), ...this.validateActions(destination.definition)]
+
       if (errors.length) {
         this.spinner.fail(
-          `Validating presets for ${destination.definition.name}: \n    ${errors.map((e) => e.message).join('\n    ')}`
+          `Validating definition for ${destination.definition.name}: \n    ${errors
+            .map((e) => e.message)
+            .join('\n    ')}`
         )
       } else {
         this.spinner.succeed()
@@ -35,6 +41,32 @@ export default class Validate extends Command {
     if (this.isInvalid) {
       this.error(new Error('One or more validation errors were found.'))
     }
+  }
+
+  validateActions(destination: DestinationDefinition) {
+    const errors: Error[] = []
+
+    if (!Object.keys(destination.actions).length) {
+      this.isInvalid = true
+      errors.push(new Error(`The destination "${destination.name}" does not define any actions.`))
+    }
+
+    for (const [actionKey, def] of Object.entries(destination.actions)) {
+      const action = def as BaseActionDefinition
+
+      // Validate the FQL
+      if (action.defaultSubscription) {
+        const fqlError = this.validateFQL(action.defaultSubscription)
+        if (fqlError) {
+          this.isInvalid = true
+          errors.push(
+            new Error(`The action "${actionKey}" has an invalid \`defaultSubscription\` query: ${fqlError.message}`)
+          )
+        }
+      }
+    }
+
+    return errors
   }
 
   validatePresets(destination: DestinationDefinition) {
@@ -51,6 +83,14 @@ export default class Validate extends Command {
       const presetFields = Object.keys(preset.mapping ?? {})
       const actionFields = Object.keys(destination.actions[preset.partnerAction].fields ?? {})
 
+      // Validate the FQL
+      const fqlError = this.validateFQL(preset.subscribe)
+      if (fqlError) {
+        this.isInvalid = true
+        errors.push(new Error(`The preset "${preset.name}" has an invalid \`subscribe\` query: ${fqlError.message}`))
+      }
+
+      // Validate that the fields match defined fields
       for (const field of presetFields) {
         if (!actionFields.includes(field)) {
           this.isInvalid = true
@@ -64,6 +104,11 @@ export default class Validate extends Command {
     }
 
     return errors
+  }
+
+  validateFQL(fql: string): Error | null {
+    const trigger = parseFql(fql)
+    return (trigger as ErrorCondition).error || null
   }
 
   async catch(error: unknown) {

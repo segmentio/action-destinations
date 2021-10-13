@@ -8,7 +8,7 @@ import reportWebEvent from './reportWebEvent'
 const presets: DestinationDefinition['presets'] = [
   {
     name: 'Intiate Checkout',
-    subscribe: 'event = "Checkout Started',
+    subscribe: 'event = "Checkout Started"',
     partnerAction: 'reportWebEvent',
     mapping: {
       ...defaultValues(reportWebEvent.fields),
@@ -26,7 +26,7 @@ const presets: DestinationDefinition['presets'] = [
   },
   {
     name: 'Products Searched',
-    subscribe: 'event = "Products Searched',
+    subscribe: 'event = "Products Searched"',
     partnerAction: 'reportWebEvent',
     mapping: {
       ...defaultValues(reportWebEvent.fields),
@@ -35,7 +35,7 @@ const presets: DestinationDefinition['presets'] = [
   },
   {
     name: 'Add Payment Info',
-    subscribe: 'event = "Payment Info Entered',
+    subscribe: 'event = "Payment Info Entered"',
     partnerAction: 'reportWebEvent',
     mapping: {
       ...defaultValues(reportWebEvent.fields),
@@ -44,7 +44,7 @@ const presets: DestinationDefinition['presets'] = [
   },
   {
     name: 'Order Completed',
-    subscribe: 'event = "Order Completed',
+    subscribe: 'event = "Order Completed"',
     partnerAction: 'reportWebEvent',
     mapping: {
       ...defaultValues(reportWebEvent.fields),
