@@ -43,7 +43,7 @@ export const eventSchema: Record<string, InputField> = {
     description:
       'The start time of the session, necessary if you want to associate events with a particular system. To use automatic Amplitude session tracking in browsers, enable Analytics 2.0 on your connected source.',
     default: {
-      '@path': '$.integrations.Amplitude.session_id'
+      '@path': '$.integrations.Actions Amplitude.session_id'
     }
   },
   time: {
@@ -296,5 +296,13 @@ export const eventSchema: Record<string, InputField> = {
     type: 'string',
     description:
       'Amplitude will deduplicate subsequent events sent with this ID we have already seen before within the past 7 days. Amplitude recommends generating a UUID or using some combination of device ID, user ID, event type, event ID, and time.'
+  },
+  library: {
+    label: 'Library',
+    type: 'string',
+    description: 'The name of the library that generated the event.',
+    default: {
+      '@path': '$.context.library.name'
+    }
   }
 }

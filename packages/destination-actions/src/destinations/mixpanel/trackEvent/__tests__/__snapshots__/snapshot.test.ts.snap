@@ -1,0 +1,67 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Testing snapshot for Mixpanel's trackEvent destination action: all fields 1`] = `
+Array [
+  Object {
+    "event": "pNBru",
+    "properties": Object {
+      "$app_build_number": "pNBru",
+      "$app_name": "pNBru",
+      "$app_namespace": "pNBru",
+      "$app_version_string": "pNBru",
+      "$bluetooth_enabled": true,
+      "$carrier": "pNBru",
+      "$cellular_enabled": true,
+      "$current_url": "pNBru",
+      "$device": "pNBru",
+      "$device_id": "pNBru",
+      "$device_name": "pNBru",
+      "$device_type": "pNBru",
+      "$insert_id": "pNBru",
+      "$ios_ifa": "pNBru",
+      "$ip": "pNBru",
+      "$lib_version": "pNBru",
+      "$locale": "pNBru",
+      "$manufacturer": "pNBru",
+      "$model": "pNBru",
+      "$os": "pNBru",
+      "$os_version": "pNBru",
+      "$screen_density": -83997876740423.69,
+      "$screen_height": -83997876740423.69,
+      "$screen_width": -83997876740423.69,
+      "$source": "segment",
+      "$wifi_enabled": true,
+      "distinct_id": "pNBru",
+      "id": "pNBru",
+      "mp_country_code": "pNBru",
+      "mp_lib": "segment",
+      "testType": "pNBru",
+      "time": 1612137600000,
+      "utm_campaign": "pNBru",
+      "utm_content": "pNBru",
+      "utm_medium": "pNBru",
+      "utm_source": "pNBru",
+      "utm_term": "pNBru",
+    },
+  },
+]
+`;
+
+exports[`Testing snapshot for Mixpanel's trackEvent destination action: required fields 1`] = `
+Array [
+  Object {
+    "event": "pNBru",
+    "properties": Object {
+      "$device_id": "pNBru",
+      "$insert_id": "pNBru",
+      "$ios_ifa": "pNBru",
+      "$screen_width": -83997876740423.69,
+      "$source": "segment",
+      "distinct_id": "pNBru",
+      "id": "pNBru",
+      "mp_lib": "segment",
+      "time": 1234556,
+    },
+  },
+]
+`;

@@ -2,6 +2,10 @@
 
 export interface Payload {
   /**
+   * Whether or not the message should actually get sent.
+   */
+  send?: boolean
+  /**
    * User ID in Segment
    */
   userId: string
@@ -10,6 +14,10 @@ export interface Payload {
    */
   toEmail?: string
   /**
+   * Verified domain in Sendgrid
+   */
+  fromDomain?: string
+  /**
    * From Email
    */
   fromEmail: string
@@ -17,6 +25,10 @@ export interface Payload {
    * From Name displayed to end user email
    */
   fromName: string
+  /**
+   * Whether "reply to" settings are the same as "from"
+   */
+  replyToEqualsFrom?: boolean
   /**
    * The Email used by user to Reply To
    */

@@ -1,6 +1,10 @@
-# Build & Testing
+# Build & Test Cloud Destinations
 
-## Test Actions Locally
+- [Local End-to-end Testing](#local-end-to-end-testing)
+- [Unit Testing](#unit-testing)
+- [Snapshot Testing](#snapshot-testing)
+
+## Local End-to-end Testing
 
 To test a destination action locally, you can spin up a local HTTP server through the Actions CLI.
 
@@ -38,11 +42,17 @@ curl --location --request POST 'http://localhost:3000/search' \
 }'
 ```
 
-## Writing Tests
+## Unit Testing
 
 When building a destination action, you should write unit and end-to-end tests to ensure your action is working as intended. Tests are automatically run on every commit in Github Actions. Pull requests that do not include relevant tests will not be approved.
 
 Today, our unit tests behave more like <i>integration tests</i> in that you are not only testing the `perform` operation/unit, but also how events + mappings get transformed and validated.
+
+Run tests for all cloud destinations with `yarn cloud test` or target a specific destination with the `--testPathPattern` flag:
+
+```
+yarn cloud test --testPathPattern=src/destinations/sendgrid
+```
 
 ### Mocking HTTP Requests
 
@@ -128,4 +138,16 @@ describe('SendGrid', () => {
     })
   })
 })
+```
+
+## Snapshot Testing
+
+Snapshot tests help developers understand how their changes affect the request body and the downstream tool. In `action-destinations`, they are automatically generated with both the `init` and `generate:action` CLI commands - the former creating destination-level snapshots and the latter creating action-level snapshots. These tests can be found in the `snapshot.test.ts` file under the `__tests__` folder.
+
+The `snapshot.test.ts` file mocks an HTTP server using `nock`, and generates random test data (w/ `Chance`) based on the destination action's fields and corresponding data type. For each destination action, it creates two snapshot tests - one for all fields and another for just the required fields. To ensure deterministic tests, the `Chance` instance is instantiated with a fixed seed corresponding to the destination action name.
+
+Once the actions under a new destination are complete, developers can run the following command to generate a snapshot file (`snapshot.test.ts.snap`) under `/__tests__/snapshots/`.
+
+```
+yarn jest --testPathPattern='./packages/destination-actions/src/destinations/<DESTINATION SLUG>' --updateSnapshot
 ```

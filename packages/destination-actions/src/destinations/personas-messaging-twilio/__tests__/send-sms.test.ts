@@ -51,7 +51,8 @@ for (const environment of ['stage', 'production']) {
         mapping: {
           userId: { '@path': '$.userId' },
           fromNumber: '+1234567890',
-          body: 'Hello world, {{profile.user_id}}!'
+          body: 'Hello world, {{profile.user_id}}!',
+          send: true
         }
       })
 
@@ -104,7 +105,8 @@ for (const environment of ['stage', 'production']) {
         mapping: {
           userId: { '@path': '$.userId' },
           fromNumber: '+1234567890',
-          body: 'Hello world, {{profile.user_id}}!'
+          body: 'Hello world, {{profile.user_id}}!',
+          send: true
         }
       }
 
@@ -135,7 +137,8 @@ for (const environment of ['stage', 'production']) {
           body: 'Hello world, {{profile.user_id}}!',
           customArgs: {
             foo: 'bar'
-          }
+          },
+          send: true
         }
       }
 
@@ -174,10 +177,10 @@ for (const environment of ['stage', 'production']) {
           body: 'Hello world, {{profile.user_id}}!',
           customArgs: {
             foo: 'bar'
-          }
+          },
+          send: true
         }
       }
-
       await expect(twilio.testAction('sendSms', actionInputData)).rejects.toHaveProperty('code', 'ERR_INVALID_URL')
     })
   })

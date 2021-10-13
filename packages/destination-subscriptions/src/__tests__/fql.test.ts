@@ -47,6 +47,21 @@ test('should handle missing values', () => {
 	})
 })
 
+test('should handle nested properties', () => {
+	testFql('properties.foo.bar = "baz"', {
+		type: 'group',
+		operator: 'and',
+		children: [
+			{
+				name: 'foo.bar',
+				type: 'event-property',
+				operator: '=',
+				value: 'baz'
+			}
+		]
+	})
+})
+
 test('type = "track"', () => {
 	testFql('type = "track"', {
 		type: 'group',
@@ -89,6 +104,33 @@ test('event = "Product Added"', () => {
 				type: 'event',
 				operator: '=',
 				value: 'Product Added'
+			}
+		]
+	})
+})
+
+test('userId != null', () => {
+	testFql('userId != null', {
+		type: 'group',
+		operator: 'and',
+		children: [
+			{
+				type: 'userId',
+				operator: 'exists'
+			}
+		]
+	})
+})
+
+test('name = "Home"', () => {
+	testFql('name = "Home"', {
+		type: 'group',
+		operator: 'and',
+		children: [
+			{
+				type: 'name',
+				operator: '=',
+				value: 'Home'
 			}
 		]
 	})

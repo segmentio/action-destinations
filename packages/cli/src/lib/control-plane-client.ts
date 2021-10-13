@@ -63,6 +63,22 @@ export async function updateDestinationMetadata(
   return data.metadata
 }
 
+export async function getSubscriptionPresets(metadataIds: string[]) {
+  const { data, error } = await controlPlaneService.getDestinationSubscriptionPresets(NOOP_CONTEXT, {
+    metadataIds
+  })
+
+  if (error) {
+    throw error
+  }
+
+  if (!data) {
+    throw new Error('Could not load subscription presets')
+  }
+
+  return data.presets
+}
+
 export async function setSubscriptionPresets(metadataId: string, presets: DestinationSubscriptionPresetInput[]) {
   const { data, error } = await controlPlaneService.setDestinationSubscriptionPresets(NOOP_CONTEXT, {
     metadataId,
@@ -70,7 +86,6 @@ export async function setSubscriptionPresets(metadataId: string, presets: Destin
   })
 
   if (error) {
-    console.log(error)
     throw error
   }
 
@@ -91,7 +106,6 @@ export async function createDestinationMetadataActions(
   })
 
   if (error) {
-    console.log(error)
     throw error
   }
 
@@ -141,10 +155,10 @@ export async function getRemotePluginByDestinationIds(metadataIds: string[]): Pr
 export async function updateRemotePlugin(plugin: RemotePlugin): Promise<RemotePlugin> {
   const { data, error } = await controlPlaneService.updateRemotePlugin(NOOP_CONTEXT, {
     metadataId: plugin.metadataId,
-    name: plugin.name,
+    libraryName: plugin.libraryName,
     input: {
       url: plugin.url,
-      libraryName: plugin.libraryName
+      name: plugin.name
     }
   })
 

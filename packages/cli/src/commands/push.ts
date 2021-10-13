@@ -1,19 +1,13 @@
 import { Command, flags } from '@oclif/command'
 import type { DestinationDefinition as CloudDestinationDefinition, MinimalInputField } from '@segment/actions-core'
 import { fieldsToJsonSchema } from '@segment/actions-core'
-import { manifest as cloudManifest, ManifestEntry as CloudManifest } from '@segment/action-destinations'
-import {
-  manifest as browserManifest,
-  ManifestEntry as BrowserManifest,
-  BrowserDestinationDefinition
-} from '@segment/browser-destinations'
+import { BrowserDestinationDefinition } from '@segment/browser-destinations'
 import chalk from 'chalk'
-import { uniq, pick, omit, sortBy, mergeWith } from 'lodash'
+import { pick, omit, sortBy } from 'lodash'
 import { diffString } from 'json-diff'
 import ora from 'ora'
 import type {
   ClientRequestError,
-  DestinationMetadata,
   DestinationMetadataActionCreateInput,
   DestinationMetadataActionFieldCreateInput,
   DestinationMetadataActionsUpdateInput,
@@ -30,39 +24,13 @@ import {
   updateDestinationMetadata,
   updateDestinationMetadataActions,
   createDestinationMetadataActions,
-  setSubscriptionPresets
+  setSubscriptionPresets,
+  getSubscriptionPresets
 } from '../lib/control-plane-client'
-import { DestinationDefinition, hasOauthAuthentication } from '../lib/destinations'
+import { DestinationDefinition, getManifest, hasOauthAuthentication } from '../lib/destinations'
 import type { JSONSchema4 } from 'json-schema'
 
 type BaseActionInput = Omit<DestinationMetadataActionCreateInput, 'metadataId'>
-
-// Right now it's possible for browser destinations and cloud destinations to have the same
-// metadataId. This is because we currently rely on a separate directory for all web actions.
-// So here we need to intelligently merge them until we explore colocating all actions with a single
-// definition file.
-const manifest: Record<string, CloudManifest | BrowserManifest> = mergeWith(
-  {},
-  cloudManifest,
-  browserManifest,
-  (objValue, srcValue) => {
-    if (Object.keys(objValue?.definition?.actions ?? {}).length === 0) {
-      return
-    }
-
-    for (const [actionKey, action] of Object.entries(srcValue.definition?.actions ?? {})) {
-      if (actionKey in objValue.definition.actions) {
-        throw new Error(
-          `Could not merge browser + cloud actions because there is already an action with the same key "${actionKey}"`
-        )
-      }
-
-      objValue.definition.actions[actionKey] = action
-    }
-
-    return objValue
-  }
-)
 
 export default class Push extends Command {
   private spinner: ora.Ora = ora()
@@ -80,6 +48,7 @@ export default class Push extends Command {
 
   async run() {
     const { flags } = this.parse(Push)
+    const manifest = getManifest()
 
     const { metadataIds } = await prompt<{ metadataIds: string[] }>({
       type: 'multiselect',
@@ -102,9 +71,10 @@ export default class Push extends Command {
         .join(', ')}...`
     )
 
-    const [metadatas, actions] = await Promise.all([
+    const [metadatas, actions, allPresets] = await Promise.all([
       getDestinationMetadatas(metadataIds),
-      getDestinationMetadataActions(metadataIds)
+      getDestinationMetadataActions(metadataIds),
+      getSubscriptionPresets(metadataIds)
     ])
 
     if (metadatas.length !== Object.keys(metadataIds).length) {
@@ -126,6 +96,14 @@ export default class Push extends Command {
       const actionsToUpdate: DestinationMetadataActionsUpdateInput[] = []
       const actionsToCreate: DestinationMetadataActionCreateInput[] = []
       const existingActions = actions.filter((a) => a.metadataId === metadata.id)
+      const existingPresets = allPresets
+        .filter((p) => p.metadataId === metadata.id)
+        .map((preset) => ({
+          partnerAction: existingActions.find((a) => a.id === preset.actionId)?.slug,
+          name: preset.name,
+          subscribe: preset.trigger,
+          mapping: preset.fields
+        }))
 
       for (const [actionKey, action] of Object.entries(definition.actions)) {
         const platform = action.platform ?? 'cloud'
@@ -142,7 +120,7 @@ export default class Push extends Command {
             )
           }
 
-          let choices: null | { label: string; value: string } = null
+          let choices: DestinationMetadataActionFieldCreateInput['choices'] = null
           if (Array.isArray(field.choices) && field.choices.length > 0) {
             // eslint-disable-next-line @typescript-eslint/no-unsafe-call
             choices = field.choices.map((choice: string | { label: string; value: string }) => {
@@ -169,6 +147,21 @@ export default class Push extends Command {
             fieldSchema: getFieldPropertySchema(fieldKey, field)
           }
         })
+
+        // Automatically include a field for customers to control batching behavior, when supported
+        if (typeof action.performBatch === 'function') {
+          fields.push({
+            fieldKey: 'enable_batching',
+            type: 'boolean',
+            label: 'Enable Batching?',
+            description: 'When enabled, Segment will send events in batches.',
+            defaultValue: false,
+            required: false,
+            multiple: false,
+            dynamic: false,
+            allowNull: false
+          })
+        }
 
         const base: BaseActionInput = {
           slug: actionKey,
@@ -197,8 +190,8 @@ export default class Push extends Command {
         mobile: false
       }
 
-      const options = getOptions(metadata, definition)
-      const basicOptions = getBasicOptions(metadata, options)
+      const options = getOptions(definition)
+      const basicOptions = getBasicOptions(options)
       const diff = diffString(
         asJson({
           basicOptions: filterOAuth(metadata.basicOptions),
@@ -212,7 +205,8 @@ export default class Push extends Command {
               )
             })),
             ['name']
-          )
+          ),
+          presets: sortBy(existingPresets, 'name')
         }),
         asJson({
           basicOptions: filterOAuth(basicOptions),
@@ -229,7 +223,8 @@ export default class Push extends Command {
                 )
               })),
             ['name']
-          )
+          ),
+          presets: sortBy(definition.presets ?? [], 'name')
         })
       )
 
@@ -259,6 +254,7 @@ export default class Push extends Command {
       try {
         await Promise.all([
           updateDestinationMetadata(metadata.id, {
+            advancedOptions: [], // make sure this gets cleared out since we don't use advancedOptions in Actions
             basicOptions,
             options,
             platforms
@@ -325,16 +321,13 @@ function definitionToJson(definition: DestinationDefinition) {
   return copy
 }
 
-function getBasicOptions(metadata: DestinationMetadata, options: DestinationMetadataOptions): string[] {
-  return uniq([...metadata.basicOptions, ...Object.keys(options)])
+function getBasicOptions(options: DestinationMetadataOptions): string[] {
+  return Object.keys(options)
 }
 
 // Note: exporting for testing purposes only
-export function getOptions(
-  metadata: DestinationMetadata,
-  definition: DestinationDefinition
-): DestinationMetadataOptions {
-  const options: DestinationMetadataOptions = { ...metadata.options }
+export function getOptions(definition: DestinationDefinition): DestinationMetadataOptions {
+  const options: DestinationMetadataOptions = {}
 
   const publicSettings = (definition as BrowserDestinationDefinition).settings
   const authFields = (definition as CloudDestinationDefinition).authentication?.fields
@@ -394,6 +387,7 @@ export function getOptions(
         label: choice.label,
         text: choice.label
       })),
+      readOnly: false,
       validators
     }
   }

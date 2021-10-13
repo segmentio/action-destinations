@@ -10,6 +10,8 @@ import {
 const tokenToConditionType: Record<string, ConditionType> = {
 	type: 'event-type',
 	event: 'event',
+	name: 'name',
+	userId: 'userId',
 	properties: 'event-property',
 	traits: 'event-trait'
 }
@@ -62,9 +64,9 @@ const parseFqlFunction = (
 		// Skip ")" token
 		tokens.shift()
 
-		if (nameToken.value === 'event') {
+		if (['event', 'name', 'userId'].includes(nameToken.value)) {
 			nodes.push({
-				type: 'event',
+				type: nameToken.value as 'event' | 'name' | 'userId',
 				operator: negate ? 'not_contains' : 'contains',
 				value: String(getTokenValue(valueToken))
 			})
@@ -122,9 +124,9 @@ const parseFqlFunction = (
 			value = String(getTokenValue(valueToken)).slice(1)
 		}
 
-		if (nameToken.value === 'event') {
+		if (['event', 'name', 'userId'].includes(nameToken.value)) {
 			nodes.push({
-				type: 'event',
+				type: nameToken.value as 'event' | 'name' | 'userId',
 				operator,
 				value
 			})
@@ -173,6 +175,11 @@ const parse = (tokens: Token[]): Condition => {
 					throw new Error('Value token is missing')
 				}
 
+				const isExists =
+					operatorToken.value === '!=' && valueToken.value === 'null'
+				const isNotExists =
+					operatorToken.value === '=' && valueToken.value === 'null'
+
 				if (conditionType === 'event') {
 					nodes.push({
 						type: 'event',
@@ -185,17 +192,38 @@ const parse = (tokens: Token[]): Condition => {
 						operator: operatorToken.value as Operator,
 						value: String(getTokenValue(valueToken))
 					})
+				} else if (conditionType === 'name') {
+					nodes.push({
+						type: 'name',
+						operator: operatorToken.value as Operator,
+						value: String(getTokenValue(valueToken))
+					})
+				} else if (conditionType === 'userId') {
+					if (isExists) {
+						nodes.push({
+							type: 'userId',
+							operator: 'exists'
+						})
+					} else if (isNotExists) {
+						nodes.push({
+							type: 'userId',
+							operator: 'not_exists'
+						})
+					} else {
+						nodes.push({
+							type: 'userId',
+							operator: operatorToken.value as Operator,
+							value: String(getTokenValue(valueToken))
+						})
+					}
 				} else if (conditionType === 'event-property') {
-					if (operatorToken.value === '!=' && valueToken.value === 'null') {
+					if (isExists) {
 						nodes.push({
 							type: 'event-property',
 							name: token.value.replace(/^(properties)\./, ''),
 							operator: 'exists'
 						})
-					} else if (
-						operatorToken.value === '=' &&
-						valueToken.value === 'null'
-					) {
+					} else if (isNotExists) {
 						nodes.push({
 							type: 'event-property',
 							name: token.value.replace(/^(properties)\./, ''),
@@ -210,16 +238,13 @@ const parse = (tokens: Token[]): Condition => {
 						})
 					}
 				} else if (conditionType === 'event-trait') {
-					if (operatorToken.value === '!=' && valueToken.value === 'null') {
+					if (isExists) {
 						nodes.push({
 							type: 'event-trait',
 							name: token.value.replace(/^(traits)\./, ''),
 							operator: 'exists'
 						})
-					} else if (
-						operatorToken.value === '=' &&
-						valueToken.value === 'null'
-					) {
+					} else if (isNotExists) {
 						nodes.push({
 							type: 'event-trait',
 							name: token.value.replace(/^(traits)\./, ''),
@@ -287,20 +312,22 @@ const normalize = (tokens: Token[]): Token[] => {
 	let index = 0
 
 	while (tokens[index]) {
+		const last = normalizedTokens[normalizedTokens.length - 1]
+		const current = tokens[index]
+		const next = tokens[index + 1]
+
 		if (
-			tokens[index].type === 'ident' &&
-			tokens[index + 1].type === 'dot' &&
-			tokens[index + 2].type === 'ident'
+			last?.type === 'ident' &&
+			current.type === 'dot' &&
+			next?.type === 'ident'
 		) {
+			const previous = normalizedTokens.pop()
 			normalizedTokens.push({
 				type: TokenType.Ident,
-				value:
-					tokens[index].value +
-					tokens[index + 1].value +
-					tokens[index + 2].value
+				value: `${previous?.value}${current.value}${next.value}`
 			})
 
-			index += 3
+			index += 2
 		} else {
 			normalizedTokens.push(tokens[index])
 			index++

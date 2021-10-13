@@ -1,6 +1,10 @@
 name: CI
 
-on: [push]
+on:
+  push:
+    branches:
+      - main
+  pull_request:
 
 jobs:
   test-and-build:
@@ -48,6 +52,9 @@ jobs:
 
       - name: Lint
         run: yarn lint
+
+      - name: Validate
+        run: yarn validate
 
       - name: Test
         run: yarn test

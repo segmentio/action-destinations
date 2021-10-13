@@ -81,17 +81,17 @@ describe('GA4', () => {
       expect(responses[0].status).toBe(201)
 
       expect(responses[0].request.headers).toMatchInlineSnapshot(`
-                Headers {
-                  Symbol(map): Object {
-                    "content-type": Array [
-                      "application/json",
-                    ],
-                    "user-agent": Array [
-                      "Segment",
-                    ],
-                  },
-                }
-              `)
+        Headers {
+          Symbol(map): Object {
+            "content-type": Array [
+              "application/json",
+            ],
+            "user-agent": Array [
+              "Segment (Actions)",
+            ],
+          },
+        }
+      `)
 
       expect(responses[0].options.body).toMatchInlineSnapshot(
         `"{\\"client_id\\":\\"3456fff\\",\\"events\\":[{\\"name\\":\\"view_promotion\\",\\"params\\":{\\"creative_slot\\":\\"top_banner_2\\",\\"location_id\\":\\"promo_1\\",\\"promotion_id\\":\\"promo_1\\",\\"promotion_name\\":\\"75% store-wide shoe sale\\",\\"items\\":[{\\"item_name\\":\\"Monopoly: 3rd Edition\\",\\"item_id\\":\\"507f1f77bcf86cd799439011\\",\\"promotion_name\\":\\"SUPER SUMMER SALE; 3% off\\",\\"creative_slot\\":\\"2\\",\\"promotion_id\\":\\"12345\\",\\"creative_name\\":\\"Sale\\"}]}}]}"`

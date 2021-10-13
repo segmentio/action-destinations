@@ -1,4 +1,3 @@
-// @ts-ignore no types
 import { AggregateAjvError } from '@segment/ajv-human-errors'
 import Ajv, { ValidateFunction } from 'ajv'
 import dayjs from 'dayjs'
@@ -34,11 +33,17 @@ ajv.addFormat('date-like', (data: string) => {
   return date.isValid()
 })
 
+interface ValidationOptions {
+  schemaKey?: string
+  throwIfInvalid?: boolean
+}
+
 /**
  * Validates an object against a json schema
  * and caches the schema for subsequent validations when a key is provided
  */
-export function validateSchema(obj: unknown, schema: object, schemaKey?: string) {
+export function validateSchema(obj: unknown, schema: object, options?: ValidationOptions) {
+  const { schemaKey, throwIfInvalid = true } = options ?? {}
   let validate: ValidateFunction
 
   if (schemaKey) {
@@ -48,7 +53,11 @@ export function validateSchema(obj: unknown, schema: object, schemaKey?: string)
     validate = ajv.compile(schema)
   }
 
-  if (!validate(obj) && validate.errors) {
+  const isValid = validate(obj)
+
+  if (throwIfInvalid && !isValid && validate.errors) {
     throw new AggregateAjvError(validate.errors)
   }
+
+  return isValid
 }

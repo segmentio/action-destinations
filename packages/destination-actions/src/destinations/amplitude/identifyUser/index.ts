@@ -242,6 +242,10 @@ const action: ActionDefinition<Settings, Payload> = {
     let options
     const properties = rest as AmplitudeEvent
 
+    if (properties.platform) {
+      properties.platform = properties.platform.replace(/ios/i, 'iOS').replace(/android/i, 'Android')
+    }
+
     if (Object.keys(utm_properties ?? {}).length || referrer) {
       properties.user_properties = mergeUserProperties(
         omit(properties.user_properties ?? {}, ['utm_properties', 'referrer']),

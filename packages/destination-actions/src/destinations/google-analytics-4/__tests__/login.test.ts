@@ -41,17 +41,17 @@ describe('GA4', () => {
       expect(responses[0].status).toBe(201)
 
       expect(responses[0].request.headers).toMatchInlineSnapshot(`
-            Headers {
-              Symbol(map): Object {
-                "content-type": Array [
-                  "application/json",
-                ],
-                "user-agent": Array [
-                  "Segment",
-                ],
-              },
-            }
-          `)
+        Headers {
+          Symbol(map): Object {
+            "content-type": Array [
+              "application/json",
+            ],
+            "user-agent": Array [
+              "Segment (Actions)",
+            ],
+          },
+        }
+      `)
 
       expect(responses[0].options.body).toMatchInlineSnapshot(
         `"{\\"client_id\\":\\"abc123\\",\\"events\\":[{\\"name\\":\\"login\\",\\"params\\":{\\"method\\":\\"Okta SSO\\"}}]}"`
