@@ -1,8 +1,10 @@
 import type { RequestOptions } from '../request-client'
 import type { JSONObject } from '../json-object'
 import { AuthTokens } from './parse-settings'
+import { RequestClient } from '../create-request-client'
 
 export type Optional<T, K extends keyof T> = Pick<Partial<T>, K> & Omit<T, K>
+export type MaybePromise<T> = T | Promise<T>
 
 export interface Result {
   output?: JSONObject | string | null | undefined
@@ -152,3 +154,26 @@ export type Directive = IfDirective | TemplateDirective | PathDirective
  * that will be applied to every request made by that instance
  */
 export type RequestExtension<Settings, Payload = undefined> = (data: ExecuteInput<Settings, Payload>) => RequestOptions
+
+/**
+ * Common fields derived from the Segment event schema for use in deletion calls to endpoints
+ */
+export interface DeletionPayload {
+  userId: string
+  anonymousId: string
+}
+
+/**
+ * A function to perform a deletion request for GDPR or PII related data
+ *
+ */
+// export type Deletion<Settings> = (
+//   request: RequestClient,
+//   data: ExecuteInput<Settings, DeletionPayload>
+// ) => Promise<Result>
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export type Deletion<Settings, Payload, Return = any> = (
+  request: RequestClient,
+  data: ExecuteInput<Settings, Payload>
+) => MaybePromise<Return>

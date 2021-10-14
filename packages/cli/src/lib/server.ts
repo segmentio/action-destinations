@@ -115,6 +115,9 @@ loadDestination(targetDirectory)
         }
       })
     )
+    app.post('/delete', () => {
+      //TODO: complete this
+    })
 
     server.listen(port, () => {
       logger.info(`Listening at http://localhost:${port} ->

@@ -8,7 +8,7 @@ import { fieldsToJsonSchema, MinimalInputField } from './fields-to-jsonschema'
 import createRequestClient, { RequestClient } from '../create-request-client'
 import { validateSchema } from '../schema-validation'
 import type { ModifiedResponse } from '../types'
-import type { GlobalSetting, RequestExtension, ExecuteInput, Result } from './types'
+import type { GlobalSetting, RequestExtension, ExecuteInput, Result, Deletion, DeletionPayload } from './types'
 import type { AllRequestOptions } from '../request-client'
 import { IntegrationError, InvalidAuthenticationError } from '../errors'
 import { AuthTokens, getAuthData, getOAuth2Data, updateOAuthSettings } from './parse-settings'
@@ -73,6 +73,8 @@ export interface DestinationDefinition<Settings = unknown> extends BaseDefinitio
 
   /** Optional authentication configuration */
   authentication?: AuthenticationScheme<Settings>
+
+  onDelete?: Deletion<Settings, DeletionPayload>
 }
 
 export interface Subscription {
@@ -185,6 +187,7 @@ export class Destination<Settings = JSONObject> {
   readonly actions: PartnerActions<Settings, any>
   readonly responses: DecoratedResponse[]
   readonly settingsSchema?: JSONSchema4
+  onDelete?: any
 
   constructor(destination: DestinationDefinition<Settings>) {
     this.definition = destination
@@ -193,6 +196,11 @@ export class Destination<Settings = JSONObject> {
     this.actions = {}
     this.authentication = destination.authentication
     this.responses = []
+
+    //TODO: conditionally insert onDelete here
+    if (this.definition.onDelete) {
+      this.onDelete = this._onDelete
+    }
 
     // Convert to complete JSON Schema
     if (this.authentication?.fields) {
@@ -395,6 +403,32 @@ export class Destination<Settings = JSONObject> {
   /** Pass a batch of events to 0 or more subscriptions */
   public onBatch(events: SegmentEvent[], settings: JSONObject, options?: OnEventOptions): Promise<Result[]> {
     return this.onSubscriptions(events, settings, options)
+  }
+
+  /** Pass a single deletion event to the destination for execution
+   * note that this method is conditionally added if the destination supports it
+   */
+  public async _onDelete(event: SegmentEvent, settings: JSONObject): Promise<Result> {
+    const { userId, anonymousId } = event
+    const payload = { userId, anonymousId }
+
+    const destinationSettings = this.getDestinationSettings(settings as unknown as JSONObject)
+    const auth = getAuthData(settings as unknown as JSONObject)
+    const data = { payload, settings: destinationSettings, auth }
+
+    const context: ExecuteInput<Settings, undefined> = { settings: destinationSettings, payload: undefined, auth }
+
+    this.validateSettings(destinationSettings)
+
+    const options = this.extendRequest?.(context) ?? {}
+    const requestClient = createRequestClient(options)
+
+    //TODO: retry logic
+
+    const deleteResult = await this.definition.onDelete?.(requestClient, data)
+    const result: Result = deleteResult ?? { output: 'no onDelete defined' }
+
+    return result
   }
 
   private async onSubscriptions(
