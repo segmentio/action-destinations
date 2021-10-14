@@ -22,7 +22,7 @@
       "name": "Attach to running server",
       "restart": true,
       "address": "localhost",
-      "port": 47082,
+      "port": 9229,
       "skipFiles": ["<node_internals>/**"]
     },
     {

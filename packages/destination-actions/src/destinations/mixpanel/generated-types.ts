@@ -8,5 +8,5 @@ export interface Settings {
   /**
    * Mixpanel project secret.
    */
-  apiSecret?: string
+  apiSecret: string
 }

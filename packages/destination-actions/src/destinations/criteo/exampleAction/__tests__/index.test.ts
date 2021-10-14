@@ -43,7 +43,7 @@ describe('Criteo.exampleAction', () => {
             "Bearer super secret",
           ],
           "user-agent": Array [
-            "Segment",
+            "Segment (Actions)",
           ],
         },
       }

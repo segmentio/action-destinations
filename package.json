@@ -19,6 +19,7 @@
     "bootstrap": "lerna bootstrap",
     "build": "./bin/run generate:types && lerna run build --stream --ignore @segment/actions-cli",
     "types": "./bin/run generate:types",
+    "validate": "./bin/run validate",
     "lint": "eslint '**/*.ts' --cache",
     "subscriptions": "yarn workspace @segment/destination-subscriptions",
     "test": "lerna run test --stream",

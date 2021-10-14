@@ -2,9 +2,9 @@
 
 export interface Payload {
   /**
-   * A readable ID specified by you.
+   * A distinct ID specified by you.
    */
-  user_id?: string | null
+  distinct_id?: string
   /**
    * A device-specific identifier, such as the Identifier for Vendor on iOS. Required unless user ID is present. If a device ID is not sent with the event, it will be set to a hashed version of the user ID.
    */
