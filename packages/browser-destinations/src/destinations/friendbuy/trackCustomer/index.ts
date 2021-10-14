@@ -25,14 +25,14 @@ export const trackCustomerFields: Record<string, InputField> = {
     default: { '@path': '$.traits.email' }
   },
   firstName: {
-    label: 'Name',
+    label: 'First Name',
     description: "The user's given name.",
     type: 'string',
     required: false,
     default: { '@path': '$.traits.firstName' }
   },
   lastName: {
-    label: 'Name',
+    label: 'Last Name',
     description: "The user's surname.",
     type: 'string',
     required: false,
