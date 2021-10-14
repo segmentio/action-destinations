@@ -8,7 +8,7 @@ interface TrackEventPayload {
   name: string
   type?: string
   timestamp?: string | number
-  data?: Record<string, any>
+  data?: Record<string, unknown>
   // Required for anonymous events
   anonymous_id?: string
 }
