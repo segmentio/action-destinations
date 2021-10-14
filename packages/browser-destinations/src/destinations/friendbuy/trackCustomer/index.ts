@@ -21,7 +21,7 @@ export const trackCustomerFields: Record<string, InputField> = {
     label: 'Email',
     description: "The user's email address.",
     type: 'string',
-    required: false,
+    required: true,
     default: { '@path': '$.traits.email' }
   },
   firstName: {
