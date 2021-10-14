@@ -67,7 +67,7 @@
     "globby": "^11.0.3",
     "jscodeshift": "^0.13.0",
     "jscodeshift-add-imports": "^1.0.10",
-    "jsdom": "^16.6.0",
+    "jsdom": "^18.0.0",
     "json-diff": "^0.5.4",
     "json-schema-to-typescript": "^10.1.4",
     "lodash": "^4.17.20",
