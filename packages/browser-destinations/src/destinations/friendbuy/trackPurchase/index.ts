@@ -98,7 +98,6 @@ export const trackPurchaseFields: Record<string, InputField> = {
   }
 }
 
-// Change from unknown to the partner SDK types
 const action: BrowserActionDefinition<Settings, FriendbuyAPI, Payload> = {
   title: 'Track Purchase',
   description: 'Record a purchase in Friendbuy.',

@@ -5,6 +5,7 @@ import { defaultValues, DestinationDefinition } from '@segment/actions-core'
 
 import trackCustomer, { trackCustomerDefaultSubscription, trackCustomerFields } from './trackCustomer'
 import trackPurchase, { trackPurchaseDefaultSubscription, trackPurchaseFields } from './trackPurchase'
+import trackSignUp, { trackSignUpDefaultSubscription, trackSignUpFields } from './trackSignUp'
 
 export interface FriendbuyAPI extends Array<unknown> {
   merchantId: string
@@ -30,6 +31,12 @@ const presets: DestinationDefinition['presets'] = [
     subscribe: trackPurchaseDefaultSubscription,
     partnerAction: 'trackPurchase',
     mapping: defaultValues(trackPurchaseFields)
+  },
+  {
+    name: 'Track Sign Up',
+    subscribe: trackSignUpDefaultSubscription,
+    partnerAction: 'trackSignUp',
+    mapping: defaultValues(trackSignUpFields)
   }
 ]
 
@@ -68,7 +75,8 @@ export const destination: BrowserDestinationDefinition<Settings, FriendbuyAPI> =
   presets,
   actions: {
     trackCustomer,
-    trackPurchase
+    trackPurchase,
+    trackSignUp
   }
 }
 
