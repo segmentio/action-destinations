@@ -50,12 +50,12 @@
       "<rootDir>/dist/"
     ],
     "moduleNameMapper": {
-      "@segment/actions-core": "<rootDir>/../core/src/index.ts",
+      "@segment/ajv-human-errors": "<rootDir>/../ajv-human-errors/src",
+      "@segment/actions-core": "<rootDir>/../core/src",
       "@segment/destination-subscriptions": "<rootDir>/../destination-subscriptions/src"
     },
     "setupFilesAfterEnv": [
       "<rootDir>/test/setup-after-env.ts"
     ]
-  },
-  "gitHead": "218a80bcbb810692b119cc7cf3d7c1ea782c447a"
+  }
 }

@@ -70,8 +70,9 @@
   "jest": {
     "rootDir": "./",
     "moduleNameMapper": {
-      "@segment/actions-core": "<rootDir>/../core/src/index.ts",
-      "@segment/destination-subscriptions": "<rootDir>/../destination-subscriptions/src/index.ts"
+      "@segment/ajv-human-errors": "<rootDir>/../ajv-human-errors/src",
+      "@segment/actions-core": "<rootDir>/../core/src",
+      "@segment/destination-subscriptions": "<rootDir>/../destination-subscriptions/src"
     },
     "transform": {
       "^.+\\.[t|j]sx?$": "babel-jest"
