@@ -22,7 +22,7 @@ export type MixpanelEvent = {
     $ios_device_model?: string // 'iPhone7,2'
     $ios_ifa?: string // '7A3CBEA0-BDF5-11E4-8DFC-AA07A5B093DB'
     $ios_version?: string // '8.1.3'
-    $ip?: string
+    ip?: string
     $lib_version?: string
     $locale?: string
     $manufacturer?: string // 'Apple'
@@ -30,15 +30,15 @@ export type MixpanelEvent = {
     $mp_api_endpoint?: string // 'api.mixpanel.com'
     $os_version?: string // '8.1.3'
     $os?: string // 'iPhone OS'
+    $referrer?: string
     $screen_density?: number
     $screen_height?: number
     $screen_width?: number
-    $source?: 'segment'
     $wifi_enabled?: boolean
     distinct_id?: string | null // 'test_segment_user'
     id?: string | null // this is just to maintain backwards compatibility  with the classic segment integration, I'm not completely sure what the purpose of this was.
     mp_country_code?: string // 'US'
-    mp_lib?: 'segment' // 'Segment?: analytics.js'
+    mp_lib?: string // 'Segment?: analytics.js'
     segment_source_name?: string // 'readme'
     time?: number
     utm_campaign?: string // 'TPS Innovation Newsletter'
