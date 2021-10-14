@@ -40,11 +40,11 @@
 	"dependencies": {
 		"@segment/fql-ts": "^1.10.1"
 	},
-  "devDependencies": {
-		"@size-limit/preset-small-lib": "^5.0.3",
-    "@types/jest": "^26.0.23",
+	"devDependencies": {
+		"@size-limit/preset-small-lib": "^6.0.3",
+		"@types/jest": "^26.0.23",
 		"jest": "^26.0.1",
-    "size-limit": "^5.0.3"
+    "size-limit": "^6.0.3"
 	},
 	"jest": {
 		"preset": "ts-jest",
