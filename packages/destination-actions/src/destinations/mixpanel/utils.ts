@@ -1,4 +1,4 @@
-export function getBrowser(userAgent: string, vendor: string): string {
+export function getBrowser(userAgent: string, vendor: string | undefined): string {
   vendor = vendor || '' // vendor is undefined for at least IE9
   if (userAgent.includes(' OPR/')) {
     if (userAgent.includes('Mini')) {
@@ -44,7 +44,7 @@ export function getBrowser(userAgent: string, vendor: string): string {
   }
 }
 
-export function getBrowserVersion(userAgent: string, vendor: string) {
+export function getBrowserVersion(userAgent: string, vendor: string | undefined) {
   const browser = getBrowser(userAgent, vendor)
   const versionRegexs: { [browser: string]: RegExp } = {
     'Internet Explorer Mobile': /rv:(\d+(\.\d+)?)/,
