@@ -61,12 +61,6 @@
     "webpack-cli": "^4.4.0",
     "webpack-dev-server": "^4.2.0"
   },
-  "prettier": {
-    "semi": false,
-    "singleQuote": true,
-    "trailingComma": "none",
-    "printWidth": 120
-  },
   "jest": {
     "rootDir": "./",
     "moduleNameMapper": {
