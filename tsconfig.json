@@ -18,6 +18,7 @@
   },
   "exclude": ["node_modules", "dist", "templates"],
   "references": [
+    { "path": "./packages/ajv-human-errors/tsconfig.build.json" },
     { "path": "./packages/browser-destinations/tsconfig.build.json" },
     { "path": "./packages/core/tsconfig.build.json" },
     { "path": "./packages/destination-actions/tsconfig.build.json" },

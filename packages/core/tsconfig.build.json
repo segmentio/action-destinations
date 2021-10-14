@@ -8,6 +8,7 @@
   "exclude": ["**/__tests__/**/*.ts", "benchmarks"],
   "include": ["src"],
   "references": [
+    { "path": "../ajv-human-errors/tsconfig.build.json" },
     { "path": "../destination-subscriptions/tsconfig.build.json" }
   ]
 }

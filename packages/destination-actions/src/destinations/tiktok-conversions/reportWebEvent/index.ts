@@ -47,7 +47,8 @@ const action: ActionDefinition<Settings, Payload> = {
     // PII Fields - These fields must be hashed using SHA 256 and encoded as websafe-base64.
     phone_number: {
       label: 'Phone Number',
-      description: 'Phone number of the user who triggered the conversion event, in E.164 standard format, e.g. +14150000000.',
+      description:
+        'Phone number of the user who triggered the conversion event, in E.164 standard format, e.g. +14150000000.',
       type: 'string',
       default: {
         '@if': {
