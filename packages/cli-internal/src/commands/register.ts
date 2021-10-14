@@ -2,11 +2,11 @@ import { Command, flags } from '@oclif/command'
 import globby from 'globby'
 import ora from 'ora'
 import path from 'path'
-import { loadDestination } from '../lib/destinations'
 import { controlPlaneService } from '../lib/control-plane-service'
 import type { CreateDestinationMetadataInput } from '../lib/control-plane-service'
-import { autoPrompt, prompt } from '../lib/prompt'
-import { generateSlug } from '../lib/slugs'
+import { prompt } from '@segment/actions-cli/lib/prompt'
+import { loadDestination } from '@segment/actions-cli/lib/destinations'
+import { generateSlug } from '@segment/actions-cli/lib/slugs'
 
 const NOOP_CONTEXT = {}
 

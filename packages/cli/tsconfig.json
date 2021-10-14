@@ -35,8 +35,17 @@
       "@segment/browser-destinations": [
         "../browser-destinations/src"
       ],
-      "@segment/cli-internal": [
+      "@segment/actions-cli": [
+        "../cli/src"
+      ],
+      "@segment/actions-cli/*": [
+        "../cli/src/*"
+      ],
+      "@segment/actions-cli-internal": [
         "../cli-internal/src"
+      ],
+      "@segment/actions-cli-internal/*": [
+        "../cli-internal/src/*"
       ],
       "@segment/destination-subscriptions": [
         "../destination-subscriptions/src"

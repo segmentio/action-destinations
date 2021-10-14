@@ -80,6 +80,7 @@
     "tslib": "^2"
   },
   "optionalDependencies": {
+    "@segment/actions-cli-internal": "^3.13.0",
     "@segment/browser-destinations": "^3.13.0"
   },
   "oclif": {

@@ -1,19 +1,19 @@
 import { Command, flags } from '@oclif/command'
+import { prompt } from '@segment/actions-cli/lib/prompt'
 import { diffString } from 'json-diff'
 import execa from 'execa'
 import chalk from 'chalk'
 import { manifest } from '@segment/browser-destinations'
 import ora from 'ora'
-import { assetPath } from '../config'
+import { assetPath } from '@segment/actions-cli/config'
 import type { RemotePlugin } from '../lib/control-plane-service'
-import { prompt } from '../lib/prompt'
 import {
   getDestinationMetadatas,
   getRemotePluginByDestinationIds,
   createRemotePlugin,
   updateRemotePlugin
 } from '../lib/control-plane-client'
-import { build, webBundles } from '../lib/web-bundles'
+import { build, webBundles } from '@segment/actions-cli/lib/web-bundles'
 
 export default class PushBrowserDestinations extends Command {
   private spinner: ora.Ora = ora()
