@@ -6,6 +6,7 @@ import { defaultValues, DestinationDefinition } from '@segment/actions-core'
 import trackCustomer, { trackCustomerDefaultSubscription, trackCustomerFields } from './trackCustomer'
 import trackPurchase, { trackPurchaseDefaultSubscription, trackPurchaseFields } from './trackPurchase'
 import trackSignUp, { trackSignUpDefaultSubscription, trackSignUpFields } from './trackSignUp'
+import trackCustomEvent from './trackCustomEvent'
 
 export interface FriendbuyAPI extends Array<unknown> {
   merchantId: string
@@ -76,7 +77,8 @@ export const destination: BrowserDestinationDefinition<Settings, FriendbuyAPI> =
   actions: {
     trackCustomer,
     trackPurchase,
-    trackSignUp
+    trackSignUp,
+    trackCustomEvent
   }
 }
 
