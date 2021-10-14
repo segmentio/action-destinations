@@ -40,8 +40,7 @@
 	"dependencies": {
 		"@segment/fql-ts": "^1.10.1"
 	},
-	"devDependencies": {
-		"@sindresorhus/tsconfig": "^0.7.0",
+  "devDependencies": {
 		"@size-limit/preset-small-lib": "^5.0.3",
     "@types/jest": "^26.0.23",
 		"jest": "^26.0.1",
