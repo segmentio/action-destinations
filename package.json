@@ -17,7 +17,7 @@
     "cli-internal": "yarn workspace @segment/actions-cli-internal",
     "core": "yarn workspace @segment/actions-core",
     "bootstrap": "lerna bootstrap",
-    "build": "./bin/run generate:types && lerna run build --stream --ignore @segment/actions-cli",
+    "build": "./bin/run generate:types && lerna run build --stream --ignore @segment/actions-cli-internal",
     "types": "./bin/run generate:types",
     "validate": "./bin/run validate",
     "lint": "eslint '**/*.ts' --cache",
