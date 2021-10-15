@@ -65,9 +65,7 @@ export function getBrowserVersion(userAgent: string, vendor: string | undefined)
     Mozilla: /rv:(\d+(\.\d+)?)/
   }
   const regex = versionRegexs[browser]
-  if (regex === undefined) {
-    return undefined
-  }
+  if (!regex) return regex
   const matches = regex.exec(userAgent)
   if (!matches) {
     return undefined

@@ -317,10 +317,11 @@ const action: ActionDefinition<Settings, Payload> = {
     const time = datetime && dayjs.utc(datetime).isValid() ? dayjs.utc(datetime).valueOf() : Date.now()
 
     const utm = payload.utm_properties || {}
-    const browser = payload.userAgent ? getBrowser(payload.userAgent, payload.device_manufacturer) : undefined
-    const browserVersion = payload.userAgent
-      ? getBrowserVersion(payload.userAgent, payload.device_manufacturer)
-      : undefined
+    let browser, browserVersion
+    if (payload.userAgent) {
+      browser = getBrowser(payload.userAgent, payload.device_manufacturer)
+      browserVersion = getBrowserVersion(payload.userAgent, payload.device_manufacturer)
+    }
 
     const event: MixpanelEvent = {
       event: payload.event,
