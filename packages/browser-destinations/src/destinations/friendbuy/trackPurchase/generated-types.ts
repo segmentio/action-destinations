@@ -29,5 +29,5 @@ export interface Payload {
   /**
    * The user's customerId.
    */
-  customerId: string
+  customerId?: string
 }

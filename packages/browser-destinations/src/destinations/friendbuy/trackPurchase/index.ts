@@ -93,7 +93,7 @@ export const trackPurchaseFields: Record<string, InputField> = {
     label: 'Customer ID',
     description: "The user's customerId.",
     type: 'string',
-    required: true,
+    required: false,
     default: { '@path': '$.userId' }
   }
 }
