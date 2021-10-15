@@ -409,7 +409,7 @@ export class Destination<Settings = JSONObject> {
   /** Pass a single deletion event to the destination for execution
    * note that this method is conditionally added if the destination supports it
    */
-  public async _onDelete(event: SegmentEvent, settings: JSONObject): Promise<Result> {
+  private async _onDelete(event: SegmentEvent, settings: JSONObject): Promise<Result> {
     const { userId, anonymousId } = event
     const payload = { userId, anonymousId }
     const destinationSettings = this.getDestinationSettings(settings as unknown as JSONObject)
