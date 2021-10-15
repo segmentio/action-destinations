@@ -376,7 +376,7 @@ export class Destination<Settings = JSONObject> {
         error.status = 400
       }
 
-      throw err
+      throw error
     } finally {
       const subscriptionEndedAt = time()
       const subscriptionDuration = duration(subscriptionStartedAt, subscriptionEndedAt)
