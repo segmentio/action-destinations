@@ -370,8 +370,8 @@ export class Destination<Settings = JSONObject> {
         return await this.executeAction(actionSlug, { ...input, event: subscribedEvents[0] })
       }
     } catch (err) {
-      const error = err as unknown as JSONObject
-      results = [{ error }]
+      const error = err as ResponseError
+      results = [{ error: { message: error.message } }]
 
       if (error.name === 'AggregateAjvError' || error.name === 'ValidationError') {
         error.status = 400
