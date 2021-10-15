@@ -5,7 +5,7 @@ import { time, duration } from '../time'
 import { JSONLikeObject, JSONObject, JSONValue } from '../json-object'
 import { SegmentEvent } from '../segment-event'
 import { fieldsToJsonSchema, MinimalInputField } from './fields-to-jsonschema'
-import createRequestClient, { RequestClient } from '../create-request-client'
+import createRequestClient, { RequestClient, ResponseError } from '../create-request-client'
 import { validateSchema } from '../schema-validation'
 import type { ModifiedResponse } from '../types'
 import type { GlobalSetting, RequestExtension, ExecuteInput, Result, Deletion, DeletionPayload } from './types'
@@ -215,7 +215,8 @@ export class Destination<Settings = JSONObject> {
     if (this.settingsSchema) {
       try {
         validateSchema(settings, this.settingsSchema, { schemaKey: `${this.name}:settings` })
-      } catch (error) {
+      } catch (err) {
+        const error = err as ResponseError
         if (error.name === 'AggregateAjvError' || error.name === 'ValidationError') {
           error.status = 400
         }
@@ -367,14 +368,15 @@ export class Destination<Settings = JSONObject> {
         // there should only be 1 item in the subscribedEvents array
         return await this.executeAction(actionSlug, { ...input, event: subscribedEvents[0] })
       }
-    } catch (error) {
+    } catch (err) {
+      const error = err as unknown as JSONObject
       results = [{ error }]
 
       if (error.name === 'AggregateAjvError' || error.name === 'ValidationError') {
         error.status = 400
       }
 
-      throw error
+      throw err
     } finally {
       const subscriptionEndedAt = time()
       const subscriptionDuration = duration(subscriptionStartedAt, subscriptionEndedAt)
