@@ -18,7 +18,7 @@ Array [
       "$device_id": "pNBru",
       "$device_name": "pNBru",
       "$device_type": "pNBru",
-      "$insert_id": "",
+      "$insert_id": "pNBru",
       "$ios_ifa": "pNBru",
       "$locale": "pNBru",
       "$manufacturer": "pNBru",
@@ -52,7 +52,7 @@ Array [
     "event": "pNBru",
     "properties": Object {
       "$device_id": "pNBru",
-      "$insert_id": "",
+      "$insert_id": "pNBru",
       "$ios_ifa": "pNBru",
       "$screen_width": -83997876740423.69,
       "distinct_id": "pNBru",

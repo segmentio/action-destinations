@@ -143,4 +143,8 @@ export interface Payload {
    * User agent
    */
   userAgent?: string
+  /**
+   * An identifier that is unique to an event. This is used to deduplicate events.
+   */
+  insert_id?: string
 }

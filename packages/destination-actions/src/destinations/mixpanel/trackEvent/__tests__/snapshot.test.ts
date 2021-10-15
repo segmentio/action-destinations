@@ -7,9 +7,7 @@ const testDestination = createTestIntegration(destination)
 const actionSlug = 'trackEvent'
 const destinationSlug = 'Mixpanel'
 const seedName = `${destinationSlug}#${actionSlug}`
-const mathRandomReturn = 1
 global.Date.now = jest.fn(() => 1234556)
-jest.spyOn(global.Math, 'random').mockReturnValue(mathRandomReturn)
 
 describe(`Testing snapshot for ${destinationSlug}'s ${actionSlug} destination action:`, () => {
   it('required fields', async () => {
