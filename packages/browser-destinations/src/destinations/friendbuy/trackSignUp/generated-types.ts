@@ -22,6 +22,10 @@ export interface Payload {
    */
   name?: string
   /**
+   * The user's age.
+   */
+  age?: number
+  /**
    * The status of the user in your loyalty program. Valid values are "in", "out", or "blocked".
    */
   loyaltyStatus?: string

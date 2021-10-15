@@ -31,6 +31,7 @@ describe('Friendbuy.trackCustomer', () => {
     const lastName = 'Doe'
     const name = `${firstName} ${lastName}`
     const email = 'john.doe@example.com'
+    const age = 55
 
     const [trackCustomer] = await friendbuyDestination({
       merchantId,
@@ -53,7 +54,8 @@ describe('Friendbuy.trackCustomer', () => {
           email,
           firstName,
           lastName,
-          name
+          name,
+          age
         }
       })
       // console.log('context1', JSON.stringify(context1, null, 2))
@@ -69,7 +71,8 @@ describe('Friendbuy.trackCustomer', () => {
           email,
           firstName,
           lastName,
-          name
+          name,
+          age
         }
       ])
     }

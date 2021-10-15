@@ -27,6 +27,7 @@ describe('Friendbuy.trackSignUp', () => {
     const lastName = 'Doe'
     const name = `${firstName} ${lastName}`
     const email = 'john.doe@example.com'
+    const age = 42
     const loyaltyStatus = 'in'
 
     const [trackSignUp] = await friendbuyDestination({
@@ -50,6 +51,7 @@ describe('Friendbuy.trackSignUp', () => {
         last_name: lastName,
         name,
         email,
+        age,
         loyaltyStatus
       }
     })
@@ -67,6 +69,7 @@ describe('Friendbuy.trackSignUp', () => {
         firstName,
         lastName,
         name,
+        age,
         loyaltyStatus
       }
     ])

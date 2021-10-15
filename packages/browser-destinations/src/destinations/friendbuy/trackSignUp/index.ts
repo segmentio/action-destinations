@@ -45,6 +45,13 @@ export const trackSignUpFields: Record<string, InputField> = {
     required: false,
     default: { '@path': '$.properties.name' }
   },
+  age: {
+    label: 'Age',
+    description: "The user's age.",
+    type: 'number',
+    required: false,
+    default: { '@path': '$.properties.age' }
+  },
   loyaltyStatus: {
     label: 'Loyalty Program Status',
     description: 'The status of the user in your loyalty program. Valid values are "in", "out", or "blocked".',
@@ -71,6 +78,7 @@ const action: BrowserActionDefinition<Settings, FriendbuyAPI, Payload> = {
         firstName: data.payload.firstName,
         lastName: data.payload.lastName,
         name: getName(data.payload),
+        age: data.payload.age,
         loyaltyStatus: data.payload.loyaltyStatus
       }
     ])

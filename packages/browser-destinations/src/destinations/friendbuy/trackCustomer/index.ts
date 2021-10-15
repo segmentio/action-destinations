@@ -46,6 +46,13 @@ export const trackCustomerFields: Record<string, InputField> = {
     type: 'string',
     required: false,
     default: { '@path': '$.traits.name' }
+  },
+  age: {
+    label: 'Age',
+    description: "The user's age.",
+    type: 'number',
+    required: false,
+    default: { '@path': '$.traits.age' }
   }
 }
 
@@ -66,7 +73,8 @@ const action: BrowserActionDefinition<Settings, FriendbuyAPI, Payload> = {
         email: data.payload.email,
         firstName: data.payload.firstName,
         lastName: data.payload.lastName,
-        name: getName(data.payload)
+        name: getName(data.payload),
+        age: data.payload.age
       }
     ])
   }
