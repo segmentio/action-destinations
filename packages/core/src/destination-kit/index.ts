@@ -187,7 +187,7 @@ export class Destination<Settings = JSONObject> {
   readonly actions: PartnerActions<Settings, any>
   readonly responses: DecoratedResponse[]
   readonly settingsSchema?: JSONSchema4
-  onDelete?: any
+  onDelete?: (event: SegmentEvent, settings: JSONObject) => Promise<Result>
 
   constructor(destination: DestinationDefinition<Settings>) {
     this.definition = destination
@@ -414,8 +414,8 @@ export class Destination<Settings = JSONObject> {
 
     const destinationSettings = this.getDestinationSettings(settings as unknown as JSONObject)
     const auth = getAuthData(settings as unknown as JSONObject)
-    const data = { payload, settings: destinationSettings, auth }
 
+    const data: ExecuteInput<Settings, DeletionPayload> = { payload, settings: destinationSettings, auth }
     const context: ExecuteInput<Settings, undefined> = { settings: destinationSettings, payload: undefined, auth }
 
     this.validateSettings(destinationSettings)

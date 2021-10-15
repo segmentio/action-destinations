@@ -15,6 +15,10 @@ import getExchanges from './summarize-http'
 import ora from 'ora'
 import chalk from 'chalk'
 
+interface ResponseError extends Error {
+  status?: number
+}
+
 const app = express()
 app.use(express.json())
 
@@ -74,6 +78,39 @@ server.on('error', (err: Error) => {
 
 loadDestination(targetDirectory)
   .then((def) => {
+    const destination = new Destination(def as CloudDestinationDefinition)
+    const supportsDelete = destination.onDelete
+
+    if (supportsDelete) {
+      app.post(
+        '/delete',
+        asyncHandler(async (req: express.Request, res: express.Response) => {
+          spinner.start(chalk`Handling ${process.env.DESTINATION}#delete request`)
+
+          try {
+            if (destination.onDelete) {
+              await destination.onDelete(req.body.payload ?? {}, req.body.settings ?? {})
+            }
+
+            const debug = await getExchanges(destination.responses)
+            spinner.succeed(chalk`${destination.name} delete completed`)
+            return res.status(200).json(debug)
+          } catch (err) {
+            spinner.fail()
+            const error = err as ResponseError
+            let statusCode = error?.status ?? 500
+            let msg = error?.message
+
+            if (err instanceof HTTPError) {
+              statusCode = err?.response?.status ?? statusCode
+              msg = ((err.response as ModifiedResponse).data as string) ?? (err.response as ModifiedResponse).content
+            }
+
+            return res.status(statusCode).send(msg + '<br/>' + error.stack?.split('\n').join('<br/>'))
+          }
+        })
+      )
+    }
     app.post(
       '/:action',
       asyncHandler(async (req: express.Request, res: express.Response) => {
@@ -82,7 +119,6 @@ loadDestination(targetDirectory)
         spinner.start(chalk`Handling ${process.env.DESTINATION}#${actionSlug} action request`)
 
         try {
-          const destination = new Destination(def as CloudDestinationDefinition)
           const action = destination.actions[actionSlug]
 
           if (!action) {
@@ -102,28 +138,29 @@ loadDestination(targetDirectory)
           spinner.succeed(chalk`${destination.name} action '${actionSlug}' completed`)
           return res.status(200).json(debug)
         } catch (err) {
+          const error = err as ResponseError
           spinner.fail()
-          let statusCode = err?.status ?? 500
-          let msg = err?.message
+          let statusCode = error?.status ?? 500
+          let msg = error?.message ?? ''
 
           if (err instanceof HTTPError) {
             statusCode = err?.response?.status ?? statusCode
-            msg = (err.response as ModifiedResponse).data ?? (err.response as ModifiedResponse).content
+            msg = ((err.response as ModifiedResponse).data as string) ?? (err.response as ModifiedResponse).content
           }
 
           return res.status(statusCode).send(msg)
         }
       })
     )
-    app.post('/delete', () => {
-      //TODO: complete this
-    })
+
+    const deleteRoute = supportsDelete ? `POST http://localhost:${port}/delete` : ''
 
     server.listen(port, () => {
       logger.info(`Listening at http://localhost:${port} ->
 ${Object.keys(def?.actions ?? {})
   .map((action) => `  POST http://localhost:${port}/${action}`)
-  .join('\n')}`)
+  .join('\n')}
+  ${deleteRoute}`)
     })
   })
   .catch((error) => {
