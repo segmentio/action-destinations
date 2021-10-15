@@ -20,7 +20,7 @@
     "postclean": "rm -rf dist",
     "prepublishOnly": "yarn build",
     "test": "jest",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc -p tsconfig.build.json --noEmit"
   },
   "license": "MIT",
   "devDependencies": {
