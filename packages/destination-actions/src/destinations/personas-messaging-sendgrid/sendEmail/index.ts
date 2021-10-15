@@ -1,4 +1,4 @@
-import type { ActionDefinition, RequestOptions } from '@segment/actions-core'
+import { ActionDefinition, IntegrationError, RequestOptions } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 import Mustache from 'mustache'
@@ -56,6 +56,18 @@ const fetchProfileExternalIds = async (
   return externalIds
 }
 
+const isRestrictedDomain = (email: string): boolean => {
+  const restricted = ['gmailx.com', 'yahoox.com', 'aolx.com', 'hotmailx.com']
+  const matches = /^.+@(.+)$/.exec(email.toLowerCase())
+
+  if (!matches) {
+    return false
+  }
+
+  const domain = matches[1]
+  return restricted.includes(domain)
+}
+
 interface Profile {
   user_id?: string
   anonymous_id?: string
@@ -103,6 +115,11 @@ const action: ActionDefinition<Settings, Payload> = {
       description: 'From Name displayed to end user email',
       type: 'string',
       required: true
+    },
+    replyToEqualsFrom: {
+      label: 'Reply To Equals From',
+      description: 'Whether "reply to" settings are the same as "from"',
+      type: 'boolean'
     },
     replyToEmail: {
       label: 'Reply To Email',
@@ -177,6 +194,14 @@ const action: ActionDefinition<Settings, Payload> = {
 
     if (!toEmail) {
       return
+    }
+
+    if (isRestrictedDomain(toEmail)) {
+      throw new IntegrationError(
+        'Emails with gmailx.com, yahoox.com, aolx.com, and hotmailx.com domains are blocked.',
+        'Invalid input',
+        400
+      )
     }
 
     let name

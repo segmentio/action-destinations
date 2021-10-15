@@ -8,7 +8,7 @@ interface TrackPageViewPayload {
   name: string
   type: 'page'
   timestamp?: string | number
-  data?: Record<string, any>
+  data?: Record<string, unknown>
   // Required for anonymous events
   anonymous_id?: string
 }
@@ -81,9 +81,12 @@ const action: ActionDefinition<Settings, Payload> = {
       data: payload.data,
       timestamp
     }
-    let url = `${trackApiEndpoint(settings.accountRegion)}/api/v1/customers/${payload.id}/events`
 
-    if (payload.id === undefined) {
+    let url: string
+
+    if (payload.id) {
+      url = `${trackApiEndpoint(settings.accountRegion)}/api/v1/customers/${payload.id}/events`
+    } else {
       url = `${trackApiEndpoint(settings.accountRegion)}/api/v1/events`
       body.anonymous_id = payload.anonymous_id
     }

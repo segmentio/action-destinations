@@ -89,7 +89,7 @@ jobs:
       - name: Set NPM Token
         run: |
           npm set '//registry.npmjs.org/:_authToken' ${{ secrets.NPM_TOKEN }}
-          npm whoami 
+          npm whoami
 
       - name: Publish
         run: lerna publish ${{ needs.get-version.outputs.version }} --no-verify-access --yes

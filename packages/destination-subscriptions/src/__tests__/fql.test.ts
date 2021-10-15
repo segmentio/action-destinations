@@ -47,6 +47,21 @@ test('should handle missing values', () => {
 	})
 })
 
+test('should handle nested properties', () => {
+	testFql('properties.foo.bar = "baz"', {
+		type: 'group',
+		operator: 'and',
+		children: [
+			{
+				name: 'foo.bar',
+				type: 'event-property',
+				operator: '=',
+				value: 'baz'
+			}
+		]
+	})
+})
+
 test('type = "track"', () => {
 	testFql('type = "track"', {
 		type: 'group',
@@ -102,6 +117,21 @@ test('userId != null', () => {
 			{
 				type: 'userId',
 				operator: 'exists'
+			}
+		]
+	})
+})
+
+test('context.foo = "bar"', () => {
+	testFql('context.foo = "bar"', {
+		type: 'group',
+		operator: 'and',
+		children: [
+			{
+				type: 'event-context',
+				name: 'foo',
+				operator: '=',
+				value: 'bar'
 			}
 		]
 	})

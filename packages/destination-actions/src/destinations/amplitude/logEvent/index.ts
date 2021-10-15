@@ -180,6 +180,7 @@ const action: ActionDefinition<Settings, Payload> = {
       utm_properties,
       referrer,
       min_id_length,
+      library,
       ...rest
     } = omit(payload, revenueKeys)
     const properties = rest as AmplitudeEvent
@@ -187,6 +188,10 @@ const action: ActionDefinition<Settings, Payload> = {
 
     if (properties.platform) {
       properties.platform = properties.platform.replace(/ios/i, 'iOS').replace(/android/i, 'Android')
+    }
+
+    if (library) {
+      if (library === 'analytics.js') properties.platform = 'Web'
     }
 
     if (time && dayjs.utc(time).isValid()) {

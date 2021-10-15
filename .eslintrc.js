@@ -48,7 +48,7 @@ module.exports = {
   },
   overrides: [
     {
-      files: ['*.test.ts', '**/test/**/*.ts'],
+      files: ['*.test.ts', '**/__tests__/**/*.ts', '**/test/**/*.ts'],
       env: {
         jest: true
       },
@@ -58,6 +58,12 @@ module.exports = {
         '@typescript-eslint/no-unsafe-call': 'off',
         '@typescript-eslint/no-explicit-any': 'off',
         '@typescript-eslint/no-empty-function': 'off'
+      }
+    },
+    {
+      files: ['packages/cli/**/*.ts'],
+      rules: {
+        '@typescript-eslint/no-var-requires': 'off'
       }
     },
     {
