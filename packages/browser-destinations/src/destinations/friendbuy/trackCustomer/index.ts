@@ -3,6 +3,7 @@ import type { BrowserActionDefinition } from '../../../lib/browser-destinations'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 import { FriendbuyAPI } from '..'
+import { getName } from '../util'
 
 // see https://segment.com/docs/config-api/fql/
 export const trackCustomerDefaultSubscription = 'type = "identify"'
@@ -40,16 +41,11 @@ export const trackCustomerFields: Record<string, InputField> = {
   },
   name: {
     label: 'Name',
-    description: "The user's full name.",
+    description:
+      "The user's full name. If the name trait doesn't exist then it will be automatically derived from the firstName and lastName traits if they are defined.",
     type: 'string',
     required: false,
-    default: {
-      '@if': {
-        exists: { '@path': '$.traits.name' },
-        then: { '@path': '$.traits.name' },
-        else: { '@template': '{{traits.firstName}} {{traits.lastName}}' }
-      }
-    }
+    default: { '@path': '$.traits.name' }
   }
 }
 
@@ -70,7 +66,7 @@ const action: BrowserActionDefinition<Settings, FriendbuyAPI, Payload> = {
         email: data.payload.email,
         firstName: data.payload.firstName,
         lastName: data.payload.lastName,
-        name: data.payload.name
+        name: getName(data.payload)
       }
     ])
   }

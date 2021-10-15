@@ -44,31 +44,83 @@ describe('Friendbuy.trackCustomer', () => {
     // console.log(window.friendbuyAPI)
     jest.spyOn(window.friendbuyAPI as any, 'push')
 
-    const context = new Context({
-      type: 'identify',
-      userId,
-      traits: {
-        firstName,
-        lastName,
-        name,
-        email
-      }
-    })
-    // console.log('context', JSON.stringify(context, null, 2))
+    {
+      // all fields
+      const context1 = new Context({
+        type: 'identify',
+        userId,
+        traits: {
+          email,
+          firstName,
+          lastName,
+          name
+        }
+      })
+      // console.log('context1', JSON.stringify(context1, null, 2))
 
-    trackCustomer.identify?.(context)
+      trackCustomer.identify?.(context1)
 
-    // console.log('trackCustomer request', JSON.stringify(window.friendbuyAPI.push.mock.calls[0], null, 2))
-    expect(window.friendbuyAPI?.push).toHaveBeenCalledWith([
-      'track',
-      'customer',
-      {
-        id: userId,
-        email,
-        firstName,
-        lastName,
-        name
-      }
-    ])
+      // console.log('trackCustomer request', JSON.stringify(window.friendbuyAPI.push.mock.calls[0], null, 2))
+      expect(window.friendbuyAPI?.push).toHaveBeenNthCalledWith(1, [
+        'track',
+        'customer',
+        {
+          id: userId,
+          email,
+          firstName,
+          lastName,
+          name
+        }
+      ])
+    }
+
+    {
+      // name derived from firstName and lastName
+      const context2 = new Context({
+        type: 'identify',
+        userId,
+        traits: {
+          firstName,
+          lastName
+        }
+      })
+
+      trackCustomer.identify?.(context2)
+
+      expect(window.friendbuyAPI?.push).toHaveBeenNthCalledWith(2, [
+        'track',
+        'customer',
+        {
+          id: userId,
+          firstName,
+          lastName,
+          name
+        }
+      ])
+    }
+
+    {
+      // name without firstName and lastName
+      const context3 = new Context({
+        type: 'identify',
+        userId,
+        traits: {
+          email,
+          name
+        }
+      })
+
+      trackCustomer.identify?.(context3)
+
+      expect(window.friendbuyAPI?.push).toHaveBeenNthCalledWith(3, [
+        'track',
+        'customer',
+        {
+          id: userId,
+          email,
+          name
+        }
+      ])
+    }
   })
 })

@@ -18,7 +18,7 @@ export interface Payload {
    */
   lastName?: string
   /**
-   * The user's full name.
+   * The user's full name. If the name trait doesn't exist then it will be automatically derived from the firstName and lastName traits if they are defined.
    */
   name?: string
 }

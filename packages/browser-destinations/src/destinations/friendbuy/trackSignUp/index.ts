@@ -3,6 +3,7 @@ import type { BrowserActionDefinition } from '../../../lib/browser-destinations'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 import { FriendbuyAPI } from '..'
+import { getName } from '../util'
 
 // see https://segment.com/docs/config-api/fql/
 export const trackSignUpDefaultSubscription = 'event = "Signed Up"'
@@ -42,13 +43,7 @@ export const trackSignUpFields: Record<string, InputField> = {
     description: "The user's full name.",
     type: 'string',
     required: false,
-    default: {
-      '@if': {
-        exists: { '@path': '$.properties.name' },
-        then: { '@path': '$.properties.name' },
-        else: { '@template': '{{properties.first_name}} {{properties.last_name}}' }
-      }
-    }
+    default: { '@path': '$.properties.name' }
   },
   loyaltyStatus: {
     label: 'Loyalty Program Status',
@@ -75,7 +70,7 @@ const action: BrowserActionDefinition<Settings, FriendbuyAPI, Payload> = {
         email: data.payload.email,
         firstName: data.payload.firstName,
         lastName: data.payload.lastName,
-        name: data.payload.name,
+        name: getName(data.payload),
         loyaltyStatus: data.payload.loyaltyStatus
       }
     ])
