@@ -412,24 +412,42 @@ export class Destination<Settings = JSONObject> {
   public async _onDelete(event: SegmentEvent, settings: JSONObject): Promise<Result> {
     const { userId, anonymousId } = event
     const payload = { userId, anonymousId }
-
     const destinationSettings = this.getDestinationSettings(settings as unknown as JSONObject)
+    this.validateSettings(destinationSettings)
     const auth = getAuthData(settings as unknown as JSONObject)
-
     const data: ExecuteInput<Settings, DeletionPayload> = { payload, settings: destinationSettings, auth }
     const context: ExecuteInput<Settings, undefined> = { settings: destinationSettings, payload: undefined, auth }
-
-    this.validateSettings(destinationSettings)
 
     const options = this.extendRequest?.(context) ?? {}
     const requestClient = createRequestClient(options)
 
-    //TODO: retry logic
+    const run = async () => {
+      const deleteResult = await this.definition.onDelete?.(requestClient, data)
+      const result: Result = deleteResult ?? { output: 'no onDelete defined' }
 
-    const deleteResult = await this.definition.onDelete?.(requestClient, data)
-    const result: Result = deleteResult ?? { output: 'no onDelete defined' }
+      return result
+    }
 
-    return result
+    const onFailedAttempt = async (error: any) => {
+      const statusCode = error?.status ?? error?.response?.status ?? 500
+
+      // Throw original error if it is unrelated to invalid access tokens and not an oauth2 scheme
+      if (!(statusCode === 401 && this.authentication?.scheme === OAUTH2_SCHEME)) {
+        throw error
+      }
+
+      const oauthSettings = getOAuth2Data(settings)
+      const newTokens = await this.refreshAccessToken(destinationSettings, oauthSettings)
+      if (!newTokens) {
+        throw new InvalidAuthenticationError('Failed to refresh access token')
+      }
+
+      // Update `settings` with new tokens
+      settings = updateOAuthSettings(settings, newTokens)
+      options?.onTokenRefresh?.(newTokens)
+    }
+
+    return await retry(run, { retries: 2, onFailedAttempt })
   }
 
   private async onSubscriptions(
