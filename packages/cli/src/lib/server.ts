@@ -102,7 +102,7 @@ loadDestination(targetDirectory)
             let msg = error?.message
 
             if (err instanceof HTTPError) {
-              statusCode = err?.response?.status ?? statusCode
+              statusCode = err.response?.status ?? statusCode
               msg = ((err.response as ModifiedResponse).data as string) ?? (err.response as ModifiedResponse).content
             }
 
