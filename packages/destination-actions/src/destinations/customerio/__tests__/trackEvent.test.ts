@@ -18,7 +18,6 @@ describe('CustomerIO', () => {
       }
       const userId = 'abc123'
       const name = 'testEvent'
-      const type = 'track'
       const timestamp = dayjs.utc().toISOString()
       const data = {
         property1: 'this is a test'
@@ -26,7 +25,6 @@ describe('CustomerIO', () => {
       trackEventService.post(`/customers/${userId}/events`).reply(200, {}, { 'x-customerio-region': 'US' })
       const event = createTestEvent({
         event: name,
-        type,
         userId,
         properties: data,
         timestamp
@@ -42,7 +40,6 @@ describe('CustomerIO', () => {
       expect(responses[0].data).toMatchObject({})
       expect(responses[0].options.json).toMatchObject({
         name,
-        type,
         data,
         timestamp: dayjs.utc(timestamp).unix()
       })
@@ -56,7 +53,6 @@ describe('CustomerIO', () => {
       }
       const anonymousId = 'anonymous123'
       const name = 'test event'
-      const type = 'track'
       const timestamp = dayjs.utc().toISOString()
       const data = {
         property1: 'this is a test'
@@ -64,7 +60,6 @@ describe('CustomerIO', () => {
       trackEventService.post(`/events`).reply(200, {})
       const event = createTestEvent({
         event: name,
-        type,
         anonymousId,
         properties: data,
         userId: undefined,
@@ -78,7 +73,6 @@ describe('CustomerIO', () => {
       expect(responses[0].data).toMatchObject({})
       expect(responses[0].options.json).toMatchObject({
         name,
-        type,
         data,
         anonymous_id: anonymousId,
         timestamp: dayjs.utc(timestamp).unix()
@@ -91,7 +85,6 @@ describe('CustomerIO', () => {
         apiKey: 'abcde',
         accountRegion: AccountRegion.US
       }
-      const type = 'track'
       const timestamp = dayjs.utc().toISOString()
       const data = {
         property1: 'this is a test'
@@ -99,7 +92,6 @@ describe('CustomerIO', () => {
       trackEventService.post(`/events`).reply(200, {})
       const event = createTestEvent({
         event: undefined,
-        type,
         properties: data,
         anonymousId: undefined,
         userId: undefined,
@@ -122,7 +114,6 @@ describe('CustomerIO', () => {
       }
       const userId = 'abc123'
       const name = 'testEvent'
-      const type = 'track'
       const timestamp = dayjs.utc().toISOString()
       const data = {
         property1: 'this is a test'
@@ -130,7 +121,6 @@ describe('CustomerIO', () => {
       trackEventService.post(`/customers/${userId}/events`).reply(200, {}, { 'x-customerio-region': 'US' })
       const event = createTestEvent({
         event: name,
-        type,
         userId,
         properties: data,
         timestamp
@@ -153,7 +143,6 @@ describe('CustomerIO', () => {
       expect(responses[0].data).toMatchObject({})
       expect(responses[0].options.json).toMatchObject({
         name,
-        type,
         data,
         timestamp
       })
@@ -168,7 +157,6 @@ describe('CustomerIO', () => {
       }
       const userId = 'abc123'
       const name = 'testEvent'
-      const type = 'track'
       const timestamp = dayjs.utc().toISOString()
       const data = {
         property1: 'this is a test'
@@ -176,7 +164,6 @@ describe('CustomerIO', () => {
       trackEUEventService.post(`/customers/${userId}/events`).reply(200, {}, { 'x-customerio-region': 'EU' })
       const event = createTestEvent({
         event: name,
-        type,
         userId,
         timestamp,
         properties: data
@@ -192,7 +179,6 @@ describe('CustomerIO', () => {
       expect(responses[0].data).toMatchObject({})
       expect(responses[0].options.json).toMatchObject({
         name,
-        type,
         data,
         timestamp: dayjs.utc(timestamp).unix()
       })
@@ -205,7 +191,6 @@ describe('CustomerIO', () => {
       }
       const userId = 'abc123'
       const name = 'testEvent'
-      const type = 'track'
       const timestamp = dayjs.utc().toISOString()
       const data = {
         property1: 'this is a test'
@@ -213,7 +198,6 @@ describe('CustomerIO', () => {
       trackEventService.post(`/customers/${userId}/events`).reply(200, {}, { 'x-customerio-region': 'US-fallback' })
       const event = createTestEvent({
         event: name,
-        type,
         userId,
         timestamp,
         properties: data
@@ -229,7 +213,6 @@ describe('CustomerIO', () => {
       expect(responses[0].data).toMatchObject({})
       expect(responses[0].options.json).toMatchObject({
         name,
-        type,
         data,
         timestamp: dayjs.utc(timestamp).unix()
       })

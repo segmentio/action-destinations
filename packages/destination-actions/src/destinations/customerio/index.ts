@@ -1,5 +1,5 @@
 import { defaultValues } from '@segment/actions-core'
-import trackApplicationInstalledOrOpened from './trackApplicationInstalledOrOpened'
+import createUpdateDevice from './createUpdateDevice'
 import deleteDevice from './deleteDevice'
 import createUpdatePerson from './createUpdatePerson'
 import trackEvent from './trackEvent'
@@ -32,9 +32,8 @@ const destination: DestinationDefinition<Settings> = {
         description: 'Learn about [Account Regions](https://customer.io/docs/data-centers/).',
         label: 'Account Region',
         type: 'string',
-        format: 'uri',
         choices: Object.values(AccountRegion).map((dc) => ({ label: dc, value: dc })),
-        default: 'https://track.customer.io'
+        default: AccountRegion.US
       }
     },
     testAuthentication: (request) => {
@@ -50,7 +49,7 @@ const destination: DestinationDefinition<Settings> = {
   },
 
   actions: {
-    trackApplicationInstalledOrOpened,
+    createUpdateDevice,
     deleteDevice,
     createUpdatePerson,
     trackEvent,
@@ -65,14 +64,14 @@ const destination: DestinationDefinition<Settings> = {
       mapping: defaultValues(createUpdatePerson.fields)
     },
     {
-      name: 'Track Application Installed or Application Opened Event',
+      name: 'Create or Update Device',
       subscribe: 'event = "Application Installed" or event = "Application Opened"',
-      partnerAction: 'trackApplicationInstalledOrOpened',
-      mapping: defaultValues(trackApplicationInstalledOrOpened.fields)
+      partnerAction: 'createUpdateDevice',
+      mapping: defaultValues(createUpdateDevice.fields)
     },
     {
-      name: 'Track Application Uninstalled Event',
-      subscribe: 'type = "track" and event = "Application Uninstalled"',
+      name: 'Delete Device',
+      subscribe: 'event = "Application Uninstalled"',
       partnerAction: 'deleteDevice',
       mapping: defaultValues(deleteDevice.fields)
     },

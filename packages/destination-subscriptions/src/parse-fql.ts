@@ -12,6 +12,7 @@ const tokenToConditionType: Record<string, ConditionType> = {
 	event: 'event',
 	name: 'name',
 	userId: 'userId',
+	context: 'event-context',
 	properties: 'event-property',
 	traits: 'event-trait'
 }
@@ -89,6 +90,15 @@ const parseFqlFunction = (
 				value: String(getTokenValue(valueToken))
 			})
 		}
+
+		if (/^(context)/.test(nameToken.value)) {
+			nodes.push({
+				type: 'event-context',
+				name: nameToken.value.replace(/^(context)\./, ''),
+				operator: negate ? 'not_contains' : 'contains',
+				value: String(getTokenValue(valueToken))
+			})
+		}
 	}
 
 	if (name === 'match') {
@@ -145,6 +155,15 @@ const parseFqlFunction = (
 			nodes.push({
 				type: 'event-trait',
 				name: nameToken.value.replace(/^(traits)\./, ''),
+				operator,
+				value
+			})
+		}
+
+		if (/^(context)/.test(nameToken.value)) {
+			nodes.push({
+				type: 'event-context',
+				name: nameToken.value.replace(/^(context)\./, ''),
 				operator,
 				value
 			})
@@ -258,6 +277,27 @@ const parse = (tokens: Token[]): Condition => {
 							value: getTokenValue(valueToken)
 						})
 					}
+				} else if (conditionType === 'event-context') {
+					if (isExists) {
+						nodes.push({
+							type: 'event-context',
+							name: token.value.replace(/^(context)\./, ''),
+							operator: 'exists'
+						})
+					} else if (isNotExists) {
+						nodes.push({
+							type: 'event-context',
+							name: token.value.replace(/^(context)\./, ''),
+							operator: 'not_exists'
+						})
+					} else {
+						nodes.push({
+							type: 'event-context',
+							name: token.value.replace(/^(context)\./, ''),
+							operator: operatorToken.value as Operator,
+							value: getTokenValue(valueToken)
+						})
+					}
 				}
 			}
 
@@ -312,20 +352,22 @@ const normalize = (tokens: Token[]): Token[] => {
 	let index = 0
 
 	while (tokens[index]) {
+		const last = normalizedTokens[normalizedTokens.length - 1]
+		const current = tokens[index]
+		const next = tokens[index + 1]
+
 		if (
-			tokens[index].type === 'ident' &&
-			tokens[index + 1].type === 'dot' &&
-			tokens[index + 2].type === 'ident'
+			last?.type === 'ident' &&
+			current.type === 'dot' &&
+			next?.type === 'ident'
 		) {
+			const previous = normalizedTokens.pop()
 			normalizedTokens.push({
 				type: TokenType.Ident,
-				value:
-					tokens[index].value +
-					tokens[index + 1].value +
-					tokens[index + 2].value
+				value: `${previous?.value}${current.value}${next.value}`
 			})
 
-			index += 3
+			index += 2
 		} else {
 			normalizedTokens.push(tokens[index])
 			index++

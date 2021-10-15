@@ -65,7 +65,7 @@ describe('Twilio', () => {
               "Basic X2FjY291bnRfOl90b2tlbl8=",
             ],
             "user-agent": Array [
-              "Segment",
+              "Segment (Actions)",
             ],
           },
         }

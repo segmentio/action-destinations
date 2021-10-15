@@ -7,7 +7,7 @@ import type { ModifiedResponse } from './types'
 const baseClient = createInstance({
   timeout: 10000,
   headers: {
-    'user-agent': 'Segment'
+    'user-agent': 'Segment (Actions)'
   },
   beforeRequest: [
     // Automatically handle username/password -> basic auth header

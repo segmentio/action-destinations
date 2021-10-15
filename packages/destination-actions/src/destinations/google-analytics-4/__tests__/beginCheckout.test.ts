@@ -78,17 +78,17 @@ describe('GA4', () => {
       expect(responses[0].status).toBe(201)
 
       expect(responses[0].request.headers).toMatchInlineSnapshot(`
-              Headers {
-                Symbol(map): Object {
-                  "content-type": Array [
-                    "application/json",
-                  ],
-                  "user-agent": Array [
-                    "Segment",
-                  ],
-                },
-              }
-            `)
+        Headers {
+          Symbol(map): Object {
+            "content-type": Array [
+              "application/json",
+            ],
+            "user-agent": Array [
+              "Segment (Actions)",
+            ],
+          },
+        }
+      `)
 
       expect(responses[0].options.body).toMatchInlineSnapshot(
         `"{\\"client_id\\":\\"anon-567890\\",\\"events\\":[{\\"name\\":\\"begin_checkout\\",\\"params\\":{\\"coupon\\":\\"hasbros\\",\\"currency\\":\\"USD\\",\\"items\\":[{\\"item_name\\":\\"Monopoly: 3rd Edition\\",\\"item_category\\":\\"Games\\"}],\\"value\\":25}}]}"`
@@ -238,17 +238,17 @@ describe('GA4', () => {
       expect(responses[0].status).toBe(201)
 
       expect(responses[0].request.headers).toMatchInlineSnapshot(`
-                Headers {
-                  Symbol(map): Object {
-                    "content-type": Array [
-                      "application/json",
-                    ],
-                    "user-agent": Array [
-                      "Segment",
-                    ],
-                  },
-                }
-              `)
+        Headers {
+          Symbol(map): Object {
+            "content-type": Array [
+              "application/json",
+            ],
+            "user-agent": Array [
+              "Segment (Actions)",
+            ],
+          },
+        }
+      `)
 
       expect(responses[0].options.body).toMatchInlineSnapshot(
         `"{\\"client_id\\":\\"3456fff\\",\\"events\\":[{\\"name\\":\\"begin_checkout\\",\\"params\\":{\\"coupon\\":\\"hasbros\\",\\"currency\\":\\"USD\\",\\"items\\":[],\\"value\\":30}}]}"`

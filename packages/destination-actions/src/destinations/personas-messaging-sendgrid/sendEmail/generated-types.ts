@@ -26,6 +26,10 @@ export interface Payload {
    */
   fromName: string
   /**
+   * Whether "reply to" settings are the same as "from"
+   */
+  replyToEqualsFrom?: boolean
+  /**
    * The Email used by user to Reply To
    */
   replyToEmail: string
