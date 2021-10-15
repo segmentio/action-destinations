@@ -23,7 +23,7 @@
     "postclean": "rm -rf dist",
     "prepublishOnly": "yarn build",
     "test": "jest",
-    "typecheck": "tsc --noEmit",
+    "typecheck": "tsc -p tsconfig.build.json --noEmit",
     "dev": "NODE_ENV=development concurrently \"webpack serve\" \"webpack -c webpack.config.js --watch\""
   },
   "dependencies": {

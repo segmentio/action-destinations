@@ -15,7 +15,7 @@
     "clean": "tsc -b tsconfig.build.json --clean",
     "postclean": "rm -rf dist",
     "test": "jest",
-    "typecheck": "tsc --noEmit",
+    "typecheck": "tsc -p tsconfig.build.json --noEmit",
     "prepare": "yarn build",
     "size": "size-limit"
   },

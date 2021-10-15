@@ -31,7 +31,7 @@
     "postclean": "rm -rf dist",
     "create:destination": "./bin/run init",
     "test": "echo '⚠️ ⚠️ ⚠️  @segment/action-cli tests temporarily skipped'",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc -p tsconfig.build.json --noEmit"
   },
   "devDependencies": {
     "@oclif/dev-cli": "^1",
