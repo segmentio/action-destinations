@@ -197,7 +197,6 @@ export class Destination<Settings = JSONObject> {
     this.authentication = destination.authentication
     this.responses = []
 
-    //TODO: conditionally insert onDelete here
     if (this.definition.onDelete) {
       this.onDelete = this._onDelete
     }
