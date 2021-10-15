@@ -1,0 +1,15 @@
+name: Secrets-Scanning
+description: Run Gitleaks on Push events with custom configurations.
+inputs:
+  config-path:
+    description: Path
+    required: false
+    default: '.husky/gitleaks-rules.toml'
+outputs:
+  result:
+    description: 'Gitleaks log output'
+  exitcode:
+    description: 'Success for failure value from scan'
+runs:
+  using: 'docker'
+  image: 'Dockerfile'

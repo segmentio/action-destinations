@@ -117,6 +117,4 @@ jobs:
     steps:
       - uses: actions/checkout@v1
       - name: gitleaks-action
-        uses: zricethezav/gitleaks-action@master
-        with:
-          config-path: .husky/gitleaks-rules.toml
+        uses: ./.github/secret-scan
