@@ -169,7 +169,7 @@ export interface DeletionPayload {
  *
  */
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-export type Deletion<Settings, Payload, Return = any> = (
+export type Deletion<Settings, Return = any> = (
   request: RequestClient,
   data: ExecuteInput<Settings, DeletionPayload>
 ) => MaybePromise<Return>

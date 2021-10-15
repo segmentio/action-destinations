@@ -14,6 +14,7 @@ import { IntegrationError, InvalidAuthenticationError } from '../errors'
 import { AuthTokens, getAuthData, getOAuth2Data, updateOAuthSettings } from './parse-settings'
 import { InputData } from '../mapping-kit'
 import { retry } from '../retry'
+import { HTTPError } from '..'
 
 export type { BaseActionDefinition, ActionDefinition, ExecuteInput, RequestFn }
 export type { MinimalInputField }
@@ -74,7 +75,7 @@ export interface DestinationDefinition<Settings = unknown> extends BaseDefinitio
   /** Optional authentication configuration */
   authentication?: AuthenticationScheme<Settings>
 
-  onDelete?: Deletion<Settings, DeletionPayload>
+  onDelete?: Deletion<Settings>
 }
 
 export interface Subscription {
@@ -187,7 +188,7 @@ export class Destination<Settings = JSONObject> {
   readonly actions: PartnerActions<Settings, any>
   readonly responses: DecoratedResponse[]
   readonly settingsSchema?: JSONSchema4
-  onDelete?: (event: SegmentEvent, settings: JSONObject) => Promise<Result>
+  onDelete?: (event: SegmentEvent, settings: JSONObject, options?: OnEventOptions) => Promise<Result>
 
   constructor(destination: DestinationDefinition<Settings>) {
     this.definition = destination
@@ -409,7 +410,7 @@ export class Destination<Settings = JSONObject> {
   /** Pass a single deletion event to the destination for execution
    * note that this method is conditionally added if the destination supports it
    */
-  private async _onDelete(event: SegmentEvent, settings: JSONObject): Promise<Result> {
+  private async _onDelete(event: SegmentEvent, settings: JSONObject, options?: OnEventOptions): Promise<Result> {
     const { userId, anonymousId } = event
     const payload = { userId, anonymousId }
     const destinationSettings = this.getDestinationSettings(settings as unknown as JSONObject)
@@ -418,8 +419,8 @@ export class Destination<Settings = JSONObject> {
     const data: ExecuteInput<Settings, DeletionPayload> = { payload, settings: destinationSettings, auth }
     const context: ExecuteInput<Settings, undefined> = { settings: destinationSettings, payload: undefined, auth }
 
-    const options = this.extendRequest?.(context) ?? {}
-    const requestClient = createRequestClient(options)
+    const opts = this.extendRequest?.(context) ?? {}
+    const requestClient = createRequestClient(opts)
 
     const run = async () => {
       const deleteResult = await this.definition.onDelete?.(requestClient, data)
@@ -428,7 +429,7 @@ export class Destination<Settings = JSONObject> {
       return result
     }
 
-    const onFailedAttempt = async (error: any) => {
+    const onFailedAttempt = async (error: ResponseError & HTTPError) => {
       const statusCode = error?.status ?? error?.response?.status ?? 500
 
       // Throw original error if it is unrelated to invalid access tokens and not an oauth2 scheme
