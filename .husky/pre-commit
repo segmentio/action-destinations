@@ -4,6 +4,15 @@ set -exo pipefail
 
 if ! command -v gitleaks -h &> /dev/null
 then
+
+    if ! "$(uname)" == "Darwin"
+    then
+        echo "TEST Install gitleaks"
+        echo "https://github.com/zricethezav/gitleaks#installation"
+        exit 1
+    fi
+
+
     if ! command -v brew -v &> /dev/null
     then
         /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
