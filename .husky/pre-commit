@@ -7,7 +7,7 @@ if ! command -v gitleaks -h &> /dev/null
 then
 
     set +ex
-    if ! "$(uname)" == "Darwin"
+    if [ ! "$(uname)" == "Darwin" ]
     then
         echo "To run this pre-commit hook install gitleaks or commit with the --no-verify flag."
         echo "https://github.com/zricethezav/gitleaks#installation"
