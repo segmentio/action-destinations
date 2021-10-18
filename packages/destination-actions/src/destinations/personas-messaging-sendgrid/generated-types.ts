@@ -21,4 +21,8 @@ export interface Settings {
    * Source ID
    */
   sourceId: string
+  /**
+   * For Twilio Engage, where to send incoming SendGrid events to.
+   */
+  writeKey?: string
 }

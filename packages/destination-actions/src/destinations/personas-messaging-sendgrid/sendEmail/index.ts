@@ -217,7 +217,6 @@ const action: ActionDefinition<Settings, Payload> = {
     }
 
     const bcc = JSON.parse(payload.bcc ?? '[]')
-
     return request('https://api.sendgrid.com/v3/mail/send', {
       method: 'post',
       json: {
@@ -234,7 +233,8 @@ const action: ActionDefinition<Settings, Payload> = {
               ...payload.customArgs,
               source_id: settings.sourceId,
               space_id: settings.spaceId,
-              user_id: payload.userId
+              user_id: payload.userId,
+              __segment_write_key__: settings.writeKey
             }
           }
         ],

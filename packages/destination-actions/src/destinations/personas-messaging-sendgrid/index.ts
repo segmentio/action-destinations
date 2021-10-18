@@ -38,6 +38,12 @@ const destination: DestinationDefinition<Settings> = {
         description: 'Source ID',
         type: 'string',
         required: true
+      },
+      writeKey: {
+        label: 'Segment Write Key',
+        description: 'For Twilio Engage, where to send incoming SendGrid events to.',
+        type: 'string',
+        required: false
       }
     },
     testAuthentication: (request) => {
