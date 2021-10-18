@@ -2,7 +2,7 @@ import { ActionDefinition } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 import { MixpanelEvent } from './types'
-import { getBrowser, getBrowserVersion } from '../utils'
+import { getBrowser, getBrowserVersion, cheapGuid } from '../utils'
 import dayjs from '../../../lib/dayjs'
 
 const action: ActionDefinition<Settings, Payload> = {
@@ -201,6 +201,14 @@ const action: ActionDefinition<Settings, Payload> = {
         '@path': '$.context.library.name'
       }
     },
+    library_version: {
+      label: 'Library Version',
+      type: 'string',
+      description: 'Library version',
+      default: {
+        '@path': '$.context.library.version'
+      }
+    },
     ip: {
       label: 'IP Address',
       type: 'string',
@@ -310,14 +318,6 @@ const action: ActionDefinition<Settings, Payload> = {
       default: {
         '@path': '$.userAgent'
       }
-    },
-    insert_id: {
-      label: 'Insert ID',
-      type: 'string',
-      description: 'An identifier that is unique to an event. This is used to deduplicate events.',
-      default: {
-        '@path': '$.messageId'
-      }
     }
   },
   perform: async (request, { payload, settings }) => {
@@ -353,8 +353,9 @@ const action: ActionDefinition<Settings, Payload> = {
         $device_id: payload.device_id,
         $device_type: payload.device_type,
         $device_name: payload.device_name,
-        $insert_id: payload.insert_id,
+        $insert_id: cheapGuid(),
         $ios_ifa: payload.idfa,
+        $lib_version: payload.library_version,
         $locale: payload.language,
         $manufacturer: payload.device_manufacturer,
         $model: payload.device_model,
@@ -364,6 +365,7 @@ const action: ActionDefinition<Settings, Payload> = {
         $screen_height: payload.screen_height,
         $screen_width: payload.screen_width,
         $screen_density: payload.screen_density,
+        $source: 'segment',
         $wifi_enabled: payload.wifi,
         mp_country_code: payload.country,
         mp_lib: `Segment: ${payload.library_name}`,

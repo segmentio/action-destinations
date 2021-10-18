@@ -98,6 +98,10 @@ export interface Payload {
    */
   library_name?: string
   /**
+   * Library version
+   */
+  library_version?: string
+  /**
    * The IP address of the user. Use "$remote" to use the IP address on the upload request.
    */
   ip?: string
@@ -143,8 +147,4 @@ export interface Payload {
    * User agent
    */
   userAgent?: string
-  /**
-   * An identifier that is unique to an event. This is used to deduplicate events.
-   */
-  insert_id?: string
 }

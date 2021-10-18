@@ -72,3 +72,8 @@ export function getBrowserVersion(userAgent: string, vendor: string | undefined)
   }
   return matches[matches.length - 2]
 }
+
+export function cheapGuid(maxlen?: number) {
+  const guid = Math.random().toString(36).substring(2, 10) + Math.random().toString(36).substring(2, 10)
+  return maxlen ? guid.substring(0, maxlen) : guid
+}

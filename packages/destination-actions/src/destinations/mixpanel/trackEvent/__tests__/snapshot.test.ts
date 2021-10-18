@@ -7,6 +7,7 @@ const testDestination = createTestIntegration(destination)
 const actionSlug = 'trackEvent'
 const destinationSlug = 'Mixpanel'
 const seedName = `${destinationSlug}#${actionSlug}`
+Math.random = jest.fn(() => 1)
 global.Date.now = jest.fn(() => 1234556)
 
 describe(`Testing snapshot for ${destinationSlug}'s ${actionSlug} destination action:`, () => {
