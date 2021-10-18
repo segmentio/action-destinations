@@ -37,7 +37,7 @@
     "@oclif/dev-cli": "^1",
     "@oclif/test": "^1.2.8",
     "@types/fs-extra": "^9.0.11",
-    "@types/jest": "^26.0.23",
+    "@types/jest": "^27.0.0",
     "@types/jscodeshift": "^0.11.0",
     "@types/json-diff": "^0.5.1",
     "@types/json-schema": "^7.0.7",
@@ -48,7 +48,7 @@
     "@types/rimraf": "^3.0.0",
     "@types/to-title-case": "^1.0.0",
     "chai": "^4.3.4",
-    "jest": "26.6.3",
+    "jest": "^27.0.0",
     "rimraf": "^3.0.2"
   },
   "dependencies": {
