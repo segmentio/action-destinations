@@ -43,7 +43,6 @@
     "@babel/preset-typescript": "^7.13.0",
     "@segment/actions-core": "^3.14.1",
     "@types/amplitude-js": "^7.0.1",
-    "@types/intercom-web": "^2.8.11",
     "@types/jest": "^27.0.0",
     "@types/jsdom": "^16.2.10",
     "babel-jest": "^27.0.0",
@@ -61,6 +60,7 @@
     "webpack-dev-server": "^4.2.0"
   },
   "jest": {
+    "testEnvironment": "jsdom",
     "rootDir": "./",
     "moduleNameMapper": {
       "@segment/ajv-human-errors": "<rootDir>/../ajv-human-errors/src",
