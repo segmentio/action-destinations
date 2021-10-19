@@ -114,15 +114,14 @@ jobs:
         if: ${{ github.event_name == 'workflow_dispatch' || (github.event.action == 'closed' && github.event.pull_request.merged == true) }}
         run: lerna publish ${{ needs.get-version.outputs.version }} --conventional-commits --no-changelog --conventional-graduate --no-verify-access --yes
 
-      - name: Replace forward slashes in branch name with hyphens
+      - name: Replace forward slashes in branch name
         if: ${{ github.event.action == 'opened' || github.event.action == 'synchronize' }}
-        uses: bluwy/substitute-string-action@v1
-        id: sub
-        env:
-          INPUT_/: "-"
-        with: 
-          _input-text: ${{ github.head_ref }}
+        env: 
+          github_ref: ${{github.head_ref}}
+        run: |
+          branch="${github_ref////-}"
+          echo "BRANCH=$branch" >> $GITHUB_ENV
 
       - name: Publish prerelease from PR
         if: ${{ github.event.action == 'opened' || github.event.action == 'synchronize' }}
-        run: lerna publish prerelease --canary --preid ${{ steps.sub.outputs.result }} --pre-dist-tag canary --no-verify-access --yes
+        run: lerna publish prerelease --canary --preid ${{ env.BRANCH }} --pre-dist-tag canary --no-verify-access --yes
