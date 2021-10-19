@@ -114,7 +114,7 @@ jobs:
         if: ${{ github.event_name == 'workflow_dispatch' || (github.event.action == 'closed' && github.event.pull_request.merged == true) }}
         run: lerna publish ${{ needs.get-version.outputs.version }} --conventional-commits --no-changelog --conventional-graduate --no-verify-access --yes
 
-      - name: Replace text in branch name
+      - name: Replace forward slashes in branch name with hyphens
         if: ${{ github.event.action == 'opened' || github.event.action == 'synchronize' }}
         uses: bluwy/substitute-string-action@v1
         id: sub
