@@ -48,6 +48,14 @@ const validateCondition = (condition: Condition, data: any): boolean => {
 		return validateValue(data.event, condition.operator, condition.value)
 	}
 
+	if (condition.type === 'name') {
+		return validateValue(data.name, condition.operator, condition.value)
+	}
+
+	if (condition.type === 'userId') {
+		return validateValue(data.userId, condition.operator, condition.value)
+	}
+
 	if (condition.type === 'event-property') {
 		const properties = ['identify', 'group'].includes(data.type)
 			? data.traits

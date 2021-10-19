@@ -12,28 +12,29 @@ export default class Serve extends Command {
 
   static description = `Starts a local development server to test your integration.`
 
-  static examples = [`$ ./bin/run serve`, `$ PORT=3001 ./bin/run serve`, `$ ./bin/run serve slack`]
+  static examples = [`$ ./bin/run serve`, `$ PORT=3001 ./bin/run serve`, `$ ./bin/run serve --destination=slack`]
 
-  static args = [{ name: 'destination', description: 'destination to serve' }]
+  // Needed to support passing Node flags to the server process
+  static strict = false
+
+  static args = []
 
   static flags = {
     help: flags.help({ char: 'h' }),
-    directory: flags.string({
+    destination: flags.string({
       char: 'd',
+      description: 'destination to serve'
+    }),
+    directory: flags.string({
+      char: 'b',
       description: 'destination actions directory',
       default: './packages/destination-actions/src/destinations'
     })
   }
 
   async run() {
-    let { argv } = this.parse(Serve)
-    const { args, flags } = this.parse(Serve)
-
-    let destinationName = args.destination
-
-    if (destinationName) {
-      argv = argv.slice(1)
-    }
+    const { argv, flags } = this.parse(Serve)
+    let destinationName = flags.destination
 
     if (!destinationName) {
       const integrationsGlob = `${flags.directory}/*`
@@ -44,7 +45,7 @@ export default class Serve extends Command {
         ignore: ['node_modules']
       })
 
-      const { selectedDestination } = await autoPrompt<{ selectedDestination: { name: string } }>(args, {
+      const { selectedDestination } = await autoPrompt<{ selectedDestination: { name: string } }>(flags, {
         type: 'select',
         name: 'selectedDestination',
         message: 'Which destination?',
@@ -84,7 +85,15 @@ export default class Serve extends Command {
           DIRECTORY: flags.directory,
           TS_NODE_PROJECT: require.resolve('../../tsconfig.json')
         },
-        execArgv: ['-r', 'ts-node/register/transpile-only', '-r', 'tsconfig-paths/register', '-r', 'dotenv/config', ...argv]
+        execArgv: [
+          '-r',
+          'ts-node/register/transpile-only',
+          '-r',
+          'tsconfig-paths/register',
+          '-r',
+          'dotenv/config',
+          ...argv
+        ]
       })
 
       child.once('exit', (code?: number) => {

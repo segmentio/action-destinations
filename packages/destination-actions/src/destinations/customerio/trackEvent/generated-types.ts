@@ -14,10 +14,6 @@ export interface Payload {
    */
   name: string
   /**
-   * The event type. For "page view" events, set to page.
-   */
-  type?: string
-  /**
    * A timestamp of when the event took place. Default is current date and time.
    */
   timestamp?: string

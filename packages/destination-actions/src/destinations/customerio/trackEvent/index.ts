@@ -8,7 +8,7 @@ interface TrackEventPayload {
   name: string
   type?: string
   timestamp?: string | number
-  data?: Record<string, any>
+  data?: Record<string, unknown>
   // Required for anonymous events
   anonymous_id?: string
 }
@@ -45,14 +45,6 @@ const action: ActionDefinition<Settings, Payload> = {
         '@path': '$.event'
       }
     },
-    type: {
-      label: 'Event Type',
-      description: 'The event type. For "page view" events, set to page.',
-      type: 'string',
-      default: {
-        '@path': '$.type'
-      }
-    },
     timestamp: {
       label: 'Timestamp',
       description: 'A timestamp of when the event took place. Default is current date and time.',
@@ -86,7 +78,6 @@ const action: ActionDefinition<Settings, Payload> = {
 
     const body: TrackEventPayload = {
       name: payload.name,
-      type: payload.type,
       data: payload.data,
       timestamp
     }

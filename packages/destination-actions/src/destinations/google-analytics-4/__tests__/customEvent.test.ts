@@ -53,17 +53,17 @@ describe('GA4', () => {
       expect(responses[0].status).toBe(201)
 
       expect(responses[0].request.headers).toMatchInlineSnapshot(`
-            Headers {
-              Symbol(map): Object {
-                "content-type": Array [
-                  "application/json",
-                ],
-                "user-agent": Array [
-                  "Segment",
-                ],
-              },
-            }
-          `)
+        Headers {
+          Symbol(map): Object {
+            "content-type": Array [
+              "application/json",
+            ],
+            "user-agent": Array [
+              "Segment (Actions)",
+            ],
+          },
+        }
+      `)
 
       expect(responses[0].options.body).toMatchInlineSnapshot(
         `"{\\"client_id\\":\\"3456fff\\",\\"events\\":[{\\"name\\":\\"this_is_a_test\\",\\"params\\":{\\"affiliation\\":\\"TI Online Store\\",\\"order_id\\":\\"5678dd9087-78\\",\\"coupon\\":\\"SUMMER_FEST\\",\\"currency\\":\\"EUR\\",\\"products\\":[{\\"product_id\\":\\"pid-123456\\",\\"sku\\":\\"SKU-123456\\",\\"name\\":\\"Tour t-shirt\\",\\"quantity\\":2,\\"coupon\\":\\"MOUNTAIN\\",\\"brand\\":\\"Canvas\\",\\"category\\":\\"T-Shirt\\",\\"variant\\":\\"Black\\",\\"price\\":19.98}]}}]}"`
@@ -96,17 +96,17 @@ describe('GA4', () => {
       expect(responses[0].status).toBe(201)
 
       expect(responses[0].request.headers).toMatchInlineSnapshot(`
-              Headers {
-                Symbol(map): Object {
-                  "content-type": Array [
-                    "application/json",
-                  ],
-                  "user-agent": Array [
-                    "Segment",
-                  ],
-                },
-              }
-            `)
+        Headers {
+          Symbol(map): Object {
+            "content-type": Array [
+              "application/json",
+            ],
+            "user-agent": Array [
+              "Segment (Actions)",
+            ],
+          },
+        }
+      `)
 
       expect(responses[0].options.body).toMatchInlineSnapshot(
         `"{\\"client_id\\":\\"3456fff\\",\\"events\\":[{\\"name\\":\\"this_is_a_test\\",\\"params\\":{}}]}"`
@@ -161,7 +161,7 @@ describe('GA4', () => {
               "application/json",
             ],
             "user-agent": Array [
-              "Segment",
+              "Segment (Actions)",
             ],
           },
         }

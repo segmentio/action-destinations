@@ -101,7 +101,7 @@ const action: ActionDefinition<Settings, Payload> = {
           }
         ]),
         options
-      })
+      } as Record<string, string>)
     })
 
     // Associate group properties
@@ -118,7 +118,7 @@ const action: ActionDefinition<Settings, Payload> = {
           }
         ]),
         options
-      })
+      } as Record<string, string>)
     })
   }
 }

@@ -22,7 +22,7 @@ const presets: DestinationDefinition['presets'] = [
     partnerAction: 'trackEvent',
     mapping: {
       ...defaultValues(trackEvent.fields),
-      event_type: {
+      event: {
         '@template': 'Viewed {{name}}'
       }
     }
@@ -33,7 +33,7 @@ const presets: DestinationDefinition['presets'] = [
     partnerAction: 'trackEvent',
     mapping: {
       ...defaultValues(trackEvent.fields),
-      event_type: {
+      event: {
         '@template': 'Viewed {{name}}'
       }
     }
@@ -70,11 +70,11 @@ const destination: DestinationDefinition<Settings> = {
         label: 'Secret Key',
         description: 'Mixpanel project secret.',
         type: 'string',
-        required: false
+        required: true
       }
     },
     testAuthentication: (request, { settings }) => {
-      return request(`https://mixpanel.com/app/api/validate-project-token/`, {
+      return request(`https://mixpanel.com/api/app/validate-project-credentials/`, {
         method: 'post',
         body: JSON.stringify({
           api_secret: settings.apiSecret,

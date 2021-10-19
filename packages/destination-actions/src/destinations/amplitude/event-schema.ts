@@ -296,5 +296,13 @@ export const eventSchema: Record<string, InputField> = {
     type: 'string',
     description:
       'Amplitude will deduplicate subsequent events sent with this ID we have already seen before within the past 7 days. Amplitude recommends generating a UUID or using some combination of device ID, user ID, event type, event ID, and time.'
+  },
+  library: {
+    label: 'Library',
+    type: 'string',
+    description: 'The name of the library that generated the event.',
+    default: {
+      '@path': '$.context.library.name'
+    }
   }
 }

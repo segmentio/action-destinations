@@ -17,6 +17,18 @@ describe('amplitude - custom user agent parsing', () => {
     })
   })
 
+  it('should parse custom user for desktop strings', () => {
+    const userAgent =
+      'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/93.0.4577.82 Safari/537.36'
+    const result = parseUserAgentProperties(userAgent)
+    expect(result).toEqual({
+      device_model: 'Mac OS',
+      device_type: undefined,
+      os_name: 'Chrome',
+      os_version: '93'
+    })
+  })
+
   it('should return an empty object when there is no user agent', () => {
     const result = parseUserAgentProperties(undefined)
     expect(result).toEqual({})

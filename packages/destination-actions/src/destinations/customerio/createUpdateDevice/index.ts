@@ -5,13 +5,13 @@ import type { Payload } from './generated-types'
 import { trackApiEndpoint } from '../utils'
 
 const action: ActionDefinition<Settings, Payload> = {
-  title: 'Track Application Installed or Application Opened Event',
+  title: 'Create or Update Device',
   description: `Track an "Application Installed" or "Application Opened" event to create or update a person's device.`,
   defaultSubscription: 'type = "track" and event = "Application Installed"',
   fields: {
     person_id: {
       label: 'Person ID',
-      description: 'The ID of the person that this mobile device belongs to',
+      description: 'The ID of the person that this mobile device belongs to.',
       type: 'string',
       required: true,
       default: {
@@ -20,7 +20,7 @@ const action: ActionDefinition<Settings, Payload> = {
     },
     device_id: {
       label: 'Device ID',
-      description: "The device token of a customer's mobile device",
+      description: "The device token of a customer's mobile device.",
       type: 'string',
       required: true,
       default: {

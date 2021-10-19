@@ -1,6 +1,6 @@
 {
   "name": "@segment/browser-destinations",
-  "version": "3.11.0",
+  "version": "3.14.1",
   "description": "Action based browser destinations",
   "author": "Netto Farah",
   "private": true,
@@ -23,14 +23,14 @@
     "postclean": "rm -rf dist",
     "prepublishOnly": "yarn build",
     "test": "jest",
-    "typecheck": "tsc --noEmit",
+    "typecheck": "tsc -p tsconfig.build.json --noEmit",
     "dev": "NODE_ENV=development concurrently \"webpack serve\" \"webpack -c webpack.config.js --watch\""
   },
   "dependencies": {
     "@braze/web-sdk": "^3.3.0",
     "@fullstory/browser": "^1.4.9",
     "@segment/analytics-next": "^1.29.3",
-    "@segment/destination-subscriptions": "^3.7.0",
+    "@segment/destination-subscriptions": "^3.8.1",
     "dayjs": "^1.10.3",
     "tslib": "^2.1.0",
     "vm-browserify": "^1.1.2"
@@ -41,17 +41,15 @@
     "@babel/plugin-transform-modules-commonjs": "^7.13.8",
     "@babel/preset-env": "^7.13.10",
     "@babel/preset-typescript": "^7.13.0",
-    "@segment/actions-core": "^3.11.0",
+    "@segment/actions-core": "^3.14.1",
     "@types/amplitude-js": "^7.0.1",
-    "@types/intercom-web": "^2.8.11",
-    "@types/jest": "^26.0.23",
+    "@types/jest": "^27.0.0",
     "@types/jsdom": "^16.2.10",
-    "babel-jest": "^26.6.3",
+    "babel-jest": "^27.0.0",
     "compression-webpack-plugin": "^7.1.2",
     "concurrently": "^6.2.0",
-    "fs-extra": "^9.1.0",
     "globby": "^11.0.2",
-    "jest": "^26.6.3",
+    "jest": "^27.0.0",
     "jsdom": "^16.5.3",
     "serve": "^12.0.0",
     "terser-webpack-plugin": "^5.1.1",
@@ -61,17 +59,13 @@
     "webpack-cli": "^4.4.0",
     "webpack-dev-server": "^4.2.0"
   },
-  "prettier": {
-    "semi": false,
-    "singleQuote": true,
-    "trailingComma": "none",
-    "printWidth": 120
-  },
   "jest": {
+    "testEnvironment": "jsdom",
     "rootDir": "./",
     "moduleNameMapper": {
-      "@segment/actions-core": "<rootDir>/../core/src/index.ts",
-      "@segment/destination-subscriptions": "<rootDir>/../destination-subscriptions/src/index.ts"
+      "@segment/ajv-human-errors": "<rootDir>/../ajv-human-errors/src",
+      "@segment/actions-core": "<rootDir>/../core/src",
+      "@segment/destination-subscriptions": "<rootDir>/../destination-subscriptions/src"
     },
     "transform": {
       "^.+\\.[t|j]sx?$": "babel-jest"

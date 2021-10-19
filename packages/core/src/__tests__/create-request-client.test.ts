@@ -23,7 +23,7 @@ describe('createRequestClient', () => {
     })
 
     await request(server.url)
-    expect(log.request.headers.get('user-agent')).toBe('Segment')
+    expect(log.request.headers.get('user-agent')).toBe('Segment (Actions)')
     expect(log.options.timeout).toBe(10000)
     await server.close()
   })

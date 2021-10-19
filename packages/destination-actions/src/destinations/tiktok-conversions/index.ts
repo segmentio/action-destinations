@@ -7,8 +7,8 @@ import reportWebEvent from './reportWebEvent'
 /** used in the quick setup */
 const presets: DestinationDefinition['presets'] = [
   {
-    name: 'Intiate Checkout',
-    subscribe: 'event = "Checkout Started',
+    name: 'Initiate Checkout',
+    subscribe: 'event = "Checkout Started"',
     partnerAction: 'reportWebEvent',
     mapping: {
       ...defaultValues(reportWebEvent.fields),
@@ -26,7 +26,7 @@ const presets: DestinationDefinition['presets'] = [
   },
   {
     name: 'Products Searched',
-    subscribe: 'event = "Products Searched',
+    subscribe: 'event = "Products Searched"',
     partnerAction: 'reportWebEvent',
     mapping: {
       ...defaultValues(reportWebEvent.fields),
@@ -35,7 +35,7 @@ const presets: DestinationDefinition['presets'] = [
   },
   {
     name: 'Add Payment Info',
-    subscribe: 'event = "Payment Info Entered',
+    subscribe: 'event = "Payment Info Entered"',
     partnerAction: 'reportWebEvent',
     mapping: {
       ...defaultValues(reportWebEvent.fields),
@@ -44,7 +44,7 @@ const presets: DestinationDefinition['presets'] = [
   },
   {
     name: 'Order Completed',
-    subscribe: 'event = "Order Completed',
+    subscribe: 'event = "Order Completed"',
     partnerAction: 'reportWebEvent',
     mapping: {
       ...defaultValues(reportWebEvent.fields),
@@ -54,6 +54,9 @@ const presets: DestinationDefinition['presets'] = [
 ]
 
 const destination: DestinationDefinition<Settings> = {
+  // Need to leave this Destination Name as "Tiktok" since it was registered with a lower case t.
+  // The name here needs to match the value at creation time.
+  // In Partner Portal, the name is changed to "TikTok" so it is spelled correctly in the catalog.
   name: 'Tiktok Conversions',
   slug: 'tiktok-conversions',
   mode: 'cloud',
@@ -64,26 +67,26 @@ const destination: DestinationDefinition<Settings> = {
       accessToken: {
         label: 'Access Token',
         description:
-          'Tiktok Long Term Access Token. You can generate this from the TikTok Marketing API portal. Please following Tiktoks Authorization guide for more info.',
+          "TikTok Long Term Access Token. You can generate this from the TikTok Marketing API portal. Please follow TikTok's [Authorization guide](https://ads.tiktok.com/athena/docs/index.html?plat_id=-1&doc_id=100010&id=100681&key=e98b971a296ae45d8e35a22fba032d1c06f5973de9aab73ce07b82f230cf3afd) for more info.",
         type: 'string',
         required: true
       },
       secretKey: {
         label: 'Secret Key',
-        description: 'Tiktok app secret key. You can find this key in the "Basic Information" tab of your Tiktok app.',
+        description: 'TikTok App Secret Key. You can find this key in the "Basic Information" tab of your TikTok app.',
         type: 'string',
         required: true
       },
       appId: {
         label: 'App Id',
-        description: 'Tiktok app id. You can find this key in the "Basic Information" tab of your Tiktok app.',
-        type: 'number',
+        description: 'TikTok App Id. You can find this key in the "Basic Information" tab of your TikTok app.',
+        type: 'string',
         required: true
       },
       pixel_code: {
         label: 'Pixel Code',
         type: 'string',
-        description: 'An ID for your Pixel. Required to send events to this pixel.',
+        description: 'An ID for your pixel. Required to send events to the TikTok pixel.',
         required: true
       }
     },
@@ -94,7 +97,7 @@ const destination: DestinationDefinition<Settings> = {
       return request('https://business-api.tiktok.com/open_api/v1.2/oauth2/advertiser/get/', {
         json: {
           access_token: settings.accessToken,
-          app_id: settings.appId,
+          app_id: parseInt(settings.appId, 10),
           secret: settings.secretKey
         }
       })

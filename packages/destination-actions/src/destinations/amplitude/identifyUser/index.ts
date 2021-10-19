@@ -271,7 +271,7 @@ const action: ActionDefinition<Settings, Payload> = {
         api_key: settings.apiKey,
         identification,
         options
-      })
+      } as Record<string, string>)
     })
   }
 }

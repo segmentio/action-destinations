@@ -115,9 +115,9 @@ describe('ajs-integration', () => {
   })
 })
 
-describe('sessoinId', () => {
+describe('sessionId', () => {
   beforeEach(async () => {
-    jest.useFakeTimers()
+    jest.useFakeTimers('legacy')
     await sessionIdPlugin.load(Context.system(), ajs)
   })
 
