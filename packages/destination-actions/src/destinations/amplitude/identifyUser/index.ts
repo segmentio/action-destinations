@@ -1,4 +1,3 @@
-import { URLSearchParams } from 'url'
 import { ActionDefinition, omit, removeUndefined } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'

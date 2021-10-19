@@ -1,11 +1,11 @@
 import type { BrowserActionDefinition } from '../../../lib/browser-destinations'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
-import * as FullStory from '@fullstory/browser'
-import { camelCase } from 'lodash'
+import type { FS } from '../types'
+import camelCase from 'lodash/camelCase'
 
 // Change from unknown to the partner SDK types
-const action: BrowserActionDefinition<Settings, typeof FullStory, Payload> = {
+const action: BrowserActionDefinition<Settings, FS, Payload> = {
   title: 'Identify User',
   description: 'Sets user identity variables',
   platform: 'web',
@@ -57,7 +57,7 @@ const action: BrowserActionDefinition<Settings, typeof FullStory, Payload> = {
       }
     }
   },
-  perform: (client, event) => {
+  perform: (FS, event) => {
     let newTraits: Record<string, unknown> = {}
 
     if (event.payload.traits) {
@@ -75,9 +75,9 @@ const action: BrowserActionDefinition<Settings, typeof FullStory, Payload> = {
     }
 
     if (event.payload.userId) {
-      client.identify(event.payload.userId, newTraits)
+      FS.identify(event.payload.userId, newTraits)
     } else {
-      client.setUserVars({
+      FS.setUserVars({
         ...newTraits,
         ...(event.payload.email !== undefined && { email: event.payload.email }),
         ...(event.payload.displayName !== undefined && { displayName: event.payload.displayName })
