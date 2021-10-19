@@ -55,7 +55,9 @@ test('can load braze', async () => {
   const [trackEvent] = await braze({
     api_key: 'api_key',
     endpoint: 'sdk.iad-01.braze.com',
-    subscriptions: example
+    subscriptions: example,
+    doNotLoadFontAwesome: true,
+    sdkVersion: '3.3'
   })
 
   jest.spyOn(destination.actions.trackEvent, 'perform')
@@ -81,7 +83,9 @@ test('loads the braze service worker', async () => {
   const [trackEvent] = await braze({
     api_key: 'api_key',
     endpoint: 'sdk.iad-01.braze.com',
-    subscriptions: example
+    subscriptions: example,
+    doNotLoadFontAwesome: true,
+    sdkVersion: '3.3'
   })
 
   await trackEvent.load(Context.system(), {} as Analytics)
@@ -103,6 +107,7 @@ describe('loads different versions of braze service worker', () => {
       api_key: 'api_key',
       endpoint: 'sdk.iad-01.braze.com',
       sdkVersion: '3.0',
+      doNotLoadFontAwesome: true,
       subscriptions: example
     })
 
@@ -124,6 +129,7 @@ describe('loads different versions of braze service worker', () => {
       api_key: 'api_key',
       endpoint: 'sdk.iad-01.braze.com',
       sdkVersion: '3.1',
+      doNotLoadFontAwesome: true,
       subscriptions: example
     })
 
@@ -145,6 +151,7 @@ describe('loads different versions of braze service worker', () => {
       api_key: 'api_key',
       endpoint: 'sdk.iad-01.braze.com',
       sdkVersion: '3.2',
+      doNotLoadFontAwesome: true,
       subscriptions: example
     })
 
@@ -166,6 +173,7 @@ describe('loads different versions of braze service worker', () => {
       api_key: 'api_key',
       endpoint: 'sdk.iad-01.braze.com',
       sdkVersion: '3.3',
+      doNotLoadFontAwesome: true,
       subscriptions: example
     })
 

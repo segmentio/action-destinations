@@ -40,6 +40,7 @@ test('reports products when present', async () => {
     api_key: 'b_123',
     endpoint: 'endpoint',
     sdkVersion: '3.3',
+    doNotLoadFontAwesome: true,
     subscriptions: [
       {
         partnerAction: 'trackPurchase',

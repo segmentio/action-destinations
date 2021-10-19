@@ -83,6 +83,8 @@ describe('updateUserProfile', () => {
     const [trackPurchase] = await brazeDestination({
       api_key: 'b_123',
       endpoint: 'endpoint',
+      sdkVersion: '3.3',
+      doNotLoadFontAwesome: true,
       subscriptions: [
         {
           partnerAction: 'updateUserProfile',
@@ -115,6 +117,8 @@ describe('updateUserProfile', () => {
     const [trackPurchase] = await brazeDestination({
       api_key: 'b_123',
       endpoint: 'endpoint',
+      sdkVersion: '3.3',
+      doNotLoadFontAwesome: true,
       subscriptions
     })
 
@@ -167,6 +171,8 @@ describe('updateUserProfile', () => {
     const [trackPurchase] = await brazeDestination({
       api_key: 'b_123',
       endpoint: 'endpoint',
+      sdkVersion: '3.3',
+      doNotLoadFontAwesome: true,
       subscriptions
     })
 

@@ -46,6 +46,8 @@ describe('debounce', () => {
     const [debounce] = await brazeDestination({
       api_key: 'b_123',
       endpoint: 'endpoint',
+      doNotLoadFontAwesome: true,
+      sdkVersion: '3.3',
       subscriptions: [
         {
           partnerAction: 'debounce',
@@ -74,6 +76,8 @@ describe('debounce', () => {
     const [debounce] = await brazeDestination({
       api_key: 'b_123',
       endpoint: 'endpoint',
+      doNotLoadFontAwesome: true,
+      sdkVersion: '3.3',
       subscriptions: [
         {
           partnerAction: 'debounce',
@@ -102,6 +106,8 @@ describe('debounce', () => {
     const [debounce] = await brazeDestination({
       api_key: 'b_123',
       endpoint: 'endpoint',
+      doNotLoadFontAwesome: true,
+      sdkVersion: '3.3',
       subscriptions: [
         {
           partnerAction: 'debounce',
@@ -126,6 +132,8 @@ describe('debounce', () => {
     const [debounce] = await brazeDestination({
       api_key: 'b_123',
       endpoint: 'endpoint',
+      doNotLoadFontAwesome: true,
+      sdkVersion: '3.3',
       subscriptions: [
         {
           partnerAction: 'debounce',

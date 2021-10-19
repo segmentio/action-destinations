@@ -39,6 +39,7 @@ describe('trackEvent', () => {
       api_key: 'b_123',
       endpoint: 'endpoint',
       sdkVersion: '3.3',
+      doNotLoadFontAwesome: true,
       subscriptions: [
         {
           partnerAction: 'trackEvent',
