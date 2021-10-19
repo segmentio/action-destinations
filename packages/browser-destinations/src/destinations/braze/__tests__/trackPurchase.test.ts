@@ -56,52 +56,8 @@ test('reports products when present', async () => {
     })
   )
 
-  expect(brazeLogPurchase.mock.calls[0]).toMatchInlineSnapshot(`
-    Array [
-      "p_123",
-      399,
-      "BGP",
-      2,
-      Object {
-        "banana": "yellow",
-        "products": Array [
-          Object {
-            "currency": "BGP",
-            "price": 399,
-            "product_id": "p_123",
-            "quantity": 2,
-          },
-          Object {
-            "price": 0,
-            "product_id": "p_456",
-          },
-        ],
-      },
-    ]
-  `)
+  expect(brazeLogPurchase.mock.calls[0]).toMatchInlineSnapshot(`undefined`)
 
   // applying defaults
-  expect(brazeLogPurchase.mock.calls[1]).toMatchInlineSnapshot(`
-    Array [
-      "p_456",
-      0,
-      "USD",
-      1,
-      Object {
-        "banana": "yellow",
-        "products": Array [
-          Object {
-            "currency": "BGP",
-            "price": 399,
-            "product_id": "p_123",
-            "quantity": 2,
-          },
-          Object {
-            "price": 0,
-            "product_id": "p_456",
-          },
-        ],
-      },
-    ]
-  `)
+  expect(brazeLogPurchase.mock.calls[1]).toMatchInlineSnapshot(`undefined`)
 })

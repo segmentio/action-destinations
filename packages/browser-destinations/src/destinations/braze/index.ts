@@ -1,12 +1,13 @@
 import type { Settings } from './generated-types'
 import type { BrowserDestinationDefinition } from '../../lib/browser-destinations'
 import { browserDestination } from '../../runtime/shim'
-import appboy from '@braze/web-sdk'
+import type appboy from '@braze/web-sdk'
 import trackEvent from './trackEvent'
 import updateUserProfile from './updateUserProfile'
 import trackPurchase from './trackPurchase'
 import debounce, { resetUserCache } from './debounce'
 import { defaultValues, DestinationDefinition } from '@segment/actions-core'
+import { initialize } from './snippet'
 
 declare global {
   interface Window {
@@ -239,18 +240,22 @@ export const destination: BrowserDestinationDefinition<Settings, typeof appboy> 
         'By default, sessions time out after 30 minutes of inactivity. Provide a value for this configuration option to override that default with a value of your own.'
     }
   },
-  initialize: async ({ settings }, _dependencies) => {
-    const { endpoint, api_key, ...expectedConfig } = settings
+  initialize: async ({ settings }, dependencies) => {
+    const { endpoint, api_key, sdkVersion, ...expectedConfig } = settings
 
-    const initialized = appboy.initialize(settings.api_key, { baseUrl: endpoint, ...expectedConfig })
-    if (!initialized) {
-      throw new Error('Failed to initialize AppBoy')
+    const baseConfig: appboy.InitializationOptions = { baseUrl: endpoint, ...expectedConfig }
+
+    try {
+      const appboy = initialize(sdkVersion, api_key, baseConfig)
+
+      resetUserCache()
+
+      await dependencies.resolveWhen(() => Object.prototype.hasOwnProperty.call(window, 'appboy'), 100)
+
+      return appboy
+    } catch (e) {
+      throw new Error(`Failed to initialize Braze ${e}`)
     }
-
-    appboy.openSession()
-    resetUserCache()
-
-    return appboy
   },
   presets,
   actions: {
