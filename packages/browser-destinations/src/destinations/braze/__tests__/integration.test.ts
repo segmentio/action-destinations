@@ -90,11 +90,6 @@ test('loads the braze service worker', async () => {
   // loads the service worker
   expect(scripts).toMatchInlineSnapshot(`
     NodeList [
-      <script
-        src="https://js.appboycdn.com/web-sdk/3.3/service-worker.js"
-        status="loaded"
-        type="text/javascript"
-      />,
       <script>
         'hi'
       </script>,
@@ -116,17 +111,12 @@ describe('loads different versions of braze service worker', () => {
     const scripts = window.document.querySelectorAll('script')
     // loads the service worker
     expect(scripts).toMatchInlineSnapshot(`
-    NodeList [
-      <script
-        src="https://js.appboycdn.com/web-sdk/3.0/service-worker.js"
-        status="loaded"
-        type="text/javascript"
-      />,
-      <script>
-        'hi'
-      </script>,
-    ]
-  `)
+      NodeList [
+        <script>
+          'hi'
+        </script>,
+      ]
+    `)
   })
 
   test('3.1', async () => {
@@ -142,17 +132,12 @@ describe('loads different versions of braze service worker', () => {
     const scripts = window.document.querySelectorAll('script')
     // loads the service worker
     expect(scripts).toMatchInlineSnapshot(`
-    NodeList [
-      <script
-        src="https://js.appboycdn.com/web-sdk/3.1/service-worker.js"
-        status="loaded"
-        type="text/javascript"
-      />,
-      <script>
-        'hi'
-      </script>,
-    ]
-  `)
+      NodeList [
+        <script>
+          'hi'
+        </script>,
+      ]
+    `)
   })
 
   test('3.2', async () => {
@@ -168,17 +153,12 @@ describe('loads different versions of braze service worker', () => {
     const scripts = window.document.querySelectorAll('script')
     // loads the service worker
     expect(scripts).toMatchInlineSnapshot(`
-    NodeList [
-      <script
-        src="https://js.appboycdn.com/web-sdk/3.2/service-worker.js"
-        status="loaded"
-        type="text/javascript"
-      />,
-      <script>
-        'hi'
-      </script>,
-    ]
-  `)
+      NodeList [
+        <script>
+          'hi'
+        </script>,
+      ]
+    `)
   })
 
   test('3.3', async () => {
@@ -194,16 +174,11 @@ describe('loads different versions of braze service worker', () => {
     const scripts = window.document.querySelectorAll('script')
     // loads the service worker
     expect(scripts).toMatchInlineSnapshot(`
-    NodeList [
-      <script
-        src="https://js.appboycdn.com/web-sdk/3.3/service-worker.js"
-        status="loaded"
-        type="text/javascript"
-      />,
-      <script>
-        'hi'
-      </script>,
-    ]
-  `)
+      NodeList [
+        <script>
+          'hi'
+        </script>,
+      ]
+    `)
   })
 })
