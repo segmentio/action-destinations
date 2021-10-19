@@ -17,8 +17,9 @@ module.exports = {
     'prettier/@typescript-eslint',
     'prettier'
   ],
-  plugins: ['@typescript-eslint'],
+  plugins: ['@typescript-eslint', 'lodash'],
   rules: {
+    'lodash/import-scope': ['error', 'method'],
     '@typescript-eslint/ban-types': 'off',
     '@typescript-eslint/ban-ts-comment': [
       'error',
