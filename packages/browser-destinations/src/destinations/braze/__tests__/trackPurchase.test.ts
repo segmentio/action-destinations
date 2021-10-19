@@ -1,31 +1,6 @@
 import appboy from '@braze/web-sdk'
 import { Analytics, Context } from '@segment/analytics-next'
-import * as jsdom from 'jsdom'
 import brazeDestination from '../index'
-
-beforeEach(async () => {
-  jest.restoreAllMocks()
-  jest.resetAllMocks()
-
-  const html = `
-  <!DOCTYPE html>
-    <head>
-      <script>'hi'</script>
-    </head>
-    <body>
-    </body>
-  </html>
-  `.trim()
-
-  const jsd = new jsdom.JSDOM(html, {
-    runScripts: 'dangerously',
-    resources: 'usable',
-    url: 'https://segment.com'
-  })
-
-  const windowSpy = jest.spyOn(window, 'window', 'get')
-  windowSpy.mockImplementation(() => jsd.window as unknown as Window & typeof globalThis)
-})
 
 beforeEach(() => {
   // we're not really testing that appboy loads here, so we'll just mock it out

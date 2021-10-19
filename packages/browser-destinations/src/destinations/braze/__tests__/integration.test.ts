@@ -1,5 +1,4 @@
 import { Analytics, Context } from '@segment/analytics-next'
-import * as jsdom from 'jsdom'
 import braze, { destination } from '..'
 import type { Subscription } from '../../../lib/browser-destinations'
 
@@ -19,37 +18,6 @@ const example: Subscription[] = [
     }
   }
 ]
-
-beforeEach(async () => {
-  jest.restoreAllMocks()
-  jest.resetAllMocks()
-
-  const html = `
-  <!DOCTYPE html>
-    <head>
-      <script>'hi'</script>
-    </head>
-    <body>
-    </body>
-  </html>
-  `.trim()
-
-  const jsd = new jsdom.JSDOM(html, {
-    runScripts: 'dangerously',
-    resources: 'usable',
-    url: 'https://segment.com'
-  })
-
-  const windowSpy = jest.spyOn(global, 'window', 'get')
-  const documentSpy = jest.spyOn(global, 'document', 'get')
-
-  windowSpy.mockImplementation(() => {
-    return jsd.window as unknown as Window & typeof globalThis
-  })
-
-  documentSpy.mockImplementation(() => jsd.window.document as unknown as Document)
-  global.document.domain = 'segment.com'
-})
 
 test('can load braze', async () => {
   const [trackEvent] = await braze({

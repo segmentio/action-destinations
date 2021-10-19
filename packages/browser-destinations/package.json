@@ -73,6 +73,9 @@
     "transformIgnorePatterns": [
       "/node_modules/(?!@segment/analytics-next).+\\.js$"
     ],
+    "setupFilesAfterEnv": [
+      "<rootDir>/test/setup-after-env.ts"
+    ],
     "forceExit": true
   }
 }
