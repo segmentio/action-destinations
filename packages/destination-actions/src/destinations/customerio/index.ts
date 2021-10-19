@@ -8,6 +8,8 @@ import type { DestinationDefinition } from '@segment/actions-core'
 import type { Settings } from './generated-types'
 import { AccountRegion } from './utils'
 
+// test comment
+
 const destination: DestinationDefinition<Settings> = {
   name: 'Customer.io',
   mode: 'cloud',
