@@ -26,19 +26,7 @@ export const trackPurchaseFields: Record<string, InputField> = {
     description: 'Purchase amount to be considered when evaluating reward rules.',
     type: 'number',
     required: true,
-    default: {
-      '@if': {
-        exists: { '@path': '$.properties.total' },
-        then: { '@path': '$.properties.total' },
-        else: {
-          '@if': {
-            exists: { '@path': '$.properties.subtotal' },
-            then: { '@path': '$.properties.subtotal' },
-            else: { '@path': '$.properties.revenue' }
-          }
-        }
-      }
-    }
+    default: { '@path': '$.properties.total' }
   },
   currency: {
     label: 'Currency',

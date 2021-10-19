@@ -83,16 +83,14 @@ describe('Friendbuy.trackPurchase', () => {
     }
 
     {
-      // missing total
+      // minimal event
       const context2 = new Context({
         type: 'track',
         event: 'Order Completed',
-        userId,
         properties: {
           order_id: orderId,
-          subtotal: amount + 1,
-          currency,
-          products: products as JSONValue
+          total: amount,
+          currency
         }
       })
 
@@ -103,39 +101,8 @@ describe('Friendbuy.trackPurchase', () => {
         'purchase',
         {
           id: orderId,
-          amount: amount + 1, // amount defaults to subtotal when total missing
-          currency,
-          customer: { id: userId },
-          products: expectedProducts
-        }
-      ])
-    }
-
-    {
-      // missing total and subtotal
-      const context3 = new Context({
-        type: 'track',
-        event: 'Order Completed',
-        userId,
-        properties: {
-          order_id: orderId,
-          revenue: amount,
-          currency,
-          products: products as JSONValue
-        }
-      })
-
-      trackPurchase.track?.(context3)
-
-      expect(window.friendbuyAPI?.push).toHaveBeenNthCalledWith(3, [
-        'track',
-        'purchase',
-        {
-          id: orderId,
-          amount, // amount defaults to revenue when total and subtotal missing
-          currency,
-          customer: { id: userId },
-          products: expectedProducts
+          amount,
+          currency
         }
       ])
     }
