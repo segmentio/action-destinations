@@ -53,6 +53,25 @@ export const trackCustomerFields: Record<string, InputField> = {
     type: 'number',
     required: false,
     default: { '@path': '$.traits.age' }
+  },
+  customerSince: {
+    label: 'Customer Since',
+    description: 'The date the user became a customer',
+    type: 'string',
+    format: 'date-time',
+    required: false
+  },
+  loyaltyStatus: {
+    label: 'Loyalty Status',
+    description: 'The user\'s loyalty program status. Valid values are "in", "out", or "blocked".',
+    type: 'string',
+    required: false
+  },
+  isNewCustomer: {
+    label: 'New Customer Flag',
+    description: 'Flag to indicate whether the user is a new customer.',
+    type: 'boolean',
+    required: false
   }
 }
 
@@ -74,7 +93,10 @@ const action: BrowserActionDefinition<Settings, FriendbuyAPI, Payload> = {
         firstName: data.payload.firstName,
         lastName: data.payload.lastName,
         name: getName(data.payload),
-        age: data.payload.age
+        age: data.payload.age,
+        customerSince: data.payload.customerSince,
+        loyaltyStatus: data.payload.loyaltyStatus,
+        isNewCustomer: data.payload.isNewCustomer
       }
     ])
   }

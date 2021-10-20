@@ -18,7 +18,13 @@ describe('Friendbuy.trackCustomer', () => {
       name: trackCustomerObject.title,
       enabled: true,
       subscribe: trackCustomerDefaultSubscription,
-      mapping: Object.fromEntries(Object.entries(trackCustomerFields).map(([name, value]) => [name, value.default]))
+      mapping: Object.fromEntries(
+        Object.entries(trackCustomerFields)
+          .map(([name, value]) => [name, value.default])
+          .concat(
+            ['customerSince', 'loyaltyStatus', 'isNewCustomer'].map((name) => [name, { '@path': `$.traits.${name}` }])
+          )
+      )
     }
   ]
 
@@ -32,6 +38,9 @@ describe('Friendbuy.trackCustomer', () => {
     const name = `${firstName} ${lastName}`
     const email = 'john.doe@example.com'
     const age = 55
+    const customerSince = '2021-10-20T14:20:15Z'
+    const loyaltyStatus = 'in'
+    const isNewCustomer = false
 
     const [trackCustomer] = await friendbuyDestination({
       merchantId,
@@ -55,7 +64,10 @@ describe('Friendbuy.trackCustomer', () => {
           firstName,
           lastName,
           name,
-          age
+          age,
+          customerSince,
+          loyaltyStatus,
+          isNewCustomer
         }
       })
       // console.log('context1', JSON.stringify(context1, null, 2))
@@ -72,7 +84,10 @@ describe('Friendbuy.trackCustomer', () => {
           firstName,
           lastName,
           name,
-          age
+          age,
+          customerSince,
+          loyaltyStatus,
+          isNewCustomer
         }
       ])
     }

@@ -25,4 +25,16 @@ export interface Payload {
    * The user's age.
    */
   age?: number
+  /**
+   * The date the user became a customer
+   */
+  customerSince?: string
+  /**
+   * The user's loyalty program status. Valid values are "in", "out", or "blocked".
+   */
+  loyaltyStatus?: string
+  /**
+   * Flag to indicate whether the user is a new customer.
+   */
+  isNewCustomer?: boolean
 }
