@@ -272,7 +272,95 @@ for (const environment of ['stage', 'production']) {
       ])
       expect(sendGridRequest.isDone()).toEqual(true)
     })
+    it('Sending s3body should send', async () => {
+      nock('https://aws.cloudfront.com').get('/path?key-pair-id=abc&signature=xyz').reply(200, 'Welcome to segment')
+      const expectedSendGridRequest = {
+        personalizations: [
+          {
+            to: [
+              {
+                email: userData.email,
+                name: `${userData.firstName} ${userData.lastName}`
+              }
+            ],
+            bcc: [
+              {
+                email: 'test@test.com'
+              }
+            ],
+            custom_args: {
+              source_id: 'sourceId',
+              space_id: 'spaceId',
+              user_id: userData.userId,
+              journey_id: 'journeyId',
+              journey_state_id: 'journeyStateId',
+              audience_id: 'audienceId'
+            }
+          }
+        ],
+        from: {
+          email: 'from@example.com',
+          name: 'From Name'
+        },
+        reply_to: {
+          email: 'replyto@example.com',
+          name: 'Test user'
+        },
+        subject: 'Test email with metadata',
+        content: [
+          {
+            type: 'text/html',
+            value: 'Welcome to segment'
+          }
+        ]
+      }
 
+      const sendGridRequest = nock('https://api.sendgrid.com')
+        .post('/v3/mail/send', expectedSendGridRequest)
+        .reply(200, {})
+
+      const responses = await sendgrid.testAction('sendEmail', {
+        event: createTestEvent({
+          timestamp,
+          event: 'Audience Entered',
+          userId: userData.userId
+        }),
+        settings,
+        mapping: {
+          userId: { '@path': '$.userId' },
+          fromDomain: null,
+          fromEmail: 'from@example.com',
+          fromName: 'From Name',
+          replyToEmail: 'replyto@example.com',
+          replyToName: 'Test user',
+          bcc: JSON.stringify([
+            {
+              email: 'test@test.com'
+            }
+          ]),
+          customArgs: {
+            journey_id: 'journeyId',
+            journey_state_id: 'journeyStateId',
+            audience_id: 'audienceId'
+          },
+          previewText: '',
+          subject: 'Test email with metadata',
+          body: 'Welcome to segment',
+          bodyType: 'html',
+          bodyHtml: 'https://aws.cloudfront.com/path?key-pair-id=abc&signature=xyz',
+          s3body: true,
+          send: true
+        }
+      })
+
+      expect(responses.map((r) => r.url)).toStrictEqual([
+        `${endpoint}/v1/spaces/spaceId/collections/users/profiles/user_id:jane/traits?limit=200`,
+        `${endpoint}/v1/spaces/spaceId/collections/users/profiles/user_id:jane/external_ids?limit=25`,
+        `https://aws.cloudfront.com/path?key-pair-id=abc&signature=xyz`,
+        `https://api.sendgrid.com/v3/mail/send`
+      ])
+      expect(sendGridRequest.isDone()).toEqual(true)
+    })
     const restricted = ['gmailx.com', 'yahoox.com', 'aolx.com', 'hotmailx.com']
     for (const domain of restricted) {
       it(`should return an error when given a restricted domain - ${domain}`, async () => {
