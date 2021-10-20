@@ -12,13 +12,13 @@ describe(removeEmptyValues.name, () => {
     const schema: JSONSchema4 = {
       type: 'object',
       properties: {
-        foo: { type: 'string' },
+        foo: { type: 'number' },
         bar: { type: 'string' },
         baz: { type: 'boolean' }
       }
     }
 
-    expect(removeEmptyValues(input, schema)).toMatchObject({
+    expect(removeEmptyValues(input, schema)).toEqual({
       bar: '1',
       baz: true
     })
@@ -38,13 +38,13 @@ describe(removeEmptyValues.name, () => {
       }
     }
 
-    expect(removeEmptyValues(input, schema)).toMatchObject({
+    expect(removeEmptyValues(input, schema)).toEqual({
       foo: {},
       bar: '1'
     })
   })
 
-  it('removes missing values from nested fields', () => {
+  it('removes missing values from nested fields when their schema type is defined', () => {
     const input = {
       a: {
         b: '',
@@ -58,16 +58,43 @@ describe(removeEmptyValues.name, () => {
         a: {
           type: 'object',
           properties: {
-            b: { type: 'string' },
+            b: { type: 'number' },
             c: { type: 'null' }
           }
         }
       }
     }
 
-    expect(removeEmptyValues(input, schema)).toMatchObject({
+    expect(removeEmptyValues(input, schema)).toEqual({
       a: {
         c: null
+      }
+    })
+  })
+
+  it('leaves nested properties as-is when the schema type is not defined', () => {
+    const input = {
+      data: {
+        context: {
+          search: ''
+        }
+      }
+    }
+
+    const schema: JSONSchema4 = {
+      type: 'object',
+      properties: {
+        data: {
+          type: 'object'
+        }
+      }
+    }
+
+    expect(removeEmptyValues(input, schema)).toEqual({
+      data: {
+        context: {
+          search: ''
+        }
       }
     })
   })
@@ -86,7 +113,7 @@ describe(removeEmptyValues.name, () => {
       }
     }
 
-    expect(removeEmptyValues(input, schema)).toMatchObject({
+    expect(removeEmptyValues(input, schema)).toEqual({
       b: '1'
     })
   })
@@ -105,7 +132,7 @@ describe(removeEmptyValues.name, () => {
       }
     }
 
-    expect(removeEmptyValues(input, schema)).toMatchObject({
+    expect(removeEmptyValues(input, schema)).toEqual({
       a: null,
       b: '1'
     })
