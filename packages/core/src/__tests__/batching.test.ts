@@ -19,6 +19,11 @@ const basicBatch: DestinationDefinition<JSONObject> = {
           default: {
             '@path': '$.userId'
           }
+        },
+        session_id: {
+          type: 'number',
+          label: 'Session ID',
+          description: 'Session ID'
         }
       },
       perform: (_request) => {
@@ -36,7 +41,11 @@ const events: SegmentEvent[] = [
     anonymousId: 'anon_123',
     userId: 'user_123',
     timestamp: '2021-07-12T23:02:40.563Z',
-    event: 'Test Event'
+    event: 'Test Event',
+    integrations: {
+      // @ts-ignore the types are wrong
+      Test: 1234
+    }
   }),
   createTestEvent({
     anonymousId: 'anon_456',
@@ -79,6 +88,33 @@ describe('Batching', () => {
       expect.anything(),
       expect.objectContaining({
         payload: expect.arrayContaining([{ user_id: 'user_123' }, { user_id: 'user_456' }])
+      })
+    )
+  })
+
+  test('removes empty values from all the payloads based on the subscription mapping', async () => {
+    const destination = new Destination(basicBatch)
+    const spy = jest.spyOn(basicBatch.actions.testAction, 'performBatch')
+
+    await destination.onBatch(events, {
+      subscription: {
+        subscribe: 'type = "track"',
+        partnerAction: 'testAction',
+        mapping: {
+          user_id: {
+            '@path': '$.userId'
+          },
+          session_id: {
+            '@path': '$.integrations.Test'
+          }
+        }
+      }
+    })
+
+    expect(spy).toHaveBeenCalledWith(
+      expect.anything(),
+      expect.objectContaining({
+        payload: expect.arrayContaining([{ user_id: 'user_123', session_id: 1234 }, { user_id: 'user_456' }])
       })
     )
   })
