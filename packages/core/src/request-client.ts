@@ -1,5 +1,6 @@
 import AbortController from 'abort-controller'
 import { CustomError } from 'ts-custom-error'
+import { URL, URLSearchParams } from 'url'
 import fetch, { Headers, Request, Response } from './fetch'
 import { isObject } from './real-type-of'
 

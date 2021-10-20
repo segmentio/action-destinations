@@ -24,7 +24,7 @@
     "prepublishOnly": "yarn build",
     "test": "jest",
     "typecheck": "tsc -p tsconfig.build.json --noEmit",
-    "dev": "NODE_ENV=development concurrently \"webpack serve --open\" \"webpack -c webpack.config.js --watch\""
+    "dev": "NODE_ENV=development concurrently \"webpack serve\" \"webpack -c webpack.config.js --watch\""
   },
   "dependencies": {
     "@braze/web-sdk": "^3.3.0",
@@ -72,9 +72,6 @@
     },
     "transformIgnorePatterns": [
       "/node_modules/(?!@segment/analytics-next).+\\.js$"
-    ],
-    "setupFilesAfterEnv": [
-      "<rootDir>/test/setup-after-env.ts"
     ],
     "forceExit": true
   }

@@ -1,6 +1,7 @@
 /* eslint-disable @typescript-eslint/no-empty-function */
 import AbortController from 'abort-controller'
 import createTestServer from 'create-test-server'
+import { URLSearchParams } from 'url'
 import createInstance from '../request-client'
 import { Response } from '../fetch'
 

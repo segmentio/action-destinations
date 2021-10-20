@@ -1,4 +1,6 @@
+import * as FullStory from '@fullstory/browser'
 import { Analytics, Context } from '@segment/analytics-next'
+import * as jsdom from 'jsdom'
 import fullstory, { destination } from '..'
 import { Subscription } from '../../../lib/browser-destinations'
 
@@ -42,6 +44,30 @@ const example: Subscription[] = [
   }
 ]
 
+beforeEach(async () => {
+  jest.restoreAllMocks()
+  jest.resetAllMocks()
+
+  const html = `
+  <!DOCTYPE html>
+    <head>
+      <script>'hi'</script>
+    </head>
+    <body>
+    </body>
+  </html>
+  `.trim()
+
+  const jsd = new jsdom.JSDOM(html, {
+    runScripts: 'dangerously',
+    resources: 'usable',
+    url: 'https://fullstory.com'
+  })
+
+  const windowSpy = jest.spyOn(window, 'window', 'get')
+  windowSpy.mockImplementation(() => jsd.window as unknown as Window & typeof globalThis)
+})
+
 test('can load fullstory', async () => {
   const [event] = await fullstory({
     orgId: 'thefullstory.com',
@@ -83,14 +109,14 @@ test('can load fullstory', async () => {
 
 describe('#track', () => {
   it('sends record events to fullstory on "event"', async () => {
+    const fs = jest.spyOn(FullStory, 'event')
+
     const [event] = await fullstory({
       orgId: 'thefullstory.com',
       subscriptions: example
     })
 
     await event.load(Context.system(), {} as Analytics)
-    const fs = jest.spyOn(window.FS, 'event')
-
     await event.track?.(
       new Context({
         type: 'track',
@@ -115,8 +141,8 @@ describe('#identify', () => {
     })
 
     await identifyUser.load(Context.system(), {} as Analytics)
-    const fs = jest.spyOn(window.FS, 'setUserVars')
-    const fsId = jest.spyOn(window.FS, 'identify')
+    const fs = jest.spyOn(FullStory, 'setUserVars')
+    const fsId = jest.spyOn(FullStory, 'identify')
 
     await identifyUser.identify?.(
       new Context({
@@ -138,7 +164,7 @@ describe('#identify', () => {
         subscriptions: example
       })
       await identifyUser.load(Context.system(), {} as Analytics)
-      const fsId = jest.spyOn(window.FS, 'identify')
+      const fsId = jest.spyOn(FullStory, 'identify')
 
       await identifyUser.identify?.(new Context({ type: 'identify', userId: 'id' }))
       expect(fsId).toHaveBeenCalledWith('id', {})
@@ -149,7 +175,7 @@ describe('#identify', () => {
         subscriptions: example
       })
       await identifyUser.load(Context.system(), {} as Analytics)
-      const fsId = jest.spyOn(window.FS, 'identify')
+      const fsId = jest.spyOn(FullStory, 'identify')
 
       await identifyUser.identify?.(
         new Context({
@@ -166,14 +192,14 @@ describe('#identify', () => {
     })
 
   it('can set user vars', async () => {
+    const fs = jest.spyOn(FullStory, 'setUserVars')
+
     const [_, identifyUser] = await fullstory({
       orgId: 'thefullstory.com',
       subscriptions: example
     })
 
     await identifyUser.load(Context.system(), {} as Analytics)
-    const fs = jest.spyOn(window.FS, 'setUserVars')
-
     await identifyUser.identify?.(
       new Context({
         type: 'identify',

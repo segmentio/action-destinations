@@ -1,4 +1,4 @@
-import type { FS } from './types'
+import * as FullStory from '@fullstory/browser'
 import type { BrowserDestinationDefinition } from '../../lib/browser-destinations'
 import { browserDestination } from '../../runtime/shim'
 import type { Settings } from './generated-types'
@@ -8,13 +8,7 @@ import identifyUser from './identifyUser'
 import viewedPage from './viewedPage'
 import { defaultValues } from '@segment/actions-core'
 
-declare global {
-  interface Window {
-    FS: FS
-  }
-}
-
-export const destination: BrowserDestinationDefinition<Settings, FS> = {
+export const destination: BrowserDestinationDefinition<Settings, typeof FullStory> = {
   name: 'Fullstory (Actions)',
   slug: 'actions-fullstory',
   mode: 'device',
@@ -56,7 +50,7 @@ export const destination: BrowserDestinationDefinition<Settings, FS> = {
     initScript({ debug: settings.debug, org: settings.orgId })
     await dependencies.loadScript('https://edge.fullstory.com/s/fs.js')
     await dependencies.resolveWhen(() => Object.prototype.hasOwnProperty.call(window, 'FS'), 100)
-    return window.FS
+    return FullStory
   }
 }
 

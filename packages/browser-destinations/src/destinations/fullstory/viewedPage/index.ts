@@ -1,9 +1,18 @@
 import type { BrowserActionDefinition } from '../../../lib/browser-destinations'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
-import type { FS } from '../types'
+import * as FullStory from '@fullstory/browser'
+declare global {
+  interface Window {
+    // setVars is not available on the FS client yet.
+    FS: {
+      setVars: (eventName: string, eventProperties: object) => {}
+    }
+  }
+}
 
-const action: BrowserActionDefinition<Settings, FS, Payload> = {
+// Change from unknown to the partner SDK types
+const action: BrowserActionDefinition<Settings, typeof FullStory, Payload> = {
   title: 'Viewed Page',
   description: 'Sets page properties events',
   defaultSubscription: 'type = "page"',
@@ -32,11 +41,11 @@ const action: BrowserActionDefinition<Settings, FS, Payload> = {
       }
     }
   },
-  perform: (FS, event) => {
+  perform: (_, event) => {
     if (event.payload.pageName) {
-      FS.setVars('page', { pageName: event.payload.pageName, ...event.payload.properties })
+      window.FS.setVars('page', { pageName: event.payload.pageName, ...event.payload.properties })
     } else if (event.payload.properties) {
-      FS.setVars('page', event.payload.properties)
+      window.FS.setVars('page', event.payload.properties)
     }
   }
 }

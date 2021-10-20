@@ -5877,13 +5877,6 @@ eslint-plugin-jest@^24.3.6:
   dependencies:
     "@typescript-eslint/experimental-utils" "^4.0.1"
 
-eslint-plugin-lodash@^7.3.0:
-  version "7.3.0"
-  resolved "https://registry.yarnpkg.com/eslint-plugin-lodash/-/eslint-plugin-lodash-7.3.0.tgz#02bbb2c39a8b28f73daf01f99b2d83bcc7f11a79"
-  integrity sha512-FQM8HklruJzulPawX3uZqWbeyN3bQT4hjVCpFYMrWo0Hdz1qDCwp1v3JS4zjhdssAXdwCxdnyrNMCZJK70GeUQ==
-  dependencies:
-    lodash "^4.17.21"
-
 eslint-scope@5.1.1, eslint-scope@^5.1.1:
   version "5.1.1"
   resolved "https://registry.yarnpkg.com/eslint-scope/-/eslint-scope-5.1.1.tgz#e786e59a66cb92b3f6c1fb0d508aab174848f48c"
