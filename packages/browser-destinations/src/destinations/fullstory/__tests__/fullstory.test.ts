@@ -75,7 +75,7 @@ test('can load fullstory', async () => {
         type="text/javascript"
       />,
       <script>
-        'hi'
+        // the emptyness
       </script>,
     ]
   `)

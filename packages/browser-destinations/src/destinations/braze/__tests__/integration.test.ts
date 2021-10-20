@@ -63,7 +63,7 @@ test('loads the braze service worker', async () => {
   expect(scripts).toMatchInlineSnapshot(`
     NodeList [
       <script>
-        'hi'
+        // the emptyness
       </script>,
     ]
   `)
@@ -86,7 +86,7 @@ describe('loads different versions of braze service worker', () => {
     expect(scripts).toMatchInlineSnapshot(`
       NodeList [
         <script>
-          'hi'
+          // the emptyness
         </script>,
       ]
     `)
@@ -108,7 +108,7 @@ describe('loads different versions of braze service worker', () => {
     expect(scripts).toMatchInlineSnapshot(`
       NodeList [
         <script>
-          'hi'
+          // the emptyness
         </script>,
       ]
     `)
@@ -130,7 +130,7 @@ describe('loads different versions of braze service worker', () => {
     expect(scripts).toMatchInlineSnapshot(`
       NodeList [
         <script>
-          'hi'
+          // the emptyness
         </script>,
       ]
     `)
@@ -148,11 +148,11 @@ describe('loads different versions of braze service worker', () => {
     await trackEvent.load(Context.system(), {} as Analytics)
 
     const scripts = window.document.querySelectorAll('script')
-    // loads the service worker
+
     expect(scripts).toMatchInlineSnapshot(`
       NodeList [
         <script>
-          'hi'
+          // the emptyness
         </script>,
       ]
     `)
