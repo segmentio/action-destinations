@@ -5,7 +5,7 @@ import type { Payload } from './generated-types'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Generate Lead',
-  description: 'Send generate lead events to GA4.',
+  description: 'Send event when a user submits a form or request for information',
   defaultSubscription: 'type = "track"',
   fields: {
     client_id: {

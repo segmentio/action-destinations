@@ -6,7 +6,7 @@ import { CURRENCY_ISO_CODES } from '../constants'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Add to Cart',
-  description: 'Send product added events to GA4 to make the most of the ecommerce reports in Google Analytics',
+  description: 'Send event when a user adds items to a cart',
   defaultSubscription: 'type = "track" and event = "Product Added"',
   fields: {
     client_id: {

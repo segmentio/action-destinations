@@ -4,7 +4,7 @@ import type { Payload } from './generated-types'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Search',
-  description: 'Product Searched',
+  description: 'Send event when a user searches your content',
   defaultSubscription: 'type = "track" and event = "Products Searched"',
   fields: {
     client_id: {
