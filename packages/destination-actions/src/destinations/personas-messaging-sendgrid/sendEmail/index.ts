@@ -102,7 +102,8 @@ const action: ActionDefinition<Settings, Payload> = {
     fromDomain: {
       label: 'From Domain',
       description: 'Verified domain in Sendgrid',
-      type: 'string'
+      type: 'string',
+      allowNull: true
     },
     fromEmail: {
       label: 'From Email',

@@ -1,5 +1,4 @@
 import { Analytics, Context, Plugin } from '@segment/analytics-next'
-import * as jsdom from 'jsdom'
 import browserPluginsDestination from '../..'
 import { Subscription } from '../../../../lib/browser-destinations'
 
@@ -41,28 +40,6 @@ let sessionIdPlugin: Plugin
 let ajs: Analytics
 
 beforeEach(async () => {
-  jest.restoreAllMocks()
-  jest.resetAllMocks()
-
-  const html = `
-  <!DOCTYPE html>
-    <head>
-      <script>'hi'</script>
-    </head>
-    <body>
-    </body>
-  </html>
-  `.trim()
-
-  const jsd = new jsdom.JSDOM(html, {
-    runScripts: 'dangerously',
-    resources: 'usable',
-    url: 'https://localhost'
-  })
-
-  const windowSpy = jest.spyOn(window, 'window', 'get')
-  windowSpy.mockImplementation(() => jsd.window as unknown as Window & typeof globalThis)
-
   browserActions = await browserPluginsDestination({ subscriptions: example })
   sessionIdPlugin = browserActions[0]
 
