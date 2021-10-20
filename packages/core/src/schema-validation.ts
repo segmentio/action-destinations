@@ -2,20 +2,23 @@ import { AggregateAjvError } from '@segment/ajv-human-errors'
 import Ajv, { ValidateFunction } from 'ajv'
 import addFormats from 'ajv-formats'
 import dayjs from 'dayjs'
+import type { JSONSchema4 } from 'json-schema'
 
 // `addFormats` includes many standard formats we use like `uri`, `date`, `email`, etc.
-const ajv = addFormats(new Ajv({
-  // Coerce types to be a bit more liberal.
-  coerceTypes: true,
-  // Return all validation errors, not just the first.
-  allErrors: true,
-  // Allow multiple non-null types in `type` keyword.
-  allowUnionTypes: true,
-  // Include reference to schema and data in error values.
-  verbose: true,
-  // Remove properties not defined the schema object
-  removeAdditional: true
-}))
+const ajv = addFormats(
+  new Ajv({
+    // Coerce types to be a bit more liberal.
+    coerceTypes: true,
+    // Return all validation errors, not just the first.
+    allErrors: true,
+    // Allow multiple non-null types in `type` keyword.
+    allowUnionTypes: true,
+    // Include reference to schema and data in error values.
+    verbose: true,
+    // Remove properties not defined the schema object
+    removeAdditional: true
+  })
+)
 
 // Extend with additional supported formats for action `fields`
 ajv.addFormat('text', true)
@@ -43,7 +46,7 @@ interface ValidationOptions {
  * Validates an object against a json schema
  * and caches the schema for subsequent validations when a key is provided
  */
-export function validateSchema(obj: unknown, schema: object, options?: ValidationOptions) {
+export function validateSchema(obj: unknown, schema: JSONSchema4, options?: ValidationOptions) {
   const { schemaKey, throwIfInvalid = true } = options ?? {}
   let validate: ValidateFunction
 

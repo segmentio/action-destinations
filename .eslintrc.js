@@ -17,8 +17,9 @@ module.exports = {
     'prettier/@typescript-eslint',
     'prettier'
   ],
-  plugins: ['@typescript-eslint'],
+  plugins: ['@typescript-eslint', 'lodash'],
   rules: {
+    'lodash/import-scope': ['error', 'method'],
     '@typescript-eslint/ban-types': 'off',
     '@typescript-eslint/ban-ts-comment': [
       'error',
@@ -48,7 +49,7 @@ module.exports = {
   },
   overrides: [
     {
-      files: ['*.test.ts', '**/test/**/*.ts'],
+      files: ['*.test.ts', '**/__tests__/**/*.ts', '**/test/**/*.ts'],
       env: {
         jest: true
       },
@@ -63,6 +64,7 @@ module.exports = {
     {
       files: ['packages/cli/**/*.ts'],
       rules: {
+        'lodash/import-scope': ['error', 'member'],
         '@typescript-eslint/no-var-requires': 'off'
       }
     },

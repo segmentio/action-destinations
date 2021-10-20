@@ -1,7 +1,7 @@
 {
   "name": "@segment/actions-cli",
   "description": "CLI to interact with Segment integrations",
-  "version": "3.21.0",
+  "version": "3.22.1",
   "license": "MIT",
   "repository": {
     "type": "git",
@@ -9,7 +9,7 @@
     "directory": "packages/cli"
   },
   "engines": {
-    "node": "^14.16"
+    "node": "^14.17"
   },
   "engineStrict": true,
   "bin": {
@@ -31,13 +31,13 @@
     "postclean": "rm -rf dist",
     "create:destination": "./bin/run init",
     "test": "jest",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc -p tsconfig.build.json --noEmit"
   },
   "devDependencies": {
     "@oclif/dev-cli": "^1",
     "@oclif/test": "^1.2.8",
     "@types/fs-extra": "^9.0.11",
-    "@types/jest": "^26.0.23",
+    "@types/jest": "^27.0.0",
     "@types/jscodeshift": "^0.11.0",
     "@types/json-diff": "^0.5.1",
     "@types/json-schema": "^7.0.7",
@@ -48,7 +48,7 @@
     "@types/rimraf": "^3.0.0",
     "@types/to-title-case": "^1.0.0",
     "chai": "^4.3.4",
-    "jest": "26.6.3",
+    "jest": "^27.0.0",
     "rimraf": "^3.0.2"
   },
   "dependencies": {
@@ -56,8 +56,8 @@
     "@oclif/config": "^1",
     "@oclif/errors": "^1",
     "@oclif/plugin-help": "^3",
-    "@segment/action-destinations": "^3.21.0",
-    "@segment/actions-core": "^3.14.0",
+    "@segment/action-destinations": "^3.22.1",
+    "@segment/actions-core": "^3.14.1",
     "chalk": "^4.1.1",
     "chokidar": "^3.5.1",
     "dotenv": "^10.0.0",
@@ -81,7 +81,8 @@
   },
   "optionalDependencies": {
     "@segment/actions-cli-internal": "^3.13.0",
-    "@segment/browser-destinations": "^3.14.0"
+    "@segment/browser-destinations": "^3.14.1",
+    "@segment/control-plane-service-client": "github:segmentio/control-plane-service-js-client.git#master"
   },
   "oclif": {
     "commands": "./dist/commands",

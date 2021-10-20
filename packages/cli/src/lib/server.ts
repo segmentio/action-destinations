@@ -4,13 +4,16 @@ import { once } from 'lodash'
 import logger from './logger'
 import path from 'path'
 import { loadDestination } from './destinations'
-import { Destination, DestinationDefinition as CloudDestinationDefinition } from '@segment/actions-core'
+import {
+  Destination,
+  DestinationDefinition as CloudDestinationDefinition,
+  HTTPError,
+  ModifiedResponse
+} from '@segment/actions-core'
 import asyncHandler from './async-handler'
 import getExchanges from './summarize-http'
 import ora from 'ora'
 import chalk from 'chalk'
-import { HTTPError } from '@segment/actions-core/request-client'
-import type { ModifiedResponse } from '@segment/actions-core/types'
 
 const app = express()
 app.use(express.json())
@@ -114,7 +117,7 @@ loadDestination(targetDirectory)
     )
 
     server.listen(port, () => {
-      logger.info(`Listening at http://localhost:${port} -> 
+      logger.info(`Listening at http://localhost:${port} ->
 ${Object.keys(def?.actions ?? {})
   .map((action) => `  POST http://localhost:${port}/${action}`)
   .join('\n')}`)

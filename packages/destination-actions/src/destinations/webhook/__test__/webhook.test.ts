@@ -14,9 +14,10 @@ describe('Webhook', () => {
         timestamp,
         event: 'Test Event'
       })
-      const eventObject = JSON.parse(JSON.stringify(event))
 
-      nock(url).post(path, eventObject).reply(200)
+      nock(url)
+        .post(path, event as any)
+        .reply(200)
 
       const responses = await testDestination.testAction('send', {
         event,

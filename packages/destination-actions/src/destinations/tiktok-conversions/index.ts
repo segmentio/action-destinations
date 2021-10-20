@@ -7,7 +7,7 @@ import reportWebEvent from './reportWebEvent'
 /** used in the quick setup */
 const presets: DestinationDefinition['presets'] = [
   {
-    name: 'Intiate Checkout',
+    name: 'Initiate Checkout',
     subscribe: 'event = "Checkout Started"',
     partnerAction: 'reportWebEvent',
     mapping: {
