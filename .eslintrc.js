@@ -64,6 +64,7 @@ module.exports = {
     {
       files: ['packages/cli/**/*.ts'],
       rules: {
+        'lodash/import-scope': ['error', 'member'],
         '@typescript-eslint/no-var-requires': 'off'
       }
     },
