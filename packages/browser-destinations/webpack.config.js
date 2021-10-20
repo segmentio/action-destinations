@@ -76,6 +76,7 @@ module.exports = {
       path.resolve(__dirname, 'node_modules'),
       'node_modules'
     ],
+    mainFields: ['exports', 'module', 'browser', 'main'],
     extensions: ['.ts', '.js'],
     fallback: {
       vm: require.resolve('vm-browserify')

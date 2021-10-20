@@ -12,13 +12,11 @@
   "exports": {
     ".": {
       "require": "./dist/cjs/index.js",
-      "import": "./dist/esm/index.js",
-      "default": "./dist/cjs/index.js"
+      "default": "./dist/esm/index.js"
     },
     "./mapping-kit": {
       "require": "./dist/cjs/mapping-kit/index.js",
-      "import": "./dist/esm/mapping-kit/index.js",
-      "default": "./dist/cjs/mapping-kit/index.js"
+      "default": "./dist/esm/mapping-kit/index.js"
     }
   },
   "types": "dist/esm/index.d.ts",
@@ -27,7 +25,7 @@
     "package.json"
   ],
   "engines": {
-    "node": "^14.16"
+    "node": "^14.17"
   },
   "engineStrict": true,
   "license": "MIT",
