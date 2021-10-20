@@ -174,9 +174,9 @@ describe('destination kit', () => {
     test('should succeed when property filtering is specified', async () => {
       const destinationTest = new Destination(destinationCustomAuth)
       const testEvent: SegmentEvent = {
-        properties: { field_one: 'test input' },
+        properties: { a: 'foo', field_one: 'test input' },
         traits: {
-          a: 'foo'
+          b: 'foo'
         },
         userId: '3456fff',
         type: 'identify'
