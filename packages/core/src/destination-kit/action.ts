@@ -11,6 +11,7 @@ import type { JSONSchema4 } from 'json-schema'
 import { validateSchema } from '../schema-validation'
 import { AuthTokens } from './parse-settings'
 import { IntegrationError } from '../errors'
+import { removeEmptyValues } from '../remove-empty-values'
 
 type MaybePromise<T> = T | Promise<T>
 type RequestClient = ReturnType<typeof createRequestClient>
@@ -110,8 +111,11 @@ export class Action<Settings, Payload extends JSONLikeObject> extends EventEmitt
     const results: Result[] = []
 
     // Resolve/transform the mapping with the input data
-    const payload = transform(bundle.mapping, bundle.data) as Payload
+    let payload = transform(bundle.mapping, bundle.data) as Payload
     results.push({ output: 'Mappings resolved' })
+
+    // Remove empty values (`null`, `undefined`, `''`) when not explicitly accepted
+    payload = removeEmptyValues(payload, this.schema) as Payload
 
     // Validate the resolved payload against the schema
     if (this.schema) {
@@ -146,13 +150,16 @@ export class Action<Settings, Payload extends JSONLikeObject> extends EventEmitt
     // Validate the resolved payloads against the schema
     if (this.schema) {
       const schema = this.schema
-      const schemaKey = `${this.destinationName}:${this.definition.title}`
-      payloads = payloads.filter((payload) =>
-        validateSchema(payload, schema, {
-          schemaKey,
-          throwIfInvalid: false
-        })
-      )
+      const validationOptions = {
+        schemaKey: `${this.destinationName}:${this.definition.title}`,
+        throwIfInvalid: false
+      }
+
+      payloads = payloads
+        // Remove empty values (`null`, `undefined`, `''`) when not explicitly accepted
+        .map((payload) => removeEmptyValues(payload, schema) as Payload)
+        // Exclude invalid schemas for now...
+        .filter((payload) => validateSchema(payload, schema, validationOptions))
     }
 
     if (payloads.length === 0) {

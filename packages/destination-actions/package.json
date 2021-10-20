@@ -14,7 +14,7 @@
     "package.json"
   ],
   "engines": {
-    "node": "^14.16"
+    "node": "^14.17"
   },
   "engineStrict": true,
   "license": "MIT",
@@ -28,12 +28,12 @@
     "postclean": "rm -rf dist",
     "prepublishOnly": "yarn build",
     "test": "jest",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc -p tsconfig.build.json --noEmit"
   },
   "devDependencies": {
-    "@types/jest": "^26.0.23",
+    "@types/jest": "^27.0.0",
     "@types/mustache": "^4.1.2",
-    "jest": "^26.6.3",
+    "jest": "^27.0.0",
     "nock": "^13.0.11"
   },
   "dependencies": {
