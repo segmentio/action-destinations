@@ -1,13 +1,15 @@
-beforeAll(() => {
-  // Add a script tag to the document so `load-script` works (it expects existing scripts)
-  const script = document.createElement('script')
-  script.innerHTML = `// the emptyness`
-  window.document.head.appendChild(script)
-})
-
 beforeEach(() => {
   jest.restoreAllMocks()
   jest.resetAllMocks()
+
+  // Reset the body and head between tests
+  document.body.innerHTML = ''
+  document.head.innerHTML = ''
+
+  // Add a script tag to the document so `load-script` works (it expects existing scripts)
+  const script = document.createElement('script')
+  script.innerHTML = `// the emptyness`
+  document.head.appendChild(script)
 
   jest.spyOn(window, 'window', 'get')
   jest.spyOn(global, 'document', 'get')
