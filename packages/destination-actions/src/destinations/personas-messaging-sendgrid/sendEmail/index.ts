@@ -2,7 +2,10 @@ import { ActionDefinition, IntegrationError, RequestOptions } from '@segment/act
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 import Mustache from 'mustache'
-
+interface s3Response {
+  data: string
+  content: string
+}
 // These profile calls will be removed when Profile sync can fetch external_id
 const getProfileApiEndpoint = (environment: string): string => {
   return `https://profiles.segment.${environment === 'production' ? 'com' : 'build'}`
@@ -174,6 +177,14 @@ const action: ActionDefinition<Settings, Payload> = {
       description: 'Additional custom args that we be passed back opaquely on webhook events',
       type: 'object',
       required: false
+    },
+    s3body: {
+      label: 'Email body from s3',
+      description: 'Whether email body is sent from s3',
+      type: 'boolean',
+      required: false,
+      default: false,
+      allowNull: true
     }
   },
   perform: async (request, { settings, payload }) => {
@@ -218,6 +229,8 @@ const action: ActionDefinition<Settings, Payload> = {
 
     const bcc = JSON.parse(payload.bcc ?? '[]')
 
+    const bodyHtml = payload.s3body ? (await request<s3Response>(payload.bodyHtml)).data : payload.bodyHtml
+
     return request('https://api.sendgrid.com/v3/mail/send', {
       method: 'post',
       json: {
@@ -250,7 +263,7 @@ const action: ActionDefinition<Settings, Payload> = {
         content: [
           {
             type: 'text/html',
-            value: Mustache.render(payload.bodyHtml, { profile })
+            value: Mustache.render(`${bodyHtml}`, { profile })
           }
         ]
       }

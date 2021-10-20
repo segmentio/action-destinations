@@ -67,4 +67,8 @@ export interface Payload {
   customArgs?: {
     [k: string]: unknown
   }
+  /**
+   * Whether email body is sent from s3
+   */
+  s3body?: boolean | null
 }
