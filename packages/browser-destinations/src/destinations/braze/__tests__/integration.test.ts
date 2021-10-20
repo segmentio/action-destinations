@@ -63,7 +63,7 @@ test('loads the braze service worker', async () => {
   expect(scripts).toMatchInlineSnapshot(`
     NodeList [
       <script>
-        // the emptyness
+        // the emptiness
       </script>,
     ]
   `)
@@ -86,7 +86,7 @@ describe('loads different versions of braze service worker', () => {
     expect(scripts).toMatchInlineSnapshot(`
       NodeList [
         <script>
-          // the emptyness
+          // the emptiness
         </script>,
       ]
     `)
@@ -108,7 +108,7 @@ describe('loads different versions of braze service worker', () => {
     expect(scripts).toMatchInlineSnapshot(`
       NodeList [
         <script>
-          // the emptyness
+          // the emptiness
         </script>,
       ]
     `)
@@ -130,7 +130,7 @@ describe('loads different versions of braze service worker', () => {
     expect(scripts).toMatchInlineSnapshot(`
       NodeList [
         <script>
-          // the emptyness
+          // the emptiness
         </script>,
       ]
     `)
@@ -152,7 +152,7 @@ describe('loads different versions of braze service worker', () => {
     expect(scripts).toMatchInlineSnapshot(`
       NodeList [
         <script>
-          // the emptyness
+          // the emptiness
         </script>,
       ]
     `)

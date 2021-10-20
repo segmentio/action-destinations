@@ -8,7 +8,7 @@ beforeEach(() => {
 
   // Add a script tag to the document so `load-script` works (it expects existing scripts)
   const script = document.createElement('script')
-  script.innerHTML = `// the emptyness`
+  script.innerHTML = `// the emptiness`
   document.head.appendChild(script)
 
   jest.spyOn(window, 'window', 'get')
