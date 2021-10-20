@@ -239,12 +239,8 @@ export const destination: BrowserDestinationDefinition<Settings, typeof appboy> 
         'By default, sessions time out after 30 minutes of inactivity. Provide a value for this configuration option to override that default with a value of your own.'
     }
   },
-  initialize: async ({ settings }, dependencies) => {
+  initialize: async ({ settings }, _dependencies) => {
     const { endpoint, api_key, ...expectedConfig } = settings
-
-    const sdkVersion = settings.sdkVersion?.length ? settings.sdkVersion : '3.3'
-
-    await dependencies.loadScript(`https://js.appboycdn.com/web-sdk/${sdkVersion}/service-worker.js`)
 
     const initialized = appboy.initialize(settings.api_key, { baseUrl: endpoint, ...expectedConfig })
     if (!initialized) {

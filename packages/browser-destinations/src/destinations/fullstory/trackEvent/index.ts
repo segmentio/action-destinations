@@ -1,10 +1,9 @@
 import type { BrowserActionDefinition } from '../../../lib/browser-destinations'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
-import * as FullStory from '@fullstory/browser'
-// import { IntegrationError } from '@segment/actions-core'
+import type { FS } from '../types'
 
-const action: BrowserActionDefinition<Settings, typeof FullStory, Payload> = {
+const action: BrowserActionDefinition<Settings, FS, Payload> = {
   title: 'Track Event',
   description: 'Track events',
   platform: 'web',
@@ -29,8 +28,8 @@ const action: BrowserActionDefinition<Settings, typeof FullStory, Payload> = {
       }
     }
   },
-  perform: (client, event) => {
-    client.event(event.payload.name, event.payload.properties ?? {})
+  perform: (FS, event) => {
+    FS.event(event.payload.name, event.payload.properties ?? {})
   }
 }
 
