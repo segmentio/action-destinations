@@ -6,7 +6,7 @@ import type { Payload } from './generated-types'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Add to Wishlist',
-  description: 'User added a product to their wishlist.',
+  description: 'Send event when a user adds items to a wishlist',
   defaultSubscription: 'type = "track" and event = "Product Added to Wishlist"',
   fields: {
     client_id: {

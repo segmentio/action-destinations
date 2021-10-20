@@ -6,7 +6,7 @@ import type { Payload } from './generated-types'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Select Item',
-  description: 'Send select item events to GA4 to make the most of the ecommerce reports in Google Analytics',
+  description: 'Send event when a user selects an item from a list',
   defaultSubscription: 'type = "track" and event = "Product Clicked"',
   fields: {
     client_id: {
