@@ -131,8 +131,9 @@ export default class PushBrowserDestinations extends Command {
       this.spinner.stop()
       this.log(`Plugins synced to s3`)
     } catch (e) {
-      this.spinner.stop()
       this.error(e)
+    } finally {
+      this.spinner.stop()
     }
 
     try {
@@ -142,8 +143,9 @@ export default class PushBrowserDestinations extends Command {
         pluginsToCreate.map((p) => createRemotePlugin(p))
       ])
     } catch (e) {
-      this.spinner.stop()
       this.error(e)
+    } finally {
+      this.spinner.stop()
     }
   }
 }
