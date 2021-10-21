@@ -230,7 +230,9 @@ const action: ActionDefinition<Settings, Payload> = {
 
     const bcc = JSON.parse(payload.bcc ?? '[]')
 
-    const bodyHtml = payload.s3body ? (await request<s3Response>(payload.bodyHtml)).data : payload.bodyHtml
+    const bodyHtml = payload.s3body
+      ? (await request<s3Response>(payload.bodyHtml, { timeout: 60000 })).data
+      : payload.bodyHtml
 
     return request('https://api.sendgrid.com/v3/mail/send', {
       method: 'post',
