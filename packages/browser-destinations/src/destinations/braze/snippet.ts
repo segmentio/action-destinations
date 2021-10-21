@@ -1,11 +1,15 @@
 import type appboy from '@braze/web-sdk'
 
+interface InitializationOptions extends appboy.InitializationOptions {
+  automaticallyDisplayMessages?: boolean
+}
+
 /* eslint-disable no-useless-escape */
 // prettier-ignore
 export function initialize(
   version: string,
   apiKey: string,
-  baseConfig: appboy.InitializationOptions
+  baseConfig: InitializationOptions
 ): typeof appboy {
   /* eslint-disable */
   // @ts-expect-error expect errors on minified code
@@ -38,8 +42,12 @@ export function initialize(
     requireExplicitInAppMessageDismissal: baseConfig.requireExplicitInAppMessageDismissal,
     safariWebsitePushId: baseConfig.safariWebsitePushId,
     serviceWorkerLocation: baseConfig.serviceWorkerLocation,
-    sessionTimeoutInSeconds: baseConfig.sessionTimeoutInSeconds
+    sessionTimeoutInSeconds: baseConfig.sessionTimeoutInSeconds,
   })
+
+  if (baseConfig.automaticallyDisplayMessages) {
+    window.appboy.display.automaticallyShowNewInAppMessages()
+  }
 
   window.appboy.openSession()
 

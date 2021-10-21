@@ -169,6 +169,14 @@ export const destination: BrowserDestinationDefinition<Settings, typeof appboy> 
       description:
         "By default, any SDK-generated user-visible messages will be displayed in the user's browser language. Provide a value for this option to override that behavior and force a specific language. The value for this option should be a ISO 639-1 Language Code."
     },
+    automaticallyDisplayMessages: {
+      label: 'Automatically Send In-App Messages',
+      type: 'boolean',
+      default: true,
+      required: false,
+      description:
+        "When this is enabled, all In-App Messages that a user is eligible for are automatically delivered to the user. If you'd like to register your own display subscribers or send soft push notifications to your users, make sure to disable this option."
+    },
     manageServiceWorkerExternally: {
       label: 'Manage Service Worker Externally',
       type: 'boolean',
@@ -243,7 +251,7 @@ export const destination: BrowserDestinationDefinition<Settings, typeof appboy> 
   initialize: async ({ settings }, dependencies) => {
     const { endpoint, api_key, sdkVersion, ...expectedConfig } = settings
 
-    const baseConfig: appboy.InitializationOptions = { baseUrl: endpoint, ...expectedConfig }
+    const baseConfig = { baseUrl: endpoint, ...expectedConfig }
 
     try {
       const appboy = initialize(sdkVersion, api_key, baseConfig)
