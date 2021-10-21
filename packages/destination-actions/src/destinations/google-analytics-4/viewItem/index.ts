@@ -6,7 +6,7 @@ import type { Payload } from './generated-types'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'View Item',
-  description: 'Send view item events to GA4 to make the most of the ecommerce reports in Google Analytics',
+  description: 'Send event when a user views an item',
   defaultSubscription: 'type = "track" and event =  "Product Viewed"',
   fields: {
     client_id: {

@@ -33,13 +33,13 @@
   "devDependencies": {
     "@types/jest": "^27.0.0",
     "@types/mustache": "^4.1.2",
-    "jest": "^27.0.0",
-    "nock": "^13.0.11"
+    "jest": "^27.3.1",
+    "nock": "^13.1.4"
   },
   "dependencies": {
     "@amplitude/ua-parser-js": "^0.7.25",
     "@segment/actions-core": "^3.14.1",
-    "dayjs": "^1.10.3",
+    "dayjs": "^1.10.7",
     "lodash": "^4.17.21",
     "mustache": "^4.2.0"
   },

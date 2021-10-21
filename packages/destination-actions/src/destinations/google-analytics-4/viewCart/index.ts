@@ -6,7 +6,7 @@ import type { Payload } from './generated-types'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'View Cart',
-  description: 'User Viewed Cart',
+  description: 'Send event when a user views their cart',
   defaultSubscription: 'type = "track" and event = "Cart Viewed"',
   fields: {
     client_id: {

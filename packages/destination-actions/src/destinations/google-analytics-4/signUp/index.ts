@@ -3,8 +3,8 @@ import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 
 const action: ActionDefinition<Settings, Payload> = {
-  title: 'Sign up',
-  description: 'User Signed Up',
+  title: 'Sign Up',
+  description: 'Send event when a user signs up to measure the popularity of each sign-up method',
   defaultSubscription: 'type = "track" and event = "Signed Up"',
   fields: {
     client_id: {

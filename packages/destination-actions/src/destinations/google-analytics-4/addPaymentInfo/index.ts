@@ -6,7 +6,7 @@ import type { Payload } from './generated-types'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Add Payment Info',
-  description: 'Send event when a user has submitted their payment information',
+  description: 'Send event when a user submits their payment information',
   defaultSubscription: 'type = "track" and event = "Payment Info Entered"',
   fields: {
     client_id: {

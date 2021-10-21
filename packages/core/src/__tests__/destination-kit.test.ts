@@ -3,7 +3,7 @@ import { JSONObject } from '../json-object'
 import { SegmentEvent } from '../segment-event'
 
 const destinationCustomAuth: DestinationDefinition<JSONObject> = {
-  name: 'Google Analytics 4',
+  name: 'Actions Google Analytic 4',
   mode: 'cloud',
   authentication: {
     scheme: 'custom',
@@ -36,7 +36,7 @@ const destinationCustomAuth: DestinationDefinition<JSONObject> = {
 }
 
 const destinationOAuth2: DestinationDefinition<JSONObject> = {
-  name: 'Google Analytics 4',
+  name: 'Actions Google Analytic 4',
   mode: 'cloud',
   authentication: {
     scheme: 'oauth2',
