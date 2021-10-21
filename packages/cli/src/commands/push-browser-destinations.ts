@@ -126,21 +126,21 @@ export default class PushBrowserDestinations extends Command {
     }
 
     try {
-      this.spinner.start('Persisting changes')
-      await Promise.all([
-        pluginsToUpdate.map((p) => updateRemotePlugin(p)),
-        pluginsToCreate.map((p) => createRemotePlugin(p))
-      ])
+      this.spinner.start(`Syncing all plugins to s3`)
+      await syncToS3(flags.env)
+      this.spinner.stop()
+      this.log(`Plugins synced to s3`)
     } catch (e) {
       this.spinner.stop()
       this.error(e)
     }
 
     try {
-      this.spinner.start(`Syncing all plugins to s3`)
-      await syncToS3(flags.env)
-      this.spinner.stop()
-      this.log(`Plugins synced to s3`)
+      this.spinner.start('Persisting changes')
+      await Promise.all([
+        pluginsToUpdate.map((p) => updateRemotePlugin(p)),
+        pluginsToCreate.map((p) => createRemotePlugin(p))
+      ])
     } catch (e) {
       this.spinner.stop()
       this.error(e)
