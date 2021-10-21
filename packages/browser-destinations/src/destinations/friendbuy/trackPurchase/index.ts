@@ -3,6 +3,7 @@ import type { BrowserActionDefinition } from '../../../lib/browser-destinations'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 import { FriendbuyAPI } from '..'
+import { createFriendbuyPayload } from '../util'
 
 // see https://segment.com/docs/config-api/fql/
 export const trackPurchaseDefaultSubscription = 'event = "Order Completed"'
@@ -94,24 +95,25 @@ const action: BrowserActionDefinition<Settings, FriendbuyAPI, Payload> = {
   fields: trackPurchaseFields,
 
   perform: (friendbuyAPI, data) => {
-    // console.log('trackPurchase.perform', JSON.stringify(data, null, 2))
+    // console.log('trackPurchase.perform', JSON.stringify(data.payload, null, 2))
     const products =
       data.payload.products && data.payload.products.length > 0
         ? data.payload.products.map((p) => ({ quantity: 1, ...p }))
         : undefined
 
-    friendbuyAPI.push([
-      'track',
-      'purchase',
-      {
-        id: data.payload.orderId,
-        amount: data.payload.amount,
-        currency: data.payload.currency,
-        couponCode: data.payload.coupon,
-        ...(data.payload.customerId && { customer: { id: data.payload.customerId } }),
-        products
-      }
-    ])
+    const friendbuyPayload = createFriendbuyPayload(
+      [
+        ['id', data.payload.orderId],
+        ['amount', data.payload.amount],
+        ['currency', data.payload.currency],
+        ['couponCode', data.payload.coupon],
+        ['customer', createFriendbuyPayload([['id', data.payload.customerId]])],
+        ['products', products]
+      ],
+      { dropEmptyObjects: true }
+    )
+    // console.log('friendbuyPayload', JSON.stringify(friendbuyPayload, null, 2))
+    friendbuyAPI.push(['track', 'purchase', friendbuyPayload])
   }
 }
 

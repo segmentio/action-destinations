@@ -4,6 +4,7 @@ import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 import { FriendbuyAPI } from '..'
 import { getName } from '../util'
+import { createFriendbuyPayload } from '../util'
 
 // see https://segment.com/docs/config-api/fql/
 export const trackSignUpDefaultSubscription = 'event = "Signed Up"'
@@ -68,20 +69,18 @@ const action: BrowserActionDefinition<Settings, FriendbuyAPI, Payload> = {
   platform: 'web',
   fields: trackSignUpFields,
   perform: (friendbuyAPI, data) => {
-    // console.log('trackSignUp.perform', JSON.stringify(data, null, 2))
-    friendbuyAPI.push([
-      'track',
-      'sign_up',
-      {
-        id: data.payload.customerId,
-        email: data.payload.email,
-        firstName: data.payload.firstName,
-        lastName: data.payload.lastName,
-        name: getName(data.payload),
-        age: data.payload.age,
-        loyaltyStatus: data.payload.loyaltyStatus
-      }
+    // console.log('trackSignUp.perform', JSON.stringify(data.payload, null, 2))
+    const friendbuyPayload = createFriendbuyPayload([
+      ['id', data.payload.customerId],
+      ['email', data.payload.email],
+      ['firstName', data.payload.firstName],
+      ['lastName', data.payload.lastName],
+      ['name', getName(data.payload)],
+      ['age', data.payload.age],
+      ['loyaltyStatus', data.payload.loyaltyStatus]
     ])
+    // console.log('friendbuyPayload', JSON.stringify(friendbuyPayload, null, 2))
+    friendbuyAPI.push(['track', 'sign_up', friendbuyPayload])
   }
 }
 

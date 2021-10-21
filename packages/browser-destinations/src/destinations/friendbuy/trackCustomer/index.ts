@@ -3,7 +3,7 @@ import type { BrowserActionDefinition } from '../../../lib/browser-destinations'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 import { FriendbuyAPI } from '..'
-import { getName } from '../util'
+import { createFriendbuyPayload, getName } from '../util'
 
 // see https://segment.com/docs/config-api/fql/
 export const trackCustomerDefaultSubscription = 'type = "identify"'
@@ -83,22 +83,20 @@ const action: BrowserActionDefinition<Settings, FriendbuyAPI, Payload> = {
   fields: trackCustomerFields,
 
   perform: (friendbuyAPI, data) => {
-    // console.log('trackCustomer.perform', JSON.stringify({ data }, null, 2))
-    friendbuyAPI.push([
-      'track',
-      'customer',
-      {
-        id: data.payload.customerId,
-        email: data.payload.email,
-        firstName: data.payload.firstName,
-        lastName: data.payload.lastName,
-        name: getName(data.payload),
-        age: data.payload.age,
-        customerSince: data.payload.customerSince,
-        loyaltyStatus: data.payload.loyaltyStatus,
-        isNewCustomer: data.payload.isNewCustomer
-      }
+    // console.log('trackCustomer.perform', JSON.stringify(data.payload, null, 2))
+    const friendbuyPayload = createFriendbuyPayload([
+      ['id', data.payload.customerId],
+      ['email', data.payload.email],
+      ['firstName', data.payload.firstName],
+      ['lastName', data.payload.lastName],
+      ['name', getName(data.payload)],
+      ['age', data.payload.age],
+      ['customerSince', data.payload.customerSince],
+      ['loyaltyStatus', data.payload.loyaltyStatus],
+      ['isNewCustomer', data.payload.isNewCustomer]
     ])
+    // console.log('friendbuyPayload', JSON.stringify(friendbuyPayload, null, 2))
+    friendbuyAPI.push(['track', 'customer', friendbuyPayload])
   }
 }
 
