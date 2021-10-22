@@ -4,7 +4,7 @@ import type { Payload } from './generated-types'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Page View',
-  description: 'Send page view events to GA4 to make the most of the recommended event reports in Google Analytics',
+  description: 'Send page view when a user views a page',
   defaultSubscription: 'type = "page"',
   fields: {
     clientId: {

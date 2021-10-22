@@ -10,7 +10,7 @@ import type { Payload } from './generated-types'
  */
 const action: ActionDefinition<Settings, Payload> = {
   title: 'View Promotion',
-  description: 'Send view promotion events to GA4 to make the most of the ecommerce reports in Google Analytics',
+  description: 'Send event when a promotion is shown to a user',
   defaultSubscription: 'type = "track" and event = "Promotion Viewed"',
   fields: {
     client_id: {

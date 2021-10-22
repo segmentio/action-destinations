@@ -1,6 +1,7 @@
 {
   "extends": "../../tsconfig.json",
   "compilerOptions": {
+    "composite": true,
     "module": "commonjs",
     "target": "es2018",
     "lib": ["es2018"],
@@ -19,5 +20,9 @@
     "importHelpers": true
   },
   "exclude": ["**/__tests__/**/*.ts"],
-  "include": ["src"]
+  "include": ["src"],
+  "references": [
+    { "path": "../core/tsconfig.build.json" },
+    { "path": "../destination-subscriptions/tsconfig.build.json" }
+  ]
 }

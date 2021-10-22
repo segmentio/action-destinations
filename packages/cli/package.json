@@ -1,7 +1,7 @@
 {
   "name": "@segment/actions-cli",
   "description": "CLI to interact with Segment integrations",
-  "version": "3.18.2",
+  "version": "3.22.1",
   "license": "MIT",
   "repository": {
     "type": "git",
@@ -9,7 +9,7 @@
     "directory": "packages/cli"
   },
   "engines": {
-    "node": "^14.16"
+    "node": "^14.17"
   },
   "engineStrict": true,
   "bin": {
@@ -31,24 +31,24 @@
     "postclean": "rm -rf dist",
     "create:destination": "./bin/run init",
     "test": "echo '⚠️ ⚠️ ⚠️  @segment/action-cli tests temporarily skipped'",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc -p tsconfig.build.json --noEmit"
   },
   "devDependencies": {
     "@oclif/dev-cli": "^1",
     "@oclif/test": "^1.2.8",
     "@types/fs-extra": "^9.0.11",
-    "@types/jest": "^26.0.23",
+    "@types/jest": "^27.0.0",
     "@types/jscodeshift": "^0.11.0",
     "@types/json-diff": "^0.5.1",
     "@types/json-schema": "^7.0.7",
-    "@types/lodash": "^4.14.168",
+    "@types/lodash": "^4.14.175",
     "@types/mustache": "^4.1.0",
     "@types/node": "^14.0.0",
     "@types/prompts": "^2.0.10",
-    "@types/rimraf": "^3.0.0",
+    "@types/rimraf": "^3.0.2",
     "@types/to-title-case": "^1.0.0",
     "chai": "^4.3.4",
-    "jest": "26.6.3",
+    "jest": "^27.3.1",
     "rimraf": "^3.0.2"
   },
   "dependencies": {
@@ -56,31 +56,31 @@
     "@oclif/config": "^1",
     "@oclif/errors": "^1",
     "@oclif/plugin-help": "^3",
-    "@segment/action-destinations": "^3.18.2",
-    "@segment/actions-core": "^3.13.0",
+    "@segment/action-destinations": "^3.22.1",
+    "@segment/actions-core": "^3.14.1",
     "chalk": "^4.1.1",
     "chokidar": "^3.5.1",
     "dotenv": "^10.0.0",
     "ecs-logs-js": "^1.0.0",
     "execa": "^5.1.1",
-    "fs-extra": "^9.1.0",
+    "fs-extra": "^10.0.0",
     "globby": "^11.0.3",
-    "jscodeshift": "^0.12.0",
+    "jscodeshift": "^0.13.0",
     "jscodeshift-add-imports": "^1.0.10",
-    "jsdom": "^16.6.0",
+    "jsdom": "^18.0.0",
     "json-diff": "^0.5.4",
-    "json-schema-to-typescript": "^10.1.4",
+    "json-schema-to-typescript": "^10.1.5",
     "lodash": "^4.17.20",
     "mustache": "^4.2.0",
     "ora": "^5.4.0",
-    "prompts": "^2.4.1",
-    "slugify": "^1.5.0",
+    "prompts": "^2.4.2",
+    "slugify": "^1.6.1",
     "to-title-case": "^1.0.0",
     "tsconfig-paths": "^3.9.0",
-    "tslib": "^2"
+    "tslib": "^2.3.1"
   },
   "optionalDependencies": {
-    "@segment/browser-destinations": "^3.13.0",
+    "@segment/browser-destinations": "^3.14.1",
     "@segment/control-plane-service-client": "github:segmentio/control-plane-service-js-client.git#master"
   },
   "oclif": {

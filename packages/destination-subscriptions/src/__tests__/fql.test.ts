@@ -122,6 +122,21 @@ test('userId != null', () => {
 	})
 })
 
+test('context.foo = "bar"', () => {
+	testFql('context.foo = "bar"', {
+		type: 'group',
+		operator: 'and',
+		children: [
+			{
+				type: 'event-context',
+				name: 'foo',
+				operator: '=',
+				value: 'bar'
+			}
+		]
+	})
+})
+
 test('name = "Home"', () => {
 	testFql('name = "Home"', {
 		type: 'group',

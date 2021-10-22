@@ -1,4 +1,3 @@
-import { URLSearchParams } from 'url'
 import type { ActionDefinition } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
@@ -101,7 +100,7 @@ const action: ActionDefinition<Settings, Payload> = {
           }
         ]),
         options
-      })
+      } as Record<string, string>)
     })
 
     // Associate group properties
@@ -118,7 +117,7 @@ const action: ActionDefinition<Settings, Payload> = {
           }
         ]),
         options
-      })
+      } as Record<string, string>)
     })
   }
 }

@@ -8,7 +8,7 @@ interface TrackPageViewPayload {
   name: string
   type: 'page'
   timestamp?: string | number
-  data?: Record<string, any>
+  data?: Record<string, unknown>
   // Required for anonymous events
   anonymous_id?: string
 }

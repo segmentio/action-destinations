@@ -82,6 +82,21 @@ export default class Push extends Command {
       throw new Error('Number of metadatas must match number of schemas')
     }
 
+    // Guardrails to ensure action-destination definition don't
+    // deviate from stable idenfitiers in the control-plane definition.
+    // We check this to fail fast and early, before parsing actions and
+    // building request payloads.
+    for (const metadata of metadatas) {
+      const entry = manifest[metadata.id]
+      const definition = entry.definition
+
+      // Creation Name check
+      if (metadata.creationName !== definition.name) {
+        this.spinner.fail()
+        throw new Error(`The definition name '${definition.name}' should always match the control plane creation name '${metadata.creationName}'.`)
+      }
+    }
+
     this.spinner.stop()
 
     for (const metadata of metadatas) {

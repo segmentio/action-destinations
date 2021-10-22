@@ -15,9 +15,6 @@ export function webBundles(): { [destination: string]: string } {
 }
 
 export function build(env: string): string {
-  execa.commandSync('lerna run build --scope @segment/destination-subscriptions')
-  execa.commandSync('lerna run build --scope @segment/actions-core')
-  execa.commandSync('lerna run build --scope @segment/destination-subscriptions')
   execa.commandSync(`rm -rf ${DIST_DIR}`)
   if (env === 'production') {
     return execa.commandSync('lerna run build-web').stdout

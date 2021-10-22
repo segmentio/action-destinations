@@ -6,7 +6,7 @@ import type { Payload } from './generated-types'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Refund',
-  description: 'Send refund event to GA4.',
+  description: 'Send event when a refund is issued',
   defaultSubscription: 'type = "track" and event = "Order Refunded"',
   fields: {
     client_id: {

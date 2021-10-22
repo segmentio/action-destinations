@@ -12,6 +12,7 @@ const tokenToConditionType: Record<string, ConditionType> = {
 	event: 'event',
 	name: 'name',
 	userId: 'userId',
+	context: 'event-context',
 	properties: 'event-property',
 	traits: 'event-trait'
 }
@@ -89,6 +90,15 @@ const parseFqlFunction = (
 				value: String(getTokenValue(valueToken))
 			})
 		}
+
+		if (/^(context)/.test(nameToken.value)) {
+			nodes.push({
+				type: 'event-context',
+				name: nameToken.value.replace(/^(context)\./, ''),
+				operator: negate ? 'not_contains' : 'contains',
+				value: String(getTokenValue(valueToken))
+			})
+		}
 	}
 
 	if (name === 'match') {
@@ -145,6 +155,15 @@ const parseFqlFunction = (
 			nodes.push({
 				type: 'event-trait',
 				name: nameToken.value.replace(/^(traits)\./, ''),
+				operator,
+				value
+			})
+		}
+
+		if (/^(context)/.test(nameToken.value)) {
+			nodes.push({
+				type: 'event-context',
+				name: nameToken.value.replace(/^(context)\./, ''),
 				operator,
 				value
 			})
@@ -254,6 +273,27 @@ const parse = (tokens: Token[]): Condition => {
 						nodes.push({
 							type: 'event-trait',
 							name: token.value.replace(/^(traits)\./, ''),
+							operator: operatorToken.value as Operator,
+							value: getTokenValue(valueToken)
+						})
+					}
+				} else if (conditionType === 'event-context') {
+					if (isExists) {
+						nodes.push({
+							type: 'event-context',
+							name: token.value.replace(/^(context)\./, ''),
+							operator: 'exists'
+						})
+					} else if (isNotExists) {
+						nodes.push({
+							type: 'event-context',
+							name: token.value.replace(/^(context)\./, ''),
+							operator: 'not_exists'
+						})
+					} else {
+						nodes.push({
+							type: 'event-context',
+							name: token.value.replace(/^(context)\./, ''),
 							operator: operatorToken.value as Operator,
 							value: getTokenValue(valueToken)
 						})

@@ -12,7 +12,7 @@ const action: ActionDefinition<Settings, Payload> = {
       label: 'Event Name',
       type: 'string',
       description:
-        'Conversion event name. Please refer to Tiktok "Web Event" section on this [page](https://ads.tiktok.com/marketing_api/docs?id=1701890979375106) for accepted event names.',
+        'Conversion event name. Please refer to the "Supported Web Events" section on this [page](https://ads.tiktok.com/marketing_api/docs?id=1701890979375106) for accepted event names.',
       default: {
         '@path': '$.event'
       }
@@ -28,11 +28,11 @@ const action: ActionDefinition<Settings, Payload> = {
     timestamp: {
       label: 'Event Timestamp',
       type: 'string',
-      description: 'Timestamp that the event took place. Timestamp with ISO 8601 format.'
+      description: 'Timestamp that the event took place, in ISO 8601 format.'
     },
     type: {
       label: 'Segment Event Type',
-      description: 'The segment event type. Ex. "page".',
+      description: 'The Segment event type, e.g. "page".',
       type: 'string',
       default: {
         '@path': '$.type'
@@ -47,7 +47,8 @@ const action: ActionDefinition<Settings, Payload> = {
     // PII Fields - These fields must be hashed using SHA 256 and encoded as websafe-base64.
     phone_number: {
       label: 'Phone Number',
-      description: 'Phone number of the purchaser, in E.164 standard format, e.g. +14150000000',
+      description:
+        'Phone number of the user who triggered the conversion event, in E.164 standard format, e.g. +14150000000.',
       type: 'string',
       default: {
         '@if': {
@@ -59,7 +60,7 @@ const action: ActionDefinition<Settings, Payload> = {
     },
     email: {
       label: 'Email',
-      description: 'Email address of the customer who triggered the conversion event.',
+      description: 'Email address of the user who triggered the conversion event.',
       type: 'string',
       required: true,
       format: 'email',
@@ -73,7 +74,7 @@ const action: ActionDefinition<Settings, Payload> = {
     },
     external_id: {
       label: 'External ID',
-      description: 'Uniquely identifies a user using Segment ID.',
+      description: 'Uniquely identifies the user who triggered the conversion event.',
       type: 'string',
       required: true,
       default: {

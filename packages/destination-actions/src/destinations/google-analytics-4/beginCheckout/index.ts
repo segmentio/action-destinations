@@ -6,7 +6,7 @@ import type { Payload } from './generated-types'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Begin Checkout',
-  description: 'Send begin checkout events to GA4 to make the most of the ecommerce reports in Google Analytics',
+  description: 'Send event when a user begins checkout',
   defaultSubscription: 'type = "track" and event = "Checkout Started"',
   fields: {
     client_id: {
