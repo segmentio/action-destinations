@@ -1,4 +1,4 @@
-import { Analytics, Context, JSONValue } from '@segment/analytics-next'
+import { Analytics, Context } from '@segment/analytics-next'
 import friendbuyDestination from '../../index'
 import trackCustomEventObject, { trackCustomEventFields } from '../index'
 
@@ -35,30 +35,55 @@ describe('Friendbuy.trackCustomEvent', () => {
     // console.log(window.friendbuyAPI)
     jest.spyOn(window.friendbuyAPI as any, 'push')
 
-    const trackTest = (event: string, properties: Record<string, JSONValue>, friendbuyPayload: unknown) => {
-      ;(window.friendbuyAPI?.push as jest.Mock).mockReset()
-
-      const context = new Context({
+    {
+      // Non-download events are not sent.
+      const context1 = new Context({
         type: 'track',
-        event,
-        properties
+        event: 'upload',
+        properties: { type: 'application', name: 'MyApp', deduplicationId: '1234' }
       })
 
-      trackCustomEvent.track?.(context)
+      trackCustomEvent.track?.(context1)
 
-      if (friendbuyPayload) {
-        expect(window.friendbuyAPI?.push).toHaveBeenCalledWith(['track', event, friendbuyPayload])
-      } else {
-        expect(window.friendbuyAPI?.push).not.toHaveBeenCalled()
-      }
+      expect(window.friendbuyAPI?.push).not.toHaveBeenCalled()
     }
 
-    trackTest(
-      'download',
-      { type: 'application', name: 'MyApp', deduplicationId: '1234' },
-      { type: 'application', name: 'MyApp', deduplicationId: '1234' }
-    )
+    {
+      // Download events are sent.
+      const context2 = new Context({
+        type: 'track',
+        event: 'download',
+        properties: { type: 'application', name: 'MyApp', deduplicationId: '1234' }
+      })
 
-    trackTest('upload', { type: 'application', deduplicationId: '1234' }, undefined)
+      trackCustomEvent.track?.(context2)
+
+      expect(window.friendbuyAPI?.push).toHaveBeenNthCalledWith(1, [
+        'track',
+        'download',
+        { type: 'application', name: 'MyApp', deduplicationId: '1234' }
+      ])
+    }
+
+    {
+      // userId and anonymousId are sent if present.
+      const userId = 'john-doe-1234'
+      const anonymousId = '960efa33-6d3b-4eb9-a4e7-d95412d9829e'
+      const context3 = new Context({
+        type: 'track',
+        event: 'download',
+        userId,
+        anonymousId,
+        properties: { type: 'application', name: 'MyApp' }
+      })
+
+      trackCustomEvent.track?.(context3)
+
+      expect(window.friendbuyAPI?.push).toHaveBeenNthCalledWith(2, [
+        'track',
+        'download',
+        { type: 'application', name: 'MyApp', customerId: userId, anonymousId }
+      ])
+    }
   })
 })

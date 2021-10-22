@@ -29,6 +29,7 @@ describe('Friendbuy.trackPurchase', () => {
 
     const merchantId = '1993d0f1-8206-4336-8c88-64e170f2419e'
     const userId = 'john-doe-12345'
+    const anonymousId = 'cbce64f6-a45a-4d9c-a63d-4c7b42773276'
     const currency = 'USD'
     const coupon = 'coupon-xyzzy'
 
@@ -53,6 +54,7 @@ describe('Friendbuy.trackPurchase', () => {
         type: 'track',
         event: 'Order Completed',
         userId,
+        anonymousId,
         properties: {
           order_id: orderId,
           revenue: amount,
@@ -77,8 +79,10 @@ describe('Friendbuy.trackPurchase', () => {
           currency,
           couponCode: coupon,
           customer: { id: userId },
-          products: expectedProducts
-        }
+          products: expectedProducts,
+          anonymousId
+        },
+        true
       ])
     }
 
@@ -103,7 +107,8 @@ describe('Friendbuy.trackPurchase', () => {
           id: orderId,
           amount,
           currency
-        }
+        },
+        true
       ])
     }
   })

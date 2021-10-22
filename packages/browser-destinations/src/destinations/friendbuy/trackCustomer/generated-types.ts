@@ -6,6 +6,10 @@ export interface Payload {
    */
   customerId: string
   /**
+   * The user's anonymous id
+   */
+  anonymousId?: string
+  /**
    * The user's email address.
    */
   email: string

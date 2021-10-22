@@ -30,4 +30,8 @@ export interface Payload {
    * The user's customerId.
    */
   customerId?: string
+  /**
+   * The user's anonymous id
+   */
+  anonymousId?: string
 }

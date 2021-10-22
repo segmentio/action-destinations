@@ -33,6 +33,7 @@ describe('Friendbuy.trackCustomer', () => {
   test('all fields', async () => {
     const merchantId = '1993d0f1-8206-4336-8c88-64e170f2419e'
     const userId = 'john-doe-12345'
+    const anonymousId = '18aedb99-e756-40fa-8e83-d35f90998fb4'
     const firstName = 'John'
     const lastName = 'Doe'
     const name = `${firstName} ${lastName}`
@@ -59,6 +60,7 @@ describe('Friendbuy.trackCustomer', () => {
       const context1 = new Context({
         type: 'identify',
         userId,
+        anonymousId,
         traits: {
           email,
           firstName,
@@ -87,8 +89,10 @@ describe('Friendbuy.trackCustomer', () => {
           age,
           customerSince,
           loyaltyStatus,
-          isNewCustomer
-        }
+          isNewCustomer,
+          anonymousId
+        },
+        true
       ])
     }
 
@@ -113,7 +117,8 @@ describe('Friendbuy.trackCustomer', () => {
           firstName,
           lastName,
           name
-        }
+        },
+        true
       ])
     }
 
@@ -137,7 +142,8 @@ describe('Friendbuy.trackCustomer', () => {
           id: userId,
           email,
           name
-        }
+        },
+        true
       ])
     }
   })

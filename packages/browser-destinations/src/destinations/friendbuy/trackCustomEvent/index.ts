@@ -28,6 +28,20 @@ export const trackCustomEventFields: Record<string, InputField> = {
       'An identifier for the event being tracked to prevent the same event from being rewarded more than once.',
     label: 'Event ID',
     default: { '@path': '$.properties.deduplicationId' }
+  },
+  customerId: {
+    label: 'Customer ID',
+    description: "The user's customerId.",
+    type: 'string',
+    required: true,
+    default: { '@path': '$.userId' }
+  },
+  anonymousId: {
+    label: 'Anonymous ID',
+    description: "The user's anonymous id",
+    type: 'string',
+    required: false,
+    default: { '@path': '$.anonymousId' }
   }
 }
 
@@ -45,7 +59,9 @@ const action: BrowserActionDefinition<Settings, FriendbuyAPI, Payload> = {
       data.payload.eventName,
       {
         ...data.payload.eventProperties,
-        ...(data.payload.deduplicationId && { deduplicationId: data.payload.deduplicationId })
+        ...(data.payload.deduplicationId && { deduplicationId: data.payload.deduplicationId }),
+        ...(data.payload.customerId && { customerId: data.payload.customerId }),
+        ...(data.payload.anonymousId && { anonymousId: data.payload.anonymousId })
       }
     ])
   }

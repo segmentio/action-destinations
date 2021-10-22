@@ -15,4 +15,12 @@ export interface Payload {
    * An identifier for the event being tracked to prevent the same event from being rewarded more than once.
    */
   deduplicationId?: string
+  /**
+   * The user's customerId.
+   */
+  customerId: string
+  /**
+   * The user's anonymous id
+   */
+  anonymousId?: string
 }

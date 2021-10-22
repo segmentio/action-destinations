@@ -23,6 +23,7 @@ describe('Friendbuy.trackSignUp', () => {
   test('all fields', async () => {
     const merchantId = '1993d0f1-8206-4336-8c88-64e170f2419e'
     const userId = 'john-doe-12345'
+    const anonymousId = '6afc2ff2-cf54-414f-9a99-b3adb054ae31'
     const firstName = 'John'
     const lastName = 'Doe'
     const name = `${firstName} ${lastName}`
@@ -46,6 +47,7 @@ describe('Friendbuy.trackSignUp', () => {
       type: 'track',
       event: 'Signed Up',
       userId,
+      anonymousId,
       properties: {
         first_name: firstName,
         last_name: lastName,
@@ -70,8 +72,10 @@ describe('Friendbuy.trackSignUp', () => {
         lastName,
         name,
         age,
-        loyaltyStatus
-      }
+        loyaltyStatus,
+        anonymousId
+      },
+      true
     ])
   })
 })

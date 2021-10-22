@@ -18,6 +18,13 @@ export const trackCustomerFields: Record<string, InputField> = {
     required: true,
     default: { '@path': '$.userId' }
   },
+  anonymousId: {
+    label: 'Anonymous ID',
+    description: "The user's anonymous id",
+    type: 'string',
+    required: false,
+    default: { '@path': '$.anonymousId' }
+  },
   email: {
     label: 'Email',
     description: "The user's email address.",
@@ -93,10 +100,12 @@ const action: BrowserActionDefinition<Settings, FriendbuyAPI, Payload> = {
       ['age', data.payload.age],
       ['customerSince', data.payload.customerSince],
       ['loyaltyStatus', data.payload.loyaltyStatus],
-      ['isNewCustomer', data.payload.isNewCustomer]
+      ['isNewCustomer', data.payload.isNewCustomer],
+      // custom properties
+      ['anonymousId', data.payload.anonymousId]
     ])
     // console.log('friendbuyPayload', JSON.stringify(friendbuyPayload, null, 2))
-    friendbuyAPI.push(['track', 'customer', friendbuyPayload])
+    friendbuyAPI.push(['track', 'customer', friendbuyPayload, true])
   }
 }
 

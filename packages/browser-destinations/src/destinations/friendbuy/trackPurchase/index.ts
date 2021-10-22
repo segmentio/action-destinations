@@ -84,6 +84,13 @@ export const trackPurchaseFields: Record<string, InputField> = {
     type: 'string',
     required: false,
     default: { '@path': '$.userId' }
+  },
+  anonymousId: {
+    label: 'Anonymous ID',
+    description: "The user's anonymous id",
+    type: 'string',
+    required: false,
+    default: { '@path': '$.anonymousId' }
   }
 }
 
@@ -108,12 +115,14 @@ const action: BrowserActionDefinition<Settings, FriendbuyAPI, Payload> = {
         ['currency', data.payload.currency],
         ['couponCode', data.payload.coupon],
         ['customer', createFriendbuyPayload([['id', data.payload.customerId]])],
-        ['products', products]
+        ['products', products],
+        // custom properties
+        ['anonymousId', data.payload.anonymousId]
       ],
       { dropEmptyObjects: true }
     )
     // console.log('friendbuyPayload', JSON.stringify(friendbuyPayload, null, 2))
-    friendbuyAPI.push(['track', 'purchase', friendbuyPayload])
+    friendbuyAPI.push(['track', 'purchase', friendbuyPayload, true])
   }
 }
 

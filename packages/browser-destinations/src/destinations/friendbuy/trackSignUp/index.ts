@@ -18,6 +18,13 @@ export const trackSignUpFields: Record<string, InputField> = {
     required: true,
     default: { '@path': '$.userId' }
   },
+  anonymousId: {
+    label: 'Anonymous ID',
+    description: "The user's anonymous id",
+    type: 'string',
+    required: false,
+    default: { '@path': '$.anonymousId' }
+  },
   email: {
     label: 'Email',
     description: "The user's email address.",
@@ -78,10 +85,12 @@ const action: BrowserActionDefinition<Settings, FriendbuyAPI, Payload> = {
       ['lastName', data.payload.lastName],
       ['name', getName(data.payload)],
       ['age', data.payload.age],
-      ['loyaltyStatus', data.payload.loyaltyStatus]
+      ['loyaltyStatus', data.payload.loyaltyStatus],
+      // custom properties
+      ['anonymousId', data.payload.anonymousId]
     ])
     // console.log('friendbuyPayload', JSON.stringify(friendbuyPayload, null, 2))
-    friendbuyAPI.push(['track', 'sign_up', friendbuyPayload])
+    friendbuyAPI.push(['track', 'sign_up', friendbuyPayload, true])
   }
 }
 
