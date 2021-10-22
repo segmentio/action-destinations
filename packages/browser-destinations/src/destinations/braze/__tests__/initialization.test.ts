@@ -7,14 +7,12 @@ describe('initialization', () => {
     safariWebsitePushId: 'safari',
     allowCrawlerActivity: true,
     doNotLoadFontAwesome: true,
-    enableLogging: true,
+    enableLogging: false,
     localization: 'pt',
     minimumIntervalBetweenTriggerActionsInSeconds: 60,
     openInAppMessagesInNewTab: true,
     sessionTimeoutInSeconds: 60,
     requireExplicitInAppMessageDismissal: true,
-    enableHtmlInAppMessages: true,
-    devicePropertyWhitelist: ['foo', 'bar'],
     allowUserSuppliedJavascript: true,
     contentSecurityNonce: 'bar',
     endpoint: 'endpoint',
@@ -70,13 +68,8 @@ describe('initialization', () => {
 
     const scripts = window.document.querySelectorAll('script')
 
-    expect(scripts).toMatchInlineSnapshot(`
+    expect(scripts).toMatchSnapshot(`
       NodeList [
-        <script
-          src="https://js.appboycdn.com/web-sdk/3.3/appboy.min.js"
-          status="loaded"
-          type="text/javascript"
-        />,
         <script
           src="https://js.appboycdn.com/web-sdk/3.3/appboy.min.js"
           type="text/javascript"

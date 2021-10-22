@@ -40,18 +40,20 @@ test('reports products when present', async () => {
       type: 'track',
       properties: {
         banana: 'yellow',
-        products: [
-          {
-            product_id: 'p_123',
-            price: 399,
-            currency: 'BGP',
-            quantity: 2
-          },
-          {
-            product_id: 'p_456',
-            price: 0
-          }
-        ]
+        purchaseProperties: {
+          products: [
+            {
+              product_id: 'p_123',
+              price: 399,
+              currency: 'BGP',
+              quantity: 2
+            },
+            {
+              product_id: 'p_456',
+              price: 0
+            }
+          ]
+        }
       }
     })
   )

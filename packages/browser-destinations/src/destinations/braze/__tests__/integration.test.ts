@@ -60,13 +60,8 @@ describe('loads different versions from CDN', () => {
     await trackEvent.load(Context.system(), {} as Analytics)
 
     const scripts = window.document.querySelectorAll('script')
-    expect(scripts).toMatchInlineSnapshot(`
+    expect(scripts).toMatchSnapshot(`
       NodeList [
-        <script
-          src="https://js.appboycdn.com/web-sdk/3.0/appboy.min.js"
-          status="loaded"
-          type="text/javascript"
-        />,
         <script
           src="https://js.appboycdn.com/web-sdk/3.0/appboy.min.js"
           type="text/javascript"
@@ -91,15 +86,11 @@ describe('loads different versions from CDN', () => {
 
     const scripts = window.document.querySelectorAll('script')
     // loads the service worker
-    expect(scripts).toMatchInlineSnapshot(`
+    expect(scripts).toMatchSnapshot(`
       NodeList [
         <script
           src="https://js.appboycdn.com/web-sdk/3.1/appboy.min.js"
           status="loaded"
-          type="text/javascript"
-        />,
-        <script
-          src="https://js.appboycdn.com/web-sdk/3.1/appboy.min.js"
           type="text/javascript"
         />,
         <script>
