@@ -6,6 +6,7 @@ import { defaultValues, DestinationDefinition } from '@segment/actions-core'
 import trackCustomer, { trackCustomerDefaultSubscription, trackCustomerFields } from './trackCustomer'
 import trackPurchase, { trackPurchaseDefaultSubscription, trackPurchaseFields } from './trackPurchase'
 import trackSignUp, { trackSignUpDefaultSubscription, trackSignUpFields } from './trackSignUp'
+import trackPage, { trackPageDefaultSubscription, trackPageFields } from './trackPage'
 import trackCustomEvent from './trackCustomEvent'
 
 export interface FriendbuyAPI extends Array<unknown> {
@@ -38,6 +39,12 @@ const presets: DestinationDefinition['presets'] = [
     subscribe: trackSignUpDefaultSubscription,
     partnerAction: 'trackSignUp',
     mapping: defaultValues(trackSignUpFields)
+  },
+  {
+    name: 'Track Page',
+    subscribe: trackPageDefaultSubscription,
+    partnerAction: 'trackPage',
+    mapping: defaultValues(trackPageFields)
   }
 ]
 
@@ -78,6 +85,7 @@ export const destination: BrowserDestinationDefinition<Settings, FriendbuyAPI> =
     trackCustomer,
     trackPurchase,
     trackSignUp,
+    trackPage,
     trackCustomEvent
   }
 }

@@ -68,6 +68,7 @@ const action: BrowserActionDefinition<Settings, FriendbuyAPI, Payload> = {
   defaultSubscription: trackSignUpDefaultSubscription,
   platform: 'web',
   fields: trackSignUpFields,
+
   perform: (friendbuyAPI, data) => {
     // console.log('trackSignUp.perform', JSON.stringify(data.payload, null, 2))
     const friendbuyPayload = createFriendbuyPayload([
