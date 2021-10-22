@@ -7,15 +7,120 @@ const settings = {
   pixelId: '123321',
   token: process.env.TOKEN
 }
-describe.skip('FacebookConversionsApi', () => {
+describe('FacebookConversionsApi', () => {
   describe('InitiateCheckout', () => {
-    it('should handle basic mapping overrides')
+    it('should handle basic mapping overrides', async () => {
+      nock(`https://graph.facebook.com/v11.0/${settings.pixelId}`)
+      .post(`/events?access_token=${settings.token}`)
+      .reply(201, {})
 
-    it('should throw an error for invalid currency values')
+      const event = createTestEvent({
+        event: 'Checkout Started',
+        userId: 'abc123',
+        timestamp: '1631210000',
+        properties: {
+          action_source: 'email',
+          currency: 'USD',
+          value: 12.12,
+          email: 'nicholas.aguilar@segment.com'
+        }
+      })
 
-    it('should handle default mappings')
+      const responses = await testDestination.testAction('initiateCheckout', {
+        event,
+        settings,
+        mapping: {
+          currency: {
+            '@path': '$.properties.currency'
+          },
+          value: {
+            '@path': '$.properties.value'
+          },
+          user_data: {
+            email: {
+              '@path': '$.properties.email'
+            }
+          },
+          action_source: {
+            '@path': '$.properties.action_source'
+          },
+          event_time: {
+            '@path': '$.timestamp'
+          }
+        }
+      })
 
-    it('should handle events with no provided properties')
+      expect(responses.length).toBe(1)
+      expect(responses[0].status).toBe(201)
+    })
+
+    it('should throw an error for invalid currency values', async () => {
+      nock(`https://graph.facebook.com/v11.0/${settings.pixelId}`)
+      .post(`/events?access_token=${settings.token}`)
+      .reply(201, {})
+
+      const event = createTestEvent({
+        event: 'Checkout Started',
+        userId: 'abc123',
+        timestamp: '1631210010',
+        properties: {
+          action_source: 'email',
+          currency: 'FAKE',
+          value: 12.12,
+          email: 'nicholas.aguilar@segment.com'
+        }
+      })
+
+      await expect(testDestination.testAction('initiateCheckout', {
+        event,
+        settings,
+        mapping: {
+          currency: {
+            '@path': '$.properties.currency'
+          },
+          value: {
+            '@path': '$.properties.value'
+          },
+          user_data: {
+            email: {
+              '@path': '$.properties.email'
+            }
+          },
+          action_source: {
+            '@path': '$.properties.action_source'
+          },
+          event_time: {
+            '@path': '$.timestamp'
+          }
+        }
+      })).rejects.toThrowError('FAKE is not a valid currency code.')
+    })
+
+    it('should handle default mappings', async () => {
+      nock(`https://graph.facebook.com/v11.0/${settings.pixelId}`)
+      .post(`/events?access_token=${settings.token}`)
+      .reply(201, {})
+
+      const event = createTestEvent({
+        event: 'Checkout Started',
+        properties: {
+          userId: 'testuser1234',
+          action_source: 'email',
+          timestamp: '1631210020',
+          currency: 'USD',
+          revenue: 12.12,
+        }
+      })
+      
+      const responses = await testDestination.testAction('initiateCheckout', {
+        event,
+        settings,
+        useDefaultMappings: true
+      })
+      
+      expect(responses.length).toBe(1)
+      expect(responses[0].status).toBe(201)
+    })
 
     it('should throw an error if no user_data keys are included', async () => {
       nock(`https://graph.facebook.com/v11.0/${settings.pixelId}`)
@@ -23,8 +128,8 @@ describe.skip('FacebookConversionsApi', () => {
         .reply(201, {})
   
       const event = createTestEvent({
-        event: 'Order Completed',
-        userId: '7b17fb0bd173f625b58636fb796407c22b3d16fc78302d79f0fd30c2fc2fc068', // Pre -hashed for simplicity
+        event: 'Checkout Started',
+        userId: 'abc123', // Pre -hashed for simplicity
         timestamp: '1631210063',
         properties: {
           action_source: 'email',
@@ -51,7 +156,7 @@ describe.skip('FacebookConversionsApi', () => {
           }
           // No user data mapping included. This should cause action to fail.
         }
-      })).rejects.toThrowError('Must include at least one user data property')
+      })).rejects.toThrowError("The root value is missing the required field 'user_data'.")
     })
   })
 })
