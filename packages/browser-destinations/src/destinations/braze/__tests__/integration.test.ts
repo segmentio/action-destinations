@@ -64,6 +64,11 @@ describe('loads different versions from CDN', () => {
       NodeList [
         <script
           src="https://js.appboycdn.com/web-sdk/3.0/appboy.min.js"
+          status="loaded"
+          type="text/javascript"
+        />,
+        <script
+          src="https://js.appboycdn.com/web-sdk/3.0/appboy.min.js"
           type="text/javascript"
         />,
         <script>
@@ -88,6 +93,11 @@ describe('loads different versions from CDN', () => {
     // loads the service worker
     expect(scripts).toMatchInlineSnapshot(`
       NodeList [
+        <script
+          src="https://js.appboycdn.com/web-sdk/3.1/appboy.min.js"
+          status="loaded"
+          type="text/javascript"
+        />,
         <script
           src="https://js.appboycdn.com/web-sdk/3.1/appboy.min.js"
           type="text/javascript"

@@ -50,11 +50,11 @@ describe('initialization', () => {
 
     jest.spyOn(destination.actions.trackPurchase, 'perform')
     jest.spyOn(destination, 'initialize')
-    jest.spyOn(snippet, 'initialize')
+    jest.spyOn(snippet, 'initScript')
 
     await event.load(Context.system(), {} as Analytics)
     expect(destination.initialize).toHaveBeenCalled()
-    expect(snippet.initialize).toHaveBeenCalled()
+    expect(snippet.initScript).toHaveBeenCalled()
 
     const ctx = await event.track?.(
       new Context({
@@ -72,6 +72,11 @@ describe('initialization', () => {
 
     expect(scripts).toMatchInlineSnapshot(`
       NodeList [
+        <script
+          src="https://js.appboycdn.com/web-sdk/3.3/appboy.min.js"
+          status="loaded"
+          type="text/javascript"
+        />,
         <script
           src="https://js.appboycdn.com/web-sdk/3.3/appboy.min.js"
           type="text/javascript"
