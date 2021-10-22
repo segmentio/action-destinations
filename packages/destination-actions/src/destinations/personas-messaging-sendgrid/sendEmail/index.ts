@@ -1,11 +1,7 @@
-import { ActionDefinition, IntegrationError, RequestOptions } from '@segment/actions-core'
+import { ActionDefinition, IntegrationError, RequestOptions, fetch } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 import Mustache from 'mustache'
-interface s3Response {
-  data: string
-  content: string
-}
 // These profile calls will be removed when Profile sync can fetch external_id
 const getProfileApiEndpoint = (environment: string): string => {
   return `https://profiles.segment.${environment === 'production' ? 'com' : 'build'}`
@@ -70,7 +66,10 @@ const isRestrictedDomain = (email: string): boolean => {
   const domain = matches[1]
   return restricted.includes(domain)
 }
-
+const getS3body = async (url:string): Promise<string> => {
+  const res = await fetch(url);
+  return res.text();
+}
 interface Profile {
   user_id?: string
   anonymous_id?: string
@@ -230,9 +229,7 @@ const action: ActionDefinition<Settings, Payload> = {
 
     const bcc = JSON.parse(payload.bcc ?? '[]')
 
-    const bodyHtml = payload.s3body
-      ? (await request<s3Response>(payload.bodyHtml, { timeout: 60000 })).data
-      : payload.bodyHtml
+    const bodyHtml = payload.s3body ? await getS3body(payload.bodyHtml) : payload.bodyHtml
 
     return request('https://api.sendgrid.com/v3/mail/send', {
       method: 'post',
