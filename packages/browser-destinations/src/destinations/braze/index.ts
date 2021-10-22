@@ -7,7 +7,7 @@ import updateUserProfile from './updateUserProfile'
 import trackPurchase from './trackPurchase'
 import debounce, { resetUserCache } from './debounce'
 import { defaultValues, DestinationDefinition } from '@segment/actions-core'
-import { initialize } from './snippet'
+import { loadSnippet } from './snippet'
 
 declare global {
   interface Window {
@@ -249,18 +249,26 @@ export const destination: BrowserDestinationDefinition<Settings, typeof appboy> 
     }
   },
   initialize: async ({ settings }, dependencies) => {
-    const { endpoint, api_key, sdkVersion, ...expectedConfig } = settings
-
-    const baseConfig = { baseUrl: endpoint, ...expectedConfig }
-
     try {
-      const appboy = initialize(sdkVersion, api_key, baseConfig)
+      const { endpoint, api_key, sdkVersion, ...expectedConfig } = settings
+
+      loadSnippet(settings.sdkVersion)
 
       resetUserCache()
-
       await dependencies.resolveWhen(() => Object.prototype.hasOwnProperty.call(window, 'appboy'), 100)
 
-      return appboy
+      window.appboy.initialize(api_key, {
+        baseUrl: endpoint,
+        ...expectedConfig
+      })
+
+      if (settings.automaticallyDisplayMessages) {
+        window.appboy.display.automaticallyShowNewInAppMessages()
+      }
+
+      window.appboy.openSession()
+
+      return window.appboy
     } catch (e) {
       throw new Error(`Failed to initialize Braze ${e}`)
     }
