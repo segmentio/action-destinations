@@ -1,6 +1,6 @@
 import { Analytics, Context } from '@segment/analytics-next'
 import brazeDestination, { destination } from '../index'
-import * as snippet from '../snippet'
+import * as snippet from '../init-script'
 
 describe('initialization', () => {
   const settings = {

@@ -7,7 +7,7 @@ import updateUserProfile from './updateUserProfile'
 import trackPurchase from './trackPurchase'
 import debounce, { resetUserCache } from './debounce'
 import { defaultValues, DestinationDefinition } from '@segment/actions-core'
-import { loadSnippet } from './snippet'
+import { initScript } from './init-script'
 
 declare global {
   interface Window {
@@ -250,11 +250,13 @@ export const destination: BrowserDestinationDefinition<Settings, typeof appboy> 
   },
   initialize: async ({ settings }, dependencies) => {
     try {
-      const { endpoint, api_key, sdkVersion, ...expectedConfig } = settings
+      const { endpoint, api_key, sdkVersion, automaticallyDisplayMessages, ...expectedConfig } = settings
 
-      loadSnippet(settings.sdkVersion)
+      initScript(sdkVersion)
 
       resetUserCache()
+
+      await dependencies.loadScript(`https://js.appboycdn.com/web-sdk/${sdkVersion}/appboy.min.js`)
       await dependencies.resolveWhen(() => Object.prototype.hasOwnProperty.call(window, 'appboy'), 100)
 
       window.appboy.initialize(api_key, {
@@ -262,7 +264,7 @@ export const destination: BrowserDestinationDefinition<Settings, typeof appboy> 
         ...expectedConfig
       })
 
-      if (settings.automaticallyDisplayMessages) {
+      if (automaticallyDisplayMessages) {
         window.appboy.display.automaticallyShowNewInAppMessages()
       }
 
