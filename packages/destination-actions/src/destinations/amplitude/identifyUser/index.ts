@@ -229,20 +229,32 @@ const action: ActionDefinition<Settings, Payload> = {
     min_id_length: {
       label: 'Minimum ID Length',
       description:
-        'Amplitude has a default minimum id lenght of 5 characters for user_id and device_id fields. This field allows the minimum to be overridden to allow shorter id lengths.',
+        'Amplitude has a default minimum id length of 5 characters for user_id and device_id fields. This field allows the minimum to be overridden to allow shorter id lengths.',
       allowNull: true,
       type: 'integer'
+    },
+    library: {
+      label: 'Library',
+      type: 'string',
+      description: 'The name of the library that generated the event.',
+      default: {
+        '@path': '$.context.library.name'
+      }
     }
   },
 
   perform: (request, { payload, settings }) => {
-    const { utm_properties, referrer, userAgent, userAgentParsing, min_id_length, ...rest } = payload
+    const { utm_properties, referrer, userAgent, userAgentParsing, min_id_length, library, ...rest } = payload
 
     let options
     const properties = rest as AmplitudeEvent
 
     if (properties.platform) {
       properties.platform = properties.platform.replace(/ios/i, 'iOS').replace(/android/i, 'Android')
+    }
+
+    if (library) {
+      if (library === 'analytics.js') properties.platform = 'Web'
     }
 
     if (Object.keys(utm_properties ?? {}).length || referrer) {
