@@ -3,7 +3,7 @@ import type { BrowserActionDefinition } from '../../../lib/browser-destinations'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 import { FriendbuyAPI } from '..'
-import { createFriendbuyPayload, getName } from '../util'
+import { createFriendbuyPayload, filterFriendbuyAttributes, getName } from '../util'
 
 // see https://segment.com/docs/config-api/fql/
 export const trackCustomerDefaultSubscription = 'type = "identify"'
@@ -79,6 +79,14 @@ export const trackCustomerFields: Record<string, InputField> = {
     description: 'Flag to indicate whether the user is a new customer.',
     type: 'boolean',
     required: false
+  },
+  friendbuyAttributes: {
+    label: 'Custom Attributes',
+    description:
+      'Custom attributes to send to Friendbuy. You should pass an object whose keys are the names of the custom attributes and whose values are strings. Non-string-valued attributes will be dropped.',
+    type: 'object',
+    required: false,
+    default: { '@path': '$.traits.friendbuyAttributes' }
   }
 }
 
@@ -102,7 +110,8 @@ const action: BrowserActionDefinition<Settings, FriendbuyAPI, Payload> = {
       ['loyaltyStatus', data.payload.loyaltyStatus],
       ['isNewCustomer', data.payload.isNewCustomer],
       // custom properties
-      ['anonymousId', data.payload.anonymousId]
+      ['anonymousId', data.payload.anonymousId],
+      ...filterFriendbuyAttributes(data.payload.friendbuyAttributes)
     ])
     // console.log('friendbuyPayload', JSON.stringify(friendbuyPayload, null, 2))
     friendbuyAPI.push(['track', 'customer', friendbuyPayload, true])

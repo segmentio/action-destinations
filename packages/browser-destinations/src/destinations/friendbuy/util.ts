@@ -48,3 +48,17 @@ export function createFriendbuyPayload(
   })
   return friendbuyPayload
 }
+
+export function filterFriendbuyAttributes(
+  friendbuyAttributes: Record<string, unknown> | undefined
+): [string, string][] {
+  const filteredAttributes: [string, string][] = []
+  if (friendbuyAttributes) {
+    Object.entries(friendbuyAttributes).forEach((attribute) => {
+      if (typeof attribute[1] === 'string') {
+        filteredAttributes.push(attribute as [string, string])
+      }
+    })
+  }
+  return filteredAttributes
+}

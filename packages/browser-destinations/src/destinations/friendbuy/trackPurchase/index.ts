@@ -3,7 +3,7 @@ import type { BrowserActionDefinition } from '../../../lib/browser-destinations'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 import { FriendbuyAPI } from '..'
-import { createFriendbuyPayload } from '../util'
+import { createFriendbuyPayload, filterFriendbuyAttributes } from '../util'
 
 // see https://segment.com/docs/config-api/fql/
 export const trackPurchaseDefaultSubscription = 'event = "Order Completed"'
@@ -91,6 +91,15 @@ export const trackPurchaseFields: Record<string, InputField> = {
     type: 'string',
     required: false,
     default: { '@path': '$.anonymousId' }
+  },
+
+  friendbuyAttributes: {
+    label: 'Custom Attributes',
+    description:
+      'Custom attributes to send to Friendbuy. You should pass an object whose keys are the names of the custom attributes and whose values are strings. Non-string-valued attributes will be dropped.',
+    type: 'object',
+    required: false,
+    default: { '@path': '$.properties.friendbuyAttributes' }
   }
 }
 
@@ -117,7 +126,8 @@ const action: BrowserActionDefinition<Settings, FriendbuyAPI, Payload> = {
         ['customer', createFriendbuyPayload([['id', data.payload.customerId]])],
         ['products', products],
         // custom properties
-        ['anonymousId', data.payload.anonymousId]
+        ['anonymousId', data.payload.anonymousId],
+        ...filterFriendbuyAttributes(data.payload.friendbuyAttributes)
       ],
       { dropEmptyObjects: true }
     )

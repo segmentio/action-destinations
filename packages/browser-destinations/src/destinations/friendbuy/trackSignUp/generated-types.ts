@@ -33,4 +33,10 @@ export interface Payload {
    * The status of the user in your loyalty program. Valid values are "in", "out", or "blocked".
    */
   loyaltyStatus?: string
+  /**
+   * Custom attributes to send to Friendbuy. You should pass an object whose keys are the names of the custom attributes and whose values are strings. Non-string-valued attributes will be dropped.
+   */
+  friendbuyAttributes?: {
+    [k: string]: unknown
+  }
 }

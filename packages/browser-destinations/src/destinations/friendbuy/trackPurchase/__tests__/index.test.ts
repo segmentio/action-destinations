@@ -32,6 +32,7 @@ describe('Friendbuy.trackPurchase', () => {
     const anonymousId = 'cbce64f6-a45a-4d9c-a63d-4c7b42773276'
     const currency = 'USD'
     const coupon = 'coupon-xyzzy'
+    const friendbuyAttributes = { referralCode: 'ref-plugh' }
 
     const [trackPurchase] = await friendbuyDestination({
       merchantId,
@@ -62,7 +63,8 @@ describe('Friendbuy.trackPurchase', () => {
           total: amount + 2,
           currency,
           coupon,
-          products: products as JSONValue
+          products: products as JSONValue,
+          friendbuyAttributes
         }
       })
       // console.log('context1', JSON.stringify(context1, null, 2))
@@ -80,7 +82,8 @@ describe('Friendbuy.trackPurchase', () => {
           couponCode: coupon,
           customer: { id: userId },
           products: expectedProducts,
-          anonymousId
+          anonymousId,
+          ...friendbuyAttributes
         },
         true
       ])

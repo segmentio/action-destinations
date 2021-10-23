@@ -42,6 +42,7 @@ describe('Friendbuy.trackCustomer', () => {
     const customerSince = '2021-10-20T14:20:15Z'
     const loyaltyStatus = 'in'
     const isNewCustomer = false
+    const friendbuyAttributes = { custom1: 'custom1', custom2: 'custom2' }
 
     const [trackCustomer] = await friendbuyDestination({
       merchantId,
@@ -69,7 +70,8 @@ describe('Friendbuy.trackCustomer', () => {
           age,
           customerSince,
           loyaltyStatus,
-          isNewCustomer
+          isNewCustomer,
+          friendbuyAttributes
         }
       })
       // console.log('context1', JSON.stringify(context1, null, 2))
@@ -90,7 +92,8 @@ describe('Friendbuy.trackCustomer', () => {
           customerSince,
           loyaltyStatus,
           isNewCustomer,
-          anonymousId
+          anonymousId,
+          ...friendbuyAttributes
         },
         true
       ])

@@ -4,7 +4,7 @@ import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 import { FriendbuyAPI } from '..'
 import { getName } from '../util'
-import { createFriendbuyPayload } from '../util'
+import { createFriendbuyPayload, filterFriendbuyAttributes } from '../util'
 
 // see https://segment.com/docs/config-api/fql/
 export const trackSignUpDefaultSubscription = 'event = "Signed Up"'
@@ -66,6 +66,14 @@ export const trackSignUpFields: Record<string, InputField> = {
     type: 'string',
     required: false,
     default: { '@path': '$.properties.loyaltyStatus' }
+  },
+  friendbuyAttributes: {
+    label: 'Custom Attributes',
+    description:
+      'Custom attributes to send to Friendbuy. You should pass an object whose keys are the names of the custom attributes and whose values are strings. Non-string-valued attributes will be dropped.',
+    type: 'object',
+    required: false,
+    default: { '@path': '$.properties.friendbuyAttributes' }
   }
 }
 
@@ -87,7 +95,8 @@ const action: BrowserActionDefinition<Settings, FriendbuyAPI, Payload> = {
       ['age', data.payload.age],
       ['loyaltyStatus', data.payload.loyaltyStatus],
       // custom properties
-      ['anonymousId', data.payload.anonymousId]
+      ['anonymousId', data.payload.anonymousId],
+      ...filterFriendbuyAttributes(data.payload.friendbuyAttributes)
     ])
     // console.log('friendbuyPayload', JSON.stringify(friendbuyPayload, null, 2))
     friendbuyAPI.push(['track', 'sign_up', friendbuyPayload, true])

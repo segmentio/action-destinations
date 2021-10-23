@@ -34,4 +34,10 @@ export interface Payload {
    * The user's anonymous id
    */
   anonymousId?: string
+  /**
+   * Custom attributes to send to Friendbuy. You should pass an object whose keys are the names of the custom attributes and whose values are strings. Non-string-valued attributes will be dropped.
+   */
+  friendbuyAttributes?: {
+    [k: string]: unknown
+  }
 }
