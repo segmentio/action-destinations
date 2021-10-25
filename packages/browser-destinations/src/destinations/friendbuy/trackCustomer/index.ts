@@ -13,14 +13,14 @@ export const trackCustomerDefaultSubscription = 'type = "identify"'
 export const trackCustomerFields: Record<string, InputField> = {
   customerId: {
     label: 'Customer ID',
-    description: "The user's customerId.",
+    description: "The user's customer ID.",
     type: 'string',
     required: true,
     default: { '@path': '$.userId' }
   },
   anonymousId: {
     label: 'Anonymous ID',
-    description: "The user's anonymous id",
+    description: "The user's anonymous id.",
     type: 'string',
     required: false,
     default: { '@path': '$.anonymousId' }
@@ -63,7 +63,7 @@ export const trackCustomerFields: Record<string, InputField> = {
   },
   customerSince: {
     label: 'Customer Since',
-    description: 'The date the user became a customer',
+    description: 'The date the user became a customer.',
     type: 'string',
     format: 'date-time',
     required: false

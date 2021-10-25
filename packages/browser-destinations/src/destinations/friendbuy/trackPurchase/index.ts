@@ -12,7 +12,7 @@ export const trackPurchaseDefaultSubscription = 'event = "Order Completed"'
 export const trackPurchaseFields: Record<string, InputField> = {
   orderId: {
     label: 'Order ID',
-    description: 'The order Id',
+    description: 'The order ID.',
     type: 'string',
     required: true,
     default: { '@path': '$.properties.order_id' }
@@ -47,7 +47,7 @@ export const trackPurchaseFields: Record<string, InputField> = {
 
   products: {
     label: 'Products',
-    description: 'Products purchased',
+    description: 'Products purchased.',
     type: 'object',
     multiple: true,
     required: false,
@@ -80,14 +80,14 @@ export const trackPurchaseFields: Record<string, InputField> = {
 
   customerId: {
     label: 'Customer ID',
-    description: "The user's customerId.",
+    description: "The user's customer ID.",
     type: 'string',
     required: false,
     default: { '@path': '$.userId' }
   },
   anonymousId: {
     label: 'Anonymous ID',
-    description: "The user's anonymous id",
+    description: "The user's anonymous ID.",
     type: 'string',
     required: false,
     default: { '@path': '$.anonymousId' }

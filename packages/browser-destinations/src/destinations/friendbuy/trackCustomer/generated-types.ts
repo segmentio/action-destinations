@@ -2,11 +2,11 @@
 
 export interface Payload {
   /**
-   * The user's customerId.
+   * The user's customer ID.
    */
   customerId: string
   /**
-   * The user's anonymous id
+   * The user's anonymous id.
    */
   anonymousId?: string
   /**
@@ -30,7 +30,7 @@ export interface Payload {
    */
   age?: number
   /**
-   * The date the user became a customer
+   * The date the user became a customer.
    */
   customerSince?: string
   /**

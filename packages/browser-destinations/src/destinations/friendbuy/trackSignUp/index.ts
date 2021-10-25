@@ -13,14 +13,14 @@ export const trackSignUpDefaultSubscription = 'event = "Signed Up"'
 export const trackSignUpFields: Record<string, InputField> = {
   customerId: {
     label: 'Customer ID',
-    description: "The user's customerId.",
+    description: "The user's customer ID.",
     type: 'string',
     required: true,
     default: { '@path': '$.userId' }
   },
   anonymousId: {
     label: 'Anonymous ID',
-    description: "The user's anonymous id",
+    description: "The user's anonymous ID.",
     type: 'string',
     required: false,
     default: { '@path': '$.anonymousId' }

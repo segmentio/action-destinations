@@ -2,7 +2,7 @@
 
 export interface Payload {
   /**
-   * The order Id
+   * The order ID.
    */
   orderId: string
   /**
@@ -18,7 +18,7 @@ export interface Payload {
    */
   coupon?: string
   /**
-   * Products purchased
+   * Products purchased.
    */
   products?: {
     sku: string
@@ -27,11 +27,11 @@ export interface Payload {
     quantity?: number
   }[]
   /**
-   * The user's customerId.
+   * The user's customer ID.
    */
   customerId?: string
   /**
-   * The user's anonymous id
+   * The user's anonymous ID.
    */
   anonymousId?: string
   /**
