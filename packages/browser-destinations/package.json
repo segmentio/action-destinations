@@ -1,6 +1,6 @@
 {
   "name": "@segment/browser-destinations",
-  "version": "3.14.1",
+  "version": "3.14.2",
   "description": "Action based browser destinations",
   "author": "Netto Farah",
   "private": true,
@@ -30,7 +30,7 @@
     "@braze/web-sdk": "^3.3.0",
     "@fullstory/browser": "^1.4.9",
     "@segment/analytics-next": "^1.29.3",
-    "@segment/destination-subscriptions": "^3.8.1",
+    "@segment/destination-subscriptions": "^3.8.2",
     "dayjs": "^1.10.7",
     "tslib": "^2.3.1",
     "vm-browserify": "^1.1.2"
@@ -41,7 +41,7 @@
     "@babel/plugin-transform-modules-commonjs": "^7.13.8",
     "@babel/preset-env": "^7.13.10",
     "@babel/preset-typescript": "^7.13.0",
-    "@segment/actions-core": "^3.14.1",
+    "@segment/actions-core": "^3.14.2",
     "@types/amplitude-js": "^7.0.1",
     "@types/jest": "^27.0.0",
     "babel-jest": "^27.3.1",
