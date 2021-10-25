@@ -30,6 +30,7 @@ const action: ActionDefinition<Settings, Payload> = {
       label: 'Event Parameters',
       description: 'The event parameters to send to Google',
       type: 'object',
+      additionalProperties: true,
       default: { '@path': '$.properties' }
     }
   },

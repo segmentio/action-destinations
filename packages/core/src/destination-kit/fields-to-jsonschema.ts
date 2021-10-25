@@ -14,12 +14,13 @@ function toJsonSchemaType(type: FieldTypeName): JSONSchema4TypeName | JSONSchema
   }
 }
 
-export type MinimalInputField = Optional<InputField, 'description'> | Optional<GlobalSetting, 'description'>
+export type MinimalInputField = Optional<InputField, 'description'> | Optional<GlobalSetting, 'description'> & { additionalProperties?: boolean }
 
 export type MinimalFields = Record<string, MinimalInputField>
 
 interface SchemaOptions {
   tsType?: boolean
+  additionalProperties?: boolean
 }
 
 export function fieldsToJsonSchema(fields: MinimalFields = {}, options?: SchemaOptions): JSONSchema4 {
@@ -86,9 +87,9 @@ export function fieldsToJsonSchema(fields: MinimalFields = {}, options?: SchemaO
 
     if (schemaType === 'object' && field.properties) {
       if (isMulti) {
-        schema.items = fieldsToJsonSchema(field.properties)
+        schema.items = fieldsToJsonSchema(field.properties, { additionalProperties: field?.additionalProperties || false })
       } else {
-        schema = { ...schema, ...fieldsToJsonSchema(field.properties) }
+        schema = { ...schema, ...fieldsToJsonSchema(field.properties, { additionalProperties: field?.additionalProperties || false }) }
       }
     }
 
@@ -103,7 +104,7 @@ export function fieldsToJsonSchema(fields: MinimalFields = {}, options?: SchemaO
   return {
     $schema: 'http://json-schema.org/schema#',
     type: 'object',
-    additionalProperties: false,
+    additionalProperties: options?.additionalProperties || false,
     properties,
     required
   }
