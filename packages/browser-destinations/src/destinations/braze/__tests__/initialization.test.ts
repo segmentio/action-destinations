@@ -1,21 +1,18 @@
-import appboy from '@braze/web-sdk'
 import { Analytics, Context } from '@segment/analytics-next'
-import brazeDestination from '../index'
+import brazeDestination, { destination } from '../index'
+import * as snippet from '../init-script'
 
 describe('initialization', () => {
   const settings = {
     safariWebsitePushId: 'safari',
     allowCrawlerActivity: true,
     doNotLoadFontAwesome: true,
-    enableLogging: true,
+    enableLogging: false,
     localization: 'pt',
     minimumIntervalBetweenTriggerActionsInSeconds: 60,
     openInAppMessagesInNewTab: true,
     sessionTimeoutInSeconds: 60,
     requireExplicitInAppMessageDismissal: true,
-    enableHtmlInAppMessages: true,
-    devicePropertyAllowlist: ['ay', 'Dios', 'mio'],
-    devicePropertyWhitelist: ['foo', 'bar'],
     allowUserSuppliedJavascript: true,
     contentSecurityNonce: 'bar',
     endpoint: 'endpoint',
@@ -23,19 +20,16 @@ describe('initialization', () => {
   }
 
   beforeEach(async () => {
-    // we're not really testing that appboy loads here, so we'll just mock it out
-    jest.spyOn(appboy, 'initialize').mockImplementation(() => true)
-    jest.spyOn(appboy, 'openSession').mockImplementation(() => true)
+    jest.restoreAllMocks()
+    jest.resetAllMocks()
   })
 
-  test('load initialization options', async () => {
-    const initialize = jest.spyOn(appboy, 'initialize')
-
-    const [trackEvent] = await brazeDestination({
+  test('can load braze', async () => {
+    const [event] = await brazeDestination({
       api_key: 'b_123',
       subscriptions: [
         {
-          partnerAction: 'trackEvent',
+          partnerAction: 'trackPurchase',
           name: 'Log Custom Event',
           enabled: true,
           subscribe: 'type = "track"',
@@ -52,12 +46,38 @@ describe('initialization', () => {
       ...settings
     })
 
-    await trackEvent.load(Context.system(), {} as Analytics)
+    jest.spyOn(destination.actions.trackPurchase, 'perform')
+    jest.spyOn(destination, 'initialize')
+    jest.spyOn(snippet, 'initScript')
 
-    const { endpoint, ...expectedSettings } = settings
-    expect(initialize).toHaveBeenCalledWith(
-      'b_123',
-      expect.objectContaining({ baseUrl: endpoint, ...expectedSettings })
+    await event.load(Context.system(), {} as Analytics)
+    expect(destination.initialize).toHaveBeenCalled()
+    expect(snippet.initScript).toHaveBeenCalled()
+
+    const ctx = await event.track?.(
+      new Context({
+        type: 'track',
+        properties: {
+          banana: '📞'
+        }
+      })
     )
+
+    expect(destination.actions.trackPurchase.perform).toHaveBeenCalled()
+    expect(ctx).not.toBeUndefined()
+
+    const scripts = window.document.querySelectorAll('script')
+
+    expect(scripts).toMatchSnapshot(`
+      NodeList [
+        <script
+          src="https://js.appboycdn.com/web-sdk/3.3/appboy.min.js"
+          type="text/javascript"
+        />,
+        <script>
+          // the emptiness
+        </script>,
+      ]
+    `)
   })
 })
