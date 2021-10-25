@@ -257,7 +257,6 @@ export const destination: BrowserDestinationDefinition<Settings, typeof appboy> 
       resetUserCache()
 
       await dependencies.loadScript(`https://js.appboycdn.com/web-sdk/${sdkVersion}/appboy.min.js`)
-      await dependencies.resolveWhen(() => Object.prototype.hasOwnProperty.call(window, 'appboy'), 100)
 
       window.appboy.initialize(api_key, {
         baseUrl: endpoint,
