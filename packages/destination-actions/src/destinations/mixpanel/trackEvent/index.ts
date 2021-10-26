@@ -316,7 +316,7 @@ const action: ActionDefinition<Settings, Payload> = {
       type: 'string',
       description: 'User agent',
       default: {
-        '@path': '$.userAgent'
+        '@path': '$.context.userAgent'
       }
     }
   },
@@ -336,6 +336,7 @@ const action: ActionDefinition<Settings, Payload> = {
       properties: {
         time: time,
         ip: payload.ip,
+        id: payload.distinct_id,
         distinct_id: payload.distinct_id,
         $app_build_number: payload.app_build,
         $app_version_string: payload.app_version,
@@ -368,7 +369,7 @@ const action: ActionDefinition<Settings, Payload> = {
         $source: 'segment',
         $wifi_enabled: payload.wifi,
         mp_country_code: payload.country,
-        mp_lib: `Segment: ${payload.library_name}`,
+        mp_lib: payload.library_name && `Segment: ${payload.library_name}`,
         // segment_source_name: string // 'readme'
         utm_campaign: utm.utm_campaign,
         utm_content: utm.utm_content,
