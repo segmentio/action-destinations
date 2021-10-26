@@ -80,7 +80,7 @@
     "tslib": "^2.3.1"
   },
   "optionalDependencies": {
-    "@segment/actions-cli-internal": "^3.13.0",
+    "@segment/actions-cli-internal": "^3.23.2",
     "@segment/browser-destinations": "^3.15.0",
     "@segment/control-plane-service-client": "github:segmentio/control-plane-service-js-client.git#master"
   },
