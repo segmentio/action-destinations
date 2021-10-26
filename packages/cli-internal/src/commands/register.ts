@@ -4,7 +4,7 @@ import ora from 'ora'
 import path from 'path'
 import { controlPlaneService } from '../lib/control-plane-service'
 import type { CreateDestinationMetadataInput } from '../lib/control-plane-service'
-import { prompt } from '@segment/actions-cli/lib/prompt'
+import { autoPrompt, prompt } from '@segment/actions-cli/lib/prompt'
 import { loadDestination } from '@segment/actions-cli/lib/destinations'
 import { generateSlug } from '@segment/actions-cli/lib/slugs'
 
