@@ -42,7 +42,7 @@ describe('Friendbuy.trackCustomer', () => {
     const customerSince = '2021-10-20T14:20:15Z'
     const loyaltyStatus = 'in'
     const isNewCustomer = false
-    const friendbuyAttributes = { custom1: 'custom1', custom2: 'custom2' }
+    const friendbuyAttributes = { custom1: 'custom1', custom2: 'custom2', birthday: '1996-02-29' }
 
     const [trackCustomer] = await friendbuyDestination({
       merchantId,
@@ -93,7 +93,8 @@ describe('Friendbuy.trackCustomer', () => {
           loyaltyStatus,
           isNewCustomer,
           anonymousId,
-          ...friendbuyAttributes
+          ...friendbuyAttributes,
+          birthday: { year: 1996, month: 2, day: 29 }
         },
         true
       ])

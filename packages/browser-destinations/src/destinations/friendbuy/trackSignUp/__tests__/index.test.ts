@@ -30,7 +30,7 @@ describe('Friendbuy.trackSignUp', () => {
     const email = 'john.doe@example.com'
     const age = 42
     const loyaltyStatus = 'in'
-    const friendbuyAttributes = { custom1: 'custom1', custom2: 'custom2' }
+    const friendbuyAttributes = { custom1: 'custom1', custom2: 'custom2', birthday: '12-31' }
 
     const [trackSignUp] = await friendbuyDestination({
       merchantId,
@@ -76,7 +76,8 @@ describe('Friendbuy.trackSignUp', () => {
         age,
         loyaltyStatus,
         anonymousId,
-        ...friendbuyAttributes
+        ...friendbuyAttributes,
+        birthday: { month: 12, day: 31 }
       },
       true
     ])
