@@ -91,6 +91,12 @@ const destination: DestinationDefinition<Settings> = {
     }
   },
 
+  onDelete: async (request, { settings, payload }) => {
+    // Return a request that performs a GDPR delete for the provided Segment userId or anonymousId
+    // provided in the payload. If your destination does not support GDPR deletion you should not
+    // implement this function and should remove it completely.
+  },
+
   actions: {}
 }
 
@@ -102,6 +108,8 @@ Notice the `name` and `slug` properties, the `authentication` object, an `extend
 With this minimal configuration, the destination can connect to the Segment App's user interface, and collect authentication fields. The destination does not do anything at this point, because no Actions are defined.
 
 > The `testAuthentication` function verifies the user's credentials against a service. For testing, enter `return true` in this function to continue development.
+
+> The `onDelete` function performs a GDPR delete against a service. For testing, enter `return true` in this function to continue development.
 
 ## Actions
 

@@ -4,7 +4,7 @@ import type { Payload } from './generated-types'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Login',
-  description: 'Send login event to GA4',
+  description: 'Send event when a user logs in',
   defaultSubscription: 'type = "track" and event = "Signed In"',
   fields: {
     client_id: {

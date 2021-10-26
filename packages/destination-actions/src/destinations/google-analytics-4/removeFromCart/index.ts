@@ -5,8 +5,8 @@ import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 
 const action: ActionDefinition<Settings, Payload> = {
-  title: 'Product Removed',
-  description: 'User removed an item from the shopping cart.',
+  title: 'Remove from Cart',
+  description: 'Send event when a user removes items from a cart',
   defaultSubscription: 'type = "track" and event = "Product Removed"',
   fields: {
     client_id: {

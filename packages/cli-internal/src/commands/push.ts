@@ -314,6 +314,9 @@ function getFieldPropertySchema(fieldKey: string, field: MinimalInputField): JSO
   // removing default data since it's available under defaultValue
   const { default: def, ...fieldWODefault } = field
   tmpFieldObject[fieldKey] = fieldWODefault
+  if (field.type === 'object') {
+    return fieldsToJsonSchema(tmpFieldObject, { additionalProperties: field?.additionalProperties || false })
+  }
   return fieldsToJsonSchema(tmpFieldObject)
 }
 

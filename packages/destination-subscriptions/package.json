@@ -1,6 +1,6 @@
 {
   "name": "@segment/destination-subscriptions",
-  "version": "3.8.1",
+  "version": "3.8.2",
   "description": "Validate event payload using subscription AST",
   "license": "MIT",
   "repository": {
@@ -41,10 +41,10 @@
     "@segment/fql-ts": "^1.10.1"
   },
   "devDependencies": {
-    "@size-limit/preset-small-lib": "^5.0.3",
+    "@size-limit/preset-small-lib": "^6.0.3",
     "@types/jest": "^27.0.0",
-    "jest": "^27.0.0",
-    "size-limit": "^5.0.3"
+    "jest": "^27.3.1",
+    "size-limit": "^6.0.3"
   },
   "jest": {
     "preset": "ts-jest",

@@ -4,6 +4,10 @@ import prepareResponse from './middleware/after-response/prepare-response'
 import createInstance, { AllRequestOptions, RequestOptions } from './request-client'
 import type { ModifiedResponse } from './types'
 
+export interface ResponseError extends Error {
+  status?: number
+}
+
 const baseClient = createInstance({
   timeout: 10000,
   headers: {

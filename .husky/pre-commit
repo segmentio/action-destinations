@@ -1,0 +1,26 @@
+#!/usr/bin/env bash
+
+. "$(dirname "$0")/_/husky.sh"
+set -ex
+
+if ! command -v gitleaks -h &> /dev/null
+then
+
+    set +ex
+    if [ ! "$(uname)" == "Darwin" ]
+    then
+        echo "To run this pre-commit hook install gitleaks or commit with the --no-verify flag."
+        echo "https://github.com/zricethezav/gitleaks#installation"
+        exit 1
+    fi
+    set -ex
+
+    if ! command -v brew -v &> /dev/null
+    then
+        /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+    fi
+
+    brew install gitleaks
+fi
+
+yarn lint-staged -c lint-staged.config.js

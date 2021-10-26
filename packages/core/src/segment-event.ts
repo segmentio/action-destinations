@@ -1,6 +1,6 @@
 import { JSONValue } from './json-object'
 
-type ID = string | null | undefined
+export type ID = string | null | undefined
 
 type CompactMetricType = 'g' | 'c'
 

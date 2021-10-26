@@ -1,0 +1,28 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`initialization can load braze: 
+      NodeList [
+        <script
+          src="https://js.appboycdn.com/web-sdk/3.3/appboy.min.js"
+          type="text/javascript"
+        />,
+        <script>
+          // the emptiness
+        </script>,
+      ]
+     1`] = `
+NodeList [
+  <script
+    src="https://js.appboycdn.com/web-sdk/3.3/appboy.min.js"
+    status="loaded"
+    type="text/javascript"
+  />,
+  <script
+    src="https://js.appboycdn.com/web-sdk/3.3/appboy.min.js"
+    type="text/javascript"
+  />,
+  <script>
+    // the emptiness
+  </script>,
+]
+`;

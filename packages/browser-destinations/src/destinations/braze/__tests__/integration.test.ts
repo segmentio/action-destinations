@@ -47,29 +47,7 @@ test('can load braze', async () => {
   expect(ctx).not.toBeUndefined()
 })
 
-test('loads the braze service worker', async () => {
-  const [trackEvent] = await braze({
-    api_key: 'api_key',
-    endpoint: 'sdk.iad-01.braze.com',
-    subscriptions: example,
-    doNotLoadFontAwesome: true,
-    sdkVersion: '3.3'
-  })
-
-  await trackEvent.load(Context.system(), {} as Analytics)
-
-  const scripts = window.document.querySelectorAll('script')
-  // loads the service worker
-  expect(scripts).toMatchInlineSnapshot(`
-    NodeList [
-      <script>
-        'hi'
-      </script>,
-    ]
-  `)
-})
-
-describe('loads different versions of braze service worker', () => {
+describe('loads different versions from CDN', () => {
   test('3.0', async () => {
     const [trackEvent] = await braze({
       api_key: 'api_key',
@@ -82,11 +60,14 @@ describe('loads different versions of braze service worker', () => {
     await trackEvent.load(Context.system(), {} as Analytics)
 
     const scripts = window.document.querySelectorAll('script')
-    // loads the service worker
-    expect(scripts).toMatchInlineSnapshot(`
+    expect(scripts).toMatchSnapshot(`
       NodeList [
+        <script
+          src="https://js.appboycdn.com/web-sdk/3.0/appboy.min.js"
+          type="text/javascript"
+        />,
         <script>
-          'hi'
+          // the emptiness
         </script>,
       ]
     `)
@@ -105,54 +86,15 @@ describe('loads different versions of braze service worker', () => {
 
     const scripts = window.document.querySelectorAll('script')
     // loads the service worker
-    expect(scripts).toMatchInlineSnapshot(`
+    expect(scripts).toMatchSnapshot(`
       NodeList [
+        <script
+          src="https://js.appboycdn.com/web-sdk/3.1/appboy.min.js"
+          status="loaded"
+          type="text/javascript"
+        />,
         <script>
-          'hi'
-        </script>,
-      ]
-    `)
-  })
-
-  test('3.2', async () => {
-    const [trackEvent] = await braze({
-      api_key: 'api_key',
-      endpoint: 'sdk.iad-01.braze.com',
-      sdkVersion: '3.2',
-      doNotLoadFontAwesome: true,
-      subscriptions: example
-    })
-
-    await trackEvent.load(Context.system(), {} as Analytics)
-
-    const scripts = window.document.querySelectorAll('script')
-    // loads the service worker
-    expect(scripts).toMatchInlineSnapshot(`
-      NodeList [
-        <script>
-          'hi'
-        </script>,
-      ]
-    `)
-  })
-
-  test('3.3', async () => {
-    const [trackEvent] = await braze({
-      api_key: 'api_key',
-      endpoint: 'sdk.iad-01.braze.com',
-      sdkVersion: '3.3',
-      doNotLoadFontAwesome: true,
-      subscriptions: example
-    })
-
-    await trackEvent.load(Context.system(), {} as Analytics)
-
-    const scripts = window.document.querySelectorAll('script')
-    // loads the service worker
-    expect(scripts).toMatchInlineSnapshot(`
-      NodeList [
-        <script>
-          'hi'
+          // the emptiness
         </script>,
       ]
     `)

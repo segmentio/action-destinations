@@ -27,7 +27,18 @@ const schema = fieldsToJsonSchema({
   f: {
     label: 'f',
     type: 'integer'
-  }
+  },
+  g: {
+    label: 'g',
+    type: 'object',
+    additionalProperties: true,
+    properties: {
+      h: {
+        label: 'h',
+        type: 'string'
+      }
+    }
+  },
 })
 
 describe('validateSchema', () => {
@@ -96,6 +107,48 @@ describe('validateSchema', () => {
         "a": "1234",
         "e": true,
         "f": 123,
+      }
+    `)
+  })
+
+  it('should allow any properties based on an object type additionalProperties value', () => {
+    const payload = {
+      a: 'a',
+      b: {
+        anything: 'goes'
+      },
+      c: {
+        d: 'd',
+        l: 'www'
+      },
+      g: {
+        h: 'test',
+        w: 'test 12'
+      }
+    }
+
+    validateSchema(payload, schema, { schemaKey: `testSchema` })
+    expect(payload).toHaveProperty('b')
+    expect(payload.b).toHaveProperty('anything')
+    expect(payload).toHaveProperty('c')
+    expect(payload.c).toHaveProperty('d')
+    expect(payload.c).not.toHaveProperty('l')
+    expect(payload).toHaveProperty('g')
+    expect(payload.g).toHaveProperty('h')
+    expect(payload.g).toHaveProperty('w')
+    expect(payload).toMatchInlineSnapshot(`
+      Object {
+        "a": "a",
+        "b": Object {
+          "anything": "goes",
+        },
+        "c": Object {
+          "d": "d",
+        },
+        "g": Object {
+          "h": "test",
+          "w": "test 12",
+        },
       }
     `)
   })

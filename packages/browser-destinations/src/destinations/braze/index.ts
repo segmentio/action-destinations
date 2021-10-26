@@ -1,12 +1,13 @@
 import type { Settings } from './generated-types'
 import type { BrowserDestinationDefinition } from '../../lib/browser-destinations'
 import { browserDestination } from '../../runtime/shim'
-import appboy from '@braze/web-sdk'
+import type appboy from '@braze/web-sdk'
 import trackEvent from './trackEvent'
 import updateUserProfile from './updateUserProfile'
 import trackPurchase from './trackPurchase'
 import debounce, { resetUserCache } from './debounce'
 import { defaultValues, DestinationDefinition } from '@segment/actions-core'
+import { initScript } from './init-script'
 
 declare global {
   interface Window {
@@ -44,7 +45,7 @@ const presets: DestinationDefinition['presets'] = [
 ]
 
 export const destination: BrowserDestinationDefinition<Settings, typeof appboy> = {
-  name: 'Braze Web Mode',
+  name: 'Braze Web Mode (Actions)',
   slug: 'actions-braze-web',
   mode: 'device',
   settings: {
@@ -168,6 +169,14 @@ export const destination: BrowserDestinationDefinition<Settings, typeof appboy> 
       description:
         "By default, any SDK-generated user-visible messages will be displayed in the user's browser language. Provide a value for this option to override that behavior and force a specific language. The value for this option should be a ISO 639-1 Language Code."
     },
+    automaticallyDisplayMessages: {
+      label: 'Automatically Send In-App Messages',
+      type: 'boolean',
+      default: true,
+      required: false,
+      description:
+        "When this is enabled, all In-App Messages that a user is eligible for are automatically delivered to the user. If you'd like to register your own display subscribers or send soft push notifications to your users, make sure to disable this option."
+    },
     manageServiceWorkerExternally: {
       label: 'Manage Service Worker Externally',
       type: 'boolean',
@@ -239,18 +248,31 @@ export const destination: BrowserDestinationDefinition<Settings, typeof appboy> 
         'By default, sessions time out after 30 minutes of inactivity. Provide a value for this configuration option to override that default with a value of your own.'
     }
   },
-  initialize: async ({ settings }, _dependencies) => {
-    const { endpoint, api_key, ...expectedConfig } = settings
+  initialize: async ({ settings }, dependencies) => {
+    try {
+      const { endpoint, api_key, sdkVersion, automaticallyDisplayMessages, ...expectedConfig } = settings
 
-    const initialized = appboy.initialize(settings.api_key, { baseUrl: endpoint, ...expectedConfig })
-    if (!initialized) {
-      throw new Error('Failed to initialize AppBoy')
+      initScript(sdkVersion)
+
+      resetUserCache()
+
+      await dependencies.loadScript(`https://js.appboycdn.com/web-sdk/${sdkVersion}/appboy.min.js`)
+
+      window.appboy.initialize(api_key, {
+        baseUrl: endpoint,
+        ...expectedConfig
+      })
+
+      if (automaticallyDisplayMessages) {
+        window.appboy.display.automaticallyShowNewInAppMessages()
+      }
+
+      window.appboy.openSession()
+
+      return window.appboy
+    } catch (e) {
+      throw new Error(`Failed to initialize Braze ${e}`)
     }
-
-    appboy.openSession()
-    resetUserCache()
-
-    return appboy
   },
   presets,
   actions: {

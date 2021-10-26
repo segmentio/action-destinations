@@ -58,6 +58,10 @@ export interface Settings {
    */
   localization?: string
   /**
+   * When this is enabled, all In-App Messages that a user is eligible for are automatically delivered to the user. If you'd like to register your own display subscribers or send soft push notifications to your users, make sure to disable this option.
+   */
+  automaticallyDisplayMessages?: boolean
+  /**
    * If you have your own service worker that you register and control the lifecycle of, set this option to true and the Braze SDK will not register or unregister a service worker. [See more details](https://js.appboycdn.com/web-sdk/latest/doc/modules/appboy.html#initializationoptions)
    */
   manageServiceWorkerExternally?: boolean

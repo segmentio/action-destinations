@@ -79,6 +79,17 @@ const destination: DestinationDefinition<Settings> = {
       })
     }
   },
+  onDelete: async (request, { settings, payload }) => {
+    return request('https://amplitude.com/api/2/deletions/users', {
+      username: settings.apiKey,
+      password: settings.secretKey,
+      method: 'post',
+      json: {
+        user_ids: [payload.userId],
+        requester: 'segment'
+      }
+    })
+  },
   presets,
   actions: {
     logEvent,

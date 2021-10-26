@@ -8,7 +8,7 @@ import { ProductItem } from '../ga4-types'
 // https://developers.google.com/analytics/devguides/collection/protocol/ga4/reference/events#purchase
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Purchase',
-  description: 'Send purchase events to GA4 to make the most of the ecommerce reports in Google Analytics',
+  description: 'Send event when a user completes a purchase',
   defaultSubscription: 'type = "track" and event = "Order Completed"',
   fields: {
     client_id: {
