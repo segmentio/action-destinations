@@ -1,8 +1,11 @@
 import type { RequestOptions } from '../request-client'
 import type { JSONObject } from '../json-object'
 import { AuthTokens } from './parse-settings'
+import type { RequestClient } from '../create-request-client'
+import type { ID } from '../segment-event'
 
 export type Optional<T, K extends keyof T> = Pick<Partial<T>, K> & Omit<T, K>
+export type MaybePromise<T> = T | Promise<T>
 
 export interface Result {
   output?: JSONObject | string | null | undefined
@@ -77,6 +80,8 @@ export interface InputField {
   allowNull?: boolean
   /** Whether or not the field accepts multiple values (an array of `type`) */
   multiple?: boolean
+  /** Whether or not the field accepts properties not defined by the builder */
+  additionalProperties?: boolean
   /** An optional default value for the field */
   default?: FieldValue
   /** A placeholder display value that suggests what to input */
@@ -88,13 +93,13 @@ export interface InputField {
    * Only relevant for `type: 'string'` or `type: 'number'`.
    */
   choices?:
-    | Array<string>
-    | Array<{
-        /** The value of the option */
-        value: string | number
-        /** A human-friendly label for the option */
-        label: string
-      }>
+  | Array<string>
+  | Array<{
+    /** The value of the option */
+    value: string | number
+    /** A human-friendly label for the option */
+    label: string
+  }>
   /** Whether or not the field is required */
   required?: boolean
   /**
@@ -109,20 +114,20 @@ export interface InputField {
    * @see {@link https://github.com/ajv-validator/ajv/tree/v6#formats}
    */
   format?:
-    | 'date' // full-date according to RFC3339.
-    | 'time' // time with optional time-zone.
-    | 'date-time' // date-time from the same source (time-zone is mandatory). date, time and date-time validate ranges in full mode and only regexp in fast mode (see options).
-    | 'uri' // full URI.
-    | 'uri-reference' // URI reference, including full and relative URIs.
-    | 'uri-template' // URI template according to RFC6570
-    | 'email' // email address.
-    | 'hostname' // host name according to RFC1034.
-    | 'ipv4' // IP address v4.
-    | 'ipv6' // IP address v6.
-    | 'regex' // tests whether a string is a valid regular expression by passing it to RegExp constructor.
-    | 'uuid' // Universally Unique IDentifier according to RFC4122.
-    | 'password' // hint to the UI to hide/obfuscate input strings
-    | 'text' // longer strings
+  | 'date' // full-date according to RFC3339.
+  | 'time' // time with optional time-zone.
+  | 'date-time' // date-time from the same source (time-zone is mandatory). date, time and date-time validate ranges in full mode and only regexp in fast mode (see options).
+  | 'uri' // full URI.
+  | 'uri-reference' // URI reference, including full and relative URIs.
+  | 'uri-template' // URI template according to RFC6570
+  | 'email' // email address.
+  | 'hostname' // host name according to RFC1034.
+  | 'ipv4' // IP address v4.
+  | 'ipv6' // IP address v6.
+  | 'regex' // tests whether a string is a valid regular expression by passing it to RegExp constructor.
+  | 'uuid' // Universally Unique IDentifier according to RFC4122.
+  | 'password' // hint to the UI to hide/obfuscate input strings
+  | 'text' // longer strings
 }
 
 export type FieldValue = string | number | boolean | object | Directive
@@ -150,3 +155,21 @@ export type Directive = IfDirective | TemplateDirective | PathDirective
  * that will be applied to every request made by that instance
  */
 export type RequestExtension<Settings, Payload = undefined> = (data: ExecuteInput<Settings, Payload>) => RequestOptions
+
+/**
+ * Common fields derived from the Segment event schema for use in deletion calls to endpoints
+ */
+export interface DeletionPayload {
+  userId: ID
+  anonymousId: ID
+}
+
+/**
+ * A function to perform a deletion request for GDPR or PII related data
+ *
+ */
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export type Deletion<Settings, Return = any> = (
+  request: RequestClient,
+  data: ExecuteInput<Settings, DeletionPayload>
+) => MaybePromise<Return>

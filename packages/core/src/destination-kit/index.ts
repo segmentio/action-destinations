@@ -5,15 +5,16 @@ import { time, duration } from '../time'
 import { JSONLikeObject, JSONObject, JSONValue } from '../json-object'
 import { SegmentEvent } from '../segment-event'
 import { fieldsToJsonSchema, MinimalInputField } from './fields-to-jsonschema'
-import createRequestClient, { RequestClient } from '../create-request-client'
+import createRequestClient, { RequestClient, ResponseError } from '../create-request-client'
 import { validateSchema } from '../schema-validation'
 import type { ModifiedResponse } from '../types'
-import type { GlobalSetting, RequestExtension, ExecuteInput, Result } from './types'
+import type { GlobalSetting, RequestExtension, ExecuteInput, Result, Deletion, DeletionPayload } from './types'
 import type { AllRequestOptions } from '../request-client'
 import { IntegrationError, InvalidAuthenticationError } from '../errors'
 import { AuthTokens, getAuthData, getOAuth2Data, updateOAuthSettings } from './parse-settings'
 import { InputData } from '../mapping-kit'
 import { retry } from '../retry'
+import { HTTPError } from '..'
 
 export type { BaseActionDefinition, ActionDefinition, ExecuteInput, RequestFn }
 export type { MinimalInputField }
@@ -73,6 +74,8 @@ export interface DestinationDefinition<Settings = unknown> extends BaseDefinitio
 
   /** Optional authentication configuration */
   authentication?: AuthenticationScheme<Settings>
+
+  onDelete?: Deletion<Settings>
 }
 
 export interface Subscription {
@@ -185,6 +188,7 @@ export class Destination<Settings = JSONObject> {
   readonly actions: PartnerActions<Settings, any>
   readonly responses: DecoratedResponse[]
   readonly settingsSchema?: JSONSchema4
+  onDelete?: (event: SegmentEvent, settings: JSONObject, options?: OnEventOptions) => Promise<Result>
 
   constructor(destination: DestinationDefinition<Settings>) {
     this.definition = destination
@@ -193,6 +197,10 @@ export class Destination<Settings = JSONObject> {
     this.actions = {}
     this.authentication = destination.authentication
     this.responses = []
+
+    if (this.definition.onDelete) {
+      this.onDelete = this._onDelete
+    }
 
     // Convert to complete JSON Schema
     if (this.authentication?.fields) {
@@ -208,7 +216,8 @@ export class Destination<Settings = JSONObject> {
     if (this.settingsSchema) {
       try {
         validateSchema(settings, this.settingsSchema, { schemaKey: `${this.name}:settings` })
-      } catch (error) {
+      } catch (err) {
+        const error = err as ResponseError
         if (error.name === 'AggregateAjvError' || error.name === 'ValidationError') {
           error.status = 400
         }
@@ -360,8 +369,9 @@ export class Destination<Settings = JSONObject> {
         // there should only be 1 item in the subscribedEvents array
         return await this.executeAction(actionSlug, { ...input, event: subscribedEvents[0] })
       }
-    } catch (error) {
-      results = [{ error }]
+    } catch (err) {
+      const error = err as ResponseError
+      results = [{ error: { message: error.message } }]
 
       if (error.name === 'AggregateAjvError' || error.name === 'ValidationError') {
         error.status = 400
@@ -395,6 +405,50 @@ export class Destination<Settings = JSONObject> {
   /** Pass a batch of events to 0 or more subscriptions */
   public onBatch(events: SegmentEvent[], settings: JSONObject, options?: OnEventOptions): Promise<Result[]> {
     return this.onSubscriptions(events, settings, options)
+  }
+
+  /** Pass a single deletion event to the destination for execution
+   * note that this method is conditionally added if the destination supports it
+   */
+  private async _onDelete(event: SegmentEvent, settings: JSONObject, options?: OnEventOptions): Promise<Result> {
+    const { userId, anonymousId } = event
+    const payload = { userId, anonymousId }
+    const destinationSettings = this.getDestinationSettings(settings as unknown as JSONObject)
+    this.validateSettings(destinationSettings)
+    const auth = getAuthData(settings as unknown as JSONObject)
+    const data: ExecuteInput<Settings, DeletionPayload> = { payload, settings: destinationSettings, auth }
+    const context: ExecuteInput<Settings, undefined> = { settings: destinationSettings, payload: undefined, auth }
+
+    const opts = this.extendRequest?.(context) ?? {}
+    const requestClient = createRequestClient(opts)
+
+    const run = async () => {
+      const deleteResult = await this.definition.onDelete?.(requestClient, data)
+      const result: Result = deleteResult ?? { output: 'no onDelete defined' }
+
+      return result
+    }
+
+    const onFailedAttempt = async (error: ResponseError & HTTPError) => {
+      const statusCode = error?.status ?? error?.response?.status ?? 500
+
+      // Throw original error if it is unrelated to invalid access tokens and not an oauth2 scheme
+      if (!(statusCode === 401 && this.authentication?.scheme === OAUTH2_SCHEME)) {
+        throw error
+      }
+
+      const oauthSettings = getOAuth2Data(settings)
+      const newTokens = await this.refreshAccessToken(destinationSettings, oauthSettings)
+      if (!newTokens) {
+        throw new InvalidAuthenticationError('Failed to refresh access token')
+      }
+
+      // Update `settings` with new tokens
+      settings = updateOAuthSettings(settings, newTokens)
+      options?.onTokenRefresh?.(newTokens)
+    }
+
+    return await retry(run, { retries: 2, onFailedAttempt })
   }
 
   private async onSubscriptions(

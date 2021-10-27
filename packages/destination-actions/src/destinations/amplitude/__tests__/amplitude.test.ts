@@ -1,6 +1,7 @@
 import nock from 'nock'
 import { createTestEvent, createTestIntegration } from '@segment/actions-core'
 import Amplitude from '../index'
+import { DecoratedResponse } from '@segment/actions-core'
 
 const testDestination = createTestIntegration(Amplitude)
 const timestamp = '2021-08-17T15:21:15.449Z'
@@ -487,7 +488,7 @@ describe('Amplitude', () => {
             "api_key",
             "undefined",
             "identification",
-            "{\\"os_name\\":\\"Mobile Safari\\",\\"os_version\\":\\"9\\",\\"device_model\\":\\"iPhone\\",\\"device_type\\":\\"mobile\\",\\"user_id\\":\\"some-user-id\\",\\"device_id\\":\\"some-anonymous-id\\",\\"user_properties\\":{\\"some-trait-key\\":\\"some-trait-value\\"},\\"country\\":\\"United States\\",\\"city\\":\\"San Francisco\\",\\"language\\":\\"en-US\\",\\"library\\":\\"segment\\"}",
+            "{\\"os_name\\":\\"Mobile Safari\\",\\"os_version\\":\\"9\\",\\"device_model\\":\\"iPhone\\",\\"device_type\\":\\"mobile\\",\\"user_id\\":\\"some-user-id\\",\\"device_id\\":\\"some-anonymous-id\\",\\"user_properties\\":{\\"some-trait-key\\":\\"some-trait-value\\"},\\"country\\":\\"United States\\",\\"city\\":\\"San Francisco\\",\\"language\\":\\"en-US\\",\\"platform\\":\\"Web\\",\\"library\\":\\"segment\\"}",
             "options",
             "undefined",
           ],
@@ -561,7 +562,7 @@ describe('Amplitude', () => {
             "api_key",
             "undefined",
             "identification",
-            "{\\"os_name\\":\\"Mobile Safari\\",\\"os_version\\":\\"9\\",\\"device_model\\":\\"iPhone\\",\\"device_type\\":\\"mobile\\",\\"user_id\\":\\"some-user-id\\",\\"device_id\\":\\"some-anonymous-id\\",\\"user_properties\\":{\\"some-trait-key\\":\\"some-trait-value\\"},\\"country\\":\\"United States\\",\\"city\\":\\"San Francisco\\",\\"language\\":\\"en-US\\",\\"library\\":\\"segment\\"}",
+            "{\\"os_name\\":\\"Mobile Safari\\",\\"os_version\\":\\"9\\",\\"device_model\\":\\"iPhone\\",\\"device_type\\":\\"mobile\\",\\"user_id\\":\\"some-user-id\\",\\"device_id\\":\\"some-anonymous-id\\",\\"user_properties\\":{\\"some-trait-key\\":\\"some-trait-value\\"},\\"country\\":\\"United States\\",\\"city\\":\\"San Francisco\\",\\"language\\":\\"en-US\\",\\"platform\\":\\"Web\\",\\"library\\":\\"segment\\"}",
             "options",
             "undefined",
           ],
@@ -788,6 +789,21 @@ describe('Amplitude', () => {
           Symbol(context): null,
         }
       `)
+    })
+  })
+
+  describe('deletes', () => {
+    it('should support gdpr deletes', async () => {
+      nock('https://amplitude.com').post('/api/2/deletions/users').reply(200, {})
+      if (testDestination.onDelete) {
+        const response = await testDestination.onDelete(
+          { type: 'track', userId: 'sloth@segment.com' },
+          { apiKey: 'foo', secretKey: 'bar' }
+        )
+        const resp = response as DecoratedResponse
+        expect(resp.status).toBe(200)
+        expect(resp.data).toMatchObject({})
+      }
     })
   })
 })

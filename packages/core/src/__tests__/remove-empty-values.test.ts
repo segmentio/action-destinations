@@ -18,7 +18,7 @@ describe(removeEmptyValues.name, () => {
       }
     }
 
-    expect(removeEmptyValues(input, schema)).toEqual({
+    expect(removeEmptyValues(input, schema, true)).toEqual({
       bar: '1',
       baz: true
     })
@@ -38,7 +38,7 @@ describe(removeEmptyValues.name, () => {
       }
     }
 
-    expect(removeEmptyValues(input, schema)).toEqual({
+    expect(removeEmptyValues(input, schema, true)).toEqual({
       foo: {},
       bar: '1'
     })
@@ -65,7 +65,7 @@ describe(removeEmptyValues.name, () => {
       }
     }
 
-    expect(removeEmptyValues(input, schema)).toEqual({
+    expect(removeEmptyValues(input, schema, true)).toEqual({
       a: {
         c: null
       }
@@ -90,7 +90,7 @@ describe(removeEmptyValues.name, () => {
       }
     }
 
-    expect(removeEmptyValues(input, schema)).toEqual({
+    expect(removeEmptyValues(input, schema, true)).toEqual({
       data: {
         context: {
           search: ''
@@ -113,7 +113,7 @@ describe(removeEmptyValues.name, () => {
       }
     }
 
-    expect(removeEmptyValues(input, schema)).toEqual({
+    expect(removeEmptyValues(input, schema, true)).toEqual({
       b: '1'
     })
   })
@@ -132,9 +132,57 @@ describe(removeEmptyValues.name, () => {
       }
     }
 
-    expect(removeEmptyValues(input, schema)).toEqual({
+    expect(removeEmptyValues(input, schema, true)).toEqual({
       a: null,
       b: '1'
+    })
+  })
+
+  it('removes empty strings at the field level', () => {
+    const input = {
+      foo: '',
+      bar: '1'
+    }
+
+    const schema: JSONSchema4 = {
+      type: 'object',
+      properties: {
+        foo: { type: 'string' },
+        bar: { type: 'string' }
+      }
+    }
+
+    expect(removeEmptyValues(input, schema, true)).toEqual({
+      bar: '1'
+    })
+  })
+
+  it('leaves empty strings when subproperties of a field', () => {
+    const input = {
+      product: {
+        product_id: '',
+        name: ''
+      }
+    }
+
+    const schema: JSONSchema4 = {
+      type: 'object',
+      properties: {
+        product: {
+          type: 'object',
+          properties: {
+            product_id: { type: 'string' },
+            name: { type: ['null', 'string'] }
+          }
+        }
+      }
+    }
+
+    expect(removeEmptyValues(input, schema, true)).toEqual({
+      product: {
+        product_id: '',
+        name: ''
+      }
     })
   })
 })

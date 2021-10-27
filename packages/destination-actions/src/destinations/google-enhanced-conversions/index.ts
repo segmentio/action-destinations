@@ -16,7 +16,9 @@ interface UserInfoResponse {
 */
 
 const destination: DestinationDefinition<Settings> = {
-  name: 'Actions Google Enhanced Conversions',
+  // NOTE: We need to match the name with the creation name in DB.
+  // This is not the value used in the UI.
+  name: 'Google Enhanced Conversions',
   mode: 'cloud',
   authentication: {
     scheme: 'oauth2',
