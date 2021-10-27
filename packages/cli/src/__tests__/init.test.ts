@@ -36,6 +36,7 @@ describe('cli init command', () => {
     })
     .stdout()
     .command(['init'])
+    .command(['generate:types'])
     .it('should scaffold an action with basic auth scheme', (ctx) => {
       expect(ctx.stdout).toContain('Done creating "test basic"')
       const scaffoldedAction = fs.readFileSync(path.join(testDir, 'test-basic', 'index.ts'), 'utf8')
@@ -48,6 +49,7 @@ describe('cli init command', () => {
     })
     .stdout()
     .command(['init'])
+    .command(['generate:types'])
     .it('should scaffold an action with custom auth scheme', (ctx) => {
       expect(ctx.stdout).toContain('Done creating "test custom auth"')
       const scaffoldedAction = fs.readFileSync(path.join(testDir, 'test-custom-auth', 'index.ts'), 'utf8')
@@ -60,6 +62,7 @@ describe('cli init command', () => {
     })
     .stdout()
     .command(['init'])
+    .command(['generate:types'])
     .it('should scaffold a minimal action', (ctx) => {
       expect(ctx.stdout).toContain('Done creating "test minimal"')
       const scaffoldedAction = fs.readFileSync(path.join(testDir, 'test-minimal', 'index.ts'), 'utf8')
@@ -72,6 +75,7 @@ describe('cli init command', () => {
     })
     .stdout()
     .command(['init'])
+    .command(['generate:types'])
     .it('should scaffold a oauth2 action', (ctx) => {
       expect(ctx.stdout).toContain('Done creating "test oauth"')
       const scaffoldedAction = fs.readFileSync(path.join(testDir, 'test-oauth', 'index.ts'), 'utf8')

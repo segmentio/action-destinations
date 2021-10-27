@@ -16,8 +16,9 @@ import type {
   DestinationSubscriptionPresetFields,
   DestinationSubscriptionPresetInput
 } from '../lib/control-plane-service'
-import { prompt } from '../lib/prompt'
-import { OAUTH_OPTIONS, RESERVED_FIELD_NAMES } from '../constants'
+import { prompt } from '@segment/actions-cli/lib/prompt'
+import { OAUTH_OPTIONS } from '../constants'
+import { RESERVED_FIELD_NAMES } from '@segment/actions-cli/constants'
 import {
   getDestinationMetadatas,
   getDestinationMetadataActions,
@@ -27,7 +28,7 @@ import {
   setSubscriptionPresets,
   getSubscriptionPresets
 } from '../lib/control-plane-client'
-import { DestinationDefinition, getManifest, hasOauthAuthentication } from '../lib/destinations'
+import { DestinationDefinition, getManifest, hasOauthAuthentication } from '@segment/actions-cli/lib/destinations'
 import type { JSONSchema4 } from 'json-schema'
 
 type BaseActionInput = Omit<DestinationMetadataActionCreateInput, 'metadataId'>

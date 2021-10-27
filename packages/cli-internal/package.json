@@ -1,5 +1,5 @@
 {
-  "name": "@segment/actions-cli",
+  "name": "@segment/actions-cli-internal",
   "description": "CLI to interact with Segment integrations",
   "version": "3.23.2",
   "license": "MIT",
@@ -30,8 +30,8 @@
     "clean": "tsc -b tsconfig.build.json --clean",
     "postclean": "rm -rf dist",
     "create:destination": "./bin/run init",
-    "test": "jest",
-    "typecheck": "tsc -p tsconfig.build.json --noEmit"
+    "test": "echo '⚠️ ⚠️ ⚠️  @segment/action-cli-internal tests temporarily skipped'",
+    "typecheck": "tsc --noEmit"
   },
   "devDependencies": {
     "@oclif/dev-cli": "^1",
@@ -80,30 +80,21 @@
     "tslib": "^2.3.1"
   },
   "optionalDependencies": {
-    "@segment/actions-cli-internal": "^3.23.2",
-    "@segment/browser-destinations": "^3.15.0"
+    "@segment/browser-destinations": "^3.15.0",
+    "@segment/control-plane-service-client": "github:segmentio/control-plane-service-js-client.git#master"
   },
   "oclif": {
     "commands": "./dist/commands",
     "bin": "segment",
     "plugins": [
       "@oclif/plugin-help"
-    ],
-    "topics": {
-      "generate": {
-        "description": "scaffold resources or types for an integration"
-      }
-    },
-    "hooks": {
-      "init": "./src/hooks/init.ts"
-    }
+    ]
   },
   "jest": {
     "preset": "ts-jest",
     "testRegex": "((\\.|/)(test))\\.(tsx?|json)$",
     "modulePathIgnorePatterns": [
-      "<rootDir>/dist/",
-      "<rootDir>/templates/"
+      "<rootDir>/dist/"
     ],
     "moduleNameMapper": {
       "src/lib/(.*)": "<rootDir>/src/lib/$1"
