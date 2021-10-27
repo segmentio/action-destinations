@@ -2,7 +2,7 @@ import type { JSONSchema4 } from 'json-schema'
 import { isArray, isObject } from './real-type-of'
 import { arrify } from './arrify'
 
-export function removeEmptyValues(obj: unknown, schema: JSONSchema4 = {}): unknown {
+export function removeEmptyValues(obj: unknown, schema: JSONSchema4 = {}, isRoot = false): unknown {
   // Only remove empty values from fields with defined types
   // Otherwise we don't want to touch the data
   if (!schema.type && !schema.enum) {
@@ -24,6 +24,11 @@ export function removeEmptyValues(obj: unknown, schema: JSONSchema4 = {}): unkno
 
       // Remove undefined keys
       if (newObj[key] === undefined) {
+        delete newObj[key]
+      }
+
+      // Remove empty strings if at the field level (aka, we are iterating the root object keys)
+      if (newObj[key] === '' && isRoot) {
         delete newObj[key]
       }
     }

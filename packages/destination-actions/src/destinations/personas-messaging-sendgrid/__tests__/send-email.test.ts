@@ -37,7 +37,7 @@ for (const environment of ['stage', 'production']) {
           email: 'test@test.com'
         }
       ]),
-      previewText: '',
+      previewText: 'unused',
       subject: 'Hello {{profile.traits.lastName}} {{profile.traits.firstName}}.',
       body: 'Hi {{profile.traits.firstName}}, Welcome to segment',
       bodyType: 'html',
@@ -175,7 +175,7 @@ for (const environment of ['stage', 'production']) {
               email: 'test@test.com'
             }
           ]),
-          previewText: '',
+          previewText: 'unused',
           subject: 'Hello {{profile.traits.lastName}} {{profile.traits.firstName}}.',
           body: 'Hi {{profile.traits.firstName}}, Welcome to segment',
           bodyType: 'html',
@@ -256,7 +256,7 @@ for (const environment of ['stage', 'production']) {
             journey_state_id: 'journeyStateId',
             audience_id: 'audienceId'
           },
-          previewText: '',
+          previewText: 'unused',
           subject: 'Test email with metadata',
           body: 'Welcome to segment',
           bodyType: 'html',
