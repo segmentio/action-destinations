@@ -51,7 +51,6 @@ describe('cli init command', () => {
     .command(['init'])
     .command(['generate:types'])
     .it('should scaffold an action with custom auth scheme', (ctx) => {
-      console.log(`CTX.STDOUT`, ctx.stdout)
       expect(ctx.stdout).toContain('Done creating "test custom auth"')
       const scaffoldedAction = fs.readFileSync(path.join(testDir, 'test-custom-auth', 'index.ts'), 'utf8')
       expect(scaffoldedAction).toContain("scheme: 'custom'")

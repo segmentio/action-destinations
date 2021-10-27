@@ -3,9 +3,7 @@ import type { DestinationDefinition as CloudDestinationDefinition, MinimalInputF
 import { fieldsToJsonSchema } from '@segment/actions-core'
 import { BrowserDestinationDefinition } from '@segment/browser-destinations'
 import chalk from 'chalk'
-import pick from 'lodash/pick'
-import omit from 'lodash/omit'
-import sortBy from 'lodash/sortBy'
+import { pick, omit, sortBy } from 'lodash'
 import { diffString } from 'json-diff'
 import ora from 'ora'
 import type {

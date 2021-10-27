@@ -5,7 +5,7 @@ import execa from 'execa'
 import chalk from 'chalk'
 import { manifest } from '@segment/browser-destinations'
 import ora from 'ora'
-import { assetPath } from '@segment/actions-cli/config'
+import { assetPath } from '../config'
 import type { RemotePlugin } from '../lib/control-plane-service'
 import {
   getDestinationMetadatas,

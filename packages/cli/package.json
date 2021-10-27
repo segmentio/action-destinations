@@ -81,8 +81,7 @@
   },
   "optionalDependencies": {
     "@segment/actions-cli-internal": "^3.23.2",
-    "@segment/browser-destinations": "^3.15.0",
-    "@segment/control-plane-service-client": "github:segmentio/control-plane-service-js-client.git#master"
+    "@segment/browser-destinations": "^3.15.0"
   },
   "oclif": {
     "commands": "./dist/commands",
@@ -101,7 +100,6 @@
   },
   "jest": {
     "preset": "ts-jest",
-    "testEnvironment": "jsdom",
     "testRegex": "((\\.|/)(test))\\.(tsx?|json)$",
     "modulePathIgnorePatterns": [
       "<rootDir>/dist/",
