@@ -8,7 +8,7 @@ const testDestination = createTestIntegration(CustomerIO)
 
 describe('Customer.io', () => {
     describe('onDelete', () => {
-        it('should support user deletions, defaulting to us', async () => {
+        it('should support user deletions, defaulting to the US', async () => {
             nock('https://track.customer.io').delete('/api/v1/customers/sloth@segment.com').reply(200, {})
             expect(testDestination.onDelete).toBeDefined()
 
