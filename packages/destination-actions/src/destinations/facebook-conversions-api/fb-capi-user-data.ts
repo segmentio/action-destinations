@@ -1,9 +1,10 @@
 import { InputField } from '@segment/actions-core/src/destination-kit/types'
 import { createHash } from 'crypto'
+import { US_STATE_CODES, COUNTRY_CODES } from './constants'
+import { Payload } from './addToCart/generated-types'
 
 // Implementation of Facebook user data object
 // https://developers.facebook.com/docs/marketing-api/conversions-api/parameters/customer-information-parameters
-
 export const user_data_field: InputField = {
   label: 'User Data',
   description: 'These parameters are a set of identifiers Facebook can use for targeted attribution. You must provide at least one of the following user_data keys in your request.',
@@ -148,6 +149,8 @@ export const user_data_field: InputField = {
   }
 }
 
+type UserData = Pick<Payload, 'user_data'>
+
 const hash = (value: string | undefined): string | undefined => {
   if (value === undefined) return
 
@@ -156,25 +159,90 @@ const hash = (value: string | undefined): string | undefined => {
   return hash.digest('hex')
 }
 
-export const hash_user_data = (user_data: any): Object => {
+// Normalization of user data properties according to Facebooks specifications.
+// https://developers.facebook.com/docs/marketing-api/audiences/guides/custom-audiences#hash
+export const normalize_user_data = (payload: UserData) => {
+
+  if (payload.user_data.email) {
+    // Regex removes all whitespace in the string.
+    payload.user_data.email = payload.user_data.email.replace(/\s/g,'').toLowerCase()
+  }
+
+  if (payload.user_data.phone) {
+    // Regex removes all non-numeric characters from the string.
+    payload.user_data.phone = payload.user_data.phone.replace(/\D/g,'')
+  }
+
+  if (payload.user_data.gender) {
+    payload.user_data.gender = payload.user_data.gender.replace(/\s/g,'').toLowerCase()
+    switch (payload.user_data.gender) {
+      case 'male':
+        payload.user_data.gender = 'm'
+        break
+      case 'female':
+        payload.user_data.gender = 'f'
+        break
+    }
+  }
+
+  if (payload.user_data.lastName) {
+    payload.user_data.lastName = payload.user_data.lastName.replace(/\s/g,'').toLowerCase()
+  }
+
+  if (payload.user_data.firstName) {
+    payload.user_data.firstName = payload.user_data.firstName.replace(/\s/g,'').toLowerCase()
+  }
+
+  if (payload.user_data.city) {
+    payload.user_data.city = payload.user_data.city.replace(/\s/g,'').toLowerCase()
+  }
+
+  if (payload.user_data.state) {
+    payload.user_data.state = payload.user_data.state.replace(/\s/g,'').toLowerCase()
+
+    if (US_STATE_CODES.has(payload.user_data.state)) {
+      payload.user_data.state = US_STATE_CODES.get(payload.user_data.state)
+    }
+  }
+
+  if (payload.user_data.zip) {
+    payload.user_data.zip = payload.user_data.zip.replace(/\s/g,'').toLowerCase()
+  }
+
+  if (payload.user_data.country) {
+    payload.user_data.country = payload.user_data.country.replace(/\s/g,'').toLowerCase()
+
+    if (COUNTRY_CODES.has(payload.user_data.country)) {
+      payload.user_data.country = COUNTRY_CODES.get(payload.user_data.country)
+    }
+  }
+
+  if (payload.user_data.externalId) {
+    payload.user_data.externalId = payload.user_data.externalId.replace(/\s/g,'').toLowerCase()
+  }
+}
+
+export const hash_user_data = (payload: UserData): Object => {
+  normalize_user_data(payload)
+
   return {
-    em: hash(user_data?.email),
-    ph: hash(user_data?.phone),
-    ge: hash(user_data?.gender),
-    db: hash(user_data?.dateOfBirth),
-    ln: hash(user_data?.lastName),
-    fn: hash(user_data?.firstName),
-    ct: hash(user_data?.city),
-    st: hash(user_data?.state),
-    zp: hash(user_data?.zip),
-    country: hash(user_data?.country),
-    external_id: hash(user_data?.externalId), // Hashing this is recommended but not required.
-    client_ip_address: user_data?.client_ip_address,
-    client_user_agent: user_data?.client_user_agent,
-    fbc: user_data?.fbc,
-    fbp: user_data?.fbp,
-    subscription_id: user_data?.subscriptionID,
-    lead_id: user_data?.leadID,
-    fb_login_id: user_data?.fbLoginID
+    em: hash(payload.user_data?.email),
+    ph: hash(payload.user_data?.phone),
+    ge: hash(payload.user_data?.gender),
+    db: hash(payload.user_data?.dateOfBirth),
+    ln: hash(payload.user_data?.lastName),
+    fn: hash(payload.user_data?.firstName),
+    ct: hash(payload.user_data?.city),
+    st: hash(payload.user_data?.state),
+    zp: hash(payload.user_data?.zip),
+    country: hash(payload.user_data?.country),
+    external_id: hash(payload.user_data?.externalId), // Hashing this is recommended but not required.
+    client_ip_address: payload.user_data?.client_ip_address,
+    client_user_agent: payload.user_data?.client_user_agent,
+    fbc: payload.user_data?.fbc,
+    fbp: payload.user_data?.fbp,
+    subscription_id: payload.user_data?.subscriptionID,
+    lead_id: payload.user_data?.leadID,
+    fb_login_id: payload.user_data?.fbLoginID
   }
 }
