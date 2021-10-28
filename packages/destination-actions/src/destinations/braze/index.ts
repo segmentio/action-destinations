@@ -50,7 +50,7 @@ const destination: DestinationDefinition<Settings> = {
     return request('https://rest.iad-01.braze.com/users/delete', {
       method: 'post',
       json: {
-        braze_ids: [payload.userId]
+        external_ids: [payload.userId]
       }
     })
   },
