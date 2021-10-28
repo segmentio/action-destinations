@@ -207,7 +207,7 @@ describe(Braze.name, () => {
 
       if (testDestination.onDelete) {
         const event = createTestEvent({
-          type: 'track',
+          type: 'delete',
           userId: 'sloth@segment.com'
         })
 
