@@ -1,9 +1,10 @@
 import type { DestinationDefinition } from '@segment/actions-core'
 import type { Settings } from './generated-types'
 import { defaultValues } from '@segment/actions-core'
-import updateUserProfile from './updateUserProfile'
+import createAlias from './createAlias'
 import trackEvent from './trackEvent'
 import trackPurchase from './trackPurchase'
+import updateUserProfile from './updateUserProfile'
 
 const destination: DestinationDefinition<Settings> = {
   name: 'Braze Cloud Mode',
@@ -56,7 +57,8 @@ const destination: DestinationDefinition<Settings> = {
   actions: {
     updateUserProfile,
     trackEvent,
-    trackPurchase
+    trackPurchase,
+    createAlias
   },
   presets: [
     {
