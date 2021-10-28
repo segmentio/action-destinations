@@ -2,9 +2,9 @@ name: Publish
 
 on:
   pull_request:
-    branches: 
+    branches:
       - main
-    types: 
+    types:
       - opened
       - synchronize
       - closed
@@ -45,10 +45,6 @@ jobs:
     # prevents unlabeled and closed PRs from getting published
     if: ${{ (needs.get-version.outputs.version && github.event.action == 'closed' && github.event.pull_request.merged == true) || github.event_name == 'workflow_dispatch' || github.event.action == 'opened' || github.event.action == 'synchronize' }}
 
-    strategy:
-      matrix:
-        node-version: [14.x]
-
     steps:
       # if running from workflow_dispatch or closing a PR, checkout main
       - uses: actions/checkout@v2
@@ -63,23 +59,11 @@ jobs:
           ref: ${{ github.head_ref }}
           fetch-depth: 0
 
-      - name: Use Node.js ${{ matrix.node-version }}
-        uses: actions/setup-node@v2
+      - uses: actions/setup-node@v2
         with:
-          node-version: ${{ matrix.node-version }}
+          node-version: '14.x'
           registry-url: 'https://registry.npmjs.org'
-
-      - name: Get yarn cache directory path
-        id: yarn-cache-dir-path
-        run: echo "::set-output name=dir::$(yarn cache dir)"
-
-      - uses: actions/cache@v2
-        id: yarn-cache # use this to check for `cache-hit` (`steps.yarn-cache.outputs.cache-hit != 'true'`)
-        with:
-          path: ${{ steps.yarn-cache-dir-path.outputs.dir }}
-          key: ${{ runner.os }}-yarn-${{ hashFiles('**/yarn.lock') }}
-          restore-keys: |
-            ${{ runner.os }}-yarn-
+          cache: 'yarn'
 
       - name: Install Dependencies
         run: yarn install --frozen-lockfile
@@ -116,7 +100,7 @@ jobs:
 
       - name: Replace forward slashes in branch name
         if: ${{ github.event.action == 'opened' || github.event.action == 'synchronize' }}
-        env: 
+        env:
           github_ref: ${{github.head_ref}}
         run: |
           branch="${github_ref////-}"
