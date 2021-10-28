@@ -62,9 +62,8 @@ const action: ActionDefinition<Settings, Payload> = {
     },
     user_agent: {
       label: 'User Agent',
-      description: 'User Agent of the customer who triggered the conversion event.',
+      description: 'User Agent of the customer who triggered the conversion event. This field is optional but recommended.',
       type: 'string',
-      required: true,
       default: {
         '@path': '$.context.userAgent'
       }
