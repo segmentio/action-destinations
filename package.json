@@ -1,6 +1,7 @@
 {
   "name": "action-destinations",
   "private": true,
+  "version": "1.0.0",
   "license": "MIT",
   "workspaces": {
     "packages": [
@@ -84,7 +85,14 @@
     "chance": "^1.1.8"
   },
   "exports": {
-    "./core": "./packages/core",
-    "./destinations": "./packages/destination-actions/"
+    "./core": {
+      "require": "./packages/core/dist/cjs/index.js",
+      "default": "./packages/core/dist/esm/index.js"
+    },
+    "./destinations": "./packages/destination-actions/dist/index.js",
+    "./ajv-human-errors": {
+      "require": "./packages/ajv-human-errors/dist/cjs/index.js",
+      "default": "./packages/ajv-human-errors/dist/esm/index.js"
+    }
   }
 }
