@@ -9,7 +9,12 @@ on:
       - synchronize
       - closed
     paths:
+      - yarn.lock
+      - tsconfig.json
       - packages/**
+      - '!packages/cli/**'
+      - '!packages/cli-internal/**'
+      - '!packages/browser-destinations/**'
   workflow_dispatch:
     inputs:
       version:
