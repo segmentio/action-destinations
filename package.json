@@ -90,7 +90,6 @@
       "default": "./packages/core/dist/esm/index.js"
     },
     "./destinations": {
-      "types": "./packages/destination-actions/dist/index.d.ts",
       "default": "./packages/destination-actions/dist/index.js"
     },
     "./ajv-human-errors": {
