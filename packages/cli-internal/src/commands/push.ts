@@ -397,11 +397,11 @@ export function getOptions(
       }
     }
 
-    // Preserve existing tags
+    // Preserve existing properties unless specified by the action field definition
     const existing = existingOptions[fieldKey]
-    const tags = existing?.tags ?? []
 
     options[fieldKey] = {
+      ...existing,
       default: schema.default ?? '',
       description: schema.description,
       encrypt: schema.type === 'password',
@@ -416,8 +416,7 @@ export function getOptions(
         text: choice.label
       })),
       readOnly: false,
-      validators,
-      tags
+      validators
     }
   }
 
