@@ -18,8 +18,8 @@ describe('Friendbuy', () => {
   test('loading', async () => {
     jest.spyOn(destination, 'initialize')
 
-    const staticNock = nock('https://static.fbot.me').get('/friendbuy.js').reply(200, {})
-    const campaignNock = nock('https://campaign.fbot.me')
+    nock('https://static.fbot.me').get('/friendbuy.js').reply(200, {})
+    nock('https://campaign.fbot.me')
       .get(/^\/[^/]*\/campaigns.js$/)
       .reply(200, {})
 
@@ -30,9 +30,6 @@ describe('Friendbuy', () => {
 
     await event.load(Context.system(), {} as Analytics)
     expect(destination.initialize).toHaveBeenCalled()
-
-    expect(staticNock.isDone()).toBe(true)
-    expect(campaignNock.isDone()).toBe(true)
 
     const expectedFriendbuyAPI = [['merchant', merchantId]] as any
     expectedFriendbuyAPI.merchantId = merchantId

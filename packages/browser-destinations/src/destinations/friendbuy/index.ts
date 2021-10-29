@@ -65,15 +65,15 @@ export const destination: BrowserDestinationDefinition<Settings, FriendbuyAPI> =
 
   initialize: async ({ settings /* , analytics */ }, dependencies) => {
     let friendbuyAPI: FriendbuyAPI
-    window['friendbuyAPI'] = friendbuyAPI = window['friendbuyAPI'] || ([] as unknown as FriendbuyAPI)
+    window.friendbuyAPI = friendbuyAPI = window.friendbuyAPI || ([] as unknown as FriendbuyAPI)
     const friendbuyBaseHost = window.friendbuyBaseHost ?? 'fbot.me'
 
     friendbuyAPI.merchantId = settings.merchantId
     friendbuyAPI.push(['merchant', settings.merchantId])
-    await Promise.all([
-      dependencies.loadScript(`https://static.${friendbuyBaseHost}/friendbuy.js`),
-      dependencies.loadScript(`https://campaign.${friendbuyBaseHost}/${settings.merchantId}/campaigns.js`)
-    ])
+
+    // The Friendbuy JavaScript can be loaded asynchronously.
+    void dependencies.loadScript(`https://static.${friendbuyBaseHost}/friendbuy.js`),
+      void dependencies.loadScript(`https://campaign.${friendbuyBaseHost}/${settings.merchantId}/campaigns.js`)
 
     return friendbuyAPI
   },
