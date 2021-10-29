@@ -64,8 +64,6 @@ export const destination: BrowserDestinationDefinition<Settings, FriendbuyAPI> =
   },
 
   initialize: async ({ settings /* , analytics */ }, dependencies) => {
-    // console.log("friendbuy.initialize", settings)
-
     let friendbuyAPI: FriendbuyAPI
     window['friendbuyAPI'] = friendbuyAPI = window['friendbuyAPI'] || ([] as unknown as FriendbuyAPI)
     const friendbuyBaseHost = window.friendbuyBaseHost ?? 'fbot.me'

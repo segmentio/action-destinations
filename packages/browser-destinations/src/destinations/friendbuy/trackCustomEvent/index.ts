@@ -53,7 +53,6 @@ const action: BrowserActionDefinition<Settings, FriendbuyAPI, Payload> = {
   fields: trackCustomEventFields,
 
   perform: (friendbuyAPI, data) => {
-    // console.log('trackCustomEvent.perform', JSON.stringify(data.payload, null, 2))
     friendbuyAPI.push([
       'track',
       data.payload.eventName,

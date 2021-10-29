@@ -84,7 +84,6 @@ const action: BrowserActionDefinition<Settings, FriendbuyAPI, Payload> = {
   fields: trackSignUpFields,
 
   perform: (friendbuyAPI, data) => {
-    // console.log('trackSignUp.perform', JSON.stringify(data.payload, null, 2))
     const friendbuyPayload = createFriendbuyPayload([
       ['id', data.payload.customerId],
       ['email', data.payload.email],
@@ -97,7 +96,6 @@ const action: BrowserActionDefinition<Settings, FriendbuyAPI, Payload> = {
       ['anonymousId', data.payload.anonymousId],
       ...filterFriendbuyAttributes(data.payload.friendbuyAttributes)
     ])
-    // console.log('friendbuyPayload', JSON.stringify(friendbuyPayload, null, 2))
     friendbuyAPI.push(['track', 'sign_up', friendbuyPayload, true])
   }
 }

@@ -101,7 +101,6 @@ const action: BrowserActionDefinition<Settings, FriendbuyAPI, Payload> = {
   fields: trackCustomerFields,
 
   perform: (friendbuyAPI, data) => {
-    // console.log('trackCustomer.perform', JSON.stringify(data.payload, null, 2))
     const friendbuyPayload = createFriendbuyPayload([
       ['id', data.payload.customerId],
       ['email', data.payload.email],
@@ -116,7 +115,6 @@ const action: BrowserActionDefinition<Settings, FriendbuyAPI, Payload> = {
       ['anonymousId', data.payload.anonymousId],
       ...filterFriendbuyAttributes(data.payload.friendbuyAttributes)
     ])
-    // console.log('friendbuyPayload', JSON.stringify(friendbuyPayload, null, 2))
     friendbuyAPI.push(['track', 'customer', friendbuyPayload, true])
   }
 }

@@ -109,7 +109,6 @@ const action: BrowserActionDefinition<Settings, FriendbuyAPI, Payload> = {
   fields: trackPurchaseFields,
 
   perform: (friendbuyAPI, data) => {
-    // console.log('trackPurchase.perform', JSON.stringify(data.payload, null, 2))
     const products =
       data.payload.products && data.payload.products.length > 0
         ? data.payload.products.map((p) => ({ quantity: 1, ...p }))
@@ -129,7 +128,6 @@ const action: BrowserActionDefinition<Settings, FriendbuyAPI, Payload> = {
       ],
       { dropEmptyObjects: true }
     )
-    // console.log('friendbuyPayload', JSON.stringify(friendbuyPayload, null, 2))
     friendbuyAPI.push(['track', 'purchase', friendbuyPayload, true])
   }
 }

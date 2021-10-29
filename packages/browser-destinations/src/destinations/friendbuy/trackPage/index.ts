@@ -40,13 +40,11 @@ const action: BrowserActionDefinition<Settings, FriendbuyAPI, Payload> = {
   fields: trackPageFields,
 
   perform: (friendbuyAPI, data) => {
-    // console.log('trackPage.perform', JSON.stringify(data.payload, null, 2))
     const friendbuyPayload = createFriendbuyPayload([
       ['name', data.payload.name],
       ['category', data.payload.category],
       ['title', data.payload.title]
     ])
-    // console.log('friendbuyPayload', JSON.stringify(friendbuyPayload, null, 2))
     friendbuyAPI.push(['track', 'page', friendbuyPayload, true])
   }
 }
