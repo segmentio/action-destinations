@@ -95,8 +95,7 @@
     ],
     "moduleNameMapper": {
       "src/lib/(.*)": "<rootDir>/src/lib/$1",
-      "@segment/actions-cli": "<rootDir>/../cli/src",
-      "@segment/actions-cli-internal": "<rootDir>/../cli-internal/src"
+      "@segment/actions-cli": "<rootDir>/../cli/src"
     }
   }
 }
