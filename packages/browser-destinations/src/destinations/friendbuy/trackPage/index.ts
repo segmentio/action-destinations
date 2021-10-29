@@ -1,8 +1,9 @@
-import { InputField } from '@segment/actions-core'
+import type { InputField } from '@segment/actions-core'
 import type { BrowserActionDefinition } from '../../../lib/browser-destinations'
+
+import type { FriendbuyAPI } from '../types'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
-import { FriendbuyAPI } from '..'
 import { createFriendbuyPayload } from '../util'
 
 export const trackPageDefaultSubscription = 'type = "page"'

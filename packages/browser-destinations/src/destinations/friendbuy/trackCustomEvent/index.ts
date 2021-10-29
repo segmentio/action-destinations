@@ -1,8 +1,9 @@
-import { InputField } from '@segment/actions-core'
+import type { InputField } from '@segment/actions-core'
 import type { BrowserActionDefinition } from '../../../lib/browser-destinations'
+
+import type { FriendbuyAPI } from '../types'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
-import { FriendbuyAPI } from '..'
 
 // https://segment.com/docs/connections/spec/ecommerce/v2/#order-completed
 export const trackCustomEventFields: Record<string, InputField> = {

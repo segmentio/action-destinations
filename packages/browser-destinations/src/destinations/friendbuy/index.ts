@@ -1,17 +1,15 @@
-import type { Settings } from './generated-types'
 import type { BrowserDestinationDefinition } from '../../lib/browser-destinations'
+import type { DestinationDefinition } from '@segment/actions-core'
 import { browserDestination } from '../../runtime/shim'
-import { defaultValues, DestinationDefinition } from '@segment/actions-core'
+import { defaultValues } from '@segment/actions-core'
 
+import type { Settings } from './generated-types'
+import type { FriendbuyAPI } from './types'
 import trackCustomer, { trackCustomerDefaultSubscription, trackCustomerFields } from './trackCustomer'
 import trackPurchase, { trackPurchaseDefaultSubscription, trackPurchaseFields } from './trackPurchase'
 import trackSignUp, { trackSignUpDefaultSubscription, trackSignUpFields } from './trackSignUp'
 import trackPage, { trackPageDefaultSubscription, trackPageFields } from './trackPage'
 import trackCustomEvent from './trackCustomEvent'
-
-export interface FriendbuyAPI extends Array<unknown> {
-  merchantId: string
-}
 
 declare global {
   interface Window {
