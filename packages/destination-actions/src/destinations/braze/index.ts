@@ -6,7 +6,7 @@ import trackEvent from './trackEvent'
 import trackPurchase from './trackPurchase'
 
 const destination: DestinationDefinition<Settings> = {
-  name: 'Braze Cloud Mode',
+  name: 'Braze Cloud Mode (Actions)',
   slug: 'actions-braze-cloud',
   mode: 'cloud',
   description: 'Send events server-side to the Braze REST API.',
