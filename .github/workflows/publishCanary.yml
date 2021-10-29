@@ -82,11 +82,11 @@ jobs:
 
       - name: Notify end
         uses: actions/github-script@v4
-          with:
-            script: |
-              github.issues.createComment({
-                issue_number: context.issue.number,
-                owner: context.repo.owner,
-                repo: context.repo.repo,
-                body: 'Canary package publishing complete. See the actions tab for more details.',
-              });
+        with:
+          script: |
+            github.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: 'Canary package publishing complete. See the actions tab for more details.',
+            });
