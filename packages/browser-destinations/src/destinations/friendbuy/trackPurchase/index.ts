@@ -73,9 +73,7 @@ export const trackPurchaseFields: Record<string, InputField> = {
         required: false
       }
     },
-    default: {
-      '@path': '$.properties.products'
-    }
+    default: { '@path': '$.properties.products' }
   },
 
   customerId: {

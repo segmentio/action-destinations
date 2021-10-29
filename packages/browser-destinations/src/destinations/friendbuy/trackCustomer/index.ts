@@ -66,19 +66,22 @@ export const trackCustomerFields: Record<string, InputField> = {
     description: 'The date the user became a customer.',
     type: 'string',
     format: 'date-time',
-    required: false
+    required: false,
+    default: { '@path': '$.properties.customerSince' }
   },
   loyaltyStatus: {
     label: 'Loyalty Status',
-    description: 'The user\'s loyalty program status. Valid values are "in", "out", or "blocked".',
+    description: 'The status of the user in your loyalty program. Valid values are "in", "out", or "blocked".',
     type: 'string',
-    required: false
+    required: false,
+    default: { '@path': '$.properties.loyaltyStatus' }
   },
   isNewCustomer: {
     label: 'New Customer Flag',
     description: 'Flag to indicate whether the user is a new customer.',
     type: 'boolean',
-    required: false
+    required: false,
+    default: { '@path': '$.properties.isNewCustomer' }
   },
   friendbuyAttributes: {
     label: 'Custom Attributes',
