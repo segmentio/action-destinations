@@ -2,12 +2,13 @@ import type { DestinationDefinition } from '@segment/actions-core'
 import type { Settings } from './generated-types'
 import { defaultValues } from '@segment/actions-core'
 import createAlias from './createAlias'
+import identifyUser from './identifyUser'
 import trackEvent from './trackEvent'
 import trackPurchase from './trackPurchase'
 import updateUserProfile from './updateUserProfile'
 
 const destination: DestinationDefinition<Settings> = {
-  name: 'Braze Cloud Mode',
+  name: 'Braze Cloud Mode (Actions)',
   slug: 'actions-braze-cloud',
   mode: 'cloud',
   description: 'Send events server-side to the Braze REST API.',
@@ -58,7 +59,8 @@ const destination: DestinationDefinition<Settings> = {
     updateUserProfile,
     trackEvent,
     trackPurchase,
-    createAlias
+    createAlias,
+    identifyUser
   },
   presets: [
     {
