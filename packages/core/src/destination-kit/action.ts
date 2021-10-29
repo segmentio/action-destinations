@@ -115,7 +115,7 @@ export class Action<Settings, Payload extends JSONLikeObject> extends EventEmitt
     results.push({ output: 'Mappings resolved' })
 
     // Remove empty values (`null`, `undefined`, `''`) when not explicitly accepted
-    payload = removeEmptyValues(payload, this.schema) as Payload
+    payload = removeEmptyValues(payload, this.schema, true) as Payload
 
     // Validate the resolved payload against the schema
     if (this.schema) {

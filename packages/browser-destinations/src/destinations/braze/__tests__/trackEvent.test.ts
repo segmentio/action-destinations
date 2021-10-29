@@ -1,17 +1,8 @@
-import appboy from '@braze/web-sdk'
 import { Analytics, Context } from '@segment/analytics-next'
-import brazeDestination from '../index'
+import brazeDestination, { destination } from '../index'
 
 describe('trackEvent', () => {
-  beforeEach(async () => {
-    // we're not really testing that appboy loads here, so we'll just mock it out
-    jest.spyOn(appboy, 'initialize').mockImplementation(() => true)
-    jest.spyOn(appboy, 'openSession').mockImplementation(() => true)
-  })
-
-  test('changes the external_id when present', async () => {
-    const customEvent = jest.spyOn(appboy, 'logCustomEvent').mockReturnValue(true)
-
+  test('invokes appboy`s logCustomEvent API', async () => {
     const [trackEvent] = await brazeDestination({
       api_key: 'b_123',
       endpoint: 'endpoint',
@@ -35,6 +26,10 @@ describe('trackEvent', () => {
       ]
     })
 
+    destination.actions.trackEvent.perform = jest.fn()
+    jest.spyOn(destination.actions.trackEvent, 'perform')
+    jest.spyOn(destination, 'initialize')
+
     await trackEvent.load(Context.system(), {} as Analytics)
     await trackEvent.track?.(
       new Context({
@@ -46,6 +41,14 @@ describe('trackEvent', () => {
       })
     )
 
-    expect(customEvent).toHaveBeenCalledWith('UFC', { goat: 'hasbulla' })
+    expect(destination.actions.trackEvent.perform).toHaveBeenCalledWith(
+      expect.objectContaining({
+        logCustomEvent: expect.any(Function)
+      }),
+
+      expect.objectContaining({
+        payload: { eventName: 'UFC', eventProperties: { goat: 'hasbulla' } }
+      })
+    )
   })
 })

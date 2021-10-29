@@ -28,15 +28,12 @@ describe('Mixpanel.trackEvent', () => {
       {
         event: 'Test Event',
         properties: expect.objectContaining({
-          $ip: '8.8.8.8',
+          ip: '8.8.8.8',
           distinct_id: 'user1234',
           $current_url: 'https://segment.com/academy/',
-          $lib_version: '2.11.1',
           $locale: 'en-US',
-          $source: 'segment',
-          id: 'user1234',
           mp_country_code: 'United States',
-          mp_lib: 'segment'
+          mp_lib: 'Segment: analytics.js'
         })
       }
     ])

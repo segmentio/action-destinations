@@ -1,4 +1,5 @@
 import { Command, flags } from '@oclif/command'
+import { prompt } from '@segment/actions-cli/lib/prompt'
 import { diffString } from 'json-diff'
 import execa from 'execa'
 import chalk from 'chalk'
@@ -6,14 +7,13 @@ import { manifest } from '@segment/browser-destinations'
 import ora from 'ora'
 import { assetPath } from '../config'
 import type { RemotePlugin } from '../lib/control-plane-service'
-import { prompt } from '../lib/prompt'
 import {
   getDestinationMetadatas,
   getRemotePluginByDestinationIds,
   createRemotePlugin,
   updateRemotePlugin
 } from '../lib/control-plane-client'
-import { build, webBundles } from '../lib/web-bundles'
+import { build, webBundles } from '@segment/actions-cli/lib/web-bundles'
 
 export default class PushBrowserDestinations extends Command {
   private spinner: ora.Ora = ora()
@@ -126,24 +126,26 @@ export default class PushBrowserDestinations extends Command {
     }
 
     try {
+      this.spinner.start(`Syncing all plugins to s3`)
+      await syncToS3(flags.env)
+      this.spinner.stop()
+      this.log(`Plugins synced to s3`)
+    } catch (e) {
+      this.error(e)
+    } finally {
+      this.spinner.stop()
+    }
+
+    try {
       this.spinner.start('Persisting changes')
       await Promise.all([
         pluginsToUpdate.map((p) => updateRemotePlugin(p)),
         pluginsToCreate.map((p) => createRemotePlugin(p))
       ])
     } catch (e) {
-      this.spinner.stop()
       this.error(e)
-    }
-
-    try {
-      this.spinner.start(`Syncing all plugins to s3`)
-      await syncToS3(flags.env)
+    } finally {
       this.spinner.stop()
-      this.log(`Plugins synced to s3`)
-    } catch (e) {
-      this.spinner.stop()
-      this.error(e)
     }
   }
 }

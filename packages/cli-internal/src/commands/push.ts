@@ -16,8 +16,9 @@ import type {
   DestinationSubscriptionPresetFields,
   DestinationSubscriptionPresetInput
 } from '../lib/control-plane-service'
-import { prompt } from '../lib/prompt'
-import { OAUTH_OPTIONS, RESERVED_FIELD_NAMES } from '../constants'
+import { prompt } from '@segment/actions-cli/lib/prompt'
+import { OAUTH_OPTIONS } from '../constants'
+import { RESERVED_FIELD_NAMES } from '@segment/actions-cli/constants'
 import {
   getDestinationMetadatas,
   getDestinationMetadataActions,
@@ -27,7 +28,7 @@ import {
   setSubscriptionPresets,
   getSubscriptionPresets
 } from '../lib/control-plane-client'
-import { DestinationDefinition, getManifest, hasOauthAuthentication } from '../lib/destinations'
+import { DestinationDefinition, getManifest, hasOauthAuthentication } from '@segment/actions-cli/lib/destinations'
 import type { JSONSchema4 } from 'json-schema'
 
 type BaseActionInput = Omit<DestinationMetadataActionCreateInput, 'metadataId'>
@@ -313,6 +314,9 @@ function getFieldPropertySchema(fieldKey: string, field: MinimalInputField): JSO
   // removing default data since it's available under defaultValue
   const { default: def, ...fieldWODefault } = field
   tmpFieldObject[fieldKey] = fieldWODefault
+  if (field.type === 'object') {
+    return fieldsToJsonSchema(tmpFieldObject, { additionalProperties: field?.additionalProperties || false })
+  }
   return fieldsToJsonSchema(tmpFieldObject)
 }
 

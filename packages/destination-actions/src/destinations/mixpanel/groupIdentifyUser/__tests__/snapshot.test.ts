@@ -11,20 +11,22 @@ const seedName = `${destinationSlug}#${actionSlug}`
 describe(`Testing snapshot for ${destinationSlug}'s ${actionSlug} destination action:`, () => {
   it('required fields', async () => {
     const action = destination.actions[actionSlug]
-    const [eventData, settingsData] = generateTestData(seedName, destination, action, true)
+    const [, settingsData] = generateTestData(seedName, destination, action, true)
 
     nock(/.*/).persist().get(/.*/).reply(200)
     nock(/.*/).persist().post(/.*/).reply(200)
     nock(/.*/).persist().put(/.*/).reply(200)
 
     const event = createTestEvent({
-      properties: eventData
+      groupId: 'test-group-id',
+      traits: { hello: 'world', company: 'Mixpanel' }
     })
 
     const responses = await testDestination.testAction(actionSlug, {
-      event: event,
-      mapping: event.properties,
+      event,
+      mapping: { group_key: 'company' },
       settings: settingsData,
+      useDefaultMappings: true,
       auth: undefined
     })
 
@@ -44,20 +46,22 @@ describe(`Testing snapshot for ${destinationSlug}'s ${actionSlug} destination ac
 
   it('all fields', async () => {
     const action = destination.actions[actionSlug]
-    const [eventData, settingsData] = generateTestData(seedName, destination, action, false)
+    const [, settingsData] = generateTestData(seedName, destination, action, false)
 
     nock(/.*/).persist().get(/.*/).reply(200)
     nock(/.*/).persist().post(/.*/).reply(200)
     nock(/.*/).persist().put(/.*/).reply(200)
 
     const event = createTestEvent({
-      properties: eventData
+      groupId: 'test-group-id',
+      traits: { hello: 'world', company: 'Mixpanel' }
     })
 
     const responses = await testDestination.testAction(actionSlug, {
-      event: event,
-      mapping: event.properties,
+      event,
+      mapping: { group_key: 'company' },
       settings: settingsData,
+      useDefaultMappings: true,
       auth: undefined
     })
 

@@ -1,0 +1,56 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`loads different versions from CDN 3.0: 
+      NodeList [
+        <script
+          src="https://js.appboycdn.com/web-sdk/3.0/appboy.min.js"
+          type="text/javascript"
+        />,
+        <script>
+          // the emptiness
+        </script>,
+      ]
+     1`] = `
+NodeList [
+  <script
+    src="https://js.appboycdn.com/web-sdk/3.0/appboy.min.js"
+    status="loaded"
+    type="text/javascript"
+  />,
+  <script
+    src="https://js.appboycdn.com/web-sdk/3.0/appboy.min.js"
+    type="text/javascript"
+  />,
+  <script>
+    // the emptiness
+  </script>,
+]
+`;
+
+exports[`loads different versions from CDN 3.1: 
+      NodeList [
+        <script
+          src="https://js.appboycdn.com/web-sdk/3.1/appboy.min.js"
+          status="loaded"
+          type="text/javascript"
+        />,
+        <script>
+          // the emptiness
+        </script>,
+      ]
+     1`] = `
+NodeList [
+  <script
+    src="https://js.appboycdn.com/web-sdk/3.1/appboy.min.js"
+    status="loaded"
+    type="text/javascript"
+  />,
+  <script
+    src="https://js.appboycdn.com/web-sdk/3.1/appboy.min.js"
+    type="text/javascript"
+  />,
+  <script>
+    // the emptiness
+  </script>,
+]
+`;
