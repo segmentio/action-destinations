@@ -94,7 +94,9 @@ export default class Push extends Command {
       // Creation Name check
       if (metadata.creationName !== definition.name) {
         this.spinner.fail()
-        throw new Error(`The definition name '${definition.name}' should always match the control plane creation name '${metadata.creationName}'.`)
+        throw new Error(
+          `The definition name '${definition.name}' should always match the control plane creation name '${metadata.creationName}'.`
+        )
       }
     }
 
@@ -206,7 +208,7 @@ export default class Push extends Command {
         mobile: false
       }
 
-      const options = getOptions(definition)
+      const options = getOptions(definition, metadata.options)
       const basicOptions = getBasicOptions(options)
       const diff = diffString(
         asJson({
@@ -345,7 +347,10 @@ function getBasicOptions(options: DestinationMetadataOptions): string[] {
 }
 
 // Note: exporting for testing purposes only
-export function getOptions(definition: DestinationDefinition): DestinationMetadataOptions {
+export function getOptions(
+  definition: DestinationDefinition,
+  existingOptions: DestinationMetadataOptions
+): DestinationMetadataOptions {
   const options: DestinationMetadataOptions = {}
 
   const publicSettings = (definition as BrowserDestinationDefinition).settings
@@ -392,6 +397,10 @@ export function getOptions(definition: DestinationDefinition): DestinationMetada
       }
     }
 
+    // Preserve existing tags
+    const existing = existingOptions[fieldKey]
+    const tags = existing?.tags ?? []
+
     options[fieldKey] = {
       default: schema.default ?? '',
       description: schema.description,
@@ -407,7 +416,8 @@ export function getOptions(definition: DestinationDefinition): DestinationMetada
         text: choice.label
       })),
       readOnly: false,
-      validators
+      validators,
+      tags
     }
   }
 
