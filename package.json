@@ -89,7 +89,10 @@
       "require": "./packages/core/dist/cjs/index.js",
       "default": "./packages/core/dist/esm/index.js"
     },
-    "./destinations": "./packages/destination-actions/dist/index.js",
+    "./destinations": {
+      "types": "./packages/destination-actions/dist/index.d.ts",
+      "default": "./packages/destination-actions/dist/index.js"
+    },
     "./ajv-human-errors": {
       "require": "./packages/ajv-human-errors/dist/cjs/index.js",
       "default": "./packages/ajv-human-errors/dist/esm/index.js"
