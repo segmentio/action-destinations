@@ -106,7 +106,8 @@
       "<rootDir>/templates/"
     ],
     "moduleNameMapper": {
-      "src/lib/(.*)": "<rootDir>/src/lib/$1"
+      "src/lib/(.*)": "<rootDir>/src/lib/$1",
+      "@segment/actions-cli-internal": "<rootDir>/../cli-internal/src"
     }
   }
 }

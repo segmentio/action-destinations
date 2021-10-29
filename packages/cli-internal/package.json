@@ -6,15 +6,12 @@
   "repository": {
     "type": "git",
     "url": "https://github.com/segmentio/action-destinations",
-    "directory": "packages/cli"
+    "directory": "packages/cli-internal"
   },
   "engines": {
     "node": "^14.16"
   },
   "engineStrict": true,
-  "bin": {
-    "segment": "./bin/run"
-  },
   "files": [
     "/bin",
     "/dist",
@@ -97,7 +94,8 @@
       "<rootDir>/dist/"
     ],
     "moduleNameMapper": {
-      "src/lib/(.*)": "<rootDir>/src/lib/$1"
+      "src/lib/(.*)": "<rootDir>/src/lib/$1",
+      "@segment/actions-cli": "<rootDir>/../cli/src"
     }
   }
 }
