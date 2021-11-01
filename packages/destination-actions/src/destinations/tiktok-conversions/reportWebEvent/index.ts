@@ -84,6 +84,18 @@ const action: ActionDefinition<Settings, Payload> = {
           else: { '@path': '$.anonymousId' }
         }
       }
+    },
+    ttclid: {
+      label: "TikTok Click  ID",
+      description: "The value of ttclid used to match website visitor events with TikTok ads. The ttclid is valid for 7 days. See [Set up](https://ads.tiktok.com/marketing_api/docs?rid=4eezrhr6lg4&id=1681728034437121) ttclid for details.",
+      type: "string",
+      default: {
+        '@if': {
+          exists: { '@path': '$.properties.ttclid' },
+          then: { '@path': '$.properties.ttclid' },
+          else: { '@path': '$.traits.ttclid' }
+        }
+      }
     }
   },
   perform: (request, { payload, settings }) => {
@@ -110,7 +122,10 @@ const action: ActionDefinition<Settings, Payload> = {
             external_id: userData.hashedExternalId,
             phone_number: userData.hashedPhoneNumber,
             email: userData.hashedEmail
-          }
+          },
+          ad: {
+            callback: payload.ttclid
+          },
         }
       }
     })
