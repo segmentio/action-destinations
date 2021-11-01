@@ -10,7 +10,7 @@ import { API_VERSION } from './constants'
 import custom from './custom'
 
 const destination: DestinationDefinition<Settings> = {
-  name: 'Facebook Conversions API',
+  name: 'Facebook Conversions API (Actions)',
   slug: 'actions-facebook-conversions-api',
   mode: 'cloud',
 
