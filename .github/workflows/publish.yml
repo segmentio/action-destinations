@@ -1,12 +1,10 @@
-name: Publish
+name: Publish Production
 
 on:
   pull_request:
     branches:
       - main
     types:
-      - opened
-      - synchronize
       - closed
     paths:
       - yarn.lock
@@ -43,25 +41,16 @@ jobs:
 
   test-build-and-publish:
     runs-on: ubuntu-latest
-
     needs: get-version
 
-    # require a version unless a PR is opened or synchronized
-    # prevents unlabeled and closed PRs from getting published
-    if: ${{ (needs.get-version.outputs.version && github.event.action == 'closed' && github.event.pull_request.merged == true) || github.event_name == 'workflow_dispatch' || github.event.action == 'opened' || github.event.action == 'synchronize' }}
+    # requires a version, preventing unlabeled and closed PRs from getting published
+    if: ${{ (needs.get-version.outputs.version && github.event.action == 'closed' && github.event.pull_request.merged == true) || (github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/main') }}
 
     steps:
       # if running from workflow_dispatch or closing a PR, checkout main
       - uses: actions/checkout@v2
         if: ${{ github.event_name == 'workflow_dispatch' || (github.event.action == 'closed' && github.event.pull_request.merged == true) }}
         with:
-          fetch-depth: 0  # pulls tags so lerna can compare changes
-
-      # else checkout branch
-      - uses: actions/checkout@v2
-        if: ${{ github.event.action == 'opened' || github.event.action == 'synchronize' }}
-        with:
-          ref: ${{ github.head_ref }}
           fetch-depth: 0
 
       - uses: actions/setup-node@v2
@@ -100,17 +89,4 @@ jobs:
           npm whoami
 
       - name: Publish production package
-        if: ${{ github.event_name == 'workflow_dispatch' || (github.event.action == 'closed' && github.event.pull_request.merged == true) }}
         run: lerna publish ${{ needs.get-version.outputs.version }} --conventional-commits --no-changelog --conventional-graduate --no-verify-access --yes
-
-      - name: Replace forward slashes in branch name
-        if: ${{ github.event.action == 'opened' || github.event.action == 'synchronize' }}
-        env:
-          github_ref: ${{github.head_ref}}
-        run: |
-          branch="${github_ref////-}"
-          echo "BRANCH=$branch" >> $GITHUB_ENV
-
-      - name: Publish prerelease from PR
-        if: ${{ github.event.action == 'opened' || github.event.action == 'synchronize' }}
-        run: lerna publish prerelease --canary --preid ${{ env.BRANCH }} --pre-dist-tag canary --no-verify-access --yes
