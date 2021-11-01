@@ -44,7 +44,7 @@ jobs:
     needs: get-version
 
     # requires a version, preventing unlabeled and closed PRs from getting published
-    if: ${{ (needs.get-version.outputs.version && github.event.action == 'closed' && github.event.pull_request.merged == true) || github.event_name == 'workflow_dispatch' }}
+    if: ${{ (needs.get-version.outputs.version && github.event.action == 'closed' && github.event.pull_request.merged == true) || (github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/main') }}
 
     steps:
       # if running from workflow_dispatch or closing a PR, checkout main
