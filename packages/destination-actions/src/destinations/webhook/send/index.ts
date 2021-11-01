@@ -6,7 +6,7 @@ type RequestMethod = 'GET' | 'POST' | 'PUT' | 'DELETE' | 'PATCH'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Send',
-  description: 'Send an HTTP request.',
+  description: 'Send an HTTP request!',
   fields: {
     url: {
       label: 'URL',
