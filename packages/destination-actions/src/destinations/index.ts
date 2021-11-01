@@ -23,7 +23,7 @@ export const manifest: Record<MetadataId, ManifestEntry> = {}
  * in production and sync them into staging via `sprout`.
  */
 register('60f64ae3eaebd66d17d28e9f', './1plusx')
-register('613f9a075d4c531ae71371f0', './facebook-conversions-api')
+register('61806e472cd47ea1104885fc', './facebook-conversions-api')
 register('5f7dd6d21ad74f3842b1fc47', './amplitude')
 register('60f9d0d048950c356be2e4da', './braze')
 register('5f7dd78fe27ce7ff2b8bfa37', './customerio')
