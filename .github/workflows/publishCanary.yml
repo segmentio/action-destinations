@@ -78,7 +78,19 @@ jobs:
           npm whoami
 
       - name: Publish prerelease from PR
-        run: lerna publish prerelease --canary --preid pull-${{ github.event.issue.number }} --pre-dist-tag canary --no-verify-access --yes
+        run: |
+          RESPONSE=$(lerna publish prerelease \
+            --canary \
+            --preid \
+            pull-${{ github.event.issue.number }} \
+            --pre-dist-tag canary \
+            --no-verify-access \
+            --yes \
+            2>&1 | tee)
+          RESPONSE="${RESPONSE//$'\n'/'\r\n'}"
+          echo 'LERNA_RESPONSE<<EOF' >> $GITHUB_ENV
+          echo $RESPONSE >> $GITHUB_ENV
+          echo 'EOF' >> $GITHUB_ENV
 
       - name: Notify end
         uses: actions/github-script@v4
@@ -88,5 +100,5 @@ jobs:
               issue_number: context.issue.number,
               owner: context.repo.owner,
               repo: context.repo.repo,
-              body: 'Canary package publishing complete. See the actions tab for more details.',
+              body: "Canary package publishing complete\r\n```\r\n${{ env.LERNA_RESPONSE }}\r\n```",
             });
