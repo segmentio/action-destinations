@@ -6,7 +6,7 @@ import trackEvent from './trackEvent'
 import trackPageView from './trackPageView'
 import type { DestinationDefinition } from '@segment/actions-core'
 import type { Settings } from './generated-types'
-import { AccountRegion } from './utils'
+import { AccountRegion, trackApiEndpoint } from './utils'
 
 const destination: DestinationDefinition<Settings> = {
   name: 'Customer.io',
@@ -87,7 +87,18 @@ const destination: DestinationDefinition<Settings> = {
       partnerAction: 'trackPageView',
       mapping: defaultValues(trackPageView.fields)
     }
-  ]
+  ],
+
+  onDelete(request, { settings, payload }) {
+    const { accountRegion } = settings
+    const { userId } = payload
+
+    const url = `${trackApiEndpoint(accountRegion)}/api/v1/customers/${userId}`
+
+    return request(url, {
+      method: 'DELETE'
+    })
+  }
 }
 
 export default destination

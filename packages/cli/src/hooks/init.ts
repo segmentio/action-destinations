@@ -2,7 +2,7 @@ import { Hook, Plugin } from '@oclif/config'
 import { dirname } from 'path'
 
 const hook: Hook<'init'> = async function ({ config }) {
-  if (process.env.NODE_ENV === 'TEST') {
+  if (process.env.NODE_ENV === 'test') {
     console.warn('skipping cli-internal plugin because of tests')
     return
   }
@@ -14,7 +14,7 @@ const hook: Hook<'init'> = async function ({ config }) {
     if (err.code === 'MODULE_NOT_FOUND') {
       return
     }
-  
+
     throw err
   }
 
