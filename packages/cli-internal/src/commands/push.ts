@@ -375,6 +375,9 @@ export function getOptions(
     // Everything in `authentication.fields` should be private. Otherwise, public is fine
     const isPrivateSetting = typeof authFields === 'object' && fieldKey in authFields
 
+    // If the field exists in auth fields.
+    const isAuth = typeof authFields === 'object' && fieldKey in authFields
+
     let type: DestinationMetadataOption['type'] = schema.type
     if (Array.isArray(schema.choices)) {
       type = 'select'
@@ -399,9 +402,15 @@ export function getOptions(
 
     // Preserve existing properties unless specified by the action field definition
     const existing = existingOptions[fieldKey]
+    const tags = existing.tags ?? []
+
+    if (isAuth && !tags.includes('authentication:test')) {
+      tags.push('authentication:test') //valid values here can eventually be test, no-test if needed
+    }
 
     options[fieldKey] = {
       ...existing,
+      tags,
       default: schema.default ?? '',
       description: schema.description,
       encrypt: schema.type === 'password',
