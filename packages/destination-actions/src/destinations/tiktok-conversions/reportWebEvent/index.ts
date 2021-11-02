@@ -87,7 +87,7 @@ const action: ActionDefinition<Settings, Payload> = {
     },
     ttclid: {
       label: "TikTok Click  ID",
-      description: "The value of ttclid used to match website visitor events with TikTok ads. The ttclid is valid for 7 days. See [Set up](https://ads.tiktok.com/marketing_api/docs?rid=4eezrhr6lg4&id=1681728034437121) ttclid for details.",
+      description: "The value of the ttclid used to match website visitor events with TikTok ads. The ttclid is valid for 7 days. See [Set up ttclid](https://ads.tiktok.com/marketing_api/docs?rid=4eezrhr6lg4&id=1681728034437121) for details.",
       type: "string",
       default: {
         '@if': {
