@@ -52,6 +52,7 @@ jobs:
         if: ${{ github.event_name == 'workflow_dispatch' || (github.event.action == 'closed' && github.event.pull_request.merged == true) }}
         with:
           fetch-depth: 0
+          persist-credentials: false
 
       - uses: actions/setup-node@v2
         with:
