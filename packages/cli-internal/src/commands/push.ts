@@ -372,11 +372,11 @@ export function getOptions(
       validators.push(['required', `The ${fieldKey} property is required.`])
     }
 
-    // Everything in `authentication.fields` should be private. Otherwise, public is fine
-    const isPrivateSetting = typeof authFields === 'object' && fieldKey in authFields
-
     // If the field exists in auth fields.
     const isAuth = typeof authFields === 'object' && fieldKey in authFields
+
+    // Everything in `authentication.fields` should be private. Otherwise, public is fine
+    const isPrivateSetting = isAuth
 
     let type: DestinationMetadataOption['type'] = schema.type
     if (Array.isArray(schema.choices)) {
