@@ -251,12 +251,13 @@ export const destination: BrowserDestinationDefinition<Settings, typeof appboy> 
   initialize: async ({ settings }, dependencies) => {
     try {
       const { endpoint, api_key, sdkVersion, automaticallyDisplayMessages, ...expectedConfig } = settings
+      const version = sdkVersion ?? '3.3'
 
-      initScript(sdkVersion)
+      initScript(version)
 
       resetUserCache()
 
-      await dependencies.loadScript(`https://js.appboycdn.com/web-sdk/${sdkVersion}/appboy.min.js`)
+      await dependencies.loadScript(`https://js.appboycdn.com/web-sdk/${version}/appboy.min.js`)
 
       window.appboy.initialize(api_key, {
         baseUrl: endpoint,
