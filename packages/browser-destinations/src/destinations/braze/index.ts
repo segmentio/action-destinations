@@ -7,7 +7,6 @@ import updateUserProfile from './updateUserProfile'
 import trackPurchase from './trackPurchase'
 import debounce, { resetUserCache } from './debounce'
 import { defaultValues, DestinationDefinition } from '@segment/actions-core'
-import { initScript } from './init-script'
 
 declare global {
   interface Window {
@@ -252,8 +251,6 @@ export const destination: BrowserDestinationDefinition<Settings, typeof appboy> 
     try {
       const { endpoint, api_key, sdkVersion, automaticallyDisplayMessages, ...expectedConfig } = settings
       const version = sdkVersion ?? '3.3'
-
-      initScript(version)
 
       resetUserCache()
 
