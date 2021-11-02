@@ -42,6 +42,7 @@ jobs:
         with:
           ref: ${{ steps.sha.outputs.result }}
           fetch-depth: 0
+          persist-credentials: false
 
       - uses: actions/setup-node@v2
         with:
