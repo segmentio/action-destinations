@@ -11,7 +11,7 @@ const hook: Hook<'init'> = async function ({ config }) {
   try {
     cpsModule = require.resolve('@segment/control-plane-service-client')
   } catch (err) {
-    if (err.code === 'MODULE_NOT_FOUND') {
+    if ((err as NodeJS.ErrnoException).code === 'MODULE_NOT_FOUND') {
       return
     }
 
