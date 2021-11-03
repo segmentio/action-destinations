@@ -7,7 +7,6 @@ import updateUserProfile from './updateUserProfile'
 import trackPurchase from './trackPurchase'
 import debounce, { resetUserCache } from './debounce'
 import { defaultValues, DestinationDefinition } from '@segment/actions-core'
-import { initScript } from './init-script'
 
 declare global {
   interface Window {
@@ -251,12 +250,11 @@ export const destination: BrowserDestinationDefinition<Settings, typeof appboy> 
   initialize: async ({ settings }, dependencies) => {
     try {
       const { endpoint, api_key, sdkVersion, automaticallyDisplayMessages, ...expectedConfig } = settings
-
-      initScript(sdkVersion)
+      const version = sdkVersion ?? '3.3'
 
       resetUserCache()
 
-      await dependencies.loadScript(`https://js.appboycdn.com/web-sdk/${sdkVersion}/appboy.min.js`)
+      await dependencies.loadScript(`https://js.appboycdn.com/web-sdk/${version}/appboy.min.js`)
 
       window.appboy.initialize(api_key, {
         baseUrl: endpoint,
