@@ -168,7 +168,7 @@ const action: ActionDefinition<Settings, Payload> = {
       }
     },
     post_code: {
-      label: 'Post Code',
+      label: 'Postal Code',
       description: 'Postal code of the individual who triggered the conversion event.',
       type: 'string',
       default: {
