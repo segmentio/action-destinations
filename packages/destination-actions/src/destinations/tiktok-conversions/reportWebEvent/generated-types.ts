@@ -35,4 +35,8 @@ export interface Payload {
    * Uniquely identifies the user who triggered the conversion event.
    */
   external_id: string
+  /**
+   * The value of ttclid used to match website visitor events with TikTok ads. The ttclid is valid for 7 days. See [Set up](https://ads.tiktok.com/marketing_api/docs?rid=4eezrhr6lg4&id=1681728034437121) ttclid for details.
+   */
+  ttclid?: string
 }
