@@ -4,7 +4,7 @@ interface UserAlias {
 }
 
 export function isValidUserAlias(userAlias: unknown): userAlias is UserAlias {
-  if (userAlias && typeof userAlias === 'object' && userAlias.alias_label && userAlias.alias_name) {
+  if (userAlias && typeof userAlias === 'object' && (userAlias as UserAlias).alias_label && (userAlias as UserAlias).alias_name) {
     return true
   }
 
