@@ -25,8 +25,6 @@ const action: ActionDefinition<Settings, Payload> = {
     event_source_url: event_source_url,
   },
   perform: (request, { payload, settings }) => {
-    const TOKEN = settings.token ? settings.token : process.env.TOKEN
-
     if (!payload.user_data) {
       throw new IntegrationError('Must include at least one user data property', 'Misconfigured required field', 400)
     }
@@ -38,7 +36,7 @@ const action: ActionDefinition<Settings, Payload> = {
       throw new IntegrationError('Provide a valid value for the action source parameter, such as "website"', 'Misconfigured required field', 400)
     }
 
-    return request(`https://graph.facebook.com/v${API_VERSION}/${settings.pixelId}/events?access_token=${TOKEN}`, {
+    return request(`https://graph.facebook.com/v${API_VERSION}/${settings.pixelId}/events`, {
       method: 'POST',
       json: {
         data: [

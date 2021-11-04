@@ -23,9 +23,6 @@ const action: ActionDefinition<Settings, Payload> = {
     value: value,
   },
   perform: (request, { payload, settings }) => {
-    // For stage testing, prioritize settings token over env token
-    const TOKEN = settings.token ? settings.token : process.env.TOKEN
-
     if (payload.currency && !CURRENCY_ISO_CODES.has(payload.currency)) {
       throw new IntegrationError(
         `${payload.currency} is not a valid currency code.`,
@@ -45,7 +42,7 @@ const action: ActionDefinition<Settings, Payload> = {
         400
       )
     }
-    return request(`https://graph.facebook.com/v${API_VERSION}/${settings.pixelId}/events?access_token=${TOKEN}`, {
+    return request(`https://graph.facebook.com/v${API_VERSION}/${settings.pixelId}/events`, {
       method: 'POST',
       json: {
         data: [

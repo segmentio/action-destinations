@@ -37,6 +37,11 @@ const destination: DestinationDefinition<Settings> = {
         }
       )
       return res.status === 200
+    },
+    extendRequest: () => {
+      return {
+        headers: { Authorization: `Bearer ${process.env.ACTIONS_FB_CAPI_SYSTEM_USER_TOKEN}` }
+      }
     }
   },
   actions: {
