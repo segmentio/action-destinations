@@ -3,6 +3,7 @@ import type { ActionDefinition } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 import dayjs from '../../../lib/dayjs'
+import { getUserAlias } from '../userAlias'
 
 type DateInput = string | Date | number | null | undefined
 type DateOutput = string | undefined | null
@@ -37,13 +38,11 @@ const action: ActionDefinition<Settings, Payload> = {
       properties: {
         alias_name: {
           label: 'Alias Name',
-          type: 'string',
-          required: true
+          type: 'string'
         },
         alias_label: {
           label: 'Alias Label',
-          type: 'string',
-          required: true
+          type: 'string'
         }
       }
     },
@@ -91,7 +90,10 @@ const action: ActionDefinition<Settings, Payload> = {
     }
   },
   perform: (request, { settings, payload }) => {
-    const { braze_id, user_alias, external_id } = payload
+    const { braze_id, external_id } = payload
+
+    // Extract valid user_alias shape. Since it is optional (oneOf braze_id, external_id) we need to only include it if fully formed.
+    const user_alias = getUserAlias(payload.user_alias)
 
     if (!braze_id && !user_alias && !external_id) {
       throw new IntegrationError(
