@@ -1,4 +1,4 @@
-import { isValidUserAlias, getUserAlias } from './userAlias'
+import { isValidUserAlias, getUserAlias } from '../userAlias'
 
 describe(isValidUserAlias.name.toString(), () => {
   it('should return true for valid user_alias objects', () => {
