@@ -95,6 +95,7 @@ jobs:
           echo 'LERNA_RESPONSE<<EOF' >> $GITHUB_ENV
           echo $RESPONSE >> $GITHUB_ENV
           echo 'EOF' >> $GITHUB_ENV
+          echo $RESPONSE
 
       - name: Notify end
         uses: actions/github-script@v4
