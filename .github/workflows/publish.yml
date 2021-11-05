@@ -84,6 +84,7 @@ jobs:
         run: |
           git config --global user.email "`git log --format='%ae' HEAD^!`"
           git config --global user.name "`git log --format='%an' HEAD^!`"
+          git remote set-url origin https://x-access-token:${{ secrets.NEW_GH_TOKEN }}@github.com/${{ github.repository }}
           git config user.email
           git config user.name
 
