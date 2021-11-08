@@ -53,7 +53,7 @@ const action: ActionDefinition<Settings, Payload> = {
     transaction_id: {
       label: 'Order ID',
       description:
-        'Order ID or Transaction ID of the conversion event. Google requires an Order ID even if the event is not an ecommerce event. Learn more in the article [Use a transaction ID to minimize duplicate conversions](https://support.google.com/google-ads/answer/6386790?hl=en&ref_topic=3165803){:target="_blank"}',
+        'Order ID or Transaction ID of the conversion event. Google requires an Order ID even if the event is not an ecommerce event. Learn more in the article [Use a transaction ID to minimize duplicate conversions](https://support.google.com/google-ads/answer/6386790?hl=en&ref_topic=3165803).',
       type: 'string',
       required: true,
       default: {
@@ -62,7 +62,7 @@ const action: ActionDefinition<Settings, Payload> = {
     },
     user_agent: {
       label: 'User Agent',
-      description: 'User agent of the individual who triggered the conversion event. This should match the user agent of the request that sent the original conversion so the conversion and its enhancement are either both attributed as same-device or both attributed as cross-device.',
+      description: 'User agent of the individual who triggered the conversion event. This should match the user agent of the request that sent the original conversion so the conversion and its enhancement are either both attributed as same-device or both attributed as cross-device. This field is optional but recommended.',
       type: 'string',
       default: {
         '@path': '$.context.userAgent'
