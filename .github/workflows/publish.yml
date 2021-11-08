@@ -61,7 +61,7 @@ jobs:
           cache: 'yarn'
 
       - name: Use Github Personal Access Token
-        run: git config --global url."https://${{ secrets.NEW_GH_TOKEN }}@github.com/".insteadOf ssh://git@github.com/
+        run: git config --global url."https://${{ secrets.GITHUB_TOKEN  }}@github.com/".insteadOf ssh://git@github.com/
 
       - name: Install Dependencies
         run: yarn install --frozen-lockfile
@@ -84,7 +84,7 @@ jobs:
         run: |
           git config --global user.email "`git log --format='%ae' HEAD^!`"
           git config --global user.name "`git log --format='%an' HEAD^!`"
-          git remote set-url origin https://x-access-token:${{ secrets.NEW_GH_TOKEN }}@github.com/${{ github.repository }}
+          git remote set-url origin https://x-access-token:${{ secrets.GITHUB_TOKEN  }}@github.com/${{ github.repository }}
           git config user.email
           git config user.name
 
@@ -94,6 +94,4 @@ jobs:
           npm whoami
 
       - name: Publish production package
-        env: 
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: lerna publish ${{ needs.get-version.outputs.version }} --conventional-commits --no-changelog --conventional-graduate --no-verify-access --yes
