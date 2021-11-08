@@ -2232,16 +2232,16 @@
   resolved "https://registry.yarnpkg.com/@polka/url/-/url-1.0.0-next.21.tgz#5de5a2385a35309427f6011992b544514d559aa1"
   integrity sha512-a5Sab1C4/icpTZVzZc5Ghpz88yQtGOyNqYXcZgOssB2uuAr+wF/MvN6bgtW32q7HHrvBki+BsZ0OuNv6EV3K9g==
 
-"@segment/analytics-next@^1.29.3":
-  version "1.29.3"
-  resolved "https://registry.yarnpkg.com/@segment/analytics-next/-/analytics-next-1.29.3.tgz#51ea4d7e487e95c2862ec5d52fd34a113c20161e"
-  integrity sha512-v1MTOTS8tnxVkrrKSxCboxz5B5F5VUnY/F8bRcMspCsVo+REMZxmBo2Bl1t3GeRp9YaO5h530EIYdDhJQtO8qw==
+"@segment/analytics-next@^1.31.0":
+  version "1.31.0"
+  resolved "https://registry.yarnpkg.com/@segment/analytics-next/-/analytics-next-1.31.0.tgz#41e3c84b067e930993680814f1694a6de6afcc1a"
+  integrity sha512-uwa3ZnjxIT9pVGfcYraXqLjXL6XWezcGSpCfoEez079Fe/i6aW9WQ8IFnwq8KhHYZozaDPurJlStxZPf7aJNFg==
   dependencies:
     "@lukeed/uuid" "^2.0.0"
     "@segment/analytics.js-video-plugins" "^0.2.1"
-    "@segment/facade" "3.3.10"
+    "@segment/facade" "3.4.7"
     "@segment/tsub" "^0.1.9"
-    dset "^2.1.0"
+    dset "^3.0.0"
     js-cookie "^2.2.1"
     spark-md5 "^3.0.1"
     unfetch "^4.1.0"
@@ -2264,14 +2264,14 @@
     path-to-regexp "^6.1.0"
     querystring "^0.2.0"
 
-"@segment/facade@3.3.10":
-  version "3.3.10"
-  resolved "https://registry.yarnpkg.com/@segment/facade/-/facade-3.3.10.tgz#94381079d326f8d4b2d11e0b2b1a85ca7aac28c4"
-  integrity sha512-Ed6hRwpNqwjsj3s5fXFqzoWwyB/foVGM+uT3Kl94Yd5BlZtYvmHxtX5gGsAPD49eazIPxLqJDZSHz/2tnokRTQ==
+"@segment/facade@3.4.7":
+  version "3.4.7"
+  resolved "https://registry.yarnpkg.com/@segment/facade/-/facade-3.4.7.tgz#27e469189d45d5a2806d16571722e6b00d81429a"
+  integrity sha512-Tj4aJsdmR9cl7xm7BT0NF9kYOnbIJ/3DdC1yOiLnjQRbHcnOq7WWkMDug/JCSEPF2loxGhG/oTeZybR3hpG3MA==
   dependencies:
     "@segment/isodate-traverse" "^1.1.1"
     inherits "^2.0.4"
-    klona "^2.0.4"
+    klona "^2.0.5"
     new-date "^1.0.3"
     obj-case "0.2.1"
 
@@ -5316,10 +5316,15 @@ dreamopt@~0.6.0:
   dependencies:
     wordwrap ">=0.0.2"
 
-dset@2.1.0, dset@^2.1.0:
+dset@2.1.0:
   version "2.1.0"
   resolved "https://registry.yarnpkg.com/dset/-/dset-2.1.0.tgz#cd1e99e55cf32366d8f144f906c42f7fb3bf431e"
   integrity sha512-hlQYwNEdW7Qf8zxysy+yN1E8C/SxRst3Z9n+IvXOR35D9bPVwNHhnL8ZBeoZjvinuGrlvGg6pAMDwhmjqFDgjA==
+
+dset@^3.0.0:
+  version "3.1.1"
+  resolved "https://registry.yarnpkg.com/dset/-/dset-3.1.1.tgz#07de5af7a8d03eab337ad1a8ba77fe17bba61a8c"
+  integrity sha512-hYf+jZNNqJBD2GiMYb+5mqOIX4R4RRHXU3qWMWYN+rqcR2/YpRL2bUHr8C8fU+5DNvqYjJ8YvMGSLuVPWU1cNg==
 
 duplexer2@^0.1.4:
   version "0.1.4"
@@ -8216,10 +8221,10 @@ kleur@^4.1.4:
   resolved "https://registry.yarnpkg.com/kleur/-/kleur-4.1.4.tgz#8c202987d7e577766d039a8cd461934c01cda04d"
   integrity sha512-8QADVssbrFjivHWQU7KkMgptGTl6WAcSdlbBPY4uNF+mWr6DGcKrvY2w4FQJoXch7+fKMjj0dRrL75vk3k23OA==
 
-klona@^2.0.4:
-  version "2.0.4"
-  resolved "https://registry.yarnpkg.com/klona/-/klona-2.0.4.tgz#7bb1e3affb0cb8624547ef7e8f6708ea2e39dfc0"
-  integrity sha512-ZRbnvdg/NxqzC7L9Uyqzf4psi1OM4Cuc+sJAkQPjO6XkQIJTNbfK2Rsmbw8fx1p2mkZdp2FZYo2+LwXYY/uwIA==
+klona@^2.0.5:
+  version "2.0.5"
+  resolved "https://registry.yarnpkg.com/klona/-/klona-2.0.5.tgz#d166574d90076395d9963aa7a928fabb8d76afbc"
+  integrity sha512-pJiBpiXMbt7dkzXe8Ghj/u4FfXOOa98fPW+bihOJ4SjnoijweJrNThJfd3ifXpXhREjpoF2mZVH1GfS9LV3kHQ==
 
 latest-version@^2.0.0:
   version "2.0.0"
