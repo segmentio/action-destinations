@@ -94,4 +94,6 @@ jobs:
           npm whoami
 
       - name: Publish production package
+        env: 
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: lerna publish ${{ needs.get-version.outputs.version }} --conventional-commits --no-changelog --conventional-graduate --no-verify-access --yes
