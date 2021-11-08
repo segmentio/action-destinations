@@ -7,7 +7,7 @@ import { API_VERSION } from '../constants'
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Custom',
   description: 'Track your own custom events.',
-  defaultSubscription: 'type = "identify"',
+  defaultSubscription: '',
   fields: {
     action_source: { ...action_source, required: true},
     event_name: {
