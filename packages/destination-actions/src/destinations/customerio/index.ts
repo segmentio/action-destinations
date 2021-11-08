@@ -9,7 +9,7 @@ import type { Settings } from './generated-types'
 import { AccountRegion, trackApiEndpoint } from './utils'
 
 const destination: DestinationDefinition<Settings> = {
-  name: 'Customer.io',
+  name: 'Actions Customerio',
   mode: 'cloud',
   authentication: {
     scheme: 'basic',
