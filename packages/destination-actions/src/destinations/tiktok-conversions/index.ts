@@ -71,18 +71,6 @@ const destination: DestinationDefinition<Settings> = {
         type: 'string',
         required: true
       },
-      secretKey: {
-        label: 'Secret Key',
-        description: 'TikTok App Secret Key. You can find this key in the "Basic Information" tab of your TikTok app.',
-        type: 'string',
-        required: true
-      },
-      appId: {
-        label: 'App Id',
-        description: 'TikTok App Id. You can find this key in the "Basic Information" tab of your TikTok app.',
-        type: 'string',
-        required: true
-      },
       pixel_code: {
         label: 'Pixel Code',
         type: 'string',
@@ -92,13 +80,13 @@ const destination: DestinationDefinition<Settings> = {
     },
     testAuthentication: (request, { settings }) => {
       // Return a request that tests/validates the user's credentials.
-      // If you do not have a way to validate the authentication fields safely,
-      // you can remove the `testAuthentication` function, though discouraged.
-      return request('https://business-api.tiktok.com/open_api/v1.2/oauth2/advertiser/get/', {
+      // Send a blank event to events API.
+      return request('https://business-api.tiktok.com/open_api/v1.2/pixel/track/', {
         json: {
-          access_token: settings.accessToken,
-          app_id: parseInt(settings.appId, 10),
-          secret: settings.secretKey
+          pixel_code: settings.pixel_code,
+          event: "Test Event",
+          timestamp: '',
+          context: {}
         }
       })
     }
