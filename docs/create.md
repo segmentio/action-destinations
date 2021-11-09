@@ -50,6 +50,8 @@ To begin, run `./bin/run init` to scaffold the project's directory structure, an
 
 After completion, the directory structure of the new destination is created at `packages/destination-actions/src/destinations/<slug>`. The `init` command does not register or deploy the integration.
 
+### Cloud Mode Destination
+
 The `index.ts` file in this folder contains the beginnings of an Actions-based Destination. For example, a destination named `Test` using `Basic Auth` contains the following:
 
 ```js
@@ -110,6 +112,49 @@ With this minimal configuration, the destination can connect to the Segment App'
 > The `testAuthentication` function verifies the user's credentials against a service. For testing, enter `return true` in this function to continue development.
 
 > The `onDelete` function performs a GDPR delete against a service. For testing, enter `return true` in this function to continue development.
+
+### Browser (Device Mode) Destination
+
+```js
+import type { Settings } from './generated-types'
+import type { BrowserDestinationDefinition } from '../../lib/browser-destinations'
+import { browserDestination } from '../../runtime/shim'
+
+// Declare global to access your client
+declare global {
+  interface Window {
+    sdkName: typeof sdkName
+  }
+}
+
+// Switch from unknown to the partner SDK client types
+export const destination: BrowserDestinationDefinition<Settings, unknown> = {
+  name: 'BrowserExample',
+  slug: 'actions-browserexample',
+  mode: 'device',
+
+  settings: {
+    // Add any Segment destination settings required here
+  },
+
+  initialize: async ({ settings, analytics }, deps) => {
+    await deps.loadScript('<path_to_partner_script>')
+    // initialize client code here
+
+    return window.yourSDKName
+  },
+
+  actions: {}
+}
+
+export default browserDestination(destination)
+```
+
+In Browser Destinations' no authentication is required. Instead, you must initialize your SDK with the required settings needed.
+
+When importing your SDK, we recommend loading from a CDN when possible. This keeps the bundle size lower rather than directly including the SDK in our package.
+
+Make sure to add a global declaration where you specify your SDK as a field of a Window interface so you can reference and return it in your initialize function. E.g. (See above)
 
 ## Actions
 
