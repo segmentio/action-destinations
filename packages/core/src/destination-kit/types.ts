@@ -13,6 +13,8 @@ export interface Result {
 }
 
 export interface ExecuteInput<Settings, Payload> {
+  /** The raw input data (usually a Segment event), you should avoid using this */
+  readonly rawData?: unknown
   /** The subscription mapping definition */
   readonly mapping?: JSONObject
   /** The global destination settings */

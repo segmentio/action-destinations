@@ -6,6 +6,10 @@ export interface Payload {
    */
   trackRevenuePerProduct?: boolean
   /**
+   * When a subscribed event also has this name, track order completed and product purchased details
+   */
+  orderCompletedEventName?: string
+  /**
    * A readable ID specified by you. Must have a minimum length of 5 characters. Required unless device ID is present. **Note:** If you send a request with a user ID that is not in the Amplitude system yet, then the user tied to that ID will not be marked new until their first event.
    */
   user_id?: string | null

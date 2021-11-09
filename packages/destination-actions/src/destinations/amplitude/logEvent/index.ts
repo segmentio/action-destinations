@@ -1,7 +1,7 @@
 import { omit, removeUndefined } from '@segment/actions-core'
 import dayjs from '../../../lib/dayjs'
 import { eventSchema } from '../event-schema'
-import type { ActionDefinition } from '@segment/actions-core'
+import type { ActionDefinition, SegmentEvent } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 import { convertUTMProperties } from '../utm'
@@ -53,6 +53,12 @@ const action: ActionDefinition<Settings, Payload> = {
         'When enabled, track revenue with each product within the event. When disabled, track total revenue once for the event.',
       type: 'boolean',
       default: false
+    },
+    orderCompletedEventName: {
+      label: 'Order Completed Event Name',
+      description: 'When a subscribed event also has this name, track order completed and product purchased details',
+      type: 'string',
+      default: 'Order Completed'
     },
     ...eventSchema,
     products: {
@@ -168,7 +174,7 @@ const action: ActionDefinition<Settings, Payload> = {
       type: 'integer'
     }
   },
-  perform: (request, { payload, settings }) => {
+  perform: (request, { payload, settings, rawData }) => {
     // Omit revenue properties initially because we will manually stitch those into events as prescribed
     const {
       products = [],
@@ -181,6 +187,7 @@ const action: ActionDefinition<Settings, Payload> = {
       referrer,
       min_id_length,
       library,
+      orderCompletedEventName,
       ...rest
     } = omit(payload, revenueKeys)
     const properties = rest as AmplitudeEvent
@@ -214,6 +221,8 @@ const action: ActionDefinition<Settings, Payload> = {
       options = { min_id_length }
     }
 
+    const shouldIncludeRevenueTracking = (rawData as SegmentEvent).event === orderCompletedEventName
+
     const events: AmplitudeEvent[] = [
       {
         // Conditionally parse user agent using amplitude's library
@@ -221,21 +230,25 @@ const action: ActionDefinition<Settings, Payload> = {
         // Make sure any top-level properties take precedence over user-agent properties
         ...removeUndefined(properties),
         // Conditionally track revenue with main event
-        ...(products.length && trackRevenuePerProduct ? {} : getRevenueProperties(payload)),
+        ...((products.length && trackRevenuePerProduct) || !shouldIncludeRevenueTracking
+          ? {}
+          : getRevenueProperties(payload)),
         library: 'segment'
       }
     ]
 
-    for (const product of products) {
-      events.push({
-        ...properties,
-        // Or track revenue per product
-        ...(trackRevenuePerProduct ? getRevenueProperties(product as EventRevenue) : {}),
-        event_properties: product,
-        event_type: 'Product Purchased',
-        insert_id: properties.insert_id ? `${properties.insert_id}-${events.length + 1}` : undefined,
-        library: 'segment'
-      })
+    if (shouldIncludeRevenueTracking) {
+      for (const product of products) {
+        events.push({
+          ...properties,
+          // Or track revenue per product
+          ...(trackRevenuePerProduct ? getRevenueProperties(product as EventRevenue) : {}),
+          event_properties: product,
+          event_type: 'Product Purchased',
+          insert_id: properties.insert_id ? `${properties.insert_id}-${events.length + 1}` : undefined,
+          library: 'segment'
+        })
+      }
     }
 
     const endpoint = payload.use_batch_endpoint
