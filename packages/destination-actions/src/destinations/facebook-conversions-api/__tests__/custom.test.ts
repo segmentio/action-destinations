@@ -12,7 +12,7 @@ describe.only('FacebookConversionsApi', () => {
   describe('Custom', () => {
     it('should fail if no event_name is passed', async () => {
       nock(`https://graph.facebook.com/v11.0/${settings.pixelId}`)
-      .post(`/events?access_token=${settings.token}`)
+      .post(`/events`)
       .reply(201, {})
 
       const event = createTestEvent({
@@ -39,7 +39,7 @@ describe.only('FacebookConversionsApi', () => {
 
     it('should fail if an empty event_name is passed', async () => {
       nock(`https://graph.facebook.com/v11.0/${settings.pixelId}`)
-      .post(`/events?access_token=${settings.token}`)
+      .post(`/events`)
       .reply(201, {})
 
       const event = createTestEvent({
@@ -67,8 +67,8 @@ describe.only('FacebookConversionsApi', () => {
 
     it('should throw an error for an invalid action_source', async () => {
       nock(`https://graph.facebook.com/v11.0/${settings.pixelId}`)
-        .post(`/events?access_token=${settings.token}`)
-        .reply(201, {})
+      .post(`/events`)
+      .reply(201, {})
 
         const event = createTestEvent({
           event: 'custom',
@@ -101,7 +101,7 @@ describe.only('FacebookConversionsApi', () => {
 
     it('should map a standard identify event to a custom event', async () => {
       nock(`https://graph.facebook.com/v11.0/${settings.pixelId}`)
-      .post(`/events?access_token=${settings.token}`)
+      .post(`/events`)
       .reply(201, {})
 
       const event = createTestEvent({

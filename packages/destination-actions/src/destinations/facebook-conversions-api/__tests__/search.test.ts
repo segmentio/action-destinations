@@ -11,8 +11,8 @@ describe('FacebookConversionsApi', () => {
   describe('Search', () => {
     it('should handle a basic event', async () => {
       nock(`https://graph.facebook.com/v11.0/${settings.pixelId}`)
-        .post(`/events?access_token=${settings.token}`)
-        .reply(201, {})
+      .post(`/events`)
+      .reply(201, {})
   
       const event = createTestEvent({
         event: 'Products Searched',
@@ -72,8 +72,8 @@ describe('FacebookConversionsApi', () => {
     
     it('should throw an error if no user_data keys are included', async () => {
       nock(`https://graph.facebook.com/v11.0/${settings.pixelId}`)
-        .post(`/events?access_token=${process.env.TOKEN}`)
-        .reply(201, {})
+      .post(`/events`)
+      .reply(201, {})
   
       const event = createTestEvent({
         event: 'Products Searched',

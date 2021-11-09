@@ -31,7 +31,7 @@ const destination: DestinationDefinition<Settings> = {
     },
     testAuthentication: async (request, { settings }) => {
       const res = await request(
-        `https://graph.facebook.com/v${API_VERSION}/${settings.pixelId}/events?access_token=${process.env.FB_PIXEL_SERVER_SIDE_AUTH_TOKEN}`,
+        `https://graph.facebook.com/v${API_VERSION}/${settings.pixelId}/events`,
         {
           method: 'GET'
         }
@@ -43,7 +43,7 @@ const destination: DestinationDefinition<Settings> = {
     return {
       //TODO: Create a token with this name specific to actions CAPI in chamber
       //headers: { Authorization: `Bearer ${process.env.ACTIONS_FB_CAPI_SYSTEM_USER_TOKEN}` }
-      headers: { Authorization: `Bearer ${process.env.FB_PIXEL_SERVER_SIDE_AUTH_TOKEN}`}
+      headers: { authorization: `Bearer ${process.env.FB_PIXEL_SERVER_SIDE_AUTH_TOKEN}`}
     }
   },
   actions: {

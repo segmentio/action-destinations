@@ -12,8 +12,8 @@ const settings = {
 describe('authentication', () => {
   it('should validate authentication inputs', async () => {
     nock(`https://graph.facebook.com/v11.0/${settings.pixelId}`)
-      .get(`/events?access_token=${settings.token}`)
-      .reply(201, {})
+      .get(`/events`)
+      .reply(200, {})
 
     await expect(testDestination.testAuthentication(settings)).resolves.not.toThrowError()
   })
@@ -22,7 +22,7 @@ describe('authentication', () => {
 describe('purchase', () => {
   it('should handle a basic event', async () => {
     nock(`https://graph.facebook.com/v11.0/${settings.pixelId}`)
-      .post(`/events?access_token=${settings.token}`)
+      .post(`/events`)
       .reply(201, {})
 
     const event = createTestEvent({
@@ -87,8 +87,8 @@ describe('purchase', () => {
 
   it('should throw an error when currency and value are missing', async () => {
     nock(`https://graph.facebook.com/v11.0/${settings.pixelId}`)
-    .post(`/events?access_token=${process.env.TOKEN}`)
-    .reply(201, {})
+      .post(`/events`)
+      .reply(201, {})
 
     const event = createTestEvent({
       event: 'Order Completed',
@@ -126,7 +126,7 @@ describe('purchase', () => {
   
   it('should throw an error if no user_data keys are included', async () => {
     nock(`https://graph.facebook.com/v11.0/${settings.pixelId}`)
-      .post(`/events?access_token=${process.env.TOKEN}`)
+      .post(`/events`)
       .reply(201, {})
 
     const event = createTestEvent({

@@ -12,7 +12,7 @@ describe('FacebookConversionsApi', () => {
   describe('PageView', () => {
     it('should handle a basic event', async () => {
       nock(`https://graph.facebook.com/v11.0/${settings.pixelId}`)
-      .post(`/events?access_token=${settings.token}`)
+      .post(`/events`)
       .reply(201, {})
 
       const event = createTestEvent({
@@ -37,7 +37,7 @@ describe('FacebookConversionsApi', () => {
 
     it('should throw an error when action_source is website and no client_user_agent', async () => {
       nock(`https://graph.facebook.com/v11.0/${settings.pixelId}`)
-      .post(`/events?access_token=${settings.token}`)
+      .post(`/events`)
       .reply(201, {})
 
       const event = createTestEvent({
@@ -71,7 +71,7 @@ describe('FacebookConversionsApi', () => {
 
     it('should handle default mappings', async () => {
       nock(`https://graph.facebook.com/v11.0/${settings.pixelId}`)
-      .post(`/events?access_token=${settings.token}`)
+      .post(`/events`)
       .reply(201, {})
 
       const event = createTestEvent({
@@ -95,8 +95,8 @@ describe('FacebookConversionsApi', () => {
 
     it('should throw an error if no user_data keys are included', async () => {
       nock(`https://graph.facebook.com/v11.0/${settings.pixelId}`)
-        .post(`/events?access_token=${process.env.TOKEN}`)
-        .reply(201, {})
+      .post(`/events`)
+      .reply(201, {})
   
       const event = createTestEvent({
         event: 'Product Added',
