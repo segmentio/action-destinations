@@ -2232,33 +2232,6 @@
   resolved "https://registry.yarnpkg.com/@polka/url/-/url-1.0.0-next.21.tgz#5de5a2385a35309427f6011992b544514d559aa1"
   integrity sha512-a5Sab1C4/icpTZVzZc5Ghpz88yQtGOyNqYXcZgOssB2uuAr+wF/MvN6bgtW32q7HHrvBki+BsZ0OuNv6EV3K9g==
 
-"@segment/action-destinations@^3.9.2-alpha.0":
-  version "3.9.2"
-  resolved "https://registry.yarnpkg.com/@segment/action-destinations/-/action-destinations-3.9.2.tgz#78e8e0220f9af5e1e7725042be84ff3f665fb09b"
-  integrity sha512-sUTwKtsfDIdVIKsD/fItGMIXqwFYeFs6oGKjQtQcsfR1DQCD/9G1dA4C/eOHCtMt2WDY4FOiVdGaQ8WvCosCag==
-  dependencies:
-    "@amplitude/ua-parser-js" "^0.7.24"
-    "@segment/actions-core" "^3.9.2"
-    dayjs "^1.10.3"
-    lodash "^4.17.21"
-    mustache "^4.2.0"
-
-"@segment/actions-core@^3.9.2", "@segment/actions-core@^3.9.2-alpha.0":
-  version "3.9.2"
-  resolved "https://registry.yarnpkg.com/@segment/actions-core/-/actions-core-3.9.2.tgz#b810b004db51a8c9f21bc26b1f2525907a476780"
-  integrity sha512-Bh1xduORaXylMtEPpqtHcS4xjHewF+nF0T1xbmqVcC3NHqH6al7HxlLEUbQ66AeXwJ2DMhMn8rHhouruGuZQRw==
-  dependencies:
-    "@lukeed/uuid" "^2.0.0"
-    "@segment/ajv-human-errors" "^1.6.0"
-    "@segment/destination-subscriptions" "^3.5.0"
-    abort-controller "^3.0.0"
-    aggregate-error "^3.1.0"
-    ajv "^6.12.4"
-    btoa-lite "^1.0.0"
-    cross-fetch "^3.1.4"
-    dayjs "^1.10.4"
-    ts-custom-error "^3.2.0"
-
 "@segment/analytics-next@^1.29.3":
   version "1.29.3"
   resolved "https://registry.yarnpkg.com/@segment/analytics-next/-/analytics-next-1.29.3.tgz#51ea4d7e487e95c2862ec5d52fd34a113c20161e"
