@@ -154,7 +154,7 @@ In Browser Destinations' no authentication is required. Instead, you must initia
 
 When importing your SDK, we recommend loading from a CDN when possible. This keeps the bundle size lower rather than directly including the SDK in our package.
 
-Make sure to add a global declarition where you specify your SDK as a field of a Window interface so you can reference and return it in your intialize function. E.g. (See above)
+Make sure to add a global declaration where you specify your SDK as a field of a Window interface so you can reference and return it in your initialize function. E.g. (See above)
 
 ## Actions
 
