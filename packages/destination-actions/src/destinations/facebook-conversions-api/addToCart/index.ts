@@ -16,7 +16,7 @@ const action: ActionDefinition<Settings, Payload> = {
     content_ids: content_ids,
     content_name: content_name,
     content_type: content_type,
-    contents: contents,
+    contents: { ...contents, default: undefined },
     currency: currency,
     event_id: event_id,
     event_source_url: event_source_url,
