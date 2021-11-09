@@ -150,7 +150,7 @@ export const destination: BrowserDestinationDefinition<Settings, unknown> = {
 export default browserDestination(destination)
 ```
 
-In Browser Destinations' no authentication is required. Instead, you must initialize your SDK with the required settings needed. To access your client throughout your destination,
+In Browser Destinations' no authentication is required. Instead, you must initialize your SDK with the required settings needed.
 
 When importing your SDK, we recommend loading from a CDN when possible. This keeps the bundle size lower rather than directly including the SDK in our package.
 
