@@ -1,12 +1,10 @@
-name: Publish
+name: Publish Production
 
 on:
   pull_request:
     branches:
       - main
     types:
-      - opened
-      - synchronize
       - closed
     paths:
       - yarn.lock
@@ -43,26 +41,18 @@ jobs:
 
   test-build-and-publish:
     runs-on: ubuntu-latest
-
     needs: get-version
 
-    # require a version unless a PR is opened or synchronized
-    # prevents unlabeled and closed PRs from getting published
-    if: ${{ (needs.get-version.outputs.version && github.event.action == 'closed' && github.event.pull_request.merged == true) || github.event_name == 'workflow_dispatch' || github.event.action == 'opened' || github.event.action == 'synchronize' }}
+    # requires a version, preventing unlabeled and closed PRs from getting published
+    if: ${{ (needs.get-version.outputs.version && github.event.action == 'closed' && github.event.pull_request.merged == true) || (github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/main') }}
 
     steps:
       # if running from workflow_dispatch or closing a PR, checkout main
       - uses: actions/checkout@v2
         if: ${{ github.event_name == 'workflow_dispatch' || (github.event.action == 'closed' && github.event.pull_request.merged == true) }}
         with:
-          fetch-depth: 0  # pulls tags so lerna can compare changes
-
-      # else checkout branch
-      - uses: actions/checkout@v2
-        if: ${{ github.event.action == 'opened' || github.event.action == 'synchronize' }}
-        with:
-          ref: ${{ github.head_ref }}
           fetch-depth: 0
+          persist-credentials: false
 
       - uses: actions/setup-node@v2
         with:
@@ -70,10 +60,13 @@ jobs:
           registry-url: 'https://registry.npmjs.org'
           cache: 'yarn'
 
+      - name: Use Github Personal Access Token
+        run: git config --global url."https://${{ secrets.GITHUB_TOKEN  }}@github.com/".insteadOf ssh://git@github.com/
+
       - name: Install Dependencies
         run: yarn install --frozen-lockfile
         env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_RO_TOKEN }}
 
       - name: Build
         run: NODE_ENV=production yarn build
@@ -89,28 +82,16 @@ jobs:
       # set to the author of the most recent commit
       - name: Set author
         run: |
-          git config user.email "`git log --format='%ae' HEAD^!`"
-          git config user.name "`git log --format='%an' HEAD^!`"
+          git config --global user.email "`git log --format='%ae' HEAD^!`"
+          git config --global user.name "`git log --format='%an' HEAD^!`"
+          git remote set-url origin https://x-access-token:${{ secrets.GITHUB_TOKEN  }}@github.com/${{ github.repository }}
           git config user.email
           git config user.name
 
       - name: Set NPM Token
         run: |
-          npm set '//registry.npmjs.org/:_authToken' ${{ secrets.NPM_TOKEN }}
+          npm set '//registry.npmjs.org/:_authToken' ${{ secrets.NPM_PUBLISH_TOKEN }}
           npm whoami
 
       - name: Publish production package
-        if: ${{ github.event_name == 'workflow_dispatch' || (github.event.action == 'closed' && github.event.pull_request.merged == true) }}
         run: lerna publish ${{ needs.get-version.outputs.version }} --conventional-commits --no-changelog --conventional-graduate --no-verify-access --yes
-
-      - name: Replace forward slashes in branch name
-        if: ${{ github.event.action == 'opened' || github.event.action == 'synchronize' }}
-        env:
-          github_ref: ${{github.head_ref}}
-        run: |
-          branch="${github_ref////-}"
-          echo "BRANCH=$branch" >> $GITHUB_ENV
-
-      - name: Publish prerelease from PR
-        if: ${{ github.event.action == 'opened' || github.event.action == 'synchronize' }}
-        run: lerna publish prerelease --canary --preid ${{ env.BRANCH }} --pre-dist-tag canary --no-verify-access --yes

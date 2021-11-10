@@ -1,6 +1,5 @@
 import { Analytics, Context } from '@segment/analytics-next'
 import brazeDestination, { destination } from '../index'
-import * as snippet from '../init-script'
 
 describe('initialization', () => {
   const settings = {
@@ -48,11 +47,9 @@ describe('initialization', () => {
 
     jest.spyOn(destination.actions.trackPurchase, 'perform')
     jest.spyOn(destination, 'initialize')
-    jest.spyOn(snippet, 'initScript')
 
     await event.load(Context.system(), {} as Analytics)
     expect(destination.initialize).toHaveBeenCalled()
-    expect(snippet.initScript).toHaveBeenCalled()
 
     const ctx = await event.track?.(
       new Context({

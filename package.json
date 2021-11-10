@@ -25,8 +25,7 @@
     "test": "lerna run test --stream",
     "typecheck": "lerna run typecheck --stream",
     "alpha": "lerna publish prerelease --pre-dist-tag next --allow-branch '**' --no-git-tag-version",
-    "prepare": "husky install",
-    "postinstall": "./scripts/install-gitleaks.sh"
+    "prepare": "husky install"
   },
   "devDependencies": {
     "@types/chance": "^1.1.3",
