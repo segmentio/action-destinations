@@ -68,6 +68,26 @@ registerDirective('@if', (opts, payload) => {
   }
 })
 
+registerDirective('@arrayPath', (data, payload) => {
+  if (!Array.isArray(data)) {
+    throw new Error(`@arrayPath expected array, got ${realTypeOf(data)}`)
+  }
+
+  const [path, itemShape] = data as [string, undefined | JSONObject]
+  if (typeof path !== 'string') {
+    throw new Error(`@arrayPath expected args[0] to be string, got ${realTypeOf(path)}`)
+  }
+
+  const root = get(payload, path.replace('$.', '')) as JSONLike
+
+  // If a shape has been provided, resolve each item in the array with this shape
+  if (isArray(root) && realTypeOf(itemShape) === 'object' && Object.keys(itemShape as JSONObject).length > 0) {
+    return root.map((item) => resolve({ ...itemShape }, item as JSONObject))
+  }
+
+  return root
+})
+
 registerStringDirective('@path', (path, payload) => {
   return get(payload, path.replace('$.', ''))
 })
@@ -83,7 +103,6 @@ registerDirective('@literal', (value, payload) => {
 
 /**
  * Resolves a mapping value/object by applying the input payload based on directives
- * *WARNING* This function mutates `mapping` when an object
  * @param mapping - the mapping directives or raw values to resolve
  * @param payload - the input data to apply to the mapping directives
  * @todo support arrays or array directives?
@@ -101,12 +120,13 @@ function resolve(mapping: JSONLike, payload: JSONObject): JSONLike {
     return mapping.map((value) => resolve(value, payload))
   }
 
+  const resolved: JSONLikeObject = {}
+
   for (const key of Object.keys(mapping)) {
-    const value = mapping[key]
-    mapping[key] = resolve(value, payload)
+    resolved[key] = resolve(mapping[key], payload)
   }
 
-  return mapping
+  return resolved
 }
 
 export type InputData = { [key: string]: unknown }
@@ -126,8 +146,7 @@ export function transform(mapping: JSONLikeObject, data: InputData | undefined =
   // throws if the mapping config is invalid
   validate(mapping)
 
-  const cloned = cloneJson(mapping)
-  const resolved = resolve(cloned, data as JSONObject)
+  const resolved = resolve(mapping, data as JSONObject)
   const cleaned = removeUndefined(resolved)
 
   // Cast because we know there are no `undefined` values anymore
@@ -148,17 +167,9 @@ export function transformBatch(mapping: JSONLikeObject, data: Array<InputData> |
   // throws if the mapping config is invalid
   validate(mapping)
 
-  return removeUndefined(
-    data.map((d) => {
-      const cloned = cloneJson(mapping)
-      const resolved = resolve(cloned, d as JSONObject)
+  const resolved = data.map((d) => resolve(mapping, d as JSONObject))
 
-      return resolved
-      // Cast because we know there are no `undefined` values after `removeUndefined`
-    })
-  ) as JSONObject[]
+  // Cast because we know there are no `undefined` values after `removeUndefined`
+  return removeUndefined(resolved) as JSONObject[]
 }
 
-function cloneJson<T>(obj: T): T {
-  return JSON.parse(JSON.stringify(obj))
-}
