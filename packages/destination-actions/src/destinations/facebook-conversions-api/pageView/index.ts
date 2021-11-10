@@ -6,7 +6,7 @@ import type { Payload } from './generated-types'
 import { API_VERSION } from '../constants'
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Page View',
-  description: 'Send a page view event to FB',
+  description: 'Send a page view event when a user lands on a page',
   defaultSubscription: 'type = "page"',
   fields: {
     action_source: { ...action_source, required: true },

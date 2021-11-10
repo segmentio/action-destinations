@@ -17,9 +17,6 @@ export const value: InputField = {
   label: 'Value',
   description: 'The value of a user performing this event to the business.',
   type: 'number',
-  default: {
-    '@path': '$.properties.revenue'
-  }
 }
 
 export const content_category: InputField = {
@@ -33,9 +30,6 @@ export const content_ids: InputField = {
   description: 'Product IDs associated with the event, such as SKUs (e.g. ["ABC123", "XYZ789"]).',
   type: 'string',
   multiple: true,
-  default: {
-    '@path': '$.properties.product_id'
-  }
 }
 
 export const content_name: InputField = {
@@ -55,15 +49,12 @@ export const contents: InputField = {
   description: 'An array of JSON objects that contains the quantity and the International Article Number (EAN) when applicable, or other product or content identifier(s). id and quantity are the required fields.',
   type: 'object',
   multiple: true,
-  default: {
-    '@path': '$.properties.products'
-  }
 }
 
 export const num_items: InputField = {
   label: 'Number of Items',
   description: 'The number of items when checkout was initiated.',
-  type: 'number'
+  type: 'integer'
 }
 
 // The following properties are part of the Facebook Server Event Properties found at
@@ -81,10 +72,7 @@ export const event_time: InputField = {
 export const action_source: InputField = {
   label: 'Action Source',
   description: 'This field allows you to specify where your conversions occurred.',
-  type: 'string',
-  default: {
-    '@path': '$.properties.action_source'
-  }
+  type: 'string'
 }
 
 export const event_source_url: InputField = {

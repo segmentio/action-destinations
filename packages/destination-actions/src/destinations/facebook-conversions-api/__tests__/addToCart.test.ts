@@ -116,7 +116,8 @@ describe('FacebookConversionsApi', () => {
       const responses = await testDestination.testAction('addToCart', {
         event,
         settings,
-        useDefaultMappings: true
+        useDefaultMappings: true,
+        mapping: { action_source: { '@path': '$.properties.action_source'} }
       })
       
       expect(responses.length).toBe(1)

@@ -7,7 +7,7 @@ import { user_data_field, hash_user_data } from '../fb-capi-user-data'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Initiate Checkout',
-  description: 'Send an initiate checkout event to FB',
+  description: 'Send event when a user enters the checkout flow',
   defaultSubscription: 'type = "track" and event = "Checkout Started"',
   fields: {
     action_source: { ...action_source, required: true },

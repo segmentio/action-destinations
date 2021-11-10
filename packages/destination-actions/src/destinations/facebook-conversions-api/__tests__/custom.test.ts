@@ -32,7 +32,8 @@ describe.only('FacebookConversionsApi', () => {
         mapping: {
           event_name: {
             '@path': '$.event'
-          }
+          },
+          action_source: { '@path': '$.properties.action_source'} 
         }
       })).rejects.toThrowError("The root value is missing the required field 'event_time'.")
     })
@@ -60,7 +61,8 @@ describe.only('FacebookConversionsApi', () => {
         mapping: {
           event_name: {
             '@path': '$.event'
-          }
+          },
+          action_source: { '@path': '$.properties.action_source'} 
         }
       })).rejects.toThrowError("The root value is missing the required field 'event_time'.")
     })
@@ -139,7 +141,10 @@ describe.only('FacebookConversionsApi', () => {
       const responses = await testDestination.testAction('custom', {
         event,
         settings,
-        useDefaultMappings: true
+        useDefaultMappings: true,
+        mapping: {
+          action_source: { '@path': '$.properties.action_source'} 
+        }
       })
       
       expect(responses.length).toBe(1)

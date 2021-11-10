@@ -2,11 +2,7 @@
 
 export interface Settings {
   /**
-   * The Pixel ID
+   * Your Facebook Pixel ID
    */
   pixelId: string
-  /**
-   * Access Token
-   */
-  token?: string
 }

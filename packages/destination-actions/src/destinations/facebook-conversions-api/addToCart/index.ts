@@ -7,20 +7,20 @@ import { hash_user_data, user_data_field } from '../fb-capi-user-data'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Add to Cart',
-  description: 'Send an add to cart event to FB',
+  description: 'Send event when a user adds a product to the shopping cart',
   defaultSubscription: 'type = "track" and event = "Product Added"',
   fields: {
     action_source: { ...action_source, required: true },
     event_time: { ...event_time, required: true },
     user_data: user_data_field,
-    content_ids: content_ids,
+    content_ids: { ...content_ids, default: { '@path': '$.properties.product_id' } },
     content_name: content_name,
     content_type: content_type,
-    contents: { ...contents, default: undefined },
+    contents: contents,
     currency: currency,
     event_id: event_id,
     event_source_url: event_source_url,
-    value: value
+    value: { ...value, default: { '@path': '$.properties.price' } }
   },
   perform: (request, { payload, settings }) => {
     if (payload.currency && !CURRENCY_ISO_CODES.has(payload.currency)) {

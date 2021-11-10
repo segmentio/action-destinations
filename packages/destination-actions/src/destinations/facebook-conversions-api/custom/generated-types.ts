@@ -6,7 +6,7 @@ export interface Payload {
    */
   action_source: string
   /**
-   * A Facebook pixel Standard Event or Custom Event name.
+   * Send any custom event
    */
   event_name: string
   /**
@@ -98,4 +98,10 @@ export interface Payload {
    * The browser URL where the event happened. The URL must begin with http:// or https:// and should match the verified domain. event_source_url is required if action_source = “website”; however it is strongly recommended that you include it for any action_source.
    */
   event_source_url?: string
+  /**
+   * The custom data object which can be used to pass the custom properties described at: https://developers.facebook.com/docs/marketing-api/conversions-api/parameters/custom-data
+   */
+  custom_data?: {
+    [k: string]: unknown
+  }
 }

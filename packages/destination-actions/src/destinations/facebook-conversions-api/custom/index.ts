@@ -5,14 +5,14 @@ import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 import { API_VERSION } from '../constants'
 const action: ActionDefinition<Settings, Payload> = {
-  title: 'Custom',
+  title: 'Custom Event',
   description: 'Track your own custom events.',
   defaultSubscription: '',
   fields: {
     action_source: { ...action_source, required: true},
     event_name: {
       label: 'Event Name',
-      description: 'A Facebook pixel Standard Event or Custom Event name.',
+      description: 'Send any custom event',
       type: 'string',
       required: true,
       default: {
@@ -23,6 +23,11 @@ const action: ActionDefinition<Settings, Payload> = {
     user_data: user_data_field,
     event_id: event_id,
     event_source_url: event_source_url,
+    custom_data: {
+      label: 'Custom Data',
+      description: 'The custom data object which can be used to pass the custom properties described at: https://developers.facebook.com/docs/marketing-api/conversions-api/parameters/custom-data',
+      type: 'object'
+    }
   },
   perform: (request, { payload, settings }) => {
     if (!payload.user_data) {
@@ -46,7 +51,8 @@ const action: ActionDefinition<Settings, Payload> = {
             action_source: payload.action_source,
             event_id: payload.event_id,
             event_source_url: payload.event_source_url,
-            user_data: hash_user_data({user_data: payload.user_data})
+            user_data: hash_user_data({user_data: payload.user_data}),
+            custom_data: payload.custom_data
           }
         ]
       }

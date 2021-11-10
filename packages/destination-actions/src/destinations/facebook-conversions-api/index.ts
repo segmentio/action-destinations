@@ -19,14 +19,9 @@ const destination: DestinationDefinition<Settings> = {
     fields: {
       pixelId: {
         label: 'Pixel ID',
-        description: 'The Pixel ID',
+        description: 'Your Facebook Pixel ID',
         type: 'string',
         required: true
-      },
-      token: {
-        label: 'Access Token (Testing only, not in final destination)',
-        description: 'Access Token',
-        type: 'string'
       }
     },
     testAuthentication: async (request, { settings }) => {

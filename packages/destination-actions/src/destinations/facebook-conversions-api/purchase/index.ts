@@ -7,14 +7,18 @@ import { user_data_field, hash_user_data } from '../fb-capi-user-data'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Purchase',
-  description: 'Send a purchase event to FB',
+  description: 'Send event when a user completes a purchase',
   defaultSubscription: 'type = "track" and event = "Order Completed"',
   fields: {
     action_source: { ...action_source, required: true },
     currency: { ...currency, required: true },
     event_time: { ...event_time, required: true },
     user_data: user_data_field,
-    value: { ...value, required: true },
+    value: { 
+      ...value, 
+      required: true, 
+      default: { '@path': '$.properties.revanue' } 
+    },
     content_ids: content_ids,
     content_name: content_name,
     content_type: content_type,

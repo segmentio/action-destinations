@@ -7,7 +7,7 @@ import { CURRENCY_ISO_CODES, API_VERSION } from '../constants'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'View Content',
-  description: 'Send a view content event to FB',
+  description: 'Send event when a user views content or a product',
   defaultSubscription: 'type = "track" and event = "Product Viewed"',
   fields: {
     user_data: user_data_field,
@@ -15,13 +15,13 @@ const action: ActionDefinition<Settings, Payload> = {
     action_source: { ...action_source, required: true },
     event_id: event_id,
     event_source_url: event_source_url,
-    content_ids: content_ids,
+    content_ids: { ...content_ids, default: { '@path': '$.properties.product_id' } },
     content_category: content_category,
     content_name: content_name,
     content_type: content_type,
     contents: contents,
     currency: currency,
-    value: value
+    value: { ...value, default: { '@path': '$.properties.price' } }
   },
   perform: (request, { payload, settings}) => {
     if (payload.currency && !CURRENCY_ISO_CODES.has(payload.currency)) {
