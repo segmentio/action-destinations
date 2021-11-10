@@ -4,7 +4,7 @@ export interface Payload {
   /**
    * The page name.
    */
-  name: string
+  name?: string
   /**
    * The page category.
    */

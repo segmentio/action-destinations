@@ -14,7 +14,7 @@ export const trackPageFields: Record<string, InputField> = {
     label: 'Page Name',
     description: 'The page name.',
     type: 'string',
-    required: true,
+    required: false,
     default: { '@path': '$.name' }
   },
   category: {
@@ -41,8 +41,12 @@ const action: BrowserActionDefinition<Settings, FriendbuyAPI, Payload> = {
   fields: trackPageFields,
 
   perform: (friendbuyAPI, data) => {
+    // If the page name is not defined then track the page with the name
+    // "undefined".  This is intended to allow merchants to target their widgets
+    // using page names when not all of their `analytics.page` calls include the
+    // page name.
     const friendbuyPayload = createFriendbuyPayload([
-      ['name', data.payload.name],
+      ['name', data.payload.name || 'undefined'],
       ['category', data.payload.category],
       ['title', data.payload.title]
     ])
