@@ -82,7 +82,7 @@ registerDirective('@arrayPath', (data, payload) => {
 
   // If a shape has been provided, resolve each item in the array with this shape
   if (isArray(root) && realTypeOf(itemShape) === 'object' && Object.keys(itemShape as JSONObject).length > 0) {
-    return root.map((item) => resolve({ ...itemShape }, item as JSONObject))
+    return root.map((item) => resolve(itemShape, item as JSONObject))
   }
 
   return root
