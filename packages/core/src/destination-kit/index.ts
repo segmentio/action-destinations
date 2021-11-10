@@ -247,7 +247,7 @@ export class Destination<Settings = JSONObject> {
     try {
       await this.authentication.testAuthentication(requestClient, data)
     } catch (error) {
-      throw new Error('Credentials are invalid')
+      throw new Error(`Credentials are invalid: ${error.message}`)
     }
   }
 
