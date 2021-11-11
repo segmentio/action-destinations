@@ -9,7 +9,7 @@ const PIPEDRIVE_DOMAIN = 'companydomain'
 
 describe('Pipedrive.createUpdateActivity', () => {
   it('should work', async () => {
-    nock(`https://${PIPEDRIVE_DOMAIN}.pipedrive.com/api/v1`)
+    const scope = nock(`https://${PIPEDRIVE_DOMAIN}.pipedrive.com/api/v1`)
       .post('/activities', { subject: 'Some Name' })
       .query({api_token : PIPEDRIVE_API_KEY})
       .reply(200)
@@ -18,5 +18,7 @@ describe('Pipedrive.createUpdateActivity', () => {
       mapping: { subject: 'Some Name' },
       settings: { apiToken: PIPEDRIVE_API_KEY, domain: PIPEDRIVE_DOMAIN }
     })
+
+    scope.isDone()
   })
 })
