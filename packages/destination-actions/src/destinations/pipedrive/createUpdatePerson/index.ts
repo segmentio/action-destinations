@@ -49,9 +49,9 @@ const action: ActionDefinition<Settings, Payload> = {
   fields: {
     match_field: {
       label: 'Match field',
-      description: 'Field used to find existing person in Pipedrive.',
+      description: 'If present, used instead of field in settings to find existing person in Pipedrive.',
       type: 'string',
-      required: true,
+      required: false,
       dynamic: true,
       default: {
         '@literal': 'id'
@@ -146,11 +146,18 @@ const action: ActionDefinition<Settings, Payload> = {
   },
 
   perform: async (request, { payload, settings }) => {
-    const search = await request(`https://${settings.domain}.pipedrive.com/api/v1/persons/search`, {
-      searchParams: { term: payload.match_value, exact_match: true, fields: payload.match_field }
+    const searchField = payload.match_field || settings.personField || 'id';
+    const search = await request(`https://${settings.domain}.pipedrive.com/api/v1/itemSearch/field`, {
+      searchParams: {
+        field_type: 'personField',
+        exact_match: true,
+        field_key: searchField,
+        term: payload.match_value,
+        return_item_ids: true
+      }
     })
 
-    const personId = get(search.data, 'data.items[0].item.id')
+    const personId = get(search.data, 'data[0].id')
 
     const person: Person = {
       name: payload.name,

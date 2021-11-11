@@ -2,9 +2,9 @@
 
 export interface Payload {
   /**
-   * Field used to find existing person in Pipedrive.
+   * If present, used instead of field in settings to find existing person in Pipedrive.
    */
-  match_field: string
+  match_field?: string
   /**
    * Value to find existing person by
    */
