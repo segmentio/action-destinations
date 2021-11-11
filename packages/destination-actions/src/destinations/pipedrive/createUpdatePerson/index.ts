@@ -1,44 +1,9 @@
-import dayjs from '../../../lib/dayjs'
-import { DynamicFieldItem, get } from '@segment/actions-core'
+import { DynamicFieldItem } from '@segment/actions-core'
 import type { ActionDefinition } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
-
-interface Organizations {
-  data: Organization[]
-  additional_data: {
-    pagination: {
-      next_start?: number
-    }
-  }
-}
-
-interface PersonFields {
-  data: PipedriveField[],
-  additional_data: {
-    pagination: {
-      next_start?: number
-    }
-  }
-}
-
-interface PipedriveField {
-  name: string,
-  key: string
-}
-
-interface Organization {
-  id: string
-  name: string
-}
-
-interface Person {
-  name: string
-  org_id?: number
-  email?: string[]
-  phone?: string
-  add_time?: string
-}
+import { PipedriveFields } from '../domain'
+import { createOrUpdatePersonById, Person } from '../create-or-update-person'
 
 let personFields: DynamicFieldItem[] = [];
 
@@ -71,24 +36,21 @@ const action: ActionDefinition<Settings, Payload> = {
       label: 'Person Name',
       description: 'Name of the person',
       type: 'string',
-      required: true
-    },
-    org_id: {
-      label: 'Organization ID',
-      description: 'ID of the organization this person will belong to.',
-      type: 'number',
-      dynamic: true
+      required: false
     },
     email: {
       label: 'Email Address',
       description: 'Email addresses for this person.',
       type: 'string',
+      required: false,
       multiple: true
     },
     phone: {
       label: 'Phone Number',
-      description: 'Phone number for the person.',
-      type: 'string'
+      description: 'Phone numbers for the person.',
+      type: 'string',
+      required: false,
+      multiple: true
     },
     add_time: {
       label: 'Created At',
@@ -100,7 +62,7 @@ const action: ActionDefinition<Settings, Payload> = {
   dynamicFields: {
     match_field: async (request, { settings }) => {
       if (!personFields.length) {
-        const response = await request<PersonFields>(`https://${settings.domain}.pipedrive.com/api/v1/personFields`);
+        const response = await request<PipedriveFields>(`https://${settings.domain}.pipedrive.com/api/v1/personFields`);
         const body = response.data;
         personFields = body.data.map(f => ({
           label: f.name,
@@ -114,70 +76,30 @@ const action: ActionDefinition<Settings, Payload> = {
         },
       };
     },
-    org_id: async (request, { page, settings }) => {
-      const searchParams: Record<string, number> = {}
-      if (typeof page === 'string') {
-        searchParams.start = Number(page)
-      }
-
-      const response = await request<Organizations>(`https://${settings.domain}.pipedrive.com/api/v1/organizations`, {
-        searchParams
-      })
-      const body = response.data
-
-      const items = body.data.map((organization) => ({
-        label: organization.name,
-        value: organization.id
-      }))
-
-      let nextPage: string | undefined
-
-      if (typeof body.additional_data.pagination.next_start === 'number') {
-        nextPage = String(body.additional_data.pagination.next_start)
-      }
-
-      return {
-        body: {
-          data: items,
-          pagination: { nextPage }
-        }
-      }
-    }
   },
 
   perform: async (request, { payload, settings }) => {
-    const searchField = payload.match_field || settings.personField || 'id';
-    const search = await request(`https://${settings.domain}.pipedrive.com/api/v1/itemSearch/field`, {
-      searchParams: {
-        field_type: 'personField',
-        exact_match: true,
-        field_key: searchField,
-        term: payload.match_value,
-        return_item_ids: true
-      }
-    })
 
-    const personId = get(search.data, 'data[0].id')
+    // PERSON LOOKUP HERE
 
-    const person: Person = {
-      name: payload.name,
-      org_id: payload.org_id,
-      email: payload.email,
-      phone: payload.phone
+    const personId = 0; // id from lookup will be here
+
+    const person: Person = {}
+    if (payload.name) {
+      person.name = payload.name
+    }
+    if (payload.email) {
+      person.email = payload.email
+    }
+    if (payload.phone) {
+      person.phone = payload.phone
+    }
+    if (payload.add_time) {
+      person.add_time = payload.add_time
     }
 
-    if (personId === undefined || personId === null) {
-      if (payload.add_time) {
-        person.add_time = dayjs.utc(person.add_time).format('YYYY-MM-DD HH:MM:SS')
-      }
+    await createOrUpdatePersonById(request, settings.domain, personId, person);
 
-      return request(`https://${settings.domain}.pipedrive.com/api/v1/persons`, { method: 'post', json: person })
-    }
-
-    return request(`https://${settings.domain}.pipedrive.com/api/v1/persons/${personId}`, {
-      method: 'put',
-      json: person
-    })
   }
 }
 

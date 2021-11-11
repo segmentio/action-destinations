@@ -12,19 +12,15 @@ export interface Payload {
   /**
    * Name of the person
    */
-  name: string
-  /**
-   * ID of the organization this person will belong to.
-   */
-  org_id?: number
+  name?: string
   /**
    * Email addresses for this person.
    */
   email?: string[]
   /**
-   * Phone number for the person.
+   * Phone numbers for the person.
    */
-  phone?: string
+  phone?: string[]
   /**
    * If the person is created, use this timestamp as the creation timestamp. Format: YYY-MM-DD HH:MM:SS
    */
