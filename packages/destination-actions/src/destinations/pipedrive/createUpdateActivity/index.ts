@@ -75,7 +75,7 @@ const action: ActionDefinition<Settings, Payload> = {
     if (payload.identifier !== undefined && payload.identifier !== null) {
       const search = await request(`https://${settings.domain}.pipedrive.com/api/v1/activities/${payload.identifier}`)
 
-      activityId = get(search.data, 'data.items[0].item.id')
+      activityId = get(search.data, 'data.id')
     }
 
     const activity = {
