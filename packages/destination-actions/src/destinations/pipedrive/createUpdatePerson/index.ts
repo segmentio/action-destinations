@@ -1,13 +1,10 @@
-import { DynamicFieldItem } from '@segment/actions-core'
 import type { ActionDefinition } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 import PipedriveClient from "../pipedrive-client";
 
-import { PipedriveFields } from '../domain'
 import { createOrUpdatePersonById, Person } from '../create-or-update-person'
 
-let personFields: DynamicFieldItem[] = [];
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Create or Update Person',
@@ -63,20 +60,9 @@ const action: ActionDefinition<Settings, Payload> = {
 
   dynamicFields: {
     match_field: async (request, { settings }) => {
-      if (!personFields.length) {
-        const response = await request<PipedriveFields>(`https://${settings.domain}.pipedrive.com/api/v1/personFields`);
-        const body = response.data;
-        personFields = body.data.map(f => ({
-          label: f.name,
-          value: f.key,
-        }));
-      }
-      return {
-        body: {
-          data: personFields,
-          pagination: {}
-        },
-      };
+      const client = new PipedriveClient(settings, request);
+
+      return client.getFields('person');
     },
   },
 

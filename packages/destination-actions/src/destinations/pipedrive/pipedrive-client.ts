@@ -1,6 +1,7 @@
 import {Settings} from "./generated-types";
 import type { RequestClient } from "@segment/actions-core/dist/esm/create-request-client";
 import get from "lodash/get";
+import {PipedriveFields} from "./domain";
 
 interface SearchFieldTypes {
   deal: 'dealField',
@@ -18,12 +19,25 @@ const searchFieldMap: SearchFieldTypes = {
   organization: "organizationField"
 }
 
+interface PipedriveFieldTypes extends SearchFieldTypes {
+  activity: 'activityFields',
+  note: 'noteFields',
+}
+
+const pipedriveFieldMap: PipedriveFieldTypes = {
+  ...searchFieldMap,
+  activity: "activityFields",
+  note: "noteFields",
+}
+
 interface SearchRequest<T extends ItemType> {
   term: string,
   field_type: SearchFieldTypes[T],
   exact_match: boolean,
   field_key: string,
 }
+
+const fieldCache = {};
 
 class PipedriveClient {
 
@@ -33,7 +47,6 @@ class PipedriveClient {
   constructor(settings: Settings, request: RequestClient) {
     this.settings = settings;
     this._request = request;
-
   }
 
   async getId(item: ItemType, fieldName: string, term: string){
@@ -53,6 +66,27 @@ class PipedriveClient {
     });
 
     return get(search, 'data.data[0].id', null);
+  }
+
+  async getFields(item: keyof PipedriveFieldTypes) {
+    const cachedFields = get(fieldCache, item, []);
+    if(cachedFields.length > 0){
+      return cachedFields;
+    }
+    const response = await this._request<PipedriveFields>(`https://${this.settings.domain}.pipedrive.com/api/v1/${pipedriveFieldMap[item]}`);
+    const body = response.data;
+    const fields = body.data.map(f => ({
+      label: f.name,
+      value: f.key,
+    }));
+    const record = {
+      body: {
+        data: fields,
+        pagination: {}
+      },
+    };
+    cachedFields[item] = record;
+    return record;
   }
 }
 
