@@ -19,6 +19,6 @@ describe('Pipedrive.createUpdateActivity', () => {
       settings: { apiToken: PIPEDRIVE_API_KEY, domain: PIPEDRIVE_DOMAIN }
     })
 
-    scope.isDone()
+    expect(scope.isDone()).toBe(true)
   })
 })
