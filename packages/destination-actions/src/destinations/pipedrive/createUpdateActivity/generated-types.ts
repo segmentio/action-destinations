@@ -2,9 +2,13 @@
 
 export interface Payload {
   /**
-   * Identifier used to find existing activity in Pipedrive.
+   * Identifier used to find existing activity in Pipedrive. If not provided, will always create a new one.
    */
   identifier?: number
+  /**
+   * Type of the Activity. This is in correlation with the key_string parameter of ActivityTypes. When value for type is not set, it will be given a default value `Call`
+   */
+  type?: string
   /**
    * Subject of the Activity. When value for subject is not set, it will be given a default value `Call`.
    */
