@@ -3,6 +3,8 @@ import createUpdatePerson from './createUpdatePerson'
 import type { DestinationDefinition } from '@segment/actions-core'
 import type { Settings } from './generated-types'
 
+import createUpdateActivity from './createUpdateActivity'
+
 const destination: DestinationDefinition<Settings> = {
   name: 'Pipedrive',
   mode: 'cloud',
@@ -40,7 +42,8 @@ const destination: DestinationDefinition<Settings> = {
 
   actions: {
     createUpdateOrganization,
-    createUpdatePerson
+    createUpdatePerson,
+    createUpdateActivity
   }
 }
 
