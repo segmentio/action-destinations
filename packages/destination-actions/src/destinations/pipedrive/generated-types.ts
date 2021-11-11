@@ -12,13 +12,13 @@ export interface Settings {
   /**
    * This is a key by which a Person in Pipedrive will be searched. It can be either Person id or has of a custom field containing external id. Default value is `person_id`.
    */
-  person?: string
+  personField?: string
   /**
    * This is a key by which an Organization in Pipedrive will be searched. It can be either Organization id or has of a custom field containing external id. Default value is `org_id`.
    */
-  organization?: string
+  organizationField?: string
   /**
    * This is a key by which a Deal in Pipedrive will be searched. It can be either Deal id or has of a custom field containing external id. Default value is `deal_id`.
    */
-  deal?: string
+  dealField?: string
 }

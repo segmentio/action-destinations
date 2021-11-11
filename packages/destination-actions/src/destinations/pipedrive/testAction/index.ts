@@ -39,13 +39,13 @@ const action: ActionDefinition<Settings, Payload> = {
   perform: async (request, { payload, settings }) => {
     try {
 
-      if (!settings.person) {
+      if (!settings.personField) {
         // If primary key for a person is not specified in settings, it means we will be searching by Person's ID passed in payload.
         // const id = payload.pipedriveId;
         // use this ID to create activities etc...
       } else {
         // If primary key for a person is specified in settings, it means we will be searching by Person's custom field value passed in payload.
-        const customFieldKey = settings.person;
+        const customFieldKey = settings.personField;
         const personId = await searchPersonByExternalIdInCustomField(customFieldKey, payload.externalId, request, settings.domain);
         console.log(personId);
         // use this ID to create activities etc...
