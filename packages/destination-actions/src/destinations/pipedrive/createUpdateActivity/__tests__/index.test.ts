@@ -11,7 +11,7 @@ describe('Pipedrive.createUpdateActivity', () => {
   it('should work', async () => {
     nock(`https://${PIPEDRIVE_DOMAIN}.pipedrive.com/api/v1`)
       .post('/activities', { subject: 'Some Name' })
-      .query({params: {api_token : PIPEDRIVE_API_KEY}})
+      .query({api_token : PIPEDRIVE_API_KEY})
       .reply(200)
 
     await testDestination.testAction('createUpdateActivity', {
