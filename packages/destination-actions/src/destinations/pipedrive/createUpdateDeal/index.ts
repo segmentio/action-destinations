@@ -10,15 +10,15 @@ const action: ActionDefinition<Settings, Payload> = {
   defaultSubscription: 'type = "track"',
   fields: {
     identifier: {
-      label: 'Activity ID',
+      label: 'Deal ID',
       description:
-        'Identifier used to find existing activity in Pipedrive. If not provided, will always create a new one.',
+        'Identifier used to find existing Deal in Pipedrive. If not provided, will always create a new one.',
       type: 'integer'
     },
     title: {
       label: 'Title',
       description:
-        'Deal title',
+        'Deal title  (required for new Leads)',
       type: 'string',
       required: true
     },
@@ -42,13 +42,13 @@ const action: ActionDefinition<Settings, Payload> = {
     person_id: {
       label: 'Person ID',
       description:
-        'The ID of the Person this Activity is associated with.',
+        'The ID of the Person this Deal is associated with.',
       type: 'integer'
     },
     org_id: {
       label: 'Organization ID',
       description:
-        'The ID of the Organization this Activity is associated with.',
+        'The ID of the Organization this Deal is associated with.',
       type: 'integer'
     },
     stage_id: {
@@ -83,7 +83,7 @@ const action: ActionDefinition<Settings, Payload> = {
       type: 'number'
     },
     visible_to: {
-      label: 'Success Probability',
+      label: 'Visible To',
       description:
         'Visibility of the deal. If omitted, visibility will be set to the default visibility setting of this item type for the authorized user. 1 -Owner & followers (private), 3	- Entire company (shared)',
       type: 'integer'
@@ -100,7 +100,7 @@ const action: ActionDefinition<Settings, Payload> = {
     if (payload.identifier !== undefined && payload.identifier !== null) {
       const search = await request(`https://${settings.domain}.pipedrive.com/api/v1/deals/${payload.identifier}`)
 
-      dealId = get(search.data, 'data.items[0].item.id')
+      dealId = get(search.data, 'data.id')
     }
 
     const deal = {

@@ -2,11 +2,11 @@
 
 export interface Payload {
   /**
-   * Identifier used to find existing activity in Pipedrive. If not provided, will always create a new one.
+   * Identifier used to find existing Deal in Pipedrive. If not provided, will always create a new one.
    */
   identifier?: number
   /**
-   * Deal title
+   * Deal title  (required for new Leads)
    */
   title: string
   /**
@@ -22,11 +22,11 @@ export interface Payload {
    */
   user_id?: number
   /**
-   * The ID of the Person this Activity is associated with.
+   * The ID of the Person this Deal is associated with.
    */
   person_id?: number
   /**
-   * The ID of the Organization this Activity is associated with.
+   * The ID of the Organization this Deal is associated with.
    */
   org_id?: number
   /**
@@ -34,7 +34,7 @@ export interface Payload {
    */
   stage_id?: string
   /**
-   * Deal status. If omitted, status will be set to open.
+   * Deal status - open, won, lost or deleted. If omitted, status will be set to open.
    */
   status?: string
   /**
@@ -54,7 +54,7 @@ export interface Payload {
    */
   visible_to?: number
   /**
-   * If the person is created, use this timestamp as the creation timestamp. Format: YYY-MM-DD HH:MM:SS
+   * If the deal is created, use this timestamp as the creation timestamp. Format: YYY-MM-DD HH:MM:SS
    */
   add_time?: string
 }
