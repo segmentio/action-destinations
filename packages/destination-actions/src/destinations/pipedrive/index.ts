@@ -29,6 +29,27 @@ const destination: DestinationDefinition<Settings> = {
         type: 'string',
         // minLength: 20,
         required: true
+      },
+      person: {
+        label: 'Primary key for a Person in Pipedrive',
+        description:
+          'This is a key by which a Person in Pipedrive will be searched. It can be either Person id or has of a custom field containing external id. Default value is `person_id`.',
+        type: 'string',
+        required: false
+      },
+      organization: {
+        label: 'Primary key for an Organization in Pipedrive',
+        description:
+          'This is a key by which an Organization in Pipedrive will be searched. It can be either Organization id or has of a custom field containing external id. Default value is `org_id`.',
+        type: 'string',
+        required: false
+      },
+      deal: {
+        label: 'Primary key for a Deal in Pipedrive',
+        description:
+          'This is a key by which a Deal in Pipedrive will be searched. It can be either Deal id or has of a custom field containing external id. Default value is `deal_id`.',
+        type: 'string',
+        required: false
       }
     },
     testAuthentication: (request, { settings }) => {

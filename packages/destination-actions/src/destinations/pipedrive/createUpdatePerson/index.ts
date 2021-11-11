@@ -1,5 +1,5 @@
 import dayjs from '../../../lib/dayjs'
-import {DynamicFieldItem, get} from '@segment/actions-core'
+import { DynamicFieldItem, get } from '@segment/actions-core'
 import type { ActionDefinition } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
@@ -99,7 +99,7 @@ const action: ActionDefinition<Settings, Payload> = {
 
   dynamicFields: {
     match_field: async (request, { settings }) => {
-      if(!personFields.length) {
+      if (!personFields.length) {
         const response = await request<PersonFields>(`https://${settings.domain}.pipedrive.com/api/v1/personFields`);
         const body = response.data;
         personFields = body.data.map(f => ({
