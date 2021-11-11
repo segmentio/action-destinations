@@ -1,5 +1,5 @@
 import dayjs from '../../../lib/dayjs'
-import { get } from '@segment/actions-core'
+import {DynamicFieldItem, get} from '@segment/actions-core'
 import type { ActionDefinition } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
@@ -11,6 +11,20 @@ interface Organizations {
       next_start?: number
     }
   }
+}
+
+interface PersonFields {
+  data: PipedriveField[],
+  additional_data: {
+    pagination: {
+      next_start?: number
+    }
+  }
+}
+
+interface PipedriveField {
+  name: string,
+  key: string
 }
 
 interface Organization {
@@ -26,15 +40,27 @@ interface Person {
   add_time?: string
 }
 
+let personFields: DynamicFieldItem[] = [];
+
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Create or Update Person',
   description: "Update a person in Pipedrive or create them if they don't exist yet.",
   defaultSubscription: 'type = "identify"',
   fields: {
-    identifier: {
-      label: 'Person ID',
-      description:
-        'Identifier used to find existing person in Pipedrive. Can be an email, name, phone number, or custom field value. Custom person fields may be included by using the long hash keys of the custom fields. These look like "33595c732cd7a027c458ea115a48a7f8a254fa86".',
+    match_field: {
+      label: 'Match field',
+      description: 'Field used to find existing person in Pipedrive.',
+      type: 'string',
+      required: true,
+      dynamic: true,
+      default: {
+        '@literal': 'id'
+      },
+
+    },
+    match_value: {
+      label: 'Match value',
+      description: 'Value to find existing person by',
       type: 'string',
       required: true,
       default: {
@@ -72,6 +98,22 @@ const action: ActionDefinition<Settings, Payload> = {
   },
 
   dynamicFields: {
+    match_field: async (request, { settings }) => {
+      if(!personFields.length) {
+        const response = await request<PersonFields>(`https://${settings.domain}.pipedrive.com/api/v1/personFields`);
+        const body = response.data;
+        personFields = body.data.map(f => ({
+          label: f.name,
+          value: f.key,
+        }));
+      }
+      return {
+        body: {
+          data: personFields,
+          pagination: {}
+        },
+      };
+    },
     org_id: async (request, { page, settings }) => {
       const searchParams: Record<string, number> = {}
       if (typeof page === 'string') {
@@ -105,7 +147,7 @@ const action: ActionDefinition<Settings, Payload> = {
 
   perform: async (request, { payload, settings }) => {
     const search = await request(`https://${settings.domain}.pipedrive.com/api/v1/persons/search`, {
-      searchParams: { term: payload.identifier }
+      searchParams: { term: payload.match_value, exact_match: true, fields: payload.match_field }
     })
 
     const personId = get(search.data, 'data.items[0].item.id')
