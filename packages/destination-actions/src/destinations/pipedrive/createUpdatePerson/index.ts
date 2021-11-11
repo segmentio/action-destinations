@@ -2,6 +2,8 @@ import { DynamicFieldItem } from '@segment/actions-core'
 import type { ActionDefinition } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
+import PipedriveClient from "../pipedrive-client";
+
 import { PipedriveFields } from '../domain'
 import { createOrUpdatePersonById, Person } from '../create-or-update-person'
 
@@ -79,10 +81,11 @@ const action: ActionDefinition<Settings, Payload> = {
   },
 
   perform: async (request, { payload, settings }) => {
+    const searchField = payload.match_field || settings.personField || 'id';
 
-    // PERSON LOOKUP HERE
+    const client = new PipedriveClient(settings, request);
 
-    const personId = 0; // id from lookup will be here
+    const personId = await client.getId("person", searchField, payload.match_value);
 
     const person: Person = {}
     if (payload.name) {
@@ -91,15 +94,11 @@ const action: ActionDefinition<Settings, Payload> = {
     if (payload.email) {
       person.email = payload.email
     }
-    if (payload.phone) {
-      person.phone = payload.phone
-    }
     if (payload.add_time) {
       person.add_time = payload.add_time
     }
 
     await createOrUpdatePersonById(request, settings.domain, personId, person);
-
   }
 }
 
