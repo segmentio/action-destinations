@@ -1,7 +1,8 @@
-import {Settings} from "./generated-types";
+import { Settings } from "./generated-types";
 import type { RequestClient } from "@segment/actions-core/dist/esm/create-request-client";
 import get from "lodash/get";
-import {PipedriveFields} from "./domain";
+import { PipedriveFields } from "./domain";
+import { DynamicFieldResponse } from "@segment/actions-core";
 
 interface SearchFieldTypes {
   deal: 'dealField',
@@ -49,7 +50,7 @@ class PipedriveClient {
     this._request = request;
   }
 
-  async getId(item: ItemType, fieldName: string, term: string){
+  async getId(item: ItemType, fieldName: string, term: string): Promise<number | null> {
     const searchParams: SearchRequest<typeof item> = {
       term,
       field_key: fieldName,
@@ -68,9 +69,9 @@ class PipedriveClient {
     return get(search, 'data.data[0].id', null);
   }
 
-  async getFields(item: keyof PipedriveFieldTypes) {
+  async getFields(item: keyof PipedriveFieldTypes): Promise<DynamicFieldResponse> {
     const cachedFields = get(fieldCache, item, []);
-    if(cachedFields.length > 0){
+    if (cachedFields.length > 0) {
       return cachedFields;
     }
     const response = await this._request<PipedriveFields>(`https://${this.settings.domain}.pipedrive.com/api/v1/${pipedriveFieldMap[item]}`);

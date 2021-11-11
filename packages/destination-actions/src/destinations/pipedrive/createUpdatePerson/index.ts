@@ -2,9 +2,7 @@ import type { ActionDefinition } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 import PipedriveClient from "../pipedrive-client";
-
 import { createOrUpdatePersonById, Person } from '../create-or-update-person'
-
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Create or Update Person',
@@ -61,7 +59,6 @@ const action: ActionDefinition<Settings, Payload> = {
   dynamicFields: {
     match_field: async (request, { settings }) => {
       const client = new PipedriveClient(settings, request);
-
       return client.getFields('person');
     },
   },
@@ -73,18 +70,14 @@ const action: ActionDefinition<Settings, Payload> = {
 
     const personId = await client.getId("person", searchField, payload.match_value);
 
-    const person: Person = {}
-    if (payload.name) {
-      person.name = payload.name
-    }
-    if (payload.email) {
-      person.email = payload.email
-    }
-    if (payload.add_time) {
-      person.add_time = payload.add_time
+    const person: Person = {
+      name: payload.name,
+      email: payload.email,
+      phone: payload.phone,
+      add_time: payload.add_time,
     }
 
-    await createOrUpdatePersonById(request, settings.domain, personId, person);
+    return createOrUpdatePersonById(request, settings.domain, personId, person);
   }
 }
 
