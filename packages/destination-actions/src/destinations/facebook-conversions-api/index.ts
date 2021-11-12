@@ -26,7 +26,7 @@ const destination: DestinationDefinition<Settings> = {
     },
     testAuthentication: async (request, { settings }) => {
       const res = await request(
-        `https://graph.facebook.com/v${API_VERSION}/${settings.pixelId}/events`,
+        `https://graph.facebook.com/v${API_VERSION}/${settings.pixelId}/`,
         {
           method: 'GET'
         }
