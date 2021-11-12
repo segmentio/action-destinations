@@ -17,7 +17,7 @@ const action: ActionDefinition<Settings, Payload> = {
     value: { 
       ...value, 
       required: true, 
-      default: { '@path': '$.properties.revanue' } 
+      default: { '@path': '$.properties.revenue' } 
     },
     content_ids: content_ids,
     content_name: content_name,
