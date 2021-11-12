@@ -9,16 +9,6 @@ const settings = {
   token: 'EAAtest'
 }
 
-describe('authentication', () => {
-  it('should validate authentication inputs', async () => {
-    nock(`https://graph.facebook.com/v11.0/${settings.pixelId}`)
-      .get(`/events`)
-      .reply(200, {})
-
-    await expect(testDestination.testAuthentication(settings)).resolves.not.toThrowError()
-  })
-})
-
 describe('purchase', () => {
   it('should handle a basic event', async () => {
     nock(`https://graph.facebook.com/v11.0/${settings.pixelId}`)
