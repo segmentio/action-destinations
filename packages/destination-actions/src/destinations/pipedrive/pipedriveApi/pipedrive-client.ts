@@ -1,7 +1,7 @@
-import { Settings } from "./generated-types";
+import { Settings } from "../generated-types";
 import type { RequestClient } from "@segment/actions-core/dist/esm/create-request-client";
 import get from "lodash/get";
-import { PipedriveFields } from "./domain";
+import { ActivityTypes, PipedriveFields } from "./domain";
 import { DynamicFieldResponse } from "@segment/actions-core";
 
 interface SearchFieldTypes {
@@ -38,7 +38,7 @@ interface SearchRequest<T extends ItemType> {
   field_key: string,
 }
 
-const fieldCache = {};
+const cache = {};
 
 class PipedriveClient {
 
@@ -70,7 +70,7 @@ class PipedriveClient {
   }
 
   async getFields(item: keyof PipedriveFieldTypes): Promise<DynamicFieldResponse> {
-    const cachedFields = get(fieldCache, item, []);
+    const cachedFields = get(cache, item, []);
     if (cachedFields.length > 0) {
       return cachedFields;
     }
@@ -89,6 +89,23 @@ class PipedriveClient {
     cachedFields[item] = record;
     return record;
   }
+
+  async getActivityTypes(): Promise<DynamicFieldResponse> {
+    const response = await this._request<ActivityTypes>(`https://${this.settings.domain}.pipedrive.com/api/v1/activityTypes`);
+    const activityTypes = response.data;
+    const fields = activityTypes.data.map(f => ({
+      label: f.name,
+      value: f.key_string,
+    }));
+    const record = {
+      body: {
+        data: fields,
+        pagination: {}
+      },
+    };
+    return record;
+  }
+
 }
 
 export default PipedriveClient;

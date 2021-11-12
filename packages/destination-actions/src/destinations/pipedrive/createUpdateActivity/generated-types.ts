@@ -2,33 +2,41 @@
 
 export interface Payload {
   /**
-   * Identifier used to find existing activity in Pipedrive. If not provided, will always create a new one.
+   * If present, used instead of field in settings to find existing person in Pipedrive.
    */
-  identifier?: number
+  person_match_field?: string
   /**
-   * Type of the Activity. This is in correlation with the key_string parameter of ActivityTypes. When value for type is not set, it will be given a default value `Call`
+   * Value to find existing person by
    */
-  type?: string
+  person_match_value: string
+  /**
+   * If present, used instead of field in settings to find existing organization in Pipedrive.
+   */
+  organization_match_field?: string
+  /**
+   * Value to find existing organization by
+   */
+  organization_match_value: string
+  /**
+   * If present, used instead of field in settings to find existing deal in Pipedrive.
+   */
+  deal_match_field?: string
+  /**
+   * Value to find existing deal by
+   */
+  deal_match_value: string
   /**
    * Subject of the Activity. When value for subject is not set, it will be given a default value `Call`.
    */
   subject?: string
   /**
+   * Type of the Activity. This is in correlation with the key_string parameter of ActivityTypes. When value for type is not set, it will be given a default value `Call`
+   */
+  type?: string
+  /**
    * Note of the Activity (HTML format)
    */
   note?: string
-  /**
-   * The ID of the Deal this Activity is associated with.
-   */
-  deal_id?: number
-  /**
-   * The ID of the Person this Activity is associated with.
-   */
-  person_id?: number
-  /**
-   * The ID of the Organization this Activity is associated with.
-   */
-  org_id?: number
   /**
    * Due date of the Activity. Format: YYYY-MM-DD
    */
@@ -38,7 +46,11 @@ export interface Payload {
    */
   due_time?: string
   /**
-   * Whether the Activity is done or not. 0 = Not done, 1 = Done
+   * Duration of the Activity. Format: HH:MM
    */
-  done?: number
+  duration?: string
+  /**
+   * Whether the Activity is done or not.
+   */
+  done?: boolean
 }

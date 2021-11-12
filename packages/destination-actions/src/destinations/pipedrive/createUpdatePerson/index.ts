@@ -1,8 +1,8 @@
 import type { ActionDefinition } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
-import PipedriveClient from "../pipedrive-client";
-import { createOrUpdatePersonById, Person } from '../create-or-update-person'
+import PipedriveClient from "../pipedriveApi/pipedrive-client";
+import { createOrUpdatePersonById, Person } from '../pipedriveApi/persons'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Create or Update Person',
