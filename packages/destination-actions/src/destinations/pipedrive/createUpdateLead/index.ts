@@ -1,119 +1,127 @@
-import { get } from '@segment/actions-core'
 import type { ActionDefinition } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
+import PipedriveClient from '../pipedriveApi/pipedrive-client'
+import { createLead, Lead } from '../pipedriveApi/leads'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Create or Update a Lead',
   description: "Update a Lead in Pipedrive or create it if it doesn't exist yet.",
   defaultSubscription: 'type = "identify"',
   fields: {
-    identifier: {
-      label: 'Lead ID',
-      description:
-        'Identifier used to find existing Lead in Pipedrive. If not provided, will always create a new one.',
-      type: 'string'
+    person_match_field: {
+      label: 'Person match field',
+      description: 'If present, used instead of field in settings to find existing person in Pipedrive.',
+      type: 'string',
+      required: false,
+      dynamic: true,
+      default: {
+        '@literal': 'id'
+      },
+
     },
+    person_match_value: {
+      label: 'Person match value',
+      description: 'Value to find existing person by',
+      type: 'string',
+      required: true,
+      default: {
+        '@path': '$.userId'
+      }
+    },
+
+    organization_match_field: {
+      label: 'Organization match field',
+      description: 'If present, used instead of field in settings to find existing organization in Pipedrive.',
+      type: 'string',
+      required: false,
+      dynamic: true,
+      default: {
+        '@literal': 'id'
+      },
+
+    },
+    organization_match_value: {
+      label: 'Organization match value',
+      description: 'Value to find existing organization by',
+      type: 'string',
+      required: true,
+      default: {
+        '@path': '$.userId'
+      }
+    },
+
     title: {
       label: 'Title',
       description:
-        'The name of the Lead (required for new Leads)',
-      type: 'string'
-    },
-    value: {
-      label: 'Value',
-      description: 'Value of the Lead. If omitted, value will be set to 0.',
+        'The name of the Lead',
       type: 'string',
-      default: '***',
+      required: true
     },
-    currency: {
-      label: 'Currency',
-      description:
-        'Currency of the Lead. Accepts a 3-character currency code. If omitted, currency will be set to the default currency of the authorized user.',
-      type: 'string'
-    },
-    label_ids: {
-      label: 'Label IDs',
-      description:
-        'Array of the IDs of the Lead Labels which will be associated with the Lead',
-      type: 'object'
-    },
-    owner_id: {
-      label: 'Owner User ID',
-      description:
-        'The ID of the User which will be the owner of the created Lead. If not provided, the user making the request will be used.',
-      type: 'integer'
-    },
-    person_id: {
-      label: 'Person ID',
-      description:
-        'The ID of the Person this Lead is associated with.',
-      type: 'integer'
-    },
-    org_id: {
-      label: 'Organization ID',
-      description:
-        'The ID of the Organization this Lead is associated with.',
-      type: 'integer'
-    },
+    // value: {
+    //   label: 'Value',
+    //   description: 'The potential value of the Lead.',
+    //   type: 'string',
+    //   required: false
+    // },
     expected_close_date: {
       label: 'Expected Close Date',
       description:
-        'The expected close date of the Deal. In ISO 8601 format: YYYY-MM-DD.',
-      type: 'string'
+        'The date of when the Deal which will be created from the Lead is expected to be closed. In ISO 8601 format: YYYY-MM-DD.',
+      type: 'string',
+      required: false,
     },
     visible_to: {
       label: 'Visible To',
       description:
-        'Visibility of the deal. If omitted, visibility will be set to the default visibility setting of this item type for the authorized user. 1 -Owner & followers (private), 3	- Entire company (shared)',
-      type: 'integer'
+        'Visibility of the Lead. If omitted, visibility will be set to the default visibility setting of this item type for the authorized user.',
+      type: 'integer',
+      choices: [
+        { label: 'Owner & followers (private)', value: 1 },
+        { label: 'Entire company (shared)', value: 3 },
+      ],
+      required: false,
     },
-    was_seen: {
-      label: 'Was Seen',
-      description:
-        'A flag indicating whether the Lead was seen by someone in the Pipedrive UI',
-      type: 'boolean'
+    add_time: {
+      label: 'Created At',
+      description: 'If the lead is created, use this timestamp as the creation timestamp. Format: YYY-MM-DD HH:MM:SS',
+      type: 'string',
+      required: false,
+    }
+  },
+
+
+  dynamicFields: {
+    person_match_field: async (request, { settings }) => {
+      const client = new PipedriveClient(settings, request);
+      return client.getFields('person');
+    },
+    organization_match_field: async (request, { settings }) => {
+      const client = new PipedriveClient(settings, request);
+      return client.getFields('organization');
     },
   },
+
   perform: async (request, { payload, settings }) => {
-    let leadId = null
 
-    if (payload.identifier !== undefined && payload.identifier !== null) {
-      const search = await request(`https://${settings.domain}.pipedrive.com/api/v1/leads/${payload.identifier}`)
+    const client = new PipedriveClient(settings, request);
 
-      leadId = get(search.data, 'data.id')
-    }
+    const personSearchField = payload.person_match_field || settings.personField || 'id';
+    const personId = await client.getId("person", personSearchField, payload.person_match_value);
 
-    const valueAvailable = (
-      payload.value !== undefined
-      && payload.value !== null
-      && payload.currency !== undefined
-      && payload.currency !== null
-    ) 
+    const organizationSearchField = payload.organization_match_field || settings.organizationField || 'id';
+    const organizationId = await client.getId("organization", organizationSearchField, payload.organization_match_value);
 
-    const lead = {
+    const lead: Lead = {
       title: payload.title,
-      value: valueAvailable ? { amount: payload.value, currency: payload.currency } : undefined,
-      label_ids: payload.label_ids,
-      owner_id: payload.owner_id,
-      person_id: payload.person_id,
-      org_id: payload.org_id,
+      // value: payload.value,
       expected_close_date: payload.expected_close_date,
       visible_to: payload.visible_to,
-      was_seen: payload.was_seen,
+      person_id: personId || undefined,
+      organization_id: organizationId || undefined,
     }
 
-    if (leadId === undefined || leadId === null) {
-      return request(`https://${settings.domain}.pipedrive.com/api/v1/leads`, {
-        method: 'post',
-        json: lead
-      })
-    }
-
-    return request(`https://${settings.domain}.pipedrive.com/api/v1/leads/${leadId}`, {
-      method: 'patch',
-      json: lead
-    })
+    return createLead(request, settings.domain, lead);
   }
 }
 

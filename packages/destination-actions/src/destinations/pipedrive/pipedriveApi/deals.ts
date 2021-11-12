@@ -13,7 +13,6 @@ export interface Deal {
   visible_to?: number,
   add_time?: string,
 
-  deal_id?: number,
   person_id?: number,
   org_id?: number,
 }

@@ -2,49 +2,35 @@
 
 export interface Payload {
   /**
-   * Identifier used to find existing Lead in Pipedrive. If not provided, will always create a new one.
+   * If present, used instead of field in settings to find existing person in Pipedrive.
    */
-  identifier?: string
+  person_match_field?: string
   /**
-   * The name of the Lead (required for new Leads)
+   * Value to find existing person by
    */
-  title?: string
+  person_match_value: string
   /**
-   * Value of the Lead. If omitted, value will be set to 0.
+   * If present, used instead of field in settings to find existing organization in Pipedrive.
    */
-  value?: string
+  organization_match_field?: string
   /**
-   * Currency of the Lead. Accepts a 3-character currency code. If omitted, currency will be set to the default currency of the authorized user.
+   * Value to find existing organization by
    */
-  currency?: string
+  organization_match_value: string
   /**
-   * Array of the IDs of the Lead Labels which will be associated with the Lead
+   * The name of the Lead
    */
-  label_ids?: {
-    [k: string]: unknown
-  }
+  title: string
   /**
-   * The ID of the User which will be the owner of the created Lead. If not provided, the user making the request will be used.
-   */
-  owner_id?: number
-  /**
-   * The ID of the Person this Lead is associated with.
-   */
-  person_id?: number
-  /**
-   * The ID of the Organization this Lead is associated with.
-   */
-  org_id?: number
-  /**
-   * The expected close date of the Deal. In ISO 8601 format: YYYY-MM-DD.
+   * The date of when the Deal which will be created from the Lead is expected to be closed. In ISO 8601 format: YYYY-MM-DD.
    */
   expected_close_date?: string
   /**
-   * Visibility of the deal. If omitted, visibility will be set to the default visibility setting of this item type for the authorized user. 1 -Owner & followers (private), 3	- Entire company (shared)
+   * Visibility of the Lead. If omitted, visibility will be set to the default visibility setting of this item type for the authorized user.
    */
   visible_to?: number
   /**
-   * A flag indicating whether the Lead was seen by someone in the Pipedrive UI
+   * If the lead is created, use this timestamp as the creation timestamp. Format: YYY-MM-DD HH:MM:SS
    */
-  was_seen?: boolean
+  add_time?: string
 }
