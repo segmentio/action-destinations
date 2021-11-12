@@ -114,7 +114,7 @@ const action: ActionDefinition<Settings, Payload> = {
       required: false,
     },
     duration: {
-      label: 'Due Time',
+      label: 'Duration',
       description:
         'Duration of the Activity. Format: HH:MM',
       type: 'string',
