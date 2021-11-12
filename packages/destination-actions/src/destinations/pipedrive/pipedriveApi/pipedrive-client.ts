@@ -1,5 +1,5 @@
 import { Settings } from "../generated-types";
-import type { RequestClient } from "@segment/actions-core/dist/esm/create-request-client";
+import type { RequestClient } from "@segment/actions-core"
 import get from "lodash/get";
 import { ActivityTypes, PipedriveFields } from "./domain";
 import { DynamicFieldResponse } from "@segment/actions-core";

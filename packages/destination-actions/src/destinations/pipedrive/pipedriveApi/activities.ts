@@ -1,4 +1,5 @@
-import { RequestClient } from "@segment/actions-core/src/create-request-client"
+import { ModifiedResponse } from "@segment/actions-core";
+import type { RequestClient } from "@segment/actions-core"
 
 export interface Activity {
   subject?: string;
@@ -18,9 +19,9 @@ export async function createActivity(
   request: RequestClient,
   domain: string,
   activity: Activity,
-): Promise<void> {
+): Promise<ModifiedResponse<void>> {
   activity.done = activity.done ? 1 : 0; // convert to integer, if it's boolean
-  await request(`https://${domain}.pipedrive.com/api/v1/activities`, {
+  return request(`https://${domain}.pipedrive.com/api/v1/activities`, {
     method: 'post',
     json: activity
   })

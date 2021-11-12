@@ -1,9 +1,9 @@
-import { RequestClient } from "@segment/actions-core/src/create-request-client"
+import { ModifiedResponse } from "@segment/actions-core"
+import type { RequestClient } from "@segment/actions-core"
 
 export interface Lead {
   title: string;
 
-  // value?: string,
   expected_close_date?: string,
   visible_to?: number,
 
@@ -15,8 +15,8 @@ export async function createLead(
   request: RequestClient,
   domain: string,
   lead: Lead,
-): Promise<void> {
-  await request(`https://${domain}.pipedrive.com/api/v1/leads`, {
+): Promise<ModifiedResponse<void>> {
+  return request(`https://${domain}.pipedrive.com/api/v1/leads`, {
     method: 'post',
     json: lead
   })

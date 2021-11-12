@@ -1,4 +1,5 @@
-import { RequestClient } from "@segment/actions-core/src/create-request-client"
+import { ModifiedResponse } from "@segment/actions-core"
+import type { RequestClient } from "@segment/actions-core"
 
 export interface Organization {
   name?: string
@@ -9,19 +10,19 @@ export async function createOrUpdateOrganizationById(
   request: RequestClient,
   domain: string,
   organizationId: number | null,
-  organiztion: Organization,
-): Promise<void> {
+  organization: Organization,
+): Promise<ModifiedResponse<void>> {
   if (organizationId) {
     // Update an organization
-    await request(`https://${domain}.pipedrive.com/api/v1/organizations/${organizationId}`, {
+    return request(`https://${domain}.pipedrive.com/api/v1/organizations/${organizationId}`, {
       method: 'put',
-      json: organiztion
+      json: organization
     })
   } else {
     // Create an organization
-    await request(`https://${domain}.pipedrive.com/api/v1/organizations`, {
+    return request(`https://${domain}.pipedrive.com/api/v1/organizations`, {
       method: 'post',
-      json: organiztion
+      json: organization
     })
   }
 }

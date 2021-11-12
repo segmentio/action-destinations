@@ -58,12 +58,6 @@ const action: ActionDefinition<Settings, Payload> = {
       type: 'string',
       required: true
     },
-    // value: {
-    //   label: 'Value',
-    //   description: 'The potential value of the Lead.',
-    //   type: 'string',
-    //   required: false
-    // },
     expected_close_date: {
       label: 'Expected Close Date',
       description:
@@ -107,14 +101,14 @@ const action: ActionDefinition<Settings, Payload> = {
     const client = new PipedriveClient(settings, request);
 
     const personSearchField = payload.person_match_field || settings.personField || 'id';
-    const personId = await client.getId("person", personSearchField, payload.person_match_value);
-
     const organizationSearchField = payload.organization_match_field || settings.organizationField || 'id';
-    const organizationId = await client.getId("organization", organizationSearchField, payload.organization_match_value);
+    const [personId, organizationId] = await Promise.all([
+      await client.getId("person", personSearchField, payload.person_match_value),
+      await client.getId("organization", organizationSearchField, payload.organization_match_value),
+    ])
 
     const lead: Lead = {
       title: payload.title,
-      // value: payload.value,
       expected_close_date: payload.expected_close_date,
       visible_to: payload.visible_to,
       person_id: personId || undefined,

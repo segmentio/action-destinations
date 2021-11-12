@@ -57,10 +57,7 @@ const action: ActionDefinition<Settings, Payload> = {
       type: 'string',
       required: false,
       dynamic: true,
-      default: {
-        '@literal': 'id'
-      },
-
+      default: 'id',
     },
     deal_match_value: {
       label: 'Deal match value',
@@ -153,13 +150,14 @@ const action: ActionDefinition<Settings, Payload> = {
     const client = new PipedriveClient(settings, request);
 
     const personSearchField = payload.person_match_field || settings.personField || 'id';
-    const personId = await client.getId("person", personSearchField, payload.person_match_value);
-
     const organizationSearchField = payload.organization_match_field || settings.organizationField || 'id';
-    const organizationId = await client.getId("organization", organizationSearchField, payload.organization_match_value);
-
     const dealSearchField = payload.deal_match_field || settings.dealField || 'id';
-    const dealId = await client.getId("deal", dealSearchField, payload.deal_match_value);
+
+    const [personId, organizationId, dealId] = await Promise.all([
+      await client.getId("person", personSearchField, payload.person_match_value),
+      await client.getId("organization", organizationSearchField, payload.organization_match_value),
+      await client.getId("deal", dealSearchField, payload.deal_match_value),
+    ])
 
     const activity: Activity = {
       subject: payload.subject,

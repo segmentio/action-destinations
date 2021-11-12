@@ -1,4 +1,5 @@
-import { RequestClient } from "@segment/actions-core/src/create-request-client"
+import { ModifiedResponse } from "@segment/actions-core"
+import type { RequestClient } from "@segment/actions-core"
 
 export interface Note {
   content: string;
@@ -13,8 +14,8 @@ export async function createNote(
   request: RequestClient,
   domain: string,
   note: Note,
-): Promise<void> {
-  await request(`https://${domain}.pipedrive.com/api/v1/notes`, {
+): Promise<ModifiedResponse<void>> {
+  return request(`https://${domain}.pipedrive.com/api/v1/notes`, {
     method: 'post',
     json: note
   })
