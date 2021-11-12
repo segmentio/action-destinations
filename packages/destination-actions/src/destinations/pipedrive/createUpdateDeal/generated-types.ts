@@ -2,9 +2,21 @@
 
 export interface Payload {
   /**
-   * Identifier used to find existing Deal in Pipedrive. If not provided, will always create a new one.
+   * If present, used instead of field in settings to find existing person in Pipedrive.
    */
-  identifier?: number
+  person_match_field?: string
+  /**
+   * Value to find existing person by
+   */
+  person_match_value: string
+  /**
+   * If present, used instead of field in settings to find existing organization in Pipedrive.
+   */
+  organization_match_field?: string
+  /**
+   * Value to find existing organization by
+   */
+  organization_match_value: string
   /**
    * Deal title  (required for new Leads)
    */
@@ -18,21 +30,9 @@ export interface Payload {
    */
   currency?: string
   /**
-   * The ID of the User which will be the owner of the created Deal. If not provided, the user making the request will be used.
-   */
-  user_id?: number
-  /**
-   * The ID of the Person this Deal is associated with.
-   */
-  person_id?: number
-  /**
-   * The ID of the Organization this Deal is associated with.
-   */
-  org_id?: number
-  /**
    * The ID of a stage this Deal will be placed in a pipeline (note that you can't supply the ID of the pipeline as this will be assigned automatically based on stage_id). If omitted, the deal will be placed in the first stage of the default pipeline.
    */
-  stage_id?: string
+  stage_id?: number
   /**
    * Deal status - open, won, lost or deleted. If omitted, status will be set to open.
    */
@@ -48,7 +48,7 @@ export interface Payload {
   /**
    * Optional message about why the deal was lost (to be used when status=lost)
    */
-  lost_reason?: number
+  lost_reason?: string
   /**
    * Visibility of the deal. If omitted, visibility will be set to the default visibility setting of this item type for the authorized user. 1 -Owner & followers (private), 3	- Entire company (shared)
    */
