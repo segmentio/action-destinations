@@ -1,16 +1,17 @@
 import type { DestinationDefinition } from '@segment/actions-core'
 import { defaultValues } from '@segment/actions-core'
+import type { Settings } from './generated-types'
 import identifyUser from './identifyUser'
 import logEvent from './logEvent'
 import mapUser from './mapUser'
 import groupIdentifyUser from './groupIdentifyUser'
-import type { Settings } from './generated-types'
+import orderCompleted from './orderCompleted'
 
 /** used in the quick setup */
 const presets: DestinationDefinition['presets'] = [
   {
     name: 'Track Calls',
-    subscribe: 'type = "track"',
+    subscribe: 'type = "track" and event != "Order Completed"',
     partnerAction: 'logEvent',
     mapping: defaultValues(logEvent.fields)
   },
@@ -41,6 +42,12 @@ const presets: DestinationDefinition['presets'] = [
     subscribe: 'type = "identify"',
     partnerAction: 'identifyUser',
     mapping: defaultValues(identifyUser.fields)
+  },
+  {
+    name: 'Track Purchases',
+    subscribe: 'type = "track" and event = "Order Completed"',
+    partnerAction: 'orderCompleted',
+    mapping: defaultValues(orderCompleted.fields)
   },
   {
     name: 'Browser Session Tracking',
@@ -95,7 +102,8 @@ const destination: DestinationDefinition<Settings> = {
     logEvent,
     identifyUser,
     mapUser,
-    groupIdentifyUser
+    groupIdentifyUser,
+    orderCompleted
   }
 }
 
