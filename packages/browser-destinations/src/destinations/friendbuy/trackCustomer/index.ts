@@ -68,21 +68,21 @@ export const trackCustomerFields: Record<string, InputField> = {
     type: 'string',
     format: 'date-time',
     required: false,
-    default: { '@path': '$.properties.customerSince' }
+    default: { '@path': '$.traits.customerSince' }
   },
   loyaltyStatus: {
     label: 'Loyalty Status',
     description: 'The status of the user in your loyalty program. Valid values are "in", "out", or "blocked".',
     type: 'string',
     required: false,
-    default: { '@path': '$.properties.loyaltyStatus' }
+    default: { '@path': '$.traits.loyaltyStatus' }
   },
   isNewCustomer: {
     label: 'New Customer Flag',
     description: 'Flag to indicate whether the user is a new customer.',
     type: 'boolean',
     required: false,
-    default: { '@path': '$.properties.isNewCustomer' }
+    default: { '@path': '$.traits.isNewCustomer' }
   },
   friendbuyAttributes: {
     label: 'Custom Attributes',
