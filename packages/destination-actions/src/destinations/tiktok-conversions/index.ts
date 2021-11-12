@@ -82,6 +82,7 @@ const destination: DestinationDefinition<Settings> = {
       // Return a request that tests/validates the user's credentials.
       // Send a blank event to events API.
       return request('https://business-api.tiktok.com/open_api/v1.2/pixel/track/', {
+        method: 'post',
         json: {
           pixel_code: settings.pixel_code,
           event: "Test Event",
