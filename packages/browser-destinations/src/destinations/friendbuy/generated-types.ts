@@ -2,7 +2,7 @@
 
 export interface Settings {
   /**
-   * Your Friendbuy Merchant ID.
+   * Find your Friendbuy Merchant ID by logging in to your [Friendbuy account](https://retailer.friendbuy.io/) and going to Developer Center > Friendbuy Code.
    */
   merchantId: string
 }

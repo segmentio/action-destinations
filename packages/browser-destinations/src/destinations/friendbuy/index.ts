@@ -53,8 +53,9 @@ export const destination: BrowserDestinationDefinition<Settings, FriendbuyAPI> =
 
   settings: {
     merchantId: {
-      label: 'Merchant ID',
-      description: 'Your Friendbuy Merchant ID.',
+      label: 'Friendbuy Merchant ID',
+      description:
+        'Find your Friendbuy Merchant ID by logging in to your [Friendbuy account](https://retailer.friendbuy.io/) and going to Developer Center > Friendbuy Code.',
       type: 'string',
       format: 'uuid',
       required: true
