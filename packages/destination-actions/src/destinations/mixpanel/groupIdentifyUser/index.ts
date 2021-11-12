@@ -7,25 +7,11 @@ const action: ActionDefinition<Settings, Payload> = {
   description: 'Updates or adds properties to a group profile. The profile is created if it does not exist.',
   defaultSubscription: 'type = "group"',
   fields: {
-    group_id: {
-      label: 'Group ID',
-      type: 'string',
-      description: 'The unique group identifier set by you',
-      default: {
-        '@path': '$.groupId'
-      }
-    },
     group_key: {
       label: 'Group Key',
       type: 'string',
       description: 'The group key',
-      default: {
-        '@if': {
-          exists: { '@path': '$.context.name' },
-          then: { '@path': '$.context.name' },
-          else: { '@path': '$.groupId' }
-        }
-      }
+      required: true
     },
     traits: {
       label: 'Group Properties',
@@ -37,15 +23,20 @@ const action: ActionDefinition<Settings, Payload> = {
     }
   },
   perform: (request, { payload, settings }) => {
+    if (!payload.traits) {
+      throw new Error('No group traits were passed')
+    }
+    if (!payload.traits[payload.group_key]) {
+      throw new Error('Group traits does not include proper group key')
+    }
     const data = {
       $token: settings.projectToken,
-      $distinct_id: payload.group_id,
       $group_key: payload.group_key,
-      $group_id: payload.group_id,
+      $group_id: payload.traits[payload.group_key],
       $set: payload.traits
     }
 
-    return request('https://api.mixpanel.com/groups', {
+    return request('https://api.mixpanel.com/groups#group-set', {
       method: 'post',
       body: new URLSearchParams({ data: JSON.stringify(data) })
     })

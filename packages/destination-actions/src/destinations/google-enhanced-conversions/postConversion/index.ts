@@ -31,14 +31,14 @@ const action: ActionDefinition<Settings, Payload> = {
     conversion_label: {
       label: 'Conversion Label',
       description:
-        'The Google Ads conversion label. You can find it in your Google Ads account using the instructions in the article [Google Ads conversions](https://support.google.com/tagmanager/answer/6105160?hl=en)',
+        'The Google Ads conversion label. You can find it in your Google Ads account using the instructions in the article [Google Ads conversions](https://support.google.com/tagmanager/answer/6105160?hl=en).',
       type: 'string',
       required: true,
       default: ''
     },
     email: {
       label: 'Email',
-      description: 'Email address of the customer who triggered the conversion event.',
+      description: 'Email address of the individual who triggered the conversion event.',
       type: 'string',
       required: true,
       format: 'email',
@@ -53,7 +53,7 @@ const action: ActionDefinition<Settings, Payload> = {
     transaction_id: {
       label: 'Order ID',
       description:
-        'Order ID of the conversion event. Google requires an Order ID even if the event is not an ecommerce event.',
+        'Order ID or Transaction ID of the conversion event. Google requires an Order ID even if the event is not an ecommerce event. Learn more in the article [Use a transaction ID to minimize duplicate conversions](https://support.google.com/google-ads/answer/6386790?hl=en&ref_topic=3165803).',
       type: 'string',
       required: true,
       default: {
@@ -62,9 +62,8 @@ const action: ActionDefinition<Settings, Payload> = {
     },
     user_agent: {
       label: 'User Agent',
-      description: 'User Agent of the customer who triggered the conversion event.',
+      description: 'User agent of the individual who triggered the conversion event. This should match the user agent of the request that sent the original conversion so the conversion and its enhancement are either both attributed as same-device or both attributed as cross-device. This field is optional but recommended.',
       type: 'string',
-      required: true,
       default: {
         '@path': '$.context.userAgent'
       }
@@ -89,7 +88,7 @@ const action: ActionDefinition<Settings, Payload> = {
     },
     currency_code: {
       label: 'Currency Code',
-      description: 'Currency of the purchase or items associated with the event, in 3-letter ISO 4217 format.',
+      description: 'Currency of the purchase or items associated with the conversion event, in 3-letter ISO 4217 format.',
       type: 'string',
       default: {
         '@path': '$.properties.currency'
@@ -98,7 +97,7 @@ const action: ActionDefinition<Settings, Payload> = {
     // PII Fields - These fields must be hashed using SHA 256 and encoded as websafe-base64.
     phone_number: {
       label: 'Phone Number',
-      description: 'Phone number of the purchaser, in E.164 standard format, e.g. +14150000000',
+      description: 'Phone number of the individual who triggered the conversion event, in E.164 standard format, e.g. +14150000000.',
       type: 'string',
       default: {
         '@if': {
@@ -169,8 +168,8 @@ const action: ActionDefinition<Settings, Payload> = {
       }
     },
     post_code: {
-      label: 'Post Code',
-      description: 'Post code of the individual who triggered the conversion event.',
+      label: 'Postal Code',
+      description: 'Postal code of the individual who triggered the conversion event.',
       type: 'string',
       default: {
         '@if': {

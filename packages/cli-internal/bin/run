@@ -1,0 +1,19 @@
+#!/usr/bin/env node
+
+const { JSDOM } = require('jsdom')
+const dom = new JSDOM(`<!DOCTYPE html><p>Hello world</p>`)
+global.window = dom.window
+global.navigator = dom.window.navigator
+global.Element = dom.window.Element
+
+const path = require('path')
+const { register } = require('tsconfig-paths')
+const tsConfig = require('../tsconfig.json')
+
+// For now we have to register tsconfig-paths manually
+register({
+  baseUrl: path.join(__dirname, '../'),
+  paths: tsConfig.compilerOptions.paths
+})
+
+require('@oclif/command').run().then(require('@oclif/command/flush')).catch(require('@oclif/errors/handle'))

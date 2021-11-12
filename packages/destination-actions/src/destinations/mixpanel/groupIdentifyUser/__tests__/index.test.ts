@@ -11,16 +11,15 @@ describe('Mixpanel.groupIdentifyUser', () => {
   it('should validate action fields', async () => {
     const event = createTestEvent({
       timestamp,
-      event: 'Test Event',
       groupId: 'test-group-id',
-      context: { name: 'test-name' },
-      traits: { hello: 'world' }
+      traits: { hello: 'world', company: 'Mixpanel' }
     })
 
     nock('https://api.mixpanel.com').post('/groups').reply(200, {})
 
     const responses = await testDestination.testAction('groupIdentifyUser', {
       event,
+      mapping: { group_key: 'company' },
       useDefaultMappings: true,
       settings: {
         projectToken: MIXPANEL_PROJECT_TOKEN,
@@ -34,11 +33,11 @@ describe('Mixpanel.groupIdentifyUser', () => {
       new URLSearchParams({
         data: JSON.stringify({
           $token: MIXPANEL_PROJECT_TOKEN,
-          $distinct_id: 'test-group-id',
-          $group_key: 'test-name',
-          $group_id: 'test-group-id',
+          $group_key: 'company',
+          $group_id: 'Mixpanel',
           $set: {
-            hello: 'world'
+            hello: 'world',
+            company: 'Mixpanel'
           }
         })
       })

@@ -16,8 +16,9 @@ import type {
   DestinationSubscriptionPresetFields,
   DestinationSubscriptionPresetInput
 } from '../lib/control-plane-service'
-import { prompt } from '../lib/prompt'
-import { OAUTH_OPTIONS, RESERVED_FIELD_NAMES } from '../constants'
+import { prompt } from '@segment/actions-cli/lib/prompt'
+import { OAUTH_OPTIONS } from '../constants'
+import { RESERVED_FIELD_NAMES } from '@segment/actions-cli/constants'
 import {
   getDestinationMetadatas,
   getDestinationMetadataActions,
@@ -27,7 +28,7 @@ import {
   setSubscriptionPresets,
   getSubscriptionPresets
 } from '../lib/control-plane-client'
-import { DestinationDefinition, getManifest, hasOauthAuthentication } from '../lib/destinations'
+import { DestinationDefinition, getManifest, hasOauthAuthentication } from '@segment/actions-cli/lib/destinations'
 import type { JSONSchema4 } from 'json-schema'
 
 type BaseActionInput = Omit<DestinationMetadataActionCreateInput, 'metadataId'>
@@ -93,7 +94,9 @@ export default class Push extends Command {
       // Creation Name check
       if (metadata.creationName !== definition.name) {
         this.spinner.fail()
-        throw new Error(`The definition name '${definition.name}' should always match the control plane creation name '${metadata.creationName}'.`)
+        throw new Error(
+          `The definition name '${definition.name}' should always match the control plane creation name '${metadata.creationName}'.`
+        )
       }
     }
 
@@ -205,7 +208,7 @@ export default class Push extends Command {
         mobile: false
       }
 
-      const options = getOptions(definition)
+      const options = getOptions(definition, metadata.options)
       const basicOptions = getBasicOptions(options)
       const diff = diffString(
         asJson({
@@ -272,7 +275,8 @@ export default class Push extends Command {
             advancedOptions: [], // make sure this gets cleared out since we don't use advancedOptions in Actions
             basicOptions,
             options,
-            platforms
+            platforms,
+            supportedRegions: ['us-west-2'] // always default to US until regional action destinations are supported
           }),
           updateDestinationMetadataActions(actionsToUpdate),
           createDestinationMetadataActions(actionsToCreate)
@@ -344,7 +348,10 @@ function getBasicOptions(options: DestinationMetadataOptions): string[] {
 }
 
 // Note: exporting for testing purposes only
-export function getOptions(definition: DestinationDefinition): DestinationMetadataOptions {
+export function getOptions(
+  definition: DestinationDefinition,
+  existingOptions: DestinationMetadataOptions
+): DestinationMetadataOptions {
   const options: DestinationMetadataOptions = {}
 
   const publicSettings = (definition as BrowserDestinationDefinition).settings
@@ -366,8 +373,11 @@ export function getOptions(definition: DestinationDefinition): DestinationMetada
       validators.push(['required', `The ${fieldKey} property is required.`])
     }
 
+    // If the field exists in auth fields.
+    const isAuth = typeof authFields === 'object' && fieldKey in authFields
+
     // Everything in `authentication.fields` should be private. Otherwise, public is fine
-    const isPrivateSetting = typeof authFields === 'object' && fieldKey in authFields
+    const isPrivateSetting = isAuth
 
     let type: DestinationMetadataOption['type'] = schema.type
     if (Array.isArray(schema.choices)) {
@@ -391,7 +401,17 @@ export function getOptions(definition: DestinationDefinition): DestinationMetada
       }
     }
 
+    // Preserve existing properties unless specified by the action field definition
+    const existing = existingOptions[fieldKey]
+    const tags = existing.tags ?? []
+
+    if (isAuth && !tags.includes('authentication:test')) {
+      tags.push('authentication:test') //valid values here can eventually be test, no-test if needed
+    }
+
     options[fieldKey] = {
+      ...existing,
+      tags,
       default: schema.default ?? '',
       description: schema.description,
       encrypt: schema.type === 'password',

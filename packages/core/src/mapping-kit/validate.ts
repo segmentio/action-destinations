@@ -210,6 +210,13 @@ directive('@if', (v, stack) => {
   )
 })
 
+directive('@arrayPath', (v, stack) => {
+  const data = v as [unknown, unknown]
+  validateArray(data, stack)
+  validateDirectiveOrString(data[0], stack)
+  validate(data[1], stack)
+})
+
 directive('@path', (v, stack) => {
   validateDirectiveOrString(v, stack)
 })

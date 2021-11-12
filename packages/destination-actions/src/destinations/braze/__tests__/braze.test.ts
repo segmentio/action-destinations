@@ -1,5 +1,5 @@
 import nock from 'nock'
-import { createTestEvent, createTestIntegration } from '@segment/actions-core'
+import { createTestEvent, createTestIntegration, DecoratedResponse } from '@segment/actions-core'
 import Braze from '../index'
 
 const testDestination = createTestIntegration(Braze)
@@ -197,6 +197,25 @@ describe(Braze.name, () => {
           ],
         }
       `)
+    })
+  })
+
+  describe('onDelete', () => {
+    it('should support user deletions', async () => {
+      nock('https://rest.iad-01.braze.com').post('/users/delete').reply(200, {})
+      expect(testDestination.onDelete).toBeDefined()
+
+      if (testDestination.onDelete) {
+        const event = createTestEvent({
+          type: 'delete',
+          userId: 'sloth@segment.com'
+        })
+
+        const response = await testDestination.onDelete(event, settings)
+        const resp = response as DecoratedResponse
+        expect(resp.status).toBe(200)
+        expect(resp.data).toMatchObject({})
+      }
     })
   })
 })

@@ -1,0 +1,6 @@
+{
+  "mapping": {
+    "@arrayPath": "nope"
+  },
+  "expectError": "/@arrayPath should be an array but it is a string."
+}
