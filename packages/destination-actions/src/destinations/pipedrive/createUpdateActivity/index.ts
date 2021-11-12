@@ -130,6 +130,18 @@ const action: ActionDefinition<Settings, Payload> = {
   },
 
   dynamicFields: {
+    person_match_field: async (request, { settings }) => {
+      const client = new PipedriveClient(settings, request);
+      return client.getFields('person');
+    },
+    organization_match_field: async (request, { settings }) => {
+      const client = new PipedriveClient(settings, request);
+      return client.getFields('organization');
+    },
+    deal_match_field: async (request, { settings }) => {
+      const client = new PipedriveClient(settings, request);
+      return client.getFields('deal');
+    },
     type: async (request, { settings }) => {
       const client = new PipedriveClient(settings, request);
       return client.getActivityTypes();
