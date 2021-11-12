@@ -34,6 +34,10 @@ export interface Payload {
    */
   type?: string
   /**
+   * Additional details about the Activity that is synced to your external calendar. Unlike the note added to the Activity, the description is publicly visible to any guests added to the Activity.
+   */
+  description?: string
+  /**
    * Note of the Activity (HTML format)
    */
   note?: string

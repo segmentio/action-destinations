@@ -85,6 +85,13 @@ const action: ActionDefinition<Settings, Payload> = {
       type: 'string',
       required: false,
     },
+    description: {
+      label: 'Description',
+      description:
+        'Additional details about the Activity that is synced to your external calendar. Unlike the note added to the Activity, the description is publicly visible to any guests added to the Activity.',
+      type: 'string',
+      required: false,
+    },
     note: {
       label: 'Note',
       description:
@@ -145,6 +152,7 @@ const action: ActionDefinition<Settings, Payload> = {
     const activity: Activity = {
       subject: payload.subject,
       type: payload.type,
+      public_description: payload.description,
       note: payload.note,
       due_date: payload.due_date,
       due_time: payload.due_time,

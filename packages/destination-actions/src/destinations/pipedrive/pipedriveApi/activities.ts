@@ -3,6 +3,7 @@ import { RequestClient } from "@segment/actions-core/src/create-request-client"
 export interface Activity {
   subject?: string;
   type?: string,
+  public_description?: string,
   note?: string,
   due_date?: string,
   due_time?: string,
