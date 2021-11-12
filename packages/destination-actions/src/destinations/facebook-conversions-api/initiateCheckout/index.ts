@@ -22,7 +22,7 @@ const action: ActionDefinition<Settings, Payload> = {
     num_items: num_items,
     value: { 
       ...value,
-      default: { '@path': '$.properties.revanue' } 
+      default: { '@path': '$.properties.revenue' } 
     },
   },
   perform: (request, { payload, settings }) => {
