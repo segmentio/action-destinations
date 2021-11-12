@@ -9,6 +9,8 @@ import createUpdateDeal from './createUpdateDeal'
 
 import createUpdateLead from './createUpdateLead'
 
+import createUpdateNote from './createUpdateNote'
+
 const destination: DestinationDefinition<Settings> = {
   name: 'Pipedrive',
   mode: 'cloud',
@@ -73,7 +75,8 @@ const destination: DestinationDefinition<Settings> = {
     createUpdatePerson,
     createUpdateActivity,
     createUpdateDeal,
-    createUpdateLead
+    createUpdateLead,
+    createUpdateNote
   }
 }
 
