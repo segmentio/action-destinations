@@ -20,7 +20,10 @@ const action: ActionDefinition<Settings, Payload> = {
     event_id: event_id,
     event_source_url: event_source_url,
     num_items: num_items,
-    value: value,
+    value: { 
+      ...value,
+      default: { '@path': '$.properties.revanue' } 
+    },
   },
   perform: (request, { payload, settings }) => {
     if (payload.currency && !CURRENCY_ISO_CODES.has(payload.currency)) {

@@ -99,7 +99,7 @@ export interface Payload {
    */
   event_source_url?: string
   /**
-   * The custom data object which can be used to pass the custom properties described at: https://developers.facebook.com/docs/marketing-api/conversions-api/parameters/custom-data
+   * The custom data object which can be used to pass custom properties. See [here](https://developers.facebook.com/docs/marketing-api/conversions-api/parameters/custom-data) for more information
    */
   custom_data?: {
     [k: string]: unknown

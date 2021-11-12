@@ -113,7 +113,7 @@ export interface Payload {
    */
   event_source_url?: string
   /**
-   * Search String
+   * A search query made by a user. This must be a string.
    */
   search_string?: string
   /**

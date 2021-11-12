@@ -21,7 +21,7 @@ const action: ActionDefinition<Settings, Payload> = {
     event_source_url: event_source_url,
     search_string: {
       label: 'Search String',
-      description: 'Search String',
+      description: 'A search query made by a user. This must be a string.',
       type: 'string',
       default: {
         '@path': '$.properties.query'

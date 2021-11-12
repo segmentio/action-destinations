@@ -7,7 +7,6 @@ import { API_VERSION } from '../constants'
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Custom Event',
   description: 'Track your own custom events.',
-  defaultSubscription: '',
   fields: {
     action_source: { ...action_source, required: true},
     event_name: {
@@ -25,7 +24,7 @@ const action: ActionDefinition<Settings, Payload> = {
     event_source_url: event_source_url,
     custom_data: {
       label: 'Custom Data',
-      description: 'The custom data object which can be used to pass the custom properties described at: https://developers.facebook.com/docs/marketing-api/conversions-api/parameters/custom-data',
+      description: 'The custom data object which can be used to pass custom properties. See [here](https://developers.facebook.com/docs/marketing-api/conversions-api/parameters/custom-data) for more information',
       type: 'object'
     }
   },
