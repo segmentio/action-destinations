@@ -36,7 +36,7 @@ const destination: DestinationDefinition<Settings> = {
   },
   extendRequest: () => {
     return {
-      //TODO: Create a token with this name specific to actions CAPI in chamber
+      //TODO: Create a token with this name specific to actions CAPI in chamber for stage & prod
       //headers: { Authorization: `Bearer ${process.env.ACTIONS_FB_CAPI_SYSTEM_USER_TOKEN}` }
       headers: { authorization: `Bearer ${process.env.FB_PIXEL_SERVER_SIDE_AUTH_TOKEN}`}
     }
