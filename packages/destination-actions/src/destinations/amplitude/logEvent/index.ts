@@ -21,7 +21,7 @@ export interface AmplitudeEvent extends Omit<Payload, 'products' | 'trackRevenue
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Log Event',
   description: 'Send an event to Amplitude.',
-  defaultSubscription: 'type = "track"',
+  defaultSubscription: 'type = "track" and event != "Order Completed"',
   fields: eventSchema,
   perform: (request, { payload, settings }) => {
     const {
