@@ -40,6 +40,7 @@ yarn login
 # Requires node 14.17, optionally: nvm use 14.17
 yarn --ignore-optional
 yarn bootstrap
+yarn build
 
 # Run unit tests to ensure things are working! All tests should pass :)
 yarn test
