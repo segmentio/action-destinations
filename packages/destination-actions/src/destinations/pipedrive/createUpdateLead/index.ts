@@ -103,8 +103,8 @@ const action: ActionDefinition<Settings, Payload> = {
     const personSearchField = payload.person_match_field || settings.personField || 'id';
     const organizationSearchField = payload.organization_match_field || settings.organizationField || 'id';
     const [personId, organizationId] = await Promise.all([
-      await client.getId("person", personSearchField, payload.person_match_value),
-      await client.getId("organization", organizationSearchField, payload.organization_match_value),
+      client.getId("person", personSearchField, payload.person_match_value),
+      client.getId("organization", organizationSearchField, payload.organization_match_value),
     ])
 
     const lead: Lead = {
