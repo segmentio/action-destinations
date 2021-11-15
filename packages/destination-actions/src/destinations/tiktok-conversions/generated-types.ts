@@ -6,14 +6,6 @@ export interface Settings {
    */
   accessToken: string
   /**
-   * TikTok App Secret Key. You can find this key in the "Basic Information" tab of your TikTok app.
-   */
-  secretKey: string
-  /**
-   * TikTok App Id. You can find this key in the "Basic Information" tab of your TikTok app.
-   */
-  appId: string
-  /**
    * An ID for your pixel. Required to send events to the TikTok pixel.
    */
   pixel_code: string

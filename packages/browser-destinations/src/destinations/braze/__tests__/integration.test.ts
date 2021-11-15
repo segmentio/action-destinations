@@ -99,4 +99,31 @@ describe('loads different versions from CDN', () => {
       ]
     `)
   })
+
+  test('undefined version', async () => {
+    //@ts-expect-error sdkVersion is expected but undefined
+    const [trackEvent] = await braze({
+      api_key: 'api_key',
+      endpoint: 'sdk.iad-01.braze.com',
+      doNotLoadFontAwesome: true,
+      subscriptions: example
+    })
+
+    await trackEvent.load(Context.system(), {} as Analytics)
+
+    const scripts = window.document.querySelectorAll('script')
+    // loads the service worker
+    expect(scripts).toMatchSnapshot(`
+      NodeList [
+        <script
+          src="https://js.appboycdn.com/web-sdk/3.3/appboy.min.js"
+          status="loaded"
+          type="text/javascript"
+        />,
+        <script>
+          // the emptiness
+        </script>,
+      ]
+    `)
+  })
 })

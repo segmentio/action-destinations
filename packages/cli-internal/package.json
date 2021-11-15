@@ -1,20 +1,17 @@
 {
   "name": "@segment/actions-cli-internal",
   "description": "CLI to interact with Segment integrations",
-  "version": "3.24.1",
+  "version": "3.27.2",
   "license": "MIT",
   "repository": {
     "type": "git",
     "url": "https://github.com/segmentio/action-destinations",
-    "directory": "packages/cli"
+    "directory": "packages/cli-internal"
   },
   "engines": {
     "node": "^14.16"
   },
   "engineStrict": true,
-  "bin": {
-    "segment": "./bin/run"
-  },
   "files": [
     "/bin",
     "/dist",
@@ -56,8 +53,8 @@
     "@oclif/config": "^1",
     "@oclif/errors": "^1",
     "@oclif/plugin-help": "^3",
-    "@segment/action-destinations": "^3.24.1",
-    "@segment/actions-core": "^3.16.0",
+    "@segment/action-destinations": "^3.27.2",
+    "@segment/actions-core": "^3.19.1",
     "chalk": "^4.1.1",
     "chokidar": "^3.5.1",
     "dotenv": "^10.0.0",
@@ -80,7 +77,7 @@
     "tslib": "^2.3.1"
   },
   "optionalDependencies": {
-    "@segment/browser-destinations": "^3.16.0",
+    "@segment/browser-destinations": "^3.19.1",
     "@segment/control-plane-service-client": "github:segmentio/control-plane-service-js-client.git#master"
   },
   "oclif": {
@@ -97,7 +94,8 @@
       "<rootDir>/dist/"
     ],
     "moduleNameMapper": {
-      "src/lib/(.*)": "<rootDir>/src/lib/$1"
+      "src/lib/(.*)": "<rootDir>/src/lib/$1",
+      "@segment/actions-cli": "<rootDir>/../cli/src"
     }
   }
 }
