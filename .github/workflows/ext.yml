@@ -31,8 +31,5 @@ jobs:
       - name: Bootstrap
         run: yarn bootstrap --no-ci
 
-      - name: Build
-        run: NODE_ENV=production yarn build
-
       - name: Test
         run: yarn test

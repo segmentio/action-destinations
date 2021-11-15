@@ -3,10 +3,20 @@
   "compilerOptions": {
     "baseUrl": ".",
     "paths": {
-      "@segment/actions-core": ["../core/src"],
-      "@segment/destination-subscriptions": ["../destination-subscriptions/src"]
+      "@segment/ajv-human-errors": [
+        "../ajv-human-errors/src"
+      ],
+      "@segment/actions-core": [
+        "../core/src"
+      ],
+      "@segment/destination-subscriptions": [
+        "../destination-subscriptions/src"
+      ]
     }
   },
   "exclude": [],
-  "include": ["src", "test"]
+  "include": [
+    "src",
+    "test"
+  ]
 }
