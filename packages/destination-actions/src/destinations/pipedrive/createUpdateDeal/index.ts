@@ -194,7 +194,7 @@ const action: ActionDefinition<Settings, Payload> = {
       org_id: organizationId || undefined,
     }
 
-    if(!deal.person_id && !deal.org_id){
+    if(!deal.id && !deal.person_id && !deal.org_id){
       throw new Error("No related organization or person, unable to create deal!");
     }
 

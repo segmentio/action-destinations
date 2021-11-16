@@ -122,7 +122,7 @@ const action: ActionDefinition<Settings, Payload> = {
       organization_id: organizationId || undefined,
     }
 
-    if(!lead.person_id && !lead.organization_id){
+    if(!lead.id && !lead.person_id && !lead.organization_id){
       throw new Error("No related organization or person, unable to create lead!");
     }
 
