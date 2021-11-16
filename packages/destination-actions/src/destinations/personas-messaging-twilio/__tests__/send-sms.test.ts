@@ -129,7 +129,8 @@ for (const environment of ['stage', 'production']) {
         }),
         settings: {
           ...settings,
-          webhookUrl: 'http://localhost'
+          webhookUrl: 'http://localhost',
+          connectionOverrides: "rp=all&rc=5"
         },
         mapping: {
           userId: { '@path': '$.userId' },
