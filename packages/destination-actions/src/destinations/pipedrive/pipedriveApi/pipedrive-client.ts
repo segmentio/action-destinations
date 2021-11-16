@@ -58,15 +58,21 @@ class PipedriveClient {
       field_type: searchFieldMap[item]
     }
 
-    const search = await this._request(`https://${this.settings.domain}.pipedrive.com/api/v1/itemSearch/field`, {
-      searchParams: {
-        ...searchParams,
-        exact_match: true,
-        return_item_ids: true
-      }
-    });
+    let result = null;
+    try {
+      const search = await this._request(`https://${this.settings.domain}.pipedrive.com/api/v1/itemSearch/field`, {
+        searchParams: {
+          ...searchParams,
+          exact_match: true,
+          return_item_ids: true
+        }
+      });
+      result = get(search, 'data.data[0].id', null);
+    } catch(e) {
+      return result;
+    }
 
-    return get(search, 'data.data[0].id', null);
+    return result;
   }
 
   async getFields(item: keyof PipedriveFieldTypes): Promise<DynamicFieldResponse> {

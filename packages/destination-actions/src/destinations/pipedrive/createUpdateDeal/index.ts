@@ -22,9 +22,9 @@ const action: ActionDefinition<Settings, Payload> = {
     },
     person_match_value: {
       label: 'Person match value',
-      description: 'Value to find existing person by',
+      description: 'Value to find existing person by. Required unless organization_match_value present',
       type: 'string',
-      required: true,
+      required: false,
       default: {
         '@path': '$.userId'
       }
@@ -43,9 +43,9 @@ const action: ActionDefinition<Settings, Payload> = {
     },
     organization_match_value: {
       label: 'Organization match value',
-      description: 'Value to find existing organization by',
+      description: 'Value to find existing organization by. Required unless person_match_value present',
       type: 'string',
-      required: true,
+      required: false,
       default: {
         '@path': '$.userId'
       }
@@ -167,6 +167,10 @@ const action: ActionDefinition<Settings, Payload> = {
       add_time: payload.add_time,
       person_id: personId || undefined,
       org_id: organizationId || undefined,
+    }
+
+    if(!deal.person_id && !deal.org_id){
+      throw new Error("No related organization or person, unable to create deal!");
     }
 
     return createDeal(request, settings.domain, deal);
