@@ -145,6 +145,7 @@ const action: ActionDefinition<Settings, Payload> = {
       for (const key of Object.keys(customArgs)) {
         webhookUrlWithParams.searchParams.append(key, String(customArgs[key]))
       }
+      webhookUrlWithParams.hash = "rp=all&rc=5"
       body.append('StatusCallback', webhookUrlWithParams.toString())
     }
 

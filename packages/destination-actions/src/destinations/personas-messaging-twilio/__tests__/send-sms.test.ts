@@ -118,7 +118,7 @@ for (const environment of ['stage', 'production']) {
         Body: 'Hello world, jane!',
         From: '+1234567890',
         To: '+1234567891',
-        StatusCallback: 'http://localhost/?foo=bar'
+        StatusCallback: 'http://localhost/?foo=bar#rp=all&rc=5'
       })
 
       const actionInputData = {
