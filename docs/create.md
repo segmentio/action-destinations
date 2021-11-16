@@ -172,7 +172,6 @@ const destination = {
       description: 'Post a message to a Slack channel',
 
       // fql query to use for the subscription initially
-      // required if using `recommended: true`
       defaultSubscription: 'type = "track"'
 
       // the set of fields that are specific to this action
