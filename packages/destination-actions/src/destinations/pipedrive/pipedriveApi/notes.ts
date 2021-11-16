@@ -1,7 +1,7 @@
 import { ModifiedResponse } from "@segment/actions-core"
-import type { RequestClient } from "@segment/actions-core"
+import PipedriveClient from "./pipedrive-client";
 
-export interface Note {
+export interface Note extends Record<string, unknown>{
   content: string;
   add_time?: string
   deal_id?: number,
@@ -11,12 +11,8 @@ export interface Note {
 }
 
 export async function createNote(
-  request: RequestClient,
-  domain: string,
+  client: PipedriveClient,
   note: Note,
-): Promise<ModifiedResponse<void>> {
-  return request(`https://${domain}.pipedrive.com/api/v1/notes`, {
-    method: 'post',
-    json: note
-  })
+): Promise<ModifiedResponse> {
+  return client.createUpdate('notes', note);
 }

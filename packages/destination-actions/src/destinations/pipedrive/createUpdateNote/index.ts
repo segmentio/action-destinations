@@ -9,6 +9,18 @@ const action: ActionDefinition<Settings, Payload> = {
   description: "Update a Note in Pipedrive or create it if it doesn't exist yet.",
   defaultSubscription: 'type = "track"',
   fields: {
+    note_id: {
+      label: 'Note ID',
+      description: 'ID of Note in Pipedrive to Update. If left empty, a new one will be created',
+      type: 'integer',
+      required: false,
+    },
+    lead_id: {
+      label: 'Lead ID',
+      description: 'ID of Lead in Pipedrive to link to.  One of Lead, Person, Organization or Deal must be linked!',
+      type: 'integer',
+      required: false,
+    },
     person_match_field: {
       label: 'Person match field',
       description: 'If present, used instead of field in settings to find existing person in Pipedrive.',
@@ -22,9 +34,9 @@ const action: ActionDefinition<Settings, Payload> = {
     },
     person_match_value: {
       label: 'Person match value',
-      description: 'Value to find existing person by',
+      description: 'Value to find existing person by. One of Lead, Person, Organization or Deal must be linked!',
       type: 'string',
-      required: true,
+      required: false,
       default: {
         '@path': '$.userId'
       }
@@ -43,9 +55,9 @@ const action: ActionDefinition<Settings, Payload> = {
     },
     organization_match_value: {
       label: 'Organization match value',
-      description: 'Value to find existing organization by',
+      description: 'Value to find existing organization by. One of Lead, Person, Organization or Deal must be linked!',
       type: 'string',
-      required: true,
+      required: false,
       default: {
         '@path': '$.userId'
       }
@@ -64,9 +76,9 @@ const action: ActionDefinition<Settings, Payload> = {
     },
     deal_match_value: {
       label: 'Deal match value',
-      description: 'Value to find existing deal by',
+      description: 'Value to find existing deal by. One of Lead, Person, Organization or Deal must be linked!',
       type: 'string',
-      required: true,
+      required: false,
       default: {
         '@path': '$.userId'
       }
@@ -111,13 +123,19 @@ const action: ActionDefinition<Settings, Payload> = {
     ])
 
     const note: Note = {
+      id: payload.note_id,
       content: payload.content,
+      lead_id: payload.lead_id,
       person_id: personId || undefined,
       org_id: organizationId || undefined,
       deal_id: dealId || undefined,
     }
 
-    return createNote(request, settings.domain, note);
+    if([note.id, note.lead_id, note.person_id, note.org_id, note.deal_id].every(v => v === undefined)){
+      throw new Error("No related organization or person, unable to create/update note!");
+    }
+
+    return createNote(client, note);
   }
 
 }
