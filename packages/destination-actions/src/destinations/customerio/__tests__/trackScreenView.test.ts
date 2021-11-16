@@ -26,6 +26,8 @@ describe('CustomerIO', () => {
       }
       trackScreenViewService.post(`/customers/${userId}/events`).reply(200, {}, { 'x-customerio-region': 'US' })
       const event = createTestEvent({
+        type: 'screen',
+        name: screen,
         userId,
         properties: data,
         timestamp
@@ -66,6 +68,8 @@ describe('CustomerIO', () => {
       }
       trackScreenViewService.post(`/events`).reply(200, {})
       const event = createTestEvent({
+        type: 'screen',
+        name: screen,
         anonymousId,
         properties: data,
         userId: undefined,
@@ -90,7 +94,7 @@ describe('CustomerIO', () => {
       })
     })
 
-    it('should error when the screen field is not supplied', async () => {
+    it('should error when the name field is not supplied', async () => {
       const settings: Settings = {
         siteId: '12345',
         apiKey: 'abcde',
@@ -99,6 +103,7 @@ describe('CustomerIO', () => {
       const timestamp = dayjs.utc().toISOString()
       trackScreenViewService.post(`/events`).reply(200, {})
       const event = createTestEvent({
+        type: 'screen',
         anonymousId: undefined,
         userId: undefined,
         timestamp
@@ -108,7 +113,7 @@ describe('CustomerIO', () => {
         await testDestination.testAction('trackScreenView', { event, settings, useDefaultMappings: true })
         fail('This test should have thrown an error')
       } catch (e) {
-        expect(e.message).toBe("The root value is missing the required field 'screen'.")
+        expect(e.message).toBe("The root value is missing the required field 'name'.")
       }
     })
 
@@ -127,6 +132,8 @@ describe('CustomerIO', () => {
       }
       trackScreenViewService.post(`/customers/${userId}/events`).reply(200, {}, { 'x-customerio-region': 'US' })
       const event = createTestEvent({
+        type: 'screen',
+        name: screen,
         userId,
         properties: data,
         timestamp
@@ -171,6 +178,8 @@ describe('CustomerIO', () => {
       }
       trackEUEventService.post(`/customers/${userId}/events`).reply(200, {}, { 'x-customerio-region': 'EU' })
       const event = createTestEvent({
+        type: 'screen',
+        name: screen,
         userId,
         timestamp,
         properties: data
@@ -212,6 +221,8 @@ describe('CustomerIO', () => {
         .post(`/customers/${userId}/events`)
         .reply(200, {}, { 'x-customerio-region': 'US-fallback' })
       const event = createTestEvent({
+        type: 'screen',
+        name: screen,
         userId,
         timestamp,
         properties: data
