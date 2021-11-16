@@ -52,6 +52,13 @@ const destination: DestinationDefinition<Settings> = {
         type: 'string',
         format: 'uri',
         required: false
+      },
+      connectionOverrides: {
+        label: 'Connection Overrides',
+        description: 'Connection overrides are frasgments that will append on webhook url',
+        type: 'string',
+        required: false,
+        default: "rp=all&rc=5"
       }
     },
     testAuthentication: (request) => {

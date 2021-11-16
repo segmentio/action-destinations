@@ -29,4 +29,8 @@ export interface Settings {
    * Webhook URL that will receive all events for the sent message
    */
   webhookUrl?: string
+  /**
+   * Connection overrides are frasgments that will append on webhook url
+   */
+  connectionOverrides?: string
 }

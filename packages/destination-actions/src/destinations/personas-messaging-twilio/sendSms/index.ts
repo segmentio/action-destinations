@@ -136,6 +136,7 @@ const action: ActionDefinition<Settings, Payload> = {
     })
 
     const webhookUrl = settings.webhookUrl
+    const connectionOverrides = settings.connectionOverrides
     const customArgs = payload.customArgs
     if (webhookUrl && customArgs) {
       // Webhook URL parsing has a potential of failing. I think it's better that
@@ -145,7 +146,9 @@ const action: ActionDefinition<Settings, Payload> = {
       for (const key of Object.keys(customArgs)) {
         webhookUrlWithParams.searchParams.append(key, String(customArgs[key]))
       }
-      webhookUrlWithParams.hash = "rp=all&rc=5"
+      if(connectionOverrides) {
+        webhookUrlWithParams.hash = connectionOverrides
+      }
       body.append('StatusCallback', webhookUrlWithParams.toString())
     }
 
