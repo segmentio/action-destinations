@@ -1,5 +1,5 @@
 import { Settings } from "../generated-types";
-import type { RequestClient } from "@segment/actions-core"
+import type {ModifiedResponse, RequestClient} from "@segment/actions-core"
 import get from "lodash/get";
 import { ActivityTypes, PipedriveFields } from "./domain";
 import { DynamicFieldResponse } from "@segment/actions-core";
@@ -50,7 +50,10 @@ class PipedriveClient {
     this._request = request;
   }
 
-  async getId(item: ItemType, fieldName: string, term: string): Promise<number | null> {
+  async getId(item: ItemType, fieldName: string, term?: string): Promise<number | null> {
+    if (!term) {
+      return null;
+    }
     const searchParams: SearchRequest<typeof item> = {
       term,
       field_key: fieldName,
@@ -110,6 +113,36 @@ class PipedriveClient {
       },
     };
     return record;
+  }
+
+  async createUpdate(itemPath: string, item: Record<string, unknown>): Promise<ModifiedResponse>{
+    if(item.id){
+      const id = item.id;
+      delete item['id'];
+      return this.put(`${itemPath}/${id}`, item);
+    }
+    return this.post(itemPath, item);
+  }
+
+  async post(path: string, payload: Record<string, unknown>): Promise<ModifiedResponse> {
+    return this.reqWithPayload(path, payload, 'post');
+  }
+
+  async put(path: string, payload: Record<string, unknown>): Promise<ModifiedResponse> {
+    return this.reqWithPayload(path, payload, 'put');
+  }
+
+  async reqWithPayload(path: string, payload: Record<string, unknown>, method: 'post' | 'put'){
+    PipedriveClient.filterPayload(payload);
+    const urlBase = `https://${this.settings.domain}.pipedrive.com/api/v1`;
+    return this._request(`${urlBase}/${path}`, {
+      method: method,
+      json: payload
+    })
+  }
+
+  static filterPayload(payload: Record<string, unknown>) {
+    Object.keys(payload).forEach(key => payload[key] === undefined && delete payload[key]);
   }
 
 }

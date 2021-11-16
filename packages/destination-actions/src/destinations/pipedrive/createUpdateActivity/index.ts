@@ -1,14 +1,20 @@
 import type { ActionDefinition } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
-import { Activity, createActivity } from '../pipedriveApi/activities'
+import { Activity, createUpdateActivity } from '../pipedriveApi/activities'
 import PipedriveClient from '../pipedriveApi/pipedrive-client'
 
 const action: ActionDefinition<Settings, Payload> = {
-  title: 'Create an Activity',
-  description: "Create an Activity in Pipedrive.",
+  title: 'Create or update an Activity',
+  description: "Update an Activity in Pipedrive or create one if it doesn't exist.",
   defaultSubscription: 'type = "track"',
   fields: {
+    activity_id: {
+      label: 'Activity ID',
+      description: 'ID of Activity in Pipedrive to Update. If left empty, a new one will be created',
+      type: 'integer',
+      required: false,
+    },
     person_match_field: {
       label: 'Person match field',
       description: 'If present, used instead of field in settings to find existing person in Pipedrive.',
@@ -160,20 +166,21 @@ const action: ActionDefinition<Settings, Payload> = {
     ])
 
     const activity: Activity = {
+      id: payload.activity_id,
       subject: payload.subject,
       type: payload.type,
       public_description: payload.description,
       note: payload.note,
       due_date: payload.due_date,
       due_time: payload.due_time,
-      duration: payload.due_time,
+      duration: payload.duration,
       done: payload.done,
       person_id: personId || undefined,
       org_id: organizationId || undefined,
       deal_id: dealId || undefined,
     }
 
-    return createActivity(request, settings.domain, activity);
+    return createUpdateActivity(client, activity);
   }
 
 }

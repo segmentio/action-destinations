@@ -1,7 +1,8 @@
 import { ModifiedResponse } from "@segment/actions-core";
-import type { RequestClient } from "@segment/actions-core"
+import PipedriveClient from "./pipedrive-client";
 
-export interface Activity {
+export interface Activity extends Record<string, unknown> {
+  id?: number;
   subject?: string;
   type?: string,
   public_description?: string,
@@ -15,14 +16,12 @@ export interface Activity {
   org_id?: number,
 }
 
-export async function createActivity(
-  request: RequestClient,
-  domain: string,
+export async function createUpdateActivity(
+  client: PipedriveClient,
   activity: Activity,
-): Promise<ModifiedResponse<void>> {
-  activity.done = activity.done ? 1 : 0; // convert to integer, if it's boolean
-  return request(`https://${domain}.pipedrive.com/api/v1/activities`, {
-    method: 'post',
-    json: activity
-  })
+): Promise<ModifiedResponse> {
+  if (typeof activity.done !== 'undefined') {
+    activity.done = activity.done ? 1 : 0; // convert to integer, if it's boolean
+  }
+  return client.createUpdate('activities', activity);
 }

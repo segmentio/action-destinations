@@ -2,13 +2,17 @@
 
 export interface Payload {
   /**
+   * ID of Activity in Pipedrive to Update. If left empty, a new one will be created
+   */
+  activity_id?: number
+  /**
    * If present, used instead of field in settings to find existing person in Pipedrive.
    */
   person_match_field?: string
   /**
    * Value to find existing person by
    */
-  person_match_value: string
+  person_match_value?: string
   /**
    * If present, used instead of field in settings to find existing organization in Pipedrive.
    */
@@ -16,7 +20,7 @@ export interface Payload {
   /**
    * Value to find existing organization by
    */
-  organization_match_value: string
+  organization_match_value?: string
   /**
    * If present, used instead of field in settings to find existing deal in Pipedrive.
    */
@@ -24,7 +28,7 @@ export interface Payload {
   /**
    * Value to find existing deal by
    */
-  deal_match_value: string
+  deal_match_value?: string
   /**
    * Subject of the Activity. When value for subject is not set, it will be given a default value `Call`.
    */
