@@ -171,9 +171,6 @@ const destination = {
       // the human-friendly description of the action. supports markdown
       description: 'Post a message to a Slack channel',
 
-      // whether or not this should appear in the Quick Setup
-      recommended: true,
-
       // fql query to use for the subscription initially
       // required if using `recommended: true`
       defaultSubscription: 'type = "track"'
