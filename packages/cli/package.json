@@ -55,7 +55,7 @@
     "@oclif/command": "^1",
     "@oclif/config": "^1",
     "@oclif/errors": "^1",
-    "@oclif/plugin-help": "^3",
+    "@oclif/plugin-help": "^3.3",
     "@segment/action-destinations": "^3.27.2",
     "@segment/actions-core": "^3.19.1",
     "chalk": "^4.1.1",
@@ -106,8 +106,10 @@
       "<rootDir>/templates/"
     ],
     "moduleNameMapper": {
-      "src/lib/(.*)": "<rootDir>/src/lib/$1",
-      "@segment/actions-cli-internal": "<rootDir>/../cli-internal/src"
+      "@segment/actions-cli-internal": "<rootDir>/../cli-internal/src",
+      "@segment/actions-core": "<rootDir>/../core/src",
+      "@segment/ajv-human-errors": "<rootDir>/../ajv-human-errors/src",
+      "@segment/destination-subscriptions": "<rootDir>/../destination-subscriptions/src"
     }
   }
 }

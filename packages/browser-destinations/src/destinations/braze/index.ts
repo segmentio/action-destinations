@@ -249,7 +249,17 @@ export const destination: BrowserDestinationDefinition<Settings, typeof appboy> 
   },
   initialize: async ({ settings }, dependencies) => {
     try {
-      const { endpoint, api_key, sdkVersion, automaticallyDisplayMessages, ...expectedConfig } = settings
+      const {
+        endpoint,
+        api_key,
+        sdkVersion,
+        automaticallyDisplayMessages,
+        // @ts-expect-error versionSettings is not part of the settings object but they are injected by Analytics 2.0, making Braze SDK raise a warning when we initialize it.
+        versionSettings,
+        // @ts-expect-error same as above.
+        subscriptions,
+        ...expectedConfig
+      } = settings
       const version = sdkVersion ?? '3.3'
 
       resetUserCache()
