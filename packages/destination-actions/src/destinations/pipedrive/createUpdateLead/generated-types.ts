@@ -2,21 +2,25 @@
 
 export interface Payload {
   /**
+   * ID of Lead in Pipedrive to Update. If left empty, a new one will be created
+   */
+  lead_id?: number
+  /**
    * If present, used instead of field in settings to find existing person in Pipedrive.
    */
   person_match_field?: string
   /**
-   * Value to find existing person by
+   * Value to find existing person by. Required unless organization_match_value present
    */
-  person_match_value: string
+  person_match_value?: string
   /**
    * If present, used instead of field in settings to find existing organization in Pipedrive.
    */
   organization_match_field?: string
   /**
-   * Value to find existing organization by
+   * Value to find existing organization by. Required unless person_match_value present
    */
-  organization_match_value: string
+  organization_match_value?: string
   /**
    * The name of the Lead
    */

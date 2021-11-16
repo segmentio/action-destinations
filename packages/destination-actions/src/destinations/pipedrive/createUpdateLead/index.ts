@@ -2,13 +2,19 @@ import type { ActionDefinition } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 import PipedriveClient from '../pipedriveApi/pipedrive-client'
-import { createLead, Lead } from '../pipedriveApi/leads'
+import { createUpdateLead, Lead } from '../pipedriveApi/leads'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Create or Update a Lead',
   description: "Update a Lead in Pipedrive or create it if it doesn't exist yet.",
   defaultSubscription: 'type = "identify"',
   fields: {
+    lead_id: {
+      label: 'Lead ID',
+      description: 'ID of Lead in Pipedrive to Update. If left empty, a new one will be created',
+      type: 'integer',
+      required: false,
+    },
     person_match_field: {
       label: 'Person match field',
       description: 'If present, used instead of field in settings to find existing person in Pipedrive.',
@@ -22,9 +28,9 @@ const action: ActionDefinition<Settings, Payload> = {
     },
     person_match_value: {
       label: 'Person match value',
-      description: 'Value to find existing person by',
+      description: 'Value to find existing person by. Required unless organization_match_value present',
       type: 'string',
-      required: true,
+      required: false,
       default: {
         '@path': '$.userId'
       }
@@ -43,9 +49,9 @@ const action: ActionDefinition<Settings, Payload> = {
     },
     organization_match_value: {
       label: 'Organization match value',
-      description: 'Value to find existing organization by',
+      description: 'Value to find existing organization by. Required unless person_match_value present',
       type: 'string',
-      required: true,
+      required: false,
       default: {
         '@path': '$.userId'
       }
@@ -108,6 +114,7 @@ const action: ActionDefinition<Settings, Payload> = {
     ])
 
     const lead: Lead = {
+      id: payload.lead_id,
       title: payload.title,
       expected_close_date: payload.expected_close_date,
       visible_to: payload.visible_to,
@@ -115,7 +122,11 @@ const action: ActionDefinition<Settings, Payload> = {
       organization_id: organizationId || undefined,
     }
 
-    return createLead(request, settings.domain, lead);
+    if(!lead.person_id && !lead.organization_id){
+      throw new Error("No related organization or person, unable to create lead!");
+    }
+
+    return createUpdateLead(client, lead);
   }
 }
 

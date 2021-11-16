@@ -1,23 +1,20 @@
 import { ModifiedResponse } from "@segment/actions-core"
-import type { RequestClient } from "@segment/actions-core"
+import PipedriveClient from "./pipedrive-client";
 
-export interface Lead {
+export interface Lead extends Record<string, unknown>{
   title: string;
 
   expected_close_date?: string,
   visible_to?: number,
 
+  id?: number;
   person_id?: number,
   organization_id?: number,
 }
 
-export async function createLead(
-  request: RequestClient,
-  domain: string,
+export async function createUpdateLead(
+  client: PipedriveClient,
   lead: Lead,
-): Promise<ModifiedResponse<void>> {
-  return request(`https://${domain}.pipedrive.com/api/v1/leads`, {
-    method: 'post',
-    json: lead
-  })
+): Promise<ModifiedResponse> {
+  return client.createUpdate('leads', lead);
 }
