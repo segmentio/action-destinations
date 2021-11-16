@@ -69,7 +69,7 @@ describe(`Testing snapshot for ${destinationSlug}'s ${actionSlug} destination ac
           {id: 42}
         ]
       })
-    nock(basePath).persist().post(/.*/).reply(200)
+    nock(basePath).persist().put(/.*/).reply(200)
 
     const event = createTestEvent({
       properties: eventData

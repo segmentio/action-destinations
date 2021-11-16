@@ -2,6 +2,14 @@
 
 export interface Payload {
   /**
+   * If present, used instead of field in settings to find existing deal in Pipedrive.
+   */
+  deal_match_field?: string
+  /**
+   * Value to find existing deal by
+   */
+  deal_match_value?: string
+  /**
    * If present, used instead of field in settings to find existing person in Pipedrive.
    */
   person_match_field?: string

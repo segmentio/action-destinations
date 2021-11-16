@@ -2,13 +2,30 @@ import type { ActionDefinition } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 import PipedriveClient from '../pipedriveApi/pipedrive-client'
-import { createDeal, Deal } from '../pipedriveApi/deals'
+import { createUpdateDeal, Deal } from '../pipedriveApi/deals'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Create or Update a Deal',
   description: "Update a Deal in Pipedrive or create it if it doesn't exist yet.",
   defaultSubscription: 'type = "track"',
   fields: {
+    deal_match_field: {
+      label: 'Deal match field',
+      description: 'If present, used instead of field in settings to find existing deal in Pipedrive.',
+      type: 'string',
+      required: false,
+      dynamic: true,
+      default: 'id',
+    },
+    deal_match_value: {
+      label: 'Deal match value',
+      description: 'Value to find existing deal by',
+      type: 'string',
+      required: false,
+      default: {
+        '@path': '$.userId'
+      }
+    },
     person_match_field: {
       label: 'Person match field',
       description: 'If present, used instead of field in settings to find existing person in Pipedrive.',
@@ -132,6 +149,10 @@ const action: ActionDefinition<Settings, Payload> = {
   },
 
   dynamicFields: {
+    deal_match_field: async (request, { settings }) => {
+      const client = new PipedriveClient(settings, request);
+      return client.getFields('deal');
+    },
     person_match_field: async (request, { settings }) => {
       const client = new PipedriveClient(settings, request);
       return client.getFields('person');
@@ -149,12 +170,16 @@ const action: ActionDefinition<Settings, Payload> = {
 
     const personSearchField = payload.person_match_field || settings.personField || 'id';
     const organizationSearchField = payload.organization_match_field || settings.organizationField || 'id';
-    const [personId, organizationId] = await Promise.all([
+    const dealSearchField = payload.deal_match_field || settings.dealField || 'id';
+
+    const [personId, organizationId, dealId] = await Promise.all([
       client.getId("person", personSearchField, payload.person_match_value),
       client.getId("organization", organizationSearchField, payload.organization_match_value),
+      client.getId("deal", dealSearchField, payload.deal_match_value),
     ])
 
     const deal: Deal = {
+      id: dealId || undefined,
       title: payload.title,
       value: payload.value,
       currency: payload.currency,
@@ -173,7 +198,7 @@ const action: ActionDefinition<Settings, Payload> = {
       throw new Error("No related organization or person, unable to create deal!");
     }
 
-    return createDeal(request, settings.domain, deal);
+    return createUpdateDeal(client, deal);
   }
 }
 
