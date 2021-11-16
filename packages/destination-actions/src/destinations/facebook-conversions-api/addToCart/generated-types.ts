@@ -102,7 +102,22 @@ export interface Payload {
    * An array of JSON objects that contains the quantity and the International Article Number (EAN) when applicable, or other product or content identifier(s). id and quantity are the required fields.
    */
   contents?: {
-    [k: string]: unknown
+    /**
+     * ID of the purchased item.
+     */
+    id: string
+    /**
+     * The number of items purchased.
+     */
+    quantity: number
+    /**
+     * The price of the item.
+     */
+    item_price?: number
+    /**
+     * Type of delivery for a purchase event. Supported values are "in_store", "curbside", "home_delivery".
+     */
+    delivery_category?: string
   }[]
   /**
    * The currency for the value specified.

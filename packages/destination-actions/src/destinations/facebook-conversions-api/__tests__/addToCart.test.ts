@@ -124,6 +124,62 @@ describe('FacebookConversionsApi', () => {
       expect(responses[0].status).toBe(201)
     })
 
+    it('should throw an error if contents.delivery_category is not supported', async () => {
+      nock(`https://graph.facebook.com/v11.0/${settings.pixelId}`)
+      .post(`/events`)
+      .reply(201, {})
+
+      const event = createTestEvent({
+        event: 'Product Added',
+        userId: 'abc123',
+        timestamp: '1631210030',
+        properties: {
+          email: 'test@test.com',
+          action_source: 'email',
+          currency: 'USD',
+          value: 12.12,
+          id: 'abc123',
+          quantity: 1204,
+          delivery_category: 'drone'
+        }
+      })
+
+      await expect(testDestination.testAction('addToCart', {
+        event,
+        settings,
+        mapping: {
+          currency: {
+            '@path': '$.properties.currency'
+          },
+          value: {
+            '@path': '$.properties.value'
+          },
+          action_source: {
+            '@path': '$.properties.action_source'
+          },
+          event_time: {
+            '@path': '$.timestamp'
+          },
+          contents: [{
+            id: {
+              '@path': '$.properties.id'
+            },
+            quantity: {
+              '@path': '$.properties.quantity'
+            },
+            delivery_category: {
+              '@path': '$.properties.delivery_category'
+            }
+          }],
+          user_data: {
+            email: {
+              '@path': '$.properties.email'
+            }
+          },          
+        }
+      })).rejects.toThrowError("contents[0].delivery_category must be one of {in_store, home_delivery, curbside}.")
+    })
+
     it('should throw an error if no user_data keys are included', async () => {
       nock(`https://graph.facebook.com/v11.0/${settings.pixelId}`)
       .post(`/events`)

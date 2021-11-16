@@ -50,6 +50,19 @@ const action: ActionDefinition<Settings, Payload> = {
       )
     }
     
+    const valid_delivery_categories = ['in_store', 'curbside', 'home_delivery']
+    if (payload.contents) {
+      payload.contents.forEach((obj, index) => {
+        if (obj.delivery_category && !valid_delivery_categories.includes(obj.delivery_category)) {
+          throw new IntegrationError(
+            `contents[${index}].delivery_category must be one of {in_store, home_delivery, curbside}.`,
+            'Misconfigured field',
+            400
+          )
+        }
+      })
+    }
+    
     return request(`https://graph.facebook.com/v${API_VERSION}/${settings.pixelId}/events`, {
       method: 'POST',
       json: {

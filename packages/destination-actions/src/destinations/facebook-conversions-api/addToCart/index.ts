@@ -16,7 +16,20 @@ const action: ActionDefinition<Settings, Payload> = {
     content_ids: { ...content_ids, default: { '@path': '$.properties.product_id' } },
     content_name: content_name,
     content_type: content_type,
-    contents: contents,
+    contents: { 
+      ...contents,
+      default: [{
+        item_price: {
+          '@path': '$.properties.price'
+        },
+        id: {
+          '@path': '$.product_id'
+        },
+        quantity: {
+          '@path': '$.properties.quantity'
+        }
+      }]
+    },
     currency: currency,
     event_id: event_id,
     event_source_url: event_source_url,
@@ -41,6 +54,19 @@ const action: ActionDefinition<Settings, Payload> = {
         'Misconfigured required field',
         400
       )
+    }
+
+    const valid_delivery_categories = ['in_store', 'curbside', 'home_delivery']
+    if (payload.contents) {
+      payload.contents.forEach((obj, index) => {
+        if (obj.delivery_category && !valid_delivery_categories.includes(obj.delivery_category)) {
+          throw new IntegrationError(
+            `contents[${index}].delivery_category must be one of {in_store, home_delivery, curbside}.`,
+            'Misconfigured field',
+            400
+          )
+        }
+      })
     }
 
     return request(`https://graph.facebook.com/v${API_VERSION}/${settings.pixelId}/events`, {

@@ -49,6 +49,28 @@ export const contents: InputField = {
   description: 'An array of JSON objects that contains the quantity and the International Article Number (EAN) when applicable, or other product or content identifier(s). id and quantity are the required fields.',
   type: 'object',
   multiple: true,
+  properties: {
+    id: {
+      label: 'ID',
+      description: 'ID of the purchased item.',
+      type: 'string',
+    },
+    quantity: {
+      label: 'Quantity',
+      description: 'The number of items purchased.',
+      type: 'integer',
+    },
+    item_price: {
+      label: 'Item Price',
+      description: 'The price of the item.',
+      type: 'number'
+    },
+    delivery_category: {
+      label: 'Delivery Category',
+      description: 'Type of delivery for a purchase event. Supported values are "in_store", "curbside", "home_delivery".',
+      type: 'string'
+    }
+  }
 }
 
 export const num_items: InputField = {
