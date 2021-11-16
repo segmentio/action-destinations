@@ -10,7 +10,7 @@ const PIPEDRIVE_DOMAIN = 'companydomain'
 describe('Pipedrive.createUpdateActivity', () => {
   it('should work', async () => {
     const scope = nock(`https://${PIPEDRIVE_DOMAIN}.pipedrive.com/api/v1`)
-      .post('/activities', { subject: 'Some Name' })
+      .post('/activities', { subject: 'Some Name', done: 0 })
       .query({api_token : PIPEDRIVE_API_KEY})
       .reply(200)
 

@@ -5,8 +5,8 @@ import { Activity, createActivity } from '../pipedriveApi/activities'
 import PipedriveClient from '../pipedriveApi/pipedrive-client'
 
 const action: ActionDefinition<Settings, Payload> = {
-  title: 'Create or Update an Activity',
-  description: "Update an Activity in Pipedrive or create it if it doesn't exist yet.",
+  title: 'Create an Activity',
+  description: "Create an Activity in Pipedrive.",
   defaultSubscription: 'type = "track"',
   fields: {
     person_match_field: {
@@ -24,7 +24,7 @@ const action: ActionDefinition<Settings, Payload> = {
       label: 'Person match value',
       description: 'Value to find existing person by',
       type: 'string',
-      required: true,
+      required: false,
       default: {
         '@path': '$.userId'
       }
@@ -45,7 +45,7 @@ const action: ActionDefinition<Settings, Payload> = {
       label: 'Organization match value',
       description: 'Value to find existing organization by',
       type: 'string',
-      required: true,
+      required: false,
       default: {
         '@path': '$.userId'
       }
@@ -63,7 +63,7 @@ const action: ActionDefinition<Settings, Payload> = {
       label: 'Deal match value',
       description: 'Value to find existing deal by',
       type: 'string',
-      required: true,
+      required: false,
       default: {
         '@path': '$.userId'
       }
