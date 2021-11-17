@@ -10,6 +10,7 @@ export interface Lead extends Record<string, unknown> {
   id?: number
   person_id?: number
   organization_id?: number
+  add_time?: string
 }
 
 export async function createUpdateLead(client: PipedriveClient, lead: Lead): Promise<ModifiedResponse> {

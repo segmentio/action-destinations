@@ -94,7 +94,7 @@ const action: ActionDefinition<Settings, Payload> = {
     add_time: {
       label: 'Created At',
       description: 'If the lead is created, use this timestamp as the creation timestamp. Format: YYY-MM-DD HH:MM:SS',
-      type: 'string',
+      type: 'datetime',
       required: false
     }
   },
@@ -127,7 +127,8 @@ const action: ActionDefinition<Settings, Payload> = {
       visible_to: payload.visible_to,
       person_id: personId || undefined,
       organization_id: organizationId || undefined,
-      value: payload.value
+      value: payload.value,
+      add_time: payload.add_time ? `${payload.add_time}` : undefined,
     }
 
     if (!lead.id && !lead.person_id && !lead.organization_id) {

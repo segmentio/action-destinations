@@ -133,7 +133,7 @@ const action: ActionDefinition<Settings, Payload> = {
     add_time: {
       label: 'Created At',
       description: 'If the deal is created, use this timestamp as the creation timestamp. Format: YYY-MM-DD HH:MM:SS',
-      type: 'string',
+      type: 'datetime',
       required: false
     }
   },
@@ -177,7 +177,7 @@ const action: ActionDefinition<Settings, Payload> = {
       probability: payload.probability,
       lost_reason: payload.lost_reason,
       visible_to: payload.visible_to,
-      add_time: payload.add_time,
+      add_time: payload.add_time ? `${payload.add_time}` : undefined,
       person_id: personId || undefined,
       org_id: organizationId || undefined
     }
