@@ -22,6 +22,10 @@ export interface Payload {
    */
   phone?: string[]
   /**
+   * Visibility of the Person. If omitted, visibility will be set to the default visibility setting of this item type for the authorized user.
+   */
+  visible_to?: number
+  /**
    * If the person is created, use this timestamp as the creation timestamp. Format: YYY-MM-DD HH:MM:SS
    */
   add_time?: string

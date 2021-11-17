@@ -6,6 +6,7 @@ export interface Person {
   email?: string[]
   phone?: string[]
   add_time?: string
+  visible_to?: number
 }
 
 export async function createOrUpdatePersonById(

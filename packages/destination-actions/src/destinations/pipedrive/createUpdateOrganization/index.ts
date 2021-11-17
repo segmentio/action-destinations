@@ -32,11 +32,23 @@ const action: ActionDefinition<Settings, Payload> = {
       type: 'string',
       required: false
     },
+    visible_to: {
+      label: 'Visible To',
+      description:
+        'Visibility of the Organization. If omitted, visibility will be set to the default visibility setting of this item type for the authorized user.',
+      type: 'integer',
+      choices: [
+        { label: 'Owner & followers (private)', value: 1 },
+        { label: 'Entire company (shared)', value: 3 }
+      ],
+      required: false
+    },
     add_time: {
       label: 'Created At',
       description:
         'If the organization is created, use this timestamp as the creation timestamp. Format: YYY-MM-DD HH:MM:SS',
-      type: 'string'
+      type: 'string',
+      format: 'date-time'
     }
   },
 
@@ -56,7 +68,8 @@ const action: ActionDefinition<Settings, Payload> = {
 
     const organization: Organization = {
       name: payload.name,
-      add_time: payload.add_time
+      add_time: payload.add_time,
+      visible_to: payload.visible_to
     }
 
     return createOrUpdateOrganizationById(request, settings.domain, organizationId, organization)
