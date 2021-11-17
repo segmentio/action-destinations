@@ -62,6 +62,7 @@ interface Profile {
   traits: Record<string, string>
 }
 
+const DEFAULT_CONNECTION_OVERRIDES  = "rp=all&rc=5"
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Send SMS',
   description: 'Send SMS using Twilio',
@@ -95,6 +96,12 @@ const action: ActionDefinition<Settings, Payload> = {
       label: 'Custom Arguments',
       description: 'Additional custom arguments that will be opaquely sent back on webhook events',
       type: 'object',
+      required: false
+    },
+    connectionOverrides: {
+      label: 'Connection Overrides',
+      description: 'Connection overrides are configuration supported by twilio webhook services. Must be passed as fragments on the callback url',
+      type: 'string',
       required: false
     },
     send: {
@@ -146,9 +153,9 @@ const action: ActionDefinition<Settings, Payload> = {
       for (const key of Object.keys(customArgs)) {
         webhookUrlWithParams.searchParams.append(key, String(customArgs[key]))
       }
-      if (connectionOverrides) {
-        webhookUrlWithParams.hash = connectionOverrides
-      }
+
+      webhookUrlWithParams.hash = connectionOverrides || DEFAULT_CONNECTION_OVERRIDES
+
       body.append('StatusCallback', webhookUrlWithParams.toString())
     }
 
