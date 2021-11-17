@@ -64,6 +64,22 @@ const action: ActionDefinition<Settings, Payload> = {
       type: 'string',
       required: true
     },
+    value: {
+      type: "object",
+      label: "Value",
+      description: "Potential value of the lead",
+      properties: {
+        amount: {
+          label: "Amount",
+          type: "number"
+        },
+        currency: {
+          label: "Currency",
+          description: "Three-letter code of the currency, e.g. USD",
+          type: "string",
+        }
+      }
+    },
     expected_close_date: {
       label: 'Expected Close Date',
       description:
@@ -120,6 +136,7 @@ const action: ActionDefinition<Settings, Payload> = {
       visible_to: payload.visible_to,
       person_id: personId || undefined,
       organization_id: organizationId || undefined,
+      value: payload.value,
     }
 
     if(!lead.id && !lead.person_id && !lead.organization_id){

@@ -25,9 +25,9 @@ const action: ActionDefinition<Settings, Payload> = {
       description: 'Value to find existing organization by',
       type: 'string',
       required: true,
-      // default: {
-      //   '@path': '$.userId'
-      // }
+      default: {
+        '@path': '$.userId'
+      }
     },
     name: {
       label: 'Organization Name',

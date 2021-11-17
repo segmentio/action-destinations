@@ -36,7 +36,13 @@ describe('Pipedrive.createUpdateLead', () => {
 
   it('should update lead', async () => {
     const scope = nock(`https://${PIPEDRIVE_DOMAIN}.pipedrive.com/api/v1`)
-      .put(`/leads/${LEAD_ID}`, { title: 'New Title', organization_id: 520 })
+      .put(`/leads/${LEAD_ID}`, {
+        title: 'New Title',
+        organization_id: 520,
+        value: {
+          currency: "EUR",
+          amount: 3256.41,
+        } })
       .query({api_token : PIPEDRIVE_API_KEY})
       .reply(200)
 
@@ -57,6 +63,10 @@ describe('Pipedrive.createUpdateLead', () => {
         title: 'New Title',
         organization_match_field: "someOrgField",
         organization_match_value: 'Pipedrive OÜ',
+        value: {
+          currency: "EUR",
+          amount: 3256.41
+        },
         lead_id: LEAD_ID,
       },
       settings: { apiToken: PIPEDRIVE_API_KEY, domain: PIPEDRIVE_DOMAIN }
