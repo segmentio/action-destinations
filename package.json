@@ -74,7 +74,6 @@
   },
   "jest": {
     "preset": "ts-jest",
-    "testTimeout": 10000,
     "globals": {
       "ts-jest": {
         "isolatedModules": true
