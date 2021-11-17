@@ -30,7 +30,7 @@ export interface Settings {
    */
   webhookUrl?: string
   /**
-   * Connection overrides are frasgments that will append on webhook url
+   * Connection overrides are configuration supported by twilio webhook services. Must be passed as fragments on the callback url
    */
   connectionOverrides?: string
 }

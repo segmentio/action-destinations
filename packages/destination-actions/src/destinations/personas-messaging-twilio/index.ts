@@ -55,7 +55,7 @@ const destination: DestinationDefinition<Settings> = {
       },
       connectionOverrides: {
         label: 'Connection Overrides',
-        description: 'Connection overrides are fragments that will append on webhook url',
+        description: 'Connection overrides are configuration supported by twilio webhook services. Must be passed as fragments on the callback url',
         type: 'string',
         required: false,
         default: "rp=all&rc=5"
