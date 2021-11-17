@@ -47,8 +47,7 @@ const action: ActionDefinition<Settings, Payload> = {
       label: 'Created At',
       description:
         'If the organization is created, use this timestamp as the creation timestamp. Format: YYY-MM-DD HH:MM:SS',
-      type: 'string',
-      format: 'date-time'
+      type: 'datetime'
     }
   },
 
@@ -68,7 +67,7 @@ const action: ActionDefinition<Settings, Payload> = {
 
     const organization: Organization = {
       name: payload.name,
-      add_time: payload.add_time,
+      add_time: payload.add_time ? `${payload.add_time}` : undefined,
       visible_to: payload.visible_to
     }
 

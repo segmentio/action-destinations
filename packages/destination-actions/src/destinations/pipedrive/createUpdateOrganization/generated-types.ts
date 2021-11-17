@@ -20,5 +20,5 @@ export interface Payload {
   /**
    * If the organization is created, use this timestamp as the creation timestamp. Format: YYY-MM-DD HH:MM:SS
    */
-  add_time?: string
+  add_time?: string | number
 }
