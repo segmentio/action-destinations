@@ -4,6 +4,7 @@ import type { BrowserActionDefinition } from '../../../lib/browser-destinations'
 import type { FriendbuyAPI } from '../types'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
+import { createFriendbuyPayload, filterFriendbuyAttributes } from '../util'
 
 // https://segment.com/docs/connections/spec/ecommerce/v2/#order-completed
 export const trackCustomEventFields: Record<string, InputField> = {
@@ -54,16 +55,17 @@ const action: BrowserActionDefinition<Settings, FriendbuyAPI, Payload> = {
   fields: trackCustomEventFields,
 
   perform: (friendbuyAPI, data) => {
-    friendbuyAPI.push([
-      'track',
-      data.payload.eventName,
-      {
-        ...data.payload.eventProperties,
-        ...(data.payload.deduplicationId && { deduplicationId: data.payload.deduplicationId }),
-        ...(data.payload.customerId && { customerId: data.payload.customerId }),
-        ...(data.payload.anonymousId && { anonymousId: data.payload.anonymousId })
-      }
-    ])
+    const friendbuyPayload = createFriendbuyPayload(
+      [
+        ...filterFriendbuyAttributes(data.payload.eventProperties),
+        ['deduplicationId', data.payload.deduplicationId],
+        ['customer', createFriendbuyPayload([['id', data.payload.customerId]])],
+        // custom properties
+        ['anonymousId', data.payload.anonymousId]
+      ],
+      { dropEmptyObjects: true }
+    )
+    friendbuyAPI.push(['track', data.payload.eventName, friendbuyPayload])
   }
 }
 

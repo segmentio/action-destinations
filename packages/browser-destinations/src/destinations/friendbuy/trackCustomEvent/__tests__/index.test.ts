@@ -82,7 +82,7 @@ describe('Friendbuy.trackCustomEvent', () => {
       expect(window.friendbuyAPI?.push).toHaveBeenNthCalledWith(2, [
         'track',
         'download',
-        { type: 'application', name: 'MyApp', customerId: userId, anonymousId }
+        { type: 'application', name: 'MyApp', anonymousId, customer: { id: userId } }
       ])
     }
   })

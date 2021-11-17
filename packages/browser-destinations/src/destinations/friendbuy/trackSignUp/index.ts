@@ -85,6 +85,8 @@ const action: BrowserActionDefinition<Settings, FriendbuyAPI, Payload> = {
   fields: trackSignUpFields,
 
   perform: (friendbuyAPI, data) => {
+    // The track sign_up call is like track customer in that customer
+    // properties are passed in the root of the event.
     const friendbuyPayload = createFriendbuyPayload([
       ['id', data.payload.customerId],
       ['email', data.payload.email],
