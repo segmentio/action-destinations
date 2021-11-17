@@ -146,7 +146,7 @@ const action: ActionDefinition<Settings, Payload> = {
       for (const key of Object.keys(customArgs)) {
         webhookUrlWithParams.searchParams.append(key, String(customArgs[key]))
       }
-      if(connectionOverrides) {
+      if (connectionOverrides) {
         webhookUrlWithParams.hash = connectionOverrides
       }
       body.append('StatusCallback', webhookUrlWithParams.toString())
