@@ -1,5 +1,5 @@
-import {createTestEvent, createTestIntegration} from '@segment/actions-core'
-import {generateTestData} from '../../../../lib/test-data'
+import { createTestEvent, createTestIntegration } from '@segment/actions-core'
+import { generateTestData } from '../../../../lib/test-data'
 import destination from '../../index'
 import nock from 'nock'
 
@@ -13,28 +13,25 @@ describe(`Testing snapshot for ${destinationSlug}'s ${actionSlug} destination ac
     const action = destination.actions[actionSlug]
     const [eventData, settingsData] = generateTestData(seedName, destination, action, true)
     Object.keys(eventData)
-      .filter(f => !action.fields[f].required)
-      .forEach(f => {
-        delete eventData[f];
+      .filter((f) => !action.fields[f].required)
+      .forEach((f) => {
+        delete eventData[f]
       })
 
-    const basePath = `https://${settingsData.domain}.pipedrive.com`;
+    const basePath = `https://${settingsData.domain}.pipedrive.com`
     nock(basePath)
       .persist()
       .get(/.*/)
-      .query(q => {
-          return q.field_type === 'organizationField' && q.term === '42';
-        }
-      )
+      .query((q) => {
+        return q.field_type === 'organizationField' && q.term === '42'
+      })
       .twice()
       .reply(200, {
-        data: [
-          {id: 42}
-        ]
+        data: [{ id: 42 }]
       })
     nock(basePath).persist().post(/.*/).reply(200)
 
-    eventData['organization_match_value'] = 42;
+    eventData['organization_match_value'] = 42
     const event = createTestEvent({
       properties: eventData
     })
@@ -64,22 +61,19 @@ describe(`Testing snapshot for ${destinationSlug}'s ${actionSlug} destination ac
     const action = destination.actions[actionSlug]
     const [eventData, settingsData] = generateTestData(seedName, destination, action, false)
 
-    const basePath = `https://${settingsData.domain}.pipedrive.com`;
+    const basePath = `https://${settingsData.domain}.pipedrive.com`
     nock(basePath)
       .persist()
       .get(/.*/)
       .twice()
       .reply(200, {
-        data: [
-          {id: 42}
-        ]
+        data: [{ id: 42 }]
       })
     nock(basePath).persist().put(/.*/).reply(200)
 
     const event = createTestEvent({
       properties: eventData
     })
-
 
     const responses = await testDestination.testAction(actionSlug, {
       event: event,

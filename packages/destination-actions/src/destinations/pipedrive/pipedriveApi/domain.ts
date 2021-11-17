@@ -1,5 +1,5 @@
 export interface PipedriveFields {
-  data: PipedriveField[],
+  data: PipedriveField[]
   additional_data: {
     pagination: {
       next_start?: number
@@ -8,15 +8,15 @@ export interface PipedriveFields {
 }
 
 export interface PipedriveField {
-  name: string,
+  name: string
   key: string
 }
 
 export interface ActivityTypes {
-  data: ActivityType[],
+  data: ActivityType[]
 }
 
 export interface ActivityType {
   name: string
-  key_string: string,
+  key_string: string
 }

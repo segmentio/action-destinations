@@ -13,7 +13,7 @@ const action: ActionDefinition<Settings, Payload> = {
       label: 'Activity ID',
       description: 'ID of Activity in Pipedrive to Update. If left empty, a new one will be created',
       type: 'integer',
-      required: false,
+      required: false
     },
     person_match_field: {
       label: 'Person match field',
@@ -21,8 +21,7 @@ const action: ActionDefinition<Settings, Payload> = {
       type: 'string',
       required: false,
       dynamic: true,
-      default: 'id',
-
+      default: 'id'
     },
     person_match_value: {
       label: 'Person match value',
@@ -40,8 +39,7 @@ const action: ActionDefinition<Settings, Payload> = {
       type: 'string',
       required: false,
       dynamic: true,
-      default: 'id',
-
+      default: 'id'
     },
     organization_match_value: {
       label: 'Organization match value',
@@ -59,7 +57,7 @@ const action: ActionDefinition<Settings, Payload> = {
       type: 'string',
       required: false,
       dynamic: true,
-      default: 'id',
+      default: 'id'
     },
     deal_match_value: {
       label: 'Deal match value',
@@ -73,92 +71,87 @@ const action: ActionDefinition<Settings, Payload> = {
 
     subject: {
       label: 'Activity Subject',
-      description: 'Subject of the Activity. When value for subject is not set, it will be given a default value `Call`.',
+      description:
+        'Subject of the Activity. When value for subject is not set, it will be given a default value `Call`.',
       type: 'string',
-      required: false,
+      required: false
     },
     type: {
       label: 'Type',
       description:
         'Type of the Activity. This is in correlation with the key_string parameter of ActivityTypes. When value for type is not set, it will be given a default value `Call`',
       type: 'string',
-      required: false,
+      required: false
     },
     description: {
       label: 'Description',
       description:
         'Additional details about the Activity that is synced to your external calendar. Unlike the note added to the Activity, the description is publicly visible to any guests added to the Activity.',
       type: 'string',
-      required: false,
+      required: false
     },
     note: {
       label: 'Note',
-      description:
-        'Note of the Activity (HTML format)',
+      description: 'Note of the Activity (HTML format)',
       type: 'string',
-      required: false,
+      required: false
     },
     due_date: {
       label: 'Due Date',
-      description:
-        'Due date of the Activity. Format: YYYY-MM-DD',
+      description: 'Due date of the Activity. Format: YYYY-MM-DD',
       type: 'string',
-      required: false,
+      required: false
     },
     due_time: {
       label: 'Due Time',
-      description:
-        'Due time of the Activity in UTC. Format: HH:MM',
+      description: 'Due time of the Activity in UTC. Format: HH:MM',
       type: 'string',
-      required: false,
+      required: false
     },
     duration: {
       label: 'Duration',
-      description:
-        'Duration of the Activity. Format: HH:MM',
+      description: 'Duration of the Activity. Format: HH:MM',
       type: 'string',
-      required: false,
+      required: false
     },
     done: {
       label: 'Done',
-      description:
-        'Whether the Activity is done or not.',
+      description: 'Whether the Activity is done or not.',
       type: 'boolean',
-      required: false,
-    },
+      required: false
+    }
   },
 
   dynamicFields: {
     person_match_field: async (request, { settings }) => {
-      const client = new PipedriveClient(settings, request);
-      return client.getFields('person');
+      const client = new PipedriveClient(settings, request)
+      return client.getFields('person')
     },
     organization_match_field: async (request, { settings }) => {
-      const client = new PipedriveClient(settings, request);
-      return client.getFields('organization');
+      const client = new PipedriveClient(settings, request)
+      return client.getFields('organization')
     },
     deal_match_field: async (request, { settings }) => {
-      const client = new PipedriveClient(settings, request);
-      return client.getFields('deal');
+      const client = new PipedriveClient(settings, request)
+      return client.getFields('deal')
     },
     type: async (request, { settings }) => {
-      const client = new PipedriveClient(settings, request);
-      return client.getActivityTypes();
-    },
+      const client = new PipedriveClient(settings, request)
+      return client.getActivityTypes()
+    }
   },
 
   perform: async (request, { payload, settings }) => {
+    const client = new PipedriveClient(settings, request)
 
-    const client = new PipedriveClient(settings, request);
-
-    const personSearchField = payload.person_match_field || settings.personField || 'id';
-    const organizationSearchField = payload.organization_match_field || settings.organizationField || 'id';
-    const dealSearchField = payload.deal_match_field || settings.dealField || 'id';
+    const personSearchField = payload.person_match_field || settings.personField || 'id'
+    const organizationSearchField = payload.organization_match_field || settings.organizationField || 'id'
+    const dealSearchField = payload.deal_match_field || settings.dealField || 'id'
 
     const [personId, organizationId, dealId] = await Promise.all([
-      client.getId("person", personSearchField, payload.person_match_value),
-      client.getId("organization", organizationSearchField, payload.organization_match_value),
-      client.getId("deal", dealSearchField, payload.deal_match_value),
+      client.getId('person', personSearchField, payload.person_match_value),
+      client.getId('organization', organizationSearchField, payload.organization_match_value),
+      client.getId('deal', dealSearchField, payload.deal_match_value)
     ])
 
     const activity: Activity = {
@@ -173,12 +166,11 @@ const action: ActionDefinition<Settings, Payload> = {
       done: payload.done,
       person_id: personId || undefined,
       org_id: organizationId || undefined,
-      deal_id: dealId || undefined,
+      deal_id: dealId || undefined
     }
 
-    return createUpdateActivity(client, activity);
+    return createUpdateActivity(client, activity)
   }
-
 }
 
 export default action

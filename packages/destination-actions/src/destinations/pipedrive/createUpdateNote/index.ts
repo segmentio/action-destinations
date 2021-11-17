@@ -1,7 +1,7 @@
 import type { ActionDefinition } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
-import { createNote, Note } from '../pipedriveApi/notes';
-import PipedriveClient from '../pipedriveApi/pipedrive-client';
+import { createNote, Note } from '../pipedriveApi/notes'
+import PipedriveClient from '../pipedriveApi/pipedrive-client'
 import type { Payload } from './generated-types'
 
 const action: ActionDefinition<Settings, Payload> = {
@@ -13,13 +13,13 @@ const action: ActionDefinition<Settings, Payload> = {
       label: 'Note ID',
       description: 'ID of Note in Pipedrive to Update. If left empty, a new one will be created',
       type: 'integer',
-      required: false,
+      required: false
     },
     lead_id: {
       label: 'Lead ID',
       description: 'ID of Lead in Pipedrive to link to.  One of Lead, Person, Organization or Deal must be linked!',
       type: 'integer',
-      required: false,
+      required: false
     },
     person_match_field: {
       label: 'Person match field',
@@ -27,8 +27,7 @@ const action: ActionDefinition<Settings, Payload> = {
       type: 'string',
       required: false,
       dynamic: true,
-      default: 'id',
-
+      default: 'id'
     },
     person_match_value: {
       label: 'Person match value',
@@ -46,8 +45,7 @@ const action: ActionDefinition<Settings, Payload> = {
       type: 'string',
       required: false,
       dynamic: true,
-      default: 'id',
-
+      default: 'id'
     },
     organization_match_value: {
       label: 'Organization match value',
@@ -65,8 +63,7 @@ const action: ActionDefinition<Settings, Payload> = {
       type: 'string',
       required: false,
       dynamic: true,
-      default: 'id',
-
+      default: 'id'
     },
     deal_match_value: {
       label: 'Deal match value',
@@ -82,38 +79,36 @@ const action: ActionDefinition<Settings, Payload> = {
       label: 'Note Content',
       description: 'Content of the note in HTML format. Subject to sanitization on the back-end.',
       type: 'string',
-      required: true,
-    },
-
+      required: true
+    }
   },
 
   dynamicFields: {
     person_match_field: async (request, { settings }) => {
-      const client = new PipedriveClient(settings, request);
-      return client.getFields('person');
+      const client = new PipedriveClient(settings, request)
+      return client.getFields('person')
     },
     organization_match_field: async (request, { settings }) => {
-      const client = new PipedriveClient(settings, request);
-      return client.getFields('organization');
+      const client = new PipedriveClient(settings, request)
+      return client.getFields('organization')
     },
     deal_match_field: async (request, { settings }) => {
-      const client = new PipedriveClient(settings, request);
-      return client.getFields('deal');
-    },
+      const client = new PipedriveClient(settings, request)
+      return client.getFields('deal')
+    }
   },
 
   perform: async (request, { payload, settings }) => {
+    const client = new PipedriveClient(settings, request)
 
-    const client = new PipedriveClient(settings, request);
-
-    const personSearchField = payload.person_match_field || settings.personField || 'id';
-    const organizationSearchField = payload.organization_match_field || settings.organizationField || 'id';
-    const dealSearchField = payload.deal_match_field || settings.dealField || 'id';
+    const personSearchField = payload.person_match_field || settings.personField || 'id'
+    const organizationSearchField = payload.organization_match_field || settings.organizationField || 'id'
+    const dealSearchField = payload.deal_match_field || settings.dealField || 'id'
 
     const [personId, organizationId, dealId] = await Promise.all([
-      client.getId("person", personSearchField, payload.person_match_value),
-      client.getId("organization", organizationSearchField, payload.organization_match_value),
-      client.getId("deal", dealSearchField, payload.deal_match_value),
+      client.getId('person', personSearchField, payload.person_match_value),
+      client.getId('organization', organizationSearchField, payload.organization_match_value),
+      client.getId('deal', dealSearchField, payload.deal_match_value)
     ])
 
     const note: Note = {
@@ -122,16 +117,15 @@ const action: ActionDefinition<Settings, Payload> = {
       lead_id: payload.lead_id,
       person_id: personId || undefined,
       org_id: organizationId || undefined,
-      deal_id: dealId || undefined,
+      deal_id: dealId || undefined
     }
 
-    if([note.id, note.lead_id, note.person_id, note.org_id, note.deal_id].every(v => v === undefined)){
-      throw new Error("No related organization or person, unable to create/update note!");
+    if ([note.id, note.lead_id, note.person_id, note.org_id, note.deal_id].every((v) => v === undefined)) {
+      throw new Error('No related organization or person, unable to create/update note!')
     }
 
-    return createNote(client, note);
+    return createNote(client, note)
   }
-
 }
 
 export default action

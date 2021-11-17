@@ -15,8 +15,7 @@ const action: ActionDefinition<Settings, Payload> = {
       type: 'string',
       required: false,
       dynamic: true,
-      default: 'id',
-
+      default: 'id'
     },
     match_value: {
       label: 'Match value',
@@ -38,29 +37,29 @@ const action: ActionDefinition<Settings, Payload> = {
       description:
         'If the organization is created, use this timestamp as the creation timestamp. Format: YYY-MM-DD HH:MM:SS',
       type: 'string'
-    },
+    }
   },
 
   dynamicFields: {
     match_field: async (request, { settings }) => {
-      const client = new PipedriveClient(settings, request);
-      return client.getFields('organization');
-    },
+      const client = new PipedriveClient(settings, request)
+      return client.getFields('organization')
+    }
   },
 
   perform: async (request, { payload, settings }) => {
-    const searchField = payload.match_field || settings.personField || 'id';
+    const searchField = payload.match_field || settings.personField || 'id'
 
-    const client = new PipedriveClient(settings, request);
+    const client = new PipedriveClient(settings, request)
 
-    const organizationId = await client.getId('organization', searchField, payload.match_value);
+    const organizationId = await client.getId('organization', searchField, payload.match_value)
 
     const organization: Organization = {
       name: payload.name,
-      add_time: payload.add_time,
+      add_time: payload.add_time
     }
 
-    return createOrUpdateOrganizationById(request, settings.domain, organizationId, organization);
+    return createOrUpdateOrganizationById(request, settings.domain, organizationId, organization)
   }
 }
 

@@ -15,7 +15,7 @@ const action: ActionDefinition<Settings, Payload> = {
       type: 'string',
       required: false,
       dynamic: true,
-      default: 'id',
+      default: 'id'
     },
     deal_match_value: {
       label: 'Deal match value',
@@ -32,8 +32,7 @@ const action: ActionDefinition<Settings, Payload> = {
       type: 'string',
       required: false,
       dynamic: true,
-      default: 'id',
-
+      default: 'id'
     },
     person_match_value: {
       label: 'Person match value',
@@ -51,8 +50,7 @@ const action: ActionDefinition<Settings, Payload> = {
       type: 'string',
       required: false,
       dynamic: true,
-      default: 'id',
-
+      default: 'id'
     },
     organization_match_value: {
       label: 'Organization match value',
@@ -66,8 +64,7 @@ const action: ActionDefinition<Settings, Payload> = {
 
     title: {
       label: 'Title',
-      description:
-        'Deal title  (required for new Leads)',
+      description: 'Deal title  (required for new Leads)',
       type: 'string',
       required: true
     },
@@ -93,37 +90,34 @@ const action: ActionDefinition<Settings, Payload> = {
     },
     status: {
       label: 'Status',
-      description:
-        'Deal status - open, won, lost or deleted. If omitted, status will be set to open.',
+      description: 'Deal status - open, won, lost or deleted. If omitted, status will be set to open.',
       type: 'string',
       choices: [
         { label: 'Open', value: 'open' },
         { label: 'Won', value: 'won' },
         { label: 'Lost', value: 'lost' },
-        { label: 'Deleted', value: 'deleted' },
+        { label: 'Deleted', value: 'deleted' }
       ],
-      required: false,
+      required: false
     },
     expected_close_date: {
       label: 'Expected Close Date',
-      description:
-        'The expected close date of the Deal. In ISO 8601 format: YYYY-MM-DD.',
+      description: 'The expected close date of the Deal. In ISO 8601 format: YYYY-MM-DD.',
       type: 'string',
-      required: false,
+      required: false
     },
     probability: {
       label: 'Success Probability',
       description:
         'Deal success probability percentage. Used/shown only when deal_probability for the pipeline of the deal is enabled.',
       type: 'number',
-      required: false,
+      required: false
     },
     lost_reason: {
       label: 'Lost Reason',
-      description:
-        'Optional message about why the deal was lost (to be used when status=lost)',
+      description: 'Optional message about why the deal was lost (to be used when status=lost)',
       type: 'string',
-      required: false,
+      required: false
     },
     visible_to: {
       label: 'Visible To',
@@ -132,46 +126,44 @@ const action: ActionDefinition<Settings, Payload> = {
       type: 'integer',
       choices: [
         { label: 'Owner & followers (private)', value: 1 },
-        { label: 'Entire company (shared)', value: 3 },
+        { label: 'Entire company (shared)', value: 3 }
       ],
-      required: false,
+      required: false
     },
     add_time: {
       label: 'Created At',
       description: 'If the deal is created, use this timestamp as the creation timestamp. Format: YYY-MM-DD HH:MM:SS',
       type: 'string',
-      required: false,
+      required: false
     }
   },
 
   dynamicFields: {
     deal_match_field: async (request, { settings }) => {
-      const client = new PipedriveClient(settings, request);
-      return client.getFields('deal');
+      const client = new PipedriveClient(settings, request)
+      return client.getFields('deal')
     },
     person_match_field: async (request, { settings }) => {
-      const client = new PipedriveClient(settings, request);
-      return client.getFields('person');
+      const client = new PipedriveClient(settings, request)
+      return client.getFields('person')
     },
     organization_match_field: async (request, { settings }) => {
-      const client = new PipedriveClient(settings, request);
-      return client.getFields('organization');
-    },
+      const client = new PipedriveClient(settings, request)
+      return client.getFields('organization')
+    }
   },
 
-
   perform: async (request, { payload, settings }) => {
+    const client = new PipedriveClient(settings, request)
 
-    const client = new PipedriveClient(settings, request);
-
-    const personSearchField = payload.person_match_field || settings.personField || 'id';
-    const organizationSearchField = payload.organization_match_field || settings.organizationField || 'id';
-    const dealSearchField = payload.deal_match_field || settings.dealField || 'id';
+    const personSearchField = payload.person_match_field || settings.personField || 'id'
+    const organizationSearchField = payload.organization_match_field || settings.organizationField || 'id'
+    const dealSearchField = payload.deal_match_field || settings.dealField || 'id'
 
     const [personId, organizationId, dealId] = await Promise.all([
-      client.getId("person", personSearchField, payload.person_match_value),
-      client.getId("organization", organizationSearchField, payload.organization_match_value),
-      client.getId("deal", dealSearchField, payload.deal_match_value),
+      client.getId('person', personSearchField, payload.person_match_value),
+      client.getId('organization', organizationSearchField, payload.organization_match_value),
+      client.getId('deal', dealSearchField, payload.deal_match_value)
     ])
 
     const deal: Deal = {
@@ -187,14 +179,14 @@ const action: ActionDefinition<Settings, Payload> = {
       visible_to: payload.visible_to,
       add_time: payload.add_time,
       person_id: personId || undefined,
-      org_id: organizationId || undefined,
+      org_id: organizationId || undefined
     }
 
-    if(!deal.id && !deal.person_id && !deal.org_id){
-      throw new Error("No related organization or person, unable to create deal!");
+    if (!deal.id && !deal.person_id && !deal.org_id) {
+      throw new Error('No related organization or person, unable to create deal!')
     }
 
-    return createUpdateDeal(client, deal);
+    return createUpdateDeal(client, deal)
   }
 }
 

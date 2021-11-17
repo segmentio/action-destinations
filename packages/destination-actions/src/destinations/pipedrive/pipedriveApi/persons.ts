@@ -1,5 +1,5 @@
-import { ModifiedResponse } from "@segment/actions-core"
-import type { RequestClient } from "@segment/actions-core"
+import { ModifiedResponse } from '@segment/actions-core'
+import type { RequestClient } from '@segment/actions-core'
 
 export interface Person {
   name?: string
@@ -12,7 +12,7 @@ export async function createOrUpdatePersonById(
   request: RequestClient,
   domain: string,
   personId: number | null,
-  person: Person,
+  person: Person
 ): Promise<ModifiedResponse<void>> {
   if (personId) {
     // Update a person

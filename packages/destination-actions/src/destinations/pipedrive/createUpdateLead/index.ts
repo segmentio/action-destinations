@@ -13,7 +13,7 @@ const action: ActionDefinition<Settings, Payload> = {
       label: 'Lead ID',
       description: 'ID of Lead in Pipedrive to Update. If left empty, a new one will be created',
       type: 'integer',
-      required: false,
+      required: false
     },
     person_match_field: {
       label: 'Person match field',
@@ -21,8 +21,7 @@ const action: ActionDefinition<Settings, Payload> = {
       type: 'string',
       required: false,
       dynamic: true,
-      default: 'id',
-
+      default: 'id'
     },
     person_match_value: {
       label: 'Person match value',
@@ -40,8 +39,7 @@ const action: ActionDefinition<Settings, Payload> = {
       type: 'string',
       required: false,
       dynamic: true,
-      default: 'id',
-
+      default: 'id'
     },
     organization_match_value: {
       label: 'Organization match value',
@@ -55,24 +53,23 @@ const action: ActionDefinition<Settings, Payload> = {
 
     title: {
       label: 'Title',
-      description:
-        'The name of the Lead',
+      description: 'The name of the Lead',
       type: 'string',
       required: true
     },
     value: {
-      type: "object",
-      label: "Value",
-      description: "Potential value of the lead",
+      type: 'object',
+      label: 'Value',
+      description: 'Potential value of the lead',
       properties: {
         amount: {
-          label: "Amount",
-          type: "number"
+          label: 'Amount',
+          type: 'number'
         },
         currency: {
-          label: "Currency",
-          description: "Three-letter code of the currency, e.g. USD",
-          type: "string",
+          label: 'Currency',
+          description: 'Three-letter code of the currency, e.g. USD',
+          type: 'string'
         }
       }
     },
@@ -81,7 +78,7 @@ const action: ActionDefinition<Settings, Payload> = {
       description:
         'The date of when the Deal which will be created from the Lead is expected to be closed. In ISO 8601 format: YYYY-MM-DD.',
       type: 'string',
-      required: false,
+      required: false
     },
     visible_to: {
       label: 'Visible To',
@@ -90,39 +87,37 @@ const action: ActionDefinition<Settings, Payload> = {
       type: 'integer',
       choices: [
         { label: 'Owner & followers (private)', value: 1 },
-        { label: 'Entire company (shared)', value: 3 },
+        { label: 'Entire company (shared)', value: 3 }
       ],
-      required: false,
+      required: false
     },
     add_time: {
       label: 'Created At',
       description: 'If the lead is created, use this timestamp as the creation timestamp. Format: YYY-MM-DD HH:MM:SS',
       type: 'string',
-      required: false,
+      required: false
     }
   },
 
-
   dynamicFields: {
     person_match_field: async (request, { settings }) => {
-      const client = new PipedriveClient(settings, request);
-      return client.getFields('person');
+      const client = new PipedriveClient(settings, request)
+      return client.getFields('person')
     },
     organization_match_field: async (request, { settings }) => {
-      const client = new PipedriveClient(settings, request);
-      return client.getFields('organization');
-    },
+      const client = new PipedriveClient(settings, request)
+      return client.getFields('organization')
+    }
   },
 
   perform: async (request, { payload, settings }) => {
+    const client = new PipedriveClient(settings, request)
 
-    const client = new PipedriveClient(settings, request);
-
-    const personSearchField = payload.person_match_field || settings.personField || 'id';
-    const organizationSearchField = payload.organization_match_field || settings.organizationField || 'id';
+    const personSearchField = payload.person_match_field || settings.personField || 'id'
+    const organizationSearchField = payload.organization_match_field || settings.organizationField || 'id'
     const [personId, organizationId] = await Promise.all([
-      client.getId("person", personSearchField, payload.person_match_value),
-      client.getId("organization", organizationSearchField, payload.organization_match_value),
+      client.getId('person', personSearchField, payload.person_match_value),
+      client.getId('organization', organizationSearchField, payload.organization_match_value)
     ])
 
     const lead: Lead = {
@@ -132,14 +127,14 @@ const action: ActionDefinition<Settings, Payload> = {
       visible_to: payload.visible_to,
       person_id: personId || undefined,
       organization_id: organizationId || undefined,
-      value: payload.value,
+      value: payload.value
     }
 
-    if(!lead.id && !lead.person_id && !lead.organization_id){
-      throw new Error("No related organization or person, unable to create lead!");
+    if (!lead.id && !lead.person_id && !lead.organization_id) {
+      throw new Error('No related organization or person, unable to create lead!')
     }
 
-    return createUpdateLead(client, lead);
+    return createUpdateLead(client, lead)
   }
 }
 
