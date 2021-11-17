@@ -60,7 +60,7 @@ const action: ActionDefinition<Settings, Payload> = {
     add_time: {
       label: 'Created At',
       description: 'If the person is created, use this timestamp as the creation timestamp. Format: YYY-MM-DD HH:MM:SS',
-      type: 'string'
+      type: 'datetime'
     }
   },
 
@@ -82,7 +82,7 @@ const action: ActionDefinition<Settings, Payload> = {
       name: payload.name,
       email: payload.email,
       phone: payload.phone,
-      add_time: payload.add_time,
+      add_time: payload.add_time ? `${payload.add_time}` : undefined,
       visible_to: payload.visible_to
     }
 
