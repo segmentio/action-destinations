@@ -27,9 +27,7 @@ const action: ActionDefinition<Settings, Payload> = {
       type: 'string',
       required: false,
       dynamic: true,
-      default: {
-        '@literal': 'id'
-      },
+      default: 'id',
 
     },
     person_match_value: {
@@ -48,9 +46,7 @@ const action: ActionDefinition<Settings, Payload> = {
       type: 'string',
       required: false,
       dynamic: true,
-      default: {
-        '@literal': 'id'
-      },
+      default: 'id',
 
     },
     organization_match_value: {
@@ -69,9 +65,7 @@ const action: ActionDefinition<Settings, Payload> = {
       type: 'string',
       required: false,
       dynamic: true,
-      default: {
-        '@literal': 'id'
-      },
+      default: 'id',
 
     },
     deal_match_value: {

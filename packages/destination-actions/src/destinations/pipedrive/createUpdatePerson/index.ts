@@ -15,9 +15,7 @@ const action: ActionDefinition<Settings, Payload> = {
       type: 'string',
       required: false,
       dynamic: true,
-      default: {
-        '@literal': 'id'
-      },
+      default: 'id',
 
     },
     match_value: {
