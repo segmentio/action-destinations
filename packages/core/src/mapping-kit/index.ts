@@ -74,11 +74,7 @@ registerDirective('@arrayPath', (data, payload) => {
   }
 
   const [path, itemShape] = data as [string, undefined | JSONObject]
-  if (typeof path !== 'string') {
-    throw new Error(`@arrayPath expected args[0] to be string, got ${realTypeOf(path)}`)
-  }
-
-  const root = get(payload, path.replace('$.', '')) as JSONLike
+  const root = typeof path === 'string' ? (get(payload, path.replace('$.', '')) as JSONLike) : resolve(path, payload)
 
   // If a shape has been provided, resolve each item in the array with this shape
   if (isArray(root) && realTypeOf(itemShape) === 'object' && Object.keys(itemShape as JSONObject).length > 0) {
