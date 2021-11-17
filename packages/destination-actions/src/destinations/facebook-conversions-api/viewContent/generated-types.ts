@@ -117,11 +117,11 @@ export interface Payload {
     /**
      * ID of the purchased item.
      */
-    id: string
+    id?: string
     /**
      * The number of items purchased.
      */
-    quantity: number
+    quantity?: number
     /**
      * The price of the item.
      */

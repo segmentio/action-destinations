@@ -24,17 +24,19 @@ const action: ActionDefinition<Settings, Payload> = {
     content_type: content_type,
     contents: {
       ...contents,
-      default: [{ 
-        id: {
-          '@path': '$.properties.products..product_id'
-        },
-        quantity: {
-          '@path': '$.properties.products..quantity'
-        },
-        item_price: {
-          '@path': '$.properties.products..price'
-        }
-      }]
+      default: {
+        '@arrayPath': ["$.properties.products", {
+          id: {
+            '@path': '$.product_id'
+          },
+          quantity: {
+            '@path': '$.quantity'
+          },
+          item_price: {
+            '@path': '$.price'
+          }
+        }]
+      }
     },
     event_id: event_id,
     event_source_url: event_source_url,
@@ -64,6 +66,14 @@ const action: ActionDefinition<Settings, Payload> = {
     const valid_delivery_categories = ['in_store', 'curbside', 'home_delivery']
     if (payload.contents) {
       payload.contents.forEach((obj, index) => {
+        if (!obj.id) {
+          throw new IntegrationError(
+            "Contents objects must include an 'id' parameter.",
+            'Misconfigured required field',
+            400
+          )
+        }
+        
         if (obj.delivery_category && !valid_delivery_categories.includes(obj.delivery_category)) {
           throw new IntegrationError(
             `contents[${index}].delivery_category must be one of {in_store, home_delivery, curbside}.`,
