@@ -1,3 +1,9 @@
 type method = 'trackEvent' | 'boot'
 
-export type Intercom = (method: method, ...args: unknown[]) => void
+type IntercomApi = {
+  booted: boolean
+}
+
+type IntercomFunction = (method: method, ...args: unknown[]) => void
+
+export type Intercom = IntercomFunction & IntercomApi

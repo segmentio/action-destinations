@@ -27,8 +27,8 @@ const action: BrowserActionDefinition<Settings, Intercom, Payload> = {
       }
     }
   },
-  perform: (_, event) => {
-    window.Intercom('trackEvent', event.payload.eventName, event.payload.eventProperties)
+  perform: (Intercom, event) => {
+    Intercom('trackEvent', event.payload.eventName, event.payload.eventProperties)
   }
 }
 
