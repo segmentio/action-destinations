@@ -1,0 +1,76 @@
+version: 1.0
+
+organization:
+  name: Slack # TODO How does one enforce uniqueness? slugify, scope to workspace, assign random chars?
+  # eg; this becomes slack-23jnskd and that becomes the prefix in S3?
+  website: https://slack.com
+  description: |
+    Slack is a messaging app for business that connects people to the information they need.
+    By bringing people together to work as one unified team, Slack transforms the way
+    organizations communicate.
+
+# Multiple destinations may exist per org.
+destinations:
+    # A webhook destination just streams a firehose of data to Slack. This may be used for orgs
+    # that require behavior that doesn't quite fit into actions.
+  - type: webhook
+    mode: cloud
+    metadata:
+      name: Slack Webhooks
+    webhook:
+      url: https://segment-webhook.slack.com
+      method: POST
+
+  - type: actions # plural?
+    mode: cloud # Move this as a second-level thing? 'destinations > cloud' so destinations are
+    # broken up by platform? seems logical.. 
+    metadata:
+      name: Slack
+    actions:
+      postToChannel:
+        perform:
+          function: ./src/postToChannel.ts
+          # http:
+          #   url: {{fields.url}}
+          #   method: POST
+          #   json: |
+          #     {
+          #       channel: {{fields.channel}},
+          #       text: {{fields.text}},
+          #       username: {{fields.username}},
+          #       icon_url: {{fields.icon_url}}
+          #     }
+
+        fields:
+          url:
+            label: Webhook URL
+            description: Slack webhook URL.
+            type: string
+            required: true
+            format: uri
+          text:
+            label: Message
+            required: true
+            description: |
+              The text message to post to Slack. You can use [Slack's formatting syntax.](https://api.slack.com/reference/surfaces/formatting)
+            type: text
+          channel:
+            label: Channel
+            description: Slack channel to post message to.
+            type: string
+          username:
+            label: User
+            description: User name to post messages as.
+            type: string
+            default: Segment
+          icon_url:
+            label: Icon URL
+            description: URL for user icon image.
+            type: string
+            default: https://logo.clearbit.com/segment.com
+
+
+  # A third type of destination could be introduced.
+  - type: function
+    metadata:
+      name: Slack 
