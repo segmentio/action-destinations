@@ -12,7 +12,7 @@ import createUpdateLead from './createUpdateLead'
 import createUpdateNote from './createUpdateNote'
 
 const destination: DestinationDefinition<Settings> = {
-  name: 'Pipedrive',
+  name: 'Actions Pipedrive',
   mode: 'cloud',
   authentication: {
     scheme: 'custom',
