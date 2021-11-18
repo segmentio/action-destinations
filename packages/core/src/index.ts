@@ -48,4 +48,4 @@ export type { JSONPrimitive, JSONValue, JSONObject, JSONArray, JSONLike, JSONLik
 
 export type { SegmentEvent } from './segment-event'
 
-export type { RequestClient } from "./create-request-client"
+export type { RequestClient } from './create-request-client'

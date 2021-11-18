@@ -128,7 +128,7 @@ const action: ActionDefinition<Settings, Payload> = {
       person_id: personId || undefined,
       organization_id: organizationId || undefined,
       value: payload.value,
-      add_time: payload.add_time ? `${payload.add_time}` : undefined,
+      add_time: payload.add_time ? `${payload.add_time}` : undefined
     }
 
     if (!lead.id && !lead.person_id && !lead.organization_id) {
