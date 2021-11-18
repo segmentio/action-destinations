@@ -3,6 +3,7 @@ import * as path from 'path'
 import webpack from 'webpack'
 import { loadDestination } from '../lib/destinations'
 import ora from 'ora'
+import { comprehensionExpression } from 'jscodeshift'
 
 // TODO app:dev that in injects builtins
 // and their default implementations.
@@ -39,6 +40,8 @@ export default class Build extends Command {
         // console.log(`${Object.keys(entries).length} functions to be built: ${Object.keys(entries).join(',')}`)
 
         const distDir = path.resolve(dir, '.segment', 'dist')
+        const tsconfig = path.resolve('@segment/action-destinations', 'tsconfig.json')
+        console.log(tsconfig)
 
         // Build the webpack config. Assumes a tsconfig.json exists if typescript is used.
         // TODO Support and ejectable webpack config and/or accept optional webpack config options
@@ -63,7 +66,7 @@ export default class Build extends Command {
                         use: [{
                             loader: 'ts-loader',
                             options: {
-                                configFile: 'tsconfig.json'
+                                configFile: tsconfig
                             }
                         }],
                         exclude: /node_modules/
