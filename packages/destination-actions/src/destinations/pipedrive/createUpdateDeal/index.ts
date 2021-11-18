@@ -4,6 +4,8 @@ import type { Payload } from './generated-types'
 import PipedriveClient from '../pipedriveApi/pipedrive-client'
 import { createUpdateDeal, Deal } from '../pipedriveApi/deals'
 
+const fieldHandler = PipedriveClient.fieldHandler
+
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Create or Update a Deal',
   description: "Update a Deal in Pipedrive or create it if it doesn't exist yet.",
@@ -139,18 +141,9 @@ const action: ActionDefinition<Settings, Payload> = {
   },
 
   dynamicFields: {
-    deal_match_field: async (request, { settings }) => {
-      const client = new PipedriveClient(settings, request)
-      return client.getFields('deal')
-    },
-    person_match_field: async (request, { settings }) => {
-      const client = new PipedriveClient(settings, request)
-      return client.getFields('person')
-    },
-    organization_match_field: async (request, { settings }) => {
-      const client = new PipedriveClient(settings, request)
-      return client.getFields('organization')
-    }
+    person_match_field: fieldHandler('person'),
+    organization_match_field: fieldHandler('organization'),
+    deal_match_field: fieldHandler('deal')
   },
 
   perform: async (request, { payload, settings }) => {

@@ -1,5 +1,5 @@
 import { Settings } from '../generated-types'
-import type { ModifiedResponse, RequestClient } from '@segment/actions-core'
+import type { ExecuteInput, ModifiedResponse, RequestClient } from '@segment/actions-core'
 import get from 'lodash/get'
 import { ActivityTypes, PipedriveFields } from './domain'
 import { DynamicFieldResponse } from '@segment/actions-core'
@@ -146,6 +146,13 @@ class PipedriveClient {
 
   static filterPayload(payload: Record<string, unknown>) {
     Object.keys(payload).forEach((key) => payload[key] === undefined && delete payload[key])
+  }
+
+  static fieldHandler(fieldType: keyof PipedriveFieldTypes) {
+    return async (request: RequestClient, { settings }: ExecuteInput<Settings, unknown>) => {
+      const client = new PipedriveClient(settings, request)
+      return client.getFields(fieldType)
+    }
   }
 }
 

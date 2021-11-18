@@ -4,6 +4,8 @@ import type { Payload } from './generated-types'
 import PipedriveClient from '../pipedriveApi/pipedrive-client'
 import { createOrUpdateOrganizationById, Organization } from '../pipedriveApi/organizations'
 
+const fieldHandler = PipedriveClient.fieldHandler
+
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Create or Update Organization',
   description: "Update an organization in Pipedrive or create it if it doesn't exist yet.",
@@ -52,10 +54,7 @@ const action: ActionDefinition<Settings, Payload> = {
   },
 
   dynamicFields: {
-    match_field: async (request, { settings }) => {
-      const client = new PipedriveClient(settings, request)
-      return client.getFields('organization')
-    }
+    match_field: fieldHandler('organization')
   },
 
   perform: async (request, { payload, settings }) => {
