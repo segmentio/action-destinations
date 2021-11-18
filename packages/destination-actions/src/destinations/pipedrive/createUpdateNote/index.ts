@@ -3,6 +3,7 @@ import type { Settings } from '../generated-types'
 import { createNote, Note } from '../pipedriveApi/notes'
 import PipedriveClient from '../pipedriveApi/pipedrive-client'
 import type { Payload } from './generated-types'
+import { IntegrationError } from '@segment/actions-core'
 
 const fieldHandler = PipedriveClient.fieldHandler
 
@@ -114,7 +115,11 @@ const action: ActionDefinition<Settings, Payload> = {
     }
 
     if ([note.id, note.lead_id, note.person_id, note.org_id, note.deal_id].every((v) => v === undefined)) {
-      throw new Error('No related organization or person, unable to create/update note!')
+      throw new IntegrationError(
+        'No related organization or person, unable to create/update note!',
+        'INVALID_REQUEST_DATA',
+        400
+      )
     }
 
     return createNote(client, note)

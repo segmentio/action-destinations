@@ -3,6 +3,7 @@ import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 import PipedriveClient from '../pipedriveApi/pipedrive-client'
 import { createUpdateDeal, Deal } from '../pipedriveApi/deals'
+import { IntegrationError } from '@segment/actions-core'
 
 const fieldHandler = PipedriveClient.fieldHandler
 
@@ -176,7 +177,11 @@ const action: ActionDefinition<Settings, Payload> = {
     }
 
     if (!deal.id && !deal.person_id && !deal.org_id) {
-      throw new Error('No related organization or person, unable to create deal!')
+      throw new IntegrationError(
+        'No related organization or person, unable to create deal!',
+        'INVALID_REQUEST_DATA',
+        400
+      )
     }
 
     return createUpdateDeal(client, deal)

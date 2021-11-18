@@ -3,6 +3,7 @@ import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 import PipedriveClient from '../pipedriveApi/pipedrive-client'
 import { createUpdateLead, Lead } from '../pipedriveApi/leads'
+import { IntegrationError } from '@segment/actions-core'
 
 const fieldHandler = PipedriveClient.fieldHandler
 
@@ -128,7 +129,11 @@ const action: ActionDefinition<Settings, Payload> = {
     }
 
     if (!lead.id && !lead.person_id && !lead.organization_id) {
-      throw new Error('No related organization or person, unable to create lead!')
+      throw new IntegrationError(
+        'No related organization or person, unable to create lead!',
+        'INVALID_REQUEST_DATA',
+        400
+      )
     }
 
     return createUpdateLead(client, lead)
