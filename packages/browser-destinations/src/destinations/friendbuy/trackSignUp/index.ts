@@ -79,7 +79,7 @@ export const trackSignUpFields: Record<string, InputField> = {
 
 const action: BrowserActionDefinition<Settings, FriendbuyAPI, Payload> = {
   title: 'Track Sign Up',
-  description: 'Record when a user signs up for an account.',
+  description: 'Record when a customer signs up for a service.',
   defaultSubscription: trackSignUpDefaultSubscription,
   platform: 'web',
   fields: trackSignUpFields,

@@ -49,7 +49,7 @@ export const trackCustomEventFields: Record<string, InputField> = {
 
 const action: BrowserActionDefinition<Settings, FriendbuyAPI, Payload> = {
   title: 'Track Custom Event',
-  description: 'Record a custom event in Friendbuy.',
+  description: 'Record when a customer completes any custom event.',
   // trackCustomEvent has no default subscription.
   platform: 'web',
   fields: trackCustomEventFields,

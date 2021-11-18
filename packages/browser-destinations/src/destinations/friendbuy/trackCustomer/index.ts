@@ -96,7 +96,7 @@ export const trackCustomerFields: Record<string, InputField> = {
 
 const action: BrowserActionDefinition<Settings, FriendbuyAPI, Payload> = {
   title: 'Track Customer',
-  description: 'Create a customer in Friendbuy or update it if it exists.',
+  description: 'Create a new customer profile or update an existing customer profile.',
   defaultSubscription: trackCustomerDefaultSubscription,
   platform: 'web',
   fields: trackCustomerFields,

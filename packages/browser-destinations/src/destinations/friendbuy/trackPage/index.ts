@@ -18,7 +18,7 @@ export const trackPageFields: Record<string, InputField> = {
     default: { '@path': '$.name' }
   },
   category: {
-    label: 'Page Name',
+    label: 'Page Category',
     description: 'The page category.',
     type: 'string',
     required: false,
@@ -35,7 +35,7 @@ export const trackPageFields: Record<string, InputField> = {
 
 const action: BrowserActionDefinition<Settings, FriendbuyAPI, Payload> = {
   title: 'Track Page',
-  description: 'Record when a user visits a new page. Allows Friendbuy widget targeting by page name instead of URL.',
+  description: 'Record when a customer visits a new page. Allow Friendbuy widget targeting by Page Name instead of URL.',
   defaultSubscription: trackPageDefaultSubscription,
   platform: 'web',
   fields: trackPageFields,

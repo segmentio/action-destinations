@@ -104,7 +104,7 @@ export const trackPurchaseFields: Record<string, InputField> = {
 
 const action: BrowserActionDefinition<Settings, FriendbuyAPI, Payload> = {
   title: 'Track Purchase',
-  description: 'Record a purchase in Friendbuy.',
+  description: 'Record when a customer makes a purchase.',
   defaultSubscription: trackPurchaseDefaultSubscription,
   platform: 'web',
   fields: trackPurchaseFields,
