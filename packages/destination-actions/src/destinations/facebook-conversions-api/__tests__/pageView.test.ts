@@ -84,7 +84,7 @@ describe('FacebookConversionsApi', () => {
         }
       })
       
-      const responses = await testDestination.testAction('addToCart', {
+      const responses = await testDestination.testAction('pageView', {
         event,
         settings,
         useDefaultMappings: true,
@@ -109,7 +109,7 @@ describe('FacebookConversionsApi', () => {
         }
       })
   
-      await expect(testDestination.testAction('addToCart', {
+      await expect(testDestination.testAction('pageView', {
         event,
         settings,
         mapping: {

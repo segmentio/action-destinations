@@ -17,19 +17,17 @@ const action: ActionDefinition<Settings, Payload> = {
     content_ids: content_ids,
     contents: {
       ...contents,
-      default: {
-        '@arrayPath': ['$.properties', {
-          id: { 
-            '@path': '$.product_id'
-          },
-          quantity: {
-            '@path': '$.quantity'
-          },
-          item_price: {
-            '@path': '$.price'
-          }
-        }]
-      }
+      default: [{ // Segment Products Searched is a single product event
+        id: { 
+          '@path': '$.properties.product_id'
+        },
+        quantity: {
+          '@path': '$.properties.quantity'
+        },
+        item_price: {
+          '@path': '$.properties.price'
+        }
+      }]
     },
     currency: currency,
     event_id: event_id,

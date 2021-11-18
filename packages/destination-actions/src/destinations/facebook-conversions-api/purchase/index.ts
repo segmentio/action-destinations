@@ -22,7 +22,7 @@ const action: ActionDefinition<Settings, Payload> = {
     content_ids: content_ids,
     content_name: content_name,
     content_type: content_type,
-    contents: {
+    contents: { // Segment Checkout Started has an array of products mapping
       ...contents,
       default: {
         '@arrayPath': ["$.properties.products", {

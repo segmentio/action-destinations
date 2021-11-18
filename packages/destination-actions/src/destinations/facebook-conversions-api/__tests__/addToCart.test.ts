@@ -109,7 +109,9 @@ describe('FacebookConversionsApi', () => {
           action_source: 'email',
           timestamp: '1631210020',
           currency: 'USD',
-          revenue: 12.12,
+          product_id: 'abc12345',
+          quantity: 1,
+          price: 100
         }
       })
       
@@ -173,7 +175,7 @@ describe('FacebookConversionsApi', () => {
             }
           },          
         }
-      })).rejects.toThrowError("contents[0].delivery_category must be one of {in_store, home_delivery, curbside}.")
+      })).rejects.toThrowError("Contents objects must include an 'id' parameter.")
     })
 
     it('should throw an error if contents.delivery_category is not supported', async () => {
@@ -192,7 +194,7 @@ describe('FacebookConversionsApi', () => {
           value: 12.12,
           id: 'abc123',
           quantity: 1204,
-          delivery_category: 'drone'
+          delivery_category: 'submarine'
         }
       })
 

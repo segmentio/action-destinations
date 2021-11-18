@@ -13,24 +13,22 @@ const action: ActionDefinition<Settings, Payload> = {
     action_source: { ...action_source, required: true },
     event_time: { ...event_time, required: true },
     user_data: user_data_field,
-    content_ids: { ...content_ids, default: { '@path': '$.properties.product_id' } },
+    content_ids: content_ids,
     content_name: content_name,
     content_type: content_type,
     contents: { 
       ...contents,
-      default: {
-        '@arrayPath': ['$.properties', {
-          id: { 
-            '@path': '$.product_id'
-          },
-          quantity: {
-            '@path': '$.quantity'
-          },
-          item_price: {
-            '@path': '$.price'
-          }
-        }]
-      }
+      default: [{ // Segment Product Added is a single product event
+        id: { 
+          '@path': '$.properties.product_id'
+        },
+        quantity: {
+          '@path': '$.properties.quantity'
+        },
+        item_price: {
+          '@path': '$.properties.price'
+        }
+      }]
     },
     currency: currency,
     event_id: event_id,

@@ -15,7 +15,7 @@ const action: ActionDefinition<Settings, Payload> = {
     user_data: user_data_field,
     content_category: content_category,
     content_ids: content_ids,
-    contents: {
+    contents: { // Segment Checkout Started has an array of products mapping
       ...contents,
       default: {
         '@arrayPath': ["$.properties.products", {

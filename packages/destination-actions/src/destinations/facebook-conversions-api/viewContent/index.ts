@@ -21,19 +21,17 @@ const action: ActionDefinition<Settings, Payload> = {
     content_type: content_type,
     contents: { 
       ...contents,
-      default: {
-        '@arrayPath': ['$.properties', {
-          id: { 
-            '@path': '$.product_id'
-          },
-          quantity: {
-            '@path': '$.quantity'
-          },
-          item_price: {
-            '@path': '$.price'
-          }
-        }]
-      }
+      default: [{ // Segment Product Viewed is a single product event
+        id: { 
+          '@path': '$.properties.product_id'
+        },
+        quantity: {
+          '@path': '$.properties.quantity'
+        },
+        item_price: {
+          '@path': '$.properties.price'
+        }
+      }]
     },
     currency: currency,
     value: { ...value, default: { '@path': '$.properties.price' } }
