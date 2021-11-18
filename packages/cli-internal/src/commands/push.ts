@@ -403,7 +403,7 @@ export function getOptions(
 
     // Preserve existing properties unless specified by the action field definition
     const existing = existingOptions[fieldKey]
-    const tags = existing.tags ?? []
+    const tags = existing?.tags ?? []
 
     if (isAuth && !tags.includes('authentication:test')) {
       tags.push('authentication:test') //valid values here can eventually be test, no-test if needed
