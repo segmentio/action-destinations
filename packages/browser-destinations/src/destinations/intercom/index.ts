@@ -31,7 +31,6 @@ export const destination: BrowserDestinationDefinition<Settings, Intercom> = {
     load(appId)
 
     if (window.Intercom.booted !== true) {
-      await dependencies.resolveWhen(() => Object.prototype.hasOwnProperty.call(window, 'Intercom'), 100)
       boot(appId)
     }
 
