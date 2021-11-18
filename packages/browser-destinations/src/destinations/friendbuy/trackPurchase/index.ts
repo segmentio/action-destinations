@@ -4,6 +4,7 @@ import type { BrowserActionDefinition } from '../../../lib/browser-destinations'
 import type { FriendbuyAPI } from '../types'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
+import { commonCustomerAttributes, commonCustomerFields } from '../commonFields'
 import { createFriendbuyPayload, filterFriendbuyAttributes } from '../util'
 
 // see https://segment.com/docs/config-api/fql/
@@ -45,6 +46,15 @@ export const trackPurchaseFields: Record<string, InputField> = {
     required: false,
     default: { '@path': '$.properties.coupon' }
   },
+  giftCardCodes: {
+    // Might be used to establish attribution.
+    label: 'Gift Card Codes',
+    description: 'An array of gift card codes applied to the order.',
+    type: 'string',
+    multiple: true,
+    required: false,
+    default: { '@path': '$.properties.giftCardCodes' }
+  },
 
   products: {
     label: 'Products',
@@ -56,11 +66,16 @@ export const trackPurchaseFields: Record<string, InputField> = {
       sku: {
         label: 'Product SKU',
         type: 'string',
-        required: true
+        required: false
       },
       name: {
         label: 'Product Name',
         type: 'string',
+        required: false
+      },
+      quantity: {
+        label: 'Quantity (default 1)',
+        type: 'integer',
         required: false
       },
       price: {
@@ -68,29 +83,31 @@ export const trackPurchaseFields: Record<string, InputField> = {
         type: 'number',
         required: true
       },
-      quantity: {
-        label: 'Quantity (default 1)',
-        type: 'integer',
+      description: {
+        label: 'Product Description',
+        type: 'string',
+        required: false
+      },
+      category: {
+        label: 'Product Category',
+        type: 'string',
+        required: false
+      },
+      url: {
+        label: 'Product URL',
+        type: 'string',
+        required: false
+      },
+      image_url: {
+        label: 'Product Image URL',
+        type: 'string',
         required: false
       }
     },
     default: { '@path': '$.properties.products' }
   },
 
-  customerId: {
-    label: 'Customer ID',
-    description: "The user's customer ID.",
-    type: 'string',
-    required: false,
-    default: { '@path': '$.userId' }
-  },
-  anonymousId: {
-    label: 'Anonymous ID',
-    description: "The user's anonymous ID.",
-    type: 'string',
-    required: false,
-    default: { '@path': '$.anonymousId' }
-  },
+  ...commonCustomerFields(false),
 
   friendbuyAttributes: {
     label: 'Custom Attributes',
@@ -112,7 +129,7 @@ const action: BrowserActionDefinition<Settings, FriendbuyAPI, Payload> = {
   perform: (friendbuyAPI, data) => {
     const products =
       data.payload.products && data.payload.products.length > 0
-        ? data.payload.products.map((p) => ({ quantity: 1, ...p }))
+        ? data.payload.products.map(normalizeProduct)
         : undefined
 
     const friendbuyPayload = createFriendbuyPayload(
@@ -121,16 +138,25 @@ const action: BrowserActionDefinition<Settings, FriendbuyAPI, Payload> = {
         ['amount', data.payload.amount],
         ['currency', data.payload.currency],
         ['couponCode', data.payload.coupon],
-        ['customer', createFriendbuyPayload([['id', data.payload.customerId]])],
+        ['giftCardCodes', data.payload.giftCardCodes],
+        ['customer', createFriendbuyPayload(commonCustomerAttributes(data.payload))],
         ['products', products],
         // custom properties
-        ['anonymousId', data.payload.anonymousId],
         ...filterFriendbuyAttributes(data.payload.friendbuyAttributes)
       ],
       { dropEmpty: true }
     )
     friendbuyAPI.push(['track', 'purchase', friendbuyPayload, true])
   }
+}
+
+function normalizeProduct<T extends { image_url?: string }>(p: T) {
+  const p2: T & { quantity: number; imageUrl?: string } = { quantity: 1, ...p }
+  if (p.image_url !== undefined) {
+    p2.imageUrl = p.image_url
+    delete p2.image_url
+  }
+  return p2
 }
 
 export default action
