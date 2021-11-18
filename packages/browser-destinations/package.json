@@ -1,6 +1,6 @@
 {
   "name": "@segment/browser-destinations",
-  "version": "3.19.2",
+  "version": "3.20.0",
   "description": "Action based browser destinations",
   "author": "Netto Farah",
   "private": true,
@@ -42,7 +42,7 @@
     "@babel/plugin-transform-modules-commonjs": "^7.13.8",
     "@babel/preset-env": "^7.13.10",
     "@babel/preset-typescript": "^7.13.0",
-    "@segment/actions-core": "^3.19.2",
+    "@segment/actions-core": "^3.20.0",
     "@types/amplitude-js": "^7.0.1",
     "@types/jest": "^27.0.0",
     "babel-jest": "^27.3.1",
