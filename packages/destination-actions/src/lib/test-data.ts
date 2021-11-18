@@ -1,10 +1,19 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { ActionDefinition, DestinationDefinition } from '@segment/actions-core'
+import { ActionDefinition, DestinationDefinition, InputField } from '@segment/actions-core'
 import Chance from 'chance'
+type Choices = Pick<InputField, 'choices'>
 
-function setTestData(seedName: string, type: string, fieldName?: string, format?: string) {
+function setTestData(seedName: string, type: string, fieldName?: string, format?: string, choices?: Choices) {
   const chance = new Chance(seedName)
 
+  if (Array.isArray(choices)) {
+    const choice = chance.pickone(choices)
+
+    if (choice.value) {
+      return choice.value
+    }
+    return choice
+  }
   let val: any
   switch (type) {
     case 'boolean':
@@ -62,7 +71,7 @@ function setData(eventData: any, chanceName: string, fieldName: string, field: a
   const { format, multiple, type } = field
 
   if (!data) {
-    data = setTestData(chanceName, type, fieldName, format)
+    data = setTestData(chanceName, type, fieldName, format, field.choices)
   }
 
   eventData[fieldName] = multiple ? [data] : data
