@@ -1,5 +1,3 @@
-import { isObject } from '@segment/actions-core'
-
 export interface GetNameParams {
   name?: string
   firstName?: string
@@ -15,11 +13,19 @@ export function getName(payload: GetNameParams): string | undefined {
   )
 }
 
-export function isEmptyObject(o: unknown) {
-  if (!isObject(o)) {
+/**
+ * Returns true if the argument is an empty object or array.
+ */
+export function isEmpty(o: unknown) {
+  if (typeof o !== 'object') {
     return false
   }
   for (const _e in o) {
+    return false
+  }
+  // Not dropping `null` as empty to allow it being used in the future to
+  // erase existing properties.
+  if (o === null) {
     return false
   }
   return true
@@ -28,13 +34,14 @@ export function isEmptyObject(o: unknown) {
 export type FriendbuyPayloadValue = string | number | boolean | object
 
 export interface CreateFriendbuyPayloadFlags {
-  dropEmptyObjects?: boolean
+  dropEmpty?: boolean
 }
 
 /**
  * Creates an object from a list of key/value pairs, dropping items for which
- * the value is undefined or an empty string.  If the `dropEmptyObjects` flag
- * is specified then values which are empty objects will also be dropped.
+ * the value is undefined or an empty string.  If the `dropEmpty` flag is
+ * specified then values which are empty objects or arrays will also be
+ * dropped.
  */
 export function createFriendbuyPayload(
   payloadItems: [string, FriendbuyPayloadValue | undefined][],
@@ -42,7 +49,7 @@ export function createFriendbuyPayload(
 ) {
   const friendbuyPayload: Record<string, FriendbuyPayloadValue> = {}
   payloadItems.forEach(([k, v]) => {
-    if (!(v === undefined || v === '' || (flags.dropEmptyObjects && isEmptyObject(v)))) {
+    if (!(v === undefined || v === '' || (flags.dropEmpty && isEmpty(v)))) {
       friendbuyPayload[k] = v
     }
   })

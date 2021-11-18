@@ -127,7 +127,7 @@ const action: BrowserActionDefinition<Settings, FriendbuyAPI, Payload> = {
         ['anonymousId', data.payload.anonymousId],
         ...filterFriendbuyAttributes(data.payload.friendbuyAttributes)
       ],
-      { dropEmptyObjects: true }
+      { dropEmpty: true }
     )
     friendbuyAPI.push(['track', 'purchase', friendbuyPayload, true])
   }

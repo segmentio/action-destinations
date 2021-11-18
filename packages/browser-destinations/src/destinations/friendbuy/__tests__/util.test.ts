@@ -1,4 +1,17 @@
-import { createFriendbuyPayload, filterFriendbuyAttributes, parseDate } from '../util'
+import { createFriendbuyPayload, filterFriendbuyAttributes, isEmpty, parseDate } from '../util'
+
+describe('isEmpty', () => {
+  test('isEmpty', () => {
+    expect(isEmpty({})).toBe(true)
+    expect(isEmpty([])).toBe(true)
+    expect(isEmpty(null)).toBe(false)
+    expect(isEmpty(0)).toBe(false)
+    expect(isEmpty('')).toBe(false)
+    expect(isEmpty({ a: 'apple' })).toBe(false)
+    expect(isEmpty(false)).toBe(false)
+    expect(isEmpty(undefined)).toBe(false)
+  })
+})
 
 describe('createFriendbuyPayload', () => {
   test('simple', () => {
@@ -23,7 +36,7 @@ describe('createFriendbuyPayload', () => {
     })
   })
 
-  test('dropEmptyObjects', () => {
+  test('dropEmpty', () => {
     expect(
       createFriendbuyPayload(
         [
@@ -35,14 +48,13 @@ describe('createFriendbuyPayload', () => {
           ['array1', []],
           ['array2', [1, 2, 3]]
         ],
-        { dropEmptyObjects: true }
+        { dropEmpty: true }
       )
     ).toEqual({
       string: 'hello',
       number: 42,
       boolean: true,
       object2: { a: 'apple' },
-      array1: [],
       array2: [1, 2, 3]
     })
   })
