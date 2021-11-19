@@ -4,7 +4,7 @@ import type { BrowserActionDefinition } from '../../../lib/browser-destinations'
 import type { FriendbuyAPI } from '../types'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
-import { commonCustomerAttributes, commonCustomerFields } from "../commonFields";
+import { commonCustomerAttributes, commonCustomerFields } from '../commonFields'
 import { createFriendbuyPayload, filterFriendbuyAttributes } from '../util'
 
 // see https://segment.com/docs/config-api/fql/
@@ -33,10 +33,11 @@ const action: BrowserActionDefinition<Settings, FriendbuyAPI, Payload> = {
   perform: (friendbuyAPI, data) => {
     // The track sign_up call is like track customer in that customer
     // properties are passed in the root of the event.
+    const [nonCustomerPayload, customerAttributes] = commonCustomerAttributes(data.payload)
     const friendbuyPayload = createFriendbuyPayload([
-      ...commonCustomerAttributes(data.payload),
+      ...customerAttributes,
       // custom properties
-      ...filterFriendbuyAttributes(data.payload.friendbuyAttributes)
+      ...filterFriendbuyAttributes(nonCustomerPayload.friendbuyAttributes)
     ])
     friendbuyAPI.push(['track', 'sign_up', friendbuyPayload, true])
   }

@@ -32,6 +32,7 @@ export function isEmpty(o: unknown) {
 }
 
 export type FriendbuyPayloadValue = string | number | boolean | object
+export type FriendbuyPayloadItem = [string, FriendbuyPayloadValue | undefined]
 
 export interface CreateFriendbuyPayloadFlags {
   dropEmpty?: boolean
@@ -44,7 +45,7 @@ export interface CreateFriendbuyPayloadFlags {
  * dropped.
  */
 export function createFriendbuyPayload(
-  payloadItems: [string, FriendbuyPayloadValue | undefined][],
+  payloadItems: FriendbuyPayloadItem[],
   flags: CreateFriendbuyPayloadFlags = {}
 ) {
   const friendbuyPayload: Record<string, FriendbuyPayloadValue> = {}

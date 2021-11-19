@@ -132,17 +132,18 @@ const action: BrowserActionDefinition<Settings, FriendbuyAPI, Payload> = {
         ? data.payload.products.map(normalizeProduct)
         : undefined
 
+    const [nonCustomerPayload, customerAttributes] = commonCustomerAttributes(data.payload)
     const friendbuyPayload = createFriendbuyPayload(
       [
-        ['id', data.payload.orderId],
-        ['amount', data.payload.amount],
-        ['currency', data.payload.currency],
-        ['couponCode', data.payload.coupon],
-        ['giftCardCodes', data.payload.giftCardCodes],
-        ['customer', createFriendbuyPayload(commonCustomerAttributes(data.payload))],
+        ['id', nonCustomerPayload.orderId],
+        ['amount', nonCustomerPayload.amount],
+        ['currency', nonCustomerPayload.currency],
+        ['couponCode', nonCustomerPayload.coupon],
+        ['giftCardCodes', nonCustomerPayload.giftCardCodes],
+        ['customer', createFriendbuyPayload(customerAttributes)],
         ['products', products],
         // custom properties
-        ...filterFriendbuyAttributes(data.payload.friendbuyAttributes)
+        ...filterFriendbuyAttributes(nonCustomerPayload.friendbuyAttributes)
       ],
       { dropEmpty: true }
     )

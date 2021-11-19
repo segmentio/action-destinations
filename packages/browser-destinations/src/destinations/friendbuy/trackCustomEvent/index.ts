@@ -4,6 +4,7 @@ import type { BrowserActionDefinition } from '../../../lib/browser-destinations'
 import type { FriendbuyAPI } from '../types'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
+import { commonCustomerAttributes } from '../commonFields'
 import { createFriendbuyPayload, filterFriendbuyAttributes } from '../util'
 
 // https://segment.com/docs/connections/spec/ecommerce/v2/#order-completed
@@ -55,13 +56,16 @@ const action: BrowserActionDefinition<Settings, FriendbuyAPI, Payload> = {
   fields: trackCustomEventFields,
 
   perform: (friendbuyAPI, data) => {
+    const [nonCustomerPayload, customerAttributes] = commonCustomerAttributes({
+      customerId: data.payload.customerId,
+      anonymousId: data.payload.anonymousId,
+      ...data.payload.eventProperties});
+
     const friendbuyPayload = createFriendbuyPayload(
       [
-        ...filterFriendbuyAttributes(data.payload.eventProperties),
+        ...filterFriendbuyAttributes(nonCustomerPayload),
         ['deduplicationId', data.payload.deduplicationId],
-        ['customer', createFriendbuyPayload([['id', data.payload.customerId]])],
-        // custom properties
-        ['anonymousId', data.payload.anonymousId]
+        ['customer', createFriendbuyPayload(customerAttributes)],
       ],
       { dropEmpty: true }
     )

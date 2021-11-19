@@ -1,4 +1,5 @@
 import type { InputField } from '@segment/actions-core'
+import type { FriendbuyPayloadItem } from './util'
 
 import { getName } from './util'
 
@@ -78,19 +79,39 @@ export interface CommonCustomerPayload {
   loyaltyStatus?: string
 }
 
-export function commonCustomerAttributes(payload: CommonCustomerPayload): [string, any][] {
-  // Don't send any customer data unless we have at least a customer ID.
-  return typeof payload.customerId !== 'string' || payload.customerId === ''
-    ? []
-    : [
-        ['id', payload.customerId],
-        ['email', payload.email],
-        ['firstName', payload.firstName],
-        ['lastName', payload.lastName],
-        ['name', getName(payload)],
-        ['age', payload.age],
-        ['loyaltyStatus', payload.loyaltyStatus],
-        // custom properties
-        ['anonymousId', payload.anonymousId]
-      ]
+/**
+ * Extracts the customer fields from a payload and returns a tuple whose first
+ * element is the payload without the customer fields, and second element is
+ * the customer attributes.
+ */
+export function commonCustomerAttributes<T extends CommonCustomerPayload>(
+  payload: T
+): [Omit<T, keyof CommonCustomerPayload>, FriendbuyPayloadItem[]] {
+  const payloadWithoutCustomer = { ...payload }
+  const customerAttributes: FriendbuyPayloadItem[] = []
+
+  const copyField = (from: keyof CommonCustomerPayload, to?: string) => {
+    if (from in payloadWithoutCustomer) {
+      if (payloadWithoutCustomer[from] !== undefined) {
+        customerAttributes.push([to || from, payloadWithoutCustomer[from]])
+      }
+      delete payloadWithoutCustomer[from]
+    }
+  }
+
+  copyField('customerId', 'id')
+  copyField('email')
+  copyField('firstName')
+  copyField('lastName')
+  customerAttributes.push(['name', getName(payload)])
+  copyField('age')
+  copyField('loyaltyStatus')
+  // custom properties
+  copyField('anonymousId')
+
+  return [
+    payloadWithoutCustomer,
+    // Don't send any customer data unless we have at least a customer ID.
+    typeof payload.customerId !== 'string' || payload.customerId === '' ? [] : customerAttributes
+  ]
 }

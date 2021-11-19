@@ -40,7 +40,7 @@ describe('Friendbuy.trackCustomEvent', () => {
       const context1 = new Context({
         type: 'track',
         event: 'upload',
-        properties: { type: 'application', name: 'MyApp', deduplicationId: '1234' }
+        properties: { type: 'application', fileId: 'MyApp', deduplicationId: '1234' }
       })
 
       trackCustomEvent.track?.(context1)
@@ -53,7 +53,7 @@ describe('Friendbuy.trackCustomEvent', () => {
       const context2 = new Context({
         type: 'track',
         event: 'download',
-        properties: { type: 'application', name: 'MyApp', deduplicationId: '1234' }
+        properties: { type: 'application', fileId: 'MyApp', deduplicationId: '1234' }
       })
 
       trackCustomEvent.track?.(context2)
@@ -61,20 +61,23 @@ describe('Friendbuy.trackCustomEvent', () => {
       expect(window.friendbuyAPI?.push).toHaveBeenNthCalledWith(1, [
         'track',
         'download',
-        { type: 'application', name: 'MyApp', deduplicationId: '1234' }
+        { type: 'application', fileId: 'MyApp', deduplicationId: '1234' }
       ])
     }
 
     {
-      // userId and anonymousId are sent if present.
+      // Customer is sent if customer fields are present.
       const userId = 'john-doe-1234'
       const anonymousId = '960efa33-6d3b-4eb9-a4e7-d95412d9829e'
+      const email = 'john.doe@example.com'
+      const firstName = 'John'
+      const lastName = 'Doe'
       const context3 = new Context({
         type: 'track',
         event: 'download',
         userId,
         anonymousId,
-        properties: { type: 'application', name: 'MyApp' }
+        properties: { type: 'application', fileId: 'MyApp', email, firstName, lastName }
       })
 
       trackCustomEvent.track?.(context3)
@@ -82,7 +85,11 @@ describe('Friendbuy.trackCustomEvent', () => {
       expect(window.friendbuyAPI?.push).toHaveBeenNthCalledWith(2, [
         'track',
         'download',
-        { type: 'application', name: 'MyApp', anonymousId, customer: { id: userId } }
+        {
+          type: 'application',
+          fileId: 'MyApp',
+          customer: { id: userId, anonymousId, email, firstName, lastName, name: `${firstName} ${lastName}` }
+        }
       ])
     }
   })
