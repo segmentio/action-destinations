@@ -1,4 +1,4 @@
-import type { ActionDefinition } from '@segment/actions-core'
+import { ActionDefinition, IntegrationError } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 
@@ -18,6 +18,7 @@ const action: ActionDefinition<Settings, Payload> = {
       label: 'Group Properties',
       type: 'object',
       description: 'Properties to set on the group profile',
+      required: true,
       default: {
         '@path': '$.traits'
       }
@@ -25,10 +26,10 @@ const action: ActionDefinition<Settings, Payload> = {
   },
   perform: (request, { payload, settings }) => {
     if (!payload.traits) {
-      throw new Error('No group traits were passed')
+      throw new IntegrationError('"traits" is a required field', 'Missing required fields')
     }
     if (!payload.traits[payload.group_key]) {
-      throw new Error('Group traits does not include proper group key')
+      throw new IntegrationError('Group traits does not include proper group key', 'Misconfigured required field')
     }
     const data = {
       $token: settings.projectToken,
