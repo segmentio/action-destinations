@@ -14,7 +14,17 @@ export function commonCustomerFields(requireIdAndEmail: boolean): Record<string,
       description: "The user's customer ID.",
       type: 'string',
       required: requireIdAndEmail,
-      default: { '@path': '$.userId' }
+      default: {
+        // We hope that we have a userId because analytics.identify has been
+        // called but, if not, allow a customerId to be specified in the
+        // event.  If one is specified, it overrides the one from the identify
+        // call.
+        '@if': {
+          exists: { '@path': '$.properties.customerId' },
+          then: { '@path': '$.properties.customerId' },
+          else: { '@path': '$.userId' }
+        }
+      }
     },
     anonymousId: {
       label: 'Anonymous ID',
@@ -99,11 +109,15 @@ export function commonCustomerAttributes<T extends CommonCustomerPayload>(
     }
   }
 
+  const name = getName(payload)
+
   copyField('customerId', 'id')
   copyField('email')
   copyField('firstName')
   copyField('lastName')
-  customerAttributes.push(['name', getName(payload)])
+  if (name) {
+    customerAttributes.push(['name', name])
+  }
   copyField('age')
   copyField('loyaltyStatus')
   // custom properties
