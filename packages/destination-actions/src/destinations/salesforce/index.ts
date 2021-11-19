@@ -1,6 +1,8 @@
 import type { DestinationDefinition } from '@segment/actions-core'
 import type { Settings } from './generated-types'
 
+import lead from './lead'
+
 const destination: DestinationDefinition<Settings> = {
   name: 'Salesforce (Actions)',
   slug: 'actions-salesforce',
@@ -43,7 +45,9 @@ const destination: DestinationDefinition<Settings> = {
   //   // implement this function and should remove it completely.
   // },
 
-  actions: {}
+  actions: {
+    lead
+  }
 }
 
 export default destination
