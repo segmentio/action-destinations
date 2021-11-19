@@ -9,7 +9,9 @@ describe('Metronome.sendEvent', () => {
     it('should send an event', async () => {
       const event = createTestEvent();
 
-      nock('https://api.getmetronome.com').post('/v1/ingest').reply(200)
+      nock('https://api.getmetronome.com')
+        .matchHeader('content-type', 'application/json')
+        .post('/v1/ingest').reply(200)
 
       const responses = await testDestination.testAction('sendEvent', {
         event,
@@ -57,7 +59,9 @@ describe('Metronome.sendEvent', () => {
         timestamp: "2021-01-01"
       });
 
-      nock('https://api.getmetronome.com').post('/v1/ingest').reply(200)
+      nock('https://api.getmetronome.com')
+        .matchHeader('content-type', 'application/json')
+        .post('/v1/ingest').reply(200)
 
       const responses = await testDestination.testAction('sendEvent', {
         event,
@@ -105,7 +109,9 @@ describe('Metronome.sendEvent', () => {
         }
       });
 
-      nock('https://api.getmetronome.com').post('/v1/ingest').reply(200)
+      nock('https://api.getmetronome.com')
+        .matchHeader('content-type', 'application/json')
+        .post('/v1/ingest').reply(200)
 
       const responses = await testDestination.testAction('sendEvent', {
         event,
