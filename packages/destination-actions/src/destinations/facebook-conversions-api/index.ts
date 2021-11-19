@@ -6,7 +6,6 @@ import addToCart from './addToCart'
 import viewContent from './viewContent'
 import search from './search'
 import pageView from './pageView'
-import { API_VERSION } from './constants'
 import custom from './custom'
 
 const destination: DestinationDefinition<Settings> = {
@@ -23,15 +22,6 @@ const destination: DestinationDefinition<Settings> = {
         type: 'string',
         required: true
       }
-    },
-    testAuthentication: async (request, { settings }) => {
-      const res = await request(
-        `https://graph.facebook.com/v${API_VERSION}/${settings.pixelId}/`,
-        {
-          method: 'GET'
-        }
-      )
-      return res.status === 200
     },
   },
   extendRequest: () => {
