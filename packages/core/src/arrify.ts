@@ -21,7 +21,6 @@ export function arrifyFields(obj: unknown, schema: JSONSchema4 = {}): unknown {
   for (const key of Object.keys(obj)) {
     const fieldSchema = schema.properties[key]
     if (!fieldSchema) continue
-    if (Array.isArray(fieldSchema.type)) continue
 
     if (fieldSchema.type === 'array') {
       obj[key] = arrify(obj[key], false)
