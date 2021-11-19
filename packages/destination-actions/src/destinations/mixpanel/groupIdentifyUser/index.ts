@@ -11,7 +11,8 @@ const action: ActionDefinition<Settings, Payload> = {
       label: 'Group Key',
       type: 'string',
       description: 'The group key',
-      required: true
+      required: true,
+      default: 'company'
     },
     traits: {
       label: 'Group Properties',
