@@ -3,12 +3,13 @@ import Ajv, { ValidateFunction } from 'ajv'
 import addFormats from 'ajv-formats'
 import dayjs from 'dayjs'
 import type { JSONSchema4 } from 'json-schema'
+import { arrifyFields } from './arrify'
 
 // `addFormats` includes many standard formats we use like `uri`, `date`, `email`, etc.
 const ajv = addFormats(
   new Ajv({
     // Coerce types to be a bit more liberal.
-    coerceTypes: true,
+    coerceTypes: 'array',
     // Return all validation errors, not just the first.
     allErrors: true,
     // Allow multiple non-null types in `type` keyword.
@@ -57,6 +58,8 @@ export function validateSchema(obj: unknown, schema: JSONSchema4, options?: Vali
     validate = ajv.compile(schema)
   }
 
+  // Ajv's `coerceTypes: 'array'` only works on scalars, so we need to manually arrify ourselves!
+  arrifyFields(obj, schema)
   const isValid = validate(obj)
 
   if (throwIfInvalid && !isValid && validate.errors) {
