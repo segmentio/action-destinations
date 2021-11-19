@@ -10,15 +10,14 @@ const action: ActionDefinition<Settings, Payload> = {
     group_key: {
       label: 'Group Key',
       type: 'string',
-      description: 'The group key',
-      required: true,
-      default: 'company'
+      description: 'The group key. If this is not set, it is defaulted to "name".',
+      default: 'name'
     },
     traits: {
       label: 'Group Properties',
       type: 'object',
-      description: 'Properties to set on the group profile',
-      required: true,
+      description:
+        'Properties to set on the group profile. Make sure to have a field that corresponds to the above group key.',
       default: {
         '@path': '$.traits'
       }
