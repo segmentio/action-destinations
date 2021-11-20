@@ -34,7 +34,7 @@ const action: ActionDefinition<Settings, Payload> = {
         ]
       }
     },
-    external_id: (request, { auth }) => {
+    external_id: async (request, { auth }) => {
       const res = await request('https://salesforce.com/<external ID endpoint>', {
         method: 'post',
         headers: { authorization: `Bearer ${auth.accessToken}` }
@@ -48,7 +48,7 @@ const action: ActionDefinition<Settings, Payload> = {
 
     }
   },
-  perform: (request, { payload, auth }) => {
+  perform: async (request, { payload, auth }) => {
 
     // POC of upsert Operation
     if (payload.crud_operation === 'upsert') {
@@ -68,6 +68,7 @@ const action: ActionDefinition<Settings, Payload> = {
         })
       }
 
+      // Else just update
       return request('https://salesforce.com/<lead object endpoint>/update', {
         method: 'post',
         json: {
