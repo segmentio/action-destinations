@@ -40,10 +40,10 @@ const action: ActionDefinition<Settings, Payload> = {
         headers: { authorization: `Bearer ${auth.accessToken}` }
       })
 
-      if (res.statusCode !== 200) { throw new Error() }
+      if (res.statusCode !== 200) { throw new Error() } // How would our UI handle this error?
 
       return {
-        ...res.body.items
+        ...res.body.items // Depends on shape of response
       }
 
     }
