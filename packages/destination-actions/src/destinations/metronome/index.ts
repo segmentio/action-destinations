@@ -5,7 +5,6 @@ import sendEvent from './sendEvent'
 
 const destination: DestinationDefinition<Settings> = {
   name: 'Metronome',
-  slug: 'metronome',
   mode: 'cloud',
 
   authentication: {
