@@ -16,7 +16,7 @@ const destination: DestinationDefinition<Settings> = {
     // },
     refreshAccessToken: async (request, { auth }) => {
       // Return a request that refreshes the access_token if the API supports it
-      const res = await request('https://www.example.com/oauth/refresh', {
+      const res = await request('https://login.salesforce.com/services/oauth2/token', {
         method: 'POST',
         body: new URLSearchParams({
           refresh_token: auth.refreshToken,
