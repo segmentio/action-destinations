@@ -1,6 +1,8 @@
 import type { DestinationDefinition } from '@segment/actions-core'
 import type { Settings } from './generated-types'
 
+import trackCustomer from './trackCustomer'
+
 export const friendbuyBaseHost = 'fbot-sandbox.me'
 
 const destination: DestinationDefinition<Settings> = {
@@ -32,7 +34,9 @@ const destination: DestinationDefinition<Settings> = {
     // implement this function and should remove it completely.
   },
 
-  actions: {}
+  actions: {
+    trackCustomer
+  }
 }
 
 export default destination
