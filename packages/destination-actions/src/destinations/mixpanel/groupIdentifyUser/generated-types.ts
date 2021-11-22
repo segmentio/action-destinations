@@ -2,11 +2,11 @@
 
 export interface Payload {
   /**
-   * The group key
+   * The group key. If this is not set, it is defaulted to "name".
    */
-  group_key: string
+  group_key?: string
   /**
-   * Properties to set on the group profile
+   * Properties to set on the group profile. Make sure to have a field that corresponds to the above group key.
    */
   traits?: {
     [k: string]: unknown
