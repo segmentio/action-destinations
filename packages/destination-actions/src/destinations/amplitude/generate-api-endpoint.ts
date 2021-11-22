@@ -1,12 +1,11 @@
 export type EndpointOptions = {
   protocol?: string
   subdomains?: {
-    europe?: string
-    northAmerica?: string
+    [key: string]: string
   }
 }
 
-export type EndpointRegion = 'europe' | 'northAmerica'
+export type EndpointRegion = 'northAmerica' | 'europe'
 
 const defaultOptions: EndpointOptions = {
   protocol: 'https',
@@ -29,13 +28,12 @@ export default function generateApiEndpoint(
   region: EndpointRegion = 'northAmerica',
   options: EndpointOptions = {}
 ): string {
-  options = {
-    protocol: options.protocol?.replace('://', '') ?? defaultOptions.protocol,
-    subdomains: {
-      ...defaultOptions.subdomains,
-      ...options.subdomains
-    }
+  const protocol = options.protocol?.replace('://', '') ?? defaultOptions.protocol
+  const subdomains = {
+    ...defaultOptions.subdomains,
+    ...options.subdomains
   }
+
   switch (region) {
     case 'europe':
       break
@@ -44,7 +42,8 @@ export default function generateApiEndpoint(
       region = 'northAmerica'
       break
   }
-  const subdomain = options.subdomains![region] ?? ''
+
+  const subdomain = subdomains[region] ?? ''
   path = path.replace(/^\/+/, '')
-  return `${options.protocol}://${subdomain}${subdomain.length > 0 ? '.' : ''}amplitude.com/${path}`
+  return `${protocol}://${subdomain}${subdomain.length > 0 ? '.' : ''}amplitude.com/${path}`
 }
