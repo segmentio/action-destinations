@@ -1,6 +1,8 @@
 import type { DestinationDefinition } from '@segment/actions-core'
 import type { Settings } from './generated-types'
 
+export const friendbuyBaseHost = 'fbot-sandbox.me'
+
 const destination: DestinationDefinition<Settings> = {
   name: 'Friendbuy (Cloud Destination)',
   slug: 'friendbuy-cloud-dest',
@@ -8,11 +10,19 @@ const destination: DestinationDefinition<Settings> = {
 
   authentication: {
     scheme: 'custom',
-    fields: {},
-    testAuthentication: (/*request*/) => {
-      // Return a request that tests/validates the user's credentials.
-      // If you do not have a way to validate the authentication fields safely,
-      // you can remove the `testAuthentication` function, though discouraged.
+    fields: {
+      merchantId: {
+        label: 'Friendbuy Merchant ID',
+        description:
+          'Find your Friendbuy Merchant ID by logging in to your [Friendbuy account](https://retailer.friendbuy.io/) and going to Developer Center > Friendbuy Code.',
+        type: 'string',
+        format: 'uuid',
+        required: true
+      }
+    },
+    testAuthentication: (request, { settings }) => {
+      // Verify that the merchantId is valid.
+      return request(`https://campaign.${friendbuyBaseHost}/${settings.merchantId}/campaigns.js`)
     }
   },
 
