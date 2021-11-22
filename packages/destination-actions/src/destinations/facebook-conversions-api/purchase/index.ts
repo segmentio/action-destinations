@@ -2,7 +2,19 @@ import { ActionDefinition, IntegrationError } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 import { CURRENCY_ISO_CODES, API_VERSION } from '../constants'
-import { currency, value, content_name, content_type, contents, num_items, content_ids, event_time, action_source, event_source_url, event_id } from '../fb-capi-properties'
+import {
+  currency,
+  value,
+  content_name,
+  content_type,
+  contents,
+  num_items,
+  content_ids,
+  event_time,
+  action_source,
+  event_source_url,
+  event_id
+} from '../fb-capi-properties'
 import { user_data_field, hash_user_data } from '../fb-capi-user-data'
 
 const action: ActionDefinition<Settings, Payload> = {
@@ -14,33 +26,37 @@ const action: ActionDefinition<Settings, Payload> = {
     currency: { ...currency, required: true },
     event_time: { ...event_time, required: true },
     user_data: user_data_field,
-    value: { 
-      ...value, 
-      required: true, 
-      default: { '@path': '$.properties.revenue' } 
+    value: {
+      ...value,
+      required: true,
+      default: { '@path': '$.properties.revenue' }
     },
     content_ids: content_ids,
     content_name: content_name,
     content_type: content_type,
-    contents: { // Segment Checkout Started has an array of products mapping
+    contents: {
+      // Segment Checkout Started has an array of products mapping
       ...contents,
       default: {
-        '@arrayPath': ["$.properties.products", {
-          id: {
-            '@path': '$.product_id'
-          },
-          quantity: {
-            '@path': '$.quantity'
-          },
-          item_price: {
-            '@path': '$.price'
+        '@arrayPath': [
+          '$.properties.products',
+          {
+            id: {
+              '@path': '$.product_id'
+            },
+            quantity: {
+              '@path': '$.quantity'
+            },
+            item_price: {
+              '@path': '$.price'
+            }
           }
-        }]
+        ]
       }
     },
     event_id: event_id,
     event_source_url: event_source_url,
-    num_items: num_items,
+    num_items: num_items
   },
   perform: (request, { payload, settings }) => {
     if (!CURRENCY_ISO_CODES.has(payload.currency)) {
@@ -73,7 +89,7 @@ const action: ActionDefinition<Settings, Payload> = {
             400
           )
         }
-        
+
         if (obj.delivery_category && !valid_delivery_categories.includes(obj.delivery_category)) {
           throw new IntegrationError(
             `contents[${index}].delivery_category must be one of {in_store, home_delivery, curbside}.`,
@@ -94,7 +110,7 @@ const action: ActionDefinition<Settings, Payload> = {
             action_source: payload.action_source,
             event_source_url: payload.event_source_url,
             event_id: payload.event_id,
-            user_data: hash_user_data({user_data: payload.user_data}),
+            user_data: hash_user_data({ user_data: payload.user_data }),
             custom_data: {
               currency: payload.currency,
               value: payload.value,
@@ -102,7 +118,7 @@ const action: ActionDefinition<Settings, Payload> = {
               content_name: payload.content_name,
               content_type: payload.content_type,
               contents: payload.contents,
-              num_items: payload.num_items,
+              num_items: payload.num_items
             }
           }
         ]

@@ -1,7 +1,18 @@
 import { ActionDefinition, IntegrationError } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
-import { content_ids, content_name, content_type, contents, currency, value, action_source, event_time, event_source_url, event_id } from '../fb-capi-properties'
+import {
+  content_ids,
+  content_name,
+  content_type,
+  contents,
+  currency,
+  value,
+  action_source,
+  event_time,
+  event_source_url,
+  event_id
+} from '../fb-capi-properties'
 import { CURRENCY_ISO_CODES, API_VERSION } from '../constants'
 import { hash_user_data, user_data_field } from '../fb-capi-user-data'
 
@@ -16,10 +27,11 @@ const action: ActionDefinition<Settings, Payload> = {
     content_ids: content_ids,
     content_name: content_name,
     content_type: content_type,
-    contents: { 
+    contents: {
       ...contents,
-      default: [{ // Segment Product Added is a single product event
-        id: { 
+      default: {
+        // Segment Product Added is a single product event
+        id: {
           '@path': '$.properties.product_id'
         },
         quantity: {
@@ -28,7 +40,7 @@ const action: ActionDefinition<Settings, Payload> = {
         item_price: {
           '@path': '$.properties.price'
         }
-      }]
+      }
     },
     currency: currency,
     event_id: event_id,
@@ -87,7 +99,7 @@ const action: ActionDefinition<Settings, Payload> = {
             event_source_url: payload.event_source_url,
             event_id: payload.event_id,
             action_source: payload.action_source,
-            user_data: hash_user_data({user_data: payload.user_data}),
+            user_data: hash_user_data({ user_data: payload.user_data }),
             custom_data: {
               currency: payload.currency,
               value: payload.value,

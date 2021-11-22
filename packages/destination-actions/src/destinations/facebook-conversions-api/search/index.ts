@@ -2,7 +2,17 @@ import { ActionDefinition, IntegrationError } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 import { CURRENCY_ISO_CODES, API_VERSION } from '../constants'
-import { currency, value, contents, content_ids, event_time, action_source, content_category, event_id, event_source_url } from '../fb-capi-properties'
+import {
+  currency,
+  value,
+  contents,
+  content_ids,
+  event_time,
+  action_source,
+  content_category,
+  event_id,
+  event_source_url
+} from '../fb-capi-properties'
 import { user_data_field, hash_user_data } from '../fb-capi-user-data'
 
 const action: ActionDefinition<Settings, Payload> = {
@@ -17,8 +27,9 @@ const action: ActionDefinition<Settings, Payload> = {
     content_ids: content_ids,
     contents: {
       ...contents,
-      default: [{ // Segment Products Searched is a single product event
-        id: { 
+      default: {
+        // Segment Products Searched is a single product event
+        id: {
           '@path': '$.properties.product_id'
         },
         quantity: {
@@ -27,7 +38,7 @@ const action: ActionDefinition<Settings, Payload> = {
         item_price: {
           '@path': '$.properties.price'
         }
-      }]
+      }
     },
     currency: currency,
     event_id: event_id,
@@ -62,7 +73,7 @@ const action: ActionDefinition<Settings, Payload> = {
         400
       )
     }
-    
+
     const valid_delivery_categories = ['in_store', 'curbside', 'home_delivery']
     if (payload.contents) {
       payload.contents.forEach((obj, index) => {
@@ -83,7 +94,7 @@ const action: ActionDefinition<Settings, Payload> = {
         }
       })
     }
-    
+
     return request(`https://graph.facebook.com/v${API_VERSION}/${settings.pixelId}/events`, {
       method: 'POST',
       json: {
@@ -94,7 +105,7 @@ const action: ActionDefinition<Settings, Payload> = {
             action_source: payload.action_source,
             event_id: payload.event_id,
             event_source_url: payload.event_source_url,
-            user_data: hash_user_data({user_data: payload.user_data}),
+            user_data: hash_user_data({ user_data: payload.user_data }),
             custom_data: {
               currency: payload.currency,
               content_ids: payload.content_ids,

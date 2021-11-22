@@ -2,7 +2,18 @@ import { ActionDefinition, IntegrationError } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 import { CURRENCY_ISO_CODES, API_VERSION } from '../constants'
-import { currency, value, contents, num_items, content_ids, event_time, action_source, content_category, event_source_url, event_id } from '../fb-capi-properties'
+import {
+  currency,
+  value,
+  contents,
+  num_items,
+  content_ids,
+  event_time,
+  action_source,
+  content_category,
+  event_source_url,
+  event_id
+} from '../fb-capi-properties'
 import { user_data_field, hash_user_data } from '../fb-capi-user-data'
 
 const action: ActionDefinition<Settings, Payload> = {
@@ -15,30 +26,34 @@ const action: ActionDefinition<Settings, Payload> = {
     user_data: user_data_field,
     content_category: content_category,
     content_ids: content_ids,
-    contents: { // Segment Checkout Started has an array of products mapping
+    contents: {
+      // Segment Checkout Started has an array of products mapping
       ...contents,
       default: {
-        '@arrayPath': ["$.properties.products", {
-          id: {
-            '@path': '$.product_id'
-          },
-          quantity: {
-            '@path': '$.quantity'
-          },
-          item_price: {
-            '@path': '$.price'
+        '@arrayPath': [
+          '$.properties.products',
+          {
+            id: {
+              '@path': '$.product_id'
+            },
+            quantity: {
+              '@path': '$.quantity'
+            },
+            item_price: {
+              '@path': '$.price'
+            }
           }
-        }]
+        ]
       }
     },
     currency: currency,
     event_id: event_id,
     event_source_url: event_source_url,
     num_items: num_items,
-    value: { 
+    value: {
       ...value,
-      default: { '@path': '$.properties.revenue' } 
-    },
+      default: { '@path': '$.properties.revenue' }
+    }
   },
   perform: (request, { payload, settings }) => {
     if (payload.currency && !CURRENCY_ISO_CODES.has(payload.currency)) {
@@ -81,7 +96,7 @@ const action: ActionDefinition<Settings, Payload> = {
         }
       })
     }
-    
+
     return request(`https://graph.facebook.com/v${API_VERSION}/${settings.pixelId}/events`, {
       method: 'POST',
       json: {
@@ -92,7 +107,7 @@ const action: ActionDefinition<Settings, Payload> = {
             action_source: payload.action_source,
             event_source_url: payload.event_source_url,
             event_id: payload.event_id,
-            user_data: hash_user_data({user_data: payload.user_data}),
+            user_data: hash_user_data({ user_data: payload.user_data }),
             custom_data: {
               currency: payload.currency,
               value: payload.value,
