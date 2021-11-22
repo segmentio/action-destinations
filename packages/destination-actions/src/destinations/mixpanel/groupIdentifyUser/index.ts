@@ -24,16 +24,17 @@ const action: ActionDefinition<Settings, Payload> = {
     }
   },
   perform: (request, { payload, settings }) => {
+    const group_key = payload.group_key || 'name'
     if (!payload.traits) {
       throw new IntegrationError('"traits" is a required field', 'Missing required fields')
     }
-    if (!payload.traits[payload.group_key]) {
+    if (!payload.traits[group_key]) {
       throw new IntegrationError('Group traits does not include proper group key', 'Misconfigured required field')
     }
     const data = {
       $token: settings.projectToken,
-      $group_key: payload.group_key,
-      $group_id: payload.traits[payload.group_key],
+      $group_key: group_key,
+      $group_id: payload.traits[group_key],
       $set: payload.traits
     }
 
