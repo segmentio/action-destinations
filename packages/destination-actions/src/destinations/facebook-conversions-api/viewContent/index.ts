@@ -39,10 +39,10 @@ const action: ActionDefinition<Settings, Payload> = {
           '@path': '$.properties.product_id'
         },
         quantity: {
-          '@path': '$.quantity'
+          '@path': '$.properties.quantity'
         },
         item_price: {
-          '@path': '$.price'
+          '@path': '$.properties.price'
         }
       }
     },
