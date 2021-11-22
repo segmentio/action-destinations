@@ -9,4 +9,8 @@ export interface Settings {
    * Amplitude project secret key. You can find this key in the "General" tab of your Amplitude project.
    */
   secretKey: string
+  /**
+   * Choose the endpoint corresponding to your region.
+   */
+  endpoint?: string
 }

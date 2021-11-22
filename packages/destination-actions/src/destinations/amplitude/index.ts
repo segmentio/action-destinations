@@ -68,6 +68,23 @@ const destination: DestinationDefinition<Settings> = {
           'Amplitude project secret key. You can find this key in the "General" tab of your Amplitude project.',
         type: 'string',
         required: true
+      },
+      endpoint: {
+        label: 'Endpoint',
+        description: 'Choose the endpoint corresponding to your region.',
+        type: 'string',
+        format: 'text',
+        choices: [
+          {
+            label: '[North America] https://api.amplitude.com',
+            value: 'northAmerica'
+          },
+          {
+            label: '[Europe] https://api.eu.amplitude.com',
+            value: 'europe'
+          }
+        ],
+        default: 'northAmerica'
       }
     },
     testAuthentication: (request, { settings }) => {
