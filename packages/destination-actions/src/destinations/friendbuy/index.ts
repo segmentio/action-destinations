@@ -4,6 +4,7 @@ import type { Settings } from './generated-types'
 import trackCustomer from './trackCustomer'
 
 export const friendbuyBaseHost = 'fbot-sandbox.me'
+export const trackUrl = `https://public.${friendbuyBaseHost}/track/`
 
 const destination: DestinationDefinition<Settings> = {
   name: 'Friendbuy (Cloud Destination)',
