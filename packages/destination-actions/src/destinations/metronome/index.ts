@@ -20,7 +20,7 @@ const destination: DestinationDefinition<Settings> = {
     testAuthentication: async (request) => {
       const response = await request('https://api.getmetronome.com/v1/ingest', {
         method: 'post',
-        body: JSON.stringify([]),
+        json: [],
         throwHttpErrors: false
       })
       // An empty set of events will return a 400 response whereas a bad token will return a 403.
