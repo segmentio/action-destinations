@@ -5,6 +5,7 @@ export const contextFields: Record<string, InputField> = {
     label: 'Page URL',
     description: 'The URL of the web page the event was generated on.',
     type: 'string',
+    format: 'uri',
     required: false,
     default: { '@path': '$.context.page.url' }
   },

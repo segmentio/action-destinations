@@ -4,6 +4,7 @@ import type { Settings } from './generated-types'
 import trackCustomer from './trackCustomer'
 import trackPurchase from './trackPurchase'
 import trackSignUp from './trackSignUp'
+import trackCustomEvent from './trackCustomEvent'
 
 export const friendbuyBaseHost = 'fbot-sandbox.me'
 export const trackUrl = `https://public.${friendbuyBaseHost}/track/`
@@ -40,7 +41,8 @@ const destination: DestinationDefinition<Settings> = {
   actions: {
     trackCustomer,
     trackPurchase,
-    trackSignUp
+    trackSignUp,
+    trackCustomEvent
   }
 }
 
