@@ -1,6 +1,6 @@
 // import { Analytics, Context } from '@segment/analytics-next'
 // import { destination } from '../../index'
 
-describe('ActionsSprig.trackEvent', () => {
+describe('SprigWeb.identifyUser', () => {
   // TODO: Test your action
 })

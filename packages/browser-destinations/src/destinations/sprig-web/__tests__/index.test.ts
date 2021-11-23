@@ -21,12 +21,10 @@ const subscriptions: Subscription[] = [
 
 describe('Sprig initialization', () => {
   test('can load Sprig', async () => {
-    console.log('LOGGING SOME STUFF')
     const x = await sprigDestination({
       envId: 'testEnvId',
       subscriptions
     })
-    console.log(x)
     const [event] = x
 
     jest.spyOn(destination, 'initialize')
@@ -35,17 +33,15 @@ describe('Sprig initialization', () => {
     expect(destination.initialize).toHaveBeenCalled()
 
     const scripts = window.document.querySelectorAll('script')
-
     expect(scripts).toMatchSnapshot(`
-      NodeList [
-        <script
-          src="https://js.appboycdn.com/web-sdk/3.3/appboy.min.js"
+      <script
+          src="https://cdn.sprig.com/shim.js?id=testEnvId"
+          status="loaded"
           type="text/javascript"
         />,
         <script>
           // the emptiness
         </script>,
-      ]
     `)
   })
 })

@@ -14,7 +14,7 @@ declare global {
 
 export const destination: BrowserDestinationDefinition<Settings, Sprig> = {
   name: 'Sprig',
-  slug: 'actions-sprig',
+  slug: 'sprig-web',
   mode: 'device',
 
   presets: [
@@ -54,7 +54,6 @@ export const destination: BrowserDestinationDefinition<Settings, Sprig> = {
   },
 
   initialize: async ({ settings }, deps) => {
-    console.log('got here')
     if (!window.Sprig || !window.Sprig.envId) {
       window.Sprig = function (...args) {
         S._queue && S._queue.push(args)
