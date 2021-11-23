@@ -1,7 +1,6 @@
 import nock from 'nock'
 import { createTestEvent, createTestIntegration } from '@segment/actions-core'
 import Destination from '../../index'
-
 const testDestination = createTestIntegration(Destination)
 
 describe('Metronome.sendEvent', () => {
@@ -32,10 +31,11 @@ describe('Metronome.sendEvent', () => {
       expect(responses.length).toBe(1)
       expect(responses[0].status).toBe(200)
 
-      // Segment manually the `options.headers` property incorrectly as Record<string, string>, when in 
-      // practice it is an instance of Headers. Until this is fixed, we'll use a snapshot to check the headers...
-      // ideally this check could just be
+      // The `options.headers` property is incorrectly typed as Record<string, string>,
+      // when in practice it is an instance of Headers. Until this is fixed,
+      // we'll use a snapshot to check the headers. Ideally this check could just be
       // `expect(responses[0].options.headers.get("authorization")).toBe("Bearer mock-api-token")`
+      console.log(responses[0].options.headers instanceof Headers)
       expect(responses[0].options.headers).toMatchInlineSnapshot(`
         Headers {
           Symbol(map): Object {
@@ -88,9 +88,9 @@ describe('Metronome.sendEvent', () => {
       expect(responses.length).toBe(1)
       expect(responses[0].status).toBe(200)
 
-      // Segment manually the `options.headers` property incorrectly as Record<string, string>, when in 
-      // practice it is an instance of Headers. Until this is fixed, we'll use a snapshot to check the headers...
-      // ideally this check could just be
+      // The `options.headers` property is incorrectly typed as Record<string, string>,
+      // when in practice it is an instance of Headers. Until this is fixed,
+      // we'll use a snapshot to check the headers. Ideally this check could just be
       // `expect(responses[0].options.headers.get("authorization")).toBe("Bearer mock-api-token")`
       expect(responses[0].options.headers).toMatchInlineSnapshot(`
         Headers {
@@ -145,9 +145,9 @@ describe('Metronome.sendEvent', () => {
       expect(responses.length).toBe(1)
       expect(responses[0].status).toBe(200)
 
-      // Segment manually the `options.headers` property incorrectly as Record<string, string>, when in 
-      // practice it is an instance of Headers. Until this is fixed, we'll use a snapshot to check the headers...
-      // ideally this check could just be
+      // The `options.headers` property is incorrectly typed as Record<string, string>,
+      // when in practice it is an instance of Headers. Until this is fixed,
+      // we'll use a snapshot to check the headers. Ideally this check could just be
       // `expect(responses[0].options.headers.get("authorization")).toBe("Bearer mock-api-token")`
       expect((responses[0].options.headers)).toMatchInlineSnapshot(`
         Headers {
