@@ -101,5 +101,21 @@ export interface Payload {
      * Item quantity.
      */
     quantity?: number
+    /**
+     * The name of the promotional creative.
+     */
+    creative_name?: string
+    /**
+     * The name of the promotional creative slot associated with the event.
+     */
+    creative_slot?: string
+    /**
+     * The name of the promotion associated with the event.
+     */
+    promotion_name?: string
+    /**
+     * The ID of the promotion associated with the event.
+     */
+    promotion_id?: string
   }[]
 }
