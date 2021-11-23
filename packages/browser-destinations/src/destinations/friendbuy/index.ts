@@ -71,8 +71,8 @@ export const destination: BrowserDestinationDefinition<Settings, FriendbuyAPI> =
     friendbuyAPI.push(['merchant', settings.merchantId])
 
     // The Friendbuy JavaScript can be loaded asynchronously.
-    void dependencies.loadScript(`https://static.${friendbuyBaseHost}/friendbuy.js`),
-      void dependencies.loadScript(`https://campaign.${friendbuyBaseHost}/${settings.merchantId}/campaigns.js`)
+    void dependencies.loadScript(`https://static.${friendbuyBaseHost}/friendbuy.js`)
+    void dependencies.loadScript(`https://campaign.${friendbuyBaseHost}/${settings.merchantId}/campaigns.js`)
 
     return friendbuyAPI
   },
