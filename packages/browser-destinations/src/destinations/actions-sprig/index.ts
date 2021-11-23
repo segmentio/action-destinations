@@ -1,23 +1,19 @@
 import type { Settings } from './generated-types'
 import type { BrowserDestinationDefinition } from '../../lib/browser-destinations'
 import { browserDestination } from '../../runtime/shim'
+import { Sprig } from './types'
 
-interface Sprig {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  (...args: any[]): any // TODO revisit
-  envId?: string
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  _queue?: any[]
-}
+import trackEvent from './trackEvent'
+
+import identifyUser from './identifyUser'
+
 declare global {
   interface Window {
     Sprig: Sprig
-    UserLeap: Sprig
   }
 }
 
-// Switch from unknown to the partner SDK client types
-export const destination: BrowserDestinationDefinition<Settings, unknown> = {
+export const destination: BrowserDestinationDefinition<Settings, Sprig> = {
   name: 'Sprig',
   slug: 'actions-sprig',
   mode: 'device',
@@ -38,7 +34,13 @@ export const destination: BrowserDestinationDefinition<Settings, unknown> = {
     }
   },
 
+  actions: {
+    trackEvent,
+    identifyUser
+  },
+
   initialize: async ({ settings }, deps) => {
+    console.log('got here')
     if (!window.Sprig || !window.Sprig.envId) {
       window.Sprig = function (...args) {
         S._queue && S._queue.push(args)
@@ -46,7 +48,6 @@ export const destination: BrowserDestinationDefinition<Settings, unknown> = {
       const S = window.Sprig
       S.envId = settings.envId
       S._queue = []
-      window.UserLeap = S
       await deps.loadScript(`https://cdn.sprig.com/shim.js?id=${S.envId}`)
     }
 
