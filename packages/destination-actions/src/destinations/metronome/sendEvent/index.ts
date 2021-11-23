@@ -76,6 +76,9 @@ const action: ActionDefinition<Settings, Payload> = {
       label: 'properties',
       description: 'The Metronome properties object.',
       required: true,
+      default: {
+        '@path': '$.properties'
+      }
     },
   },
   perform: (request, { payload }) => {
