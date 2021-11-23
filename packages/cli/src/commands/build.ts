@@ -3,7 +3,6 @@ import * as path from 'path'
 import webpack from 'webpack'
 import { loadDestination } from '../lib/destinations'
 import ora from 'ora'
-import { comprehensionExpression } from 'jscodeshift'
 
 // TODO app:dev that in injects builtins
 // and their default implementations.
@@ -39,9 +38,10 @@ export default class Build extends Command {
 
         // console.log(`${Object.keys(entries).length} functions to be built: ${Object.keys(entries).join(',')}`)
 
-        const distDir = path.resolve(dir, '.segment', 'dist')
-        const tsconfig = path.resolve('@segment/action-destinations', 'tsconfig.json')
-        console.log(tsconfig)
+        const distDir = path.resolve(dir, '.segment', 'dist', 'slack', '1.0.0')
+        const pkg = require.resolve('@segment/action-destinations')
+        const lastSlash = pkg.lastIndexOf('/', pkg.lastIndexOf('/') - 1)
+        const tsconfig = path.resolve(pkg.slice(0, lastSlash), 'tsconfig.json')
 
         // Build the webpack config. Assumes a tsconfig.json exists if typescript is used.
         // TODO Support and ejectable webpack config and/or accept optional webpack config options
@@ -52,12 +52,13 @@ export default class Build extends Command {
         // in the event of a bad actor.
         const config = {
             // target: 'node', // webworker for isolates
+            target: 'node',
             mode: 'development',
             devtool: "source-map",
             context: path.resolve(dir),
-            entry: path.resolve(dir, 'index.ts'),
-            experiments: {
-                outputModule: true
+            entry: {
+                app: path.resolve(dir, 'index.ts'),
+                core: '@segment/actions-core'
             },
             module: {
                 rules: [
@@ -81,7 +82,7 @@ export default class Build extends Command {
                 filename: '[name].js',
                 path: distDir,
                 library: {
-                    type: 'module'
+                    type: 'commonjs'
                 }
             },
         }
