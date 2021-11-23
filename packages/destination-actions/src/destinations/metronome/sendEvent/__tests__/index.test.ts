@@ -7,7 +7,11 @@ const testDestination = createTestIntegration(Destination)
 describe('Metronome.sendEvent', () => {
   describe("process", () => {
     it('should send an event', async () => {
-      const event = createTestEvent();
+      const event = createTestEvent({
+        context: {
+          groupId: "mock-group-id", // have to provide a groupId since this function doesn't create one by default
+        }
+      });
 
       nock('https://api.getmetronome.com')
         .matchHeader('content-type', 'application/json')
@@ -28,7 +32,10 @@ describe('Metronome.sendEvent', () => {
       expect(responses.length).toBe(1)
       expect(responses[0].status).toBe(200)
 
-      // TODO: Feels like there should be a lighter weight to do this check
+      // Segment manually the `options.headers` property incorrectly as Record<string, string>, when in 
+      // practice it is an instance of Headers. Until this is fixed, we'll use a snapshot to check the headers...
+      // ideally this check could just be
+      // `expect(responses[0].options.headers.get("authorization")).toBe("Bearer mock-api-token")`
       expect(responses[0].options.headers).toMatchInlineSnapshot(`
         Headers {
           Symbol(map): Object {
@@ -45,7 +52,7 @@ describe('Metronome.sendEvent', () => {
       expect(responses[0].options.json).toEqual([
         {
           event_type: event.event,
-          customer_id: event?.context?.groupId ?? event.userId ?? event.anonymousId,
+          customer_id: event?.context?.groupId,
           properties: event.context,
           transaction_id: event.messageId,
           timestamp: new Date(event.timestamp ?? "").toISOString(),
@@ -56,7 +63,10 @@ describe('Metronome.sendEvent', () => {
 
     it('should convert a non rfc3999 timestamp', async () => {
       const event = createTestEvent({
-        timestamp: "2021-01-01"
+        timestamp: "2021-01-01",
+        context: {
+          groupId: "mock-group-id", // have to provide a groupId since this function doesn't create one by default
+        }
       });
 
       nock('https://api.getmetronome.com')
@@ -78,7 +88,10 @@ describe('Metronome.sendEvent', () => {
       expect(responses.length).toBe(1)
       expect(responses[0].status).toBe(200)
 
-      // TODO: Feels like there should be a lighter weight to do this check
+      // Segment manually the `options.headers` property incorrectly as Record<string, string>, when in 
+      // practice it is an instance of Headers. Until this is fixed, we'll use a snapshot to check the headers...
+      // ideally this check could just be
+      // `expect(responses[0].options.headers.get("authorization")).toBe("Bearer mock-api-token")`
       expect(responses[0].options.headers).toMatchInlineSnapshot(`
         Headers {
           Symbol(map): Object {
@@ -94,7 +107,7 @@ describe('Metronome.sendEvent', () => {
       expect(responses[0].options.json).toEqual([
         {
           event_type: event.event,
-          customer_id: event?.context?.groupId ?? event.userId ?? event.anonymousId,
+          customer_id: event?.context?.groupId,
           properties: event.context,
           transaction_id: event.messageId,
           timestamp: "2021-01-01T00:00:00.000Z",
@@ -105,7 +118,10 @@ describe('Metronome.sendEvent', () => {
     it('should convert an epoch timestamp', async () => {
       const event = createTestEvent({
         properties: {
-          epoch_timestamp: 1625895431000 // 2021-07-10 05:37:11
+          epoch_timestamp: 1625895431000, // 2021-07-10 05:37:11
+        },
+        context: {
+          groupId: "mock-group-id", // have to provide a groupId since this function doesn't create one by default
         }
       });
 
@@ -129,8 +145,11 @@ describe('Metronome.sendEvent', () => {
       expect(responses.length).toBe(1)
       expect(responses[0].status).toBe(200)
 
-      // TODO: Feels like there should be a lighter weight to do this check
-      expect(responses[0].options.headers).toMatchInlineSnapshot(`
+      // Segment manually the `options.headers` property incorrectly as Record<string, string>, when in 
+      // practice it is an instance of Headers. Until this is fixed, we'll use a snapshot to check the headers...
+      // ideally this check could just be
+      // `expect(responses[0].options.headers.get("authorization")).toBe("Bearer mock-api-token")`
+      expect((responses[0].options.headers)).toMatchInlineSnapshot(`
         Headers {
           Symbol(map): Object {
             "authorization": Array [
@@ -145,7 +164,7 @@ describe('Metronome.sendEvent', () => {
       expect(responses[0].options.json).toEqual([
         {
           event_type: event.event,
-          customer_id: event?.context?.groupId ?? event.userId ?? event.anonymousId,
+          customer_id: event?.context?.groupId,
           properties: event.context,
           transaction_id: event.messageId,
           timestamp: "2021-07-10T05:37:11.000Z",

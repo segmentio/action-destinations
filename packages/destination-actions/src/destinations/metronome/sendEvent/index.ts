@@ -39,18 +39,7 @@ const action: ActionDefinition<Settings, Payload> = {
       description: 'The Metronome customer ID or ingest alias this event should be associated with.',
       required: true,
       default: {
-        // By default, use the group ID if it exists, otherwise use the user ID. If neither exist, use the anonymous ID.
-        '@if': {
-          exists: { '@path': '$.context.groupId' },
-          then: { '@path': '$.context.groupId' },
-          else: {
-            '@if': {
-              exists: { '@path': '$.userId' },
-              then: { '@path': '$.userId' },
-              else: { '@path': '$.anonymousId' }
-            }
-          }
-        }
+        '@path': '$.context.groupId'
       }
     },
     timestamp: {
