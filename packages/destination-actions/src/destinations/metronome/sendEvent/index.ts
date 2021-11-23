@@ -67,6 +67,9 @@ const action: ActionDefinition<Settings, Payload> = {
       label: 'event_type',
       description: 'The Metronome `event_type`.',
       required: true,
+      default: {
+        '@path': '$.event'
+      }
     },
     properties: {
       type: 'object',
