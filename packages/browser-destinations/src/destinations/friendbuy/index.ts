@@ -7,11 +7,12 @@ import type { Settings } from './generated-types'
 import type { FriendbuyAPI } from './types'
 import trackCustomer, { trackCustomerDefaultSubscription } from './trackCustomer'
 import trackPurchase, { trackPurchaseDefaultSubscription } from './trackPurchase'
-import trackSignUp, { trackSignUpDefaultSubscription, trackSignUpFields } from './trackSignUp'
+import trackSignUp, { trackSignUpDefaultSubscription } from './trackSignUp'
 import trackPage, { trackPageDefaultSubscription, trackPageFields } from './trackPage'
 import trackCustomEvent from './trackCustomEvent'
 import { trackCustomerFields } from './shared/sharedCustomer'
 import { trackPurchaseFields } from './shared/sharedPurchase'
+import { trackSignUpFields } from './shared/sharedSignUp'
 
 declare global {
   interface Window {
