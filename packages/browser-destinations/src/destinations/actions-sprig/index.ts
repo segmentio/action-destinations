@@ -2,10 +2,9 @@ import type { Settings } from './generated-types'
 import type { BrowserDestinationDefinition } from '../../lib/browser-destinations'
 import { browserDestination } from '../../runtime/shim'
 import { Sprig } from './types'
-
 import trackEvent from './trackEvent'
-
 import identifyUser from './identifyUser'
+import { defaultValues } from '@segment/actions-core'
 
 declare global {
   interface Window {
@@ -17,6 +16,21 @@ export const destination: BrowserDestinationDefinition<Settings, Sprig> = {
   name: 'Sprig',
   slug: 'actions-sprig',
   mode: 'device',
+
+  presets: [
+    {
+      name: 'Track Event',
+      subscribe: 'type = "track"',
+      partnerAction: 'trackEvent',
+      mapping: defaultValues(trackEvent.fields)
+    },
+    {
+      name: 'Identify User',
+      subscribe: 'type = "identify"',
+      partnerAction: 'identifyUser',
+      mapping: defaultValues(identifyUser.fields)
+    }
+  ],
 
   settings: {
     envId: {
@@ -52,9 +66,7 @@ export const destination: BrowserDestinationDefinition<Settings, Sprig> = {
     }
 
     return window.Sprig
-  },
-
-  actions: {}
+  }
 }
 
 export default browserDestination(destination)
