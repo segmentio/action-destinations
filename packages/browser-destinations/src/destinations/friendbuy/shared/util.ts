@@ -44,10 +44,7 @@ export interface CreateFriendbuyPayloadFlags {
  * specified then values which are empty objects or arrays will also be
  * dropped.
  */
-export function createFriendbuyPayload(
-  payloadItems: FriendbuyPayloadItem[],
-  flags: CreateFriendbuyPayloadFlags = {}
-) {
+export function createFriendbuyPayload(payloadItems: FriendbuyPayloadItem[], flags: CreateFriendbuyPayloadFlags = {}) {
   const friendbuyPayload: Record<string, FriendbuyPayloadValue> = {}
   payloadItems.forEach(([k, v]) => {
     if (!(v === undefined || v === '' || (flags.dropEmpty && isEmpty(v)))) {

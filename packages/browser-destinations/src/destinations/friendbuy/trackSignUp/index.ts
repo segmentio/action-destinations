@@ -4,8 +4,8 @@ import type { BrowserActionDefinition } from '../../../lib/browser-destinations'
 import type { FriendbuyAPI } from '../types'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
-import { commonCustomerAttributes, commonCustomerFields } from '../commonFields'
-import { createFriendbuyPayload, filterFriendbuyAttributes } from '../util'
+import { commonCustomerAttributes, commonCustomerFields } from '../shared/commonFields'
+import { createFriendbuyPayload, filterFriendbuyAttributes } from '../shared/util'
 
 // see https://segment.com/docs/config-api/fql/
 export const trackSignUpDefaultSubscription = 'event = "Signed Up"'
