@@ -1,31 +1,32 @@
 export type EndpointOptions = {
   protocol?: string
   subdomains?: {
-    [key: string]: string
+    europe?: string
+    north_america?: string
   }
 }
 
-export type EndpointRegion = 'northAmerica' | 'europe'
+export type EndpointRegion = 'europe' | 'north_america'
 
 const defaultOptions: EndpointOptions = {
   protocol: 'https',
   subdomains: {
     europe: 'api.eu',
-    northAmerica: 'api'
+    north_america: 'api'
   }
 }
 
 /**
  * Generates a region-specific Amplitude endpoint
  *
- * @param path path to api endpoint (e.g., 'usermap')
- * @param region specified region (e.g., 'europe')
+ * @param path path to api endpoint (e.g., '/usermap')
+ * @param region specified region ('north_america' | 'europe')
  * @param options change protocol or subdomains of endpoint
  * @returns api endpoint string
  */
 export default function createEndpoint(
   path: string,
-  region: EndpointRegion = 'northAmerica',
+  region: EndpointRegion = 'north_america',
   options: EndpointOptions = {}
 ): string {
   const protocol = options.protocol?.replace('://', '') ?? defaultOptions.protocol
@@ -37,9 +38,9 @@ export default function createEndpoint(
   switch (region) {
     case 'europe':
       break
-    case 'northAmerica':
+    case 'north_america':
     default:
-      region = 'northAmerica'
+      region = 'north_america'
       break
   }
 

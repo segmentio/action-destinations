@@ -8,7 +8,7 @@ describe('Amplitude - generate API endpoint', () => {
   })
 
   it('should create a NA endpoint provided a region and path', () => {
-    const region = 'northAmerica'
+    const region = 'north_america'
     const path = 'identify'
     const result = createEndpoint(path, region)
     expect(result).toEqual('https://api.amplitude.com/identify')
@@ -22,7 +22,7 @@ describe('Amplitude - generate API endpoint', () => {
   })
 
   it('should create an NA endpoint provided an invalid region but valid path', () => {
-    const region = 'southAmerica'
+    const region = 'south_america'
     const path = 'identify'
     // @ts-ignore
     const result = createEndpoint(path, region)
@@ -66,7 +66,7 @@ describe('Amplitude - generate API endpoint', () => {
     const result2 = createEndpoint(path, undefined, {
       protocol: 'https',
       subdomains: {
-        northAmerica: 'api.us'
+        north_america: 'api.us'
       }
     })
     expect(result2).toEqual('https://api.us.amplitude.com/identify')
@@ -74,7 +74,7 @@ describe('Amplitude - generate API endpoint', () => {
     const result3 = createEndpoint(path, 'europe', {
       protocol: 'https',
       subdomains: {
-        northAmerica: 'api.us'
+        north_america: 'api.us'
       }
     })
     expect(result3).toEqual('https://api.eu.amplitude.com/identify')
@@ -82,7 +82,7 @@ describe('Amplitude - generate API endpoint', () => {
     const result4 = createEndpoint(path, 'europe', {
       protocol: 'https',
       subdomains: {
-        northAmerica: 'api.us',
+        north_america: 'api.us',
         europe: 'api.europe'
       }
     })

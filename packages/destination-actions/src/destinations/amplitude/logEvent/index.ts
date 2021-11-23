@@ -244,7 +244,7 @@ const action: ActionDefinition<Settings, Payload> = {
       settings.endpoint as EndpointRegion,
       {
         subdomains: {
-          northAmerica: 'api2'
+          north_america: 'api2'
         }
       }
     )

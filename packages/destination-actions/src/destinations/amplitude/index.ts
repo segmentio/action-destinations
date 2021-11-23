@@ -71,21 +71,21 @@ const destination: DestinationDefinition<Settings> = {
         required: true
       },
       endpoint: {
-        label: 'Endpoint',
-        description: 'Choose the endpoint corresponding to your region.',
+        label: 'Endpoint Region',
+        description: 'Choose the region where you would like to send your data.',
         type: 'string',
         format: 'text',
         choices: [
           {
-            label: '[North America] https://api.amplitude.com',
-            value: 'northAmerica'
+            label: 'North America',
+            value: 'north_america'
           },
           {
-            label: '[Europe] https://api.eu.amplitude.com',
+            label: 'Europe',
             value: 'europe'
           }
         ],
-        default: 'northAmerica'
+        default: 'https://api.amplitude.com'
       }
     },
     testAuthentication: (request, { settings }) => {
@@ -94,7 +94,7 @@ const destination: DestinationDefinition<Settings> = {
       return request(
         createEndpoint('/api/2/usersearch?user=testUser@example.com', settings.endpoint as EndpointRegion, {
           subdomains: {
-            northAmerica: '',
+            north_america: '',
             europe: 'analytics.eu'
           }
         }),
@@ -109,7 +109,7 @@ const destination: DestinationDefinition<Settings> = {
     return request(
       createEndpoint('/api/2/deletions/users', settings.endpoint as EndpointRegion, {
         subdomains: {
-          northAmerica: '',
+          north_america: '',
           europe: 'analytics.eu'
         }
       }),
