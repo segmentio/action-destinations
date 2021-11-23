@@ -37,9 +37,6 @@ const action: ActionDefinition<Settings, Payload> = {
         coupon: {
           '@path': '$.properties.coupon'
         },
-        index: {
-          '@path': '$.properties.position'
-        },
         item_brand: {
           '@path': '$.properties.brand'
         },
