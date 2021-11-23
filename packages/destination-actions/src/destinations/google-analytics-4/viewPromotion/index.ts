@@ -44,6 +44,38 @@ const action: ActionDefinition<Settings, Payload> = {
         promotion_id: {
           ...promotion_id
         }
+      },
+      default: {
+        item_id: {
+          '@path': '$.properties.product_id'
+        },
+        item_name: {
+          '@path': '$.properties.name'
+        },
+        affiliation: {
+          '@path': '$.properties.affiliation'
+        },
+        coupon: {
+          '@path': '$.properties.coupon'
+        },
+        index: {
+          '@path': '$.properties.position'
+        },
+        item_brand: {
+          '@path': '$.properties.brand'
+        },
+        item_category: {
+          '@path': '$.properties.category'
+        },
+        item_variant: {
+          '@path': '$.properties.variant'
+        },
+        price: {
+          '@path': '$.properties.price'
+        },
+        quantity: {
+          '@path': '$.properties.quantity'
+        }
       }
     }
   },

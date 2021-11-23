@@ -31,7 +31,47 @@ const action: ActionDefinition<Settings, Payload> = {
         '@path': '$.properties.category'
       }
     },
-    items: { ...items, required: true }
+    items: {
+      ...items,
+      required: true,
+      default: {
+        '@arrayPath': [
+          '$.properties.products',
+          {
+            item_id: {
+              '@path': '$.product_id'
+            },
+            item_name: {
+              '@path': '$.name'
+            },
+            affiliation: {
+              '@path': '$.affiliation'
+            },
+            coupon: {
+              '@path': '$.coupon'
+            },
+            index: {
+              '@path': '$.position'
+            },
+            item_brand: {
+              '@path': '$.brand'
+            },
+            item_category: {
+              '@path': '$.category'
+            },
+            item_variant: {
+              '@path': '$.variant'
+            },
+            price: {
+              '@path': '$.price'
+            },
+            quantity: {
+              '@path': '$.quantity'
+            }
+          }
+        ]
+      }
+    }
   },
   perform: (request, { payload }) => {
     let googleItems: ProductItem[] = []

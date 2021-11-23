@@ -13,7 +13,42 @@ const action: ActionDefinition<Settings, Payload> = {
     client_id: { ...client_id, required: true },
     currency: { ...currency },
     value: { ...value },
-    items: { ...items, required: true }
+    items: {
+      ...items,
+      required: true,
+      default: {
+        item_id: {
+          '@path': '$.properties.product_id'
+        },
+        item_name: {
+          '@path': '$.properties.name'
+        },
+        affiliation: {
+          '@path': '$.properties.affiliation'
+        },
+        coupon: {
+          '@path': '$.properties.coupon'
+        },
+        index: {
+          '@path': '$.properties.position'
+        },
+        item_brand: {
+          '@path': '$.properties.brand'
+        },
+        item_category: {
+          '@path': '$.properties.category'
+        },
+        item_variant: {
+          '@path': '$.properties.variant'
+        },
+        price: {
+          '@path': '$.properties.price'
+        },
+        quantity: {
+          '@path': '$.properties.quantity'
+        }
+      }
+    }
   },
   perform: (request, { payload }) => {
     // Make your partner api request here!
