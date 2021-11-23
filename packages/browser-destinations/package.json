@@ -31,7 +31,7 @@
     "@braze/web-sdk": "^3.3.0",
     "@fullstory/browser": "^1.4.9",
     "@segment/analytics-next": "^1.29.3",
-    "@segment/destination-subscriptions": "^3.8.3-alpha.0",
+    "@segment/destination-subscriptions": "^3.8.2",
     "dayjs": "^1.10.7",
     "tslib": "^2.3.1",
     "vm-browserify": "^1.1.2"

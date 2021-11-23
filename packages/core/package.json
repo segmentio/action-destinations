@@ -54,8 +54,8 @@
   },
   "dependencies": {
     "@lukeed/uuid": "^2.0.0",
-    "@segment/ajv-human-errors": "^2.0.3-alpha.0",
-    "@segment/destination-subscriptions": "^3.8.3-alpha.0",
+    "@segment/ajv-human-errors": "^2.0.2",
+    "@segment/destination-subscriptions": "^3.8.2",
     "abort-controller": "^3.0.0",
     "aggregate-error": "^3.1.0",
     "ajv": "^8.6.3",
@@ -75,6 +75,5 @@
       "@segment/ajv-human-errors": "<rootDir>/../ajv-human-errors/src",
       "@segment/destination-subscriptions": "<rootDir>/../destination-subscriptions/src"
     }
-  },
-  "gitHead": "b7ac658ac087373645a3f404171ba91df8ba4d54"
+  }
 }
