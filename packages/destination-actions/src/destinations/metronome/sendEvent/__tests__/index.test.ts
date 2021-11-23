@@ -35,7 +35,6 @@ describe('Metronome.sendEvent', () => {
       // when in practice it is an instance of Headers. Until this is fixed,
       // we'll use a snapshot to check the headers. Ideally this check could just be
       // `expect(responses[0].options.headers.get("authorization")).toBe("Bearer mock-api-token")`
-      console.log(responses[0].options.headers instanceof Headers)
       expect(responses[0].options.headers).toMatchInlineSnapshot(`
         Headers {
           Symbol(map): Object {
