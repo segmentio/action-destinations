@@ -23,7 +23,7 @@ const defaultOptions: EndpointOptions = {
  * @param options change protocol or subdomains of endpoint
  * @returns api endpoint string
  */
-export default function generateApiEndpoint(
+export default function createEndpoint(
   path: string,
   region: EndpointRegion = 'northAmerica',
   options: EndpointOptions = {}

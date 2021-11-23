@@ -5,6 +5,7 @@ import logEvent from './logEvent'
 import mapUser from './mapUser'
 import groupIdentifyUser from './groupIdentifyUser'
 import type { Settings } from './generated-types'
+import createEndpoint, { EndpointRegion } from './create-endpoint'
 
 /** used in the quick setup */
 const presets: DestinationDefinition['presets'] = [
@@ -90,22 +91,38 @@ const destination: DestinationDefinition<Settings> = {
     testAuthentication: (request, { settings }) => {
       // Note: Amplitude has some apis that use basic auth (like this one)
       // and others that use custom auth in the request body
-      return request('https://amplitude.com/api/2/usersearch?user=testUser@example.com', {
-        username: settings.apiKey,
-        password: settings.secretKey
-      })
+      return request(
+        createEndpoint('/api/2/usersearch?user=testUser@example.com', settings.endpoint as EndpointRegion, {
+          subdomains: {
+            northAmerica: '',
+            europe: 'analytics.eu'
+          }
+        }),
+        {
+          username: settings.apiKey,
+          password: settings.secretKey
+        }
+      )
     }
   },
   onDelete: async (request, { settings, payload }) => {
-    return request('https://amplitude.com/api/2/deletions/users', {
-      username: settings.apiKey,
-      password: settings.secretKey,
-      method: 'post',
-      json: {
-        user_ids: [payload.userId],
-        requester: 'segment'
+    return request(
+      createEndpoint('/api/2/deletions/users', settings.endpoint as EndpointRegion, {
+        subdomains: {
+          northAmerica: '',
+          europe: 'analytics.eu'
+        }
+      }),
+      {
+        username: settings.apiKey,
+        password: settings.secretKey,
+        method: 'post',
+        json: {
+          user_ids: [payload.userId],
+          requester: 'segment'
+        }
       }
-    })
+    )
   },
   presets,
   actions: {

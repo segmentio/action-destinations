@@ -8,6 +8,7 @@ import { convertUTMProperties } from '../utm'
 import { convertReferrerProperty } from '../referrer'
 import { mergeUserProperties } from '../merge-user-properties'
 import { parseUserAgentProperties } from '../user-agent'
+import createEndpoint, { EndpointRegion } from '../create-endpoint'
 
 export interface AmplitudeEvent extends Omit<Payload, 'products' | 'trackRevenuePerProduct' | 'time' | 'session_id'> {
   library?: string
@@ -238,9 +239,15 @@ const action: ActionDefinition<Settings, Payload> = {
       })
     }
 
-    const endpoint = payload.use_batch_endpoint
-      ? 'https://api2.amplitude.com/batch'
-      : 'https://api2.amplitude.com/2/httpapi'
+    const endpoint = createEndpoint(
+      payload.use_batch_endpoint ? '/batch' : '/2/httpapi',
+      settings.endpoint as EndpointRegion,
+      {
+        subdomains: {
+          northAmerica: 'api2'
+        }
+      }
+    )
 
     return request(endpoint, {
       method: 'post',
