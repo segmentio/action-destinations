@@ -24,6 +24,10 @@ export interface Payload {
     [k: string]: unknown
   }
   /**
+   * Connection overrides are configuration supported by twilio webhook services. Must be passed as fragments on the callback url
+   */
+  connectionOverrides?: string
+  /**
    * Whether or not the message should actually get sent.
    */
   send?: boolean
