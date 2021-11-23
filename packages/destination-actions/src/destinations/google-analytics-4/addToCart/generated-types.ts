@@ -12,7 +12,7 @@ export interface Payload {
   /**
    * The list of products purchased.
    */
-  items?: {
+  items: {
     /**
      * Identifier for the product being purchased.
      */
