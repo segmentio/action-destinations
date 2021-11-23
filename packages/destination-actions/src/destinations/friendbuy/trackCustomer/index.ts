@@ -2,11 +2,8 @@ import type { ActionDefinition } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 
-import {
-  filterFriendbuyAttributes,
-  getName
-} from '../../../../../../packages/browser-destinations/src/destinations/friendbuy/util'
-import { trackCustomerFields } from '../../../../../../packages/browser-destinations/src/destinations/friendbuy/trackCustomer'
+import { filterFriendbuyAttributes, getName } from '../shared/util'
+import { trackCustomerFields } from '../shared/sharedCustomer'
 import { base64Encode } from '../base64'
 import { contextFields } from '../contextFields'
 import { trackUrl } from '..'
@@ -16,7 +13,7 @@ const action: ActionDefinition<Settings, Payload> = {
   description: 'Create a new customer profile or update an existing customer profile.',
   fields: Object.assign({}, trackCustomerFields, contextFields),
   perform: (request, data) => {
-    // console.log('request data', JSON.stringify({ request, data }, null, 2))
+    // console.log('request data', JSON.stringify(data, null, 2))
     const payload = base64Encode(
       encodeURIComponent(
         JSON.stringify({
