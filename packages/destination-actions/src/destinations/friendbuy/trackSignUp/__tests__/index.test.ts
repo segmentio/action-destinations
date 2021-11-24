@@ -2,7 +2,7 @@ import nock from 'nock'
 import { createTestEvent, createTestIntegration } from '@segment/actions-core'
 import Destination from '../../index'
 
-import { trackUrl } from '../../index'
+import { trackUrl } from '../../cloudUtil'
 import { base64Decode } from '../../base64'
 import { get } from '@segment/actions-core'
 

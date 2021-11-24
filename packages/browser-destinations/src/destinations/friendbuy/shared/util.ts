@@ -1,3 +1,5 @@
+import { JSONValue } from '@segment/actions-core'
+
 export interface GetNameParams {
   name?: string
   firstName?: string
@@ -31,8 +33,7 @@ export function isEmpty(o: unknown) {
   return true
 }
 
-export type FriendbuyPayloadValue = string | number | boolean | object
-export type FriendbuyPayloadItem = [string, FriendbuyPayloadValue | undefined]
+export type FriendbuyPayloadItem = [string, JSONValue | undefined]
 
 export interface CreateFriendbuyPayloadFlags {
   dropEmpty?: boolean
@@ -45,7 +46,7 @@ export interface CreateFriendbuyPayloadFlags {
  * dropped.
  */
 export function createFriendbuyPayload(payloadItems: FriendbuyPayloadItem[], flags: CreateFriendbuyPayloadFlags = {}) {
-  const friendbuyPayload: Record<string, FriendbuyPayloadValue> = {}
+  const friendbuyPayload: Record<string, JSONValue> = {}
   payloadItems.forEach(([k, v]) => {
     if (!(v === undefined || v === '' || (flags.dropEmpty && isEmpty(v)))) {
       friendbuyPayload[k] = v
@@ -54,7 +55,7 @@ export function createFriendbuyPayload(payloadItems: FriendbuyPayloadItem[], fla
   return friendbuyPayload
 }
 
-export interface DateRecord {
+export type DateRecord = {
   year?: number
   month: number
   day: number

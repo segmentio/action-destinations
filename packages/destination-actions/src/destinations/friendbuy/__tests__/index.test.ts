@@ -1,7 +1,7 @@
 import nock from 'nock'
 import { /* createTestEvent, */ createTestIntegration } from '@segment/actions-core'
 import Definition from '../index'
-import { friendbuyBaseHost } from '..'
+import { friendbuyBaseHost } from '../cloudUtil'
 
 const testDestination = createTestIntegration(Definition)
 

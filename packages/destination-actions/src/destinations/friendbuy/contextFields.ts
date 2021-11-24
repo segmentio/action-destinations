@@ -31,3 +31,10 @@ export const contextFields: Record<string, InputField> = {
     default: { '@path': '$.context.ip' }
   }
 }
+
+export interface ContextFields {
+  pageUrl?: string
+  pageTitle?: string
+  userAgent?: string
+  ipAddress?: string
+}

@@ -5,9 +5,7 @@ import trackCustomer from './trackCustomer'
 import trackPurchase from './trackPurchase'
 import trackSignUp from './trackSignUp'
 import trackCustomEvent from './trackCustomEvent'
-
-export const friendbuyBaseHost = 'fbot-sandbox.me'
-export const trackUrl = `https://public.${friendbuyBaseHost}/track/`
+import { friendbuyBaseHost } from './cloudUtil'
 
 const destination: DestinationDefinition<Settings> = {
   name: 'Friendbuy (Cloud Destination)',

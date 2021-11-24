@@ -6,7 +6,7 @@ import { commonCustomerFields } from '../shared/commonFields'
 import { createPurchasePayload, trackPurchaseFields } from '../shared/sharedPurchase'
 import { base64Encode } from '../base64'
 import { contextFields } from '../contextFields'
-import { trackUrl } from '..'
+import { trackUrl } from '../cloudUtil'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Track Purchase',

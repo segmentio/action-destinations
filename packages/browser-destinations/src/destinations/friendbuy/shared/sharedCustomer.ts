@@ -1,5 +1,7 @@
 import type { InputField } from '@segment/actions-core'
 
+import { createFriendbuyPayload, filterFriendbuyAttributes, getName } from './util'
+
 // https://segment.com/docs/connections/spec/identify/
 // https://segment.com/docs/connections/spec/common/
 export const trackCustomerFields: Record<string, InputField> = {
@@ -83,4 +85,37 @@ export const trackCustomerFields: Record<string, InputField> = {
     required: false,
     default: { '@path': '$.traits.friendbuyAttributes' }
   }
+}
+
+export interface AnalyticsCustomerPayload {
+  customerId: string
+  anonymousId?: string
+  email: string
+  firstName?: string
+  lastName?: string
+  name?: string
+  age?: number
+  customerSince?: string
+  loyaltyStatus?: string
+  isNewCustomer?: boolean
+  friendbuyAttributes?: { [k: string]: unknown }
+}
+
+export function createCustomerPayload(analyticsPayload: AnalyticsCustomerPayload) {
+  const friendbuyPayload = createFriendbuyPayload([
+    ['id', analyticsPayload.customerId],
+    ['email', analyticsPayload.email],
+    ['firstName', analyticsPayload.firstName],
+    ['lastName', analyticsPayload.lastName],
+    ['name', getName(analyticsPayload)],
+    ['age', analyticsPayload.age],
+    ['customerSince', analyticsPayload.customerSince],
+    ['loyaltyStatus', analyticsPayload.loyaltyStatus],
+    ['isNewCustomer', analyticsPayload.isNewCustomer],
+    // custom properties
+    ['anonymousId', analyticsPayload.anonymousId],
+    ...filterFriendbuyAttributes(analyticsPayload.friendbuyAttributes)
+  ])
+
+  return friendbuyPayload
 }

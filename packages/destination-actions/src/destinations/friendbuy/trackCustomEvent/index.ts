@@ -5,7 +5,7 @@ import type { Payload } from './generated-types'
 import { createCustomEventPayload, trackCustomEventFields } from '../shared/sharedCustomEvent'
 import { base64Encode } from '../base64'
 import { contextFields } from '../contextFields'
-import { trackUrl } from '..'
+import { trackUrl } from '../cloudUtil'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Track Custom Event',
