@@ -1,6 +1,6 @@
 import createEndpoint from '../create-endpoint'
 
-describe('Amplitude - generate API endpoint', () => {
+describe('Amplitude - Create endpoint', () => {
   it('should create a NA endpoint provided and path', () => {
     const path = 'identify'
     const result = createEndpoint(path)
