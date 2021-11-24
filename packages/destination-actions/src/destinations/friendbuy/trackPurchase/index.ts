@@ -4,9 +4,8 @@ import type { Payload } from './generated-types'
 
 import { commonCustomerFields } from '../shared/commonFields'
 import { createPurchasePayload, trackPurchaseFields } from '../shared/sharedPurchase'
-import { base64Encode } from '../base64'
 import { contextFields } from '../contextFields'
-import { trackUrl } from '../cloudUtil'
+import { createRequestParams, trackUrl } from '../cloudUtil'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Track Purchase',
@@ -16,30 +15,14 @@ const action: ActionDefinition<Settings, Payload> = {
   perform: (request, data) => {
     const friendbuyPayload = createPurchasePayload(data.payload)
 
-    const payload = base64Encode(
-      encodeURIComponent(
-        JSON.stringify({
-          purchase: friendbuyPayload
-        })
-      )
-    )
-    const metadata = base64Encode(
-      JSON.stringify({
-        url: data.payload.pageUrl,
-        title: data.payload.pageTitle,
-        ipAddress: data.payload.ipAddress
-      })
+    const requestParams = createRequestParams(
+      'purchase',
+      data.settings.merchantId,
+      { purchase: friendbuyPayload },
+      data.payload
     )
 
-    return request(trackUrl, {
-      method: 'get',
-      searchParams: {
-        type: 'purchase',
-        merchantId: data.settings.merchantId,
-        metadata,
-        payload
-      }
-    })
+    return request(trackUrl, requestParams)
   }
 }
 
