@@ -4,7 +4,7 @@ import type { Settings } from './generated-types'
 import sendEvent from './sendEvent'
 
 const destination: DestinationDefinition<Settings> = {
-  name: 'Metronome',
+  name: 'Metronome (Actions)',
   mode: 'cloud',
   slug: 'metronome-actions',
 
@@ -45,7 +45,7 @@ const destination: DestinationDefinition<Settings> = {
       subscribe: 'type = "track"',
       partnerAction: 'sendEvent',
       mapping: defaultValues(sendEvent.fields)
-    },
+    }
   ]
 }
 
