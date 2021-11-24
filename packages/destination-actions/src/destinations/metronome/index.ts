@@ -6,6 +6,7 @@ import sendEvent from './sendEvent'
 const destination: DestinationDefinition<Settings> = {
   name: 'Metronome',
   mode: 'cloud',
+  slug: 'metronome-actions',
 
   authentication: {
     scheme: 'custom',
