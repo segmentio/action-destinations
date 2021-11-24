@@ -2,11 +2,15 @@
 
 export interface Payload {
   /**
-   * The group key. If this is not set, it is defaulted to "name".
+   * The unique identifier of the group.
+   */
+  group_id?: string
+  /**
+   * The group key you specified in Mixpanel under Project settings. If this is not specified, this is defaulted to "$group_id".
    */
   group_key?: string
   /**
-   * Properties to set on the group profile. Make sure to have a field that corresponds to the above group key.
+   * The properties to set on the group profile.
    */
   traits?: {
     [k: string]: unknown

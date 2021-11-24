@@ -318,6 +318,14 @@ const action: ActionDefinition<Settings, Payload> = {
       default: {
         '@path': '$.context.userAgent'
       }
+    },
+    group_id: {
+      label: 'Group ID',
+      type: 'string',
+      description: 'The unique identifier of the group that performed this event.',
+      default: {
+        '@path': '$.context.groupId'
+      }
     }
   },
   perform: async (request, { payload, settings }) => {
@@ -354,6 +362,7 @@ const action: ActionDefinition<Settings, Payload> = {
         $device_id: payload.device_id,
         $device_type: payload.device_type,
         $device_name: payload.device_name,
+        $group_id: payload.group_id,
         $insert_id: cheapGuid(),
         $ios_ifa: payload.idfa,
         $lib_version: payload.library_version,
