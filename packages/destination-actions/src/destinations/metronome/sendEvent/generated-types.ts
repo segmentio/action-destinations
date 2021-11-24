@@ -14,7 +14,7 @@ export interface Payload {
    */
   timestamp: string | number
   /**
-   * The Metronome event_type.
+   * The Metronome `event_type`.
    */
   event_type: string
   /**
