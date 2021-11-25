@@ -18,7 +18,6 @@ const action: ActionDefinition<Settings, Payload> = {
       type: 'string',
       required: false,
       dynamic: true,
-      default: 'id'
     },
     deal_match_value: {
       label: 'Deal match value',
@@ -35,7 +34,6 @@ const action: ActionDefinition<Settings, Payload> = {
       type: 'string',
       required: false,
       dynamic: true,
-      default: 'id'
     },
     person_match_value: {
       label: 'Person match value',
@@ -53,7 +51,6 @@ const action: ActionDefinition<Settings, Payload> = {
       type: 'string',
       required: false,
       dynamic: true,
-      default: 'id'
     },
     organization_match_value: {
       label: 'Organization match value',

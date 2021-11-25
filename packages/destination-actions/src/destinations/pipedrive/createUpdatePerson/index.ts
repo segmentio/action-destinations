@@ -17,7 +17,6 @@ const action: ActionDefinition<Settings, Payload> = {
       type: 'string',
       required: false,
       dynamic: true,
-      default: 'id'
     },
     match_value: {
       label: 'Match value',
