@@ -1,4 +1,4 @@
-import {ClevertapEvent} from "./types";
+import type {ClevertapEvent} from "./types";
 
 export type MainEvent={
   "d":[ClevertapEvent]

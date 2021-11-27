@@ -1,8 +1,8 @@
 import type {ActionDefinition} from '@segment/actions-core'
 import type {Settings} from '../generated-types'
 import type {Payload} from './generated-types'
-import {ClevertapEvent} from "./types";
-import {MainEvent} from "./MainType";
+import type {ClevertapEvent} from "./types";
+import type {MainEvent} from "./MainType";
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'User Upload',
@@ -42,12 +42,6 @@ const action: ActionDefinition<Settings, Payload> = {
     }
     const mainEvent: MainEvent = {
       "d": [event]
-    }
-    if (!settings.clevertapAccountId) {
-      throw new Error('Missing Clevertap Account')
-    }
-    if (!settings.clevertapPasscode) {
-      throw new Error('Missing Clevertap Passcode')
     }
 
     return request('https://api.clevertap.com/1/upload', {
