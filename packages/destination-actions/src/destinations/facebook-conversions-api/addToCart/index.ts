@@ -30,16 +30,21 @@ const action: ActionDefinition<Settings, Payload> = {
     contents: {
       ...contents,
       default: {
-        // Segment Product Added is a single product event
-        id: {
-          '@path': '$.properties.product_id'
-        },
-        quantity: {
-          '@path': '$.properties.quantity'
-        },
-        item_price: {
-          '@path': '$.properties.price'
-        }
+        // Segment Product Viewed is a single product event
+        '@arrayPath': [
+          '$.properties',
+          {
+            id: {
+              '@path': '$.product_id'
+            },
+            quantity: {
+              '@path': '$.quantity'
+            },
+            item_price: {
+              '@path': '$.price'
+            }
+          }
+        ]
       }
     },
     currency: currency,
