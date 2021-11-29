@@ -72,7 +72,7 @@ const destination: DestinationDefinition<Settings> = {
       },
       endpoint: {
         label: 'Endpoint Region',
-        description: 'Choose the region where you would like to send your data.',
+        description: 'The region to send your data.',
         type: 'string',
         format: 'text',
         choices: [
