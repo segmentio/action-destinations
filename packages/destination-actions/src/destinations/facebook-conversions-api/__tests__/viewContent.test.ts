@@ -78,7 +78,7 @@ describe('FacebookConversionsApi', () => {
       expect(responses[0].status).toBe(201)
     })
 
-    it('should handle default mappings', async () => {
+    it.only('should handle default mappings', async () => {
       nock(`https://graph.facebook.com/v11.0/${settings.pixelId}`).post(`/events`).reply(201, {})
 
       const event = createTestEvent({
