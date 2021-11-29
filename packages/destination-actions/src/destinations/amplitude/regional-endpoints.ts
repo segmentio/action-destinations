@@ -37,7 +37,7 @@ type Region = 'north_america' | 'europe'
  *
  * @param endpoint name of the API endpoint
  * @param region data residency region
- * @returns
+ * @returns regional API endpoint
  */
 export function getEndpointByRegion(endpoint: keyof typeof endpoints, region?: string): string {
   return endpoints[endpoint][region as Region] ?? endpoints[endpoint]['north_america']
