@@ -448,7 +448,11 @@ Mappings:
 
 ### @arrayPath
 
-The @arrayPath directive resolves an array value at a given path (much like @path), but allows you to specify the shape of each item in the resulting array. You can use directives for each key in the given shape, relative to the root array.
+The @arrayPath directive resolves a value at a given path (much like @path), but allows you to specify the shape of each item in the resulting array. You can use directives for each key in the given shape, relative to the root object. 
+
+Typically, the root object is expected to be an array, which will be iterated to produce the resulting array from the specified item shape. It is not required that the root object be an array. 
+
+For the item shape to be respected, the root object must be either an array of plain objects OR a singular plain object. If the root object is a singular plain object, it will be arrified into an array of 1.
 
 Input:
 ```json
