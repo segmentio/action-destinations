@@ -10,7 +10,7 @@ const action: ActionDefinition<Settings, Payload> = {
     user_id: {
       label: 'User ID',
       type: 'string',
-      description: 'The User ID to be associated',
+      description: 'The User ID to be associated.',
       default: {
         '@path': '$.previousId'
       }
@@ -18,7 +18,7 @@ const action: ActionDefinition<Settings, Payload> = {
     global_user_id: {
       label: 'Global User ID',
       type: 'string',
-      description: 'The global User ID to associate to',
+      description: 'The Global User ID to associate with the User ID.',
       default: {
         '@path': '$.userId'
       }
@@ -26,7 +26,7 @@ const action: ActionDefinition<Settings, Payload> = {
     min_id_length: {
       label: 'Minimum ID Length',
       description:
-        'Amplitude has a default minimum id lenght of 5 characters for user_id and device_id fields. This field allows the minimum to be overridden to allow shorter id lengths.',
+        'Amplitude has a default minimum id length of 5 characters for user_id and device_id fields. This field allows the minimum to be overridden to allow shorter id lengths.',
       allowNull: true,
       type: 'integer'
     }
