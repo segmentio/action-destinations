@@ -2,7 +2,7 @@
 
 export interface Payload {
   /**
-   * Slack webhook URL.
+   * The webhook provided by Slack to connect with the desired Slack workspace.
    */
   url: string
   /**
@@ -10,15 +10,15 @@ export interface Payload {
    */
   text: string
   /**
-   * Slack channel to post message to.
+   * The channel within the Slack workspace. Do not include the `#` character. For example, use `general`, not `#general`.
    */
   channel?: string
   /**
-   * User name to post messages as.
+   * The sender of the posted message.
    */
   username?: string
   /**
-   * URL for user icon image.
+   * The URL of the image that appears next to the User.
    */
   icon_url?: string
 }
