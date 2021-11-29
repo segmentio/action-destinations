@@ -26,51 +26,51 @@ export interface Payload {
    */
   app_version?: string
   /**
-   * What platform is sending the data.
+   * The platform of the user's device.
    */
   platform?: string
   /**
-   * Mobile operating system or browser the user is on.
+   * The mobile operating system or browser of the user's device.
    */
   os_name?: string
   /**
-   * Version of the mobile operating system or browser the user is on.
+   * The version of the mobile operating system or browser of the user's device.
    */
   os_version?: string
   /**
-   * Device brand the user is on.
+   * The brand of user's the device.
    */
   device_brand?: string
   /**
-   * Device manufacturer the user is on.
+   * The manufacturer of the user's device.
    */
   device_manufacturer?: string
   /**
-   * Device model the user is on.
+   * The model of the user's device.
    */
   device_model?: string
   /**
-   * Carrier the user has.
+   * The user's mobile carrier.
    */
   carrier?: string
   /**
-   * Country the user is in.
+   * The country in which the user is located.
    */
   country?: string
   /**
-   * Geographical region the user is in.
+   * The geographical region in which the user is located.
    */
   region?: string
   /**
-   * What city the user is in.
+   * The city in which the user is located.
    */
   city?: string
   /**
-   * The Designated Market Area of the user.
+   * The Designated Market Area in which the user is located.
    */
   dma?: string
   /**
-   * Language the user has set.
+   * Language the user has set on their device or browser.
    */
   language?: string
   /**
@@ -78,7 +78,7 @@ export interface Payload {
    */
   paying?: boolean
   /**
-   * Version of the app the user was first on.
+   * The version of the app the user was first on.
    */
   start_version?: string
   /**
