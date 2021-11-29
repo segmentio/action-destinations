@@ -38,7 +38,7 @@ export default class Build extends Command {
 
         // console.log(`${Object.keys(entries).length} functions to be built: ${Object.keys(entries).join(',')}`)
 
-        const distDir = path.resolve(dir, '.segment', 'dist', 'slack', '1.0.0')
+        const distDir = path.resolve(dir, '.segment', 'dist', 'actions-slack', '1.0.1')
         const pkg = require.resolve('@segment/action-destinations')
         const lastSlash = pkg.lastIndexOf('/', pkg.lastIndexOf('/') - 1)
         const tsconfig = path.resolve(pkg.slice(0, lastSlash), 'tsconfig.json')

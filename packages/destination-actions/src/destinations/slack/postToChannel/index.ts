@@ -45,6 +45,7 @@ const action: ActionDefinition<Settings, Payload> = {
     return request(payload.url, {
       method: 'post',
       json: {
+        _version: '1.0.1',
         channel: payload.channel,
         text: payload.text,
         username: payload.username,

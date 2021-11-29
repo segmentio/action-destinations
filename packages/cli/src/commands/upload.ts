@@ -47,21 +47,29 @@ export default class Upload extends Command {
         }
         this.spinner.stop()
 
-        const orgSlug = slugify(destination.name).toLowerCase() // TODO Revisit identifiers.
-        const version = Math.floor(Date.now() / 1000) // TODO
+        const slug = slugify(destination.slug || destination.name).toLowerCase() // TODO Revisit identifiers.
+        const version = '1.0.1' // TODO
 6
         // TODO verify ${flags.dir}/.segment/main.js exists
-        const tarball = path.resolve(dir, '.segment', 'dist', 'main.js')
+        const app = path.resolve(dir, '.segment', 'dist', 'actions-slack', version, 'app.js')
+        const core = path.resolve(dir, '.segment', 'dist', 'actions-slack', version, 'core.js')
     
         // TODO Add endpoint to ctl-server that returns a presigned
         // S3 upload URL. For now, just wrap sgmctl with
         // stage-write permissions.
         try {
-            const results = await this.s3.send(new PutObjectCommand({
-                Bucket: "test-integration-bundles",
-                Key: `${orgSlug}/main.js`,
-                Body: readFileSync(tarball)
-              }))
+            const results = await Promise.all([
+                this.s3.send(new PutObjectCommand({
+                    Bucket: "test-integration-bundles",
+                    Key: `${slug}/${version}/app.js`,
+                    Body: readFileSync(app)
+                  })),
+                  this.s3.send(new PutObjectCommand({
+                    Bucket: "test-integration-bundles",
+                    Key: `${slug}/${version}/core.js`,
+                    Body: readFileSync(core)
+                  }))
+            ])
             console.log('successfully uploaded')
             return results; // For unit tests.
           } catch (err) {
