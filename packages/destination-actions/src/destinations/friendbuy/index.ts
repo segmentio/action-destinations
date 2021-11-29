@@ -5,7 +5,7 @@ import trackCustomer from './trackCustomer'
 import trackPurchase from './trackPurchase'
 import trackSignUp from './trackSignUp'
 import trackCustomEvent from './trackCustomEvent'
-import { friendbuyBaseHost } from './cloudUtil'
+import { mapiUrl } from './cloudUtil'
 
 const destination: DestinationDefinition<Settings> = {
   name: 'Friendbuy (Cloud Destination)',
@@ -15,25 +15,41 @@ const destination: DestinationDefinition<Settings> = {
   authentication: {
     scheme: 'custom',
     fields: {
-      merchantId: {
-        label: 'Friendbuy Merchant ID',
-        description:
-          'Find your Friendbuy Merchant ID by logging in to your [Friendbuy account](https://retailer.friendbuy.io/) and going to Developer Center > Friendbuy Code.',
+      authKey: {
+        label: 'Friendbuy MAPI Key',
+        description: 'Contact your Friendbuy account manager to generate your Friendbuy MAPI key and secret.',
         type: 'string',
         format: 'uuid',
+        required: true
+      },
+      authSecret: {
+        label: 'Friendbuy MAPI Secret',
+        description: 'See Friendbuy MAPI Key.',
+        type: 'string',
         required: true
       }
     },
     testAuthentication: (request, { settings }) => {
       // Verify that the merchantId is valid.
-      return request(`https://campaign.${friendbuyBaseHost}/${settings.merchantId}/campaigns.js`)
+      return request(`${mapiUrl}/v1/authorization`, {
+        method: 'POST',
+        json: { key: settings.authKey, secret: settings.authSecret }
+      })
     }
   },
 
-  onDelete: async (/*request, { settings, payload }*/) => {
+  onDelete: async (request, { payload }) => {
     // Return a request that performs a GDPR delete for the provided Segment userId or anonymousId
     // provided in the payload. If your destination does not support GDPR deletion you should not
     // implement this function and should remove it completely.
+    return !payload.userId
+      ? true
+      : request(`${mapiUrl}/v1/user-data`, {
+          method: 'DELETE',
+          searchParams: {
+            customerId: payload.userId
+          }
+        })
   },
 
   actions: {

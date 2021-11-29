@@ -2,21 +2,15 @@ import nock from 'nock'
 import { createTestEvent, createTestIntegration, JSONValue } from '@segment/actions-core'
 import Destination from '../../index'
 
-import { trackUrl } from '../../cloudUtil'
-import { base64Decode } from '../../base64'
-import { get } from '@segment/actions-core'
+import { mapiUrl } from '../../cloudUtil'
+import { nockAuth, authKey, authSecret } from '../../__tests__/cloudUtil.mock'
 
 const testDestination = createTestIntegration(Destination)
 
-const splitUrlRe = /^(\w+:\/\/[^/]+)(.*)/
-
 describe('Friendbuy.trackPurchase', () => {
   test('all fields', async () => {
-    const [_, trackSchemeAndHost, trackPath] = splitUrlRe.exec(trackUrl) || []
-
-    nock(trackSchemeAndHost)
-      .get(new RegExp('^' + trackPath))
-      .reply(200, {})
+    nockAuth()
+    nock(mapiUrl).post('/v1/event/purchase').reply(200, {})
 
     const orderId = 'my order'
     const products = [
@@ -24,16 +18,22 @@ describe('Friendbuy.trackPurchase', () => {
       { sku: 'sku2', price: 5.99 }
     ]
     const amount = products.reduce((acc, p) => acc + p.price * (p.quantity ?? 1), 0)
+    const expectedProducts = products.map((p) => ({ name: 'unknown', quantity: 1, ...p }))
 
-    const merchantId = '1993d0f1-8206-4336-8c88-64e170f2419e'
     const userId = 'john-doe-12345'
     const currency = 'USD'
     const anonymousId = 'fda703c1-ea45-4198-87bc-2e769437352a'
     const coupon = 'coupon-xyzzy'
     const giftCardCodes = ['card-a', 'card-b']
-    const friendbuyAttributes = { referralCode: 'ref-plugh' }
+    const referralCode = 'ref-plugh'
     const email = 'john.doe@example.com'
-    const name = 'John Doe'
+    const isNewCustomer = false
+    const loyaltyStatus = 'out'
+    const firstName = 'John'
+    const lastName = 'Doe'
+    const name = `${firstName} ${lastName}`
+    const age = 42
+    const birthday = '0000-12-25'
 
     const event = createTestEvent({
       type: 'track',
@@ -48,50 +48,51 @@ describe('Friendbuy.trackPurchase', () => {
         giftCardCodes,
         products: products as JSONValue,
         email,
+        isNewCustomer,
+        loyaltyStatus,
+        firstName,
+        lastName,
         name,
-        friendbuyAttributes
+        age,
+        birthday,
+        friendbuyAttributes: { referralCode }
       },
       timestamp: '2021-10-05T15:30:35Z'
     })
 
     const r = await testDestination.testAction('trackPurchase', {
       event,
-      settings: { merchantId },
+      settings: { authKey, authSecret },
       useDefaultMappings: true
       // mapping,
       // auth,
     })
 
     // console.log(JSON.stringify(r, null, 2))
-    expect(r.length).toBe(1)
-    expect(r[0].options.searchParams).toMatchObject({
-      type: 'purchase',
-      merchantId,
-      metadata: expect.any(String),
-      payload: expect.any(String)
-    })
-    const searchParams = r[0].options.searchParams as Record<string, string>
-
-    const metadata = JSON.parse(base64Decode(searchParams.metadata))
-    // console.log("metadata", metadata)
-    expect(metadata).toMatchObject({
-      url: get(event.context, ['page', 'url']),
-      title: get(event.context, ['page', 'title']),
-      ipAddress: get(event.context, ['ip'])
-    })
-
-    const payload = JSON.parse(decodeURIComponent(base64Decode(searchParams.payload)))
-    // console.log("payload", JSON.stringify(payload, null, 2))
-    expect(payload).toMatchObject({
-      purchase: {
-        id: orderId,
-        amount,
-        currency,
-        couponCode: coupon,
+    expect(r.length).toBe(2) // auth request + trackPurchase request
+    expect(r[1].options.json).toEqual({
+      orderId,
+      amount,
+      currency,
+      couponCode: coupon,
+      referralCode,
+      customerId: userId,
+      email,
+      isNewCustomer,
+      loyaltyStatus,
+      firstName,
+      lastName,
+      age,
+      products: expectedProducts,
+      ipAddress: event?.context?.ip,
+      userAgent: event?.context?.userAgent,
+      additionalProperties: {
+        anonymousId,
         giftCardCodes,
-        customer: { id: userId, anonymousId, email, name },
-        products,
-        ...friendbuyAttributes
+        name,
+        birthday: { month: 12, day: 25 },
+        pageUrl: event?.context?.page?.url,
+        pageTitle: event?.context?.page?.title
       }
     })
   })

@@ -1,5 +1,9 @@
 import type { InputField } from '@segment/actions-core'
+import { FriendbuyPayloadItem } from './util'
 
+// The context fields are used by the cloud destination.  They are not needed
+// by the browser destination because the Friendbuy API adds them to the
+// request itself.
 export const contextFields: Record<string, InputField> = {
   pageUrl: {
     label: 'Page URL',
@@ -37,4 +41,13 @@ export interface ContextFields {
   pageTitle?: string
   userAgent?: string
   ipAddress?: string
+}
+
+export function contextAttributes(context: ContextFields): FriendbuyPayloadItem[] {
+  return [
+    ['pageUrl', context.pageUrl],
+    ['pageTitle', context.pageTitle],
+    ['userAgent', context.userAgent],
+    ['ipAddress', context.ipAddress]
+  ]
 }

@@ -30,6 +30,30 @@ export interface Payload {
    */
   age?: number
   /**
+   * The user's birthday in the format "YYYY-MM-DD", or "0000-MM-DD" to omit the year.
+   */
+  birthday?: string
+  /**
+   * The user's language.
+   */
+  language?: string
+  /**
+   * The user's country.
+   */
+  addressCountry?: string
+  /**
+   * The user's state.
+   */
+  addressState?: string
+  /**
+   * The user's city.
+   */
+  addressCity?: string
+  /**
+   * The user's postal code.
+   */
+  addressPostalCode?: string
+  /**
    * The date the user became a customer.
    */
   customerSince?: string

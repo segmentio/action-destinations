@@ -1,7 +1,6 @@
 import type { InputField } from '@segment/actions-core'
 
-import { commonCustomerAttributes, commonCustomerFields } from './commonFields'
-import { createFriendbuyPayload, filterFriendbuyAttributes } from './util'
+import { commonCustomerFields } from './commonFields'
 
 // https://segment.com/docs/connections/spec/ecommerce/v2/#order-completed
 export const trackPurchaseFields: Record<string, InputField> = {
@@ -110,67 +109,4 @@ export const trackPurchaseFields: Record<string, InputField> = {
     required: false,
     default: { '@path': '$.properties.friendbuyAttributes' }
   }
-}
-
-export interface AnalyticsPurchasePayload {
-  orderId: string
-  amount: number
-  currency: string
-  coupon?: string
-  giftCardCodes?: string[]
-  products?: {
-    sku?: string
-    name?: string
-    quantity?: number
-    price: number
-    description?: string
-    category?: string
-    url?: string
-    image_url?: string
-  }[]
-  customerId?: string
-  anonymousId?: string
-  email?: string
-  firstName?: string
-  lastName?: string
-  name?: string
-  age?: number
-  loyaltyStatus?: string
-  friendbuyAttributes?: {
-    [k: string]: unknown
-  }
-}
-
-export function createPurchasePayload(analyticsPayload: AnalyticsPurchasePayload) {
-  const products =
-    analyticsPayload.products && analyticsPayload.products.length > 0
-      ? analyticsPayload.products.map(normalizeProduct)
-      : undefined
-
-  const [nonCustomerPayload, customerAttributes] = commonCustomerAttributes(analyticsPayload)
-  const friendbuyPayload = createFriendbuyPayload(
-    [
-      ['id', nonCustomerPayload.orderId],
-      ['amount', nonCustomerPayload.amount],
-      ['currency', nonCustomerPayload.currency],
-      ['couponCode', nonCustomerPayload.coupon],
-      ['giftCardCodes', nonCustomerPayload.giftCardCodes],
-      ['customer', createFriendbuyPayload(customerAttributes)],
-      ['products', products],
-      // custom properties
-      ...filterFriendbuyAttributes(nonCustomerPayload.friendbuyAttributes)
-    ],
-    { dropEmpty: true }
-  )
-
-  return friendbuyPayload
-}
-
-function normalizeProduct<T extends { image_url?: string }>(p: T) {
-  const p2: T & { quantity: number; imageUrl?: string } = { quantity: 1, ...p }
-  if (p.image_url !== undefined) {
-    p2.imageUrl = p.image_url
-    delete p2.image_url
-  }
-  return p2
 }

@@ -6,7 +6,7 @@ export interface Payload {
    */
   eventType: string
   /**
-   * Hash of other properties for the event being tracked. All of the fields in this object will be sent in the root of the Friendbuy track event.
+   * Object containing the properties for the event being tracked. All of the fields in this object will be sent in the root of the Friendbuy track event.
    */
   eventProperties: {
     [k: string]: unknown

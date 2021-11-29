@@ -2,25 +2,19 @@ import nock from 'nock'
 import { createTestEvent, createTestIntegration } from '@segment/actions-core'
 import Destination from '../../index'
 
-import { trackUrl } from '../../cloudUtil'
-import { base64Decode } from '../../base64'
-import { get } from '@segment/actions-core'
+import { mapiUrl } from '../../cloudUtil'
+// import { get } from '@segment/actions-core'
+import { nockAuth, authKey, authSecret } from '../../__tests__/cloudUtil.mock'
 
 const testDestination = createTestIntegration(Destination)
 
-const splitUrlRe = /^(\w+:\/\/[^/]+)(.*)/
-
 describe('Friendbuy.trackCustomEvent', () => {
   test('all fields', async () => {
-    const [_, trackSchemeAndHost, trackPath] = splitUrlRe.exec(trackUrl) || []
+    nockAuth()
+    nock(mapiUrl).persist().post('/v1/event/custom').reply(200, {})
 
-    nock(trackSchemeAndHost)
-      .persist()
-      .get(new RegExp('^' + trackPath))
-      .reply(200, {})
-
-    const merchantId = 'e1affd55-42fa-4bf5-a148-b93a34dfba60'
     const userId = 'john-doe-1234'
+    const anonymousId = '960efa33-6d3b-4eb9-a4e7-d95412d9829e'
 
     const doTest = async (_testName: string, eventProps: Record<string, any>, expectedPayload: any) => {
       const event = createTestEvent({
@@ -31,55 +25,55 @@ describe('Friendbuy.trackCustomEvent', () => {
 
       const r = await testDestination.testAction('trackCustomEvent', {
         event,
-        settings: { merchantId },
+        settings: { authKey, authSecret },
         useDefaultMappings: true
         // mapping,
         // auth,
       })
 
-      // console.log(_testName, JSON.stringify(r, null, 2))
-      expect(r.length).toBe(1)
-      expect(r[0].options.searchParams).toMatchObject({
-        type: 'Download',
-        merchantId,
-        metadata: expect.any(String),
-        payload: expect.any(String)
-      })
-      const searchParams = r[0].options.searchParams as Record<string, string>
-
-      const metadata = JSON.parse(base64Decode(searchParams.metadata))
-      // console.log("metadata", metadata)
-      expect(metadata).toMatchObject({
-        url: get(event.context, ['page', 'url']),
-        title: get(event.context, ['page', 'title']),
-        ipAddress: get(event.context, ['ip'])
-      })
-
-      const payload = JSON.parse(decodeURIComponent(base64Decode(searchParams.payload)))
-      // console.log('payload', _testName, JSON.stringify(payload, null, 2))
-      expect(payload).toMatchObject(expectedPayload)
+      expect(r.length).toBeGreaterThanOrEqual(1) // maybe auth request + trackCustomEvent request
+      expect(r[r.length - 1].options.json).toEqual(expectedPayload)
     }
+
+    const couponCode = 'coupon-thx1138'
+    const attributionId = '526f8824-984c-4ba3-aa4b-feb5cbdc1c3f'
+    const referralCode = 'referral-luh3417'
 
     await doTest(
       'download events are sent',
       {
         userId,
+        anonymousId,
         properties: {
           type: 'application',
           fileId: 'MyApp',
-          deduplicationId: '1234'
+          deduplicationId: '1234',
+          coupon: couponCode,
+          attributionId,
+          referralCode
         }
       },
       {
-        type: 'application',
-        fileId: 'MyApp',
+        eventType: 'Download',
         deduplicationId: '1234',
-        customer: { id: userId }
+        couponCode,
+        attributionId,
+        referralCode,
+        ipAddress: expect.any(String),
+        userAgent: expect.any(String),
+        additionalProperties: {
+          anonymousId,
+          customerId: userId,
+          fileId: 'MyApp',
+          pageTitle: expect.any(String),
+          pageUrl: expect.any(String),
+          type: 'application'
+        }
       }
     )
 
-    const anonymousId = '960efa33-6d3b-4eb9-a4e7-d95412d9829e'
     const email = 'john.doe@example.com'
+    const isNewCustomer = false
     const firstName = 'John'
     const lastName = 'Doe'
 
@@ -92,14 +86,27 @@ describe('Friendbuy.trackCustomEvent', () => {
           type: 'video',
           fileId: 'video-1234',
           email,
+          isNewCustomer,
           firstName,
           lastName
         }
       },
       {
-        type: 'video',
-        fileId: 'video-1234',
-        customer: { id: userId, anonymousId, email, firstName, lastName, name: `${firstName} ${lastName}` }
+        eventType: 'Download',
+        email,
+        isNewCustomer,
+        firstName,
+        lastName,
+        ipAddress: expect.any(String),
+        userAgent: expect.any(String),
+        additionalProperties: {
+          anonymousId,
+          customerId: userId,
+          fileId: 'video-1234',
+          pageTitle: expect.any(String),
+          pageUrl: expect.any(String),
+          type: 'video'
+        }
       }
     )
   })

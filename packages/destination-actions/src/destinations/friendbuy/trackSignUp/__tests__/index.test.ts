@@ -2,32 +2,27 @@ import nock from 'nock'
 import { createTestEvent, createTestIntegration } from '@segment/actions-core'
 import Destination from '../../index'
 
-import { trackUrl } from '../../cloudUtil'
-import { base64Decode } from '../../base64'
-import { get } from '@segment/actions-core'
+import { mapiUrl } from '../../cloudUtil'
+import { nockAuth, authKey, authSecret } from '../../__tests__/cloudUtil.mock'
 
 const testDestination = createTestIntegration(Destination)
 
-const splitUrlRe = /^(\w+:\/\/[^/]+)(.*)/
-
 describe('Friendbuy.trackSignUp', () => {
   test('all fields', async () => {
-    const [_, trackSchemeAndHost, trackPath] = splitUrlRe.exec(trackUrl) || []
+    nockAuth()
+    nock(mapiUrl).post('/v1/event/account-sign-up').reply(200, {})
 
-    nock(trackSchemeAndHost)
-      .get(new RegExp('^' + trackPath))
-      .reply(200, {})
-
-    const merchantId = '1993d0f1-8206-4336-8c88-64e170f2419e'
     const userId = 'john-doe-12345'
     const anonymousId = '6afc2ff2-cf54-414f-9a99-b3adb054ae31'
     const firstName = 'John'
     const lastName = 'Doe'
     const name = `${firstName} ${lastName}`
     const email = 'john.doe@example.com'
-    const age = 42
+    const isNewCustomer = true
     const loyaltyStatus = 'in'
-    const friendbuyAttributes = { custom1: 'custom1', custom2: 'custom2', birthday: '2001-05-01' }
+    const age = 42
+    const birthday = '2001-05-01'
+    const friendbuyAttributes = { custom1: 'custom1', custom2: 'custom2' }
 
     const event = createTestEvent({
       type: 'track',
@@ -35,12 +30,14 @@ describe('Friendbuy.trackSignUp', () => {
       userId,
       anonymousId,
       properties: {
-        first_name: firstName,
-        last_name: lastName,
-        name,
         email,
-        age,
+        isNewCustomer,
         loyaltyStatus,
+        firstName,
+        lastName,
+        name,
+        age,
+        birthday,
         friendbuyAttributes
       },
       timestamp: '2021-11-23T11:29Z'
@@ -48,44 +45,31 @@ describe('Friendbuy.trackSignUp', () => {
 
     const r = await testDestination.testAction('trackSignUp', {
       event,
-      settings: { merchantId },
+      settings: { authKey, authSecret },
       useDefaultMappings: true
       // mapping,
       // auth,
     })
 
     // console.log(JSON.stringify(r, null, 2))
-    expect(r.length).toBe(1)
-    expect(r[0].options.searchParams).toMatchObject({
-      type: 'sign_up',
-      merchantId,
-      metadata: expect.any(String),
-      payload: expect.any(String)
-    })
-    const searchParams = r[0].options.searchParams as Record<string, string>
-
-    const metadata = JSON.parse(base64Decode(searchParams.metadata))
-    // console.log("metadata", metadata)
-    expect(metadata).toMatchObject({
-      url: get(event.context, ['page', 'url']),
-      title: get(event.context, ['page', 'title']),
-      ipAddress: get(event.context, ['ip'])
-    })
-
-    const payload = JSON.parse(decodeURIComponent(base64Decode(searchParams.payload)))
-    // console.log("payload", JSON.stringify(payload, null, 2))
-    expect(payload).toMatchObject({
-      customer: {
-        id: userId,
-        email,
-        firstName,
-        lastName,
-        name,
-        age,
-        loyaltyStatus,
-        anonymousId,
+    expect(r.length).toBe(2) // auth request + trackSignUp request
+    expect(r[1].options.json).toEqual({
+      customerId: userId,
+      email,
+      loyaltyStatus,
+      firstName,
+      lastName,
+      birthday: { year: 2001, month: 5, day: 1 },
+      ipAddress: event?.context?.ip,
+      userAgent: event?.context?.userAgent,
+      additionalProperties: {
         ...friendbuyAttributes,
-        birthday: { year: 2001, month: 5, day: 1 }
+        age,
+        anonymousId,
+        isNewCustomer,
+        name,
+        pageUrl: event?.context?.page?.url,
+        pageTitle: event?.context?.page?.title
       }
     })
   })

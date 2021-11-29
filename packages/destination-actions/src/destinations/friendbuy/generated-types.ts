@@ -2,7 +2,11 @@
 
 export interface Settings {
   /**
-   * Find your Friendbuy Merchant ID by logging in to your [Friendbuy account](https://retailer.friendbuy.io/) and going to Developer Center > Friendbuy Code.
+   * Contact your Friendbuy account manager to generate your Friendbuy MAPI key and secret.
    */
-  merchantId: string
+  authKey: string
+  /**
+   * See Friendbuy MAPI Key.
+   */
+  authSecret: string
 }

@@ -13,6 +13,10 @@ describe(`Testing snapshot for ${destinationSlug}'s ${actionSlug} destination ac
     const action = destination.actions[actionSlug]
     const [eventData, settingsData] = generateTestData(seedName, destination, action, true)
 
+    nock(/.*/)
+      .persist()
+      .post(/authorization/)
+      .reply(200, { token: 'token', expires: '2021-12-01T15:17:52Z' })
     nock(/.*/).persist().get(/.*/).reply(200)
     nock(/.*/).persist().post(/.*/).reply(200)
     nock(/.*/).persist().put(/.*/).reply(200)
@@ -46,6 +50,10 @@ describe(`Testing snapshot for ${destinationSlug}'s ${actionSlug} destination ac
     const action = destination.actions[actionSlug]
     const [eventData, settingsData] = generateTestData(seedName, destination, action, false)
 
+    nock(/.*/)
+      .persist()
+      .post(/authorization/)
+      .reply(200, { token: 'token', expires: '2021-12-01T15:17:52Z' })
     nock(/.*/).persist().get(/.*/).reply(200)
     nock(/.*/).persist().post(/.*/).reply(200)
     nock(/.*/).persist().put(/.*/).reply(200)

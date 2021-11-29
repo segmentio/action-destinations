@@ -1,8 +1,5 @@
 import type { InputField } from '@segment/actions-core'
 
-import { commonCustomerAttributes } from './commonFields'
-import { createFriendbuyPayload, filterFriendbuyAttributes } from './util'
-
 export const trackCustomEventFields: Record<string, InputField> = {
   eventType: {
     type: 'string',
@@ -15,7 +12,7 @@ export const trackCustomEventFields: Record<string, InputField> = {
     type: 'object',
     required: true,
     description:
-      'Hash of other properties for the event being tracked. All of the fields in this object will be sent in the root of the Friendbuy track event.',
+      'Object containing the properties for the event being tracked. All of the fields in this object will be sent in the root of the Friendbuy track event.',
     label: 'Event Properties',
     default: { '@path': '$.properties' }
   },
@@ -41,31 +38,4 @@ export const trackCustomEventFields: Record<string, InputField> = {
     required: false,
     default: { '@path': '$.anonymousId' }
   }
-}
-
-export interface AnalyticsCustomEventPayload {
-  eventName: string
-  eventProperties: { [k: string]: unknown }
-  deduplicationId?: string
-  customerId: string
-  anonymousId?: string
-}
-
-export function createCustomEventPayload(analyticsPayload: AnalyticsCustomEventPayload) {
-  const [nonCustomerPayload, customerAttributes] = commonCustomerAttributes({
-    customerId: analyticsPayload.customerId,
-    anonymousId: analyticsPayload.anonymousId,
-    ...analyticsPayload.eventProperties
-  })
-
-  const friendbuyPayload = createFriendbuyPayload(
-    [
-      ...filterFriendbuyAttributes(nonCustomerPayload),
-      ['deduplicationId', analyticsPayload.deduplicationId],
-      ['customer', createFriendbuyPayload(customerAttributes)]
-    ],
-    { dropEmpty: true }
-  )
-
-  return friendbuyPayload
 }

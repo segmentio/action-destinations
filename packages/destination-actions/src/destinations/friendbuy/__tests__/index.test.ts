@@ -1,28 +1,27 @@
 import nock from 'nock'
 import { /* createTestEvent, */ createTestIntegration } from '@segment/actions-core'
 import Definition from '../index'
-import { friendbuyBaseHost } from '../cloudUtil'
+import { mapiUrl } from '../cloudUtil'
+import { authKey, authSecret } from './cloudUtil.mock'
 
 const testDestination = createTestIntegration(Definition)
 
 describe('Friendbuy', () => {
+  const badSecret = 'bad mapi secret'
+  const token = 'mapi auth token'
+  const expires = '2021-12-01T14:29:52Z'
+
   describe('testAuthentication', () => {
     test('valid merchantId', async () => {
-      const merchantId = 'fedcaef4-4b77-4b36-b919-d0846c744aa8'
-      nock(`https://campaign.${friendbuyBaseHost}`).get(`/${merchantId}/campaigns.js`).reply(200, {})
+      nock(mapiUrl).post('/v1/authorization').reply(200, { token, expires })
 
-      const authData = { merchantId }
-
-      await expect(testDestination.testAuthentication(authData)).resolves.not.toThrowError()
+      await expect(testDestination.testAuthentication({ authKey, authSecret })).resolves.not.toThrowError()
     })
 
     test('invalid merchantId', async () => {
-      const merchantId = 'bad-merchantId'
-      nock(`https://campaign.${friendbuyBaseHost}`).get(`/${merchantId}/campaigns.js`).reply(403, {})
+      nock(mapiUrl).post('/v1/authorization').reply(403, {})
 
-      const authData = { merchantId }
-
-      await expect(testDestination.testAuthentication(authData)).rejects.toThrowError()
+      await expect(testDestination.testAuthentication({ authKey, authSecret: badSecret })).rejects.toThrowError()
     })
   })
 })

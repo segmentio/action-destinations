@@ -1,7 +1,5 @@
 import type { InputField } from '@segment/actions-core'
 
-import { createFriendbuyPayload, filterFriendbuyAttributes, getName } from './util'
-
 // https://segment.com/docs/connections/spec/identify/
 // https://segment.com/docs/connections/spec/common/
 export const trackCustomerFields: Record<string, InputField> = {
@@ -55,6 +53,49 @@ export const trackCustomerFields: Record<string, InputField> = {
     required: false,
     default: { '@path': '$.traits.age' }
   },
+  birthday: {
+    label: 'Birthday',
+    description: 'The user\'s birthday in the format "YYYY-MM-DD", or "0000-MM-DD" to omit the year.',
+    type: 'string',
+    format: 'date',
+    required: false,
+    default: { '@path': '$.traits.birthday' }
+  },
+  language: {
+    label: 'Language',
+    description: "The user's language.",
+    type: 'string',
+    required: false,
+    default: { '@path': '$.traits.language' }
+  },
+  addressCountry: {
+    label: 'Country',
+    description: "The user's country.",
+    type: 'string',
+    required: false,
+    default: { '@path': '$.traits.address.country' }
+  },
+  addressState: {
+    label: 'State',
+    description: "The user's state.",
+    type: 'string',
+    required: false,
+    default: { '@path': '$.traits.address.state' }
+  },
+  addressCity: {
+    label: 'City',
+    description: "The user's city.",
+    type: 'string',
+    required: false,
+    default: { '@path': '$.traits.address.city' }
+  },
+  addressPostalCode: {
+    label: 'State',
+    description: "The user's postal code.",
+    type: 'string',
+    required: false,
+    default: { '@path': '$.traits.address.postalCode' }
+  },
   customerSince: {
     label: 'Customer Since',
     description: 'The date the user became a customer.',
@@ -85,37 +126,4 @@ export const trackCustomerFields: Record<string, InputField> = {
     required: false,
     default: { '@path': '$.traits.friendbuyAttributes' }
   }
-}
-
-export interface AnalyticsCustomerPayload {
-  customerId: string
-  anonymousId?: string
-  email: string
-  firstName?: string
-  lastName?: string
-  name?: string
-  age?: number
-  customerSince?: string
-  loyaltyStatus?: string
-  isNewCustomer?: boolean
-  friendbuyAttributes?: { [k: string]: unknown }
-}
-
-export function createCustomerPayload(analyticsPayload: AnalyticsCustomerPayload) {
-  const friendbuyPayload = createFriendbuyPayload([
-    ['id', analyticsPayload.customerId],
-    ['email', analyticsPayload.email],
-    ['firstName', analyticsPayload.firstName],
-    ['lastName', analyticsPayload.lastName],
-    ['name', getName(analyticsPayload)],
-    ['age', analyticsPayload.age],
-    ['customerSince', analyticsPayload.customerSince],
-    ['loyaltyStatus', analyticsPayload.loyaltyStatus],
-    ['isNewCustomer', analyticsPayload.isNewCustomer],
-    // custom properties
-    ['anonymousId', analyticsPayload.anonymousId],
-    ...filterFriendbuyAttributes(analyticsPayload.friendbuyAttributes)
-  ])
-
-  return friendbuyPayload
 }

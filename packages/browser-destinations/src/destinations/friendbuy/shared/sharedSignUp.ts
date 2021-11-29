@@ -1,7 +1,6 @@
 import type { InputField } from '@segment/actions-core'
 
-import { commonCustomerAttributes, commonCustomerFields } from './commonFields'
-import { createFriendbuyPayload, filterFriendbuyAttributes } from './util'
+import { commonCustomerFields } from './commonFields'
 
 // https://segment.com/docs/connections/spec/b2b-saas/#signed-up
 export const trackSignUpFields: Record<string, InputField> = {
@@ -14,31 +13,4 @@ export const trackSignUpFields: Record<string, InputField> = {
     required: false,
     default: { '@path': '$.properties.friendbuyAttributes' }
   }
-}
-
-export interface AnalyticsSignUpPayload {
-  customerId: string
-  anonymousId?: string
-  email: string
-  firstName?: string
-  lastName?: string
-  name?: string
-  age?: number
-  loyaltyStatus?: string
-  friendbuyAttributes?: {
-    [k: string]: unknown
-  }
-}
-
-export function createSignUpPayload(analyticsPayload: AnalyticsSignUpPayload) {
-  // The track sign_up call is like track customer in that customer
-  // properties are passed in the root of the event.
-  const [nonCustomerPayload, customerAttributes] = commonCustomerAttributes(analyticsPayload)
-  const friendbuyPayload = createFriendbuyPayload([
-    ...customerAttributes,
-    // custom properties
-    ...filterFriendbuyAttributes(nonCustomerPayload.friendbuyAttributes)
-  ])
-
-  return friendbuyPayload
 }

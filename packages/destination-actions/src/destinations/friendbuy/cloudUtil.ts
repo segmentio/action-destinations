@@ -1,51 +1,54 @@
-import { JSONObject, RequestOptions } from '@segment/actions-core'
+import { JSONObject, RequestClient, RequestOptions } from '@segment/actions-core'
 
-import { base64Encode } from './base64'
-import { ContextFields } from './contextFields'
+import { Settings } from './generated-types'
 
 export const friendbuyBaseHost = 'fbot-sandbox.me'
-export const trackUrl = `https://public.${friendbuyBaseHost}/track/`
+export const mapiUrl = `https://mapi.${friendbuyBaseHost}`
 
-export function createRequestParams(
-  type: string,
-  merchantId: string,
-  friendbuyPayload: JSONObject,
-  analyticsPayload: ContextFields
-): RequestOptions {
-  const payload = base64Encode(encodeURIComponent(JSON.stringify(friendbuyPayload)))
-
-  const metadata = base64Encode(
-    JSON.stringify({
-      url: analyticsPayload.pageUrl,
-      title: analyticsPayload.pageTitle,
-      ipAddress: analyticsPayload.ipAddress
-    })
-  )
-  const headers = pickDefined({
-    // fbt-proxy validates the profile.domain against the Referer header.
-    Referer: analyticsPayload.pageUrl,
-    'User-Agent': analyticsPayload.userAgent,
-    'X-Forwarded-For': analyticsPayload.ipAddress
-  })
+export async function createRequestParams(
+  request: RequestClient,
+  settings: Settings,
+  friendbuyPayload: JSONObject
+): Promise<RequestOptions> {
+  const authToken = await getAuthToken(request, settings)
 
   return {
-    method: 'get',
-    searchParams: {
-      type,
-      merchantId,
-      metadata,
-      payload
-    },
-    headers
+    method: 'POST',
+    json: friendbuyPayload,
+    headers: {
+      Authorization: authToken
+    }
   }
 }
 
-function pickDefined<T>(obj: Record<string, T>): Record<string, NonNullable<T>> {
-  const result: Record<string, NonNullable<T>> = {}
-  Object.entries(obj).forEach(([key, value]) => {
-    if (value !== undefined && value !== null) {
-      result[key] = value as NonNullable<T>
+const AUTH_PADDING_MS = 10000 // 10 seconds
+
+interface FriendbuyAuth {
+  token: string
+  expiresEpoch: number
+}
+
+let friendbuyAuth: FriendbuyAuth
+
+export async function getAuthToken(request: RequestClient, settings: Settings) {
+  // Refresh the token if necessary.
+  if (!friendbuyAuth || Date.now() >= friendbuyAuth.expiresEpoch) {
+    const r = await request(`${mapiUrl}/v1/authorization`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      json: { key: settings.authKey, secret: settings.authSecret }
+    })
+
+    if (r.data) {
+      const data = r.data as { token: string; expires: string }
+      friendbuyAuth = {
+        token: data.token,
+        expiresEpoch: Date.parse(data.expires) - AUTH_PADDING_MS
+      }
     }
-  })
-  return result
+  }
+
+  return friendbuyAuth.token
 }

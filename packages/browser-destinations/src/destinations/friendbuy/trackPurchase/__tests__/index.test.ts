@@ -60,7 +60,7 @@ describe('Friendbuy.trackPurchase', () => {
     jest.spyOn(window.friendbuyAPI as any, 'push')
 
     const expectedProducts = products.map((p) => {
-      p = { quantity: 1, ...p }
+      p = { sku: 'unknown', name: 'unknown', quantity: 1, ...p }
       if (p.image_url) {
         p.imageUrl = p.image_url
         delete p.image_url
