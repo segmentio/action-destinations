@@ -8,7 +8,7 @@ import { convertUTMProperties } from '../utm'
 import { convertReferrerProperty } from '../referrer'
 import { mergeUserProperties } from '../merge-user-properties'
 import { parseUserAgentProperties } from '../user-agent'
-import createEndpoint, { EndpointRegion } from '../create-endpoint'
+import { getEndpointByRegion } from '../regional-endpoints'
 
 export interface AmplitudeEvent extends Omit<Payload, 'products' | 'trackRevenuePerProduct' | 'time' | 'session_id'> {
   library?: string
@@ -239,15 +239,7 @@ const action: ActionDefinition<Settings, Payload> = {
       })
     }
 
-    const endpoint = createEndpoint(
-      payload.use_batch_endpoint ? '/batch' : '/2/httpapi',
-      settings.endpoint as EndpointRegion,
-      {
-        subdomains: {
-          north_america: 'api2'
-        }
-      }
-    )
+    const endpoint = getEndpointByRegion(payload.use_batch_endpoint ? 'batch' : 'httpapi', settings.endpoint)
 
     return request(endpoint, {
       method: 'post',

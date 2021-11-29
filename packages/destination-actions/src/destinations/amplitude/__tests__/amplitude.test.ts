@@ -573,7 +573,7 @@ describe('Amplitude', () => {
         }
       })
 
-      nock('https://api.amplitude.com').post('/identify').reply(200, {})
+      nock('https://api2.amplitude.com').post('/identify').reply(200, {})
       const responses = await testDestination.testAction('identifyUser', { event, useDefaultMappings: true })
       expect(responses.length).toBe(1)
       expect(responses[0].status).toBe(200)
@@ -616,7 +616,7 @@ describe('Amplitude', () => {
           }
         }
       })
-      nock('https://api.amplitude.com').post('/identify').reply(200, {})
+      nock('https://api2.amplitude.com').post('/identify').reply(200, {})
       const responses = await testDestination.testAction('identifyUser', { event, useDefaultMappings: true })
       expect(responses.length).toBe(1)
       expect(responses[0].status).toBe(200)
@@ -647,7 +647,7 @@ describe('Amplitude', () => {
           'some-trait-key': 'some-trait-value'
         }
       })
-      nock('https://api.amplitude.com').post('/identify').reply(200, {})
+      nock('https://api2.amplitude.com').post('/identify').reply(200, {})
       const responses = await testDestination.testAction('identifyUser', { event, useDefaultMappings: true })
       expect(responses.length).toBe(1)
       expect(responses[0].status).toBe(200)
@@ -690,7 +690,7 @@ describe('Amplitude', () => {
         userAgentParsing: true
       }
 
-      nock('https://api.amplitude.com').post('/identify').reply(200, {})
+      nock('https://api2.amplitude.com').post('/identify').reply(200, {})
       const responses = await testDestination.testAction('identifyUser', { event, mapping, useDefaultMappings: true })
       expect(responses.length).toBe(1)
       expect(responses[0].status).toBe(200)
@@ -733,7 +733,7 @@ describe('Amplitude', () => {
         userAgentParsing: false
       }
 
-      nock('https://api.amplitude.com').post('/identify').reply(200, {})
+      nock('https://api2.amplitude.com').post('/identify').reply(200, {})
       const responses = await testDestination.testAction('identifyUser', { event, mapping, useDefaultMappings: true })
       expect(responses.length).toBe(1)
       expect(responses[0].status).toBe(200)
@@ -767,7 +767,7 @@ describe('Amplitude', () => {
         userAgentParsing: false
       }
 
-      nock('https://api.amplitude.com').post('/identify').reply(200, {})
+      nock('https://api2.amplitude.com').post('/identify').reply(200, {})
       const responses = await testDestination.testAction('identifyUser', { event, mapping, useDefaultMappings: true })
       expect(responses[0].options.body).toMatchInlineSnapshot(`
         URLSearchParams {
@@ -798,7 +798,7 @@ describe('Amplitude', () => {
         userAgentParsing: false
       }
 
-      nock('https://api.amplitude.com').post('/identify').reply(200, {})
+      nock('https://api2.amplitude.com').post('/identify').reply(200, {})
       const responses = await testDestination.testAction('identifyUser', { event, mapping, useDefaultMappings: true })
       expect(responses[0].options.body).toMatchInlineSnapshot(`
         URLSearchParams {
@@ -873,8 +873,8 @@ describe('Amplitude', () => {
     }
 
     it('should fire identify call to Amplitude', async () => {
-      nock('https://api.amplitude.com').post('/identify').reply(200, {})
-      nock('https://api.amplitude.com').post('/groupidentify').reply(200, {})
+      nock('https://api2.amplitude.com').post('/identify').reply(200, {})
+      nock('https://api2.amplitude.com').post('/groupidentify').reply(200, {})
 
       const [response] = await testDestination.testAction('groupIdentifyUser', {
         event,
@@ -900,8 +900,8 @@ describe('Amplitude', () => {
     })
 
     it('should fire groupidentify call to Amplitude', async () => {
-      nock('https://api.amplitude.com').post('/identify').reply(200, {})
-      nock('https://api.amplitude.com').post('/groupidentify').reply(200, {})
+      nock('https://api2.amplitude.com').post('/identify').reply(200, {})
+      nock('https://api2.amplitude.com').post('/groupidentify').reply(200, {})
 
       const [, response] = await testDestination.testAction('groupIdentifyUser', {
         event,

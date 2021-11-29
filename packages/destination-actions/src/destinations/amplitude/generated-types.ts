@@ -10,7 +10,7 @@ export interface Settings {
    */
   secretKey: string
   /**
-   * Choose the region where you would like to send your data.
+   * The region to send your data.
    */
   endpoint?: string
 }

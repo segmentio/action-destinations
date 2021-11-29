@@ -6,7 +6,7 @@ import { convertReferrerProperty } from '../referrer'
 import { parseUserAgentProperties } from '../user-agent'
 import { mergeUserProperties } from '../merge-user-properties'
 import { AmplitudeEvent } from '../logEvent'
-import createEndpoint, { EndpointRegion } from '../create-endpoint'
+import { getEndpointByRegion } from '../regional-endpoints'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Identify User',
@@ -278,7 +278,7 @@ const action: ActionDefinition<Settings, Payload> = {
       library: 'segment'
     })
 
-    return request(createEndpoint('/identify', settings.endpoint as EndpointRegion), {
+    return request(getEndpointByRegion('identify', settings.endpoint), {
       method: 'post',
       body: new URLSearchParams({
         api_key: settings.apiKey,
