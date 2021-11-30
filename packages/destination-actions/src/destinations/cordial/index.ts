@@ -2,11 +2,8 @@ import type { DestinationDefinition } from '@segment/actions-core'
 import type { Settings } from './generated-types'
 
 import identify from './identify'
-
 import group from './group'
-
 import track from './track'
-
 import page from './page'
 
 const destination: DestinationDefinition<Settings> = {
@@ -45,7 +42,7 @@ const destination: DestinationDefinition<Settings> = {
               message: response?.content ?? 'unknown error',
               response: { status: response?.status ?? 'unknown status' }
             })
-      })
+      });
     }
   },
 

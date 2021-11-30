@@ -43,11 +43,11 @@ const action: ActionDefinition<Settings, Payload> = {
     },
   },
   perform: (request, { settings, payload }) => {
-    const groupEndpoint = `${settings.endpoint}/group`
+    const groupEndpoint = `${settings.endpoint}/group`;
     return request(groupEndpoint, {
       method: 'post',
       json: payload
-    })
+    });
   }
 }
 

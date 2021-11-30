@@ -5,6 +5,7 @@ import type { Payload } from './generated-types'
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Page',
   description: 'Create Cordial PageView',
+  defaultSubscription: 'type = "page"',
   fields: {
     user_id: {
       label: 'Segment ID',
@@ -23,13 +24,20 @@ const action: ActionDefinition<Settings, Payload> = {
         '@path': '$.anonymousId'
       }
     },
-    event: {
-      label: 'Event name',
-      description: 'Segment event name',
+    name: {
+      label: 'Page name',
+      description: 'Segment page name',
       type: 'string',
-      required: true,
       default: {
-        '@path': '$.event'
+        '@path': '$.name'
+      }
+    },
+    channel: {
+      label: 'Event channel',
+      description: 'Segment event channel',
+      type: 'string',
+      default: {
+        '@path': '$.channel'
       }
     },
     sentAt: {
@@ -58,11 +66,11 @@ const action: ActionDefinition<Settings, Payload> = {
     },
   },
   perform: (request, { settings, payload }) => {
-    const pageEndpoint = `${settings.endpoint}/page`
+    const pageEndpoint = `${settings.endpoint}/page`;
     return request(pageEndpoint, {
       method: 'post',
       json: payload
-    })
+    });
   }
 }
 

@@ -5,6 +5,7 @@ import type { Payload } from './generated-types'
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Track',
   description: 'Create Cordial ContactActivity',
+  defaultSubscription: 'type = "track"',
   fields: {
     user_id: {
       label: 'Segment ID',
@@ -58,11 +59,11 @@ const action: ActionDefinition<Settings, Payload> = {
     },
   },
   perform: (request, { settings, payload }) => {
-    const trackEndpoint = `${settings.endpoint}/track`
+    const trackEndpoint = `${settings.endpoint}/track`;
     return request(trackEndpoint, {
       method: 'post',
       json: payload
-    })
+    });
   }
 }
 

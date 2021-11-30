@@ -10,9 +10,13 @@ export interface Payload {
    */
   anonymous_id?: string
   /**
-   * Segment event name
+   * Segment page name
    */
-  event: string
+  name?: string
+  /**
+   * Segment event channel
+   */
+  channel?: string
   /**
    * Segment event sentAt
    */

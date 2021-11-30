@@ -35,11 +35,11 @@ const action: ActionDefinition<Settings, Payload> = {
     },
   },
   perform: (request, { settings, payload }) => {
-    const identifyEndpoint = `${settings.endpoint}/identify`
+    const identifyEndpoint = `${settings.endpoint}/identify`;
     return request(identifyEndpoint, {
       method: 'post',
       json: payload
-    })
+    });
   }
 }
 
