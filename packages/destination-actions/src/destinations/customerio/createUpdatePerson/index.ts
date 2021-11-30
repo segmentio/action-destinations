@@ -38,10 +38,10 @@ const action: ActionDefinition<Settings, Payload> = {
     },
     created_at: {
       label: 'Created At',
-      description: 'A timestamp of when the person was created. Default is current date and time.',
+      description: 'A timestamp of when the person was created. Default is the created_at trait.',
       type: 'string',
       default: {
-        '@path': '$.timestamp'
+        '@template': '{{traits.created_at}}'
       }
     },
     custom_attributes: {
@@ -63,19 +63,23 @@ const action: ActionDefinition<Settings, Payload> = {
 
   perform: (request, { settings, payload }) => {
     let createdAt: string | number | undefined = payload.created_at
+    const body: Record<string, unknown> = {
+      ...payload.custom_attributes,
+      email: payload.email,
+      anonymous_id: payload.anonymous_id
+    }
 
     if (createdAt && payload.convert_timestamp !== false) {
       createdAt = dayjs.utc(createdAt).unix()
     }
 
+    if (createdAt) {
+      body.created_at = createdAt
+    }
+
     return request(`${trackApiEndpoint(settings.accountRegion)}/api/v1/customers/${payload.id}`, {
       method: 'put',
-      json: {
-        ...payload.custom_attributes,
-        email: payload.email,
-        created_at: createdAt,
-        anonymous_id: payload.anonymous_id
-      }
+      json: body
     })
   }
 }
