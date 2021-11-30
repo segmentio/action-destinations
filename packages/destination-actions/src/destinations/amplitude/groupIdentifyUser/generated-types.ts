@@ -24,11 +24,11 @@ export interface Payload {
     [k: string]: unknown
   }
   /**
-   * Type of the group
+   * The type of the group
    */
   group_type: string
   /**
-   * Value of the group
+   * The value of the group
    */
   group_value: string
   /**
