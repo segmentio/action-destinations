@@ -9,6 +9,7 @@ describe('Cordial.group', () => {
     nock('https://integrations.cordial.io/segment').post('/group').reply(200, {});
 
     const event = createTestEvent({ type: 'group' });
+    event.groupId = 'test group';
     const settings = {
       apiKey: 'cordialApiKey',
       endpoint: 'https://integrations.cordial.io/segment' as const
