@@ -2,6 +2,14 @@
 
 export interface Payload {
   /**
+   * This field allows you to specify where your conversions occurred.
+   */
+  action_source: string
+  /**
+   * A Unix timestamp in seconds indicating when the actual event occurred.
+   */
+  event_time: string
+  /**
    * These parameters are a set of identifiers Facebook can use for targeted attribution. You must provide at least one of the following user_data keys in your request.
    */
   user_data: {
@@ -79,29 +87,13 @@ export interface Payload {
     fbLoginID?: number
   }
   /**
-   * A Unix timestamp in seconds indicating when the actual event occurred.
+   * Category of the page/product.
    */
-  event_time: string
-  /**
-   * This field allows you to specify where your conversions occurred.
-   */
-  action_source: string
-  /**
-   * This ID can be any unique string chosen by the advertiser. event_id is used to deduplicate events sent by both Facebook Pixel and Conversions API.
-   */
-  event_id?: string
-  /**
-   * The browser URL where the event happened. The URL must begin with http:// or https:// and should match the verified domain. event_source_url is required if action_source = “website”; however it is strongly recommended that you include it for any action_source.
-   */
-  event_source_url?: string
+  content_category?: string
   /**
    * Product IDs associated with the event, such as SKUs (e.g. ["ABC123", "XYZ789"]).
    */
   content_ids?: string[]
-  /**
-   * Category of the page/product.
-   */
-  content_category?: string
   /**
    * Name of the page/product.
    */
@@ -135,6 +127,14 @@ export interface Payload {
    * The currency for the value specified.
    */
   currency?: string
+  /**
+   * This ID can be any unique string chosen by the advertiser. event_id is used to deduplicate events sent by both Facebook Pixel and Conversions API.
+   */
+  event_id?: string
+  /**
+   * The browser URL where the event happened. The URL must begin with http:// or https:// and should match the verified domain. event_source_url is required if action_source = “website”; however it is strongly recommended that you include it for any action_source.
+   */
+  event_source_url?: string
   /**
    * The value of a user performing this event to the business.
    */
