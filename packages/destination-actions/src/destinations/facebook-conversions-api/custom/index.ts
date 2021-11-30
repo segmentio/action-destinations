@@ -8,7 +8,7 @@ const action: ActionDefinition<Settings, Payload> = {
   title: 'Custom Event',
   description: 'Track your own custom events.',
   fields: {
-    action_source: { ...action_source, required: true},
+    action_source: { ...action_source, required: true },
     event_name: {
       label: 'Event Name',
       description: 'Send any custom event',
@@ -20,13 +20,14 @@ const action: ActionDefinition<Settings, Payload> = {
     },
     event_time: { ...event_time, required: true },
     user_data: user_data_field,
-    event_id: event_id,
-    event_source_url: event_source_url,
     custom_data: {
       label: 'Custom Data',
-      description: 'The custom data object which can be used to pass custom properties. See [here](https://developers.facebook.com/docs/marketing-api/conversions-api/parameters/custom-data) for more information',
+      description:
+        'The custom data object which can be used to pass custom properties. See [here](https://developers.facebook.com/docs/marketing-api/conversions-api/parameters/custom-data) for more information',
       type: 'object'
-    }
+    },
+    event_id: event_id,
+    event_source_url: event_source_url
   },
   perform: (request, { payload, settings }) => {
     if (!payload.user_data) {
@@ -34,10 +35,15 @@ const action: ActionDefinition<Settings, Payload> = {
     }
 
     if (
-      !['email', 'website', 'phone_call', 'chat', 'physical_store', 'system_generated', 'other']
-        .includes(payload.action_source)
+      !['email', 'website', 'phone_call', 'chat', 'physical_store', 'system_generated', 'other'].includes(
+        payload.action_source
+      )
     ) {
-      throw new IntegrationError('Provide a valid value for the action source parameter, such as "website"', 'Misconfigured required field', 400)
+      throw new IntegrationError(
+        'Provide a valid value for the action source parameter, such as "website"',
+        'Misconfigured required field',
+        400
+      )
     }
 
     return request(`https://graph.facebook.com/v${API_VERSION}/${settings.pixelId}/events`, {
@@ -50,7 +56,7 @@ const action: ActionDefinition<Settings, Payload> = {
             action_source: payload.action_source,
             event_id: payload.event_id,
             event_source_url: payload.event_source_url,
-            user_data: hash_user_data({user_data: payload.user_data}),
+            user_data: hash_user_data({ user_data: payload.user_data }),
             custom_data: payload.custom_data
           }
         ]
