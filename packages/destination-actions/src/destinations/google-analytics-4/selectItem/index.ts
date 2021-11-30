@@ -25,35 +25,35 @@ const action: ActionDefinition<Settings, Payload> = {
       ...items,
       required: true,
       default: {
-        '@arrayList': [
+        '@arrayPath': [
           '$.properties',
           {
             item_id: {
-              '@path': '$.properties.product_id'
+              '@path': '$.product_id'
             },
             item_name: {
-              '@path': '$.properties.name'
+              '@path': '$.name'
             },
             affiliation: {
-              '@path': '$.properties.affiliation'
+              '@path': '$.affiliation'
             },
             coupon: {
-              '@path': '$.properties.coupon'
+              '@path': '$.coupon'
             },
             item_brand: {
-              '@path': '$.properties.brand'
+              '@path': '$.brand'
             },
             item_category: {
-              '@path': '$.properties.category'
+              '@path': '$.category'
             },
             item_variant: {
-              '@path': '$.properties.variant'
+              '@path': '$.variant'
             },
             price: {
-              '@path': '$.properties.price'
+              '@path': '$.price'
             },
             quantity: {
-              '@path': '$.properties.quantity'
+              '@path': '$.quantity'
             }
           }
         ]
