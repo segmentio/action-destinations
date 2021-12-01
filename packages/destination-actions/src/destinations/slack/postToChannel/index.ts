@@ -5,11 +5,12 @@ import { noop } from 'lodash'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Post Message',
-  description: 'Post a message to a Slack channel.',
+  description:
+    'Post a message to the specified Slack workspace and channel when the associated trigger criteria are met.',
   fields: {
     url: {
       label: 'Webhook URL',
-      description: 'Slack webhook URL.',
+      description: 'The webhook provided by Slack to connect with the desired Slack workspace.',
       type: 'string',
       required: true,
       format: 'uri'
@@ -23,18 +24,19 @@ const action: ActionDefinition<Settings, Payload> = {
     },
     channel: {
       label: 'Channel',
-      description: 'Slack channel to post message to.',
+      description:
+        'The channel within the Slack workspace. Do not include the `#` character. For example, use `general`, not `#general`.',
       type: 'string'
     },
     username: {
       label: 'User',
-      description: 'User name to post messages as.',
+      description: 'The sender of the posted message.',
       type: 'string',
       default: 'Segment'
     },
     icon_url: {
       label: 'Icon URL',
-      description: 'URL for user icon image.',
+      description: 'The URL of the image that appears next to the User.',
       type: 'string',
       default: 'https://logo.clearbit.com/segment.com'
     }

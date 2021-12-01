@@ -225,7 +225,32 @@ describe('@arrayPath', () => {
 
     const output = transform(mapping, { products: { notAnArray: true } })
     expect(output).toStrictEqual({
-      neat: { notAnArray: true }
+      neat: [{}]
+    })
+  })
+
+  test('singular objects', () => {
+    const mapping = {
+      neat: {
+        '@arrayPath': [
+          '$.properties',
+          {
+            product_id: { '@path': '$.productId' },
+            monies: { '@path': '$.price' }
+          }
+        ]
+      }
+    }
+
+    const output = transform(mapping, {
+      properties: {
+        productId: '123',
+        price: 0.5
+      }
+    })
+
+    expect(output).toStrictEqual({
+      neat: [{ product_id: '123', monies: 0.5 }]
     })
   })
 })

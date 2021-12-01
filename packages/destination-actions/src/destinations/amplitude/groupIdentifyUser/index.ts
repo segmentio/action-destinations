@@ -58,13 +58,13 @@ const action: ActionDefinition<Settings, Payload> = {
     group_type: {
       label: 'Group Type',
       type: 'string',
-      description: 'Type of the group',
+      description: 'The type of the group',
       required: true
     },
     group_value: {
       label: 'Group Value',
       type: 'string',
-      description: 'Value of the group',
+      description: 'The value of the group',
       required: true
     },
     min_id_length: {
