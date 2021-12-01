@@ -1,4 +1,4 @@
-import { ActionDefinition } from '@segment/actions-core'
+import { ActionDefinition, IntegrationError } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 
@@ -16,6 +16,15 @@ const action: ActionDefinition<Settings, Payload> = {
         '@path': '$.userId'
       }
     },
+    anonymous_id: {
+      label: 'Anonymous ID',
+      type: 'string',
+      allowNull: true,
+      description: 'The generated anonymous ID for the user',
+      default: {
+        '@path': '$.anonymousId'
+      }
+    },
     traits: {
       label: 'User Properties',
       type: 'object',
@@ -26,17 +35,42 @@ const action: ActionDefinition<Settings, Payload> = {
     }
   },
 
-  perform: (request, { payload, settings }) => {
-    const data = {
-      $token: settings.projectToken,
-      $distinct_id: payload.user_id,
-      $set: payload.traits
+  perform: async (request, { payload, settings }) => {
+    if (!settings.projectToken) {
+      throw new IntegrationError('Missing project token')
+    }
+    const responses = []
+    if (payload.anonymous_id) {
+      const identifyEvent = {
+        event: '$identify',
+        properties: {
+          $identified_id: payload.user_id,
+          $anon_id: payload.anonymous_id,
+          token: settings.projectToken
+        }
+      }
+
+      const identifyResponse = await request('https://api.mixpanel.com/track', {
+        method: 'post',
+        body: new URLSearchParams({ data: JSON.stringify(identifyEvent) })
+      })
+      responses.push(identifyResponse)
     }
 
-    return request('https://api.mixpanel.com/engage', {
-      method: 'post',
-      body: new URLSearchParams({ data: JSON.stringify(data) })
-    })
+    if (payload.traits && Object.keys(payload.traits).length > 0) {
+      const data = {
+        $token: settings.projectToken,
+        $distinct_id: payload.user_id,
+        $set: payload.traits
+      }
+
+      const engageResponse = request('https://api.mixpanel.com/engage', {
+        method: 'post',
+        body: new URLSearchParams({ data: JSON.stringify(data) })
+      })
+      responses.push(engageResponse)
+    }
+    return Promise.all(responses)
   }
 }
 

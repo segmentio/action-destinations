@@ -10,7 +10,8 @@ const action: ActionDefinition<Settings, Payload> = {
       label: 'Alias',
       type: 'string',
       allowNull: true,
-      description: 'New alias to merged with the previous id. Each alias can only map to one previous id',
+      description:
+        'A new distinct id to be merged with the original distinct id. Each alias can only map to one distinct id.',
       default: {
         '@if': {
           exists: { '@path': '$.userId' },
@@ -19,10 +20,10 @@ const action: ActionDefinition<Settings, Payload> = {
         }
       }
     },
-    previous_id: {
-      label: 'Previous ID',
+    distinct_id: {
+      label: 'Distinct ID',
       type: 'string',
-      description: 'An id to be merged with the alias',
+      description: 'A distinct id to be merged with the alias.',
       default: {
         '@path': '$.previousId'
       }
@@ -32,13 +33,13 @@ const action: ActionDefinition<Settings, Payload> = {
     const data = {
       event: '$create_alias',
       properties: {
-        distinct_id: payload.previous_id,
+        distinct_id: payload.distinct_id,
         alias: payload.alias,
         token: settings.projectToken
       }
     }
 
-    return request('https://api.mixpanel.com/track#identity-create-alias', {
+    return request('https://api.mixpanel.com/track', {
       method: 'post',
       body: new URLSearchParams({ data: JSON.stringify(data) })
     })
