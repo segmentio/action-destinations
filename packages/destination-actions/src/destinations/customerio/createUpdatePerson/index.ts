@@ -38,7 +38,7 @@ const action: ActionDefinition<Settings, Payload> = {
     },
     created_at: {
       label: 'Created At',
-      description: 'A timestamp of when the person was created. Default is the created_at trait.',
+      description: 'A timestamp of when the person was created.',
       type: 'string',
       default: {
         '@template': '{{traits.created_at}}'

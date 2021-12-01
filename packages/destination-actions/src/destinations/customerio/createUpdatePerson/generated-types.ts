@@ -14,7 +14,7 @@ export interface Payload {
    */
   email?: string
   /**
-   * A timestamp of when the person was created. Default is the created_at trait.
+   * A timestamp of when the person was created.
    */
   created_at?: string
   /**
