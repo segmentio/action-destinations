@@ -20,14 +20,14 @@ const action: ActionDefinition<Settings, Payload> = {
   fields: {
     client_id: { ...client_id },
     creative_name: { ...creative_name },
-    creative_slot: { ...creative_slot },
+    creative_slot: { ...creative_slot, default: { '@path': '$.properties.creative' } },
     location_id: {
       label: 'Location ID',
       type: 'string',
       description: 'The ID of the location.'
     },
-    promotion_id: { ...promotion_id },
-    promotion_name: { ...promotion_name },
+    promotion_id: { ...promotion_id, default: { '@path': '$.properties.promotion_id' } },
+    promotion_name: { ...promotion_name, default: { '@path': '$.properties.name' } },
     items: {
       ...items_single_products,
       properties: {
