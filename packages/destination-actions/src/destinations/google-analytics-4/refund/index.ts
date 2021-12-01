@@ -22,7 +22,7 @@ const action: ActionDefinition<Settings, Payload> = {
     client_id: { ...client_id },
     currency: { ...currency },
     transaction_id: { ...transaction_id, required: true },
-    value: { ...value },
+    value: { ...value, default: { '@path': '$.properties.total' } },
     affiliation: { ...affiliation },
     coupon: { ...coupon },
     shipping: { ...shipping },
