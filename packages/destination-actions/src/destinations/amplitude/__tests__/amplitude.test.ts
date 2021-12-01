@@ -394,6 +394,68 @@ describe('Amplitude', () => {
         }
       `)
     })
+
+    it('should send data to the EU endpoint', async () => {
+      const event = createTestEvent({ timestamp, event: 'Test Event' })
+
+      nock('https://api.eu.amplitude.com/2').post('/httpapi').reply(200, {})
+      const responses = await testDestination.testAction('logEvent', {
+        event,
+        useDefaultMappings: true,
+        settings: {
+          apiKey: '',
+          secretKey: '',
+          endpoint: 'europe'
+        }
+      })
+      expect(responses.length).toBe(1)
+      expect(responses[0].status).toBe(200)
+      expect(responses[0].data).toMatchObject({})
+      expect(responses[0].options.json).toMatchObject({
+        api_key: '',
+        events: expect.arrayContaining([
+          expect.objectContaining({
+            event_type: 'Test Event',
+            city: 'San Francisco',
+            country: 'United States'
+          })
+        ])
+      })
+    })
+
+    it('should send data to the batch EU endpoint when specified in settings', async () => {
+      const event = createTestEvent({
+        timestamp,
+        event: 'Test Event'
+      })
+
+      nock('https://api.eu.amplitude.com').post('/batch').reply(200, {})
+      const responses = await testDestination.testAction('logEvent', {
+        event,
+        useDefaultMappings: true,
+        settings: {
+          apiKey: '',
+          secretKey: '',
+          endpoint: 'europe'
+        },
+        mapping: {
+          use_batch_endpoint: true
+        }
+      })
+      expect(responses.length).toBe(1)
+      expect(responses[0].status).toBe(200)
+      expect(responses[0].data).toMatchObject({})
+      expect(responses[0].options.json).toMatchObject({
+        api_key: '',
+        events: expect.arrayContaining([
+          expect.objectContaining({
+            event_type: 'Test Event',
+            city: 'San Francisco',
+            country: 'United States'
+          })
+        ])
+      })
+    })
   })
 
   it('should not send parsed user agent properties when setting is false', async () => {
@@ -463,6 +525,40 @@ describe('Amplitude', () => {
         }
       `)
     })
+
+    it('should send data to the EU endpoint', async () => {
+      const event = createTestEvent({
+        type: 'alias',
+        userId: 'some-user-id',
+        previousId: 'some-previous-user-id'
+      })
+
+      nock('https://api.eu.amplitude.com').post('/usermap').reply(200, {})
+
+      const responses = await testDestination.testAction('mapUser', {
+        event,
+        useDefaultMappings: true,
+        settings: {
+          apiKey: '',
+          secretKey: '',
+          endpoint: 'europe'
+        }
+      })
+      expect(responses.length).toBe(1)
+      expect(responses[0].status).toBe(200)
+      expect(responses[0].data).toMatchObject({})
+      expect(responses[0].options.body).toMatchInlineSnapshot(`
+        URLSearchParams {
+          Symbol(query): Array [
+            "api_key",
+            "",
+            "mapping",
+            "[{\\"user_id\\":\\"some-previous-user-id\\",\\"global_user_id\\":\\"some-user-id\\"}]",
+          ],
+          Symbol(context): null,
+        }
+      `)
+    })
   })
 
   describe('identifyUser', () => {
@@ -477,7 +573,7 @@ describe('Amplitude', () => {
         }
       })
 
-      nock('https://api.amplitude.com').post('/identify').reply(200, {})
+      nock('https://api2.amplitude.com').post('/identify').reply(200, {})
       const responses = await testDestination.testAction('identifyUser', { event, useDefaultMappings: true })
       expect(responses.length).toBe(1)
       expect(responses[0].status).toBe(200)
@@ -520,7 +616,7 @@ describe('Amplitude', () => {
           }
         }
       })
-      nock('https://api.amplitude.com').post('/identify').reply(200, {})
+      nock('https://api2.amplitude.com').post('/identify').reply(200, {})
       const responses = await testDestination.testAction('identifyUser', { event, useDefaultMappings: true })
       expect(responses.length).toBe(1)
       expect(responses[0].status).toBe(200)
@@ -551,7 +647,7 @@ describe('Amplitude', () => {
           'some-trait-key': 'some-trait-value'
         }
       })
-      nock('https://api.amplitude.com').post('/identify').reply(200, {})
+      nock('https://api2.amplitude.com').post('/identify').reply(200, {})
       const responses = await testDestination.testAction('identifyUser', { event, useDefaultMappings: true })
       expect(responses.length).toBe(1)
       expect(responses[0].status).toBe(200)
@@ -594,7 +690,7 @@ describe('Amplitude', () => {
         userAgentParsing: true
       }
 
-      nock('https://api.amplitude.com').post('/identify').reply(200, {})
+      nock('https://api2.amplitude.com').post('/identify').reply(200, {})
       const responses = await testDestination.testAction('identifyUser', { event, mapping, useDefaultMappings: true })
       expect(responses.length).toBe(1)
       expect(responses[0].status).toBe(200)
@@ -637,7 +733,7 @@ describe('Amplitude', () => {
         userAgentParsing: false
       }
 
-      nock('https://api.amplitude.com').post('/identify').reply(200, {})
+      nock('https://api2.amplitude.com').post('/identify').reply(200, {})
       const responses = await testDestination.testAction('identifyUser', { event, mapping, useDefaultMappings: true })
       expect(responses.length).toBe(1)
       expect(responses[0].status).toBe(200)
@@ -671,7 +767,7 @@ describe('Amplitude', () => {
         userAgentParsing: false
       }
 
-      nock('https://api.amplitude.com').post('/identify').reply(200, {})
+      nock('https://api2.amplitude.com').post('/identify').reply(200, {})
       const responses = await testDestination.testAction('identifyUser', { event, mapping, useDefaultMappings: true })
       expect(responses[0].options.body).toMatchInlineSnapshot(`
         URLSearchParams {
@@ -702,7 +798,7 @@ describe('Amplitude', () => {
         userAgentParsing: false
       }
 
-      nock('https://api.amplitude.com').post('/identify').reply(200, {})
+      nock('https://api2.amplitude.com').post('/identify').reply(200, {})
       const responses = await testDestination.testAction('identifyUser', { event, mapping, useDefaultMappings: true })
       expect(responses[0].options.body).toMatchInlineSnapshot(`
         URLSearchParams {
@@ -711,6 +807,45 @@ describe('Amplitude', () => {
             "undefined",
             "identification",
             "{\\"user_id\\":\\"user1234\\",\\"device_id\\":\\"foo\\",\\"user_properties\\":{},\\"platform\\":\\"iOS\\",\\"library\\":\\"segment\\"}",
+            "options",
+            "undefined",
+          ],
+          Symbol(context): null,
+        }
+      `)
+    })
+
+    it('should send data to the EU endpoint', async () => {
+      const event = createTestEvent({
+        anonymousId: 'some-anonymous-id',
+        timestamp: '2021-04-12T16:32:37.710Z',
+        type: 'group',
+        userId: 'some-user-id',
+        traits: {
+          'some-trait-key': 'some-trait-value'
+        }
+      })
+
+      nock('https://api.eu.amplitude.com').post('/identify').reply(200, {})
+      const responses = await testDestination.testAction('identifyUser', {
+        event,
+        useDefaultMappings: true,
+        settings: {
+          apiKey: '',
+          secretKey: '',
+          endpoint: 'europe'
+        }
+      })
+      expect(responses.length).toBe(1)
+      expect(responses[0].status).toBe(200)
+      expect(responses[0].data).toMatchObject({})
+      expect(responses[0].options.body).toMatchInlineSnapshot(`
+        URLSearchParams {
+          Symbol(query): Array [
+            "api_key",
+            "",
+            "identification",
+            "{\\"os_name\\":\\"Mobile Safari\\",\\"os_version\\":\\"9\\",\\"device_model\\":\\"iPhone\\",\\"device_type\\":\\"mobile\\",\\"user_id\\":\\"some-user-id\\",\\"device_id\\":\\"some-anonymous-id\\",\\"user_properties\\":{\\"some-trait-key\\":\\"some-trait-value\\"},\\"country\\":\\"United States\\",\\"city\\":\\"San Francisco\\",\\"language\\":\\"en-US\\",\\"platform\\":\\"Web\\",\\"library\\":\\"segment\\"}",
             "options",
             "undefined",
           ],
@@ -738,8 +873,8 @@ describe('Amplitude', () => {
     }
 
     it('should fire identify call to Amplitude', async () => {
-      nock('https://api.amplitude.com').post('/identify').reply(200, {})
-      nock('https://api.amplitude.com').post('/groupidentify').reply(200, {})
+      nock('https://api2.amplitude.com').post('/identify').reply(200, {})
+      nock('https://api2.amplitude.com').post('/groupidentify').reply(200, {})
 
       const [response] = await testDestination.testAction('groupIdentifyUser', {
         event,
@@ -765,8 +900,8 @@ describe('Amplitude', () => {
     })
 
     it('should fire groupidentify call to Amplitude', async () => {
-      nock('https://api.amplitude.com').post('/identify').reply(200, {})
-      nock('https://api.amplitude.com').post('/groupidentify').reply(200, {})
+      nock('https://api2.amplitude.com').post('/identify').reply(200, {})
+      nock('https://api2.amplitude.com').post('/groupidentify').reply(200, {})
 
       const [, response] = await testDestination.testAction('groupIdentifyUser', {
         event,
@@ -790,6 +925,70 @@ describe('Amplitude', () => {
         }
       `)
     })
+
+    it('should fire identify call to Amplitude EU endpoint', async () => {
+      nock('https://api.eu.amplitude.com').post('/identify').reply(200, {})
+      nock('https://api.eu.amplitude.com').post('/groupidentify').reply(200, {})
+
+      const [response] = await testDestination.testAction('groupIdentifyUser', {
+        event,
+        mapping,
+        useDefaultMappings: true,
+        settings: {
+          apiKey: '',
+          secretKey: '',
+          endpoint: 'europe'
+        }
+      })
+
+      expect(response.status).toBe(200)
+      expect(response.data).toMatchObject({})
+      expect(response.options.body).toMatchInlineSnapshot(`
+        URLSearchParams {
+          Symbol(query): Array [
+            "api_key",
+            "",
+            "identification",
+            "[{\\"device_id\\":\\"some-anonymous-id\\",\\"groups\\":{\\"some-type\\":\\"some-value\\"},\\"insert_id\\":\\"some-insert-id\\",\\"library\\":\\"segment\\",\\"time\\":1618245157710,\\"user_id\\":\\"some-user-id\\",\\"user_properties\\":{\\"some-type\\":\\"some-value\\"}}]",
+            "options",
+            "undefined",
+          ],
+          Symbol(context): null,
+        }
+      `)
+    })
+
+    it('should fire groupidentify call to Amplitude EU endpoint', async () => {
+      nock('https://api.eu.amplitude.com').post('/identify').reply(200, {})
+      nock('https://api.eu.amplitude.com').post('/groupidentify').reply(200, {})
+
+      const [, response] = await testDestination.testAction('groupIdentifyUser', {
+        event,
+        mapping,
+        useDefaultMappings: true,
+        settings: {
+          apiKey: '',
+          secretKey: '',
+          endpoint: 'europe'
+        }
+      })
+
+      expect(response.status).toBe(200)
+      expect(response.data).toMatchObject({})
+      expect(response.options.body).toMatchInlineSnapshot(`
+        URLSearchParams {
+          Symbol(query): Array [
+            "api_key",
+            "",
+            "identification",
+            "[{\\"group_properties\\":{\\"some-trait-key\\":\\"some-trait-value\\"},\\"group_value\\":\\"some-value\\",\\"group_type\\":\\"some-type\\",\\"library\\":\\"segment\\"}]",
+            "options",
+            "undefined",
+          ],
+          Symbol(context): null,
+        }
+      `)
+    })
   })
 
   describe('deletes', () => {
@@ -799,6 +998,19 @@ describe('Amplitude', () => {
         const response = await testDestination.onDelete(
           { type: 'track', userId: 'sloth@segment.com' },
           { apiKey: 'foo', secretKey: 'bar' }
+        )
+        const resp = response as DecoratedResponse
+        expect(resp.status).toBe(200)
+        expect(resp.data).toMatchObject({})
+      }
+    })
+
+    it('should support gdpr deletes on EU endpoint', async () => {
+      nock('https://analytics.eu.amplitude.com').post('/api/2/deletions/users').reply(200, {})
+      if (testDestination.onDelete) {
+        const response = await testDestination.onDelete(
+          { type: 'track', userId: 'sloth@segment.com' },
+          { apiKey: 'foo', secretKey: 'bar', endpoint: 'europe' }
         )
         const resp = response as DecoratedResponse
         expect(resp.status).toBe(200)
