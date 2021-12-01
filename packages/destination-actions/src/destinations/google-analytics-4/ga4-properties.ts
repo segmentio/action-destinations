@@ -83,7 +83,10 @@ export const currency: InputField = {
 export const value: InputField = {
   label: 'Value',
   type: 'number',
-  description: 'The monetary value of the event.'
+  description: 'The monetary value of the event.',
+  default: {
+    '@path': '$.properties.value'
+  }
 }
 
 export const coupon: InputField = {

@@ -16,7 +16,7 @@ const action: ActionDefinition<Settings, Payload> = {
       ...items_single_products,
       required: true
     },
-    value: { ...value, default: { '@path': '$.properties.value' } }
+    value: { ...value }
   },
   perform: (request, { payload }) => {
     let googleItems: ProductItem[] = []

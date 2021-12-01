@@ -19,7 +19,7 @@ const action: ActionDefinition<Settings, Payload> = {
       ...items_multi_products,
       required: true
     },
-    value: { ...value, default: { '@path': '$.properties.value' } }
+    value: { ...value }
   },
   perform: (request, { payload }) => {
     if (payload.currency && !CURRENCY_ISO_CODES.includes(payload.currency)) {

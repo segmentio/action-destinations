@@ -12,7 +12,7 @@ const action: ActionDefinition<Settings, Payload> = {
   fields: {
     client_id: { ...client_id },
     currency: { ...currency, default: { '@path': '$.properties.currency' } },
-    value: { ...value, default: { '@path': '$.properties.value' } },
+    value: { ...value },
     items: {
       ...items_single_products,
       required: true
