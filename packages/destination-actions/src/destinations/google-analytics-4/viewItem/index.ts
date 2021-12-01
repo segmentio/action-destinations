@@ -1,6 +1,6 @@
 import { ActionDefinition, IntegrationError } from '@segment/actions-core'
 import { CURRENCY_ISO_CODES } from '../constants'
-import { currency, client_id, value, items } from '../ga4-properties'
+import { currency, client_id, value, items_single_products } from '../ga4-properties'
 import { ProductItem } from '../ga4-types'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
@@ -14,42 +14,8 @@ const action: ActionDefinition<Settings, Payload> = {
     currency: { ...currency, default: { '@path': '$.properties.currency' } },
     value: { ...value, default: { '@path': '$.properties.value' } },
     items: {
-      ...items,
-      required: true,
-      default: {
-        '@arrayPath': [
-          '$.properties',
-          {
-            item_id: {
-              '@path': '$.product_id'
-            },
-            item_name: {
-              '@path': '$.name'
-            },
-            affiliation: {
-              '@path': '$.affiliation'
-            },
-            coupon: {
-              '@path': '$.coupon'
-            },
-            item_brand: {
-              '@path': '$.brand'
-            },
-            item_category: {
-              '@path': '$.category'
-            },
-            item_variant: {
-              '@path': '$.variant'
-            },
-            price: {
-              '@path': '$.price'
-            },
-            quantity: {
-              '@path': '$.quantity'
-            }
-          }
-        ]
-      }
+      ...items_single_products,
+      required: true
     }
   },
   perform: (request, { payload }) => {

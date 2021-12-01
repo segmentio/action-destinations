@@ -1,6 +1,14 @@
 import { ActionDefinition, IntegrationError } from '@segment/actions-core'
 import { CURRENCY_ISO_CODES } from '../constants'
-import { creative_name, creative_slot, promotion_id, promotion_name, client_id, items } from '../ga4-properties'
+import {
+  creative_name,
+  creative_slot,
+  promotion_id,
+  promotion_name,
+  client_id,
+  minimal_items,
+  items_single_products
+} from '../ga4-properties'
 import { PromotionProductItem } from '../ga4-types'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
@@ -28,10 +36,10 @@ const action: ActionDefinition<Settings, Payload> = {
     promotion_id: { ...promotion_id, default: { '@path': '$.properties.promotion_id' } },
     promotion_name: { ...promotion_name, default: { '@path': '$.properties.name' } },
     items: {
-      ...items,
+      ...items_single_products,
       required: true,
       properties: {
-        ...items.properties,
+        ...minimal_items.properties,
         creative_name: {
           ...creative_name
         },
@@ -44,40 +52,6 @@ const action: ActionDefinition<Settings, Payload> = {
         promotion_id: {
           ...promotion_id
         }
-      },
-      default: {
-        '@arrayPath': [
-          '$.properties',
-          {
-            item_id: {
-              '@path': '$.product_id'
-            },
-            item_name: {
-              '@path': '$.name'
-            },
-            affiliation: {
-              '@path': '$.affiliation'
-            },
-            coupon: {
-              '@path': '$.coupon'
-            },
-            item_brand: {
-              '@path': '$.brand'
-            },
-            item_category: {
-              '@path': '$.category'
-            },
-            item_variant: {
-              '@path': '$.variant'
-            },
-            price: {
-              '@path': '$.price'
-            },
-            quantity: {
-              '@path': '$.quantity'
-            }
-          }
-        ]
       }
     }
   },

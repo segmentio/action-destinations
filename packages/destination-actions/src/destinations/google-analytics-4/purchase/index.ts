@@ -10,9 +10,9 @@ import {
   value,
   client_id,
   affiliation,
-  items,
   shipping,
-  tax
+  tax,
+  items_multi_products
 } from '../ga4-properties'
 
 // https://segment.com/docs/connections/spec/ecommerce/v2/#order-completed
@@ -29,45 +29,8 @@ const action: ActionDefinition<Settings, Payload> = {
     // Google does not have anything to map position, url and image url fields (Segment spec) to
     // so will ignore for now
     items: {
-      ...items,
-      required: true,
-      default: {
-        '@arrayPath': [
-          '$.properties.products',
-          {
-            item_id: {
-              '@path': '$.product_id'
-            },
-            item_name: {
-              '@path': '$.name'
-            },
-            affiliation: {
-              '@path': '$.affiliation'
-            },
-            coupon: {
-              '@path': '$.coupon'
-            },
-            index: {
-              '@path': '$.position'
-            },
-            item_brand: {
-              '@path': '$.brand'
-            },
-            item_category: {
-              '@path': '$.category'
-            },
-            item_variant: {
-              '@path': '$.variant'
-            },
-            price: {
-              '@path': '$.price'
-            },
-            quantity: {
-              '@path': '$.quantity'
-            }
-          }
-        ]
-      }
+      ...items_multi_products,
+      required: true
     },
     transaction_id: { ...transaction_id, required: true },
     shipping: { ...shipping },

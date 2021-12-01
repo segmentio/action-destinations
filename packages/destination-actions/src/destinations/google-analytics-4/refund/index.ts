@@ -1,6 +1,15 @@
 import { ActionDefinition, IntegrationError } from '@segment/actions-core'
 import { CURRENCY_ISO_CODES } from '../constants'
-import { coupon, items, transaction_id, client_id, currency, value, affiliation, shipping } from '../ga4-properties'
+import {
+  coupon,
+  transaction_id,
+  client_id,
+  currency,
+  value,
+  affiliation,
+  shipping,
+  items_multi_products
+} from '../ga4-properties'
 import { ProductItem } from '../ga4-types'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
@@ -23,44 +32,7 @@ const action: ActionDefinition<Settings, Payload> = {
       description: 'Tax cost associated with a transaction.'
     },
     items: {
-      ...items,
-      default: {
-        '@arrayPath': [
-          '$.properties.products',
-          {
-            item_id: {
-              '@path': '$.product_id'
-            },
-            item_name: {
-              '@path': '$.name'
-            },
-            affiliation: {
-              '@path': '$.affiliation'
-            },
-            coupon: {
-              '@path': '$.coupon'
-            },
-            index: {
-              '@path': '$.position'
-            },
-            item_brand: {
-              '@path': '$.brand'
-            },
-            item_category: {
-              '@path': '$.category'
-            },
-            item_variant: {
-              '@path': '$.variant'
-            },
-            price: {
-              '@path': '$.price'
-            },
-            quantity: {
-              '@path': '$.quantity'
-            }
-          }
-        ]
-      }
+      ...items_multi_products
     }
   },
   perform: (request, { payload }) => {

@@ -3,7 +3,7 @@ import { CURRENCY_ISO_CODES } from '../constants'
 import { ProductItem } from '../ga4-types'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
-import { client_id, currency, value, coupon, payment_type, items } from '../ga4-properties'
+import { client_id, currency, value, coupon, payment_type, items_multi_products } from '../ga4-properties'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Add Payment Info',
@@ -16,48 +16,8 @@ const action: ActionDefinition<Settings, Payload> = {
     coupon: { ...coupon },
     payment_type: { ...payment_type },
     items: {
-      ...items,
-      required: true,
-      properties: {
-        ...items.properties
-      },
-      default: {
-        '@arrayPath': [
-          '$.properties.products',
-          {
-            item_id: {
-              '@path': '$.product_id'
-            },
-            item_name: {
-              '@path': '$.name'
-            },
-            affiliation: {
-              '@path': '$.affiliation'
-            },
-            coupon: {
-              '@path': '$.coupon'
-            },
-            index: {
-              '@path': '$.position'
-            },
-            item_brand: {
-              '@path': '$.brand'
-            },
-            item_category: {
-              '@path': '$.category'
-            },
-            item_variant: {
-              '@path': '$.variant'
-            },
-            price: {
-              '@path': '$.price'
-            },
-            quantity: {
-              '@path': '$.quantity'
-            }
-          }
-        ]
-      }
+      ...items_multi_products,
+      required: true
     }
   },
   perform: (request, { payload }) => {

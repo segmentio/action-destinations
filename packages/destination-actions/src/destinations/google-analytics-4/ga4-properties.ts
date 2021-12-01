@@ -101,12 +101,11 @@ export const payment_type: InputField = {
   }
 }
 
-export const items: InputField = {
+export const minimal_items: InputField = {
   label: 'Products',
   description: 'The list of products purchased.',
   type: 'object',
   multiple: true,
-  //required: true, needed for: addPaymentInfo, addToWishlist
   properties: {
     item_id: {
       label: 'Product ID',
@@ -203,5 +202,83 @@ export const items: InputField = {
       type: 'integer',
       description: 'Item quantity.'
     }
+  }
+}
+
+export const items_single_products: InputField = {
+  ...minimal_items,
+  default: {
+    '@arrayPath': [
+      '$.properties',
+      {
+        item_id: {
+          '@path': '$.product_id'
+        },
+        item_name: {
+          '@path': '$.name'
+        },
+        affiliation: {
+          '@path': '$.affiliation'
+        },
+        coupon: {
+          '@path': '$.coupon'
+        },
+        item_brand: {
+          '@path': '$.brand'
+        },
+        item_category: {
+          '@path': '$.category'
+        },
+        item_variant: {
+          '@path': '$.variant'
+        },
+        price: {
+          '@path': '$.price'
+        },
+        quantity: {
+          '@path': '$.quantity'
+        }
+      }
+    ]
+  }
+}
+export const items_multi_products: InputField = {
+  ...minimal_items,
+  default: {
+    '@arrayPath': [
+      '$.properties.products',
+      {
+        item_id: {
+          '@path': '$.product_id'
+        },
+        item_name: {
+          '@path': '$.name'
+        },
+        affiliation: {
+          '@path': '$.affiliation'
+        },
+        coupon: {
+          '@path': '$.coupon'
+        },
+        index: {
+          '@path': '$.position'
+        },
+        item_brand: {
+          '@path': '$.brand'
+        },
+        item_category: {
+          '@path': '$.category'
+        },
+        item_variant: {
+          '@path': '$.variant'
+        },
+        price: {
+          '@path': '$.price'
+        },
+        quantity: {
+          '@path': '$.quantity'
+        }
+      }
+    ]
   }
 }
