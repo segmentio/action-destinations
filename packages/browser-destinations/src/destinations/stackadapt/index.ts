@@ -12,7 +12,6 @@ declare global {
   }
 }
 
-// Switch from unknown to the partner SDK client types
 export const destination: BrowserDestinationDefinition<Settings, StackAdaptSDK> = {
   name: 'StackAdapt',
   slug: 'actions-stackadapt',
