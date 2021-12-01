@@ -4,7 +4,7 @@ import { browserDestination } from '../../runtime/shim'
 import { defaultValues } from '@segment/actions-core'
 import { initScript } from './init-script'
 import trackEvent from './trackEvent'
-import { StackAdaptSDK } from './types'
+import type { StackAdaptSDK } from './types'
 
 declare global {
   interface Window {
