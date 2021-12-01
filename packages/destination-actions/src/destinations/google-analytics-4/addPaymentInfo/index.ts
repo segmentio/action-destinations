@@ -12,7 +12,7 @@ const action: ActionDefinition<Settings, Payload> = {
   fields: {
     client_id: { ...client_id },
     currency: { ...currency },
-    value: { ...value, type: 'string' },
+    value: { ...value },
     coupon: { ...coupon },
     payment_type: { ...payment_type },
     items: {
