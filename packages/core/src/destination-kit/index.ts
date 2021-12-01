@@ -39,6 +39,8 @@ export interface BaseDefinition {
   /** The name of the destination */
   name: string
 
+  version?: string
+
   /**
    * The mode of the destination
    * 'cloud' mode is made up of actions that run server-side, but can also have device-mode enrichment actions

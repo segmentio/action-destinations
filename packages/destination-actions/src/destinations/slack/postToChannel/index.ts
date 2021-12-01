@@ -1,7 +1,8 @@
 import type { ActionDefinition } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
-import { noop } from 'lodash'
+import noop from 'lodash/noop'
+import pkg from '../package.json'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Post Message',
@@ -47,7 +48,7 @@ const action: ActionDefinition<Settings, Payload> = {
     return request(payload.url, {
       method: 'post',
       json: {
-        _version: '1.0.1',
+        _version: pkg.version,
         channel: payload.channel,
         text: payload.text,
         username: payload.username,
