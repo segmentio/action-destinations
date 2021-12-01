@@ -8,7 +8,7 @@ const action: ActionDefinition<Settings, Payload> = {
   description: 'Send any custom event',
   defaultSubscription: 'type = "track"',
   fields: {
-    clientId: { ...client_id, required: true },
+    clientId: { ...client_id },
     name: {
       label: 'Event Name',
       description: 'The unique name of the custom event created in GA4.',

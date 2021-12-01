@@ -64,6 +64,7 @@ export const client_id: InputField = {
   label: 'Client ID',
   description: 'Uniquely identifies a user instance of a web client.',
   type: 'string',
+  required: true,
   default: {
     '@if': {
       exists: { '@path': '$.userId' },

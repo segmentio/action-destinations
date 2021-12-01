@@ -8,7 +8,7 @@ const action: ActionDefinition<Settings, Payload> = {
   description: 'Send event when a user signs up to measure the popularity of each sign-up method',
   defaultSubscription: 'type = "track" and event = "Signed Up"',
   fields: {
-    client_id: { ...client_id, required: true },
+    client_id: { ...client_id },
     method: {
       label: 'Method',
       description: 'The method used for sign up.',

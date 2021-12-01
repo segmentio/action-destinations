@@ -22,7 +22,7 @@ const action: ActionDefinition<Settings, Payload> = {
   description: 'Send event when a user completes a purchase',
   defaultSubscription: 'type = "track" and event = "Order Completed"',
   fields: {
-    client_id: { ...client_id, required: true },
+    client_id: { ...client_id },
     affiliation: { ...affiliation },
     coupon: { ...coupon, default: { '@path': '$.properties.coupon' } },
     currency: { ...currency, required: true, default: { '@path': '$.properties.currency' } },

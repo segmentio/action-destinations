@@ -10,7 +10,7 @@ const action: ActionDefinition<Settings, Payload> = {
   description: 'Send event when a refund is issued',
   defaultSubscription: 'type = "track" and event = "Order Refunded"',
   fields: {
-    client_id: { ...client_id, required: true },
+    client_id: { ...client_id },
     currency: { ...currency },
     transaction_id: { ...transaction_id, required: true },
     value: { ...value },

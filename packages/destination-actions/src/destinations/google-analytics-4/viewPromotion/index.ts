@@ -14,7 +14,7 @@ const action: ActionDefinition<Settings, Payload> = {
   description: 'Send event when a promotion is shown to a user',
   defaultSubscription: 'type = "track" and event = "Promotion Viewed"',
   fields: {
-    client_id: { ...client_id, required: true },
+    client_id: { ...client_id },
     creative_name: { ...creative_name },
     creative_slot: { ...creative_slot, default: { '@path': '$.properties.creative' } },
     location_id: {

@@ -10,7 +10,7 @@ const action: ActionDefinition<Settings, Payload> = {
   description: 'Send event when a user selects an item from a list',
   defaultSubscription: 'type = "track" and event = "Product Clicked"',
   fields: {
-    client_id: { ...client_id, required: true },
+    client_id: { ...client_id },
     item_list_name: {
       label: 'Item List Name',
       description: 'The name of the list in which the item was presented to the user.',

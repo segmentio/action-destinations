@@ -8,7 +8,7 @@ const action: ActionDefinition<Settings, Payload> = {
   description: 'Send event when a user searches your content',
   defaultSubscription: 'type = "track" and event = "Products Searched"',
   fields: {
-    client_id: { ...client_id, required: true },
+    client_id: { ...client_id },
     search_term: {
       label: 'Search Term',
       type: 'string',

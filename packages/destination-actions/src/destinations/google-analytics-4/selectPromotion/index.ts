@@ -10,7 +10,7 @@ const action: ActionDefinition<Settings, Payload> = {
   description: 'Send event when a user selects a promotion',
   defaultSubscription: 'type = "track" and event = "Promotion Clicked"',
   fields: {
-    client_id: { ...client_id, required: true },
+    client_id: { ...client_id },
     creative_name: { ...creative_name },
     creative_slot: { ...creative_slot },
     location_id: {

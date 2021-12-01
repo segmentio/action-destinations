@@ -8,7 +8,7 @@ const action: ActionDefinition<Settings, Payload> = {
   description: 'Send event when a user logs in',
   defaultSubscription: 'type = "track" and event = "Signed In"',
   fields: {
-    client_id: { ...client_id, required: true },
+    client_id: { ...client_id },
     method: {
       label: 'Method',
       type: 'string',

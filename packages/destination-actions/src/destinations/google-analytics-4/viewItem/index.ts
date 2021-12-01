@@ -10,7 +10,7 @@ const action: ActionDefinition<Settings, Payload> = {
   description: 'Send event when a user views an item',
   defaultSubscription: 'type = "track" and event =  "Product Viewed"',
   fields: {
-    client_id: { ...client_id, required: true },
+    client_id: { ...client_id },
     currency: { ...currency, default: { '@path': '$.properties.currency' } },
     value: { ...value, default: { '@path': '$.properties.value' } },
     items: {

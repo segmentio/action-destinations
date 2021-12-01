@@ -10,7 +10,7 @@ const action: ActionDefinition<Settings, Payload> = {
   description: 'Send event when a user submits their payment information',
   defaultSubscription: 'type = "track" and event = "Payment Info Entered"',
   fields: {
-    client_id: { ...client_id, required: true },
+    client_id: { ...client_id },
     currency: { ...currency },
     value: { ...value, type: 'string' },
     coupon: { ...coupon },

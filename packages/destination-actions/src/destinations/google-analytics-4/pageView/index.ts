@@ -8,7 +8,7 @@ const action: ActionDefinition<Settings, Payload> = {
   description: 'Send page view when a user views a page',
   defaultSubscription: 'type = "page"',
   fields: {
-    clientId: { ...client_id, required: true },
+    clientId: { ...client_id },
     page_location: {
       label: 'Page Location',
       type: 'string',

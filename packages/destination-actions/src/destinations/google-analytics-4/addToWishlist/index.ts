@@ -10,7 +10,7 @@ const action: ActionDefinition<Settings, Payload> = {
   description: 'Send event when a user adds items to a wishlist',
   defaultSubscription: 'type = "track" and event = "Product Added to Wishlist"',
   fields: {
-    client_id: { ...client_id, required: true },
+    client_id: { ...client_id },
     currency: { ...currency },
     value: { ...value },
     items: {

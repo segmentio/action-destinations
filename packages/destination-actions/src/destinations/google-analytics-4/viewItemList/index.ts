@@ -14,7 +14,7 @@ const action: ActionDefinition<Settings, Payload> = {
   description: 'Send event when a user views a list of items or offerings',
   defaultSubscription: 'type = "track" and event = "Product List Viewed"',
   fields: {
-    client_id: { ...client_id, required: true },
+    client_id: { ...client_id },
     item_list_id: {
       label: 'Item List ID',
       type: 'string',

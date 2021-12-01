@@ -9,7 +9,7 @@ const action: ActionDefinition<Settings, Payload> = {
   description: 'Send event when a user submits a form or request for information',
   defaultSubscription: 'type = "track"',
   fields: {
-    client_id: { ...client_id, required: true },
+    client_id: { ...client_id },
     currency: { ...currency },
     value: { ...value }
   },

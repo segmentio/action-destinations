@@ -10,7 +10,7 @@ const action: ActionDefinition<Settings, Payload> = {
   description: 'Send event when a user removes items from a cart',
   defaultSubscription: 'type = "track" and event = "Product Removed"',
   fields: {
-    client_id: { ...client_id, required: true },
+    client_id: { ...client_id },
     currency: { ...currency },
     value: { ...value },
     items: {

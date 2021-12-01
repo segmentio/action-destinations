@@ -10,7 +10,7 @@ const action: ActionDefinition<Settings, Payload> = {
   description: 'Send event when a user begins checkout',
   defaultSubscription: 'type = "track" and event = "Checkout Started"',
   fields: {
-    client_id: { ...client_id, required: true },
+    client_id: { ...client_id },
     coupon: { ...coupon, default: { '@path': '$.properties.coupon' } },
     currency: { ...currency, default: { '@path': '$.properties.currency' } },
     // Google does not have anything to map position, url and image url fields (Segment spec) to
