@@ -3,7 +3,6 @@ import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 import type { Sprig } from '../types'
 
-// Change from unknown to the partner SDK types
 const action: BrowserActionDefinition<Settings, Sprig, Payload> = {
   title: 'Identify User',
   description: 'Set user ID and/or attributes',
@@ -19,6 +18,15 @@ const action: BrowserActionDefinition<Settings, Sprig, Payload> = {
         '@path': '$.userId'
       }
     },
+    anonymousId: {
+      type: 'string',
+      required: false,
+      description: 'Anonymous identifier for the user',
+      label: 'Anonymous ID',
+      default: {
+        '@path': '$.anonymousId'
+      }
+    },
     traits: {
       type: 'object',
       required: false,
@@ -32,6 +40,10 @@ const action: BrowserActionDefinition<Settings, Sprig, Payload> = {
   perform: (Sprig, event) => {
     if (event.payload.userId) {
       Sprig('setUserId', event.payload.userId)
+    }
+
+    if (event.payload.anonymousId) {
+      Sprig('setPartnerAnonymousId', event.payload.anonymousId)
     }
 
     const traits = { ...event.payload.traits }

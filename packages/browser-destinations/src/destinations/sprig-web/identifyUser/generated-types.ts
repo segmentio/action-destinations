@@ -6,6 +6,10 @@ export interface Payload {
    */
   userId?: string
   /**
+   * Anonymous identifier for the user
+   */
+  anonymousId?: string
+  /**
    * The Segment user traits to be forwarded to Sprig and set as attributes
    */
   traits?: {

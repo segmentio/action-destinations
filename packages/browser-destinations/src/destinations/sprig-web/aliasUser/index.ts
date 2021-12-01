@@ -4,23 +4,24 @@ import type { Payload } from './generated-types'
 import type { Sprig } from '../types'
 
 const action: BrowserActionDefinition<Settings, Sprig, Payload> = {
-  title: 'Track Event',
-  description: 'Track event to potentially filter user studies (microsurveys) later, or trigger a study now.',
+  title: 'Alias User',
+  description: 'Set user ID and/or attributes',
   platform: 'web',
+  defaultSubscription: 'type = "alias"',
   fields: {
-    name: {
-      description: "The event name that will be shown on Sprig's interface.",
-      label: 'Event name',
-      required: true,
+    userId: {
       type: 'string',
+      required: false,
+      description: 'New unique identifier for the merged user',
+      label: 'User ID',
       default: {
-        '@path': '$.event'
+        '@path': '$.userId'
       }
     },
     anonymousId: {
       type: 'string',
       required: false,
-      description: 'Anonymous identifier for the user',
+      description: 'New anonymous identifier for the merged user',
       label: 'Anonymous ID',
       default: {
         '@path': '$.anonymousId'
@@ -28,10 +29,13 @@ const action: BrowserActionDefinition<Settings, Sprig, Payload> = {
     }
   },
   perform: (Sprig, event) => {
+    if (event.payload.userId) {
+      Sprig('setUserId', event.payload.userId)
+    }
+
     if (event.payload.anonymousId) {
       Sprig('setPartnerAnonymousId', event.payload.anonymousId)
     }
-    Sprig('track', event.payload.name)
   }
 }
 

@@ -2,11 +2,11 @@
 
 export interface Payload {
   /**
-   * The event name that will be shown on Sprig's interface.
+   * New unique identifier for the merged user
    */
-  name: string
+  userId?: string
   /**
-   * Anonymous identifier for the user
+   * New anonymous identifier for the merged user
    */
   anonymousId?: string
 }

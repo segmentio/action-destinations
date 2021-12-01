@@ -1,5 +1,5 @@
 import { Analytics, Context } from '@segment/analytics-next'
-import sprigDestination, { destination } from '../index'
+import sprigWebDestination, { destination } from '../index'
 import { Subscription } from '../../../lib/browser-destinations'
 
 const subscriptions: Subscription[] = [
@@ -11,9 +11,6 @@ const subscriptions: Subscription[] = [
     mapping: {
       name: {
         '@path': '$.name'
-      },
-      properties: {
-        '@path': '$.properties'
       }
     }
   }
@@ -21,11 +18,10 @@ const subscriptions: Subscription[] = [
 
 describe('Sprig initialization', () => {
   test('can load Sprig', async () => {
-    const x = await sprigDestination({
+    const [event] = await sprigWebDestination({
       envId: 'testEnvId',
       subscriptions
     })
-    const [event] = x
 
     jest.spyOn(destination, 'initialize')
 

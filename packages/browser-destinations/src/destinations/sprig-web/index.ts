@@ -2,8 +2,9 @@ import type { Settings } from './generated-types'
 import type { BrowserDestinationDefinition } from '../../lib/browser-destinations'
 import { browserDestination } from '../../runtime/shim'
 import { Sprig } from './types'
-import trackEvent from './trackEvent'
+import aliasUser from './aliasUser'
 import identifyUser from './identifyUser'
+import trackEvent from './trackEvent'
 import { defaultValues } from '@segment/actions-core'
 
 declare global {
@@ -19,16 +20,22 @@ export const destination: BrowserDestinationDefinition<Settings, Sprig> = {
 
   presets: [
     {
-      name: 'Track Event',
-      subscribe: 'type = "track"',
-      partnerAction: 'trackEvent',
-      mapping: defaultValues(trackEvent.fields)
+      name: 'Alias User',
+      subscribe: 'type = "alias"',
+      partnerAction: 'aliasUser',
+      mapping: defaultValues(aliasUser.fields)
     },
     {
       name: 'Identify User',
       subscribe: 'type = "identify"',
       partnerAction: 'identifyUser',
       mapping: defaultValues(identifyUser.fields)
+    },
+    {
+      name: 'Track Event',
+      subscribe: 'type = "track"',
+      partnerAction: 'trackEvent',
+      mapping: defaultValues(trackEvent.fields)
     }
   ],
 
@@ -50,7 +57,8 @@ export const destination: BrowserDestinationDefinition<Settings, Sprig> = {
 
   actions: {
     trackEvent,
-    identifyUser
+    identifyUser,
+    aliasUser
   },
 
   initialize: async ({ settings }, deps) => {
