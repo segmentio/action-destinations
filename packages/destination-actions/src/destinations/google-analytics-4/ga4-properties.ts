@@ -77,7 +77,8 @@ export const client_id: InputField = {
 export const currency: InputField = {
   label: 'Currency',
   type: 'string',
-  description: 'Currency of the items associated with the event, in 3-letter ISO 4217 format.'
+  description: 'Currency of the items associated with the event, in 3-letter ISO 4217 format.',
+  default: { '@path': '$.properties.currency' }
 }
 
 export const value: InputField = {

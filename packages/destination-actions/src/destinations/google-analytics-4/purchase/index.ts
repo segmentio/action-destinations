@@ -25,7 +25,7 @@ const action: ActionDefinition<Settings, Payload> = {
     client_id: { ...client_id },
     affiliation: { ...affiliation },
     coupon: { ...coupon, default: { '@path': '$.properties.coupon' } },
-    currency: { ...currency, required: true, default: { '@path': '$.properties.currency' } },
+    currency: { ...currency, required: true },
     // Google does not have anything to map position, url and image url fields (Segment spec) to
     // so will ignore for now
     items: {

@@ -11,7 +11,7 @@ const action: ActionDefinition<Settings, Payload> = {
   defaultSubscription: 'type = "track" and event =  "Product Viewed"',
   fields: {
     client_id: { ...client_id },
-    currency: { ...currency, default: { '@path': '$.properties.currency' } },
+    currency: { ...currency },
     value: { ...value },
     items: {
       ...items_single_products,
