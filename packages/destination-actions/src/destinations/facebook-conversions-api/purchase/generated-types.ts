@@ -6,7 +6,7 @@ export interface Payload {
    */
   action_source: string
   /**
-   * The currency for the value specified.
+   * TEST
    */
   currency: string
   /**
