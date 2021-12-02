@@ -23,7 +23,7 @@ const action: ActionDefinition<Settings, Payload> = {
     distinct_id: {
       label: 'Distinct ID',
       type: 'string',
-      description: 'A distinct ID specified by you. Maps to `properties.distinct_id` in Mixpanel.',
+      description: 'A distinct ID specified by you.',
       default: {
         '@if': {
           exists: { '@path': '$.userId' },
