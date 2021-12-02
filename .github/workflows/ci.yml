@@ -66,9 +66,11 @@ jobs:
             yarn subscriptions size
           fi
 
+      - name: Git Status
+        run: git status
+
       - name: Add Generated Types
         uses: stefanzweifel/git-auto-commit-action@v4
-        run: git status
         with:
           commit_message: Automatically added generated-types.ts files.
 
