@@ -134,7 +134,7 @@ describe('GA4', () => {
       `)
 
       expect(responses[0].options.body).toMatchInlineSnapshot(
-        `"{\\"client_id\\":\\"3456fff\\",\\"events\\":[{\\"name\\":\\"view_item\\",\\"params\\":{\\"currency\\":\\"USD\\",\\"items\\":[],\\"value\\":18.99}}]}"`
+        `"{\\"client_id\\":\\"3456fff\\",\\"events\\":[{\\"name\\":\\"view_item\\",\\"params\\":{\\"currency\\":\\"USD\\",\\"items\\":[{\\"item_id\\":\\"507f1f77bcf86cd799439011\\",\\"item_name\\":\\"Monopoly: 3rd Edition\\",\\"quantity\\":1,\\"coupon\\":\\"MAYDEALS\\",\\"item_brand\\":\\"Hasbro\\",\\"item_category\\":\\"Games\\",\\"item_variant\\":\\"200 pieces\\",\\"price\\":18.99}],\\"value\\":18.99}}]}"`
       )
     })
 

@@ -1,25 +1,14 @@
 import type { ActionDefinition } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
+import { client_id } from '../ga4-properties'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Search',
   description: 'Send event when a user searches your content',
   defaultSubscription: 'type = "track" and event = "Products Searched"',
   fields: {
-    client_id: {
-      label: 'Client ID',
-      description: 'Uniquely identifies a user instance of a web client.',
-      type: 'string',
-      required: true,
-      default: {
-        '@if': {
-          exists: { '@path': '$.userId' },
-          then: { '@path': '$.userId' },
-          else: { '@path': '$.anonymousId' }
-        }
-      }
-    },
+    client_id: { ...client_id },
     search_term: {
       label: 'Search Term',
       type: 'string',

@@ -6,7 +6,7 @@ export interface Payload {
    */
   client_id: string
   /**
-   * Currency of the purchase or items associated with the event, in 3-letter ISO 4217 format.
+   * Currency of the items associated with the event, in 3-letter ISO 4217 format.
    */
   currency?: string
   /**
@@ -14,7 +14,7 @@ export interface Payload {
    */
   value?: number
   /**
-   * The items for the event
+   * The list of products purchased.
    */
   items: {
     /**

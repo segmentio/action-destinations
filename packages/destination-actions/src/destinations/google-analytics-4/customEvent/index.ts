@@ -1,30 +1,22 @@
 import type { ActionDefinition } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
+import { client_id } from '../ga4-properties'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Custom Event',
   description: 'Send any custom event',
   defaultSubscription: 'type = "track"',
   fields: {
-    clientId: {
-      label: 'Client ID',
-      description: 'Uniquely identifies a user instance of a web client.',
-      type: 'string',
-      required: true,
-      default: {
-        '@if': {
-          exists: { '@path': '$.userId' },
-          then: { '@path': '$.userId' },
-          else: { '@path': '$.anonymousId' }
-        }
-      }
-    },
+    clientId: { ...client_id },
     name: {
       label: 'Event Name',
       description: 'The unique name of the custom event created in GA4.',
       type: 'string',
-      required: true
+      required: true,
+      default: {
+        '@path': '$.event'
+      }
     },
     params: {
       label: 'Event Parameters',
