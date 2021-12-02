@@ -74,7 +74,7 @@ jobs:
         with:
           commit_message: Automatically added generated-types.ts files.
 
-          file_pattern: ./*/generated_types.ts
+          file_pattern: packages/destination-actions/src/destinations/*/generated_types.ts
 
   snyk:
     runs-on: ubuntu-latest
