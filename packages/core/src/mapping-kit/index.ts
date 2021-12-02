@@ -5,6 +5,7 @@ import { render } from './placeholders'
 import { realTypeOf, isObject, isArray } from '../real-type-of'
 import { removeUndefined } from '../remove-undefined'
 import validate from './validate'
+import { arrify } from '../arrify'
 
 type Directive = (options: JSONValue, payload: JSONObject) => JSONLike
 type StringDirective = (value: string, payload: JSONObject) => JSONLike
@@ -74,15 +75,15 @@ registerDirective('@arrayPath', (data, payload) => {
   }
 
   const [path, itemShape] = data as [string, undefined | JSONObject]
-  if (typeof path !== 'string') {
-    throw new Error(`@arrayPath expected args[0] to be string, got ${realTypeOf(path)}`)
-  }
-
-  const root = get(payload, path.replace('$.', '')) as JSONLike
+  const root = typeof path === 'string' ? (get(payload, path.replace('$.', '')) as JSONLike) : resolve(path, payload)
 
   // If a shape has been provided, resolve each item in the array with this shape
-  if (isArray(root) && realTypeOf(itemShape) === 'object' && Object.keys(itemShape as JSONObject).length > 0) {
-    return root.map((item) => resolve(itemShape, item as JSONObject))
+  if (
+    ['object', 'array'].includes(realTypeOf(root)) &&
+    realTypeOf(itemShape) === 'object' &&
+    Object.keys(itemShape as JSONObject).length > 0
+  ) {
+    return arrify(root).map((item) => resolve(itemShape, item as JSONObject))
   }
 
   return root
@@ -172,4 +173,3 @@ export function transformBatch(mapping: JSONLikeObject, data: Array<InputData> |
   // Cast because we know there are no `undefined` values after `removeUndefined`
   return removeUndefined(resolved) as JSONObject[]
 }
-

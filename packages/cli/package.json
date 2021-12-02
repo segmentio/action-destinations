@@ -1,7 +1,7 @@
 {
   "name": "@segment/actions-cli",
   "description": "CLI to interact with Segment integrations",
-  "version": "3.26.0",
+  "version": "3.31.0",
   "license": "MIT",
   "repository": {
     "type": "git",
@@ -55,9 +55,9 @@
     "@oclif/command": "^1",
     "@oclif/config": "^1",
     "@oclif/errors": "^1",
-    "@oclif/plugin-help": "^3",
-    "@segment/action-destinations": "^3.26.0",
-    "@segment/actions-core": "^3.18.0",
+    "@oclif/plugin-help": "^3.3",
+    "@segment/action-destinations": "^3.32.0",
+    "@segment/actions-core": "^3.21.1",
     "chalk": "^4.1.1",
     "chokidar": "^3.5.1",
     "dotenv": "^10.0.0",
@@ -80,8 +80,8 @@
     "tslib": "^2.3.1"
   },
   "optionalDependencies": {
-    "@segment/actions-cli-internal": "^3.26.0",
-    "@segment/browser-destinations": "^3.18.0"
+    "@segment/actions-cli-internal": "^3.31.0",
+    "@segment/browser-destinations": "^3.22.0"
   },
   "oclif": {
     "commands": "./dist/commands",
@@ -106,8 +106,15 @@
       "<rootDir>/templates/"
     ],
     "moduleNameMapper": {
-      "src/lib/(.*)": "<rootDir>/src/lib/$1",
-      "@segment/actions-cli-internal": "<rootDir>/../cli-internal/src"
+      "@segment/actions-cli-internal": "<rootDir>/../cli-internal/src",
+      "@segment/actions-core": "<rootDir>/../core/src",
+      "@segment/ajv-human-errors": "<rootDir>/../ajv-human-errors/src",
+      "@segment/destination-subscriptions": "<rootDir>/../destination-subscriptions/src"
+    },
+    "globals": {
+      "ts-jest": {
+        "isolatedModules": true
+      }
     }
   }
 }

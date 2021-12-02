@@ -4,6 +4,7 @@ import deleteDevice from './deleteDevice'
 import createUpdatePerson from './createUpdatePerson'
 import trackEvent from './trackEvent'
 import trackPageView from './trackPageView'
+import trackScreenView from './trackScreenView'
 import type { DestinationDefinition } from '@segment/actions-core'
 import type { Settings } from './generated-types'
 import { AccountRegion, trackApiEndpoint } from './utils'
@@ -53,7 +54,8 @@ const destination: DestinationDefinition<Settings> = {
     deleteDevice,
     createUpdatePerson,
     trackEvent,
-    trackPageView
+    trackPageView,
+    trackScreenView
   },
 
   presets: [
@@ -86,6 +88,12 @@ const destination: DestinationDefinition<Settings> = {
       subscribe: 'type = "page"',
       partnerAction: 'trackPageView',
       mapping: defaultValues(trackPageView.fields)
+    },
+    {
+      name: 'Track Screen View',
+      subscribe: 'type = "screen"',
+      partnerAction: 'trackScreenView',
+      mapping: defaultValues(trackScreenView.fields)
     }
   ],
 

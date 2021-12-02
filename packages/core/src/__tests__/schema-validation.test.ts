@@ -39,6 +39,26 @@ const schema = fieldsToJsonSchema({
       }
     }
   },
+  array: {
+    label: 'array',
+    type: 'string',
+    description: 'array',
+    multiple: true
+  },
+  object: {
+    label: 'object',
+    type: 'object',
+    description: 'object',
+    multiple: true,
+    properties: {
+      key: {
+        type: 'string',
+        label: 'key',
+        description: 'key',
+        required: true
+      }
+    }
+  }
 })
 
 describe('validateSchema', () => {
@@ -107,6 +127,58 @@ describe('validateSchema', () => {
         "a": "1234",
         "e": true,
         "f": 123,
+      }
+    `)
+  })
+
+  it('should coerce non-arrays into arrays', () => {
+    const payload = {
+      array: 'value'
+    }
+
+    validateSchema(payload, schema, { schemaKey: `testSchema` })
+    expect(payload).toMatchInlineSnapshot(`
+      Object {
+        "array": Array [
+          "value",
+        ],
+      }
+    `)
+  })
+
+  it('should coerce non-arrays of objects into arrays of objects', () => {
+    const payload = {
+      object: {
+        key: 'Value'
+      }
+    }
+
+    validateSchema(payload, schema, { schemaKey: `testSchema` })
+    expect(payload).toMatchInlineSnapshot(`
+      Object {
+        "object": Array [
+          Object {
+            "key": "Value",
+          },
+        ],
+      }
+    `)
+  })
+
+  it('should validate coerced arrays', () => {
+    const payload = {
+      object: {
+        another_key: 'value2'
+      }
+    }
+
+    const validated = validateSchema(payload, schema, { schemaKey: `testSchema`, throwIfInvalid: false })
+    expect(validated).toBe(false)
+    expect(payload).toMatchInlineSnapshot(`
+      Object {
+        "object": Array [
+          Object {},
+        ],
       }
     `)
   })

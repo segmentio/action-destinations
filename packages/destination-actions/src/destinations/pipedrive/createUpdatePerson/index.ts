@@ -1,40 +1,27 @@
-import dayjs from '../../../lib/dayjs'
-import { get } from '@segment/actions-core'
 import type { ActionDefinition } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
+import PipedriveClient from '../pipedriveApi/pipedrive-client'
+import { createOrUpdatePersonById, Person } from '../pipedriveApi/persons'
 
-interface Organizations {
-  data: Organization[]
-  additional_data: {
-    pagination: {
-      next_start?: number
-    }
-  }
-}
-
-interface Organization {
-  id: string
-  name: string
-}
-
-interface Person {
-  name: string
-  org_id?: number
-  email?: string[]
-  phone?: string
-  add_time?: string
-}
+const fieldHandler = PipedriveClient.fieldHandler
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Create or Update Person',
   description: "Update a person in Pipedrive or create them if they don't exist yet.",
   defaultSubscription: 'type = "identify"',
   fields: {
-    identifier: {
-      label: 'Person ID',
-      description:
-        'Identifier used to find existing person in Pipedrive. Can be an email, name, phone number, or custom field value. Custom person fields may be included by using the long hash keys of the custom fields. These look like "33595c732cd7a027c458ea115a48a7f8a254fa86".',
+    match_field: {
+      label: 'Match field',
+      description: 'If present, used instead of field in settings to find existing person in Pipedrive.',
+      type: 'string',
+      required: false,
+      dynamic: true,
+      default: 'id'
+    },
+    match_value: {
+      label: 'Match value',
+      description: 'Value to find existing person by',
       type: 'string',
       required: true,
       default: {
@@ -45,90 +32,60 @@ const action: ActionDefinition<Settings, Payload> = {
       label: 'Person Name',
       description: 'Name of the person',
       type: 'string',
-      required: true
-    },
-    org_id: {
-      label: 'Organization ID',
-      description: 'ID of the organization this person will belong to.',
-      type: 'number',
-      dynamic: true
+      required: false
     },
     email: {
       label: 'Email Address',
       description: 'Email addresses for this person.',
       type: 'string',
+      required: false,
       multiple: true
     },
     phone: {
       label: 'Phone Number',
-      description: 'Phone number for the person.',
-      type: 'string'
+      description: 'Phone numbers for the person.',
+      type: 'string',
+      required: false,
+      multiple: true
+    },
+    visible_to: {
+      label: 'Visible To',
+      description:
+        'Visibility of the Person. If omitted, visibility will be set to the default visibility setting of this item type for the authorized user.',
+      type: 'integer',
+      choices: [
+        { label: 'Owner & followers (private)', value: 1 },
+        { label: 'Entire company (shared)', value: 3 }
+      ],
+      required: false
     },
     add_time: {
       label: 'Created At',
       description: 'If the person is created, use this timestamp as the creation timestamp. Format: YYY-MM-DD HH:MM:SS',
-      type: 'string'
+      type: 'datetime'
     }
   },
 
   dynamicFields: {
-    org_id: async (request, { page, settings }) => {
-      const searchParams: Record<string, number> = {}
-      if (typeof page === 'string') {
-        searchParams.start = Number(page)
-      }
-
-      const response = await request<Organizations>(`https://${settings.domain}.pipedrive.com/api/v1/organizations`, {
-        searchParams
-      })
-      const body = response.data
-
-      const items = body.data.map((organization) => ({
-        label: organization.name,
-        value: organization.id
-      }))
-
-      let nextPage: string | undefined
-
-      if (typeof body.additional_data.pagination.next_start === 'number') {
-        nextPage = String(body.additional_data.pagination.next_start)
-      }
-
-      return {
-        body: {
-          data: items,
-          pagination: { nextPage }
-        }
-      }
-    }
+    match_field: fieldHandler('person')
   },
 
   perform: async (request, { payload, settings }) => {
-    const search = await request(`https://${settings.domain}.pipedrive.com/api/v1/persons/search`, {
-      searchParams: { term: payload.identifier }
-    })
+    const searchField = payload.match_field || settings.personField || 'id'
 
-    const personId = get(search.data, 'data.items[0].item.id')
+    const client = new PipedriveClient(settings, request)
+
+    const personId = await client.getId('person', searchField, payload.match_value)
 
     const person: Person = {
       name: payload.name,
-      org_id: payload.org_id,
       email: payload.email,
-      phone: payload.phone
+      phone: payload.phone,
+      add_time: payload.add_time ? `${payload.add_time}` : undefined,
+      visible_to: payload.visible_to
     }
 
-    if (personId === undefined || personId === null) {
-      if (payload.add_time) {
-        person.add_time = dayjs.utc(person.add_time).format('YYYY-MM-DD HH:MM:SS')
-      }
-
-      return request(`https://${settings.domain}.pipedrive.com/api/v1/persons`, { method: 'post', json: person })
-    }
-
-    return request(`https://${settings.domain}.pipedrive.com/api/v1/persons/${personId}`, {
-      method: 'put',
-      json: person
-    })
+    return createOrUpdatePersonById(request, settings.domain, personId, person)
   }
 }
 

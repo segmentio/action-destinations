@@ -182,6 +182,34 @@ describe('@arrayPath', () => {
     })
   })
 
+  test('relative object shape with directive', () => {
+    const mapping = {
+      neat: {
+        '@arrayPath': [
+          {
+            '@if': {
+              exists: { '@path': '$.products' },
+              then: { '@path': '$.products' },
+              else: []
+            }
+          },
+          {
+            product_id: { '@path': '$.productId' },
+            monies: { '@path': '$.price' }
+          }
+        ]
+      }
+    }
+
+    const output = transform(mapping, data)
+    expect(output).toStrictEqual({
+      neat: [
+        { product_id: '123', monies: 0.5 },
+        { product_id: '456', monies: 0.99 }
+      ]
+    })
+  })
+
   test('not an array', () => {
     const mapping = {
       neat: {
@@ -197,7 +225,32 @@ describe('@arrayPath', () => {
 
     const output = transform(mapping, { products: { notAnArray: true } })
     expect(output).toStrictEqual({
-      neat: { notAnArray: true }
+      neat: [{}]
+    })
+  })
+
+  test('singular objects', () => {
+    const mapping = {
+      neat: {
+        '@arrayPath': [
+          '$.properties',
+          {
+            product_id: { '@path': '$.productId' },
+            monies: { '@path': '$.price' }
+          }
+        ]
+      }
+    }
+
+    const output = transform(mapping, {
+      properties: {
+        productId: '123',
+        price: 0.5
+      }
+    })
+
+    expect(output).toStrictEqual({
+      neat: [{ product_id: '123', monies: 0.5 }]
     })
   })
 })

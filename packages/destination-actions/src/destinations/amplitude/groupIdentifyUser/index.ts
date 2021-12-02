@@ -2,6 +2,7 @@ import type { ActionDefinition } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 import dayjs from '../../../lib/dayjs'
+import { getEndpointByRegion } from '../regional-endpoints'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Group Identify User',
@@ -58,13 +59,13 @@ const action: ActionDefinition<Settings, Payload> = {
     group_type: {
       label: 'Group Type',
       type: 'string',
-      description: 'Type of the group',
+      description: 'The type of the group',
       required: true
     },
     group_value: {
       label: 'Group Value',
       type: 'string',
-      description: 'Value of the group',
+      description: 'The value of the group',
       required: true
     },
     min_id_length: {
@@ -84,7 +85,7 @@ const action: ActionDefinition<Settings, Payload> = {
     }
 
     // Associate user to group
-    await request('https://api.amplitude.com/identify', {
+    await request(getEndpointByRegion('identify', settings.endpoint), {
       method: 'post',
       body: new URLSearchParams({
         api_key: settings.apiKey,
@@ -104,7 +105,7 @@ const action: ActionDefinition<Settings, Payload> = {
     })
 
     // Associate group properties
-    return request('https://api.amplitude.com/groupidentify', {
+    return request(getEndpointByRegion('groupidentify', settings.endpoint), {
       method: 'post',
       body: new URLSearchParams({
         api_key: settings.apiKey,

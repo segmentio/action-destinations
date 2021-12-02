@@ -2,27 +2,31 @@
 
 export interface Payload {
   /**
-   * Identifier used to find existing person in Pipedrive. Can be an email, name, phone number, or custom field value. Custom person fields may be included by using the long hash keys of the custom fields. These look like "33595c732cd7a027c458ea115a48a7f8a254fa86".
+   * If present, used instead of field in settings to find existing person in Pipedrive.
    */
-  identifier: string
+  match_field?: string
+  /**
+   * Value to find existing person by
+   */
+  match_value: string
   /**
    * Name of the person
    */
-  name: string
-  /**
-   * ID of the organization this person will belong to.
-   */
-  org_id?: number
+  name?: string
   /**
    * Email addresses for this person.
    */
   email?: string[]
   /**
-   * Phone number for the person.
+   * Phone numbers for the person.
    */
-  phone?: string
+  phone?: string[]
+  /**
+   * Visibility of the Person. If omitted, visibility will be set to the default visibility setting of this item type for the authorized user.
+   */
+  visible_to?: number
   /**
    * If the person is created, use this timestamp as the creation timestamp. Format: YYY-MM-DD HH:MM:SS
    */
-  add_time?: string
+  add_time?: string | number
 }

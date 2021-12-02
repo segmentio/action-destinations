@@ -6,6 +6,7 @@ import { convertReferrerProperty } from '../referrer'
 import { parseUserAgentProperties } from '../user-agent'
 import { mergeUserProperties } from '../merge-user-properties'
 import { AmplitudeEvent } from '../logEvent'
+import { getEndpointByRegion } from '../regional-endpoints'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Identify User',
@@ -62,7 +63,7 @@ const action: ActionDefinition<Settings, Payload> = {
     platform: {
       label: 'Platform',
       type: 'string',
-      description: 'What platform is sending the data.',
+      description: "The platform of the user's device.",
       default: {
         '@path': '$.context.device.type'
       }
@@ -70,7 +71,7 @@ const action: ActionDefinition<Settings, Payload> = {
     os_name: {
       label: 'OS Name',
       type: 'string',
-      description: 'Mobile operating system or browser the user is on.',
+      description: "The mobile operating system or browser of the user's device.",
       default: {
         '@path': '$.context.os.name'
       }
@@ -78,7 +79,7 @@ const action: ActionDefinition<Settings, Payload> = {
     os_version: {
       label: 'OS Version',
       type: 'string',
-      description: 'Version of the mobile operating system or browser the user is on.',
+      description: "The version of the mobile operating system or browser of the user's device.",
       default: {
         '@path': '$.context.os.version'
       }
@@ -86,7 +87,7 @@ const action: ActionDefinition<Settings, Payload> = {
     device_brand: {
       label: 'Device Brand',
       type: 'string',
-      description: 'Device brand the user is on.',
+      description: "The brand of user's the device.",
       default: {
         '@path': '$.context.device.brand'
       }
@@ -94,7 +95,7 @@ const action: ActionDefinition<Settings, Payload> = {
     device_manufacturer: {
       label: 'Device Manufacturer',
       type: 'string',
-      description: 'Device manufacturer the user is on.',
+      description: "The manufacturer of the user's device.",
       default: {
         '@path': '$.context.device.manufacturer'
       }
@@ -102,7 +103,7 @@ const action: ActionDefinition<Settings, Payload> = {
     device_model: {
       label: 'Device Model',
       type: 'string',
-      description: 'Device model the user is on.',
+      description: "The model of the user's device.",
       default: {
         '@path': '$.context.device.model'
       }
@@ -110,7 +111,7 @@ const action: ActionDefinition<Settings, Payload> = {
     carrier: {
       label: 'Carrier',
       type: 'string',
-      description: 'Carrier the user has.',
+      description: "The user's mobile carrier.",
       default: {
         '@path': '$.context.network.carrier'
       }
@@ -118,7 +119,7 @@ const action: ActionDefinition<Settings, Payload> = {
     country: {
       label: 'Country',
       type: 'string',
-      description: 'Country the user is in.',
+      description: 'The country in which the user is located.',
       default: {
         '@path': '$.context.location.country'
       }
@@ -126,7 +127,7 @@ const action: ActionDefinition<Settings, Payload> = {
     region: {
       label: 'Region',
       type: 'string',
-      description: 'Geographical region the user is in.',
+      description: 'The geographical region in which the user is located.',
       default: {
         '@path': '$.context.location.region'
       }
@@ -134,7 +135,7 @@ const action: ActionDefinition<Settings, Payload> = {
     city: {
       label: 'City',
       type: 'string',
-      description: 'What city the user is in.',
+      description: 'The city in which the user is located.',
       default: {
         '@path': '$.context.location.city'
       }
@@ -142,12 +143,12 @@ const action: ActionDefinition<Settings, Payload> = {
     dma: {
       label: 'Designated Market Area',
       type: 'string',
-      description: 'The Designated Market Area of the user.'
+      description: 'The Designated Market Area in which the user is located.'
     },
     language: {
       label: 'Language',
       type: 'string',
-      description: 'Language the user has set.',
+      description: 'Language the user has set on their device or browser.',
       default: {
         '@path': '$.context.locale'
       }
@@ -160,7 +161,7 @@ const action: ActionDefinition<Settings, Payload> = {
     start_version: {
       label: 'Initial Version',
       type: 'string',
-      description: 'Version of the app the user was first on.'
+      description: 'The version of the app the user was first on.'
     },
     insert_id: {
       label: 'Insert ID',
@@ -276,7 +277,8 @@ const action: ActionDefinition<Settings, Payload> = {
       ...removeUndefined(properties),
       library: 'segment'
     })
-    return request('https://api.amplitude.com/identify', {
+
+    return request(getEndpointByRegion('identify', settings.endpoint), {
       method: 'post',
       body: new URLSearchParams({
         api_key: settings.apiKey,
