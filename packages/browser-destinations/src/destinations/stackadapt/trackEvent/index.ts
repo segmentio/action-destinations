@@ -28,12 +28,12 @@ const action: BrowserActionDefinition<Settings, StackAdaptSDK, Payload> = {
       }
     }
   },
-  perform: (saq, event) => {
-    const pixelId = event.settings.universalPixelId
+  perform: (saq, { settings, payload }) => {
+    const pixelId = settings.universalPixelId
 
     saq('ts', pixelId, {
-      eventName: event.payload.eventName,
-      ...(event.payload.eventProperties ?? {})
+      eventName: payload.eventName,
+      ...(payload.eventProperties ?? {})
     })
   }
 }
