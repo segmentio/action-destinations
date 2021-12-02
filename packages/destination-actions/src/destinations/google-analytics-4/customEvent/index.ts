@@ -13,7 +13,10 @@ const action: ActionDefinition<Settings, Payload> = {
       label: 'Event Name',
       description: 'The unique name of the custom event created in GA4.',
       type: 'string',
-      required: true
+      required: true,
+      default: {
+        '@path': '$.event'
+      }
     },
     params: {
       label: 'Event Parameters',
