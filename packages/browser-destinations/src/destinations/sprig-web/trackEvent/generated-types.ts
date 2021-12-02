@@ -2,7 +2,7 @@
 
 export interface Payload {
   /**
-   * The event name that will be shown on Sprig's interface.
+   * The event name that will be shown on Sprig's dashboard
    */
   name: string
   /**

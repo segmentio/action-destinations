@@ -5,7 +5,7 @@ import type { Sprig } from '../types'
 
 const action: BrowserActionDefinition<Settings, Sprig, Payload> = {
   title: 'Identify User',
-  description: 'Set user ID and/or attributes',
+  description: 'Set user ID and/or attributes.',
   platform: 'web',
   defaultSubscription: 'type = "identify"',
   fields: {
@@ -38,15 +38,18 @@ const action: BrowserActionDefinition<Settings, Sprig, Payload> = {
     }
   },
   perform: (Sprig, event) => {
-    if (event.payload.userId) {
-      Sprig('setUserId', event.payload.userId)
+    const payload = event.payload
+    if (!payload) return
+
+    if (payload.userId) {
+      Sprig('setUserId', payload.userId)
     }
 
-    if (event.payload.anonymousId) {
-      Sprig('setPartnerAnonymousId', event.payload.anonymousId)
+    if (payload.anonymousId) {
+      Sprig('setPartnerAnonymousId', payload.anonymousId)
     }
 
-    const traits = { ...event.payload.traits }
+    const traits = { ...payload.traits }
     if (traits.email) {
       traits['!email'] = traits.email
       delete traits.email

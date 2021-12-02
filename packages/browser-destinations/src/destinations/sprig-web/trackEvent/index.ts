@@ -9,7 +9,7 @@ const action: BrowserActionDefinition<Settings, Sprig, Payload> = {
   platform: 'web',
   fields: {
     name: {
-      description: "The event name that will be shown on Sprig's interface.",
+      description: "The event name that will be shown on Sprig's dashboard",
       label: 'Event name',
       required: true,
       type: 'string',
@@ -28,10 +28,13 @@ const action: BrowserActionDefinition<Settings, Sprig, Payload> = {
     }
   },
   perform: (Sprig, event) => {
-    if (event.payload.anonymousId) {
-      Sprig('setPartnerAnonymousId', event.payload.anonymousId)
+    const payload = event.payload
+    if (!payload) return
+
+    if (payload.anonymousId) {
+      Sprig('setPartnerAnonymousId', payload.anonymousId)
     }
-    Sprig('track', event.payload.name)
+    Sprig('track', payload.name)
   }
 }
 

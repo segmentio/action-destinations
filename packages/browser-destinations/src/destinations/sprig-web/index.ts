@@ -68,7 +68,9 @@ export const destination: BrowserDestinationDefinition<Settings, Sprig> = {
       }
       const S = window.Sprig
       S.envId = settings.envId
+      S.debugMode = settings.debugMode
       S._queue = []
+      S._segment = 1
       await deps.loadScript(`https://cdn.sprig.com/shim.js?id=${S.envId}`)
     }
 
