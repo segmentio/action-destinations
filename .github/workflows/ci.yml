@@ -76,6 +76,8 @@ jobs:
 
           file_pattern: ./*/generated-types.ts
 
+          commit_options: '--no-verify'
+
   snyk:
     runs-on: ubuntu-latest
 
