@@ -4,7 +4,8 @@ import type { Payload } from './generated-types'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Identify User',
-  description: 'Set the user ID for a particular device ID or update user properties',
+  description:
+    'Set the user ID for a particular device ID or update user properties. Learn more about [User Profiles](https://help.mixpanel.com/hc/en-us/articles/115004501966?source=segment-actions) and [Identity Management](https://help.mixpanel.com/hc/en-us/articles/360041039771-Getting-Started-with-Identity-Management?source=segment-actions).',
   defaultSubscription: 'type = "identify"',
   fields: {
     user_id: {
@@ -37,7 +38,7 @@ const action: ActionDefinition<Settings, Payload> = {
 
   perform: async (request, { payload, settings }) => {
     if (!settings.projectToken) {
-      throw new IntegrationError('Missing project token')
+      throw new IntegrationError('Missing project token', 'Missing required field', 400)
     }
     const responses = []
     if (payload.anonymous_id) {
