@@ -6,7 +6,7 @@ import { InputField } from '@segment/actions-core/src/destination-kit/types'
 
 export const currency: InputField = {
   label: 'Currency',
-  description: 'The currency for the value specified.',
+  description: 'TEST',
   type: 'string',
   default: {
     '@path': '$.properties.currency'
@@ -16,7 +16,7 @@ export const currency: InputField = {
 export const value: InputField = {
   label: 'Value',
   description: 'The value of a user performing this event to the business.',
-  type: 'number',
+  type: 'number'
 }
 
 export const content_category: InputField = {
@@ -29,7 +29,7 @@ export const content_ids: InputField = {
   label: 'Content IDs',
   description: 'Product IDs associated with the event, such as SKUs (e.g. ["ABC123", "XYZ789"]).',
   type: 'string',
-  multiple: true,
+  multiple: true
 }
 
 export const content_name: InputField = {
@@ -46,19 +46,20 @@ export const content_type: InputField = {
 
 export const contents: InputField = {
   label: 'Contents',
-  description: 'An array of JSON objects that contains the quantity and the International Article Number (EAN) when applicable, or other product or content identifier(s). id and quantity are the required fields.',
+  description:
+    'An array of JSON objects that contains the quantity and the International Article Number (EAN) when applicable, or other product or content identifier(s). id and quantity are the required fields.',
   type: 'object',
   multiple: true,
   properties: {
     id: {
       label: 'ID',
       description: 'ID of the purchased item.',
-      type: 'string',
+      type: 'string'
     },
     quantity: {
       label: 'Quantity',
       description: 'The number of items purchased.',
-      type: 'integer',
+      type: 'integer'
     },
     item_price: {
       label: 'Item Price',
@@ -67,7 +68,8 @@ export const contents: InputField = {
     },
     delivery_category: {
       label: 'Delivery Category',
-      description: 'Type of delivery for a purchase event. Supported values are "in_store", "curbside", "home_delivery".',
+      description:
+        'Type of delivery for a purchase event. Supported values are "in_store", "curbside", "home_delivery".',
       type: 'string'
     }
   }
@@ -99,7 +101,8 @@ export const action_source: InputField = {
 
 export const event_source_url: InputField = {
   label: 'Event Source URL',
-  description: 'The browser URL where the event happened. The URL must begin with http:// or https:// and should match the verified domain. event_source_url is required if action_source = “website”; however it is strongly recommended that you include it for any action_source.',
+  description:
+    'The browser URL where the event happened. The URL must begin with http:// or https:// and should match the verified domain. event_source_url is required if action_source = “website”; however it is strongly recommended that you include it for any action_source.',
   type: 'string',
   default: {
     '@path': '$.context.page.url'
@@ -108,7 +111,8 @@ export const event_source_url: InputField = {
 
 export const event_id: InputField = {
   label: 'Event ID',
-  description: 'This ID can be any unique string chosen by the advertiser. event_id is used to deduplicate events sent by both Facebook Pixel and Conversions API.',
+  description:
+    'This ID can be any unique string chosen by the advertiser. event_id is used to deduplicate events sent by both Facebook Pixel and Conversions API.',
   type: 'string',
   default: {
     '@path': '$.messageId'
