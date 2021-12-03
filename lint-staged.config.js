@@ -18,7 +18,7 @@ exec("git branch --show-current", (error, stdout, stderr) => {
 
 module.exports = {
     '*': () => {
-        return `gitleaks --repo-url=.git -v --additional-config=.husky/gitleaks-rules.toml --unstaged --branch=${branch}`
+        return `gitleaks -s .git -v -c .husky/gitleaks-rules.toml --unstaged --branch=${branch}`
     },
     ...config
 }

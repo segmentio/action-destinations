@@ -1,17 +1,13 @@
 import { Command, flags } from '@oclif/command'
-import { S3Client, PutObjectCommand } from '@aws-sdk/client-s3'
 import { readFileSync } from 'fs'
 import * as path from 'path'
 import Build from './build'
 import { loadDestination } from '../lib/destinations'
 import ora from 'ora'
-
-// Go data res!
-const { AWS_REGION = 'us-west-2' } = process.env
+import fetch from 'node-fetch'
 
 export default class Upload extends Command {
   private spinner: ora.Ora = ora()
-  private s3 = new S3Client({ region: AWS_REGION })
 
   static description = 'build, package, and upload a Segment app version'
   // TODO versions haha
@@ -61,31 +57,29 @@ export default class Upload extends Command {
     const app = path.resolve(dir, '.segment', 'dist', slug, version, 'app.js')
     const core = path.resolve(dir, '.segment', 'dist', slug, version, 'core.js')
 
-    // TODO Add endpoint to ctl-server that returns a presigned
-    // S3 upload URL. For now, just wrap sgmctl with
-    // stage-write permissions.
-    try {
-      const results = await Promise.all([
-        this.s3.send(
-          new PutObjectCommand({
-            Bucket: 'test-integration-bundles',
-            Key: `${slug}/${version}/app.js`,
-            Body: readFileSync(app)
-          })
-        ),
-        this.s3.send(
-          new PutObjectCommand({
-            Bucket: 'test-integration-bundles',
-            Key: `${slug}/${version}/core.js`,
-            Body: readFileSync(core)
-          })
-        )
-      ])
-      console.log('successfully uploaded')
-      return results // For unit tests.
-    } catch (err) {
-      console.log('Error', err)
-    }
+    // Fetch s3 upload URLs.
+    // TODO Use the public API.
+    const res = await fetch('http://integration-isolates.segment.local/upload', {
+      method: 'post',
+      body: JSON.stringify({
+        version,
+        destinationSlug: slug
+      }),
+      headers: {'Content-Type': 'application/json'}
+    })
+    const uploadUrls = await res.json()
+    console.log(uploadUrls)
+
+    await fetch(uploadUrls.app, {
+      method: 'put',
+      body: readFileSync(app),
+      headers: { 'Content-Type': 'application/javascript' }
+    })
+    await fetch(uploadUrls.core, {
+      method: 'put',
+      body: readFileSync(core),
+      headers: { 'Content-Type': 'application/javascript' }
+    })
 
     /**
      * Now that the function bundles are uploaded, we need to push metadata using

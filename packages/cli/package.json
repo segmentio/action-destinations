@@ -52,7 +52,6 @@
     "rimraf": "^3.0.2"
   },
   "dependencies": {
-    "@aws-sdk/client-s3": "^3.41.0",
     "@oclif/command": "^1",
     "@oclif/config": "^1",
     "@oclif/errors": "^1",
@@ -74,6 +73,7 @@
     "json-schema-to-typescript": "^10.1.5",
     "lodash": "^4.17.20",
     "mustache": "^4.2.0",
+    "node-fetch": "2",
     "ora": "^5.4.0",
     "prompts": "^2.4.2",
     "slugify": "^1.6.1",
