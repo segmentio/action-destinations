@@ -124,7 +124,7 @@ export interface Payload {
     delivery_category?: string
   }[]
   /**
-   * The currency for the value specified.
+   * TEST
    */
   currency?: string
   /**
