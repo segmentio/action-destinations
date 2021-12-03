@@ -4,11 +4,11 @@ import { commonCustomerAttributes } from './commonFields'
 import { createFriendbuyPayload, filterFriendbuyAttributes } from './util'
 
 export const trackCustomEventFields: Record<string, InputField> = {
-  eventName: {
+  eventType: {
     type: 'string',
     required: true,
-    description: 'The name of the event to track.',
-    label: 'Event Name',
+    description: 'The type of the event to track.',
+    label: 'Event Type',
     default: { '@path': '$.event' }
   },
   eventProperties: {

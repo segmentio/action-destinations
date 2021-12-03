@@ -2,9 +2,9 @@
 
 export interface Payload {
   /**
-   * The name of the event to track.
+   * The type of the event to track.
    */
-  eventName: string
+  eventType: string
   /**
    * Hash of other properties for the event being tracked. All of the fields in this object will be sent in the root of the Friendbuy track event.
    */

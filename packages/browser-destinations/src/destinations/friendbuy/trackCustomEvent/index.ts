@@ -14,7 +14,7 @@ const action: BrowserActionDefinition<Settings, FriendbuyAPI, Payload> = {
 
   perform: (friendbuyAPI, data) => {
     const friendbuyPayload = createCustomEventPayload(data.payload)
-    friendbuyAPI.push(['track', data.payload.eventName, friendbuyPayload])
+    friendbuyAPI.push(['track', data.payload.eventType, friendbuyPayload])
   }
 }
 
