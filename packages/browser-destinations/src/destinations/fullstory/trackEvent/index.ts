@@ -2,6 +2,7 @@ import type { BrowserActionDefinition } from '../../../lib/browser-destinations'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 import type { FS } from '../types'
+import { segmentEventSource } from '..'
 
 const action: BrowserActionDefinition<Settings, FS, Payload> = {
   title: 'Track Event',
@@ -29,7 +30,7 @@ const action: BrowserActionDefinition<Settings, FS, Payload> = {
     }
   },
   perform: (FS, event) => {
-    FS.event(event.payload.name, event.payload.properties ?? {})
+    FS.event(event.payload.name, event.payload.properties ?? {}, segmentEventSource)
   }
 }
 

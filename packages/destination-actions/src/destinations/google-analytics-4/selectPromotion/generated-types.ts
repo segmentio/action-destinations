@@ -26,7 +26,7 @@ export interface Payload {
    */
   promotion_name?: string
   /**
-   * The list of products in the event.
+   * The list of products purchased.
    */
   items?: {
     /**
@@ -50,19 +50,11 @@ export interface Payload {
      */
     currency?: string
     /**
-     * The name of the promotional creative.
-     */
-    creative_name?: string
-    /**
-     * The name of the promotional creative slot associated with the item.
-     */
-    creative_slot?: string
-    /**
      * Monetary value of discount associated with a purchase.
      */
     discount?: number
     /**
-     * The index of the item in a list.
+     * The index/position of the item in a list.
      */
     index?: number
     /**
@@ -70,23 +62,23 @@ export interface Payload {
      */
     item_brand?: string
     /**
-     * Category of the product.
+     * Product category.
      */
     item_category?: string
     /**
-     * The second category of the product.
+     * Product category 2.
      */
     item_category2?: string
     /**
-     * The third category of the product.
+     * Product category 3.
      */
     item_category3?: string
     /**
-     * The fourth category of the product.
+     * Product category 4.
      */
     item_category4?: string
     /**
-     * The fifth category of the product.
+     * Product category 5.
      */
     item_category5?: string
     /**
@@ -110,16 +102,24 @@ export interface Payload {
      */
     price?: number
     /**
-     * The ID of the promotion associated with the item.
-     */
-    promotion_id?: string
-    /**
-     * The name of the promotion associated with the item.
-     */
-    promotion_name?: string
-    /**
      * Item quantity.
      */
     quantity?: number
+    /**
+     * The name of the promotional creative.
+     */
+    creative_name?: string
+    /**
+     * The name of the promotional creative slot associated with the event.
+     */
+    creative_slot?: string
+    /**
+     * The name of the promotion associated with the event.
+     */
+    promotion_name?: string
+    /**
+     * The ID of the promotion associated with the event.
+     */
+    promotion_id?: string
   }[]
 }

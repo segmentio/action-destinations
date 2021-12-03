@@ -14,6 +14,8 @@ declare global {
   }
 }
 
+export const segmentEventSource = 'segment-browser-actions'
+
 export const destination: BrowserDestinationDefinition<Settings, FS> = {
   name: 'Fullstory (Actions)',
   slug: 'actions-fullstory',

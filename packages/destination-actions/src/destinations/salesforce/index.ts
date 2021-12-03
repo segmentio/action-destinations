@@ -1,7 +1,17 @@
 import type { DestinationDefinition } from '@segment/actions-core'
 import type { Settings } from './generated-types'
-
+import { setInstanceUrl } from './salesforce-operations'
 import lead from './lead'
+
+interface RefreshTokenResponse {
+  id: string
+  issued_at: string
+  instance_url: string
+  signature: string
+  access_token: string
+  token_type: string
+  scope: string
+}
 
 const destination: DestinationDefinition<Settings> = {
   name: 'Salesforce (Actions)',
@@ -10,15 +20,18 @@ const destination: DestinationDefinition<Settings> = {
 
   authentication: {
     scheme: 'oauth2',
-    fields: {},
-    // testAuthentication: (request) => {
-    //   // Return a request that tests/validates the user's credentials.
-    //   // If you do not have a way to validate the authentication fields safely,
-    //   // you can remove the `testAuthentication` function, though discouraged.
-    // },
+    fields: {
+      instanceUrl: {
+        label: 'Instance URL',
+        description:
+          'Base Url of the request. For local testing only. refreshAccessToken will eventually be able to fetch this value via Oauth',
+        type: 'string',
+        required: true
+      }
+    },
     refreshAccessToken: async (request, { auth }) => {
       // Return a request that refreshes the access_token if the API supports it
-      const res = await request('https://login.salesforce.com/services/oauth2/token', {
+      const res = await request<RefreshTokenResponse>('https://login.salesforce.com/services/oauth2/token', {
         method: 'POST',
         body: new URLSearchParams({
           refresh_token: auth.refreshToken,
@@ -27,8 +40,9 @@ const destination: DestinationDefinition<Settings> = {
           grant_type: 'refresh_token'
         })
       })
-
-      return { accessToken: res.body.access_token }
+      console.log('res', res)
+      setInstanceUrl(res.data.instance_url)
+      return { accessToken: res.data.access_token }
     }
   },
   extendRequest({ auth }) {
@@ -38,12 +52,6 @@ const destination: DestinationDefinition<Settings> = {
       }
     }
   },
-
-  // onDelete: async (request, { settings, payload }) => {
-  //   // Return a request that performs a GDPR delete for the provided Segment userId or anonymousId
-  //   // provided in the payload. If your destination does not support GDPR deletion you should not
-  //   // implement this function and should remove it completely.
-  // },
 
   actions: {
     lead

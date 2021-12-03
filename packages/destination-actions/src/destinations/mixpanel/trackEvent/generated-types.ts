@@ -147,4 +147,8 @@ export interface Payload {
    * User agent
    */
   userAgent?: string
+  /**
+   * The unique identifier of the group that performed this event.
+   */
+  group_id?: string
 }

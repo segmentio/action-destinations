@@ -6,13 +6,13 @@ export interface Payload {
    */
   client_id: string
   /**
-   * Currency of the purchase or items associated with the event, in 3-letter ISO 4217 format.
+   * Currency of the items associated with the event, in 3-letter ISO 4217 format.
    */
   currency?: string
   /**
-   * The list of products in the event.
+   * The list of products purchased.
    */
-  items?: {
+  items: {
     /**
      * Identifier for the product being purchased.
      */
@@ -38,7 +38,7 @@ export interface Payload {
      */
     discount?: number
     /**
-     * The index of the item in a list.
+     * The index/position of the item in a list.
      */
     index?: number
     /**
@@ -46,23 +46,23 @@ export interface Payload {
      */
     item_brand?: string
     /**
-     * Category of the product.
+     * Product category.
      */
     item_category?: string
     /**
-     * The second category of the product.
+     * Product category 2.
      */
     item_category2?: string
     /**
-     * The third category of the product.
+     * Product category 3.
      */
     item_category3?: string
     /**
-     * The fourth category of the product.
+     * Product category 4.
      */
     item_category4?: string
     /**
-     * The fifth category of the product.
+     * Product category 5.
      */
     item_category5?: string
     /**
@@ -91,7 +91,7 @@ export interface Payload {
     quantity?: number
   }[]
   /**
-   * The monetary value of the event, in units of the specified currency parameter.
+   * The monetary value of the event.
    */
   value?: number
 }
