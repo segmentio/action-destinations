@@ -2,7 +2,7 @@ import type { Settings } from './generated-types'
 import type { BrowserDestinationDefinition } from '../../lib/browser-destinations'
 import { browserDestination } from '../../runtime/shim'
 import { Sprig } from './types'
-import aliasUser from './aliasUser'
+import updateUserId from './updateUserId'
 import identifyUser from './identifyUser'
 import trackEvent from './trackEvent'
 import { defaultValues } from '@segment/actions-core'
@@ -20,10 +20,10 @@ export const destination: BrowserDestinationDefinition<Settings, Sprig> = {
 
   presets: [
     {
-      name: 'Alias User',
+      name: 'Update User ID',
       subscribe: 'type = "alias"',
-      partnerAction: 'aliasUser',
-      mapping: defaultValues(aliasUser.fields)
+      partnerAction: 'updateUserId',
+      mapping: defaultValues(updateUserId.fields)
     },
     {
       name: 'Identify User',
@@ -33,7 +33,7 @@ export const destination: BrowserDestinationDefinition<Settings, Sprig> = {
     },
     {
       name: 'Track Event',
-      subscribe: 'type = "track"',
+      subscribe: 'type = "track" and event != "Signed Out"',
       partnerAction: 'trackEvent',
       mapping: defaultValues(trackEvent.fields)
     }
@@ -58,7 +58,7 @@ export const destination: BrowserDestinationDefinition<Settings, Sprig> = {
   actions: {
     trackEvent,
     identifyUser,
-    aliasUser
+    updateUserId
   },
 
   initialize: async ({ settings }, deps) => {
@@ -68,7 +68,7 @@ export const destination: BrowserDestinationDefinition<Settings, Sprig> = {
       }
       const S = window.Sprig
       S.envId = settings.envId
-      S.debugMode = settings.debugMode
+      S.debugMode = !!settings.debugMode
       S._queue = []
       S._segment = 1
       await deps.loadScript(`https://cdn.sprig.com/shim.js?id=${S.envId}`)

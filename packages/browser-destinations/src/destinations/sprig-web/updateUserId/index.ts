@@ -4,7 +4,7 @@ import type { Payload } from './generated-types'
 import type { Sprig } from '../types'
 
 const action: BrowserActionDefinition<Settings, Sprig, Payload> = {
-  title: 'Alias User',
+  title: 'Update User ID',
   description: 'Set updated user ID.',
   platform: 'web',
   defaultSubscription: 'type = "alias"',
@@ -12,7 +12,7 @@ const action: BrowserActionDefinition<Settings, Sprig, Payload> = {
     userId: {
       type: 'string',
       required: false,
-      description: 'New unique identifier for the merged user',
+      description: 'New unique identifier for the user',
       label: 'User ID',
       default: {
         '@path': '$.userId'
@@ -21,7 +21,7 @@ const action: BrowserActionDefinition<Settings, Sprig, Payload> = {
     anonymousId: {
       type: 'string',
       required: false,
-      description: 'New anonymous identifier for the merged user',
+      description: 'New anonymous identifier for the user',
       label: 'Anonymous ID',
       default: {
         '@path': '$.anonymousId'

@@ -4,8 +4,8 @@ import { Subscription } from '../../../../lib/browser-destinations'
 
 const subscriptions: Subscription[] = [
   {
-    partnerAction: 'aliasUser',
-    name: 'Alias User',
+    partnerAction: 'updateUserId',
+    name: 'Update User ID',
     enabled: true,
     subscribe: 'type = "alias"',
     mapping: {
@@ -19,15 +19,15 @@ const subscriptions: Subscription[] = [
   }
 ]
 
-describe('aliasUser', () => {
+describe('updateUserId', () => {
   test('it maps event parameters correctly to alias function with user id', async () => {
     const [aliasEvent] = await sprigWebDestination({
       envId: 'testEnvId',
       subscriptions
     })
 
-    destination.actions.aliasUser.perform = jest.fn()
-    jest.spyOn(destination.actions.aliasUser, 'perform')
+    destination.actions.updateUserId.perform = jest.fn()
+    jest.spyOn(destination.actions.updateUserId, 'perform')
     await aliasEvent.load(Context.system(), {} as Analytics)
 
     await aliasEvent.alias?.(
@@ -37,7 +37,7 @@ describe('aliasUser', () => {
       })
     )
 
-    expect(destination.actions.aliasUser.perform).toHaveBeenCalledWith(
+    expect(destination.actions.updateUserId.perform).toHaveBeenCalledWith(
       expect.anything(),
       expect.objectContaining({
         payload: {
@@ -53,8 +53,8 @@ describe('aliasUser', () => {
       subscriptions
     })
 
-    destination.actions.aliasUser.perform = jest.fn()
-    jest.spyOn(destination.actions.aliasUser, 'perform')
+    destination.actions.updateUserId.perform = jest.fn()
+    jest.spyOn(destination.actions.updateUserId, 'perform')
     await aliasEvent.load(Context.system(), {} as Analytics)
 
     await aliasEvent.alias?.(
@@ -64,7 +64,7 @@ describe('aliasUser', () => {
       })
     )
 
-    expect(destination.actions.aliasUser.perform).toHaveBeenCalledWith(
+    expect(destination.actions.updateUserId.perform).toHaveBeenCalledWith(
       expect.anything(),
       expect.objectContaining({
         payload: {

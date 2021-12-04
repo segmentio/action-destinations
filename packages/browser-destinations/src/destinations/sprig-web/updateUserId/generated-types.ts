@@ -2,11 +2,11 @@
 
 export interface Payload {
   /**
-   * New unique identifier for the merged user
+   * New unique identifier for the user
    */
   userId?: string
   /**
-   * New anonymous identifier for the merged user
+   * New anonymous identifier for the user
    */
   anonymousId?: string
 }
