@@ -14,7 +14,7 @@ export interface Payload {
    */
   item_list_name?: string
   /**
-   * The list of products in the event.
+   * The list of products purchased.
    */
   items: {
     /**
@@ -50,23 +50,23 @@ export interface Payload {
      */
     item_brand?: string
     /**
-     * The category of the item.
+     * Product category.
      */
     item_category?: string
     /**
-     * The second category hierarchy or additional taxonomy for the item.
+     * Product category 2.
      */
     item_category2?: string
     /**
-     * The third category hierarchy or additional taxonomy for the item.
+     * Product category 3.
      */
     item_category3?: string
     /**
-     * The fourth category hierarchy or additional taxonomy for the item.
+     * Product category 4.
      */
     item_category4?: string
     /**
-     * The fifth category hierarchy or additional taxonomy for the item.
+     * Product category 5.
      */
     item_category5?: string
     /**
@@ -90,7 +90,7 @@ export interface Payload {
      */
     price?: number
     /**
-     * Item Quantity
+     * Item quantity.
      */
     quantity?: number
   }[]

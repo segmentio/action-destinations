@@ -12,7 +12,7 @@ export interface Payload {
   /**
    * The monetary value of the event.
    */
-  value?: string
+  value?: number
   /**
    * Coupon code used for a purchase.
    */

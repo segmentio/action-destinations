@@ -21,7 +21,8 @@ describe('CustomerIO', () => {
       const timestamp = dayjs.utc().toISOString()
       const traits = {
         full_name: 'Test User',
-        email: 'test@example.com'
+        email: 'test@example.com',
+        created_at: timestamp
       }
       trackDeviceService.put(`/customers/${userId}`).reply(200, {}, { 'x-customerio-region': 'US' })
       const event = createTestEvent({
@@ -62,7 +63,8 @@ describe('CustomerIO', () => {
       const timestamp = dayjs.utc().toISOString()
       const traits = {
         full_name: 'Test User',
-        email: 'test@example.com'
+        email: 'test@example.com',
+        created_at: timestamp
       }
       trackDeviceService.put(`/customers/${userId}`).reply(200, {})
       const event = createTestEvent({
@@ -91,6 +93,45 @@ describe('CustomerIO', () => {
       })
     })
 
+    it("should not add created_at if it's not a trait", async () => {
+      const settings: Settings = {
+        siteId: '12345',
+        apiKey: 'abcde',
+        accountRegion: AccountRegion.US
+      }
+      const userId = 'abc123'
+      const anonymousId = 'unknown_123'
+      const timestamp = dayjs.utc().toISOString()
+      const traits = {
+        full_name: 'Test User',
+        email: 'test@example.com'
+      }
+      trackDeviceService.put(`/customers/${userId}`).reply(200, {})
+      const event = createTestEvent({
+        userId,
+        anonymousId,
+        timestamp,
+        traits
+      })
+      const responses = await testDestination.testAction('createUpdatePerson', {
+        event,
+        settings,
+        mapping: {
+          convert_timestamp: false
+        },
+        useDefaultMappings: true
+      })
+
+      expect(responses.length).toBe(1)
+      expect(responses[0].status).toBe(200)
+      expect(responses[0].data).toMatchObject({})
+      expect(responses[0].options.json).toMatchObject({
+        ...traits,
+        email: traits.email,
+        anonymous_id: anonymousId
+      })
+    })
+
     it('should work with the EU account region', async () => {
       const trackEUDeviceService = nock('https://track-eu.customer.io/api/v1')
       const settings: Settings = {
@@ -103,7 +144,8 @@ describe('CustomerIO', () => {
       const timestamp = dayjs.utc().toISOString()
       const traits = {
         full_name: 'Test User',
-        email: 'test@example.com'
+        email: 'test@example.com',
+        created_at: timestamp
       }
       trackEUDeviceService.put(`/customers/${userId}`).reply(200, {}, { 'x-customerio-region': 'EU' })
       const event = createTestEvent({
@@ -143,7 +185,8 @@ describe('CustomerIO', () => {
       const timestamp = dayjs.utc().toISOString()
       const traits = {
         full_name: 'Test User',
-        email: 'test@example.com'
+        email: 'test@example.com',
+        created_at: timestamp
       }
       trackDeviceService.put(`/customers/${userId}`).reply(200, {}, { 'x-customerio-region': 'US-fallback' })
       const event = createTestEvent({

@@ -9,8 +9,8 @@ export interface Payload {
    * A user alias object. See [the docs](https://www.braze.com/docs/api/objects_filters/user_alias_object/).
    */
   user_alias?: {
-    alias_name: string
-    alias_label: string
+    alias_name?: string
+    alias_label?: string
   }
   /**
    * The unique user identifier

@@ -61,12 +61,12 @@ jobs:
           cache: 'yarn'
 
       - name: Use Github Personal Access Token
-        run: git config --global url."https://${{ secrets.GH_PAT }}@github.com/".insteadOf ssh://git@github.com/
+        run: git config --global url."https://${{ secrets.GITHUB_TOKEN  }}@github.com/".insteadOf ssh://git@github.com/
 
       - name: Install Dependencies
         run: yarn install --frozen-lockfile
         env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_RO_TOKEN }}
 
       - name: Build
         run: NODE_ENV=production yarn build
@@ -82,14 +82,15 @@ jobs:
       # set to the author of the most recent commit
       - name: Set author
         run: |
-          git config user.email "`git log --format='%ae' HEAD^!`"
-          git config user.name "`git log --format='%an' HEAD^!`"
+          git config --global user.email "`git log --format='%ae' HEAD^!`"
+          git config --global user.name "`git log --format='%an' HEAD^!`"
+          git remote set-url origin https://x-access-token:${{ secrets.GITHUB_TOKEN  }}@github.com/${{ github.repository }}
           git config user.email
           git config user.name
 
       - name: Set NPM Token
         run: |
-          npm set '//registry.npmjs.org/:_authToken' ${{ secrets.NPM_TOKEN }}
+          npm set '//registry.npmjs.org/:_authToken' ${{ secrets.NPM_PUBLISH_TOKEN }}
           npm whoami
 
       - name: Publish production package

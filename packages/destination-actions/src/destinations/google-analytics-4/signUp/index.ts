@@ -1,25 +1,14 @@
 import type { ActionDefinition } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
+import { client_id } from '../ga4-properties'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Sign Up',
   description: 'Send event when a user signs up to measure the popularity of each sign-up method',
   defaultSubscription: 'type = "track" and event = "Signed Up"',
   fields: {
-    client_id: {
-      label: 'Client ID',
-      description: 'Uniquely identifies a user instance of a web client.',
-      type: 'string',
-      required: true,
-      default: {
-        '@if': {
-          exists: { '@path': '$.userId' },
-          then: { '@path': '$.userId' },
-          else: { '@path': '$.anonymousId' }
-        }
-      }
-    },
+    client_id: { ...client_id },
     method: {
       label: 'Method',
       description: 'The method used for sign up.',

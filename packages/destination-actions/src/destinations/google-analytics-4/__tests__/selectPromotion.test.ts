@@ -18,6 +18,7 @@ describe('GA4', () => {
         anonymousId: 'anon-567890',
         type: 'track',
         properties: {
+          id: 'abc',
           promotion_id: 'promo_1',
           creative: 'top_banner_2',
           name: '75% store-wide shoe sale',
@@ -36,6 +37,14 @@ describe('GA4', () => {
           },
           location_id: {
             '@path': '$.properties.promotion_id'
+          },
+          items: {
+            item_id: {
+              '@path': '$.properties.id'
+            },
+            promotion_name: {
+              '@path': '$.properties.name'
+            }
           }
         },
         useDefaultMappings: true
@@ -58,7 +67,7 @@ describe('GA4', () => {
       `)
 
       expect(responses[0].options.body).toMatchInlineSnapshot(
-        `"{\\"client_id\\":\\"3456fff\\",\\"events\\":[{\\"name\\":\\"select_promotion\\",\\"params\\":{\\"location_id\\":\\"promo_1\\",\\"items\\":[]}}]}"`
+        `"{\\"client_id\\":\\"3456fff\\",\\"events\\":[{\\"name\\":\\"select_promotion\\",\\"params\\":{\\"creative_slot\\":\\"top_banner_2\\",\\"location_id\\":\\"promo_1\\",\\"promotion_id\\":\\"promo_1\\",\\"promotion_name\\":\\"75% store-wide shoe sale\\",\\"items\\":[{\\"item_id\\":\\"abc\\",\\"promotion_name\\":\\"75% store-wide shoe sale\\"}]}}]}"`
       )
     })
 

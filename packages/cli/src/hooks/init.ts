@@ -3,7 +3,6 @@ import { dirname } from 'path'
 
 const hook: Hook<'init'> = async function ({ config }) {
   if (process.env.NODE_ENV === 'test') {
-    console.warn('skipping cli-internal plugin because of tests')
     return
   }
 

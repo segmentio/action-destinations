@@ -1,0 +1,101 @@
+import dayjs from '../../../lib/dayjs'
+import type { ActionDefinition } from '@segment/actions-core'
+import type { Settings } from '../generated-types'
+import { trackApiEndpoint } from '../utils'
+import type { Payload } from './generated-types'
+
+interface TrackScreenViewPayload {
+  name: string
+  type: 'screen'
+  timestamp?: string | number
+  data?: Record<string, unknown>
+  // Required for anonymous events
+  anonymous_id?: string
+}
+
+const action: ActionDefinition<Settings, Payload> = {
+  title: 'Track Screen View',
+  description: 'Track a screen view for a known or anonymous person.',
+  defaultSubscription: 'type = "screen"',
+  fields: {
+    id: {
+      label: 'Person ID',
+      description:
+        'The ID used to uniquely identify a person in Customer.io. [Learn more](https://customer.io/docs/identifying-people/#identifiers).',
+      type: 'string',
+      default: {
+        '@path': '$.userId'
+      }
+    },
+    anonymous_id: {
+      label: 'Anonymous ID',
+      description:
+        'An anonymous ID for when no Person ID exists. [Learn more](https://customer.io/docs/anonymous-events/).',
+      type: 'string',
+      default: {
+        '@path': '$.anonymousId'
+      }
+    },
+    name: {
+      label: 'Screen name',
+      description: 'The name of the screen visited.',
+      type: 'string',
+      required: true,
+      default: {
+        '@path': '$.name'
+      }
+    },
+    timestamp: {
+      label: 'Timestamp',
+      description: 'A timestamp of when the event took place. Default is current date and time.',
+      type: 'string',
+      default: {
+        '@path': '$.timestamp'
+      }
+    },
+    data: {
+      label: 'Event Attributes',
+      description: 'Optional data to include with the event.',
+      type: 'object',
+      default: {
+        '@path': '$.properties'
+      }
+    },
+    convert_timestamp: {
+      label: 'Convert Timestamps',
+      description: 'Convert `timestamp` to a Unix timestamp (seconds since Epoch).',
+      type: 'boolean',
+      default: true
+    }
+  },
+  perform: (request, { settings, payload }) => {
+    let timestamp: string | number | undefined = payload.timestamp
+
+    if (timestamp && payload.convert_timestamp !== false) {
+      timestamp = dayjs.utc(timestamp).unix()
+    }
+
+    const body: TrackScreenViewPayload = {
+      name: payload.name,
+      type: 'screen',
+      data: payload.data,
+      timestamp
+    }
+
+    let url: string
+
+    if (payload.id) {
+      url = `${trackApiEndpoint(settings.accountRegion)}/api/v1/customers/${payload.id}/events`
+    } else {
+      url = `${trackApiEndpoint(settings.accountRegion)}/api/v1/events`
+      body.anonymous_id = payload.anonymous_id
+    }
+
+    return request(url, {
+      method: 'post',
+      json: body
+    })
+  }
+}
+
+export default action

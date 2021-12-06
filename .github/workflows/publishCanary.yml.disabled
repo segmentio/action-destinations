@@ -51,12 +51,12 @@ jobs:
           cache: 'yarn'
 
       - name: Use Github Personal Access Token
-        run: git config --global url."https://${{ secrets.GH_PAT }}@github.com/".insteadOf ssh://git@github.com/
+        run: git config --global url."https://${{ secrets.NEW_GH_TOKEN }}@github.com/".insteadOf ssh://git@github.com/
 
       - name: Install Dependencies
         run: yarn install --frozen-lockfile
         env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_RO_TOKEN }}
 
       - name: Build
         run: NODE_ENV=production yarn build
@@ -78,7 +78,7 @@ jobs:
 
       - name: Set NPM Token
         run: |
-          npm set '//registry.npmjs.org/:_authToken' ${{ secrets.NPM_TOKEN }}
+          npm set '//registry.npmjs.org/:_authToken' ${{ secrets.NPM_PUBLISH_TOKEN }}
           npm whoami
 
       - name: Publish prerelease from PR
@@ -95,6 +95,7 @@ jobs:
           echo 'LERNA_RESPONSE<<EOF' >> $GITHUB_ENV
           echo $RESPONSE >> $GITHUB_ENV
           echo 'EOF' >> $GITHUB_ENV
+          echo $RESPONSE
 
       - name: Notify end
         uses: actions/github-script@v4

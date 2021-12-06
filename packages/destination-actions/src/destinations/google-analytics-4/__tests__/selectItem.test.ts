@@ -148,7 +148,7 @@ describe('GA4', () => {
       `)
 
       expect(responses[0].options.body).toMatchInlineSnapshot(
-        `"{\\"client_id\\":\\"3456fff\\",\\"events\\":[{\\"name\\":\\"select_item\\",\\"params\\":{\\"items\\":[]}}]}"`
+        `"{\\"client_id\\":\\"3456fff\\",\\"events\\":[{\\"name\\":\\"select_item\\",\\"params\\":{\\"items\\":[{\\"item_id\\":\\"5678fkj9087\\",\\"item_name\\":\\"Limited Edition T\\",\\"coupon\\":\\"SummerFest\\",\\"item_brand\\":\\"yeezy\\",\\"item_category\\":\\"Clothing\\",\\"item_variant\\":\\"Black\\",\\"price\\":8.99,\\"quantity\\":1}]}}]}"`
       )
     })
 
