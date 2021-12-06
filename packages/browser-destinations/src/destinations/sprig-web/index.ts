@@ -2,9 +2,10 @@ import type { Settings } from './generated-types'
 import type { BrowserDestinationDefinition } from '../../lib/browser-destinations'
 import { browserDestination } from '../../runtime/shim'
 import { Sprig } from './types'
-import updateUserId from './updateUserId'
 import identifyUser from './identifyUser'
+import signoutUser from './signoutUser'
 import trackEvent from './trackEvent'
+import updateUserId from './updateUserId'
 import { defaultValues } from '@segment/actions-core'
 
 declare global {
@@ -20,22 +21,28 @@ export const destination: BrowserDestinationDefinition<Settings, Sprig> = {
 
   presets: [
     {
-      name: 'Update User ID',
-      subscribe: 'type = "alias"',
-      partnerAction: 'updateUserId',
-      mapping: defaultValues(updateUserId.fields)
-    },
-    {
       name: 'Identify User',
       subscribe: 'type = "identify"',
       partnerAction: 'identifyUser',
       mapping: defaultValues(identifyUser.fields)
     },
     {
+      name: 'Sign Out User',
+      subscribe: 'type = "track" and event = "Signed Out"',
+      partnerAction: 'signoutUser',
+      mapping: defaultValues(signoutUser.fields)
+    },
+    {
       name: 'Track Event',
       subscribe: 'type = "track" and event != "Signed Out"',
       partnerAction: 'trackEvent',
       mapping: defaultValues(trackEvent.fields)
+    },
+    {
+      name: 'Update User ID',
+      subscribe: 'type = "alias"',
+      partnerAction: 'updateUserId',
+      mapping: defaultValues(updateUserId.fields)
     }
   ],
 
@@ -56,8 +63,9 @@ export const destination: BrowserDestinationDefinition<Settings, Sprig> = {
   },
 
   actions: {
-    trackEvent,
     identifyUser,
+    signoutUser,
+    trackEvent,
     updateUserId
   },
 

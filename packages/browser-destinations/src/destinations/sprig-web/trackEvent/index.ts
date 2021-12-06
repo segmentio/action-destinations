@@ -7,6 +7,7 @@ const action: BrowserActionDefinition<Settings, Sprig, Payload> = {
   title: 'Track Event',
   description: 'Track event to potentially filter user studies (microsurveys) later, or trigger a study now.',
   platform: 'web',
+  defaultSubscription: 'type = "track" and event != "Signed Out"',
   fields: {
     name: {
       description: "The event name that will be shown on Sprig's dashboard",
