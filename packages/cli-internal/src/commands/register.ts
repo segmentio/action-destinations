@@ -2,6 +2,7 @@ import { Command, flags } from '@oclif/command'
 import globby from 'globby'
 import ora from 'ora'
 import path from 'path'
+import { VERSION_OPTION_KEY } from '../constants'
 import { controlPlaneService } from '../lib/control-plane-service'
 import type { CreateDestinationMetadataInput } from '../lib/control-plane-service'
 import { autoPrompt, prompt } from '@segment/actions-cli/lib/prompt'
@@ -114,7 +115,19 @@ export default class Register extends Command {
       },
       // TODO: register with authentication.fields or settings that are already defined
       // instead of requiring a subsequent `push`?
-      options: {},
+      options: {
+        [VERSION_OPTION_KEY]: {
+          type: 'select', // options get pushed later
+          scope: 'event_destination',
+          default: 'latest', // do this since we don't know versions yet. they will get updated on push
+          label: 'Version',
+          description: 'The version of the Destination.',
+          private: false,
+          validators: [
+            ['required', `The destination version is required.`]
+          ]
+        }
+      },
       basicOptions: []
     }
 
