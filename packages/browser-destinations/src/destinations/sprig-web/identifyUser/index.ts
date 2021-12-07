@@ -49,13 +49,15 @@ const action: BrowserActionDefinition<Settings, Sprig, Payload> = {
       Sprig('setPartnerAnonymousId', payload.anonymousId)
     }
 
-    const traits = { ...payload.traits }
-    if (traits.email) {
-      traits['!email'] = traits.email
-      delete traits.email
-    }
+    if (payload.traits && Object.keys(payload.traits).length > 0) {
+      const traits = { ...payload.traits }
+      if (traits.email) {
+        traits['!email'] = traits.email
+        delete traits.email
+      }
 
-    Sprig('setAttributes', traits)
+      Sprig('setAttributes', traits)
+    }
   }
 }
 
