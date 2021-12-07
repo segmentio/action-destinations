@@ -46,7 +46,7 @@ const action: ActionDefinition<Settings, Payload> = {
   },
 
   perform: (request, { payload }) => {
-    if (isValidSlackUrl(payload.url)) {
+    if (!isValidSlackUrl(payload.url)) {
       throw new IntegrationError('Invalid Slack URL', '400')
     } else {
       return request(payload.url, {
