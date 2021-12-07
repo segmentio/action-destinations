@@ -181,8 +181,12 @@ export default class Push extends Command {
           })
         }
 
+        // TODO validate definition.version is SemVer!
+        const slugVersion = `${actionKey}@${definition.version}`
+
         const base: BaseActionInput = {
-          slug: actionKey,
+          slug: slugVersion, // postMessage@1.0.0, postMessage@2.0.0
+          // version: action.version, // right way
           name: action.title ?? 'Unnamed Action',
           description: action.description ?? '',
           platform,
