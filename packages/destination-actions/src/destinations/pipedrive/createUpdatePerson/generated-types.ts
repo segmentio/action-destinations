@@ -29,4 +29,8 @@ export interface Payload {
    * If the person is created, use this timestamp as the creation timestamp. Format: YYY-MM-DD HH:MM:SS
    */
   add_time?: string | number
+  /**
+   * New values for custom fields in JSON format.
+   */
+  custom_fields?: string
 }

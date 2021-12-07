@@ -3,6 +3,7 @@ import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 import PipedriveClient from '../pipedriveApi/pipedrive-client'
 import { createOrUpdatePersonById, Person } from '../pipedriveApi/persons'
+import { addCustomFieldsFromPayloadToEntity } from '../utils'
 
 const fieldHandler = PipedriveClient.fieldHandler
 
@@ -62,7 +63,14 @@ const action: ActionDefinition<Settings, Payload> = {
       label: 'Created At',
       description: 'If the person is created, use this timestamp as the creation timestamp. Format: YYY-MM-DD HH:MM:SS',
       type: 'datetime'
-    }
+    },
+
+    custom_fields: {
+      label: 'Custom fields',
+      description: 'New values for custom fields in JSON format.',
+      type: 'string',
+      required: false,
+    },
   },
 
   dynamicFields: {
@@ -83,6 +91,8 @@ const action: ActionDefinition<Settings, Payload> = {
       add_time: payload.add_time ? `${payload.add_time}` : undefined,
       visible_to: payload.visible_to
     }
+
+    addCustomFieldsFromPayloadToEntity(payload, person)
 
     return createOrUpdatePersonById(request, settings.domain, personId, person)
   }

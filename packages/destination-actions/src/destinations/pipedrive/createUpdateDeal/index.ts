@@ -4,6 +4,7 @@ import type { Payload } from './generated-types'
 import PipedriveClient from '../pipedriveApi/pipedrive-client'
 import { createUpdateDeal, Deal } from '../pipedriveApi/deals'
 import { IntegrationError } from '@segment/actions-core'
+import { addCustomFieldsFromPayloadToEntity } from '../utils'
 
 const fieldHandler = PipedriveClient.fieldHandler
 
@@ -135,7 +136,14 @@ const action: ActionDefinition<Settings, Payload> = {
       description: 'If the deal is created, use this timestamp as the creation timestamp. Format: YYY-MM-DD HH:MM:SS',
       type: 'datetime',
       required: false
-    }
+    },
+
+    custom_fields: {
+      label: 'Custom fields',
+      description: 'New values for custom fields in JSON format.',
+      type: 'string',
+      required: false,
+    },
   },
 
   dynamicFields: {
@@ -180,6 +188,8 @@ const action: ActionDefinition<Settings, Payload> = {
         400
       )
     }
+
+    addCustomFieldsFromPayloadToEntity(payload, deal)
 
     return createUpdateDeal(client, deal)
   }
