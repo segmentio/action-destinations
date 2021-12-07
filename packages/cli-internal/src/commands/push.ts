@@ -3,7 +3,7 @@ import type { DestinationDefinition as CloudDestinationDefinition, MinimalInputF
 import { fieldsToJsonSchema } from '@segment/actions-core'
 import { BrowserDestinationDefinition } from '@segment/browser-destinations'
 import chalk from 'chalk'
-import { pick, omit, sortBy } from 'lodash'
+import { pick, omit, sortBy, cloneDeep } from 'lodash'
 import { diffString } from 'json-diff'
 import ora from 'ora'
 import type {
@@ -17,7 +17,7 @@ import type {
   DestinationSubscriptionPresetInput
 } from '../lib/control-plane-service'
 import { prompt } from '@segment/actions-cli/lib/prompt'
-import { OAUTH_OPTIONS } from '../constants'
+import { OAUTH_OPTIONS, VERSION_OPTION_KEY } from '../constants'
 import { RESERVED_FIELD_NAMES } from '@segment/actions-cli/constants'
 import {
   getDestinationMetadatas,
@@ -361,9 +361,27 @@ export function getOptions(
   const publicSettings = (definition as BrowserDestinationDefinition).settings
   const authFields = (definition as CloudDestinationDefinition).authentication?.fields
 
+  // setting definitions = [k]: v
+  // action settings
   const settings = {
     ...publicSettings,
     ...authFields
+  }
+
+  // If destination supports versioning, update the default version and the options
+  // 1.0.0 -> 2.0.0
+  // version: { default: '1.0.0', options: [{ text: '1.0.0', label: '1.0.0', value: '1.0.0' }] }
+  // version: { default: '2.0.0', options: [{ text: '1.0.0', value: '1.0.0' }, { text: '2.0.0', value: '2.0.0' }] }
+  if (existingOptions[VERSION_OPTION_KEY]) {
+    options[VERSION_OPTION_KEY] = cloneDeep(existingOptions[VERSION_OPTION_KEY])
+
+    options[VERSION_OPTION_KEY].default = definition.version
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-call
+    options[VERSION_OPTION_KEY].options.push({
+      text: definition.version,
+      label: definition.version,
+      value: definition.version
+    })
   }
 
   for (const [fieldKey, schema] of Object.entries(settings)) {
