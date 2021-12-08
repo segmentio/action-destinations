@@ -6,6 +6,10 @@ export interface Payload {
    */
   name: string
   /**
+   * Unique identifier for the user
+   */
+  userId?: string
+  /**
    * Anonymous identifier for the user
    */
   anonymousId?: string

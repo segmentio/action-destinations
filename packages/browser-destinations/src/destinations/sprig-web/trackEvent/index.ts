@@ -18,6 +18,15 @@ const action: BrowserActionDefinition<Settings, Sprig, Payload> = {
         '@path': '$.event'
       }
     },
+    userId: {
+      type: 'string',
+      required: false,
+      description: 'Unique identifier for the user',
+      label: 'User ID',
+      default: {
+        '@path': '$.userId'
+      }
+    },
     anonymousId: {
       type: 'string',
       required: false,
@@ -31,6 +40,10 @@ const action: BrowserActionDefinition<Settings, Sprig, Payload> = {
   perform: (Sprig, event) => {
     const payload = event.payload
     if (!payload) return
+
+    if (payload.userId) {
+      Sprig('setUserId', payload.userId)
+    }
 
     if (payload.anonymousId) {
       Sprig('setPartnerAnonymousId', payload.anonymousId)

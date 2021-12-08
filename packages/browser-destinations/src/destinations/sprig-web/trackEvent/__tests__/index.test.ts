@@ -14,6 +14,9 @@ const subscriptions: Subscription[] = [
       },
       anonymousId: {
         '@path': '$.anonymousId'
+      },
+      userId: {
+        '@path': '$.userId'
       }
     }
   }
