@@ -19,10 +19,16 @@ describe('CustomerIO', () => {
       const userId = 'abc123'
       const anonymousId = 'unknown_123'
       const timestamp = dayjs.utc().toISOString()
+      const birthdate = dayjs.utc('1990-01-01T00:00:00Z').toISOString()
       const traits = {
         full_name: 'Test User',
         email: 'test@example.com',
-        created_at: timestamp
+        created_at: timestamp,
+        person: {
+          over18: true,
+          identification: 'valid',
+          birthdate
+        }
       }
       trackDeviceService.put(`/customers/${userId}`).reply(200, {}, { 'x-customerio-region': 'US' })
       const event = createTestEvent({
@@ -48,11 +54,15 @@ describe('CustomerIO', () => {
         ...traits,
         email: traits.email,
         created_at: dayjs.utc(timestamp).unix(),
-        anonymous_id: anonymousId
+        anonymous_id: anonymousId,
+        person: {
+          ...traits.person,
+          birthdate: dayjs.utc(birthdate).unix()
+        }
       })
     })
 
-    it('should not convert created_at to a unix timestamp when convert_timestamp is false', async () => {
+    it('should not convert attributes to unix timestamps when convert_timestamp is false', async () => {
       const settings: Settings = {
         siteId: '12345',
         apiKey: 'abcde',
@@ -61,10 +71,16 @@ describe('CustomerIO', () => {
       const userId = 'abc123'
       const anonymousId = 'unknown_123'
       const timestamp = dayjs.utc().toISOString()
+      const birthdate = dayjs.utc('1990-01-01T00:00:00Z').toISOString()
       const traits = {
         full_name: 'Test User',
         email: 'test@example.com',
-        created_at: timestamp
+        created_at: timestamp,
+        person: {
+          over18: true,
+          identification: 'valid',
+          birthdate
+        }
       }
       trackDeviceService.put(`/customers/${userId}`).reply(200, {})
       const event = createTestEvent({
