@@ -3,7 +3,7 @@ import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 
 function isValidSlackUrl(webhookUrl: string): boolean {
-  return /^https:\/\/[a-zA-Z0-9.-]+\.slack.com/.test(webhookUrl)
+  return /^https:\/\/[a-zA-Z0-9.-]+\.slack.com[/a-zA-Z0-9]+$/.test(webhookUrl)
 }
 
 const action: ActionDefinition<Settings, Payload> = {
