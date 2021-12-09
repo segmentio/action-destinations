@@ -1,22 +1,8 @@
-import { IntegrationError } from "@segment/actions-core";
+type PayloadWithCustomFields = { custom_fields?: { [k: string]: unknown } }
 
-type PayloadWithCustomFields = { custom_fields?: string };
-
-export function addCustomFieldsFromPayloadToEntity<E>(
-  payload: PayloadWithCustomFields,
-  entity: E,
-) {
+export function addCustomFieldsFromPayloadToEntity<E>(payload: PayloadWithCustomFields, entity: E) {
   if (!payload.custom_fields) {
-    return;
+    return
   }
-  try {
-    const customFields = JSON.parse(payload.custom_fields);
-    Object.assign(entity, customFields);
-  } catch (e) {
-    throw new IntegrationError(
-      'Custom fields JSON parse error.',
-      'JSON_PARSE_ERROR',
-      400
-    );
-  }
+  Object.assign(entity, payload.custom_fields)
 }

@@ -17,7 +17,7 @@ const action: ActionDefinition<Settings, Payload> = {
       description: 'If present, used instead of field in settings to find existing person in Pipedrive.',
       type: 'string',
       required: false,
-      dynamic: true,
+      dynamic: true
     },
     match_value: {
       label: 'Match value',
@@ -67,10 +67,10 @@ const action: ActionDefinition<Settings, Payload> = {
 
     custom_fields: {
       label: 'Custom fields',
-      description: 'New values for custom fields in JSON format.',
-      type: 'string',
-      required: false,
-    },
+      description: 'New values for custom fields.',
+      type: 'object',
+      required: false
+    }
   },
 
   dynamicFields: {

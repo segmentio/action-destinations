@@ -48,7 +48,9 @@ export interface Payload {
    */
   add_time?: string | number
   /**
-   * New values for custom fields in JSON format.
+   * New values for custom fields.
    */
-  custom_fields?: string
+  custom_fields?: {
+    [k: string]: unknown
+  }
 }
