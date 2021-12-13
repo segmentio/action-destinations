@@ -9,6 +9,11 @@ const destination: DestinationDefinition<Settings> = {
   authentication: {
     scheme: 'custom',
     fields: {
+      unlayerApiKey: {
+        label: 'Unlayer API Key',
+        type: 'password',
+        description: 'The API key for your Unlayer account'
+      },
       sendGridApiKey: {
         label: 'API Key',
         type: 'password',
@@ -42,12 +47,6 @@ const destination: DestinationDefinition<Settings> = {
     },
     testAuthentication: (request) => {
       return request('https://api.sendgrid.com/v3/mail_settings')
-    }
-  },
-  extendRequest: ({ settings }) => {
-    return {
-      headers: { Authorization: `Bearer ${settings.sendGridApiKey}` },
-      responseType: 'json'
     }
   },
   actions: {

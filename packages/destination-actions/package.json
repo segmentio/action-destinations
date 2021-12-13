@@ -38,8 +38,10 @@
   },
   "dependencies": {
     "@amplitude/ua-parser-js": "^0.7.25",
+    "cheerio": "^1.0.0-rc.10",
     "@segment/actions-core": "^3.21.1",
     "dayjs": "^1.10.7",
+    "escape-goat": "^3",
     "lodash": "^4.17.21",
     "mustache": "^4.2.0"
   },

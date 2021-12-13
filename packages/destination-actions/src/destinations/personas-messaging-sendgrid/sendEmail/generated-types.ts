@@ -52,7 +52,11 @@ export interface Payload {
   /**
    * The message body
    */
-  body: string
+  body?: string
+  /**
+   * URL to the message body
+   */
+  bodyUrl?: string
   /**
    * The type of body which is used generally html | design
    */
@@ -60,7 +64,7 @@ export interface Payload {
   /**
    * The HTML content of the body
    */
-  bodyHtml: string
+  bodyHtml?: string
   /**
    * Additional custom args that we be passed back opaquely on webhook events
    */
