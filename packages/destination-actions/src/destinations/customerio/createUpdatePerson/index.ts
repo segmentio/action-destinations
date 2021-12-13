@@ -2,7 +2,7 @@ import dayjs from '../../../lib/dayjs'
 import type { ActionDefinition } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
-import { trackApiEndpoint } from '../utils'
+import { convertAttributeTimestamps, trackApiEndpoint } from '../utils'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Create or Update Person',
@@ -55,7 +55,7 @@ const action: ActionDefinition<Settings, Payload> = {
     },
     convert_timestamp: {
       label: 'Convert Timestamps',
-      description: 'Convert `created_at` to a Unix timestamp (seconds since Epoch).',
+      description: 'Convert dates to Unix timestamps (seconds since Epoch).',
       type: 'boolean',
       default: true
     }
@@ -63,14 +63,22 @@ const action: ActionDefinition<Settings, Payload> = {
 
   perform: (request, { settings, payload }) => {
     let createdAt: string | number | undefined = payload.created_at
-    const body: Record<string, unknown> = {
-      ...payload.custom_attributes,
-      email: payload.email,
-      anonymous_id: payload.anonymous_id
+    let customAttributes = payload.custom_attributes
+
+    if (payload.convert_timestamp !== false) {
+      if (createdAt) {
+        createdAt = dayjs.utc(createdAt).unix()
+      }
+
+      if (customAttributes) {
+        customAttributes = convertAttributeTimestamps(customAttributes)
+      }
     }
 
-    if (createdAt && payload.convert_timestamp !== false) {
-      createdAt = dayjs.utc(createdAt).unix()
+    const body: Record<string, unknown> = {
+      ...customAttributes,
+      email: payload.email,
+      anonymous_id: payload.anonymous_id
     }
 
     if (createdAt) {

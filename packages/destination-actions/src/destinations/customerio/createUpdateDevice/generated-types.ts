@@ -18,7 +18,7 @@ export interface Payload {
    */
   last_used?: string
   /**
-   * Convert `last_used` to a Unix timestamp (seconds since Epoch).
+   * Convert dates to Unix timestamps (seconds since Epoch).
    */
   convert_timestamp?: boolean
 }
