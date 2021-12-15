@@ -29,4 +29,8 @@ export interface Settings {
    * Webhook URL that will receive all events for the sent message
    */
   webhookUrl?: string
+  /**
+   * Connection overrides are configuration supported by twilio webhook services. Must be passed as fragments on the callback url
+   */
+  connectionOverrides?: string
 }

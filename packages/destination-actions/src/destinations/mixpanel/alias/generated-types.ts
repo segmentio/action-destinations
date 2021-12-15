@@ -2,11 +2,11 @@
 
 export interface Payload {
   /**
-   * New alias to merged with the previous id. Each alias can only map to one previous id
+   * A new distinct id to be merged with the original distinct id. Each alias can only map to one distinct id.
    */
   alias?: string | null
   /**
-   * An id to be merged with the alias
+   * A distinct id to be merged with the alias.
    */
-  previous_id?: string
+  distinct_id?: string
 }

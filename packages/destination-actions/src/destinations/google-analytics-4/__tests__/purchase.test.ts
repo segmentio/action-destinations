@@ -127,7 +127,8 @@ describe('GA4', () => {
         properties: {
           order_id: '5678dd9087-78',
           coupon: 'SUMMER_FEST',
-          currency: '1234'
+          currency: '1234',
+          name: 'A product'
         }
       })
       try {
@@ -149,6 +150,11 @@ describe('GA4', () => {
             },
             transaction_id: {
               '@path': '$.properties.order_id'
+            },
+            items: {
+              item_name: {
+                '@path': '$.properties.name'
+              }
             }
           },
           useDefaultMappings: true
@@ -309,7 +315,7 @@ describe('GA4', () => {
       `)
 
       expect(responses[0].options.body).toMatchInlineSnapshot(
-        `"{\\"client_id\\":\\"3456fff\\",\\"events\\":[{\\"name\\":\\"purchase\\",\\"params\\":{\\"affiliation\\":\\"TI Online Store\\",\\"coupon\\":\\"SUMMER_FEST\\",\\"currency\\":\\"EUR\\",\\"items\\":[],\\"transaction_id\\":\\"5678dd9087-78\\",\\"shipping\\":1.5,\\"value\\":24.48,\\"tax\\":3}}]}"`
+        `"{\\"client_id\\":\\"3456fff\\",\\"events\\":[{\\"name\\":\\"purchase\\",\\"params\\":{\\"affiliation\\":\\"TI Online Store\\",\\"coupon\\":\\"SUMMER_FEST\\",\\"currency\\":\\"EUR\\",\\"items\\":[{\\"item_id\\":\\"pid-123456\\",\\"item_name\\":\\"Tour t-shirt\\",\\"coupon\\":\\"MOUNTAIN\\",\\"item_brand\\":\\"Canvas\\",\\"item_category\\":\\"T-Shirt\\",\\"item_variant\\":\\"Black\\",\\"price\\":19.98,\\"quantity\\":2}],\\"transaction_id\\":\\"5678dd9087-78\\",\\"shipping\\":1.5,\\"value\\":24.48,\\"tax\\":3}}]}"`
       )
     })
   })

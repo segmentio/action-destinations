@@ -106,7 +106,8 @@ describe('GA4', () => {
         properties: {
           order_id: '5678dd9087-78',
           coupon: 'SUMMER_FEST',
-          currency: '1234'
+          currency: '1234',
+          name: 'A product'
         }
       })
       try {
@@ -125,6 +126,11 @@ describe('GA4', () => {
             },
             currency: {
               '@path': '$.properties.currency'
+            },
+            items: {
+              item_name: {
+                '@path': '$.properties.name'
+              }
             }
           },
           useDefaultMappings: true
@@ -251,7 +257,7 @@ describe('GA4', () => {
       `)
 
       expect(responses[0].options.body).toMatchInlineSnapshot(
-        `"{\\"client_id\\":\\"3456fff\\",\\"events\\":[{\\"name\\":\\"begin_checkout\\",\\"params\\":{\\"coupon\\":\\"hasbros\\",\\"currency\\":\\"USD\\",\\"items\\":[],\\"value\\":30}}]}"`
+        `"{\\"client_id\\":\\"3456fff\\",\\"events\\":[{\\"name\\":\\"begin_checkout\\",\\"params\\":{\\"coupon\\":\\"hasbros\\",\\"currency\\":\\"USD\\",\\"items\\":[{\\"item_id\\":\\"507f1f77bcf86cd799439011\\",\\"item_name\\":\\"Monopoly: 3rd Edition\\",\\"item_category\\":\\"Games\\",\\"price\\":19,\\"quantity\\":1}],\\"value\\":30}}]}"`
       )
     })
   })

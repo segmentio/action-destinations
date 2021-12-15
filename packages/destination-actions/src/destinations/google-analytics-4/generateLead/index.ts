@@ -2,35 +2,16 @@ import { ActionDefinition, IntegrationError } from '@segment/actions-core'
 import { CURRENCY_ISO_CODES } from '../constants'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
+import { client_id, currency, value } from '../ga4-properties'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Generate Lead',
   description: 'Send event when a user submits a form or request for information',
   defaultSubscription: 'type = "track"',
   fields: {
-    client_id: {
-      label: 'Client ID',
-      description: 'Uniquely identifies a user instance of a web client.',
-      type: 'string',
-      required: true,
-      default: {
-        '@if': {
-          exists: { '@path': '$.userId' },
-          then: { '@path': '$.userId' },
-          else: { '@path': '$.anonymousId' }
-        }
-      }
-    },
-    currency: {
-      label: 'Currency',
-      type: 'string',
-      description: 'Currency of the items associated with the event, in 3-letter ISO 4217 format.'
-    },
-    value: {
-      label: 'Value',
-      type: 'number',
-      description: 'The monetary value of the event.'
-    }
+    client_id: { ...client_id },
+    currency: { ...currency },
+    value: { ...value }
   },
   perform: (request, { payload }) => {
     if (payload.currency && !CURRENCY_ISO_CODES.includes(payload.currency)) {

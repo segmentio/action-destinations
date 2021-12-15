@@ -12,7 +12,7 @@ export interface Payload {
   /**
    * The monetary value of the event.
    */
-  value?: string
+  value?: number
   /**
    * The list of products purchased.
    */
