@@ -44,7 +44,7 @@ export interface Payload {
   /**
    * Preview Text
    */
-  previewText: string
+  previewText?: string
   /**
    * Subject for the email to be sent
    */
