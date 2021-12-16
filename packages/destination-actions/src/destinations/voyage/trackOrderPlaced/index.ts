@@ -59,8 +59,7 @@ const action: ActionDefinition<Settings, Payload> = {
     },
     TokenId: {
       label: 'Token ID',
-      description:
-        "A reference to the order that is a string value. (Primarily used for Shopify's checkout token or Magento's entity id).",
+      description: 'A reference to the order that is a string value.',
       type: 'string',
       default: {
         '@path': '$.properties.TokenId'
@@ -79,6 +78,7 @@ const action: ActionDefinition<Settings, Payload> = {
       label: 'Order URL',
       description: 'Link for user to click on to see status.',
       type: 'string',
+      format: 'uri',
       required: true,
       default: {
         '@path': '$.properties.Url'
@@ -131,6 +131,7 @@ const action: ActionDefinition<Settings, Payload> = {
       label: 'Email',
       description: "Customer's email address",
       type: 'string',
+      format: 'email',
       default: {
         '@path': '$.properties.Email'
       }
@@ -156,6 +157,7 @@ const action: ActionDefinition<Settings, Payload> = {
       label: 'Product Image URL',
       description: 'URL with product image.',
       type: 'string',
+      format: 'uri',
       default: {
         '@path': '$.properties.ProductImageUrl'
       }
@@ -172,6 +174,7 @@ const action: ActionDefinition<Settings, Payload> = {
       label: 'Homepage URL',
       description: "URL of the tenant's e-commerce homepage.",
       type: 'string',
+      format: 'uri',
       default: {
         '@path': '$.properties.HomepageUrl'
       }
