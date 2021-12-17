@@ -1,4 +1,5 @@
 import type { DestinationDefinition } from '@segment/actions-core'
+import { IntegrationError } from '@segment/actions-core'
 import type { Settings } from './generated-types'
 import { defaultValues } from '@segment/actions-core'
 
@@ -82,7 +83,7 @@ const destination: DestinationDefinition<Settings> = {
       if (response.status === 400) {
         return true
       }
-      throw new Error('Invalid API Key')
+      throw new IntegrationError('Invalid API key', 'Invalid API Key', 401)
     }
   },
   extendRequest({ settings }) {

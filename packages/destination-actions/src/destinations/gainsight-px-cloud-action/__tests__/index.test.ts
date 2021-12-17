@@ -22,7 +22,7 @@ describe('Gainsight Px Cloud', () => {
         dataCenter: "north_america"
       }
 
-      await expect(testDestination.testAuthentication(authData)).rejects.toThrowError()
+      await expect(testDestination.testAuthentication(authData)).rejects.toThrowError('Invalid API key')
     })
 
     it('should throw an error for invalid api keys', async () => {
@@ -39,7 +39,7 @@ describe('Gainsight Px Cloud', () => {
         dataCenter: "north_america"
       }
 
-      await expect(testDestination.testAuthentication(authData)).rejects.toThrowError()
+      await expect(testDestination.testAuthentication(authData)).rejects.toThrowError('Invalid API key')
     })
   })
 })
