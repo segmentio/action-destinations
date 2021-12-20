@@ -3,5 +3,5 @@ export type ClevertapEvent = {
   source: string,
   profileData: object | undefined,
   identity?: string,
-  ts : number | undefined
+  ts : string | undefined
 }

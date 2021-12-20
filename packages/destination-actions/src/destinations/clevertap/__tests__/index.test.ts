@@ -13,10 +13,10 @@ describe('Clevertap( Actions)', () => {
       const authData = {
           settings: {
             clevertapAccountId:'test-account-id',
-            clevertapPasscode:'test-account-passcode'
+            clevertapPasscode:'test-account-passcode',
+            clevertapEndpoint: 'https://sk1.api.clevertap.com'
           }
       }
-
 
       await expect(testDestination.testAuthentication(authData.settings)).resolves.not.toThrowError()
     })

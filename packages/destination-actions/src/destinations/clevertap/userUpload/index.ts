@@ -2,51 +2,48 @@ import type {ActionDefinition} from '@segment/actions-core'
 import type {Settings} from '../generated-types'
 import type {Payload} from './generated-types'
 import type {ClevertapEvent} from "./types";
-import type {MainEvent} from "./MainType";
-
+const type='profile';
+const source='Segment';
 const action: ActionDefinition<Settings, Payload> = {
   title: 'User Upload',
   description: 'The User Upload Action enables you to create or update user profiles in CleverTap.',
   fields: {
     ts: {
       label: 'Timestamp',
-      type: 'integer',
-      description:
-        'The timestamp of the event. If time is not sent with the event, it will be set to the request upload time.',
+      type: 'string',
+      description: 'The timestamp of the event. If time is not sent with the event, it will be set to the request upload time.',
+      default: {'@path': '$.receivedAt'}
     },
     profileData: {
       label: 'Profile Data',
       type: 'object',
       description: 'Profile Data',
+      default: {'@path': '$.properties'}
     },
     identity: {
       label: 'Identity',
       type: 'string',
       description: 'Identity',
+      default: {'@path': '$.userId'},
+      required: true
     },
   },
 
 
   perform: (request, {settings, payload}) => {
-/*
-    const datetime = payload.ts
-    const time = datetime && dayjs.utc(datetime).isValid() ? dayjs.utc(datetime).valueOf() : Date.now()
-*/
-
     const event: ClevertapEvent = {
-      type: 'profile',
-      source: 'Segment',
+      type: type,
+      source: source,
       profileData: payload.profileData,
       identity: payload.identity,
-      ts:payload.ts
-    }
-    const mainEvent: MainEvent = {
-      "d": [event]
+      ts: payload.ts
     }
 
-    return request('https://api.clevertap.com/1/upload', {
+    return request(`${settings.clevertapEndpoint}/1/upload`, {
       method: 'post',
-      json: mainEvent,
+      json: {
+        "d": [event]
+      },
       headers: {
         "X-CleverTap-Account-Id": `${settings.clevertapAccountId}`,
         "X-CleverTap-Passcode": `${settings.clevertapPasscode}`

@@ -4,7 +4,7 @@ export interface Payload {
   /**
    * The timestamp of the event. If time is not sent with the event, it will be set to the request upload time.
    */
-  ts?: number
+  ts?: string
   /**
    * Profile Data
    */
@@ -14,5 +14,5 @@ export interface Payload {
   /**
    * Identity
    */
-  identity?: string
+  identity: string
 }

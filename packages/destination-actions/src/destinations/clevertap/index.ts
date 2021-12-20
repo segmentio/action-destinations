@@ -4,10 +4,10 @@ import type { Settings } from './generated-types'
 import userUpload from './userUpload'
 
 const destination: DestinationDefinition<Settings> = {
-  name: 'Clevertap ( Actions)',
+  name: 'Clevertap (Actions)',
   slug: 'actions-clevertap',
   mode: 'cloud',
-
+  description: 'Send events server-side to Clevertap',
   authentication: {
     scheme: 'custom',
     fields: {
@@ -22,8 +22,26 @@ const destination: DestinationDefinition<Settings> = {
         description: 'Your CleverTap Account Passcode.',
         type: 'string',
         required: true
-      }
+      },
+      clevertapEndpoint: {
+        label: 'REST Endpoint',
+        description: 'Your Clevertap REST endpoint. [See more details](https://docs.clevertap.com/docs)',
+        type: 'string',
+        format: 'uri',
+        choices: [
+          { label: 'SK', value: 'https://sk1.api.clevertap.com'},
+          { label: 'EU', value: 'https://eu1.api.clevertap.com'},
+          { label: 'US', value: 'https://us1.api.clevertap.com'},
+          { label: 'SG', value: 'https://sg1.api.clevertap.com'},
+          { label: 'IN', value: 'https://in1.api.clevertap.com'}
+        ],
+        default: 'https://sk1.api.clevertap.com',
+        required: true
+      },
     },
+    testAuthentication: () => {
+      return true
+    }
   },
 
   actions: {

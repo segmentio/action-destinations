@@ -9,4 +9,8 @@ export interface Settings {
    * Your CleverTap Account Passcode.
    */
   clevertapPasscode: string
+  /**
+   * Your Clevertap REST endpoint. [See more details](https://docs.clevertap.com/docs)
+   */
+  clevertapEndpoint: string
 }
