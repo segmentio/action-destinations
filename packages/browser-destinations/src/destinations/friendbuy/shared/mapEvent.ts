@@ -69,10 +69,11 @@ export function mapEvent(map: EventMap, analyticsPayload: AnalyticsPayload) {
   let friendbuyPayload: JSONObject = Object.assign({}, map.defaultObject)
 
   for (const [key, rawValue] of Object.entries(analyticsPayload)) {
-    const fieldMap = map.fields[key]
+    const fieldMap = typeof map.fields === 'object' && map.fields[key]
     if (!fieldMap) {
       // If the input field does not have a mapping move it to the unmapped
       // output field object if one is defined.
+      let value = rawValue
       if (isNonEmpty(rawValue)) {
         if (map.unmappedFieldObject) {
           let unmappedFieldObject = friendbuyPayload
@@ -82,9 +83,20 @@ export function mapEvent(map: EventMap, analyticsPayload: AnalyticsPayload) {
             } else {
               unmappedFieldObject = friendbuyPayload[map.unmappedFieldObject] as JSONObject
             }
+            // MAPI interface allows only string values in additional fields object.
+            switch (typeof rawValue) {
+              case 'string':
+                break
+              case 'object':
+                value = JSON.stringify(rawValue)
+                break
+              default:
+                value = rawValue.toString()
+                break
+            }
           }
 
-          unmappedFieldObject[key] = rawValue
+          unmappedFieldObject[key] = value
         }
       }
     } else if (fieldMap === DROP) {
