@@ -6,7 +6,7 @@ export interface Settings {
    */
   apiKey: string
   /**
-   * Cordial Segment integration endpoint. Leave default, unless you've been provided with another one
+   * Cordial API endpoint. Leave default, unless you've been provided with another one
    */
   endpoint: string
 }

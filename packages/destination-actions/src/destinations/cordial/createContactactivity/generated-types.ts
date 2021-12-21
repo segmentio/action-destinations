@@ -2,27 +2,21 @@
 
 export interface Payload {
   /**
-   * Segment User ID
+   * Property key by which Cordial contact should be identified. May be any primary or secondary key (e.g. cID, email, segment_id etc.)
    */
-  user_id: string
+  identifyByKey: string
   /**
-   * Segment Anonymous ID
+   * Value for defined key
    */
-  anonymous_id?: string
+  identifyByValue: string
   /**
    * Segment event name
    */
-  event: string
+  a: string
   /**
    * Segment event sentAt
    */
-  sentAt?: string | number
-  /**
-   * Segment event context
-   */
-  context?: {
-    [k: string]: unknown
-  }
+  time?: string | number
   /**
    * Segment event properties
    */

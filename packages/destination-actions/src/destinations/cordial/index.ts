@@ -1,10 +1,7 @@
 import type { DestinationDefinition } from '@segment/actions-core'
 import type { Settings } from './generated-types'
 
-import identify from './identify'
-import group from './group'
-import track from './track'
-import page from './page'
+import createContactactivity from './createContactactivity'
 
 const destination: DestinationDefinition<Settings> = {
   name: 'Cordial',
@@ -23,26 +20,14 @@ const destination: DestinationDefinition<Settings> = {
       },
       endpoint: {
         label: 'Endpoint',
-        description:
-          "Cordial Segment integration endpoint. Leave default, unless you've been provided with another one",
+        description: "Cordial API endpoint. Leave default, unless you've been provided with another one",
         type: 'string',
         required: true,
-        default: 'https://integrations.cordial.io/segment'
+        default: 'https://api.cordial.io'
       }
     },
     testAuthentication: (request, { settings }) => {
-      return request(settings.endpoint, {
-        username: settings.apiKey,
-        method: 'post',
-        throwHttpErrors: false
-      }).then((response) => {
-        return response?.status === 400 && response?.content === '{"message":"Incompatible type"}'
-          ? true
-          : Promise.reject({
-              message: response?.content ?? 'unknown error',
-              response: { status: response?.status ?? 'unknown status' }
-            })
-      });
+      return request(settings.endpoint + '/v2/health')
     }
   },
 
@@ -51,10 +36,7 @@ const destination: DestinationDefinition<Settings> = {
   },
 
   actions: {
-    identify,
-    group,
-    track,
-    page
+    createContactactivity
   }
 }
 

@@ -3,28 +3,23 @@ import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 
 const action: ActionDefinition<Settings, Payload> = {
-  title: 'Track',
-  description: 'Create Cordial ContactActivity',
-  defaultSubscription: 'type = "track"',
+  title: 'Create Contactactivity',
+  description: 'Create Cordial Contactactivity from Segment\'s track and page events',
+  defaultSubscription: 'type = "track" or type = "page"',
   fields: {
-    user_id: {
-      label: 'Segment ID',
-      description: 'Segment User ID',
+    identifyByKey: {
+      label: 'Contact IdentifyBy key',
+      description: 'Property key by which Cordial contact should be identified. May be any primary or secondary key (e.g. cID, email, segment_id etc.)',
       type: 'string',
       required: true,
-      default: {
-        '@path': '$.userId'
-      }
     },
-    anonymous_id: {
-      label: 'Anonymous ID',
-      description: 'Segment Anonymous ID',
+    identifyByValue: {
+      label: 'Contact IdentifyBy value',
+      description: 'Value for defined key',
       type: 'string',
-      default: {
-        '@path': '$.anonymousId'
-      }
+      required: true,
     },
-    event: {
+    a: {
       label: 'Event name',
       description: 'Segment event name',
       type: 'string',
@@ -33,20 +28,12 @@ const action: ActionDefinition<Settings, Payload> = {
         '@path': '$.event'
       }
     },
-    sentAt: {
+    time: {
       label: 'Event sentAt',
       description: 'Segment event sentAt',
       type: 'datetime',
       default: {
         '@path': '$.sentAt'
-      }
-    },
-    context: {
-      label: 'Event context',
-      description: 'Segment event context',
-      type: 'object',
-      default: {
-        '@path': '$.context'
       }
     },
     properties: {
@@ -59,8 +46,8 @@ const action: ActionDefinition<Settings, Payload> = {
     },
   },
   perform: (request, { settings, payload }) => {
-    const trackEndpoint = `${settings.endpoint}/track`;
-    return request(trackEndpoint, {
+    const contactactivityEndpoint = `${settings.endpoint}/v2/contactactivities`;
+    return request(contactactivityEndpoint, {
       method: 'post',
       json: payload
     });
