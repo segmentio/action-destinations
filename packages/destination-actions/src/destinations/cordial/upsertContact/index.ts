@@ -4,14 +4,31 @@ import type { Payload } from './generated-types'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Upsert Contact',
-  description: '',
-  fields: {},
-  perform: (request, data) => {
-    // Make your partner api request here!
-    // return request('https://example.com', {
-    //   method: 'post',
-    //   json: data.payload
-    // })
+  description: 'Upsert Cordial Contact from Segment\'s identify events',
+  defaultSubscription: 'type = "identify"',
+  fields: {
+    identifyByKey: {
+      label: 'Contact IdentifyBy key',
+      description: 'Property key by which Cordial contact should be identified. May be any primary or secondary key (e.g. cID, email, segment_id etc.)',
+      type: 'string',
+      required: true,
+    },
+    identifyByValue: {
+      label: 'Contact IdentifyBy value',
+      description: 'Value for defined key',
+      type: 'string',
+      required: true,
+    },
+  },
+  perform: (request, { settings, payload }) => {
+    return request(`${settings.endpoint}/v2/contacts`, {
+      method: 'post',
+      json: {
+        [payload.identifyByKey]: payload.identifyByValue,
+        identifyBy: [payload.identifyByKey],
+        request_source: "integration-segment"
+      }
+    });
   }
 }
 
