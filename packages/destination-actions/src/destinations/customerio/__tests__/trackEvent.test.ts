@@ -19,8 +19,14 @@ describe('CustomerIO', () => {
       const userId = 'abc123'
       const name = 'testEvent'
       const timestamp = dayjs.utc().toISOString()
+      const birthdate = dayjs.utc('1990-01-01T00:00:00Z').toISOString()
       const data = {
-        property1: 'this is a test'
+        property1: 'this is a test',
+        person: {
+          over18: true,
+          identification: 'valid',
+          birthdate
+        }
       }
       trackEventService.post(`/customers/${userId}/events`).reply(200, {}, { 'x-customerio-region': 'US' })
       const event = createTestEvent({
@@ -40,8 +46,14 @@ describe('CustomerIO', () => {
       expect(responses[0].data).toMatchObject({})
       expect(responses[0].options.json).toMatchObject({
         name,
-        data,
-        timestamp: dayjs.utc(timestamp).unix()
+        timestamp: dayjs.utc(timestamp).unix(),
+        data: {
+          ...data,
+          person: {
+            ...data.person,
+            birthdate: dayjs.utc(birthdate).unix()
+          }
+        }
       })
     })
 
@@ -106,7 +118,7 @@ describe('CustomerIO', () => {
       }
     })
 
-    it('should not convert tiemstamp to a unix timestamp when convert_timestamp is false', async () => {
+    it('should not convert dates to unix timestamps when convert_timestamp is false', async () => {
       const settings: Settings = {
         siteId: '12345',
         apiKey: 'abcde',
@@ -115,8 +127,14 @@ describe('CustomerIO', () => {
       const userId = 'abc123'
       const name = 'testEvent'
       const timestamp = dayjs.utc().toISOString()
+      const birthdate = dayjs.utc('1990-01-01T00:00:00Z').toISOString()
       const data = {
-        property1: 'this is a test'
+        property1: 'this is a test',
+        person: {
+          over18: true,
+          identification: 'valid',
+          birthdate
+        }
       }
       trackEventService.post(`/customers/${userId}/events`).reply(200, {}, { 'x-customerio-region': 'US' })
       const event = createTestEvent({

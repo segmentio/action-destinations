@@ -6,7 +6,7 @@ export interface Payload {
    */
   client_id: string
   /**
-   * Currency of the purchase or items associated with the event, in 3-letter ISO 4217 format.
+   * Currency of the items associated with the event, in 3-letter ISO 4217 format.
    */
   currency?: string
   /**
@@ -18,7 +18,7 @@ export interface Payload {
    */
   value?: number
   /**
-   * A product affiliation to designate a supplying company or brick and mortar store location.
+   * Store or affiliation from which this transaction occurred (e.g. Google Store).
    */
   affiliation?: string
   /**
@@ -26,7 +26,7 @@ export interface Payload {
    */
   coupon?: string
   /**
-   * Shipping cost associated with a transaction.
+   * Shipping cost associated with the transaction.
    */
   shipping?: number
   /**

@@ -66,6 +66,47 @@ describe('ajs-integration', () => {
     expect(updatedCtx?.event.integrations['Actions Amplitude']?.session_id).not.toBeUndefined()
   })
 
+  test('updates the original eveent when All: false but Actions Amplitude: true', async () => {
+    await sessionIdPlugin.load(Context.system(), ajs)
+
+    const ctx = new Context({
+      type: 'track',
+      event: 'greet',
+      properties: {
+        greeting: 'Oi!'
+      },
+      integrations: {
+        All: false,
+        'Actions Amplitude': true
+      }
+    })
+
+    const updatedCtx = await sessionIdPlugin.track?.(ctx)
+
+    // @ts-expect-error Need to fix ajs-next types to allow for complex objects in `integrations`
+    expect(updatedCtx?.event.integrations['Actions Amplitude']?.session_id).not.toBeUndefined()
+  })
+
+  test('doesnt update the original event with a session id when All: false', async () => {
+    await sessionIdPlugin.load(Context.system(), ajs)
+
+    const ctx = new Context({
+      type: 'track',
+      event: 'greet',
+      properties: {
+        greeting: 'Oi!'
+      },
+      integrations: {
+        All: false
+      }
+    })
+
+    const updatedCtx = await sessionIdPlugin.track?.(ctx)
+
+    // @ts-expect-error Need to fix ajs-next types to allow for complex objects in `integrations`
+    expect(updatedCtx?.event.integrations['Actions Amplitude']?.session_id).toBeUndefined()
+  })
+
   test('runs as an enrichment middleware', async () => {
     await ajs.register(sessionIdPlugin)
     jest.spyOn(sessionIdPlugin, 'track')

@@ -1,4 +1,5 @@
 import type { ActionDefinition } from '@segment/actions-core'
+import { getEndpointByRegion } from '../regional-endpoints'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 
@@ -34,7 +35,7 @@ const action: ActionDefinition<Settings, Payload> = {
   perform: (request, { payload, settings }) => {
     const { min_id_length } = payload
     const options = min_id_length && min_id_length > 0 ? JSON.stringify({ min_id_length }) : undefined
-    return request('https://api.amplitude.com/usermap', {
+    return request(getEndpointByRegion('usermap', settings.endpoint), {
       method: 'post',
       body: new URLSearchParams({
         api_key: settings.apiKey,
