@@ -58,10 +58,10 @@ export function mapEvent(map: EventMap, analyticsPayload: AnalyticsPayload) {
   // shape is wrong.
 
   // If the payload has a `friendbuyAttributes` attribute, copy its attributes
-  // to the root.
+  // to the root, but don't override any fields that already exist on the root.
   if (analyticsPayload.friendbuyAttributes) {
     if (typeof analyticsPayload.friendbuyAttributes === 'object') {
-      analyticsPayload = Object.assign({}, analyticsPayload, analyticsPayload.friendbuyAttributes)
+      analyticsPayload = Object.assign({}, analyticsPayload.friendbuyAttributes, analyticsPayload)
     }
     delete analyticsPayload.friendbuyAttributes
   }
