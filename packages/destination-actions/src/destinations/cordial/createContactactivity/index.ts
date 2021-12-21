@@ -46,10 +46,14 @@ const action: ActionDefinition<Settings, Payload> = {
     },
   },
   perform: (request, { settings, payload }) => {
-    const contactactivityEndpoint = `${settings.endpoint}/v2/contactactivities`;
-    return request(contactactivityEndpoint, {
+    return request(`${settings.endpoint}/v2/contactactivities`, {
       method: 'post',
-      json: payload
+      json: {
+        [payload.identifyByKey]: payload.identifyByValue,
+        a: payload.a,
+        time: payload.time,
+        properties: payload.properties,
+      }
     });
   }
 }

@@ -3,6 +3,8 @@ import type { Settings } from './generated-types'
 
 import createContactactivity from './createContactactivity'
 
+import upsertContact from './upsertContact'
+
 const destination: DestinationDefinition<Settings> = {
   name: 'Cordial',
   description: 'Sync Segment Users, Groups and Events to Cordial',
@@ -36,7 +38,8 @@ const destination: DestinationDefinition<Settings> = {
   },
 
   actions: {
-    createContactactivity
+    createContactactivity,
+    upsertContact
   }
 }
 
