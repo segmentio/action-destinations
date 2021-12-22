@@ -1,13 +1,13 @@
 import type { ActionDefinition } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
-import type { AnalyticsPayload, ConvertFun, EventMap } from '../shared/mapEvent'
+import type { AnalyticsPayload, ConvertFun, EventMap } from '@friendbuy/shared/mapEvent'
 
 import { createRequestParams, mapiUrl } from '../cloudUtil'
-import { contextFields } from '../shared/contextFields'
-import { COPY, DROP, mapEvent } from '../shared/mapEvent'
-import { trackSignUpFields } from '../shared/sharedSignUp'
-import { parseDate } from '../shared/util'
+import { contextFields } from '@friendbuy/shared/contextFields'
+import { COPY, DROP, mapEvent } from '@friendbuy/shared/mapEvent'
+import { trackSignUpFields } from '@friendbuy/shared/sharedSignUp'
+import { parseDate } from '@friendbuy/shared/util'
 
 const trackSignUpMapi: EventMap = {
   fields: {

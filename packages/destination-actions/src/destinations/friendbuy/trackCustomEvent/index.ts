@@ -1,13 +1,13 @@
 import type { ActionDefinition } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
-import type { EventMap } from '../shared/mapEvent'
+import type { EventMap } from '@friendbuy/shared/mapEvent'
 
 import { createRequestParams, mapiUrl } from '../cloudUtil'
-import { contextFields } from '../shared/contextFields'
-import { AnalyticsPayload, COPY, mapEvent } from '../shared/mapEvent'
-import { trackCustomEventFields } from '../shared/sharedCustomEvent'
-import { moveEventPropertiesToRoot } from '../shared/util'
+import { contextFields } from '@friendbuy/shared/contextFields'
+import { AnalyticsPayload, COPY, mapEvent } from '@friendbuy/shared/mapEvent'
+import { trackCustomEventFields } from '@friendbuy/shared/sharedCustomEvent'
+import { moveEventPropertiesToRoot } from '@friendbuy/shared/util'
 
 const trackCustomEventMapi: EventMap = {
   fields: {

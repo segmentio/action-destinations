@@ -54,7 +54,8 @@
     "moduleNameMapper": {
       "@segment/ajv-human-errors": "<rootDir>/../ajv-human-errors/src",
       "@segment/actions-core": "<rootDir>/../core/src",
-      "@segment/destination-subscriptions": "<rootDir>/../destination-subscriptions/src"
+      "@segment/destination-subscriptions": "<rootDir>/../destination-subscriptions/src",
+      "@friendbuy/shared(.*)": "<rootDir>/../browser-destinations/src/destinations/friendbuy/shared$1"
     },
     "setupFilesAfterEnv": [
       "<rootDir>/test/setup-after-env.ts"
