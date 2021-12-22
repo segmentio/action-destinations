@@ -37,7 +37,7 @@ class CordialClient {
       method: 'post',
       json: {
         [payload.identifyByKey]: payload.identifyByValue,
-        a: payload.a,
+        a: payload.action,
         time: payload.time,
         properties: payload.properties
       }

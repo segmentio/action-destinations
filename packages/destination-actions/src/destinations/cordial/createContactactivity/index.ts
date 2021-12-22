@@ -2,26 +2,15 @@ import type { ActionDefinition } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 import CordialClient from '../cordial-client'
+import { commonFields } from '../common-fields'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Create Contactactivity',
   description: "Create Cordial Contactactivity from Segment's track and page events",
   defaultSubscription: 'type = "track" or type = "page"',
   fields: {
-    identifyByKey: {
-      label: 'Contact IdentifyBy key',
-      description:
-        'Property key by which Cordial contact should be identified. May be any primary or secondary key (e.g. cID, email, segment_id etc.)',
-      type: 'string',
-      required: true
-    },
-    identifyByValue: {
-      label: 'Contact IdentifyBy value',
-      description: 'Value for defined key',
-      type: 'string',
-      required: true
-    },
-    a: {
+    ...commonFields,
+    action: {
       label: 'Event name',
       description: 'Segment event name',
       type: 'string',

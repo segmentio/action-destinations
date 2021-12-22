@@ -10,10 +10,7 @@ describe('Cordial.createContactactivity', () => {
     const event = createTestEvent()
 
     const mapping = {
-      identifyByKey: 'email',
-      identifyByValue: {
-        '@path': '$.userId'
-      }
+      identifyByKey: 'email'
     }
 
     const settings = {

@@ -35,10 +35,7 @@ describe(`Testing snapshot for ${destinationSlug}'s ${actionSlug} destination ac
     })
 
     const mapping = {
-      identifyByKey: 'email',
-      identifyByValue: {
-        '@path': '$.userId'
-      }
+      identifyByKey: 'email'
     }
 
     const responses = await testDestination.testAction(actionSlug, {
@@ -84,10 +81,7 @@ describe(`Testing snapshot for ${destinationSlug}'s ${actionSlug} destination ac
     })
 
     const mapping = {
-      identifyByKey: 'email',
-      identifyByValue: {
-        '@path': '$.userId'
-      }
+      identifyByKey: 'email'
     }
 
     const responses = await testDestination.testAction(actionSlug, {

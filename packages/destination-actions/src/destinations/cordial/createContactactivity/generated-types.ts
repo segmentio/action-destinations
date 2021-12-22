@@ -12,7 +12,7 @@ export interface Payload {
   /**
    * Segment event name
    */
-  a: string
+  action: string
   /**
    * Segment event sentAt
    */
