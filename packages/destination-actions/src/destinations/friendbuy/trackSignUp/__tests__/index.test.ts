@@ -56,6 +56,7 @@ describe('Friendbuy.trackSignUp', () => {
     expect(r[1].options.json).toEqual({
       customerId: userId,
       email,
+      isNewCustomer,
       loyaltyStatus,
       firstName,
       lastName,
@@ -64,12 +65,9 @@ describe('Friendbuy.trackSignUp', () => {
       userAgent: event?.context?.userAgent,
       additionalProperties: {
         ...friendbuyAttributes,
-        age,
+        // age, // dropped because not string
         anonymousId,
-        isNewCustomer,
-        name,
-        pageUrl: event?.context?.page?.url,
-        pageTitle: event?.context?.page?.title
+        name
       }
     })
   })

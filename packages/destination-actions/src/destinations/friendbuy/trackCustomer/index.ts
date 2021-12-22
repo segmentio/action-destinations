@@ -19,6 +19,7 @@ const trackCustomerMapi: EventMap = {
     category: COPY,
     firstName: COPY,
     lastName: COPY,
+    // name (unmapped)
     gender: COPY,
     age: COPY,
     birthday: { convert: parseDate as ConvertFun },

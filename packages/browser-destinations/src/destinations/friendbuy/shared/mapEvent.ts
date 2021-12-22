@@ -84,16 +84,7 @@ export function mapEvent(map: EventMap, analyticsPayload: AnalyticsPayload) {
               unmappedFieldObject = friendbuyPayload[map.unmappedFieldObject] as JSONObject
             }
             // MAPI interface allows only string values in additional fields object.
-            switch (typeof rawValue) {
-              case 'string':
-                break
-              case 'object':
-                value = JSON.stringify(rawValue)
-                break
-              default:
-                value = rawValue.toString()
-                break
-            }
+            value = stringify(rawValue)
           }
 
           unmappedFieldObject[key] = value
@@ -147,4 +138,15 @@ export function mapEvent(map: EventMap, analyticsPayload: AnalyticsPayload) {
   }
 
   return isNonEmpty(friendbuyPayload) ? friendbuyPayload : undefined
+}
+
+export function stringify(rawValue: JSONValue) {
+  switch (typeof rawValue) {
+    case 'string':
+      return rawValue
+    case 'object':
+      return JSON.stringify(rawValue)
+    default:
+      return rawValue.toString()
+  }
 }

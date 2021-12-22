@@ -5,7 +5,7 @@ import type { AnalyticsPayload, ConvertFun, EventMap } from '../shared/mapEvent'
 
 import { createRequestParams, mapiUrl } from '../cloudUtil'
 import { contextFields } from '../shared/contextFields'
-import { COPY, mapEvent } from '../shared/mapEvent'
+import { COPY, DROP, mapEvent } from '../shared/mapEvent'
 import { trackSignUpFields } from '../shared/sharedSignUp'
 import { parseDate } from '../shared/util'
 
@@ -19,18 +19,19 @@ const trackSignUpMapi: EventMap = {
     customerId: COPY,
     // anonymousID (unmapped)
     email: COPY,
-    // isNewCustomer (unmapped)
+    isNewCustomer: COPY,
     loyaltyStatus: COPY,
     firstName: COPY,
     lastName: COPY,
-    // age (unmapped)
+    // name (unmapped)
+    age: DROP,
     birthday: { convert: parseDate as ConvertFun },
 
     // CONTEXT FIELDS
     ipAddress: COPY,
-    userAgent: COPY
-    // pageUrl (unmapped)
-    // pageTitle (unmapped)
+    userAgent: COPY,
+    pageUrl: DROP,
+    pageTitle: DROP
   },
   unmappedFieldObject: 'additionalProperties'
 }

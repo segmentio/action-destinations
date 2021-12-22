@@ -1,14 +1,13 @@
 import type { ActionDefinition } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
-import type { AnalyticsPayload, ConvertFun, EventMap } from '../shared/mapEvent'
+import type { AnalyticsPayload, EventMap } from '../shared/mapEvent'
 
 import { createRequestParams, mapiUrl } from '../cloudUtil'
 import { commonCustomerFields } from '../shared/commonFields'
 import { contextFields } from '../shared/contextFields'
-import { COPY, mapEvent } from '../shared/mapEvent'
+import { COPY, DROP, mapEvent } from '../shared/mapEvent'
 import { trackPurchaseFields } from '../shared/sharedPurchase'
-import { parseDate } from '../shared/util'
 
 const trackPurchaseMapi: EventMap = {
   fields: {
@@ -18,7 +17,7 @@ const trackPurchaseMapi: EventMap = {
     coupon: { name: 'couponCode' },
     attributionId: COPY,
     referralCode: COPY,
-    // giftCardCodes (unmapped)
+    giftCardCodes: COPY,
 
     products: {
       type: 'array',
@@ -41,16 +40,17 @@ const trackPurchaseMapi: EventMap = {
     email: COPY,
     firstName: COPY,
     lastName: COPY,
+    // name (unmapped)
     isNewCustomer: COPY,
-    loyaltyStatus: COPY,
-    age: COPY,
-    birthday: { name: ['additionalProperties', 'birthday'], convert: parseDate as ConvertFun },
+    // loyaltyStatus (unmapped)
+    age: DROP, // currently not handled properly at root or in additionalProperties
+    birthday: DROP, // currently not handled properly at root or in additionalProperties
 
     // Context fields.
     ipAddress: COPY,
-    userAgent: COPY
-    // pageUrl (unmapped)
-    // pageTitle (unmapped)
+    userAgent: COPY,
+    pageUrl: DROP,
+    pageTitle: DROP
   },
   unmappedFieldObject: 'additionalProperties'
 }

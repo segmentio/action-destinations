@@ -24,8 +24,9 @@ describe('Friendbuy.trackPurchase', () => {
     const currency = 'USD'
     const anonymousId = 'fda703c1-ea45-4198-87bc-2e769437352a'
     const coupon = 'coupon-xyzzy'
-    const giftCardCodes = ['card-a', 'card-b']
+    const attributionId = '2d3dafb7-2e1c-42bd-bcad-1eeb22445178'
     const referralCode = 'ref-plugh'
+    const giftCardCodes = ['card-a', 'card-b']
     const email = 'john.doe@example.com'
     const isNewCustomer = false
     const loyaltyStatus = 'out'
@@ -45,6 +46,7 @@ describe('Friendbuy.trackPurchase', () => {
         total: amount,
         currency,
         coupon,
+        attributionId,
         giftCardCodes,
         products: products as JSONValue,
         email,
@@ -55,7 +57,7 @@ describe('Friendbuy.trackPurchase', () => {
         name,
         age,
         birthday,
-        friendbuyAttributes: { referralCode }
+        friendbuyAttributes: { attributionId, referralCode }
       },
       timestamp: '2021-10-05T15:30:35Z'
     })
@@ -75,24 +77,23 @@ describe('Friendbuy.trackPurchase', () => {
       amount,
       currency,
       couponCode: coupon,
+      attributionId,
       referralCode,
+      giftCardCodes,
       customerId: userId,
       email,
       isNewCustomer,
-      loyaltyStatus,
       firstName,
       lastName,
-      age,
       products: expectedProducts,
       ipAddress: event?.context?.ip,
       userAgent: event?.context?.userAgent,
       additionalProperties: {
+        // age, // dropped because not string.
         anonymousId,
-        giftCardCodes,
         name,
-        birthday: { month: 12, day: 25 },
-        pageUrl: event?.context?.page?.url,
-        pageTitle: event?.context?.page?.title
+        // birthday: { month: 12, day: 25 }, // dropped because not string.
+        loyaltyStatus
       }
     })
   })
