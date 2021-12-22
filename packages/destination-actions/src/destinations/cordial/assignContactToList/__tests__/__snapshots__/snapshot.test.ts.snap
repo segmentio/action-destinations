@@ -2,9 +2,9 @@
 
 exports[`Testing snapshot for Cordial's assignContactToList destination action: default fields, group id only 1`] = `
 Object {
-  "channels.email.address": "user1234",
+  "email": "user1234",
   "identifyBy": Array [
-    "channels.email.address",
+    "email",
   ],
   "segment_test-group": true,
 }
@@ -12,9 +12,9 @@ Object {
 
 exports[`Testing snapshot for Cordial's assignContactToList destination action: default fields, group name 1`] = `
 Object {
-  "channels.email.address": "user1234",
+  "email": "user1234",
   "identifyBy": Array [
-    "channels.email.address",
+    "email",
   ],
   "segment_test-group": true,
 }

@@ -22,7 +22,7 @@ describe('Cordial.removeContactFromList', () => {
     const event = createTestEvent({ groupId: 'test group' })
 
     const mapping = {
-      identifyByKey: 'channels.email.address',
+      identifyByKey: 'email',
       identifyByValue: {
         '@path': '$.userId'
       }

@@ -54,13 +54,13 @@ describe(`Testing snapshot for ${destinationSlug}'s ${actionSlug} destination ac
       .reply(200, {})
     nock(/.*/)
       .get(/\/.*\/accountcontactattributes/)
-      .reply(200, [
-        {
+      .reply(200, {
+        testType: {
           name: 'test type',
           key: 'testType',
           type: 'string'
         }
-      ])
+      })
 
     const event = createTestEvent({
       properties: eventData
@@ -94,23 +94,23 @@ describe(`Testing snapshot for ${destinationSlug}'s ${actionSlug} destination ac
       .reply(200, {})
     nock(/.*/)
       .get(/\/.*\/accountcontactattributes/)
-      .reply(200, [
-        {
+      .reply(200, {
+        attribute1: {
           name: 'Attribute 1',
           key: 'attribute1',
           type: 'string'
         },
-        {
+        attribute2: {
           name: 'Attribute 2',
           key: 'attribute2',
           type: 'string'
         },
-        {
+        attribute3: {
           name: 'Attribute 3',
           key: 'attribute3',
           type: 'string'
         }
-      ])
+      })
 
     const event = createTestEvent({
       traits: {
@@ -121,7 +121,7 @@ describe(`Testing snapshot for ${destinationSlug}'s ${actionSlug} destination ac
     })
 
     const mapping = {
-      identifyByKey: 'channels.email.address',
+      identifyByKey: 'email',
       identifyByValue: {
         '@path': '$.userId'
       }

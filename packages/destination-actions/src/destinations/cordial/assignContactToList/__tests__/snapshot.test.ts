@@ -35,7 +35,7 @@ describe(`Testing snapshot for ${destinationSlug}'s ${actionSlug} destination ac
     })
 
     const mapping = {
-      identifyByKey: 'channels.email.address',
+      identifyByKey: 'email',
       identifyByValue: {
         '@path': '$.userId'
       }
@@ -84,7 +84,7 @@ describe(`Testing snapshot for ${destinationSlug}'s ${actionSlug} destination ac
     })
 
     const mapping = {
-      identifyByKey: 'channels.email.address',
+      identifyByKey: 'email',
       identifyByValue: {
         '@path': '$.userId'
       }

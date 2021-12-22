@@ -22,7 +22,7 @@ describe('Cordial.assignContactToList', () => {
     const event = createTestEvent({ groupId: 'test group' })
 
     const mapping = {
-      identifyByKey: 'channels.email.address',
+      identifyByKey: 'email',
       identifyByValue: {
         '@path': '$.userId'
       }

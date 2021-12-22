@@ -137,11 +137,11 @@ class CordialClient {
     const attributes: ContactAttributes = {}
     const availableAttributes = await this.getAttributes()
 
-    for (const attribute of availableAttributes) {
-      if (attribute.key in segmentAttributes) {
-        const value = segmentAttributes[attribute.key]
+    for (const key in availableAttributes) {
+      if (key in segmentAttributes) {
+        const value = segmentAttributes[key]
         if (typeof value !== 'object') {
-          attributes[attribute.key] = value
+          attributes[key] = value
         }
       }
     }
@@ -149,8 +149,8 @@ class CordialClient {
     return attributes
   }
 
-  protected async getAttributes(): Promise<Array<Attribute>> {
-    const response = await this.request<Array<Attribute>>(`${this.apiUrl}/accountcontactattributes`, {
+  protected async getAttributes(): Promise<{ [key: string]: Attribute }> {
+    const response = await this.request<{ [key: string]: Attribute }>(`${this.apiUrl}/accountcontactattributes`, {
       method: 'get'
     })
 

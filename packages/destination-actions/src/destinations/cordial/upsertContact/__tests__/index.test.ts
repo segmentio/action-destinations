@@ -16,7 +16,7 @@ describe('Cordial.upsertContact', () => {
     const event = createTestEvent()
 
     const mapping = {
-      identifyByKey: 'channels.email.address',
+      identifyByKey: 'email',
       identifyByValue: {
         '@path': '$.userId'
       }
