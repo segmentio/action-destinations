@@ -10,9 +10,11 @@ export interface Payload {
    */
   identifyByValue: string
   /**
-   * Contact Attributes
+   * Segment Group ID
    */
-  attributes?: {
-    [k: string]: unknown
-  }
+  groupId: string
+  /**
+   * Cordial List Name
+   */
+  listName?: string
 }

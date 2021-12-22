@@ -2,8 +2,9 @@ import type { DestinationDefinition } from '@segment/actions-core'
 import type { Settings } from './generated-types'
 
 import createContactactivity from './createContactactivity'
-
 import upsertContact from './upsertContact'
+import assignContactToList from './assignContactToList'
+import removeContactFromList from './removeContactFromList'
 
 const destination: DestinationDefinition<Settings> = {
   name: 'Cordial',
@@ -25,6 +26,7 @@ const destination: DestinationDefinition<Settings> = {
         description: "Cordial API endpoint. Leave default, unless you've been provided with another one",
         type: 'string',
         required: true,
+        format: 'uri',
         default: 'https://api.cordial.io'
       }
     },
@@ -39,7 +41,9 @@ const destination: DestinationDefinition<Settings> = {
 
   actions: {
     createContactactivity,
-    upsertContact
+    upsertContact,
+    assignContactToList,
+    removeContactFromList
   }
 }
 

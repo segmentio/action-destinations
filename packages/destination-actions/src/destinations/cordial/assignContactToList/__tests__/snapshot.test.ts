@@ -4,48 +4,12 @@ import destination from '../../index'
 import nock from 'nock'
 
 const testDestination = createTestIntegration(destination)
-const actionSlug = 'upsertContact'
+const actionSlug = 'assignContactToList'
 const destinationSlug = 'Cordial'
 const seedName = `${destinationSlug}#${actionSlug}`
 
 describe(`Testing snapshot for ${destinationSlug}'s ${actionSlug} destination action:`, () => {
-  it('required fields', async () => {
-    const action = destination.actions[actionSlug]
-    const [eventData, settingsData] = generateTestData(seedName, destination, action, true)
-
-    nock(/.*/)
-      .post(/\/.*\/contacts/)
-      .reply(200, {})
-    nock(/.*/)
-      .get(/\/.*\/accountcontactattributes/)
-      .reply(200, [])
-
-    const event = createTestEvent({
-      properties: eventData
-    })
-
-    const responses = await testDestination.testAction(actionSlug, {
-      event: event,
-      mapping: event.properties,
-      settings: settingsData,
-      auth: undefined
-    })
-
-    const request = responses[0].request
-    const rawBody = await request.text()
-
-    try {
-      const json = JSON.parse(rawBody)
-      expect(json).toMatchSnapshot()
-      return
-    } catch (err) {
-      expect(rawBody).toMatchSnapshot()
-    }
-
-    expect(request.headers).toMatchSnapshot()
-  })
-
-  it('all fields', async () => {
+  it('default fields, group name', async () => {
     const action = destination.actions[actionSlug]
     const [eventData, settingsData] = generateTestData(seedName, destination, action, false)
 
@@ -53,23 +17,35 @@ describe(`Testing snapshot for ${destinationSlug}'s ${actionSlug} destination ac
       .post(/\/.*\/contacts/)
       .reply(200, {})
     nock(/.*/)
-      .get(/\/.*\/accountcontactattributes/)
+      .get(/\/.*\/accountlists/)
       .reply(200, [
         {
-          name: 'test type',
-          key: 'testType',
-          type: 'string'
+          id: 123,
+          name: 'segment_test-group',
+          segment_group_id: 'group1234'
         }
       ])
 
     const event = createTestEvent({
-      properties: eventData
+      properties: eventData,
+      groupId: 'group1234',
+      traits: {
+        name: 'test group'
+      }
     })
 
+    const mapping = {
+      identifyByKey: 'channels.email.address',
+      identifyByValue: {
+        '@path': '$.userId'
+      }
+    }
+
     const responses = await testDestination.testAction(actionSlug, {
-      event: event,
-      mapping: event.properties,
+      event,
+      mapping,
       settings: settingsData,
+      useDefaultMappings: true,
       auth: undefined
     })
 
@@ -85,39 +61,26 @@ describe(`Testing snapshot for ${destinationSlug}'s ${actionSlug} destination ac
     }
   })
 
-  it('skip objects', async () => {
+  it('default fields, group id only', async () => {
     const action = destination.actions[actionSlug]
-    const [, settingsData] = generateTestData(seedName, destination, action, true)
+    const [eventData, settingsData] = generateTestData(seedName, destination, action, false)
 
     nock(/.*/)
       .post(/\/.*\/contacts/)
       .reply(200, {})
     nock(/.*/)
-      .get(/\/.*\/accountcontactattributes/)
+      .get(/\/.*\/accountlists/)
       .reply(200, [
         {
-          name: 'Attribute 1',
-          key: 'attribute1',
-          type: 'string'
-        },
-        {
-          name: 'Attribute 2',
-          key: 'attribute2',
-          type: 'string'
-        },
-        {
-          name: 'Attribute 3',
-          key: 'attribute3',
-          type: 'string'
+          id: 123,
+          name: 'segment_test-group',
+          segment_group_id: 'group1234'
         }
       ])
 
     const event = createTestEvent({
-      traits: {
-        attribute1: 'string',
-        attribute2: { foo: 'bar' },
-        attribute3: [1, 2, 3]
-      }
+      properties: eventData,
+      groupId: 'group1234'
     })
 
     const mapping = {

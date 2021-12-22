@@ -4,16 +4,22 @@ import Destination from '../../index'
 
 const testDestination = createTestIntegration(Destination)
 
-describe('Cordial.upsertContact', () => {
+describe('Cordial.assignContactToList', () => {
   it('should work with default mappings', async () => {
     nock(/.*/)
       .post(/\/.*\/contacts/)
       .reply(200, {})
     nock(/.*/)
-      .get(/\/.*\/accountcontactattributes/)
-      .reply(200, [])
+      .get(/\/.*\/accountlists/)
+      .reply(200, [
+        {
+          id: 123,
+          name: 'segment_test-group',
+          segment_group_id: 'test group'
+        }
+      ])
 
-    const event = createTestEvent()
+    const event = createTestEvent({ groupId: 'test group' })
 
     const mapping = {
       identifyByKey: 'channels.email.address',
@@ -27,7 +33,7 @@ describe('Cordial.upsertContact', () => {
       endpoint: 'https://api.cordial.io' as const
     }
 
-    const responses = await testDestination.testAction('upsertContact', {
+    const responses = await testDestination.testAction('assignContactToList', {
       event,
       mapping,
       settings,

@@ -1,23 +1,25 @@
 import type { ActionDefinition } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
+import CordialClient from '../cordial-client'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Create Contactactivity',
-  description: 'Create Cordial Contactactivity from Segment\'s track and page events',
+  description: "Create Cordial Contactactivity from Segment's track and page events",
   defaultSubscription: 'type = "track" or type = "page"',
   fields: {
     identifyByKey: {
       label: 'Contact IdentifyBy key',
-      description: 'Property key by which Cordial contact should be identified. May be any primary or secondary key (e.g. cID, email, segment_id etc.)',
+      description:
+        'Property key by which Cordial contact should be identified. May be any primary or secondary key (e.g. cID, email, segment_id etc.)',
       type: 'string',
-      required: true,
+      required: true
     },
     identifyByValue: {
       label: 'Contact IdentifyBy value',
       description: 'Value for defined key',
       type: 'string',
-      required: true,
+      required: true
     },
     a: {
       label: 'Event name',
@@ -43,18 +45,11 @@ const action: ActionDefinition<Settings, Payload> = {
       default: {
         '@path': '$.properties'
       }
-    },
+    }
   },
   perform: (request, { settings, payload }) => {
-    return request(`${settings.endpoint}/v2/contactactivities`, {
-      method: 'post',
-      json: {
-        [payload.identifyByKey]: payload.identifyByValue,
-        a: payload.a,
-        time: payload.time,
-        properties: payload.properties,
-      }
-    });
+    const client = new CordialClient(settings, request)
+    return client.addContactActivity(payload)
   }
 }
 

@@ -5,9 +5,9 @@ import CordialClient from '../cordial-client'
 import { getUserIdentifier } from '../user-identifier'
 
 const action: ActionDefinition<Settings, Payload> = {
-  title: 'Upsert Contact',
-  description: "Upsert Cordial Contact from Segment's identify events",
-  defaultSubscription: 'type = "identify"',
+  title: 'Assign Contact to List',
+  description: 'Assign Contact to Cordial List',
+  defaultSubscription: 'type = "group"',
   fields: {
     identifyByKey: {
       label: 'Contact IdentifyBy key',
@@ -22,21 +22,33 @@ const action: ActionDefinition<Settings, Payload> = {
       type: 'string',
       required: true
     },
-    attributes: {
-      label: 'Contact Attributes',
-      description: 'Contact Attributes',
-      type: 'object',
-      required: false,
+    groupId: {
+      label: 'Group ID',
+      description: 'Segment Group ID',
+      type: 'string',
+      required: true,
       default: {
-        '@path': '$.traits'
+        '@path': '$.groupId'
+      }
+    },
+    listName: {
+      label: 'List Name',
+      description: 'Cordial List Name',
+      type: 'string',
+      default: {
+        '@if': {
+          exists: { '@path': '$.traits.name' },
+          then: { '@path': '$.traits.name' },
+          else: { '@path': '$.groupId' }
+        }
       }
     }
   },
   perform: async (request, { settings, payload }) => {
     const client = new CordialClient(settings, request)
-    const attributes = payload.attributes ? await client.transformAttributes(payload.attributes) : undefined
+    const list = await client.upsertList(payload.groupId, payload.listName)
     const userIdentifier = getUserIdentifier(payload.identifyByKey, payload.identifyByValue)
-    return client.upsertContact(userIdentifier, attributes)
+    return client.addContactToList(userIdentifier, list)
   }
 }
 
