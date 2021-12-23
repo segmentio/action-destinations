@@ -4,7 +4,7 @@ import destination from '../../index'
 import nock from 'nock'
 
 const testDestination = createTestIntegration(destination)
-const actionSlug = 'assignContactToList'
+const actionSlug = 'addContactToList'
 const destinationSlug = 'Cordial'
 const seedName = `${destinationSlug}#${actionSlug}`
 

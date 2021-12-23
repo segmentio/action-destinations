@@ -133,13 +133,13 @@ class CordialClient {
     })
   }
 
-  async transformAttributes(segmentAttributes: { [key: string]: any }): Promise<ContactAttributes> {
+  async transformAttributes(rawAttributes: { [key: string]: any }): Promise<ContactAttributes> {
     const attributes: ContactAttributes = {}
     const availableAttributes = await this.getAttributes()
 
     for (const key in availableAttributes) {
-      if (key in segmentAttributes) {
-        const value = segmentAttributes[key]
+      if (key in rawAttributes) {
+        const value = rawAttributes[key]
         if (typeof value !== 'object') {
           attributes[key] = value
         }

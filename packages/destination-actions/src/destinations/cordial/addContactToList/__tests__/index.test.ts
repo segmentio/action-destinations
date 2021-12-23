@@ -4,7 +4,7 @@ import Destination from '../../index'
 
 const testDestination = createTestIntegration(Destination)
 
-describe('Cordial.assignContactToList', () => {
+describe('Cordial.addContactToList', () => {
   it('should work with default mappings', async () => {
     nock(/.*/)
       .post(/\/.*\/contacts/)
@@ -30,7 +30,7 @@ describe('Cordial.assignContactToList', () => {
       endpoint: 'https://api.cordial.io' as const
     }
 
-    const responses = await testDestination.testAction('assignContactToList', {
+    const responses = await testDestination.testAction('addContactToList', {
       event,
       mapping,
       settings,

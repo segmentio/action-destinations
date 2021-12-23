@@ -3,7 +3,7 @@ import type { Settings } from './generated-types'
 
 import createContactactivity from './createContactactivity'
 import upsertContact from './upsertContact'
-import assignContactToList from './assignContactToList'
+import addContactToList from './addContactToList'
 import removeContactFromList from './removeContactFromList'
 
 const destination: DestinationDefinition<Settings> = {
@@ -42,7 +42,7 @@ const destination: DestinationDefinition<Settings> = {
   actions: {
     createContactactivity,
     upsertContact,
-    assignContactToList,
+    addContactToList,
     removeContactFromList
   }
 }

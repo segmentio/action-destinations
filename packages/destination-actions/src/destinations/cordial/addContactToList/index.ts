@@ -6,8 +6,8 @@ import { getUserIdentifier } from '../user-identifier'
 import { commonFields } from '../common-fields'
 
 const action: ActionDefinition<Settings, Payload> = {
-  title: 'Assign Contact to List',
-  description: 'Assign Contact to Cordial List',
+  title: 'Add Contact to List',
+  description: 'Add Contact to Cordial List',
   defaultSubscription: 'type = "group"',
   fields: {
     ...commonFields,
