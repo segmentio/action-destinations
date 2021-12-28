@@ -2,9 +2,9 @@
 
 export interface Payload {
   /**
-   * CRUD
+   * Operation
    */
-  crud: string
+  operation: string
   /**
    * External ID Value
    */
@@ -17,6 +17,10 @@ export interface Payload {
    * Last Name
    */
   last_name: string
+  /**
+   * First Name
+   */
+  first_name?: string
   /**
    * Email
    */
@@ -41,8 +45,4 @@ export interface Payload {
    * State
    */
   state?: string
-  /**
-   * First Name
-   */
-  first_name?: string
 }

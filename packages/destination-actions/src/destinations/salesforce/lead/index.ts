@@ -7,16 +7,12 @@ const action: ActionDefinition<Settings, Payload> = {
   title: 'Lead',
   description: 'Lead action',
   fields: {
-    crud: {
-      label: 'CRUD Operation',
-      description: 'CRUD',
+    operation: {
+      label: 'Operation',
+      description: 'Operation',
       type: 'string',
       required: true,
-      choices: [
-        { label: 'Create', value: 'create' },
-        { label: 'Update', value: 'update' },
-        { label: 'Upsert', value: 'upsert' }
-      ]
+      choices: [{ label: 'Create', value: 'create' }]
     },
     external_id_value: {
       label: 'External ID Value',
@@ -34,6 +30,11 @@ const action: ActionDefinition<Settings, Payload> = {
       description: 'Last Name',
       type: 'string',
       required: true
+    },
+    first_name: {
+      label: 'First Name',
+      description: 'First Name',
+      type: 'string'
     },
     email: {
       label: 'Email',
@@ -64,15 +65,10 @@ const action: ActionDefinition<Settings, Payload> = {
       label: 'State',
       description: 'State',
       type: 'string'
-    },
-    first_name: {
-      label: 'First Name',
-      description: 'First Name',
-      type: 'string'
     }
   },
   perform: (request, { settings, payload }) => {
-    if (payload.crud === 'create') {
+    if (payload.operation === 'create') {
       return request(`${settings.instanceUrl}/services/data/${API_VERSION}/sobjects/Lead`, {
         method: 'post',
         json: {
@@ -87,10 +83,6 @@ const action: ActionDefinition<Settings, Payload> = {
           Email: payload.email
         }
       })
-    } else if (payload.crud === 'update') {
-      return
-    } else if (payload.crud === 'upsert') {
-      return
     }
   }
 }
