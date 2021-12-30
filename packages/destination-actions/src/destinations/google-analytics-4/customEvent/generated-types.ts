@@ -10,6 +10,10 @@ export interface Payload {
    */
   name: string
   /**
+   * If set to true, event name will be converted to lowercase before sending to Google.
+   */
+  lowercase?: boolean
+  /**
    * The event parameters to send to Google
    */
   params?: {
