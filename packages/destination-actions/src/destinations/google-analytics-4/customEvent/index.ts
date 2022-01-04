@@ -2,14 +2,17 @@ import type { ActionDefinition } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 import { client_id } from '../ga4-properties'
-const normalize_event_name = (name: string, lowercase: boolean): string => {
+
+const normalize_event_name = (name: string, lowercase: boolean | undefined): string => {
+  name = name.trim()
   name = name.replace(/\s/g, '_')
 
-  if (lowercase === true) {
+  if (lowercase) {
     name = name.toLowerCase()
   }
   return name
 }
+
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Custom Event',
   description: 'Send any custom event',
@@ -40,7 +43,7 @@ const action: ActionDefinition<Settings, Payload> = {
     }
   },
   perform: (request, { payload }) => {
-    const event_name = normalize_event_name(payload.name, payload.lowercase ? payload.lowercase : false)
+    const event_name = normalize_event_name(payload.name, payload.lowercase)
     return request('https://www.google-analytics.com/mp/collect', {
       method: 'POST',
       json: {

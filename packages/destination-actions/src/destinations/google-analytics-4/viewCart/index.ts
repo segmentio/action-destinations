@@ -27,14 +27,21 @@ const action: ActionDefinition<Settings, Payload> = {
       throw new IntegrationError('Currency is required if value is set.', 'Misconfigured required field', 400)
     }
 
+    console.log('30')
     //Currency must exist either as a param or in the first item in items.
-    if (payload.currency === undefined && payload.items && payload.items[0].currency === undefined) {
+    if (
+      payload.currency === undefined &&
+      payload.items &&
+      payload.items[0] &&
+      payload.items[0].currency === undefined
+    ) {
       throw new IntegrationError(
         'One of item-level currency or top-level currency is required.',
         'Misconfigured required field',
         400
       )
     }
+    console.log('39')
 
     let googleItems: ProductItem[] = []
 

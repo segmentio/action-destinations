@@ -219,7 +219,7 @@ describe('GA4', () => {
         .reply(201, {})
 
       const event = createTestEvent({
-        event: 'Order Completed',
+        event: '         Order Completed ',
         userId: '3456fff',
         anonymousId: 'anon-567890',
         type: 'track'
