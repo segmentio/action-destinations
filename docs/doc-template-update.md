@@ -5,19 +5,21 @@ hide-boilerplate: true
 hide-dossier: true
 ---
 
+<!-- This template is meant for Actions-based destinations that represent a new version of an existing, or Classic Segment destination. For new Actions-based destinations, see the doc-template-new.md template -->
+
 <!-- In the section above, edit the `title` field. For example, Slack (Actions) Destination -->
 
 {% include content/plan-grid.md name="actions" %}
 
 <!-- Include a brief description of the destination here, along with a link to your website. -->
 
-
 <!-- In the section below, add your destination name where indicated. If you have a classic version of the destination, ensure that its documentation is linked as well. If you don't have a classic version of the destination, remove the second and third sentences. -->
 
 > success ""
 > **Good to know**: This page is about the [Actions-framework](/docs/connections/destinations/actions/) <destination_name> Segment destination. There's also a page about the [non-Actions <destination_name> destination](/docs/connections/destinations/catalog/<destination_name>/). Both of these destinations receives data from Segment.
 
-<!-- This include describes the requirement of A.js 2.0 or higher for Actions compatibility. Do not remove -->
+<!-- This include describes the requirement of A.js 2.0 or higher for Actions compatibility, and is required if your destination has a web component. -->
+
 {% include content/ajs-upgrade.md %}
 
 <!-- In the section below, explain the value of this actions-based destination over the classic version, if applicable. If you don't have a classic version of the destination, remove this section. -->
@@ -42,9 +44,14 @@ hide-dossier: true
 
 {% include components/actions-fields.html %}
 
+<!--
+Additional Context
+
+Include additional information that you think will be useful to the user here. For information that is specific to an individual mapping, please add that as a comment so that the Segment docs team can include it in the auto-generated content for that mapping.
+-->
+
 <!-- If applicable, add information regarding the migration from a classic destination to an Actions-based version below -->
 
 ## Migration from the classic <destination_name> destination
 
 <!-- Include any pertinent information here. -->
-
