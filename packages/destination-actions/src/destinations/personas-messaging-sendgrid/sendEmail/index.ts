@@ -2,6 +2,25 @@ import { ActionDefinition, IntegrationError, RequestOptions } from '@segment/act
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 import Mustache from 'mustache'
+import cheerio from 'cheerio'
+import { htmlEscape } from 'escape-goat'
+
+const insertEmailPreviewText = (html: string, previewText: string): string => {
+  const $ = cheerio.load(html)
+
+  // See https://www.litmus.com/blog/the-little-known-preview-text-hack-you-may-want-to-use-in-every-email/
+  $('body').prepend(`
+    <div style="display: none; max-height: 0px; overflow: hidden;">
+      ${htmlEscape(previewText)}
+    </div>
+
+    <div style="display: none; max-height: 0px; overflow: hidden;">
+      ${'&nbsp;&zwnj;'.repeat(13)}&nbsp;
+    </div>
+  `)
+
+  return $.html()
+}
 
 // These profile calls will be removed when Profile sync can fetch external_id
 const getProfileApiEndpoint = (environment: string): string => {
@@ -66,6 +85,36 @@ const isRestrictedDomain = (email: string): boolean => {
 
   const domain = matches[1]
   return restricted.includes(domain)
+}
+
+interface UnlayerResponse {
+  success: boolean
+  data: {
+    html: string
+    chunks: {
+      css: string
+      js: string
+      fonts: string[]
+      body: string
+    }
+  }
+}
+
+const generateEmailHtml = async (request: RequestFn, apiKey: string, design: string): Promise<string> => {
+  const response = await request('https://api.unlayer.com/v2/export/html', {
+    method: 'POST',
+    headers: {
+      authorization: `Basic ${Buffer.from(`${apiKey}:`).toString('base64')}`,
+      'content-type': 'application/json'
+    },
+    body: JSON.stringify({
+      displayMode: 'email',
+      design: JSON.parse(design)
+    })
+  })
+
+  const body = await response.json()
+  return (body as UnlayerResponse).data.html
 }
 
 interface Profile {
@@ -144,7 +193,6 @@ const action: ActionDefinition<Settings, Payload> = {
       label: 'Preview Text',
       description: 'Preview Text',
       type: 'string',
-      required: true
     },
     subject: {
       label: 'Subject',
@@ -155,8 +203,12 @@ const action: ActionDefinition<Settings, Payload> = {
     body: {
       label: 'Body',
       description: 'The message body',
-      type: 'text',
-      required: true
+      type: 'text'
+    },
+    bodyUrl: {
+      label: 'Body URL',
+      description: 'URL to the message body',
+      type: 'text'
     },
     bodyType: {
       label: 'Body Type',
@@ -167,8 +219,7 @@ const action: ActionDefinition<Settings, Payload> = {
     bodyHtml: {
       label: 'Body Html',
       description: 'The HTML content of the body',
-      type: 'string',
-      required: true
+      type: 'string'
     },
     customArgs: {
       label: 'Custom Args',
@@ -218,9 +269,23 @@ const action: ActionDefinition<Settings, Payload> = {
     }
 
     const bcc = JSON.parse(payload.bcc ?? '[]')
+    let bodyHtml = payload.bodyHtml ?? ''
+
+    if (payload.bodyUrl && settings.unlayerApiKey) {
+      const response = await request(payload.bodyUrl)
+      const body = await response.text()
+      bodyHtml = payload.bodyType === 'html' ? body : await generateEmailHtml(request, settings.unlayerApiKey, body)
+
+      if (payload.previewText) {
+        bodyHtml = insertEmailPreviewText(bodyHtml, payload.previewText)
+      }
+    }
 
     return request('https://api.sendgrid.com/v3/mail/send', {
       method: 'post',
+      headers: {
+        'authorization': `Bearer ${settings.sendGridApiKey}`
+      },
       json: {
         personalizations: [
           {
@@ -251,7 +316,7 @@ const action: ActionDefinition<Settings, Payload> = {
         content: [
           {
             type: 'text/html',
-            value: Mustache.render(payload.bodyHtml, { profile })
+            value: Mustache.render(bodyHtml, { profile })
           }
         ]
       }

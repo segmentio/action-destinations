@@ -6,10 +6,20 @@ import { getBrowser, getBrowserVersion, cheapGuid } from '../utils'
 import dayjs from '../../../lib/dayjs'
 
 const action: ActionDefinition<Settings, Payload> = {
-  title: 'Log Event',
-  description: 'Send an event to Mixpanel.',
+  title: 'Track Event',
+  description:
+    'Send an event to Mixpanel. [Learn more about Events in Mixpanel](https://help.mixpanel.com/hc/en-us/articles/360041995352-Mixpanel-Concepts-Events?source=segment-actions)',
   defaultSubscription: 'type = "track"',
   fields: {
+    event: {
+      label: 'Event Name',
+      type: 'string',
+      description: 'The name of the action being performed.',
+      required: true,
+      default: {
+        '@path': '$.event'
+      }
+    },
     distinct_id: {
       label: 'Distinct ID',
       type: 'string',
@@ -22,29 +32,19 @@ const action: ActionDefinition<Settings, Payload> = {
         }
       }
     },
-    device_id: {
-      label: 'Device ID',
+    group_id: {
+      label: 'Group ID',
       type: 'string',
-      description:
-        'A device-specific identifier, such as the Identifier for Vendor on iOS. Required unless user ID is present. If a device ID is not sent with the event, it will be set to a hashed version of the user ID.',
+      description: 'The unique identifier of the group that performed this event.',
       default: {
-        '@path': '$.context.device.id'
-      }
-    },
-    event: {
-      label: 'Event Name',
-      type: 'string',
-      description: 'A unique identifier for your event.',
-      required: true,
-      default: {
-        '@path': '$.event'
+        '@path': '$.context.groupId'
       }
     },
     time: {
       label: 'Timestamp',
       type: 'datetime',
       description:
-        'The timestamp of the event. If time is not sent with the event, it will be set to the request upload time.',
+        'The timestamp of the event. If time is not sent with the event, it will be set to the time our servers receive it.',
       default: {
         '@path': '$.timestamp'
       }
@@ -113,6 +113,14 @@ const action: ActionDefinition<Settings, Payload> = {
         '@path': '$.context.os.version'
       }
     },
+    device_id: {
+      label: 'Device ID',
+      type: 'string',
+      description: 'A unique identifier for the device the user is using.',
+      default: {
+        '@path': '$.context.device.id'
+      }
+    },
     device_type: {
       label: 'Device Type',
       type: 'string',
@@ -164,9 +172,17 @@ const action: ActionDefinition<Settings, Payload> = {
     cellular: {
       label: 'Cellular Enabled',
       type: 'boolean',
-      description: 'Whether cellular was enabled',
+      description: 'Whether cellular is enabled',
       default: {
         '@path': '$.context.network.cellular'
+      }
+    },
+    wifi: {
+      label: 'Wifi',
+      type: 'boolean',
+      description: 'Set to true if user’s device has an active, available Wifi connection, false if not.',
+      default: {
+        '@path': '$.context.network.wifi'
       }
     },
     country: {
@@ -196,7 +212,7 @@ const action: ActionDefinition<Settings, Payload> = {
     library_name: {
       label: 'Library Name',
       type: 'string',
-      description: 'Library name',
+      description: 'The name of the SDK used to send events',
       default: {
         '@path': '$.context.library.name'
       }
@@ -204,7 +220,7 @@ const action: ActionDefinition<Settings, Payload> = {
     library_version: {
       label: 'Library Version',
       type: 'string',
-      description: 'Library version',
+      description: 'The version of the SDK used to send events',
       default: {
         '@path': '$.context.library.version'
       }
@@ -212,7 +228,7 @@ const action: ActionDefinition<Settings, Payload> = {
     ip: {
       label: 'IP Address',
       type: 'string',
-      description: 'The IP address of the user. Use "$remote" to use the IP address on the upload request.',
+      description: "The IP address of the user. This is only used for geolocation and won't be stored.",
       default: {
         '@path': '$.context.ip'
       }
@@ -269,14 +285,6 @@ const action: ActionDefinition<Settings, Payload> = {
       description: 'The full URL of the webpage on which the event is triggered.',
       default: {
         '@path': '$.context.page.url'
-      }
-    },
-    wifi: {
-      label: 'Wifi',
-      type: 'boolean',
-      description: 'Set to true if user’s device has an active, available Wifi connection, false if not.',
-      default: {
-        '@path': '$.context.network.wifi'
       }
     },
     screen_width: {
@@ -346,14 +354,13 @@ const action: ActionDefinition<Settings, Payload> = {
         $browser_version: browserVersion,
         $bluetooth_enabled: payload.bluetooth,
         $cellular_enabled: payload.cellular,
-        // $browser: string // 'Mobile Safari'
-        // $browser_version: string // '9.0'
         $carrier: payload.carrier,
         $current_url: payload.url,
         $device: payload.device_name,
         $device_id: payload.device_id,
         $device_type: payload.device_type,
         $device_name: payload.device_name,
+        $group_id: payload.group_id,
         $insert_id: cheapGuid(),
         $ios_ifa: payload.idfa,
         $lib_version: payload.library_version,
@@ -370,7 +377,6 @@ const action: ActionDefinition<Settings, Payload> = {
         $wifi_enabled: payload.wifi,
         mp_country_code: payload.country,
         mp_lib: payload.library_name && `Segment: ${payload.library_name}`,
-        // segment_source_name: string // 'readme'
         utm_campaign: utm.utm_campaign,
         utm_content: utm.utm_content,
         utm_medium: utm.utm_medium,

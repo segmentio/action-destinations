@@ -14,7 +14,7 @@ export interface Payload {
    */
   email?: string
   /**
-   * A timestamp of when the person was created. Default is current date and time.
+   * A timestamp of when the person was created.
    */
   created_at?: string
   /**
@@ -24,7 +24,7 @@ export interface Payload {
     [k: string]: unknown
   }
   /**
-   * Convert `created_at` to a Unix timestamp (seconds since Epoch).
+   * Convert dates to Unix timestamps (seconds since Epoch).
    */
   convert_timestamp?: boolean
 }

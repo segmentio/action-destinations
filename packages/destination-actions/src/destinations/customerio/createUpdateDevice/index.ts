@@ -46,7 +46,7 @@ const action: ActionDefinition<Settings, Payload> = {
     },
     convert_timestamp: {
       label: 'Convert Timestamps',
-      description: 'Convert `last_used` to a Unix timestamp (seconds since Epoch).',
+      description: 'Convert dates to Unix timestamps (seconds since Epoch).',
       type: 'boolean',
       default: true
     }

@@ -26,7 +26,7 @@ export interface Payload {
    */
   promotion_name?: string
   /**
-   * The list of products in the event.
+   * The list of products purchased.
    */
   items: {
     /**
@@ -50,14 +50,6 @@ export interface Payload {
      */
     currency?: string
     /**
-     * The name of the promotional creative.
-     */
-    creative_name?: string
-    /**
-     * The name of the promotional creative slot associated with the item.
-     */
-    creative_slot?: string
-    /**
      * Monetary value of discount associated with a purchase.
      */
     discount?: number
@@ -70,23 +62,23 @@ export interface Payload {
      */
     item_brand?: string
     /**
-     * The category of the item.
+     * Product category.
      */
     item_category?: string
     /**
-     * The second category hierarchy or additional taxonomy for the item.
+     * Product category 2.
      */
     item_category2?: string
     /**
-     * The third category hierarchy or additional taxonomy for the item.
+     * Product category 3.
      */
     item_category3?: string
     /**
-     * The fourth category hierarchy or additional taxonomy for the item.
+     * Product category 4.
      */
     item_category4?: string
     /**
-     * The fifth category hierarchy or additional taxonomy for the item.
+     * Product category 5.
      */
     item_category5?: string
     /**
@@ -110,16 +102,24 @@ export interface Payload {
      */
     price?: number
     /**
-     * The ID of the promotion associated with the item.
+     * Item quantity.
      */
-    promotion_id?: string
+    quantity?: number
     /**
-     * The name of the promotion associated with the item.
+     * The name of the promotional creative.
+     */
+    creative_name?: string
+    /**
+     * The name of the promotional creative slot associated with the event.
+     */
+    creative_slot?: string
+    /**
+     * The name of the promotion associated with the event.
      */
     promotion_name?: string
     /**
-     * Item Quantity
+     * The ID of the promotion associated with the event.
      */
-    quantity?: number
+    promotion_id?: string
   }[]
 }

@@ -235,14 +235,14 @@ describe('GA4', () => {
             measurementId
           },
           mapping: {
-            clientId: {
+            client_id: {
               '@path': '$.anonymousId'
             },
             promotion_id: {
               '@path': '$.properties.promotion_id'
             }
           },
-          useDefaultMappings: true
+          useDefaultMappings: false
         })
         fail('the test should have thrown an error')
       } catch (e) {

@@ -3,6 +3,7 @@ import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 import type { FS } from '../types'
 import camelCase from 'lodash/camelCase'
+import { segmentEventSource } from '..'
 
 // Change from unknown to the partner SDK types
 const action: BrowserActionDefinition<Settings, FS, Payload> = {
@@ -75,13 +76,13 @@ const action: BrowserActionDefinition<Settings, FS, Payload> = {
     }
 
     if (event.payload.userId) {
-      FS.identify(event.payload.userId, newTraits)
+      FS.identify(event.payload.userId, newTraits, segmentEventSource)
     } else {
       FS.setUserVars({
         ...newTraits,
         ...(event.payload.email !== undefined && { email: event.payload.email }),
         ...(event.payload.displayName !== undefined && { displayName: event.payload.displayName })
-      })
+      }, segmentEventSource)
     }
   }
 }
