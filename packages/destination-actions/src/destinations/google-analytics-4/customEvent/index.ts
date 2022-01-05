@@ -3,7 +3,7 @@ import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 import { client_id } from '../ga4-properties'
 
-const normalize_event_name = (name: string, lowercase: boolean | undefined): string => {
+const normalizeEventName = (name: string, lowercase: boolean | undefined): string => {
   name = name.trim()
   name = name.replace(/\s/g, '_')
 
@@ -45,7 +45,7 @@ const action: ActionDefinition<Settings, Payload> = {
     }
   },
   perform: (request, { payload }) => {
-    const event_name = normalize_event_name(payload.name, payload.lowercase)
+    const event_name = normalizeEventName(payload.name, payload.lowercase)
     return request('https://www.google-analytics.com/mp/collect', {
       method: 'POST',
       json: {
