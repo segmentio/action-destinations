@@ -60,6 +60,7 @@ describe('Friendbuy.trackSignUp', () => {
       loyaltyStatus,
       firstName,
       lastName,
+      age,
       birthday: { year: 2001, month: 5, day: 1 },
       ipAddress: event?.context?.ip,
       userAgent: event?.context?.userAgent,

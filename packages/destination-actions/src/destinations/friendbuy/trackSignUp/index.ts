@@ -24,7 +24,7 @@ const trackSignUpMapi: EventMap = {
     firstName: COPY,
     lastName: COPY,
     // name (unmapped)
-    age: DROP,
+    age: COPY,
     birthday: { convert: parseDate as ConvertFun },
 
     // CONTEXT FIELDS
