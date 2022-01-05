@@ -12,7 +12,7 @@ const action: ActionDefinition<Settings, Payload> = {
       label: 'Timestamp',
       type: 'string',
       description: 'The timestamp of the event. If time is not sent with the event, it will be set to the request upload time.',
-      default: {'@path': '$.receivedAt'}
+      default: {'@path': '$.timestamp'}
     },
     profileData: {
       label: 'Profile Data',

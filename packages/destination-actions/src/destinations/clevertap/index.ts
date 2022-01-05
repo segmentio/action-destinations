@@ -38,9 +38,6 @@ const destination: DestinationDefinition<Settings> = {
         default: 'https://sk1.api.clevertap.com',
         required: true
       },
-    },
-    testAuthentication: () => {
-      return true
     }
   },
 

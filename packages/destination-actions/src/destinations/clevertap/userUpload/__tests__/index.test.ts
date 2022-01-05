@@ -1,5 +1,4 @@
 import nock from 'nock'
-// @ts-ignore
 import {createTestEvent, createTestIntegration} from '@segment/actions-core'
 import Destination from '../../index'
 
