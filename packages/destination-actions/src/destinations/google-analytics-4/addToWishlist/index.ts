@@ -34,7 +34,7 @@ const action: ActionDefinition<Settings, Payload> = {
      * If set at the event level, item-level currency is ignored. If event-level currency is not set then
      * currency from the first item in items is used.
      */
-    if (payload.currency === undefined && payload.items && payload.items[0].currency === undefined) {
+    if (payload.currency === undefined && (!payload.items || !payload.items[0] || !payload.items[0].currency)) {
       throw new IntegrationError(
         'One of item-level currency or top-level currency is required.',
         'Misconfigured required field',

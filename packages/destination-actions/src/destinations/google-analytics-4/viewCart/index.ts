@@ -28,7 +28,7 @@ const action: ActionDefinition<Settings, Payload> = {
     }
 
     //Currency must exist either as a param or in the first item in items.
-    if (payload.currency === undefined && payload.items && payload.items[0].currency === undefined) {
+    if (payload.currency === undefined && (!payload.items || !payload.items[0] || !payload.items[0].currency)) {
       throw new IntegrationError(
         'One of item-level currency or top-level currency is required.',
         'Misconfigured required field',
