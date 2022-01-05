@@ -62,6 +62,54 @@ describe('CustomerIO', () => {
       })
     })
 
+    it('should convert only ISO-8601 strings', async () => {
+      const settings: Settings = {
+        siteId: '12345',
+        apiKey: 'abcde',
+        accountRegion: AccountRegion.US
+      }
+      const userId = 'abc123'
+      const timestamp = dayjs.utc().toISOString()
+      const testTimestamps = {
+        date01: '25 Mar 2015',
+        date02: 'Mar 25 2015',
+        date03: '01/01/2019',
+        date04: '2019-02-01',
+        date05: '2007-01-02T18:04:07',
+        date06: '2006-01-02T18:04:07Z',
+        date07: '2006-01-02T18:04:07+01:00',
+        date08: '2006-01-02T15:04:05.007',
+        date09: '2006-01-02T15:04:05.007Z',
+        date10: '2006-01-02T15:04:05.007+01:00'
+      }
+      trackDeviceService.put(`/customers/${userId}`).reply(200, {}, { 'x-customerio-region': 'US' })
+      const event = createTestEvent({
+        userId,
+        timestamp,
+        traits: testTimestamps
+      })
+      const responses = await testDestination.testAction('createUpdatePerson', {
+        event,
+        settings,
+        useDefaultMappings: true
+      })
+
+      expect(responses.length).toBe(1)
+      expect(responses[0].status).toBe(200)
+      expect(responses[0].options.json).toMatchObject({
+        date01: testTimestamps.date01,
+        date02: testTimestamps.date02,
+        date03: testTimestamps.date03,
+        date04: dayjs(testTimestamps.date04).unix(),
+        date05: dayjs(testTimestamps.date05).unix(),
+        date06: dayjs(testTimestamps.date06).unix(),
+        date07: dayjs(testTimestamps.date07).unix(),
+        date08: dayjs(testTimestamps.date08).unix(),
+        date09: dayjs(testTimestamps.date09).unix(),
+        date10: dayjs(testTimestamps.date10).unix()
+      })
+    })
+
     it('should not convert attributes to unix timestamps when convert_timestamp is false', async () => {
       const settings: Settings = {
         siteId: '12345',
