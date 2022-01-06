@@ -1,6 +1,7 @@
 import { Settings } from './generated-types'
 import { RequestClient } from '@segment/actions-core'
 import { Payload as ContactActivityPayload } from './createContactactivity/generated-types'
+import {UserIdentifier} from "./user-identifier";
 
 interface Attribute {
   name: string
@@ -44,7 +45,7 @@ class CordialClient {
     })
   }
 
-  async upsertContact(userIdentifier: object, attributes?: ContactAttributes) {
+  async upsertContact(userIdentifier: UserIdentifier, attributes?: ContactAttributes) {
     return this.request(`${this.apiUrl}/contacts`, {
       method: 'post',
       json: {
@@ -113,7 +114,7 @@ class CordialClient {
     }
   }
 
-  async addContactToList(userIdentifier: object, list: List) {
+  async addContactToList(userIdentifier: UserIdentifier, list: List) {
     return this.request(`${this.apiUrl}/contacts`, {
       method: 'post',
       json: {
@@ -123,7 +124,7 @@ class CordialClient {
     })
   }
 
-  async removeContactFromList(userIdentifier: object, list: List) {
+  async removeContactFromList(userIdentifier: UserIdentifier, list: List) {
     return this.request(`${this.apiUrl}/contacts`, {
       method: 'post',
       json: {

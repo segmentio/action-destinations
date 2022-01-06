@@ -1,4 +1,4 @@
-import nock from 'nock'
+  import nock from 'nock'
 import { createTestEvent, createTestIntegration } from '@segment/actions-core'
 import Destination from '../../index'
 
@@ -6,7 +6,7 @@ const testDestination = createTestIntegration(Destination)
 
 describe('Cordial.createContactactivity', () => {
   it('should work with default mappings', async () => {
-    nock(/.*/).post('/v2/contactactivities').reply(200, {})
+    nock(/api.cordial.io/).post('/v2/contactactivities').reply(200, {})
     const event = createTestEvent()
 
     const mapping = {

@@ -6,10 +6,10 @@ const testDestination = createTestIntegration(Destination)
 
 describe('Cordial.addContactToList', () => {
   it('should work with default mappings', async () => {
-    nock(/.*/)
+    nock(/api.cordial.io/)
       .post(/\/.*\/contacts/)
       .reply(200, {})
-    nock(/.*/)
+    nock(/api.cordial.io/)
       .get(/\/.*\/accountlists/)
       .reply(200, [
         {
