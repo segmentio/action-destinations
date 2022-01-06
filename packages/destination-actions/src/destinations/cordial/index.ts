@@ -30,7 +30,7 @@ const destination: DestinationDefinition<Settings> = {
         choices: [
           { label: 'US-EAST	(https://api.cordial.io)', value: 'https://api.cordial.io' },
           { label: 'US-WEST	(https://api.usw2.cordial.io)', value: 'https://api.usw2.cordial.io' },
-          { label: 'Staging	(https://api.stg.cordialdev.com/)', value: 'https://api.stg.cordialdev.com/' }
+          { label: 'Staging	(https://api.stg.cordialdev.com)', value: 'https://api.stg.cordialdev.com' }
         ],
         default: 'https://api.cordial.io'
       }
