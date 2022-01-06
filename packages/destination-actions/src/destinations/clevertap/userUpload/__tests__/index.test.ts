@@ -6,9 +6,10 @@ const testDestination = createTestIntegration(Destination)
 const CLEVERTAP_ACCOUNT_ID = 'test-account-id'
 const CLEVERTAP_ACCOUNT_PASSCODE = 'test-account-passcode'
 const CLEVERTAP_ACCOUNT_ENDPOINT = 'https://sk1.api.clevertap.com'
-  describe('Clevertap.userUpload', () => {
+describe('Clevertap.userUpload', () => {
+
   it('should validate action fields', async () => {
-    const event = createTestEvent({ event: 'Test Event',userId:'qwqw'})
+    const event = createTestEvent({event: 'Test Event', userId: 'qwqw'})
 
     nock(CLEVERTAP_ACCOUNT_ENDPOINT).post('/1/upload').reply(200, {})
 
@@ -23,5 +24,6 @@ const CLEVERTAP_ACCOUNT_ENDPOINT = 'https://sk1.api.clevertap.com'
     })
     expect(responses.length).toBe(1)
     expect(responses[0].status).toBe(200)
-    })
+  })
+
 })

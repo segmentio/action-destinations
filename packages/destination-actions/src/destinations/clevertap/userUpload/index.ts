@@ -2,8 +2,9 @@ import type {ActionDefinition} from '@segment/actions-core'
 import type {Settings} from '../generated-types'
 import type {Payload} from './generated-types'
 import type {ClevertapEvent} from "./types";
-const type='profile';
-const source='Segment';
+
+const type = 'profile';
+const source = 'Segment';
 const action: ActionDefinition<Settings, Payload> = {
   title: 'User Upload',
   description: 'The User Upload Action enables you to create or update user profiles in CleverTap.',

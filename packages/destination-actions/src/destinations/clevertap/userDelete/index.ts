@@ -1,11 +1,11 @@
-import type { ActionDefinition } from '@segment/actions-core'
-import type { Settings } from '../generated-types'
-import type { Payload } from './generated-types'
+import type {ActionDefinition} from '@segment/actions-core'
+import type {Settings} from '../generated-types'
+import type {Payload} from './generated-types'
 import {DeleteEvent} from "./types";
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'User Delete',
-  description: '',
+  description: 'The User Delete Action enables you to remove user profiles in CleverTap.',
   fields: {
     identity: {
       label: 'Identity',

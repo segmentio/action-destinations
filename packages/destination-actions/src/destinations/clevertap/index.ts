@@ -1,7 +1,9 @@
-import type { DestinationDefinition } from '@segment/actions-core'
-import type { Settings } from './generated-types'
+import type {DestinationDefinition} from '@segment/actions-core'
+import type {Settings} from './generated-types'
 
 import userUpload from './userUpload'
+
+import userDelete from './userDelete'
 
 const destination: DestinationDefinition<Settings> = {
   name: 'Clevertap (Actions)',
@@ -29,20 +31,21 @@ const destination: DestinationDefinition<Settings> = {
         type: 'string',
         format: 'uri',
         choices: [
-          { label: 'SK', value: 'https://sk1.api.clevertap.com'},
-          { label: 'EU', value: 'https://eu1.api.clevertap.com'},
-          { label: 'US', value: 'https://us1.api.clevertap.com'},
-          { label: 'SG', value: 'https://sg1.api.clevertap.com'},
-          { label: 'IN', value: 'https://in1.api.clevertap.com'}
+          {label: 'SK', value: 'https://sk1.api.clevertap.com'},
+          {label: 'EU', value: 'https://eu1.api.clevertap.com'},
+          {label: 'US', value: 'https://us1.api.clevertap.com'},
+          {label: 'SG', value: 'https://sg1.api.clevertap.com'},
+          {label: 'IN', value: 'https://in1.api.clevertap.com'}
         ],
         default: 'https://sk1.api.clevertap.com',
         required: true
-      },
+      }
     }
   },
 
   actions: {
-    userUpload
+    userUpload,
+    userDelete
   }
 }
 
