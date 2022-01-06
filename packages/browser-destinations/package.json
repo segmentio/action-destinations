@@ -1,6 +1,6 @@
 {
   "name": "@segment/browser-destinations",
-  "version": "3.23.1",
+  "version": "3.24.0",
   "description": "Action based browser destinations",
   "author": "Netto Farah",
   "private": true,
