@@ -18,42 +18,18 @@ const isRecord = (value: unknown): value is Record<string, unknown> => {
   return isPlainObject(value)
 }
 
-// DayJS' docs say,
-//   > Parse the given string in ISO 8601 format and return a Day.js object instance.
-// but that's not actually true. It will parse non-ISO 8601 date formats just fine,
-// which we don't want in this action. Thus, we want to only provide ISO 8601 format
-// strings for dayJS to parse with.
-const validDateFormats = [
-  'YYYY',
-  'YYYY-MM',
-  'YYYY-MM-DD',
-  'YYYY-MM-DDTHH',
-  'YYYY-MM-DDTHH:mm',
-  'YYYY-MM-DDTHH:mm:ss',
-  'YYYY-MM-DDTHH:mm:ss.S',
-  'YYYY-MM-DDTHH:mm:ss.SS',
-  'YYYY-MM-DDTHH:mm:ss.SSS',
-  'YYYY-MM-DDTHHZ',
-  'YYYY-MM-DDTHH:mmZ',
-  'YYYY-MM-DDTHH:mm:ssZ',
-  'YYYY-MM-DDTHH:mm:ss.SZ',
-  'YYYY-MM-DDTHH:mm:ss.SSZ',
-  'YYYY-MM-DDTHH:mm:ss.SSSZ',
-  // dayJS doesn't handle `Z` correctly for ISO 8601 dates. This adds `Z` as a literal character
-  // https://github.com/iamkun/dayjs/issues/1729
-  'YYYY-MM-DDTHH[Z]',
-  'YYYY-MM-DDTHH:mm[Z]',
-  'YYYY-MM-DDTHH:mm:ss[Z]',
-  'YYYY-MM-DDTHH:mm:ss.S[Z]',
-  'YYYY-MM-DDTHH:mm:ss.SS[Z]',
-  'YYYY-MM-DDTHH:mm:ss.SSS[Z]',
-  'YYYY-MM-DDTHHZZ',
-  'YYYY-MM-DDTHH:mmZZ',
-  'YYYY-MM-DDTHH:mm:ssZZ',
-  'YYYY-MM-DDTHH:mm:ss.SZZ',
-  'YYYY-MM-DDTHH:mm:ss.SSZZ',
-  'YYYY-MM-DDTHH:mm:ss.SSSZZ'
-]
+const isIsoDate = (value: string): boolean => {
+  //https://github.com/segmentio/isostring/blob/master/index.js
+  const isoformat =
+    '^\\d{4}-\\d{2}-\\d{2}' + // Match YYYY-MM-DD
+    '((T\\d{2}:\\d{2}(:\\d{2})?)' + // Match THH:mm:ss
+    '(\\.\\d{1,6})?' + // Match .sssss
+    '(Z|(\\+|-)\\d{2}:\\d{2})?)?$' // Time zone (Z or +hh:mm)
+
+  const matcher = new RegExp(isoformat)
+
+  return typeof value === 'string' && matcher.test(value) && !isNaN(Date.parse(value))
+}
 
 // Recursively walk through an object and try to convert any strings into dates
 export const convertAttributeTimestamps = (payload: Record<string, unknown>): Record<string, unknown> => {
@@ -65,17 +41,10 @@ export const convertAttributeTimestamps = (payload: Record<string, unknown>): Re
 
     if (typeof value === 'string') {
       // Parse only ISO 8601 date formats in strict mode
-      const maybeDate = dayjs(value, validDateFormats, true)
+      const maybeDate = dayjs(value)
 
-      if (maybeDate.isValid()) {
-        // Since dayJS thinks `Z` is a literal character and not shorthand for UTC, we need to
-        // convert the date to UTC manually.
-        if (value.endsWith('Z')) {
-          clone[key] = maybeDate.utc(true).unix()
-        } else {
-          clone[key] = maybeDate.unix()
-        }
-
+      if (isIsoDate(value)) {
+        clone[key] = maybeDate.unix()
         return
       }
     }
