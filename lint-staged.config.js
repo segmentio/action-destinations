@@ -18,7 +18,7 @@ exec("git branch --show-current", (error, stdout, stderr) => {
 
 module.exports = {
     '*': () => {
-        return `gitleaks protect -v`
+        return `gitleaks protect -v --staged`
     },
     ...config
 }
