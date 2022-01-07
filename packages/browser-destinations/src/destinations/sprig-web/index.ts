@@ -15,7 +15,7 @@ declare global {
 }
 
 export const destination: BrowserDestinationDefinition<Settings, Sprig> = {
-  name: 'Sprig',
+  name: 'Sprig (Actions)',
   slug: 'sprig-web',
   mode: 'device',
 
