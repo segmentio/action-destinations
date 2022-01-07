@@ -24,7 +24,7 @@ const destination: DestinationDefinition<Settings> = {
             refresh_token: auth.refreshToken,
             client_id: auth.clientId,
             client_secret: auth.clientSecret,
-            instance_url: auth.salesforce_instanceUrl
+            instance_url: auth.additionalProperties.salesforce_instanceUrl
             grant_type: 'refresh_token'
           })
         }

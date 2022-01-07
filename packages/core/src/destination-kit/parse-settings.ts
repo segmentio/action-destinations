@@ -33,12 +33,19 @@ export function getAuthData(settings: JSONObject): AuthTokens {
  */
 export function getOAuth2Data(settings: JSONObject): OAuth2ClientCredentials {
   const { oauth } = settings
-  return {
+
+  const newOauth: OAuth2ClientCredentials = {
     accessToken: (oauth as unknown as OAuthSettings)?.access_token,
     refreshToken: (oauth as unknown as OAuthSettings)?.refresh_token,
     clientId: (oauth as unknown as OAuthSettings)?.clientId,
     clientSecret: (oauth as unknown as OAuthSettings)?.clientSecret
-  } as OAuth2ClientCredentials
+  }
+
+  if (oauth.instanceUrl) {
+    newOauth.additionalProperties?.salesforce_instanceUrl = oauth.instanceUrl
+  }
+
+  return newOauth
 }
 
 /**
