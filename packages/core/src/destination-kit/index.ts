@@ -90,6 +90,12 @@ export interface OAuth2ClientCredentials extends AuthTokens {
   clientId: string
   /** Used to authenticate the identity of the application to the partner API when the application requests to access a user’s account, must be kept private between the application and the API. */
   clientSecret: string
+
+  additionalProperties?: AdditionalOauth2Properties
+}
+
+export interface AdditionalOauth2Properties {
+  salesforce_instanceUrl?: string
 }
 
 export interface RefreshAccessTokenResult {

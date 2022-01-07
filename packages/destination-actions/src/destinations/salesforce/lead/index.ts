@@ -67,9 +67,9 @@ const action: ActionDefinition<Settings, Payload> = {
       type: 'string'
     }
   },
-  perform: (request, { settings, payload }) => {
+  perform: (request, { auth, settings, payload }) => {
     if (payload.operation === 'create') {
-      return request(`${settings.instanceUrl}/services/data/${API_VERSION}/sobjects/Lead`, {
+      return request(`${auth.salesforce_instanceUrl}/services/data/${API_VERSION}/sobjects/Lead`, {
         method: 'post',
         json: {
           LastName: payload.last_name,
