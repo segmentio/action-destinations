@@ -19,12 +19,6 @@ const destination: DestinationDefinition<Settings> = {
         required: true
       }
     },
-    testAuthentication: () => {
-      // Return a request that tests/validates the user's credentials.
-      // If you do not have a way to validate the authentication fields safely,
-      // you can remove the `testAuthentication` function, though discouraged.
-      return true
-    }
   },
 
   extendRequest: ({ settings }) => {
@@ -33,13 +27,6 @@ const destination: DestinationDefinition<Settings> = {
         'x-api-key': settings.apiKey
       }
     }
-  },
-
-  onDelete: async () => {
-    // Return a request that performs a GDPR delete for the provided Segment userId or anonymousId
-    // provided in the payload. If your destination does not support GDPR deletion you should not
-    // implement this function and should remove it completely.
-    return true
   },
 
   presets: [

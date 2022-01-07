@@ -2,8 +2,8 @@ import type { Settings } from '../../generated-types'
 import nock from 'nock'
 import { createTestEvent, createTestIntegration } from '@segment/actions-core'
 import Destination from '../../index'
-import { EventTypeId, OrderPlacedPayload } from '../index'
-import { BaseApiUrl, EventApiUri, EventBody } from '../../utils'
+import type { OrderPlacedBody } from '../../utils'
+import { BaseApiUrl, EventApiUri, EventTypeId } from '../../utils'
 
 const apiKey = 'api_123'
 const settings: Settings = { apiKey }
@@ -53,6 +53,6 @@ describe('Voyage.trackOrderPlaced', () => {
         LastUpdated: timestamp,
         ...properties
       }
-    } as EventBody<OrderPlacedPayload>)
+    } as OrderPlacedBody)
   })
 })

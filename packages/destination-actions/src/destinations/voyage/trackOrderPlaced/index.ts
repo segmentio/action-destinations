@@ -1,30 +1,9 @@
 import type { ActionDefinition } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
+import type { OrderPlacedBody } from '../utils'
+import { EventEndpoint, EventTypeId } from '../utils'
 
-import { EventEndpoint, EventBody } from '../utils'
-
-export type OrderPlacedPayload = {
-  DateCreated: string | number
-  OrderNumber?: string
-  SourceId?: string
-  TokenId?: string
-  CustomerId: string
-  Url: string
-  OrderTotal: number
-  TotalSpent: number
-  FirstName?: string
-  LastName?: string
-  Phone: string
-  Email?: string
-  Zip: string
-  LastUpdated?: string | number
-  ProductImageUrl?: string
-  LinkReference?: string
-  HomepageUrl?: string
-}
-
-export const EventTypeId = 7310
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Track Order Placed',
@@ -182,7 +161,7 @@ const action: ActionDefinition<Settings, Payload> = {
   },
 
   perform: (request, { payload }) => {
-    const body: EventBody<OrderPlacedPayload> = {
+    const body: OrderPlacedBody = {
       eventTypeId: EventTypeId,
       phone: payload.Phone,
       eventMeta: payload
