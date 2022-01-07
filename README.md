@@ -14,11 +14,11 @@ Table of Contents:
 - [Actions CLI](#actions-cli)
 - [Example Destination](#example-destination)
 - [Input Fields](#input-fields)
-- [Dynamic Dropdowns](#snapshot-testing)
-- [Default Values](#canary-testing)
+- [Dynamic Dropdowns](#dynamic-dropdowns)
+- [Default Values](#default-values)
 - [perform function](#the-perform-function)
 - [Batching Requests](#batching-requests)
-- [Quick Setup Actions](#"quick-setup"-actions)
+- [Quick Setup Actions](#quick-setup-actions)
 - [HTTP Requests](#http-requests)
 
 ## Get started
@@ -422,7 +422,7 @@ Keep in mind a few important things about how batching works:
 
 Additionally, you’ll need to coordinate with Segment’s R&D team for the time being. Please reach out to us in your dedicated Slack channel!
 
-## "Quick Setup" Actions
+## Quick Setup Actions
 
 Often you’ll want to provide a smooth and complete out of the box experience when a customer connects to your destination. We call this the “Quick Setup.” In order to tell Segment which subscriptions, actions, and defaults to automatically include when a customer connects a new instance of your destination, you can use the `presets` array.
 
