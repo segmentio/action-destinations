@@ -6,9 +6,29 @@ export interface Payload {
    */
   operation: string
   /**
+   * Which criteria to use for update/upsert lookups
+   */
+  lookup_criteria: string
+  /**
+   * External ID Field
+   */
+  external_id_field?: string
+  /**
    * External ID Value
    */
   external_id_value?: string
+  /**
+   * Record ID
+   */
+  record_id?: string
+  /**
+   * Trait Field
+   */
+  trait_field?: string
+  /**
+   * Trait Value
+   */
+  trait_value?: string
   /**
    * Company
    */
