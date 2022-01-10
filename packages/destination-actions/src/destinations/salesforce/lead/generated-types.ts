@@ -32,11 +32,11 @@ export interface Payload {
   /**
    * Company
    */
-  company: string
+  company?: string
   /**
    * Last Name
    */
-  last_name: string
+  last_name?: string
   /**
    * First Name
    */

@@ -62,14 +62,12 @@ const action: ActionDefinition<Settings, Payload> = {
     company: {
       label: 'Company',
       description: 'Company',
-      type: 'string',
-      required: true
+      type: 'string'
     },
     last_name: {
       label: 'Last Name',
       description: 'Last Name',
-      type: 'string',
-      required: true
+      type: 'string'
     },
     first_name: {
       label: 'First Name',
@@ -137,10 +135,12 @@ const action: ActionDefinition<Settings, Payload> = {
 
         recordId = payload.record_id
       } else if (payload.lookup_criteria === 'external_id') {
-        const { Id } = await request<ExternalIDLookupResponse>(
-          `${settings.instanceUrl}/services/data/${API_VERSION}/sobjects/Lead/${payload.external_id_field}/${payload.external_id_value}`
+        const res = await request<ExternalIDLookupResponse>(
+          `${settings.instanceUrl}/services/data/${API_VERSION}/sobjects/Lead/${payload.external_id_field}/${payload.external_id_value}`,
+          { method: 'get' }
         )
-        recordId = Id
+
+        recordId = res.data.Id
       } else {
         // trait lookup
         if (payload.trait_field === undefined || payload.trait_value === undefined) {
@@ -149,10 +149,12 @@ const action: ActionDefinition<Settings, Payload> = {
 
         const SOQLQuery = buildQuery(payload.trait_field, payload.trait_value, 'Lead')
 
-        const { Id } = await request<ExternalIDLookupResponse>(
-          `${settings.instanceUrl}/services/data/${API_VERSION}/query/${SOQLQuery}`
+        const res = await request<ExternalIDLookupResponse>(
+          `${settings.instanceUrl}/services/data/${API_VERSION}/query/${SOQLQuery}`,
+          { method: 'get' }
         )
-        recordId = Id
+
+        recordId = res.data.records[0].Id
       }
 
       // was there a record?
@@ -162,7 +164,7 @@ const action: ActionDefinition<Settings, Payload> = {
 
       //if so Perform update
       return request(`${settings.instanceUrl}/services/data/${API_VERSION}/sobjects/Lead/${recordId}`, {
-        method: 'post',
+        method: 'patch',
         json: {
           LastName: payload.last_name,
           Company: payload.company,
