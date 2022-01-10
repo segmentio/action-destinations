@@ -17,7 +17,6 @@ Table of Contents:
 - [Default Values](#default-values)
 - [perform function](#the-perform-function)
 - [Batching Requests](#batching-requests)
-- [Quick Setup Actions](#quick-setup-actions)
 - [HTTP Requests](#http-requests)
 
 ## Get started
@@ -372,29 +371,6 @@ Keep in mind a few important things about how batching works:
 - Batch sizes are not guaranteed. Due to the way that batches are accumulated internally, you may see smaller batch sizes than you expect when sending low rates of events.
 
 Additionally, you’ll need to coordinate with Segment’s R&D team for the time being. Please reach out to us in your dedicated Slack channel!
-
-## Quick Setup Actions
-
-Often you’ll want to provide a smooth and complete out of the box experience when a customer connects to your destination. We call this the “Quick Setup.” In order to tell Segment which subscriptions, actions, and defaults to automatically include when a customer connects a new instance of your destination, you can use the `presets` array.
-
-This array let’s you define preset subscriptions that will automatically be included via the Quick Setup, allowing you, the builder, to define the subscription that should trigger a given action, the default “mappings”, the display name for the subscription. You can define the display order of presets in the Quick Setup by changing the order in this `presets` array – Segment will respect that order in most views (some places may alphabetize this list by name, however).
-
-_Note: presets are expected to have values for all of the corresponding action’s required fields, otherwise the action will be excluded from the Quick Setup. This is because without those defaults, the action needs additional configuration to get set up and will not work out of the box._
-
-```
-
-const destination = {
-  // ...other properties
-  presets: [
-    {
-      name: 'Order Completed Events',
-      subscribe: 'type = "track" and event = "Order Completed"',
-      partnerAction: 'logEvent',
-      mapping: { ... } // must include values for all required fields
-    }
-  ]
-}
-```
 
 ## HTTP Requests
 
