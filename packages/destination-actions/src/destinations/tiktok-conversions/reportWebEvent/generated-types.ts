@@ -30,7 +30,7 @@ export interface Payload {
   /**
    * Email address of the user who triggered the conversion event.
    */
-  email: string
+  email?: string
   /**
    * Uniquely identifies the user who triggered the conversion event.
    */
