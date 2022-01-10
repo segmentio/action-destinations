@@ -100,6 +100,8 @@ const destination = {
 
 ## OAuth2 Authentication Scheme
 
+_oauth authentication is not generally available to external partners as part of Developer Center Pilot. Please contact Segment team if you require it._
+
 OAuth2 Authentication scheme is the model to be used for destination APIs which support [OAuth 2.0](https://oauth.net/2/). You’ll be able to define a `refreshAccessToken` function if you want the framework to refresh expired tokens.
 
 You will have a new `auth` object available in `extendRequest` and `refreshAccessToken` which will surface your destination’s accessToken, refreshToken, clientId and clientSecret (these last two only available in `refreshAccessToken`).
@@ -146,7 +148,7 @@ authentication: {
   }
 ```
 
-**\*Note:** OAuth directly depends on the oauth providers available in oauth-service. You have to follow the process of Adding a new OAuth provider before using the oauth2 scheme in an action.\*
+<em>**Note:** OAuth directly depends on the oauth providers available in Segment's internal OAuth Service. Please contact Segment if you require OAuth for your destination.</em>
 
 ## Unsupported Authentication Schemes
 

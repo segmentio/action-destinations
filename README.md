@@ -14,7 +14,6 @@ Table of Contents:
 - [Actions CLI](#actions-cli)
 - [Example Destination](#example-destination)
 - [Input Fields](#input-fields)
-- [Dynamic Dropdowns](#dynamic-dropdowns)
 - [Default Values](#default-values)
 - [perform function](#the-perform-function)
 - [Batching Requests](#batching-requests)
@@ -274,54 +273,6 @@ interface InputField {
     | 'text' // longer strings (applied automatically when using `type: 'text'`
 }
 ```
-
-## Dynamic Dropdowns
-
-Some APIs require users to specify a related object or resource by id. Unfortunately, this is rather unintuitive for people who don’t speak or memorize ids. Dynamic dropdowns offer users a way to select those ids with human-readable labels.
-
-Segment will present users with a dropdown that makes a live request to the destination API to fetch those options.
-
-To define a dynamic dropdown, add a `dynamic` boolean to the field. Segment will know to use the same field `key` in `dynamicFields` to dynamically resolve the options for the field:
-
-```
-
-const destination = {
-  // ...other properties
-  actions: {
-    postToChannel: {
-      // ...
-      fields: {
-        // ...
-        channel: {
-          label: 'Channel',
-          description: 'The Slack channel to post to.',
-          type: 'string',
-          // this tells Segment to use the matching key (`channel`) in
-          // `dynamicFields` to dynamically resolve the options for the field
-          dynamic: true
-        }
-      },
-      dynamicFields: {
-        channel: (request, { settings, payload }) => {
-          return {
-            data: [
-              { label: '#foo', value: '123456' },
-              { label: '#bar', value: '987654' }
-            ],
-            pagination: {
-              nextPage: '2'
-            }
-          }
-        }
-      }
-    }
-  }
-}
-```
-
-When a user focuses this field, the UI will make a request to our backend which will execute the `dynamicFields.channel` function. This function can make a request to a partner API or do execute some additional logic before returning an array of data (human-readable labels and machine-readable values) and any pagination metadata (optionally).
-
-A dynamic dropdown can depend on `settings` and from other input fields via `payload` (note, there may not be a value yet).
 
 ## Default Values
 
