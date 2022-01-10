@@ -105,7 +105,7 @@ const action: ActionDefinition<Settings, Payload> = {
 
     const userData = {
       hashedExternalId: formatUserId(payload.external_id),
-      hashedEmail: formatEmail(payload.email),
+      hashedEmail: formatEmail(payload.email || ''),
       hashedPhoneNumber: formatPhone(payload.phone_number)
     }
 
