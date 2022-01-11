@@ -38,20 +38,18 @@ export default class Salesforce {
   }
 
   updateRecord = async (payload: any, sobject: string) => {
-    switch (payload.lookup_criteria) {
-      case 'external_id': {
-        const recordId = await this.lookupExternalId(payload.external_id_field, payload.external_id_value, sobject)
-        await this.baseUpdate(recordId, sobject, payload)
-        break
-      }
-      case 'trait': {
-        const recordId = await this.lookupTraits(payload.trait_field, payload.trait_value, sobject)
-        await this.baseUpdate(recordId, sobject, payload)
-        break
-      }
-      case 'record_id':
-        await this.baseUpdate(payload.record_id, sobject, payload)
-        break
+    if (payload.lookup_criteria === 'external_id') {
+      const recordId = await this.lookupExternalId(payload.external_id_field, payload.external_id_value, sobject)
+      return await this.baseUpdate(recordId, sobject, payload)
+    }
+
+    if (payload.lookup_criteria === 'trait') {
+      const recordId = await this.lookupTraits(payload.trait_field, payload.trait_value, sobject)
+      return await this.baseUpdate(recordId, sobject, payload)
+    }
+
+    if (payload.lookup_criteria === 'record_id') {
+      return await this.baseUpdate(payload.record_id, sobject, payload)
     }
   }
 
