@@ -1,6 +1,10 @@
 import type { DestinationDefinition, RefreshAccessTokenResult } from '@segment/actions-core'
 import type { Settings } from './generated-types'
+import { setInstanceUrl } from './salesforce-operations'
 import lead from './lead'
+interface SalesforceRefreshAccessTokenResult extends RefreshAccessTokenResult {
+  instance_url: string
+}
 
 const destination: DestinationDefinition<Settings> = {
   name: 'Salesforce (Actions)',
@@ -20,16 +24,19 @@ const destination: DestinationDefinition<Settings> = {
     },
     refreshAccessToken: async (request, { auth }) => {
       // Return a request that refreshes the access_token if the API supports it
-      const res = await request<RefreshAccessTokenResult>('https://login.salesforce.com/services/oauth2/token', {
-        method: 'POST',
-        body: new URLSearchParams({
-          refresh_token: auth.refreshToken,
-          client_id: auth.clientId,
-          client_secret: auth.clientSecret,
-          grant_type: 'refresh_token'
-        })
-      })
-
+      const res = await request<SalesforceRefreshAccessTokenResult>(
+        'https://login.salesforce.com/services/oauth2/token',
+        {
+          method: 'POST',
+          body: new URLSearchParams({
+            refresh_token: auth.refreshToken,
+            client_id: auth.clientId,
+            client_secret: auth.clientSecret,
+            grant_type: 'refresh_token'
+          })
+        }
+      )
+      setInstanceUrl(res.data.instance_url)
       return { accessToken: res.data.accessToken }
     }
   },
