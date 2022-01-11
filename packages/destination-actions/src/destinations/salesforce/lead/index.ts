@@ -1,64 +1,29 @@
-import { ActionDefinition, IntegrationError } from '@segment/actions-core'
+import { ActionDefinition } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
-import { buildQuery } from '../sf_utils'
-
-const API_VERSION = 'v53.0'
-interface ExternalIDLookupResponse {
-  Id: string
-}
+import {
+  operation,
+  lookup_criteria,
+  external_id_field,
+  external_id_value,
+  record_id,
+  trait_field,
+  trait_value,
+  validateLookup
+} from '../sf-properties'
+import Salesforce from '../sf-operations'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Lead',
   description: 'Lead action',
   fields: {
-    operation: {
-      label: 'Operation',
-      description: 'Operation',
-      type: 'string',
-      required: true,
-      choices: [
-        { label: 'Create', value: 'create' },
-        { label: 'Update', value: 'update' },
-        { label: 'Upsert', value: 'upsert' }
-      ]
-    },
-    lookup_criteria: {
-      label: 'Lookup Criteria',
-      description: 'Which criteria to use for update/upsert lookups',
-      required: true,
-      type: 'string',
-      choices: [
-        { label: 'External ID', value: 'external_id' },
-        { label: 'Trait', value: 'trait' },
-        { label: 'Record ID', value: 'record_id' }
-      ]
-    },
-    external_id_field: {
-      label: 'External ID Field',
-      description: 'External ID Field',
-      type: 'string'
-    },
-    external_id_value: {
-      label: 'External ID Value',
-      description: 'External ID Value',
-      type: 'string'
-    },
-    record_id: {
-      label: 'Record ID',
-      description: 'Record ID',
-      type: 'string'
-    },
-    trait_field: {
-      label: 'Trait Field',
-      description: 'Trait Field',
-      type: 'string'
-    },
-    trait_value: {
-      label: 'Trait Value',
-      description: 'Trait Value',
-      type: 'string'
-    },
+    operation: operation,
+    lookup_criteria: lookup_criteria,
+    external_id_field: external_id_field,
+    external_id_value: external_id_value,
+    record_id: record_id,
+    trait_field: trait_field,
+    trait_value: trait_value,
     company: {
       label: 'Company',
       description: 'Company',
@@ -106,77 +71,16 @@ const action: ActionDefinition<Settings, Payload> = {
     }
   },
   perform: async (request, { settings, payload }) => {
+    const sf: Salesforce = new Salesforce(settings.instanceUrl, request)
+
     if (payload.operation === 'create') {
-      return request(`${settings.instanceUrl}/services/data/${API_VERSION}/sobjects/Lead`, {
-        method: 'post',
-        json: {
-          LastName: payload.last_name,
-          Company: payload.company,
-          FirstName: payload.first_name,
-          State: payload.state,
-          Street: payload.street,
-          Country: payload.country,
-          PostalCode: payload.postal_code,
-          City: payload.city,
-          Email: payload.email
-        }
-      })
+      await sf.createRecord(payload, 'Lead')
     }
 
+    validateLookup(payload)
+
     if (payload.operation === 'update') {
-      //Perform lookup based on user selected lookup criteria
-
-      let recordId = ''
-
-      if (payload.lookup_criteria === 'record_id') {
-        if (payload.record_id === undefined) {
-          throw new IntegrationError('Undefined Record ID', 'Misconfigured required field', 400)
-        }
-
-        recordId = payload.record_id
-      } else if (payload.lookup_criteria === 'external_id') {
-        const res = await request<ExternalIDLookupResponse>(
-          `${settings.instanceUrl}/services/data/${API_VERSION}/sobjects/Lead/${payload.external_id_field}/${payload.external_id_value}`,
-          { method: 'get' }
-        )
-
-        recordId = res.data.Id
-      } else {
-        // trait lookup
-        if (payload.trait_field === undefined || payload.trait_value === undefined) {
-          throw new IntegrationError('Undefined trait field or trait value', 'Misconfigured required field', 400)
-        }
-
-        const SOQLQuery = buildQuery(payload.trait_field, payload.trait_value, 'Lead')
-
-        const res = await request<ExternalIDLookupResponse>(
-          `${settings.instanceUrl}/services/data/${API_VERSION}/query/${SOQLQuery}`,
-          { method: 'get' }
-        )
-
-        recordId = res.data.records[0].Id
-      }
-
-      // was there a record?
-      if (recordId === '') {
-        throw new IntegrationError('No record with lookup criteria found', 'Missing record', 404)
-      }
-
-      //if so Perform update
-      return request(`${settings.instanceUrl}/services/data/${API_VERSION}/sobjects/Lead/${recordId}`, {
-        method: 'patch',
-        json: {
-          LastName: payload.last_name,
-          Company: payload.company,
-          FirstName: payload.first_name,
-          State: payload.state,
-          Street: payload.street,
-          Country: payload.country,
-          PostalCode: payload.postal_code,
-          City: payload.city,
-          Email: payload.email
-        }
-      })
+      await sf.updateRecord(payload, 'Lead')
     }
   }
 }
