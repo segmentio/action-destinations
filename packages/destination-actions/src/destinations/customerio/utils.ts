@@ -31,6 +31,20 @@ const isIsoDate = (value: string): boolean => {
   return typeof value === 'string' && matcher.test(value) && !isNaN(Date.parse(value))
 }
 
+export const convertValidTimestamp = <Value = unknown>(value: Value): Value | number => {
+  if (typeof value !== 'string') {
+    return value
+  }
+
+  const maybeDate = dayjs.utc(value)
+
+  if (maybeDate.isValid()) {
+    return maybeDate.unix()
+  }
+
+  return value
+}
+
 // Recursively walk through an object and try to convert any strings into dates
 export const convertAttributeTimestamps = (payload: Record<string, unknown>): Record<string, unknown> => {
   const clone: Record<string, unknown> = {}

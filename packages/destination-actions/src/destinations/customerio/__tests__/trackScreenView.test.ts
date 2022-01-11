@@ -129,6 +129,43 @@ describe('CustomerIO', () => {
       }
     })
 
+    it("should not convert timestamp if it's invalid", async () => {
+      const settings: Settings = {
+        siteId: '12345',
+        apiKey: 'abcde',
+        accountRegion: AccountRegion.US
+      }
+      const userId = 'abc123'
+      const screen = 'Page One'
+      const timestamp = '2018-03-04T12:08:56.235 PDT'
+      const data = {
+        property1: 'this is a test',
+        screen
+      }
+      trackScreenViewService.post(`/customers/${userId}/events`).reply(200, {}, { 'x-customerio-region': 'US' })
+      const event = createTestEvent({
+        type: 'screen',
+        name: screen,
+        userId,
+        properties: data,
+        timestamp
+      })
+      const responses = await testDestination.testAction('trackScreenView', {
+        event,
+        settings,
+        useDefaultMappings: true
+      })
+
+      expect(responses.length).toBe(1)
+      expect(responses[0].status).toBe(200)
+      expect(responses[0].options.json).toMatchObject({
+        name: screen,
+        type,
+        data,
+        timestamp
+      })
+    })
+
     it('should not convert dates to unix timestamps when convert_timestamp is false', async () => {
       const settings: Settings = {
         siteId: '12345',
