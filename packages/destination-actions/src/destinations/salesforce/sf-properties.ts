@@ -56,6 +56,7 @@ export const trait_value: InputField = {
 }
 
 interface Payload {
+  operation?: string
   lookup_criteria?: string
   external_id_field?: string
   external_id_value?: string
@@ -65,7 +66,16 @@ interface Payload {
 }
 
 export const validateLookup = (payload: Payload) => {
-  // if external id but no field or value specified, error out
+  if (payload.operation === 'update' || payload.operation === 'upsert') {
+    if (!payload.lookup_criteria) {
+      throw new IntegrationError(
+        'Undefined lookup criteria for update or upsert operation',
+        'Misconfigured Required Field',
+        400
+      )
+    }
+  }
+
   if (payload.lookup_criteria === 'external_id') {
     if (payload.external_id_field === undefined) {
       throw new IntegrationError('Undefined external_id_field', 'Misconfigured Required Field', 400)
@@ -74,7 +84,7 @@ export const validateLookup = (payload: Payload) => {
       throw new IntegrationError('Undefined external_id_value', 'Misconfigured Required Field', 400)
     }
   }
-  // if trait but no field or value specified, error out
+
   if (payload.lookup_criteria === 'trait') {
     if (payload.trait_field === undefined) {
       throw new IntegrationError('Undefined trait_field', 'Misconfigured Required Field', 400)
