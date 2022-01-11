@@ -1,4 +1,4 @@
-import { ActionDefinition } from '@segment/actions-core'
+import { ActionDefinition, IntegrationError } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 import {
@@ -74,13 +74,16 @@ const action: ActionDefinition<Settings, Payload> = {
     const sf: Salesforce = new Salesforce(settings.instanceUrl, request)
 
     if (payload.operation === 'create') {
-      await sf.createRecord(payload, 'Lead')
+      if (!payload.company || !payload.last_name) {
+        throw new IntegrationError('Missing company or last_name value', 'Misconfigured required field', 400)
+      }
+      return await sf.createRecord(payload, 'Lead')
     }
 
     validateLookup(payload)
 
     if (payload.operation === 'update') {
-      await sf.updateRecord(payload, 'Lead')
+      return await sf.updateRecord(payload, 'Lead')
     }
   }
 }
