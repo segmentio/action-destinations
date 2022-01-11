@@ -9,7 +9,7 @@ import { mapiUrl } from './cloudUtil'
 
 const destination: DestinationDefinition<Settings> = {
   name: 'Friendbuy (Cloud Destination)',
-  slug: 'friendbuy-cloud-dest',
+  slug: 'actions-friendbuy-cloud',
   mode: 'cloud',
 
   authentication: {
@@ -45,11 +45,11 @@ const destination: DestinationDefinition<Settings> = {
     return !payload.userId
       ? true
       : request(`${mapiUrl}/v1/user-data`, {
-          method: 'DELETE',
-          searchParams: {
-            customerId: payload.userId
-          }
-        })
+        method: 'DELETE',
+        searchParams: {
+          customerId: payload.userId
+        }
+      })
   },
 
   actions: {
