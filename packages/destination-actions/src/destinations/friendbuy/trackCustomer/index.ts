@@ -46,11 +46,6 @@ const action: ActionDefinition<Settings, Payload> = {
 
   perform: async (request, { settings, payload }) => {
     const friendbuyPayload = mapEvent(trackCustomerMapi, payload as unknown as AnalyticsPayload)
-
-    if (!friendbuyPayload) {
-      return undefined
-    }
-
     const requestParams = await createRequestParams(request, settings, friendbuyPayload)
     return request(`${mapiUrl}/v1/customer`, requestParams)
   }

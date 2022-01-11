@@ -1,4 +1,4 @@
-import type { JSONObject, JSONValue } from '@segment/actions-core'
+import { IntegrationError, JSONObject, JSONValue } from '@segment/actions-core'
 
 import { isNonEmpty } from './util'
 
@@ -26,7 +26,7 @@ export interface EventMap {
   /** A map that specifies how fields in the input payload should be handled. */
   fields: Record<string, FieldMap | typeof DROP>
   /** If defined, the name of an object that unmapped input fields will be added to. */
-  unmappedFieldObject: string | typeof ROOT
+  unmappedFieldObject?: string | typeof ROOT
   /** Optionally sA object that defines default values for the objects properties. */
   defaultObject?: JSONObject
   /** A function that can modify the object. */
@@ -51,6 +51,14 @@ export type AnalyticsPayload = Record<string, JSONValue>
  * @returns the Friendbuy payload that will be passed to a Friendbuy track call or POSTed to Friendbuy's MAPI interface.
  */
 export function mapEvent(map: EventMap, analyticsPayload: AnalyticsPayload) {
+  const friendbuyPayload = mapEventHelper(map, analyticsPayload)
+  if (!friendbuyPayload) {
+    throw new IntegrationError('Payload has no supported fields', 'INVALID_REQUEST_DATA', 400)
+  }
+  return friendbuyPayload
+}
+
+export function mapEventHelper(map: EventMap, analyticsPayload: AnalyticsPayload) {
   // This function does not go to an enormous amount of effort to verify that
   // the actual shape of the analyticsPayload correctly matches the shape
   // expected by map, as it is expected that validation will be done on the
@@ -98,13 +106,13 @@ export function mapEvent(map: EventMap, analyticsPayload: AnalyticsPayload) {
 
       switch (fieldMap.type) {
         case 'object':
-          value = mapEvent(fieldMap as EventMap, value as AnalyticsPayload)
+          value = mapEventHelper(fieldMap as EventMap, value as AnalyticsPayload)
           break
         case 'array':
           if (fieldMap.fields) {
             // Handle array of objects.
             value = (value as AnalyticsPayload[]).reduce((acc, o) => {
-              const v = mapEvent(fieldMap as EventMap, o)
+              const v = mapEventHelper(fieldMap as EventMap, o)
               if (v !== undefined) {
                 acc.push(v)
               }

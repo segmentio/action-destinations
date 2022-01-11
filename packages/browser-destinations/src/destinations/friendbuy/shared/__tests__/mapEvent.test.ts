@@ -1,4 +1,5 @@
-import { COPY, DROP, mapEvent } from '../mapEvent'
+import { COPY, DROP, EventMap, mapEvent } from '../mapEvent'
+import { IntegrationError } from '@segment/actions-core'
 
 describe('mapEvent', () => {
   const sField = 'string'
@@ -25,7 +26,9 @@ describe('mapEvent', () => {
   })
 
   test('unmapped fields', () => {
-    expect(mapEvent({ unmappedFieldObject: 'unmapped' }, { sField, nField, oField, unmappedField })).toEqual({
+    expect(
+      mapEvent({ fields: {}, unmappedFieldObject: 'unmapped' }, { sField, nField, oField, unmappedField })
+    ).toEqual({
       unmapped: {
         sField,
         nField: nField.toString(),
@@ -52,7 +55,7 @@ describe('mapEvent', () => {
   })
 
   test('defaultObject', () => {
-    const testMap = {
+    const testMap: EventMap = {
       fields: {
         sField: COPY
       },
@@ -79,7 +82,7 @@ describe('mapEvent', () => {
   })
 
   test('nested objects', () => {
-    const testMap = {
+    const testMap: EventMap = {
       fields: {
         a: { type: 'object', fields: { sField: COPY } },
         b: { type: 'object', fields: { nField: COPY }, unmappedFieldObject: 'unmapped' }
@@ -99,7 +102,7 @@ describe('mapEvent', () => {
   })
 
   test('arrays and nested arrays', () => {
-    const testMap = {
+    const testMap: EventMap = {
       fields: {
         a: { type: 'array' },
         b: {
@@ -127,7 +130,7 @@ describe('mapEvent', () => {
   })
 
   test('finalize', () => {
-    const testMap = {
+    const testMap: EventMap = {
       fields: { a: { type: 'array' } },
       finalize: (o: any) => {
         o.total = (o.a || []).reduce((a, b) => a + b, 0)
@@ -139,11 +142,19 @@ describe('mapEvent', () => {
   })
 
   test('convert', () => {
-    const testMap = {
+    const testMap: EventMap = {
       fields: { a: { convert: (a: any) => (typeof a === 'string' ? a.split(',') : a) } }
     }
 
     expect(mapEvent(testMap, { a: 'one,two,three' })).toEqual({ a: ['one', 'two', 'three'] })
     expect(mapEvent(testMap, { a: ['one', 'two'] })).toEqual({ a: ['one', 'two'] })
+  })
+
+  test('no mapped fields', () => {
+    const testMap: EventMap = {
+      fields: { a: COPY }
+    }
+
+    expect(() => mapEvent(testMap, { unmapped1: 'some value', unmapped2: ' another value' })).toThrow(IntegrationError)
   })
 })
