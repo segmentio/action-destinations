@@ -90,15 +90,15 @@ export default class Salesforce {
       !res.data.records[0].Id ||
       !res.data.totalSize
     ) {
-      throw new IntegrationError('missing stuff', 'missing', 404)
+      throw new IntegrationError('Response missing expected fields', 'Bad Response', 400)
     }
 
     if (res.data.totalSize === 0) {
-      throw new IntegrationError('test', 'test', 404)
+      throw new IntegrationError('No record found with given traits', 'Record Not Found', 404)
     }
 
     if (res.data.totalSize > 1) {
-      throw new IntegrationError('test', 'test', 300)
+      throw new IntegrationError('Multiple records returned with given traits', 'Multiple Records Found', 300)
     }
 
     return res.data.records[0].Id
@@ -111,7 +111,7 @@ export default class Salesforce {
     )
 
     if (!res.data.Id) {
-      throw new IntegrationError('test', 'test', 404)
+      throw new IntegrationError('Response missing expected fields', 'Bad Response', 400)
     }
 
     return res.data.Id
