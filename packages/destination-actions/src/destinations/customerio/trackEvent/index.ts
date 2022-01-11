@@ -1,7 +1,6 @@
-import dayjs from '../../../lib/dayjs'
 import type { ActionDefinition } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
-import { convertAttributeTimestamps, trackApiEndpoint } from '../utils'
+import { convertAttributeTimestamps, convertValidTimestamp, trackApiEndpoint } from '../utils'
 import type { Payload } from './generated-types'
 
 interface TrackEventPayload {
@@ -75,7 +74,7 @@ const action: ActionDefinition<Settings, Payload> = {
 
     if (payload.convert_timestamp !== false) {
       if (timestamp) {
-        timestamp = dayjs.utc(timestamp).unix()
+        timestamp = convertValidTimestamp(timestamp)
       }
 
       if (data) {
