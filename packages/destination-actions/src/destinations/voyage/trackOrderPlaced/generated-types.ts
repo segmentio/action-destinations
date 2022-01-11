@@ -14,7 +14,7 @@ export interface Payload {
    */
   SourceId?: string
   /**
-   * A reference to the order that is a string value. (Primarily used for Shopify's checkout token or Magento's entity id).
+   * A reference to the order that is a string value.
    */
   TokenId?: string
   /**
