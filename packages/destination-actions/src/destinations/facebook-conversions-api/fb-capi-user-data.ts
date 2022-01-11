@@ -8,7 +8,7 @@ import { Payload } from './addToCart/generated-types'
 export const user_data_field: InputField = {
   label: 'User Data',
   description:
-  'These parameters are a set of identifiers Facebook can use for targeted attribution. You must provide at least one of the following user_data keys in your request. More information on recommended User Data parameters in Facebook’s [Best Practices for Conversions API](https://www.facebook.com/business/help/308855623839366?id=818859032317965).',
+  'These parameters are a set of identifiers Facebook can use for targeted attribution. You must provide at least one of the following user_data keys in your request. More information on recommended User Data parameters in Facebook’s [Best Practices for Conversions API](https://www.facebook.com/business/help/308855623839366).',
   type: 'object',
   required: true,
   properties: {
