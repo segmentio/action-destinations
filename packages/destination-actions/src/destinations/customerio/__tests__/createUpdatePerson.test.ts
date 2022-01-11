@@ -150,6 +150,36 @@ describe('CustomerIO', () => {
       })
     })
 
+    it("should not convert created_at if it's already a number", async () => {
+      const settings: Settings = {
+        siteId: '12345',
+        apiKey: 'abcde',
+        accountRegion: AccountRegion.US
+      }
+      const userId = 'abc123'
+      const timestamp = dayjs.utc().toISOString()
+      const testTimestamps = {
+        created_at: dayjs.utc(timestamp).unix().toString()
+      }
+      trackDeviceService.put(`/customers/${userId}`).reply(200, {}, { 'x-customerio-region': 'US' })
+      const event = createTestEvent({
+        userId,
+        timestamp,
+        traits: testTimestamps
+      })
+      const responses = await testDestination.testAction('createUpdatePerson', {
+        event,
+        settings,
+        useDefaultMappings: true
+      })
+
+      expect(responses.length).toBe(1)
+      expect(responses[0].status).toBe(200)
+      expect(responses[0].options.json).toMatchObject({
+        created_at: testTimestamps.created_at
+      })
+    })
+
     it('should not convert attributes to unix timestamps when convert_timestamp is false', async () => {
       const settings: Settings = {
         siteId: '12345',
