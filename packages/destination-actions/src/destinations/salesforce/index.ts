@@ -1,6 +1,5 @@
 import type { DestinationDefinition, RefreshAccessTokenResult } from '@segment/actions-core'
 import type { Settings } from './generated-types'
-import { setInstanceUrl } from './salesforce-operations'
 import lead from './lead'
 interface SalesforceRefreshAccessTokenResult extends RefreshAccessTokenResult {
   instance_url: string
@@ -36,7 +35,6 @@ const destination: DestinationDefinition<Settings> = {
           })
         }
       )
-      setInstanceUrl(res.data.instance_url)
       return { accessToken: res.data.accessToken }
     }
   },
