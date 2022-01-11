@@ -82,11 +82,6 @@ describe('CustomerIO', () => {
 
       expect(responses.length).toBe(1)
       expect(responses[0].status).toBe(200)
-      expect(responses[0].headers.toJSON()).toMatchObject({
-        'x-customerio-region': 'US',
-        'content-type': 'application/json'
-      })
-      expect(responses[0].data).toMatchObject({})
       expect(responses[0].options.json).toMatchObject({
         device: {
           id: deviceId,
