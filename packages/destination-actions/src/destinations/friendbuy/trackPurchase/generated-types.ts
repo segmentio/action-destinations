@@ -80,4 +80,20 @@ export interface Payload {
   friendbuyAttributes?: {
     [k: string]: unknown
   }
+  /**
+   * The URL of the web page the event was generated on.
+   */
+  pageUrl?: string
+  /**
+   * The title of the web page the event was generated on.
+   */
+  pageTitle?: string
+  /**
+   * The browser's User-Agent string.
+   */
+  userAgent?: string
+  /**
+   * The users's IP address.
+   */
+  ipAddress?: string
 }
