@@ -2,11 +2,13 @@ import { IntegrationError, RequestClient } from '@segment/actions-core'
 
 const API_VERSION = 'v53.0'
 
-interface LookupResponse {
-  data: {
-    Id: string
-    totalSize?: number
-  }
+interface Records {
+  Id?: string
+}
+interface LookupResponseData {
+  Id?: string
+  totalSize?: number
+  records?: Records[]
 }
 
 export default class Salesforce {
@@ -74,13 +76,24 @@ export default class Salesforce {
     return `?q=SELECT Id FROM ${sobject} WHERE ${trait_field} = '${trait_value}'`
   }
 
-  private lookupTraits = async (trait_field: string, trait_value: string, sobject: string) => {
+  private lookupTraits = async (trait_field: string, trait_value: string, sobject: string): Promise<string> => {
     const SOQLQuery = this.buildQuery(trait_field, trait_value, sobject)
 
-    const res = await this.request<LookupResponse>(
+    const res = await this.request<LookupResponseData>(
       `${this.instanceUrl}/services/data/${API_VERSION}/query/${SOQLQuery}`,
       { method: 'get' }
     )
+
+    if (
+      !res ||
+      !res.data ||
+      !res.data.records ||
+      !res.data.records[0] ||
+      !res.data.records[0].Id ||
+      !res.data.totalSize
+    ) {
+      throw new IntegrationError('missing stuff', 'missing', 404)
+    }
 
     if (res.data.totalSize === 0) {
       throw new IntegrationError('test', 'test', 404)
@@ -93,11 +106,16 @@ export default class Salesforce {
     return res.data.records[0].Id
   }
 
-  private lookupExternalId = async (field: string, value: string, sobject: string) => {
-    const res = await this.request<LookupResponse>(
+  private lookupExternalId = async (field: string, value: string, sobject: string): Promise<string> => {
+    const res = await this.request<LookupResponseData>(
       `${this.instanceUrl}/services/data/${API_VERSION}/sobjects/${sobject}/${field}/${value}`,
       { method: 'get' }
     )
+
+    if (!res.data.Id) {
+      throw new IntegrationError('test', 'test', 404)
+    }
+
     return res.data.Id
   }
 }
