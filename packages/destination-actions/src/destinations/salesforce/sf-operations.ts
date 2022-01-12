@@ -11,6 +11,10 @@ interface LookupResponseData {
   records?: Records[]
 }
 
+interface Payload {
+  traits?: { [k: string]: unknown } | undefined
+}
+
 export default class Salesforce {
   instanceUrl: string
   request: RequestClient
@@ -37,20 +41,17 @@ export default class Salesforce {
     })
   }
 
-  updateRecord = async (payload: any, sobject: string) => {
-    if (payload.lookup_criteria === 'external_id') {
-      const recordId = await this.lookupExternalId(payload.external_id_field, payload.external_id_value, sobject)
-      return await this.baseUpdate(recordId, sobject, payload)
+  updateRecord = async (payload: Payload, sobject: string) => {
+    if (payload.traits === undefined) {
+      throw new IntegrationError('Undefined Traits when using update operation', 'Undefined Traits', 400)
     }
 
-    if (payload.lookup_criteria === 'trait') {
-      const recordId = await this.lookupTraits(payload.trait_field, payload.trait_value, sobject)
-      return await this.baseUpdate(recordId, sobject, payload)
+    if (Object.keys(payload.traits).includes('Id') && payload.traits['Id']) {
+      return await this.baseUpdate(payload.traits['Id'] as string, sobject, payload)
     }
 
-    if (payload.lookup_criteria === 'record_id') {
-      return await this.baseUpdate(payload.record_id, sobject, payload)
-    }
+    const recordId = await this.lookupTraits(payload.traits, sobject)
+    return await this.baseUpdate(recordId, sobject, payload)
   }
 
   private baseUpdate = async (recordId: string, sobject: string, payload: any) => {
@@ -70,12 +71,27 @@ export default class Salesforce {
     })
   }
 
-  private buildQuery = (trait_field: string, trait_value: string, sobject: string) => {
-    return `?q=SELECT Id FROM ${sobject} WHERE ${trait_field} = '${trait_value}'`
+  private buildQuery = (traits: object, sobject: string) => {
+    let soql = `?q=SELECT Id FROM ${sobject} WHERE `
+
+    const entries = Object.entries(traits)
+    let i = 0
+    for (const [key, value] of entries) {
+      let token = `${key} = '${value}'`
+
+      if (i < entries.length - 1) {
+        token += ' OR '
+      }
+
+      soql += token
+      i += 1
+    }
+
+    return soql
   }
 
-  private lookupTraits = async (trait_field: string, trait_value: string, sobject: string): Promise<string> => {
-    const SOQLQuery = this.buildQuery(trait_field, trait_value, sobject)
+  private lookupTraits = async (traits: object, sobject: string): Promise<string> => {
+    const SOQLQuery = this.buildQuery(traits, sobject)
 
     const res = await this.request<LookupResponseData>(
       `${this.instanceUrl}/services/data/${API_VERSION}/query/${SOQLQuery}`,
@@ -102,18 +118,5 @@ export default class Salesforce {
     }
 
     return res.data.records[0].Id
-  }
-
-  private lookupExternalId = async (field: string, value: string, sobject: string): Promise<string> => {
-    const res = await this.request<LookupResponseData>(
-      `${this.instanceUrl}/services/data/${API_VERSION}/sobjects/${sobject}/${field}/${value}`,
-      { method: 'get' }
-    )
-
-    if (!res.data.Id) {
-      throw new IntegrationError('Response missing expected fields', 'Bad Response', 400)
-    }
-
-    return res.data.Id
   }
 }
