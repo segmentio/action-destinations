@@ -86,7 +86,7 @@ export default class Salesforce {
       soql += token
       i += 1
     }
-
+    console.log('soql', soql)
     return soql
   }
 
@@ -98,14 +98,7 @@ export default class Salesforce {
       { method: 'get' }
     )
 
-    if (
-      !res ||
-      !res.data ||
-      !res.data.records ||
-      !res.data.records[0] ||
-      !res.data.records[0].Id ||
-      !res.data.totalSize
-    ) {
+    if (!res || !res.data || res.data.totalSize === undefined) {
       throw new IntegrationError('Response missing expected fields', 'Bad Response', 400)
     }
 
@@ -115,6 +108,10 @@ export default class Salesforce {
 
     if (res.data.totalSize > 1) {
       throw new IntegrationError('Multiple records returned with given traits', 'Multiple Records Found', 300)
+    }
+
+    if (!res.data.records || !res.data.records[0] || !res.data.records[0].Id) {
+      throw new IntegrationError('Response missing expected fields', 'Bad Response', 400)
     }
 
     return res.data.records[0].Id
