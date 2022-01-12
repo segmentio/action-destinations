@@ -86,7 +86,6 @@ export default class Salesforce {
       soql += token
       i += 1
     }
-    console.log('soql', soql)
     return soql
   }
 
