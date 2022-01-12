@@ -3,11 +3,13 @@ import type { Settings } from '../generated-types'
 import type { StackAdaptSDK } from '../types'
 import type { Payload } from './generated-types'
 
+export const trackEventDefaultSubscription = 'type = "track"'
+
 const action: BrowserActionDefinition<Settings, StackAdaptSDK, Payload> = {
   title: 'Track Event',
   description: 'Track events',
   platform: 'web',
-  defaultSubscription: 'type = "track"',
+  defaultSubscription: trackEventDefaultSubscription,
   fields: {
     eventName: {
       description: 'The name of the event.',

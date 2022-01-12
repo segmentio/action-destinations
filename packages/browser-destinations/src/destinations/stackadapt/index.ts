@@ -3,7 +3,8 @@ import type { BrowserDestinationDefinition } from '../../lib/browser-destination
 import { browserDestination } from '../../runtime/shim'
 import { defaultValues } from '@segment/actions-core'
 import { initScript } from './init-script'
-import trackEvent from './trackEvent'
+import trackEvent, { trackEventDefaultSubscription } from './trackEvent'
+import trackPage, { trackPageDefaultSubscription } from './trackPage'
 import type { StackAdaptSDK } from './types'
 
 declare global {
@@ -19,9 +20,15 @@ export const destination: BrowserDestinationDefinition<Settings, StackAdaptSDK> 
   presets: [
     {
       name: 'Track Event',
-      subscribe: 'type = "track"',
+      subscribe: trackEventDefaultSubscription,
       partnerAction: 'trackEvent',
       mapping: defaultValues(trackEvent.fields)
+    },
+    {
+      name: 'Track Page',
+      subscribe: trackPageDefaultSubscription,
+      partnerAction: 'trackPage',
+      mapping: defaultValues(trackPage.fields)
     }
   ],
   settings: {
@@ -41,7 +48,8 @@ export const destination: BrowserDestinationDefinition<Settings, StackAdaptSDK> 
   },
 
   actions: {
-    trackEvent
+    trackEvent,
+    trackPage
   }
 }
 
