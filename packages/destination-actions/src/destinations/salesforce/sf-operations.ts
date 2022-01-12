@@ -53,6 +53,24 @@ export default class Salesforce {
     }
   }
 
+  upsertRecord = async (payload: any, sobject: string) => {
+    if (payload.lookup_criteria === 'external_id') {
+      const recordId = await this.lookupExternalId(payload.external_id_field, payload.external_id_value, sobject)
+      if (!recordId) {
+        return await this.createRecord(payload, sobject)
+      }
+      return await this.baseUpdate(recordId, sobject, payload)
+    }
+
+    if (payload.lookup_criteria === 'trait') {
+      const recordId = await this.lookupTraits(payload.trait_field, payload.trait_value, sobject)
+      if (!recordId) {
+        return await this.createRecord(payload, sobject)
+      }
+      return await this.baseUpdate(recordId, sobject, payload)
+    }
+  }
+
   private baseUpdate = async (recordId: string, sobject: string, payload: any) => {
     return this.request(`${this.instanceUrl}/services/data/${API_VERSION}/sobjects/${sobject}/${recordId}`, {
       method: 'patch',

@@ -99,4 +99,12 @@ export const validateLookup = (payload: Payload) => {
       throw new IntegrationError('Undefined record_id', 'Misconfigured Required Field', 400)
     }
   }
+
+  if (payload.operation === 'upsert' && payload.lookup_criteria === 'record_id') {
+    throw new IntegrationError(
+      'Invalid configuration, cannot use record_id with upsert',
+      'Misconfigured Required Field',
+      400
+    )
+  }
 }

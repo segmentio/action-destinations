@@ -85,6 +85,10 @@ const action: ActionDefinition<Settings, Payload> = {
     if (payload.operation === 'update') {
       return await sf.updateRecord(payload, 'Lead')
     }
+
+    if (payload.operation === 'upsert') {
+      return await sf.upsertRecord(payload, 'Lead')
+    }
   }
 }
 
