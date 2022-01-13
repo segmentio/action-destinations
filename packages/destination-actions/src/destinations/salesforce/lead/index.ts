@@ -1,35 +1,24 @@
-import type { ActionDefinition } from '@segment/actions-core'
+import { ActionDefinition, IntegrationError } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
+import { operation, traits, validateLookup } from '../sf-properties'
+import Salesforce from '../sf-operations'
 
-const API_VERSION = 'v53.0'
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Lead',
   description: 'Lead action',
   fields: {
-    operation: {
-      label: 'Operation',
-      description: 'Operation',
-      type: 'string',
-      required: true,
-      choices: [{ label: 'Create', value: 'create' }]
-    },
-    external_id_value: {
-      label: 'External ID Value',
-      description: 'External ID Value',
-      type: 'string'
-    },
+    operation: operation,
+    traits: traits,
     company: {
       label: 'Company',
       description: 'Company',
-      type: 'string',
-      required: true
+      type: 'string'
     },
     last_name: {
       label: 'Last Name',
       description: 'Last Name',
-      type: 'string',
-      required: true
+      type: 'string'
     },
     first_name: {
       label: 'First Name',
@@ -67,22 +56,20 @@ const action: ActionDefinition<Settings, Payload> = {
       type: 'string'
     }
   },
-  perform: (request, { settings, payload }) => {
+  perform: async (request, { settings, payload }) => {
+    const sf: Salesforce = new Salesforce(settings.instanceUrl, request)
+
     if (payload.operation === 'create') {
-      return request(`${settings.instanceUrl}/services/data/${API_VERSION}/sobjects/Lead`, {
-        method: 'post',
-        json: {
-          LastName: payload.last_name,
-          Company: payload.company,
-          FirstName: payload.first_name,
-          State: payload.state,
-          Street: payload.street,
-          Country: payload.country,
-          PostalCode: payload.postal_code,
-          City: payload.city,
-          Email: payload.email
-        }
-      })
+      if (!payload.company || !payload.last_name) {
+        throw new IntegrationError('Missing company or last_name value', 'Misconfigured required field', 400)
+      }
+      return await sf.createRecord(payload, 'Lead')
+    }
+
+    validateLookup(payload)
+
+    if (payload.operation === 'update') {
+      return await sf.updateRecord(payload, 'Lead')
     }
   }
 }

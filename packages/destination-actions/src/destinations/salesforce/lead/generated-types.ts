@@ -6,17 +6,19 @@ export interface Payload {
    */
   operation: string
   /**
-   * External ID Value
+   * Traits
    */
-  external_id_value?: string
+  traits?: {
+    [k: string]: unknown
+  }
   /**
    * Company
    */
-  company: string
+  company?: string
   /**
    * Last Name
    */
-  last_name: string
+  last_name?: string
   /**
    * First Name
    */
