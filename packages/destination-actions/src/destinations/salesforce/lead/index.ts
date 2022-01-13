@@ -1,16 +1,7 @@
 import { ActionDefinition, IntegrationError } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
-import {
-  operation,
-  lookup_criteria,
-  external_id_field,
-  external_id_value,
-  record_id,
-  trait_field,
-  trait_value,
-  validateLookup
-} from '../sf-properties'
+import { operation, traits, validateLookup } from '../sf-properties'
 import Salesforce from '../sf-operations'
 
 const action: ActionDefinition<Settings, Payload> = {
@@ -18,12 +9,7 @@ const action: ActionDefinition<Settings, Payload> = {
   description: 'Lead action',
   fields: {
     operation: operation,
-    lookup_criteria: lookup_criteria,
-    external_id_field: external_id_field,
-    external_id_value: external_id_value,
-    record_id: record_id,
-    trait_field: trait_field,
-    trait_value: trait_value,
+    traits: traits,
     company: {
       label: 'Company',
       description: 'Company',
