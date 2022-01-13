@@ -1,8 +1,7 @@
-import dayjs from '../../../lib/dayjs'
 import type { ActionDefinition } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
-import { convertAttributeTimestamps, trackApiEndpoint } from '../utils'
+import { convertAttributeTimestamps, convertValidTimestamp, trackApiEndpoint } from '../utils'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Create or Update Person',
@@ -67,7 +66,7 @@ const action: ActionDefinition<Settings, Payload> = {
 
     if (payload.convert_timestamp !== false) {
       if (createdAt) {
-        createdAt = dayjs.utc(createdAt).unix()
+        createdAt = convertValidTimestamp(createdAt)
       }
 
       if (customAttributes) {

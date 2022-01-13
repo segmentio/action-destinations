@@ -35,7 +35,16 @@ function setTestData(seedName: string, type: string, fieldName?: string, format?
       val = { testType: chance.string() }
       break
     default:
+      // covers string
       switch (format) {
+        case 'date': {
+          const d = chance.date()
+          val = [d.getFullYear(), d.getMonth() + 1, d.getDate()].map((v) => String(v).padStart(2, '0')).join('-')
+          break
+        }
+        case 'date-time':
+          val = chance.date().toISOString()
+          break
         case 'email':
           val = chance.email()
           break
@@ -48,6 +57,11 @@ function setTestData(seedName: string, type: string, fieldName?: string, format?
         case 'ipv6':
           val = chance.ipv6()
           break
+        case 'time': {
+          const d = chance.date()
+          val = [d.getHours(), d.getMinutes(), d.getSeconds()].map((v) => String(v).padStart(2, '0')).join(':')
+          break
+        }
         case 'uri':
           val = chance.url()
           break

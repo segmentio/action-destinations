@@ -5,11 +5,14 @@ import { defaultValues } from '@segment/actions-core'
 
 import type { Settings } from './generated-types'
 import type { FriendbuyAPI } from './types'
-import trackCustomer, { trackCustomerDefaultSubscription, trackCustomerFields } from './trackCustomer'
-import trackPurchase, { trackPurchaseDefaultSubscription, trackPurchaseFields } from './trackPurchase'
-import trackSignUp, { trackSignUpDefaultSubscription, trackSignUpFields } from './trackSignUp'
+import trackCustomer, { trackCustomerDefaultSubscription } from './trackCustomer'
+import trackPurchase, { trackPurchaseDefaultSubscription } from './trackPurchase'
+import trackSignUp, { trackSignUpDefaultSubscription } from './trackSignUp'
 import trackPage, { trackPageDefaultSubscription, trackPageFields } from './trackPage'
 import trackCustomEvent from './trackCustomEvent'
+import { trackCustomerFields } from './shared/sharedCustomer'
+import { trackPurchaseFields } from './shared/sharedPurchase'
+import { trackSignUpFields } from './shared/sharedSignUp'
 
 declare global {
   interface Window {
@@ -71,8 +74,8 @@ export const destination: BrowserDestinationDefinition<Settings, FriendbuyAPI> =
     friendbuyAPI.push(['merchant', settings.merchantId])
 
     // The Friendbuy JavaScript can be loaded asynchronously.
-    void dependencies.loadScript(`https://static.${friendbuyBaseHost}/friendbuy.js`),
-      void dependencies.loadScript(`https://campaign.${friendbuyBaseHost}/${settings.merchantId}/campaigns.js`)
+    void dependencies.loadScript(`https://static.${friendbuyBaseHost}/friendbuy.js`)
+    void dependencies.loadScript(`https://campaign.${friendbuyBaseHost}/${settings.merchantId}/campaigns.js`)
 
     return friendbuyAPI
   },
