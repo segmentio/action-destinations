@@ -4,7 +4,7 @@ import type { BrowserActionDefinition } from '../../../lib/browser-destinations'
 import type { FriendbuyAPI } from '../types'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
-import { createFriendbuyPayload } from '../shared/util'
+import { createFriendbuyPayload } from '@segment/actions-shared'
 
 export const trackPageDefaultSubscription = 'type = "page"'
 

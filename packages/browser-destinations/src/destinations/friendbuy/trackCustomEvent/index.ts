@@ -3,11 +3,11 @@ import type { BrowserActionDefinition } from '../../../lib/browser-destinations'
 import type { FriendbuyAPI } from '../types'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
-import type { ConvertFun, EventMap } from '../shared/mapEvent'
+import type { ConvertFun, EventMap } from '@segment/actions-shared'
 
-import { AnalyticsPayload, COPY, DROP, ROOT, mapEvent } from '../shared/mapEvent'
-import { trackCustomEventFields } from '../shared/sharedCustomEvent'
-import { addName, moveEventPropertiesToRoot, parseDate } from '../shared/util'
+import { AnalyticsPayload, COPY, DROP, ROOT, mapEvent } from '@segment/actions-shared'
+import { trackCustomEventFields } from '@segment/actions-shared'
+import { addName, moveEventPropertiesToRoot, parseDate } from '@segment/actions-shared'
 
 const trackCustomEventPub: EventMap = {
   fields: {

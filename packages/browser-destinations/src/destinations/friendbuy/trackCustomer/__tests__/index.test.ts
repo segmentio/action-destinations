@@ -1,7 +1,7 @@
 import { Analytics, Context } from '@segment/analytics-next'
 import friendbuyDestination from '../../index'
 import trackCustomerObject, { trackCustomerDefaultSubscription } from '../index'
-import { trackCustomerFields } from '../../shared/sharedCustomer'
+import { trackCustomerFields } from '@segment/actions-shared'
 
 import { loadScript } from '../../../../runtime/load-script'
 jest.mock('../../../../runtime/load-script')

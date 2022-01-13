@@ -10,9 +10,9 @@ import trackPurchase, { trackPurchaseDefaultSubscription } from './trackPurchase
 import trackSignUp, { trackSignUpDefaultSubscription } from './trackSignUp'
 import trackPage, { trackPageDefaultSubscription, trackPageFields } from './trackPage'
 import trackCustomEvent from './trackCustomEvent'
-import { trackCustomerFields } from './shared/sharedCustomer'
-import { trackPurchaseFields } from './shared/sharedPurchase'
-import { trackSignUpFields } from './shared/sharedSignUp'
+import { trackCustomerFields } from '@segment/actions-shared'
+import { trackPurchaseFields } from '@segment/actions-shared'
+import { trackSignUpFields } from '@segment/actions-shared'
 
 declare global {
   interface Window {
