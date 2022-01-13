@@ -5,7 +5,7 @@
     "rootDir": "src",
     "outDir": "dist"
   },
-  "exclude": ["**/__tests__/**/*.ts"],
+  "exclude": ["dist", "**/__tests__/**/*.ts"],
   "include": ["src"],
-  "references": [{ "path": "../core/tsconfig.build.json" }, { "path": "../browser-destinations/tsconfig.build.json" }]
+  "references": [{ "path": "../core/tsconfig.build.json" }]
 }
