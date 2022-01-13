@@ -73,6 +73,9 @@ const action: ActionDefinition<Settings, Payload> = {
     }
 
     if (payload.operation === 'upsert') {
+      if (!payload.company || !payload.last_name) {
+        throw new IntegrationError('Missing company or last_name value', 'Misconfigured required field', 400)
+      }
       return await sf.upsertRecord(payload, 'Lead')
     }
   }

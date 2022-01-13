@@ -54,21 +54,16 @@ export default class Salesforce {
     return await this.baseUpdate(recordId, sobject, payload)
   }
 
-  upsertRecord = async (payload: any, sobject: string) => {
-    if (payload.lookup_criteria === 'external_id') {
-      const recordId = await this.lookupExternalId(payload.external_id_field, payload.external_id_value, sobject)
-      if (!recordId) {
-        return await this.createRecord(payload, sobject)
-      }
-      return await this.baseUpdate(recordId, sobject, payload)
+  upsertRecord = async (payload: Payload, sobject: string) => {
+    if (payload.traits === undefined || payload.traits === {}) {
+      throw new IntegrationError('Undefined Traits when using upsert operation', 'Undefined Traits', 400)
     }
 
-    if (payload.lookup_criteria === 'trait') {
-      const recordId = await this.lookupTraits(payload.trait_field, payload.trait_value, sobject)
-      if (!recordId) {
-        return await this.createRecord(payload, sobject)
-      }
+    try {
+      const recordId = await this.lookupTraits(payload.traits, sobject)
       return await this.baseUpdate(recordId, sobject, payload)
+    } catch (e) {
+      return await this.createRecord(payload, sobject)
     }
   }
 
