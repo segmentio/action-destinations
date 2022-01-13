@@ -3,11 +3,11 @@ import type { BrowserActionDefinition } from '../../../lib/browser-destinations'
 import type { FriendbuyAPI } from '../types'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
-import type { AnalyticsPayload, ConvertFun, EventMap } from '../shared/mapEvent'
+import type { AnalyticsPayload, ConvertFun, EventMap } from '@segment/actions-shared'
 
-import { COPY, ROOT, mapEvent } from '../shared/mapEvent'
-import { trackSignUpFields } from '../shared/sharedSignUp'
-import { addName, parseDate } from '../shared/util'
+import { COPY, ROOT, mapEvent } from '@segment/actions-shared'
+import { trackSignUpFields } from '@segment/actions-shared'
+import { addName, parseDate } from '@segment/actions-shared'
 
 // see https://segment.com/docs/config-api/fql/
 export const trackSignUpDefaultSubscription = 'event = "Signed Up"'

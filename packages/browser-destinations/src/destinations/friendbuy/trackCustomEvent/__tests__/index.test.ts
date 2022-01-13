@@ -1,7 +1,7 @@
 import { Analytics, Context } from '@segment/analytics-next'
 import friendbuyDestination from '../../index'
 import trackCustomEventObject from '../index'
-import { trackCustomEventFields } from '../../shared/sharedCustomEvent'
+import { trackCustomEventFields } from '@segment/actions-shared'
 
 import { loadScript } from '../../../../runtime/load-script'
 jest.mock('../../../../runtime/load-script')
