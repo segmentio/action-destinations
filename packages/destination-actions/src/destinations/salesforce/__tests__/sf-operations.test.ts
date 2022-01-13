@@ -1,8 +1,7 @@
 import nock from 'nock'
 import createRequestClient from '../../../../../core/src/create-request-client'
 import Salesforce from '../sf-operations'
-
-const API_VERSION = 'v53.0'
+import { API_VERSION } from '../sf-operations'
 
 const settings = {
   instanceUrl: 'https://test.com'

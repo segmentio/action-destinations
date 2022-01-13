@@ -1,10 +1,11 @@
 import { IntegrationError, RequestClient } from '@segment/actions-core'
 
-const API_VERSION = 'v53.0'
+export const API_VERSION = 'v53.0'
 
 interface Records {
   Id?: string
 }
+
 interface LookupResponseData {
   Id?: string
   totalSize?: number
@@ -42,7 +43,7 @@ export default class Salesforce {
   }
 
   updateRecord = async (payload: Payload, sobject: string) => {
-    if (payload.traits === undefined) {
+    if (payload.traits === undefined || Object.keys(payload.traits).length === 0) {
       throw new IntegrationError('Undefined Traits when using update operation', 'Undefined Traits', 400)
     }
 

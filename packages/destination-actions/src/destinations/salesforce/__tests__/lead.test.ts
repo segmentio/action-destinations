@@ -1,8 +1,7 @@
 import nock from 'nock'
 import { createTestEvent, createTestIntegration } from '@segment/actions-core'
 import Destination from '../index'
-
-const API_VERSION = 'v53.0'
+import { API_VERSION } from '../sf-operations'
 
 const testDestination = createTestIntegration(Destination)
 
