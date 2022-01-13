@@ -133,7 +133,7 @@ describe('mapEvent', () => {
     const testMap: EventMap = {
       fields: { a: { type: 'array' } },
       finalize: (o: any) => {
-        o.total = (o.a || []).reduce((a, b) => a + b, 0)
+        o.total = (o.a || []).reduce((a: any, b: any) => a + b, 0)
         return o
       }
     }
