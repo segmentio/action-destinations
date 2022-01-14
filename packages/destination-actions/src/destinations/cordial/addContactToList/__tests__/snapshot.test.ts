@@ -9,6 +9,7 @@ const destinationSlug = 'Cordial'
 const seedName = `${destinationSlug}#${actionSlug}`
 
 describe(`Testing snapshot for ${destinationSlug}'s ${actionSlug} destination action:`, () => {
+  afterEach(() => nock.cleanAll())
   it('default fields, group name', async () => {
     const action = destination.actions[actionSlug]
     const [eventData, settingsData] = generateTestData(seedName, destination, action, false)
