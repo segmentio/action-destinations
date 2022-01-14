@@ -3,7 +3,7 @@ import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 import type { AnalyticsPayload, EventMap } from '@segment/actions-shared'
 
-import { createRequestParams, mapiUrl } from '../cloudUtil'
+import { createMapiRequest } from '../cloudUtil'
 import { commonCustomerFields } from '@segment/actions-shared'
 import { contextFields } from '@segment/actions-shared'
 import { COPY, DROP, mapEvent } from '@segment/actions-shared'
@@ -62,8 +62,13 @@ const action: ActionDefinition<Settings, Payload> = {
 
   perform: async (request, { settings, payload }) => {
     const friendbuyPayload = mapEvent(trackPurchaseMapi, payload as unknown as AnalyticsPayload)
-    const requestParams = await createRequestParams(request, settings, friendbuyPayload)
-    return request(`${mapiUrl}/v1/event/purchase`, requestParams)
+    const [requestUrl, requestParams] = await createMapiRequest(
+      'v1/event/purchase',
+      request,
+      settings,
+      friendbuyPayload
+    )
+    return request(requestUrl, requestParams)
   }
 }
 

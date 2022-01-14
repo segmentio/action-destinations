@@ -3,7 +3,7 @@ import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 import type { EventMap } from '@segment/actions-shared'
 
-import { createRequestParams, mapiUrl } from '../cloudUtil'
+import { createMapiRequest } from '../cloudUtil'
 import { contextFields } from '@segment/actions-shared'
 import { AnalyticsPayload, COPY, mapEvent } from '@segment/actions-shared'
 import { trackCustomEventFields } from '@segment/actions-shared'
@@ -41,8 +41,8 @@ const action: ActionDefinition<Settings, Payload> = {
   perform: async (request, { settings, payload }) => {
     const payload1 = moveEventPropertiesToRoot(payload as unknown as AnalyticsPayload)
     const friendbuyPayload = mapEvent(trackCustomEventMapi, payload1)
-    const requestParams = await createRequestParams(request, settings, friendbuyPayload)
-    return request(`${mapiUrl}/v1/event/custom`, requestParams)
+    const [requestUrl, requestParams] = await createMapiRequest('v1/event/custom', request, settings, friendbuyPayload)
+    return request(requestUrl, requestParams)
   }
 }
 

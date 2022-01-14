@@ -2,8 +2,7 @@ import nock from 'nock'
 import { createTestEvent, createTestIntegration } from '@segment/actions-core'
 import Destination from '../../index'
 
-import { mapiUrl } from '../../cloudUtil'
-// import { get } from '@segment/actions-core'
+import { defaultMapiBaseUrl } from '../../cloudUtil'
 import { nockAuth, authKey, authSecret } from '../../__tests__/cloudUtil.mock'
 
 const testDestination = createTestIntegration(Destination)
@@ -11,7 +10,7 @@ const testDestination = createTestIntegration(Destination)
 describe('Friendbuy.trackCustomEvent', () => {
   test('all fields', async () => {
     nockAuth()
-    nock(mapiUrl).persist().post('/v1/event/custom').reply(200, {})
+    nock(defaultMapiBaseUrl).persist().post('/v1/event/custom').reply(200, {})
 
     const userId = 'john-doe-1234'
     const anonymousId = '960efa33-6d3b-4eb9-a4e7-d95412d9829e'

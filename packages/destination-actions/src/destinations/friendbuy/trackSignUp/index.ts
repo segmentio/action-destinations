@@ -3,7 +3,7 @@ import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 import type { AnalyticsPayload, ConvertFun, EventMap } from '@segment/actions-shared'
 
-import { createRequestParams, mapiUrl } from '../cloudUtil'
+import { createMapiRequest } from '../cloudUtil'
 import { contextFields } from '@segment/actions-shared'
 import { COPY, DROP, mapEvent } from '@segment/actions-shared'
 import { trackSignUpFields } from '@segment/actions-shared'
@@ -43,8 +43,13 @@ const action: ActionDefinition<Settings, Payload> = {
 
   perform: async (request, { settings, payload }) => {
     const friendbuyPayload = mapEvent(trackSignUpMapi, payload as unknown as AnalyticsPayload)
-    const requestParams = await createRequestParams(request, settings, friendbuyPayload)
-    return request(`${mapiUrl}/v1/event/account-sign-up`, requestParams)
+    const [requestUrl, requestParams] = await createMapiRequest(
+      'v1/event/account-sign-up',
+      request,
+      settings,
+      friendbuyPayload
+    )
+    return request(requestUrl, requestParams)
   }
 }
 
