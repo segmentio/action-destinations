@@ -1,8 +1,7 @@
-import dayjs from '../../../lib/dayjs'
 import type { ActionDefinition } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
-import { trackApiEndpoint } from '../utils'
+import { convertAttributeTimestamps, convertValidTimestamp, trackApiEndpoint } from '../utils'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Create or Update Person',
@@ -38,10 +37,10 @@ const action: ActionDefinition<Settings, Payload> = {
     },
     created_at: {
       label: 'Created At',
-      description: 'A timestamp of when the person was created. Default is current date and time.',
+      description: 'A timestamp of when the person was created.',
       type: 'string',
       default: {
-        '@path': '$.timestamp'
+        '@template': '{{traits.created_at}}'
       }
     },
     custom_attributes: {
@@ -55,7 +54,7 @@ const action: ActionDefinition<Settings, Payload> = {
     },
     convert_timestamp: {
       label: 'Convert Timestamps',
-      description: 'Convert `created_at` to a Unix timestamp (seconds since Epoch).',
+      description: 'Convert dates to Unix timestamps (seconds since Epoch).',
       type: 'boolean',
       default: true
     }
@@ -63,19 +62,31 @@ const action: ActionDefinition<Settings, Payload> = {
 
   perform: (request, { settings, payload }) => {
     let createdAt: string | number | undefined = payload.created_at
+    let customAttributes = payload.custom_attributes
 
-    if (createdAt && payload.convert_timestamp !== false) {
-      createdAt = dayjs.utc(createdAt).unix()
+    if (payload.convert_timestamp !== false) {
+      if (createdAt) {
+        createdAt = convertValidTimestamp(createdAt)
+      }
+
+      if (customAttributes) {
+        customAttributes = convertAttributeTimestamps(customAttributes)
+      }
+    }
+
+    const body: Record<string, unknown> = {
+      ...customAttributes,
+      email: payload.email,
+      anonymous_id: payload.anonymous_id
+    }
+
+    if (createdAt) {
+      body.created_at = createdAt
     }
 
     return request(`${trackApiEndpoint(settings.accountRegion)}/api/v1/customers/${payload.id}`, {
       method: 'put',
-      json: {
-        ...payload.custom_attributes,
-        email: payload.email,
-        created_at: createdAt,
-        anonymous_id: payload.anonymous_id
-      }
+      json: body
     })
   }
 }

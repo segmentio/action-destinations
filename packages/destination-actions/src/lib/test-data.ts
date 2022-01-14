@@ -1,10 +1,19 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { ActionDefinition, DestinationDefinition } from '@segment/actions-core'
+import { ActionDefinition, DestinationDefinition, InputField } from '@segment/actions-core'
 import Chance from 'chance'
+type Choices = Pick<InputField, 'choices'>
 
-function setTestData(seedName: string, type: string, fieldName?: string, format?: string) {
+function setTestData(seedName: string, type: string, fieldName?: string, format?: string, choices?: Choices) {
   const chance = new Chance(seedName)
 
+  if (Array.isArray(choices)) {
+    const choice = chance.pickone(choices)
+
+    if (choice.value) {
+      return choice.value
+    }
+    return choice
+  }
   let val: any
   switch (type) {
     case 'boolean':
@@ -26,7 +35,16 @@ function setTestData(seedName: string, type: string, fieldName?: string, format?
       val = { testType: chance.string() }
       break
     default:
+      // covers string
       switch (format) {
+        case 'date': {
+          const d = chance.date()
+          val = [d.getFullYear(), d.getMonth() + 1, d.getDate()].map((v) => String(v).padStart(2, '0')).join('-')
+          break
+        }
+        case 'date-time':
+          val = chance.date().toISOString()
+          break
         case 'email':
           val = chance.email()
           break
@@ -39,6 +57,11 @@ function setTestData(seedName: string, type: string, fieldName?: string, format?
         case 'ipv6':
           val = chance.ipv6()
           break
+        case 'time': {
+          const d = chance.date()
+          val = [d.getHours(), d.getMinutes(), d.getSeconds()].map((v) => String(v).padStart(2, '0')).join(':')
+          break
+        }
         case 'uri':
           val = chance.url()
           break
@@ -62,7 +85,7 @@ function setData(eventData: any, chanceName: string, fieldName: string, field: a
   const { format, multiple, type } = field
 
   if (!data) {
-    data = setTestData(chanceName, type, fieldName, format)
+    data = setTestData(chanceName, type, fieldName, format, field.choices)
   }
 
   eventData[fieldName] = multiple ? [data] : data

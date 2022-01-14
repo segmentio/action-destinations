@@ -62,6 +62,7 @@ Output:
   - [@path](#path)
   - [@template](#template)
   - [@literal](#literal)
+  - [@arrayPath](#array-path)
 
 <!-- tocstop -->
 
@@ -443,4 +444,61 @@ n/a
 
 Mappings:
 { "@literal": true } => true
+```
+
+### @arrayPath
+
+The @arrayPath directive resolves a value at a given path (much like @path), but allows you to specify the shape of each item in the resulting array. You can use directives for each key in the given shape, relative to the root object. 
+
+Typically, the root object is expected to be an array, which will be iterated to produce the resulting array from the specified item shape. It is not required that the root object be an array. 
+
+For the item shape to be respected, the root object must be either an array of plain objects OR a singular plain object. If the root object is a singular plain object, it will be arrified into an array of 1.
+
+Input:
+```json
+{
+  "properties": {
+    "products": [{ "productId": 1 }, { "productId": 2 }]
+  }
+}
+```
+
+Mapping:
+```json
+{
+  "@arrayPath": ["$.properties.products"]
+}
+```
+
+Result:
+```json
+[
+  {
+    "productId": 1
+  },
+  {
+    "productId": 2
+  }
+]
+```
+
+Mappings with item shape:
+```json
+{
+  "@arrayPath": ["$.properties.products", {
+    "some_other_key": { "@path": "$.productId" }
+  }]
+}
+```
+
+Result:
+```json
+[
+  {
+    "some_other_key": 1
+  },
+  {
+    "some_other_key": 2
+  }
+]
 ```

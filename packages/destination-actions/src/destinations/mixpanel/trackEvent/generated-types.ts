@@ -2,19 +2,19 @@
 
 export interface Payload {
   /**
+   * The name of the action being performed.
+   */
+  event: string
+  /**
    * A distinct ID specified by you.
    */
   distinct_id?: string
   /**
-   * A device-specific identifier, such as the Identifier for Vendor on iOS. Required unless user ID is present. If a device ID is not sent with the event, it will be set to a hashed version of the user ID.
+   * The unique identifier of the group that performed this event.
    */
-  device_id?: string
+  group_id?: string
   /**
-   * A unique identifier for your event.
-   */
-  event: string
-  /**
-   * The timestamp of the event. If time is not sent with the event, it will be set to the request upload time.
+   * The timestamp of the event. If time is not sent with the event, it will be set to the time our servers receive it.
    */
   time?: string | number
   /**
@@ -54,6 +54,10 @@ export interface Payload {
    */
   os_version?: string
   /**
+   * A unique identifier for the device the user is using.
+   */
+  device_id?: string
+  /**
    * The type of the user's device
    */
   device_type?: string
@@ -78,9 +82,13 @@ export interface Payload {
    */
   carrier?: string
   /**
-   * Whether cellular was enabled
+   * Whether cellular is enabled
    */
   cellular?: boolean
+  /**
+   * Set to true if user’s device has an active, available Wifi connection, false if not.
+   */
+  wifi?: boolean
   /**
    * The current country of the user.
    */
@@ -94,15 +102,15 @@ export interface Payload {
    */
   language?: string
   /**
-   * Library name
+   * The name of the SDK used to send events
    */
   library_name?: string
   /**
-   * Library version
+   * The version of the SDK used to send events
    */
   library_version?: string
   /**
-   * The IP address of the user. Use "$remote" to use the IP address on the upload request.
+   * The IP address of the user. This is only used for geolocation and won't be stored.
    */
   ip?: string
   /**
@@ -123,10 +131,6 @@ export interface Payload {
    * The full URL of the webpage on which the event is triggered.
    */
   url?: string
-  /**
-   * Set to true if user’s device has an active, available Wifi connection, false if not.
-   */
-  wifi?: boolean
   /**
    * Width, in pixels, of the device screen.
    */

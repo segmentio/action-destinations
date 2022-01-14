@@ -275,7 +275,8 @@ export default class Push extends Command {
             advancedOptions: [], // make sure this gets cleared out since we don't use advancedOptions in Actions
             basicOptions,
             options,
-            platforms
+            platforms,
+            supportedRegions: ['us-west-2'] // always default to US until regional action destinations are supported
           }),
           updateDestinationMetadataActions(actionsToUpdate),
           createDestinationMetadataActions(actionsToCreate)
@@ -402,7 +403,7 @@ export function getOptions(
 
     // Preserve existing properties unless specified by the action field definition
     const existing = existingOptions[fieldKey]
-    const tags = existing.tags ?? []
+    const tags = existing?.tags ?? []
 
     if (isAuth && !tags.includes('authentication:test')) {
       tags.push('authentication:test') //valid values here can eventually be test, no-test if needed

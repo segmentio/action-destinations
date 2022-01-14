@@ -24,7 +24,7 @@ export interface Payload {
     [k: string]: unknown
   }
   /**
-   * Convert `timestamp` to a Unix timestamp (seconds since Epoch).
+   * Convert dates to Unix timestamps (seconds since Epoch).
    */
   convert_timestamp?: boolean
 }

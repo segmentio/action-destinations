@@ -11,8 +11,6 @@ describe('Tiktok Conversions', () => {
     it('should send a successful event to reportWebEvent', async () => {
       const settings: Settings = {
         accessToken: 'test',
-        appId: 'test',
-        secretKey: 'test',
         pixel_code: 'test'
       }
 

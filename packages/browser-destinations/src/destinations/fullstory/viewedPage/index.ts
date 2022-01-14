@@ -2,6 +2,7 @@ import type { BrowserActionDefinition } from '../../../lib/browser-destinations'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 import type { FS } from '../types'
+import { segmentEventSource } from '..'
 
 const action: BrowserActionDefinition<Settings, FS, Payload> = {
   title: 'Viewed Page',
@@ -34,9 +35,9 @@ const action: BrowserActionDefinition<Settings, FS, Payload> = {
   },
   perform: (FS, event) => {
     if (event.payload.pageName) {
-      FS.setVars('page', { pageName: event.payload.pageName, ...event.payload.properties })
+      FS.setVars('page', { pageName: event.payload.pageName, ...event.payload.properties }, segmentEventSource)
     } else if (event.payload.properties) {
-      FS.setVars('page', event.payload.properties)
+      FS.setVars('page', event.payload.properties, segmentEventSource)
     }
   }
 }

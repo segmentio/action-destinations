@@ -16,6 +16,7 @@ export type MixpanelEvent = {
     $device_id?: string
     $device_type?: string // 'ios'
     $device_name?: string // 'maguro'
+    $group_id?: string
     $insert_id?: string // '859d3955-363f-590a-9aa4-b4f49b582437'
     $ios_app_release?: string // '3.0.1.545'
     $ios_app_version?: string // '545'

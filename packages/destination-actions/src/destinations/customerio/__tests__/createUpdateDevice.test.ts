@@ -53,6 +53,44 @@ describe('CustomerIO', () => {
       })
     })
 
+    it("should not convert last_used if it's invalid", async () => {
+      const settings: Settings = {
+        siteId: '12345',
+        apiKey: 'abcde',
+        accountRegion: AccountRegion.US
+      }
+      const userId = 'abc123'
+      const deviceId = 'device_123'
+      const deviceType = 'ios'
+      const timestamp = '2018-03-04T12:08:56.235 PDT'
+      trackService.put(`/customers/${userId}/devices`).reply(200, {}, { 'x-customerio-region': 'US' })
+      const event = createTestEvent({
+        userId,
+        timestamp,
+        context: {
+          device: {
+            token: deviceId,
+            type: deviceType
+          }
+        }
+      })
+      const responses = await testDestination.testAction('createUpdateDevice', {
+        event,
+        settings,
+        useDefaultMappings: true
+      })
+
+      expect(responses.length).toBe(1)
+      expect(responses[0].status).toBe(200)
+      expect(responses[0].options.json).toMatchObject({
+        device: {
+          id: deviceId,
+          platform: deviceType,
+          last_used: timestamp
+        }
+      })
+    })
+
     it('should not convert last_used to a unix timestamp when convert_timestamp is false', async () => {
       const settings: Settings = {
         siteId: '12345',

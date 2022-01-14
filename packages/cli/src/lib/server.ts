@@ -4,6 +4,7 @@ import { once } from 'lodash'
 import logger from './logger'
 import path from 'path'
 import { loadDestination } from './destinations'
+import type { DestinationDefinition } from './destinations'
 import {
   Destination,
   DestinationDefinition as CloudDestinationDefinition,
@@ -12,17 +13,12 @@ import {
 } from '@segment/actions-core'
 import asyncHandler from './async-handler'
 import getExchanges from './summarize-http'
-import ora from 'ora'
-import chalk from 'chalk'
-
 interface ResponseError extends Error {
   status?: number
 }
 
 const app = express()
 app.use(express.json())
-
-const spinner: ora.Ora = ora()
 
 const DEFAULT_PORT = 3000
 const port = process.env.PORT || DEFAULT_PORT
@@ -76,54 +72,99 @@ server.on('error', (err: Error) => {
   logger.error(`Server error: ${err.message}`, err)
 })
 
-loadDestination(targetDirectory)
-  .then((def) => {
-    const destination = new Destination(def as CloudDestinationDefinition)
-    const supportsDelete = destination.onDelete
+app.use((req, res, next) => {
+  const requestStartedAt = process.hrtime.bigint()
+  const routePath = req.path
+  const endpoint = `${req.method} ${routePath}`
 
-    if (supportsDelete) {
-      app.post(
-        '/delete',
-        asyncHandler(async (req: express.Request, res: express.Response) => {
-          spinner.start(chalk`Handling ${process.env.DESTINATION}#delete request`)
+  const afterResponse = () => {
+    res.removeListener('finish', afterResponse)
+    res.removeListener('close', afterResponse)
 
-          try {
-            if (destination.onDelete) {
-              await destination.onDelete(req.body.payload ?? {}, req.body.settings ?? {})
-            }
+    const requestEndedAt = process.hrtime.bigint()
+    const duration = Number(requestEndedAt - requestStartedAt) / 1000000
+    const statusCode = res.statusCode
 
-            const debug = await getExchanges(destination.responses)
-            spinner.succeed(chalk`${destination.name} delete completed`)
-            return res.status(200).json(debug)
-          } catch (err) {
-            spinner.fail()
-            const error = err as ResponseError
-            let statusCode = error?.status ?? 500
-            let msg = error?.message
-
-            if (err instanceof HTTPError) {
-              statusCode = err.response?.status ?? statusCode
-              msg = ((err.response as ModifiedResponse).data as string) ?? (err.response as ModifiedResponse).content
-            }
-
-            return res.status(statusCode).send(msg + '<br/>' + error.stack?.split('\n').join('<br/>'))
-          }
-        })
-      )
+    if (statusCode >= 500) {
+      logger.error(`🚨  ${statusCode} ${endpoint} - ${Math.round(duration)}ms`)
+    } else {
+      logger.info(`💬  ${statusCode} ${endpoint} - ${Math.round(duration)}ms`)
     }
-    app.post(
-      '/:action',
+  }
+
+  res.once('finish', afterResponse)
+  res.once('close', afterResponse)
+  next()
+})
+
+function setupRoutes(def: DestinationDefinition | null): void {
+  const destination = new Destination(def as CloudDestinationDefinition)
+  const supportsDelete = destination.onDelete
+
+  const router = express.Router()
+
+  if (supportsDelete) {
+    router.post(
+      '/delete',
       asyncHandler(async (req: express.Request, res: express.Response) => {
-        const actionSlug = req.params.action
+        try {
+          if (destination.onDelete) {
+            await destination.onDelete(req.body.payload ?? {}, req.body.settings ?? {})
+          }
 
-        spinner.start(chalk`Handling ${process.env.DESTINATION}#${actionSlug} action request`)
+          const debug = await getExchanges(destination.responses)
+          return res.status(200).json(debug)
+        } catch (err) {
+          const error = err as ResponseError
+          let statusCode = error?.status ?? 500
+          let msg = error?.message
 
+          if (err instanceof HTTPError) {
+            statusCode = err.response?.status ?? statusCode
+            msg = ((err.response as ModifiedResponse).data as string) ?? (err.response as ModifiedResponse).content
+          }
+
+          return res.status(statusCode).send(msg + '<br/>' + error.stack?.split('\n').join('<br/>'))
+        }
+      })
+    )
+  }
+
+  router.post(
+    '/authenticate',
+    asyncHandler(async (req: express.Request, res: express.Response) => {
+      try {
+        await destination.testAuthentication(req.body)
+        res.status(200).json({ ok: true })
+      } catch (error) {
+        const fields: Record<string, string> = {}
+
+        if (error.name === 'AggregateAjvError') {
+          for (const fieldError of error) {
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-call
+            const name = fieldError.path.replace('$.', '')
+            fields[name] = fieldError.message
+          }
+        }
+
+        res.status(200).json({
+          ok: false,
+          error: error.message,
+          fields
+        })
+      }
+    })
+  )
+
+  for (const actionSlug of Object.keys(destination.actions)) {
+    router.post(
+      `/${actionSlug}`,
+      asyncHandler(async (req: express.Request, res: express.Response) => {
         try {
           const action = destination.actions[actionSlug]
 
           if (!action) {
             const msg = `${destination.name} action '${actionSlug}' is invalid or not found`
-            spinner.fail(chalk`${msg}`)
             return res.status(400).send(msg)
           }
 
@@ -135,11 +176,9 @@ loadDestination(targetDirectory)
           })
 
           const debug = await getExchanges(destination.responses)
-          spinner.succeed(chalk`${destination.name} action '${actionSlug}' completed`)
           return res.status(200).json(debug)
         } catch (err) {
           const error = err as ResponseError
-          spinner.fail()
           let statusCode = error?.status ?? 500
           let msg = error?.message ?? ''
 
@@ -152,17 +191,27 @@ loadDestination(targetDirectory)
         }
       })
     )
+  }
 
-    const deleteRoute = supportsDelete ? `POST http://localhost:${port}/delete` : ''
+  app.use(router)
 
-    server.listen(port, () => {
-      logger.info(`Listening at http://localhost:${port} ->
-${Object.keys(def?.actions ?? {})
-  .map((action) => `  POST http://localhost:${port}/${action}`)
-  .join('\n')}
-  ${deleteRoute}`)
-    })
+  // Construct a list of all the available routes to stdout
+  const routes: string[] = []
+  for (const r of router.stack) {
+    for (const [m, enabled] of Object.entries(r.route.methods)) {
+      if (enabled) {
+        routes.push(`  ${m.toUpperCase()} ${r.route.path}`)
+      }
+    }
+  }
+
+  server.listen(port, () => {
+    logger.info(`Listening at http://localhost:${port} -> \n${routes.join('\n')}`)
   })
+}
+
+loadDestination(targetDirectory)
+  .then(setupRoutes)
   .catch((error) => {
     logger.error(`There was an issue booting up the development server:\n\n ${error.message}`)
   })

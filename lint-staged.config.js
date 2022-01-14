@@ -1,4 +1,5 @@
 const { exec } = require('child_process')
+const { ["lint-staged"]: config } = require('./package.json')
 
 let branch = ''
 exec("git branch --show-current", (error, stdout, stderr) => {
@@ -17,6 +18,7 @@ exec("git branch --show-current", (error, stdout, stderr) => {
 
 module.exports = {
     '*': () => {
-        return `gitleaks --repo-url=.git -v --additional-config=.husky/gitleaks-rules.toml --unstaged --branch=${branch}`
-    }
+        return `gitleaks protect --config=.husky/gitleaks-rules.toml --staged -v`
+    },
+    ...config
 }

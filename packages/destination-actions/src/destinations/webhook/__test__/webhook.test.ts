@@ -8,21 +8,20 @@ const timestamp = new Date().toISOString()
 describe('Webhook', () => {
   describe('send', () => {
     it('should work with default mapping', async () => {
-      const url = 'https://my.webhook.com'
-      const path = '/1234'
+      const url = 'https://example.com'
       const event = createTestEvent({
         timestamp,
         event: 'Test Event'
       })
 
       nock(url)
-        .post(path, event as any)
+        .post('/', event as any)
         .reply(200)
 
       const responses = await testDestination.testAction('send', {
         event,
         mapping: {
-          url: url + path
+          url
         },
         useDefaultMappings: true
       })
@@ -32,20 +31,43 @@ describe('Webhook', () => {
     })
 
     it('supports customizations', async () => {
-      const url = 'https://my.webhook.com'
-      const path = '/1234'
+      const url = 'https://example.build'
+
       const event = createTestEvent({
         timestamp,
         event: 'Test Event'
       })
       const data = { cool: true }
 
-      nock(url).put(path, data).reply(200)
+      nock(url).put('/', data).reply(200)
 
       const responses = await testDestination.testAction('send', {
         event,
         mapping: {
-          url: url + path,
+          url,
+          method: 'PUT',
+          data: { cool: true }
+        }
+      })
+
+      expect(responses.length).toBe(1)
+      expect(responses[0].status).toBe(200)
+    })
+
+    it('supports customizations', async () => {
+      const url = 'https://example.build'
+      const event = createTestEvent({
+        timestamp,
+        event: 'Test Event'
+      })
+      const data = { cool: true }
+
+      nock(url).put('/', data).reply(200)
+
+      const responses = await testDestination.testAction('send', {
+        event,
+        mapping: {
+          url,
           method: 'PUT',
           data: { cool: true }
         }
