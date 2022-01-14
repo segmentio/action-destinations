@@ -11,6 +11,7 @@ import { defaultValues } from '@segment/actions-core'
 declare global {
   interface Window {
     Sprig: Sprig
+    UserLeap: Sprig
   }
 }
 
@@ -79,6 +80,7 @@ export const destination: BrowserDestinationDefinition<Settings, Sprig> = {
       S.debugMode = !!settings.debugMode
       S._queue = []
       S._segment = 1
+      window.UserLeap = S
       await deps.loadScript(`https://cdn.sprig.com/shim.js?id=${S.envId}`)
     }
 
