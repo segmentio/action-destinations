@@ -51,7 +51,12 @@ export default class Salesforce {
       return await this.baseUpdate(payload.traits['Id'] as string, sobject, payload)
     }
 
-    const recordId = await this.lookupTraits(payload.traits, sobject)
+    const [recordId, err] = await this.lookupTraits(payload.traits, sobject)
+
+    if (err !== undefined) {
+      throw err
+    }
+
     return await this.baseUpdate(recordId, sobject, payload)
   }
 
@@ -60,12 +65,13 @@ export default class Salesforce {
       throw new IntegrationError('Undefined Traits when using upsert operation', 'Undefined Traits', 400)
     }
 
-    try {
-      const recordId = await this.lookupTraits(payload.traits, sobject)
+    const [recordId, err] = await this.lookupTraits(payload.traits, sobject)
+
+    if (err === undefined) {
       return await this.baseUpdate(recordId, sobject, payload)
-    } catch (e) {
-      return await this.createRecord(payload, sobject)
     }
+
+    return await this.createRecord(payload, sobject)
   }
 
   private baseUpdate = async (recordId: string, sobject: string, payload: any) => {
@@ -103,30 +109,34 @@ export default class Salesforce {
     return soql
   }
 
-  private lookupTraits = async (traits: object, sobject: string): Promise<string> => {
+  private lookupTraits = async (traits: object, sobject: string): Promise<[string, IntegrationError | undefined]> => {
     const SOQLQuery = this.buildQuery(traits, sobject)
-
+    console.log('soql', SOQLQuery)
     const res = await this.request<LookupResponseData>(
       `${this.instanceUrl}/services/data/${API_VERSION}/query/${SOQLQuery}`,
       { method: 'get' }
     )
-
+    console.log('res', res)
     if (!res || !res.data || res.data.totalSize === undefined) {
-      throw new IntegrationError('Response missing expected fields', 'Bad Response', 400)
+      // throw new IntegrationError('Response missing expected fields', 'Bad Response', 400)
+      return ['', new IntegrationError('Response missing expected fields', 'Bad Response', 400)]
     }
 
     if (res.data.totalSize === 0) {
-      throw new IntegrationError('No record found with given traits', 'Record Not Found', 404)
+      // throw new IntegrationError('No record found with given traits', 'Record Not Found', 404)
+      return ['', new IntegrationError('No record found with given traits', 'Record Not Found', 404)]
     }
 
     if (res.data.totalSize > 1) {
-      throw new IntegrationError('Multiple records returned with given traits', 'Multiple Records Found', 300)
+      // throw new IntegrationError('Multiple records returned with given traits', 'Multiple Records Found', 300)
+      return ['', new IntegrationError('Multiple records returned with given traits', 'Multiple Records Found', 300)]
     }
 
     if (!res.data.records || !res.data.records[0] || !res.data.records[0].Id) {
-      throw new IntegrationError('Response missing expected fields', 'Bad Response', 400)
+      //throw new IntegrationError('Response missing expected fields', 'Bad Response', 400)
+      return ['', new IntegrationError('Response missing expected fields', 'Bad Response', 400)]
     }
 
-    return res.data.records[0].Id
+    return [res.data.records[0].Id, undefined]
   }
 }
