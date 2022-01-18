@@ -7,14 +7,16 @@ import { Payload } from './addToCart/generated-types'
 // https://developers.facebook.com/docs/marketing-api/conversions-api/parameters/customer-information-parameters
 export const user_data_field: InputField = {
   label: 'User Data',
-  description: 'These parameters are a set of identifiers Facebook can use for targeted attribution. You must provide at least one of the following user_data keys in your request.',
+  description:
+  'These parameters are a set of identifiers Facebook can use for targeted attribution. You must provide at least one of the following user_data keys in your request. More information on recommended User Data parameters in Facebook’s [Best Practices for Conversions API](https://www.facebook.com/business/help/308855623839366).',
   type: 'object',
   required: true,
   properties: {
     externalId: {
       label: 'External ID',
-      description: 'Any unique ID from the advertiser, such as loyalty membership IDs, user IDs, and external cookie IDs. You can send one or more external IDs for a given event.',
-      type: 'string',
+      description:
+        'Any unique ID from the advertiser, such as loyalty membership IDs, user IDs, and external cookie IDs. You can send one or more external IDs for a given event.',
+      type: 'string'
     },
     email: {
       label: 'Email',
@@ -23,7 +25,8 @@ export const user_data_field: InputField = {
     },
     phone: {
       label: 'Phone',
-      description: 'A phone number. Include only digits with country code, area code, and number. Remove symbols, letters, and any leading zeros. In addition, always include the country code as part of the customer phone number, even if all of the data is from the same country, as the country code is used for matching.',
+      description:
+        'A phone number. Include only digits with country code, area code, and number. Remove symbols, letters, and any leading zeros. In addition, always include the country code as part of the customer phone number, even if all of the data is from the same country, as the country code is used for matching.',
       type: 'string'
     },
     gender: {
@@ -58,7 +61,8 @@ export const user_data_field: InputField = {
     },
     zip: {
       label: 'Zip Code',
-      description: 'If you are in the United States, this is a five-digit zip code. For other locations, follow each country`s standards. Example: 94035 (for United States)',
+      description:
+        'If you are in the United States, this is a five-digit zip code. For other locations, follow each country`s standards. Example: 94035 (for United States)',
       type: 'string'
     },
     country: {
@@ -73,7 +77,8 @@ export const user_data_field: InputField = {
     },
     client_user_agent: {
       label: 'Client User Agent',
-      description: 'The user agent for the browser corresponding to the event. client_user_agent is required if action_source = “website”; however it is strongly recommended that you include it for any action_source.',
+      description:
+        'The user agent for the browser corresponding to the event. client_user_agent is required if action_source = “website”; however it is strongly recommended that you include it for any action_source.',
       type: 'string'
     },
     fbc: {
@@ -105,9 +110,9 @@ export const user_data_field: InputField = {
   default: {
     externalId: {
       '@if': {
-        exists: { '@path': '$.properties.userId' },
-        then: { '@path': '$.properties.userId' },
-        else: { '@path': '$.properties.anonymousId' }
+        exists: { '@path': '$.userId' },
+        then: { '@path': '$.userId' },
+        else: { '@path': '$.anonymousId' }
       }
     },
     email: {
@@ -162,19 +167,18 @@ const hash = (value: string | undefined): string | undefined => {
 // Normalization of user data properties according to Facebooks specifications.
 // https://developers.facebook.com/docs/marketing-api/audiences/guides/custom-audiences#hash
 export const normalize_user_data = (payload: UserData) => {
-
   if (payload.user_data.email) {
     // Regex removes all whitespace in the string.
-    payload.user_data.email = payload.user_data.email.replace(/\s/g,'').toLowerCase()
+    payload.user_data.email = payload.user_data.email.replace(/\s/g, '').toLowerCase()
   }
 
   if (payload.user_data.phone) {
     // Regex removes all non-numeric characters from the string.
-    payload.user_data.phone = payload.user_data.phone.replace(/\D/g,'')
+    payload.user_data.phone = payload.user_data.phone.replace(/\D/g, '')
   }
 
   if (payload.user_data.gender) {
-    payload.user_data.gender = payload.user_data.gender.replace(/\s/g,'').toLowerCase()
+    payload.user_data.gender = payload.user_data.gender.replace(/\s/g, '').toLowerCase()
     switch (payload.user_data.gender) {
       case 'male':
         payload.user_data.gender = 'm'
@@ -186,19 +190,19 @@ export const normalize_user_data = (payload: UserData) => {
   }
 
   if (payload.user_data.lastName) {
-    payload.user_data.lastName = payload.user_data.lastName.replace(/\s/g,'').toLowerCase()
+    payload.user_data.lastName = payload.user_data.lastName.replace(/\s/g, '').toLowerCase()
   }
 
   if (payload.user_data.firstName) {
-    payload.user_data.firstName = payload.user_data.firstName.replace(/\s/g,'').toLowerCase()
+    payload.user_data.firstName = payload.user_data.firstName.replace(/\s/g, '').toLowerCase()
   }
 
   if (payload.user_data.city) {
-    payload.user_data.city = payload.user_data.city.replace(/\s/g,'').toLowerCase()
+    payload.user_data.city = payload.user_data.city.replace(/\s/g, '').toLowerCase()
   }
 
   if (payload.user_data.state) {
-    payload.user_data.state = payload.user_data.state.replace(/\s/g,'').toLowerCase()
+    payload.user_data.state = payload.user_data.state.replace(/\s/g, '').toLowerCase()
 
     if (US_STATE_CODES.has(payload.user_data.state)) {
       payload.user_data.state = US_STATE_CODES.get(payload.user_data.state)
@@ -206,11 +210,11 @@ export const normalize_user_data = (payload: UserData) => {
   }
 
   if (payload.user_data.zip) {
-    payload.user_data.zip = payload.user_data.zip.replace(/\s/g,'').toLowerCase()
+    payload.user_data.zip = payload.user_data.zip.replace(/\s/g, '').toLowerCase()
   }
 
   if (payload.user_data.country) {
-    payload.user_data.country = payload.user_data.country.replace(/\s/g,'').toLowerCase()
+    payload.user_data.country = payload.user_data.country.replace(/\s/g, '').toLowerCase()
 
     if (COUNTRY_CODES.has(payload.user_data.country)) {
       payload.user_data.country = COUNTRY_CODES.get(payload.user_data.country)
@@ -218,7 +222,7 @@ export const normalize_user_data = (payload: UserData) => {
   }
 
   if (payload.user_data.externalId) {
-    payload.user_data.externalId = payload.user_data.externalId.replace(/\s/g,'').toLowerCase()
+    payload.user_data.externalId = payload.user_data.externalId.replace(/\s/g, '').toLowerCase()
   }
 }
 

@@ -1,8 +1,7 @@
-import dayjs from '../../../lib/dayjs'
 import type { ActionDefinition } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
-import { trackApiEndpoint } from '../utils'
+import { convertValidTimestamp, trackApiEndpoint } from '../utils'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Create or Update Device',
@@ -46,7 +45,7 @@ const action: ActionDefinition<Settings, Payload> = {
     },
     convert_timestamp: {
       label: 'Convert Timestamps',
-      description: 'Convert `last_used` to a Unix timestamp (seconds since Epoch).',
+      description: 'Convert dates to Unix timestamps (seconds since Epoch).',
       type: 'boolean',
       default: true
     }
@@ -56,7 +55,7 @@ const action: ActionDefinition<Settings, Payload> = {
     let lastUsed: string | number | undefined = payload.last_used
 
     if (lastUsed && payload.convert_timestamp !== false) {
-      lastUsed = dayjs.utc(lastUsed).unix()
+      lastUsed = convertValidTimestamp(lastUsed)
     }
 
     return request(`${trackApiEndpoint(settings.accountRegion)}/api/v1/customers/${payload.person_id}/devices`, {

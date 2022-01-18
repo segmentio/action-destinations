@@ -1,6 +1,7 @@
 import { Analytics, Context, JSONValue } from '@segment/analytics-next'
 import friendbuyDestination from '../../index'
-import trackPurchaseObject, { trackPurchaseDefaultSubscription, trackPurchaseFields } from '../index'
+import trackPurchaseObject, { trackPurchaseDefaultSubscription } from '../index'
+import { trackPurchaseFields } from '@segment/actions-shared'
 
 import { loadScript } from '../../../../runtime/load-script'
 jest.mock('../../../../runtime/load-script')
@@ -59,12 +60,12 @@ describe('Friendbuy.trackPurchase', () => {
     jest.spyOn(window.friendbuyAPI as any, 'push')
 
     const expectedProducts = products.map((p) => {
-      p = { quantity: 1, ...p }
+      p = { sku: 'unknown', name: 'unknown', quantity: 1, ...p }
       if (p.image_url) {
-        p.imageUrl = p.image_url;
-        delete p.image_url;
+        p.imageUrl = p.image_url
+        delete p.image_url
       }
-      return p;
+      return p
     })
     const amount = expectedProducts.reduce((acc, p) => acc + p.price * p.quantity, 0)
 
@@ -109,8 +110,8 @@ describe('Friendbuy.trackPurchase', () => {
         },
         true
       ])
-      expect(window.friendbuyAPI.push.mock.calls[0][0][2].products[1].quantity).toBe(1);
-      expect(window.friendbuyAPI.push.mock.calls[0][0][2].products[2].imageUrl).toBe(products[2].image_url);
+      expect(window.friendbuyAPI.push.mock.calls[0][0][2].products[1].quantity).toBe(1)
+      expect(window.friendbuyAPI.push.mock.calls[0][0][2].products[2].imageUrl).toBe(products[2].image_url)
     }
 
     {

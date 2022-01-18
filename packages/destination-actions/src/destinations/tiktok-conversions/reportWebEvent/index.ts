@@ -62,7 +62,6 @@ const action: ActionDefinition<Settings, Payload> = {
       label: 'Email',
       description: 'Email address of the user who triggered the conversion event.',
       type: 'string',
-      required: true,
       format: 'email',
       default: {
         '@if': {
@@ -86,9 +85,10 @@ const action: ActionDefinition<Settings, Payload> = {
       }
     },
     ttclid: {
-      label: "TikTok Click  ID",
-      description: "The value of the ttclid used to match website visitor events with TikTok ads. The ttclid is valid for 7 days. See [Set up ttclid](https://ads.tiktok.com/marketing_api/docs?rid=4eezrhr6lg4&id=1681728034437121) for details.",
-      type: "string",
+      label: 'TikTok Click  ID',
+      description:
+        'The value of the ttclid used to match website visitor events with TikTok ads. The ttclid is valid for 7 days. See [Set up ttclid](https://ads.tiktok.com/marketing_api/docs?rid=4eezrhr6lg4&id=1681728034437121) for details.',
+      type: 'string',
       default: {
         '@if': {
           exists: { '@path': '$.properties.ttclid' },
@@ -105,7 +105,7 @@ const action: ActionDefinition<Settings, Payload> = {
 
     const userData = {
       hashedExternalId: formatUserId(payload.external_id),
-      hashedEmail: formatEmail(payload.email),
+      hashedEmail: formatEmail(payload.email || ''),
       hashedPhoneNumber: formatPhone(payload.phone_number)
     }
 
@@ -125,7 +125,7 @@ const action: ActionDefinition<Settings, Payload> = {
           },
           ad: {
             callback: payload.ttclid
-          },
+          }
         }
       }
     })

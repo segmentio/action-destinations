@@ -171,5 +171,90 @@ describe('GA4', () => {
         `"{\\"client_id\\":\\"anon-567890\\",\\"events\\":[{\\"name\\":\\"this_is_a_test\\",\\"params\\":{\\"order_id\\":\\"5678dd9087-78\\",\\"coupon\\":\\"SUMMER_FEST\\",\\"currency\\":\\"USD\\",\\"revenue\\":11.99,\\"total\\":15.99}}]}"`
       )
     })
+
+    it('should normalize event name', async () => {
+      nock('https://www.google-analytics.com/mp/collect')
+        .post(`?measurement_id=${measurementId}&api_secret=${apiSecret}`)
+        .reply(201, {})
+
+      const event = createTestEvent({
+        event: 'Order Completed',
+        userId: '3456fff',
+        anonymousId: 'anon-567890',
+        type: 'track'
+      })
+      const responses = await testDestination.testAction('customEvent', {
+        event,
+        settings: {
+          apiSecret,
+          measurementId
+        },
+        useDefaultMappings: true
+      })
+
+      expect(responses.length).toBe(1)
+      expect(responses[0].status).toBe(201)
+
+      expect(responses[0].request.headers).toMatchInlineSnapshot(`
+        Headers {
+          Symbol(map): Object {
+            "content-type": Array [
+              "application/json",
+            ],
+            "user-agent": Array [
+              "Segment (Actions)",
+            ],
+          },
+        }
+      `)
+
+      expect(responses[0].options.body).toMatchInlineSnapshot(
+        `"{\\"client_id\\":\\"3456fff\\",\\"events\\":[{\\"name\\":\\"Order_Completed\\",\\"params\\":{}}]}"`
+      )
+    })
+
+    it('should normalize and lowercase event name', async () => {
+      nock('https://www.google-analytics.com/mp/collect')
+        .post(`?measurement_id=${measurementId}&api_secret=${apiSecret}`)
+        .reply(201, {})
+
+      const event = createTestEvent({
+        event: '         Order Completed ',
+        userId: '3456fff',
+        anonymousId: 'anon-567890',
+        type: 'track'
+      })
+      const responses = await testDestination.testAction('customEvent', {
+        event,
+        settings: {
+          apiSecret,
+          measurementId
+        },
+        mapping: {
+          lowercase: true
+        },
+        useDefaultMappings: true
+      })
+
+      expect(responses.length).toBe(1)
+      expect(responses[0].status).toBe(201)
+
+      expect(responses[0].request.headers).toMatchInlineSnapshot(`
+      Headers {
+        Symbol(map): Object {
+          "content-type": Array [
+            "application/json",
+          ],
+          "user-agent": Array [
+            "Segment (Actions)",
+          ],
+        },
+      }
+    `)
+
+      expect(responses[0].options.body).toMatchInlineSnapshot(
+        `"{\\"client_id\\":\\"3456fff\\",\\"events\\":[{\\"name\\":\\"order_completed\\",\\"params\\":{}}]}"`
+      )
+    })
   })
 })

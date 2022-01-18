@@ -1,51 +1,31 @@
-import type { InputField } from '@segment/actions-core'
 import type { BrowserActionDefinition } from '../../../lib/browser-destinations'
 
 import type { FriendbuyAPI } from '../types'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
-import { commonCustomerAttributes } from '../commonFields'
-import { createFriendbuyPayload, filterFriendbuyAttributes } from '../util'
+import type { ConvertFun, EventMap } from '@segment/actions-shared'
 
-// https://segment.com/docs/connections/spec/ecommerce/v2/#order-completed
-export const trackCustomEventFields: Record<string, InputField> = {
-  eventName: {
-    type: 'string',
-    required: true,
-    description: 'The name of the event to track.',
-    label: 'Event Name',
-    default: { '@path': '$.event' }
+import { AnalyticsPayload, COPY, DROP, ROOT, mapEvent } from '@segment/actions-shared'
+import { trackCustomEventFields } from '@segment/actions-shared'
+import { addName, moveEventPropertiesToRoot, parseDate } from '@segment/actions-shared'
+
+const trackCustomEventPub: EventMap = {
+  fields: {
+    eventType: DROP,
+    deduplicationId: COPY,
+    // CUSTOMER FIELDS
+    customerId: { name: ['customer', 'id'] },
+    anonymousId: { name: ['customer', 'anonymousId'] },
+    email: { name: ['customer', 'email'] },
+    isNewCustomer: { name: ['customer', 'isNewCustomer'] },
+    loyaltyStatus: { name: ['customer', 'loyaltyStatus'] },
+    firstName: { name: ['customer', 'firstName'] },
+    lastName: { name: ['customer', 'lastName'] },
+    name: { name: ['customer', 'name'] },
+    age: { name: ['customer', 'age'] },
+    birthday: { name: ['customer', 'birthday'], convert: parseDate as ConvertFun }
   },
-  eventProperties: {
-    type: 'object',
-    required: true,
-    description:
-      'Hash of other properties for the event being tracked. All of the fields in this object will be sent in the root of the Friendbuy track event.',
-    label: 'Event Properties',
-    default: { '@path': '$.properties' }
-  },
-  deduplicationId: {
-    type: 'string',
-    required: false,
-    description:
-      'An identifier for the event being tracked to prevent the same event from being rewarded more than once.',
-    label: 'Event ID',
-    default: { '@path': '$.properties.deduplicationId' }
-  },
-  customerId: {
-    label: 'Customer ID',
-    description: "The user's customerId.",
-    type: 'string',
-    required: true,
-    default: { '@path': '$.userId' }
-  },
-  anonymousId: {
-    label: 'Anonymous ID',
-    description: "The user's anonymous id",
-    type: 'string',
-    required: false,
-    default: { '@path': '$.anonymousId' }
-  }
+  unmappedFieldObject: ROOT
 }
 
 const action: BrowserActionDefinition<Settings, FriendbuyAPI, Payload> = {
@@ -55,21 +35,11 @@ const action: BrowserActionDefinition<Settings, FriendbuyAPI, Payload> = {
   platform: 'web',
   fields: trackCustomEventFields,
 
-  perform: (friendbuyAPI, data) => {
-    const [nonCustomerPayload, customerAttributes] = commonCustomerAttributes({
-      customerId: data.payload.customerId,
-      anonymousId: data.payload.anonymousId,
-      ...data.payload.eventProperties});
-
-    const friendbuyPayload = createFriendbuyPayload(
-      [
-        ...filterFriendbuyAttributes(nonCustomerPayload),
-        ['deduplicationId', data.payload.deduplicationId],
-        ['customer', createFriendbuyPayload(customerAttributes)],
-      ],
-      { dropEmpty: true }
-    )
-    friendbuyAPI.push(['track', data.payload.eventName, friendbuyPayload])
+  perform: (friendbuyAPI, { payload }) => {
+    const analyticsPayload = moveEventPropertiesToRoot(payload as unknown as AnalyticsPayload)
+    addName(analyticsPayload)
+    const friendbuyPayload = mapEvent(trackCustomEventPub, analyticsPayload)
+    friendbuyAPI.push(['track', payload.eventType, friendbuyPayload])
   }
 }
 

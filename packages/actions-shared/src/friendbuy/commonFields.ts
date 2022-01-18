@@ -1,7 +1,6 @@
 import type { InputField } from '@segment/actions-core'
-import type { FriendbuyPayloadItem } from './util'
 
-import { getName } from './util'
+export type FriendbuyAPI = 'pub' | 'mapi'
 
 export function commonCustomerFields(requireIdAndEmail: boolean): Record<string, InputField> {
   // If we want to associate an event such as a purchase with an existing
@@ -40,19 +39,33 @@ export function commonCustomerFields(requireIdAndEmail: boolean): Record<string,
       required: requireIdAndEmail,
       default: { '@path': '$.properties.email' }
     },
+    isNewCustomer: {
+      label: 'New Customer Flag',
+      description: 'Flag to indicate whether the user is a new customer.',
+      type: 'boolean',
+      required: false,
+      default: { '@path': '$.properties.isNewCustomer' }
+    },
+    loyaltyStatus: {
+      label: 'Loyalty Program Status',
+      description: 'The status of the user in your loyalty program. Valid values are "in", "out", or "blocked".',
+      type: 'string',
+      required: false,
+      default: { '@path': '$.properties.loyaltyStatus' }
+    },
     firstName: {
       label: 'First Name',
       description: "The user's given name.",
       type: 'string',
       required: false,
-      default: { '@path': '$.properties.first_name' }
+      default: { '@path': '$.properties.firstName' }
     },
     lastName: {
       label: 'Last Name',
       description: "The user's surname.",
       type: 'string',
       required: false,
-      default: { '@path': '$.properties.last_name' }
+      default: { '@path': '$.properties.lastName' }
     },
     name: {
       label: 'Name',
@@ -68,64 +81,12 @@ export function commonCustomerFields(requireIdAndEmail: boolean): Record<string,
       required: false,
       default: { '@path': '$.properties.age' }
     },
-    loyaltyStatus: {
-      label: 'Loyalty Program Status',
-      description: 'The status of the user in your loyalty program. Valid values are "in", "out", or "blocked".',
+    birthday: {
+      label: 'Birthday',
+      description: 'The user\'s birthday in the format "YYYY-MM-DD", or "0000-MM-DD" to omit the year.',
       type: 'string',
-      required: false,
-      default: { '@path': '$.properties.loyaltyStatus' }
+      format: 'date',
+      default: { '@path': '$.properties.birthday' }
     }
   }
-}
-
-export interface CommonCustomerPayload {
-  customerId?: string
-  anonymousId?: string
-  email?: string
-  firstName?: string
-  lastName?: string
-  name?: string
-  age?: number
-  loyaltyStatus?: string
-}
-
-/**
- * Extracts the customer fields from a payload and returns a tuple whose first
- * element is the payload without the customer fields, and second element is
- * the customer attributes.
- */
-export function commonCustomerAttributes<T extends CommonCustomerPayload>(
-  payload: T
-): [Omit<T, keyof CommonCustomerPayload>, FriendbuyPayloadItem[]] {
-  const payloadWithoutCustomer = { ...payload }
-  const customerAttributes: FriendbuyPayloadItem[] = []
-
-  const copyField = (from: keyof CommonCustomerPayload, to?: string) => {
-    if (from in payloadWithoutCustomer) {
-      if (payloadWithoutCustomer[from] !== undefined) {
-        customerAttributes.push([to || from, payloadWithoutCustomer[from]])
-      }
-      delete payloadWithoutCustomer[from]
-    }
-  }
-
-  const name = getName(payload)
-
-  copyField('customerId', 'id')
-  copyField('email')
-  copyField('firstName')
-  copyField('lastName')
-  if (name) {
-    customerAttributes.push(['name', name])
-  }
-  copyField('age')
-  copyField('loyaltyStatus')
-  // custom properties
-  copyField('anonymousId')
-
-  return [
-    payloadWithoutCustomer,
-    // Don't send any customer data unless we have at least a customer ID.
-    typeof payload.customerId !== 'string' || payload.customerId === '' ? [] : customerAttributes
-  ]
 }

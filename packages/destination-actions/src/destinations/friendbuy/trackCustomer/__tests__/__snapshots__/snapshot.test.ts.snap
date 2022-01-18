@@ -1,0 +1,15 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Testing snapshot for Friendbuy's trackCustomer destination action: all fields 1`] = `
+Object {
+  "key": "21612cc7-da34-5cf5-aebe-e94ecaa7f36f",
+  "secret": "CZDKkk5ocOQm",
+}
+`;
+
+exports[`Testing snapshot for Friendbuy's trackCustomer destination action: required fields 1`] = `
+Object {
+  "key": "21612cc7-da34-5cf5-aebe-e94ecaa7f36f",
+  "secret": "CZDKkk5ocOQm",
+}
+`;

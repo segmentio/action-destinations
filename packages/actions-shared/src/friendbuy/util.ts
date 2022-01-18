@@ -1,3 +1,7 @@
+import type { JSONObject, JSONValue } from '@segment/actions-core'
+import type { FriendbuyAPI } from './commonFields'
+import { AnalyticsPayload } from './mapEvent'
+
 export interface GetNameParams {
   name?: string
   firstName?: string
@@ -13,26 +17,59 @@ export function getName(payload: GetNameParams): string | undefined {
   )
 }
 
+export function addName(payload: GetNameParams | undefined) {
+  if (typeof payload === 'object' && !payload.name && payload.firstName && payload.lastName) {
+    payload.name = `${payload.firstName} ${payload.lastName}`
+  }
+}
+
+export function removeCustomerIfNoId(payload: { customer?: { id?: string } }) {
+  if (typeof payload !== 'object' || typeof payload.customer !== 'object' || payload.customer.id) {
+    return payload
+  }
+
+  payload = { ...payload }
+  delete payload.customer
+  return payload
+}
+
+export function moveEventPropertiesToRoot(payload: AnalyticsPayload) {
+  if (typeof payload !== 'object' || typeof payload.eventProperties !== 'object') {
+    return payload
+  }
+
+  const analyticsPayload = {
+    ...(payload.eventProperties || {}),
+    ...payload
+  } as AnalyticsPayload
+  delete analyticsPayload.eventProperties
+  return analyticsPayload
+}
+
+type NotUndefined<T> = T extends undefined ? never : T
+
 /**
- * Returns true if the argument is an empty object or array.
+ * Returns true if the argument is undefined or an empty string, object, or array.
  */
-export function isEmpty(o: unknown) {
-  if (typeof o !== 'object') {
+export function isNonEmpty<T extends unknown>(o: T): o is NotUndefined<T> {
+  if (o === undefined || o === '') {
     return false
   }
+  if (typeof o !== 'object') {
+    return true
+  }
   for (const _e in o) {
-    return false
+    return true
   }
   // Not dropping `null` as empty to allow it being used in the future to
   // erase existing properties.
   if (o === null) {
-    return false
+    return true
   }
-  return true
+  return false
 }
 
-export type FriendbuyPayloadValue = string | number | boolean | object
-export type FriendbuyPayloadItem = [string, FriendbuyPayloadValue | undefined]
+export type FriendbuyPayloadItem = [string, JSONValue | undefined]
 
 export interface CreateFriendbuyPayloadFlags {
   dropEmpty?: boolean
@@ -44,20 +81,17 @@ export interface CreateFriendbuyPayloadFlags {
  * specified then values which are empty objects or arrays will also be
  * dropped.
  */
-export function createFriendbuyPayload(
-  payloadItems: FriendbuyPayloadItem[],
-  flags: CreateFriendbuyPayloadFlags = {}
-) {
-  const friendbuyPayload: Record<string, FriendbuyPayloadValue> = {}
+export function createFriendbuyPayload(payloadItems: FriendbuyPayloadItem[], flags: CreateFriendbuyPayloadFlags = {}) {
+  const friendbuyPayload: JSONObject = {}
   payloadItems.forEach(([k, v]) => {
-    if (!(v === undefined || v === '' || (flags.dropEmpty && isEmpty(v)))) {
+    if (!(v === undefined || v === '' || (flags.dropEmpty && !isNonEmpty(v)))) {
       friendbuyPayload[k] = v
     }
   })
   return friendbuyPayload
 }
 
-export interface DateRecord {
+export type DateRecord = {
   year?: number
   month: number
   day: number
@@ -69,8 +103,9 @@ export interface DateRecord {
  * handling for `birthday` attribute, which is converted to a DateRecord.
  */
 export function filterFriendbuyAttributes(
+  api: FriendbuyAPI,
   friendbuyAttributes: Record<string, unknown> | undefined
-): [string, string | DateRecord][] {
+): [string, JSONValue][] {
   const filteredAttributes: [string, string | DateRecord][] = []
   if (friendbuyAttributes) {
     Object.entries(friendbuyAttributes).forEach((attribute) => {
@@ -86,11 +121,26 @@ export function filterFriendbuyAttributes(
       }
     })
   }
-  return filteredAttributes
+
+  // prettier-ignore
+  return (
+    filteredAttributes.length === 0 ? [] :
+    api === 'mapi'                  ? [['additionalProperties', createFriendbuyPayload(filteredAttributes)]]
+    :                                 filteredAttributes
+  )
 }
 
 const dateRegexp = /^(?:(\d\d\d\d)-)?(\d\d)-(\d\d)(?:[^\d]|$)/
-export function parseDate(date: string): DateRecord | undefined {
+export function parseDate(date: string | DateRecord | undefined): DateRecord | undefined {
+  if (
+    typeof date === 'object' &&
+    (!('year' in date) || typeof date.year === 'number') &&
+    typeof date.month === 'number' &&
+    typeof date.day === 'number'
+  ) {
+    return date
+  }
+
   if (typeof date !== 'string') {
     return undefined
   }

@@ -1,6 +1,7 @@
 import { Analytics, Context } from '@segment/analytics-next'
 import friendbuyDestination from '../../index'
-import trackSignUpObject, { trackSignUpDefaultSubscription, trackSignUpFields } from '../index'
+import trackSignUpObject, { trackSignUpDefaultSubscription } from '../index'
+import { trackSignUpFields } from '@segment/actions-shared'
 
 import { loadScript } from '../../../../runtime/load-script'
 jest.mock('../../../../runtime/load-script')
@@ -24,13 +25,15 @@ describe('Friendbuy.trackSignUp', () => {
     const merchantId = '1993d0f1-8206-4336-8c88-64e170f2419e'
     const userId = 'john-doe-12345'
     const anonymousId = '6afc2ff2-cf54-414f-9a99-b3adb054ae31'
+    const email = 'john.doe@example.com'
+    const isNewCustomer = false
+    const loyaltyStatus = 'in'
     const firstName = 'John'
     const lastName = 'Doe'
     const name = `${firstName} ${lastName}`
-    const email = 'john.doe@example.com'
     const age = 42
-    const loyaltyStatus = 'in'
-    const friendbuyAttributes = { custom1: 'custom1', custom2: 'custom2', birthday: '12-31' }
+    const birthday = '0000-12-31'
+    const friendbuyAttributes = { custom1: 'custom1', custom2: 'custom2' }
 
     const [trackSignUp] = await friendbuyDestination({
       merchantId,
@@ -50,12 +53,14 @@ describe('Friendbuy.trackSignUp', () => {
       userId,
       anonymousId,
       properties: {
-        first_name: firstName,
-        last_name: lastName,
-        name,
         email,
-        age,
+        isNewCustomer,
         loyaltyStatus,
+        firstName,
+        lastName,
+        name,
+        age,
+        birthday,
         friendbuyAttributes
       }
     })
@@ -70,14 +75,15 @@ describe('Friendbuy.trackSignUp', () => {
       {
         id: userId,
         email,
+        isNewCustomer,
+        loyaltyStatus,
         firstName,
         lastName,
         name,
         age,
-        loyaltyStatus,
         anonymousId,
-        ...friendbuyAttributes,
-        birthday: { month: 12, day: 31 }
+        birthday: { month: 12, day: 31 },
+        ...friendbuyAttributes
       },
       true
     ])
