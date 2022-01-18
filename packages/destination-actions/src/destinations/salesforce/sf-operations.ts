@@ -1,4 +1,5 @@
 import { IntegrationError, RequestClient } from '@segment/actions-core'
+import type { GenericPayload } from './sf-types'
 
 export const API_VERSION = 'v53.0'
 
@@ -12,12 +13,6 @@ interface LookupResponseData {
   records?: Records[]
 }
 
-type Payload = {
-  traits?: { [k: string]: unknown } | undefined
-  company?: string
-  last_name?: string
-}
-
 export default class Salesforce {
   instanceUrl: string
   request: RequestClient
@@ -27,7 +22,7 @@ export default class Salesforce {
     this.request = request
   }
 
-  createRecord = async (payload: any, sobject: string) => {
+  createRecord = async (payload: GenericPayload, sobject: string) => {
     return this.request(`${this.instanceUrl}/services/data/${API_VERSION}/sobjects/${sobject}`, {
       method: 'post',
       json: {
@@ -44,7 +39,7 @@ export default class Salesforce {
     })
   }
 
-  updateRecord = async (payload: Payload, sobject: string) => {
+  updateRecord = async (payload: GenericPayload, sobject: string) => {
     if (payload.traits === undefined || Object.keys(payload.traits).length === 0) {
       throw new IntegrationError('Undefined Traits when using update operation', 'Undefined Traits', 400)
     }
@@ -62,7 +57,7 @@ export default class Salesforce {
     return await this.baseUpdate(recordId, sobject, payload)
   }
 
-  upsertRecord = async (payload: Payload, sobject: string) => {
+  upsertRecord = async (payload: GenericPayload, sobject: string) => {
     if (payload.traits === undefined || Object.keys(payload.traits).length === 0) {
       throw new IntegrationError('Undefined Traits when using upsert operation', 'Undefined Traits', 400)
     }
