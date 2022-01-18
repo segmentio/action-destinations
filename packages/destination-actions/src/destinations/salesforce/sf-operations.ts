@@ -61,7 +61,7 @@ export default class Salesforce {
   }
 
   upsertRecord = async (payload: Payload, sobject: string) => {
-    if (payload.traits === undefined || payload.traits === {}) {
+    if (payload.traits === undefined || Object.keys(payload.traits).length === 0) {
       throw new IntegrationError('Undefined Traits when using upsert operation', 'Undefined Traits', 400)
     }
 

@@ -93,5 +93,75 @@ describe('Salesforce', () => {
         )
       ).rejects.toThrowError('Multiple records returned with given traits')
     })
+
+    describe('upsert', () => {
+      it('should create a new record when no records are found', async () => {
+        nock(`${settings.instanceUrl}/services/data/${API_VERSION}/query`)
+          .get(`/?q=SELECT Id FROM Lead WHERE email = 'sponge@seamail.com' OR company = 'Krusty Krab'`)
+          .reply(201, {
+            totalSize: 0
+          })
+
+        nock(`${settings.instanceUrl}/services/data/${API_VERSION}/sobjects`).post('/Lead').reply(201, {})
+
+        await sf.upsertRecord(
+          {
+            traits: {
+              email: 'sponge@seamail.com',
+              company: 'Krusty Krab'
+            },
+            company: 'Krusty Krab LLC',
+            last_name: 'Krabs'
+          },
+          'Lead'
+        )
+      })
+
+      it('should create a new record when multiple records are found', async () => {
+        nock(`${settings.instanceUrl}/services/data/${API_VERSION}/query`)
+          .get(`/?q=SELECT Id FROM Lead WHERE email = 'sponge@seamail.com' OR company = 'Krusty Krab'`)
+          .reply(201, {
+            totalSize: 10
+          })
+
+        nock(`${settings.instanceUrl}/services/data/${API_VERSION}/sobjects`).post('/Lead').reply(201, {})
+
+        await sf.upsertRecord(
+          {
+            traits: {
+              email: 'sponge@seamail.com',
+              company: 'Krusty Krab'
+            },
+            company: 'Krusty Krab LLC',
+            last_name: 'Krabs'
+          },
+          'Lead'
+        )
+      })
+
+      it('should update an existing record if one is found', async () => {
+        nock(`${settings.instanceUrl}/services/data/${API_VERSION}/query`)
+          .get(`/?q=SELECT Id FROM Lead WHERE email = 'sponge@seamail.com' OR company = 'Krusty Krab'`)
+          .reply(201, {
+            Id: 'abc123',
+            totalSize: 1,
+            records: [{ Id: '123456' }]
+          })
+
+        nock(`${settings.instanceUrl}/services/data/${API_VERSION}/sobjects`).patch('/Lead/123456').reply(201, {})
+
+        await sf.upsertRecord(
+          {
+            traits: {
+              email: 'sponge@seamail.com',
+              company: 'Krusty Krab'
+            },
+            company: 'Krusty Krab LLC',
+            last_name: 'Krabs'
+          },
+          'Lead'
+        )
+      })
+    })
   })
 })
