@@ -71,7 +71,11 @@ export default class Salesforce {
       return await this.baseUpdate(recordId, sobject, payload)
     }
 
-    return await this.createRecord(payload, sobject)
+    if (err.status === 404) {
+      return await this.createRecord(payload, sobject)
+    }
+
+    throw err
   }
 
   private baseUpdate = async (recordId: string, sobject: string, payload: any) => {
@@ -111,29 +115,24 @@ export default class Salesforce {
 
   private lookupTraits = async (traits: object, sobject: string): Promise<[string, IntegrationError | undefined]> => {
     const SOQLQuery = this.buildQuery(traits, sobject)
-    console.log('soql', SOQLQuery)
     const res = await this.request<LookupResponseData>(
       `${this.instanceUrl}/services/data/${API_VERSION}/query/${SOQLQuery}`,
       { method: 'get' }
     )
-    console.log('res', res)
+
     if (!res || !res.data || res.data.totalSize === undefined) {
-      // throw new IntegrationError('Response missing expected fields', 'Bad Response', 400)
       return ['', new IntegrationError('Response missing expected fields', 'Bad Response', 400)]
     }
 
     if (res.data.totalSize === 0) {
-      // throw new IntegrationError('No record found with given traits', 'Record Not Found', 404)
       return ['', new IntegrationError('No record found with given traits', 'Record Not Found', 404)]
     }
 
     if (res.data.totalSize > 1) {
-      // throw new IntegrationError('Multiple records returned with given traits', 'Multiple Records Found', 300)
       return ['', new IntegrationError('Multiple records returned with given traits', 'Multiple Records Found', 300)]
     }
 
     if (!res.data.records || !res.data.records[0] || !res.data.records[0].Id) {
-      //throw new IntegrationError('Response missing expected fields', 'Bad Response', 400)
       return ['', new IntegrationError('Response missing expected fields', 'Bad Response', 400)]
     }
 

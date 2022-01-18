@@ -117,26 +117,26 @@ describe('Salesforce', () => {
         )
       })
 
-      it('should create a new record when multiple records are found', async () => {
+      it('should fail when multiple records are found', async () => {
         nock(`${settings.instanceUrl}/services/data/${API_VERSION}/query`)
           .get(`/?q=SELECT Id FROM Lead WHERE email = 'sponge@seamail.com' OR company = 'Krusty Krab'`)
           .reply(201, {
             totalSize: 10
           })
 
-        nock(`${settings.instanceUrl}/services/data/${API_VERSION}/sobjects`).post('/Lead').reply(201, {})
-
-        await sf.upsertRecord(
-          {
-            traits: {
-              email: 'sponge@seamail.com',
-              company: 'Krusty Krab'
+        await expect(
+          sf.upsertRecord(
+            {
+              traits: {
+                email: 'sponge@seamail.com',
+                company: 'Krusty Krab'
+              },
+              company: 'Krusty Krab LLC',
+              last_name: 'Krabs'
             },
-            company: 'Krusty Krab LLC',
-            last_name: 'Krabs'
-          },
-          'Lead'
-        )
+            'Lead'
+          )
+        ).rejects.toThrowError('Multiple records returned with given traits')
       })
 
       it('should update an existing record if one is found', async () => {
