@@ -12,8 +12,10 @@ interface LookupResponseData {
   records?: Records[]
 }
 
-interface Payload {
+type Payload = {
   traits?: { [k: string]: unknown } | undefined
+  company?: string
+  last_name?: string
 }
 
 export default class Salesforce {
