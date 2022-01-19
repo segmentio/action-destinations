@@ -73,7 +73,7 @@ export default class Salesforce {
     return await this.baseUpdate(recordId, sobject, payload)
   }
 
-  private baseUpdate = async (recordId: string, sobject: string, payload: any) => {
+  private baseUpdate = async (recordId: string, sobject: string, payload: GenericPayload) => {
     return this.request(`${this.instanceUrl}/services/data/${API_VERSION}/sobjects/${sobject}/${recordId}`, {
       method: 'patch',
       json: {
