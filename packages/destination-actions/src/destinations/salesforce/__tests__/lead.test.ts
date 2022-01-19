@@ -290,31 +290,5 @@ describe('Salesforce', () => {
         `"{\\"LastName\\":\\"Squarepants\\",\\"Company\\":\\"Krusty Krab LLC\\",\\"Street\\":\\"Pineapple St\\",\\"PostalCode\\":\\"12345\\",\\"City\\":\\"Bikini Bottom\\",\\"Email\\":\\"sponge@seamail.com\\"}"`
       )
     })
-
-    it('should fail when an update is performed without traits', async () => {
-      const event = createTestEvent({
-        event: 'Identify',
-        traits: {
-          email: 'sponge@seamail.com',
-          company: 'Krusty Krab LLC',
-          last_name: 'Squarepants',
-          address: {
-            city: 'Bikini Bottom',
-            postal_code: '12345',
-            street: 'Pineapple St'
-          }
-        }
-      })
-
-      await expect(
-        testDestination.testAction('lead', {
-          event,
-          settings,
-          mapping: {
-            operation: 'update'
-          }
-        })
-      ).rejects.toThrowError()
-    })
   })
 })

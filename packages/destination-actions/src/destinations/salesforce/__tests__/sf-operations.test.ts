@@ -162,6 +162,34 @@ describe('Salesforce', () => {
           'Lead'
         )
       })
+
+      it('should fail when traits is falsy', async () => {
+        await expect(
+          sf.upsertRecord({ company: 'Krusty Krab', last_name: 'Krusty Krab' }, 'Lead')
+        ).rejects.toThrowError('Undefined Traits when using upsert operation')
+
+        await expect(
+          sf.upsertRecord(
+            {
+              traits: {},
+              company: 'Krusty Krab',
+              last_name: 'Krabs'
+            },
+            'Lead'
+          )
+        ).rejects.toThrowError('Undefined Traits when using upsert operation')
+
+        await expect(
+          sf.upsertRecord(
+            {
+              traits: undefined,
+              company: 'Krusty Krab',
+              last_name: 'Krabs'
+            },
+            'Lead'
+          )
+        ).rejects.toThrowError('Undefined Traits when using upsert operation')
+      })
     })
   })
 })

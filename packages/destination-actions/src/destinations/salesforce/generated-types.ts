@@ -2,7 +2,7 @@
 
 export interface Settings {
   /**
-   * Base Url of the request. For local testing only. refreshAccessToken will eventually be able to fetch this value via Oauth
+   * The user specific instance URL returned by Salesforce Oauth. This setting is hidden to the user and set by Oauth Service.
    */
   instanceUrl: string
 }
