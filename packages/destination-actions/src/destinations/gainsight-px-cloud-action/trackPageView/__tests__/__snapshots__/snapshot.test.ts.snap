@@ -1,52 +1,5 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`Testing snapshot for GainsightPxCloudAction's trackPageView destination action: all fields 1`] = `
-Object {
-  "anonymousId": "#Y2EgVZ]Y2E6qzyuQ",
-  "context": Object {
-    "app": Object {},
-    "campaign": Object {},
-    "device": Object {
-      "testType": "#Y2EgVZ]Y2E6qzyuQ",
-    },
-    "ip": "#Y2EgVZ]Y2E6qzyuQ",
-    "library": Object {},
-    "locale": "#Y2EgVZ]Y2E6qzyuQ",
-    "location": Object {},
-    "network": Object {
-      "testType": "#Y2EgVZ]Y2E6qzyuQ",
-    },
-    "page": Object {},
-    "screen": Object {},
-    "userAgent": "#Y2EgVZ]Y2E6qzyuQ",
-  },
-  "messageId": "#Y2EgVZ]Y2E6qzyuQ",
-  "name": "#Y2EgVZ]Y2E6qzyuQ",
-  "properties": Object {
-    "path": "#Y2EgVZ]Y2E6qzyuQ",
-    "referrer": "#Y2EgVZ]Y2E6qzyuQ",
-    "title": "#Y2EgVZ]Y2E6qzyuQ",
-    "url": "#Y2EgVZ]Y2E6qzyuQ",
-  },
-  "receivedAt": "2021-02-01T00:00:00.000Z",
-  "sentAt": "2021-02-01T00:00:00.000Z",
-  "timestamp": "2021-02-01T00:00:00.000Z",
-  "type": "#Y2EgVZ]Y2E6qzyuQ",
-  "userId": "#Y2EgVZ]Y2E6qzyuQ",
-  "version": 55497892571381.76,
-}
-`;
+exports[`Testing snapshot for GainsightPxCloudAction's trackPageView destination action: all fields 1`] = `Object {}`;
 
-exports[`Testing snapshot for GainsightPxCloudAction's trackPageView destination action: required fields 1`] = `
-Object {
-  "context": Object {},
-  "messageId": "#Y2EgVZ]Y2E6qzyuQ",
-  "name": "#Y2EgVZ]Y2E6qzyuQ",
-  "properties": Object {},
-  "receivedAt": "2021-02-01T00:00:00.000Z",
-  "sentAt": "2021-02-01T00:00:00.000Z",
-  "timestamp": "2021-02-01T00:00:00.000Z",
-  "type": "#Y2EgVZ]Y2E6qzyuQ",
-  "userId": "#Y2EgVZ]Y2E6qzyuQ",
-}
-`;
+exports[`Testing snapshot for GainsightPxCloudAction's trackPageView destination action: required fields 1`] = `Object {}`;

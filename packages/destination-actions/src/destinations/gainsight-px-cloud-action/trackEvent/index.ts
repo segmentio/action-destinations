@@ -7,22 +7,12 @@ const action: ActionDefinition<Settings, Payload> = {
   title: 'Track Event',
   description: 'Send an event to Gainsight PX',
   defaultSubscription: 'type = "track"',
-  fields: {
-    segmentEvent: {
-      label: 'Segment Event',
-      type: 'object',
-      description: 'The raw Segment event',
-      required: true,
-      default: {
-        '@path': '$event'
-      }
-    }
-  },
+  fields: {},
   perform: (request, { payload, settings }) => {
 
     return request(getEndpointByRegion('track', settings.dataCenter), {
       method: 'post',
-      json: payload.segmentEvent
+      json: payload
     })
   }
 }
