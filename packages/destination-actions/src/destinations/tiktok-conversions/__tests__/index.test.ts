@@ -8,7 +8,7 @@ const timestamp = '2021-09-2T15:21:15.449Z'
 
 describe('Tiktok Conversions', () => {
   describe('reportWebEvent', () => {
-    it('should send a successful event to reportWebEvent', async () => {
+    it('should send a successful InitiateCheckout event to reportWebEvent', async () => {
       const settings: Settings = {
         accessToken: 'test',
         pixel_code: 'test'
@@ -21,7 +21,20 @@ describe('Tiktok Conversions', () => {
         type: 'track',
         properties: {
           email: 'coreytest1231@gmail.com',
-          phone: '+1555-555-5555'
+          phone: '+1555-555-5555',
+          ttclid: '12345',
+          currency: 'USD',
+          value: 100,
+          query: 'shoes'
+        },
+        context: {
+          page: {
+            url: 'https://segment.com/',
+            referrer: 'https://google.com/'
+          },
+          userAgent:
+            'Mozilla/5.0 (iPhone; CPU iPhone OS 12_1_4 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/16D57',
+          ip: '0.0.0.0'
         },
         userId: 'testId123'
       })
@@ -30,11 +43,41 @@ describe('Tiktok Conversions', () => {
       const responses = await testDestination.testAction('reportWebEvent', {
         event,
         settings,
-        useDefaultMappings: true
+        useDefaultMappings: true,
+        mapping: {
+          event: 'InitiateCheckout'
+        }
       })
-
       expect(responses.length).toBe(1)
       expect(responses[0].status).toBe(200)
+      expect(responses[0].options.json).toMatchObject({
+        pixel_code: 'test',
+        event: 'InitiateCheckout',
+        event_id: 'corey123',
+        timestamp: '2021-09-2T15:21:15.449Z',
+        context: {
+          user: {
+            external_id: '481f202262e9c5ccc48d24e60798fadaa5f6ff1f8369f7ab927c04c3aa682a7f',
+            phone_number: '910a625c4ba147b544e6bd2f267e130ae14c591b6ba9c25cb8573322dedbebd0',
+            email: 'eb9869a32b532840dd6aa714f7a872d21d6f650fc5aa933d9feefc64708969c7'
+          },
+          ad: {
+            callback: '12345'
+          },
+          page: {
+            url: 'https://segment.com/',
+            referrer: 'https://google.com/'
+          },
+          ip: '0.0.0.0',
+          user_agent:
+            'Mozilla/5.0 (iPhone; CPU iPhone OS 12_1_4 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/16D57'
+        },
+        properties: {
+          currency: 'USD',
+          value: 100,
+          query: 'shoes'
+        }
+      })
     })
   })
 })

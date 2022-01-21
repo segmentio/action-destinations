@@ -7,15 +7,6 @@ import reportWebEvent from './reportWebEvent'
 /** used in the quick setup */
 const presets: DestinationDefinition['presets'] = [
   {
-    name: 'Initiate Checkout',
-    subscribe: 'event = "Checkout Started"',
-    partnerAction: 'reportWebEvent',
-    mapping: {
-      ...defaultValues(reportWebEvent.fields),
-      event: 'IntiateCheckout'
-    }
-  },
-  {
     name: 'View Content',
     subscribe: 'type="page"',
     partnerAction: 'reportWebEvent',
@@ -25,12 +16,39 @@ const presets: DestinationDefinition['presets'] = [
     }
   },
   {
-    name: 'Products Searched',
+    name: 'Search',
     subscribe: 'event = "Products Searched"',
     partnerAction: 'reportWebEvent',
     mapping: {
       ...defaultValues(reportWebEvent.fields),
       event: 'Search'
+    }
+  },
+  {
+    name: 'Add to Wishlist',
+    subscribe: 'event = "Product Added to Wishlist"',
+    partnerAction: 'reportWebEvent',
+    mapping: {
+      ...defaultValues(reportWebEvent.fields),
+      event: 'AddToWishlist'
+    }
+  },
+  {
+    name: 'Add to Cart',
+    subscribe: 'event = "Product Added"',
+    partnerAction: 'reportWebEvent',
+    mapping: {
+      ...defaultValues(reportWebEvent.fields),
+      event: 'AddToCart'
+    }
+  },
+  {
+    name: 'Initiate Checkout',
+    subscribe: 'event = "Checkout Started"',
+    partnerAction: 'reportWebEvent',
+    mapping: {
+      ...defaultValues(reportWebEvent.fields),
+      event: 'InitiateCheckout'
     }
   },
   {
@@ -43,12 +61,12 @@ const presets: DestinationDefinition['presets'] = [
     }
   },
   {
-    name: 'Order Completed',
+    name: 'Place an Order',
     subscribe: 'event = "Order Completed"',
     partnerAction: 'reportWebEvent',
     mapping: {
       ...defaultValues(reportWebEvent.fields),
-      event: 'PlaceOrder'
+      event: 'PlaceAnOrder'
     }
   }
 ]
@@ -67,14 +85,15 @@ const destination: DestinationDefinition<Settings> = {
       accessToken: {
         label: 'Access Token',
         description:
-          "TikTok Long Term Access Token. You can generate this from the TikTok Marketing API portal. Please follow TikTok's [Authorization guide](https://ads.tiktok.com/athena/docs/index.html?plat_id=-1&doc_id=100010&id=100681&key=e98b971a296ae45d8e35a22fba032d1c06f5973de9aab73ce07b82f230cf3afd) for more info.",
+          'Your TikTok Access Token. Please see TikTok’s [Events API documentation](https://ads.tiktok.com/marketing_api/docs?id=1701890979375106) for information on how to generate an access token via the TikTok Ads Manager or API.',
         type: 'string',
         required: true
       },
       pixel_code: {
         label: 'Pixel Code',
         type: 'string',
-        description: 'An ID for your pixel. Required to send events to the TikTok pixel.',
+        description:
+          'Your TikTok Pixel ID. Please see TikTok’s [Events API documentation](https://ads.tiktok.com/marketing_api/docs?id=1701890979375106) for information on how to find this value.',
         required: true
       }
     },
@@ -85,7 +104,7 @@ const destination: DestinationDefinition<Settings> = {
         method: 'post',
         json: {
           pixel_code: settings.pixel_code,
-          event: "Test Event",
+          event: 'Test Event',
           timestamp: '',
           context: {}
         }
