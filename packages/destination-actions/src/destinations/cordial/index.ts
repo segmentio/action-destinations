@@ -7,7 +7,7 @@ import addContactToList from './addContactToList'
 import removeContactFromList from './removeContactFromList'
 
 const destination: DestinationDefinition<Settings> = {
-  name: 'Actions Cordial',
+  name: 'Cordial (Actions)',
   description: 'Sync Segment Users, Groups and Events to Cordial',
   slug: 'actions-cordial',
   mode: 'cloud',
