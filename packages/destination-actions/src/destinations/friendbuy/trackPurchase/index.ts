@@ -4,10 +4,11 @@ import type { Payload } from './generated-types'
 import type { AnalyticsPayload, EventMap } from '@segment/actions-shared'
 
 import { createMapiRequest } from '../cloudUtil'
-import { commonCustomerFields } from '@segment/actions-shared'
 import { contextFields } from '@segment/actions-shared'
 import { COPY, DROP, mapEvent } from '@segment/actions-shared'
 import { trackPurchaseFields } from '@segment/actions-shared'
+
+const cloudTrackPurchaseFields = { ...trackPurchaseFields({}), ...contextFields }
 
 const trackPurchaseMapi: EventMap = {
   fields: {
@@ -58,7 +59,7 @@ const trackPurchaseMapi: EventMap = {
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Track Purchase',
   description: 'Record when a customer makes a purchase.',
-  fields: Object.assign({}, trackPurchaseFields, commonCustomerFields(false), contextFields),
+  fields: cloudTrackPurchaseFields,
 
   perform: async (request, { settings, payload }) => {
     const friendbuyPayload = mapEvent(trackPurchaseMapi, payload as unknown as AnalyticsPayload)

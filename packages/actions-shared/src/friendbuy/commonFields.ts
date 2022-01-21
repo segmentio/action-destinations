@@ -2,7 +2,12 @@ import type { InputField } from '@segment/actions-core'
 
 export type FriendbuyAPI = 'pub' | 'mapi'
 
-export function commonCustomerFields(requireIdAndEmail: boolean): Record<string, InputField> {
+export interface FieldConfig {
+  requireCustomerId?: boolean
+  requireEmail?: boolean
+}
+
+export function commonCustomerFields(fieldConfig: FieldConfig): Record<string, InputField> {
   // If we want to associate an event such as a purchase with an existing
   // customer then the customerId is required.  If we want to create a new
   // customer from the event if one doesn't already exist then additionally an
@@ -12,7 +17,7 @@ export function commonCustomerFields(requireIdAndEmail: boolean): Record<string,
       label: 'Customer ID',
       description: "The user's customer ID.",
       type: 'string',
-      required: requireIdAndEmail,
+      required: Boolean(fieldConfig.requireCustomerId),
       default: {
         // We hope that we have a userId because analytics.identify has been
         // called but, if not, allow a customerId to be specified in the
@@ -36,7 +41,7 @@ export function commonCustomerFields(requireIdAndEmail: boolean): Record<string,
       label: 'Email',
       description: "The user's email address.",
       type: 'string',
-      required: requireIdAndEmail,
+      required: Boolean(fieldConfig.requireEmail),
       default: { '@path': '$.properties.email' }
     },
     isNewCustomer: {

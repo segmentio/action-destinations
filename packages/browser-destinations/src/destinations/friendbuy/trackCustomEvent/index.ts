@@ -9,6 +9,8 @@ import { AnalyticsPayload, COPY, DROP, ROOT, mapEvent } from '@segment/actions-s
 import { trackCustomEventFields } from '@segment/actions-shared'
 import { addName, moveEventPropertiesToRoot, parseDate } from '@segment/actions-shared'
 
+export const browserTrackCustomEventFields = trackCustomEventFields({}) // @@ email required?
+
 const trackCustomEventPub: EventMap = {
   fields: {
     eventType: DROP,
@@ -33,7 +35,7 @@ const action: BrowserActionDefinition<Settings, FriendbuyAPI, Payload> = {
   description: 'Record when a customer completes any custom event that you define.',
   // trackCustomEvent has no default subscription.
   platform: 'web',
-  fields: trackCustomEventFields,
+  fields: browserTrackCustomEventFields,
 
   perform: (friendbuyAPI, { payload }) => {
     const analyticsPayload = moveEventPropertiesToRoot(payload as unknown as AnalyticsPayload)

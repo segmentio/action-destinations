@@ -9,6 +9,8 @@ import { COPY, ROOT, mapEvent } from '@segment/actions-shared'
 import { trackPurchaseFields } from '@segment/actions-shared'
 import { addName, parseDate, removeCustomerIfNoId } from '@segment/actions-shared'
 
+export const browserTrackPurchaseFields = trackPurchaseFields({})
+
 // see https://segment.com/docs/config-api/fql/
 export const trackPurchaseDefaultSubscription = 'event = "Order Completed"'
 
@@ -63,7 +65,7 @@ const action: BrowserActionDefinition<Settings, FriendbuyAPI, Payload> = {
   description: 'Record when a customer makes a purchase.',
   defaultSubscription: trackPurchaseDefaultSubscription,
   platform: 'web',
-  fields: trackPurchaseFields,
+  fields: browserTrackPurchaseFields,
 
   perform: (friendbuyAPI, { payload }) => {
     addName(payload)

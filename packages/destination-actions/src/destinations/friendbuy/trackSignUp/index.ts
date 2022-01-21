@@ -9,6 +9,11 @@ import { COPY, DROP, mapEvent } from '@segment/actions-shared'
 import { trackSignUpFields } from '@segment/actions-shared'
 import { parseDate } from '@segment/actions-shared'
 
+const cloudTrackSignUpFields = {
+  ...trackSignUpFields({ requireCustomerId: true, requireEmail: true }),
+  ...contextFields
+}
+
 const trackSignUpMapi: EventMap = {
   fields: {
     coupon: { name: 'couponCode' },
@@ -39,7 +44,7 @@ const trackSignUpMapi: EventMap = {
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Track Sign Up',
   description: 'Record when a customer signs up for a service.',
-  fields: Object.assign({}, trackSignUpFields, contextFields),
+  fields: cloudTrackSignUpFields,
 
   perform: async (request, { settings, payload }) => {
     const friendbuyPayload = mapEvent(trackSignUpMapi, payload as unknown as AnalyticsPayload)

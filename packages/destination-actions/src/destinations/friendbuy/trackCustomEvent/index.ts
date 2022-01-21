@@ -9,6 +9,8 @@ import { AnalyticsPayload, COPY, DROP, mapEvent } from '@segment/actions-shared'
 import { trackCustomEventFields } from '@segment/actions-shared'
 import { moveEventPropertiesToRoot } from '@segment/actions-shared'
 
+const cloudTrackCustomEventFields = { ...trackCustomEventFields({ requireEmail: true }), ...contextFields }
+
 const trackCustomEventMapi: EventMap = {
   fields: {
     eventType: COPY,
@@ -36,7 +38,7 @@ const trackCustomEventMapi: EventMap = {
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Track Custom Event',
   description: 'Record when a customer completes any custom event that you define.',
-  fields: Object.assign({}, trackCustomEventFields, contextFields),
+  fields: cloudTrackCustomEventFields,
 
   perform: async (request, { settings, payload }) => {
     const payload1 = moveEventPropertiesToRoot(payload as unknown as AnalyticsPayload)

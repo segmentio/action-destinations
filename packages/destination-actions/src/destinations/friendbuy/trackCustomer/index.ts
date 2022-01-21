@@ -9,6 +9,8 @@ import { COPY, DROP, mapEvent } from '@segment/actions-shared'
 import { trackCustomerFields } from '@segment/actions-shared'
 import { parseDate } from '@segment/actions-shared'
 
+const cloudTrackCustomerFields = { ...trackCustomerFields, ...contextFields }
+
 const trackCustomerMapi: EventMap = {
   fields: {
     customerId: COPY,
@@ -42,7 +44,7 @@ const trackCustomerMapi: EventMap = {
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Track Customer',
   description: 'Create a new customer profile or update an existing customer profile.',
-  fields: Object.assign({}, trackCustomerFields, contextFields),
+  fields: cloudTrackCustomerFields,
 
   perform: async (request, { settings, payload }) => {
     const friendbuyPayload = mapEvent(trackCustomerMapi, payload as unknown as AnalyticsPayload)

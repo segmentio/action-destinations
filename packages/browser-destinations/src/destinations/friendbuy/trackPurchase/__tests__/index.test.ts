@@ -1,7 +1,6 @@
 import { Analytics, Context, JSONValue } from '@segment/analytics-next'
 import friendbuyDestination from '../../index'
-import trackPurchaseObject, { trackPurchaseDefaultSubscription } from '../index'
-import { trackPurchaseFields } from '@segment/actions-shared'
+import trackPurchaseObject, { browserTrackPurchaseFields, trackPurchaseDefaultSubscription } from '../index'
 
 import { loadScript } from '../../../../runtime/load-script'
 jest.mock('../../../../runtime/load-script')
@@ -17,7 +16,9 @@ describe('Friendbuy.trackPurchase', () => {
       name: trackPurchaseObject.title,
       enabled: true,
       subscribe: trackPurchaseDefaultSubscription,
-      mapping: Object.fromEntries(Object.entries(trackPurchaseFields).map(([name, value]) => [name, value.default]))
+      mapping: Object.fromEntries(
+        Object.entries(browserTrackPurchaseFields).map(([name, value]) => [name, value.default])
+      )
     }
   ]
 

@@ -1,9 +1,10 @@
 import type { InputField } from '@segment/actions-core'
+import type { FieldConfig } from './commonFields'
 
 import { commonCustomerFields } from './commonFields'
 
 // https://segment.com/docs/connections/spec/ecommerce/v2/#order-completed
-export const trackPurchaseFields: Record<string, InputField> = {
+export const trackPurchaseFields = (fieldConfig: FieldConfig): Record<string, InputField> => ({
   orderId: {
     label: 'Order ID',
     description: 'The order ID.',
@@ -99,7 +100,7 @@ export const trackPurchaseFields: Record<string, InputField> = {
     default: { '@path': '$.properties.products' }
   },
 
-  ...commonCustomerFields(false),
+  ...commonCustomerFields(fieldConfig),
 
   friendbuyAttributes: {
     label: 'Custom Attributes',
@@ -109,4 +110,4 @@ export const trackPurchaseFields: Record<string, InputField> = {
     required: false,
     default: { '@path': '$.properties.friendbuyAttributes' }
   }
-}
+})

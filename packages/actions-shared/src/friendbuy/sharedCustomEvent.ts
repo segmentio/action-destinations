@@ -1,6 +1,7 @@
 import type { InputField } from '@segment/actions-core'
+import type { FieldConfig } from './commonFields'
 
-export const trackCustomEventFields: Record<string, InputField> = {
+export const trackCustomEventFields = (fieldConfig: FieldConfig): Record<string, InputField> => ({
   eventType: {
     type: 'string',
     required: true,
@@ -52,7 +53,7 @@ export const trackCustomEventFields: Record<string, InputField> = {
     label: 'Email',
     description: "The user's email address.",
     type: 'string',
-    required: true,
+    required: Boolean(fieldConfig.requireEmail),
     default: { '@path': '$.properties.email' }
   }
-}
+})

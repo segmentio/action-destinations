@@ -26,5 +26,5 @@ export interface Payload {
   /**
    * The user's email address.
    */
-  email: string
+  email?: string
 }

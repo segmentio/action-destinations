@@ -1,7 +1,6 @@
 import { Analytics, Context } from '@segment/analytics-next'
 import friendbuyDestination from '../../index'
-import trackCustomEventObject from '../index'
-import { trackCustomEventFields } from '@segment/actions-shared'
+import trackCustomEventObject, { browserTrackCustomEventFields } from '../index'
 
 import { loadScript } from '../../../../runtime/load-script'
 jest.mock('../../../../runtime/load-script')
@@ -17,7 +16,9 @@ describe('Friendbuy.trackCustomEvent', () => {
       name: trackCustomEventObject.title,
       enabled: true,
       subscribe: 'type = "track" and event = "download"',
-      mapping: Object.fromEntries(Object.entries(trackCustomEventFields).map(([name, value]) => [name, value.default]))
+      mapping: Object.fromEntries(
+        Object.entries(browserTrackCustomEventFields).map(([name, value]) => [name, value.default])
+      )
     }
   ]
 

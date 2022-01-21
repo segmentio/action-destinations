@@ -1,10 +1,11 @@
 import type { InputField } from '@segment/actions-core'
+import type { FieldConfig } from './commonFields'
 
 import { commonCustomerFields } from './commonFields'
 
 // https://segment.com/docs/connections/spec/b2b-saas/#signed-up
-export const trackSignUpFields: Record<string, InputField> = {
-  ...commonCustomerFields(true),
+export const trackSignUpFields = (fieldConfig: FieldConfig): Record<string, InputField> => ({
+  ...commonCustomerFields(fieldConfig),
   coupon: {
     label: 'Coupon Code',
     description: 'Coupon code that customer supplied when they signed up.',
@@ -36,4 +37,4 @@ export const trackSignUpFields: Record<string, InputField> = {
     required: false,
     default: { '@path': '$.properties.friendbuyAttributes' }
   }
-}
+})
