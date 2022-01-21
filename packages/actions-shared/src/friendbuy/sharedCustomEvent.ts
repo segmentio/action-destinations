@@ -26,7 +26,7 @@ export const trackCustomEventFields: Record<string, InputField> = {
   },
   customerId: {
     label: 'Customer ID',
-    description: "The user's customerId.",
+    description: "The user's customer ID.",
     type: 'string',
     required: true,
     default: { '@path': '$.userId' }
@@ -37,5 +37,12 @@ export const trackCustomEventFields: Record<string, InputField> = {
     type: 'string',
     required: false,
     default: { '@path': '$.anonymousId' }
+  },
+  email: {
+    label: 'Email',
+    description: "The user's email address.",
+    type: 'string',
+    required: true,
+    default: { '@path': '$.properties.email' }
   }
 }

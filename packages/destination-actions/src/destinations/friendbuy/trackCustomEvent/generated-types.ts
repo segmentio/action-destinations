@@ -16,13 +16,17 @@ export interface Payload {
    */
   deduplicationId?: string
   /**
-   * The user's customerId.
+   * The user's customer ID.
    */
   customerId: string
   /**
    * The user's anonymous id
    */
   anonymousId?: string
+  /**
+   * The user's email address.
+   */
+  email: string
   /**
    * The URL of the web page the event was generated on.
    */

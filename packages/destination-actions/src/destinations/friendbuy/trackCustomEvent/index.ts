@@ -5,7 +5,7 @@ import type { EventMap } from '@segment/actions-shared'
 
 import { createMapiRequest } from '../cloudUtil'
 import { contextFields } from '@segment/actions-shared'
-import { AnalyticsPayload, COPY, mapEvent } from '@segment/actions-shared'
+import { AnalyticsPayload, COPY, DROP, mapEvent } from '@segment/actions-shared'
 import { trackCustomEventFields } from '@segment/actions-shared'
 import { moveEventPropertiesToRoot } from '@segment/actions-shared'
 
@@ -26,16 +26,16 @@ const trackCustomEventMapi: EventMap = {
 
     // CONTEXT FIELDS
     ipAddress: COPY,
-    userAgent: COPY
-    // pageUrl (unmapped)
-    // pageTitle (unmapped)
+    userAgent: COPY,
+    pageUrl: DROP,
+    pageTitle: DROP
   },
   unmappedFieldObject: 'additionalProperties'
 }
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Track Custom Event',
-  description: 'Record when a customer completes any custom event.',
+  description: 'Record when a customer completes any custom event that you define.',
   fields: Object.assign({}, trackCustomEventFields, contextFields),
 
   perform: async (request, { settings, payload }) => {

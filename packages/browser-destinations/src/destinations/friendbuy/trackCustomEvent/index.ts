@@ -30,7 +30,7 @@ const trackCustomEventPub: EventMap = {
 
 const action: BrowserActionDefinition<Settings, FriendbuyAPI, Payload> = {
   title: 'Track Custom Event',
-  description: 'Record when a customer completes any custom event.',
+  description: 'Record when a customer completes any custom event that you define.',
   // trackCustomEvent has no default subscription.
   platform: 'web',
   fields: trackCustomEventFields,
