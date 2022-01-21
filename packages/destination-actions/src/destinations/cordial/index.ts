@@ -7,7 +7,7 @@ import addContactToList from './addContactToList'
 import removeContactFromList from './removeContactFromList'
 
 const destination: DestinationDefinition<Settings> = {
-  name: 'Cordial',
+  name: 'Actions Cordial',
   description: 'Sync Segment Users, Groups and Events to Cordial',
   slug: 'actions-cordial',
   mode: 'cloud',
@@ -23,7 +23,8 @@ const destination: DestinationDefinition<Settings> = {
       },
       endpoint: {
         label: 'Endpoint',
-        description: "Cordial API endpoint. Leave default, unless you've been provided with another one. [See more details](https://support.cordial.com/hc/en-us/sections/200553578-REST-API-Introduction-and-Overview)",
+        description:
+          "Cordial API endpoint. Leave default, unless you've been provided with another one. [See more details](https://support.cordial.com/hc/en-us/sections/200553578-REST-API-Introduction-and-Overview)",
         type: 'string',
         required: true,
         format: 'uri',
