@@ -1,0 +1,21 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Testing snapshot for Cordial's addContactToList destination action: default fields, group id only 1`] = `
+Object {
+  "email": "user1234",
+  "identifyBy": Array [
+    "email",
+  ],
+  "segment_test-group": true,
+}
+`;
+
+exports[`Testing snapshot for Cordial's addContactToList destination action: default fields, group name 1`] = `
+Object {
+  "email": "user1234",
+  "identifyBy": Array [
+    "email",
+  ],
+  "segment_test-group": true,
+}
+`;
