@@ -14,7 +14,7 @@ Steps include:
 - 1. Run the web server
 
 ```
-$ yarn browser dev
+$ yarn dev
 ```
 
 - 2. Visit the webserver: [http://localhost:9000](http://localhost:9000)
