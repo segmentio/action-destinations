@@ -3,12 +3,9 @@
   "compilerOptions": {
     "composite": true,
     "rootDir": "src",
-    "outDir": "dist",
-    "paths": {
-      "@friendbuy/shared/*": ["../browser-destinations/src/destinations/friendbuy/shared/*"]
-    }
+    "outDir": "dist"
   },
   "exclude": ["**/__tests__/**/*.ts"],
   "include": ["src"],
-  "references": [{ "path": "../core/tsconfig.build.json" }, { "path": "../browser-destinations/tsconfig.build.json" }]
+  "references": [{ "path": "../core/tsconfig.build.json" }]
 }
