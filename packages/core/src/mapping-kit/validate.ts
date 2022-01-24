@@ -96,6 +96,7 @@ function validateDirectiveOrString(v: unknown, stack: string[] = []) {
     case 'directive':
       return validateDirective(v, stack)
     case 'string':
+    case 'undefined':
       return
     default:
       throw new ValidationError(
