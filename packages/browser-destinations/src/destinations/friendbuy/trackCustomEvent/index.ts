@@ -15,6 +15,7 @@ const trackCustomEventPub: EventMap = {
   fields: {
     eventType: DROP,
     deduplicationId: COPY,
+
     // CUSTOMER FIELDS
     customerId: { name: ['customer', 'id'] },
     anonymousId: { name: ['customer', 'anonymousId'] },

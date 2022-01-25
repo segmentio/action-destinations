@@ -41,7 +41,7 @@ const trackPurchasePub: EventMap = {
       }
     },
 
-    // Customer fields.
+    // CUSTOMER FIELDS
     customerId: { name: ['customer', 'id'] },
     anonymousId: { name: ['customer', 'anonymousId'] },
     email: { name: ['customer', 'email'] },
@@ -51,6 +51,7 @@ const trackPurchasePub: EventMap = {
     lastName: { name: ['customer', 'lastName'] },
     name: { name: ['customer', 'name'] },
     age: { name: ['customer', 'age'] },
+    // fbt-merchant-api complains about birthday being an object but passes it anyway.
     birthday: { name: ['customer', 'birthday'], convert: parseDate as ConvertFun }
   },
   unmappedFieldObject: ROOT,

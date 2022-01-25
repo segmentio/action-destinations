@@ -35,7 +35,7 @@ const trackPurchaseMapi: EventMap = {
       }
     },
 
-    // Customer fields.
+    // CUSTOMER FIELDS
     customerId: COPY,
     // anonymousID (unmapped)
     email: COPY,
@@ -47,7 +47,7 @@ const trackPurchaseMapi: EventMap = {
     age: DROP, // currently not handled properly at root or in additionalProperties
     birthday: DROP, // currently not handled properly at root or in additionalProperties
 
-    // Context fields.
+    // CONTEXT FIELDS
     ipAddress: COPY,
     userAgent: COPY,
     pageUrl: DROP,
