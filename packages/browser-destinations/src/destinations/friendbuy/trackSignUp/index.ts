@@ -30,13 +30,7 @@ const trackSignUpPub: EventMap = {
     lastName: COPY,
     name: COPY,
     age: COPY,
-    birthday: { convert: parseDate as ConvertFun },
-
-    // CONTEXT FIELDS
-    ipAddress: COPY,
-    userAgent: COPY
-    // pageUrl (unmapped)
-    // pageTitle (unmapped)
+    birthday: { convert: parseDate as ConvertFun }
   },
   unmappedFieldObject: ROOT
 }
