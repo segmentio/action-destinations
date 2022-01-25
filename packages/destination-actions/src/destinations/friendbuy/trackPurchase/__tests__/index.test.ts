@@ -35,6 +35,7 @@ describe('Friendbuy.trackPurchase', () => {
     const name = `${firstName} ${lastName}`
     const age = 42
     const birthday = '0000-12-25'
+    const promotion = 'winter 2022'
 
     const event = createTestEvent({
       type: 'track',
@@ -47,6 +48,7 @@ describe('Friendbuy.trackPurchase', () => {
         currency,
         coupon,
         attributionId,
+        referralCode,
         giftCardCodes,
         products: products as JSONValue,
         email,
@@ -57,7 +59,7 @@ describe('Friendbuy.trackPurchase', () => {
         name,
         age,
         birthday,
-        friendbuyAttributes: { attributionId, referralCode }
+        friendbuyAttributes: { promotion }
       },
       timestamp: '2021-10-05T15:30:35Z'
     })
@@ -91,6 +93,7 @@ describe('Friendbuy.trackPurchase', () => {
       additionalProperties: {
         // age, // dropped because not string.
         anonymousId,
+        promotion,
         name,
         // birthday: { month: 12, day: 25 }, // dropped because not string.
         loyaltyStatus

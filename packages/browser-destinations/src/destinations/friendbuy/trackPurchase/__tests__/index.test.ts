@@ -43,8 +43,10 @@ describe('Friendbuy.trackPurchase', () => {
     const anonymousId = 'cbce64f6-a45a-4d9c-a63d-4c7b42773276'
     const currency = 'USD'
     const coupon = 'coupon-xyzzy'
+    const attributionId = '878123ed-0439-4a73-b2fe-72c4f09ec64f'
+    const referralCode = 'ref-plugh'
     const giftCardCodes = ['card-a', 'card-b']
-    const friendbuyAttributes = { referralCode: 'ref-plugh' }
+    const friendbuyAttributes = { promotion: 'fall 2021' }
     const email = 'john.doe@example.com'
     const name = 'John Doe'
 
@@ -84,6 +86,8 @@ describe('Friendbuy.trackPurchase', () => {
           total: amount + 2,
           currency,
           coupon,
+          attributionId,
+          referralCode,
           giftCardCodes,
           products: products as JSONValue,
           email,
@@ -104,6 +108,8 @@ describe('Friendbuy.trackPurchase', () => {
           amount: amount + 2, // amount defaults to total
           currency,
           couponCode: coupon,
+          attributionId,
+          referralCode,
           giftCardCodes,
           customer: { id: userId, anonymousId, email, name },
           products: expectedProducts,

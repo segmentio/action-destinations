@@ -39,6 +39,20 @@ export const trackPurchaseFields = (fieldConfig: FieldConfig): Record<string, In
     required: false,
     default: { '@path': '$.properties.coupon' }
   },
+  attributionId: {
+    label: 'Friendbuy Attribution ID',
+    description: 'Friendbuy attribution ID that associates the purchase with the advocate who referred the purchaser.',
+    type: 'string',
+    required: false,
+    default: { '@path': '$.properties.attributionId' }
+  },
+  referralCode: {
+    label: 'Friendbuy Referral ID',
+    description: 'Friendbuy referral code that associates the purchase with the advocate who referred the purchaser.',
+    type: 'string',
+    required: false,
+    default: { '@path': '$.properties.referralCode' }
+  },
   giftCardCodes: {
     // Might be used to establish attribution.
     label: 'Gift Card Codes',
