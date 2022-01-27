@@ -74,7 +74,8 @@ const action: ActionDefinition<Settings, Payload> = {
     contact_custom_fields: {
       label: 'Contact Custom Fields',
       description: 'Custom Fields to set on the Contact. Key should be Custom Field ID (`cf_xxxx`).',
-      type: 'object'
+      type: 'object',
+      required: false
     }
   },
 
