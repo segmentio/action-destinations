@@ -49,7 +49,7 @@ const presets: DestinationDefinition['presets'] = [
 
 export const destination: BrowserDestinationDefinition<Settings, FriendbuyAPI> = {
   name: 'Friendbuy Web Device Mode (Actions)',
-  slug: 'actions-friendbuy-web',
+  slug: 'actions-friendbuy',
   mode: 'device',
 
   settings: {
