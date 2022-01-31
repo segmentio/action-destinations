@@ -1,7 +1,7 @@
 import nock from 'nock'
 import { /* createTestEvent, */ createTestIntegration } from '@segment/actions-core'
 import Definition from '../index'
-import { mapiUrl } from '../cloudUtil'
+import { defaultMapiBaseUrl, getMapiBaseUrl } from '../cloudUtil'
 import { authKey, authSecret } from './cloudUtil.mock'
 
 const testDestination = createTestIntegration(Definition)
@@ -13,15 +13,24 @@ describe('Friendbuy', () => {
 
   describe('testAuthentication', () => {
     test('valid merchantId', async () => {
-      nock(mapiUrl).post('/v1/authorization').reply(200, { token, expires })
+      nock(defaultMapiBaseUrl).post('/v1/authorization').reply(200, { token, expires })
 
       await expect(testDestination.testAuthentication({ authKey, authSecret })).resolves.not.toThrowError()
     })
 
     test('invalid merchantId', async () => {
-      nock(mapiUrl).post('/v1/authorization').reply(403, {})
+      nock(defaultMapiBaseUrl).post('/v1/authorization').reply(403, {})
 
       await expect(testDestination.testAuthentication({ authKey, authSecret: badSecret })).rejects.toThrowError()
     })
+  })
+})
+
+describe('getMapiBaseUrl', () => {
+  test('production', () => {
+    expect(getMapiBaseUrl('secret')).toEqual(['secret', defaultMapiBaseUrl])
+  })
+  test('sandbox', () => {
+    expect(getMapiBaseUrl('sandbox:secret')).toEqual(['secret', 'https://mapi.fbot-sandbox.me'])
   })
 })

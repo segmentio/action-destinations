@@ -2,7 +2,7 @@ import nock from 'nock'
 import { createTestEvent, createTestIntegration } from '@segment/actions-core'
 import Destination from '../../index'
 
-import { mapiUrl } from '../../cloudUtil'
+import { defaultMapiBaseUrl } from '../../cloudUtil'
 import { nockAuth, authKey, authSecret } from '../../__tests__/cloudUtil.mock'
 
 const testDestination = createTestIntegration(Destination)
@@ -11,7 +11,7 @@ describe('Friendbuy.trackCustomer', () => {
   test('all fields', async () => {
     nockAuth()
     const nockRequests: any[] /* (typeof nock.ReplyFnContext.req)[] */ = []
-    nock(mapiUrl)
+    nock(defaultMapiBaseUrl)
       .post('/v1/customer')
       .reply(200, function (_uri, _requestBody) {
         nockRequests.push(this.req)

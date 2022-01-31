@@ -1,6 +1,6 @@
 {
   "name": "@segment/browser-destinations",
-  "version": "3.26.0",
+  "version": "3.28.0",
   "description": "Action based browser destinations",
   "author": "Netto Farah",
   "private": true,
@@ -30,7 +30,7 @@
   "dependencies": {
     "@braze/web-sdk": "^3.3.0",
     "@fullstory/browser": "^1.4.9",
-    "@segment/actions-shared": "^1.1.0",
+    "@segment/actions-shared": "^1.2.0",
     "@segment/analytics-next": "^1.29.3",
     "@segment/destination-subscriptions": "^3.8.2",
     "dayjs": "^1.10.7",
