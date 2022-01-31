@@ -2,11 +2,7 @@
 
 export interface Settings {
   /**
-   * The Target client code to which the profile is associated
+   * Your Adobe Target client code. To find your client code in the Target UI click Administration > Implementation. The client code is shown up top under Account Details.
    */
-  client_id: string
-  /**
-   * The type of ID
-   */
-  id_type: string
+  client_code: string
 }

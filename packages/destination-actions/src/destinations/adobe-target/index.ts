@@ -11,27 +11,11 @@ const destination: DestinationDefinition<Settings> = {
   authentication: {
     scheme: 'custom',
     fields: {
-      client_id: {
-        label: 'Client ID',
-        description: 'The Target client code to which the profile is associated',
+      client_code: {
+        label: 'Client Code',
+        description:
+          'Your Adobe Target client code. To find your client code in the Target UI click Administration > Implementation. The client code is shown up top under Account Details.',
         type: 'string',
-        required: true
-      },
-      id_type: {
-        label: 'ID Type',
-        description: 'The type of ID', // TODO: Get a better description
-        type: 'string',
-        choices: [
-          {
-            value: 'mbox3rdPartyId',
-            label: 'mbox3rdPartyId'
-          },
-          {
-            value: 'PCID',
-            label: 'PCID'
-          }
-        ],
-        default: 'mbox3rdPartyId',
         required: true
       }
     }
