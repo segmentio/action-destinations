@@ -45,6 +45,7 @@ register('615cae349d109d6b7496a131', './tiktok-conversions')
 register('602efa1f249b9a5e2bf8a813', './twilio')
 register('614a3c7d791c91c41bae7599', './webhook')
 register('61dc4e96894a6d7954cc6e45', './voyage')
+register('61aa712b857e8c85c3b5a849', './adobe-target')
 
 function register(id: MetadataId, destinationPath: string) {
   // eslint-disable-next-line @typescript-eslint/no-var-requires
