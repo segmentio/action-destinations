@@ -318,7 +318,13 @@ const action: ActionDefinition<Settings, Payload> = {
             type: 'text/html',
             value: Mustache.render(bodyHtml, { profile })
           }
-        ]
+        ],
+        tracking_settings: {
+          subscription_tracking: {
+            enable: true,
+            substitution_tag: "[unsubscribe]"
+          }
+        }
       }
     })
   }
