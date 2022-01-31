@@ -42,6 +42,18 @@ export interface Payload {
    */
   birthday?: string
   /**
+   * Coupon code that customer supplied when they signed up.
+   */
+  coupon?: string
+  /**
+   * Friendbuy attribution ID that associates the customer who is signing up with the advocate who referred them.
+   */
+  attributionId?: string
+  /**
+   * Friendbuy referral code that associates the customer who is signing up with the advocate who referred them.
+   */
+  referralCode?: string
+  /**
    * Custom attributes to send to Friendbuy. You should pass an object whose keys are the names of the custom attributes and whose values are strings. Non-string-valued attributes will be dropped.
    */
   friendbuyAttributes?: {

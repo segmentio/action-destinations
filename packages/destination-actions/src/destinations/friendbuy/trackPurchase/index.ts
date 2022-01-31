@@ -3,11 +3,12 @@ import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 import type { AnalyticsPayload, EventMap } from '@segment/actions-shared'
 
-import { createRequestParams, mapiUrl } from '../cloudUtil'
-import { commonCustomerFields } from '@segment/actions-shared'
+import { createMapiRequest } from '../cloudUtil'
 import { contextFields } from '@segment/actions-shared'
 import { COPY, DROP, mapEvent } from '@segment/actions-shared'
 import { trackPurchaseFields } from '@segment/actions-shared'
+
+const cloudTrackPurchaseFields = { ...trackPurchaseFields({}), ...contextFields }
 
 const trackPurchaseMapi: EventMap = {
   fields: {
@@ -34,7 +35,7 @@ const trackPurchaseMapi: EventMap = {
       }
     },
 
-    // Customer fields.
+    // CUSTOMER FIELDS
     customerId: COPY,
     // anonymousID (unmapped)
     email: COPY,
@@ -46,7 +47,7 @@ const trackPurchaseMapi: EventMap = {
     age: DROP, // currently not handled properly at root or in additionalProperties
     birthday: DROP, // currently not handled properly at root or in additionalProperties
 
-    // Context fields.
+    // CONTEXT FIELDS
     ipAddress: COPY,
     userAgent: COPY,
     pageUrl: DROP,
@@ -58,12 +59,17 @@ const trackPurchaseMapi: EventMap = {
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Track Purchase',
   description: 'Record when a customer makes a purchase.',
-  fields: Object.assign({}, trackPurchaseFields, commonCustomerFields(false), contextFields),
+  fields: cloudTrackPurchaseFields,
 
   perform: async (request, { settings, payload }) => {
     const friendbuyPayload = mapEvent(trackPurchaseMapi, payload as unknown as AnalyticsPayload)
-    const requestParams = await createRequestParams(request, settings, friendbuyPayload)
-    return request(`${mapiUrl}/v1/event/purchase`, requestParams)
+    const [requestUrl, requestParams] = await createMapiRequest(
+      'v1/event/purchase',
+      request,
+      settings,
+      friendbuyPayload
+    )
+    return request(requestUrl, requestParams)
   }
 }
 

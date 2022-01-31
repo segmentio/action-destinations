@@ -2,7 +2,7 @@ import nock from 'nock'
 import { createTestEvent, createTestIntegration } from '@segment/actions-core'
 import Destination from '../../index'
 
-import { mapiUrl } from '../../cloudUtil'
+import { defaultMapiBaseUrl } from '../../cloudUtil'
 import { nockAuth, authKey, authSecret } from '../../__tests__/cloudUtil.mock'
 
 const testDestination = createTestIntegration(Destination)
@@ -10,7 +10,7 @@ const testDestination = createTestIntegration(Destination)
 describe('Friendbuy.trackSignUp', () => {
   test('all fields', async () => {
     nockAuth()
-    nock(mapiUrl).post('/v1/event/account-sign-up').reply(200, {})
+    nock(defaultMapiBaseUrl).post('/v1/event/account-sign-up').reply(200, {})
 
     const userId = 'john-doe-12345'
     const anonymousId = '6afc2ff2-cf54-414f-9a99-b3adb054ae31'
@@ -22,6 +22,9 @@ describe('Friendbuy.trackSignUp', () => {
     const loyaltyStatus = 'in'
     const age = 42
     const birthday = '2001-05-01'
+    const couponCode = 'coupon-123'
+    const attributionId = 'adc507d9-0ace-4ae3-a572-986d022645a0'
+    const referralCode = 'ref12345'
     const friendbuyAttributes = { custom1: 'custom1', custom2: 'custom2' }
 
     const event = createTestEvent({
@@ -33,6 +36,9 @@ describe('Friendbuy.trackSignUp', () => {
         email,
         isNewCustomer,
         loyaltyStatus,
+        coupon: couponCode,
+        attributionId,
+        referralCode,
         firstName,
         lastName,
         name,
@@ -60,13 +66,15 @@ describe('Friendbuy.trackSignUp', () => {
       loyaltyStatus,
       firstName,
       lastName,
+      couponCode,
+      attributionId,
+      referralCode,
       age,
       birthday: { year: 2001, month: 5, day: 1 },
       ipAddress: event?.context?.ip,
       userAgent: event?.context?.userAgent,
       additionalProperties: {
         ...friendbuyAttributes,
-        // age, // dropped because not string
         anonymousId,
         name
       }

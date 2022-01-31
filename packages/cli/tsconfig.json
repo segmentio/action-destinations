@@ -28,8 +28,7 @@
       "@segment/action-destinations": ["../destination-actions/src"],
       "@segment/ajv-human-errors": ["../ajv-human-errors/src"],
       "@segment/browser-destinations": ["../browser-destinations/src"],
-      "@segment/destination-subscriptions": ["../destination-subscriptions/src"],
-      "@friendbuy/shared/*": ["../browser-destinations/src/destinations/friendbuy/shared/*"]
+      "@segment/destination-subscriptions": ["../destination-subscriptions/src"]
     }
   },
   "include": ["src"]

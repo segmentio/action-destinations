@@ -56,8 +56,7 @@
       "@segment/ajv-human-errors": "<rootDir>/../ajv-human-errors/src",
       "@segment/actions-core": "<rootDir>/../core/src",
       "@segment/actions-shared": "<rootDir>/../actions-shared/src",
-      "@segment/destination-subscriptions": "<rootDir>/../destination-subscriptions/src",
-      "@friendbuy/shared(.*)": "<rootDir>/../browser-destinations/src/destinations/friendbuy/shared$1"
+      "@segment/destination-subscriptions": "<rootDir>/../destination-subscriptions/src"
     },
     "setupFilesAfterEnv": [
       "<rootDir>/test/setup-after-env.ts"

@@ -6,13 +6,11 @@ import { defaultValues } from '@segment/actions-core'
 import type { Settings } from './generated-types'
 import type { FriendbuyAPI } from './types'
 import trackCustomer, { trackCustomerDefaultSubscription } from './trackCustomer'
-import trackPurchase, { trackPurchaseDefaultSubscription } from './trackPurchase'
-import trackSignUp, { trackSignUpDefaultSubscription } from './trackSignUp'
+import trackPurchase, { browserTrackPurchaseFields, trackPurchaseDefaultSubscription } from './trackPurchase'
+import trackSignUp, { browserTrackSignUpFields, trackSignUpDefaultSubscription } from './trackSignUp'
 import trackPage, { trackPageDefaultSubscription, trackPageFields } from './trackPage'
 import trackCustomEvent from './trackCustomEvent'
 import { trackCustomerFields } from '@segment/actions-shared'
-import { trackPurchaseFields } from '@segment/actions-shared'
-import { trackSignUpFields } from '@segment/actions-shared'
 
 declare global {
   interface Window {
@@ -33,13 +31,13 @@ const presets: DestinationDefinition['presets'] = [
     name: 'Track Purchase',
     subscribe: trackPurchaseDefaultSubscription,
     partnerAction: 'trackPurchase',
-    mapping: defaultValues(trackPurchaseFields)
+    mapping: defaultValues(browserTrackPurchaseFields)
   },
   {
     name: 'Track Sign Up',
     subscribe: trackSignUpDefaultSubscription,
     partnerAction: 'trackSignUp',
-    mapping: defaultValues(trackSignUpFields)
+    mapping: defaultValues(browserTrackSignUpFields)
   },
   {
     name: 'Track Page',
@@ -51,7 +49,7 @@ const presets: DestinationDefinition['presets'] = [
 
 export const destination: BrowserDestinationDefinition<Settings, FriendbuyAPI> = {
   name: 'Friendbuy Web Device Mode (Actions)',
-  slug: 'actions-friendbuy-web',
+  slug: 'actions-friendbuy',
   mode: 'device',
 
   settings: {
