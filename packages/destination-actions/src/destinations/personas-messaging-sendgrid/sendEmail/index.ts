@@ -124,6 +124,8 @@ interface Profile {
   traits: Record<string, string>
 }
 
+const EXTERNAL_ID_KEY = 'email'
+
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Send Email',
   description: 'Sends Email to a user powered by SendGrid',
@@ -192,7 +194,7 @@ const action: ActionDefinition<Settings, Payload> = {
     previewText: {
       label: 'Preview Text',
       description: 'Preview Text',
-      type: 'string',
+      type: 'string'
     },
     subject: {
       label: 'Subject',
@@ -284,7 +286,7 @@ const action: ActionDefinition<Settings, Payload> = {
     return request('https://api.sendgrid.com/v3/mail/send', {
       method: 'post',
       headers: {
-        'authorization': `Bearer ${settings.sendGridApiKey}`
+        authorization: `Bearer ${settings.sendGridApiKey}`
       },
       json: {
         personalizations: [
@@ -300,7 +302,10 @@ const action: ActionDefinition<Settings, Payload> = {
               ...payload.customArgs,
               source_id: settings.sourceId,
               space_id: settings.spaceId,
-              user_id: payload.userId
+              user_id: payload.userId,
+              // This is to help disambiguate in the case it's email or email_address.
+              external_id_key: EXTERNAL_ID_KEY,
+              external_id_value: profile[EXTERNAL_ID_KEY]
             }
           }
         ],

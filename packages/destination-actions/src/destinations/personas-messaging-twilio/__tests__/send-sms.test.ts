@@ -118,7 +118,7 @@ for (const environment of ['stage', 'production']) {
         Body: 'Hello world, jane!',
         From: '+1234567890',
         To: '+1234567891',
-        StatusCallback: 'http://localhost/?foo=bar#rp=all&rc=5'
+        StatusCallback: 'http://localhost/?foo=bar&external_id_key=phone&external_id_value=%2B1234567891#rp=all&rc=5'
       })
 
       const actionInputData = {
@@ -130,7 +130,7 @@ for (const environment of ['stage', 'production']) {
         settings: {
           ...settings,
           webhookUrl: 'http://localhost',
-          connectionOverrides: "rp=all&rc=5"
+          connectionOverrides: 'rp=all&rc=5'
         },
         mapping: {
           userId: { '@path': '$.userId' },
