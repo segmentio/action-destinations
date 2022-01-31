@@ -30,6 +30,27 @@ export interface Payload {
       content?: string
     }
     /**
+     * information about the user’s current location
+     */
+    location?: {
+      city?: string
+      country?: string
+      latitude?: number
+      longitude?: number
+      region?: string
+      speed?: number
+    }
+    /**
+     * Current page properties
+     */
+    page?: {
+      path?: string
+      referrer?: string
+      search?: string
+      title?: string
+      url?: string
+    }
+    /**
      * Screen Properties
      */
     screen?: {
@@ -62,14 +83,6 @@ export interface Payload {
     library?: {
       name?: string
       version?: string
-    }
-    /**
-     * Referrer Properties
-     */
-    referrer?: {
-      type?: string
-      name?: string
-      url?: string
     }
     /**
      * Users IP address
