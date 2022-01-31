@@ -233,7 +233,13 @@ for (const environment of ['stage', 'production']) {
             type: 'text/html',
             value: 'Welcome to segment'
           }
-        ]
+        ],
+        tracking_settings: {
+          subscription_tracking: {
+            enable: true,
+            substitution_tag: '[unsubscribe]'
+          }
+        }
       }
 
       const sendGridRequest = nock('https://api.sendgrid.com')
@@ -339,7 +345,13 @@ for (const environment of ['stage', 'production']) {
             type: 'text/html',
             value: `Hi ${userData.firstName}, welcome to Segment`
           }
-        ]
+        ],
+        tracking_settings: {
+          subscription_tracking: {
+            enable: true,
+            substitution_tag: '[unsubscribe]'
+          }
+        }
       }
 
       const s3Request = nock('https://s3.com')
@@ -405,7 +417,13 @@ for (const environment of ['stage', 'production']) {
             type: 'text/html',
             value: `<h1>Hi ${userData.firstName}, welcome to Segment</h1>`
           }
-        ]
+        ],
+        tracking_settings: {
+          subscription_tracking: {
+            enable: true,
+            substitution_tag: '[unsubscribe]'
+          }
+        }
       }
 
       const s3Request = nock('https://s3.com').get('/body.txt').reply(200, '{"unlayer":true}')
@@ -494,7 +512,13 @@ for (const environment of ['stage', 'production']) {
               '  Hi First Name, welcome to Segment</body></html>'
             ].join('\n')
           }
-        ]
+        ],
+        tracking_settings: {
+          subscription_tracking: {
+            enable: true,
+            substitution_tag: '[unsubscribe]'
+          }
+        }
       }
 
       const s3Request = nock('https://s3.com')
