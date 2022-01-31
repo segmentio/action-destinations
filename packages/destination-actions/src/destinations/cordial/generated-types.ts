@@ -6,7 +6,7 @@ export interface Settings {
    */
   apiKey: string
   /**
-   * Cordial API endpoint. Leave default, unless you've been provided with another one. [See more details](https://support.cordial.com/hc/en-us/sections/200553578-REST-API-Introduction-and-Overview)
+   * Cordial API endpoint. Leave default, unless you've been provided with another one
    */
   endpoint: string
 }
