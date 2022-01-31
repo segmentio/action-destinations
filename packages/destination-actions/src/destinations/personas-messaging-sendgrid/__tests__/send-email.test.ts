@@ -120,7 +120,13 @@ for (const environment of ['stage', 'production']) {
             type: 'text/html',
             value: `Hi ${userData.firstName}, Welcome to segment`
           }
-        ]
+        ],
+        tracking_settings: {
+          subscription_tracking: {
+            enable: true,
+            substitution_tag: '[unsubscribe]'
+          }
+        }
       }
 
       const sendGridRequest = nock('https://api.sendgrid.com')
@@ -402,9 +408,7 @@ for (const environment of ['stage', 'production']) {
         ]
       }
 
-      const s3Request = nock('https://s3.com')
-        .get('/body.txt')
-        .reply(200, '{"unlayer":true}')
+      const s3Request = nock('https://s3.com').get('/body.txt').reply(200, '{"unlayer":true}')
 
       const unlayerRequest = nock('https://api.unlayer.com')
         .post('/v2/export/html', {
