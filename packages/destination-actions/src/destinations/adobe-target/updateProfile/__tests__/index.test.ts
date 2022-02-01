@@ -197,7 +197,11 @@ describe('AdobeTarget', () => {
         testDestination.testAction('updateProfile', {
           event,
           settings,
-          useDefaultMappings: true
+          mapping: {
+            user_id: {
+              '@path': '$.userId'
+            }
+          }
         })
       ).rejects.toThrowError("The root value is missing the required field 'traits'.")
     })
@@ -212,17 +216,13 @@ describe('AdobeTarget', () => {
     const event = createTestEvent({
       event: 'identify',
       userId: '123-test',
-      properties: {
-        name: 'Rajul',
-        age: '21',
-        traits: {
-          address: {
-            city: 'New York City',
-            zipCode: '12345'
-          },
-          param1: 'value1',
-          param2: 'value2'
-        }
+      traits: {
+        address: {
+          city: 'New York City',
+          zipCode: '12345'
+        },
+        param1: 'value1',
+        param2: 'value2'
       }
     })
     const responses = await testDestination.testAction('updateProfile', {

@@ -27,15 +27,20 @@ const objectToQueryString = (object: { [x: string]: { toString: () => any } }) =
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Update Profile',
-  description: '',
+  description: 'Update a user profile in Adobe Target.',
+  defaultSubscription: 'type = "identify"',
   fields: {
     user_id: {
-      label: 'User ID',
+      label: '',
       description: "The user's unique identifier",
       type: 'string',
       required: true,
       default: {
-        '@path': '$.userId'
+        '@if': {
+          exists: { '@path': '$.userId' },
+          then: { '@path': '$.userId' },
+          else: { '@path': '$.anonymousId' }
+        }
       }
     },
     traits: {
@@ -44,7 +49,7 @@ const action: ActionDefinition<Settings, Payload> = {
       type: 'object',
       required: true,
       default: {
-        '@path': '$.properties.traits'
+        '@path': '$.traits'
       }
     }
   },
