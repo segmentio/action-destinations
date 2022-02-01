@@ -20,7 +20,7 @@ export const traits: InputField = {
 
   Any field can be matched on, including Record ID, External IDs, standard fields and custom fields. On the left-hand side, input the Salesforce field name. On the right-hand side, map the Segment field that contains the value.
   
-  If multiple records are found, we will not make any updates so we recommend using fields that contain unique values per record. Please see more information in our documentation.`,
+  If multiple records are found, no updates will be made. Please use fields that result in unique records.`,
   type: 'object'
 }
 
