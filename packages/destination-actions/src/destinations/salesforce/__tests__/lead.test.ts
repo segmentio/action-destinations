@@ -64,7 +64,7 @@ describe('Salesforce', () => {
       )
     })
 
-    it.only('should create a lead record with custom fields', async () => {
+    it('should create a lead record with custom fields', async () => {
       nock(`${settings.instanceUrl}/services/data/${API_VERSION}/sobjects`).post('/Lead').reply(201, {})
 
       const event = createTestEvent({
