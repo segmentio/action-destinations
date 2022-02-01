@@ -5,7 +5,7 @@ import type { Payload } from './generated-types'
 
 const action: BrowserActionDefinition<Settings, Adobe, Payload> = {
   title: 'Upsert Profile',
-  description: 'Update or Create a user profile in Adobe Target',
+  description: 'Create or update a user profile in Adobe Target.',
   platform: 'web',
   defaultSubscription: 'type = "identify"',
   fields: {

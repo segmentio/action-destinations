@@ -21,7 +21,7 @@ export const destination: BrowserDestinationDefinition<Settings, unknown> = {
     client_code: {
       label: 'Client Code',
       description:
-        'Your client code is available at the top of the Administration > Implementation page of the Target interface.',
+        'Your Adobe Target client code. To find your client code in Adobe Target, navigate to **Administration > Implementation**. The client code is shown at the top under Account Details.',
       required: true,
       type: 'string'
     },
@@ -46,15 +46,16 @@ export const destination: BrowserDestinationDefinition<Settings, unknown> = {
       required: true
     },
     mbox_name: {
-      label: 'MBox Name',
-      description: 'The name of the mbox to use',
+      label: 'Mbox Name',
+      description: 'The name of the Adobe Target mbox to use. Defaults to `target-global-mbox`.',
       type: 'string',
       required: true,
       default: 'target-global-mbox'
     },
     cookie_domain: {
       label: 'Cookie Domain',
-      description: 'The domain of the platform that your integration will run on',
+      description:
+        "The domain from which you serve the mbox. Adobe Target recommends setting this value to your company's top- level domain.",
       type: 'string',
       required: true
     }

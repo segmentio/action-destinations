@@ -2,7 +2,7 @@
 
 export interface Settings {
   /**
-   * Your client code is available at the top of the Administration > Implementation page of the Target interface.
+   * Your Adobe Target client code. To find your client code in Adobe Target, navigate to **Administration > Implementation**. The client code is shown at the top under Account Details.
    */
   client_code: string
   /**
@@ -14,11 +14,11 @@ export interface Settings {
    */
   version: string
   /**
-   * The name of the mbox to use
+   * The name of the Adobe Target mbox to use. Defaults to `target-global-mbox`.
    */
   mbox_name: string
   /**
-   * The domain of the platform that your integration will run on
+   * The domain from which you serve the mbox. Adobe Target recommends setting this value to your company's top- level domain.
    */
   cookie_domain: string
 }
