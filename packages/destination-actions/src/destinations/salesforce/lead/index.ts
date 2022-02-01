@@ -1,7 +1,7 @@
 import { ActionDefinition, IntegrationError } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
-import { operation, traits, validateLookup } from '../sf-properties'
+import { standard_fields, custom_fields, operation, traits, validateLookup } from '../sf-properties'
 import Salesforce from '../sf-operations'
 
 const action: ActionDefinition<Settings, Payload> = {
@@ -54,7 +54,9 @@ const action: ActionDefinition<Settings, Payload> = {
       label: 'State',
       description: 'State',
       type: 'string'
-    }
+    },
+    standard_fields: standard_fields,
+    custom_fields: custom_fields
   },
   perform: async (request, { settings, payload }) => {
     const sf: Salesforce = new Salesforce(settings.instanceUrl, request)

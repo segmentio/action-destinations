@@ -19,6 +19,23 @@ export const traits: InputField = {
   type: 'object'
 }
 
+export const standard_fields: InputField = {
+  label: 'Other Standard Fields',
+  description:
+    'Additional standard fields to send to Salesforce. On the left-hand side, input the Salesforce standard field name. On the right-hand side, map the Segment field that contains the value.',
+  type: 'object'
+}
+
+export const custom_fields: InputField = {
+  label: 'Custom Fields',
+  description: `
+  Custom fields to send to Salesforce. Fields must be predefined in your Salesforce account. 
+
+  On the left-hand side, input the Salesforce field name with __c appended. On the right-hand side, map the Segment field that contains the value.
+  `,
+  type: 'object'
+}
+
 interface Payload {
   operation?: string
   traits?: object
