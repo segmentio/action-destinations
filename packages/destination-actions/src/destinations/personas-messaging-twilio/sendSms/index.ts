@@ -149,8 +149,8 @@ const action: ActionDefinition<Settings, Payload> = {
     const connectionOverrides = settings.connectionOverrides
     const customArgs: Record<string, string | undefined> = {
       ...payload.customArgs,
-      external_id_key: EXTERNAL_ID_KEY,
-      external_id_value: profile[EXTERNAL_ID_KEY]
+      __segment_internal_external_id_key__: EXTERNAL_ID_KEY,
+      __segment_internal_external_id_value__: profile[EXTERNAL_ID_KEY]
     }
 
     if (webhookUrl && customArgs) {

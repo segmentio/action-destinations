@@ -103,8 +103,8 @@ for (const environment of ['stage', 'production']) {
               source_id: 'sourceId',
               space_id: 'spaceId',
               user_id: userData.userId,
-              external_id_key: 'email',
-              external_id_value: userData.email
+              __segment_internal_external_id_key__: 'email',
+              __segment_internal_external_id_value__: userData.email
             }
           }
         ],
@@ -212,8 +212,8 @@ for (const environment of ['stage', 'production']) {
               journey_id: 'journeyId',
               journey_state_id: 'journeyStateId',
               audience_id: 'audienceId',
-              external_id_key: 'email',
-              external_id_value: userData.email
+              __segment_internal_external_id_key__: 'email',
+              __segment_internal_external_id_value__: userData.email
             }
           }
         ],
@@ -322,8 +322,8 @@ for (const environment of ['stage', 'production']) {
               source_id: 'sourceId',
               space_id: 'spaceId',
               user_id: userData.userId,
-              external_id_key: 'email',
-              external_id_value: userData.email
+              __segment_internal_external_id_key__: 'email',
+              __segment_internal_external_id_value__: userData.email
             }
           }
         ],
@@ -390,8 +390,8 @@ for (const environment of ['stage', 'production']) {
               source_id: 'sourceId',
               space_id: 'spaceId',
               user_id: userData.userId,
-              external_id_key: 'email',
-              external_id_value: userData.email
+              __segment_internal_external_id_key__: 'email',
+              __segment_internal_external_id_value__: userData.email
             }
           }
         ],
@@ -471,8 +471,8 @@ for (const environment of ['stage', 'production']) {
               source_id: 'sourceId',
               space_id: 'spaceId',
               user_id: userData.userId,
-              external_id_key: 'email',
-              external_id_value: userData.email
+              __segment_internal_external_id_key__: 'email',
+              __segment_internal_external_id_value__: userData.email
             }
           }
         ],

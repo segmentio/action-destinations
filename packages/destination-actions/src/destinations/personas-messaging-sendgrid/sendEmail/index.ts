@@ -304,8 +304,8 @@ const action: ActionDefinition<Settings, Payload> = {
               space_id: settings.spaceId,
               user_id: payload.userId,
               // This is to help disambiguate in the case it's email or email_address.
-              external_id_key: EXTERNAL_ID_KEY,
-              external_id_value: profile[EXTERNAL_ID_KEY]
+              __segment_internal_external_id_key__: EXTERNAL_ID_KEY,
+              __segment_internal_external_id_value__: profile[EXTERNAL_ID_KEY]
             }
           }
         ],
