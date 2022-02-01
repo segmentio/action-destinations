@@ -4,7 +4,7 @@ import { IntegrationError } from '@segment/actions-core'
 export const operation: InputField = {
   label: 'Operation',
   description:
-    'The Salesforce operation performed. The operations available create, update or upsert Lead records in Salesforce.',
+    'The Salesforce operation performed. The available operations are Create, Update or Upsert Lead records in Salesforce.',
   type: 'string',
   required: true,
   choices: [
