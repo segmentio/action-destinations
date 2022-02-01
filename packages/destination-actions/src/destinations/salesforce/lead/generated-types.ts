@@ -47,4 +47,20 @@ export interface Payload {
    * State
    */
   state?: string
+  /**
+   * Additional standard fields to send to Salesforce. On the left-hand side, input the Salesforce standard field name. On the right-hand side, map the Segment field that contains the value.
+   */
+  standard_fields?: {
+    [k: string]: unknown
+  }
+  /**
+   *
+   *   Custom fields to send to Salesforce. Fields must be predefined in your Salesforce account.
+   *
+   *   On the left-hand side, input the Salesforce field name with __c appended. On the right-hand side, map the Segment field that contains the value.
+   *
+   */
+  custom_fields?: {
+    [k: string]: unknown
+  }
 }

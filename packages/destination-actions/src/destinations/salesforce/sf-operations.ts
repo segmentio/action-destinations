@@ -1,5 +1,6 @@
 import { IntegrationError, RequestClient } from '@segment/actions-core'
 import type { GenericPayload } from './sf-types'
+import { mapObjectToShape } from './sf-object-to-shape'
 
 export const API_VERSION = 'v53.0'
 
@@ -23,19 +24,11 @@ export default class Salesforce {
   }
 
   createRecord = async (payload: GenericPayload, sobject: string) => {
+    const JSON_data = this.buildJSONData(payload, sobject)
+
     return this.request(`${this.instanceUrl}/services/data/${API_VERSION}/sobjects/${sobject}`, {
       method: 'post',
-      json: {
-        LastName: payload.last_name,
-        Company: payload.company,
-        FirstName: payload.first_name,
-        State: payload.state,
-        Street: payload.street,
-        Country: payload.country,
-        PostalCode: payload.postal_code,
-        City: payload.city,
-        Email: payload.email
-      }
+      json: JSON_data
     })
   }
 
@@ -74,20 +67,22 @@ export default class Salesforce {
   }
 
   private baseUpdate = async (recordId: string, sobject: string, payload: GenericPayload) => {
+    const JSON_data = this.buildJSONData(payload, sobject)
+
     return this.request(`${this.instanceUrl}/services/data/${API_VERSION}/sobjects/${sobject}/${recordId}`, {
       method: 'patch',
-      json: {
-        LastName: payload.last_name,
-        Company: payload.company,
-        FirstName: payload.first_name,
-        State: payload.state,
-        Street: payload.street,
-        Country: payload.country,
-        PostalCode: payload.postal_code,
-        City: payload.city,
-        Email: payload.email
-      }
+      json: JSON_data
     })
+  }
+
+  private buildJSONData = (payload: GenericPayload, sobject: string) => {
+    let baseShape = mapObjectToShape(payload, sobject)
+
+    if (payload.custom_fields) {
+      baseShape = { ...baseShape, ...payload.custom_fields }
+    }
+
+    return baseShape
   }
 
   private buildQuery = (traits: object, sobject: string) => {

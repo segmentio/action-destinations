@@ -64,6 +64,64 @@ describe('Salesforce', () => {
       )
     })
 
+    it.only('should create a lead record with custom fields', async () => {
+      nock(`${settings.instanceUrl}/services/data/${API_VERSION}/sobjects`).post('/Lead').reply(201, {})
+
+      const event = createTestEvent({
+        event: 'Identify',
+        traits: {
+          email: 'sponge@seamail.com',
+          company: 'Krusty Krab',
+          last_name: 'Squarepants'
+        }
+      })
+
+      const responses = await testDestination.testAction('lead', {
+        event,
+        settings,
+        mapping: {
+          operation: 'create',
+          email: {
+            '@path': '$.traits.email'
+          },
+          company: {
+            '@path': '$.traits.company'
+          },
+          last_name: {
+            '@path': '$.traits.last_name'
+          },
+          custom_fields: {
+            A: '1',
+            B: '2',
+            C: '3'
+          }
+        }
+      })
+
+      expect(responses.length).toBe(1)
+      expect(responses[0].status).toBe(201)
+
+      expect(responses[0].request.headers).toMatchInlineSnapshot(`
+        Headers {
+          Symbol(map): Object {
+            "authorization": Array [
+              "Bearer undefined",
+            ],
+            "content-type": Array [
+              "application/json",
+            ],
+            "user-agent": Array [
+              "Segment (Actions)",
+            ],
+          },
+        }
+      `)
+
+      expect(responses[0].options.body).toMatchInlineSnapshot(
+        `"{\\"LastName\\":\\"Squarepants\\",\\"Company\\":\\"Krusty Krab\\",\\"Email\\":\\"sponge@seamail.com\\",\\"A\\":\\"1\\",\\"B\\":\\"2\\",\\"C\\":\\"3\\"}"`
+      )
+    })
+
     it('should update a lead record', async () => {
       const event = createTestEvent({
         event: 'Identify',

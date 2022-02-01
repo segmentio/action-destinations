@@ -59,6 +59,7 @@ const action: ActionDefinition<Settings, Payload> = {
     custom_fields: custom_fields
   },
   perform: async (request, { settings, payload }) => {
+    console.log('perform payload', payload)
     const sf: Salesforce = new Salesforce(settings.instanceUrl, request)
 
     if (payload.operation === 'create') {
