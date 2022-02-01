@@ -12,47 +12,47 @@ const action: ActionDefinition<Settings, Payload> = {
     traits: traits,
     company: {
       label: 'Company',
-      description: 'Company',
+      description: "The lead's company. This is required to create a lead.",
       type: 'string'
     },
     last_name: {
       label: 'Last Name',
-      description: 'Last Name',
+      description: "The lead's last name. This is required to create a lead.",
       type: 'string'
     },
     first_name: {
       label: 'First Name',
-      description: 'First Name',
+      description: "The lead's first name.",
       type: 'string'
     },
     email: {
       label: 'Email',
-      description: 'Email',
+      description: "The lead's email address.",
       type: 'string'
     },
     city: {
       label: 'City',
-      description: 'City',
+      description: "City for the lead's address.",
       type: 'string'
     },
     postal_code: {
       label: 'Postal Code',
-      description: 'Postal Code',
+      description: "Postal code for the lead's address.",
       type: 'string'
     },
     country: {
       label: 'Country',
-      description: 'Country',
+      description: "Country for the lead's address.",
       type: 'string'
     },
     street: {
       label: 'Street',
-      description: 'Street',
+      description: "Street number and name for the lead's address.",
       type: 'string'
     },
     state: {
       label: 'State',
-      description: 'State',
+      description: "State for the lead's address.",
       type: 'string'
     }
   },

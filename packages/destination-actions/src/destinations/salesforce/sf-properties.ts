@@ -3,7 +3,8 @@ import { IntegrationError } from '@segment/actions-core'
 
 export const operation: InputField = {
   label: 'Operation',
-  description: 'Operation',
+  description:
+    'The Salesforce operation performed. The operations available create, update or upsert Lead records in Salesforce.',
   type: 'string',
   required: true,
   choices: [
@@ -14,8 +15,12 @@ export const operation: InputField = {
 }
 
 export const traits: InputField = {
-  label: 'Traits',
-  description: 'Traits',
+  label: 'Record Matchers',
+  description: `The fields used to find Salesforce Lead records for updates. This is required if the Operation is Update or Upsert.
+
+  Any field can be matched on, including Record ID, External IDs, standard fields and custom fields. On the left-hand side, input the Salesforce field name. On the right-hand side, map the Segment field that contains the value.
+  
+  If multiple records are found, we will not make any updates so we recommend using fields that contain unique values per record. Please see more information in our documentation.`,
   type: 'object'
 }
 
