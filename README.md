@@ -7,6 +7,8 @@ Fore more detailed instruction, see the following READMEs:
 - [Create a Destination Action](./docs/create.md)
 - [Troubleshooting](./docs/testing.md)
 - [Authentication](./docs/authentication.md)
+- [Mapping Kit](./packages/core/src/mapping-kit/README.md)
+- [Destination Kit](./packages/core/src/destination-kit/README.md)
 
 Table of Contents:
 
@@ -447,7 +449,7 @@ There are a few subtle differences from the Fetch API which are meant to limit t
 
 MIT License
 
-Copyright (c) 2021 Segment
+Copyright (c) 2022 Segment
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal

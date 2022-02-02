@@ -62,7 +62,9 @@ interface Profile {
   traits: Record<string, string>
 }
 
-const DEFAULT_CONNECTION_OVERRIDES  = "rp=all&rc=5"
+const EXTERNAL_ID_KEY = 'phone'
+
+const DEFAULT_CONNECTION_OVERRIDES = 'rp=all&rc=5'
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Send SMS',
   description: 'Send SMS using Twilio',
@@ -100,7 +102,8 @@ const action: ActionDefinition<Settings, Payload> = {
     },
     connectionOverrides: {
       label: 'Connection Overrides',
-      description: 'Connection overrides are configuration supported by twilio webhook services. Must be passed as fragments on the callback url',
+      description:
+        'Connection overrides are configuration supported by twilio webhook services. Must be passed as fragments on the callback url',
       type: 'string',
       required: false
     },
@@ -144,7 +147,12 @@ const action: ActionDefinition<Settings, Payload> = {
 
     const webhookUrl = settings.webhookUrl
     const connectionOverrides = settings.connectionOverrides
-    const customArgs = payload.customArgs
+    const customArgs: Record<string, string | undefined> = {
+      ...payload.customArgs,
+      __segment_internal_external_id_key__: EXTERNAL_ID_KEY,
+      __segment_internal_external_id_value__: profile[EXTERNAL_ID_KEY]
+    }
+
     if (webhookUrl && customArgs) {
       // Webhook URL parsing has a potential of failing. I think it's better that
       // we fail out of any invocation than silently not getting analytics
