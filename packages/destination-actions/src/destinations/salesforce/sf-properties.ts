@@ -19,19 +19,12 @@ export const traits: InputField = {
   type: 'object'
 }
 
-export const standard_fields: InputField = {
-  label: 'Other Standard Fields',
-  description:
-    'Additional standard fields to send to Salesforce. On the left-hand side, input the Salesforce standard field name. On the right-hand side, map the Segment field that contains the value.',
-  type: 'object'
-}
-
 export const custom_fields: InputField = {
-  label: 'Custom Fields',
+  label: 'Other Fields',
   description: `
-  Custom fields to send to Salesforce. Fields must be predefined in your Salesforce account. 
+  Additional fields to send to Salesforce. On the left-hand side, input the Salesforce field API name. On the right-hand side, map the Segment field that contains the value.
 
-  On the left-hand side, input the Salesforce field name with __c appended. On the right-hand side, map the Segment field that contains the value.
+  This can include standard or custom fields. Custom fields must be predefined in your Salesforce account and the API field name should have __c appended.
   `,
   type: 'object'
 }
