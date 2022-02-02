@@ -18,7 +18,7 @@ export interface Settings {
    */
   mbox_name: string
   /**
-   * The domain from which you serve the mbox. Adobe Target recommends setting this value to your company's top- level domain.
+   * The domain from which you serve the mbox. Adobe Target recommends setting this value to your company's top-level domain.
    */
   cookie_domain: string
 }

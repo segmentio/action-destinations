@@ -11,7 +11,6 @@ const action: BrowserActionDefinition<Settings, Adobe, Payload> = {
   fields: {
     profile: {
       type: 'object',
-      required: false,
       description: 'Hash of properties for this profile.',
       label: 'Profile Properties',
       default: {

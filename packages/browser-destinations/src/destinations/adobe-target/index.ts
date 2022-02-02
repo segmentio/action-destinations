@@ -55,7 +55,7 @@ export const destination: BrowserDestinationDefinition<Settings, unknown> = {
     cookie_domain: {
       label: 'Cookie Domain',
       description:
-        "The domain from which you serve the mbox. Adobe Target recommends setting this value to your company's top- level domain.",
+        "The domain from which you serve the mbox. Adobe Target recommends setting this value to your company's top-level domain.",
       type: 'string',
       required: true
     }
