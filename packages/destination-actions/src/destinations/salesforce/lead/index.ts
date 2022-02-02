@@ -12,48 +12,111 @@ const action: ActionDefinition<Settings, Payload> = {
     traits: traits,
     company: {
       label: 'Company',
-      description: 'Company',
-      type: 'string'
+      description: "The lead's company. This is required to create a lead.",
+      type: 'string',
+      default: {
+        '@if': {
+          exists: { '@path': '$.traits.company' },
+          then: { '@path': '$.traits.company' },
+          else: { '@path': '$.properties.company' }
+        }
+      }
     },
     last_name: {
       label: 'Last Name',
-      description: 'Last Name',
-      type: 'string'
+      description: "The lead's last name. This is required to create a lead.",
+      type: 'string',
+      default: {
+        '@if': {
+          exists: { '@path': '$.traits.last_name' },
+          then: { '@path': '$.traits.last_name' },
+          else: { '@path': '$.properties.last_name' }
+        }
+      }
     },
     first_name: {
       label: 'First Name',
-      description: 'First Name',
-      type: 'string'
+      description: "The lead's first name.",
+      type: 'string',
+      default: {
+        '@if': {
+          exists: { '@path': '$.traits.first_name' },
+          then: { '@path': '$.traits.first_name' },
+          else: { '@path': '$.properties.first_name' }
+        }
+      }
     },
     email: {
       label: 'Email',
-      description: 'Email',
-      type: 'string'
+      description: "The lead's email address.",
+      type: 'string',
+      default: {
+        '@if': {
+          exists: { '@path': '$.traits.email' },
+          then: { '@path': '$.traits.email' },
+          else: { '@path': '$.properties.email' }
+        }
+      }
     },
     city: {
       label: 'City',
-      description: 'City',
-      type: 'string'
+      description: "City for the lead's address.",
+      type: 'string',
+      default: {
+        '@if': {
+          exists: { '@path': '$.traits.address.city' },
+          then: { '@path': '$.traits.address.city' },
+          else: { '@path': '$.properties.address.city' }
+        }
+      }
     },
     postal_code: {
       label: 'Postal Code',
-      description: 'Postal Code',
-      type: 'string'
+      description: "Postal code for the lead's address.",
+      type: 'string',
+      default: {
+        '@if': {
+          exists: { '@path': '$.traits.address.postal_code' },
+          then: { '@path': '$.traits.address.postal_code' },
+          else: { '@path': '$.properties.address.postal_code' }
+        }
+      }
     },
     country: {
       label: 'Country',
-      description: 'Country',
-      type: 'string'
+      description: "Country for the lead's address.",
+      type: 'string',
+      default: {
+        '@if': {
+          exists: { '@path': '$.traits.address.country' },
+          then: { '@path': '$.traits.address.country' },
+          else: { '@path': '$.properties.address.country' }
+        }
+      }
     },
     street: {
       label: 'Street',
-      description: 'Street',
-      type: 'string'
+      description: "Street number and name for the lead's address.",
+      type: 'string',
+      default: {
+        '@if': {
+          exists: { '@path': '$.traits.address.street' },
+          then: { '@path': '$.traits.address.street' },
+          else: { '@path': '$.properties.address.street' }
+        }
+      }
     },
     state: {
       label: 'State',
-      description: 'State',
-      type: 'string'
+      description: "State for the lead's address.",
+      type: 'string',
+      default: {
+        '@if': {
+          exists: { '@path': '$.traits.address.state' },
+          then: { '@path': '$.traits.address.state' },
+          else: { '@path': '$.properties.address.state' }
+        }
+      }
     }
   },
   perform: async (request, { settings, payload }) => {
