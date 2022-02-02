@@ -7,7 +7,8 @@ Fore more detailed instruction, see the following READMEs:
 - [Create a Destination Action](./docs/create.md)
 - [Troubleshooting](./docs/testing.md)
 - [Authentication](./docs/authentication.md)
-- [Mapping Kit](./core/src/mapping-kit/README.md)
+- [Mapping Kit](./packages/core/src/mapping-kit/README.md)
+- [Destination Kit](./packages/core/src/mapping-kit/README.md)
 
 Table of Contents:
 
