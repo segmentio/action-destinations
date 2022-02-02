@@ -64,6 +64,61 @@ describe('Salesforce', () => {
       )
     })
 
+    it('should create a lead record with default mappings', async () => {
+      nock(`${settings.instanceUrl}/services/data/${API_VERSION}/sobjects`).post('/Lead').reply(201, {})
+
+      const event = createTestEvent({
+        event: 'Identify',
+        traits: {
+          email: 'sponge@seamail.com',
+          company: 'Krusty Krab',
+          address: {
+            city: 'Bikini Bottom',
+            postal_code: '12345',
+            country: 'The Ocean',
+            street: 'Pineapple Ln',
+            state: 'Water'
+          }
+        },
+        properties: {
+          last_name: 'Bob',
+          first_name: 'Sponge'
+        }
+      })
+
+      const responses = await testDestination.testAction('lead', {
+        event,
+        settings,
+        mapping: {
+          operation: 'create'
+        },
+        useDefaultMappings: true
+      })
+
+      expect(responses.length).toBe(1)
+      expect(responses[0].status).toBe(201)
+
+      expect(responses[0].request.headers).toMatchInlineSnapshot(`
+        Headers {
+          Symbol(map): Object {
+            "authorization": Array [
+              "Bearer undefined",
+            ],
+            "content-type": Array [
+              "application/json",
+            ],
+            "user-agent": Array [
+              "Segment (Actions)",
+            ],
+          },
+        }
+      `)
+
+      expect(responses[0].options.body).toMatchInlineSnapshot(
+        `"{\\"LastName\\":\\"Bob\\",\\"Company\\":\\"Krusty Krab\\",\\"FirstName\\":\\"Sponge\\",\\"State\\":\\"Water\\",\\"Street\\":\\"Pineapple Ln\\",\\"Country\\":\\"The Ocean\\",\\"PostalCode\\":\\"12345\\",\\"City\\":\\"Bikini Bottom\\",\\"Email\\":\\"sponge@seamail.com\\"}"`
+      )
+    })
+
     it('should create a lead record with custom fields', async () => {
       nock(`${settings.instanceUrl}/services/data/${API_VERSION}/sobjects`).post('/Lead').reply(201, {})
 
