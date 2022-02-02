@@ -102,7 +102,9 @@ for (const environment of ['stage', 'production']) {
             custom_args: {
               source_id: 'sourceId',
               space_id: 'spaceId',
-              user_id: userData.userId
+              user_id: userData.userId,
+              __segment_internal_external_id_key__: 'email',
+              __segment_internal_external_id_value__: userData.email
             }
           }
         ],
@@ -209,7 +211,9 @@ for (const environment of ['stage', 'production']) {
               user_id: userData.userId,
               journey_id: 'journeyId',
               journey_state_id: 'journeyStateId',
-              audience_id: 'audienceId'
+              audience_id: 'audienceId',
+              __segment_internal_external_id_key__: 'email',
+              __segment_internal_external_id_value__: userData.email
             }
           }
         ],
@@ -292,7 +296,9 @@ for (const environment of ['stage', 'production']) {
           })
           fail('Test should throw an error')
         } catch (e) {
-          expect(e.message).toBe('Emails with gmailx.com, yahoox.com, aolx.com, and hotmailx.com domains are blocked.')
+          expect((e as unknown as any).message).toBe(
+            'Emails with gmailx.com, yahoox.com, aolx.com, and hotmailx.com domains are blocked.'
+          )
         }
       })
     }
@@ -315,7 +321,9 @@ for (const environment of ['stage', 'production']) {
             custom_args: {
               source_id: 'sourceId',
               space_id: 'spaceId',
-              user_id: userData.userId
+              user_id: userData.userId,
+              __segment_internal_external_id_key__: 'email',
+              __segment_internal_external_id_value__: userData.email
             }
           }
         ],
@@ -381,7 +389,9 @@ for (const environment of ['stage', 'production']) {
             custom_args: {
               source_id: 'sourceId',
               space_id: 'spaceId',
-              user_id: userData.userId
+              user_id: userData.userId,
+              __segment_internal_external_id_key__: 'email',
+              __segment_internal_external_id_value__: userData.email
             }
           }
         ],
@@ -402,9 +412,7 @@ for (const environment of ['stage', 'production']) {
         ]
       }
 
-      const s3Request = nock('https://s3.com')
-        .get('/body.txt')
-        .reply(200, '{"unlayer":true}')
+      const s3Request = nock('https://s3.com').get('/body.txt').reply(200, '{"unlayer":true}')
 
       const unlayerRequest = nock('https://api.unlayer.com')
         .post('/v2/export/html', {
@@ -462,7 +470,9 @@ for (const environment of ['stage', 'production']) {
             custom_args: {
               source_id: 'sourceId',
               space_id: 'spaceId',
-              user_id: userData.userId
+              user_id: userData.userId,
+              __segment_internal_external_id_key__: 'email',
+              __segment_internal_external_id_value__: userData.email
             }
           }
         ],
