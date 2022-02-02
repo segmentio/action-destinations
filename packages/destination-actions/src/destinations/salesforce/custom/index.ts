@@ -12,26 +12,32 @@ const action: ActionDefinition<Settings, Payload> = {
     traits: traits,
     sobject: {
       label: 'Salesforce Object',
-      description: 'The name of the Salesforce object that records will be added or updated within. The object must be predefined in your Salesforce account.',
+      description:
+        'The name of the Salesforce object that records will be added or updated within. The object must be predefined in your Salesforce account. Values should end with "__c".',
       type: 'string',
+      required: true
     },
     custom_fields: custom_fields
   },
   perform: async (request, { settings, payload }) => {
     const sf: Salesforce = new Salesforce(settings.instanceUrl, request)
 
+    if (!payload.sobject.endsWith('__c')) {
+      payload.sobject += '__c'
+    }
+
     if (payload.operation === 'create') {
-      return await sf.createRecord(payload, 'Lead')
+      return await sf.createRecord(payload, payload.sobject)
     }
 
     validateLookup(payload)
 
     if (payload.operation === 'update') {
-      return await sf.updateRecord(payload, 'Lead')
+      return await sf.updateRecord(payload, payload.sobject)
     }
 
     if (payload.operation === 'upsert') {
-      return await sf.upsertRecord(payload, 'Lead')
+      return await sf.upsertRecord(payload, payload.sobject)
     }
   }
 }

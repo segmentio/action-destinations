@@ -12,9 +12,9 @@ export interface Payload {
     [k: string]: unknown
   }
   /**
-   * The name of the Salesforce object that records will be added or updated within. The object must be predefined in your Salesforce account.
+   * The name of the Salesforce object that records will be added or updated within. The object must be predefined in your Salesforce account. Values should end with "__c".
    */
-  sobject?: string
+  sobject: string
   /**
    *
    *   Custom fields to send to Salesforce. Fields must be predefined in your Salesforce account.

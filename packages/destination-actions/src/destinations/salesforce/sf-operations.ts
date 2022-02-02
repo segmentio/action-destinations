@@ -76,7 +76,13 @@ export default class Salesforce {
   }
 
   private buildJSONData = (payload: GenericPayload, sobject: string) => {
-    let baseShape = mapObjectToShape(payload, sobject)
+    let baseShape
+    if (payload.sobject) {
+      //sobject is a unique key for the custom object action
+      baseShape = {}
+    } else {
+      baseShape = mapObjectToShape(payload, sobject)
+    }
 
     if (payload.custom_fields) {
       baseShape = { ...baseShape, ...payload.custom_fields }
