@@ -17,7 +17,7 @@ const action: ActionDefinition<Settings, Payload> = {
       type: 'string',
       required: true
     },
-    custom_fields: custom_fields
+    custom_fields: { ...custom_fields, required: true }
   },
   perform: async (request, { settings, payload }) => {
     const sf: Salesforce = new Salesforce(settings.instanceUrl, request)
