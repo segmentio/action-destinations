@@ -12,6 +12,11 @@ describe('AdobeTarget', () => {
   describe('updateProfile', () => {
     it('Handle a Basic Event', async () => {
       nock(
+        `http://segmentexchangepartn.tt.omtrdc.net/rest/v1/profiles/thirdPartyId/${settings.client_id}?client=${settings.client_code}`
+      )
+        .get(/.*/)
+        .reply(200, {})
+      nock(
         `https://${settings.client_code}.tt.omtrdc.net/m2/${settings.client_code}/profile/update?mbox3rdPartyId=${settings.client_id}`
       )
         .post(/.*/)
@@ -55,13 +60,20 @@ describe('AdobeTarget', () => {
           }
         }
       })
-      expect(responses.length).toBe(1)
+
+      expect(responses.length).toBe(2)
       expect(responses[0].status).toBe(200)
-      expect(responses[0].url).toBe(
+      expect(responses[1].status).toBe(200)
+      expect(responses[1].url).toBe(
         'https://segmentexchangepartn.tt.omtrdc.net/m2/segmentexchangepartn/profile/update?mbox3rdPartyId=123-test&profile.city=New%20York%20City&profile.name=Rajul&profile.age=21&profile.param1=value1&profile.param2=value2'
       )
     })
     it('Handle a Nested Event', async () => {
+      nock(
+        `http://segmentexchangepartn.tt.omtrdc.net/rest/v1/profiles/thirdPartyId/${settings.client_id}?client=${settings.client_code}`
+      )
+        .get(/.*/)
+        .reply(200, {})
       nock(
         `https://${settings.client_code}.tt.omtrdc.net/m2/${settings.client_code}/profile/update?mbox3rdPartyId=${settings.client_id}`
       )
@@ -115,9 +127,10 @@ describe('AdobeTarget', () => {
           }
         }
       })
-      expect(responses.length).toBe(1)
+      expect(responses.length).toBe(2)
       expect(responses[0].status).toBe(200)
-      expect(responses[0].url).toBe(
+      expect(responses[1].status).toBe(200)
+      expect(responses[1].url).toBe(
         'https://segmentexchangepartn.tt.omtrdc.net/m2/segmentexchangepartn/profile/update?mbox3rdPartyId=123-test&profile.city=New%20York%20City&profile.name=Rajul&profile.age=21&profile.param1=value1&profile.param2=value2&profile.address.city=New%20York%20City&profile.address.zipCode=12345'
       )
     })
@@ -208,6 +221,11 @@ describe('AdobeTarget', () => {
   })
   it('should handle default mappings', async () => {
     nock(
+      `http://segmentexchangepartn.tt.omtrdc.net/rest/v1/profiles/thirdPartyId/${settings.client_id}?client=${settings.client_code}`
+    )
+      .get(/.*/)
+      .reply(200, {})
+    nock(
       `https://${settings.client_code}.tt.omtrdc.net/m2/${settings.client_code}/profile/update?mbox3rdPartyId=${settings.client_id}`
     )
       .post(/.*/)
@@ -230,9 +248,10 @@ describe('AdobeTarget', () => {
       settings,
       useDefaultMappings: true
     })
-    expect(responses.length).toBe(1)
+    expect(responses.length).toBe(2)
     expect(responses[0].status).toBe(200)
-    expect(responses[0].url).toBe(
+    expect(responses[1].status).toBe(200)
+    expect(responses[1].url).toBe(
       'https://segmentexchangepartn.tt.omtrdc.net/m2/segmentexchangepartn/profile/update?mbox3rdPartyId=123-test&profile.city=New%20York%20City&profile.name=Rajul&profile.age=21&profile.param1=value1&profile.param2=value2&profile.address.city=New%20York%20City&profile.address.zipCode=12345'
     )
   })

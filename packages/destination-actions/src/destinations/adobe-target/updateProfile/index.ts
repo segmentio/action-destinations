@@ -1,38 +1,17 @@
 import type { ActionDefinition } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
+import adobeTarget from '../adobeTarget_operations'
 import type { Payload } from './generated-types'
-
-// It needs to carry the "profile" suffix on every key.
-// This makes it specific to Adobe Target
-// Needs support for nested keys
-const attributes: { [x: string]: any } = {}
-function getnestedObjects(obj: { [x: string]: any }, objectPath = '') {
-  if (obj.traits) {
-    obj = obj.traits
-  }
-  Object.keys(obj).forEach((key) => {
-    const currObjectPath = objectPath ? `${objectPath}.${key}` : key
-    if (typeof obj[key] !== 'object' && obj[key]) {
-      attributes[currObjectPath] = obj[key].toString()
-    } else {
-      getnestedObjects(obj[key], currObjectPath)
-    }
-  })
-  return attributes
-}
-const objectToQueryString = (object: { [x: string]: { toString: () => any } }) =>
-  Object.keys(object)
-    .map((key) => `profile.${key}=${object[key].toString()}`)
-    .join('&')
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Update Profile',
-  description: 'Update a user profile in Adobe Target.',
+  description: 'Update an existing user profile in Adobe Target.',
   defaultSubscription: 'type = "identify"',
   fields: {
     user_id: {
-      label: '',
-      description: "The user's unique identifier",
+      label: 'Mbox 3rd Party ID',
+      description:
+        "A user's unique visitor ID. This field is used to fetch a matching profile in Adobe Target to make an update on. For more information, please see our Adobe Target Destination documentation.",
       type: 'string',
       required: true,
       default: {
@@ -44,8 +23,8 @@ const action: ActionDefinition<Settings, Payload> = {
       }
     },
     traits: {
-      label: 'Traits',
-      description: "The user's attributes that will be updated.",
+      label: 'Profile Attributes',
+      description: 'Profile parameters specific to a user.',
       type: 'object',
       required: true,
       default: {
@@ -54,19 +33,14 @@ const action: ActionDefinition<Settings, Payload> = {
     }
   },
 
-  perform: (request, data) => {
-    const array: unknown[] = []
-    Object.entries(data.payload).forEach((entry) => array.push(entry[1]))
-    const clientCode = data.settings.client_code
-    const userId = data.payload.user_id
-    const traits = getnestedObjects(data.payload.traits)
-    const requestUrl = `https://${clientCode}.tt.omtrdc.net/m2/${clientCode}/profile/update?mbox3rdPartyId=${userId}&${objectToQueryString(
-      traits
-    )}`
-
-    return request(requestUrl, {
-      method: 'POST'
-    })
+  perform: async (request, data) => {
+    const at: adobeTarget = new adobeTarget(
+      data.payload.user_id,
+      data.settings.client_code,
+      data.payload.traits,
+      request
+    )
+    return at.updateProfile()
   }
 }
 
