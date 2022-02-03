@@ -1,26 +1,12 @@
 import { RequestClient, IntegrationError } from '@segment/actions-core'
+import { flatten } from 'flatten-anything'
 
-const attributes: { [x: string]: string } = {}
-function getnestedObjects(obj: { [x: string]: any }, objectPath = '') {
-  if (obj.traits) {
-    obj = obj.traits
-  }
-  Object.keys(obj).forEach((key) => {
-    const currObjectPath = objectPath ? `${objectPath}.${key}` : key
-    if (typeof obj[key] !== 'object' && obj[key]) {
-      attributes[currObjectPath] = obj[key].toString()
-    } else {
-      getnestedObjects(obj[key], currObjectPath)
-    }
-  })
-  return attributes
-}
-const objectToQueryString = (object: { [x: string]: { toString: () => string } }) =>
+const objectToQueryString = (object: { [x: string]: any }) =>
   Object.keys(object)
     .map((key) => `profile.${key}=${object[key].toString()}`)
     .join('&')
 
-export default class adobeTarget {
+export default class AdobeTarget {
   userId: string
   clientCode: string
   traits: object
@@ -35,16 +21,15 @@ export default class adobeTarget {
 
   updateProfile = async () => {
     const err = await this.lookupProfile(this.userId, this.clientCode)
-    console.log(err)
     if (err) {
       throw err
     } else {
-      const traits = getnestedObjects(this.traits)
+      const traits = flatten(this.traits)
       const requestUrl = `https://${this.clientCode}.tt.omtrdc.net/m2/${
         this.clientCode
       }/profile/update?mbox3rdPartyId=${this.userId}&${objectToQueryString(traits)}`
 
-      return await this.request(requestUrl, {
+      return this.request(requestUrl, {
         method: 'POST'
       })
     }

@@ -23,13 +23,14 @@ export const manifest: Record<MetadataId, ManifestEntry> = {}
  * in production and sync them into staging via `sprout`.
  */
 register('60f64ae3eaebd66d17d28e9f', './1plusx')
-register('61806e472cd47ea1104885fc', './facebook-conversions-api')
+register('61aa712b857e8c85c3b5a849', './adobe-target')
 register('5f7dd6d21ad74f3842b1fc47', './amplitude')
 register('60f9d0d048950c356be2e4da', './braze')
 register('61d7456b078e79929de4ee8c', './clevertap')
 register('61f8296b7d15c30a3bbe2b76', './close')
 register('61eed75ba749df7601b12186', './cordial')
 register('5f7dd78fe27ce7ff2b8bfa37', './customerio')
+register('61806e472cd47ea1104885fc', './facebook-conversions-api')
 register('61dde0dc77eb0db0392649d3', './friendbuy')
 register('61f83101210c42a28a88d240', './gainsight-px-cloud-action')
 register('60ad61f9ff47a16b8fb7b5d9', './google-analytics-4')
@@ -45,7 +46,6 @@ register('615cae349d109d6b7496a131', './tiktok-conversions')
 register('602efa1f249b9a5e2bf8a813', './twilio')
 register('614a3c7d791c91c41bae7599', './webhook')
 register('61dc4e96894a6d7954cc6e45', './voyage')
-register('61aa712b857e8c85c3b5a849', './adobe-target')
 
 function register(id: MetadataId, destinationPath: string) {
   // eslint-disable-next-line @typescript-eslint/no-var-requires

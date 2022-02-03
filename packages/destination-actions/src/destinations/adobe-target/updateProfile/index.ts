@@ -1,6 +1,6 @@
 import type { ActionDefinition } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
-import adobeTarget from '../adobeTarget_operations'
+import AdobeTarget from '../adobeTarget_operations'
 import type { Payload } from './generated-types'
 
 const action: ActionDefinition<Settings, Payload> = {
@@ -34,7 +34,7 @@ const action: ActionDefinition<Settings, Payload> = {
   },
 
   perform: async (request, { settings, payload }) => {
-    const at: adobeTarget = new adobeTarget(payload.user_id, settings.client_code, payload.traits, request)
+    const at: AdobeTarget = new AdobeTarget(payload.user_id, settings.client_code, payload.traits, request)
     return await at.updateProfile()
   }
 }
