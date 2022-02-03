@@ -1,4 +1,4 @@
-import { RequestClient } from '@segment/actions-core'
+import { RequestClient, IntegrationError } from '@segment/actions-core'
 
 const attributes: { [x: string]: string } = {}
 function getnestedObjects(obj: { [x: string]: any }, objectPath = '') {
@@ -35,7 +35,10 @@ export default class adobeTarget {
 
   updateProfile = async () => {
     const err = await this.lookupProfile(this.userId, this.clientCode)
+    console.log(err)
     if (err) {
+      throw err
+    } else {
       const traits = getnestedObjects(this.traits)
       const requestUrl = `https://${this.clientCode}.tt.omtrdc.net/m2/${
         this.clientCode
@@ -45,15 +48,18 @@ export default class adobeTarget {
         method: 'POST'
       })
     }
-
-    return
   }
 
-  private lookupProfile = async (userId: string, clientCode: string) => {
-    const response = await this.request(
-      `http://segmentexchangepartn.tt.omtrdc.net/rest/v1/profiles/thirdPartyId/${userId}?client=${clientCode}`,
-      { method: 'get' }
-    )
-    return response
+  private lookupProfile = async (userId: string, clientCode: string): Promise<IntegrationError | undefined> => {
+    try {
+      await this.request(
+        `http://segmentexchangepartn.tt.omtrdc.net/rest/v1/profiles/thirdPartyId/${userId}?client=${clientCode}`,
+        { method: 'get' }
+      )
+    } catch (error) {
+      return new IntegrationError('There is no profile found with this id', 'Profile not found', 404)
+    }
+
+    return undefined
   }
 }

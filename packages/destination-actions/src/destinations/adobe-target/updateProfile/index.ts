@@ -33,14 +33,9 @@ const action: ActionDefinition<Settings, Payload> = {
     }
   },
 
-  perform: async (request, data) => {
-    const at: adobeTarget = new adobeTarget(
-      data.payload.user_id,
-      data.settings.client_code,
-      data.payload.traits,
-      request
-    )
-    return at.updateProfile()
+  perform: async (request, { settings, payload }) => {
+    const at: adobeTarget = new adobeTarget(payload.user_id, settings.client_code, payload.traits, request)
+    return await at.updateProfile()
   }
 }
 
