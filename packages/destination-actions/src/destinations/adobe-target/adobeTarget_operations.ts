@@ -1,7 +1,17 @@
 import { RequestClient, IntegrationError } from '@segment/actions-core'
-import { flatten } from 'flatten-anything'
 
-const objectToQueryString = (object: { [x: string]: any }) =>
+function getNestedObjects(obj: { [x: string]: any }, objectPath = '', attributes: { [x: string]: string } = {}) {
+  Object.keys(obj).forEach((key) => {
+    const currObjectPath = objectPath ? `${objectPath}.${key}` : key
+    if (typeof obj[key] !== 'object' && obj[key]) {
+      attributes[currObjectPath] = obj[key].toString()
+    } else {
+      getNestedObjects(obj[key], currObjectPath, attributes)
+    }
+  })
+  return attributes
+}
+const objectToQueryString = (object: { [x: string]: { toString: () => string } }) =>
   Object.keys(object)
     .map((key) => `profile.${key}=${object[key].toString()}`)
     .join('&')
@@ -24,7 +34,7 @@ export default class AdobeTarget {
     if (err) {
       throw err
     } else {
-      const traits = flatten(this.traits)
+      const traits = getNestedObjects(this.traits)
       const requestUrl = `https://${this.clientCode}.tt.omtrdc.net/m2/${
         this.clientCode
       }/profile/update?mbox3rdPartyId=${this.userId}&${objectToQueryString(traits)}`
@@ -36,7 +46,6 @@ export default class AdobeTarget {
   }
 
   private lookupProfile = async (userId: string, clientCode: string): Promise<IntegrationError | undefined> => {
-    console.log(test)
     try {
       await this.request(
         `http://segmentexchangepartn.tt.omtrdc.net/rest/v1/profiles/thirdPartyId/${userId}?client=${clientCode}`,
