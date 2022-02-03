@@ -43,6 +43,28 @@ curl --location --request POST 'http://localhost:3000/search' \
 }'
 ```
 
+### Testing Batches
+
+Actions destinations that support batching can also be tested locally. An Actions destination that supports batching should have the `performBatch`
+handler implemented. Test events should be formatted similarly to the example above, with the exception that `payload` will be an array. Here is an
+example of `webhook`'s `send` action:
+
+```sh
+curl --location --request POST 'http://localhost:3000/send' \
+--header 'Content-Type: application/json' \
+--data '{
+    "payload": [{
+        "url": "https://www.example.com",
+        "method": "PUT",
+        "data": {
+            "cool": true
+        }
+    }],
+    "settings": {},
+    "auth": {}
+}'
+```
+
 ## Unit Testing
 
 When building a destination action, you should write unit and end-to-end tests to ensure your action is working as intended. Tests are automatically run on every commit in Github Actions. Pull requests that do not include relevant tests will not be approved.
@@ -152,7 +174,6 @@ Once the actions under a new destination are complete, developers can run the fo
 ```
 yarn jest --testPathPattern='./packages/destination-actions/src/destinations/<DESTINATION SLUG>' --updateSnapshot
 ```
-
 
 ## Canary Testing
 
