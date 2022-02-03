@@ -1,13 +1,15 @@
 {
   "extends": "../../tsconfig.json",
   "compilerOptions": {
-    "module": "esnext",
+    "target": "es5",
+    "module": "CommonJS",
     "composite": true,
     "outDir": "dist",
     "rootDir": "src",
     "allowJs": true,
     "importHelpers": true,
     "lib": ["es2020", "dom"],
+    "sourceMap": true,
     "baseUrl": ".",
     "paths": {
       "@segment/actions-core/*": ["../core/src/*"]

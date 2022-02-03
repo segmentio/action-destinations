@@ -1,0 +1,14 @@
+{
+  "compilerOptions": {
+    "target": "ES5",
+    "module": "CommonJS",
+    "allowJs": true,
+    "importHelpers": true,
+    "lib": ["es2020", "dom"],
+    "baseUrl": ".",
+    "sourceMap": true
+  },
+  "files": ["./dist/web/**/*.js"],
+  "exclude": ["**/__tests__/**/*.ts"],
+  "include": ["dist/web/**/*.js"]
+}
