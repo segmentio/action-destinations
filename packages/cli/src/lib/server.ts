@@ -168,12 +168,18 @@ function setupRoutes(def: DestinationDefinition | null): void {
             return res.status(400).send(msg)
           }
 
-          await action.execute({
+          const eventParams = {
             data: req.body.payload || {},
             settings: req.body.settings || {},
             mapping: req.body.payload || {},
             auth: req.body.auth || {}
-          })
+          }
+
+          if (Array.isArray(eventParams.data)) {
+            await action.executeBatch(eventParams)
+          } else {
+            await action.execute(eventParams)
+          }
 
           const debug = await getExchanges(destination.responses)
           return res.status(200).json(debug)
