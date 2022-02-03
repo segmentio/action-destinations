@@ -131,7 +131,7 @@ describe('AdobeTarget', () => {
       expect(responses[0].status).toBe(200)
       expect(responses[1].status).toBe(200)
       expect(responses[1].url).toBe(
-        'https://segmentexchangepartn.tt.omtrdc.net/m2/segmentexchangepartn/profile/update?mbox3rdPartyId=123-test&profile.city=New%20York%20City&profile.name=Rajul&profile.age=21&profile.param1=value1&profile.param2=value2&profile.address.city=New%20York%20City&profile.address.zipCode=12345'
+        'https://segmentexchangepartn.tt.omtrdc.net/m2/segmentexchangepartn/profile/update?mbox3rdPartyId=123-test&profile.address.city=New%20York%20City&profile.address.zipCode=12345&profile.name=Rajul&profile.age=21&profile.param1=value1&profile.param2=value2'
       )
     })
     it('should throw an error for missing required field: userId', async () => {
@@ -252,7 +252,7 @@ describe('AdobeTarget', () => {
     expect(responses[0].status).toBe(200)
     expect(responses[1].status).toBe(200)
     expect(responses[1].url).toBe(
-      'https://segmentexchangepartn.tt.omtrdc.net/m2/segmentexchangepartn/profile/update?mbox3rdPartyId=123-test&profile.city=New%20York%20City&profile.name=Rajul&profile.age=21&profile.param1=value1&profile.param2=value2&profile.address.city=New%20York%20City&profile.address.zipCode=12345'
+      'https://segmentexchangepartn.tt.omtrdc.net/m2/segmentexchangepartn/profile/update?mbox3rdPartyId=123-test&profile.address.city=New%20York%20City&profile.address.zipCode=12345&profile.param1=value1&profile.param2=value2'
     )
   })
 })
