@@ -10,7 +10,7 @@ const settings = {
 }
 
 describe('Salesforce', () => {
-  describe('Custom', () => {
+  describe('Custom Object Tests', () => {
     it('should create a custom object record', async () => {
       const event = createTestEvent({
         event: 'Identify',

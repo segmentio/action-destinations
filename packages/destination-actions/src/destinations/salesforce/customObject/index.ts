@@ -10,7 +10,7 @@ const action: ActionDefinition<Settings, Payload> = {
   fields: {
     operation: operation,
     traits: traits,
-    sobject: {
+    customObjectName: {
       label: 'Salesforce Object',
       description:
         'The name of the Salesforce object that records will be added or updated within. The object must be predefined in your Salesforce account. Values should end with "__c".',
@@ -22,22 +22,22 @@ const action: ActionDefinition<Settings, Payload> = {
   perform: async (request, { settings, payload }) => {
     const sf: Salesforce = new Salesforce(settings.instanceUrl, request)
 
-    if (!payload.sobject.endsWith('__c')) {
-      payload.sobject += '__c'
+    if (!payload.customObjectName.endsWith('__c')) {
+      payload.customObjectName += '__c'
     }
 
     if (payload.operation === 'create') {
-      return await sf.createRecord(payload, payload.sobject)
+      return await sf.createRecord(payload, payload.customObjectName)
     }
 
     validateLookup(payload)
 
     if (payload.operation === 'update') {
-      return await sf.updateRecord(payload, payload.sobject)
+      return await sf.updateRecord(payload, payload.customObjectName)
     }
 
     if (payload.operation === 'upsert') {
-      return await sf.upsertRecord(payload, payload.sobject)
+      return await sf.upsertRecord(payload, payload.customObjectName)
     }
   }
 }

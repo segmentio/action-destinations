@@ -18,7 +18,7 @@ export interface Payload {
   /**
    * The name of the Salesforce object that records will be added or updated within. The object must be predefined in your Salesforce account. Values should end with "__c".
    */
-  sobject: string
+  customObjectName: string
   /**
    *
    *   Additional fields to send to Salesforce. On the left-hand side, input the Salesforce field API name. On the right-hand side, map the Segment field that contains the value.
@@ -26,7 +26,7 @@ export interface Payload {
    *   This can include standard or custom fields. Custom fields must be predefined in your Salesforce account and the API field name should have __c appended.
    *
    */
-  custom_fields?: {
+  custom_fields: {
     [k: string]: unknown
   }
 }

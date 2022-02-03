@@ -1,15 +1,5 @@
 import { GenericPayload } from './sf-types'
 
-export const mapObjectToShape = (payload: GenericPayload, sobject: string) => {
-  const shapeFunction = object_to_shape.get(sobject.toLowerCase())
-
-  if (!shapeFunction) {
-    throw new Error(`Undefined Object Shape: ${sobject}`)
-  }
-
-  return shapeFunction(payload)
-}
-
 const LeadShape = (payload: GenericPayload) => {
   return {
     LastName: payload.last_name,
@@ -25,3 +15,13 @@ const LeadShape = (payload: GenericPayload) => {
 }
 
 const object_to_shape = new Map([['lead', LeadShape]])
+
+export const mapObjectToShape = (payload: GenericPayload, sobject: string) => {
+  const shapeFunction = object_to_shape.get(sobject.toLowerCase())
+
+  if (!shapeFunction) {
+    throw new Error(`Undefined Object Shape: ${sobject}`)
+  }
+
+  return shapeFunction(payload)
+}
