@@ -45,9 +45,7 @@ curl --location --request POST 'http://localhost:3000/search' \
 
 ### Testing Batches
 
-Actions destinations that support batching can also be tested locally. An Actions destination that supports batching should have the `performBatch`
-handler implemented. Test events should be formatted similarly to the example above, with the exception that `payload` will be an array. Here is an
-example of `webhook`'s `send` action:
+Actions destinations that support batching, i.e. that have a `performBatch` handler implemented, can also be tested locally. Test events should be formatted similarly to the example above, with the exception that `payload` will be an array. Here is an example of `webhook`'s `send` action, with a batch `payload`.
 
 ```sh
 curl --location --request POST 'http://localhost:3000/send' \
