@@ -1,6 +1,7 @@
 import type { DestinationDefinition } from '@segment/actions-core'
 import type { Settings } from './generated-types'
 import lead from './lead'
+import customObject from './customObject'
 
 interface RefreshTokenResponse {
   access_token: string
@@ -45,7 +46,8 @@ const destination: DestinationDefinition<Settings> = {
   },
 
   actions: {
-    lead
+    lead,
+    customObject
   }
 }
 

@@ -16,41 +16,9 @@ export interface Payload {
     [k: string]: unknown
   }
   /**
-   * The lead's company. This is required to create a lead.
+   * The API name of the Salesforce object that records will be added or updated within. The object must be predefined in your Salesforce account. Values should end with "__c".
    */
-  company?: string
-  /**
-   * The lead's last name. This is required to create a lead.
-   */
-  last_name?: string
-  /**
-   * The lead's first name.
-   */
-  first_name?: string
-  /**
-   * The lead's email address.
-   */
-  email?: string
-  /**
-   * City for the lead's address.
-   */
-  city?: string
-  /**
-   * Postal code for the lead's address.
-   */
-  postal_code?: string
-  /**
-   * Country for the lead's address.
-   */
-  country?: string
-  /**
-   * Street number and name for the lead's address.
-   */
-  street?: string
-  /**
-   * State for the lead's address.
-   */
-  state?: string
+  customObjectName: string
   /**
    *
    *   Additional fields to send to Salesforce. On the left-hand side, input the Salesforce field API name. On the right-hand side, map the Segment field that contains the value.
@@ -58,7 +26,7 @@ export interface Payload {
    *   This can include standard or custom fields. Custom fields must be predefined in your Salesforce account and the API field name should have __c appended.
    *
    */
-  customFields?: {
+  customFields: {
     [k: string]: unknown
   }
 }

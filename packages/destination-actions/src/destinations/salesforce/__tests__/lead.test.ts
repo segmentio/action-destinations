@@ -8,6 +8,10 @@ const testDestination = createTestIntegration(Destination)
 const settings = {
   instanceUrl: 'https://test.com'
 }
+const auth = {
+  refreshToken: 'xyz321',
+  accessToken: 'abc123'
+}
 
 describe('Salesforce', () => {
   describe('Lead', () => {
@@ -26,6 +30,7 @@ describe('Salesforce', () => {
       const responses = await testDestination.testAction('lead', {
         event,
         settings,
+        auth,
         mapping: {
           operation: 'create',
           email: {
@@ -47,7 +52,7 @@ describe('Salesforce', () => {
         Headers {
           Symbol(map): Object {
             "authorization": Array [
-              "Bearer undefined",
+              "Bearer abc123",
             ],
             "content-type": Array [
               "application/json",
@@ -89,6 +94,7 @@ describe('Salesforce', () => {
       const responses = await testDestination.testAction('lead', {
         event,
         settings,
+        auth,
         mapping: {
           operation: 'create'
         },
@@ -102,7 +108,7 @@ describe('Salesforce', () => {
         Headers {
           Symbol(map): Object {
             "authorization": Array [
-              "Bearer undefined",
+              "Bearer abc123",
             ],
             "content-type": Array [
               "application/json",
@@ -116,6 +122,65 @@ describe('Salesforce', () => {
 
       expect(responses[0].options.body).toMatchInlineSnapshot(
         `"{\\"LastName\\":\\"Bob\\",\\"Company\\":\\"Krusty Krab\\",\\"FirstName\\":\\"Sponge\\",\\"State\\":\\"Water\\",\\"Street\\":\\"Pineapple Ln\\",\\"Country\\":\\"The Ocean\\",\\"PostalCode\\":\\"12345\\",\\"City\\":\\"Bikini Bottom\\",\\"Email\\":\\"sponge@seamail.com\\"}"`
+      )
+    })
+
+    it('should create a lead record with custom fields', async () => {
+      nock(`${settings.instanceUrl}/services/data/${API_VERSION}/sobjects`).post('/Lead').reply(201, {})
+
+      const event = createTestEvent({
+        event: 'Identify',
+        traits: {
+          email: 'sponge@seamail.com',
+          company: 'Krusty Krab',
+          last_name: 'Squarepants'
+        }
+      })
+
+      const responses = await testDestination.testAction('lead', {
+        event,
+        settings,
+        auth,
+        mapping: {
+          operation: 'create',
+          email: {
+            '@path': '$.traits.email'
+          },
+          company: {
+            '@path': '$.traits.company'
+          },
+          last_name: {
+            '@path': '$.traits.last_name'
+          },
+          customFields: {
+            A: '1',
+            B: '2',
+            C: '3'
+          }
+        }
+      })
+
+      expect(responses.length).toBe(1)
+      expect(responses[0].status).toBe(201)
+
+      expect(responses[0].request.headers).toMatchInlineSnapshot(`
+        Headers {
+          Symbol(map): Object {
+            "authorization": Array [
+              "Bearer abc123",
+            ],
+            "content-type": Array [
+              "application/json",
+            ],
+            "user-agent": Array [
+              "Segment (Actions)",
+            ],
+          },
+        }
+      `)
+
+      expect(responses[0].options.body).toMatchInlineSnapshot(
+        `"{\\"LastName\\":\\"Squarepants\\",\\"Company\\":\\"Krusty Krab\\",\\"Email\\":\\"sponge@seamail.com\\",\\"A\\":\\"1\\",\\"B\\":\\"2\\",\\"C\\":\\"3\\"}"`
       )
     })
 
@@ -147,6 +212,7 @@ describe('Salesforce', () => {
       const responses = await testDestination.testAction('lead', {
         event,
         settings,
+        auth,
         mapping: {
           operation: 'update',
           traits: {
@@ -181,7 +247,7 @@ describe('Salesforce', () => {
         Headers {
           Symbol(map): Object {
             "authorization": Array [
-              "Bearer undefined",
+              "Bearer abc123",
             ],
             "user-agent": Array [
               "Segment (Actions)",
@@ -223,6 +289,7 @@ describe('Salesforce', () => {
       const responses = await testDestination.testAction('lead', {
         event,
         settings,
+        auth,
         mapping: {
           operation: 'upsert',
           traits: {
@@ -257,7 +324,7 @@ describe('Salesforce', () => {
         Headers {
           Symbol(map): Object {
             "authorization": Array [
-              "Bearer undefined",
+              "Bearer abc123",
             ],
             "user-agent": Array [
               "Segment (Actions)",
@@ -298,6 +365,7 @@ describe('Salesforce', () => {
       const responses = await testDestination.testAction('lead', {
         event,
         settings,
+        auth,
         mapping: {
           operation: 'upsert',
           traits: {
@@ -332,7 +400,7 @@ describe('Salesforce', () => {
         Headers {
           Symbol(map): Object {
             "authorization": Array [
-              "Bearer undefined",
+              "Bearer abc123",
             ],
             "user-agent": Array [
               "Segment (Actions)",
