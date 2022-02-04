@@ -24,7 +24,7 @@ export const traits: InputField = {
   type: 'object'
 }
 
-export const custom_fields: InputField = {
+export const customFields: InputField = {
   label: 'Other Fields',
   description: `
   Additional fields to send to Salesforce. On the left-hand side, input the Salesforce field API name. On the right-hand side, map the Segment field that contains the value.

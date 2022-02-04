@@ -145,7 +145,7 @@ describe('Salesforce', () => {
           last_name: {
             '@path': '$.traits.last_name'
           },
-          custom_fields: {
+          customFields: {
             A: '1',
             B: '2',
             C: '3'

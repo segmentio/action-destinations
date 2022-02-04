@@ -23,18 +23,18 @@ describe('Salesforce', () => {
 
       nock(`${settings.instanceUrl}/services/data/${API_VERSION}/sobjects`).post('/TestCustom__c').reply(201, {})
 
-      const responses = await testDestination.testAction('custom', {
+      const responses = await testDestination.testAction('customObject', {
         event,
         settings,
         mapping: {
           operation: 'create',
-          sobject: 'TestCustom',
-          custom_fields: {
+          customObjectName: 'TestCustom',
+          customFields: {
             '@path': '$.traits'
           }
         }
       })
-
+      console.log('responses', responses)
       expect(responses.length).toBe(1)
       expect(responses[0].status).toBe(201)
 

@@ -14,10 +14,10 @@ const LeadShape = (payload: GenericPayload) => {
   }
 }
 
-const object_to_shape = new Map([['lead', LeadShape]])
+const objectToShape = new Map([['lead', LeadShape]])
 
 export const mapObjectToShape = (payload: GenericPayload, sobject: string) => {
-  const shapeFunction = object_to_shape.get(sobject.toLowerCase())
+  const shapeFunction = objectToShape.get(sobject.toLowerCase())
 
   if (!shapeFunction) {
     throw new Error(`Undefined Object Shape: ${sobject}`)

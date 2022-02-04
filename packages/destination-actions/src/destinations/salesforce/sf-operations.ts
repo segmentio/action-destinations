@@ -24,11 +24,11 @@ export default class Salesforce {
   }
 
   createRecord = async (payload: GenericPayload, sobject: string) => {
-    const JSON_data = this.buildJSONData(payload, sobject)
+    const json = this.buildJSONData(payload, sobject)
 
     return this.request(`${this.instanceUrl}/services/data/${API_VERSION}/sobjects/${sobject}`, {
       method: 'post',
-      json: JSON_data
+      json: json
     })
   }
 
@@ -67,25 +67,24 @@ export default class Salesforce {
   }
 
   private baseUpdate = async (recordId: string, sobject: string, payload: GenericPayload) => {
-    const JSON_data = this.buildJSONData(payload, sobject)
+    const json = this.buildJSONData(payload, sobject)
 
     return this.request(`${this.instanceUrl}/services/data/${API_VERSION}/sobjects/${sobject}/${recordId}`, {
       method: 'patch',
-      json: JSON_data
+      json: json
     })
   }
 
   private buildJSONData = (payload: GenericPayload, sobject: string) => {
-    let baseShape
-    if (payload.customObject) {
-      //customObject is a unique key for the custom object action
-      baseShape = {}
-    } else {
+    let baseShape = {}
+
+    if (!payload.customObjectName) {
       baseShape = mapObjectToShape(payload, sobject)
     }
 
-    if (payload.custom_fields) {
-      baseShape = { ...baseShape, ...payload.custom_fields }
+    if (payload.customFields) {
+      // custom field mappings take priority over base shape mappings.
+      baseShape = { ...baseShape, ...payload.customFields }
     }
 
     return baseShape
