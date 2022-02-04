@@ -8,6 +8,10 @@ const testDestination = createTestIntegration(Destination)
 const settings = {
   instanceUrl: 'https://test.com'
 }
+const auth = {
+  refreshToken: 'xyz321',
+  accessToken: 'abc123'
+}
 
 describe('Salesforce', () => {
   describe('Custom Object Tests', () => {
@@ -32,7 +36,8 @@ describe('Salesforce', () => {
           customFields: {
             '@path': '$.traits'
           }
-        }
+        },
+        auth
       })
 
       expect(responses.length).toBe(1)
@@ -42,7 +47,7 @@ describe('Salesforce', () => {
         Headers {
           Symbol(map): Object {
             "authorization": Array [
-              "Bearer undefined",
+              "Bearer abc123",
             ],
             "content-type": Array [
               "application/json",

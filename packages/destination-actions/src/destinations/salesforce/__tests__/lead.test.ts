@@ -8,6 +8,10 @@ const testDestination = createTestIntegration(Destination)
 const settings = {
   instanceUrl: 'https://test.com'
 }
+const auth = {
+  refreshToken: 'xyz321',
+  accessToken: 'abc123'
+}
 
 describe('Salesforce', () => {
   describe('Lead', () => {
@@ -26,6 +30,7 @@ describe('Salesforce', () => {
       const responses = await testDestination.testAction('lead', {
         event,
         settings,
+        auth,
         mapping: {
           operation: 'create',
           email: {
@@ -47,7 +52,7 @@ describe('Salesforce', () => {
         Headers {
           Symbol(map): Object {
             "authorization": Array [
-              "Bearer undefined",
+              "Bearer abc123",
             ],
             "content-type": Array [
               "application/json",
@@ -89,6 +94,7 @@ describe('Salesforce', () => {
       const responses = await testDestination.testAction('lead', {
         event,
         settings,
+        auth,
         mapping: {
           operation: 'create'
         },
@@ -102,7 +108,7 @@ describe('Salesforce', () => {
         Headers {
           Symbol(map): Object {
             "authorization": Array [
-              "Bearer undefined",
+              "Bearer abc123",
             ],
             "content-type": Array [
               "application/json",
@@ -134,6 +140,7 @@ describe('Salesforce', () => {
       const responses = await testDestination.testAction('lead', {
         event,
         settings,
+        auth,
         mapping: {
           operation: 'create',
           email: {
@@ -160,7 +167,7 @@ describe('Salesforce', () => {
         Headers {
           Symbol(map): Object {
             "authorization": Array [
-              "Bearer undefined",
+              "Bearer abc123",
             ],
             "content-type": Array [
               "application/json",
@@ -205,6 +212,7 @@ describe('Salesforce', () => {
       const responses = await testDestination.testAction('lead', {
         event,
         settings,
+        auth,
         mapping: {
           operation: 'update',
           traits: {
@@ -239,7 +247,7 @@ describe('Salesforce', () => {
         Headers {
           Symbol(map): Object {
             "authorization": Array [
-              "Bearer undefined",
+              "Bearer abc123",
             ],
             "user-agent": Array [
               "Segment (Actions)",
@@ -281,6 +289,7 @@ describe('Salesforce', () => {
       const responses = await testDestination.testAction('lead', {
         event,
         settings,
+        auth,
         mapping: {
           operation: 'upsert',
           traits: {
@@ -315,7 +324,7 @@ describe('Salesforce', () => {
         Headers {
           Symbol(map): Object {
             "authorization": Array [
-              "Bearer undefined",
+              "Bearer abc123",
             ],
             "user-agent": Array [
               "Segment (Actions)",
@@ -356,6 +365,7 @@ describe('Salesforce', () => {
       const responses = await testDestination.testAction('lead', {
         event,
         settings,
+        auth,
         mapping: {
           operation: 'upsert',
           traits: {
@@ -390,7 +400,7 @@ describe('Salesforce', () => {
         Headers {
           Symbol(map): Object {
             "authorization": Array [
-              "Bearer undefined",
+              "Bearer abc123",
             ],
             "user-agent": Array [
               "Segment (Actions)",
