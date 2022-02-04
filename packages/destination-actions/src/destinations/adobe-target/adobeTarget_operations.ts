@@ -48,7 +48,7 @@ export default class AdobeTarget {
   private lookupProfile = async (userId: string, clientCode: string): Promise<IntegrationError | undefined> => {
     try {
       await this.request(
-        `http://segmentexchangepartn.tt.omtrdc.net/rest/v1/profiles/thirdPartyId/${userId}?client=${clientCode}`,
+        `https://${clientCode}.tt.omtrdc.net/rest/v1/profiles/thirdPartyId/${userId}?client=${clientCode}`,
         { method: 'get' }
       )
     } catch (error) {

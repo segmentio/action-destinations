@@ -12,7 +12,7 @@ describe('AdobeTarget', () => {
   describe('updateProfile', () => {
     it('Handle a Basic Event', async () => {
       nock(
-        `http://segmentexchangepartn.tt.omtrdc.net/rest/v1/profiles/thirdPartyId/${settings.client_id}?client=${settings.client_code}`
+        `https://${settings.client_code}.tt.omtrdc.net/rest/v1/profiles/thirdPartyId/${settings.client_id}?client=${settings.client_code}`
       )
         .get(/.*/)
         .reply(200, {})
@@ -23,9 +23,9 @@ describe('AdobeTarget', () => {
         .reply(200, {})
 
       const event = createTestEvent({
-        event: 'identify',
+        type: 'identify',
         userId: '123-test',
-        properties: {
+        traits: {
           name: 'Rajul',
           age: '21',
           city: 'New York City',
@@ -40,19 +40,19 @@ describe('AdobeTarget', () => {
         mapping: {
           traits: {
             city: {
-              '@path': '$.properties.city'
+              '@path': '$.traits.city'
             },
             name: {
-              '@path': '$.properties.name'
+              '@path': '$.traits.name'
             },
             age: {
-              '@path': '$.properties.age'
+              '@path': '$.traits.age'
             },
             param1: {
-              '@path': '$.properties.param1'
+              '@path': '$.traits.param1'
             },
             param2: {
-              '@path': '$.properties.param2'
+              '@path': '$.traits.param2'
             }
           },
           user_id: {
@@ -70,7 +70,7 @@ describe('AdobeTarget', () => {
     })
     it('Handle a Nested Event', async () => {
       nock(
-        `http://segmentexchangepartn.tt.omtrdc.net/rest/v1/profiles/thirdPartyId/${settings.client_id}?client=${settings.client_code}`
+        `https://${settings.client_code}.tt.omtrdc.net/rest/v1/profiles/thirdPartyId/${settings.client_id}?client=${settings.client_code}`
       )
         .get(/.*/)
         .reply(200, {})
@@ -81,19 +81,17 @@ describe('AdobeTarget', () => {
         .reply(200, {})
 
       const event = createTestEvent({
-        event: 'identify',
+        type: 'identify',
         userId: '123-test',
-        properties: {
+        traits: {
           name: 'Rajul',
           age: '21',
-          traits: {
-            address: {
-              city: 'New York City',
-              zipCode: '12345'
-            },
-            param1: 'value1',
-            param2: 'value2'
-          }
+          address: {
+            city: 'New York City',
+            zipCode: '12345'
+          },
+          param1: 'value1',
+          param2: 'value2'
         }
       })
       const responses = await testDestination.testAction('updateProfile', {
@@ -103,23 +101,23 @@ describe('AdobeTarget', () => {
           traits: {
             address: {
               city: {
-                '@path': '$.properties.traits.address.city'
+                '@path': '$.traits.address.city'
               },
               zipCode: {
-                '@path': '$.properties.traits.address.zipCode'
+                '@path': '$.traits.address.zipCode'
               }
             },
             name: {
-              '@path': '$.properties.name'
+              '@path': '$.traits.name'
             },
             age: {
-              '@path': '$.properties.age'
+              '@path': '$.traits.age'
             },
             param1: {
-              '@path': '$.properties.traits.param1'
+              '@path': '$.traits.param1'
             },
             param2: {
-              '@path': '$.properties.traits.param2'
+              '@path': '$.traits.param2'
             }
           },
           user_id: {
@@ -142,8 +140,8 @@ describe('AdobeTarget', () => {
         .reply(201, {})
 
       const event = createTestEvent({
-        event: 'identify',
-        properties: {
+        type: 'identify',
+        traits: {
           name: 'Rajul',
           age: '21',
           address: {
@@ -162,23 +160,23 @@ describe('AdobeTarget', () => {
             traits: {
               address: {
                 city: {
-                  '@path': '$.properties.address.city'
+                  '@path': '$.traits.address.city'
                 },
                 zipCode: {
-                  '@path': '$.properties.address.zipCode'
+                  '@path': '$.traits.address.zipCode'
                 }
               },
               name: {
-                '@path': '$.properties.name'
+                '@path': '$.traits.name'
               },
               age: {
-                '@path': '$.properties.age'
+                '@path': '$.traits.age'
               },
               param1: {
-                '@path': '$.properties.param1'
+                '@path': '$.traits.param1'
               },
               param2: {
-                '@path': '$.properties.param2'
+                '@path': '$.traits.param2'
               }
             }
           }
@@ -193,18 +191,8 @@ describe('AdobeTarget', () => {
         .reply(201, {})
 
       const event = createTestEvent({
-        event: 'identify',
-        userId: '123-test',
-        properties: {
-          name: 'Rajul',
-          age: '21',
-          address: {
-            city: 'New York City',
-            zipCode: '12345'
-          },
-          param1: 'value1',
-          param2: 'value2'
-        }
+        type: 'identify',
+        userId: '123-test'
       })
       await expect(
         testDestination.testAction('updateProfile', {
@@ -221,7 +209,7 @@ describe('AdobeTarget', () => {
   })
   it('should handle default mappings', async () => {
     nock(
-      `http://segmentexchangepartn.tt.omtrdc.net/rest/v1/profiles/thirdPartyId/${settings.client_id}?client=${settings.client_code}`
+      `https://${settings.client_code}.tt.omtrdc.net/rest/v1/profiles/thirdPartyId/${settings.client_id}?client=${settings.client_code}`
     )
       .get(/.*/)
       .reply(200, {})
@@ -232,7 +220,7 @@ describe('AdobeTarget', () => {
       .reply(200, {})
 
     const event = createTestEvent({
-      event: 'identify',
+      type: 'identify',
       userId: '123-test',
       traits: {
         address: {
