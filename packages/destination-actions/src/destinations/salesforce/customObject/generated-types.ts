@@ -16,7 +16,7 @@ export interface Payload {
     [k: string]: unknown
   }
   /**
-   * The name of the Salesforce object that records will be added or updated within. The object must be predefined in your Salesforce account. Values should end with "__c".
+   * The API name of the Salesforce object that records will be added or updated within. The object must be predefined in your Salesforce account. Values should end with "__c".
    */
   customObjectName: string
   /**
@@ -26,7 +26,7 @@ export interface Payload {
    *   This can include standard or custom fields. Custom fields must be predefined in your Salesforce account and the API field name should have __c appended.
    *
    */
-  custom_fields: {
+  customFields: {
     [k: string]: unknown
   }
 }

@@ -28,13 +28,13 @@ describe('Salesforce', () => {
         settings,
         mapping: {
           operation: 'create',
-          customObjectName: 'TestCustom',
+          customObjectName: 'TestCustom__c',
           customFields: {
             '@path': '$.traits'
           }
         }
       })
-      console.log('responses', responses)
+
       expect(responses.length).toBe(1)
       expect(responses[0].status).toBe(201)
 

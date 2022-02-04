@@ -58,7 +58,7 @@ export interface Payload {
    *   This can include standard or custom fields. Custom fields must be predefined in your Salesforce account and the API field name should have __c appended.
    *
    */
-  custom_fields?: {
+  customFields?: {
     [k: string]: unknown
   }
 }

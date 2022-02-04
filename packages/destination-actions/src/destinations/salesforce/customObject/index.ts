@@ -22,10 +22,6 @@ const action: ActionDefinition<Settings, Payload> = {
   perform: async (request, { settings, payload }) => {
     const sf: Salesforce = new Salesforce(settings.instanceUrl, request)
 
-    if (!payload.customObjectName.endsWith('__c')) {
-      payload.customObjectName += '__c'
-    }
-
     if (payload.operation === 'create') {
       return await sf.createRecord(payload, payload.customObjectName)
     }
