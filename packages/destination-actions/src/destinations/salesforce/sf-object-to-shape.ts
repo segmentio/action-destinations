@@ -1,6 +1,6 @@
-import { GenericPayload } from './sf-types'
+import { GenericPayload, GenericBaseShape, LeadBaseShapeType } from './sf-types'
 
-const LeadShape = (payload: GenericPayload) => {
+const LeadShape = (payload: GenericPayload): LeadBaseShapeType => {
   return {
     LastName: payload.last_name,
     Company: payload.company,
@@ -16,7 +16,7 @@ const LeadShape = (payload: GenericPayload) => {
 
 const objectToShape = new Map([['lead', LeadShape]])
 
-export const mapObjectToShape = (payload: GenericPayload, sobject: string) => {
+export const mapObjectToShape = (payload: GenericPayload, sobject: string): GenericBaseShape => {
   const shapeFunction = objectToShape.get(sobject.toLowerCase())
 
   if (!shapeFunction) {
