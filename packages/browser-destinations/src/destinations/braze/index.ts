@@ -261,7 +261,7 @@ export const destination: BrowserDestinationDefinition<Settings, typeof appboy> 
         subscriptions,
         ...expectedConfig
       } = settings
-      const version = sdkVersion ?? '3.3'
+      const version = sdkVersion ?? '3.5'
 
       resetUserCache()
 
@@ -272,11 +272,7 @@ export const destination: BrowserDestinationDefinition<Settings, typeof appboy> 
         ...expectedConfig
       })
 
-      const versions = version.split('.')[0]
-      const majorVersion = parseInt(versions[0])
-      const minorVersion = parseInt(versions[1])
-
-      if (majorVersion > 3 || (majorVersion === 3 && minorVersion >= 5)) {
+      if (window.appboy.addSdkMetadata) {
         window.appboy.addSdkMetadata(['sg'])
       }
 

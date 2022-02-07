@@ -116,7 +116,7 @@ describe('loads different versions from CDN', () => {
     expect(scripts).toMatchSnapshot(`
       NodeList [
         <script
-          src="https://js.appboycdn.com/web-sdk/3.3/appboy.no-amd.min.js"
+          src="https://js.appboycdn.com/web-sdk/3.5/appboy.no-amd.min.js"
           status="loaded"
           type="text/javascript"
         />,
