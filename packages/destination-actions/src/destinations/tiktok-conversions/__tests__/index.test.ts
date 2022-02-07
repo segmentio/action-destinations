@@ -2,7 +2,6 @@ import nock from 'nock'
 import { createTestEvent, createTestIntegration } from '@segment/actions-core'
 import Definition from '../index'
 import { Settings } from '../generated-types'
-import { content_type } from 'src/destinations/facebook-conversions-api/fb-capi-properties'
 
 const testDestination = createTestIntegration(Definition)
 const timestamp = '2021-09-2T15:21:15.449Z'
