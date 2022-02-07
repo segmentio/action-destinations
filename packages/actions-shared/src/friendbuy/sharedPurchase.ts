@@ -1,9 +1,10 @@
 import type { InputField } from '@segment/actions-core'
+import type { FieldConfig } from './commonFields'
 
 import { commonCustomerFields } from './commonFields'
 
 // https://segment.com/docs/connections/spec/ecommerce/v2/#order-completed
-export const trackPurchaseFields: Record<string, InputField> = {
+export const trackPurchaseFields = (fieldConfig: FieldConfig): Record<string, InputField> => ({
   orderId: {
     label: 'Order ID',
     description: 'The order ID.',
@@ -37,6 +38,20 @@ export const trackPurchaseFields: Record<string, InputField> = {
     type: 'string',
     required: false,
     default: { '@path': '$.properties.coupon' }
+  },
+  attributionId: {
+    label: 'Friendbuy Attribution ID',
+    description: 'Friendbuy attribution ID that associates the purchase with the advocate who referred the purchaser.',
+    type: 'string',
+    required: false,
+    default: { '@path': '$.properties.attributionId' }
+  },
+  referralCode: {
+    label: 'Friendbuy Referral ID',
+    description: 'Friendbuy referral code that associates the purchase with the advocate who referred the purchaser.',
+    type: 'string',
+    required: false,
+    default: { '@path': '$.properties.referralCode' }
   },
   giftCardCodes: {
     // Might be used to establish attribution.
@@ -99,7 +114,7 @@ export const trackPurchaseFields: Record<string, InputField> = {
     default: { '@path': '$.properties.products' }
   },
 
-  ...commonCustomerFields(false),
+  ...commonCustomerFields(fieldConfig),
 
   friendbuyAttributes: {
     label: 'Custom Attributes',
@@ -109,4 +124,4 @@ export const trackPurchaseFields: Record<string, InputField> = {
     required: false,
     default: { '@path': '$.properties.friendbuyAttributes' }
   }
-}
+})

@@ -26,6 +26,7 @@ function register(id: MetadataId, destinationPath: string) {
 }
 
 // TODO figure out if it's possible to colocate the Amplitude web action with the rest of its destination definition (in `./packages/destination-actions`)
+register('61fc2ffcc76fb3e73d85c89d', './adobe-target')
 register('5f7dd6d21ad74f3842b1fc47', './amplitude-plugins')
 register('60fb01aec459242d3b6f20c1', './braze')
 register('60f9d0d048950c356be2e4da', './braze-cloud-plugins')

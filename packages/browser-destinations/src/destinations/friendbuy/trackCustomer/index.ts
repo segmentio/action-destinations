@@ -23,6 +23,7 @@ const trackCustomerPub: EventMap = {
     lastName: COPY,
     name: COPY,
     age: COPY,
+    // fbt-merchant-api complains about birthday being an object but passes it anyway.
     birthday: { convert: parseDate as ConvertFun },
     language: COPY,
     addressCountry: { name: 'country' },

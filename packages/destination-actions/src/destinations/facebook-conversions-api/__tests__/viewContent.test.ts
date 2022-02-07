@@ -10,7 +10,7 @@ const settings = {
 describe('FacebookConversionsApi', () => {
   describe('ViewContent', () => {
     it('should handle a basic event', async () => {
-      nock(`https://graph.facebook.com/v11.0/${settings.pixelId}`).post(`/events`).reply(201, {})
+      nock(`https://graph.facebook.com/v12.0/${settings.pixelId}`).post(`/events`).reply(201, {})
 
       const event = createTestEvent({
         event: 'Product Viewed',
@@ -79,7 +79,7 @@ describe('FacebookConversionsApi', () => {
     })
 
     it('should handle default mappings', async () => {
-      nock(`https://graph.facebook.com/v11.0/${settings.pixelId}`).post(`/events`).reply(201, {})
+      nock(`https://graph.facebook.com/v12.0/${settings.pixelId}`).post(`/events`).reply(201, {})
 
       const event = createTestEvent({
         event: 'Product Viewed',
@@ -107,7 +107,7 @@ describe('FacebookConversionsApi', () => {
     })
 
     it('should throw an error if no user_data keys are included', async () => {
-      nock(`https://graph.facebook.com/v11.0/${settings.pixelId}`).post(`/events`).reply(201, {})
+      nock(`https://graph.facebook.com/v12.0/${settings.pixelId}`).post(`/events`).reply(201, {})
 
       const event = createTestEvent({
         event: 'Product Viewed',

@@ -85,7 +85,10 @@ describe('CustomerIO', () => {
         date11: '2018-03-04T12:08:56 PDT',
         date12: '2018-03-04T12:08:56.235 PDT',
         date13: '15/MAR/18',
-        date14: '11-Jan-18'
+        date14: '11-Jan-18',
+        date15: '2006-01-02T15:04:05-0800',
+        date16: '2006-01-02T15:04:05.07-0800',
+        date17: '2006-01-02T15:04:05.007-0800'
       }
       trackDeviceService.put(`/customers/${userId}`).reply(200, {}, { 'x-customerio-region': 'US' })
       const event = createTestEvent({
@@ -116,7 +119,10 @@ describe('CustomerIO', () => {
         date11: testTimestamps.date11,
         date12: testTimestamps.date12,
         date13: testTimestamps.date13,
-        date14: testTimestamps.date14
+        date14: testTimestamps.date14,
+        date15: dayjs(testTimestamps.date15).unix(),
+        date16: dayjs(testTimestamps.date16).unix(),
+        date17: dayjs(testTimestamps.date17).unix()
       })
     })
 

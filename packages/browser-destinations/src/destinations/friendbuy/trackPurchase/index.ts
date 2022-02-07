@@ -9,6 +9,8 @@ import { COPY, ROOT, mapEvent } from '@segment/actions-shared'
 import { trackPurchaseFields } from '@segment/actions-shared'
 import { addName, parseDate, removeCustomerIfNoId } from '@segment/actions-shared'
 
+export const browserTrackPurchaseFields = trackPurchaseFields({})
+
 // see https://segment.com/docs/config-api/fql/
 export const trackPurchaseDefaultSubscription = 'event = "Order Completed"'
 
@@ -39,7 +41,7 @@ const trackPurchasePub: EventMap = {
       }
     },
 
-    // Customer fields.
+    // CUSTOMER FIELDS
     customerId: { name: ['customer', 'id'] },
     anonymousId: { name: ['customer', 'anonymousId'] },
     email: { name: ['customer', 'email'] },
@@ -49,6 +51,7 @@ const trackPurchasePub: EventMap = {
     lastName: { name: ['customer', 'lastName'] },
     name: { name: ['customer', 'name'] },
     age: { name: ['customer', 'age'] },
+    // fbt-merchant-api complains about birthday being an object but passes it anyway.
     birthday: { name: ['customer', 'birthday'], convert: parseDate as ConvertFun }
   },
   unmappedFieldObject: ROOT,
@@ -63,7 +66,7 @@ const action: BrowserActionDefinition<Settings, FriendbuyAPI, Payload> = {
   description: 'Record when a customer makes a purchase.',
   defaultSubscription: trackPurchaseDefaultSubscription,
   platform: 'web',
-  fields: trackPurchaseFields,
+  fields: browserTrackPurchaseFields,
 
   perform: (friendbuyAPI, { payload }) => {
     addName(payload)

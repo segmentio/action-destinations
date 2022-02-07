@@ -9,6 +9,8 @@ import { COPY, ROOT, mapEvent } from '@segment/actions-shared'
 import { trackSignUpFields } from '@segment/actions-shared'
 import { addName, parseDate } from '@segment/actions-shared'
 
+export const browserTrackSignUpFields = trackSignUpFields({ requireCustomerId: true, requireEmail: true })
+
 // see https://segment.com/docs/config-api/fql/
 export const trackSignUpDefaultSubscription = 'event = "Signed Up"'
 
@@ -28,13 +30,7 @@ const trackSignUpPub: EventMap = {
     lastName: COPY,
     name: COPY,
     age: COPY,
-    birthday: { convert: parseDate as ConvertFun },
-
-    // CONTEXT FIELDS
-    ipAddress: COPY,
-    userAgent: COPY
-    // pageUrl (unmapped)
-    // pageTitle (unmapped)
+    birthday: { convert: parseDate as ConvertFun }
   },
   unmappedFieldObject: ROOT
 }
@@ -44,7 +40,7 @@ const action: BrowserActionDefinition<Settings, FriendbuyAPI, Payload> = {
   description: 'Record when a customer signs up for a service.',
   defaultSubscription: trackSignUpDefaultSubscription,
   platform: 'web',
-  fields: trackSignUpFields,
+  fields: browserTrackSignUpFields,
 
   perform: (friendbuyAPI, { payload }) => {
     addName(payload)

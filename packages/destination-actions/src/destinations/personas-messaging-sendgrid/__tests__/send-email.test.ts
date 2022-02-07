@@ -102,7 +102,9 @@ for (const environment of ['stage', 'production']) {
             custom_args: {
               source_id: 'sourceId',
               space_id: 'spaceId',
-              user_id: userData.userId
+              user_id: userData.userId,
+              __segment_internal_external_id_key__: 'email',
+              __segment_internal_external_id_value__: userData.email
             }
           }
         ],
@@ -120,7 +122,13 @@ for (const environment of ['stage', 'production']) {
             type: 'text/html',
             value: `Hi ${userData.firstName}, Welcome to segment`
           }
-        ]
+        ],
+        tracking_settings: {
+          subscription_tracking: {
+            enable: true,
+            substitution_tag: '[unsubscribe]'
+          }
+        }
       }
 
       const sendGridRequest = nock('https://api.sendgrid.com')
@@ -209,7 +217,9 @@ for (const environment of ['stage', 'production']) {
               user_id: userData.userId,
               journey_id: 'journeyId',
               journey_state_id: 'journeyStateId',
-              audience_id: 'audienceId'
+              audience_id: 'audienceId',
+              __segment_internal_external_id_key__: 'email',
+              __segment_internal_external_id_value__: userData.email
             }
           }
         ],
@@ -227,7 +237,13 @@ for (const environment of ['stage', 'production']) {
             type: 'text/html',
             value: 'Welcome to segment'
           }
-        ]
+        ],
+        tracking_settings: {
+          subscription_tracking: {
+            enable: true,
+            substitution_tag: '[unsubscribe]'
+          }
+        }
       }
 
       const sendGridRequest = nock('https://api.sendgrid.com')
@@ -292,7 +308,9 @@ for (const environment of ['stage', 'production']) {
           })
           fail('Test should throw an error')
         } catch (e) {
-          expect(e.message).toBe('Emails with gmailx.com, yahoox.com, aolx.com, and hotmailx.com domains are blocked.')
+          expect((e as unknown as any).message).toBe(
+            'Emails with gmailx.com, yahoox.com, aolx.com, and hotmailx.com domains are blocked.'
+          )
         }
       })
     }
@@ -315,7 +333,9 @@ for (const environment of ['stage', 'production']) {
             custom_args: {
               source_id: 'sourceId',
               space_id: 'spaceId',
-              user_id: userData.userId
+              user_id: userData.userId,
+              __segment_internal_external_id_key__: 'email',
+              __segment_internal_external_id_value__: userData.email
             }
           }
         ],
@@ -333,7 +353,13 @@ for (const environment of ['stage', 'production']) {
             type: 'text/html',
             value: `Hi ${userData.firstName}, welcome to Segment`
           }
-        ]
+        ],
+        tracking_settings: {
+          subscription_tracking: {
+            enable: true,
+            substitution_tag: '[unsubscribe]'
+          }
+        }
       }
 
       const s3Request = nock('https://s3.com')
@@ -381,7 +407,9 @@ for (const environment of ['stage', 'production']) {
             custom_args: {
               source_id: 'sourceId',
               space_id: 'spaceId',
-              user_id: userData.userId
+              user_id: userData.userId,
+              __segment_internal_external_id_key__: 'email',
+              __segment_internal_external_id_value__: userData.email
             }
           }
         ],
@@ -399,12 +427,16 @@ for (const environment of ['stage', 'production']) {
             type: 'text/html',
             value: `<h1>Hi ${userData.firstName}, welcome to Segment</h1>`
           }
-        ]
+        ],
+        tracking_settings: {
+          subscription_tracking: {
+            enable: true,
+            substitution_tag: '[unsubscribe]'
+          }
+        }
       }
 
-      const s3Request = nock('https://s3.com')
-        .get('/body.txt')
-        .reply(200, '{"unlayer":true}')
+      const s3Request = nock('https://s3.com').get('/body.txt').reply(200, '{"unlayer":true}')
 
       const unlayerRequest = nock('https://api.unlayer.com')
         .post('/v2/export/html', {
@@ -462,7 +494,9 @@ for (const environment of ['stage', 'production']) {
             custom_args: {
               source_id: 'sourceId',
               space_id: 'spaceId',
-              user_id: userData.userId
+              user_id: userData.userId,
+              __segment_internal_external_id_key__: 'email',
+              __segment_internal_external_id_value__: userData.email
             }
           }
         ],
@@ -490,7 +524,13 @@ for (const environment of ['stage', 'production']) {
               '  Hi First Name, welcome to Segment</body></html>'
             ].join('\n')
           }
-        ]
+        ],
+        tracking_settings: {
+          subscription_tracking: {
+            enable: true,
+            substitution_tag: '[unsubscribe]'
+          }
+        }
       }
 
       const s3Request = nock('https://s3.com')

@@ -283,9 +283,9 @@ export default class Push extends Command {
         ])
       } catch (e) {
         const error = e as ClientRequestError
-        chalk.red(error.message)
+        this.log(chalk.red(error.message))
         if (error.isMultiError) {
-          error.errors.map((error) => error.message).forEach((error) => chalk.red(error))
+          error.errors.map((error) => error.message).forEach((error) => this.log(chalk.red(error)))
         }
       }
 

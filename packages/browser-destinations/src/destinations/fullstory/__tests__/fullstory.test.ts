@@ -70,9 +70,8 @@ test('can load fullstory', async () => {
   expect(scripts).toMatchInlineSnapshot(`
     NodeList [
       <script
+        crossorigin="anonymous"
         src="https://edge.fullstory.com/s/fs.js"
-        status="loaded"
-        type="text/javascript"
       />,
       <script>
         // the emptiness
@@ -101,9 +100,13 @@ describe('#track', () => {
       })
     )
 
-    expect(fs).toHaveBeenCalledWith('hello!', {
-      banana: '📞'
-    }, 'segment-browser-actions')
+    expect(fs).toHaveBeenCalledWith(
+      'hello!',
+      {
+        banana: '📞'
+      },
+      'segment-browser-actions'
+    )
   })
 })
 
@@ -162,7 +165,11 @@ describe('#identify', () => {
           }
         })
       )
-      expect(fsId).toHaveBeenCalledWith('id', { notCameled: false, firstName: 'John', lastName: 'Doe' }, 'segment-browser-actions')
+      expect(fsId).toHaveBeenCalledWith(
+        'id',
+        { notCameled: false, firstName: 'John', lastName: 'Doe' },
+        'segment-browser-actions'
+      )
     })
 
   it('can set user vars', async () => {
@@ -185,11 +192,14 @@ describe('#identify', () => {
       })
     )
 
-    expect(fs).toHaveBeenCalledWith({
-      displayName: 'Hasbulla',
-      email: 'thegoat@world',
-      height: '50cm',
-      name: 'Hasbulla'
-    }, 'segment-browser-actions')
+    expect(fs).toHaveBeenCalledWith(
+      {
+        displayName: 'Hasbulla',
+        email: 'thegoat@world',
+        height: '50cm',
+        name: 'Hasbulla'
+      },
+      'segment-browser-actions'
+    )
   })
 })
