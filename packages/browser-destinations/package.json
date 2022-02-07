@@ -28,7 +28,7 @@
     "dev": "NODE_ENV=development concurrently \"webpack serve --open\" \"webpack -c webpack.config.js --watch\""
   },
   "dependencies": {
-    "@braze/web-sdk": "^3.3.0",
+    "@braze/web-sdk": "^3.5.0",
     "@fullstory/browser": "^1.4.9",
     "@segment/actions-shared": "^1.3.0",
     "@segment/analytics-next": "^1.29.3",

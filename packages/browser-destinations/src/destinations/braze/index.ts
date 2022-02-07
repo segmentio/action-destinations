@@ -265,12 +265,20 @@ export const destination: BrowserDestinationDefinition<Settings, typeof appboy> 
 
       resetUserCache()
 
-      await dependencies.loadScript(`https://js.appboycdn.com/web-sdk/${version}/appboy.min.js`)
+      await dependencies.loadScript(`https://js.appboycdn.com/web-sdk/${version}/appboy.no-amd.min.js`)
 
       window.appboy.initialize(api_key, {
         baseUrl: endpoint,
         ...expectedConfig
       })
+
+      const versions = version.split('.')[0]
+      const majorVersion = parseInt(versions[0])
+      const minorVersion = parseInt(versions[1])
+
+      if (majorVersion > 3 || (majorVersion === 3 && minorVersion >= 5)) {
+        window.appboy.addSdkMetadata(['sg'])
+      }
 
       if (automaticallyDisplayMessages) {
         window.appboy.display.automaticallyShowNewInAppMessages()

@@ -68,7 +68,7 @@ describe('initialization', () => {
     expect(scripts).toMatchSnapshot(`
       NodeList [
         <script
-          src="https://js.appboycdn.com/web-sdk/3.3/appboy.min.js"
+          src="https://js.appboycdn.com/web-sdk/3.3/appboy.no-amd.min.js"
           type="text/javascript"
         />,
         <script>
