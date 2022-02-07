@@ -4,6 +4,7 @@ import {
   coupon,
   transaction_id,
   client_id,
+  user_id,
   currency,
   value,
   affiliation,
@@ -20,6 +21,7 @@ const action: ActionDefinition<Settings, Payload> = {
   defaultSubscription: 'type = "track" and event = "Order Refunded"',
   fields: {
     client_id: { ...client_id },
+    user_id: { ...user_id },
     currency: { ...currency },
     transaction_id: { ...transaction_id, required: true },
     value: { ...value, default: { '@path': '$.properties.total' } },
@@ -82,6 +84,7 @@ const action: ActionDefinition<Settings, Payload> = {
       method: 'POST',
       json: {
         client_id: payload.client_id,
+        user_id: payload.user_id,
         events: [
           {
             name: 'refund',

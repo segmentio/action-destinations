@@ -3,7 +3,7 @@ import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 import { ProductItem } from '../ga4-types'
 import { CURRENCY_ISO_CODES } from '../constants'
-import { value, currency, client_id, items_single_products } from '../ga4-properties'
+import { value, currency, client_id, items_single_products, user_id } from '../ga4-properties'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Add to Cart',
@@ -11,6 +11,7 @@ const action: ActionDefinition<Settings, Payload> = {
   defaultSubscription: 'type = "track" and event = "Product Added"',
   fields: {
     client_id: { ...client_id },
+    user_id: { ...user_id },
     currency: { ...currency },
     items: {
       ...items_single_products,
@@ -43,6 +44,7 @@ const action: ActionDefinition<Settings, Payload> = {
       method: 'POST',
       json: {
         client_id: payload.client_id,
+        user_id: payload.user_id,
         events: [
           {
             name: 'add_to_cart',

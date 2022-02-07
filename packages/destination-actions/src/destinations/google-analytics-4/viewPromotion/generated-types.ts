@@ -6,6 +6,10 @@ export interface Payload {
    */
   client_id: string
   /**
+   * A unique identifier for a user. See Google's [User-ID for cross-platform analysis](https://support.google.com/analytics/answer/9213390) and [Reporting: deduplicate user counts](https://support.google.com/analytics/answer/9355949?hl=en) documentation for more information on this identifier.
+   */
+  user_id?: string
+  /**
    * The name of the promotional creative.
    */
   creative_name?: string

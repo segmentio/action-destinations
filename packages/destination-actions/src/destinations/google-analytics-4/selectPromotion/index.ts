@@ -3,6 +3,7 @@ import { CURRENCY_ISO_CODES } from '../constants'
 import {
   creative_name,
   client_id,
+  user_id,
   creative_slot,
   promotion_id,
   promotion_name,
@@ -19,6 +20,7 @@ const action: ActionDefinition<Settings, Payload> = {
   defaultSubscription: 'type = "track" and event = "Promotion Clicked"',
   fields: {
     client_id: { ...client_id },
+    user_id: { ...user_id },
     creative_name: { ...creative_name },
     creative_slot: { ...creative_slot, default: { '@path': '$.properties.creative' } },
     location_id: {
@@ -80,6 +82,7 @@ const action: ActionDefinition<Settings, Payload> = {
       method: 'POST',
       json: {
         client_id: payload.client_id,
+        user_id: payload.user_id,
         events: [
           {
             name: 'select_promotion',

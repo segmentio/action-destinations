@@ -3,7 +3,7 @@ import { CURRENCY_ISO_CODES } from '../constants'
 import { ProductItem } from '../ga4-types'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
-import { client_id, items_single_products } from '../ga4-properties'
+import { user_id, client_id, items_single_products } from '../ga4-properties'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Select Item',
@@ -11,6 +11,7 @@ const action: ActionDefinition<Settings, Payload> = {
   defaultSubscription: 'type = "track" and event = "Product Clicked"',
   fields: {
     client_id: { ...client_id },
+    user_id: { ...user_id },
     item_list_name: {
       label: 'Item List Name',
       description: 'The name of the list in which the item was presented to the user.',
@@ -51,6 +52,7 @@ const action: ActionDefinition<Settings, Payload> = {
       method: 'POST',
       json: {
         client_id: payload.client_id,
+        user_id: payload.user_id,
         events: [
           {
             name: 'select_item',

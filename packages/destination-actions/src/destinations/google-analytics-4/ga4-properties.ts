@@ -1,5 +1,12 @@
 import { InputField } from '@segment/actions-core/src/destination-kit/types'
 
+export const user_id: InputField = {
+  label: 'User ID',
+  type: 'string',
+  description:
+    "A unique identifier for a user. See Google's [User-ID for cross-platform analysis](https://support.google.com/analytics/answer/9213390) and [Reporting: deduplicate user counts](https://support.google.com/analytics/answer/9355949?hl=en) documentation for more information on this identifier."
+}
+
 export const promotion_id: InputField = {
   label: 'Promotion ID',
   type: 'string',

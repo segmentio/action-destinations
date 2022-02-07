@@ -9,6 +9,7 @@ import {
   transaction_id,
   value,
   client_id,
+  user_id,
   affiliation,
   shipping,
   tax,
@@ -23,6 +24,7 @@ const action: ActionDefinition<Settings, Payload> = {
   defaultSubscription: 'type = "track" and event = "Order Completed"',
   fields: {
     client_id: { ...client_id },
+    user_id: { ...user_id },
     affiliation: { ...affiliation },
     coupon: { ...coupon, default: { '@path': '$.properties.coupon' } },
     currency: { ...currency, required: true },
@@ -66,6 +68,7 @@ const action: ActionDefinition<Settings, Payload> = {
       method: 'POST',
       json: {
         client_id: payload.client_id,
+        user_id: payload.user_id,
         events: [
           {
             name: 'purchase',

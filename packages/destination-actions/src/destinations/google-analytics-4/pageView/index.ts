@@ -1,7 +1,7 @@
 import type { ActionDefinition } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
-import { client_id } from '../ga4-properties'
+import { user_id, client_id } from '../ga4-properties'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Page View',
@@ -9,6 +9,7 @@ const action: ActionDefinition<Settings, Payload> = {
   defaultSubscription: 'type = "page"',
   fields: {
     clientId: { ...client_id },
+    user_id: { ...user_id },
     page_location: {
       label: 'Page Location',
       type: 'string',
@@ -31,6 +32,7 @@ const action: ActionDefinition<Settings, Payload> = {
       method: 'POST',
       json: {
         client_id: payload.clientId,
+        user_id: payload.user_id,
         events: [
           {
             name: 'page_view',

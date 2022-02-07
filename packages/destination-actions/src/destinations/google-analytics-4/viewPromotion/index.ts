@@ -6,6 +6,7 @@ import {
   promotion_id,
   promotion_name,
   client_id,
+  user_id,
   minimal_items,
   items_single_products
 } from '../ga4-properties'
@@ -23,6 +24,7 @@ const action: ActionDefinition<Settings, Payload> = {
   defaultSubscription: 'type = "track" and event = "Promotion Viewed"',
   fields: {
     client_id: { ...client_id },
+    user_id: { ...user_id },
     creative_name: { ...creative_name },
     creative_slot: { ...creative_slot, default: { '@path': '$.properties.creative' } },
     location_id: {
@@ -77,6 +79,7 @@ const action: ActionDefinition<Settings, Payload> = {
       method: 'POST',
       json: {
         client_id: payload.client_id,
+        user_id: payload.user_id,
         events: [
           {
             name: 'view_promotion',
