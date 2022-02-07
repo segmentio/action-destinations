@@ -122,7 +122,90 @@ const action: ActionDefinition<Settings, Payload> = {
       label: 'Contents',
       type: 'object',
       multiple: true,
-      description: 'Related items in a web event.'
+      description: 'Related items in a web event.',
+      default: {
+        '@if': {
+          exists: { 
+            '@arrayPath': [
+              '$.properties.products',
+              { 
+                price: {
+                  '@path': '$.price'
+                },
+                quantity: {
+                  '@path': '$.quantity'
+                },
+                content_type: {
+                  '@path': '$.content_type'
+                },
+                content_id: {
+                  '@path': '$.content_id'
+                }
+              }
+            ] 
+          },
+          then: {
+            '@arrayPath': [
+              '$.properties.products',
+              { 
+                price: {
+                  '@path': '$.price'
+                },
+                quantity: {
+                  '@path': '$.quantity'
+                },
+                content_type: {
+                  '@path': '$.content_type'
+                },
+                content_id: {
+                  '@path': '$.content_id'
+                }
+              }
+            ] 
+          },
+          else: {
+            '@arrayPath': [
+              '$.properties',
+              { 
+                price: {
+                  '@path': '$.price'
+                },
+                quantity: {
+                  '@path': '$.quantity'
+                },
+                content_type: {
+                  '@path': '$.content_type'
+                },
+                content_id: {
+                  '@path': '$.content_id'
+                }
+              }
+            ] 
+          }
+        }
+      },
+      properties: {
+        price: {
+          label: 'Price',
+          description: 'Price of the item.',
+          type: 'number'
+        },
+        quantity: {
+          label: 'Quantity',
+          description: 'Number of items.',
+          type: 'number'
+        },
+        content_type: {
+          label: 'Content Type',
+          description: 'Type of the product item.',
+          type: 'string'
+        },
+        content_id: {
+          label: 'Content ID',
+          description: 'ID of the product item.',
+          type: 'string'
+        }
+      }
     },
     currency: {
       label: 'Currency',
@@ -159,15 +242,9 @@ const action: ActionDefinition<Settings, Payload> = {
     }
   },
   perform: (request, { payload, settings }) => {
-    //our messageIds are always random per event so I do not think we need to add a random string to the end. TikTok only recommends this if you are using a sessionId, externalId, etc. Commenting out for now.
-    /*const eventId = payload.event_id
-      ? payload.event_id.toString() + '_' + (Math.random() + 1).toString(36).substring(7)
-      : ''
-    */
-
     const userData = {
-      hashedExternalId: formatUserId(payload.external_id || ''),
-      hashedEmail: formatEmail(payload.email || ''),
+      hashedExternalId: formatUserId(payload.external_id),
+      hashedEmail: formatEmail(payload.email),
       hashedPhoneNumber: formatPhone(payload.phone_number)
     }
 

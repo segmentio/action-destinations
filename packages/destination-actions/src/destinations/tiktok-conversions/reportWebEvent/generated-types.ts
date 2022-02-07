@@ -49,7 +49,22 @@ export interface Payload {
    * Related items in a web event.
    */
   contents?: {
-    [k: string]: unknown
+    /**
+     * Price of the item.
+     */
+    price?: number
+    /**
+     * Number of items.
+     */
+    quantity?: number
+    /**
+     * Type of the product item.
+     */
+    content_type?: string
+    /**
+     * ID of the product item.
+     */
+    content_id?: string
   }[]
   /**
    * Currency for the value specified as ISO 4217 code.
