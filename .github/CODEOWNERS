@@ -1,0 +1,27 @@
+# These owners will be the default owners for everything in
+# the repo. Unless a later match takes precedence, these users
+# will be requested for review when someone opens a pull request.
+
+# Actions common lib folder
+actions-shared/ @segmentio/platform-components
+
+# AJV utils
+ajv-human-errors/ @segmentio/platform-components
+
+# Browser destinations
+browser-destinations/ @pooyaj
+
+# CLI private libs
+cli-internal/ @segmentio/platform-components
+
+# CLI binary
+cli/ @segmentio/platform-components
+
+# Core actions runtime
+core/ @segmentio/platform-components
+
+# Destination definitions and their actions
+destination-actions/ @segmentio/platform-components
+
+# Utilities for event payload validation against an action's subscription AST.
+destination-subscriptions/ @segmentio/platform-components
