@@ -22,10 +22,6 @@ export interface Payload {
    */
   conversion_time: string | number
   /**
-   * Set to true if this is an app conversion for an incrementality study.
-   */
-  is_app_incrementality: boolean
-  /**
    * The monetary value attributed to the conversion event.
    */
   value?: number
@@ -33,6 +29,10 @@ export interface Payload {
    * Currency of the purchase or items associated with the conversion event, in 3-letter ISO 4217 format.
    */
   currency_code?: string
+  /**
+   * Set to true if this is an app conversion for an incrementality study.
+   */
+  is_app_incrementality?: boolean
   /**
    * Phone number of the individual who triggered the conversion event, in E.164 standard format, e.g. +14150000000.
    */
