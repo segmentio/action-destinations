@@ -75,7 +75,9 @@ describe('GoogleEnhancedConversions', () => {
           }
         }
       })
-      if (event?.context?.userAgent) { delete event.context.userAgent }
+      if (event?.context?.userAgent) {
+        delete event.context.userAgent
+      }
 
       nock('https://www.google.com/ads/event/api/v1')
         .post(`?conversion_tracking_id=${conversionTrackingId}`)
@@ -113,7 +115,6 @@ describe('GoogleEnhancedConversions', () => {
           firstName: 'Bob John',
           lastName: 'Smith',
           phone: '14150000000',
-          is_app_incrementality: true,
           address: {
             street: '123 Market Street',
             city: 'San Francisco',
@@ -132,7 +133,7 @@ describe('GoogleEnhancedConversions', () => {
         event,
         mapping: {
           conversion_label: conversionLabel,
-          is_app_incrementality: { '@path': '$.properties.is_app_incrementality' }
+          is_app_incrementality: true
         },
         useDefaultMappings: true,
         settings: {
