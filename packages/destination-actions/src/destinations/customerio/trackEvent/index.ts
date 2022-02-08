@@ -1,7 +1,6 @@
-import dayjs from '../../../lib/dayjs'
 import type { ActionDefinition } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
-import { trackApiEndpoint } from '../utils'
+import { convertAttributeTimestamps, convertValidTimestamp, trackApiEndpoint } from '../utils'
 import type { Payload } from './generated-types'
 
 interface TrackEventPayload {
@@ -63,7 +62,7 @@ const action: ActionDefinition<Settings, Payload> = {
     },
     convert_timestamp: {
       label: 'Convert Timestamps',
-      description: 'Convert `timestamp` to a Unix timestamp (seconds since Epoch).',
+      description: 'Convert dates to Unix timestamps (seconds since Epoch).',
       type: 'boolean',
       default: true
     }
@@ -71,14 +70,21 @@ const action: ActionDefinition<Settings, Payload> = {
 
   perform: (request, { settings, payload }) => {
     let timestamp: string | number | undefined = payload.timestamp
+    let data = payload.data
 
-    if (timestamp && payload.convert_timestamp !== false) {
-      timestamp = dayjs.utc(timestamp).unix()
+    if (payload.convert_timestamp !== false) {
+      if (timestamp) {
+        timestamp = convertValidTimestamp(timestamp)
+      }
+
+      if (data) {
+        data = convertAttributeTimestamps(data)
+      }
     }
 
     const body: TrackEventPayload = {
       name: payload.name,
-      data: payload.data,
+      data,
       timestamp
     }
 

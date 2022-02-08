@@ -7,6 +7,7 @@ const timestamp = new Date().toISOString()
 
 for (const environment of ['stage', 'production']) {
   const settings = {
+    unlayerApiKey: 'unlayerApiKey',
     sendGridApiKey: 'sendGridApiKey',
     profileApiEnvironment: environment,
     profileApiAccessToken: 'c',
@@ -24,7 +25,7 @@ for (const environment of ['stage', 'production']) {
 
   const endpoint = `https://profiles.segment.${environment === 'production' ? 'com' : 'build'}`
 
-  const getDefaultMapping = () => {
+  const getDefaultMapping = (overrides?: any) => {
     return {
       userId: { '@path': '$.userId' },
       fromDomain: null,
@@ -37,13 +38,14 @@ for (const environment of ['stage', 'production']) {
           email: 'test@test.com'
         }
       ]),
-      previewText: 'unused',
+      previewText: '',
       subject: 'Hello {{profile.traits.lastName}} {{profile.traits.firstName}}.',
       body: 'Hi {{profile.traits.firstName}}, Welcome to segment',
       bodyType: 'html',
       bodyHtml: 'Hi {{profile.traits.firstName}}, Welcome to segment',
       send: true,
-      toEmail: ''
+      toEmail: '',
+      ...overrides
     }
   }
 
@@ -100,7 +102,9 @@ for (const environment of ['stage', 'production']) {
             custom_args: {
               source_id: 'sourceId',
               space_id: 'spaceId',
-              user_id: userData.userId
+              user_id: userData.userId,
+              __segment_internal_external_id_key__: 'email',
+              __segment_internal_external_id_value__: userData.email
             }
           }
         ],
@@ -118,7 +122,13 @@ for (const environment of ['stage', 'production']) {
             type: 'text/html',
             value: `Hi ${userData.firstName}, Welcome to segment`
           }
-        ]
+        ],
+        tracking_settings: {
+          subscription_tracking: {
+            enable: true,
+            substitution_tag: '[unsubscribe]'
+          }
+        }
       }
 
       const sendGridRequest = nock('https://api.sendgrid.com')
@@ -207,7 +217,9 @@ for (const environment of ['stage', 'production']) {
               user_id: userData.userId,
               journey_id: 'journeyId',
               journey_state_id: 'journeyStateId',
-              audience_id: 'audienceId'
+              audience_id: 'audienceId',
+              __segment_internal_external_id_key__: 'email',
+              __segment_internal_external_id_value__: userData.email
             }
           }
         ],
@@ -225,7 +237,13 @@ for (const environment of ['stage', 'production']) {
             type: 'text/html',
             value: 'Welcome to segment'
           }
-        ]
+        ],
+        tracking_settings: {
+          subscription_tracking: {
+            enable: true,
+            substitution_tag: '[unsubscribe]'
+          }
+        }
       }
 
       const sendGridRequest = nock('https://api.sendgrid.com')
@@ -290,9 +308,257 @@ for (const environment of ['stage', 'production']) {
           })
           fail('Test should throw an error')
         } catch (e) {
-          expect(e.message).toBe('Emails with gmailx.com, yahoox.com, aolx.com, and hotmailx.com domains are blocked.')
+          expect((e as unknown as any).message).toBe(
+            'Emails with gmailx.com, yahoox.com, aolx.com, and hotmailx.com domains are blocked.'
+          )
         }
       })
     }
+
+    it('should send email where HTML body is stored in S3', async () => {
+      const expectedSendGridRequest = {
+        personalizations: [
+          {
+            to: [
+              {
+                email: userData.email,
+                name: `${userData.firstName} ${userData.lastName}`
+              }
+            ],
+            bcc: [
+              {
+                email: 'test@test.com'
+              }
+            ],
+            custom_args: {
+              source_id: 'sourceId',
+              space_id: 'spaceId',
+              user_id: userData.userId,
+              __segment_internal_external_id_key__: 'email',
+              __segment_internal_external_id_value__: userData.email
+            }
+          }
+        ],
+        from: {
+          email: 'from@example.com',
+          name: 'From Name'
+        },
+        reply_to: {
+          email: 'replyto@example.com',
+          name: 'Test user'
+        },
+        subject: `Hello ${userData.lastName} ${userData.firstName}.`,
+        content: [
+          {
+            type: 'text/html',
+            value: `Hi ${userData.firstName}, welcome to Segment`
+          }
+        ],
+        tracking_settings: {
+          subscription_tracking: {
+            enable: true,
+            substitution_tag: '[unsubscribe]'
+          }
+        }
+      }
+
+      const s3Request = nock('https://s3.com')
+        .get('/body.txt')
+        .reply(200, 'Hi {{profile.traits.firstName}}, welcome to Segment')
+
+      const sendGridRequest = nock('https://api.sendgrid.com')
+        .post('/v3/mail/send', expectedSendGridRequest)
+        .reply(200, {})
+
+      const responses = await sendgrid.testAction('sendEmail', {
+        event: createTestEvent({
+          timestamp,
+          event: 'Audience Entered',
+          userId: userData.userId
+        }),
+        settings,
+        mapping: getDefaultMapping({
+          body: undefined,
+          bodyUrl: 'https://s3.com/body.txt',
+          bodyHtml: undefined
+        })
+      })
+
+      expect(responses.length).toBeGreaterThan(0)
+      expect(sendGridRequest.isDone()).toEqual(true)
+      expect(s3Request.isDone()).toEqual(true)
+    })
+
+    it('should send email where Unlayer body is stored in S3', async () => {
+      const expectedSendGridRequest = {
+        personalizations: [
+          {
+            to: [
+              {
+                email: userData.email,
+                name: `${userData.firstName} ${userData.lastName}`
+              }
+            ],
+            bcc: [
+              {
+                email: 'test@test.com'
+              }
+            ],
+            custom_args: {
+              source_id: 'sourceId',
+              space_id: 'spaceId',
+              user_id: userData.userId,
+              __segment_internal_external_id_key__: 'email',
+              __segment_internal_external_id_value__: userData.email
+            }
+          }
+        ],
+        from: {
+          email: 'from@example.com',
+          name: 'From Name'
+        },
+        reply_to: {
+          email: 'replyto@example.com',
+          name: 'Test user'
+        },
+        subject: `Hello ${userData.lastName} ${userData.firstName}.`,
+        content: [
+          {
+            type: 'text/html',
+            value: `<h1>Hi ${userData.firstName}, welcome to Segment</h1>`
+          }
+        ],
+        tracking_settings: {
+          subscription_tracking: {
+            enable: true,
+            substitution_tag: '[unsubscribe]'
+          }
+        }
+      }
+
+      const s3Request = nock('https://s3.com').get('/body.txt').reply(200, '{"unlayer":true}')
+
+      const unlayerRequest = nock('https://api.unlayer.com')
+        .post('/v2/export/html', {
+          displayMode: 'email',
+          design: {
+            unlayer: true
+          }
+        })
+        .reply(200, {
+          data: {
+            html: '<h1>Hi {{profile.traits.firstName}}, welcome to Segment</h1>'
+          }
+        })
+
+      const sendGridRequest = nock('https://api.sendgrid.com')
+        .post('/v3/mail/send', expectedSendGridRequest)
+        .reply(200, {})
+
+      const responses = await sendgrid.testAction('sendEmail', {
+        event: createTestEvent({
+          timestamp,
+          event: 'Audience Entered',
+          userId: userData.userId
+        }),
+        settings,
+        mapping: getDefaultMapping({
+          body: undefined,
+          bodyUrl: 'https://s3.com/body.txt',
+          bodyHtml: undefined,
+          bodyType: 'design'
+        })
+      })
+
+      expect(responses.length).toBeGreaterThan(0)
+      expect(sendGridRequest.isDone()).toEqual(true)
+      expect(s3Request.isDone()).toEqual(true)
+      expect(unlayerRequest.isDone()).toEqual(true)
+    })
+
+    it('insert preview text', async () => {
+      const expectedSendGridRequest = {
+        personalizations: [
+          {
+            to: [
+              {
+                email: userData.email,
+                name: `${userData.firstName} ${userData.lastName}`
+              }
+            ],
+            bcc: [
+              {
+                email: 'test@test.com'
+              }
+            ],
+            custom_args: {
+              source_id: 'sourceId',
+              space_id: 'spaceId',
+              user_id: userData.userId,
+              __segment_internal_external_id_key__: 'email',
+              __segment_internal_external_id_value__: userData.email
+            }
+          }
+        ],
+        from: {
+          email: 'from@example.com',
+          name: 'From Name'
+        },
+        reply_to: {
+          email: 'replyto@example.com',
+          name: 'Test user'
+        },
+        subject: `Hello ${userData.lastName} ${userData.firstName}.`,
+        content: [
+          {
+            type: 'text/html',
+            value: [
+              '<html><head></head><body>',
+              '    <div style="display: none; max-height: 0px; overflow: hidden;">',
+              '      Preview text',
+              '    </div>',
+              '',
+              '    <div style="display: none; max-height: 0px; overflow: hidden;">',
+              `      &nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;`,
+              '    </div>',
+              '  Hi First Name, welcome to Segment</body></html>'
+            ].join('\n')
+          }
+        ],
+        tracking_settings: {
+          subscription_tracking: {
+            enable: true,
+            substitution_tag: '[unsubscribe]'
+          }
+        }
+      }
+
+      const s3Request = nock('https://s3.com')
+        .get('/body.txt')
+        .reply(200, 'Hi {{profile.traits.firstName}}, welcome to Segment')
+
+      const sendGridRequest = nock('https://api.sendgrid.com')
+        .post('/v3/mail/send', expectedSendGridRequest)
+        .reply(200, {})
+
+      const responses = await sendgrid.testAction('sendEmail', {
+        event: createTestEvent({
+          timestamp,
+          event: 'Audience Entered',
+          userId: userData.userId
+        }),
+        settings,
+        mapping: getDefaultMapping({
+          previewText: 'Preview text',
+          body: undefined,
+          bodyUrl: 'https://s3.com/body.txt',
+          bodyHtml: undefined
+        })
+      })
+
+      expect(responses.length).toBeGreaterThan(0)
+      expect(sendGridRequest.isDone()).toEqual(true)
+      expect(s3Request.isDone()).toEqual(true)
+    })
   })
 }

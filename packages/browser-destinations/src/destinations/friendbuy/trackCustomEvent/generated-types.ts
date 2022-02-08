@@ -2,11 +2,11 @@
 
 export interface Payload {
   /**
-   * The name of the event to track.
+   * The type of the event to track.
    */
-  eventName: string
+  eventType: string
   /**
-   * Hash of other properties for the event being tracked. All of the fields in this object will be sent in the root of the Friendbuy track event.
+   * Object containing the properties for the event being tracked. All of the fields in this object will be sent in the root of the Friendbuy track event.
    */
   eventProperties: {
     [k: string]: unknown
@@ -16,11 +16,15 @@ export interface Payload {
    */
   deduplicationId?: string
   /**
-   * The user's customerId.
+   * The user's customer ID.
    */
   customerId: string
   /**
    * The user's anonymous id
    */
   anonymousId?: string
+  /**
+   * The user's email address.
+   */
+  email?: string
 }

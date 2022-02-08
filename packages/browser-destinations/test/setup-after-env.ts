@@ -1,3 +1,5 @@
+import { Crypto } from '@peculiar/webcrypto'
+
 beforeEach(() => {
   jest.restoreAllMocks()
   jest.resetAllMocks()
@@ -15,4 +17,6 @@ beforeEach(() => {
   jest.spyOn(global, 'document', 'get')
   jest.spyOn(console, 'error').mockImplementation(() => {})
   global.document.domain = 'segment.com'
+
+  global.crypto = new Crypto()
 })

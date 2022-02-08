@@ -3,6 +3,7 @@ import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 import PipedriveClient from '../pipedriveApi/pipedrive-client'
 import { createOrUpdateOrganizationById, Organization } from '../pipedriveApi/organizations'
+import { addCustomFieldsFromPayloadToEntity } from '../utils'
 
 const fieldHandler = PipedriveClient.fieldHandler
 
@@ -16,8 +17,7 @@ const action: ActionDefinition<Settings, Payload> = {
       description: 'If present, used instead of field in settings to find existing organization in Pipedrive.',
       type: 'string',
       required: false,
-      dynamic: true,
-      default: 'id'
+      dynamic: true
     },
     match_value: {
       label: 'Match value',
@@ -50,6 +50,13 @@ const action: ActionDefinition<Settings, Payload> = {
       description:
         'If the organization is created, use this timestamp as the creation timestamp. Format: YYY-MM-DD HH:MM:SS',
       type: 'datetime'
+    },
+
+    custom_fields: {
+      label: 'Custom fields',
+      description: 'New values for custom fields.',
+      type: 'object',
+      required: false
     }
   },
 
@@ -69,6 +76,8 @@ const action: ActionDefinition<Settings, Payload> = {
       add_time: payload.add_time ? `${payload.add_time}` : undefined,
       visible_to: payload.visible_to
     }
+
+    addCustomFieldsFromPayloadToEntity(payload, organization)
 
     return createOrUpdateOrganizationById(request, settings.domain, organizationId, organization)
   }
