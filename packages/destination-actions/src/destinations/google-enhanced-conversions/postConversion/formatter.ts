@@ -15,9 +15,13 @@ export function cleanData(data: DataValues): { [key: string]: unknown } {
   const obj: { [key: string]: unknown } = {}
   for (const key in data) {
     const value = data[key]
+    if (key === 'is_app_incrementality' && data[key] === 0) {
+      obj[key] = 0
+    }
     if (Array.isArray(value)) {
       // remove empty entries
       const filtered = value.filter((item) => item)
+      console.log(filtered)
       if (filtered.length !== 0) {
         obj[key] = filtered
       }

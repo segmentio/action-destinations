@@ -62,7 +62,8 @@ const action: ActionDefinition<Settings, Payload> = {
     },
     user_agent: {
       label: 'User Agent',
-      description: 'User agent of the individual who triggered the conversion event. This should match the user agent of the request that sent the original conversion so the conversion and its enhancement are either both attributed as same-device or both attributed as cross-device. This field is optional but recommended.',
+      description:
+        'User agent of the individual who triggered the conversion event. This should match the user agent of the request that sent the original conversion so the conversion and its enhancement are either both attributed as same-device or both attributed as cross-device. This field is optional but recommended.',
       type: 'string',
       default: {
         '@path': '$.context.userAgent'
@@ -77,6 +78,13 @@ const action: ActionDefinition<Settings, Payload> = {
         '@path': '$.timestamp'
       }
     },
+    is_app_incrementality: {
+      label: 'App Conversion for Incrementality Study',
+      description: 'Set to true if this is an app conversion for an incrementality study.',
+      type: 'boolean',
+      required: true,
+      default: false
+    },
     // Conversion Data Fields - These fields are relevant to the conversion, but are not PII, so need not be hashed.
     value: {
       label: 'Value',
@@ -88,7 +96,8 @@ const action: ActionDefinition<Settings, Payload> = {
     },
     currency_code: {
       label: 'Currency Code',
-      description: 'Currency of the purchase or items associated with the conversion event, in 3-letter ISO 4217 format.',
+      description:
+        'Currency of the purchase or items associated with the conversion event, in 3-letter ISO 4217 format.',
       type: 'string',
       default: {
         '@path': '$.properties.currency'
@@ -97,7 +106,8 @@ const action: ActionDefinition<Settings, Payload> = {
     // PII Fields - These fields must be hashed using SHA 256 and encoded as websafe-base64.
     phone_number: {
       label: 'Phone Number',
-      description: 'Phone number of the individual who triggered the conversion event, in E.164 standard format, e.g. +14150000000.',
+      description:
+        'Phone number of the individual who triggered the conversion event, in E.164 standard format, e.g. +14150000000.',
       type: 'string',
       default: {
         '@if': {
@@ -200,7 +210,8 @@ const action: ActionDefinition<Settings, Payload> = {
       conversion_time: +new Date(payload.conversion_time) * 1000,
       label: payload.conversion_label,
       value: payload.value,
-      currency_code: payload.currency_code
+      currency_code: payload.currency_code,
+      is_app_incrementality: payload.is_app_incrementality ? 1 : 0
     })
 
     const address = cleanData({
@@ -212,6 +223,8 @@ const action: ActionDefinition<Settings, Payload> = {
       postcode: payload.post_code,
       country: payload.country
     })
+
+    console.log('this is the conversionData:', conversionData)
 
     if (!payload.email && !Object.keys(address).length) {
       throw new IntegrationError(
