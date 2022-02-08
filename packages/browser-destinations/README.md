@@ -18,7 +18,7 @@ See the [Actions CLI](https://github.com/segmentio/action-destinations#actions-c
 
 ### Types
 
-When udating the types inside of your actions remember to regenerate the types of your integration by running this command in the top level directory.
+When updating the types inside of your actions remember to regenerate the types of your integration by running this command in the top level directory.
 
 ```
 bin/run generate:types
