@@ -1,6 +1,6 @@
 import { ActionDefinition, IntegrationError } from '@segment/actions-core'
 import { CURRENCY_ISO_CODES } from '../constants'
-import { client_id, items_multi_products } from '../ga4-properties'
+import { params, user_id, client_id, items_multi_products } from '../ga4-properties'
 import { ProductItem } from '../ga4-types'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
@@ -15,6 +15,7 @@ const action: ActionDefinition<Settings, Payload> = {
   defaultSubscription: 'type = "track" and event = "Product List Viewed"',
   fields: {
     client_id: { ...client_id },
+    user_id: { ...user_id },
     item_list_id: {
       label: 'Item List ID',
       type: 'string',
@@ -34,7 +35,8 @@ const action: ActionDefinition<Settings, Payload> = {
     items: {
       ...items_multi_products,
       required: true
-    }
+    },
+    params: params
   },
   perform: (request, { payload }) => {
     let googleItems: ProductItem[] = []
@@ -61,13 +63,15 @@ const action: ActionDefinition<Settings, Payload> = {
       method: 'POST',
       json: {
         client_id: payload.client_id,
+        user_id: payload.user_id,
         events: [
           {
             name: 'view_item_list',
             params: {
               item_list_id: payload.item_list_id,
               item_list_name: payload.item_list_name,
-              items: googleItems
+              items: googleItems,
+              ...payload.params
             }
           }
         ]

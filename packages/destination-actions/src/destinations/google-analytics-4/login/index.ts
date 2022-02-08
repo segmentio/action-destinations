@@ -1,7 +1,7 @@
 import type { ActionDefinition } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
-import { client_id } from '../ga4-properties'
+import { params, user_id, client_id } from '../ga4-properties'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Login',
@@ -9,11 +9,13 @@ const action: ActionDefinition<Settings, Payload> = {
   defaultSubscription: 'type = "track" and event = "Signed In"',
   fields: {
     client_id: { ...client_id },
+    user_id: { ...user_id },
     method: {
       label: 'Method',
       type: 'string',
       description: 'The method used to login.'
-    }
+    },
+    params: params
   },
 
   perform: (request, { payload }) => {
@@ -21,11 +23,13 @@ const action: ActionDefinition<Settings, Payload> = {
       method: 'POST',
       json: {
         client_id: payload.client_id,
+        user_id: payload.user_id,
         events: [
           {
             name: 'login',
             params: {
-              method: payload.method
+              method: payload.method,
+              ...payload.params
             }
           }
         ]
