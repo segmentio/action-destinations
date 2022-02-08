@@ -75,7 +75,6 @@ describe('GoogleEnhancedConversions', () => {
           }
         }
       })
-
       if (event?.context?.userAgent) { delete event.context.userAgent }
 
       nock('https://www.google.com/ads/event/api/v1')
