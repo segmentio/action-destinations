@@ -1,7 +1,7 @@
 import type { ActionDefinition } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
-import { client_id, user_id } from '../ga4-properties'
+import { params, client_id, user_id } from '../ga4-properties'
 
 const normalizeEventName = (name: string, lowercase: boolean | undefined): string => {
   name = name.trim()
@@ -37,13 +37,7 @@ const action: ActionDefinition<Settings, Payload> = {
       type: 'boolean',
       default: false
     },
-    params: {
-      label: 'Event Parameters',
-      description: 'The event parameters to send to Google',
-      type: 'object',
-      additionalProperties: true,
-      default: { '@path': '$.properties' }
-    }
+    params: { ...params, default: { '@path': '$.properties' } }
   },
   perform: (request, { payload }) => {
     const event_name = normalizeEventName(payload.name, payload.lowercase)

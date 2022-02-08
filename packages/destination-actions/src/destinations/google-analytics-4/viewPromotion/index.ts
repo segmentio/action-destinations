@@ -8,7 +8,8 @@ import {
   client_id,
   user_id,
   minimal_items,
-  items_single_products
+  items_single_products,
+  params
 } from '../ga4-properties'
 import { PromotionProductItem } from '../ga4-types'
 import type { Settings } from '../generated-types'
@@ -55,7 +56,8 @@ const action: ActionDefinition<Settings, Payload> = {
           ...promotion_id
         }
       }
-    }
+    },
+    params: params
   },
 
   perform: (request, { payload }) => {
@@ -89,7 +91,8 @@ const action: ActionDefinition<Settings, Payload> = {
               location_id: payload.location_id,
               promotion_id: payload.promotion_id,
               promotion_name: payload.promotion_name,
-              items: googleItems
+              items: googleItems,
+              ...payload.params
             }
           }
         ]

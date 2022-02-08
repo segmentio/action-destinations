@@ -1,7 +1,7 @@
 import type { ActionDefinition } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
-import { user_id, client_id } from '../ga4-properties'
+import { params, user_id, client_id } from '../ga4-properties'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Search',
@@ -18,7 +18,8 @@ const action: ActionDefinition<Settings, Payload> = {
       default: {
         '@path': `$.properties.query`
       }
-    }
+    },
+    params: params
   },
   perform: (request, { payload }) => {
     return request('https://www.google-analytics.com/mp/collect', {
@@ -30,7 +31,8 @@ const action: ActionDefinition<Settings, Payload> = {
           {
             name: 'search',
             params: {
-              search_term: payload.search_term
+              search_term: payload.search_term,
+              ...payload.params
             }
           }
         ]

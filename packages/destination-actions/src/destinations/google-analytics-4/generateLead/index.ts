@@ -2,7 +2,7 @@ import { ActionDefinition, IntegrationError } from '@segment/actions-core'
 import { CURRENCY_ISO_CODES } from '../constants'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
-import { client_id, user_id, currency, value } from '../ga4-properties'
+import { params, client_id, user_id, currency, value } from '../ga4-properties'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Generate Lead',
@@ -12,7 +12,8 @@ const action: ActionDefinition<Settings, Payload> = {
     client_id: { ...client_id },
     user_id: { ...user_id },
     currency: { ...currency },
-    value: { ...value }
+    value: { ...value },
+    params: params
   },
   perform: (request, { payload }) => {
     if (payload.currency && !CURRENCY_ISO_CODES.includes(payload.currency)) {
@@ -34,7 +35,8 @@ const action: ActionDefinition<Settings, Payload> = {
             name: 'generate_lead',
             params: {
               currency: payload.currency,
-              value: payload.value
+              value: payload.value,
+              ...payload.params
             }
           }
         ]

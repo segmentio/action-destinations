@@ -3,7 +3,7 @@ import { CURRENCY_ISO_CODES } from '../constants'
 import { ProductItem } from '../ga4-types'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
-import { user_id, client_id, items_single_products } from '../ga4-properties'
+import { params, user_id, client_id, items_single_products } from '../ga4-properties'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Select Item',
@@ -25,7 +25,8 @@ const action: ActionDefinition<Settings, Payload> = {
     items: {
       ...items_single_products,
       required: true
-    }
+    },
+    params: params
   },
   perform: (request, { payload }) => {
     let googleItems: ProductItem[] = []
@@ -59,7 +60,8 @@ const action: ActionDefinition<Settings, Payload> = {
             params: {
               items: googleItems,
               item_list_name: payload.item_list_name,
-              item_list_id: payload.item_list_id
+              item_list_id: payload.item_list_id,
+              ...payload.params
             }
           }
         ]

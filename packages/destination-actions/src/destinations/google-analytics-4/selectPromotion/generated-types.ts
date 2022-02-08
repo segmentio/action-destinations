@@ -126,4 +126,10 @@ export interface Payload {
      */
     promotion_id?: string
   }[]
+  /**
+   * The event parameters to send to Google
+   */
+  params?: {
+    [k: string]: unknown
+  }
 }

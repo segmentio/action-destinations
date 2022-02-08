@@ -1,7 +1,7 @@
 import type { ActionDefinition } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
-import { user_id, client_id } from '../ga4-properties'
+import { params, user_id, client_id } from '../ga4-properties'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Login',
@@ -14,7 +14,8 @@ const action: ActionDefinition<Settings, Payload> = {
       label: 'Method',
       type: 'string',
       description: 'The method used to login.'
-    }
+    },
+    params: params
   },
 
   perform: (request, { payload }) => {
@@ -27,7 +28,8 @@ const action: ActionDefinition<Settings, Payload> = {
           {
             name: 'login',
             params: {
-              method: payload.method
+              method: payload.method,
+              ...payload.params
             }
           }
         ]

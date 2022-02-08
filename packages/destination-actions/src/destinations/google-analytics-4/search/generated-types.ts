@@ -13,4 +13,10 @@ export interface Payload {
    * The term that was searched for.
    */
   search_term: string
+  /**
+   * The event parameters to send to Google
+   */
+  params?: {
+    [k: string]: unknown
+  }
 }

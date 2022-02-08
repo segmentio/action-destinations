@@ -13,7 +13,8 @@ import {
   affiliation,
   shipping,
   tax,
-  items_multi_products
+  items_multi_products,
+  params
 } from '../ga4-properties'
 
 // https://segment.com/docs/connections/spec/ecommerce/v2/#order-completed
@@ -37,7 +38,8 @@ const action: ActionDefinition<Settings, Payload> = {
     transaction_id: { ...transaction_id, required: true },
     shipping: { ...shipping },
     tax: { ...tax },
-    value: { ...value, default: { '@path': '$.properties.total' } }
+    value: { ...value, default: { '@path': '$.properties.total' } },
+    params: params
   },
   perform: (request, { payload }) => {
     if (!CURRENCY_ISO_CODES.includes(payload.currency)) {
@@ -80,7 +82,8 @@ const action: ActionDefinition<Settings, Payload> = {
               transaction_id: payload.transaction_id,
               shipping: payload.shipping,
               value: payload.value,
-              tax: payload.tax
+              tax: payload.tax,
+              ...payload.params
             }
           }
         ]

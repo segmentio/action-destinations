@@ -17,4 +17,10 @@ export interface Payload {
    * Previous page URL
    */
   page_referrer?: string
+  /**
+   * The event parameters to send to Google
+   */
+  params?: {
+    [k: string]: unknown
+  }
 }

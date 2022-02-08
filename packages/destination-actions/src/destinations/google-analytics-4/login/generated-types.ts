@@ -13,4 +13,10 @@ export interface Payload {
    * The method used to login.
    */
   method?: string
+  /**
+   * The event parameters to send to Google
+   */
+  params?: {
+    [k: string]: unknown
+  }
 }

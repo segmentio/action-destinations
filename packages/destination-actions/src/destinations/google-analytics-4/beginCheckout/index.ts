@@ -1,6 +1,6 @@
 import { ActionDefinition, IntegrationError } from '@segment/actions-core'
 import { CURRENCY_ISO_CODES } from '../constants'
-import { coupon, currency, client_id, value, items_multi_products, user_id } from '../ga4-properties'
+import { params, coupon, currency, client_id, value, items_multi_products, user_id } from '../ga4-properties'
 import { ProductItem } from '../ga4-types'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
@@ -20,7 +20,8 @@ const action: ActionDefinition<Settings, Payload> = {
       ...items_multi_products,
       required: true
     },
-    value: { ...value }
+    value: { ...value },
+    params: params
   },
   perform: (request, { payload }) => {
     if (payload.currency && !CURRENCY_ISO_CODES.includes(payload.currency)) {
@@ -59,7 +60,8 @@ const action: ActionDefinition<Settings, Payload> = {
               coupon: payload.coupon,
               currency: payload.currency,
               items: googleItems,
-              value: payload.value
+              value: payload.value,
+              ...payload.params
             }
           }
         ]

@@ -9,7 +9,8 @@ import {
   value,
   affiliation,
   shipping,
-  items_multi_products
+  items_multi_products,
+  params
 } from '../ga4-properties'
 import { ProductItem } from '../ga4-types'
 import type { Settings } from '../generated-types'
@@ -35,7 +36,8 @@ const action: ActionDefinition<Settings, Payload> = {
     },
     items: {
       ...items_multi_products
-    }
+    },
+    params: params
   },
   perform: (request, { payload }) => {
     if (payload.currency && !CURRENCY_ISO_CODES.includes(payload.currency)) {
@@ -96,7 +98,8 @@ const action: ActionDefinition<Settings, Payload> = {
               coupon: payload.coupon,
               shipping: payload.shipping,
               tax: payload.tax,
-              items: googleItems
+              items: googleItems,
+              ...payload.params
             }
           }
         ]

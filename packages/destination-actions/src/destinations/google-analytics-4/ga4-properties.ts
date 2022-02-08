@@ -1,5 +1,11 @@
 import { InputField } from '@segment/actions-core/src/destination-kit/types'
 
+export const params: InputField = {
+  label: 'Event Parameters',
+  description: 'The event parameters to send to Google',
+  type: 'object',
+  additionalProperties: true
+}
 export const user_id: InputField = {
   label: 'User ID',
   type: 'string',

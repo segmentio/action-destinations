@@ -106,4 +106,10 @@ export interface Payload {
      */
     quantity?: number
   }[]
+  /**
+   * The event parameters to send to Google
+   */
+  params?: {
+    [k: string]: unknown
+  }
 }

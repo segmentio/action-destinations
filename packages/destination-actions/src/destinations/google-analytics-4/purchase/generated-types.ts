@@ -118,4 +118,10 @@ export interface Payload {
    * The monetary value of the event.
    */
   value?: number
+  /**
+   * The event parameters to send to Google
+   */
+  params?: {
+    [k: string]: unknown
+  }
 }

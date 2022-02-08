@@ -1,7 +1,7 @@
 import type { ActionDefinition } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
-import { user_id, client_id } from '../ga4-properties'
+import { params, user_id, client_id } from '../ga4-properties'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Sign Up',
@@ -17,7 +17,8 @@ const action: ActionDefinition<Settings, Payload> = {
       default: {
         '@path': `$.properties.type`
       }
-    }
+    },
+    params: params
   },
   perform: (request, { payload }) => {
     return request('https://www.google-analytics.com/mp/collect', {
@@ -29,7 +30,8 @@ const action: ActionDefinition<Settings, Payload> = {
           {
             name: 'sign_up',
             params: {
-              method: payload.method
+              method: payload.method,
+              ...payload.params
             }
           }
         ]

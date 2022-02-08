@@ -3,7 +3,16 @@ import { CURRENCY_ISO_CODES } from '../constants'
 import { ProductItem } from '../ga4-types'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
-import { user_id, client_id, currency, value, coupon, payment_type, items_multi_products } from '../ga4-properties'
+import {
+  user_id,
+  client_id,
+  currency,
+  value,
+  coupon,
+  payment_type,
+  items_multi_products,
+  params
+} from '../ga4-properties'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Add Payment Info',
@@ -19,7 +28,8 @@ const action: ActionDefinition<Settings, Payload> = {
     items: {
       ...items_multi_products,
       required: true
-    }
+    },
+    params: params
   },
   perform: (request, { payload }) => {
     if (payload.currency && !CURRENCY_ISO_CODES.includes(payload.currency)) {
@@ -77,7 +87,8 @@ const action: ActionDefinition<Settings, Payload> = {
               value: payload.value,
               coupon: payload.coupon,
               payment_type: payload.payment_type,
-              items: googleItems
+              items: googleItems,
+              ...payload.params
             }
           }
         ]
