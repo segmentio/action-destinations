@@ -78,13 +78,6 @@ const action: ActionDefinition<Settings, Payload> = {
         '@path': '$.timestamp'
       }
     },
-    is_app_incrementality: {
-      label: 'App Conversion for Incrementality Study',
-      description: 'Set to true if this is an app conversion for an incrementality study.',
-      type: 'boolean',
-      required: true,
-      default: false
-    },
     // Conversion Data Fields - These fields are relevant to the conversion, but are not PII, so need not be hashed.
     value: {
       label: 'Value',
@@ -102,6 +95,12 @@ const action: ActionDefinition<Settings, Payload> = {
       default: {
         '@path': '$.properties.currency'
       }
+    },
+    is_app_incrementality: {
+      label: 'App Conversion for Incrementality Study',
+      description: 'Set to true if this is an app conversion for an incrementality study.',
+      type: 'boolean',
+      default: false
     },
     // PII Fields - These fields must be hashed using SHA 256 and encoded as websafe-base64.
     phone_number: {
@@ -223,8 +222,6 @@ const action: ActionDefinition<Settings, Payload> = {
       postcode: payload.post_code,
       country: payload.country
     })
-
-    console.log('this is the conversionData:', conversionData)
 
     if (!payload.email && !Object.keys(address).length) {
       throw new IntegrationError(
