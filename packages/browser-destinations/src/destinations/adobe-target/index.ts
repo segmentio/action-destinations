@@ -9,10 +9,12 @@ import upsertProfile from './upsertProfile'
 declare global {
   interface Window {
     adobe: Adobe
+    targetPageParams: Function
+    pageParams: Object
   }
 }
 
-export const destination: BrowserDestinationDefinition<Settings, unknown> = {
+export const destination: BrowserDestinationDefinition<Settings, Adobe> = {
   name: 'Adobe Target Web',
   slug: 'actions-adobe-target-web',
   mode: 'device',
