@@ -20,9 +20,15 @@ describe('CustomerIO', () => {
       const userId = 'abc123'
       const screen = 'Page One'
       const timestamp = dayjs.utc().toISOString()
+      const birthdate = dayjs.utc('1990-01-01T00:00:00Z').toISOString()
       const data = {
         property1: 'this is a test',
-        screen
+        screen,
+        person: {
+          over18: true,
+          identification: 'valid',
+          birthdate
+        }
       }
       trackScreenViewService.post(`/customers/${userId}/events`).reply(200, {}, { 'x-customerio-region': 'US' })
       const event = createTestEvent({
@@ -48,8 +54,14 @@ describe('CustomerIO', () => {
       expect(responses[0].options.json).toMatchObject({
         name: screen,
         type,
-        data,
-        timestamp: dayjs.utc(timestamp).unix()
+        timestamp: dayjs.utc(timestamp).unix(),
+        data: {
+          ...data,
+          person: {
+            ...data.person,
+            birthdate: dayjs.utc(birthdate).unix()
+          }
+        }
       })
     })
 
@@ -117,7 +129,44 @@ describe('CustomerIO', () => {
       }
     })
 
-    it('should not convert tiemstamp to a unix timestamp when convert_timestamp is false', async () => {
+    it("should not convert timestamp if it's invalid", async () => {
+      const settings: Settings = {
+        siteId: '12345',
+        apiKey: 'abcde',
+        accountRegion: AccountRegion.US
+      }
+      const userId = 'abc123'
+      const screen = 'Page One'
+      const timestamp = '2018-03-04T12:08:56.235 PDT'
+      const data = {
+        property1: 'this is a test',
+        screen
+      }
+      trackScreenViewService.post(`/customers/${userId}/events`).reply(200, {}, { 'x-customerio-region': 'US' })
+      const event = createTestEvent({
+        type: 'screen',
+        name: screen,
+        userId,
+        properties: data,
+        timestamp
+      })
+      const responses = await testDestination.testAction('trackScreenView', {
+        event,
+        settings,
+        useDefaultMappings: true
+      })
+
+      expect(responses.length).toBe(1)
+      expect(responses[0].status).toBe(200)
+      expect(responses[0].options.json).toMatchObject({
+        name: screen,
+        type,
+        data,
+        timestamp
+      })
+    })
+
+    it('should not convert dates to unix timestamps when convert_timestamp is false', async () => {
       const settings: Settings = {
         siteId: '12345',
         apiKey: 'abcde',
@@ -126,9 +175,15 @@ describe('CustomerIO', () => {
       const userId = 'abc123'
       const screen = 'Page One'
       const timestamp = dayjs.utc().toISOString()
+      const birthdate = dayjs.utc('1990-01-01T00:00:00Z').toISOString()
       const data = {
         property1: 'this is a test',
-        screen
+        screen,
+        person: {
+          over18: true,
+          identification: 'valid',
+          birthdate
+        }
       }
       trackScreenViewService.post(`/customers/${userId}/events`).reply(200, {}, { 'x-customerio-region': 'US' })
       const event = createTestEvent({

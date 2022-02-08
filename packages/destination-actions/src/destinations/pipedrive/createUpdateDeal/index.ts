@@ -4,6 +4,7 @@ import type { Payload } from './generated-types'
 import PipedriveClient from '../pipedriveApi/pipedrive-client'
 import { createUpdateDeal, Deal } from '../pipedriveApi/deals'
 import { IntegrationError } from '@segment/actions-core'
+import { addCustomFieldsFromPayloadToEntity } from '../utils'
 
 const fieldHandler = PipedriveClient.fieldHandler
 
@@ -17,8 +18,7 @@ const action: ActionDefinition<Settings, Payload> = {
       description: 'If present, used instead of field in settings to find existing deal in Pipedrive.',
       type: 'string',
       required: false,
-      dynamic: true,
-      default: 'id'
+      dynamic: true
     },
     deal_match_value: {
       label: 'Deal match value',
@@ -34,8 +34,7 @@ const action: ActionDefinition<Settings, Payload> = {
       description: 'If present, used instead of field in settings to find existing person in Pipedrive.',
       type: 'string',
       required: false,
-      dynamic: true,
-      default: 'id'
+      dynamic: true
     },
     person_match_value: {
       label: 'Person match value',
@@ -52,8 +51,7 @@ const action: ActionDefinition<Settings, Payload> = {
       description: 'If present, used instead of field in settings to find existing organization in Pipedrive.',
       type: 'string',
       required: false,
-      dynamic: true,
-      default: 'id'
+      dynamic: true
     },
     organization_match_value: {
       label: 'Organization match value',
@@ -138,6 +136,13 @@ const action: ActionDefinition<Settings, Payload> = {
       description: 'If the deal is created, use this timestamp as the creation timestamp. Format: YYY-MM-DD HH:MM:SS',
       type: 'datetime',
       required: false
+    },
+
+    custom_fields: {
+      label: 'Custom fields',
+      description: 'New values for custom fields.',
+      type: 'object',
+      required: false
     }
   },
 
@@ -183,6 +188,8 @@ const action: ActionDefinition<Settings, Payload> = {
         400
       )
     }
+
+    addCustomFieldsFromPayloadToEntity(payload, deal)
 
     return createUpdateDeal(client, deal)
   }

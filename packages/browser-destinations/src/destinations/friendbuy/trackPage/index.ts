@@ -4,7 +4,7 @@ import type { BrowserActionDefinition } from '../../../lib/browser-destinations'
 import type { FriendbuyAPI } from '../types'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
-import { createFriendbuyPayload } from '../util'
+import { createFriendbuyPayload } from '@segment/actions-shared'
 
 export const trackPageDefaultSubscription = 'type = "page"'
 
@@ -35,7 +35,8 @@ export const trackPageFields: Record<string, InputField> = {
 
 const action: BrowserActionDefinition<Settings, FriendbuyAPI, Payload> = {
   title: 'Track Page',
-  description: 'Record when a customer visits a new page. Allow Friendbuy widget targeting by Page Name instead of URL.',
+  description:
+    'Record when a customer visits a new page. Allow Friendbuy widget targeting by Page Name instead of URL.',
   defaultSubscription: trackPageDefaultSubscription,
   platform: 'web',
   fields: trackPageFields,

@@ -4,7 +4,8 @@ import type { Payload } from './generated-types'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Alias',
-  description: 'Create an alias to a distinct id',
+  description:
+    'Create an alias to a distinct id. This action is primarily supported for the sake of customers using the legacy identity management in their Mixpanel project. For new customers or those who have [migrated](https://help.mixpanel.com/hc/en-us/articles/360039133851-Moving-to-Identity-Merge?source=segment-actions) to the [new identity management](https://help.mixpanel.com/hc/en-us/articles/360041039771-Getting-Started-with-Identity-Management?source=segment-actions) in Mixpanel should use `identify`.',
   fields: {
     alias: {
       label: 'Alias',

@@ -1,6 +1,6 @@
 import { Analytics, Context, JSONValue } from '@segment/analytics-next'
 import friendbuyDestination from '../../index'
-import trackPurchaseObject, { trackPurchaseDefaultSubscription, trackPurchaseFields } from '../index'
+import trackPurchaseObject, { browserTrackPurchaseFields, trackPurchaseDefaultSubscription } from '../index'
 
 import { loadScript } from '../../../../runtime/load-script'
 jest.mock('../../../../runtime/load-script')
@@ -16,7 +16,9 @@ describe('Friendbuy.trackPurchase', () => {
       name: trackPurchaseObject.title,
       enabled: true,
       subscribe: trackPurchaseDefaultSubscription,
-      mapping: Object.fromEntries(Object.entries(trackPurchaseFields).map(([name, value]) => [name, value.default]))
+      mapping: Object.fromEntries(
+        Object.entries(browserTrackPurchaseFields).map(([name, value]) => [name, value.default])
+      )
     }
   ]
 
@@ -41,8 +43,10 @@ describe('Friendbuy.trackPurchase', () => {
     const anonymousId = 'cbce64f6-a45a-4d9c-a63d-4c7b42773276'
     const currency = 'USD'
     const coupon = 'coupon-xyzzy'
+    const attributionId = '878123ed-0439-4a73-b2fe-72c4f09ec64f'
+    const referralCode = 'ref-plugh'
     const giftCardCodes = ['card-a', 'card-b']
-    const friendbuyAttributes = { referralCode: 'ref-plugh' }
+    const friendbuyAttributes = { promotion: 'fall 2021' }
     const email = 'john.doe@example.com'
     const name = 'John Doe'
 
@@ -59,12 +63,12 @@ describe('Friendbuy.trackPurchase', () => {
     jest.spyOn(window.friendbuyAPI as any, 'push')
 
     const expectedProducts = products.map((p) => {
-      p = { quantity: 1, ...p }
+      p = { sku: 'unknown', name: 'unknown', quantity: 1, ...p }
       if (p.image_url) {
-        p.imageUrl = p.image_url;
-        delete p.image_url;
+        p.imageUrl = p.image_url
+        delete p.image_url
       }
-      return p;
+      return p
     })
     const amount = expectedProducts.reduce((acc, p) => acc + p.price * p.quantity, 0)
 
@@ -82,6 +86,8 @@ describe('Friendbuy.trackPurchase', () => {
           total: amount + 2,
           currency,
           coupon,
+          attributionId,
+          referralCode,
           giftCardCodes,
           products: products as JSONValue,
           email,
@@ -102,6 +108,8 @@ describe('Friendbuy.trackPurchase', () => {
           amount: amount + 2, // amount defaults to total
           currency,
           couponCode: coupon,
+          attributionId,
+          referralCode,
           giftCardCodes,
           customer: { id: userId, anonymousId, email, name },
           products: expectedProducts,
@@ -109,8 +117,8 @@ describe('Friendbuy.trackPurchase', () => {
         },
         true
       ])
-      expect(window.friendbuyAPI.push.mock.calls[0][0][2].products[1].quantity).toBe(1);
-      expect(window.friendbuyAPI.push.mock.calls[0][0][2].products[2].imageUrl).toBe(products[2].image_url);
+      expect(window.friendbuyAPI.push.mock.calls[0][0][2].products[1].quantity).toBe(1)
+      expect(window.friendbuyAPI.push.mock.calls[0][0][2].products[2].imageUrl).toBe(products[2].image_url)
     }
 
     {

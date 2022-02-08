@@ -1,6 +1,10 @@
-import type { ActionDefinition } from '@segment/actions-core'
+import { ActionDefinition, IntegrationError } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
+
+function isValidSlackUrl(webhookUrl: string): boolean {
+  return /^https:\/\/[a-zA-Z0-9.-]+\.slack.com[/a-zA-Z0-9]+$/.test(webhookUrl)
+}
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Post Message',
@@ -42,15 +46,19 @@ const action: ActionDefinition<Settings, Payload> = {
   },
 
   perform: (request, { payload }) => {
-    return request(payload.url, {
-      method: 'post',
-      json: {
-        channel: payload.channel,
-        text: payload.text,
-        username: payload.username,
-        icon_url: payload.icon_url
-      }
-    })
+    if (!isValidSlackUrl(payload.url)) {
+      throw new IntegrationError('Invalid Slack URL', 'Bad Request', 400)
+    } else {
+      return request(payload.url, {
+        method: 'post',
+        json: {
+          channel: payload.channel,
+          text: payload.text,
+          username: payload.username,
+          icon_url: payload.icon_url
+        }
+      })
+    }
   }
 }
 

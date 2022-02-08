@@ -5,11 +5,12 @@ import { defaultValues } from '@segment/actions-core'
 
 import type { Settings } from './generated-types'
 import type { FriendbuyAPI } from './types'
-import trackCustomer, { trackCustomerDefaultSubscription, trackCustomerFields } from './trackCustomer'
-import trackPurchase, { trackPurchaseDefaultSubscription, trackPurchaseFields } from './trackPurchase'
-import trackSignUp, { trackSignUpDefaultSubscription, trackSignUpFields } from './trackSignUp'
+import trackCustomer, { trackCustomerDefaultSubscription } from './trackCustomer'
+import trackPurchase, { browserTrackPurchaseFields, trackPurchaseDefaultSubscription } from './trackPurchase'
+import trackSignUp, { browserTrackSignUpFields, trackSignUpDefaultSubscription } from './trackSignUp'
 import trackPage, { trackPageDefaultSubscription, trackPageFields } from './trackPage'
 import trackCustomEvent from './trackCustomEvent'
+import { trackCustomerFields } from '@segment/actions-shared'
 
 declare global {
   interface Window {
@@ -30,13 +31,13 @@ const presets: DestinationDefinition['presets'] = [
     name: 'Track Purchase',
     subscribe: trackPurchaseDefaultSubscription,
     partnerAction: 'trackPurchase',
-    mapping: defaultValues(trackPurchaseFields)
+    mapping: defaultValues(browserTrackPurchaseFields)
   },
   {
     name: 'Track Sign Up',
     subscribe: trackSignUpDefaultSubscription,
     partnerAction: 'trackSignUp',
-    mapping: defaultValues(trackSignUpFields)
+    mapping: defaultValues(browserTrackSignUpFields)
   },
   {
     name: 'Track Page',
@@ -47,8 +48,8 @@ const presets: DestinationDefinition['presets'] = [
 ]
 
 export const destination: BrowserDestinationDefinition<Settings, FriendbuyAPI> = {
-  name: 'Friendbuy Web Device Mode (Actions)',
-  slug: 'actions-friendbuy-web',
+  name: 'Friendbuy (Web Destination)',
+  slug: 'actions-friendbuy',
   mode: 'device',
 
   settings: {
@@ -71,8 +72,8 @@ export const destination: BrowserDestinationDefinition<Settings, FriendbuyAPI> =
     friendbuyAPI.push(['merchant', settings.merchantId])
 
     // The Friendbuy JavaScript can be loaded asynchronously.
-    void dependencies.loadScript(`https://static.${friendbuyBaseHost}/friendbuy.js`),
-      void dependencies.loadScript(`https://campaign.${friendbuyBaseHost}/${settings.merchantId}/campaigns.js`)
+    void dependencies.loadScript(`https://static.${friendbuyBaseHost}/friendbuy.js`)
+    void dependencies.loadScript(`https://campaign.${friendbuyBaseHost}/${settings.merchantId}/campaigns.js`)
 
     return friendbuyAPI
   },

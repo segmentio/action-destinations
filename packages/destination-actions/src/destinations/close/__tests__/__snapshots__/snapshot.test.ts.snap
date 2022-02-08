@@ -1,0 +1,32 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Testing snapshot for close destination: createUpdateContactAndLead action - all fields 1`] = `
+Object {
+  "action_payload": Object {
+    "contact_custom_fields": Object {
+      "testType": "Bbzz5]ZQl",
+    },
+    "contact_email": "Bbzz5]ZQl",
+    "contact_external_id": "Bbzz5]ZQl",
+    "contact_name": "Bbzz5]ZQl",
+    "contact_phone": "Bbzz5]ZQl",
+    "contact_title": "Bbzz5]ZQl",
+    "contact_url": "Bbzz5]ZQl",
+    "lead_name": "Bbzz5]ZQl",
+  },
+  "settings": Object {
+    "contact_custom_field_id_for_user_id": "Bbzz5]ZQl",
+  },
+}
+`;
+
+exports[`Testing snapshot for close destination: createUpdateContactAndLead action - required fields 1`] = `
+Object {
+  "action_payload": Object {
+    "contact_external_id": "Bbzz5]ZQl",
+  },
+  "settings": Object {
+    "contact_custom_field_id_for_user_id": "Bbzz5]ZQl",
+  },
+}
+`;

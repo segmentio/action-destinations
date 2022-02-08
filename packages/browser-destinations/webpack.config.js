@@ -7,12 +7,6 @@ const webpack = require('webpack')
 
 const files = globby.sync('./src/destinations/*/index.ts')
 const isProd = process.env.NODE_ENV === 'production'
-const assetPath =
-  process.env.ASSET_ENV === 'production'
-    ? 'https://cdn.segment.com/next-integrations/actions/'
-    : process.env.ASSET_ENV === 'stage'
-    ? 'https://cdn.segment.build/next-integrations/actions/'
-    : undefined
 
 const entries = files.reduce((acc, current) => {
   const [_dot, _src, _destinations, destination, ..._rest] = current.split('/')
@@ -48,7 +42,7 @@ module.exports = {
   output: {
     filename: process.env.NODE_ENV === 'development' ? '[name].js' : '[name]/[contenthash].js',
     path: path.resolve(__dirname, 'dist/web'),
-    publicPath: assetPath,
+    publicPath: 'auto', // Needed for customers using custom CDNs with analytics.js
     library: '[name]Destination',
     libraryTarget: 'umd',
     libraryExport: 'default'

@@ -10,7 +10,7 @@ const settings = {
 describe('FacebookConversionsApi', () => {
   describe('InitiateCheckout', () => {
     it('should handle basic mapping overrides', async () => {
-      nock(`https://graph.facebook.com/v11.0/${settings.pixelId}`).post(`/events`).reply(201, {})
+      nock(`https://graph.facebook.com/v12.0/${settings.pixelId}`).post(`/events`).reply(201, {})
 
       const event = createTestEvent({
         event: 'Checkout Started',
@@ -53,7 +53,7 @@ describe('FacebookConversionsApi', () => {
     })
 
     it('should throw an error for invalid currency values', async () => {
-      nock(`https://graph.facebook.com/v11.0/${settings.pixelId}`).post(`/events`).reply(201, {})
+      nock(`https://graph.facebook.com/v12.0/${settings.pixelId}`).post(`/events`).reply(201, {})
 
       const event = createTestEvent({
         event: 'Checkout Started',
@@ -95,7 +95,7 @@ describe('FacebookConversionsApi', () => {
     })
 
     it('should handle default mappings', async () => {
-      nock(`https://graph.facebook.com/v11.0/${settings.pixelId}`).post(`/events`).reply(201, {})
+      nock(`https://graph.facebook.com/v12.0/${settings.pixelId}`).post(`/events`).reply(201, {})
 
       const event = createTestEvent({
         event: 'Checkout Started',
@@ -124,7 +124,7 @@ describe('FacebookConversionsApi', () => {
     })
 
     it('should throw an error if no user_data keys are included', async () => {
-      nock(`https://graph.facebook.com/v11.0/${settings.pixelId}`).post(`/events`).reply(201, {})
+      nock(`https://graph.facebook.com/v12.0/${settings.pixelId}`).post(`/events`).reply(201, {})
 
       const event = createTestEvent({
         event: 'Checkout Started',
