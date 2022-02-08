@@ -9,7 +9,7 @@ actions-shared/ @segmentio/build-experience-team
 ajv-human-errors/ @segmentio/build-experience-team
 
 # Browser destinations
-browser-destinations/ @pooyaj
+browser-destinations/ @segmentio/libraries-web-team 
 
 # CLI private libs
 cli-internal/ @segmentio/build-experience-team
