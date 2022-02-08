@@ -2,19 +2,17 @@ export const endpoints = {
   track: {
     north_america: 'https://segment-esp.aptrinsic.com/rte/segmentio/v1/push',
     europe: 'https://segment-esp-eu.aptrinsic.com/rte/segmentio/v1/push',
-    dev: 'https://esp-dev.aptrinsic.com/rte/segmentio/v1/push',
-    // dev: 'http://localhost:8080/rte/segmentio/v1/push',
+    us2: 'https://segment-esp-us2.aptrinsic.com/rte/segmentio/v1/push',
 
   },
   batch: {
     north_america: 'https://segment-esp.aptrinsic.com/rte/segmentio/v1/batch',
     europe: 'https://segment-esp-eu.aptrinsic.com/rte/segmentio/v1/batch',
-    dev: 'https://esp-dev.aptrinsic.com/rte/segmentio/v1/batch',
-    // dev: 'http://localhost:8080/rte/segmentio/v1/batch',
+    us2: 'https://segment-esp-us2.aptrinsic.com/rte/segmentio/v1/push',
   },
 }
 
-type Region = 'north_america' | 'europe' | 'dev'
+type Region = 'north_america' | 'europe' | 'us2'
 
 /**
  * Retrieves Gainsight PX API endpoints for a given region. If the region

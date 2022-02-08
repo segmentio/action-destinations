@@ -65,6 +65,10 @@ const destination: DestinationDefinition<Settings> = {
           {
             label: 'Europe',
             value: 'europe'
+          },
+          {
+            label: 'US2',
+            value: 'us2'
           }
         ]
       }
