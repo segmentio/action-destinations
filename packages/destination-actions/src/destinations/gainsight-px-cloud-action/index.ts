@@ -38,8 +38,8 @@ const presets: DestinationDefinition['presets'] = [
 ]
 
 const destination: DestinationDefinition<Settings> = {
-  name: 'Gainsight Px Cloud Action',
-  slug: 'gainsight-px-cloud-action',
+  name: 'Gainsight PX Cloud (Actions)',
+  slug: 'actions-gainsight-px-cloud',
   mode: 'cloud',
 
   authentication: {
