@@ -21,7 +21,6 @@ export function cleanData(data: DataValues): { [key: string]: unknown } {
     if (Array.isArray(value)) {
       // remove empty entries
       const filtered = value.filter((item) => item)
-      console.log(filtered)
       if (filtered.length !== 0) {
         obj[key] = filtered
       }

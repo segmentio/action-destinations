@@ -22,6 +22,10 @@ export interface Payload {
    */
   conversion_time: string | number
   /**
+   * Set to true if this is an app conversion for an incrementality study.
+   */
+  is_app_incrementality: boolean
+  /**
    * The monetary value attributed to the conversion event.
    */
   value?: number
