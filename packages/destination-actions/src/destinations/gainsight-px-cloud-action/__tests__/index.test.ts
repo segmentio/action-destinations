@@ -41,5 +41,20 @@ describe('Gainsight Px Cloud', () => {
 
       await expect(testDestination.testAuthentication(authData)).rejects.toThrowError('Invalid API key')
     })
+
+    it('should NOT throw an error for valid api keys', async () => {
+      const apiKey = "segtest";
+      nock('https://segment-esp.aptrinsic.com/rte/segmentio')
+        .post('/v1/push')
+        .matchHeader('content-type', 'application/json')
+        .reply(400, {} );
+
+      const authData: Settings = {
+        apiKey,
+        dataCenter: "north_america"
+      }
+
+      await expect(testDestination.testAuthentication(authData)).resolves.not.toThrowError()
+    })
   })
 })

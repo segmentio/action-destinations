@@ -14,6 +14,11 @@ describe('GainsightPxCloudAction.identifyUser', () => {
 
     const responses = await testDestination.testAction('identifyUser', {
       event,
+      mapping: {
+        allFields: {
+          '@path': '$.'
+        }
+      },
       useDefaultMappings: true,
       settings: {
         apiKey: GAINSIGHT_API_KEY,
@@ -24,9 +29,11 @@ describe('GainsightPxCloudAction.identifyUser', () => {
     expect(responses[0].status).toBe(200)
     expect(responses[0].data).toMatchObject({})
     expect(responses[0].options.json).toMatchObject({
-      userId: 'userKanker',
-      traits: {
-        abc: '123'
+      allFields: {
+        userId: 'userKanker',
+        traits: {
+          abc: '123'
+        }
       }
     })
   })

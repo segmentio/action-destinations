@@ -23,6 +23,11 @@ describe('GainsightPxCloudAction.groupIdentify', () => {
 
     const responses = await testDestination.testAction('groupIdentify', {
       event,
+      mapping: {
+        allFields: {
+          '@path': '$.'
+        }
+      },
       useDefaultMappings: true,
       settings: {
         apiKey: GAINSIGHT_API_KEY,
@@ -33,9 +38,11 @@ describe('GainsightPxCloudAction.groupIdentify', () => {
     expect(responses[0].status).toBe(200)
     expect(responses[0].data).toMatchObject({})
     expect(responses[0].options.json).toMatchObject({
-      groupId: 'test-group-id',
-      userId: 'test-user-id',
-      traits: { hello: 'world', company: 'Gainsight' },
+      allFields: {
+        groupId: 'test-group-id',
+        userId: 'test-user-id',
+        traits: { hello: 'world', company: 'Gainsight' },
+      }
     })
   })
 })
