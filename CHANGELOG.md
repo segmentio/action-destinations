@@ -2,7 +2,29 @@
 
 ## [Unreleased](https://github.com/segmentio/action-destinations/tree/HEAD)
 
-[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/action-destinations@3.49.1...HEAD)
+[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/browser-destinations@3.31.0...HEAD)
+
+**Merged pull requests:**
+
+- Change test authKey value to make it obvious it's a dummy value. [\#466](https://github.com/segmentio/action-destinations/pull/466) ([dhull](https://github.com/dhull))
+- Gainsight px entire event passthrough [\#460](https://github.com/segmentio/action-destinations/pull/460) ([nwolfe-xx](https://github.com/nwolfe-xx))
+- New metronome API url [\#451](https://github.com/segmentio/action-destinations/pull/451) ([cozmo](https://github.com/cozmo))
+
+## [@segment/browser-destinations@3.31.0](https://github.com/segmentio/action-destinations/tree/@segment/browser-destinations@3.31.0) (2022-02-09)
+
+[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/action-destinations@3.50.0...@segment/browser-destinations@3.31.0)
+
+## [@segment/action-destinations@3.50.0](https://github.com/segmentio/action-destinations/tree/@segment/action-destinations@3.50.0) (2022-02-09)
+
+[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/actions-cli-internal@3.47.0...@segment/action-destinations@3.50.0)
+
+## [@segment/actions-cli-internal@3.47.0](https://github.com/segmentio/action-destinations/tree/@segment/actions-cli-internal@3.47.0) (2022-02-09)
+
+[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/actions-cli@3.47.0...@segment/actions-cli-internal@3.47.0)
+
+## [@segment/actions-cli@3.47.0](https://github.com/segmentio/action-destinations/tree/@segment/actions-cli@3.47.0) (2022-02-09)
+
+[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/actions-cli@3.46.1...@segment/actions-cli@3.47.0)
 
 **Closed issues:**
 
@@ -10,27 +32,30 @@
 
 **Merged pull requests:**
 
+- GA4 - Remove default for custom event params [\#463](https://github.com/segmentio/action-destinations/pull/463) ([nick-Ag](https://github.com/nick-Ag))
+- Added stratconn to code owners [\#461](https://github.com/segmentio/action-destinations/pull/461) ([nick-Ag](https://github.com/nick-Ag))
+- Removed tiktok token rule, it was false-positiving too much [\#458](https://github.com/segmentio/action-destinations/pull/458) ([nick-Ag](https://github.com/nick-Ag))
+- \[STRATCONN-1149\] add is\_app\_incrementality flag to GEC Destination [\#456](https://github.com/segmentio/action-destinations/pull/456) ([rvadera12](https://github.com/rvadera12))
+- GA4 - Add userID and params parameters to every action [\#453](https://github.com/segmentio/action-destinations/pull/453) ([nick-Ag](https://github.com/nick-Ag))
 - Add CODEOWNERS [\#452](https://github.com/segmentio/action-destinations/pull/452) ([gurdasnijor](https://github.com/gurdasnijor))
-
-## [@segment/action-destinations@3.49.1](https://github.com/segmentio/action-destinations/tree/@segment/action-destinations@3.49.1) (2022-02-07)
-
-[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/actions-cli@3.46.1...@segment/action-destinations@3.49.1)
+- DOC-450 Add Amplitude property name to field. [\#450](https://github.com/segmentio/action-destinations/pull/450) ([markzegarelli](https://github.com/markzegarelli))
+- Add upsertProfile Action to Adobe Target Web [\#448](https://github.com/segmentio/action-destinations/pull/448) ([marinhero](https://github.com/marinhero))
 
 ## [@segment/actions-cli@3.46.1](https://github.com/segmentio/action-destinations/tree/@segment/actions-cli@3.46.1) (2022-02-07)
 
-[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/actions-cli-internal@3.46.1...@segment/actions-cli@3.46.1)
+[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/action-destinations@3.49.1...@segment/actions-cli@3.46.1)
+
+## [@segment/action-destinations@3.49.1](https://github.com/segmentio/action-destinations/tree/@segment/action-destinations@3.49.1) (2022-02-07)
+
+[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/actions-cli-internal@3.46.1...@segment/action-destinations@3.49.1)
 
 ## [@segment/actions-cli-internal@3.46.1](https://github.com/segmentio/action-destinations/tree/@segment/actions-cli-internal@3.46.1) (2022-02-07)
 
-[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/actions-cli@3.46.0...@segment/actions-cli-internal@3.46.1)
+[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/actions-cli-internal@3.46.0...@segment/actions-cli-internal@3.46.1)
 
 **Merged pull requests:**
 
 - \[STRATCONN-1079\] Upgrade FB CAPI Actions to Marketing API v12.0  [\#440](https://github.com/segmentio/action-destinations/pull/440) ([rvadera12](https://github.com/rvadera12))
-
-## [@segment/actions-cli@3.46.0](https://github.com/segmentio/action-destinations/tree/@segment/actions-cli@3.46.0) (2022-02-04)
-
-[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/actions-cli-internal@3.46.0...@segment/actions-cli@3.46.0)
 
 ## [@segment/actions-cli-internal@3.46.0](https://github.com/segmentio/action-destinations/tree/@segment/actions-cli-internal@3.46.0) (2022-02-04)
 
@@ -38,15 +63,19 @@
 
 ## [@segment/action-destinations@3.49.0](https://github.com/segmentio/action-destinations/tree/@segment/action-destinations@3.49.0) (2022-02-04)
 
-[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/destination-subscriptions@3.9.0...@segment/action-destinations@3.49.0)
+[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/actions-cli@3.46.0...@segment/action-destinations@3.49.0)
+
+## [@segment/actions-cli@3.46.0](https://github.com/segmentio/action-destinations/tree/@segment/actions-cli@3.46.0) (2022-02-04)
+
+[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/action-destinations@3.48.0...@segment/actions-cli@3.46.0)
 
 **Merged pull requests:**
 
 - Salesforce: Custom Object action [\#443](https://github.com/segmentio/action-destinations/pull/443) ([nick-Ag](https://github.com/nick-Ag))
 
-## [@segment/destination-subscriptions@3.9.0](https://github.com/segmentio/action-destinations/tree/@segment/destination-subscriptions@3.9.0) (2022-02-04)
+## [@segment/action-destinations@3.48.0](https://github.com/segmentio/action-destinations/tree/@segment/action-destinations@3.48.0) (2022-02-04)
 
-[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/actions-cli@3.45.0...@segment/destination-subscriptions@3.9.0)
+[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/actions-cli@3.45.0...@segment/action-destinations@3.48.0)
 
 ## [@segment/actions-cli@3.45.0](https://github.com/segmentio/action-destinations/tree/@segment/actions-cli@3.45.0) (2022-02-04)
 
@@ -62,19 +91,19 @@
 
 ## [@segment/browser-destinations@3.30.0](https://github.com/segmentio/action-destinations/tree/@segment/browser-destinations@3.30.0) (2022-02-04)
 
-[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/action-destinations@3.48.0...@segment/browser-destinations@3.30.0)
-
-## [@segment/action-destinations@3.48.0](https://github.com/segmentio/action-destinations/tree/@segment/action-destinations@3.48.0) (2022-02-04)
-
-[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/actions-core@3.22.0...@segment/action-destinations@3.48.0)
+[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/actions-core@3.22.0...@segment/browser-destinations@3.30.0)
 
 ## [@segment/actions-core@3.22.0](https://github.com/segmentio/action-destinations/tree/@segment/actions-core@3.22.0) (2022-02-04)
 
-[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/actions-cli-internal@3.45.0...@segment/actions-core@3.22.0)
+[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/destination-subscriptions@3.9.0...@segment/actions-core@3.22.0)
+
+## [@segment/destination-subscriptions@3.9.0](https://github.com/segmentio/action-destinations/tree/@segment/destination-subscriptions@3.9.0) (2022-02-04)
+
+[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/actions-cli-internal@3.45.0...@segment/destination-subscriptions@3.9.0)
 
 ## [@segment/actions-cli-internal@3.45.0](https://github.com/segmentio/action-destinations/tree/@segment/actions-cli-internal@3.45.0) (2022-02-04)
 
-[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/browser-destinations@3.29.0...@segment/actions-cli-internal@3.45.0)
+[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/actions-cli-internal@3.44.0...@segment/actions-cli-internal@3.45.0)
 
 **Merged pull requests:**
 
@@ -88,21 +117,21 @@
 - Add Adobe Target Web Destination [\#425](https://github.com/segmentio/action-destinations/pull/425) ([marinhero](https://github.com/marinhero))
 - Add Adobe Target Cloud Destination [\#422](https://github.com/segmentio/action-destinations/pull/422) ([marinhero](https://github.com/marinhero))
 
+## [@segment/actions-cli-internal@3.44.0](https://github.com/segmentio/action-destinations/tree/@segment/actions-cli-internal@3.44.0) (2022-02-02)
+
+[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/browser-destinations@3.29.0...@segment/actions-cli-internal@3.44.0)
+
 ## [@segment/browser-destinations@3.29.0](https://github.com/segmentio/action-destinations/tree/@segment/browser-destinations@3.29.0) (2022-02-02)
 
 [Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/action-destinations@3.47.0...@segment/browser-destinations@3.29.0)
 
 ## [@segment/action-destinations@3.47.0](https://github.com/segmentio/action-destinations/tree/@segment/action-destinations@3.47.0) (2022-02-02)
 
-[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/actions-cli-internal@3.44.0...@segment/action-destinations@3.47.0)
-
-## [@segment/actions-cli-internal@3.44.0](https://github.com/segmentio/action-destinations/tree/@segment/actions-cli-internal@3.44.0) (2022-02-02)
-
-[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/actions-cli@3.44.0...@segment/actions-cli-internal@3.44.0)
+[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/actions-cli@3.44.0...@segment/action-destinations@3.47.0)
 
 ## [@segment/actions-cli@3.44.0](https://github.com/segmentio/action-destinations/tree/@segment/actions-cli@3.44.0) (2022-02-02)
 
-[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/actions-cli@3.43.0...@segment/actions-cli@3.44.0)
+[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/action-destinations@3.46.0...@segment/actions-cli@3.44.0)
 
 **Merged pull requests:**
 
@@ -110,25 +139,25 @@
 - update friendbuy web name [\#437](https://github.com/segmentio/action-destinations/pull/437) ([jinapark202](https://github.com/jinapark202))
 - feat\(personas-messaging\): add additional context around external ids [\#432](https://github.com/segmentio/action-destinations/pull/432) ([lew-gordon](https://github.com/lew-gordon))
 
+## [@segment/action-destinations@3.46.0](https://github.com/segmentio/action-destinations/tree/@segment/action-destinations@3.46.0) (2022-01-31)
+
+[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/browser-destinations@3.28.0...@segment/action-destinations@3.46.0)
+
+## [@segment/browser-destinations@3.28.0](https://github.com/segmentio/action-destinations/tree/@segment/browser-destinations@3.28.0) (2022-01-31)
+
+[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/actions-cli-internal@3.43.0...@segment/browser-destinations@3.28.0)
+
+## [@segment/actions-cli-internal@3.43.0](https://github.com/segmentio/action-destinations/tree/@segment/actions-cli-internal@3.43.0) (2022-01-31)
+
+[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/actions-cli@3.43.0...@segment/actions-cli-internal@3.43.0)
+
 ## [@segment/actions-cli@3.43.0](https://github.com/segmentio/action-destinations/tree/@segment/actions-cli@3.43.0) (2022-01-31)
 
 [Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/actions-shared@1.2.0...@segment/actions-cli@3.43.0)
 
 ## [@segment/actions-shared@1.2.0](https://github.com/segmentio/action-destinations/tree/@segment/actions-shared@1.2.0) (2022-01-31)
 
-[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/actions-cli-internal@3.43.0...@segment/actions-shared@1.2.0)
-
-## [@segment/actions-cli-internal@3.43.0](https://github.com/segmentio/action-destinations/tree/@segment/actions-cli-internal@3.43.0) (2022-01-31)
-
-[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/browser-destinations@3.28.0...@segment/actions-cli-internal@3.43.0)
-
-## [@segment/browser-destinations@3.28.0](https://github.com/segmentio/action-destinations/tree/@segment/browser-destinations@3.28.0) (2022-01-31)
-
-[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/action-destinations@3.46.0...@segment/browser-destinations@3.28.0)
-
-## [@segment/action-destinations@3.46.0](https://github.com/segmentio/action-destinations/tree/@segment/action-destinations@3.46.0) (2022-01-31)
-
-[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/action-destinations@3.45.0...@segment/action-destinations@3.46.0)
+[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/actions-cli-internal@3.42.0...@segment/actions-shared@1.2.0)
 
 **Merged pull requests:**
 
@@ -139,34 +168,34 @@
 - Friendbuy cloud destination fixes [\#428](https://github.com/segmentio/action-destinations/pull/428) ([dhull](https://github.com/dhull))
 - Gainsight PX Cloud Action [\#388](https://github.com/segmentio/action-destinations/pull/388) ([nwolfe-xx](https://github.com/nwolfe-xx))
 
-## [@segment/action-destinations@3.45.0](https://github.com/segmentio/action-destinations/tree/@segment/action-destinations@3.45.0) (2022-01-27)
-
-[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/actions-cli-internal@3.42.0...@segment/action-destinations@3.45.0)
-
 ## [@segment/actions-cli-internal@3.42.0](https://github.com/segmentio/action-destinations/tree/@segment/actions-cli-internal@3.42.0) (2022-01-27)
 
 [Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/actions-cli@3.42.0...@segment/actions-cli-internal@3.42.0)
 
 ## [@segment/actions-cli@3.42.0](https://github.com/segmentio/action-destinations/tree/@segment/actions-cli@3.42.0) (2022-01-27)
 
-[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/action-destinations@3.44.1...@segment/actions-cli@3.42.0)
+[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/action-destinations@3.45.0...@segment/actions-cli@3.42.0)
+
+## [@segment/action-destinations@3.45.0](https://github.com/segmentio/action-destinations/tree/@segment/action-destinations@3.45.0) (2022-01-27)
+
+[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/actions-cli@3.41.1...@segment/action-destinations@3.45.0)
 
 **Merged pull requests:**
 
 - \[Customer.io\] Parse ISO 8601 time offsets without a `:` [\#427](https://github.com/segmentio/action-destinations/pull/427) ([mike-engel](https://github.com/mike-engel))
 - Close Destination - createUpdateContactAndLead action [\#421](https://github.com/segmentio/action-destinations/pull/421) ([froxCZ](https://github.com/froxCZ))
 
-## [@segment/action-destinations@3.44.1](https://github.com/segmentio/action-destinations/tree/@segment/action-destinations@3.44.1) (2022-01-27)
+## [@segment/actions-cli@3.41.1](https://github.com/segmentio/action-destinations/tree/@segment/actions-cli@3.41.1) (2022-01-27)
 
-[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/actions-cli-internal@3.41.1...@segment/action-destinations@3.44.1)
+[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/actions-cli-internal@3.41.1...@segment/actions-cli@3.41.1)
 
 ## [@segment/actions-cli-internal@3.41.1](https://github.com/segmentio/action-destinations/tree/@segment/actions-cli-internal@3.41.1) (2022-01-27)
 
-[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/actions-cli@3.41.1...@segment/actions-cli-internal@3.41.1)
+[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/action-destinations@3.44.1...@segment/actions-cli-internal@3.41.1)
 
-## [@segment/actions-cli@3.41.1](https://github.com/segmentio/action-destinations/tree/@segment/actions-cli@3.41.1) (2022-01-27)
+## [@segment/action-destinations@3.44.1](https://github.com/segmentio/action-destinations/tree/@segment/action-destinations@3.44.1) (2022-01-27)
 
-[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/actions-cli@3.41.0...@segment/actions-cli@3.41.1)
+[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/actions-cli@3.41.0...@segment/action-destinations@3.44.1)
 
 **Merged pull requests:**
 
@@ -182,7 +211,7 @@
 
 ## [@segment/action-destinations@3.44.0](https://github.com/segmentio/action-destinations/tree/@segment/action-destinations@3.44.0) (2022-01-24)
 
-[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/actions-cli-internal@3.40.0...@segment/action-destinations@3.44.0)
+[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/browser-destinations@3.27.0...@segment/action-destinations@3.44.0)
 
 **Merged pull requests:**
 
@@ -190,21 +219,21 @@
 - updates name of Cordial destination-action to Actions Cordial [\#423](https://github.com/segmentio/action-destinations/pull/423) ([daltonscharff](https://github.com/daltonscharff))
 - Cordial Destinations Actions [\#395](https://github.com/segmentio/action-destinations/pull/395) ([anatolii-cordial](https://github.com/anatolii-cordial))
 
-## [@segment/actions-cli-internal@3.40.0](https://github.com/segmentio/action-destinations/tree/@segment/actions-cli-internal@3.40.0) (2022-01-20)
-
-[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/actions-cli@3.40.0...@segment/actions-cli-internal@3.40.0)
-
-## [@segment/actions-cli@3.40.0](https://github.com/segmentio/action-destinations/tree/@segment/actions-cli@3.40.0) (2022-01-20)
-
-[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/browser-destinations@3.27.0...@segment/actions-cli@3.40.0)
-
 ## [@segment/browser-destinations@3.27.0](https://github.com/segmentio/action-destinations/tree/@segment/browser-destinations@3.27.0) (2022-01-20)
 
 [Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/action-destinations@3.43.0...@segment/browser-destinations@3.27.0)
 
 ## [@segment/action-destinations@3.43.0](https://github.com/segmentio/action-destinations/tree/@segment/action-destinations@3.43.0) (2022-01-20)
 
-[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/action-destinations@3.42.0...@segment/action-destinations@3.43.0)
+[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/actions-cli@3.40.0...@segment/action-destinations@3.43.0)
+
+## [@segment/actions-cli@3.40.0](https://github.com/segmentio/action-destinations/tree/@segment/actions-cli@3.40.0) (2022-01-20)
+
+[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/actions-cli-internal@3.40.0...@segment/actions-cli@3.40.0)
+
+## [@segment/actions-cli-internal@3.40.0](https://github.com/segmentio/action-destinations/tree/@segment/actions-cli-internal@3.40.0) (2022-01-20)
+
+[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/actions-cli@3.39.0...@segment/actions-cli-internal@3.40.0)
 
 **Merged pull requests:**
 
@@ -212,25 +241,25 @@
 - StackAdapt Browser Destination: Implement trackPage [\#417](https://github.com/segmentio/action-destinations/pull/417) ([omfgitsjack](https://github.com/omfgitsjack))
 - Salesforce \(Actions\): Lead Action [\#387](https://github.com/segmentio/action-destinations/pull/387) ([nick-Ag](https://github.com/nick-Ag))
 
-## [@segment/action-destinations@3.42.0](https://github.com/segmentio/action-destinations/tree/@segment/action-destinations@3.42.0) (2022-01-13)
-
-[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/actions-cli-internal@3.39.0...@segment/action-destinations@3.42.0)
-
-## [@segment/actions-cli-internal@3.39.0](https://github.com/segmentio/action-destinations/tree/@segment/actions-cli-internal@3.39.0) (2022-01-13)
-
-[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/actions-cli@3.39.0...@segment/actions-cli-internal@3.39.0)
-
 ## [@segment/actions-cli@3.39.0](https://github.com/segmentio/action-destinations/tree/@segment/actions-cli@3.39.0) (2022-01-13)
 
-[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/actions-shared@1.1.0...@segment/actions-cli@3.39.0)
+[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/action-destinations@3.42.0...@segment/actions-cli@3.39.0)
 
-## [@segment/actions-shared@1.1.0](https://github.com/segmentio/action-destinations/tree/@segment/actions-shared@1.1.0) (2022-01-13)
+## [@segment/action-destinations@3.42.0](https://github.com/segmentio/action-destinations/tree/@segment/action-destinations@3.42.0) (2022-01-13)
 
-[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/browser-destinations@3.26.0...@segment/actions-shared@1.1.0)
+[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/browser-destinations@3.26.0...@segment/action-destinations@3.42.0)
 
 ## [@segment/browser-destinations@3.26.0](https://github.com/segmentio/action-destinations/tree/@segment/browser-destinations@3.26.0) (2022-01-13)
 
-[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/action-destinations@3.41.0...@segment/browser-destinations@3.26.0)
+[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/actions-shared@1.1.0...@segment/browser-destinations@3.26.0)
+
+## [@segment/actions-shared@1.1.0](https://github.com/segmentio/action-destinations/tree/@segment/actions-shared@1.1.0) (2022-01-13)
+
+[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/actions-cli-internal@3.39.0...@segment/actions-shared@1.1.0)
+
+## [@segment/actions-cli-internal@3.39.0](https://github.com/segmentio/action-destinations/tree/@segment/actions-cli-internal@3.39.0) (2022-01-13)
+
+[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/actions-cli@3.38.0...@segment/actions-cli-internal@3.39.0)
 
 **Merged pull requests:**
 
@@ -238,21 +267,21 @@
 - \[FB CAPI\] Link to FB docs on User Data Parameters [\#414](https://github.com/segmentio/action-destinations/pull/414) ([nick-Ag](https://github.com/nick-Ag))
 - Update readme [\#407](https://github.com/segmentio/action-destinations/pull/407) ([jinapark202](https://github.com/jinapark202))
 
-## [@segment/action-destinations@3.41.0](https://github.com/segmentio/action-destinations/tree/@segment/action-destinations@3.41.0) (2022-01-11)
-
-[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/browser-destinations@3.25.0...@segment/action-destinations@3.41.0)
-
-## [@segment/browser-destinations@3.25.0](https://github.com/segmentio/action-destinations/tree/@segment/browser-destinations@3.25.0) (2022-01-11)
-
-[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/actions-cli@3.38.0...@segment/browser-destinations@3.25.0)
-
 ## [@segment/actions-cli@3.38.0](https://github.com/segmentio/action-destinations/tree/@segment/actions-cli@3.38.0) (2022-01-11)
 
 [Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/actions-cli-internal@3.38.0...@segment/actions-cli@3.38.0)
 
 ## [@segment/actions-cli-internal@3.38.0](https://github.com/segmentio/action-destinations/tree/@segment/actions-cli-internal@3.38.0) (2022-01-11)
 
-[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/actions-cli-internal@3.37.3...@segment/actions-cli-internal@3.38.0)
+[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/action-destinations@3.41.0...@segment/actions-cli-internal@3.38.0)
+
+## [@segment/action-destinations@3.41.0](https://github.com/segmentio/action-destinations/tree/@segment/action-destinations@3.41.0) (2022-01-11)
+
+[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/browser-destinations@3.25.0...@segment/action-destinations@3.41.0)
+
+## [@segment/browser-destinations@3.25.0](https://github.com/segmentio/action-destinations/tree/@segment/browser-destinations@3.25.0) (2022-01-11)
+
+[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/browser-destinations@3.24.1...@segment/browser-destinations@3.25.0)
 
 **Merged pull requests:**
 
@@ -261,17 +290,17 @@
 - \[Customer.io\] Check if timestamps are valid before converting [\#413](https://github.com/segmentio/action-destinations/pull/413) ([mike-engel](https://github.com/mike-engel))
 - Friendbuy cloud destination [\#389](https://github.com/segmentio/action-destinations/pull/389) ([dhull](https://github.com/dhull))
 
-## [@segment/actions-cli-internal@3.37.3](https://github.com/segmentio/action-destinations/tree/@segment/actions-cli-internal@3.37.3) (2022-01-11)
+## [@segment/browser-destinations@3.24.1](https://github.com/segmentio/action-destinations/tree/@segment/browser-destinations@3.24.1) (2022-01-11)
 
-[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/actions-cli@3.37.3...@segment/actions-cli-internal@3.37.3)
+[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/actions-cli@3.37.3...@segment/browser-destinations@3.24.1)
 
 ## [@segment/actions-cli@3.37.3](https://github.com/segmentio/action-destinations/tree/@segment/actions-cli@3.37.3) (2022-01-11)
 
-[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/browser-destinations@3.24.1...@segment/actions-cli@3.37.3)
+[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/actions-cli-internal@3.37.3...@segment/actions-cli@3.37.3)
 
-## [@segment/browser-destinations@3.24.1](https://github.com/segmentio/action-destinations/tree/@segment/browser-destinations@3.24.1) (2022-01-11)
+## [@segment/actions-cli-internal@3.37.3](https://github.com/segmentio/action-destinations/tree/@segment/actions-cli-internal@3.37.3) (2022-01-11)
 
-[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/action-destinations@3.40.1...@segment/browser-destinations@3.24.1)
+[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/action-destinations@3.40.1...@segment/actions-cli-internal@3.37.3)
 
 ## [@segment/action-destinations@3.40.1](https://github.com/segmentio/action-destinations/tree/@segment/action-destinations@3.40.1) (2022-01-11)
 
@@ -284,7 +313,7 @@
 
 ## [@segment/action-destinations@3.40.0](https://github.com/segmentio/action-destinations/tree/@segment/action-destinations@3.40.0) (2022-01-10)
 
-[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/actions-cli@3.37.2...@segment/action-destinations@3.40.0)
+[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/actions-cli-internal@3.37.2...@segment/action-destinations@3.40.0)
 
 **Merged pull requests:**
 
@@ -296,25 +325,21 @@
 - StackAdapt Browser Destination [\#370](https://github.com/segmentio/action-destinations/pull/370) ([omfgitsjack](https://github.com/omfgitsjack))
 - \[fb capi\] external id update [\#367](https://github.com/segmentio/action-destinations/pull/367) ([nick-Ag](https://github.com/nick-Ag))
 
-## [@segment/actions-cli@3.37.2](https://github.com/segmentio/action-destinations/tree/@segment/actions-cli@3.37.2) (2022-01-07)
-
-[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/actions-cli-internal@3.37.2...@segment/actions-cli@3.37.2)
-
 ## [@segment/actions-cli-internal@3.37.2](https://github.com/segmentio/action-destinations/tree/@segment/actions-cli-internal@3.37.2) (2022-01-07)
 
-[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/action-destinations@3.39.2...@segment/actions-cli-internal@3.37.2)
+[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/actions-cli@3.37.2...@segment/actions-cli-internal@3.37.2)
+
+## [@segment/actions-cli@3.37.2](https://github.com/segmentio/action-destinations/tree/@segment/actions-cli@3.37.2) (2022-01-07)
+
+[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/action-destinations@3.39.2...@segment/actions-cli@3.37.2)
 
 ## [@segment/action-destinations@3.39.2](https://github.com/segmentio/action-destinations/tree/@segment/action-destinations@3.39.2) (2022-01-07)
 
-[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/actions-cli-internal@3.37.1...@segment/action-destinations@3.39.2)
+[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/actions-cli@3.37.1...@segment/action-destinations@3.39.2)
 
 **Merged pull requests:**
 
 - Remove URL restriction on Webhooks [\#404](https://github.com/segmentio/action-destinations/pull/404) ([tysonmote](https://github.com/tysonmote))
-
-## [@segment/actions-cli-internal@3.37.1](https://github.com/segmentio/action-destinations/tree/@segment/actions-cli-internal@3.37.1) (2022-01-07)
-
-[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/actions-cli@3.37.1...@segment/actions-cli-internal@3.37.1)
 
 ## [@segment/actions-cli@3.37.1](https://github.com/segmentio/action-destinations/tree/@segment/actions-cli@3.37.1) (2022-01-07)
 
@@ -322,7 +347,11 @@
 
 ## [@segment/action-destinations@3.39.1](https://github.com/segmentio/action-destinations/tree/@segment/action-destinations@3.39.1) (2022-01-07)
 
-[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/actions-cli@3.37.0...@segment/action-destinations@3.39.1)
+[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/actions-cli-internal@3.37.1...@segment/action-destinations@3.39.1)
+
+## [@segment/actions-cli-internal@3.37.1](https://github.com/segmentio/action-destinations/tree/@segment/actions-cli-internal@3.37.1) (2022-01-07)
+
+[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/actions-cli-internal@3.37.0...@segment/actions-cli-internal@3.37.1)
 
 **Closed issues:**
 
@@ -333,21 +362,21 @@
 - \[BE-480\] - Update pre-commit hook to be compatible with gitleaks 8 cli [\#403](https://github.com/segmentio/action-destinations/pull/403) ([gurdasnijor](https://github.com/gurdasnijor))
 - \[Customer.io\] Only convert ISO 8601 dates - fixes [\#401](https://github.com/segmentio/action-destinations/pull/401) ([dlasky](https://github.com/dlasky))
 
-## [@segment/actions-cli@3.37.0](https://github.com/segmentio/action-destinations/tree/@segment/actions-cli@3.37.0) (2022-01-06)
-
-[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/actions-cli-internal@3.37.0...@segment/actions-cli@3.37.0)
-
 ## [@segment/actions-cli-internal@3.37.0](https://github.com/segmentio/action-destinations/tree/@segment/actions-cli-internal@3.37.0) (2022-01-06)
 
-[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/action-destinations@3.39.0...@segment/actions-cli-internal@3.37.0)
-
-## [@segment/action-destinations@3.39.0](https://github.com/segmentio/action-destinations/tree/@segment/action-destinations@3.39.0) (2022-01-06)
-
-[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/browser-destinations@3.24.0...@segment/action-destinations@3.39.0)
+[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/browser-destinations@3.24.0...@segment/actions-cli-internal@3.37.0)
 
 ## [@segment/browser-destinations@3.24.0](https://github.com/segmentio/action-destinations/tree/@segment/browser-destinations@3.24.0) (2022-01-06)
 
-[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/action-destinations@3.38.0...@segment/browser-destinations@3.24.0)
+[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/actions-cli@3.37.0...@segment/browser-destinations@3.24.0)
+
+## [@segment/actions-cli@3.37.0](https://github.com/segmentio/action-destinations/tree/@segment/actions-cli@3.37.0) (2022-01-06)
+
+[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/action-destinations@3.39.0...@segment/actions-cli@3.37.0)
+
+## [@segment/action-destinations@3.39.0](https://github.com/segmentio/action-destinations/tree/@segment/action-destinations@3.39.0) (2022-01-06)
+
+[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/actions-cli-internal@3.36.0...@segment/action-destinations@3.39.0)
 
 **Merged pull requests:**
 
@@ -355,13 +384,13 @@
 - Use auto publicpath [\#371](https://github.com/segmentio/action-destinations/pull/371) ([danieljackins](https://github.com/danieljackins))
 - add clevertap as destination [\#346](https://github.com/segmentio/action-destinations/pull/346) ([abhishek-g-clevertap](https://github.com/abhishek-g-clevertap))
 
-## [@segment/action-destinations@3.38.0](https://github.com/segmentio/action-destinations/tree/@segment/action-destinations@3.38.0) (2022-01-06)
-
-[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/actions-cli-internal@3.36.0...@segment/action-destinations@3.38.0)
-
 ## [@segment/actions-cli-internal@3.36.0](https://github.com/segmentio/action-destinations/tree/@segment/actions-cli-internal@3.36.0) (2022-01-06)
 
-[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/actions-cli@3.36.0...@segment/actions-cli-internal@3.36.0)
+[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/action-destinations@3.38.0...@segment/actions-cli-internal@3.36.0)
+
+## [@segment/action-destinations@3.38.0](https://github.com/segmentio/action-destinations/tree/@segment/action-destinations@3.38.0) (2022-01-06)
+
+[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/actions-cli@3.36.0...@segment/action-destinations@3.38.0)
 
 ## [@segment/actions-cli@3.36.0](https://github.com/segmentio/action-destinations/tree/@segment/actions-cli@3.36.0) (2022-01-06)
 
@@ -388,11 +417,15 @@
 
 ## [@segment/action-destinations@3.37.0](https://github.com/segmentio/action-destinations/tree/@segment/action-destinations@3.37.0) (2022-01-05)
 
-[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/actions-cli@3.34.0...@segment/action-destinations@3.37.0)
+[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/action-destinations@3.35.0...@segment/action-destinations@3.37.0)
 
 **Merged pull requests:**
 
 - update action-destinations version [\#399](https://github.com/segmentio/action-destinations/pull/399) ([jinapark202](https://github.com/jinapark202))
+
+## [@segment/action-destinations@3.35.0](https://github.com/segmentio/action-destinations/tree/@segment/action-destinations@3.35.0) (2022-01-05)
+
+[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/actions-cli@3.34.0...@segment/action-destinations@3.35.0)
 
 ## [@segment/actions-cli@3.34.0](https://github.com/segmentio/action-destinations/tree/@segment/actions-cli@3.34.0) (2022-01-05)
 
@@ -400,11 +433,7 @@
 
 ## [@segment/actions-cli-internal@3.34.0](https://github.com/segmentio/action-destinations/tree/@segment/actions-cli-internal@3.34.0) (2022-01-05)
 
-[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/action-destinations@3.35.0...@segment/actions-cli-internal@3.34.0)
-
-## [@segment/action-destinations@3.35.0](https://github.com/segmentio/action-destinations/tree/@segment/action-destinations@3.35.0) (2022-01-05)
-
-[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/action-destinations@3.34.1-alpha.0...@segment/action-destinations@3.35.0)
+[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/actions-cli@3.33.1-alpha.0...@segment/actions-cli-internal@3.34.0)
 
 **Merged pull requests:**
 
@@ -413,17 +442,17 @@
 - Updates external PR assignee to Marcus [\#392](https://github.com/segmentio/action-destinations/pull/392) ([gpsamson](https://github.com/gpsamson))
 - Register metronome [\#379](https://github.com/segmentio/action-destinations/pull/379) ([gpsamson](https://github.com/gpsamson))
 
-## [@segment/action-destinations@3.34.1-alpha.0](https://github.com/segmentio/action-destinations/tree/@segment/action-destinations@3.34.1-alpha.0) (2021-12-15)
-
-[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/actions-cli@3.33.1-alpha.0...@segment/action-destinations@3.34.1-alpha.0)
-
 ## [@segment/actions-cli@3.33.1-alpha.0](https://github.com/segmentio/action-destinations/tree/@segment/actions-cli@3.33.1-alpha.0) (2021-12-15)
 
 [Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/actions-cli-internal@3.33.1-alpha.0...@segment/actions-cli@3.33.1-alpha.0)
 
 ## [@segment/actions-cli-internal@3.33.1-alpha.0](https://github.com/segmentio/action-destinations/tree/@segment/actions-cli-internal@3.33.1-alpha.0) (2021-12-15)
 
-[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/actions-cli-internal@3.33.0...@segment/actions-cli-internal@3.33.1-alpha.0)
+[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/action-destinations@3.34.1-alpha.0...@segment/actions-cli-internal@3.33.1-alpha.0)
+
+## [@segment/action-destinations@3.34.1-alpha.0](https://github.com/segmentio/action-destinations/tree/@segment/action-destinations@3.34.1-alpha.0) (2021-12-15)
+
+[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/actions-cli@3.33.0...@segment/action-destinations@3.34.1-alpha.0)
 
 **Merged pull requests:**
 
@@ -432,17 +461,17 @@
 - Pipedrive Destination Actions: removed default fields [\#358](https://github.com/segmentio/action-destinations/pull/358) ([makks129](https://github.com/makks129))
 - GROW-354/Support fetching email body from S3 in Sendgrid [\#315](https://github.com/segmentio/action-destinations/pull/315) ([vadimdemedes](https://github.com/vadimdemedes))
 
-## [@segment/actions-cli-internal@3.33.0](https://github.com/segmentio/action-destinations/tree/@segment/actions-cli-internal@3.33.0) (2021-12-13)
-
-[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/actions-cli@3.33.0...@segment/actions-cli-internal@3.33.0)
-
 ## [@segment/actions-cli@3.33.0](https://github.com/segmentio/action-destinations/tree/@segment/actions-cli@3.33.0) (2021-12-13)
 
-[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/action-destinations@3.34.0...@segment/actions-cli@3.33.0)
+[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/actions-cli-internal@3.33.0...@segment/actions-cli@3.33.0)
+
+## [@segment/actions-cli-internal@3.33.0](https://github.com/segmentio/action-destinations/tree/@segment/actions-cli-internal@3.33.0) (2021-12-13)
+
+[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/action-destinations@3.34.0...@segment/actions-cli-internal@3.33.0)
 
 ## [@segment/action-destinations@3.34.0](https://github.com/segmentio/action-destinations/tree/@segment/action-destinations@3.34.0) (2021-12-13)
 
-[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/actions-cli@3.32.2...@segment/action-destinations@3.34.0)
+[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/actions-cli-internal@3.32.2...@segment/action-destinations@3.34.0)
 
 **Merged pull requests:**
 
@@ -450,17 +479,17 @@
 - mixpanel revise descriptions and ordering of fields [\#376](https://github.com/segmentio/action-destinations/pull/376) ([Alex-Kim-mp](https://github.com/Alex-Kim-mp))
 - Update docs template post-ga [\#374](https://github.com/segmentio/action-destinations/pull/374) ([markzegarelli](https://github.com/markzegarelli))
 
+## [@segment/actions-cli-internal@3.32.2](https://github.com/segmentio/action-destinations/tree/@segment/actions-cli-internal@3.32.2) (2021-12-08)
+
+[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/actions-cli@3.32.2...@segment/actions-cli-internal@3.32.2)
+
 ## [@segment/actions-cli@3.32.2](https://github.com/segmentio/action-destinations/tree/@segment/actions-cli@3.32.2) (2021-12-08)
 
 [Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/action-destinations@3.33.2...@segment/actions-cli@3.32.2)
 
 ## [@segment/action-destinations@3.33.2](https://github.com/segmentio/action-destinations/tree/@segment/action-destinations@3.33.2) (2021-12-08)
 
-[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/actions-cli-internal@3.32.2...@segment/action-destinations@3.33.2)
-
-## [@segment/actions-cli-internal@3.32.2](https://github.com/segmentio/action-destinations/tree/@segment/actions-cli-internal@3.32.2) (2021-12-08)
-
-[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/actions-cli-internal@3.32.1...@segment/actions-cli-internal@3.32.2)
+[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/actions-cli-internal@3.32.1...@segment/action-destinations@3.33.2)
 
 **Merged pull requests:**
 
@@ -468,15 +497,15 @@
 
 ## [@segment/actions-cli-internal@3.32.1](https://github.com/segmentio/action-destinations/tree/@segment/actions-cli-internal@3.32.1) (2021-12-08)
 
-[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/action-destinations@3.33.1...@segment/actions-cli-internal@3.32.1)
-
-## [@segment/action-destinations@3.33.1](https://github.com/segmentio/action-destinations/tree/@segment/action-destinations@3.33.1) (2021-12-08)
-
-[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/browser-destinations@3.23.1...@segment/action-destinations@3.33.1)
+[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/browser-destinations@3.23.1...@segment/actions-cli-internal@3.32.1)
 
 ## [@segment/browser-destinations@3.23.1](https://github.com/segmentio/action-destinations/tree/@segment/browser-destinations@3.23.1) (2021-12-08)
 
-[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/actions-cli@3.32.1...@segment/browser-destinations@3.23.1)
+[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/action-destinations@3.33.1...@segment/browser-destinations@3.23.1)
+
+## [@segment/action-destinations@3.33.1](https://github.com/segmentio/action-destinations/tree/@segment/action-destinations@3.33.1) (2021-12-08)
+
+[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/actions-cli@3.32.1...@segment/action-destinations@3.33.1)
 
 ## [@segment/actions-cli@3.32.1](https://github.com/segmentio/action-destinations/tree/@segment/actions-cli@3.32.1) (2021-12-08)
 
@@ -494,7 +523,11 @@
 
 ## [@segment/actions-cli@3.32.0](https://github.com/segmentio/action-destinations/tree/@segment/actions-cli@3.32.0) (2021-12-02)
 
-[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/browser-destinations@3.23.0...@segment/actions-cli@3.32.0)
+[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/action-destinations@3.33.0...@segment/actions-cli@3.32.0)
+
+## [@segment/action-destinations@3.33.0](https://github.com/segmentio/action-destinations/tree/@segment/action-destinations@3.33.0) (2021-12-02)
+
+[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/browser-destinations@3.23.0...@segment/action-destinations@3.33.0)
 
 ## [@segment/browser-destinations@3.23.0](https://github.com/segmentio/action-destinations/tree/@segment/browser-destinations@3.23.0) (2021-12-02)
 
@@ -502,20 +535,12 @@
 
 ## [@segment/actions-cli-internal@3.32.0](https://github.com/segmentio/action-destinations/tree/@segment/actions-cli-internal@3.32.0) (2021-12-02)
 
-[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/action-destinations@3.33.0...@segment/actions-cli-internal@3.32.0)
-
-## [@segment/action-destinations@3.33.0](https://github.com/segmentio/action-destinations/tree/@segment/action-destinations@3.33.0) (2021-12-02)
-
-[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/action-destinations@3.32.0...@segment/action-destinations@3.33.0)
+[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/actions-cli@3.31.0...@segment/actions-cli-internal@3.32.0)
 
 **Merged pull requests:**
 
 - Update sessionID plugin [\#368](https://github.com/segmentio/action-destinations/pull/368) ([danieljackins](https://github.com/danieljackins))
 - Update GA4 Items array defaults [\#354](https://github.com/segmentio/action-destinations/pull/354) ([nick-Ag](https://github.com/nick-Ag))
-
-## [@segment/action-destinations@3.32.0](https://github.com/segmentio/action-destinations/tree/@segment/action-destinations@3.32.0) (2021-12-01)
-
-[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/actions-cli@3.31.0...@segment/action-destinations@3.32.0)
 
 ## [@segment/actions-cli@3.31.0](https://github.com/segmentio/action-destinations/tree/@segment/actions-cli@3.31.0) (2021-12-01)
 
@@ -523,17 +548,17 @@
 
 ## [@segment/actions-cli-internal@3.31.0](https://github.com/segmentio/action-destinations/tree/@segment/actions-cli-internal@3.31.0) (2021-12-01)
 
-[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/actions-cli@3.30.0...@segment/actions-cli-internal@3.31.0)
+[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/action-destinations@3.32.0...@segment/actions-cli-internal@3.31.0)
+
+## [@segment/action-destinations@3.32.0](https://github.com/segmentio/action-destinations/tree/@segment/action-destinations@3.32.0) (2021-12-01)
+
+[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/action-destinations@3.31.0...@segment/action-destinations@3.32.0)
 
 **Merged pull requests:**
 
 - \[Customer.io\] Use created\_at trait over property [\#361](https://github.com/segmentio/action-destinations/pull/361) ([mike-engel](https://github.com/mike-engel))
 - \[BE-246\] Amplitude Actions EU Endpoint [\#356](https://github.com/segmentio/action-destinations/pull/356) ([daltonscharff](https://github.com/daltonscharff))
 - \[mixpanel\] some functionality changes and fields added [\#355](https://github.com/segmentio/action-destinations/pull/355) ([Alex-Kim-mp](https://github.com/Alex-Kim-mp))
-
-## [@segment/actions-cli@3.30.0](https://github.com/segmentio/action-destinations/tree/@segment/actions-cli@3.30.0) (2021-11-30)
-
-[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/action-destinations@3.31.0...@segment/actions-cli@3.30.0)
 
 ## [@segment/action-destinations@3.31.0](https://github.com/segmentio/action-destinations/tree/@segment/action-destinations@3.31.0) (2021-11-30)
 
@@ -545,7 +570,11 @@
 
 ## [@segment/actions-cli-internal@3.30.0](https://github.com/segmentio/action-destinations/tree/@segment/actions-cli-internal@3.30.0) (2021-11-30)
 
-[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/action-destinations@3.30.2...@segment/actions-cli-internal@3.30.0)
+[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/actions-cli@3.30.0...@segment/actions-cli-internal@3.30.0)
+
+## [@segment/actions-cli@3.30.0](https://github.com/segmentio/action-destinations/tree/@segment/actions-cli@3.30.0) (2021-11-30)
+
+[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/action-destinations@3.30.2...@segment/actions-cli@3.30.0)
 
 **Merged pull requests:**
 
@@ -561,19 +590,19 @@
 
 ## [@segment/actions-cli-internal@3.29.2](https://github.com/segmentio/action-destinations/tree/@segment/actions-cli-internal@3.29.2) (2021-11-29)
 
-[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/actions-cli@3.29.2...@segment/actions-cli-internal@3.29.2)
-
-## [@segment/actions-cli@3.29.2](https://github.com/segmentio/action-destinations/tree/@segment/actions-cli@3.29.2) (2021-11-29)
-
-[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/browser-destinations@3.21.1...@segment/actions-cli@3.29.2)
+[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/browser-destinations@3.21.1...@segment/actions-cli-internal@3.29.2)
 
 ## [@segment/browser-destinations@3.21.1](https://github.com/segmentio/action-destinations/tree/@segment/browser-destinations@3.21.1) (2021-11-29)
 
-[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/actions-core@3.21.1...@segment/browser-destinations@3.21.1)
+[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/actions-cli@3.29.2...@segment/browser-destinations@3.21.1)
+
+## [@segment/actions-cli@3.29.2](https://github.com/segmentio/action-destinations/tree/@segment/actions-cli@3.29.2) (2021-11-29)
+
+[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/actions-core@3.21.1...@segment/actions-cli@3.29.2)
 
 ## [@segment/actions-core@3.21.1](https://github.com/segmentio/action-destinations/tree/@segment/actions-core@3.21.1) (2021-11-29)
 
-[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/actions-cli-internal@3.29.1...@segment/actions-core@3.21.1)
+[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/action-destinations@3.30.1...@segment/actions-core@3.21.1)
 
 **Closed issues:**
 
@@ -586,17 +615,17 @@
 - Add metronome destination [\#350](https://github.com/segmentio/action-destinations/pull/350) ([cozmo](https://github.com/cozmo))
 - Add connection overrides on twilio sms status callback url [\#343](https://github.com/segmentio/action-destinations/pull/343) ([lpediredla](https://github.com/lpediredla))
 
-## [@segment/actions-cli-internal@3.29.1](https://github.com/segmentio/action-destinations/tree/@segment/actions-cli-internal@3.29.1) (2021-11-22)
-
-[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/action-destinations@3.30.1...@segment/actions-cli-internal@3.29.1)
-
 ## [@segment/action-destinations@3.30.1](https://github.com/segmentio/action-destinations/tree/@segment/action-destinations@3.30.1) (2021-11-22)
 
 [Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/actions-cli@3.29.1...@segment/action-destinations@3.30.1)
 
 ## [@segment/actions-cli@3.29.1](https://github.com/segmentio/action-destinations/tree/@segment/actions-cli@3.29.1) (2021-11-22)
 
-[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/actions-cli@3.29.0...@segment/actions-cli@3.29.1)
+[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/actions-cli-internal@3.29.1...@segment/actions-cli@3.29.1)
+
+## [@segment/actions-cli-internal@3.29.1](https://github.com/segmentio/action-destinations/tree/@segment/actions-cli-internal@3.29.1) (2021-11-22)
+
+[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/actions-cli@3.29.0...@segment/actions-cli-internal@3.29.1)
 
 **Merged pull requests:**
 
@@ -608,11 +637,7 @@
 
 ## [@segment/actions-core@3.21.0](https://github.com/segmentio/action-destinations/tree/@segment/actions-core@3.21.0) (2021-11-19)
 
-[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/actions-cli-internal@3.29.0...@segment/actions-core@3.21.0)
-
-## [@segment/actions-cli-internal@3.29.0](https://github.com/segmentio/action-destinations/tree/@segment/actions-cli-internal@3.29.0) (2021-11-19)
-
-[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/browser-destinations@3.21.0...@segment/actions-cli-internal@3.29.0)
+[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/browser-destinations@3.21.0...@segment/actions-core@3.21.0)
 
 ## [@segment/browser-destinations@3.21.0](https://github.com/segmentio/action-destinations/tree/@segment/browser-destinations@3.21.0) (2021-11-19)
 
@@ -620,7 +645,11 @@
 
 ## [@segment/action-destinations@3.30.0](https://github.com/segmentio/action-destinations/tree/@segment/action-destinations@3.30.0) (2021-11-19)
 
-[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/actions-cli@3.28.1...@segment/action-destinations@3.30.0)
+[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/actions-cli-internal@3.29.0...@segment/action-destinations@3.30.0)
+
+## [@segment/actions-cli-internal@3.29.0](https://github.com/segmentio/action-destinations/tree/@segment/actions-cli-internal@3.29.0) (2021-11-19)
+
+[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/actions-cli@3.28.1...@segment/actions-cli-internal@3.29.0)
 
 **Merged pull requests:**
 
@@ -636,24 +665,24 @@
 
 ## [@segment/actions-cli-internal@3.28.1](https://github.com/segmentio/action-destinations/tree/@segment/actions-cli-internal@3.28.1) (2021-11-18)
 
-[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/actions-cli-internal@3.28.0...@segment/actions-cli-internal@3.28.1)
+[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/action-destinations@3.29.0...@segment/actions-cli-internal@3.28.1)
 
 **Merged pull requests:**
 
 - fix undefined opts [\#348](https://github.com/segmentio/action-destinations/pull/348) ([dlasky](https://github.com/dlasky))
 - Update Pipedrive name [\#347](https://github.com/segmentio/action-destinations/pull/347) ([jinapark202](https://github.com/jinapark202))
 
-## [@segment/actions-cli-internal@3.28.0](https://github.com/segmentio/action-destinations/tree/@segment/actions-cli-internal@3.28.0) (2021-11-18)
+## [@segment/action-destinations@3.29.0](https://github.com/segmentio/action-destinations/tree/@segment/action-destinations@3.29.0) (2021-11-18)
 
-[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/actions-core@3.20.0...@segment/actions-cli-internal@3.28.0)
+[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/actions-core@3.20.0...@segment/action-destinations@3.29.0)
 
 ## [@segment/actions-core@3.20.0](https://github.com/segmentio/action-destinations/tree/@segment/actions-core@3.20.0) (2021-11-18)
 
-[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/action-destinations@3.29.0...@segment/actions-core@3.20.0)
+[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/actions-cli-internal@3.28.0...@segment/actions-core@3.20.0)
 
-## [@segment/action-destinations@3.29.0](https://github.com/segmentio/action-destinations/tree/@segment/action-destinations@3.29.0) (2021-11-18)
+## [@segment/actions-cli-internal@3.28.0](https://github.com/segmentio/action-destinations/tree/@segment/actions-cli-internal@3.28.0) (2021-11-18)
 
-[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/browser-destinations@3.20.0...@segment/action-destinations@3.29.0)
+[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/browser-destinations@3.20.0...@segment/actions-cli-internal@3.28.0)
 
 ## [@segment/browser-destinations@3.20.0](https://github.com/segmentio/action-destinations/tree/@segment/browser-destinations@3.20.0) (2021-11-18)
 
@@ -669,19 +698,7 @@
 
 ## [@segment/browser-destinations@3.19.2](https://github.com/segmentio/action-destinations/tree/@segment/browser-destinations@3.19.2) (2021-11-17)
 
-[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/actions-core@3.19.2...@segment/browser-destinations@3.19.2)
-
-## [@segment/actions-core@3.19.2](https://github.com/segmentio/action-destinations/tree/@segment/actions-core@3.19.2) (2021-11-17)
-
-[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/action-destinations@3.28.0...@segment/actions-core@3.19.2)
-
-## [@segment/action-destinations@3.28.0](https://github.com/segmentio/action-destinations/tree/@segment/action-destinations@3.28.0) (2021-11-17)
-
-[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/actions-cli@3.27.3...@segment/action-destinations@3.28.0)
-
-## [@segment/actions-cli@3.27.3](https://github.com/segmentio/action-destinations/tree/@segment/actions-cli@3.27.3) (2021-11-17)
-
-[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/actions-cli-internal@3.27.3...@segment/actions-cli@3.27.3)
+[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/actions-cli-internal@3.27.3...@segment/browser-destinations@3.19.2)
 
 ## [@segment/actions-cli-internal@3.27.3](https://github.com/segmentio/action-destinations/tree/@segment/actions-cli-internal@3.27.3) (2021-11-17)
 
@@ -689,7 +706,19 @@
 
 ## [@segment/ajv-human-errors@2.0.2](https://github.com/segmentio/action-destinations/tree/@segment/ajv-human-errors@2.0.2) (2021-11-17)
 
-[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/actions-cli-internal@3.27.2...@segment/ajv-human-errors@2.0.2)
+[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/actions-cli@3.27.3...@segment/ajv-human-errors@2.0.2)
+
+## [@segment/actions-cli@3.27.3](https://github.com/segmentio/action-destinations/tree/@segment/actions-cli@3.27.3) (2021-11-17)
+
+[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/action-destinations@3.28.0...@segment/actions-cli@3.27.3)
+
+## [@segment/action-destinations@3.28.0](https://github.com/segmentio/action-destinations/tree/@segment/action-destinations@3.28.0) (2021-11-17)
+
+[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/actions-core@3.19.2...@segment/action-destinations@3.28.0)
+
+## [@segment/actions-core@3.19.2](https://github.com/segmentio/action-destinations/tree/@segment/actions-core@3.19.2) (2021-11-17)
+
+[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/action-destinations@3.27.2...@segment/actions-core@3.19.2)
 
 **Merged pull requests:**
 
@@ -701,50 +730,46 @@
 - Disabled publish and publish Canary workflows [\#335](https://github.com/segmentio/action-destinations/pull/335) ([daltonscharff](https://github.com/daltonscharff))
 - \[Customer.io\] Support screen events to cio [\#334](https://github.com/segmentio/action-destinations/pull/334) ([mike-engel](https://github.com/mike-engel))
 
-## [@segment/actions-cli-internal@3.27.2](https://github.com/segmentio/action-destinations/tree/@segment/actions-cli-internal@3.27.2) (2021-11-12)
-
-[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/action-destinations@3.27.2...@segment/actions-cli-internal@3.27.2)
-
 ## [@segment/action-destinations@3.27.2](https://github.com/segmentio/action-destinations/tree/@segment/action-destinations@3.27.2) (2021-11-12)
 
-[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/actions-core@3.19.1...@segment/action-destinations@3.27.2)
+[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/actions-cli-internal@3.27.2...@segment/action-destinations@3.27.2)
+
+## [@segment/actions-cli-internal@3.27.2](https://github.com/segmentio/action-destinations/tree/@segment/actions-cli-internal@3.27.2) (2021-11-12)
+
+[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/actions-core@3.19.1...@segment/actions-cli-internal@3.27.2)
 
 ## [@segment/actions-core@3.19.1](https://github.com/segmentio/action-destinations/tree/@segment/actions-core@3.19.1) (2021-11-12)
 
-[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/actions-cli@3.27.2...@segment/actions-core@3.19.1)
-
-## [@segment/actions-cli@3.27.2](https://github.com/segmentio/action-destinations/tree/@segment/actions-cli@3.27.2) (2021-11-12)
-
-[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/browser-destinations@3.19.1...@segment/actions-cli@3.27.2)
+[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/browser-destinations@3.19.1...@segment/actions-core@3.19.1)
 
 ## [@segment/browser-destinations@3.19.1](https://github.com/segmentio/action-destinations/tree/@segment/browser-destinations@3.19.1) (2021-11-12)
 
-[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/actions-cli@3.27.1...@segment/browser-destinations@3.19.1)
+[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/actions-cli@3.27.2...@segment/browser-destinations@3.19.1)
+
+## [@segment/actions-cli@3.27.2](https://github.com/segmentio/action-destinations/tree/@segment/actions-cli@3.27.2) (2021-11-12)
+
+[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/action-destinations@3.27.1...@segment/actions-cli@3.27.2)
 
 **Merged pull requests:**
 
 - allow other directives for arrayPath root [\#332](https://github.com/segmentio/action-destinations/pull/332) ([mshwery](https://github.com/mshwery))
 - adding in method parameter for 'post' [\#331](https://github.com/segmentio/action-destinations/pull/331) ([coreyching](https://github.com/coreyching))
 
-## [@segment/actions-cli@3.27.1](https://github.com/segmentio/action-destinations/tree/@segment/actions-cli@3.27.1) (2021-11-11)
+## [@segment/action-destinations@3.27.1](https://github.com/segmentio/action-destinations/tree/@segment/action-destinations@3.27.1) (2021-11-11)
 
-[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/actions-cli-internal@3.27.1...@segment/actions-cli@3.27.1)
+[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/actions-cli-internal@3.27.1...@segment/action-destinations@3.27.1)
 
 ## [@segment/actions-cli-internal@3.27.1](https://github.com/segmentio/action-destinations/tree/@segment/actions-cli-internal@3.27.1) (2021-11-11)
 
-[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/action-destinations@3.27.1...@segment/actions-cli-internal@3.27.1)
+[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/actions-cli@3.27.1...@segment/actions-cli-internal@3.27.1)
 
-## [@segment/action-destinations@3.27.1](https://github.com/segmentio/action-destinations/tree/@segment/action-destinations@3.27.1) (2021-11-11)
+## [@segment/actions-cli@3.27.1](https://github.com/segmentio/action-destinations/tree/@segment/actions-cli@3.27.1) (2021-11-11)
 
-[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/actions-cli@3.27.0...@segment/action-destinations@3.27.1)
+[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/browser-destinations@3.19.0...@segment/actions-cli@3.27.1)
 
-## [@segment/actions-cli@3.27.0](https://github.com/segmentio/action-destinations/tree/@segment/actions-cli@3.27.0) (2021-11-10)
+## [@segment/browser-destinations@3.19.0](https://github.com/segmentio/action-destinations/tree/@segment/browser-destinations@3.19.0) (2021-11-10)
 
-[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/actions-core@3.19.0...@segment/actions-cli@3.27.0)
-
-## [@segment/actions-core@3.19.0](https://github.com/segmentio/action-destinations/tree/@segment/actions-core@3.19.0) (2021-11-10)
-
-[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/actions-cli-internal@3.27.0...@segment/actions-core@3.19.0)
+[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/actions-cli-internal@3.27.0...@segment/browser-destinations@3.19.0)
 
 ## [@segment/actions-cli-internal@3.27.0](https://github.com/segmentio/action-destinations/tree/@segment/actions-cli-internal@3.27.0) (2021-11-10)
 
@@ -752,35 +777,39 @@
 
 ## [@segment/action-destinations@3.27.0](https://github.com/segmentio/action-destinations/tree/@segment/action-destinations@3.27.0) (2021-11-10)
 
-[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/browser-destinations@3.19.0...@segment/action-destinations@3.27.0)
+[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/actions-cli@3.27.0...@segment/action-destinations@3.27.0)
 
-## [@segment/browser-destinations@3.19.0](https://github.com/segmentio/action-destinations/tree/@segment/browser-destinations@3.19.0) (2021-11-10)
+## [@segment/actions-cli@3.27.0](https://github.com/segmentio/action-destinations/tree/@segment/actions-cli@3.27.0) (2021-11-10)
 
-[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/action-destinations@3.26.0...@segment/browser-destinations@3.19.0)
+[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/actions-core@3.19.0...@segment/actions-cli@3.27.0)
+
+## [@segment/actions-core@3.19.0](https://github.com/segmentio/action-destinations/tree/@segment/actions-core@3.19.0) (2021-11-10)
+
+[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/actions-core@3.18.0...@segment/actions-core@3.19.0)
 
 **Merged pull requests:**
 
 - add authenticate endpoint to local server and better logs [\#330](https://github.com/segmentio/action-destinations/pull/330) ([mshwery](https://github.com/mshwery))
 
-## [@segment/action-destinations@3.26.0](https://github.com/segmentio/action-destinations/tree/@segment/action-destinations@3.26.0) (2021-11-10)
-
-[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/actions-core@3.18.0...@segment/action-destinations@3.26.0)
-
 ## [@segment/actions-core@3.18.0](https://github.com/segmentio/action-destinations/tree/@segment/actions-core@3.18.0) (2021-11-10)
 
-[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/actions-cli-internal@3.26.0...@segment/actions-core@3.18.0)
-
-## [@segment/actions-cli-internal@3.26.0](https://github.com/segmentio/action-destinations/tree/@segment/actions-cli-internal@3.26.0) (2021-11-10)
-
-[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/browser-destinations@3.18.0...@segment/actions-cli-internal@3.26.0)
-
-## [@segment/browser-destinations@3.18.0](https://github.com/segmentio/action-destinations/tree/@segment/browser-destinations@3.18.0) (2021-11-10)
-
-[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/actions-cli@3.26.0...@segment/browser-destinations@3.18.0)
+[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/actions-cli@3.26.0...@segment/actions-core@3.18.0)
 
 ## [@segment/actions-cli@3.26.0](https://github.com/segmentio/action-destinations/tree/@segment/actions-cli@3.26.0) (2021-11-10)
 
-[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/actions-cli-internal@3.25.3...@segment/actions-cli@3.26.0)
+[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/browser-destinations@3.18.0...@segment/actions-cli@3.26.0)
+
+## [@segment/browser-destinations@3.18.0](https://github.com/segmentio/action-destinations/tree/@segment/browser-destinations@3.18.0) (2021-11-10)
+
+[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/action-destinations@3.26.0...@segment/browser-destinations@3.18.0)
+
+## [@segment/action-destinations@3.26.0](https://github.com/segmentio/action-destinations/tree/@segment/action-destinations@3.26.0) (2021-11-10)
+
+[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/actions-cli-internal@3.26.0...@segment/action-destinations@3.26.0)
+
+## [@segment/actions-cli-internal@3.26.0](https://github.com/segmentio/action-destinations/tree/@segment/actions-cli-internal@3.26.0) (2021-11-10)
+
+[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/actions-cli@3.25.3...@segment/actions-cli-internal@3.26.0)
 
 **Merged pull requests:**
 
@@ -792,13 +821,13 @@
 - Google Enhanced Conversions: Fixed an incorrect description [\#322](https://github.com/segmentio/action-destinations/pull/322) ([nick-Ag](https://github.com/nick-Ag))
 - removing requirements to add in secret key and app id [\#319](https://github.com/segmentio/action-destinations/pull/319) ([coreyching](https://github.com/coreyching))
 
-## [@segment/actions-cli-internal@3.25.3](https://github.com/segmentio/action-destinations/tree/@segment/actions-cli-internal@3.25.3) (2021-11-09)
-
-[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/actions-cli@3.25.3...@segment/actions-cli-internal@3.25.3)
-
 ## [@segment/actions-cli@3.25.3](https://github.com/segmentio/action-destinations/tree/@segment/actions-cli@3.25.3) (2021-11-09)
 
-[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/action-destinations@3.25.3...@segment/actions-cli@3.25.3)
+[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/actions-cli-internal@3.25.3...@segment/actions-cli@3.25.3)
+
+## [@segment/actions-cli-internal@3.25.3](https://github.com/segmentio/action-destinations/tree/@segment/actions-cli-internal@3.25.3) (2021-11-09)
+
+[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/action-destinations@3.25.3...@segment/actions-cli-internal@3.25.3)
 
 ## [@segment/action-destinations@3.25.3](https://github.com/segmentio/action-destinations/tree/@segment/action-destinations@3.25.3) (2021-11-09)
 
@@ -814,11 +843,15 @@
 
 ## [@segment/action-destinations@3.25.2](https://github.com/segmentio/action-destinations/tree/@segment/action-destinations@3.25.2) (2021-11-08)
 
-[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/browser-destinations@3.17.1...@segment/action-destinations@3.25.2)
+[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/action-destinations@3.25.1...@segment/action-destinations@3.25.2)
 
 **Merged pull requests:**
 
 - Update Customer.io actions name [\#321](https://github.com/segmentio/action-destinations/pull/321) ([jinapark202](https://github.com/jinapark202))
+
+## [@segment/action-destinations@3.25.1](https://github.com/segmentio/action-destinations/tree/@segment/action-destinations@3.25.1) (2021-11-05)
+
+[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/browser-destinations@3.17.1...@segment/action-destinations@3.25.1)
 
 ## [@segment/browser-destinations@3.17.1](https://github.com/segmentio/action-destinations/tree/@segment/browser-destinations@3.17.1) (2021-11-05)
 
@@ -826,11 +859,7 @@
 
 ## [@segment/actions-cli@3.25.1](https://github.com/segmentio/action-destinations/tree/@segment/actions-cli@3.25.1) (2021-11-05)
 
-[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/action-destinations@3.25.1...@segment/actions-cli@3.25.1)
-
-## [@segment/action-destinations@3.25.1](https://github.com/segmentio/action-destinations/tree/@segment/action-destinations@3.25.1) (2021-11-05)
-
-[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/actions-cli-internal@3.25.1...@segment/action-destinations@3.25.1)
+[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/actions-cli-internal@3.25.1...@segment/actions-cli@3.25.1)
 
 ## [@segment/actions-cli-internal@3.25.1](https://github.com/segmentio/action-destinations/tree/@segment/actions-cli-internal@3.25.1) (2021-11-05)
 
@@ -852,15 +881,7 @@
 
 ## [@segment/actions-core@3.17.0](https://github.com/segmentio/action-destinations/tree/@segment/actions-core@3.17.0) (2021-11-01)
 
-[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/action-destinations@3.25.0...@segment/actions-core@3.17.0)
-
-## [@segment/action-destinations@3.25.0](https://github.com/segmentio/action-destinations/tree/@segment/action-destinations@3.25.0) (2021-11-01)
-
-[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/browser-destinations@3.17.0...@segment/action-destinations@3.25.0)
-
-## [@segment/browser-destinations@3.17.0](https://github.com/segmentio/action-destinations/tree/@segment/browser-destinations@3.17.0) (2021-11-01)
-
-[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/actions-cli-internal@3.25.0...@segment/browser-destinations@3.17.0)
+[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/actions-cli-internal@3.25.0...@segment/actions-core@3.17.0)
 
 ## [@segment/actions-cli-internal@3.25.0](https://github.com/segmentio/action-destinations/tree/@segment/actions-cli-internal@3.25.0) (2021-11-01)
 
@@ -868,7 +889,15 @@
 
 ## [@segment/actions-cli@3.25.0](https://github.com/segmentio/action-destinations/tree/@segment/actions-cli@3.25.0) (2021-11-01)
 
-[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/actions-cli@3.24.1...@segment/actions-cli@3.25.0)
+[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/action-destinations@3.25.0...@segment/actions-cli@3.25.0)
+
+## [@segment/action-destinations@3.25.0](https://github.com/segmentio/action-destinations/tree/@segment/action-destinations@3.25.0) (2021-11-01)
+
+[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/browser-destinations@3.17.0...@segment/action-destinations@3.25.0)
+
+## [@segment/browser-destinations@3.17.0](https://github.com/segmentio/action-destinations/tree/@segment/browser-destinations@3.17.0) (2021-11-01)
+
+[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/actions-cli-internal@3.24.1...@segment/browser-destinations@3.17.0)
 
 **Merged pull requests:**
 
@@ -882,33 +911,29 @@
 - Add onDelete support for Braze Cloud [\#298](https://github.com/segmentio/action-destinations/pull/298) ([jinapark202](https://github.com/jinapark202))
 - Add onDelete support to Customer.io [\#297](https://github.com/segmentio/action-destinations/pull/297) ([gpsamson](https://github.com/gpsamson))
 
-## [@segment/actions-cli@3.24.1](https://github.com/segmentio/action-destinations/tree/@segment/actions-cli@3.24.1) (2021-10-28)
-
-[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/actions-cli-internal@3.24.1...@segment/actions-cli@3.24.1)
-
 ## [@segment/actions-cli-internal@3.24.1](https://github.com/segmentio/action-destinations/tree/@segment/actions-cli-internal@3.24.1) (2021-10-28)
 
-[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/action-destinations@3.24.1...@segment/actions-cli-internal@3.24.1)
+[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/actions-cli@3.24.1...@segment/actions-cli-internal@3.24.1)
+
+## [@segment/actions-cli@3.24.1](https://github.com/segmentio/action-destinations/tree/@segment/actions-cli@3.24.1) (2021-10-28)
+
+[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/action-destinations@3.24.1...@segment/actions-cli@3.24.1)
 
 ## [@segment/action-destinations@3.24.1](https://github.com/segmentio/action-destinations/tree/@segment/action-destinations@3.24.1) (2021-10-28)
 
-[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/actions-cli-internal@3.24.0...@segment/action-destinations@3.24.1)
+[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/action-destinations@3.24.0...@segment/action-destinations@3.24.1)
 
 **Merged pull requests:**
 
 - \[mixpanel\] fix group key [\#296](https://github.com/segmentio/action-destinations/pull/296) ([Alex-Kim-mp](https://github.com/Alex-Kim-mp))
 
-## [@segment/actions-cli-internal@3.24.0](https://github.com/segmentio/action-destinations/tree/@segment/actions-cli-internal@3.24.0) (2021-10-27)
-
-[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/action-destinations@3.24.0...@segment/actions-cli-internal@3.24.0)
-
 ## [@segment/action-destinations@3.24.0](https://github.com/segmentio/action-destinations/tree/@segment/action-destinations@3.24.0) (2021-10-27)
 
-[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/actions-cli@3.24.0...@segment/action-destinations@3.24.0)
+[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/actions-cli-internal@3.24.0...@segment/action-destinations@3.24.0)
 
-## [@segment/actions-cli@3.24.0](https://github.com/segmentio/action-destinations/tree/@segment/actions-cli@3.24.0) (2021-10-27)
+## [@segment/actions-cli-internal@3.24.0](https://github.com/segmentio/action-destinations/tree/@segment/actions-cli-internal@3.24.0) (2021-10-27)
 
-[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/actions-core@3.16.0...@segment/actions-cli@3.24.0)
+[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/actions-core@3.16.0...@segment/actions-cli-internal@3.24.0)
 
 ## [@segment/actions-core@3.16.0](https://github.com/segmentio/action-destinations/tree/@segment/actions-core@3.16.0) (2021-10-27)
 
@@ -916,7 +941,11 @@
 
 ## [@segment/browser-destinations@3.16.0](https://github.com/segmentio/action-destinations/tree/@segment/browser-destinations@3.16.0) (2021-10-27)
 
-[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/actions-cli@3.23.2...@segment/browser-destinations@3.16.0)
+[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/actions-cli@3.24.0...@segment/browser-destinations@3.16.0)
+
+## [@segment/actions-cli@3.24.0](https://github.com/segmentio/action-destinations/tree/@segment/actions-cli@3.24.0) (2021-10-27)
+
+[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/action-destinations@3.23.2...@segment/actions-cli@3.24.0)
 
 **Merged pull requests:**
 
@@ -924,13 +953,13 @@
 - add deletion to docs [\#292](https://github.com/segmentio/action-destinations/pull/292) ([dlasky](https://github.com/dlasky))
 - CLI Improvements [\#232](https://github.com/segmentio/action-destinations/pull/232) ([gpsamson](https://github.com/gpsamson))
 
-## [@segment/actions-cli@3.23.2](https://github.com/segmentio/action-destinations/tree/@segment/actions-cli@3.23.2) (2021-10-26)
-
-[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/action-destinations@3.23.2...@segment/actions-cli@3.23.2)
-
 ## [@segment/action-destinations@3.23.2](https://github.com/segmentio/action-destinations/tree/@segment/action-destinations@3.23.2) (2021-10-26)
 
-[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/action-destinations@3.23.1...@segment/action-destinations@3.23.2)
+[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/actions-cli@3.23.2...@segment/action-destinations@3.23.2)
+
+## [@segment/actions-cli@3.23.2](https://github.com/segmentio/action-destinations/tree/@segment/actions-cli@3.23.2) (2021-10-26)
+
+[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/action-destinations@3.23.1...@segment/actions-cli@3.23.2)
 
 **Merged pull requests:**
 
@@ -950,11 +979,7 @@
 
 ## [@segment/actions-cli@3.23.0](https://github.com/segmentio/action-destinations/tree/@segment/actions-cli@3.23.0) (2021-10-25)
 
-[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/browser-destinations@3.15.0...@segment/actions-cli@3.23.0)
-
-## [@segment/browser-destinations@3.15.0](https://github.com/segmentio/action-destinations/tree/@segment/browser-destinations@3.15.0) (2021-10-25)
-
-[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/action-destinations@3.23.0...@segment/browser-destinations@3.15.0)
+[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/action-destinations@3.23.0...@segment/actions-cli@3.23.0)
 
 ## [@segment/action-destinations@3.23.0](https://github.com/segmentio/action-destinations/tree/@segment/action-destinations@3.23.0) (2021-10-25)
 
@@ -962,7 +987,11 @@
 
 ## [@segment/actions-core@3.15.0](https://github.com/segmentio/action-destinations/tree/@segment/actions-core@3.15.0) (2021-10-25)
 
-[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/destination-subscriptions@3.8.2...@segment/actions-core@3.15.0)
+[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/browser-destinations@3.15.0...@segment/actions-core@3.15.0)
+
+## [@segment/browser-destinations@3.15.0](https://github.com/segmentio/action-destinations/tree/@segment/browser-destinations@3.15.0) (2021-10-25)
+
+[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/destination-subscriptions@3.8.2...@segment/browser-destinations@3.15.0)
 
 **Merged pull requests:**
 
@@ -973,27 +1002,27 @@
 
 ## [@segment/destination-subscriptions@3.8.2](https://github.com/segmentio/action-destinations/tree/@segment/destination-subscriptions@3.8.2) (2021-10-25)
 
-[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/actions-core@3.14.2...@segment/destination-subscriptions@3.8.2)
-
-## [@segment/actions-core@3.14.2](https://github.com/segmentio/action-destinations/tree/@segment/actions-core@3.14.2) (2021-10-25)
-
-[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/action-destinations@3.22.2...@segment/actions-core@3.14.2)
+[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/action-destinations@3.22.2...@segment/destination-subscriptions@3.8.2)
 
 ## [@segment/action-destinations@3.22.2](https://github.com/segmentio/action-destinations/tree/@segment/action-destinations@3.22.2) (2021-10-25)
 
-[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/browser-destinations@3.14.2...@segment/action-destinations@3.22.2)
+[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/actions-core@3.14.2...@segment/action-destinations@3.22.2)
 
-## [@segment/browser-destinations@3.14.2](https://github.com/segmentio/action-destinations/tree/@segment/browser-destinations@3.14.2) (2021-10-25)
+## [@segment/actions-core@3.14.2](https://github.com/segmentio/action-destinations/tree/@segment/actions-core@3.14.2) (2021-10-25)
 
-[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/ajv-human-errors@2.0.1...@segment/browser-destinations@3.14.2)
+[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/ajv-human-errors@2.0.1...@segment/actions-core@3.14.2)
 
 ## [@segment/ajv-human-errors@2.0.1](https://github.com/segmentio/action-destinations/tree/@segment/ajv-human-errors@2.0.1) (2021-10-25)
 
-[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/actions-cli@3.22.2...@segment/ajv-human-errors@2.0.1)
+[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/browser-destinations@3.14.2...@segment/ajv-human-errors@2.0.1)
+
+## [@segment/browser-destinations@3.14.2](https://github.com/segmentio/action-destinations/tree/@segment/browser-destinations@3.14.2) (2021-10-25)
+
+[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/actions-cli@3.22.2...@segment/browser-destinations@3.14.2)
 
 ## [@segment/actions-cli@3.22.2](https://github.com/segmentio/action-destinations/tree/@segment/actions-cli@3.22.2) (2021-10-25)
 
-[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/action-destinations@3.22.1...@segment/actions-cli@3.22.2)
+[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/actions-core@3.14.1...@segment/actions-cli@3.22.2)
 
 **Merged pull requests:**
 
@@ -1016,9 +1045,13 @@
 - \[BE-126\] Publish prerelease from PR [\#227](https://github.com/segmentio/action-destinations/pull/227) ([daltonscharff](https://github.com/daltonscharff))
 - Pre-commit hook to catch secrets [\#138](https://github.com/segmentio/action-destinations/pull/138) ([nick-Ag](https://github.com/nick-Ag))
 
-## [@segment/action-destinations@3.22.1](https://github.com/segmentio/action-destinations/tree/@segment/action-destinations@3.22.1) (2021-10-15)
+## [@segment/actions-core@3.14.1](https://github.com/segmentio/action-destinations/tree/@segment/actions-core@3.14.1) (2021-10-15)
 
-[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/actions-cli@3.22.1...@segment/action-destinations@3.22.1)
+[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/destination-subscriptions@3.8.1...@segment/actions-core@3.14.1)
+
+## [@segment/destination-subscriptions@3.8.1](https://github.com/segmentio/action-destinations/tree/@segment/destination-subscriptions@3.8.1) (2021-10-15)
+
+[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/actions-cli@3.22.1...@segment/destination-subscriptions@3.8.1)
 
 ## [@segment/actions-cli@3.22.1](https://github.com/segmentio/action-destinations/tree/@segment/actions-cli@3.22.1) (2021-10-15)
 
@@ -1026,15 +1059,11 @@
 
 ## [@segment/browser-destinations@3.14.1](https://github.com/segmentio/action-destinations/tree/@segment/browser-destinations@3.14.1) (2021-10-15)
 
-[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/actions-core@3.14.1...@segment/browser-destinations@3.14.1)
+[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/action-destinations@3.22.1...@segment/browser-destinations@3.14.1)
 
-## [@segment/actions-core@3.14.1](https://github.com/segmentio/action-destinations/tree/@segment/actions-core@3.14.1) (2021-10-15)
+## [@segment/action-destinations@3.22.1](https://github.com/segmentio/action-destinations/tree/@segment/action-destinations@3.22.1) (2021-10-15)
 
-[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/destination-subscriptions@3.8.1...@segment/actions-core@3.14.1)
-
-## [@segment/destination-subscriptions@3.8.1](https://github.com/segmentio/action-destinations/tree/@segment/destination-subscriptions@3.8.1) (2021-10-15)
-
-[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/actions-cli@3.22.0...@segment/destination-subscriptions@3.8.1)
+[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/action-destinations@3.22.0...@segment/action-destinations@3.22.1)
 
 **Merged pull requests:**
 
@@ -1042,50 +1071,50 @@
 - parse context properly [\#270](https://github.com/segmentio/action-destinations/pull/270) ([mshwery](https://github.com/mshwery))
 - re-up snyk expiry [\#268](https://github.com/segmentio/action-destinations/pull/268) ([mshwery](https://github.com/mshwery))
 
-## [@segment/actions-cli@3.22.0](https://github.com/segmentio/action-destinations/tree/@segment/actions-cli@3.22.0) (2021-10-14)
-
-[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/action-destinations@3.22.0...@segment/actions-cli@3.22.0)
-
 ## [@segment/action-destinations@3.22.0](https://github.com/segmentio/action-destinations/tree/@segment/action-destinations@3.22.0) (2021-10-14)
 
-[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/action-destinations@3.21.0...@segment/action-destinations@3.22.0)
+[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/actions-cli@3.22.0...@segment/action-destinations@3.22.0)
+
+## [@segment/actions-cli@3.22.0](https://github.com/segmentio/action-destinations/tree/@segment/actions-cli@3.22.0) (2021-10-14)
+
+[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/actions-cli@3.21.0...@segment/actions-cli@3.22.0)
 
 **Merged pull requests:**
 
 - updating preset spelling [\#266](https://github.com/segmentio/action-destinations/pull/266) ([coreyching](https://github.com/coreyching))
 - Upgradez [\#264](https://github.com/segmentio/action-destinations/pull/264) ([mshwery](https://github.com/mshwery))
 
-## [@segment/action-destinations@3.21.0](https://github.com/segmentio/action-destinations/tree/@segment/action-destinations@3.21.0) (2021-10-14)
-
-[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/actions-cli@3.21.0...@segment/action-destinations@3.21.0)
-
 ## [@segment/actions-cli@3.21.0](https://github.com/segmentio/action-destinations/tree/@segment/actions-cli@3.21.0) (2021-10-14)
 
-[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/actions-core@3.14.0...@segment/actions-cli@3.21.0)
+[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/action-destinations@3.21.0...@segment/actions-cli@3.21.0)
+
+## [@segment/action-destinations@3.21.0](https://github.com/segmentio/action-destinations/tree/@segment/action-destinations@3.21.0) (2021-10-14)
+
+[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/browser-destinations@3.14.0...@segment/action-destinations@3.21.0)
 
 **Merged pull requests:**
 
 - s/any/unknown [\#263](https://github.com/segmentio/action-destinations/pull/263) ([mshwery](https://github.com/mshwery))
 
-## [@segment/actions-core@3.14.0](https://github.com/segmentio/action-destinations/tree/@segment/actions-core@3.14.0) (2021-10-14)
+## [@segment/browser-destinations@3.14.0](https://github.com/segmentio/action-destinations/tree/@segment/browser-destinations@3.14.0) (2021-10-14)
 
-[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/action-destinations@3.20.0...@segment/actions-core@3.14.0)
+[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/action-destinations@3.20.0...@segment/browser-destinations@3.14.0)
 
 ## [@segment/action-destinations@3.20.0](https://github.com/segmentio/action-destinations/tree/@segment/action-destinations@3.20.0) (2021-10-14)
 
-[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/actions-cli@3.20.0...@segment/action-destinations@3.20.0)
-
-## [@segment/actions-cli@3.20.0](https://github.com/segmentio/action-destinations/tree/@segment/actions-cli@3.20.0) (2021-10-14)
-
-[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/ajv-human-errors@2.0.0...@segment/actions-cli@3.20.0)
+[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/ajv-human-errors@2.0.0...@segment/action-destinations@3.20.0)
 
 ## [@segment/ajv-human-errors@2.0.0](https://github.com/segmentio/action-destinations/tree/@segment/ajv-human-errors@2.0.0) (2021-10-14)
 
-[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/browser-destinations@3.14.0...@segment/ajv-human-errors@2.0.0)
+[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/actions-core@3.14.0...@segment/ajv-human-errors@2.0.0)
 
-## [@segment/browser-destinations@3.14.0](https://github.com/segmentio/action-destinations/tree/@segment/browser-destinations@3.14.0) (2021-10-14)
+## [@segment/actions-core@3.14.0](https://github.com/segmentio/action-destinations/tree/@segment/actions-core@3.14.0) (2021-10-14)
 
-[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/actions-cli@3.19.1-alpha.0...@segment/browser-destinations@3.14.0)
+[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/actions-cli@3.20.0...@segment/actions-core@3.14.0)
+
+## [@segment/actions-cli@3.20.0](https://github.com/segmentio/action-destinations/tree/@segment/actions-cli@3.20.0) (2021-10-14)
+
+[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/actions-cli@3.19.1-alpha.0...@segment/actions-cli@3.20.0)
 
 **Merged pull requests:**
 
@@ -1110,7 +1139,7 @@
 
 ## [@segment/action-destinations@3.19.0](https://github.com/segmentio/action-destinations/tree/@segment/action-destinations@3.19.0) (2021-10-13)
 
-[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/action-destinations@3.18.3...@segment/action-destinations@3.19.0)
+[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/actions-cli@3.18.3...@segment/action-destinations@3.19.0)
 
 **Merged pull requests:**
 
@@ -1119,26 +1148,26 @@
 - CLI: validate fql in actions and presets [\#255](https://github.com/segmentio/action-destinations/pull/255) ([mshwery](https://github.com/mshwery))
 - Adding in text changes & updating destination name & slug [\#253](https://github.com/segmentio/action-destinations/pull/253) ([coreyching](https://github.com/coreyching))
 
-## [@segment/action-destinations@3.18.3](https://github.com/segmentio/action-destinations/tree/@segment/action-destinations@3.18.3) (2021-10-13)
-
-[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/actions-cli@3.18.3...@segment/action-destinations@3.18.3)
-
 ## [@segment/actions-cli@3.18.3](https://github.com/segmentio/action-destinations/tree/@segment/actions-cli@3.18.3) (2021-10-13)
 
-[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/action-destinations@3.18.2...@segment/actions-cli@3.18.3)
+[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/action-destinations@3.18.3...@segment/actions-cli@3.18.3)
+
+## [@segment/action-destinations@3.18.3](https://github.com/segmentio/action-destinations/tree/@segment/action-destinations@3.18.3) (2021-10-13)
+
+[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/actions-cli@3.18.2...@segment/action-destinations@3.18.3)
 
 **Merged pull requests:**
 
 - change userId to distinctId for track [\#252](https://github.com/segmentio/action-destinations/pull/252) ([Alex-Kim-mp](https://github.com/Alex-Kim-mp))
 - adding in tiktok to index.ts to register destination [\#238](https://github.com/segmentio/action-destinations/pull/238) ([coreyching](https://github.com/coreyching))
 
-## [@segment/action-destinations@3.18.2](https://github.com/segmentio/action-destinations/tree/@segment/action-destinations@3.18.2) (2021-10-12)
-
-[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/actions-cli@3.18.2...@segment/action-destinations@3.18.2)
-
 ## [@segment/actions-cli@3.18.2](https://github.com/segmentio/action-destinations/tree/@segment/actions-cli@3.18.2) (2021-10-12)
 
-[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/action-destinations@3.18.1...@segment/actions-cli@3.18.2)
+[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/action-destinations@3.18.2...@segment/actions-cli@3.18.2)
+
+## [@segment/action-destinations@3.18.2](https://github.com/segmentio/action-destinations/tree/@segment/action-destinations@3.18.2) (2021-10-12)
+
+[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/action-destinations@3.18.1...@segment/action-destinations@3.18.2)
 
 **Merged pull requests:**
 
@@ -1150,7 +1179,7 @@
 
 ## [@segment/actions-cli@3.18.1](https://github.com/segmentio/action-destinations/tree/@segment/actions-cli@3.18.1) (2021-10-12)
 
-[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/actions-cli@3.18.0...@segment/actions-cli@3.18.1)
+[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/action-destinations@3.18.0...@segment/actions-cli@3.18.1)
 
 **Merged pull requests:**
 
@@ -1158,21 +1187,21 @@
 - diff presets in `push` [\#248](https://github.com/segmentio/action-destinations/pull/248) ([mshwery](https://github.com/mshwery))
 - \[Customer.io\] Don't validate Account Region as a uri [\#247](https://github.com/segmentio/action-destinations/pull/247) ([mike-engel](https://github.com/mike-engel))
 
-## [@segment/actions-cli@3.18.0](https://github.com/segmentio/action-destinations/tree/@segment/actions-cli@3.18.0) (2021-10-12)
-
-[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/browser-destinations@3.13.0...@segment/actions-cli@3.18.0)
-
-## [@segment/browser-destinations@3.13.0](https://github.com/segmentio/action-destinations/tree/@segment/browser-destinations@3.13.0) (2021-10-12)
-
-[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/action-destinations@3.18.0...@segment/browser-destinations@3.13.0)
-
 ## [@segment/action-destinations@3.18.0](https://github.com/segmentio/action-destinations/tree/@segment/action-destinations@3.18.0) (2021-10-12)
 
 [Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/actions-core@3.13.0...@segment/action-destinations@3.18.0)
 
 ## [@segment/actions-core@3.13.0](https://github.com/segmentio/action-destinations/tree/@segment/actions-core@3.13.0) (2021-10-12)
 
-[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/actions-core@3.12.0...@segment/actions-core@3.13.0)
+[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/browser-destinations@3.13.0...@segment/actions-core@3.13.0)
+
+## [@segment/browser-destinations@3.13.0](https://github.com/segmentio/action-destinations/tree/@segment/browser-destinations@3.13.0) (2021-10-12)
+
+[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/actions-cli@3.18.0...@segment/browser-destinations@3.13.0)
+
+## [@segment/actions-cli@3.18.0](https://github.com/segmentio/action-destinations/tree/@segment/actions-cli@3.18.0) (2021-10-12)
+
+[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/actions-cli@3.17.0...@segment/actions-cli@3.18.0)
 
 **Merged pull requests:**
 
@@ -1180,25 +1209,25 @@
 - updating testing credentials & field type [\#245](https://github.com/segmentio/action-destinations/pull/245) ([coreyching](https://github.com/coreyching))
 - GROW-407 - block demo workspace email domains from execution [\#244](https://github.com/segmentio/action-destinations/pull/244) ([laurenfb](https://github.com/laurenfb))
 
-## [@segment/actions-core@3.12.0](https://github.com/segmentio/action-destinations/tree/@segment/actions-core@3.12.0) (2021-10-11)
-
-[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/actions-cli@3.17.0...@segment/actions-core@3.12.0)
-
 ## [@segment/actions-cli@3.17.0](https://github.com/segmentio/action-destinations/tree/@segment/actions-cli@3.17.0) (2021-10-11)
 
-[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/destination-subscriptions@3.8.0...@segment/actions-cli@3.17.0)
-
-## [@segment/destination-subscriptions@3.8.0](https://github.com/segmentio/action-destinations/tree/@segment/destination-subscriptions@3.8.0) (2021-10-11)
-
-[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/action-destinations@3.17.0...@segment/destination-subscriptions@3.8.0)
+[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/action-destinations@3.17.0...@segment/actions-cli@3.17.0)
 
 ## [@segment/action-destinations@3.17.0](https://github.com/segmentio/action-destinations/tree/@segment/action-destinations@3.17.0) (2021-10-11)
 
-[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/browser-destinations@3.12.0...@segment/action-destinations@3.17.0)
+[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/actions-core@3.12.0...@segment/action-destinations@3.17.0)
+
+## [@segment/actions-core@3.12.0](https://github.com/segmentio/action-destinations/tree/@segment/actions-core@3.12.0) (2021-10-11)
+
+[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/browser-destinations@3.12.0...@segment/actions-core@3.12.0)
 
 ## [@segment/browser-destinations@3.12.0](https://github.com/segmentio/action-destinations/tree/@segment/browser-destinations@3.12.0) (2021-10-11)
 
-[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/action-destinations@3.16.0...@segment/browser-destinations@3.12.0)
+[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/destination-subscriptions@3.8.0...@segment/browser-destinations@3.12.0)
+
+## [@segment/destination-subscriptions@3.8.0](https://github.com/segmentio/action-destinations/tree/@segment/destination-subscriptions@3.8.0) (2021-10-11)
+
+[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/actions-cli@3.16.0...@segment/destination-subscriptions@3.8.0)
 
 **Merged pull requests:**
 
@@ -1214,13 +1243,13 @@
 - update readme and docs location [\#226](https://github.com/segmentio/action-destinations/pull/226) ([mshwery](https://github.com/mshwery))
 - Doc updates [\#225](https://github.com/segmentio/action-destinations/pull/225) ([markzegarelli](https://github.com/markzegarelli))
 
-## [@segment/action-destinations@3.16.0](https://github.com/segmentio/action-destinations/tree/@segment/action-destinations@3.16.0) (2021-10-08)
-
-[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/actions-cli@3.16.0...@segment/action-destinations@3.16.0)
-
 ## [@segment/actions-cli@3.16.0](https://github.com/segmentio/action-destinations/tree/@segment/actions-cli@3.16.0) (2021-10-08)
 
-[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/actions-cli@3.15.0...@segment/actions-cli@3.16.0)
+[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/action-destinations@3.16.0...@segment/actions-cli@3.16.0)
+
+## [@segment/action-destinations@3.16.0](https://github.com/segmentio/action-destinations/tree/@segment/action-destinations@3.16.0) (2021-10-08)
+
+[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/actions-cli@3.15.0...@segment/action-destinations@3.16.0)
 
 ## [@segment/actions-cli@3.15.0](https://github.com/segmentio/action-destinations/tree/@segment/actions-cli@3.15.0) (2021-10-07)
 
@@ -1228,12 +1257,16 @@
 
 ## [@segment/action-destinations@3.15.0](https://github.com/segmentio/action-destinations/tree/@segment/action-destinations@3.15.0) (2021-10-07)
 
-[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/action-destinations@3.14.1...@segment/action-destinations@3.15.0)
+[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/actions-core@3.11.1...@segment/action-destinations@3.15.0)
 
 **Merged pull requests:**
 
 - fix mixpanel auth service [\#230](https://github.com/segmentio/action-destinations/pull/230) ([Alex-Kim-mp](https://github.com/Alex-Kim-mp))
 - Support more InputField formats in generateTestData. [\#222](https://github.com/segmentio/action-destinations/pull/222) ([dhull](https://github.com/dhull))
+
+## [@segment/actions-core@3.11.1](https://github.com/segmentio/action-destinations/tree/@segment/actions-core@3.11.1) (2021-10-05)
+
+[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/action-destinations@3.14.1...@segment/actions-core@3.11.1)
 
 ## [@segment/action-destinations@3.14.1](https://github.com/segmentio/action-destinations/tree/@segment/action-destinations@3.14.1) (2021-10-05)
 
@@ -1245,11 +1278,7 @@
 
 ## [@segment/actions-cli@3.14.1](https://github.com/segmentio/action-destinations/tree/@segment/actions-cli@3.14.1) (2021-10-05)
 
-[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/actions-core@3.11.1...@segment/actions-cli@3.14.1)
-
-## [@segment/actions-core@3.11.1](https://github.com/segmentio/action-destinations/tree/@segment/actions-core@3.11.1) (2021-10-05)
-
-[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/actions-cli@3.14.0...@segment/actions-core@3.11.1)
+[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/actions-cli@3.14.0...@segment/actions-cli@3.14.1)
 
 **Merged pull requests:**
 
@@ -1287,11 +1316,23 @@
 
 ## [@segment/actions-cli@3.12.1](https://github.com/segmentio/action-destinations/tree/@segment/actions-cli@3.12.1) (2021-10-05)
 
-[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/actions-core@3.11.0...@segment/actions-cli@3.12.1)
+[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/destination-subscriptions@3.7.0...@segment/actions-cli@3.12.1)
 
 **Merged pull requests:**
 
 - Add `replyToEqualsFrom` setting to Personas Sendgrid [\#215](https://github.com/segmentio/action-destinations/pull/215) ([vadimdemedes](https://github.com/vadimdemedes))
+
+## [@segment/destination-subscriptions@3.7.0](https://github.com/segmentio/action-destinations/tree/@segment/destination-subscriptions@3.7.0) (2021-10-05)
+
+[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/action-destinations@3.12.0...@segment/destination-subscriptions@3.7.0)
+
+## [@segment/action-destinations@3.12.0](https://github.com/segmentio/action-destinations/tree/@segment/action-destinations@3.12.0) (2021-10-05)
+
+[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/browser-destinations@3.11.0...@segment/action-destinations@3.12.0)
+
+## [@segment/browser-destinations@3.11.0](https://github.com/segmentio/action-destinations/tree/@segment/browser-destinations@3.11.0) (2021-10-05)
+
+[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/actions-core@3.11.0...@segment/browser-destinations@3.11.0)
 
 ## [@segment/actions-core@3.11.0](https://github.com/segmentio/action-destinations/tree/@segment/actions-core@3.11.0) (2021-10-05)
 
@@ -1299,19 +1340,7 @@
 
 ## [@segment/actions-cli@3.12.0](https://github.com/segmentio/action-destinations/tree/@segment/actions-cli@3.12.0) (2021-10-05)
 
-[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/destination-subscriptions@3.7.0...@segment/actions-cli@3.12.0)
-
-## [@segment/destination-subscriptions@3.7.0](https://github.com/segmentio/action-destinations/tree/@segment/destination-subscriptions@3.7.0) (2021-10-05)
-
-[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/browser-destinations@3.11.0...@segment/destination-subscriptions@3.7.0)
-
-## [@segment/browser-destinations@3.11.0](https://github.com/segmentio/action-destinations/tree/@segment/browser-destinations@3.11.0) (2021-10-05)
-
-[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/action-destinations@3.12.0...@segment/browser-destinations@3.11.0)
-
-## [@segment/action-destinations@3.12.0](https://github.com/segmentio/action-destinations/tree/@segment/action-destinations@3.12.0) (2021-10-05)
-
-[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/action-destinations@3.11.2...@segment/action-destinations@3.12.0)
+[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/browser-destinations@3.10.1...@segment/actions-cli@3.12.0)
 
 **Merged pull requests:**
 
@@ -1321,17 +1350,17 @@
 - \[Bugfix\] Fixes 'could not read Username' error in Publish workflow [\#213](https://github.com/segmentio/action-destinations/pull/213) ([daltonscharff](https://github.com/daltonscharff))
 - cli: overwrite all top-level settings during `push` [\#211](https://github.com/segmentio/action-destinations/pull/211) ([mshwery](https://github.com/mshwery))
 
-## [@segment/action-destinations@3.11.2](https://github.com/segmentio/action-destinations/tree/@segment/action-destinations@3.11.2) (2021-10-01)
-
-[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/browser-destinations@3.10.1...@segment/action-destinations@3.11.2)
-
 ## [@segment/browser-destinations@3.10.1](https://github.com/segmentio/action-destinations/tree/@segment/browser-destinations@3.10.1) (2021-10-01)
 
-[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/actions-cli@3.11.2...@segment/browser-destinations@3.10.1)
+[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/action-destinations@3.11.2...@segment/browser-destinations@3.10.1)
+
+## [@segment/action-destinations@3.11.2](https://github.com/segmentio/action-destinations/tree/@segment/action-destinations@3.11.2) (2021-10-01)
+
+[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/actions-cli@3.11.2...@segment/action-destinations@3.11.2)
 
 ## [@segment/actions-cli@3.11.2](https://github.com/segmentio/action-destinations/tree/@segment/actions-cli@3.11.2) (2021-10-01)
 
-[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/actions-cli@3.11.1...@segment/actions-cli@3.11.2)
+[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/action-destinations@3.11.1...@segment/actions-cli@3.11.2)
 
 **Merged pull requests:**
 
@@ -1341,13 +1370,13 @@
 - \(Fullstory\) Don't call setvars if pagename and properties are both null [\#206](https://github.com/segmentio/action-destinations/pull/206) ([danieljackins](https://github.com/danieljackins))
 - prefer auth.fields order [\#205](https://github.com/segmentio/action-destinations/pull/205) ([mshwery](https://github.com/mshwery))
 
-## [@segment/actions-cli@3.11.1](https://github.com/segmentio/action-destinations/tree/@segment/actions-cli@3.11.1) (2021-09-29)
-
-[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/action-destinations@3.11.1...@segment/actions-cli@3.11.1)
-
 ## [@segment/action-destinations@3.11.1](https://github.com/segmentio/action-destinations/tree/@segment/action-destinations@3.11.1) (2021-09-29)
 
-[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/action-destinations@3.11.0...@segment/action-destinations@3.11.1)
+[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/actions-cli@3.11.1...@segment/action-destinations@3.11.1)
+
+## [@segment/actions-cli@3.11.1](https://github.com/segmentio/action-destinations/tree/@segment/actions-cli@3.11.1) (2021-09-29)
+
+[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/action-destinations@3.11.0...@segment/actions-cli@3.11.1)
 
 **Merged pull requests:**
 
@@ -1362,32 +1391,32 @@
 
 ## [@segment/actions-cli@3.11.0](https://github.com/segmentio/action-destinations/tree/@segment/actions-cli@3.11.0) (2021-09-28)
 
-[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/actions-cli@3.10.0...@segment/actions-cli@3.11.0)
+[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/action-destinations@3.10.0...@segment/actions-cli@3.11.0)
 
 **Merged pull requests:**
 
 - Add `fromDomain` setting to Sendgrid [\#199](https://github.com/segmentio/action-destinations/pull/199) ([vadimdemedes](https://github.com/vadimdemedes))
 - \[Customer.io\] Followups after the initial customer.io actions update [\#187](https://github.com/segmentio/action-destinations/pull/187) ([mike-engel](https://github.com/mike-engel))
 
-## [@segment/actions-cli@3.10.0](https://github.com/segmentio/action-destinations/tree/@segment/actions-cli@3.10.0) (2021-09-28)
+## [@segment/action-destinations@3.10.0](https://github.com/segmentio/action-destinations/tree/@segment/action-destinations@3.10.0) (2021-09-28)
 
-[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/destination-subscriptions@3.6.0...@segment/actions-cli@3.10.0)
+[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/destination-subscriptions@3.6.0...@segment/action-destinations@3.10.0)
 
 ## [@segment/destination-subscriptions@3.6.0](https://github.com/segmentio/action-destinations/tree/@segment/destination-subscriptions@3.6.0) (2021-09-28)
 
-[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/actions-core@3.10.0...@segment/destination-subscriptions@3.6.0)
+[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/actions-cli@3.10.0...@segment/destination-subscriptions@3.6.0)
 
-## [@segment/actions-core@3.10.0](https://github.com/segmentio/action-destinations/tree/@segment/actions-core@3.10.0) (2021-09-28)
+## [@segment/actions-cli@3.10.0](https://github.com/segmentio/action-destinations/tree/@segment/actions-cli@3.10.0) (2021-09-28)
 
-[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/browser-destinations@3.10.0...@segment/actions-core@3.10.0)
+[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/browser-destinations@3.10.0...@segment/actions-cli@3.10.0)
 
 ## [@segment/browser-destinations@3.10.0](https://github.com/segmentio/action-destinations/tree/@segment/browser-destinations@3.10.0) (2021-09-28)
 
-[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/action-destinations@3.10.0...@segment/browser-destinations@3.10.0)
+[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/actions-core@3.10.0...@segment/browser-destinations@3.10.0)
 
-## [@segment/action-destinations@3.10.0](https://github.com/segmentio/action-destinations/tree/@segment/action-destinations@3.10.0) (2021-09-28)
+## [@segment/actions-core@3.10.0](https://github.com/segmentio/action-destinations/tree/@segment/actions-core@3.10.0) (2021-09-28)
 
-[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/browser-destinations@3.9.2...@segment/action-destinations@3.10.0)
+[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/actions-core@3.9.2...@segment/actions-core@3.10.0)
 
 **Merged pull requests:**
 
@@ -1395,21 +1424,21 @@
 - Update Viewed Page action fields [\#197](https://github.com/segmentio/action-destinations/pull/197) ([danieljackins](https://github.com/danieljackins))
 - \[Amplitude Browser\] Remove duo-writing for session\_id plugin [\#196](https://github.com/segmentio/action-destinations/pull/196) ([juliofarah](https://github.com/juliofarah))
 
-## [@segment/browser-destinations@3.9.2](https://github.com/segmentio/action-destinations/tree/@segment/browser-destinations@3.9.2) (2021-09-27)
-
-[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/action-destinations@3.9.2...@segment/browser-destinations@3.9.2)
-
-## [@segment/action-destinations@3.9.2](https://github.com/segmentio/action-destinations/tree/@segment/action-destinations@3.9.2) (2021-09-27)
-
-[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/actions-core@3.9.2...@segment/action-destinations@3.9.2)
-
 ## [@segment/actions-core@3.9.2](https://github.com/segmentio/action-destinations/tree/@segment/actions-core@3.9.2) (2021-09-27)
 
 [Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/actions-cli@3.9.2...@segment/actions-core@3.9.2)
 
 ## [@segment/actions-cli@3.9.2](https://github.com/segmentio/action-destinations/tree/@segment/actions-cli@3.9.2) (2021-09-27)
 
-[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/action-destinations@3.9.1...@segment/actions-cli@3.9.2)
+[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/action-destinations@3.9.2...@segment/actions-cli@3.9.2)
+
+## [@segment/action-destinations@3.9.2](https://github.com/segmentio/action-destinations/tree/@segment/action-destinations@3.9.2) (2021-09-27)
+
+[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/browser-destinations@3.9.2...@segment/action-destinations@3.9.2)
+
+## [@segment/browser-destinations@3.9.2](https://github.com/segmentio/action-destinations/tree/@segment/browser-destinations@3.9.2) (2021-09-27)
+
+[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/browser-destinations@3.9.1...@segment/browser-destinations@3.9.2)
 
 **Merged pull requests:**
 
@@ -1425,21 +1454,21 @@
 - \[Amplitude\] Dual-write sessionId for a future migration [\#185](https://github.com/segmentio/action-destinations/pull/185) ([juliofarah](https://github.com/juliofarah))
 - Add fullstory production id [\#167](https://github.com/segmentio/action-destinations/pull/167) ([danieljackins](https://github.com/danieljackins))
 
-## [@segment/action-destinations@3.9.1](https://github.com/segmentio/action-destinations/tree/@segment/action-destinations@3.9.1) (2021-09-21)
+## [@segment/browser-destinations@3.9.1](https://github.com/segmentio/action-destinations/tree/@segment/browser-destinations@3.9.1) (2021-09-21)
 
-[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/actions-cli@3.9.1...@segment/action-destinations@3.9.1)
+[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/actions-cli@3.9.1...@segment/browser-destinations@3.9.1)
 
 ## [@segment/actions-cli@3.9.1](https://github.com/segmentio/action-destinations/tree/@segment/actions-cli@3.9.1) (2021-09-21)
 
-[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/browser-destinations@3.9.1...@segment/actions-cli@3.9.1)
-
-## [@segment/browser-destinations@3.9.1](https://github.com/segmentio/action-destinations/tree/@segment/browser-destinations@3.9.1) (2021-09-21)
-
-[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/actions-core@3.9.1...@segment/browser-destinations@3.9.1)
+[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/actions-core@3.9.1...@segment/actions-cli@3.9.1)
 
 ## [@segment/actions-core@3.9.1](https://github.com/segmentio/action-destinations/tree/@segment/actions-core@3.9.1) (2021-09-21)
 
-[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/action-destinations@3.9.0...@segment/actions-core@3.9.1)
+[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/action-destinations@3.9.1...@segment/actions-core@3.9.1)
+
+## [@segment/action-destinations@3.9.1](https://github.com/segmentio/action-destinations/tree/@segment/action-destinations@3.9.1) (2021-09-21)
+
+[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/browser-destinations@3.9.0...@segment/action-destinations@3.9.1)
 
 **Merged pull requests:**
 
@@ -1449,17 +1478,17 @@
 - Fix Jira payload [\#179](https://github.com/segmentio/action-destinations/pull/179) ([gpsamson](https://github.com/gpsamson))
 - add internal handling of batches of events [\#143](https://github.com/segmentio/action-destinations/pull/143) ([mshwery](https://github.com/mshwery))
 
-## [@segment/action-destinations@3.9.0](https://github.com/segmentio/action-destinations/tree/@segment/action-destinations@3.9.0) (2021-09-20)
+## [@segment/browser-destinations@3.9.0](https://github.com/segmentio/action-destinations/tree/@segment/browser-destinations@3.9.0) (2021-09-20)
 
-[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/actions-core@3.9.0...@segment/action-destinations@3.9.0)
+[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/actions-core@3.9.0...@segment/browser-destinations@3.9.0)
 
 ## [@segment/actions-core@3.9.0](https://github.com/segmentio/action-destinations/tree/@segment/actions-core@3.9.0) (2021-09-20)
 
-[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/browser-destinations@3.9.0...@segment/actions-core@3.9.0)
+[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/action-destinations@3.9.0...@segment/actions-core@3.9.0)
 
-## [@segment/browser-destinations@3.9.0](https://github.com/segmentio/action-destinations/tree/@segment/browser-destinations@3.9.0) (2021-09-20)
+## [@segment/action-destinations@3.9.0](https://github.com/segmentio/action-destinations/tree/@segment/action-destinations@3.9.0) (2021-09-20)
 
-[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/actions-cli@3.9.0...@segment/browser-destinations@3.9.0)
+[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/actions-cli@3.9.0...@segment/action-destinations@3.9.0)
 
 ## [@segment/actions-cli@3.9.0](https://github.com/segmentio/action-destinations/tree/@segment/actions-cli@3.9.0) (2021-09-20)
 
@@ -1484,11 +1513,7 @@
 
 ## [@segment/actions-cli@3.8.5](https://github.com/segmentio/action-destinations/tree/@segment/actions-cli@3.8.5) (2021-09-14)
 
-[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/actions-core@3.8.3...@segment/actions-cli@3.8.5)
-
-## [@segment/actions-core@3.8.3](https://github.com/segmentio/action-destinations/tree/@segment/actions-core@3.8.3) (2021-09-14)
-
-[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/action-destinations@3.8.5...@segment/actions-core@3.8.3)
+[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/action-destinations@3.8.5...@segment/actions-cli@3.8.5)
 
 ## [@segment/action-destinations@3.8.5](https://github.com/segmentio/action-destinations/tree/@segment/action-destinations@3.8.5) (2021-09-14)
 
@@ -1496,7 +1521,11 @@
 
 ## [@segment/browser-destinations@3.8.5](https://github.com/segmentio/action-destinations/tree/@segment/browser-destinations@3.8.5) (2021-09-14)
 
-[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/browser-destinations@3.8.5-alpha.4...@segment/browser-destinations@3.8.5)
+[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/actions-core@3.8.3...@segment/browser-destinations@3.8.5)
+
+## [@segment/actions-core@3.8.3](https://github.com/segmentio/action-destinations/tree/@segment/actions-core@3.8.3) (2021-09-14)
+
+[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/actions-cli@3.8.5-alpha.4...@segment/actions-core@3.8.3)
 
 **Merged pull requests:**
 
@@ -1512,37 +1541,37 @@
 - GRAMA-5 \[personas-messaging-sendgrid\] Allows journey metadata to be added to a send [\#149](https://github.com/segmentio/action-destinations/pull/149) ([lew-gordon](https://github.com/lew-gordon))
 - Bundle browser destination actions with content sha to invalidate cache [\#147](https://github.com/segmentio/action-destinations/pull/147) ([juliofarah](https://github.com/juliofarah))
 
-## [@segment/browser-destinations@3.8.5-alpha.4](https://github.com/segmentio/action-destinations/tree/@segment/browser-destinations@3.8.5-alpha.4) (2021-09-13)
-
-[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/actions-cli@3.8.5-alpha.4...@segment/browser-destinations@3.8.5-alpha.4)
-
 ## [@segment/actions-cli@3.8.5-alpha.4](https://github.com/segmentio/action-destinations/tree/@segment/actions-cli@3.8.5-alpha.4) (2021-09-13)
 
 [Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/actions-core@3.8.5-alpha.4...@segment/actions-cli@3.8.5-alpha.4)
 
 ## [@segment/actions-core@3.8.5-alpha.4](https://github.com/segmentio/action-destinations/tree/@segment/actions-core@3.8.5-alpha.4) (2021-09-13)
 
-[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/action-destinations@3.8.5-alpha.4...@segment/actions-core@3.8.5-alpha.4)
+[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/browser-destinations@3.8.5-alpha.4...@segment/actions-core@3.8.5-alpha.4)
+
+## [@segment/browser-destinations@3.8.5-alpha.4](https://github.com/segmentio/action-destinations/tree/@segment/browser-destinations@3.8.5-alpha.4) (2021-09-13)
+
+[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/action-destinations@3.8.5-alpha.4...@segment/browser-destinations@3.8.5-alpha.4)
 
 ## [@segment/action-destinations@3.8.5-alpha.4](https://github.com/segmentio/action-destinations/tree/@segment/action-destinations@3.8.5-alpha.4) (2021-09-13)
 
-[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/actions-core@3.8.2...@segment/action-destinations@3.8.5-alpha.4)
-
-## [@segment/actions-core@3.8.2](https://github.com/segmentio/action-destinations/tree/@segment/actions-core@3.8.2) (2021-09-09)
-
-[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/actions-cli@3.8.4...@segment/actions-core@3.8.2)
-
-## [@segment/actions-cli@3.8.4](https://github.com/segmentio/action-destinations/tree/@segment/actions-cli@3.8.4) (2021-09-09)
-
-[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/browser-destinations@3.8.4...@segment/actions-cli@3.8.4)
-
-## [@segment/browser-destinations@3.8.4](https://github.com/segmentio/action-destinations/tree/@segment/browser-destinations@3.8.4) (2021-09-09)
-
-[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/action-destinations@3.8.4...@segment/browser-destinations@3.8.4)
+[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/action-destinations@3.8.4...@segment/action-destinations@3.8.5-alpha.4)
 
 ## [@segment/action-destinations@3.8.4](https://github.com/segmentio/action-destinations/tree/@segment/action-destinations@3.8.4) (2021-09-09)
 
-[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/action-destinations@3.8.3...@segment/action-destinations@3.8.4)
+[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/actions-core@3.8.2...@segment/action-destinations@3.8.4)
+
+## [@segment/actions-core@3.8.2](https://github.com/segmentio/action-destinations/tree/@segment/actions-core@3.8.2) (2021-09-09)
+
+[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/browser-destinations@3.8.4...@segment/actions-core@3.8.2)
+
+## [@segment/browser-destinations@3.8.4](https://github.com/segmentio/action-destinations/tree/@segment/browser-destinations@3.8.4) (2021-09-09)
+
+[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/actions-cli@3.8.4...@segment/browser-destinations@3.8.4)
+
+## [@segment/actions-cli@3.8.4](https://github.com/segmentio/action-destinations/tree/@segment/actions-cli@3.8.4) (2021-09-09)
+
+[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/actions-cli@3.8.3...@segment/actions-cli@3.8.4)
 
 **Merged pull requests:**
 
@@ -1552,17 +1581,17 @@
 - cli: fix `register` to listen to "no" [\#144](https://github.com/segmentio/action-destinations/pull/144) ([mshwery](https://github.com/mshwery))
 - Update to websafe-base64 encoding [\#141](https://github.com/segmentio/action-destinations/pull/141) ([lcampos](https://github.com/lcampos))
 
-## [@segment/action-destinations@3.8.3](https://github.com/segmentio/action-destinations/tree/@segment/action-destinations@3.8.3) (2021-09-08)
-
-[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/actions-cli@3.8.3...@segment/action-destinations@3.8.3)
-
 ## [@segment/actions-cli@3.8.3](https://github.com/segmentio/action-destinations/tree/@segment/actions-cli@3.8.3) (2021-09-08)
 
 [Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/browser-destinations@3.8.3...@segment/actions-cli@3.8.3)
 
 ## [@segment/browser-destinations@3.8.3](https://github.com/segmentio/action-destinations/tree/@segment/browser-destinations@3.8.3) (2021-09-08)
 
-[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/browser-destinations@3.8.2...@segment/browser-destinations@3.8.3)
+[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/action-destinations@3.8.3...@segment/browser-destinations@3.8.3)
+
+## [@segment/action-destinations@3.8.3](https://github.com/segmentio/action-destinations/tree/@segment/action-destinations@3.8.3) (2021-09-08)
+
+[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/action-destinations@3.8.2...@segment/action-destinations@3.8.3)
 
 **Merged pull requests:**
 
@@ -1581,17 +1610,17 @@
 - Add `toEmail` mapping to Sendgrid for sending test emails [\#126](https://github.com/segmentio/action-destinations/pull/126) ([vadimdemedes](https://github.com/vadimdemedes))
 - Don't send `bcc` parameter to Sendgrid if it's unset [\#125](https://github.com/segmentio/action-destinations/pull/125) ([vadimdemedes](https://github.com/vadimdemedes))
 
-## [@segment/browser-destinations@3.8.2](https://github.com/segmentio/action-destinations/tree/@segment/browser-destinations@3.8.2) (2021-09-01)
+## [@segment/action-destinations@3.8.2](https://github.com/segmentio/action-destinations/tree/@segment/action-destinations@3.8.2) (2021-09-01)
 
-[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/actions-cli@3.8.2...@segment/browser-destinations@3.8.2)
+[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/actions-cli@3.8.2...@segment/action-destinations@3.8.2)
 
 ## [@segment/actions-cli@3.8.2](https://github.com/segmentio/action-destinations/tree/@segment/actions-cli@3.8.2) (2021-09-01)
 
-[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/action-destinations@3.8.2...@segment/actions-cli@3.8.2)
+[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/browser-destinations@3.8.2...@segment/actions-cli@3.8.2)
 
-## [@segment/action-destinations@3.8.2](https://github.com/segmentio/action-destinations/tree/@segment/action-destinations@3.8.2) (2021-09-01)
+## [@segment/browser-destinations@3.8.2](https://github.com/segmentio/action-destinations/tree/@segment/browser-destinations@3.8.2) (2021-09-01)
 
-[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/actions-cli@3.8.1...@segment/action-destinations@3.8.2)
+[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/actions-cli@3.8.1...@segment/browser-destinations@3.8.2)
 
 **Merged pull requests:**
 
@@ -1605,15 +1634,15 @@
 
 ## [@segment/actions-core@3.8.1](https://github.com/segmentio/action-destinations/tree/@segment/actions-core@3.8.1) (2021-08-31)
 
-[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/action-destinations@3.8.1...@segment/actions-core@3.8.1)
-
-## [@segment/action-destinations@3.8.1](https://github.com/segmentio/action-destinations/tree/@segment/action-destinations@3.8.1) (2021-08-31)
-
-[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/browser-destinations@3.8.1...@segment/action-destinations@3.8.1)
+[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/browser-destinations@3.8.1...@segment/actions-core@3.8.1)
 
 ## [@segment/browser-destinations@3.8.1](https://github.com/segmentio/action-destinations/tree/@segment/browser-destinations@3.8.1) (2021-08-31)
 
-[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/action-destinations@3.8.0...@segment/browser-destinations@3.8.1)
+[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/action-destinations@3.8.1...@segment/browser-destinations@3.8.1)
+
+## [@segment/action-destinations@3.8.1](https://github.com/segmentio/action-destinations/tree/@segment/action-destinations@3.8.1) (2021-08-31)
+
+[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/destination-subscriptions@3.5.0...@segment/action-destinations@3.8.1)
 
 **Merged pull requests:**
 
@@ -1621,6 +1650,10 @@
 - \[braze web\] Fix traits being passed as custom\_attributes on [\#117](https://github.com/segmentio/action-destinations/pull/117) ([juliofarah](https://github.com/juliofarah))
 - \[braze-web\] Fix trackPurchase products mapping [\#116](https://github.com/segmentio/action-destinations/pull/116) ([juliofarah](https://github.com/juliofarah))
 - \[braze web\] Remove changeUser calls from trackEvent and trackPurchase [\#114](https://github.com/segmentio/action-destinations/pull/114) ([juliofarah](https://github.com/juliofarah))
+
+## [@segment/destination-subscriptions@3.5.0](https://github.com/segmentio/action-destinations/tree/@segment/destination-subscriptions@3.5.0) (2021-08-30)
+
+[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/action-destinations@3.8.0...@segment/destination-subscriptions@3.5.0)
 
 ## [@segment/action-destinations@3.8.0](https://github.com/segmentio/action-destinations/tree/@segment/action-destinations@3.8.0) (2021-08-30)
 
@@ -1636,15 +1669,11 @@
 
 ## [@segment/browser-destinations@3.8.0](https://github.com/segmentio/action-destinations/tree/@segment/browser-destinations@3.8.0) (2021-08-30)
 
-[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/destination-subscriptions@3.5.0...@segment/browser-destinations@3.8.0)
-
-## [@segment/destination-subscriptions@3.5.0](https://github.com/segmentio/action-destinations/tree/@segment/destination-subscriptions@3.5.0) (2021-08-30)
-
-[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/actions-cli@3.8.0...@segment/destination-subscriptions@3.5.0)
+[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/actions-cli@3.8.0...@segment/browser-destinations@3.8.0)
 
 ## [@segment/actions-cli@3.8.0](https://github.com/segmentio/action-destinations/tree/@segment/actions-cli@3.8.0) (2021-08-30)
 
-[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/actions-cli@3.7.0...@segment/actions-cli@3.8.0)
+[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/browser-destinations@3.7.0...@segment/actions-cli@3.8.0)
 
 **Merged pull requests:**
 
@@ -1740,25 +1769,21 @@
 - Move Snyk to a parallel CI job [\#15](https://github.com/segmentio/action-destinations/pull/15) ([gpsamson](https://github.com/gpsamson))
 - Add license [\#14](https://github.com/segmentio/action-destinations/pull/14) ([mericsson](https://github.com/mericsson))
 
+## [@segment/browser-destinations@3.7.0](https://github.com/segmentio/action-destinations/tree/@segment/browser-destinations@3.7.0) (2021-08-27)
+
+[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/actions-cli@3.7.0...@segment/browser-destinations@3.7.0)
+
 ## [@segment/actions-cli@3.7.0](https://github.com/segmentio/action-destinations/tree/@segment/actions-cli@3.7.0) (2021-08-27)
 
 [Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/action-destinations@3.7.0...@segment/actions-cli@3.7.0)
 
 ## [@segment/action-destinations@3.7.0](https://github.com/segmentio/action-destinations/tree/@segment/action-destinations@3.7.0) (2021-08-27)
 
-[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/browser-destinations@3.7.0...@segment/action-destinations@3.7.0)
-
-## [@segment/browser-destinations@3.7.0](https://github.com/segmentio/action-destinations/tree/@segment/browser-destinations@3.7.0) (2021-08-27)
-
-[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/actions-core@3.7.0...@segment/browser-destinations@3.7.0)
+[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/actions-core@3.7.0...@segment/action-destinations@3.7.0)
 
 ## [@segment/actions-core@3.7.0](https://github.com/segmentio/action-destinations/tree/@segment/actions-core@3.7.0) (2021-08-27)
 
-[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/browser-destinations@3.6.1...@segment/actions-core@3.7.0)
-
-## [@segment/browser-destinations@3.6.1](https://github.com/segmentio/action-destinations/tree/@segment/browser-destinations@3.6.1) (2021-08-26)
-
-[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/actions-core@3.6.1...@segment/browser-destinations@3.6.1)
+[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/actions-core@3.6.1...@segment/actions-core@3.7.0)
 
 ## [@segment/actions-core@3.6.1](https://github.com/segmentio/action-destinations/tree/@segment/actions-core@3.6.1) (2021-08-26)
 
@@ -1766,7 +1791,11 @@
 
 ## [@segment/actions-cli@3.6.2](https://github.com/segmentio/action-destinations/tree/@segment/actions-cli@3.6.2) (2021-08-26)
 
-[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/action-destinations@3.6.2...@segment/actions-cli@3.6.2)
+[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/browser-destinations@3.6.1...@segment/actions-cli@3.6.2)
+
+## [@segment/browser-destinations@3.6.1](https://github.com/segmentio/action-destinations/tree/@segment/browser-destinations@3.6.1) (2021-08-26)
+
+[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/action-destinations@3.6.2...@segment/browser-destinations@3.6.1)
 
 ## [@segment/action-destinations@3.6.2](https://github.com/segmentio/action-destinations/tree/@segment/action-destinations@3.6.2) (2021-08-26)
 
@@ -1778,7 +1807,19 @@
 
 ## [@segment/actions-cli@3.6.1](https://github.com/segmentio/action-destinations/tree/@segment/actions-cli@3.6.1) (2021-08-23)
 
-[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/action-destinations@3.6.0...@segment/actions-cli@3.6.1)
+[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/actions-core@3.6.0...@segment/actions-cli@3.6.1)
+
+## [@segment/actions-core@3.6.0](https://github.com/segmentio/action-destinations/tree/@segment/actions-core@3.6.0) (2021-08-23)
+
+[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/ajv-human-errors@1.5.0...@segment/actions-core@3.6.0)
+
+## [@segment/ajv-human-errors@1.5.0](https://github.com/segmentio/action-destinations/tree/@segment/ajv-human-errors@1.5.0) (2021-08-23)
+
+[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/browser-destinations@3.6.0...@segment/ajv-human-errors@1.5.0)
+
+## [@segment/browser-destinations@3.6.0](https://github.com/segmentio/action-destinations/tree/@segment/browser-destinations@3.6.0) (2021-08-23)
+
+[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/action-destinations@3.6.0...@segment/browser-destinations@3.6.0)
 
 ## [@segment/action-destinations@3.6.0](https://github.com/segmentio/action-destinations/tree/@segment/action-destinations@3.6.0) (2021-08-23)
 
@@ -1786,19 +1827,7 @@
 
 ## [@segment/actions-cli@3.6.0](https://github.com/segmentio/action-destinations/tree/@segment/actions-cli@3.6.0) (2021-08-23)
 
-[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/ajv-human-errors@1.5.0...@segment/actions-cli@3.6.0)
-
-## [@segment/ajv-human-errors@1.5.0](https://github.com/segmentio/action-destinations/tree/@segment/ajv-human-errors@1.5.0) (2021-08-23)
-
-[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/actions-core@3.6.0...@segment/ajv-human-errors@1.5.0)
-
-## [@segment/actions-core@3.6.0](https://github.com/segmentio/action-destinations/tree/@segment/actions-core@3.6.0) (2021-08-23)
-
-[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/browser-destinations@3.6.0...@segment/actions-core@3.6.0)
-
-## [@segment/browser-destinations@3.6.0](https://github.com/segmentio/action-destinations/tree/@segment/browser-destinations@3.6.0) (2021-08-23)
-
-[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/actions-cli@3.4.1-alpha.5...@segment/browser-destinations@3.6.0)
+[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/actions-cli@3.4.1-alpha.5...@segment/actions-cli@3.6.0)
 
 ## [@segment/actions-cli@3.4.1-alpha.5](https://github.com/segmentio/action-destinations/tree/@segment/actions-cli@3.4.1-alpha.5) (2021-08-23)
 
@@ -1806,19 +1835,15 @@
 
 ## [@segment/action-destinations@3.4.1-alpha.5](https://github.com/segmentio/action-destinations/tree/@segment/action-destinations@3.4.1-alpha.5) (2021-08-23)
 
-[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/action-destinations@3.4.1-alpha.4...@segment/action-destinations@3.4.1-alpha.5)
-
-## [@segment/action-destinations@3.4.1-alpha.4](https://github.com/segmentio/action-destinations/tree/@segment/action-destinations@3.4.1-alpha.4) (2021-08-23)
-
-[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/actions-cli@3.4.1-alpha.4...@segment/action-destinations@3.4.1-alpha.4)
+[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/actions-cli@3.4.1-alpha.4...@segment/action-destinations@3.4.1-alpha.5)
 
 ## [@segment/actions-cli@3.4.1-alpha.4](https://github.com/segmentio/action-destinations/tree/@segment/actions-cli@3.4.1-alpha.4) (2021-08-23)
 
-[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/actions-cli@3.5.2...@segment/actions-cli@3.4.1-alpha.4)
+[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/action-destinations@3.4.1-alpha.4...@segment/actions-cli@3.4.1-alpha.4)
 
-## [@segment/actions-cli@3.5.2](https://github.com/segmentio/action-destinations/tree/@segment/actions-cli@3.5.2) (2021-08-23)
+## [@segment/action-destinations@3.4.1-alpha.4](https://github.com/segmentio/action-destinations/tree/@segment/action-destinations@3.4.1-alpha.4) (2021-08-23)
 
-[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/browser-destinations@3.5.2...@segment/actions-cli@3.5.2)
+[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/browser-destinations@3.5.2...@segment/action-destinations@3.4.1-alpha.4)
 
 ## [@segment/browser-destinations@3.5.2](https://github.com/segmentio/action-destinations/tree/@segment/browser-destinations@3.5.2) (2021-08-23)
 
@@ -1826,15 +1851,15 @@
 
 ## [@segment/action-destinations@3.5.2](https://github.com/segmentio/action-destinations/tree/@segment/action-destinations@3.5.2) (2021-08-23)
 
-[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/action-destinations@3.5.1...@segment/action-destinations@3.5.2)
+[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/actions-cli@3.5.2...@segment/action-destinations@3.5.2)
 
-## [@segment/action-destinations@3.5.1](https://github.com/segmentio/action-destinations/tree/@segment/action-destinations@3.5.1) (2021-08-19)
+## [@segment/actions-cli@3.5.2](https://github.com/segmentio/action-destinations/tree/@segment/actions-cli@3.5.2) (2021-08-23)
 
-[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/destination-subscriptions@3.4.2...@segment/action-destinations@3.5.1)
+[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/browser-destinations@3.5.1...@segment/actions-cli@3.5.2)
 
-## [@segment/destination-subscriptions@3.4.2](https://github.com/segmentio/action-destinations/tree/@segment/destination-subscriptions@3.4.2) (2021-08-19)
+## [@segment/browser-destinations@3.5.1](https://github.com/segmentio/action-destinations/tree/@segment/browser-destinations@3.5.1) (2021-08-19)
 
-[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/actions-cli@3.5.1...@segment/destination-subscriptions@3.4.2)
+[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/actions-cli@3.5.1...@segment/browser-destinations@3.5.1)
 
 ## [@segment/actions-cli@3.5.1](https://github.com/segmentio/action-destinations/tree/@segment/actions-cli@3.5.1) (2021-08-19)
 
@@ -1842,63 +1867,63 @@
 
 ## [@segment/actions-core@3.5.1](https://github.com/segmentio/action-destinations/tree/@segment/actions-core@3.5.1) (2021-08-19)
 
-[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/browser-destinations@3.5.1...@segment/actions-core@3.5.1)
+[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/destination-subscriptions@3.4.2...@segment/actions-core@3.5.1)
 
-## [@segment/browser-destinations@3.5.1](https://github.com/segmentio/action-destinations/tree/@segment/browser-destinations@3.5.1) (2021-08-19)
+## [@segment/destination-subscriptions@3.4.2](https://github.com/segmentio/action-destinations/tree/@segment/destination-subscriptions@3.4.2) (2021-08-19)
 
-[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/destination-subscriptions@3.4.2-alpha.2...@segment/browser-destinations@3.5.1)
+[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/action-destinations@3.5.1...@segment/destination-subscriptions@3.4.2)
 
-## [@segment/destination-subscriptions@3.4.2-alpha.2](https://github.com/segmentio/action-destinations/tree/@segment/destination-subscriptions@3.4.2-alpha.2) (2021-08-19)
+## [@segment/action-destinations@3.5.1](https://github.com/segmentio/action-destinations/tree/@segment/action-destinations@3.5.1) (2021-08-19)
 
-[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/actions-cli@3.5.1-alpha.2...@segment/destination-subscriptions@3.4.2-alpha.2)
+[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/actions-cli@3.5.1-alpha.2...@segment/action-destinations@3.5.1)
 
 ## [@segment/actions-cli@3.5.1-alpha.2](https://github.com/segmentio/action-destinations/tree/@segment/actions-cli@3.5.1-alpha.2) (2021-08-19)
 
-[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/action-destinations@3.5.1-alpha.2...@segment/actions-cli@3.5.1-alpha.2)
-
-## [@segment/action-destinations@3.5.1-alpha.2](https://github.com/segmentio/action-destinations/tree/@segment/action-destinations@3.5.1-alpha.2) (2021-08-19)
-
-[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/actions-core@3.5.1-alpha.2...@segment/action-destinations@3.5.1-alpha.2)
-
-## [@segment/actions-core@3.5.1-alpha.2](https://github.com/segmentio/action-destinations/tree/@segment/actions-core@3.5.1-alpha.2) (2021-08-19)
-
-[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/browser-destinations@3.5.1-alpha.2...@segment/actions-core@3.5.1-alpha.2)
-
-## [@segment/browser-destinations@3.5.1-alpha.2](https://github.com/segmentio/action-destinations/tree/@segment/browser-destinations@3.5.1-alpha.2) (2021-08-19)
-
-[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/ajv-human-errors@1.3.2-alpha.2...@segment/browser-destinations@3.5.1-alpha.2)
+[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/ajv-human-errors@1.3.2-alpha.2...@segment/actions-cli@3.5.1-alpha.2)
 
 ## [@segment/ajv-human-errors@1.3.2-alpha.2](https://github.com/segmentio/action-destinations/tree/@segment/ajv-human-errors@1.3.2-alpha.2) (2021-08-19)
 
-[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/actions-cli@3.5.1-alpha.1...@segment/ajv-human-errors@1.3.2-alpha.2)
+[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/destination-subscriptions@3.4.2-alpha.2...@segment/ajv-human-errors@1.3.2-alpha.2)
 
-## [@segment/actions-cli@3.5.1-alpha.1](https://github.com/segmentio/action-destinations/tree/@segment/actions-cli@3.5.1-alpha.1) (2021-08-19)
+## [@segment/destination-subscriptions@3.4.2-alpha.2](https://github.com/segmentio/action-destinations/tree/@segment/destination-subscriptions@3.4.2-alpha.2) (2021-08-19)
 
-[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/action-destinations@3.5.1-alpha.1...@segment/actions-cli@3.5.1-alpha.1)
+[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/action-destinations@3.5.1-alpha.2...@segment/destination-subscriptions@3.4.2-alpha.2)
 
-## [@segment/action-destinations@3.5.1-alpha.1](https://github.com/segmentio/action-destinations/tree/@segment/action-destinations@3.5.1-alpha.1) (2021-08-19)
+## [@segment/action-destinations@3.5.1-alpha.2](https://github.com/segmentio/action-destinations/tree/@segment/action-destinations@3.5.1-alpha.2) (2021-08-19)
 
-[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/destination-subscriptions@3.4.2-alpha.1...@segment/action-destinations@3.5.1-alpha.1)
+[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/browser-destinations@3.5.1-alpha.2...@segment/action-destinations@3.5.1-alpha.2)
 
-## [@segment/destination-subscriptions@3.4.2-alpha.1](https://github.com/segmentio/action-destinations/tree/@segment/destination-subscriptions@3.4.2-alpha.1) (2021-08-19)
+## [@segment/browser-destinations@3.5.1-alpha.2](https://github.com/segmentio/action-destinations/tree/@segment/browser-destinations@3.5.1-alpha.2) (2021-08-19)
 
-[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/browser-destinations@3.5.1-alpha.1...@segment/destination-subscriptions@3.4.2-alpha.1)
+[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/actions-core@3.5.1-alpha.2...@segment/browser-destinations@3.5.1-alpha.2)
 
-## [@segment/browser-destinations@3.5.1-alpha.1](https://github.com/segmentio/action-destinations/tree/@segment/browser-destinations@3.5.1-alpha.1) (2021-08-19)
+## [@segment/actions-core@3.5.1-alpha.2](https://github.com/segmentio/action-destinations/tree/@segment/actions-core@3.5.1-alpha.2) (2021-08-19)
 
-[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/actions-core@3.5.1-alpha.1...@segment/browser-destinations@3.5.1-alpha.1)
+[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/actions-core@3.5.1-alpha.1...@segment/actions-core@3.5.1-alpha.2)
 
 ## [@segment/actions-core@3.5.1-alpha.1](https://github.com/segmentio/action-destinations/tree/@segment/actions-core@3.5.1-alpha.1) (2021-08-19)
 
-[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/actions-core@3.5.1-alpha.0...@segment/actions-core@3.5.1-alpha.1)
+[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/action-destinations@3.5.1-alpha.1...@segment/actions-core@3.5.1-alpha.1)
 
-## [@segment/actions-core@3.5.1-alpha.0](https://github.com/segmentio/action-destinations/tree/@segment/actions-core@3.5.1-alpha.0) (2021-08-19)
+## [@segment/action-destinations@3.5.1-alpha.1](https://github.com/segmentio/action-destinations/tree/@segment/action-destinations@3.5.1-alpha.1) (2021-08-19)
 
-[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/action-destinations@3.5.1-alpha.0...@segment/actions-core@3.5.1-alpha.0)
+[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/browser-destinations@3.5.1-alpha.1...@segment/action-destinations@3.5.1-alpha.1)
 
-## [@segment/action-destinations@3.5.1-alpha.0](https://github.com/segmentio/action-destinations/tree/@segment/action-destinations@3.5.1-alpha.0) (2021-08-19)
+## [@segment/browser-destinations@3.5.1-alpha.1](https://github.com/segmentio/action-destinations/tree/@segment/browser-destinations@3.5.1-alpha.1) (2021-08-19)
 
-[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/destination-subscriptions@3.4.2-alpha.0...@segment/action-destinations@3.5.1-alpha.0)
+[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/actions-cli@3.5.1-alpha.1...@segment/browser-destinations@3.5.1-alpha.1)
+
+## [@segment/actions-cli@3.5.1-alpha.1](https://github.com/segmentio/action-destinations/tree/@segment/actions-cli@3.5.1-alpha.1) (2021-08-19)
+
+[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/destination-subscriptions@3.4.2-alpha.1...@segment/actions-cli@3.5.1-alpha.1)
+
+## [@segment/destination-subscriptions@3.4.2-alpha.1](https://github.com/segmentio/action-destinations/tree/@segment/destination-subscriptions@3.4.2-alpha.1) (2021-08-19)
+
+[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/actions-cli@3.5.1-alpha.0...@segment/destination-subscriptions@3.4.2-alpha.1)
+
+## [@segment/actions-cli@3.5.1-alpha.0](https://github.com/segmentio/action-destinations/tree/@segment/actions-cli@3.5.1-alpha.0) (2021-08-19)
+
+[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/destination-subscriptions@3.4.2-alpha.0...@segment/actions-cli@3.5.1-alpha.0)
 
 ## [@segment/destination-subscriptions@3.4.2-alpha.0](https://github.com/segmentio/action-destinations/tree/@segment/destination-subscriptions@3.4.2-alpha.0) (2021-08-19)
 
@@ -1906,39 +1931,43 @@
 
 ## [@segment/browser-destinations@3.5.1-alpha.0](https://github.com/segmentio/action-destinations/tree/@segment/browser-destinations@3.5.1-alpha.0) (2021-08-19)
 
-[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/actions-cli@3.5.1-alpha.0...@segment/browser-destinations@3.5.1-alpha.0)
+[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/actions-core@3.5.1-alpha.0...@segment/browser-destinations@3.5.1-alpha.0)
 
-## [@segment/actions-cli@3.5.1-alpha.0](https://github.com/segmentio/action-destinations/tree/@segment/actions-cli@3.5.1-alpha.0) (2021-08-19)
+## [@segment/actions-core@3.5.1-alpha.0](https://github.com/segmentio/action-destinations/tree/@segment/actions-core@3.5.1-alpha.0) (2021-08-19)
 
-[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/destination-subscriptions@3.2.1-alpha.0...@segment/actions-cli@3.5.1-alpha.0)
+[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/action-destinations@3.5.1-alpha.0...@segment/actions-core@3.5.1-alpha.0)
 
-## [@segment/destination-subscriptions@3.2.1-alpha.0](https://github.com/segmentio/action-destinations/tree/@segment/destination-subscriptions@3.2.1-alpha.0) (2021-08-19)
+## [@segment/action-destinations@3.5.1-alpha.0](https://github.com/segmentio/action-destinations/tree/@segment/action-destinations@3.5.1-alpha.0) (2021-08-19)
 
-[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/ajv-human-errors@1.3.1-alpha.0...@segment/destination-subscriptions@3.2.1-alpha.0)
-
-## [@segment/ajv-human-errors@1.3.1-alpha.0](https://github.com/segmentio/action-destinations/tree/@segment/ajv-human-errors@1.3.1-alpha.0) (2021-08-19)
-
-[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/browser-destinations@3.3.1-alpha.0...@segment/ajv-human-errors@1.3.1-alpha.0)
-
-## [@segment/browser-destinations@3.3.1-alpha.0](https://github.com/segmentio/action-destinations/tree/@segment/browser-destinations@3.3.1-alpha.0) (2021-08-19)
-
-[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/actions-cli@3.3.1-alpha.0...@segment/browser-destinations@3.3.1-alpha.0)
+[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/actions-cli@3.3.1-alpha.0...@segment/action-destinations@3.5.1-alpha.0)
 
 ## [@segment/actions-cli@3.3.1-alpha.0](https://github.com/segmentio/action-destinations/tree/@segment/actions-cli@3.3.1-alpha.0) (2021-08-19)
 
-[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/actions-core@3.3.1-alpha.0...@segment/actions-cli@3.3.1-alpha.0)
+[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/destination-subscriptions@3.2.1-alpha.0...@segment/actions-cli@3.3.1-alpha.0)
+
+## [@segment/destination-subscriptions@3.2.1-alpha.0](https://github.com/segmentio/action-destinations/tree/@segment/destination-subscriptions@3.2.1-alpha.0) (2021-08-19)
+
+[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/browser-destinations@3.3.1-alpha.0...@segment/destination-subscriptions@3.2.1-alpha.0)
+
+## [@segment/browser-destinations@3.3.1-alpha.0](https://github.com/segmentio/action-destinations/tree/@segment/browser-destinations@3.3.1-alpha.0) (2021-08-19)
+
+[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/actions-core@3.3.1-alpha.0...@segment/browser-destinations@3.3.1-alpha.0)
 
 ## [@segment/actions-core@3.3.1-alpha.0](https://github.com/segmentio/action-destinations/tree/@segment/actions-core@3.3.1-alpha.0) (2021-08-19)
 
-[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/action-destinations@3.3.1-alpha.0...@segment/actions-core@3.3.1-alpha.0)
+[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/ajv-human-errors@1.3.1-alpha.0...@segment/actions-core@3.3.1-alpha.0)
+
+## [@segment/ajv-human-errors@1.3.1-alpha.0](https://github.com/segmentio/action-destinations/tree/@segment/ajv-human-errors@1.3.1-alpha.0) (2021-08-19)
+
+[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/action-destinations@3.3.1-alpha.0...@segment/ajv-human-errors@1.3.1-alpha.0)
 
 ## [@segment/action-destinations@3.3.1-alpha.0](https://github.com/segmentio/action-destinations/tree/@segment/action-destinations@3.3.1-alpha.0) (2021-08-19)
 
-[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/actions-cli@3.5.0...@segment/action-destinations@3.3.1-alpha.0)
+[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/destination-subscriptions@3.4.0...@segment/action-destinations@3.3.1-alpha.0)
 
-## [@segment/actions-cli@3.5.0](https://github.com/segmentio/action-destinations/tree/@segment/actions-cli@3.5.0) (2021-08-19)
+## [@segment/destination-subscriptions@3.4.0](https://github.com/segmentio/action-destinations/tree/@segment/destination-subscriptions@3.4.0) (2021-08-19)
 
-[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/actions-core@3.5.0...@segment/actions-cli@3.5.0)
+[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/actions-core@3.5.0...@segment/destination-subscriptions@3.4.0)
 
 ## [@segment/actions-core@3.5.0](https://github.com/segmentio/action-destinations/tree/@segment/actions-core@3.5.0) (2021-08-19)
 
@@ -1946,31 +1975,23 @@
 
 ## [@segment/action-destinations@3.5.0](https://github.com/segmentio/action-destinations/tree/@segment/action-destinations@3.5.0) (2021-08-19)
 
-[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/browser-destinations@3.5.0...@segment/action-destinations@3.5.0)
+[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/actions-cli@3.5.0...@segment/action-destinations@3.5.0)
+
+## [@segment/actions-cli@3.5.0](https://github.com/segmentio/action-destinations/tree/@segment/actions-cli@3.5.0) (2021-08-19)
+
+[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/browser-destinations@3.5.0...@segment/actions-cli@3.5.0)
 
 ## [@segment/browser-destinations@3.5.0](https://github.com/segmentio/action-destinations/tree/@segment/browser-destinations@3.5.0) (2021-08-19)
 
-[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/destination-subscriptions@3.4.0...@segment/browser-destinations@3.5.0)
-
-## [@segment/destination-subscriptions@3.4.0](https://github.com/segmentio/action-destinations/tree/@segment/destination-subscriptions@3.4.0) (2021-08-19)
-
-[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/action-destinations@3.4.1-alpha.3...@segment/destination-subscriptions@3.4.0)
-
-## [@segment/action-destinations@3.4.1-alpha.3](https://github.com/segmentio/action-destinations/tree/@segment/action-destinations@3.4.1-alpha.3) (2021-08-19)
-
-[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/actions-cli@3.4.1-alpha.3...@segment/action-destinations@3.4.1-alpha.3)
+[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/actions-cli@3.4.1-alpha.3...@segment/browser-destinations@3.5.0)
 
 ## [@segment/actions-cli@3.4.1-alpha.3](https://github.com/segmentio/action-destinations/tree/@segment/actions-cli@3.4.1-alpha.3) (2021-08-19)
 
-[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/actions-cli@3.4.3-alpha.1...@segment/actions-cli@3.4.1-alpha.3)
+[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/action-destinations@3.4.1-alpha.3...@segment/actions-cli@3.4.1-alpha.3)
 
-## [@segment/actions-cli@3.4.3-alpha.1](https://github.com/segmentio/action-destinations/tree/@segment/actions-cli@3.4.3-alpha.1) (2021-08-19)
+## [@segment/action-destinations@3.4.1-alpha.3](https://github.com/segmentio/action-destinations/tree/@segment/action-destinations@3.4.1-alpha.3) (2021-08-19)
 
-[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/action-destinations@3.4.3-alpha.1...@segment/actions-cli@3.4.3-alpha.1)
-
-## [@segment/action-destinations@3.4.3-alpha.1](https://github.com/segmentio/action-destinations/tree/@segment/action-destinations@3.4.3-alpha.1) (2021-08-19)
-
-[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/destination-subscriptions@3.3.3-alpha.1...@segment/action-destinations@3.4.3-alpha.1)
+[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/destination-subscriptions@3.3.3-alpha.1...@segment/action-destinations@3.4.1-alpha.3)
 
 ## [@segment/destination-subscriptions@3.3.3-alpha.1](https://github.com/segmentio/action-destinations/tree/@segment/destination-subscriptions@3.3.3-alpha.1) (2021-08-19)
 
@@ -1978,23 +1999,27 @@
 
 ## [@segment/actions-core@3.4.2-alpha.1](https://github.com/segmentio/action-destinations/tree/@segment/actions-core@3.4.2-alpha.1) (2021-08-19)
 
-[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/browser-destinations@3.4.2-alpha.1...@segment/actions-core@3.4.2-alpha.1)
+[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/actions-cli@3.4.3-alpha.1...@segment/actions-core@3.4.2-alpha.1)
+
+## [@segment/actions-cli@3.4.3-alpha.1](https://github.com/segmentio/action-destinations/tree/@segment/actions-cli@3.4.3-alpha.1) (2021-08-19)
+
+[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/browser-destinations@3.4.2-alpha.1...@segment/actions-cli@3.4.3-alpha.1)
 
 ## [@segment/browser-destinations@3.4.2-alpha.1](https://github.com/segmentio/action-destinations/tree/@segment/browser-destinations@3.4.2-alpha.1) (2021-08-19)
 
-[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/browser-destinations@3.4.2...@segment/browser-destinations@3.4.2-alpha.1)
+[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/action-destinations@3.4.3-alpha.1...@segment/browser-destinations@3.4.2-alpha.1)
 
-## [@segment/browser-destinations@3.4.2](https://github.com/segmentio/action-destinations/tree/@segment/browser-destinations@3.4.2) (2021-08-19)
+## [@segment/action-destinations@3.4.3-alpha.1](https://github.com/segmentio/action-destinations/tree/@segment/action-destinations@3.4.3-alpha.1) (2021-08-19)
 
-[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/action-destinations@3.4.3...@segment/browser-destinations@3.4.2)
-
-## [@segment/action-destinations@3.4.3](https://github.com/segmentio/action-destinations/tree/@segment/action-destinations@3.4.3) (2021-08-19)
-
-[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/actions-cli@3.4.3...@segment/action-destinations@3.4.3)
+[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/actions-cli@3.4.3...@segment/action-destinations@3.4.3-alpha.1)
 
 ## [@segment/actions-cli@3.4.3](https://github.com/segmentio/action-destinations/tree/@segment/actions-cli@3.4.3) (2021-08-19)
 
-[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/destination-subscriptions@3.3.3...@segment/actions-cli@3.4.3)
+[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/browser-destinations@3.4.2...@segment/actions-cli@3.4.3)
+
+## [@segment/browser-destinations@3.4.2](https://github.com/segmentio/action-destinations/tree/@segment/browser-destinations@3.4.2) (2021-08-19)
+
+[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/destination-subscriptions@3.3.3...@segment/browser-destinations@3.4.2)
 
 ## [@segment/destination-subscriptions@3.3.3](https://github.com/segmentio/action-destinations/tree/@segment/destination-subscriptions@3.3.3) (2021-08-19)
 
@@ -2002,7 +2027,11 @@
 
 ## [@segment/actions-core@3.4.2](https://github.com/segmentio/action-destinations/tree/@segment/actions-core@3.4.2) (2021-08-19)
 
-[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/action-destinations@3.4.1-alpha.2...@segment/actions-core@3.4.2)
+[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/action-destinations@3.4.3...@segment/actions-core@3.4.2)
+
+## [@segment/action-destinations@3.4.3](https://github.com/segmentio/action-destinations/tree/@segment/action-destinations@3.4.3) (2021-08-19)
+
+[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/action-destinations@3.4.1-alpha.2...@segment/action-destinations@3.4.3)
 
 ## [@segment/action-destinations@3.4.1-alpha.2](https://github.com/segmentio/action-destinations/tree/@segment/action-destinations@3.4.1-alpha.2) (2021-08-19)
 
@@ -2018,23 +2047,11 @@
 
 ## [@segment/actions-cli@3.4.1-alpha.1](https://github.com/segmentio/action-destinations/tree/@segment/actions-cli@3.4.1-alpha.1) (2021-08-19)
 
-[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/actions-cli@3.4.1-alpha.0...@segment/actions-cli@3.4.1-alpha.1)
-
-## [@segment/actions-cli@3.4.1-alpha.0](https://github.com/segmentio/action-destinations/tree/@segment/actions-cli@3.4.1-alpha.0) (2021-08-19)
-
-[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/action-destinations@3.4.1-alpha.0...@segment/actions-cli@3.4.1-alpha.0)
+[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/action-destinations@3.4.1-alpha.0...@segment/actions-cli@3.4.1-alpha.1)
 
 ## [@segment/action-destinations@3.4.1-alpha.0](https://github.com/segmentio/action-destinations/tree/@segment/action-destinations@3.4.1-alpha.0) (2021-08-19)
 
-[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/destination-subscriptions@3.3.1-alpha.0...@segment/action-destinations@3.4.1-alpha.0)
-
-## [@segment/destination-subscriptions@3.3.1-alpha.0](https://github.com/segmentio/action-destinations/tree/@segment/destination-subscriptions@3.3.1-alpha.0) (2021-08-19)
-
-[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/actions-core@3.4.1-alpha.0...@segment/destination-subscriptions@3.3.1-alpha.0)
-
-## [@segment/actions-core@3.4.1-alpha.0](https://github.com/segmentio/action-destinations/tree/@segment/actions-core@3.4.1-alpha.0) (2021-08-19)
-
-[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/ajv-human-errors@1.3.2-alpha.0...@segment/actions-core@3.4.1-alpha.0)
+[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/ajv-human-errors@1.3.2-alpha.0...@segment/action-destinations@3.4.1-alpha.0)
 
 ## [@segment/ajv-human-errors@1.3.2-alpha.0](https://github.com/segmentio/action-destinations/tree/@segment/ajv-human-errors@1.3.2-alpha.0) (2021-08-19)
 
@@ -2042,19 +2059,19 @@
 
 ## [@segment/browser-destinations@3.4.1-alpha.0](https://github.com/segmentio/action-destinations/tree/@segment/browser-destinations@3.4.1-alpha.0) (2021-08-19)
 
-[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/actions-core@3.4.2-alpha.0...@segment/browser-destinations@3.4.1-alpha.0)
+[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/destination-subscriptions@3.3.1-alpha.0...@segment/browser-destinations@3.4.1-alpha.0)
 
-## [@segment/actions-core@3.4.2-alpha.0](https://github.com/segmentio/action-destinations/tree/@segment/actions-core@3.4.2-alpha.0) (2021-08-17)
+## [@segment/destination-subscriptions@3.3.1-alpha.0](https://github.com/segmentio/action-destinations/tree/@segment/destination-subscriptions@3.3.1-alpha.0) (2021-08-19)
 
-[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/actions-cli@3.4.3-alpha.0...@segment/actions-core@3.4.2-alpha.0)
+[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/actions-core@3.4.1-alpha.0...@segment/destination-subscriptions@3.3.1-alpha.0)
 
-## [@segment/actions-cli@3.4.3-alpha.0](https://github.com/segmentio/action-destinations/tree/@segment/actions-cli@3.4.3-alpha.0) (2021-08-17)
+## [@segment/actions-core@3.4.1-alpha.0](https://github.com/segmentio/action-destinations/tree/@segment/actions-core@3.4.1-alpha.0) (2021-08-19)
 
-[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/action-destinations@3.4.3-alpha.0...@segment/actions-cli@3.4.3-alpha.0)
+[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/actions-cli@3.4.1-alpha.0...@segment/actions-core@3.4.1-alpha.0)
 
-## [@segment/action-destinations@3.4.3-alpha.0](https://github.com/segmentio/action-destinations/tree/@segment/action-destinations@3.4.3-alpha.0) (2021-08-17)
+## [@segment/actions-cli@3.4.1-alpha.0](https://github.com/segmentio/action-destinations/tree/@segment/actions-cli@3.4.1-alpha.0) (2021-08-19)
 
-[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/browser-destinations@3.4.2-alpha.0...@segment/action-destinations@3.4.3-alpha.0)
+[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/browser-destinations@3.4.2-alpha.0...@segment/actions-cli@3.4.1-alpha.0)
 
 ## [@segment/browser-destinations@3.4.2-alpha.0](https://github.com/segmentio/action-destinations/tree/@segment/browser-destinations@3.4.2-alpha.0) (2021-08-17)
 
@@ -2062,55 +2079,71 @@
 
 ## [@segment/destination-subscriptions@3.3.3-alpha.0](https://github.com/segmentio/action-destinations/tree/@segment/destination-subscriptions@3.3.3-alpha.0) (2021-08-17)
 
-[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/actions-cli@3.4.2...@segment/destination-subscriptions@3.3.3-alpha.0)
+[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/actions-core@3.4.2-alpha.0...@segment/destination-subscriptions@3.3.3-alpha.0)
 
-## [@segment/actions-cli@3.4.2](https://github.com/segmentio/action-destinations/tree/@segment/actions-cli@3.4.2) (2021-08-17)
+## [@segment/actions-core@3.4.2-alpha.0](https://github.com/segmentio/action-destinations/tree/@segment/actions-core@3.4.2-alpha.0) (2021-08-17)
 
-[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/action-destinations@3.4.2...@segment/actions-cli@3.4.2)
+[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/action-destinations@3.4.3-alpha.0...@segment/actions-core@3.4.2-alpha.0)
+
+## [@segment/action-destinations@3.4.3-alpha.0](https://github.com/segmentio/action-destinations/tree/@segment/action-destinations@3.4.3-alpha.0) (2021-08-17)
+
+[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/actions-cli@3.4.3-alpha.0...@segment/action-destinations@3.4.3-alpha.0)
+
+## [@segment/actions-cli@3.4.3-alpha.0](https://github.com/segmentio/action-destinations/tree/@segment/actions-cli@3.4.3-alpha.0) (2021-08-17)
+
+[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/action-destinations@3.4.2...@segment/actions-cli@3.4.3-alpha.0)
 
 ## [@segment/action-destinations@3.4.2](https://github.com/segmentio/action-destinations/tree/@segment/action-destinations@3.4.2) (2021-08-17)
 
-[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/actions-cli@3.4.1...@segment/action-destinations@3.4.2)
+[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/actions-cli@3.4.2...@segment/action-destinations@3.4.2)
+
+## [@segment/actions-cli@3.4.2](https://github.com/segmentio/action-destinations/tree/@segment/actions-cli@3.4.2) (2021-08-17)
+
+[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/actions-cli@3.4.1...@segment/actions-cli@3.4.2)
 
 ## [@segment/actions-cli@3.4.1](https://github.com/segmentio/action-destinations/tree/@segment/actions-cli@3.4.1) (2021-08-17)
 
-[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/destination-subscriptions@3.3.1...@segment/actions-cli@3.4.1)
-
-## [@segment/destination-subscriptions@3.3.1](https://github.com/segmentio/action-destinations/tree/@segment/destination-subscriptions@3.3.1) (2021-08-17)
-
-[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/actions-core@3.4.1...@segment/destination-subscriptions@3.3.1)
-
-## [@segment/actions-core@3.4.1](https://github.com/segmentio/action-destinations/tree/@segment/actions-core@3.4.1) (2021-08-17)
-
-[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/action-destinations@3.4.1...@segment/actions-core@3.4.1)
-
-## [@segment/action-destinations@3.4.1](https://github.com/segmentio/action-destinations/tree/@segment/action-destinations@3.4.1) (2021-08-17)
-
-[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/browser-destinations@3.4.1...@segment/action-destinations@3.4.1)
+[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/browser-destinations@3.4.1...@segment/actions-cli@3.4.1)
 
 ## [@segment/browser-destinations@3.4.1](https://github.com/segmentio/action-destinations/tree/@segment/browser-destinations@3.4.1) (2021-08-17)
 
-[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/actions-core@3.4.0...@segment/browser-destinations@3.4.1)
+[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/actions-core@3.4.1...@segment/browser-destinations@3.4.1)
 
-## [@segment/actions-core@3.4.0](https://github.com/segmentio/action-destinations/tree/@segment/actions-core@3.4.0) (2021-08-16)
+## [@segment/actions-core@3.4.1](https://github.com/segmentio/action-destinations/tree/@segment/actions-core@3.4.1) (2021-08-17)
 
-[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/actions-cli@3.4.0...@segment/actions-core@3.4.0)
+[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/destination-subscriptions@3.3.1...@segment/actions-core@3.4.1)
+
+## [@segment/destination-subscriptions@3.3.1](https://github.com/segmentio/action-destinations/tree/@segment/destination-subscriptions@3.3.1) (2021-08-17)
+
+[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/action-destinations@3.4.1...@segment/destination-subscriptions@3.3.1)
+
+## [@segment/action-destinations@3.4.1](https://github.com/segmentio/action-destinations/tree/@segment/action-destinations@3.4.1) (2021-08-17)
+
+[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/actions-cli@3.4.0...@segment/action-destinations@3.4.1)
 
 ## [@segment/actions-cli@3.4.0](https://github.com/segmentio/action-destinations/tree/@segment/actions-cli@3.4.0) (2021-08-16)
 
-[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/destination-subscriptions@3.3.0...@segment/actions-cli@3.4.0)
-
-## [@segment/destination-subscriptions@3.3.0](https://github.com/segmentio/action-destinations/tree/@segment/destination-subscriptions@3.3.0) (2021-08-16)
-
-[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/action-destinations@3.4.0...@segment/destination-subscriptions@3.3.0)
-
-## [@segment/action-destinations@3.4.0](https://github.com/segmentio/action-destinations/tree/@segment/action-destinations@3.4.0) (2021-08-16)
-
-[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/browser-destinations@3.4.0...@segment/action-destinations@3.4.0)
+[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/browser-destinations@3.4.0...@segment/actions-cli@3.4.0)
 
 ## [@segment/browser-destinations@3.4.0](https://github.com/segmentio/action-destinations/tree/@segment/browser-destinations@3.4.0) (2021-08-16)
 
-[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/actions-cli@3.3.2-alpha.0...@segment/browser-destinations@3.4.0)
+[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/action-destinations@3.4.0...@segment/browser-destinations@3.4.0)
+
+## [@segment/action-destinations@3.4.0](https://github.com/segmentio/action-destinations/tree/@segment/action-destinations@3.4.0) (2021-08-16)
+
+[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/destination-subscriptions@3.3.0...@segment/action-destinations@3.4.0)
+
+## [@segment/destination-subscriptions@3.3.0](https://github.com/segmentio/action-destinations/tree/@segment/destination-subscriptions@3.3.0) (2021-08-16)
+
+[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/actions-core@3.4.0...@segment/destination-subscriptions@3.3.0)
+
+## [@segment/actions-core@3.4.0](https://github.com/segmentio/action-destinations/tree/@segment/actions-core@3.4.0) (2021-08-16)
+
+[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/browser-destinations@3.3.2-alpha.0...@segment/actions-core@3.4.0)
+
+## [@segment/browser-destinations@3.3.2-alpha.0](https://github.com/segmentio/action-destinations/tree/@segment/browser-destinations@3.3.2-alpha.0) (2021-08-13)
+
+[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/actions-cli@3.3.2-alpha.0...@segment/browser-destinations@3.3.2-alpha.0)
 
 ## [@segment/actions-cli@3.3.2-alpha.0](https://github.com/segmentio/action-destinations/tree/@segment/actions-cli@3.3.2-alpha.0) (2021-08-13)
 
@@ -2118,51 +2151,43 @@
 
 ## [@segment/action-destinations@3.3.2-alpha.0](https://github.com/segmentio/action-destinations/tree/@segment/action-destinations@3.3.2-alpha.0) (2021-08-13)
 
-[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/browser-destinations@3.3.2-alpha.0...@segment/action-destinations@3.3.2-alpha.0)
-
-## [@segment/browser-destinations@3.3.2-alpha.0](https://github.com/segmentio/action-destinations/tree/@segment/browser-destinations@3.3.2-alpha.0) (2021-08-13)
-
-[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/destination-subscriptions@3.2.1...@segment/browser-destinations@3.3.2-alpha.0)
-
-## [@segment/destination-subscriptions@3.2.1](https://github.com/segmentio/action-destinations/tree/@segment/destination-subscriptions@3.2.1) (2021-08-13)
-
-[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/browser-destinations@3.3.1...@segment/destination-subscriptions@3.2.1)
+[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/browser-destinations@3.3.1...@segment/action-destinations@3.3.2-alpha.0)
 
 ## [@segment/browser-destinations@3.3.1](https://github.com/segmentio/action-destinations/tree/@segment/browser-destinations@3.3.1) (2021-08-13)
 
-[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/actions-cli@3.3.1...@segment/browser-destinations@3.3.1)
+[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/destination-subscriptions@3.2.1...@segment/browser-destinations@3.3.1)
 
-## [@segment/actions-cli@3.3.1](https://github.com/segmentio/action-destinations/tree/@segment/actions-cli@3.3.1) (2021-08-13)
+## [@segment/destination-subscriptions@3.2.1](https://github.com/segmentio/action-destinations/tree/@segment/destination-subscriptions@3.2.1) (2021-08-13)
 
-[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/actions-core@3.3.1...@segment/actions-cli@3.3.1)
+[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/actions-core@3.3.1...@segment/destination-subscriptions@3.2.1)
 
 ## [@segment/actions-core@3.3.1](https://github.com/segmentio/action-destinations/tree/@segment/actions-core@3.3.1) (2021-08-13)
 
-[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/ajv-human-errors@1.3.1...@segment/actions-core@3.3.1)
-
-## [@segment/ajv-human-errors@1.3.1](https://github.com/segmentio/action-destinations/tree/@segment/ajv-human-errors@1.3.1) (2021-08-13)
-
-[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/action-destinations@3.3.1...@segment/ajv-human-errors@1.3.1)
+[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/action-destinations@3.3.1...@segment/actions-core@3.3.1)
 
 ## [@segment/action-destinations@3.3.1](https://github.com/segmentio/action-destinations/tree/@segment/action-destinations@3.3.1) (2021-08-13)
 
-[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/ajv-human-errors@1.3.0...@segment/action-destinations@3.3.1)
+[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/actions-cli@3.3.1...@segment/action-destinations@3.3.1)
 
-## [@segment/ajv-human-errors@1.3.0](https://github.com/segmentio/action-destinations/tree/@segment/ajv-human-errors@1.3.0) (2021-08-12)
+## [@segment/actions-cli@3.3.1](https://github.com/segmentio/action-destinations/tree/@segment/actions-cli@3.3.1) (2021-08-13)
 
-[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/destination-subscriptions@3.2.0...@segment/ajv-human-errors@1.3.0)
+[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/ajv-human-errors@1.3.1...@segment/actions-cli@3.3.1)
 
-## [@segment/destination-subscriptions@3.2.0](https://github.com/segmentio/action-destinations/tree/@segment/destination-subscriptions@3.2.0) (2021-08-12)
+## [@segment/ajv-human-errors@1.3.1](https://github.com/segmentio/action-destinations/tree/@segment/ajv-human-errors@1.3.1) (2021-08-13)
 
-[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/actions-cli@3.3.0...@segment/destination-subscriptions@3.2.0)
+[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/actions-cli@3.3.0...@segment/ajv-human-errors@1.3.1)
 
 ## [@segment/actions-cli@3.3.0](https://github.com/segmentio/action-destinations/tree/@segment/actions-cli@3.3.0) (2021-08-12)
 
-[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/actions-core@3.3.0...@segment/actions-cli@3.3.0)
+[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/destination-subscriptions@3.2.0...@segment/actions-cli@3.3.0)
 
-## [@segment/actions-core@3.3.0](https://github.com/segmentio/action-destinations/tree/@segment/actions-core@3.3.0) (2021-08-12)
+## [@segment/destination-subscriptions@3.2.0](https://github.com/segmentio/action-destinations/tree/@segment/destination-subscriptions@3.2.0) (2021-08-12)
 
-[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/browser-destinations@3.3.0...@segment/actions-core@3.3.0)
+[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/ajv-human-errors@1.3.0...@segment/destination-subscriptions@3.2.0)
+
+## [@segment/ajv-human-errors@1.3.0](https://github.com/segmentio/action-destinations/tree/@segment/ajv-human-errors@1.3.0) (2021-08-12)
+
+[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/browser-destinations@3.3.0...@segment/ajv-human-errors@1.3.0)
 
 ## [@segment/browser-destinations@3.3.0](https://github.com/segmentio/action-destinations/tree/@segment/browser-destinations@3.3.0) (2021-08-12)
 
@@ -2170,111 +2195,115 @@
 
 ## [@segment/action-destinations@3.3.0](https://github.com/segmentio/action-destinations/tree/@segment/action-destinations@3.3.0) (2021-08-12)
 
-[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/actions-cli@3.2.1-alpha.1...@segment/action-destinations@3.3.0)
+[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/actions-core@3.3.0...@segment/action-destinations@3.3.0)
 
-## [@segment/actions-cli@3.2.1-alpha.1](https://github.com/segmentio/action-destinations/tree/@segment/actions-cli@3.2.1-alpha.1) (2021-08-10)
+## [@segment/actions-core@3.3.0](https://github.com/segmentio/action-destinations/tree/@segment/actions-core@3.3.0) (2021-08-12)
 
-[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/browser-destinations@3.2.1-alpha.1...@segment/actions-cli@3.2.1-alpha.1)
+[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/browser-destinations@3.2.1-alpha.1...@segment/actions-core@3.3.0)
 
 ## [@segment/browser-destinations@3.2.1-alpha.1](https://github.com/segmentio/action-destinations/tree/@segment/browser-destinations@3.2.1-alpha.1) (2021-08-10)
 
-[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/actions-core@3.2.1-alpha.0...@segment/browser-destinations@3.2.1-alpha.1)
+[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/actions-cli@3.2.1-alpha.1...@segment/browser-destinations@3.2.1-alpha.1)
 
-## [@segment/actions-core@3.2.1-alpha.0](https://github.com/segmentio/action-destinations/tree/@segment/actions-core@3.2.1-alpha.0) (2021-08-10)
+## [@segment/actions-cli@3.2.1-alpha.1](https://github.com/segmentio/action-destinations/tree/@segment/actions-cli@3.2.1-alpha.1) (2021-08-10)
 
-[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/action-destinations@3.2.1-alpha.0...@segment/actions-core@3.2.1-alpha.0)
-
-## [@segment/action-destinations@3.2.1-alpha.0](https://github.com/segmentio/action-destinations/tree/@segment/action-destinations@3.2.1-alpha.0) (2021-08-10)
-
-[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/actions-cli@3.2.1-alpha.0...@segment/action-destinations@3.2.1-alpha.0)
-
-## [@segment/actions-cli@3.2.1-alpha.0](https://github.com/segmentio/action-destinations/tree/@segment/actions-cli@3.2.1-alpha.0) (2021-08-10)
-
-[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/browser-destinations@3.2.1-alpha.0...@segment/actions-cli@3.2.1-alpha.0)
+[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/browser-destinations@3.2.1-alpha.0...@segment/actions-cli@3.2.1-alpha.1)
 
 ## [@segment/browser-destinations@3.2.1-alpha.0](https://github.com/segmentio/action-destinations/tree/@segment/browser-destinations@3.2.1-alpha.0) (2021-08-10)
 
-[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/ajv-human-errors@1.2.1-alpha.0...@segment/browser-destinations@3.2.1-alpha.0)
+[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/action-destinations@3.2.1-alpha.0...@segment/browser-destinations@3.2.1-alpha.0)
 
-## [@segment/ajv-human-errors@1.2.1-alpha.0](https://github.com/segmentio/action-destinations/tree/@segment/ajv-human-errors@1.2.1-alpha.0) (2021-08-10)
+## [@segment/action-destinations@3.2.1-alpha.0](https://github.com/segmentio/action-destinations/tree/@segment/action-destinations@3.2.1-alpha.0) (2021-08-10)
 
-[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/destination-subscriptions@3.1.1-alpha.0...@segment/ajv-human-errors@1.2.1-alpha.0)
+[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/actions-core@3.2.1-alpha.0...@segment/action-destinations@3.2.1-alpha.0)
+
+## [@segment/actions-core@3.2.1-alpha.0](https://github.com/segmentio/action-destinations/tree/@segment/actions-core@3.2.1-alpha.0) (2021-08-10)
+
+[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/destination-subscriptions@3.1.1-alpha.0...@segment/actions-core@3.2.1-alpha.0)
 
 ## [@segment/destination-subscriptions@3.1.1-alpha.0](https://github.com/segmentio/action-destinations/tree/@segment/destination-subscriptions@3.1.1-alpha.0) (2021-08-10)
 
-[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/action-destinations@3.1.1-alpha.2...@segment/destination-subscriptions@3.1.1-alpha.0)
+[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/actions-cli@3.2.1-alpha.0...@segment/destination-subscriptions@3.1.1-alpha.0)
 
-## [@segment/action-destinations@3.1.1-alpha.2](https://github.com/segmentio/action-destinations/tree/@segment/action-destinations@3.1.1-alpha.2) (2021-08-10)
+## [@segment/actions-cli@3.2.1-alpha.0](https://github.com/segmentio/action-destinations/tree/@segment/actions-cli@3.2.1-alpha.0) (2021-08-10)
 
-[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/actions-cli@3.1.1-alpha.2...@segment/action-destinations@3.1.1-alpha.2)
+[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/ajv-human-errors@1.2.1-alpha.0...@segment/actions-cli@3.2.1-alpha.0)
+
+## [@segment/ajv-human-errors@1.2.1-alpha.0](https://github.com/segmentio/action-destinations/tree/@segment/ajv-human-errors@1.2.1-alpha.0) (2021-08-10)
+
+[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/actions-cli@3.1.1-alpha.2...@segment/ajv-human-errors@1.2.1-alpha.0)
 
 ## [@segment/actions-cli@3.1.1-alpha.2](https://github.com/segmentio/action-destinations/tree/@segment/actions-cli@3.1.1-alpha.2) (2021-08-10)
 
-[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/action-destinations@3.1.1-alpha.1...@segment/actions-cli@3.1.1-alpha.2)
+[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/action-destinations@3.1.1-alpha.2...@segment/actions-cli@3.1.1-alpha.2)
 
-## [@segment/action-destinations@3.1.1-alpha.1](https://github.com/segmentio/action-destinations/tree/@segment/action-destinations@3.1.1-alpha.1) (2021-08-10)
+## [@segment/action-destinations@3.1.1-alpha.2](https://github.com/segmentio/action-destinations/tree/@segment/action-destinations@3.1.1-alpha.2) (2021-08-10)
 
-[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/actions-cli@3.1.1-alpha.1...@segment/action-destinations@3.1.1-alpha.1)
+[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/actions-cli@3.1.1-alpha.1...@segment/action-destinations@3.1.1-alpha.2)
 
 ## [@segment/actions-cli@3.1.1-alpha.1](https://github.com/segmentio/action-destinations/tree/@segment/actions-cli@3.1.1-alpha.1) (2021-08-10)
 
-[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/destination-subscriptions@3.1.0...@segment/actions-cli@3.1.1-alpha.1)
+[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/action-destinations@3.1.1-alpha.1...@segment/actions-cli@3.1.1-alpha.1)
 
-## [@segment/destination-subscriptions@3.1.0](https://github.com/segmentio/action-destinations/tree/@segment/destination-subscriptions@3.1.0) (2021-08-10)
+## [@segment/action-destinations@3.1.1-alpha.1](https://github.com/segmentio/action-destinations/tree/@segment/action-destinations@3.1.1-alpha.1) (2021-08-10)
 
-[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/ajv-human-errors@1.2.0...@segment/destination-subscriptions@3.1.0)
+[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/ajv-human-errors@1.2.0...@segment/action-destinations@3.1.1-alpha.1)
 
 ## [@segment/ajv-human-errors@1.2.0](https://github.com/segmentio/action-destinations/tree/@segment/ajv-human-errors@1.2.0) (2021-08-10)
 
-[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/actions-core@3.2.0...@segment/ajv-human-errors@1.2.0)
+[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/destination-subscriptions@3.1.0...@segment/ajv-human-errors@1.2.0)
+
+## [@segment/destination-subscriptions@3.1.0](https://github.com/segmentio/action-destinations/tree/@segment/destination-subscriptions@3.1.0) (2021-08-10)
+
+[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/actions-core@3.2.0...@segment/destination-subscriptions@3.1.0)
 
 ## [@segment/actions-core@3.2.0](https://github.com/segmentio/action-destinations/tree/@segment/actions-core@3.2.0) (2021-08-10)
 
-[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/action-destinations@3.2.0...@segment/actions-core@3.2.0)
-
-## [@segment/action-destinations@3.2.0](https://github.com/segmentio/action-destinations/tree/@segment/action-destinations@3.2.0) (2021-08-10)
-
-[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/actions-cli@3.2.0...@segment/action-destinations@3.2.0)
+[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/actions-cli@3.2.0...@segment/actions-core@3.2.0)
 
 ## [@segment/actions-cli@3.2.0](https://github.com/segmentio/action-destinations/tree/@segment/actions-cli@3.2.0) (2021-08-10)
 
-[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/action-destinations@3.1.1-alpha.0...@segment/actions-cli@3.2.0)
+[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/action-destinations@3.2.0...@segment/actions-cli@3.2.0)
 
-## [@segment/action-destinations@3.1.1-alpha.0](https://github.com/segmentio/action-destinations/tree/@segment/action-destinations@3.1.1-alpha.0) (2021-08-09)
+## [@segment/action-destinations@3.2.0](https://github.com/segmentio/action-destinations/tree/@segment/action-destinations@3.2.0) (2021-08-10)
 
-[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/actions-core@3.1.1-alpha.0...@segment/action-destinations@3.1.1-alpha.0)
-
-## [@segment/actions-core@3.1.1-alpha.0](https://github.com/segmentio/action-destinations/tree/@segment/actions-core@3.1.1-alpha.0) (2021-08-09)
-
-[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/actions-cli@3.1.1-alpha.0...@segment/actions-core@3.1.1-alpha.0)
-
-## [@segment/actions-cli@3.1.1-alpha.0](https://github.com/segmentio/action-destinations/tree/@segment/actions-cli@3.1.1-alpha.0) (2021-08-09)
-
-[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/ajv-human-errors@1.1.1-alpha.0...@segment/actions-cli@3.1.1-alpha.0)
-
-## [@segment/ajv-human-errors@1.1.1-alpha.0](https://github.com/segmentio/action-destinations/tree/@segment/ajv-human-errors@1.1.1-alpha.0) (2021-08-09)
-
-[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/destination-subscriptions@3.0.1-alpha.0...@segment/ajv-human-errors@1.1.1-alpha.0)
+[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/destination-subscriptions@3.0.1-alpha.0...@segment/action-destinations@3.2.0)
 
 ## [@segment/destination-subscriptions@3.0.1-alpha.0](https://github.com/segmentio/action-destinations/tree/@segment/destination-subscriptions@3.0.1-alpha.0) (2021-08-09)
 
-[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/actions-cli@3.1.1-alpha-7...@segment/destination-subscriptions@3.0.1-alpha.0)
+[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/actions-cli@3.1.1-alpha.0...@segment/destination-subscriptions@3.0.1-alpha.0)
 
-## [@segment/actions-cli@3.1.1-alpha-7](https://github.com/segmentio/action-destinations/tree/@segment/actions-cli@3.1.1-alpha-7) (2021-08-09)
+## [@segment/actions-cli@3.1.1-alpha.0](https://github.com/segmentio/action-destinations/tree/@segment/actions-cli@3.1.1-alpha.0) (2021-08-09)
 
-[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/actions-core@3.1.1-alpha-7...@segment/actions-cli@3.1.1-alpha-7)
+[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/actions-core@3.1.1-alpha.0...@segment/actions-cli@3.1.1-alpha.0)
 
-## [@segment/actions-core@3.1.1-alpha-7](https://github.com/segmentio/action-destinations/tree/@segment/actions-core@3.1.1-alpha-7) (2021-08-09)
+## [@segment/actions-core@3.1.1-alpha.0](https://github.com/segmentio/action-destinations/tree/@segment/actions-core@3.1.1-alpha.0) (2021-08-09)
 
-[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/ajv-human-errors@3.1.1-alpha-7...@segment/actions-core@3.1.1-alpha-7)
+[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/ajv-human-errors@1.1.1-alpha.0...@segment/actions-core@3.1.1-alpha.0)
 
-## [@segment/ajv-human-errors@3.1.1-alpha-7](https://github.com/segmentio/action-destinations/tree/@segment/ajv-human-errors@3.1.1-alpha-7) (2021-08-09)
+## [@segment/ajv-human-errors@1.1.1-alpha.0](https://github.com/segmentio/action-destinations/tree/@segment/ajv-human-errors@1.1.1-alpha.0) (2021-08-09)
 
-[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/destination-subscriptions@3.1.1-alpha-7...@segment/ajv-human-errors@3.1.1-alpha-7)
+[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/action-destinations@3.1.1-alpha.0...@segment/ajv-human-errors@1.1.1-alpha.0)
+
+## [@segment/action-destinations@3.1.1-alpha.0](https://github.com/segmentio/action-destinations/tree/@segment/action-destinations@3.1.1-alpha.0) (2021-08-09)
+
+[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/destination-subscriptions@3.1.1-alpha-7...@segment/action-destinations@3.1.1-alpha.0)
 
 ## [@segment/destination-subscriptions@3.1.1-alpha-7](https://github.com/segmentio/action-destinations/tree/@segment/destination-subscriptions@3.1.1-alpha-7) (2021-08-09)
 
-[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/action-destinations@3.1.1-alpha-7...@segment/destination-subscriptions@3.1.1-alpha-7)
+[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/ajv-human-errors@3.1.1-alpha-7...@segment/destination-subscriptions@3.1.1-alpha-7)
+
+## [@segment/ajv-human-errors@3.1.1-alpha-7](https://github.com/segmentio/action-destinations/tree/@segment/ajv-human-errors@3.1.1-alpha-7) (2021-08-09)
+
+[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/actions-core@3.1.1-alpha-7...@segment/ajv-human-errors@3.1.1-alpha-7)
+
+## [@segment/actions-core@3.1.1-alpha-7](https://github.com/segmentio/action-destinations/tree/@segment/actions-core@3.1.1-alpha-7) (2021-08-09)
+
+[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/actions-cli@3.1.1-alpha-7...@segment/actions-core@3.1.1-alpha-7)
+
+## [@segment/actions-cli@3.1.1-alpha-7](https://github.com/segmentio/action-destinations/tree/@segment/actions-cli@3.1.1-alpha-7) (2021-08-09)
+
+[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/action-destinations@3.1.1-alpha-7...@segment/actions-cli@3.1.1-alpha-7)
 
 ## [@segment/action-destinations@3.1.1-alpha-7](https://github.com/segmentio/action-destinations/tree/@segment/action-destinations@3.1.1-alpha-7) (2021-08-09)
 
@@ -2282,11 +2311,7 @@
 
 ## [@segment/action-destinations@3.1.1-alpha-6](https://github.com/segmentio/action-destinations/tree/@segment/action-destinations@3.1.1-alpha-6) (2021-08-09)
 
-[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/destination-subscriptions@3.1.1-alpha-6...@segment/action-destinations@3.1.1-alpha-6)
-
-## [@segment/destination-subscriptions@3.1.1-alpha-6](https://github.com/segmentio/action-destinations/tree/@segment/destination-subscriptions@3.1.1-alpha-6) (2021-08-09)
-
-[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/actions-core@3.1.1-alpha-6...@segment/destination-subscriptions@3.1.1-alpha-6)
+[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/actions-core@3.1.1-alpha-6...@segment/action-destinations@3.1.1-alpha-6)
 
 ## [@segment/actions-core@3.1.1-alpha-6](https://github.com/segmentio/action-destinations/tree/@segment/actions-core@3.1.1-alpha-6) (2021-08-09)
 
@@ -2294,7 +2319,11 @@
 
 ## [@segment/actions-cli@3.1.1-alpha-6](https://github.com/segmentio/action-destinations/tree/@segment/actions-cli@3.1.1-alpha-6) (2021-08-09)
 
-[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/ajv-human-errors@3.1.1-alpha-6...@segment/actions-cli@3.1.1-alpha-6)
+[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/destination-subscriptions@3.1.1-alpha-6...@segment/actions-cli@3.1.1-alpha-6)
+
+## [@segment/destination-subscriptions@3.1.1-alpha-6](https://github.com/segmentio/action-destinations/tree/@segment/destination-subscriptions@3.1.1-alpha-6) (2021-08-09)
+
+[Full Changelog](https://github.com/segmentio/action-destinations/compare/@segment/ajv-human-errors@3.1.1-alpha-6...@segment/destination-subscriptions@3.1.1-alpha-6)
 
 ## [@segment/ajv-human-errors@3.1.1-alpha-6](https://github.com/segmentio/action-destinations/tree/@segment/ajv-human-errors@3.1.1-alpha-6) (2021-08-09)
 
