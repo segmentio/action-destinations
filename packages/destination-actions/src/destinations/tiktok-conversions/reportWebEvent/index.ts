@@ -192,7 +192,7 @@ const action: ActionDefinition<Settings, Payload> = {
       json: {
         pixel_code: settings.pixel_code,
         event: payload.event,
-        event_id: payload.event_id,
+        event_id: payload.event_id ? payload.event_id + '_seg' : undefined,
         timestamp: payload.timestamp,
         context: {
           user: {
