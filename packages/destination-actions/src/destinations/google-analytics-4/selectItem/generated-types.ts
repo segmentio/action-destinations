@@ -6,6 +6,10 @@ export interface Payload {
    */
   client_id: string
   /**
+   * A unique identifier for a user. See Google's [User-ID for cross-platform analysis](https://support.google.com/analytics/answer/9213390) and [Reporting: deduplicate user counts](https://support.google.com/analytics/answer/9355949?hl=en) documentation for more information on this identifier.
+   */
+  user_id?: string
+  /**
    * The name of the list in which the item was presented to the user.
    */
   item_list_name?: string
@@ -94,4 +98,10 @@ export interface Payload {
      */
     quantity?: number
   }[]
+  /**
+   * The event parameters to send to Google
+   */
+  params?: {
+    [k: string]: unknown
+  }
 }

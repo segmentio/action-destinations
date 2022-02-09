@@ -1,6 +1,6 @@
 import { ActionDefinition, IntegrationError } from '@segment/actions-core'
 import { CURRENCY_ISO_CODES } from '../constants'
-import { currency, client_id, value, items_single_products } from '../ga4-properties'
+import { params, currency, user_id, client_id, value, items_single_products } from '../ga4-properties'
 import { ProductItem } from '../ga4-types'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
@@ -11,12 +11,14 @@ const action: ActionDefinition<Settings, Payload> = {
   defaultSubscription: 'type = "track" and event =  "Product Viewed"',
   fields: {
     client_id: { ...client_id },
+    user_id: { ...user_id },
     currency: { ...currency },
     value: { ...value },
     items: {
       ...items_single_products,
       required: true
-    }
+    },
+    params: params
   },
   perform: (request, { payload }) => {
     if (payload.currency && !CURRENCY_ISO_CODES.includes(payload.currency)) {
@@ -59,13 +61,15 @@ const action: ActionDefinition<Settings, Payload> = {
       method: 'POST',
       json: {
         client_id: payload.client_id,
+        user_id: payload.user_id,
         events: [
           {
             name: 'view_item',
             params: {
               currency: payload.currency,
               items: googleItems,
-              value: payload.value
+              value: payload.value,
+              ...payload.params
             }
           }
         ]

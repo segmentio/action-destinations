@@ -27,7 +27,7 @@ const action: ActionDefinition<Settings, Payload> = {
     min_id_length: {
       label: 'Minimum ID Length',
       description:
-        'Amplitude has a default minimum id length of 5 characters for user_id and device_id fields. This field allows the minimum to be overridden to allow shorter id lengths.',
+        'Amplitude has a default minimum id length (`min_id_length`) of 5 characters for user_id and device_id fields. This field allows the minimum to be overridden to allow shorter id lengths.',
       allowNull: true,
       type: 'integer'
     }
