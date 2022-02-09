@@ -20,7 +20,7 @@ const CaseShape = (payload: GenericPayload): CaseBaseShapeType => {
   }
 }
 
-const objectToShape = new Map<string, (payload: GenericPayload) => any>([
+const objectToShape = new Map<string, (payload: GenericPayload) => LeadBaseShapeType | CaseBaseShapeType>([
   ['lead', LeadShape],
   ['case', CaseShape]
 ])
