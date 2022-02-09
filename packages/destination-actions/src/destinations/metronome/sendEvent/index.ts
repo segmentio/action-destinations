@@ -16,7 +16,7 @@ function serializeEvent(event: Payload) {
     //
     // Ideally Segment would just pass any date-time values as Date objects not have this loose
     // coupling to dayjs parse formats but, this is fine for now.
-    timestamp: dayjs.utc(event.timestamp).toISOString(),
+    timestamp: dayjs.utc(event.timestamp).toISOString()
   }
 }
 
@@ -27,7 +27,8 @@ const action: ActionDefinition<Settings, Payload> = {
     transaction_id: {
       type: 'string',
       label: 'transaction_id',
-      description: 'The Metronome transaction ID uniquely identifies an event to ensure Metronome only processes each event once.',
+      description:
+        'The Metronome transaction ID uniquely identifies an event to ensure Metronome only processes each event once.',
       required: true,
       default: {
         '@path': '$.messageId'
@@ -68,17 +69,15 @@ const action: ActionDefinition<Settings, Payload> = {
       default: {
         '@path': '$.properties'
       }
-    },
+    }
   },
   perform: (request, { payload }) => {
     // Auth is injected by extendRequest in the destination root
-    return request('https://api.getmetronome.com/v1/ingest', {
+    return request('https://api.metronome.com/v1/ingest', {
       method: 'post',
-      json: [
-        serializeEvent(payload)
-      ]
+      json: [serializeEvent(payload)]
     })
-  },
+  }
   // We'd like to be able to use performBatch, but we run into complexity when 1 event in the batch
   // fails validation, causing the entire batch to fail. We've decided to just send 1 event at a time
   // for now, which allows normal 4XX and 5XX semantics to be used and bubble errors up into the Segment

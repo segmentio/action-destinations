@@ -19,7 +19,7 @@ const destination: DestinationDefinition<Settings> = {
       }
     },
     testAuthentication: async (request) => {
-      const response = await request('https://api.getmetronome.com/v1/ingest', {
+      const response = await request('https://api.metronome.com/v1/ingest', {
         method: 'post',
         json: [],
         throwHttpErrors: false
