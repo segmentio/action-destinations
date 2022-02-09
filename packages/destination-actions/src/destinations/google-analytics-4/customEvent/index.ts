@@ -37,7 +37,7 @@ const action: ActionDefinition<Settings, Payload> = {
       type: 'boolean',
       default: false
     },
-    params: { ...params, default: { '@path': '$.properties' } }
+    params: { ...params }
   },
   perform: (request, { payload }) => {
     const event_name = normalizeEventName(payload.name, payload.lowercase)
