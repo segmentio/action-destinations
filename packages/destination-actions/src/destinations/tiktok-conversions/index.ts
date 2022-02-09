@@ -32,7 +32,7 @@ const tiktokDefaultValues = (fields: Record<string, InputField>, preset: string)
   } else if (['AddPaymentInfo', 'InitiateCheckout', 'PlaceAnOrder'].includes(preset)) {
     contents = {
       '@arrayPath': [
-        '$.products.properties',
+        '$.properties.products',
         {
           ...inner_contents
         }
