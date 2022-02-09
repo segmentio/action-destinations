@@ -22,6 +22,11 @@ describe('GainsightPxCloudAction.trackPageView', () => {
 
     const responses = await testDestination.testAction('trackPageView', {
       event,
+      mapping: {
+        allFields: {
+          '@path': '$.'
+        }
+      },
       useDefaultMappings: true,
       settings: {
         apiKey: GAINSIGHT_API_KEY,
@@ -32,10 +37,12 @@ describe('GainsightPxCloudAction.trackPageView', () => {
     expect(responses[0].status).toBe(200)
     expect(responses[0].data).toMatchObject({})
     expect(responses[0].options.json).toMatchObject({
-      name: 'Home',
-      properties: {
-        title: 'Welcome | Initech',
-        url: 'http://www.example.com'
+      allFields: {
+        name: 'Home',
+        properties: {
+          title: 'Welcome | Initech',
+          url: 'http://www.example.com'
+        }
       }
     })
   })

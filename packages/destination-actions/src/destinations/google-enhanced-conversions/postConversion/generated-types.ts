@@ -30,6 +30,10 @@ export interface Payload {
    */
   currency_code?: string
   /**
+   * Set to true if this is an app conversion for an incrementality study.
+   */
+  is_app_incrementality?: boolean
+  /**
    * Phone number of the individual who triggered the conversion event, in E.164 standard format, e.g. +14150000000.
    */
   phone_number?: string
