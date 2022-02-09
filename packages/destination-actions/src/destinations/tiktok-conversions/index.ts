@@ -1,8 +1,47 @@
-import type { DestinationDefinition } from '@segment/actions-core'
+import type { DestinationDefinition, InputField } from '@segment/actions-core'
 import { defaultValues } from '@segment/actions-core'
 import type { Settings } from './generated-types'
 
 import reportWebEvent from './reportWebEvent'
+
+const tiktokDefaultValues = (fields: Record<string, InputField>, preset: string) => {
+  let contents = {}
+  const inner_contents = {
+    price: {
+      '@path': '$.price'
+    },
+    quantity: {
+      '@path': '$.quantity'
+    },
+    content_type: {
+      '@path': '$.category'
+    },
+    content_id: {
+      '@path': '$.product_id'
+    }
+  }
+  if (['AddToCart', 'AddToWishlist', 'Search', 'ViewContent'].includes(preset)) {
+    contents = {
+      '@arrayPath': [
+        '$.properties',
+        {
+          ...inner_contents
+        }
+      ]
+    }
+  } else if (['AddPaymentInfo', 'InitiateCheckout', 'PlaceAnOrder'].includes(preset)) {
+    contents = {
+      '@arrayPath': [
+        '$.products.properties',
+        {
+          ...inner_contents
+        }
+      ]
+    }
+  }
+
+  return { ...defaultValues(fields), contents: contents }
+}
 
 /** used in the quick setup */
 const presets: DestinationDefinition['presets'] = [
@@ -11,29 +50,8 @@ const presets: DestinationDefinition['presets'] = [
     subscribe: 'type="page"',
     partnerAction: 'reportWebEvent',
     mapping: {
-      ...defaultValues(reportWebEvent.fields),
-      event: 'ViewContent',
-      contents: {
-        default: {
-          '@arrayPath': [
-            '$.properties',
-            {
-              price: {
-                '@path': '$.price'
-              },
-              quantity: {
-                '@path': '$.quantity'
-              },
-              content_type: {
-                '@path': '$.category'
-              },
-              content_id: {
-                '@path': '$.product_id'
-              }
-            }
-          ]
-        }
-      }
+      ...tiktokDefaultValues(reportWebEvent.fields, 'ViewContent'),
+      event: 'ViewContent'
     }
   },
   {
@@ -41,7 +59,7 @@ const presets: DestinationDefinition['presets'] = [
     subscribe: 'event = "Products Searched"',
     partnerAction: 'reportWebEvent',
     mapping: {
-      ...defaultValues(reportWebEvent.fields),
+      ...tiktokDefaultValues(reportWebEvent.fields, 'Search'),
       event: 'Search'
     }
   },
@@ -50,7 +68,7 @@ const presets: DestinationDefinition['presets'] = [
     subscribe: 'event = "Product Added to Wishlist"',
     partnerAction: 'reportWebEvent',
     mapping: {
-      ...defaultValues(reportWebEvent.fields),
+      ...tiktokDefaultValues(reportWebEvent.fields, 'AddToWishlist'),
       event: 'AddToWishlist'
     }
   },
@@ -59,7 +77,7 @@ const presets: DestinationDefinition['presets'] = [
     subscribe: 'event = "Product Added"',
     partnerAction: 'reportWebEvent',
     mapping: {
-      ...defaultValues(reportWebEvent.fields),
+      ...tiktokDefaultValues(reportWebEvent.fields, 'AddToCart'),
       event: 'AddToCart'
     }
   },
@@ -68,7 +86,7 @@ const presets: DestinationDefinition['presets'] = [
     subscribe: 'event = "Checkout Started"',
     partnerAction: 'reportWebEvent',
     mapping: {
-      ...defaultValues(reportWebEvent.fields),
+      ...tiktokDefaultValues(reportWebEvent.fields, 'InitiateCheckout'),
       event: 'InitiateCheckout'
     }
   },
@@ -77,7 +95,7 @@ const presets: DestinationDefinition['presets'] = [
     subscribe: 'event = "Payment Info Entered"',
     partnerAction: 'reportWebEvent',
     mapping: {
-      ...defaultValues(reportWebEvent.fields),
+      ...tiktokDefaultValues(reportWebEvent.fields, 'AddPaymentInfo'),
       event: 'AddPaymentInfo'
     }
   },
@@ -86,7 +104,7 @@ const presets: DestinationDefinition['presets'] = [
     subscribe: 'event = "Order Completed"',
     partnerAction: 'reportWebEvent',
     mapping: {
-      ...defaultValues(reportWebEvent.fields),
+      ...tiktokDefaultValues(reportWebEvent.fields, 'PlaceAnOrder'),
       event: 'PlaceAnOrder'
     }
   }

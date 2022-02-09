@@ -117,7 +117,6 @@ const action: ActionDefinition<Settings, Payload> = {
         '@path': '$.context.userAgent'
       }
     },
-    //need to add builder-defined subfields to contents object
     contents: {
       label: 'Contents',
       type: 'object',
