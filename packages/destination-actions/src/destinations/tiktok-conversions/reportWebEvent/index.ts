@@ -123,67 +123,6 @@ const action: ActionDefinition<Settings, Payload> = {
       type: 'object',
       multiple: true,
       description: 'Related items in a web event.',
-      default: {
-        '@if': {
-          exists: { 
-            '@arrayPath': [
-              '$.properties.products',
-              { 
-                price: {
-                  '@path': '$.price'
-                },
-                quantity: {
-                  '@path': '$.quantity'
-                },
-                content_type: {
-                  '@path': '$.content_type'
-                },
-                content_id: {
-                  '@path': '$.content_id'
-                }
-              }
-            ] 
-          },
-          then: {
-            '@arrayPath': [
-              '$.properties.products',
-              { 
-                price: {
-                  '@path': '$.price'
-                },
-                quantity: {
-                  '@path': '$.quantity'
-                },
-                content_type: {
-                  '@path': '$.content_type'
-                },
-                content_id: {
-                  '@path': '$.content_id'
-                }
-              }
-            ] 
-          },
-          else: {
-            '@arrayPath': [
-              '$.properties',
-              { 
-                price: {
-                  '@path': '$.price'
-                },
-                quantity: {
-                  '@path': '$.quantity'
-                },
-                content_type: {
-                  '@path': '$.content_type'
-                },
-                content_id: {
-                  '@path': '$.content_id'
-                }
-              }
-            ] 
-          }
-        }
-      },
       properties: {
         price: {
           label: 'Price',

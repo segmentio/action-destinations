@@ -92,7 +92,7 @@ describe('Tiktok Conversions', () => {
           currency: 'USD',
           value: 100,
           query: 'shoes',
-          products: [{ price: 100, quantity: 2, content_type: 'Air Force One (Size S)', content_id: 'abc123' }]
+          products: [{ price: 100, quantity: 2, category: 'Air Force One (Size S)', product_id: 'abc123' }]
         },
         context: {
           page: {
@@ -112,7 +112,26 @@ describe('Tiktok Conversions', () => {
         settings,
         useDefaultMappings: true,
         mapping: {
-          event: 'InitiateCheckout'
+          event: 'InitiateCheckout',
+          contents: {
+            '@arrayPath': [
+              '$.properties.products',
+              {
+                price: {
+                  '@path': '$.price'
+                },
+                quantity: {
+                  '@path': '$.quantity'
+                },
+                content_type: {
+                  '@path': '$.category'
+                },
+                content_id: {
+                  '@path': '$.product_id'
+                }
+              }
+            ]
+          }
         }
       })
 
@@ -138,8 +157,8 @@ describe('Tiktok Conversions', () => {
           query: 'shoes',
           price: 100,
           quantity: 2,
-          content_type: 'Air Force One (Size S)',
-          content_id: 'abc123'
+          category: 'Air Force One (Size S)',
+          product_id: 'abc123'
         },
         context: {
           page: {
@@ -159,14 +178,33 @@ describe('Tiktok Conversions', () => {
         settings,
         useDefaultMappings: true,
         mapping: {
-          event: 'InitiateCheckout'
+          event: 'AddToCart',
+          contents: {
+            '@arrayPath': [
+              '$.properties',
+              {
+                price: {
+                  '@path': '$.price'
+                },
+                quantity: {
+                  '@path': '$.quantity'
+                },
+                content_type: {
+                  '@path': '$.category'
+                },
+                content_id: {
+                  '@path': '$.product_id'
+                }
+              }
+            ]
+          }
         }
       })
 
       expect(responses.length).toBe(1)
       expect(responses[0].status).toBe(200)
       expect(responses[0].options.body).toMatchInlineSnapshot(
-        `"{\\"pixel_code\\":\\"test\\",\\"event\\":\\"InitiateCheckout\\",\\"event_id\\":\\"corey123\\",\\"timestamp\\":\\"2021-09-2T15:21:15.449Z\\",\\"context\\":{\\"user\\":{\\"external_id\\":\\"481f202262e9c5ccc48d24e60798fadaa5f6ff1f8369f7ab927c04c3aa682a7f\\",\\"phone_number\\":\\"910a625c4ba147b544e6bd2f267e130ae14c591b6ba9c25cb8573322dedbebd0\\",\\"email\\":\\"eb9869a32b532840dd6aa714f7a872d21d6f650fc5aa933d9feefc64708969c7\\"},\\"ad\\":{\\"callback\\":\\"12345\\"},\\"page\\":{\\"url\\":\\"https://segment.com/\\",\\"referrer\\":\\"https://google.com/\\"},\\"ip\\":\\"0.0.0.0\\",\\"user_agent\\":\\"Mozilla/5.0 (iPhone; CPU iPhone OS 12_1_4 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/16D57\\"},\\"properties\\":{\\"contents\\":[{\\"price\\":100,\\"quantity\\":2,\\"content_type\\":\\"Air Force One (Size S)\\",\\"content_id\\":\\"abc123\\"}],\\"currency\\":\\"USD\\",\\"value\\":100,\\"query\\":\\"shoes\\"}}"`
+        `"{\\"pixel_code\\":\\"test\\",\\"event\\":\\"AddToCart\\",\\"event_id\\":\\"corey123\\",\\"timestamp\\":\\"2021-09-2T15:21:15.449Z\\",\\"context\\":{\\"user\\":{\\"external_id\\":\\"481f202262e9c5ccc48d24e60798fadaa5f6ff1f8369f7ab927c04c3aa682a7f\\",\\"phone_number\\":\\"910a625c4ba147b544e6bd2f267e130ae14c591b6ba9c25cb8573322dedbebd0\\",\\"email\\":\\"eb9869a32b532840dd6aa714f7a872d21d6f650fc5aa933d9feefc64708969c7\\"},\\"ad\\":{\\"callback\\":\\"12345\\"},\\"page\\":{\\"url\\":\\"https://segment.com/\\",\\"referrer\\":\\"https://google.com/\\"},\\"ip\\":\\"0.0.0.0\\",\\"user_agent\\":\\"Mozilla/5.0 (iPhone; CPU iPhone OS 12_1_4 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/16D57\\"},\\"properties\\":{\\"contents\\":[{\\"price\\":100,\\"quantity\\":2,\\"content_type\\":\\"Air Force One (Size S)\\",\\"content_id\\":\\"abc123\\"}],\\"currency\\":\\"USD\\",\\"value\\":100,\\"query\\":\\"shoes\\"}}"`
       )
     })
   })

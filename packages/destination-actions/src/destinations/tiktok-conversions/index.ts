@@ -12,7 +12,28 @@ const presets: DestinationDefinition['presets'] = [
     partnerAction: 'reportWebEvent',
     mapping: {
       ...defaultValues(reportWebEvent.fields),
-      event: 'ViewContent'
+      event: 'ViewContent',
+      contents: {
+        default: {
+          '@arrayPath': [
+            '$.properties',
+            {
+              price: {
+                '@path': '$.price'
+              },
+              quantity: {
+                '@path': '$.quantity'
+              },
+              content_type: {
+                '@path': '$.category'
+              },
+              content_id: {
+                '@path': '$.product_id'
+              }
+            }
+          ]
+        }
+      }
     }
   },
   {
