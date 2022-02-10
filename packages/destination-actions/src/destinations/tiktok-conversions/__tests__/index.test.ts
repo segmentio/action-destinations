@@ -6,7 +6,7 @@ import { Settings } from '../generated-types'
 const testDestination = createTestIntegration(Definition)
 const timestamp = '2021-09-2T15:21:15.449Z'
 const settings: Settings = {
-  accessToken: 'test',
+  access_token: 'test',
   pixel_code: 'test'
 }
 
