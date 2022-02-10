@@ -1,46 +1,46 @@
-import type { DestinationDefinition, InputField } from '@segment/actions-core'
+import type { DestinationDefinition } from '@segment/actions-core'
 import { defaultValues } from '@segment/actions-core'
 import type { Settings } from './generated-types'
 
 import reportWebEvent from './reportWebEvent'
 
-const tiktokDefaultValues = (fields: Record<string, InputField>, preset: string) => {
-  let contents = {}
-  const inner_contents = {
-    price: {
-      '@path': '$.price'
-    },
-    quantity: {
-      '@path': '$.quantity'
-    },
-    content_type: {
-      '@path': '$.category'
-    },
-    content_id: {
-      '@path': '$.product_id'
-    }
+const inner_contents = {
+  price: {
+    '@path': '$.price'
+  },
+  quantity: {
+    '@path': '$.quantity'
+  },
+  content_type: {
+    '@path': '$.category'
+  },
+  content_id: {
+    '@path': '$.product_id'
   }
-  if (['AddToCart', 'AddToWishlist', 'Search', 'ViewContent'].includes(preset)) {
-    contents = {
-      '@arrayPath': [
-        '$.properties',
-        {
-          ...inner_contents
-        }
-      ]
-    }
-  } else if (['AddPaymentInfo', 'InitiateCheckout', 'PlaceAnOrder'].includes(preset)) {
-    contents = {
-      '@arrayPath': [
-        '$.properties.products',
-        {
-          ...inner_contents
-        }
-      ]
-    }
-  }
+}
 
-  return { ...defaultValues(fields), contents: contents }
+const single_product_contents = {
+  ...defaultValues(reportWebEvent.fields),
+  contents: {
+    '@arrayPath': [
+      '$.properties',
+      {
+        ...inner_contents
+      }
+    ]
+  }
+}
+
+const multi_product_contents = {
+  ...defaultValues(reportWebEvent.fields),
+  contents: {
+    '@arrayPath': [
+      '$.properties.products',
+      {
+        ...inner_contents
+      }
+    ]
+  }
 }
 
 /** used in the quick setup */
@@ -50,7 +50,7 @@ const presets: DestinationDefinition['presets'] = [
     subscribe: 'type="page"',
     partnerAction: 'reportWebEvent',
     mapping: {
-      ...tiktokDefaultValues(reportWebEvent.fields, 'ViewContent'),
+      ...single_product_contents,
       event: 'ViewContent'
     }
   },
@@ -59,7 +59,7 @@ const presets: DestinationDefinition['presets'] = [
     subscribe: 'event = "Products Searched"',
     partnerAction: 'reportWebEvent',
     mapping: {
-      ...tiktokDefaultValues(reportWebEvent.fields, 'Search'),
+      ...single_product_contents,
       event: 'Search'
     }
   },
@@ -68,7 +68,7 @@ const presets: DestinationDefinition['presets'] = [
     subscribe: 'event = "Product Added to Wishlist"',
     partnerAction: 'reportWebEvent',
     mapping: {
-      ...tiktokDefaultValues(reportWebEvent.fields, 'AddToWishlist'),
+      ...single_product_contents,
       event: 'AddToWishlist'
     }
   },
@@ -77,7 +77,7 @@ const presets: DestinationDefinition['presets'] = [
     subscribe: 'event = "Product Added"',
     partnerAction: 'reportWebEvent',
     mapping: {
-      ...tiktokDefaultValues(reportWebEvent.fields, 'AddToCart'),
+      ...single_product_contents,
       event: 'AddToCart'
     }
   },
@@ -86,7 +86,7 @@ const presets: DestinationDefinition['presets'] = [
     subscribe: 'event = "Checkout Started"',
     partnerAction: 'reportWebEvent',
     mapping: {
-      ...tiktokDefaultValues(reportWebEvent.fields, 'InitiateCheckout'),
+      ...multi_product_contents,
       event: 'InitiateCheckout'
     }
   },
@@ -95,7 +95,7 @@ const presets: DestinationDefinition['presets'] = [
     subscribe: 'event = "Payment Info Entered"',
     partnerAction: 'reportWebEvent',
     mapping: {
-      ...tiktokDefaultValues(reportWebEvent.fields, 'AddPaymentInfo'),
+      ...multi_product_contents,
       event: 'AddPaymentInfo'
     }
   },
@@ -104,7 +104,7 @@ const presets: DestinationDefinition['presets'] = [
     subscribe: 'event = "Order Completed"',
     partnerAction: 'reportWebEvent',
     mapping: {
-      ...tiktokDefaultValues(reportWebEvent.fields, 'PlaceAnOrder'),
+      ...multi_product_contents,
       event: 'PlaceAnOrder'
     }
   }
