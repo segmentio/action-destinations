@@ -18,6 +18,11 @@ describe('GainsightPxCloudAction.trackEvent', () => {
 
     const responses = await testDestination.testAction('trackEvent', {
       event,
+      mapping: {
+        allFields: {
+          '@path': '$.'
+        }
+      },
       useDefaultMappings: true,
       settings: {
         apiKey: GAINSIGHT_API_KEY,
@@ -28,8 +33,10 @@ describe('GainsightPxCloudAction.trackEvent', () => {
     expect(responses[0].status).toBe(200)
     expect(responses[0].data).toMatchObject({})
     expect(responses[0].options.json).toMatchObject({
-      event: 'test event',
-      properties: { title: 'Intro to Analytics' }
+      allFields: {
+        event: 'test event',
+        properties: { title: 'Intro to Analytics' }
+      }
     })
   })
 })

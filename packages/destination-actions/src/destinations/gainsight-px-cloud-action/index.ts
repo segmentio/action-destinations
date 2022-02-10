@@ -38,7 +38,7 @@ const presets: DestinationDefinition['presets'] = [
 ]
 
 const destination: DestinationDefinition<Settings> = {
-  name: 'Gainsight Px Cloud (Actions)',
+  name: 'Gainsight PX Cloud (Actions)',
   slug: 'actions-gainsight-px-cloud',
   mode: 'cloud',
 
@@ -65,6 +65,10 @@ const destination: DestinationDefinition<Settings> = {
           {
             label: 'Europe',
             value: 'europe'
+          },
+          {
+            label: 'US2',
+            value: 'us2'
           }
         ]
       }
