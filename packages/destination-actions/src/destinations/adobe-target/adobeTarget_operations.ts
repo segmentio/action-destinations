@@ -46,11 +46,9 @@ export default class AdobeTarget {
   }
 
   private lookupProfile = async (userId: string, clientCode: string): Promise<IntegrationError | undefined> => {
+    const url = `https://${clientCode}.tt.omtrdc.net/rest/v1/profiles/thirdPartyId/${userId}?client=${clientCode}`
     try {
-      await this.request(
-        `https://${clientCode}.tt.omtrdc.net/rest/v1/profiles/thirdPartyId/${userId}?client=${clientCode}`,
-        { method: 'get' }
-      )
+      await this.request(url, { method: 'get' })
     } catch (error) {
       return new IntegrationError('No profile found in Adobe Target with this mbox3rdPartyId', 'Profile not found', 404)
     }
