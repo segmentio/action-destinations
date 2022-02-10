@@ -4,7 +4,7 @@ import type { Settings } from './generated-types'
 
 import reportWebEvent from './reportWebEvent'
 
-const inner_contents = {
+const productProperties = {
   price: {
     '@path': '$.price'
   },
@@ -19,25 +19,25 @@ const inner_contents = {
   }
 }
 
-const single_product_contents = {
+const singleProductContents = {
   ...defaultValues(reportWebEvent.fields),
   contents: {
     '@arrayPath': [
       '$.properties',
       {
-        ...inner_contents
+        ...productProperties
       }
     ]
   }
 }
 
-const multi_product_contents = {
+const multiProductContents = {
   ...defaultValues(reportWebEvent.fields),
   contents: {
     '@arrayPath': [
       '$.properties.products',
       {
-        ...inner_contents
+        ...productProperties
       }
     ]
   }
@@ -50,7 +50,7 @@ const presets: DestinationDefinition['presets'] = [
     subscribe: 'type="page"',
     partnerAction: 'reportWebEvent',
     mapping: {
-      ...single_product_contents,
+      ...singleProductContents,
       event: 'ViewContent'
     }
   },
@@ -59,7 +59,7 @@ const presets: DestinationDefinition['presets'] = [
     subscribe: 'event = "Products Searched"',
     partnerAction: 'reportWebEvent',
     mapping: {
-      ...single_product_contents,
+      ...singleProductContents,
       event: 'Search'
     }
   },
@@ -68,7 +68,7 @@ const presets: DestinationDefinition['presets'] = [
     subscribe: 'event = "Product Added to Wishlist"',
     partnerAction: 'reportWebEvent',
     mapping: {
-      ...single_product_contents,
+      ...singleProductContents,
       event: 'AddToWishlist'
     }
   },
@@ -77,7 +77,7 @@ const presets: DestinationDefinition['presets'] = [
     subscribe: 'event = "Product Added"',
     partnerAction: 'reportWebEvent',
     mapping: {
-      ...single_product_contents,
+      ...singleProductContents,
       event: 'AddToCart'
     }
   },
@@ -86,7 +86,7 @@ const presets: DestinationDefinition['presets'] = [
     subscribe: 'event = "Checkout Started"',
     partnerAction: 'reportWebEvent',
     mapping: {
-      ...multi_product_contents,
+      ...multiProductContents,
       event: 'InitiateCheckout'
     }
   },
@@ -95,7 +95,7 @@ const presets: DestinationDefinition['presets'] = [
     subscribe: 'event = "Payment Info Entered"',
     partnerAction: 'reportWebEvent',
     mapping: {
-      ...multi_product_contents,
+      ...multiProductContents,
       event: 'AddPaymentInfo'
     }
   },
@@ -104,7 +104,7 @@ const presets: DestinationDefinition['presets'] = [
     subscribe: 'event = "Order Completed"',
     partnerAction: 'reportWebEvent',
     mapping: {
-      ...multi_product_contents,
+      ...multiProductContents,
       event: 'PlaceAnOrder'
     }
   }
@@ -121,14 +121,14 @@ const destination: DestinationDefinition<Settings> = {
   authentication: {
     scheme: 'custom',
     fields: {
-      access_token: {
+      accessToken: {
         label: 'Access Token',
         description:
           'Your TikTok Access Token. Please see TikTok’s [Events API documentation](https://ads.tiktok.com/marketing_api/docs?id=1701890979375106) for information on how to generate an access token via the TikTok Ads Manager or API.',
         type: 'string',
         required: true
       },
-      pixel_code: {
+      pixelCode: {
         label: 'Pixel Code',
         type: 'string',
         description:
@@ -142,7 +142,7 @@ const destination: DestinationDefinition<Settings> = {
       return request('https://business-api.tiktok.com/open_api/v1.2/pixel/track/', {
         method: 'post',
         json: {
-          pixel_code: settings.pixel_code,
+          pixel_code: settings.pixelCode,
           event: 'Test Event',
           timestamp: '',
           context: {}
@@ -152,7 +152,7 @@ const destination: DestinationDefinition<Settings> = {
   },
   extendRequest({ settings }) {
     return {
-      headers: { 'Access-Token': settings.access_token }
+      headers: { 'Access-Token': settings.accessToken }
     }
   },
   presets,

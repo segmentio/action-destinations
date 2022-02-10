@@ -190,7 +190,7 @@ const action: ActionDefinition<Settings, Payload> = {
     return request('https://business-api.tiktok.com/open_api/v1.2/pixel/track/', {
       method: 'post',
       json: {
-        pixel_code: settings.pixel_code,
+        pixel_code: settings.pixelCode,
         event: payload.event,
         event_id: payload.event_id ? `${payload.event_id}_seg` : undefined,
         timestamp: payload.timestamp,
