@@ -202,10 +202,11 @@ export default class Push extends Command {
       const hasCloudActions = Object.values(definition.actions).some(
         (action) => !action.platform || action.platform === 'cloud'
       )
+      const hasMobileActions = Object.values(definition.actions).some((action) => action.platform === 'mobile')
       const platforms = {
         browser: hasBrowserActions || hasCloudActions,
         server: hasCloudActions,
-        mobile: false
+        mobile: hasMobileActions || hasCloudActions
       }
 
       const options = getOptions(definition, metadata.options)
