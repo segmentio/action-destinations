@@ -30,15 +30,19 @@ const action: BrowserActionDefinition<Settings, Sprig, Payload> = {
   },
   perform: (Sprig, event) => {
     const payload = event.payload
-    if (!payload) return
+    if (!payload || typeof payload !== 'object' || !(payload.userId || payload.anonymousId)) return
+
+    const sprigIdentifyAndSetAttributesPayload: { userId?: string; anonymousId?: string } = {}
 
     if (payload.userId) {
-      Sprig('setUserId', payload.userId)
+      sprigIdentifyAndSetAttributesPayload.userId = payload.userId
     }
 
     if (payload.anonymousId) {
-      Sprig('setPartnerAnonymousId', payload.anonymousId)
+      sprigIdentifyAndSetAttributesPayload.anonymousId = payload.anonymousId
     }
+
+    Sprig('identifyAndSetAttributes', sprigIdentifyAndSetAttributesPayload)
   }
 }
 
