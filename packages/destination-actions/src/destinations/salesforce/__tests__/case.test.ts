@@ -16,7 +16,7 @@ const auth = {
 describe('Salesforce', () => {
   describe('Case', () => {
     it('should create a case record', async () => {
-      nock(`${settings.instanceUrl}/services/data/${API_VERSION}/sobjects`).post('/Cases').reply(201, {})
+      nock(`${settings.instanceUrl}/services/data/${API_VERSION}/sobjects`).post('/Case').reply(201, {})
 
       const event = createTestEvent({
         event: 'Identify',
@@ -25,7 +25,7 @@ describe('Salesforce', () => {
         }
       })
 
-      const responses = await testDestination.testAction('case', {
+      const responses = await testDestination.testAction('cases', {
         event,
         settings,
         auth,
@@ -53,14 +53,14 @@ describe('Salesforce', () => {
               "Segment (Actions)",
             ],
           },
-        }      w
+        }
       `)
 
       expect(responses[0].options.body).toMatchInlineSnapshot(`"{\\"Description\\":\\"This is test description\\"}"`)
     })
 
     it('should create a case record with custom fields', async () => {
-      nock(`${settings.instanceUrl}/services/data/${API_VERSION}/sobjects`).post('/Cases').reply(201, {})
+      nock(`${settings.instanceUrl}/services/data/${API_VERSION}/sobjects`).post('/Case').reply(201, {})
 
       const event = createTestEvent({
         event: 'Identify',
@@ -69,7 +69,7 @@ describe('Salesforce', () => {
         }
       })
 
-      const responses = await testDestination.testAction('case', {
+      const responses = await testDestination.testAction('cases', {
         event,
         settings,
         auth,
