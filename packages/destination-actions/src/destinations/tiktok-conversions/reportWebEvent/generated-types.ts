@@ -82,4 +82,8 @@ export interface Payload {
    * The text string that was searched for.
    */
   query?: string
+  /**
+   * Use this field to specify that events should be test events rather than actual traffic.
+   */
+  test_event_code?: string
 }
