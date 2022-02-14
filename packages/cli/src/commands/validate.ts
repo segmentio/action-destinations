@@ -64,6 +64,16 @@ export default class Validate extends Command {
           )
         }
       }
+
+      //Validate descriptions
+      if (!action.description) {
+        errors.push(new Error(`The action "${actionKey}" is missing a description.`))
+      }
+      for (const [fieldKey, field] of Object.entries(action.fields)) {
+        if (!field.description) {
+          errors.push(new Error(`The action "${actionKey}" is missing a description for the field "${fieldKey}".`))
+        }
+      }
     }
 
     return errors
