@@ -273,7 +273,7 @@ export const destination: BrowserDestinationDefinition<Settings, typeof appboy> 
       })
 
       if (window.appboy.addSdkMetadata) {
-        window.appboy.addSdkMetadata(['sg'])
+        window.appboy.addSdkMetadata([window.appboy.BrazeSdkMetadata.SEGMENT])
       }
 
       if (automaticallyDisplayMessages) {
