@@ -1,48 +1,5 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`Testing snapshot for GainsightPxCloudAction's trackEvent destination action: all fields 1`] = `
-Object {
-  "anonymousId": "7Lep^my@",
-  "context": Object {
-    "app": Object {},
-    "campaign": Object {},
-    "device": Object {
-      "testType": "7Lep^my@",
-    },
-    "ip": "7Lep^my@",
-    "library": Object {},
-    "locale": "7Lep^my@",
-    "location": Object {},
-    "network": Object {
-      "testType": "7Lep^my@",
-    },
-    "page": Object {},
-    "screen": Object {},
-    "userAgent": "7Lep^my@",
-  },
-  "event": "7Lep^my@",
-  "messageId": "7Lep^my@",
-  "properties": Object {
-    "testType": "7Lep^my@",
-  },
-  "receivedAt": "2021-02-01T00:00:00.000Z",
-  "sentAt": "2021-02-01T00:00:00.000Z",
-  "timestamp": "2021-02-01T00:00:00.000Z",
-  "type": "7Lep^my@",
-  "userId": "7Lep^my@",
-  "version": -48581703421132.8,
-}
-`;
+exports[`Testing snapshot for GainsightPxCloudAction's trackEvent destination action: all fields 1`] = `Object {}`;
 
-exports[`Testing snapshot for GainsightPxCloudAction's trackEvent destination action: required fields 1`] = `
-Object {
-  "context": Object {},
-  "event": "7Lep^my@",
-  "messageId": "7Lep^my@",
-  "receivedAt": "2021-02-01T00:00:00.000Z",
-  "sentAt": "2021-02-01T00:00:00.000Z",
-  "timestamp": "2021-02-01T00:00:00.000Z",
-  "type": "7Lep^my@",
-  "userId": "7Lep^my@",
-}
-`;
+exports[`Testing snapshot for GainsightPxCloudAction's trackEvent destination action: required fields 1`] = `Object {}`;

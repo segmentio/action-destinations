@@ -3,8 +3,11 @@ import { createHash } from 'crypto'
 /**
  * Convert emails to lower case, and hash in SHA256.
  */
-export function formatEmail(email: string): string {
-  return hashAndEncode(email.toLowerCase())
+export function formatEmail(email: string | undefined): string | undefined {
+  if (email) {
+    return hashAndEncode(email.toLowerCase())
+  }
+  return undefined
 }
 
 /**
@@ -12,8 +15,11 @@ export function formatEmail(email: string): string {
  * @param userId
  * @returns Leading/Trailing spaces are trimmed and then userId is hashed.
  */
-export function formatUserId(userId: string): string {
-  return hashAndEncode(userId.toLowerCase().trim())
+export function formatUserId(userId: string | undefined): string | undefined {
+  if (userId) {
+    return hashAndEncode(userId.toLowerCase().trim())
+  }
+  return undefined
 }
 
 /**
@@ -21,8 +27,8 @@ export function formatUserId(userId: string): string {
  * Note it is up to the advertiser to pass only valid phone numbers and formats.
  * This function assumes the input is a correctly formatted phone number maximum of 14 characters long with country code included in the input.
  */
-export function formatPhone(phone?: string): string {
-  if (!phone) return ''
+export function formatPhone(phone: string | undefined): string | undefined{
+  if (!phone) return undefined
 
   const validatedPhone = phone.match(/[0-9]{0,14}/g)
   if (validatedPhone === null) {
