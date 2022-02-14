@@ -16,6 +16,22 @@ const action: ActionDefinition<Settings, Payload> = {
         '@path': '$.traits.company.name'
       }
     },
+    lead_external_id: {
+      label: 'Lead Company ID',
+      description:
+        'Your ID that identifies the Lead. Lead Custom Field ID for Company must be defined in the global integration settings.',
+      type: 'string',
+      required: false,
+      default: {
+        '@path': '$.traits.company.id'
+      }
+    },
+    lead_custom_fields: {
+      label: 'Lead Custom Fields',
+      description: 'Custom Fields to set on the Lead. Key should be Custom Field ID (`cf_xxxx`).',
+      type: 'object',
+      required: false
+    },
     contact_name: {
       label: 'Contact Name',
       description: '',
@@ -81,7 +97,8 @@ const action: ActionDefinition<Settings, Payload> = {
 
   perform: (request, data) => {
     const settings = {
-      contact_custom_field_id_for_user_id: data.settings.contact_custom_field_id_for_user_id
+      contact_custom_field_id_for_user_id: data.settings.contact_custom_field_id_for_user_id,
+      lead_custom_field_id_for_company_id: data.settings.lead_custom_field_id_for_company_id
     }
     return request('https://services.close.com/webhooks/segment/actions/create-update-contact-and-lead/', {
       method: 'post',

@@ -2,6 +2,16 @@
 
 export interface Payload {
   lead_name?: string
+  /**
+   * Your ID that identifies the Lead. Lead Custom Field ID for Company must be defined in the global integration settings.
+   */
+  lead_external_id?: string
+  /**
+   * Custom Fields to set on the Lead. Key should be Custom Field ID (`cf_xxxx`).
+   */
+  lead_custom_fields?: {
+    [k: string]: unknown
+  }
   contact_name?: string
   contact_email?: string
   contact_phone?: string
