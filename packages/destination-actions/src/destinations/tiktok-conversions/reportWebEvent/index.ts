@@ -177,6 +177,12 @@ const action: ActionDefinition<Settings, Payload> = {
       default: {
         '@path': '$.properties.query'
       }
+    },
+    test_event_code: {
+      label: 'Test Event Code',
+      type: 'string',
+      description:
+        'Use this field to specify that events should be test events rather than actual traffic. You can find your Test Event Code in your TikTok Events Manager under the "Test Event" tab. You\'ll want to remove your Test Event Code when sending real traffic through this integration.'
     }
   },
   perform: (request, { payload, settings }) => {
@@ -194,6 +200,7 @@ const action: ActionDefinition<Settings, Payload> = {
         event: payload.event,
         event_id: payload.event_id ? `${payload.event_id}_seg` : undefined,
         timestamp: payload.timestamp,
+        test_event_code: payload.test_event_code,
         context: {
           user: {
             external_id: userData.hashedExternalId,
