@@ -215,5 +215,59 @@ describe('Salesforce', () => {
 
       expect(responses[1].options.body).toMatchInlineSnapshot(`"{\\"Description\\":\\"Test two\\"}"`)
     })
+
+    it('should upsert a non-existent record', async () => {
+      const event = createTestEvent({
+        event: 'Identify',
+        traits: {
+          description: 'Test two'
+        }
+      })
+
+      nock(`${settings.instanceUrl}/services/data/${API_VERSION}/query`)
+        .get(`/?q=SELECT Id FROM Case WHERE description = 'Test one'`)
+        .reply(201, {
+          Id: 'abc123',
+          totalSize: 0
+        })
+
+      nock(`${settings.instanceUrl}/services/data/${API_VERSION}/sobjects`).post('/Case').reply(201, {})
+
+      const responses = await testDestination.testAction('cases', {
+        event,
+        settings,
+        auth,
+        mapping: {
+          operation: 'upsert',
+          traits: {
+            description: 'Test one'
+          },
+          description: {
+            '@path': '$.traits.description'
+          }
+        }
+      })
+
+      console.log(responses)
+
+      expect(responses.length).toBe(2)
+      expect(responses[0].status).toBe(201)
+      expect(responses[1].status).toBe(201)
+
+      expect(responses[0].request.headers).toMatchInlineSnapshot(`
+        Headers {
+          Symbol(map): Object {
+            "authorization": Array [
+              "Bearer abc123",
+            ],
+            "user-agent": Array [
+              "Segment (Actions)",
+            ],
+          },
+        }
+      `)
+
+      expect(responses[1].options.body).toMatchInlineSnapshot(`"{\\"Description\\":\\"Test two\\"}"`)
+    })
   })
 })
