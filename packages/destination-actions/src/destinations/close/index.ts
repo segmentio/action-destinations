@@ -17,6 +17,20 @@ const destination: DestinationDefinition<Settings> = {
         type: 'string',
         required: true
       },
+      lead_custom_field_id_for_company_id: {
+        label: 'Lead Custom Field ID for Company ID',
+        description:
+          "Enter the ID of a Lead Custom Field that'll be " +
+          "used to store Company ID. You'll need to create this Lead " +
+          'Custom Field in Close first, and then the integration will use ' +
+          'this field to store the Company ID when creating new contacts, ' +
+          'and/or will be used as a lookup key when updating existing ' +
+          'Lead. If this field is not filled out, it will only ' +
+          "lookup and de-dupe based on Contact's email.",
+        type: 'string',
+        default: '',
+        required: false
+      },
       contact_custom_field_id_for_user_id: {
         label: 'Contact Custom Field ID for User ID',
         description:
