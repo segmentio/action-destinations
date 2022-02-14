@@ -4,12 +4,20 @@ import type { Payload } from './generated-types'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Create or Update Contact and Lead',
-  description: '',
+  description:
+    'Create or Update Contact and/or Lead. At first Close will try to find ' +
+    'Lead via Lead Company ID. If Lead is not found, Close will try to find ' +
+    'a Contact either via Contact User ID or via Contact Email. If Contact is ' +
+    'not found, Close will create a new Lead and Contact. It will also create ' +
+    'a new Lead and Contact if Contact is found but exists under a Lead with ' +
+    'different Lead Company ID. In case that Close finds find multiple ' +
+    'Contacts with the same Contact User ID or Contact Email, Close will ' +
+    'update up to 10 Contacts, ordered by creation date.',
   defaultSubscription: 'type = "identify"',
   fields: {
     lead_name: {
       label: 'Lead Name',
-      description: '',
+      description: 'The name of the Lead.',
       type: 'string',
       required: false,
       default: {
@@ -34,7 +42,7 @@ const action: ActionDefinition<Settings, Payload> = {
     },
     contact_name: {
       label: 'Contact Name',
-      description: '',
+      description: 'The name of the Contact.',
       type: 'string',
       required: false,
       default: {
@@ -43,7 +51,8 @@ const action: ActionDefinition<Settings, Payload> = {
     },
     contact_email: {
       label: 'Contact Email',
-      description: '',
+      description:
+        'Can be used for looking up the Contact. If the Contact already has different email address, this value will be appended.',
       type: 'string',
       required: false,
       default: {
@@ -52,7 +61,7 @@ const action: ActionDefinition<Settings, Payload> = {
     },
     contact_phone: {
       label: 'Contact Phone',
-      description: '',
+      description: 'If the Contact already has different phone number, this value will be appended.',
       type: 'string',
       required: false,
       default: {
@@ -61,7 +70,7 @@ const action: ActionDefinition<Settings, Payload> = {
     },
     contact_url: {
       label: 'Contact URL',
-      description: '',
+      description: 'If the Contact already has different URL, this value will be appended.',
       type: 'string',
       required: false,
       default: {
@@ -70,7 +79,7 @@ const action: ActionDefinition<Settings, Payload> = {
     },
     contact_title: {
       label: 'Contact Title',
-      description: '',
+      description: 'The title of the Contact.',
       type: 'string',
       required: false,
       default: {

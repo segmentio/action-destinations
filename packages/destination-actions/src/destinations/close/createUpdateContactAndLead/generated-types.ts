@@ -1,6 +1,9 @@
 // Generated file. DO NOT MODIFY IT BY HAND.
 
 export interface Payload {
+  /**
+   * The name of the Lead.
+   */
   lead_name?: string
   /**
    * Your ID that identifies the Lead. Lead Custom Field ID for Company must be defined in the global integration settings.
@@ -12,10 +15,25 @@ export interface Payload {
   lead_custom_fields?: {
     [k: string]: unknown
   }
+  /**
+   * The name of the Contact.
+   */
   contact_name?: string
+  /**
+   * Can be used for looking up the Contact. If the Contact already has different email address, this value will be appended.
+   */
   contact_email?: string
+  /**
+   * If the Contact already has different phone number, this value will be appended.
+   */
   contact_phone?: string
+  /**
+   * If the Contact already has different URL, this value will be appended.
+   */
   contact_url?: string
+  /**
+   * The title of the Contact.
+   */
   contact_title?: string
   /**
    * Your ID that identifies the Contact. Contact Custom Field ID for User ID must be defined in the global integration settings.
