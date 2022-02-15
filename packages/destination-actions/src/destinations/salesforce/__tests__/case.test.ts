@@ -248,8 +248,6 @@ describe('Salesforce', () => {
         }
       })
 
-      console.log(responses)
-
       expect(responses.length).toBe(2)
       expect(responses[0].status).toBe(201)
       expect(responses[1].status).toBe(201)
