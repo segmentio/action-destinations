@@ -6,6 +6,8 @@ import { initScript } from './init-script'
 
 import upsertProfile from './upsertProfile'
 
+import triggerView from './triggerView'
+
 declare global {
   interface Window {
     adobe: Adobe
@@ -75,7 +77,8 @@ export const destination: BrowserDestinationDefinition<Settings, Adobe> = {
   },
 
   actions: {
-    upsertProfile
+    upsertProfile,
+    triggerView
   }
 }
 
