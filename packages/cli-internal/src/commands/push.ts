@@ -276,7 +276,7 @@ export default class Push extends Command {
             basicOptions,
             options,
             platforms,
-            supportedRegions: ['us-west-2'] // always default to US until regional action destinations are supported
+            supportedRegions: ['us-west-2', 'eu-west-1'] // always default to US until regional action destinations are supported
           }),
           updateDestinationMetadataActions(actionsToUpdate),
           createDestinationMetadataActions(actionsToCreate)
