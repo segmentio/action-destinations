@@ -19,8 +19,9 @@ describe('Salesforce', () => {
       nock(`${settings.instanceUrl}/services/data/${API_VERSION}/sobjects`).post('/Case').reply(201, {})
 
       const event = createTestEvent({
-        event: 'Identify',
-        traits: {
+        type: 'track',
+        event: 'Create new case',
+        properties: {
           description: 'This is test description'
         }
       })
@@ -32,7 +33,7 @@ describe('Salesforce', () => {
         mapping: {
           operation: 'create',
           description: {
-            '@path': '$.traits.description'
+            '@path': '$.properties.description'
           }
         }
       })
@@ -63,8 +64,9 @@ describe('Salesforce', () => {
       nock(`${settings.instanceUrl}/services/data/${API_VERSION}/sobjects`).post('/Case').reply(201, {})
 
       const event = createTestEvent({
-        event: 'Identify',
-        traits: {
+        type: 'track',
+        event: 'Create new case',
+        properties: {
           description: 'This is test description'
         }
       })
@@ -76,7 +78,7 @@ describe('Salesforce', () => {
         mapping: {
           operation: 'create',
           description: {
-            '@path': '$.traits.description'
+            '@path': '$.properties.description'
           },
           customFields: {
             A: '1',
@@ -112,8 +114,9 @@ describe('Salesforce', () => {
 
     it('should update a case record', async () => {
       const event = createTestEvent({
-        event: 'Identify',
-        traits: {
+        type: 'track',
+        event: 'Update case',
+        properties: {
           description: 'Test two'
         }
       })
@@ -138,7 +141,7 @@ describe('Salesforce', () => {
             description: 'Test one'
           },
           description: {
-            '@path': '$.traits.description'
+            '@path': '$.properties.description'
           }
         }
       })
@@ -165,8 +168,9 @@ describe('Salesforce', () => {
 
     it('should upsert an existing record', async () => {
       const event = createTestEvent({
-        event: 'Identify',
-        traits: {
+        type: 'track',
+        event: 'Upsert existing case',
+        properties: {
           description: 'Test two'
         }
       })
@@ -191,7 +195,7 @@ describe('Salesforce', () => {
             description: 'Test one'
           },
           description: {
-            '@path': '$.traits.description'
+            '@path': '$.properties.description'
           }
         }
       })
@@ -218,8 +222,9 @@ describe('Salesforce', () => {
 
     it('should upsert a non-existent record', async () => {
       const event = createTestEvent({
-        event: 'Identify',
-        traits: {
+        type: 'track',
+        event: 'Upsert non-existent case',
+        properties: {
           description: 'Test two'
         }
       })
@@ -243,7 +248,7 @@ describe('Salesforce', () => {
             description: 'Test one'
           },
           description: {
-            '@path': '$.traits.description'
+            '@path': '$.properties.description'
           }
         }
       })
