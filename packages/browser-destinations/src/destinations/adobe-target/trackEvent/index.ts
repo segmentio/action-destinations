@@ -14,7 +14,7 @@ const action: BrowserActionDefinition<Settings, Adobe, Payload> = {
       description: 'Event type or name.',
       type: 'string',
       default: {
-        '@path': '@.type'
+        '@path': '$.type'
       }
     },
     properties: {
@@ -22,7 +22,7 @@ const action: BrowserActionDefinition<Settings, Adobe, Payload> = {
       description: 'Parameters specific to the event.',
       type: 'object',
       default: {
-        '@path': '@.properties'
+        '@path': '$.properties'
       }
     }
   },
