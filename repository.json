@@ -1,0 +1,7 @@
+{
+  "name": "segment-action-destinations",
+  "description": "Segment Action Destinations",
+  "owner": "Spark",
+  "type": "library",
+  "status": "unreleased"
+}
