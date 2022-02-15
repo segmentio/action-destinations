@@ -1,12 +1,10 @@
+// type UserConfig = {
+//   disableTextCapture: boolean;
+//   secureCookie: boolean;
+//   trackingServer: string;
+// };
 
-type UserConfig = {
-  disableTextCapture: boolean;
-  secureCookie: boolean;
-  trackingServer: string;
-};
-
-export interface Heap extends Array<unknown> {
-  load: () => void
+export interface HeapApi extends Array<unknown> {
   appid: string
-  config: UserConfig
+  // config: UserConfig
 }
