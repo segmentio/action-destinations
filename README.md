@@ -20,6 +20,7 @@ Table of Contents:
 - [perform function](#the-perform-function)
 - [Batching Requests](#batching-requests)
 - [HTTP Requests](#http-requests)
+- [Contributing](#contributing)
 
 ## Get started
 
@@ -470,5 +471,9 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 
 ## Contributing
+
+Dev Center 2.0. is currently in private beta.
+
+As of January 1, 2022, Segment recommends that new partners wait for the release of Dev Center 2.0 and the new Destination Actions framework before building an integration. We anticipate the general availability of Dev Center 2.0 to take place in July or August 2022. All current Classic integrations will be deprecated within 24 months following the release of Dev Center 2.0 and Destination Actions. If you prefer to wait for the release of Dev Center 2.0 before building your integration, we recommend that you sign up for our beta waitlist using [this Airtable form](https://airtable.com/shrvZzQ6NTTwsc6rQ).
 
 All third party contributors acknowledge that any contributions they provide will be made under the same open source license that the open source project is provided under.
