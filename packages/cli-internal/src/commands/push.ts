@@ -40,7 +40,8 @@ export default class Push extends Command {
 
   static examples = [`$ ./bin/run push`]
 
-  static flags = {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  static flags: flags.Input<any> = {
     help: flags.help({ char: 'h' }),
     force: flags.boolean({ char: 'f' })
   }

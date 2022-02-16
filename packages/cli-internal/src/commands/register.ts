@@ -17,7 +17,8 @@ export default class Register extends Command {
 
   static examples = [`$ ./bin/run register`]
 
-  static flags = {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  static flags: flags.Input<any> = {
     help: flags.help({ char: 'h' }),
     path: flags.string({ char: 'p', description: 'Path to the destination to register.' }),
     env: flags.enum({

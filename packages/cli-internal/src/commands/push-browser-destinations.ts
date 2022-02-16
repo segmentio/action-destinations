@@ -22,7 +22,8 @@ export default class PushBrowserDestinations extends Command {
 
   static examples = [`$ ./bin/run push-browser-destinations`]
 
-  static flags = {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  static flags: flags.Input<any> = {
     help: flags.help({ char: 'h' }),
     env: flags.string({
       char: 'e',

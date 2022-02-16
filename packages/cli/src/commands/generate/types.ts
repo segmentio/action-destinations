@@ -25,7 +25,8 @@ export default class GenerateTypes extends Command {
   // Allow variable length args (to work with tools like lint-staged)
   static strict = false
 
-  static flags = {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  static flags: flags.Input<any> = {
     help: flags.help({ char: 'h' }),
     path: flags.string({
       char: 'p',
