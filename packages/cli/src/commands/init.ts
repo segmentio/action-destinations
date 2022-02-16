@@ -18,7 +18,8 @@ export default class Init extends Command {
     `$ ./bin/run init my-integration --directory packages/destination-actions --template basic-auth`
   ]
 
-  static flags = {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  static flags: flags.Input<any> = {
     help: flags.help({ char: 'h' }),
     directory: flags.string({
       char: 'd',
