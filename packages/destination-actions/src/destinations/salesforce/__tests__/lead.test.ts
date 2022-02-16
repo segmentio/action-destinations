@@ -19,8 +19,9 @@ describe('Salesforce', () => {
       nock(`${settings.instanceUrl}/services/data/${API_VERSION}/sobjects`).post('/Lead').reply(201, {})
 
       const event = createTestEvent({
-        event: 'Identify',
-        traits: {
+        type: 'track',
+        event: 'Create Lead',
+        properties: {
           email: 'sponge@seamail.com',
           company: 'Krusty Krab',
           last_name: 'Squarepants'
@@ -34,13 +35,13 @@ describe('Salesforce', () => {
         mapping: {
           operation: 'create',
           email: {
-            '@path': '$.traits.email'
+            '@path': '$.properties.email'
           },
           company: {
-            '@path': '$.traits.company'
+            '@path': '$.properties.company'
           },
           last_name: {
-            '@path': '$.traits.last_name'
+            '@path': '$.properties.last_name'
           }
         }
       })
@@ -73,8 +74,9 @@ describe('Salesforce', () => {
       nock(`${settings.instanceUrl}/services/data/${API_VERSION}/sobjects`).post('/Lead').reply(201, {})
 
       const event = createTestEvent({
-        event: 'Identify',
-        traits: {
+        type: 'track',
+        event: 'Create Lead',
+        properties: {
           email: 'sponge@seamail.com',
           company: 'Krusty Krab',
           address: {
@@ -83,9 +85,7 @@ describe('Salesforce', () => {
             country: 'The Ocean',
             street: 'Pineapple Ln',
             state: 'Water'
-          }
-        },
-        properties: {
+          },
           last_name: 'Bob',
           first_name: 'Sponge'
         }
