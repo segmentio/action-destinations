@@ -134,8 +134,8 @@ export interface InputField {
   defaultView?:
     | 'keyvalue' // Users will see the key value UI and can switch to object UI
     | 'object' // Users will see the object UI and can switch to key value UI
-    | 'keyvalue:exclusive' // Users will only see the key value UI
-    | 'object:exclusive' // Users will only see the object UI
+    | 'keyvalue:only' // Users will only see the key value UI
+    | 'object:only' // Users will only see the object UI
 }
 
 export type FieldValue = string | number | boolean | object | Directive
