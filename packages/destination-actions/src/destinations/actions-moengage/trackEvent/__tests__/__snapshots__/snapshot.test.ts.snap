@@ -27,7 +27,11 @@ Object {
 exports[`Testing snapshot for ActionsMoengage's trackEvent destination action: required fields 1`] = `
 Object {
   "anonymous_id": "[3(wtAyZqr",
-  "context": Object {},
+  "context": Object {
+    "app": Object {},
+    "library": Object {},
+    "os": Object {},
+  },
   "event": "[3(wtAyZqr",
   "type": "[3(wtAyZqr",
   "user_id": "[3(wtAyZqr",
