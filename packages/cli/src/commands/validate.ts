@@ -12,7 +12,8 @@ export default class Validate extends Command {
 
   static examples = [`$ ./bin/run validate`]
 
-  static flags = {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  static flags: flags.Input<any> = {
     help: flags.help({ char: 'h' })
   }
 
