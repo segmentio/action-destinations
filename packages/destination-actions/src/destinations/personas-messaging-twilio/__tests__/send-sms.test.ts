@@ -50,7 +50,7 @@ for (const environment of ['stage', 'production']) {
         settings,
         mapping: {
           userId: { '@path': '$.userId' },
-          fromNumber: '+1234567890',
+          messagingServiceId: 'MG1111222233334444',
           body: 'Hello world, {{profile.user_id}}!',
           send: true
         }
@@ -92,7 +92,7 @@ for (const environment of ['stage', 'production']) {
     it('should send SMS', async () => {
       const expectedTwilioRequest = new URLSearchParams({
         Body: 'Hello world, jane!',
-        From: '+1234567890',
+        From: 'MG1111222233334444',
         To: '+1234567891'
       })
       const actionInputData = {
@@ -104,7 +104,7 @@ for (const environment of ['stage', 'production']) {
         settings,
         mapping: {
           userId: { '@path': '$.userId' },
-          fromNumber: '+1234567890',
+          messagingServiceId: 'MG1111222233334444',
           body: 'Hello world, {{profile.user_id}}!',
           send: true
         }
@@ -116,7 +116,7 @@ for (const environment of ['stage', 'production']) {
     it('should send SMS with custom metadata', async () => {
       const expectedTwilioRequest = new URLSearchParams({
         Body: 'Hello world, jane!',
-        From: '+1234567890',
+        From: 'MG1111222233334444',
         To: '+1234567891',
         StatusCallback:
           'http://localhost/?foo=bar&__segment_internal_external_id_key__=phone&__segment_internal_external_id_value__=%2B1234567891#rp=all&rc=5'
@@ -135,7 +135,7 @@ for (const environment of ['stage', 'production']) {
         },
         mapping: {
           userId: { '@path': '$.userId' },
-          fromNumber: '+1234567890',
+          messagingServiceId: 'MG1111222233334444',
           body: 'Hello world, {{profile.user_id}}!',
           customArgs: {
             foo: 'bar'
@@ -175,7 +175,7 @@ for (const environment of ['stage', 'production']) {
         },
         mapping: {
           userId: { '@path': '$.userId' },
-          fromNumber: '+1234567890',
+          messagingServiceId: 'MG1111222233334444',
           body: 'Hello world, {{profile.user_id}}!',
           customArgs: {
             foo: 'bar'
