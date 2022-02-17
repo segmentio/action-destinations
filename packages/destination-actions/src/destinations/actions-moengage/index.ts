@@ -29,6 +29,7 @@ const destination: DestinationDefinition<Settings> = {
         description: 'The region to send your data.',
         type: 'string',
         format: 'text',
+        required: true,
         choices: [
           {
             label: 'DataCenter-01',

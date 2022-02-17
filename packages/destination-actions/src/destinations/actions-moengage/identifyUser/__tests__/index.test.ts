@@ -4,12 +4,11 @@ import Destination from '../../index'
 import { getEndpointByRegion } from '../../regional-endpoints'
 
 const testDestination = createTestIntegration(Destination)
-const MOENGAGE_API_ID = "SOME_APP_ID"
-const MOENGAGE_API_KEY = "SOME_APP_KEY"
-const MOENGAGE_REGION = "SOME_REGION"
+const MOENGAGE_API_ID = 'SOME_APP_ID'
+const MOENGAGE_API_KEY = 'SOME_APP_KEY'
+const MOENGAGE_REGION = 'SOME_REGION'
 
 const endpoint = getEndpointByRegion()
-
 
 describe('ActionsMoengage.identifyUser', () => {
   it('should validate action fields', async () => {
@@ -31,11 +30,11 @@ describe('ActionsMoengage.identifyUser', () => {
     expect(responses[0].status).toBe(200)
     expect(responses[0].data).toMatchObject({})
     expect(responses[0].options.body).toBe(
-      `{"type":"track","traits":{"name":"abc"},"context":{"library":{"version":"2.11.1"}},"user_id":"user1234","anonymous_id":"${event.anonymousId}","timestamp":"${event.timestamp}"}`
+      `{"type":"track","user_id":"user1234","traits":{"name":"abc"},"context":{"app":{},"os":{},"library":{"version":"2.11.1"}},"anonymous_id":"${event.anonymousId}","timestamp":"${event.timestamp}"}`
     )
   })
 
-  it('should require api_id and api_key',async () => {
+  it('should require api_id and api_key', async () => {
     const event = createTestEvent()
     nock(`${endpoint}`).post(`/v1/integrations/segment?appId=${MOENGAGE_API_ID}`).reply(200, {})
 
@@ -45,7 +44,7 @@ describe('ActionsMoengage.identifyUser', () => {
         useDefaultMappings: true
       })
     } catch (e) {
-      expect(e.message).toBe("Missing API ID or API KEY")
+      expect(e.message).toBe('Missing API ID or API KEY')
     }
   })
 })
