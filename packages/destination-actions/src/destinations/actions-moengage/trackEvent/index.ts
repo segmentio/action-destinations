@@ -3,7 +3,6 @@ import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 import { getEndpointByRegion } from '../regional-endpoints'
 
-
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Track Event',
   description: 'Send an event to Moengage.',
@@ -59,7 +58,7 @@ const action: ActionDefinition<Settings, Payload> = {
         '@path': '$.context.app.version'
       }
     },
-    library_version:{
+    library_version: {
       label: 'Library Version',
       type: 'string',
       description: 'The version of the mobile operating system or browser the user is using.',
@@ -70,7 +69,8 @@ const action: ActionDefinition<Settings, Payload> = {
     timestamp: {
       label: 'Timestamp',
       type: 'datetime',
-      description: 'The timestamp of the event. If time is not sent with the event, it will be set to the time our servers receive it.',
+      description:
+        'The timestamp of the event. If time is not sent with the event, it will be set to the time our servers receive it.',
       default: {
         '@path': '$.timestamp'
       }
@@ -85,40 +85,22 @@ const action: ActionDefinition<Settings, Payload> = {
     }
   },
   perform: async (request, { payload, settings }) => {
-
     if (!settings.api_id || !settings.api_key) {
       throw new IntegrationError('Missing API ID or API KEY', 'Missing required field', 400)
     }
 
     const event: any = {
       type: payload.type,
+      user_id: payload.user_id,
+      anonymous_id: payload.anonymous_id,
       event: payload.event,
-      context: {},
+      context: {
+        app: { version: payload.app_version },
+        os: { name: payload.os_name },
+        library: { version: payload.library_version }
+      },
       properties: payload.properties,
-    }
-
-    if (payload.user_id) {
-      event.user_id = payload.user_id
-    }
-
-    if (payload.anonymous_id) {
-      event.anonymous_id = payload.anonymous_id
-    }
-
-    if (payload.app_version) {
-      event.context.app = { version: payload.app_version }
-    }
-
-    if (payload.os_name) {
-      event.context.os = { name: payload.os_name }
-    }
-
-    if (payload.library_version) {
-      event.context.library = { version: payload.library_version }
-    }
-
-    if (payload.timestamp) {
-      event.timestamp = payload.timestamp
+      timestamp: payload.timestamp
     }
 
     const endpoint = getEndpointByRegion(settings.region)
