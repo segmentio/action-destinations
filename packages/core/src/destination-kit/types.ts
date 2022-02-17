@@ -128,9 +128,7 @@ export interface InputField {
     | 'uuid' // Universally Unique IDentifier according to RFC4122.
     | 'password' // hint to the UI to hide/obfuscate input strings
     | 'text' // longer strings
-  /**
-   * The UI view that the user will see.
-   */
+
   defaultView?:
     | 'keyvalue' // Users will see the key value UI and can switch to object UI
     | 'object' // Users will see the object UI and can switch to key value UI
