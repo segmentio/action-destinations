@@ -129,8 +129,9 @@ describe('Salesforce', () => {
       nock(`${settings.instanceUrl}/services/data/${API_VERSION}/sobjects`).post('/Lead').reply(201, {})
 
       const event = createTestEvent({
-        event: 'Identify',
-        traits: {
+        type: 'track',
+        event: 'Create Lead',
+        properties: {
           email: 'sponge@seamail.com',
           company: 'Krusty Krab',
           last_name: 'Squarepants'
@@ -144,13 +145,13 @@ describe('Salesforce', () => {
         mapping: {
           operation: 'create',
           email: {
-            '@path': '$.traits.email'
+            '@path': '$.properties.email'
           },
           company: {
-            '@path': '$.traits.company'
+            '@path': '$.properties.company'
           },
           last_name: {
-            '@path': '$.traits.last_name'
+            '@path': '$.properties.last_name'
           },
           customFields: {
             A: '1',
@@ -186,8 +187,9 @@ describe('Salesforce', () => {
 
     it('should update a lead record', async () => {
       const event = createTestEvent({
-        event: 'Identify',
-        traits: {
+        type: 'track',
+        event: 'Update Lead',
+        properties: {
           email: 'sponge@seamail.com',
           company: 'Krusty Krab LLC',
           last_name: 'Squarepants',
@@ -219,22 +221,22 @@ describe('Salesforce', () => {
             company: 'Krusty Krab'
           },
           email: {
-            '@path': '$.traits.email'
+            '@path': '$.properties.email'
           },
           company: {
-            '@path': '$.traits.company'
+            '@path': '$.properties.company'
           },
           last_name: {
-            '@path': '$.traits.last_name'
+            '@path': '$.properties.last_name'
           },
           city: {
-            '@path': '$.traits.address.city'
+            '@path': '$.properties.address.city'
           },
           postal_code: {
-            '@path': '$.traits.address.postal_code'
+            '@path': '$.properties.address.postal_code'
           },
           street: {
-            '@path': '$.traits.address.street'
+            '@path': '$.properties.address.street'
           }
         }
       })
@@ -263,8 +265,9 @@ describe('Salesforce', () => {
 
     it('should upsert an existing record', async () => {
       const event = createTestEvent({
-        event: 'Identify',
-        traits: {
+        type: 'track',
+        event: 'Upsert Lead',
+        properties: {
           email: 'sponge@seamail.com',
           company: 'Krusty Krab LLC',
           last_name: 'Squarepants',
@@ -296,22 +299,22 @@ describe('Salesforce', () => {
             company: 'Krusty Krab'
           },
           email: {
-            '@path': '$.traits.email'
+            '@path': '$.properties.email'
           },
           company: {
-            '@path': '$.traits.company'
+            '@path': '$.properties.company'
           },
           last_name: {
-            '@path': '$.traits.last_name'
+            '@path': '$.properties.last_name'
           },
           city: {
-            '@path': '$.traits.address.city'
+            '@path': '$.properties.address.city'
           },
           postal_code: {
-            '@path': '$.traits.address.postal_code'
+            '@path': '$.properties.address.postal_code'
           },
           street: {
-            '@path': '$.traits.address.street'
+            '@path': '$.properties.address.street'
           }
         }
       })
@@ -340,8 +343,9 @@ describe('Salesforce', () => {
 
     it('should upsert a nonexistent record', async () => {
       const event = createTestEvent({
-        event: 'Identify',
-        traits: {
+        type: 'track',
+        event: 'Upsert Lead',
+        properties: {
           email: 'sponge@seamail.com',
           company: 'Krusty Krab LLC',
           last_name: 'Squarepants',
@@ -372,22 +376,22 @@ describe('Salesforce', () => {
             company: 'Krusty Krab'
           },
           email: {
-            '@path': '$.traits.email'
+            '@path': '$.properties.email'
           },
           company: {
-            '@path': '$.traits.company'
+            '@path': '$.properties.company'
           },
           last_name: {
-            '@path': '$.traits.last_name'
+            '@path': '$.properties.last_name'
           },
           city: {
-            '@path': '$.traits.address.city'
+            '@path': '$.properties.address.city'
           },
           postal_code: {
-            '@path': '$.traits.address.postal_code'
+            '@path': '$.properties.address.postal_code'
           },
           street: {
-            '@path': '$.traits.address.street'
+            '@path': '$.properties.address.street'
           }
         }
       })
