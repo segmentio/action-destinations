@@ -5,7 +5,7 @@ import identifyUser from './identifyUser'
 import { getEndpointByRegion } from './regional-endpoints'
 
 const destination: DestinationDefinition<Settings> = {
-  name: 'Moengage',
+  name: 'Moengage (Actions)',
   slug: 'actions-moengage',
   mode: 'cloud',
 
