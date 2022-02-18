@@ -1,12 +1,12 @@
 import { ActionDefinition, IntegrationError } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
-import { getEndpointByRegion } from '../regional-endpoints'
 import type { Payload } from './generated-types'
+import { getEndpointByRegion } from '../regional-endpoints'
 
 const action: ActionDefinition<Settings, Payload> = {
-  title: 'Identify User',
-  description: 'Set the user ID for a particular device ID or update user properties.',
-  defaultSubscription: 'type = "identify"',
+  title: 'Track Event',
+  description: 'Send an event to Moengage.',
+  defaultSubscription: 'type = "track"',
   fields: {
     type: {
       label: 'Event type',
@@ -17,22 +17,29 @@ const action: ActionDefinition<Settings, Payload> = {
         '@path': '$.type'
       }
     },
+    event: {
+      label: 'Event Name',
+      type: 'string',
+      description: 'The name of the event being performed.',
+      required: true,
+      default: {
+        '@path': '$.event'
+      }
+    },
     user_id: {
       label: 'User ID',
       type: 'string',
-      allowNull: true,
-      description: 'The unique user identifier set by you',
+      description: 'The unique identifier of the user.',
       default: {
-        '@path': '$.userId'
+        '@path': '$.user_id'
       }
     },
     anonymous_id: {
       label: 'Anonymous ID',
       type: 'string',
-      allowNull: true,
-      description: 'The generated anonymous ID for the user',
+      description: 'The unique identifier of the anonymous user.',
       default: {
-        '@path': '$.anonymousId'
+        '@path': '$.anonymous_id'
       }
     },
     os_name: {
@@ -68,12 +75,12 @@ const action: ActionDefinition<Settings, Payload> = {
         '@path': '$.timestamp'
       }
     },
-    traits: {
-      label: 'User Properties',
+    properties: {
+      label: 'Event Properties',
       type: 'object',
-      description: 'Properties to set on the user profile',
+      description: 'An object of key-value pairs that represent event properties to be sent along with the event.',
       default: {
-        '@path': '$.traits'
+        '@path': '$.properties'
       }
     }
   },
@@ -82,16 +89,17 @@ const action: ActionDefinition<Settings, Payload> = {
       throw new IntegrationError('Missing API ID or API KEY', 'Missing required field', 400)
     }
 
-    const event: any = {
+    const event = {
       type: payload.type,
       user_id: payload.user_id,
-      traits: payload.traits,
+      anonymous_id: payload.anonymous_id,
+      event: payload.event,
       context: {
         app: { version: payload.app_version },
         os: { name: payload.os_name },
         library: { version: payload.library_version }
       },
-      anonymous_id: payload.anonymous_id,
+      properties: payload.properties,
       timestamp: payload.timestamp
     }
 

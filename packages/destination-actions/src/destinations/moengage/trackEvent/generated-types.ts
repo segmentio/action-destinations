@@ -18,25 +18,25 @@ export interface Payload {
    */
   anonymous_id?: string
   /**
-   * The version of your application
-   */
-  app_version?: string
-  /**
    * The name of the mobile operating system or browser that the user is using.
    */
   os_name?: string
   /**
-  * The version of the SDK used to send events
-  */
+   * The version of the mobile operating system or browser the user is using.
+   */
+  app_version?: string
+  /**
+   * The version of the mobile operating system or browser the user is using.
+   */
   library_version?: string
   /**
-  * An object of key-value pairs that represent event properties to be sent along with the event.
-  */
+   * The timestamp of the event. If time is not sent with the event, it will be set to the time our servers receive it.
+   */
+  timestamp?: string | number
+  /**
+   * An object of key-value pairs that represent event properties to be sent along with the event.
+   */
   properties?: {
     [k: string]: unknown
   }
-  /**
-  * The timestamp of the event. If time is not sent with the event, it will be set to the time our servers receive it.
-  */
-  timestamp?: string
 }
