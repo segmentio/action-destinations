@@ -1,4 +1,10 @@
-import { GenericPayload, GenericBaseShape, LeadBaseShapeType, CaseBaseShapeType } from './sf-types'
+import {
+  GenericPayload,
+  GenericBaseShape,
+  LeadBaseShapeType,
+  CaseBaseShapeType,
+  OpportunityBaseShapeType
+} from './sf-types'
 
 const LeadShape = (payload: GenericPayload): LeadBaseShapeType => {
   return {
@@ -20,9 +26,20 @@ const CaseShape = (payload: GenericPayload): CaseBaseShapeType => {
   }
 }
 
+const OpportunityShape = (payload: GenericPayload): OpportunityBaseShapeType => {
+  return {
+    Amount: payload.amount,
+    CloseDate: payload.close_date,
+    Description: payload.description,
+    Name: payload.name,
+    StageName: payload.stage_name
+  }
+}
+
 const objectToShape = new Map<string, (payload: GenericPayload) => LeadBaseShapeType | CaseBaseShapeType>([
   ['lead', LeadShape],
-  ['case', CaseShape]
+  ['case', CaseShape],
+  ['opportunity', OpportunityShape]
 ])
 
 export const mapObjectToShape = (payload: GenericPayload, sobject: string): GenericBaseShape => {
