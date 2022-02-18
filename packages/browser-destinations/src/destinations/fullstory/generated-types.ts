@@ -9,4 +9,8 @@ export interface Settings {
    * Enables FullStory debug mode.
    */
   debug?: boolean
+  /**
+   * Enables FullStory inside an iframe.
+   */
+  recordOnlyThisIFrame?: boolean
 }
