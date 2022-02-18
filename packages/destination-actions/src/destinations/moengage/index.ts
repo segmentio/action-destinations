@@ -21,7 +21,7 @@ const destination: DestinationDefinition<Settings> = {
       api_key: {
         label: 'Api Key',
         description: 'Your Moengage API Key',
-        type: 'password',
+        type: 'string',
         required: true
       },
       region: {
@@ -42,14 +42,6 @@ const destination: DestinationDefinition<Settings> = {
           {
             label: 'DataCenter-03',
             value: 'DC_03'
-          },
-          {
-            label: 'DataCenter-04',
-            value: 'DC_04'
-          },
-          {
-            label: 'DataCenter-05',
-            value: 'DC_05'
           }
         ],
         default: 'DC_01'

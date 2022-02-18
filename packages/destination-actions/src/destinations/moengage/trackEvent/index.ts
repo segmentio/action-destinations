@@ -26,20 +26,20 @@ const action: ActionDefinition<Settings, Payload> = {
         '@path': '$.event'
       }
     },
-    userId: {
+    user_id: {
       label: 'User ID',
       type: 'string',
       description: 'The unique identifier of the user.',
       default: {
-        '@path': '$.userId'
+        '@path': '$.user_id'
       }
     },
-    anonymousId: {
+    anonymous_id: {
       label: 'Anonymous ID',
       type: 'string',
       description: 'The unique identifier of the anonymous user.',
       default: {
-        '@path': '$.anonymousId'
+        '@path': '$.anonymous_id'
       }
     },
     os_name: {
@@ -82,14 +82,7 @@ const action: ActionDefinition<Settings, Payload> = {
       default: {
         '@path': '$.properties'
       }
-    },    
-    update_existing_only: {
-      label: 'Update Existing Users Only',
-      type: 'boolean',
-      description: 'If set to true, events from the Segment will only trigger updates for users who already exist in Moengage.',
-      required: false,
-      default: false
-    },
+    }
   },
   perform: async (request, { payload, settings }) => {
     if (!settings.api_id || !settings.api_key) {
@@ -98,8 +91,8 @@ const action: ActionDefinition<Settings, Payload> = {
 
     const event = {
       type: payload.type,
-      user_id: payload.userId,
-      anonymous_id: payload.anonymousId,
+      user_id: payload.user_id,
+      anonymous_id: payload.anonymous_id,
       event: payload.event,
       context: {
         app: { version: payload.app_version },
@@ -107,9 +100,7 @@ const action: ActionDefinition<Settings, Payload> = {
         library: { version: payload.library_version }
       },
       properties: payload.properties,
-      timestamp: payload.timestamp,
-      update_existing_only: payload.update_existing_only || false
-
+      timestamp: payload.timestamp
     }
 
     const endpoint = getEndpointByRegion(settings.region)

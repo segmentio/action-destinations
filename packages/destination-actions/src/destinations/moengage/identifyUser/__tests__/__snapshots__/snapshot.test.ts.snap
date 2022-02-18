@@ -19,19 +19,19 @@ Object {
     "testType": "UQmlPo5)xL",
   },
   "type": "UQmlPo5)xL",
-  "update_existing_only": true,
   "user_id": "UQmlPo5)xL",
 }
 `;
 
 exports[`Testing snapshot for ActionsMoengage's identifyUser destination action: required fields 1`] = `
 Object {
+  "anonymous_id": "UQmlPo5)xL",
   "context": Object {
     "app": Object {},
     "library": Object {},
     "os": Object {},
   },
   "type": "UQmlPo5)xL",
-  "update_existing_only": false,
+  "user_id": "UQmlPo5)xL",
 }
 `;

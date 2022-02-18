@@ -12,11 +12,11 @@ export interface Payload {
   /**
    * The unique identifier of the user.
    */
-  userId?: string
+  user_id?: string
   /**
    * The unique identifier of the anonymous user.
    */
-  anonymousId?: string
+  anonymous_id?: string
   /**
    * The name of the mobile operating system or browser that the user is using.
    */
@@ -39,8 +39,4 @@ export interface Payload {
   properties?: {
     [k: string]: unknown
   }
-  /**
-   * If set to true, events from the Segment will only trigger updates for users who already exist in Moengage.
-   */
-  update_existing_only?: boolean
 }

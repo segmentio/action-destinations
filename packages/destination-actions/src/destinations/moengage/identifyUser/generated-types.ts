@@ -8,15 +8,11 @@ export interface Payload {
   /**
    * The unique user identifier set by you
    */
-  userId?: string | null
-  /**
-   * Setting this to true will not create new users in MoEngage. Only existing users will be updated
-   */
-  update_existing_only?: boolean
+  user_id?: string | null
   /**
    * The generated anonymous ID for the user
    */
-  anonymousId?: string | null
+  anonymous_id?: string | null
   /**
    * The name of the mobile operating system or browser that the user is using.
    */

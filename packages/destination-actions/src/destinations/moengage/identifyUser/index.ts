@@ -17,7 +17,7 @@ const action: ActionDefinition<Settings, Payload> = {
         '@path': '$.type'
       }
     },
-    userId: {
+    user_id: {
       label: 'User ID',
       type: 'string',
       allowNull: true,
@@ -26,14 +26,7 @@ const action: ActionDefinition<Settings, Payload> = {
         '@path': '$.userId'
       }
     },
-    update_existing_only: {
-      label: 'Update existing users only',
-      type: 'boolean',
-      description: 'Setting this to true will not create new users in MoEngage. Only existing users will be updated',
-      required: false,
-      default: false
-    },
-    anonymousId: {
+    anonymous_id: {
       label: 'Anonymous ID',
       type: 'string',
       allowNull: true,
@@ -91,16 +84,15 @@ const action: ActionDefinition<Settings, Payload> = {
 
     const event = {
       type: payload.type,
-      user_id: payload.userId,
+      user_id: payload.user_id,
       traits: payload.traits,
       context: {
         app: { version: payload.app_version },
         os: { name: payload.os_name },
         library: { version: payload.library_version }
       },
-      anonymous_id: payload.anonymousId,
-      timestamp: payload.timestamp,
-      update_existing_only: payload.update_existing_only || false
+      anonymous_id: payload.anonymous_id,
+      timestamp: payload.timestamp
     }
 
     const endpoint = getEndpointByRegion(settings.region)
