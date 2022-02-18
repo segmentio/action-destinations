@@ -19,7 +19,8 @@ export default class Serve extends Command {
 
   static args = []
 
-  static flags = {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  static flags: flags.Input<any> = {
     help: flags.help({ char: 'h' }),
     destination: flags.string({
       char: 'd',
