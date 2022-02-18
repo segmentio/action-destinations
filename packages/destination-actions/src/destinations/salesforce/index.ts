@@ -5,6 +5,8 @@ import cases from './case'
 import lead from './lead'
 import customObject from './customObject'
 
+import account from './account'
+
 interface RefreshTokenResponse {
   access_token: string
 }
@@ -50,7 +52,8 @@ const destination: DestinationDefinition<Settings> = {
   actions: {
     lead,
     customObject,
-    cases
+    cases,
+    account
   }
 }
 
