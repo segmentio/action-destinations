@@ -6,6 +6,8 @@ import lead from './lead'
 import opportunity from './opportunity'
 import customObject from './customObject'
 
+import account from './account'
+
 interface RefreshTokenResponse {
   access_token: string
 }
@@ -52,7 +54,8 @@ const destination: DestinationDefinition<Settings> = {
     lead,
     customObject,
     cases,
-    opportunity
+    opportunity,
+    account
   }
 }
 
