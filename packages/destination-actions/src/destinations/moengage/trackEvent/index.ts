@@ -82,7 +82,7 @@ const action: ActionDefinition<Settings, Payload> = {
       default: {
         '@path': '$.properties'
       }
-    },    
+    },
     update_existing_only: {
       label: 'Update Existing Users Only',
       type: 'boolean',
