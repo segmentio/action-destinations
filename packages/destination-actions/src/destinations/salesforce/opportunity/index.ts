@@ -1,7 +1,7 @@
 import type { ActionDefinition } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import Salesforce from '../sf-operations'
-import { customFields, operation, traits } from '../sf-properties'
+import { customFields, operation, traits, validateLookup } from '../sf-properties'
 import type { Payload } from './generated-types'
 
 const action: ActionDefinition<Settings, Payload> = {
@@ -47,6 +47,8 @@ const action: ActionDefinition<Settings, Payload> = {
     if (payload.operation === 'create') {
       return await sf.createRecord(payload, 'Opportunity')
     }
+
+    validateLookup(payload)
 
     if (payload.operation === 'update') {
       return await sf.updateRecord(payload, 'Opportunity')
