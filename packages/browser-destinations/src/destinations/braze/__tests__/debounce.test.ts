@@ -37,7 +37,7 @@ describe('debounce', () => {
       })
     )
 
-    expect(ctx.event.integrations['Braze Web Mode (Actions)']).toBe(true)
+    expect(ctx.event.integrations['Braze Web Mode (Actions) updateUserProfile']).toBe(true)
   })
 
   test('does not send the event to braze if IDs are the same', async () => {
@@ -62,12 +62,12 @@ describe('debounce', () => {
     const ctx = await ajs.identify('hasbulla', {
       goat: true
     })
-    expect(ctx.event.integrations['Braze Web Mode (Actions)']).toBe(true)
+    expect(ctx.event.integrations['Braze Web Mode (Actions) updateUserProfile']).toBe(true)
 
     const secondCtx = await ajs.identify('hasbulla', {
       goat: true
     })
-    expect(secondCtx.event.integrations['Braze Web Mode (Actions)']).toBe(false)
+    expect(secondCtx.event.integrations['Braze Web Mode (Actions) updateUserProfile']).toBe(false)
   })
 
   test('ignores blank anonymous ids', async () => {
@@ -90,10 +90,10 @@ describe('debounce', () => {
     await ajs.register(debounce)
 
     const ctx = await ajs.identify()
-    expect(ctx.event.integrations['Braze Web Mode (Actions)']).toBe(true)
+    expect(ctx.event.integrations['Braze Web Mode (Actions) updateUserProfile']).toBe(true)
 
     const secondCtx = await ajs.identify()
-    expect(secondCtx.event.integrations['Braze Web Mode (Actions)']).toBe(false)
+    expect(secondCtx.event.integrations['Braze Web Mode (Actions) updateUserProfile']).toBe(false)
   })
 
   test('send events on trait changes', async () => {
@@ -118,16 +118,16 @@ describe('debounce', () => {
     const ctx = await ajs.identify('hasbulla', {
       goat: true
     })
-    expect(ctx.event.integrations['Braze Web Mode (Actions)']).toBe(true)
+    expect(ctx.event.integrations['Braze Web Mode (Actions) updateUserProfile']).toBe(true)
 
     const sameCtx = await ajs.identify('hasbulla', {
       goat: true
     })
-    expect(sameCtx.event.integrations['Braze Web Mode (Actions)']).toBe(false)
+    expect(sameCtx.event.integrations['Braze Web Mode (Actions) updateUserProfile']).toBe(false)
 
     const changedTraits = await ajs.identify('hasbulla', {
       weight: 'feather'
     })
-    expect(changedTraits.event.integrations['Braze Web Mode (Actions)']).toBe(true)
+    expect(changedTraits.event.integrations['Braze Web Mode (Actions) updateUserProfile']).toBe(true)
   })
 })

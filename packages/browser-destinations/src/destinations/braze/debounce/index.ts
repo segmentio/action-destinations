@@ -53,8 +53,8 @@ const action: BrowserActionDefinition<Settings, typeof appboy, Payload> = {
     // Only send the event to Braze if a trait has changed
     // Target all possible Braze integration names
     const shouldSend = shouldSendToBraze(event)
-    ctx.updateEvent('integrations.Braze Web Mode (Actions)', shouldSend)
-    ctx.updateEvent('integrations.Braze Cloud Mode (Actions)', shouldSend)
+    ctx.updateEvent('integrations.Braze Web Mode (Actions) updateUserProfile', shouldSend)
+    ctx.updateEvent('integrations.Braze Cloud Mode (Actions) updateUserProfile', shouldSend)
     ctx.updateEvent('integrations.Appboy', shouldSend)
 
     // Ensure analytics.user is defined
