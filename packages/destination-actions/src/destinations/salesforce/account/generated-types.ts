@@ -18,7 +18,7 @@ export interface Payload {
   /**
    * Name of the account. This is required to create an account.
    */
-  name: string
+  name?: string
   /**
    * Account number assigned to the account. This is not the unique, system-generated ID assigned during creation.
    */
