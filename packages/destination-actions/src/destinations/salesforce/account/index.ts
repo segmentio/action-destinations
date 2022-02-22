@@ -1,4 +1,4 @@
-import type { ActionDefinition } from '@segment/actions-core'
+import { ActionDefinition, IntegrationError } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import Salesforce from '../sf-operations'
 import { customFields, operation, traits, validateLookup } from '../sf-properties'
@@ -14,17 +14,14 @@ const action: ActionDefinition<Settings, Payload> = {
     name: {
       label: 'Name',
       description: 'Name of the account. This is required to create an account.',
-      required: true,
-      type: 'string',
-      default: ''
+      type: 'string'
     },
     // TODO: The default needs to be determined. The docs just say 'groupdId'
     account_number: {
       label: 'Account Number',
       description:
         'Account number assigned to the account. This is not the unique, system-generated ID assigned during creation.',
-      type: 'string',
-      default: ''
+      type: 'string'
     },
     number_of_employees: {
       label: 'Number of employees',
@@ -165,6 +162,9 @@ const action: ActionDefinition<Settings, Payload> = {
     const sf: Salesforce = new Salesforce(settings.instanceUrl, request)
 
     if (payload.operation === 'create') {
+      if (!payload.name) {
+        throw new IntegrationError('Missing name value', 'Misconfigured required field', 400)
+      }
       return await sf.createRecord(payload, 'Account')
     }
 
@@ -175,6 +175,9 @@ const action: ActionDefinition<Settings, Payload> = {
     }
 
     if (payload.operation === 'upsert') {
+      if (!payload.name) {
+        throw new IntegrationError('Missing name value', 'Misconfigured required field', 400)
+      }
       return await sf.upsertRecord(payload, 'Account')
     }
   }
