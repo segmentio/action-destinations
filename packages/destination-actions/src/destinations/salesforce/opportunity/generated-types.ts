@@ -22,7 +22,7 @@ export interface Payload {
   /**
    * Date when the opportunity is expected to close. This is required to create an opportunity.
    */
-  close_date: string
+  close_date?: string
   /**
    * A text description of the opportunity.
    */
@@ -30,11 +30,11 @@ export interface Payload {
   /**
    * A name for the opportunity. This is required to create an opportunity.
    */
-  name: string
+  name?: string
   /**
    * Current stage of the opportunity. This is required to create an opportunity. The Stage Name value must match available picklist values in the OpportunityStage object.
    */
-  stage_name: string
+  stage_name?: string
   /**
    *
    *   Additional fields to send to Salesforce. On the left-hand side, input the Salesforce field API name. On the right-hand side, map the Segment field that contains the value.
