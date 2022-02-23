@@ -22,7 +22,7 @@ describe('Salesforce', () => {
         type: 'track',
         event: 'Create Account',
         properties: {
-          name: "Logan's Test Acccount"
+          name: "John's Test Acccount"
         }
       })
 
@@ -57,7 +57,7 @@ describe('Salesforce', () => {
         }
       `)
 
-      expect(responses[0].options.body).toMatchInlineSnapshot(`"{\\"Name\\":\\"Logan's Test Acccount\\"}"`)
+      expect(responses[0].options.body).toMatchInlineSnapshot(`"{\\"Name\\":\\"John's Test Acccount\\"}"`)
     })
 
     it('should create a account record with default mappings', async () => {
@@ -67,7 +67,7 @@ describe('Salesforce', () => {
         type: 'track',
         event: 'Create Account',
         properties: {
-          name: 'Logan TA',
+          name: 'John TA',
           account_number: '123',
           employees: 1000000,
           address: {
@@ -78,7 +78,7 @@ describe('Salesforce', () => {
             state: 'CA'
           },
           phone: '6786786789',
-          description: 'Logan Test Acccount',
+          description: 'John Test Acccount',
           website: 'https://google.com'
         }
       })
@@ -119,7 +119,7 @@ describe('Salesforce', () => {
           `)
 
       expect(responses[0].options.body).toMatchInlineSnapshot(
-        `"{\\"Name\\":\\"Logan TA\\",\\"AccountNumber\\":\\"123\\",\\"NumberOfEmployees\\":1000000,\\"BillingCity\\":\\"San Fran\\",\\"BillingPostalCode\\":\\"94107\\",\\"BillingCountry\\":\\"United States\\",\\"BillingStreet\\":\\"Super Legit Street\\",\\"BillingState\\":\\"CA\\",\\"Phone\\":\\"6786786789\\",\\"Description\\":\\"Logan Test Acccount\\",\\"Website\\":\\"https://google.com\\"}"`
+        `"{\\"Name\\":\\"John TA\\",\\"AccountNumber\\":\\"123\\",\\"NumberOfEmployees\\":1000000,\\"BillingCity\\":\\"San Fran\\",\\"BillingPostalCode\\":\\"94107\\",\\"BillingCountry\\":\\"United States\\",\\"BillingStreet\\":\\"Super Legit Street\\",\\"BillingState\\":\\"CA\\",\\"Phone\\":\\"6786786789\\",\\"Description\\":\\"John Test Acccount\\",\\"Website\\":\\"https://google.com\\"}"`
       )
     })
 
@@ -130,7 +130,7 @@ describe('Salesforce', () => {
         type: 'track',
         event: 'Create Account',
         properties: {
-          name: 'Logan TA'
+          name: 'John TA'
         }
       })
 
@@ -171,241 +171,187 @@ describe('Salesforce', () => {
           `)
 
       expect(responses[0].options.body).toMatchInlineSnapshot(
-        `"{\\"Name\\":\\"Logan TA\\",\\"A\\":\\"1\\",\\"B\\":\\"2\\",\\"C\\":\\"3\\"}"`
+        `"{\\"Name\\":\\"John TA\\",\\"A\\":\\"1\\",\\"B\\":\\"2\\",\\"C\\":\\"3\\"}"`
       )
     })
 
-    //     it('should update a lead record', async () => {
-    //       const event = createTestEvent({
-    //         type: 'track',
-    //         event: 'Update Lead',
-    //         properties: {
-    //           email: 'sponge@seamail.com',
-    //           company: 'Krusty Krab LLC',
-    //           last_name: 'Squarepants',
-    //           address: {
-    //             city: 'Bikini Bottom',
-    //             postal_code: '12345',
-    //             street: 'Pineapple St'
-    //           }
-    //         }
-    //       })
+    it('should update a account record', async () => {
+      const event = createTestEvent({
+        type: 'track',
+        event: 'Update Account',
+        properties: {
+          name: 'John Updated TA',
+          phone: '6786786789',
+          description: 'John Test Acccount',
+          website: 'https://google.com'
+        }
+      })
 
-    //       nock(`${settings.instanceUrl}/services/data/${API_VERSION}/query`)
-    //         .get(`/?q=SELECT Id FROM Lead WHERE company = 'Krusty Krab'`)
-    //         .reply(201, {
-    //           Id: 'abc123',
-    //           totalSize: 1,
-    //           records: [{ Id: '123456' }]
-    //         })
+      nock(`${settings.instanceUrl}/services/data/${API_VERSION}/query`)
+        .get(`/?q=SELECT Id FROM Account WHERE name = 'John TA'`)
+        .reply(201, {
+          Id: 'abc123',
+          totalSize: 1,
+          records: [{ Id: '123456' }]
+        })
 
-    //       nock(`${settings.instanceUrl}/services/data/${API_VERSION}/sobjects`).patch('/Lead/123456').reply(201, {})
+      nock(`${settings.instanceUrl}/services/data/${API_VERSION}/sobjects`).patch('/Account/123456').reply(201, {})
 
-    //       const responses = await testDestination.testAction('lead', {
-    //         event,
-    //         settings,
-    //         auth,
-    //         mapping: {
-    //           operation: 'update',
-    //           traits: {
-    //             company: 'Krusty Krab'
-    //           },
-    //           email: {
-    //             '@path': '$.properties.email'
-    //           },
-    //           company: {
-    //             '@path': '$.properties.company'
-    //           },
-    //           last_name: {
-    //             '@path': '$.properties.last_name'
-    //           },
-    //           city: {
-    //             '@path': '$.properties.address.city'
-    //           },
-    //           postal_code: {
-    //             '@path': '$.properties.address.postal_code'
-    //           },
-    //           street: {
-    //             '@path': '$.properties.address.street'
-    //           }
-    //         }
-    //       })
+      const responses = await testDestination.testAction('account', {
+        event,
+        settings,
+        auth,
+        mapping: {
+          operation: 'update',
+          traits: {
+            name: 'John TA'
+          },
+          name: {
+            '@path': '$.properties.name'
+          }
+        },
+        useDefaultMappings: true
+      })
 
-    //       expect(responses.length).toBe(2)
-    //       expect(responses[0].status).toBe(201)
-    //       expect(responses[1].status).toBe(201)
+      expect(responses.length).toBe(2)
+      expect(responses[0].status).toBe(201)
+      expect(responses[1].status).toBe(201)
 
-    //       expect(responses[0].request.headers).toMatchInlineSnapshot(`
-    //         Headers {
-    //           Symbol(map): Object {
-    //             "authorization": Array [
-    //               "Bearer abc123",
-    //             ],
-    //             "user-agent": Array [
-    //               "Segment (Actions)",
-    //             ],
-    //           },
-    //         }
-    //       `)
+      expect(responses[0].request.headers).toMatchInlineSnapshot(`
+            Headers {
+              Symbol(map): Object {
+                "authorization": Array [
+                  "Bearer abc123",
+                ],
+                "user-agent": Array [
+                  "Segment (Actions)",
+                ],
+              },
+            }
+          `)
 
-    //       expect(responses[1].options.body).toMatchInlineSnapshot(
-    //         `"{\\"LastName\\":\\"Squarepants\\",\\"Company\\":\\"Krusty Krab LLC\\",\\"Street\\":\\"Pineapple St\\",\\"PostalCode\\":\\"12345\\",\\"City\\":\\"Bikini Bottom\\",\\"Email\\":\\"sponge@seamail.com\\"}"`
-    //       )
-    //     })
+      expect(responses[1].options.body).toMatchInlineSnapshot(
+        `"{\\"Name\\":\\"John Updated TA\\",\\"Phone\\":\\"6786786789\\",\\"Description\\":\\"John Test Acccount\\",\\"Website\\":\\"https://google.com\\"}"`
+      )
+    })
 
-    //     it('should upsert an existing record', async () => {
-    //       const event = createTestEvent({
-    //         type: 'track',
-    //         event: 'Upsert Lead',
-    //         properties: {
-    //           email: 'sponge@seamail.com',
-    //           company: 'Krusty Krab LLC',
-    //           last_name: 'Squarepants',
-    //           address: {
-    //             city: 'Bikini Bottom',
-    //             postal_code: '12345',
-    //             street: 'Pineapple St'
-    //           }
-    //         }
-    //       })
+    it('should upsert an existing record', async () => {
+      const event = createTestEvent({
+        type: 'track',
+        event: 'Upsert existing Account',
+        properties: {
+          name: 'John Updated TA',
+          phone: '6786786789',
+          description: 'John Test Acccount',
+          website: 'https://google.com'
+        }
+      })
 
-    //       nock(`${settings.instanceUrl}/services/data/${API_VERSION}/query`)
-    //         .get(`/?q=SELECT Id FROM Lead WHERE company = 'Krusty Krab'`)
-    //         .reply(201, {
-    //           Id: 'abc123',
-    //           totalSize: 1,
-    //           records: [{ Id: '123456' }]
-    //         })
+      nock(`${settings.instanceUrl}/services/data/${API_VERSION}/query`)
+        .get(`/?q=SELECT Id FROM Account WHERE name = 'John TA'`)
+        .reply(201, {
+          Id: 'abc123',
+          totalSize: 1,
+          records: [{ Id: '123456' }]
+        })
 
-    //       nock(`${settings.instanceUrl}/services/data/${API_VERSION}/sobjects`).patch('/Lead/123456').reply(201, {})
+      nock(`${settings.instanceUrl}/services/data/${API_VERSION}/sobjects`).patch('/Account/123456').reply(201, {})
 
-    //       const responses = await testDestination.testAction('lead', {
-    //         event,
-    //         settings,
-    //         auth,
-    //         mapping: {
-    //           operation: 'upsert',
-    //           traits: {
-    //             company: 'Krusty Krab'
-    //           },
-    //           email: {
-    //             '@path': '$.properties.email'
-    //           },
-    //           company: {
-    //             '@path': '$.properties.company'
-    //           },
-    //           last_name: {
-    //             '@path': '$.properties.last_name'
-    //           },
-    //           city: {
-    //             '@path': '$.properties.address.city'
-    //           },
-    //           postal_code: {
-    //             '@path': '$.properties.address.postal_code'
-    //           },
-    //           street: {
-    //             '@path': '$.properties.address.street'
-    //           }
-    //         }
-    //       })
+      const responses = await testDestination.testAction('account', {
+        event,
+        settings,
+        auth,
+        mapping: {
+          operation: 'upsert',
+          traits: {
+            name: 'John TA'
+          },
+          name: {
+            '@path': '$.properties.name'
+          }
+        },
+        useDefaultMappings: true
+      })
 
-    //       expect(responses.length).toBe(2)
-    //       expect(responses[0].status).toBe(201)
-    //       expect(responses[1].status).toBe(201)
+      expect(responses.length).toBe(2)
+      expect(responses[0].status).toBe(201)
+      expect(responses[1].status).toBe(201)
 
-    //       expect(responses[0].request.headers).toMatchInlineSnapshot(`
-    //         Headers {
-    //           Symbol(map): Object {
-    //             "authorization": Array [
-    //               "Bearer abc123",
-    //             ],
-    //             "user-agent": Array [
-    //               "Segment (Actions)",
-    //             ],
-    //           },
-    //         }
-    //       `)
+      expect(responses[0].request.headers).toMatchInlineSnapshot(`
+            Headers {
+              Symbol(map): Object {
+                "authorization": Array [
+                  "Bearer abc123",
+                ],
+                "user-agent": Array [
+                  "Segment (Actions)",
+                ],
+              },
+            }
+          `)
 
-    //       expect(responses[1].options.body).toMatchInlineSnapshot(
-    //         `"{\\"LastName\\":\\"Squarepants\\",\\"Company\\":\\"Krusty Krab LLC\\",\\"Street\\":\\"Pineapple St\\",\\"PostalCode\\":\\"12345\\",\\"City\\":\\"Bikini Bottom\\",\\"Email\\":\\"sponge@seamail.com\\"}"`
-    //       )
-    //     })
+      expect(responses[1].options.body).toMatchInlineSnapshot(
+        `"{\\"Name\\":\\"John Updated TA\\",\\"Phone\\":\\"6786786789\\",\\"Description\\":\\"John Test Acccount\\",\\"Website\\":\\"https://google.com\\"}"`
+      )
+    })
 
-    //     it('should upsert a nonexistent record', async () => {
-    //       const event = createTestEvent({
-    //         type: 'track',
-    //         event: 'Upsert Lead',
-    //         properties: {
-    //           email: 'sponge@seamail.com',
-    //           company: 'Krusty Krab LLC',
-    //           last_name: 'Squarepants',
-    //           address: {
-    //             city: 'Bikini Bottom',
-    //             postal_code: '12345',
-    //             street: 'Pineapple St'
-    //           }
-    //         }
-    //       })
+    it('should upsert a nonexistent record', async () => {
+      const event = createTestEvent({
+        type: 'track',
+        event: 'Upsert non existing Account',
+        properties: {
+          name: 'John Updated TA',
+          phone: '6786786789',
+          description: 'John Test Acccount',
+          website: 'https://google.com'
+        }
+      })
 
-    //       nock(`${settings.instanceUrl}/services/data/${API_VERSION}/query`)
-    //         .get(`/?q=SELECT Id FROM Lead WHERE company = 'Krusty Krab'`)
-    //         .reply(201, {
-    //           Id: 'abc123',
-    //           totalSize: 0
-    //         })
+      nock(`${settings.instanceUrl}/services/data/${API_VERSION}/query`)
+        .get(`/?q=SELECT Id FROM Account WHERE name = 'John TA'`)
+        .reply(201, {
+          Id: 'abc123',
+          totalSize: 0
+        })
 
-    //       nock(`${settings.instanceUrl}/services/data/${API_VERSION}/sobjects`).post('/Lead').reply(201, {})
+      nock(`${settings.instanceUrl}/services/data/${API_VERSION}/sobjects`).post('/Account').reply(201, {})
 
-    //       const responses = await testDestination.testAction('lead', {
-    //         event,
-    //         settings,
-    //         auth,
-    //         mapping: {
-    //           operation: 'upsert',
-    //           traits: {
-    //             company: 'Krusty Krab'
-    //           },
-    //           email: {
-    //             '@path': '$.properties.email'
-    //           },
-    //           company: {
-    //             '@path': '$.properties.company'
-    //           },
-    //           last_name: {
-    //             '@path': '$.properties.last_name'
-    //           },
-    //           city: {
-    //             '@path': '$.properties.address.city'
-    //           },
-    //           postal_code: {
-    //             '@path': '$.properties.address.postal_code'
-    //           },
-    //           street: {
-    //             '@path': '$.properties.address.street'
-    //           }
-    //         }
-    //       })
+      const responses = await testDestination.testAction('account', {
+        event,
+        settings,
+        auth,
+        mapping: {
+          operation: 'upsert',
+          traits: {
+            name: 'John TA'
+          },
+          name: {
+            '@path': '$.properties.name'
+          }
+        },
+        useDefaultMappings: true
+      })
 
-    //       expect(responses.length).toBe(2)
-    //       expect(responses[0].status).toBe(201)
-    //       expect(responses[1].status).toBe(201)
+      expect(responses.length).toBe(2)
+      expect(responses[0].status).toBe(201)
+      expect(responses[1].status).toBe(201)
 
-    //       expect(responses[0].request.headers).toMatchInlineSnapshot(`
-    //         Headers {
-    //           Symbol(map): Object {
-    //             "authorization": Array [
-    //               "Bearer abc123",
-    //             ],
-    //             "user-agent": Array [
-    //               "Segment (Actions)",
-    //             ],
-    //           },
-    //         }
-    //       `)
+      expect(responses[0].request.headers).toMatchInlineSnapshot(`
+                Headers {
+                  Symbol(map): Object {
+                    "authorization": Array [
+                      "Bearer abc123",
+                    ],
+                    "user-agent": Array [
+                      "Segment (Actions)",
+                    ],
+                  },
+                }
+              `)
 
-    //       expect(responses[1].options.body).toMatchInlineSnapshot(
-    //         `"{\\"LastName\\":\\"Squarepants\\",\\"Company\\":\\"Krusty Krab LLC\\",\\"Street\\":\\"Pineapple St\\",\\"PostalCode\\":\\"12345\\",\\"City\\":\\"Bikini Bottom\\",\\"Email\\":\\"sponge@seamail.com\\"}"`
-    //       )
-    //     })
+      expect(responses[1].options.body).toMatchInlineSnapshot(
+        `"{\\"Name\\":\\"John Updated TA\\",\\"Phone\\":\\"6786786789\\",\\"Description\\":\\"John Test Acccount\\",\\"Website\\":\\"https://google.com\\"}"`
+      )
+    })
   })
 })
