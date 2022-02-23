@@ -9,10 +9,11 @@ Before continuing, please make sure to read our [Code of Conduct](./CODE_OF_COND
 1. [Become a Segment Partner](#become-a-segment-partner)
 2. [Plan your integration](#plan-your-integration)
 3. [Build your integration](#build-your-integration)
-4. [Write-documentation](#write-documentation)
-5. [Provide catalog metadata](#provide-integration-metadata-for-the-catalog)
-6. [Release to Private Beta](#release-to-private-beta-for-customer-testing)
-7. [Release to Public](#release-to-public-in-the-segment-catalog)
+4. [Submit a pull request](#submit-a-pull-request)
+5. [Write-documentation](#write-documentation)
+6. [Provide catalog metadata](#provide-integration-metadata-for-the-catalog)
+7. [Release to Private Beta](#release-to-private-beta-for-customer-testing)
+8. [Release to Public](#release-to-public-in-the-segment-catalog)
 
 ## Become a Segment Partner
 
@@ -30,8 +31,6 @@ Before continuing, please make sure to read our [Code of Conduct](./CODE_OF_COND
    - [CLI Commands](./packages/cli/README.md)
    - [Local Testing](./docs/testing.md)
 
-<br />
-
 2. Decide what type of destination you want to build. We currently support building cloud-mode and device-mode web destinations; we generally recommend building a cloud-mode destination, because data is sent to Segment prior to going to your API, so customers can take advantage of Segment features like filters, transformations, and replays. You can learn more here. Currently, we do not enable partners to build device-mode mobile destinations. We recommend building a plugin to get information like session ID from the device.
 
 3. Spec out the integration. If you want some guidance, you can use this [template](https://docs.google.com/document/d/1dIJxYge9N700U9Nhawapy25WMD8pUuey72S5qo3uejA/edit#heading=h.92w309fjzhti), which will prompt you to think about: whether you want to build a cloud-mode or device-mode destination, the method of authentication, the settings, and the Actions and default Field Mappings that you want to build.
@@ -46,22 +45,20 @@ Before continuing, please make sure to read our [Code of Conduct](./CODE_OF_COND
 2. To work with Segment's actions repo, you’ll need to download node (check version [here](https://github.com/segmentio/action-destinations/blob/main/.nvmrc)), nvm and yarn.
 
 3. To test your integration:
+
    - For cloud-mode destinations, follow these instructions: [Build & Test Cloud Destinations](./docs/testing.md).
    - If you are building a device-mode destination, let us know and we will provide testing instructions.
-
-<br/>
 
 4. When you have questions, ask in the Segment Partners Slack workspace - use the **#general** channel.
 
 ## Submit a pull request
 
 1. Once you’ve finished making your changes, added unit tests for new functionality, and tested end-to-end using the local server, you can create a pull request.
+
    - When creating a PR, please include a description of the changes made and why. This will help during the code review process.
    - Verify that you have thoroughly tested your changes by selecting the appropriate checkboxes.
    - A Segment developer will review the PR. They may ask for changes to be completed before the PR can be merged. Once all changes are made, the Segment developer will approve the PR.
    - _Note:_ When you submit a PR, the Segment team will be automatically notified. The turnover time for reviews may take up to 2-3 days.
-
-<br/>
 
 2. Your PR is merged!
    - Congratulations! Once your PR is merged by a Segment developer, they will deploy your changes and notify you when it’s publicly available. If the destination is in private beta, our folks at Segment will provide a link to access your destination. Once the destination is ready for general availability and has been approved, the destination will be visible from the catalog itself.
@@ -87,15 +84,15 @@ Information about your destination’s Settings, Mappings, Actions, Action field
 
 ## Provide integration metadata for the catalog
 
-Send the following information to EMAIL ADDRESS:
+Send the following information to partner-support@segment.com:
 
-- **Name:** Name of integration
-- **Description:** Brief description of your integration, up to ~500 characters. Descriptions can include formatted text and lists. Optionally, you can include up to two images, such as screenshots, with or without captions.
-- **Website:** Website for your company or product, for example https://amplitude.com
-- **Categories:** Select a primary and (optional) secondary category where your integration will appear in the catalog.
+- **Name:** _Name of integration_
+- **Description:** _Brief description of your integration, up to ~500 characters. Descriptions can include formatted text and lists. Optionally, you can include up to two images, such as screenshots, with or without captions._
+- **Website:** _Website for your company or product, for example https://amplitude.com_
+- **Categories:** _Select a primary and (optional) secondary category where your integration will appear in the catalog._
   - Choose from: A/B Testing, Advertising, Analytics, Attribution, CRM, Customer Success, Deep Linking, Email Marketing, Enrichment, Feature Flagging, Heatmaps & Recordings, Livechat, Marketing Automation, Performance Monitoring, Personalization, Raw Data, Referrals, Security & Fraud, SMS & Push Notifications, Surveys, Tag Managers, Video
-- **Logo:** Your logo includes the name of your company. A horizontal lockup is best. File type must be SVG.
-- **Mark:** Your mark is square and does not include the name of your company. File type must be SVG.
+- **Logo:** _Your logo includes the name of your company. A horizontal lockup is best. File type must be SVG._
+- **Mark:** _Your mark is square and does not include the name of your company. File type must be SVG._
 
 ## Release to Private Beta for customer testing
 
