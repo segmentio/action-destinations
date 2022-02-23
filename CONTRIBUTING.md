@@ -93,6 +93,7 @@ Send the following information to partner-support@segment.com:
   - Choose from: A/B Testing, Advertising, Analytics, Attribution, CRM, Customer Success, Deep Linking, Email Marketing, Enrichment, Feature Flagging, Heatmaps & Recordings, Livechat, Marketing Automation, Performance Monitoring, Personalization, Raw Data, Referrals, Security & Fraud, SMS & Push Notifications, Surveys, Tag Managers, Video
 - **Logo:** _Your logo includes the name of your company. A horizontal lockup is best. File type must be SVG._
 - **Mark:** _Your mark is square and does not include the name of your company. File type must be SVG._
+- **Customer support email address:** _Email address for customer support inquiries. This email address will not be surfaced to users of the integration; instead it will be used by Segment customer support. Should Segment receive an inquiry about the integration from a Segment customer, Segment support will send the inquiry to this email address._
 
 ## Release to Private Beta for customer testing
 
