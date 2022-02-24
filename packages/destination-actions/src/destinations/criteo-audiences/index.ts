@@ -36,11 +36,11 @@ const destination: DestinationDefinition<Settings> = {
     testAuthentication: (request, { settings }) => {
       return request(`https://api.criteo.com/oauth2/token`, {
         method: 'post',
-        json: {
+        body: new URLSearchParams({
           client_id: settings.client_id,
           client_secret: settings.client_secret,
           grant_type: 'client_credentials'
-        },
+        }),
         headers: {
           'Accept': 'text/plain',
           'Content-Type': 'application/x-www-form-urlencoded'
