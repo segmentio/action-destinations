@@ -10,18 +10,22 @@ const action: ActionDefinition<Settings, Payload> = {
   fields: {
     operation: operation,
     traits: traits,
-    // TODO: The default needs to be determined. The docs just say 'name'
     name: {
       label: 'Name',
       description: 'Name of the account. This is required to create an account.',
-      type: 'string'
+      type: 'string',
+      default: {
+        '@path': '$.name'
+      }
     },
-    // TODO: The default needs to be determined. The docs just say 'groupdId'
     account_number: {
       label: 'Account Number',
       description:
         'Account number assigned to the account. This is not the unique, system-generated ID assigned during creation.',
-      type: 'string'
+      type: 'string',
+      default: {
+        '@path': '$.groupId'
+      }
     },
     number_of_employees: {
       label: 'Number of employees',
