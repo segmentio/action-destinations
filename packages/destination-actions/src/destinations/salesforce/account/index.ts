@@ -6,7 +6,7 @@ import type { Payload } from './generated-types'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Account',
-  description: '',
+  description: 'Account action',
   fields: {
     operation: operation,
     traits: traits,
