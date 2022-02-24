@@ -80,8 +80,8 @@ describe('Adobe Target Web', () => {
       )
 
       expect(window.pageParams).toEqual({
+        mbox3rdPartyId: 'random-id-42',
         profile: {
-          mbox3rdpartyid: 'random-id-42',
           favorite_color: 'blue',
           location: {
             country_code: 'MX',
@@ -117,8 +117,8 @@ describe('Adobe Target Web', () => {
       )
 
       expect(window.pageParams).toEqual({
+        mbox3rdPartyId: 'The-Real-ID',
         profile: {
-          mbox3rdpartyid: 'The-Real-ID',
           favorite_color: 'blue',
           location: {
             country_code: 'MX',
