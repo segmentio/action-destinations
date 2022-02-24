@@ -58,7 +58,10 @@ const AccountShape = (payload: GenericPayload): AccountBaseShapeType => {
   }
 }
 
-const objectToShape = new Map<string, (payload: GenericPayload) => LeadBaseShapeType | CaseBaseShapeType>([
+const objectToShape = new Map<
+  string,
+  (payload: GenericPayload) => LeadBaseShapeType | CaseBaseShapeType | OpportunityBaseShapeType | AccountBaseShapeType
+>([
   ['lead', LeadShape],
   ['case', CaseShape],
   ['opportunity', OpportunityShape],
