@@ -15,33 +15,37 @@ const destination: DestinationDefinition<Settings> = {
     scheme: 'custom',
     fields: {
       client_id: {
-        label: 'Client id',
-        description: 'Your Criteo API client id',
+        label: 'API Client ID',
+        description: 'Your Criteo API client ID',
         type: 'string',
         required: true
       },
       client_secret: {
-        label: 'Client secret',
+        label: 'API Client Secret',
         description: 'Your Criteo API client secret',
         type: 'string',
         required: true
       },
-
-      //although, advertiser id is not specifically used for authentication,
-      //it's an input field needed for Audience API request
       advertiser_id: {
-        label: 'Client id',
-        description: 'Your Criteo API client id',
+        label: 'Advertiser ID',
+        description: 'Your Criteo Advertiser ID',
         type: 'string',
         required: true
       }
     },
-    testAuthentication: (request) => {
-      // Return a request that tests/validates the user's credentials.
-      // If you do not have a way to validate the authentication fields safely,
-      // you can remove the `testAuthentication` function, though discouraged.
-      // write code to test Criteo Oauth
-      return request('http://api.criteo.com/oauth2/token')
+    testAuthentication: (request, { settings }) => {
+      return request(`https://api.criteo.com/oauth2/token`, {
+        method: 'post',
+        json: {
+          client_id: settings.client_id,
+          client_secret: settings.client_secret,
+          grant_type: 'client_credentials'
+        },
+        headers: {
+          'Accept': 'text/plain',
+          'Content-Type': 'application/x-www-form-urlencoded'
+        },
+      })
     }
   },
 
