@@ -31,4 +31,21 @@ export interface Payload {
    * Whether or not the message should actually get sent.
    */
   send?: boolean
+  /**
+   * An array of user profile identity information.
+   */
+  externalIds?: {
+    /**
+     * A unique identifier for the collection.
+     */
+    id?: string
+    /**
+     * The external ID contact type.
+     */
+    type?: string
+    /**
+     * The subscription status for the identity.
+     */
+    subscriptionStatus?: string
+  }[]
 }
