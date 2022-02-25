@@ -12,8 +12,20 @@ const destination: DestinationDefinition<Settings> = {
   description: 'Add/remove users to/from Criteo Audiences using Criteo API',
   mode: 'cloud',
   authentication: {
-    scheme: 'oauth2',
+    scheme: 'custom',
     fields: {
+      client_id: {
+        label: 'API Client ID',
+        description: 'Your Criteo API client ID',
+        type: 'string',
+        required: true
+      },
+      client_secret: {
+        label: 'API Client Secret',
+        description: 'Your Criteo API client secret',
+        type: 'string',
+        required: true
+      },
       advertiser_id: {
         label: 'Advertiser ID',
         description: 'Your Criteo Advertiser ID',
@@ -21,13 +33,12 @@ const destination: DestinationDefinition<Settings> = {
         required: true
       }
     },
-    refreshAccessToken: async (request, { auth }) => {
+    testAuthentication: async (request, { settings }) => {
       const res = await request(`https://api.criteo.com/oauth2/token`, {
         method: 'post',
         body: new URLSearchParams({
-          refresh_token: auth.refreshToken,
-          client_id: auth.clientId,
-          client_secret: auth.clientSecret,
+          client_id: settings.clientId,
+          client_secret: settings.clientSecret,
           grant_type: 'client_credentials'
         }),
         headers: {
@@ -50,6 +61,7 @@ const destination: DestinationDefinition<Settings> = {
     // provided in the payload. If your destination does not support GDPR deletion you should not
     // implement this function and should remove it completely.
   },*/
+
   actions: {
     updateAudience,
     addUserToAudience,
