@@ -12,20 +12,8 @@ const destination: DestinationDefinition<Settings> = {
   description: 'Add/remove users to/from Criteo Audiences using Criteo API',
   mode: 'cloud',
   authentication: {
-    scheme: 'custom',
+    scheme: 'oauth2',
     fields: {
-      client_id: {
-        label: 'API Client ID',
-        description: 'Your Criteo API client ID',
-        type: 'string',
-        required: true
-      },
-      client_secret: {
-        label: 'API Client Secret',
-        description: 'Your Criteo API client secret',
-        type: 'string',
-        required: true
-      },
       advertiser_id: {
         label: 'Advertiser ID',
         description: 'Your Criteo Advertiser ID',
@@ -33,12 +21,13 @@ const destination: DestinationDefinition<Settings> = {
         required: true
       }
     },
-    testAuthentication: (request, { settings }) => {
-      return request(`https://api.criteo.com/oauth2/token`, {
+    refreshAccessToken: async (request, { auth }) => {
+      const res = await request(`https://api.criteo.com/oauth2/token`, {
         method: 'post',
         body: new URLSearchParams({
-          client_id: settings.client_id,
-          client_secret: settings.client_secret,
+          refresh_token: auth.refreshToken,
+          client_id: auth.clientId,
+          client_secret: auth.clientSecret,
           grant_type: 'client_credentials'
         }),
         headers: {
@@ -46,23 +35,21 @@ const destination: DestinationDefinition<Settings> = {
           'Content-Type': 'application/x-www-form-urlencoded'
         },
       })
+
+      return { accessToken: res.data.access_token }
     }
   },
-
+  extendRequest: ({ auth }) => {
+    return {
+      headers: { Authorization: `Bearer ${auth?.accessToken}` }
+    }
+  },
   //we might not need this function
   /*onDelete: async (request, { settings, payload }) => {
     // Return a request that performs a GDPR delete for the provided Segment userId or anonymousId
     // provided in the payload. If your destination does not support GDPR deletion you should not
     // implement this function and should remove it completely.
   },*/
-
-  // You can use `extendRequest` to provide options for the request client instance
-  // provided to all actions
-  extendRequest: ({ settings }) => {
-    return {
-      headers: { Authorization: `Bearer ${settings.api_key}` }
-    }
-  },
   actions: {
     updateAudience,
     addUserToAudience,
