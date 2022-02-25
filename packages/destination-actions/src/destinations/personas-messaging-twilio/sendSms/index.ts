@@ -82,9 +82,9 @@ const action: ActionDefinition<Settings, Payload> = {
       description: 'Number to send SMS to when testing',
       type: 'string'
     },
-    messagingServiceId: {
-      label: 'Messaging Service ID',
-      description: 'The ID of the Twilio Messaging Service to send SMS from',
+    from: {
+      label: 'From',
+      description: 'The Twilio Phone Number, Short Code, or Messaging Service to send SMS from.',
       type: 'string',
       required: true
     },
@@ -141,7 +141,7 @@ const action: ActionDefinition<Settings, Payload> = {
 
     const body = new URLSearchParams({
       Body: Mustache.render(payload.body, { profile }),
-      From: payload.messagingServiceId,
+      From: payload.from,
       To: phone
     })
 

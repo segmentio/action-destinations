@@ -10,9 +10,9 @@ export interface Payload {
    */
   toNumber?: string
   /**
-   * The ID of the Twilio Messaging Service to send SMS from
+   * The Twilio Phone Number, Short Code, or Messaging Service to send SMS from.
    */
-  messagingServiceId: string
+  from: string
   /**
    * Message to send
    */

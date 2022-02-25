@@ -50,7 +50,7 @@ for (const environment of ['stage', 'production']) {
         settings,
         mapping: {
           userId: { '@path': '$.userId' },
-          messagingServiceId: 'MG1111222233334444',
+          from: 'MG1111222233334444',
           body: 'Hello world, {{profile.user_id}}!',
           send: true
         }
@@ -104,7 +104,7 @@ for (const environment of ['stage', 'production']) {
         settings,
         mapping: {
           userId: { '@path': '$.userId' },
-          messagingServiceId: 'MG1111222233334444',
+          from: 'MG1111222233334444',
           body: 'Hello world, {{profile.user_id}}!',
           send: true
         }
@@ -135,7 +135,7 @@ for (const environment of ['stage', 'production']) {
         },
         mapping: {
           userId: { '@path': '$.userId' },
-          messagingServiceId: 'MG1111222233334444',
+          from: 'MG1111222233334444',
           body: 'Hello world, {{profile.user_id}}!',
           customArgs: {
             foo: 'bar'
@@ -175,7 +175,7 @@ for (const environment of ['stage', 'production']) {
         },
         mapping: {
           userId: { '@path': '$.userId' },
-          messagingServiceId: 'MG1111222233334444',
+          from: 'MG1111222233334444',
           body: 'Hello world, {{profile.user_id}}!',
           customArgs: {
             foo: 'bar'
