@@ -1,4 +1,5 @@
 import express from 'express'
+import cors from 'cors'
 import http from 'http'
 import { once } from 'lodash'
 import logger from './logger'
@@ -19,6 +20,11 @@ interface ResponseError extends Error {
 
 const app = express()
 app.use(express.json())
+app.use(
+  cors({
+    origin: ['https://app.segment.build', 'https://app.segment.com', 'http://localhost:8000']
+  })
+)
 
 const DEFAULT_PORT = 3000
 const port = process.env.PORT || DEFAULT_PORT
@@ -102,6 +108,23 @@ function setupRoutes(def: DestinationDefinition | null): void {
   const supportsDelete = destination.onDelete
 
   const router = express.Router()
+
+  router.get(
+    '/test',
+    asyncHandler(async (req: express.Request, res: express.Response) => {
+      res.json({
+        name: destination.name,
+        message: 'hello from test server'
+      })
+    })
+  )
+
+  router.get(
+    '/manifest',
+    asyncHandler(async (req: express.Request, res: express.Response) => {
+      res.json(destination.definition)
+    })
+  )
 
   if (supportsDelete) {
     router.post(
