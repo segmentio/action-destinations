@@ -3,7 +3,10 @@ import type { Settings } from './generated-types'
 // This has to be 'cases' because 'case' is a Javascript reserved word
 import cases from './case'
 import lead from './lead'
+import opportunity from './opportunity'
 import customObject from './customObject'
+
+import account from './account'
 
 interface RefreshTokenResponse {
   access_token: string
@@ -50,7 +53,9 @@ const destination: DestinationDefinition<Settings> = {
   actions: {
     lead,
     customObject,
-    cases
+    cases,
+    opportunity,
+    account
   }
 }
 
