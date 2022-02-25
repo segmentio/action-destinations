@@ -6,6 +6,8 @@ import chokidar from 'chokidar'
 import ora from 'ora'
 import path from 'path'
 import globby from 'globby'
+import { WebSocketServer } from 'ws'
+import open from 'open'
 
 export default class Serve extends Command {
   private spinner: ora.Ora = ora()
@@ -77,6 +79,16 @@ export default class Serve extends Command {
       cwd: process.cwd()
     })
 
+    const DEFAULT_PORT = 3000
+    const port = parseInt(process.env.PORT ?? '', 10) || DEFAULT_PORT
+    const wss = new WebSocketServer({ port: port + 1 })
+
+    wss.on('connection', function connection(ws) {
+      watcher.on('change', () => {
+        ws.send('change')
+      })
+    })
+
     const start = () => {
       child = fork(require.resolve('../lib/server.ts'), {
         cwd: process.cwd(),
@@ -124,6 +136,9 @@ export default class Serve extends Command {
 
     watcher.once('ready', () => {
       this.log(chalk.greenBright`Watching required files for changes .. `)
+      //todo replace this with prod url
+      // open(`http://localhost:8000/partner-portal/actions-tester`)
+      void open('https://app.segment.build/partner-portal/actions-tester')
     })
 
     start()

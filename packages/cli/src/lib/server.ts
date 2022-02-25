@@ -110,16 +110,6 @@ function setupRoutes(def: DestinationDefinition | null): void {
   const router = express.Router()
 
   router.get(
-    '/test',
-    asyncHandler(async (req: express.Request, res: express.Response) => {
-      res.json({
-        name: destination.name,
-        message: 'hello from test server'
-      })
-    })
-  )
-
-  router.get(
     '/manifest',
     asyncHandler(async (req: express.Request, res: express.Response) => {
       res.json(destination.definition)
@@ -231,7 +221,7 @@ function setupRoutes(def: DestinationDefinition | null): void {
   const routes: string[] = []
   for (const r of router.stack) {
     for (const [m, enabled] of Object.entries(r.route.methods)) {
-      if (enabled) {
+      if (enabled && r.route.path !== '/manifest') {
         routes.push(`  ${m.toUpperCase()} ${r.route.path}`)
       }
     }
