@@ -33,12 +33,12 @@ const destination: DestinationDefinition<Settings> = {
         required: true
       }
     },
-    testAuthentication: (request, { settings }) => {
-      return request(`https://api.criteo.com/oauth2/token`, {
+    testAuthentication: async (request, { settings }) => {
+      const res = await request(`https://api.criteo.com/oauth2/token`, {
         method: 'post',
         body: new URLSearchParams({
-          client_id: settings.client_id,
-          client_secret: settings.client_secret,
+          client_id: settings.clientId,
+          client_secret: settings.clientSecret,
           grant_type: 'client_credentials'
         }),
         headers: {
@@ -46,9 +46,15 @@ const destination: DestinationDefinition<Settings> = {
           'Content-Type': 'application/x-www-form-urlencoded'
         },
       })
+
+      return { accessToken: res.data.access_token }
     }
   },
-
+  extendRequest: ({ auth }) => {
+    return {
+      headers: { Authorization: `Bearer ${auth?.accessToken}` }
+    }
+  },
   //we might not need this function
   /*onDelete: async (request, { settings, payload }) => {
     // Return a request that performs a GDPR delete for the provided Segment userId or anonymousId
@@ -56,13 +62,6 @@ const destination: DestinationDefinition<Settings> = {
     // implement this function and should remove it completely.
   },*/
 
-  // You can use `extendRequest` to provide options for the request client instance
-  // provided to all actions
-  /*extendRequest: ({ settings }) => {
-    return {
-      headers: { Authorization: `Bearer ${settings.api_key}` }
-    }
-  },*/
   actions: {
     updateAudience,
     addUserToAudience,
