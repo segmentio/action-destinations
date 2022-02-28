@@ -8,25 +8,28 @@ const action: ActionDefinition<Settings, Payload> = {
   defaultSubscription: 'type = "track" and event = "Audience Entered"',
   fields: {
     //These fields (for the action only) are able to accept input from the Segment event.
-    user_id: {
-      label: 'User ID',
-      description: 'User ID in Segment',
+    audience_key: {
+      label: 'Audience key',
+      description: "Unique name for personas audience",
       type: 'string',
-      required: true,
-      default: { '@path': '$.userId' }
+      allowNull: true,
+      default: {
+        '@path': '$.properties.audience_key'
+      }
     },
-    //computation_id: {
-
-    //},
-    //event:{
-    //Audience Exited or Audience entered
-    //},
+    event: {
+      label: 'Event name',
+      description: "Event for audience entering or exiting",
+      type: 'string',
+      default: {
+        '@path': '$.event'
+      }
+    },
     email: {
       label: 'Email',
       description: "The user's email",
       type: 'string',
       format: 'email',
-      allowNull: true,
       default: {
         '@path': '$.traits.email'
       }
@@ -34,27 +37,41 @@ const action: ActionDefinition<Settings, Payload> = {
   },
   //perform method seems to be mandatory to implement
   //Although, we would use performBatch to parse the batch events
-  perform: (request, data) => {
-    return request('https://example.com', {
-      method: 'post',
-      json: data.payload
-    })
+  perform: () => {
+    return
   },
   //the performBatch function will have code to handle 
   //the personas event batch and send request to Criteo API
-  performBatch: (request, data) => {
-    // write logic to iterate over the array of track events
-    // send the resulting payload to criteo's endpoint
 
-    //code to use computation key to get audience id from Criteo
-    //OR create new audience if audience DOES NOT EXIST
 
-    // batches contain up to 1000 track events each
-    // audience of 150,000 = 150 batches of 1,000 events each
+  performBatch: (request, { settings, payload }) => {
+    let addUsers = []; //array of all user identifiers in the batch
 
+    //iterate over the array of track events
+    for (const event_object of payload) {
+      const event_type = event_object["type"];
+      const user_email = event_object["context"]["traits"]["email"];
+      const audience_key = event_object["properties"]["audience_key"];
+      //add user to the array
+      if (user_email) {
+        addUsers.push(user_email);
+      }
+    }
+    const criteo_payload = {
+      "data": {
+        "type": "ContactlistAmendment",
+        "attributes": {
+          "operation": "add",
+          "identifierType": "email",
+          "identifiers": addUsers
+        }
+      }
+    }
+
+    //this will later be modified with appropriate async function call for Criteo API requests
     return request('https://api.criteo.com', {
       method: 'post',
-      json: data.payload
+      json: criteo_payload
     })
   }
 }

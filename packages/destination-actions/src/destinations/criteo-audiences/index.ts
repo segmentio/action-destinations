@@ -58,11 +58,11 @@ const destination: DestinationDefinition<Settings> = {
 
   // You can use `extendRequest` to provide options for the request client instance
   // provided to all actions
-  extendRequest: ({ settings }) => {
+  /*extendRequest: ({ settings }) => {
     return {
       headers: { Authorization: `Bearer ${settings.api_key}` }
     }
-  },
+  },*/
   actions: {
     updateAudience,
     addUserToAudience,
