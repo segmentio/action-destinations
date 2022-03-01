@@ -2,7 +2,7 @@ import type { BrowserActionDefinition } from '../../../lib/browser-destinations'
 import type { Settings } from '../generated-types'
 import { Adobe } from '../types'
 import type { Payload } from './generated-types'
-import { setPageParams } from '../utils'
+import { setPageParams, setMbox3rdPartyId } from '../utils'
 
 const action: BrowserActionDefinition<Settings, Adobe, Payload> = {
   title: 'Upsert Profile',
@@ -48,11 +48,10 @@ const action: BrowserActionDefinition<Settings, Adobe, Payload> = {
        identify() and track() actions leverage the same function (adobe.target.trackEvent()) to send data to Adobe.
        identify does not pass an event name, track does.
     */
-    const user = {
-      mbox3rdpartyid: event.payload.anonymousId
-    }
+
+    setMbox3rdPartyId(event.payload.anonymousId)
     if (event.payload.userId) {
-      user.mbox3rdpartyid = event.payload.userId
+      setMbox3rdPartyId(event.payload.userId)
     }
 
     /*
@@ -62,8 +61,7 @@ const action: BrowserActionDefinition<Settings, Adobe, Payload> = {
     */
     setPageParams({
       profile: {
-        ...event.payload.traits,
-        ...user
+        ...event.payload.traits
       }
     })
 

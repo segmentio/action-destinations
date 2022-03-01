@@ -1,0 +1,75 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Testing snapshot for actions-moengage destination: identifyUser action - all fields 1`] = `
+Object {
+  "anonymous_id": "z(%@QRCz7h$8M)#]",
+  "context": Object {
+    "app": Object {
+      "version": "z(%@QRCz7h$8M)#]",
+    },
+    "library": Object {
+      "version": "z(%@QRCz7h$8M)#]",
+    },
+    "os": Object {
+      "name": "z(%@QRCz7h$8M)#]",
+    },
+  },
+  "timestamp": "2021-02-01T00:00:00.000Z",
+  "traits": Object {
+    "testType": "z(%@QRCz7h$8M)#]",
+  },
+  "type": "z(%@QRCz7h$8M)#]",
+  "user_id": "z(%@QRCz7h$8M)#]",
+}
+`;
+
+exports[`Testing snapshot for actions-moengage destination: identifyUser action - required fields 1`] = `
+Object {
+  "anonymous_id": "z(%@QRCz7h$8M)#]",
+  "context": Object {
+    "app": Object {},
+    "library": Object {},
+    "os": Object {},
+  },
+  "type": "z(%@QRCz7h$8M)#]",
+  "user_id": "z(%@QRCz7h$8M)#]",
+}
+`;
+
+exports[`Testing snapshot for actions-moengage destination: trackEvent action - all fields 1`] = `
+Object {
+  "anonymous_id": "E@t!q#n(^u",
+  "context": Object {
+    "app": Object {
+      "version": "E@t!q#n(^u",
+    },
+    "library": Object {
+      "version": "E@t!q#n(^u",
+    },
+    "os": Object {
+      "name": "E@t!q#n(^u",
+    },
+  },
+  "event": "E@t!q#n(^u",
+  "properties": Object {
+    "testType": "E@t!q#n(^u",
+  },
+  "timestamp": "2021-02-01T00:00:00.000Z",
+  "type": "E@t!q#n(^u",
+  "user_id": "E@t!q#n(^u",
+}
+`;
+
+exports[`Testing snapshot for actions-moengage destination: trackEvent action - required fields 1`] = `
+Object {
+  "anonymous_id": "E@t!q#n(^u",
+  "context": Object {
+    "app": Object {},
+    "library": Object {},
+    "os": Object {},
+  },
+  "event": "E@t!q#n(^u",
+  "type": "E@t!q#n(^u",
+  "user_id": "E@t!q#n(^u",
+}
+`;

@@ -1,4 +1,11 @@
-import { GenericPayload, GenericBaseShape, LeadBaseShapeType, CaseBaseShapeType } from './sf-types'
+import {
+  GenericPayload,
+  GenericBaseShape,
+  LeadBaseShapeType,
+  CaseBaseShapeType,
+  OpportunityBaseShapeType,
+  AccountBaseShapeType
+} from './sf-types'
 
 const LeadShape = (payload: GenericPayload): LeadBaseShapeType => {
   return {
@@ -20,9 +27,45 @@ const CaseShape = (payload: GenericPayload): CaseBaseShapeType => {
   }
 }
 
-const objectToShape = new Map<string, (payload: GenericPayload) => LeadBaseShapeType | CaseBaseShapeType>([
+const OpportunityShape = (payload: GenericPayload): OpportunityBaseShapeType => {
+  return {
+    Amount: payload.amount,
+    CloseDate: payload.close_date,
+    Description: payload.description,
+    Name: payload.name,
+    StageName: payload.stage_name
+  }
+}
+
+const AccountShape = (payload: GenericPayload): AccountBaseShapeType => {
+  return {
+    Name: payload.name,
+    AccountNumber: payload.account_number,
+    NumberOfEmployees: payload.number_of_employees,
+    BillingCity: payload.billing_city,
+    BillingPostalCode: payload.billing_postal_code,
+    BillingCountry: payload.billing_country,
+    BillingStreet: payload.billing_street,
+    BillingState: payload.billing_state,
+    ShippingCity: payload.shipping_city,
+    ShippingPostalCode: payload.shipping_postal_code,
+    ShippingCountry: payload.shipping_country,
+    ShippingStreet: payload.shipping_street,
+    ShippingState: payload.shipping_state,
+    Phone: payload.phone,
+    Description: payload.description,
+    Website: payload.website
+  }
+}
+
+const objectToShape = new Map<
+  string,
+  (payload: GenericPayload) => LeadBaseShapeType | CaseBaseShapeType | OpportunityBaseShapeType | AccountBaseShapeType
+>([
   ['lead', LeadShape],
-  ['case', CaseShape]
+  ['case', CaseShape],
+  ['opportunity', OpportunityShape],
+  ['account', AccountShape]
 ])
 
 export const mapObjectToShape = (payload: GenericPayload, sobject: string): GenericBaseShape => {
