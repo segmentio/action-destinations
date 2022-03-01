@@ -36,7 +36,7 @@ const getAudienceId = async (
   request: RequestFn,
   settings: Settings,
   audience_key: string
-): Promise<Number> => {
+): Promise<string> => {
   if (!audience_key)
     throw new IntegrationError('Invalid Audience Key', 'Invalid input', 400)
 
@@ -44,7 +44,7 @@ const getAudienceId = async (
 
   advertiser_audiences.array.forEach(audience => {
     if (audience.attributes.name === audience_key)
-      return Number(audience.id)
+      return audience.id
   });
 
   const audience_id = createAudience(request, settings, audience_key)
@@ -55,7 +55,7 @@ const createAudience = async (
   request: RequestFn,
   settings: Settings,
   audience_key: string
-): Promise<Number> => {
+): Promise<string> => {
   const endpoint = `${BASE_API_URL}/audiences`
   // TODO Authentication
   const headers = {
@@ -83,7 +83,7 @@ const createAudience = async (
       "Error while fetching the Advertiser's audiences", body.errors[0].title, response.status
     )
 
-  return Number(body.data.id)
+  return body.data.id
 }
 
 const action: ActionDefinition<Settings, Payload> = {
