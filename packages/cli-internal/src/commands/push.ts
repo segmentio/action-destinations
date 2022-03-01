@@ -163,7 +163,7 @@ export default class Push extends Command {
             dynamic: field.dynamic ?? false,
             placeholder: field.placeholder ?? '',
             allowNull: field.allowNull ?? false,
-            defaultView: field.defaultView,
+            defaultObjectUI: field.defaultObjectUI,
             fieldSchema: getFieldPropertySchema(fieldKey, field)
           }
         })

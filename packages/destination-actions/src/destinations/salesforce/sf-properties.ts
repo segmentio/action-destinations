@@ -22,7 +22,7 @@ export const traits: InputField = {
   
   If multiple records are found, no updates will be made. Please use fields that result in unique records.`,
   type: 'object',
-  defaultView: 'keyvalue:exclusive'
+  defaultObjectUI: 'keyvalue:only'
 }
 
 export const customFields: InputField = {
@@ -33,7 +33,7 @@ export const customFields: InputField = {
   This can include standard or custom fields. Custom fields must be predefined in your Salesforce account and the API field name should have __c appended.
   `,
   type: 'object',
-  defaultView: 'keyvalue'
+  defaultObjectUI: 'keyvalue'
 }
 
 interface Payload {

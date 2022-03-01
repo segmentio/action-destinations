@@ -93,13 +93,13 @@ export interface InputField {
    * Only relevant for `type: 'string'` or `type: 'number'`.
    */
   choices?:
-  | Array<string>
-  | Array<{
-    /** The value of the option */
-    value: string | number
-    /** A human-friendly label for the option */
-    label: string
-  }>
+    | Array<string>
+    | Array<{
+        /** The value of the option */
+        value: string | number
+        /** A human-friendly label for the option */
+        label: string
+      }>
   /** Whether or not the field is required */
   required?: boolean
   /**
@@ -114,26 +114,26 @@ export interface InputField {
    * @see {@link https://github.com/ajv-validator/ajv/tree/v6#formats}
    */
   format?:
-  | 'date' // full-date according to RFC3339.
-  | 'time' // time with optional time-zone.
-  | 'date-time' // date-time from the same source (time-zone is mandatory). date, time and date-time validate ranges in full mode and only regexp in fast mode (see options).
-  | 'uri' // full URI.
-  | 'uri-reference' // URI reference, including full and relative URIs.
-  | 'uri-template' // URI template according to RFC6570
-  | 'email' // email address.
-  | 'hostname' // host name according to RFC1034.
-  | 'ipv4' // IP address v4.
-  | 'ipv6' // IP address v6.
-  | 'regex' // tests whether a string is a valid regular expression by passing it to RegExp constructor.
-  | 'uuid' // Universally Unique IDentifier according to RFC4122.
-  | 'password' // hint to the UI to hide/obfuscate input strings
-  | 'text' // longer strings
+    | 'date' // full-date according to RFC3339.
+    | 'time' // time with optional time-zone.
+    | 'date-time' // date-time from the same source (time-zone is mandatory). date, time and date-time validate ranges in full mode and only regexp in fast mode (see options).
+    | 'uri' // full URI.
+    | 'uri-reference' // URI reference, including full and relative URIs.
+    | 'uri-template' // URI template according to RFC6570
+    | 'email' // email address.
+    | 'hostname' // host name according to RFC1034.
+    | 'ipv4' // IP address v4.
+    | 'ipv6' // IP address v6.
+    | 'regex' // tests whether a string is a valid regular expression by passing it to RegExp constructor.
+    | 'uuid' // Universally Unique IDentifier according to RFC4122.
+    | 'password' // hint to the UI to hide/obfuscate input strings
+    | 'text' // longer strings
 
-  defaultView?:
-  | 'keyvalue' // Users will see the key value UI and can switch to object UI
-  | 'object' // Users will see the object UI and can switch to key value UI
-  | 'keyvalue:only' // Users will only see the key value UI
-  | 'object:only' // Users will only see the object UI
+  defaultObjectUI?:
+    | 'keyvalue' // Users will see the key value UI and can switch to object UI
+    | 'object' // Users will see the object UI and can switch to key value UI
+    | 'keyvalue:only' // Users will only see the key value UI
+    | 'object:only' // Users will only see the object UI
 }
 
 export type FieldValue = string | number | boolean | object | Directive
