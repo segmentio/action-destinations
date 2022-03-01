@@ -19,7 +19,6 @@ describe('Talon One', () => {
       }
 
       await expect(testDestination.testAuthentication(settings)).resolves.not.toThrowError()
-      expect(nock.isDone()).toBe(true)
     })
 
     it('invalidate auth token', async () => {
@@ -34,7 +33,6 @@ describe('Talon One', () => {
       }
 
       await expect(testDestination.testAuthentication(settings)).rejects.toThrowError()
-      expect(nock.isDone()).toBe(true)
     })
   })
 })
