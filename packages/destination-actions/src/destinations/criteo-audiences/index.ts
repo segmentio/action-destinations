@@ -1,9 +1,6 @@
 import type { DestinationDefinition } from '@segment/actions-core'
 import type { Settings } from './generated-types'
-import updateAudience from './updateAudience'
-
 import addUserToAudience from './addUserToAudience'
-
 import removeUserFromAudience from './removeUserFromAudience'
 
 const destination: DestinationDefinition<Settings> = {
@@ -37,8 +34,8 @@ const destination: DestinationDefinition<Settings> = {
       const res = await request(`https://api.criteo.com/oauth2/token`, {
         method: 'post',
         body: new URLSearchParams({
-          client_id: settings.clientId,
-          client_secret: settings.clientSecret,
+          client_id: encodeURIComponent(settings.clientId),
+          client_secret: encodeURIComponent(settings.clientSecret),
           grant_type: 'client_credentials'
         }),
         headers: {
