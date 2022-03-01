@@ -63,7 +63,6 @@ const destination: DestinationDefinition<Settings> = {
   },*/
 
   actions: {
-    updateAudience,
     addUserToAudience,
     removeUserFromAudience
   }
