@@ -194,8 +194,10 @@ const action: ActionDefinition<Settings, Payload> = {
       description: `The user's first name`,
       type: 'string',
       allowNull: true,
+      // First Solution: set the defaults in the first_name and last_name fields to
+      // $.traits.first_name && $.traits.last_name
       default: {
-        '@path': '$.traits.firstName'
+        '@path': '$.traits.first_name'
       }
     },
     gender: {
@@ -237,8 +239,10 @@ const action: ActionDefinition<Settings, Payload> = {
       label: 'Last Name',
       description: "The user's last name",
       type: 'string',
+      // First Solution: set the defaults in the first_name and last_name fields to
+      // $.traits.first_name && $.traits.last_name
       default: {
-        '@path': '$.traits.lastName'
+        '@path': '$.traits.last_name'
       }
     },
     marked_email_as_spam_at: {
@@ -357,6 +361,9 @@ const action: ActionDefinition<Settings, Payload> = {
     // potentially send a value from `custom_attributes` that conflicts with their mappings.
     const reservedKeys = Object.keys(action.fields)
     const customAttrs = omit(payload.custom_attributes, reservedKeys)
+
+    // Second solution: Add 'lastName' and 'firstName' attributes to the reservedKeys list
+    // reservedKeys.push('firstName', 'lastName')
 
     return request(`${settings.endpoint}/users/track`, {
       method: 'post',
