@@ -4,7 +4,7 @@ export interface Payload {
   /**
    * Unique name for personas audience
    */
-  audience_key?: string | null
+  audience_key?: string
   /**
    * Event for audience entering or exiting
    */

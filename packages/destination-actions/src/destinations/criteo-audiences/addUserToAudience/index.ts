@@ -9,22 +9,22 @@ const getOperationFromPayload = async (
   advertiser_id: string,
   payload: Payload[]
 ): Promise<Operation> => {
-  let user_list: string[] = [];
-  let audience_key: string = undefined;
+  const add_user_list: string[] = [];
+  let audience_key = '';
 
   for (const event of payload) {
     if (!audience_key && event.audience_key)
       audience_key = event.audience_key;
     if (event.email)
-      user_list.push(event.email);
+      add_user_list.push(event.email);
   }
 
   const audience_id = await getAudienceId(request, advertiser_id, audience_key)
 
-  let operation: Operation = {
+  const operation: Operation = {
     operation_type: "add",
     audience_id: audience_id,
-    user_list: user_list,
+    user_list: add_user_list,
   }
   return operation;
 }
@@ -38,7 +38,6 @@ const action: ActionDefinition<Settings, Payload> = {
       label: 'Audience key',
       description: "Unique name for personas audience",
       type: 'string',
-      allowNull: true,
       default: {
         '@path': '$.properties.audience_key'
       }
@@ -65,7 +64,7 @@ const action: ActionDefinition<Settings, Payload> = {
     return
   },
   performBatch: async (request, { settings, payload }) => {
-    let operation: Operation = await getOperationFromPayload(request, settings.advertiser_id, payload);
+    const operation: Operation = await getOperationFromPayload(request, settings.advertiser_id, payload);
     patchAudience(request, operation);
   }
 }

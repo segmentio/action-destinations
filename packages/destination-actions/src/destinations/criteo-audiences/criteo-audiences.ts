@@ -35,14 +35,16 @@ export const patchAudience = async (
 
     // TODO Authentication
     const headers = {
-        "Authorization": `Bearer `
+        Accept: 'application/json',
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ` + 'authToken'//placeholder for now. but this will be oauth2 token from authentication
     }
 
     return request(
         endpoint,
         {
             method: 'PATCH',
-            json: payload,
+            json: JSON.stringify(payload),
             headers: headers
         }
     )

@@ -34,8 +34,8 @@ const destination: DestinationDefinition<Settings> = {
       const res = await request(`https://api.criteo.com/oauth2/token`, {
         method: 'post',
         body: new URLSearchParams({
-          client_id: encodeURIComponent(settings.clientId),
-          client_secret: encodeURIComponent(settings.clientSecret),
+          client_id: encodeURIComponent(settings.client_id),
+          client_secret: encodeURIComponent(settings.client_secret),
           grant_type: 'client_credentials'
         }),
         headers: {

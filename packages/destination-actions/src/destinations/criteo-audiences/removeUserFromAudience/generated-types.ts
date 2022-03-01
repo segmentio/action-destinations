@@ -2,11 +2,15 @@
 
 export interface Payload {
   /**
-   * User ID in Segment
+   * Unique name for personas audience
    */
-  user_id: string
+  audience_key?: string
+  /**
+   * Event for audience entering or exiting
+   */
+  event?: string
   /**
    * The user's email
    */
-  email?: string | null
+  email?: string
 }
