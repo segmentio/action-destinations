@@ -54,7 +54,7 @@ export const patchAudience = async (
 export const getAdvertiserAudiences = async (
     request: RequestFn,
     advertiser_id: string
-): Promise<Record<string, any>> => {
+): Promise<Array<Record<string, any>>> => {
     if (isNaN(+advertiser_id))
         throw new IntegrationError('The Advertiser ID should be a number', 'Invalid input', 400)
 
