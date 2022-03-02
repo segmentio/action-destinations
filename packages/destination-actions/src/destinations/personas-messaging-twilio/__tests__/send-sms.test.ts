@@ -42,9 +42,7 @@ describe.each(['stage', 'production'])('%s environment', (environment) => {
           from: 'MG1111222233334444',
           body: 'Hello world, {{profile.user_id}}!',
           send: true,
-          externalIds: [
-            { type: 'email', id: 'test@twilio.com', subscriptionStatus: 'subscribed' }
-          ]
+          externalIds: [{ type: 'email', id: 'test@twilio.com', subscriptionStatus: 'subscribed' }]
         }
       })
 
@@ -180,17 +178,31 @@ describe.each(['stage', 'production'])('%s environment', (environment) => {
         event: createTestEvent({
           timestamp,
           event: 'Audience Entered',
-          userId: 'jane'
-        }),
+          userId: 'jane',
+          external_ids: [{ type: 'phone', id: '+1234567891', isSubscribed: subscriptionStatus }]
+        } as any),
         settings,
         mapping: {
           userId: { '@path': '$.userId' },
           from: 'MG1111222233334444',
           body: 'Hello world, {{profile.user_id}}!',
           send: true,
-          externalIds: [
-            { type: 'phone', id: '+1234567891', subscriptionStatus }
-          ]
+          externalIds: {
+            '@arrayPath': [
+              '$.external_ids',
+              {
+                id: {
+                  '@path': '$.id'
+                },
+                type: {
+                  '@path': '$.type'
+                },
+                subscriptionStatus: {
+                  '@path': '$.isSubscribed'
+                }
+              }
+            ]
+          }
         }
       }
 
@@ -202,44 +214,40 @@ describe.each(['stage', 'production'])('%s environment', (environment) => {
       expect(twilioRequest.isDone()).toEqual(true)
     })
 
-    it.each([
-      'unsubscribed',
-      'did not subscribed',
-      false,
-      null
-    ])('does NOT send an SMS when subscriptonStatus ="%s"', async (subscriptionStatus) => {
-      const expectedTwilioRequest = new URLSearchParams({
-        Body: 'Hello world, jane!',
-        From: 'MG1111222233334444',
-        To: '+1234567891'
-      })
+    it.each(['unsubscribed', 'did not subscribed', false, null])(
+      'does NOT send an SMS when subscriptonStatus ="%s"',
+      async (subscriptionStatus) => {
+        const expectedTwilioRequest = new URLSearchParams({
+          Body: 'Hello world, jane!',
+          From: 'MG1111222233334444',
+          To: '+1234567891'
+        })
 
-      const twilioRequest = nock('https://api.twilio.com/2010-04-01/Accounts/a')
-        .post('/Messages.json', expectedTwilioRequest.toString())
-        .reply(201, {})
+        const twilioRequest = nock('https://api.twilio.com/2010-04-01/Accounts/a')
+          .post('/Messages.json', expectedTwilioRequest.toString())
+          .reply(201, {})
 
-      const actionInputData = {
-        event: createTestEvent({
-          timestamp,
-          event: 'Audience Entered',
-          userId: 'jane'
-        }),
-        settings,
-        mapping: {
-          userId: { '@path': '$.userId' },
-          from: 'MG1111222233334444',
-          body: 'Hello world, {{profile.user_id}}!',
-          send: true,
-          externalIds: [
-            { type: 'phone', id: '+1234567891', subscriptionStatus }
-          ]
+        const actionInputData = {
+          event: createTestEvent({
+            timestamp,
+            event: 'Audience Entered',
+            userId: 'jane'
+          }),
+          settings,
+          mapping: {
+            userId: { '@path': '$.userId' },
+            from: 'MG1111222233334444',
+            body: 'Hello world, {{profile.user_id}}!',
+            send: true,
+            externalIds: [{ type: 'phone', id: '+1234567891', subscriptionStatus }]
+          }
         }
-      }
 
-      const responses = await twilio.testAction('sendSms', actionInputData)
-      expect(responses).toHaveLength(0)
-      expect(twilioRequest.isDone()).toEqual(false)
-    })
+        const responses = await twilio.testAction('sendSms', actionInputData)
+        expect(responses).toHaveLength(0)
+        expect(twilioRequest.isDone()).toEqual(false)
+      }
+    )
 
     it('throws an error when subscriptionStatus is unrecognizable"', async () => {
       const randomSubscriptionStatusPhrase = 'some-subscription-enum'
@@ -266,14 +274,14 @@ describe.each(['stage', 'production'])('%s environment', (environment) => {
           from: 'MG1111222233334444',
           body: 'Hello world, {{profile.user_id}}!',
           send: true,
-          externalIds: [
-            { type: 'phone', id: '+1234567891', subscriptionStatus: randomSubscriptionStatusPhrase }
-          ]
+          externalIds: [{ type: 'phone', id: '+1234567891', subscriptionStatus: randomSubscriptionStatusPhrase }]
         }
       }
 
       const response = twilio.testAction('sendSms', actionInputData)
-      await expect(response).rejects.toThrowError(`Failed to recognize the subscriptionStatus in the payload: "${randomSubscriptionStatusPhrase}".`)
+      await expect(response).rejects.toThrowError(
+        `Failed to recognize the subscriptionStatus in the payload: "${randomSubscriptionStatusPhrase}".`
+      )
     })
   })
 })
