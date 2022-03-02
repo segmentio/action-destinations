@@ -4,7 +4,8 @@ import type { Payload } from './generated-types'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Delete Audience',
-  description: '',
+  description:
+    'Deletepackages/destination-actions/src/destinations/talon-one/deleteAudience/index.ts Audience in Talon.One',
   fields: {
     audience_id: {
       label: 'audience_id',

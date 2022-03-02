@@ -16,6 +16,7 @@ describe(`Testing snapshot for ${destinationSlug}'s ${actionSlug} destination ac
     nock(/.*/).persist().get(/.*/).reply(200)
     nock(/.*/).persist().post(/.*/).reply(200)
     nock(/.*/).persist().put(/.*/).reply(200)
+    nock(/.*/).persist().delete(/.*/).reply(200)
 
     const event = createTestEvent({
       properties: eventData
@@ -49,6 +50,7 @@ describe(`Testing snapshot for ${destinationSlug}'s ${actionSlug} destination ac
     nock(/.*/).persist().get(/.*/).reply(200)
     nock(/.*/).persist().post(/.*/).reply(200)
     nock(/.*/).persist().put(/.*/).reply(200)
+    nock(/.*/).persist().delete(/.*/).reply(200)
 
     const event = createTestEvent({
       properties: eventData
