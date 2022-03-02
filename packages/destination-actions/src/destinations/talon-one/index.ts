@@ -2,6 +2,9 @@ import type { DestinationDefinition } from '@segment/actions-core'
 import type { Settings } from './generated-types'
 
 import createAudience from './createAudience'
+import updateAudience from './updateAudience'
+import deleteAudience from './deleteAudience'
+import trackEvent from './trackEvent'
 
 const destination: DestinationDefinition<Settings> = {
   name: 'Talon One',
@@ -42,7 +45,10 @@ const destination: DestinationDefinition<Settings> = {
   },
 
   actions: {
-    createAudience
+    createAudience,
+    updateAudience,
+    deleteAudience,
+    trackEvent
   }
 }
 
