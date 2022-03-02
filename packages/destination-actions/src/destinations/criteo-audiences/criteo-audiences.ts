@@ -87,7 +87,7 @@ export const getAudienceId = async (
 
     const advertiser_audiences = await getAdvertiserAudiences(request, advertiser_id)
 
-    advertiser_audiences.array.forEach(audience => {
+    advertiser_audiences.forEach(audience => {
         if (audience.attributes.name === audience_name)
             return audience.id
     });
