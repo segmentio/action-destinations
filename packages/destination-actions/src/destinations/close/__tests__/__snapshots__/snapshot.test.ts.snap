@@ -15,8 +15,10 @@ Object {
     "lead_custom_fields": Object {
       "testType": "Bbzz5]ZQl",
     },
+    "lead_description": "Bbzz5]ZQl",
     "lead_external_id": "Bbzz5]ZQl",
     "lead_name": "Bbzz5]ZQl",
+    "lead_status_id": "Bbzz5]ZQl",
   },
   "settings": Object {
     "contact_custom_field_id_for_user_id": "Bbzz5]ZQl",
@@ -30,6 +32,7 @@ Object {
   "action_payload": Object {
     "contact_external_id": "Bbzz5]ZQl",
     "lead_external_id": "Bbzz5]ZQl",
+    "lead_status_id": "Bbzz5]ZQl",
   },
   "settings": Object {
     "contact_custom_field_id_for_user_id": "Bbzz5]ZQl",

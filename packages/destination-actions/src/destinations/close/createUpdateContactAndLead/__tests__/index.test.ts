@@ -7,12 +7,14 @@ const TEST_USER_1 = {
   id: 'user_id_1',
   company_name: 'My Company',
   company_id: 'company_id_1',
+  company_description: 'Company description',
   name: 'John',
   email: 'john@example.com',
   title: 'Manager',
   phone: '+1 800 444 4444',
   website: 'https://example.org',
-  business_plan: 'Enterprise'
+  business_plan: 'Enterprise',
+  lead_status_id: 'stat_1234'
 }
 const SETTINGS: Settings = {
   api_key: 'api_keyid.keysecret',
@@ -72,7 +74,9 @@ describe('Close.createUpdateContactAndLead', () => {
         action_payload: {
           contact_external_id: TEST_USER_1.id,
           contact_custom_fields: { cf_business_plan: 'Enterprise' },
-          lead_custom_fields: { lf_company_size: 5 }
+          lead_custom_fields: { lf_company_size: 5 },
+          lead_description: TEST_USER_1.company_description,
+          lead_status_id: TEST_USER_1.lead_status_id
         },
         settings: {
           contact_custom_field_id_for_user_id: 'cf_external_user_id',
@@ -88,7 +92,9 @@ describe('Close.createUpdateContactAndLead', () => {
         business_plan: 'Enterprise',
         company: {
           size: 5
-        }
+        },
+        company_description: TEST_USER_1.company_description,
+        lead_status_id: TEST_USER_1.lead_status_id
       }
     })
 
@@ -103,6 +109,12 @@ describe('Close.createUpdateContactAndLead', () => {
         lf_company_size: {
           '@path': '$.traits.company.size'
         }
+      },
+      lead_description: {
+        '@path': '$.traits.company_description'
+      },
+      lead_status_id: {
+        '@path': '$.traits.lead_status_id'
       }
     }
     await testDestination.testAction('createUpdateContactAndLead', {
