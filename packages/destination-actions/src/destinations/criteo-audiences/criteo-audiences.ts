@@ -44,7 +44,7 @@ export const patchAudience = async (
         endpoint,
         {
             method: 'PATCH',
-            json: JSON.stringify(payload),
+            json: payload,
             headers: headers
         }
     )
@@ -104,7 +104,9 @@ export const createAudience = async (
 
     // TODO Authentication
     const headers = {
-        authorization: `Bearer `,
+        Accept: 'application/json',
+        'Content-Type': 'application/json',
+        Authorization: `Bearer `,
     }
 
     const payload = {
