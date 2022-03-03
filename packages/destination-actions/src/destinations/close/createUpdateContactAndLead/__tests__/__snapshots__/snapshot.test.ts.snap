@@ -15,8 +15,10 @@ Object {
     "lead_custom_fields": Object {
       "testType": "AY$s*K8XPu",
     },
+    "lead_description": "AY$s*K8XPu",
     "lead_external_id": "AY$s*K8XPu",
     "lead_name": "AY$s*K8XPu",
+    "lead_status_id": "AY$s*K8XPu",
   },
   "settings": Object {
     "contact_custom_field_id_for_user_id": "AY$s*K8XPu",
@@ -30,6 +32,7 @@ Object {
   "action_payload": Object {
     "contact_external_id": "AY$s*K8XPu",
     "lead_external_id": "AY$s*K8XPu",
+    "lead_status_id": "AY$s*K8XPu",
   },
   "settings": Object {
     "contact_custom_field_id_for_user_id": "AY$s*K8XPu",

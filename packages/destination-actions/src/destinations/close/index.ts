@@ -14,7 +14,7 @@ const destination: DestinationDefinition<Settings> = {
       api_key: {
         label: 'API key',
         description: 'Your Close API key.',
-        type: 'string',
+        type: 'password',
         required: true
       },
       lead_custom_field_id_for_company_id: {

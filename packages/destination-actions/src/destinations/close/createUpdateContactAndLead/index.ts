@@ -34,6 +34,18 @@ const action: ActionDefinition<Settings, Payload> = {
         '@path': '$.traits.company.id'
       }
     },
+    lead_description: {
+      label: 'Lead Description',
+      description: 'Description of the Lead',
+      type: 'string',
+      required: false
+    },
+    lead_status_id: {
+      label: 'Lead Status ID',
+      description: 'ID of the Lead Status (`stat_xxxx`). You can get it in Close in Statuses & Pipelines page.',
+      type: 'string',
+      required: false
+    },
     lead_custom_fields: {
       label: 'Lead Custom Fields',
       description: 'Custom Fields to set on the Lead. Key should be Custom Field ID (`cf_xxxx`).',
