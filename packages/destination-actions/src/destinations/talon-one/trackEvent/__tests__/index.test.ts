@@ -56,7 +56,11 @@ describe('TalonOne.trackEvent', () => {
       .put('/segment/event', {
         customer_profile_id: 'some_customer_profile_id',
         event_type: 'event_type',
-        type: 'string'
+        type: 'string',
+        event_attributes: {
+          favoriteProduct: 'fruits',
+          isDogLover: true
+        }
       })
       .matchHeader('Authorization', 'ApiKey-v1 some_api_key')
       .matchHeader('destination-hostname', 'https://something.europe-west1.talon.one')
@@ -70,7 +74,11 @@ describe('TalonOne.trackEvent', () => {
       mapping: {
         customer_profile_id: 'some_customer_profile_id',
         event_type: 'event_type',
-        type: 'string'
+        type: 'string',
+        event_attributes: {
+          favoriteProduct: 'fruits',
+          isDogLover: true
+        }
       }
     })
   })
