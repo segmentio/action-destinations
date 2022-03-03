@@ -356,6 +356,8 @@ const action: ActionDefinition<Settings, Payload> = {
     // to respect the customers mappings that might resolve `undefined`, without this we'd
     // potentially send a value from `custom_attributes` that conflicts with their mappings.
     const reservedKeys = Object.keys(action.fields)
+    // push additional default keys so they are not added as custom attributes
+    reservedKeys.push('firstName', 'lastName', 'avatar')
     const customAttrs = omit(payload.custom_attributes, reservedKeys)
 
     return request(`${settings.endpoint}/users/track`, {

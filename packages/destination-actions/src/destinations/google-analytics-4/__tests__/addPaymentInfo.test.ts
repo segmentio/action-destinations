@@ -201,6 +201,47 @@ describe('GA4', () => {
       }
     })
 
+    it('should throw an error when an empty items array is included', async () => {
+      nock('https://www.google-analytics.com/mp/collect')
+        .post(`?measurement_id=${measurementId}&api_secret=${apiSecret}`)
+        .reply(201, {})
+
+      const event = createTestEvent({
+        event: 'Payment Info Entered',
+        userId: '1234abc',
+        type: 'track',
+        properties: {
+          currency: 'USD',
+          price: 10,
+          products: []
+        }
+      })
+      try {
+        await testDestination.testAction('addPaymentInfo', {
+          event,
+          settings: {
+            apiSecret,
+            measurementId
+          },
+          mapping: {
+            client_id: {
+              '@path': '$.userId'
+            },
+            currency: {
+              '@path': '$.properties.currency'
+            },
+            value: {
+              '@path': '$.properties.price'
+            }
+          },
+          useDefaultMappings: true
+        })
+        fail('the test should have thrown an error')
+      } catch (e) {
+        expect(e.message).toBe('Google requires one or more products in add_payment_info events.')
+      }
+    })
+
     it('should throw an error when a value is included with no currency', async () => {
       nock('https://www.google-analytics.com/mp/collect')
         .post(`?measurement_id=${measurementId}&api_secret=${apiSecret}`)
