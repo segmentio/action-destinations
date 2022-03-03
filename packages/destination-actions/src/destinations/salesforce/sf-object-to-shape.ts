@@ -49,7 +49,7 @@ export const mapObjectToShape = (payload: GenericPayload, sobject: string): Gene
   const shapeFunction = objectToShape.get(sobject.toLowerCase())
 
   if (!shapeFunction) {
-    throw new Error(`: ${sobject}`)
+    throw new Error(`Undefined Object Shape: ${sobject}`)
   }
 
   return shapeFunction(payload)

@@ -218,13 +218,13 @@ describe('Salesforce', () => {
           last_name: {
             '@path': '$.properties.last_name'
           },
-          city: {
+          mailing_city: {
             '@path': '$.properties.address.city'
           },
-          postal_code: {
+          mailing_postal_code: {
             '@path': '$.properties.address.postal_code'
           },
-          street: {
+          mailing_street: {
             '@path': '$.properties.address.street'
           }
         }
@@ -290,13 +290,13 @@ describe('Salesforce', () => {
           last_name: {
             '@path': '$.properties.last_name'
           },
-          city: {
+          mailing_city: {
             '@path': '$.properties.address.city'
           },
-          postal_code: {
+          mailing_postal_code: {
             '@path': '$.properties.address.postal_code'
           },
-          street: {
+          mailing_street: {
             '@path': '$.properties.address.street'
           }
         }
@@ -366,13 +366,13 @@ describe('Salesforce', () => {
           last_name: {
             '@path': '$.properties.last_name'
           },
-          city: {
+          mailing_city: {
             '@path': '$.properties.address.city'
           },
-          postal_code: {
+          mailing_postal_code: {
             '@path': '$.properties.address.postal_code'
           },
-          street: {
+          mailing_street: {
             '@path': '$.properties.address.street'
           }
         }
