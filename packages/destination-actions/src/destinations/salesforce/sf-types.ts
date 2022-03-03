@@ -2,7 +2,6 @@ import type { Payload as LeadPayload } from './lead/generated-types'
 import type { Payload as CustomPayload } from './customObject/generated-types'
 import type { Payload as CasePayload } from './case/generated-types'
 import type { Payload as ContactPayload } from './contact/generated-types'
-import type { Payload as CasePayload } from './cases/generated-types'
 import type { Payload as OpportunityPayload } from './opportunity/generated-types'
 import type { Payload as AccountPayload } from './account/generated-types'
 
