@@ -6,7 +6,8 @@ import { setPageParams } from '../utils'
 
 const action: BrowserActionDefinition<Settings, Adobe, Payload> = {
   title: 'Trigger View',
-  description: 'Record a view',
+  defaultSubscription: 'type = "page"',
+  description: 'Send page-level data to Adobe Target.',
   platform: 'web',
   fields: {
     viewName: {
