@@ -247,7 +247,9 @@ describe('Salesforce', () => {
         }
       `)
 
-      expect(responses[1].options.body).toMatchInlineSnapshot(`"{\\"LastName\\":\\"Squarepants\\"}"`)
+      expect(responses[1].options.body).toMatchInlineSnapshot(
+        `"{\\"LastName\\":\\"Squarepants\\",\\"MailingStreet\\":\\"Pineapple St\\",\\"MailingPostalCode\\":\\"12345\\",\\"MailingCity\\":\\"Bikini Bottom\\"}"`
+      )
     })
 
     it('should upsert an existing contact record', async () => {
@@ -320,7 +322,7 @@ describe('Salesforce', () => {
       `)
 
       expect(responses[1].options.body).toMatchInlineSnapshot(
-        `"{\\"LastName\\":\\"Squarepants\\",\\"Email\\":\\"sponge@seamail.com\\"}"`
+        `"{\\"LastName\\":\\"Squarepants\\",\\"Email\\":\\"sponge@seamail.com\\",\\"MailingStreet\\":\\"Pineapple St\\",\\"MailingPostalCode\\":\\"12345\\",\\"MailingCity\\":\\"Bikini Bottom\\"}"`
       )
     })
 
@@ -396,7 +398,7 @@ describe('Salesforce', () => {
       `)
 
       expect(responses[1].options.body).toMatchInlineSnapshot(
-        `"{\\"LastName\\":\\"Squarepants\\",\\"Email\\":\\"sponge@seamail.com\\"}"`
+        `"{\\"LastName\\":\\"Squarepants\\",\\"Email\\":\\"sponge@seamail.com\\",\\"MailingStreet\\":\\"Pineapple St\\",\\"MailingPostalCode\\":\\"12345\\",\\"MailingCity\\":\\"Bikini Bottom\\"}"`
       )
     })
   })
