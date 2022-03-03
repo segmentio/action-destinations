@@ -3,19 +3,27 @@ import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 import { Adobe } from '../types'
 
+const TARGET_EVENT_TYPE = 'click'
+
 const action: BrowserActionDefinition<Settings, Adobe, Payload> = {
   title: 'Track Event',
   description: 'Track an event',
   platform: 'web',
   defaultSubscription: 'type = "track"',
   fields: {
-    type: {
+    event_name: {
       label: 'Event Name',
-      description: 'Event type or name.',
+      description: 'This will be sent to Adobe Target as an event parameter called "event_name".',
       type: 'string',
       default: {
-        '@path': '$.type'
+        '@path': '$.event'
       }
+    },
+    type: {
+      label: 'Event Type',
+      description: 'The event type. Please ensure the type entered here is registered and available.',
+      type: 'string',
+      default: TARGET_EVENT_TYPE
     },
     properties: {
       label: 'Event Parameters',
@@ -28,10 +36,9 @@ const action: BrowserActionDefinition<Settings, Adobe, Payload> = {
   },
   perform: (Adobe, event) => {
     // Adobe Target only takes certain event types as valid parameters. We are defaulting to "click".
-    const TARGET_EVENT_TYPE = 'click'
     const event_params = {
       ...event.payload.properties,
-      event_name: event.payload.type
+      event_name: event.payload.event_name
     }
 
     const params = {

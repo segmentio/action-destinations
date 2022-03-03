@@ -2,7 +2,11 @@
 
 export interface Payload {
   /**
-   * Event type or name.
+   * This will be sent to Adobe Target as an event parameter called "event_name".
+   */
+  event_name?: string
+  /**
+   * The event type. Please ensure the type entered here is registered and available.
    */
   type?: string
   /**
