@@ -228,7 +228,7 @@ function setupRoutes(def: DestinationDefinition | null): void {
     }
   }
 
-  server.listen(port, () => {
+  server.listen(port, '127.0.0.1', () => {
     logger.info(`Listening at http://localhost:${port} -> \n${routes.join('\n')}`)
   })
 }
