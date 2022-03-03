@@ -2,11 +2,11 @@
 
 export interface Payload {
   /**
-   * ID of the customer profile as used in Talon.One
+   * Unique identifier of the customer profile associated to the event.
    */
   customer_profile_id: string
   /**
-   * Name of the custom attribute of type `event`
+   * It's just the name of your event.
    */
   event_type: string
   /**

@@ -2,11 +2,11 @@
 
 export interface Payload {
   /**
-   * Segment Audience ID (Third party audience id)
+   * You should get this audience ID from Segment.
    */
   audience_id: string
   /**
-   * Segment Audience Name (Third party audience name)
+   * You should get this audience name from Segment.
    */
   audience_name: string
 }
