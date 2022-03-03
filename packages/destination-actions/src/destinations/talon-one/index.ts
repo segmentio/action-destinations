@@ -7,7 +7,7 @@ import deleteAudience from './deleteAudience'
 import trackEvent from './trackEvent'
 
 const destination: DestinationDefinition<Settings> = {
-  name: 'Talon One',
+  name: 'Talon.One',
   slug: 'talon-one',
   mode: 'cloud',
 
