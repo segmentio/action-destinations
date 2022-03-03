@@ -261,16 +261,20 @@ export const destination: BrowserDestinationDefinition<Settings, typeof appboy> 
         subscriptions,
         ...expectedConfig
       } = settings
-      const version = sdkVersion ?? '3.3'
+      const version = sdkVersion ?? '3.5'
 
       resetUserCache()
 
-      await dependencies.loadScript(`https://js.appboycdn.com/web-sdk/${version}/appboy.min.js`)
+      await dependencies.loadScript(`https://js.appboycdn.com/web-sdk/${version}/appboy.no-amd.min.js`)
 
       window.appboy.initialize(api_key, {
         baseUrl: endpoint,
         ...expectedConfig
       })
+
+      if (window.appboy.addSdkMetadata) {
+        window.appboy.addSdkMetadata([window.appboy.BrazeSdkMetadata.SEGMENT])
+      }
 
       if (automaticallyDisplayMessages) {
         window.appboy.display.automaticallyShowNewInAppMessages()
