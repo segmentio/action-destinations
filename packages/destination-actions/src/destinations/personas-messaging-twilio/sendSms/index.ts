@@ -127,10 +127,7 @@ const action: ActionDefinition<Settings, Payload> = {
       return
     }
     const externalId = payload.externalIds?.find(({ type }) => type === 'phone')
-    if (
-      !externalId?.subscriptionStatus ||
-      ['unsubscribed', 'did not subscribed', 'false'].includes(externalId.subscriptionStatus)
-    ) {
+    if (!externalId?.subscriptionStatus || ['unsubscribed', 'did not subscribed', 'false'].includes(externalId.subscriptionStatus)) {
       return
     } else if (['subscribed', 'true'].includes(externalId.subscriptionStatus)) {
       const traits = await fetchProfileTraits(request, settings, payload.userId)
@@ -149,11 +146,11 @@ const action: ActionDefinition<Settings, Payload> = {
       // and we no longer need to call the profiles API first
       const token = Buffer.from(`${settings.twilioAccountId}:${settings.twilioAuthToken}`).toString('base64')
 
-      const body = new URLSearchParams({
-        Body: Mustache.render(payload.body, { profile }),
-        From: payload.from,
-        To: phone
-      })
+    const body = new URLSearchParams({
+      Body: Mustache.render(payload.body, { profile }),
+      From: payload.from,
+      To: phone
+    })
 
       const webhookUrl = settings.webhookUrl
       const connectionOverrides = settings.connectionOverrides

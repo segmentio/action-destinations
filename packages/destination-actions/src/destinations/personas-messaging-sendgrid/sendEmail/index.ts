@@ -242,17 +242,15 @@ const action: ActionDefinition<Settings, Payload> = {
       type: 'object',
       required: false
     }
+
   },
   perform: async (request, { settings, payload }) => {
     if (!payload.send) {
       return
     }
 
-    const emailProfile = payload?.externalIds?.find((meta) => meta.type === 'email')
-    if (
-      !emailProfile?.subscriptionStatus ||
-      ['unsubscribed', 'did not subscribed', 'false'].includes(emailProfile.subscriptionStatus)
-    ) {
+    const emailProfile = payload?.externalIds?.find(meta => meta.type === 'email')
+    if (!emailProfile?.subscriptionStatus || ['unsubscribed', 'did not subscribed', 'false'].includes(emailProfile.subscriptionStatus)) {
       return
     } else if (['subscribed', 'true'].includes(emailProfile?.subscriptionStatus)) {
       const traits = await fetchProfileTraits(request, settings, payload.userId)
