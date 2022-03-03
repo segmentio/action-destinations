@@ -194,7 +194,7 @@ describe('Salesforce', () => {
       })
 
       nock(`${settings.instanceUrl}/services/data/${API_VERSION}/query`)
-        .get(`/?q=SELECT Id FROM Lead WHERE last_name = 'Squarepants'`)
+        .get(`/?q=SELECT Id FROM Contact WHERE email = 'sponge@seamail.com'`)
         .reply(201, {
           Id: 'abc123',
           totalSize: 1,
@@ -234,9 +234,20 @@ describe('Salesforce', () => {
       expect(responses[0].status).toBe(201)
       expect(responses[1].status).toBe(201)
 
-      expect(responses[0].request.headers).toMatchInlineSnapshot()
+      expect(responses[0].request.headers).toMatchInlineSnapshot(`
+        Headers {
+          Symbol(map): Object {
+            "authorization": Array [
+              "Bearer abc123",
+            ],
+            "user-agent": Array [
+              "Segment (Actions)",
+            ],
+          },
+        }
+      `)
 
-      expect(responses[1].options.body).toMatchInlineSnapshot()
+      expect(responses[1].options.body).toMatchInlineSnapshot(`"{\\"LastName\\":\\"Squarepants\\"}"`)
     })
 
     it('should upsert an existing contact record', async () => {
@@ -255,7 +266,7 @@ describe('Salesforce', () => {
       })
 
       nock(`${settings.instanceUrl}/services/data/${API_VERSION}/query`)
-        .get(`/?q=SELECT Id FROM Lead WHERE last_name = 'Squarepants'`)
+        .get(`/?q=SELECT Id FROM Contact WHERE email = 'spongebob@gmail.com'`)
         .reply(201, {
           Id: 'abc123',
           totalSize: 1,
@@ -295,9 +306,22 @@ describe('Salesforce', () => {
       expect(responses[0].status).toBe(201)
       expect(responses[1].status).toBe(201)
 
-      expect(responses[0].request.headers).toMatchInlineSnapshot()
+      expect(responses[0].request.headers).toMatchInlineSnapshot(`
+        Headers {
+          Symbol(map): Object {
+            "authorization": Array [
+              "Bearer abc123",
+            ],
+            "user-agent": Array [
+              "Segment (Actions)",
+            ],
+          },
+        }
+      `)
 
-      expect(responses[1].options.body).toMatchInlineSnapshot()
+      expect(responses[1].options.body).toMatchInlineSnapshot(
+        `"{\\"LastName\\":\\"Squarepants\\",\\"Email\\":\\"sponge@seamail.com\\"}"`
+      )
     })
 
     it('should upsert a nonexistent record', async () => {
@@ -316,7 +340,7 @@ describe('Salesforce', () => {
       })
 
       nock(`${settings.instanceUrl}/services/data/${API_VERSION}/query`)
-        .get(`/?q=SELECT Id FROM Lead WHERE last_name = 'Plankton'`)
+        .get(`/?q=SELECT Id FROM Contact WHERE email = 'plankton@gmail.com'`)
         .reply(201, {
           Id: 'abc123',
           totalSize: 0
@@ -358,9 +382,22 @@ describe('Salesforce', () => {
       expect(responses[0].status).toBe(201)
       expect(responses[1].status).toBe(201)
 
-      expect(responses[0].request.headers).toMatchInlineSnapshot()
+      expect(responses[0].request.headers).toMatchInlineSnapshot(`
+        Headers {
+          Symbol(map): Object {
+            "authorization": Array [
+              "Bearer abc123",
+            ],
+            "user-agent": Array [
+              "Segment (Actions)",
+            ],
+          },
+        }
+      `)
 
-      expect(responses[1].options.body).toMatchInlineSnapshot()
+      expect(responses[1].options.body).toMatchInlineSnapshot(
+        `"{\\"LastName\\":\\"Squarepants\\",\\"Email\\":\\"sponge@seamail.com\\"}"`
+      )
     })
   })
 })
