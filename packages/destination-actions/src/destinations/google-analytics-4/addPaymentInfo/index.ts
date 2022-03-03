@@ -32,6 +32,16 @@ const action: ActionDefinition<Settings, Payload> = {
     params: params
   },
   perform: (request, { payload }) => {
+    // Google requires that `add_payment_info` events include an array of products: https://developers.google.com/analytics/devguides/collection/ga4/reference/events
+    // This differs from the Segment spec, which doesn't require a products array: https://segment.com/docs/connections/spec/ecommerce/v2/#payment-info-entered
+    if (payload.items && !payload.items.length) {
+      throw new IntegrationError(
+        'Google requires one or more products in add_payment_info events.',
+        'Misconfigured required field',
+        400
+      )
+    }
+
     if (payload.currency && !CURRENCY_ISO_CODES.includes(payload.currency)) {
       throw new IntegrationError(`${payload.currency} is not a valid currency code.`, 'Incorrect value format', 400)
     }
@@ -46,7 +56,7 @@ const action: ActionDefinition<Settings, Payload> = {
      * If set at the event level, item-level currency is ignored. If event-level currency is not set then
      * currency from the first item in items is used.
      */
-    if (payload.currency === undefined && payload.items && payload.items[0].currency === undefined) {
+    if (payload.currency === undefined && payload.items[0].currency === undefined) {
       throw new IntegrationError(
         'One of item-level currency or top-level currency is required.',
         'Misconfigured required field',

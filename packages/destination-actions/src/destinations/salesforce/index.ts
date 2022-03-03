@@ -1,7 +1,7 @@
 import type { DestinationDefinition } from '@segment/actions-core'
 import type { Settings } from './generated-types'
 // This has to be 'cases' because 'case' is a Javascript reserved word
-import cases from './case'
+import cases from './cases'
 import lead from './lead'
 import opportunity from './opportunity'
 import customObject from './customObject'
