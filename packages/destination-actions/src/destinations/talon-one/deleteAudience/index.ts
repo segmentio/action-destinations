@@ -4,11 +4,11 @@ import type { Payload } from './generated-types'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Delete Audience',
-  description: 'Delete Audience in Talon.One',
+  description: 'This deletes the audience entity in Talon.One.',
   fields: {
     audience_id: {
       label: 'audience_id',
-      description: 'Segment Audience ID (Third party audience id)',
+      description: 'You should get this audience ID from Segment.',
       type: 'string',
       required: true
     }

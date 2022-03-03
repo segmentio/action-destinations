@@ -4,17 +4,17 @@ import type { Payload } from './generated-types'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Update Audience',
-  description: 'Update Audience in Talon.One',
+  description: 'This synchronizes audience data if there is an existing audience entity.',
   fields: {
     audience_id: {
       label: 'audience_id',
-      description: 'Segment Audience ID (Third party audience id)',
+      description: 'You should get this audience ID from Segment.',
       type: 'string',
       required: true
     },
     audience_name: {
       label: 'audience_name',
-      description: 'Segment Audience Name (Third party audience name)',
+      description: 'You should get this audience name from Segment.',
       type: 'string',
       required: true
     }

@@ -4,17 +4,17 @@ import type { Payload } from './generated-types'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Create Audience',
-  description: 'Create Audience in Talon.One',
+  description: 'This creates a new audience entity in Talon.One.',
   fields: {
     audience_id: {
       label: 'audience_id',
-      description: 'Segment Audience ID (Third party audience id)',
+      description: 'You should get this audience ID from Segment.',
       type: 'string',
       required: true
     },
     audience_name: {
       label: 'audience_name',
-      description: 'Segment Audience Name (Third party audience name)',
+      description: 'You should get this audience name from Segment.',
       type: 'string',
       required: true
     }
