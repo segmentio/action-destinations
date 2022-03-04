@@ -1,13 +1,14 @@
 import type { ActionDefinition } from '@segment/actions-core'
 import { getAudienceId, patchAudience } from '../criteo-audiences'
-import type { Operation, RequestFn } from '../criteo-audiences'
+import type { Operation, RequestFn, ClientCredentials } from '../criteo-audiences'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 
 const getOperationFromPayload = async (
   request: RequestFn,
   advertiser_id: string,
-  payload: Payload[]
+  payload: Payload[],
+  credentials: ClientCredentials
 ): Promise<Operation> => {
   const remove_user_list: string[] = [];
   let audience_key = '';
@@ -19,7 +20,7 @@ const getOperationFromPayload = async (
       remove_user_list.push(event.email);
   }
 
-  const audience_id = await getAudienceId(request, advertiser_id, audience_key)
+  const audience_id = await getAudienceId(request, advertiser_id, audience_key, credentials)
 
   const operation: Operation = {
     operation_type: "remove",
@@ -66,8 +67,12 @@ const action: ActionDefinition<Settings, Payload> = {
     return
   },
   performBatch: async (request, { settings, payload }) => {
-    const operation: Operation = await getOperationFromPayload(request, settings.advertiser_id, payload);
-    await patchAudience(request, operation)
+    const credentials: ClientCredentials = {
+      client_id: settings.client_id,
+      client_secret: settings.client_secret
+    }
+    const operation: Operation = await getOperationFromPayload(request, settings.advertiser_id, payload, credentials);
+    await patchAudience(request, operation, credentials)
 
   }
 }
