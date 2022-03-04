@@ -7,23 +7,23 @@ const TARGET_EVENT_TYPE = 'click'
 
 const action: BrowserActionDefinition<Settings, Adobe, Payload> = {
   title: 'Track Event',
-  description: 'Track an event',
+  description: 'Send user actions, such as clicks and conversions, to Adobe Target.',
   platform: 'web',
   defaultSubscription: 'type = "track"',
   fields: {
-    event_name: {
+    type: {
+      label: 'Event Type',
+      description: 'The event type. Please ensure the type entered here is registered and available.',
+      type: 'string',
+      default: TARGET_EVENT_TYPE
+    },
+    eventName: {
       label: 'Event Name',
       description: 'This will be sent to Adobe Target as an event parameter called "event_name".',
       type: 'string',
       default: {
         '@path': '$.event'
       }
-    },
-    type: {
-      label: 'Event Type',
-      description: 'The event type. Please ensure the type entered here is registered and available.',
-      type: 'string',
-      default: TARGET_EVENT_TYPE
     },
     properties: {
       label: 'Event Parameters',
@@ -36,16 +36,17 @@ const action: BrowserActionDefinition<Settings, Adobe, Payload> = {
   },
   perform: (Adobe, event) => {
     // Adobe Target only takes certain event types as valid parameters. We are defaulting to "click".
+    const payload = event.payload
     const event_params = {
-      ...event.payload.properties,
-      event_name: event.payload.event_name
+      ...payload.properties,
+      event_name: payload.eventName
     }
 
     const params = {
       mbox: event.settings.mbox_name,
       preventDefault: true,
       params: event_params,
-      type: TARGET_EVENT_TYPE
+      type: payload.type
     }
 
     Adobe.target.trackEvent(params)

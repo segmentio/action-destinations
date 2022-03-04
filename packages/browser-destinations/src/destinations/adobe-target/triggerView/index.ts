@@ -12,7 +12,7 @@ const action: BrowserActionDefinition<Settings, Adobe, Payload> = {
   fields: {
     viewName: {
       type: 'string',
-      description: 'Name of thew view or page.',
+      description: 'Name of the view or page.',
       label: 'View Name',
       default: {
         '@path': '$.name'
