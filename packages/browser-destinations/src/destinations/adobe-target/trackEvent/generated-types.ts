@@ -15,4 +15,8 @@ export interface Payload {
   properties?: {
     [k: string]: unknown
   }
+  /**
+   * A user’s unique visitor ID. Setting an Mbox 3rd Party ID allows for updates via the Adobe Target Cloud Mode Destination. For more information, please see our Adobe Target Destination documentation.
+   */
+  userId?: string
 }
