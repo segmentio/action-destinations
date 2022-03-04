@@ -10,6 +10,14 @@ export interface Payload {
    */
   lead_external_id?: string
   /**
+   * Description of the Lead
+   */
+  lead_description?: string
+  /**
+   * ID of the Lead Status (`stat_xxxx`). You can get it in Close in Statuses & Pipelines page.
+   */
+  lead_status_id?: string
+  /**
    * Custom Fields to set on the Lead. Key should be Custom Field ID (`cf_xxxx`).
    */
   lead_custom_fields?: {

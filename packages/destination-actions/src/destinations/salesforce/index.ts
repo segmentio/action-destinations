@@ -5,7 +5,7 @@ import cases from './cases'
 import lead from './lead'
 import opportunity from './opportunity'
 import customObject from './customObject'
-
+import contact from './contact'
 import account from './account'
 
 interface RefreshTokenResponse {
@@ -54,6 +54,7 @@ const destination: DestinationDefinition<Settings> = {
     lead,
     customObject,
     cases,
+    contact,
     opportunity,
     account
   }
