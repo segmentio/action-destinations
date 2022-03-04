@@ -30,6 +30,20 @@ const getOperationFromPayload = async (
   return operation;
 }
 
+const processPayload = async (
+  request: RequestFn,
+  settings: Settings,
+  payload: Payload[]
+): Promise<void> => {
+
+  const credentials: ClientCredentials = {
+    client_id: settings.client_id,
+    client_secret: settings.client_secret
+  }
+  const operation: Operation = await getOperationFromPayload(request, settings.advertiser_id, payload, credentials);
+  await patchAudience(request, operation, credentials)
+}
+
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Add users to Audience',
   description: 'Add users from Criteo audience by connecting to Criteo API',
@@ -61,21 +75,11 @@ const action: ActionDefinition<Settings, Payload> = {
       }
     },
   },
-  perform: () => {
-    return
+  perform: async (request, { settings, payload }) => {
+    processPayload(request, settings, [payload]);
   },
   performBatch: async (request, { settings, payload }) => {
-    const credentials: ClientCredentials = {
-      client_id: settings.client_id,
-      client_secret: settings.client_secret
-    }
-    const operation: Operation = await getOperationFromPayload(
-      request,
-      settings.advertiser_id,
-      payload,
-      credentials
-    );
-    patchAudience(request, operation, credentials);
+    processPayload(request, settings, payload);
   }
 }
 
