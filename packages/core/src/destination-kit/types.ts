@@ -129,11 +129,16 @@ export interface InputField {
     | 'password' // hint to the UI to hide/obfuscate input strings
     | 'text' // longer strings
 
+  /**
+   * Determines the UI representation of the object field. Only applies to object types.
+   * Key Value Editor: Users can specify individual object keys and their mappings, ideal for custom objects.
+   * Object Editor: Users can map an entire object from their payload to the object field in a single mapping.
+   */
   defaultObjectUI?:
-    | 'keyvalue' // Users will see the key value UI and can switch to object UI
-    | 'object' // Users will see the object UI and can switch to key value UI
-    | 'keyvalue:only' // Users will only see the key value UI
-    | 'object:only' // Users will only see the object UI
+    | 'keyvalue' // Users will see the key value object editor by default and can change to the object editor.
+    | 'object' // Users will see the object editor by default and can change to the key value editor.
+    | 'keyvalue:only' // Users will only use the key value editor.
+    | 'object:only' // Users will only use the object editor.
 }
 
 export type FieldValue = string | number | boolean | object | Directive
