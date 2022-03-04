@@ -3,6 +3,7 @@ import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 import { Adobe } from '../types'
 
+// Adobe Target only takes certain event types as valid parameters. We are defaulting to "click".
 const TARGET_EVENT_TYPE = 'click'
 
 const action: BrowserActionDefinition<Settings, Adobe, Payload> = {
@@ -35,10 +36,28 @@ const action: BrowserActionDefinition<Settings, Adobe, Payload> = {
     }
   },
   perform: (Adobe, event) => {
-    // Adobe Target only takes certain event types as valid parameters. We are defaulting to "click".
     const payload = event.payload
+
+    // Track does not accept arrays as valid properties, therefore we are stringifying them.
+    const serialize_properties = (props: { [key: string]: unknown } | undefined) => {
+      if (props === undefined) {
+        return {}
+      }
+
+      const serialized: { [key: string]: unknown } = {}
+
+      for (const key in props) {
+        serialized[key] = props[key]
+        if (Array.isArray(props[key])) {
+          serialized[key] = JSON.stringify(props[key])
+        }
+      }
+
+      return serialized
+    }
+
     const event_params = {
-      ...payload.properties,
+      ...serialize_properties(payload.properties),
       event_name: payload.eventName
     }
 

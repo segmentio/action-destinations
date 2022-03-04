@@ -2,7 +2,7 @@
 
 export interface Payload {
   /**
-   * Name of thew view or page.
+   * Name of the view or page.
    */
   viewName: string
   /**
