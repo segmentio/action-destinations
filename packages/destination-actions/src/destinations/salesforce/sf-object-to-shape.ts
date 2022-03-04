@@ -3,6 +3,7 @@ import {
   GenericBaseShape,
   LeadBaseShapeType,
   CaseBaseShapeType,
+  ContactBaseShapeType,
   OpportunityBaseShapeType,
   AccountBaseShapeType
 } from './sf-types'
@@ -58,14 +59,30 @@ const AccountShape = (payload: GenericPayload): AccountBaseShapeType => {
   }
 }
 
+const ContactShape = (payload: GenericPayload): ContactBaseShapeType => {
+  return {
+    LastName: payload.last_name,
+    FirstName: payload.first_name,
+    Email: payload.email,
+    MailingState: payload.mailing_state,
+    MailingStreet: payload.mailing_street,
+    MailingCountry: payload.mailing_country,
+    MailingPostalCode: payload.mailing_postal_code,
+    MailingCity: payload.mailing_city
+  }
+}
+
 const objectToShape = new Map<
   string,
-  (payload: GenericPayload) => LeadBaseShapeType | CaseBaseShapeType | OpportunityBaseShapeType | AccountBaseShapeType
+  (
+    payload: GenericPayload
+  ) => LeadBaseShapeType | CaseBaseShapeType | OpportunityBaseShapeType | AccountBaseShapeType | ContactBaseShapeType
 >([
   ['lead', LeadShape],
   ['case', CaseShape],
   ['opportunity', OpportunityShape],
-  ['account', AccountShape]
+  ['account', AccountShape],
+  ['contact', ContactShape]
 ])
 
 export const mapObjectToShape = (payload: GenericPayload, sobject: string): GenericBaseShape => {
