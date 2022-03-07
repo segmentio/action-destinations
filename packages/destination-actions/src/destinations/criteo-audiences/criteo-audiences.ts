@@ -19,7 +19,7 @@ const getRequestHeaders = async (
     request: RequestFn,
     credentials: ClientCredentials
 ): Promise<Record<string, string>> => {
-    let access_token: string = await getAccessToken(request, credentials);
+    const access_token: string = await getAccessToken(request, credentials);
 
     return {
         'Accept': 'application/json',
@@ -44,7 +44,7 @@ const getAccessToken = async (
             'Content-Type': 'application/x-www-form-urlencoded'
         },
     })
-    let body = await res.json()
+    const body = await res.json()
 
     return body.access_token
 }
@@ -72,16 +72,16 @@ export const patchAudience = async (
             }
         }
     }
-
-    return request(
+    const options = {
+        method: 'PATCH',
+        json: payload,
+        headers: headers
+    }
+    return await fetchRetry(
+        request,
         endpoint,
-        {
-            method: 'PATCH',
-            json: payload,
-            headers: headers
-        }
-    )
-
+        options
+    );
 }
 
 export const getAdvertiserAudiences = async (
@@ -93,7 +93,7 @@ export const getAdvertiserAudiences = async (
         throw new IntegrationError('The Advertiser ID should be a number', 'Invalid input', 400)
 
     const endpoint = `${BASE_API_URL}/audiences?advertiser-id=${advertiser_id}`
-    const headers = getRequestHeaders(request, credentials);
+    const headers = await getRequestHeaders(request, credentials);
     const response = await request(
         endpoint, { method: 'GET', headers: headers }
     )
@@ -127,6 +127,35 @@ export const getAudienceId = async (
     return await createAudience(request, advertiser_id, audience_name, credentials)
 }
 
+/*function for fetch Retries
+const fetchRetry = async (
+    request: RequestFn,
+    endpoint: string,
+    options: {},
+    retries = 3,
+    backoff = 300
+): Promise<Response> => {
+
+    // run the fetch like normal
+    return await request(endpoint, options)
+        .then(
+            res => {
+                if (res.ok) return res.json();
+                if (retries > 0) {
+                    setTimeout(() => {
+                        return await fetchRetry(request, endpoint, options, retries - 1, backoff * 2);
+                    }, backoff);
+                }
+                else {
+                    throw new Error('Exhausted all retries.')
+
+                }
+            }
+        ).catch(console.error); //catches failures with fetch itself and not Criteo API
+}*/
+
+
+
 export const createAudience = async (
     request: RequestFn,
     advertiser_id: string,
@@ -134,7 +163,7 @@ export const createAudience = async (
     credentials: ClientCredentials
 ): Promise<string> => {
     const endpoint = `${BASE_API_URL}/audiences`
-    const headers = getRequestHeaders(request, credentials);
+    const headers = await getRequestHeaders(request, credentials);
     const payload = {
         "data": {
             "attributes": {
