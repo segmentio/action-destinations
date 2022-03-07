@@ -58,7 +58,7 @@ export const patchAudience = async (
     if (operation.operation_type !== "add" && operation.operation_type !== "remove")
         throw new Error(`Incorrect operation type: ${operation.operation_type}`)
     if (isNaN(+operation.audience_id))
-        throw new IntegrationError('The Audience ID should be a number', 'Invalid input', 400)
+        throw new Error(`The Audience ID should be a number (${operation.audience_id})`)
 
     const endpoint = `${BASE_API_URL}/audiences/${operation.audience_id}/contactlist`
     const headers = getRequestHeaders(request, credentials);
@@ -101,9 +101,7 @@ export const getAdvertiserAudiences = async (
     const body = await response.json()
 
     if (response.status !== 200)
-        throw new IntegrationError(
-            "Error while fetching the Advertiser's audiences", body.errors[0].title, response.status
-        )
+        throw new Error(`Error while fetching the Advertiser's audiences: ${JSON.stringify(body.errors)}`)
 
     return body.data
 }
@@ -115,7 +113,7 @@ export const getAudienceId = async (
     credentials: ClientCredentials
 ): Promise<string> => {
     if (!audience_name)
-        throw new IntegrationError('Invalid Audience Key', 'Invalid input', 400)
+        throw new Error(`Invalid Audience Name: ${audience_name}`)
 
     const advertiser_audiences = await getAdvertiserAudiences(request, advertiser_id, credentials)
 
@@ -133,6 +131,11 @@ export const createAudience = async (
     audience_name: string,
     credentials: ClientCredentials
 ): Promise<string> => {
+    if (!audience_name)
+        throw new Error(`Invalid Audience Name: ${audience_name}`)
+    if (isNaN(+advertiser_id))
+        throw new IntegrationError('The Advertiser ID should be a number', 'Invalid input', 400)
+
     const endpoint = `${BASE_API_URL}/audiences`
     const headers = getRequestHeaders(request, credentials);
     const payload = {
@@ -152,9 +155,7 @@ export const createAudience = async (
     const body = await response.json()
 
     if (response.status !== 200)
-        throw new IntegrationError(
-            "Error while fetching the Advertiser's audiences", body.errors[0].title, response.status
-        )
+        throw new Error(`Error while fetching the Advertiser's audiences: ${JSON.stringify(body.errors)}`)
 
     return body.data.id
 }
