@@ -1,13 +1,14 @@
 import { ActionDefinition } from '@segment/actions-core'
 import { getAudienceId, patchAudience } from '../criteo-audiences'
-import type { Operation, RequestFn } from '../criteo-audiences'
+import type { Operation, RequestFn, ClientCredentials } from '../criteo-audiences'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 
 const getOperationFromPayload = async (
   request: RequestFn,
   advertiser_id: string,
-  payload: Payload[]
+  payload: Payload[],
+  credentials: ClientCredentials
 ): Promise<Operation> => {
   const add_user_list: string[] = [];
   let audience_key = '';
@@ -19,7 +20,7 @@ const getOperationFromPayload = async (
       add_user_list.push(event.email);
   }
 
-  const audience_id = await getAudienceId(request, advertiser_id, audience_key)
+  const audience_id = await getAudienceId(request, advertiser_id, audience_key, credentials)
 
   const operation: Operation = {
     operation_type: "add",
@@ -27,6 +28,20 @@ const getOperationFromPayload = async (
     user_list: add_user_list,
   }
   return operation;
+}
+
+const processPayload = async (
+  request: RequestFn,
+  settings: Settings,
+  payload: Payload[]
+): Promise<void> => {
+
+  const credentials: ClientCredentials = {
+    client_id: settings.client_id,
+    client_secret: settings.client_secret
+  }
+  const operation: Operation = await getOperationFromPayload(request, settings.advertiser_id, payload, credentials);
+  await patchAudience(request, operation, credentials)
 }
 
 const action: ActionDefinition<Settings, Payload> = {
@@ -60,12 +75,11 @@ const action: ActionDefinition<Settings, Payload> = {
       }
     },
   },
-  perform: () => {
-    return
+  perform: async (request, { settings, payload }) => {
+    processPayload(request, settings, [payload]);
   },
   performBatch: async (request, { settings, payload }) => {
-    const operation: Operation = await getOperationFromPayload(request, settings.advertiser_id, payload);
-    patchAudience(request, operation);
+    processPayload(request, settings, payload);
   }
 }
 

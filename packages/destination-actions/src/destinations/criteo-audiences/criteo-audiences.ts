@@ -10,18 +10,58 @@ export type Operation = {
     user_list: string[]
 }
 
+export type ClientCredentials = {
+    client_id: string,
+    client_secret: string
+}
+
+const getRequestHeaders = async (
+    request: RequestFn,
+    credentials: ClientCredentials
+): Promise<Record<string, string>> => {
+    let access_token: string = await getAccessToken(request, credentials);
+
+    return {
+        'Accept': 'application/json',
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ` + access_token
+    }
+}
+
+const getAccessToken = async (
+    request: RequestFn,
+    credentials: ClientCredentials
+): Promise<string> => {
+    const res = await request(`https://api.criteo.com/oauth2/token`, {
+        method: 'POST',
+        body: new URLSearchParams({
+            client_id: credentials.client_id,
+            client_secret: credentials.client_secret,
+            grant_type: 'client_credentials'
+        }),
+        headers: {
+            'Accept': 'text/plain',
+            'Content-Type': 'application/x-www-form-urlencoded'
+        },
+    })
+    let body = await res.json()
+
+    return body.access_token
+}
+
 export const patchAudience = async (
     request: RequestFn,
-    operation: Operation
+    operation: Operation,
+    credentials: ClientCredentials
 ): Promise<Response> => {
 
     if (operation.operation_type !== "add" && operation.operation_type !== "remove")
-        throw new Error(`Incorrect operation type: ${operation}`)
+        throw new Error(`Incorrect operation type: ${operation.operation_type}`)
     if (isNaN(+operation.audience_id))
-        throw new IntegrationError('The Audience ID should be a number', 'Invalid input', 400)
+        throw new Error(`The Audience ID should be a number (${operation.audience_id})`)
 
     const endpoint = `${BASE_API_URL}/audiences/${operation.audience_id}/contactlist`
-
+    const headers = getRequestHeaders(request, credentials);
     const payload = {
         "data": {
             "type": "ContactlistAmendment",
@@ -31,13 +71,6 @@ export const patchAudience = async (
                 "identifiers": operation.user_list
             }
         }
-    }
-
-    // TODO Authentication
-    const headers = {
-        Accept: 'application/json',
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ` + 'authToken'//placeholder for now. but this will be oauth2 token from authentication
     }
 
     return request(
@@ -53,26 +86,22 @@ export const patchAudience = async (
 
 export const getAdvertiserAudiences = async (
     request: RequestFn,
-    advertiser_id: string
+    advertiser_id: string,
+    credentials: ClientCredentials
 ): Promise<Array<Record<string, any>>> => {
     if (isNaN(+advertiser_id))
         throw new IntegrationError('The Advertiser ID should be a number', 'Invalid input', 400)
 
     const endpoint = `${BASE_API_URL}/audiences?advertiser-id=${advertiser_id}`
-    // TODO Authentication
-    const headers = {
-        authorization: `Bearer `,
-    }
-
+    const headers = getRequestHeaders(request, credentials);
     const response = await request(
         endpoint, { method: 'GET', headers: headers }
     )
+
     const body = await response.json()
 
     if (response.status !== 200)
-        throw new IntegrationError(
-            "Error while fetching the Advertiser's audiences", body.errors[0].title, response.status
-        )
+        throw new Error(`Error while fetching the Advertiser's audiences: ${JSON.stringify(body.errors)}`)
 
     return body.data
 }
@@ -80,35 +109,35 @@ export const getAdvertiserAudiences = async (
 export const getAudienceId = async (
     request: RequestFn,
     advertiser_id: string,
-    audience_name: string
+    audience_name: string,
+    credentials: ClientCredentials
 ): Promise<string> => {
     if (!audience_name)
-        throw new IntegrationError('Invalid Audience Key', 'Invalid input', 400)
+        throw new Error(`Invalid Audience Name: ${audience_name}`)
 
-    const advertiser_audiences = await getAdvertiserAudiences(request, advertiser_id)
+    const advertiser_audiences = await getAdvertiserAudiences(request, advertiser_id, credentials)
 
     advertiser_audiences.forEach(audience => {
         if (audience.attributes.name === audience_name)
             return audience.id
     });
 
-    return await createAudience(request, advertiser_id, audience_name)
+    return await createAudience(request, advertiser_id, audience_name, credentials)
 }
 
 export const createAudience = async (
     request: RequestFn,
     advertiser_id: string,
-    audience_name: string
+    audience_name: string,
+    credentials: ClientCredentials
 ): Promise<string> => {
+    if (!audience_name)
+        throw new Error(`Invalid Audience Name: ${audience_name}`)
+    if (isNaN(+advertiser_id))
+        throw new IntegrationError('The Advertiser ID should be a number', 'Invalid input', 400)
+
     const endpoint = `${BASE_API_URL}/audiences`
-
-    // TODO Authentication
-    const headers = {
-        Accept: 'application/json',
-        'Content-Type': 'application/json',
-        Authorization: `Bearer `,
-    }
-
+    const headers = getRequestHeaders(request, credentials);
     const payload = {
         "data": {
             "attributes": {
@@ -126,9 +155,7 @@ export const createAudience = async (
     const body = await response.json()
 
     if (response.status !== 200)
-        throw new IntegrationError(
-            "Error while fetching the Advertiser's audiences", body.errors[0].title, response.status
-        )
+        throw new Error(`Error while fetching the Advertiser's audiences: ${JSON.stringify(body.errors)}`)
 
     return body.data.id
 }

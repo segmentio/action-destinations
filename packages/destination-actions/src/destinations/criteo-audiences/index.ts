@@ -29,27 +29,6 @@ const destination: DestinationDefinition<Settings> = {
         type: 'string',
         required: true
       }
-    },
-    testAuthentication: async (request, { settings }) => {
-      const res = await request(`https://api.criteo.com/oauth2/token`, {
-        method: 'post',
-        body: new URLSearchParams({
-          client_id: encodeURIComponent(settings.client_id),
-          client_secret: encodeURIComponent(settings.client_secret),
-          grant_type: 'client_credentials'
-        }),
-        headers: {
-          'Accept': 'text/plain',
-          'Content-Type': 'application/x-www-form-urlencoded'
-        },
-      })
-
-      return { accessToken: res.data.access_token }
-    }
-  },
-  extendRequest: ({ auth }) => {
-    return {
-      headers: { Authorization: `Bearer ${auth?.accessToken}` }
     }
   },
   //we might not need this function
