@@ -99,6 +99,7 @@ const action: ActionDefinition<Settings, Payload> = {
             event_source_url: payload.event_source_url,
             user_data: hash_user_data({ user_data: payload.user_data }),
             custom_data: {
+              ...payload.custom_data,
               currency: payload.currency,
               content_ids: payload.content_ids,
               contents: payload.contents,

@@ -93,6 +93,7 @@ const action: ActionDefinition<Settings, Payload> = {
             action_source: payload.action_source,
             user_data: hash_user_data({ user_data: payload.user_data }),
             custom_data: {
+              ...payload.custom_data,
               currency: payload.currency,
               value: payload.value,
               content_ids: payload.content_ids,
