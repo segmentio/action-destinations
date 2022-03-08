@@ -11,7 +11,8 @@ describe('Criteo-Audiences', () => {
 
       const authData = {
         client_id: 'valid test_id',
-        client_secret: 'valid test_secret'
+        client_secret: 'valid test_secret',
+        advertiser_id: '12345'
       }
 
       await expect(testDestination.testAuthentication(authData)).resolves.not.toThrowError()
@@ -22,7 +23,8 @@ describe('Criteo-Audiences', () => {
 
       const authData = {
         client_id: 'invalid test_id',
-        client_secret: 'invalid test_secret'
+        client_secret: 'invalid test_secret',
+        advertiser_id: '12345'
       }
 
       await expect(testDestination.testAuthentication(authData)).rejects.toThrowError()
@@ -120,9 +122,9 @@ describe('Criteo-Audiences', () => {
           })
         .reply(200)
 
-        const response = await testDestination.testAction('createAudience')
+      const response = await testDestination.testAction('createAudience')
 
-        expect(response.status).toBe(200)
+      expect(response.status).toBe(200)
     })
   })
 
@@ -136,11 +138,11 @@ describe('Criteo-Audiences', () => {
             "data": {
               "type": "ContactlistAmendment",
               "attributes": {
-                  "operation": "add",
-                  "identifierType": "email",
-                  "identifiers": [
-                      "example1@gmail.com"
-                  ]
+                "operation": "add",
+                "identifierType": "email",
+                "identifiers": [
+                  "example1@gmail.com"
+                ]
               }
             }
           })
@@ -158,10 +160,10 @@ describe('Criteo-Audiences', () => {
             "data": {
               "type": "ContactlistAmendment",
               "attributes": {
-                  "identifierType": "email",
-                  "identifiers": [
-                      "example1@gmail.com"
-                  ]
+                "identifierType": "email",
+                "identifiers": [
+                  "example1@gmail.com"
+                ]
               }
             }
           })
@@ -179,11 +181,11 @@ describe('Criteo-Audiences', () => {
             "data": {
               "type": "ContactlistAmendment",
               "attributes": {
-                  "operation_type": "wrong operation type",
-                  "identifierType": "email",
-                  "identifiers": [
-                      "example1@gmail.com"
-                  ]
+                "operation_type": "wrong operation type",
+                "identifierType": "email",
+                "identifiers": [
+                  "example1@gmail.com"
+                ]
               }
             }
           })
@@ -201,8 +203,8 @@ describe('Criteo-Audiences', () => {
             "data": {
               "type": "ContactlistAmendment",
               "attributes": {
-                  "operation_type": "add",
-                  "identifierType": "email"
+                "operation_type": "add",
+                "identifierType": "email"
               }
             }
           })
@@ -220,19 +222,19 @@ describe('Criteo-Audiences', () => {
             "data": {
               "type": "ContactlistAmendment",
               "attributes": {
-                  "operation_type": "add",
-                  "identifierType": "email",
-                  "identifiers": [
-                      "example1@gmail.com"
-                  ]
+                "operation_type": "add",
+                "identifierType": "email",
+                "identifiers": [
+                  "example1@gmail.com"
+                ]
               }
             }
           })
         .reply(200)
 
-        const response = await testDestination.testAction('patchAudience')
+      const response = await testDestination.testAction('patchAudience')
 
-        expect(response.status).toBe(200)
+      expect(response.status).toBe(200)
     })
   })
 })

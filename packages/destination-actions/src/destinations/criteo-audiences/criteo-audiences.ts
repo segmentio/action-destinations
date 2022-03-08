@@ -125,7 +125,9 @@ export const getAudienceId = async (
     return await createAudience(request, advertiser_id, audience_name, credentials)
 }
 
-/*function for fetch Retries
+const delay = (ms: number) => new Promise((res) => setTimeout(res, ms));
+
+//function for fetch Retries with exponential backoff
 const fetchRetry = async (
     request: RequestFn,
     endpoint: string,
@@ -134,23 +136,17 @@ const fetchRetry = async (
     backoff = 300
 ): Promise<Response> => {
 
-    // run the fetch like normal
-    return await request(endpoint, options)
-        .then(
-            res => {
-                if (res.ok) return res.json();
-                if (retries > 0) {
-                    setTimeout(() => {
-                        return await fetchRetry(request, endpoint, options, retries - 1, backoff * 2);
-                    }, backoff);
-                }
-                else {
-                    throw new Error('Exhausted all retries.')
+    try {
+        return await request(endpoint, options);
+    } catch (err) {
+        if (retries === 1) {
+            throw new Error('All retries failed!')
+        }
+        await delay(backoff)
+        return await fetchRetry(request, endpoint, options, retries - 1, backoff * 2)
+    }
 
-                }
-            }
-        ).catch(console.error); //catches failures with fetch itself and not Criteo API
-}*/
+}
 
 
 
