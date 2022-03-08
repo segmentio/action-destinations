@@ -1,7 +1,8 @@
 import nock from 'nock'
 import { createTestEvent, createTestIntegration } from '@segment/actions-core'
 import Definition from '../index'
-
+import { patchAudience, getAdvertiserAudiences, getAudienceId, createAudience } from '../criteo-audiences'
+import type { RequestFn, ClientCredentials, Operation } from '../criteo-audiences'
 const testDestination = createTestIntegration(Definition)
 
 describe('Criteo-Audiences', () => {
@@ -12,10 +13,13 @@ describe('Criteo-Audiences', () => {
       const authData = {
         client_id: 'valid test_id',
         client_secret: 'valid test_secret',
-        advertiser_id: '12345'
+        advertiser_id: 'valid advertiser id'
       }
 
-      await expect(testDestination.testAuthentication(authData)).resolves.not.toThrowError()
+      const response = await testDestination.testAuthentication(authData) //import from criteo-audiences
+      //const response = await helper.getRequestHeaders() ??
+      expect(response.length).toBeGreaterThan(0)
+      expect(response).resolves.not.toThrowError()
     })
 
     it('should test that authentication fails', async () => {
@@ -23,11 +27,13 @@ describe('Criteo-Audiences', () => {
 
       const authData = {
         client_id: 'invalid test_id',
-        client_secret: 'invalid test_secret',
-        advertiser_id: '12345'
+        client_secret: 'invalid test_secret'
       }
 
-      await expect(testDestination.testAuthentication(authData)).rejects.toThrowError()
+      const response = await testDestination.testAuthentication(authData) //import from criteo-audiences
+      //const response = await helper.getRequestHeaders() ??
+      expect(response.message).toBe("Authentication failed") //this isn't in code
+      expect(response).rejects.toThrowError()
     })
   })
 
@@ -37,14 +43,29 @@ describe('Criteo-Audiences', () => {
       const advertiserId = '12345'
 
       nock('https://api.criteo.com').get(`/2021-10/audiences?advertiser-id=${advertiserId}`).reply(403)
-      await expect(testDestination.testAction('getAudience')).rejects.toThrowError()
+      //await expect(testDestination.testAction('getAudience')).rejects.toThrowError()
+      const response = await getAdvertiserAudiences(
+        request: RequestFn,
+        advertiser_id: advertiserId,
+        credentials: ClientCredentials
+      )
+      expect(response.status).toBe(!200)
+      //expect error message or nothing to be returned
+      //need to pass second argument as JSON in test action
     })
 
     it('should throw error if advertiser ID is not a number', async () => {
       const advertiserId = 'not an id'
 
       nock('https://api.criteo.com').get(`/2021-10/audiences?advertiser-id=${advertiserId}`).reply(400)
-      await expect(testDestination.testAction('getAudience')).rejects.toThrowError()
+      //await expect(testDestination.testAction('getAudience')).rejects.toThrowError()
+      const response = await getAdvertiserAudiences(
+        request: RequestFn,
+        advertiser_id: advertiserId,
+        credentials: ClientCredentials
+      )
+      expect(response.message).toBe("The Advertiser ID should be a number")
+      expect(response.status).toBe(400)
     })
 
     it('should work if valid id', async () => {
@@ -52,8 +73,13 @@ describe('Criteo-Audiences', () => {
 
       nock('https://api.criteo.com').get(`/2021-10/audiences?advertiser-id=${advertiserId}`).reply(200)
 
-      const response = await testDestination.testAction('getAudience')
-
+      //const response = await testDestination.testAction('getAudience')
+      const response = await getAdvertiserAudiences(
+        request: RequestFn,
+        advertiser_id: advertiserId,
+        credentials: ClientCredentials
+      )
+      expect(response.length).toBeGreaterThanOrEqual(0)
       expect(response.status).toBe(200)
     })
   })
@@ -72,23 +98,39 @@ describe('Criteo-Audiences', () => {
           })
         .reply(400)
 
-      await expect(testDestination.testAction('createAudience')).rejects.toThrowError()
+      //await expect(testDestination.testAction('createAudience')).rejects.toThrowError()
+      const response = createAudience(
+        request: RequestFn,
+        advertiser_id: 'valid advertiser id',
+        credentials: ClientCredentials
+      )
+      expect(response.message).toBe("Invalid Audience Name: ")
     })
 
-    it('should throw error if no audience id is given', async () => {
+    it('should throw error audience ID is not a number', async () => {
       nock('https://api.criteo.com')
         .post('/2022-01/audiences',
           {
             "data": {
               "type": "Audience",
               "attributes": {
-                "name": "unique name for audience"
+                "name": "unique name for audience",
+                "advertiser_id": 'abc123'
               }
             }
           })
         .reply(400)
 
-      await expect(testDestination.testAction('createAudience')).rejects.toThrowError()
+      //await expect(testDestination.testAction('createAudience')).rejects.toThrowError()
+      const response = createAudience(
+        request: RequestFn,
+        advertiser_id: 'abc123',
+        credentials: ClientCredentials
+      )
+
+      expect(response.message).toBe("The Advertiser ID should be a number")
+      expect(response.status).toBe(400)
+
     })
 
     it('should throw error if name is already being used', async () => {
@@ -106,6 +148,8 @@ describe('Criteo-Audiences', () => {
         .reply(400)
 
       await expect(testDestination.testAction('createAudience')).rejects.toThrowError()
+      //expect error message
+      //NOT IN CODE
     })
 
     it('should work if payload is correct', async () => {
@@ -122,14 +166,19 @@ describe('Criteo-Audiences', () => {
           })
         .reply(200)
 
-      const response = await testDestination.testAction('createAudience')
-
-      expect(response.status).toBe(200)
+        //const response = await testDestination.testAction('createAudience')
+        const response = await createAudience(
+          request: RequestFn,
+          advertiser_id: 'valid advertiser ID',
+          credentials: ClientCredentials
+        )
+        expect(response.body.data.id).toBe(1)
+        expect(response.status).toBe(200)
     })
   })
 
   describe('patchAudience', () => {
-    it('should throw error if audience id is invalid', async () => {
+    it('should throw error if audience id is not a number', async () => {
       const audience_id = 'abc123'
 
       nock('https://api.criteo.com')
@@ -138,17 +187,27 @@ describe('Criteo-Audiences', () => {
             "data": {
               "type": "ContactlistAmendment",
               "attributes": {
-                "operation": "add",
-                "identifierType": "email",
-                "identifiers": [
-                  "example1@gmail.com"
-                ]
+                  "operation": "add",
+                  "identifierType": "email",
+                  "identifiers": [
+                      "example1@gmail.com"
+                  ]
               }
             }
           })
         .reply(400)
 
-      await expect(testDestination.testAction('patchAudience')).rejects.toThrowError()
+      //await expect(testDestination.testAction('patchAudience')).rejects.toThrowError()
+      const response = await patchAudience(
+        request: RequestFn,
+        operation: {
+            operation_type: string,
+            audience_id: 'abc123',
+            user_list: string[]
+        },
+        credentials: ClientCredentials
+      )
+      expect(response.message).toBe("The Audience ID should be a number")
     })
 
     it('should throw error if no operation type', async () => {
@@ -160,19 +219,28 @@ describe('Criteo-Audiences', () => {
             "data": {
               "type": "ContactlistAmendment",
               "attributes": {
-                "identifierType": "email",
-                "identifiers": [
-                  "example1@gmail.com"
-                ]
+                  "identifierType": "email",
+                  "identifiers": [
+                      "example1@gmail.com"
+                  ]
               }
             }
           })
         .reply(400)
 
-      await expect(testDestination.testAction('patchAudience')).rejects.toThrowError()
+      //await expect(testDestination.testAction('patchAudience')).rejects.toThrowError()
+      const response = await patchAudience(
+        request: RequestFn,
+        operation: {
+            audience_id: string,
+            user_list: string[]
+        },
+        credentials: ClientCredentials
+      )
+      expect(response.message).toBe("Incorrect operation type: ")
     })
 
-    it('should throw error if incorrect operation type', async () => {
+    it('should throw error if wrong operation type', async () => {
       const audience_id = 'valid audience id'
 
       nock('https://api.criteo.com')
@@ -181,17 +249,29 @@ describe('Criteo-Audiences', () => {
             "data": {
               "type": "ContactlistAmendment",
               "attributes": {
-                "operation_type": "wrong operation type",
-                "identifierType": "email",
-                "identifiers": [
-                  "example1@gmail.com"
-                ]
+                  "operation_type": "wrong operation type",
+                  "identifierType": "email",
+                  "identifiers": [
+                      "example1@gmail.com"
+                  ]
               }
             }
           })
         .reply(400)
 
-      await expect(testDestination.testAction('patchAudience')).rejects.toThrowError()
+        const response = await patchAudience(
+          request: RequestFn,
+          operation: {
+              operation_type: 'wrong operation type',
+              audience_id: string,
+              user_list: string[]
+          },
+          credentials: ClientCredentials
+        )
+        expect(response.message).toBe("Incorrect operation type: wrong operation type")
+
+      //await expect(testDestination.testAction('patchAudience')).rejects.toThrowError()
+      //expect error message
     })
 
     it('should throw error if no identifiers', async () => {
@@ -203,14 +283,16 @@ describe('Criteo-Audiences', () => {
             "data": {
               "type": "ContactlistAmendment",
               "attributes": {
-                "operation_type": "add",
-                "identifierType": "email"
+                  "operation_type": "add",
+                  "identifierType": "email"
               }
             }
           })
         .reply(400)
 
       await expect(testDestination.testAction('patchAudience')).rejects.toThrowError()
+      //expect error message
+      //NOT IN CODE
     })
 
     it('should work if payload and advertiser ID defined properly', async () => {
@@ -222,19 +304,28 @@ describe('Criteo-Audiences', () => {
             "data": {
               "type": "ContactlistAmendment",
               "attributes": {
-                "operation_type": "add",
-                "identifierType": "email",
-                "identifiers": [
-                  "example1@gmail.com"
-                ]
+                  "operation_type": "add",
+                  "identifierType": "email",
+                  "identifiers": [
+                      "example1@gmail.com"
+                  ]
               }
             }
           })
         .reply(200)
 
-      const response = await testDestination.testAction('patchAudience')
-
-      expect(response.status).toBe(200)
+        //const response = await testDestination.testAction('addUserToAudience')
+        const response = await patchAudience(
+          request: RequestFn,
+          operation: {
+              operation_type: string,
+              audience_id: string,
+              user_list: string[]
+          },
+          credentials: ClientCredentials
+        )
+        expect(response.length).toBeGreaterThanOrEqual(1)
+        expect(response.status).toBe(200)
     })
   })
 })
