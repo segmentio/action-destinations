@@ -12,6 +12,11 @@ const settings = {
   advertiser_id: 'valid advertiser id'
 }
 
+const credentials = {
+  client_id: 'valid test_id',
+  client_secret: 'valid test_secret',
+}
+
 describe('Criteo-Audiences', () => {
   describe('testAuthentication', () => {
     it('should validate valid auth token', async () => {
@@ -74,9 +79,9 @@ describe('Criteo-Audiences', () => {
 
       //const response = await testDestination.testAction('getAudience')
       const response = await getAdvertiserAudiences(
-        request: RequestFn,
-        advertiser_id: advertiserId,
-        credentials: ClientCredentials
+        request,
+        advertiserId,
+        credentials
       )
       expect(response.length).toBeGreaterThanOrEqual(0)
       expect(response.status).toBe(200)
@@ -98,7 +103,7 @@ describe('Criteo-Audiences', () => {
         .reply(400)
 
       //await expect(testDestination.testAction('createAudience')).rejects.toThrowError()
-      const response = createAudience(
+      await createAudience(
         request: RequestFn,
         advertiser_id: 'valid advertiser id',
         credentials: ClientCredentials
@@ -340,7 +345,7 @@ const event = createTestEvent({
   },
 })
 
-const responses = await testDestination.testAction('updateUserProfile', {
+const responses = await testDestination.testAction('addUserToAudience', {
   event,
   settings,
   useDefaultMappings: true
