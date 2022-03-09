@@ -162,7 +162,7 @@ describe('Criteo-Audiences', () => {
       let settings = VALID_SETTINGS;
       nock('https://api.criteo.com').post('/oauth2/token').reply(200)
       nock('https://api.criteo.com').get(/^\/\d{4}-\d{2}\/audiences$)/).query({ "advertiser-id": settings.advertiser_id }).reply(200, ADVERTISER_AUDIENCES)
-      nock('https://api.criteo.com').patch(`/audiences/${ADVERTISER_AUDIENCES[0].data.id}/contactlist`).reply(200)
+      nock('https://api.criteo.com').patch(`/audiences/${ADVERTISER_AUDIENCES.data[0].id}/contactlist`).reply(200)
 
       const response = await expect(
         testDestination.testAction('addUserToAudience', {
