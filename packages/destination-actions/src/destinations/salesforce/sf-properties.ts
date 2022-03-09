@@ -21,7 +21,8 @@ export const traits: InputField = {
   Any field can function as a matcher, including Record ID, External IDs, standard fields and custom fields. On the left-hand side, input the Salesforce field API name. On the right-hand side, map the Segment field that contains the value.
   
   If multiple records are found, no updates will be made. Please use fields that result in unique records.`,
-  type: 'object'
+  type: 'object',
+  defaultObjectUI: 'keyvalue:only'
 }
 
 export const customFields: InputField = {
@@ -31,7 +32,8 @@ export const customFields: InputField = {
 
   This can include standard or custom fields. Custom fields must be predefined in your Salesforce account and the API field name should have __c appended.
   `,
-  type: 'object'
+  type: 'object',
+  defaultObjectUI: 'keyvalue'
 }
 
 interface Payload {

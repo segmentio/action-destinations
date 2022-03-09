@@ -6,10 +6,6 @@ export interface Payload {
    */
   userId?: string
   /**
-   * Anonymous identifier for the user
-   */
-  anonymousId: string
-  /**
    * Profile parameters specific to a user.
    */
   traits: {

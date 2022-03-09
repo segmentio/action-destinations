@@ -2,19 +2,29 @@ import type { BrowserActionDefinition } from '../../../lib/browser-destinations'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 import { Adobe } from '../types'
+import { setMbox3rdPartyId, serializeProperties } from '../utils'
+
+// Adobe Target only takes certain event types as valid parameters. We are defaulting to "click".
+const TARGET_EVENT_TYPE = 'click'
 
 const action: BrowserActionDefinition<Settings, Adobe, Payload> = {
   title: 'Track Event',
-  description: 'Track an event',
+  description: 'Send user actions, such as clicks and conversions, to Adobe Target.',
   platform: 'web',
   defaultSubscription: 'type = "track"',
   fields: {
     type: {
+      label: 'Event Type',
+      description: 'The event type. Please ensure the type entered here is registered and available.',
+      type: 'string',
+      default: TARGET_EVENT_TYPE
+    },
+    eventName: {
       label: 'Event Name',
-      description: 'Event type or name.',
+      description: 'This will be sent to Adobe Target as an event parameter called "event_name".',
       type: 'string',
       default: {
-        '@path': '$.type'
+        '@path': '$.event'
       }
     },
     properties: {
@@ -24,21 +34,35 @@ const action: BrowserActionDefinition<Settings, Adobe, Payload> = {
       default: {
         '@path': '$.properties'
       }
+    },
+    userId: {
+      type: 'string',
+      description:
+        'A user’s unique visitor ID. Setting an Mbox 3rd Party ID allows for updates via the Adobe Target Cloud Mode Destination. For more information, please see our Adobe Target Destination documentation.',
+      label: 'Mbox 3rd Party ID',
+      default: {
+        '@if': {
+          exists: { '@path': '$.userId' },
+          then: { '@path': '$.userId' },
+          else: { '@path': '$.anonymousId' }
+        }
+      }
     }
   },
   perform: (Adobe, event) => {
-    // Adobe Target only takes certain event types as valid parameters. We are defaulting to "click".
-    const TARGET_EVENT_TYPE = 'click'
+    const payload = event.payload
+    setMbox3rdPartyId(payload.userId)
+
     const event_params = {
-      ...event.payload.properties,
-      event_name: event.payload.type
+      ...serializeProperties(payload.properties),
+      event_name: payload.eventName
     }
 
     const params = {
       mbox: event.settings.mbox_name,
       preventDefault: true,
       params: event_params,
-      type: TARGET_EVENT_TYPE
+      type: payload.type
     }
 
     Adobe.target.trackEvent(params)
