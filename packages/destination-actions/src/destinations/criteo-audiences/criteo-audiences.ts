@@ -148,10 +148,7 @@ const fetchRetry = async (
         await delay(backoff)
         return await fetchRetry(request, endpoint, options, retries - 1, backoff * 2)
     }
-
 }
-
-
 
 export const createAudience = async (
     request: RequestFn,
