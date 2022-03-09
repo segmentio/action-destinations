@@ -139,4 +139,10 @@ export interface Payload {
    * The value of a user performing this event to the business.
    */
   value?: number
+  /**
+   * The custom data object which can be used to pass custom properties. See [here](https://developers.facebook.com/docs/marketing-api/conversions-api/parameters/custom-data) for more information
+   */
+  custom_data?: {
+    [k: string]: unknown
+  }
 }
