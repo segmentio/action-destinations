@@ -5,35 +5,34 @@ import { patchAudience, getAdvertiserAudiences, getAudienceId, createAudience } 
 import type { RequestFn, ClientCredentials, Operation } from '../criteo-audiences'
 const testDestination = createTestIntegration(Definition)
 
+//valid destination fields
+const settings = {
+  client_id: 'valid test_id',
+  client_secret: 'valid test_secret',
+  advertiser_id: 'valid advertiser id'
+}
+
 describe('Criteo-Audiences', () => {
   describe('testAuthentication', () => {
     it('should validate valid auth token', async () => {
       nock('https://api.criteo.com').post('/oauth2/token').reply(200)
-
-      const authData = {
-        client_id: 'valid test_id',
-        client_secret: 'valid test_secret',
-        advertiser_id: 'valid advertiser id'
-      }
-
-      const response = await testDestination.testAuthentication(authData) //import from criteo-audiences
+      await expect(testDestination.testAuthentication(settings)).resolves.not.toThrowError() //import from criteo-audiences
+      //testAuthentication is 
+      //import from criteo-audiences
       //const response = await helper.getRequestHeaders() ??
-      expect(response.length).toBeGreaterThan(0)
-      expect(response).resolves.not.toThrowError()
+      //expect(response.length).toBeGreaterThan(0)
+      //expect(response).resolves.not.toThrowError()
     })
 
     it('should test that authentication fails', async () => {
       nock('https://api.criteo.com').post('/oauth2/token').reply(401)
-
-      const authData = {
-        client_id: 'invalid test_id',
-        client_secret: 'invalid test_secret'
-      }
-
-      const response = await testDestination.testAuthentication(authData) //import from criteo-audiences
+      const response = expect(testDestination.testAuthentication(settings)) //import from criteo-audiences
+      //import from criteo-audiences
       //const response = await helper.getRequestHeaders() ??
-      expect(response.message).toBe("Authentication failed") //this isn't in code
-      expect(response).rejects.toThrowError()
+      //expect(response.message).toBe("Authentication failed") //this isn't in code
+      //expect(response).rejects.toThrowError()
+      response.resolves.not.toThrowError();
+      response.toBe("Authentication failed");
     })
   })
 
@@ -166,14 +165,14 @@ describe('Criteo-Audiences', () => {
           })
         .reply(200)
 
-        //const response = await testDestination.testAction('createAudience')
-        const response = await createAudience(
-          request: RequestFn,
-          advertiser_id: 'valid advertiser ID',
-          credentials: ClientCredentials
-        )
-        expect(response.body.data.id).toBe(1)
-        expect(response.status).toBe(200)
+      //const response = await testDestination.testAction('createAudience')
+      const response = await createAudience(
+        request: RequestFn,
+        advertiser_id: 'valid advertiser ID',
+        credentials: ClientCredentials
+      )
+      expect(response.body.data.id).toBe(1)
+      expect(response.status).toBe(200)
     })
   })
 
@@ -187,11 +186,11 @@ describe('Criteo-Audiences', () => {
             "data": {
               "type": "ContactlistAmendment",
               "attributes": {
-                  "operation": "add",
-                  "identifierType": "email",
-                  "identifiers": [
-                      "example1@gmail.com"
-                  ]
+                "operation": "add",
+                "identifierType": "email",
+                "identifiers": [
+                  "example1@gmail.com"
+                ]
               }
             }
           })
@@ -201,10 +200,10 @@ describe('Criteo-Audiences', () => {
       const response = await patchAudience(
         request: RequestFn,
         operation: {
-            operation_type: string,
-            audience_id: 'abc123',
-            user_list: string[]
-        },
+        operation_type: string,
+        audience_id: 'abc123',
+        user_list: string[]
+      },
         credentials: ClientCredentials
       )
       expect(response.message).toBe("The Audience ID should be a number")
@@ -219,10 +218,10 @@ describe('Criteo-Audiences', () => {
             "data": {
               "type": "ContactlistAmendment",
               "attributes": {
-                  "identifierType": "email",
-                  "identifiers": [
-                      "example1@gmail.com"
-                  ]
+                "identifierType": "email",
+                "identifiers": [
+                  "example1@gmail.com"
+                ]
               }
             }
           })
@@ -232,9 +231,9 @@ describe('Criteo-Audiences', () => {
       const response = await patchAudience(
         request: RequestFn,
         operation: {
-            audience_id: string,
-            user_list: string[]
-        },
+        audience_id: string,
+        user_list: string[]
+      },
         credentials: ClientCredentials
       )
       expect(response.message).toBe("Incorrect operation type: ")
@@ -249,26 +248,26 @@ describe('Criteo-Audiences', () => {
             "data": {
               "type": "ContactlistAmendment",
               "attributes": {
-                  "operation_type": "wrong operation type",
-                  "identifierType": "email",
-                  "identifiers": [
-                      "example1@gmail.com"
-                  ]
+                "operation_type": "wrong operation type",
+                "identifierType": "email",
+                "identifiers": [
+                  "example1@gmail.com"
+                ]
               }
             }
           })
         .reply(400)
 
-        const response = await patchAudience(
-          request: RequestFn,
-          operation: {
-              operation_type: 'wrong operation type',
-              audience_id: string,
-              user_list: string[]
-          },
-          credentials: ClientCredentials
-        )
-        expect(response.message).toBe("Incorrect operation type: wrong operation type")
+      const response = await patchAudience(
+        request: RequestFn,
+        operation: {
+        operation_type: 'wrong operation type',
+        audience_id: string,
+        user_list: string[]
+      },
+        credentials: ClientCredentials
+      )
+      expect(response.message).toBe("Incorrect operation type: wrong operation type")
 
       //await expect(testDestination.testAction('patchAudience')).rejects.toThrowError()
       //expect error message
@@ -283,8 +282,8 @@ describe('Criteo-Audiences', () => {
             "data": {
               "type": "ContactlistAmendment",
               "attributes": {
-                  "operation_type": "add",
-                  "identifierType": "email"
+                "operation_type": "add",
+                "identifierType": "email"
               }
             }
           })
@@ -304,28 +303,47 @@ describe('Criteo-Audiences', () => {
             "data": {
               "type": "ContactlistAmendment",
               "attributes": {
-                  "operation_type": "add",
-                  "identifierType": "email",
-                  "identifiers": [
-                      "example1@gmail.com"
-                  ]
+                "operation_type": "add",
+                "identifierType": "email",
+                "identifiers": [
+                  "example1@gmail.com"
+                ]
               }
             }
           })
         .reply(200)
 
-        //const response = await testDestination.testAction('addUserToAudience')
-        const response = await patchAudience(
-          request: RequestFn,
-          operation: {
-              operation_type: string,
-              audience_id: string,
-              user_list: string[]
-          },
-          credentials: ClientCredentials
-        )
-        expect(response.length).toBeGreaterThanOrEqual(1)
-        expect(response.status).toBe(200)
+      //const response = await testDestination.testAction('addUserToAudience')
+      const response = await patchAudience(
+        request: RequestFn,
+        operation: {
+        operation_type: string,
+        audience_id: string,
+        user_list: string[]
+      },
+        credentials: ClientCredentials
+      )
+      expect(response.length).toBeGreaterThanOrEqual(1)
+      expect(response.status).toBe(200)
     })
   })
 })
+
+//test case for addUserToAudience action E2E:
+const event = createTestEvent({
+  "traits": {
+    "email": "test.email@testing.org"
+  },
+  "event": "Audience Exited",
+  "properties": {
+    "audience_key": "weekly_active_shoppers_viewed_product_within_7_days",
+  },
+})
+
+const responses = await testDestination.testAction('updateUserProfile', {
+  event,
+  settings,
+  useDefaultMappings: true
+})
+expect(responses.length).toBe(1) //not sure what the decorated response contains
+expect(responses[0].status).toBe(200)
