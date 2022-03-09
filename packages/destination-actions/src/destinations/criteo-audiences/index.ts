@@ -2,6 +2,8 @@ import type { DestinationDefinition } from '@segment/actions-core'
 import type { Settings } from './generated-types'
 import addUserToAudience from './addUserToAudience'
 import removeUserFromAudience from './removeUserFromAudience'
+import getAccessToken from './criteo-audiences'
+import type ClientCredentials from './criteo-audiences'
 
 const destination: DestinationDefinition<Settings> = {
   name: 'Criteo Audiences',
@@ -29,6 +31,13 @@ const destination: DestinationDefinition<Settings> = {
         type: 'string',
         required: true
       }
+    },
+    testAuthentication: (request, { settings }) => {
+      const credentials: ClientCredentials = {
+        client_id: settings.client_id,
+        client_secret: settings.client_secret
+      }
+      return getAccessToken(request, credentials)
     }
   },
   //we might not need this function
