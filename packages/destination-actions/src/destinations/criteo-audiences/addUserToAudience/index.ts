@@ -76,10 +76,10 @@ const action: ActionDefinition<Settings, Payload> = {
     },
   },
   perform: async (request, { settings, payload }) => {
-    processPayload(request, settings, [payload]);
+    await processPayload(request, settings, [payload]);
   },
   performBatch: async (request, { settings, payload }) => {
-    processPayload(request, settings, payload);
+    await processPayload(request, settings, payload);
   }
 }
 

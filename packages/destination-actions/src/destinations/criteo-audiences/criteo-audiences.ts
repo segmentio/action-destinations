@@ -19,7 +19,7 @@ const getRequestHeaders = async (
     request: RequestFn,
     credentials: ClientCredentials
 ): Promise<Record<string, string>> => {
-    let access_token: string = await getAccessToken(request, credentials);
+    const access_token: string = await getAccessToken(request, credentials);
 
     return {
         'Accept': 'application/json',
@@ -44,7 +44,7 @@ export const getAccessToken = async (
             'Content-Type': 'application/x-www-form-urlencoded'
         },
     })
-    let body = await res.json()
+    const body = await res.json()
 
     if (res.status !== 200)
         throw new Error(`Error while getting an access token: ${JSON.stringify(body)}`)
@@ -75,16 +75,16 @@ export const patchAudience = async (
             }
         }
     }
-
-    return request(
+    const options = {
+        method: 'PATCH',
+        json: payload,
+        headers: headers
+    }
+    return await fetchRetry(
+        request,
         endpoint,
-        {
-            method: 'PATCH',
-            json: payload,
-            headers: headers
-        }
-    )
-
+        options
+    );
 }
 
 export const getAdvertiserAudiences = async (
@@ -96,7 +96,7 @@ export const getAdvertiserAudiences = async (
         throw new IntegrationError('The Advertiser ID should be a number', 'Invalid input', 400)
 
     const endpoint = `${BASE_API_URL}/audiences?advertiser-id=${advertiser_id}`
-    const headers = getRequestHeaders(request, credentials);
+    const headers = await getRequestHeaders(request, credentials);
     const response = await request(
         endpoint, { method: 'GET', headers: headers }
     )
@@ -128,6 +128,31 @@ export const getAudienceId = async (
     return await createAudience(request, advertiser_id, audience_name, credentials)
 }
 
+const delay = (ms: number) => new Promise((res) => setTimeout(res, ms));
+
+//function for fetch Retries with exponential backoff
+const fetchRetry = async (
+    request: RequestFn,
+    endpoint: string,
+    options: {},
+    retries = 3,
+    backoff = 300
+): Promise<Response> => {
+
+    try {
+        return await request(endpoint, options);
+    } catch (err) {
+        if (retries === 1) {
+            throw new Error('All retries failed!')
+        }
+        await delay(backoff)
+        return await fetchRetry(request, endpoint, options, retries - 1, backoff * 2)
+    }
+
+}
+
+
+
 export const createAudience = async (
     request: RequestFn,
     advertiser_id: string,
@@ -140,7 +165,7 @@ export const createAudience = async (
         throw new IntegrationError('The Advertiser ID should be a number', 'Invalid input', 400)
 
     const endpoint = `${BASE_API_URL}/audiences`
-    const headers = getRequestHeaders(request, credentials);
+    const headers = await getRequestHeaders(request, credentials);
     const payload = {
         "data": {
             "attributes": {
