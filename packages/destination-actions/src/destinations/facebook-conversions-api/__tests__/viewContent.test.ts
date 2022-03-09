@@ -89,6 +89,7 @@ describe('FacebookConversionsApi', () => {
         event: 'Product Viewed',
         userId: 'abc123',
         timestamp: '1631210063',
+        messageId: 'test',
         properties: {
           action_source: 'email',
           currency: 'USD',
@@ -110,7 +111,7 @@ describe('FacebookConversionsApi', () => {
       expect(responses[0].status).toBe(201)
 
       expect(responses[0].options.body).toMatchInlineSnapshot(
-        `"{\\"data\\":[{\\"event_name\\":\\"ViewContent\\",\\"event_time\\":\\"1631210063\\",\\"action_source\\":\\"email\\",\\"event_id\\":\\"b2498afd-281c-4371-983e-67d433d6cade\\",\\"event_source_url\\":\\"https://segment.com/academy/\\",\\"user_data\\":{\\"external_id\\":\\"6ca13d52ca70c883e0f0bb101e425a89e8624de51db2d2392593af6a84118090\\",\\"client_ip_address\\":\\"8.8.8.8\\",\\"client_user_agent\\":\\"Mozilla/5.0 (iPhone; CPU iPhone OS 9_1 like Mac OS X) AppleWebKit/601.1.46 (KHTML, like Gecko) Version/9.0 Mobile/13B143 Safari/601.1\\"},\\"custom_data\\":{\\"currency\\":\\"USD\\",\\"value\\":120000,\\"content_ids\\":[\\"tsla_s_2021\\"],\\"contents\\":[{\\"id\\":\\"tsla_s_2021\\",\\"quantity\\":1,\\"item_price\\":120000}]}}]}"`
+        `"{\\"data\\":[{\\"event_name\\":\\"ViewContent\\",\\"event_time\\":\\"1631210063\\",\\"action_source\\":\\"email\\",\\"event_id\\":\\"test\\",\\"event_source_url\\":\\"https://segment.com/academy/\\",\\"user_data\\":{\\"external_id\\":\\"6ca13d52ca70c883e0f0bb101e425a89e8624de51db2d2392593af6a84118090\\",\\"client_ip_address\\":\\"8.8.8.8\\",\\"client_user_agent\\":\\"Mozilla/5.0 (iPhone; CPU iPhone OS 9_1 like Mac OS X) AppleWebKit/601.1.46 (KHTML, like Gecko) Version/9.0 Mobile/13B143 Safari/601.1\\"},\\"custom_data\\":{\\"currency\\":\\"USD\\",\\"value\\":120000,\\"content_ids\\":[\\"tsla_s_2021\\"],\\"contents\\":[{\\"id\\":\\"tsla_s_2021\\",\\"quantity\\":1,\\"item_price\\":120000}]}}]}"`
       )
     })
 

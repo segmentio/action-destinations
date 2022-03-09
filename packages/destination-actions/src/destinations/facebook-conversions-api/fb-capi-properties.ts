@@ -92,23 +92,21 @@ type Content = {
 export const validateContents = (contents: Content[]): IntegrationError | false => {
   const valid_delivery_categories = ['in_store', 'curbside', 'home_delivery']
 
-  contents.forEach((obj, index) => {
-    if (!obj.id) {
-      return new IntegrationError(
-        "Contents objects must include an 'id' parameter.",
-        'Misconfigured required field',
-        400
-      )
+  for (let i = 0; i < contents.length; i++) {
+    const item = contents[i]
+
+    if (!item.id) {
+      return new IntegrationError(`contents[${i}] must include an 'id' parameter.`, 'Misconfigured required field', 400)
     }
 
-    if (obj.delivery_category && !valid_delivery_categories.includes(obj.delivery_category)) {
+    if (item.delivery_category && !valid_delivery_categories.includes(item.delivery_category)) {
       return new IntegrationError(
-        `contents[${index}].delivery_category must be one of {in_store, home_delivery, curbside}.`,
+        `contents[${i}].delivery_category must be one of {in_store, home_delivery, curbside}.`,
         'Misconfigured field',
         400
       )
     }
-  })
+  }
 
   return false
 }
