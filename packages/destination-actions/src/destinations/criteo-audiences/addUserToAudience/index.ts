@@ -71,7 +71,7 @@ const action: ActionDefinition<Settings, Payload> = {
       type: 'string',
       format: 'email',
       default: {
-        '@path': '$.traits.email'
+        '@path': '$.context.traits.email'
       }
     },
   },
