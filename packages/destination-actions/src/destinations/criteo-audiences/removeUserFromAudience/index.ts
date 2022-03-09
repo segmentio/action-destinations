@@ -34,14 +34,14 @@ const processPayload = async (
   request: RequestFn,
   settings: Settings,
   payload: Payload[]
-): Promise<void> => {
+): Promise<Response> => {
 
   const credentials: ClientCredentials = {
     client_id: settings.client_id,
     client_secret: settings.client_secret
   }
   const operation: Operation = await getOperationFromPayload(request, settings.advertiser_id, payload, credentials);
-  await patchAudience(request, operation, credentials)
+  return await patchAudience(request, operation, credentials)
 }
 
 const action: ActionDefinition<Settings, Payload> = {
@@ -76,10 +76,10 @@ const action: ActionDefinition<Settings, Payload> = {
     },
   },
   perform: async (request, { settings, payload }) => {
-    await processPayload(request, settings, [payload]);
+    return await processPayload(request, settings, [payload]);
   },
   performBatch: async (request, { settings, payload }) => {
-    await processPayload(request, settings, payload);
+    return await processPayload(request, settings, payload);
   }
 }
 
