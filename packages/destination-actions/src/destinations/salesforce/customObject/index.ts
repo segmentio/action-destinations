@@ -6,7 +6,8 @@ import Salesforce from '../sf-operations'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Custom Object',
-  description: 'Custom Object',
+  description:
+    "Represents a custom object, which you create to store information that's specific to your company or industry",
   fields: {
     operation: operation,
     traits: traits,

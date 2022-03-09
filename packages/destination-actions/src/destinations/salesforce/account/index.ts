@@ -6,7 +6,8 @@ import type { Payload } from './generated-types'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Account',
-  description: 'Account action',
+  description: 'Represents an individual account, which is an organization or person involved with your business',
+  defaultSubscription: 'type = "group"',
   fields: {
     operation: operation,
     traits: traits,

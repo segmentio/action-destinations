@@ -6,7 +6,7 @@ import type { Payload } from './generated-types'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Opportunity',
-  description: 'Opportunity action',
+  description: 'Represents an opportunity, which is a sale or pending deal',
   fields: {
     operation: operation,
     traits: traits,

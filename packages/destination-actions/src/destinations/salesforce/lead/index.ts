@@ -6,7 +6,8 @@ import Salesforce from '../sf-operations'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Lead',
-  description: 'Lead action',
+  description: 'Represents a prospect or lead',
+  defaultSubscription: 'type = "identify"',
   fields: {
     operation: operation,
     traits: traits,

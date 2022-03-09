@@ -6,7 +6,7 @@ import Salesforce from '../sf-operations'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Contact',
-  description: 'Contact action',
+  description: 'Represents a contact, which is a person associated with an account',
   fields: {
     operation: operation,
     traits: traits,
