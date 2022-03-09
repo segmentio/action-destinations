@@ -6,85 +6,171 @@ import type { RequestFn, ClientCredentials, Operation } from '../criteo-audience
 const testDestination = createTestIntegration(Definition)
 
 //valid destination fields
-const settings = {
+
+const VALID_ADVERTISER_ID = '1234'
+const INVALID_ADVERTISER_ID = 'abcd'
+const AUDIENCE_KEY = "weekly_active_shoppers_viewed_product_within_7_days"
+
+const event = createTestEvent({
+  "context": {
+    "traits": {
+      "email": "test.email@testing.org"
+    }
+  },
+  "event": "Audience Entered",
+  "properties": {
+    "audience_key": AUDIENCE_KEY,
+  }
+})
+
+const VALID_CREDENTIALS = {
   client_id: 'valid test_id',
   client_secret: 'valid test_secret',
-  advertiser_id: 'valid advertiser id'
 }
 
-const credentials = {
-  client_id: 'valid test_id',
-  client_secret: 'valid test_secret',
+const VALID_SETTINGS = {
+  client_id: VALID_CREDENTIALS.client_id,
+  client_secret: VALID_CREDENTIALS.client_secret,
+  advertiser_id: VALID_ADVERTISER_ID
 }
+
+const ADVERTISER_AUDIENCES = {
+  "data": [
+    {
+      "id": "1234",
+      "attributes": {
+        "advertiserId": VALID_ADVERTISER_ID,
+        "name": AUDIENCE_KEY
+      }
+    }
+  ]
+}
+
+const AUDIENCE_CREATION_RESPONSE = {
+  "data": {
+    "id": "5678",
+    "type": "Audience"
+  },
+  "errors": [],
+  "warnings": []
+}
+
 
 describe('Criteo-Audiences', () => {
   describe('testAuthentication', () => {
     it('should validate valid auth token', async () => {
-      nock('https://api.criteo.com').post('/oauth2/token').reply(200)
-      await expect(testDestination.testAuthentication(settings)).resolves.not.toThrowError() //import from criteo-audiences
-      //testAuthentication is
-      //import from criteo-audiences
-      //const response = await helper.getRequestHeaders() ??
-      //expect(response.length).toBeGreaterThan(0)
-      //expect(response).resolves.not.toThrowError()
+      nock('https://api.criteo.com').post('/oauth2/token').reply(200);
+      let settings = VALID_SETTINGS;
+      await expect(testDestination.testAuthentication(settings)).resolves.not.toThrowError()
     })
 
     it('should test that authentication fails', async () => {
       nock('https://api.criteo.com').post('/oauth2/token').reply(401)
-      const response = expect(testDestination.testAuthentication(settings)) //import from criteo-audiences
-      //import from criteo-audiences
-      //const response = await helper.getRequestHeaders() ??
-      //expect(response.message).toBe("Authentication failed") //this isn't in code
-      //expect(response).rejects.toThrowError()
-      response.resolves.not.toThrowError();
-      response.toBe("Authentication failed");
+      let settings = VALID_SETTINGS;
+      await expect(testDestination.testAuthentication(settings)).rejects.toThrowError("")
     })
   })
 
-
-  describe('getAudience', () => {
-    it('should throw error if no access to advertiser account', async () => {
-      const advertiserId = '12345'
-
-      nock('https://api.criteo.com').get(`/2021-10/audiences?advertiser-id=${advertiserId}`).reply(403)
-      //await expect(testDestination.testAction('getAudience')).rejects.toThrowError()
-      const response = await getAdvertiserAudiences(
-        request: RequestFn,
-        advertiser_id: advertiserId,
-        credentials: ClientCredentials
-      )
-      expect(response.status).toBe(!200)
-      //expect error message or nothing to be returned
-      //need to pass second argument as JSON in test action
+  describe('addUserToAudience', () => {
+    it('should throw error if no access to the audiences of the advertiser', async () => {
+      let settings = VALID_SETTINGS;
+      nock('https://api.criteo.com').post('/oauth2/token').reply(200)
+      nock('https://api.criteo.com').get(/^\/\d{4}-\d{2}\/audiences$)/).query({ "advertiser-id": settings.advertiser_id }).reply(403)
+      await expect(
+        testDestination.testAction('addUserToAudience', {
+          event,
+          settings,
+          useDefaultMappings: true
+        })
+      ).rejects.toThrowError()
     })
 
     it('should throw error if advertiser ID is not a number', async () => {
-      const advertiserId = 'not an id'
+      nock('https://api.criteo.com').post('/oauth2/token').reply(200)
 
-      nock('https://api.criteo.com').get(`/2021-10/audiences?advertiser-id=${advertiserId}`).reply(400)
-      //await expect(testDestination.testAction('getAudience')).rejects.toThrowError()
-      const response = await getAdvertiserAudiences(
-        request: RequestFn,
-        advertiser_id: advertiserId,
-        credentials: ClientCredentials
-      )
-      expect(response.message).toBe("The Advertiser ID should be a number")
-      expect(response.status).toBe(400)
+      let settings = {
+        client_id: VALID_CREDENTIALS.client_id,
+        client_secret: VALID_CREDENTIALS.client_secret,
+        advertiser_id: INVALID_ADVERTISER_ID
+      }
+
+      const response = await expect(
+        testDestination.testAction('addUserToAudience', {
+          event,
+          settings,
+          useDefaultMappings: true
+        })
+      ).rejects.toThrowError()
     })
 
-    it('should work if valid id', async () => {
-      const advertiserId = 'valid id'
-
-      nock('https://api.criteo.com').get(`/2021-10/audiences?advertiser-id=${advertiserId}`).reply(200)
-
-      //const response = await testDestination.testAction('getAudience')
-      const response = await getAdvertiserAudiences(
-        request,
-        advertiserId,
-        credentials
+    it('should throw error if failing to create a new audience', async () => {
+      let settings = VALID_SETTINGS;
+      nock('https://api.criteo.com').post('/oauth2/token').reply(200)
+      nock('https://api.criteo.com').get(/^\/\d{4}-\d{2}\/audiences$)/).query({ "advertiser-id": settings.advertiser_id }).reply(200, {
+        "data": [
+          {
+            "id": "1234",
+            "attributes": {
+              "advertiserId": VALID_ADVERTISER_ID,
+              "name": AUDIENCE_KEY
+            }
+          }
+        ]
+      }
       )
-      expect(response.length).toBeGreaterThanOrEqual(0)
-      expect(response.status).toBe(200)
+      // The audience key is not present in the list of the advertiser's audiences so a new audience needs to be created
+      nock('https://api.criteo.com').post("/audiences").reply(403)
+
+      const response = await expect(
+        testDestination.testAction('addUserToAudience', {
+          event,
+          settings,
+          useDefaultMappings: true
+        })
+      ).rejects.toThrowError()
+    })
+
+    it('should not throw an error if the audience creation and the patch requests succeed', async () => {
+      let settings = VALID_SETTINGS;
+      nock('https://api.criteo.com').post('/oauth2/token').reply(200)
+      nock('https://api.criteo.com').get(/^\/\d{4}-\d{2}\/audiences$)/).query({ "advertiser-id": settings.advertiser_id }).reply(200, {
+        "data": [
+          {
+            "id": "1234",
+            "attributes": {
+              "advertiserId": VALID_ADVERTISER_ID,
+              "name": AUDIENCE_KEY
+            }
+          }
+        ]
+      }
+      )
+      // The audience key is not present in the list of the advertiser's audiences so a new audience needs to be created
+      nock('https://api.criteo.com').post("/audiences").reply(200, AUDIENCE_CREATION_RESPONSE)
+      nock('https://api.criteo.com').patch(`/audiences/${AUDIENCE_CREATION_RESPONSE.data.id}/contactlist`).reply(200)
+
+      const response = await expect(
+        testDestination.testAction('addUserToAudience', {
+          event,
+          settings,
+          useDefaultMappings: true
+        })
+      ).resolves.not.toThrowError()
+    })
+
+    it('should not throw an error if no new audience is created and the patch requests succeed', async () => {
+      let settings = VALID_SETTINGS;
+      nock('https://api.criteo.com').post('/oauth2/token').reply(200)
+      nock('https://api.criteo.com').get(/^\/\d{4}-\d{2}\/audiences$)/).query({ "advertiser-id": settings.advertiser_id }).reply(200, ADVERTISER_AUDIENCES)
+      nock('https://api.criteo.com').patch(`/audiences/${ADVERTISER_AUDIENCES[0].data.id}/contactlist`).reply(200)
+
+      const response = await expect(
+        testDestination.testAction('addUserToAudience', {
+          event,
+          settings,
+          useDefaultMappings: true
+        })
+      ).resolves.not.toThrowError()
     })
   })
 
@@ -335,15 +421,7 @@ describe('Criteo-Audiences', () => {
 })
 
 //test case for addUserToAudience action E2E:
-const event = createTestEvent({
-  "traits": {
-    "email": "test.email@testing.org"
-  },
-  "event": "Audience Exited",
-  "properties": {
-    "audience_key": "weekly_active_shoppers_viewed_product_within_7_days",
-  },
-})
+
 
 const responses = await testDestination.testAction('addUserToAudience', {
   event,
