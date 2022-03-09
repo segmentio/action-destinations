@@ -9,7 +9,8 @@ export const custom_data: InputField = {
   label: 'Custom Data',
   description:
     'The custom data object which can be used to pass custom properties. See [here](https://developers.facebook.com/docs/marketing-api/conversions-api/parameters/custom-data) for more information',
-  type: 'object'
+  type: 'object',
+  defaultObjectUI: 'keyvalue'
 }
 
 export const currency: InputField = {
