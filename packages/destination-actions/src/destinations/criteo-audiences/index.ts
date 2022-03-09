@@ -2,8 +2,8 @@ import type { DestinationDefinition } from '@segment/actions-core'
 import type { Settings } from './generated-types'
 import addUserToAudience from './addUserToAudience'
 import removeUserFromAudience from './removeUserFromAudience'
-import getAccessToken from './criteo-audiences'
-import type ClientCredentials from './criteo-audiences'
+import { getAccessToken } from './criteo-audiences'
+import type { ClientCredentials } from './criteo-audiences'
 
 const destination: DestinationDefinition<Settings> = {
   name: 'Criteo Audiences',
