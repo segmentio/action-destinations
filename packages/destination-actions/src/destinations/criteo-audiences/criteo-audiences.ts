@@ -28,7 +28,7 @@ const getRequestHeaders = async (
     }
 }
 
-const getAccessToken = async (
+export const getAccessToken = async (
     request: RequestFn,
     credentials: ClientCredentials
 ): Promise<string> => {
