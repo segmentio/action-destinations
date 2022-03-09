@@ -17,7 +17,7 @@ describe('Criteo-Audiences', () => {
     it('should validate valid auth token', async () => {
       nock('https://api.criteo.com').post('/oauth2/token').reply(200)
       await expect(testDestination.testAuthentication(settings)).resolves.not.toThrowError() //import from criteo-audiences
-      //testAuthentication is 
+      //testAuthentication is
       //import from criteo-audiences
       //const response = await helper.getRequestHeaders() ??
       //expect(response.length).toBeGreaterThan(0)
@@ -171,7 +171,7 @@ describe('Criteo-Audiences', () => {
         advertiser_id: 'valid advertiser ID',
         credentials: ClientCredentials
       )
-      expect(response.body.data.id).toBe(1)
+      expect(response.body.data.length).toBe(1)
       expect(response.status).toBe(200)
     })
   })
