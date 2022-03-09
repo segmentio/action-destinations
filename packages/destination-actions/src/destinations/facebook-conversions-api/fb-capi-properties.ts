@@ -5,6 +5,11 @@ import { IntegrationError } from '@segment/actions-core'
 // https://developers.facebook.com/docs/facebook-pixel/reference#object-properties
 // Only implemented properties that are shared between more than one action.
 
+type Content = {
+  id?: string
+  delivery_category?: string
+}
+
 export const custom_data: InputField = {
   label: 'Custom Data',
   description:
@@ -82,11 +87,6 @@ export const contents: InputField = {
       type: 'string'
     }
   }
-}
-
-type Content = {
-  id?: string
-  delivery_category?: string
 }
 
 export const validateContents = (contents: Content[]): IntegrationError | false => {
