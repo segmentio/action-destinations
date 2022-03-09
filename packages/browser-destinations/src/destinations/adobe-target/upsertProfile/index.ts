@@ -14,7 +14,7 @@ const action: BrowserActionDefinition<Settings, Adobe, Payload> = {
       type: 'string',
       description:
         'A user’s unique visitor ID. Setting an Mbox 3rd Party ID allows for updates via the Adobe Target Cloud Mode Destination. For more information, please see our Adobe Target Destination documentation.',
-      label: 'User ID',
+      label: 'Mbox 3rd Party ID',
       default: {
         '@if': {
           exists: { '@path': '$.userId' },
@@ -23,20 +23,11 @@ const action: BrowserActionDefinition<Settings, Adobe, Payload> = {
         }
       }
     },
-    anonymousId: {
-      type: 'string',
-      required: true,
-      description: 'Anonymous identifier for the user',
-      label: 'Anonymous ID',
-      default: {
-        '@path': '$.anonymousId'
-      }
-    },
     traits: {
       type: 'object',
       required: true,
       description: 'Profile parameters specific to a user.',
-      label: 'User Attributes',
+      label: 'Profile Attributes',
       default: {
         '@path': '$.traits'
       }
@@ -48,11 +39,7 @@ const action: BrowserActionDefinition<Settings, Adobe, Payload> = {
        identify() and track() actions leverage the same function (adobe.target.trackEvent()) to send data to Adobe.
        identify does not pass an event name, track does.
     */
-
-    setMbox3rdPartyId(event.payload.anonymousId)
-    if (event.payload.userId) {
-      setMbox3rdPartyId(event.payload.userId)
-    }
+    setMbox3rdPartyId(event.payload.userId)
 
     /*
       NOTE:

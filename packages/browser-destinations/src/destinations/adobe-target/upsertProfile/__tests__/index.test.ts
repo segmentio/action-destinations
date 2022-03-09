@@ -12,11 +12,18 @@ describe('Adobe Target Web', () => {
           enabled: true,
           subscribe: 'type = "identify"',
           mapping: {
-            anonymousId: {
-              '@path': '$.anonymousId'
-            },
             userId: {
-              '@path': '$.userId'
+              '@if': {
+                exists: {
+                  '@path': '$.userId'
+                },
+                then: {
+                  '@path': '$.userId'
+                },
+                else: {
+                  '@path': '$.anonymousId'
+                }
+              }
             },
             traits: {
               '@path': '$.traits'
@@ -67,7 +74,7 @@ describe('Adobe Target Web', () => {
         expect.anything(),
         expect.objectContaining({
           payload: {
-            anonymousId: 'random-id-42',
+            userId: 'random-id-42',
             traits: {
               favorite_color: 'blue',
               location: {
@@ -104,7 +111,6 @@ describe('Adobe Target Web', () => {
         expect.objectContaining({
           payload: {
             userId: 'The-Real-ID',
-            anonymousId: 'random-id-42',
             traits: {
               favorite_color: 'blue',
               location: {
