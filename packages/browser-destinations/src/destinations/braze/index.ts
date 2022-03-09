@@ -56,9 +56,13 @@ export const destination: BrowserDestinationDefinition<Settings, typeof appboy> 
         {
           value: '3.3',
           label: '3.3'
+        },
+        {
+          value: '3.5',
+          label: '3.5'
         }
       ],
-      default: '3.3',
+      default: '3.5',
       required: true
     },
     api_key: {
