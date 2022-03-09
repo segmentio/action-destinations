@@ -46,6 +46,9 @@ const getAccessToken = async (
     })
     let body = await res.json()
 
+    if (res.status !== 200)
+        throw new Error(`Error while getting an access token: ${JSON.stringify(body)}`)
+
     return body.access_token
 }
 
