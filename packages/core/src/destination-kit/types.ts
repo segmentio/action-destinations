@@ -132,7 +132,7 @@ export interface InputField {
   /**
    * Determines the UI representation of the object field. Only applies to object types.
    * Key Value Editor: Users can specify individual object keys and their mappings, ideal for custom objects.
-   * Object Editor: Users can map an entire object from their payload to the object field in a single mapping.
+   * Object Reference: Users can specify only another object in the segment event to use as the value for this key in the payload
    */
   defaultObjectUI?:
     | 'keyvalue' // Users will see the key value object editor by default and can change to the object editor.
