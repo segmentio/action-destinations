@@ -92,7 +92,7 @@ describe('addUserToAudience', () => {
           "id": "1234",
           "attributes": {
             "advertiserId": VALID_ADVERTISER_ID,
-            "name": AUDIENCE_KEY
+            "name": "OTHER AUDIENCE NAME"
           }
         }
       ]
@@ -116,10 +116,10 @@ describe('addUserToAudience', () => {
     nock('https://api.criteo.com').get(/^\/\d{4}-\d{2}\/audiences$/).query({ "advertiser-id": settings.advertiser_id }).reply(200, {
       "data": [
         {
-          "id": "1234",
+          "id": "5678",
           "attributes": {
             "advertiserId": VALID_ADVERTISER_ID,
-            "name": AUDIENCE_KEY
+            "name": "OTHER AUDIENCE NAME"
           }
         }
       ]
