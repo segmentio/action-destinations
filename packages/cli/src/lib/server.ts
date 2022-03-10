@@ -14,6 +14,7 @@ import {
 } from '@segment/actions-core'
 import asyncHandler from './async-handler'
 import getExchanges from './summarize-http'
+import { AggregateAjvError } from '../../../ajv-human-errors/src/aggregate-ajv-error'
 interface ResponseError extends Error {
   status?: number
 }
@@ -27,7 +28,7 @@ app.use(
 )
 
 const DEFAULT_PORT = 3000
-const port = process.env.PORT || DEFAULT_PORT
+const port = parseInt(process.env.PORT ?? '', 10) || DEFAULT_PORT
 const server = http.createServer(app)
 const destinationSlug = process.env.DESTINATION as string
 const directory = process.env.DIRECTORY as string
@@ -154,7 +155,8 @@ function setupRoutes(def: DestinationDefinition | null): void {
         const fields: Record<string, string> = {}
 
         if (error.name === 'AggregateAjvError') {
-          for (const fieldError of error) {
+          const ajvErr = error as AggregateAjvError
+          for (const fieldError of ajvErr) {
             // eslint-disable-next-line @typescript-eslint/no-unsafe-call
             const name = fieldError.path.replace('$.', '')
             fields[name] = fieldError.message
@@ -185,7 +187,7 @@ function setupRoutes(def: DestinationDefinition | null): void {
           const eventParams = {
             data: req.body.payload || {},
             settings: req.body.settings || {},
-            mapping: req.body.payload || {},
+            mapping: req.body.mapping || req.body.payload || {},
             auth: req.body.auth || {}
           }
 
