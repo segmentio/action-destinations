@@ -64,7 +64,7 @@ export const patchAudience = async (
         throw new Error(`The Audience ID should be a number (${operation.audience_id})`)
 
     const endpoint = `${BASE_API_URL}/audiences/${operation.audience_id}/contactlist`
-    const headers = getRequestHeaders(request, credentials);
+    const headers = await getRequestHeaders(request, credentials);
     const payload = {
         "data": {
             "type": "ContactlistAmendment",
@@ -75,16 +75,11 @@ export const patchAudience = async (
             }
         }
     }
-    const options = {
+    return fetchRetry(request, endpoint, {
         method: 'PATCH',
         json: payload,
         headers: headers
-    }
-    return await fetchRetry(
-        request,
-        endpoint,
-        options
-    );
+    })
 }
 
 export const getAdvertiserAudiences = async (
@@ -120,11 +115,10 @@ export const getAudienceId = async (
 
     const advertiser_audiences = await getAdvertiserAudiences(request, advertiser_id, credentials)
 
-    advertiser_audiences.forEach(audience => {
+    for (let audience of advertiser_audiences) {
         if (audience.attributes.name === audience_name)
             return audience.id
-    });
-
+    }
     return await createAudience(request, advertiser_id, audience_name, credentials)
 }
 
