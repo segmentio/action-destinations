@@ -138,7 +138,7 @@ describe('addUserToAudience', () => {
     ).resolves.not.toThrowError()
   })
 
-  it('aaa', async () => {
+  it('should not throw an error if the audience already exists and the patch requests succeeds', async () => {
     let settings = VALID_SETTINGS;
     nock('https://api.criteo.com').persist().post('/oauth2/token').reply(200, MOCK_TOKEN_RESPONSE)
     nock('https://api.criteo.com').get(/^\/\d{4}-\d{2}\/audiences$/).query({ "advertiser-id": settings.advertiser_id }).reply(200, ADVERTISER_AUDIENCES)
