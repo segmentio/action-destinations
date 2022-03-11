@@ -16,13 +16,13 @@ const action: ActionDefinition<Settings, Payload> = {
       description: 'Name of the account. This is required to create an account.',
       type: 'string',
       default: {
-        '@path': '$.name'
+        '@path': '$.traits.name'
       }
     },
     account_number: {
       label: 'Account Number',
       description:
-        'Account number assigned to the account. This is not the unique, system-generated ID assigned during creation.',
+        'Account number assigned to the account. This is not the unique, Salesforce-generated ID assigned during creation.',
       type: 'string',
       default: {
         '@path': '$.groupId'

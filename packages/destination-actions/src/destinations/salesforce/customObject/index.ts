@@ -14,7 +14,7 @@ const action: ActionDefinition<Settings, Payload> = {
     customObjectName: {
       label: 'Salesforce Object',
       description:
-        'The API name of the Salesforce object that records will be added or updated within. The object must be predefined in your Salesforce account. Values should end with "__c".',
+        'The API name of the Salesforce object that records will be added or updated within. This can be a standard or custom object. Custom objects must be predefined in your Salesforce account and should end with "__c".',
       type: 'string',
       required: true
     },

@@ -12,12 +12,13 @@ const action: ActionDefinition<Settings, Payload> = {
     traits: traits,
     amount: {
       label: 'Amount',
-      description: 'Estimated total sale amount',
+      description: 'Estimated total sale amount.',
       type: 'string'
     },
     close_date: {
       label: 'Close Date',
-      description: 'Date when the opportunity is expected to close. This is required to create an opportunity.',
+      description:
+        'Date when the opportunity is expected to close. Use yyyy-MM-dd format. This is required to create an opportunity.',
       type: 'string'
     },
     description: {
@@ -32,8 +33,7 @@ const action: ActionDefinition<Settings, Payload> = {
     },
     stage_name: {
       label: 'Stage Name',
-      description:
-        'Current stage of the opportunity. This is required to create an opportunity. The Stage Name value must match available picklist values in the OpportunityStage object.',
+      description: 'Current stage of the opportunity. This is required to create an opportunity.',
       type: 'string'
     },
     customFields: customFields

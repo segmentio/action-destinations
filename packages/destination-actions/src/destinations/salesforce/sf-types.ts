@@ -28,6 +28,7 @@ export type CaseBaseShapeType = {
 export type ContactBaseShapeType = {
   LastName?: string
   FirstName?: string
+  AccountId?: string
   MailingState?: string
   MailingStreet?: string
   MailingCountry?: string

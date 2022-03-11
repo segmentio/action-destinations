@@ -2,11 +2,11 @@
 
 export interface Payload {
   /**
-   * The Salesforce operation performed. The available operations are Create, Update or Upsert Lead records in Salesforce.
+   * The Salesforce operation performed. The available operations are Create, Update or Upsert records in Salesforce.
    */
   operation: string
   /**
-   * The fields used to find Salesforce Lead records for updates. This is required if the operation is Update or Upsert.
+   * The fields used to find Salesforce records for updates. **This is required if the operation is Update or Upsert**.
    *
    *   Any field can function as a matcher, including Record ID, External IDs, standard fields and custom fields. On the left-hand side, input the Salesforce field API name. On the right-hand side, map the Segment field that contains the value.
    *
@@ -20,7 +20,7 @@ export interface Payload {
    */
   name?: string
   /**
-   * Account number assigned to the account. This is not the unique, system-generated ID assigned during creation.
+   * Account number assigned to the account. This is not the unique, Salesforce-generated ID assigned during creation.
    */
   account_number?: string
   /**

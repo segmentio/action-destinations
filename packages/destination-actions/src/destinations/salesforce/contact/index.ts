@@ -34,6 +34,12 @@ const action: ActionDefinition<Settings, Payload> = {
         }
       }
     },
+    account_id: {
+      label: 'Account ID',
+      description:
+        'The ID of the account that this contact is associated with. This is the Salesforce-generated ID assigned to the account during creation (i.e. 0018c00002CDThnAAH).',
+      type: 'string'
+    },
     email: {
       label: 'Email',
       description: "The contact's email address.",

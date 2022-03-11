@@ -63,6 +63,7 @@ const ContactShape = (payload: GenericPayload): ContactBaseShapeType => {
   return {
     LastName: payload.last_name,
     FirstName: payload.first_name,
+    AccountId: payload.account_id,
     Email: payload.email,
     MailingState: payload.mailing_state,
     MailingStreet: payload.mailing_street,
