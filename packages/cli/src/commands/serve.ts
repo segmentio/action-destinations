@@ -136,9 +136,8 @@ export default class Serve extends Command {
 
     watcher.once('ready', () => {
       this.log(chalk.greenBright`Watching required files for changes .. `)
-      //todo replace this with prod url
-      // open(`http://localhost:8000/partner-portal/actions-tester`)
-      void open('https://app.segment.build/partner-portal/actions-tester')
+      this.log(chalk.greenBright`Visit https://app.segment.com/dev_center/actions-tester to preview your integration.`)
+      void open('https://app.segment.com/dev_center/actions-tester')
     })
 
     start()
