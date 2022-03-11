@@ -144,7 +144,7 @@ function setupRoutes(def: DestinationDefinition | null): void {
 
   router.get(
     '/manifest',
-    asyncHandler(async (req: express.Request, res: express.Response) => {
+    asyncHandler(async (_, res: express.Response) => {
       res.json(destination.definition)
     })
   )
