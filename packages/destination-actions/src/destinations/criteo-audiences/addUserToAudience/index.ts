@@ -73,15 +73,13 @@ const action: ActionDefinition<Settings, Payload> = {
       }
     },
   },
-  perform: async () => {
-    return
+  perform: async (request, { settings, payload }) => {
+    return await processPayload(request, settings, [payload])
   },
 
   performBatch: async (request, { settings, payload }) => {
-    console.time('perform time');
-    const response = await processPayload(request, settings, payload);
-    console.timeEnd('perform time');
-    return response;
+    return await processPayload(request, settings, payload);
+
   }
 }
 export default action

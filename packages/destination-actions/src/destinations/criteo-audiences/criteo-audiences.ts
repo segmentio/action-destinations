@@ -125,7 +125,6 @@ export const getAudienceId = async (
         throw new Error(`Invalid Audience Name: ${audience_name}`)
 
     const advertiser_audiences = await getAdvertiserAudiences(request, advertiser_id, credentials)
-
     for (const audience of advertiser_audiences) {
         if (audience.attributes.name === audience_name)
             return audience.id

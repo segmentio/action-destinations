@@ -33,7 +33,7 @@ const destination: DestinationDefinition<Settings> = {
       }
     },
     testAuthentication: async (request, { settings }) => {
-      let credentials: ClientCredentials = await criteoAuthenticate(request, {
+      const credentials: ClientCredentials = await criteoAuthenticate(request, {
         client_id: settings.client_id,
         client_secret: settings.client_secret
       })
