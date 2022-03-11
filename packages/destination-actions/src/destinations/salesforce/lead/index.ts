@@ -13,7 +13,7 @@ const action: ActionDefinition<Settings, Payload> = {
     traits: traits,
     company: {
       label: 'Company',
-      description: "The lead's company. This is required to create a lead.",
+      description: "The lead's company. **This is required to create a lead.**",
       type: 'string',
       default: {
         '@if': {
@@ -25,7 +25,7 @@ const action: ActionDefinition<Settings, Payload> = {
     },
     last_name: {
       label: 'Last Name',
-      description: "The lead's last name. This is required to create a lead.",
+      description: "The lead's last name. **This is required to create a lead.**",
       type: 'string',
       default: {
         '@if': {

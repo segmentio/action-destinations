@@ -13,7 +13,7 @@ const action: ActionDefinition<Settings, Payload> = {
     traits: traits,
     name: {
       label: 'Name',
-      description: 'Name of the account. This is required to create an account.',
+      description: 'Name of the account. **This is required to create an account.**',
       type: 'string',
       default: {
         '@path': '$.traits.name'

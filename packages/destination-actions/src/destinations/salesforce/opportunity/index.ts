@@ -10,30 +10,30 @@ const action: ActionDefinition<Settings, Payload> = {
   fields: {
     operation: operation,
     traits: traits,
+    close_date: {
+      label: 'Close Date',
+      description:
+        'Date when the opportunity is expected to close. Use yyyy-MM-dd format. **This is required to create an opportunity.**',
+      type: 'string'
+    },
+    name: {
+      label: 'Name',
+      description: 'A name for the opportunity. **This is required to create an opportunity.**',
+      type: 'string'
+    },
+    stage_name: {
+      label: 'Stage Name',
+      description: 'Current stage of the opportunity. **This is required to create an opportunity.**',
+      type: 'string'
+    },
     amount: {
       label: 'Amount',
       description: 'Estimated total sale amount.',
       type: 'string'
     },
-    close_date: {
-      label: 'Close Date',
-      description:
-        'Date when the opportunity is expected to close. Use yyyy-MM-dd format. This is required to create an opportunity.',
-      type: 'string'
-    },
     description: {
       label: 'Description',
       description: 'A text description of the opportunity.',
-      type: 'string'
-    },
-    name: {
-      label: 'Name',
-      description: 'A name for the opportunity. This is required to create an opportunity.',
-      type: 'string'
-    },
-    stage_name: {
-      label: 'Stage Name',
-      description: 'Current stage of the opportunity. This is required to create an opportunity.',
       type: 'string'
     },
     customFields: customFields

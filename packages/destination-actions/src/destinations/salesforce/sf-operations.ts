@@ -91,7 +91,7 @@ export default class Salesforce {
   }
 
   private buildQuery = (traits: object, sobject: string) => {
-    let soql = `?q=SELECT Id FROM ${sobject} WHERE `
+    let soql = `SELECT Id FROM ${sobject} WHERE `
 
     const entries = Object.entries(traits)
     let i = 0
@@ -109,9 +109,9 @@ export default class Salesforce {
   }
 
   private lookupTraits = async (traits: object, sobject: string): Promise<[string, IntegrationError | undefined]> => {
-    const SOQLQuery = this.buildQuery(traits, sobject)
+    const SOQLQuery = encodeURIComponent(this.buildQuery(traits, sobject))
     const res = await this.request<LookupResponseData>(
-      `${this.instanceUrl}/services/data/${API_VERSION}/query/${SOQLQuery}`,
+      `${this.instanceUrl}services/data/${API_VERSION}/query?q=${SOQLQuery}`,
       { method: 'get' }
     )
 

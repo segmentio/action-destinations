@@ -12,7 +12,7 @@ const action: ActionDefinition<Settings, Payload> = {
     traits: traits,
     last_name: {
       label: 'Last Name',
-      description: "The contact's last name up to 80 characters. This is required to create a contact.",
+      description: "The contact's last name up to 80 characters. **This is required to create a contact.**",
       type: 'string',
       default: {
         '@if': {
