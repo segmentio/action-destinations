@@ -12,19 +12,20 @@ export type Operation = {
 
 export type ClientCredentials = {
     client_id: string,
-    client_secret: string
+    client_secret: string,
+    access_token?: string
 }
 
 const getRequestHeaders = async (
     request: RequestFn,
     credentials: ClientCredentials
 ): Promise<Record<string, string>> => {
-    const access_token: string = await getAccessToken(request, credentials);
+    credentials = await criteoAuthenticate(request, credentials);
 
     return {
         'Accept': 'application/json',
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ` + access_token
+        'Authorization': `Bearer ` + credentials.access_token
     }
 }
 
@@ -50,6 +51,16 @@ export const getAccessToken = async (
         throw new Error(`Error while getting an access token: ${JSON.stringify(body)}`)
 
     return body.access_token
+}
+
+export const criteoAuthenticate = async (
+    request: RequestFn,
+    credentials: ClientCredentials
+): Promise<ClientCredentials> => {
+    // If we don't have any auth token yet, we get one and add it to the credentials
+    if (!credentials.access_token)
+        credentials.access_token = await getAccessToken(request, credentials)
+    return credentials
 }
 
 export const patchAudience = async (
