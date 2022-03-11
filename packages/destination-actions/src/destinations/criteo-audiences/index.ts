@@ -2,7 +2,7 @@ import type { DestinationDefinition } from '@segment/actions-core'
 import type { Settings } from './generated-types'
 import addUserToAudience from './addUserToAudience'
 import removeUserFromAudience from './removeUserFromAudience'
-import { getAccessToken } from './criteo-audiences'
+import { criteoAuthenticate } from './criteo-audiences'
 import type { ClientCredentials } from './criteo-audiences'
 
 const destination: DestinationDefinition<Settings> = {
@@ -32,12 +32,12 @@ const destination: DestinationDefinition<Settings> = {
         required: true
       }
     },
-    testAuthentication: (request, { settings }) => {
-      const credentials: ClientCredentials = {
+    testAuthentication: async (request, { settings }) => {
+      let credentials: ClientCredentials = await criteoAuthenticate(request, {
         client_id: settings.client_id,
         client_secret: settings.client_secret
-      }
-      return getAccessToken(request, credentials)
+      })
+      return credentials.access_token
     }
   },
   actions: {
