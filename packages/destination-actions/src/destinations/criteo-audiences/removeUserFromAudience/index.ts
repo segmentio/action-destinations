@@ -75,8 +75,8 @@ const action: ActionDefinition<Settings, Payload> = {
       }
     },
   },
-  perform: async (request, { settings, payload }) => {
-    return await processPayload(request, settings, [payload]);
+  perform: async () => {
+    return;
   },
   performBatch: async (request, { settings, payload }) => {
     return await processPayload(request, settings, payload);

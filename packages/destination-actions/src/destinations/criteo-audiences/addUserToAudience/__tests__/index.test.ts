@@ -53,7 +53,7 @@ const AUDIENCE_CREATION_RESPONSE = {
 
 describe('addUserToAudience', () => {
   it('should throw error if no access to the audiences of the advertiser', async () => {
-    let settings = VALID_SETTINGS;
+    const settings = VALID_SETTINGS;
     nock('https://api.criteo.com').persist().post('/oauth2/token').reply(200, MOCK_TOKEN_RESPONSE)
     nock('https://api.criteo.com').get(/^\/\d{4}-\d{2}\/audiences$/).query({ "advertiser-id": settings.advertiser_id }).reply(403)
     await expect(
@@ -68,7 +68,7 @@ describe('addUserToAudience', () => {
   it('should throw error if advertiser ID is not a number', async () => {
     nock('https://api.criteo.com').persist().post('/oauth2/token').reply(200, MOCK_TOKEN_RESPONSE)
 
-    let settings = {
+    const settings = {
       client_id: "client_id",
       client_secret: "client_secret",
       advertiser_id: INVALID_ADVERTISER_ID
@@ -84,7 +84,7 @@ describe('addUserToAudience', () => {
   })
 
   it('should throw error if failing to create a new audience', async () => {
-    let settings = VALID_SETTINGS;
+    const settings = VALID_SETTINGS;
     nock('https://api.criteo.com').persist().post('/oauth2/token').reply(200, MOCK_TOKEN_RESPONSE)
     nock('https://api.criteo.com').get(/^\/\d{4}-\d{2}\/audiences$/).query({ "advertiser-id": settings.advertiser_id }).reply(200, {
       "data": [
@@ -111,7 +111,7 @@ describe('addUserToAudience', () => {
   })
 
   it('should not throw an error if the audience creation and the patch requests succeed', async () => {
-    let settings = VALID_SETTINGS;
+    const settings = VALID_SETTINGS;
     nock('https://api.criteo.com').persist().post('/oauth2/token').reply(200, MOCK_TOKEN_RESPONSE)
     nock('https://api.criteo.com').get(/^\/\d{4}-\d{2}\/audiences$/).query({ "advertiser-id": settings.advertiser_id }).reply(200, {
       "data": [
@@ -139,7 +139,7 @@ describe('addUserToAudience', () => {
   })
 
   it('should not throw an error if the audience already exists and the patch requests succeeds', async () => {
-    let settings = VALID_SETTINGS;
+    const settings = VALID_SETTINGS;
     nock('https://api.criteo.com').persist().post('/oauth2/token').reply(200, MOCK_TOKEN_RESPONSE)
     nock('https://api.criteo.com').get(/^\/\d{4}-\d{2}\/audiences$/).query({ "advertiser-id": settings.advertiser_id }).reply(200, ADVERTISER_AUDIENCES)
     nock('https://api.criteo.com').patch(/^\/\d{4}-\d{2}\/audiences\/\d+\/contactlist$/).reply(200)

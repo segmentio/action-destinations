@@ -12,7 +12,6 @@ const getOperationFromPayload = async (
 ): Promise<Operation> => {
   const add_user_list: string[] = [];
   let audience_key = '';
-
   for (const event of payload) {
     if (!audience_key && event.audience_key)
       audience_key = event.audience_key;
@@ -21,7 +20,6 @@ const getOperationFromPayload = async (
   }
 
   const audience_id = await getAudienceId(request, advertiser_id, audience_key, credentials)
-
   const operation: Operation = {
     operation_type: "add",
     audience_id: audience_id,
@@ -35,13 +33,13 @@ const processPayload = async (
   settings: Settings,
   payload: Payload[]
 ): Promise<Response> => {
-
   const credentials: ClientCredentials = {
     client_id: settings.client_id,
     client_secret: settings.client_secret
   }
   const operation: Operation = await getOperationFromPayload(request, settings.advertiser_id, payload, credentials);
   return await patchAudience(request, operation, credentials)
+
 }
 
 const action: ActionDefinition<Settings, Payload> = {
@@ -75,12 +73,15 @@ const action: ActionDefinition<Settings, Payload> = {
       }
     },
   },
-  perform: async (request, { settings, payload }) => {
-    return await processPayload(request, settings, [payload]);
+  perform: async () => {
+    return
   },
+
   performBatch: async (request, { settings, payload }) => {
-    return await processPayload(request, settings, payload);
+    console.time('perform time');
+    const response = await processPayload(request, settings, payload);
+    console.timeEnd('perform time');
+    return response;
   }
 }
-
 export default action

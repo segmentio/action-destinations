@@ -20,13 +20,13 @@ const MOCK_TOKEN_RESPONSE = {
 describe('testAuthentication', () => {
   it('should validate valid auth token', async () => {
     nock('https://api.criteo.com').post('/oauth2/token').reply(200, MOCK_TOKEN_RESPONSE);
-    let settings = VALID_SETTINGS;
+    const settings = VALID_SETTINGS;
     await expect(testDestination.testAuthentication(settings)).resolves.not.toThrowError()
   })
 
   it('should test that authentication fails', async () => {
     nock('https://api.criteo.com').post('/oauth2/token').reply(401)
-    let settings = VALID_SETTINGS;
+    const settings = VALID_SETTINGS;
     await expect(testDestination.testAuthentication(settings)).rejects.toThrowError("")
   })
 })
