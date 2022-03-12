@@ -21,7 +21,7 @@ const action: BrowserActionDefinition<Settings, KoalaSDK, Payload> = {
       required: false,
       description: 'Properties to send with the event.',
       label: 'Event Properties',
-      default: { '@path': '$.traits' },
+      default: { '@path': '$.properties' },
       defaultObjectUI: 'object'
     }
   },
