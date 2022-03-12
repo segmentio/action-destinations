@@ -105,15 +105,15 @@ export default class Salesforce {
       soql += token
       i += 1
     }
+    console.log('soql', soql)
     return soql
   }
 
   private lookupTraits = async (traits: object, sobject: string): Promise<[string, IntegrationError | undefined]> => {
     const SOQLQuery = encodeURIComponent(this.buildQuery(traits, sobject))
-    const res = await this.request<LookupResponseData>(
-      `${this.instanceUrl}services/data/${API_VERSION}/query?q=${SOQLQuery}`,
-      { method: 'get' }
-    )
+    const url = `${this.instanceUrl}services/data/${API_VERSION}/query/?q=${SOQLQuery}`
+    console.log('url', url)
+    const res = await this.request<LookupResponseData>(url, { method: 'GET' })
 
     if (!res || !res.data || res.data.totalSize === undefined) {
       return ['', new IntegrationError('Response missing expected fields', 'Bad Response', 400)]

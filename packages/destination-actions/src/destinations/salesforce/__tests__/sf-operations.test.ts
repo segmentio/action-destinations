@@ -4,7 +4,7 @@ import Salesforce from '../sf-operations'
 import { API_VERSION } from '../sf-operations'
 
 const settings = {
-  instanceUrl: 'https://test.com'
+  instanceUrl: 'https://test.com/'
 }
 
 const requestClient = createRequestClient()
@@ -13,9 +13,11 @@ describe('Salesforce', () => {
   describe('Operations', () => {
     const sf: Salesforce = new Salesforce(settings.instanceUrl, requestClient)
 
-    it('should lookup based on a single trait', async () => {
-      nock(`${settings.instanceUrl}/services/data/${API_VERSION}/query`)
-        .get(`/?q=SELECT Id FROM Lead WHERE email = 'sponge@seamail.com'`)
+    it.only('should lookup based on a single trait', async () => {
+      const query = encodeURIComponent(`SELECT Id FROM Lead WHERE email = 'sponge@seamail.com'`).replace(/'/g, '%27')
+      console.log('query', query)
+      nock(`${settings.instanceUrl}/services/data/${API_VERSION}/query/?=`)
+        .get(query)
         .reply(201, {
           Id: 'abc123',
           totalSize: 1,
