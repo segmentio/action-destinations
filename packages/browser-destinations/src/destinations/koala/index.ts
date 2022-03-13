@@ -10,6 +10,9 @@ import identifyVisitor from './identifyVisitor'
 declare global {
   interface Window {
     ko: KoalaSDK
+    koalaSettings: {
+      hookSegment?: boolean
+    }
   }
 }
 
@@ -27,9 +30,18 @@ export const destination: BrowserDestinationDefinition<Settings, KoalaSDK> = {
     }
   },
 
-  initialize: async ({ settings }, deps) => {
+  initialize: async ({ settings, analytics }, deps) => {
+    window.koalaSettings = {
+      hookSegment: false
+    }
+
     initScript()
     await deps.loadScript(`https://cdn.koala.live/v1/${settings.project_slug}/sdk.js`)
+
+    void analytics.ready(() =>
+      window.ko.ready(() => window.ko.identify(analytics.user().traits() as Record<string, unknown>))
+    )
+
     return window.ko
   },
 
