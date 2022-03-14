@@ -10,7 +10,7 @@ export interface Payload {
   /**
    * Unique identifier of the customer profile.
    */
-  CustomerProfileId: string
+  customerProfileId: string
   /**
    * List the AVPs you need to update in the customer profile.
    */

@@ -14,7 +14,7 @@ const action: ActionDefinition<Settings, Payload> = {
       multiple: true,
       required: true
     },
-    CustomerProfileId: { ...customerProfileId },
+    customerProfileId: { ...customerProfileId },
     attributes: { ...attribute },
     mutualAttributes: { ...attribute }
   },
