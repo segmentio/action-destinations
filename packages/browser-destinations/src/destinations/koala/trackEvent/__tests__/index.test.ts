@@ -28,8 +28,12 @@ const subscriptions: Subscription[] = [
 describe('Koala.trackEvent', () => {
   test('it maps the event name and properties and passes them into ko.track', async () => {
     window.ko = {
+      ready: jest.fn(),
       track: jest.fn().mockResolvedValueOnce(undefined),
       identify: jest.fn().mockResolvedValueOnce(undefined)
+    }
+    window.KoalaSDK = {
+      load: jest.fn().mockResolvedValueOnce(window.ko)
     }
 
     const [event] = await KoalaDestination({
@@ -37,7 +41,8 @@ describe('Koala.trackEvent', () => {
       project_slug: 'koala-test'
     })
 
-    await event.load(Context.system(), {} as Analytics)
+    const ajs = new Analytics({ writeKey: 'w_123' })
+    await event.load(Context.system(), ajs)
     jest.spyOn(destination.actions.trackEvent, 'perform')
 
     await event.track?.(

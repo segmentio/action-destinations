@@ -25,8 +25,12 @@ const subscriptions: Subscription[] = [
 describe('Koala.identifyVisitor', () => {
   test('it maps traits and passes them into ko.identify', async () => {
     window.ko = {
+      ready: jest.fn(),
       track: jest.fn().mockResolvedValueOnce(undefined),
       identify: jest.fn().mockResolvedValueOnce(undefined)
+    }
+    window.KoalaSDK = {
+      load: jest.fn().mockResolvedValueOnce(window.ko)
     }
 
     const [event] = await KoalaDestination({
@@ -34,7 +38,8 @@ describe('Koala.identifyVisitor', () => {
       project_slug: 'koala-test'
     })
 
-    await event.load(Context.system(), {} as Analytics)
+    const ajs = new Analytics({ writeKey: 'w_123' })
+    await event.load(Context.system(), ajs)
     jest.spyOn(destination.actions.identifyVisitor, 'perform')
 
     await event.identify?.(

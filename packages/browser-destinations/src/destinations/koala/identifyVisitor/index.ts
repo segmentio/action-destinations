@@ -1,9 +1,9 @@
 import type { BrowserActionDefinition } from '../../../lib/browser-destinations'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
-import type { KoalaSDK } from '../types'
+import type { Koala } from '../types'
 
-const action: BrowserActionDefinition<Settings, KoalaSDK, Payload> = {
+const action: BrowserActionDefinition<Settings, Koala, Payload> = {
   title: 'Identify Visitor',
   description: 'Update visitor traits in Koala.',
   defaultSubscription: 'type = "identify"',
