@@ -20,7 +20,7 @@ export const traits: InputField = {
 
   Any field can function as a matcher, including Record ID, External IDs, standard fields and custom fields. On the left-hand side, input the Salesforce field API name. On the right-hand side, map the Segment field that contains the value.  
   
-  If multiple records are found, no updates will be made. Please use fields that result in unique records.  
+  If multiple records are found, no updates will be made. **Please use fields that result in unique records**.  
   
   ---
 
