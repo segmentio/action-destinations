@@ -1,30 +1,33 @@
 import type { ActionDefinition } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
+import { attribute, audienceId, customerProfileId } from '../t1-properties'
 
 const action: ActionDefinition<Settings, Payload> = {
-  title: 'Update Audience',
-  description: 'This synchronizes audience data if there is an existing audience entity.',
+  title: 'Update Customer Profile',
+  description: 'This synchronizes customer profile data concerning audiences and attributes.',
   fields: {
-    audience_id: {
-      label: 'audience_id',
-      description: 'You should get this audience ID from Segment.',
-      type: 'string',
-      required: true
-    },
-    audience_name: {
-      label: 'audience_name',
-      description: 'You should get this audience name from Segment.',
-      type: 'string',
-      required: true
+    attributes: { ...attribute },
+    customerProfileId: { ...customerProfileId },
+    audienceId: { ...audienceId },
+    runRuleEngine: {
+      label: 'This runs rule engine in talon-service upon updating customer profile',
+      description: 'Set to true if the update requires to trigger all the rules.',
+      type: 'boolean',
+      default: false
     }
   },
   perform: (request, { payload }) => {
     // Make your partner api request here!
-    return request(`https://integration.talon.one/segment/audiences/${payload.audience_id}`, {
+    return request(`https://integration.talon.one/segment/customer_profile/${payload.customerProfileId}`, {
       method: 'put',
       json: {
-        audience_name: payload.audience_name
+        attributes: payload.attributes,
+        audiencesChanges: {
+          adds: payload.audienceId,
+          deletes: payload.audienceId
+        },
+        runRuleEngine: payload.runRuleEngine
       }
     })
   }

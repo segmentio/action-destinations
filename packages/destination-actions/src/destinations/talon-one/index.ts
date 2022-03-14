@@ -4,6 +4,9 @@ import type { Settings } from './generated-types'
 import createAudience from './createAudience'
 import updateAudience from './updateAudience'
 import deleteAudience from './deleteAudience'
+import updateCustomerProfile from './updateCustomerProfile'
+import updateCustomerProfilesAttributes from './updateCustomerProfilesAttributes'
+import updateCustomerProfilesAudiences from './updateCustomerProfilesAudiences'
 import trackEvent from './trackEvent'
 
 const destination: DestinationDefinition<Settings> = {
@@ -48,6 +51,9 @@ const destination: DestinationDefinition<Settings> = {
     createAudience,
     updateAudience,
     deleteAudience,
+    updateCustomerProfile,
+    updateCustomerProfilesAttributes,
+    updateCustomerProfilesAudiences,
     trackEvent
   }
 }
