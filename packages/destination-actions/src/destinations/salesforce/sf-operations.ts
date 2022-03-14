@@ -19,7 +19,7 @@ export default class Salesforce {
   request: RequestClient
 
   constructor(instanceUrl: string, request: RequestClient) {
-    this.instanceUrl = instanceUrl
+    this.instanceUrl = instanceUrl.concat(instanceUrl.slice(-1) === '/' ? '' : '/')
     this.request = request
   }
 
@@ -110,6 +110,7 @@ export default class Salesforce {
 
   private lookupTraits = async (traits: object, sobject: string): Promise<[string, IntegrationError | undefined]> => {
     const SOQLQuery = encodeURIComponent(this.buildQuery(traits, sobject))
+
     const res = await this.request<LookupResponseData>(
       `${this.instanceUrl}services/data/${API_VERSION}/query/?q=${SOQLQuery}`,
       { method: 'GET' }
