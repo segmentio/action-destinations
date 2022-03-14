@@ -26,7 +26,7 @@ export default class Salesforce {
   createRecord = async (payload: GenericPayload, sobject: string) => {
     const json = this.buildJSONData(payload, sobject)
 
-    return this.request(`${this.instanceUrl}/services/data/${API_VERSION}/sobjects/${sobject}`, {
+    return this.request(`${this.instanceUrl}services/data/${API_VERSION}/sobjects/${sobject}`, {
       method: 'post',
       json: json
     })
@@ -69,7 +69,7 @@ export default class Salesforce {
   private baseUpdate = async (recordId: string, sobject: string, payload: GenericPayload) => {
     const json = this.buildJSONData(payload, sobject)
 
-    return this.request(`${this.instanceUrl}/services/data/${API_VERSION}/sobjects/${sobject}/${recordId}`, {
+    return this.request(`${this.instanceUrl}services/data/${API_VERSION}/sobjects/${sobject}/${recordId}`, {
       method: 'patch',
       json: json
     })
@@ -105,15 +105,15 @@ export default class Salesforce {
       soql += token
       i += 1
     }
-    console.log('soql', soql)
     return soql
   }
 
   private lookupTraits = async (traits: object, sobject: string): Promise<[string, IntegrationError | undefined]> => {
     const SOQLQuery = encodeURIComponent(this.buildQuery(traits, sobject))
-    const url = `${this.instanceUrl}services/data/${API_VERSION}/query/?q=${SOQLQuery}`
-    console.log('url', url)
-    const res = await this.request<LookupResponseData>(url, { method: 'GET' })
+    const res = await this.request<LookupResponseData>(
+      `${this.instanceUrl}services/data/${API_VERSION}/query/?q=${SOQLQuery}`,
+      { method: 'GET' }
+    )
 
     if (!res || !res.data || res.data.totalSize === undefined) {
       return ['', new IntegrationError('Response missing expected fields', 'Bad Response', 400)]

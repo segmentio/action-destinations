@@ -13,18 +13,18 @@ describe('Salesforce', () => {
   describe('Operations', () => {
     const sf: Salesforce = new Salesforce(settings.instanceUrl, requestClient)
 
-    it.only('should lookup based on a single trait', async () => {
-      const query = encodeURIComponent(`SELECT Id FROM Lead WHERE email = 'sponge@seamail.com'`).replace(/'/g, '%27')
-      console.log('query', query)
-      nock(`${settings.instanceUrl}/services/data/${API_VERSION}/query/?=`)
-        .get(query)
+    it('should lookup based on a single trait', async () => {
+      const query = encodeURIComponent(`SELECT Id FROM Lead WHERE email = 'sponge@seamail.com'`)
+
+      nock(`${settings.instanceUrl}services/data/${API_VERSION}/query`)
+        .get(`/?q=${query}`)
         .reply(201, {
           Id: 'abc123',
           totalSize: 1,
           records: [{ Id: '123456' }]
         })
 
-      nock(`${settings.instanceUrl}/services/data/${API_VERSION}/sobjects`).patch('/Lead/123456').reply(201, {})
+      nock(`${settings.instanceUrl}services/data/${API_VERSION}/sobjects`).patch('/Lead/123456').reply(201, {})
 
       await sf.updateRecord(
         {
@@ -37,15 +37,18 @@ describe('Salesforce', () => {
     })
 
     it('should lookup based on multiple traits', async () => {
-      nock(`${settings.instanceUrl}/services/data/${API_VERSION}/query`)
-        .get(`/?q=SELECT Id FROM Lead WHERE email = 'sponge@seamail.com' OR company = 'Krusty Krab'`)
+      const query = encodeURIComponent(
+        `SELECT Id FROM Lead WHERE email = 'sponge@seamail.com' OR company = 'Krusty Krab'`
+      )
+      nock(`${settings.instanceUrl}services/data/${API_VERSION}/query`)
+        .get(`/?q=${query}`)
         .reply(201, {
           Id: 'abc123',
           totalSize: 1,
           records: [{ Id: '123456' }]
         })
 
-      nock(`${settings.instanceUrl}/services/data/${API_VERSION}/sobjects`).patch('/Lead/123456').reply(201, {})
+      nock(`${settings.instanceUrl}services/data/${API_VERSION}/sobjects`).patch('/Lead/123456').reply(201, {})
 
       await sf.updateRecord(
         {
@@ -59,11 +62,10 @@ describe('Salesforce', () => {
     })
 
     it('should fail when a record is not found', async () => {
-      nock(`${settings.instanceUrl}/services/data/${API_VERSION}/query`)
-        .get(`/?q=SELECT Id FROM Lead WHERE email = 'sponge@seamail.com'`)
-        .reply(201, {
-          totalSize: 0
-        })
+      const query = encodeURIComponent(`SELECT Id FROM Lead WHERE email = 'sponge@seamail.com'`)
+      nock(`${settings.instanceUrl}services/data/${API_VERSION}/query`).get(`/?q=${query}`).reply(201, {
+        totalSize: 0
+      })
 
       await expect(
         sf.updateRecord(
@@ -78,11 +80,10 @@ describe('Salesforce', () => {
     })
 
     it('should fail when multiple records are found', async () => {
-      nock(`${settings.instanceUrl}/services/data/${API_VERSION}/query`)
-        .get(`/?q=SELECT Id FROM Lead WHERE email = 'sponge@seamail.com'`)
-        .reply(201, {
-          totalSize: 15
-        })
+      const query = encodeURIComponent(`SELECT Id FROM Lead WHERE email = 'sponge@seamail.com'`)
+      nock(`${settings.instanceUrl}services/data/${API_VERSION}/query`).get(`/?q=${query}`).reply(201, {
+        totalSize: 15
+      })
 
       await expect(
         sf.updateRecord(
@@ -98,13 +99,14 @@ describe('Salesforce', () => {
 
     describe('upsert', () => {
       it('should create a new record when no records are found', async () => {
-        nock(`${settings.instanceUrl}/services/data/${API_VERSION}/query`)
-          .get(`/?q=SELECT Id FROM Lead WHERE email = 'sponge@seamail.com' OR company = 'Krusty Krab'`)
-          .reply(201, {
-            totalSize: 0
-          })
+        const query = encodeURIComponent(
+          `SELECT Id FROM Lead WHERE email = 'sponge@seamail.com' OR company = 'Krusty Krab'`
+        )
+        nock(`${settings.instanceUrl}services/data/${API_VERSION}/query`).get(`/?q=${query}`).reply(201, {
+          totalSize: 0
+        })
 
-        nock(`${settings.instanceUrl}/services/data/${API_VERSION}/sobjects`).post('/Lead').reply(201, {})
+        nock(`${settings.instanceUrl}services/data/${API_VERSION}/sobjects`).post('/Lead').reply(201, {})
 
         await sf.upsertRecord(
           {
@@ -120,11 +122,12 @@ describe('Salesforce', () => {
       })
 
       it('should fail when multiple records are found', async () => {
-        nock(`${settings.instanceUrl}/services/data/${API_VERSION}/query`)
-          .get(`/?q=SELECT Id FROM Lead WHERE email = 'sponge@seamail.com' OR company = 'Krusty Krab'`)
-          .reply(201, {
-            totalSize: 10
-          })
+        const query = encodeURIComponent(
+          `SELECT Id FROM Lead WHERE email = 'sponge@seamail.com' OR company = 'Krusty Krab'`
+        )
+        nock(`${settings.instanceUrl}services/data/${API_VERSION}/query`).get(`/?q=${query}`).reply(201, {
+          totalSize: 10
+        })
 
         await expect(
           sf.upsertRecord(
@@ -142,15 +145,18 @@ describe('Salesforce', () => {
       })
 
       it('should update an existing record if one is found', async () => {
-        nock(`${settings.instanceUrl}/services/data/${API_VERSION}/query`)
-          .get(`/?q=SELECT Id FROM Lead WHERE email = 'sponge@seamail.com' OR company = 'Krusty Krab'`)
+        const query = encodeURIComponent(
+          `SELECT Id FROM Lead WHERE email = 'sponge@seamail.com' OR company = 'Krusty Krab'`
+        )
+        nock(`${settings.instanceUrl}services/data/${API_VERSION}/query`)
+          .get(`/?q=${query}`)
           .reply(201, {
             Id: 'abc123',
             totalSize: 1,
             records: [{ Id: '123456' }]
           })
 
-        nock(`${settings.instanceUrl}/services/data/${API_VERSION}/sobjects`).patch('/Lead/123456').reply(201, {})
+        nock(`${settings.instanceUrl}services/data/${API_VERSION}/sobjects`).patch('/Lead/123456').reply(201, {})
 
         await sf.upsertRecord(
           {
