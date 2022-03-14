@@ -94,4 +94,10 @@ export interface Payload {
    * The browser URL where the event happened. The URL must begin with http:// or https:// and should match the verified domain. event_source_url is required if action_source = “website”; however it is strongly recommended that you include it for any action_source.
    */
   event_source_url?: string
+  /**
+   * The custom data object which can be used to pass custom properties. See [here](https://developers.facebook.com/docs/marketing-api/conversions-api/parameters/custom-data) for more information
+   */
+  custom_data?: {
+    [k: string]: unknown
+  }
 }

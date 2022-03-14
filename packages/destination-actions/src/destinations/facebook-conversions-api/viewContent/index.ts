@@ -2,11 +2,13 @@ import { ActionDefinition, IntegrationError } from '@segment/actions-core'
 import {
   action_source,
   contents,
+  validateContents,
   content_category,
   content_ids,
   content_name,
   content_type,
   currency,
+  custom_data,
   event_id,
   event_source_url,
   event_time,
@@ -52,7 +54,8 @@ const action: ActionDefinition<Settings, Payload> = {
     currency: currency,
     event_id: event_id,
     event_source_url: event_source_url,
-    value: { ...value, default: { '@path': '$.properties.price' } }
+    value: { ...value, default: { '@path': '$.properties.price' } },
+    custom_data: custom_data
   },
   perform: (request, { payload, settings }) => {
     if (payload.currency && !CURRENCY_ISO_CODES.has(payload.currency)) {
@@ -75,25 +78,9 @@ const action: ActionDefinition<Settings, Payload> = {
       )
     }
 
-    const valid_delivery_categories = ['in_store', 'curbside', 'home_delivery']
     if (payload.contents) {
-      payload.contents.forEach((obj, index) => {
-        if (!obj.id) {
-          throw new IntegrationError(
-            "Contents objects must include an 'id' parameter.",
-            'Misconfigured required field',
-            400
-          )
-        }
-
-        if (obj.delivery_category && !valid_delivery_categories.includes(obj.delivery_category)) {
-          throw new IntegrationError(
-            `contents[${index}].delivery_category must be one of {in_store, home_delivery, curbside}.`,
-            'Misconfigured field',
-            400
-          )
-        }
-      })
+      const err = validateContents(payload.contents)
+      if (err) throw err
     }
 
     return request(`https://graph.facebook.com/v${API_VERSION}/${settings.pixelId}/events`, {
@@ -108,6 +95,7 @@ const action: ActionDefinition<Settings, Payload> = {
             event_source_url: payload.event_source_url,
             user_data: hash_user_data({ user_data: payload.user_data }),
             custom_data: {
+              ...payload.custom_data,
               currency: payload.currency,
               value: payload.value,
               content_ids: payload.content_ids,
