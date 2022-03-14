@@ -6,7 +6,7 @@ import { API_VERSION } from '../sf-operations'
 const testDestination = createTestIntegration(Destination)
 
 const settings = {
-  instanceUrl: 'https://test.com'
+  instanceUrl: 'https://test.com/'
 }
 const auth = {
   refreshToken: 'xyz321',
@@ -26,7 +26,7 @@ describe('Salesforce', () => {
         }
       })
 
-      nock(`${settings.instanceUrl}/services/data/${API_VERSION}/sobjects`).post('/TestCustom__c').reply(201, {})
+      nock(`${settings.instanceUrl}services/data/${API_VERSION}/sobjects`).post('/TestCustom__c').reply(201, {})
 
       const responses = await testDestination.testAction('customObject', {
         event,

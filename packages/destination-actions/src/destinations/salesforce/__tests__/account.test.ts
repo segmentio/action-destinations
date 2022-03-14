@@ -6,7 +6,7 @@ import { API_VERSION } from '../sf-operations'
 const testDestination = createTestIntegration(Destination)
 
 const settings = {
-  instanceUrl: 'https://test.com'
+  instanceUrl: 'https://test.com/'
 }
 const auth = {
   refreshToken: 'xyz321',
@@ -16,7 +16,7 @@ const auth = {
 describe('Salesforce', () => {
   describe('Account', () => {
     it('should create a account record', async () => {
-      nock(`${settings.instanceUrl}/services/data/${API_VERSION}/sobjects`).post('/Account').reply(201, {})
+      nock(`${settings.instanceUrl}services/data/${API_VERSION}/sobjects`).post('/Account').reply(201, {})
 
       const event = createTestEvent({
         type: 'track',
@@ -61,7 +61,7 @@ describe('Salesforce', () => {
     })
 
     it('should create a account record with default mappings', async () => {
-      nock(`${settings.instanceUrl}/services/data/${API_VERSION}/sobjects`).post('/Account').reply(201, {})
+      nock(`${settings.instanceUrl}services/data/${API_VERSION}/sobjects`).post('/Account').reply(201, {})
 
       const event = createTestEvent({
         type: 'track',
@@ -124,7 +124,7 @@ describe('Salesforce', () => {
     })
 
     it('should create a account record with custom fields', async () => {
-      nock(`${settings.instanceUrl}/services/data/${API_VERSION}/sobjects`).post('/Account').reply(201, {})
+      nock(`${settings.instanceUrl}services/data/${API_VERSION}/sobjects`).post('/Account').reply(201, {})
 
       const event = createTestEvent({
         type: 'track',
@@ -187,15 +187,16 @@ describe('Salesforce', () => {
         }
       })
 
-      nock(`${settings.instanceUrl}/services/data/${API_VERSION}/query`)
-        .get(`/?q=SELECT Id FROM Account WHERE name = 'John TA'`)
+      const query = encodeURIComponent(`SELECT Id FROM Account WHERE name = 'John TA'`)
+      nock(`${settings.instanceUrl}services/data/${API_VERSION}/query`)
+        .get(`/?q=${query}`)
         .reply(201, {
           Id: 'abc123',
           totalSize: 1,
           records: [{ Id: '123456' }]
         })
 
-      nock(`${settings.instanceUrl}/services/data/${API_VERSION}/sobjects`).patch('/Account/123456').reply(201, {})
+      nock(`${settings.instanceUrl}services/data/${API_VERSION}/sobjects`).patch('/Account/123456').reply(201, {})
 
       const responses = await testDestination.testAction('account', {
         event,
@@ -247,15 +248,16 @@ describe('Salesforce', () => {
         }
       })
 
-      nock(`${settings.instanceUrl}/services/data/${API_VERSION}/query`)
-        .get(`/?q=SELECT Id FROM Account WHERE name = 'John TA'`)
+      const query = encodeURIComponent(`SELECT Id FROM Account WHERE name = 'John TA'`)
+      nock(`${settings.instanceUrl}services/data/${API_VERSION}/query`)
+        .get(`/?q=${query}`)
         .reply(201, {
           Id: 'abc123',
           totalSize: 1,
           records: [{ Id: '123456' }]
         })
 
-      nock(`${settings.instanceUrl}/services/data/${API_VERSION}/sobjects`).patch('/Account/123456').reply(201, {})
+      nock(`${settings.instanceUrl}services/data/${API_VERSION}/sobjects`).patch('/Account/123456').reply(201, {})
 
       const responses = await testDestination.testAction('account', {
         event,
@@ -307,14 +309,13 @@ describe('Salesforce', () => {
         }
       })
 
-      nock(`${settings.instanceUrl}/services/data/${API_VERSION}/query`)
-        .get(`/?q=SELECT Id FROM Account WHERE name = 'John TA'`)
-        .reply(201, {
-          Id: 'abc123',
-          totalSize: 0
-        })
+      const query = encodeURIComponent(`SELECT Id FROM Account WHERE name = 'John TA'`)
+      nock(`${settings.instanceUrl}services/data/${API_VERSION}/query`).get(`/?q=${query}`).reply(201, {
+        Id: 'abc123',
+        totalSize: 0
+      })
 
-      nock(`${settings.instanceUrl}/services/data/${API_VERSION}/sobjects`).post('/Account').reply(201, {})
+      nock(`${settings.instanceUrl}services/data/${API_VERSION}/sobjects`).post('/Account').reply(201, {})
 
       const responses = await testDestination.testAction('account', {
         event,
