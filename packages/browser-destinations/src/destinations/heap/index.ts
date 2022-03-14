@@ -1,8 +1,9 @@
 import type { Settings } from './generated-types'
 import type { BrowserDestinationDefinition } from '../../lib/browser-destinations'
 import { browserDestination } from '../../runtime/shim'
-
 import { HeapApi } from './types'
+import { defaultValues } from '@segment/actions-core'
+import trackEvent from './trackEvent'
 
 declare global {
   interface Window {
@@ -15,7 +16,14 @@ export const destination: BrowserDestinationDefinition<Settings, HeapApi> = {
   name: 'Heap',
   slug: 'heap',
   mode: 'device',
-
+  presets: [
+    {
+      name: 'Track Event',
+      subscribe: 'type = "track"',
+      partnerAction: 'trackEvent',
+      mapping: defaultValues(trackEvent.fields)
+    }
+  ],
   settings: {
     // Add any Segment destination settings required here
     appId: {
@@ -47,14 +55,20 @@ export const destination: BrowserDestinationDefinition<Settings, HeapApi> = {
       secureCookie: settings.secureCookie || false
     }
 
+    // heap.appid and heap.config must be set before loading heap.js.
+    window.heap = window.heap || []
+    window.heap.appid = settings.appId
+    window.heap.config = config
+
     await deps.loadScript(`https://cdn.heapanalytics.com/js/heap-${settings.appId}.js`)
     await deps.resolveWhen(() => Object.prototype.hasOwnProperty.call(window, 'heap'), 100)
-    window.heap.config = config
 
     return window.heap
   },
 
-  actions: {}
+  actions: {
+    trackEvent
+  }
 }
 
 export default browserDestination(destination)
