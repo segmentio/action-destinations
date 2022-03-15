@@ -4,10 +4,10 @@ import nock from 'nock'
 
 const testDestination = createTestIntegration(Destination)
 
-describe('TalonOne.updateAudience', () => {
-  it('audience_id is missing', async () => {
+describe('TalonOne.updateCustomerProfilesAttributes', () => {
+  it('request body is missing', async () => {
     try {
-      await testDestination.testAction('updateAudience', {
+      await testDestination.testAction('updateCustomerProfilesAttributes', {
         settings: {
           api_key: 'some_api_key',
           deployment: 'https://internal.europe-west1.talon.one'
@@ -18,39 +18,46 @@ describe('TalonOne.updateAudience', () => {
     }
   })
 
-  it('audience_name is missing', async () => {
+  it('no data items', async () => {
     try {
-      await testDestination.testAction('updateAudience', {
+      await testDestination.testAction('updateCustomerProfilesAttributes', {
         settings: {
           api_key: 'some_api_key',
           deployment: 'https://something.europe-west1.talon.one'
         },
         mapping: {
-          audience_id: 'some_audience_id'
+          data: [],
+          mutualAttributes: [{ attributeName1: 'value' }, { attributeName2: 'value' }]
         }
       })
     } catch (err) {
-      expect(err.message).toContain("missing the required field 'audience_name'.")
+      expect(err.message).toContain('Empty request is submitted')
     }
   })
 
   it('should work', async () => {
     nock('https://integration.talon.one')
-      .put('/segment/audiences/some_audience_id', {
-        audience_name: 'some_audience_name'
+      .put('/segment/customer_profiles/attributes', {
+        data: [
+          {
+            customerProfileId: 'abc123',
+            attributes: [{ attributeName: 'value' }]
+          }
+        ],
+        mutualAttributes: []
       })
       .matchHeader('Authorization', 'ApiKey-v1 some_api_key')
-      .matchHeader('destination-hostname', 'https://something.europe-west1.talon.one')
+      .matchHeader(`destination-hostname`, 'https://something.europe-west1.talon.one')
       .reply(200)
 
-    await testDestination.testAction('updateAudience', {
+    await testDestination.testAction('updateCustomerProfilesAttributes', {
       settings: {
         api_key: 'some_api_key',
         deployment: 'https://something.europe-west1.talon.one'
       },
       mapping: {
-        audience_id: 'some_audience_id',
-        audience_name: 'some_audience_name'
+        data: [],
+        mutualAttributes: []
       }
     })
   })

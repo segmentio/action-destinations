@@ -1,56 +1,74 @@
 import { createTestIntegration } from '@segment/actions-core'
 import Destination from '../../index'
 import nock from 'nock'
+import { customerProfileId } from '../../t1-properties'
 
 const testDestination = createTestIntegration(Destination)
 
-describe('TalonOne.updateAudience', () => {
-  it('audience_id is missing', async () => {
+describe('TalonOne.updateCustomerProfile', () => {
+  it('request body is missing', async () => {
     try {
-      await testDestination.testAction('updateAudience', {
+      await testDestination.testAction('updateCustomerProfile', {
         settings: {
           api_key: 'some_api_key',
           deployment: 'https://internal.europe-west1.talon.one'
         }
       })
     } catch (err) {
-      expect(err.message).toContain("missing the required field 'audience_id'.")
+      expect(err.message).toContain('Empty request is submitted')
     }
   })
 
-  it('audience_name is missing', async () => {
+  it('Missed customer profile ID', async () => {
     try {
-      await testDestination.testAction('updateAudience', {
+      await testDestination.testAction('updateCustomerProfile', {
         settings: {
           api_key: 'some_api_key',
           deployment: 'https://something.europe-west1.talon.one'
         },
         mapping: {
-          audience_id: 'some_audience_id'
+          customerProfileId: '',
+          attributes: [],
+          audiencesChanges: {
+            adds: [],
+            deletes: []
+          },
+          runRuleEngine: true
         }
       })
     } catch (err) {
-      expect(err.message).toContain("missing the required field 'audience_name'.")
+      expect(err.message).toContain('Not Found')
     }
   })
 
   it('should work', async () => {
     nock('https://integration.talon.one')
-      .put('/segment/audiences/some_audience_id', {
-        audience_name: 'some_audience_name'
+      .put(`/segment/customer_profile/${customerProfileId}`, {
+        customerProfileId: '',
+        attributes: [],
+        audiencesChanges: {
+          adds: [],
+          deletes: []
+        },
+        runRuleEngine: true
       })
       .matchHeader('Authorization', 'ApiKey-v1 some_api_key')
       .matchHeader('destination-hostname', 'https://something.europe-west1.talon.one')
       .reply(200)
 
-    await testDestination.testAction('updateAudience', {
+    await testDestination.testAction('updateCustomerProfile', {
       settings: {
         api_key: 'some_api_key',
         deployment: 'https://something.europe-west1.talon.one'
       },
       mapping: {
-        audience_id: 'some_audience_id',
-        audience_name: 'some_audience_name'
+        customerProfileId: '',
+        attributes: [],
+        audiencesChanges: {
+          adds: [],
+          deletes: []
+        },
+        runRuleEngine: true
       }
     })
   })
