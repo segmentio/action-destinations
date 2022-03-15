@@ -14,7 +14,7 @@ describe('TalonOne.createAudience', () => {
         }
       })
     } catch (err) {
-      expect(err.message).toContain("missing the required field 'audience_id'.")
+      expect(err.message).toContain("missing the required field 'audienceId'.")
     }
   })
 
@@ -30,7 +30,7 @@ describe('TalonOne.createAudience', () => {
         }
       })
     } catch (err) {
-      expect(err.message).toContain("missing the required field 'audience_name'.")
+      expect(err.message).toContain("missing the required field 'audienceName'.")
     }
   })
 

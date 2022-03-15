@@ -1,7 +1,6 @@
 import { createTestIntegration } from '@segment/actions-core'
 import Destination from '../../index'
 import nock from 'nock'
-import { customerProfileId } from '../../t1-properties'
 
 const testDestination = createTestIntegration(Destination)
 
@@ -43,12 +42,11 @@ describe('TalonOne.updateCustomerProfile', () => {
 
   it('should work', async () => {
     nock('https://integration.talon.one')
-      .put(`/segment/customer_profile/${customerProfileId}`, {
-        customerProfileId: '',
-        attributes: [],
+      .put(`/segment/customer_profile/abc123`, {
+        attributes: [{ testAttribute1: 'testValue' }],
         audiencesChanges: {
-          adds: [],
-          deletes: []
+          adds: [1, 2, 3],
+          deletes: [4, 5, 6]
         },
         runRuleEngine: true
       })
@@ -62,11 +60,11 @@ describe('TalonOne.updateCustomerProfile', () => {
         deployment: 'https://something.europe-west1.talon.one'
       },
       mapping: {
-        customerProfileId: '',
-        attributes: [],
+        customerProfileId: 'abc123',
+        attributes: [{ testAttribute1: 'testValue' }],
         audiencesChanges: {
-          adds: [],
-          deletes: []
+          adds: [1, 2, 3],
+          deletes: [4, 5, 6]
         },
         runRuleEngine: true
       }

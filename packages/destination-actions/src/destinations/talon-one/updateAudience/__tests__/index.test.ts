@@ -5,7 +5,7 @@ import nock from 'nock'
 const testDestination = createTestIntegration(Destination)
 
 describe('TalonOne.updateAudience', () => {
-  it('audience_id is missing', async () => {
+  it('audienceId is missing', async () => {
     try {
       await testDestination.testAction('updateAudience', {
         settings: {
@@ -14,11 +14,11 @@ describe('TalonOne.updateAudience', () => {
         }
       })
     } catch (err) {
-      expect(err.message).toContain("missing the required field 'audience_id'.")
+      expect(err.message).toContain("missing the required field 'audienceId'.")
     }
   })
 
-  it('audience_name is missing', async () => {
+  it('audienceName is missing', async () => {
     try {
       await testDestination.testAction('updateAudience', {
         settings: {
@@ -30,7 +30,7 @@ describe('TalonOne.updateAudience', () => {
         }
       })
     } catch (err) {
-      expect(err.message).toContain("missing the required field 'audience_name'.")
+      expect(err.message).toContain("missing the required field 'audienceName'.")
     }
   })
 

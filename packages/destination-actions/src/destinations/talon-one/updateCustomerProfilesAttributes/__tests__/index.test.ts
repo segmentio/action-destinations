@@ -14,7 +14,7 @@ describe('TalonOne.updateCustomerProfilesAttributes', () => {
         }
       })
     } catch (err) {
-      expect(err.message).toContain("missing the required field 'audience_id'.")
+      expect(err.message).toContain('Empty request is submitted')
     }
   })
 
@@ -41,7 +41,7 @@ describe('TalonOne.updateCustomerProfilesAttributes', () => {
         data: [
           {
             customerProfileId: 'abc123',
-            attributes: [{ attributeName: 'value' }]
+            attributes: [{ attributeName1: 'value' }, { attributeName2: 'value' }]
           }
         ],
         mutualAttributes: []
@@ -56,7 +56,12 @@ describe('TalonOne.updateCustomerProfilesAttributes', () => {
         deployment: 'https://something.europe-west1.talon.one'
       },
       mapping: {
-        data: [],
+        data: [
+          {
+            customerProfileId: 'abc123',
+            attributes: [{ attributeName1: 'value' }, { attributeName2: 'value' }]
+          }
+        ],
         mutualAttributes: []
       }
     })

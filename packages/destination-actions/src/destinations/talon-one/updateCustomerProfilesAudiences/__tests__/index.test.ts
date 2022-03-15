@@ -4,8 +4,8 @@ import nock from 'nock'
 
 const testDestination = createTestIntegration(Destination)
 
-describe('TalonOne.updateAudience', () => {
-  it('audience_id is missing', async () => {
+describe('TalonOne.updateCustomerProfilesAudiences', () => {
+  it('request body is missing', async () => {
     try {
       await testDestination.testAction('updateAudience', {
         settings: {
@@ -14,11 +14,11 @@ describe('TalonOne.updateAudience', () => {
         }
       })
     } catch (err) {
-      expect(err.message).toContain("missing the required field 'audience_id'.")
+      expect(err.message).toContain('Empty request is submitted')
     }
   })
 
-  it('audience_name is missing', async () => {
+  it('customer profile ID is missing', async () => {
     try {
       await testDestination.testAction('updateAudience', {
         settings: {
@@ -26,18 +26,30 @@ describe('TalonOne.updateAudience', () => {
           deployment: 'https://something.europe-west1.talon.one'
         },
         mapping: {
-          audience_id: 'some_audience_id'
+          data: [
+            {
+              customerProfileId: '',
+              adds: [1, 2, 3],
+              deletes: [4, 5, 6]
+            }
+          ]
         }
       })
     } catch (err) {
-      expect(err.message).toContain("missing the required field 'audience_name'.")
+      expect(err.message).toContain('Empty Customer Profile ID')
     }
   })
 
   it('should work', async () => {
     nock('https://integration.talon.one')
-      .put('/segment/audiences/some_audience_id', {
-        audience_name: 'some_audience_name'
+      .put('/segment/customer_profiles/audiences', {
+        data: [
+          {
+            customerProfileId: 'abc123',
+            adds: [1, 2, 3],
+            deletes: [4, 5, 6]
+          }
+        ]
       })
       .matchHeader('Authorization', 'ApiKey-v1 some_api_key')
       .matchHeader('destination-hostname', 'https://something.europe-west1.talon.one')
@@ -49,8 +61,13 @@ describe('TalonOne.updateAudience', () => {
         deployment: 'https://something.europe-west1.talon.one'
       },
       mapping: {
-        audience_id: 'some_audience_id',
-        audience_name: 'some_audience_name'
+        data: [
+          {
+            customerProfileId: 'abc123',
+            adds: [1, 2, 3],
+            deletes: [4, 5, 6]
+          }
+        ]
       }
     })
   })
