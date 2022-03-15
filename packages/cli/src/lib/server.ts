@@ -55,7 +55,13 @@ const app = express()
 app.use(express.json())
 app.use(
   cors({
-    origin: ['https://app.segment.build', 'https://app.segment.com', 'http://localhost:8000']
+    origin: [
+      'https://app.segment.com',
+      'https://eu1.app.segment.com',
+      'https://app.segment.build',
+      'https://eu1.app.segment.build',
+      'http://localhost:8000'
+    ]
   })
 )
 
