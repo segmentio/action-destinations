@@ -27,9 +27,7 @@ const action: BrowserActionDefinition<Settings, Koala, Payload> = {
   },
   perform: (koala, { payload }) => {
     if (payload?.event) {
-      koala.track(payload.event, payload.properties).catch(() => {
-        // Ignore
-      })
+      return koala.track(payload.event, payload.properties)
     }
   }
 }

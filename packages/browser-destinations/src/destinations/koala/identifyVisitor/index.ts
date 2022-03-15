@@ -20,9 +20,7 @@ const action: BrowserActionDefinition<Settings, Koala, Payload> = {
   },
   perform: (koala, { payload }) => {
     if (payload?.traits) {
-      koala.identify(payload.traits).catch(() => {
-        // Ignore
-      })
+      return koala.identify(payload.traits)
     }
   }
 }
