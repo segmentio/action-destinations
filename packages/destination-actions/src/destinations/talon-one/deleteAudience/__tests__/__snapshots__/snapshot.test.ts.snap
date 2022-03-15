@@ -8,7 +8,7 @@ exports[`Testing snapshot for TalonOne's deleteAudience destination action: requ
 Headers {
   Symbol(map): Object {
     "authorization": Array [
-      "ApiKey-v1 I&DFrgw",
+      "ApiKey-v1 some_api_key",
     ],
     "destination-hostname": Array [
       "I&DFrgw",

@@ -22,7 +22,7 @@ exports[`Testing snapshot for talon-one destination: deleteAudience action - req
 Headers {
   Symbol(map): Object {
     "authorization": Array [
-      "ApiKey-v1 YJSS]PGSZ&%5",
+      "ApiKey-v1 some_api_key",
     ],
     "destination-hostname": Array [
       "YJSS]PGSZ&%5",
