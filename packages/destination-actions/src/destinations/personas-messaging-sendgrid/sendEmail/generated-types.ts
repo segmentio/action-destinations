@@ -66,6 +66,23 @@ export interface Payload {
    */
   bodyHtml?: string
   /**
+   * An array of user profile identity information.
+   */
+  externalIds?: {
+    /**
+     * A unique identifier for the collection.
+     */
+    id?: string
+    /**
+     * The external ID contact type.
+     */
+    type?: string
+    /**
+     * The subscription status for the identity.
+     */
+    subscriptionStatus?: string
+  }[]
+  /**
    * Additional custom args that we be passed back opaquely on webhook events
    */
   customArgs?: {

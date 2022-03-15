@@ -7,7 +7,7 @@ import { createMapiRequest } from '../cloudUtil'
 import { contextFields } from '@segment/actions-shared'
 import { COPY, DROP, mapEvent } from '@segment/actions-shared'
 import { trackSignUpFields } from '@segment/actions-shared'
-import { parseDate } from '@segment/actions-shared'
+import { enjoinInteger, enjoinString, parseDate } from '@segment/actions-shared'
 
 const cloudTrackSignUpFields = {
   ...trackSignUpFields({ requireCustomerId: true, requireEmail: true }),
@@ -21,7 +21,7 @@ const trackSignUpMapi: EventMap = {
     referralCode: COPY,
 
     // CUSTOMER FIELDS
-    customerId: COPY,
+    customerId: { convert: enjoinString as ConvertFun },
     // anonymousID (unmapped)
     email: COPY,
     isNewCustomer: COPY,
@@ -29,7 +29,7 @@ const trackSignUpMapi: EventMap = {
     firstName: COPY,
     lastName: COPY,
     // name (unmapped)
-    age: COPY,
+    age: { convert: enjoinInteger as ConvertFun },
     birthday: { convert: parseDate as ConvertFun },
 
     // CONTEXT FIELDS

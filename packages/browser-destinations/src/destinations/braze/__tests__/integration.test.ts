@@ -63,7 +63,7 @@ describe('loads different versions from CDN', () => {
     expect(scripts).toMatchSnapshot(`
       NodeList [
         <script
-          src="https://js.appboycdn.com/web-sdk/3.0/appboy.min.js"
+          src="https://js.appboycdn.com/web-sdk/3.0/appboy.no-amd.min.js"
           type="text/javascript"
         />,
         <script>
@@ -89,7 +89,7 @@ describe('loads different versions from CDN', () => {
     expect(scripts).toMatchSnapshot(`
       NodeList [
         <script
-          src="https://js.appboycdn.com/web-sdk/3.1/appboy.min.js"
+          src="https://js.appboycdn.com/web-sdk/3.1/appboy.no-amd.min.js"
           status="loaded"
           type="text/javascript"
         />,
@@ -116,7 +116,7 @@ describe('loads different versions from CDN', () => {
     expect(scripts).toMatchSnapshot(`
       NodeList [
         <script
-          src="https://js.appboycdn.com/web-sdk/3.3/appboy.min.js"
+          src="https://js.appboycdn.com/web-sdk/3.5/appboy.no-amd.min.js"
           status="loaded"
           type="text/javascript"
         />,

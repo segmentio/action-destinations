@@ -1,8 +1,22 @@
 import { InputField } from '@segment/actions-core/src/destination-kit/types'
+import { IntegrationError } from '@segment/actions-core'
 
 // Implementation of the facebook pixel object properties.
 // https://developers.facebook.com/docs/facebook-pixel/reference#object-properties
 // Only implemented properties that are shared between more than one action.
+
+type Content = {
+  id?: string
+  delivery_category?: string
+}
+
+export const custom_data: InputField = {
+  label: 'Custom Data',
+  description:
+    'The custom data object which can be used to pass custom properties. See [here](https://developers.facebook.com/docs/marketing-api/conversions-api/parameters/custom-data) for more information',
+  type: 'object',
+  defaultObjectUI: 'keyvalue'
+}
 
 export const currency: InputField = {
   label: 'Currency',
@@ -16,7 +30,7 @@ export const currency: InputField = {
 export const value: InputField = {
   label: 'Value',
   description: 'The value of a user performing this event to the business.',
-  type: 'number',
+  type: 'number'
 }
 
 export const content_category: InputField = {
@@ -29,7 +43,7 @@ export const content_ids: InputField = {
   label: 'Content IDs',
   description: 'Product IDs associated with the event, such as SKUs (e.g. ["ABC123", "XYZ789"]).',
   type: 'string',
-  multiple: true,
+  multiple: true
 }
 
 export const content_name: InputField = {
@@ -46,19 +60,20 @@ export const content_type: InputField = {
 
 export const contents: InputField = {
   label: 'Contents',
-  description: 'An array of JSON objects that contains the quantity and the International Article Number (EAN) when applicable, or other product or content identifier(s). id and quantity are the required fields.',
+  description:
+    'An array of JSON objects that contains the quantity and the International Article Number (EAN) when applicable, or other product or content identifier(s). id and quantity are the required fields.',
   type: 'object',
   multiple: true,
   properties: {
     id: {
       label: 'ID',
       description: 'ID of the purchased item.',
-      type: 'string',
+      type: 'string'
     },
     quantity: {
       label: 'Quantity',
       description: 'The number of items purchased.',
-      type: 'integer',
+      type: 'integer'
     },
     item_price: {
       label: 'Item Price',
@@ -67,10 +82,33 @@ export const contents: InputField = {
     },
     delivery_category: {
       label: 'Delivery Category',
-      description: 'Type of delivery for a purchase event. Supported values are "in_store", "curbside", "home_delivery".',
+      description:
+        'Type of delivery for a purchase event. Supported values are "in_store", "curbside", "home_delivery".',
       type: 'string'
     }
   }
+}
+
+export const validateContents = (contents: Content[]): IntegrationError | false => {
+  const valid_delivery_categories = ['in_store', 'curbside', 'home_delivery']
+
+  for (let i = 0; i < contents.length; i++) {
+    const item = contents[i]
+
+    if (!item.id) {
+      return new IntegrationError(`contents[${i}] must include an 'id' parameter.`, 'Misconfigured required field', 400)
+    }
+
+    if (item.delivery_category && !valid_delivery_categories.includes(item.delivery_category)) {
+      return new IntegrationError(
+        `contents[${i}].delivery_category must be one of {in_store, home_delivery, curbside}.`,
+        'Misconfigured field',
+        400
+      )
+    }
+  }
+
+  return false
 }
 
 export const num_items: InputField = {
@@ -99,7 +137,8 @@ export const action_source: InputField = {
 
 export const event_source_url: InputField = {
   label: 'Event Source URL',
-  description: 'The browser URL where the event happened. The URL must begin with http:// or https:// and should match the verified domain. event_source_url is required if action_source = “website”; however it is strongly recommended that you include it for any action_source.',
+  description:
+    'The browser URL where the event happened. The URL must begin with http:// or https:// and should match the verified domain. event_source_url is required if action_source = “website”; however it is strongly recommended that you include it for any action_source.',
   type: 'string',
   default: {
     '@path': '$.context.page.url'
@@ -108,7 +147,8 @@ export const event_source_url: InputField = {
 
 export const event_id: InputField = {
   label: 'Event ID',
-  description: 'This ID can be any unique string chosen by the advertiser. event_id is used to deduplicate events sent by both Facebook Pixel and Conversions API.',
+  description:
+    'This ID can be any unique string chosen by the advertiser. event_id is used to deduplicate events sent by both Facebook Pixel and Conversions API.',
   type: 'string',
   default: {
     '@path': '$.messageId'

@@ -21,7 +21,12 @@ describe('FacebookConversionsApi', () => {
           action_source: 'email',
           currency: 'USD',
           value: 12.12,
-          email: 'nicholas.aguilar@segment.com'
+          email: 'nicholas.aguilar@segment.com',
+          traits: {
+            city: 'Gotham',
+            country: 'United States',
+            last_name: 'Wayne'
+          }
         }
       })
 
@@ -45,12 +50,19 @@ describe('FacebookConversionsApi', () => {
           },
           event_time: {
             '@path': '$.timestamp'
+          },
+          custom_data: {
+            '@path': '$.properties.traits'
           }
         }
       })
 
       expect(responses.length).toBe(1)
       expect(responses[0].status).toBe(201)
+
+      expect(responses[0].options.body).toMatchInlineSnapshot(
+        `"{\\"data\\":[{\\"event_name\\":\\"AddToCart\\",\\"event_time\\":\\"1631210000\\",\\"action_source\\":\\"email\\",\\"user_data\\":{\\"em\\":\\"eeaf810ee0e3cef3307089f22c3804f54c79eed19ef29bf70df864b43862c380\\"},\\"custom_data\\":{\\"city\\":\\"Gotham\\",\\"country\\":\\"United States\\",\\"last_name\\":\\"Wayne\\",\\"currency\\":\\"USD\\",\\"value\\":12.12}}]}"`
+      )
     })
 
     it('should throw an error for invalid currency values', async () => {
@@ -100,10 +112,11 @@ describe('FacebookConversionsApi', () => {
 
       const event = createTestEvent({
         event: 'Product Added',
+        timestamp: '1631210020',
+        messageId: 'test',
         properties: {
           userId: 'testuser1234',
           action_source: 'email',
-          timestamp: '1631210020',
           currency: 'USD',
           product_id: 'abc12345',
           quantity: 1,
@@ -120,6 +133,10 @@ describe('FacebookConversionsApi', () => {
 
       expect(responses.length).toBe(1)
       expect(responses[0].status).toBe(201)
+
+      expect(responses[0].options.body).toMatchInlineSnapshot(
+        `"{\\"data\\":[{\\"event_name\\":\\"AddToCart\\",\\"event_time\\":\\"1631210020\\",\\"event_source_url\\":\\"https://segment.com/academy/\\",\\"event_id\\":\\"test\\",\\"action_source\\":\\"email\\",\\"user_data\\":{\\"external_id\\":\\"831c237928e6212bedaa4451a514ace3174562f6761f6a157a2fe5082b36e2fb\\",\\"client_ip_address\\":\\"8.8.8.8\\",\\"client_user_agent\\":\\"Mozilla/5.0 (iPhone; CPU iPhone OS 9_1 like Mac OS X) AppleWebKit/601.1.46 (KHTML, like Gecko) Version/9.0 Mobile/13B143 Safari/601.1\\"},\\"custom_data\\":{\\"currency\\":\\"USD\\",\\"value\\":100,\\"contents\\":[{\\"id\\":\\"abc12345\\",\\"quantity\\":1,\\"item_price\\":100}]}}]}"`
+      )
     })
 
     it('should throw an error if no id parameter is included in contents array objects', async () => {
@@ -173,7 +190,7 @@ describe('FacebookConversionsApi', () => {
             }
           }
         })
-      ).rejects.toThrowError("Contents objects must include an 'id' parameter.")
+      ).rejects.toThrowError("contents[0] must include an 'id' parameter.")
     })
 
     it('should throw an error if contents.delivery_category is not supported', async () => {

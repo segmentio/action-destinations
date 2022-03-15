@@ -2,7 +2,7 @@
 
 export interface Payload {
   /**
-   * Name of thew view or page.
+   * Name of the view or page.
    */
   viewName: string
   /**
@@ -15,4 +15,8 @@ export interface Payload {
    * By default, notifications are sent to the Adobe Target backend for incrementing impression count.  If false, notifications are not sent for incrementing impression count.
    */
   sendNotification?: boolean
+  /**
+   * A user’s unique visitor ID. Setting an Mbox 3rd Party ID allows for updates via the Adobe Target Cloud Mode Destination. For more information, please see our Adobe Target Destination documentation.
+   */
+  userId?: string
 }

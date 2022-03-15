@@ -165,5 +165,32 @@ describe('Friendbuy.trackCustomer', () => {
         true
       ])
     }
+
+    {
+      // enjoined fields are converted
+      const context4 = new Context({
+        type: 'identify',
+        userId: 12345,
+        traits: {
+          email,
+          age: '44',
+          address: { postalCode: 90210 }
+        }
+      })
+
+      trackCustomer.identify?.(context4)
+
+      expect(window.friendbuyAPI?.push).toHaveBeenNthCalledWith(4, [
+        'track',
+        'customer',
+        {
+          id: '12345',
+          email,
+          age: 44,
+          zipCode: '90210'
+        },
+        true
+      ])
+    }
   })
 })
