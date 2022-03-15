@@ -49,7 +49,7 @@ export const destination: BrowserDestinationDefinition<Settings, typeof appboy> 
   mode: 'device',
   settings: {
     sdkVersion: {
-      description: 'The version of the SDK to use. Defaults to 3.3.',
+      description: 'The version of the Braze SDK to use',
       label: 'SDK Version',
       type: 'string',
       choices: [
