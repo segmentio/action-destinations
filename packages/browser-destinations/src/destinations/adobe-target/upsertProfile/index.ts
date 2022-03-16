@@ -27,10 +27,7 @@ const action: BrowserActionDefinition<Settings, Adobe, Payload> = {
       type: 'object',
       required: true,
       description: 'Profile parameters specific to a user.',
-      label: 'Profile Attributes',
-      default: {
-        '@path': '$.traits'
-      }
+      label: 'Profile Attributes'
     }
   },
   perform: (Adobe, event) => {
