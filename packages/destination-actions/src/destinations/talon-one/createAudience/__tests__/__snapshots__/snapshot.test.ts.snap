@@ -2,14 +2,14 @@
 
 exports[`Testing snapshot for TalonOne's createAudience destination action: all fields 1`] = `
 Object {
-  "audience_id": "my[JK",
-  "audience_name": "my[JK",
+  "audienceId": "my[JK",
+  "audienceName": "my[JK",
 }
 `;
 
 exports[`Testing snapshot for TalonOne's createAudience destination action: required fields 1`] = `
 Object {
-  "audience_id": "my[JK",
-  "audience_name": "my[JK",
+  "audienceId": "my[JK",
+  "audienceName": "my[JK",
 }
 `;

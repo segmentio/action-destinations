@@ -8,9 +8,13 @@ export interface Payload {
   /**
    * List the AVPs you need to update in the customer profile.
    */
-  attributes?: boolean
+  attributes?: {
+    [k: string]: unknown
+  }
   /**
    * List the AVPs you need to update in the customer profile.
    */
-  mutualAttributes?: boolean
+  mutualAttributes?: {
+    [k: string]: unknown
+  }
 }

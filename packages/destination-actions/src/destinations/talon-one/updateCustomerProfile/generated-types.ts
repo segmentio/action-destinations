@@ -4,7 +4,9 @@ export interface Payload {
   /**
    * List the AVPs you need to update in the customer profile.
    */
-  attributes?: boolean
+  attributes?: {
+    [k: string]: unknown
+  }
   /**
    * Unique identifier of the customer profile.
    */
@@ -12,11 +14,11 @@ export interface Payload {
   /**
    * Add or Delete Audience ID.
    */
-  deleteAudienceIDs?: boolean & number[]
+  deleteAudienceIDs?: number[]
   /**
    * Add or Delete Audience ID.
    */
-  addAudienceIDs?: boolean & number[]
+  addAudienceIDs?: number[]
   /**
    * Set to true if the update requires to trigger all the rules.
    */
