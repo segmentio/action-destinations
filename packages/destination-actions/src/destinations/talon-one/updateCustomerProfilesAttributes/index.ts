@@ -7,13 +7,6 @@ const action: ActionDefinition<Settings, Payload> = {
   title: 'Update Customer Profile AVPs (attribute-value pair).',
   description: 'This synchronizes attributes data for multiple customer profiles.',
   fields: {
-    data: {
-      label: 'Data is an object that stores data items.',
-      description: 'You should have this object as it is necessary to store at least one data item.',
-      type: 'object',
-      multiple: true,
-      required: true
-    },
     customerProfileId: { ...customerProfileId },
     attributes: { ...attribute },
     mutualAttributes: { ...attribute }
@@ -29,7 +22,7 @@ const action: ActionDefinition<Settings, Payload> = {
             attributes: payload.attributes
           }
         ],
-        mutualAttributes: payload.attributes
+        mutualAttributes: payload.mutualAttributes
       }
     })
   }

@@ -14,7 +14,7 @@ describe('TalonOne.updateCustomerProfilesAttributes', () => {
         }
       })
     } catch (err) {
-      expect(err.message).toContain('Empty request is submitted')
+      expect(err.message).toContain("The root value is missing the required field 'customerProfileId'.")
     }
   })
 
@@ -31,7 +31,7 @@ describe('TalonOne.updateCustomerProfilesAttributes', () => {
         }
       })
     } catch (err) {
-      expect(err.message).toContain('Empty request is submitted')
+      expect(err.message).toContain("The root value is missing the required field 'customerProfileId'.")
     }
   })
 
@@ -41,10 +41,15 @@ describe('TalonOne.updateCustomerProfilesAttributes', () => {
         data: [
           {
             customerProfileId: 'abc123',
-            attributes: [{ attributeName1: 'value' }, { attributeName2: 'value' }]
+            attributes: {
+              attributeName1: 'value',
+              attributeName2: 'value'
+            }
           }
         ],
-        mutualAttributes: []
+        mutualAttributes: {
+          attributeName3: 'value'
+        }
       })
       .matchHeader('Authorization', 'ApiKey-v1 some_api_key')
       .matchHeader(`destination-hostname`, 'https://something.europe-west1.talon.one')
@@ -56,13 +61,14 @@ describe('TalonOne.updateCustomerProfilesAttributes', () => {
         deployment: 'https://something.europe-west1.talon.one'
       },
       mapping: {
-        data: [
-          {
-            customerProfileId: 'abc123',
-            attributes: [{ attributeName1: 'value' }, { attributeName2: 'value' }]
-          }
-        ],
-        mutualAttributes: []
+        customerProfileId: 'abc123',
+        attributes: {
+          attributeName1: 'value',
+          attributeName2: 'value'
+        },
+        mutualAttributes: {
+          attributeName3: 'value'
+        }
       }
     })
   })

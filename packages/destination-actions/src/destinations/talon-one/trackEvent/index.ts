@@ -1,13 +1,17 @@
 import type { ActionDefinition } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
-import { customerProfileId } from '../t1-properties'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Track Event',
   description: 'This records a custom event in Talon.One.',
   fields: {
-    customerProfileId: { ...customerProfileId },
+    customerProfileId: {
+      label: 'customer_profile_id',
+      description: 'Unique identifier of the customer profile associated to the event.',
+      type: 'string',
+      required: true
+    },
     eventType: {
       label: 'eventType',
       description: 'It is just the name of your event.',

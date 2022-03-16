@@ -61,13 +61,9 @@ describe('TalonOne.updateCustomerProfilesAudiences', () => {
         deployment: 'https://something.europe-west1.talon.one'
       },
       mapping: {
-        data: [
-          {
-            customerProfileId: 'abc123',
-            adds: [1, 2, 3],
-            deletes: [4, 5, 6]
-          }
-        ]
+        customerProfileId: 'abc123',
+        adds: [1, 2, 3],
+        deletes: [4, 5, 6]
       }
     })
   })

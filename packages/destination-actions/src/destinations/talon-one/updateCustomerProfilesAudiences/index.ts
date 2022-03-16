@@ -7,7 +7,8 @@ const action: ActionDefinition<Settings, Payload> = {
   title: 'Update Customer Profile Audiences',
   description: 'This synchronizes audience data for a customer profile.',
   fields: {
-    audienceId: { ...audienceId },
+    deleteAudienceIDs: { ...audienceId },
+    addAudienceIDs: { ...audienceId },
     customerProfileId: { ...customerProfileId }
   },
   perform: (request, { payload }) => {
@@ -18,8 +19,8 @@ const action: ActionDefinition<Settings, Payload> = {
         data: [
           {
             customerProfileId: payload.customerProfileId,
-            adds: payload.audienceId,
-            deletes: payload.audienceId
+            adds: payload.addAudienceIDs,
+            deletes: payload.deleteAudienceIDs
           }
         ]
       }
