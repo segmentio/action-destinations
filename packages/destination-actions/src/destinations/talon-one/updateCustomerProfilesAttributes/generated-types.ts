@@ -2,21 +2,15 @@
 
 export interface Payload {
   /**
-   * You should have this object as it is necessary to store at least one data item.
-   */
-  data: {
-    [k: string]: unknown
-  }[]
-  /**
    * Unique identifier of the customer profile.
    */
   customerProfileId: string
   /**
    * List the AVPs you need to update in the customer profile.
    */
-  attributes?: boolean & string[]
+  attributes?: boolean
   /**
    * List the AVPs you need to update in the customer profile.
    */
-  mutualAttributes?: boolean & string[]
+  mutualAttributes?: boolean
 }

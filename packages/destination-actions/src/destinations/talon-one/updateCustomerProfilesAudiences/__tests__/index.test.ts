@@ -62,8 +62,8 @@ describe('TalonOne.updateCustomerProfilesAudiences', () => {
       },
       mapping: {
         customerProfileId: 'abc123',
-        adds: [1, 2, 3],
-        deletes: [4, 5, 6]
+        addAudienceIDs: [1, 2, 3],
+        deleteAudienceIDs: [4, 5, 6]
       }
     })
   })

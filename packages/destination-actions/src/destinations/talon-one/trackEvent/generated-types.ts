@@ -4,11 +4,11 @@ export interface Payload {
   /**
    * Unique identifier of the customer profile associated to the event.
    */
-  customer_profile_id: string
+  customerProfileId: string
   /**
-   * It's just the name of your event.
+   * It is just the name of your event.
    */
-  event_type: string
+  eventType: string
   /**
    * Type of event. Can be only `string`, `time`, `number`, `boolean`, `location`
    */
@@ -16,7 +16,7 @@ export interface Payload {
   /**
    * Arbitrary additional JSON data associated with the event
    */
-  event_attributes?: {
+  attributes?: {
     [k: string]: unknown
   }
 }
