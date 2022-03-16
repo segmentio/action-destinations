@@ -27,7 +27,8 @@ const action: BrowserActionDefinition<Settings, Adobe, Payload> = {
       type: 'object',
       required: true,
       description: 'Profile parameters specific to a user.',
-      label: 'Profile Attributes'
+      label: 'Profile Attributes',
+      defaultObjectUI: 'keyvalue'
     }
   },
   perform: (Adobe, event) => {
