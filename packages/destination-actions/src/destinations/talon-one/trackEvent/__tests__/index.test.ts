@@ -14,11 +14,11 @@ describe('TalonOne.trackEvent', () => {
         }
       })
     } catch (err) {
-      expect(err.message).toContain("missing the required field 'customer_profile_id'.")
+      expect(err.message).toContain("The root value is missing the required field 'customerProfileId'.")
     }
   })
 
-  it('event_type is missing', async () => {
+  it('eventType is missing', async () => {
     try {
       await testDestination.testAction('trackEvent', {
         settings: {
@@ -30,7 +30,7 @@ describe('TalonOne.trackEvent', () => {
         }
       })
     } catch (err) {
-      expect(err.message).toContain("missing the required field 'eventType'.")
+      expect(err.message).toContain("The root value is missing the required field 'eventType'.")
     }
   })
 
@@ -43,11 +43,11 @@ describe('TalonOne.trackEvent', () => {
         },
         mapping: {
           customerProfileId: 'some_customer_profile_id',
-          event_type: 'event_type'
+          eventType: 'event_type'
         }
       })
     } catch (err) {
-      expect(err.message).toContain("missing the required field 'type'.")
+      expect(err.message).toContain("The root value is missing the required field 'type'.")
     }
   })
 
@@ -72,7 +72,7 @@ describe('TalonOne.trackEvent', () => {
         deployment: 'https://something.europe-west1.talon.one'
       },
       mapping: {
-        customer_profile_id: 'some_customer_profile_id',
+        customerProfileId: 'some_customer_profile_id',
         eventType: 'event_type',
         type: 'string',
         attributes: {

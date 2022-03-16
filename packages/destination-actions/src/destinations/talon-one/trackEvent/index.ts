@@ -1,7 +1,7 @@
 import type { ActionDefinition } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
-import { attribute, customerProfileId } from '../t1-properties'
+import { customerProfileId } from '../t1-properties'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Track Event',
@@ -10,7 +10,7 @@ const action: ActionDefinition<Settings, Payload> = {
     customerProfileId: { ...customerProfileId },
     eventType: {
       label: 'eventType',
-      description: "It's just the name of your event.",
+      description: 'It is just the name of your event.',
       type: 'string',
       required: true
     },
@@ -20,7 +20,12 @@ const action: ActionDefinition<Settings, Payload> = {
       type: 'string',
       required: true
     },
-    attributes: { ...attribute }
+    attributes: {
+      label: 'type',
+      description: 'Arbitrary additional JSON data associated with the event',
+      type: 'object',
+      required: false
+    }
   },
   perform: (request, { payload }) => {
     // Make your partner api request here!
