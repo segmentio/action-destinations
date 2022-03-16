@@ -8,7 +8,7 @@ export interface Payload {
   /**
    * Profile parameters specific to a user.
    */
-  traits: {
+  traits?: {
     [k: string]: unknown
   }
 }
