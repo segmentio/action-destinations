@@ -19,6 +19,8 @@ export default class Salesforce {
   request: RequestClient
 
   constructor(instanceUrl: string, request: RequestClient) {
+    // If the instanceUrl does not end with '/' append it to the string.
+    // This ensures that all request urls are constructed properly
     this.instanceUrl = instanceUrl.concat(instanceUrl.slice(-1) === '/' ? '' : '/')
     this.request = request
   }
