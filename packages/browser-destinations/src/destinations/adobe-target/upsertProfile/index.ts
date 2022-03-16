@@ -53,7 +53,7 @@ const action: BrowserActionDefinition<Settings, Adobe, Payload> = {
     const params = {
       mbox: event.settings.mbox_name,
       params: {
-        type: 'profile_update' // DO NOT CHANGE. profile_update is used to differentiate between track and identify calls.
+        event_name: 'profile_update' // DO NOT CHANGE. profile_update is used to differentiate between track and identify calls.
       }
     }
 
