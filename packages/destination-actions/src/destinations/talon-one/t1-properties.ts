@@ -10,8 +10,7 @@ export const customerProfileId: InputField = {
 export const attribute: InputField = {
   label: 'AVP (attribute-value pair) list',
   description: 'List the AVPs you need to update in the customer profile.',
-  type: 'string',
-  multiple: true,
+  type: 'object',
   default: false
 }
 

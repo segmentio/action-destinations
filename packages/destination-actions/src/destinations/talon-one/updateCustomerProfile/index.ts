@@ -9,7 +9,8 @@ const action: ActionDefinition<Settings, Payload> = {
   fields: {
     attributes: { ...attribute },
     customerProfileId: { ...customerProfileId },
-    audienceId: { ...audienceId },
+    deleteAudienceIDs: { ...audienceId },
+    addAudienceIDs: { ...audienceId },
     runRuleEngine: {
       label: 'This runs rule engine in talon-service upon updating customer profile',
       description: 'Set to true if the update requires to trigger all the rules.',
@@ -24,8 +25,8 @@ const action: ActionDefinition<Settings, Payload> = {
       json: {
         attributes: payload.attributes,
         audiencesChanges: {
-          adds: payload.audienceId,
-          deletes: payload.audienceId
+          adds: payload.addAudienceIDs,
+          deletes: payload.deleteAudienceIDs
         },
         runRuleEngine: payload.runRuleEngine
       }
