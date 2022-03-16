@@ -14,7 +14,7 @@ describe('TalonOne.updateCustomerProfile', () => {
         }
       })
     } catch (err) {
-      expect(err.message).toContain('Empty request is submitted')
+      expect(err.message).toContain("The root value is missing the required field 'customerProfileId'.")
     }
   })
 
@@ -36,14 +36,16 @@ describe('TalonOne.updateCustomerProfile', () => {
         }
       })
     } catch (err) {
-      expect(err.message).toContain('Not Found')
+      expect(err.message).toContain("The root value is missing the required field 'customerProfileId'.")
     }
   })
 
   it('should work', async () => {
     nock('https://integration.talon.one')
       .put(`/segment/customer_profile/abc123`, {
-        attributes: [{ testAttribute1: 'testValue' }],
+        attributes: {
+          testAttribute1: 'testValue'
+        },
         audiencesChanges: {
           adds: [1, 2, 3],
           deletes: [4, 5, 6]
@@ -61,11 +63,11 @@ describe('TalonOne.updateCustomerProfile', () => {
       },
       mapping: {
         customerProfileId: 'abc123',
-        attributes: [{ testAttribute1: 'testValue' }],
-        audiencesChanges: {
-          adds: [1, 2, 3],
-          deletes: [4, 5, 6]
+        attributes: {
+          testAttribute1: 'testValue'
         },
+        addAudienceIDs: [1, 2, 3],
+        deleteAudienceIDs: [4, 5, 6],
         runRuleEngine: true
       }
     })

@@ -14,7 +14,7 @@ describe('TalonOne.deleteAudience', () => {
         }
       })
     } catch (err) {
-      expect(err.message).toContain("missing the required field 'audience_id'.")
+      expect(err.message).toContain("missing the required field 'audienceId'.")
     }
   })
 
@@ -31,7 +31,7 @@ describe('TalonOne.deleteAudience', () => {
         deployment: 'https://something.europe-west1.talon.one'
       },
       mapping: {
-        audience_id: 'some_audience_id'
+        audienceId: 'some_audience_id'
       }
     })
   })

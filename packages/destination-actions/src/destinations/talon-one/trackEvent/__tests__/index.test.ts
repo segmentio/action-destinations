@@ -26,11 +26,11 @@ describe('TalonOne.trackEvent', () => {
           deployment: 'https://internal.europe-west1.talon.one'
         },
         mapping: {
-          customer_profile_id: 'some_customer_profile_id'
+          customerProfileId: 'some_customer_profile_id'
         }
       })
     } catch (err) {
-      expect(err.message).toContain("missing the required field 'event_type'.")
+      expect(err.message).toContain("missing the required field 'eventType'.")
     }
   })
 
@@ -42,7 +42,7 @@ describe('TalonOne.trackEvent', () => {
           deployment: 'https://internal.europe-west1.talon.one'
         },
         mapping: {
-          customer_profile_id: 'some_customer_profile_id',
+          customerProfileId: 'some_customer_profile_id',
           event_type: 'event_type'
         }
       })
@@ -54,10 +54,10 @@ describe('TalonOne.trackEvent', () => {
   it('should work', async () => {
     nock('https://integration.talon.one')
       .put('/segment/event', {
-        customer_profile_id: 'some_customer_profile_id',
-        event_type: 'event_type',
+        customerProfileId: 'some_customer_profile_id',
+        eventType: 'event_type',
         type: 'string',
-        event_attributes: {
+        attributes: {
           favoriteProduct: 'fruits',
           isDogLover: true
         }
@@ -73,9 +73,9 @@ describe('TalonOne.trackEvent', () => {
       },
       mapping: {
         customer_profile_id: 'some_customer_profile_id',
-        event_type: 'event_type',
+        eventType: 'event_type',
         type: 'string',
-        event_attributes: {
+        attributes: {
           favoriteProduct: 'fruits',
           isDogLover: true
         }

@@ -26,7 +26,7 @@ describe('TalonOne.createAudience', () => {
           deployment: 'https://something.europe-west1.talon.one'
         },
         mapping: {
-          audience_id: 'some_audience_id'
+          audienceId: 'some_audience_id'
         }
       })
     } catch (err) {
@@ -37,8 +37,8 @@ describe('TalonOne.createAudience', () => {
   it('should work', async () => {
     nock('https://integration.talon.one')
       .post('/segment/audiences', {
-        audience_id: 'some_audience_id',
-        audience_name: 'some_audience_name'
+        audienceId: 'some_audience_id',
+        audienceName: 'some_audience_name'
       })
       .matchHeader('Authorization', 'ApiKey-v1 some_api_key')
       .matchHeader('destination-hostname', 'https://something.europe-west1.talon.one')
@@ -50,8 +50,8 @@ describe('TalonOne.createAudience', () => {
         deployment: 'https://something.europe-west1.talon.one'
       },
       mapping: {
-        audience_id: 'some_audience_id',
-        audience_name: 'some_audience_name'
+        audienceId: 'some_audience_id',
+        audienceName: 'some_audience_name'
       }
     })
   })
