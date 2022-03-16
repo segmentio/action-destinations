@@ -4,6 +4,7 @@ import { browserDestination } from '../../runtime/shim'
 import { HeapApi } from './types'
 import { defaultValues } from '@segment/actions-core'
 import trackEvent from './trackEvent'
+import identifyUser from './identifyUser'
 
 declare global {
   interface Window {
@@ -22,6 +23,12 @@ export const destination: BrowserDestinationDefinition<Settings, HeapApi> = {
       subscribe: 'type = "track"',
       partnerAction: 'trackEvent',
       mapping: defaultValues(trackEvent.fields)
+    },
+    {
+      name: 'Identify User',
+      subscribe: 'type = "identify"',
+      partnerAction: 'identifyUser',
+      mapping: defaultValues(identifyUser.fields)
     }
   ],
   settings: {
@@ -67,7 +74,8 @@ export const destination: BrowserDestinationDefinition<Settings, HeapApi> = {
   },
 
   actions: {
-    trackEvent
+    trackEvent,
+    identifyUser
   }
 }
 

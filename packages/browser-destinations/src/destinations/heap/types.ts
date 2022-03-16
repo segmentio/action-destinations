@@ -8,4 +8,5 @@ export interface HeapApi {
   track: Function
   load: Function
   config: UserConfig
+  identify: Function
 }
