@@ -1,17 +1,13 @@
 import type { ActionDefinition } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
+import { attribute, customerProfileId } from '../t1-properties'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Track Event',
   description: 'This records a custom event in Talon.One.',
   fields: {
-    customerProfileId: {
-      label: 'customer_profile_id',
-      description: 'Unique identifier of the customer profile associated to the event.',
-      type: 'string',
-      required: true
-    },
+    customerProfileId: { ...customerProfileId },
     eventType: {
       label: 'eventType',
       description: 'It is just the name of your event.',
@@ -24,12 +20,7 @@ const action: ActionDefinition<Settings, Payload> = {
       type: 'string',
       required: true
     },
-    attributes: {
-      label: 'type',
-      description: 'Arbitrary additional JSON data associated with the event',
-      type: 'object',
-      required: false
-    }
+    attributes: { ...attribute }
   },
   perform: (request, { payload }) => {
     // Make your partner api request here!

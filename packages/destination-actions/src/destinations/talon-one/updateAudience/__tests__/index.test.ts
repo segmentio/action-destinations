@@ -9,7 +9,7 @@ describe('TalonOne.updateAudience', () => {
     try {
       await testDestination.testAction('updateAudience', {
         settings: {
-          api_key: 'some_api_key',
+          apiKey: 'some_api_key',
           deployment: 'https://internal.europe-west1.talon.one'
         }
       })
@@ -22,7 +22,7 @@ describe('TalonOne.updateAudience', () => {
     try {
       await testDestination.testAction('updateAudience', {
         settings: {
-          api_key: 'some_api_key',
+          apiKey: 'some_api_key',
           deployment: 'https://something.europe-west1.talon.one'
         },
         mapping: {
@@ -45,7 +45,7 @@ describe('TalonOne.updateAudience', () => {
 
     await testDestination.testAction('updateAudience', {
       settings: {
-        api_key: 'some_api_key',
+        apiKey: 'some_api_key',
         deployment: 'https://something.europe-west1.talon.one'
       },
       mapping: {

@@ -18,7 +18,7 @@ const action: ActionDefinition<Settings, Payload> = {
       json: {
         data: [
           {
-            customerProfile: payload.customerProfileId,
+            customerProfileId: payload.customerProfileId,
             attributes: payload.attributes
           }
         ],

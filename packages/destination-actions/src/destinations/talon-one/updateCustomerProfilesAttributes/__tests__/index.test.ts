@@ -9,7 +9,7 @@ describe('TalonOne.updateCustomerProfilesAttributes', () => {
     try {
       await testDestination.testAction('updateCustomerProfilesAttributes', {
         settings: {
-          api_key: 'some_api_key',
+          apiKey: 'some_api_key',
           deployment: 'https://internal.europe-west1.talon.one'
         }
       })
@@ -22,7 +22,7 @@ describe('TalonOne.updateCustomerProfilesAttributes', () => {
     try {
       await testDestination.testAction('updateCustomerProfilesAttributes', {
         settings: {
-          api_key: 'some_api_key',
+          apiKey: 'some_api_key',
           deployment: 'https://something.europe-west1.talon.one'
         },
         mapping: {
@@ -57,7 +57,7 @@ describe('TalonOne.updateCustomerProfilesAttributes', () => {
 
     await testDestination.testAction('updateCustomerProfilesAttributes', {
       settings: {
-        api_key: 'some_api_key',
+        apiKey: 'some_api_key',
         deployment: 'https://something.europe-west1.talon.one'
       },
       mapping: {

@@ -11,7 +11,7 @@ export const attribute: InputField = {
   label: 'AVP (attribute-value pair) list',
   description: 'List the AVPs you need to update in the customer profile.',
   type: 'object',
-  default: false
+  required: false
 }
 
 export const audienceId: InputField = {
@@ -19,5 +19,5 @@ export const audienceId: InputField = {
   description: 'Add or Delete Audience ID.',
   type: 'integer',
   multiple: true,
-  default: false
+  required: false
 }

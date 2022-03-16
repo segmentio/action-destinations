@@ -13,7 +13,7 @@ const action: ActionDefinition<Settings, Payload> = {
       required: true
     },
     audienceName: {
-      label: 'audience_name',
+      label: 'audienceName',
       description: 'You should get this audience name from Segment.',
       type: 'string',
       required: true

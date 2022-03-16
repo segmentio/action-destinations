@@ -9,7 +9,7 @@ describe('TalonOne.deleteAudience', () => {
     try {
       await testDestination.testAction('deleteAudience', {
         settings: {
-          api_key: 'some_api_key',
+          apiKey: 'some_api_key',
           deployment: 'https://internal.europe-west1.talon.one'
         }
       })
@@ -27,7 +27,7 @@ describe('TalonOne.deleteAudience', () => {
 
     await testDestination.testAction('deleteAudience', {
       settings: {
-        api_key: 'some_api_key',
+        apiKey: 'some_api_key',
         deployment: 'https://something.europe-west1.talon.one'
       },
       mapping: {

@@ -9,7 +9,7 @@ describe('TalonOne.trackEvent', () => {
     try {
       await testDestination.testAction('trackEvent', {
         settings: {
-          api_key: 'some_api_key',
+          apiKey: 'some_api_key',
           deployment: 'https://internal.europe-west1.talon.one'
         }
       })
@@ -22,7 +22,7 @@ describe('TalonOne.trackEvent', () => {
     try {
       await testDestination.testAction('trackEvent', {
         settings: {
-          api_key: 'some_api_key',
+          apiKey: 'some_api_key',
           deployment: 'https://internal.europe-west1.talon.one'
         },
         mapping: {
@@ -38,7 +38,7 @@ describe('TalonOne.trackEvent', () => {
     try {
       await testDestination.testAction('trackEvent', {
         settings: {
-          api_key: 'some_api_key',
+          apiKey: 'some_api_key',
           deployment: 'https://internal.europe-west1.talon.one'
         },
         mapping: {
@@ -57,7 +57,7 @@ describe('TalonOne.trackEvent', () => {
         customerProfileId: 'some_customer_profile_id',
         eventType: 'event_type',
         type: 'string',
-        attributes: {
+        eventAttributes: {
           favoriteProduct: 'fruits',
           isDogLover: true
         }
@@ -68,7 +68,7 @@ describe('TalonOne.trackEvent', () => {
 
     await testDestination.testAction('trackEvent', {
       settings: {
-        api_key: 'some_api_key',
+        apiKey: 'some_api_key',
         deployment: 'https://something.europe-west1.talon.one'
       },
       mapping: {
@@ -83,3 +83,6 @@ describe('TalonOne.trackEvent', () => {
     })
   })
 })
+
+// "body": "{\"customerProfileId\":\"some_customer_profile_id\",\"eventType\":\"event_type\",\"type\":\"string\",\"eventAttributes\":{\"favoriteProduct\":\"fruits\",\"isDogLover\":true}}"
+// "body": "{\"customerProfileId\":\"some_customer_profile_id\",\"eventType\":\"event_type\",\"type\":\"string\",\"eventAttributes\":{\"favoriteProduct\":\"fruits\",\"isDogLover\":true}}"
