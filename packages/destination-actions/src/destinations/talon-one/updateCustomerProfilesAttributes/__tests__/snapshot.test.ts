@@ -4,7 +4,7 @@ import destination from '../../index'
 import nock from 'nock'
 
 const testDestination = createTestIntegration(destination)
-const actionSlug = 'deleteAudience'
+const actionSlug = 'updateAudience'
 const destinationSlug = 'TalonOne'
 const seedName = `${destinationSlug}#${actionSlug}`
 
@@ -16,7 +16,6 @@ describe(`Testing snapshot for ${destinationSlug}'s ${actionSlug} destination ac
     nock(/.*/).persist().get(/.*/).reply(200)
     nock(/.*/).persist().post(/.*/).reply(200)
     nock(/.*/).persist().put(/.*/).reply(200)
-    nock(/.*/).persist().delete(/.*/).reply(200)
 
     const event = createTestEvent({
       properties: eventData
@@ -25,10 +24,7 @@ describe(`Testing snapshot for ${destinationSlug}'s ${actionSlug} destination ac
     const responses = await testDestination.testAction(actionSlug, {
       event: event,
       mapping: event.properties,
-      settings: {
-        apiKey: 'some_api_key',
-        deployment: settingsData.deployment
-      },
+      settings: settingsData,
       auth: undefined
     })
 
@@ -53,7 +49,6 @@ describe(`Testing snapshot for ${destinationSlug}'s ${actionSlug} destination ac
     nock(/.*/).persist().get(/.*/).reply(200)
     nock(/.*/).persist().post(/.*/).reply(200)
     nock(/.*/).persist().put(/.*/).reply(200)
-    nock(/.*/).persist().delete(/.*/).reply(200)
 
     const event = createTestEvent({
       properties: eventData
@@ -62,10 +57,7 @@ describe(`Testing snapshot for ${destinationSlug}'s ${actionSlug} destination ac
     const responses = await testDestination.testAction(actionSlug, {
       event: event,
       mapping: event.properties,
-      settings: {
-        apiKey: 'some_api_key',
-        deployment: settingsData.deployment
-      },
+      settings: settingsData,
       auth: undefined
     })
 

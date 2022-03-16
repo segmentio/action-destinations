@@ -4,7 +4,7 @@ export interface Settings {
   /**
    * Created under Developer Settings in the Talon.One Campaign Manager.
    */
-  api_key: string
+  apiKey: string
   /**
    * The base URL of your Talon.One deployment.
    */
