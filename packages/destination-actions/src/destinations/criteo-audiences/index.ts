@@ -7,7 +7,7 @@ import type { ClientCredentials } from './criteo-audiences'
 
 const destination: DestinationDefinition<Settings> = {
   name: 'Criteo Audiences',
-  slug: 'criteo-managing-audiences',
+  slug: 'criteo-audiences',
   description: 'Add/remove users to/from Criteo Audiences using Criteo API',
   mode: 'cloud',
   authentication: {

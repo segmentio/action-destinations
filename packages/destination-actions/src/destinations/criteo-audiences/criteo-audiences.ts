@@ -3,8 +3,6 @@ import type { RequestClient } from '@segment/actions-core'
 
 const BASE_API_URL = 'https://api.criteo.com/2022-01'
 
-//export type RequestFn = (url: string, options?: RequestOptions) => Promise<Response>
-
 export type Operation = {
     operation_type: string,
     audience_id: string,
