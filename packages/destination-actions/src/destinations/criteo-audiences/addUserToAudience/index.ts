@@ -1,22 +1,29 @@
 import { ActionDefinition } from '@segment/actions-core'
 import { getAudienceId, patchAudience } from '../criteo-audiences'
-import type { Operation, RequestFn, ClientCredentials } from '../criteo-audiences'
+import type { Operation, ClientCredentials } from '../criteo-audiences'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
+import type { RequestClient } from '@segment/actions-core'
 
 const getOperationFromPayload = async (
-  request: RequestFn,
+  request: RequestClient,
   advertiser_id: string,
   payload: Payload[],
   credentials: ClientCredentials
 ): Promise<Operation> => {
-  const add_user_list: string[] = [];
-  let audience_key = '';
+  const add_user_list: string[] = []
+  let audience_key = ''
+
+  /*
+  The logic below assumes that all events within the batch will have the same audience_key
+  Customers should connect single audience to each instance of Criteo audience
+  */
+
   for (const event of payload) {
     if (!audience_key && event.audience_key)
-      audience_key = event.audience_key;
+      audience_key = event.audience_key
     if (event.email)
-      add_user_list.push(event.email);
+      add_user_list.push(event.email)
   }
 
   const audience_id = await getAudienceId(request, advertiser_id, audience_key, credentials)
@@ -29,7 +36,7 @@ const getOperationFromPayload = async (
 }
 
 const processPayload = async (
-  request: RequestFn,
+  request: RequestClient,
   settings: Settings,
   payload: Payload[]
 ): Promise<Response> => {
@@ -39,7 +46,6 @@ const processPayload = async (
   }
   const operation: Operation = await getOperationFromPayload(request, settings.advertiser_id, payload, credentials);
   return await patchAudience(request, operation, credentials)
-
 }
 
 const action: ActionDefinition<Settings, Payload> = {
@@ -78,7 +84,7 @@ const action: ActionDefinition<Settings, Payload> = {
   },
 
   performBatch: async (request, { settings, payload }) => {
-    return await processPayload(request, settings, payload);
+    return await processPayload(request, settings, payload)
 
   }
 }

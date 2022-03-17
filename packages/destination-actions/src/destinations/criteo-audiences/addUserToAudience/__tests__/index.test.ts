@@ -62,7 +62,7 @@ describe('addUserToAudience', () => {
         settings,
         useDefaultMappings: true
       })
-    ).rejects.toThrowError()
+    ).rejects.toThrowError("Forbidden")
   })
 
   it('should throw error if advertiser ID is not a number', async () => {
@@ -80,7 +80,7 @@ describe('addUserToAudience', () => {
         settings,
         useDefaultMappings: true
       })
-    ).rejects.toThrowError()
+    ).rejects.toThrowError('The Advertiser ID should be a number')
   })
 
   it('should throw error if failing to create a new audience', async () => {
@@ -107,7 +107,7 @@ describe('addUserToAudience', () => {
         settings,
         useDefaultMappings: true
       })
-    ).rejects.toThrowError()
+    ).rejects.toThrowError("Forbidden")
   })
 
   it('should not throw an error if the audience creation and the patch requests succeed', async () => {

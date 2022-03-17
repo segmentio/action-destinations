@@ -1,8 +1,9 @@
-import { RequestOptions, IntegrationError } from '@segment/actions-core'
+import { IntegrationError } from '@segment/actions-core'
+import type { RequestClient } from '@segment/actions-core'
 
 const BASE_API_URL = 'https://api.criteo.com/2022-01'
 
-export type RequestFn = (url: string, options?: RequestOptions) => Promise<Response>
+//export type RequestFn = (url: string, options?: RequestOptions) => Promise<Response>
 
 export type Operation = {
     operation_type: string,
@@ -17,10 +18,10 @@ export type ClientCredentials = {
 }
 
 const getRequestHeaders = async (
-    request: RequestFn,
+    request: RequestClient,
     credentials: ClientCredentials
 ): Promise<Record<string, string>> => {
-    credentials = await criteoAuthenticate(request, credentials);
+    credentials = await criteoAuthenticate(request, credentials)
 
     return {
         'Accept': 'application/json',
@@ -30,7 +31,7 @@ const getRequestHeaders = async (
 }
 
 export const getAccessToken = async (
-    request: RequestFn,
+    request: RequestClient,
     credentials: ClientCredentials
 ): Promise<string> => {
     const res = await request(`https://api.criteo.com/oauth2/token`, {
@@ -54,7 +55,7 @@ export const getAccessToken = async (
 }
 
 export const criteoAuthenticate = async (
-    request: RequestFn,
+    request: RequestClient,
     credentials: ClientCredentials
 ): Promise<ClientCredentials> => {
     // If we don't have any auth token yet, we get one and add it to the credentials
@@ -64,7 +65,7 @@ export const criteoAuthenticate = async (
 }
 
 export const patchAudience = async (
-    request: RequestFn,
+    request: RequestClient,
     operation: Operation,
     credentials: ClientCredentials
 ): Promise<Response> => {
@@ -75,7 +76,7 @@ export const patchAudience = async (
         throw new Error(`The Audience ID should be a number (${operation.audience_id})`)
 
     const endpoint = `${BASE_API_URL}/audiences/${operation.audience_id}/contactlist`
-    const headers = await getRequestHeaders(request, credentials);
+    const headers = await getRequestHeaders(request, credentials)
     const payload = {
         "data": {
             "type": "ContactlistAmendment",
@@ -94,7 +95,7 @@ export const patchAudience = async (
 }
 
 export const getAdvertiserAudiences = async (
-    request: RequestFn,
+    request: RequestClient,
     advertiser_id: string,
     credentials: ClientCredentials
 ): Promise<Array<Record<string, any>>> => {
@@ -102,7 +103,7 @@ export const getAdvertiserAudiences = async (
         throw new IntegrationError('The Advertiser ID should be a number', 'Invalid input', 400)
 
     const endpoint = `${BASE_API_URL}/audiences?advertiser-id=${advertiser_id}`
-    const headers = await getRequestHeaders(request, credentials);
+    const headers = await getRequestHeaders(request, credentials)
     const response = await request(
         endpoint, { method: 'GET', headers: headers }
     )
@@ -110,13 +111,13 @@ export const getAdvertiserAudiences = async (
     const body = await response.json()
 
     if (response.status !== 200)
-        throw new Error(`Error while fetching the Advertiser's audiences: ${JSON.stringify(body.errors)}`)
+        throw new IntegrationError(`Error while fetching the Advertiser's audiences: ${JSON.stringify(body.errors)}`)
 
     return body.data
 }
 
 export const getAudienceId = async (
-    request: RequestFn,
+    request: RequestClient,
     advertiser_id: string,
     audience_name: string,
     credentials: ClientCredentials
@@ -132,11 +133,11 @@ export const getAudienceId = async (
     return await createAudience(request, advertiser_id, audience_name, credentials)
 }
 
-const delay = (ms: number) => new Promise((res) => setTimeout(res, ms));
+const delay = (ms: number) => new Promise((res) => setTimeout(res, ms))
 
 //function for fetch Retries with exponential backoff
 const fetchRetry = async (
-    request: RequestFn,
+    request: RequestClient,
     endpoint: string,
     options: {},
     retries = 3,
@@ -155,7 +156,7 @@ const fetchRetry = async (
 }
 
 export const createAudience = async (
-    request: RequestFn,
+    request: RequestClient,
     advertiser_id: string,
     audience_name: string,
     credentials: ClientCredentials
@@ -166,7 +167,7 @@ export const createAudience = async (
         throw new IntegrationError('The Advertiser ID should be a number', 'Invalid input', 400)
 
     const endpoint = `${BASE_API_URL}/audiences`
-    const headers = await getRequestHeaders(request, credentials);
+    const headers = await getRequestHeaders(request, credentials)
     const payload = {
         "data": {
             "attributes": {
