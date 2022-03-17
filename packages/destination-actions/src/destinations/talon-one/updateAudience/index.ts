@@ -6,14 +6,14 @@ const action: ActionDefinition<Settings, Payload> = {
   title: 'Update Audience',
   description: 'This synchronizes audience data if there is an existing audience entity.',
   fields: {
-    audienceId: {
-      label: 'audienceId',
+    audience_id: {
+      label: 'audience_id',
       description: 'You should get this audience ID from Segment.',
       type: 'string',
       required: true
     },
-    audienceName: {
-      label: 'audienceName',
+    audience_name: {
+      label: 'audience_name',
       description: 'You should get this audience name from Segment.',
       type: 'string',
       required: true
@@ -21,10 +21,10 @@ const action: ActionDefinition<Settings, Payload> = {
   },
   perform: (request, { payload }) => {
     // Make your partner api request here!
-    return request(`https://integration.talon.one/segment/audiences/${payload.audienceId}`, {
+    return request(`https://integration.talon.one/segment/audiences/${payload.audience_id}`, {
       method: 'put',
       json: {
-        audienceName: payload.audienceName
+        audience_name: payload.audience_name
       }
     })
   }

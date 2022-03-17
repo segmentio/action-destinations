@@ -4,5 +4,5 @@ export interface Payload {
   /**
    * You should get this audience ID from Segment.
    */
-  audienceId: string
+  audience_id: string
 }

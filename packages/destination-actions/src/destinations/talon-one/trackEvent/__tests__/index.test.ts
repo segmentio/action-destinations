@@ -9,28 +9,28 @@ describe('TalonOne.trackEvent', () => {
     try {
       await testDestination.testAction('trackEvent', {
         settings: {
-          apiKey: 'some_api_key',
+          api_key: 'some_api_key',
           deployment: 'https://internal.europe-west1.talon.one'
         }
       })
     } catch (err) {
-      expect(err.message).toContain("The root value is missing the required field 'customerProfileId'.")
+      expect(err.message).toContain("missing the required field 'customer_profile_id'.")
     }
   })
 
-  it('eventType is missing', async () => {
+  it('event_type is missing', async () => {
     try {
       await testDestination.testAction('trackEvent', {
         settings: {
-          apiKey: 'some_api_key',
+          api_key: 'some_api_key',
           deployment: 'https://internal.europe-west1.talon.one'
         },
         mapping: {
-          customerProfileId: 'some_customer_profile_id'
+          customer_profile_id: 'some_customer_profile_id'
         }
       })
     } catch (err) {
-      expect(err.message).toContain("The root value is missing the required field 'eventType'.")
+      expect(err.message).toContain("missing the required field 'event_type'.")
     }
   })
 
@@ -38,26 +38,26 @@ describe('TalonOne.trackEvent', () => {
     try {
       await testDestination.testAction('trackEvent', {
         settings: {
-          apiKey: 'some_api_key',
+          api_key: 'some_api_key',
           deployment: 'https://internal.europe-west1.talon.one'
         },
         mapping: {
-          customerProfileId: 'some_customer_profile_id',
-          eventType: 'event_type'
+          customer_profile_id: 'some_customer_profile_id',
+          event_type: 'event_type'
         }
       })
     } catch (err) {
-      expect(err.message).toContain("The root value is missing the required field 'type'.")
+      expect(err.message).toContain("missing the required field 'type'.")
     }
   })
 
   it('should work', async () => {
     nock('https://integration.talon.one')
       .put('/segment/event', {
-        customerProfileId: 'some_customer_profile_id',
-        eventType: 'event_type',
+        customer_profile_id: 'some_customer_profile_id',
+        event_type: 'event_type',
         type: 'string',
-        eventAttributes: {
+        event_attributes: {
           favoriteProduct: 'fruits',
           isDogLover: true
         }
@@ -68,14 +68,14 @@ describe('TalonOne.trackEvent', () => {
 
     await testDestination.testAction('trackEvent', {
       settings: {
-        apiKey: 'some_api_key',
+        api_key: 'some_api_key',
         deployment: 'https://something.europe-west1.talon.one'
       },
       mapping: {
-        customerProfileId: 'some_customer_profile_id',
-        eventType: 'event_type',
+        customer_profile_id: 'some_customer_profile_id',
+        event_type: 'event_type',
         type: 'string',
-        attributes: {
+        event_attributes: {
           favoriteProduct: 'fruits',
           isDogLover: true
         }
@@ -83,6 +83,3 @@ describe('TalonOne.trackEvent', () => {
     })
   })
 })
-
-// "body": "{\"customerProfileId\":\"some_customer_profile_id\",\"eventType\":\"event_type\",\"type\":\"string\",\"eventAttributes\":{\"favoriteProduct\":\"fruits\",\"isDogLover\":true}}"
-// "body": "{\"customerProfileId\":\"some_customer_profile_id\",\"eventType\":\"event_type\",\"type\":\"string\",\"eventAttributes\":{\"favoriteProduct\":\"fruits\",\"isDogLover\":true}}"

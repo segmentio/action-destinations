@@ -6,14 +6,14 @@ const action: ActionDefinition<Settings, Payload> = {
   title: 'Create Audience',
   description: 'This creates a new audience entity in Talon.One.',
   fields: {
-    audienceId: {
-      label: 'audienceId',
+    audience_id: {
+      label: 'audience_id',
       description: 'You should get this audience ID from Segment.',
       type: 'string',
       required: true
     },
-    audienceName: {
-      label: 'audienceName',
+    audience_name: {
+      label: 'audience_name',
       description: 'You should get this audience name from Segment.',
       type: 'string',
       required: true
@@ -24,8 +24,8 @@ const action: ActionDefinition<Settings, Payload> = {
     return request(`https://integration.talon.one/segment/audiences`, {
       method: 'post',
       json: {
-        audienceId: payload.audienceId,
-        audienceName: payload.audienceName
+        audience_id: payload.audience_id,
+        audience_name: payload.audience_name
       }
     })
   }

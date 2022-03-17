@@ -4,20 +4,17 @@ import type { Settings } from './generated-types'
 import createAudience from './createAudience'
 import updateAudience from './updateAudience'
 import deleteAudience from './deleteAudience'
-import updateCustomerProfile from './updateCustomerProfile'
-import updateCustomerProfilesAttributes from './updateCustomerProfilesAttributes'
-import updateCustomerProfilesAudiences from './updateCustomerProfilesAudiences'
 import trackEvent from './trackEvent'
 
 const destination: DestinationDefinition<Settings> = {
-  name: 'Talon.One (Actions)',
-  slug: 'actions-talon-one',
+  name: 'Talon.One',
+  slug: 'talon-one',
   mode: 'cloud',
 
   authentication: {
     scheme: 'custom',
     fields: {
-      apiKey: {
+      api_key: {
         label: 'API Key',
         description: 'Created under Developer Settings in the Talon.One Campaign Manager.',
         type: 'string',
@@ -41,7 +38,7 @@ const destination: DestinationDefinition<Settings> = {
   extendRequest({ settings }) {
     return {
       headers: {
-        Authorization: `ApiKey-v1 ${settings.apiKey}`,
+        Authorization: `ApiKey-v1 ${settings.api_key}`,
         'destination-hostname': `${settings.deployment}`
       }
     }
@@ -51,9 +48,6 @@ const destination: DestinationDefinition<Settings> = {
     createAudience,
     updateAudience,
     deleteAudience,
-    updateCustomerProfile,
-    updateCustomerProfilesAttributes,
-    updateCustomerProfilesAudiences,
     trackEvent
   }
 }

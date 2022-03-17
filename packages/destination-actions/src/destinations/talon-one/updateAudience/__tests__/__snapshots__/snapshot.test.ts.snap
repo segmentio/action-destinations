@@ -8,6 +8,6 @@ Object {
 
 exports[`Testing snapshot for TalonOne's updateAudience destination action: required fields 1`] = `
 Object {
-  "audienceName": "O6swM%XrC",
+  "audience_name": "O6swM%XrC",
 }
 `;
