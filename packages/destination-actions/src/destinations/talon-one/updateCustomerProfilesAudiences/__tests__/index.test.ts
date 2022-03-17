@@ -4,8 +4,8 @@ import nock from 'nock'
 
 const testDestination = createTestIntegration(Destination)
 
-describe('TalonOne.updateAudience', () => {
-  it('audienceId is missing', async () => {
+describe('TalonOne.updateCustomerProfilesAudiences', () => {
+  it('request body is missing', async () => {
     try {
       await testDestination.testAction('updateAudience', {
         settings: {
@@ -14,11 +14,11 @@ describe('TalonOne.updateAudience', () => {
         }
       })
     } catch (err) {
-      expect(err.message).toContain("missing the required field 'audienceId'.")
+      expect(err.message).toContain('Empty request is submitted')
     }
   })
 
-  it('audienceName is missing', async () => {
+  it('customer profile ID is missing', async () => {
     try {
       await testDestination.testAction('updateAudience', {
         settings: {
@@ -26,18 +26,30 @@ describe('TalonOne.updateAudience', () => {
           deployment: 'https://something.europe-west1.talon.one'
         },
         mapping: {
-          audience_id: 'some_audience_id'
+          data: [
+            {
+              customerProfileId: '',
+              adds: [1, 2, 3],
+              deletes: [4, 5, 6]
+            }
+          ]
         }
       })
     } catch (err) {
-      expect(err.message).toContain("missing the required field 'audienceName'.")
+      expect(err.message).toContain("The root value is missing the required field 'audienceId'.")
     }
   })
 
   it('should work', async () => {
     nock('https://integration.talon.one')
-      .put('/segment/audiences/some_audience_id', {
-        audienceName: 'some_audience_name'
+      .put('/segment/customer_profiles/audiences', {
+        data: [
+          {
+            customerProfileId: 'abc123',
+            adds: [1, 2, 3],
+            deletes: [4, 5, 6]
+          }
+        ]
       })
       .matchHeader('Authorization', 'ApiKey-v1 some_api_key')
       .matchHeader('destination-hostname', 'https://something.europe-west1.talon.one')
@@ -49,8 +61,9 @@ describe('TalonOne.updateAudience', () => {
         deployment: 'https://something.europe-west1.talon.one'
       },
       mapping: {
-        audienceId: 'some_audience_id',
-        audienceName: 'some_audience_name'
+        customerProfileId: 'abc123',
+        addAudienceIDs: [1, 2, 3],
+        deleteAudienceIDs: [4, 5, 6]
       }
     })
   })

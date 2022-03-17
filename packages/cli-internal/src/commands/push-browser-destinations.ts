@@ -95,8 +95,15 @@ export default class PushBrowserDestinations extends Command {
       }
 
       // We expect that each definition produces a single Remote Plugin bundle
-      // `name` + `metadataId` are guaranteed to be unique
-      const existingPlugin = remotePlugins.find((p) => p.metadataId === metadata.id && p.name === metadata.name)
+      // `metadataId` is guaranteed to be unique
+      const existingPlugin = remotePlugins.find((p) => p.metadataId === metadata.id)
+
+      if (metadata.name !== entry.definition.name) {
+        this.spinner.fail()
+        throw new Error(
+          `The definition name '${entry.definition.name}' should always match the control plane name '${metadata.name}'.`
+        )
+      }
 
       if (existingPlugin) {
         pluginsToUpdate.push(input)

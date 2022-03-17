@@ -2,19 +2,19 @@
 
 exports[`Testing snapshot for TalonOne's trackEvent destination action: all fields 1`] = `
 Object {
-  "customer_profile_id": "Q5oo3QY5I2",
-  "event_attributes": Object {
+  "customerProfileId": "Q5oo3QY5I2",
+  "eventAttributes": Object {
     "testType": "Q5oo3QY5I2",
   },
-  "event_type": "Q5oo3QY5I2",
+  "eventType": "Q5oo3QY5I2",
   "type": "Q5oo3QY5I2",
 }
 `;
 
 exports[`Testing snapshot for TalonOne's trackEvent destination action: required fields 1`] = `
 Object {
-  "customer_profile_id": "Q5oo3QY5I2",
-  "event_type": "Q5oo3QY5I2",
+  "customerProfileId": "Q5oo3QY5I2",
+  "eventType": "Q5oo3QY5I2",
   "type": "Q5oo3QY5I2",
 }
 `;
