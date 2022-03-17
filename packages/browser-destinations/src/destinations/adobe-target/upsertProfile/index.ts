@@ -25,12 +25,10 @@ const action: BrowserActionDefinition<Settings, Adobe, Payload> = {
     },
     traits: {
       type: 'object',
-      required: true,
-      description: 'Profile parameters specific to a user.',
+      description:
+        'Profile parameters specific to a user. Please note, Adobe recommends that PII is hashed prior to sending to Adobe.',
       label: 'Profile Attributes',
-      default: {
-        '@path': '$.traits'
-      }
+      defaultObjectUI: 'keyvalue'
     }
   },
   perform: (Adobe, event) => {
@@ -55,7 +53,7 @@ const action: BrowserActionDefinition<Settings, Adobe, Payload> = {
     const params = {
       mbox: event.settings.mbox_name,
       params: {
-        type: 'profile_update' // DO NOT CHANGE. profile_update is used to differentiate between track and identify calls.
+        event_name: 'profile_update' // DO NOT CHANGE. profile_update is used to differentiate between track and identify calls.
       }
     }
 
