@@ -19,3 +19,23 @@ Headers {
   },
 }
 `;
+
+exports[`Testing snapshot for actions-talon-one's deleteAudience destination action: all fields 1`] = `""`;
+
+exports[`Testing snapshot for actions-talon-one's deleteAudience destination action: required fields 1`] = `""`;
+
+exports[`Testing snapshot for actions-talon-one's deleteAudience destination action: required fields 2`] = `
+Headers {
+  Symbol(map): Object {
+    "authorization": Array [
+      "ApiKey-v1 some_api_key",
+    ],
+    "destination-hostname": Array [
+      "%(D1Zib7U(",
+    ],
+    "user-agent": Array [
+      "Segment (Actions)",
+    ],
+  },
+}
+`;

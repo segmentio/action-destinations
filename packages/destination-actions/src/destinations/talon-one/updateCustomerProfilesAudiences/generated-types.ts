@@ -2,11 +2,11 @@
 
 export interface Payload {
   /**
-   * Add or Delete Audience ID.
+   * You should get this audience ID from Talon.One.
    */
   deleteAudienceIDs?: number[]
   /**
-   * Add or Delete Audience ID.
+   * You should get this audience ID from Talon.One.
    */
   addAudienceIDs?: number[]
   /**

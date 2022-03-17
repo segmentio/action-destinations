@@ -7,7 +7,7 @@ const action: ActionDefinition<Settings, Payload> = {
   description: 'This deletes the audience entity in Talon.One.',
   fields: {
     audienceId: {
-      label: 'audienceId',
+      label: 'Segment Audience ID',
       description: 'You should get this audience ID from Segment.',
       type: 'string',
       required: true

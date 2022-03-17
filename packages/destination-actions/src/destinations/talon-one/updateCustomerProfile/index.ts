@@ -12,8 +12,8 @@ const action: ActionDefinition<Settings, Payload> = {
     deleteAudienceIDs: { ...audienceId },
     addAudienceIDs: { ...audienceId },
     runRuleEngine: {
-      label: 'This runs rule engine in talon-service upon updating customer profile',
-      description: 'Set to true if the update requires to trigger all the rules.',
+      label: 'Run rule engine',
+      description: 'This runs rule engine in Talon.One upon updating customer profile. Set to true to trigger rules.',
       type: 'boolean',
       default: false
     }

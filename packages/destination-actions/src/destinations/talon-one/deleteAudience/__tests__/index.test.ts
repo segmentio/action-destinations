@@ -4,8 +4,8 @@ import nock from 'nock'
 
 const testDestination = createTestIntegration(Destination)
 
-describe('TalonOne.deleteAudience', () => {
-  it('audience_id is missing', async () => {
+describe('Talon.One - Delete Audience', () => {
+  it('misses audience ID', async () => {
     try {
       await testDestination.testAction('deleteAudience', {
         settings: {

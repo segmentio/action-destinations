@@ -1,13 +1,53 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`Testing snapshot for TalonOne's updateAudience destination action: all fields 1`] = `
+exports[`Testing snapshot for actions-talon-one's updateCustomerProfilesAttributes destination action: all fields 1`] = `
 Object {
-  "audience_name": "O6swM%XrC",
+  "data": Array [
+    Object {
+      "attributes": Object {
+        "testType": "zIuxxC8$",
+      },
+      "customerProfileId": "zIuxxC8$",
+    },
+  ],
+  "mutualAttributes": Object {
+    "testType": "zIuxxC8$",
+  },
 }
 `;
 
-exports[`Testing snapshot for TalonOne's updateAudience destination action: required fields 1`] = `
+exports[`Testing snapshot for actions-talon-one's updateCustomerProfilesAttributes destination action: required fields 1`] = `
 Object {
-  "audienceName": "O6swM%XrC",
+  "data": Array [
+    Object {
+      "customerProfileId": "zIuxxC8$",
+    },
+  ],
+}
+`;
+
+exports[`Testing snapshot for talon-one's updateCustomerProfilesAttributes destination action: all fields 1`] = `
+Object {
+  "data": Array [
+    Object {
+      "attributes": Object {
+        "testType": "Tg*32H7pxzSW",
+      },
+      "customerProfileId": "Tg*32H7pxzSW",
+    },
+  ],
+  "mutualAttributes": Object {
+    "testType": "Tg*32H7pxzSW",
+  },
+}
+`;
+
+exports[`Testing snapshot for talon-one's updateCustomerProfilesAttributes destination action: required fields 1`] = `
+Object {
+  "data": Array [
+    Object {
+      "customerProfileId": "Tg*32H7pxzSW",
+    },
+  ],
 }
 `;

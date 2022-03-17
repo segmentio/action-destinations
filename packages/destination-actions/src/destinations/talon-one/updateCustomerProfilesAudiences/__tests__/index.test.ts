@@ -4,23 +4,23 @@ import nock from 'nock'
 
 const testDestination = createTestIntegration(Destination)
 
-describe('TalonOne.updateCustomerProfilesAudiences', () => {
-  it('request body is missing', async () => {
+describe('Talon.One - Update Customer Profiles Audiences', () => {
+  it('misses request body', async () => {
     try {
-      await testDestination.testAction('updateAudience', {
+      await testDestination.testAction('updateCustomerProfilesAudiences', {
         settings: {
           apiKey: 'some_api_key',
           deployment: 'https://internal.europe-west1.talon.one'
         }
       })
     } catch (err) {
-      expect(err.message).toContain('Empty request is submitted')
+      expect(err.message).toContain("The root value is missing the required field 'customerProfileId'.")
     }
   })
 
-  it('customer profile ID is missing', async () => {
+  it('misses customer profile ID', async () => {
     try {
-      await testDestination.testAction('updateAudience', {
+      await testDestination.testAction('updateCustomerProfilesAudiences', {
         settings: {
           apiKey: 'some_api_key',
           deployment: 'https://something.europe-west1.talon.one'
@@ -36,7 +36,7 @@ describe('TalonOne.updateCustomerProfilesAudiences', () => {
         }
       })
     } catch (err) {
-      expect(err.message).toContain("The root value is missing the required field 'audienceId'.")
+      expect(err.message).toContain("The root value is missing the required field 'customerProfileId'.")
     }
   })
 
@@ -55,7 +55,7 @@ describe('TalonOne.updateCustomerProfilesAudiences', () => {
       .matchHeader('destination-hostname', 'https://something.europe-west1.talon.one')
       .reply(200)
 
-    await testDestination.testAction('updateAudience', {
+    await testDestination.testAction('updateCustomerProfilesAudiences', {
       settings: {
         apiKey: 'some_api_key',
         deployment: 'https://something.europe-west1.talon.one'

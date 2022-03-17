@@ -18,3 +18,22 @@ Object {
   "type": "Q5oo3QY5I2",
 }
 `;
+
+exports[`Testing snapshot for actions-talon-one's trackEvent destination action: all fields 1`] = `
+Object {
+  "customerProfileId": "fU[[CRDXd2",
+  "eventAttributes": Object {
+    "testType": "fU[[CRDXd2",
+  },
+  "eventType": "fU[[CRDXd2",
+  "type": "fU[[CRDXd2",
+}
+`;
+
+exports[`Testing snapshot for actions-talon-one's trackEvent destination action: required fields 1`] = `
+Object {
+  "customerProfileId": "fU[[CRDXd2",
+  "eventType": "fU[[CRDXd2",
+  "type": "fU[[CRDXd2",
+}
+`;
