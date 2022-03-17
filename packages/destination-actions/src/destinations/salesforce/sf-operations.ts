@@ -92,13 +92,19 @@ export default class Salesforce {
     return baseShape
   }
 
+  // Salesforce SOQL spec requires any single quotes to be escaped.
+  private escapeQuotes = (value: string) => value.replace(/'/g, "\\'")
+
+  // Salesforce field names should have only characters in {a-z, A-Z, 0-9, _}.
+  private removeInvalidChars = (value: string) => value.replace(/[^a-zA-Z0-9_]/g, '')
+
   private buildQuery = (traits: object, sobject: string) => {
     let soql = `SELECT Id FROM ${sobject} WHERE `
 
     const entries = Object.entries(traits)
     let i = 0
     for (const [key, value] of entries) {
-      let token = `${key} = '${value}'`
+      let token = `${this.removeInvalidChars(key)} = '${this.escapeQuotes(value)}'`
 
       if (i < entries.length - 1) {
         token += ' OR '

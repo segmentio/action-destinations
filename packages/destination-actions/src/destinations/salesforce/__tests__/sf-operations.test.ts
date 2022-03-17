@@ -198,6 +198,60 @@ describe('Salesforce', () => {
           )
         ).rejects.toThrowError('Undefined Traits when using upsert operation')
       })
+
+      it('should properly escape quotes in a record matcher', async () => {
+        const query = encodeURIComponent(
+          `SELECT Id FROM Lead WHERE email = 'sponge@seamail.com' OR company = 'Krusty\\'s Krab'`
+        )
+        nock(`${settings.instanceUrl}services/data/${API_VERSION}/query`)
+          .get(`/?q=${query}`)
+          .reply(201, {
+            Id: 'abc123',
+            totalSize: 1,
+            records: [{ Id: '123456' }]
+          })
+
+        nock(`${settings.instanceUrl}services/data/${API_VERSION}/sobjects`).patch('/Lead/123456').reply(201, {})
+
+        await sf.upsertRecord(
+          {
+            traits: {
+              email: 'sponge@seamail.com',
+              company: "Krusty's Krab"
+            },
+            company: 'Krusty Krab LLC',
+            last_name: 'Krabs'
+          },
+          'Lead'
+        )
+      })
+
+      it('should properly remove invalid characters from field name in lookups', async () => {
+        const query = encodeURIComponent(
+          `SELECT Id FROM Lead WHERE email__cs = 'sponge@seamail.com' OR company = 'Krusty\\'s Krab'`
+        )
+        nock(`${settings.instanceUrl}services/data/${API_VERSION}/query`)
+          .get(`/?q=${query}`)
+          .reply(201, {
+            Id: 'abc123',
+            totalSize: 1,
+            records: [{ Id: '123456' }]
+          })
+
+        nock(`${settings.instanceUrl}services/data/${API_VERSION}/sobjects`).patch('/Lead/123456').reply(201, {})
+
+        await sf.upsertRecord(
+          {
+            traits: {
+              "email__c's!'": 'sponge@seamail.com',
+              company: "Krusty's Krab"
+            },
+            company: 'Krusty Krab LLC',
+            last_name: 'Krabs'
+          },
+          'Lead'
+        )
+      })
     })
   })
 })
