@@ -7,13 +7,13 @@ import { createMapiRequest } from '../cloudUtil'
 import { contextFields } from '@segment/actions-shared'
 import { COPY, DROP, mapEvent } from '@segment/actions-shared'
 import { trackCustomerFields } from '@segment/actions-shared'
-import { parseDate } from '@segment/actions-shared'
+import { enjoinInteger, enjoinString, parseDate } from '@segment/actions-shared'
 
 const cloudTrackCustomerFields = { ...trackCustomerFields, ...contextFields }
 
 const trackCustomerMapi: EventMap = {
   fields: {
-    customerId: COPY,
+    customerId: { convert: enjoinString as ConvertFun },
     // anonymousID (unmapped)
     email: COPY,
     isNewCustomer: COPY,
@@ -23,14 +23,14 @@ const trackCustomerMapi: EventMap = {
     lastName: COPY,
     // name (unmapped)
     gender: COPY,
-    age: COPY,
+    age: { convert: enjoinInteger as ConvertFun },
     birthday: { convert: parseDate as ConvertFun },
     language: COPY,
     timezone: COPY,
     addressCountry: { name: 'country' },
     addressState: { name: 'state' },
     addressCity: { name: 'city' },
-    addressPostalCode: { name: 'zipCode' },
+    addressPostalCode: { name: 'zipCode', convert: enjoinString as ConvertFun },
 
     // CONTEXT FIELDS
     ipAddress: COPY,

@@ -1,0 +1,66 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Testing snapshot for talon-one destination: createAudience action - all fields 1`] = `
+Object {
+  "audience_id": "Xunf2QoIA0MWf)kFQ",
+  "audience_name": "Xunf2QoIA0MWf)kFQ",
+}
+`;
+
+exports[`Testing snapshot for talon-one destination: createAudience action - required fields 1`] = `
+Object {
+  "audience_id": "Xunf2QoIA0MWf)kFQ",
+  "audience_name": "Xunf2QoIA0MWf)kFQ",
+}
+`;
+
+exports[`Testing snapshot for talon-one destination: deleteAudience action - all fields 1`] = `""`;
+
+exports[`Testing snapshot for talon-one destination: deleteAudience action - required fields 1`] = `""`;
+
+exports[`Testing snapshot for talon-one destination: deleteAudience action - required fields 2`] = `
+Headers {
+  Symbol(map): Object {
+    "authorization": Array [
+      "ApiKey-v1 some_api_key",
+    ],
+    "destination-hostname": Array [
+      "YJSS]PGSZ&%5",
+    ],
+    "user-agent": Array [
+      "Segment (Actions)",
+    ],
+  },
+}
+`;
+
+exports[`Testing snapshot for talon-one destination: trackEvent action - all fields 1`] = `
+Object {
+  "customer_profile_id": "TePOjI",
+  "event_attributes": Object {
+    "testType": "TePOjI",
+  },
+  "event_type": "TePOjI",
+  "type": "TePOjI",
+}
+`;
+
+exports[`Testing snapshot for talon-one destination: trackEvent action - required fields 1`] = `
+Object {
+  "customer_profile_id": "TePOjI",
+  "event_type": "TePOjI",
+  "type": "TePOjI",
+}
+`;
+
+exports[`Testing snapshot for talon-one destination: updateAudience action - all fields 1`] = `
+Object {
+  "audience_name": "XE[HNHsL(",
+}
+`;
+
+exports[`Testing snapshot for talon-one destination: updateAudience action - required fields 1`] = `
+Object {
+  "audience_name": "XE[HNHsL(",
+}
+`;
