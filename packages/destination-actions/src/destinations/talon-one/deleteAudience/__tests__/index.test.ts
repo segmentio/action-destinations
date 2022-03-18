@@ -4,17 +4,17 @@ import nock from 'nock'
 
 const testDestination = createTestIntegration(Destination)
 
-describe('TalonOne.deleteAudience', () => {
-  it('audience_id is missing', async () => {
+describe('Talon.One - Delete Audience', () => {
+  it('misses audience ID', async () => {
     try {
       await testDestination.testAction('deleteAudience', {
         settings: {
-          api_key: 'some_api_key',
+          apiKey: 'some_api_key',
           deployment: 'https://internal.europe-west1.talon.one'
         }
       })
     } catch (err) {
-      expect(err.message).toContain("missing the required field 'audience_id'.")
+      expect(err.message).toContain("missing the required field 'audienceId'.")
     }
   })
 
@@ -27,11 +27,11 @@ describe('TalonOne.deleteAudience', () => {
 
     await testDestination.testAction('deleteAudience', {
       settings: {
-        api_key: 'some_api_key',
+        apiKey: 'some_api_key',
         deployment: 'https://something.europe-west1.talon.one'
       },
       mapping: {
-        audience_id: 'some_audience_id'
+        audienceId: 'some_audience_id'
       }
     })
   })

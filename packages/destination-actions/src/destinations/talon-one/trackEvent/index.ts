@@ -6,27 +6,27 @@ const action: ActionDefinition<Settings, Payload> = {
   title: 'Track Event',
   description: 'This records a custom event in Talon.One.',
   fields: {
-    customer_profile_id: {
-      label: 'customer_profile_id',
+    customerProfileId: {
+      label: 'Customer Profile ID',
       description: 'Unique identifier of the customer profile associated to the event.',
       type: 'string',
       required: true
     },
-    event_type: {
-      label: 'event_type',
-      description: "It's just the name of your event.",
+    eventType: {
+      label: 'Event Type',
+      description: 'It is just the name of your event.',
       type: 'string',
       required: true
     },
     type: {
-      label: 'type',
+      label: 'Type',
       description: 'Type of event. Can be only `string`, `time`, `number`, `boolean`, `location`',
       type: 'string',
       required: true
     },
-    event_attributes: {
-      label: 'type',
-      description: 'Arbitrary additional JSON data associated with the event',
+    attributes: {
+      label: 'Attribute-Value pairs',
+      description: 'Arbitrary additional JSON data associated with the event.',
       type: 'object',
       required: false
     }
@@ -36,10 +36,10 @@ const action: ActionDefinition<Settings, Payload> = {
     return request(`https://integration.talon.one/segment/event`, {
       method: 'put',
       json: {
-        customer_profile_id: payload.customer_profile_id,
-        event_type: payload.event_type,
+        customerProfileId: payload.customerProfileId,
+        eventType: payload.eventType,
         type: payload.type,
-        event_attributes: payload.event_attributes
+        eventAttributes: payload.attributes
       }
     })
   }

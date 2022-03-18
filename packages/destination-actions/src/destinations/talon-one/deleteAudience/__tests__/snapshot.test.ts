@@ -5,7 +5,7 @@ import nock from 'nock'
 
 const testDestination = createTestIntegration(destination)
 const actionSlug = 'deleteAudience'
-const destinationSlug = 'TalonOne'
+const destinationSlug = 'actions-talon-one'
 const seedName = `${destinationSlug}#${actionSlug}`
 
 describe(`Testing snapshot for ${destinationSlug}'s ${actionSlug} destination action:`, () => {
@@ -26,7 +26,7 @@ describe(`Testing snapshot for ${destinationSlug}'s ${actionSlug} destination ac
       event: event,
       mapping: event.properties,
       settings: {
-        api_key: 'some_api_key',
+        apiKey: 'some_api_key',
         deployment: settingsData.deployment
       },
       auth: undefined
@@ -63,7 +63,7 @@ describe(`Testing snapshot for ${destinationSlug}'s ${actionSlug} destination ac
       event: event,
       mapping: event.properties,
       settings: {
-        api_key: 'some_api_key',
+        apiKey: 'some_api_key',
         deployment: settingsData.deployment
       },
       auth: undefined
