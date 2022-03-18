@@ -6,22 +6,23 @@ import type { Payload } from './generated-types'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Account',
-  description: 'Account action',
+  description: 'Represents an individual account, which is an organization or person involved with your business.',
+  defaultSubscription: 'type = "group"',
   fields: {
     operation: operation,
     traits: traits,
     name: {
       label: 'Name',
-      description: 'Name of the account. This is required to create an account.',
+      description: 'Name of the account. **This is required to create an account.**',
       type: 'string',
       default: {
-        '@path': '$.name'
+        '@path': '$.traits.name'
       }
     },
     account_number: {
       label: 'Account Number',
       description:
-        'Account number assigned to the account. This is not the unique, system-generated ID assigned during creation.',
+        'Account number assigned to the account. This is not the unique, Salesforce-generated ID assigned during creation.',
       type: 'string',
       default: {
         '@path': '$.groupId'
