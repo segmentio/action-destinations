@@ -1,0 +1,19 @@
+import { InputField } from '@segment/actions-core/src/destination-kit/types'
+export declare const params: InputField
+export declare const user_id: InputField
+export declare const promotion_id: InputField
+export declare const promotion_name: InputField
+export declare const creative_slot: InputField
+export declare const creative_name: InputField
+export declare const tax: InputField
+export declare const shipping: InputField
+export declare const transaction_id: InputField
+export declare const affiliation: InputField
+export declare const client_id: InputField
+export declare const currency: InputField
+export declare const value: InputField
+export declare const coupon: InputField
+export declare const payment_type: InputField
+export declare const minimal_items: InputField
+export declare const items_single_products: InputField
+export declare const items_multi_products: InputField

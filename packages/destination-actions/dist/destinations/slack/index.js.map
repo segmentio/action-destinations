@@ -1,0 +1,1 @@
+{"version":3,"file":"index.js","sourceRoot":"","sources":["../../../src/destinations/slack/index.ts"],"names":[],"mappings":";;;;;AAEA,oEAA2C;AAE3C,MAAM,WAAW,GAAoC;IACnD,IAAI,EAAE,OAAO;IACb,IAAI,EAAE,OAAO;IACb,OAAO,EAAE;QACP,aAAa,EAAb,uBAAa;KACd;CACF,CAAA;AAED,kBAAe,WAAW,CAAA"}

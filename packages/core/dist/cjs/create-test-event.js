@@ -1,0 +1,45 @@
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.createTestEvent = void 0;
+const uuid_1 = require("@lukeed/uuid");
+function createTestEvent(event = {}) {
+    return {
+        anonymousId: uuid_1.v4(),
+        context: {
+            ip: '8.8.8.8',
+            library: {
+                name: 'analytics.js',
+                version: '2.11.1'
+            },
+            locale: 'en-US',
+            location: {
+                city: 'San Francisco',
+                country: 'United States',
+                latitude: 40.2964197,
+                longitude: -76.9411617,
+                speed: 0
+            },
+            page: {
+                path: '/academy/',
+                referrer: '',
+                search: '',
+                title: 'Analytics Academy',
+                url: 'https://segment.com/academy/'
+            },
+            timezone: 'Europe/Amsterdam',
+            userAgent: 'Mozilla/5.0 (iPhone; CPU iPhone OS 9_1 like Mac OS X) AppleWebKit/601.1.46 (KHTML, like Gecko) Version/9.0 Mobile/13B143 Safari/601.1'
+        },
+        event: 'Test Event',
+        messageId: uuid_1.v4(),
+        properties: {},
+        receivedAt: new Date().toISOString(),
+        sentAt: new Date().toISOString(),
+        timestamp: new Date().toISOString(),
+        traits: {},
+        type: 'track',
+        userId: 'user1234',
+        ...event
+    };
+}
+exports.createTestEvent = createTestEvent;
+//# sourceMappingURL=create-test-event.js.map

@@ -1,0 +1,1 @@
+{"version":3,"file":"common-fields.js","sourceRoot":"","sources":["../../../src/destinations/gainsight-px-cloud-action/common-fields.ts"],"names":[],"mappings":";;;AAEa,QAAA,YAAY,GAA+B;IACtD,YAAY,EAAE;QACZ,KAAK,EAAE,eAAe;QACtB,IAAI,EAAE,QAAQ;QACd,WAAW,EAAE,uBAAuB;QACpC,QAAQ,EAAE,KAAK;QACf,OAAO,EAAE;YACP,OAAO,EAAE,IAAI;SACd;KACF;CACF,CAAA"}

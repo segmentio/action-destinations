@@ -1,0 +1,1 @@
+{"version":3,"file":"referrer.js","sourceRoot":"","sources":["../../../src/destinations/amplitude/referrer.ts"],"names":[],"mappings":";;;AAWA,SAAgB,uBAAuB,CAAC,OAAgB;IACtD,MAAM,EAAE,QAAQ,EAAE,GAAG,OAAO,CAAA;IAE5B,IAAI,CAAC,QAAQ;QAAE,OAAO,EAAE,CAAA;IAExB,OAAO;QACL,IAAI,EAAE,EAAE,QAAQ,EAAE;QAClB,QAAQ,EAAE,EAAE,gBAAgB,EAAE,QAAQ,EAAE;KACzC,CAAA;AACH,CAAC;AATD,0DASC"}
