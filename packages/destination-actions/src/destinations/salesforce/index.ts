@@ -29,7 +29,7 @@ const destination: DestinationDefinition<Settings> = {
       },
       isSandbox: {
         label: 'Sandbox Instance',
-        description: 'Turn this on if you would like to oauth into a sandbox environment instead.',
+        description: 'Enable to authenticate into a sandbox instance.',
         type: 'boolean'
       }
     },

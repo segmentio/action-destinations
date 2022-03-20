@@ -6,7 +6,7 @@ export interface Settings {
    */
   instanceUrl: string
   /**
-   * Turn this on if you would like to oauth into a sandbox environment instead.
+   * Enable to authenticate into a sandbox instance.
    */
   isSandbox?: boolean
 }
