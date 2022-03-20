@@ -14,7 +14,7 @@ describe('Talon One', () => {
         .reply(204, {})
 
       const settings: Settings = {
-        api_key: 'some_api_key',
+        apiKey: 'some_api_key',
         deployment: 'https://something.europe-west1.talon.one'
       }
 
@@ -28,7 +28,7 @@ describe('Talon One', () => {
         .reply(401, {})
 
       const settings: Settings = {
-        api_key: 'some_api_key',
+        apiKey: 'some_api_key',
         deployment: 'https://something.europe-west1.talon.one'
       }
 

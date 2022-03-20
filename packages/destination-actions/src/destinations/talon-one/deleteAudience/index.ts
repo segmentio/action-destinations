@@ -6,8 +6,8 @@ const action: ActionDefinition<Settings, Payload> = {
   title: 'Delete Audience',
   description: 'This deletes the audience entity in Talon.One.',
   fields: {
-    audience_id: {
-      label: 'audience_id',
+    audienceId: {
+      label: 'Segment Audience ID',
       description: 'You should get this audience ID from Segment.',
       type: 'string',
       required: true
@@ -15,7 +15,7 @@ const action: ActionDefinition<Settings, Payload> = {
   },
   perform: (request, { payload }) => {
     // Make your partner api request here!
-    return request(`https://integration.talon.one/segment/audiences/${payload.audience_id}`, { method: 'delete' })
+    return request(`https://integration.talon.one/segment/audiences/${payload.audienceId}`, { method: 'delete' })
   }
 }
 

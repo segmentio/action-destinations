@@ -4,25 +4,25 @@ import nock from 'nock'
 
 const testDestination = createTestIntegration(Destination)
 
-describe('TalonOne.updateAudience', () => {
-  it('audience_id is missing', async () => {
+describe('Talon.One - Update Audience', () => {
+  it('misses audience ID', async () => {
     try {
       await testDestination.testAction('updateAudience', {
         settings: {
-          api_key: 'some_api_key',
+          apiKey: 'some_api_key',
           deployment: 'https://internal.europe-west1.talon.one'
         }
       })
     } catch (err) {
-      expect(err.message).toContain("missing the required field 'audience_id'.")
+      expect(err.message).toContain("missing the required field 'audienceId'.")
     }
   })
 
-  it('audience_name is missing', async () => {
+  it('misses audience name', async () => {
     try {
       await testDestination.testAction('updateAudience', {
         settings: {
-          api_key: 'some_api_key',
+          apiKey: 'some_api_key',
           deployment: 'https://something.europe-west1.talon.one'
         },
         mapping: {
@@ -30,14 +30,14 @@ describe('TalonOne.updateAudience', () => {
         }
       })
     } catch (err) {
-      expect(err.message).toContain("missing the required field 'audience_name'.")
+      expect(err.message).toContain("missing the required field 'audienceName'.")
     }
   })
 
   it('should work', async () => {
     nock('https://integration.talon.one')
       .put('/segment/audiences/some_audience_id', {
-        audience_name: 'some_audience_name'
+        audienceName: 'some_audience_name'
       })
       .matchHeader('Authorization', 'ApiKey-v1 some_api_key')
       .matchHeader('destination-hostname', 'https://something.europe-west1.talon.one')
@@ -45,12 +45,12 @@ describe('TalonOne.updateAudience', () => {
 
     await testDestination.testAction('updateAudience', {
       settings: {
-        api_key: 'some_api_key',
+        apiKey: 'some_api_key',
         deployment: 'https://something.europe-west1.talon.one'
       },
       mapping: {
-        audience_id: 'some_audience_id',
-        audience_name: 'some_audience_name'
+        audienceId: 'some_audience_id',
+        audienceName: 'some_audience_name'
       }
     })
   })
