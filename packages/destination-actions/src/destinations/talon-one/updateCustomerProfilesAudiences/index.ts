@@ -1,14 +1,14 @@
 import type { ActionDefinition } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
-import { addAudienceID, customerProfileId, deleteAudienceID } from '../t1-properties'
+import { addAudienceId, customerProfileId, deleteAudienceId } from '../t1-properties'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Update Customer Profiles Audiences',
   description: 'This synchronizes audience data for multiple customer profiles.',
   fields: {
-    deleteAudienceIDs: { ...deleteAudienceID },
-    addAudienceIDs: { ...addAudienceID },
+    deleteAudienceIds: { ...deleteAudienceId },
+    addAudienceIds: { ...addAudienceId },
     customerProfileId: { ...customerProfileId }
   },
   perform: (request, { payload }) => {
@@ -19,8 +19,8 @@ const action: ActionDefinition<Settings, Payload> = {
         data: [
           {
             customerProfileId: payload.customerProfileId,
-            adds: payload.addAudienceIDs,
-            deletes: payload.deleteAudienceIDs
+            adds: payload.addAudienceIds,
+            deletes: payload.deleteAudienceIds
           }
         ]
       }

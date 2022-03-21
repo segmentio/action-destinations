@@ -22,12 +22,12 @@ export const audienceId: InputField = {
   required: false
 }
 
-export const addAudienceID: InputField = {
-  ...audienceId,
-  label: 'List of audience ID to dissociate with the customer profile.'
-}
-
-export const deleteAudienceID: InputField = {
+export const addAudienceId: InputField = {
   ...audienceId,
   label: 'List of audience ID to associate with the customer profile.'
+}
+
+export const deleteAudienceId: InputField = {
+  ...audienceId,
+  label: 'List of audience ID to dissociate with the customer profile.'
 }
