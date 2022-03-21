@@ -234,7 +234,31 @@ describe('AdobeTarget', () => {
     const responses = await testDestination.testAction('updateProfile', {
       event,
       settings,
-      useDefaultMappings: true
+      useDefaultMappings: true,
+      mapping: {
+        traits: {
+          address: {
+            city: {
+              '@path': '$.traits.address.city'
+            },
+            zipCode: {
+              '@path': '$.traits.address.zipCode'
+            }
+          },
+          name: {
+            '@path': '$.traits.name'
+          },
+          age: {
+            '@path': '$.traits.age'
+          },
+          param1: {
+            '@path': '$.traits.param1'
+          },
+          param2: {
+            '@path': '$.traits.param2'
+          }
+        }
+      }
     })
     expect(responses.length).toBe(2)
     expect(responses[0].status).toBe(200)

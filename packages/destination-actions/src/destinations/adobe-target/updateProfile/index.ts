@@ -24,12 +24,11 @@ const action: ActionDefinition<Settings, Payload> = {
     },
     traits: {
       label: 'Profile Attributes',
-      description: 'Profile parameters specific to a user.',
+      description:
+        'Profile parameters specific to a user. Please note, Adobe recommends that PII is hashed prior to sending to Adobe.',
       type: 'object',
       required: true,
-      default: {
-        '@path': '$.traits'
-      }
+      defaultObjectUI: 'keyvalue'
     }
   },
 

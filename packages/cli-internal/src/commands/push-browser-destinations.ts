@@ -87,7 +87,9 @@ export default class PushBrowserDestinations extends Command {
 
       const input = {
         metadataId: metadata.id,
-        name: metadata.name,
+        // The name of the remote plugin should match the creationName for consistency with our other systems,
+        // as users might rely on the name of the name of the remote plugin in the integrations object.
+        name: metadata.creationName,
         // This MUST match the way webpack exports the libraryName in the umd bundle
         // TODO make this more automatic for consistency
         libraryName: `${entry.directory}Destination`,
@@ -98,10 +100,10 @@ export default class PushBrowserDestinations extends Command {
       // `metadataId` is guaranteed to be unique
       const existingPlugin = remotePlugins.find((p) => p.metadataId === metadata.id)
 
-      if (metadata.name !== entry.definition.name) {
+      if (metadata.creationName !== entry.definition.name) {
         this.spinner.fail()
         throw new Error(
-          `The definition name '${entry.definition.name}' should always match the control plane name '${metadata.name}'.`
+          `The definition name '${entry.definition.name}' should always match the control plane creationName '${metadata.creationName}'.`
         )
       }
 
