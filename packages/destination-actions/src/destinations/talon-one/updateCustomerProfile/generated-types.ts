@@ -14,11 +14,11 @@ export interface Payload {
   /**
    * You should get this audience ID from Talon.One.
    */
-  deleteAudienceIDs?: number[]
+  deleteAudienceIds?: number[]
   /**
    * You should get this audience ID from Talon.One.
    */
-  addAudienceIDs?: number[]
+  addAudienceIds?: number[]
   /**
    * This runs rule engine in Talon.One upon updating customer profile. Set to true to trigger rules.
    */
