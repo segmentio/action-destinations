@@ -1,26 +1,35 @@
 import type { ActionDefinition } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
-import { attribute, customerProfileId } from '../t1-properties'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Track Event',
   description: 'This records a custom event in Talon.One.',
   fields: {
-    customerProfileId: { ...customerProfileId },
+    customerProfileId: {
+      label: 'Customer Profile ID',
+      description: 'Unique identifier of the customer profile associated to the event.',
+      type: 'string',
+      required: true
+    },
     eventType: {
-      label: 'eventType',
+      label: 'Event Type',
       description: 'It is just the name of your event.',
       type: 'string',
       required: true
     },
     type: {
-      label: 'type',
+      label: 'Type',
       description: 'Type of event. Can be only `string`, `time`, `number`, `boolean`, `location`',
       type: 'string',
       required: true
     },
-    attributes: { ...attribute }
+    attributes: {
+      label: 'Attribute-Value pairs',
+      description: 'Arbitrary additional JSON data associated with the event.',
+      type: 'object',
+      required: false
+    }
   },
   perform: (request, { payload }) => {
     // Make your partner api request here!

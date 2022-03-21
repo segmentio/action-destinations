@@ -1,13 +1,13 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`Testing snapshot for TalonOne's updateAudience destination action: all fields 1`] = `
+exports[`Testing snapshot for actions-talon-one's updateAudience destination action: all fields 1`] = `
 Object {
-  "audience_name": "O6swM%XrC",
+  "audienceName": "y73nLJ!",
 }
 `;
 
-exports[`Testing snapshot for TalonOne's updateAudience destination action: required fields 1`] = `
+exports[`Testing snapshot for actions-talon-one's updateAudience destination action: required fields 1`] = `
 Object {
-  "audienceName": "O6swM%XrC",
+  "audienceName": "y73nLJ!",
 }
 `;

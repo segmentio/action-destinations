@@ -2,7 +2,7 @@
 
 export interface Payload {
   /**
-   * Unique identifier of the customer profile.
+   * Unique identifier of the customer profile associated to the event.
    */
   customerProfileId: string
   /**
@@ -14,7 +14,7 @@ export interface Payload {
    */
   type: string
   /**
-   * List the AVPs you need to update in the customer profile.
+   * Arbitrary additional JSON data associated with the event.
    */
   attributes?: {
     [k: string]: unknown

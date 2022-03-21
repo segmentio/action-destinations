@@ -4,8 +4,8 @@ import nock from 'nock'
 
 const testDestination = createTestIntegration(Destination)
 
-describe('TalonOne.trackEvent', () => {
-  it('customer_profile_id is missing', async () => {
+describe('Talon.One - Track Event', () => {
+  it('misses customer profile ID', async () => {
     try {
       await testDestination.testAction('trackEvent', {
         settings: {
@@ -18,7 +18,7 @@ describe('TalonOne.trackEvent', () => {
     }
   })
 
-  it('eventType is missing', async () => {
+  it('misses event type', async () => {
     try {
       await testDestination.testAction('trackEvent', {
         settings: {
@@ -34,7 +34,7 @@ describe('TalonOne.trackEvent', () => {
     }
   })
 
-  it('type is missing', async () => {
+  it('misses type', async () => {
     try {
       await testDestination.testAction('trackEvent', {
         settings: {
@@ -83,6 +83,3 @@ describe('TalonOne.trackEvent', () => {
     })
   })
 })
-
-// "body": "{\"customerProfileId\":\"some_customer_profile_id\",\"eventType\":\"event_type\",\"type\":\"string\",\"eventAttributes\":{\"favoriteProduct\":\"fruits\",\"isDogLover\":true}}"
-// "body": "{\"customerProfileId\":\"some_customer_profile_id\",\"eventType\":\"event_type\",\"type\":\"string\",\"eventAttributes\":{\"favoriteProduct\":\"fruits\",\"isDogLover\":true}}"

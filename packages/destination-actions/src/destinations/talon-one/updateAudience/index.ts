@@ -7,13 +7,13 @@ const action: ActionDefinition<Settings, Payload> = {
   description: 'This synchronizes audience data if there is an existing audience entity.',
   fields: {
     audienceId: {
-      label: 'audienceId',
+      label: 'Segment Audience ID',
       description: 'You should get this audience ID from Segment.',
       type: 'string',
       required: true
     },
     audienceName: {
-      label: 'audienceName',
+      label: 'Audience Name',
       description: 'You should get this audience name from Segment.',
       type: 'string',
       required: true

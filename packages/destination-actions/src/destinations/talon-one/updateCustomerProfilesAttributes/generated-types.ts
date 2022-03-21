@@ -6,13 +6,13 @@ export interface Payload {
    */
   customerProfileId: string
   /**
-   * List the AVPs you need to update in the customer profile.
+   * Arbitrary additional JSON data associated with the customer profile.
    */
   attributes?: {
     [k: string]: unknown
   }
   /**
-   * List the AVPs you need to update in the customer profile.
+   * Arbitrary additional JSON data associated with the customer profile.
    */
   mutualAttributes?: {
     [k: string]: unknown

@@ -4,8 +4,8 @@ import nock from 'nock'
 
 const testDestination = createTestIntegration(Destination)
 
-describe('TalonOne.createAudience', () => {
-  it('audience_id is missing', async () => {
+describe('Talon.One - Create Audience', () => {
+  it('misses audience ID', async () => {
     try {
       await testDestination.testAction('createAudience', {
         settings: {
@@ -18,7 +18,7 @@ describe('TalonOne.createAudience', () => {
     }
   })
 
-  it('audience_name is missing', async () => {
+  it('misses audience name', async () => {
     try {
       await testDestination.testAction('createAudience', {
         settings: {

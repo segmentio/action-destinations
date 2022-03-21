@@ -4,7 +4,7 @@ import destination from '../index'
 import nock from 'nock'
 
 const testDestination = createTestIntegration(destination)
-const destinationSlug = 'talon-one'
+const destinationSlug = 'actions-talon-one'
 
 describe(`Testing snapshot for ${destinationSlug} destination:`, () => {
   for (const actionSlug in destination.actions) {
@@ -26,7 +26,7 @@ describe(`Testing snapshot for ${destinationSlug} destination:`, () => {
         event: event,
         mapping: event.properties,
         settings: {
-          api_key: 'some_api_key',
+          apiKey: 'some_api_key',
           deployment: settingsData.deployment
         },
         auth: undefined
@@ -64,7 +64,7 @@ describe(`Testing snapshot for ${destinationSlug} destination:`, () => {
         event: event,
         mapping: event.properties,
         settings: {
-          api_key: 'some_api_key',
+          apiKey: 'some_api_key',
           deployment: settingsData.deployment
         },
         auth: undefined

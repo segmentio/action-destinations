@@ -2,7 +2,7 @@
 
 export interface Payload {
   /**
-   * List the AVPs you need to update in the customer profile.
+   * Arbitrary additional JSON data associated with the customer profile.
    */
   attributes?: {
     [k: string]: unknown
@@ -12,15 +12,15 @@ export interface Payload {
    */
   customerProfileId: string
   /**
-   * Add or Delete Audience ID.
+   * You should get this audience ID from Talon.One.
    */
   deleteAudienceIDs?: number[]
   /**
-   * Add or Delete Audience ID.
+   * You should get this audience ID from Talon.One.
    */
   addAudienceIDs?: number[]
   /**
-   * Set to true if the update requires to trigger all the rules.
+   * This runs rule engine in Talon.One upon updating customer profile. Set to true to trigger rules.
    */
   runRuleEngine?: boolean
 }
