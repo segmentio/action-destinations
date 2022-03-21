@@ -1,7 +1,7 @@
 import type { ActionDefinition } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
-import { addAudienceID, attribute, customerProfileId, deleteAudienceID } from '../t1-properties'
+import { addAudienceId, attribute, customerProfileId, deleteAudienceId } from '../t1-properties'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Update Customer Profile',
@@ -9,8 +9,8 @@ const action: ActionDefinition<Settings, Payload> = {
   fields: {
     attributes: { ...attribute },
     customerProfileId: { ...customerProfileId },
-    deleteAudienceIDs: { ...deleteAudienceID },
-    addAudienceIDs: { ...addAudienceID },
+    deleteAudienceIds: { ...deleteAudienceId },
+    addAudienceIds: { ...addAudienceId },
     runRuleEngine: {
       label: 'Run rule engine',
       description: 'This runs rule engine in Talon.One upon updating customer profile. Set to true to trigger rules.',
@@ -25,8 +25,8 @@ const action: ActionDefinition<Settings, Payload> = {
       json: {
         attributes: payload.attributes,
         audiencesChanges: {
-          adds: payload.addAudienceIDs,
-          deletes: payload.deleteAudienceIDs
+          adds: payload.addAudienceIds,
+          deletes: payload.deleteAudienceIds
         },
         runRuleEngine: payload.runRuleEngine
       }
