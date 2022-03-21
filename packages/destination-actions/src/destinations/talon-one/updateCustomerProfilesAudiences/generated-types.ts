@@ -4,11 +4,11 @@ export interface Payload {
   /**
    * You should get this audience ID from Talon.One.
    */
-  deleteAudienceIDs?: number[]
+  deleteAudienceIds?: number[]
   /**
    * You should get this audience ID from Talon.One.
    */
-  addAudienceIDs?: number[]
+  addAudienceIds?: number[]
   /**
    * Unique identifier of the customer profile.
    */
