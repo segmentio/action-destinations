@@ -15,9 +15,19 @@ export const attribute: InputField = {
 }
 
 export const audienceId: InputField = {
-  label: 'Talon.One audience ID',
+  label: 'Not used',
   description: 'You should get this audience ID from Talon.One.',
   type: 'integer',
   multiple: true,
   required: false
+}
+
+export const addAudienceID: InputField = {
+  ...audienceId,
+  label: 'List of audience ID to dissociate with the customer profile.'
+}
+
+export const deleteAudienceID: InputField = {
+  ...audienceId,
+  label: 'List of audience ID to associate with the customer profile.'
 }
