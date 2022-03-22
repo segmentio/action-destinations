@@ -7,7 +7,7 @@ const action: ActionDefinition<Settings, Payload> = {
   title: 'Update Customer Profiles Audiences',
   description: 'This synchronizes audience data for multiple customer profiles.',
   fields: {
-    data: { ...dataItem }
+    data: { ...dataItem, required: true }
   },
   perform: (request, { payload }) => {
     // Make your partner api request here!
