@@ -31,17 +31,3 @@ export const deleteAudienceId: InputField = {
   ...audienceId,
   label: 'List of audience ID to dissociate with the customer profile.'
 }
-
-export const dataItem: InputField = {
-  label: 'Data item to change customer profile audiences',
-  description:
-    'An array of JSON objects that contains customer profile identifier and list of audiences to associate and dissociate with the indicated customer profile. Customer profile ID and at least one audience ID are required.',
-  type: 'object',
-  multiple: true,
-  properties: {
-    customerProfileId: { ...customerProfileId },
-    addAudienceIds: { ...addAudienceId },
-    deleteAudienceIds: { ...deleteAudienceId }
-  },
-  required: true
-}
