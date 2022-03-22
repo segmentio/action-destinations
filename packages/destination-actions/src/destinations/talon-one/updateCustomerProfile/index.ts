@@ -9,8 +9,16 @@ const action: ActionDefinition<Settings, Payload> = {
   fields: {
     attributes: { ...attribute },
     customerProfileId: { ...customerProfileId },
-    deleteAudienceIds: { ...deleteAudienceId },
-    addAudienceIds: { ...addAudienceId },
+    audiencesChanges: {
+      label: 'Set audience changes',
+      description: 'This composes 2 lists of audience; to associate and dissociate with the customer profile.',
+      type: 'object',
+      properties: {
+        addAudienceIds: { ...addAudienceId },
+        deleteAudienceIds: { ...deleteAudienceId }
+      },
+      required: false
+    },
     runRuleEngine: {
       label: 'Run rule engine',
       description: 'This runs rule engine in Talon.One upon updating customer profile. Set to true to trigger rules.',
@@ -24,10 +32,7 @@ const action: ActionDefinition<Settings, Payload> = {
       method: 'put',
       json: {
         attributes: payload.attributes,
-        audiencesChanges: {
-          adds: payload.addAudienceIds,
-          deletes: payload.deleteAudienceIds
-        },
+        audiencesChanges: payload.audiencesChanges,
         runRuleEngine: payload.runRuleEngine
       }
     })
