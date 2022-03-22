@@ -4,7 +4,7 @@ export interface Payload {
   /**
    * An array of JSON objects that contains customer profile identifier and list of audiences to associate and dissociate with the indicated customer profile. Customer profile ID and at least one audience ID are required.
    */
-  data?: {
+  data: {
     /**
      * Unique identifier of the customer profile.
      */
