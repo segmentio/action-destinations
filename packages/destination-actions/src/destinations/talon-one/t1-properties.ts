@@ -42,5 +42,6 @@ export const dataItem: InputField = {
     customerProfileId: { ...customerProfileId },
     addAudienceIds: { ...addAudienceId },
     deleteAudienceIds: { ...deleteAudienceId }
-  }
+  },
+  required: true
 }
