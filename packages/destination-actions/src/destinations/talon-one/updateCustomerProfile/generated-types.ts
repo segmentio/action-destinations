@@ -12,13 +12,18 @@ export interface Payload {
    */
   customerProfileId: string
   /**
-   * You should get this audience ID from Talon.One.
+   * This composes 2 lists of audience; to associate and dissociate with the customer profile.
    */
-  deleteAudienceIds?: number[]
-  /**
-   * You should get this audience ID from Talon.One.
-   */
-  addAudienceIds?: number[]
+  audiencesChanges?: {
+    /**
+     * You should get this audience ID from Talon.One.
+     */
+    addAudienceIds?: number[]
+    /**
+     * You should get this audience ID from Talon.One.
+     */
+    deleteAudienceIds?: number[]
+  }
   /**
    * This runs rule engine in Talon.One upon updating customer profile. Set to true to trigger rules.
    */
