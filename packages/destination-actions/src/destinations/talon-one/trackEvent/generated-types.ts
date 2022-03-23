@@ -2,11 +2,11 @@
 
 export interface Payload {
   /**
-   * Unique identifier of the customer profile associated to the event.
+   * The customer profile integration ID to use in Talon.One. It is the identifier of the customer profile associated to the event.
    */
   customerProfileId: string
   /**
-   * It is just the name of your event.
+   * The name of the event sent to Talon.One.
    */
   eventType: string
   /**
@@ -14,7 +14,7 @@ export interface Payload {
    */
   type: string
   /**
-   * Arbitrary additional JSON data associated with the event.
+   * Extra attributes associated with the event. See more info https://docs.talon.one/docs/product/account/dev-tools/managing-attributes
    */
   attributes?: {
     [k: string]: unknown
