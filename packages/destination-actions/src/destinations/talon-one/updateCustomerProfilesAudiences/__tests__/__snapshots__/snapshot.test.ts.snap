@@ -4,11 +4,11 @@ exports[`Testing snapshot for actions-talon-one's updateCustomerProfilesAudience
 Object {
   "data": Array [
     Object {
-      "addAudienceIds": Array [
+      "adds": Array [
         -5649754167967744,
       ],
       "customerProfileId": "g64#i$3",
-      "deleteAudienceIds": Array [
+      "deletes": Array [
         -5649754167967744,
       ],
     },
