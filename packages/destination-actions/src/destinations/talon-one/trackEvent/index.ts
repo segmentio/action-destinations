@@ -28,7 +28,7 @@ const action: ActionDefinition<Settings, Payload> = {
     attributes: {
       label: 'Attribute-Value pairs',
       description:
-        'Extra attributes associated with the event. See more info https://docs.talon.one/docs/product/account/dev-tools/managing-attributes',
+        'Extra attributes associated with the event. [See more details](https://docs.talon.one/docs/product/account/dev-tools/managing-attributes)',
       type: 'object',
       required: false
     }
