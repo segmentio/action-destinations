@@ -26,6 +26,11 @@ const destination: DestinationDefinition<Settings> = {
           'The user specific instance URL returned by Salesforce Oauth. This setting is hidden to the user and set by Oauth Service.',
         type: 'string',
         required: true
+      },
+      isSandbox: {
+        label: 'Sandbox Instance',
+        description: 'Enable to authenticate into a sandbox instance.',
+        type: 'boolean'
       }
     },
     refreshAccessToken: async (request, { auth }) => {
