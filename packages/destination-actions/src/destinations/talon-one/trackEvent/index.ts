@@ -9,11 +9,12 @@ const action: ActionDefinition<Settings, Payload> = {
   fields: {
     customerProfileId: {
       ...customerProfileId,
-      description: 'Unique identifier of the customer profile associated to the event.'
+      description:
+        'The customer profile integration ID to use in Talon.One. It is the identifier of the customer profile associated to the event.'
     },
     eventType: {
       label: 'Event Type',
-      description: 'It is just the name of your event.',
+      description: 'The name of the event sent to Talon.One.',
       type: 'string',
       required: true
     },
@@ -25,7 +26,8 @@ const action: ActionDefinition<Settings, Payload> = {
     },
     attributes: {
       ...attribute,
-      description: 'Arbitrary additional JSON data associated with the event.'
+      description:
+        'Extra attributes associated with the event. [See more info](https://docs.talon.one/docs/product/account/dev-tools/managing-attributes).'
     }
   },
   perform: (request, { payload }) => {
