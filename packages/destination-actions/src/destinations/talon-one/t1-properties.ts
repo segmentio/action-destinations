@@ -2,14 +2,15 @@ import { InputField } from '@segment/actions-core/src/destination-kit/types'
 
 export const customerProfileId: InputField = {
   label: 'Customer Profile ID',
-  description: 'Unique identifier of the customer profile.',
+  description: 'The customer profile integration ID to use in Talon.One.',
   type: 'string',
   required: true
 }
 
 export const attribute: InputField = {
   label: 'Attribute-Value pairs',
-  description: 'Arbitrary additional JSON data associated with the customer profile.',
+  description:
+    'Extra attributes associated with the customer profile. See more info: https://docs.talon.one/docs/product/account/dev-tools/managing-attributes',
   type: 'object',
   required: false
 }
