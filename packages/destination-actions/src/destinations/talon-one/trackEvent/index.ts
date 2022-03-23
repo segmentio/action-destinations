@@ -1,7 +1,7 @@
 import type { ActionDefinition } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
-import { customerProfileId } from '../t1-properties'
+import { attribute, customerProfileId } from '../t1-properties'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Track Event',
@@ -24,10 +24,8 @@ const action: ActionDefinition<Settings, Payload> = {
       required: true
     },
     attributes: {
-      label: 'Attribute-Value pairs',
-      description: 'Arbitrary additional JSON data associated with the event.',
-      type: 'object',
-      required: false
+      ...attribute,
+      description: 'Arbitrary additional JSON data associated with the event.'
     }
   },
   perform: (request, { payload }) => {
