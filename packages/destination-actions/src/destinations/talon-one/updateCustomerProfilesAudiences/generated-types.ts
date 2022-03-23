@@ -6,7 +6,7 @@ export interface Payload {
    */
   data: {
     /**
-     * Unique identifier of the customer profile.
+     * The customer profile integration ID to use in Talon.One.
      */
     customerProfileId: string
     /**

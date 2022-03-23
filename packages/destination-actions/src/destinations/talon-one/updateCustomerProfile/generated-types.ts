@@ -2,13 +2,13 @@
 
 export interface Payload {
   /**
-   * Arbitrary additional JSON data associated with the customer profile.
+   * Extra attributes associated with the customer profile. See more info: https://docs.talon.one/docs/product/account/dev-tools/managing-attributes
    */
   attributes?: {
     [k: string]: unknown
   }
   /**
-   * Unique identifier of the customer profile.
+   * The customer profile integration ID to use in Talon.One.
    */
   customerProfileId: string
   /**
