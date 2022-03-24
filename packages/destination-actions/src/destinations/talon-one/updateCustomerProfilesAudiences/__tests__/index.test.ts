@@ -28,7 +28,6 @@ describe('Talon.One - Update Customer Profiles Audiences', () => {
         mapping: {
           data: [
             {
-              customerProfileId: '',
               adds: [1, 2, 3],
               deletes: [4, 5, 6]
             }
@@ -36,7 +35,7 @@ describe('Talon.One - Update Customer Profiles Audiences', () => {
         }
       })
     } catch (err) {
-      expect(err.message).toContain("The 'data' value is missing the required field 'customerProfileId'.")
+      expect(err.message).toContain("The value at /data/0 is missing the required field 'customerProfileId'.")
     }
   })
 
@@ -73,7 +72,7 @@ describe('Talon.One - Update Customer Profiles Audiences', () => {
             deletes: [4, 5, 6]
           },
           {
-            customerProfileId: 'def435',
+            customerProfileId: 'def456',
             adds: [5, 6, 7],
             deletes: [8, 9, 10]
           }
