@@ -3,8 +3,8 @@ import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 
 const action: ActionDefinition<Settings, Payload> = {
-  title: 'Update Audience',
-  description: 'This synchronizes audience data if there is an existing audience entity.',
+  title: 'Update Audience Name',
+  description: 'This updates the audience name if there is an existing audience entity.',
   fields: {
     audienceId: {
       label: 'Segment Audience ID',
