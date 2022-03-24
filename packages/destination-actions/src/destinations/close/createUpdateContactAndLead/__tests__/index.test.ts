@@ -38,7 +38,12 @@ describe('Close.createUpdateContactAndLead', () => {
         },
         settings: {
           contact_custom_field_id_for_user_id: 'cf_external_user_id',
-          lead_custom_field_id_for_company_id: 'cf_external_company_id'
+          lead_custom_field_id_for_company_id: 'cf_external_company_id',
+          allow_creating_new_leads: true,
+          allow_updating_existing_leads: true,
+          allow_creating_new_contacts: true,
+          allow_updating_existing_contacts: true,
+          allow_creating_duplicate_contacts: true
         }
       })
       .matchHeader('Authorization', 'Basic YXBpX2tleWlkLmtleXNlY3JldDo=')
@@ -80,7 +85,12 @@ describe('Close.createUpdateContactAndLead', () => {
         },
         settings: {
           contact_custom_field_id_for_user_id: 'cf_external_user_id',
-          lead_custom_field_id_for_company_id: 'cf_external_company_id'
+          lead_custom_field_id_for_company_id: 'cf_external_company_id',
+          allow_creating_new_leads: false,
+          allow_updating_existing_leads: false,
+          allow_creating_new_contacts: false,
+          allow_updating_existing_contacts: false,
+          allow_creating_duplicate_contacts: false
         }
       })
       .matchHeader('Authorization', 'Basic YXBpX2tleWlkLmtleXNlY3JldDo=')
@@ -115,7 +125,12 @@ describe('Close.createUpdateContactAndLead', () => {
       },
       lead_status_id: {
         '@path': '$.traits.lead_status_id'
-      }
+      },
+      allow_creating_new_leads: false,
+      allow_updating_existing_leads: false,
+      allow_creating_new_contacts: false,
+      allow_updating_existing_contacts: false,
+      allow_creating_duplicate_contacts: false
     }
     await testDestination.testAction('createUpdateContactAndLead', {
       event,
