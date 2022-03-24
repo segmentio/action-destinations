@@ -1,6 +1,6 @@
 import { Analytics, Context } from '@segment/analytics-next'
 import heapDestination, { destination } from '../index'
-import nock from 'nock'
+import { HEAP_TEST_ENV_ID, mockHeapJsHttpRequest } from '../test-utilities'
 
 const subscriptions = [
   {
@@ -13,17 +13,15 @@ const subscriptions = [
 ]
 
 describe('Heap', () => {
-  const appId = '1'
-
   test('loading', async () => {
     jest.spyOn(destination, 'initialize')
 
-    nock('https://cdn.heapanalytics.com').get(`/js/heap-${appId}.js`).reply(200, {})
+    mockHeapJsHttpRequest()
 
-    const [event] = await heapDestination({ appId, subscriptions })
+    const [event] = await heapDestination({ appId: HEAP_TEST_ENV_ID, subscriptions })
 
     await event.load(Context.system(), {} as Analytics)
     expect(destination.initialize).toHaveBeenCalled()
-    expect(window.heap.appid).toEqual(appId)
+    expect(window.heap.appid).toEqual(HEAP_TEST_ENV_ID)
   })
 })

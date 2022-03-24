@@ -5,8 +5,8 @@ export type UserConfig = {
 
 export interface HeapApi {
   appid: string
-  track: Function
+  track: (eventName: string, eventProperties: { [key: string]: unknown }, library: string) => void
   load: Function
   config: UserConfig
-  identify: Function
+  identify: (identity: string) => void
 }
