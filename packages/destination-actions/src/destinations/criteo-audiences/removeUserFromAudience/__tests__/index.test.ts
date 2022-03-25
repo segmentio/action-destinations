@@ -51,6 +51,17 @@ const AUDIENCE_CREATION_RESPONSE = {
     "warnings": []
 }
 
+const DUPLICATE_AUDIENCE_ERROR = {
+    "errors": [
+        {
+            "type": "validation",
+            "code": "invalid-audience-name-duplicated",
+            "title": "Duplicate name",
+            "detail": "Audience name test_audience already exists for advertiser x on audience 1234"
+        }
+    ]
+}
+
 describe('removeUserFromAudience', () => {
     it('should throw error if no access to the audiences of the advertiser', async () => {
         const settings = VALID_SETTINGS;
@@ -81,33 +92,6 @@ describe('removeUserFromAudience', () => {
                 useDefaultMappings: true
             })
         ).rejects.toThrowError('The Advertiser ID should be a number')
-    })
-
-    it('should throw error if failing to create a new audience', async () => {
-        const settings = VALID_SETTINGS;
-        nock('https://api.criteo.com').persist().post('/oauth2/token').reply(200, MOCK_TOKEN_RESPONSE)
-        nock('https://api.criteo.com').get(/^\/\d{4}-\d{2}\/audiences$/).query({ "advertiser-id": settings.advertiser_id }).reply(200, {
-            "data": [
-                {
-                    "id": "1234",
-                    "attributes": {
-                        "advertiserId": VALID_ADVERTISER_ID,
-                        "name": "OTHER AUDIENCE NAME"
-                    }
-                }
-            ]
-        }
-        )
-        // The audience key is not present in the list of the advertiser's audiences so a new audience needs to be created
-        nock('https://api.criteo.com').post(/^\/\d{4}-\d{2}\/audiences$/).reply(403)
-
-        await expect(
-            testDestination.testAction('removeUserFromAudience', {
-                event,
-                settings,
-                useDefaultMappings: true
-            })
-        ).rejects.toThrowError('Forbidden')
     })
 
     it('should not throw an error if the audience creation and the patch requests succeed', async () => {
@@ -142,6 +126,33 @@ describe('removeUserFromAudience', () => {
         const settings = VALID_SETTINGS;
         nock('https://api.criteo.com').persist().post('/oauth2/token').reply(200, MOCK_TOKEN_RESPONSE)
         nock('https://api.criteo.com').get(/^\/\d{4}-\d{2}\/audiences$/).query({ "advertiser-id": settings.advertiser_id }).reply(200, ADVERTISER_AUDIENCES)
+        nock('https://api.criteo.com').patch(/^\/\d{4}-\d{2}\/audiences\/\d+\/contactlist$/).reply(200)
+
+        await expect(
+            testDestination.testAction('removeUserFromAudience', {
+                event,
+                settings,
+                useDefaultMappings: true
+            })
+        ).resolves.not.toThrowError()
+    })
+
+    it('should not throw an error in case of concurrent audience creation attempt', async () => {
+        const settings = VALID_SETTINGS;
+        nock('https://api.criteo.com').persist().post('/oauth2/token').reply(200, MOCK_TOKEN_RESPONSE)
+        nock('https://api.criteo.com').persist().get(/^\/\d{4}-\d{2}\/audiences$/).query({ "advertiser-id": settings.advertiser_id }).reply(200, {
+            "data": [
+                {
+                    "id": "5678",
+                    "attributes": {
+                        "advertiserId": VALID_ADVERTISER_ID,
+                        "name": "OTHER AUDIENCE NAME"
+                    }
+                }
+            ]
+        }
+        )
+        nock('https://api.criteo.com').post(/^\/\d{4}-\d{2}\/audiences$/).reply(400, DUPLICATE_AUDIENCE_ERROR)
         nock('https://api.criteo.com').patch(/^\/\d{4}-\d{2}\/audiences\/\d+\/contactlist$/).reply(200)
 
         await expect(
