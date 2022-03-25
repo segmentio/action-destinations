@@ -5,7 +5,7 @@ import { addAudienceId, attribute, customerProfileId, deleteAudienceId } from '.
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Update Customer Profile',
-  description: 'This synchronizes customer profile data concerning audiences and attributes.',
+  description: 'This updates attributes and audiences for a single customer profile.',
   fields: {
     attributes: { ...attribute },
     customerProfileId: { ...customerProfileId },
