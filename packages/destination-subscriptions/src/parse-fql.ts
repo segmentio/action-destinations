@@ -1,7 +1,5 @@
 import { lex, Token, types as TokenType } from '@segment/fql-ts'
 import { Subscription, Condition, GroupConditionOperator, Operator, ConditionType } from './types'
-import { checkBooleanTrue } from './utils'
-import { checkBooleanFalse } from './utils'
 
 const tokenToConditionType: Record<string, ConditionType> = {
   type: 'event-type',
@@ -190,8 +188,8 @@ const parse = (tokens: Token[]): Condition => {
           throw new Error('Value token is missing')
         }
 
-        const isTrue = operatorToken.value === '=' && checkBooleanTrue(valueToken.value) === true
-        const isFalse = operatorToken.value === '=' && checkBooleanFalse(valueToken.value) === true
+        const isTrue = operatorToken.value === '=' && valueToken.value === 'true'
+        const isFalse = operatorToken.value === '=' && valueToken.value === 'false'
         const isExists = operatorToken.value === '!=' && valueToken.value === 'null'
         const isNotExists = operatorToken.value === '=' && valueToken.value === 'null'
 
