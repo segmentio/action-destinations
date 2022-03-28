@@ -13,7 +13,8 @@ export const createMocekdHeapJsSdk = (): HeapApi => {
     },
     load: jest.fn(),
     track: jest.fn(),
-    identify: jest.fn()
+    identify: jest.fn(),
+    addUserProperties: jest.fn()
   }
 }
 export const trackEventSubscription: Subscription = {
@@ -43,14 +44,8 @@ export const identifyUserSubscription: Subscription = {
     userId: {
       '@path': '$.userId'
     },
-    email: {
-      '@path': '$.traits.email'
-    },
     traits: {
       '@path': '$.traits'
-    },
-    displayName: {
-      '@path': '$.traits.name'
     }
   }
 }

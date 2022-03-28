@@ -17,9 +17,21 @@ const action: BrowserActionDefinition<Settings, HeapApi, Payload> = {
       default: {
         '@path': '$.userId'
       }
+    },
+    traits: {
+      type: 'object',
+      required: false,
+      description: 'The Segment traits to be forwarded to Heap',
+      label: 'Traits',
+      default: {
+        '@path': '$.traits'
+      }
     }
   },
   perform: (heap, event) => {
+    if (event.payload.traits) {
+      heap.addUserProperties(event.payload.traits)
+    }
     if (event.payload.userId) {
       heap.identify(event.payload.userId)
     }

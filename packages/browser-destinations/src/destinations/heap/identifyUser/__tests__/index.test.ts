@@ -38,18 +38,41 @@ describe('#identify', () => {
 
     await identifyUser.load(Context.system(), {} as Analytics)
     const heapIdentifySpy = jest.spyOn(window.heap, 'identify')
+    const heapAddUserPropertiesSpy = jest.spyOn(window.heap, 'addUserProperties')
 
     await identifyUser.identify?.(
       new Context({
         type: 'identify',
         anonymousId: 'anon',
-        userId: 'user@example.com',
+        userId: 'user@example.com'
+      })
+    )
+
+    expect(heapIdentifySpy).toHaveBeenCalledWith('user@example.com')
+    expect(heapAddUserPropertiesSpy).not.toHaveBeenCalled()
+  })
+
+  it('should call addUserProprties if traits are provided', async () => {
+    mockHeapJsHttpRequest()
+    window.heap = createMocekdHeapJsSdk()
+
+    const [identifyUser] = await heapDestination({ appId: HEAP_TEST_ENV_ID, subscriptions: [identifyUserSubscription] })
+
+    await identifyUser.load(Context.system(), {} as Analytics)
+    const heapIdentifySpy = jest.spyOn(window.heap, 'identify')
+    const heapAddUserPropertiesSpy = jest.spyOn(window.heap, 'addUserProperties')
+
+    await identifyUser.identify?.(
+      new Context({
+        type: 'identify',
+        anonymousId: 'anon',
         traits: {
           testProp: false
         }
       })
     )
 
-    expect(heapIdentifySpy).toHaveBeenCalledWith('user@example.com')
+    expect(heapIdentifySpy).not.toHaveBeenCalled()
+    expect(heapAddUserPropertiesSpy).toHaveBeenCalledWith({ testProp: false })
   })
 })
