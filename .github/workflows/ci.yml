@@ -59,6 +59,10 @@ jobs:
       - name: Test
         run: yarn test
 
+      # If there are changes after the yarn build and test, open a PR
+      - name: Create Pull Request
+        uses: peter-evans/create-pull-request@v4
+
       - name: destination-subscriptions size
         run: |
           if $(lerna changed | grep -q destination-subscriptions); then
