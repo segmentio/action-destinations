@@ -1,5 +1,13 @@
 import { InputField } from '@segment/actions-core/src/destination-kit/types'
 
+export const user_properties: InputField = {
+  label: 'User Properties',
+  description: 'User properties to send to Google Analytics',
+  type: 'object',
+  additionalProperties: true,
+  defaultObjectUI: 'keyvalue'
+}
+
 export const params: InputField = {
   label: 'Event Parameters',
   description: 'The event parameters to send to Google',

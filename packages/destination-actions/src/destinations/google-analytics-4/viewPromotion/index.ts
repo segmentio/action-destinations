@@ -9,7 +9,8 @@ import {
   user_id,
   minimal_items,
   items_single_products,
-  params
+  params,
+  user_properties
 } from '../ga4-properties'
 import { PromotionProductItem } from '../ga4-types'
 import type { Settings } from '../generated-types'
@@ -57,6 +58,7 @@ const action: ActionDefinition<Settings, Payload> = {
         }
       }
     },
+    user_properties: user_properties,
     params: params
   },
 

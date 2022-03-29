@@ -10,7 +10,8 @@ import {
   affiliation,
   shipping,
   items_multi_products,
-  params
+  params,
+  user_properties
 } from '../ga4-properties'
 import { ProductItem } from '../ga4-types'
 import type { Settings } from '../generated-types'
@@ -37,6 +38,7 @@ const action: ActionDefinition<Settings, Payload> = {
     items: {
       ...items_multi_products
     },
+    user_properties: user_properties,
     params: params
   },
   perform: (request, { payload }) => {

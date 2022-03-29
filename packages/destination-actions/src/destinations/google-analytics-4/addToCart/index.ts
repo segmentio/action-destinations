@@ -3,7 +3,7 @@ import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 import { ProductItem } from '../ga4-types'
 import { CURRENCY_ISO_CODES } from '../constants'
-import { params, value, currency, client_id, items_single_products, user_id } from '../ga4-properties'
+import { user_properties, params, value, currency, client_id, items_single_products, user_id } from '../ga4-properties'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Add to Cart',
@@ -18,6 +18,7 @@ const action: ActionDefinition<Settings, Payload> = {
       required: true
     },
     value: { ...value },
+    user_properties: user_properties,
     params: params
   },
   perform: (request, { payload }) => {

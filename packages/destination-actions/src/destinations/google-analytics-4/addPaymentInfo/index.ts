@@ -5,6 +5,7 @@ import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 import {
   user_id,
+  user_properties,
   client_id,
   currency,
   value,
@@ -29,6 +30,7 @@ const action: ActionDefinition<Settings, Payload> = {
       ...items_multi_products,
       required: true
     },
+    user_properties: user_properties,
     params: params
   },
   perform: (request, { payload }) => {
