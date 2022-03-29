@@ -2,23 +2,23 @@
 
 export interface Payload {
   /**
-   * Arbitrary additional JSON data associated with the customer profile.
+   * Extra attributes associated with the customer profile. [See more info](https://docs.talon.one/docs/product/account/dev-tools/managing-attributes).
    */
   attributes?: {
     [k: string]: unknown
   }
   /**
-   * Unique identifier of the customer profile.
+   * The customer profile integration identifier to use in Talon.One.
    */
   customerProfileId: string
   /**
    * You should get this audience ID from Talon.One.
    */
-  deleteAudienceIDs?: number[]
+  deleteAudienceIds?: number[]
   /**
    * You should get this audience ID from Talon.One.
    */
-  addAudienceIDs?: number[]
+  addAudienceIds?: number[]
   /**
    * This runs rule engine in Talon.One upon updating customer profile. Set to true to trigger rules.
    */

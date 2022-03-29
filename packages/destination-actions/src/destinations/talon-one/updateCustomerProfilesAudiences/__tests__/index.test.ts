@@ -14,7 +14,7 @@ describe('Talon.One - Update Customer Profiles Audiences', () => {
         }
       })
     } catch (err) {
-      expect(err.message).toContain("The root value is missing the required field 'customerProfileId'.")
+      expect(err.message).toContain("The root value is missing the required field 'data'.")
     }
   })
 
@@ -28,7 +28,6 @@ describe('Talon.One - Update Customer Profiles Audiences', () => {
         mapping: {
           data: [
             {
-              customerProfileId: '',
               adds: [1, 2, 3],
               deletes: [4, 5, 6]
             }
@@ -36,7 +35,7 @@ describe('Talon.One - Update Customer Profiles Audiences', () => {
         }
       })
     } catch (err) {
-      expect(err.message).toContain("The root value is missing the required field 'customerProfileId'.")
+      expect(err.message).toContain("The value at /data/0 is missing the required field 'customerProfileId'.")
     }
   })
 
@@ -48,6 +47,11 @@ describe('Talon.One - Update Customer Profiles Audiences', () => {
             customerProfileId: 'abc123',
             adds: [1, 2, 3],
             deletes: [4, 5, 6]
+          },
+          {
+            customerProfileId: 'def456',
+            adds: [5, 6, 7],
+            deletes: [8, 9, 10]
           }
         ]
       })
@@ -61,9 +65,18 @@ describe('Talon.One - Update Customer Profiles Audiences', () => {
         deployment: 'https://something.europe-west1.talon.one'
       },
       mapping: {
-        customerProfileId: 'abc123',
-        addAudienceIDs: [1, 2, 3],
-        deleteAudienceIDs: [4, 5, 6]
+        data: [
+          {
+            customerProfileId: 'abc123',
+            adds: [1, 2, 3],
+            deletes: [4, 5, 6]
+          },
+          {
+            customerProfileId: 'def456',
+            adds: [5, 6, 7],
+            deletes: [8, 9, 10]
+          }
+        ]
       }
     })
   })
