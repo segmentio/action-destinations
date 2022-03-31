@@ -2,15 +2,15 @@
 
 export interface Payload {
   /**
-   * The LaunchDarkly user key
+   * The user's unique key.
    */
   user_key: string
   /**
-   * The user's previously used anonymous user key
+   * The user's previously used anonymous user key.
    */
   previous_key: string
   /**
-   * Time of when the actual event happened.
+   * The time when the event happened. Defaults to the current time.
    */
   timestamp?: string | number
 }

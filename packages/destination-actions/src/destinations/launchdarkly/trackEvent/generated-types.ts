@@ -2,7 +2,7 @@
 
 export interface Payload {
   /**
-   * The user's unique key
+   * The user's unique key.
    */
   user_key: string
   /**
@@ -20,7 +20,7 @@ export interface Payload {
     [k: string]: unknown
   }
   /**
-   * Time of when the actual event happened.
+   * The time when the event happened. Defaults to the current time
    */
   timestamp?: string | number
 }
