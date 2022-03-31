@@ -1,0 +1,27 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Testing snapshot for Launchdarkly's identifyUser destination action: all fields 1`] = `
+Array [
+  Object {
+    "contextKind": "user",
+    "creationDate": 1612137600000,
+    "key": "IqTwETma]!^KmkwoWUtZ",
+    "kind": "alias",
+    "previousContextKind": "anonymousUser",
+    "previousKey": "IqTwETma]!^KmkwoWUtZ",
+  },
+]
+`;
+
+exports[`Testing snapshot for Launchdarkly's identifyUser destination action: required fields 1`] = `
+Array [
+  Object {
+    "contextKind": "user",
+    "creationDate": Any<Number>,
+    "key": "IqTwETma]!^KmkwoWUtZ",
+    "kind": "alias",
+    "previousContextKind": "anonymousUser",
+    "previousKey": "IqTwETma]!^KmkwoWUtZ",
+  },
+]
+`;

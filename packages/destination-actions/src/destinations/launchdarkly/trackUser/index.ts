@@ -1,0 +1,100 @@
+import type { ActionDefinition } from '@segment/actions-core'
+import type { Settings } from '../generated-types'
+import { getEventsUrl, parseTimestamp } from '../utils'
+import type { Payload } from './generated-types'
+
+type LDCustomEvent = {
+  kind: 'custom'
+  key: string
+  user: {
+    key: string
+  }
+  metricValue?: number
+  data: { [k: string]: unknown }
+  creationDate: number
+}
+
+const action: ActionDefinition<Settings, Payload> = {
+  title: 'Track User',
+  description: '',
+  defaultSubscription: 'type = "track"',
+  fields: {
+    user_key: {
+      label: 'User key',
+      type: 'string',
+      required: true,
+      description: 'The LaunchDarkly user key',
+      default: {
+        '@if': {
+          exists: { '@path': '$.userId' },
+          then: { '@path': '$.userId' },
+          else: { '@path': '$.anonymousId' }
+        }
+      }
+    },
+    event_name: {
+      label: 'Event Name',
+      type: 'string',
+      description: 'The name of the event to track',
+      required: true,
+      default: {
+        '@path': '$.event'
+      }
+    },
+    metric_value: {
+      label: 'Metric Value',
+      type: 'number',
+      description: 'The metric value',
+      default: {
+        '@if': {
+          exists: { '@path': '$.properties.revenue' },
+          then: { '@path': '$.properties.revenue' },
+          else: { '@path': '$.properties.value' }
+        }
+      }
+    },
+    event_properties: {
+      type: 'object',
+      description: 'Object containing the properties for the event being tracked.',
+      label: 'Event Properties',
+      default: { '@path': '$.properties' }
+    },
+    timestamp: {
+      label: 'Event timestamp',
+      description: 'Time of when the actual event happened.',
+      type: 'datetime',
+      default: {
+        '@path': '$.timestamp'
+      }
+    }
+  },
+  perform: (request, { payload, settings }) => {
+    const event = convertPayloadToLDEvent(payload)
+    return request(getEventsUrl(settings.client_id), {
+      method: 'post',
+      json: [event]
+    })
+  },
+  performBatch: (request, { settings, payload }) => {
+    const events: LDCustomEvent[] = payload.map(convertPayloadToLDEvent)
+    return request(getEventsUrl(settings.client_id), {
+      method: 'post',
+      json: events
+    })
+  }
+}
+
+const convertPayloadToLDEvent = (payload: Payload): LDCustomEvent => {
+  return {
+    kind: 'custom',
+    key: payload.event_name,
+    user: {
+      key: payload.user_key
+    },
+    creationDate: parseTimestamp(payload.timestamp),
+    metricValue: payload.metric_value,
+    data: payload.event_properties ? payload.event_properties : {}
+  }
+}
+
+export default action

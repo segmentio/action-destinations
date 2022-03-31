@@ -1,0 +1,58 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Testing snapshot for actions-launchdarkly destination: identifyUser action - all fields 1`] = `
+Array [
+  Object {
+    "contextKind": "user",
+    "creationDate": 1612137600000,
+    "key": "*C*UH$EbzhGpO1hdf",
+    "kind": "alias",
+    "previousContextKind": "anonymousUser",
+    "previousKey": "*C*UH$EbzhGpO1hdf",
+  },
+]
+`;
+
+exports[`Testing snapshot for actions-launchdarkly destination: identifyUser action - required fields 1`] = `
+Array [
+  Object {
+    "contextKind": "user",
+    "creationDate": Any<Number>,
+    "key": "*C*UH$EbzhGpO1hdf",
+    "kind": "alias",
+    "previousContextKind": "anonymousUser",
+    "previousKey": "*C*UH$EbzhGpO1hdf",
+  },
+]
+`;
+
+exports[`Testing snapshot for actions-launchdarkly destination: trackUser action - all fields 1`] = `
+Array [
+  Object {
+    "creationDate": 1612137600000,
+    "data": Object {
+      "testType": "kJ$qUh2o0",
+    },
+    "key": "kJ$qUh2o0",
+    "kind": "custom",
+    "metricValue": -42434748324249.6,
+    "user": Object {
+      "key": "kJ$qUh2o0",
+    },
+  },
+]
+`;
+
+exports[`Testing snapshot for actions-launchdarkly destination: trackUser action - required fields 1`] = `
+Array [
+  Object {
+    "creationDate": Any<Number>,
+    "data": Object {},
+    "key": "kJ$qUh2o0",
+    "kind": "custom",
+    "user": Object {
+      "key": "kJ$qUh2o0",
+    },
+  },
+]
+`;
