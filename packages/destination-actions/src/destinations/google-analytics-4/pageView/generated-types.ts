@@ -18,6 +18,12 @@ export interface Payload {
    */
   page_referrer?: string
   /**
+   * User properties to send to Google Analytics
+   */
+  user_properties?: {
+    [k: string]: unknown
+  }
+  /**
    * The event parameters to send to Google
    */
   params?: {

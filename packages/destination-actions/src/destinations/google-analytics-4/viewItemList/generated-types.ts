@@ -99,6 +99,12 @@ export interface Payload {
     quantity?: number
   }[]
   /**
+   * User properties to send to Google Analytics
+   */
+  user_properties?: {
+    [k: string]: unknown
+  }
+  /**
    * The event parameters to send to Google
    */
   params?: {

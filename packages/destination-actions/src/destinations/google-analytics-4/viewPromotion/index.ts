@@ -62,7 +62,7 @@ const action: ActionDefinition<Settings, Payload> = {
     params: params
   },
 
-  perform: (request, { payload }) => {
+  perform: async (request, { payload }) => {
     let googleItems: PromotionProductItem[] = []
 
     if (payload.items) {
@@ -79,7 +79,7 @@ const action: ActionDefinition<Settings, Payload> = {
       })
     }
 
-    return request('https://www.google-analytics.com/mp/collect', {
+    const res = await request('https://www.google-analytics.com/mp/collect', {
       method: 'POST',
       json: {
         client_id: payload.client_id,
@@ -97,9 +97,13 @@ const action: ActionDefinition<Settings, Payload> = {
               ...payload.params
             }
           }
-        ]
+        ],
+        user_properties: {
+          ...payload.user_properties
+        }
       }
     })
+    console.log('res', res)
   }
 }
 
