@@ -3,7 +3,7 @@ import type { Settings } from './generated-types'
 
 import identifyUser from './identifyUser'
 
-import trackUser from './trackUser'
+import trackEvent from './trackEvent'
 
 const destination: DestinationDefinition<Settings> = {
   name: 'LaunchDarkly',
@@ -33,7 +33,7 @@ const destination: DestinationDefinition<Settings> = {
 
   actions: {
     identifyUser,
-    trackUser
+    trackEvent
   }
 }
 

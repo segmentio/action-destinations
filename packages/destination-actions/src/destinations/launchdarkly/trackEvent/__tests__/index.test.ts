@@ -4,12 +4,12 @@ import Destination from '../../index'
 import { Settings } from '../../generated-types'
 
 const testDestination = createTestIntegration(Destination)
-
+const actionSlug = 'trackEvent'
 const testSettings: Settings = {
   client_id: '123123123'
 }
 
-describe('LaunchDarkly.trackUser', () => {
+describe('LaunchDarkly.trackEvent', () => {
   it('should send custom events to LaunchDarkly with default mapping', async () => {
     nock('https://events.launchdarkly.com').post(`/events/bulk/${testSettings.client_id}`).reply(202)
 
@@ -23,7 +23,7 @@ describe('LaunchDarkly.trackUser', () => {
       }
     })
 
-    const responses = await testDestination.testAction('trackUser', {
+    const responses = await testDestination.testAction(actionSlug, {
       event,
       settings: testSettings,
       useDefaultMappings: true
@@ -41,7 +41,7 @@ describe('LaunchDarkly.trackUser', () => {
       }
     ])
   })
-  it('Should use anonymousId if userId is missing with default mapping', async () => {
+  it('should use anonymousId if userId is missing with default mapping', async () => {
     nock('https://events.launchdarkly.com').post(`/events/bulk/${testSettings.client_id}`).reply(202)
 
     const event = createTestEvent({
@@ -55,7 +55,7 @@ describe('LaunchDarkly.trackUser', () => {
       }
     })
 
-    const responses = await testDestination.testAction('trackUser', {
+    const responses = await testDestination.testAction(actionSlug, {
       event,
       settings: testSettings,
       useDefaultMappings: true

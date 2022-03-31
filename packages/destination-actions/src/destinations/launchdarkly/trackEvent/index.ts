@@ -15,7 +15,7 @@ type LDCustomEvent = {
 }
 
 const action: ActionDefinition<Settings, Payload> = {
-  title: 'Track User',
+  title: 'Track Event',
   description: '',
   defaultSubscription: 'type = "track"',
   fields: {

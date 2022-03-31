@@ -4,7 +4,7 @@ import Destination from '../../index'
 import { Settings } from '../../generated-types'
 
 const testDestination = createTestIntegration(Destination)
-
+const actionSlug = 'identifyUser'
 const testSettings: Settings = {
   client_id: '123123123'
 }
@@ -20,7 +20,7 @@ describe('LaunchDarkly.identifyUser', () => {
       timestamp: '2022-03-30T17:24:58Z'
     })
 
-    const responses = await testDestination.testAction('identifyUser', {
+    const responses = await testDestination.testAction(actionSlug, {
       event,
       settings: testSettings,
       useDefaultMappings: true
@@ -49,7 +49,7 @@ describe('LaunchDarkly.identifyUser', () => {
     })
 
     await expect(
-      testDestination.testAction('identifyUser', {
+      testDestination.testAction(actionSlug, {
         event,
         settings: testSettings,
         useDefaultMappings: true

@@ -26,32 +26,32 @@ Array [
 ]
 `;
 
-exports[`Testing snapshot for actions-launchdarkly destination: trackUser action - all fields 1`] = `
+exports[`Testing snapshot for actions-launchdarkly destination: trackEvent action - all fields 1`] = `
 Array [
   Object {
     "creationDate": 1612137600000,
     "data": Object {
-      "testType": "kJ$qUh2o0",
+      "testType": "8&tx*8iz0@V]qDguvfK",
     },
-    "key": "kJ$qUh2o0",
+    "key": "8&tx*8iz0@V]qDguvfK",
     "kind": "custom",
-    "metricValue": -42434748324249.6,
+    "metricValue": 70594582198353.92,
     "user": Object {
-      "key": "kJ$qUh2o0",
+      "key": "8&tx*8iz0@V]qDguvfK",
     },
   },
 ]
 `;
 
-exports[`Testing snapshot for actions-launchdarkly destination: trackUser action - required fields 1`] = `
+exports[`Testing snapshot for actions-launchdarkly destination: trackEvent action - required fields 1`] = `
 Array [
   Object {
     "creationDate": Any<Number>,
     "data": Object {},
-    "key": "kJ$qUh2o0",
+    "key": "8&tx*8iz0@V]qDguvfK",
     "kind": "custom",
     "user": Object {
-      "key": "kJ$qUh2o0",
+      "key": "8&tx*8iz0@V]qDguvfK",
     },
   },
 ]
