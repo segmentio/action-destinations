@@ -12,7 +12,7 @@ const action: ActionDefinition<Settings, Payload> = {
       label: 'User key',
       type: 'string',
       required: true,
-      description: 'The LaunchDarkly user key',
+      description: "The user's unique key.",
       default: {
         '@path': '$.userId'
       }
@@ -21,7 +21,7 @@ const action: ActionDefinition<Settings, Payload> = {
       label: 'Anonymous ID',
       type: 'string',
       required: true,
-      description: "The user's previously used anonymous user key",
+      description: "The user's previously used anonymous user key.",
       default: {
         '@if': {
           exists: { '@path': '$.previousId' },
@@ -31,8 +31,8 @@ const action: ActionDefinition<Settings, Payload> = {
       }
     },
     timestamp: {
-      label: 'Event timestamp',
-      description: 'Time of when the actual event happened.',
+      label: 'Event Timestamp',
+      description: 'The time when the event happened. Defaults to the current time.',
       type: 'datetime',
       default: {
         '@path': '$.timestamp'

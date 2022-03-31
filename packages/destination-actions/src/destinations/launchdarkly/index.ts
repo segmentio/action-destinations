@@ -8,6 +8,8 @@ const destination: DestinationDefinition<Settings> = {
   name: 'LaunchDarkly',
   slug: 'actions-launchdarkly',
   mode: 'cloud',
+  description:
+    'Use Segment events as custom metric events in LaunchDarkly experiments, so you can measure results immediately, without any instrumentation, code, or delays.',
 
   authentication: {
     scheme: 'custom',

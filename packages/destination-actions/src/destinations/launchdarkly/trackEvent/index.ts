@@ -3,27 +3,16 @@ import type { Settings } from '../generated-types'
 import { getEventsUrl, parseTimestamp } from '../utils'
 import type { Payload } from './generated-types'
 
-type LDCustomEvent = {
-  kind: 'custom'
-  key: string
-  user: {
-    key: string
-  }
-  metricValue?: number
-  data: { [k: string]: unknown }
-  creationDate: number
-}
-
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Track Event',
-  description: 'Track custom user events for us in A/B tests and experimentation.',
+  description: 'Track custom user events for use in A/B tests and experimentation.',
   defaultSubscription: 'type = "track"',
   fields: {
     user_key: {
-      label: 'User key',
+      label: 'User Key',
       type: 'string',
       required: true,
-      description: "The user's unique key",
+      description: "The user's unique key.",
       default: {
         '@if': {
           exists: { '@path': '$.userId' },
@@ -64,7 +53,7 @@ const action: ActionDefinition<Settings, Payload> = {
     },
     timestamp: {
       label: 'Event timestamp',
-      description: 'Time of when the actual event happened.',
+      description: 'The time when the event happened. Defaults to the current time',
       type: 'datetime',
       default: {
         '@path': '$.timestamp'
@@ -77,14 +66,18 @@ const action: ActionDefinition<Settings, Payload> = {
       method: 'post',
       json: [event]
     })
-  },
-  performBatch: (request, { settings, payload }) => {
-    const events: LDCustomEvent[] = payload.map(convertPayloadToLDEvent)
-    return request(getEventsUrl(settings.client_id), {
-      method: 'post',
-      json: events
-    })
   }
+}
+
+type LDCustomEvent = {
+  kind: 'custom'
+  key: string
+  user: {
+    key: string
+  }
+  metricValue?: number
+  data: { [k: string]: unknown }
+  creationDate: number
 }
 
 const convertPayloadToLDEvent = (payload: Payload): LDCustomEvent => {
