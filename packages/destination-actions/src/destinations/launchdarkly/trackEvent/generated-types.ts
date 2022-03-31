@@ -2,19 +2,19 @@
 
 export interface Payload {
   /**
-   * The LaunchDarkly user key
+   * The user's unique key
    */
   user_key: string
   /**
-   * The name of the event to track
+   * The name of the event to track. This name typically corresponds to a LaunchDarkly metric with the same key.
    */
   event_name: string
   /**
-   * The metric value
+   * The numeric value associated with the event. This value is used by the LaunchDarkly experimentation feature in numeric custom metrics, and will also be returned as part of the custom event for Data Export.
    */
   metric_value?: number
   /**
-   * Object containing the properties for the event being tracked.
+   * Optional object containing the properties for the event being tracked. These properties assist with observational analytics for LaunchDarkly Data Export destinations. These properties are not saved to the LaunchDarkly user.
    */
   event_properties?: {
     [k: string]: unknown

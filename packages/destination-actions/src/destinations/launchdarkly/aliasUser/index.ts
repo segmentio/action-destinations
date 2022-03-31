@@ -6,7 +6,7 @@ import type { Payload } from './generated-types'
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Alias User',
   description: 'Alias an anonymous user with an identified user key.',
-  defaultSubscription: 'type = "identify"',
+  defaultSubscription: 'type = "identify" or type = "alias"',
   fields: {
     user_key: {
       label: 'User key',
@@ -17,13 +17,17 @@ const action: ActionDefinition<Settings, Payload> = {
         '@path': '$.userId'
       }
     },
-    anonymous_id: {
+    previous_key: {
       label: 'Anonymous ID',
       type: 'string',
       required: true,
-      description: 'The previously used anonymous UUID',
+      description: "The user's previously used anonymous user key",
       default: {
-        '@path': '$.anonymousId'
+        '@if': {
+          exists: { '@path': '$.previousId' },
+          then: { '@path': '$.previousId' },
+          else: { '@path': '$.anonymousId' }
+        }
       }
     },
     timestamp: {
@@ -58,7 +62,7 @@ const convertPayloadToLDEvent = (payload: Payload): LDAliasEvent => {
   return {
     kind: 'alias',
     key: payload.user_key,
-    previousKey: payload.anonymous_id,
+    previousKey: payload.previous_key,
     contextKind: 'user',
     previousContextKind: 'anonymousUser',
     creationDate: parseTimestamp(payload.timestamp)

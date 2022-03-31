@@ -6,9 +6,9 @@ export interface Payload {
    */
   user_key: string
   /**
-   * The previously used anonymous UUID
+   * The user's previously used anonymous user key
    */
-  anonymous_id: string
+  previous_key: string
   /**
    * Time of when the actual event happened.
    */

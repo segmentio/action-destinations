@@ -16,14 +16,14 @@ type LDCustomEvent = {
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Track Event',
-  description: '',
+  description: 'Track custom user events for us in A/B tests and experimentation.',
   defaultSubscription: 'type = "track"',
   fields: {
     user_key: {
       label: 'User key',
       type: 'string',
       required: true,
-      description: 'The LaunchDarkly user key',
+      description: "The user's unique key",
       default: {
         '@if': {
           exists: { '@path': '$.userId' },
@@ -35,7 +35,8 @@ const action: ActionDefinition<Settings, Payload> = {
     event_name: {
       label: 'Event Name',
       type: 'string',
-      description: 'The name of the event to track',
+      description:
+        'The name of the event to track. This name typically corresponds to a LaunchDarkly metric with the same key.',
       required: true,
       default: {
         '@path': '$.event'
@@ -44,7 +45,8 @@ const action: ActionDefinition<Settings, Payload> = {
     metric_value: {
       label: 'Metric Value',
       type: 'number',
-      description: 'The metric value',
+      description:
+        'The numeric value associated with the event. This value is used by the LaunchDarkly experimentation feature in numeric custom metrics, and will also be returned as part of the custom event for Data Export.',
       default: {
         '@if': {
           exists: { '@path': '$.properties.revenue' },
@@ -54,9 +56,10 @@ const action: ActionDefinition<Settings, Payload> = {
       }
     },
     event_properties: {
-      type: 'object',
-      description: 'Object containing the properties for the event being tracked.',
       label: 'Event Properties',
+      type: 'object',
+      description:
+        'Optional object containing the properties for the event being tracked. These properties assist with observational analytics for LaunchDarkly Data Export destinations. These properties are not saved to the LaunchDarkly user.',
       default: { '@path': '$.properties' }
     },
     timestamp: {
