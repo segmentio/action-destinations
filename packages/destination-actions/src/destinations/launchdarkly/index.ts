@@ -1,8 +1,7 @@
 import type { DestinationDefinition } from '@segment/actions-core'
 import type { Settings } from './generated-types'
 
-import identifyUser from './identifyUser'
-
+import aliasUser from './aliasUser'
 import trackEvent from './trackEvent'
 
 const destination: DestinationDefinition<Settings> = {
@@ -32,7 +31,7 @@ const destination: DestinationDefinition<Settings> = {
   },
 
   actions: {
-    identifyUser,
+    aliasUser,
     trackEvent
   }
 }

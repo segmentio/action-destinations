@@ -4,12 +4,12 @@ import Destination from '../../index'
 import { Settings } from '../../generated-types'
 
 const testDestination = createTestIntegration(Destination)
-const actionSlug = 'identifyUser'
+const actionSlug = 'aliasUser'
 const testSettings: Settings = {
   client_id: '123123123'
 }
 
-describe('LaunchDarkly.identifyUser', () => {
+describe('LaunchDarkly.aliasUser', () => {
   it('should send identify events to LaunchDarkly with default mapping', async () => {
     nock('https://events.launchdarkly.com').post(`/events/bulk/${testSettings.client_id}`).reply(202)
 

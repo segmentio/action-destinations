@@ -1,27 +1,27 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`Testing snapshot for actions-launchdarkly destination: identifyUser action - all fields 1`] = `
+exports[`Testing snapshot for actions-launchdarkly destination: aliasUser action - all fields 1`] = `
 Array [
   Object {
     "contextKind": "user",
     "creationDate": 1612137600000,
-    "key": "*C*UH$EbzhGpO1hdf",
+    "key": "ejK#0yc)je6nnS#S",
     "kind": "alias",
     "previousContextKind": "anonymousUser",
-    "previousKey": "*C*UH$EbzhGpO1hdf",
+    "previousKey": "ejK#0yc)je6nnS#S",
   },
 ]
 `;
 
-exports[`Testing snapshot for actions-launchdarkly destination: identifyUser action - required fields 1`] = `
+exports[`Testing snapshot for actions-launchdarkly destination: aliasUser action - required fields 1`] = `
 Array [
   Object {
     "contextKind": "user",
     "creationDate": Any<Number>,
-    "key": "*C*UH$EbzhGpO1hdf",
+    "key": "ejK#0yc)je6nnS#S",
     "kind": "alias",
     "previousContextKind": "anonymousUser",
-    "previousKey": "*C*UH$EbzhGpO1hdf",
+    "previousKey": "ejK#0yc)je6nnS#S",
   },
 ]
 `;

@@ -3,18 +3,9 @@ import type { Settings } from '../generated-types'
 import { getEventsUrl, parseTimestamp } from '../utils'
 import type { Payload } from './generated-types'
 
-type LDAliasEvent = {
-  kind: 'alias'
-  key: string
-  previousKey: string
-  contextKind: 'user'
-  previousContextKind: 'anonymousUser'
-  creationDate: number
-}
-
 const action: ActionDefinition<Settings, Payload> = {
-  title: 'Identify User',
-  description: '',
+  title: 'Alias User',
+  description: 'Alias an anonymous user with an identified user key.',
   defaultSubscription: 'type = "identify"',
   fields: {
     user_key: {
@@ -52,6 +43,15 @@ const action: ActionDefinition<Settings, Payload> = {
       json: [event]
     })
   }
+}
+
+type LDAliasEvent = {
+  kind: 'alias'
+  key: string
+  previousKey: string
+  contextKind: 'user'
+  previousContextKind: 'anonymousUser'
+  creationDate: number
 }
 
 const convertPayloadToLDEvent = (payload: Payload): LDAliasEvent => {
