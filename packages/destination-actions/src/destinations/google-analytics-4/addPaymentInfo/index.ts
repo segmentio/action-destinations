@@ -3,7 +3,16 @@ import { CURRENCY_ISO_CODES } from '../constants'
 import { ProductItem } from '../ga4-types'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
-import { client_id, currency, value, coupon, payment_type, items_multi_products } from '../ga4-properties'
+import {
+  user_id,
+  client_id,
+  currency,
+  value,
+  coupon,
+  payment_type,
+  items_multi_products,
+  params
+} from '../ga4-properties'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Add Payment Info',
@@ -11,6 +20,7 @@ const action: ActionDefinition<Settings, Payload> = {
   defaultSubscription: 'type = "track" and event = "Payment Info Entered"',
   fields: {
     client_id: { ...client_id },
+    user_id: { ...user_id },
     currency: { ...currency },
     value: { ...value },
     coupon: { ...coupon },
@@ -18,9 +28,20 @@ const action: ActionDefinition<Settings, Payload> = {
     items: {
       ...items_multi_products,
       required: true
-    }
+    },
+    params: params
   },
   perform: (request, { payload }) => {
+    // Google requires that `add_payment_info` events include an array of products: https://developers.google.com/analytics/devguides/collection/ga4/reference/events
+    // This differs from the Segment spec, which doesn't require a products array: https://segment.com/docs/connections/spec/ecommerce/v2/#payment-info-entered
+    if (payload.items && !payload.items.length) {
+      throw new IntegrationError(
+        'Google requires one or more products in add_payment_info events.',
+        'Misconfigured required field',
+        400
+      )
+    }
+
     if (payload.currency && !CURRENCY_ISO_CODES.includes(payload.currency)) {
       throw new IntegrationError(`${payload.currency} is not a valid currency code.`, 'Incorrect value format', 400)
     }
@@ -35,7 +56,7 @@ const action: ActionDefinition<Settings, Payload> = {
      * If set at the event level, item-level currency is ignored. If event-level currency is not set then
      * currency from the first item in items is used.
      */
-    if (payload.currency === undefined && payload.items && payload.items[0].currency === undefined) {
+    if (payload.currency === undefined && payload.items[0].currency === undefined) {
       throw new IntegrationError(
         'One of item-level currency or top-level currency is required.',
         'Misconfigured required field',
@@ -67,6 +88,7 @@ const action: ActionDefinition<Settings, Payload> = {
       method: 'POST',
       json: {
         client_id: payload.client_id,
+        user_id: payload.user_id,
         events: [
           {
             name: 'add_payment_info',
@@ -75,7 +97,8 @@ const action: ActionDefinition<Settings, Payload> = {
               value: payload.value,
               coupon: payload.coupon,
               payment_type: payload.payment_type,
-              items: googleItems
+              items: googleItems,
+              ...payload.params
             }
           }
         ]

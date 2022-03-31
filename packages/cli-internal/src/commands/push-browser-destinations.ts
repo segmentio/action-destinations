@@ -22,7 +22,8 @@ export default class PushBrowserDestinations extends Command {
 
   static examples = [`$ ./bin/run push-browser-destinations`]
 
-  static flags = {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  static flags: flags.Input<any> = {
     help: flags.help({ char: 'h' }),
     env: flags.string({
       char: 'e',
@@ -86,7 +87,9 @@ export default class PushBrowserDestinations extends Command {
 
       const input = {
         metadataId: metadata.id,
-        name: metadata.name,
+        // The name of the remote plugin should match the creationName for consistency with our other systems,
+        // as users might rely on the name of the name of the remote plugin in the integrations object.
+        name: metadata.creationName,
         // This MUST match the way webpack exports the libraryName in the umd bundle
         // TODO make this more automatic for consistency
         libraryName: `${entry.directory}Destination`,
@@ -94,8 +97,15 @@ export default class PushBrowserDestinations extends Command {
       }
 
       // We expect that each definition produces a single Remote Plugin bundle
-      // `name` + `metadataId` are guaranteed to be unique
-      const existingPlugin = remotePlugins.find((p) => p.metadataId === metadata.id && p.name === metadata.name)
+      // `metadataId` is guaranteed to be unique
+      const existingPlugin = remotePlugins.find((p) => p.metadataId === metadata.id)
+
+      if (metadata.creationName !== entry.definition.name) {
+        this.spinner.fail()
+        throw new Error(
+          `The definition name '${entry.definition.name}' should always match the control plane creationName '${metadata.creationName}'.`
+        )
+      }
 
       if (existingPlugin) {
         pluginsToUpdate.push(input)

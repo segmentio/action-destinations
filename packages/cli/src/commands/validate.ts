@@ -12,7 +12,8 @@ export default class Validate extends Command {
 
   static examples = [`$ ./bin/run validate`]
 
-  static flags = {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  static flags: flags.Input<any> = {
     help: flags.help({ char: 'h' })
   }
 
@@ -62,6 +63,16 @@ export default class Validate extends Command {
           errors.push(
             new Error(`The action "${actionKey}" has an invalid \`defaultSubscription\` query: ${fqlError.message}`)
           )
+        }
+      }
+
+      //Validate descriptions
+      if (!action.description) {
+        errors.push(new Error(`The action "${actionKey}" is missing a description.`))
+      }
+      for (const [fieldKey, field] of Object.entries(action.fields)) {
+        if (!field.description) {
+          errors.push(new Error(`The action "${actionKey}" is missing a description for the field "${fieldKey}".`))
         }
       }
     }

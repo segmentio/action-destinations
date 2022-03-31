@@ -1,6 +1,6 @@
 {
   "name": "@segment/browser-destinations",
-  "version": "3.25.0",
+  "version": "3.34.0",
   "description": "Action based browser destinations",
   "author": "Netto Farah",
   "private": true,
@@ -28,10 +28,11 @@
     "dev": "NODE_ENV=development concurrently \"webpack serve --open\" \"webpack -c webpack.config.js --watch\""
   },
   "dependencies": {
-    "@braze/web-sdk": "^3.3.0",
+    "@braze/web-sdk": "^3.5.0",
     "@fullstory/browser": "^1.4.9",
+    "@segment/actions-shared": "^1.4.0",
     "@segment/analytics-next": "^1.29.3",
-    "@segment/destination-subscriptions": "^3.8.2",
+    "@segment/destination-subscriptions": "^3.9.0",
     "dayjs": "^1.10.7",
     "tslib": "^2.3.1",
     "vm-browserify": "^1.1.2"
@@ -42,7 +43,7 @@
     "@babel/plugin-transform-modules-commonjs": "^7.13.8",
     "@babel/preset-env": "^7.13.10",
     "@babel/preset-typescript": "^7.13.0",
-    "@segment/actions-core": "^3.21.1",
+    "@segment/actions-core": "^3.22.1",
     "@types/amplitude-js": "^7.0.1",
     "@types/jest": "^27.0.0",
     "babel-jest": "^27.3.1",
@@ -69,7 +70,8 @@
     "moduleNameMapper": {
       "@segment/ajv-human-errors": "<rootDir>/../ajv-human-errors/src",
       "@segment/actions-core": "<rootDir>/../core/src",
-      "@segment/destination-subscriptions": "<rootDir>/../destination-subscriptions/src"
+      "@segment/destination-subscriptions": "<rootDir>/../destination-subscriptions/src",
+      "@segment/actions-shared": "<rootDir>/../actions-shared/src"
     },
     "transform": {
       "^.+\\.[t|j]sx?$": "babel-jest"

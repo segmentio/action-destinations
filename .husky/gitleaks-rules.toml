@@ -16,14 +16,6 @@ description = "Facebook System User Access Token"
 regex = '''EAA[0-9A-Za-z]{100,}'''
 tags = ["token", "Facebook Token"]
 
-[[rules]]
-description = "Tik-Tok accessToken"
-regex = '''[0-9A-Za-z]{40}'''
-tags = ["token", "Tik-Tok"]
-[[rules.entropies]]
-Max = "4.5"
-Min = "3.5"
-
 # Default gitleaks rules (from https://raw.githubusercontent.com/zricethezav/gitleaks/master/config/gitleaks.toml)
 
 # Gitleaks rules are defined by regular expressions and entropy ranges.

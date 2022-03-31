@@ -4,9 +4,13 @@ Action Destinations are a way to build streaming destinations on Segment. To beg
 
 Fore more detailed instruction, see the following READMEs:
 
+- [Contributing Document](./CONTRIBUTING.md)
 - [Create a Destination Action](./docs/create.md)
+- [Build & Test Cloud Destinations](./docs/testing.md)
 - [Troubleshooting](./docs/testing.md)
 - [Authentication](./docs/authentication.md)
+- [Mapping Kit](./packages/core/src/mapping-kit/README.md)
+- [Destination Kit](./packages/core/src/destination-kit/README.md)
 
 Table of Contents:
 
@@ -52,6 +56,8 @@ yarn login
 # Requires node 14.17, optionally: nvm use 14.17
 yarn --ignore-optional
 yarn bootstrap
+yarn build
+yarn install
 
 # Run unit tests to ensure things are working! All tests should pass :)
 yarn test
@@ -367,7 +373,7 @@ This will give customers the ability to opt-in to batching (there may be trade-o
 Keep in mind a few important things about how batching works:
 
 - Batching can add latency while Segment accumulates events in batches internally. This can be up to a minute, currently, but this is subject to change at any time. Latency is lower when you send a higher volume of events.
-- Batches may have to up 50 events, currently. This, too, is subject to change.
+- Batches may have to up 1,000 events, currently. This, too, is subject to change.
 - Batch sizes are not guaranteed. Due to the way that batches are accumulated internally, you may see smaller batch sizes than you expect when sending low rates of events.
 
 Additionally, you’ll need to coordinate with Segment’s R&D team for the time being. Please reach out to us in your dedicated Slack channel!
@@ -447,7 +453,7 @@ There are a few subtle differences from the Fetch API which are meant to limit t
 
 MIT License
 
-Copyright (c) 2021 Segment
+Copyright (c) 2022 Segment
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal

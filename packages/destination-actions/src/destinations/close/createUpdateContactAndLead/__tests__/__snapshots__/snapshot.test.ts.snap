@@ -1,0 +1,42 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Testing snapshot for Close's createUpdateContactAndLead destination action: all fields 1`] = `
+Object {
+  "action_payload": Object {
+    "contact_custom_fields": Object {
+      "testType": "AY$s*K8XPu",
+    },
+    "contact_email": "AY$s*K8XPu",
+    "contact_external_id": "AY$s*K8XPu",
+    "contact_name": "AY$s*K8XPu",
+    "contact_phone": "AY$s*K8XPu",
+    "contact_title": "AY$s*K8XPu",
+    "contact_url": "AY$s*K8XPu",
+    "lead_custom_fields": Object {
+      "testType": "AY$s*K8XPu",
+    },
+    "lead_description": "AY$s*K8XPu",
+    "lead_external_id": "AY$s*K8XPu",
+    "lead_name": "AY$s*K8XPu",
+    "lead_status_id": "AY$s*K8XPu",
+  },
+  "settings": Object {
+    "contact_custom_field_id_for_user_id": "AY$s*K8XPu",
+    "lead_custom_field_id_for_company_id": "AY$s*K8XPu",
+  },
+}
+`;
+
+exports[`Testing snapshot for Close's createUpdateContactAndLead destination action: required fields 1`] = `
+Object {
+  "action_payload": Object {
+    "contact_external_id": "AY$s*K8XPu",
+    "lead_external_id": "AY$s*K8XPu",
+    "lead_status_id": "AY$s*K8XPu",
+  },
+  "settings": Object {
+    "contact_custom_field_id_for_user_id": "AY$s*K8XPu",
+    "lead_custom_field_id_for_company_id": "AY$s*K8XPu",
+  },
+}
+`;

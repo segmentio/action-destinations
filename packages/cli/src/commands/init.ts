@@ -18,7 +18,8 @@ export default class Init extends Command {
     `$ ./bin/run init my-integration --directory packages/destination-actions --template basic-auth`
   ]
 
-  static flags = {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  static flags: flags.Input<any> = {
     help: flags.help({ char: 'h' }),
     directory: flags.string({
       char: 'd',
@@ -107,7 +108,8 @@ export default class Init extends Command {
     }
 
     // For now, include the slug in the path, but when we support external repos, we'll have to change this
-    const relativePath = path.join(directory, args.path || slug)
+    const slugWithoutActions = String(slug).replace('actions-', '')
+    const relativePath = path.join(directory, args.path || slugWithoutActions)
     const targetDirectory = path.join(process.cwd(), relativePath)
     const templatePath = path.join(__dirname, '../../templates/destinations', template)
     const snapshotPath = path.join(__dirname, '../../templates/actions/snapshot')

@@ -9,29 +9,24 @@ const testDestination = createTestIntegration(Definition)
 describe('Metronome', () => {
   describe('testAuthentication', () => {
     it('should validate valid auth tokens', async () => {
-      nock('https://api.getmetronome.com')
-        .matchHeader('content-type', 'application/json')
-        .post('/v1/ingest').reply(400, {
-          message: "[array is too short: must have at least 1 elements but instance has 0 elements]"
-        });
+      nock('https://api.metronome.com').matchHeader('content-type', 'application/json').post('/v1/ingest').reply(400, {
+        message: '[array is too short: must have at least 1 elements but instance has 0 elements]'
+      })
 
       const authData: Settings = {
-        apiToken: "mock-token"
+        apiToken: 'mock-token'
       }
 
       await expect(testDestination.testAuthentication(authData)).resolves.not.toThrowError()
     })
 
     it('should throw an error for invalid auth tokens', async () => {
-      nock('https://api.getmetronome.com')
-        .post('/v1/ingest')
-        .matchHeader('content-type', 'application/json')
-        .reply(403, {
-          "message": "Unauthorized"
-        });
+      nock('https://api.metronome.com').post('/v1/ingest').matchHeader('content-type', 'application/json').reply(403, {
+        message: 'Unauthorized'
+      })
 
       const authData: Settings = {
-        apiToken: "mock-token"
+        apiToken: 'mock-token'
       }
 
       await expect(testDestination.testAuthentication(authData)).rejects.toThrowError()

@@ -1,7 +1,7 @@
 import { Analytics, Context } from '@segment/analytics-next'
 import friendbuyDestination from '../../index'
 import trackCustomerObject, { trackCustomerDefaultSubscription } from '../index'
-import { trackCustomerFields } from '../../shared/sharedCustomer'
+import { trackCustomerFields } from '@segment/actions-shared'
 
 import { loadScript } from '../../../../runtime/load-script'
 jest.mock('../../../../runtime/load-script')
@@ -161,6 +161,33 @@ describe('Friendbuy.trackCustomer', () => {
           id: userId,
           email,
           name
+        },
+        true
+      ])
+    }
+
+    {
+      // enjoined fields are converted
+      const context4 = new Context({
+        type: 'identify',
+        userId: 12345,
+        traits: {
+          email,
+          age: '44',
+          address: { postalCode: 90210 }
+        }
+      })
+
+      trackCustomer.identify?.(context4)
+
+      expect(window.friendbuyAPI?.push).toHaveBeenNthCalledWith(4, [
+        'track',
+        'customer',
+        {
+          id: '12345',
+          email,
+          age: 44,
+          zipCode: '90210'
         },
         true
       ])

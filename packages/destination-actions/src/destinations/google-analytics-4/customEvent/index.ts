@@ -1,7 +1,7 @@
 import type { ActionDefinition } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
-import { client_id } from '../ga4-properties'
+import { params, client_id, user_id } from '../ga4-properties'
 
 const normalizeEventName = (name: string, lowercase: boolean | undefined): string => {
   name = name.trim()
@@ -19,6 +19,7 @@ const action: ActionDefinition<Settings, Payload> = {
   defaultSubscription: 'type = "track"',
   fields: {
     clientId: { ...client_id },
+    user_id: { ...user_id },
     name: {
       label: 'Event Name',
       description:
@@ -36,13 +37,7 @@ const action: ActionDefinition<Settings, Payload> = {
       type: 'boolean',
       default: false
     },
-    params: {
-      label: 'Event Parameters',
-      description: 'The event parameters to send to Google',
-      type: 'object',
-      additionalProperties: true,
-      default: { '@path': '$.properties' }
-    }
+    params: { ...params }
   },
   perform: (request, { payload }) => {
     const event_name = normalizeEventName(payload.name, payload.lowercase)
@@ -50,6 +45,7 @@ const action: ActionDefinition<Settings, Payload> = {
       method: 'POST',
       json: {
         client_id: payload.clientId,
+        user_id: payload.user_id,
         events: [
           {
             name: event_name,

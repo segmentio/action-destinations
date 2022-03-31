@@ -16,14 +16,21 @@ export function generatePlugins<S, C>(
   let hasInitialized = false
   let client: C
   let analytics: Analytics
+  let initializing: Promise<C> | undefined
 
   const load: Plugin['load'] = async (_ctx, analyticsInstance) => {
     if (hasInitialized) {
       return
     }
 
+    if (initializing) {
+      await initializing
+      return
+    }
+
     analytics = analyticsInstance
-    client = await def.initialize?.({ settings, analytics }, { loadScript, resolveWhen })
+    initializing = def.initialize?.({ settings, analytics }, { loadScript, resolveWhen })
+    client = await initializing
     hasInitialized = true
   }
 

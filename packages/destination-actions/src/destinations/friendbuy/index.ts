@@ -5,7 +5,7 @@ import trackCustomer from './trackCustomer'
 import trackPurchase from './trackPurchase'
 import trackSignUp from './trackSignUp'
 import trackCustomEvent from './trackCustomEvent'
-import { mapiUrl } from './cloudUtil'
+import { defaultMapiBaseUrl } from './cloudUtil'
 
 const destination: DestinationDefinition<Settings> = {
   name: 'Friendbuy (Cloud Destination)',
@@ -22,6 +22,8 @@ const destination: DestinationDefinition<Settings> = {
         format: 'uuid',
         required: true
       },
+      // For testing the Segment integration in a non-production environment,
+      // prepend the environment name followed by a colon to the authSecret value.
       authSecret: {
         label: 'Friendbuy MAPI Secret',
         description: 'See Friendbuy MAPI Key.',
@@ -31,7 +33,7 @@ const destination: DestinationDefinition<Settings> = {
     },
     testAuthentication: (request, { settings }) => {
       // Verify that the merchantId is valid.
-      return request(`${mapiUrl}/v1/authorization`, {
+      return request(`${defaultMapiBaseUrl}/v1/authorization`, {
         method: 'POST',
         json: { key: settings.authKey, secret: settings.authSecret }
       })
@@ -44,12 +46,12 @@ const destination: DestinationDefinition<Settings> = {
     // implement this function and should remove it completely.
     return !payload.userId
       ? true
-      : request(`${mapiUrl}/v1/user-data`, {
-        method: 'DELETE',
-        searchParams: {
-          customerId: payload.userId
-        }
-      })
+      : request(`${defaultMapiBaseUrl}/v1/user-data`, {
+          method: 'DELETE',
+          searchParams: {
+            customerId: payload.userId
+          }
+        })
   },
 
   actions: {

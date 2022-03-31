@@ -91,7 +91,7 @@ const destination: DestinationDefinition<Settings> = {
     testAuthentication: (request, { settings }) => {
       // Note: Amplitude has some apis that use basic auth (like this one)
       // and others that use custom auth in the request body
-      const endpoint = getEndpointByRegion('usersearch', settings.endpoint) 
+      const endpoint = getEndpointByRegion('usersearch', settings.endpoint)
       return request(`${endpoint}?user=testUser@example.com`, {
         username: settings.apiKey,
         password: settings.secretKey

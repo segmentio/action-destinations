@@ -3,18 +3,18 @@ import type { BrowserActionDefinition } from '../../../lib/browser-destinations'
 import type { FriendbuyAPI } from '../types'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
-import type { AnalyticsPayload, ConvertFun, EventMap } from '../shared/mapEvent'
+import type { AnalyticsPayload, ConvertFun, EventMap } from '@segment/actions-shared'
 
-import { COPY, ROOT, mapEvent } from '../shared/mapEvent'
-import { trackCustomerFields } from '../shared/sharedCustomer'
-import { addName, parseDate } from '../shared/util'
+import { COPY, ROOT, mapEvent } from '@segment/actions-shared'
+import { trackCustomerFields } from '@segment/actions-shared'
+import { addName, enjoinInteger, enjoinString, parseDate } from '@segment/actions-shared'
 
 // see https://segment.com/docs/config-api/fql/
 export const trackCustomerDefaultSubscription = 'type = "identify"'
 
 const trackCustomerPub: EventMap = {
   fields: {
-    customerId: { name: 'id' },
+    customerId: { name: 'id', convert: enjoinString as ConvertFun },
     anonymousID: COPY,
     email: COPY,
     isNewCustomer: COPY,
@@ -22,13 +22,14 @@ const trackCustomerPub: EventMap = {
     firstName: COPY,
     lastName: COPY,
     name: COPY,
-    age: COPY,
+    age: { convert: enjoinInteger as ConvertFun },
+    // fbt-merchant-api complains about birthday being an object but passes it anyway.
     birthday: { convert: parseDate as ConvertFun },
     language: COPY,
     addressCountry: { name: 'country' },
     addressState: { name: 'state' },
     addressCity: { name: 'city' },
-    addressPostalCode: { name: 'zipCode' }
+    addressPostalCode: { name: 'zipCode', convert: enjoinString as ConvertFun }
   },
   unmappedFieldObject: ROOT
 }

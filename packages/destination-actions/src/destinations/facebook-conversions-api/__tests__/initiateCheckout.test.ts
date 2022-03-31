@@ -10,7 +10,7 @@ const settings = {
 describe('FacebookConversionsApi', () => {
   describe('InitiateCheckout', () => {
     it('should handle basic mapping overrides', async () => {
-      nock(`https://graph.facebook.com/v11.0/${settings.pixelId}`).post(`/events`).reply(201, {})
+      nock(`https://graph.facebook.com/v12.0/${settings.pixelId}`).post(`/events`).reply(201, {})
 
       const event = createTestEvent({
         event: 'Checkout Started',
@@ -50,10 +50,14 @@ describe('FacebookConversionsApi', () => {
 
       expect(responses.length).toBe(1)
       expect(responses[0].status).toBe(201)
+
+      expect(responses[0].options.body).toMatchInlineSnapshot(
+        `"{\\"data\\":[{\\"event_name\\":\\"InitiateCheckout\\",\\"event_time\\":\\"1631210000\\",\\"action_source\\":\\"email\\",\\"user_data\\":{\\"em\\":\\"eeaf810ee0e3cef3307089f22c3804f54c79eed19ef29bf70df864b43862c380\\"},\\"custom_data\\":{\\"currency\\":\\"USD\\",\\"value\\":12.12}}]}"`
+      )
     })
 
     it('should throw an error for invalid currency values', async () => {
-      nock(`https://graph.facebook.com/v11.0/${settings.pixelId}`).post(`/events`).reply(201, {})
+      nock(`https://graph.facebook.com/v12.0/${settings.pixelId}`).post(`/events`).reply(201, {})
 
       const event = createTestEvent({
         event: 'Checkout Started',
@@ -95,14 +99,15 @@ describe('FacebookConversionsApi', () => {
     })
 
     it('should handle default mappings', async () => {
-      nock(`https://graph.facebook.com/v11.0/${settings.pixelId}`).post(`/events`).reply(201, {})
+      nock(`https://graph.facebook.com/v12.0/${settings.pixelId}`).post(`/events`).reply(201, {})
 
       const event = createTestEvent({
         event: 'Checkout Started',
+        timestamp: '1631210020',
+        messageId: 'test',
         properties: {
           userId: 'testuser1234',
           action_source: 'email',
-          timestamp: '1631210020',
           currency: 'USD',
           revenue: 12.12,
           products: [
@@ -121,10 +126,14 @@ describe('FacebookConversionsApi', () => {
 
       expect(responses.length).toBe(1)
       expect(responses[0].status).toBe(201)
+
+      expect(responses[0].options.body).toMatchInlineSnapshot(
+        `"{\\"data\\":[{\\"event_name\\":\\"InitiateCheckout\\",\\"event_time\\":\\"1631210020\\",\\"action_source\\":\\"email\\",\\"event_source_url\\":\\"https://segment.com/academy/\\",\\"event_id\\":\\"test\\",\\"user_data\\":{\\"external_id\\":\\"831c237928e6212bedaa4451a514ace3174562f6761f6a157a2fe5082b36e2fb\\",\\"client_ip_address\\":\\"8.8.8.8\\",\\"client_user_agent\\":\\"Mozilla/5.0 (iPhone; CPU iPhone OS 9_1 like Mac OS X) AppleWebKit/601.1.46 (KHTML, like Gecko) Version/9.0 Mobile/13B143 Safari/601.1\\"},\\"custom_data\\":{\\"currency\\":\\"USD\\",\\"value\\":12.12,\\"contents\\":[{\\"id\\":\\"123\\",\\"quantity\\":1,\\"item_price\\":100},{\\"id\\":\\"345\\",\\"quantity\\":2,\\"item_price\\":50}]}}]}"`
+      )
     })
 
     it('should throw an error if no user_data keys are included', async () => {
-      nock(`https://graph.facebook.com/v11.0/${settings.pixelId}`).post(`/events`).reply(201, {})
+      nock(`https://graph.facebook.com/v12.0/${settings.pixelId}`).post(`/events`).reply(201, {})
 
       const event = createTestEvent({
         event: 'Checkout Started',

@@ -2,11 +2,11 @@
 
 export interface Settings {
   /**
-   * TikTok Long Term Access Token. You can generate this from the TikTok Marketing API portal. Please follow TikTok's [Authorization guide](https://ads.tiktok.com/athena/docs/index.html?plat_id=-1&doc_id=100010&id=100681&key=e98b971a296ae45d8e35a22fba032d1c06f5973de9aab73ce07b82f230cf3afd) for more info.
+   * Your TikTok Access Token. Please see TikTok’s [Events API documentation](https://ads.tiktok.com/marketing_api/docs?id=1701890979375106) for information on how to generate an access token via the TikTok Ads Manager or API.
    */
   accessToken: string
   /**
-   * An ID for your pixel. Required to send events to the TikTok pixel.
+   * Your TikTok Pixel ID. Please see TikTok’s [Events API documentation](https://ads.tiktok.com/marketing_api/docs?id=1701890979375106) for information on how to find this value.
    */
-  pixel_code: string
+  pixelCode: string
 }

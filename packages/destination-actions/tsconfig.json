@@ -6,7 +6,7 @@
       "@segment/ajv-human-errors": ["../ajv-human-errors/src"],
       "@segment/actions-core": ["../core/src"],
       "@segment/destination-subscriptions": ["../destination-subscriptions/src"],
-      "@friendbuy/shared/*": ["../browser-destinations/src/destinations/friendbuy/shared/*"]
+      "@segment/actions-shared": ["../actions-shared/src"]
     }
   },
   "exclude": [],

@@ -18,6 +18,14 @@ export interface Payload {
    */
   coupon?: string
   /**
+   * Friendbuy attribution ID that associates the purchase with the advocate who referred the purchaser.
+   */
+  attributionId?: string
+  /**
+   * Friendbuy referral code that associates the purchase with the advocate who referred the purchaser.
+   */
+  referralCode?: string
+  /**
    * An array of gift card codes applied to the order.
    */
   giftCardCodes?: string[]

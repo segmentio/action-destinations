@@ -36,20 +36,20 @@ $ npm install @segment/ajv-human-error
 # Usage
 
 ```ts
-import Ajv from 'ajv';
-import { AggregateAjvError } from '@segment/ajv-human-errors';
+import Ajv from 'ajv'
+import { AggregateAjvError } from '@segment/ajv-human-errors'
 
 const ajv = new Ajv({
   allErrors: true,
-  verbose: true,
-});
+  verbose: true
+})
 
-ajv.validate({ title: 'Bag of Bytes', type: 'string' }, 1234);
+ajv.validate({ title: 'Bag of Bytes', type: 'string' }, 1234)
 
-const errors = new AggregateAjvError(ajv.errors);
-console.log(errors.message);
+const errors = new AggregateAjvError(ajv.errors)
+console.log(errors.message)
 // 'Bag of Bytes should be a string but it was a number.'
-console.log(errors.map(({ message }) => message));
+console.log(errors.map(({ message }) => message))
 // ['Bag of Bytes should be a string but it was a number.']
 ```
 
@@ -72,17 +72,17 @@ The `AggregateAjvError` object can be passed to `JSON.stringify()`:
 AggregateAjvError is an Iterable that yields AjvError errors:
 
 ```ts
-import { AggregateAjvError } from '@segment/ajv-human-errors';
+import { AggregateAjvError } from '@segment/ajv-human-errors'
 
-const errors = new AggregateAjvError(ajv.errors);
+const errors = new AggregateAjvError(ajv.errors)
 
-const messages = errors.map(({ message }) => message);
+const messages = errors.map(({ message }) => message)
 
 // or
 
-const messages = [];
+const messages = []
 for (const error of errors) {
-  messages.push(error.message);
+  messages.push(error.message)
 }
 ```
 
@@ -101,11 +101,11 @@ Each AjvError instance has the following properties:
 These fields are also available in the JSON form:
 
 ```ts
-const { AggregateAjvError } = require('@segment/ajv-human-errors');
+const { AggregateAjvError } = require('@segment/ajv-human-errors')
 
-const errors = new AggregateAjvError(ajv.errors);
+const errors = new AggregateAjvError(ajv.errors)
 
-console.log(errors[0].toJSON());
+console.log(errors[0].toJSON())
 ```
 
 which will log this:
@@ -150,8 +150,8 @@ The `AggregateAjvError` constructor accepts the following options:
 - `includeOriginalError` (default: false) Include the original Ajv error object on the `data` property of each error in the `AggregateAjvError` instance:
 
   ```ts
-  const errors = new AggregateAjvError(ajv.errors, { includeOriginalError: true });
-  errors.forEach(({ original }) => console.log(original));
+  const errors = new AggregateAjvError(ajv.errors, { includeOriginalError: true })
+  errors.forEach(({ original }) => console.log(original))
   ```
 
   output:
@@ -170,8 +170,8 @@ The `AggregateAjvError` constructor accepts the following options:
   property of each error in the `AggregateAjvError` instance.
 
   ```ts
-  const errors = new AggregateAjvError(ajv.errors, { includeOriginalError: true });
-  errors.forEach(({ data }) => console.log(data));
+  const errors = new AggregateAjvError(ajv.errors, { includeOriginalError: true })
+  errors.forEach(({ data }) => console.log(data))
   ```
 
   output:
@@ -202,7 +202,7 @@ Returns this error message when validating a non-string object:
 
 MIT License
 
-Copyright (c) 2021 Segment
+Copyright (c) 2022 Segment
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal

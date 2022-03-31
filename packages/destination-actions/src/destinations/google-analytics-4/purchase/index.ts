@@ -9,10 +9,12 @@ import {
   transaction_id,
   value,
   client_id,
+  user_id,
   affiliation,
   shipping,
   tax,
-  items_multi_products
+  items_multi_products,
+  params
 } from '../ga4-properties'
 
 // https://segment.com/docs/connections/spec/ecommerce/v2/#order-completed
@@ -23,6 +25,7 @@ const action: ActionDefinition<Settings, Payload> = {
   defaultSubscription: 'type = "track" and event = "Order Completed"',
   fields: {
     client_id: { ...client_id },
+    user_id: { ...user_id },
     affiliation: { ...affiliation },
     coupon: { ...coupon, default: { '@path': '$.properties.coupon' } },
     currency: { ...currency, required: true },
@@ -35,7 +38,8 @@ const action: ActionDefinition<Settings, Payload> = {
     transaction_id: { ...transaction_id, required: true },
     shipping: { ...shipping },
     tax: { ...tax },
-    value: { ...value, default: { '@path': '$.properties.total' } }
+    value: { ...value, default: { '@path': '$.properties.total' } },
+    params: params
   },
   perform: (request, { payload }) => {
     if (!CURRENCY_ISO_CODES.includes(payload.currency)) {
@@ -66,6 +70,7 @@ const action: ActionDefinition<Settings, Payload> = {
       method: 'POST',
       json: {
         client_id: payload.client_id,
+        user_id: payload.user_id,
         events: [
           {
             name: 'purchase',
@@ -77,7 +82,8 @@ const action: ActionDefinition<Settings, Payload> = {
               transaction_id: payload.transaction_id,
               shipping: payload.shipping,
               value: payload.value,
-              tax: payload.tax
+              tax: payload.tax,
+              ...payload.params
             }
           }
         ]
