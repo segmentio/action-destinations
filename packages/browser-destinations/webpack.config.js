@@ -10,9 +10,11 @@ const isProd = process.env.NODE_ENV === 'production'
 
 const entries = files.reduce((acc, current) => {
   const [_dot, _src, _destinations, destination, ..._rest] = current.split('/')
+  const obfuscatedDestination = Buffer.from(destination).toString('base64').replace(/=/g, '');
   return {
     ...acc,
-    [destination]: current
+    [destination]: current,
+    [obfuscatedDestination]: current,
   }
 }, {})
 
