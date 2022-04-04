@@ -53,4 +53,24 @@ export interface Payload {
   contact_custom_fields?: {
     [k: string]: unknown
   }
+  /**
+   * Whether the integration is allowed to create new Leads.
+   */
+  allow_creating_new_leads?: boolean
+  /**
+   * Whether the integration is allowed to create new Leads.
+   */
+  allow_updating_existing_leads?: boolean
+  /**
+   * Whether the integration is allowed to create new Contacts.
+   */
+  allow_creating_new_contacts?: boolean
+  /**
+   * Whether the integration is allowed to update existing Contacts.
+   */
+  allow_updating_existing_contacts?: boolean
+  /**
+   * Whether the integration is allowed to create duplicate Contact (same email or Contact User ID) under a different Lead (different Lead Company ID).
+   */
+  allow_creating_duplicate_contacts?: boolean
 }

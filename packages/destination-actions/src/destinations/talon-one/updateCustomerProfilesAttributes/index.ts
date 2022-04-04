@@ -4,8 +4,8 @@ import type { Payload } from './generated-types'
 import { attribute, customerProfileId } from '../t1-properties'
 
 const action: ActionDefinition<Settings, Payload> = {
-  title: 'Update Customer Profile Attribute-Value pairs.',
-  description: 'This synchronizes attributes data for multiple customer profiles.',
+  title: 'Update Multiple Customer Profiles’ Attributes',
+  description: 'This updates attributes for multiple customer profiles.',
   fields: {
     customerProfileId: { ...customerProfileId },
     attributes: { ...attribute },

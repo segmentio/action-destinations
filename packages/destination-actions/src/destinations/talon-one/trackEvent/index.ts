@@ -1,20 +1,20 @@
 import type { ActionDefinition } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
+import { attribute, customerProfileId } from '../t1-properties'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Track Event',
   description: 'This records a custom event in Talon.One.',
   fields: {
     customerProfileId: {
-      label: 'Customer Profile ID',
-      description: 'Unique identifier of the customer profile associated to the event.',
-      type: 'string',
-      required: true
+      ...customerProfileId,
+      description:
+        'The customer profile integration ID to use in Talon.One. It is the identifier of the customer profile associated to the event.'
     },
     eventType: {
       label: 'Event Type',
-      description: 'It is just the name of your event.',
+      description: 'The name of the event sent to Talon.One.',
       type: 'string',
       required: true
     },
@@ -25,10 +25,9 @@ const action: ActionDefinition<Settings, Payload> = {
       required: true
     },
     attributes: {
-      label: 'Attribute-Value pairs',
-      description: 'Arbitrary additional JSON data associated with the event.',
-      type: 'object',
-      required: false
+      ...attribute,
+      description:
+        'Extra attributes associated with the event. [See more info](https://docs.talon.one/docs/product/account/dev-tools/managing-attributes).'
     }
   },
   perform: (request, { payload }) => {

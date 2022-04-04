@@ -25,8 +25,7 @@ const destination: DestinationDefinition<Settings> = {
         label: 'App ID',
         description:
           'The app identifier used to reference specific Apps in requests made to the Braze API. Created under Developer Console in the Braze Dashboard.',
-        type: 'string',
-        required: true
+        type: 'string'
       },
       endpoint: {
         label: 'REST Endpoint',
