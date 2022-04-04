@@ -29,15 +29,15 @@ const destination: DestinationDefinition<Settings> = {
         required: true,
         format: 'uri',
         choices: [
-          { label: 'US-EAST	(https://api.cordial.io)', value: 'https://api.cordial.io' },
-          { label: 'US-WEST	(https://api.usw2.cordial.io)', value: 'https://api.usw2.cordial.io' },
-          { label: 'Staging	(https://api.stg.cordialdev.com)', value: 'https://api.stg.cordialdev.com' }
+          { label: 'USW1	(https://integrations-ingest-svc.usw1.cordial.com)', value: 'https://integrations-ingest-svc.usw1.cordial.com' },
+          { label: 'USW2	(https://integrations-ingest-svc.usw2.cordial.com)', value: 'https://integrations-ingest-svc.usw2.cordial.com' },
+          { label: 'Staging	(https://integrations-ingest-svc.stg.cordialdev.com)', value: 'https://integrations-ingest-svc.stg.cordialdev.com' }
         ],
-        default: 'https://api.cordial.io'
+        default: 'https://integrations-ingest-svc.usw1.cordial.com'
       }
     },
     testAuthentication: (request, { settings }) => {
-      return request(settings.endpoint + '/v2/health')
+      return request(settings.endpoint + '/api/checkAuth')
     }
   },
 

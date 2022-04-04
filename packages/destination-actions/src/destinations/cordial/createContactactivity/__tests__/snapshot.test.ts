@@ -14,9 +14,7 @@ describe(`Testing snapshot for ${destinationSlug}'s ${actionSlug} destination ac
     const action = destination.actions[actionSlug]
     const [eventData, settingsData] = generateTestData(seedName, destination, action, true)
 
-    nock(/.*/).persist().get(/.*/).reply(200)
-    nock(/.*/).persist().post(/.*/).reply(200)
-    nock(/.*/).persist().put(/.*/).reply(200)
+    nock(/.*/).persist().post(/\/.*\/createContactactivity/).reply(200)
 
     const event = createTestEvent({
       properties: eventData
@@ -47,17 +45,22 @@ describe(`Testing snapshot for ${destinationSlug}'s ${actionSlug} destination ac
     const action = destination.actions[actionSlug]
     const [eventData, settingsData] = generateTestData(seedName, destination, action, false)
 
-    nock(/.*/).persist().get(/.*/).reply(200)
-    nock(/.*/).persist().post(/.*/).reply(200)
-    nock(/.*/).persist().put(/.*/).reply(200)
+    nock(/.*/).persist().post(/\/.*\/createContactactivity/).reply(200)
 
     const event = createTestEvent({
       properties: eventData
     })
 
+    const mapping = {
+      userIdentities: {'channels.email.address': 'contact@example.com'},
+      action: event.event,
+      time: event.sentAt,
+      properties: event.properties
+    }
+
     const responses = await testDestination.testAction(actionSlug, {
       event: event,
-      mapping: event.properties,
+      mapping: mapping,
       settings: settingsData,
       auth: undefined
     })

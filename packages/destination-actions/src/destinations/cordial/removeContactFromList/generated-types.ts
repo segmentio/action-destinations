@@ -2,19 +2,13 @@
 
 export interface Payload {
   /**
-   * Property key by which Cordial contact should be identified. May be any primary or secondary key (e.g. cID, email, segment_id etc.)
+   * Mapping to identify contact on Cordial side. Should be provided in form of cordialKey (path to the primary or secondary Cordial Contact key using dot notation) -> segmentValue. For example: channels.email.address -> userId or icfs.segmentId -> userId
    */
-  identifyByKey: string
-  /**
-   * Value for defined key
-   */
-  identifyByValue: string
+  userIdentities: {
+    [k: string]: unknown
+  }[]
   /**
    * Segment Group ID
    */
   groupId: string
-  /**
-   * Cordial List Name
-   */
-  listName?: string
 }

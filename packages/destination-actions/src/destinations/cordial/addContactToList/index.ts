@@ -2,15 +2,14 @@ import type { ActionDefinition } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 import CordialClient from '../cordial-client'
-import { getUserIdentifier } from '../user-identifier'
-import { commonFields } from '../common-fields'
+import { userIdentities } from '../user-identities'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Add Contact to List',
   description: 'Add Contact to Cordial List',
   defaultSubscription: 'type = "group"',
   fields: {
-    ...commonFields,
+    ...userIdentities,
     groupId: {
       label: 'Group ID',
       description: 'Segment Group ID',
@@ -25,19 +24,13 @@ const action: ActionDefinition<Settings, Payload> = {
       description: 'Cordial List Name',
       type: 'string',
       default: {
-        '@if': {
-          exists: { '@path': '$.traits.name' },
-          then: { '@path': '$.traits.name' },
-          else: { '@path': '$.groupId' }
-        }
+        '@path': '$.traits.name'
       }
     }
   },
   perform: async (request, { settings, payload }) => {
     const client = new CordialClient(settings, request)
-    const list = await client.upsertList(payload.groupId, payload.listName)
-    const userIdentifier = getUserIdentifier(payload.identifyByKey, payload.identifyByValue)
-    return client.addContactToList(userIdentifier, list)
+    return client.addContactToList(payload)
   }
 }
 

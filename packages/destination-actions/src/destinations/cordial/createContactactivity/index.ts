@@ -2,14 +2,14 @@ import type { ActionDefinition } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 import CordialClient from '../cordial-client'
-import { commonFields } from '../common-fields'
+import { userIdentities } from '../user-identities'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Create Contactactivity',
   description: "Create Cordial Contactactivity from Segment's track and page events",
   defaultSubscription: 'type = "track" or type = "page"',
   fields: {
-    ...commonFields,
+    ...userIdentities,
     action: {
       label: 'Event name',
       description: 'Segment event name',
