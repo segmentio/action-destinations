@@ -113,17 +113,62 @@ const action: ActionDefinition<Settings, Payload> = {
       description: 'Custom Fields to set on the Contact. Key should be Custom Field ID (`cf_xxxx`).',
       type: 'object',
       required: false
+    },
+    allow_creating_new_leads: {
+      label: 'Allow creating new Leads',
+      description: 'Whether the integration is allowed to create new Leads.',
+      type: 'boolean',
+      default: true
+    },
+    allow_updating_existing_leads: {
+      label: 'Allow creating new Leads',
+      description: 'Whether the integration is allowed to create new Leads.',
+      type: 'boolean',
+      default: true
+    },
+    allow_creating_new_contacts: {
+      label: 'Allow creating new Contacts',
+      description: 'Whether the integration is allowed to create new Contacts.',
+      type: 'boolean',
+      default: true
+    },
+    allow_updating_existing_contacts: {
+      label: 'Allow updating existing Contacts',
+      description: 'Whether the integration is allowed to update existing Contacts.',
+      type: 'boolean',
+      default: true
+    },
+    allow_creating_duplicate_contacts: {
+      label: 'Allow creating duplicate Contacts under different Lead',
+      description:
+        'Whether the integration is allowed to create duplicate Contact (same email or Contact User ID) under a different Lead (different Lead Company ID).',
+      type: 'boolean',
+      default: true
     }
   },
 
   perform: (request, data) => {
     const settings = {
       contact_custom_field_id_for_user_id: data.settings.contact_custom_field_id_for_user_id,
-      lead_custom_field_id_for_company_id: data.settings.lead_custom_field_id_for_company_id
+      lead_custom_field_id_for_company_id: data.settings.lead_custom_field_id_for_company_id,
+      allow_creating_new_leads: data.payload.allow_creating_new_leads,
+      allow_updating_existing_leads: data.payload.allow_updating_existing_leads,
+      allow_creating_new_contacts: data.payload.allow_creating_new_contacts,
+      allow_updating_existing_contacts: data.payload.allow_updating_existing_contacts,
+      allow_creating_duplicate_contacts: data.payload.allow_creating_duplicate_contacts
     }
+    const action_payload = { ...data.payload }
+    // Following fields are defined on action, but are sent as settings to
+    // Close API.
+    delete action_payload.allow_creating_new_leads
+    delete action_payload.allow_updating_existing_leads
+    delete action_payload.allow_creating_new_contacts
+    delete action_payload.allow_updating_existing_contacts
+    delete action_payload.allow_creating_duplicate_contacts
+
     return request('https://services.close.com/webhooks/segment/actions/create-update-contact-and-lead/', {
       method: 'post',
-      json: { action_payload: data.payload, settings }
+      json: { action_payload, settings }
     })
   }
 }

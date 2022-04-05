@@ -3,6 +3,15 @@ import type { RequestClient } from '@segment/actions-core'
 
 const BASE_API_URL = 'https://api.criteo.com/2022-01'
 
+class CriteoAPIError extends Error {
+    readonly error?: Record<string, string>
+
+    constructor(message: string, error?: Record<string, string>) {
+        super(message)
+        this.error = error
+    }
+}
+
 export type Operation = {
     operation_type: string,
     audience_id: string,
@@ -114,21 +123,57 @@ export const getAdvertiserAudiences = async (
     return body.data
 }
 
+export const getAudienceIdByName = async (
+    request: RequestClient,
+    advertiser_id: string,
+    audience_name: string,
+    credentials: ClientCredentials
+): Promise<string | undefined> => {
+    const advertiser_audiences = await getAdvertiserAudiences(request, advertiser_id, credentials)
+    for (const audience of advertiser_audiences) {
+        if (audience.attributes.name === audience_name)
+            return audience.id
+    }
+}
+
 export const getAudienceId = async (
     request: RequestClient,
     advertiser_id: string,
     audience_name: string,
     credentials: ClientCredentials
 ): Promise<string> => {
+    let audience_id = undefined
+
     if (!audience_name)
         throw new Error(`Invalid Audience Name: ${audience_name}`)
 
-    const advertiser_audiences = await getAdvertiserAudiences(request, advertiser_id, credentials)
-    for (const audience of advertiser_audiences) {
-        if (audience.attributes.name === audience_name)
-            return audience.id
+    // Loop through the advertiser's audiences. If the audience name is found, return the corresponding ID.
+    audience_id = await getAudienceIdByName(request, advertiser_id, audience_name, credentials)
+    if (audience_id) return audience_id
+
+    // If the audience is not found, create it
+    try {
+        return await createAudience(request, advertiser_id, audience_name, credentials)
     }
-    return await createAudience(request, advertiser_id, audience_name, credentials)
+    catch (e) {
+        if (e instanceof CriteoAPIError) {
+            // If the audience was created in the meantime
+            if (e.error && e.error.code === "invalid-audience-name-duplicated") {
+                // Return the audience ID from the error message
+                audience_id = e.error.detail.split(" ").pop()
+                if (audience_id && !isNaN(+audience_id)) return audience_id
+
+                // If no audience ID found in the error message, loop through the advertiser's audiences
+                audience_id = await getAudienceIdByName(request, advertiser_id, audience_name, credentials)
+                if (audience_id && !isNaN(+audience_id)) return audience_id
+
+            }
+        }
+
+        // If no audience ID was found
+        throw e
+    }
+
 }
 
 const delay = (ms: number) => new Promise((res) => setTimeout(res, ms))
@@ -178,13 +223,14 @@ export const createAudience = async (
     }
 
     const response = await request(
-        endpoint, { method: 'POST', headers: headers, json: payload }
+        endpoint, { method: 'POST', headers: headers, json: payload, throwHttpErrors: false }
     )
     const body = await response.json()
 
-    if (response.status !== 200)
-        throw new Error(`Error while fetching the Advertiser's audiences: ${JSON.stringify(body.errors)}`)
+    if (response.status !== 200) {
+        const err = body.errors && body.errors[0] ? body.errors[0] : undefined
+        throw new CriteoAPIError(`Error while creating the audience: ${JSON.stringify(body.errors)}`, err)
+    }
 
     return body.data.id
 }
-

@@ -26,6 +26,12 @@ const destination: DestinationDefinition<Settings> = {
           'The user specific instance URL returned by Salesforce Oauth. This setting is hidden to the user and set by Oauth Service.',
         type: 'string',
         required: true
+      },
+      isSandbox: {
+        label: 'Sandbox Instance',
+        description:
+          'Enable to authenticate into a sandbox instance. You can log in to a sandbox by appending the sandbox name to your Salesforce username. For example, if a username for a production org is user@acme.com and the sandbox is named test, the username to log in to the sandbox is user@acme.com.test.',
+        type: 'boolean'
       }
     },
     refreshAccessToken: async (request, { auth }) => {

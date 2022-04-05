@@ -66,8 +66,8 @@ describe('Talon.One - Update Customer Profile', () => {
         attributes: {
           testAttribute1: 'testValue'
         },
-        addAudienceIDs: [1, 2, 3],
-        deleteAudienceIDs: [4, 5, 6],
+        addAudienceIds: [1, 2, 3],
+        deleteAudienceIds: [4, 5, 6],
         runRuleEngine: true
       }
     })
