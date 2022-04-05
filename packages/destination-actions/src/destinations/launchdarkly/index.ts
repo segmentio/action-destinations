@@ -22,6 +22,7 @@ const destination: DestinationDefinition<Settings> = {
       }
     },
     testAuthentication: (request, { settings }) => {
+      // The sdk/goals/{clientID} endpoint returns a 200 if the client ID is valid and a 404 otherwise.
       return request(`https://clientsdk.launchdarkly.com/sdk/goals/${settings.client_id}`, { method: 'head' })
     }
   },
