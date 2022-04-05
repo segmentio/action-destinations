@@ -13,7 +13,7 @@ const destination: DestinationDefinition<Settings> = {
   mode: 'cloud',
 
   authentication: {
-    scheme: 'basic',
+    scheme: 'custom',
     fields: {
       apiKey: {
         label: 'API Key',
@@ -28,11 +28,6 @@ const destination: DestinationDefinition<Settings> = {
         type: 'string',
         required: true,
         format: 'uri',
-        choices: [
-          { label: 'USW1	(https://integrations-ingest-svc.usw1.cordial.com)', value: 'https://integrations-ingest-svc.usw1.cordial.com' },
-          { label: 'USW2	(https://integrations-ingest-svc.usw2.cordial.com)', value: 'https://integrations-ingest-svc.usw2.cordial.com' },
-          { label: 'Staging	(https://integrations-ingest-svc.stg.cordialdev.com)', value: 'https://integrations-ingest-svc.stg.cordialdev.com' }
-        ],
         default: 'https://integrations-ingest-svc.usw1.cordial.com'
       }
     },
@@ -42,7 +37,9 @@ const destination: DestinationDefinition<Settings> = {
   },
 
   extendRequest({ settings }) {
-    return { username: settings.apiKey }
+    return {
+      headers: { 'x-api-key': `${settings.apiKey}`, 'Accept': 'application/json' },
+    }
   },
 
   actions: {
