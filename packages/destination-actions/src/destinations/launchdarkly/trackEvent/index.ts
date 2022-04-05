@@ -3,6 +3,30 @@ import type { Settings } from '../generated-types'
 import { getEventsUrl, parseTimestamp } from '../utils'
 import type { Payload } from './generated-types'
 
+type LDCustomEvent = {
+  kind: 'custom'
+  key: string
+  user: {
+    key: string
+  }
+  metricValue?: number
+  data: { [k: string]: unknown }
+  creationDate: number
+}
+
+const convertPayloadToLDEvent = (payload: Payload): LDCustomEvent => {
+  return {
+    kind: 'custom',
+    key: payload.event_name,
+    user: {
+      key: payload.user_key
+    },
+    creationDate: parseTimestamp(payload.timestamp),
+    metricValue: payload.metric_value,
+    data: payload.event_properties ? payload.event_properties : {}
+  }
+}
+
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Track Event',
   description: 'Track custom user events for use in A/B tests and experimentation.',
@@ -66,30 +90,6 @@ const action: ActionDefinition<Settings, Payload> = {
       method: 'post',
       json: [event]
     })
-  }
-}
-
-type LDCustomEvent = {
-  kind: 'custom'
-  key: string
-  user: {
-    key: string
-  }
-  metricValue?: number
-  data: { [k: string]: unknown }
-  creationDate: number
-}
-
-const convertPayloadToLDEvent = (payload: Payload): LDCustomEvent => {
-  return {
-    kind: 'custom',
-    key: payload.event_name,
-    user: {
-      key: payload.user_key
-    },
-    creationDate: parseTimestamp(payload.timestamp),
-    metricValue: payload.metric_value,
-    data: payload.event_properties ? payload.event_properties : {}
   }
 }
 
