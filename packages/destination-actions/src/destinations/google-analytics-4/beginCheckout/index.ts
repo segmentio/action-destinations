@@ -1,6 +1,7 @@
 import { ActionDefinition, IntegrationError } from '@segment/actions-core'
 import { CURRENCY_ISO_CODES } from '../constants'
 import {
+  formatUserProperties,
   user_properties,
   params,
   coupon,
@@ -74,7 +75,8 @@ const action: ActionDefinition<Settings, Payload> = {
               ...payload.params
             }
           }
-        ]
+        ],
+        ...formatUserProperties(payload.user_properties)
       }
     })
   }

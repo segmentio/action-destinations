@@ -5,6 +5,7 @@ import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 import {
   user_id,
+  formatUserProperties,
   user_properties,
   client_id,
   currency,
@@ -103,7 +104,8 @@ const action: ActionDefinition<Settings, Payload> = {
               ...payload.params
             }
           }
-        ]
+        ],
+        ...formatUserProperties(payload.user_properties)
       }
     })
   }

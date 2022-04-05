@@ -15,6 +15,7 @@ import {
   tax,
   items_multi_products,
   params,
+  formatUserProperties,
   user_properties
 } from '../ga4-properties'
 
@@ -88,7 +89,8 @@ const action: ActionDefinition<Settings, Payload> = {
               ...payload.params
             }
           }
-        ]
+        ],
+        ...formatUserProperties(payload.user_properties)
       }
     })
   }

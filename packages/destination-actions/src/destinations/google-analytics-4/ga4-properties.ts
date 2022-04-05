@@ -1,5 +1,20 @@
 import { InputField } from '@segment/actions-core/src/destination-kit/types'
 
+export const formatUserProperties = (userProperties: object | undefined): object | undefined => {
+  if (!userProperties) {
+    return undefined
+  }
+
+  let properties = {}
+
+  Object.entries(userProperties).forEach(([key, value]) => {
+    properties = { ...properties, ...{ [key]: { value: value } } }
+  })
+
+  console.log('properties', { user_properties: properties })
+  return { user_properties: properties }
+}
+
 export const user_properties: InputField = {
   label: 'User Properties',
   description: 'User properties to send to Google Analytics',

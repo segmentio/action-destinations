@@ -1,7 +1,7 @@
 import type { ActionDefinition } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
-import { user_properties, params, client_id, user_id } from '../ga4-properties'
+import { formatUserProperties, user_properties, params, client_id, user_id } from '../ga4-properties'
 
 const normalizeEventName = (name: string, lowercase: boolean | undefined): string => {
   name = name.trim()
@@ -52,7 +52,8 @@ const action: ActionDefinition<Settings, Payload> = {
             name: event_name,
             params: payload.params
           }
-        ]
+        ],
+        ...formatUserProperties(payload.user_properties)
       }
     })
   }

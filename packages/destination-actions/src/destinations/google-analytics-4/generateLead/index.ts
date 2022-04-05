@@ -2,7 +2,7 @@ import { ActionDefinition, IntegrationError } from '@segment/actions-core'
 import { CURRENCY_ISO_CODES } from '../constants'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
-import { user_properties, params, client_id, user_id, currency, value } from '../ga4-properties'
+import { formatUserProperties, user_properties, params, client_id, user_id, currency, value } from '../ga4-properties'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Generate Lead',
@@ -40,7 +40,8 @@ const action: ActionDefinition<Settings, Payload> = {
               ...payload.params
             }
           }
-        ]
+        ],
+        ...formatUserProperties(payload.user_properties)
       }
     })
   }
