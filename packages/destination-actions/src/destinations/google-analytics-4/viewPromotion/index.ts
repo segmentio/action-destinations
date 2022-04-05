@@ -80,7 +80,7 @@ const action: ActionDefinition<Settings, Payload> = {
       })
     }
 
-    const res = await request('https://www.google-analytics.com/mp/collect', {
+    return request('https://www.google-analytics.com/mp/collect', {
       method: 'POST',
       json: {
         client_id: payload.client_id,
@@ -102,7 +102,6 @@ const action: ActionDefinition<Settings, Payload> = {
         ...formatUserProperties(payload.user_properties)
       }
     })
-    console.log('res', res)
   }
 }
 
