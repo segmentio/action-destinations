@@ -21,6 +21,11 @@ Object {
     "lead_status_id": "AY$s*K8XPu",
   },
   "settings": Object {
+    "allow_creating_duplicate_contacts": true,
+    "allow_creating_new_contacts": true,
+    "allow_creating_new_leads": true,
+    "allow_updating_existing_contacts": true,
+    "allow_updating_existing_leads": true,
     "contact_custom_field_id_for_user_id": "AY$s*K8XPu",
     "lead_custom_field_id_for_company_id": "AY$s*K8XPu",
   },
