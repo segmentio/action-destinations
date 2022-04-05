@@ -63,7 +63,7 @@ const action: ActionDefinition<Settings, Payload> = {
     params: params
   },
 
-  perform: async (request, { payload }) => {
+  perform: (request, { payload }) => {
     let googleItems: PromotionProductItem[] = []
 
     if (payload.items) {
