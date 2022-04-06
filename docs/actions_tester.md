@@ -4,7 +4,7 @@ This guide will cover how to use the actions tester interface while developing y
 
 ### Prerequesites
 
-Before beginning this guide, it is reccomended to have followed the steps in the [Creation Flow](./create.md)
+Before beginning this guide, it is recommended to have followed the steps in the [Creation Flow](./create.md)
 
 You will also need a valid account on the Segment app (free tier is fine) which can be created at https://app.segment.com
 
