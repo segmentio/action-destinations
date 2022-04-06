@@ -85,6 +85,8 @@ export default class PushBrowserDestinations extends Command {
       this.spinner.start(`Saving remote plugin for ${metadata.name}`)
       const entry = manifest[metadata.id]
 
+      const obfuscatedDestination = Buffer.from(entry.directory).toString('base64').replace(/=/g, '')
+
       const input = {
         metadataId: metadata.id,
         // The name of the remote plugin should match the creationName for consistency with our other systems,
@@ -93,18 +95,8 @@ export default class PushBrowserDestinations extends Command {
         // This MUST match the way webpack exports the libraryName in the umd bundle
         // TODO make this more automatic for consistency
         libraryName: `${entry.directory}Destination`,
-        url: `${path}/${entry.directory}/${webBundles()[entry.directory]}`
-      }
-
-      const obfuscatedDestination = Buffer.from(entry.directory).toString('base64').replace(/=/g, '')
-
-      const obfuscatedInput = {
-        metadataId: metadata.id,
-        name: metadata.name,
-        // This MUST match the way webpack exports the libraryName in the umd bundle
-        // TODO make this more automatic for consistency
-        libraryName: `${entry.directory}Destination`,
-        url: `${path}/${obfuscatedDestination}/${webBundles()[obfuscatedDestination]}`
+        url: `${path}/${entry.directory}/${webBundles()[entry.directory]}`,
+        obfuscatedUrl: `${path}/${obfuscatedDestination}/${webBundles()[obfuscatedDestination]}`
       }
 
       // We expect that each definition produces a single Remote Plugin bundle
@@ -119,9 +111,9 @@ export default class PushBrowserDestinations extends Command {
       }
 
       if (existingPlugin) {
-        pluginsToUpdate.push(input, obfuscatedInput)
+        pluginsToUpdate.push(input)
       } else {
-        pluginsToCreate.push(input, obfuscatedInput)
+        pluginsToCreate.push(input)
       }
     }
 
