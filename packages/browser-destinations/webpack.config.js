@@ -18,6 +18,15 @@ const entries = files.reduce((acc, current) => {
   }
 }, {})
 
+const entiresToObfuscatedNameMap = files.reduce((acc, current) => {
+  const [_dot, _src, _destinations, destination, ..._rest] = current.split('/')
+  const obfuscatedDestination = Buffer.from(destination).toString('base64').replace(/=/g, '');
+  return {
+    ...acc,
+    [obfuscatedDestination]: destination,
+  }
+}, {})
+
 const plugins = [new webpack.DefinePlugin({ 'process.env.ASSET_ENV': JSON.stringify(process.env.ASSET_ENV) })]
 if (isProd) {
   plugins.push(new CompressionPlugin())
@@ -42,7 +51,12 @@ module.exports = {
   mode: process.env.NODE_ENV || 'development',
   devtool: 'source-map',
   output: {
-    filename: process.env.NODE_ENV === 'development' ? '[name].js' : '[name]/[contenthash].js',
+    filename: (file) => {
+      if (entiresToObfuscatedNameMap[file.chunk.name]) {
+        return process.env.NODE_ENV === 'development' ? '[name].js' : '[name]/[name].js'
+      }
+      return process.env.NODE_ENV === 'development' ? '[name].js' : '[name]/[contenthash].js'
+    },
     path: path.resolve(__dirname, 'dist/web'),
     publicPath: 'auto', // Needed for customers using custom CDNs with analytics.js
     library: '[name]Destination',
