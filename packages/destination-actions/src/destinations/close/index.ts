@@ -47,7 +47,7 @@ const destination: DestinationDefinition<Settings> = {
       }
     },
     testAuthentication: (request) => {
-      return request(`https://api.close.com/api/v1/me/`)
+      return request(`https://api.close.com/api/v1/me/?_fields=id`)
     }
   },
 
