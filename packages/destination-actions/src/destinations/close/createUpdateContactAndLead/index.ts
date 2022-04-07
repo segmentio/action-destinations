@@ -121,8 +121,8 @@ const action: ActionDefinition<Settings, Payload> = {
       default: true
     },
     allow_updating_existing_leads: {
-      label: 'Allow creating new Leads',
-      description: 'Whether the integration is allowed to create new Leads.',
+      label: 'Allow updating existing Leads',
+      description: 'Whether the integration is allowed to update existing Leads.',
       type: 'boolean',
       default: true
     },
