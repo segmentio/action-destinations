@@ -1,8 +1,23 @@
-import type { DestinationDefinition } from '@segment/actions-core'
+import { defaultValues, DestinationDefinition, Subscription } from '@segment/actions-core'
 import type { Settings } from './generated-types'
 
 import aliasUser from './aliasUser'
 import trackEvent from './trackEvent'
+
+const presets: Subscription[] = [
+  {
+    name: 'Track Event',
+    subscribe: 'type = "track"',
+    partnerAction: 'trackEvent',
+    mapping: defaultValues(trackEvent.fields)
+  },
+  {
+    name: 'Alias User',
+    subscribe: 'type = "identify" or type = "alias"',
+    partnerAction: 'aliasUser',
+    mapping: defaultValues(aliasUser.fields)
+  }
+]
 
 const destination: DestinationDefinition<Settings> = {
   name: 'LaunchDarkly',
@@ -32,7 +47,7 @@ const destination: DestinationDefinition<Settings> = {
       headers: { 'User-Agent': 'SegmentDestination/2.0.0', 'Content-Type': 'application/json' }
     }
   },
-
+  presets,
   actions: {
     aliasUser,
     trackEvent
