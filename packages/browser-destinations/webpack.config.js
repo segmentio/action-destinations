@@ -52,7 +52,7 @@ module.exports = {
   devtool: 'source-map',
   output: {
     filename: (file) => {
-      if (entiresToObfuscatedNameMap[file.chunk.name]) {
+      if (entriesToObfuscatedNameMap[file.chunk.name]) {
         return process.env.NODE_ENV === 'development' ? '[name].js' : '[name]/[name].js'
       }
       return process.env.NODE_ENV === 'development' ? '[name].js' : '[name]/[contenthash].js'
