@@ -18,7 +18,7 @@ const entries = files.reduce((acc, current) => {
   }
 }, {})
 
-const entiresToObfuscatedNameMap = files.reduce((acc, current) => {
+const entriesToObfuscatedNameMap = files.reduce((acc, current) => {
   const [_dot, _src, _destinations, destination, ..._rest] = current.split('/')
   const obfuscatedDestination = Buffer.from(destination).toString('base64').replace(/=/g, '');
   return {
