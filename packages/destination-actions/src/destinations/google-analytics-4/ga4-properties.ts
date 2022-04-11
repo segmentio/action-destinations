@@ -16,7 +16,7 @@ export const formatUserProperties = (userProperties: object | undefined): object
 
 export const user_properties: InputField = {
   label: 'User Properties',
-  description: 'User properties to send to Google Analytics',
+  description: 'The user properties to send to Google Analytics 4. You must create user-scoped dimensions to ensure custom properties are picked up by Google. See Google’s [Custom user properties](https://support.google.com/analytics/answer/9269570) to learn how to set and register user properties. ',
   type: 'object',
   additionalProperties: true,
   defaultObjectUI: 'keyvalue'
