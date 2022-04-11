@@ -24,7 +24,7 @@ export const user_properties: InputField = {
 
 export const params: InputField = {
   label: 'Event Parameters',
-  description: 'The event parameters to send to Google',
+  description: 'The event parameters to send to Google Analytics 4.',
   type: 'object',
   additionalProperties: true,
   defaultObjectUI: 'keyvalue'
