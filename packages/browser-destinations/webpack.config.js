@@ -10,20 +10,9 @@ const isProd = process.env.NODE_ENV === 'production'
 
 const entries = files.reduce((acc, current) => {
   const [_dot, _src, _destinations, destination, ..._rest] = current.split('/')
-  const obfuscatedDestination = Buffer.from(destination).toString('base64').replace(/=/g, '');
   return {
     ...acc,
     [destination]: current,
-    [obfuscatedDestination]: current,
-  }
-}, {})
-
-const entriesToObfuscatedNameMap = files.reduce((acc, current) => {
-  const [_dot, _src, _destinations, destination, ..._rest] = current.split('/')
-  const obfuscatedDestination = Buffer.from(destination).toString('base64').replace(/=/g, '');
-  return {
-    ...acc,
-    [obfuscatedDestination]: destination,
   }
 }, {})
 
@@ -46,78 +35,91 @@ plugins.push(
   })
 )
 
-module.exports = {
-  entry: entries,
-  mode: process.env.NODE_ENV || 'development',
-  devtool: 'source-map',
-  output: {
-    filename: (file) => {
-      if (entriesToObfuscatedNameMap[file.chunk.name]) {
-        return process.env.NODE_ENV === 'development' ? '[name].js' : '[name]/[name].js'
-      }
-      return process.env.NODE_ENV === 'development' ? '[name].js' : '[name]/[contenthash].js'
+const outputTempalte = (options) => (
+  {
+    entry: entries,
+    mode: process.env.NODE_ENV || 'development',
+    devtool: 'source-map',
+    output: {
+      filename: options.filename,
+      path: path.resolve(__dirname, 'dist/web'),
+      publicPath: 'auto', // Needed for customers using custom CDNs with analytics.js
+      library: '[name]Destination',
+      libraryTarget: 'umd',
+      libraryExport: 'default'
     },
-    path: path.resolve(__dirname, 'dist/web'),
-    publicPath: 'auto', // Needed for customers using custom CDNs with analytics.js
-    library: '[name]Destination',
-    libraryTarget: 'umd',
-    libraryExport: 'default'
-  },
-  module: {
-    rules: [
-      {
-        test: /\.ts$/,
-        use: [
-          {
-            loader: 'ts-loader',
-            options: {
-              configFile: 'tsconfig.build.json',
-              projectReferences: true,
-              transpileOnly: true
+    module: {
+      rules: [
+        {
+          test: /\.ts$/,
+          use: [
+            {
+              loader: 'ts-loader',
+              options: {
+                configFile: 'tsconfig.build.json',
+                projectReferences: true,
+                transpileOnly: true
+              }
+            }
+          ]
+        }
+      ]
+    },
+    resolve: {
+      modules: [
+        // use current node_modules directory first (e.g. for tslib)
+        path.resolve(__dirname, 'node_modules'),
+        'node_modules'
+      ],
+      mainFields: ['exports', 'module', 'browser', 'main'],
+      extensions: ['.ts', '.js'],
+      fallback: {
+        vm: require.resolve('vm-browserify')
+      }
+    },
+    devServer: {
+      liveReload: true,
+      port: 9000,
+      static: {
+        directory: path.resolve(__dirname)
+      }
+    },
+    performance: {
+      hints: 'warning'
+    },
+    optimization: {
+      moduleIds: 'deterministic',
+      minimize: isProd,
+      minimizer: [
+        new TerserPlugin({
+          extractComments: false,
+          terserOptions: {
+            ecma: '2015',
+            mangle: true,
+            compress: true,
+            output: {
+              comments: false
             }
           }
-        ]
-      }
-    ]
-  },
-  resolve: {
-    modules: [
-      // use current node_modules directory first (e.g. for tslib)
-      path.resolve(__dirname, 'node_modules'),
-      'node_modules'
-    ],
-    mainFields: ['exports', 'module', 'browser', 'main'],
-    extensions: ['.ts', '.js'],
-    fallback: {
-      vm: require.resolve('vm-browserify')
-    }
-  },
-  devServer: {
-    liveReload: true,
-    port: 9000,
-    static: {
-      directory: path.resolve(__dirname)
-    }
-  },
-  performance: {
-    hints: 'warning'
-  },
-  optimization: {
-    moduleIds: 'deterministic',
-    minimize: isProd,
-    minimizer: [
-      new TerserPlugin({
-        extractComments: false,
-        terserOptions: {
-          ecma: '2015',
-          mangle: true,
-          compress: true,
-          output: {
-            comments: false
-          }
-        }
-      })
-    ]
-  },
-  plugins
+        })
+      ]
+    },
+    plugins
+  }
+)
+
+const unobfuscatedOutputOptions = {
+  filename: (file) => process.env.NODE_ENV === 'development' ? `${file.chunk.name}.js` : `${file.chunk.name}/[contenthash].js`
 }
+
+const obfuscatedOutputOptions = {
+  filename: (file) => {
+    const obfuscatedOutput = Buffer.from(file.chunk.name).toString('base64').replace(/=/g, '');
+    return process.env.NODE_ENV === 'development' ? `${obfuscatedOutput}.js` : `${obfuscatedOutput}/[contenthash].js`
+  }
+}
+
+const unobfuscatedOutput = outputTempalte(unobfuscatedOutputOptions)
+const obfuscatedOutput = outputTempalte(obfuscatedOutputOptions)
+
+module.exports = [unobfuscatedOutput, obfuscatedOutput]
