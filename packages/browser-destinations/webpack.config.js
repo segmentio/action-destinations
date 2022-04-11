@@ -35,7 +35,7 @@ plugins.push(
   })
 )
 
-const outputTempalte = (options) => (
+const outputTemplate = (options) => (
   {
     entry: entries,
     mode: process.env.NODE_ENV || 'development',
@@ -119,7 +119,7 @@ const obfuscatedOutputOptions = {
   }
 }
 
-const unobfuscatedOutput = outputTempalte(unobfuscatedOutputOptions)
-const obfuscatedOutput = outputTempalte(obfuscatedOutputOptions)
+const unobfuscatedOutput = outputTemplate(unobfuscatedOutputOptions)
+const obfuscatedOutput = outputTemplate(obfuscatedOutputOptions)
 
 module.exports = [unobfuscatedOutput, obfuscatedOutput]
