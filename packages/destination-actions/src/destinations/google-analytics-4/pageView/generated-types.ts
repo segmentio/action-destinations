@@ -18,13 +18,17 @@ export interface Payload {
    */
   page_referrer?: string
   /**
-   * User properties to send to Google Analytics
+   * The user properties to send to Google Analytics 4. You must create user-scoped dimensions to ensure custom properties are picked up by Google. See Google’s [Custom user properties](https://support.google.com/analytics/answer/9269570) to learn how to set and register user properties.
    */
   user_properties?: {
     [k: string]: unknown
   }
   /**
-   * The event parameters to send to Google
+   * The current page title
+   */
+  page_title?: string
+  /**
+   * The event parameters to send to Google Analytics 4.
    */
   params?: {
     [k: string]: unknown

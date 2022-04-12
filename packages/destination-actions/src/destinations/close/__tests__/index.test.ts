@@ -8,7 +8,7 @@ describe('Close', () => {
   describe('testAuthentication', () => {
     it('should validate valid api key', async () => {
       nock('https://api.close.com/')
-        .get('/api/v1/me/')
+        .get('/api/v1/me/?_fields=id')
         .matchHeader('Authorization', 'Basic YXBpX2tleWlkLmtleXNlY3JldDo=')
         .reply(200, {})
 
@@ -22,7 +22,7 @@ describe('Close', () => {
 
     it('should not validate invalid api key', async () => {
       nock('https://api.close.com/')
-        .get('/api/v1/me/')
+        .get('/api/v1/me/?_fields=id')
         .matchHeader('Authorization', 'Basic YXBpX2tleWlkLmtleXNlY3JldDo=')
         .reply(401, {
           error:

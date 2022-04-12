@@ -87,6 +87,9 @@ describe('GA4', () => {
           },
           page_location: {
             '@path': '$.properties.custom_url'
+          },
+          page_title: {
+            '@path': '$.properties.page_title'
           }
         },
         useDefaultMappings: true
@@ -163,7 +166,7 @@ describe('GA4', () => {
       `)
 
       expect(responses[0].options.body).toMatchInlineSnapshot(
-        `"{\\"client_id\\":\\"3456fff\\",\\"events\\":[{\\"name\\":\\"page_view\\",\\"params\\":{\\"page_location\\":\\"http://www.example.com/home\\",\\"page_referrer\\":\\"https://segment.com/academy/\\"}}]}"`
+        `"{\\"client_id\\":\\"3456fff\\",\\"events\\":[{\\"name\\":\\"page_view\\",\\"params\\":{\\"page_location\\":\\"http://www.example.com/home\\",\\"page_referrer\\":\\"https://segment.com/academy/\\",\\"page_title\\":\\"Analytics Academy\\"}}]}"`
       )
     })
   })

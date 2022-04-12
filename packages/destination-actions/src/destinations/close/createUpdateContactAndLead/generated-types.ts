@@ -58,7 +58,7 @@ export interface Payload {
    */
   allow_creating_new_leads?: boolean
   /**
-   * Whether the integration is allowed to create new Leads.
+   * Whether the integration is allowed to update existing Leads.
    */
   allow_updating_existing_leads?: boolean
   /**

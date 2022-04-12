@@ -47,7 +47,7 @@ Before continuing, please make sure to read our [Code of Conduct](./CODE_OF_COND
 3. To test your integration:
 
    - For cloud-mode destinations, follow these instructions: [Build & Test Cloud Destinations](./docs/testing.md).
-   - If you are building a device-mode destination, let us know and we will provide testing instructions.
+   - If you are building a device-mode destination, see the [browser-destinations README](./packages/browser-destinations/README.md).
 
 4. When you have questions, ask in the Segment Partners Slack workspace - use the **#dev-center-pilot** channel.
 
@@ -58,7 +58,7 @@ Before continuing, please make sure to read our [Code of Conduct](./CODE_OF_COND
    - When creating a PR, please include a description of the changes made and why. This will help during the code review process.
    - Verify that you have thoroughly tested your changes by selecting the appropriate checkboxes.
    - A Segment developer will review the PR. They may ask for changes to be completed before the PR can be merged. Once all changes are made, the Segment developer will approve the PR.
-   - _Note:_ When you submit a PR, the Segment team will be automatically notified. The turnover time for reviews may take up to 2-3 days.
+   - _Note:_ When you submit a PR, the Segment team will be automatically notified. The turnover time for reviews may take up to 2-3 business days.
 
 2. Your PR is merged!
    - Congratulations! Once your PR is merged by a Segment developer, they will deploy your changes and notify you when it’s publicly available. If the destination is in private beta, our folks at Segment will provide a link to access your destination. Once the destination is ready for general availability and has been approved, the destination will be visible from the catalog itself.

@@ -27,6 +27,14 @@ const action: ActionDefinition<Settings, Payload> = {
       }
     },
     user_properties: user_properties,
+    page_title: {
+      label: 'Page Title',
+      type: 'string',
+      description: 'The current page title',
+      default: {
+        '@path': '$.context.page.title'
+      }
+    },
     params: params
   },
   perform: (request, { payload }) => {
@@ -41,6 +49,7 @@ const action: ActionDefinition<Settings, Payload> = {
             params: {
               page_location: payload.page_location,
               page_referrer: payload.page_referrer,
+              page_title: payload.page_title,
               ...payload.params
             }
           }

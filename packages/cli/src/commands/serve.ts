@@ -7,7 +7,7 @@ import ora from 'ora'
 import path from 'path'
 import globby from 'globby'
 import { WebSocketServer } from 'ws'
-// import open from 'open'
+import open from 'open'
 
 export default class Serve extends Command {
   private spinner: ora.Ora = ora()
