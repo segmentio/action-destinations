@@ -21,7 +21,9 @@ class CordialClient {
         userIdentities: payload.userIdentities,
         action: payload.action,
         time: payload.time,
-        properties: payload.properties
+        properties: payload.properties,
+        context: payload.context,
+        type: payload.type
       }
     })
   }

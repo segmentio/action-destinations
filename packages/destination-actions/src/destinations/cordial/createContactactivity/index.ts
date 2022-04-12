@@ -39,7 +39,23 @@ const action: ActionDefinition<Settings, Payload> = {
       default: {
         '@path': '$.properties'
       }
-    }
+    },
+    context: {
+      label: 'Event context',
+      description: 'Event context. Leave as is.',
+      type: 'object',
+      default: {
+        '@path': '$.context'
+      }
+    },
+    type: {
+      label: 'Event type',
+      description: 'Event type. Leave as is.',
+      type: 'string',
+      default: {
+        '@path': '$.type'
+      }
+    },
   },
   perform: (request, { settings, payload }) => {
     const client = new CordialClient(settings, request)

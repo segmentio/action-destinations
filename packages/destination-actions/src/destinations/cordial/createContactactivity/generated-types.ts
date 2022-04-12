@@ -21,4 +21,14 @@ export interface Payload {
   properties?: {
     [k: string]: unknown
   }
+  /**
+   * Event context. Leave as is.
+   */
+  context?: {
+    [k: string]: unknown
+  }
+  /**
+   * Event type. Leave as is.
+   */
+  type?: string
 }
