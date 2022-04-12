@@ -292,14 +292,14 @@ const destination = {
       fields: {
         name: {
           label: 'Name',
-          description: "The person's name",
+          description: 'The person\'s name',
           type: 'string',
           default: { '@path': '$.traits.name' },
           required: true
         },
         email: {
           label: 'Email',
-          description: "The person's email address",
+          description: 'The person\'s email address',
           type: 'string',
           default: { '@path': '$.properties.email_address' }
         }
