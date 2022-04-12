@@ -2,21 +2,21 @@
 
 export interface Payload {
   /**
-   * Mapping to identify contact on Cordial side. Should be provided in form of cordialKey (path to the primary or secondary Cordial Contact key using dot notation) -> segmentValue. For example: channels.email.address -> userId or icfs.segmentId -> userId
+   * An ordered list of contact identifiers in Cordial. Each item in the list represents an identifier. For example, channels.email.address -> userId and/or customerId -> traits.customerId. At least one identifier should be valid otherwise the contact will not be identified and the request will be ignored.
    */
   userIdentities: {
     [k: string]: unknown
   }
   /**
-   * Segment event name
+   * Event name. Required.
    */
   action: string
   /**
-   * Segment event sentAt
+   * Event timestamp. Optional. Date format is ISO 8601 standard. If empty, the request upload time will be used.
    */
   time?: string | number
   /**
-   * Segment event properties
+   * An object of additional event attributes. Optional.
    */
   properties?: {
     [k: string]: unknown

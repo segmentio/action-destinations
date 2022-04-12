@@ -2,17 +2,22 @@ import type { ActionDefinition } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 import CordialClient from '../cordial-client'
-import { userIdentities } from '../user-identities'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Add Contact to List',
-  description: 'Add Contact to Cordial List',
+  description: 'Add contact to a list. If the list does not exist in Cordial it will be created.',
   defaultSubscription: 'type = "group"',
   fields: {
-    ...userIdentities,
+    userIdentities: {
+      label: 'User Identities',
+      description: 'An ordered list of contact identifiers in Cordial. Each item in the list represents an identifier. For example, channels.email.address -> userId and/or customerId -> traits.customerId. At least one identifier should be valid otherwise the contact will not be identified and the request will be ignored.',
+      type: 'object',
+      required: true,
+      defaultObjectUI: 'keyvalue:only'
+    },
     groupId: {
-      label: 'Group ID',
-      description: 'Segment Group ID',
+      label: 'groupId',
+      description: 'Segment group id. Required.',
       type: 'string',
       required: true,
       default: {
@@ -20,8 +25,8 @@ const action: ActionDefinition<Settings, Payload> = {
       }
     },
     listName: {
-      label: 'List Name',
-      description: 'Cordial List Name',
+      label: 'listName',
+      description: 'Cordial list name. Optional. If list name is empty, the name of the list will be set to segment_[groupId].',
       type: 'string',
       default: {
         '@path': '$.traits.name'
