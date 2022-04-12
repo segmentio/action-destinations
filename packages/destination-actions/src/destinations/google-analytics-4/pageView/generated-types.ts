@@ -18,6 +18,10 @@ export interface Payload {
    */
   page_referrer?: string
   /**
+   * The current page title
+   */
+  page_title?: string
+  /**
    * The event parameters to send to Google
    */
   params?: {

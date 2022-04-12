@@ -96,6 +96,17 @@ export default class PushBrowserDestinations extends Command {
         url: `${path}/${entry.directory}/${webBundles()[entry.directory]}`
       }
 
+      const obfuscatedDestination = Buffer.from(entry.directory).toString('base64').replace(/=/g, '')
+
+      const obfuscatedInput = {
+        metadataId: metadata.id,
+        name: metadata.name,
+        // This MUST match the way webpack exports the libraryName in the umd bundle
+        // TODO make this more automatic for consistency
+        libraryName: `${entry.directory}Destination`,
+        url: `${path}/${obfuscatedDestination}/${webBundles()[obfuscatedDestination]}`
+      }
+
       // We expect that each definition produces a single Remote Plugin bundle
       // `metadataId` is guaranteed to be unique
       const existingPlugin = remotePlugins.find((p) => p.metadataId === metadata.id)
@@ -108,9 +119,9 @@ export default class PushBrowserDestinations extends Command {
       }
 
       if (existingPlugin) {
-        pluginsToUpdate.push(input)
+        pluginsToUpdate.push(input, obfuscatedInput)
       } else {
-        pluginsToCreate.push(input)
+        pluginsToCreate.push(input, obfuscatedInput)
       }
     }
 

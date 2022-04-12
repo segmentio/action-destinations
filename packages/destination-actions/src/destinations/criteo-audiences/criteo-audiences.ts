@@ -223,7 +223,7 @@ export const createAudience = async (
     }
 
     const response = await request(
-        endpoint, { method: 'POST', headers: headers, json: payload }
+        endpoint, { method: 'POST', headers: headers, json: payload, throwHttpErrors: false }
     )
     const body = await response.json()
 
