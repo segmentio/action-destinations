@@ -14,16 +14,11 @@ describe('GA4', () => {
         .reply(201, {})
 
       const event = createTestEvent({
-        event: 'Add Payment Info',
+        event: 'Payment Info Entered',
         userId: 'abc123',
         anonymousId: 'anon-2134',
         type: 'track',
         properties: {
-          product_id: '12345abcde',
-          name: 'Quadruple Stack Oreos, 52 ct',
-          currency: 'USD',
-          price: 12.99,
-          quantity: 1,
           products: [
             {
               product_id: '12345abcde',
@@ -75,7 +70,7 @@ describe('GA4', () => {
       })
 
       expect(responses[0].options.body).toMatchInlineSnapshot(
-        `"{\\"client_id\\":\\"anon-2134\\",\\"events\\":[{\\"name\\":\\"add_payment_info\\",\\"params\\":{\\"currency\\":\\"USD\\",\\"items\\":[{\\"item_name\\":\\"Quadruple Stack Oreos, 52 ct\\",\\"item_id\\":\\"12345abcde\\",\\"currency\\":\\"USD\\",\\"price\\":12.99,\\"quantity\\":1}]}}],\\"user_properties\\":{\\"hello\\":{\\"value\\":\\"world\\"},\\"a\\":{\\"value\\":\\"1\\"},\\"b\\":{\\"value\\":\\"2\\"},\\"c\\":{\\"value\\":\\"3\\"}}}"`
+        `"{\\"client_id\\":\\"anon-2134\\",\\"events\\":[{\\"name\\":\\"add_payment_info\\",\\"params\\":{\\"items\\":[{\\"item_name\\":\\"Quadruple Stack Oreos, 52 ct\\",\\"item_id\\":\\"12345abcde\\",\\"currency\\":\\"USD\\",\\"price\\":12.99,\\"quantity\\":1}]}}],\\"user_properties\\":{\\"hello\\":{\\"value\\":\\"world\\"},\\"a\\":{\\"value\\":\\"1\\"},\\"b\\":{\\"value\\":\\"2\\"},\\"c\\":{\\"value\\":\\"3\\"}}}"`
       )
     })
 

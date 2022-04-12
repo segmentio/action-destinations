@@ -14,7 +14,7 @@ describe('GA4', () => {
         .reply(201, {})
 
       const event = createTestEvent({
-        event: 'Remove From Cart',
+        event: 'Product Removed',
         userId: 'abc123',
         anonymousId: 'anon-2134',
         type: 'track',

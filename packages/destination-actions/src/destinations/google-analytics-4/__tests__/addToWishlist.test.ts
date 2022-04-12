@@ -14,7 +14,7 @@ describe('GA4', () => {
         .reply(201, {})
 
       const event = createTestEvent({
-        event: 'Add to Wishlist',
+        event: 'Added to Wishlist',
         userId: 'abc123',
         anonymousId: 'anon-2134',
         type: 'track',
