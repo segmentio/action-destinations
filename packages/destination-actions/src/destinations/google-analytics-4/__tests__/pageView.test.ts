@@ -47,7 +47,7 @@ describe('GA4', () => {
       })
 
       expect(responses[0].options.body).toMatchInlineSnapshot(
-        `"{\\"client_id\\":\\"abc123\\",\\"events\\":[{\\"name\\":\\"page_view\\",\\"params\\":{\\"page_location\\":\\"https://segment.com/academy/\\"}}],\\"user_properties\\":{\\"hello\\":{\\"value\\":\\"world\\"},\\"a\\":{\\"value\\":\\"1\\"},\\"b\\":{\\"value\\":\\"2\\"},\\"c\\":{\\"value\\":\\"3\\"}}}"`
+        `"{\\"client_id\\":\\"abc123\\",\\"events\\":[{\\"name\\":\\"page_view\\",\\"params\\":{\\"page_location\\":\\"https://segment.com/academy/\\",\\"page_title\\":\\"Analytics Academy\\"}}],\\"user_properties\\":{\\"hello\\":{\\"value\\":\\"world\\"},\\"a\\":{\\"value\\":\\"1\\"},\\"b\\":{\\"value\\":\\"2\\"},\\"c\\":{\\"value\\":\\"3\\"}}}"`
       )
     })
 
