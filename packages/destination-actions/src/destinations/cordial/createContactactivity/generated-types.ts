@@ -6,7 +6,7 @@ export interface Payload {
    */
   userIdentities: {
     [k: string]: unknown
-  }[]
+  }
   /**
    * Segment event name
    */

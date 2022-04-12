@@ -6,7 +6,7 @@ export interface Payload {
    */
   userIdentities: {
     [k: string]: unknown
-  }[]
+  }
   /**
    * Contact Attributes mapping (atrribute_name_in_cordial -> trait_name_in_segment). Complex attribute types to be mapped via dot notation, e.g. geo_attribute.street_address -> address.street
    */
