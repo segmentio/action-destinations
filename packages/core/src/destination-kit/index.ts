@@ -175,9 +175,23 @@ export interface DecoratedResponse extends ModifiedResponse {
   options: AllRequestOptions
 }
 
+interface StatsClient {
+  observe: (metric: any) => any
+  _name(name: string): string
+  _tags(tags?: string[]): string[]
+  incr(name: string, value?: number, tags?: string[]): void
+  set(name: string, value: number, tags?: string[]): void
+  histogram(name: string, value?: number, tags?: string[]): void
+}
+interface StatsContext {
+  stats: StatsClient
+  tags: string[]
+}
+
 interface OnEventOptions {
   onTokenRefresh?: (tokens: RefreshAccessTokenResult) => void
   onComplete?: (stats: SubscriptionStats) => void
+  statsContext?: StatsContext
 }
 export class Destination<Settings = JSONObject> {
   readonly definition: DestinationDefinition<Settings>
@@ -438,6 +452,9 @@ export class Destination<Settings = JSONObject> {
         throw error
       }
 
+      // Collect a DataDog stat upon each failure with statusCode 401
+      options?.statsContext?.stats.incr('failed_attempt', 1, [...options?.statsContext?.tags, `status:${statusCode}`])
+
       const oauthSettings = getOAuth2Data(settings)
       const newTokens = await this.refreshAccessToken(destinationSettings, oauthSettings)
       if (!newTokens) {
@@ -480,6 +497,9 @@ export class Destination<Settings = JSONObject> {
       if (!(statusCode === 401 && this.authentication?.scheme === OAUTH2_SCHEME)) {
         throw error
       }
+
+      // Collect a DataDog stat upon each failure with statusCode 401
+      options?.statsContext?.stats.incr('failed_attempt', 1, [...options?.statsContext?.tags, `status:${statusCode}`])
 
       const oauthSettings = getOAuth2Data(settings)
       const newTokens = await this.refreshAccessToken(destinationSettings, oauthSettings)
