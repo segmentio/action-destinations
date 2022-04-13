@@ -7,6 +7,8 @@ import groupIdentifyUser from './groupIdentifyUser'
 import type { Settings } from './generated-types'
 import { getEndpointByRegion } from './regional-endpoints'
 
+import logPurchase from './logPurchase'
+
 /** used in the quick setup */
 const presets: DestinationDefinition['presets'] = [
   {
@@ -114,7 +116,8 @@ const destination: DestinationDefinition<Settings> = {
     logEvent,
     identifyUser,
     mapUser,
-    groupIdentifyUser
+    groupIdentifyUser,
+    logPurchase
   }
 }
 
