@@ -52,7 +52,8 @@ const destination: DestinationDefinition<Settings> = {
         })
       })
 
-      return { accessToken: res.data.access_token }
+      // Google returns expires_in as 3600 (60 minutes in seconds)
+      return { accessToken: res.data.access_token, expiresIn: res.data.expires_in }
     }
   },
   extendRequest({ settings, auth }) {
