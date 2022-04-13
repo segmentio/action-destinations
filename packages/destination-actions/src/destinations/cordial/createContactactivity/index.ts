@@ -21,7 +21,11 @@ const action: ActionDefinition<Settings, Payload> = {
       type: 'string',
       required: true,
       default: {
-        '@path': '$.event'
+        '@if': {
+          exists: { '@path': '$.event' },
+          then: { '@path': '$.event' },
+          else: 'pageView'
+        }
       }
     },
     time: {
@@ -42,18 +46,10 @@ const action: ActionDefinition<Settings, Payload> = {
     },
     context: {
       label: 'Event context',
-      description: 'Event context. Leave as is.',
+      description: 'Event context as it appears in Segment. Optional. We use context to capture event metadata like sender ip and device info.',
       type: 'object',
       default: {
         '@path': '$.context'
-      }
-    },
-    type: {
-      label: 'Event type',
-      description: 'Event type. Leave as is.',
-      type: 'string',
-      default: {
-        '@path': '$.type'
       }
     },
   },

@@ -22,13 +22,9 @@ export interface Payload {
     [k: string]: unknown
   }
   /**
-   * Event context. Leave as is.
+   * Event context as it appears in Segment. Optional. We use context to capture event metadata like sender ip and device info.
    */
   context?: {
     [k: string]: unknown
   }
-  /**
-   * Event type. Leave as is.
-   */
-  type?: string
 }
