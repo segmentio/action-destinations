@@ -4,7 +4,7 @@ import nock from 'nock'
 
 export const HEAP_TEST_ENV_ID = '1'
 
-export const createMocekdHeapJsSdk = (): HeapApi => {
+export const createMockedHeapJsSdk = (): HeapApi => {
   return {
     appid: HEAP_TEST_ENV_ID,
     config: {

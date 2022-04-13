@@ -14,8 +14,8 @@ declare global {
 
 // Switch from unknown to the partner SDK client types
 export const destination: BrowserDestinationDefinition<Settings, HeapApi> = {
-  name: 'Heap',
-  slug: 'heap',
+  name: 'Heap Web (Actions)',
+  slug: 'actions-heap-web',
   mode: 'device',
   presets: [
     {

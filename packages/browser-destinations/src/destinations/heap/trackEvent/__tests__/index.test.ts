@@ -1,7 +1,7 @@
 import { Analytics, Context } from '@segment/analytics-next'
 import heapDestination from '../../index'
 import {
-  createMocekdHeapJsSdk,
+  createMockedHeapJsSdk,
   HEAP_TEST_ENV_ID,
   mockHeapJsHttpRequest,
   trackEventSubscription
@@ -10,7 +10,7 @@ import {
 describe('#trackEvent', () => {
   it('sends events to heap', async () => {
     mockHeapJsHttpRequest()
-    window.heap = createMocekdHeapJsSdk()
+    window.heap = createMockedHeapJsSdk()
 
     const [event] = await heapDestination({ appId: HEAP_TEST_ENV_ID, subscriptions: [trackEventSubscription] })
 
