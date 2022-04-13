@@ -3,13 +3,17 @@ export type UserConfig = {
   secureCookie: boolean
 }
 
-interface UserProperties {
+type UserProperties = {
   [k: string]: unknown
 }
 
-export interface HeapApi {
+type EventProperties = {
+  [key: string]: unknown
+}
+
+export type HeapApi = {
   appid: string
-  track: (eventName: string, eventProperties: { [key: string]: unknown }, library: string) => void
+  track: (eventName: string, eventProperties: EventProperties, library: string) => void
   load: () => void
   config: UserConfig
   identify: (identity: string) => void
