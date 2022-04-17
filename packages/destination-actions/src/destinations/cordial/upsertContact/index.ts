@@ -20,9 +20,7 @@ const action: ActionDefinition<Settings, Payload> = {
       description: 'Contact attributes to update. Optional. Contact attributes must exist in Cordial prior to updating. Attributes that do not exist in Cordial will be ignored. Complex attribute types to be mapped via dot notation, for example, cordialPerson.first_name -> traits.segmentPerson.firstName, cordialPerson.last_name -> traits.segmentPerson.lastName. Segment trait address can be mapped directly to geo Cordial attribute: geo_cordial_attribute -> traits.address.',
       type: 'object',
       required: false,
-      default: {
-        '@path': '$.traits'
-      }
+      defaultObjectUI: 'keyvalue:only'
     }
   },
   perform: async (request, { settings, payload }) => {
