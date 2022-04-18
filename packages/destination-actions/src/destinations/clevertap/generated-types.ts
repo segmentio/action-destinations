@@ -2,15 +2,15 @@
 
 export interface Settings {
   /**
-   * Your CleverTap Account ID.
+   * CleverTap Account Id. This can be found under <a href="https://developer.clevertap.com/docs/authentication#getting-your-account-credentials" title="https://developer.clevertap.com/docs/authentication#getting-your-account-credentials">Settings Page</a>.
    */
   clevertapAccountId: string
   /**
-   * Your CleverTap Account Passcode.
+   * <p>CleverTap Passcode. This can be found under <a href="https://developer.clevertap.com/docs/authentication#getting-your-account-credentials" title="https://developer.clevertap.com/docs/authentication#getting-your-account-credentials">Settings Page</a>.
    */
   clevertapPasscode: string
   /**
-   * Your Clevertap REST endpoint. [See more details](https://docs.clevertap.com/docs)
+   * <p>Learn More about <a href="https://docs.clevertap.com/docs/build-segment-destination#set-up-segment-destination-action" title="https://docs.clevertap.com/docs/build-segment-destination#set-up-segment-destination-action">Account regions</a>.</p>
    */
   clevertapEndpoint: string
 }
