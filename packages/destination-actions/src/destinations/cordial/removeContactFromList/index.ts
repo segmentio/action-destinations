@@ -9,7 +9,8 @@ const action: ActionDefinition<Settings, Payload> = {
   fields: {
     userIdentities: {
       label: 'User Identities',
-      description: 'An ordered list of contact identifiers in Cordial. Each item in the list represents an identifier. For example, channels.email.address -> userId and/or customerId -> userId. At least one identifier should be valid otherwise the contact will not be identified and the request will be ignored.',
+      description:
+        'An ordered list of contact identifiers in Cordial. Each item in the list represents an identifier. For example, `channels.email.address -> userId` and/or `customerId -> userId`. At least one identifier should be valid otherwise the contact will not be identified and the request will be ignored.',
       type: 'object',
       required: true,
       defaultObjectUI: 'keyvalue:only'

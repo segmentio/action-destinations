@@ -10,7 +10,8 @@ const action: ActionDefinition<Settings, Payload> = {
   fields: {
     userIdentities: {
       label: 'User Identities',
-      description: 'An ordered list of contact identifiers in Cordial. Each item in the list represents an identifier. For example, channels.email.address -> userId and/or customerId -> traits.customerId. At least one identifier should be valid otherwise the contact will not be identified and the request will be ignored.',
+      description:
+        'An ordered list of contact identifiers in Cordial. Each item in the list represents an identifier. For example, `channels.email.address -> userId` and/or `customerId -> traits.customerId`. At least one identifier should be valid otherwise the contact will not be identified and the request will be ignored.',
       type: 'object',
       required: true,
       defaultObjectUI: 'keyvalue:only'
@@ -26,7 +27,8 @@ const action: ActionDefinition<Settings, Payload> = {
     },
     listName: {
       label: 'listName',
-      description: 'Cordial list name. Optional. If list name is empty, the name of the list will be set to segment_[groupId].',
+      description:
+        'Cordial list name. Optional. If list name is empty, the name of the list will be set to segment_[groupId].',
       type: 'string',
       default: {
         '@path': '$.traits.name'

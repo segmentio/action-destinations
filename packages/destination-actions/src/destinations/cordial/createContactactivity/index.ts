@@ -5,12 +5,13 @@ import CordialClient from '../cordial-client'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Create Contactactivity',
-  description: "Create a new contact activity.",
+  description: 'Create a new contact activity.',
   defaultSubscription: 'type = "track" or type = "page"',
   fields: {
     userIdentities: {
       label: 'User Identities',
-      description: 'An ordered list of contact identifiers in Cordial. Each item in the list represents an identifier. For example, channels.email.address -> userId and/or customerId -> traits.customerId. At least one identifier should be valid otherwise the contact will not be identified and the request will be ignored.',
+      description:
+        'An ordered list of contact identifiers in Cordial. Each item in the list represents an identifier. For example, `channels.email.address -> userId` and/or `customerId -> traits.customerId`. At least one identifier should be valid otherwise the contact will not be identified and the request will be ignored.',
       type: 'object',
       required: true,
       defaultObjectUI: 'keyvalue:only'
@@ -30,7 +31,8 @@ const action: ActionDefinition<Settings, Payload> = {
     },
     time: {
       label: 'Event timestamp',
-      description: 'Event timestamp. Optional. Date format is ISO 8601 standard. If empty, the request upload time will be used. ',
+      description:
+        'Event timestamp. Optional. Date format is ISO 8601 standard. If empty, the request upload time will be used. ',
       type: 'datetime',
       default: {
         '@path': '$.timestamp'
@@ -46,12 +48,13 @@ const action: ActionDefinition<Settings, Payload> = {
     },
     context: {
       label: 'Event context',
-      description: 'Event context as it appears in Segment. Optional. We use context to capture event metadata like sender ip and device info.',
+      description:
+        'Event context as it appears in Segment. Optional. We use context to capture event metadata like sender ip and device info.',
       type: 'object',
       default: {
         '@path': '$.context'
       }
-    },
+    }
   },
   perform: (request, { settings, payload }) => {
     const client = new CordialClient(settings, request)
