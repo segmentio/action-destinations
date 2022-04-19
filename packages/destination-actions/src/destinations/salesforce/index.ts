@@ -34,9 +34,10 @@ const destination: DestinationDefinition<Settings> = {
         type: 'boolean'
       }
     },
-    refreshAccessToken: async (request, { auth }) => {
+    refreshAccessToken: async (request, { auth, settings }) => {
       // Return a request that refreshes the access_token if the API supports it
-      const res = await request<RefreshTokenResponse>('https://login.salesforce.com/services/oauth2/token', {
+      const baseUrl = settings.isSandbox ? 'https://test.salesforce.com' : 'https://login.salesforce.com'
+      const res = await request<RefreshTokenResponse>(`${baseUrl}/services/oauth2/token`, {
         method: 'POST',
         body: new URLSearchParams({
           refresh_token: auth.refreshToken,

@@ -1,6 +1,15 @@
 import { ActionDefinition, IntegrationError } from '@segment/actions-core'
 import { CURRENCY_ISO_CODES } from '../constants'
-import { params, currency, value, user_id, client_id, items_multi_products } from '../ga4-properties'
+import {
+  formatUserProperties,
+  user_properties,
+  params,
+  currency,
+  value,
+  user_id,
+  client_id,
+  items_multi_products
+} from '../ga4-properties'
 import { ProductItem } from '../ga4-types'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
@@ -18,6 +27,7 @@ const action: ActionDefinition<Settings, Payload> = {
       ...items_multi_products,
       required: true
     },
+    user_properties: user_properties,
     params: params
   },
   perform: (request, { payload }) => {
@@ -73,7 +83,8 @@ const action: ActionDefinition<Settings, Payload> = {
               ...payload.params
             }
           }
-        ]
+        ],
+        ...formatUserProperties(payload.user_properties)
       }
     })
   }
