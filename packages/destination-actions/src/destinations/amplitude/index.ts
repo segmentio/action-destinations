@@ -2,20 +2,25 @@ import type { DestinationDefinition } from '@segment/actions-core'
 import { defaultValues } from '@segment/actions-core'
 import identifyUser from './identifyUser'
 import logEvent from './logEvent'
+import logPurchase from './logPurchase'
 import mapUser from './mapUser'
 import groupIdentifyUser from './groupIdentifyUser'
 import type { Settings } from './generated-types'
 import { getEndpointByRegion } from './regional-endpoints'
 
-import logPurchase from './logPurchase'
-
 /** used in the quick setup */
 const presets: DestinationDefinition['presets'] = [
   {
     name: 'Track Calls',
-    subscribe: 'type = "track"',
+    subscribe: 'type = "track" and event != "Order Completed"',
     partnerAction: 'logEvent',
     mapping: defaultValues(logEvent.fields)
+  },
+  {
+    name: 'Order Completed Calls',
+    subscribe: 'type = "track" and event = "Order Completed"',
+    partnerAction: 'logPurchase',
+    mapping: defaultValues(logPurchase.fields)
   },
   {
     name: 'Page Calls',
