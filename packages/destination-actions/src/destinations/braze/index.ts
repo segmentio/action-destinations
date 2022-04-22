@@ -48,8 +48,8 @@ const destination: DestinationDefinition<Settings> = {
       }
     }
   },
-  onDelete: async (request, { payload }) => {
-    return request('https://rest.iad-01.braze.com/users/delete', {
+  onDelete: async (request, { payload, settings }) => {
+    return request(`${settings.endpoint}/users/delete`, {
       method: 'post',
       json: {
         external_ids: [payload.userId]
