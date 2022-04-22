@@ -11,6 +11,12 @@ const action: ActionDefinition<Settings, Payload> = {
   fields: {
     operation: operation,
     traits: traits,
+    externalIdFieldName: {
+      label: 'External ID field name',
+      type: 'string',
+      required: true,
+      description: 'The name of the field that will be used to identify the account in Salesforce.'
+    },
     name: {
       label: 'Name',
       description: 'Name of the account. **This is required to create an account.**',
@@ -184,6 +190,15 @@ const action: ActionDefinition<Settings, Payload> = {
         throw new IntegrationError('Missing name value', 'Misconfigured required field', 400)
       }
       return await sf.upsertRecord(payload, 'Account')
+    }
+  },
+  performBatch: async (request, { settings, payload }) => {
+    const sf: Salesforce = new Salesforce(settings.instanceUrl, request)
+
+    if (payload[0].operation === 'bulkUpsert') {
+      console.log('routed correctly')
+
+      await sf.bulkUpsert(payload, 'Account', payload[0].externalIdFieldName)
     }
   }
 }

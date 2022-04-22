@@ -10,7 +10,8 @@ export const operation: InputField = {
   choices: [
     { label: 'Create', value: 'create' },
     { label: 'Update', value: 'update' },
-    { label: 'Upsert', value: 'upsert' }
+    { label: 'Upsert', value: 'upsert' },
+    { label: 'Bulk Upsert', value: 'bulkUpsert' }
   ]
 }
 

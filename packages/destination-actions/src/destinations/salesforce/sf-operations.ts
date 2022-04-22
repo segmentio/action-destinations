@@ -68,6 +68,80 @@ export default class Salesforce {
     return await this.baseUpdate(recordId, sobject, payload)
   }
 
+  bulkUpsert = async (payload: GenericPayload[], sobject: string, externalIdFieldName: string) => {
+    //1. create new job
+    const res = await this.createBulkJob(sobject, externalIdFieldName)
+    //console.log('job', res)
+    const jobId = res.data.id
+    console.log('jobId', jobId)
+    //2. upload csv of the data
+    const upload = await this.uploadBulkCSV(jobId)
+    console.log('upload', upload)
+    // //3. close job
+    const close = await this.closeBulkJob(jobId)
+    console.log('close', close)
+    //4. get results?
+    const status = await this.getJobStatus(jobId)
+    console.log('status', status)
+  }
+
+  private createBulkJob = async (sobject: string, externalIdFieldName: string) => {
+    const url = `${this.instanceUrl}services/data/${API_VERSION}/jobs/ingest`
+
+    return this.request(url, {
+      method: 'post',
+      json: {
+        object: sobject,
+        externalIdFieldName: externalIdFieldName,
+        contentType: 'CSV',
+        operation: 'upsert'
+      }
+    })
+  }
+
+  private uploadBulkCSV = async (jobId: string) => {
+    const url = `${this.instanceUrl}services/data/${API_VERSION}/jobs/ingest/${jobId}/batches`
+
+    return this.request(url, {
+      method: 'put',
+      headers: {
+        'Content-Type': 'text/csv',
+        Accept: 'application/json'
+      },
+      body: this.buildCSVData()
+    })
+  }
+
+  private closeBulkJob = async (jobId: string) => {
+    const url = `${this.instanceUrl}services/data/${API_VERSION}/jobs/ingest/${jobId}`
+
+    return this.request(url, {
+      method: 'patch',
+      json: {
+        state: 'UploadComplete'
+      }
+    })
+  }
+
+  private getJobStatus = async (jobId: string) => {
+    const url = `${this.instanceUrl}services/data/${API_VERSION}/jobs/ingest/${jobId}`
+
+    return this.request(url, {
+      method: 'get'
+    })
+  }
+
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  private buildCSVData = () => {
+    //harcode for poc account
+    return `
+   Name,Description,NumberOfEmployees,test__c
+   TestAccount1,Description of TestAccount1,30,"ab"
+   TestAccount2,Another description,40,"ac"
+   TestAccount3,Yet another description,50,"dc"
+   `
+  }
+
   private baseUpdate = async (recordId: string, sobject: string, payload: GenericPayload) => {
     const json = this.buildJSONData(payload, sobject)
 
