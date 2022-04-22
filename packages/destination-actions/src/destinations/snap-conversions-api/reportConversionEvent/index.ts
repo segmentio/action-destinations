@@ -7,7 +7,7 @@ const action: ActionDefinition<Settings, Payload> = {
   description: '',
   fields: {},
   perform: () => {
-    // request, data
+    //request, data
     // Make your partner api request here!
     // return request('https://example.com', {
     //   method: 'post',
