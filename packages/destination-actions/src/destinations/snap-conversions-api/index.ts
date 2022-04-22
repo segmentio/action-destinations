@@ -1,6 +1,8 @@
 import type { DestinationDefinition } from '@segment/actions-core'
 import type { Settings } from './generated-types'
 
+import reportConversionEvent from './reportConversionEvent'
+
 const destination: DestinationDefinition<Settings> = {
   name: 'Snap Conversions Api',
   slug: 'actions-snap-conversions',
@@ -43,7 +45,9 @@ const destination: DestinationDefinition<Settings> = {
     //   // implement this function and should remove it completely.
     // },
   },
-  actions: {}
+  actions: {
+    reportConversionEvent
+  }
 }
 
 export default destination
