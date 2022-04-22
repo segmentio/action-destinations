@@ -2,10 +2,6 @@
 
 export interface Payload {
   /**
-   * When enabled, track revenue with each product within the event. When disabled, track total revenue once for the event.
-   */
-  trackRevenuePerProduct?: boolean
-  /**
    * A readable ID specified by you. Must have a minimum length of 5 characters. Required unless device ID is present. **Note:** If you send a request with a user ID that is not in the Amplitude system yet, then the user tied to that ID will not be marked new until their first event.
    */
   user_id?: string | null
@@ -156,31 +152,6 @@ export interface Payload {
    */
   library?: string
   /**
-   * The list of products purchased.
-   */
-  products?: {
-    /**
-     * The price of the item purchased. Required for revenue data if the revenue field is not sent. You can use negative values to indicate refunds.
-     */
-    price?: number
-    /**
-     * The quantity of the item purchased. Defaults to 1 if not specified.
-     */
-    quantity?: number
-    /**
-     * Revenue = price * quantity. If you send all 3 fields of price, quantity, and revenue, then (price * quantity) will be used as the revenue value. You can use negative values to indicate refunds.
-     */
-    revenue?: number
-    /**
-     * An identifier for the item purchased. You must send a price and quantity or revenue with this field.
-     */
-    productId?: string
-    /**
-     * The type of revenue for the item purchased. You must send a price and quantity or revenue with this field.
-     */
-    revenueType?: string
-  }[]
-  /**
    * If true, events are sent to Amplitude's `batch` endpoint rather than their `httpapi` events endpoint. Enabling this setting may help reduce 429s – or throttling errors – from Amplitude. More information about Amplitude's throttling is available in [their docs](https://developers.amplitude.com/docs/batch-event-upload-api#429s-in-depth).
    */
   use_batch_endpoint?: boolean
@@ -210,4 +181,33 @@ export interface Payload {
    * Amplitude has a default minimum id lenght of 5 characters for user_id and device_id fields. This field allows the minimum to be overridden to allow shorter id lengths.
    */
   min_id_length?: number | null
+  /**
+   * When enabled, track revenue with each product within the event. When disabled, track total revenue once for the event.
+   */
+  trackRevenuePerProduct?: boolean
+  /**
+   * The list of products purchased.
+   */
+  products?: {
+    /**
+     * The price of the item purchased. Required for revenue data if the revenue field is not sent. You can use negative values to indicate refunds.
+     */
+    price?: number
+    /**
+     * The quantity of the item purchased. Defaults to 1 if not specified.
+     */
+    quantity?: number
+    /**
+     * Revenue = price * quantity. If you send all 3 fields of price, quantity, and revenue, then (price * quantity) will be used as the revenue value. You can use negative values to indicate refunds.
+     */
+    revenue?: number
+    /**
+     * An identifier for the item purchased. You must send a price and quantity or revenue with this field.
+     */
+    productId?: string
+    /**
+     * The type of revenue for the item purchased. You must send a price and quantity or revenue with this field.
+     */
+    revenueType?: string
+  }[]
 }
