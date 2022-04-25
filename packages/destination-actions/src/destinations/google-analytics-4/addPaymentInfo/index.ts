@@ -13,6 +13,7 @@ import {
   coupon,
   payment_type,
   items_multi_products,
+  engagement_time_msec,
   params
 } from '../ga4-properties'
 
@@ -32,6 +33,7 @@ const action: ActionDefinition<Settings, Payload> = {
       required: true
     },
     user_properties: user_properties,
+    engagement_time_msec: engagement_time_msec,
     params: params
   },
   perform: (request, { payload }) => {
