@@ -94,7 +94,7 @@ export default class Salesforce {
         object: sobject,
         externalIdFieldName: externalIdFieldName,
         contentType: 'CSV',
-        operation: 'upsert'
+        operation: 'insert'
       }
     })
   }
@@ -134,12 +134,10 @@ export default class Salesforce {
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   private buildCSVData = () => {
     //harcode for poc account
-    return `
-   Name,Description,NumberOfEmployees,test__c
-   TestAccount1,Description of TestAccount1,30,"ab"
-   TestAccount2,Another description,40,"ac"
-   TestAccount3,Yet another description,50,"dc"
-   `
+    return `Name,test__c
+   TestAccount1,ab
+   TestAccount2,ac
+   TestAccount3,dc`
   }
 
   private baseUpdate = async (recordId: string, sobject: string, payload: GenericPayload) => {
