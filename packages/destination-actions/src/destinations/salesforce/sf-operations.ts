@@ -94,7 +94,7 @@ export default class Salesforce {
         object: sobject,
         externalIdFieldName: externalIdFieldName,
         contentType: 'CSV',
-        operation: 'insert'
+        operation: 'upsert'
       }
     })
   }
@@ -135,9 +135,38 @@ export default class Salesforce {
   private buildCSVData = () => {
     //harcode for poc account
     return `Name,test__c
-   TestAccount1,ab
-   TestAccount2,ac
-   TestAccount3,dc`
+   TestAccount1,01
+   TestAccount2,02
+   TestAccount3,03
+   TestAccount4,04
+   TestAccount5,05
+   TestAccount6,06
+   TestAccount7,07
+   TestAccount8,08
+   TestAccount9,09
+   TestAccount10,0A
+   TestAccount11,0B
+   TestAccount12,0C
+   TestAccount13,0D
+   TestAccount14,0E
+   TestAccount15,0F
+   TestAccount16,10
+   TestAccount17,11
+   TestAccount18,12
+   TestAccount19,13
+   TestAccount20,14
+   TestAccount21,15
+   TestAccount22,16
+   TestAccount23,17
+   TestAccount24,18
+   TestAccount25,19
+   TestAccount26,1A
+   TestAccount27,1B
+   TestAccount28,1C
+   TestAccount29,1D
+   TestAccount30,1E
+   TestAccount31,1F
+   TestAccount32,20`
   }
 
   private baseUpdate = async (recordId: string, sobject: string, payload: GenericPayload) => {
