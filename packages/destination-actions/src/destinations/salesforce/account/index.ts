@@ -196,8 +196,6 @@ const action: ActionDefinition<Settings, Payload> = {
     const sf: Salesforce = new Salesforce(settings.instanceUrl, request)
 
     if (payload[0].operation === 'bulkUpsert') {
-      console.log('routed correctly')
-
       await sf.bulkUpsert(payload, 'Account', payload[0].externalIdFieldName)
     }
   }

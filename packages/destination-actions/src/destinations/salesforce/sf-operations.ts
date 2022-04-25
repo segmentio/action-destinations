@@ -71,18 +71,17 @@ export default class Salesforce {
   bulkUpsert = async (payload: GenericPayload[], sobject: string, externalIdFieldName: string) => {
     //1. create new job
     const res = await this.createBulkJob(sobject, externalIdFieldName)
-    //console.log('job', res)
+
     const jobId = res.data.id
     console.log('jobId', jobId)
     //2. upload csv of the data
-    const upload = await this.uploadBulkCSV(jobId)
-    console.log('upload', upload)
+    await this.uploadBulkCSV(jobId)
+
     // //3. close job
-    const close = await this.closeBulkJob(jobId)
-    console.log('close', close)
-    //4. get results?
-    const status = await this.getJobStatus(jobId)
-    console.log('status', status)
+    await this.closeBulkJob(jobId)
+
+    //4. get results
+    await this.getJobStatus(jobId)
   }
 
   private createBulkJob = async (sobject: string, externalIdFieldName: string) => {
