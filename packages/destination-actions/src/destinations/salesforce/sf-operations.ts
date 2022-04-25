@@ -132,40 +132,17 @@ export default class Salesforce {
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   private buildCSVData = () => {
-    //harcode for poc account
-    return `Name,test__c
-   TestAccount1,01
-   TestAccount2,02
-   TestAccount3,03
-   TestAccount4,04
-   TestAccount5,05
-   TestAccount6,06
-   TestAccount7,07
-   TestAccount8,08
-   TestAccount9,09
-   TestAccount10,0A
-   TestAccount11,0B
-   TestAccount12,0C
-   TestAccount13,0D
-   TestAccount14,0E
-   TestAccount15,0F
-   TestAccount16,10
-   TestAccount17,11
-   TestAccount18,12
-   TestAccount19,13
-   TestAccount20,14
-   TestAccount21,15
-   TestAccount22,16
-   TestAccount23,17
-   TestAccount24,18
-   TestAccount25,19
-   TestAccount26,1A
-   TestAccount27,1B
-   TestAccount28,1C
-   TestAccount29,1D
-   TestAccount30,1E
-   TestAccount31,1F
-   TestAccount32,20`
+    const NUMBER_OF_RECORDS = 1000000
+
+    let csv = 'Name,Description,test__c\n'
+
+    for (let i = 0; i < NUMBER_OF_RECORDS; i++) {
+      csv += `TestAccount${i},Description Number ${i},${i.toString(16).toUpperCase()}\n`
+    }
+
+    console.log('length', Buffer.byteLength(csv, 'utf8'))
+
+    return csv
   }
 
   private baseUpdate = async (recordId: string, sobject: string, payload: GenericPayload) => {
