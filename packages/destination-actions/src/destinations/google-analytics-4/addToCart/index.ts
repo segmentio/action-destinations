@@ -11,7 +11,8 @@ import {
   currency,
   client_id,
   items_single_products,
-  user_id
+  user_id,
+  engagement_time_msec
 } from '../ga4-properties'
 
 const action: ActionDefinition<Settings, Payload> = {
@@ -28,6 +29,7 @@ const action: ActionDefinition<Settings, Payload> = {
     },
     value: { ...value },
     user_properties: user_properties,
+    engagement_time_msec: engagement_time_msec,
     params: params
   },
   perform: (request, { payload }) => {

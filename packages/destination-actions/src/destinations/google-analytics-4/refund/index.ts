@@ -12,7 +12,8 @@ import {
   items_multi_products,
   params,
   formatUserProperties,
-  user_properties
+  user_properties,
+  engagement_time_msec
 } from '../ga4-properties'
 import { ProductItem } from '../ga4-types'
 import type { Settings } from '../generated-types'
@@ -40,6 +41,7 @@ const action: ActionDefinition<Settings, Payload> = {
       ...items_multi_products
     },
     user_properties: user_properties,
+    engagement_time_msec: engagement_time_msec,
     params: params
   },
   perform: (request, { payload }) => {
