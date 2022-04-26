@@ -14,7 +14,7 @@ describe('Talon.One - Update Attribute-Value pairs in customer profiles', () => 
         }
       })
     } catch (err) {
-      expect(err.message).toContain("The root value is missing the required field 'customerProfileId'.")
+      expect(err.message).toContain("The root value is missing the required field 'data'.")
     }
   })
 
@@ -26,12 +26,41 @@ describe('Talon.One - Update Attribute-Value pairs in customer profiles', () => 
           deployment: 'https://something.europe-west1.talon.one'
         },
         mapping: {
-          data: [],
-          mutualAttributes: [{ attributeName1: 'value' }, { attributeName2: 'value' }]
+          mutualAttributes: {
+            attributeName1: 'value',
+            attributeName2: 'value'
+          }
         }
       })
     } catch (err) {
-      expect(err.message).toContain("The root value is missing the required field 'customerProfileId'.")
+      expect(err.message).toContain("The root value is missing the required field 'data'.")
+    }
+  })
+
+  it('customer profile ID is missed', async () => {
+    try {
+      await testDestination.testAction('updateCustomerProfilesAttributes', {
+        settings: {
+          apiKey: 'some_api_key',
+          deployment: 'https://something.europe-west1.talon.one'
+        },
+        mapping: {
+          data: [
+            {
+              attributes: {
+                attributeName1: 'value',
+                attributeName2: 'value'
+              }
+            }
+          ],
+          mutualAttributes: {
+            attributeName1: 'value',
+            attributeName2: 'value'
+          }
+        }
+      })
+    } catch (err) {
+      expect(err.message).toContain("The value at /data/0 is missing the required field 'customerProfileId'.")
     }
   })
 
@@ -41,6 +70,13 @@ describe('Talon.One - Update Attribute-Value pairs in customer profiles', () => 
         data: [
           {
             customerProfileId: 'abc123',
+            attributes: {
+              attributeName1: 'value',
+              attributeName2: 'value'
+            }
+          },
+          {
+            customerProfileId: 'abc456',
             attributes: {
               attributeName1: 'value',
               attributeName2: 'value'
@@ -61,11 +97,22 @@ describe('Talon.One - Update Attribute-Value pairs in customer profiles', () => 
         deployment: 'https://something.europe-west1.talon.one'
       },
       mapping: {
-        customerProfileId: 'abc123',
-        attributes: {
-          attributeName1: 'value',
-          attributeName2: 'value'
-        },
+        data: [
+          {
+            customerProfileId: 'abc123',
+            attributes: {
+              attributeName1: 'value',
+              attributeName2: 'value'
+            }
+          },
+          {
+            customerProfileId: 'abc456',
+            attributes: {
+              attributeName1: 'value',
+              attributeName2: 'value'
+            }
+          }
+        ],
         mutualAttributes: {
           attributeName3: 'value'
         }
