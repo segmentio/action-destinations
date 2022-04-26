@@ -15,7 +15,7 @@ const action: ActionDefinition<Settings, Payload> = {
       defaultObjectUI: 'keyvalue:only'
     },
     groupId: {
-      label: 'groupId',
+      label: 'Group ID',
       description: 'Segment group id. Required.',
       type: 'string',
       required: true,

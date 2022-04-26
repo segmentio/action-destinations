@@ -16,7 +16,7 @@ const action: ActionDefinition<Settings, Payload> = {
       defaultObjectUI: 'keyvalue:only'
     },
     groupId: {
-      label: 'groupId',
+      label: 'Group ID',
       description: 'Segment group id. Required.',
       type: 'string',
       required: true,
@@ -25,7 +25,7 @@ const action: ActionDefinition<Settings, Payload> = {
       }
     },
     listName: {
-      label: 'listName',
+      label: 'List name',
       description: 'Cordial list name. Optional. If list name is empty, the name of the list will be set to segment_[groupId].',
       type: 'string',
       default: {
