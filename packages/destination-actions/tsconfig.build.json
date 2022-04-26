@@ -7,9 +7,5 @@
   },
   "exclude": ["**/__tests__/**/*.ts"],
   "include": ["src"],
-  "references": [
-    {
-      "path": "../core/tsconfig.build.json"
-    }
-  ]
+  "references": [{ "path": "../core/tsconfig.build.json" }]
 }
