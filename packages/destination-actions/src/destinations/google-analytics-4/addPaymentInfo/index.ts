@@ -103,6 +103,7 @@ const action: ActionDefinition<Settings, Payload> = {
               coupon: payload.coupon,
               payment_type: payload.payment_type,
               items: googleItems,
+              engagement_time_msec: payload.engagement_time_msec,
               ...payload.params
             }
           }

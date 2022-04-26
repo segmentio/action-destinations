@@ -88,6 +88,7 @@ const action: ActionDefinition<Settings, Payload> = {
               shipping: payload.shipping,
               value: payload.value,
               tax: payload.tax,
+              engagement_time_msec: payload.engagement_time_msec,
               ...payload.params
             }
           }

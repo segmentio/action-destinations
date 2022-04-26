@@ -47,6 +47,7 @@ const action: ActionDefinition<Settings, Payload> = {
             params: {
               currency: payload.currency,
               value: payload.value,
+              engagement_time_msec: payload.engagement_time_msec,
               ...payload.params
             }
           }

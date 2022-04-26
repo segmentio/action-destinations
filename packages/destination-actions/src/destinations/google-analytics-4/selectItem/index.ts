@@ -71,6 +71,7 @@ const action: ActionDefinition<Settings, Payload> = {
               items: googleItems,
               item_list_name: payload.item_list_name,
               item_list_id: payload.item_list_id,
+              engagement_time_msec: payload.engagement_time_msec,
               ...payload.params
             }
           }

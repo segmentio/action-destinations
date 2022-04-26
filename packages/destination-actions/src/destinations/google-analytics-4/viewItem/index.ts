@@ -81,6 +81,7 @@ const action: ActionDefinition<Settings, Payload> = {
               currency: payload.currency,
               items: googleItems,
               value: payload.value,
+              engagement_time_msec: payload.engagement_time_msec,
               ...payload.params
             }
           }

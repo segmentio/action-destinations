@@ -104,6 +104,7 @@ const action: ActionDefinition<Settings, Payload> = {
               shipping: payload.shipping,
               tax: payload.tax,
               items: googleItems,
+              engagement_time_msec: payload.engagement_time_msec,
               ...payload.params
             }
           }

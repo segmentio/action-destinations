@@ -41,6 +41,7 @@ const action: ActionDefinition<Settings, Payload> = {
             name: 'search',
             params: {
               search_term: payload.search_term,
+              engagement_time_msec: payload.engagement_time_msec,
               ...payload.params
             }
           }

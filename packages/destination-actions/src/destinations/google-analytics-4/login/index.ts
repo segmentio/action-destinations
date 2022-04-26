@@ -38,6 +38,7 @@ const action: ActionDefinition<Settings, Payload> = {
             name: 'login',
             params: {
               method: payload.method,
+              engagement_time_msec: payload.engagement_time_msec,
               ...payload.params
             }
           }

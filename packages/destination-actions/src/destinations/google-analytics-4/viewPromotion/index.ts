@@ -97,6 +97,7 @@ const action: ActionDefinition<Settings, Payload> = {
               promotion_id: payload.promotion_id,
               promotion_name: payload.promotion_name,
               items: googleItems,
+              engagement_time_msec: payload.engagement_time_msec,
               ...payload.params
             }
           }

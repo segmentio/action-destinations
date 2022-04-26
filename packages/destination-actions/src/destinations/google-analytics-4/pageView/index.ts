@@ -58,6 +58,7 @@ const action: ActionDefinition<Settings, Payload> = {
               page_location: payload.page_location,
               page_referrer: payload.page_referrer,
               page_title: payload.page_title,
+              engagement_time_msec: payload.engagement_time_msec,
               ...payload.params
             }
           }
