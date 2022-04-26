@@ -10,10 +10,10 @@ const destination: DestinationDefinition<Settings> = {
   name: 'Clevertap (Actions)',
   slug: 'actions-clevertap',
   mode: 'cloud',
-  description: 'CleverTap is a customer engagement and retention platform that provides the functionality to integrate app analytics and marketing. The platform helps customers increase user engagement in three ways:<br>' +
-    '* Tracks actions users are taking and analyzes how people use the product.<br>' +
-    '* [Segment](https://docs.clevertap.com/docs/segments) users based on their actions and run targeted [campaigns](https://docs.clevertap.com/docs/intro-to-campaigns) to these  segments.<br>' +
-    '* [Analyze](https://docs.clevertap.com/docs/intro-to-reports) each campaign to understand its effect on user engagement and business metrics',
+  description: 'CleverTap is a customer engagement and retention platform that provides the functionality to integrate app analytics and marketing. The platform helps customers increase user engagement in three ways:' +
+    ' 1) Tracks actions users are taking and analyzes how people use the product.' +
+    ' 2) [Segment](https://docs.clevertap.com/docs/segments) users based on their actions and run targeted [campaigns](https://docs.clevertap.com/docs/intro-to-campaigns) to these  segments.' +
+    ' 3) [Analyze](https://docs.clevertap.com/docs/intro-to-reports) each campaign to understand its effect on user engagement and business metrics',
   authentication: {
     scheme: 'custom',
     fields: {
