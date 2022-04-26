@@ -47,7 +47,7 @@ describe('GA4', () => {
       })
 
       expect(responses[0].options.body).toMatchInlineSnapshot(
-        `"{\\"client_id\\":\\"anon-2134\\",\\"events\\":[{\\"name\\":\\"select_item\\",\\"params\\":{\\"items\\":[{\\"item_id\\":\\"12345abcde\\",\\"item_name\\":\\"Quadruple Stack Oreos, 52 ct\\",\\"price\\":12.99,\\"quantity\\":1}]}}],\\"user_properties\\":{\\"hello\\":{\\"value\\":\\"world\\"},\\"a\\":{\\"value\\":\\"1\\"},\\"b\\":{\\"value\\":\\"2\\"},\\"c\\":{\\"value\\":\\"3\\"}}}"`
+        `"{\\"client_id\\":\\"anon-2134\\",\\"events\\":[{\\"name\\":\\"select_item\\",\\"params\\":{\\"items\\":[{\\"item_id\\":\\"12345abcde\\",\\"item_name\\":\\"Quadruple Stack Oreos, 52 ct\\",\\"price\\":12.99,\\"quantity\\":1}],\\"engagement_time_msec\\":1}}],\\"user_properties\\":{\\"hello\\":{\\"value\\":\\"world\\"},\\"a\\":{\\"value\\":\\"1\\"},\\"b\\":{\\"value\\":\\"2\\"},\\"c\\":{\\"value\\":\\"3\\"}}}"`
       )
     })
 
@@ -137,7 +137,7 @@ describe('GA4', () => {
       `)
 
       expect(responses[0].options.body).toMatchInlineSnapshot(
-        `"{\\"client_id\\":\\"anon-567890\\",\\"events\\":[{\\"name\\":\\"select_item\\",\\"params\\":{\\"items\\":[{\\"item_id\\":\\"507f1f77bcf86cd799439011\\",\\"item_name\\":\\"Monopoly: 3rd Edition\\",\\"item_category\\":\\"Games\\",\\"quantity\\":1,\\"coupon\\":\\"MAYDEALS\\",\\"index\\":3,\\"item_brand\\":\\"Hasbro\\",\\"item_variant\\":\\"200 pieces\\",\\"price\\":18.99}]}}]}"`
+        `"{\\"client_id\\":\\"anon-567890\\",\\"events\\":[{\\"name\\":\\"select_item\\",\\"params\\":{\\"items\\":[{\\"item_id\\":\\"507f1f77bcf86cd799439011\\",\\"item_name\\":\\"Monopoly: 3rd Edition\\",\\"item_category\\":\\"Games\\",\\"quantity\\":1,\\"coupon\\":\\"MAYDEALS\\",\\"index\\":3,\\"item_brand\\":\\"Hasbro\\",\\"item_variant\\":\\"200 pieces\\",\\"price\\":18.99}],\\"engagement_time_msec\\":1}}]}"`
       )
     })
 
@@ -191,7 +191,7 @@ describe('GA4', () => {
       `)
 
       expect(responses[0].options.body).toMatchInlineSnapshot(
-        `"{\\"client_id\\":\\"3456fff\\",\\"events\\":[{\\"name\\":\\"select_item\\",\\"params\\":{\\"items\\":[{\\"item_id\\":\\"5678fkj9087\\",\\"item_name\\":\\"Limited Edition T\\",\\"coupon\\":\\"SummerFest\\",\\"item_brand\\":\\"yeezy\\",\\"item_category\\":\\"Clothing\\",\\"item_variant\\":\\"Black\\",\\"price\\":8.99,\\"quantity\\":1}]}}]}"`
+        `"{\\"client_id\\":\\"3456fff\\",\\"events\\":[{\\"name\\":\\"select_item\\",\\"params\\":{\\"items\\":[{\\"item_id\\":\\"5678fkj9087\\",\\"item_name\\":\\"Limited Edition T\\",\\"coupon\\":\\"SummerFest\\",\\"item_brand\\":\\"yeezy\\",\\"item_category\\":\\"Clothing\\",\\"item_variant\\":\\"Black\\",\\"price\\":8.99,\\"quantity\\":1}],\\"engagement_time_msec\\":1}}]}"`
       )
     })
 
