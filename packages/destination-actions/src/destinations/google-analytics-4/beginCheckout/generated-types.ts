@@ -111,7 +111,7 @@ export interface Payload {
   /**
    * The amount of time a user interacted with your site, in milliseconds. Google only counts users who interact with your site for a non-zero amount of time. By default, Segment sets engagement time to 1 so users are counted.
    */
-  engagement_time_msec?: number & string
+  engagement_time_msec?: number
   /**
    * The event parameters to send to Google Analytics 4.
    */

@@ -75,6 +75,7 @@ describe('GA4', () => {
           client_id: {
             '@path': '$.userId'
           },
+          engagement_time_msec: 2,
           currency: {
             '@path': '$.properties.currency'
           },
@@ -101,7 +102,7 @@ describe('GA4', () => {
       `)
 
       expect(responses[0].options.body).toMatchInlineSnapshot(
-        `"{\\"client_id\\":\\"abc123\\",\\"events\\":[{\\"name\\":\\"generate_lead\\",\\"params\\":{\\"currency\\":\\"USD\\",\\"value\\":300}}]}"`
+        `"{\\"client_id\\":\\"abc123\\",\\"events\\":[{\\"name\\":\\"generate_lead\\",\\"params\\":{\\"currency\\":\\"USD\\",\\"value\\":300,\\"engagement_time_msec\\":2}}]}"`
       )
     })
 

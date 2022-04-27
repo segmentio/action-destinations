@@ -85,6 +85,7 @@ describe('GA4', () => {
           client_id: {
             '@path': '$.anonymousId'
           },
+          engagement_time_msec: 2,
           items: [
             {
               item_id: {
@@ -137,7 +138,7 @@ describe('GA4', () => {
       `)
 
       expect(responses[0].options.body).toMatchInlineSnapshot(
-        `"{\\"client_id\\":\\"anon-567890\\",\\"events\\":[{\\"name\\":\\"select_item\\",\\"params\\":{\\"items\\":[{\\"item_id\\":\\"507f1f77bcf86cd799439011\\",\\"item_name\\":\\"Monopoly: 3rd Edition\\",\\"item_category\\":\\"Games\\",\\"quantity\\":1,\\"coupon\\":\\"MAYDEALS\\",\\"index\\":3,\\"item_brand\\":\\"Hasbro\\",\\"item_variant\\":\\"200 pieces\\",\\"price\\":18.99}],\\"engagement_time_msec\\":1}}]}"`
+        `"{\\"client_id\\":\\"anon-567890\\",\\"events\\":[{\\"name\\":\\"select_item\\",\\"params\\":{\\"items\\":[{\\"item_id\\":\\"507f1f77bcf86cd799439011\\",\\"item_name\\":\\"Monopoly: 3rd Edition\\",\\"item_category\\":\\"Games\\",\\"quantity\\":1,\\"coupon\\":\\"MAYDEALS\\",\\"index\\":3,\\"item_brand\\":\\"Hasbro\\",\\"item_variant\\":\\"200 pieces\\",\\"price\\":18.99}],\\"engagement_time_msec\\":2}}]}"`
       )
     })
 

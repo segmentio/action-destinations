@@ -85,6 +85,7 @@ describe('GA4', () => {
           clientId: {
             '@path': '$.anonymousId'
           },
+          engagement_time_msec: 2,
           page_location: {
             '@path': '$.properties.custom_url'
           },
@@ -112,7 +113,7 @@ describe('GA4', () => {
       `)
 
       expect(responses[0].options.body).toMatchInlineSnapshot(
-        `"{\\"client_id\\":\\"anon-567890\\",\\"events\\":[{\\"name\\":\\"page_view\\",\\"params\\":{\\"page_location\\":\\"http://www.example.com/pageOne\\",\\"page_referrer\\":\\"https://segment.com/academy/\\",\\"engagement_time_msec\\":1}}]}"`
+        `"{\\"client_id\\":\\"anon-567890\\",\\"events\\":[{\\"name\\":\\"page_view\\",\\"params\\":{\\"page_location\\":\\"http://www.example.com/pageOne\\",\\"page_referrer\\":\\"https://segment.com/academy/\\",\\"engagement_time_msec\\":2}}]}"`
       )
     })
 

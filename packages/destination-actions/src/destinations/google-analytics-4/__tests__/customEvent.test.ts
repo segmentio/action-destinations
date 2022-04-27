@@ -186,6 +186,7 @@ describe('GA4', () => {
           clientId: {
             '@path': '$.anonymousId'
           },
+          engagement_time_msec: 2,
           name: 'this_is_a_test',
           params: {
             '@path': '$.properties.custom_props'
@@ -211,7 +212,7 @@ describe('GA4', () => {
       `)
 
       expect(responses[0].options.body).toMatchInlineSnapshot(
-        `"{\\"client_id\\":\\"anon-567890\\",\\"events\\":[{\\"name\\":\\"this_is_a_test\\",\\"params\\":{\\"order_id\\":\\"5678dd9087-78\\",\\"coupon\\":\\"SUMMER_FEST\\",\\"currency\\":\\"USD\\",\\"revenue\\":11.99,\\"total\\":15.99}}]}"`
+        `"{\\"client_id\\":\\"anon-567890\\",\\"events\\":[{\\"name\\":\\"this_is_a_test\\",\\"engagement_time_msec\\":2,\\"params\\":{\\"order_id\\":\\"5678dd9087-78\\",\\"coupon\\":\\"SUMMER_FEST\\",\\"currency\\":\\"USD\\",\\"revenue\\":11.99,\\"total\\":15.99}}]}"`
       )
     })
 

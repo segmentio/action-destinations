@@ -329,5 +329,5 @@ export const engagement_time_msec: InputField = {
   type: 'number',
   description:
     'The amount of time a user interacted with your site, in milliseconds. Google only counts users who interact with your site for a non-zero amount of time. By default, Segment sets engagement time to 1 so users are counted.',
-  default: '1'
+  default: 1
 }

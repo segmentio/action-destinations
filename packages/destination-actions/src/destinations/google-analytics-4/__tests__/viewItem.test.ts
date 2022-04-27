@@ -87,6 +87,7 @@ describe('GA4', () => {
           client_id: {
             '@path': '$.anonymousId'
           },
+          engagement_time_msec: 2,
           currency: {
             '@path': '$.properties.currency'
           },
@@ -121,7 +122,7 @@ describe('GA4', () => {
       `)
 
       expect(responses[0].options.body).toMatchInlineSnapshot(
-        `"{\\"client_id\\":\\"anon-567890\\",\\"events\\":[{\\"name\\":\\"view_item\\",\\"params\\":{\\"currency\\":\\"USD\\",\\"items\\":[{\\"item_id\\":\\"Monopoly: 3rd Edition\\"}],\\"value\\":18.99,\\"engagement_time_msec\\":1}}]}"`
+        `"{\\"client_id\\":\\"anon-567890\\",\\"events\\":[{\\"name\\":\\"view_item\\",\\"params\\":{\\"currency\\":\\"USD\\",\\"items\\":[{\\"item_id\\":\\"Monopoly: 3rd Edition\\"}],\\"value\\":18.99,\\"engagement_time_msec\\":2}}]}"`
       )
     })
 
