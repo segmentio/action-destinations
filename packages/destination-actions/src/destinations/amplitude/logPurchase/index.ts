@@ -4,7 +4,7 @@ import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 import { parseUserAgentProperties } from '../user-agent'
 import { AmplitudeEvent, doPerform } from '../logEvent'
-import { action as logEventAction } from '../logEvent'
+import { fields as logEventFields } from '../logEvent'
 
 interface EventRevenue {
   revenue?: number
@@ -59,13 +59,11 @@ function getEvents(payload: Payload, properties: AmplitudeEvent): AmplitudeEvent
 }
 
 const action: ActionDefinition<Settings, Payload> = {
-  //Start with the logEvent action and add revenue-specific properties
-  ...logEventAction,
   title: 'Log Purchase',
   description: 'Send an event to Amplitude.',
   defaultSubscription: 'type = "track" and event = "Order Completed"',
   fields: {
-    ...logEventAction.fields,
+    ...logEventFields,
     trackRevenuePerProduct: {
       label: 'Track Revenue Per Product',
       description:
