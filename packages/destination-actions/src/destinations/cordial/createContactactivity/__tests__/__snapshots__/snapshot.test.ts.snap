@@ -3,8 +3,35 @@
 exports[`Testing snapshot for Cordial's createContactactivity destination action: all fields 1`] = `
 Object {
   "action": "Test Event",
+  "context": Object {
+    "ip": "8.8.8.8",
+    "library": Object {
+      "name": "analytics.js",
+      "version": "2.11.1",
+    },
+    "locale": "en-US",
+    "location": Object {
+      "city": "San Francisco",
+      "country": "United States",
+      "latitude": 40.2964197,
+      "longitude": -76.9411617,
+      "speed": 0,
+    },
+    "page": Object {
+      "path": "/academy/",
+      "referrer": "",
+      "search": "",
+      "title": "Analytics Academy",
+      "url": "https://segment.com/academy/",
+    },
+    "timezone": "Europe/Amsterdam",
+    "userAgent": "Mozilla/5.0 (iPhone; CPU iPhone OS 9_1 like Mac OS X) AppleWebKit/601.1.46 (KHTML, like Gecko) Version/9.0 Mobile/13B143 Safari/601.1",
+  },
   "properties": Object {
     "action": "%!C)I@n7Uu54P",
+    "context": Object {
+      "testType": "%!C)I@n7Uu54P",
+    },
     "properties": Object {
       "testType": "%!C)I@n7Uu54P",
     },

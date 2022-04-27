@@ -68,6 +68,9 @@ describe(`Testing snapshot for ${destinationSlug}'s ${actionSlug} destination ac
       },
       properties: {
         '@path': '$.properties'
+      },
+      context: {
+        '@path': '$.context'
       }
     }
 
