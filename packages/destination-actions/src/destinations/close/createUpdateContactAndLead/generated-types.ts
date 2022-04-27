@@ -10,11 +10,11 @@ export interface Payload {
    */
   lead_external_id?: string
   /**
-   * Description of the Lead
+   * Description of the Lead.
    */
   lead_description?: string
   /**
-   * ID of the Lead Status (`stat_xxxx`). You can get it in Close in Statuses & Pipelines page.
+   * ID of the Lead Status (`stat_xxxx`). You can get it in Close in the Statuses & Pipelines page.
    */
   lead_status_id?: string
   /**
@@ -28,7 +28,7 @@ export interface Payload {
    */
   contact_name?: string
   /**
-   * Can be used for looking up the Contact. If the Contact already has different email address, this value will be appended.
+   * Used to lookup Contact if Contact User ID is not set. If the Contact already has different email address, this value will be appended.
    */
   contact_email?: string
   /**
