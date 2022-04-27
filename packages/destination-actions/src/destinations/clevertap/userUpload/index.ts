@@ -10,21 +10,21 @@ const action: ActionDefinition<Settings, Payload> = {
   description: 'The User Upload Action enables you to create or update user profiles in CleverTap.',
   fields: {
     ts: {
-      label: 'Timestamp',
+      label: 'Created At',
       type: 'string',
-      description: 'The timestamp of the event. If time is not sent with the event, it will be set to the request upload time.',
+      description: 'A timestamp when the person was created',
       default: {'@path': '$.timestamp'}
     },
     profileData: {
-      label: 'Profile Data',
+      label: 'Person Attributes',
       type: 'object',
-      description: 'Profile Data',
+      description: 'Optional attributes for the person. When updating a person attributes added or updated, not removed',
       default: {'@path': '$.properties'}
     },
     identity: {
       label: 'Identity',
       type: 'string',
-      description: 'Identity',
+      description: 'The Id used to uniquely identify a person in CleverTap',
       default: {'@path': '$.userId'},
       required: true
     },

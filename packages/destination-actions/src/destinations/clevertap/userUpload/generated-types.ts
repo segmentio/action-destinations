@@ -2,17 +2,17 @@
 
 export interface Payload {
   /**
-   * The timestamp of the event. If time is not sent with the event, it will be set to the request upload time.
+   * A timestamp when the person was created
    */
   ts?: string
   /**
-   * Profile Data
+   * Optional attributes for the person. When updating a person attributes added or updated, not removed
    */
   profileData?: {
     [k: string]: unknown
   }
   /**
-   * Identity
+   * The Id used to uniquely identify a person in CleverTap
    */
   identity: string
 }
