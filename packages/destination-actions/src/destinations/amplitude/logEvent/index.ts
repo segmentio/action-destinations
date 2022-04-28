@@ -9,7 +9,7 @@ import { convertReferrerProperty } from '../referrer'
 import { mergeUserProperties } from '../merge-user-properties'
 import { parseUserAgentProperties } from '../user-agent'
 import { getEndpointByRegion } from '../regional-endpoints'
-import { InputField } from '@segment/actions-core/dist/esm/destination-kit/types'
+import { InputField } from '@segment/actions-core'
 
 const revenueKeys = ['revenue', 'price', 'productId', 'quantity', 'revenueType']
 
