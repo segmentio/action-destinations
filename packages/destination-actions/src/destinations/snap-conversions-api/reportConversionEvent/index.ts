@@ -64,7 +64,6 @@ const action: ActionDefinition<Settings, Payload> = {
     let payload: Object = _.omitBy(formatPayload(data.payload), _.isNil)
 
     //Check to see what ids need to be passed depending on the event_conversion_type 
-
     if (data.payload.event_conversion_type === "MOBILE_APP") {
       payload.snap_app_id = data.settings.snap_app_id
       payload.app_id = data.settings.app_id
@@ -74,14 +73,19 @@ const action: ActionDefinition<Settings, Payload> = {
       payload.pixel_id = data.settings.pixel_id
     }
 
-    console.log(payload)
-    //request, data
-    // Make your partner api request here!
-    // return request('https://example.com', {
-    //   method: 'post',
-    //   json: data.payload
-    // })
-    return
+    //console.log(payload)
+
+    //Create Conversion Event Request
+    request('https://tr.snapchat.com/v2/conversion', {
+      method: 'post',
+      json: payload
+    })
+
+    //Validate Conversion Event Request 
+    return request('https://tr.snapchat.com/v2/conversion/validate', {
+      method: 'post',
+      json: payload
+    })
   }
 }
 
