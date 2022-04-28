@@ -2,7 +2,7 @@
 
 export interface Payload {
   /**
-   * Identity
+   * The ID used to uniquely identify a person in CleverTap
    */
   identity: string
 }

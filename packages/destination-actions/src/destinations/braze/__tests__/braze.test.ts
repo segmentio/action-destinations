@@ -217,5 +217,24 @@ describe(Braze.name, () => {
         expect(resp.data).toMatchObject({})
       }
     })
+
+    it('should support alternate endpoints for user deletions', async () => {
+      nock('https://rest.iad-06.braze.com').post('/users/delete').reply(200, {})
+      expect(testDestination.onDelete).toBeDefined()
+
+      if (testDestination.onDelete) {
+        const event = createTestEvent({
+          type: 'delete',
+          userId: 'sloth@segment.com'
+        })
+
+        const localSettings = { ...settings, endpoint: 'https://rest.iad-06.braze.com' }
+
+        const response = await testDestination.onDelete(event, localSettings)
+        const resp = response as DecoratedResponse
+        expect(resp.status).toBe(200)
+        expect(resp.data).toMatchObject({})
+      }
+    })
   })
 })

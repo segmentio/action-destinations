@@ -4,8 +4,10 @@ import type { Payload } from './generated-types'
 import { Adobe } from '../types'
 import { setMbox3rdPartyId, serializeProperties } from '../utils'
 
-// Adobe Target only takes certain event types as valid parameters. We are defaulting to "click".
-const TARGET_EVENT_TYPE = 'click'
+// Adobe Target only takes certain event types as valid parameters. We are defaulting to "display".
+// Beware of changing it since other event types drop the event properties from AT's audience builder.
+
+const TARGET_EVENT_TYPE = 'display'
 
 const action: BrowserActionDefinition<Settings, Adobe, Payload> = {
   title: 'Track Event',
