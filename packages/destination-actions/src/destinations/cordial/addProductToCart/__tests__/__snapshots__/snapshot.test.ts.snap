@@ -1,0 +1,34 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Testing snapshot for Cordial's addProductToCart destination action: all fields 1`] = `
+Object {
+  "category": "n%y8UQvAZo",
+  "description": "n%y8UQvAZo",
+  "imageUrl": "n%y8UQvAZo",
+  "itemPrice": -29721850523156.48,
+  "name": "n%y8UQvAZo",
+  "productID": "n%y8UQvAZo",
+  "properties": Object {
+    "testType": "n%y8UQvAZo",
+  },
+  "qty": -2972185052315648,
+  "sku": "n%y8UQvAZo",
+  "url": "n%y8UQvAZo",
+  "userIdentities": Object {
+    "testType": "n%y8UQvAZo",
+  },
+}
+`;
+
+exports[`Testing snapshot for Cordial's addProductToCart destination action: required fields 1`] = `
+Object {
+  "category": "n%y8UQvAZo",
+  "name": "n%y8UQvAZo",
+  "productID": "n%y8UQvAZo",
+  "qty": -2972185052315648,
+  "sku": "n%y8UQvAZo",
+  "userIdentities": Object {
+    "testType": "n%y8UQvAZo",
+  },
+}
+`;
