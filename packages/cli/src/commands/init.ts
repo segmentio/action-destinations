@@ -116,7 +116,7 @@ export default class Init extends Command {
 
     try {
       this.spinner.start(`Creating ${chalk.bold(name)}`)
-      renderTemplates(templatePath, targetDirectory, answers)
+      await renderTemplates(templatePath, targetDirectory, answers)
       this.spinner.succeed(`Scaffold integration`)
     } catch (err) {
       this.spinner.fail(`Scaffold integration: ${chalk.red(err.message)}`)
@@ -133,7 +133,7 @@ export default class Init extends Command {
 
     try {
       this.spinner.start(`Creating snapshot tests for ${chalk.bold(slug)} destination`)
-      renderTemplates(
+      await renderTemplates(
         snapshotPath,
         targetDirectory,
         {
