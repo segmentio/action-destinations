@@ -1,7 +1,7 @@
 import type { ActionDefinition } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
-import { params, user_id, client_id } from '../ga4-properties'
+import { formatUserProperties, user_properties, params, user_id, client_id } from '../ga4-properties'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Page View',
@@ -26,6 +26,15 @@ const action: ActionDefinition<Settings, Payload> = {
         '@path': '$.context.page.referrer'
       }
     },
+    user_properties: user_properties,
+    page_title: {
+      label: 'Page Title',
+      type: 'string',
+      description: 'The current page title',
+      default: {
+        '@path': '$.context.page.title'
+      }
+    },
     params: params
   },
   perform: (request, { payload }) => {
@@ -40,10 +49,12 @@ const action: ActionDefinition<Settings, Payload> = {
             params: {
               page_location: payload.page_location,
               page_referrer: payload.page_referrer,
+              page_title: payload.page_title,
               ...payload.params
             }
           }
-        ]
+        ],
+        ...formatUserProperties(payload.user_properties)
       }
     })
   }

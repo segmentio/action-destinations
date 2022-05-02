@@ -7,7 +7,7 @@ import ora from 'ora'
 import path from 'path'
 import globby from 'globby'
 import { WebSocketServer } from 'ws'
-// import open from 'open'
+import open from 'open'
 
 export default class Serve extends Command {
   private spinner: ora.Ora = ora()
@@ -137,8 +137,7 @@ export default class Serve extends Command {
     watcher.once('ready', () => {
       this.log(chalk.greenBright`Watching required files for changes .. `)
       this.log(chalk.greenBright`Visit https://app.segment.com/dev-center/actions-tester to preview your integration.`)
-      // commented out for now until the UI is in general availability
-      // void open('https://app.segment.com/dev-center/actions-tester')
+      void open('https://app.segment.com/dev-center/actions-tester')
     })
 
     start()

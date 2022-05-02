@@ -30,13 +30,14 @@ const destination: DestinationDefinition<Settings> = {
       isSandbox: {
         label: 'Sandbox Instance',
         description:
-          'Enable to authenticate into a sandbox instance. You can log in to a sandbox by appending the sandbox name to your Salesforce username. For example, if a username for a production org is user@acme.com and the sandbox is named test, the username to log in to the sandbox is user@acme.com.test.',
+          'Enable to authenticate into a sandbox instance. You can log in to a sandbox by appending the sandbox name to your Salesforce username. For example, if a username for a production org is user@acme.com and the sandbox is named test, the username to log in to the sandbox is user@acme.com.test. If you are already authenticated, please disconnect and reconnect with your sandbox username.',
         type: 'boolean'
       }
     },
-    refreshAccessToken: async (request, { auth }) => {
+    refreshAccessToken: async (request, { auth, settings }) => {
       // Return a request that refreshes the access_token if the API supports it
-      const res = await request<RefreshTokenResponse>('https://login.salesforce.com/services/oauth2/token', {
+      const baseUrl = settings.isSandbox ? 'https://test.salesforce.com' : 'https://login.salesforce.com'
+      const res = await request<RefreshTokenResponse>(`${baseUrl}/services/oauth2/token`, {
         method: 'POST',
         body: new URLSearchParams({
           refresh_token: auth.refreshToken,

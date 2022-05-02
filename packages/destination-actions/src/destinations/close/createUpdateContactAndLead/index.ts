@@ -5,14 +5,16 @@ import type { Payload } from './generated-types'
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Create or Update Contact and Lead',
   description:
-    'Create or Update Contact and/or Lead. At first Close will try to find ' +
+    'Create or Update Contact and/or Lead. At first, Close will try to find ' +
     'Lead via Lead Company ID. If Lead is not found, Close will try to find ' +
     'a Contact either via Contact User ID or via Contact Email. If Contact is ' +
     'not found, Close will create a new Lead and Contact. It will also create ' +
     'a new Lead and Contact if Contact is found but exists under a Lead with ' +
-    'different Lead Company ID. In case that Close finds find multiple ' +
-    'Contacts with the same Contact User ID or Contact Email, Close will ' +
-    'update up to 10 Contacts, ordered by creation date.',
+    'different Lead Company ID. If the Action does not specify Lead Company ' +
+    'ID, Close will update the Contact and also the Contact’s Lead. It might ' +
+    'happen that Close will find multiple Contacts with the same Contact User ' +
+    'ID or Contact Email. In such case, Close will update up to 10 Contacts, ' +
+    'ordered by creation date.',
   defaultSubscription: 'type = "identify"',
   fields: {
     lead_name: {
@@ -36,13 +38,13 @@ const action: ActionDefinition<Settings, Payload> = {
     },
     lead_description: {
       label: 'Lead Description',
-      description: 'Description of the Lead',
+      description: 'Description of the Lead.',
       type: 'string',
       required: false
     },
     lead_status_id: {
       label: 'Lead Status ID',
-      description: 'ID of the Lead Status (`stat_xxxx`). You can get it in Close in Statuses & Pipelines page.',
+      description: 'ID of the Lead Status (`stat_xxxx`). You can get it in Close in the Statuses & Pipelines page.',
       type: 'string',
       required: false
     },
@@ -64,7 +66,7 @@ const action: ActionDefinition<Settings, Payload> = {
     contact_email: {
       label: 'Contact Email',
       description:
-        'Can be used for looking up the Contact. If the Contact already has different email address, this value will be appended.',
+        'Used to lookup Contact if Contact User ID is not set. If the Contact already has different email address, this value will be appended.',
       type: 'string',
       required: false,
       default: {
@@ -121,8 +123,8 @@ const action: ActionDefinition<Settings, Payload> = {
       default: true
     },
     allow_updating_existing_leads: {
-      label: 'Allow creating new Leads',
-      description: 'Whether the integration is allowed to create new Leads.',
+      label: 'Allow updating existing Leads',
+      description: 'Whether the integration is allowed to update existing Leads.',
       type: 'boolean',
       default: true
     },

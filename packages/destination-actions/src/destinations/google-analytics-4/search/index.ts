@@ -1,7 +1,7 @@
 import type { ActionDefinition } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
-import { params, user_id, client_id } from '../ga4-properties'
+import { formatUserProperties, user_properties, params, user_id, client_id } from '../ga4-properties'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Search',
@@ -19,6 +19,7 @@ const action: ActionDefinition<Settings, Payload> = {
         '@path': `$.properties.query`
       }
     },
+    user_properties: user_properties,
     params: params
   },
   perform: (request, { payload }) => {
@@ -35,7 +36,8 @@ const action: ActionDefinition<Settings, Payload> = {
               ...payload.params
             }
           }
-        ]
+        ],
+        ...formatUserProperties(payload.user_properties)
       }
     })
   }
