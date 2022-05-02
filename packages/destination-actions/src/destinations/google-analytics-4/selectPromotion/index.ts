@@ -11,7 +11,8 @@ import {
   items_single_products,
   params,
   formatUserProperties,
-  user_properties
+  user_properties,
+  engagement_time_msec
 } from '../ga4-properties'
 import { PromotionProductItem } from '../ga4-types'
 import type { Settings } from '../generated-types'
@@ -52,6 +53,7 @@ const action: ActionDefinition<Settings, Payload> = {
       }
     },
     user_properties: user_properties,
+    engagement_time_msec: engagement_time_msec,
     params: params
   },
   perform: (request, { payload }) => {
@@ -98,6 +100,7 @@ const action: ActionDefinition<Settings, Payload> = {
               promotion_id: payload.promotion_id,
               promotion_name: payload.promotion_name,
               items: googleItems,
+              engagement_time_msec: payload.engagement_time_msec,
               ...payload.params
             }
           }
