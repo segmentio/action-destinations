@@ -83,7 +83,7 @@ These templates contain sections that you should edit to explain the following:
    - Breaking changes compared to a classic version of the destination (if applicable)
    - Migration steps (if applicable)
 
-To help you write your documentation, see examples of documentation for other destinations: [Slack (Actions) Destination] (https://segment.com/docs/connections/destinations/catalog/actions-slack/), [TikTok Conversions Destination] (https://segment.com/docs/connections/destinations/catalog/tiktok-conversions/).
+To help you write your documentation, see examples of documentation for other destinations: [Slack (Actions) Destination](https://segment.com/docs/connections/destinations/catalog/actions-slack/), [TikTok Conversions Destination](https://segment.com/docs/connections/destinations/catalog/tiktok-conversions/).
 
 2. Submit your documentation for review.
    - Create a fork of the [segmentio/segment-docs](https://github.com/segmentio/segment-docs) repository.
