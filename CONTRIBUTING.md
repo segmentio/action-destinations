@@ -62,6 +62,7 @@ Before continuing, please make sure to read our [Code of Conduct](./CODE_OF_COND
 
 2. Your PR is merged!
    - Congratulations! Once your PR is merged by a Segment developer, they will deploy your changes and notify you when it’s publicly available. If the destination is in private beta, our folks at Segment will provide a link to access your destination. Once the destination is ready for general availability and has been approved, the destination will be visible from the catalog itself.
+   - *Note*: we currently do weekly deploys on Wednesdays for all non-emergency changes. Changes should be approved and merged by Tuesday EOD to make the Wednesday release. Thank you!
 
 ## Write documentation
 
