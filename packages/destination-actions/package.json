@@ -31,6 +31,7 @@
     "typecheck": "tsc -p tsconfig.build.json --noEmit"
   },
   "devDependencies": {
+    "@types/express-session": "1.17.0",
     "@types/jest": "^27.0.0",
     "@types/mustache": "^4.1.2",
     "jest": "^27.3.1",
@@ -43,6 +44,8 @@
     "cheerio": "^1.0.0-rc.10",
     "dayjs": "^1.10.7",
     "escape-goat": "^3",
+    "express-session": "^1.17.2",
+    "googleapis": "^100.0.0",
     "lodash": "^4.17.21",
     "mustache": "^4.2.0"
   },

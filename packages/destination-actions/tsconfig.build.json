@@ -3,9 +3,14 @@
   "compilerOptions": {
     "composite": true,
     "rootDir": "src",
-    "outDir": "dist"
+    "outDir": "dist",
+    "sourceMap": true
   },
   "exclude": ["**/__tests__/**/*.ts"],
-  "include": ["src"],
-  "references": [{ "path": "../core/tsconfig.build.json" }]
+  "include": ["src", "src/**/*.json"],
+  "references": [
+    {
+      "path": "../core/tsconfig.build.json"
+    }
+  ]
 }

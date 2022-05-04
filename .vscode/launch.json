@@ -5,6 +5,15 @@
   "version": "0.2.0",
   "configurations": [
     {
+      "name": "Launch POC",
+      "program": "${workspaceFolder}/packages/destination-actions/src/destinations/google-sheets/poc/index.ts",
+      "request": "launch",
+      "skipFiles": ["<node_internals>/**"],
+      "preLaunchTask": "tsc: build - packages/destination-actions/tsconfig.build.json",
+      "outFiles": ["${workspaceFolder}/packages/destination-actions/dist/**/*.js"],
+      "type": "node"
+    },
+    {
       "type": "node",
       "request": "launch",
       "name": "Start dev server",
