@@ -20,10 +20,6 @@ export interface Payload {
     [k: string]: unknown
   }
   /**
-   * The name of the field that will be used to identify the account in Salesforce.
-   */
-  externalIdFieldName: string
-  /**
    * Name of the account. **This is required to create an account.**
    */
   name?: string
