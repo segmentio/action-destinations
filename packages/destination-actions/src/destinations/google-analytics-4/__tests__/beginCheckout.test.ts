@@ -69,7 +69,7 @@ describe('GA4', () => {
       })
 
       expect(responses[0].options.body).toMatchInlineSnapshot(
-        `"{\\"client_id\\":\\"anon-2134\\",\\"events\\":[{\\"name\\":\\"begin_checkout\\",\\"params\\":{\\"currency\\":\\"USD\\",\\"items\\":[{\\"item_name\\":\\"Monopoly: 3rd Edition\\",\\"item_category\\":\\"Games\\"}]}}],\\"user_properties\\":{\\"hello\\":{\\"value\\":\\"world\\"},\\"a\\":{\\"value\\":\\"1\\"},\\"b\\":{\\"value\\":\\"2\\"},\\"c\\":{\\"value\\":\\"3\\"}}}"`
+        `"{\\"client_id\\":\\"anon-2134\\",\\"events\\":[{\\"name\\":\\"begin_checkout\\",\\"params\\":{\\"currency\\":\\"USD\\",\\"items\\":[{\\"item_name\\":\\"Monopoly: 3rd Edition\\",\\"item_category\\":\\"Games\\"}],\\"engagement_time_msec\\":1}}],\\"user_properties\\":{\\"hello\\":{\\"value\\":\\"world\\"},\\"a\\":{\\"value\\":\\"1\\"},\\"b\\":{\\"value\\":\\"2\\"},\\"c\\":{\\"value\\":\\"3\\"}}}"`
       )
     })
 
@@ -116,6 +116,7 @@ describe('GA4', () => {
           client_id: {
             '@path': '$.anonymousId'
           },
+          engagement_time_msec: 2,
           coupon: {
             '@path': '$.properties.coupon'
           },
@@ -156,7 +157,7 @@ describe('GA4', () => {
       `)
 
       expect(responses[0].options.body).toMatchInlineSnapshot(
-        `"{\\"client_id\\":\\"anon-567890\\",\\"events\\":[{\\"name\\":\\"begin_checkout\\",\\"params\\":{\\"coupon\\":\\"hasbros\\",\\"currency\\":\\"USD\\",\\"items\\":[{\\"item_name\\":\\"Monopoly: 3rd Edition\\",\\"item_category\\":\\"Games\\"}],\\"value\\":25}}]}"`
+        `"{\\"client_id\\":\\"anon-567890\\",\\"events\\":[{\\"name\\":\\"begin_checkout\\",\\"params\\":{\\"coupon\\":\\"hasbros\\",\\"currency\\":\\"USD\\",\\"items\\":[{\\"item_name\\":\\"Monopoly: 3rd Edition\\",\\"item_category\\":\\"Games\\"}],\\"value\\":25,\\"engagement_time_msec\\":2}}]}"`
       )
     })
 
@@ -322,7 +323,7 @@ describe('GA4', () => {
       `)
 
       expect(responses[0].options.body).toMatchInlineSnapshot(
-        `"{\\"client_id\\":\\"3456fff\\",\\"events\\":[{\\"name\\":\\"begin_checkout\\",\\"params\\":{\\"coupon\\":\\"hasbros\\",\\"currency\\":\\"USD\\",\\"items\\":[{\\"item_id\\":\\"507f1f77bcf86cd799439011\\",\\"item_name\\":\\"Monopoly: 3rd Edition\\",\\"item_category\\":\\"Games\\",\\"price\\":19,\\"quantity\\":1}],\\"value\\":30}}]}"`
+        `"{\\"client_id\\":\\"3456fff\\",\\"events\\":[{\\"name\\":\\"begin_checkout\\",\\"params\\":{\\"coupon\\":\\"hasbros\\",\\"currency\\":\\"USD\\",\\"items\\":[{\\"item_id\\":\\"507f1f77bcf86cd799439011\\",\\"item_name\\":\\"Monopoly: 3rd Edition\\",\\"item_category\\":\\"Games\\",\\"price\\":19,\\"quantity\\":1}],\\"value\\":30,\\"engagement_time_msec\\":1}}]}"`
       )
     })
   })
