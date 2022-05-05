@@ -2,6 +2,7 @@ import nock from 'nock'
 import createRequestClient from '../../../../../core/src/create-request-client'
 import Salesforce from '../sf-operations'
 import { API_VERSION } from '../sf-operations'
+import type { GenericPayload } from '../sf-types'
 
 const settings = {
   instanceUrl: 'https://test.com/'
@@ -252,6 +253,66 @@ describe('Salesforce', () => {
           'Lead'
         )
       })
+    })
+  })
+
+  describe.only('Bulk Operations', () => {
+    const sf: Salesforce = new Salesforce(settings.instanceUrl, requestClient)
+
+    const bulkUpsertPayloads: GenericPayload[] = [
+      {
+        operation: 'bulkUpsert',
+        traits: {
+          externalIdFieldName: 'test__c'
+        },
+        name: 'SpongeBob Squarepants',
+        phone: '1234567890',
+        description: 'Krusty Krab'
+      },
+      {
+        operation: 'bulkUpsert',
+        traits: {
+          externalIdFieldName: 'test__c'
+        },
+        name: 'Squidward Tentacles',
+        phone: '1234567891',
+        description: 'Krusty Krab'
+      }
+    ]
+
+    it('should correctly upsert a batch of records', async () => {
+      //create bulk job
+      nock(`${settings.instanceUrl}services/data/${API_VERSION}/jobs/ingest`)
+        .post('/', {
+          object: 'Account',
+          externalIdFieldName: 'test__c',
+          operation: 'upsert',
+          contentType: 'CSV'
+        })
+        .reply(201, {
+          data: { id: 'abc123' }
+        })
+
+      const CSV = `"Name","Phone","Description","test__c"\n
+      "SpongeBob Squarepants","sponge@seamail.com","Krusty Krab","ab"\n
+      "Squidward Tentacles","squidward@bikini.edu","Krusty Krab","cd"\n"`
+
+      //upload csv
+      nock(`${settings.instanceUrl}services/data/${API_VERSION}/jobs/ingest/abc123/batches`, {
+        reqheaders: {
+          'Content-Type': 'text/csv',
+          Accept: 'application/json'
+        }
+      })
+        .put('/', CSV)
+        .reply(201)
+
+      //close bulk job
+      nock(`${settings.instanceUrl}services/data/${API_VERSION}/jobs/ingest/abc123`).patch('/', {
+        state: 'UploadComplete'
+      })
+
+      await sf.bulkUpsert(bulkUpsertPayloads, 'Account', 'test__c')
     })
   })
 })

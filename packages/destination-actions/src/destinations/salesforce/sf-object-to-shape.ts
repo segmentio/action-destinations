@@ -95,3 +95,13 @@ export const mapObjectToShape = (payload: GenericPayload, sobject: string): Gene
 
   return shapeFunction(payload)
 }
+
+// Our key names are in snake case, but Salesforce's field names are in camel case.
+// I.E. 'last_name' is our key, but 'LastName' is the Salesforce field name.
+export const snakeCaseToCamelCase = (key: string): string => {
+  const tokens = key.split('_')
+  tokens.forEach((token) => {
+    token.charAt(0).toUpperCase()
+  })
+  return tokens.join('')
+}

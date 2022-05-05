@@ -1,8 +1,13 @@
 import { IntegrationError, RequestClient } from '@segment/actions-core'
 import type { GenericPayload } from './sf-types'
-import { mapObjectToShape } from './sf-object-to-shape'
+import { mapObjectToShape, snakeCaseToCamelCase } from './sf-object-to-shape'
 
 export const API_VERSION = 'v53.0'
+const isSettingsKey = new Map<string, boolean>([
+  ['operation', true],
+  ['traits', true],
+  ['externalIdFieldName', true]
+])
 
 interface Records {
   Id?: string
@@ -12,6 +17,10 @@ interface LookupResponseData {
   Id?: string
   totalSize?: number
   records?: Records[]
+}
+
+interface CreateJobResponseData {
+  id: string
 }
 
 export default class Salesforce {
@@ -68,53 +77,60 @@ export default class Salesforce {
     return await this.baseUpdate(recordId, sobject, payload)
   }
 
-  bulkUpsert = async (payload: GenericPayload[], sobject: string, externalIdFieldName: string) => {
-    //1. create new job
-    const res = await this.createBulkJob(sobject, externalIdFieldName)
+  bulkUpsert = async (payloads: GenericPayload[], sobject: string, externalIdFieldName: string) => {
+    if (
+      !payloads[0].traits ||
+      Object.keys(payloads[0].traits).length === 0 ||
+      !payloads[0].traits['externalIdFieldName']
+    ) {
+      throw new IntegrationError(
+        'Undefined traits.externalIdFieldName when using bulkUpsert operation',
+        'Undefined traits.externalIdFieldName',
+        400
+      )
+    }
 
-    const jobId = res.data.id
-    console.log('jobId', jobId)
-    //2. upload csv of the data
-    await this.uploadBulkCSV(jobId)
+    const jobId = await this.createBulkJob(sobject, externalIdFieldName)
+    const csv = this.buildCSVData(payloads, externalIdFieldName)
 
-    // //3. close job
+    await this.uploadBulkCSV(jobId, csv)
     await this.closeBulkJob(jobId)
-
-    //4. get results
-    await this.getJobStatus(jobId)
   }
 
   private createBulkJob = async (sobject: string, externalIdFieldName: string) => {
-    const url = `${this.instanceUrl}services/data/${API_VERSION}/jobs/ingest`
-
-    return this.request(url, {
-      method: 'post',
-      json: {
-        object: sobject,
-        externalIdFieldName: externalIdFieldName,
-        contentType: 'CSV',
-        operation: 'upsert'
+    const res = await this.request<CreateJobResponseData>(
+      `${this.instanceUrl}services/data/${API_VERSION}/jobs/ingest`,
+      {
+        method: 'post',
+        json: {
+          object: sobject,
+          externalIdFieldName: externalIdFieldName,
+          contentType: 'CSV',
+          operation: 'upsert'
+        }
       }
-    })
+    )
+
+    if (!res || !res.data || !res.data.id) {
+      throw new IntegrationError('Failed to create bulk job', 'Failed to create bulk job', 500)
+    }
+
+    return res.data.id
   }
 
-  private uploadBulkCSV = async (jobId: string) => {
-    const url = `${this.instanceUrl}services/data/${API_VERSION}/jobs/ingest/${jobId}/batches`
-
-    return this.request(url, {
+  private uploadBulkCSV = async (jobId: string, csv: string) => {
+    return this.request(`${this.instanceUrl}services/data/${API_VERSION}/jobs/ingest/${jobId}/batches`, {
       method: 'put',
       headers: {
         'Content-Type': 'text/csv',
         Accept: 'application/json'
       },
-      body: this.buildCSVData()
+      body: csv
     })
   }
 
   private closeBulkJob = async (jobId: string) => {
-    const url = `${this.instanceUrl}services/data/${API_VERSION}/jobs/ingest/${jobId}`
-
-    return this.request(url, {
+    return this.request(`${this.instanceUrl}services/data/${API_VERSION}/jobs/ingest/${jobId}`, {
       method: 'patch',
       json: {
         state: 'UploadComplete'
@@ -122,27 +138,46 @@ export default class Salesforce {
     })
   }
 
-  private getJobStatus = async (jobId: string) => {
-    const url = `${this.instanceUrl}services/data/${API_VERSION}/jobs/ingest/${jobId}`
+  private buildCSVData = (payloads: GenericPayload[], externalIdFieldName: string): string => {
+    //1. build first row based on SF object fields mappings
+    //2. iterate over payload and construct each row
 
-    return this.request(url, {
-      method: 'get'
+    let headers = this.buildHeader(payloads, externalIdFieldName) + '\n'
+
+    payloads.forEach((payload) => {
+      headers += this.buildRow(payload) + '\n'
     })
+
+    return headers
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  private buildCSVData = () => {
-    const NUMBER_OF_RECORDS = 1000000
+  private buildRow = (payload: GenericPayload): string => {
+    let row = ''
 
-    let csv = 'Name,Description,test__c\n'
+    //iterate over the keys in payload that map to a SF object field
+    // Add each value to the row, separated by a comma
+    // The last value in the row should be the externalIDField value
 
-    for (let i = 0; i < NUMBER_OF_RECORDS; i++) {
-      csv += `TestAccount${i},Description Number ${i},${i.toString(16).toUpperCase()}\n`
-    }
+    Object.keys(payload).forEach((key) => {
+      if (!isSettingsKey.get(key)) {
+        row += `"${payload[key]}",`
+      }
+    })
+    row += `"${payload?.traits?.externalIdFieldName}"`
 
-    console.log('length', Buffer.byteLength(csv, 'utf8'))
+    return row
+  }
 
-    return csv
+  private buildHeader = (payloads: GenericPayload[], externalIdFieldName: string): string => {
+    let header = ''
+    Object.keys(payloads).forEach((key) => {
+      if (!isSettingsKey.get(key)) {
+        header += `"${snakeCaseToCamelCase(key)}",`
+      }
+    })
+    header += `"${externalIdFieldName}"`
+
+    return header
   }
 
   private baseUpdate = async (recordId: string, sobject: string, payload: GenericPayload) => {

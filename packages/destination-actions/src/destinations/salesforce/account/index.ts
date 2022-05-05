@@ -1,7 +1,14 @@
 import { ActionDefinition, IntegrationError } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import Salesforce from '../sf-operations'
-import { customFields, operation, traits, validateLookup } from '../sf-properties'
+import {
+  bulkUpdateRecordId,
+  bulkUpsertExternalId,
+  customFields,
+  operation,
+  traits,
+  validateLookup
+} from '../sf-properties'
 import type { Payload } from './generated-types'
 
 const action: ActionDefinition<Settings, Payload> = {
@@ -11,12 +18,8 @@ const action: ActionDefinition<Settings, Payload> = {
   fields: {
     operation: operation,
     traits: traits,
-    externalIdFieldName: {
-      label: 'External ID field name',
-      type: 'string',
-      required: true,
-      description: 'The name of the field that will be used to identify the account in Salesforce.'
-    },
+    bulkUpsertExternalId: bulkUpsertExternalId,
+    bulkUpdateRecordId: bulkUpdateRecordId,
     name: {
       label: 'Name',
       description: 'Name of the account. **This is required to create an account.**',
