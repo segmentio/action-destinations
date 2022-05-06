@@ -48,7 +48,11 @@ const action: ActionDefinition<Settings, Payload> = {
   },
   perform: (request, { payload }) => {
     if (!CURRENCY_ISO_CODES.includes(payload.currency)) {
-      throw new IntegrationError(`${payload.currency} is not a valid currency code.`, 400)
+      throw new IntegrationError(
+        `${payload.currency} is not a valid currency code.`,
+        'Misconfigured required field',
+        400
+      )
     }
 
     let googleItems: ProductItem[] = []
