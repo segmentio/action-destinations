@@ -222,9 +222,13 @@ function setupRoutes(def: DestinationDefinition | null): void {
           }
 
           if (Array.isArray(eventParams.data)) {
-            // We assume that the the first payload in the data array
-            // provided for testing contains all actions mappings
-            eventParams.mapping = eventParams.data[0] || {}
+            // If no mapping is provided default to using the first payload across all events.
+            if (!req.body.mapping) {
+              // We assume that the the first payload in the data array
+              // provided for testing contains all actions mappings
+              eventParams.mapping = eventParams.data[0] || {}
+            }
+
             await action.executeBatch(eventParams)
           } else {
             await action.execute(eventParams)

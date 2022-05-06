@@ -9,7 +9,8 @@ import {
   client_id,
   value,
   items_multi_products,
-  user_id
+  user_id,
+  engagement_time_msec
 } from '../ga4-properties'
 import { ProductItem } from '../ga4-types'
 import type { Settings } from '../generated-types'
@@ -32,6 +33,7 @@ const action: ActionDefinition<Settings, Payload> = {
     },
     value: { ...value },
     user_properties: user_properties,
+    engagement_time_msec: engagement_time_msec,
     params: params
   },
   perform: (request, { payload }) => {
@@ -72,6 +74,7 @@ const action: ActionDefinition<Settings, Payload> = {
               currency: payload.currency,
               items: googleItems,
               value: payload.value,
+              engagement_time_msec: payload.engagement_time_msec,
               ...payload.params
             }
           }

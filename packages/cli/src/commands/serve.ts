@@ -32,6 +32,10 @@ export default class Serve extends Command {
       char: 'b',
       description: 'destination actions directory',
       default: './packages/destination-actions/src/destinations'
+    }),
+    noActionsTester: flags.boolean({
+      char: 'n',
+      description: 'do not open actions tester'
     })
   }
 
@@ -81,13 +85,16 @@ export default class Serve extends Command {
 
     const DEFAULT_PORT = 3000
     const port = parseInt(process.env.PORT ?? '', 10) || DEFAULT_PORT
-    const wss = new WebSocketServer({ port: port + 1 })
 
-    wss.on('connection', function connection(ws) {
-      watcher.on('change', () => {
-        ws.send('change')
+    if (!flags.noActionsTester) {
+      const wss = new WebSocketServer({ port: port + 1 })
+
+      wss.on('connection', function connection(ws) {
+        watcher.on('change', () => {
+          ws.send('change')
+        })
       })
-    })
+    }
 
     const start = () => {
       child = fork(require.resolve('../lib/server.ts'), {
@@ -136,8 +143,13 @@ export default class Serve extends Command {
 
     watcher.once('ready', () => {
       this.log(chalk.greenBright`Watching required files for changes .. `)
-      this.log(chalk.greenBright`Visit https://app.segment.com/dev-center/actions-tester to preview your integration.`)
-      void open('https://app.segment.com/dev-center/actions-tester')
+
+      if (!flags.noActionsTester) {
+        this.log(
+          chalk.greenBright`Visit https://app.segment.com/dev-center/actions-tester to preview your integration.`
+        )
+        void open('https://app.segment.com/dev-center/actions-tester')
+      }
     })
 
     start()
