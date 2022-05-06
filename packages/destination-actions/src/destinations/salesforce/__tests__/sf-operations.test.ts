@@ -62,7 +62,7 @@ describe('Salesforce', () => {
     })
 
     it('should fail when a record is not found', async () => {
-      const query = encodeURIComponent(`SELECT Id FROM Lead WHERE email = 'sponge@seamail.com'`)
+      const query = encodeURIComponent(`SELECT Id FROM Lead WHERE account_number = '123456789'`)
       nock(`${settings.instanceUrl}services/data/${API_VERSION}/query`).get(`/?q=${query}`).reply(201, {
         totalSize: 0
       })
@@ -71,7 +71,7 @@ describe('Salesforce', () => {
         sf.updateRecord(
           {
             traits: {
-              email: 'sponge@seamail.com'
+              account_number: 123456789
             }
           },
           'Lead'
@@ -100,7 +100,7 @@ describe('Salesforce', () => {
     describe('upsert', () => {
       it('should create a new record when no records are found', async () => {
         const query = encodeURIComponent(
-          `SELECT Id FROM Lead WHERE email = 'sponge@seamail.com' OR company = 'Krusty Krab'`
+          `SELECT Id FROM Lead WHERE email = 'sponge@seamail.com' OR account_number = '123456789'`
         )
         nock(`${settings.instanceUrl}services/data/${API_VERSION}/query`).get(`/?q=${query}`).reply(201, {
           totalSize: 0
@@ -112,7 +112,7 @@ describe('Salesforce', () => {
           {
             traits: {
               email: 'sponge@seamail.com',
-              company: 'Krusty Krab'
+              account_number: 123456789
             },
             company: 'Krusty Krab LLC',
             last_name: 'Krabs'
@@ -201,7 +201,7 @@ describe('Salesforce', () => {
 
       it('should properly escape quotes in a record matcher', async () => {
         const query = encodeURIComponent(
-          `SELECT Id FROM Lead WHERE email = 'sponge@seamail.com' OR company = 'Krusty\\'s Krab'`
+          `SELECT Id FROM Lead WHERE email = 'sponge@seamail.com' OR company = 'Krusty\\'s Krab' OR account_number = '12345678'`
         )
         nock(`${settings.instanceUrl}services/data/${API_VERSION}/query`)
           .get(`/?q=${query}`)
@@ -217,7 +217,8 @@ describe('Salesforce', () => {
           {
             traits: {
               email: 'sponge@seamail.com',
-              company: "Krusty's Krab"
+              company: "Krusty's Krab",
+              account_number: 12345678
             },
             company: 'Krusty Krab LLC',
             last_name: 'Krabs'
