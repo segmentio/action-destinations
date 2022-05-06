@@ -100,8 +100,8 @@ export const mapObjectToShape = (payload: GenericPayload, sobject: string): Gene
 // I.E. 'last_name' is our key, but 'LastName' is the Salesforce field name.
 export const snakeCaseToCamelCase = (key: string): string => {
   const tokens = key.split('_')
-  tokens.forEach((token) => {
-    token.charAt(0).toUpperCase()
+  tokens.forEach((token, i, arr) => {
+    arr[i] = token.charAt(0).toUpperCase() + token.slice(1)
   })
   return tokens.join('')
 }

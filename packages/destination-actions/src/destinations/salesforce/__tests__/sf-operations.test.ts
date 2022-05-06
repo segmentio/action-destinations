@@ -263,7 +263,8 @@ describe('Salesforce', () => {
       {
         operation: 'bulkUpsert',
         traits: {
-          externalIdFieldName: 'test__c'
+          externalIdFieldName: 'test__c',
+          externalIdFieldValue: 'ab'
         },
         name: 'SpongeBob Squarepants',
         phone: '1234567890',
@@ -272,7 +273,8 @@ describe('Salesforce', () => {
       {
         operation: 'bulkUpsert',
         traits: {
-          externalIdFieldName: 'test__c'
+          externalIdFieldName: 'test__c',
+          externalIdFieldValue: 'cd'
         },
         name: 'Squidward Tentacles',
         phone: '1234567891',

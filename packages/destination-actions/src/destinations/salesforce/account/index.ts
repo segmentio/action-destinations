@@ -187,9 +187,11 @@ const action: ActionDefinition<Settings, Payload> = {
     }
   },
   performBatch: async (request, { settings, payload }) => {
+    console.log('performBatch')
     const sf: Salesforce = new Salesforce(settings.instanceUrl, request)
 
     if (payload[0].operation === 'bulkUpsert') {
+      console.log('bulk upsert account', payload)
       const externalIdFieldName = payload[0].traits?.externalIdFieldName as string
 
       await sf.bulkUpsert(payload, 'Account', externalIdFieldName)

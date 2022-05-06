@@ -81,17 +81,20 @@ export default class Salesforce {
     if (
       !payloads[0].traits ||
       Object.keys(payloads[0].traits).length === 0 ||
-      !payloads[0].traits['externalIdFieldName']
+      !payloads[0].traits['externalIdFieldName'] ||
+      !payloads[0].traits['externalIdFieldValue']
     ) {
       throw new IntegrationError(
-        'Undefined traits.externalIdFieldName when using bulkUpsert operation',
-        'Undefined traits.externalIdFieldName',
+        'Undefined traits.externalIdFieldName or externalIdFieldValue when using bulkUpsert operation',
+        'Undefined traits.externalIdFieldName externalIdFieldValue',
         400
       )
     }
 
     const jobId = await this.createBulkJob(sobject, externalIdFieldName)
+    console.log('jobId', jobId)
     const csv = this.buildCSVData(payloads, externalIdFieldName)
+    console.log('csv', csv)
 
     await this.uploadBulkCSV(jobId, csv)
     await this.closeBulkJob(jobId)
@@ -145,6 +148,7 @@ export default class Salesforce {
     let headers = this.buildHeader(payloads, externalIdFieldName) + '\n'
 
     payloads.forEach((payload) => {
+      console.log('payload', payload)
       headers += this.buildRow(payload) + '\n'
     })
 
@@ -163,14 +167,15 @@ export default class Salesforce {
         row += `"${payload[key]}",`
       }
     })
-    row += `"${payload?.traits?.externalIdFieldName}"`
+    row += `"${payload?.traits?.externalIdFieldValue}"`
 
     return row
   }
 
   private buildHeader = (payloads: GenericPayload[], externalIdFieldName: string): string => {
     let header = ''
-    Object.keys(payloads).forEach((key) => {
+    Object.keys(payloads[0]).forEach((key) => {
+      console.log('CSV: ', key)
       if (!isSettingsKey.get(key)) {
         header += `"${snakeCaseToCamelCase(key)}",`
       }
