@@ -93,7 +93,7 @@ export default class Salesforce {
   }
 
   // Salesforce SOQL spec requires any single quotes to be escaped.
-  private escapeQuotes = (value: string) => value.replace(/'/g, "\\'")
+  private escapeQuotes = (value: string) => value.toString().replace(/'/g, "\\'")
 
   // Salesforce field names should have only characters in {a-z, A-Z, 0-9, _}.
   private removeInvalidChars = (value: string) => value.replace(/[^a-zA-Z0-9_]/g, '')
