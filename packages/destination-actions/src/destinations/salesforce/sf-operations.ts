@@ -162,9 +162,9 @@ export default class Salesforce {
     // Add each value to the row, separated by a comma
     // The last value in the row should be the externalIDField value
 
-    Object.keys(payload).forEach((key) => {
+    Object.entries(payload).forEach(([key, value]) => {
       if (!isSettingsKey.get(key)) {
-        row += `"${payload[key]}",`
+        row += `"${value}",`
       }
     })
     row += `"${payload?.traits?.externalIdFieldValue}"`
