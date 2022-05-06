@@ -48,7 +48,7 @@ const action: ActionDefinition<Settings, Payload> = {
   },
   perform: (request, { payload }) => {
     if (!CURRENCY_ISO_CODES.includes(payload.currency)) {
-      throw new Error(`${payload.currency} is not a valid currency code.`)
+      throw new IntegrationError(`${payload.currency} is not a valid currency code.`, 400)
     }
 
     let googleItems: ProductItem[] = []
