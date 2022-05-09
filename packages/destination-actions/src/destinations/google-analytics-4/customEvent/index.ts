@@ -58,7 +58,10 @@ const action: ActionDefinition<Settings, Payload> = {
         events: [
           {
             name: event_name,
-            params: payload.params
+            params: {
+              engagement_time_msec: payload.engagement_time_msec,
+              ...payload.params
+            }
           }
         ],
         ...formatUserProperties(payload.user_properties)
