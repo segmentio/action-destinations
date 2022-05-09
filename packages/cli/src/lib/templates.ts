@@ -1,15 +1,13 @@
 import fs from 'fs-extra'
 import globby from 'globby'
-import { Liquid as LiquidJs } from 'liquidjs'
+import Mustache from 'mustache'
 import path from 'path'
 
-const Liquid = new LiquidJs()
-
-export async function renderTemplate(template: string, data?: object) {
-  return Liquid.parseAndRender(template, data)
+export function renderTemplate(template: string, data?: unknown) {
+  return Mustache.render(template, data)
 }
 
-export async function renderTemplates(templatePath: string, targetDir: string, data: object = {}, force?: boolean) {
+export function renderTemplates(templatePath: string, targetDir: string, data: unknown = {}, force?: boolean) {
   if (fs.existsSync(targetDir)) {
     if (!force && fs.readdirSync(targetDir).length > 0) {
       throw new Error(`There's already content in ${targetDir}. Exiting.`)
@@ -26,9 +24,9 @@ export async function renderTemplates(templatePath: string, targetDir: string, d
 
   for (const file of files) {
     const template = fs.readFileSync(file, 'utf8')
-    const contents = await renderTemplate(template, data)
+    const contents = renderTemplate(template, data)
     fs.writeFileSync(file, contents, 'utf8')
-    const renderedFile = await renderTemplate(file, data)
+    const renderedFile = renderTemplate(file, data)
 
     if (file !== renderedFile) {
       fs.renameSync(file, renderedFile)

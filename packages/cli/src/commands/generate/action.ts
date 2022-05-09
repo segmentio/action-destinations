@@ -93,7 +93,7 @@ export default class GenerateAction extends Command {
 
     try {
       this.spinner.start(`Creating ${chalk.bold(args.name)}`)
-      await renderTemplates(
+      renderTemplates(
         templatePath,
         targetDirectory,
         {
@@ -112,7 +112,7 @@ export default class GenerateAction extends Command {
 
     try {
       this.spinner.start(`Creating snapshot tests for ${chalk.bold(`${destination}'s ${slug}`)} destination action`)
-      await renderTemplates(
+      renderTemplates(
         snapshotPath,
         targetDirectory,
         {
