@@ -35,7 +35,7 @@ export default class Serve extends Command {
     }),
     noUI: flags.boolean({
       char: 'n',
-      description: 'do not open actions tester'
+      description: 'do not open actions tester UI in browser'
     })
   }
 
