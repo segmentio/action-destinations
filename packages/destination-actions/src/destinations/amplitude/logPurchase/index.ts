@@ -1,4 +1,4 @@
-import { removeUndefined } from '@segment/actions-core'
+import { omit, removeUndefined } from '@segment/actions-core'
 import type { ActionDefinition } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
@@ -6,6 +6,7 @@ import { parseUserAgentProperties } from '../user-agent'
 import { AmplitudeEvent, doPerform } from '../logEvent'
 import { fields as logEventFields } from '../logEvent'
 
+const revenueKeys = ['revenue', 'price', 'productId', 'quantity', 'revenueType']
 interface EventRevenue {
   revenue?: number
   price?: number
@@ -30,6 +31,11 @@ function getRevenueProperties(payload: EventRevenue): EventRevenue {
 
 function getEvents(payload: Payload, properties: AmplitudeEvent): AmplitudeEvent[] {
   const { products = [], userAgent, userAgentParsing, trackRevenuePerProduct } = payload
+
+  // Remove the revenue keys from the properties object because we will add them back if
+  // trackRevenuePerProduct is false, but if it's trackRevenuePerProduct is true
+  // we don't add them back to the main event because we'd be double-counting revenue
+  properties = omit(properties, revenueKeys)
 
   const events: AmplitudeEvent[] = [
     {

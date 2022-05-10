@@ -10,9 +10,6 @@ import { mergeUserProperties } from '../merge-user-properties'
 import { parseUserAgentProperties } from '../user-agent'
 import { getEndpointByRegion } from '../regional-endpoints'
 import { InputField } from '@segment/actions-core'
-
-const revenueKeys = ['revenue', 'price', 'productId', 'quantity', 'revenueType']
-
 export interface AmplitudeEvent extends Omit<Payload, 'products' | 'trackRevenuePerProduct' | 'time' | 'session_id'> {
   library?: string
   time?: number
@@ -38,7 +35,7 @@ function getEvents(payload: Payload, properties: AmplitudeEvent): AmplitudeEvent
 
 export function doPerform(request: Function, payload: Payload, settings: Settings, eventFunction: Function) {
   const { time, session_id, userAgent, userAgentParsing, utm_properties, referrer, min_id_length, library, ...rest } =
-    omit(payload, revenueKeys)
+    payload
   const properties = rest as AmplitudeEvent
   let options
 
@@ -85,7 +82,7 @@ export function doPerform(request: Function, payload: Payload, settings: Setting
 }
 
 export const fields: Record<string, InputField> = {
-  ...eventSchema,
+  ...eventSchema, //This brings in Amplitude's API spec properties, everything below is ours
   use_batch_endpoint: {
     label: 'Use Batch Endpoint',
     description:
