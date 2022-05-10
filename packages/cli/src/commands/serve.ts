@@ -33,9 +33,9 @@ export default class Serve extends Command {
       description: 'destination actions directory',
       default: './packages/destination-actions/src/destinations'
     }),
-    noActionsTester: flags.boolean({
+    noUI: flags.boolean({
       char: 'n',
-      description: 'do not open actions tester'
+      description: 'do not open actions tester UI in browser'
     })
   }
 
@@ -86,7 +86,7 @@ export default class Serve extends Command {
     const DEFAULT_PORT = 3000
     const port = parseInt(process.env.PORT ?? '', 10) || DEFAULT_PORT
 
-    if (!flags.noActionsTester) {
+    if (!flags.noUI) {
       const wss = new WebSocketServer({ port: port + 1 })
 
       wss.on('connection', function connection(ws) {
@@ -144,7 +144,7 @@ export default class Serve extends Command {
     watcher.once('ready', () => {
       this.log(chalk.greenBright`Watching required files for changes .. `)
 
-      if (!flags.noActionsTester) {
+      if (!flags.noUI) {
         this.log(
           chalk.greenBright`Visit https://app.segment.com/dev-center/actions-tester to preview your integration.`
         )
