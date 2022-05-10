@@ -1036,6 +1036,11 @@
     minimatch "^3.0.4"
     strip-json-comments "^3.1.1"
 
+"@flighter/a1-notation@2.1.2":
+  version "2.1.2"
+  resolved "https://registry.yarnpkg.com/@flighter/a1-notation/-/a1-notation-2.1.2.tgz#2c15e7da01afc28d11af1f98f9486c44c2f0a75d"
+  integrity sha512-ohU2uqBVYa+cUz4VEINixSN6Bs30GFneQfskP2eEtp3zgJOMss+Vkn1tUs85NBuE+zbqKp7ZzdddJSAaVVD0vg==
+
 "@fullstory/browser@^1.4.9":
   version "1.4.9"
   resolved "https://registry.yarnpkg.com/@fullstory/browser/-/browser-1.4.9.tgz#e350d779caa1ba56bed22615d9b157efbefa7b47"
