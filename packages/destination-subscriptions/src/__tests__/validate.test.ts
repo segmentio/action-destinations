@@ -77,6 +77,7 @@ test('operators - equals (boolean true)', () => {
 
   expect(validate(ast, { properties: { value: true } })).toEqual(true)
   expect(validate(ast, { properties: { value: false } })).toEqual(false)
+  expect(validate(ast, { properties: { value: 'true' } })).toEqual(false)
 })
 
 test('operators - equals (boolean false)', () => {
@@ -94,6 +95,7 @@ test('operators - equals (boolean false)', () => {
 
   expect(validate(ast, { properties: { value: false } })).toEqual(true)
   expect(validate(ast, { properties: { value: true } })).toEqual(false)
+  expect(validate(ast, { properties: { value: 'false' } })).toEqual(false)
 })
 
 test('operators - equals (strings)', () => {
