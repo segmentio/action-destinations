@@ -56,7 +56,7 @@ export const getAccessToken = async (
     const body = await res.json()
 
     if (res.status !== 200)
-        throw new Error(`Error while getting an access token: ${JSON.stringify(body)}`)
+        throw new IntegrationError(`Error while getting an access token: ${JSON.stringify(body)}`)
 
     return body.access_token
 }
@@ -78,9 +78,9 @@ export const patchAudience = async (
 ): Promise<Response> => {
 
     if (operation.operation_type !== "add" && operation.operation_type !== "remove")
-        throw new Error(`Incorrect operation type: ${operation.operation_type}`)
+        throw new IntegrationError(`Incorrect operation type: ${operation.operation_type}`)
     if (isNaN(+operation.audience_id))
-        throw new Error(`The Audience ID should be a number (${operation.audience_id})`)
+        throw new IntegrationError(`The Audience ID should be a number (${operation.audience_id})`)
 
     const endpoint = `${BASE_API_URL}/audiences/${operation.audience_id}/contactlist`
     const headers = await getRequestHeaders(request, credentials)
@@ -94,7 +94,7 @@ export const patchAudience = async (
             }
         }
     }
-    return fetchRetry(request, endpoint, {
+    return request(endpoint, {
         method: 'PATCH',
         json: payload,
         headers: headers
@@ -145,7 +145,7 @@ export const getAudienceId = async (
     let audience_id = undefined
 
     if (!audience_name)
-        throw new Error(`Invalid Audience Name: ${audience_name}`)
+        throw new IntegrationError(`Invalid Audience Name: ${audience_name}`)
 
     // Loop through the advertiser's audiences. If the audience name is found, return the corresponding ID.
     audience_id = await getAudienceIdByName(request, advertiser_id, audience_name, credentials)
@@ -176,28 +176,6 @@ export const getAudienceId = async (
 
 }
 
-const delay = (ms: number) => new Promise((res) => setTimeout(res, ms))
-
-//function for fetch Retries with exponential backoff
-const fetchRetry = async (
-    request: RequestClient,
-    endpoint: string,
-    options: {},
-    retries = 3,
-    backoff = 300
-): Promise<Response> => {
-
-    try {
-        return await request(endpoint, options);
-    } catch (err) {
-        if (retries === 1) {
-            throw new Error('All retries failed!')
-        }
-        await delay(backoff)
-        return await fetchRetry(request, endpoint, options, retries - 1, backoff * 2)
-    }
-}
-
 export const createAudience = async (
     request: RequestClient,
     advertiser_id: string,
@@ -205,7 +183,7 @@ export const createAudience = async (
     credentials: ClientCredentials
 ): Promise<string> => {
     if (!audience_name)
-        throw new Error(`Invalid Audience Name: ${audience_name}`)
+        throw new IntegrationError(`Invalid Audience Name: ${audience_name}`)
     if (isNaN(+advertiser_id))
         throw new IntegrationError('The Advertiser ID should be a number', 'Invalid input', 400)
 
