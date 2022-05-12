@@ -122,7 +122,7 @@ export const num_items: InputField = {
 
 export const event_time: InputField = {
   label: 'Event Time',
-  description: 'A Unix timestamp in seconds indicating when the actual event occurred.',
+  description: 'A Unix timestamp in seconds indicating when the actual event occurred. Facebook will automatically convert ISO 8601 timestamps to Unix.',
   type: 'string',
   default: {
     '@path': '$.timestamp'
