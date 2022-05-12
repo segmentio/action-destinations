@@ -39,7 +39,13 @@ const action: BrowserActionDefinition<Settings, Sprig, Payload> = {
   },
   perform: (Sprig, event) => {
     const payload = event.payload
-    if (!payload || typeof payload !== 'object' || !(payload.userId || payload.anonymousId || payload.traits)) return
+    if (!payload || typeof payload !== 'object' || !(payload.userId || payload.anonymousId || payload.traits)) {
+      console.warn(
+        '[Sprig] received invalid payload (expected userId, anonymousId, or traits to be present); skipping identifyUser',
+        payload
+      )
+      return
+    }
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const sprigIdentifyAndSetAttributesPayload: {
