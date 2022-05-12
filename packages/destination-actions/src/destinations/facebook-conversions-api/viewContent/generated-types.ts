@@ -2,11 +2,11 @@
 
 export interface Payload {
   /**
-   * This field allows you to specify where your conversions occurred.
+   * This field allows you to specify where your conversions occurred. See [Facebook documentation](https://developers.facebook.com/docs/marketing-api/conversions-api/parameters/server-event) for supported values.
    */
   action_source: string
   /**
-   * A Unix timestamp in seconds indicating when the actual event occurred.
+   * A Unix timestamp in seconds indicating when the actual event occurred. Facebook will automatically convert ISO 8601 timestamps to Unix.
    */
   event_time: string
   /**
@@ -87,27 +87,27 @@ export interface Payload {
     fbLoginID?: number
   }
   /**
-   * Category of the page/product.
+   * The category of the content associated with the event.
    */
   content_category?: string
   /**
-   * Product IDs associated with the event, such as SKUs (e.g. ["ABC123", "XYZ789"]).
+   * The content IDs associated with the event, such as product SKUs.
    */
   content_ids?: string[]
   /**
-   * Name of the page/product.
+   * The name of the page or product associated with the event.
    */
   content_name?: string
   /**
-   * Either product or product_group based on the content_ids or contents being passed.
+   * The content type should be set to product or product_group. See [Facebook documentation](https://developers.facebook.com/docs/marketing-api/conversions-api/parameters/custom-data) for more information.
    */
   content_type?: string
   /**
-   * An array of JSON objects that contains the quantity and the International Article Number (EAN) when applicable, or other product or content identifier(s). id and quantity are the required fields.
+   * A list of JSON objects that contain the product IDs associated with the event plus information about the products. ID and quantity are required fields.
    */
   contents?: {
     /**
-     * ID of the purchased item.
+     * The product ID of the purchased item.
      */
     id?: string
     /**
@@ -119,28 +119,28 @@ export interface Payload {
      */
     item_price?: number
     /**
-     * Type of delivery for a purchase event. Supported values are "in_store", "curbside", "home_delivery".
+     * The type of delivery for a purchase event. Supported values are "in_store", "curbside", and "home_delivery".
      */
     delivery_category?: string
   }[]
   /**
-   * The currency for the value specified.
+   * The currency for the value specified. Currency must be a valid ISO 4217 three-digit currency code.
    */
   currency?: string
   /**
-   * This ID can be any unique string chosen by the advertiser. event_id is used to deduplicate events sent by both Facebook Pixel and Conversions API.
+   * This ID can be any unique string. Event ID is used to deduplicate events sent by both Facebook Pixel and Conversions API.
    */
   event_id?: string
   /**
-   * The browser URL where the event happened. The URL must begin with http:// or https:// and should match the verified domain. event_source_url is required if action_source = “website”; however it is strongly recommended that you include it for any action_source.
+   * The browser URL where the event happened. The URL must begin with http:// or https:// and should match the verified domain. This is required if the action source is "website."
    */
   event_source_url?: string
   /**
-   * The value of a user performing this event to the business.
+   * A numeric value associated with this event. This could be a monetary value or a value in some other metric.
    */
   value?: number
   /**
-   * The custom data object which can be used to pass custom properties. See [here](https://developers.facebook.com/docs/marketing-api/conversions-api/parameters/custom-data) for more information
+   * The custom data object can be used to pass custom properties. See [Facebook documentation](https://developers.facebook.com/docs/marketing-api/conversions-api/parameters/custom-data#custom-properties) for more information.
    */
   custom_data?: {
     [k: string]: unknown
