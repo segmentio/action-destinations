@@ -13,14 +13,14 @@ type Content = {
 export const custom_data: InputField = {
   label: 'Custom Data',
   description:
-    'The custom data object which can be used to pass custom properties. See [here](https://developers.facebook.com/docs/marketing-api/conversions-api/parameters/custom-data) for more information',
+    'The custom data object can be used to pass custom properties. See [Facebook documentation](https://developers.facebook.com/docs/marketing-api/conversions-api/parameters/custom-data#custom-properties) for more information.',
   type: 'object',
   defaultObjectUI: 'keyvalue'
 }
 
 export const currency: InputField = {
   label: 'Currency',
-  description: 'The currency for the value specified.',
+  description: 'The currency for the value specified. Currency must be a valid ISO 4217 three-digit currency code.',
   type: 'string',
   default: {
     '@path': '$.properties.currency'
@@ -29,45 +29,45 @@ export const currency: InputField = {
 
 export const value: InputField = {
   label: 'Value',
-  description: 'The value of a user performing this event to the business.',
+  description: 'A numeric value associated with this event. This could be a monetary value or a value in some other metric.',
   type: 'number'
 }
 
 export const content_category: InputField = {
   label: 'Content Category',
-  description: 'Category of the page/product.',
+  description: 'The category of the content associated with the event.',
   type: 'string'
 }
 
 export const content_ids: InputField = {
   label: 'Content IDs',
-  description: 'Product IDs associated with the event, such as SKUs (e.g. ["ABC123", "XYZ789"]).',
+  description: 'The content IDs associated with the event, such as product SKUs.',
   type: 'string',
   multiple: true
 }
 
 export const content_name: InputField = {
   label: 'Content Name',
-  description: 'Name of the page/product.',
+  description: 'The name of the page or product associated with the event.',
   type: 'string'
 }
 
 export const content_type: InputField = {
   label: 'Content Type',
-  description: 'Either product or product_group based on the content_ids or contents being passed.',
+  description: 'The content type should be set to product or product_group. See [Facebook documentation](https://developers.facebook.com/docs/marketing-api/conversions-api/parameters/custom-data) for more information.',
   type: 'string'
 }
 
 export const contents: InputField = {
   label: 'Contents',
   description:
-    'An array of JSON objects that contains the quantity and the International Article Number (EAN) when applicable, or other product or content identifier(s). id and quantity are the required fields.',
+    'A list of JSON objects that contain the product IDs associated with the event plus information about the products. ID and quantity are required fields.',
   type: 'object',
   multiple: true,
   properties: {
     id: {
       label: 'ID',
-      description: 'ID of the purchased item.',
+      description: 'The product ID of the purchased item.',
       type: 'string'
     },
     quantity: {
@@ -83,7 +83,7 @@ export const contents: InputField = {
     delivery_category: {
       label: 'Delivery Category',
       description:
-        'Type of delivery for a purchase event. Supported values are "in_store", "curbside", "home_delivery".',
+        'The type of delivery for a purchase event. Supported values are "in_store", "curbside", and "home_delivery".',
       type: 'string'
     }
   }
@@ -131,14 +131,14 @@ export const event_time: InputField = {
 
 export const action_source: InputField = {
   label: 'Action Source',
-  description: 'This field allows you to specify where your conversions occurred.',
+  description: 'This field allows you to specify where your conversions occurred. See [Facebook documentation](https://developers.facebook.com/docs/marketing-api/conversions-api/parameters/server-event) for supported values.',
   type: 'string'
 }
 
 export const event_source_url: InputField = {
   label: 'Event Source URL',
   description:
-    'The browser URL where the event happened. The URL must begin with http:// or https:// and should match the verified domain. event_source_url is required if action_source = “website”; however it is strongly recommended that you include it for any action_source.',
+    'The browser URL where the event happened. The URL must begin with http:// or https:// and should match the verified domain. This is required if the Action Source is "website."',
   type: 'string',
   default: {
     '@path': '$.context.page.url'
@@ -148,7 +148,7 @@ export const event_source_url: InputField = {
 export const event_id: InputField = {
   label: 'Event ID',
   description:
-    'This ID can be any unique string chosen by the advertiser. event_id is used to deduplicate events sent by both Facebook Pixel and Conversions API.',
+    'This ID can be any unique string. Event ID is used to deduplicate events sent by both Facebook Pixel and Conversions API.',
   type: 'string',
   default: {
     '@path': '$.messageId'
