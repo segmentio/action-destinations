@@ -6,12 +6,12 @@ import type { Payload } from './generated-types'
 import { API_VERSION } from '../constants'
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Custom Event',
-  description: 'Track your own custom events.',
+  description: 'Send a custom event',
   fields: {
     action_source: { ...action_source, required: true },
     event_name: {
       label: 'Event Name',
-      description: 'Send any custom event',
+      description: 'A Facebook [standard event](https://developers.facebook.com/docs/meta-pixel/implementation/conversion-tracking#standard-events) or [custom event](https://developers.facebook.com/docs/meta-pixel/implementation/conversion-tracking#custom-events) name.',
       type: 'string',
       required: true,
       default: {
