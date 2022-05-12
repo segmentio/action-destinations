@@ -77,14 +77,8 @@ app.use('/call', function (req, res) {
   })
 
   const event = () => {
-    const randomSeed = `${Math.random()
-      .toString(36)
-      .replace(/[^a-z]+/g, '')
-      .substr(0, 8)}${Math.random()
-      .toString(36)
-      .replace(/[^a-z]+/g, '')
-      .substr(0, 8)}`
-    //const randomSeed = ""
+    //const randomSeed = `${Math.random().toString(36).replace(/[^a-z]+/g, '').substr(0, 8)}${Math.random().toString(36).replace(/[^a-z]+/g, '').substr(0, 8)}`
+    const randomSeed = ''
     return {
       type: 'track',
       event: 'updated', // or: "new", "deleted"
@@ -95,14 +89,67 @@ app.use('/call', function (req, res) {
         CLOSE_DATE_EOQ: '2022-07-08',
         ENTRY_POINT: `${randomSeed}Website Demo Request`,
         E_ARR_POST_LAUNCH_C: '100000.0',
-        FINANCE_ENTRY_POINT: 'Inbound High Intent'
+        FINANCE_ENTRY_POINT: 'Inbound High Intent',
+        '4': '4',
+        '5': '4',
+        '6': '4',
+        '7': '4',
+        '8': '4',
+        '9': '4',
+        '10': '4',
+        '11': '4',
+        '12': '4',
+        '13': '4',
+        '14': '4',
+        '15': '4',
+        '16': '4',
+        '17': '4',
+        '18': '4',
+        '19': '4',
+        '20': '4',
+        '21': '4',
+        '22': '4',
+        '23': '4',
+        '24': '4',
+        '25': '4',
+        '26': '4',
+        '27': '4'
       },
       __segment_id: `${randomSeed}0063q0000126KchAAE`
     }
   }
 
   const events = Array.from({ length: 1000 }, () => event())
-  const columns = ['ENTRY_POINT', 'MISSING_COLUMN', 'CLOSE_DATE']
+  const columns = [
+    'ENTRY_POINT',
+    'MISSING_COLUMN',
+    'CLOSE_DATE',
+    '4',
+    '5',
+    '6',
+    '7',
+    '8',
+    '9',
+    '10',
+    '11',
+    '12',
+    '13',
+    '14',
+    '15',
+    '16',
+    '17',
+    '18',
+    '19',
+    '20',
+    '21',
+    '22',
+    '23',
+    '24',
+    '25',
+    '26',
+    '27'
+  ]
+  //const columns = ["ENTRY_POINT", "MISSING_COLUMN", "CLOSE_DATE"]
 
   // TODO: Possible type bug? Repro: Commit a value with a data type to a cell, then update schema to be a different data value. New value will have data type of old value.
   // OPTIMIZATION: Merge proximal ranges across events into a single payload.
@@ -126,10 +173,15 @@ app.use('/call', function (req, res) {
   console.time('e2e')
   console.time('get')
   sheets.spreadsheets.values
-    .get({
-      spreadsheetId: CONFIG.spreadsheetId,
-      range: 'Sheet1!A:A' //TODO: consider offset AND record matcher location
-    })
+    .get(
+      {
+        spreadsheetId: CONFIG.spreadsheetId,
+        range: 'Sheet1!A:A' //TODO: consider offset AND record matcher location
+      },
+      {
+        http2: true
+      }
+    )
     .then((response) => {
       console.timeEnd('get') // TODO: need paging?
 
@@ -184,14 +236,19 @@ app.use('/call', function (req, res) {
         console.time('append')
         promises.push(
           sheets.spreadsheets.values
-            .append({
-              spreadsheetId: CONFIG.spreadsheetId,
-              range: 'A1', // TODO: Consider offset
-              valueInputOption: 'USER_ENTERED',
-              requestBody: {
-                values: appendBatch.map((event) => getColumnValuesFromEvent(event, columns))
+            .append(
+              {
+                spreadsheetId: CONFIG.spreadsheetId,
+                range: 'A1', // TODO: Consider offset
+                valueInputOption: 'USER_ENTERED',
+                requestBody: {
+                  values: appendBatch.map((event) => getColumnValuesFromEvent(event, columns))
+                }
+              },
+              {
+                http2: true
               }
-            })
+            )
             .then(() => {
               console.timeEnd('append')
             })
