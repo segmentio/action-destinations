@@ -38,11 +38,13 @@
   },
   "dependencies": {
     "@amplitude/ua-parser-js": "^0.7.25",
+    "@flighter/a1-notation": "^2.1.2",
     "@segment/actions-core": "^3.23.0",
     "@segment/actions-shared": "^1.5.0",
     "cheerio": "^1.0.0-rc.10",
     "dayjs": "^1.10.7",
     "escape-goat": "^3",
+    "googleapis": "^100.0.0",
     "lodash": "^4.17.21",
     "mustache": "^4.2.0"
   },
