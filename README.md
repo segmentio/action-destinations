@@ -369,6 +369,7 @@ Keep in mind a few important things about how batching works:
 
 - Batching can add latency while Segment accumulates events in batches internally. This can be up to a minute, currently, but this is subject to change at any time. Latency is lower when you send a higher volume of events.
 - Batches may have to up 1,000 events, currently. This, too, is subject to change.
+- At least 1,000 events are required from a source before the performBatch method will fire.
 - Batch sizes are not guaranteed. Due to the way that batches are accumulated internally, you may see smaller batch sizes than you expect when sending low rates of events.
 
 Additionally, you’ll need to coordinate with Segment’s R&D team for the time being. Please reach out to us in your dedicated Slack channel!
