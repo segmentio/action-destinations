@@ -2,34 +2,69 @@ import { ActionDefinition, IntegrationError } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 
+import { processGetSpreadsheetResponse } from './operations'
+
 // TODO: Remove dependencies
 import { google } from 'googleapis'
 import A1 from '@flighter/a1-notation'
 
-type Event = {
-  __segment_id: string
-  /* eslint-disable  @typescript-eslint/no-explicit-any */
-  properties: any
-}
-
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Post Sheet',
-  description: '',
-  fields: {},
+  description: 'Write values to a Google Sheets spreadsheet.',
+  fields: {
+    spreadsheet_id: {
+      label: 'Spreadsheet ID',
+      description:
+        'The identifier of the spreadsheet. You can find this value in the URL of the spreadsheet. e.g. https://docs.google.com/spreadsheets/d/{SPREADSHEET_ID}/edit',
+      type: 'string',
+      required: true,
+      default: '1ORcFZ73VJXzj7rruKTrbUCgtRjqvKS4qW1uwDGP8tiY' // TODO: Remove
+    },
+    spreadsheet_name: {
+      label: 'Spreadsheet Name',
+      description:
+        'The name of the spreadsheet. You can find this value on the tab at the bottom of the spreadsheet. Please provide a valid name of a sheet that already exists.',
+      type: 'string',
+      required: true,
+      default: 'Sheet1'
+    },
+    data_format: {
+      label: 'Data Format',
+      description:
+        'The way Google will interpret values. If you select raw, values will not be parsed and will be stored as-is. If you select user entered, values will be parsed as if you typed them into the UI. Numbers will stay as numbers, but strings may be converted to numbers, dates, etc. following the same rules that are applied when entering text into a cell via the Google Sheets UI.',
+      type: 'string',
+      required: true,
+      default: 'RAW',
+      choices: [
+        { label: 'Raw', value: 'RAW' },
+        { label: 'User Entered', value: 'USER_ENTERED' }
+      ]
+    },
+    fields: {
+      label: 'Fields',
+      description: `
+      The fields to write to the spreadsheet. 
+      On the left-hand side, input the name of the field as it will appear in the Google Sheet. 
+      On the right-hand side, select the field from your data model that maps to the given field in your sheet.
+      
+      ---
+      
+      `,
+      type: 'object',
+      required: true,
+      defaultObjectUI: 'keyvalue:only'
+    }
+  },
   perform: (request, data) => {
     console.log(request)
     console.log(data)
-
-    const CONFIG = {
-      spreadsheetId: '1ORcFZ73VJXzj7rruKTrbUCgtRjqvKS4qW1uwDGP8tiY'
-    }
 
     const sheets = google.sheets({
       version: 'v4'
     })
 
-    const getIdentifierFromEvent = (event: Event) => {
-      return event.__segment_id
+    const getIdentifierFromData = (data: any) => {
+      return data.rawData.__segment_id
     }
 
     const getRange = (targetIndex: number, columnCount: number, startRow = 1, startColumn = 1) => {
@@ -38,76 +73,51 @@ const action: ActionDefinition<Settings, Payload> = {
       return targetRange.toString()
     }
 
-    const getColumnValuesFromEvent = (event: Event, columns: string[]) => {
-      const retVal = columns.map((col) => event.properties[col] ?? '')
-      retVal.unshift(getIdentifierFromEvent(event)) // Write identifier as first columnCount
+    type Fields = {
+      [k: string]: string
+    }
+
+    const generateColumnValuesFromFields = (identifier: string, fields: Fields, columns: string[]) => {
+      const retVal = columns.map((col) => fields[col] ?? '')
+      retVal.unshift(identifier) // Write identifier as first columnCount
       return retVal
     }
 
-    const event = () => {
-      //const randomSeed = `${Math.random().toString(36).replace(/[^a-z]+/g, '').substr(0, 8)}${Math.random().toString(36).replace(/[^a-z]+/g, '').substr(0, 8)}`
-      const randomSeed = ''
-      return {
-        type: 'track',
-        event: 'updated', // or: "new", "deleted"
-        receivedAt: '2022-04-12T23:17:41.192501242Z',
-        channel: 'server',
-        properties: {
-          CLOSE_DATE: '2022-07-08T00:00:00Z',
-          CLOSE_DATE_EOQ: '2022-07-08',
-          ENTRY_POINT: `${randomSeed}Website Demo Request`,
-          E_ARR_POST_LAUNCH_C: '100000.0',
-          FINANCE_ENTRY_POINT: 'Inbound High Intent'
-        },
-        __segment_id: `${randomSeed}0063q0000126KchAAE-Robert`
-      } as Event
-    }
-    const events = [event()]
-    const columns = ['ENTRY_POINT', 'MISSING_COLUMN', 'CLOSE_DATE']
+    if (!data.payload.fields) throw new IntegrationError('Missing Fields mapping information')
+    const columns = Object.getOwnPropertyNames(data.payload.fields)
 
-    if (!data.auth) throw new IntegrationError('Missing OAuth information')
+    if (!data.auth || !data.auth.accessToken) throw new IntegrationError('Missing OAuth information')
     const access_token = data.auth.accessToken
 
     sheets.spreadsheets.values
       .get({
-        spreadsheetId: CONFIG.spreadsheetId,
-        range: 'Sheet1!A:A', //TODO: consider offset AND record matcher location
+        spreadsheetId: data.payload.spreadsheet_id,
+        range: `${data.payload.spreadsheet_name}!A:A`,
         access_token
       })
       .then((response) => {
-        const eventMap = new Map(events.map((e) => [getIdentifierFromEvent(e), e]))
-
-        const updateBatch: { event: Event; targetIndex: number }[] = []
-        if (response.data.values && response.data.values.length > 0) {
-          for (let i = 1; i < response.data.values.length; i++) {
-            const targetIdentifier = response.data.values[i][0]
-            if (eventMap.has(targetIdentifier)) {
-              updateBatch.push({ event: eventMap.get(targetIdentifier) as Event, targetIndex: i })
-              eventMap.delete(targetIdentifier)
-            }
-          }
-        }
-
-        const appendBatch = Array.from(eventMap.values())
+        const eventMap = new Map() // TODO: Fix this for batchPerform
+        eventMap.set(getIdentifierFromData(data), data.payload.fields)
+        const { appendBatch, updateBatch } = processGetSpreadsheetResponse(response, eventMap)
 
         if (updateBatch.length > 0) {
           sheets.spreadsheets.values
             .batchUpdate({
-              spreadsheetId: CONFIG.spreadsheetId,
+              spreadsheetId: data.payload.spreadsheet_id,
               access_token,
               requestBody: {
-                valueInputOption: 'USER_ENTERED', // TODO: Get from input
-                data: updateBatch.map(({ event, targetIndex }) => {
-                  const values = getColumnValuesFromEvent(event, columns)
+                valueInputOption: data.payload.data_format,
+                data: updateBatch.map(({ identifier, event, targetIndex }) => {
+                  const values = generateColumnValuesFromFields(identifier, event, columns)
                   return {
-                    range: getRange(targetIndex, values.length),
+                    range: `${data.payload.spreadsheet_name}!${getRange(targetIndex, values.length)}`,
                     values: [values]
                   }
                 })
               }
             })
             .then(() => {
-              console.timeEnd('update')
+              console.log('update')
             })
             .catch((error) => {
               console.log(error)
@@ -116,20 +126,17 @@ const action: ActionDefinition<Settings, Payload> = {
 
         if (appendBatch.length > 0) {
           sheets.spreadsheets.values
-            .append(
-              {
-                spreadsheetId: CONFIG.spreadsheetId,
-                range: 'A1', // TODO: Consider offset
-                valueInputOption: 'USER_ENTERED',
-                access_token,
-                requestBody: {
-                  values: appendBatch.map((event) => getColumnValuesFromEvent(event, columns))
-                }
-              },
-              {
-                http2: true
+            .append({
+              spreadsheetId: data.payload.spreadsheet_id,
+              range: `${data.payload.spreadsheet_name}!A1`,
+              valueInputOption: data.payload.data_format,
+              access_token,
+              requestBody: {
+                values: appendBatch.map(({ identifier, event }) =>
+                  generateColumnValuesFromFields(identifier, event, columns)
+                )
               }
-            )
+            })
             .then(() => {
               console.log('append')
             })
