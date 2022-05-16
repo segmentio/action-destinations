@@ -84,15 +84,21 @@ const destination: DestinationDefinition<Settings> = {
   authentication: {
     scheme: 'custom',
     fields: {
-      twilioAccountId: {
-        label: 'Twilio Account ID',
-        description: 'Twilio Account ID',
+      twilioAccountSID: {
+        label: 'Twilio Account SID',
+        description: 'Twilio Account SID',
         type: 'string',
         required: true
       },
-      twilioAuthToken: {
-        label: 'Twilio Auth Token',
-        description: 'Twilio Auth Token',
+      twilioApiKeySID: {
+        label: 'Twilio API Key SID',
+        description: 'Twilio API Key SID',
+        type: 'string',
+        required: true
+      },
+      twilioApiKeySecret: {
+        label: 'Twilio API Key Secret',
+        description: 'Twilio API Key Secret',
         type: 'password',
         required: true
       },

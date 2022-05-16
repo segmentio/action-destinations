@@ -150,7 +150,7 @@ const action: ActionDefinition<Settings, Payload> = {
 
       // TODO: GROW-259 remove this when we can extend the request
       // and we no longer need to call the profiles API first
-      const token = Buffer.from(`${settings.twilioAccountId}:${settings.twilioAuthToken}`).toString('base64')
+      const token = Buffer.from(`${settings.twilioApiKeySID}:${settings.twilioApiKeySecret}`).toString('base64')
       const parsedBody = await Liquid.parseAndRender(payload.body, { profile })
 
       const body = new URLSearchParams({
@@ -181,7 +181,7 @@ const action: ActionDefinition<Settings, Payload> = {
         body.append('StatusCallback', webhookUrlWithParams.toString())
       }
 
-      return request(`https://api.twilio.com/2010-04-01/Accounts/${settings.twilioAccountId}/Messages.json`, {
+      return request(`https://api.twilio.com/2010-04-01/Accounts/${settings.twilioAccountSID}/Messages.json`, {
         method: 'POST',
         headers: {
           authorization: `Basic ${token}`
