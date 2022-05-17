@@ -27,6 +27,7 @@ export function renderTemplates(templatePath: string, targetDir: string, data: u
     const contents = renderTemplate(template, data)
     fs.writeFileSync(file, contents, 'utf8')
     const renderedFile = renderTemplate(file, data)
+
     if (file !== renderedFile) {
       fs.renameSync(file, renderedFile)
     }

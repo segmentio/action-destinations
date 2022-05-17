@@ -7,7 +7,14 @@ import type { AnalyticsPayload, ConvertFun, EventMap } from '@segment/actions-sh
 
 import { COPY, ROOT, mapEvent } from '@segment/actions-shared'
 import { trackPurchaseFields } from '@segment/actions-shared'
-import { addName, parseDate, removeCustomerIfNoId } from '@segment/actions-shared'
+import {
+  addName,
+  enjoinInteger,
+  enjoinNumber,
+  enjoinString,
+  parseDate,
+  removeCustomerIfNoId
+} from '@segment/actions-shared'
 
 export const browserTrackPurchaseFields = trackPurchaseFields({})
 
@@ -16,8 +23,8 @@ export const trackPurchaseDefaultSubscription = 'event = "Order Completed"'
 
 const trackPurchasePub: EventMap = {
   fields: {
-    orderId: { name: 'id' },
-    amount: COPY,
+    orderId: { name: 'id', convert: enjoinString as ConvertFun },
+    amount: { convert: enjoinNumber as ConvertFun },
     currency: COPY,
     coupon: { name: 'couponCode' },
     attributionId: COPY,
@@ -30,10 +37,10 @@ const trackPurchasePub: EventMap = {
       type: 'array',
       defaultObject: { sku: 'unknown', name: 'unknown', quantity: 1 },
       fields: {
-        sku: COPY,
+        sku: { convert: enjoinString as ConvertFun },
         name: COPY,
-        quantity: COPY,
-        price: COPY,
+        quantity: { convert: enjoinInteger as ConvertFun },
+        price: { convert: enjoinNumber as ConvertFun },
         description: COPY,
         category: COPY,
         url: COPY,
@@ -42,7 +49,7 @@ const trackPurchasePub: EventMap = {
     },
 
     // CUSTOMER FIELDS
-    customerId: { name: ['customer', 'id'] },
+    customerId: { name: ['customer', 'id'], convert: enjoinString as ConvertFun },
     anonymousId: { name: ['customer', 'anonymousId'] },
     email: { name: ['customer', 'email'] },
     isNewCustomer: { name: ['customer', 'isNewCustomer'] },
@@ -50,7 +57,7 @@ const trackPurchasePub: EventMap = {
     firstName: { name: ['customer', 'firstName'] },
     lastName: { name: ['customer', 'lastName'] },
     name: { name: ['customer', 'name'] },
-    age: { name: ['customer', 'age'] },
+    age: { name: ['customer', 'age'], convert: enjoinInteger as ConvertFun },
     // fbt-merchant-api complains about birthday being an object but passes it anyway.
     birthday: { name: ['customer', 'birthday'], convert: parseDate as ConvertFun }
   },

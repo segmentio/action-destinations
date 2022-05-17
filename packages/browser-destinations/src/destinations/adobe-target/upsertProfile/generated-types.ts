@@ -6,9 +6,9 @@ export interface Payload {
    */
   userId?: string
   /**
-   * Profile parameters specific to a user.
+   * Profile parameters specific to a user. Please note, Adobe recommends that PII is hashed prior to sending to Adobe.
    */
-  traits: {
+  traits?: {
     [k: string]: unknown
   }
 }

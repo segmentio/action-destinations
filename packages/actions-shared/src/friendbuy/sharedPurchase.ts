@@ -18,7 +18,7 @@ export const trackPurchaseFields = (fieldConfig: FieldConfig): Record<string, In
     // - `revenue` is the sum of the costs of the items being ordered.
     // - `subtotal` is `revenue` minus any discount.
     // - `total` is `subtotal` plus tax and shipping.
-    label: 'Amount Source',
+    label: 'Purchase Amount',
     description: 'Purchase amount to be considered when evaluating reward rules.',
     type: 'number',
     required: true,

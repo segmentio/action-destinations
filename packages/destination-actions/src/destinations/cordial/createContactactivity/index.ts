@@ -2,37 +2,57 @@ import type { ActionDefinition } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 import CordialClient from '../cordial-client'
-import { commonFields } from '../common-fields'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Create Contactactivity',
-  description: "Create Cordial Contactactivity from Segment's track and page events",
+  description: 'Create a new contact activity.',
   defaultSubscription: 'type = "track" or type = "page"',
   fields: {
-    ...commonFields,
+    userIdentities: {
+      label: 'User Identities',
+      description:
+        'An ordered list of contact identifiers in Cordial. Each item in the list represents an identifier. For example, `channels.email.address -> userId` and/or `customerId -> traits.customerId`. At least one identifier should be valid otherwise the contact will not be identified and the request will be ignored.',
+      type: 'object',
+      required: true,
+      defaultObjectUI: 'keyvalue:only'
+    },
     action: {
       label: 'Event name',
-      description: 'Segment event name',
+      description: 'Event name. Required.',
       type: 'string',
       required: true,
       default: {
-        '@path': '$.event'
+        '@if': {
+          exists: { '@path': '$.event' },
+          then: { '@path': '$.event' },
+          else: 'pageView'
+        }
       }
     },
     time: {
-      label: 'Event sentAt',
-      description: 'Segment event sentAt',
+      label: 'Event timestamp',
+      description:
+        'Event timestamp. Optional. Date format is ISO 8601 standard. If empty, the request upload time will be used. ',
       type: 'datetime',
       default: {
-        '@path': '$.sentAt'
+        '@path': '$.timestamp'
       }
     },
     properties: {
       label: 'Event properties',
-      description: 'Segment event properties',
+      description: 'An object of additional event attributes. Optional.',
       type: 'object',
       default: {
         '@path': '$.properties'
+      }
+    },
+    context: {
+      label: 'Event context',
+      description:
+        'Event context as it appears in Segment. Optional. We use context to capture event metadata like sender ip and device info.',
+      type: 'object',
+      default: {
+        '@path': '$.context'
       }
     }
   },

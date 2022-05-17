@@ -6,7 +6,7 @@ import Salesforce from '../sf-operations'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Case',
-  description: 'Case action',
+  description: 'Represents a case, which is a customer issue or problem.',
   fields: {
     operation: operation,
     traits: traits,

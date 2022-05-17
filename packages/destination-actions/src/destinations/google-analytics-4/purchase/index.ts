@@ -14,7 +14,10 @@ import {
   shipping,
   tax,
   items_multi_products,
-  params
+  params,
+  formatUserProperties,
+  user_properties,
+  engagement_time_msec
 } from '../ga4-properties'
 
 // https://segment.com/docs/connections/spec/ecommerce/v2/#order-completed
@@ -39,6 +42,8 @@ const action: ActionDefinition<Settings, Payload> = {
     shipping: { ...shipping },
     tax: { ...tax },
     value: { ...value, default: { '@path': '$.properties.total' } },
+    user_properties: user_properties,
+    engagement_time_msec: engagement_time_msec,
     params: params
   },
   perform: (request, { payload }) => {
@@ -83,10 +88,12 @@ const action: ActionDefinition<Settings, Payload> = {
               shipping: payload.shipping,
               value: payload.value,
               tax: payload.tax,
+              engagement_time_msec: payload.engagement_time_msec,
               ...payload.params
             }
           }
-        ]
+        ],
+        ...formatUserProperties(payload.user_properties)
       }
     })
   }

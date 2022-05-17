@@ -192,6 +192,17 @@ const action: ActionDefinition<Settings, Payload> = {
       hashedPhoneNumber: formatPhone(payload.phone_number)
     }
 
+    let payloadUrl, urlTtclid
+    if (payload.url) {
+      try {
+        payloadUrl = new URL(payload.url)
+      } catch (error) {
+        //  invalid url
+      }
+    }
+
+    if (payloadUrl) urlTtclid = payloadUrl.searchParams.get('ttclid')
+
     // Request to tiktok Events Web API
     return request('https://business-api.tiktok.com/open_api/v1.2/pixel/track/', {
       method: 'post',
@@ -208,7 +219,7 @@ const action: ActionDefinition<Settings, Payload> = {
             email: userData.hashedEmail
           },
           ad: {
-            callback: payload.ttclid
+            callback: payload.ttclid ? payload.ttclid : urlTtclid ? urlTtclid : undefined
           },
           page: {
             url: payload.url,
@@ -223,7 +234,8 @@ const action: ActionDefinition<Settings, Payload> = {
           value: payload.value,
           description: payload.description,
           query: payload.query
-        }
+        },
+        partner_name: 'Segment'
       }
     })
   }

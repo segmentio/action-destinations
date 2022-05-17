@@ -12,7 +12,7 @@ const entries = files.reduce((acc, current) => {
   const [_dot, _src, _destinations, destination, ..._rest] = current.split('/')
   return {
     ...acc,
-    [destination]: current
+    [destination]: current,
   }
 }, {})
 
@@ -35,12 +35,12 @@ plugins.push(
   })
 )
 
-module.exports = {
+const unobfuscatedOutput = {
   entry: entries,
   mode: process.env.NODE_ENV || 'development',
   devtool: 'source-map',
   output: {
-    filename: process.env.NODE_ENV === 'development' ? '[name].js' : '[name]/[contenthash].js',
+    filename: (file) => process.env.NODE_ENV === 'development' ? `${file.chunk.name}.js` : `${file.chunk.name}/[contenthash].js`,
     path: path.resolve(__dirname, 'dist/web'),
     publicPath: 'auto', // Needed for customers using custom CDNs with analytics.js
     library: '[name]Destination',
@@ -105,3 +105,16 @@ module.exports = {
   },
   plugins
 }
+
+const obfuscatedOutput = {
+  ...unobfuscatedOutput,
+  output: {
+    ...unobfuscatedOutput.output,
+     filename: (file) => {
+       const obfuscatedOutputName = Buffer.from(file.chunk.name).toString('base64').replace(/=/g, '');
+       return process.env.NODE_ENV === 'development' ? `${obfuscatedOutputName}.js` : `${obfuscatedOutputName}/[contenthash].js`
+     },
+  }
+ }
+
+module.exports = [unobfuscatedOutput, obfuscatedOutput]

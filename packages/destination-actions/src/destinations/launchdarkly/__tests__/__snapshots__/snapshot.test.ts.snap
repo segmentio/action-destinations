@@ -1,0 +1,58 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Testing snapshot for actions-launchdarkly destination: aliasUser action - all fields 1`] = `
+Array [
+  Object {
+    "contextKind": "user",
+    "creationDate": 1612137600000,
+    "key": "ejK#0yc)je6nnS#S",
+    "kind": "alias",
+    "previousContextKind": "anonymousUser",
+    "previousKey": "ejK#0yc)je6nnS#S",
+  },
+]
+`;
+
+exports[`Testing snapshot for actions-launchdarkly destination: aliasUser action - required fields 1`] = `
+Array [
+  Object {
+    "contextKind": "user",
+    "creationDate": Any<Number>,
+    "key": "ejK#0yc)je6nnS#S",
+    "kind": "alias",
+    "previousContextKind": "anonymousUser",
+    "previousKey": "ejK#0yc)je6nnS#S",
+  },
+]
+`;
+
+exports[`Testing snapshot for actions-launchdarkly destination: trackEvent action - all fields 1`] = `
+Array [
+  Object {
+    "creationDate": 1612137600000,
+    "data": Object {
+      "testType": "8&tx*8iz0@V]qDguvfK",
+    },
+    "key": "8&tx*8iz0@V]qDguvfK",
+    "kind": "custom",
+    "metricValue": 70594582198353.92,
+    "user": Object {
+      "key": "8&tx*8iz0@V]qDguvfK",
+    },
+  },
+]
+`;
+
+exports[`Testing snapshot for actions-launchdarkly destination: trackEvent action - required fields 1`] = `
+Array [
+  Object {
+    "creationDate": Any<Number>,
+    "data": Object {},
+    "key": "8&tx*8iz0@V]qDguvfK",
+    "kind": "custom",
+    "user": Object {
+      "key": "8&tx*8iz0@V]qDguvfK",
+    },
+  },
+]
+`;

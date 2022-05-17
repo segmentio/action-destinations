@@ -1,6 +1,17 @@
 import { ActionDefinition, IntegrationError } from '@segment/actions-core'
 import { CURRENCY_ISO_CODES } from '../constants'
-import { params, coupon, currency, client_id, value, items_multi_products, user_id } from '../ga4-properties'
+import {
+  formatUserProperties,
+  user_properties,
+  params,
+  coupon,
+  currency,
+  client_id,
+  value,
+  items_multi_products,
+  user_id,
+  engagement_time_msec
+} from '../ga4-properties'
 import { ProductItem } from '../ga4-types'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
@@ -21,6 +32,8 @@ const action: ActionDefinition<Settings, Payload> = {
       required: true
     },
     value: { ...value },
+    user_properties: user_properties,
+    engagement_time_msec: engagement_time_msec,
     params: params
   },
   perform: (request, { payload }) => {
@@ -61,10 +74,12 @@ const action: ActionDefinition<Settings, Payload> = {
               currency: payload.currency,
               items: googleItems,
               value: payload.value,
+              engagement_time_msec: payload.engagement_time_msec,
               ...payload.params
             }
           }
-        ]
+        ],
+        ...formatUserProperties(payload.user_properties)
       }
     })
   }
