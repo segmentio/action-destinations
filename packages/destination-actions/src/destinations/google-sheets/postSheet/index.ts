@@ -1,12 +1,8 @@
-import { ActionDefinition, IntegrationError } from '@segment/actions-core'
+import { ActionDefinition } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 
-import { processGetSpreadsheetResponse } from './operations'
-
-// TODO: Remove dependencies
-import { google } from 'googleapis'
-import A1 from '@flighter/a1-notation'
+import { processData } from './operations'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Post Sheet',
@@ -57,97 +53,15 @@ const action: ActionDefinition<Settings, Payload> = {
   },
   perform: (request, data) => {
     console.log(request)
+    const { auth, payload } = data
+
+    processData(auth, payload, data)
+  },
+  performBatch: async (request, data) => {
+    console.log(request)
     console.log(data)
-
-    const sheets = google.sheets({
-      version: 'v4'
-    })
-
-    const getIdentifierFromData = (data: any) => {
-      return data.rawData.__segment_id
-    }
-
-    const getRange = (targetIndex: number, columnCount: number, startRow = 1, startColumn = 1) => {
-      const targetRange = new A1(startColumn, targetIndex + startRow)
-      targetRange.addX(columnCount)
-      return targetRange.toString()
-    }
-
-    type Fields = {
-      [k: string]: string
-    }
-
-    const generateColumnValuesFromFields = (identifier: string, fields: Fields, columns: string[]) => {
-      const retVal = columns.map((col) => fields[col] ?? '')
-      retVal.unshift(identifier) // Write identifier as first columnCount
-      return retVal
-    }
-
-    if (!data.payload.fields) throw new IntegrationError('Missing Fields mapping information')
-    const columns = Object.getOwnPropertyNames(data.payload.fields)
-
-    if (!data.auth || !data.auth.accessToken) throw new IntegrationError('Missing OAuth information')
-    const access_token = data.auth.accessToken
-
-    sheets.spreadsheets.values
-      .get({
-        spreadsheetId: data.payload.spreadsheet_id,
-        range: `${data.payload.spreadsheet_name}!A:A`,
-        access_token
-      })
-      .then((response) => {
-        const eventMap = new Map() // TODO: Fix this for batchPerform
-        eventMap.set(getIdentifierFromData(data), data.payload.fields)
-        const { appendBatch, updateBatch } = processGetSpreadsheetResponse(response, eventMap)
-
-        if (updateBatch.length > 0) {
-          sheets.spreadsheets.values
-            .batchUpdate({
-              spreadsheetId: data.payload.spreadsheet_id,
-              access_token,
-              requestBody: {
-                valueInputOption: data.payload.data_format,
-                data: updateBatch.map(({ identifier, event, targetIndex }) => {
-                  const values = generateColumnValuesFromFields(identifier, event, columns)
-                  return {
-                    range: `${data.payload.spreadsheet_name}!${getRange(targetIndex, values.length)}`,
-                    values: [values]
-                  }
-                })
-              }
-            })
-            .then(() => {
-              console.log('update')
-            })
-            .catch((error) => {
-              console.log(error)
-            })
-        }
-
-        if (appendBatch.length > 0) {
-          sheets.spreadsheets.values
-            .append({
-              spreadsheetId: data.payload.spreadsheet_id,
-              range: `${data.payload.spreadsheet_name}!A1`,
-              valueInputOption: data.payload.data_format,
-              access_token,
-              requestBody: {
-                values: appendBatch.map(({ identifier, event }) =>
-                  generateColumnValuesFromFields(identifier, event, columns)
-                )
-              }
-            })
-            .then(() => {
-              console.log('append')
-            })
-            .catch((error) => {
-              console.log(error)
-            })
-        }
-      })
-      .catch((error) => {
-        console.log(error)
-      })
+    // const { auth, payload } = data
+    // processData(auth, payload[0], data)
   }
 }
 
