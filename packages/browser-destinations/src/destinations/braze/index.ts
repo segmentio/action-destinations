@@ -1,7 +1,7 @@
 import type { Settings } from './generated-types'
 import type { BrowserDestinationDefinition } from '../../lib/browser-destinations'
 import { browserDestination } from '../../runtime/shim'
-import type appboy from '@braze/web-sdk'
+import * as braze from '@braze/web-sdk'
 import trackEvent from './trackEvent'
 import updateUserProfile from './updateUserProfile'
 import trackPurchase from './trackPurchase'
@@ -10,7 +10,7 @@ import { defaultValues, DestinationDefinition } from '@segment/actions-core'
 
 declare global {
   interface Window {
-    appboy: typeof appboy
+    appboy: typeof braze
   }
 }
 
@@ -43,7 +43,7 @@ const presets: DestinationDefinition['presets'] = [
   }
 ]
 
-export const destination: BrowserDestinationDefinition<Settings, typeof appboy> = {
+export const destination: BrowserDestinationDefinition<Settings, typeof braze> = {
   name: 'Braze Web Device Mode (Actions)',
   slug: 'actions-braze-web',
   mode: 'device',
@@ -271,22 +271,20 @@ export const destination: BrowserDestinationDefinition<Settings, typeof appboy> 
 
       await dependencies.loadScript(`https://js.appboycdn.com/web-sdk/${version}/appboy.no-amd.min.js`)
 
-      window.appboy.initialize(api_key, {
+      braze.initialize(api_key, {
         baseUrl: endpoint,
         ...expectedConfig
       })
 
-      if (window.appboy.addSdkMetadata) {
-        window.appboy.addSdkMetadata([window.appboy.BrazeSdkMetadata.SEGMENT])
-      }
+      braze.addSdkMetadata([braze.BrazeSdkMetadata.SEGMENT])
 
       if (automaticallyDisplayMessages) {
-        window.appboy.display.automaticallyShowNewInAppMessages()
+        braze.automaticallyShowInAppMessages()
       }
 
-      window.appboy.openSession()
+      braze.openSession()
 
-      return window.appboy
+      return braze
     } catch (e) {
       throw new Error(`Failed to initialize Braze ${e}`)
     }
