@@ -77,7 +77,7 @@ export default class Salesforce {
     return await this.baseUpdate(recordId, sobject, payload)
   }
 
-  bulkUpsert = async (payloads: GenericPayload[], sobject: string, externalIdFieldName: string) => {
+  bulkUpsert = async (payloads: GenericPayload[], sobject: string) => {
     if (
       !payloads[0].traits ||
       Object.keys(payloads[0].traits).length === 0 ||
@@ -90,14 +90,14 @@ export default class Salesforce {
         400
       )
     }
+    const externalIdFieldName = payloads[0].traits['externalIdFieldName'] as string
 
     const jobId = await this.createBulkJob(sobject, externalIdFieldName)
-    console.log('jobId', jobId)
+
     const csv = this.buildCSVData(payloads, externalIdFieldName)
-    console.log('csv', csv)
 
     await this.uploadBulkCSV(jobId, csv)
-    await this.closeBulkJob(jobId)
+    return await this.closeBulkJob(jobId)
   }
 
   private createBulkJob = async (sobject: string, externalIdFieldName: string) => {

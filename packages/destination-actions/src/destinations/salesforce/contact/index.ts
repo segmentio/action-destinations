@@ -136,6 +136,14 @@ const action: ActionDefinition<Settings, Payload> = {
       }
       return await sf.upsertRecord(payload, 'Contact')
     }
+  },
+  performBatch: async (request, { settings, payload }) => {
+    const sf: Salesforce = new Salesforce(settings.instanceUrl, request)
+
+    if (!payload[0].last_name) {
+      throw new IntegrationError('Missing last_name value', 'Misconfigured required field', 400)
+    }
+    return await sf.bulkUpsert(payload, 'Contact')
   }
 }
 

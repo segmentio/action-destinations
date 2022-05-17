@@ -187,14 +187,14 @@ const action: ActionDefinition<Settings, Payload> = {
     }
   },
   performBatch: async (request, { settings, payload }) => {
-    console.log('performBatch')
     const sf: Salesforce = new Salesforce(settings.instanceUrl, request)
 
     if (payload[0].operation === 'bulkUpsert') {
-      console.log('bulk upsert account', payload)
-      const externalIdFieldName = payload[0].traits?.externalIdFieldName as string
+      if (!payload[0].name) {
+        throw new IntegrationError('Missing name value', 'Misconfigured required field', 400)
+      }
 
-      await sf.bulkUpsert(payload, 'Account', externalIdFieldName)
+      return await sf.bulkUpsert(payload, 'Account')
     }
   }
 }

@@ -36,6 +36,13 @@ const action: ActionDefinition<Settings, Payload> = {
     if (payload.operation === 'upsert') {
       return await sf.upsertRecord(payload, payload.customObjectName)
     }
+  },
+  performBatch: async (request, { settings, payload }) => {
+    const sf: Salesforce = new Salesforce(settings.instanceUrl, request)
+
+    if (payload[0].operation === 'bulkUpsert') {
+      return await sf.bulkUpsert(payload, payload[0].customObjectName)
+    }
   }
 }
 

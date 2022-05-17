@@ -143,6 +143,16 @@ const action: ActionDefinition<Settings, Payload> = {
       }
       return await sf.upsertRecord(payload, 'Lead')
     }
+  },
+  performBatch: async (request, { settings, payload }) => {
+    const sf: Salesforce = new Salesforce(settings.instanceUrl, request)
+
+    if (payload[0].operation === 'bulkUpsert') {
+      if (!payload[0].company || !payload[0].last_name) {
+        throw new IntegrationError('Missing company or last_name value', 'Misconfigured required field', 400)
+      }
+      return await sf.bulkUpsert(payload, 'Lead')
+    }
   }
 }
 
