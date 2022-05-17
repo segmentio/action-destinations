@@ -93,9 +93,12 @@ To help you write your documentation, see examples of documentation for other de
 
 ## Provide integration metadata for the catalog
 
-Send the following information to partner-support@segment.com:
+Send the following information to partner-support@segment.com using the below template:
+
+Please find the below info for _Name of integration_ Catalog entry.
 
 - **Name:** _Name of integration_
+- **Link to your most recent PR on the actions-destination repo:** _Link to PR_
 - **Description:** _Brief description of your integration, up to ~500 characters. Descriptions can include formatted text and lists. Optionally, you can include up to two images, such as screenshots, with or without captions._
 - **Website:** _Website for your company or product, for example https://amplitude.com_
 - **Categories:** _Select a primary and (optional) secondary category where your integration will appear in the catalog._
