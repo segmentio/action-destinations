@@ -134,7 +134,7 @@ export default class Salesforce {
 
   private closeBulkJob = async (jobId: string) => {
     return this.request(`${this.instanceUrl}services/data/${API_VERSION}/jobs/ingest/${jobId}`, {
-      method: 'patch',
+      method: 'PATCH',
       json: {
         state: 'UploadComplete'
       }
@@ -142,13 +142,9 @@ export default class Salesforce {
   }
 
   private buildCSVData = (payloads: GenericPayload[], externalIdFieldName: string): string => {
-    //1. build first row based on SF object fields mappings
-    //2. iterate over payload and construct each row
-
     let headers = this.buildHeader(payloads, externalIdFieldName) + '\n'
 
     payloads.forEach((payload) => {
-      console.log('payload', payload)
       headers += this.buildRow(payload) + '\n'
     })
 
@@ -158,7 +154,7 @@ export default class Salesforce {
   private buildRow = (payload: GenericPayload): string => {
     let row = ''
 
-    //iterate over the keys in payload that map to a SF object field
+    // Iterate over the keys in payload that map to a SF object field
     // Add each value to the row, separated by a comma
     // The last value in the row should be the externalIDField value
 

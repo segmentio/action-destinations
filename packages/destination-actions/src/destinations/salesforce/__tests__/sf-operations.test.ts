@@ -285,19 +285,17 @@ describe('Salesforce', () => {
     it('should correctly upsert a batch of records', async () => {
       //create bulk job
       nock(`${settings.instanceUrl}services/data/${API_VERSION}/jobs/ingest`)
-        .post('/', {
+        .post('', {
           object: 'Account',
           externalIdFieldName: 'test__c',
           operation: 'upsert',
           contentType: 'CSV'
         })
         .reply(201, {
-          data: { id: 'abc123' }
+          id: 'abc123'
         })
 
-      const CSV = `"Name","Phone","Description","test__c"\n
-      "SpongeBob Squarepants","sponge@seamail.com","Krusty Krab","ab"\n
-      "Squidward Tentacles","squidward@bikini.edu","Krusty Krab","cd"\n"`
+      const CSV = `"Name","Phone","Description","test__c"\n"SpongeBob Squarepants","1234567890","Krusty Krab","ab"\n"Squidward Tentacles","1234567891","Krusty Krab","cd"`
 
       //upload csv
       nock(`${settings.instanceUrl}services/data/${API_VERSION}/jobs/ingest/abc123/batches`, {
@@ -306,15 +304,17 @@ describe('Salesforce', () => {
           Accept: 'application/json'
         }
       })
-        .put('/', CSV)
-        .reply(201)
+        .put('', CSV)
+        .reply(201, {})
 
       //close bulk job
-      nock(`${settings.instanceUrl}services/data/${API_VERSION}/jobs/ingest/abc123`).patch('/', {
-        state: 'UploadComplete'
-      })
+      nock(`${settings.instanceUrl}services/data/${API_VERSION}/jobs/ingest/abc123`)
+        .patch('', {
+          state: 'UploadComplete'
+        })
+        .reply(201, {})
 
-      await sf.bulkUpsert(bulkUpsertPayloads, 'Account', 'test__c')
+      await sf.bulkUpsert(bulkUpsertPayloads, 'Account')
     })
   })
 })
