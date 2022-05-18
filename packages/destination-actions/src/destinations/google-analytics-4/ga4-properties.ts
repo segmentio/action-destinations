@@ -16,7 +16,8 @@ export const formatUserProperties = (userProperties: object | undefined): object
 
 export const user_properties: InputField = {
   label: 'User Properties',
-  description: 'The user properties to send to Google Analytics 4. You must create user-scoped dimensions to ensure custom properties are picked up by Google. See Google’s [Custom user properties](https://support.google.com/analytics/answer/9269570) to learn how to set and register user properties. ',
+  description:
+    'The user properties to send to Google Analytics 4. You must create user-scoped dimensions to ensure custom properties are picked up by Google. See Google’s [Custom user properties](https://support.google.com/analytics/answer/9269570) to learn how to set and register user properties. ',
   type: 'object',
   additionalProperties: true,
   defaultObjectUI: 'keyvalue'
@@ -321,4 +322,12 @@ export const items_multi_products: InputField = {
       }
     ]
   }
+}
+
+export const engagement_time_msec: InputField = {
+  label: 'Engagement Time in Milliseconds',
+  type: 'number',
+  description:
+    'The amount of time a user interacted with your site, in milliseconds. Google only counts users who interact with your site for a non-zero amount of time. By default, Segment sets engagement time to 1 so users are counted.',
+  default: 1
 }
