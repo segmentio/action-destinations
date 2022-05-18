@@ -1,4 +1,4 @@
-import { ActionDefinition } from '@segment/actions-core'
+import { ActionDefinition, ExecuteInput, IntegrationError } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 
@@ -53,15 +53,25 @@ const action: ActionDefinition<Settings, Payload> = {
   },
   perform: (request, data) => {
     console.log(request)
-    const { auth, payload } = data
+    const upcastData = data as ExecuteInput<Settings, Payload> & { rawData: any } // 🔥
+    if (!upcastData.rawData || !upcastData.rawData.__segment_id)
+      throw new IntegrationError('Only warehouse type sources are supported', '400')
+    const { auth, payload, rawData } = upcastData
 
-    processData(auth, payload, data)
+    processData(auth, [{ identifier: rawData.__segment_id, payload }])
   },
-  performBatch: async (request, data) => {
+  performBatch: (request, data) => {
     console.log(request)
-    console.log(data)
-    // const { auth, payload } = data
-    // processData(auth, payload[0], data)
+    const upcastData = data as ExecuteInput<Settings, Payload[]> & { rawData: any[] } // 🔥
+    if (!upcastData.rawData || upcastData.rawData.some((d) => !d.__segment_id))
+      throw new IntegrationError('Only warehouse type sources are supported', '400')
+    const { auth, payload, rawData } = upcastData
+    const events = payload.map((payload, index) => ({
+      identifier: rawData[index].__segment_id,
+      payload
+    }))
+
+    processData(auth, events)
   }
 }
 
