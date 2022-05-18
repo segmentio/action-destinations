@@ -11,7 +11,7 @@ type Fields = {
   [k: string]: string
 }
 
-type MappingSettings = {
+export type MappingSettings = {
   spreadsheetId: string
   spreadsheetName: string
   dataFormat: string
@@ -56,7 +56,7 @@ function processGetSpreadsheetResponse(response: any, eventMap: Map<string, Fiel
 function processUpdateBatch(
   mappingSettings: MappingSettings,
   updateBatch: { identifier: string; event: { [k: string]: string }; targetIndex: number }[],
-  request: RequestClient
+  gs: GoogleSheets
 ) {
   const getRange = (targetIndex: number, columnCount: number, startRow = 1, startColumn = 1) => {
     const targetRange = new A1(startColumn, targetIndex + startRow)
@@ -78,7 +78,6 @@ function processUpdateBatch(
     range: `${mappingSettings.spreadsheetName}!${headerRowRange.toString()}`,
     values: [['id', ...mappingSettings.columns]]
   })
-  const gs: GoogleSheets = new GoogleSheets(request)
 
   gs.batchUpdate(mappingSettings, batchPayload)
     .then(() => {
@@ -92,15 +91,14 @@ function processUpdateBatch(
 function processAppendBatch(
   mappingSettings: MappingSettings,
   appendBatch: { identifier: string; event: { [k: string]: string } }[],
-  request: RequestClient
+  gs: GoogleSheets
 ) {
   if (appendBatch.length <= 0) {
     return
   }
-
-  const columns = Object.getOwnPropertyNames(mappingSettings.columns)
-  const values = appendBatch.map(({ identifier, event }) => generateColumnValuesFromFields(identifier, event, columns))
-  const gs: GoogleSheets = new GoogleSheets(request)
+  const values = appendBatch.map(({ identifier, event }) =>
+    generateColumnValuesFromFields(identifier, event, mappingSettings.columns)
+  )
 
   gs.append(mappingSettings, values)
     .then(() => {
@@ -125,15 +123,9 @@ function processData(auth: AuthTokens | undefined, events: PayloadEvent[], reque
     columns: Object.getOwnPropertyNames(events[0].payload.fields)
   }
 
-  const sheets = google.sheets({
-    version: 'v4'
-  })
-  sheets.spreadsheets.values
-    .get({
-      spreadsheetId: mappingSettings.spreadsheetId,
-      range: `${mappingSettings.spreadsheetName}!A:A`,
-      access_token: auth.accessToken
-    })
+  const gs: GoogleSheets = new GoogleSheets(request)
+
+  gs.get(mappingSettings)
     .then((response) => {
       const eventMap = new Map()
       events.forEach((e) => {
@@ -141,8 +133,8 @@ function processData(auth: AuthTokens | undefined, events: PayloadEvent[], reque
       })
       const { appendBatch, updateBatch } = processGetSpreadsheetResponse(response, eventMap)
 
-      processUpdateBatch(mappingSettings, updateBatch, request)
-      processAppendBatch(mappingSettings, appendBatch, request)
+      processUpdateBatch(mappingSettings, updateBatch, gs)
+      processAppendBatch(mappingSettings, appendBatch, gs)
     })
     .catch((error) => {
       console.log(error)
