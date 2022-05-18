@@ -1,9 +1,7 @@
 import type { ActionDefinition } from '@segment/actions-core'
 import { IntegrationError } from '@segment/actions-core'
-import { DynamicFieldResponse } from '@segment/actions-core'
-import { RequestClient } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
-import QualtricsApiClient, { Directory } from '../qualtricsApiClient'
+import QualtricsApiClient from '../qualtricsApiClient'
 import { generateRandomId, parsedEmbeddedData, parsedTransactionDate } from '../utils'
 import type { Payload } from './generated-types'
 
@@ -56,7 +54,11 @@ const action: ActionDefinition<Settings, Payload> = {
       description: 'Email of contact',
       allowNull: true,
       default: {
-        '@path': '$.traits.email'
+        '@if': {
+          exists: { '@path': '$.email' },
+          then: { '@path': '$.email' },
+          else: { '@path': '$.traits.email' }
+        }
       }
     },
     phone: {
@@ -83,51 +85,10 @@ const action: ActionDefinition<Settings, Payload> = {
       defaultObjectUI: 'keyvalue'
     }
   },
-  dynamicFields: {
-    mailingListId: async (): Promise<DynamicFieldResponse> => {
-      const response = [
-        {
-          name: 'Mailing list 1',
-          value: 'CG_1111'
-        },
-        {
-          name: 'Mailing list 2',
-          value: 'CG_2222'
-        },
-        {
-          name: 'Mailing list 3',
-          value: 'CG_3333'
-        }
-      ]
-      const fields = response.map((element) => {
-        return { value: element.value, label: element.name }
-      })
-      return {
-        body: {
-          data: fields,
-          pagination: {}
-        }
-      }
-    },
-    directoryId: async (request: RequestClient, data): Promise<DynamicFieldResponse> => {
-      const apiClient = new QualtricsApiClient(data.settings.datacenter, data.settings.apiToken, request)
-      const response = await apiClient.listDirectories()
-      const fields = response.elements.map((element: Directory) => {
-        return { value: element.directoryId, label: element.name }
-      })
-      return {
-        body: {
-          data: fields,
-          pagination: {}
-        }
-      }
-    }
-  },
   perform: async (request, data) => {
     let contactId = data.payload.contactId
     const apiClient = new QualtricsApiClient(data.settings.datacenter, data.settings.apiToken, request)
     if (!contactId) {
-      // Lookup contactId
       const contacts = await apiClient.searchDirectoryForContact(data.payload.directoryId, {
         email: data.payload.email ? data.payload.email : undefined,
         extRef: data.payload.extRef ? data.payload.extRef : undefined,
