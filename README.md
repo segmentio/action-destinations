@@ -1,8 +1,16 @@
+<img src="https://brand.segment.com/site-assets/03d0de2f/images/brand-guidelines/content/twilio/twilio-segment-color-logo-white-2x.png" style="width:50%; height=50%" alt="Twilio Segment logo" >
+
 # Action Destinations
 
-Action Destinations are a way to build streaming destinations on Segment. To begin, follow the instructions in Get Started below.
+Action Destinations are the new way to build streaming destinations on Segment.
 
-Fore more detailed instruction, see the following READMEs:
+Action Destinations were [launched in December 2021](https://segment.com/blog/introducing-destination-actions/) to enable customers with a customizable framework to map Segment event sources to their favorite 3rd party tools like Google Analytics.
+
+This repository contains the Action Destination Definitions as well as a CLI to generate the scaffolding for new destinations and run unit tests. If you'd like to contribute, please review the [Contributing Guide](./CONTRIBUTING.md).
+
+To begin, follow the instructions in Get Started below.
+
+For more detailed instruction, see the following READMEs:
 
 - [Contributing Document](./CONTRIBUTING.md)
 - [Create a Destination Action](./docs/create.md)
@@ -12,7 +20,7 @@ Fore more detailed instruction, see the following READMEs:
 - [Mapping Kit](./packages/core/src/mapping-kit/README.md)
 - [Destination Kit](./packages/core/src/destination-kit/README.md)
 
-Table of Contents:
+## Table of Contents:
 
 - [Get Started](#get-started)
 - [Actions CLI](#actions-cli)
@@ -85,6 +93,8 @@ In order to run the CLI (`./bin/run`), your current working directory needs to b
 ```
 
 For specific information about each CLI command, please refer to this [README](https://github.com/segmentio/action-destinations/tree/main/packages/cli).
+
+For instructions on how to create a new integration, see the [Create a new Destination Action](./docs/create.md) docs.
 
 #### Troubleshooting CLI
 

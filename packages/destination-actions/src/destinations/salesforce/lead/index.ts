@@ -1,8 +1,10 @@
 import { ActionDefinition, IntegrationError } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
-import { customFields, operation, traits, validateLookup } from '../sf-properties'
+import { bulkUpsertExternalId, customFields, operation, traits, validateLookup } from '../sf-properties'
 import Salesforce from '../sf-operations'
+
+const OBJECT_NAME = 'Lead'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Lead',
@@ -11,6 +13,7 @@ const action: ActionDefinition<Settings, Payload> = {
   fields: {
     operation: operation,
     traits: traits,
+    bulkUpsertExternalId: bulkUpsertExternalId,
     company: {
       label: 'Company',
       description: "The lead's company. **This is required to create a lead.**",
@@ -128,20 +131,33 @@ const action: ActionDefinition<Settings, Payload> = {
       if (!payload.company || !payload.last_name) {
         throw new IntegrationError('Missing company or last_name value', 'Misconfigured required field', 400)
       }
-      return await sf.createRecord(payload, 'Lead')
+      return await sf.createRecord(payload, OBJECT_NAME)
     }
 
     validateLookup(payload)
 
     if (payload.operation === 'update') {
-      return await sf.updateRecord(payload, 'Lead')
+      return await sf.updateRecord(payload, OBJECT_NAME)
     }
 
     if (payload.operation === 'upsert') {
       if (!payload.company || !payload.last_name) {
         throw new IntegrationError('Missing company or last_name value', 'Misconfigured required field', 400)
       }
-      return await sf.upsertRecord(payload, 'Lead')
+      return await sf.upsertRecord(payload, OBJECT_NAME)
+    }
+  },
+  performBatch: async (request, { settings, payload }) => {
+    const sf: Salesforce = new Salesforce(settings.instanceUrl, request)
+
+    if (payload[0].operation === 'bulkUpsert') {
+      if (!payload[0].company || !payload[0].last_name) {
+        throw new IntegrationError('Missing company or last_name value', 'Misconfigured required field', 400)
+      }
+      return await sf.bulkUpsert(payload, OBJECT_NAME)
+    } else {
+      const errorMsg = 'Bulk Upsert action must be used with batching'
+      throw new IntegrationError(errorMsg, errorMsg, 400)
     }
   }
 }

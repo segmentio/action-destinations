@@ -1,6 +1,7 @@
 import { IntegrationError, RequestClient } from '@segment/actions-core'
 import type { GenericPayload } from './sf-types'
 import { mapObjectToShape } from './sf-object-to-shape'
+import { buildCSVData } from './sf-utils'
 
 export const API_VERSION = 'v53.0'
 
@@ -12,6 +13,10 @@ interface LookupResponseData {
   Id?: string
   totalSize?: number
   records?: Records[]
+}
+
+interface CreateJobResponseData {
+  id: string
 }
 
 export default class Salesforce {
@@ -66,6 +71,69 @@ export default class Salesforce {
       throw err
     }
     return await this.baseUpdate(recordId, sobject, payload)
+  }
+
+  bulkUpsert = async (payloads: GenericPayload[], sobject: string) => {
+    if (
+      !payloads[0].bulkUpsertExternalId ||
+      !payloads[0].bulkUpsertExternalId.externalIdName ||
+      !payloads[0].bulkUpsertExternalId.externalIdValue
+    ) {
+      throw new IntegrationError(
+        'Undefined bulkUpsertExternalId.externalIdName or externalIdValue when using bulkUpsert operation',
+        'Undefined bulkUpsertExternalId.externalIdName externalIdValue',
+        400
+      )
+    }
+    const externalIdFieldName = payloads[0].bulkUpsertExternalId.externalIdName
+
+    const jobId = await this.createBulkJob(sobject, externalIdFieldName)
+
+    const csv = buildCSVData(payloads, externalIdFieldName)
+
+    await this.uploadBulkCSV(jobId, csv)
+    return await this.closeBulkJob(jobId)
+  }
+
+  private createBulkJob = async (sobject: string, externalIdFieldName: string) => {
+    const res = await this.request<CreateJobResponseData>(
+      `${this.instanceUrl}services/data/${API_VERSION}/jobs/ingest`,
+      {
+        method: 'post',
+        json: {
+          object: sobject,
+          externalIdFieldName: externalIdFieldName,
+          contentType: 'CSV',
+          operation: 'upsert'
+        }
+      }
+    )
+
+    if (!res || !res.data || !res.data.id) {
+      throw new IntegrationError('Failed to create bulk job', 'Failed to create bulk job', 500)
+    }
+
+    return res.data.id
+  }
+
+  private uploadBulkCSV = async (jobId: string, csv: string) => {
+    return this.request(`${this.instanceUrl}services/data/${API_VERSION}/jobs/ingest/${jobId}/batches`, {
+      method: 'put',
+      headers: {
+        'Content-Type': 'text/csv',
+        Accept: 'application/json'
+      },
+      body: csv
+    })
+  }
+
+  private closeBulkJob = async (jobId: string) => {
+    return this.request(`${this.instanceUrl}services/data/${API_VERSION}/jobs/ingest/${jobId}`, {
+      method: 'PATCH',
+      json: {
+        state: 'UploadComplete'
+      }
+    })
   }
 
   private baseUpdate = async (recordId: string, sobject: string, payload: GenericPayload) => {

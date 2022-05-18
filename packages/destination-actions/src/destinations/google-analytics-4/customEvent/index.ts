@@ -1,7 +1,14 @@
 import type { ActionDefinition } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
-import { formatUserProperties, user_properties, params, client_id, user_id } from '../ga4-properties'
+import {
+  formatUserProperties,
+  user_properties,
+  params,
+  client_id,
+  user_id,
+  engagement_time_msec
+} from '../ga4-properties'
 
 const normalizeEventName = (name: string, lowercase: boolean | undefined): string => {
   name = name.trim()
@@ -38,6 +45,7 @@ const action: ActionDefinition<Settings, Payload> = {
       default: false
     },
     user_properties: user_properties,
+    engagement_time_msec: engagement_time_msec,
     params: { ...params }
   },
   perform: (request, { payload }) => {
@@ -50,7 +58,10 @@ const action: ActionDefinition<Settings, Payload> = {
         events: [
           {
             name: event_name,
-            params: payload.params
+            params: {
+              engagement_time_msec: payload.engagement_time_msec,
+              ...payload.params
+            }
           }
         ],
         ...formatUserProperties(payload.user_properties)
