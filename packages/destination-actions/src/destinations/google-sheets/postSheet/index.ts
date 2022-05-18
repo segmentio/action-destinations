@@ -55,7 +55,7 @@ const action: ActionDefinition<Settings, Payload> = {
     console.log(request)
     const { auth, payload } = data
 
-    processData(auth, payload, data)
+    processData(auth, payload, data, request)
   },
   performBatch: async (request, data) => {
     console.log(request)

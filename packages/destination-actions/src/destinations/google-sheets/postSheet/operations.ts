@@ -2,9 +2,10 @@ import { ExecuteInput, IntegrationError } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 import type { AuthTokens } from '../../../../../core/src/destination-kit/parse-settings'
+import { RequestClient } from '@segment/actions-core'
+import GoogleSheets from '../googleapis/index'
 
 // TODO: Remove dependencies
-import { google, sheets_v4 } from 'googleapis'
 import A1 from '@flighter/a1-notation'
 
 type Fields = {
@@ -47,10 +48,9 @@ function processGetSpreadsheetResponse(response: any, eventMap: Map<string, Fiel
 }
 
 function processUpdateBatch(
-  sheets: sheets_v4.Sheets,
   payload: Payload,
-  access_token: string,
-  updateBatch: { identifier: string; event: { [k: string]: string }; targetIndex: number }[]
+  updateBatch: { identifier: string; event: { [k: string]: string }; targetIndex: number }[],
+  request: RequestClient
 ) {
   const getRange = (targetIndex: number, columnCount: number, startRow = 1, startColumn = 1) => {
     const targetRange = new A1(startColumn, targetIndex + startRow)
@@ -74,16 +74,9 @@ function processUpdateBatch(
     range: `${payload.spreadsheet_name}!${headerRowRange.toString()}`,
     values: [['id', ...columns]]
   })
+  const gs: GoogleSheets = new GoogleSheets(request)
 
-  sheets.spreadsheets.values
-    .batchUpdate({
-      spreadsheetId: payload.spreadsheet_id,
-      access_token,
-      requestBody: {
-        valueInputOption: payload.data_format,
-        data: batchPayload
-      }
-    })
+  gs.batchUpdate(payload, batchPayload)
     .then(() => {
       console.log('update')
     })
@@ -93,27 +86,19 @@ function processUpdateBatch(
 }
 
 function processAppendBatch(
-  sheets: sheets_v4.Sheets,
   payload: Payload,
-  access_token: string,
-  appendBatch: { identifier: string; event: { [k: string]: string } }[]
+  appendBatch: { identifier: string; event: { [k: string]: string } }[],
+  request: RequestClient
 ) {
   if (appendBatch.length <= 0) {
     return
   }
 
   const columns = Object.getOwnPropertyNames(payload.fields)
+  const values = appendBatch.map(({ identifier, event }) => generateColumnValuesFromFields(identifier, event, columns))
+  const gs: GoogleSheets = new GoogleSheets(request)
 
-  sheets.spreadsheets.values
-    .append({
-      spreadsheetId: payload.spreadsheet_id,
-      range: `${payload.spreadsheet_name}!A2`,
-      valueInputOption: payload.data_format,
-      access_token,
-      requestBody: {
-        values: appendBatch.map(({ identifier, event }) => generateColumnValuesFromFields(identifier, event, columns))
-      }
-    })
+  gs.append(payload, values)
     .then(() => {
       console.log('append')
     })
@@ -122,18 +107,17 @@ function processAppendBatch(
     })
 }
 
-function processData(auth: AuthTokens | undefined, payload: Payload, data: ExecuteInput<Settings, Payload>) {
+function processData(
+  auth: AuthTokens | undefined,
+  payload: Payload,
+  data: ExecuteInput<Settings, Payload>,
+  request: RequestClient
+) {
   if (!auth || !auth.accessToken) throw new IntegrationError('Missing OAuth information')
 
-  const sheets = google.sheets({
-    version: 'v4'
-  })
-  sheets.spreadsheets.values
-    .get({
-      spreadsheetId: payload.spreadsheet_id,
-      range: `${payload.spreadsheet_name}!A:A`,
-      access_token: auth.accessToken
-    })
+  const gs: GoogleSheets = new GoogleSheets(request)
+
+  gs.get(payload)
     .then((response) => {
       const getIdentifierFromData = (data: any) => {
         if (!data.rawData.__segment_id) throw new IntegrationError('Only Reverse ETL sources are supported', '400')
@@ -144,8 +128,8 @@ function processData(auth: AuthTokens | undefined, payload: Payload, data: Execu
       eventMap.set(getIdentifierFromData(data), payload.fields)
       const { appendBatch, updateBatch } = processGetSpreadsheetResponse(response, eventMap)
 
-      processUpdateBatch(sheets, payload, auth.accessToken, updateBatch)
-      processAppendBatch(sheets, payload, auth.accessToken, appendBatch)
+      processUpdateBatch(payload, updateBatch, request)
+      processAppendBatch(payload, appendBatch, request)
     })
     .catch((error) => {
       console.log(error)

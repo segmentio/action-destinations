@@ -2,12 +2,20 @@ import nock from 'nock'
 import createRequestClient from '../../../../../core/src/create-request-client'
 import Salesforce from '../sf-operations'
 import { API_VERSION } from '../sf-operations'
+import type { GenericPayload } from '../sf-types'
 
 const settings = {
   instanceUrl: 'https://test.com/'
 }
 
 const requestClient = createRequestClient()
+
+afterEach(() => {
+  if (!nock.isDone()) {
+    throw new Error(`Not all nock interceptors were used: ${nock.pendingMocks()}`)
+  }
+  nock.cleanAll()
+})
 
 describe('Salesforce', () => {
   describe('Operations', () => {
@@ -252,6 +260,132 @@ describe('Salesforce', () => {
           'Lead'
         )
       })
+    })
+  })
+
+  describe('Bulk Operations', () => {
+    const sf: Salesforce = new Salesforce(settings.instanceUrl, requestClient)
+
+    const bulkUpsertPayloads: GenericPayload[] = [
+      {
+        operation: 'bulkUpsert',
+        bulkUpsertExternalId: {
+          externalIdName: 'test__c',
+          externalIdValue: 'ab'
+        },
+        name: 'SpongeBob Squarepants',
+        phone: '1234567890',
+        description: 'Krusty Krab'
+      },
+      {
+        operation: 'bulkUpsert',
+        bulkUpsertExternalId: {
+          externalIdName: 'test__c',
+          externalIdValue: 'cd'
+        },
+        name: 'Squidward Tentacles',
+        phone: '1234567891',
+        description: 'Krusty Krab'
+      }
+    ]
+
+    const customPayloads: GenericPayload[] = [
+      {
+        operation: 'bulkUpsert',
+        bulkUpsertExternalId: {
+          externalIdName: 'test__c',
+          externalIdValue: 'ab'
+        },
+        name: 'SpongeBob Squarepants',
+        phone: '1234567890',
+        description: 'Krusty Krab',
+        customFields: {
+          TickerSymbol: 'KRAB'
+        }
+      },
+      {
+        operation: 'bulkUpsert',
+        bulkUpsertExternalId: {
+          externalIdName: 'test__c',
+          externalIdValue: 'cd'
+        },
+        name: 'Squidward Tentacles',
+        phone: '1234567891',
+        description: 'Krusty Krab',
+        customFields: {
+          TickerSymbol: 'KRAB'
+        }
+      }
+    ]
+
+    it('should correctly upsert a batch of records', async () => {
+      //create bulk job
+      nock(`${settings.instanceUrl}services/data/${API_VERSION}/jobs/ingest`)
+        .post('', {
+          object: 'Account',
+          externalIdFieldName: 'test__c',
+          operation: 'upsert',
+          contentType: 'CSV'
+        })
+        .reply(201, {
+          id: 'abc123'
+        })
+
+      const CSV = `Name,Phone,Description,test__c\n"SpongeBob Squarepants","1234567890","Krusty Krab","ab"\n"Squidward Tentacles","1234567891","Krusty Krab","cd"\n`
+
+      //upload csv
+      nock(`${settings.instanceUrl}services/data/${API_VERSION}/jobs/ingest/abc123/batches`, {
+        reqheaders: {
+          'Content-Type': 'text/csv',
+          Accept: 'application/json'
+        }
+      })
+        .put('', CSV)
+        .reply(201, {})
+
+      //close bulk job
+      nock(`${settings.instanceUrl}services/data/${API_VERSION}/jobs/ingest/abc123`)
+        .patch('', {
+          state: 'UploadComplete'
+        })
+        .reply(201, {})
+
+      await sf.bulkUpsert(bulkUpsertPayloads, 'Account')
+    })
+
+    it('should correctly parse the customFields object', async () => {
+      //create bulk job
+      nock(`${settings.instanceUrl}services/data/${API_VERSION}/jobs/ingest`)
+        .post('', {
+          object: 'Account',
+          externalIdFieldName: 'test__c',
+          operation: 'upsert',
+          contentType: 'CSV'
+        })
+        .reply(201, {
+          id: 'xyz987'
+        })
+
+      const CSV = `Name,Phone,Description,TickerSymbol,test__c\n"SpongeBob Squarepants","1234567890","Krusty Krab","KRAB","ab"\n"Squidward Tentacles","1234567891","Krusty Krab","KRAB","cd"\n`
+
+      //upload csv
+      nock(`${settings.instanceUrl}services/data/${API_VERSION}/jobs/ingest/xyz987/batches`, {
+        reqheaders: {
+          'Content-Type': 'text/csv',
+          Accept: 'application/json'
+        }
+      })
+        .put('', CSV)
+        .reply(201, {})
+
+      //close bulk job
+      nock(`${settings.instanceUrl}services/data/${API_VERSION}/jobs/ingest/xyz987`)
+        .patch('', {
+          state: 'UploadComplete'
+        })
+        .reply(201, {})
+
+      await sf.bulkUpsert(customPayloads, 'Account')
     })
   })
 })

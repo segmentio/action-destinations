@@ -1,8 +1,11 @@
-import Mustache from 'mustache'
+import { Liquid as LiquidJs } from 'liquidjs'
+
 import type { ActionDefinition, RequestOptions } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 import { IntegrationError } from '@segment/actions-core'
+
+const Liquid = new LiquidJs()
 
 const getProfileApiEndpoint = (environment: string): string => {
   return `https://profiles.segment.${environment === 'production' ? 'com' : 'build'}`
@@ -127,7 +130,10 @@ const action: ActionDefinition<Settings, Payload> = {
       return
     }
     const externalId = payload.externalIds?.find(({ type }) => type === 'phone')
-    if (!externalId?.subscriptionStatus || ['unsubscribed', 'did not subscribed', 'false'].includes(externalId.subscriptionStatus)) {
+    if (
+      !externalId?.subscriptionStatus ||
+      ['unsubscribed', 'did not subscribed', 'false'].includes(externalId.subscriptionStatus)
+    ) {
       return
     } else if (['subscribed', 'true'].includes(externalId.subscriptionStatus)) {
       const traits = await fetchProfileTraits(request, settings, payload.userId)
@@ -144,13 +150,14 @@ const action: ActionDefinition<Settings, Payload> = {
 
       // TODO: GROW-259 remove this when we can extend the request
       // and we no longer need to call the profiles API first
-      const token = Buffer.from(`${settings.twilioAccountId}:${settings.twilioAuthToken}`).toString('base64')
+      const token = Buffer.from(`${settings.twilioApiKeySID}:${settings.twilioApiKeySecret}`).toString('base64')
+      const parsedBody = await Liquid.parseAndRender(payload.body, { profile })
 
-    const body = new URLSearchParams({
-      Body: Mustache.render(payload.body, { profile }),
-      From: payload.from,
-      To: phone
-    })
+      const body = new URLSearchParams({
+        Body: parsedBody,
+        From: payload.from,
+        To: phone
+      })
 
       const webhookUrl = settings.webhookUrl
       const connectionOverrides = settings.connectionOverrides
@@ -174,7 +181,7 @@ const action: ActionDefinition<Settings, Payload> = {
         body.append('StatusCallback', webhookUrlWithParams.toString())
       }
 
-      return request(`https://api.twilio.com/2010-04-01/Accounts/${settings.twilioAccountId}/Messages.json`, {
+      return request(`https://api.twilio.com/2010-04-01/Accounts/${settings.twilioAccountSID}/Messages.json`, {
         method: 'POST',
         headers: {
           authorization: `Basic ${token}`
