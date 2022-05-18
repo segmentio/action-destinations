@@ -1,5 +1,5 @@
 import { RequestClient } from '@segment/actions-core'
-import type { Payload } from '../postSheet/generated-types'
+import type { MappingSettings } from '../postSheet/operations'
 
 export const API_VERSION = 'v4'
 export default class GoogleSheets {
@@ -9,31 +9,31 @@ export default class GoogleSheets {
     this.request = request
   }
 
-  get = async (payload: Payload) => {
+  get = async (mappingSettings: MappingSettings, range: string) => {
     return this.request(
-      `https://sheets.googleapis.com/${API_VERSION}/spreadsheets/${payload.spreadsheet_id}/values/${payload.spreadsheet_name}!A:A`,
+      `https://sheets.googleapis.com/${API_VERSION}/spreadsheets/${mappingSettings.spreadsheetId}/values/${mappingSettings.spreadsheetName}!${range}`,
       {
         method: 'get'
       }
     )
   }
 
-  batchUpdate = async (payload: Payload, batchPayload: any) => {
+  batchUpdate = async (mappingSettings: MappingSettings, batchPayload: { range: string; values: string[][] }[]) => {
     return this.request(
-      `https://sheets.googleapis.com/${API_VERSION}/spreadsheets/${payload.spreadsheet_id}/values:batchUpdate`,
+      `https://sheets.googleapis.com/${API_VERSION}/spreadsheets/${mappingSettings.spreadsheetId}/values:batchUpdate`,
       {
         method: 'post',
         json: {
-          valueInputOption: payload.data_format,
+          valueInputOption: mappingSettings.dataFormat,
           data: batchPayload
         }
       }
     )
   }
 
-  append = async (payload: Payload, values: any) => {
+  append = async (mappingSettings: MappingSettings, range: string, values: string[][]) => {
     return this.request(
-      `https://sheets.googleapis.com/${API_VERSION}/spreadsheets/${payload.spreadsheet_id}/values/${payload.spreadsheet_name}!A2:append?valueInputOption=${payload.data_format}`,
+      `https://sheets.googleapis.com/${API_VERSION}/spreadsheets/${mappingSettings.spreadsheetId}/values/${mappingSettings.spreadsheetName}!${range}:append?valueInputOption=${mappingSettings.dataFormat}`,
       {
         method: 'post',
         json: {

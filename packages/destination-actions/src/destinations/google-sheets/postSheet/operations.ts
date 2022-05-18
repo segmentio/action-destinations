@@ -1,27 +1,76 @@
-import { ExecuteInput, IntegrationError } from '@segment/actions-core'
-import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
-import type { AuthTokens } from '../../../../../core/src/destination-kit/parse-settings'
 import { RequestClient } from '@segment/actions-core'
 import GoogleSheets from '../googleapis/index'
 
-// TODO: Remove dependencies
+// TODO (STRATCONN-1379): Fork @flighter/a1-notation into @segment/a1-notation and add test cases
 import A1 from '@flighter/a1-notation'
 
 type Fields = {
   [k: string]: string
 }
 
+/**
+ * Union of mapping data (payload) and dependencies taken on the source type
+ */
+type PayloadEvent = {
+  identifier: string
+  operation: string
+  payload: Payload
+}
+
+/**
+ * Invariant settings that are common to all events in the payload.
+ */
+export type MappingSettings = {
+  spreadsheetId: string
+  spreadsheetName: string
+  dataFormat: string
+  columns: string[]
+}
+
+/**
+ * Utility function that converts the event properties into an array of strings that Google Sheets API can understand.
+ * Note that the identifier is forced as the first column. 
+ * @param identifier value used to imbue fields with a uniqueness constraint
+ * @param fields list of properties contained in the event
+ * @param columns list of properties that will be committed to the spreadsheet
+ * @returns a string object that has used the `fields` data to populate the `columns` ordering
+ * 
+ * @example
+ * fields: 
+    {
+      "CLOSE_DATE": "2022-07-08T00:00:00Z",
+      "CLOSE_DATE_EOQ": "2022-07-08",
+      "ENTRY_POINT": "Website Demo Request",
+      "E_ARR_POST_LAUNCH_C": "100000.0",
+      "FINANCE_ENTRY_POINT": "Inbound High Intent"
+    } 
+    columns: ["ENTRY_POINT", "MISSING_COLUMN", "CLOSE_DATE"]
+
+    return => ["Website Demo Request", "", "2022-07-08T00:00:00Z"]
+
+ */
 const generateColumnValuesFromFields = (identifier: string, fields: Fields, columns: string[]) => {
   const retVal = columns.map((col) => fields[col] ?? '')
   retVal.unshift(identifier) // Write identifier as first column
   return retVal
 }
 
-function processGetSpreadsheetResponse(response: any, eventMap: Map<string, Fields>) {
-  // TODO: Fail request if above row limit
+/**
+ * Processes the response of the Google Sheets GET call and parses the events into separate operation buckets.
+ * @param response result of the Google Sheets API get call
+ * @param events data to be written to the spreadsheet
+ * @returns
+ */
+function processGetSpreadsheetResponse(response: any, events: PayloadEvent[]) {
+  // TODO (STRATCONN-1375): Fail request if above row limit
 
   const updateBatch: { identifier: string; event: Fields; targetIndex: number }[] = []
+  const appendBatch: { identifier: string; event: Fields }[] = []
+
+  // Use a hashmap to efficiently find if the event already exists in the spreadsheet (update) or not (append).
+  const eventMap = new Map(events.map((e) => [e.identifier, e.payload.fields as Fields]))
+
   if (response.data.values && response.data.values.length > 0) {
     for (let i = 1; i < response.data.values.length; i++) {
       const targetIdentifier = response.data.values[i][0]
@@ -36,7 +85,6 @@ function processGetSpreadsheetResponse(response: any, eventMap: Map<string, Fiel
     }
   }
 
-  const appendBatch: { identifier: string; event: Fields }[] = []
   eventMap.forEach((value, key) => {
     appendBatch.push({
       identifier: key,
@@ -47,10 +95,17 @@ function processGetSpreadsheetResponse(response: any, eventMap: Map<string, Fiel
   return { appendBatch, updateBatch }
 }
 
+/**
+ * Commits all passed events to the correct row in the spreadsheet, as well as the columns header row.
+ * @param mappingSettings configuration object detailing parameters for the call
+ * @param updateBatch array of events to commit to the spreadsheet
+ * @param gs interface object capable of interacting with Google Sheets API
+ */
 function processUpdateBatch(
-  payload: Payload,
+  sheets: sheets_v4.Sheets,
+  mappingSettings: MappingSettings,
   updateBatch: { identifier: string; event: { [k: string]: string }; targetIndex: number }[],
-  request: RequestClient
+  gs: GoogleSheets
 ) {
   const getRange = (targetIndex: number, columnCount: number, startRow = 1, startColumn = 1) => {
     const targetRange = new A1(startColumn, targetIndex + startRow)
@@ -58,25 +113,31 @@ function processUpdateBatch(
     return targetRange.toString()
   }
 
-  const columns = Object.getOwnPropertyNames(payload.fields)
-
   const batchPayload = updateBatch.map(({ identifier, event, targetIndex }) => {
-    const values = generateColumnValuesFromFields(identifier, event, columns)
+    // Flatten event fields to be just the values
+    const values = generateColumnValuesFromFields(identifier, event, mappingSettings.columns)
     return {
-      range: `${payload.spreadsheet_name}!${getRange(targetIndex, values.length)}`,
+      range: `${mappingSettings.spreadsheetName}!${getRange(targetIndex, values.length)}`,
       values: [values]
     }
   })
 
   // Always write columns names on first row
-  const headerRowRange = new A1(1, 1, 1, columns.length + 1)
+  const headerRowRange = new A1(1, 1, 1, mappingSettings.columns.length + 1)
   batchPayload.push({
-    range: `${payload.spreadsheet_name}!${headerRowRange.toString()}`,
-    values: [['id', ...columns]]
+    range: `${mappingSettings.spreadsheetName}!${headerRowRange.toString()}`,
+    values: [['id', ...mappingSettings.columns]]
   })
-  const gs: GoogleSheets = new GoogleSheets(request)
 
-  gs.batchUpdate(payload, batchPayload)
+  sheets.spreadsheets.values
+    .batchUpdate({
+      spreadsheetId: mappingSettings.spreadsheetId,
+      access_token,
+      requestBody: {
+        valueInputOption: mappingSettings.dataFormat,
+        data: batchPayload
+      }
+    })
     .then(() => {
       console.log('update')
     })
@@ -85,20 +146,30 @@ function processUpdateBatch(
     })
 }
 
+/**
+ * Commits all passed events to the bottom of the spreadsheet.
+ * @param mappingSettings configuration object detailing parameters for the call
+ * @param appendBatch array of events to commit to the spreadsheet
+ * @param gs interface object capable of interacting with Google Sheets API
+ * @returns
+ */
 function processAppendBatch(
-  payload: Payload,
+  sheets: sheets_v4.Sheets,
+  mappingSettings: MappingSettings,
   appendBatch: { identifier: string; event: { [k: string]: string } }[],
-  request: RequestClient
+  gs: GoogleSheets
 ) {
   if (appendBatch.length <= 0) {
     return
   }
 
-  const columns = Object.getOwnPropertyNames(payload.fields)
-  const values = appendBatch.map(({ identifier, event }) => generateColumnValuesFromFields(identifier, event, columns))
-  const gs: GoogleSheets = new GoogleSheets(request)
+  // Flatten event fields to be just the values
+  const values = appendBatch.map(({ identifier, event }) =>
+    generateColumnValuesFromFields(identifier, event, mappingSettings.columns)
+  )
 
-  gs.append(payload, values)
+  // Start from A2 to skip header row (in case it has not been written yet)
+  gs.append(mappingSettings, 'A2', values)
     .then(() => {
       console.log('append')
     })
@@ -107,29 +178,31 @@ function processAppendBatch(
     })
 }
 
-function processData(
-  auth: AuthTokens | undefined,
-  payload: Payload,
-  data: ExecuteInput<Settings, Payload>,
-  request: RequestClient
-) {
-  if (!auth || !auth.accessToken) throw new IntegrationError('Missing OAuth information')
+/**
+ * Takes an array of events and dynamically decides whether to append, update or delete rows from the spreadsheet.
+ * @param request request object used to perform HTTP calls
+ * @param events array of events to commit to the spreadsheet
+ */
+function processData(request: RequestClient, events: PayloadEvent[]) {
+  // These are assumed to be constant across all events
+  const mappingSettings = {
+    spreadsheetId: events[0].payload.spreadsheet_id,
+    spreadsheetName: events[0].payload.spreadsheet_name,
+    dataFormat: events[0].payload.data_format,
+    columns: Object.getOwnPropertyNames(events[0].payload.fields)
+  }
 
   const gs: GoogleSheets = new GoogleSheets(request)
 
-  gs.get(payload)
+  // Get all of the row identifiers (assumed to be in the first column A)
+  gs.get(mappingSettings, 'A:A')
     .then((response) => {
-      const getIdentifierFromData = (data: any) => {
-        if (!data.rawData.__segment_id) throw new IntegrationError('Only Reverse ETL sources are supported', '400')
-        return data.rawData.__segment_id
-      }
+      // TODO (STRATCONN-1380): Support delete operation
+      // Use the retrieved row identifiers along with the incoming events to decide which ones should be appended or updated.
+      const { appendBatch, updateBatch } = processGetSpreadsheetResponse(response, events)
 
-      const eventMap = new Map() // TODO: Fix this for batchPerform
-      eventMap.set(getIdentifierFromData(data), payload.fields)
-      const { appendBatch, updateBatch } = processGetSpreadsheetResponse(response, eventMap)
-
-      processUpdateBatch(payload, updateBatch, request)
-      processAppendBatch(payload, appendBatch, request)
+      processUpdateBatch(mappingSettings, updateBatch, gs)
+      processAppendBatch(mappingSettings, appendBatch, gs)
     })
     .catch((error) => {
       console.log(error)
