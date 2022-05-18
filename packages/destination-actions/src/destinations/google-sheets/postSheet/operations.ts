@@ -1,5 +1,4 @@
-import { ExecuteInput, IntegrationError } from '@segment/actions-core'
-import type { Settings } from '../generated-types'
+import { IntegrationError } from '@segment/actions-core'
 import type { Payload } from './generated-types'
 import type { AuthTokens } from '../../../../../core/src/destination-kit/parse-settings'
 import { RequestClient } from '@segment/actions-core'
@@ -10,6 +9,13 @@ import A1 from '@flighter/a1-notation'
 
 type Fields = {
   [k: string]: string
+}
+
+type MappingSettings = {
+  spreadsheetId: string
+  spreadsheetName: string
+  dataFormat: string
+  columns: string[]
 }
 
 const generateColumnValuesFromFields = (identifier: string, fields: Fields, columns: string[]) => {
@@ -48,7 +54,7 @@ function processGetSpreadsheetResponse(response: any, eventMap: Map<string, Fiel
 }
 
 function processUpdateBatch(
-  payload: Payload,
+  mappingSettings: MappingSettings,
   updateBatch: { identifier: string; event: { [k: string]: string }; targetIndex: number }[],
   request: RequestClient
 ) {
@@ -58,25 +64,23 @@ function processUpdateBatch(
     return targetRange.toString()
   }
 
-  const columns = Object.getOwnPropertyNames(payload.fields)
-
   const batchPayload = updateBatch.map(({ identifier, event, targetIndex }) => {
-    const values = generateColumnValuesFromFields(identifier, event, columns)
+    const values = generateColumnValuesFromFields(identifier, event, mappingSettings.columns)
     return {
-      range: `${payload.spreadsheet_name}!${getRange(targetIndex, values.length)}`,
+      range: `${mappingSettings.spreadsheetName}!${getRange(targetIndex, values.length)}`,
       values: [values]
     }
   })
 
   // Always write columns names on first row
-  const headerRowRange = new A1(1, 1, 1, columns.length + 1)
+  const headerRowRange = new A1(1, 1, 1, mappingSettings.columns.length + 1)
   batchPayload.push({
-    range: `${payload.spreadsheet_name}!${headerRowRange.toString()}`,
-    values: [['id', ...columns]]
+    range: `${mappingSettings.spreadsheetName}!${headerRowRange.toString()}`,
+    values: [['id', ...mappingSettings.columns]]
   })
   const gs: GoogleSheets = new GoogleSheets(request)
 
-  gs.batchUpdate(payload, batchPayload)
+  gs.batchUpdate(mappingSettings, batchPayload)
     .then(() => {
       console.log('update')
     })
@@ -86,7 +90,7 @@ function processUpdateBatch(
 }
 
 function processAppendBatch(
-  payload: Payload,
+  mappingSettings: MappingSettings,
   appendBatch: { identifier: string; event: { [k: string]: string } }[],
   request: RequestClient
 ) {
@@ -94,11 +98,11 @@ function processAppendBatch(
     return
   }
 
-  const columns = Object.getOwnPropertyNames(payload.fields)
+  const columns = Object.getOwnPropertyNames(mappingSettings.columns)
   const values = appendBatch.map(({ identifier, event }) => generateColumnValuesFromFields(identifier, event, columns))
   const gs: GoogleSheets = new GoogleSheets(request)
 
-  gs.append(payload, values)
+  gs.append(mappingSettings, values)
     .then(() => {
       console.log('append')
     })
@@ -106,30 +110,39 @@ function processAppendBatch(
       console.log(error)
     })
 }
-
-function processData(
-  auth: AuthTokens | undefined,
-  payload: Payload,
-  data: ExecuteInput<Settings, Payload>,
-  request: RequestClient
-) {
+type PayloadEvent = {
+  identifier: string
+  payload: Payload
+}
+function processData(auth: AuthTokens | undefined, events: PayloadEvent[], request: RequestClient) {
   if (!auth || !auth.accessToken) throw new IntegrationError('Missing OAuth information')
 
-  const gs: GoogleSheets = new GoogleSheets(request)
+  // These are assumed to be constant across all events
+  const mappingSettings = {
+    spreadsheetId: events[0].payload.spreadsheet_id,
+    spreadsheetName: events[0].payload.spreadsheet_name,
+    dataFormat: events[0].payload.data_format,
+    columns: Object.getOwnPropertyNames(events[0].payload.fields)
+  }
 
-  gs.get(payload)
+  const sheets = google.sheets({
+    version: 'v4'
+  })
+  sheets.spreadsheets.values
+    .get({
+      spreadsheetId: mappingSettings.spreadsheetId,
+      range: `${mappingSettings.spreadsheetName}!A:A`,
+      access_token: auth.accessToken
+    })
     .then((response) => {
-      const getIdentifierFromData = (data: any) => {
-        if (!data.rawData.__segment_id) throw new IntegrationError('Only Reverse ETL sources are supported', '400')
-        return data.rawData.__segment_id
-      }
-
-      const eventMap = new Map() // TODO: Fix this for batchPerform
-      eventMap.set(getIdentifierFromData(data), payload.fields)
+      const eventMap = new Map()
+      events.forEach((e) => {
+        eventMap.set(e.identifier, e.payload.fields)
+      })
       const { appendBatch, updateBatch } = processGetSpreadsheetResponse(response, eventMap)
 
-      processUpdateBatch(payload, updateBatch, request)
-      processAppendBatch(payload, appendBatch, request)
+      processUpdateBatch(mappingSettings, updateBatch, request)
+      processAppendBatch(mappingSettings, appendBatch, request)
     })
     .catch((error) => {
       console.log(error)
