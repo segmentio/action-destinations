@@ -1,32 +1,45 @@
-import createRequestClient from '../../../../../core/src/create-request-client'
-type RequestClient = ReturnType<typeof createRequestClient>
+import { RequestClient } from '@segment/actions-core'
+import type { Payload } from '../postSheet/generated-types'
 
-// TODO: Remove
-import { google } from 'googleapis'
+export const API_VERSION = 'v4'
+export default class GoogleSheets {
+  request: RequestClient
 
-const get = async (request: RequestClient, { spreadSheetId, range }: { spreadSheetId: string; range: string }) => {
-  // TODO: Use request instead of google to make the call
+  constructor(request: RequestClient) {
+    this.request = request
+  }
 
-  const sheets = google.sheets({
-    version: 'v4',
-    auth: '' // This comes from Request
-  })
+  get = async (payload: Payload) => {
+    return this.request(
+      `https://sheets.googleapis.com/${API_VERSION}/spreadsheets/${payload.spreadsheet_id}/values/${payload.spreadsheet_name}!A:A`,
+      {
+        method: 'get'
+      }
+    )
+  }
 
-  console.log(request, spreadSheetId, range)
-  return sheets.spreadsheets.values.get({
-    spreadsheetId: spreadSheetId,
-    range: range
-  })
+  batchUpdate = async (payload: Payload, batchPayload: any) => {
+    return this.request(
+      `https://sheets.googleapis.com/${API_VERSION}/spreadsheets/${payload.spreadsheet_id}/values:batchUpdate`,
+      {
+        method: 'post',
+        json: {
+          valueInputOption: payload.data_format,
+          data: batchPayload
+        }
+      }
+    )
+  }
+
+  append = async (payload: Payload, values: any) => {
+    return this.request(
+      `https://sheets.googleapis.com/${API_VERSION}/spreadsheets/${payload.spreadsheet_id}/values/${payload.spreadsheet_name}!A2:append?valueInputOption=${payload.data_format}`,
+      {
+        method: 'post',
+        json: {
+          values: values
+        }
+      }
+    )
+  }
 }
-
-// TODO: Update interface
-const batchUpdate = async (request: RequestClient) => {
-  console.log(request)
-}
-
-// TODO: Update interface
-const append = async (request: RequestClient) => {
-  console.log(request)
-}
-
-export { get, batchUpdate, append }
