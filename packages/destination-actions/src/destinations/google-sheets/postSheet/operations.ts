@@ -9,12 +9,18 @@ type Fields = {
   [k: string]: string
 }
 
+/**
+ * Union of mapping data (payload) and dependencies taken on the source type
+ */
 type PayloadEvent = {
   identifier: string
   operation: string
   payload: Payload
 }
 
+/**
+ * Invariant settings that are common to all events in the payload.
+ */
 export type MappingSettings = {
   spreadsheetId: string
   spreadsheetName: string
@@ -22,12 +28,26 @@ export type MappingSettings = {
   columns: string[]
 }
 
+/**
+ * Utility function that converts the event properties into an array of strings that Google Sheets API can understand.
+ * Note that the identifier is forced as the first column.
+ * @param identifier value used to imbue fields with a uniqueness constraint
+ * @param fields list of properties contained in the event
+ * @param columns list of properties that will be committed to the spreadsheet
+ * @returns a string object that has used the `fields` data to populate the `columns` ordering
+ */
 const generateColumnValuesFromFields = (identifier: string, fields: Fields, columns: string[]) => {
   const retVal = columns.map((col) => fields[col] ?? '')
   retVal.unshift(identifier) // Write identifier as first column
   return retVal
 }
 
+/**
+ * Processes the response of the Google Sheets GET call and parses the events into an update and a append bucket.
+ * @param response result of the Google Sheets API get call
+ * @param eventMap hashmap linking columns to be written to the identifier of the row
+ * @returns
+ */
 function processGetSpreadsheetResponse(response: any, eventMap: Map<string, Fields>) {
   // TODO (STRATCONN-1375): Fail request if above row limit
 
@@ -57,6 +77,12 @@ function processGetSpreadsheetResponse(response: any, eventMap: Map<string, Fiel
   return { appendBatch, updateBatch }
 }
 
+/**
+ * Commits all passed events to the correct row in the spreadsheet, as well as the columns header row.
+ * @param mappingSettings configuration object detailing parameters for the call
+ * @param updateBatch array of events to commit to the spreadsheet
+ * @param gs interface object capable of interacting with Google Sheets API
+ */
 function processUpdateBatch(
   mappingSettings: MappingSettings,
   updateBatch: { identifier: string; event: { [k: string]: string }; targetIndex: number }[],
@@ -92,6 +118,13 @@ function processUpdateBatch(
     })
 }
 
+/**
+ * Commits all passed events to the bottom of the spreadsheet.
+ * @param mappingSettings configuration object detailing parameters for the call
+ * @param appendBatch array of events to commit to the spreadsheet
+ * @param gs interface object capable of interacting with Google Sheets API
+ * @returns
+ */
 function processAppendBatch(
   mappingSettings: MappingSettings,
   appendBatch: { identifier: string; event: { [k: string]: string } }[],
@@ -114,6 +147,11 @@ function processAppendBatch(
     })
 }
 
+/**
+ * Takes an array of events and dynamically decides whether to append, update or delete rows from the spreadsheet.
+ * @param request request object used to perform HTTP calls
+ * @param events array of events to commit
+ */
 function processData(request: RequestClient, events: PayloadEvent[]) {
   // These are assumed to be constant across all events
   const mappingSettings = {

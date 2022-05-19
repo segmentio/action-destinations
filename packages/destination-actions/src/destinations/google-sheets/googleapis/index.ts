@@ -18,30 +18,22 @@ export default class GoogleSheets {
     )
   }
 
-<<<<<<< HEAD
-  batchUpdate = async (payload: Payload, batchPayload: any) => {
-=======
   batchUpdate = async (mappingSettings: MappingSettings, batchPayload: { range: string; values: string[][] }[]) => {
->>>>>>> b8bd0ee (cleaned up some types)
     return this.request(
-      `https://sheets.googleapis.com/${API_VERSION}/spreadsheets/${payload.spreadsheet_id}/values:batchUpdate`,
+      `https://sheets.googleapis.com/${API_VERSION}/spreadsheets/${mappingSettings.spreadsheetId}/values:batchUpdate`,
       {
         method: 'post',
         json: {
-          valueInputOption: payload.data_format,
+          valueInputOption: mappingSettings.dataFormat,
           data: batchPayload
         }
       }
     )
   }
 
-<<<<<<< HEAD
-  append = async (payload: Payload, values: any) => {
-=======
   append = async (mappingSettings: MappingSettings, values: string[][]) => {
->>>>>>> b8bd0ee (cleaned up some types)
     return this.request(
-      `https://sheets.googleapis.com/${API_VERSION}/spreadsheets/${payload.spreadsheet_id}/values/${payload.spreadsheet_name}!A2:append?valueInputOption=${payload.data_format}`,
+      `https://sheets.googleapis.com/${API_VERSION}/spreadsheets/${mappingSettings.spreadsheetId}/values/${mappingSettings.spreadsheetName}!A2:append?valueInputOption=${mappingSettings.dataFormat}`,
       {
         method: 'post',
         json: {
