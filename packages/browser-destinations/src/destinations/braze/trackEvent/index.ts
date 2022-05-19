@@ -1,9 +1,9 @@
 import type { BrowserActionDefinition } from '../../../lib/browser-destinations'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
-import type braze from '@braze/web-sdk'
+import { Braze } from '../braze-types'
 
-const action: BrowserActionDefinition<Settings, typeof braze, Payload> = {
+const action: BrowserActionDefinition<Settings, Braze, Payload> = {
   title: 'Track Event',
   description: 'Reports that the current user performed a custom named event.',
   defaultSubscription: 'type = "track" and event != "Order Completed"',
