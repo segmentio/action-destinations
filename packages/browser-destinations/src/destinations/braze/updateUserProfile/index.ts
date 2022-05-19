@@ -150,10 +150,10 @@ const action: BrowserActionDefinition<Settings, typeof braze, Payload> = {
   perform: (client, { payload }) => {
     // TODO - addAlias / addToCustomAttributeArray?
     if (payload.external_id !== undefined) {
-      client.changeUser(payload.external_id)
+      client.default.changeUser(payload.external_id)
     }
 
-    const user = client.getUser()
+    const user = client.default.getUser()
 
     payload.country !== undefined && user && user.setCountry(payload.country)
 
@@ -186,11 +186,11 @@ const action: BrowserActionDefinition<Settings, typeof braze, Payload> = {
 
     payload.email_subscribe !== undefined &&
       user &&
-      user.setEmailNotificationSubscriptionType(payload.email_subscribe as braze.NotificationSubscriptionTypes)
+      user.setEmailNotificationSubscriptionType(payload.email_subscribe as braze.default.User.NotificationSubscriptionTypes)
 
     payload.email !== undefined && user && user.setEmail(payload.email)
     payload.first_name !== undefined && user && user.setFirstName(payload.first_name)
-    payload.gender !== undefined && user && user.setGender(toBrazeGender(payload.gender) as braze.Genders)
+    payload.gender !== undefined && user && user.setGender(toBrazeGender(payload.gender) as braze.default.User.Genders)
     payload.home_city !== undefined && user && user.setHomeCity(payload.home_city)
     payload.language !== undefined && user && user.setLanguage(payload.language)
     payload.current_location !== undefined &&
@@ -200,7 +200,7 @@ const action: BrowserActionDefinition<Settings, typeof braze, Payload> = {
     payload.phone !== undefined && user && user.setPhoneNumber(payload.phone)
     payload.push_subscribe !== undefined &&
       user &&
-      user.setPushNotificationSubscriptionType(payload.push_subscribe as braze.NotificationSubscriptionTypes)
+      user.setPushNotificationSubscriptionType(payload.push_subscribe as braze.default.User.NotificationSubscriptionTypes)
   }
 }
 

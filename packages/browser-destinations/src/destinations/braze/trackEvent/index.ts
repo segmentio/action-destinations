@@ -1,7 +1,7 @@
 import type { BrowserActionDefinition } from '../../../lib/browser-destinations'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
-import * as braze from '@braze/web-sdk'
+import type braze from '@braze/web-sdk'
 
 const action: BrowserActionDefinition<Settings, typeof braze, Payload> = {
   title: 'Track Event',

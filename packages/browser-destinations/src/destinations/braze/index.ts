@@ -1,7 +1,7 @@
 import type { Settings } from './generated-types'
 import type { BrowserDestinationDefinition } from '../../lib/browser-destinations'
 import { browserDestination } from '../../runtime/shim'
-import * as braze from '@braze/web-sdk'
+import type braze from '@braze/web-sdk'
 import trackEvent from './trackEvent'
 import updateUserProfile from './updateUserProfile'
 import trackPurchase from './trackPurchase'
@@ -10,7 +10,7 @@ import { defaultValues, DestinationDefinition } from '@segment/actions-core'
 
 declare global {
   interface Window {
-    appboy: typeof braze
+    braze: typeof braze
   }
 }
 
@@ -54,15 +54,15 @@ export const destination: BrowserDestinationDefinition<Settings, typeof braze> =
       type: 'string',
       choices: [
         {
-          value: '3.3',
-          label: '3.3'
-        },
-        {
           value: '3.5',
           label: '3.5'
+        },
+        {
+          value: '4.0',
+          label: '4.0'
         }
       ],
-      default: '3.5',
+      default: '4.0',
       required: true
     },
     api_key: {
@@ -265,26 +265,26 @@ export const destination: BrowserDestinationDefinition<Settings, typeof braze> =
         subscriptions,
         ...expectedConfig
       } = settings
-      const version = sdkVersion ?? '3.5'
+      const version = sdkVersion ?? '4.0'
 
       resetUserCache()
 
-      await dependencies.loadScript(`https://js.appboycdn.com/web-sdk/${version}/appboy.no-amd.min.js`)
+      await dependencies.loadScript(`https://js.appboycdn.com/web-sdk/${version}/braze.no-amd.min.js`)
 
-      braze.initialize(api_key, {
+      window.braze.initialize(api_key, {
         baseUrl: endpoint,
         ...expectedConfig
       })
 
-      braze.addSdkMetadata([braze.BrazeSdkMetadata.SEGMENT])
+      window.braze.addSdkMetadata([window.braze.BrazeSdkMetadata.SEGMENT])
 
       if (automaticallyDisplayMessages) {
-        braze.automaticallyShowInAppMessages()
+        window.braze.automaticallyShowInAppMessages()
       }
 
-      braze.openSession()
+      window.braze.openSession()
 
-      return braze
+      return window.braze
     } catch (e) {
       throw new Error(`Failed to initialize Braze ${e}`)
     }

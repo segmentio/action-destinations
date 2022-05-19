@@ -1,4 +1,4 @@
-import * as braze from '@braze/web-sdk'
+import type braze from '@braze/web-sdk'
 import { omit } from '@segment/actions-core'
 import type { BrowserActionDefinition } from '../../../lib/browser-destinations'
 import type { Settings } from '../generated-types'
