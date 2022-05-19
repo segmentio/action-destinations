@@ -1,14 +1,18 @@
-import { IntegrationError } from '@segment/actions-core'
 import type { Payload } from './generated-types'
-import type { AuthTokens } from '../../../../../core/src/destination-kit/parse-settings'
 import { RequestClient } from '@segment/actions-core'
 import GoogleSheets from '../googleapis/index'
 
-// TODO: Remove dependencies
+// TODO (STRATCONN-1379): Fork @flighter/a1-notation into @segment/a1-notation and add test cases
 import A1 from '@flighter/a1-notation'
 
 type Fields = {
   [k: string]: string
+}
+
+type PayloadEvent = {
+  identifier: string
+  operation: string
+  payload: Payload
 }
 
 export type MappingSettings = {
@@ -25,7 +29,7 @@ const generateColumnValuesFromFields = (identifier: string, fields: Fields, colu
 }
 
 function processGetSpreadsheetResponse(response: any, eventMap: Map<string, Fields>) {
-  // TODO: Fail request if above row limit
+  // TODO (STRATCONN-1375): Fail request if above row limit
 
   const updateBatch: { identifier: string; event: Fields; targetIndex: number }[] = []
   if (response.data.values && response.data.values.length > 0) {
@@ -96,6 +100,7 @@ function processAppendBatch(
   if (appendBatch.length <= 0) {
     return
   }
+
   const values = appendBatch.map(({ identifier, event }) =>
     generateColumnValuesFromFields(identifier, event, mappingSettings.columns)
   )
@@ -108,13 +113,8 @@ function processAppendBatch(
       console.log(error)
     })
 }
-type PayloadEvent = {
-  identifier: string
-  payload: Payload
-}
-function processData(auth: AuthTokens | undefined, events: PayloadEvent[], request: RequestClient) {
-  if (!auth || !auth.accessToken) throw new IntegrationError('Missing OAuth information')
 
+function processData(request: RequestClient, events: PayloadEvent[]) {
   // These are assumed to be constant across all events
   const mappingSettings = {
     spreadsheetId: events[0].payload.spreadsheet_id,
@@ -127,10 +127,9 @@ function processData(auth: AuthTokens | undefined, events: PayloadEvent[], reque
 
   gs.get(mappingSettings)
     .then((response) => {
-      const eventMap = new Map()
-      events.forEach((e) => {
-        eventMap.set(e.identifier, e.payload.fields)
-      })
+      const eventMap = new Map(events.map((e) => [e.identifier, e.payload.fields as Fields]))
+
+      // TODO (STRATCONN-1380): Support delete operation
       const { appendBatch, updateBatch } = processGetSpreadsheetResponse(response, eventMap)
 
       processUpdateBatch(mappingSettings, updateBatch, gs)
