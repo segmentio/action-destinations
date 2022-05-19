@@ -25,7 +25,7 @@ test('can load braze', async () => {
     endpoint: 'sdk.iad-01.braze.com',
     subscriptions: example,
     doNotLoadFontAwesome: true,
-    sdkVersion: '4.0'
+    sdkVersion: '3.5'
   })
 
   jest.spyOn(destination.actions.trackEvent, 'perform')

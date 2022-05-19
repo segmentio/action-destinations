@@ -6,7 +6,7 @@ describe('trackEvent', () => {
     const [trackEvent] = await brazeDestination({
       api_key: 'b_123',
       endpoint: 'endpoint',
-      sdkVersion: '4.0',
+      sdkVersion: '3.5',
       doNotLoadFontAwesome: true,
       subscriptions: [
         {
