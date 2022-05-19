@@ -3,7 +3,6 @@ import type { JSONObject } from '../json-object'
 import { AuthTokens } from './parse-settings'
 import type { RequestClient } from '../create-request-client'
 import type { ID } from '../segment-event'
-import { InputData } from '../mapping-kit'
 
 export type Optional<T, K extends keyof T> = Pick<Partial<T>, K> & Omit<T, K>
 export type MaybePromise<T> = T | Promise<T>
@@ -24,8 +23,6 @@ export interface ExecuteInput<Settings, Payload> {
   page?: string
   /** The data needed in OAuth requests */
   readonly auth?: AuthTokens
-  /** The input data in its raw form without any transformations */
-  readonly rawData?: InputData | InputData[]
 }
 
 export interface DynamicFieldResponse {

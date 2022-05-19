@@ -1,7 +1,6 @@
-import { ActionDefinition, IntegrationError } from '@segment/actions-core'
+import { ActionDefinition } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
-import { InputData } from '../../../../../core/src/mapping-kit'
 
 import { processData } from './operations'
 
@@ -9,7 +8,23 @@ const action: ActionDefinition<Settings, Payload> = {
   title: 'Post Sheet',
   description: 'Write values to a Google Sheets spreadsheet.',
   defaultSubscription: 'type = "track" and event = "updated" or event = "new" or event = "deleted"',
+  // TODO: Hide record_identifier and operation_type
   fields: {
+    record_identifier: {
+      label: 'Record Identifier',
+      description: 'Property which uniquely identifies each row in the spreadsheet.',
+      type: 'string',
+      required: true,
+      default: { '@path': '$.__segment_id' }
+    },
+    operation_type: {
+      label: 'Operation Type',
+      description:
+        "Describes the nature of the operation being performed. Only supported values are 'new', 'updated', and 'deleted'.",
+      type: 'string',
+      required: true,
+      default: { '@path': '$.event' }
+    },
     spreadsheet_id: {
       label: 'Spreadsheet ID',
       description:
@@ -53,30 +68,11 @@ const action: ActionDefinition<Settings, Payload> = {
       defaultObjectUI: 'keyvalue:only'
     }
   },
-  perform: (request, data) => {
-    if (!data.rawData || !data.rawData.__segment_id || !data.rawData.event)
-      throw new IntegrationError('Only warehouse type sources are supported', '400')
-
-    const { payload, rawData } = data
-    const event = {
-      identifier: rawData.__segment_id,
-      operation: data.rawData.event,
-      payload
-    }
-    processData(request, [event])
+  perform: (request, { payload }) => {
+    processData(request, [payload])
   },
-  performBatch: (request, data) => {
-    if (!data.rawData || data.rawData.some((d: InputData) => !d.__segment_id || !d.event))
-      throw new IntegrationError('Only warehouse type sources are supported', '400')
-
-    const { payload, rawData } = data
-    const events = payload.map((payload, index) => ({
-      identifier: rawData[index].__segment_id,
-      operation: rawData[index].event,
-      payload
-    }))
-
-    processData(request, events)
+  performBatch: (request, { payload }) => {
+    processData(request, payload)
   }
 }
 
