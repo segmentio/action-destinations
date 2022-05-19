@@ -55,7 +55,7 @@ const action: BrowserActionDefinition<Settings, typeof braze, Payload> = {
     const shouldSend = shouldSendToBraze(event)
     ctx.updateEvent('integrations.Braze Web Mode (Actions)', shouldSend)
     ctx.updateEvent('integrations.Braze Cloud Mode (Actions)', shouldSend)
-    ctx.updateEvent('integrations.Appboy', shouldSend)
+    ctx.updateEvent('integrations.Braze', shouldSend)
 
     // Ensure analytics.user is defined
     cachedUser.id = analyticsUser.id()

@@ -1,20 +1,22 @@
-import appboy from '@braze/web-sdk'
+import { initialize, openSession, logPurchase } from '@braze/web-sdk'
 import { Analytics, Context } from '@segment/analytics-next'
 import brazeDestination from '../index'
 
+const spyMethods = { initialize, openSession, logPurchase }
+
 beforeEach(() => {
-  // we're not really testing that appboy loads here, so we'll just mock it out
-  jest.spyOn(appboy, 'initialize').mockImplementation(() => true)
-  jest.spyOn(appboy, 'openSession').mockImplementation(() => true)
+  // we're not really testing that braze loads here, so we'll just mock it out
+  jest.spyOn(spyMethods, 'initialize').mockImplementation(() => true)
+  jest.spyOn(spyMethods, 'openSession').mockImplementation(() => true)
 })
 
 test('reports products when present', async () => {
-  const brazeLogPurchase = jest.spyOn(appboy, 'logPurchase').mockReturnValue(true)
+  const brazeLogPurchase = jest.spyOn(spyMethods, 'logPurchase').mockReturnValue(true)
 
   const [trackPurchase] = await brazeDestination({
     api_key: 'b_123',
     endpoint: 'endpoint',
-    sdkVersion: '3.3',
+    sdkVersion: '4.0',
     doNotLoadFontAwesome: true,
     subscriptions: [
       {

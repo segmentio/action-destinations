@@ -15,7 +15,7 @@ describe('initialization', () => {
     allowUserSuppliedJavascript: true,
     contentSecurityNonce: 'bar',
     endpoint: 'endpoint',
-    sdkVersion: '3.5'
+    sdkVersion: '4.0'
   }
 
   beforeEach(async () => {
@@ -68,7 +68,7 @@ describe('initialization', () => {
     expect(scripts).toMatchSnapshot(`
       NodeList [
         <script
-          src="https://js.appboycdn.com/web-sdk/3.5/appboy.no-amd.min.js"
+          src="https://js.appboycdn.com/web-sdk/4.0/braze.no-amd.min.js"
           type="text/javascript"
         />,
         <script>

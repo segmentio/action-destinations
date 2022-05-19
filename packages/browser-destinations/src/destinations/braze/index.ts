@@ -269,7 +269,11 @@ export const destination: BrowserDestinationDefinition<Settings, typeof braze> =
 
       resetUserCache()
 
-      await dependencies.loadScript(`https://js.appboycdn.com/web-sdk/${version}/braze.no-amd.min.js`)
+      if (version.startsWith('3')) {
+        await dependencies.loadScript(`https://js.appboycdn.com/web-sdk/${version}/appboy.no-amd.min.js`)
+      } else {
+        await dependencies.loadScript(`https://js.appboycdn.com/web-sdk/${version}/braze.no-amd.min.js`)
+      }
 
       window.braze.initialize(api_key, {
         baseUrl: endpoint,

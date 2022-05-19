@@ -77,7 +77,7 @@
       "^.+\\.[t|j]sx?$": "babel-jest"
     },
     "transformIgnorePatterns": [
-      "/node_modules/(?!@segment/analytics-next).+\\.js$"
+      "/node_modules/(?!(@segment/analytics-next|@braze/web-sdk/)).+\\.js$"
     ],
     "setupFilesAfterEnv": [
       "<rootDir>/test/setup-after-env.ts"
