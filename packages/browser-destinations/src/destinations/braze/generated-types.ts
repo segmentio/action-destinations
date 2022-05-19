@@ -2,7 +2,7 @@
 
 export interface Settings {
   /**
-   * The version of the SDK to use. Defaults to 3.3.
+   * The version of the SDK to use. Defaults to 4.0.
    */
   sdkVersion: string
   /**
