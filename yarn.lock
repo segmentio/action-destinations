@@ -2290,6 +2290,50 @@
   resolved "https://registry.yarnpkg.com/@polka/url/-/url-1.0.0-next.21.tgz#5de5a2385a35309427f6011992b544514d559aa1"
   integrity sha512-a5Sab1C4/icpTZVzZc5Ghpz88yQtGOyNqYXcZgOssB2uuAr+wF/MvN6bgtW32q7HHrvBki+BsZ0OuNv6EV3K9g==
 
+"@segment/action-destinations@^3.65.1-alpha.2":
+  version "3.69.1"
+  resolved "https://registry.yarnpkg.com/@segment/action-destinations/-/action-destinations-3.69.1.tgz#c3a0ba4f5c1768428a8a62558c8adbae114f7478"
+  integrity sha512-472Vlagu9G3BXf6zmz4sPIR107qQd7MD5uiRM9SJM9RsukavFFA0KWxkDfoAnsFzxLJQ/9VKaomlRACKAc7C/g==
+  dependencies:
+    "@amplitude/ua-parser-js" "^0.7.25"
+    "@segment/actions-core" "^3.23.1"
+    "@segment/actions-shared" "^1.5.1"
+    cheerio "^1.0.0-rc.10"
+    dayjs "^1.10.7"
+    escape-goat "^3"
+    lodash "^4.17.21"
+    mustache "^4.2.0"
+
+"@segment/actions-core@^3.23.1":
+  version "3.23.1"
+  resolved "https://registry.yarnpkg.com/@segment/actions-core/-/actions-core-3.23.1.tgz#48df8db38e89334a059eb95ba4e747a0ab0dddfa"
+  integrity sha512-AkhAALr+lbB81N1XkOi33IbW3zviJ9qykJYzBnQNFB0p+Wl8T0oxn93pedwnF8QvsDUoXhkYT7aAUpsZvqWZEw==
+  dependencies:
+    "@lukeed/uuid" "^2.0.0"
+    "@segment/ajv-human-errors" "^2.1.0"
+    "@segment/destination-subscriptions" "^3.10.1"
+    abort-controller "^3.0.0"
+    aggregate-error "^3.1.0"
+    ajv "^8.6.3"
+    ajv-formats "^2.1.1"
+    btoa-lite "^1.0.0"
+    cross-fetch "^3.1.4"
+    dayjs "^1.10.7"
+    ts-custom-error "^3.2.0"
+
+"@segment/actions-shared@^1.5.1":
+  version "1.5.1"
+  resolved "https://registry.yarnpkg.com/@segment/actions-shared/-/actions-shared-1.5.1.tgz#61879e79c2ff6ec28cc2ac66d6be752de64c0a6d"
+  integrity sha512-ICHZsfhFgOAdp2MD68hoc7FEC1NyTaumvqD1QhgliedVcxAGr8frUd9z2UAUbmteoiRbxYPs3hW5yQnKuK/fTQ==
+  dependencies:
+    "@amplitude/ua-parser-js" "^0.7.25"
+    "@segment/actions-core" "^3.23.1"
+    cheerio "^1.0.0-rc.10"
+    dayjs "^1.10.7"
+    escape-goat "^3"
+    lodash "^4.17.21"
+    mustache "^4.2.0"
+
 "@segment/analytics-next@^1.29.3":
   version "1.29.3"
   resolved "https://registry.yarnpkg.com/@segment/analytics-next/-/analytics-next-1.29.3.tgz#51ea4d7e487e95c2862ec5d52fd34a113c20161e"
@@ -2321,6 +2365,13 @@
     lodash "^4.17.15"
     path-to-regexp "^6.1.0"
     querystring "^0.2.0"
+
+"@segment/destination-subscriptions@^3.10.1":
+  version "3.10.1"
+  resolved "https://registry.yarnpkg.com/@segment/destination-subscriptions/-/destination-subscriptions-3.10.1.tgz#9afaa22f666448b993e5c62700ebf4ab7b29fb0d"
+  integrity sha512-XhLKjyclrcxVEWOz+Aw9iYK1pp4bnx2YsQEfP8dIj+66Gb2v+2/wIcUhych7HGf3PI4muEG7qqinwHo1TBHivA==
+  dependencies:
+    "@segment/fql-ts" "^1.10.1"
 
 "@segment/facade@3.3.10":
   version "3.3.10"

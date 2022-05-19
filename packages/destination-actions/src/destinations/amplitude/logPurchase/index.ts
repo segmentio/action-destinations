@@ -34,7 +34,7 @@ function getEvents(payload: Payload, properties: AmplitudeEvent): AmplitudeEvent
 
   // Remove the revenue keys from the properties object because we will add them back if
   // trackRevenuePerProduct is false, but if it's trackRevenuePerProduct is true
-  // we don't add them back to the main event because we'd be double-counting revenue
+  // we don't add them back to the main event because we'd be double-counting revenue.
   properties = omit(properties, revenueKeys)
 
   const events: AmplitudeEvent[] = [
@@ -51,7 +51,8 @@ function getEvents(payload: Payload, properties: AmplitudeEvent): AmplitudeEvent
 
   for (const product of products) {
     events.push({
-      ...properties,
+      // Remove the products array from product events
+      ...omit(properties, ['products']),
       // Or track revenue per product
       ...(trackRevenuePerProduct ? getRevenueProperties(product as EventRevenue) : {}),
       event_properties: product,
