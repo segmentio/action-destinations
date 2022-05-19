@@ -9,9 +9,9 @@ export default class GoogleSheets {
     this.request = request
   }
 
-  get = async (mappingSettings: MappingSettings) => {
+  get = async (mappingSettings: MappingSettings, range: string) => {
     return this.request(
-      `https://sheets.googleapis.com/${API_VERSION}/spreadsheets/${mappingSettings.spreadsheetId}/values/${mappingSettings.spreadsheetName}!A:A`,
+      `https://sheets.googleapis.com/${API_VERSION}/spreadsheets/${mappingSettings.spreadsheetId}/values/${mappingSettings.spreadsheetName}!${range}`,
       {
         method: 'get'
       }
@@ -31,9 +31,9 @@ export default class GoogleSheets {
     )
   }
 
-  append = async (mappingSettings: MappingSettings, values: string[][]) => {
+  append = async (mappingSettings: MappingSettings, range: string, values: string[][]) => {
     return this.request(
-      `https://sheets.googleapis.com/${API_VERSION}/spreadsheets/${mappingSettings.spreadsheetId}/values/${mappingSettings.spreadsheetName}!A2:append?valueInputOption=${mappingSettings.dataFormat}`,
+      `https://sheets.googleapis.com/${API_VERSION}/spreadsheets/${mappingSettings.spreadsheetId}/values/${mappingSettings.spreadsheetName}!${range}:append?valueInputOption=${mappingSettings.dataFormat}`,
       {
         method: 'post',
         json: {

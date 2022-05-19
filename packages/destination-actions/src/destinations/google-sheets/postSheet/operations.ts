@@ -30,11 +30,25 @@ export type MappingSettings = {
 
 /**
  * Utility function that converts the event properties into an array of strings that Google Sheets API can understand.
- * Note that the identifier is forced as the first column.
+ * Note that the identifier is forced as the first column. 
  * @param identifier value used to imbue fields with a uniqueness constraint
  * @param fields list of properties contained in the event
  * @param columns list of properties that will be committed to the spreadsheet
  * @returns a string object that has used the `fields` data to populate the `columns` ordering
+ * 
+ * @example
+ * fields: 
+    {
+      "CLOSE_DATE": "2022-07-08T00:00:00Z",
+      "CLOSE_DATE_EOQ": "2022-07-08",
+      "ENTRY_POINT": "Website Demo Request",
+      "E_ARR_POST_LAUNCH_C": "100000.0",
+      "FINANCE_ENTRY_POINT": "Inbound High Intent"
+    } 
+    columns: ["ENTRY_POINT", "MISSING_COLUMN", "CLOSE_DATE"]
+
+    return => ["Website Demo Request", "", "2022-07-08T00:00:00Z"]
+
  */
 const generateColumnValuesFromFields = (identifier: string, fields: Fields, columns: string[]) => {
   const retVal = columns.map((col) => fields[col] ?? '')
@@ -43,15 +57,20 @@ const generateColumnValuesFromFields = (identifier: string, fields: Fields, colu
 }
 
 /**
- * Processes the response of the Google Sheets GET call and parses the events into an update and a append bucket.
+ * Processes the response of the Google Sheets GET call and parses the events into separate operation buckets.
  * @param response result of the Google Sheets API get call
- * @param eventMap hashmap linking columns to be written to the identifier of the row
+ * @param events data to be written to the spreadsheet
  * @returns
  */
-function processGetSpreadsheetResponse(response: any, eventMap: Map<string, Fields>) {
+function processGetSpreadsheetResponse(response: any, events: PayloadEvent[]) {
   // TODO (STRATCONN-1375): Fail request if above row limit
 
   const updateBatch: { identifier: string; event: Fields; targetIndex: number }[] = []
+  const appendBatch: { identifier: string; event: Fields }[] = []
+
+  // Use a hashmap to efficiently find if the event already exists in the spreadsheet (update) or not (append).
+  const eventMap = new Map(events.map((e) => [e.identifier, e.payload.fields as Fields]))
+
   if (response.data.values && response.data.values.length > 0) {
     for (let i = 1; i < response.data.values.length; i++) {
       const targetIdentifier = response.data.values[i][0]
@@ -66,7 +85,6 @@ function processGetSpreadsheetResponse(response: any, eventMap: Map<string, Fiel
     }
   }
 
-  const appendBatch: { identifier: string; event: Fields }[] = []
   eventMap.forEach((value, key) => {
     appendBatch.push({
       identifier: key,
@@ -95,6 +113,7 @@ function processUpdateBatch(
   }
 
   const batchPayload = updateBatch.map(({ identifier, event, targetIndex }) => {
+    // Flatten event fields to be just the values
     const values = generateColumnValuesFromFields(identifier, event, mappingSettings.columns)
     return {
       range: `${mappingSettings.spreadsheetName}!${getRange(targetIndex, values.length)}`,
@@ -134,11 +153,13 @@ function processAppendBatch(
     return
   }
 
+  // Flatten event fields to be just the values
   const values = appendBatch.map(({ identifier, event }) =>
     generateColumnValuesFromFields(identifier, event, mappingSettings.columns)
   )
 
-  gs.append(mappingSettings, values)
+  // Start from A2 to skip header row (in case it has not been written yet)
+  gs.append(mappingSettings, 'A2', values)
     .then(() => {
       console.log('append')
     })
@@ -150,7 +171,7 @@ function processAppendBatch(
 /**
  * Takes an array of events and dynamically decides whether to append, update or delete rows from the spreadsheet.
  * @param request request object used to perform HTTP calls
- * @param events array of events to commit
+ * @param events array of events to commit to the spreadsheet
  */
 function processData(request: RequestClient, events: PayloadEvent[]) {
   // These are assumed to be constant across all events
@@ -163,12 +184,12 @@ function processData(request: RequestClient, events: PayloadEvent[]) {
 
   const gs: GoogleSheets = new GoogleSheets(request)
 
-  gs.get(mappingSettings)
+  // Get all of the row identifiers (assumed to be in the first column A)
+  gs.get(mappingSettings, 'A:A')
     .then((response) => {
-      const eventMap = new Map(events.map((e) => [e.identifier, e.payload.fields as Fields]))
-
       // TODO (STRATCONN-1380): Support delete operation
-      const { appendBatch, updateBatch } = processGetSpreadsheetResponse(response, eventMap)
+      // Use the retrieved row identifiers along with the incoming events to decide which ones should be appended or updated.
+      const { appendBatch, updateBatch } = processGetSpreadsheetResponse(response, events)
 
       processUpdateBatch(mappingSettings, updateBatch, gs)
       processAppendBatch(mappingSettings, appendBatch, gs)
