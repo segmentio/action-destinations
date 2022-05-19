@@ -1,9 +1,11 @@
 import { ActionDefinition, IntegrationError, RequestOptions } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
-import Mustache from 'mustache'
+import { Liquid as LiquidJs } from 'liquidjs'
 import cheerio from 'cheerio'
 import { htmlEscape } from 'escape-goat'
+
+const Liquid = new LiquidJs()
 
 const insertEmailPreviewText = (html: string, previewText: string): string => {
   const $ = cheerio.load(html)
@@ -242,15 +244,17 @@ const action: ActionDefinition<Settings, Payload> = {
       type: 'object',
       required: false
     }
-
   },
   perform: async (request, { settings, payload }) => {
     if (!payload.send) {
       return
     }
 
-    const emailProfile = payload?.externalIds?.find(meta => meta.type === 'email')
-    if (!emailProfile?.subscriptionStatus || ['unsubscribed', 'did not subscribed', 'false'].includes(emailProfile.subscriptionStatus)) {
+    const emailProfile = payload?.externalIds?.find((meta) => meta.type === 'email')
+    if (
+      !emailProfile?.subscriptionStatus ||
+      ['unsubscribed', 'did not subscribed', 'false'].includes(emailProfile.subscriptionStatus)
+    ) {
       return
     } else if (['subscribed', 'true'].includes(emailProfile?.subscriptionStatus)) {
       const traits = await fetchProfileTraits(request, settings, payload.userId)
@@ -299,6 +303,11 @@ const action: ActionDefinition<Settings, Payload> = {
         }
       }
 
+      const [parsedSubject, parsedBody] = await Promise.all([
+        Liquid.parseAndRender(payload.subject, { profile }),
+        Liquid.parseAndRender(bodyHtml, { profile })
+      ])
+
       return request('https://api.sendgrid.com/v3/mail/send', {
         method: 'post',
         headers: {
@@ -333,11 +342,11 @@ const action: ActionDefinition<Settings, Payload> = {
             email: payload.replyToEmail,
             name: payload.replyToName
           },
-          subject: Mustache.render(payload.subject, { profile }),
+          subject: parsedSubject,
           content: [
             {
               type: 'text/html',
-              value: Mustache.render(bodyHtml, { profile })
+              value: parsedBody
             }
           ],
           tracking_settings: {

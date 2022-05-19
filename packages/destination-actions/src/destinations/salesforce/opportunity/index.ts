@@ -6,34 +6,34 @@ import type { Payload } from './generated-types'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Opportunity',
-  description: 'Opportunity action',
+  description: 'Represents an opportunity, which is a sale or pending deal.',
   fields: {
     operation: operation,
     traits: traits,
-    amount: {
-      label: 'Amount',
-      description: 'Estimated total sale amount',
-      type: 'string'
-    },
     close_date: {
       label: 'Close Date',
-      description: 'Date when the opportunity is expected to close. This is required to create an opportunity.',
+      description:
+        'Date when the opportunity is expected to close. Use yyyy-MM-dd format. **This is required to create an opportunity.**',
+      type: 'string'
+    },
+    name: {
+      label: 'Name',
+      description: 'A name for the opportunity. **This is required to create an opportunity.**',
+      type: 'string'
+    },
+    stage_name: {
+      label: 'Stage Name',
+      description: 'Current stage of the opportunity. **This is required to create an opportunity.**',
+      type: 'string'
+    },
+    amount: {
+      label: 'Amount',
+      description: 'Estimated total sale amount.',
       type: 'string'
     },
     description: {
       label: 'Description',
       description: 'A text description of the opportunity.',
-      type: 'string'
-    },
-    name: {
-      label: 'Name',
-      description: 'A name for the opportunity. This is required to create an opportunity.',
-      type: 'string'
-    },
-    stage_name: {
-      label: 'Stage Name',
-      description:
-        'Current stage of the opportunity. This is required to create an opportunity. The Stage Name value must match available picklist values in the OpportunityStage object.',
       type: 'string'
     },
     customFields: customFields

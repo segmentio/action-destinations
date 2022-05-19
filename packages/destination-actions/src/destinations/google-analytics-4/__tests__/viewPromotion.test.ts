@@ -48,6 +48,7 @@ describe('GA4', () => {
           clientId: {
             '@path': '$.anonymousId'
           },
+          engagement_time_msec: 2,
           location_id: {
             '@path': '$.properties.promotion_id'
           },
@@ -94,7 +95,7 @@ describe('GA4', () => {
       `)
 
       expect(responses[0].options.body).toMatchInlineSnapshot(
-        `"{\\"client_id\\":\\"3456fff\\",\\"events\\":[{\\"name\\":\\"view_promotion\\",\\"params\\":{\\"creative_slot\\":\\"top_banner_2\\",\\"location_id\\":\\"promo_1\\",\\"promotion_id\\":\\"promo_1\\",\\"promotion_name\\":\\"75% store-wide shoe sale\\",\\"items\\":[{\\"item_name\\":\\"Monopoly: 3rd Edition\\",\\"item_id\\":\\"507f1f77bcf86cd799439011\\",\\"promotion_name\\":\\"SUPER SUMMER SALE; 3% off\\",\\"creative_slot\\":\\"2\\",\\"promotion_id\\":\\"12345\\",\\"creative_name\\":\\"Sale\\"}]}}]}"`
+        `"{\\"client_id\\":\\"3456fff\\",\\"events\\":[{\\"name\\":\\"view_promotion\\",\\"params\\":{\\"creative_slot\\":\\"top_banner_2\\",\\"location_id\\":\\"promo_1\\",\\"promotion_id\\":\\"promo_1\\",\\"promotion_name\\":\\"75% store-wide shoe sale\\",\\"items\\":[{\\"item_name\\":\\"Monopoly: 3rd Edition\\",\\"item_id\\":\\"507f1f77bcf86cd799439011\\",\\"promotion_name\\":\\"SUPER SUMMER SALE; 3% off\\",\\"creative_slot\\":\\"2\\",\\"promotion_id\\":\\"12345\\",\\"creative_name\\":\\"Sale\\"}],\\"engagement_time_msec\\":2}}]}"`
       )
     })
 
@@ -248,6 +249,87 @@ describe('GA4', () => {
       } catch (e) {
         expect(e.message).toBe("The root value is missing the required field 'items'.")
       }
+    })
+
+    it('should append user_properties correctly', async () => {
+      nock('https://www.google-analytics.com/mp/collect')
+        .post(`?measurement_id=${measurementId}&api_secret=${apiSecret}`)
+        .reply(201, {})
+      const event = createTestEvent({
+        event: 'Promotion Viewed',
+        userId: '3456fff',
+        anonymousId: 'anon-567890',
+        type: 'track',
+        properties: {
+          promotion_id: 'promo_1',
+          creative: 'top_banner_2',
+          name: '75% store-wide shoe sale',
+          position: 'home_banner_top',
+          products: [
+            {
+              product_id: '507f1f77bcf86cd799439011',
+              sku: '45790-32',
+              name: 'Monopoly: 3rd Edition',
+              price: 19,
+              quantity: 1,
+              category: 'Games',
+              promotion: 'SUPER SUMMER SALE; 3% off',
+              slot: '2',
+              promo_id: '12345',
+              creative_name: 'Sale'
+            }
+          ]
+        }
+      })
+
+      const responses = await testDestination.testAction('viewPromotion', {
+        event,
+        settings: {
+          apiSecret,
+          measurementId
+        },
+        mapping: {
+          user_properties: {
+            hello: 'world',
+            a: '1',
+            b: '2',
+            c: '3'
+          },
+          clientId: {
+            '@path': '$.anonymousId'
+          },
+          location_id: {
+            '@path': '$.properties.promotion_id'
+          },
+          items: [
+            {
+              item_name: {
+                '@path': `$.properties.products.0.name`
+              },
+              item_id: {
+                '@path': `$.properties.products.0.product_id`
+              },
+              promotion_name: {
+                '@path': `$.properties.products.0.promotion`
+              },
+              creative_slot: {
+                '@path': `$.properties.products.0.slot`
+              },
+              promotion_id: {
+                '@path': `$.properties.products.0.promo_id`
+              },
+              creative_name: {
+                '@path': `$.properties.products.0.creative_name`
+              }
+            }
+          ]
+        },
+        useDefaultMappings: true
+      })
+
+      expect(responses[0].options.body).toMatchInlineSnapshot(
+        `"{\\"client_id\\":\\"3456fff\\",\\"events\\":[{\\"name\\":\\"view_promotion\\",\\"params\\":{\\"creative_slot\\":\\"top_banner_2\\",\\"location_id\\":\\"promo_1\\",\\"promotion_id\\":\\"promo_1\\",\\"promotion_name\\":\\"75% store-wide shoe sale\\",\\"items\\":[{\\"item_name\\":\\"Monopoly: 3rd Edition\\",\\"item_id\\":\\"507f1f77bcf86cd799439011\\",\\"promotion_name\\":\\"SUPER SUMMER SALE; 3% off\\",\\"creative_slot\\":\\"2\\",\\"promotion_id\\":\\"12345\\",\\"creative_name\\":\\"Sale\\"}],\\"engagement_time_msec\\":1}}],\\"user_properties\\":{\\"hello\\":{\\"value\\":\\"world\\"},\\"a\\":{\\"value\\":\\"1\\"},\\"b\\":{\\"value\\":\\"2\\"},\\"c\\":{\\"value\\":\\"3\\"}}}"`
+      )
     })
   })
 })

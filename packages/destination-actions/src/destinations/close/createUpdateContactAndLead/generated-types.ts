@@ -10,11 +10,11 @@ export interface Payload {
    */
   lead_external_id?: string
   /**
-   * Description of the Lead
+   * Description of the Lead.
    */
   lead_description?: string
   /**
-   * ID of the Lead Status (`stat_xxxx`). You can get it in Close in Statuses & Pipelines page.
+   * ID of the Lead Status (`stat_xxxx`). You can get it in Close in the Statuses & Pipelines page.
    */
   lead_status_id?: string
   /**
@@ -28,7 +28,7 @@ export interface Payload {
    */
   contact_name?: string
   /**
-   * Can be used for looking up the Contact. If the Contact already has different email address, this value will be appended.
+   * Used to lookup Contact if Contact User ID is not set. If the Contact already has different email address, this value will be appended.
    */
   contact_email?: string
   /**
@@ -53,4 +53,24 @@ export interface Payload {
   contact_custom_fields?: {
     [k: string]: unknown
   }
+  /**
+   * Whether the integration is allowed to create new Leads.
+   */
+  allow_creating_new_leads?: boolean
+  /**
+   * Whether the integration is allowed to update existing Leads.
+   */
+  allow_updating_existing_leads?: boolean
+  /**
+   * Whether the integration is allowed to create new Contacts.
+   */
+  allow_creating_new_contacts?: boolean
+  /**
+   * Whether the integration is allowed to update existing Contacts.
+   */
+  allow_updating_existing_contacts?: boolean
+  /**
+   * Whether the integration is allowed to create duplicate Contact (same email or Contact User ID) under a different Lead (different Lead Company ID).
+   */
+  allow_creating_duplicate_contacts?: boolean
 }

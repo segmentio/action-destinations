@@ -3,7 +3,17 @@ import { CURRENCY_ISO_CODES } from '../constants'
 import { ProductItem } from '../ga4-types'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
-import { params, value, currency, client_id, items_single_products, user_id } from '../ga4-properties'
+import {
+  formatUserProperties,
+  user_properties,
+  params,
+  value,
+  currency,
+  client_id,
+  items_single_products,
+  user_id,
+  engagement_time_msec
+} from '../ga4-properties'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Add to Wishlist',
@@ -18,6 +28,8 @@ const action: ActionDefinition<Settings, Payload> = {
       ...items_single_products,
       required: true
     },
+    user_properties: user_properties,
+    engagement_time_msec: engagement_time_msec,
     params: params
   },
   perform: (request, { payload }) => {
@@ -76,10 +88,12 @@ const action: ActionDefinition<Settings, Payload> = {
               currency: payload.currency,
               value: payload.value,
               items: googleItems,
+              engagement_time_msec: payload.engagement_time_msec,
               ...payload.params
             }
           }
-        ]
+        ],
+        ...formatUserProperties(payload.user_properties)
       }
     })
   }

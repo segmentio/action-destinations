@@ -13,7 +13,7 @@ const destination: DestinationDefinition<Settings> = {
   mode: 'cloud',
 
   authentication: {
-    scheme: 'basic',
+    scheme: 'custom',
     fields: {
       apiKey: {
         label: 'API Key',
@@ -28,21 +28,18 @@ const destination: DestinationDefinition<Settings> = {
         type: 'string',
         required: true,
         format: 'uri',
-        choices: [
-          { label: 'US-EAST	(https://api.cordial.io)', value: 'https://api.cordial.io' },
-          { label: 'US-WEST	(https://api.usw2.cordial.io)', value: 'https://api.usw2.cordial.io' },
-          { label: 'Staging	(https://api.stg.cordialdev.com)', value: 'https://api.stg.cordialdev.com' }
-        ],
-        default: 'https://api.cordial.io'
+        default: 'https://integrations-ingest-svc.usw1.cordial.com'
       }
     },
     testAuthentication: (request, { settings }) => {
-      return request(settings.endpoint + '/v2/health')
+      return request(settings.endpoint + '/api/checkAuth')
     }
   },
 
   extendRequest({ settings }) {
-    return { username: settings.apiKey }
+    return {
+      headers: { 'x-api-key': `${settings.apiKey}`, 'Accept': 'application/json' },
+    }
   },
 
   actions: {

@@ -6,13 +6,13 @@ import Salesforce from '../sf-operations'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Contact',
-  description: 'Contact action',
+  description: 'Represents a contact, which is a person associated with an account.',
   fields: {
     operation: operation,
     traits: traits,
     last_name: {
       label: 'Last Name',
-      description: "The contact's last name up to 80 characters. This is required to create a contact.",
+      description: "The contact's last name up to 80 characters. **This is required to create a contact.**",
       type: 'string',
       default: {
         '@if': {
@@ -33,6 +33,12 @@ const action: ActionDefinition<Settings, Payload> = {
           else: { '@path': '$.properties.first_name' }
         }
       }
+    },
+    account_id: {
+      label: 'Account ID',
+      description:
+        'The ID of the account that this contact is associated with. This is the Salesforce-generated ID assigned to the account during creation (i.e. 0018c00002CDThnAAH).',
+      type: 'string'
     },
     email: {
       label: 'Email',

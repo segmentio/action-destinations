@@ -1,4 +1,12 @@
-import { createFriendbuyPayload, filterFriendbuyAttributes, isNonEmpty, parseDate } from '../util'
+import {
+  createFriendbuyPayload,
+  enjoinInteger,
+  enjoinNumber,
+  enjoinString,
+  filterFriendbuyAttributes,
+  isNonEmpty,
+  parseDate
+} from '../util'
 
 describe('isEmpty', () => {
   test('isEmpty', () => {
@@ -108,5 +116,41 @@ describe('parseDate', () => {
     expect(parseDate('10-9')).toBe(undefined) // Not enough digits in month.
     expect(parseDate('99-100')).toBe(undefined) // Too many digits in day.
     expect(parseDate('100-99')).toBe(undefined) // Too many digits in month.
+  })
+})
+
+describe('enjoin', () => {
+  test('enjoinInteger', () => {
+    expect(enjoinInteger('123')).toBe(123)
+    expect(enjoinInteger('-987')).toBe(-987)
+    expect(enjoinInteger('123.45')).toBe('123.45')
+    expect(enjoinInteger('0')).toBe(0)
+    expect(enjoinInteger('.123')).toBe('.123')
+    expect(enjoinInteger('1.')).toBe('1.')
+    expect(enjoinInteger(123)).toBe(123)
+    expect(enjoinInteger(123.45)).toBe(123.45)
+    expect(enjoinInteger('hello')).toBe('hello')
+  })
+
+  test('enjoinNumber', () => {
+    expect(enjoinNumber('123')).toBe(123)
+    expect(enjoinNumber('-987')).toBe(-987)
+    expect(enjoinNumber('123.45')).toBe(123.45)
+    expect(enjoinNumber('-1.11')).toBe(-1.11)
+    expect(enjoinNumber('0')).toBe(0)
+    expect(enjoinNumber('.123')).toBe('.123')
+    expect(enjoinNumber('1.')).toBe('1.')
+    expect(enjoinNumber('1.0')).toBe(1)
+    expect(enjoinNumber(123)).toBe(123)
+    expect(enjoinNumber(123.45)).toBe(123.45)
+    expect(enjoinNumber('hello')).toBe('hello')
+  })
+
+  test('enjoinString', () => {
+    expect(enjoinString('123')).toBe('123')
+    expect(enjoinString('-987')).toBe('-987')
+    expect(enjoinString(123)).toBe('123')
+    expect(enjoinString(123.45)).toBe('123.45')
+    expect(enjoinString('hello')).toBe('hello')
   })
 })

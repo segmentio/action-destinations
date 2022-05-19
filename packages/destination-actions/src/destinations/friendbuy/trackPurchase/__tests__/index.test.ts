@@ -8,9 +8,13 @@ import { nockAuth, authKey, authSecret } from '../../__tests__/cloudUtil.mock'
 const testDestination = createTestIntegration(Destination)
 
 describe('Friendbuy.trackPurchase', () => {
-  test('all fields', async () => {
+  function setUpTest() {
     nockAuth()
     nock(defaultMapiBaseUrl).post('/v1/event/purchase').reply(200, {})
+  }
+
+  test('all fields', async () => {
+    setUpTest()
 
     const orderId = 'my order'
     const products = [
@@ -98,6 +102,37 @@ describe('Friendbuy.trackPurchase', () => {
         // birthday: { month: 12, day: 25 }, // dropped because not string.
         loyaltyStatus
       }
+    })
+  })
+
+  test('enjoined fields', async () => {
+    setUpTest()
+
+    const event = createTestEvent({
+      type: 'track',
+      event: 'Order Completed',
+      properties: {
+        order_id: 12345,
+        total: '12.99',
+        currency: 'USD',
+        products: [{ sku: 99999, quantity: '1', price: '12.99' }]
+      }
+    })
+    const r = await testDestination.testAction('trackPurchase', {
+      event,
+      settings: { authKey, authSecret },
+      useDefaultMappings: true
+      // mapping,
+      // auth,
+    })
+
+    // console.log(JSON.stringify(r, null, 2))
+    expect(r.length).toBe(1) // (no auth request +) trackPurchase request
+    expect(r[0].options.json).toMatchObject({
+      orderId: '12345',
+      amount: 12.99,
+      currency: 'USD',
+      products: [{ sku: '99999', quantity: 1, price: 12.99 }]
     })
   })
 })
