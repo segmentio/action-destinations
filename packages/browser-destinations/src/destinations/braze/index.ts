@@ -277,28 +277,28 @@ export const destination: BrowserDestinationDefinition<Settings, any> = {
         await dependencies.loadScript(`https://js.appboycdn.com/web-sdk/${version}/braze.no-amd.min.js`)
       }
 
-      const windowObject = version.startsWith('3') ? window.appboy : window.braze
+      const brazeObject = version.startsWith('3') ? window.appboy : window.braze
 
-      windowObject.initialize(api_key, {
+      brazeObject.initialize(api_key, {
         baseUrl: endpoint,
         ...expectedConfig
       })
 
-      if (windowObject.addSdkMetadata) {
-        windowObject.addSdkMetadata([windowObject.BrazeSdkMetadata.SEGMENT])
+      if (brazeObject.addSdkMetadata) {
+        brazeObject.addSdkMetadata([brazeObject.BrazeSdkMetadata.SEGMENT])
       }
 
       if (automaticallyDisplayMessages) {
-        if ('display' in windowObject) {
-          windowObject.display.automaticallyShowNewInAppMessages()
+        if ('display' in brazeObject) {
+          brazeObject.display.automaticallyShowNewInAppMessages()
         } else {
-          windowObject.automaticallyShowInAppMessages()
+          brazeObject.automaticallyShowInAppMessages()
         }
       }
 
-      windowObject.openSession()
+      brazeObject.openSession()
 
-      return windowObject
+      return brazeObject
     } catch (e) {
       throw new Error(`Failed to initialize Braze ${e}`)
     }
