@@ -10,7 +10,10 @@ import {
   affiliation,
   shipping,
   items_multi_products,
-  params
+  params,
+  formatUserProperties,
+  user_properties,
+  engagement_time_msec
 } from '../ga4-properties'
 import { ProductItem } from '../ga4-types'
 import type { Settings } from '../generated-types'
@@ -37,6 +40,8 @@ const action: ActionDefinition<Settings, Payload> = {
     items: {
       ...items_multi_products
     },
+    user_properties: user_properties,
+    engagement_time_msec: engagement_time_msec,
     params: params
   },
   perform: (request, { payload }) => {
@@ -99,10 +104,12 @@ const action: ActionDefinition<Settings, Payload> = {
               shipping: payload.shipping,
               tax: payload.tax,
               items: googleItems,
+              engagement_time_msec: payload.engagement_time_msec,
               ...payload.params
             }
           }
-        ]
+        ],
+        ...formatUserProperties(payload.user_properties)
       }
     })
   }

@@ -5,6 +5,10 @@
 - [Snapshot Testing](#snapshot-testing)
 - [Canary Testing](#canary-testing)
 
+## Actions Tester
+
+In order to see a visual representation of the settings/mappings fields we provide a tool to preview and execute simulated actions mappings against your in development destination. For more information on how to use actions tester [click here](./actions_tester.md).
+
 ## Local End-to-end Testing
 
 To test a destination action locally, you can spin up a local HTTP server through the Actions CLI.

@@ -6,7 +6,7 @@ import { API_VERSION } from '../sf-operations'
 const testDestination = createTestIntegration(Destination)
 
 const settings = {
-  instanceUrl: 'https://test.com'
+  instanceUrl: 'https://test.com/'
 }
 const auth = {
   refreshToken: 'xyz321',
@@ -16,7 +16,7 @@ const auth = {
 describe('Salesforce', () => {
   describe('Lead', () => {
     it('should create a lead record', async () => {
-      nock(`${settings.instanceUrl}/services/data/${API_VERSION}/sobjects`).post('/Lead').reply(201, {})
+      nock(`${settings.instanceUrl}services/data/${API_VERSION}/sobjects`).post('/Lead').reply(201, {})
 
       const event = createTestEvent({
         type: 'track',
@@ -71,7 +71,7 @@ describe('Salesforce', () => {
     })
 
     it('should create a lead record with default mappings', async () => {
-      nock(`${settings.instanceUrl}/services/data/${API_VERSION}/sobjects`).post('/Lead').reply(201, {})
+      nock(`${settings.instanceUrl}services/data/${API_VERSION}/sobjects`).post('/Lead').reply(201, {})
 
       const event = createTestEvent({
         type: 'track',
@@ -126,7 +126,7 @@ describe('Salesforce', () => {
     })
 
     it('should create a lead record with custom fields', async () => {
-      nock(`${settings.instanceUrl}/services/data/${API_VERSION}/sobjects`).post('/Lead').reply(201, {})
+      nock(`${settings.instanceUrl}services/data/${API_VERSION}/sobjects`).post('/Lead').reply(201, {})
 
       const event = createTestEvent({
         type: 'track',
@@ -201,15 +201,16 @@ describe('Salesforce', () => {
         }
       })
 
-      nock(`${settings.instanceUrl}/services/data/${API_VERSION}/query`)
-        .get(`/?q=SELECT Id FROM Lead WHERE company = 'Krusty Krab'`)
+      const query = encodeURIComponent(`SELECT Id FROM Lead WHERE company = 'Krusty Krab'`)
+      nock(`${settings.instanceUrl}services/data/${API_VERSION}/query`)
+        .get(`/?q=${query}`)
         .reply(201, {
           Id: 'abc123',
           totalSize: 1,
           records: [{ Id: '123456' }]
         })
 
-      nock(`${settings.instanceUrl}/services/data/${API_VERSION}/sobjects`).patch('/Lead/123456').reply(201, {})
+      nock(`${settings.instanceUrl}services/data/${API_VERSION}/sobjects`).patch('/Lead/123456').reply(201, {})
 
       const responses = await testDestination.testAction('lead', {
         event,
@@ -279,15 +280,16 @@ describe('Salesforce', () => {
         }
       })
 
-      nock(`${settings.instanceUrl}/services/data/${API_VERSION}/query`)
-        .get(`/?q=SELECT Id FROM Lead WHERE company = 'Krusty Krab'`)
+      const query = encodeURIComponent(`SELECT Id FROM Lead WHERE company = 'Krusty Krab'`)
+      nock(`${settings.instanceUrl}services/data/${API_VERSION}/query`)
+        .get(`/?q=${query}`)
         .reply(201, {
           Id: 'abc123',
           totalSize: 1,
           records: [{ Id: '123456' }]
         })
 
-      nock(`${settings.instanceUrl}/services/data/${API_VERSION}/sobjects`).patch('/Lead/123456').reply(201, {})
+      nock(`${settings.instanceUrl}services/data/${API_VERSION}/sobjects`).patch('/Lead/123456').reply(201, {})
 
       const responses = await testDestination.testAction('lead', {
         event,
@@ -357,14 +359,13 @@ describe('Salesforce', () => {
         }
       })
 
-      nock(`${settings.instanceUrl}/services/data/${API_VERSION}/query`)
-        .get(`/?q=SELECT Id FROM Lead WHERE company = 'Krusty Krab'`)
-        .reply(201, {
-          Id: 'abc123',
-          totalSize: 0
-        })
+      const query = encodeURIComponent(`SELECT Id FROM Lead WHERE company = 'Krusty Krab'`)
+      nock(`${settings.instanceUrl}services/data/${API_VERSION}/query`).get(`/?q=${query}`).reply(201, {
+        Id: 'abc123',
+        totalSize: 0
+      })
 
-      nock(`${settings.instanceUrl}/services/data/${API_VERSION}/sobjects`).post('/Lead').reply(201, {})
+      nock(`${settings.instanceUrl}services/data/${API_VERSION}/sobjects`).post('/Lead').reply(201, {})
 
       const responses = await testDestination.testAction('lead', {
         event,

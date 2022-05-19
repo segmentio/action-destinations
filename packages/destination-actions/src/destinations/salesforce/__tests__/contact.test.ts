@@ -6,7 +6,7 @@ import { API_VERSION } from '../sf-operations'
 const testDestination = createTestIntegration(Destination)
 
 const settings = {
-  instanceUrl: 'https://test.com'
+  instanceUrl: 'https://test.com/'
 }
 const auth = {
   refreshToken: 'xyz321',
@@ -16,7 +16,7 @@ const auth = {
 describe('Salesforce', () => {
   describe('Contact', () => {
     it('should create a contact record', async () => {
-      nock(`${settings.instanceUrl}/services/data/${API_VERSION}/sobjects`).post('/Contact').reply(201, {})
+      nock(`${settings.instanceUrl}services/data/${API_VERSION}/sobjects`).post('/Contact').reply(201, {})
 
       const event = createTestEvent({
         type: 'track',
@@ -70,7 +70,7 @@ describe('Salesforce', () => {
     })
 
     it('should create a contact record with default mappings', async () => {
-      nock(`${settings.instanceUrl}/services/data/${API_VERSION}/sobjects`).post('/Contact').reply(201, {})
+      nock(`${settings.instanceUrl}services/data/${API_VERSION}/sobjects`).post('/Contact').reply(201, {})
 
       const event = createTestEvent({
         type: 'track',
@@ -124,7 +124,7 @@ describe('Salesforce', () => {
     })
 
     it('should create a contact record with custom fields', async () => {
-      nock(`${settings.instanceUrl}/services/data/${API_VERSION}/sobjects`).post('/Contact').reply(201, {})
+      nock(`${settings.instanceUrl}services/data/${API_VERSION}/sobjects`).post('/Contact').reply(201, {})
 
       const event = createTestEvent({
         type: 'track',
@@ -193,15 +193,16 @@ describe('Salesforce', () => {
         }
       })
 
-      nock(`${settings.instanceUrl}/services/data/${API_VERSION}/query`)
-        .get(`/?q=SELECT Id FROM Contact WHERE email = 'sponge@seamail.com'`)
+      const query = encodeURIComponent(`SELECT Id FROM Contact WHERE email = 'sponge@seamail.com'`)
+      nock(`${settings.instanceUrl}services/data/${API_VERSION}/query`)
+        .get(`/?q=${query}`)
         .reply(201, {
           Id: 'abc123',
           totalSize: 1,
           records: [{ Id: '123456' }]
         })
 
-      nock(`${settings.instanceUrl}/services/data/${API_VERSION}/sobjects`).patch('/Contact/123456').reply(201, {})
+      nock(`${settings.instanceUrl}services/data/${API_VERSION}/sobjects`).patch('/Contact/123456').reply(201, {})
 
       const responses = await testDestination.testAction('contact', {
         event,
@@ -267,15 +268,16 @@ describe('Salesforce', () => {
         }
       })
 
-      nock(`${settings.instanceUrl}/services/data/${API_VERSION}/query`)
-        .get(`/?q=SELECT Id FROM Contact WHERE email = 'spongebob@gmail.com'`)
+      const query = encodeURIComponent(`SELECT Id FROM Contact WHERE email = 'spongebob@gmail.com'`)
+      nock(`${settings.instanceUrl}services/data/${API_VERSION}/query`)
+        .get(`/?q=${query}`)
         .reply(201, {
           Id: 'abc123',
           totalSize: 1,
           records: [{ Id: '123456' }]
         })
 
-      nock(`${settings.instanceUrl}/services/data/${API_VERSION}/sobjects`).patch('/Contact/123456').reply(201, {})
+      nock(`${settings.instanceUrl}services/data/${API_VERSION}/sobjects`).patch('/Contact/123456').reply(201, {})
 
       const responses = await testDestination.testAction('contact', {
         event,
@@ -341,14 +343,13 @@ describe('Salesforce', () => {
         }
       })
 
-      nock(`${settings.instanceUrl}/services/data/${API_VERSION}/query`)
-        .get(`/?q=SELECT Id FROM Contact WHERE email = 'plankton@gmail.com'`)
-        .reply(201, {
-          Id: 'abc123',
-          totalSize: 0
-        })
+      const query = encodeURIComponent(`SELECT Id FROM Contact WHERE email = 'plankton@gmail.com'`)
+      nock(`${settings.instanceUrl}services/data/${API_VERSION}/query`).get(`/?q=${query}`).reply(201, {
+        Id: 'abc123',
+        totalSize: 0
+      })
 
-      nock(`${settings.instanceUrl}/services/data/${API_VERSION}/sobjects`).post('/Contact').reply(201, {})
+      nock(`${settings.instanceUrl}services/data/${API_VERSION}/sobjects`).post('/Contact').reply(201, {})
 
       const responses = await testDestination.testAction('contact', {
         event,

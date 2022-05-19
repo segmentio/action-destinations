@@ -6,7 +6,7 @@ import { API_VERSION } from '../sf-operations'
 const testDestination = createTestIntegration(Destination)
 
 const settings = {
-  instanceUrl: 'https://test.com'
+  instanceUrl: 'https://test.com/'
 }
 const auth = {
   refreshToken: 'xyz123',
@@ -16,7 +16,7 @@ const auth = {
 describe('Salesforce', () => {
   describe('Case', () => {
     it('should create a case record', async () => {
-      nock(`${settings.instanceUrl}/services/data/${API_VERSION}/sobjects`).post('/Case').reply(201, {})
+      nock(`${settings.instanceUrl}services/data/${API_VERSION}/sobjects`).post('/Case').reply(201, {})
 
       const event = createTestEvent({
         type: 'track',
@@ -61,7 +61,7 @@ describe('Salesforce', () => {
     })
 
     it('should create a case record with custom fields', async () => {
-      nock(`${settings.instanceUrl}/services/data/${API_VERSION}/sobjects`).post('/Case').reply(201, {})
+      nock(`${settings.instanceUrl}services/data/${API_VERSION}/sobjects`).post('/Case').reply(201, {})
 
       const event = createTestEvent({
         type: 'track',
@@ -121,15 +121,16 @@ describe('Salesforce', () => {
         }
       })
 
-      nock(`${settings.instanceUrl}/services/data/${API_VERSION}/query`)
-        .get(`/?q=SELECT Id FROM Case WHERE description = 'Test one'`)
+      const query = encodeURIComponent(`SELECT Id FROM Case WHERE description = 'Test one'`)
+      nock(`${settings.instanceUrl}services/data/${API_VERSION}/query`)
+        .get(`/?q=${query}`)
         .reply(201, {
           Id: 'abc123',
           totalSize: 1,
           records: [{ Id: '123456' }]
         })
 
-      nock(`${settings.instanceUrl}/services/data/${API_VERSION}/sobjects`).patch('/Case/123456').reply(201, {})
+      nock(`${settings.instanceUrl}services/data/${API_VERSION}/sobjects`).patch('/Case/123456').reply(201, {})
 
       const responses = await testDestination.testAction('cases', {
         event,
@@ -175,15 +176,16 @@ describe('Salesforce', () => {
         }
       })
 
-      nock(`${settings.instanceUrl}/services/data/${API_VERSION}/query`)
-        .get(`/?q=SELECT Id FROM Case WHERE description = 'Test one'`)
+      const query = encodeURIComponent(`SELECT Id FROM Case WHERE description = 'Test one'`)
+      nock(`${settings.instanceUrl}services/data/${API_VERSION}/query`)
+        .get(`/?q=${query}`)
         .reply(201, {
           Id: 'abc123',
           totalSize: 1,
           records: [{ Id: '123456' }]
         })
 
-      nock(`${settings.instanceUrl}/services/data/${API_VERSION}/sobjects`).patch('/Case/123456').reply(201, {})
+      nock(`${settings.instanceUrl}services/data/${API_VERSION}/sobjects`).patch('/Case/123456').reply(201, {})
 
       const responses = await testDestination.testAction('cases', {
         event,
@@ -229,14 +231,13 @@ describe('Salesforce', () => {
         }
       })
 
-      nock(`${settings.instanceUrl}/services/data/${API_VERSION}/query`)
-        .get(`/?q=SELECT Id FROM Case WHERE description = 'Test one'`)
-        .reply(201, {
-          Id: 'abc123',
-          totalSize: 0
-        })
+      const query = encodeURIComponent(`SELECT Id FROM Case WHERE description = 'Test one'`)
+      nock(`${settings.instanceUrl}services/data/${API_VERSION}/query`).get(`/?q=${query}`).reply(201, {
+        Id: 'abc123',
+        totalSize: 0
+      })
 
-      nock(`${settings.instanceUrl}/services/data/${API_VERSION}/sobjects`).post('/Case').reply(201, {})
+      nock(`${settings.instanceUrl}services/data/${API_VERSION}/sobjects`).post('/Case').reply(201, {})
 
       const responses = await testDestination.testAction('cases', {
         event,

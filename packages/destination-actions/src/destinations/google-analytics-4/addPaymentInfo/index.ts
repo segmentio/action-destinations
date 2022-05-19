@@ -5,12 +5,15 @@ import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 import {
   user_id,
+  formatUserProperties,
+  user_properties,
   client_id,
   currency,
   value,
   coupon,
   payment_type,
   items_multi_products,
+  engagement_time_msec,
   params
 } from '../ga4-properties'
 
@@ -29,6 +32,8 @@ const action: ActionDefinition<Settings, Payload> = {
       ...items_multi_products,
       required: true
     },
+    user_properties: user_properties,
+    engagement_time_msec: engagement_time_msec,
     params: params
   },
   perform: (request, { payload }) => {
@@ -98,10 +103,12 @@ const action: ActionDefinition<Settings, Payload> = {
               coupon: payload.coupon,
               payment_type: payload.payment_type,
               items: googleItems,
+              engagement_time_msec: payload.engagement_time_msec,
               ...payload.params
             }
           }
-        ]
+        ],
+        ...formatUserProperties(payload.user_properties)
       }
     })
   }

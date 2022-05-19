@@ -153,3 +153,38 @@ export function parseDate(date: string | DateRecord | undefined): DateRecord | u
   const year = match[1] && match[1] !== '0000' ? { year: parseInt(match[1], 10) } : {}
   return { month: parseInt(match[2], 10), day: parseInt(match[3], 10), ...year }
 }
+
+// Matches a (non-exponential-form) JSON integer.
+const integerRegexp = /^-?(?:0|[1-9][0-9]*)$/
+
+// Matches a (non-exponential-form) JSON number.
+const floatRegexp = /^-?(?:0|[1-9][0-9]*)(?:\.[0-9]+)?$/
+
+/**
+ * Converts an input that is a integer-format string to a number; otherwise
+ * returns the input unaltered.
+ *
+ * This is intended to be used in front of a function that strictly validates
+ * the types of its inputs when you want to a allow string representation of
+ * an integer to be allowed for the corresponding integer (that is, "123" for
+ * 123).
+ */
+export function enjoinInteger(input: unknown): unknown {
+  return typeof input === 'string' && integerRegexp.test(input) ? parseInt(input) : input
+}
+
+/**
+ * Converts an input that is a float-format string to a number; otherwise
+ * returns the input unaltered.
+ */
+export function enjoinNumber(input: unknown): unknown {
+  return typeof input === 'string' && floatRegexp.test(input) ? parseFloat(input) : input
+}
+
+/**
+ * Converts an input that is a number to a string; otherwise returns the input
+ * unaltered.
+ */
+export function enjoinString(input: unknown): unknown {
+  return typeof input === 'number' ? input.toString() : input
+}

@@ -1,7 +1,14 @@
 import type { ActionDefinition } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
-import { params, user_id, client_id } from '../ga4-properties'
+import {
+  formatUserProperties,
+  user_properties,
+  params,
+  user_id,
+  client_id,
+  engagement_time_msec
+} from '../ga4-properties'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Login',
@@ -15,6 +22,8 @@ const action: ActionDefinition<Settings, Payload> = {
       type: 'string',
       description: 'The method used to login.'
     },
+    user_properties: user_properties,
+    engagement_time_msec: engagement_time_msec,
     params: params
   },
 
@@ -29,10 +38,12 @@ const action: ActionDefinition<Settings, Payload> = {
             name: 'login',
             params: {
               method: payload.method,
+              engagement_time_msec: payload.engagement_time_msec,
               ...payload.params
             }
           }
-        ]
+        ],
+        ...formatUserProperties(payload.user_properties)
       }
     })
   }

@@ -8,6 +8,49 @@ const measurementId = 'G-TESTTOKEN'
 
 describe('GA4', () => {
   describe('Signed In', () => {
+    it('should append user_properties correctly', async () => {
+      nock('https://www.google-analytics.com/mp/collect')
+        .post(`?measurement_id=${measurementId}&api_secret=${apiSecret}`)
+        .reply(201, {})
+
+      const event = createTestEvent({
+        event: 'Login',
+        userId: 'abc123',
+        anonymousId: 'anon-2134',
+        type: 'track',
+        properties: {
+          product_id: '12345abcde',
+          name: 'Quadruple Stack Oreos, 52 ct',
+          currency: 'USD',
+          price: 12.99,
+          quantity: 1
+        }
+      })
+      const responses = await testDestination.testAction('login', {
+        event,
+        settings: {
+          apiSecret,
+          measurementId
+        },
+        mapping: {
+          client_id: {
+            '@path': '$.anonymousId'
+          },
+          user_properties: {
+            hello: 'world',
+            a: '1',
+            b: '2',
+            c: '3'
+          }
+        },
+        useDefaultMappings: true
+      })
+
+      expect(responses[0].options.body).toMatchInlineSnapshot(
+        `"{\\"client_id\\":\\"anon-2134\\",\\"events\\":[{\\"name\\":\\"login\\",\\"params\\":{\\"engagement_time_msec\\":1}}],\\"user_properties\\":{\\"hello\\":{\\"value\\":\\"world\\"},\\"a\\":{\\"value\\":\\"1\\"},\\"b\\":{\\"value\\":\\"2\\"},\\"c\\":{\\"value\\":\\"3\\"}}}"`
+      )
+    })
+
     it('should handle a basic event', async () => {
       nock('https://www.google-analytics.com/mp/collect')
         .post(`?measurement_id=${measurementId}&api_secret=${apiSecret}`)
@@ -31,6 +74,7 @@ describe('GA4', () => {
           client_id: {
             '@path': '$.userId'
           },
+          engagement_time_msec: 2,
           method: {
             '@path': '$.properties.login_method'
           }
@@ -54,7 +98,7 @@ describe('GA4', () => {
       `)
 
       expect(responses[0].options.body).toMatchInlineSnapshot(
-        `"{\\"client_id\\":\\"abc123\\",\\"events\\":[{\\"name\\":\\"login\\",\\"params\\":{\\"method\\":\\"Okta SSO\\"}}]}"`
+        `"{\\"client_id\\":\\"abc123\\",\\"events\\":[{\\"name\\":\\"login\\",\\"params\\":{\\"method\\":\\"Okta SSO\\",\\"engagement_time_msec\\":2}}]}"`
       )
     })
   })
