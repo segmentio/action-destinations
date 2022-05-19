@@ -44,12 +44,12 @@ const presets: DestinationDefinition['presets'] = [
 ]
 
 export const destination: BrowserDestinationDefinition<Settings, typeof braze> = {
-  name: 'Braze Web Device Mode (Actions)',
+  name: 'Braze Web Mode (Actions)',
   slug: 'actions-braze-web',
   mode: 'device',
   settings: {
     sdkVersion: {
-      description: 'The version of the Braze SDK to use',
+      description: 'The version of the SDK to use. Defaults to 4.0.',
       label: 'SDK Version',
       type: 'string',
       choices: [
