@@ -2,6 +2,7 @@ import type { Settings } from './generated-types'
 import type { BrowserDestinationDefinition } from '../../lib/browser-destinations'
 import { browserDestination } from '../../runtime/shim'
 import type braze from '@braze/web-sdk'
+import type appboy from '@braze/web-sdk-v3'
 import trackEvent from './trackEvent'
 import updateUserProfile from './updateUserProfile'
 import trackPurchase from './trackPurchase'
@@ -11,6 +12,7 @@ import { defaultValues, DestinationDefinition } from '@segment/actions-core'
 declare global {
   interface Window {
     braze: typeof braze
+    appboy: typeof appboy
   }
 }
 
@@ -43,7 +45,7 @@ const presets: DestinationDefinition['presets'] = [
   }
 ]
 
-export const destination: BrowserDestinationDefinition<Settings, typeof braze> = {
+export const destination: BrowserDestinationDefinition<Settings, any> = {
   name: 'Braze Web Mode (Actions)',
   slug: 'actions-braze-web',
   mode: 'device',
@@ -275,20 +277,28 @@ export const destination: BrowserDestinationDefinition<Settings, typeof braze> =
         await dependencies.loadScript(`https://js.appboycdn.com/web-sdk/${version}/braze.no-amd.min.js`)
       }
 
-      window.braze.initialize(api_key, {
+      const windowObject = version.startsWith('3') ? window.appboy : window.braze
+
+      windowObject.initialize(api_key, {
         baseUrl: endpoint,
         ...expectedConfig
       })
 
-      window.braze.addSdkMetadata([window.braze.BrazeSdkMetadata.SEGMENT])
-
-      if (automaticallyDisplayMessages) {
-        window.braze.automaticallyShowInAppMessages()
+      if (windowObject.addSdkMetadata) {
+        windowObject.addSdkMetadata([windowObject.BrazeSdkMetadata.SEGMENT])
       }
 
-      window.braze.openSession()
+      if (automaticallyDisplayMessages) {
+        if ('display' in windowObject) {
+          windowObject.display.automaticallyShowNewInAppMessages()
+        } else {
+          windowObject.automaticallyShowInAppMessages()
+        }
+      }
 
-      return window.braze
+      windowObject.openSession()
+
+      return windowObject
     } catch (e) {
       throw new Error(`Failed to initialize Braze ${e}`)
     }

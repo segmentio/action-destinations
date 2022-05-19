@@ -25,7 +25,7 @@ test('can load braze', async () => {
     endpoint: 'sdk.iad-01.braze.com',
     subscriptions: example,
     doNotLoadFontAwesome: true,
-    sdkVersion: '3.3'
+    sdkVersion: '4.0'
   })
 
   jest.spyOn(destination.actions.trackEvent, 'perform')
@@ -90,6 +90,33 @@ describe('loads different versions from CDN', () => {
       NodeList [
         <script
           src="https://js.appboycdn.com/web-sdk/3.1/appboy.no-amd.min.js"
+          status="loaded"
+          type="text/javascript"
+        />,
+        <script>
+          // the emptiness
+        </script>,
+      ]
+    `)
+  })
+
+  test('3.1', async () => {
+    const [trackEvent] = await braze({
+      api_key: 'api_key',
+      endpoint: 'sdk.iad-01.braze.com',
+      sdkVersion: '3.5',
+      doNotLoadFontAwesome: true,
+      subscriptions: example
+    })
+
+    await trackEvent.load(Context.system(), {} as Analytics)
+
+    const scripts = window.document.querySelectorAll('script')
+    // loads the service worker
+    expect(scripts).toMatchSnapshot(`
+      NodeList [
+        <script
+          src="https://js.appboycdn.com/web-sdk/3.5/appboy.no-amd.min.js"
           status="loaded"
           type="text/javascript"
         />,
