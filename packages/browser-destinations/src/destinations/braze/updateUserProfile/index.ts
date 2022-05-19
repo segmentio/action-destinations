@@ -3,8 +3,9 @@ import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 import * as braze from '@braze/web-sdk'
 import dayjs from '../../../lib/dayjs'
+import { BrazeType } from '../braze-types'
 
-const action: BrowserActionDefinition<Settings, typeof braze, Payload> = {
+const action: BrowserActionDefinition<Settings, BrazeType, Payload> = {
   title: 'Update User Profile',
   description: 'Updates a users profile attributes in Braze',
   defaultSubscription: 'type = "identify" or type = "group"',

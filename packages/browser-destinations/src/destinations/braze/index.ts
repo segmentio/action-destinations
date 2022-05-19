@@ -8,6 +8,7 @@ import updateUserProfile from './updateUserProfile'
 import trackPurchase from './trackPurchase'
 import debounce, { resetUserCache } from './debounce'
 import { defaultValues, DestinationDefinition } from '@segment/actions-core'
+import { BrazeType } from './braze-types'
 
 declare global {
   interface Window {
@@ -45,7 +46,7 @@ const presets: DestinationDefinition['presets'] = [
   }
 ]
 
-export const destination: BrowserDestinationDefinition<Settings, any> = {
+export const destination: BrowserDestinationDefinition<Settings, BrazeType> = {
   name: 'Braze Web Mode (Actions)',
   slug: 'actions-braze-web',
   mode: 'device',
