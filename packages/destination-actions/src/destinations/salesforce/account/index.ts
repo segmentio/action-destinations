@@ -4,6 +4,8 @@ import Salesforce from '../sf-operations'
 import { customFields, operation, traits, validateLookup } from '../sf-properties'
 import type { Payload } from './generated-types'
 
+const objectName = 'Account'
+
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Account',
   description: 'Represents an individual account, which is an organization or person involved with your business.',
@@ -170,20 +172,20 @@ const action: ActionDefinition<Settings, Payload> = {
       if (!payload.name) {
         throw new IntegrationError('Missing name value', 'Misconfigured required field', 400)
       }
-      return await sf.createRecord(payload, 'Account')
+      return await sf.createRecord(payload, objectName)
     }
 
     validateLookup(payload)
 
     if (payload.operation === 'update') {
-      return await sf.updateRecord(payload, 'Account')
+      return await sf.updateRecord(payload, objectName)
     }
 
     if (payload.operation === 'upsert') {
       if (!payload.name) {
         throw new IntegrationError('Missing name value', 'Misconfigured required field', 400)
       }
-      return await sf.upsertRecord(payload, 'Account')
+      return await sf.upsertRecord(payload, objectName)
     }
   },
   performBatch: async (request, { settings, payload }) => {
@@ -194,7 +196,7 @@ const action: ActionDefinition<Settings, Payload> = {
         throw new IntegrationError('Missing name value', 'Misconfigured required field', 400)
       }
 
-      return await sf.bulkUpsert(payload, 'Account')
+      return await sf.bulkUpsert(payload, objectName)
     }
   }
 }

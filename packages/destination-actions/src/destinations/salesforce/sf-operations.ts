@@ -3,12 +3,12 @@ import type { GenericPayload } from './sf-types'
 import { mapObjectToShape, snakeCaseToCamelCase } from './sf-object-to-shape'
 
 export const API_VERSION = 'v53.0'
-const isSettingsKey = new Map<string, boolean>([
-  ['operation', true],
-  ['traits', true],
-  ['externalIdFieldName', true]
-])
-
+// const isSettingsKey = new Map<string, boolean>([
+//   ['operation', true],
+//   ['traits', true],
+//   ['externalIdFieldName', true]
+// ])
+const isSettingsKey = new Set<string>(['operation', 'traits'])
 interface Records {
   Id?: string
 }
@@ -159,7 +159,7 @@ export default class Salesforce {
     // The last value in the row should be the externalIDField value
 
     Object.entries(payload).forEach(([key, value]) => {
-      if (!isSettingsKey.get(key)) {
+      if (!isSettingsKey.has(key)) {
         row += `"${value}",`
       }
     })
@@ -171,8 +171,7 @@ export default class Salesforce {
   private buildHeader = (payloads: GenericPayload[], externalIdFieldName: string): string => {
     let header = ''
     Object.keys(payloads[0]).forEach((key) => {
-      console.log('CSV: ', key)
-      if (!isSettingsKey.get(key)) {
+      if (!isSettingsKey.has(key)) {
         header += `"${snakeCaseToCamelCase(key)}",`
       }
     })
