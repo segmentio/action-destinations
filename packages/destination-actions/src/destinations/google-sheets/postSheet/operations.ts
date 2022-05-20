@@ -10,15 +10,6 @@ type Fields = {
 }
 
 /**
- * Union of mapping data (payload) and dependencies taken on the source type
- */
-type PayloadEvent = {
-  identifier: string
-  operation: string
-  payload: Payload
-}
-
-/**
  * Invariant settings that are common to all events in the payload.
  */
 export type MappingSettings = {
@@ -62,14 +53,14 @@ const generateColumnValuesFromFields = (identifier: string, fields: Fields, colu
  * @param events data to be written to the spreadsheet
  * @returns
  */
-function processGetSpreadsheetResponse(response: any, events: PayloadEvent[]) {
+function processGetSpreadsheetResponse(response: any, events: Payload[]) {
   // TODO (STRATCONN-1375): Fail request if above row limit
 
   const updateBatch: { identifier: string; event: Fields; targetIndex: number }[] = []
   const appendBatch: { identifier: string; event: Fields }[] = []
 
   // Use a hashmap to efficiently find if the event already exists in the spreadsheet (update) or not (append).
-  const eventMap = new Map(events.map((e) => [e.identifier, e.payload.fields as Fields]))
+  const eventMap = new Map(events.map((e) => [e.record_identifier, e.fields]))
 
   if (response.data.values && response.data.values.length > 0) {
     for (let i = 1; i < response.data.values.length; i++) {
@@ -88,7 +79,7 @@ function processGetSpreadsheetResponse(response: any, events: PayloadEvent[]) {
   eventMap.forEach((value, key) => {
     appendBatch.push({
       identifier: key,
-      event: value
+      event: value as Fields
     })
   })
 
@@ -107,6 +98,7 @@ function processUpdateBatch(
   updateBatch: { identifier: string; event: { [k: string]: string }; targetIndex: number }[],
   gs: GoogleSheets
 ) {
+  // Utility function used to calculate which range an event should be written to
   const getRange = (targetIndex: number, columnCount: number, startRow = 1, startColumn = 1) => {
     const targetRange = new A1(startColumn, targetIndex + startRow)
     targetRange.addX(columnCount)
@@ -122,7 +114,7 @@ function processUpdateBatch(
     }
   })
 
-  // Always write columns names on first row
+  // Always add to the payload a write to the first row (containing column names) in case that columns have been updated
   const headerRowRange = new A1(1, 1, 1, mappingSettings.columns.length + 1)
   batchPayload.push({
     range: `${mappingSettings.spreadsheetName}!${headerRowRange.toString()}`,
@@ -183,13 +175,13 @@ function processAppendBatch(
  * @param request request object used to perform HTTP calls
  * @param events array of events to commit to the spreadsheet
  */
-function processData(request: RequestClient, events: PayloadEvent[]) {
+function processData(request: RequestClient, events: Payload[]) {
   // These are assumed to be constant across all events
   const mappingSettings = {
-    spreadsheetId: events[0].payload.spreadsheet_id,
-    spreadsheetName: events[0].payload.spreadsheet_name,
-    dataFormat: events[0].payload.data_format,
-    columns: Object.getOwnPropertyNames(events[0].payload.fields)
+    spreadsheetId: events[0].spreadsheet_id,
+    spreadsheetName: events[0].spreadsheet_name,
+    dataFormat: events[0].data_format,
+    columns: Object.getOwnPropertyNames(events[0].fields)
   }
 
   const gs: GoogleSheets = new GoogleSheets(request)

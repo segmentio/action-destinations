@@ -2,6 +2,14 @@
 
 export interface Payload {
   /**
+   * Property which uniquely identifies each row in the spreadsheet.
+   */
+  record_identifier: string
+  /**
+   * Describes the nature of the operation being performed. Only supported values are 'new', 'updated', and 'deleted'.
+   */
+  operation_type: string
+  /**
    * The identifier of the spreadsheet. You can find this value in the URL of the spreadsheet. e.g. https://docs.google.com/spreadsheets/d/{SPREADSHEET_ID}/edit
    */
   spreadsheet_id: string
