@@ -30,7 +30,9 @@ const buildRow = (payload: GenericPayload): string => {
 
   // Iterate over the keys in payload that map to a SF object field
   // Add each value to the row, separated by a comma
-  // The last value in the row should be the externalIDField value
+  // The last value in the row should be the externalIDField value.
+  // All valid rows will include a value for the externalIDField,
+  // it is included as the last value in the row for convenience.
 
   Object.entries(payload).forEach(([key, value]) => {
     if (!isSettingsKey.has(key)) {
