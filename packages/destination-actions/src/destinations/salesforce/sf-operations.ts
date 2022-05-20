@@ -8,7 +8,7 @@ export const API_VERSION = 'v53.0'
 //   ['traits', true],
 //   ['externalIdFieldName', true]
 // ])
-const isSettingsKey = new Set<string>(['operation', 'traits'])
+const isSettingsKey = new Set<string>(['operation', 'traits', 'customFields'])
 interface Records {
   Id?: string
 }
@@ -162,6 +162,12 @@ export default class Salesforce {
       if (!isSettingsKey.has(key)) {
         row += `"${value}",`
       }
+      if (key === 'customFields') {
+        const customFields = value as object
+        Object.entries(customFields).forEach(([_, value]) => {
+          row += `"${value}",`
+        })
+      }
     })
     row += `"${payload?.traits?.externalIdFieldValue}"`
 
@@ -173,6 +179,20 @@ export default class Salesforce {
     Object.keys(payloads[0]).forEach((key) => {
       if (!isSettingsKey.has(key)) {
         header += `"${snakeCaseToCamelCase(key)}",`
+      }
+      if (key === 'customFields') {
+        const customFields = payloads[0].customFields as object
+        Object.keys(customFields).forEach((customFieldName) => {
+          if (customFieldName.includes(',')) {
+            throw new IntegrationError(
+              'Invalid character in customField name',
+              'Invalid character in customField name',
+              400
+            )
+          }
+
+          header += `"${customFieldName}",`
+        })
       }
     })
     header += `"${externalIdFieldName}"`
