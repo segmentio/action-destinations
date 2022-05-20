@@ -56,24 +56,15 @@ const presets: DestinationDefinition['presets'] = [
       event_type: 'APP_OPEN'
     }
   },
-  {
-    name: '',
-    subscribe: 'event = ""',
-    partnerAction: 'reportConversionEvent',
-    mapping: {
-      ...defaultVals,
-      event: ''
-    }
-  },
-  {
-    name: 'List View',
-    subscribe: 'event = "Product List Viewed"',
-    partnerAction: 'reportConversionEvent',
-    mapping: {
-      ...defaultVals,
-      event: 'LIST_VIEW'
-    }
-  },
+  // {
+  //   name: 'List View',
+  //   subscribe: 'event = "Product List Viewed"',
+  //   partnerAction: 'reportConversionEvent',
+  //   mapping: {
+  //     ...defaultVals,
+  //     event: 'LIST_VIEW'
+  //   }
+  // },
   {
     name: 'Login',
     subscribe: 'event = "Signed In"',
@@ -146,9 +137,7 @@ const presets: DestinationDefinition['presets'] = [
       event_type: 'VIEW_CONTENT'
     }
   }
-
 ]
-
 
 const destination: DestinationDefinition<Settings> = {
   name: 'Snap Conversions Api',
@@ -165,12 +154,14 @@ const destination: DestinationDefinition<Settings> = {
       },
       snap_app_id: {
         label: 'Snap App ID',
-        description: 'The Snap App ID associated with your app. This is a unique code generated in Snapchat Ads Manager and included in your MMP dashboard. Required for app events.',
+        description:
+          'The Snap App ID associated with your app. This is a unique code generated in Snapchat Ads Manager and included in your MMP dashboard. Required for app events.',
         type: 'string'
       },
       app_id: {
         label: 'App ID',
-        description: 'The unique ID assigned for a given application. It should be numeric for iOS, and the human interpretable string for Android. Required for app events.',
+        description:
+          'The unique ID assigned for a given application. It should be numeric for iOS, and the human interpretable string for Android. Required for app events.',
         type: 'string'
       }
     },

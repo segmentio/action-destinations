@@ -30,7 +30,7 @@ import {
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Report Conversion Event',
-  description: '',
+  description: 'TODO',
   fields: {
     event_type: { ...event_type, required: true },
     event_conversion_type: { ...event_conversion_type, required: true },
