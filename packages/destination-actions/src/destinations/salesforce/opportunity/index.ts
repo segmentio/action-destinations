@@ -4,7 +4,7 @@ import Salesforce from '../sf-operations'
 import { customFields, operation, traits, validateLookup } from '../sf-properties'
 import type { Payload } from './generated-types'
 
-const objectName = 'Opportunity'
+const OBJECT_NAME = 'Opportunity'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Opportunity',
@@ -47,20 +47,20 @@ const action: ActionDefinition<Settings, Payload> = {
       if (!payload.close_date || !payload.name || !payload.stage_name) {
         throw new IntegrationError('Missing close_date, name or stage_name value', 'Misconfigured required field', 400)
       }
-      return await sf.createRecord(payload, objectName)
+      return await sf.createRecord(payload, OBJECT_NAME)
     }
 
     validateLookup(payload)
 
     if (payload.operation === 'update') {
-      return await sf.updateRecord(payload, objectName)
+      return await sf.updateRecord(payload, OBJECT_NAME)
     }
 
     if (payload.operation === 'upsert') {
       if (!payload.close_date || !payload.name || !payload.stage_name) {
         throw new IntegrationError('Missing close_date, name or stage_name value', 'Misconfigured required field', 400)
       }
-      return await sf.upsertRecord(payload, objectName)
+      return await sf.upsertRecord(payload, OBJECT_NAME)
     }
   },
   performBatch: async (request, { settings, payload }) => {
@@ -71,7 +71,7 @@ const action: ActionDefinition<Settings, Payload> = {
         throw new IntegrationError('Missing close_date, name or stage_name value', 'Misconfigured required field', 400)
       }
 
-      return await sf.bulkUpsert(payload, objectName)
+      return await sf.bulkUpsert(payload, OBJECT_NAME)
     }
   }
 }
