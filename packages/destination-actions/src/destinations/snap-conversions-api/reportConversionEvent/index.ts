@@ -26,9 +26,7 @@ import {
   page_url,
   sign_up_method,
   formatPayload
-}
-  from '../snap-capi-properties'
-import _ from 'lodash'
+} from '../snap-capi-properties'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Report Conversion Event',
@@ -59,14 +57,13 @@ const action: ActionDefinition<Settings, Payload> = {
     sign_up_method: sign_up_method
   },
   perform: (request, data) => {
-    let payload: Object = _.omitBy(formatPayload(data.payload), _.isNil)
+    //let payload: Object = _.omitBy(formatPayload(data.payload), _.isNil)
+    const payload: Object = formatPayload(data.payload)
 
-    //Check to see what ids need to be passed depending on the event_conversion_type 
-    if (data.payload.event_conversion_type === "MOBILE_APP") {
+    //Check to see what ids need to be passed depending on the event_conversion_type
+    if (data.payload.event_conversion_type === 'MOBILE_APP') {
       delete data.settings?.pixel_id
-    }
-
-    else {
+    } else {
       delete data.settings?.snap_app_id
       delete data.settings?.app_id
     }
