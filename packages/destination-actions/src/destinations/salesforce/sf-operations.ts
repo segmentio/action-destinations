@@ -1,14 +1,10 @@
 import { IntegrationError, RequestClient } from '@segment/actions-core'
 import type { GenericPayload } from './sf-types'
-import { mapObjectToShape, snakeCaseToCamelCase } from './sf-object-to-shape'
+import { mapObjectToShape } from './sf-object-to-shape'
+import { buildCSVData } from './sf-utils'
 
 export const API_VERSION = 'v53.0'
-// const isSettingsKey = new Map<string, boolean>([
-//   ['operation', true],
-//   ['traits', true],
-//   ['externalIdFieldName', true]
-// ])
-const isSettingsKey = new Set<string>(['operation', 'traits', 'customFields'])
+
 interface Records {
   Id?: string
 }
@@ -94,7 +90,7 @@ export default class Salesforce {
 
     const jobId = await this.createBulkJob(sobject, externalIdFieldName)
 
-    const csv = this.buildCSVData(payloads, externalIdFieldName)
+    const csv = buildCSVData(payloads, externalIdFieldName)
 
     await this.uploadBulkCSV(jobId, csv)
     return await this.closeBulkJob(jobId)
@@ -139,65 +135,6 @@ export default class Salesforce {
         state: 'UploadComplete'
       }
     })
-  }
-
-  private buildCSVData = (payloads: GenericPayload[], externalIdFieldName: string): string => {
-    let headers = this.buildHeader(payloads, externalIdFieldName) + '\n'
-
-    payloads.forEach((payload) => {
-      headers += this.buildRow(payload) + '\n'
-    })
-
-    return headers
-  }
-
-  private buildRow = (payload: GenericPayload): string => {
-    let row = ''
-
-    // Iterate over the keys in payload that map to a SF object field
-    // Add each value to the row, separated by a comma
-    // The last value in the row should be the externalIDField value
-
-    Object.entries(payload).forEach(([key, value]) => {
-      if (!isSettingsKey.has(key)) {
-        row += `"${value}",`
-      }
-      if (key === 'customFields') {
-        const customFields = value as object
-        Object.entries(customFields).forEach(([_, value]) => {
-          row += `"${value}",`
-        })
-      }
-    })
-    row += `"${payload?.traits?.externalIdFieldValue}"`
-
-    return row
-  }
-
-  private buildHeader = (payloads: GenericPayload[], externalIdFieldName: string): string => {
-    let header = ''
-    Object.keys(payloads[0]).forEach((key) => {
-      if (!isSettingsKey.has(key)) {
-        header += `"${snakeCaseToCamelCase(key)}",`
-      }
-      if (key === 'customFields') {
-        const customFields = payloads[0].customFields as object
-        Object.keys(customFields).forEach((customFieldName) => {
-          if (customFieldName.includes(',')) {
-            throw new IntegrationError(
-              'Invalid character in customField name',
-              'Invalid character in customField name',
-              400
-            )
-          }
-
-          header += `"${customFieldName}",`
-        })
-      }
-    })
-    header += `"${externalIdFieldName}"`
-
-    return header
   }
 
   private baseUpdate = async (recordId: string, sobject: string, payload: GenericPayload) => {
