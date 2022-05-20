@@ -1,5 +1,6 @@
 import { IntegrationError } from '@segment/actions-core'
 import { GenericPayload } from './sf-types'
+import camelCase from 'lodash/camelCase'
 
 const isSettingsKey = new Set<string>(['operation', 'traits', 'customFields'])
 
@@ -56,7 +57,7 @@ const buildHeader = (payloads: GenericPayload[], externalIdFieldName: string): s
   let header = ''
   Object.keys(payloads[0]).forEach((key) => {
     if (!isSettingsKey.has(key)) {
-      header += `"${snakeCaseToCamelCase(key)}",`
+      header += `"${snakeCaseToPascalCase(key)}",`
     }
     if (key === 'customFields') {
       const customFields = payloads[0].customFields as object
@@ -75,12 +76,9 @@ const buildHeader = (payloads: GenericPayload[], externalIdFieldName: string): s
   return header
 }
 
-// Our key names are in snake case, but Salesforce's field names are in camel case.
+// Our key names are in snake case, but Salesforce's field names are in Pascal case.
 // I.E. 'last_name' is our key, but 'LastName' is the Salesforce field name.
-export const snakeCaseToCamelCase = (key: string): string => {
-  const tokens = key.split('_')
-  tokens.forEach((token, i, arr) => {
-    arr[i] = token.charAt(0).toUpperCase() + token.slice(1)
-  })
-  return tokens.join('')
+const snakeCaseToPascalCase = (key: string): string => {
+  const token = camelCase(key)
+  return token.charAt(0).toUpperCase() + token.slice(1)
 }
