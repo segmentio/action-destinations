@@ -73,6 +73,10 @@ const action: ActionDefinition<Settings, Payload> = {
 
       return await sf.bulkUpsert(payload, OBJECT_NAME)
     }
+    //experimental, will test in stage
+    if (payload[0].operation !== 'bulkUpsert' && payload[0].operation !== 'bulkUpdate') {
+      return await action.perform(request, { settings, payload: payload[0] })
+    }
   }
 }
 
