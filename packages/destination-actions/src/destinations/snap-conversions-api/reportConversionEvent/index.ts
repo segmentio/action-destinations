@@ -59,7 +59,7 @@ const action: ActionDefinition<Settings, Payload> = {
     sign_up_method: sign_up_method
   },
   perform: (request, data) => {
-    let payload: Object = _.omitBy(formatPayload(data.payload, data.settings), _.isNil)
+    let payload: Object = _.omitBy(formatPayload(data.payload), _.isNil)
 
     //Check to see what ids need to be passed depending on the event_conversion_type 
     if (data.payload.event_conversion_type === "MOBILE_APP") {
