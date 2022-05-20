@@ -256,7 +256,7 @@ describe('Salesforce', () => {
     })
   })
 
-  describe.only('Bulk Operations', () => {
+  describe('Bulk Operations', () => {
     const sf: Salesforce = new Salesforce(settings.instanceUrl, requestClient)
 
     const bulkUpsertPayloads: GenericPayload[] = [
