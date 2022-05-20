@@ -278,7 +278,7 @@ export const destination: BrowserDestinationDefinition<Settings, BrazeType> = {
         await dependencies.loadScript(`https://js.appboycdn.com/web-sdk/${version}/braze.no-amd.min.js`)
       }
 
-      const brazeObject = version.startsWith('3') ? window.appboy : window.braze
+      const brazeObject: BrazeType = version.startsWith('3') ? window.appboy : window.braze
 
       brazeObject.initialize(api_key, {
         baseUrl: endpoint,
