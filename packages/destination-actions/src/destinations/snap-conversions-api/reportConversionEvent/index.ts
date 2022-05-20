@@ -63,12 +63,12 @@ const action: ActionDefinition<Settings, Payload> = {
 
     //Check to see what ids need to be passed depending on the event_conversion_type 
     if (data.payload.event_conversion_type === "MOBILE_APP") {
-      payload.snap_app_id = data.settings.snap_app_id
-      payload.app_id = data.settings.app_id
+      payload.snap_app_id = data.settings.snapAppId
+      payload.app_id = data.settings.appId
     }
 
     else {
-      payload.pixel_id = data.settings.pixel_id
+      payload.pixel_id = data.settings.pixelId
     }
 
     //console.log(payload)

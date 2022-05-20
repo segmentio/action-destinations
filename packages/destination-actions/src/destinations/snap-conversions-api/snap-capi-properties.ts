@@ -1,5 +1,4 @@
 import { InputField } from '@segment/actions-core/src/destination-kit/types'
-import { IntegrationError } from '@segment/actions-core'
 import { createHash } from 'crypto'
 import { Payload } from './reportConversionEvent/generated-types'
 
@@ -188,13 +187,6 @@ export const client_dedup_id: InputField = {
     type: 'string',
 }
 
-export const data_use: InputField = {
-    label: 'Data Use',
-    description: 'For iOS 14.5 and above,  this indicates if Snapchat should treat the event as OPT_IN or OPT_OUT. For OPT_OUT user events, please pass lmu.',
-    type: 'string',
-    multiple: true
-}
-
 export const search_string: InputField = {
     label: 'Search String',
     description: 'The text string that was searched for.',
@@ -265,7 +257,6 @@ export const formatPayload = (payload: Payload): Object => {
         transaction_id: payload?.transaction_id,
         level: payload?.level,
         client_dedup_id: payload?.client_dedup_id,
-        data_use: payload?.data_use,
         search_string: payload?.search_string,
         page_url: payload?.page_url,
         sign_up_method: payload?.sign_up_method
