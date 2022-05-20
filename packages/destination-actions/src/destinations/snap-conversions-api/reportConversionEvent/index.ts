@@ -22,7 +22,6 @@ import {
   transaction_id,
   level,
   client_dedup_id,
-  data_use,
   search_string,
   page_url,
   sign_up_method,
@@ -35,10 +34,10 @@ const action: ActionDefinition<Settings, Payload> = {
   title: 'Report Conversion Event',
   description: '',
   fields: {
-    event_type: event_type,
-    event_conversion_type: event_conversion_type,
+    event_type: { ...event_type, required: true },
+    event_conversion_type: { ...event_conversion_type, required: true },
     event_tag: event_tag,
-    timestamp: timestamp,
+    timestamp: { ...timestamp, required: true },
     email: email,
     mobile_ad_id: mobile_ad_id,
     uuid_c1: uuid_c1,
@@ -55,7 +54,6 @@ const action: ActionDefinition<Settings, Payload> = {
     transaction_id: transaction_id,
     level: level,
     client_dedup_id: client_dedup_id,
-    data_use: data_use,
     search_string: search_string,
     page_url: page_url,
     sign_up_method: sign_up_method
@@ -76,13 +74,7 @@ const action: ActionDefinition<Settings, Payload> = {
     //console.log(payload)
 
     //Create Conversion Event Request
-    request('https://tr.snapchat.com/v2/conversion', {
-      method: 'post',
-      json: payload
-    })
-
-    //Validate Conversion Event Request 
-    return request('https://tr.snapchat.com/v2/conversion/validate', {
+    return request('https://tr.snapchat.com/v2/conversion', {
       method: 'post',
       json: payload
     })
