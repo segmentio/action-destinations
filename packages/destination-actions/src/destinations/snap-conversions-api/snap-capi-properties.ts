@@ -1,5 +1,6 @@
 import { InputField } from '@segment/actions-core/src/destination-kit/types'
 import { createHash } from 'crypto'
+import { Settings } from './generated-types'
 import { Payload } from './reportConversionEvent/generated-types'
 
 //Custom Data? 
@@ -219,7 +220,7 @@ export const hash = (value: string | undefined): string | undefined => {
     return hash.digest('hex')
 }
 
-export const formatPayload = (payload: Payload): Object => {
+export const formatPayload = (payload: Payload, settings: Settings): Object => {
     //Normalize fields based on Snapchat Data Hygiene https://marketingapi.snapchat.com/docs/conversion.html#auth-requirements
     if (payload.email) {
         //Removes all leading and trailing whitespace and converts all characters to lowercase. 
@@ -237,6 +238,9 @@ export const formatPayload = (payload: Payload): Object => {
     }
 
     return {
+        snap_app_id: settings.snapAppId,
+        app_id: settings.appId,
+        pixel_id: settings.pixelId,
         event_type: payload?.event_type,
         event_conversion_type: payload?.event_conversion_type,
         event_tag: payload?.event_tag,

@@ -59,16 +59,16 @@ const action: ActionDefinition<Settings, Payload> = {
     sign_up_method: sign_up_method
   },
   perform: (request, data) => {
-    let payload: Object = _.omitBy(formatPayload(data.payload), _.isNil)
+    let payload: Object = _.omitBy(formatPayload(data.payload, data.settings), _.isNil)
 
     //Check to see what ids need to be passed depending on the event_conversion_type 
     if (data.payload.event_conversion_type === "MOBILE_APP") {
-      payload.snap_app_id = data.settings.snapAppId
-      payload.app_id = data.settings.appId
+      delete payload?.pixel_id
     }
 
     else {
-      payload.pixel_id = data.settings.pixelId
+      delete payload?.snap_app_id
+      delete payload?.app_id
     }
 
     //console.log(payload)
