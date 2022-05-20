@@ -238,9 +238,6 @@ export const formatPayload = (payload: Payload, settings: Settings): Object => {
     }
 
     return {
-        snap_app_id: settings.snapAppId,
-        app_id: settings.appId,
-        pixel_id: settings.pixelId,
         event_type: payload?.event_type,
         event_conversion_type: payload?.event_conversion_type,
         event_tag: payload?.event_tag,

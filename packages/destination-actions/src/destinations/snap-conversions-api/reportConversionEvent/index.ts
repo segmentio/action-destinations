@@ -63,12 +63,12 @@ const action: ActionDefinition<Settings, Payload> = {
 
     //Check to see what ids need to be passed depending on the event_conversion_type 
     if (data.payload.event_conversion_type === "MOBILE_APP") {
-      delete payload?.pixel_id
+      delete data.settings?.pixel_id
     }
 
     else {
-      delete payload?.snap_app_id
-      delete payload?.app_id
+      delete data.settings?.snap_app_id
+      delete data.settings?.app_id
     }
 
     //console.log(payload)
@@ -76,7 +76,10 @@ const action: ActionDefinition<Settings, Payload> = {
     //Create Conversion Event Request
     return request('https://tr.snapchat.com/v2/conversion', {
       method: 'post',
-      json: payload
+      json: {
+        ...payload,
+        ...data.settings
+      }
     })
   }
 }
