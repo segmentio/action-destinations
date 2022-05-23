@@ -1,6 +1,6 @@
 import type { Payload } from './generated-types'
 import { RequestClient } from '@segment/actions-core'
-import GoogleSheets from '../googleapis/index'
+import { GoogleSheets, GetResponse } from '../googleapis/index'
 
 // TODO (STRATCONN-1379): Fork @flighter/a1-notation into @segment/a1-notation and add test cases
 import A1 from '@flighter/a1-notation'
@@ -53,34 +53,42 @@ const generateColumnValuesFromFields = (identifier: string, fields: Fields, colu
  * @param events data to be written to the spreadsheet
  * @returns
  */
-function processGetSpreadsheetResponse(response: any, events: Payload[]) {
+function processGetSpreadsheetResponse(response: GetResponse, events: Payload[]) {
   // TODO (STRATCONN-1375): Fail request if above row limit
 
   const updateBatch: { identifier: string; event: Fields; targetIndex: number }[] = []
   const appendBatch: { identifier: string; event: Fields }[] = []
 
   // Use a hashmap to efficiently find if the event already exists in the spreadsheet (update) or not (append).
-  const eventMap = new Map(events.map((e) => [e.record_identifier, e.fields]))
+  const eventMap = new Map(events.map((e) => [e.record_identifier, e]))
 
-  if (response.data.values && response.data.values.length > 0) {
-    for (let i = 1; i < response.data.values.length; i++) {
-      const targetIdentifier = response.data.values[i][0]
+  if (response.values && response.values.length > 0) {
+    for (let i = 1; i < response.values.length; i++) {
+      const targetIdentifier = response.values[i][0]
       if (eventMap.has(targetIdentifier)) {
-        updateBatch.push({
-          identifier: targetIdentifier,
-          event: eventMap.get(targetIdentifier) as Fields,
-          targetIndex: i
-        })
+        // The event being processed already exists in the spreadsheet.
+        const targetEvent = eventMap.get(targetIdentifier) as Payload
+        if (targetEvent.operation_type != 'deleted') {
+          updateBatch.push({
+            identifier: targetIdentifier,
+            event: targetEvent.fields as Fields,
+            targetIndex: i + 1
+          })
+        }
         eventMap.delete(targetIdentifier)
       }
     }
   }
 
+  // At this point, eventMap contains all the rows we couldn't find in the spreadsheet.
   eventMap.forEach((value, key) => {
-    appendBatch.push({
-      identifier: key,
-      event: value as Fields
-    })
+    // If delete, just drop event
+    if (value.operation_type != 'deleted') {
+      appendBatch.push({
+        identifier: key,
+        event: value.fields as Fields
+      })
+    }
   })
 
   return { appendBatch, updateBatch }
@@ -92,15 +100,14 @@ function processGetSpreadsheetResponse(response: any, events: Payload[]) {
  * @param updateBatch array of events to commit to the spreadsheet
  * @param gs interface object capable of interacting with Google Sheets API
  */
-function processUpdateBatch(
-  sheets: sheets_v4.Sheets,
+async function processUpdateBatch(
   mappingSettings: MappingSettings,
   updateBatch: { identifier: string; event: { [k: string]: string }; targetIndex: number }[],
   gs: GoogleSheets
 ) {
   // Utility function used to calculate which range an event should be written to
-  const getRange = (targetIndex: number, columnCount: number, startRow = 1, startColumn = 1) => {
-    const targetRange = new A1(startColumn, targetIndex + startRow)
+  const getRange = (targetIndex: number, columnCount: number) => {
+    const targetRange = new A1(1, targetIndex)
     targetRange.addX(columnCount)
     return targetRange.toString()
   }
@@ -121,15 +128,8 @@ function processUpdateBatch(
     values: [['id', ...mappingSettings.columns]]
   })
 
-  sheets.spreadsheets.values
-    .batchUpdate({
-      spreadsheetId: mappingSettings.spreadsheetId,
-      access_token,
-      requestBody: {
-        valueInputOption: mappingSettings.dataFormat,
-        data: batchPayload
-      }
-    })
+  return gs
+    .batchUpdate(mappingSettings, batchPayload)
     .then(() => {
       console.log('update')
     })
@@ -138,6 +138,39 @@ function processUpdateBatch(
     })
 }
 
+// TODO: Re-enable delete once locking is supported.
+/**
+ * Clears all passed events from the spreadsheet.
+ * @param mappingSettings configuration object detailing parameters for the call
+ * @param updateBatch array of events to clear from the spreadsheet
+ * @param gs interface object capable of interacting with Google Sheets API
+ */
+// async function processDeleteBatch(
+//   mappingSettings: MappingSettings,
+//   deleteBatch: { identifier: string; targetIndex: number }[],
+//   gs: GoogleSheets
+// ) {
+//   if (deleteBatch.length <= 0) {
+//     return
+//   }
+
+//   // TODO: fix a1-notation package to support 1:1 notation
+//   const deletePayload = deleteBatch.map(({ targetIndex }) => {
+//     return {
+//       range: `${mappingSettings.spreadsheetName}!${targetIndex}:${targetIndex}`
+//     }
+//   })
+
+//   return gs
+//     .batchClear(mappingSettings, deletePayload)
+//     .then(() => {
+//       console.log('delete')
+//     })
+//     .catch((error) => {
+//       console.log(error)
+//     })
+// }
+
 /**
  * Commits all passed events to the bottom of the spreadsheet.
  * @param mappingSettings configuration object detailing parameters for the call
@@ -145,8 +178,7 @@ function processUpdateBatch(
  * @param gs interface object capable of interacting with Google Sheets API
  * @returns
  */
-function processAppendBatch(
-  sheets: sheets_v4.Sheets,
+async function processAppendBatch(
   mappingSettings: MappingSettings,
   appendBatch: { identifier: string; event: { [k: string]: string } }[],
   gs: GoogleSheets
@@ -161,7 +193,8 @@ function processAppendBatch(
   )
 
   // Start from A2 to skip header row (in case it has not been written yet)
-  gs.append(mappingSettings, 'A2', values)
+  return gs
+    .append(mappingSettings, 'A2', values)
     .then(() => {
       console.log('append')
     })
@@ -189,12 +222,15 @@ function processData(request: RequestClient, events: Payload[]) {
   // Get all of the row identifiers (assumed to be in the first column A)
   gs.get(mappingSettings, 'A:A')
     .then((response) => {
-      // TODO (STRATCONN-1380): Support delete operation
       // Use the retrieved row identifiers along with the incoming events to decide which ones should be appended or updated.
-      const { appendBatch, updateBatch } = processGetSpreadsheetResponse(response, events)
+      const { appendBatch, updateBatch } = processGetSpreadsheetResponse(response.data, events)
 
-      processUpdateBatch(mappingSettings, updateBatch, gs)
-      processAppendBatch(mappingSettings, appendBatch, gs)
+      const promises = [
+        processUpdateBatch(mappingSettings, updateBatch, gs),
+        processAppendBatch(mappingSettings, appendBatch, gs)
+      ]
+
+      return Promise.all(promises)
     })
     .catch((error) => {
       console.log(error)
