@@ -1,15 +1,21 @@
-import { RequestClient } from '@segment/actions-core'
+import { ModifiedResponse, RequestClient } from '@segment/actions-core'
 import type { MappingSettings } from '../postSheet/operations'
 
-export const API_VERSION = 'v4'
-export default class GoogleSheets {
+const API_VERSION = 'v4'
+
+export type GetResponse = {
+  range: string
+  majorDimension: string
+  values: string[]
+}
+export class GoogleSheets {
   request: RequestClient
 
   constructor(request: RequestClient) {
     this.request = request
   }
 
-  get = async (mappingSettings: MappingSettings, range: string) => {
+  get = async (mappingSettings: MappingSettings, range: string): Promise<ModifiedResponse<GetResponse>> => {
     return this.request(
       `https://sheets.googleapis.com/${API_VERSION}/spreadsheets/${mappingSettings.spreadsheetId}/values/${mappingSettings.spreadsheetName}!${range}`,
       {
@@ -26,6 +32,18 @@ export default class GoogleSheets {
         json: {
           valueInputOption: mappingSettings.dataFormat,
           data: batchPayload
+        }
+      }
+    )
+  }
+
+  batchClear = async (mappingSettings: MappingSettings, deletePayload: { range: string }[]) => {
+    return this.request(
+      `https://sheets.googleapis.com/${API_VERSION}/spreadsheets/${mappingSettings.spreadsheetId}/values:batchClear`,
+      {
+        method: 'post',
+        json: {
+          ranges: deletePayload.map((p) => p.range)
         }
       }
     )
