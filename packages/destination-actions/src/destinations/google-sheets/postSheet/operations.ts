@@ -58,7 +58,6 @@ function processGetSpreadsheetResponse(response: GetResponse, events: Payload[])
 
   const updateBatch: { identifier: string; event: Fields; targetIndex: number }[] = []
   const appendBatch: { identifier: string; event: Fields }[] = []
-  const deleteBatch: { identifier: string; targetIndex: number }[] = []
 
   // Use a hashmap to efficiently find if the event already exists in the spreadsheet (update) or not (append).
   const eventMap = new Map(events.map((e) => [e.record_identifier, e]))
@@ -69,12 +68,7 @@ function processGetSpreadsheetResponse(response: GetResponse, events: Payload[])
       if (eventMap.has(targetIdentifier)) {
         // The event being processed already exists in the spreadsheet.
         const targetEvent = eventMap.get(targetIdentifier) as Payload
-        if (targetEvent.operation_type == 'deleted') {
-          deleteBatch.push({
-            identifier: targetIdentifier,
-            targetIndex: i + 1
-          })
-        } else {
+        if (targetEvent.operation_type != 'deleted') {
           updateBatch.push({
             identifier: targetIdentifier,
             event: targetEvent.fields as Fields,
@@ -89,7 +83,7 @@ function processGetSpreadsheetResponse(response: GetResponse, events: Payload[])
   // At this point, eventMap contains all the rows we couldn't find in the spreadsheet.
   eventMap.forEach((value, key) => {
     // If delete, just drop event
-    if (value.operation_type == 'new' || value.operation_type == 'updated') {
+    if (value.operation_type != 'deleted') {
       appendBatch.push({
         identifier: key,
         event: value.fields as Fields
@@ -97,7 +91,7 @@ function processGetSpreadsheetResponse(response: GetResponse, events: Payload[])
     }
   })
 
-  return { appendBatch, updateBatch, deleteBatch }
+  return { appendBatch, updateBatch }
 }
 
 /**
@@ -144,37 +138,38 @@ async function processUpdateBatch(
     })
 }
 
+// TODO: Re-enable delete once locking is supported.
 /**
  * Clears all passed events from the spreadsheet.
  * @param mappingSettings configuration object detailing parameters for the call
  * @param updateBatch array of events to clear from the spreadsheet
  * @param gs interface object capable of interacting with Google Sheets API
  */
-async function processDeleteBatch(
-  mappingSettings: MappingSettings,
-  deleteBatch: { identifier: string; targetIndex: number }[],
-  gs: GoogleSheets
-) {
-  if (deleteBatch.length <= 0) {
-    return
-  }
+// async function processDeleteBatch(
+//   mappingSettings: MappingSettings,
+//   deleteBatch: { identifier: string; targetIndex: number }[],
+//   gs: GoogleSheets
+// ) {
+//   if (deleteBatch.length <= 0) {
+//     return
+//   }
 
-  // TODO: fix a1-notation package to support 1:1 notation
-  const deletePayload = deleteBatch.map(({ targetIndex }) => {
-    return {
-      range: `${mappingSettings.spreadsheetName}!${targetIndex}:${targetIndex}`
-    }
-  })
+//   // TODO: fix a1-notation package to support 1:1 notation
+//   const deletePayload = deleteBatch.map(({ targetIndex }) => {
+//     return {
+//       range: `${mappingSettings.spreadsheetName}!${targetIndex}:${targetIndex}`
+//     }
+//   })
 
-  return gs
-    .batchClear(mappingSettings, deletePayload)
-    .then(() => {
-      console.log('delete')
-    })
-    .catch((error) => {
-      console.log(error)
-    })
-}
+//   return gs
+//     .batchClear(mappingSettings, deletePayload)
+//     .then(() => {
+//       console.log('delete')
+//     })
+//     .catch((error) => {
+//       console.log(error)
+//     })
+// }
 
 /**
  * Commits all passed events to the bottom of the spreadsheet.
@@ -228,11 +223,10 @@ function processData(request: RequestClient, events: Payload[]) {
   gs.get(mappingSettings, 'A:A')
     .then((response) => {
       // Use the retrieved row identifiers along with the incoming events to decide which ones should be appended or updated.
-      const { appendBatch, updateBatch, deleteBatch } = processGetSpreadsheetResponse(response.data, events)
+      const { appendBatch, updateBatch } = processGetSpreadsheetResponse(response.data, events)
 
       const promises = [
         processUpdateBatch(mappingSettings, updateBatch, gs),
-        processDeleteBatch(mappingSettings, deleteBatch, gs),
         processAppendBatch(mappingSettings, appendBatch, gs)
       ]
 
