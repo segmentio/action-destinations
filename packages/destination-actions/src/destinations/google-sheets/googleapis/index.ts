@@ -19,7 +19,8 @@ export class GoogleSheets {
     return this.request(
       `https://sheets.googleapis.com/${API_VERSION}/spreadsheets/${mappingSettings.spreadsheetId}/values/${mappingSettings.spreadsheetName}!${range}`,
       {
-        method: 'get'
+        method: 'get',
+        skipResponseCloning: true
       }
     )
   }
