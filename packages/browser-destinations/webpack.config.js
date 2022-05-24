@@ -45,8 +45,7 @@ const unobfuscatedOutput = {
     publicPath: 'auto', // Needed for customers using custom CDNs with analytics.js
     library: '[name]Destination',
     libraryTarget: 'umd',
-
-    // TODO:
+    umdNamedDefine: true,
     libraryExport: 'default'
   },
   module: {
