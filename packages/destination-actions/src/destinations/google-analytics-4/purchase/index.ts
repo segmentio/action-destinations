@@ -47,6 +47,7 @@ const action: ActionDefinition<Settings, Payload> = {
     params: params
   },
   perform: (request, { payload }) => {
+    payload.currency = payload.currency?.toUpperCase()
     if (!CURRENCY_ISO_CODES.includes(payload.currency)) {
       throw new Error(`${payload.currency} is not a valid currency code.`)
     }
@@ -62,7 +63,7 @@ const action: ActionDefinition<Settings, Payload> = {
             400
           )
         }
-
+        product.currency = product.currency?.toUpperCase()
         if (product.currency && !CURRENCY_ISO_CODES.includes(product.currency)) {
           throw new IntegrationError(`${product.currency} is not a valid currency code.`, 'Incorrect value format', 400)
         }

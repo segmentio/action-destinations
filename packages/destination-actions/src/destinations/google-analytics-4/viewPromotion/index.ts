@@ -73,7 +73,7 @@ const action: ActionDefinition<Settings, Payload> = {
         if (product.item_name === undefined && product.item_id === undefined) {
           throw new IntegrationError('One of item id or item name is required.', 'Misconfigured required field', 400)
         }
-
+        product.currency = product.currency?.toUpperCase()
         if (product.currency && !CURRENCY_ISO_CODES.includes(product.currency)) {
           throw new IntegrationError(`${product.currency} is not a valid currency code.`, 'Incorrect value format', 400)
         }

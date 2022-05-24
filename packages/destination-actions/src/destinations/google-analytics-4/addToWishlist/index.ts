@@ -34,6 +34,7 @@ const action: ActionDefinition<Settings, Payload> = {
   },
   perform: (request, { payload }) => {
     // Make your partner api request here!
+    payload.currency = payload.currency?.toUpperCase()
     if (payload.currency && !CURRENCY_ISO_CODES.includes(payload.currency)) {
       throw new IntegrationError(`${payload.currency} is not a valid currency code.`, 'Incorrect value format', 400)
     }
@@ -67,7 +68,7 @@ const action: ActionDefinition<Settings, Payload> = {
             400
           )
         }
-
+        product.currency = product.currency?.toUpperCase()
         if (product.currency && !CURRENCY_ISO_CODES.includes(product.currency)) {
           throw new IntegrationError(`${product.currency} is not a valid currency code.`, 'Incorrect value format', 400)
         }
