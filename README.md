@@ -4,7 +4,7 @@
 
 Action Destinations are the new way to build streaming destinations on Segment.
 
-Action Destinations allows builders to easily create Segment integrations with partner tools (e.g. Salesforce) by leveraging a first-class CLI to reduce boilerplate, a strong type-safety framework to enable the IDE and comiler to provide guidance and auto-complete.
+Action Destinations were [launched in December 2021](https://segment.com/blog/introducing-destination-actions/) to enable customers with a customizable framework to map Segment events to their favorite 3rd party tools. This repository contains the Action Destination Definitions as well as a CLI to generate the scaffolding for new destinations and run unit tests. If you'd like to contribute, please review the [Contributing Guide](./CONTRIBUTING.md).
 
 To begin, follow the instructions in Get Started below.
 
