@@ -8,12 +8,12 @@ const timestamp = new Date().toISOString()
 describe.each(['stage', 'production'])('%s environment', (environment) => {
   const settings = {
     twilioAccountSID: 'a',
-    twilioApiKeySID: 'b',
-    twilioApiKeySecret: 'c',
+    twilioApiKeySID: 'f',
+    twilioApiKeySecret: 'b',
     profileApiEnvironment: environment,
-    profileApiAccessToken: 'd',
-    spaceId: 'e',
-    sourceId: 'f'
+    profileApiAccessToken: 'c',
+    spaceId: 'd',
+    sourceId: 'e'
   }
 
   const endpoint = `https://profiles.segment.${environment === 'production' ? 'com' : 'build'}`
