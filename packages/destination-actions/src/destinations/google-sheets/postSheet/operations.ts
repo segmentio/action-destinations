@@ -2,8 +2,7 @@ import type { Payload } from './generated-types'
 import { RequestClient } from '@segment/actions-core'
 import { GoogleSheets, GetResponse } from '../googleapis/index'
 
-// TODO (STRATCONN-1379): Fork @flighter/a1-notation into @segment/a1-notation and add test cases
-import A1 from '@flighter/a1-notation'
+import A1 from '@segment/a1-notation'
 
 type Fields = {
   [k: string]: string
