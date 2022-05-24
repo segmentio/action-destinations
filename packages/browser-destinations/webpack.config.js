@@ -45,6 +45,8 @@ const unobfuscatedOutput = {
     publicPath: 'auto', // Needed for customers using custom CDNs with analytics.js
     library: '[name]Destination',
     libraryTarget: 'umd',
+
+    // TODO:
     libraryExport: 'default'
   },
   module: {
@@ -108,6 +110,10 @@ const unobfuscatedOutput = {
 
 const obfuscatedOutput = {
   ...unobfuscatedOutput,
+  devServer: {
+    ...unobfuscatedOutput.devServer,
+    port: 9001,
+  },
   output: {
     ...unobfuscatedOutput.output,
      filename: (file) => {
