@@ -56,15 +56,6 @@ const presets: DestinationDefinition['presets'] = [
       event_type: 'APP_OPEN'
     }
   },
-  // {
-  //   name: 'List View',
-  //   subscribe: 'event = "Product List Viewed"',
-  //   partnerAction: 'reportConversionEvent',
-  //   mapping: {
-  //     ...defaultVals,
-  //     event: 'LIST_VIEW'
-  //   }
-  // },
   {
     name: 'Login',
     subscribe: 'event = "Signed In"',

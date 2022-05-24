@@ -30,7 +30,8 @@ import {
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Report Conversion Event',
-  description: 'TODO',
+  description:
+    'Report events directly to Snapchat. Data shared can power Snap solutions such as custom audience targeting, campaign optimization, Dynamic Ads, and more.',
   fields: {
     event_type: { ...event_type, required: true },
     event_conversion_type: { ...event_conversion_type, required: true },
@@ -57,7 +58,6 @@ const action: ActionDefinition<Settings, Payload> = {
     sign_up_method: sign_up_method
   },
   perform: (request, data) => {
-    //let payload: Object = _.omitBy(formatPayload(data.payload), _.isNil)
     const payload: Object = formatPayload(data.payload)
 
     //Check to see what ids need to be passed depending on the event_conversion_type
@@ -67,8 +67,6 @@ const action: ActionDefinition<Settings, Payload> = {
       delete data.settings?.snap_app_id
       delete data.settings?.app_id
     }
-
-    //console.log(payload)
 
     //Create Conversion Event Request
     return request('https://tr.snapchat.com/v2/conversion', {
