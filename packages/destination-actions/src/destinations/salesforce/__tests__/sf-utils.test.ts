@@ -7,9 +7,9 @@ describe('Salesforce Utils', () => {
       const completePayloads: GenericPayload[] = [
         {
           operation: 'bulkUpsert',
-          traits: {
-            externalIdFieldName: 'test__c',
-            externalIdFieldValue: '00'
+          bulkUpsertExternalId: {
+            externalIdName: 'test__c',
+            externalIdValue: '00'
           },
           name: 'SpongeBob SquarePants',
           email: 'sponge@seamail.com',
@@ -17,9 +17,9 @@ describe('Salesforce Utils', () => {
         },
         {
           operation: 'bulkUpsert',
-          traits: {
-            externalIdFieldName: 'test__c',
-            externalIdFieldValue: '01'
+          bulkUpsertExternalId: {
+            externalIdName: 'test__c',
+            externalIdValue: '01'
           },
           name: 'Patrick Star',
           email: 'star@seamail.com',
@@ -28,7 +28,7 @@ describe('Salesforce Utils', () => {
       ]
 
       const csv = buildCSVData(completePayloads, 'test__c')
-      const expected = `name,email,phone,test__c\n"SpongeBob SquarePants","sponge@seamail.com","555-555-5555","00"\n"Patrick Star","star@seamail.com","555-555-5555","01"\n`
+      const expected = `Name,Email,Phone,test__c\n"SpongeBob SquarePants","sponge@seamail.com","555-555-5555","00"\n"Patrick Star","star@seamail.com","555-555-5555","01"\n`
 
       expect(csv).toEqual(expected)
     })
@@ -36,9 +36,9 @@ describe('Salesforce Utils', () => {
       const incompletePayloads: GenericPayload[] = [
         {
           operation: 'bulkUpsert',
-          traits: {
-            externalIdFieldName: 'test__c',
-            externalIdFieldValue: '00'
+          bulkUpsertExternalId: {
+            externalIdName: 'test__c',
+            externalIdValue: '00'
           },
           name: 'SpongeBob Squarepants',
           email: 'sponge@seamail.com',
@@ -48,26 +48,26 @@ describe('Salesforce Utils', () => {
         },
         {
           operation: 'bulkUpsert',
-          traits: {
-            externalIdFieldName: 'test__c',
-            externalIdFieldValue: '01'
+          bulkUpsertExternalId: {
+            externalIdName: 'test__c',
+            externalIdValue: '01'
           },
           name: 'Patrick Star',
           phone: '123-456-7890'
         },
         {
           operation: 'bulkUpsert',
-          traits: {
-            externalIdFieldName: 'test__c',
-            externalIdFieldValue: '11'
+          bulkUpsertExternalId: {
+            externalIdName: 'test__c',
+            externalIdValue: '11'
           },
           name: 'Sandy Cheeks',
-          state: 'Texas'
+          mailing_state: 'Texas'
         }
       ]
 
       const csv = buildCSVData(incompletePayloads, 'test__c')
-      const expected = `name,state,phone,email,FavoriteFood,test__c\n"SpongeBob Squarepants",#N/A,#N/A,"sponge@seamail.com","Krabby Patty","00"\n"Patrick Star",#N/A,"123-456-7890",#N/A,#N/A,"01"\n"Sandy Cheeks","Texas",#N/A,#N/A,#N/A,"11"\n`
+      const expected = `Name,MailingState,Phone,Email,FavoriteFood,test__c\n"SpongeBob Squarepants",#N/A,#N/A,"sponge@seamail.com","Krabby Patty","00"\n"Patrick Star",#N/A,"123-456-7890",#N/A,#N/A,"01"\n"Sandy Cheeks","Texas",#N/A,#N/A,#N/A,"11"\n`
 
       expect(csv).toEqual(expected)
     })

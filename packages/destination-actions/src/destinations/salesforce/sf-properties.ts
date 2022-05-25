@@ -15,6 +15,32 @@ export const operation: InputField = {
   ]
 }
 
+export const bulkUpsertExternalId: InputField = {
+  label: 'Bulk Upsert External Id',
+  description: 'The external id field name and mapping to use for bulk upsert.',
+  type: 'object',
+  defaultObjectUI: 'keyvalue:only',
+  additionalProperties: false,
+  properties: {
+    externalIdName: {
+      label: 'External Id Name',
+      description: 'The external id field name as defined in Salesforce.',
+      type: 'string'
+    },
+    externalIdValue: {
+      label: 'External Id Value',
+      description: 'The external id field value to use for bulk upsert.',
+      type: 'string'
+    }
+  }
+}
+
+export const bulkUpdateRecordId: InputField = {
+  label: 'Bulk Update Record Id',
+  description: 'The record id value to use for bulk update.',
+  type: 'string'
+}
+
 export const traits: InputField = {
   label: 'Record Matchers',
   description: `The fields used to find Salesforce records for updates. **This is required if the operation is Update or Upsert.**

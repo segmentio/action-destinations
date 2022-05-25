@@ -1,8 +1,8 @@
 import { IntegrationError } from '@segment/actions-core'
 import { GenericPayload } from './sf-types'
-// import camelCase from 'lodash/camelCase'
+import camelCase from 'lodash/camelCase'
 
-const isSettingsKey = new Set<string>(['operation', 'traits', 'customFields'])
+const isSettingsKey = new Set<string>(['operation', 'traits', 'customFields', 'bulkUpsertExternalId'])
 
 const NO_VALUE = `#N/A`
 
@@ -25,11 +25,12 @@ const buildHeaderMap = (payloads: GenericPayload[]): Map<string, [[string, numbe
     const payload = payloads[i]
     Object.entries(payload).forEach(([key, value]) => {
       if (!isSettingsKey.has(key)) {
+        const pascalKey = snakeCaseToPascalCase(key)
         const actualValue = value as string
-        if (headerMap.has(key)) {
-          headerMap.get(key)?.push([actualValue, i])
+        if (headerMap.has(pascalKey)) {
+          headerMap.get(pascalKey)?.push([actualValue, i])
         } else {
-          headerMap.set(key, [[actualValue, i]])
+          headerMap.set(pascalKey, [[actualValue, i]])
         }
       }
       if (key === 'customFields') {
@@ -88,7 +89,7 @@ const buildCSVFromHeaderMap = (
         row += `${NO_VALUE},`
       }
     }
-    const externalIdFieldValue = payloads[i].traits?.externalIdFieldValue as string
+    const externalIdFieldValue = payloads[i].bulkUpsertExternalId?.externalIdValue as string
     rows += `${row}"${externalIdFieldValue}"\n`
   }
   return rows
@@ -105,7 +106,7 @@ export const buildCSVData = (payloads: GenericPayload[], externalIdFieldName: st
 
 // Our key names are in snake case, but Salesforce's field names are in Pascal case.
 // I.E. 'last_name' is our key, but 'LastName' is the Salesforce field name.
-// const snakeCaseToPascalCase = (key: string): string => {
-//   const token = camelCase(key)
-//   return token.charAt(0).toUpperCase() + token.slice(1)
-// }
+const snakeCaseToPascalCase = (key: string): string => {
+  const token = camelCase(key)
+  return token.charAt(0).toUpperCase() + token.slice(1)
+}

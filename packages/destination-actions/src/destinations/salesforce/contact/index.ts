@@ -1,7 +1,7 @@
 import { ActionDefinition, IntegrationError } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
-import { customFields, operation, traits, validateLookup } from '../sf-properties'
+import { bulkUpsertExternalId, customFields, operation, traits, validateLookup } from '../sf-properties'
 import Salesforce from '../sf-operations'
 
 const OBJECT_NAME = 'Contact'
@@ -12,6 +12,7 @@ const action: ActionDefinition<Settings, Payload> = {
   fields: {
     operation: operation,
     traits: traits,
+    bulkUpsertExternalId: bulkUpsertExternalId,
     last_name: {
       label: 'Last Name',
       description: "The contact's last name up to 80 characters. **This is required to create a contact.**",

@@ -1,7 +1,7 @@
 import { ActionDefinition, IntegrationError } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
-import { customFields, operation, traits, validateLookup } from '../sf-properties'
+import { bulkUpsertExternalId, customFields, operation, traits, validateLookup } from '../sf-properties'
 import Salesforce from '../sf-operations'
 
 const OBJECT_NAME = 'Lead'
@@ -13,6 +13,7 @@ const action: ActionDefinition<Settings, Payload> = {
   fields: {
     operation: operation,
     traits: traits,
+    bulkUpsertExternalId: bulkUpsertExternalId,
     company: {
       label: 'Company',
       description: "The lead's company. **This is required to create a lead.**",

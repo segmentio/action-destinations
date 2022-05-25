@@ -75,18 +75,17 @@ export default class Salesforce {
 
   bulkUpsert = async (payloads: GenericPayload[], sobject: string) => {
     if (
-      !payloads[0].traits ||
-      Object.keys(payloads[0].traits).length === 0 ||
-      !payloads[0].traits['externalIdFieldName'] ||
-      !payloads[0].traits['externalIdFieldValue']
+      !payloads[0].bulkUpsertExternalId ||
+      !payloads[0].bulkUpsertExternalId.externalIdName ||
+      !payloads[0].bulkUpsertExternalId.externalIdValue
     ) {
       throw new IntegrationError(
-        'Undefined traits.externalIdFieldName or externalIdFieldValue when using bulkUpsert operation',
-        'Undefined traits.externalIdFieldName externalIdFieldValue',
+        'Undefined bulkUpsertExternalId.externalIdName or externalIdValue when using bulkUpsert operation',
+        'Undefined bulkUpsertExternalId.externalIdName externalIdValue',
         400
       )
     }
-    const externalIdFieldName = payloads[0].traits['externalIdFieldName'] as string
+    const externalIdFieldName = payloads[0].bulkUpsertExternalId.externalIdName
 
     const jobId = await this.createBulkJob(sobject, externalIdFieldName)
 

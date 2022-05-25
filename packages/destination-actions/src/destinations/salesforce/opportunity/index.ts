@@ -1,7 +1,7 @@
 import { ActionDefinition, IntegrationError } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import Salesforce from '../sf-operations'
-import { customFields, operation, traits, validateLookup } from '../sf-properties'
+import { bulkUpsertExternalId, customFields, operation, traits, validateLookup } from '../sf-properties'
 import type { Payload } from './generated-types'
 
 const OBJECT_NAME = 'Opportunity'
@@ -12,6 +12,7 @@ const action: ActionDefinition<Settings, Payload> = {
   fields: {
     operation: operation,
     traits: traits,
+    bulkUpsertExternalId: bulkUpsertExternalId,
     close_date: {
       label: 'Close Date',
       description:

@@ -1,7 +1,7 @@
 import type { ActionDefinition } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
-import { operation, traits, customFields, validateLookup } from '../sf-properties'
+import { bulkUpsertExternalId, operation, traits, customFields, validateLookup } from '../sf-properties'
 import Salesforce from '../sf-operations'
 
 const action: ActionDefinition<Settings, Payload> = {
@@ -11,6 +11,7 @@ const action: ActionDefinition<Settings, Payload> = {
   fields: {
     operation: operation,
     traits: traits,
+    bulkUpsertExternalId: bulkUpsertExternalId,
     customObjectName: {
       label: 'Salesforce Object',
       description:
