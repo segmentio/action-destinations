@@ -91,7 +91,7 @@ In order to run the CLI (`./bin/run`), your current working directory needs to b
 
 For specific information about each CLI command, please refer to this [README](https://github.com/segmentio/action-destinations/tree/main/packages/cli).
 
-For instructions on how to create a new integration, see the [Create a new Destination Action](./docs/create.md) docs
+For instructions on how to create a new integration, see the [Create a new Destination Action](./docs/create.md) docs.
 
 #### Troubleshooting CLI
 
