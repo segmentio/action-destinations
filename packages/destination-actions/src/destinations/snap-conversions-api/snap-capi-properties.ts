@@ -114,7 +114,7 @@ export const email: InputField = {
 }
 
 export const mobile_ad_id: InputField = {
-  label: 'Mobile Ad Indeentifier',
+  label: 'Mobile Ad Identifier',
   description:
     'Mobile ad identifier (IDFA or AAID) of the user who triggered the conversion event. Segment will normalize and hash this value before sending to Snapchat.',
   type: 'string',
