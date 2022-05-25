@@ -19,7 +19,7 @@ For more detailed instruction, see the following READMEs:
 - [Mapping Kit](./packages/core/src/mapping-kit/README.md)
 - [Destination Kit](./packages/core/src/destination-kit/README.md)
 
-# Table of Contents:
+## Table of Contents:
 
 - [Get Started](#get-started)
 - [Actions CLI](#actions-cli)
