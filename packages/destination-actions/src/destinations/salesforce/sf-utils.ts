@@ -97,7 +97,6 @@ const buildCSVFromHeaderMap = (
 export const buildCSVData = (payloads: GenericPayload[], externalIdFieldName: string): string => {
   const headerMap = buildHeaderMap(payloads)
   let csv = buildHeaders(headerMap)
-  console.log('csv', csv)
 
   csv += `${externalIdFieldName}\n` + buildCSVFromHeaderMap(payloads, headerMap, payloads.length)
 

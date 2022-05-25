@@ -3,7 +3,36 @@ import { buildCSVData } from '../sf-utils'
 
 describe('Salesforce Utils', () => {
   describe('CSV', () => {
-    it('should correctly build a CSV from many payloads with incomplete data', async () => {
+    it('should correctly build a CSV from payloads with complete data', async () => {
+      const completePayloads: GenericPayload[] = [
+        {
+          operation: 'bulkUpsert',
+          traits: {
+            externalIdFieldName: 'test__c',
+            externalIdFieldValue: '00'
+          },
+          name: 'SpongeBob SquarePants',
+          email: 'sponge@seamail.com',
+          phone: '555-555-5555'
+        },
+        {
+          operation: 'bulkUpsert',
+          traits: {
+            externalIdFieldName: 'test__c',
+            externalIdFieldValue: '01'
+          },
+          name: 'Patrick Star',
+          email: 'star@seamail.com',
+          phone: '555-555-5555'
+        }
+      ]
+
+      const csv = buildCSVData(completePayloads, 'test__c')
+      const expected = `name,email,phone,test__c\n"SpongeBob SquarePants","sponge@seamail.com","555-555-5555","00"\n"Patrick Star","star@seamail.com","555-555-5555","01"\n`
+
+      expect(csv).toEqual(expected)
+    })
+    it('should correctly build a CSV from payloads with incomplete data', async () => {
       const incompletePayloads: GenericPayload[] = [
         {
           operation: 'bulkUpsert',
