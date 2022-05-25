@@ -131,7 +131,7 @@ export const uuid_c1: InputField = {
 }
 
 export const idfv: InputField = {
-  label: 'Indentifier for Vendor',
+  label: 'Identifier for Vendor',
   description: 'IDFV of the user’s device. Segment will normalize and hash this value before sending to Snapchat.',
   type: 'string',
   default: {
