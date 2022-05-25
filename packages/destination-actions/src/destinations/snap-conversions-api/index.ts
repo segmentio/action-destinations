@@ -48,6 +48,15 @@ const presets: DestinationDefinition['presets'] = [
     }
   },
   {
+    name: 'List View',
+    subscribe: 'event = "Product List Viewed"',
+    partnerAction: 'reportConversionEvent',
+    mapping: {
+      ...defaultVals,
+      event_type: 'LIST_VIEW'
+    }
+  },
+  {
     name: 'App Open',
     subscribe: 'event = "Application Opened"',
     partnerAction: 'reportConversionEvent',
