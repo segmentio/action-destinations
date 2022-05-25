@@ -32,11 +32,6 @@ describe('GainsightPxCloudAction.trackEvent', () => {
     expect(responses.length).toBe(1)
     expect(responses[0].status).toBe(200)
     expect(responses[0].data).toMatchObject({})
-    expect(responses[0].options.json).toMatchObject({
-      allFields: {
-        event: 'test event',
-        properties: { title: 'Intro to Analytics' }
-      }
-    })
+    expect(responses[0].options.json).toMatchObject(event)
   })
 })

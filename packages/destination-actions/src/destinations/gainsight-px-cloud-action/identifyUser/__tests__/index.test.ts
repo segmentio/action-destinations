@@ -28,13 +28,6 @@ describe('GainsightPxCloudAction.identifyUser', () => {
     expect(responses.length).toBe(1)
     expect(responses[0].status).toBe(200)
     expect(responses[0].data).toMatchObject({})
-    expect(responses[0].options.json).toMatchObject({
-      allFields: {
-        userId: 'userKanker',
-        traits: {
-          abc: '123'
-        }
-      }
-    })
+    expect(responses[0].options.json).toMatchObject(event)
   })
 })

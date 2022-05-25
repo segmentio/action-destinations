@@ -36,14 +36,6 @@ describe('GainsightPxCloudAction.trackPageView', () => {
     expect(responses.length).toBe(1)
     expect(responses[0].status).toBe(200)
     expect(responses[0].data).toMatchObject({})
-    expect(responses[0].options.json).toMatchObject({
-      allFields: {
-        name: 'Home',
-        properties: {
-          title: 'Welcome | Initech',
-          url: 'http://www.example.com'
-        }
-      }
-    })
+    expect(responses[0].options.json).toMatchObject(event)
   })
 })

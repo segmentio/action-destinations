@@ -1,5 +1,22 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`Testing snapshot for GainsightPxCloudAction's identifyUser destination action: all fields 1`] = `Object {}`;
+exports[`Testing snapshot for GainsightPxCloudAction's identifyUser destination action: all fields 1`] = `
+Object {
+  "testType": "vE1a]]D[Snw4",
+}
+`;
 
-exports[`Testing snapshot for GainsightPxCloudAction's identifyUser destination action: required fields 1`] = `Object {}`;
+exports[`Testing snapshot for GainsightPxCloudAction's identifyUser destination action: required fields 1`] = `""`;
+
+exports[`Testing snapshot for GainsightPxCloudAction's identifyUser destination action: required fields 2`] = `
+Headers {
+  Symbol(map): Object {
+    "authorization": Array [
+      "Basic dkUxYV1dRFtTbnc0Og==",
+    ],
+    "user-agent": Array [
+      "Segment (Actions)",
+    ],
+  },
+}
+`;
