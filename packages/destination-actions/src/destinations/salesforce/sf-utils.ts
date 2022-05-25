@@ -17,10 +17,18 @@ const validateHeaderField = (field: string): IntegrationError | false => {
   return false
 }
 
+/**
+ * Iterates over each payload in the batch, and creates a map which represents each column in the CSV file.
+ *
+ * @param payloads Each payload in the batch.
+ * @returns A map of header names to an array of (value, index) pairs. This map is essentially a
+ * map of each column in the CSV file. The index is the index of the payload in the batch and is used
+ * to maintain ordering when the CSV is generated.
+ */
 const buildHeaderMap = (payloads: GenericPayload[]): Map<string, [[string, number]]> => {
   const headerMap = new Map<string, [[string, number]]>()
 
-  //iterate in reverse over payloads
+  //iterate in reverse over payloads to use each headerMap array as a queue.
   for (let i = payloads.length - 1; i >= 0; i--) {
     const payload = payloads[i]
     Object.entries(payload).forEach(([key, value]) => {
@@ -54,6 +62,12 @@ const buildHeaderMap = (payloads: GenericPayload[]): Map<string, [[string, numbe
   return headerMap
 }
 
+/**
+ * Builds the first row of the CSV file, which is the header row.
+ *
+ * @param headerMap A map representing each column in the CSV file.
+ * @returns The first row of the CSV file, which contains the header names.
+ */
 const buildHeaders = (headerMap: Map<string, [[string, number]]>): string => {
   let headers = ''
   for (const [key, _] of headerMap.entries()) {
@@ -62,6 +76,17 @@ const buildHeaders = (headerMap: Map<string, [[string, number]]>): string => {
   return headers
 }
 
+/**
+ * Iterates over each row in the CSV file. Each row is constructed by iterating over each column
+ * represented in headerMap. If the value in the column applies to the row being constructed, it is
+ * popped from the queue and added to the row. If not, #N/A is appended to the row.
+ * The externalIDValue is then appended to the end of each row.
+ *
+ * @param payloads Each payload in the batch.
+ * @param headerMap Represents each column in the CSV file.
+ * @param n The size of the batch.
+ * @returns The data rows of the CSV file.
+ */
 const buildCSVFromHeaderMap = (
   payloads: GenericPayload[],
   headerMap: Map<string, [[string, number]]>,
@@ -95,6 +120,12 @@ const buildCSVFromHeaderMap = (
   return rows
 }
 
+/**
+ *
+ * @param payloads Each payload in the batch.
+ * @param externalIdFieldName The name of the field that contains the external ID.
+ * @returns The complete CSV to send to Salesforce.
+ */
 export const buildCSVData = (payloads: GenericPayload[], externalIdFieldName: string): string => {
   const headerMap = buildHeaderMap(payloads)
   let csv = buildHeaders(headerMap)
