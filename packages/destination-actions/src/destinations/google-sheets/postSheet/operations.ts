@@ -62,7 +62,7 @@ function processGetSpreadsheetResponse(response: GetResponse, events: Payload[])
   const eventMap = new Map(events.map((e) => [e.record_identifier, e]))
 
   if (response.values && response.values.length > 0) {
-    for (let i = 1; i < response.values.length; i++) {
+    for (let i = 0; i < response.values.length; i++) {
       const targetIdentifier = response.values[i][0]
       if (eventMap.has(targetIdentifier)) {
         // The event being processed already exists in the spreadsheet.
@@ -71,7 +71,7 @@ function processGetSpreadsheetResponse(response: GetResponse, events: Payload[])
           updateBatch.push({
             identifier: targetIdentifier,
             event: targetEvent.fields as Fields,
-            targetIndex: i + 1
+            targetIndex: i + 2 // one for header row, and one for one-based index
           })
         }
         eventMap.delete(targetIdentifier)
@@ -127,14 +127,7 @@ async function processUpdateBatch(
     values: [['id', ...mappingSettings.columns]]
   })
 
-  return gs
-    .batchUpdate(mappingSettings, batchPayload)
-    .then(() => {
-      console.log('update')
-    })
-    .catch((error) => {
-      console.log(error)
-    })
+  return gs.batchUpdate(mappingSettings, batchPayload)
 }
 
 // TODO: Re-enable delete once locking is supported.
@@ -192,14 +185,7 @@ async function processAppendBatch(
   )
 
   // Start from A2 to skip header row (in case it has not been written yet)
-  return gs
-    .append(mappingSettings, 'A2', values)
-    .then(() => {
-      console.log('append')
-    })
-    .catch((error) => {
-      console.log(error)
-    })
+  return gs.append(mappingSettings, 'A2', values)
 }
 
 /**
@@ -207,7 +193,7 @@ async function processAppendBatch(
  * @param request request object used to perform HTTP calls
  * @param events array of events to commit to the spreadsheet
  */
-function processData(request: RequestClient, events: Payload[]) {
+async function processData(request: RequestClient, events: Payload[]) {
   // These are assumed to be constant across all events
   const mappingSettings = {
     spreadsheetId: events[0].spreadsheet_id,
@@ -218,22 +204,18 @@ function processData(request: RequestClient, events: Payload[]) {
 
   const gs: GoogleSheets = new GoogleSheets(request)
 
-  // Get all of the row identifiers (assumed to be in the first column A)
-  gs.get(mappingSettings, 'A:A')
-    .then((response) => {
-      // Use the retrieved row identifiers along with the incoming events to decide which ones should be appended or updated.
-      const { appendBatch, updateBatch } = processGetSpreadsheetResponse(response.data, events)
+  // Get all of the row identifiers (assumed to be in the first column A), skipping header row
+  const response = await gs.get(mappingSettings, 'A2:A')
 
-      const promises = [
-        processUpdateBatch(mappingSettings, updateBatch, gs),
-        processAppendBatch(mappingSettings, appendBatch, gs)
-      ]
+  // Use the retrieved row identifiers along with the incoming events to decide which ones should be appended or updated.
+  const { appendBatch, updateBatch } = processGetSpreadsheetResponse(response.data, events)
 
-      return Promise.all(promises)
-    })
-    .catch((error) => {
-      console.log(error)
-    })
+  const promises = [
+    processUpdateBatch(mappingSettings, updateBatch, gs),
+    processAppendBatch(mappingSettings, appendBatch, gs)
+  ]
+
+  return await Promise.all(promises)
 }
 
 export { processData }

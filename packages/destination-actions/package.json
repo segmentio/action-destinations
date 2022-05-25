@@ -27,7 +27,7 @@
     "clean": "tsc -b tsconfig.build.json --clean",
     "postclean": "rm -rf dist",
     "prepublishOnly": "yarn build",
-    "test": "jest",
+    "test": "jest --coverage",
     "typecheck": "tsc -p tsconfig.build.json --noEmit"
   },
   "devDependencies": {
@@ -60,6 +60,10 @@
     },
     "setupFilesAfterEnv": [
       "<rootDir>/test/setup-after-env.ts"
+    ],
+    "coverageReporters": [
+      "html",
+      "lcov"
     ]
   }
 }

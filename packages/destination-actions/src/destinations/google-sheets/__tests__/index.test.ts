@@ -1,18 +1,23 @@
-import nock from 'nock'
 import { createTestIntegration } from '@segment/actions-core'
+import { ExecuteInput } from '@segment/actions-core/dist/esm/destination-kit/types'
+import { Settings } from '../generated-types'
 import Definition from '../index'
 
 const testDestination = createTestIntegration(Definition)
 
 describe('Google Sheets', () => {
-  describe('testAuthentication', () => {
-    it('should validate authentication inputs', async () => {
-      nock('https://your.destination.endpoint').get('*').reply(200, {})
+  describe('extendRequest', () => {
+    it('should populate headers with authentication', async () => {
+      const accessToken = '12345abcde'
+      const authData: Partial<ExecuteInput<Settings, undefined>> = {
+        auth: {
+          accessToken,
+          refreshToken: ''
+        }
+      }
 
-      // This should match your authentication.fields
-      const authData = {}
-
-      await expect(testDestination.testAuthentication(authData)).resolves.not.toThrowError()
+      const extendedRequest = testDestination.extendRequest?.(authData as ExecuteInput<Settings, undefined>)
+      expect(extendedRequest?.headers?.['authorization']).toContain(`Bearer ${accessToken}`)
     })
   })
 })
