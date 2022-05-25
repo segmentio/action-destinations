@@ -2,7 +2,7 @@ import { InputField } from '@segment/actions-core/src/destination-kit/types'
 import { createHash } from 'crypto'
 import { Payload } from './reportConversionEvent/generated-types'
 
-export const CURRENCY_ISO_CODES = new Set([
+export const CURRENCY_ISO_4217_CODES = new Set([
   'USD',
   'AED',
   'AUD',
