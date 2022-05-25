@@ -262,9 +262,9 @@ describe('Salesforce', () => {
     const bulkUpsertPayloads: GenericPayload[] = [
       {
         operation: 'bulkUpsert',
-        traits: {
-          externalIdFieldName: 'test__c',
-          externalIdFieldValue: 'ab'
+        bulkUpsertExternalId: {
+          externalIdName: 'test__c',
+          externalIdValue: 'ab'
         },
         name: 'SpongeBob Squarepants',
         phone: '1234567890',
@@ -272,9 +272,9 @@ describe('Salesforce', () => {
       },
       {
         operation: 'bulkUpsert',
-        traits: {
-          externalIdFieldName: 'test__c',
-          externalIdFieldValue: 'cd'
+        bulkUpsertExternalId: {
+          externalIdName: 'test__c',
+          externalIdValue: 'cd'
         },
         name: 'Squidward Tentacles',
         phone: '1234567891',
@@ -285,9 +285,9 @@ describe('Salesforce', () => {
     const customPayloads: GenericPayload[] = [
       {
         operation: 'bulkUpsert',
-        traits: {
-          externalIdFieldName: 'test__c',
-          externalIdFieldValue: 'ab'
+        bulkUpsertExternalId: {
+          externalIdName: 'test__c',
+          externalIdValue: 'ab'
         },
         name: 'SpongeBob Squarepants',
         phone: '1234567890',
@@ -298,9 +298,9 @@ describe('Salesforce', () => {
       },
       {
         operation: 'bulkUpsert',
-        traits: {
-          externalIdFieldName: 'test__c',
-          externalIdFieldValue: 'cd'
+        bulkUpsertExternalId: {
+          externalIdName: 'test__c',
+          externalIdValue: 'cd'
         },
         name: 'Squidward Tentacles',
         phone: '1234567891',
@@ -324,7 +324,7 @@ describe('Salesforce', () => {
           id: 'abc123'
         })
 
-      const CSV = `"Name","Phone","Description","test__c"\n"SpongeBob Squarepants","1234567890","Krusty Krab","ab"\n"Squidward Tentacles","1234567891","Krusty Krab","cd"`
+      const CSV = `Name,Phone,Description,test__c\n"SpongeBob Squarepants","1234567890","Krusty Krab","ab"\n"Squidward Tentacles","1234567891","Krusty Krab","cd"\n`
 
       //upload csv
       nock(`${settings.instanceUrl}services/data/${API_VERSION}/jobs/ingest/abc123/batches`, {
@@ -359,7 +359,7 @@ describe('Salesforce', () => {
           id: 'xyz987'
         })
 
-      const CSV = `"Name","Phone","Description","TickerSymbol","test__c"\n"SpongeBob Squarepants","1234567890","Krusty Krab","KRAB","ab"\n"Squidward Tentacles","1234567891","Krusty Krab","KRAB","cd"`
+      const CSV = `Name,Phone,Description,TickerSymbol,test__c\n"SpongeBob Squarepants","1234567890","Krusty Krab","KRAB","ab"\n"Squidward Tentacles","1234567891","Krusty Krab","KRAB","cd"\n`
 
       //upload csv
       nock(`${settings.instanceUrl}services/data/${API_VERSION}/jobs/ingest/xyz987/batches`, {
