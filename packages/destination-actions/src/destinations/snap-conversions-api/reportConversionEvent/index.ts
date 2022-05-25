@@ -1,4 +1,4 @@
-import type { ActionDefinition } from '@segment/actions-core'
+import { ActionDefinition, IntegrationError } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 import {
@@ -25,7 +25,8 @@ import {
   search_string,
   page_url,
   sign_up_method,
-  formatPayload
+  formatPayload,
+  CURRENCY_ISO_CODES
 } from '../snap-capi-properties'
 
 const action: ActionDefinition<Settings, Payload> = {
@@ -62,10 +63,32 @@ const action: ActionDefinition<Settings, Payload> = {
 
     //Check to see what ids need to be passed depending on the event_conversion_type
     if (data.payload.event_conversion_type === 'MOBILE_APP') {
+      if (data.settings?.snap_app_id === undefined || data.settings?.app_id === undefined) {
+        throw new IntegrationError(
+          'If event conversion type is "MOBILE_APP" then snap_app_id and app_id must be defined',
+          'Misconfigured required field',
+          400
+        )
+      }
       delete data.settings?.pixel_id
     } else {
+      if (data.settings?.pixel_id === undefined) {
+        throw new IntegrationError(
+          `If event conversion type is "${data.payload.event_conversion_type}" then pixel_id must be defined`,
+          'Misconfigured required field',
+          400
+        )
+      }
       delete data.settings?.snap_app_id
       delete data.settings?.app_id
+    }
+
+    if (data.payload.currency && !CURRENCY_ISO_CODES.has(data.payload.currency)) {
+      throw new IntegrationError(
+        `${data.payload.currency} is not a valid currency code.`,
+        'Misconfigured required field',
+        400
+      )
     }
 
     //Create Conversion Event Request

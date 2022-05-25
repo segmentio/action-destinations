@@ -64,7 +64,7 @@ export interface Payload {
   /**
    * Value of the purchase.
    */
-  price?: string
+  price?: number
   /**
    * Currency for the value specified as ISO 4217 code.
    */
