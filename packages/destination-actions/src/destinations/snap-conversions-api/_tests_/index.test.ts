@@ -2,7 +2,6 @@ import nock from 'nock'
 import { createTestEvent, createTestIntegration } from '@segment/actions-core'
 import Definition from '../index'
 import { Settings } from '../generated-types'
-import { AuthTokens } from '../../../../../core/dist/esm/destination-kit/parse-settings'
 
 const testDestination = createTestIntegration(Definition)
 const timestamp = '2022-05-12T15:21:15.449Z'
@@ -11,10 +10,8 @@ const settings: Settings = {
   pixel_id: 'test123',
   app_id: 'test123'
 }
-const oAuth: AuthTokens = {
-  accessToken: 'test123',
-  refreshToken: 'test123'
-}
+const accessToken = 'test123'
+const refreshToken = 'test123'
 
 describe('Snap Conversions API ', () => {
   describe('ReportConversionEvent', () => {
@@ -41,7 +38,10 @@ describe('Snap Conversions API ', () => {
         event,
         settings,
         useDefaultMappings: true,
-        auth: oAuth,
+        auth: {
+          accessToken,
+          refreshToken
+        },
         mapping: {
           event_type: 'PURCHASE',
           event_conversion_type: 'WEB'
@@ -82,7 +82,10 @@ describe('Snap Conversions API ', () => {
             app_id: 'test123'
           },
           useDefaultMappings: true,
-          auth: oAuth,
+          auth: {
+            accessToken,
+            refreshToken
+          },
           mapping: {
             event_type: 'PURCHASE',
             event_conversion_type: 'WEB'
@@ -118,7 +121,10 @@ describe('Snap Conversions API ', () => {
             app_id: 'test123'
           },
           useDefaultMappings: true,
-          auth: oAuth,
+          auth: {
+            accessToken,
+            refreshToken
+          },
           mapping: {
             event_type: 'PURCHASE',
             event_conversion_type: 'MOBILE_APP'
@@ -150,7 +156,10 @@ describe('Snap Conversions API ', () => {
         event,
         settings,
         useDefaultMappings: true,
-        auth: oAuth,
+        auth: {
+          accessToken,
+          refreshToken
+        },
         mapping: {
           event_type: 'SAVE',
           event_conversion_type: 'OFFLINE'
@@ -191,7 +200,10 @@ describe('Snap Conversions API ', () => {
           app_id: '123'
         },
         useDefaultMappings: true,
-        auth: oAuth,
+        auth: {
+          accessToken,
+          refreshToken
+        },
         mapping: {
           event_type: 'SAVE',
           event_conversion_type: 'MOBILE_APP'
@@ -230,7 +242,10 @@ describe('Snap Conversions API ', () => {
           event,
           settings,
           useDefaultMappings: true,
-          auth: oAuth,
+          auth: {
+            accessToken,
+            refreshToken
+          },
           mapping: {
             event_type: 'PURCHASE',
             event_conversion_type: 'WEB'
@@ -263,7 +278,10 @@ describe('Snap Conversions API ', () => {
           event,
           settings,
           useDefaultMappings: true,
-          auth: oAuth,
+          auth: {
+            accessToken,
+            refreshToken
+          },
           mapping: {
             event_type: 'PURCHASE'
           }
@@ -297,7 +315,10 @@ describe('Snap Conversions API ', () => {
           app_id: '123'
         },
         useDefaultMappings: true,
-        auth: oAuth,
+        auth: {
+          accessToken,
+          refreshToken
+        },
         mapping: {
           event_type: { '@path': '$.event' },
           event_conversion_type: 'MOBILE_APP'
