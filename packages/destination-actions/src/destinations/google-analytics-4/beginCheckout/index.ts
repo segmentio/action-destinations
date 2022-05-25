@@ -1,6 +1,17 @@
 import { ActionDefinition, IntegrationError } from '@segment/actions-core'
 import { CURRENCY_ISO_CODES } from '../constants'
-import { coupon, currency, client_id, value, items_multi_products } from '../ga4-properties'
+import {
+  formatUserProperties,
+  user_properties,
+  params,
+  coupon,
+  currency,
+  client_id,
+  value,
+  items_multi_products,
+  user_id,
+  engagement_time_msec
+} from '../ga4-properties'
 import { ProductItem } from '../ga4-types'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
@@ -11,6 +22,7 @@ const action: ActionDefinition<Settings, Payload> = {
   defaultSubscription: 'type = "track" and event = "Checkout Started"',
   fields: {
     client_id: { ...client_id },
+    user_id: { ...user_id },
     coupon: { ...coupon, default: { '@path': '$.properties.coupon' } },
     currency: { ...currency },
     // Google does not have anything to map position, url and image url fields (Segment spec) to
@@ -19,7 +31,10 @@ const action: ActionDefinition<Settings, Payload> = {
       ...items_multi_products,
       required: true
     },
-    value: { ...value }
+    value: { ...value },
+    user_properties: user_properties,
+    engagement_time_msec: engagement_time_msec,
+    params: params
   },
   perform: (request, { payload }) => {
     if (payload.currency && !CURRENCY_ISO_CODES.includes(payload.currency)) {
@@ -50,6 +65,7 @@ const action: ActionDefinition<Settings, Payload> = {
       method: 'POST',
       json: {
         client_id: payload.client_id,
+        user_id: payload.user_id,
         events: [
           {
             name: 'begin_checkout',
@@ -57,10 +73,13 @@ const action: ActionDefinition<Settings, Payload> = {
               coupon: payload.coupon,
               currency: payload.currency,
               items: googleItems,
-              value: payload.value
+              value: payload.value,
+              engagement_time_msec: payload.engagement_time_msec,
+              ...payload.params
             }
           }
-        ]
+        ],
+        ...formatUserProperties(payload.user_properties)
       }
     })
   }

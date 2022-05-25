@@ -176,5 +176,36 @@ describe('Friendbuy.trackPurchase', () => {
         true
       ])
     }
+
+    {
+      // enjoined fields are converted
+      const context4 = new Context({
+        type: 'track',
+        event: 'Order Completed',
+        properties: {
+          order_id: 12345,
+          total: '129.50',
+          currency,
+          products: [{ sku: 99999, quantity: '2', price: '64.75' }],
+          customerId: 1138,
+          age: '30'
+        }
+      })
+
+      trackPurchase.track?.(context4)
+
+      expect(window.friendbuyAPI?.push).toHaveBeenNthCalledWith(4, [
+        'track',
+        'purchase',
+        {
+          id: '12345',
+          amount: 129.5,
+          currency,
+          products: [{ name: 'unknown', sku: '99999', quantity: 2, price: 64.75 }],
+          customer: { id: '1138', age: 30 }
+        },
+        true
+      ])
+    }
   })
 })

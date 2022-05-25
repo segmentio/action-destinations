@@ -1,20 +1,22 @@
 import { ActionDefinition, IntegrationError, RequestOptions } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
-import Mustache from 'mustache'
+import { Liquid as LiquidJs } from 'liquidjs'
 import cheerio from 'cheerio'
 import { htmlEscape } from 'escape-goat'
+
+const Liquid = new LiquidJs()
 
 const insertEmailPreviewText = (html: string, previewText: string): string => {
   const $ = cheerio.load(html)
 
   // See https://www.litmus.com/blog/the-little-known-preview-text-hack-you-may-want-to-use-in-every-email/
   $('body').prepend(`
-    <div style="display: none; max-height: 0px; overflow: hidden;">
+    <div style='display: none; max-height: 0px; overflow: hidden;'>
       ${htmlEscape(previewText)}
     </div>
 
-    <div style="display: none; max-height: 0px; overflow: hidden;">
+    <div style='display: none; max-height: 0px; overflow: hidden;'>
       ${'&nbsp;&zwnj;'.repeat(13)}&nbsp;
     </div>
   `)
@@ -47,32 +49,6 @@ const fetchProfileTraits = async (
 
   const body = await response.json()
   return body.traits
-}
-
-const fetchProfileExternalIds = async (
-  request: RequestFn,
-  settings: Settings,
-  profileId: string
-): Promise<Record<string, string>> => {
-  const endpoint = getProfileApiEndpoint(settings.profileApiEnvironment)
-  const response = await request(
-    `${endpoint}/v1/spaces/${settings.spaceId}/collections/users/profiles/user_id:${profileId}/external_ids?limit=25`,
-    {
-      headers: {
-        authorization: `Basic ${Buffer.from(settings.profileApiAccessToken + ':').toString('base64')}`,
-        'content-type': 'application/json'
-      }
-    }
-  )
-
-  const body = await response.json()
-  const externalIds: Record<string, string> = {}
-
-  for (const externalId of body.data) {
-    externalIds[externalId.type] = externalId.id
-  }
-
-  return externalIds
 }
 
 const isRestrictedDomain = (email: string): boolean => {
@@ -223,6 +199,45 @@ const action: ActionDefinition<Settings, Payload> = {
       description: 'The HTML content of the body',
       type: 'string'
     },
+    externalIds: {
+      label: 'External IDs',
+      description: 'An array of user profile identity information.',
+      type: 'object',
+      multiple: true,
+      properties: {
+        id: {
+          label: 'ID',
+          description: 'A unique identifier for the collection.',
+          type: 'string'
+        },
+        type: {
+          label: 'type',
+          description: 'The external ID contact type.',
+          type: 'string'
+        },
+        subscriptionStatus: {
+          label: 'ID',
+          description: 'The subscription status for the identity.',
+          type: 'string'
+        }
+      },
+      default: {
+        '@arrayPath': [
+          '$.external_ids',
+          {
+            id: {
+              '@path': '$.id'
+            },
+            type: {
+              '@path': '$.type'
+            },
+            subscriptionStatus: {
+              '@path': '$.isSubscribed'
+            }
+          }
+        ]
+      }
+    },
     customArgs: {
       label: 'Custom Args',
       description: 'Additional custom args that we be passed back opaquely on webhook events',
@@ -234,104 +249,121 @@ const action: ActionDefinition<Settings, Payload> = {
     if (!payload.send) {
       return
     }
-    const [traits, externalIds] = await Promise.all([
-      fetchProfileTraits(request, settings, payload.userId),
-      fetchProfileExternalIds(request, settings, payload.userId)
-    ])
 
-    const profile: Profile = {
-      ...externalIds,
-      traits
-    }
-
-    const toEmail = payload.toEmail || profile.email
-
-    if (!toEmail) {
+    const emailProfile = payload?.externalIds?.find((meta) => meta.type === 'email')
+    if (
+      !emailProfile?.subscriptionStatus ||
+      ['unsubscribed', 'did not subscribed', 'false'].includes(emailProfile.subscriptionStatus)
+    ) {
       return
-    }
+    } else if (['subscribed', 'true'].includes(emailProfile?.subscriptionStatus)) {
+      const traits = await fetchProfileTraits(request, settings, payload.userId)
 
-    if (isRestrictedDomain(toEmail)) {
+      const profile: Profile = {
+        email: emailProfile.id,
+        traits
+      }
+
+      const toEmail = payload.toEmail || profile.email
+
+      if (!toEmail) {
+        return
+      }
+
+      if (isRestrictedDomain(toEmail)) {
+        throw new IntegrationError(
+          'Emails with gmailx.com, yahoox.com, aolx.com, and hotmailx.com domains are blocked.',
+          'Invalid input',
+          400
+        )
+      }
+
+      let name
+
+      if (traits.first_name && traits.last_name) {
+        name = `${traits.first_name} ${traits.last_name}`
+      } else if (traits.firstName && traits.lastName) {
+        name = `${traits.firstName} ${traits.lastName}`
+      } else if (traits.name) {
+        name = traits.name
+      } else {
+        name = traits.first_name || traits.last_name || traits.firstName || traits.lastName || 'User'
+      }
+
+      const bcc = JSON.parse(payload.bcc ?? '[]')
+      let bodyHtml = payload.bodyHtml ?? ''
+
+      if (payload.bodyUrl && settings.unlayerApiKey) {
+        const response = await request(payload.bodyUrl)
+        const body = await response.text()
+        bodyHtml = payload.bodyType === 'html' ? body : await generateEmailHtml(request, settings.unlayerApiKey, body)
+
+        if (payload.previewText) {
+          bodyHtml = insertEmailPreviewText(bodyHtml, payload.previewText)
+        }
+      }
+
+      const [parsedSubject, parsedBody] = await Promise.all([
+        Liquid.parseAndRender(payload.subject, { profile }),
+        Liquid.parseAndRender(bodyHtml, { profile })
+      ])
+
+      return request('https://api.sendgrid.com/v3/mail/send', {
+        method: 'post',
+        headers: {
+          authorization: `Bearer ${settings.sendGridApiKey}`
+        },
+        json: {
+          personalizations: [
+            {
+              to: [
+                {
+                  email: toEmail,
+                  name: name
+                }
+              ],
+              bcc: bcc.length > 0 ? bcc : undefined,
+              custom_args: {
+                ...payload.customArgs,
+                source_id: settings.sourceId,
+                space_id: settings.spaceId,
+                user_id: payload.userId,
+                // This is to help disambiguate in the case it's email or email_address.
+                __segment_internal_external_id_key__: EXTERNAL_ID_KEY,
+                __segment_internal_external_id_value__: profile[EXTERNAL_ID_KEY]
+              }
+            }
+          ],
+          from: {
+            email: payload.fromEmail,
+            name: payload.fromName
+          },
+          reply_to: {
+            email: payload.replyToEmail,
+            name: payload.replyToName
+          },
+          subject: parsedSubject,
+          content: [
+            {
+              type: 'text/html',
+              value: parsedBody
+            }
+          ],
+          tracking_settings: {
+            subscription_tracking: {
+              enable: true,
+              substitution_tag: '[unsubscribe]'
+            }
+          }
+        }
+      })
+    } else {
       throw new IntegrationError(
-        'Emails with gmailx.com, yahoox.com, aolx.com, and hotmailx.com domains are blocked.',
-        'Invalid input',
+        `Failed to process the subscription state: "${emailProfile.subscriptionStatus}"`,
+        'Invalid subscriptionStatus value',
         400
       )
     }
-
-    let name
-
-    if (traits.first_name && traits.last_name) {
-      name = `${traits.first_name} ${traits.last_name}`
-    } else if (traits.firstName && traits.lastName) {
-      name = `${traits.firstName} ${traits.lastName}`
-    } else if (traits.name) {
-      name = traits.name
-    } else {
-      name = traits.first_name || traits.last_name || traits.firstName || traits.lastName || 'User'
-    }
-
-    const bcc = JSON.parse(payload.bcc ?? '[]')
-    let bodyHtml = payload.bodyHtml ?? ''
-
-    if (payload.bodyUrl && settings.unlayerApiKey) {
-      const response = await request(payload.bodyUrl)
-      const body = await response.text()
-      bodyHtml = payload.bodyType === 'html' ? body : await generateEmailHtml(request, settings.unlayerApiKey, body)
-
-      if (payload.previewText) {
-        bodyHtml = insertEmailPreviewText(bodyHtml, payload.previewText)
-      }
-    }
-
-    return request('https://api.sendgrid.com/v3/mail/send', {
-      method: 'post',
-      headers: {
-        authorization: `Bearer ${settings.sendGridApiKey}`
-      },
-      json: {
-        personalizations: [
-          {
-            to: [
-              {
-                email: toEmail,
-                name: name
-              }
-            ],
-            bcc: bcc.length > 0 ? bcc : undefined,
-            custom_args: {
-              ...payload.customArgs,
-              source_id: settings.sourceId,
-              space_id: settings.spaceId,
-              user_id: payload.userId,
-              // This is to help disambiguate in the case it's email or email_address.
-              __segment_internal_external_id_key__: EXTERNAL_ID_KEY,
-              __segment_internal_external_id_value__: profile[EXTERNAL_ID_KEY]
-            }
-          }
-        ],
-        from: {
-          email: payload.fromEmail,
-          name: payload.fromName
-        },
-        reply_to: {
-          email: payload.replyToEmail,
-          name: payload.replyToName
-        },
-        subject: Mustache.render(payload.subject, { profile }),
-        content: [
-          {
-            type: 'text/html',
-            value: Mustache.render(bodyHtml, { profile })
-          }
-        ],
-        tracking_settings: {
-          subscription_tracking: {
-            enable: true,
-            substitution_tag: "[unsubscribe]"
-          }
-        }
-      }
-    })
   }
 }
 

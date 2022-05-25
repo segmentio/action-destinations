@@ -6,3 +6,5 @@ dist
 .eslintcache
 package-lock.json
 .env
+# JetBrains byproduct
+.idea

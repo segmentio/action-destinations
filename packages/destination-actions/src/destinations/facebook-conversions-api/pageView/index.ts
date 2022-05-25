@@ -1,5 +1,5 @@
-import  { ActionDefinition, IntegrationError } from '@segment/actions-core'
-import { action_source, event_time, event_id, event_source_url } from '../fb-capi-properties'
+import { ActionDefinition, IntegrationError } from '@segment/actions-core'
+import { action_source, custom_data, event_time, event_id, event_source_url } from '../fb-capi-properties'
 import { user_data_field, hash_user_data } from '../fb-capi-user-data'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
@@ -13,7 +13,8 @@ const action: ActionDefinition<Settings, Payload> = {
     event_time: { ...event_time, required: true },
     user_data: user_data_field,
     event_id: event_id,
-    event_source_url: event_source_url
+    event_source_url: event_source_url,
+    custom_data: custom_data
   },
   perform: (request, { payload, settings }) => {
     if (!payload.user_data) {
@@ -37,7 +38,7 @@ const action: ActionDefinition<Settings, Payload> = {
             action_source: payload.action_source,
             event_source_url: payload.event_source_url,
             event_id: payload.event_id,
-            user_data: hash_user_data({user_data: payload.user_data})
+            user_data: hash_user_data({ user_data: payload.user_data })
           }
         ]
       }

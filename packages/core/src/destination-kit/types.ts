@@ -66,7 +66,16 @@ export interface GlobalSetting {
 }
 
 /** The supported field type names */
-export type FieldTypeName = 'string' | 'text' | 'number' | 'integer' | 'datetime' | 'boolean' | 'password' | 'object'
+export type FieldTypeName =
+  | 'string'
+  | 'text'
+  | 'number'
+  | 'integer'
+  | 'datetime'
+  | 'boolean'
+  | 'password'
+  | 'object'
+  | 'hidden'
 
 /** The shape of an input field definition */
 export interface InputField {
@@ -93,13 +102,13 @@ export interface InputField {
    * Only relevant for `type: 'string'` or `type: 'number'`.
    */
   choices?:
-  | Array<string>
-  | Array<{
-    /** The value of the option */
-    value: string | number
-    /** A human-friendly label for the option */
-    label: string
-  }>
+    | Array<string>
+    | Array<{
+        /** The value of the option */
+        value: string | number
+        /** A human-friendly label for the option */
+        label: string
+      }>
   /** Whether or not the field is required */
   required?: boolean
   /**
@@ -114,20 +123,31 @@ export interface InputField {
    * @see {@link https://github.com/ajv-validator/ajv/tree/v6#formats}
    */
   format?:
-  | 'date' // full-date according to RFC3339.
-  | 'time' // time with optional time-zone.
-  | 'date-time' // date-time from the same source (time-zone is mandatory). date, time and date-time validate ranges in full mode and only regexp in fast mode (see options).
-  | 'uri' // full URI.
-  | 'uri-reference' // URI reference, including full and relative URIs.
-  | 'uri-template' // URI template according to RFC6570
-  | 'email' // email address.
-  | 'hostname' // host name according to RFC1034.
-  | 'ipv4' // IP address v4.
-  | 'ipv6' // IP address v6.
-  | 'regex' // tests whether a string is a valid regular expression by passing it to RegExp constructor.
-  | 'uuid' // Universally Unique IDentifier according to RFC4122.
-  | 'password' // hint to the UI to hide/obfuscate input strings
-  | 'text' // longer strings
+    | 'date' // full-date according to RFC3339.
+    | 'time' // time with optional time-zone.
+    | 'date-time' // date-time from the same source (time-zone is mandatory). date, time and date-time validate ranges in full mode and only regexp in fast mode (see options).
+    | 'uri' // full URI.
+    | 'uri-reference' // URI reference, including full and relative URIs.
+    | 'uri-template' // URI template according to RFC6570
+    | 'email' // email address.
+    | 'hostname' // host name according to RFC1034.
+    | 'ipv4' // IP address v4.
+    | 'ipv6' // IP address v6.
+    | 'regex' // tests whether a string is a valid regular expression by passing it to RegExp constructor.
+    | 'uuid' // Universally Unique IDentifier according to RFC4122.
+    | 'password' // hint to the UI to hide/obfuscate input strings
+    | 'text' // longer strings
+
+  /**
+   * Determines the UI representation of the object field. Only applies to object types.
+   * Key Value Editor: Users can specify individual object keys and their mappings, ideal for custom objects.
+   * Object Reference: Users can specify only another object in the segment event to use as the value for this key in the payload
+   */
+  defaultObjectUI?:
+    | 'keyvalue' // Users will see the key value object editor by default and can change to the object editor.
+    | 'object' // Users will see the object editor by default and can change to the key value editor.
+    | 'keyvalue:only' // Users will only use the key value editor.
+    | 'object:only' // Users will only use the object editor.
 }
 
 export type FieldValue = string | number | boolean | object | Directive

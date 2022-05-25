@@ -4,11 +4,16 @@ import {
   coupon,
   transaction_id,
   client_id,
+  user_id,
   currency,
   value,
   affiliation,
   shipping,
-  items_multi_products
+  items_multi_products,
+  params,
+  formatUserProperties,
+  user_properties,
+  engagement_time_msec
 } from '../ga4-properties'
 import { ProductItem } from '../ga4-types'
 import type { Settings } from '../generated-types'
@@ -20,6 +25,7 @@ const action: ActionDefinition<Settings, Payload> = {
   defaultSubscription: 'type = "track" and event = "Order Refunded"',
   fields: {
     client_id: { ...client_id },
+    user_id: { ...user_id },
     currency: { ...currency },
     transaction_id: { ...transaction_id, required: true },
     value: { ...value, default: { '@path': '$.properties.total' } },
@@ -33,7 +39,10 @@ const action: ActionDefinition<Settings, Payload> = {
     },
     items: {
       ...items_multi_products
-    }
+    },
+    user_properties: user_properties,
+    engagement_time_msec: engagement_time_msec,
+    params: params
   },
   perform: (request, { payload }) => {
     if (payload.currency && !CURRENCY_ISO_CODES.includes(payload.currency)) {
@@ -82,6 +91,7 @@ const action: ActionDefinition<Settings, Payload> = {
       method: 'POST',
       json: {
         client_id: payload.client_id,
+        user_id: payload.user_id,
         events: [
           {
             name: 'refund',
@@ -93,10 +103,13 @@ const action: ActionDefinition<Settings, Payload> = {
               coupon: payload.coupon,
               shipping: payload.shipping,
               tax: payload.tax,
-              items: googleItems
+              items: googleItems,
+              engagement_time_msec: payload.engagement_time_msec,
+              ...payload.params
             }
           }
-        ]
+        ],
+        ...formatUserProperties(payload.user_properties)
       }
     })
   }

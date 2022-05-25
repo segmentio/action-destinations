@@ -17,7 +17,7 @@ describe('Adobe Target Web', () => {
       client_code: 'segmentexchangepartn',
       admin_number: '10',
       version: '2.8.0',
-      cookie_domain: 'localhost',
+      cookie_domain: 'segment.com',
       mbox_name: 'target-global-mbox',
       subscriptions
     })

@@ -1,19 +1,20 @@
 import type { ActionDefinition } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
-import type { AnalyticsPayload, EventMap } from '@segment/actions-shared'
+import type { AnalyticsPayload, ConvertFun, EventMap } from '@segment/actions-shared'
 
 import { createMapiRequest } from '../cloudUtil'
 import { contextFields } from '@segment/actions-shared'
 import { COPY, DROP, mapEvent } from '@segment/actions-shared'
 import { trackPurchaseFields } from '@segment/actions-shared'
+import { enjoinInteger, enjoinNumber, enjoinString } from '@segment/actions-shared'
 
 const cloudTrackPurchaseFields = { ...trackPurchaseFields({}), ...contextFields }
 
 const trackPurchaseMapi: EventMap = {
   fields: {
-    orderId: COPY,
-    amount: COPY,
+    orderId: { convert: enjoinString as ConvertFun },
+    amount: { convert: enjoinNumber as ConvertFun },
     currency: COPY,
     coupon: { name: 'couponCode' },
     attributionId: COPY,
@@ -24,10 +25,10 @@ const trackPurchaseMapi: EventMap = {
       type: 'array',
       defaultObject: { sku: 'unknown', name: 'unknown', quantity: 1 },
       fields: {
-        sku: COPY,
+        sku: { convert: enjoinString as ConvertFun },
         name: COPY,
-        quantity: COPY,
-        price: COPY,
+        quantity: { convert: enjoinInteger as ConvertFun },
+        price: { convert: enjoinNumber as ConvertFun },
         description: COPY,
         category: COPY,
         url: COPY,

@@ -47,6 +47,13 @@ export const destination: BrowserDestinationDefinition<Settings, FS> = {
       type: 'boolean',
       required: false,
       default: false
+    },
+    recordOnlyThisIFrame: {
+      description: 'Enables FullStory inside an iframe.',
+      label: 'Record only this iframe',
+      type: 'boolean',
+      required: false,
+      default: false
     }
   },
   actions: {

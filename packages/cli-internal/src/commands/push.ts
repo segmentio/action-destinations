@@ -40,7 +40,8 @@ export default class Push extends Command {
 
   static examples = [`$ ./bin/run push`]
 
-  static flags = {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  static flags: flags.Input<any> = {
     help: flags.help({ char: 'h' }),
     force: flags.boolean({ char: 'f' })
   }
@@ -162,6 +163,7 @@ export default class Push extends Command {
             dynamic: field.dynamic ?? false,
             placeholder: field.placeholder ?? '',
             allowNull: field.allowNull ?? false,
+            defaultObjectUI: field.defaultObjectUI,
             fieldSchema: getFieldPropertySchema(fieldKey, field)
           }
         })
@@ -276,7 +278,7 @@ export default class Push extends Command {
             basicOptions,
             options,
             platforms,
-            supportedRegions: ['us-west-2'] // always default to US until regional action destinations are supported
+            supportedRegions: ['us-west-2', 'eu-west-1'] // always default to US until regional action destinations are supported
           }),
           updateDestinationMetadataActions(actionsToUpdate),
           createDestinationMetadataActions(actionsToCreate)

@@ -39,16 +39,23 @@ const action: BrowserActionDefinition<Settings, Sprig, Payload> = {
   },
   perform: (Sprig, event) => {
     const payload = event.payload
-    if (!payload) return
+    if (!payload || typeof payload !== 'object' || !payload.name) {
+      console.warn('[Sprig] received invalid payload (expected name to be present); skipping trackEvent', payload)
+      return
+    }
 
+    const sprigIdentifyAndTrackPayload: { eventName: string; userId?: string; anonymousId?: string } = {
+      eventName: payload.name
+    }
     if (payload.userId) {
-      Sprig('setUserId', payload.userId)
+      sprigIdentifyAndTrackPayload.userId = payload.userId
     }
 
     if (payload.anonymousId) {
-      Sprig('setPartnerAnonymousId', payload.anonymousId)
+      sprigIdentifyAndTrackPayload.anonymousId = payload.anonymousId
     }
-    Sprig('track', payload.name)
+
+    Sprig('identifyAndTrack', sprigIdentifyAndTrackPayload)
   }
 }
 

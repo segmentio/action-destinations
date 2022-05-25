@@ -99,6 +99,10 @@ const validateValue = (actual: unknown, operator: Operator, expected?: string | 
       return actual !== undefined && actual !== null
     case 'not_exists':
       return actual === undefined || actual === null
+    case 'is_true':
+      return typeof actual === 'boolean' && actual === true
+    case 'is_false':
+      return typeof actual === 'boolean' && actual === false
     default:
       return false
   }

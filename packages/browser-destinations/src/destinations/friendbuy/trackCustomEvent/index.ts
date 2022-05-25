@@ -7,7 +7,7 @@ import type { ConvertFun, EventMap } from '@segment/actions-shared'
 
 import { AnalyticsPayload, COPY, DROP, ROOT, mapEvent } from '@segment/actions-shared'
 import { trackCustomEventFields } from '@segment/actions-shared'
-import { addName, moveEventPropertiesToRoot, parseDate } from '@segment/actions-shared'
+import { addName, enjoinInteger, enjoinString, moveEventPropertiesToRoot, parseDate } from '@segment/actions-shared'
 
 export const browserTrackCustomEventFields = trackCustomEventFields({}) // @@ email required?
 
@@ -17,7 +17,7 @@ const trackCustomEventPub: EventMap = {
     deduplicationId: COPY,
 
     // CUSTOMER FIELDS
-    customerId: { name: ['customer', 'id'] },
+    customerId: { name: ['customer', 'id'], convert: enjoinString as ConvertFun },
     anonymousId: { name: ['customer', 'anonymousId'] },
     email: { name: ['customer', 'email'] },
     isNewCustomer: { name: ['customer', 'isNewCustomer'] },
@@ -25,7 +25,7 @@ const trackCustomEventPub: EventMap = {
     firstName: { name: ['customer', 'firstName'] },
     lastName: { name: ['customer', 'lastName'] },
     name: { name: ['customer', 'name'] },
-    age: { name: ['customer', 'age'] },
+    age: { name: ['customer', 'age'], convert: enjoinInteger as ConvertFun },
     birthday: { name: ['customer', 'birthday'], convert: parseDate as ConvertFun }
   },
   unmappedFieldObject: ROOT

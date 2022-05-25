@@ -3,7 +3,17 @@ import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 import { ProductItem } from '../ga4-types'
 import { CURRENCY_ISO_CODES } from '../constants'
-import { value, currency, client_id, items_single_products } from '../ga4-properties'
+import {
+  formatUserProperties,
+  user_properties,
+  params,
+  value,
+  currency,
+  client_id,
+  items_single_products,
+  user_id,
+  engagement_time_msec
+} from '../ga4-properties'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Add to Cart',
@@ -11,12 +21,16 @@ const action: ActionDefinition<Settings, Payload> = {
   defaultSubscription: 'type = "track" and event = "Product Added"',
   fields: {
     client_id: { ...client_id },
+    user_id: { ...user_id },
     currency: { ...currency },
     items: {
       ...items_single_products,
       required: true
     },
-    value: { ...value }
+    value: { ...value },
+    user_properties: user_properties,
+    engagement_time_msec: engagement_time_msec,
+    params: params
   },
   perform: (request, { payload }) => {
     let googleItems: ProductItem[] = []
@@ -43,16 +57,20 @@ const action: ActionDefinition<Settings, Payload> = {
       method: 'POST',
       json: {
         client_id: payload.client_id,
+        user_id: payload.user_id,
         events: [
           {
             name: 'add_to_cart',
             params: {
               currency: payload.currency,
               items: googleItems,
-              value: payload.value
+              value: payload.value,
+              engagement_time_msec: payload.engagement_time_msec,
+              ...payload.params
             }
           }
-        ]
+        ],
+        ...formatUserProperties(payload.user_properties)
       }
     })
   }

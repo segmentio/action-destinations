@@ -5,14 +5,18 @@ import { Adobe } from './types'
 import { initScript } from './init-script'
 
 import upsertProfile from './upsertProfile'
+import triggerView from './triggerView'
+import trackEvent from './trackEvent'
 
 declare global {
   interface Window {
     adobe: Adobe
+    targetPageParams: Function
+    pageParams: Object
   }
 }
 
-export const destination: BrowserDestinationDefinition<Settings, unknown> = {
+export const destination: BrowserDestinationDefinition<Settings, Adobe> = {
   name: 'Adobe Target Web',
   slug: 'actions-adobe-target-web',
   mode: 'device',
@@ -73,7 +77,9 @@ export const destination: BrowserDestinationDefinition<Settings, unknown> = {
   },
 
   actions: {
-    upsertProfile
+    upsertProfile,
+    triggerView,
+    trackEvent
   }
 }
 

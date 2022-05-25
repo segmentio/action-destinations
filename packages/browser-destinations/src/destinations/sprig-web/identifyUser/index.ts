@@ -39,14 +39,27 @@ const action: BrowserActionDefinition<Settings, Sprig, Payload> = {
   },
   perform: (Sprig, event) => {
     const payload = event.payload
-    if (!payload) return
+    if (!payload || typeof payload !== 'object' || !(payload.userId || payload.anonymousId || payload.traits)) {
+      console.warn(
+        '[Sprig] received invalid payload (expected userId, anonymousId, or traits to be present); skipping identifyUser',
+        payload
+      )
+      return
+    }
+
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const sprigIdentifyAndSetAttributesPayload: {
+      userId?: string
+      anonymousId?: string
+      attributes?: { [key: string]: any }
+    } = {}
 
     if (payload.userId) {
-      Sprig('setUserId', payload.userId)
+      sprigIdentifyAndSetAttributesPayload.userId = payload.userId
     }
 
     if (payload.anonymousId) {
-      Sprig('setPartnerAnonymousId', payload.anonymousId)
+      sprigIdentifyAndSetAttributesPayload.anonymousId = payload.anonymousId
     }
 
     if (payload.traits && Object.keys(payload.traits).length > 0) {
@@ -55,9 +68,10 @@ const action: BrowserActionDefinition<Settings, Sprig, Payload> = {
         traits['!email'] = traits.email
         delete traits.email
       }
-
-      Sprig('setAttributes', traits)
+      sprigIdentifyAndSetAttributesPayload.attributes = traits
     }
+
+    Sprig('identifyAndSetAttributes', sprigIdentifyAndSetAttributesPayload)
   }
 }
 

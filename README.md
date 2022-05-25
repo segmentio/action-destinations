@@ -4,7 +4,9 @@ Action Destinations are a way to build streaming destinations on Segment. To beg
 
 Fore more detailed instruction, see the following READMEs:
 
+- [Contributing Document](./CONTRIBUTING.md)
 - [Create a Destination Action](./docs/create.md)
+- [Build & Test Cloud Destinations](./docs/testing.md)
 - [Troubleshooting](./docs/testing.md)
 - [Authentication](./docs/authentication.md)
 - [Mapping Kit](./packages/core/src/mapping-kit/README.md)
@@ -54,6 +56,8 @@ yarn login
 # Requires node 14.17, optionally: nvm use 14.17
 yarn --ignore-optional
 yarn bootstrap
+yarn build
+yarn install
 
 # Run unit tests to ensure things are working! All tests should pass :)
 yarn test
@@ -159,7 +163,7 @@ packages/destination-actions/src/destinations/slack
 
 The main definition of your Destination will look something like this, and is what your index.ts should export as the default export:
 
-```
+```js
 const destination = {
   name: 'Example Destination',
 
@@ -185,8 +189,7 @@ For each action or authentication scheme you can define a collection of inputs a
 
 Input fields have various properties that help define how they are rendered, how their values are parsed and more. Here’s an example:
 
-```
-
+```js
 const destination = {
   // ...other properties
   actions: {
@@ -215,8 +218,7 @@ const destination = {
 
 Here's the full interface that input fields allow:
 
-```
-
+```ts
 interface InputField {
   /** A short, human-friendly label for the field */
   label: string
@@ -281,8 +283,7 @@ You can set default values for fields. These defaults are not used at run-time, 
 
 Default values can be literal values that match the `type` of the field (e.g. a literal string: ` "``hello``" `) or they can be mapping-kit directives just like the values from Segment’s rich input in the app. It’s likely that you’ll want to use directives to the default value. Here are some examples:
 
-```
-
+```js
 const destination = {
   // ...other properties
   actions: {
@@ -318,8 +319,7 @@ By the time the actions runtime invokes your action’s perform, payloads have a
 
 A basic example:
 
-```
-
+```js
 const destination = {
   actions: {
     someAction: {
@@ -354,8 +354,7 @@ Sometimes your customers have a lot of events, and your API supports a more effi
 
 You can implement an _additional_ perform method named `performBatch` in the action definition, alongside the `perform` method. The method signature looks like identical to `perform` except the `payload` is an array of data, where each item is an object matching your action’s field schema:
 
-```
-
+```js
 function performBatch(request, { settings, payload }) {
   return request('https://example.com/batch', {
     // `payload` is an array of objects, each matching your action's field definition
@@ -382,8 +381,7 @@ You can use the `request` object to make requests and curate responses. This `re
 
 In addition to making manual HTTP requests, you can use the `extendRequest` helper to reduce boilerplate across actions and authentication operations in the definition:
 
-```
-
+```js
 const destination = {
   // ...other properties
   extendRequest: (request, { settings }) => {
@@ -422,8 +420,7 @@ Both the `request(url, options)` function and the `extendRequest` return value a
 - `timeout`: Time in milliseconds when a request should be aborted. Default is `10000`.
 - `username`: Basic authentication username field. Will automatically get base64 encoded with the password and added to the request headers: `Authorization: Basic <username:password>`
 
-```
-
+```js
 const response = await request('https://example.com', {
   method: 'post',
   headers: { 'content-type': 'application/json' },

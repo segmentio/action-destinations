@@ -8,6 +8,49 @@ const measurementId = 'G-TESTTOKEN'
 
 describe('GA4', () => {
   describe('Remove From Cart', () => {
+    it('should append user_properties correctly', async () => {
+      nock('https://www.google-analytics.com/mp/collect')
+        .post(`?measurement_id=${measurementId}&api_secret=${apiSecret}`)
+        .reply(201, {})
+
+      const event = createTestEvent({
+        event: 'Product Removed',
+        userId: 'abc123',
+        anonymousId: 'anon-2134',
+        type: 'track',
+        properties: {
+          product_id: '12345abcde',
+          name: 'Quadruple Stack Oreos, 52 ct',
+          currency: 'USD',
+          price: 12.99,
+          quantity: 1
+        }
+      })
+      const responses = await testDestination.testAction('removeFromCart', {
+        event,
+        settings: {
+          apiSecret,
+          measurementId
+        },
+        mapping: {
+          client_id: {
+            '@path': '$.anonymousId'
+          },
+          user_properties: {
+            hello: 'world',
+            a: '1',
+            b: '2',
+            c: '3'
+          }
+        },
+        useDefaultMappings: true
+      })
+
+      expect(responses[0].options.body).toMatchInlineSnapshot(
+        `"{\\"client_id\\":\\"anon-2134\\",\\"events\\":[{\\"name\\":\\"remove_from_cart\\",\\"params\\":{\\"currency\\":\\"USD\\",\\"items\\":[{\\"item_id\\":\\"12345abcde\\",\\"item_name\\":\\"Quadruple Stack Oreos, 52 ct\\",\\"price\\":12.99,\\"quantity\\":1}],\\"engagement_time_msec\\":1}}],\\"user_properties\\":{\\"hello\\":{\\"value\\":\\"world\\"},\\"a\\":{\\"value\\":\\"1\\"},\\"b\\":{\\"value\\":\\"2\\"},\\"c\\":{\\"value\\":\\"3\\"}}}"`
+      )
+    })
+
     it('should handle basic mapping overrides', async () => {
       nock('https://www.google-analytics.com/mp/collect')
         .post(`?measurement_id=${measurementId}&api_secret=${apiSecret}`)
@@ -40,6 +83,7 @@ describe('GA4', () => {
           client_id: {
             '@path': '$.anonymousId'
           },
+          engagement_time_msec: 2,
           items: [
             {
               item_name: {
@@ -80,7 +124,7 @@ describe('GA4', () => {
       `)
 
       expect(responses[0].options.body).toMatchInlineSnapshot(
-        `"{\\"client_id\\":\\"anon-2134\\",\\"events\\":[{\\"name\\":\\"remove_from_cart\\",\\"params\\":{\\"items\\":[{\\"item_name\\":\\"Quadruple Stack Oreos, 52 ct\\",\\"item_id\\":\\"12345abcde\\",\\"currency\\":\\"USD\\",\\"price\\":12.99,\\"quantity\\":1}]}}]}"`
+        `"{\\"client_id\\":\\"anon-2134\\",\\"events\\":[{\\"name\\":\\"remove_from_cart\\",\\"params\\":{\\"items\\":[{\\"item_name\\":\\"Quadruple Stack Oreos, 52 ct\\",\\"item_id\\":\\"12345abcde\\",\\"currency\\":\\"USD\\",\\"price\\":12.99,\\"quantity\\":1}],\\"engagement_time_msec\\":2}}]}"`
       )
     })
 

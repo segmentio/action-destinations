@@ -15,17 +15,8 @@ describe(`Testing snapshot for ${destinationSlug}'s ${actionSlug} destination ac
     const [eventData, settingsData] = generateTestData(seedName, destination, action, false)
 
     nock(/.*/)
-      .post(/\/.*\/contacts/)
+      .post(/\/.*\/removeContactFromList/)
       .reply(200, {})
-    nock(/.*/)
-      .get(/\/.*\/accountlists/)
-      .reply(200, [
-        {
-          id: 123,
-          name: 'segment_test-group',
-          segment_group_id: 'group1234'
-        }
-      ])
 
     const event = createTestEvent({
       properties: eventData,
@@ -36,7 +27,7 @@ describe(`Testing snapshot for ${destinationSlug}'s ${actionSlug} destination ac
     })
 
     const mapping = {
-      identifyByKey: 'email'
+      userIdentities: {'channels.email.address': 'contact@example.com'}
     }
 
     const responses = await testDestination.testAction(actionSlug, {
@@ -47,7 +38,7 @@ describe(`Testing snapshot for ${destinationSlug}'s ${actionSlug} destination ac
       auth: undefined
     })
 
-    const request = responses[1].request
+    const request = responses[0].request
     const rawBody = await request.text()
 
     try {
@@ -64,17 +55,8 @@ describe(`Testing snapshot for ${destinationSlug}'s ${actionSlug} destination ac
     const [eventData, settingsData] = generateTestData(seedName, destination, action, false)
 
     nock(/.*/)
-      .post(/\/.*\/contacts/)
+      .post(/\/.*\/removeContactFromList/)
       .reply(200, {})
-    nock(/.*/)
-      .get(/\/.*\/accountlists/)
-      .reply(200, [
-        {
-          id: 123,
-          name: 'segment_test-group',
-          segment_group_id: 'group1234'
-        }
-      ])
 
     const event = createTestEvent({
       properties: eventData,
@@ -82,7 +64,7 @@ describe(`Testing snapshot for ${destinationSlug}'s ${actionSlug} destination ac
     })
 
     const mapping = {
-      identifyByKey: 'email'
+      userIdentities: {'channels.email.address': 'contact@example.com'}
     }
 
     const responses = await testDestination.testAction(actionSlug, {
@@ -93,7 +75,7 @@ describe(`Testing snapshot for ${destinationSlug}'s ${actionSlug} destination ac
       auth: undefined
     })
 
-    const request = responses[1].request
+    const request = responses[0].request
     const rawBody = await request.text()
 
     try {

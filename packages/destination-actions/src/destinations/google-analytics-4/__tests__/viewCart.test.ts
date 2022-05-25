@@ -8,6 +8,64 @@ const measurementId = 'G-TESTTOKEN'
 
 describe('GA4', () => {
   describe('View Cart', () => {
+    it('should append user_properties correctly', async () => {
+      nock('https://www.google-analytics.com/mp/collect')
+        .post(`?measurement_id=${measurementId}&api_secret=${apiSecret}`)
+        .reply(201, {})
+
+      const event = createTestEvent({
+        event: 'Cart Viewed',
+        userId: 'abc123',
+        anonymousId: 'anon-2134',
+        type: 'track',
+        properties: {
+          currency: 'USD',
+          promotion_id: 'promo_1',
+          creative: 'top_banner_2',
+          name: '75% store-wide shoe sale',
+          position: 'home_banner_top',
+          products: [
+            {
+              product_id: '507f1f77bcf86cd799439011',
+              sku: '45790-32',
+              name: 'Monopoly: 3rd Edition',
+              price: 19,
+              quantity: 1,
+              currency: 'USD',
+              category: 'Games',
+              promotion: 'SUPER SUMMER SALE; 3% off',
+              slot: '2',
+              promo_id: '12345',
+              creative_name: 'Sale'
+            }
+          ]
+        }
+      })
+      const responses = await testDestination.testAction('viewCart', {
+        event,
+        settings: {
+          apiSecret,
+          measurementId
+        },
+        mapping: {
+          client_id: {
+            '@path': '$.anonymousId'
+          },
+          user_properties: {
+            hello: 'world',
+            a: '1',
+            b: '2',
+            c: '3'
+          }
+        },
+        useDefaultMappings: true
+      })
+
+      expect(responses[0].options.body).toMatchInlineSnapshot(
+        `"{\\"client_id\\":\\"anon-2134\\",\\"events\\":[{\\"name\\":\\"view_cart\\",\\"params\\":{\\"currency\\":\\"USD\\",\\"items\\":[{\\"item_id\\":\\"507f1f77bcf86cd799439011\\",\\"item_name\\":\\"Monopoly: 3rd Edition\\",\\"item_category\\":\\"Games\\",\\"price\\":19,\\"quantity\\":1}],\\"engagement_time_msec\\":1}}],\\"user_properties\\":{\\"hello\\":{\\"value\\":\\"world\\"},\\"a\\":{\\"value\\":\\"1\\"},\\"b\\":{\\"value\\":\\"2\\"},\\"c\\":{\\"value\\":\\"3\\"}}}"`
+      )
+    })
+
     it('should handle basic mapping overrides', async () => {
       nock('https://www.google-analytics.com/mp/collect')
         .post(`?measurement_id=${measurementId}&api_secret=${apiSecret}`)
@@ -40,6 +98,7 @@ describe('GA4', () => {
           client_id: {
             '@path': '$.anonymousId'
           },
+          engagement_time_msec: 2,
           items: [
             {
               item_name: {
@@ -80,7 +139,7 @@ describe('GA4', () => {
       `)
 
       expect(responses[0].options.body).toMatchInlineSnapshot(
-        `"{\\"client_id\\":\\"anon-2134\\",\\"events\\":[{\\"name\\":\\"view_cart\\",\\"params\\":{\\"items\\":[{\\"item_name\\":\\"Quadruple Stack Oreos, 52 ct\\",\\"item_id\\":\\"12345abcde\\",\\"currency\\":\\"USD\\",\\"price\\":12.99,\\"quantity\\":1}]}}]}"`
+        `"{\\"client_id\\":\\"anon-2134\\",\\"events\\":[{\\"name\\":\\"view_cart\\",\\"params\\":{\\"items\\":[{\\"item_name\\":\\"Quadruple Stack Oreos, 52 ct\\",\\"item_id\\":\\"12345abcde\\",\\"currency\\":\\"USD\\",\\"price\\":12.99,\\"quantity\\":1}],\\"engagement_time_msec\\":2}}]}"`
       )
     })
 

@@ -8,6 +8,71 @@ const measurementId = 'G-TESTTOKEN'
 
 describe('GA4', () => {
   describe('Begin Checkout', () => {
+    it('should append user_properties correctly', async () => {
+      nock('https://www.google-analytics.com/mp/collect')
+        .post(`?measurement_id=${measurementId}&api_secret=${apiSecret}`)
+        .reply(201, {})
+
+      const event = createTestEvent({
+        event: 'Checkout Started',
+        userId: 'abc123',
+        anonymousId: 'anon-2134',
+        type: 'track',
+        properties: {
+          product_id: '12345abcde',
+          name: 'Quadruple Stack Oreos, 52 ct',
+          currency: 'USD',
+          price: 12.99,
+          quantity: 1,
+          products: [
+            {
+              product_id: '507f1f77bcf86cd799439011',
+              sku: '45790-32',
+              name: 'Monopoly: 3rd Edition',
+              price: 19,
+              quantity: 1,
+              category: 'Games',
+              url: 'https://www.example.com/product/path',
+              image_url: 'https://www.example.com/product/path.jpg'
+            }
+          ]
+        }
+      })
+      const responses = await testDestination.testAction('beginCheckout', {
+        event,
+        settings: {
+          apiSecret,
+          measurementId
+        },
+        mapping: {
+          client_id: {
+            '@path': '$.anonymousId'
+          },
+          user_properties: {
+            hello: 'world',
+            a: '1',
+            b: '2',
+            c: '3'
+          },
+          items: [
+            {
+              item_name: {
+                '@path': `$.properties.products.0.name`
+              },
+              item_category: {
+                '@path': `$.properties.products.0.category`
+              }
+            }
+          ]
+        },
+        useDefaultMappings: true
+      })
+
+      expect(responses[0].options.body).toMatchInlineSnapshot(
+        `"{\\"client_id\\":\\"anon-2134\\",\\"events\\":[{\\"name\\":\\"begin_checkout\\",\\"params\\":{\\"currency\\":\\"USD\\",\\"items\\":[{\\"item_name\\":\\"Monopoly: 3rd Edition\\",\\"item_category\\":\\"Games\\"}],\\"engagement_time_msec\\":1}}],\\"user_properties\\":{\\"hello\\":{\\"value\\":\\"world\\"},\\"a\\":{\\"value\\":\\"1\\"},\\"b\\":{\\"value\\":\\"2\\"},\\"c\\":{\\"value\\":\\"3\\"}}}"`
+      )
+    })
+
     it('should handle basic mapping overrides', async () => {
       nock('https://www.google-analytics.com/mp/collect')
         .post(`?measurement_id=${measurementId}&api_secret=${apiSecret}`)
@@ -51,6 +116,7 @@ describe('GA4', () => {
           client_id: {
             '@path': '$.anonymousId'
           },
+          engagement_time_msec: 2,
           coupon: {
             '@path': '$.properties.coupon'
           },
@@ -91,7 +157,7 @@ describe('GA4', () => {
       `)
 
       expect(responses[0].options.body).toMatchInlineSnapshot(
-        `"{\\"client_id\\":\\"anon-567890\\",\\"events\\":[{\\"name\\":\\"begin_checkout\\",\\"params\\":{\\"coupon\\":\\"hasbros\\",\\"currency\\":\\"USD\\",\\"items\\":[{\\"item_name\\":\\"Monopoly: 3rd Edition\\",\\"item_category\\":\\"Games\\"}],\\"value\\":25}}]}"`
+        `"{\\"client_id\\":\\"anon-567890\\",\\"events\\":[{\\"name\\":\\"begin_checkout\\",\\"params\\":{\\"coupon\\":\\"hasbros\\",\\"currency\\":\\"USD\\",\\"items\\":[{\\"item_name\\":\\"Monopoly: 3rd Edition\\",\\"item_category\\":\\"Games\\"}],\\"value\\":25,\\"engagement_time_msec\\":2}}]}"`
       )
     })
 
@@ -257,7 +323,7 @@ describe('GA4', () => {
       `)
 
       expect(responses[0].options.body).toMatchInlineSnapshot(
-        `"{\\"client_id\\":\\"3456fff\\",\\"events\\":[{\\"name\\":\\"begin_checkout\\",\\"params\\":{\\"coupon\\":\\"hasbros\\",\\"currency\\":\\"USD\\",\\"items\\":[{\\"item_id\\":\\"507f1f77bcf86cd799439011\\",\\"item_name\\":\\"Monopoly: 3rd Edition\\",\\"item_category\\":\\"Games\\",\\"price\\":19,\\"quantity\\":1}],\\"value\\":30}}]}"`
+        `"{\\"client_id\\":\\"3456fff\\",\\"events\\":[{\\"name\\":\\"begin_checkout\\",\\"params\\":{\\"coupon\\":\\"hasbros\\",\\"currency\\":\\"USD\\",\\"items\\":[{\\"item_id\\":\\"507f1f77bcf86cd799439011\\",\\"item_name\\":\\"Monopoly: 3rd Edition\\",\\"item_category\\":\\"Games\\",\\"price\\":19,\\"quantity\\":1}],\\"value\\":30,\\"engagement_time_msec\\":1}}]}"`
       )
     })
   })

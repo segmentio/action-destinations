@@ -7,7 +7,7 @@ import type { AnalyticsPayload, ConvertFun, EventMap } from '@segment/actions-sh
 
 import { COPY, ROOT, mapEvent } from '@segment/actions-shared'
 import { trackSignUpFields } from '@segment/actions-shared'
-import { addName, parseDate } from '@segment/actions-shared'
+import { addName, enjoinInteger, enjoinString, parseDate } from '@segment/actions-shared'
 
 export const browserTrackSignUpFields = trackSignUpFields({ requireCustomerId: true, requireEmail: true })
 
@@ -21,7 +21,7 @@ const trackSignUpPub: EventMap = {
     referralCode: COPY,
 
     // CUSTOMER FIELDS
-    customerId: { name: 'id' },
+    customerId: { name: 'id', convert: enjoinString as ConvertFun },
     anonymousID: COPY,
     isNewCustomer: COPY,
     loyaltyStatus: COPY,
@@ -29,7 +29,7 @@ const trackSignUpPub: EventMap = {
     firstName: COPY,
     lastName: COPY,
     name: COPY,
-    age: COPY,
+    age: { convert: enjoinInteger as ConvertFun },
     birthday: { convert: parseDate as ConvertFun }
   },
   unmappedFieldObject: ROOT

@@ -1,5 +1,42 @@
 import { InputField } from '@segment/actions-core/src/destination-kit/types'
 
+export const formatUserProperties = (userProperties: object | undefined): object | undefined => {
+  if (!userProperties) {
+    return undefined
+  }
+
+  let properties = {}
+
+  Object.entries(userProperties).forEach(([key, value]) => {
+    properties = { ...properties, ...{ [key]: { value: value } } }
+  })
+
+  return { user_properties: properties }
+}
+
+export const user_properties: InputField = {
+  label: 'User Properties',
+  description:
+    'The user properties to send to Google Analytics 4. You must create user-scoped dimensions to ensure custom properties are picked up by Google. See Google’s [Custom user properties](https://support.google.com/analytics/answer/9269570) to learn how to set and register user properties. ',
+  type: 'object',
+  additionalProperties: true,
+  defaultObjectUI: 'keyvalue'
+}
+
+export const params: InputField = {
+  label: 'Event Parameters',
+  description: 'The event parameters to send to Google Analytics 4.',
+  type: 'object',
+  additionalProperties: true,
+  defaultObjectUI: 'keyvalue'
+}
+export const user_id: InputField = {
+  label: 'User ID',
+  type: 'string',
+  description:
+    "A unique identifier for a user. See Google's [User-ID for cross-platform analysis](https://support.google.com/analytics/answer/9213390) and [Reporting: deduplicate user counts](https://support.google.com/analytics/answer/9355949?hl=en) documentation for more information on this identifier."
+}
+
 export const promotion_id: InputField = {
   label: 'Promotion ID',
   type: 'string',
@@ -285,4 +322,12 @@ export const items_multi_products: InputField = {
       }
     ]
   }
+}
+
+export const engagement_time_msec: InputField = {
+  label: 'Engagement Time in Milliseconds',
+  type: 'number',
+  description:
+    'The amount of time a user interacted with your site, in milliseconds. Google only counts users who interact with your site for a non-zero amount of time. By default, Segment sets engagement time to 1 so users are counted.',
+  default: 1
 }

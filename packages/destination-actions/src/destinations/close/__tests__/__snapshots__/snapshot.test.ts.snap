@@ -12,10 +12,22 @@ Object {
     "contact_phone": "Bbzz5]ZQl",
     "contact_title": "Bbzz5]ZQl",
     "contact_url": "Bbzz5]ZQl",
+    "lead_custom_fields": Object {
+      "testType": "Bbzz5]ZQl",
+    },
+    "lead_description": "Bbzz5]ZQl",
+    "lead_external_id": "Bbzz5]ZQl",
     "lead_name": "Bbzz5]ZQl",
+    "lead_status_id": "Bbzz5]ZQl",
   },
   "settings": Object {
+    "allow_creating_duplicate_contacts": true,
+    "allow_creating_new_contacts": true,
+    "allow_creating_new_leads": true,
+    "allow_updating_existing_contacts": true,
+    "allow_updating_existing_leads": true,
     "contact_custom_field_id_for_user_id": "Bbzz5]ZQl",
+    "lead_custom_field_id_for_company_id": "Bbzz5]ZQl",
   },
 }
 `;
@@ -24,9 +36,12 @@ exports[`Testing snapshot for close destination: createUpdateContactAndLead acti
 Object {
   "action_payload": Object {
     "contact_external_id": "Bbzz5]ZQl",
+    "lead_external_id": "Bbzz5]ZQl",
+    "lead_status_id": "Bbzz5]ZQl",
   },
   "settings": Object {
     "contact_custom_field_id_for_user_id": "Bbzz5]ZQl",
+    "lead_custom_field_id_for_company_id": "Bbzz5]ZQl",
   },
 }
 `;

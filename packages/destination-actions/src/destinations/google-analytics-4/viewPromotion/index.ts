@@ -6,8 +6,13 @@ import {
   promotion_id,
   promotion_name,
   client_id,
+  user_id,
   minimal_items,
-  items_single_products
+  items_single_products,
+  params,
+  formatUserProperties,
+  user_properties,
+  engagement_time_msec
 } from '../ga4-properties'
 import { PromotionProductItem } from '../ga4-types'
 import type { Settings } from '../generated-types'
@@ -23,6 +28,7 @@ const action: ActionDefinition<Settings, Payload> = {
   defaultSubscription: 'type = "track" and event = "Promotion Viewed"',
   fields: {
     client_id: { ...client_id },
+    user_id: { ...user_id },
     creative_name: { ...creative_name },
     creative_slot: { ...creative_slot, default: { '@path': '$.properties.creative' } },
     location_id: {
@@ -53,7 +59,10 @@ const action: ActionDefinition<Settings, Payload> = {
           ...promotion_id
         }
       }
-    }
+    },
+    user_properties: user_properties,
+    engagement_time_msec: engagement_time_msec,
+    params: params
   },
 
   perform: (request, { payload }) => {
@@ -77,6 +86,7 @@ const action: ActionDefinition<Settings, Payload> = {
       method: 'POST',
       json: {
         client_id: payload.client_id,
+        user_id: payload.user_id,
         events: [
           {
             name: 'view_promotion',
@@ -86,10 +96,13 @@ const action: ActionDefinition<Settings, Payload> = {
               location_id: payload.location_id,
               promotion_id: payload.promotion_id,
               promotion_name: payload.promotion_name,
-              items: googleItems
+              items: googleItems,
+              engagement_time_msec: payload.engagement_time_msec,
+              ...payload.params
             }
           }
-        ]
+        ],
+        ...formatUserProperties(payload.user_properties)
       }
     })
   }

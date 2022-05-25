@@ -62,6 +62,42 @@ test('should handle empty event', () => {
   expect(validate(ast, {})).toEqual(false)
 })
 
+test('operators - equals (boolean true)', () => {
+  const ast = {
+    type: 'group',
+    operator: 'and',
+    children: [
+      {
+        type: 'event-property',
+        name: 'value',
+        operator: 'is_true'
+      }
+    ]
+  }
+
+  expect(validate(ast, { properties: { value: true } })).toEqual(true)
+  expect(validate(ast, { properties: { value: false } })).toEqual(false)
+  expect(validate(ast, { properties: { value: 'true' } })).toEqual(false)
+})
+
+test('operators - equals (boolean false)', () => {
+  const ast = {
+    type: 'group',
+    operator: 'and',
+    children: [
+      {
+        type: 'event-property',
+        name: 'value',
+        operator: 'is_false'
+      }
+    ]
+  }
+
+  expect(validate(ast, { properties: { value: false } })).toEqual(true)
+  expect(validate(ast, { properties: { value: true } })).toEqual(false)
+  expect(validate(ast, { properties: { value: 'false' } })).toEqual(false)
+})
+
 test('operators - equals (strings)', () => {
   const ast = {
     type: 'group',

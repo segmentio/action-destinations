@@ -8,6 +8,57 @@ const measurementId = 'G-TESTTOKEN'
 
 describe('GA4', () => {
   describe('Select Promotion', () => {
+    it('should append user_properties correctly', async () => {
+      nock('https://www.google-analytics.com/mp/collect')
+        .post(`?measurement_id=${measurementId}&api_secret=${apiSecret}`)
+        .reply(201, {})
+
+      const event = createTestEvent({
+        event: 'Select Promotion',
+        userId: 'abc123',
+        anonymousId: 'anon-2134',
+        type: 'track',
+        properties: {
+          id: '12345abcde',
+          name: 'Quadruple Stack Oreos, 52 ct',
+          currency: 'USD',
+          price: 12.99,
+          quantity: 1
+        }
+      })
+      const responses = await testDestination.testAction('selectPromotion', {
+        event,
+        settings: {
+          apiSecret,
+          measurementId
+        },
+        mapping: {
+          client_id: {
+            '@path': '$.anonymousId'
+          },
+          user_properties: {
+            hello: 'world',
+            a: '1',
+            b: '2',
+            c: '3'
+          },
+          items: {
+            item_id: {
+              '@path': '$.properties.id'
+            },
+            promotion_name: {
+              '@path': '$.properties.name'
+            }
+          }
+        },
+        useDefaultMappings: true
+      })
+
+      expect(responses[0].options.body).toMatchInlineSnapshot(
+        `"{\\"client_id\\":\\"anon-2134\\",\\"events\\":[{\\"name\\":\\"select_promotion\\",\\"params\\":{\\"promotion_name\\":\\"Quadruple Stack Oreos, 52 ct\\",\\"items\\":[{\\"item_id\\":\\"12345abcde\\",\\"promotion_name\\":\\"Quadruple Stack Oreos, 52 ct\\"}],\\"engagement_time_msec\\":1}}],\\"user_properties\\":{\\"hello\\":{\\"value\\":\\"world\\"},\\"a\\":{\\"value\\":\\"1\\"},\\"b\\":{\\"value\\":\\"2\\"},\\"c\\":{\\"value\\":\\"3\\"}}}"`
+      )
+    })
+
     it('should handle basic mapping overrides', async () => {
       nock('https://www.google-analytics.com/mp/collect')
         .post(`?measurement_id=${measurementId}&api_secret=${apiSecret}`)
@@ -35,6 +86,7 @@ describe('GA4', () => {
           clientId: {
             '@path': '$.anonymousId'
           },
+          engagement_time_msec: 2,
           location_id: {
             '@path': '$.properties.promotion_id'
           },
@@ -67,7 +119,7 @@ describe('GA4', () => {
       `)
 
       expect(responses[0].options.body).toMatchInlineSnapshot(
-        `"{\\"client_id\\":\\"3456fff\\",\\"events\\":[{\\"name\\":\\"select_promotion\\",\\"params\\":{\\"creative_slot\\":\\"top_banner_2\\",\\"location_id\\":\\"promo_1\\",\\"promotion_id\\":\\"promo_1\\",\\"promotion_name\\":\\"75% store-wide shoe sale\\",\\"items\\":[{\\"item_id\\":\\"abc\\",\\"promotion_name\\":\\"75% store-wide shoe sale\\"}]}}]}"`
+        `"{\\"client_id\\":\\"3456fff\\",\\"events\\":[{\\"name\\":\\"select_promotion\\",\\"params\\":{\\"creative_slot\\":\\"top_banner_2\\",\\"location_id\\":\\"promo_1\\",\\"promotion_id\\":\\"promo_1\\",\\"promotion_name\\":\\"75% store-wide shoe sale\\",\\"items\\":[{\\"item_id\\":\\"abc\\",\\"promotion_name\\":\\"75% store-wide shoe sale\\"}],\\"engagement_time_msec\\":2}}]}"`
       )
     })
 
@@ -156,7 +208,7 @@ describe('GA4', () => {
       `)
 
       expect(responses[0].options.body).toMatchInlineSnapshot(
-        `"{\\"client_id\\":\\"3456fff\\",\\"events\\":[{\\"name\\":\\"select_promotion\\",\\"params\\":{\\"creative_name\\":\\"top_banner_2\\",\\"creative_slot\\":\\"2\\",\\"location_id\\":\\"home\\",\\"promotion_id\\":\\"promo_1\\",\\"promotion_name\\":\\"75% store-wide shoe sale\\",\\"items\\":[{\\"item_id\\":\\"SKU_12345\\",\\"item_name\\":\\"jeggings\\",\\"coupon\\":\\"SUMMER_FUN\\",\\"discount\\":2.22,\\"promotion_id\\":\\"P_12345\\",\\"promotion_name\\":\\"Summer Sale\\",\\"creative_slot\\":\\"featured_app_1\\",\\"location_id\\":\\"L_12345\\",\\"affiliation\\":\\"Google Store\\",\\"item_brand\\":\\"Gucci\\",\\"item_category\\":\\"pants\\",\\"item_variant\\":\\"Black\\",\\"price\\":9.99,\\"currency\\":\\"USD\\"}]}}]}"`
+        `"{\\"client_id\\":\\"3456fff\\",\\"events\\":[{\\"name\\":\\"select_promotion\\",\\"params\\":{\\"creative_name\\":\\"top_banner_2\\",\\"creative_slot\\":\\"2\\",\\"location_id\\":\\"home\\",\\"promotion_id\\":\\"promo_1\\",\\"promotion_name\\":\\"75% store-wide shoe sale\\",\\"items\\":[{\\"item_id\\":\\"SKU_12345\\",\\"item_name\\":\\"jeggings\\",\\"coupon\\":\\"SUMMER_FUN\\",\\"discount\\":2.22,\\"promotion_id\\":\\"P_12345\\",\\"promotion_name\\":\\"Summer Sale\\",\\"creative_slot\\":\\"featured_app_1\\",\\"location_id\\":\\"L_12345\\",\\"affiliation\\":\\"Google Store\\",\\"item_brand\\":\\"Gucci\\",\\"item_category\\":\\"pants\\",\\"item_variant\\":\\"Black\\",\\"price\\":9.99,\\"currency\\":\\"USD\\"}],\\"engagement_time_msec\\":1}}]}"`
       )
     })
 

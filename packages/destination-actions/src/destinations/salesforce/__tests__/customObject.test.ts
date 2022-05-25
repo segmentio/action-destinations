@@ -17,8 +17,9 @@ describe('Salesforce', () => {
   describe('Custom Object Tests', () => {
     it('should create a custom object record', async () => {
       const event = createTestEvent({
-        event: 'Identify',
-        traits: {
+        type: 'track',
+        event: 'Create Custom Object',
+        properties: {
           email: 'sponge@seamail.com',
           company: 'Krusty Krab',
           last_name: 'Squarepants'
@@ -34,7 +35,7 @@ describe('Salesforce', () => {
           operation: 'create',
           customObjectName: 'TestCustom__c',
           customFields: {
-            '@path': '$.traits'
+            '@path': '$.properties'
           }
         },
         auth

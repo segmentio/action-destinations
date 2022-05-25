@@ -16,6 +16,14 @@ This package contains the implementations for browser destinations.
 
 See the [Actions CLI](https://github.com/segmentio/action-destinations#actions-cli) of the root directory of this repo to learn how to interact with the Actions CLI. Interacting with the actions CLI will allow you to create new destinations, actions and update your type definitions.
 
+### Types
+
+When updating the types inside of your actions remember to regenerate the types of your integration by running this command in the top level directory.
+
+```
+bin/run generate:types
+```
+
 ### Manual testing
 
 You can run a test webpage that makes every browser destination available for testing.

@@ -8,6 +8,52 @@ const measurementId = 'G-TESTTOKEN'
 
 describe('GA4', () => {
   describe('Order Refunded', () => {
+    it('should append user_properties correctly', async () => {
+      nock('https://www.google-analytics.com/mp/collect')
+        .post(`?measurement_id=${measurementId}&api_secret=${apiSecret}`)
+        .reply(201, {})
+
+      const event = createTestEvent({
+        event: 'Order Refunded',
+        userId: 'abc123',
+        anonymousId: 'anon-2134',
+        type: 'track',
+        properties: {
+          order_number: '12345abcde',
+          name: 'Quadruple Stack Oreos, 52 ct',
+          currency: 'USD',
+          price: 12.99,
+          quantity: 1
+        }
+      })
+      const responses = await testDestination.testAction('refund', {
+        event,
+        settings: {
+          apiSecret,
+          measurementId
+        },
+        mapping: {
+          transaction_id: {
+            '@path': '$.properties.order_number'
+          },
+          client_id: {
+            '@path': '$.anonymousId'
+          },
+          user_properties: {
+            hello: 'world',
+            a: '1',
+            b: '2',
+            c: '3'
+          }
+        },
+        useDefaultMappings: true
+      })
+
+      expect(responses[0].options.body).toMatchInlineSnapshot(
+        `"{\\"client_id\\":\\"anon-2134\\",\\"events\\":[{\\"name\\":\\"refund\\",\\"params\\":{\\"currency\\":\\"USD\\",\\"transaction_id\\":\\"12345abcde\\",\\"items\\":[],\\"engagement_time_msec\\":1}}],\\"user_properties\\":{\\"hello\\":{\\"value\\":\\"world\\"},\\"a\\":{\\"value\\":\\"1\\"},\\"b\\":{\\"value\\":\\"2\\"},\\"c\\":{\\"value\\":\\"3\\"}}}"`
+      )
+    })
+
     it('should handle basic mapping overrides', async () => {
       nock('https://www.google-analytics.com/mp/collect')
         .post(`?measurement_id=${measurementId}&api_secret=${apiSecret}`)
@@ -41,6 +87,7 @@ describe('GA4', () => {
           client_id: {
             '@path': '$.anonymousId'
           },
+          engagement_time_msec: 2,
           transaction_id: {
             '@path': '$.properties.order_number'
           },
@@ -84,7 +131,7 @@ describe('GA4', () => {
       `)
 
       expect(responses[0].options.body).toMatchInlineSnapshot(
-        `"{\\"client_id\\":\\"anon-2134\\",\\"events\\":[{\\"name\\":\\"refund\\",\\"params\\":{\\"transaction_id\\":\\"c1209123\\",\\"items\\":[{\\"item_name\\":\\"Quadruple Stack Oreos, 52 ct\\",\\"item_id\\":\\"12345abcde\\",\\"currency\\":\\"USD\\",\\"price\\":12.99,\\"quantity\\":1}]}}]}"`
+        `"{\\"client_id\\":\\"anon-2134\\",\\"events\\":[{\\"name\\":\\"refund\\",\\"params\\":{\\"transaction_id\\":\\"c1209123\\",\\"items\\":[{\\"item_name\\":\\"Quadruple Stack Oreos, 52 ct\\",\\"item_id\\":\\"12345abcde\\",\\"currency\\":\\"USD\\",\\"price\\":12.99,\\"quantity\\":1}],\\"engagement_time_msec\\":2}}]}"`
       )
     })
 
@@ -158,7 +205,7 @@ describe('GA4', () => {
       `)
 
       expect(responses[0].options.body).toMatchInlineSnapshot(
-        `"{\\"client_id\\":\\"1234abc\\",\\"events\\":[{\\"name\\":\\"refund\\",\\"params\\":{\\"currency\\":\\"USD\\",\\"transaction_id\\":\\"c1209123\\",\\"value\\":10,\\"coupon\\":\\"SUMMER_FUN\\",\\"items\\":[{\\"item_name\\":\\"Monopoly: 3rd Edition\\",\\"item_id\\":\\"12345\\"}]}}]}"`
+        `"{\\"client_id\\":\\"1234abc\\",\\"events\\":[{\\"name\\":\\"refund\\",\\"params\\":{\\"currency\\":\\"USD\\",\\"transaction_id\\":\\"c1209123\\",\\"value\\":10,\\"coupon\\":\\"SUMMER_FUN\\",\\"items\\":[{\\"item_name\\":\\"Monopoly: 3rd Edition\\",\\"item_id\\":\\"12345\\"}],\\"engagement_time_msec\\":1}}]}"`
       )
     })
 
