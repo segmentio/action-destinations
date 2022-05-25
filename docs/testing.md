@@ -3,7 +3,6 @@
 - [Local End-to-end Testing](#local-end-to-end-testing)
 - [Unit Testing](#unit-testing)
 - [Snapshot Testing](#snapshot-testing)
-- [Canary Testing](#canary-testing)
 
 ## Actions Tester
 
@@ -176,9 +175,3 @@ Once the actions under a new destination are complete, developers can run the fo
 ```
 yarn jest --testPathPattern='./packages/destination-actions/src/destinations/<DESTINATION SLUG>' --updateSnapshot
 ```
-
-## Canary Testing
-
-Once you've created a pull request, you can publish a canary package. This can be useful when testing your changes with the `integrations` repository. To create a canary package, simply post a comment with the text `/publish-canary` on your pull request. After a few moments, the github-actions bot will reply with a comment letting you know that your canary package has been created. You can then view the created package on NPM [here](https://www.npmjs.com/package/@segment/action-destinations?activeTab=versions).
-
-![image](https://user-images.githubusercontent.com/14829777/140416239-157a3e33-dff9-4322-8815-f66298bf43e1.png)
