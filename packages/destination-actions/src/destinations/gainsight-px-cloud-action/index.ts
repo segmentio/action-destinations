@@ -6,6 +6,8 @@ import { defaultValues } from '@segment/actions-core'
 import { getEndpointByRegion } from './regional-endpoints'
 import sendEvent from './sendEvent'
 
+const defaultVals = { ...defaultValues(sendEvent.fields) }
+
 const destination: DestinationDefinition<Settings> = {
   name: 'Gainsight PX Cloud (Actions)',
   slug: 'actions-gainsight-px-cloud',
@@ -74,25 +76,25 @@ const destination: DestinationDefinition<Settings> = {
       name: 'Identify User',
       subscribe: 'type = "identify"',
       partnerAction: 'sendEvent',
-      mapping: defaultValues(sendEvent.fields)
+      mapping: defaultVals
     },
     {
       name: 'Group User',
       subscribe: 'type = "group"',
       partnerAction: 'sendEvent',
-      mapping: defaultValues(sendEvent.fields)
+      mapping: defaultVals
     },
     {
       name: 'Track Event',
       subscribe: 'type = "track"',
       partnerAction: 'sendEvent',
-      mapping: defaultValues(sendEvent.fields)
+      mapping: defaultVals
     },
     {
       name: 'Track Page View',
       subscribe: 'type = "page"',
       partnerAction: 'sendEvent',
-      mapping: defaultValues(sendEvent.fields)
+      mapping: defaultVals
     }
   ]
 }

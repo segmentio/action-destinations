@@ -7,7 +7,6 @@ import { commonFields } from '../common-fields'
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Send Event',
   description: 'Send entire event payload to Gainsight PX',
-  defaultSubscription: 'type = "identify"',
   fields: { ...commonFields },
   perform: (request, { payload, settings }) => {
     return request(getEndpointByRegion('track', settings.dataCenter), {
