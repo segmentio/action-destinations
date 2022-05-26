@@ -52,7 +52,7 @@ export const destination: BrowserDestinationDefinition<Settings, BrazeType> = {
   mode: 'device',
   settings: {
     sdkVersion: {
-      description: 'The version of the SDK to use. Defaults to 4.0.',
+      description: 'The version of the SDK to use.',
       label: 'SDK Version',
       type: 'string',
       choices: [
