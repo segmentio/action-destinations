@@ -100,7 +100,7 @@ describe('loads different versions from CDN', () => {
     `)
   })
 
-  test('3.1', async () => {
+  test('3.5', async () => {
     const [trackEvent] = await braze({
       api_key: 'api_key',
       endpoint: 'sdk.iad-01.braze.com',
