@@ -1,5 +1,5 @@
 import type { Payload } from './generated-types'
-import { RequestClient } from '@segment/actions-core'
+import { IntegrationError, RequestClient } from '@segment/actions-core'
 import { GoogleSheets, GetResponse } from '../googleapis/index'
 
 import A1 from '@segment/a1-notation'
@@ -7,6 +7,8 @@ import A1 from '@segment/a1-notation'
 type Fields = {
   [k: string]: string
 }
+
+const MAXCELLS = 300000
 
 /**
  * Invariant settings that are common to all events in the payload.
@@ -52,8 +54,14 @@ const generateColumnValuesFromFields = (identifier: string, fields: Fields, colu
  * @param events data to be written to the spreadsheet
  * @returns
  */
-function processGetSpreadsheetResponse(response: GetResponse, events: Payload[]) {
+function processGetSpreadsheetResponse(response: GetResponse, events: Payload[], mappingSettings: MappingSettings) {
   // TODO (STRATCONN-1375): Fail request if above row limit
+  const numColumns = mappingSettings.columns.length + 1
+  const numRows = response.values.length
+
+  if (numRows * numColumns > MAXCELLS) {
+    throw new IntegrationError('Sheet has reached maximum limit', 'INVALID_REQUEST_DATA', 400)
+  }
 
   const updateBatch: { identifier: string; event: Fields; targetIndex: number }[] = []
   const appendBatch: { identifier: string; event: Fields }[] = []
@@ -222,7 +230,7 @@ function processData(request: RequestClient, events: Payload[]) {
   gs.get(mappingSettings, 'A:A')
     .then((response) => {
       // Use the retrieved row identifiers along with the incoming events to decide which ones should be appended or updated.
-      const { appendBatch, updateBatch } = processGetSpreadsheetResponse(response.data, events)
+      const { appendBatch, updateBatch } = processGetSpreadsheetResponse(response.data, events, mappingSettings)
 
       const promises = [
         processUpdateBatch(mappingSettings, updateBatch, gs),
