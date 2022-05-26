@@ -1,13 +1,13 @@
-import type { ActionDefinition } from '@segment/actions-core'
+import { ActionDefinition } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 import { getEndpointByRegion } from '../regional-endpoints'
 import { commonFields } from '../common-fields'
 
 const action: ActionDefinition<Settings, Payload> = {
-  title: 'Track Event',
-  description: 'Send an event to Gainsight PX',
-  defaultSubscription: 'type = "track"',
+  title: 'Send Event',
+  description: 'Send entire event payload to Gainsight PX',
+  defaultSubscription: 'type = "identify"',
   fields: { ...commonFields },
   perform: (request, { payload, settings }) => {
     return request(getEndpointByRegion('track', settings.dataCenter), {
