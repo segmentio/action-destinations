@@ -69,10 +69,10 @@ const action: ActionDefinition<Settings, Payload> = {
     }
   },
   perform: (request, { payload }) => {
-    processData(request, [payload])
+    return processData(request, [payload])
   },
   performBatch: (request, { payload }) => {
-    processData(request, payload)
+    return processData(request, payload)
   }
 }
 

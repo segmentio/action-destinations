@@ -6,7 +6,7 @@ const API_VERSION = 'v4'
 export type GetResponse = {
   range: string
   majorDimension: string
-  values: string[]
+  values: string[][]
 }
 export class GoogleSheets {
   request: RequestClient
@@ -38,17 +38,18 @@ export class GoogleSheets {
     )
   }
 
-  batchClear = async (mappingSettings: MappingSettings, deletePayload: { range: string }[]) => {
-    return this.request(
-      `https://sheets.googleapis.com/${API_VERSION}/spreadsheets/${mappingSettings.spreadsheetId}/values:batchClear`,
-      {
-        method: 'post',
-        json: {
-          ranges: deletePayload.map((p) => p.range)
-        }
-      }
-    )
-  }
+  // TODO: Re-enable delete once locking is supported.
+  // batchClear = async (mappingSettings: MappingSettings, deletePayload: { range: string }[]) => {
+  //   return this.request(
+  //     `https://sheets.googleapis.com/${API_VERSION}/spreadsheets/${mappingSettings.spreadsheetId}/values:batchClear`,
+  //     {
+  //       method: 'post',
+  //       json: {
+  //         ranges: deletePayload.map((p) => p.range)
+  //       }
+  //     }
+  //   )
+  // }
 
   append = async (mappingSettings: MappingSettings, range: string, values: string[][]) => {
     return this.request(
