@@ -18,6 +18,9 @@ export type MappingSettings = {
   columns: string[]
 }
 
+// The data in the spreadsheet begins in row 2, because it's assumed that the first row will contain the column names.
+const DATA_ROW_OFFSET = 2
+
 /**
  * Utility function that converts the event properties into an array of strings that Google Sheets API can understand.
  * Note that the identifier is forced as the first column. 
@@ -71,7 +74,7 @@ function processGetSpreadsheetResponse(response: GetResponse, events: Payload[])
           updateBatch.push({
             identifier: targetIdentifier,
             event: targetEvent.fields as Fields,
-            targetIndex: i + 2 // one for header row, and one for one-based index
+            targetIndex: i
           })
         }
         eventMap.delete(targetIdentifier)
@@ -115,7 +118,7 @@ async function processUpdateBatch(
     // Flatten event fields to be just the values
     const values = generateColumnValuesFromFields(identifier, event, mappingSettings.columns)
     return {
-      range: `${mappingSettings.spreadsheetName}!${getRange(targetIndex, values.length)}`,
+      range: `${mappingSettings.spreadsheetName}!${getRange(targetIndex + DATA_ROW_OFFSET, values.length)}`,
       values: [values]
     }
   })
@@ -184,8 +187,7 @@ async function processAppendBatch(
     generateColumnValuesFromFields(identifier, event, mappingSettings.columns)
   )
 
-  // Start from A2 to skip header row (in case it has not been written yet)
-  return gs.append(mappingSettings, 'A2', values)
+  return gs.append(mappingSettings, `A${DATA_ROW_OFFSET}`, values)
 }
 
 /**
@@ -204,8 +206,8 @@ async function processData(request: RequestClient, events: Payload[]) {
 
   const gs: GoogleSheets = new GoogleSheets(request)
 
-  // Get all of the row identifiers (assumed to be in the first column A), skipping header row
-  const response = await gs.get(mappingSettings, 'A2:A')
+  // Get all of the row identifiers (assumed to be in the first column A)
+  const response = await gs.get(mappingSettings, `A${DATA_ROW_OFFSET}:A`)
 
   // Use the retrieved row identifiers along with the incoming events to decide which ones should be appended or updated.
   const { appendBatch, updateBatch } = processGetSpreadsheetResponse(response.data, events)

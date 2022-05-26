@@ -1,5 +1,5 @@
 import { createTestIntegration } from '@segment/actions-core'
-import { ExecuteInput } from '@segment/actions-core/dist/esm/destination-kit/types'
+import { ExecuteInput } from '@segment/actions-core'
 import { Settings } from '../generated-types'
 import Definition from '../index'
 
