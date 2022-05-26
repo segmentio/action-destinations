@@ -272,7 +272,7 @@ export const destination: BrowserDestinationDefinition<Settings, BrazeType> = {
 
       resetUserCache()
 
-      if (version.startsWith('3')) {
+      if (version.startsWith('3.')) {
         await dependencies.loadScript(`https://js.appboycdn.com/web-sdk/${version}/appboy.no-amd.min.js`)
       } else {
         await dependencies.loadScript(`https://js.appboycdn.com/web-sdk/${version}/braze.no-amd.min.js`)
