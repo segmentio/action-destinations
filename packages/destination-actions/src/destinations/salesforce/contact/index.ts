@@ -143,10 +143,15 @@ const action: ActionDefinition<Settings, Payload> = {
   performBatch: async (request, { settings, payload }) => {
     const sf: Salesforce = new Salesforce(settings.instanceUrl, request)
 
-    if (!payload[0].last_name) {
-      throw new IntegrationError('Missing last_name value', 'Misconfigured required field', 400)
+    if (payload[0].operation === 'bulkUpsert') {
+      if (!payload[0].last_name) {
+        throw new IntegrationError('Missing last_name value', 'Misconfigured required field', 400)
+      }
+      return await sf.bulkUpsert(payload, OBJECT_NAME)
+    } else {
+      const errorMsg = 'Bulk Upsert action must be used with batching'
+      throw new IntegrationError(errorMsg, errorMsg, 400)
     }
-    return await sf.bulkUpsert(payload, OBJECT_NAME)
   }
 }
 

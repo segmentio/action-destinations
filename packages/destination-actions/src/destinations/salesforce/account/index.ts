@@ -198,6 +198,9 @@ const action: ActionDefinition<Settings, Payload> = {
       }
 
       return await sf.bulkUpsert(payload, OBJECT_NAME)
+    } else {
+      const errorMsg = 'Bulk Upsert action must be used with batching'
+      throw new IntegrationError(errorMsg, errorMsg, 400)
     }
   }
 }

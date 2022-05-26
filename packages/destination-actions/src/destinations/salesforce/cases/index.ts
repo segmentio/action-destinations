@@ -3,6 +3,7 @@ import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 import { bulkUpsertExternalId, customFields, operation, traits, validateLookup } from '../sf-properties'
 import Salesforce from '../sf-operations'
+import { IntegrationError } from '@segment/actions-core'
 
 const OBJECT_NAME = 'Case'
 
@@ -42,6 +43,9 @@ const action: ActionDefinition<Settings, Payload> = {
 
     if (payload[0].operation === 'bulkUpsert') {
       return await sf.bulkUpsert(payload, OBJECT_NAME)
+    } else {
+      const errorMsg = 'Bulk Upsert action must be used with batching'
+      throw new IntegrationError(errorMsg, errorMsg, 400)
     }
   }
 }
