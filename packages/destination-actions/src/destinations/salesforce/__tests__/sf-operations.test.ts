@@ -10,6 +10,13 @@ const settings = {
 
 const requestClient = createRequestClient()
 
+afterEach(() => {
+  if (!nock.isDone()) {
+    throw new Error(`Not all nock interceptors were used: ${nock.pendingMocks()}`)
+  }
+  nock.cleanAll()
+})
+
 describe('Salesforce', () => {
   describe('Operations', () => {
     const sf: Salesforce = new Salesforce(settings.instanceUrl, requestClient)

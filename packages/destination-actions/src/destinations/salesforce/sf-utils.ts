@@ -6,15 +6,14 @@ const isSettingsKey = new Set<string>(['operation', 'traits', 'customFields', 'b
 
 const NO_VALUE = `#N/A`
 
-const validateHeaderField = (field: string): IntegrationError | false => {
+const validateHeaderField = (field: string): void => {
   if (field.includes(',')) {
-    return new IntegrationError(
+    throw new IntegrationError(
       `Invalid character in field name: ${field}`,
       `Invalid character in field name: ${field}`,
       400
     )
   }
-  return false
 }
 
 /**
@@ -44,10 +43,7 @@ const buildHeaderMap = (payloads: GenericPayload[]): Map<string, [[string, numbe
       if (key === 'customFields') {
         const customFields = value as object
         Object.entries(customFields).forEach(([customFieldName, customFieldValue]) => {
-          const fieldErr = validateHeaderField(customFieldName)
-          if (fieldErr) {
-            throw fieldErr
-          }
+          validateHeaderField(customFieldName)
 
           if (!headerMap.has(customFieldName)) {
             headerMap.set(customFieldName, [[customFieldValue, i]])
