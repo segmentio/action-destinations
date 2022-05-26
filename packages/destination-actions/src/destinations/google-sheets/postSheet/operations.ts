@@ -58,8 +58,7 @@ const generateColumnValuesFromFields = (identifier: string, fields: Fields, colu
  * @returns
  */
 function processGetSpreadsheetResponse(response: GetResponse, events: Payload[], mappingSettings: MappingSettings) {
-  // TODO (STRATCONN-1375): Fail request if above row limit
-  const numColumns = mappingSettings.columns.length + 1
+  const numColumns = mappingSettings.columns.length
   const numRows = response.values.length
 
   if (numRows * numColumns > MAXCELLS) {
