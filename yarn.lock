@@ -2291,6 +2291,7 @@
   integrity sha512-a5Sab1C4/icpTZVzZc5Ghpz88yQtGOyNqYXcZgOssB2uuAr+wF/MvN6bgtW32q7HHrvBki+BsZ0OuNv6EV3K9g==
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 "@segment/a1-notation@^2.1.4":
   version "2.1.4"
   resolved "https://registry.yarnpkg.com/@segment/a1-notation/-/a1-notation-2.1.4.tgz#35a48a0688019c3ffff23b1ba890e864c891a11f"
@@ -2299,6 +2300,11 @@
   version "2.1.4"
   resolved "https://registry.npmjs.org/@segment/a1-notation/-/a1-notation-2.1.4.tgz#35a48a0688019c3ffff23b1ba890e864c891a11f"
 >>>>>>> 62f4371 (added check for cells reaching max)
+=======
+"@segment/a1-notation@^2.1.2":
+  version "2.1.4"
+  resolved "https://registry.npmjs.org/@segment/a1-notation/-/a1-notation-2.1.4.tgz#35a48a0688019c3ffff23b1ba890e864c891a11f"
+>>>>>>> 001488f588ce4db3274ae3cfa96e40398b33ed53
   integrity sha512-SId7GOdDFmm/B9ajIQpXELHW4OTbVvmJbOsoJkQOcUEtoZIiX2UWfk1v4BpKql8wJW9oAhzhIIru2Pv2Yxcg+w==
 
 "@segment/analytics-next@^1.29.3":
