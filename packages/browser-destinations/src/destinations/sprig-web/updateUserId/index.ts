@@ -30,7 +30,13 @@ const action: BrowserActionDefinition<Settings, Sprig, Payload> = {
   },
   perform: (Sprig, event) => {
     const payload = event.payload
-    if (!payload || typeof payload !== 'object' || !(payload.userId || payload.anonymousId)) return
+    if (!payload || typeof payload !== 'object' || !(payload.userId || payload.anonymousId)) {
+      console.warn(
+        '[Sprig] received invalid payload (expected userId or anonymousId to be present); skipping updateUserId',
+        payload
+      )
+      return
+    }
 
     const sprigIdentifyAndSetAttributesPayload: { userId?: string; anonymousId?: string } = {}
 
