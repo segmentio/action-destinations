@@ -2,13 +2,17 @@
 
 export interface Settings {
   /**
-   * Twilio Account ID
+   * Twilio Account SID
    */
-  twilioAccountId: string
+  twilioAccountSID: string
   /**
-   * Twilio Auth Token
+   * Twilio API Key SID
    */
-  twilioAuthToken: string
+  twilioApiKeySID: string
+  /**
+   * Twilio API Key Secret
+   */
+  twilioApiKeySecret: string
   /**
    * Profile API Environment
    */
