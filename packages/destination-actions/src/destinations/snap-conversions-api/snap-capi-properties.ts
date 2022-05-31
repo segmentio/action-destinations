@@ -1,5 +1,7 @@
+import { IntegrationError } from '@segment/actions-core'
 import { InputField } from '@segment/actions-core/src/destination-kit/types'
 import { createHash } from 'crypto'
+import { Settings } from '../snap-conversions-api/generated-types'
 import { Payload } from './reportConversionEvent/generated-types'
 
 export const CURRENCY_ISO_4217_CODES = new Set([
@@ -92,7 +94,7 @@ export const event_tag: InputField = {
 export const timestamp: InputField = {
   label: 'Event Timestamp',
   description:
-    'The Epoch timestamp for when the conversion happened.  The timestamp cannot be more than 28 days in the past',
+    'The Epoch timestamp for when the conversion happened.  The timestamp cannot be more than 28 days in the past.',
   type: 'string',
   default: {
     '@path': '$.timestamp'
@@ -183,7 +185,7 @@ export const item_category: InputField = {
 
 export const item_ids: InputField = {
   label: 'Item IDs',
-  description: 'International Article Number (EAN) when applicable, or other product or category identifier. ',
+  description: 'International Article Number (EAN) when applicable, or other product or category identifier.',
   type: 'string',
   default: {
     '@path': '$.properties.product_id'
@@ -272,6 +274,36 @@ export const sign_up_method: InputField = {
   label: 'Sign Up Method',
   description: 'A string indicating the sign up method.',
   type: 'string'
+}
+
+//Check to see what ids need to be passed depending on the event_conversion_type
+export const conversionType = (settings: Settings, event_conversion_type: String): Settings => {
+  if (event_conversion_type === 'MOBILE_APP') {
+    if (
+      settings?.snap_app_id === undefined ||
+      settings?.app_id === undefined ||
+      settings?.snap_app_id === '' ||
+      settings?.app_id === ''
+    ) {
+      throw new IntegrationError(
+        'If event conversion type is "MOBILE_APP" then snap_app_id and app_id must be defined',
+        'Misconfigured required field',
+        400
+      )
+    }
+    delete settings?.pixel_id
+  } else {
+    if (settings?.pixel_id === undefined) {
+      throw new IntegrationError(
+        `If event conversion type is "${event_conversion_type}" then pixel_id must be defined`,
+        'Misconfigured required field',
+        400
+      )
+    }
+    delete settings?.snap_app_id
+    delete settings?.app_id
+  }
+  return settings
 }
 
 export const hash = (value: string | undefined): string | undefined => {

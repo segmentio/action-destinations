@@ -2,7 +2,7 @@
 
 export interface Payload {
   /**
-   * The conversion event type. Please refer to the possible event types in [Snapchat Marketing API docs](https://marketingapi.snapchat.com/docs/conversion.html#conversion-parameters).
+   * The conversion event type. For custom events, you must use one of the predefined event types (i.e. CUSTOM_EVENT_1). Please refer to the possible event types in [Snapchat Marketing API docs](https://marketingapi.snapchat.com/docs/conversion.html#conversion-parameters).
    */
   event_type: string
   /**
@@ -10,11 +10,11 @@ export interface Payload {
    */
   event_conversion_type: string
   /**
-   * Custom event label
+   * Custom event label.
    */
   event_tag?: string
   /**
-   * The Epoch timestamp for when the conversion happened.  The timestamp cannot be more than 28 days in the past
+   * The Epoch timestamp for when the conversion happened.  The timestamp cannot be more than 28 days in the past.
    */
   timestamp: string
   /**
@@ -62,7 +62,7 @@ export interface Payload {
    */
   number_items?: string
   /**
-   * Value of the purchase.
+   * Value of the purchase.This should be a single number.
    */
   price?: number
   /**

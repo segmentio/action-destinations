@@ -36,9 +36,7 @@ describe('Snap Conversions API ', () => {
     it('should handle a basic event', async () => {
       nock(conversionEventUrl).post('').reply(200, {})
 
-      const event = createTestEvent({
-        ...testEvent
-      })
+      const event = createTestEvent(testEvent)
 
       const responses = await testDestination.testAction('reportConversionEvent', {
         event,
@@ -54,7 +52,7 @@ describe('Snap Conversions API ', () => {
         }
       })
 
-      expect(responses.length).toBe(1)
+      expect(responses).not.toBeNull()
       expect(responses[0].status).toBe(200)
 
       expect(responses[0].options.body).toMatchInlineSnapshot(
@@ -65,9 +63,7 @@ describe('Snap Conversions API ', () => {
     it('should fail web event without pixel_id', async () => {
       nock(conversionEventUrl).post('').reply(400, {})
 
-      const event = createTestEvent({
-        ...testEvent
-      })
+      const event = createTestEvent(testEvent)
 
       await expect(
         testDestination.testAction('reportConversionEvent', {
@@ -91,9 +87,7 @@ describe('Snap Conversions API ', () => {
     it('should fail web event without snap_app_id', async () => {
       nock(conversionEventUrl).post('').reply(400, {})
 
-      const event = createTestEvent({
-        ...testEvent
-      })
+      const event = createTestEvent(testEvent)
 
       await expect(
         testDestination.testAction('reportConversionEvent', {
@@ -118,9 +112,7 @@ describe('Snap Conversions API ', () => {
     it('should handle an offline event conversion type', async () => {
       nock(conversionEventUrl).post('').reply(200, {})
 
-      const event = createTestEvent({
-        ...testEvent
-      })
+      const event = createTestEvent(testEvent)
 
       const responses = await testDestination.testAction('reportConversionEvent', {
         event,
@@ -136,7 +128,7 @@ describe('Snap Conversions API ', () => {
         }
       })
 
-      expect(responses.length).toBe(1)
+      expect(responses).not.toBeNull()
       expect(responses[0].status).toBe(200)
 
       expect(responses[0].options.body).toMatchInlineSnapshot(
@@ -147,9 +139,7 @@ describe('Snap Conversions API ', () => {
     it('should handle a mobile app event conversion type', async () => {
       nock(conversionEventUrl).post('').reply(200, {})
 
-      const event = createTestEvent({
-        ...testEvent
-      })
+      const event = createTestEvent(testEvent)
 
       const responses = await testDestination.testAction('reportConversionEvent', {
         event,
@@ -168,7 +158,7 @@ describe('Snap Conversions API ', () => {
         }
       })
 
-      expect(responses.length).toBe(1)
+      expect(responses).not.toBeNull()
       expect(responses[0].status).toBe(200)
 
       expect(responses[0].options.body).toMatchInlineSnapshot(
@@ -206,9 +196,7 @@ describe('Snap Conversions API ', () => {
     it('should fail missing event conversion type', async () => {
       nock(conversionEventUrl).post('').reply(400, {})
 
-      const event = createTestEvent({
-        ...testEvent
-      })
+      const event = createTestEvent(testEvent)
 
       await expect(
         testDestination.testAction('reportConversionEvent', {
@@ -251,7 +239,7 @@ describe('Snap Conversions API ', () => {
         }
       })
 
-      expect(responses.length).toBe(1)
+      expect(responses).not.toBeNull()
       expect(responses[0].status).toBe(200)
 
       expect(responses[0].options.body).toMatchInlineSnapshot(

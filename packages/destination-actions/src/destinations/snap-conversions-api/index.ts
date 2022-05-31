@@ -7,7 +7,7 @@ const defaultVals = {
   ...defaultValues(reportConversionEvent.fields)
 }
 
-const accessTokenUrl = 'https://accounts.snapchat.com/login/oauth2/access_token'
+const ACCESS_TOKEN_URL = 'https://accounts.snapchat.com/login/oauth2/access_token'
 
 interface RefreshTokenResponse {
   access_token: string
@@ -170,7 +170,7 @@ const destination: DestinationDefinition<Settings> = {
     },
     refreshAccessToken: async (request, { auth }) => {
       // Return a request that refreshes the access_token if the API supports it
-      const res = await request<RefreshTokenResponse>(accessTokenUrl, {
+      const res = await request<RefreshTokenResponse>(ACCESS_TOKEN_URL, {
         method: 'POST',
         body: new URLSearchParams({
           refresh_token: auth.refreshToken,

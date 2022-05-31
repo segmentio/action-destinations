@@ -26,11 +26,11 @@ import {
   page_url,
   sign_up_method,
   formatPayload,
-  CURRENCY_ISO_4217_CODES
+  CURRENCY_ISO_4217_CODES,
+  conversionType
 } from '../snap-capi-properties'
 
-const MOBILE_APP = 'MOBILE_APP'
-const conversionEventUrl = 'https://tr.snapchat.com/v2/conversion'
+const CONVERSION_EVENT_URL = 'https://tr.snapchat.com/v2/conversion'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Report Conversion Event',
@@ -63,33 +63,7 @@ const action: ActionDefinition<Settings, Payload> = {
   },
   perform: (request, data) => {
     const payload: Object = formatPayload(data.payload)
-
-    //Check to see what ids need to be passed depending on the event_conversion_type
-    if (data.payload.event_conversion_type === MOBILE_APP) {
-      if (
-        data.settings?.snap_app_id === undefined ||
-        data.settings?.app_id === undefined ||
-        data.settings?.snap_app_id === '' ||
-        data.settings?.app_id === ''
-      ) {
-        throw new IntegrationError(
-          'If event conversion type is "MOBILE_APP" then snap_app_id and app_id must be defined',
-          'Misconfigured required field',
-          400
-        )
-      }
-      delete data.settings?.pixel_id
-    } else {
-      if (data.settings?.pixel_id === undefined) {
-        throw new IntegrationError(
-          `If event conversion type is "${data.payload.event_conversion_type}" then pixel_id must be defined`,
-          'Misconfigured required field',
-          400
-        )
-      }
-      delete data.settings?.snap_app_id
-      delete data.settings?.app_id
-    }
+    const settings: Settings = conversionType(data.settings, data.payload.event_conversion_type)
 
     if (data.payload.currency && !CURRENCY_ISO_4217_CODES.has(data.payload.currency)) {
       throw new IntegrationError(
@@ -100,11 +74,11 @@ const action: ActionDefinition<Settings, Payload> = {
     }
 
     //Create Conversion Event Request
-    return request(conversionEventUrl, {
+    return request(CONVERSION_EVENT_URL, {
       method: 'post',
       json: {
         ...payload,
-        ...data.settings
+        ...settings
       }
     })
   }
