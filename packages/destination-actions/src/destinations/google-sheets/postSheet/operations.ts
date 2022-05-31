@@ -8,6 +8,9 @@ type Fields = {
   [k: string]: string
 }
 
+/**
+ * Based on benchmarks found while testing so we dont reach the timeout limit.
+ */
 const MAXCELLS = 300000
 
 /**

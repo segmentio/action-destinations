@@ -75,5 +75,23 @@ describe('Google Sheets', () => {
       expect(mockGoogleSheets.append).not.toHaveBeenCalled()
       expect(mockGoogleSheets.batchUpdate).toHaveBeenCalled()
     })
+
+    it('should fail because number of cells limit is reached', async () => {
+      process.env.GOOGLE_SHEETS_MAX_CELLS = '1'
+
+      // Make sure the spreadsheet contains the event from the payload
+      const getResponse: Partial<GetResponse> = {
+        values: [['id'], ['1234'], ['12345']]
+      }
+
+      mockGoogleSheets.get.mockResolvedValue({
+        data: getResponse
+      })
+
+      expect(GoogleSheets).toHaveBeenCalled()
+      await expect(PostSheet.performBatch?.(jest.fn(), data as ExecuteInput<Settings, Payload[]>)).rejects.toThrowError(
+        'Sheet has reached maximum limit'
+      )
+    })
   })
 })
