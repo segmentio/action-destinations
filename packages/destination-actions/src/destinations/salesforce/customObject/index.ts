@@ -1,7 +1,7 @@
-import type { ActionDefinition } from '@segment/actions-core'
+import { ActionDefinition, IntegrationError } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
-import { operation, traits, customFields, validateLookup } from '../sf-properties'
+import { bulkUpsertExternalId, operation, traits, customFields, validateLookup } from '../sf-properties'
 import Salesforce from '../sf-operations'
 
 const action: ActionDefinition<Settings, Payload> = {
@@ -11,6 +11,7 @@ const action: ActionDefinition<Settings, Payload> = {
   fields: {
     operation: operation,
     traits: traits,
+    bulkUpsertExternalId: bulkUpsertExternalId,
     customObjectName: {
       label: 'Salesforce Object',
       description:
@@ -35,6 +36,16 @@ const action: ActionDefinition<Settings, Payload> = {
 
     if (payload.operation === 'upsert') {
       return await sf.upsertRecord(payload, payload.customObjectName)
+    }
+  },
+  performBatch: async (request, { settings, payload }) => {
+    const sf: Salesforce = new Salesforce(settings.instanceUrl, request)
+
+    if (payload[0].operation === 'bulkUpsert') {
+      return await sf.bulkUpsert(payload, payload[0].customObjectName)
+    } else {
+      const errorMsg = 'Bulk Upsert action must be used with batching'
+      throw new IntegrationError(errorMsg, errorMsg, 400)
     }
   }
 }

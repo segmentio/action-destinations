@@ -20,6 +20,19 @@ export interface Payload {
     [k: string]: unknown
   }
   /**
+   * The external id field name and mapping to use for bulk upsert.
+   */
+  bulkUpsertExternalId?: {
+    /**
+     * The external id field name as defined in Salesforce.
+     */
+    externalIdName?: string
+    /**
+     * The external id field value to use for bulk upsert.
+     */
+    externalIdValue?: string
+  }
+  /**
    * The lead's company. **This is required to create a lead.**
    */
   company?: string
