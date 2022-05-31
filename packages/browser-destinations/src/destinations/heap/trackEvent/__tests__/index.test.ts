@@ -27,12 +27,8 @@ describe('#trackEvent', () => {
       })
     )
 
-    expect(heapTrackSpy).toHaveBeenCalledWith(
-      'hello!',
-      {
-        banana: '📞'
-      },
-      'segment'
-    )
+    expect(heapTrackSpy).toHaveBeenCalledWith('hello!', {
+      banana: '📞'
+    })
   })
 })
