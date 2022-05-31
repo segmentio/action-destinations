@@ -68,7 +68,7 @@ export const CURRENCY_ISO_4217_CODES = new Set([
 export const event_type: InputField = {
   label: 'Event Type',
   description:
-    'The conversion event type. Please refer to the possible event types in [Snapchat Marketing API docs](https://marketingapi.snapchat.com/docs/conversion.html#conversion-parameters).',
+    'The conversion event type. For custom events, you must use one of the predefined event types (i.e. CUSTOM_EVENT_1). Please refer to the possible event types in [Snapchat Marketing API docs](https://marketingapi.snapchat.com/docs/conversion.html#conversion-parameters).',
   type: 'string'
 }
 
@@ -85,7 +85,7 @@ export const event_conversion_type: InputField = {
 
 export const event_tag: InputField = {
   label: 'Event Tag',
-  description: 'Custom event label',
+  description: 'Custom event label.',
   type: 'string'
 }
 
@@ -207,7 +207,7 @@ export const number_items: InputField = {
 
 export const price: InputField = {
   label: 'Price',
-  description: 'Value of the purchase.',
+  description: 'Value of the purchase.This should be a single number.',
   type: 'number',
   default: {
     '@if': {

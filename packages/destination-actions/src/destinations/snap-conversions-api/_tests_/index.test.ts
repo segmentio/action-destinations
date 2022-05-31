@@ -13,25 +13,31 @@ const settings: Settings = {
 const accessToken = 'test123'
 const refreshToken = 'test123'
 
+const testEvent = createTestEvent({
+  timestamp: timestamp,
+  messageId: 'test-message-rv4t40s898k',
+  event: 'PURCHASE',
+  type: 'track',
+  properties: {
+    email: 'test123@gmail.com',
+    phone: '+44 844 412 4653',
+    event_tag: 'back-to-school',
+    number_items: 10,
+    price: '15',
+    currency: 'USD',
+    level: 3
+  }
+})
+
+const conversionEventUrl = 'https://tr.snapchat.com/v2/conversion'
+
 describe('Snap Conversions API ', () => {
   describe('ReportConversionEvent', () => {
     it('should handle a basic event', async () => {
-      nock(`https://tr.snapchat.com/v2/conversion`).post('').reply(200, {})
+      nock(conversionEventUrl).post('').reply(200, {})
 
       const event = createTestEvent({
-        timestamp: timestamp,
-        messageId: 'test-message-rv4t40s898k',
-        event: 'PURCHASE',
-        type: 'track',
-        properties: {
-          email: 'test123@gmail.com',
-          phone: '+44 844 412 4653',
-          event_tag: 'back-to-school',
-          number_items: 10,
-          price: '15',
-          currency: 'USD',
-          level: 3
-        }
+        ...testEvent
       })
 
       const responses = await testDestination.testAction('reportConversionEvent', {
@@ -57,22 +63,10 @@ describe('Snap Conversions API ', () => {
     })
 
     it('should fail web event without pixel_id', async () => {
-      nock(`https://tr.snapchat.com/v2/conversion`).post('').reply(400, {})
+      nock(conversionEventUrl).post('').reply(400, {})
 
       const event = createTestEvent({
-        timestamp: timestamp,
-        messageId: 'test-message-rv4t40s898k',
-        event: 'PURCHASE',
-        type: 'track',
-        properties: {
-          email: 'test123@gmail.com',
-          phone: '+44 844 412 4653',
-          event_tag: 'back-to-school',
-          number_items: 10,
-          price: '15',
-          currency: 'USD',
-          level: 3
-        }
+        ...testEvent
       })
 
       await expect(
@@ -95,22 +89,10 @@ describe('Snap Conversions API ', () => {
     })
 
     it('should fail web event without snap_app_id', async () => {
-      nock(`https://tr.snapchat.com/v2/conversion`).post('').reply(400, {})
+      nock(conversionEventUrl).post('').reply(400, {})
 
       const event = createTestEvent({
-        timestamp: timestamp,
-        messageId: 'test-message-rv4t40s898k',
-        event: 'PURCHASE',
-        type: 'track',
-        properties: {
-          email: 'test123@gmail.com',
-          phone: '+44 844 412 4653',
-          event_tag: 'back-to-school',
-          number_items: 10,
-          price: '15',
-          currency: 'USD',
-          level: 3
-        }
+        ...testEvent
       })
 
       await expect(
@@ -134,22 +116,10 @@ describe('Snap Conversions API ', () => {
     })
 
     it('should handle an offline event conversion type', async () => {
-      nock(`https://tr.snapchat.com/v2/conversion`).post('').reply(200, {})
+      nock(conversionEventUrl).post('').reply(200, {})
 
       const event = createTestEvent({
-        timestamp: timestamp,
-        messageId: 'test-message-rv4t40s898k',
-        event: 'SAVE',
-        type: 'track',
-        properties: {
-          email: 'test123@gmail.com',
-          phone: '+44 844 412 4653',
-          event_tag: 'back-to-school',
-          number_items: 10,
-          price: '15',
-          currency: 'USD',
-          level: 3
-        }
+        ...testEvent
       })
 
       const responses = await testDestination.testAction('reportConversionEvent', {
@@ -175,22 +145,10 @@ describe('Snap Conversions API ', () => {
     })
 
     it('should handle a mobile app event conversion type', async () => {
-      nock(`https://tr.snapchat.com/v2/conversion`).post('').reply(200, {})
+      nock(conversionEventUrl).post('').reply(200, {})
 
       const event = createTestEvent({
-        timestamp: timestamp,
-        messageId: 'test-message-rv4t40s898k',
-        event: 'SAVE',
-        type: 'track',
-        properties: {
-          email: 'test123@gmail.com',
-          phone: '+44 844 412 4653',
-          event_tag: 'back-to-school',
-          number_items: 10,
-          price: '15',
-          currency: 'USD',
-          level: 3
-        }
+        ...testEvent
       })
 
       const responses = await testDestination.testAction('reportConversionEvent', {
@@ -219,21 +177,12 @@ describe('Snap Conversions API ', () => {
     })
 
     it('should fail invalid currency', async () => {
-      nock(`https://tr.snapchat.com/v2/conversion`).post('').reply(400, {})
+      nock(conversionEventUrl).post('').reply(400, {})
 
       const event = createTestEvent({
-        timestamp: timestamp,
-        messageId: 'test-message-rv4t40s898k',
-        event: 'PURCHASE',
-        type: 'track',
+        ...testEvent,
         properties: {
-          email: 'test123@gmail.com',
-          phone: '+44 844 412 4653',
-          event_tag: 'back-to-school',
-          number_items: 10,
-          price: '15',
-          currency: 'Galleon',
-          level: 3
+          currency: 'Galleon'
         }
       })
 
@@ -255,22 +204,10 @@ describe('Snap Conversions API ', () => {
     })
 
     it('should fail missing event conversion type', async () => {
-      nock(`https://tr.snapchat.com/v2/conversion`).post('').reply(400, {})
+      nock(conversionEventUrl).post('').reply(400, {})
 
       const event = createTestEvent({
-        timestamp: timestamp,
-        messageId: 'test-message-rv4t40s898k',
-        event: 'PURCHASE',
-        type: 'track',
-        properties: {
-          email: 'test123@gmail.com',
-          phone: '+44 844 412 4653',
-          event_tag: 'back-to-school',
-          number_items: 10,
-          price: '15',
-          currency: 'Galleon',
-          level: 3
-        }
+        ...testEvent
       })
 
       await expect(
@@ -290,22 +227,11 @@ describe('Snap Conversions API ', () => {
     })
 
     it('should handle a custom event', async () => {
-      nock(`https://tr.snapchat.com/v2/conversion`).post('').reply(200, {})
+      nock(conversionEventUrl).post('').reply(200, {})
 
       const event = createTestEvent({
-        timestamp: timestamp,
-        messageId: 'test-message-rv4t40s898k',
-        event: 'CUSTOM_EVENT_5',
-        type: 'track',
-        properties: {
-          email: 'test123@gmail.com',
-          phone: '+44 844 412 4653',
-          event_tag: 'back-to-school',
-          number_items: 10,
-          price: '15',
-          currency: 'USD',
-          level: 3
-        }
+        ...testEvent,
+        event: 'CUSTOM_EVENT_5'
       })
 
       const responses = await testDestination.testAction('reportConversionEvent', {

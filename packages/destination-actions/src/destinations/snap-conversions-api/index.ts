@@ -3,13 +3,16 @@ import type { Settings } from './generated-types'
 
 import reportConversionEvent from './reportConversionEvent'
 
-const defaultVals = { ...defaultValues(reportConversionEvent.fields) }
+const defaultVals = {
+  ...defaultValues(reportConversionEvent.fields)
+}
+
+const accessTokenUrl = 'https://accounts.snapchat.com/login/oauth2/access_token'
 
 interface RefreshTokenResponse {
   access_token: string
 }
 
-/** Used in the Quick SetUp */
 const presets: DestinationDefinition['presets'] = [
   {
     name: 'Add Billing',
@@ -167,7 +170,7 @@ const destination: DestinationDefinition<Settings> = {
     },
     refreshAccessToken: async (request, { auth }) => {
       // Return a request that refreshes the access_token if the API supports it
-      const res = await request<RefreshTokenResponse>('https://accounts.snapchat.com/login/oauth2/access_token', {
+      const res = await request<RefreshTokenResponse>(accessTokenUrl, {
         method: 'POST',
         body: new URLSearchParams({
           refresh_token: auth.refreshToken,
