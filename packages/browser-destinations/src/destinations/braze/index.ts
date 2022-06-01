@@ -73,9 +73,9 @@ export const destination: BrowserDestinationDefinition<Settings, BrazeType> = {
       required: true
     },
     api_key: {
-      description: 'Found in the Braze Dashboard under Settings → Manage Settings → Apps → Web',
+      description: 'Found in the Braze Dashboard under Manage Settings → Apps → Web',
       label: 'API Key',
-      type: 'password',
+      type: 'string', // SDK API keys are not secret
       required: true
     },
     endpoint: {
