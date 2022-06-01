@@ -47,7 +47,7 @@ NodeList [
 ]
 `;
 
-exports[`loads different versions from CDN 3.1: 
+exports[`loads different versions from CDN 3.5: 
       NodeList [
         <script
           src="https://js.appboycdn.com/web-sdk/3.5/appboy.no-amd.min.js"

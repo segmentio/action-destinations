@@ -6,7 +6,7 @@ export interface Settings {
    */
   sdkVersion: string
   /**
-   * Found in the Braze Dashboard under Settings → Manage Settings → Apps → Web
+   * Found in the Braze Dashboard under Manage Settings → Apps → Web
    */
   api_key: string
   /**
