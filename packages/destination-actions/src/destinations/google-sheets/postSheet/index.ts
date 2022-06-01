@@ -13,7 +13,7 @@ const action: ActionDefinition<Settings, Payload> = {
     record_identifier: {
       label: 'Record Identifier',
       description: 'Property which uniquely identifies each row in the spreadsheet.',
-      type: 'string',
+      type: 'hidden',
       required: true,
       default: { '@path': '$.__segment_id' }
     },
@@ -21,7 +21,7 @@ const action: ActionDefinition<Settings, Payload> = {
       label: 'Operation Type',
       description:
         "Describes the nature of the operation being performed. Only supported values are 'new', 'updated', and 'deleted'.",
-      type: 'string',
+      type: 'hidden',
       required: true,
       default: { '@path': '$.event' }
     },
