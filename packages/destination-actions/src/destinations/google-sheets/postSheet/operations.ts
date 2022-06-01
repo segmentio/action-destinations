@@ -1,17 +1,13 @@
 import type { Payload } from './generated-types'
 import { IntegrationError, RequestClient } from '@segment/actions-core'
 import { GoogleSheets, GetResponse } from '../googleapis/index'
+import { CONSTANTS } from '../constants'
 
 import A1 from '@segment/a1-notation'
 
 type Fields = {
   [k: string]: string
 }
-
-/**
- * Based on benchmarks found while testing so we dont reach the timeout limit.
- */
-const MAXCELLS = 300000
 
 /**
  * Invariant settings that are common to all events in the payload.
@@ -64,7 +60,7 @@ function processGetSpreadsheetResponse(response: GetResponse, events: Payload[],
   const numColumns = mappingSettings.columns.length
   const numRows = response.values.length
 
-  if (numRows * numColumns > MAXCELLS) {
+  if (numRows * numColumns > CONSTANTS.MAX_CELLS) {
     throw new IntegrationError('Sheet has reached maximum limit', 'INVALID_REQUEST_DATA', 400)
   }
 

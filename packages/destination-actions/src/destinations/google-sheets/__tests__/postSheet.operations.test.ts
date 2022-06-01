@@ -4,6 +4,12 @@ import { Payload } from '../postSheet/generated-types'
 import PostSheet from '../postSheet/index'
 import { GoogleSheets, GetResponse } from '../googleapis/index'
 
+jest.mock('../constants', () => ({
+  CONSTANTS: {
+    MAX_CELLS: 1
+  }
+}))
+
 const mockGoogleSheets = {
   get: jest.fn(),
   batchUpdate: jest.fn(),
@@ -77,8 +83,6 @@ describe('Google Sheets', () => {
     })
 
     it('should fail because number of cells limit is reached', async () => {
-      process.env.GOOGLE_SHEETS_MAX_CELLS = '1'
-
       // Make sure the spreadsheet contains the event from the payload
       const getResponse: Partial<GetResponse> = {
         values: [['id'], ['1234'], ['12345']]
@@ -88,7 +92,6 @@ describe('Google Sheets', () => {
         data: getResponse
       })
 
-      expect(GoogleSheets).toHaveBeenCalled()
       await expect(PostSheet.performBatch?.(jest.fn(), data as ExecuteInput<Settings, Payload[]>)).rejects.toThrowError(
         'Sheet has reached maximum limit'
       )
