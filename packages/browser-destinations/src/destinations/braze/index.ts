@@ -58,7 +58,7 @@ export const destination: BrowserDestinationDefinition<Settings, BrazeType> = {
       choices: [
         {
           value: '3.1',
-          label: '3.5'
+          label: '3.1'
         },
         {
           value: '3.5',
