@@ -143,7 +143,7 @@ const presets: DestinationDefinition['presets'] = [
 ]
 
 const destination: DestinationDefinition<Settings> = {
-  name: 'Snap Conversions Api',
+  name: 'Snap Conversions API',
   slug: 'actions-snap-conversions',
   mode: 'cloud',
 
