@@ -3,7 +3,7 @@ import { Settings } from '../generated-types'
 import { Payload } from '../postSheet/generated-types'
 import PostSheet from '../postSheet/index'
 import { GoogleSheets, GetResponse } from '../googleapis/index'
-import * as constants from '../constants'
+import { CONSTANTS } from '../constants'
 
 jest.mock('../constants', () => ({
   CONSTANTS: {
@@ -85,7 +85,7 @@ describe('Google Sheets', () => {
 
     it('should fail because number of cells limit is reached', async () => {
       // Make sure the spreadsheet contains the event from the payload
-      constants.CONSTANTS.MAX_CELLS = 1
+      CONSTANTS.MAX_CELLS = 1
       const getResponse: Partial<GetResponse> = {
         values: [['id'], ['1234'], ['12345']]
       }
