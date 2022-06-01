@@ -58,7 +58,7 @@ const generateColumnValuesFromFields = (identifier: string, fields: Fields, colu
  */
 function processGetSpreadsheetResponse(response: GetResponse, events: Payload[], mappingSettings: MappingSettings) {
   const numColumns = mappingSettings.columns.length
-  const numRows = response.values.length
+  const numRows = response.values?.length
 
   if (numRows * numColumns > CONSTANTS.MAX_CELLS) {
     throw new IntegrationError('Sheet has reached maximum limit', 'INVALID_REQUEST_DATA', 400)
