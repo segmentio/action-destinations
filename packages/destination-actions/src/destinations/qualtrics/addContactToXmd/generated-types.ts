@@ -34,7 +34,7 @@ export interface Payload {
    */
   unsubscribed?: boolean
   /**
-   * User embedded data (properties of the user)
+   * Contact embedded data (properties of the contact)
    */
   embeddedData?: {
     [k: string]: unknown

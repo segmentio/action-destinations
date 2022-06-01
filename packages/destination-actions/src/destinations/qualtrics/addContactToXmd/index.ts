@@ -80,9 +80,9 @@ const action: ActionDefinition<Settings, Payload> = {
       default: false
     },
     embeddedData: {
-      label: 'User embedded data',
+      label: 'Contact embedded data',
       type: 'object',
-      description: 'User embedded data (properties of the user)',
+      description: 'Contact embedded data (properties of the contact)',
       defaultObjectUI: 'keyvalue'
     }
   },
