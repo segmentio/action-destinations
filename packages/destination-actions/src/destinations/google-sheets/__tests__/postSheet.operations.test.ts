@@ -3,6 +3,13 @@ import { Settings } from '../generated-types'
 import { Payload } from '../postSheet/generated-types'
 import PostSheet from '../postSheet/index'
 import { GoogleSheets, GetResponse } from '../googleapis/index'
+import { CONSTANTS } from '../constants'
+
+jest.mock('../constants', () => ({
+  CONSTANTS: {
+    MAX_CELLS: 300000
+  }
+}))
 
 const mockGoogleSheets = {
   get: jest.fn(),
@@ -74,6 +81,22 @@ describe('Google Sheets', () => {
       expect(mockGoogleSheets.get).toHaveBeenCalled()
       expect(mockGoogleSheets.append).not.toHaveBeenCalled()
       expect(mockGoogleSheets.batchUpdate).toHaveBeenCalled()
+    })
+
+    it('should fail because number of cells limit is reached', async () => {
+      // Make sure the spreadsheet contains the event from the payload
+      CONSTANTS.MAX_CELLS = 1
+      const getResponse: Partial<GetResponse> = {
+        values: [['id'], ['1234'], ['12345']]
+      }
+
+      mockGoogleSheets.get.mockResolvedValue({
+        data: getResponse
+      })
+
+      await expect(PostSheet.performBatch?.(jest.fn(), data as ExecuteInput<Settings, Payload[]>)).rejects.toThrowError(
+        'Sheet has reached maximum limit'
+      )
     })
   })
 })
