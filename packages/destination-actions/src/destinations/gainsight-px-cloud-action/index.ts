@@ -9,7 +9,7 @@ import sendEvent from './sendEvent'
 const defaultVals = { ...defaultValues(sendEvent.fields) }
 
 const destination: DestinationDefinition<Settings> = {
-  name: 'Gainsight PX Cloud (Actions)',
+  name: 'Gainsight Px Cloud (Actions)',
   slug: 'actions-gainsight-px-cloud',
   mode: 'cloud',
 
