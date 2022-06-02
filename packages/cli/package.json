@@ -22,7 +22,7 @@
   ],
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
-  "private": true,
+  "private": false,
   "scripts": {
     "postpack": "rm -f oclif.manifest.json",
     "prepack": "yarn build && oclif-dev manifest && oclif-dev readme",

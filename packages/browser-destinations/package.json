@@ -3,7 +3,7 @@
   "version": "3.40.0",
   "description": "Action based browser destinations",
   "author": "Netto Farah",
-  "private": true,
+  "access": "private",
   "license": "MIT",
   "repository": {
     "type": "git",
