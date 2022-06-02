@@ -4,9 +4,9 @@ export interface Settings {
   /**
    * The version of the SDK to use. Defaults to 3.3.
    */
-  sdkVersion?: string
+  sdkVersion: string
   /**
-   * Created under Developer Console in the Braze Dashboard.
+   * Found in the Braze Dashboard under Settings → Manage Settings → Apps → Web
    */
   api_key: string
   /**
@@ -34,10 +34,6 @@ export interface Settings {
    */
   devicePropertyAllowlist?: string[]
   /**
-   * This initialization option is deprecated in favor of devicePropertyAllowlist, which has the same functionality.
-   */
-  devicePropertyWhitelist?: string[]
-  /**
    * By default, users who have already granted web push permission will sync their push token with the Braze backend automatically on new session to ensure deliverability. To disable this behavior, set this option to false
    */
   disablePushTokenMaintenance?: boolean
@@ -45,10 +41,6 @@ export interface Settings {
    * Braze automatically loads FontAwesome 4.7.0 from the FontAwesome CDN. To disable this behavior set this option to true.
    */
   doNotLoadFontAwesome?: boolean
-  /**
-   * Set this to true to indicate that you trust the Braze dashboard users to write non-malicious HTML in-app messages. If allowUserSuppliedJavascript is set to true, this option will also be set to true.
-   */
-  enableHtmlInAppMessages?: boolean
   /**
    * Set to true to enable logging by default
    */
@@ -65,6 +57,10 @@ export interface Settings {
    * By default, any SDK-generated user-visible messages will be displayed in the user's browser language. Provide a value for this option to override that behavior and force a specific language. The value for this option should be a ISO 639-1 Language Code.
    */
   localization?: string
+  /**
+   * When this is enabled, all In-App Messages that a user is eligible for are automatically delivered to the user. If you'd like to register your own display subscribers or send soft push notifications to your users, make sure to disable this option.
+   */
+  automaticallyDisplayMessages?: boolean
   /**
    * If you have your own service worker that you register and control the lifecycle of, set this option to true and the Braze SDK will not register or unregister a service worker. [See more details](https://js.appboycdn.com/web-sdk/latest/doc/modules/appboy.html#initializationoptions)
    */

@@ -1,0 +1,19 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Testing snapshot for Cordial's removeContactFromList destination action: default fields, group id only 1`] = `
+Object {
+  "groupId": "group1234",
+  "userIdentities": Object {
+    "channels.email.address": "contact@example.com",
+  },
+}
+`;
+
+exports[`Testing snapshot for Cordial's removeContactFromList destination action: default fields, group name 1`] = `
+Object {
+  "groupId": "group1234",
+  "userIdentities": Object {
+    "channels.email.address": "contact@example.com",
+  },
+}
+`;

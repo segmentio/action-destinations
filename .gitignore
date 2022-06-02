@@ -4,3 +4,7 @@ dist
 *.log
 *.tsbuildinfo
 .eslintcache
+package-lock.json
+.env
+# JetBrains byproduct
+.idea

@@ -1,11 +1,14 @@
 import type { DestinationDefinition } from '@segment/actions-core'
 import type { Settings } from './generated-types'
-import updateUserProfile from './updateUserProfile'
+import { defaultValues } from '@segment/actions-core'
+import createAlias from './createAlias'
+import identifyUser from './identifyUser'
 import trackEvent from './trackEvent'
 import trackPurchase from './trackPurchase'
+import updateUserProfile from './updateUserProfile'
 
 const destination: DestinationDefinition<Settings> = {
-  name: 'Braze Cloud Mode',
+  name: 'Braze Cloud Mode (Actions)',
   slug: 'actions-braze-cloud',
   mode: 'cloud',
   description: 'Send events server-side to the Braze REST API.',
@@ -22,8 +25,7 @@ const destination: DestinationDefinition<Settings> = {
         label: 'App ID',
         description:
           'The app identifier used to reference specific Apps in requests made to the Braze API. Created under Developer Console in the Braze Dashboard.',
-        type: 'string',
-        required: true
+        type: 'string'
       },
       endpoint: {
         label: 'REST Endpoint',
@@ -38,11 +40,21 @@ const destination: DestinationDefinition<Settings> = {
           { label: 'US-05	(https://dashboard-05.braze.com)', value: 'https://rest.iad-05.braze.com' },
           { label: 'US-06	(https://dashboard-06.braze.com)', value: 'https://rest.iad-06.braze.com' },
           { label: 'US-08	(https://dashboard-08.braze.com)', value: 'https://rest.iad-08.braze.com' },
-          { label: 'EU-01	(https://dashboard-01.braze.eu)', value: 'https://rest.fra-01.braze.eu' }
+          { label: 'EU-01	(https://dashboard-01.braze.eu)', value: 'https://rest.fra-01.braze.eu' },
+          { label: 'EU-02	(https://dashboard-02.braze.eu)', value: 'https://rest.fra-02.braze.eu' }
         ],
+        default: 'https://rest.iad-01.braze.com',
         required: true
       }
     }
+  },
+  onDelete: async (request, { payload, settings }) => {
+    return request(`${settings.endpoint}/users/delete`, {
+      method: 'post',
+      json: {
+        external_ids: [payload.userId]
+      }
+    })
   },
   extendRequest({ settings }) {
     return {
@@ -54,8 +66,30 @@ const destination: DestinationDefinition<Settings> = {
   actions: {
     updateUserProfile,
     trackEvent,
-    trackPurchase
-  }
+    trackPurchase,
+    createAlias,
+    identifyUser
+  },
+  presets: [
+    {
+      name: 'Track Calls',
+      subscribe: 'type = "track" and event != "Order Completed"',
+      partnerAction: 'trackEvent',
+      mapping: defaultValues(trackEvent.fields)
+    },
+    {
+      name: 'Order Completed Calls',
+      subscribe: 'event = "Order Completed"',
+      partnerAction: 'trackPurchase',
+      mapping: defaultValues(trackPurchase.fields)
+    },
+    {
+      name: 'Identify Calls',
+      subscribe: 'type = "identify"',
+      partnerAction: 'updateUserProfile',
+      mapping: defaultValues(updateUserProfile.fields)
+    }
+  ]
 }
 
 export default destination

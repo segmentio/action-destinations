@@ -2,7 +2,15 @@
 
 export interface Settings {
   /**
-   * The organization ID for FullStory
+   * The organization ID for FullStory.
    */
   orgId: string
+  /**
+   * Enables FullStory debug mode.
+   */
+  debug?: boolean
+  /**
+   * Enables FullStory inside an iframe.
+   */
+  recordOnlyThisIFrame?: boolean
 }

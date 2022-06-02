@@ -1,7 +1,7 @@
 import type { Settings } from './generated-types'
 import type { BrowserDestinationDefinition } from '../../lib/browser-destinations'
 import { browserDestination } from '../../runtime/shim'
-import appboy from '@braze/web-sdk'
+import type appboy from '@braze/web-sdk'
 import trackEvent from './trackEvent'
 import updateUserProfile from './updateUserProfile'
 import trackPurchase from './trackPurchase'
@@ -16,20 +16,20 @@ declare global {
 
 const presets: DestinationDefinition['presets'] = [
   {
-    name: 'Update User Profile',
+    name: 'Identify Calls',
     subscribe: 'type = "identify" or type = "group"',
     partnerAction: 'updateUserProfile',
     mapping: defaultValues(updateUserProfile.fields)
   },
   {
-    name: 'Track Purchase',
-    subscribe: 'type = "track"',
+    name: 'Order Completed calls',
+    subscribe: 'type = "track" and event = "Order Completed"',
     partnerAction: 'trackPurchase',
     mapping: defaultValues(trackPurchase.fields)
   },
   {
-    name: 'Track Event',
-    subscribe: 'type = "track"',
+    name: 'Track Calls',
+    subscribe: 'type = "track" and event != "Order Completed"',
     partnerAction: 'trackEvent',
     mapping: {
       ...defaultValues(trackEvent.fields),
@@ -44,7 +44,7 @@ const presets: DestinationDefinition['presets'] = [
 ]
 
 export const destination: BrowserDestinationDefinition<Settings, typeof appboy> = {
-  name: 'Braze Web Mode',
+  name: 'Braze Web Mode (Actions)',
   slug: 'actions-braze-web',
   mode: 'device',
   settings: {
@@ -56,12 +56,17 @@ export const destination: BrowserDestinationDefinition<Settings, typeof appboy> 
         {
           value: '3.3',
           label: '3.3'
+        },
+        {
+          value: '3.5',
+          label: '3.5'
         }
       ],
-      required: false
+      default: '3.5',
+      required: true
     },
     api_key: {
-      description: 'Created under Developer Console in the Braze Dashboard.',
+      description: 'Found in the Braze Dashboard under Settings → Manage Settings → Apps → Web',
       label: 'API Key',
       type: 'password',
       required: true
@@ -80,8 +85,10 @@ export const destination: BrowserDestinationDefinition<Settings, typeof appboy> 
         { label: 'US-05	(https://dashboard-05.braze.com)', value: 'sdk.iad-05.braze.com' },
         { label: 'US-06	(https://dashboard-06.braze.com)', value: 'sdk.iad-06.braze.com' },
         { label: 'US-08	(https://dashboard-08.braze.com)', value: 'sdk.iad-08.braze.com' },
-        { label: 'EU-01	(https://dashboard-01.braze.eu)', value: 'sdk.fra-01.braze.eu' }
+        { label: 'EU-01	(https://dashboard-01.braze.eu)', value: 'sdk.fra-01.braze.eu' },
+        { label: 'EU-02	(https://dashboard-02.braze.eu)', value: 'sdk.fra-02.braze.eu' }
       ],
+      default: 'sdk.iad-01.braze.com',
       required: true
     },
     allowCrawlerActivity: {
@@ -122,14 +129,6 @@ export const destination: BrowserDestinationDefinition<Settings, typeof appboy> 
       required: false,
       multiple: true
     },
-    devicePropertyWhitelist: {
-      description:
-        'This initialization option is deprecated in favor of devicePropertyAllowlist, which has the same functionality.',
-      label: '[Deprecated] Device Property Whitelist',
-      type: 'string',
-      required: false,
-      multiple: true
-    },
     disablePushTokenMaintenance: {
       label: 'Disable Push Token Maintenance',
       type: 'boolean',
@@ -144,14 +143,6 @@ export const destination: BrowserDestinationDefinition<Settings, typeof appboy> 
       default: false,
       description:
         'Braze automatically loads FontAwesome 4.7.0 from the FontAwesome CDN. To disable this behavior set this option to true.'
-    },
-    enableHtmlInAppMessages: {
-      label: '[Deprecated] Enable HTML In-App Messages',
-      type: 'boolean',
-      default: false,
-      description:
-        'Set this to true to indicate that you trust the Braze dashboard users to write non-malicious HTML in-app messages. If allowUserSuppliedJavascript is set to true, this option will also be set to true.',
-      required: false
     },
     enableLogging: {
       label: 'Enable Logging',
@@ -182,6 +173,14 @@ export const destination: BrowserDestinationDefinition<Settings, typeof appboy> 
       description:
         "By default, any SDK-generated user-visible messages will be displayed in the user's browser language. Provide a value for this option to override that behavior and force a specific language. The value for this option should be a ISO 639-1 Language Code."
     },
+    automaticallyDisplayMessages: {
+      label: 'Automatically Send In-App Messages',
+      type: 'boolean',
+      default: true,
+      required: false,
+      description:
+        "When this is enabled, all In-App Messages that a user is eligible for are automatically delivered to the user. If you'd like to register your own display subscribers or send soft push notifications to your users, make sure to disable this option."
+    },
     manageServiceWorkerExternally: {
       label: 'Manage Service Worker Externally',
       type: 'boolean',
@@ -191,7 +190,7 @@ export const destination: BrowserDestinationDefinition<Settings, typeof appboy> 
         'If you have your own service worker that you register and control the lifecycle of, set this option to true and the Braze SDK will not register or unregister a service worker. [See more details](https://js.appboycdn.com/web-sdk/latest/doc/modules/appboy.html#initializationoptions)'
     },
     minimumIntervalBetweenTriggerActionsInSeconds: {
-      label: 'Minimum Interval Between Treigger Actions in Seconds',
+      label: 'Minimum Interval Between Trigger Actions in Seconds',
       type: 'number',
       required: false,
       default: 30,
@@ -254,19 +253,43 @@ export const destination: BrowserDestinationDefinition<Settings, typeof appboy> 
     }
   },
   initialize: async ({ settings }, dependencies) => {
-    const { endpoint, sdkVersion, api_key, ...expectedConfig } = settings
+    try {
+      const {
+        endpoint,
+        api_key,
+        sdkVersion,
+        automaticallyDisplayMessages,
+        // @ts-expect-error versionSettings is not part of the settings object but they are injected by Analytics 2.0, making Braze SDK raise a warning when we initialize it.
+        versionSettings,
+        // @ts-expect-error same as above.
+        subscriptions,
+        ...expectedConfig
+      } = settings
+      const version = sdkVersion ?? '3.5'
 
-    await dependencies.loadScript(`https://js.appboycdn.com/web-sdk/${settings.sdkVersion ?? '3.3'}/service-worker.js`)
+      resetUserCache()
 
-    const initialized = appboy.initialize(settings.api_key, { baseUrl: endpoint, ...expectedConfig })
-    if (!initialized) {
-      throw new Error('Failed to initialize AppBoy')
+      await dependencies.loadScript(`https://js.appboycdn.com/web-sdk/${version}/appboy.no-amd.min.js`)
+
+      window.appboy.initialize(api_key, {
+        baseUrl: endpoint,
+        ...expectedConfig
+      })
+
+      if (window.appboy.addSdkMetadata) {
+        window.appboy.addSdkMetadata([window.appboy.BrazeSdkMetadata.SEGMENT])
+      }
+
+      if (automaticallyDisplayMessages) {
+        window.appboy.display.automaticallyShowNewInAppMessages()
+      }
+
+      window.appboy.openSession()
+
+      return window.appboy
+    } catch (e) {
+      throw new Error(`Failed to initialize Braze ${e}`)
     }
-
-    appboy.openSession()
-    resetUserCache()
-
-    return appboy
   },
   presets,
   actions: {

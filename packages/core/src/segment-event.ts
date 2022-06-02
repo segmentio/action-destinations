@@ -1,6 +1,6 @@
 import { JSONValue } from './json-object'
 
-type ID = string | null | undefined
+export type ID = string | null | undefined
 
 type CompactMetricType = 'g' | 'c'
 
@@ -106,7 +106,7 @@ interface AnalyticsContext {
 export interface SegmentEvent {
   messageId?: string
 
-  type: 'track' | 'page' | 'identify' | 'group' | 'alias' | 'screen'
+  type: 'track' | 'page' | 'identify' | 'group' | 'alias' | 'screen' | 'delete'
 
   // page specific
   category?: string

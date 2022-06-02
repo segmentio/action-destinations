@@ -7,18 +7,12 @@ const webpack = require('webpack')
 
 const files = globby.sync('./src/destinations/*/index.ts')
 const isProd = process.env.NODE_ENV === 'production'
-const assetPath =
-  process.env.ASSET_ENV === 'production'
-    ? 'https://cdn.segment.com/next-integrations/actions/'
-    : process.env.ASSET_ENV === 'stage'
-    ? 'https://cdn.segment.build/next-integrations/actions/'
-    : undefined
 
 const entries = files.reduce((acc, current) => {
   const [_dot, _src, _destinations, destination, ..._rest] = current.split('/')
   return {
     ...acc,
-    [destination]: current
+    [destination]: current,
   }
 }, {})
 
@@ -35,15 +29,23 @@ if (process.env.ANALYZE) {
   )
 }
 
-module.exports = {
+plugins.push(
+  new webpack.optimize.LimitChunkCountPlugin({
+    maxChunks: 1
+  })
+)
+
+const unobfuscatedOutput = {
   entry: entries,
   mode: process.env.NODE_ENV || 'development',
   devtool: 'source-map',
   output: {
+    filename: (file) => process.env.NODE_ENV === 'development' ? `${file.chunk.name}.js` : `${file.chunk.name}/[contenthash].js`,
     path: path.resolve(__dirname, 'dist/web'),
-    publicPath: assetPath,
+    publicPath: 'auto', // Needed for customers using custom CDNs with analytics.js
     library: '[name]Destination',
     libraryTarget: 'umd',
+    umdNamedDefine: true,
     libraryExport: 'default'
   },
   module: {
@@ -54,6 +56,8 @@ module.exports = {
           {
             loader: 'ts-loader',
             options: {
+              configFile: 'tsconfig.build.json',
+              projectReferences: true,
               transpileOnly: true
             }
           }
@@ -67,6 +71,7 @@ module.exports = {
       path.resolve(__dirname, 'node_modules'),
       'node_modules'
     ],
+    mainFields: ['exports', 'module', 'browser', 'main'],
     extensions: ['.ts', '.js'],
     fallback: {
       vm: require.resolve('vm-browserify')
@@ -97,17 +102,24 @@ module.exports = {
           }
         }
       })
-    ],
-    splitChunks: {
-      cacheGroups: {
-        default: false,
-        defaultVendors: false,
-        commons: {
-          chunks: 'all',
-          minChunks: 2
-        }
-      }
-    }
+    ]
   },
   plugins
 }
+
+const obfuscatedOutput = {
+  ...unobfuscatedOutput,
+  devServer: {
+    ...unobfuscatedOutput.devServer,
+    port: 9001,
+  },
+  output: {
+    ...unobfuscatedOutput.output,
+     filename: (file) => {
+       const obfuscatedOutputName = Buffer.from(file.chunk.name).toString('base64').replace(/=/g, '');
+       return process.env.NODE_ENV === 'development' ? `${obfuscatedOutputName}.js` : `${obfuscatedOutputName}/[contenthash].js`
+     },
+  }
+ }
+
+module.exports = [unobfuscatedOutput, obfuscatedOutput]

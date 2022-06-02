@@ -1,5 +1,5 @@
 import nock from 'nock'
-import { createTestEvent, createTestIntegration } from '@segment/actions-core'
+import { createTestEvent, createTestIntegration, DecoratedResponse } from '@segment/actions-core'
 import Braze from '../index'
 
 const testDestination = createTestIntegration(Braze)
@@ -7,13 +7,13 @@ const receivedAt = '2021-08-03T17:40:04.055Z'
 const settings = {
   app_id: 'my-app-id',
   api_key: 'my-api-key',
-  endpoint: 'https://example.com'
+  endpoint: 'https://rest.iad-01.braze.com' as const
 }
 
 describe(Braze.name, () => {
   describe('updateUserProfile', () => {
     it('should work with default mappings', async () => {
-      nock('https://example.com').post('/users/track').reply(200, {})
+      nock('https://rest.iad-01.braze.com').post('/users/track').reply(200, {})
 
       const event = createTestEvent({
         type: 'identify',
@@ -36,7 +36,7 @@ describe(Braze.name, () => {
               "Bearer my-api-key",
             ],
             "user-agent": Array [
-              "Segment",
+              "Segment (Actions)",
             ],
           },
         }
@@ -45,7 +45,7 @@ describe(Braze.name, () => {
         Object {
           "attributes": Array [
             Object {
-              "_update_existing_only": true,
+              "_update_existing_only": false,
               "braze_id": undefined,
               "country": "United States",
               "current_location": Object {
@@ -81,7 +81,7 @@ describe(Braze.name, () => {
     })
 
     it('should require one of braze_id, user_alias, or external_id', async () => {
-      nock('https://example.com').post('/users/track').reply(200, {})
+      nock('https://rest.iad-01.braze.com').post('/users/track').reply(200, {})
 
       const event = createTestEvent({
         type: 'identify',
@@ -102,7 +102,7 @@ describe(Braze.name, () => {
 
   describe('trackEvent', () => {
     it('should work with default mappings', async () => {
-      nock('https://example.com').post('/users/track').reply(200, {})
+      nock('https://rest.iad-01.braze.com').post('/users/track').reply(200, {})
 
       const event = createTestEvent({
         event: 'Test Event',
@@ -126,7 +126,7 @@ describe(Braze.name, () => {
               "Bearer my-api-key",
             ],
             "user-agent": Array [
-              "Segment",
+              "Segment (Actions)",
             ],
           },
         }
@@ -152,7 +152,7 @@ describe(Braze.name, () => {
 
   describe('trackPurchase', () => {
     it('should work with default mappings', async () => {
-      nock('https://example.com').post('/users/track').reply(200, {})
+      nock('https://rest.iad-01.braze.com').post('/users/track').reply(200, {})
 
       const event = createTestEvent({
         event: 'Order Completed',
@@ -176,7 +176,7 @@ describe(Braze.name, () => {
               "Bearer my-api-key",
             ],
             "user-agent": Array [
-              "Segment",
+              "Segment (Actions)",
             ],
           },
         }
@@ -197,6 +197,44 @@ describe(Braze.name, () => {
           ],
         }
       `)
+    })
+  })
+
+  describe('onDelete', () => {
+    it('should support user deletions', async () => {
+      nock('https://rest.iad-01.braze.com').post('/users/delete').reply(200, {})
+      expect(testDestination.onDelete).toBeDefined()
+
+      if (testDestination.onDelete) {
+        const event = createTestEvent({
+          type: 'delete',
+          userId: 'sloth@segment.com'
+        })
+
+        const response = await testDestination.onDelete(event, settings)
+        const resp = response as DecoratedResponse
+        expect(resp.status).toBe(200)
+        expect(resp.data).toMatchObject({})
+      }
+    })
+
+    it('should support alternate endpoints for user deletions', async () => {
+      nock('https://rest.iad-06.braze.com').post('/users/delete').reply(200, {})
+      expect(testDestination.onDelete).toBeDefined()
+
+      if (testDestination.onDelete) {
+        const event = createTestEvent({
+          type: 'delete',
+          userId: 'sloth@segment.com'
+        })
+
+        const localSettings = { ...settings, endpoint: 'https://rest.iad-06.braze.com' }
+
+        const response = await testDestination.onDelete(event, localSettings)
+        const resp = response as DecoratedResponse
+        expect(resp.status).toBe(200)
+        expect(resp.data).toMatchObject({})
+      }
     })
   })
 })

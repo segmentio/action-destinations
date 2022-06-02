@@ -1,10 +1,16 @@
 name: CI
 
-on: [push]
+on:
+  push:
+    branches:
+      - main
+  pull_request:
 
 jobs:
   test-and-build:
     runs-on: ubuntu-latest
+
+    timeout-minutes: 10
 
     strategy:
       matrix:
@@ -47,6 +53,9 @@ jobs:
       - name: Lint
         run: yarn lint
 
+      - name: Validate
+        run: yarn validate
+
       - name: Test
         run: yarn test
 
@@ -58,6 +67,8 @@ jobs:
 
   snyk:
     runs-on: ubuntu-latest
+
+    timeout-minutes: 5
 
     strategy:
       matrix:
@@ -99,4 +110,4 @@ jobs:
         env:
           SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
         with:
-          args: --severity-threshold=high --fail-on=upgradable --all-projects
+          args: --severity-threshold=high --fail-on=upgradable --all-projects --policy-path=.snyk

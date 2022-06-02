@@ -1,5 +1,4 @@
 import { Analytics, Context, Plugin } from '@segment/analytics-next'
-import * as jsdom from 'jsdom'
 import browserPluginsDestination from '../..'
 import { Subscription } from '../../../../lib/browser-destinations'
 
@@ -41,28 +40,6 @@ let sessionIdPlugin: Plugin
 let ajs: Analytics
 
 beforeEach(async () => {
-  jest.restoreAllMocks()
-  jest.resetAllMocks()
-
-  const html = `
-  <!DOCTYPE html>
-    <head>
-      <script>'hi'</script>
-    </head>
-    <body>
-    </body>
-  </html>
-  `.trim()
-
-  const jsd = new jsdom.JSDOM(html, {
-    runScripts: 'dangerously',
-    resources: 'usable',
-    url: 'https://localhost'
-  })
-
-  const windowSpy = jest.spyOn(window, 'window', 'get')
-  windowSpy.mockImplementation(() => jsd.window as unknown as Window & typeof globalThis)
-
   browserActions = await browserPluginsDestination({ subscriptions: example })
   sessionIdPlugin = browserActions[0]
 
@@ -84,8 +61,50 @@ describe('ajs-integration', () => {
     })
 
     const updatedCtx = await sessionIdPlugin.track?.(ctx)
+
     // @ts-expect-error Need to fix ajs-next types to allow for complex objects in `integrations`
-    expect(updatedCtx?.event.integrations?.Amplitude?.session_id).not.toBeUndefined()
+    expect(updatedCtx?.event.integrations['Actions Amplitude']?.session_id).not.toBeUndefined()
+  })
+
+  test('updates the original eveent when All: false but Actions Amplitude: true', async () => {
+    await sessionIdPlugin.load(Context.system(), ajs)
+
+    const ctx = new Context({
+      type: 'track',
+      event: 'greet',
+      properties: {
+        greeting: 'Oi!'
+      },
+      integrations: {
+        All: false,
+        'Actions Amplitude': true
+      }
+    })
+
+    const updatedCtx = await sessionIdPlugin.track?.(ctx)
+
+    // @ts-expect-error Need to fix ajs-next types to allow for complex objects in `integrations`
+    expect(updatedCtx?.event.integrations['Actions Amplitude']?.session_id).not.toBeUndefined()
+  })
+
+  test('doesnt update the original event with a session id when All: false', async () => {
+    await sessionIdPlugin.load(Context.system(), ajs)
+
+    const ctx = new Context({
+      type: 'track',
+      event: 'greet',
+      properties: {
+        greeting: 'Oi!'
+      },
+      integrations: {
+        All: false
+      }
+    })
+
+    const updatedCtx = await sessionIdPlugin.track?.(ctx)
+
+    // @ts-expect-error Need to fix ajs-next types to allow for complex objects in `integrations`
+    expect(updatedCtx?.event.integrations['Actions Amplitude']?.session_id).toBeUndefined()
   })
 
   test('runs as an enrichment middleware', async () => {
@@ -114,9 +133,9 @@ describe('ajs-integration', () => {
   })
 })
 
-describe('sessoinId', () => {
+describe('sessionId', () => {
   beforeEach(async () => {
-    jest.useFakeTimers()
+    jest.useFakeTimers('legacy')
     await sessionIdPlugin.load(Context.system(), ajs)
   })
 
@@ -134,7 +153,7 @@ describe('sessoinId', () => {
 
       const updatedCtx = await sessionIdPlugin.track?.(ctx)
       // @ts-expect-error Need to fix ajs-next types to allow for complex objects in `integrations`
-      expect(updatedCtx?.event.integrations?.Amplitude?.session_id).toBeWithinOneSecondOf(id())
+      expect(updatedCtx?.event.integrations['Actions Amplitude']?.session_id).toBeWithinOneSecondOf(id())
     })
 
     test('persists the session id', async () => {
@@ -170,7 +189,7 @@ describe('sessoinId', () => {
 
       const updatedCtx = await sessionIdPlugin.track?.(ctx)
       // @ts-expect-error Need to fix ajs-next types to allow for complex objects in `integrations`
-      expect(updatedCtx?.event.integrations?.Amplitude?.session_id).toBeWithinOneSecondOf(then)
+      expect(updatedCtx?.event.integrations['Actions Amplitude']?.session_id).toBeWithinOneSecondOf(then)
     })
 
     test('keeps track of when the session was last accessed', async () => {
@@ -190,7 +209,7 @@ describe('sessoinId', () => {
 
       const updatedCtx = await sessionIdPlugin.track?.(ctx)
       // @ts-expect-error Need to fix ajs-next types to allow for complex objects in `integrations`
-      expect(updatedCtx?.event.integrations?.Amplitude?.session_id).toBeWithinOneSecondOf(then)
+      expect(updatedCtx?.event.integrations['Actions Amplitude']?.session_id).toBeWithinOneSecondOf(then)
 
       expect(window.localStorage.getItem('analytics_session_id.last_access')).toBeWithinOneSecondOf(now)
     })
@@ -215,7 +234,7 @@ describe('sessoinId', () => {
 
       const updatedCtx = await sessionIdPlugin.track?.(ctx)
       // @ts-expect-error Need to fix ajs-next types to allow for complex objects in `integrations`
-      expect(updatedCtx?.event.integrations?.Amplitude?.session_id).toBeWithinOneSecondOf(now)
+      expect(updatedCtx?.event.integrations['Actions Amplitude']?.session_id).toBeWithinOneSecondOf(now)
 
       expect(window.localStorage.getItem('analytics_session_id')).toBeWithinOneSecondOf(now.toString())
       expect(window.localStorage.getItem('analytics_session_id.last_access')).toBeWithinOneSecondOf(now.toString())

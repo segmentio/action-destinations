@@ -4,8 +4,6 @@ import type { Payload } from './generated-types'
 import appboy from '@braze/web-sdk'
 import dayjs from '../../../lib/dayjs'
 
-const known_traits = ['email', 'firstName', 'gender', 'city', 'avatar', 'lastName', 'phone']
-
 const action: BrowserActionDefinition<Settings, typeof appboy, Payload> = {
   title: 'Update User Profile',
   description: 'Updates a users profile attributes in Braze',
@@ -91,6 +89,14 @@ const action: BrowserActionDefinition<Settings, typeof appboy, Payload> = {
         '@path': '$.traits.firstName'
       }
     },
+    last_name: {
+      label: 'Last Name',
+      description: "The user's last name",
+      type: 'string',
+      default: {
+        '@path': '$.traits.lastName'
+      }
+    },
     gender: {
       label: 'Gender',
       description:
@@ -124,14 +130,6 @@ const action: BrowserActionDefinition<Settings, typeof appboy, Payload> = {
       description: "The user's preferred language.",
       type: 'string',
       allowNull: true
-    },
-    last_name: {
-      label: 'Last Name',
-      description: "The user's last name",
-      type: 'string',
-      default: {
-        '@path': '$.traits.lastName'
-      }
     },
     phone: {
       label: 'Phone Number',
@@ -176,9 +174,11 @@ const action: BrowserActionDefinition<Settings, typeof appboy, Payload> = {
       }
     }
 
+    // Adding `firstName` and `lastName` here as these fields are mapped using cammel_case.
+    const reservedFields = [...Object.keys(action.fields), 'firstName', 'lastName']
     if (payload.custom_attributes !== undefined) {
       Object.entries(payload.custom_attributes).forEach(([key, value]) => {
-        if (!known_traits.includes(key)) {
+        if (!reservedFields.includes(key)) {
           user.setCustomUserAttribute(key, value as string | number | boolean | Date | string[] | null)
         }
       })

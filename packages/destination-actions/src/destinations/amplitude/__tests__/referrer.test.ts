@@ -24,7 +24,6 @@ describe('Amplitude - referrer utility', () => {
 
     const result = convertReferrerProperty(payload)
     expect(result).toEqual({
-      ...user_properties,
       $set: {
         referrer
       },

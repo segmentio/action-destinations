@@ -2,35 +2,29 @@ import { ActionDefinition, IntegrationError } from '@segment/actions-core'
 import { CURRENCY_ISO_CODES } from '../constants'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
+import {
+  formatUserProperties,
+  user_properties,
+  params,
+  client_id,
+  user_id,
+  currency,
+  value,
+  engagement_time_msec
+} from '../ga4-properties'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Generate Lead',
-  description: 'Send generate lead events to GA4.',
+  description: 'Send event when a user submits a form or request for information',
   defaultSubscription: 'type = "track"',
   fields: {
-    client_id: {
-      label: 'Client ID',
-      description: 'Uniquely identifies a user instance of a web client.',
-      type: 'string',
-      required: true,
-      default: {
-        '@if': {
-          exists: { '@path': '$.userId' },
-          then: { '@path': '$.userId' },
-          else: { '@path': '$.anonymousId' }
-        }
-      }
-    },
-    currency: {
-      label: 'Currency',
-      type: 'string',
-      description: 'Currency of the items associated with the event, in 3-letter ISO 4217 format.'
-    },
-    value: {
-      label: 'Value',
-      type: 'number',
-      description: 'The monetary value of the event.'
-    }
+    client_id: { ...client_id },
+    user_id: { ...user_id },
+    currency: { ...currency },
+    value: { ...value },
+    user_properties: user_properties,
+    engagement_time_msec: engagement_time_msec,
+    params: params
   },
   perform: (request, { payload }) => {
     if (payload.currency && !CURRENCY_ISO_CODES.includes(payload.currency)) {
@@ -46,15 +40,19 @@ const action: ActionDefinition<Settings, Payload> = {
       method: 'POST',
       json: {
         client_id: payload.client_id,
+        user_id: payload.user_id,
         events: [
           {
             name: 'generate_lead',
             params: {
               currency: payload.currency,
-              value: payload.value
+              value: payload.value,
+              engagement_time_msec: payload.engagement_time_msec,
+              ...payload.params
             }
           }
-        ]
+        ],
+        ...formatUserProperties(payload.user_properties)
       }
     })
   }

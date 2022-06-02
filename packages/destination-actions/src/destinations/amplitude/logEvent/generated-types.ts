@@ -152,6 +152,10 @@ export interface Payload {
    */
   insert_id?: string
   /**
+   * The name of the library that generated the event.
+   */
+  library?: string
+  /**
    * The list of products purchased.
    */
   products?: {
@@ -202,4 +206,8 @@ export interface Payload {
    * The referrer of the web request. Sent to Amplitude as both last touch “referrer” and first touch “initial_referrer”
    */
   referrer?: string
+  /**
+   * Amplitude has a default minimum id lenght of 5 characters for user_id and device_id fields. This field allows the minimum to be overridden to allow shorter id lengths.
+   */
+  min_id_length?: number | null
 }

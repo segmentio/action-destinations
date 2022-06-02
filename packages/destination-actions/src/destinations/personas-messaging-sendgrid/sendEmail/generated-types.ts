@@ -2,45 +2,90 @@
 
 export interface Payload {
   /**
+   * Whether or not the message should actually get sent.
+   */
+  send?: boolean
+  /**
    * User ID in Segment
    */
-  userId?: string | null
+  userId: string
+  /**
+   * Email to send to when testing
+   */
+  toEmail?: string
+  /**
+   * Verified domain in Sendgrid
+   */
+  fromDomain?: string | null
   /**
    * From Email
    */
-  from: string
+  fromEmail: string
   /**
    * From Name displayed to end user email
    */
   fromName: string
   /**
-   * The Email Address to send an email to
+   * Whether "reply to" settings are the same as "from"
    */
-  email: string
+  replyToEqualsFrom?: boolean
   /**
-   * The Name of the user to send an email
+   * The Email used by user to Reply To
    */
-  firstName: string
+  replyToEmail: string
   /**
-   * The message body
+   * The Name used by user to Reply To
    */
-  body: string
+  replyToName: string
+  /**
+   * BCC list of emails
+   */
+  bcc: string
+  /**
+   * Preview Text
+   */
+  previewText?: string
   /**
    * Subject for the email to be sent
    */
   subject: string
   /**
-   * Your Profile API Space ID
+   * The message body
    */
-  spaceId?: string
+  body?: string
   /**
-   * The ID of your Source
+   * URL to the message body
    */
-  sourceId?: string
+  bodyUrl?: string
   /**
-   * The Profile/Traits Properties
+   * The type of body which is used generally html | design
    */
-  profile: {
+  bodyType: string
+  /**
+   * The HTML content of the body
+   */
+  bodyHtml?: string
+  /**
+   * An array of user profile identity information.
+   */
+  externalIds?: {
+    /**
+     * A unique identifier for the collection.
+     */
+    id?: string
+    /**
+     * The external ID contact type.
+     */
+    type?: string
+    /**
+     * The subscription status for the identity.
+     */
+    subscriptionStatus?: string
+  }[]
+  /**
+   * Additional custom args that we be passed back opaquely on webhook events
+   */
+  customArgs?: {
     [k: string]: unknown
   }
 }

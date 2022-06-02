@@ -3,7 +3,7 @@ import { JSONObject } from '../json-object'
 import { SegmentEvent } from '../segment-event'
 
 const destinationCustomAuth: DestinationDefinition<JSONObject> = {
-  name: 'Google Analytics 4',
+  name: 'Actions Google Analytic 4',
   mode: 'cloud',
   authentication: {
     scheme: 'custom',
@@ -21,16 +21,22 @@ const destinationCustomAuth: DestinationDefinition<JSONObject> = {
       title: 'Send a Custom Event',
       description: 'Send events to a custom event in API',
       defaultSubscription: 'type = "track"',
-      fields: {},
-      perform: (_request) => {
-        return 'this is a test'
+      fields: {
+        optional_field: {
+          type: 'number',
+          label: 'A',
+          description: 'A'
+        }
+      },
+      perform: (_request, { payload }) => {
+        return ['this is a test', payload]
       }
     }
   }
 }
 
 const destinationOAuth2: DestinationDefinition<JSONObject> = {
-  name: 'Google Analytics 4',
+  name: 'Actions Google Analytic 4',
   mode: 'cloud',
   authentication: {
     scheme: 'oauth2',
@@ -68,7 +74,7 @@ describe('destination kit', () => {
     test('should return `invalid subscription` when sending an empty subscribe', async () => {
       const destinationTest = new Destination(destinationCustomAuth)
       const testEvent: SegmentEvent = { type: 'track' }
-      const testSettings = { subscription: { subscribe: '', partnerAction: 'customEvent' } }
+      const testSettings = { apiSecret: 'test_key', subscription: { subscribe: '', partnerAction: 'customEvent' } }
       const res = await destinationTest.onEvent(testEvent, testSettings)
       expect(res).toEqual([{ output: 'invalid subscription' }])
     })
@@ -76,17 +82,34 @@ describe('destination kit', () => {
     test('should return invalid subscription with details when sending an invalid subscribe', async () => {
       const destinationTest = new Destination(destinationCustomAuth)
       const testEvent: SegmentEvent = { type: 'track' }
-      const testSettings = { subscription: { subscribe: 'typo', partnerAction: 'customEvent' } }
+      const testSettings = { apiSecret: 'test_key', subscription: { subscribe: 'typo', partnerAction: 'customEvent' } }
       const res = await destinationTest.onEvent(testEvent, testSettings)
       expect(res).toEqual([{ output: "invalid subscription : Cannot read property 'type' of undefined" }])
     })
 
     test('should return `not subscribed` when providing an empty event', async () => {
       const destinationTest = new Destination(destinationCustomAuth)
-      const testSettings = { subscription: { subscribe: 'type = "track"', partnerAction: 'customEvent' } }
+      const testSettings = {
+        apiSecret: 'test_key',
+        subscription: { subscribe: 'type = "track"', partnerAction: 'customEvent' }
+      }
       // @ts-ignore needed for replicating empty event at runtime
       const res = await destinationTest.onEvent({}, testSettings)
       expect(res).toEqual([{ output: 'not subscribed' }])
+    })
+
+    test('should fail if provided invalid settings', async () => {
+      const destinationTest = new Destination(destinationCustomAuth)
+      const testEvent: SegmentEvent = { type: 'track' }
+      const testSettings = {
+        apiSecret: undefined,
+        subscription: { subscribe: 'type = "track"', partnerAction: 'customEvent' }
+      }
+      // @ts-expect-error we are missing valid settings on purpose!
+      const promise = destinationTest.onEvent(testEvent, testSettings)
+      await expect(promise).rejects.toThrowErrorMatchingInlineSnapshot(
+        `"The root value is missing the required field 'apiSecret'."`
+      )
     })
 
     test('should succeed if provided with a valid event & settings', async () => {
@@ -110,7 +133,11 @@ describe('destination kit', () => {
       }
 
       const res = await destinationTest.onEvent(testEvent, testSettings)
-      expect(res).toEqual([{ output: 'Mappings resolved' }, { output: 'this is a test' }])
+      expect(res).toEqual([
+        { output: 'Mappings resolved' },
+        { output: 'Payload validated' },
+        { output: ['this is a test', {}] }
+      ])
     })
 
     test('should succeed when traits filtering is specified', async () => {
@@ -137,15 +164,19 @@ describe('destination kit', () => {
       }
 
       const res = await destinationTest.onEvent(testEvent, testSettings)
-      expect(res).toEqual([{ output: 'Mappings resolved' }, { output: 'this is a test' }])
+      expect(res).toEqual([
+        { output: 'Mappings resolved' },
+        { output: 'Payload validated' },
+        { output: ['this is a test', {}] }
+      ])
     })
 
     test('should succeed when property filtering is specified', async () => {
       const destinationTest = new Destination(destinationCustomAuth)
       const testEvent: SegmentEvent = {
-        properties: { field_one: 'test input' },
+        properties: { a: 'foo', field_one: 'test input' },
         traits: {
-          a: 'foo'
+          b: 'foo'
         },
         userId: '3456fff',
         type: 'identify'
@@ -164,7 +195,42 @@ describe('destination kit', () => {
       }
 
       const res = await destinationTest.onEvent(testEvent, testSettings)
-      expect(res).toEqual([{ output: 'Mappings resolved' }, { output: 'this is a test' }])
+      expect(res).toEqual([
+        { output: 'Mappings resolved' },
+        { output: 'Payload validated' },
+        { output: ['this is a test', {}] }
+      ])
+    })
+  })
+
+  describe('payload mapping + validation', () => {
+    test('removes empty values from the payload', async () => {
+      const destinationTest = new Destination(destinationCustomAuth)
+
+      const testEvent: SegmentEvent = {
+        properties: { field_one: 'test input' },
+        userId: '3456fff',
+        type: 'track'
+      }
+
+      const testSettings = {
+        apiSecret: 'test_key',
+        subscription: {
+          subscribe: 'type = "track"',
+          partnerAction: 'customEvent',
+          mapping: {
+            // Intentionally empty, to get stripped out
+            optional_field: ''
+          }
+        }
+      }
+
+      const res = await destinationTest.onEvent(testEvent, testSettings)
+      expect(res).toEqual([
+        { output: 'Mappings resolved' },
+        { output: 'Payload validated' },
+        { output: ['this is a test', {}] }
+      ])
     })
   })
 

@@ -19,4 +19,12 @@ describe('Amplitude - Merge user properties', () => {
     const result = mergeUserProperties(a, b)
     expect(result).toEqual({ a: 1, b: 'two', $set: { a: 1, b: 'two' }, $setOnce: { aa: 11, bb: 'twotwo' } })
   })
+
+  it('should support merging existing flat props', () => {
+    const a = { $set: { a: 1 }, $setOnce: { aa: 11 } }
+    const b = { $set: { b: 'two' }, $setOnce: { bb: 'twotwo' } }
+    const c = { a: 1, b: 2 }
+    const result = mergeUserProperties(a, b, c)
+    expect(result).toEqual({ a: 1, b: 2, $set: { a: 1, b: 'two' }, $setOnce: { aa: 11, bb: 'twotwo' } })
+  })
 })

@@ -6,6 +6,7 @@ function toJsonSchemaType(type: FieldTypeName): JSONSchema4TypeName | JSONSchema
     case 'string':
     case 'text':
     case 'password':
+    case 'hidden':
       return 'string'
     case 'datetime':
       return ['string', 'number']
@@ -14,9 +15,18 @@ function toJsonSchemaType(type: FieldTypeName): JSONSchema4TypeName | JSONSchema
   }
 }
 
-type MinimalInputField = Optional<InputField, 'description'> | Optional<GlobalSetting, 'description'>
+export type MinimalInputField =
+  | Optional<InputField, 'description'>
+  | (Optional<GlobalSetting, 'description'> & { additionalProperties?: boolean })
 
-export function fieldsToJsonSchema(fields: Record<string, MinimalInputField> = {}): JSONSchema4 {
+export type MinimalFields = Record<string, MinimalInputField>
+
+interface SchemaOptions {
+  tsType?: boolean
+  additionalProperties?: boolean
+}
+
+export function fieldsToJsonSchema(fields: MinimalFields = {}, options?: SchemaOptions): JSONSchema4 {
   const required: string[] = []
   const properties: Record<string, JSONSchema4> = {}
 
@@ -33,21 +43,33 @@ export function fieldsToJsonSchema(fields: Record<string, MinimalInputField> = {
 
     if (field.type === 'datetime') {
       schema.format = 'date-like'
-      // Override generated types
-      schema.tsType = 'string | number'
+
+      if (options?.tsType) {
+        // Override generated types
+        schema.tsType = 'string | number'
+      }
     } else if (field.type === 'password') {
       schema.format = 'password'
     } else if (field.type === 'text') {
       schema.format = 'text'
     }
 
-    if ('dynamic' in field && field.dynamic) {
-      schema.autocomplete = true
-      schema.dynamic = true
+    if (field.choices) {
+      schema.enum = field.choices.map((choice) => {
+        if (typeof choice === 'string') {
+          return choice
+        }
+
+        return choice.value
+      })
     }
 
     if ('allowNull' in field && field.allowNull) {
       schema.type = ([] as JSONSchema4TypeName[]).concat(schemaType, 'null')
+
+      if (schema.enum) {
+        schema.enum = [...schema.enum, null]
+      }
 
       if (typeof schema.tsType === 'string' && !schema.tsType.includes('null')) {
         schema.tsType += ' | null'
@@ -58,15 +80,24 @@ export function fieldsToJsonSchema(fields: Record<string, MinimalInputField> = {
     if (isMulti) {
       schema.items = { type: schemaType }
       schema.type = 'array'
+
+      // Move to the items level
+      if (schema.enum) {
+        schema.items.enum = schema.enum
+        delete schema.enum
+      }
     }
 
-    // Note: this is used for the json schema validation and type-generation,
-    // but is not stored in the db. It only lives in the code.
     if (schemaType === 'object' && field.properties) {
       if (isMulti) {
-        schema.items = fieldsToJsonSchema(field.properties)
+        schema.items = fieldsToJsonSchema(field.properties, {
+          additionalProperties: field?.additionalProperties || false
+        })
       } else {
-        schema = { ...schema, ...fieldsToJsonSchema(field.properties) }
+        schema = {
+          ...schema,
+          ...fieldsToJsonSchema(field.properties, { additionalProperties: field?.additionalProperties || false })
+        }
       }
     }
 
@@ -81,7 +112,7 @@ export function fieldsToJsonSchema(fields: Record<string, MinimalInputField> = {
   return {
     $schema: 'http://json-schema.org/schema#',
     type: 'object',
-    additionalProperties: false,
+    additionalProperties: options?.additionalProperties || false,
     properties,
     required
   }

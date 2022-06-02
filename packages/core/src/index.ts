@@ -13,6 +13,8 @@ export { time, duration } from './time'
 export { realTypeOf, isObject, isArray, isString } from './real-type-of'
 
 export type { RequestOptions } from './request-client'
+export { HTTPError } from './request-client'
+export { ModifiedResponse } from './types'
 export { default as fetch, Request, Response, Headers } from './fetch'
 
 export type {
@@ -30,7 +32,8 @@ export type {
   OAuth2ClientCredentials,
   RefreshAccessTokenResult,
   RequestFn,
-  DecoratedResponse
+  DecoratedResponse,
+  MinimalInputField
 } from './destination-kit'
 
 export type {
@@ -44,3 +47,5 @@ export type {
 export type { JSONPrimitive, JSONValue, JSONObject, JSONArray, JSONLike, JSONLikeObject } from './json-object'
 
 export type { SegmentEvent } from './segment-event'
+
+export type { RequestClient } from './create-request-client'

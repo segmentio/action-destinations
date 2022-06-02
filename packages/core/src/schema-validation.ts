@@ -1,24 +1,28 @@
-// @ts-ignore no types
 import { AggregateAjvError } from '@segment/ajv-human-errors'
-import Ajv from 'ajv'
+import Ajv, { ValidateFunction } from 'ajv'
+import addFormats from 'ajv-formats'
 import dayjs from 'dayjs'
+import type { JSONSchema4 } from 'json-schema'
+import { arrifyFields } from './arrify'
 
-const ajv = new Ajv({
-  // Coerce types to be a bit more liberal.
-  coerceTypes: true,
-  // Return all validation errors, not just the first.
-  allErrors: true,
-  // Include reference to schema and data in error values.
-  verbose: true,
-  // Remove properties not defined the schema object
-  removeAdditional: true,
-  // Use a more parse-able format for JSON paths.
-  jsonPointers: true
-})
+// `addFormats` includes many standard formats we use like `uri`, `date`, `email`, etc.
+const ajv = addFormats(
+  new Ajv({
+    // Coerce types to be a bit more liberal.
+    coerceTypes: 'array',
+    // Return all validation errors, not just the first.
+    allErrors: true,
+    // Allow multiple non-null types in `type` keyword.
+    allowUnionTypes: true,
+    // Include reference to schema and data in error values.
+    verbose: true,
+    // Remove properties not defined the schema object
+    removeAdditional: true
+  })
+)
 
 // Extend with additional supported formats for action `fields`
-ajv.addFormat('password', () => true)
-ajv.addFormat('text', () => true)
+ajv.addFormat('text', true)
 ajv.addFormat('date-like', (data: string) => {
   let date = dayjs(data)
 
@@ -34,12 +38,18 @@ ajv.addFormat('date-like', (data: string) => {
   return date.isValid()
 })
 
+interface ValidationOptions {
+  schemaKey?: string
+  throwIfInvalid?: boolean
+}
+
 /**
  * Validates an object against a json schema
  * and caches the schema for subsequent validations when a key is provided
  */
-export function validateSchema(obj: unknown, schema: object, schemaKey?: string) {
-  let validate: Ajv.ValidateFunction
+export function validateSchema(obj: unknown, schema: JSONSchema4, options?: ValidationOptions) {
+  const { schemaKey, throwIfInvalid = true } = options ?? {}
+  let validate: ValidateFunction
 
   if (schemaKey) {
     // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
@@ -48,8 +58,13 @@ export function validateSchema(obj: unknown, schema: object, schemaKey?: string)
     validate = ajv.compile(schema)
   }
 
-  if (!validate(obj)) {
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-call
+  // Ajv's `coerceTypes: 'array'` only works on scalars, so we need to manually arrify ourselves!
+  arrifyFields(obj, schema)
+  const isValid = validate(obj)
+
+  if (throwIfInvalid && !isValid && validate.errors) {
     throw new AggregateAjvError(validate.errors)
   }
+
+  return isValid
 }

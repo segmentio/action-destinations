@@ -10,9 +10,22 @@ describe('amplitude - custom user agent parsing', () => {
     const result = parseUserAgentProperties(userAgent)
 
     expect(result).toEqual({
-      os_name: 'Android',
-      os_version: '5.0.1',
-      device_model: 'TAB 2 A7'
+      os_name: 'Chrome WebView',
+      os_version: '74',
+      device_model: 'TAB 2 A7',
+      device_type: 'tablet'
+    })
+  })
+
+  it('should parse custom user for desktop strings', () => {
+    const userAgent =
+      'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/93.0.4577.82 Safari/537.36'
+    const result = parseUserAgentProperties(userAgent)
+    expect(result).toEqual({
+      device_model: 'Mac OS',
+      device_type: undefined,
+      os_name: 'Chrome',
+      os_version: '93'
     })
   })
 

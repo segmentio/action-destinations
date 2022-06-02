@@ -24,11 +24,15 @@ export interface Payload {
     [k: string]: unknown
   }
   /**
-   * Type of the group
+   * The type of the group
    */
   group_type: string
   /**
-   * Value of the group
+   * The value of the group
    */
   group_value: string
+  /**
+   * Amplitude has a default minimum id lenght of 5 characters for user_id and device_id fields. This field allows the minimum to be overridden to allow shorter id lengths.
+   */
+  min_id_length?: number | null
 }

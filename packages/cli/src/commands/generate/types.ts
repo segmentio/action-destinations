@@ -25,7 +25,8 @@ export default class GenerateTypes extends Command {
   // Allow variable length args (to work with tools like lint-staged)
   static strict = false
 
-  static flags = {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  static flags: flags.Input<any> = {
     help: flags.help({ char: 'h' }),
     path: flags.string({
       char: 'p',
@@ -137,23 +138,24 @@ async function generateTypes(fields: Record<string, InputField> = {}, name: stri
 }
 
 function prepareSchema(fields: Record<string, InputField>): JSONSchema4 {
-  let schema = fieldsToJsonSchema(fields)
-  // Remove titles so it produces cleaner output
-  schema = removeTitles(schema)
+  let schema = fieldsToJsonSchema(fields, { tsType: true })
+  // Remove extra properties so it produces cleaner output
+  schema = removeExtra(schema)
   return schema
 }
 
-function removeTitles(schema: JSONSchema4) {
+function removeExtra(schema: JSONSchema4) {
   const copy = { ...schema }
 
   delete copy.title
+  delete copy.enum
 
   if (copy.type === 'object' && copy.properties) {
     for (const [key, property] of Object.entries(copy.properties)) {
-      copy.properties[key] = removeTitles(property)
+      copy.properties[key] = removeExtra(property)
     }
   } else if (copy.type === 'array' && copy.items) {
-    copy.items = removeTitles(copy.items)
+    copy.items = removeExtra(copy.items)
   }
 
   return copy

@@ -8,11 +8,15 @@ import { convertUTMProperties } from '../utm'
 import { convertReferrerProperty } from '../referrer'
 import { mergeUserProperties } from '../merge-user-properties'
 import { parseUserAgentProperties } from '../user-agent'
+import { getEndpointByRegion } from '../regional-endpoints'
 
 export interface AmplitudeEvent extends Omit<Payload, 'products' | 'trackRevenuePerProduct' | 'time' | 'session_id'> {
   library?: string
   time?: number
   session_id?: number
+  options?: {
+    min_id_length: number
+  }
 }
 
 const revenueKeys = ['revenue', 'price', 'productId', 'quantity', 'revenueType']
@@ -104,7 +108,7 @@ const action: ActionDefinition<Settings, Payload> = {
       type: 'string',
       description: 'The user agent of the device sending the event.',
       default: {
-        '@path': '$.context.user_agent'
+        '@path': '$.context.userAgent'
       }
     },
     userAgentParsing: {
@@ -156,6 +160,13 @@ const action: ActionDefinition<Settings, Payload> = {
       default: {
         '@path': '$.context.page.referrer'
       }
+    },
+    min_id_length: {
+      label: 'Minimum ID Length',
+      description:
+        'Amplitude has a default minimum id lenght of 5 characters for user_id and device_id fields. This field allows the minimum to be overridden to allow shorter id lengths.',
+      allowNull: true,
+      type: 'integer'
     }
   },
   perform: (request, { payload, settings }) => {
@@ -165,13 +176,24 @@ const action: ActionDefinition<Settings, Payload> = {
       trackRevenuePerProduct,
       time,
       session_id,
-      utm_properties,
-      referrer,
       userAgent,
       userAgentParsing,
+      utm_properties,
+      referrer,
+      min_id_length,
+      library,
       ...rest
     } = omit(payload, revenueKeys)
     const properties = rest as AmplitudeEvent
+    let options
+
+    if (properties.platform) {
+      properties.platform = properties.platform.replace(/ios/i, 'iOS').replace(/android/i, 'Android')
+    }
+
+    if (library) {
+      if (library === 'analytics.js') properties.platform = 'Web'
+    }
 
     if (time && dayjs.utc(time).isValid()) {
       properties.time = dayjs.utc(time).valueOf()
@@ -179,6 +201,18 @@ const action: ActionDefinition<Settings, Payload> = {
 
     if (session_id && dayjs.utc(session_id).isValid()) {
       properties.session_id = dayjs.utc(session_id).valueOf()
+    }
+
+    if (Object.keys(payload.utm_properties ?? {}).length || payload.referrer) {
+      properties.user_properties = mergeUserProperties(
+        convertUTMProperties({ utm_properties }),
+        convertReferrerProperty({ referrer }),
+        omit(properties.user_properties ?? {}, ['utm_properties', 'referrer'])
+      )
+    }
+
+    if (min_id_length && min_id_length > 0) {
+      options = { min_id_length }
     }
 
     const events: AmplitudeEvent[] = [
@@ -205,24 +239,14 @@ const action: ActionDefinition<Settings, Payload> = {
       })
     }
 
-    if (Object.keys(payload.utm_properties ?? {}).length || payload.referrer) {
-      const user_properties = mergeUserProperties(convertUTMProperties(payload), convertReferrerProperty(payload))
-      events.push({
-        ...properties,
-        event_type: '$identify',
-        user_properties
-      })
-    }
-
-    const endpoint = payload.use_batch_endpoint
-      ? 'https://api2.amplitude.com/batch'
-      : 'https://api2.amplitude.com/2/httpapi'
+    const endpoint = getEndpointByRegion(payload.use_batch_endpoint ? 'batch' : 'httpapi', settings.endpoint)
 
     return request(endpoint, {
       method: 'post',
       json: {
         api_key: settings.apiKey,
-        events
+        events,
+        options
       }
     })
   }

@@ -5,6 +5,7 @@ import { render } from './placeholders'
 import { realTypeOf, isObject, isArray } from '../real-type-of'
 import { removeUndefined } from '../remove-undefined'
 import validate from './validate'
+import { arrify } from '../arrify'
 
 type Directive = (options: JSONValue, payload: JSONObject) => JSONLike
 type StringDirective = (value: string, payload: JSONObject) => JSONLike
@@ -68,6 +69,26 @@ registerDirective('@if', (opts, payload) => {
   }
 })
 
+registerDirective('@arrayPath', (data, payload) => {
+  if (!Array.isArray(data)) {
+    throw new Error(`@arrayPath expected array, got ${realTypeOf(data)}`)
+  }
+
+  const [path, itemShape] = data as [string, undefined | JSONObject]
+  const root = typeof path === 'string' ? (get(payload, path.replace('$.', '')) as JSONLike) : resolve(path, payload)
+
+  // If a shape has been provided, resolve each item in the array with this shape
+  if (
+    ['object', 'array'].includes(realTypeOf(root)) &&
+    realTypeOf(itemShape) === 'object' &&
+    Object.keys(itemShape as JSONObject).length > 0
+  ) {
+    return arrify(root).map((item) => resolve(itemShape, item as JSONObject))
+  }
+
+  return root
+})
+
 registerStringDirective('@path', (path, payload) => {
   return get(payload, path.replace('$.', ''))
 })
@@ -77,13 +98,12 @@ registerStringDirective('@template', (template: string, payload) => {
 })
 
 // Literal should be used in place of 'empty' template strings as they will not resolve correctly
-registerDirective('@literal', (value) => {
-  return value
+registerDirective('@literal', (value, payload) => {
+  return resolve(value, payload)
 })
 
 /**
  * Resolves a mapping value/object by applying the input payload based on directives
- * *WARNING* This function mutates `mapping` when an object
  * @param mapping - the mapping directives or raw values to resolve
  * @param payload - the input data to apply to the mapping directives
  * @todo support arrays or array directives?
@@ -101,13 +121,16 @@ function resolve(mapping: JSONLike, payload: JSONObject): JSONLike {
     return mapping.map((value) => resolve(value, payload))
   }
 
+  const resolved: JSONLikeObject = {}
+
   for (const key of Object.keys(mapping)) {
-    const value = mapping[key]
-    mapping[key] = resolve(value, payload)
+    resolved[key] = resolve(mapping[key], payload)
   }
 
-  return mapping
+  return resolved
 }
+
+export type InputData = { [key: string]: unknown }
 
 /**
  * Validates and transforms a mapping by applying the input payload
@@ -115,23 +138,38 @@ function resolve(mapping: JSONLike, payload: JSONObject): JSONLike {
  * @param mapping - the directives and raw values
  * @param data - the input data to apply to directives
  */
-export function transform(mapping: JSONLikeObject, data: unknown = {}): JSONObject {
+export function transform(mapping: JSONLikeObject, data: InputData | undefined = {}): JSONObject {
   const realType = realTypeOf(data)
   if (realType !== 'object') {
-    throw new Error(`payload must be an object, got ${realType}`)
+    throw new Error(`data must be an object, got ${realType}`)
   }
 
   // throws if the mapping config is invalid
   validate(mapping)
 
-  const cloned = cloneJson(mapping)
-  const resolved = resolve(cloned, data as JSONObject)
+  const resolved = resolve(mapping, data as JSONObject)
   const cleaned = removeUndefined(resolved)
 
   // Cast because we know there are no `undefined` values anymore
   return cleaned as JSONObject
 }
 
-function cloneJson<T>(obj: T): T {
-  return JSON.parse(JSON.stringify(obj))
+/**
+ * Validates and transforms a mapping across multiple payloads
+ * @param mapping - the directives and raw values
+ * @param data - the array input data to apply to directives
+ */
+export function transformBatch(mapping: JSONLikeObject, data: Array<InputData> | undefined = []): JSONObject[] {
+  const realType = realTypeOf(data)
+  if (!isArray(data)) {
+    throw new Error(`data must be an array, got ${realType}`)
+  }
+
+  // throws if the mapping config is invalid
+  validate(mapping)
+
+  const resolved = data.map((d) => resolve(mapping, d as JSONObject))
+
+  // Cast because we know there are no `undefined` values after `removeUndefined`
+  return removeUndefined(resolved) as JSONObject[]
 }

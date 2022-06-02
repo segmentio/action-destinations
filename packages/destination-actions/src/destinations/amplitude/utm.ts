@@ -1,4 +1,3 @@
-import { AmplitudeEvent } from './logEvent'
 import { AmplitudeUserProperties } from './merge-user-properties'
 
 interface Payload {
@@ -29,11 +28,10 @@ interface InitialUTMProperties {
  * @returns a user_properties object suitable for amplitude events
  */
 export function convertUTMProperties(payload: Payload): AmplitudeUserProperties {
-  const { utm_properties, ...rest } = payload
+  const { utm_properties } = payload
 
   if (!utm_properties) return {}
 
-  const cleanedPayload = rest as AmplitudeEvent
   const set: UTMProperties = {}
   const setOnce: InitialUTMProperties = {}
 
@@ -42,19 +40,8 @@ export function convertUTMProperties(payload: Payload): AmplitudeUserProperties 
     setOnce[`initial_${key}` as keyof InitialUTMProperties] = value
   })
 
-  let userProperties: AmplitudeUserProperties
-
-  if (cleanedPayload.user_properties) {
-    userProperties = { ...cleanedPayload.user_properties }
-
-    userProperties.$set = { ...userProperties.$set, ...set }
-    userProperties.$setOnce = { ...userProperties.$setOnce, ...setOnce }
-  } else {
-    userProperties = {
-      $set: set,
-      $setOnce: setOnce
-    }
+  return {
+    $set: set,
+    $setOnce: setOnce
   }
-
-  return userProperties
 }

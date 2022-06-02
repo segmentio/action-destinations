@@ -1,8 +1,8 @@
-import { URLSearchParams } from 'url'
 import type { ActionDefinition } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 import dayjs from '../../../lib/dayjs'
+import { getEndpointByRegion } from '../regional-endpoints'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Group Identify User',
@@ -59,21 +59,33 @@ const action: ActionDefinition<Settings, Payload> = {
     group_type: {
       label: 'Group Type',
       type: 'string',
-      description: 'Type of the group',
+      description: 'The type of the group',
       required: true
     },
     group_value: {
       label: 'Group Value',
       type: 'string',
-      description: 'Value of the group',
+      description: 'The value of the group',
       required: true
+    },
+    min_id_length: {
+      label: 'Minimum ID Length',
+      description:
+        'Amplitude has a default minimum id lenght of 5 characters for user_id and device_id fields. This field allows the minimum to be overridden to allow shorter id lengths.',
+      allowNull: true,
+      type: 'integer'
     }
   },
   perform: async (request, { payload, settings }) => {
     const groupAssociation = { [payload.group_type]: payload.group_value }
+    const { min_id_length } = payload
+    let options
+    if (min_id_length && min_id_length > 0) {
+      options = JSON.stringify({ min_id_length })
+    }
 
     // Associate user to group
-    await request('https://api.amplitude.com/identify', {
+    await request(getEndpointByRegion('identify', settings.endpoint), {
       method: 'post',
       body: new URLSearchParams({
         api_key: settings.apiKey,
@@ -87,12 +99,13 @@ const action: ActionDefinition<Settings, Payload> = {
             user_id: payload.user_id,
             user_properties: groupAssociation
           }
-        ])
-      })
+        ]),
+        options
+      } as Record<string, string>)
     })
 
     // Associate group properties
-    return request('https://api.amplitude.com/groupidentify', {
+    return request(getEndpointByRegion('groupidentify', settings.endpoint), {
       method: 'post',
       body: new URLSearchParams({
         api_key: settings.apiKey,
@@ -103,8 +116,9 @@ const action: ActionDefinition<Settings, Payload> = {
             group_type: payload.group_type,
             library: 'segment'
           }
-        ])
-      })
+        ]),
+        options
+      } as Record<string, string>)
     })
   }
 }

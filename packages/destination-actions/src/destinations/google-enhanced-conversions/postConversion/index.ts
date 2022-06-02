@@ -1,4 +1,5 @@
-import { ActionDefinition, IntegrationError } from '@segment/actions-core'
+import { ActionDefinition, IntegrationError, HTTPError } from '@segment/actions-core'
+import type { ModifiedResponse } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 import {
@@ -12,6 +13,16 @@ import {
   cleanData
 } from './formatter'
 
+interface GoogleError {
+  status: string
+  error_statuses: [
+    {
+      error_code: string
+      error_message: string
+    }
+  ]
+}
+
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Post Conversion',
   description: 'Send a conversion event to Google Ads.',
@@ -20,14 +31,14 @@ const action: ActionDefinition<Settings, Payload> = {
     conversion_label: {
       label: 'Conversion Label',
       description:
-        'The Google Ads conversion label. You can find this value from your Google Ads event snippet. The provided event snippet should have, for example, `send_to: AW-123456789/AbC-D_efG-h12_34-567`. Enter the part after the forward slash, without the AW- prefix, e.g. 123456789',
+        'The Google Ads conversion label. You can find it in your Google Ads account using the instructions in the article [Google Ads conversions](https://support.google.com/tagmanager/answer/6105160?hl=en).',
       type: 'string',
       required: true,
       default: ''
     },
     email: {
       label: 'Email',
-      description: 'Email address of the customer who triggered the conversion event.',
+      description: 'Email address of the individual who triggered the conversion event.',
       type: 'string',
       required: true,
       format: 'email',
@@ -42,7 +53,7 @@ const action: ActionDefinition<Settings, Payload> = {
     transaction_id: {
       label: 'Order ID',
       description:
-        'Order ID of the conversion event. Google requires an Order ID even if the event is not an ecommerce event.',
+        'Order ID or Transaction ID of the conversion event. Google requires an Order ID even if the event is not an ecommerce event. Learn more in the article [Use a transaction ID to minimize duplicate conversions](https://support.google.com/google-ads/answer/6386790?hl=en&ref_topic=3165803).',
       type: 'string',
       required: true,
       default: {
@@ -51,9 +62,9 @@ const action: ActionDefinition<Settings, Payload> = {
     },
     user_agent: {
       label: 'User Agent',
-      description: 'User Agent of the customer who triggered the conversion event.',
+      description:
+        'User agent of the individual who triggered the conversion event. This should match the user agent of the request that sent the original conversion so the conversion and its enhancement are either both attributed as same-device or both attributed as cross-device. This field is optional but recommended.',
       type: 'string',
-      required: true,
       default: {
         '@path': '$.context.userAgent'
       }
@@ -78,16 +89,24 @@ const action: ActionDefinition<Settings, Payload> = {
     },
     currency_code: {
       label: 'Currency Code',
-      description: 'Currency of the purchase or items associated with the event, in 3-letter ISO 4217 format.',
+      description:
+        'Currency of the purchase or items associated with the conversion event, in 3-letter ISO 4217 format.',
       type: 'string',
       default: {
         '@path': '$.properties.currency'
       }
     },
+    is_app_incrementality: {
+      label: 'App Conversion for Incrementality Study',
+      description: 'Set to true if this is an app conversion for an incrementality study.',
+      type: 'boolean',
+      default: false
+    },
     // PII Fields - These fields must be hashed using SHA 256 and encoded as websafe-base64.
     phone_number: {
       label: 'Phone Number',
-      description: 'Phone number of the purchaser, in E.164 standard format, e.g. +14150000000',
+      description:
+        'Phone number of the individual who triggered the conversion event, in E.164 standard format, e.g. +14150000000.',
       type: 'string',
       default: {
         '@if': {
@@ -158,8 +177,8 @@ const action: ActionDefinition<Settings, Payload> = {
       }
     },
     post_code: {
-      label: 'Post Code',
-      description: 'Post code of the individual who triggered the conversion event.',
+      label: 'Postal Code',
+      description: 'Postal code of the individual who triggered the conversion event.',
       type: 'string',
       default: {
         '@if': {
@@ -183,14 +202,15 @@ const action: ActionDefinition<Settings, Payload> = {
     }
   },
 
-  perform: (request, { payload }) => {
+  perform: async (request, { payload }) => {
     const conversionData = cleanData({
       oid: payload.transaction_id,
       user_agent: payload.user_agent,
       conversion_time: +new Date(payload.conversion_time) * 1000,
       label: payload.conversion_label,
       value: payload.value,
-      currency_code: payload.currency_code
+      currency_code: payload.currency_code,
+      is_app_incrementality: payload.is_app_incrementality ? 1 : 0
     })
 
     const address = cleanData({
@@ -216,13 +236,31 @@ const action: ActionDefinition<Settings, Payload> = {
       hashed_phone_number: [formatPhone(payload.phone_number)]
     })
 
-    return request('https://www.google.com/ads/event/api/v1', {
-      method: 'post',
-      json: {
-        pii_data: { ...pii_data, address: [address] },
-        ...conversionData
+    try {
+      return await request('https://www.google.com/ads/event/api/v1', {
+        method: 'post',
+        json: {
+          pii_data: { ...pii_data, address: [address] },
+          ...conversionData
+        }
+      })
+    } catch (err) {
+      // Google returns a 400 when using invalid tokens
+      // We'll catch invalid token errors and throw an internal 401 to
+      // trigger the refresh token flow in this transaction
+      if (err instanceof HTTPError) {
+        const statusCode = err.response.status
+        if (statusCode === 400) {
+          const data = (err.response as ModifiedResponse).data as GoogleError
+          const invalidOAuth = data.error_statuses.find((es) => es.error_code === 'INVALID_OAUTH_TOKEN')
+          if (invalidOAuth) {
+            throw new IntegrationError('The OAuth token is missing or invalid.', 'INVALID_OAUTH_TOKEN', 401)
+          }
+        }
       }
-    })
+      // throw original error if unrelated to invalid/expired tokens
+      throw err
+    }
   }
 }
 

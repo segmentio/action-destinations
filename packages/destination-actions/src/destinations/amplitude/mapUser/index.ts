@@ -1,5 +1,5 @@
-import { URLSearchParams } from 'url'
 import type { ActionDefinition } from '@segment/actions-core'
+import { getEndpointByRegion } from '../regional-endpoints'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 
@@ -11,7 +11,7 @@ const action: ActionDefinition<Settings, Payload> = {
     user_id: {
       label: 'User ID',
       type: 'string',
-      description: 'The User ID to be associated',
+      description: 'The User ID to be associated.',
       default: {
         '@path': '$.previousId'
       }
@@ -19,18 +19,28 @@ const action: ActionDefinition<Settings, Payload> = {
     global_user_id: {
       label: 'Global User ID',
       type: 'string',
-      description: 'The global User ID to associate to',
+      description: 'The Global User ID to associate with the User ID.',
       default: {
         '@path': '$.userId'
       }
+    },
+    min_id_length: {
+      label: 'Minimum ID Length',
+      description:
+        'Amplitude has a default minimum id length (`min_id_length`) of 5 characters for user_id and device_id fields. This field allows the minimum to be overridden to allow shorter id lengths.',
+      allowNull: true,
+      type: 'integer'
     }
   },
   perform: (request, { payload, settings }) => {
-    return request('https://api.amplitude.com/usermap', {
+    const { min_id_length } = payload
+    const options = min_id_length && min_id_length > 0 ? JSON.stringify({ min_id_length }) : undefined
+    return request(getEndpointByRegion('usermap', settings.endpoint), {
       method: 'post',
       body: new URLSearchParams({
         api_key: settings.apiKey,
-        mapping: JSON.stringify([payload])
+        mapping: JSON.stringify([payload]),
+        ...(options && { options })
       })
     })
   }

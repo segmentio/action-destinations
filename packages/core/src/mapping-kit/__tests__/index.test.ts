@@ -48,9 +48,11 @@ describe('validations', () => {
 describe('payload validations', () => {
   test('invalid type', () => {
     expect(() => {
+      // @ts-expect-error
       transform({ a: 1 }, 123)
     }).toThrowError()
     expect(() => {
+      // @ts-expect-error
       transform({ a: 1 }, [])
     }).toThrowError()
   })
@@ -65,6 +67,35 @@ describe('no-op', () => {
   test('pass-through mapping', () => {
     const output = transform({ cool: true }, {})
     expect(output).toStrictEqual({ cool: true })
+  })
+})
+
+describe('@literal', () => {
+  test('simple', () => {
+    const output = transform({ simple: { '@literal': false } })
+    expect(output).toStrictEqual({ simple: false })
+  })
+
+  test('nested directives', () => {
+    const output = transform(
+      {
+        nested: {
+          '@literal': {
+            a: {
+              '@path': '$.a'
+            },
+            b: {
+              '@path': '$.b'
+            }
+          }
+        }
+      },
+      {
+        a: 'some value'
+      }
+    )
+
+    expect(output).toStrictEqual({ nested: { a: 'some value' } })
   })
 })
 
@@ -110,10 +141,130 @@ describe('@if', () => {
   })
 })
 
+describe('@arrayPath', () => {
+  const data = {
+    products: [
+      {
+        productId: '123',
+        price: 0.5
+      },
+      {
+        productId: '456',
+        price: 0.99
+      }
+    ]
+  }
+
+  test('simple', () => {
+    const output = transform({ neat: { '@arrayPath': ['$.products'] } }, data)
+    expect(output).toStrictEqual({ neat: data.products })
+  })
+
+  test('relative object shape', () => {
+    const mapping = {
+      neat: {
+        '@arrayPath': [
+          '$.products',
+          {
+            product_id: { '@path': '$.productId' },
+            monies: { '@path': '$.price' }
+          }
+        ]
+      }
+    }
+
+    const output = transform(mapping, data)
+    expect(output).toStrictEqual({
+      neat: [
+        { product_id: '123', monies: 0.5 },
+        { product_id: '456', monies: 0.99 }
+      ]
+    })
+  })
+
+  test('relative object shape with directive', () => {
+    const mapping = {
+      neat: {
+        '@arrayPath': [
+          {
+            '@if': {
+              exists: { '@path': '$.products' },
+              then: { '@path': '$.products' },
+              else: []
+            }
+          },
+          {
+            product_id: { '@path': '$.productId' },
+            monies: { '@path': '$.price' }
+          }
+        ]
+      }
+    }
+
+    const output = transform(mapping, data)
+    expect(output).toStrictEqual({
+      neat: [
+        { product_id: '123', monies: 0.5 },
+        { product_id: '456', monies: 0.99 }
+      ]
+    })
+  })
+
+  test('not an array', () => {
+    const mapping = {
+      neat: {
+        '@arrayPath': [
+          '$.products',
+          {
+            product_id: { '@path': '$.productId' },
+            monies: { '@path': '$.price' }
+          }
+        ]
+      }
+    }
+
+    const output = transform(mapping, { products: { notAnArray: true } })
+    expect(output).toStrictEqual({
+      neat: [{}]
+    })
+  })
+
+  test('singular objects', () => {
+    const mapping = {
+      neat: {
+        '@arrayPath': [
+          '$.properties',
+          {
+            product_id: { '@path': '$.productId' },
+            monies: { '@path': '$.price' }
+          }
+        ]
+      }
+    }
+
+    const output = transform(mapping, {
+      properties: {
+        productId: '123',
+        price: 0.5
+      }
+    })
+
+    expect(output).toStrictEqual({
+      neat: [{ product_id: '123', monies: 0.5 }]
+    })
+  })
+})
+
 describe('@path', () => {
   test('simple', () => {
     const output = transform({ neat: { '@path': '$.foo' } }, { foo: 'bar' })
     expect(output).toStrictEqual({ neat: 'bar' })
+  })
+
+  test('root path', () => {
+    const obj = { foo: 'bar' }
+    expect(transform({ '@path': '' }, obj)).toStrictEqual(obj)
+    expect(transform({ '@path': '$.' }, obj)).toStrictEqual(obj)
   })
 
   test('nested path', () => {
@@ -135,6 +286,34 @@ describe('@path', () => {
     expect(() => {
       transform({ neat: { '@path': {} } }, { foo: 'bar' })
     }).toThrowError()
+  })
+
+  test('spaced nested value', () => {
+    const output = transform(
+      { neat: { '@path': '$.integrations.Actions Amplitude.session_id' } },
+      {
+        integrations: {
+          'Actions Amplitude': {
+            session_id: 'bar'
+          }
+        }
+      }
+    )
+    expect(output).toStrictEqual({ neat: 'bar' })
+  })
+
+  test('invalid bracket-spaced nested value', () => {
+    const output = transform(
+      { neat: { '@path': "$.integrations['Actions Amplitude'].session_id" } },
+      {
+        integrations: {
+          'Actions Amplitude': {
+            session_id: 'bar'
+          }
+        }
+      }
+    )
+    expect(output).toStrictEqual({})
   })
 
   test('invalid nested value type', () => {

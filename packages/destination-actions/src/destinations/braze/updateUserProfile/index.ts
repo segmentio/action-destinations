@@ -1,8 +1,9 @@
-import { omit, IntegrationError } from '@segment/actions-core'
+import { omit, removeUndefined, IntegrationError } from '@segment/actions-core'
 import type { ActionDefinition } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 import dayjs from '../../../lib/dayjs'
+import { getUserAlias } from '../userAlias'
 
 type DateInput = string | Date | number | null | undefined
 type DateOutput = string | undefined | null
@@ -23,6 +24,20 @@ function toDateFormat(date: DateInput, format: string): DateOutput {
 
   const d = dayjs(date)
   return d.isValid() ? d.format(format) : undefined
+}
+
+function removeEmpty(obj: unknown) {
+  if (!obj) {
+    return obj
+  }
+
+  const cleaned = removeUndefined(obj)
+  // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+  if (typeof cleaned === 'object' && Object.keys(cleaned!).length > 0) {
+    return cleaned
+  }
+
+  return undefined
 }
 
 function toBrazeGender(gender: string | null | undefined): string | null | undefined {
@@ -63,13 +78,11 @@ const action: ActionDefinition<Settings, Payload> = {
       properties: {
         alias_name: {
           label: 'Alias Name',
-          type: 'string',
-          required: true
+          type: 'string'
         },
         alias_label: {
           label: 'Alias Label',
-          type: 'string',
-          required: true
+          type: 'string'
         }
       }
     },
@@ -321,12 +334,15 @@ const action: ActionDefinition<Settings, Payload> = {
       description:
         'Setting this flag to true will put the API in "Update Only" mode. When using a "user_alias", "Update Only" mode is always true.',
       type: 'boolean',
-      default: true
+      default: false
     }
   },
 
   perform: (request, { settings, payload }) => {
-    const { braze_id, user_alias, external_id } = payload
+    const { braze_id, external_id } = payload
+
+    // Extract valid user_alias shape. Since it is optional (oneOf braze_id, external_id) we need to only include it if fully formed.
+    const user_alias = getUserAlias(payload.user_alias)
 
     if (!braze_id && !user_alias && !external_id) {
       throw new IntegrationError(
@@ -340,6 +356,8 @@ const action: ActionDefinition<Settings, Payload> = {
     // to respect the customers mappings that might resolve `undefined`, without this we'd
     // potentially send a value from `custom_attributes` that conflicts with their mappings.
     const reservedKeys = Object.keys(action.fields)
+    // push additional default keys so they are not added as custom attributes
+    reservedKeys.push('firstName', 'lastName', 'avatar')
     const customAttrs = omit(payload.custom_attributes, reservedKeys)
 
     return request(`${settings.endpoint}/users/track`, {
@@ -354,7 +372,7 @@ const action: ActionDefinition<Settings, Payload> = {
             // TODO format country code according to ISO-3166-1 alpha-2 standard?
             // https://en.wikipedia.org/wiki/ISO_3166-1_alpha-2
             country: payload.country,
-            current_location: payload.current_location,
+            current_location: removeEmpty(payload.current_location),
             date_of_first_session: toISO8601(payload.date_of_first_session),
             date_of_last_session: toISO8601(payload.date_of_last_session),
             dob: toDateFormat(payload.dob, 'YYYY-MM-DD'),

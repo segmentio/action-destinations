@@ -21,7 +21,9 @@ import refund from './refund'
 import removeFromCart from './removeFromCart'
 
 const destination: DestinationDefinition<Settings> = {
-  name: 'Google Analytics 4',
+  // NOTE: We need to match the name with the creation name in DB.
+  // This is not the value used in the UI.
+  name: 'Actions Google Analytic 4',
   mode: 'cloud',
   authentication: {
     scheme: 'custom',

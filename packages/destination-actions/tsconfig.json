@@ -3,7 +3,10 @@
   "compilerOptions": {
     "baseUrl": ".",
     "paths": {
-      "@segment/actions-core": ["../core/src"]
+      "@segment/ajv-human-errors": ["../ajv-human-errors/src"],
+      "@segment/actions-core": ["../core/src"],
+      "@segment/destination-subscriptions": ["../destination-subscriptions/src"],
+      "@segment/actions-shared": ["../actions-shared/src"]
     }
   },
   "exclude": [],

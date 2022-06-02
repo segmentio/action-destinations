@@ -1,10 +1,12 @@
-import { URLSearchParams } from 'url'
-import { ActionDefinition, removeUndefined } from '@segment/actions-core'
+import { ActionDefinition, omit, removeUndefined } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 import { convertUTMProperties } from '../utm'
 import { convertReferrerProperty } from '../referrer'
 import { parseUserAgentProperties } from '../user-agent'
+import { mergeUserProperties } from '../merge-user-properties'
+import { AmplitudeEvent } from '../logEvent'
+import { getEndpointByRegion } from '../regional-endpoints'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Identify User',
@@ -61,7 +63,7 @@ const action: ActionDefinition<Settings, Payload> = {
     platform: {
       label: 'Platform',
       type: 'string',
-      description: 'What platform is sending the data.',
+      description: "The platform of the user's device.",
       default: {
         '@path': '$.context.device.type'
       }
@@ -69,7 +71,7 @@ const action: ActionDefinition<Settings, Payload> = {
     os_name: {
       label: 'OS Name',
       type: 'string',
-      description: 'Mobile operating system or browser the user is on.',
+      description: "The mobile operating system or browser of the user's device.",
       default: {
         '@path': '$.context.os.name'
       }
@@ -77,7 +79,7 @@ const action: ActionDefinition<Settings, Payload> = {
     os_version: {
       label: 'OS Version',
       type: 'string',
-      description: 'Version of the mobile operating system or browser the user is on.',
+      description: "The version of the mobile operating system or browser of the user's device.",
       default: {
         '@path': '$.context.os.version'
       }
@@ -85,7 +87,7 @@ const action: ActionDefinition<Settings, Payload> = {
     device_brand: {
       label: 'Device Brand',
       type: 'string',
-      description: 'Device brand the user is on.',
+      description: "The brand of user's the device.",
       default: {
         '@path': '$.context.device.brand'
       }
@@ -93,7 +95,7 @@ const action: ActionDefinition<Settings, Payload> = {
     device_manufacturer: {
       label: 'Device Manufacturer',
       type: 'string',
-      description: 'Device manufacturer the user is on.',
+      description: "The manufacturer of the user's device.",
       default: {
         '@path': '$.context.device.manufacturer'
       }
@@ -101,7 +103,7 @@ const action: ActionDefinition<Settings, Payload> = {
     device_model: {
       label: 'Device Model',
       type: 'string',
-      description: 'Device model the user is on.',
+      description: "The model of the user's device.",
       default: {
         '@path': '$.context.device.model'
       }
@@ -109,7 +111,7 @@ const action: ActionDefinition<Settings, Payload> = {
     carrier: {
       label: 'Carrier',
       type: 'string',
-      description: 'Carrier the user has.',
+      description: "The user's mobile carrier.",
       default: {
         '@path': '$.context.network.carrier'
       }
@@ -117,7 +119,7 @@ const action: ActionDefinition<Settings, Payload> = {
     country: {
       label: 'Country',
       type: 'string',
-      description: 'Country the user is in.',
+      description: 'The country in which the user is located.',
       default: {
         '@path': '$.context.location.country'
       }
@@ -125,7 +127,7 @@ const action: ActionDefinition<Settings, Payload> = {
     region: {
       label: 'Region',
       type: 'string',
-      description: 'Geographical region the user is in.',
+      description: 'The geographical region in which the user is located.',
       default: {
         '@path': '$.context.location.region'
       }
@@ -133,7 +135,7 @@ const action: ActionDefinition<Settings, Payload> = {
     city: {
       label: 'City',
       type: 'string',
-      description: 'What city the user is in.',
+      description: 'The city in which the user is located.',
       default: {
         '@path': '$.context.location.city'
       }
@@ -141,12 +143,12 @@ const action: ActionDefinition<Settings, Payload> = {
     dma: {
       label: 'Designated Market Area',
       type: 'string',
-      description: 'The Designated Market Area of the user.'
+      description: 'The Designated Market Area in which the user is located.'
     },
     language: {
       label: 'Language',
       type: 'string',
-      description: 'Language the user has set.',
+      description: 'Language the user has set on their device or browser.',
       default: {
         '@path': '$.context.locale'
       }
@@ -159,7 +161,7 @@ const action: ActionDefinition<Settings, Payload> = {
     start_version: {
       label: 'Initial Version',
       type: 'string',
-      description: 'Version of the app the user was first on.'
+      description: 'The version of the app the user was first on.'
     },
     insert_id: {
       label: 'Insert ID',
@@ -172,7 +174,7 @@ const action: ActionDefinition<Settings, Payload> = {
       type: 'string',
       description: 'The user agent of the device sending the event.',
       default: {
-        '@path': '$.context.user_agent'
+        '@path': '$.context.userAgent'
       }
     },
     userAgentParsing: {
@@ -224,31 +226,65 @@ const action: ActionDefinition<Settings, Payload> = {
       default: {
         '@path': '$.context.page.referrer'
       }
+    },
+    min_id_length: {
+      label: 'Minimum ID Length',
+      description:
+        'Amplitude has a default minimum id length of 5 characters for user_id and device_id fields. This field allows the minimum to be overridden to allow shorter id lengths.',
+      allowNull: true,
+      type: 'integer'
+    },
+    library: {
+      label: 'Library',
+      type: 'string',
+      description: 'The name of the library that generated the event.',
+      default: {
+        '@path': '$.context.library.name'
+      }
     }
   },
 
   perform: (request, { payload, settings }) => {
-    const { utm_properties, referrer, user_properties, userAgent, userAgentParsing, ...rest } = payload
-    let userProperties = user_properties
+    const { utm_properties, referrer, userAgent, userAgentParsing, min_id_length, library, ...rest } = payload
+
+    let options
+    const properties = rest as AmplitudeEvent
+
+    if (properties.platform) {
+      properties.platform = properties.platform.replace(/ios/i, 'iOS').replace(/android/i, 'Android')
+    }
+
+    if (library === 'analytics.js') {
+      properties.platform = 'Web'
+    }
 
     if (Object.keys(utm_properties ?? {}).length || referrer) {
-      userProperties = { ...convertUTMProperties(payload), ...convertReferrerProperty(payload) }
+      properties.user_properties = mergeUserProperties(
+        omit(properties.user_properties ?? {}, ['utm_properties', 'referrer']),
+        convertUTMProperties(payload),
+        convertReferrerProperty(payload)
+      )
+    }
+
+    if (min_id_length && min_id_length > 0) {
+      options = JSON.stringify({ min_id_length })
     }
 
     const identification = JSON.stringify({
       // Conditionally parse user agent using amplitude's library
       ...(userAgentParsing && parseUserAgentProperties(userAgent)),
       // Make sure any top-level properties take precedence over user-agent properties
-      ...removeUndefined(rest),
-      user_properties: userProperties,
+      ...removeUndefined(properties),
       library: 'segment'
     })
-    return request('https://api.amplitude.com/identify', {
+
+    return request(getEndpointByRegion('identify', settings.endpoint), {
       method: 'post',
       body: new URLSearchParams({
         api_key: settings.apiKey,
-        identification
-      })
+        identification,
+        options
+      } as Record<string, string>)
     })
   }
 }

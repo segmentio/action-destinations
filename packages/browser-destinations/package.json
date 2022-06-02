@@ -1,6 +1,6 @@
 {
   "name": "@segment/browser-destinations",
-  "version": "3.5.2-alpha.3",
+  "version": "3.40.0",
   "description": "Action based browser destinations",
   "author": "Netto Farah",
   "private": true,
@@ -13,6 +13,7 @@
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "scripts": {
+    "analyze": "NODE_ENV=production webpack --profile --json > stats.json && webpack-bundle-analyzer --port 4200 stats.json",
     "build": "yarn clean && yarn build-ts && yarn build-web",
     "build-ts": "yarn tsc -b tsconfig.build.json",
     "build-web": "NODE_ENV=production ASSET_ENV=production yarn webpack -c webpack.config.js",
@@ -23,15 +24,17 @@
     "postclean": "rm -rf dist",
     "prepublishOnly": "yarn build",
     "test": "jest",
-    "typecheck": "tsc --noEmit",
-    "dev": "concurrently \"webpack serve\" \"webpack -c webpack.config.js --watch\""
+    "typecheck": "tsc -p tsconfig.build.json --noEmit",
+    "dev": "NODE_ENV=development concurrently \"webpack serve --open\" \"webpack -c webpack.config.js --watch\""
   },
   "dependencies": {
-    "@braze/web-sdk": "^3.3.0",
+    "@braze/web-sdk": "^3.5.0",
     "@fullstory/browser": "^1.4.9",
-    "@segment/destination-subscriptions": "^3.4.3-alpha.2",
-    "dayjs": "^1.10.3",
-    "tslib": "^2.1.0",
+    "@segment/actions-shared": "^1.7.0",
+    "@segment/analytics-next": "^1.29.3",
+    "@segment/destination-subscriptions": "^3.10.1",
+    "dayjs": "^1.10.7",
+    "tslib": "^2.3.1",
     "vm-browserify": "^1.1.2"
   },
   "devDependencies": {
@@ -40,44 +43,44 @@
     "@babel/plugin-transform-modules-commonjs": "^7.13.8",
     "@babel/preset-env": "^7.13.10",
     "@babel/preset-typescript": "^7.13.0",
+    "@segment/actions-core": "^3.24.0",
     "@types/amplitude-js": "^7.0.1",
-    "@types/intercom-web": "^2.8.11",
-    "@types/jest": "^26.0.23",
-    "@types/jsdom": "^16.2.10",
-    "babel-jest": "^26.6.3",
+    "@types/jest": "^27.0.0",
+    "babel-jest": "^27.3.1",
     "compression-webpack-plugin": "^7.1.2",
-    "concurrently": "^6.2.0",
-    "fs-extra": "^9.1.0",
+    "concurrently": "^6.3.0",
     "globby": "^11.0.2",
-    "jest": "^26.6.3",
-    "jsdom": "^16.5.3",
-    "serve": "^12.0.0",
+    "jest": "^27.3.1",
+    "serve": "^12.0.1",
     "terser-webpack-plugin": "^5.1.1",
-    "ts-loader": "^8.0.17",
+    "ts-loader": "^9.2.6",
     "webpack": "^5.36.1",
     "webpack-bundle-analyzer": "^4.4.1",
     "webpack-cli": "^4.4.0",
-    "webpack-dev-server": "^4.0.0-rc.0"
-  },
-  "optionalDependencies": {
-    "@segment/actions-core": "^3.5.2-alpha.2",
-    "@segment/analytics-next": "^1.29.3"
-  },
-  "prettier": {
-    "semi": false,
-    "singleQuote": true,
-    "trailingComma": "none",
-    "printWidth": 120
+    "webpack-dev-server": "^4.2.0"
   },
   "jest": {
+    "testEnvironment": "jsdom",
+    "testEnvironmentOptions": {
+      "runScripts": "dangerously",
+      "resources": "usable",
+      "url": "https://segment.com"
+    },
+    "rootDir": "./",
     "moduleNameMapper": {
-      "@segment/actions-core": "<rootDir>/../core/src/index.ts"
+      "@segment/ajv-human-errors": "<rootDir>/../ajv-human-errors/src",
+      "@segment/actions-core": "<rootDir>/../core/src",
+      "@segment/destination-subscriptions": "<rootDir>/../destination-subscriptions/src",
+      "@segment/actions-shared": "<rootDir>/../actions-shared/src"
     },
     "transform": {
       "^.+\\.[t|j]sx?$": "babel-jest"
     },
     "transformIgnorePatterns": [
       "/node_modules/(?!@segment/analytics-next).+\\.js$"
+    ],
+    "setupFilesAfterEnv": [
+      "<rootDir>/test/setup-after-env.ts"
     ],
     "forceExit": true
   }

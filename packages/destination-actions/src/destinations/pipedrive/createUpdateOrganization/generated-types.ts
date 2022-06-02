@@ -2,19 +2,29 @@
 
 export interface Payload {
   /**
-   * Identifier used to find existing organization in Pipedrive. Typically this is the name but it can also be a custom field value. Custom organization fields may be included by using the long hash keys of the custom fields. These look like "33595c732cd7a027c458ea115a48a7f8a254fa86".
+   * If present, used instead of field in settings to find existing organization in Pipedrive.
    */
-  identifier: string
+  match_field?: string
+  /**
+   * Value to find existing organization by
+   */
+  match_value: string
   /**
    * Name of the organization
    */
-  name: string
+  name?: string
   /**
-   * ID of the user who will be marked as the owner of this organization. Default is the user who ownes the API token.
+   * Visibility of the Organization. If omitted, visibility will be set to the default visibility setting of this item type for the authorized user.
    */
-  owner_id?: number
+  visible_to?: number
   /**
    * If the organization is created, use this timestamp as the creation timestamp. Format: YYY-MM-DD HH:MM:SS
    */
-  add_time?: string
+  add_time?: string | number
+  /**
+   * New values for custom fields.
+   */
+  custom_fields?: {
+    [k: string]: unknown
+  }
 }

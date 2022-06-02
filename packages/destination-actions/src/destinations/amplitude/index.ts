@@ -5,6 +5,7 @@ import logEvent from './logEvent'
 import mapUser from './mapUser'
 import groupIdentifyUser from './groupIdentifyUser'
 import type { Settings } from './generated-types'
+import { getEndpointByRegion } from './regional-endpoints'
 
 /** used in the quick setup */
 const presets: DestinationDefinition['presets'] = [
@@ -51,7 +52,7 @@ const presets: DestinationDefinition['presets'] = [
 ]
 
 const destination: DestinationDefinition<Settings> = {
-  name: 'Amplitude (Actions)',
+  name: 'Actions Amplitude',
   mode: 'cloud',
   authentication: {
     scheme: 'custom',
@@ -68,16 +69,45 @@ const destination: DestinationDefinition<Settings> = {
           'Amplitude project secret key. You can find this key in the "General" tab of your Amplitude project.',
         type: 'string',
         required: true
+      },
+      endpoint: {
+        label: 'Endpoint Region',
+        description: 'The region to send your data.',
+        type: 'string',
+        format: 'text',
+        choices: [
+          {
+            label: 'North America',
+            value: 'north_america'
+          },
+          {
+            label: 'Europe',
+            value: 'europe'
+          }
+        ],
+        default: 'north_america'
       }
     },
     testAuthentication: (request, { settings }) => {
       // Note: Amplitude has some apis that use basic auth (like this one)
       // and others that use custom auth in the request body
-      return request('https://amplitude.com/api/2/usersearch?user=testUser@example.com', {
+      const endpoint = getEndpointByRegion('usersearch', settings.endpoint)
+      return request(`${endpoint}?user=testUser@example.com`, {
         username: settings.apiKey,
         password: settings.secretKey
       })
     }
+  },
+  onDelete: async (request, { settings, payload }) => {
+    return request(getEndpointByRegion('deletions', settings.endpoint), {
+      username: settings.apiKey,
+      password: settings.secretKey,
+      method: 'post',
+      json: {
+        user_ids: [payload.userId],
+        requester: 'segment'
+      }
+    })
   },
   presets,
   actions: {

@@ -1,8 +1,11 @@
 import type { RequestOptions } from '../request-client'
 import type { JSONObject } from '../json-object'
 import { AuthTokens } from './parse-settings'
+import type { RequestClient } from '../create-request-client'
+import type { ID } from '../segment-event'
 
 export type Optional<T, K extends keyof T> = Pick<Partial<T>, K> & Omit<T, K>
+export type MaybePromise<T> = T | Promise<T>
 
 export interface Result {
   output?: JSONObject | string | null | undefined
@@ -14,7 +17,7 @@ export interface ExecuteInput<Settings, Payload> {
   readonly mapping?: JSONObject
   /** The global destination settings */
   readonly settings: Settings
-  /** The transformed input data, based on `mapping` + `event` */
+  /** The transformed input data, based on `mapping` + `event` (or `events` if batched) */
   payload: Payload
   /** The page used in dynamic field requests */
   page?: string
@@ -63,7 +66,16 @@ export interface GlobalSetting {
 }
 
 /** The supported field type names */
-export type FieldTypeName = 'string' | 'text' | 'number' | 'integer' | 'datetime' | 'boolean' | 'password' | 'object'
+export type FieldTypeName =
+  | 'string'
+  | 'text'
+  | 'number'
+  | 'integer'
+  | 'datetime'
+  | 'boolean'
+  | 'password'
+  | 'object'
+  | 'hidden'
 
 /** The shape of an input field definition */
 export interface InputField {
@@ -77,12 +89,26 @@ export interface InputField {
   allowNull?: boolean
   /** Whether or not the field accepts multiple values (an array of `type`) */
   multiple?: boolean
+  /** Whether or not the field accepts properties not defined by the builder */
+  additionalProperties?: boolean
   /** An optional default value for the field */
   default?: FieldValue
   /** A placeholder display value that suggests what to input */
   placeholder?: string
   /** Whether or not the field supports dynamically fetching options */
   dynamic?: boolean
+  /**
+   * A predefined set of options for the setting.
+   * Only relevant for `type: 'string'` or `type: 'number'`.
+   */
+  choices?:
+    | Array<string>
+    | Array<{
+        /** The value of the option */
+        value: string | number
+        /** A human-friendly label for the option */
+        label: string
+      }>
   /** Whether or not the field is required */
   required?: boolean
   /**
@@ -111,6 +137,17 @@ export interface InputField {
     | 'uuid' // Universally Unique IDentifier according to RFC4122.
     | 'password' // hint to the UI to hide/obfuscate input strings
     | 'text' // longer strings
+
+  /**
+   * Determines the UI representation of the object field. Only applies to object types.
+   * Key Value Editor: Users can specify individual object keys and their mappings, ideal for custom objects.
+   * Object Reference: Users can specify only another object in the segment event to use as the value for this key in the payload
+   */
+  defaultObjectUI?:
+    | 'keyvalue' // Users will see the key value object editor by default and can change to the object editor.
+    | 'object' // Users will see the object editor by default and can change to the key value editor.
+    | 'keyvalue:only' // Users will only use the key value editor.
+    | 'object:only' // Users will only use the object editor.
 }
 
 export type FieldValue = string | number | boolean | object | Directive
@@ -137,4 +174,22 @@ export type Directive = IfDirective | TemplateDirective | PathDirective
  * A function to configure a request client instance with options
  * that will be applied to every request made by that instance
  */
-export type RequestExtension<Settings, Payload = unknown> = (data: ExecuteInput<Settings, Payload>) => RequestOptions
+export type RequestExtension<Settings, Payload = undefined> = (data: ExecuteInput<Settings, Payload>) => RequestOptions
+
+/**
+ * Common fields derived from the Segment event schema for use in deletion calls to endpoints
+ */
+export interface DeletionPayload {
+  userId: ID
+  anonymousId: ID
+}
+
+/**
+ * A function to perform a deletion request for GDPR or PII related data
+ *
+ */
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export type Deletion<Settings, Return = any> = (
+  request: RequestClient,
+  data: ExecuteInput<Settings, DeletionPayload>
+) => MaybePromise<Return>

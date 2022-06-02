@@ -1,64 +1,34 @@
-import appboy from '@braze/web-sdk'
 import { Analytics, Context } from '@segment/analytics-next'
-import * as jsdom from 'jsdom'
-import brazeDestination from '../index'
-import { destination } from '../index'
+import brazeDestination, { destination } from '../index'
 
 describe('initialization', () => {
   const settings = {
     safariWebsitePushId: 'safari',
     allowCrawlerActivity: true,
     doNotLoadFontAwesome: true,
-    enableLogging: true,
+    enableLogging: false,
     localization: 'pt',
     minimumIntervalBetweenTriggerActionsInSeconds: 60,
     openInAppMessagesInNewTab: true,
     sessionTimeoutInSeconds: 60,
     requireExplicitInAppMessageDismissal: true,
-    enableHtmlInAppMessages: true,
-    devicePropertyAllowlist: ['ay', 'Dios', 'mio'],
-    devicePropertyWhitelist: ['foo', 'bar'],
     allowUserSuppliedJavascript: true,
     contentSecurityNonce: 'bar',
-    endpoint: 'endpoint'
+    endpoint: 'endpoint',
+    sdkVersion: '3.5'
   }
 
   beforeEach(async () => {
     jest.restoreAllMocks()
     jest.resetAllMocks()
-
-    const html = `
-  <!DOCTYPE html>
-    <head>
-      <script>'hi'</script>
-    </head>
-    <body>
-    </body>
-  </html>
-  `.trim()
-
-    const jsd = new jsdom.JSDOM(html, {
-      runScripts: 'dangerously',
-      resources: 'usable',
-      url: 'https://segment.com'
-    })
-
-    const windowSpy = jest.spyOn(window, 'window', 'get')
-    windowSpy.mockImplementation(() => jsd.window as unknown as Window & typeof globalThis)
-
-    // we're not really testing that appboy loads here, so we'll just mock it out
-    jest.spyOn(appboy, 'initialize').mockImplementation(() => true)
-    jest.spyOn(appboy, 'openSession').mockImplementation(() => true)
   })
 
-  test('load initialization options', async () => {
-    const initialize = jest.spyOn(appboy, 'initialize')
-
-    const [trackEvent] = await brazeDestination({
+  test('can load braze', async () => {
+    const [event] = await brazeDestination({
       api_key: 'b_123',
       subscriptions: [
         {
-          partnerAction: 'trackEvent',
+          partnerAction: 'trackPurchase',
           name: 'Log Custom Event',
           enabled: true,
           subscribe: 'type = "track"',
@@ -75,45 +45,36 @@ describe('initialization', () => {
       ...settings
     })
 
-    await trackEvent.load(Context.system(), {} as Analytics)
+    jest.spyOn(destination.actions.trackPurchase, 'perform')
+    jest.spyOn(destination, 'initialize')
 
-    const { endpoint, ...expectedSettings } = settings
-    expect(initialize).toHaveBeenCalledWith(
-      'b_123',
-      expect.objectContaining({ baseUrl: endpoint, ...expectedSettings })
+    await event.load(Context.system(), {} as Analytics)
+    expect(destination.initialize).toHaveBeenCalled()
+
+    const ctx = await event.track?.(
+      new Context({
+        type: 'track',
+        properties: {
+          banana: '📞'
+        }
+      })
     )
-  })
 
-  test('loads sdk version 3.3 by default', async () => {
-    const withVersion = {
-      ...settings
-    }
+    expect(destination.actions.trackPurchase.perform).toHaveBeenCalled()
+    expect(ctx).not.toBeUndefined()
 
-    const dependencies = {
-      loadScript: jest.fn()
-    }
+    const scripts = window.document.querySelectorAll('script')
 
-    // @ts-expect-error
-    await destination.initialize({ settings: withVersion }, dependencies)
-
-    expect(dependencies.loadScript).toHaveBeenCalledWith(`https://js.appboycdn.com/web-sdk/3.3/service-worker.js`)
-  })
-
-  test('load different sdk versions', async () => {
-    const withVersion = {
-      ...settings,
-      sdkVersion: '3.0'
-    }
-
-    const dependencies = {
-      loadScript: jest.fn()
-    }
-
-    // @ts-expect-error
-    await destination.initialize({ settings: withVersion }, dependencies)
-
-    expect(dependencies.loadScript).toHaveBeenCalledWith(
-      `https://js.appboycdn.com/web-sdk/${withVersion.sdkVersion}/service-worker.js`
-    )
+    expect(scripts).toMatchSnapshot(`
+      NodeList [
+        <script
+          src="https://js.appboycdn.com/web-sdk/3.5/appboy.no-amd.min.js"
+          type="text/javascript"
+        />,
+        <script>
+          // the emptiness
+        </script>,
+      ]
+    `)
   })
 })

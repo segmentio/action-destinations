@@ -2,25 +2,29 @@
 
 export interface Payload {
   /**
-   * ID of the person who triggered this event.
+   * The ID used to uniquely identify a person in Customer.io. [Learn more](https://customer.io/docs/identifying-people/#identifiers).
    */
   id?: string
   /**
-   * Anonymous ID of the person who triggered this event.
+   * An anonymous ID for when no Person ID exists. [Learn more](https://customer.io/docs/anonymous-events/).
    */
   anonymous_id?: string
   /**
-   * Name of the event
+   * The name of the event.
    */
   name: string
   /**
-   * Override event type. Ex. "page".
+   * A timestamp of when the event took place. Default is current date and time.
    */
-  type?: string
+  timestamp?: string
   /**
-   * Custom data to include with the event.
+   * Optional data to include with the event.
    */
   data?: {
     [k: string]: unknown
   }
+  /**
+   * Convert dates to Unix timestamps (seconds since Epoch).
+   */
+  convert_timestamp?: boolean
 }
