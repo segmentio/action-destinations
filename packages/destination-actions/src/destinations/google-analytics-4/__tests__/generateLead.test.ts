@@ -106,6 +106,61 @@ describe('GA4', () => {
       )
     })
 
+    it('should allow currency to be lowercase', async () => {
+      nock('https://www.google-analytics.com/mp/collect')
+        .post(`?measurement_id=${measurementId}&api_secret=${apiSecret}`)
+        .reply(201, {})
+
+      const event = createTestEvent({
+        event: 'Lead Generated',
+        userId: 'abc123',
+        type: 'track',
+        properties: {
+          currency: 'usd',
+          value: '300'
+        }
+      })
+      const responses = await testDestination.testAction('generateLead', {
+        event,
+        settings: {
+          apiSecret,
+          measurementId
+        },
+        mapping: {
+          client_id: {
+            '@path': '$.userId'
+          },
+          engagement_time_msec: 2,
+          currency: {
+            '@path': '$.properties.currency'
+          },
+          value: {
+            '@path': '$.properties.value'
+          }
+        }
+      })
+
+      expect(responses.length).toBe(1)
+      expect(responses[0].status).toBe(201)
+
+      expect(responses[0].request.headers).toMatchInlineSnapshot(`
+        Headers {
+          Symbol(map): Object {
+            "content-type": Array [
+              "application/json",
+            ],
+            "user-agent": Array [
+              "Segment (Actions)",
+            ],
+          },
+        }
+      `)
+
+      expect(responses[0].options.body).toMatchInlineSnapshot(
+        `"{\\"client_id\\":\\"abc123\\",\\"events\\":[{\\"name\\":\\"generate_lead\\",\\"params\\":{\\"currency\\":\\"usd\\",\\"value\\":300,\\"engagement_time_msec\\":2}}]}"`
+      )
+    })
+
     it('should throw an error when a value is included with no currency', async () => {
       nock('https://www.google-analytics.com/mp/collect')
         .post(`?measurement_id=${measurementId}&api_secret=${apiSecret}`)

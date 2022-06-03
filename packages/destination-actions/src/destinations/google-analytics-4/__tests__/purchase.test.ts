@@ -207,6 +207,115 @@ describe('GA4', () => {
       )
     })
 
+    it('should allow currency to be lowercase', async () => {
+      nock('https://www.google-analytics.com/mp/collect')
+        .post(`?measurement_id=${measurementId}&api_secret=${apiSecret}`)
+        .reply(201, {})
+      const event = createTestEvent({
+        event: 'Order Completed',
+        userId: '3456fff',
+        anonymousId: 'anon-567890',
+        type: 'track',
+        properties: {
+          affiliation: 'TI Online Store',
+          order_id: '5678dd9087-78',
+          coupon: 'SUMMER_FEST',
+          currency: 'eur',
+          products: [
+            {
+              product_id: 'pid-123456',
+              sku: 'SKU-123456',
+              name: 'Tour t-shirt',
+              quantity: 2,
+              coupon: 'MOUNTAIN',
+              brand: 'Canvas',
+              category: 'T-Shirt',
+              variant: 'Black',
+              price: 19.98
+            }
+          ],
+          revenue: 5.99,
+          shipping: 1.5,
+          tax: 3.0,
+          total: 24.48
+        }
+      })
+      const responses = await testDestination.testAction('purchase', {
+        event,
+        settings: {
+          apiSecret,
+          measurementId
+        },
+        mapping: {
+          client_id: {
+            '@path': '$.anonymousId'
+          },
+          engagement_time_msec: 2,
+          coupon: {
+            '@path': '$.properties.coupon'
+          },
+          currency: {
+            '@path': '$.properties.currency'
+          },
+          transaction_id: {
+            '@path': '$.properties.order_id'
+          },
+          value: {
+            '@path': '$.properties.revenue'
+          },
+          items: [
+            {
+              item_name: {
+                '@path': `$.properties.products.0.name`
+              },
+              item_id: {
+                '@path': `$.properties.products.0.product_id`
+              },
+              quantity: {
+                '@path': `$.properties.products.0.quantity`
+              },
+              coupon: {
+                '@path': `$.properties.products.0.coupon`
+              },
+              item_brand: {
+                '@path': `$.properties.products.0.brand`
+              },
+              item_category: {
+                '@path': `$.properties.products.0.category`
+              },
+              item_variant: {
+                '@path': `$.properties.products.0.variant`
+              },
+              price: {
+                '@path': `$.properties.products.0.price`
+              }
+            }
+          ]
+        },
+        useDefaultMappings: false
+      })
+
+      expect(responses.length).toBe(1)
+      expect(responses[0].status).toBe(201)
+
+      expect(responses[0].request.headers).toMatchInlineSnapshot(`
+        Headers {
+          Symbol(map): Object {
+            "content-type": Array [
+              "application/json",
+            ],
+            "user-agent": Array [
+              "Segment (Actions)",
+            ],
+          },
+        }
+      `)
+
+      expect(responses[0].options.body).toMatchInlineSnapshot(
+        `"{\\"client_id\\":\\"anon-567890\\",\\"events\\":[{\\"name\\":\\"purchase\\",\\"params\\":{\\"coupon\\":\\"SUMMER_FEST\\",\\"currency\\":\\"eur\\",\\"items\\":[{\\"item_name\\":\\"Tour t-shirt\\",\\"item_id\\":\\"pid-123456\\",\\"quantity\\":2,\\"coupon\\":\\"MOUNTAIN\\",\\"item_brand\\":\\"Canvas\\",\\"item_category\\":\\"T-Shirt\\",\\"item_variant\\":\\"Black\\",\\"price\\":19.98}],\\"transaction_id\\":\\"5678dd9087-78\\",\\"value\\":5.99,\\"engagement_time_msec\\":2}}]}"`
+      )
+    })
+
     it('should throw an error for invalid currency values', async () => {
       nock('https://www.google-analytics.com/mp/collect')
         .post(`?measurement_id=${measurementId}&api_secret=${apiSecret}`)

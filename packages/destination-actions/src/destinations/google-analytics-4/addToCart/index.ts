@@ -45,7 +45,7 @@ const action: ActionDefinition<Settings, Payload> = {
           )
         }
 
-        if (product.currency && !CURRENCY_ISO_CODES.includes(product.currency)) {
+        if (product.currency && !CURRENCY_ISO_CODES.includes(product.currency.toUpperCase())) {
           throw new IntegrationError(`${product.currency} is not a valid currency code.`, 'Incorrect value format', 400)
         }
 
