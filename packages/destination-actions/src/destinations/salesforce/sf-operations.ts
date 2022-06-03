@@ -166,13 +166,31 @@ export default class Salesforce {
   // Salesforce field names should have only characters in {a-z, A-Z, 0-9, _}.
   private removeInvalidChars = (value: string) => value.replace(/[^a-zA-Z0-9_]/g, '')
 
+  // Pre-formats trait values based on datatypes for correct SOQL syntax
+  private typecast = (value: any) => {
+    switch (typeof value) {
+      case 'boolean':
+        return value
+      case 'number':
+        return value
+      case 'string':
+        return `'${this.escapeQuotes(value)}'`
+      default:
+        throw new IntegrationError(
+          'Unsupported datatype for record matcher traits - ' + typeof value,
+          'Unsupported Type',
+          400
+        )
+    }
+  }
+
   private buildQuery = (traits: object, sobject: string) => {
     let soql = `SELECT Id FROM ${sobject} WHERE `
 
     const entries = Object.entries(traits)
     let i = 0
     for (const [key, value] of entries) {
-      let token = `${this.removeInvalidChars(key)} = '${this.escapeQuotes(value)}'`
+      let token = `${this.removeInvalidChars(key)} = ${this.typecast(value)}`
 
       if (i < entries.length - 1) {
         token += ' OR '
