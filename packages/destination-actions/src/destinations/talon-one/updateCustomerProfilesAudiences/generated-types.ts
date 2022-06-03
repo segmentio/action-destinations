@@ -10,11 +10,11 @@ export interface Payload {
      */
     customerProfileId: string
     /**
-     * You should get this audience ID from Talon.One.
+     * You should get these audience IDs from Talon.One.
      */
     adds?: number[]
     /**
-     * You should get this audience ID from Talon.One.
+     * You should get these audience IDs from Talon.One.
      */
     deletes?: number[]
   }[]

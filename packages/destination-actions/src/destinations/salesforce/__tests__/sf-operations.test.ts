@@ -44,6 +44,29 @@ describe('Salesforce', () => {
       )
     })
 
+    it('should lookup based on a single trait of type number', async () => {
+      const query = encodeURIComponent(`SELECT Id FROM Lead WHERE NumberOfEmployees = 2`)
+
+      nock(`${settings.instanceUrl}services/data/${API_VERSION}/query`)
+        .get(`/?q=${query}`)
+        .reply(201, {
+          Id: 'abc123',
+          totalSize: 1,
+          records: [{ Id: '123456' }]
+        })
+
+      nock(`${settings.instanceUrl}services/data/${API_VERSION}/sobjects`).patch('/Lead/123456').reply(201, {})
+
+      await sf.updateRecord(
+        {
+          traits: {
+            NumberOfEmployees: 2
+          }
+        },
+        'Lead'
+      )
+    })
+
     it('should lookup based on multiple traits', async () => {
       const query = encodeURIComponent(
         `SELECT Id FROM Lead WHERE email = 'sponge@seamail.com' OR company = 'Krusty Krab'`
@@ -67,6 +90,69 @@ describe('Salesforce', () => {
         },
         'Lead'
       )
+    })
+
+    it('should lookup based on multiple traits of different datatypes', async () => {
+      const query = encodeURIComponent(`SELECT Id FROM Lead WHERE email = 'sponge@seamail.com' OR isDeleted = false`)
+      nock(`${settings.instanceUrl}services/data/${API_VERSION}/query`)
+        .get(`/?q=${query}`)
+        .reply(201, {
+          Id: 'abc123',
+          totalSize: 1,
+          records: [{ Id: '123456' }]
+        })
+
+      nock(`${settings.instanceUrl}services/data/${API_VERSION}/sobjects`).patch('/Lead/123456').reply(201, {})
+
+      await sf.updateRecord(
+        {
+          traits: {
+            email: 'sponge@seamail.com',
+            isDeleted: false
+          }
+        },
+        'Lead'
+      )
+    })
+
+    it('should create SOQL WHERE conditon based on the datatype of trait value', async () => {
+      const query = encodeURIComponent(
+        `SELECT Id FROM Lead WHERE email = 'sponge@seamail.com' OR isDeleted = false OR NumberOfEmployees = 3`
+      )
+      nock(`${settings.instanceUrl}services/data/${API_VERSION}/query`)
+        .get(`/?q=${query}`)
+        .reply(201, {
+          Id: 'abc123',
+          totalSize: 1,
+          records: [{ Id: '123456' }]
+        })
+
+      nock(`${settings.instanceUrl}services/data/${API_VERSION}/sobjects`).patch('/Lead/123456').reply(201, {})
+
+      await sf.updateRecord(
+        {
+          traits: {
+            email: 'sponge@seamail.com',
+            isDeleted: false,
+            NumberOfEmployees: 3
+          }
+        },
+        'Lead'
+      )
+    })
+
+    it('should fail when trait value is of an unsupported datatype - object or arrays', async () => {
+      await expect(
+        sf.updateRecord(
+          {
+            traits: {
+              email: { key: 'sponge@seamail.com' },
+              NoOfEmployees: [1, 2]
+            }
+          },
+          'Lead'
+        )
+      ).rejects.toThrowError('Unsupported datatype for record matcher traits - object')
     })
 
     it('should fail when a record is not found', async () => {

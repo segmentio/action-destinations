@@ -4,7 +4,7 @@ import destination from '../../index'
 import nock from 'nock'
 
 const testDestination = createTestIntegration(destination)
-const actionSlug = 'identifyUser'
+const actionSlug = 'sendEvent'
 const destinationSlug = 'GainsightPxCloudAction'
 const seedName = `${destinationSlug}#${actionSlug}`
 
