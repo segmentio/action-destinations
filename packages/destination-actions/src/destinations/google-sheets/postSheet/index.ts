@@ -7,7 +7,6 @@ import { processData } from './operations'
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Post Sheet',
   description: 'Write values to a Google Sheets spreadsheet.',
-  defaultSubscription: 'type = "track" and event = "updated" or event = "new" or event = "deleted"',
   // TODO: Hide record_identifier and operation_type
   fields: {
     record_identifier: {
