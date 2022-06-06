@@ -6,7 +6,7 @@ import {
   mockHeapJsHttpRequest,
   trackEventSubscription
 } from '../../test-utilities'
-import { HEAP_SEGMENT_LIBRARY_NAME } from '../index'
+import { HEAP_SEGMENT_LIBRARY_NAME } from '../../constants'
 
 describe('#trackEvent', () => {
   const createHeapDestinationAndSpy = async (): Promise<[Plugin, jest.SpyInstance]> => {

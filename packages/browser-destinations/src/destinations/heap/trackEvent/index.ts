@@ -2,8 +2,7 @@ import type { BrowserActionDefinition } from '../../../lib/browser-destinations'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 import { HeapApi } from '../types'
-
-export const HEAP_SEGMENT_LIBRARY_NAME = 'destinations-actions'
+import { HEAP_SEGMENT_LIBRARY_NAME } from '../constants'
 
 const action: BrowserActionDefinition<Settings, HeapApi, Payload> = {
   title: 'Track Event',
