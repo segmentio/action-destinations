@@ -33,6 +33,10 @@ export interface Payload {
     externalIdValue?: string
   }
   /**
+   * The record id value to use for bulk update.
+   */
+  bulkUpdateRecordId?: string
+  /**
    * The lead's company. **This is required to create a lead.**
    */
   company?: string

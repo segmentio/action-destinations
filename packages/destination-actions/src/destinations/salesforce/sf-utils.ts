@@ -2,7 +2,13 @@ import { IntegrationError } from '@segment/actions-core'
 import { GenericPayload } from './sf-types'
 import camelCase from 'lodash/camelCase'
 
-const isSettingsKey = new Set<string>(['operation', 'traits', 'customFields', 'bulkUpsertExternalId'])
+const isSettingsKey = new Set<string>([
+  'operation',
+  'traits',
+  'customFields',
+  'bulkUpsertExternalId',
+  'bulkUpdateRecordId'
+])
 
 const NO_VALUE = `#N/A`
 
@@ -76,7 +82,7 @@ const buildHeaders = (headerMap: Map<string, [[string, number]]>): string => {
  * Iterates over each row in the CSV file. Each row is constructed by iterating over each column
  * represented in headerMap. If the value in the column applies to the row being constructed, it is
  * popped from the queue and added to the row. If not, #N/A is appended to the row.
- * The externalIDValue is then appended to the end of each row.
+ * The unique ID is then appended to the end of each row.
  *
  * @param payloads Each payload in the batch.
  * @param headerMap Represents each column in the CSV file.
@@ -110,23 +116,36 @@ const buildCSVFromHeaderMap = (
         row += `${NO_VALUE},`
       }
     }
-    const externalIdFieldValue = payloads[i].bulkUpsertExternalId?.externalIdValue as string
-    rows += `${row}"${externalIdFieldValue}"\n`
+
+    const uniqueIdValue = getUniqueIdValue(payloads[i])
+    rows += `${row}"${uniqueIdValue}"\n`
   }
   return rows
+}
+
+const getUniqueIdValue = (payload: GenericPayload): string => {
+  if (payload.operation === 'bulkUpsert') {
+    return payload.bulkUpsertExternalId?.externalIdValue as string
+  }
+
+  if (payload.operation === 'bulkUpdate') {
+    return payload.bulkUpdateRecordId as string
+  }
+
+  return NO_VALUE
 }
 
 /**
  *
  * @param payloads Each payload in the batch.
- * @param externalIdFieldName The name of the field that contains the external ID.
+ * @param uniqueIdName The name of the field that contains the external ID, or 'Id' when being used for bulk update.
  * @returns The complete CSV to send to Salesforce.
  */
-export const buildCSVData = (payloads: GenericPayload[], externalIdFieldName: string): string => {
+export const buildCSVData = (payloads: GenericPayload[], uniqueIdName: string): string => {
   const headerMap = buildHeaderMap(payloads)
   let csv = buildHeaders(headerMap)
 
-  csv += `${externalIdFieldName}\n` + buildCSVFromHeaderMap(payloads, headerMap, payloads.length)
+  csv += `${uniqueIdName}\n` + buildCSVFromHeaderMap(payloads, headerMap, payloads.length)
 
   return csv
 }

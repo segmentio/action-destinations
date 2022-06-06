@@ -87,7 +87,7 @@ export default class Salesforce {
     }
     const externalIdFieldName = payloads[0].bulkUpsertExternalId.externalIdName
 
-    const jobId = await this.createBulkJob(sobject, externalIdFieldName)
+    const jobId = await this.createBulkJob(sobject, externalIdFieldName, 'upsert')
 
     const csv = buildCSVData(payloads, externalIdFieldName)
 
@@ -95,7 +95,16 @@ export default class Salesforce {
     return await this.closeBulkJob(jobId)
   }
 
-  private createBulkJob = async (sobject: string, externalIdFieldName: string) => {
+  bulkUpdate = async (payloads: GenericPayload[], sobject: string) => {
+    const jobId = await this.createBulkJob(sobject, 'Id', 'update')
+
+    const csv = buildCSVData(payloads, 'Id')
+
+    await this.uploadBulkCSV(jobId, csv)
+    return await this.closeBulkJob(jobId)
+  }
+
+  private createBulkJob = async (sobject: string, externalIdFieldName: string, operation: string) => {
     const res = await this.request<CreateJobResponseData>(
       `${this.instanceUrl}services/data/${API_VERSION}/jobs/ingest`,
       {
@@ -104,7 +113,7 @@ export default class Salesforce {
           object: sobject,
           externalIdFieldName: externalIdFieldName,
           contentType: 'CSV',
-          operation: 'upsert'
+          operation: operation
         }
       }
     )

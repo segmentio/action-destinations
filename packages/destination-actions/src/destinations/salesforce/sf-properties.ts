@@ -11,7 +11,8 @@ export const operation: InputField = {
     { label: 'Create', value: 'create' },
     { label: 'Update', value: 'update' },
     { label: 'Upsert', value: 'upsert' },
-    { label: 'Bulk Upsert', value: 'bulkUpsert' }
+    { label: 'Bulk Upsert', value: 'bulkUpsert' },
+    { label: 'Bulk Update', value: 'bulkUpdate' }
   ]
 }
 
