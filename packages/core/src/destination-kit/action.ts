@@ -126,6 +126,8 @@ export class Action<Settings, Payload extends JSONLikeObject> extends EventEmitt
 
     // Construct the data bundle to send to an action
     const dataBundle = {
+      rawData: bundle.data,
+      rawMapping: bundle.mapping,
       settings: bundle.settings,
       payload,
       auth: bundle.auth
@@ -166,6 +168,8 @@ export class Action<Settings, Payload extends JSONLikeObject> extends EventEmitt
 
     if (this.definition.performBatch) {
       const data = {
+        rawData: bundle.data,
+        rawMapping: bundle.mapping,
         settings: bundle.settings,
         payload: payloads,
         auth: bundle.auth
