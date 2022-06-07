@@ -34,6 +34,7 @@ const fetchProfileTraits = async (
 }
 
 const EXTERNAL_ID_KEY = 'phone'
+const DEFAULT_HOSTNAME = 'api.twilio.com'
 
 const DEFAULT_CONNECTION_OVERRIDES = 'rp=all&rc=5'
 const action: ActionDefinition<Settings, Payload> = {
@@ -137,7 +138,6 @@ const action: ActionDefinition<Settings, Payload> = {
       return
     } else if (['subscribed', 'true'].includes(externalId.subscriptionStatus)) {
       const traits = await fetchProfileTraits(request, settings, payload.userId)
-
       const phone = payload.toNumber || externalId.id
       if (!phone) {
         return
@@ -181,7 +181,8 @@ const action: ActionDefinition<Settings, Payload> = {
         body.append('StatusCallback', webhookUrlWithParams.toString())
       }
 
-      return request(`https://api.twilio.com/2010-04-01/Accounts/${settings.twilioAccountSID}/Messages.json`, {
+      const hostname = settings.twilioHostname ?? DEFAULT_HOSTNAME
+      return request(`https://${hostname}/2010-04-01/Accounts/${settings.twilioAccountSID}/Messages.json`, {
         method: 'POST',
         headers: {
           authorization: `Basic ${token}`
