@@ -6,7 +6,7 @@ export interface Payload {
    */
   record_identifier: string
   /**
-   * Describes the nature of the operation being performed. Only supported values are 'new', 'updated', and 'deleted'.
+   * Describes the nature of the operation being performed. Only supported values are 'new' and 'updated'.
    */
   operation_type: string
   /**
