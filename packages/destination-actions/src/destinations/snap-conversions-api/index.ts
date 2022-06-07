@@ -11,18 +11,18 @@ const destination: DestinationDefinition<Settings> = {
   authentication: {
     scheme: 'oauth2',
     fields: {
-      pixelId: {
+      pixel_id: {
         label: 'Pixel ID',
         description: 'The Pixel ID for your Snapchat Ad Account. Required for web and offline events.',
         type: 'string'
       },
-      snapAppId: {
+      snap_app_id: {
         label: 'Snap App ID',
         description:
           'The Snap App ID associated with your app. This is a unique code generated in Snapchat Ads Manager and included in your MMP dashboard. Required for app events.',
         type: 'string'
       },
-      appId: {
+      app_id: {
         label: 'App ID',
         description:
           'The unique ID assigned for a given application. It should be numeric for iOS, and the human interpretable string for Android. Required for app events.',
