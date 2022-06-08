@@ -27,7 +27,11 @@ export default class Validate extends Command {
     for (const destination of destinations) {
       this.spinner.start(`Validating definition for ${destination.definition.name}`)
 
-      const errors = [...this.validatePresets(destination.definition), ...this.validateActions(destination.definition)]
+      const errors = [
+        ...this.validatePresets(destination.definition),
+        ...this.validateActions(destination.definition),
+        ...this.validateSettings(destination.definition)
+      ]
 
       if (errors.length) {
         this.spinner.fail(
