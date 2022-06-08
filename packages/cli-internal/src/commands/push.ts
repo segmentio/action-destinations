@@ -414,7 +414,7 @@ export function getOptions(
     options[fieldKey] = {
       ...existing,
       tags,
-      default: schema.default ?? '',
+      default: schema.default ?? getOptionFieldDefaultValue(schema.type),
       description: schema.description,
       encrypt: schema.type === 'password',
       hidden: false,
@@ -438,4 +438,16 @@ export function getOptions(
   }
 
   return options
+}
+
+function getOptionFieldDefaultValue(type: DestinationMetadataOption['type']): string | number | boolean | undefined {
+  // Current actions only use a subset of types supported by DestinationMetadataOption['type']: 'string', 'number', and 'boolean'
+  switch (type) {
+    case 'boolean':
+      return false
+    case 'number':
+      return 0
+    default:
+      return ''
+  }
 }
