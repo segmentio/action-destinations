@@ -1,12 +1,11 @@
-//import { defaultValues, DestinationDefinition } from '@segment/actions-core'
-import { DestinationDefinition } from '@segment/actions-core'
+import { defaultValues, DestinationDefinition } from '@segment/actions-core'
 import type { Settings } from './generated-types'
 
 import reportConversionEvent from './reportConversionEvent'
 
-// const DEFAULT_VALS = {
-//   ...defaultValues(reportConversionEvent.fields)
-// }
+const DEFAULT_VALS = {
+  ...defaultValues(reportConversionEvent.fields)
+}
 
 const ACCESS_TOKEN_URL = 'https://accounts.snapchat.com/login/oauth2/access_token'
 
@@ -14,16 +13,18 @@ interface RefreshTokenResponse {
   access_token: string
 }
 
-// const presets: DestinationDefinition['presets'] = [
-//   {
-//     name: 'Add Billing',
-//     subscribe: 'event = "Payment Info Entered"',
-//     partnerAction: 'reportConversionEvent',
-//     mapping: {
-//       ...DEFAULT_VALS,
-//       event_type: 'ADD_BILLING'
-//     }
-//   },
+const presets: DestinationDefinition['presets'] = [
+  {
+    name: 'Add Billing',
+    subscribe: 'event = "Payment Info Entered"',
+    partnerAction: 'reportConversionEvent',
+    mapping: {
+      ...DEFAULT_VALS,
+      event_type: 'ADD_BILLING',
+      event_converstion_type: 'WEB'
+    }
+  }
+]
 //   {
 //     name: 'Add to Cart',
 //     subscribe: 'event = "Product Added"',
@@ -191,6 +192,7 @@ const destination: DestinationDefinition<Settings> = {
       }
     }
   },
+  presets,
   actions: {
     reportConversionEvent
   }
