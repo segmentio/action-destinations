@@ -123,17 +123,24 @@ export default class Validate extends Command {
     return (trigger as ErrorCondition).error || null
   }
 
-  validateSettings(destination: DestinationDefinition): Error | null {
+  validateSettings(destination: DestinationDefinition) {
+    const errors: Error[] = []
     if (destination.mode === 'cloud') {
       const dest = destination as CloudDestinationDefinition
       Object.keys(dest.authentication?.fields ?? {}).forEach((field) => {
         const typ = dest.authentication?.fields[field].type
+        //TODO: consider invalidating here -- for now we just warn
+        // this.isInvalid = true
         if (typ === 'boolean' || typ === 'number') {
-          console.warn('It is reccomended to set a default for field type boolean or number to avoid validation errors')
+          errors.push(
+            new Error(
+              `The authentication field "${field}" of type "${typ}" does not contain a default value. It is reccomended to choose a sane default to avoid validation issues.`
+            )
+          )
         }
       })
     }
-    return null
+    return errors
   }
 
   async catch(error: unknown) {
