@@ -140,7 +140,7 @@ export default class Validate extends Command {
         if (literalType && emptyDefault) {
           errors.push(
             new Error(
-              `The authentication field "${field}" of type "${fieldValues.type}" does not contain a default value. It is reccomended to choose a sane default to avoid validation issues.`
+              `The authentication field "${field}" of type "${fieldValues?.type}" does not contain a default value. It is reccomended to choose a sane default to avoid validation issues.`
             )
           )
         }
