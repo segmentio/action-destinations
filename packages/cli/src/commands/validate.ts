@@ -151,7 +151,7 @@ export default class Validate extends Command {
           }
           if (typeof fieldValues?.default !== typ) {
             errors.push(
-              new Error(`The default value for field "${field}" is not a ${typ}, but the type is set to ${typ}.`)
+              new Error(`The default value for field "${field}" is of type "${typeof fieldValues?.default}", but the type is set to "${typ}".`)
             )
           }
         }
