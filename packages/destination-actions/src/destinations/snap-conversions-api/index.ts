@@ -1,11 +1,12 @@
-import { defaultValues, DestinationDefinition } from '@segment/actions-core'
+//import { defaultValues, DestinationDefinition } from '@segment/actions-core'
+import { DestinationDefinition } from '@segment/actions-core'
 import type { Settings } from './generated-types'
 
 import reportConversionEvent from './reportConversionEvent'
 
-const DEFAULT_VALS = {
-  ...defaultValues(reportConversionEvent.fields)
-}
+// const DEFAULT_VALS = {
+//   ...defaultValues(reportConversionEvent.fields)
+// }
 
 const ACCESS_TOKEN_URL = 'https://accounts.snapchat.com/login/oauth2/access_token'
 
@@ -13,134 +14,134 @@ interface RefreshTokenResponse {
   access_token: string
 }
 
-const presets: DestinationDefinition['presets'] = [
-  {
-    name: 'Add Billing',
-    subscribe: 'event = "Payment Info Entered"',
-    partnerAction: 'reportConversionEvent',
-    mapping: {
-      ...DEFAULT_VALS,
-      event_type: 'ADD_BILLING'
-    }
-  },
-  {
-    name: 'Add to Cart',
-    subscribe: 'event = "Product Added"',
-    partnerAction: 'reportConversionEvent',
-    mapping: {
-      ...DEFAULT_VALS,
-      event_type: 'ADD_CART'
-    }
-  },
-  {
-    name: 'Add to Wishlist',
-    subscribe: 'event = "Product Added to Wishlist"',
-    partnerAction: 'reportConversionEvent',
-    mapping: {
-      ...DEFAULT_VALS,
-      event_type: 'ADD_TO_WISHLIST'
-    }
-  },
-  {
-    name: 'App Install',
-    subscribe: 'event = "Application Installed"',
-    partnerAction: 'reportConversionEvent',
-    mapping: {
-      ...DEFAULT_VALS,
-      event_type: 'APP_INSTALL'
-    }
-  },
-  {
-    name: 'List View',
-    subscribe: 'event = "Product List Viewed"',
-    partnerAction: 'reportConversionEvent',
-    mapping: {
-      ...DEFAULT_VALS,
-      event_type: 'LIST_VIEW'
-    }
-  },
-  {
-    name: 'App Open',
-    subscribe: 'event = "Application Opened"',
-    partnerAction: 'reportConversionEvent',
-    mapping: {
-      ...DEFAULT_VALS,
-      event_type: 'APP_OPEN'
-    }
-  },
-  {
-    name: 'Login',
-    subscribe: 'event = "Signed In"',
-    partnerAction: 'reportConversionEvent',
-    mapping: {
-      ...DEFAULT_VALS,
-      event_type: 'LOGIN'
-    }
-  },
-  {
-    name: 'Page View',
-    subscribe: 'type = "page"',
-    partnerAction: 'reportConversionEvent',
-    mapping: {
-      ...DEFAULT_VALS,
-      event_type: 'PAGE_VIEW'
-    }
-  },
-  {
-    name: 'Purchase',
-    subscribe: 'event = "Order Completed"',
-    partnerAction: 'reportConversionEvent',
-    mapping: {
-      ...DEFAULT_VALS,
-      event_type: 'PURCHASE'
-    }
-  },
-  {
-    name: 'Search',
-    subscribe: 'event = "Products Searched"',
-    partnerAction: 'reportConversionEvent',
-    mapping: {
-      ...DEFAULT_VALS,
-      event_type: 'SEARCH'
-    }
-  },
-  {
-    name: 'Share',
-    subscribe: 'event = "Product Shared"',
-    partnerAction: 'reportConversionEvent',
-    mapping: {
-      ...DEFAULT_VALS,
-      event_type: 'SHARE'
-    }
-  },
-  {
-    name: 'Sign Up',
-    subscribe: 'event = "Signed Up"',
-    partnerAction: 'reportConversionEvent',
-    mapping: {
-      ...DEFAULT_VALS,
-      event_type: 'SIGN_UP'
-    }
-  },
-  {
-    name: 'Start Checkout',
-    subscribe: 'event = "Checkout Started"',
-    partnerAction: 'reportConversionEvent',
-    mapping: {
-      ...DEFAULT_VALS,
-      event_type: 'START_CHECKOUT'
-    }
-  },
-  {
-    name: 'View Content',
-    subscribe: 'event = "Product Viewed"',
-    partnerAction: 'reportConversionEvent',
-    mapping: {
-      ...DEFAULT_VALS,
-      event_type: 'VIEW_CONTENT'
-    }
-  }
-]
+// const presets: DestinationDefinition['presets'] = [
+//   {
+//     name: 'Add Billing',
+//     subscribe: 'event = "Payment Info Entered"',
+//     partnerAction: 'reportConversionEvent',
+//     mapping: {
+//       ...DEFAULT_VALS,
+//       event_type: 'ADD_BILLING'
+//     }
+//   },
+//   {
+//     name: 'Add to Cart',
+//     subscribe: 'event = "Product Added"',
+//     partnerAction: 'reportConversionEvent',
+//     mapping: {
+//       ...DEFAULT_VALS,
+//       event_type: 'ADD_CART'
+//     }
+//   },
+//   {
+//     name: 'Add to Wishlist',
+//     subscribe: 'event = "Product Added to Wishlist"',
+//     partnerAction: 'reportConversionEvent',
+//     mapping: {
+//       ...DEFAULT_VALS,
+//       event_type: 'ADD_TO_WISHLIST'
+//     }
+//   },
+//   {
+//     name: 'App Install',
+//     subscribe: 'event = "Application Installed"',
+//     partnerAction: 'reportConversionEvent',
+//     mapping: {
+//       ...DEFAULT_VALS,
+//       event_type: 'APP_INSTALL'
+//     }
+//   },
+//   {
+//     name: 'List View',
+//     subscribe: 'event = "Product List Viewed"',
+//     partnerAction: 'reportConversionEvent',
+//     mapping: {
+//       ...DEFAULT_VALS,
+//       event_type: 'LIST_VIEW'
+//     }
+//   },
+//   {
+//     name: 'App Open',
+//     subscribe: 'event = "Application Opened"',
+//     partnerAction: 'reportConversionEvent',
+//     mapping: {
+//       ...DEFAULT_VALS,
+//       event_type: 'APP_OPEN'
+//     }
+//   },
+//   {
+//     name: 'Login',
+//     subscribe: 'event = "Signed In"',
+//     partnerAction: 'reportConversionEvent',
+//     mapping: {
+//       ...DEFAULT_VALS,
+//       event_type: 'LOGIN'
+//     }
+//   },
+//   {
+//     name: 'Page View',
+//     subscribe: 'type = "page"',
+//     partnerAction: 'reportConversionEvent',
+//     mapping: {
+//       ...DEFAULT_VALS,
+//       event_type: 'PAGE_VIEW'
+//     }
+//   },
+//   {
+//     name: 'Purchase',
+//     subscribe: 'event = "Order Completed"',
+//     partnerAction: 'reportConversionEvent',
+//     mapping: {
+//       ...DEFAULT_VALS,
+//       event_type: 'PURCHASE'
+//     }
+//   },
+//   {
+//     name: 'Search',
+//     subscribe: 'event = "Products Searched"',
+//     partnerAction: 'reportConversionEvent',
+//     mapping: {
+//       ...DEFAULT_VALS,
+//       event_type: 'SEARCH'
+//     }
+//   },
+//   {
+//     name: 'Share',
+//     subscribe: 'event = "Product Shared"',
+//     partnerAction: 'reportConversionEvent',
+//     mapping: {
+//       ...DEFAULT_VALS,
+//       event_type: 'SHARE'
+//     }
+//   },
+//   {
+//     name: 'Sign Up',
+//     subscribe: 'event = "Signed Up"',
+//     partnerAction: 'reportConversionEvent',
+//     mapping: {
+//       ...DEFAULT_VALS,
+//       event_type: 'SIGN_UP'
+//     }
+//   },
+//   {
+//     name: 'Start Checkout',
+//     subscribe: 'event = "Checkout Started"',
+//     partnerAction: 'reportConversionEvent',
+//     mapping: {
+//       ...DEFAULT_VALS,
+//       event_type: 'START_CHECKOUT'
+//     }
+//   },
+//   {
+//     name: 'View Content',
+//     subscribe: 'event = "Product Viewed"',
+//     partnerAction: 'reportConversionEvent',
+//     mapping: {
+//       ...DEFAULT_VALS,
+//       event_type: 'VIEW_CONTENT'
+//     }
+//   }
+// ]
 
 const destination: DestinationDefinition<Settings> = {
   name: 'Snap Conversions Api',
@@ -190,7 +191,6 @@ const destination: DestinationDefinition<Settings> = {
       }
     }
   },
-  presets,
   actions: {
     reportConversionEvent
   }
