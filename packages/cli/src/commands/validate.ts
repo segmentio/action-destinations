@@ -132,13 +132,15 @@ export default class Validate extends Command {
     if (destination.mode === 'cloud') {
       const dest = destination as CloudDestinationDefinition
       Object.keys(dest.authentication?.fields ?? {}).forEach((field) => {
-        const typ = dest.authentication?.fields[field].type
+        const fieldValues = dest.authentication?.fields[field]
         //TODO: consider invalidating here -- for now we just warn
         // this.isInvalid = true
-        if (typ === 'boolean' || typ === 'number') {
+        const literalType = fieldValues?.type === 'boolean' || fieldValues?.type === 'number'
+        const emptyDefault = fieldValues?.default === undefined || fieldValues?.default === null
+        if (literalType && emptyDefault) {
           errors.push(
             new Error(
-              `The authentication field "${field}" of type "${typ}" does not contain a default value. It is reccomended to choose a sane default to avoid validation issues.`
+              `The authentication field "${field}" of type "${fieldValues.type}" does not contain a default value. It is reccomended to choose a sane default to avoid validation issues.`
             )
           )
         }
