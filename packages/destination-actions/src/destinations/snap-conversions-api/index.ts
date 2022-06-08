@@ -153,19 +153,22 @@ const destination: DestinationDefinition<Settings> = {
       pixel_id: {
         label: 'Pixel ID',
         description: 'The Pixel ID for your Snapchat Ad Account. Required for web and offline events.',
-        type: 'string'
+        type: 'string',
+        default: 'test123'
       },
       snap_app_id: {
         label: 'Snap App ID',
         description:
           'The Snap App ID associated with your app. This is a unique code generated in Snapchat Ads Manager and included in your MMP dashboard. Required for app events.',
-        type: 'string'
+        type: 'string',
+        default: 'test123'
       },
       app_id: {
         label: 'App ID',
         description:
           'The unique ID assigned for a given application. It should be numeric for iOS, and the human interpretable string for Android. Required for app events.',
-        type: 'string'
+        type: 'string',
+        default: 'test123'
       }
     },
     refreshAccessToken: async (request, { auth }) => {
