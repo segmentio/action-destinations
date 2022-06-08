@@ -3,6 +3,7 @@ import type { BaseActionDefinition } from '@segment/actions-core'
 import { ErrorCondition, parseFql } from '@segment/destination-subscriptions'
 import ora from 'ora'
 import { getManifest, DestinationDefinition } from '../lib/destinations'
+import type { DestinationDefinition as CloudDestinationDefinition } from '@segment/actions-core'
 
 export default class Validate extends Command {
   private spinner: ora.Ora = ora()
@@ -120,6 +121,19 @@ export default class Validate extends Command {
   validateFQL(fql: string): Error | null {
     const trigger = parseFql(fql)
     return (trigger as ErrorCondition).error || null
+  }
+
+  validateSettings(destination: DestinationDefinition): Error | null {
+    if (destination.mode === 'cloud') {
+      const dest = destination as CloudDestinationDefinition
+      Object.keys(dest.authentication?.fields ?? {}).forEach((field) => {
+        const typ = dest.authentication?.fields[field].type
+        if (typ === 'boolean' || typ === 'number') {
+          console.warn('It is reccomended to set a default for field type boolean or number to avoid validation errors')
+        }
+      })
+    }
+    return null
   }
 
   async catch(error: unknown) {
