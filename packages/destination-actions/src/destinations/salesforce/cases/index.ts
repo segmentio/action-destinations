@@ -7,8 +7,7 @@ import {
   customFields,
   operation,
   traits,
-  validateLookup,
-  thowBulkMismatchError
+  validateLookup
 } from '../sf-properties'
 import Salesforce from '../sf-operations'
 
@@ -49,13 +48,7 @@ const action: ActionDefinition<Settings, Payload> = {
   performBatch: async (request, { settings, payload }) => {
     const sf: Salesforce = new Salesforce(settings.instanceUrl, request)
 
-    if (payload[0].operation === 'bulkUpsert') {
-      return await sf.bulkUpsert(payload, OBJECT_NAME)
-    } else if (payload[0].operation === 'bulkUpdate') {
-      return await sf.bulkUpdate(payload, OBJECT_NAME)
-    } else {
-      thowBulkMismatchError()
-    }
+    return sf.bulkHandler(payload, OBJECT_NAME)
   }
 }
 

@@ -2,6 +2,7 @@ import { IntegrationError, RequestClient } from '@segment/actions-core'
 import type { GenericPayload } from './sf-types'
 import { mapObjectToShape } from './sf-object-to-shape'
 import { buildCSVData } from './sf-utils'
+import { throwBulkMismatchError } from './sf-properties'
 
 export const API_VERSION = 'v53.0'
 
@@ -73,7 +74,17 @@ export default class Salesforce {
     return await this.baseUpdate(recordId, sobject, payload)
   }
 
-  bulkUpsert = async (payloads: GenericPayload[], sobject: string) => {
+  bulkHandler = async (payloads: GenericPayload[], sobject: string) => {
+    if (payloads[0].operation === 'bulkUpsert') {
+      return await this.bulkUpsert(payloads, sobject)
+    } else if (payloads[0].operation === 'bulkUpdate') {
+      return await this.bulkUpdate(payloads, sobject)
+    } else {
+      throwBulkMismatchError()
+    }
+  }
+
+  private bulkUpsert = async (payloads: GenericPayload[], sobject: string) => {
     if (
       !payloads[0].bulkUpsertExternalId ||
       !payloads[0].bulkUpsertExternalId.externalIdName ||
@@ -95,7 +106,7 @@ export default class Salesforce {
     return await this.closeBulkJob(jobId)
   }
 
-  bulkUpdate = async (payloads: GenericPayload[], sobject: string) => {
+  private bulkUpdate = async (payloads: GenericPayload[], sobject: string) => {
     if (!payloads[0].bulkUpdateRecordId) {
       throw new IntegrationError(
         'Undefined bulkUpdateRecordId when using bulkUpdate operation',

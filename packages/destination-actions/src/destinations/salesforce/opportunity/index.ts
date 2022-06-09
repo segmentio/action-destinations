@@ -7,8 +7,7 @@ import {
   customFields,
   operation,
   traits,
-  validateLookup,
-  thowBulkMismatchError
+  validateLookup
 } from '../sf-properties'
 import type { Payload } from './generated-types'
 
@@ -80,13 +79,9 @@ const action: ActionDefinition<Settings, Payload> = {
       if (!payload[0].close_date || !payload[0].name || !payload[0].stage_name) {
         throw new IntegrationError('Missing close_date, name or stage_name value', 'Misconfigured required field', 400)
       }
-
-      return await sf.bulkUpsert(payload, OBJECT_NAME)
-    } else if (payload[0].operation === 'bulkUpdate') {
-      return await sf.bulkUpdate(payload, OBJECT_NAME)
-    } else {
-      thowBulkMismatchError()
     }
+
+    return sf.bulkHandler(payload, OBJECT_NAME)
   }
 }
 

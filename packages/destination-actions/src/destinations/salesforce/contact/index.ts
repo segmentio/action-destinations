@@ -7,8 +7,7 @@ import {
   customFields,
   operation,
   traits,
-  validateLookup,
-  thowBulkMismatchError
+  validateLookup
 } from '../sf-properties'
 import Salesforce from '../sf-operations'
 
@@ -156,12 +155,9 @@ const action: ActionDefinition<Settings, Payload> = {
       if (!payload[0].last_name) {
         throw new IntegrationError('Missing last_name value', 'Misconfigured required field', 400)
       }
-      return await sf.bulkUpsert(payload, OBJECT_NAME)
-    } else if (payload[0].operation === 'bulkUpdate') {
-      return await sf.bulkUpdate(payload, OBJECT_NAME)
-    } else {
-      thowBulkMismatchError()
     }
+
+    return sf.bulkHandler(payload, OBJECT_NAME)
   }
 }
 

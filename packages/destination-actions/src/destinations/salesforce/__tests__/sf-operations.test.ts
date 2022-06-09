@@ -453,7 +453,7 @@ describe('Salesforce', () => {
         })
         .reply(201, {})
 
-      await sf.bulkUpsert(bulkUpsertPayloads, 'Account')
+      await sf.bulkHandler(bulkUpsertPayloads, 'Account')
     })
 
     it('should correctly parse the customFields object', async () => {
@@ -488,7 +488,7 @@ describe('Salesforce', () => {
         })
         .reply(201, {})
 
-      await sf.bulkUpsert(customPayloads, 'Account')
+      await sf.bulkHandler(customPayloads, 'Account')
     })
 
     it('should correctly update a batch of records', async () => {
@@ -523,7 +523,7 @@ describe('Salesforce', () => {
         })
         .reply(201, {})
 
-      await sf.bulkUpdate(bulkUpdatePayloads, 'Account')
+      await sf.bulkHandler(bulkUpdatePayloads, 'Account')
     })
   })
 })
