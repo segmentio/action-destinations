@@ -87,3 +87,9 @@ export const validateLookup = (payload: Payload) => {
     }
   }
 }
+
+// This error is only thrown if an array of payloads arrives to performBatch.
+export const thowBulkMismatchError = () => {
+  const errorMsg = 'Standard operation used with batching enabled.'
+  throw new IntegrationError(errorMsg, errorMsg, 400)
+}

@@ -1,7 +1,14 @@
 import { ActionDefinition, IntegrationError } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import Salesforce from '../sf-operations'
-import { bulkUpsertExternalId, customFields, operation, traits, validateLookup } from '../sf-properties'
+import {
+  bulkUpsertExternalId,
+  customFields,
+  operation,
+  traits,
+  validateLookup,
+  thowBulkMismatchError
+} from '../sf-properties'
 import type { Payload } from './generated-types'
 
 const OBJECT_NAME = 'Account'
@@ -198,9 +205,10 @@ const action: ActionDefinition<Settings, Payload> = {
       }
 
       return await sf.bulkUpsert(payload, OBJECT_NAME)
+    } else if (payload[0].operation === 'bulkUpdate') {
+      return await sf.bulkUpdate(payload, OBJECT_NAME)
     } else {
-      const errorMsg = 'Bulk Upsert action must be used with batching'
-      throw new IntegrationError(errorMsg, errorMsg, 400)
+      thowBulkMismatchError()
     }
   }
 }

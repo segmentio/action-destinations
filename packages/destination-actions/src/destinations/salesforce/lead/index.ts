@@ -7,7 +7,8 @@ import {
   customFields,
   operation,
   traits,
-  validateLookup
+  validateLookup,
+  thowBulkMismatchError
 } from '../sf-properties'
 import Salesforce from '../sf-operations'
 
@@ -166,8 +167,7 @@ const action: ActionDefinition<Settings, Payload> = {
     } else if (payload[0].operation === 'bulkUpdate') {
       return await sf.bulkUpdate(payload, OBJECT_NAME)
     } else {
-      const errorMsg = 'Bulk Upsert action must be used with batching'
-      throw new IntegrationError(errorMsg, errorMsg, 400)
+      thowBulkMismatchError()
     }
   }
 }
