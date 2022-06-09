@@ -96,8 +96,15 @@ export default class Salesforce {
   }
 
   bulkUpdate = async (payloads: GenericPayload[], sobject: string) => {
-    const jobId = await this.createBulkJob(sobject, 'Id', 'update')
+    if (!payloads[0].bulkUpdateRecordId) {
+      throw new IntegrationError(
+        'Undefined bulkUpdateRecordId when using bulkUpdate operation',
+        'Undefined bulkUpdateRecordId',
+        400
+      )
+    }
 
+    const jobId = await this.createBulkJob(sobject, 'Id', 'update')
     const csv = buildCSVData(payloads, 'Id')
 
     await this.uploadBulkCSV(jobId, csv)

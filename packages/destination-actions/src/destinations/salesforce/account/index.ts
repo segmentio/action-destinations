@@ -3,6 +3,7 @@ import type { Settings } from '../generated-types'
 import Salesforce from '../sf-operations'
 import {
   bulkUpsertExternalId,
+  bulkUpdateRecordId,
   customFields,
   operation,
   traits,
@@ -21,6 +22,7 @@ const action: ActionDefinition<Settings, Payload> = {
     operation: operation,
     traits: traits,
     bulkUpsertExternalId: bulkUpsertExternalId,
+    bulkUpdateRecordId: bulkUpdateRecordId,
     name: {
       label: 'Name',
       description: 'Name of the account. **This is required to create an account.**',

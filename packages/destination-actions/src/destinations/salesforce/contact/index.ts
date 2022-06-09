@@ -3,6 +3,7 @@ import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 import {
   bulkUpsertExternalId,
+  bulkUpdateRecordId,
   customFields,
   operation,
   traits,
@@ -20,6 +21,7 @@ const action: ActionDefinition<Settings, Payload> = {
     operation: operation,
     traits: traits,
     bulkUpsertExternalId: bulkUpsertExternalId,
+    bulkUpdateRecordId: bulkUpdateRecordId,
     last_name: {
       label: 'Last Name',
       description: "The contact's last name up to 80 characters. **This is required to create a contact.**",

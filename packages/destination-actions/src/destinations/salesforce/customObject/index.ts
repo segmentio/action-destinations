@@ -3,6 +3,7 @@ import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 import {
   bulkUpsertExternalId,
+  bulkUpdateRecordId,
   operation,
   traits,
   customFields,
@@ -19,6 +20,7 @@ const action: ActionDefinition<Settings, Payload> = {
     operation: operation,
     traits: traits,
     bulkUpsertExternalId: bulkUpsertExternalId,
+    bulkUpdateRecordId: bulkUpdateRecordId,
     customObjectName: {
       label: 'Salesforce Object',
       description:
