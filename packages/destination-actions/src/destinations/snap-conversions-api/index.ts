@@ -21,7 +21,7 @@ const presets: DestinationDefinition['presets'] = [
     mapping: {
       ...DEFAULT_VALS,
       event_type: 'ADD_BILLING',
-      event_converstion_type: 'WEB'
+      event_conversion_type: 'WEB'
     }
   },
   {
@@ -31,7 +31,7 @@ const presets: DestinationDefinition['presets'] = [
     mapping: {
       ...DEFAULT_VALS,
       event_type: 'ADD_CART',
-      event_converstion_type: 'WEB'
+      event_conversion_type: 'WEB'
     }
   },
   {
@@ -41,7 +41,7 @@ const presets: DestinationDefinition['presets'] = [
     mapping: {
       ...DEFAULT_VALS,
       event_type: 'ADD_TO_WISHLIST',
-      event_converstion_type: 'WEB'
+      event_conversion_type: 'WEB'
     }
   },
   {
@@ -51,7 +51,7 @@ const presets: DestinationDefinition['presets'] = [
     mapping: {
       ...DEFAULT_VALS,
       event_type: 'APP_INSTALL',
-      event_converstion_type: 'WEB'
+      event_conversion_type: 'WEB'
     }
   },
   {
@@ -61,7 +61,7 @@ const presets: DestinationDefinition['presets'] = [
     mapping: {
       ...DEFAULT_VALS,
       event_type: 'LIST_VIEW',
-      event_converstion_type: 'WEB'
+      event_conversion_type: 'WEB'
     }
   },
   {
@@ -71,7 +71,7 @@ const presets: DestinationDefinition['presets'] = [
     mapping: {
       ...DEFAULT_VALS,
       event_type: 'APP_OPEN',
-      event_converstion_type: 'WEB'
+      event_conversion_type: 'WEB'
     }
   },
   {
@@ -81,7 +81,7 @@ const presets: DestinationDefinition['presets'] = [
     mapping: {
       ...DEFAULT_VALS,
       event_type: 'LOGIN',
-      event_converstion_type: 'WEB'
+      event_conversion_type: 'WEB'
     }
   },
   {
@@ -91,7 +91,7 @@ const presets: DestinationDefinition['presets'] = [
     mapping: {
       ...DEFAULT_VALS,
       event_type: 'PAGE_VIEW',
-      event_converstion_type: 'WEB'
+      event_conversion_type: 'WEB'
     }
   },
   {
@@ -101,7 +101,7 @@ const presets: DestinationDefinition['presets'] = [
     mapping: {
       ...DEFAULT_VALS,
       event_type: 'PURCHASE',
-      event_converstion_type: 'WEB'
+      event_conversion_type: 'WEB'
     }
   },
   {
@@ -111,7 +111,7 @@ const presets: DestinationDefinition['presets'] = [
     mapping: {
       ...DEFAULT_VALS,
       event_type: 'SEARCH',
-      event_converstion_type: 'WEB'
+      event_conversion_type: 'WEB'
     }
   },
   {
@@ -121,7 +121,7 @@ const presets: DestinationDefinition['presets'] = [
     mapping: {
       ...DEFAULT_VALS,
       event_type: 'SHARE',
-      event_converstion_type: 'WEB'
+      event_conversion_type: 'WEB'
     }
   },
   {
@@ -131,7 +131,7 @@ const presets: DestinationDefinition['presets'] = [
     mapping: {
       ...DEFAULT_VALS,
       event_type: 'SIGN_UP',
-      event_converstion_type: 'WEB'
+      event_conversion_type: 'WEB'
     }
   },
   {
@@ -141,7 +141,7 @@ const presets: DestinationDefinition['presets'] = [
     mapping: {
       ...DEFAULT_VALS,
       event_type: 'START_CHECKOUT',
-      event_converstion_type: 'WEB'
+      event_conversion_type: 'WEB'
     }
   },
   {
@@ -151,7 +151,7 @@ const presets: DestinationDefinition['presets'] = [
     mapping: {
       ...DEFAULT_VALS,
       event_type: 'VIEW_CONTENT',
-      event_converstion_type: 'WEB'
+      event_conversion_type: 'WEB'
     }
   }
 ]
