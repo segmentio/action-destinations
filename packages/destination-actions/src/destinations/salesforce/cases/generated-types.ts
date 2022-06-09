@@ -33,6 +33,10 @@ export interface Payload {
     externalIdValue?: string
   }
   /**
+   * The record id value to use for bulk update.
+   */
+  bulkUpdateRecordId?: string
+  /**
    * A text description of the case.
    */
   description?: string
