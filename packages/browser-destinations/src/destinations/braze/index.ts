@@ -18,6 +18,8 @@ declare global {
   }
 }
 
+const defaultVersion = '4.0'
+
 const presets: DestinationDefinition['presets'] = [
   {
     name: 'Identify Calls',
@@ -70,7 +72,7 @@ export const destination: BrowserDestinationDefinition<Settings, BrazeType> = {
           label: '4.0'
         }
       ],
-      default: '4.0',
+      default: defaultVersion,
       required: true
     },
     api_key: {
@@ -273,17 +275,18 @@ export const destination: BrowserDestinationDefinition<Settings, BrazeType> = {
         subscriptions,
         ...expectedConfig
       } = settings
-      const version = sdkVersion ?? '4.0'
+
+      const version = sdkVersion ?? defaultVersion
 
       resetUserCache()
 
-      if (version.startsWith('3.')) {
+      if (version.indexOf('3.') === 0) {
         await dependencies.loadScript(`https://js.appboycdn.com/web-sdk/${version}/appboy.no-amd.min.js`)
       } else {
         await dependencies.loadScript(`https://js.appboycdn.com/web-sdk/${version}/braze.no-amd.min.js`)
       }
 
-      const brazeObject: BrazeType = version.startsWith('3.') ? window.appboy : window.braze
+      const brazeObject: BrazeType = version.indexOf('3.') === 0 ? window.appboy : window.braze
 
       brazeObject.initialize(api_key, {
         baseUrl: window.BRAZE_BASE_URL || endpoint,
