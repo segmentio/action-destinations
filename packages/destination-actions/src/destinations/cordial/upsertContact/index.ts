@@ -23,6 +23,22 @@ const action: ActionDefinition<Settings, Payload> = {
       type: 'object',
       required: false,
       defaultObjectUI: 'keyvalue:only'
+    },
+    userId: {
+      label: 'Segment userId',
+      description: '',
+      type: 'hidden',
+      default: {
+        '@path': '$.userId'
+      }
+    },
+    anonymousId: {
+      label: 'Segment anonymousId',
+      description: '',
+      type: 'hidden',
+      default: {
+        '@path': '$.anonymousId'
+      }
     }
   },
   perform: async (request, { settings, payload }) => {

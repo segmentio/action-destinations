@@ -13,4 +13,6 @@ export interface Payload {
   attributes?: {
     [k: string]: unknown
   }
+  userId?: string
+  anonymousId?: string
 }

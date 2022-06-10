@@ -27,4 +27,6 @@ export interface Payload {
   context?: {
     [k: string]: unknown
   }
+  userId?: string
+  anonymousId?: string
 }

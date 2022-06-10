@@ -54,6 +54,22 @@ const action: ActionDefinition<Settings, Payload> = {
       default: {
         '@path': '$.context'
       }
+    },
+    userId: {
+      label: 'Segment userId',
+      description: '',
+      type: 'hidden',
+      default: {
+        '@path': '$.userId'
+      }
+    },
+    anonymousId: {
+      label: 'Segment anonymousId',
+      description: '',
+      type: 'hidden',
+      default: {
+        '@path': '$.anonymousId'
+      }
     }
   },
   perform: (request, { settings, payload }) => {

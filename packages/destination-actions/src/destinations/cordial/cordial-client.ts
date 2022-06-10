@@ -17,26 +17,16 @@ class CordialClient {
   addContactActivity(payload: CreateContactactivityPayload) {
     return this.request(`${this.apiUrl}/createContactactivity`, {
       method: 'post',
-      json: {
-        userIdentities: payload.userIdentities,
-        action: payload.action,
-        time: payload.time,
-        properties: payload.properties,
-        context: payload.context
-      }
+      json: payload
     })
   }
 
   async upsertContact(payload: UpsertContactPayload) {
     return this.request(`${this.apiUrl}/upsertContact`, {
       method: 'post',
-      json: {
-        userIdentities: payload.userIdentities,
-        attributes: payload.attributes
-      }
+      json: payload
     })
   }
-
 
   async addContactToList(payload: AddContactToListPayload) {
     return this.request(`${this.apiUrl}/addContactToList`, {

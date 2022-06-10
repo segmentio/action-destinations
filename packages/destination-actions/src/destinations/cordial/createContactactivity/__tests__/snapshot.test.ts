@@ -19,13 +19,11 @@ describe(`Testing snapshot for ${destinationSlug}'s ${actionSlug} destination ac
       .post(/\/.*\/createContactactivity/)
       .reply(200)
 
-    const event = createTestEvent({
-      properties: eventData
-    })
+    const event = createTestEvent(eventData)
 
     const responses = await testDestination.testAction(actionSlug, {
       event: event,
-      mapping: event.properties,
+      mapping: eventData,
       settings: settingsData,
       auth: undefined
     })
@@ -54,30 +52,21 @@ describe(`Testing snapshot for ${destinationSlug}'s ${actionSlug} destination ac
       .reply(200)
 
     const event = createTestEvent({
-      properties: eventData,
-      sentAt: '2022-04-04T13:08:53.205Z'
+      anonymousId: 'a922ab56-80b7-40c5-be4d-e089026593cd',
+      properties: eventData.properties,
+      sentAt: '2022-04-04T13:08:53.205Z',
+      timestamp: '2022-04-04T13:08:53.205Z'
     })
 
     const mapping = {
-      userIdentities: { 'channels.email.address': 'contact@example.com' },
-      action: {
-        '@path': '$.event'
-      },
-      time: {
-        '@path': '$.sentAt'
-      },
-      properties: {
-        '@path': '$.properties'
-      },
-      context: {
-        '@path': '$.context'
-      }
+      userIdentities: { 'channels.email.address': 'contact@example.com' }
     }
 
     const responses = await testDestination.testAction(actionSlug, {
       event: event,
       mapping: mapping,
       settings: settingsData,
+      useDefaultMappings: true,
       auth: undefined
     })
 
