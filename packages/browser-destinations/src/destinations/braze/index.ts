@@ -14,6 +14,7 @@ declare global {
   interface Window {
     braze: typeof braze
     appboy: typeof appboy
+    BRAZE_BASE_URL?: string
   }
 }
 
@@ -139,7 +140,7 @@ export const destination: BrowserDestinationDefinition<Settings, BrazeType> = {
     disablePushTokenMaintenance: {
       label: 'Disable Push Token Maintenance',
       type: 'boolean',
-      default: true,
+      default: false,
       required: false,
       description:
         'By default, users who have already granted web push permission will sync their push token with the Braze backend automatically on new session to ensure deliverability. To disable this behavior, set this option to false'
@@ -285,7 +286,7 @@ export const destination: BrowserDestinationDefinition<Settings, BrazeType> = {
       const brazeObject: BrazeType = version.startsWith('3.') ? window.appboy : window.braze
 
       brazeObject.initialize(api_key, {
-        baseUrl: endpoint,
+        baseUrl: window.BRAZE_BASE_URL || endpoint,
         ...expectedConfig
       })
 
