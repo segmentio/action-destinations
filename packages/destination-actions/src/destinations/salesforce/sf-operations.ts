@@ -5,6 +5,18 @@ import { buildCSVData } from './sf-utils'
 
 export const API_VERSION = 'v53.0'
 
+/**
+ * This error is triggered if a batch of payloads arrives inside the performBatch handler
+ * where the operation is not either bulkUpsert or bulkUpdate. This would occur if a user ever disables
+ * the `enable_batching` setting on their action.
+ * TODO: Automatically enable `enable_batching` for any action with a bulk operation.
+ * https://segment.atlassian.net/browse/STRATCONN-1369
+ */
+const throwBulkMismatchError = () => {
+  const errorMsg = 'Standard operation used with batching enabled.'
+  throw new IntegrationError(errorMsg, errorMsg, 400)
+}
+
 interface Records {
   Id?: string
 }
@@ -73,7 +85,17 @@ export default class Salesforce {
     return await this.baseUpdate(recordId, sobject, payload)
   }
 
-  bulkUpsert = async (payloads: GenericPayload[], sobject: string) => {
+  bulkHandler = async (payloads: GenericPayload[], sobject: string) => {
+    if (payloads[0].operation === 'bulkUpsert') {
+      return await this.bulkUpsert(payloads, sobject)
+    } else if (payloads[0].operation === 'bulkUpdate') {
+      return await this.bulkUpdate(payloads, sobject)
+    } else {
+      throwBulkMismatchError()
+    }
+  }
+
+  private bulkUpsert = async (payloads: GenericPayload[], sobject: string) => {
     if (
       !payloads[0].bulkUpsertExternalId ||
       !payloads[0].bulkUpsertExternalId.externalIdName ||
@@ -87,7 +109,7 @@ export default class Salesforce {
     }
     const externalIdFieldName = payloads[0].bulkUpsertExternalId.externalIdName
 
-    const jobId = await this.createBulkJob(sobject, externalIdFieldName)
+    const jobId = await this.createBulkJob(sobject, externalIdFieldName, 'upsert')
 
     const csv = buildCSVData(payloads, externalIdFieldName)
 
@@ -95,7 +117,23 @@ export default class Salesforce {
     return await this.closeBulkJob(jobId)
   }
 
-  private createBulkJob = async (sobject: string, externalIdFieldName: string) => {
+  private bulkUpdate = async (payloads: GenericPayload[], sobject: string) => {
+    if (!payloads[0].bulkUpdateRecordId) {
+      throw new IntegrationError(
+        'Undefined bulkUpdateRecordId when using bulkUpdate operation',
+        'Undefined bulkUpdateRecordId',
+        400
+      )
+    }
+
+    const jobId = await this.createBulkJob(sobject, 'Id', 'update')
+    const csv = buildCSVData(payloads, 'Id')
+
+    await this.uploadBulkCSV(jobId, csv)
+    return await this.closeBulkJob(jobId)
+  }
+
+  private createBulkJob = async (sobject: string, externalIdFieldName: string, operation: string) => {
     const res = await this.request<CreateJobResponseData>(
       `${this.instanceUrl}services/data/${API_VERSION}/jobs/ingest`,
       {
@@ -104,7 +142,7 @@ export default class Salesforce {
           object: sobject,
           externalIdFieldName: externalIdFieldName,
           contentType: 'CSV',
-          operation: 'upsert'
+          operation: operation
         }
       }
     )

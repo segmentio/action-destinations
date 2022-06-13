@@ -106,5 +106,51 @@ describe('Salesforce Utils', () => {
         buildCSVData(invalidCustomFieldPayloads, 'test__c')
       }).toThrowError(`Invalid character in field name: a,weird,field`)
     })
+
+    it('should correctly build an update CSV', async () => {
+      const updatePayloads: GenericPayload[] = [
+        {
+          operation: 'bulkUpdate',
+          bulkUpdateRecordId: '00',
+          name: 'SpongeBob Squarepants',
+          phone: '1234567890',
+          description: 'Krusty Krab'
+        },
+        {
+          operation: 'bulkUpdate',
+          bulkUpdateRecordId: '01',
+          name: 'Squidward Tentacles',
+          phone: '1234567891',
+          description: 'Krusty Krab'
+        }
+      ]
+
+      const csv = buildCSVData(updatePayloads, 'Id')
+      const expected = `Name,Phone,Description,Id\n"SpongeBob Squarepants","1234567890","Krusty Krab","00"\n"Squidward Tentacles","1234567891","Krusty Krab","01"\n`
+
+      expect(csv).toEqual(expected)
+    })
+
+    it('should correctly build an update CSV with incomplete data', async () => {
+      const incompleteUpdatePayloads: GenericPayload[] = [
+        {
+          operation: 'bulkUpdate',
+          bulkUpdateRecordId: '00',
+          name: 'SpongeBob Squarepants',
+          phone: '1234567890'
+        },
+        {
+          operation: 'bulkUpdate',
+          bulkUpdateRecordId: '01',
+          name: 'Squidward Tentacles',
+          description: 'Krusty Krab'
+        }
+      ]
+
+      const csv = buildCSVData(incompleteUpdatePayloads, 'Id')
+      const expected = `Name,Description,Phone,Id\n"SpongeBob Squarepants",#N/A,"1234567890","00"\n"Squidward Tentacles","Krusty Krab",#N/A,"01"\n`
+
+      expect(csv).toEqual(expected)
+    })
   })
 })

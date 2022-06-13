@@ -411,10 +411,17 @@ export function getOptions(
       tags.push('authentication:test') //valid values here can eventually be test, no-test if needed
     }
 
+    const defaultValues = {
+      number: 0,
+      boolean: false,
+      string: '',
+      password: ''
+    }
+
     options[fieldKey] = {
       ...existing,
       tags,
-      default: schema.default ?? '',
+      default: schema.default ?? defaultValues[schema.type],
       description: schema.description,
       encrypt: schema.type === 'password',
       hidden: false,

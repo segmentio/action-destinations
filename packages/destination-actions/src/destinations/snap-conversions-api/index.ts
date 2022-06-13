@@ -20,7 +20,8 @@ const presets: DestinationDefinition['presets'] = [
     partnerAction: 'reportConversionEvent',
     mapping: {
       ...DEFAULT_VALS,
-      event_type: 'ADD_BILLING'
+      event_type: 'ADD_BILLING',
+      event_conversion_type: 'WEB'
     }
   },
   {
@@ -29,7 +30,8 @@ const presets: DestinationDefinition['presets'] = [
     partnerAction: 'reportConversionEvent',
     mapping: {
       ...DEFAULT_VALS,
-      event_type: 'ADD_CART'
+      event_type: 'ADD_CART',
+      event_conversion_type: 'WEB'
     }
   },
   {
@@ -38,7 +40,8 @@ const presets: DestinationDefinition['presets'] = [
     partnerAction: 'reportConversionEvent',
     mapping: {
       ...DEFAULT_VALS,
-      event_type: 'ADD_TO_WISHLIST'
+      event_type: 'ADD_TO_WISHLIST',
+      event_conversion_type: 'WEB'
     }
   },
   {
@@ -47,7 +50,8 @@ const presets: DestinationDefinition['presets'] = [
     partnerAction: 'reportConversionEvent',
     mapping: {
       ...DEFAULT_VALS,
-      event_type: 'APP_INSTALL'
+      event_type: 'APP_INSTALL',
+      event_conversion_type: 'WEB'
     }
   },
   {
@@ -56,7 +60,8 @@ const presets: DestinationDefinition['presets'] = [
     partnerAction: 'reportConversionEvent',
     mapping: {
       ...DEFAULT_VALS,
-      event_type: 'LIST_VIEW'
+      event_type: 'LIST_VIEW',
+      event_conversion_type: 'WEB'
     }
   },
   {
@@ -65,7 +70,8 @@ const presets: DestinationDefinition['presets'] = [
     partnerAction: 'reportConversionEvent',
     mapping: {
       ...DEFAULT_VALS,
-      event_type: 'APP_OPEN'
+      event_type: 'APP_OPEN',
+      event_conversion_type: 'WEB'
     }
   },
   {
@@ -74,7 +80,8 @@ const presets: DestinationDefinition['presets'] = [
     partnerAction: 'reportConversionEvent',
     mapping: {
       ...DEFAULT_VALS,
-      event_type: 'LOGIN'
+      event_type: 'LOGIN',
+      event_conversion_type: 'WEB'
     }
   },
   {
@@ -83,7 +90,8 @@ const presets: DestinationDefinition['presets'] = [
     partnerAction: 'reportConversionEvent',
     mapping: {
       ...DEFAULT_VALS,
-      event_type: 'PAGE_VIEW'
+      event_type: 'PAGE_VIEW',
+      event_conversion_type: 'WEB'
     }
   },
   {
@@ -92,7 +100,8 @@ const presets: DestinationDefinition['presets'] = [
     partnerAction: 'reportConversionEvent',
     mapping: {
       ...DEFAULT_VALS,
-      event_type: 'PURCHASE'
+      event_type: 'PURCHASE',
+      event_conversion_type: 'WEB'
     }
   },
   {
@@ -101,7 +110,8 @@ const presets: DestinationDefinition['presets'] = [
     partnerAction: 'reportConversionEvent',
     mapping: {
       ...DEFAULT_VALS,
-      event_type: 'SEARCH'
+      event_type: 'SEARCH',
+      event_conversion_type: 'WEB'
     }
   },
   {
@@ -110,7 +120,8 @@ const presets: DestinationDefinition['presets'] = [
     partnerAction: 'reportConversionEvent',
     mapping: {
       ...DEFAULT_VALS,
-      event_type: 'SHARE'
+      event_type: 'SHARE',
+      event_conversion_type: 'WEB'
     }
   },
   {
@@ -119,7 +130,8 @@ const presets: DestinationDefinition['presets'] = [
     partnerAction: 'reportConversionEvent',
     mapping: {
       ...DEFAULT_VALS,
-      event_type: 'SIGN_UP'
+      event_type: 'SIGN_UP',
+      event_conversion_type: 'WEB'
     }
   },
   {
@@ -128,7 +140,8 @@ const presets: DestinationDefinition['presets'] = [
     partnerAction: 'reportConversionEvent',
     mapping: {
       ...DEFAULT_VALS,
-      event_type: 'START_CHECKOUT'
+      event_type: 'START_CHECKOUT',
+      event_conversion_type: 'WEB'
     }
   },
   {
@@ -137,7 +150,8 @@ const presets: DestinationDefinition['presets'] = [
     partnerAction: 'reportConversionEvent',
     mapping: {
       ...DEFAULT_VALS,
-      event_type: 'VIEW_CONTENT'
+      event_type: 'VIEW_CONTENT',
+      event_conversion_type: 'WEB'
     }
   }
 ]

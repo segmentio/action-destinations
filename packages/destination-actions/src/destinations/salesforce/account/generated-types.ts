@@ -33,6 +33,10 @@ export interface Payload {
     externalIdValue?: string
   }
   /**
+   * The record id value to use for bulk update.
+   */
+  bulkUpdateRecordId?: string
+  /**
    * Name of the account. **This is required to create an account.**
    */
   name?: string

@@ -404,6 +404,23 @@ describe('Salesforce', () => {
       }
     ]
 
+    const bulkUpdatePayloads: GenericPayload[] = [
+      {
+        operation: 'bulkUpdate',
+        bulkUpdateRecordId: 'ab',
+        name: 'SpongeBob Squarepants',
+        phone: '1234567890',
+        description: 'Krusty Krab'
+      },
+      {
+        operation: 'bulkUpdate',
+        bulkUpdateRecordId: 'cd',
+        name: 'Squidward Tentacles',
+        phone: '1234567891',
+        description: 'Krusty Krab'
+      }
+    ]
+
     it('should correctly upsert a batch of records', async () => {
       //create bulk job
       nock(`${settings.instanceUrl}services/data/${API_VERSION}/jobs/ingest`)
@@ -436,7 +453,7 @@ describe('Salesforce', () => {
         })
         .reply(201, {})
 
-      await sf.bulkUpsert(bulkUpsertPayloads, 'Account')
+      await sf.bulkHandler(bulkUpsertPayloads, 'Account')
     })
 
     it('should correctly parse the customFields object', async () => {
@@ -471,7 +488,42 @@ describe('Salesforce', () => {
         })
         .reply(201, {})
 
-      await sf.bulkUpsert(customPayloads, 'Account')
+      await sf.bulkHandler(customPayloads, 'Account')
+    })
+
+    it('should correctly update a batch of records', async () => {
+      //create bulk job
+      nock(`${settings.instanceUrl}services/data/${API_VERSION}/jobs/ingest`)
+        .post('', {
+          object: 'Account',
+          externalIdFieldName: 'Id',
+          operation: 'update',
+          contentType: 'CSV'
+        })
+        .reply(201, {
+          id: 'abc123'
+        })
+
+      const CSV = `Name,Phone,Description,Id\n"SpongeBob Squarepants","1234567890","Krusty Krab","ab"\n"Squidward Tentacles","1234567891","Krusty Krab","cd"\n`
+
+      //upload csv
+      nock(`${settings.instanceUrl}services/data/${API_VERSION}/jobs/ingest/abc123/batches`, {
+        reqheaders: {
+          'Content-Type': 'text/csv',
+          Accept: 'application/json'
+        }
+      })
+        .put('', CSV)
+        .reply(201, {})
+
+      //close bulk job
+      nock(`${settings.instanceUrl}services/data/${API_VERSION}/jobs/ingest/abc123`)
+        .patch('', {
+          state: 'UploadComplete'
+        })
+        .reply(201, {})
+
+      await sf.bulkHandler(bulkUpdatePayloads, 'Account')
     })
   })
 })

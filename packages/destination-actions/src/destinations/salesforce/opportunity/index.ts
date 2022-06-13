@@ -1,7 +1,14 @@
 import { ActionDefinition, IntegrationError } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import Salesforce from '../sf-operations'
-import { bulkUpsertExternalId, customFields, operation, traits, validateLookup } from '../sf-properties'
+import {
+  bulkUpsertExternalId,
+  bulkUpdateRecordId,
+  customFields,
+  operation,
+  traits,
+  validateLookup
+} from '../sf-properties'
 import type { Payload } from './generated-types'
 
 const OBJECT_NAME = 'Opportunity'
@@ -13,6 +20,7 @@ const action: ActionDefinition<Settings, Payload> = {
     operation: operation,
     traits: traits,
     bulkUpsertExternalId: bulkUpsertExternalId,
+    bulkUpdateRecordId: bulkUpdateRecordId,
     close_date: {
       label: 'Close Date',
       description:
@@ -71,12 +79,9 @@ const action: ActionDefinition<Settings, Payload> = {
       if (!payload[0].close_date || !payload[0].name || !payload[0].stage_name) {
         throw new IntegrationError('Missing close_date, name or stage_name value', 'Misconfigured required field', 400)
       }
-
-      return await sf.bulkUpsert(payload, OBJECT_NAME)
-    } else {
-      const errorMsg = 'Bulk Upsert action must be used with batching'
-      throw new IntegrationError(errorMsg, errorMsg, 400)
     }
+
+    return sf.bulkHandler(payload, OBJECT_NAME)
   }
 }
 

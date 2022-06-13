@@ -1,7 +1,14 @@
 import { ActionDefinition, IntegrationError } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import Salesforce from '../sf-operations'
-import { bulkUpsertExternalId, customFields, operation, traits, validateLookup } from '../sf-properties'
+import {
+  bulkUpsertExternalId,
+  bulkUpdateRecordId,
+  customFields,
+  operation,
+  traits,
+  validateLookup
+} from '../sf-properties'
 import type { Payload } from './generated-types'
 
 const OBJECT_NAME = 'Account'
@@ -14,6 +21,7 @@ const action: ActionDefinition<Settings, Payload> = {
     operation: operation,
     traits: traits,
     bulkUpsertExternalId: bulkUpsertExternalId,
+    bulkUpdateRecordId: bulkUpdateRecordId,
     name: {
       label: 'Name',
       description: 'Name of the account. **This is required to create an account.**',
@@ -196,12 +204,9 @@ const action: ActionDefinition<Settings, Payload> = {
       if (!payload[0].name) {
         throw new IntegrationError('Missing name value', 'Misconfigured required field', 400)
       }
-
-      return await sf.bulkUpsert(payload, OBJECT_NAME)
-    } else {
-      const errorMsg = 'Bulk Upsert action must be used with batching'
-      throw new IntegrationError(errorMsg, errorMsg, 400)
     }
+
+    return sf.bulkHandler(payload, OBJECT_NAME)
   }
 }
 
