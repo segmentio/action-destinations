@@ -109,15 +109,17 @@ const action: ActionDefinition<Settings, Payload> = {
     // https://developers.intercom.com/intercom-api-reference/reference/create-contact
     // https://developers.intercom.com/intercom-api-reference/reference/update-contact
     //
-    // When creating a lead, it doesn't accept an external_id (?), but it accepts an email
+    // Create a new intercom user; if it exists, then search for and update the user.
+    // If the search doesn't work after a duplicate user error (409),
+    // then it's possibly a cache issue, so we'll retry
     //
+    // Note: When creating a lead, it doesn't accept an external_id (?), but it accepts an email
     try {
       const response = await createIntercomUser(request, payload)
       return response
     } catch (error) {
       if (error?.response?.status === 409) {
         // The user already exists
-        console.log('errored')
         const user = await searchIntercomUser(request, payload)
         if (user) {
           return updateIntercomUser(request, user, payload)

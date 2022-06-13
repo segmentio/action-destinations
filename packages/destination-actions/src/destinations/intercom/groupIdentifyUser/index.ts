@@ -1,6 +1,10 @@
-import { ActionDefinition, RequestClient, RetryableError } from '@segment/actions-core'
+import { ActionDefinition, ModifiedResponse, RequestClient, RetryableError } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
+
+interface IntercomCreateCompanyData {
+  id: string
+}
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Group Identify User',
@@ -27,7 +31,8 @@ const action: ActionDefinition<Settings, Payload> = {
     },
     user_id: {
       type: 'string',
-      description: 'Attached user to the Company',
+      description:
+        'Attach this user to the company. This userId is NOT the external_id or email; it is the Intercom unique identifier',
       label: 'User ID',
       default: {
         '@path': '$.userId'
@@ -83,46 +88,52 @@ const action: ActionDefinition<Settings, Payload> = {
     },
     custom_attributes: {
       type: 'object',
-      description: 'Passing any traits not mapped to individual fields as Custom Attributes',
-      label: 'Custom Attributes',
-      default: {
-        '@path': '$.traits'
-      }
+      description:
+        'Passing any traits not mapped to individual fields as Custom Attributes. Note: Will throw an error if you pass an attribute that isn`t explicitly defined',
+      label: 'Custom Attributes'
     }
   },
   // https://developers.intercom.com/intercom-api-reference/reference/create-or-update-company
   // https://developers.intercom.com/intercom-api-reference/reference/attach-contact-to-company
   // Companies will be only visible in Intercom when there is at least one associated user.
   //
-  // Create or Update Company.
-  // Then attach user. If 404, throw a retryable error
+  // Create or Update Company, then attach user. If user is not found (404), throw a retryable error
+  // as the user might be created soon
   perform: async (request, { payload }) => {
-    await createOrUpdateIntercomCompany(request, payload)
-    try {
-      return await attachUserToIntercomCompany(request, payload)
-    } catch (error) {
-      if (error?.response?.status === 404) {
-        throw new RetryableError(`User doesn't exist, retry again`)
+    const userId = payload.user_id
+    delete payload.user_id
+
+    const response = await createOrUpdateIntercomCompany(request, payload)
+    if (userId) {
+      try {
+        const companyId = response.data.id
+        return await attachUserToIntercomCompany(request, userId, companyId)
+      } catch (error) {
+        // Should be an HTTPError, but was failing instanceOf (?)
+        if (error?.response?.status === 404) {
+          throw new RetryableError(`User doesn't exist, retrying`)
+        }
+        throw error
       }
-      throw error
     }
   }
 }
 
-async function createOrUpdateIntercomCompany(request: RequestClient, payload: Payload) {
+function createOrUpdateIntercomCompany(
+  request: RequestClient,
+  payload: Payload
+): Promise<ModifiedResponse<IntercomCreateCompanyData>> {
   return request(`https://api.intercom.io/companies`, {
     method: 'POST',
     json: payload
   })
 }
 
-async function attachUserToIntercomCompany(request: RequestClient, payload: Payload) {
-  const { user_id, company_id } = payload
-
-  return request(`https://api.intercom.io/contacts/${user_id}/companies`, {
+function attachUserToIntercomCompany(request: RequestClient, userId: string, companyId: string) {
+  return request(`https://api.intercom.io/contacts/${userId}/companies`, {
     method: 'POST',
     json: {
-      id: company_id
+      id: companyId
     }
   })
 }
