@@ -64,6 +64,10 @@ export const destination: BrowserDestinationDefinition<Settings, BrazeType> = {
           label: '3.1'
         },
         {
+          value: '3.3',
+          label: '3.3'
+        },
+        {
           value: '3.5',
           label: '3.5'
         },
