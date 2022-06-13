@@ -33,6 +33,10 @@ export interface Payload {
     externalIdValue?: string
   }
   /**
+   * The record id value to use for bulk update.
+   */
+  bulkUpdateRecordId?: string
+  /**
    * The contact's last name up to 80 characters. **This is required to create a contact.**
    */
   last_name?: string
