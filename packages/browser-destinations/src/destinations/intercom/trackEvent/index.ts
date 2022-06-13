@@ -1,15 +1,55 @@
 import type { BrowserActionDefinition } from '../../../lib/browser-destinations'
+import { Intercom } from '../api'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 
 // Change from unknown to the partner SDK types
-const action: BrowserActionDefinition<Settings, unknown, Payload> = {
+const action: BrowserActionDefinition<Settings, Intercom, Payload> = {
   title: 'Track Event',
   description: '',
   platform: 'web',
-  fields: {},
-  perform: (_client) => {
-    // Invoke Partner SDK here
+  fields: {
+    eventName: {
+      description: 'The name of the event',
+      label: 'Name',
+      required: true,
+      type: 'string',
+      default: {
+        '@path': '$.event'
+      }
+    },
+    eventProperties: {
+      label: 'Event Parameters',
+      description: 'Parameters specific to the event',
+      type: 'object',
+      default: {
+        '@path': '$.properties'
+      }
+    }
+  },
+  perform: (Intercom, event) => {
+    console.log(event)
+    const payload = event.payload
+    let properties = event.payload.eventProperties
+
+    if (properties && properties.revenue) {
+      const revenue: any = properties.revenue
+
+      if (!properties.currency) properties.currency = 'USD'
+
+      const revenueData = {
+        price: {
+          amount: revenue * 100,
+          currency: properties.currency
+        }
+      }
+
+      properties = { ...properties, ...revenueData }
+      delete properties.revenue
+      delete properties.currency
+    }
+
+    Intercom('trackEvent', payload.eventName, properties)
   }
 }
 
