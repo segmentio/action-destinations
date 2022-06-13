@@ -1,8 +1,8 @@
 import { ActionDefinition, IntegrationError } from '@segment/actions-core'
-import { CURRENCY_ISO_CODES } from '../constants'
 import { ProductItem } from '../ga4-types'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
+import { verifyCurrency } from '../ga4-functions'
 import {
   formatUserProperties,
   user_properties,
@@ -33,9 +33,8 @@ const action: ActionDefinition<Settings, Payload> = {
     params: params
   },
   perform: (request, { payload }) => {
-    // Make your partner api request here!
-    if (payload.currency && !CURRENCY_ISO_CODES.includes(payload.currency)) {
-      throw new IntegrationError(`${payload.currency} is not a valid currency code.`, 'Incorrect value format', 400)
+    if (payload.currency) {
+      verifyCurrency(payload.currency)
     }
 
     // Google requires that currency be included at the event level if value is included.
@@ -67,9 +66,8 @@ const action: ActionDefinition<Settings, Payload> = {
             400
           )
         }
-
-        if (product.currency && !CURRENCY_ISO_CODES.includes(product.currency)) {
-          throw new IntegrationError(`${product.currency} is not a valid currency code.`, 'Incorrect value format', 400)
+        if (product.currency) {
+          verifyCurrency(product.currency)
         }
 
         return product as ProductItem
