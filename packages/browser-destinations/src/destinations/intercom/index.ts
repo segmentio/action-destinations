@@ -2,6 +2,8 @@ import type { Settings } from './generated-types'
 import type { BrowserDestinationDefinition } from '../../lib/browser-destinations'
 import { browserDestination } from '../../runtime/shim'
 
+import trackEvent from './trackEvent'
+
 // Switch from unknown to the partner SDK client types
 export const destination: BrowserDestinationDefinition<Settings, unknown> = {
   name: 'Intercom (actions)',
@@ -17,7 +19,9 @@ export const destination: BrowserDestinationDefinition<Settings, unknown> = {
     // initialize client code here
   },
 
-  actions: {}
+  actions: {
+    trackEvent
+  }
 }
 
 export default browserDestination(destination)
