@@ -15,24 +15,28 @@ const action: BrowserActionDefinition<Settings, Intercom, Payload> = {
       required: true,
       type: 'string',
       default: {
-        '@path' : '$.event'
+        '@path': '$.event'
       }
     },
-    eventProperties : {
+    eventProperties: {
       label: 'Event Parameters',
       description: 'Parameters specific to the event',
       type: 'object',
       default: {
-        '@path' : '$.properties'
+        '@path': '$.properties'
       }
     }
   },
   perform: (Intercom, event) => {
+    console.log(event)
     const payload = event.payload
     let properties = event.payload.eventProperties
 
-    if(properties && properties.revenue){
-      const revenue : any = properties.revenue;
+    if (properties && properties.revenue) {
+      const revenue: any = properties.revenue
+
+      if (!properties.currency) properties.currency = 'USD'
+
       const revenueData = {
         price: {
           amount: revenue * 100,
@@ -40,11 +44,11 @@ const action: BrowserActionDefinition<Settings, Intercom, Payload> = {
         }
       }
 
-      properties = {...properties, ...revenueData}
+      properties = { ...properties, ...revenueData }
       delete properties.revenue
       delete properties.currency
     }
-  
+
     Intercom('trackEvent', payload.eventName, properties)
   }
 }
