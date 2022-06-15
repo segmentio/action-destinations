@@ -2,6 +2,7 @@ import type { DestinationDefinition } from '@segment/actions-core'
 import type { Settings } from './generated-types'
 import identifyContact from './identifyContact'
 import groupIdentifyContact from './groupIdentifyContact'
+import trackEvent from './trackEvent'
 
 const destination: DestinationDefinition<Settings> = {
   name: 'Intercom (Actions)',
@@ -33,7 +34,8 @@ const destination: DestinationDefinition<Settings> = {
 
   actions: {
     identifyContact,
-    groupIdentifyContact
+    groupIdentifyContact,
+    trackEvent
   }
 }
 
