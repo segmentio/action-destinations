@@ -116,9 +116,7 @@ describe.each(['stage', 'production'])('%s environment', (environment) => {
     })
 
     it('should send Email', async () => {
-      const sendGridRequest = nock('https://api.sendgrid.com')
-        .post('/v3/mail/send', sendgridRequestBody)
-        .reply(200, {})
+      const sendGridRequest = nock('https://api.sendgrid.com').post('/v3/mail/send', sendgridRequestBody).reply(200, {})
 
       const responses = await sendgrid.testAction('sendEmail', {
         event: createTestEvent({
@@ -145,9 +143,7 @@ describe.each(['stage', 'production'])('%s environment', (environment) => {
         settings,
         mapping: mapping
       })
-      const sendGridRequest = nock('https://api.sendgrid.com')
-        .post('/v3/mail/send', sendgridRequestBody)
-        .reply(200, {})
+      const sendGridRequest = nock('https://api.sendgrid.com').post('/v3/mail/send', sendgridRequestBody).reply(200, {})
 
       expect(sendGridRequest.isDone()).toEqual(false)
     })
@@ -162,9 +158,7 @@ describe.each(['stage', 'production'])('%s environment', (environment) => {
         settings,
         mapping: omit(getDefaultMapping(), ['send'])
       })
-      const sendGridRequest = nock('https://api.sendgrid.com')
-        .post('/v3/mail/send', sendgridRequestBody)
-        .reply(200, {})
+      const sendGridRequest = nock('https://api.sendgrid.com').post('/v3/mail/send', sendgridRequestBody).reply(200, {})
 
       expect(responses.length).toEqual(0)
       expect(sendGridRequest.isDone()).toEqual(false)
@@ -268,25 +262,27 @@ describe.each(['stage', 'production'])('%s environment', (environment) => {
       expect(sendGridRequest.isDone()).toEqual(true)
     })
 
-    it.each(['gmailx.com', 'yahoox.com', 'aolx.com', 'hotmailx.com'])
-    (`should return an error when given a restricted domain "%s"`, async (domain) => {
-      try {
-        await sendgrid.testAction('sendEmail', {
-          event: createTestEvent({
-            timestamp,
-            event: 'Audience Entered',
-            userId: userData.userId
-          }),
-          settings,
-          mapping: getDefaultMapping({ toEmail: `lauren@${domain}` })
-        })
-        fail('Test should throw an error')
-      } catch (e) {
-        expect((e as unknown as any).message).toBe(
-          'Emails with gmailx.com, yahoox.com, aolx.com, and hotmailx.com domains are blocked.'
-        )
+    it.each(['gmailx.com', 'yahoox.com', 'aolx.com', 'hotmailx.com'])(
+      `should return an error when given a restricted domain "%s"`,
+      async (domain) => {
+        try {
+          await sendgrid.testAction('sendEmail', {
+            event: createTestEvent({
+              timestamp,
+              event: 'Audience Entered',
+              userId: userData.userId
+            }),
+            settings,
+            mapping: getDefaultMapping({ toEmail: `lauren@${domain}` })
+          })
+          fail('Test should throw an error')
+        } catch (e) {
+          expect((e as unknown as any).message).toBe(
+            'Emails with gmailx.com, yahoox.com, aolx.com, and hotmailx.com domains are blocked.'
+          )
+        }
       }
-    })
+    )
 
     it('should send email where HTML body is stored in S3', async () => {
       const expectedSendGridRequest = {
@@ -533,6 +529,56 @@ describe.each(['stage', 'production'])('%s environment', (environment) => {
       expect(sendGridRequest.isDone()).toEqual(true)
       expect(s3Request.isDone()).toEqual(true)
     })
+
+    it('should show a default in the subject when a trait is missing', async () => {
+      const sendGridRequest = nock('https://api.sendgrid.com')
+        .post('/v3/mail/send', { ...sendgridRequestBody, subject: `Hello you` })
+        .reply(200, {})
+
+      const responses = await sendgrid.testAction('sendEmail', {
+        event: createTestEvent({
+          timestamp,
+          event: 'Audience Entered',
+          userId: userData.userId
+        }),
+        settings,
+        mapping: getDefaultMapping({
+          subject: 'Hello {{profile.traits.last_name | default: "you"}}'
+        })
+      })
+
+      expect(responses.length).toBeGreaterThan(0)
+      expect(sendGridRequest.isDone()).toEqual(true)
+    })
+
+    it('should show a default in the body when a trait is missing', async () => {
+      const sendGridRequest = nock('https://api.sendgrid.com')
+        .post('/v3/mail/send', {
+          ...sendgridRequestBody,
+          content: [
+            {
+              type: 'text/html',
+              value: `Hi you, Welcome to segment`
+            }
+          ]
+        })
+        .reply(200, {})
+
+      const responses = await sendgrid.testAction('sendEmail', {
+        event: createTestEvent({
+          timestamp,
+          event: 'Audience Entered',
+          userId: userData.userId
+        }),
+        settings,
+        mapping: getDefaultMapping({
+          bodyHtml: 'Hi {{profile.traits.first_name | default: "you"}}, Welcome to segment'
+        })
+      })
+
+      expect(responses.length).toBeGreaterThan(0)
+      expect(sendGridRequest.isDone()).toEqual(true)
+    })
   })
 
   describe('send Email subscription handling', () => {
@@ -551,13 +597,8 @@ describe.each(['stage', 'production'])('%s environment', (environment) => {
       nock.cleanAll()
     })
 
-    it.each([
-      'subscribed',
-      true
-    ])('sends the email when subscriptionStatus = "%s"', async (subscriptionStatus) => {
-      const sendGridRequest = nock('https://api.sendgrid.com')
-        .post('/v3/mail/send')
-        .reply(200, {})
+    it.each(['subscribed', true])('sends the email when subscriptionStatus = "%s"', async (subscriptionStatus) => {
+      const sendGridRequest = nock('https://api.sendgrid.com').post('/v3/mail/send').reply(200, {})
 
       const responses = await sendgrid.testAction('sendEmail', {
         event: createTestEvent({
@@ -566,48 +607,42 @@ describe.each(['stage', 'production'])('%s environment', (environment) => {
           userId: userData.userId
         }),
         settings,
-        mapping: getDefaultMapping(
-          {
-            externalIds: [
-              { id: userData.email, type: 'email', subscriptionStatus },
-              { id: userData.phone, type: 'phone', subscriptionStatus: 'subscribed' }
-            ]
-          }
-        )
+        mapping: getDefaultMapping({
+          externalIds: [
+            { id: userData.email, type: 'email', subscriptionStatus },
+            { id: userData.phone, type: 'phone', subscriptionStatus: 'subscribed' }
+          ]
+        })
       })
 
       expect(responses.length).toBeGreaterThan(0)
       expect(sendGridRequest.isDone()).toEqual(true)
     })
 
-    it.each([
-      'unsubscribed',
-      'did not subscribed',
-      '',
-      null,
-      false
-    ])('does NOT send the email when subscriptionStatus = "%s"', async (subscriptionStatus) => {
-      await sendgrid.testAction('sendEmail', {
-        event: createTestEvent({
-          timestamp,
-          event: 'Audience Entered',
-          userId: userData.userId
-        }),
-        settings,
-        mapping: getDefaultMapping({
+    it.each(['unsubscribed', 'did not subscribed', '', null, false])(
+      'does NOT send the email when subscriptionStatus = "%s"',
+      async (subscriptionStatus) => {
+        await sendgrid.testAction('sendEmail', {
+          event: createTestEvent({
+            timestamp,
+            event: 'Audience Entered',
+            userId: userData.userId
+          }),
+          settings,
+          mapping: getDefaultMapping({
             externalIds: [
               { id: userData.email, type: 'email', subscriptionStatus },
               { id: userData.phone, type: 'phone', subscriptionStatus: 'subscribed' }
             ]
-          }
-        )
-      })
-      const sendGridRequest = nock('https://api.sendgrid.com')
-        .post('/v3/mail/send', sendgridRequestBody)
-        .reply(200, {})
+          })
+        })
+        const sendGridRequest = nock('https://api.sendgrid.com')
+          .post('/v3/mail/send', sendgridRequestBody)
+          .reply(200, {})
 
-      expect(sendGridRequest.isDone()).toBe(false)
-    })
+        expect(sendGridRequest.isDone()).toBe(false)
+      }
+    )
 
     it('throws an error when subscriptionStatus is unrecognizable"', async () => {
       const subscriptionStatus = 'random-string'
@@ -618,14 +653,12 @@ describe.each(['stage', 'production'])('%s environment', (environment) => {
           userId: userData.userId
         }),
         settings,
-        mapping: getDefaultMapping(
-          {
-            externalIds: [
-              { id: userData.email, type: 'email', subscriptionStatus },
-              { id: userData.phone, type: 'phone', subscriptionStatus: 'subscribed' }
-            ]
-          }
-        )
+        mapping: getDefaultMapping({
+          externalIds: [
+            { id: userData.email, type: 'email', subscriptionStatus },
+            { id: userData.phone, type: 'phone', subscriptionStatus: 'subscribed' }
+          ]
+        })
       })
 
       await expect(response).rejects.toThrowError(`Failed to process the subscription state: "${subscriptionStatus}"`)
