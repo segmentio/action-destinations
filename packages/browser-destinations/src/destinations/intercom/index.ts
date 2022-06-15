@@ -6,7 +6,6 @@ import { boot, initScript } from './init-script'
 import trackEvent from './trackEvent'
 import { Intercom } from './api'
 
-
 declare global {
   interface Window {
     Intercom: Intercom
@@ -26,6 +25,13 @@ export const destination: BrowserDestinationDefinition<Settings, Intercom> = {
       label: 'App ID',
       type: 'string',
       description: 'The app_id of your Intercom app which will indicate where to store any data'
+    },
+    richLinkProperties: {
+      required: false,
+      label: 'Rich Link Properties',
+      type: 'string',
+      multiple: true,
+      description: 'A list of Segment property names whose values include url and value keys'
     }
   },
 
@@ -33,7 +39,8 @@ export const destination: BrowserDestinationDefinition<Settings, Intercom> = {
     initScript({ appId: settings.appId })
     boot(settings.appId)
     await deps.resolveWhen(() => window.Intercom.booted === true, 100)
-  
+    window.Intercom.richLinkProperties = settings.richLinkProperties
+
     return window.Intercom
   },
 

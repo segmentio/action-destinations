@@ -1,7 +1,8 @@
 type method = 'trackEvent' | 'boot'
 
 type IntercomApi = {
-    booted: boolean
+  booted: boolean
+  richLinkProperties: string[] | undefined
 }
 
 type IntercomFunction = (method: method, ...args: unknown[]) => void

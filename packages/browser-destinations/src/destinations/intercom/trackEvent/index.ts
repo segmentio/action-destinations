@@ -1,5 +1,4 @@
-// import {isObject , isArray} from '@segment/actions-core'
-import { isObject } from '@segment/actions-core'
+import { isArray, isObject } from '@segment/actions-core'
 import type { BrowserActionDefinition } from '../../../lib/browser-destinations'
 import { Intercom } from '../api'
 import type { Settings } from '../generated-types'
@@ -32,10 +31,13 @@ const action: BrowserActionDefinition<Settings, Intercom, Payload> = {
   perform: (Intercom, event) => {
     const payload = event.payload
     const properties = payload.eventProperties
+    const richLinkProperties = Intercom.richLinkProperties
 
     for (const key in properties) {
       const value = properties[key]
-      if (Array.isArray(value) || isObject(value)) {
+      //filter out arrays and objects that are not richLinkProperties
+      if (isArray(value) || isObject(value)) {
+        if (isObject(value) && richLinkProperties?.includes(key)) continue
         delete properties[key]
       }
     }
