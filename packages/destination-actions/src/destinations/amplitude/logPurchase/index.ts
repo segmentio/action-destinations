@@ -227,6 +227,18 @@ const action: ActionDefinition<Settings, Payload> = {
       }
     ]
 
+    for (const product of products) {
+      events.push({
+        ...properties,
+        // Or track revenue per product
+        ...(trackRevenuePerProduct ? getRevenueProperties(product as EventRevenue) : {}),
+        event_properties: product,
+        event_type: 'Product Purchased',
+        insert_id: properties.insert_id ? `${properties.insert_id}-${events.length + 1}` : undefined,
+        library: 'segment'
+      })
+    }
+
     const endpoint = getEndpointByRegion(payload.use_batch_endpoint ? 'batch' : 'httpapi', settings.endpoint)
 
     return request(endpoint, {

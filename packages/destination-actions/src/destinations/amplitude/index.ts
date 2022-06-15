@@ -4,6 +4,7 @@ import identifyUser from './identifyUser'
 import logEvent from './logEvent'
 import mapUser from './mapUser'
 import groupIdentifyUser from './groupIdentifyUser'
+import logPurchase from './logPurchase'
 import type { Settings } from './generated-types'
 import { getEndpointByRegion } from './regional-endpoints'
 
@@ -114,7 +115,8 @@ const destination: DestinationDefinition<Settings> = {
     logEvent,
     identifyUser,
     mapUser,
-    groupIdentifyUser
+    groupIdentifyUser,
+    logPurchase
   }
 }
 
