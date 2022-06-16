@@ -62,7 +62,6 @@
       "<rootDir>/test/setup-after-env.ts"
     ],
     "coverageReporters": [
-      "html",
       "lcov"
     ]
   }
