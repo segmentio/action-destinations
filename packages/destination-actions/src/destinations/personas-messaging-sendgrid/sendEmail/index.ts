@@ -308,6 +308,7 @@ const action: ActionDefinition<Settings, Payload> = {
       }
 
       const bcc = JSON.parse(payload.bcc ?? '[]')
+      const parsedSubject = await parseTemplating(payload.subject, profile, 'Subject')
       let parsedBodyHtml
 
       if (payload.bodyUrl && settings.unlayerApiKey) {
@@ -319,6 +320,7 @@ const action: ActionDefinition<Settings, Payload> = {
 
         parsedBodyHtml = await parseTemplating(bodyHtml, profile, 'Body')
 
+        // only include preview text in design editor templates
         if (payload.previewText) {
           const parsedPreviewText = await parseTemplating(payload.previewText, profile, 'Preview text')
           parsedBodyHtml = insertEmailPreviewText(parsedBodyHtml, parsedPreviewText)
@@ -326,8 +328,6 @@ const action: ActionDefinition<Settings, Payload> = {
       } else {
         parsedBodyHtml = await parseTemplating(payload.bodyHtml ?? '', profile, 'Body HTML')
       }
-
-      const parsedSubject = await parseTemplating(payload.subject, profile, 'Subject')
 
       return request('https://api.sendgrid.com/v3/mail/send', {
         method: 'post',
