@@ -77,20 +77,24 @@ interface UnlayerResponse {
 }
 
 const generateEmailHtml = async (request: RequestFn, apiKey: string, design: string): Promise<string> => {
-  const response = await request('https://api.unlayer.com/v2/export/html', {
-    method: 'POST',
-    headers: {
-      authorization: `Basic ${Buffer.from(`${apiKey}:`).toString('base64')}`,
-      'content-type': 'application/json'
-    },
-    body: JSON.stringify({
-      displayMode: 'email',
-      design: JSON.parse(design)
+  try {
+    const response = await request('https://api.unlayer.com/v2/export/html', {
+      method: 'POST',
+      headers: {
+        authorization: `Basic ${Buffer.from(`${apiKey}:`).toString('base64')}`,
+        'content-type': 'application/json'
+      },
+      body: JSON.stringify({
+        displayMode: 'email',
+        design: JSON.parse(design)
+      })
     })
-  })
 
-  const body = await response.json()
-  return (body as UnlayerResponse).data.html
+    const body = await response.json()
+    return (body as UnlayerResponse).data.html
+  } catch (error) {
+    throw new IntegrationError('Unable to export email as HTML', 'Export HTML failure', 400)
+  }
 }
 
 interface Profile {
@@ -98,6 +102,19 @@ interface Profile {
   anonymous_id?: string
   email?: string
   traits: Record<string, string>
+}
+
+const parseTemplating = async (content: string, profile: Profile, contentType: string) => {
+  try {
+    const parsedContent = await Liquid.parseAndRender(content, { profile })
+    return parsedContent
+  } catch (error) {
+    throw new IntegrationError(
+      `Unable to parse templating in email ${contentType}`,
+      `${contentType} templating parse failure`,
+      400
+    )
+  }
 }
 
 const EXTERNAL_ID_KEY = 'email'
@@ -291,22 +308,26 @@ const action: ActionDefinition<Settings, Payload> = {
       }
 
       const bcc = JSON.parse(payload.bcc ?? '[]')
-      let bodyHtml = payload.bodyHtml ?? ''
+      let parsedBodyHtml
 
       if (payload.bodyUrl && settings.unlayerApiKey) {
         const response = await request(payload.bodyUrl)
         const body = await response.text()
-        bodyHtml = payload.bodyType === 'html' ? body : await generateEmailHtml(request, settings.unlayerApiKey, body)
+
+        const bodyHtml =
+          payload.bodyType === 'html' ? body : await generateEmailHtml(request, settings.unlayerApiKey, body)
+
+        parsedBodyHtml = await parseTemplating(bodyHtml, profile, 'Body')
 
         if (payload.previewText) {
-          bodyHtml = insertEmailPreviewText(bodyHtml, payload.previewText)
+          const parsedPreviewText = await parseTemplating(payload.previewText, profile, 'Preview text')
+          parsedBodyHtml = insertEmailPreviewText(parsedBodyHtml, parsedPreviewText)
         }
+      } else {
+        parsedBodyHtml = await parseTemplating(payload.bodyHtml ?? '', profile, 'Body HTML')
       }
 
-      const [parsedSubject, parsedBody] = await Promise.all([
-        Liquid.parseAndRender(payload.subject, { profile }),
-        Liquid.parseAndRender(bodyHtml, { profile })
-      ])
+      const parsedSubject = await parseTemplating(payload.subject, profile, 'Subject')
 
       return request('https://api.sendgrid.com/v3/mail/send', {
         method: 'post',
@@ -346,7 +367,7 @@ const action: ActionDefinition<Settings, Payload> = {
           content: [
             {
               type: 'text/html',
-              value: parsedBody
+              value: parsedBodyHtml
             }
           ],
           tracking_settings: {

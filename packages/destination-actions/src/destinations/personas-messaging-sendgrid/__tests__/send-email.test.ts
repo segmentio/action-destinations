@@ -484,7 +484,7 @@ describe.each(['stage', 'production'])('%s environment', (environment) => {
             value: [
               '<html><head></head><body>',
               '    <div style="display: none; max-height: 0px; overflow: hidden;">',
-              '      Preview text',
+              '      Preview text customer',
               '    </div>',
               '',
               '    <div style="display: none; max-height: 0px; overflow: hidden;">',
@@ -504,7 +504,7 @@ describe.each(['stage', 'production'])('%s environment', (environment) => {
 
       const s3Request = nock('https://s3.com')
         .get('/body.txt')
-        .reply(200, 'Hi {{profile.traits.firstName}}, welcome to Segment')
+        .reply(200, 'Hi {{profile.traits.firstName}}, welcome to {{profile.traits.company | default: "Segment"}}')
 
       const sendGridRequest = nock('https://api.sendgrid.com')
         .post('/v3/mail/send', expectedSendGridRequest)
@@ -518,7 +518,7 @@ describe.each(['stage', 'production'])('%s environment', (environment) => {
         }),
         settings,
         mapping: getDefaultMapping({
-          previewText: 'Preview text',
+          previewText: 'Preview text {{profile.traits.first_name | default: "customer"}}',
           body: undefined,
           bodyUrl: 'https://s3.com/body.txt',
           bodyHtml: undefined
