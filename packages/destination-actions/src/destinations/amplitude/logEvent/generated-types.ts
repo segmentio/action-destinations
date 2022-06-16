@@ -2,10 +2,6 @@
 
 export interface Payload {
   /**
-   * When enabled, track revenue with each product within the event. When disabled, track total revenue once for the event.
-   */
-  trackRevenuePerProduct?: boolean
-  /**
    * A readable ID specified by you. Must have a minimum length of 5 characters. Required unless device ID is present. **Note:** If you send a request with a user ID that is not in the Amplitude system yet, then the user tied to that ID will not be marked new until their first event.
    */
   user_id?: string | null
