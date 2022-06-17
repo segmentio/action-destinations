@@ -8,9 +8,9 @@ export const operation: InputField = {
   type: 'string',
   required: true,
   choices: [
-    { label: 'Create', value: 'create' },
-    { label: 'Update', value: 'update' },
-    { label: 'Upsert', value: 'upsert' },
+    { label: 'Create new record', value: 'create' },
+    { label: 'Update existing record', value: 'update' },
+    { label: `Update or create a record if one doesn't exist`, value: 'upsert' },
     { label: 'Bulk Upsert', value: 'bulkUpsert' },
     { label: 'Bulk Update', value: 'bulkUpdate' }
   ]
