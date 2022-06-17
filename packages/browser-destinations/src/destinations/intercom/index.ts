@@ -1,10 +1,12 @@
 import type { Settings } from './generated-types'
 import type { BrowserDestinationDefinition } from '../../lib/browser-destinations'
 import { browserDestination } from '../../runtime/shim'
-import { boot, initScript } from './init-script'
+import { bootInitial, initScript } from './init-script'
 
 import trackEvent from './trackEvent'
 import { Intercom } from './api'
+
+import boot from './boot'
 
 declare global {
   interface Window {
@@ -37,7 +39,7 @@ export const destination: BrowserDestinationDefinition<Settings, Intercom> = {
 
   initialize: async ({ settings }, deps) => {
     initScript({ appId: settings.appId })
-    boot(settings.appId)
+    bootInitial(settings.appId)
     await deps.resolveWhen(() => window.Intercom.booted === true, 100)
     window.Intercom.richLinkProperties = settings.richLinkProperties
 
@@ -45,7 +47,8 @@ export const destination: BrowserDestinationDefinition<Settings, Intercom> = {
   },
 
   actions: {
-    trackEvent
+    trackEvent,
+    boot
   }
 }
 
