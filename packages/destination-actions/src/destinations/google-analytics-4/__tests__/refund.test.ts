@@ -429,5 +429,100 @@ describe('GA4', () => {
         expect(e.message).toBe('One of item-level currency or top-level currency is required.')
       }
     })
+
+    it('should throw an error when params value is null', async () => {
+      nock('https://www.google-analytics.com/mp/collect')
+        .post(`?measurement_id=${measurementId}&api_secret=${apiSecret}`)
+        .reply(201, {})
+
+      const event = createTestEvent({
+        event: 'Order Refunded',
+        userId: 'abc123',
+        anonymousId: 'anon-2134',
+        type: 'track',
+        properties: {
+          order_number: '12345abcde',
+          name: 'Quadruple Stack Oreos, 52 ct',
+          currency: 'USD',
+          price: 12.99,
+          quantity: 1
+        }
+      })
+      try {
+        await testDestination.testAction('refund', {
+          event,
+          settings: {
+            apiSecret,
+            measurementId
+          },
+          mapping: {
+            transaction_id: {
+              '@path': '$.properties.order_number'
+            },
+            client_id: {
+              '@path': '$.anonymousId'
+            },
+            params: {
+              test_value: null
+            }
+          },
+          useDefaultMappings: true
+        })
+        fail('the test should have thrown an error')
+      } catch (e) {
+        expect(e.message).toBe(
+          'GA4 only accepts string or number values for event parameters, item parameters, and user properties. Please ensure you are not including null, array, or nested values.'
+        )
+      }
+    })
+
+    it('should throw an error when user_properties value is null', async () => {
+      nock('https://www.google-analytics.com/mp/collect')
+        .post(`?measurement_id=${measurementId}&api_secret=${apiSecret}`)
+        .reply(201, {})
+
+      const event = createTestEvent({
+        event: 'Order Refunded',
+        userId: 'abc123',
+        anonymousId: 'anon-2134',
+        type: 'track',
+        properties: {
+          order_number: '12345abcde',
+          name: 'Quadruple Stack Oreos, 52 ct',
+          currency: 'USD',
+          price: 12.99,
+          quantity: 1
+        }
+      })
+      try {
+        await testDestination.testAction('refund', {
+          event,
+          settings: {
+            apiSecret,
+            measurementId
+          },
+          mapping: {
+            transaction_id: {
+              '@path': '$.properties.order_number'
+            },
+            client_id: {
+              '@path': '$.anonymousId'
+            },
+            user_properties: {
+              hello: null,
+              a: '1',
+              b: '2',
+              c: '3'
+            }
+          },
+          useDefaultMappings: true
+        })
+        fail('the test should have thrown an error')
+      } catch (e) {
+        expect(e.message).toBe(
+          'GA4 only accepts string or number values for event parameters, item parameters, and user properties. Please ensure you are not including null, array, or nested values.'
+        )
+      }
+    })
   })
 })

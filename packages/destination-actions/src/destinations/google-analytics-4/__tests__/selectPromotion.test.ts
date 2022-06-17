@@ -479,5 +479,110 @@ describe('GA4', () => {
         expect(e.message).toBe('US4D is not a valid currency code.')
       }
     })
+
+    it('should throw an error when params value is null', async () => {
+      nock('https://www.google-analytics.com/mp/collect')
+        .post(`?measurement_id=${measurementId}&api_secret=${apiSecret}`)
+        .reply(201, {})
+
+      const event = createTestEvent({
+        event: 'Select Promotion',
+        userId: 'abc123',
+        anonymousId: 'anon-2134',
+        type: 'track',
+        properties: {
+          id: '12345abcde',
+          name: 'Quadruple Stack Oreos, 52 ct',
+          currency: 'USD',
+          price: 12.99,
+          quantity: 1
+        }
+      })
+      try {
+        await testDestination.testAction('selectPromotion', {
+          event,
+          settings: {
+            apiSecret,
+            measurementId
+          },
+          mapping: {
+            client_id: {
+              '@path': '$.anonymousId'
+            },
+            params: {
+              test_value: null
+            },
+            items: {
+              item_id: {
+                '@path': '$.properties.id'
+              },
+              promotion_name: {
+                '@path': '$.properties.name'
+              }
+            }
+          },
+          useDefaultMappings: true
+        })
+        fail('the test should have thrown an error')
+      } catch (e) {
+        expect(e.message).toBe(
+          'GA4 only accepts string or number values for event parameters, item parameters, and user properties. Please ensure you are not including null, array, or nested values.'
+        )
+      }
+    })
+
+    it('should throw an error when user_properties value is null', async () => {
+      nock('https://www.google-analytics.com/mp/collect')
+        .post(`?measurement_id=${measurementId}&api_secret=${apiSecret}`)
+        .reply(201, {})
+
+      const event = createTestEvent({
+        event: 'Select Promotion',
+        userId: 'abc123',
+        anonymousId: 'anon-2134',
+        type: 'track',
+        properties: {
+          id: '12345abcde',
+          name: 'Quadruple Stack Oreos, 52 ct',
+          currency: 'USD',
+          price: 12.99,
+          quantity: 1
+        }
+      })
+      try {
+        await testDestination.testAction('selectPromotion', {
+          event,
+          settings: {
+            apiSecret,
+            measurementId
+          },
+          mapping: {
+            client_id: {
+              '@path': '$.anonymousId'
+            },
+            user_properties: {
+              hello: null,
+              a: '1',
+              b: '2',
+              c: '3'
+            },
+            items: {
+              item_id: {
+                '@path': '$.properties.id'
+              },
+              promotion_name: {
+                '@path': '$.properties.name'
+              }
+            }
+          },
+          useDefaultMappings: true
+        })
+        fail('the test should have thrown an error')
+      } catch (e) {
+        expect(e.message).toBe(
+          'GA4 only accepts string or number values for event parameters, item parameters, and user properties. Please ensure you are not including null, array, or nested values.'
+        )
+      }
+    })
   })
 })

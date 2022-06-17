@@ -33,6 +33,10 @@ export interface Payload {
     externalIdValue?: string
   }
   /**
+   * The record id value to use for bulk update.
+   */
+  bulkUpdateRecordId?: string
+  /**
    * Date when the opportunity is expected to close. Use yyyy-MM-dd format. **This is required to create an opportunity.**
    */
   close_date?: string

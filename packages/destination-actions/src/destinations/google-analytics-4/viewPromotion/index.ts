@@ -1,5 +1,5 @@
 import { ActionDefinition, IntegrationError } from '@segment/actions-core'
-import { verifyCurrency } from '../ga4-functions'
+import { verifyCurrency, verifyParams } from '../ga4-functions'
 import {
   creative_name,
   creative_slot,
@@ -98,7 +98,7 @@ const action: ActionDefinition<Settings, Payload> = {
               promotion_name: payload.promotion_name,
               items: googleItems,
               engagement_time_msec: payload.engagement_time_msec,
-              ...payload.params
+              ...verifyParams(payload.params)
             }
           }
         ],

@@ -518,5 +518,188 @@ describe('GA4', () => {
         `"{\\"client_id\\":\\"3456fff\\",\\"events\\":[{\\"name\\":\\"purchase\\",\\"params\\":{\\"affiliation\\":\\"TI Online Store\\",\\"coupon\\":\\"SUMMER_FEST\\",\\"currency\\":\\"EUR\\",\\"items\\":[{\\"item_id\\":\\"pid-123456\\",\\"item_name\\":\\"Tour t-shirt\\",\\"coupon\\":\\"MOUNTAIN\\",\\"item_brand\\":\\"Canvas\\",\\"item_category\\":\\"T-Shirt\\",\\"item_variant\\":\\"Black\\",\\"price\\":19.98,\\"quantity\\":2}],\\"transaction_id\\":\\"5678dd9087-78\\",\\"shipping\\":1.5,\\"value\\":24.48,\\"tax\\":3,\\"engagement_time_msec\\":1}}]}"`
       )
     })
+
+    it('should throw an error when param value is null', async () => {
+      nock('https://www.google-analytics.com/mp/collect')
+        .post(`?measurement_id=${measurementId}&api_secret=${apiSecret}`)
+        .reply(201, {})
+
+      const event = createTestEvent({
+        event: 'Order Completed',
+        userId: 'abc123',
+        anonymousId: 'anon-2134',
+        type: 'track',
+        properties: {
+          affiliation: 'TI Online Store',
+          order_number: '5678dd9087-78',
+          coupon: 'SUMMER_FEST',
+          currency: 'EUR',
+          products: [
+            {
+              product_id: 'pid-123456',
+              sku: 'SKU-123456',
+              name: 'Tour t-shirt',
+              quantity: 2,
+              coupon: 'MOUNTAIN',
+              brand: 'Canvas',
+              category: 'T-Shirt',
+              variant: 'Black',
+              price: 19.98
+            }
+          ],
+          revenue: 5.99,
+          shipping: 1.5,
+          tax: 3.0,
+          total: 24.48
+        }
+      })
+      try {
+        await testDestination.testAction('purchase', {
+          event,
+          settings: {
+            apiSecret,
+            measurementId
+          },
+          mapping: {
+            transaction_id: {
+              '@path': '$.properties.order_number'
+            },
+            client_id: {
+              '@path': '$.anonymousId'
+            },
+            params: {
+              test_value: null
+            },
+            items: [
+              {
+                item_name: {
+                  '@path': `$.properties.products.0.name`
+                },
+                item_id: {
+                  '@path': `$.properties.products.0.product_id`
+                },
+                quantity: {
+                  '@path': `$.properties.products.0.quantity`
+                },
+                coupon: {
+                  '@path': `$.properties.products.0.coupon`
+                },
+                item_brand: {
+                  '@path': `$.properties.products.0.brand`
+                },
+                item_category: {
+                  '@path': `$.properties.products.0.category`
+                },
+                item_variant: {
+                  '@path': `$.properties.products.0.variant`
+                },
+                price: {
+                  '@path': `$.properties.products.0.price`
+                }
+              }
+            ]
+          },
+          useDefaultMappings: true
+        })
+        fail('the test should have thrown an error')
+      } catch (e) {
+        expect(e.message).toBe(
+          'GA4 only accepts string or number values for event parameters, item parameters, and user properties. Please ensure you are not including null, array, or nested values.'
+        )
+      }
+    })
+
+    it('should throw an error when user_properties value is null', async () => {
+      nock('https://www.google-analytics.com/mp/collect')
+        .post(`?measurement_id=${measurementId}&api_secret=${apiSecret}`)
+        .reply(201, {})
+
+      const event = createTestEvent({
+        event: 'Order Completed',
+        userId: 'abc123',
+        anonymousId: 'anon-2134',
+        type: 'track',
+        properties: {
+          affiliation: 'TI Online Store',
+          order_number: '5678dd9087-78',
+          coupon: 'SUMMER_FEST',
+          currency: 'EUR',
+          products: [
+            {
+              product_id: 'pid-123456',
+              sku: 'SKU-123456',
+              name: 'Tour t-shirt',
+              quantity: 2,
+              coupon: 'MOUNTAIN',
+              brand: 'Canvas',
+              category: 'T-Shirt',
+              variant: 'Black',
+              price: 19.98
+            }
+          ],
+          revenue: 5.99,
+          shipping: 1.5,
+          tax: 3.0,
+          total: 24.48
+        }
+      })
+      try {
+        await testDestination.testAction('purchase', {
+          event,
+          settings: {
+            apiSecret,
+            measurementId
+          },
+          mapping: {
+            transaction_id: {
+              '@path': '$.properties.order_number'
+            },
+            client_id: {
+              '@path': '$.anonymousId'
+            },
+            user_properties: {
+              hello: null,
+              a: '1',
+              b: '2',
+              c: '3'
+            },
+            items: [
+              {
+                item_name: {
+                  '@path': `$.properties.products.0.name`
+                },
+                item_id: {
+                  '@path': `$.properties.products.0.product_id`
+                },
+                quantity: {
+                  '@path': `$.properties.products.0.quantity`
+                },
+                coupon: {
+                  '@path': `$.properties.products.0.coupon`
+                },
+                item_brand: {
+                  '@path': `$.properties.products.0.brand`
+                },
+                item_category: {
+                  '@path': `$.properties.products.0.category`
+                },
+                item_variant: {
+                  '@path': `$.properties.products.0.variant`
+                },
+                price: {
+                  '@path': `$.properties.products.0.price`
+                }
+              }
+            ]
+          },
+          useDefaultMappings: true
+        })
+        fail('the test should have thrown an error')
+      } catch (e) {
+        expect(e.message).toBe(
+          'GA4 only accepts string or number values for event parameters, item parameters, and user properties. Please ensure you are not including null, array, or nested values.'
+        )
+      }
+    })
   })
 })

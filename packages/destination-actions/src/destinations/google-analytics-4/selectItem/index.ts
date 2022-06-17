@@ -1,5 +1,5 @@
 import { ActionDefinition, IntegrationError } from '@segment/actions-core'
-import { verifyCurrency } from '../ga4-functions'
+import { verifyCurrency, verifyParams } from '../ga4-functions'
 import { ProductItem } from '../ga4-types'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
@@ -72,7 +72,7 @@ const action: ActionDefinition<Settings, Payload> = {
               item_list_name: payload.item_list_name,
               item_list_id: payload.item_list_id,
               engagement_time_msec: payload.engagement_time_msec,
-              ...payload.params
+              ...verifyParams(payload.params)
             }
           }
         ],

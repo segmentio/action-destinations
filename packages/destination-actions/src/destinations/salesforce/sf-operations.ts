@@ -5,6 +5,18 @@ import { buildCSVData } from './sf-utils'
 
 export const API_VERSION = 'v53.0'
 
+/**
+ * This error is triggered if a batch of payloads arrives inside the performBatch handler
+ * where the operation is not either bulkUpsert or bulkUpdate. This would occur if a user ever disables
+ * the `enable_batching` setting on their action.
+ * TODO: Automatically enable `enable_batching` for any action with a bulk operation.
+ * https://segment.atlassian.net/browse/STRATCONN-1369
+ */
+const throwBulkMismatchError = () => {
+  const errorMsg = 'Standard operation used with batching enabled.'
+  throw new IntegrationError(errorMsg, errorMsg, 400)
+}
+
 interface Records {
   Id?: string
 }
@@ -73,7 +85,17 @@ export default class Salesforce {
     return await this.baseUpdate(recordId, sobject, payload)
   }
 
-  bulkUpsert = async (payloads: GenericPayload[], sobject: string) => {
+  bulkHandler = async (payloads: GenericPayload[], sobject: string) => {
+    if (payloads[0].operation === 'bulkUpsert') {
+      return await this.bulkUpsert(payloads, sobject)
+    } else if (payloads[0].operation === 'bulkUpdate') {
+      return await this.bulkUpdate(payloads, sobject)
+    } else {
+      throwBulkMismatchError()
+    }
+  }
+
+  private bulkUpsert = async (payloads: GenericPayload[], sobject: string) => {
     if (
       !payloads[0].bulkUpsertExternalId ||
       !payloads[0].bulkUpsertExternalId.externalIdName ||

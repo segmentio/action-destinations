@@ -1,7 +1,14 @@
 import { ActionDefinition, IntegrationError } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
-import { bulkUpsertExternalId, customFields, operation, traits, validateLookup } from '../sf-properties'
+import {
+  bulkUpsertExternalId,
+  bulkUpdateRecordId,
+  customFields,
+  operation,
+  traits,
+  validateLookup
+} from '../sf-properties'
 import Salesforce from '../sf-operations'
 
 const OBJECT_NAME = 'Contact'
@@ -13,6 +20,7 @@ const action: ActionDefinition<Settings, Payload> = {
     operation: operation,
     traits: traits,
     bulkUpsertExternalId: bulkUpsertExternalId,
+    bulkUpdateRecordId: bulkUpdateRecordId,
     last_name: {
       label: 'Last Name',
       description: "The contact's last name up to 80 characters. **This is required to create a contact.**",
@@ -147,11 +155,9 @@ const action: ActionDefinition<Settings, Payload> = {
       if (!payload[0].last_name) {
         throw new IntegrationError('Missing last_name value', 'Misconfigured required field', 400)
       }
-      return await sf.bulkUpsert(payload, OBJECT_NAME)
-    } else {
-      const errorMsg = 'Bulk Upsert action must be used with batching'
-      throw new IntegrationError(errorMsg, errorMsg, 400)
     }
+
+    return sf.bulkHandler(payload, OBJECT_NAME)
   }
 }
 
