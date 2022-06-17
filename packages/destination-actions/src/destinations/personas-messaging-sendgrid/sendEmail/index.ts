@@ -36,19 +36,23 @@ const fetchProfileTraits = async (
   settings: Settings,
   profileId: string
 ): Promise<Record<string, string>> => {
-  const endpoint = getProfileApiEndpoint(settings.profileApiEnvironment)
-  const response = await request(
-    `${endpoint}/v1/spaces/${settings.spaceId}/collections/users/profiles/user_id:${profileId}/traits?limit=200`,
-    {
-      headers: {
-        authorization: `Basic ${Buffer.from(settings.profileApiAccessToken + ':').toString('base64')}`,
-        'content-type': 'application/json'
+  try {
+    const endpoint = getProfileApiEndpoint(settings.profileApiEnvironment)
+    const response = await request(
+      `${endpoint}/v1/spaces/${settings.spaceId}/collections/users/profiles/user_id:${profileId}/traits?limit=200`,
+      {
+        headers: {
+          authorization: `Basic ${Buffer.from(settings.profileApiAccessToken + ':').toString('base64')}`,
+          'content-type': 'application/json'
+        }
       }
-    }
-  )
+    )
 
-  const body = await response.json()
-  return body.traits
+    const body = await response.json()
+    return body.traits
+  } catch (error) {
+    throw new IntegrationError('Unable to get profile traits', 'Trait fetch failure', 500)
+  }
 }
 
 const isRestrictedDomain = (email: string): boolean => {
