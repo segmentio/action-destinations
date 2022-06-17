@@ -46,6 +46,10 @@ export interface RequestOptions extends Omit<RequestInit, 'headers'> {
    * When provided, will automatically apply basic authentication
    */
   username?: string
+  /**
+   * If enabled, will not clone the response as part of post-request processing
+   */
+  skipResponseCloning?: boolean
 }
 
 /**

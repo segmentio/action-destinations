@@ -62,20 +62,29 @@ Before continuing, please make sure to read our [Code of Conduct](./CODE_OF_COND
 
 2. Your PR is merged!
    - Congratulations! Once your PR is merged by a Segment developer, they will deploy your changes and notify you when it’s publicly available. If the destination is in private beta, our folks at Segment will provide a link to access your destination. Once the destination is ready for general availability and has been approved, the destination will be visible from the catalog itself.
+   - *Note*: we currently do weekly deploys on Wednesdays for all non-emergency changes. Changes should be approved and merged by Tuesday EOD to make the Wednesday release. Thank you!
 
 ## Write documentation
 
 Documentation ensures users of your destination can enable and configure the destination, and understand how it interacts with your platform.
 
-1. Write your integration’s documentation. Segment provides two templates: [doc-template-new.md](./docs/doc-template-new.md) for new destinations, and [doc-template-update.md](./docs/doc-template-update.md) for updates to existing destinations. These templates contain sections to explain the following:
+1. Write your integration’s documentation. Segment provides two templates: [doc-template-new.md](./docs/doc-template-new.md) for new destinations, and [doc-template-update.md](./docs/doc-template-update.md) for updates to existing destinations. 
+
+These templates contain content that automatically pulls in information. Do not edit this content.
+  - The table at the top is the yaml front matter, and it is not rendered in the final documentation. 
+  - The snippet `{% include content/plan-grid.md name="actions" %}` indicates which Segment account tiers have access to Destination Actions; all account tiers have access.
+  - The snippet `{% include content/ajs-upgrade.md %}` is a note to encourage customers to upgrade to Analytics.js 2.0. 
+  - The snippet `{% include components/actions-fields.html %}` will automatically populate information about your destination’s Settings, Mappings, Actions, and Action fields, using Segment's Public API. This information will be populated as soon as your destination reaches the Public Beta phase. This means you don't need to include any of this information in your documentation. 
+
+These templates contain sections that you should edit to explain the following:
 
    - The purpose of the destination
    - Benefits / features of the destination
-   - Steps to add and configure the destination within Segment
+   - Steps to add and configure the destination within Segment (replace the destination name with your destination)
    - Breaking changes compared to a classic version of the destination (if applicable)
    - Migration steps (if applicable)
 
-Information about your destination’s Settings, Mappings, Actions, Action fields populate automatically from Segment’s Public API, as soon as your destination reaches the Public Beta phase.
+To help you write your documentation, see examples of documentation for other destinations: [Slack (Actions) Destination](https://segment.com/docs/connections/destinations/catalog/actions-slack/), [TikTok Conversions Destination](https://segment.com/docs/connections/destinations/catalog/tiktok-conversions/).
 
 2. Submit your documentation for review.
    - Create a fork of the [segmentio/segment-docs](https://github.com/segmentio/segment-docs) repository.
@@ -84,9 +93,12 @@ Information about your destination’s Settings, Mappings, Actions, Action field
 
 ## Provide integration metadata for the catalog
 
-Send the following information to partner-support@segment.com:
+Send the following information to partner-support@segment.com using the below template:
+
+Please find the below info for _Name of integration_ Catalog entry.
 
 - **Name:** _Name of integration_
+- **Link to your most recent PR on the actions-destination repo:** _Link to PR_
 - **Description:** _Brief description of your integration, up to ~500 characters. Descriptions can include formatted text and lists. Optionally, you can include up to two images, such as screenshots, with or without captions._
 - **Website:** _Website for your company or product, for example https://amplitude.com_
 - **Categories:** _Select a primary and (optional) secondary category where your integration will appear in the catalog._
@@ -97,7 +109,7 @@ Send the following information to partner-support@segment.com:
 
 ## Release to Private Beta for customer testing
 
-1. During Private Beta, the integration will not be publicly listed in the catalog. You and your customers can access the catalog page using a special URL.
+1. During Private Beta, the integration will not be publicly listed in the catalog. You and your customers can access the catalog page using a special URL: https://app.segment.com/goto-my-workspace/destinations/catalog/${destination-slug} (This will direct users to the install page in their workspace)
 
 2. Verify that the catalog entry renders correctly,
 

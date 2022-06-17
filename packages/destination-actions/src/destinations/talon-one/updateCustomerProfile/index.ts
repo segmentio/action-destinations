@@ -15,7 +15,7 @@ const action: ActionDefinition<Settings, Payload> = {
       label: 'Run rule engine',
       description: 'This runs rule engine in Talon.One upon updating customer profile. Set to true to trigger rules.',
       type: 'boolean',
-      default: false
+      default: true
     }
   },
   perform: (request, { payload }) => {

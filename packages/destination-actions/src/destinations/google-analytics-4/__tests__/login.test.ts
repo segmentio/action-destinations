@@ -47,7 +47,7 @@ describe('GA4', () => {
       })
 
       expect(responses[0].options.body).toMatchInlineSnapshot(
-        `"{\\"client_id\\":\\"anon-2134\\",\\"events\\":[{\\"name\\":\\"login\\",\\"params\\":{}}],\\"user_properties\\":{\\"hello\\":{\\"value\\":\\"world\\"},\\"a\\":{\\"value\\":\\"1\\"},\\"b\\":{\\"value\\":\\"2\\"},\\"c\\":{\\"value\\":\\"3\\"}}}"`
+        `"{\\"client_id\\":\\"anon-2134\\",\\"events\\":[{\\"name\\":\\"login\\",\\"params\\":{\\"engagement_time_msec\\":1}}],\\"user_properties\\":{\\"hello\\":{\\"value\\":\\"world\\"},\\"a\\":{\\"value\\":\\"1\\"},\\"b\\":{\\"value\\":\\"2\\"},\\"c\\":{\\"value\\":\\"3\\"}}}"`
       )
     })
 
@@ -74,6 +74,7 @@ describe('GA4', () => {
           client_id: {
             '@path': '$.userId'
           },
+          engagement_time_msec: 2,
           method: {
             '@path': '$.properties.login_method'
           }
@@ -97,7 +98,7 @@ describe('GA4', () => {
       `)
 
       expect(responses[0].options.body).toMatchInlineSnapshot(
-        `"{\\"client_id\\":\\"abc123\\",\\"events\\":[{\\"name\\":\\"login\\",\\"params\\":{\\"method\\":\\"Okta SSO\\"}}]}"`
+        `"{\\"client_id\\":\\"abc123\\",\\"events\\":[{\\"name\\":\\"login\\",\\"params\\":{\\"method\\":\\"Okta SSO\\",\\"engagement_time_msec\\":2}}]}"`
       )
     })
   })

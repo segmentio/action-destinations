@@ -1,7 +1,7 @@
 import { ActionDefinition, IntegrationError } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
-import { CURRENCY_ISO_CODES } from '../constants'
+import { verifyCurrency } from '../ga4-functions'
 import { ProductItem } from '../ga4-types'
 import {
   coupon,
@@ -16,7 +16,8 @@ import {
   items_multi_products,
   params,
   formatUserProperties,
-  user_properties
+  user_properties,
+  engagement_time_msec
 } from '../ga4-properties'
 
 // https://segment.com/docs/connections/spec/ecommerce/v2/#order-completed
@@ -42,12 +43,11 @@ const action: ActionDefinition<Settings, Payload> = {
     tax: { ...tax },
     value: { ...value, default: { '@path': '$.properties.total' } },
     user_properties: user_properties,
+    engagement_time_msec: engagement_time_msec,
     params: params
   },
   perform: (request, { payload }) => {
-    if (!CURRENCY_ISO_CODES.includes(payload.currency)) {
-      throw new Error(`${payload.currency} is not a valid currency code.`)
-    }
+    verifyCurrency(payload.currency)
 
     let googleItems: ProductItem[] = []
 
@@ -61,8 +61,8 @@ const action: ActionDefinition<Settings, Payload> = {
           )
         }
 
-        if (product.currency && !CURRENCY_ISO_CODES.includes(product.currency)) {
-          throw new IntegrationError(`${product.currency} is not a valid currency code.`, 'Incorrect value format', 400)
+        if (product.currency) {
+          verifyCurrency(product.currency)
         }
 
         return product as ProductItem
@@ -86,6 +86,7 @@ const action: ActionDefinition<Settings, Payload> = {
               shipping: payload.shipping,
               value: payload.value,
               tax: payload.tax,
+              engagement_time_msec: payload.engagement_time_msec,
               ...payload.params
             }
           }

@@ -8,10 +8,38 @@ export const operation: InputField = {
   type: 'string',
   required: true,
   choices: [
-    { label: 'Create', value: 'create' },
-    { label: 'Update', value: 'update' },
-    { label: 'Upsert', value: 'upsert' }
+    { label: 'Create new record', value: 'create' },
+    { label: 'Update existing record', value: 'update' },
+    { label: `Update or create a record if one doesn't exist`, value: 'upsert' },
+    { label: 'Bulk Upsert', value: 'bulkUpsert' },
+    { label: 'Bulk Update', value: 'bulkUpdate' }
   ]
+}
+
+export const bulkUpsertExternalId: InputField = {
+  label: 'Bulk Upsert External Id',
+  description: 'The external id field name and mapping to use for bulk upsert.',
+  type: 'object',
+  defaultObjectUI: 'keyvalue:only',
+  additionalProperties: false,
+  properties: {
+    externalIdName: {
+      label: 'External Id Name',
+      description: 'The external id field name as defined in Salesforce.',
+      type: 'string'
+    },
+    externalIdValue: {
+      label: 'External Id Value',
+      description: 'The external id field value to use for bulk upsert.',
+      type: 'string'
+    }
+  }
+}
+
+export const bulkUpdateRecordId: InputField = {
+  label: 'Bulk Update Record Id',
+  description: 'The record id value to use for bulk update.',
+  type: 'string'
 }
 
 export const traits: InputField = {

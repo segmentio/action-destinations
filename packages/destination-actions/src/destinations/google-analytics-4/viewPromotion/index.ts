@@ -1,5 +1,5 @@
 import { ActionDefinition, IntegrationError } from '@segment/actions-core'
-import { CURRENCY_ISO_CODES } from '../constants'
+import { verifyCurrency } from '../ga4-functions'
 import {
   creative_name,
   creative_slot,
@@ -11,7 +11,8 @@ import {
   items_single_products,
   params,
   formatUserProperties,
-  user_properties
+  user_properties,
+  engagement_time_msec
 } from '../ga4-properties'
 import { PromotionProductItem } from '../ga4-types'
 import type { Settings } from '../generated-types'
@@ -60,6 +61,7 @@ const action: ActionDefinition<Settings, Payload> = {
       }
     },
     user_properties: user_properties,
+    engagement_time_msec: engagement_time_msec,
     params: params
   },
 
@@ -72,8 +74,8 @@ const action: ActionDefinition<Settings, Payload> = {
           throw new IntegrationError('One of item id or item name is required.', 'Misconfigured required field', 400)
         }
 
-        if (product.currency && !CURRENCY_ISO_CODES.includes(product.currency)) {
-          throw new IntegrationError(`${product.currency} is not a valid currency code.`, 'Incorrect value format', 400)
+        if (product.currency) {
+          verifyCurrency(product.currency)
         }
 
         return product as PromotionProductItem
@@ -95,6 +97,7 @@ const action: ActionDefinition<Settings, Payload> = {
               promotion_id: payload.promotion_id,
               promotion_name: payload.promotion_name,
               items: googleItems,
+              engagement_time_msec: payload.engagement_time_msec,
               ...payload.params
             }
           }
