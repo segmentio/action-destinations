@@ -12,9 +12,15 @@ import { getEndpointByRegion } from './regional-endpoints'
 const presets: DestinationDefinition['presets'] = [
   {
     name: 'Track Calls',
-    subscribe: 'type = "track"',
+    subscribe: 'type = "track" and event != "Order Completed"',
     partnerAction: 'logEvent',
     mapping: defaultValues(logEvent.fields)
+  },
+  {
+    name: 'Track Calls',
+    subscribe: 'type = "track" and event = "Order Completed"',
+    partnerAction: 'logPurchase',
+    mapping: defaultValues(logPurchase.fields)
   },
   {
     name: 'Page Calls',
