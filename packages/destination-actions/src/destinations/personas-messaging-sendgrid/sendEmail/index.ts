@@ -323,14 +323,14 @@ const action: ActionDefinition<Settings, Payload> = {
           payload.bodyType === 'html' ? body : await generateEmailHtml(request, settings.unlayerApiKey, body)
 
         parsedBodyHtml = await parseTemplating(bodyHtml, profile, 'Body')
-
-        // only include preview text in design editor templates
-        if (payload.previewText) {
-          const parsedPreviewText = await parseTemplating(payload.previewText, profile, 'Preview text')
-          parsedBodyHtml = insertEmailPreviewText(parsedBodyHtml, parsedPreviewText)
-        }
       } else {
         parsedBodyHtml = await parseTemplating(payload.bodyHtml ?? '', profile, 'Body HTML')
+      }
+
+      // only include preview text in design editor templates
+      if (payload.bodyType === 'design' && payload.previewText) {
+        const parsedPreviewText = await parseTemplating(payload.previewText, profile, 'Preview text')
+        parsedBodyHtml = insertEmailPreviewText(parsedBodyHtml, parsedPreviewText)
       }
 
       return request('https://api.sendgrid.com/v3/mail/send', {
