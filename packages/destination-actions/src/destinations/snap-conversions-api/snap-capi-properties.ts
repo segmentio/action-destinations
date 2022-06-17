@@ -286,16 +286,16 @@ export const conversionType = (settings: Settings, event_conversion_type: String
       settings?.app_id === ''
     ) {
       throw new IntegrationError(
-        'If event conversion type is "MOBILE_APP" then snap_app_id and app_id must be defined',
+        'If event conversion type is "MOBILE_APP" then Snap App ID and App ID must be defined',
         'Misconfigured required field',
         400
       )
     }
     delete settings?.pixel_id
   } else {
-    if (settings?.pixel_id === undefined) {
+    if (settings?.pixel_id === undefined || settings?.pixel_id === '') {
       throw new IntegrationError(
-        `If event conversion type is "${event_conversion_type}" then pixel_id must be defined`,
+        `If event conversion type is "${event_conversion_type}" then Pixel ID must be defined`,
         'Misconfigured required field',
         400
       )
