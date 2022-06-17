@@ -571,5 +571,127 @@ describe('GA4', () => {
         `"{\\"client_id\\":\\"anon-2134\\",\\"user_id\\":\\"abc123\\",\\"events\\":[{\\"name\\":\\"add_payment_info\\",\\"params\\":{\\"items\\":[{\\"item_name\\":\\"Quadruple Stack Oreos, 52 ct\\",\\"item_id\\":\\"12345abcde\\",\\"currency\\":\\"USD\\",\\"price\\":12.99,\\"quantity\\":1}],\\"Test_key\\":\\"test_value\\"}}]}"`
       )
     })
+
+    it('should throw an error when param value is null', async () => {
+      nock('https://www.google-analytics.com/mp/collect')
+        .post(`?measurement_id=${measurementId}&api_secret=${apiSecret}`)
+        .reply(201, {})
+
+      const event = createTestEvent({
+        event: 'Payment Info Entered',
+        userId: 'abc123',
+        type: 'track',
+        properties: {
+          products: [
+            {
+              product_id: '123456',
+              currency: 'USD'
+            }
+          ]
+        }
+      })
+      try {
+        await testDestination.testAction('addPaymentInfo', {
+          event,
+          settings: {
+            apiSecret,
+            measurementId
+          },
+          mapping: {
+            client_id: {
+              '@path': '$.userId'
+            },
+            params: {
+              test_key: null
+            },
+            items: [
+              {
+                item_id: {
+                  '@path': '$.properties.products.0.product_id'
+                },
+                currency: {
+                  '@path': `$.properties.products.0.currency`
+                }
+              }
+            ]
+          },
+          useDefaultMappings: false
+        })
+        fail('the test should have thrown an error')
+      } catch (e) {
+        expect(e.message).toBe(
+          'GA4 only accepts string or number values for event parameters, item parameters, and user properties. Please ensure you are not including null, array, or nested values.'
+        )
+      }
+    })
+
+    it('should throw an error when user_properties value is null', async () => {
+      nock('https://www.google-analytics.com/mp/collect')
+        .post(`?measurement_id=${measurementId}&api_secret=${apiSecret}`)
+        .reply(201, {})
+
+      const event = createTestEvent({
+        event: 'Payment Info Entered',
+        userId: 'abc123',
+        anonymousId: 'anon-2134',
+        type: 'track',
+        properties: {
+          products: [
+            {
+              product_id: '12345abcde',
+              name: 'Quadruple Stack Oreos, 52 ct',
+              currency: 'USD',
+              price: 12.99,
+              quantity: 1
+            }
+          ]
+        }
+      })
+      try {
+        await testDestination.testAction('addPaymentInfo', {
+          event,
+          settings: {
+            apiSecret,
+            measurementId
+          },
+          mapping: {
+            client_id: {
+              '@path': '$.anonymousId'
+            },
+            user_properties: {
+              hello: null,
+              a: '1',
+              b: '2',
+              c: '3'
+            },
+            items: [
+              {
+                item_name: {
+                  '@path': `$.properties.products.0.name`
+                },
+                item_id: {
+                  '@path': `$.properties.products.0.product_id`
+                },
+                currency: {
+                  '@path': `$.properties.products.0.currency`
+                },
+                price: {
+                  '@path': `$.properties.products.0.price`
+                },
+                quantity: {
+                  '@path': `$.properties.products.0.quantity`
+                }
+              }
+            ]
+          },
+          useDefaultMappings: true
+        })
+        fail('the test should have thrown an error')
+      } catch (e) {
+        expect(e.message).toBe(
+          'GA4 only accepts string or number values for event parameters, item parameters, and user properties. Please ensure you are not including null, array, or nested values.'
+        )
+      }
+    })
   })
 })
