@@ -612,7 +612,7 @@ describe('Amplitude', () => {
       })
     })
 
-    it('should work with default mappings', async () => {
+    it('should work with default mappings without generating additional events from products array', async () => {
       const event = createTestEvent({
         event: 'Order Completed',
         timestamp,
@@ -665,38 +665,6 @@ describe('Amplitude', () => {
       }
 
       const responses = await testDestination.testAction('logEvent', { event, mapping, useDefaultMappings: true })
-      expect(responses.length).toBe(1)
-      expect(responses[0].status).toBe(200)
-      expect(responses[0].options.json).toMatchObject({
-        api_key: undefined,
-        events: expect.arrayContaining([
-          expect.objectContaining({
-            event_type: 'Order Completed',
-            event_properties: event.properties
-          })
-        ])
-      })
-    })
-
-    it('should work with per product revenue tracking', async () => {
-      nock('https://api2.amplitude.com/2').post('/httpapi').reply(200, {})
-
-      const event = createTestEvent({
-        event: 'Order Completed',
-        timestamp,
-        properties: {
-          revenue: 1_999,
-          products: [
-            {
-              quantity: 1,
-              productId: 'Bowflex Treadmill 10',
-              revenue: 1_999
-            }
-          ]
-        }
-      })
-
-      const responses = await testDestination.testAction('logEvent', { event, useDefaultMappings: true })
       expect(responses.length).toBe(1)
       expect(responses[0].status).toBe(200)
       expect(responses[0].options.json).toMatchObject({
