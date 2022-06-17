@@ -6,16 +6,14 @@ const testDestination = createTestIntegration(Definition)
 const endpoint = 'https://api.intercom.io'
 
 describe('Intercom (actions)', () => {
-  // describe('testAuthentication', () => {
-  //   it('should validate authentication inputs', async () => {
-  //     nock('https://your.destination.endpoint').get('*').reply(200, {})
+  describe('testAuthentication', () => {
+    it('should validate authentication inputs', async () => {
+      nock(endpoint).get('/admins').reply(200, {})
+      const authData = {}
 
-  //     // This should match your authentication.fields
-  //     const authData = {}
-
-  //     await expect(testDestination.testAuthentication(authData)).resolves.not.toThrowError()
-  //   })
-  // })
+      await expect(testDestination.testAuthentication(authData)).resolves.not.toThrowError()
+    })
+  })
 
   describe('onDelete', () => {
     it('should delete a user', async () => {

@@ -10,35 +10,35 @@ export interface Payload {
    */
   company_id: string
   /**
-   * Attach this user to the company. This userId is NOT the external_id or email; it is the Intercom unique identifier
+   * Attach this contact to the company. This ID is NOT the external_id or email; it is the Intercom unique identifier.
    */
-  user_id?: string
+  contact_id?: string
   /**
-   * The name of the company
+   * The name of the company.
    */
   name?: string
   /**
-   * The monthly spend of the company
+   * The monthly spend of the company.
    */
   monthly_spend?: number
   /**
-   * The plan of the company
+   * The plan of the company.
    */
   plan?: string
   /**
-   * The size of the company
+   * The size of the company.
    */
   size?: number
   /**
-   * The website of the company
+   * The website of the company.
    */
   website?: string
   /**
-   * The industry of the company
+   * The industry of the company.
    */
   industry?: string
   /**
-   * Passing any traits not mapped to individual fields as Custom Attributes. Note: Will throw an error if you pass an attribute that isn`t explicitly defined
+   * Passing any traits not mapped to individual fields as Custom Attributes. Note: Will throw an error if you pass an attribute that isn`t explicitly defined.
    */
   custom_attributes?: {
     [k: string]: unknown

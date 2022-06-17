@@ -5,7 +5,7 @@ import Destination from '../../index'
 const testDestination = createTestIntegration(Destination)
 const endpoint = 'https://api.intercom.io'
 
-describe('Intercom.groupIdentifyUser', () => {
+describe('Intercom.groupIdentifyContact', () => {
   it('should create a company and attach a contact', async () => {
     const userId = '9999'
     const event = createTestEvent({ userId, groupId: 'A Company' })
@@ -13,7 +13,7 @@ describe('Intercom.groupIdentifyUser', () => {
     nock(`${endpoint}`).post(`/companies`).reply(200, {})
     nock(`${endpoint}`).post(`/contacts/${userId}/companies`).reply(200, {})
 
-    const responses = await testDestination.testAction('groupIdentifyUser', {
+    const responses = await testDestination.testAction('groupIdentifyContact', {
       event,
       useDefaultMappings: true
     })
@@ -32,10 +32,10 @@ describe('Intercom.groupIdentifyUser', () => {
     nock(`${endpoint}`).post(`/contacts/${userId}/companies`).reply(404, {})
 
     await expect(
-      testDestination.testAction('groupIdentifyUser', {
+      testDestination.testAction('groupIdentifyContact', {
         event,
         useDefaultMappings: true
       })
-    ).rejects.toThrowError(new RetryableError(`User doesn't exist, retrying`))
+    ).rejects.toThrowError(new RetryableError(`Contact doesn't exist, retrying`))
   })
 })

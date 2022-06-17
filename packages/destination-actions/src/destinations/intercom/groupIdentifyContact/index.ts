@@ -7,8 +7,9 @@ interface IntercomCreateCompanyData {
 }
 
 const action: ActionDefinition<Settings, Payload> = {
-  title: 'Group Identify User',
-  description: 'Create or Update A Company',
+  title: 'Group Identify Contact',
+  description:
+    "Create or Update A Company. Note: Companies will be only visible in Intercom's Dashboard when there is at least one associated contact.",
   defaultSubscription: 'type = "group"',
   platform: 'web',
   fields: {
@@ -29,18 +30,18 @@ const action: ActionDefinition<Settings, Payload> = {
         '@path': '$.groupId'
       }
     },
-    user_id: {
+    contact_id: {
       type: 'string',
       description:
-        'Attach this user to the company. This userId is NOT the external_id or email; it is the Intercom unique identifier',
-      label: 'User ID',
+        'Attach this contact to the company. This ID is NOT the external_id or email; it is the Intercom unique identifier.',
+      label: 'Contact ID',
       default: {
         '@path': '$.userId'
       }
     },
     name: {
       type: 'string',
-      description: 'The name of the company',
+      description: 'The name of the company.',
       label: 'Name',
       default: {
         '@path': '$.traits.name'
@@ -48,7 +49,7 @@ const action: ActionDefinition<Settings, Payload> = {
     },
     monthly_spend: {
       type: 'number',
-      description: 'The monthly spend of the company',
+      description: 'The monthly spend of the company.',
       label: 'Monthly Spend',
       default: {
         '@path': '$.traits.plan'
@@ -56,7 +57,7 @@ const action: ActionDefinition<Settings, Payload> = {
     },
     plan: {
       type: 'string',
-      description: 'The plan of the company',
+      description: 'The plan of the company.',
       label: 'Plan',
       default: {
         '@path': '$.traits.plan'
@@ -64,7 +65,7 @@ const action: ActionDefinition<Settings, Payload> = {
     },
     size: {
       type: 'number',
-      description: 'The size of the company',
+      description: 'The size of the company.',
       label: 'Size',
       default: {
         '@path': '$.traits.employees'
@@ -72,7 +73,7 @@ const action: ActionDefinition<Settings, Payload> = {
     },
     website: {
       type: 'string',
-      description: 'The website of the company',
+      description: 'The website of the company.',
       label: 'Website',
       default: {
         '@path': '$.traits.website'
@@ -80,7 +81,7 @@ const action: ActionDefinition<Settings, Payload> = {
     },
     industry: {
       type: 'string',
-      description: 'The industry of the company',
+      description: 'The industry of the company.',
       label: 'Industry',
       default: {
         '@path': '$.traits.industry'
@@ -89,29 +90,29 @@ const action: ActionDefinition<Settings, Payload> = {
     custom_attributes: {
       type: 'object',
       description:
-        'Passing any traits not mapped to individual fields as Custom Attributes. Note: Will throw an error if you pass an attribute that isn`t explicitly defined',
+        'Passing any traits not mapped to individual fields as Custom Attributes. Note: Will throw an error if you pass an attribute that isn`t explicitly defined.',
       label: 'Custom Attributes'
     }
   },
-  // https://developers.intercom.com/intercom-api-reference/reference/create-or-update-company
-  // https://developers.intercom.com/intercom-api-reference/reference/attach-contact-to-company
-  // Companies will be only visible in Intercom when there is at least one associated user.
-  //
-  // Create or Update Company, then attach user. If user is not found (404), throw a retryable error
-  // as the user might be created soon
+  /**
+   * Create or Update Company, then attach contact. If contact is not found (404), throw a retryable error
+   * as the contact might be created soon
+   *
+   * Note: Companies will be only visible in Intercom's Dashboard when there is at least one associated contact.
+   */
   perform: async (request, { payload }) => {
-    const userId = payload.user_id
-    delete payload.user_id
+    const contactId = payload.contact_id
+    delete payload.contact_id
 
     const response = await createOrUpdateIntercomCompany(request, payload)
-    if (userId) {
+    if (contactId) {
       try {
         const companyId = response.data.id
-        return await attachUserToIntercomCompany(request, userId, companyId)
+        return await attachContactToIntercomCompany(request, contactId, companyId)
       } catch (error) {
         // Should be an HTTPError, but was failing instanceOf (?)
         if (error?.response?.status === 404) {
-          throw new RetryableError(`User doesn't exist, retrying`)
+          throw new RetryableError(`Contact doesn't exist, retrying`)
         }
         throw error
       }
@@ -129,8 +130,8 @@ function createOrUpdateIntercomCompany(
   })
 }
 
-function attachUserToIntercomCompany(request: RequestClient, userId: string, companyId: string) {
-  return request(`https://api.intercom.io/contacts/${userId}/companies`, {
+function attachContactToIntercomCompany(request: RequestClient, contactId: string, companyId: string) {
+  return request(`https://api.intercom.io/contacts/${contactId}/companies`, {
     method: 'POST',
     json: {
       id: companyId

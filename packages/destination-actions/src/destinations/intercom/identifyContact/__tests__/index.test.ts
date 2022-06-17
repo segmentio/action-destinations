@@ -5,13 +5,13 @@ import Destination from '../../index'
 const testDestination = createTestIntegration(Destination)
 const endpoint = 'https://api.intercom.io'
 
-describe('Intercom.identifyUser', () => {
+describe('Intercom.identifyContact', () => {
   it('should create a user', async () => {
     const event = createTestEvent({ traits: { name: 'example user', email: 'user@example.com' } })
 
     nock(`${endpoint}`).post(`/contacts`).reply(200, {})
 
-    const responses = await testDestination.testAction('identifyUser', {
+    const responses = await testDestination.testAction('identifyContact', {
       event,
       useDefaultMappings: true
     })
@@ -20,7 +20,7 @@ describe('Intercom.identifyUser', () => {
     expect(responses[0].status).toBe(200)
     expect(responses[0].data).toMatchObject({})
     expect(responses[0].options.body).toBe(
-      `{"role":"user","external_id":"user1234","email":"user@example.com","name":"example user","last_seen_at":"${event.timestamp}","custom_attribute":{"name":"example user","email":"user@example.com"}}`
+      `{"role":"lead","external_id":"user1234","email":"user@example.com","name":"example user","last_seen_at":"${event.timestamp}","custom_attribute":{"name":"example user","email":"user@example.com"}}`
     )
   })
 
@@ -35,7 +35,7 @@ describe('Intercom.identifyUser', () => {
       .reply(200, { total_count: 1, data: [{ id: userId }] })
     nock(`${endpoint}`).put(`/contacts/${userId}`).reply(200, {})
 
-    const responses = await testDestination.testAction('identifyUser', {
+    const responses = await testDestination.testAction('identifyContact', {
       event,
       useDefaultMappings: true
     })
@@ -51,13 +51,13 @@ describe('Intercom.identifyUser', () => {
     nock(`${endpoint}`).post(`/contacts/search`).reply(200, {})
 
     await expect(
-      testDestination.testAction('identifyUser', {
+      testDestination.testAction('identifyContact', {
         event,
         useDefaultMappings: true
       })
     ).rejects.toThrowError(
       new RetryableError(
-        `User was reported duplicated but could not be searched for, probably due to Intercom search cache not being updated`
+        `Contact was reported duplicated but could not be searched for, probably due to Intercom search cache not being updated`
       )
     )
   })

@@ -2,42 +2,39 @@ import { ActionDefinition, ModifiedResponse, RequestClient, RetryableError } fro
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 
-// https://developers.intercom.com/intercom-api-reference/reference/search-for-contacts
 interface IntercomSearchData {
   total_count: number
-  data: Array<IntercomUser>
+  data: Array<IntercomContact>
 }
 
-interface IntercomUser {
+interface IntercomContact {
   id: string
 }
 
 const action: ActionDefinition<Settings, Payload> = {
-  title: 'Identify User',
-  description: 'Create or Update a Contact',
+  title: 'Identify Contact',
+  description: 'Create or Update a Contact.',
   defaultSubscription: 'type = "identify"',
   platform: 'web',
   fields: {
     role: {
       type: 'string',
       required: true,
-      description: 'The role of the contact. Accepted values are `user` or `lead`. Can only be updated if `lead`',
+      description: 'The role of the contact. Accepted values are `user` or `lead`. Can only be updated if `lead`.',
       label: 'Role',
-      default: 'user'
+      default: 'lead'
     },
     external_id: {
-      // required if role=user and email is blank
       type: 'string',
-      description: 'A unique identifier generated outside Intercom',
+      description: 'A unique identifier generated outside Intercom. Required if role=user and email is blank.',
       label: 'External ID',
       default: {
         '@path': '$.userId'
       }
     },
     email: {
-      // required if role=user and external_id is blank
       type: 'string',
-      description: "The user's email",
+      description: "The contact's email. Required if role=user and external_id is blank.",
       label: 'Email',
       format: 'email',
       default: {
@@ -46,16 +43,15 @@ const action: ActionDefinition<Settings, Payload> = {
     },
     phone: {
       label: 'Phone Number',
-      description: "The user's phone number",
+      description: "The contact's phone number.",
       type: 'string',
       default: {
         '@path': '$.traits.phone'
       }
     },
     name: {
-      // required if role=user and external_id is blank
       type: 'string',
-      description: "The user's name",
+      description: "The contact's name.",
       label: 'Name',
       default: {
         '@path': '$.traits.name'
@@ -63,7 +59,7 @@ const action: ActionDefinition<Settings, Payload> = {
     },
     avatar: {
       label: 'Avatar',
-      description: 'URL of image to be associated with user profile.',
+      description: 'URL of image to be associated with contact profile.',
       type: 'string',
       format: 'uri',
       default: {
@@ -73,7 +69,7 @@ const action: ActionDefinition<Settings, Payload> = {
     signed_up_at: {
       label: 'Signed Up At',
       type: 'datetime',
-      description: 'The timestamp when the contact was created',
+      description: 'The timestamp when the contact was created.',
       default: {
         '@path': '$.createdAt'
       }
@@ -81,7 +77,7 @@ const action: ActionDefinition<Settings, Payload> = {
     last_seen_at: {
       label: 'Timestamp',
       type: 'datetime',
-      description: 'The timestamp the user was last seen',
+      description: 'The timestamp the contact was last seen.',
       default: {
         '@path': '$.timestamp'
       }
@@ -89,16 +85,16 @@ const action: ActionDefinition<Settings, Payload> = {
     owner_id: {
       label: 'Owner Id',
       type: 'number',
-      description: 'The id of an admin that has been assigned account ownership of the contact'
+      description: 'The id of an admin that has been assigned account ownership of the contact.'
     },
     unsubscribed_from_emails: {
       label: 'Unsubscribed From Emails',
       type: 'boolean',
-      description: 'Whether the contact is unsubscribed from emails'
+      description: 'Whether the contact is unsubscribed from emails.'
     },
     custom_attribute: {
       label: 'Custom Fields',
-      description: 'The custom attributes which are set for the contact',
+      description: 'The custom attributes which are set for the contact.',
       type: 'object',
       default: {
         '@path': '$.traits'
@@ -106,26 +102,24 @@ const action: ActionDefinition<Settings, Payload> = {
     }
   },
   perform: async (request, { payload }) => {
-    // https://developers.intercom.com/intercom-api-reference/reference/create-contact
-    // https://developers.intercom.com/intercom-api-reference/reference/update-contact
-    //
-    // Create a new intercom user; if it exists, then search for and update the user.
-    // If the search doesn't work after a duplicate user error (409),
-    // then it's possibly a cache issue, so we'll retry
-    //
-    // Note: When creating a lead, it doesn't accept an external_id (?), but it accepts an email
+    /**
+     * Create a new intercom contact; if it exists, then search for and update the contact.
+     * If the search doesn't work after a duplicate contact error (409),
+     * then it's possibly a cache issue, so we'll retry
+     * Note: When creating a lead, it doesn't accept an external_id (?), but it accepts an email
+     */
     try {
-      const response = await createIntercomUser(request, payload)
+      const response = await createIntercomContact(request, payload)
       return response
     } catch (error) {
       if (error?.response?.status === 409) {
-        // The user already exists
-        const user = await searchIntercomUser(request, payload)
-        if (user) {
-          return updateIntercomUser(request, user, payload)
+        // The contact already exists
+        const contact = await searchIntercomContact(request, payload)
+        if (contact) {
+          return updateIntercomContact(request, contact, payload)
         } else {
           throw new RetryableError(
-            'User was reported duplicated but could not be searched for, probably due to Intercom search cache not being updated'
+            'Contact was reported duplicated but could not be searched for, probably due to Intercom search cache not being updated'
           )
         }
       }
@@ -134,7 +128,8 @@ const action: ActionDefinition<Settings, Payload> = {
   }
 }
 
-async function createIntercomUser(request: RequestClient, payload: Payload) {
+// Intercom's API Docs - https://developers.intercom.com/intercom-api-reference/reference/update-contact
+async function createIntercomContact(request: RequestClient, payload: Payload) {
   return request('https://api.intercom.io/contacts', {
     method: 'POST',
     json: payload
@@ -142,11 +137,13 @@ async function createIntercomUser(request: RequestClient, payload: Payload) {
 }
 
 /**
- * If there is a duplicate user found, then search for the id of the user.
- * Note: leads can have duplicate emails (and so the creation can never throw a 409),
- * but users can't.
+ * If there is a duplicate contact found, then search for the id of the contact.
+ * Note: contact leads can have duplicate emails (and so the creation can never throw a 409),
+ * but contact users can't.
+ *
+ * Intercom's API Docs - https://developers.intercom.com/intercom-api-reference/reference/search-for-contacts
  */
-async function searchIntercomUser(request: RequestClient, payload: Payload) {
+async function searchIntercomContact(request: RequestClient, payload: Payload) {
   const searchFields = {
     email: payload.email,
     external_id: payload.external_id,
@@ -178,11 +175,11 @@ async function searchIntercomUser(request: RequestClient, payload: Payload) {
   }
 }
 
-async function updateIntercomUser(request: RequestClient, user: IntercomUser, payload: Payload) {
-  return request(`https://api.intercom.io/contacts/${user.id}`, {
+async function updateIntercomContact(request: RequestClient, contact: IntercomContact, payload: Payload) {
+  return request(`https://api.intercom.io/contacts/${contact.id}`, {
     method: 'PUT',
     json: {
-      ...user,
+      ...contact,
       ...payload
     }
   })

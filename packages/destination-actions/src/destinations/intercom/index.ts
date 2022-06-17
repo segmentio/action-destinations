@@ -1,9 +1,7 @@
 import type { DestinationDefinition } from '@segment/actions-core'
 import type { Settings } from './generated-types'
-
-import identifyUser from './identifyUser'
-
-import groupIdentifyUser from './groupIdentifyUser'
+import identifyContact from './identifyContact'
+import groupIdentifyContact from './groupIdentifyContact'
 
 const destination: DestinationDefinition<Settings> = {
   name: 'Intercom (Actions)',
@@ -12,26 +10,12 @@ const destination: DestinationDefinition<Settings> = {
 
   authentication: {
     scheme: 'oauth2',
-    fields: {}
-    // testAuthentication: (request) => {
-    //   // Return a request that tests/validates the user's credentials.
-    //   // If you do not have a way to validate the authentication fields safely,
-    //   // you can remove the `testAuthentication` function, though discouraged.
-    // },
-    // refreshAccessToken: async (request, { auth }) => {
-    //   // Return a request that refreshes the access_token if the API supports it
-    //   const res = await request('https://www.example.com/oauth/refresh', {
-    //     method: 'POST',
-    //     body: new URLSearchParams({
-    //       refresh_token: auth.refreshToken,
-    //       client_id: auth.clientId,
-    //       client_secret: auth.clientSecret,
-    //       grant_type: 'refresh_token'
-    //     })
-    //   })
-
-    //   return { accessToken: res.body.access_token }
-    // }
+    fields: {},
+    testAuthentication: (request) => {
+      // Uses the admin route as a stand-in to test authentication creds.
+      // Should be a light request since there most likely won't be many admins
+      return request('https://api.intercom.io/admins')
+    }
   },
   extendRequest({ auth }) {
     return {
@@ -48,8 +32,8 @@ const destination: DestinationDefinition<Settings> = {
   },
 
   actions: {
-    identifyUser,
-    groupIdentifyUser
+    identifyContact,
+    groupIdentifyContact
   }
 }
 
