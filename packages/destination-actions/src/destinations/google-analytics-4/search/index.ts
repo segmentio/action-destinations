@@ -1,6 +1,7 @@
 import type { ActionDefinition } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
+import { verifyParams } from '../ga4-functions'
 import {
   formatUserProperties,
   user_properties,
@@ -42,7 +43,7 @@ const action: ActionDefinition<Settings, Payload> = {
             params: {
               search_term: payload.search_term,
               engagement_time_msec: payload.engagement_time_msec,
-              ...payload.params
+              ...verifyParams(payload.params)
             }
           }
         ],

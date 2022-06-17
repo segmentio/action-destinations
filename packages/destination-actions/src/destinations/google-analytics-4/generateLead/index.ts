@@ -1,5 +1,5 @@
 import { ActionDefinition, IntegrationError } from '@segment/actions-core'
-import { verifyCurrency } from '../ga4-functions'
+import { verifyCurrency, verifyParams } from '../ga4-functions'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 import {
@@ -48,7 +48,7 @@ const action: ActionDefinition<Settings, Payload> = {
               currency: payload.currency,
               value: payload.value,
               engagement_time_msec: payload.engagement_time_msec,
-              ...payload.params
+              ...verifyParams(payload.params)
             }
           }
         ],
