@@ -4,41 +4,12 @@ import type { Settings } from './generated-types'
 import { defaultValues } from '@segment/actions-core'
 
 import { getEndpointByRegion } from './regional-endpoints'
-import identifyUser from './identifyUser'
-import groupIdentify from './groupIdentify'
-import trackEvent from './trackEvent'
-import trackPageView from './trackPageView'
+import sendEvent from './sendEvent'
 
-/** used in the quick setup */
-const presets: DestinationDefinition['presets'] = [
-  {
-    name: 'Identify User',
-    subscribe: 'type = "identify"',
-    partnerAction: 'identifyUser',
-    mapping: defaultValues(identifyUser.fields)
-  },
-  {
-    name: 'Group User',
-    subscribe: 'type = "group"',
-    partnerAction: 'groupIdentify',
-    mapping: defaultValues(groupIdentify.fields)
-  },
-  {
-    name: 'Track Event',
-    subscribe: 'type = "track"',
-    partnerAction: 'trackEvent',
-    mapping: defaultValues(trackEvent.fields)
-  },
-  {
-    name: 'Track Page View',
-    subscribe: 'type = "page"',
-    partnerAction: 'trackPageView',
-    mapping: defaultValues(trackPageView.fields)
-  }
-]
+const defaultVals = { ...defaultValues(sendEvent.fields) }
 
 const destination: DestinationDefinition<Settings> = {
-  name: 'Gainsight PX Cloud (Actions)',
+  name: 'Gainsight Px Cloud (Actions)',
   slug: 'actions-gainsight-px-cloud',
   mode: 'cloud',
 
@@ -96,13 +67,36 @@ const destination: DestinationDefinition<Settings> = {
       password: ''
     }
   },
-  presets,
   actions: {
-    identifyUser,
-    groupIdentify,
-    trackEvent,
-    trackPageView
-  }
+    // Only one action, event data is simply copied from Segment payload and sent to Gainsight PX
+    sendEvent
+  },
+  presets: [
+    {
+      name: 'Identify User',
+      subscribe: 'type = "identify"',
+      partnerAction: 'sendEvent',
+      mapping: defaultVals
+    },
+    {
+      name: 'Group User',
+      subscribe: 'type = "group"',
+      partnerAction: 'sendEvent',
+      mapping: defaultVals
+    },
+    {
+      name: 'Track Event',
+      subscribe: 'type = "track"',
+      partnerAction: 'sendEvent',
+      mapping: defaultVals
+    },
+    {
+      name: 'Track Page View',
+      subscribe: 'type = "page"',
+      partnerAction: 'sendEvent',
+      mapping: defaultVals
+    }
+  ]
 }
 
 export default destination

@@ -20,6 +20,23 @@ export interface Payload {
     [k: string]: unknown
   }
   /**
+   * The external id field name and mapping to use for bulk upsert.
+   */
+  bulkUpsertExternalId?: {
+    /**
+     * The external id field name as defined in Salesforce.
+     */
+    externalIdName?: string
+    /**
+     * The external id field value to use for bulk upsert.
+     */
+    externalIdValue?: string
+  }
+  /**
+   * The record id value to use for bulk update.
+   */
+  bulkUpdateRecordId?: string
+  /**
    * The API name of the Salesforce object that records will be added or updated within. This can be a standard or custom object. Custom objects must be predefined in your Salesforce account and should end with "__c".
    */
   customObjectName: string

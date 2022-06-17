@@ -1,8 +1,17 @@
 import { ActionDefinition, IntegrationError } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
-import { customFields, operation, traits, validateLookup } from '../sf-properties'
+import {
+  bulkUpsertExternalId,
+  bulkUpdateRecordId,
+  customFields,
+  operation,
+  traits,
+  validateLookup
+} from '../sf-properties'
 import Salesforce from '../sf-operations'
+
+const OBJECT_NAME = 'Contact'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Contact',
@@ -10,6 +19,8 @@ const action: ActionDefinition<Settings, Payload> = {
   fields: {
     operation: operation,
     traits: traits,
+    bulkUpsertExternalId: bulkUpsertExternalId,
+    bulkUpdateRecordId: bulkUpdateRecordId,
     last_name: {
       label: 'Last Name',
       description: "The contact's last name up to 80 characters. **This is required to create a contact.**",
@@ -121,21 +132,32 @@ const action: ActionDefinition<Settings, Payload> = {
       if (!payload.last_name) {
         throw new IntegrationError('Missing last_name value', 'Misconfigured required field', 400)
       }
-      return await sf.createRecord(payload, 'Contact')
+      return await sf.createRecord(payload, OBJECT_NAME)
     }
 
     validateLookup(payload)
 
     if (payload.operation === 'update') {
-      return await sf.updateRecord(payload, 'Contact')
+      return await sf.updateRecord(payload, OBJECT_NAME)
     }
 
     if (payload.operation === 'upsert') {
       if (!payload.last_name) {
         throw new IntegrationError('Missing last_name value', 'Misconfigured required field', 400)
       }
-      return await sf.upsertRecord(payload, 'Contact')
+      return await sf.upsertRecord(payload, OBJECT_NAME)
     }
+  },
+  performBatch: async (request, { settings, payload }) => {
+    const sf: Salesforce = new Salesforce(settings.instanceUrl, request)
+
+    if (payload[0].operation === 'bulkUpsert') {
+      if (!payload[0].last_name) {
+        throw new IntegrationError('Missing last_name value', 'Misconfigured required field', 400)
+      }
+    }
+
+    return sf.bulkHandler(payload, OBJECT_NAME)
   }
 }
 

@@ -1,8 +1,17 @@
 import { ActionDefinition, IntegrationError } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import Salesforce from '../sf-operations'
-import { customFields, operation, traits, validateLookup } from '../sf-properties'
+import {
+  bulkUpsertExternalId,
+  bulkUpdateRecordId,
+  customFields,
+  operation,
+  traits,
+  validateLookup
+} from '../sf-properties'
 import type { Payload } from './generated-types'
+
+const OBJECT_NAME = 'Account'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Account',
@@ -11,6 +20,8 @@ const action: ActionDefinition<Settings, Payload> = {
   fields: {
     operation: operation,
     traits: traits,
+    bulkUpsertExternalId: bulkUpsertExternalId,
+    bulkUpdateRecordId: bulkUpdateRecordId,
     name: {
       label: 'Name',
       description: 'Name of the account. **This is required to create an account.**',
@@ -170,21 +181,32 @@ const action: ActionDefinition<Settings, Payload> = {
       if (!payload.name) {
         throw new IntegrationError('Missing name value', 'Misconfigured required field', 400)
       }
-      return await sf.createRecord(payload, 'Account')
+      return await sf.createRecord(payload, OBJECT_NAME)
     }
 
     validateLookup(payload)
 
     if (payload.operation === 'update') {
-      return await sf.updateRecord(payload, 'Account')
+      return await sf.updateRecord(payload, OBJECT_NAME)
     }
 
     if (payload.operation === 'upsert') {
       if (!payload.name) {
         throw new IntegrationError('Missing name value', 'Misconfigured required field', 400)
       }
-      return await sf.upsertRecord(payload, 'Account')
+      return await sf.upsertRecord(payload, OBJECT_NAME)
     }
+  },
+  performBatch: async (request, { settings, payload }) => {
+    const sf: Salesforce = new Salesforce(settings.instanceUrl, request)
+
+    if (payload[0].operation === 'bulkUpsert') {
+      if (!payload[0].name) {
+        throw new IntegrationError('Missing name value', 'Misconfigured required field', 400)
+      }
+    }
+
+    return sf.bulkHandler(payload, OBJECT_NAME)
   }
 }
 

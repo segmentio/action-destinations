@@ -1,8 +1,15 @@
 # Build & Test Cloud Destinations
 
-- [Local End-to-end Testing](#local-end-to-end-testing)
-- [Unit Testing](#unit-testing)
-- [Snapshot Testing](#snapshot-testing)
+- [Build & Test Cloud Destinations](#build--test-cloud-destinations)
+  - [Actions Tester](#actions-tester)
+  - [Local End-to-end Testing](#local-end-to-end-testing)
+    - [Example](#example)
+    - [Testing Batches](#testing-batches)
+  - [Unit Testing](#unit-testing)
+    - [Mocking HTTP Requests](#mocking-http-requests)
+    - [Examples](#examples)
+  - [Snapshot Testing](#snapshot-testing)
+  - [Code Coverage](#code-coverage)
 
 ## Actions Tester
 
@@ -175,3 +182,7 @@ Once the actions under a new destination are complete, developers can run the fo
 ```
 yarn jest --testPathPattern='./packages/destination-actions/src/destinations/<DESTINATION SLUG>' --updateSnapshot
 ```
+
+## Code Coverage
+
+Code coverage is automatically collected upon completion of `yarn test`. Results may be inspected by examining the HTML report found at `coverage/lcov-report/index.html`, or directly in your IDE if _lcov_ is supported.
