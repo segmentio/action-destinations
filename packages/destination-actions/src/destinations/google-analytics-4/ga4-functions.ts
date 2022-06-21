@@ -15,9 +15,9 @@ export function verifyParams(params: object | undefined): object | undefined {
   }
 
   Object.entries(params).forEach(([_, value]) => {
-    if (typeof value !== 'string' && typeof value != 'number') {
+    if (typeof value != 'string' && typeof value != 'number') {
       throw new IntegrationError(
-        'GA4 only accepts string or number values for event parameters, item parameters, and user properties. Please ensure you are not including null, array, or nested values.',
+        'GA4 only accepts string or number values for event parameters and item parameters. Please ensure you are not including null, array, or nested values.',
         'Invalid value',
         400
       )
