@@ -22,5 +22,5 @@ export interface Payload {
   /**
    * A timestamp of when the person was created.
    */
-  created_at?: string
+  created_at?: string | number
 }

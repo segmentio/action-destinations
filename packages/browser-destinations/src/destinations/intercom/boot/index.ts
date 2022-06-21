@@ -1,3 +1,4 @@
+import dayjs from 'dayjs'
 import type { BrowserActionDefinition } from '../../../lib/browser-destinations'
 import { Intercom } from '../api'
 import type { Settings } from '../generated-types'
@@ -49,16 +50,21 @@ const action: BrowserActionDefinition<Settings, Intercom, Payload> = {
       label: 'Created At',
       description: 'A timestamp of when the person was created.',
       required: false,
-      type: 'string',
+      type: 'datetime',
       default: {
         '@path': '$.traits.createdAt'
       }
     }
   },
   perform: (Intercom, event) => {
+    const payload = { ...event.payload }
+    if (payload.created_at) {
+      //change date from ISO-8601 (segment's format) to unix timestamp (intercom's format)
+      payload.created_at = dayjs(payload.created_at).unix()
+    }
     Intercom('boot', {
       app_id: Intercom.appId,
-      ...event.payload
+      ...payload
     })
   }
 }
