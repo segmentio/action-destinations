@@ -6,7 +6,7 @@ import type { Payload } from './generated-types'
 
 // Change from unknown to the partner SDK types
 const action: BrowserActionDefinition<Settings, Intercom, Payload> = {
-  title: 'Boot',
+  title: 'Update',
   description: '',
   platform: 'web',
   fields: {
@@ -62,7 +62,7 @@ const action: BrowserActionDefinition<Settings, Intercom, Payload> = {
       //change date from ISO-8601 (segment's format) to unix timestamp (intercom's format)
       payload.created_at = dayjs(payload.created_at).unix()
     }
-    Intercom('boot', {
+    Intercom('update', {
       app_id: Intercom.appId,
       ...payload
     })
@@ -70,3 +70,4 @@ const action: BrowserActionDefinition<Settings, Intercom, Payload> = {
 }
 
 export default action
+

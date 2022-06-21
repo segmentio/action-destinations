@@ -1,4 +1,4 @@
-type method = 'trackEvent' | 'boot'
+type method = 'trackEvent' | 'update'
 
 type IntercomApi = {
   booted: boolean

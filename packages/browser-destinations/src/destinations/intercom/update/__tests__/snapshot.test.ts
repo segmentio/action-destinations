@@ -4,7 +4,7 @@ import destination from '../../index'
 import nock from 'nock'
 
 const testDestination = createTestIntegration(destination)
-const actionSlug = 'boot'
+const actionSlug = 'update'
 const destinationSlug = 'Intercom'
 const seedName = `${destinationSlug}#${actionSlug}`
 
