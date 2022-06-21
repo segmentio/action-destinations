@@ -9,7 +9,7 @@ const action: BrowserActionDefinition<Settings, Intercom, Payload> = {
   description: '',
   platform: 'web',
   fields: {
-    userId: {
+    user_id: {
       type: 'string',
       required: false,
       description: "The user's identity",
@@ -26,12 +26,40 @@ const action: BrowserActionDefinition<Settings, Intercom, Payload> = {
       default: {
         '@path': '$.traits'
       }
+    },
+    name: {
+      type: 'string',
+      required: false,
+      description: "User's name",
+      label: 'Name',
+      default: {
+        '@path': '$.traits.name'
+      }
+    },
+    email: {
+      type: 'string',
+      required: false,
+      description: "User's email",
+      label: 'Name',
+      default: {
+        '@path': '$.traits.email'
+      }
+    },
+    created_at: {
+      label: 'Created At',
+      description: 'A timestamp of when the person was created.',
+      required: false,
+      type: 'string',
+      default: {
+        '@path': '$.traits.createdAt'
+      }
     }
   },
   perform: (Intercom, event) => {
-    // Invoke Partner SDK here
-    console.log(Intercom)
-    console.log(event.context.event)
+    Intercom('boot', {
+      app_id: Intercom.appId,
+      ...event.payload
+    })
   }
 }
 

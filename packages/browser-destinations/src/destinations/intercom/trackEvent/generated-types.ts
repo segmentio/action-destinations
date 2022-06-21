@@ -4,11 +4,11 @@ export interface Payload {
   /**
    * The name of the event
    */
-  eventName: string
+  event_name: string
   /**
    * Parameters specific to the event
    */
-  eventProperties?: {
+  event_properties?: {
     [k: string]: unknown
   }
 }

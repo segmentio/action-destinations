@@ -10,7 +10,7 @@ const action: BrowserActionDefinition<Settings, Intercom, Payload> = {
   description: '',
   platform: 'web',
   fields: {
-    eventName: {
+    event_name: {
       description: 'The name of the event',
       label: 'Name',
       required: true,
@@ -19,7 +19,7 @@ const action: BrowserActionDefinition<Settings, Intercom, Payload> = {
         '@path': '$.event'
       }
     },
-    eventProperties: {
+    event_properties: {
       label: 'Event Parameters',
       description: 'Parameters specific to the event',
       type: 'object',
@@ -30,7 +30,7 @@ const action: BrowserActionDefinition<Settings, Intercom, Payload> = {
   },
   perform: (Intercom, event) => {
     const payload = event.payload
-    const properties = payload.eventProperties
+    const properties = payload.event_properties
     const richLinkProperties = Intercom.richLinkProperties
 
     for (const key in properties) {
@@ -42,7 +42,7 @@ const action: BrowserActionDefinition<Settings, Intercom, Payload> = {
       }
     }
 
-    Intercom('trackEvent', event.payload.eventName, properties)
+    Intercom('trackEvent', event.payload.event_name, properties)
   }
 }
 

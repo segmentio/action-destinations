@@ -4,11 +4,23 @@ export interface Payload {
   /**
    * The user's identity
    */
-  userId?: string
+  user_id?: string
   /**
    * The Segment traits to be forwarded to Intercom
    */
   traits?: {
     [k: string]: unknown
   }
+  /**
+   * User's name
+   */
+  name?: string
+  /**
+   * User's email
+   */
+  email?: string
+  /**
+   * A timestamp of when the person was created.
+   */
+  created_at?: string
 }
