@@ -446,6 +446,8 @@ describe.each(['stage', 'production'])('%s environment', (environment) => {
     })
 
     it('inserts preview text', async () => {
+      const bodyHtml = '<p>Hi First Name, welcome to Segment</p>'
+
       const expectedSendGridRequest = {
         personalizations: [
           {
@@ -488,9 +490,11 @@ describe.each(['stage', 'production'])('%s environment', (environment) => {
               '    </div>',
               '',
               '    <div style="display: none; max-height: 0px; overflow: hidden;">',
-              `      &nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;`,
+              '      &nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;',
               '    </div>',
-              '  Hi First Name, welcome to Segment</body></html>'
+              '  ',
+              bodyHtml,
+              '</body></html>'
             ].join('\n')
           }
         ],
@@ -502,9 +506,20 @@ describe.each(['stage', 'production'])('%s environment', (environment) => {
         }
       }
 
-      const s3Request = nock('https://s3.com')
-        .get('/body.txt')
-        .reply(200, 'Hi {{profile.traits.firstName}}, welcome to {{profile.traits.company | default: "Segment"}}')
+      const s3Request = nock('https://s3.com').get('/body.txt').reply(200, '{"unlayer":true}')
+
+      const unlayerRequest = nock('https://api.unlayer.com')
+        .post('/v2/export/html', {
+          displayMode: 'email',
+          design: {
+            unlayer: true
+          }
+        })
+        .reply(200, {
+          data: {
+            html: ['<html><head></head><body>', bodyHtml, '</body></html>'].join('\n')
+          }
+        })
 
       const sendGridRequest = nock('https://api.sendgrid.com')
         .post('/v3/mail/send', expectedSendGridRequest)
@@ -521,13 +536,15 @@ describe.each(['stage', 'production'])('%s environment', (environment) => {
           previewText: 'Preview text {{profile.traits.first_name | default: "customer"}}',
           body: undefined,
           bodyUrl: 'https://s3.com/body.txt',
-          bodyHtml: undefined
+          bodyHtml: undefined,
+          bodyType: 'design'
         })
       })
 
       expect(responses.length).toBeGreaterThan(0)
       expect(sendGridRequest.isDone()).toEqual(true)
       expect(s3Request.isDone()).toEqual(true)
+      expect(unlayerRequest.isDone()).toEqual(true)
     })
 
     it('should show a default in the subject when a trait is missing', async () => {

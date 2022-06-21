@@ -321,7 +321,6 @@ const action: ActionDefinition<Settings, Payload> = {
 
         const bodyHtml =
           payload.bodyType === 'html' ? body : await generateEmailHtml(request, settings.unlayerApiKey, body)
-
         parsedBodyHtml = await parseTemplating(bodyHtml, profile, 'Body')
       } else {
         parsedBodyHtml = await parseTemplating(payload.bodyHtml ?? '', profile, 'Body HTML')
