@@ -160,6 +160,7 @@ interface EventInput<Settings> {
   readonly settings: Settings
   /** Authentication-related data based on the destination's authentication.fields definition and authentication scheme */
   readonly auth?: AuthTokens
+  readonly features?: { [key: string]: boolean }
 }
 
 interface BatchEventInput<Settings> {
@@ -168,6 +169,7 @@ interface BatchEventInput<Settings> {
   readonly settings: Settings
   /** Authentication-related data based on the destination's authentication.fields definition and authentication scheme */
   readonly auth?: AuthTokens
+  readonly features?: { [key: string]: boolean }
 }
 
 export interface DecoratedResponse extends ModifiedResponse {
@@ -178,6 +180,7 @@ export interface DecoratedResponse extends ModifiedResponse {
 interface OnEventOptions {
   onTokenRefresh?: (tokens: RefreshAccessTokenResult) => void
   onComplete?: (stats: SubscriptionStats) => void
+  features?: { [key: string]: boolean }
 }
 export class Destination<Settings = JSONObject> {
   readonly definition: DestinationDefinition<Settings>
@@ -296,7 +299,7 @@ export class Destination<Settings = JSONObject> {
 
   protected async executeAction(
     actionSlug: string,
-    { event, mapping, settings, auth }: EventInput<Settings>
+    { event, mapping, settings, auth, features }: EventInput<Settings>
   ): Promise<Result[]> {
     const action = this.actions[actionSlug]
     if (!action) {
@@ -307,11 +310,15 @@ export class Destination<Settings = JSONObject> {
       mapping,
       data: event as unknown as InputData,
       settings,
-      auth
+      auth,
+      features
     })
   }
 
-  public async executeBatch(actionSlug: string, { events, mapping, settings, auth }: BatchEventInput<Settings>) {
+  public async executeBatch(
+    actionSlug: string,
+    { events, mapping, settings, auth, features }: BatchEventInput<Settings>
+  ) {
     const action = this.actions[actionSlug]
     if (!action) {
       return []
@@ -321,7 +328,8 @@ export class Destination<Settings = JSONObject> {
       mapping,
       data: events as unknown as InputData[],
       settings,
-      auth
+      auth,
+      features
     })
 
     return [{ output: 'successfully processed batch of events' }]
@@ -332,6 +340,7 @@ export class Destination<Settings = JSONObject> {
     events: SegmentEvent | SegmentEvent[],
     settings: Settings,
     auth: AuthTokens,
+    features: OnEventOptions['features'],
     onComplete?: OnEventOptions['onComplete']
   ): Promise<Result[]> {
     const subscriptionStartedAt = time()
@@ -339,7 +348,8 @@ export class Destination<Settings = JSONObject> {
     const input = {
       mapping: subscription.mapping || {},
       settings,
-      auth
+      auth,
+      features
     }
 
     let results: Result[] | null = null

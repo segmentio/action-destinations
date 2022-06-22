@@ -76,6 +76,7 @@ interface ExecuteBundle<T = unknown, Data = unknown> {
   settings: T
   mapping: JSONObject
   auth: AuthTokens | undefined
+  features?: { [key: string]: boolean }
 }
 
 /**
@@ -130,7 +131,8 @@ export class Action<Settings, Payload extends JSONLikeObject> extends EventEmitt
       rawMapping: bundle.mapping,
       settings: bundle.settings,
       payload,
-      auth: bundle.auth
+      auth: bundle.auth,
+      features: bundle.features
     }
 
     // Construct the request client and perform the action
@@ -172,7 +174,8 @@ export class Action<Settings, Payload extends JSONLikeObject> extends EventEmitt
         rawMapping: bundle.mapping,
         settings: bundle.settings,
         payload: payloads,
-        auth: bundle.auth
+        auth: bundle.auth,
+        features: bundle.features
       }
       await this.performRequest(this.definition.performBatch, data)
     }
