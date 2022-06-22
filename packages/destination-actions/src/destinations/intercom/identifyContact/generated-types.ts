@@ -42,9 +42,9 @@ export interface Payload {
    */
   unsubscribed_from_emails?: boolean
   /**
-   * The custom attributes which are set for the contact.
+   * The custom attributes which are set for the contact. Note: Will throw an error if the object has an attribute that isn`t explicitly defined on Intercom.
    */
-  custom_attribute?: {
+  custom_attributes?: {
     [k: string]: unknown
   }
 }

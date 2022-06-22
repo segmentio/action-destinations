@@ -92,36 +92,36 @@ const action: ActionDefinition<Settings, Payload> = {
       type: 'boolean',
       description: 'Whether the contact is unsubscribed from emails.'
     },
-    custom_attribute: {
-      label: 'Custom Fields',
-      description: 'The custom attributes which are set for the contact.',
+    custom_attributes: {
+      label: 'Custom Attributes',
+      description:
+        'The custom attributes which are set for the contact. Note: Will throw an error if the object has an attribute that isn`t explicitly defined on Intercom.',
       type: 'object',
       default: {
-        '@path': '$.traits'
+        '@path': '$.traits.customAttributes'
       }
     }
   },
   perform: async (request, { payload }) => {
     /**
-     * Create a new intercom contact; if it exists, then search for and update the contact.
-     * If the search doesn't work after a duplicate contact error (409),
-     * then it's possibly a cache issue, so we'll retry
-     * Note: When creating a lead, it doesn't accept an external_id (?), but it accepts an email
+     * Tries to search and update the contact first. If no contact is found, then create.
+     * This is because we anticipate many more updates than creations happening in practice.
+     *
+     * Note: When creating a lead, Intercom doesn't accept an external_id (?), it only accepts email
      */
     try {
-      const response = await createIntercomContact(request, payload)
-      return response
+      const contact = await searchIntercomContact(request, payload)
+      if (contact) {
+        return updateIntercomContact(request, contact.id, payload)
+      } else {
+        return await createIntercomContact(request, payload)
+      }
     } catch (error) {
       if (error?.response?.status === 409) {
-        // The contact already exists
-        const contact = await searchIntercomContact(request, payload)
-        if (contact) {
-          return updateIntercomContact(request, contact, payload)
-        } else {
-          throw new RetryableError(
-            'Contact was reported duplicated but could not be searched for, probably due to Intercom search cache not being updated'
-          )
-        }
+        // The contact already exists but the Intercom cache most likely wasn't updated yet
+        throw new RetryableError(
+          'Contact was reported duplicated but could not be searched for, probably due to Intercom search cache not being updated'
+        )
       }
       throw error
     }
@@ -175,11 +175,10 @@ async function searchIntercomContact(request: RequestClient, payload: Payload) {
   }
 }
 
-async function updateIntercomContact(request: RequestClient, contact: IntercomContact, payload: Payload) {
-  return request(`https://api.intercom.io/contacts/${contact.id}`, {
+async function updateIntercomContact(request: RequestClient, contactId: String, payload: Payload) {
+  return request(`https://api.intercom.io/contacts/${contactId}`, {
     method: 'PUT',
     json: {
-      ...contact,
       ...payload
     }
   })
