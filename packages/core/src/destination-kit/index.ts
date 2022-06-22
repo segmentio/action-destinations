@@ -340,8 +340,7 @@ export class Destination<Settings = JSONObject> {
     events: SegmentEvent | SegmentEvent[],
     settings: Settings,
     auth: AuthTokens,
-    features: OnEventOptions['features'],
-    onComplete?: OnEventOptions['onComplete']
+    options?: OnEventOptions
   ): Promise<Result[]> {
     const subscriptionStartedAt = time()
     const actionSlug = subscription.partnerAction
@@ -349,7 +348,7 @@ export class Destination<Settings = JSONObject> {
       mapping: subscription.mapping || {},
       settings,
       auth,
-      features
+      features: options?.features || {}
     }
 
     let results: Result[] | null = null
@@ -393,7 +392,7 @@ export class Destination<Settings = JSONObject> {
       const subscriptionEndedAt = time()
       const subscriptionDuration = duration(subscriptionStartedAt, subscriptionEndedAt)
 
-      onComplete?.({
+      options?.onComplete?.({
         duration: subscriptionDuration,
         destination: this.name,
         action: actionSlug,
@@ -476,7 +475,7 @@ export class Destination<Settings = JSONObject> {
     const run = async () => {
       const authData = getAuthData(settings)
       const promises = subscriptions.map((subscription) =>
-        this.onSubscription(subscription, data, destinationSettings, authData, options?.onComplete)
+        this.onSubscription(subscription, data, destinationSettings, authData, options)
       )
       const results = await Promise.all(promises)
       return ([] as Result[]).concat(...results)
