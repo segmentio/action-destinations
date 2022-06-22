@@ -1,3 +1,4 @@
+import { isObject } from '@segment/actions-core'
 import dayjs from 'dayjs'
 import type { BrowserActionDefinition } from '../../../lib/browser-destinations'
 import { Intercom } from '../api'
@@ -48,19 +49,38 @@ const action: BrowserActionDefinition<Settings, Intercom, Payload> = {
     },
     created_at: {
       label: 'Created At',
-      description: 'A timestamp of when the person was created.',
+      description: 'A timestamp of when the person was created',
       required: false,
       type: 'datetime',
       default: {
         '@path': '$.traits.createdAt'
       }
+    },
+    company: {
+      label: 'Company',
+      description: "The user's company",
+      required: false,
+      type: 'object',
+      default: {
+        '@path': '$.traits.company'
+      }
     }
   },
   perform: (Intercom, event) => {
     const payload = { ...event.payload }
+
+    //change date from ISO-8601 (segment's format) to unix timestamp (intercom's format)
     if (payload.created_at) {
-      //change date from ISO-8601 (segment's format) to unix timestamp (intercom's format)
       payload.created_at = dayjs(payload.created_at).unix()
+    }
+
+    //handle company object
+    if(payload.company){
+      //company must be of type object
+      if(!isObject(payload.company)){
+        delete payload.company
+      }
+
     }
     Intercom('update', {
       app_id: Intercom.appId,
@@ -70,4 +90,3 @@ const action: BrowserActionDefinition<Settings, Intercom, Payload> = {
 }
 
 export default action
-

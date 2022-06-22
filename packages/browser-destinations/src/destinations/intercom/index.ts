@@ -8,6 +8,8 @@ import { Intercom } from './api'
 
 import update from './update'
 
+import group from './group'
+
 declare global {
   interface Window {
     Intercom: Intercom
@@ -38,20 +40,21 @@ export const destination: BrowserDestinationDefinition<Settings, Intercom> = {
   },
 
   initialize: async ({ settings }, deps) => {
-    window.Intercom.richLinkProperties = settings.richLinkProperties
-    window.Intercom.appId = settings.appId
-
     initScript({ appId: settings.appId })
     initialBoot(settings.appId)
 
     await deps.resolveWhen(() => window.Intercom.booted === true, 100)
+
+    window.Intercom.richLinkProperties = settings.richLinkProperties
+    window.Intercom.appId = settings.appId
 
     return window.Intercom
   },
 
   actions: {
     trackEvent,
-    update
+    update,
+    group
   }
 }
 

@@ -20,7 +20,13 @@ export interface Payload {
    */
   email?: string
   /**
-   * A timestamp of when the person was created.
+   * A timestamp of when the person was created
    */
   created_at?: string | number
+  /**
+   * The user's company
+   */
+  company?: {
+    [k: string]: unknown
+  }
 }
