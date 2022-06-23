@@ -1,7 +1,7 @@
 import { ActionDefinition, IntegrationError } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
-import { verifyCurrency } from '../ga4-functions'
+import { verifyCurrency, convertTimestamp } from '../ga4-functions'
 import { ProductItem } from '../ga4-types'
 import {
   coupon,
@@ -17,7 +17,8 @@ import {
   params,
   formatUserProperties,
   user_properties,
-  engagement_time_msec
+  engagement_time_msec,
+  timestamp_micros
 } from '../ga4-properties'
 
 // https://segment.com/docs/connections/spec/ecommerce/v2/#order-completed
@@ -29,6 +30,7 @@ const action: ActionDefinition<Settings, Payload> = {
   fields: {
     client_id: { ...client_id },
     user_id: { ...user_id },
+    timestamp_micros: { ...timestamp_micros },
     affiliation: { ...affiliation },
     coupon: { ...coupon, default: { '@path': '$.properties.coupon' } },
     currency: { ...currency, required: true },
@@ -74,6 +76,7 @@ const action: ActionDefinition<Settings, Payload> = {
       json: {
         client_id: payload.client_id,
         user_id: payload.user_id,
+        timestamp_micros: convertTimestamp(payload.timestamp_micros),
         events: [
           {
             name: 'purchase',
