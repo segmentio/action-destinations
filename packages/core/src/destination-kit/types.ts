@@ -23,6 +23,8 @@ export interface ExecuteInput<Settings, Payload> {
   page?: string
   /** The data needed in OAuth requests */
   readonly auth?: AuthTokens
+  /** The Flagon features available in the request */
+  readonly features?: { [key: string]: boolean }
 }
 
 export interface DynamicFieldResponse {
