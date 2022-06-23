@@ -81,7 +81,7 @@ describe('Snap Conversions API ', () => {
             event_conversion_type: 'WEB'
           }
         })
-      ).rejects.toThrowError('If event conversion type is "WEB" then pixel_id must be defined')
+      ).rejects.toThrowError('If event conversion type is "WEB" then Pixel ID must be defined')
     })
 
     it('should fail web event without snap_app_id', async () => {
@@ -106,7 +106,7 @@ describe('Snap Conversions API ', () => {
             event_conversion_type: 'MOBILE_APP'
           }
         })
-      ).rejects.toThrowError('If event conversion type is "MOBILE_APP" then snap_app_id and app_id must be defined')
+      ).rejects.toThrowError('If event conversion type is "MOBILE_APP" then Snap App ID and App ID must be defined')
     })
 
     it('should handle an offline event conversion type', async () => {

@@ -65,7 +65,7 @@ const action: ActionDefinition<Settings, Payload> = {
     const payload: Object = formatPayload(data.payload)
     const settings: Settings = conversionType(data.settings, data.payload.event_conversion_type)
 
-    if (data.payload.currency && !CURRENCY_ISO_4217_CODES.has(data.payload.currency)) {
+    if (data.payload.currency && !CURRENCY_ISO_4217_CODES.has(data.payload.currency.toUpperCase())) {
       throw new IntegrationError(
         `${data.payload.currency} is not a valid currency code.`,
         'Misconfigured required field',
