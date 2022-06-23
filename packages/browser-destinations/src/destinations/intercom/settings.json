@@ -1,0 +1,71 @@
+{
+ "appId": "qku3nygv",
+ "subscriptions": [
+  {
+   "partnerAction": "trackEvent",
+   "name": "Show",
+   "enabled": true,
+   "subscribe": "type = \"track\"",
+   "mapping": {
+    "event_name": {
+     "@path": "$.event"
+    },
+    "event_properties": {
+     "@path": "$.properties"
+    }
+   }
+  },
+  {
+    "partnerAction": "updateUser",
+    "name": "Show",
+    "enabled": true,
+    "subscribe": "type = \"identify\"",
+    "mapping": {
+     "user_id": {
+      "@path": "$.userId"
+     },
+     "traits": {
+      "@path": "$.traits"
+     },
+     "name": {
+        "@path": "$.traits.name"
+     },
+     "email": {
+        "@path": "$.traits.email"
+     },
+     "created_at": {
+        "@path": "$.traits.createdAt"
+     },
+     "company": {
+        "@path": "$.traits.company"
+     }
+    }
+   },
+   {
+    "partnerAction": "updateGroup",
+    "name": "Show",
+    "enabled": true,
+    "subscribe": "type = \"group\"",
+    "mapping": {
+     "company_id": {
+      "@path": "$.groupId"
+     },
+     "traits": {
+      "@path": "$.traits"
+     },
+     "name": {
+        "@path": "$.traits.name"
+     },
+     "plan": {
+        "@path": "$.traits.plan"
+     },
+     "monthly_spend": {
+        "@path": "$.traits.monthlySpend"
+     },
+     "created_at": {
+        "@path": "$.traits.createdAt"
+     }
+    }
+   }
+ ]
+}

@@ -6,9 +6,9 @@ import { initialBoot, initScript } from './init-script'
 import trackEvent from './trackEvent'
 import { Intercom } from './api'
 
-import update from './update'
+import updateUser from './updateUser'
 
-import group from './group'
+import updateGroup from './updateGroup'
 
 declare global {
   interface Window {
@@ -53,8 +53,8 @@ export const destination: BrowserDestinationDefinition<Settings, Intercom> = {
 
   actions: {
     trackEvent,
-    update,
-    group
+    updateUser,
+    updateGroup
   }
 }
 
