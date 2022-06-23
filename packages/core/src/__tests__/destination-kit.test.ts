@@ -69,6 +69,40 @@ const destinationOAuth2: DestinationDefinition<JSONObject> = {
   }
 }
 
+const destinationWithOptions: DestinationDefinition<JSONObject> = {
+  name: 'Actions Google Analytic 4',
+  mode: 'cloud',
+  authentication: {
+    scheme: 'oauth2',
+    fields: {
+      apiSecret: {
+        label: 'API secret',
+        description: 'Api key',
+        type: 'string',
+        required: true
+      }
+    },
+    refreshAccessToken: (_request) => {
+      return new Promise((resolve, _reject) => {
+        setTimeout(() => {
+          resolve({ accessToken: 'fresh-token' })
+        }, 3)
+      })
+    }
+  },
+  actions: {
+    customEvent: {
+      title: 'Send a Custom Event',
+      description: 'Send events to a custom event in API',
+      defaultSubscription: 'type = "track"',
+      fields: {},
+      perform: (_request, { features }) => {
+        return features
+      }
+    }
+  }
+}
+
 describe('destination kit', () => {
   describe('event validations', () => {
     test('should return `invalid subscription` when sending an empty subscribe', async () => {
@@ -270,6 +304,45 @@ describe('destination kit', () => {
       const res = await destinationTest.refreshAccessToken(testSettings, oauthData)
 
       expect(res).toEqual({ accessToken: 'fresh-token' })
+    })
+  })
+
+  describe('features', () => {
+    test('should not crash when features are passed to the perform handler', async () => {
+      const destinationTest = new Destination(destinationWithOptions)
+      const testEvent: SegmentEvent = {
+        properties: { field_one: 'test input' },
+        userId: '3456fff',
+        type: 'track'
+      }
+      const testSettings = {
+        apiSecret: 'test_key',
+        subscription: {
+          subscribe: 'type = "track"',
+          partnerAction: 'customEvent',
+          mapping: {
+            clientId: '23455343467',
+            name: 'fancy_event',
+            parameters: { field_one: 'rogue one' }
+          }
+        }
+      }
+      const eventOptions = {
+        features: {
+          test_feature: true
+        }
+      }
+
+      const res = await destinationTest.onEvent(testEvent, testSettings, eventOptions)
+
+      expect(res).toEqual([
+        { output: 'Mappings resolved' },
+        {
+          output: {
+            ...eventOptions.features
+          }
+        }
+      ])
     })
   })
 })
