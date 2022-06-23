@@ -1,5 +1,5 @@
 import { ActionDefinition, IntegrationError } from '@segment/actions-core'
-import { verifyCurrency } from '../ga4-functions'
+import { verifyCurrency, convertTimestamp } from '../ga4-functions'
 import { ProductItem } from '../ga4-types'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
@@ -10,7 +10,8 @@ import {
   user_id,
   client_id,
   items_single_products,
-  engagement_time_msec
+  engagement_time_msec,
+  timestamp_micros
 } from '../ga4-properties'
 
 const action: ActionDefinition<Settings, Payload> = {
@@ -20,6 +21,7 @@ const action: ActionDefinition<Settings, Payload> = {
   fields: {
     client_id: { ...client_id },
     user_id: { ...user_id },
+    timestamp_micros: { ...timestamp_micros },
     item_list_name: {
       label: 'Item List Name',
       description: 'The name of the list in which the item was presented to the user.',
@@ -64,6 +66,7 @@ const action: ActionDefinition<Settings, Payload> = {
       json: {
         client_id: payload.client_id,
         user_id: payload.user_id,
+        timestamp_micros: convertTimestamp(payload.timestamp_micros),
         events: [
           {
             name: 'select_item',

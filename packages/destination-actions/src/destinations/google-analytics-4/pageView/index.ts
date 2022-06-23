@@ -1,13 +1,15 @@
 import type { ActionDefinition } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
+import { convertTimestamp } from '../ga4-functions'
 import {
   formatUserProperties,
   user_properties,
   params,
   user_id,
   client_id,
-  engagement_time_msec
+  engagement_time_msec,
+  timestamp_micros
 } from '../ga4-properties'
 
 const action: ActionDefinition<Settings, Payload> = {
@@ -17,6 +19,7 @@ const action: ActionDefinition<Settings, Payload> = {
   fields: {
     clientId: { ...client_id },
     user_id: { ...user_id },
+    timestamp_micros: { ...timestamp_micros },
     page_location: {
       label: 'Page Location',
       type: 'string',
@@ -51,6 +54,7 @@ const action: ActionDefinition<Settings, Payload> = {
       json: {
         client_id: payload.clientId,
         user_id: payload.user_id,
+        timestamp_micros: convertTimestamp(payload.timestamp_micros),
         events: [
           {
             name: 'page_view',

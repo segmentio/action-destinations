@@ -1,5 +1,5 @@
 import { ActionDefinition, IntegrationError } from '@segment/actions-core'
-import { verifyCurrency } from '../ga4-functions'
+import { verifyCurrency, convertTimestamp } from '../ga4-functions'
 import {
   creative_name,
   creative_slot,
@@ -12,7 +12,8 @@ import {
   params,
   formatUserProperties,
   user_properties,
-  engagement_time_msec
+  engagement_time_msec,
+  timestamp_micros
 } from '../ga4-properties'
 import { PromotionProductItem } from '../ga4-types'
 import type { Settings } from '../generated-types'
@@ -29,6 +30,7 @@ const action: ActionDefinition<Settings, Payload> = {
   fields: {
     client_id: { ...client_id },
     user_id: { ...user_id },
+    timestamp_micros: { ...timestamp_micros },
     creative_name: { ...creative_name },
     creative_slot: { ...creative_slot, default: { '@path': '$.properties.creative' } },
     location_id: {
@@ -87,6 +89,7 @@ const action: ActionDefinition<Settings, Payload> = {
       json: {
         client_id: payload.client_id,
         user_id: payload.user_id,
+        timestamp_micros: convertTimestamp(payload.timestamp_micros),
         events: [
           {
             name: 'view_promotion',
