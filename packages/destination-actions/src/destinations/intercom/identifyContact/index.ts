@@ -107,15 +107,15 @@ const action: ActionDefinition<Settings, Payload> = {
      * Tries to search and update the contact first. If no contact is found, then create.
      * This is because we anticipate many more updates than creations happening in practice.
      *
-     * Note: When creating a lead, Intercom doesn't accept an external_id (?), it only accepts email
+     * Note: When creating a lead, Intercom doesn't accept an external_id (possibly a bug),
+     * it only accepts email.
      */
     try {
       const contact = await searchIntercomContact(request, payload)
       if (contact) {
         return updateIntercomContact(request, contact.id, payload)
-      } else {
-        return await createIntercomContact(request, payload)
       }
+      return await createIntercomContact(request, payload)
     } catch (error) {
       if (error?.response?.status === 409) {
         // The contact already exists but the Intercom cache most likely wasn't updated yet
