@@ -22,4 +22,17 @@ export interface Payload {
   mutualAttributes?: {
     [k: string]: unknown
   }
+  /**
+   * Use this field you want to specify an attribute type
+   */
+  attributesInfo?: {
+    /**
+     * Attribute name
+     */
+    name: string
+    /**
+     * Attribute type. Can be only `string`, `time`, `number`, `boolean`, `location`
+     */
+    type: string
+  }[]
 }

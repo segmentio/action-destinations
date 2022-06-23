@@ -37,6 +37,50 @@ const action: ActionDefinition<Settings, Payload> = {
       },
       description:
         'Extra attributes associated with the event. [See more info](https://docs.talon.one/docs/product/account/dev-tools/managing-attributes).'
+    },
+    attributesInfo: {
+      label: 'Attributes info',
+      description: 'Use this field you want to specify an attribute type',
+      type: 'object',
+      required: false,
+      multiple: true,
+      properties: {
+        name: {
+          label: 'Name',
+          description: 'Attribute name',
+          type: 'string',
+          required: true
+        },
+        type: {
+          label: 'Type',
+          description: 'Attribute type. Can be only `string`, `time`, `number`, `boolean`, `location`',
+          type: 'string',
+          default: 'string',
+          required: true,
+          choices: [
+            {
+              value: 'string',
+              label: 'string'
+            },
+            {
+              value: 'time',
+              label: 'time'
+            },
+            {
+              value: 'number',
+              label: 'number'
+            },
+            {
+              value: 'boolean',
+              label: 'boolean'
+            },
+            {
+              value: 'location',
+              label: 'location'
+            }
+          ]
+        }
+      }
     }
   },
   perform: (request, { payload }) => {
@@ -47,7 +91,8 @@ const action: ActionDefinition<Settings, Payload> = {
         customerProfileId: payload.customerProfileId,
         eventType: payload.eventType,
         type: payload.type,
-        eventAttributes: payload.attributes
+        eventAttributes: payload.attributes,
+        attributesInfo: payload.attributesInfo
       }
     })
   }

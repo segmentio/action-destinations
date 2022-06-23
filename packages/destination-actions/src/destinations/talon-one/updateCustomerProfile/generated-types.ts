@@ -23,4 +23,17 @@ export interface Payload {
    * This runs rule engine in Talon.One upon updating customer profile. Set to true to trigger rules.
    */
   runRuleEngine?: boolean
+  /**
+   * Use this field you want to specify an attribute type
+   */
+  attributesInfo?: {
+    /**
+     * Attribute name
+     */
+    name: string
+    /**
+     * Attribute type. Can be only `string`, `time`, `number`, `boolean`, `location`
+     */
+    type: string
+  }[]
 }

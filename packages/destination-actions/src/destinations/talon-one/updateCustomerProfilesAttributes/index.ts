@@ -24,6 +24,50 @@ const action: ActionDefinition<Settings, Payload> = {
       label: 'Mutual Attribute-Value pairs',
       description:
         'This may contain mutual list of attributes and their values for every customer profile in the "data" array.'
+    },
+    attributesInfo: {
+      label: 'Attributes with types',
+      description: 'Use this field you want to specify an attribute type',
+      type: 'object',
+      required: false,
+      multiple: true,
+      properties: {
+        name: {
+          label: 'Name',
+          description: 'Attribute name',
+          type: 'string',
+          required: true
+        },
+        type: {
+          label: 'Type',
+          description: 'Attribute type. Can be only `string`, `time`, `number`, `boolean`, `location`',
+          type: 'string',
+          default: 'string',
+          required: true,
+          choices: [
+            {
+              value: 'string',
+              label: 'string'
+            },
+            {
+              value: 'time',
+              label: 'time'
+            },
+            {
+              value: 'number',
+              label: 'number'
+            },
+            {
+              value: 'boolean',
+              label: 'boolean'
+            },
+            {
+              value: 'location',
+              label: 'location'
+            }
+          ]
+        }
+      }
     }
   },
   perform: (request, { payload }) => {
@@ -32,7 +76,8 @@ const action: ActionDefinition<Settings, Payload> = {
       method: 'put',
       json: {
         data: payload.data,
-        mutualAttributes: payload.mutualAttributes
+        mutualAttributes: payload.mutualAttributes,
+        attributesInfo: payload.attributesInfo
       }
     })
   }
