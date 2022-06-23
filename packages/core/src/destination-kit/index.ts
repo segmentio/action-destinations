@@ -177,11 +177,27 @@ export interface DecoratedResponse extends ModifiedResponse {
   options: AllRequestOptions
 }
 
+interface StatsClient {
+  observe: (metric: any) => any
+  _name(name: string): string
+  _tags(tags?: string[]): string[]
+  incr(name: string, value?: number, tags?: string[]): void
+  set(name: string, value: number, tags?: string[]): void
+  histogram(name: string, value?: number, tags?: string[]): void
+}
+
+interface StatsContext {
+  stats: StatsClient
+  tags: string[]
+}
+
 interface OnEventOptions {
   onTokenRefresh?: (tokens: RefreshAccessTokenResult) => void
   onComplete?: (stats: SubscriptionStats) => void
   features?: { [key: string]: boolean }
+  statsContext?: StatsContext
 }
+
 export class Destination<Settings = JSONObject> {
   readonly definition: DestinationDefinition<Settings>
   readonly name: string
