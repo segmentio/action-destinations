@@ -1,8 +1,7 @@
-import { ActionDefinition, IntegrationError } from '@segment/actions-core'
+import { ActionDefinition } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
-import { ProductItem } from '../ga4-types'
-import { verifyCurrency, convertTimestamp } from '../ga4-functions'
+import { verifyCurrency, convertTimestamp, formatItems } from '../ga4-functions'
 import {
   formatUserProperties,
   user_properties,
@@ -35,28 +34,8 @@ const action: ActionDefinition<Settings, Payload> = {
     params: params
   },
   perform: (request, { payload }) => {
-    let googleItems: ProductItem[] = []
-
     if (payload.currency) {
       verifyCurrency(payload.currency)
-    }
-
-    if (payload.items) {
-      googleItems = payload.items.map((product) => {
-        if (product.item_name === undefined && product.item_id === undefined) {
-          throw new IntegrationError(
-            'One of product name or product id is required for product or impression data.',
-            'Misconfigured required field',
-            400
-          )
-        }
-
-        if (product.currency) {
-          verifyCurrency(product.currency)
-        }
-
-        return product as ProductItem
-      })
     }
 
     return request('https://www.google-analytics.com/mp/collect', {
@@ -70,7 +49,7 @@ const action: ActionDefinition<Settings, Payload> = {
             name: 'add_to_cart',
             params: {
               currency: payload.currency,
-              items: googleItems,
+              items: formatItems(payload.items),
               value: payload.value,
               engagement_time_msec: payload.engagement_time_msec,
               ...payload.params
