@@ -351,7 +351,7 @@ const destination = {
       },
       // `perform` takes two arguments:
       // 1. the request client instance (extended with your destination's `extendRequest`
-      // 2. the data bundle (destructed below)
+      // 2. the data bundle (destructured below)
       perform: (request, { payload, settings, auth, features }) => {
         return request('https://example.com', {
           headers: { Authorization: `Bearer ${data.settings.api_key}` },
