@@ -302,14 +302,14 @@ const destination = {
       fields: {
         name: {
           label: 'Name',
-          description: 'The person\'s name',
+          description: "The person's name",
           type: 'string',
           default: { '@path': '$.traits.name' },
           required: true
         },
         email: {
           label: 'Email',
-          description: 'The person\'s email address',
+          description: "The person's email address",
           type: 'string',
           default: { '@path': '$.properties.email_address' }
         }
@@ -325,7 +325,14 @@ In addition to default values for input fields, you can also specify the default
 
 The `perform` function defines what the action actually does. All logic and request handling happens here. Every action MUST have a `perform` function defined.
 
-By the time the actions runtime invokes your action’s perform, payloads have already been resolved based on the customer’s configuration, validated against the schema, and can be expected to match the types provided in your `perform` function. You’ll get compile-time type-safety for how you access anything in the `data.payload` (the 2nd argument of the perform).
+By the time the actions runtime invokes your action’s perform, payloads have already been resolved based on the customer’s configuration, validated against the schema, and can be expected to match the types provided in your `perform` function.
+
+The `perform` method accepts two arguments, (1) the request client instance (extended with your destination's `extendRequest`, and (2) the data bundle. The data bundle includes the following fields:
+
+- `payload` - The transformed input data, based on `mapping` + `event` (or `events` if batched). You’ll get compile-time type-safety for how you access anything in the `data.payload`.
+- `settings` - The global destination settings.
+- `auth` - The data needed in OAuth requests. This is useful if fetching an updated OAuth `access_token` using a `refresh_token`. The `refresh_token` is available in `auth.refreshToken`.
+- `features` - The features available in the request based on either customer workspaceID or sourceID. Features can only be enabled and/or used by internal Twilio/Segment employees. Features cannot be used for Partner builds.
 
 A basic example:
 
@@ -344,8 +351,8 @@ const destination = {
       },
       // `perform` takes two arguments:
       // 1. the request client instance (extended with your destination's `extendRequest`
-      // 2. the data bundle which includes `settings` for top-level authentication fields and the `payload` which contains all the validated, resolved fields expected by the action
-      perform: (request, data) => {
+      // 2. the data bundle (destructed below)
+      perform: (request, { payload, settings, auth, features }) => {
         return request('https://example.com', {
           headers: { Authorization: `Bearer ${data.settings.api_key}` },
           json: data.payload
