@@ -1,5 +1,5 @@
-import { ActionDefinition, IntegrationError } from '@segment/actions-core'
-import { verifyCurrency, convertTimestamp } from '../ga4-functions'
+import { ActionDefinition } from '@segment/actions-core'
+import { verifyCurrency, convertTimestamp, formatItems, checkCurrencyDefinition } from '../ga4-functions'
 import {
   formatUserProperties,
   user_properties,
@@ -12,7 +12,6 @@ import {
   engagement_time_msec,
   timestamp_micros
 } from '../ga4-properties'
-import { ProductItem } from '../ga4-types'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 
@@ -39,38 +38,7 @@ const action: ActionDefinition<Settings, Payload> = {
       verifyCurrency(payload.currency)
     }
 
-    if (payload.value && payload.currency === undefined) {
-      throw new IntegrationError('Currency is required if value is set.', 'Misconfigured required field', 400)
-    }
-
-    //Currency must exist either as a param or in the first item in items.
-    if (payload.currency === undefined && (!payload.items || !payload.items[0] || !payload.items[0].currency)) {
-      throw new IntegrationError(
-        'One of item-level currency or top-level currency is required.',
-        'Misconfigured required field',
-        400
-      )
-    }
-
-    let googleItems: ProductItem[] = []
-
-    if (payload.items) {
-      googleItems = payload.items.map((product) => {
-        if (product.item_name === undefined && product.item_id === undefined) {
-          throw new IntegrationError(
-            'One of product name or product id is required for product or impression data.',
-            'Misconfigured required field',
-            400
-          )
-        }
-
-        if (product.currency) {
-          verifyCurrency(product.currency)
-        }
-
-        return product as ProductItem
-      })
-    }
+    checkCurrencyDefinition(payload.value, payload.currency, payload.items)
 
     return request('https://www.google-analytics.com/mp/collect', {
       method: 'POST',
@@ -84,7 +52,7 @@ const action: ActionDefinition<Settings, Payload> = {
             params: {
               currency: payload.currency,
               value: payload.value,
-              items: googleItems,
+              items: formatItems(payload.items),
               engagement_time_msec: payload.engagement_time_msec,
               ...payload.params
             }
