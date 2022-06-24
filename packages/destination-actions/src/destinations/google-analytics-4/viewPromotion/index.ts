@@ -1,5 +1,5 @@
-import { ActionDefinition, IntegrationError } from '@segment/actions-core'
-import { verifyCurrency, convertTimestamp } from '../ga4-functions'
+import { ActionDefinition } from '@segment/actions-core'
+import { convertTimestamp, formatItems } from '../ga4-functions'
 import {
   creative_name,
   creative_slot,
@@ -15,7 +15,6 @@ import {
   engagement_time_msec,
   timestamp_micros
 } from '../ga4-properties'
-import { PromotionProductItem } from '../ga4-types'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 
@@ -68,22 +67,6 @@ const action: ActionDefinition<Settings, Payload> = {
   },
 
   perform: (request, { payload }) => {
-    let googleItems: PromotionProductItem[] = []
-
-    if (payload.items) {
-      googleItems = payload.items.map((product) => {
-        if (product.item_name === undefined && product.item_id === undefined) {
-          throw new IntegrationError('One of item id or item name is required.', 'Misconfigured required field', 400)
-        }
-
-        if (product.currency) {
-          verifyCurrency(product.currency)
-        }
-
-        return product as PromotionProductItem
-      })
-    }
-
     return request('https://www.google-analytics.com/mp/collect', {
       method: 'POST',
       json: {
@@ -99,7 +82,7 @@ const action: ActionDefinition<Settings, Payload> = {
               location_id: payload.location_id,
               promotion_id: payload.promotion_id,
               promotion_name: payload.promotion_name,
-              items: googleItems,
+              items: formatItems(payload.items),
               engagement_time_msec: payload.engagement_time_msec,
               ...payload.params
             }
