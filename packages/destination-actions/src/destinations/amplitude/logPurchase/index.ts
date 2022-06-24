@@ -93,7 +93,26 @@ const action: ActionDefinition<Settings, Payload> = {
         }
       },
       default: {
-        '@path': '$.properties.products'
+        '@arrayPath': [
+          '$.properties.products',
+          {
+            price: {
+              '@path': 'price'
+            },
+            revenue: {
+              '@path': 'revenue'
+            },
+            quantity: {
+              '@path': 'quantity'
+            },
+            productId: {
+              '@path': 'productId'
+            },
+            revenueType: {
+              '@path': 'revenueType'
+            }
+          }
+        ]
       }
     },
     use_batch_endpoint: {
