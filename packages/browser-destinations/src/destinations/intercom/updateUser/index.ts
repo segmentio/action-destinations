@@ -1,4 +1,4 @@
-// import { isObject } from '@segment/actions-core'
+import { isString } from '@segment/actions-core'
 import dayjs from 'dayjs'
 import type { BrowserActionDefinition } from '../../../lib/browser-destinations'
 import { Intercom } from '../api'
@@ -67,30 +67,17 @@ const action: BrowserActionDefinition<Settings, Intercom, Payload> = {
     }
   },
   perform: (Intercom, event) => {
-    console.log("updateUser")
-    const payload = { ...event.payload }
+    const payload = event.payload
 
     //change date from ISO-8601 (segment's format) to unix timestamp (intercom's format)
-    if (payload.created_at) {
+    if (payload.created_at && isString(payload.created_at)) {
       payload.created_at = dayjs(payload.created_at).unix()
     }
 
-    // //handle company object
-    // if(payload.company && isObject(payload.company)){
-    //   const company = payload.company
-
-    //   //at the minimum, there must be an id & name
-    //   if(!company.company_id || !company.name){
-    //     delete payload.company
-    //   } else {
-    //     if(typeof company.created_at === 'datetime'){
-    //       company.created_at = dayjs(company.created_at).unix()
-    //     }
-    //   }
-    // }
+    //remove traits from payload before you send it out
+    delete payload.traits
 
     Intercom('update', {
-      app_id: Intercom.appId,
       ...payload
     })
   }

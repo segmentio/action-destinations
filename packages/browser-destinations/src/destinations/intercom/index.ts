@@ -8,7 +8,7 @@ import { Intercom } from './api'
 
 import updateUser from './updateUser'
 
-import updateGroup from './updateGroup'
+import updateCompany from './updateCompany'
 
 declare global {
   interface Window {
@@ -18,8 +18,8 @@ declare global {
 
 // Switch from unknown to the partner SDK client types
 export const destination: BrowserDestinationDefinition<Settings, Intercom> = {
-  name: 'Intercom (Actions)',
-  slug: 'actions-intercom',
+  name: 'Intercom Web (Actions)',
+  slug: 'actions-intercom-web',
   mode: 'device',
 
   settings: {
@@ -54,7 +54,7 @@ export const destination: BrowserDestinationDefinition<Settings, Intercom> = {
   actions: {
     trackEvent,
     updateUser,
-    updateGroup
+    updateCompany
   }
 }
 
