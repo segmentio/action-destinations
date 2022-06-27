@@ -88,6 +88,49 @@ describe.each(['stage', 'production'])('%s environment', (environment) => {
       expect(twilioRequest.isDone()).toEqual(true)
     })
 
+    it('should send SMS for custom hostname', async () => {
+      const expectedTwilioRequest = new URLSearchParams({
+        Body: 'Hello world, jane!',
+        From: 'MG1111222233334444',
+        To: '+1234567891'
+      })
+
+      const twilioHostname = 'api.nottwilio.com'
+
+      const twilioRequest = nock(`https://${twilioHostname}/2010-04-01/Accounts/a`)
+        .post('/Messages.json', expectedTwilioRequest.toString())
+        .reply(201, {})
+
+      const actionInputData = {
+        event: createTestEvent({
+          timestamp,
+          event: 'Audience Entered',
+          userId: 'jane'
+        }),
+        settings: {
+          ...settings,
+          twilioHostname
+        },
+        mapping: {
+          userId: { '@path': '$.userId' },
+          from: 'MG1111222233334444',
+          body: 'Hello world, {{profile.user_id}}!',
+          send: true,
+          externalIds: [
+            { type: 'email', id: 'test@twilio.com', subscriptionStatus: 'subscribed' },
+            { type: 'phone', id: '+1234567891', subscriptionStatus: 'subscribed' }
+          ]
+        }
+      }
+
+      const responses = await twilio.testAction('sendSms', actionInputData)
+      expect(responses.map((response) => response.url)).toStrictEqual([
+        `${endpoint}/v1/spaces/d/collections/users/profiles/user_id:jane/traits?limit=200`,
+        `https://${twilioHostname}/2010-04-01/Accounts/a/Messages.json`
+      ])
+      expect(twilioRequest.isDone()).toEqual(true)
+    })
+
     it('should send SMS with custom metadata', async () => {
       const expectedTwilioRequest = new URLSearchParams({
         Body: 'Hello world, jane!',
