@@ -1,4 +1,3 @@
-import { ExecuteInput, RequestClient } from '@segment/actions-core'
 import { ActionDefinition, IntegrationError } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import Salesforce from '../sf-operations'
