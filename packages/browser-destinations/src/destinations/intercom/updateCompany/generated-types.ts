@@ -16,6 +16,10 @@ export interface Payload {
    */
   name: string
   /**
+   * The time the company was created in your system
+   */
+  created_at?: string | number
+  /**
    * The name of the plan the company is on
    */
   plan?: string
@@ -24,7 +28,15 @@ export interface Payload {
    */
   monthly_spend?: number
   /**
-   * The time the company was created in your system
+   * The number of employees in the company
    */
-  created_at?: string | number
+  size?: number
+  /**
+   * The URL for the company website
+   */
+  website?: string
+  /**
+   * The industry of the company
+   */
+  industry?: string
 }

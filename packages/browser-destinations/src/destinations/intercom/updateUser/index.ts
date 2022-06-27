@@ -38,6 +38,33 @@ const action: BrowserActionDefinition<Settings, Intercom, Payload> = {
         '@path': '$.traits.name'
       }
     },
+    phone: {
+      type: 'string',
+      required: false,
+      description: 'Phone number of the current user/lead',
+      label: 'Phone',
+      default: {
+        '@path': '$.traits.phone'
+      }
+    },
+    unsubscribed_from_emails: {
+      type: 'boolean',
+      required: false,
+      description: 'Sets the [unsubscribe status] of the record',
+      label: 'Unsubscribed from emails',
+      default: {
+        '@path': '$.traits.unsubscribedFromEmails'
+      }
+    },
+    language_override: {
+      type: 'string',
+      required: false,
+      description: 'The messenger language (instead of relying on browser language settings)',
+      label: 'Language Override',
+      default: {
+        '@path': '$.traits.languageOverride'
+      }
+    },
     email: {
       type: 'string',
       required: false,
@@ -48,12 +75,31 @@ const action: BrowserActionDefinition<Settings, Intercom, Payload> = {
       }
     },
     created_at: {
-      label: 'Created At',
+      label: 'Created at',
       description: 'A timestamp of when the person was created',
       required: false,
       type: 'datetime',
       default: {
         '@path': '$.traits.createdAt'
+      }
+    },
+    avatar: {
+      label: 'avatar',
+      description:
+        'The avatar/profile image associated to the current record (typically gathered via social profiles via email address)',
+      required: false,
+      type: 'object',
+      default: {
+        '@path': '$.traits.avatar'
+      }
+    },
+    user_hash: {
+      label: 'User Hash',
+      description: 'Used for identity verification',
+      required: false,
+      type: 'string',
+      default: {
+        '@path': '$.traits.userHash'
       }
     },
     company: {
@@ -64,18 +110,31 @@ const action: BrowserActionDefinition<Settings, Intercom, Payload> = {
       default: {
         '@path': '$.traits.company'
       }
+    },
+    companies: {
+      label: 'Companies',
+      description: 'An array of companies the user is associated to',
+      required: false,
+      multiple: true,
+      type: 'object',
+      default: {
+        '@path': '$.traits.company'
+      }
     }
   },
   perform: (Intercom, event) => {
-    const payload = event.payload
+    //copy over everything but traits; traits will not be sent in the payload
+    const payload: { [k: string]: unknown } = {}
+    for (const [key, value] of Object.entries(event.payload)) {
+      if (key !== 'traits') {
+        payload[key] = value
+      }
+    }
 
     //change date from ISO-8601 (segment's format) to unix timestamp (intercom's format)
     if (payload.created_at && isString(payload.created_at)) {
       payload.created_at = dayjs(payload.created_at).unix()
     }
-
-    //remove traits from payload before you send it out
-    delete payload.traits
 
     Intercom('update', {
       ...payload

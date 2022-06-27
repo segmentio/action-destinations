@@ -1,4 +1,4 @@
-import {  isString } from '@segment/actions-core'
+import { isString } from '@segment/actions-core'
 import type { BrowserActionDefinition } from '../../../lib/browser-destinations'
 import { Intercom } from '../api'
 import type { Settings } from '../generated-types'
@@ -14,7 +14,7 @@ const action: BrowserActionDefinition<Settings, Intercom, Payload> = {
     company_id: {
       type: 'string',
       required: true,
-      description: "The company ID of the company",
+      description: 'The company ID of the company',
       label: 'Company ID',
       default: {
         '@path': '$.groupId'
@@ -32,7 +32,7 @@ const action: BrowserActionDefinition<Settings, Intercom, Payload> = {
     name: {
       type: 'string',
       required: true,
-      description: "The name of the company",
+      description: 'The name of the company',
       label: 'Company Name',
       default: {
         '@path': '$.traits.name'
@@ -40,7 +40,7 @@ const action: BrowserActionDefinition<Settings, Intercom, Payload> = {
     },
     created_at: {
       label: 'Created At',
-      description: "The time the company was created in your system",
+      description: 'The time the company was created in your system',
       required: false,
       type: 'datetime',
       default: {
@@ -50,7 +50,7 @@ const action: BrowserActionDefinition<Settings, Intercom, Payload> = {
     plan: {
       type: 'string',
       required: false,
-      description: "The name of the plan the company is on",
+      description: 'The name of the plan the company is on',
       label: 'Company Plan',
       default: {
         '@path': '$.traits.plan'
@@ -76,7 +76,7 @@ const action: BrowserActionDefinition<Settings, Intercom, Payload> = {
     },
     website: {
       label: 'Website',
-      description: "The URL for the company website",
+      description: 'The URL for the company website',
       required: false,
       type: 'string',
       default: {
@@ -85,7 +85,7 @@ const action: BrowserActionDefinition<Settings, Intercom, Payload> = {
     },
     industry: {
       label: 'Industry',
-      description: "The industry of the company",
+      description: 'The industry of the company',
       required: false,
       type: 'string',
       default: {
@@ -94,34 +94,35 @@ const action: BrowserActionDefinition<Settings, Intercom, Payload> = {
     }
   },
   perform: (Intercom, event) => {
-    const payload : {[k : string] : unknown} = {}
-    for(const[key, value] of Object.entries(event.payload)){
-      if (key !== "traits"){
+    //intercom requires a companyId && companyName
+    if (!event.payload.company_id || !event.payload.name) {
+      return
+    }
+
+    //copy over everything but traits; traits will not be sent in the payload
+    const payload: { [k: string]: unknown } = {}
+    for (const [key, value] of Object.entries(event.payload)) {
+      if (key !== 'traits') {
         payload[key] = value
       }
     }
 
-    //intercom requires a companyId && companyName
-    if(!payload.company_id || !payload.name){
-      return
-    }
-
     //change date from ISO-8601 (segment's format) to unix timestamp (intercom's format)
-    if(payload.created_at && isString(payload.created_at)){
+    if (payload.created_at && isString(payload.created_at)) {
       payload.created_at = convertISOtoUnix(payload.created_at)
     }
 
     //filter out reserved fields
-    const filteredCustomTraits: {[k: string]: unknown} = {}
-    const reservedFields = [...Object.keys(action.fields), "createdAt", "monthlySpend"]
-    for(const[key, value] of Object.entries(event.payload.traits)){
-      if(!reservedFields.includes(key)){
+    const filteredCustomTraits: { [k: string]: unknown } = {}
+    const reservedFields = [...Object.keys(action.fields), 'createdAt', 'monthlySpend']
+    for (const [key, value] of Object.entries(event.payload.traits)) {
+      if (!reservedFields.includes(key)) {
         filteredCustomTraits[key] = value
       }
-    } 
-    
+    }
+
     Intercom('update', {
-      company: { 
+      company: {
         ...filteredCustomTraits,
         ...payload
       }
