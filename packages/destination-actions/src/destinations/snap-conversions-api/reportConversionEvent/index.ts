@@ -78,7 +78,8 @@ const action: ActionDefinition<Settings, Payload> = {
       method: 'post',
       json: {
         ...payload,
-        ...settings
+        ...settings,
+        integration: 'segment'
       }
     })
   }
