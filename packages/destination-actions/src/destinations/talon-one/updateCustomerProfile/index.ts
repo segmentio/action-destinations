@@ -19,7 +19,7 @@ const action: ActionDefinition<Settings, Payload> = {
     },
     attributesInfo: {
       label: 'Attributes with types',
-      description: 'Use this field you want to specify an attribute type',
+      description: 'Use this field if you want to identify an attribute as a specific type',
       type: 'object',
       required: false,
       multiple: true,

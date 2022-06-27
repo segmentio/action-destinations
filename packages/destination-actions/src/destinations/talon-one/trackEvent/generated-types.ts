@@ -20,7 +20,7 @@ export interface Payload {
     [k: string]: unknown
   }
   /**
-   * Use this field you want to specify an attribute type
+   * Use this field if you want to identify an attribute with a specific type
    */
   attributesInfo?: {
     /**

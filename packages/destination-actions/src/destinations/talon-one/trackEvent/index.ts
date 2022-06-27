@@ -40,7 +40,7 @@ const action: ActionDefinition<Settings, Payload> = {
     },
     attributesInfo: {
       label: 'Attributes info',
-      description: 'Use this field if you want to identify an attribute as a specific type',
+      description: 'Use this field if you want to identify an attribute with a specific type',
       type: 'object',
       required: false,
       multiple: true,
