@@ -16,6 +16,7 @@ describe('GA4', () => {
       const event = createTestEvent({
         event: 'Signup',
         userId: 'abc123',
+        timestamp: '2022-06-22T22:20:58.905Z',
         anonymousId: 'anon-2134',
         type: 'track',
         properties: {
@@ -47,7 +48,7 @@ describe('GA4', () => {
       })
 
       expect(responses[0].options.body).toMatchInlineSnapshot(
-        `"{\\"client_id\\":\\"anon-2134\\",\\"events\\":[{\\"name\\":\\"sign_up\\",\\"params\\":{\\"engagement_time_msec\\":1}}],\\"user_properties\\":{\\"hello\\":{\\"value\\":\\"world\\"},\\"a\\":{\\"value\\":\\"1\\"},\\"b\\":{\\"value\\":\\"2\\"},\\"c\\":{\\"value\\":\\"3\\"}}}"`
+        `"{\\"client_id\\":\\"anon-2134\\",\\"timestamp_micros\\":1655936458905000,\\"events\\":[{\\"name\\":\\"sign_up\\",\\"params\\":{\\"engagement_time_msec\\":1}}],\\"user_properties\\":{\\"hello\\":{\\"value\\":\\"world\\"},\\"a\\":{\\"value\\":\\"1\\"},\\"b\\":{\\"value\\":\\"2\\"},\\"c\\":{\\"value\\":\\"3\\"}}}"`
       )
     })
 
@@ -59,6 +60,7 @@ describe('GA4', () => {
         event: 'Signed Up',
         type: 'track',
         userId: '3456fff',
+        timestamp: '2022-06-22T22:20:58.905Z',
         properties: {
           type: 'Google'
         }
@@ -90,7 +92,7 @@ describe('GA4', () => {
       `)
 
       expect(responses[0].options.body).toMatchInlineSnapshot(
-        `"{\\"client_id\\":\\"3456fff\\",\\"events\\":[{\\"name\\":\\"sign_up\\",\\"params\\":{\\"method\\":\\"Google\\",\\"engagement_time_msec\\":1}}]}"`
+        `"{\\"client_id\\":\\"3456fff\\",\\"timestamp_micros\\":1655936458905000,\\"events\\":[{\\"name\\":\\"sign_up\\",\\"params\\":{\\"method\\":\\"Google\\",\\"engagement_time_msec\\":1}}]}"`
       )
     })
 

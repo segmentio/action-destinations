@@ -54,7 +54,6 @@ export function formatItems(
   if (!items) {
     return undefined
   }
-  // let googleItems: ProductItem[] = []
   const googleItems = items.map((product) => {
     if (product.item_name === undefined && product.item_id === undefined) {
       throw new IntegrationError(
@@ -66,6 +65,37 @@ export function formatItems(
     if (product.currency) {
       verifyCurrency(product.currency)
     }
+
+    return product
+  })
+
+  return googleItems
+}
+
+export function formatPromotionItems(items: PromotionProductItem[] | undefined): PromotionProductItem[] | undefined {
+  if (!items) {
+    return undefined
+  }
+  let googleItems: PromotionProductItem[] = []
+  googleItems = items.map((product) => {
+    if (product.item_name === undefined && product.item_id === undefined) {
+      throw new IntegrationError(
+        'One of product name or product id is required for product or impression data.',
+        'Misconfigured required field',
+        400
+      )
+    }
+    if (product.promotion_id === undefined && product.promotion_name === undefined) {
+      throw new IntegrationError(
+        'One of promotion name or promotion id is required.',
+        'Misconfigured required field',
+        400
+      )
+    }
+    if (product.currency) {
+      verifyCurrency(product.currency)
+    }
+
     return product
   })
 

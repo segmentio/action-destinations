@@ -16,6 +16,7 @@ describe('GA4', () => {
       const event = createTestEvent({
         event: 'Search',
         userId: 'abc123',
+        timestamp: '2022-06-22T22:20:58.905Z',
         anonymousId: 'anon-2134',
         type: 'track',
         properties: {
@@ -48,7 +49,7 @@ describe('GA4', () => {
       })
 
       expect(responses[0].options.body).toMatchInlineSnapshot(
-        `"{\\"client_id\\":\\"anon-2134\\",\\"events\\":[{\\"name\\":\\"search\\",\\"params\\":{\\"search_term\\":\\"Quadruple Stack Oreos, 52 ct\\",\\"engagement_time_msec\\":2}}],\\"user_properties\\":{\\"hello\\":{\\"value\\":\\"world\\"},\\"a\\":{\\"value\\":\\"1\\"},\\"b\\":{\\"value\\":\\"2\\"},\\"c\\":{\\"value\\":\\"3\\"}}}"`
+        `"{\\"client_id\\":\\"anon-2134\\",\\"timestamp_micros\\":1655936458905000,\\"events\\":[{\\"name\\":\\"search\\",\\"params\\":{\\"search_term\\":\\"Quadruple Stack Oreos, 52 ct\\",\\"engagement_time_msec\\":2}}],\\"user_properties\\":{\\"hello\\":{\\"value\\":\\"world\\"},\\"a\\":{\\"value\\":\\"1\\"},\\"b\\":{\\"value\\":\\"2\\"},\\"c\\":{\\"value\\":\\"3\\"}}}"`
       )
     })
 
@@ -60,6 +61,7 @@ describe('GA4', () => {
       const event = createTestEvent({
         event: 'Products Searched',
         userId: '3456fff',
+        timestamp: '2022-06-22T22:20:58.905Z',
         type: 'track',
         properties: {
           query: 'milk and cookies'
@@ -76,6 +78,10 @@ describe('GA4', () => {
 
       expect(responses.length).toBe(1)
       expect(responses[0].status).toBe(201)
+
+      expect(responses[0].options.body).toMatchInlineSnapshot(
+        `"{\\"client_id\\":\\"3456fff\\",\\"timestamp_micros\\":1655936458905000,\\"events\\":[{\\"name\\":\\"search\\",\\"params\\":{\\"search_term\\":\\"milk and cookies\\",\\"engagement_time_msec\\":1}}]}"`
+      )
     })
 
     //event without query term event

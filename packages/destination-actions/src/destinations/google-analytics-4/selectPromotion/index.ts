@@ -1,5 +1,5 @@
 import { ActionDefinition } from '@segment/actions-core'
-import { convertTimestamp, formatItems } from '../ga4-functions'
+import { convertTimestamp, formatPromotionItems } from '../ga4-functions'
 import {
   creative_name,
   client_id,
@@ -73,7 +73,7 @@ const action: ActionDefinition<Settings, Payload> = {
               location_id: payload.location_id,
               promotion_id: payload.promotion_id,
               promotion_name: payload.promotion_name,
-              items: formatItems(payload.items),
+              items: formatPromotionItems(payload.items),
               engagement_time_msec: payload.engagement_time_msec,
               ...payload.params
             }
