@@ -32,44 +32,23 @@ describe('Webhook', () => {
 
     it('supports customizations', async () => {
       const url = 'https://example.build'
-
       const event = createTestEvent({
         timestamp,
         event: 'Test Event'
       })
+      const headerField = 'Custom-Header'
+      const headerValue = 'Custom-Value'
       const data = { cool: true }
 
-      nock(url).put('/', data).reply(200)
+      nock(url).put('/', data).matchHeader(headerField, headerValue).reply(200)
 
       const responses = await testDestination.testAction('send', {
         event,
         mapping: {
           url,
           method: 'PUT',
-          data: { cool: true }
-        }
-      })
-
-      expect(responses.length).toBe(1)
-      expect(responses[0].status).toBe(200)
-    })
-
-    it('supports customizations', async () => {
-      const url = 'https://example.build'
-      const event = createTestEvent({
-        timestamp,
-        event: 'Test Event'
-      })
-      const data = { cool: true }
-
-      nock(url).put('/', data).reply(200)
-
-      const responses = await testDestination.testAction('send', {
-        event,
-        mapping: {
-          url,
-          method: 'PUT',
-          data: { cool: true }
+          headers: { [headerField]: headerValue },
+          data
         }
       })
 
