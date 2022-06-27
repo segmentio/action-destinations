@@ -1,5 +1,5 @@
 import { ActionDefinition, IntegrationError } from '@segment/actions-core'
-import { verifyCurrency, verifyParams } from '../ga4-functions'
+import { verifyCurrency, verifyParams, convertTimestamp } from '../ga4-functions'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 import {
@@ -10,7 +10,8 @@ import {
   user_id,
   currency,
   value,
-  engagement_time_msec
+  engagement_time_msec,
+  timestamp_micros
 } from '../ga4-properties'
 
 const action: ActionDefinition<Settings, Payload> = {
@@ -20,6 +21,7 @@ const action: ActionDefinition<Settings, Payload> = {
   fields: {
     client_id: { ...client_id },
     user_id: { ...user_id },
+    timestamp_micros: { ...timestamp_micros },
     currency: { ...currency },
     value: { ...value },
     user_properties: user_properties,
@@ -41,6 +43,7 @@ const action: ActionDefinition<Settings, Payload> = {
       json: {
         client_id: payload.client_id,
         user_id: payload.user_id,
+        timestamp_micros: convertTimestamp(payload.timestamp_micros),
         events: [
           {
             name: 'generate_lead',

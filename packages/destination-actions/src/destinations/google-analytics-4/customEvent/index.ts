@@ -1,15 +1,15 @@
 import type { ActionDefinition } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
-import { verifyParams } from '../ga4-functions'
-
+import { verifyParams, convertTimestamp } from '../ga4-functions'
 import {
   formatUserProperties,
   user_properties,
   params,
   client_id,
   user_id,
-  engagement_time_msec
+  engagement_time_msec,
+  timestamp_micros
 } from '../ga4-properties'
 
 const normalizeEventName = (name: string, lowercase: boolean | undefined): string => {
@@ -29,6 +29,7 @@ const action: ActionDefinition<Settings, Payload> = {
   fields: {
     clientId: { ...client_id },
     user_id: { ...user_id },
+    timestamp_micros: { ...timestamp_micros },
     name: {
       label: 'Event Name',
       description:
@@ -57,6 +58,7 @@ const action: ActionDefinition<Settings, Payload> = {
       json: {
         client_id: payload.clientId,
         user_id: payload.user_id,
+        timestamp_micros: convertTimestamp(payload.timestamp_micros),
         events: [
           {
             name: event_name,

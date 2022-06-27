@@ -1,5 +1,5 @@
-import { ActionDefinition, IntegrationError } from '@segment/actions-core'
-import { verifyCurrency, verifyParams } from '../ga4-functions'
+import { ActionDefinition } from '@segment/actions-core'
+import { verifyCurrency, verifyParams, convertTimestamp, formatItems } from '../ga4-functions'
 import {
   formatUserProperties,
   user_properties,
@@ -10,9 +10,9 @@ import {
   value,
   items_multi_products,
   user_id,
+  timestamp_micros,
   engagement_time_msec
 } from '../ga4-properties'
-import { ProductItem } from '../ga4-types'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 
@@ -23,6 +23,7 @@ const action: ActionDefinition<Settings, Payload> = {
   fields: {
     client_id: { ...client_id },
     user_id: { ...user_id },
+    timestamp_micros: { ...timestamp_micros },
     coupon: { ...coupon, default: { '@path': '$.properties.coupon' } },
     currency: { ...currency },
     // Google does not have anything to map position, url and image url fields (Segment spec) to
@@ -41,38 +42,19 @@ const action: ActionDefinition<Settings, Payload> = {
       verifyCurrency(payload.currency)
     }
 
-    let googleItems: ProductItem[] = []
-
-    if (payload.items) {
-      googleItems = payload.items.map((product) => {
-        if (product.item_name === undefined && product.item_id === undefined) {
-          throw new IntegrationError(
-            'One of product name or product id is required for product or impression data.',
-            'Misconfigured required field',
-            400
-          )
-        }
-
-        if (product.currency) {
-          verifyCurrency(product.currency)
-        }
-
-        return product as ProductItem
-      })
-    }
-
     return request('https://www.google-analytics.com/mp/collect', {
       method: 'POST',
       json: {
         client_id: payload.client_id,
         user_id: payload.user_id,
+        timestamp_micros: convertTimestamp(payload.timestamp_micros),
         events: [
           {
             name: 'begin_checkout',
             params: {
               coupon: payload.coupon,
               currency: payload.currency,
-              items: googleItems,
+              items: formatItems(payload.items),
               value: payload.value,
               engagement_time_msec: payload.engagement_time_msec,
               ...verifyParams(payload.params)
