@@ -380,12 +380,12 @@ describe('GA4', () => {
         fail('the test should have thrown an error')
       } catch (e) {
         expect(e.message).toBe(
-          'GA4 only accepts string or number values for event parameters, item parameters, and user properties. Please ensure you are not including null, array, or nested values.'
+          'GA4 only accepts string or number values for event parameters and item parameters. Please ensure you are not including null, array, or nested values.'
         )
       }
     })
 
-    it('should throw an error when user_properties value is null', async () => {
+    it('should throw an error when user_properties value is array', async () => {
       nock('https://www.google-analytics.com/mp/collect')
         .post(`?measurement_id=${measurementId}&api_secret=${apiSecret}`)
         .reply(201, {})
@@ -415,7 +415,7 @@ describe('GA4', () => {
               '@path': '$.anonymousId'
             },
             user_properties: {
-              hello: null,
+              hello: ['World', 'world'],
               a: '1',
               b: '2',
               c: '3'
@@ -426,7 +426,7 @@ describe('GA4', () => {
         fail('the test should have thrown an error')
       } catch (e) {
         expect(e.message).toBe(
-          'GA4 only accepts string or number values for event parameters, item parameters, and user properties. Please ensure you are not including null, array, or nested values.'
+          'GA4 only accepts string, number or null values for user properties. Please ensure you are not including array or nested values.'
         )
       }
     })
