@@ -160,6 +160,7 @@ interface EventInput<Settings> {
   readonly settings: Settings
   /** Authentication-related data based on the destination's authentication.fields definition and authentication scheme */
   readonly auth?: AuthTokens
+  /** For internal Segment/Twilio use only. */
   readonly features?: { [key: string]: boolean }
 }
 
@@ -169,6 +170,7 @@ interface BatchEventInput<Settings> {
   readonly settings: Settings
   /** Authentication-related data based on the destination's authentication.fields definition and authentication scheme */
   readonly auth?: AuthTokens
+  /** For internal Segment/Twilio use only. */
   readonly features?: { [key: string]: boolean }
 }
 

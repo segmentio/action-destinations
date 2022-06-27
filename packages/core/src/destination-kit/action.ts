@@ -76,6 +76,7 @@ interface ExecuteBundle<T = unknown, Data = unknown> {
   settings: T
   mapping: JSONObject
   auth: AuthTokens | undefined
+  /** For internal Segment/Twilio use only. */
   features?: { [key: string]: boolean }
 }
 
