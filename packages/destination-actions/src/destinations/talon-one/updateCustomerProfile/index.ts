@@ -35,30 +35,21 @@ const action: ActionDefinition<Settings, Payload> = {
           description: 'Attribute type. Can be only `string`, `time`, `number`, `boolean`, `location`',
           type: 'string',
           default: 'string',
-          required: true,
-          choices: [
-            {
-              value: 'string',
-              label: 'string'
-            },
-            {
-              value: 'time',
-              label: 'time'
-            },
-            {
-              value: 'number',
-              label: 'number'
-            },
-            {
-              value: 'boolean',
-              label: 'boolean'
-            },
-            {
-              value: 'location',
-              label: 'location'
-            }
-          ]
+          required: true
         }
+      },
+      default: {
+        '@arrayPath': [
+          '$.traits.attributesInfo',
+          {
+            name: {
+              '@path': '$.name'
+            },
+            type: {
+              '@path': '$.type'
+            }
+          }
+        ]
       }
     }
   },

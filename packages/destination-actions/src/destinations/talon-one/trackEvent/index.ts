@@ -40,7 +40,7 @@ const action: ActionDefinition<Settings, Payload> = {
     },
     attributesInfo: {
       label: 'Attributes info',
-      description: 'Use this field you want to specify an attribute type',
+      description: 'Use this field if you want to identify an attribute as a specific type',
       type: 'object',
       required: false,
       multiple: true,
@@ -56,30 +56,21 @@ const action: ActionDefinition<Settings, Payload> = {
           description: 'Attribute type. Can be only `string`, `time`, `number`, `boolean`, `location`',
           type: 'string',
           default: 'string',
-          required: true,
-          choices: [
-            {
-              value: 'string',
-              label: 'string'
-            },
-            {
-              value: 'time',
-              label: 'time'
-            },
-            {
-              value: 'number',
-              label: 'number'
-            },
-            {
-              value: 'boolean',
-              label: 'boolean'
-            },
-            {
-              value: 'location',
-              label: 'location'
-            }
-          ]
+          required: true
         }
+      },
+      default: {
+        '@arrayPath': [
+          '$.properties.attributesInfo',
+          {
+            name: {
+              '@path': '$.name'
+            },
+            type: {
+              '@path': '$.type'
+            }
+          }
+        ]
       }
     }
   },
