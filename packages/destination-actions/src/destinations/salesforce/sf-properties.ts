@@ -10,10 +10,16 @@ export const operation: InputField = {
   choices: [
     { label: 'Create new record', value: 'create' },
     { label: 'Update existing record', value: 'update' },
-    { label: `Update or create a record if one doesn't exist`, value: 'upsert' },
-    { label: 'Bulk Upsert', value: 'bulkUpsert' },
-    { label: 'Bulk Update', value: 'bulkUpdate' }
+    { label: `Update or create a record if one doesn't exist`, value: 'upsert' }
   ]
+}
+
+export const enable_batching: InputField = {
+  label: 'Use Bulk API',
+  description: 'When enabled, the action will use the Bulk API to perform the operation. Not compatible with the insert operation.',
+  type: 'boolean',
+  required: true,
+  default: false
 }
 
 export const bulkUpsertExternalId: InputField = {

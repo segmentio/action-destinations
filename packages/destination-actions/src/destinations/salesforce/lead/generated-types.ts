@@ -6,6 +6,10 @@ export interface Payload {
    */
   operation: string
   /**
+   * When enabled, the action will use the Bulk API to perform the operation. Not compatible with the insert operation.
+   */
+  enable_batching: boolean
+  /**
    * The fields used to find Salesforce records for updates. **This is required if the operation is Update or Upsert.**
    *
    *   Any field can function as a matcher, including Record ID, External IDs, standard fields and custom fields. On the left-hand side, input the Salesforce field API name. On the right-hand side, map the Segment field that contains the value.

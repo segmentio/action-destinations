@@ -5,6 +5,7 @@ import {
   bulkUpdateRecordId,
   bulkUpsertExternalId,
   customFields,
+  enable_batching,
   operation,
   traits,
   validateLookup
@@ -19,6 +20,7 @@ const action: ActionDefinition<Settings, Payload> = {
   defaultSubscription: 'type = "identify"',
   fields: {
     operation: operation,
+    enable_batching: enable_batching,
     traits: traits,
     bulkUpsertExternalId: bulkUpsertExternalId,
     bulkUpdateRecordId: bulkUpdateRecordId,
