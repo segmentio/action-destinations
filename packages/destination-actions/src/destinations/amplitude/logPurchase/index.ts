@@ -61,6 +61,7 @@ const action: ActionDefinition<Settings, Payload> = {
       description: 'The list of products purchased.',
       type: 'object',
       multiple: true,
+      additionalProperties: true,
       properties: {
         price: {
           label: 'Price',
