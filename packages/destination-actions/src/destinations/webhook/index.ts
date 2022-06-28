@@ -20,7 +20,7 @@ const destination: DestinationDefinition<Settings> = {
     }
   },
   extendRequest: ({ settings, payload }) => {
-    if (settings.sharedSecret && Object.prototype.hasOwnProperty.call(payload as object, 'data')) {
+    if (settings.sharedSecret && payload?.data) {
       const digest = createHmac('sha1', settings.sharedSecret)
         .update(JSON.stringify(payload.data), 'utf8')
         .digest('hex')
