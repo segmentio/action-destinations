@@ -13,7 +13,8 @@ const action: ActionDefinition<Settings, Payload> = {
     addAudienceIds: { ...addAudienceId },
     runRuleEngine: {
       label: 'Run rule engine',
-      description: 'This runs rule engine in Talon.One upon updating customer profile. Set to true to trigger rules.',
+      description:
+        'This runs rule engine in Talon.One upon updating customer profile. Set to true to trigger rules. Setting this property to false improves response times. For audiences changes the runRuleEngine should be true. Default value is false.',
       type: 'boolean',
       default: true
     },
