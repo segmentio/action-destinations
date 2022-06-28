@@ -33,7 +33,7 @@ const action: ActionDefinition<Settings, Payload> = {
     attributes: {
       ...attribute,
       default: {
-        '@path': '$.properties'
+        '@path': '$.properties.attributes'
       },
       description:
         'Extra attributes associated with the event. [See more info](https://docs.talon.one/docs/product/account/dev-tools/managing-attributes).'

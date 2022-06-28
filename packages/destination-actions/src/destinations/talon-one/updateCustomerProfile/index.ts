@@ -40,7 +40,7 @@ const action: ActionDefinition<Settings, Payload> = {
       },
       default: {
         '@arrayPath': [
-          '$.traits.attributesInfo',
+          '$.properties.attributesInfo',
           {
             name: {
               '@path': '$.name'
