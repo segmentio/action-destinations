@@ -8,7 +8,15 @@ import { fieldsToJsonSchema, MinimalInputField } from './fields-to-jsonschema'
 import createRequestClient, { RequestClient, ResponseError } from '../create-request-client'
 import { validateSchema } from '../schema-validation'
 import type { ModifiedResponse } from '../types'
-import type { GlobalSetting, RequestExtension, ExecuteInput, Result, Deletion, DeletionPayload } from './types'
+import type {
+  GlobalSetting,
+  RequestExtension,
+  ExecuteInput,
+  Result,
+  Deletion,
+  DeletionPayload,
+  StatsContext
+} from './types'
 import type { AllRequestOptions } from '../request-client'
 import { IntegrationError, InvalidAuthenticationError } from '../errors'
 import { AuthTokens, getAuthData, getOAuth2Data, updateOAuthSettings } from './parse-settings'
@@ -160,8 +168,9 @@ interface EventInput<Settings> {
   readonly settings: Settings
   /** Authentication-related data based on the destination's authentication.fields definition and authentication scheme */
   readonly auth?: AuthTokens
-  /** For internal Segment/Twilio use only. */
+  /** `features` and `stats` are for internal Segment/Twilio use only. */
   readonly features?: { [key: string]: boolean }
+  readonly stats?: StatsContext
 }
 
 interface BatchEventInput<Settings> {
@@ -170,8 +179,9 @@ interface BatchEventInput<Settings> {
   readonly settings: Settings
   /** Authentication-related data based on the destination's authentication.fields definition and authentication scheme */
   readonly auth?: AuthTokens
-  /** For internal Segment/Twilio use only. */
+  /** `features` and `stats` are for internal Segment/Twilio use only. */
   readonly features?: { [key: string]: boolean }
+  readonly stats?: StatsContext
 }
 
 export interface DecoratedResponse extends ModifiedResponse {
@@ -179,7 +189,14 @@ export interface DecoratedResponse extends ModifiedResponse {
   options: AllRequestOptions
 }
 
-interface StatsClient {
+interface OnEventOptions {
+  onTokenRefresh?: (tokens: RefreshAccessTokenResult) => void
+  onComplete?: (stats: SubscriptionStats) => void
+  features?: { [key: string]: boolean }
+  statsContext?: StatsContext
+}
+
+export interface StatsClient {
   observe: (metric: any) => any
   _name(name: string): string
   _tags(tags?: string[]): string[]
@@ -188,16 +205,12 @@ interface StatsClient {
   histogram(name: string, value?: number, tags?: string[]): void
 }
 
-interface StatsContext {
-  stats: StatsClient
+/** DataDog stats client and tags passed from the `CreateActionDestination`
+ * in the monoservice.
+ */
+export interface StatsContext {
+  statsClient: StatsClient
   tags: string[]
-}
-
-interface OnEventOptions {
-  onTokenRefresh?: (tokens: RefreshAccessTokenResult) => void
-  onComplete?: (stats: SubscriptionStats) => void
-  features?: { [key: string]: boolean }
-  statsContext?: StatsContext
 }
 
 export class Destination<Settings = JSONObject> {
@@ -317,7 +330,7 @@ export class Destination<Settings = JSONObject> {
 
   protected async executeAction(
     actionSlug: string,
-    { event, mapping, settings, auth, features }: EventInput<Settings>
+    { event, mapping, settings, auth, features, stats }: EventInput<Settings>
   ): Promise<Result[]> {
     const action = this.actions[actionSlug]
     if (!action) {
@@ -329,13 +342,14 @@ export class Destination<Settings = JSONObject> {
       data: event as unknown as InputData,
       settings,
       auth,
-      features
+      features,
+      stats
     })
   }
 
   public async executeBatch(
     actionSlug: string,
-    { events, mapping, settings, auth, features }: BatchEventInput<Settings>
+    { events, mapping, settings, auth, features, stats }: BatchEventInput<Settings>
   ) {
     const action = this.actions[actionSlug]
     if (!action) {
@@ -347,7 +361,8 @@ export class Destination<Settings = JSONObject> {
       data: events as unknown as InputData[],
       settings,
       auth,
-      features
+      features,
+      stats
     })
 
     return [{ output: 'successfully processed batch of events' }]
@@ -366,7 +381,8 @@ export class Destination<Settings = JSONObject> {
       mapping: subscription.mapping || {},
       settings,
       auth,
-      features: options?.features || {}
+      features: options?.features || {},
+      stats: options?.statsContext || {}
     }
 
     let results: Result[] | null = null

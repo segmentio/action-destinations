@@ -77,7 +77,8 @@ interface ExecuteBundle<T = unknown, Data = unknown> {
   mapping: JSONObject
   auth: AuthTokens | undefined
   /** For internal Segment/Twilio use only. */
-  features?: { [key: string]: boolean }
+  features?: { [key: string]: boolean } | undefined
+  stats?: StatsContext | undefined
 }
 
 /**
@@ -133,7 +134,8 @@ export class Action<Settings, Payload extends JSONLikeObject> extends EventEmitt
       settings: bundle.settings,
       payload,
       auth: bundle.auth,
-      features: bundle.features
+      features: bundle.features,
+      stats: bundle.stats
     }
 
     // Construct the request client and perform the action
@@ -176,7 +178,8 @@ export class Action<Settings, Payload extends JSONLikeObject> extends EventEmitt
         settings: bundle.settings,
         payload: payloads,
         auth: bundle.auth,
-        features: bundle.features
+        features: bundle.features,
+        stats: bundle.stats
       }
       await this.performRequest(this.definition.performBatch, data)
     }
