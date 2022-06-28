@@ -10,7 +10,7 @@ export interface Settings {
    */
   snap_app_id?: string
   /**
-   * The unique ID assigned for a given application. It should be numeric for iOS, and the human interpretable string for Android. Required for app events.
+   * The unique ID assigned for a given application. It should be numeric for iOS, and the human interpretable string for Android. **Required for app events**.
    */
   app_id?: string
 }
