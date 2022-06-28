@@ -160,6 +160,8 @@ interface EventInput<Settings> {
   readonly settings: Settings
   /** Authentication-related data based on the destination's authentication.fields definition and authentication scheme */
   readonly auth?: AuthTokens
+  /** For internal Segment/Twilio use only. */
+  readonly features?: { [key: string]: boolean }
 }
 
 interface BatchEventInput<Settings> {
@@ -168,6 +170,8 @@ interface BatchEventInput<Settings> {
   readonly settings: Settings
   /** Authentication-related data based on the destination's authentication.fields definition and authentication scheme */
   readonly auth?: AuthTokens
+  /** For internal Segment/Twilio use only. */
+  readonly features?: { [key: string]: boolean }
 }
 
 export interface DecoratedResponse extends ModifiedResponse {
@@ -175,10 +179,27 @@ export interface DecoratedResponse extends ModifiedResponse {
   options: AllRequestOptions
 }
 
+interface StatsClient {
+  observe: (metric: any) => any
+  _name(name: string): string
+  _tags(tags?: string[]): string[]
+  incr(name: string, value?: number, tags?: string[]): void
+  set(name: string, value: number, tags?: string[]): void
+  histogram(name: string, value?: number, tags?: string[]): void
+}
+
+interface StatsContext {
+  stats: StatsClient
+  tags: string[]
+}
+
 interface OnEventOptions {
   onTokenRefresh?: (tokens: RefreshAccessTokenResult) => void
   onComplete?: (stats: SubscriptionStats) => void
+  features?: { [key: string]: boolean }
+  statsContext?: StatsContext
 }
+
 export class Destination<Settings = JSONObject> {
   readonly definition: DestinationDefinition<Settings>
   readonly name: string
@@ -296,7 +317,7 @@ export class Destination<Settings = JSONObject> {
 
   protected async executeAction(
     actionSlug: string,
-    { event, mapping, settings, auth }: EventInput<Settings>
+    { event, mapping, settings, auth, features }: EventInput<Settings>
   ): Promise<Result[]> {
     const action = this.actions[actionSlug]
     if (!action) {
@@ -307,11 +328,15 @@ export class Destination<Settings = JSONObject> {
       mapping,
       data: event as unknown as InputData,
       settings,
-      auth
+      auth,
+      features
     })
   }
 
-  public async executeBatch(actionSlug: string, { events, mapping, settings, auth }: BatchEventInput<Settings>) {
+  public async executeBatch(
+    actionSlug: string,
+    { events, mapping, settings, auth, features }: BatchEventInput<Settings>
+  ) {
     const action = this.actions[actionSlug]
     if (!action) {
       return []
@@ -321,7 +346,8 @@ export class Destination<Settings = JSONObject> {
       mapping,
       data: events as unknown as InputData[],
       settings,
-      auth
+      auth,
+      features
     })
 
     return [{ output: 'successfully processed batch of events' }]
@@ -332,14 +358,15 @@ export class Destination<Settings = JSONObject> {
     events: SegmentEvent | SegmentEvent[],
     settings: Settings,
     auth: AuthTokens,
-    onComplete?: OnEventOptions['onComplete']
+    options?: OnEventOptions
   ): Promise<Result[]> {
     const subscriptionStartedAt = time()
     const actionSlug = subscription.partnerAction
     const input = {
       mapping: subscription.mapping || {},
       settings,
-      auth
+      auth,
+      features: options?.features || {}
     }
 
     let results: Result[] | null = null
@@ -383,7 +410,7 @@ export class Destination<Settings = JSONObject> {
       const subscriptionEndedAt = time()
       const subscriptionDuration = duration(subscriptionStartedAt, subscriptionEndedAt)
 
-      onComplete?.({
+      options?.onComplete?.({
         duration: subscriptionDuration,
         destination: this.name,
         action: actionSlug,
@@ -466,7 +493,7 @@ export class Destination<Settings = JSONObject> {
     const run = async () => {
       const authData = getAuthData(settings)
       const promises = subscriptions.map((subscription) =>
-        this.onSubscription(subscription, data, destinationSettings, authData, options?.onComplete)
+        this.onSubscription(subscription, data, destinationSettings, authData, options)
       )
       const results = await Promise.all(promises)
       return ([] as Result[]).concat(...results)

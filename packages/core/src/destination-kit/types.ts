@@ -23,6 +23,11 @@ export interface ExecuteInput<Settings, Payload> {
   page?: string
   /** The data needed in OAuth requests */
   readonly auth?: AuthTokens
+  /**
+   * The features available in the request based on either customer workspaceID or sourceID;
+   * For internal Twilio/Segment use only.
+   */
+  readonly features?: { [key: string]: boolean }
 }
 
 export interface DynamicFieldResponse {
