@@ -4,7 +4,7 @@ import type { Settings } from './generated-types'
 import send from './send'
 
 const destination: DestinationDefinition<Settings> = {
-  name: 'Webhook',
+  name: 'Webhooks (Actions)',
   slug: 'actions-webhook',
   mode: 'cloud',
   actions: {
