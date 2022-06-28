@@ -70,7 +70,7 @@ export interface DestinationDefinition<Settings = unknown> extends BaseDefinitio
   actions: Record<string, ActionDefinition<Settings>>
 
   /** An optional function to extend requests sent from the destination (including all actions) */
-  extendRequest?: RequestExtension<Settings>
+  extendRequest?: RequestExtension<Settings, any>
 
   /** Optional authentication configuration */
   authentication?: AuthenticationScheme<Settings>
@@ -204,7 +204,7 @@ export class Destination<Settings = JSONObject> {
   readonly definition: DestinationDefinition<Settings>
   readonly name: string
   readonly authentication?: AuthenticationScheme<Settings>
-  readonly extendRequest?: RequestExtension<Settings>
+  readonly extendRequest?: RequestExtension<Settings, any>
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   readonly actions: PartnerActions<Settings, any>
   readonly responses: DecoratedResponse[]
@@ -253,7 +253,7 @@ export class Destination<Settings = JSONObject> {
     const auth = getAuthData(settings as unknown as JSONObject)
     const data = { settings: destinationSettings, auth }
 
-    const context: ExecuteInput<Settings, undefined> = { settings: destinationSettings, payload: undefined, auth }
+    const context: ExecuteInput<Settings, any> = { settings: destinationSettings, payload: undefined, auth }
 
     // Validate settings according to the destination's `authentication.fields` schema
     this.validateSettings(destinationSettings)
@@ -286,7 +286,7 @@ export class Destination<Settings = JSONObject> {
     }
 
     // TODO: clean up context/extendRequest so we don't have to send information that is not needed (payload & cachedFields)
-    const context: ExecuteInput<Settings, undefined> = {
+    const context: ExecuteInput<Settings, any> = {
       settings,
       payload: undefined,
       auth: getAuthData(settings as unknown as JSONObject)
@@ -445,7 +445,7 @@ export class Destination<Settings = JSONObject> {
     this.validateSettings(destinationSettings)
     const auth = getAuthData(settings as unknown as JSONObject)
     const data: ExecuteInput<Settings, DeletionPayload> = { payload, settings: destinationSettings, auth }
-    const context: ExecuteInput<Settings, undefined> = { settings: destinationSettings, payload: undefined, auth }
+    const context: ExecuteInput<Settings, any> = { settings: destinationSettings, payload, auth }
 
     const opts = this.extendRequest?.(context) ?? {}
     const requestClient = createRequestClient(opts)

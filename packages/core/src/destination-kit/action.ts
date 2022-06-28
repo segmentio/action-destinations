@@ -89,12 +89,12 @@ export class Action<Settings, Payload extends JSONLikeObject> extends EventEmitt
   readonly destinationName: string
   readonly schema?: JSONSchema4
   readonly hasBatchSupport: boolean
-  private extendRequest: RequestExtension<Settings> | undefined
+  private extendRequest: RequestExtension<Settings, any> | undefined
 
   constructor(
     destinationName: string,
     definition: ActionDefinition<Settings, Payload>,
-    extendRequest?: RequestExtension<Settings>
+    extendRequest?: RequestExtension<Settings, any>
   ) {
     super()
     this.definition = definition
