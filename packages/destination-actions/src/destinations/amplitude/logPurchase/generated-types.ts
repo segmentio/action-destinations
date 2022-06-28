@@ -179,6 +179,7 @@ export interface Payload {
      * The type of revenue for the item purchased. You must send a price and quantity or revenue with this field.
      */
     revenueType?: string
+    [k: string]: unknown
   }[]
   /**
    * If true, events are sent to Amplitude's `batch` endpoint rather than their `httpapi` events endpoint. Enabling this setting may help reduce 429s – or throttling errors – from Amplitude. More information about Amplitude's throttling is available in [their docs](https://developers.amplitude.com/docs/batch-event-upload-api#429s-in-depth).
