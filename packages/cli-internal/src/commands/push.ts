@@ -191,18 +191,6 @@ export default class Push extends Command {
               `The builder defined batching field is not a boolean. Please update the field type to "boolean".`
             )
           }
-
-          fields.push({
-            fieldKey: 'enable_batching',
-            type: 'boolean',
-            label: builderDefinedBatchingField.label,
-            description: builderDefinedBatchingField.description,
-            defaultValue: builderDefinedBatchingField.defaultValue,
-            required: builderDefinedBatchingField.required,
-            multiple: false,
-            dynamic: false,
-            allowNull: false
-          })
         }
 
         const base: BaseActionInput = {
