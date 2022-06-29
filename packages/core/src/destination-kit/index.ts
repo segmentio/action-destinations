@@ -374,7 +374,7 @@ export class Destination<Settings = JSONObject> {
       settings,
       auth,
       features: options?.features || {},
-      stats: options?.statsContext || {}
+      stats: options?.statsContext
     }
 
     let results: Result[] | null = null
