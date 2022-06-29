@@ -3,7 +3,6 @@ import { defaultValues } from '@segment/actions-core'
 import type { Settings } from './generated-types'
 import identifyUser from './identifyUser'
 import { listOperationsRequestParams, deleteUserRequestParams } from './request-params'
-import { dataRegions } from './data-regions'
 
 const destination: DestinationDefinition<Settings> = {
   name: 'Fullstory (Actions)',
@@ -24,15 +23,6 @@ const destination: DestinationDefinition<Settings> = {
         label: 'API Key',
         description: '[FullStory API key](https://help.fullstory.com/hc/en-us/articles/360052021773-Managing-API-Keys)',
         type: 'password',
-        required: true
-      },
-      region: {
-        label: 'Data Region',
-        description: 'The region where your FullStory organization is provisioned.',
-        type: 'string',
-        format: 'text',
-        choices: dataRegions,
-        default: 'north_america',
         required: true
       }
     },

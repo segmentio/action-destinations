@@ -1,7 +1,5 @@
 import type { RequestOptions } from '@segment/actions-core'
-import { IntegrationError } from '@segment/actions-core'
 import type { Settings } from './generated-types'
-import { dataRegions } from './data-regions'
 
 /**
  * Mirrors the ID type which isn't exported from the @segment/actions-core package root.
@@ -16,6 +14,8 @@ interface RequestParams {
   options: RequestOptions
 }
 
+const apiBaseUrl = 'https://api.fullstory.com'
+
 /**
  * Returns default {@link RequestParams} suitable for most FullStory HTTP API requests.
  *
@@ -23,14 +23,8 @@ interface RequestParams {
  * @param relativeUrl The relative URL from the FullStory API domain root.
  */
 const defaultRequestParams = (settings: Settings, relativeUrl: string): RequestParams => {
-  const region = dataRegions.find((region) => region.value === settings.region)
-
-  if (!region) {
-    throw new IntegrationError(`Data region not found for settings value '${settings.region}'`)
-  }
-
   return {
-    url: `${region.baseUrl}/${relativeUrl}`,
+    url: `${apiBaseUrl}/${relativeUrl}`,
     options: {
       method: 'get',
       headers: {
