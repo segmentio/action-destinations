@@ -380,6 +380,27 @@ function performBatch(request, { settings, payload }) {
 }
 ```
 
+All actions where a `performBatch` method is defined will automatically include an `enable_batching` input field for users. This field is a boolean switch which allows users to toggle batching functionality. Builders can override the automatically included field by explicitly defining a field named `enable_batching` with type boolean in the `fields` section of the `ActionDefinition`. This may be useful if the builder wants to specify custom labels or descriptions or set a default value.
+
+```js
+const action: ActionDefinition<Settings, Payload> = {
+  title: 'Account',
+  description: 'Represents an individual account, which is an organization or person involved with your business.',
+  defaultSubscription: 'type = "group"',
+  fields: {
+    enable_batching: {
+      type: 'boolean',
+      label: 'Use Salesforce Bulk API',
+      description:
+        'When enabled, the action will use the Salesforce Bulk API to perform the operation. Not compatible with the insert operation.',
+      required: true,
+      default: false
+    }
+  },
+  performBatch: async (request, { settings, payload }) => { ... }
+}
+```
+
 This will give customers the ability to opt-in to batching (there may be trade-offs they need to consider before opting in). Each customer subscription will be given the ability to Enable Batching.
 
 Keep in mind a few important things about how batching works:

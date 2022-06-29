@@ -168,8 +168,11 @@ export default class Push extends Command {
           }
         })
 
+        const hasBuilderDefinedBatchingField = fields.filter((f) => f.fieldKey === 'enable_batching').length === 1
+        const isBatchingDestination = typeof action.performBatch === 'function'
+
         // Automatically include a field for customers to control batching behavior, when supported
-        if (typeof action.performBatch === 'function') {
+        if (isBatchingDestination && !hasBuilderDefinedBatchingField) {
           fields.push({
             fieldKey: 'enable_batching',
             type: 'boolean',
@@ -177,6 +180,25 @@ export default class Push extends Command {
             description: 'When enabled, Segment will send events in batches.',
             defaultValue: false,
             required: false,
+            multiple: false,
+            dynamic: false,
+            allowNull: false
+          })
+        } else if (isBatchingDestination && hasBuilderDefinedBatchingField) {
+          const builderDefinedBatchingField = fields.filter((f) => f.fieldKey === 'enable_batching')[0]
+          if (builderDefinedBatchingField.type !== 'boolean') {
+            this.error(
+              `The builder defined batching field is not a boolean. Please update the field type to "boolean".`
+            )
+          }
+
+          fields.push({
+            fieldKey: 'enable_batching',
+            type: 'boolean',
+            label: builderDefinedBatchingField.label,
+            description: builderDefinedBatchingField.description,
+            defaultValue: builderDefinedBatchingField.defaultValue,
+            required: builderDefinedBatchingField.required,
             multiple: false,
             dynamic: false,
             allowNull: false
