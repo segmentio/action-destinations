@@ -16,6 +16,14 @@ export const operation: InputField = {
   ]
 }
 
+export const enable_batching: InputField = {
+  label: 'Use Salesforce Bulk API',
+  description: 'Use the Salesforce Bulk API to perform bulk operations. Not compatible with the create operation.',
+  type: 'boolean',
+  default: false,
+  required: true
+}
+
 export const bulkUpsertExternalId: InputField = {
   label: 'Bulk Upsert External Id',
   description: 'The external id field name and mapping to use for bulk upsert.',

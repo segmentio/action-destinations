@@ -7,7 +7,8 @@ import {
   operation,
   traits,
   customFields,
-  validateLookup
+  validateLookup,
+  enable_batching
 } from '../sf-properties'
 import Salesforce from '../sf-operations'
 
@@ -17,6 +18,7 @@ const action: ActionDefinition<Settings, Payload> = {
     "Represents a custom object, which you create to store information that's specific to your company or industry, or a standard object.",
   fields: {
     operation: operation,
+    enable_batching: enable_batching,
     traits: traits,
     bulkUpsertExternalId: bulkUpsertExternalId,
     bulkUpdateRecordId: bulkUpdateRecordId,
