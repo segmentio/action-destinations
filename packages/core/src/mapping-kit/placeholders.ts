@@ -7,7 +7,6 @@ const entityMap: Record<string, string> = {
   '>': '&gt;',
   '"': '&quot;',
   "'": '&#39;',
-  '/': '&#x2F;',
   '`': '&#x60;',
   '=': '&#x3D;'
 }
