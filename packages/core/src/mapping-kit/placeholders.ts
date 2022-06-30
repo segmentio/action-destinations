@@ -14,7 +14,7 @@ const entityMap: Record<string, string> = {
 function escapeHtml(value: unknown): string | unknown {
   if (typeof value !== 'string') return value
 
-  return value.replace(/[&<>"'`=/]/g, (match) => {
+  return value.replace(/[&<>"'`=]/g, (match) => {
     return entityMap[match]
   })
 }

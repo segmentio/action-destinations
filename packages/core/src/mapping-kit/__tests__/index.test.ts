@@ -335,7 +335,7 @@ describe('@template', () => {
 
   test('no escaping', () => {
     const output = transform({ '@template': '<blink>{{a}} {{{a}}}</blink>' }, { a: '<b>Hi</b>' })
-    expect(output).toStrictEqual('<blink>&lt;b&gt;Hi&lt;&#x2F;b&gt; <b>Hi</b></blink>')
+    expect(output).toStrictEqual('<blink>&lt;b&gt;Hi&lt;/b&gt; <b>Hi</b></blink>')
   })
 
   test('missing fields', () => {
