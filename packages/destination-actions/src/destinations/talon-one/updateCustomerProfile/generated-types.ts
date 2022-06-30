@@ -24,7 +24,7 @@ export interface Payload {
    */
   runRuleEngine?: boolean
   /**
-   * Use this field if you want to identify an attribute as a specific type
+   * Use this field if you want to identify an attribute with a specific type
    */
   attributesInfo?: {
     /**

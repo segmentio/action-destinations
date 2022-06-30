@@ -16,11 +16,11 @@ const action: ActionDefinition<Settings, Payload> = {
       description:
         'This runs rule engine in Talon.One upon updating customer profile. Set to true to trigger rules. Setting this property to false improves response times. For audiences changes the runRuleEngine should be true. Default value is false.',
       type: 'boolean',
-      default: true
+      default: false
     },
     attributesInfo: {
       label: 'Attributes with types',
-      description: 'Use this field if you want to identify an attribute as a specific type',
+      description: 'Use this field if you want to identify an attribute with a specific type',
       type: 'object',
       required: false,
       multiple: true,
@@ -35,7 +35,6 @@ const action: ActionDefinition<Settings, Payload> = {
           label: 'Type',
           description: 'Attribute type. Can be only `string`, `time`, `number`, `boolean`, `location`',
           type: 'string',
-          default: 'string',
           required: true
         }
       },

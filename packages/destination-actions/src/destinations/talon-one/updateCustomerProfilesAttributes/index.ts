@@ -42,7 +42,6 @@ const action: ActionDefinition<Settings, Payload> = {
           label: 'Type',
           description: 'Attribute type. Can be only `string`, `time`, `number`, `boolean`, `location`',
           type: 'string',
-          default: 'string',
           required: true
         }
       },
