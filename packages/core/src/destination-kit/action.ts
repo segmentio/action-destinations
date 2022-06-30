@@ -89,11 +89,15 @@ export class Action<Settings, Payload extends JSONLikeObject> extends EventEmitt
   readonly destinationName: string
   readonly schema?: JSONSchema4
   readonly hasBatchSupport: boolean
+  // Payloads may be any type so we use `any` explicitly here.
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   private extendRequest: RequestExtension<Settings, any> | undefined
 
   constructor(
     destinationName: string,
     definition: ActionDefinition<Settings, Payload>,
+    // Payloads may be any type so we use `any` explicitly here.
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     extendRequest?: RequestExtension<Settings, any>
   ) {
     super()

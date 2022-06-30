@@ -69,7 +69,13 @@ export interface DestinationDefinition<Settings = unknown> extends BaseDefinitio
   /** Actions */
   actions: Record<string, ActionDefinition<Settings>>
 
-  /** An optional function to extend requests sent from the destination (including all actions) */
+  /**
+   * An optional function to extend requests sent from the destination
+   * (including all actions). Payloads may be any type -- destination authors
+   * will need to take that into account when extending requests with the contents
+   * of the payload.
+   */
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   extendRequest?: RequestExtension<Settings, any>
 
   /** Optional authentication configuration */
@@ -204,6 +210,8 @@ export class Destination<Settings = JSONObject> {
   readonly definition: DestinationDefinition<Settings>
   readonly name: string
   readonly authentication?: AuthenticationScheme<Settings>
+  // Payloads may be any type so we use `any` explicitly here.
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   readonly extendRequest?: RequestExtension<Settings, any>
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   readonly actions: PartnerActions<Settings, any>
