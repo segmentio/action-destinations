@@ -45,7 +45,10 @@ const action: ActionDefinition<Settings, Payload> = {
     engagement_time_msec: engagement_time_msec,
     params: params
   },
-  perform: (request, { payload }) => {
+  perform: (request, { payload, stats = {} }) => {
+    const { statsClient, tags } = stats
+    statsClient?.incr?.('stats-google-analytics-4', 1, tags)
+
     return request('https://www.google-analytics.com/mp/collect', {
       method: 'POST',
       json: {
