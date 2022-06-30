@@ -4,4 +4,5 @@ export type Adobe = {
 
 type Target = {
   trackEvent: Function
+  triggerView: Function
 }

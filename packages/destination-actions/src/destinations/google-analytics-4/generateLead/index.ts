@@ -1,8 +1,17 @@
 import { ActionDefinition, IntegrationError } from '@segment/actions-core'
-import { CURRENCY_ISO_CODES } from '../constants'
+import { verifyCurrency } from '../ga4-functions'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
-import { params, client_id, user_id, currency, value } from '../ga4-properties'
+import {
+  formatUserProperties,
+  user_properties,
+  params,
+  client_id,
+  user_id,
+  currency,
+  value,
+  engagement_time_msec
+} from '../ga4-properties'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Generate Lead',
@@ -13,11 +22,13 @@ const action: ActionDefinition<Settings, Payload> = {
     user_id: { ...user_id },
     currency: { ...currency },
     value: { ...value },
+    user_properties: user_properties,
+    engagement_time_msec: engagement_time_msec,
     params: params
   },
   perform: (request, { payload }) => {
-    if (payload.currency && !CURRENCY_ISO_CODES.includes(payload.currency)) {
-      throw new IntegrationError(`${payload.currency} is not a valid currency code.`, 'Incorrect value format', 400)
+    if (payload.currency) {
+      verifyCurrency(payload.currency)
     }
 
     // Google requires that currency be included at the event level if value is included.
@@ -36,10 +47,12 @@ const action: ActionDefinition<Settings, Payload> = {
             params: {
               currency: payload.currency,
               value: payload.value,
+              engagement_time_msec: payload.engagement_time_msec,
               ...payload.params
             }
           }
-        ]
+        ],
+        ...formatUserProperties(payload.user_properties)
       }
     })
   }

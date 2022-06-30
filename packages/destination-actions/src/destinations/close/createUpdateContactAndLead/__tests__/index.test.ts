@@ -6,16 +6,20 @@ import { Settings } from '../../generated-types'
 const TEST_USER_1 = {
   id: 'user_id_1',
   company_name: 'My Company',
+  company_id: 'company_id_1',
+  company_description: 'Company description',
   name: 'John',
   email: 'john@example.com',
   title: 'Manager',
   phone: '+1 800 444 4444',
   website: 'https://example.org',
-  business_plan: 'Enterprise'
+  business_plan: 'Enterprise',
+  lead_status_id: 'stat_1234'
 }
 const SETTINGS: Settings = {
   api_key: 'api_keyid.keysecret',
-  contact_custom_field_id_for_user_id: 'cf_external_user_id'
+  contact_custom_field_id_for_user_id: 'cf_external_user_id',
+  lead_custom_field_id_for_company_id: 'cf_external_company_id'
 }
 const testDestination = createTestIntegration(Destination)
 describe('Close.createUpdateContactAndLead', () => {
@@ -29,9 +33,18 @@ describe('Close.createUpdateContactAndLead', () => {
           contact_phone: TEST_USER_1.phone,
           contact_url: TEST_USER_1.website,
           contact_title: TEST_USER_1.title,
-          contact_external_id: TEST_USER_1.id
+          contact_external_id: TEST_USER_1.id,
+          lead_external_id: TEST_USER_1.company_id
         },
-        settings: { contact_custom_field_id_for_user_id: 'cf_external_user_id' }
+        settings: {
+          contact_custom_field_id_for_user_id: 'cf_external_user_id',
+          lead_custom_field_id_for_company_id: 'cf_external_company_id',
+          allow_creating_new_leads: true,
+          allow_updating_existing_leads: true,
+          allow_creating_new_contacts: true,
+          allow_updating_existing_contacts: true,
+          allow_creating_duplicate_contacts: true
+        }
       })
       .matchHeader('Authorization', 'Basic YXBpX2tleWlkLmtleXNlY3JldDo=')
       .reply(202, '')
@@ -40,7 +53,8 @@ describe('Close.createUpdateContactAndLead', () => {
       userId: 'user_id_1',
       traits: {
         company: {
-          name: TEST_USER_1.company_name
+          name: TEST_USER_1.company_name,
+          id: TEST_USER_1.company_id
         },
         name: TEST_USER_1.name,
         email: TEST_USER_1.email,
@@ -59,14 +73,25 @@ describe('Close.createUpdateContactAndLead', () => {
     expect(nock.isDone()).toBe(true)
   })
 
-  it('should call action with contact_custom_fields mappings', async () => {
+  it('should call action with lead and contact custom fields mappings', async () => {
     nock('https://services.close.com/', { encodedQueryParams: true })
       .post('/webhooks/segment/actions/create-update-contact-and-lead/', {
         action_payload: {
           contact_external_id: TEST_USER_1.id,
-          contact_custom_fields: { cf_business_plan: 'Enterprise' }
+          contact_custom_fields: { cf_business_plan: 'Enterprise' },
+          lead_custom_fields: { lf_company_size: 5 },
+          lead_description: TEST_USER_1.company_description,
+          lead_status_id: TEST_USER_1.lead_status_id
         },
-        settings: { contact_custom_field_id_for_user_id: 'cf_external_user_id' }
+        settings: {
+          contact_custom_field_id_for_user_id: 'cf_external_user_id',
+          lead_custom_field_id_for_company_id: 'cf_external_company_id',
+          allow_creating_new_leads: false,
+          allow_updating_existing_leads: false,
+          allow_creating_new_contacts: false,
+          allow_updating_existing_contacts: false,
+          allow_creating_duplicate_contacts: false
+        }
       })
       .matchHeader('Authorization', 'Basic YXBpX2tleWlkLmtleXNlY3JldDo=')
       .reply(202, '')
@@ -74,7 +99,12 @@ describe('Close.createUpdateContactAndLead', () => {
     const event = createTestEvent({
       userId: 'user_id_1',
       traits: {
-        business_plan: 'Enterprise'
+        business_plan: 'Enterprise',
+        company: {
+          size: 5
+        },
+        company_description: TEST_USER_1.company_description,
+        lead_status_id: TEST_USER_1.lead_status_id
       }
     })
 
@@ -84,7 +114,23 @@ describe('Close.createUpdateContactAndLead', () => {
         cf_business_plan: {
           '@path': '$.traits.business_plan'
         }
-      }
+      },
+      lead_custom_fields: {
+        lf_company_size: {
+          '@path': '$.traits.company.size'
+        }
+      },
+      lead_description: {
+        '@path': '$.traits.company_description'
+      },
+      lead_status_id: {
+        '@path': '$.traits.lead_status_id'
+      },
+      allow_creating_new_leads: false,
+      allow_updating_existing_leads: false,
+      allow_creating_new_contacts: false,
+      allow_updating_existing_contacts: false,
+      allow_creating_duplicate_contacts: false
     }
     await testDestination.testAction('createUpdateContactAndLead', {
       event,

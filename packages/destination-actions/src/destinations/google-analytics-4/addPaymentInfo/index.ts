@@ -1,16 +1,19 @@
 import { ActionDefinition, IntegrationError } from '@segment/actions-core'
-import { CURRENCY_ISO_CODES } from '../constants'
 import { ProductItem } from '../ga4-types'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
+import { verifyCurrency } from '../ga4-functions'
 import {
   user_id,
+  formatUserProperties,
+  user_properties,
   client_id,
   currency,
   value,
   coupon,
   payment_type,
   items_multi_products,
+  engagement_time_msec,
   params
 } from '../ga4-properties'
 
@@ -29,11 +32,23 @@ const action: ActionDefinition<Settings, Payload> = {
       ...items_multi_products,
       required: true
     },
+    user_properties: user_properties,
+    engagement_time_msec: engagement_time_msec,
     params: params
   },
   perform: (request, { payload }) => {
-    if (payload.currency && !CURRENCY_ISO_CODES.includes(payload.currency)) {
-      throw new IntegrationError(`${payload.currency} is not a valid currency code.`, 'Incorrect value format', 400)
+    // Google requires that `add_payment_info` events include an array of products: https://developers.google.com/analytics/devguides/collection/ga4/reference/events
+    // This differs from the Segment spec, which doesn't require a products array: https://segment.com/docs/connections/spec/ecommerce/v2/#payment-info-entered
+    if (payload.items && !payload.items.length) {
+      throw new IntegrationError(
+        'Google requires one or more products in add_payment_info events.',
+        'Misconfigured required field',
+        400
+      )
+    }
+
+    if (payload.currency) {
+      verifyCurrency(payload.currency)
     }
 
     // Google requires that currency be included at the event level if value is included.
@@ -46,7 +61,7 @@ const action: ActionDefinition<Settings, Payload> = {
      * If set at the event level, item-level currency is ignored. If event-level currency is not set then
      * currency from the first item in items is used.
      */
-    if (payload.currency === undefined && payload.items && payload.items[0].currency === undefined) {
+    if (payload.currency === undefined && payload.items[0].currency === undefined) {
       throw new IntegrationError(
         'One of item-level currency or top-level currency is required.',
         'Misconfigured required field',
@@ -66,8 +81,8 @@ const action: ActionDefinition<Settings, Payload> = {
           )
         }
 
-        if (product.currency && !CURRENCY_ISO_CODES.includes(product.currency)) {
-          throw new IntegrationError(`${product.currency} is not a valid currency code.`, 'Incorrect value format', 400)
+        if (product.currency) {
+          verifyCurrency(product.currency)
         }
 
         return product as ProductItem
@@ -88,10 +103,12 @@ const action: ActionDefinition<Settings, Payload> = {
               coupon: payload.coupon,
               payment_type: payload.payment_type,
               items: googleItems,
+              engagement_time_msec: payload.engagement_time_msec,
               ...payload.params
             }
           }
-        ]
+        ],
+        ...formatUserProperties(payload.user_properties)
       }
     })
   }

@@ -1,5 +1,5 @@
 import { ActionDefinition, IntegrationError } from '@segment/actions-core'
-import { CURRENCY_ISO_CODES } from '../constants'
+import { verifyCurrency } from '../ga4-functions'
 import {
   coupon,
   transaction_id,
@@ -10,7 +10,10 @@ import {
   affiliation,
   shipping,
   items_multi_products,
-  params
+  params,
+  formatUserProperties,
+  user_properties,
+  engagement_time_msec
 } from '../ga4-properties'
 import { ProductItem } from '../ga4-types'
 import type { Settings } from '../generated-types'
@@ -37,11 +40,13 @@ const action: ActionDefinition<Settings, Payload> = {
     items: {
       ...items_multi_products
     },
+    user_properties: user_properties,
+    engagement_time_msec: engagement_time_msec,
     params: params
   },
   perform: (request, { payload }) => {
-    if (payload.currency && !CURRENCY_ISO_CODES.includes(payload.currency)) {
-      throw new IntegrationError(`${payload.currency} is not a valid currency code.`, 'Incorrect value format', 400)
+    if (payload.currency) {
+      verifyCurrency(payload.currency)
     }
 
     // Google requires that currency be included at the event level if value is included.
@@ -74,8 +79,8 @@ const action: ActionDefinition<Settings, Payload> = {
           )
         }
 
-        if (product.currency && !CURRENCY_ISO_CODES.includes(product.currency)) {
-          throw new IntegrationError(`${product.currency} is not a valid currency code.`, 'Incorrect value format', 400)
+        if (product.currency) {
+          verifyCurrency(product.currency)
         }
 
         return product as ProductItem
@@ -99,10 +104,12 @@ const action: ActionDefinition<Settings, Payload> = {
               shipping: payload.shipping,
               tax: payload.tax,
               items: googleItems,
+              engagement_time_msec: payload.engagement_time_msec,
               ...payload.params
             }
           }
-        ]
+        ],
+        ...formatUserProperties(payload.user_properties)
       }
     })
   }

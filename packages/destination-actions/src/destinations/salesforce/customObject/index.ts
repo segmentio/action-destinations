@@ -1,19 +1,29 @@
-import type { ActionDefinition } from '@segment/actions-core'
+import { ActionDefinition } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
-import { operation, traits, customFields, validateLookup } from '../sf-properties'
+import {
+  bulkUpsertExternalId,
+  bulkUpdateRecordId,
+  operation,
+  traits,
+  customFields,
+  validateLookup
+} from '../sf-properties'
 import Salesforce from '../sf-operations'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Custom Object',
-  description: 'Custom Object',
+  description:
+    "Represents a custom object, which you create to store information that's specific to your company or industry, or a standard object.",
   fields: {
     operation: operation,
     traits: traits,
+    bulkUpsertExternalId: bulkUpsertExternalId,
+    bulkUpdateRecordId: bulkUpdateRecordId,
     customObjectName: {
       label: 'Salesforce Object',
       description:
-        'The API name of the Salesforce object that records will be added or updated within. The object must be predefined in your Salesforce account. Values should end with "__c".',
+        'The API name of the Salesforce object that records will be added or updated within. This can be a standard or custom object. Custom objects must be predefined in your Salesforce account and should end with "__c".',
       type: 'string',
       required: true
     },
@@ -35,6 +45,11 @@ const action: ActionDefinition<Settings, Payload> = {
     if (payload.operation === 'upsert') {
       return await sf.upsertRecord(payload, payload.customObjectName)
     }
+  },
+  performBatch: async (request, { settings, payload }) => {
+    const sf: Salesforce = new Salesforce(settings.instanceUrl, request)
+
+    return sf.bulkHandler(payload, payload[0].customObjectName)
   }
 }
 

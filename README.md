@@ -1,16 +1,26 @@
+<img src="https://brand.segment.com/site-assets/03d0de2f/images/brand-guidelines/content/twilio/twilio-segment-color-logo-white-2x.png" style="width:50%; height=50%" alt="Twilio Segment logo" >
+
 # Action Destinations
 
-Action Destinations are a way to build streaming destinations on Segment. To begin, follow the instructions in Get Started below.
+Action Destinations are the new way to build streaming destinations on Segment.
 
-Fore more detailed instruction, see the following READMEs:
+Action Destinations were [launched in December 2021](https://segment.com/blog/introducing-destination-actions/) to enable customers with a customizable framework to map Segment event sources to their favorite 3rd party tools like Google Analytics.
 
+This repository contains the Action Destination Definitions as well as a CLI to generate the scaffolding for new destinations and run unit tests. If you'd like to contribute, please review the [Contributing Guide](./CONTRIBUTING.md).
+
+To begin, follow the instructions in Get Started below.
+
+For more detailed instruction, see the following READMEs:
+
+- [Contributing Document](./CONTRIBUTING.md)
 - [Create a Destination Action](./docs/create.md)
+- [Build & Test Cloud Destinations](./docs/testing.md)
 - [Troubleshooting](./docs/testing.md)
 - [Authentication](./docs/authentication.md)
 - [Mapping Kit](./packages/core/src/mapping-kit/README.md)
 - [Destination Kit](./packages/core/src/destination-kit/README.md)
 
-Table of Contents:
+## Table of Contents:
 
 - [Get Started](#get-started)
 - [Actions CLI](#actions-cli)
@@ -54,6 +64,8 @@ yarn login
 # Requires node 14.17, optionally: nvm use 14.17
 yarn --ignore-optional
 yarn bootstrap
+yarn build
+yarn install
 
 # Run unit tests to ensure things are working! All tests should pass :)
 yarn test
@@ -81,6 +93,8 @@ In order to run the CLI (`./bin/run`), your current working directory needs to b
 ```
 
 For specific information about each CLI command, please refer to this [README](https://github.com/segmentio/action-destinations/tree/main/packages/cli).
+
+For instructions on how to create a new integration, see the [Create a new Destination Action](./docs/create.md) docs.
 
 #### Troubleshooting CLI
 
@@ -159,7 +173,7 @@ packages/destination-actions/src/destinations/slack
 
 The main definition of your Destination will look something like this, and is what your index.ts should export as the default export:
 
-```
+```js
 const destination = {
   name: 'Example Destination',
 
@@ -185,8 +199,7 @@ For each action or authentication scheme you can define a collection of inputs a
 
 Input fields have various properties that help define how they are rendered, how their values are parsed and more. Here’s an example:
 
-```
-
+```js
 const destination = {
   // ...other properties
   actions: {
@@ -215,8 +228,7 @@ const destination = {
 
 Here's the full interface that input fields allow:
 
-```
-
+```ts
 interface InputField {
   /** A short, human-friendly label for the field */
   label: string
@@ -281,8 +293,7 @@ You can set default values for fields. These defaults are not used at run-time, 
 
 Default values can be literal values that match the `type` of the field (e.g. a literal string: ` "``hello``" `) or they can be mapping-kit directives just like the values from Segment’s rich input in the app. It’s likely that you’ll want to use directives to the default value. Here are some examples:
 
-```
-
+```js
 const destination = {
   // ...other properties
   actions: {
@@ -291,14 +302,14 @@ const destination = {
       fields: {
         name: {
           label: 'Name',
-          description: 'The person\'s name',
+          description: "The person's name",
           type: 'string',
           default: { '@path': '$.traits.name' },
           required: true
         },
         email: {
           label: 'Email',
-          description: 'The person\'s email address',
+          description: "The person's email address",
           type: 'string',
           default: { '@path': '$.properties.email_address' }
         }
@@ -314,12 +325,18 @@ In addition to default values for input fields, you can also specify the default
 
 The `perform` function defines what the action actually does. All logic and request handling happens here. Every action MUST have a `perform` function defined.
 
-By the time the actions runtime invokes your action’s perform, payloads have already been resolved based on the customer’s configuration, validated against the schema, and can be expected to match the types provided in your `perform` function. You’ll get compile-time type-safety for how you access anything in the `data.payload` (the 2nd argument of the perform).
+By the time the actions runtime invokes your action’s perform, payloads have already been resolved based on the customer’s configuration, validated against the schema, and can be expected to match the types provided in your `perform` function.
+
+The `perform` method accepts two arguments, (1) the request client instance (extended with your destination's `extendRequest`, and (2) the data bundle. The data bundle includes the following fields:
+
+- `payload` - The transformed input data, based on `mapping` + `event` (or `events` if batched). You’ll get compile-time type-safety for how you access anything in the `data.payload`.
+- `settings` - The global destination settings.
+- `auth` - The data needed in OAuth requests. This is useful if fetching an updated OAuth `access_token` using a `refresh_token`. The `refresh_token` is available in `auth.refreshToken`.
+- `features` - The features available in the request based on either customer workspaceID or sourceID. Features can only be enabled and/or used by internal Twilio/Segment employees. Features cannot be used for Partner builds.
 
 A basic example:
 
-```
-
+```js
 const destination = {
   actions: {
     someAction: {
@@ -334,8 +351,8 @@ const destination = {
       },
       // `perform` takes two arguments:
       // 1. the request client instance (extended with your destination's `extendRequest`
-      // 2. the data bundle which includes `settings` for top-level authentication fields and the `payload` which contains all the validated, resolved fields expected by the action
-      perform: (request, data) => {
+      // 2. the data bundle (destructured below)
+      perform: (request, { payload, settings, auth, features }) => {
         return request('https://example.com', {
           headers: { Authorization: `Bearer ${data.settings.api_key}` },
           json: data.payload
@@ -354,8 +371,7 @@ Sometimes your customers have a lot of events, and your API supports a more effi
 
 You can implement an _additional_ perform method named `performBatch` in the action definition, alongside the `perform` method. The method signature looks like identical to `perform` except the `payload` is an array of data, where each item is an object matching your action’s field schema:
 
-```
-
+```js
 function performBatch(request, { settings, payload }) {
   return request('https://example.com/batch', {
     // `payload` is an array of objects, each matching your action's field definition
@@ -382,8 +398,7 @@ You can use the `request` object to make requests and curate responses. This `re
 
 In addition to making manual HTTP requests, you can use the `extendRequest` helper to reduce boilerplate across actions and authentication operations in the definition:
 
-```
-
+```js
 const destination = {
   // ...other properties
   extendRequest: (request, { settings }) => {
@@ -422,8 +437,7 @@ Both the `request(url, options)` function and the `extendRequest` return value a
 - `timeout`: Time in milliseconds when a request should be aborted. Default is `10000`.
 - `username`: Basic authentication username field. Will automatically get base64 encoded with the password and added to the request headers: `Authorization: Basic <username:password>`
 
-```
-
+```js
 const response = await request('https://example.com', {
   method: 'post',
   headers: { 'content-type': 'application/json' },

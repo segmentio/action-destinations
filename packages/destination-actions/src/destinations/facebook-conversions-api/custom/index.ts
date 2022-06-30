@@ -1,17 +1,17 @@
 import { ActionDefinition, IntegrationError } from '@segment/actions-core'
-import { action_source, event_id, event_source_url, event_time } from '../fb-capi-properties'
+import { action_source, custom_data, event_id, event_source_url, event_time } from '../fb-capi-properties'
 import { hash_user_data, user_data_field } from '../fb-capi-user-data'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 import { API_VERSION } from '../constants'
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Custom Event',
-  description: 'Track your own custom events.',
+  description: 'Send a custom event',
   fields: {
     action_source: { ...action_source, required: true },
     event_name: {
       label: 'Event Name',
-      description: 'Send any custom event',
+      description: 'A Facebook [standard event](https://developers.facebook.com/docs/meta-pixel/implementation/conversion-tracking#standard-events) or [custom event](https://developers.facebook.com/docs/meta-pixel/implementation/conversion-tracking#custom-events) name.',
       type: 'string',
       required: true,
       default: {
@@ -20,12 +20,7 @@ const action: ActionDefinition<Settings, Payload> = {
     },
     event_time: { ...event_time, required: true },
     user_data: user_data_field,
-    custom_data: {
-      label: 'Custom Data',
-      description:
-        'The custom data object which can be used to pass custom properties. See [here](https://developers.facebook.com/docs/marketing-api/conversions-api/parameters/custom-data) for more information',
-      type: 'object'
-    },
+    custom_data: custom_data,
     event_id: event_id,
     event_source_url: event_source_url
   },

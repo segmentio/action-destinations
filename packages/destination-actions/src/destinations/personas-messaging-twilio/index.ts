@@ -84,15 +84,21 @@ const destination: DestinationDefinition<Settings> = {
   authentication: {
     scheme: 'custom',
     fields: {
-      twilioAccountId: {
-        label: 'Twilio Account ID',
-        description: 'Twilio Account ID',
+      twilioAccountSID: {
+        label: 'Twilio Account SID',
+        description: 'Twilio Account SID',
         type: 'string',
         required: true
       },
-      twilioAuthToken: {
-        label: 'Twilio Auth Token',
-        description: 'Twilio Auth Token',
+      twilioApiKeySID: {
+        label: 'Twilio API Key SID',
+        description: 'Twilio API Key SID',
+        type: 'string',
+        required: true
+      },
+      twilioApiKeySecret: {
+        label: 'Twilio API Key Secret',
+        description: 'Twilio API Key Secret',
         type: 'password',
         required: true
       },
@@ -127,6 +133,14 @@ const destination: DestinationDefinition<Settings> = {
         format: 'uri',
         required: false
       },
+      twilioHostname: {
+        label: 'Twilio host name',
+        description:
+          'Overrides the default Twilio host name used mainly for testing without having to send real messages.',
+        type: 'string',
+        default: 'api.twilio.com',
+        required: false
+      },
       connectionOverrides: {
         label: 'Connection Overrides',
         description:
@@ -137,8 +151,9 @@ const destination: DestinationDefinition<Settings> = {
         properties: ConnectionOverridesProperties
       }
     },
-    testAuthentication: (request) => {
-      return request('https://api.twilio.com/2010-04-01')
+    testAuthentication: (request, options) => {
+      const hostName = options.settings.twilioHostname ?? 'api.twilio.com'
+      return request(`https://${hostName}/2010-04-01`)
     }
   },
   // TODO: GROW-259 we'll uncomment this once we remove the calls to the profiles API,

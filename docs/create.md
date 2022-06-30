@@ -31,6 +31,8 @@ yarn login
 # Requires node 14.17, optionally: nvm use 14.17
 yarn --ignore-engines --ignore-optional
 yarn bootstrap
+yarn build
+yarn install
 yarn test
 ```
 

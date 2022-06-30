@@ -74,6 +74,10 @@ describe('purchase', () => {
 
     expect(responses.length).toBe(1)
     expect(responses[0].status).toBe(201)
+
+    expect(responses[0].options.body).toMatchInlineSnapshot(
+      `"{\\"data\\":[{\\"event_name\\":\\"Purchase\\",\\"event_time\\":\\"1631210063\\",\\"action_source\\":\\"email\\",\\"user_data\\":{\\"em\\":\\"eeaf810ee0e3cef3307089f22c3804f54c79eed19ef29bf70df864b43862c380\\"},\\"custom_data\\":{\\"currency\\":\\"USD\\",\\"value\\":12.12,\\"content_ids\\":[\\"ABC123\\",\\"XYZ789\\"],\\"content_name\\":\\"Shoes\\",\\"content_type\\":\\"product\\",\\"contents\\":[{\\"id\\":\\"ABC123\\",\\"quantity\\":2},{\\"id\\":\\"XYZ789\\",\\"quantity\\":3}],\\"num_items\\":2}}]}"`
+    )
   })
 
   it('should handle default mappings', async () => {
@@ -81,10 +85,11 @@ describe('purchase', () => {
 
     const event = createTestEvent({
       event: 'Order Completed',
+      messageId: 'test',
+      timestamp: '1631210063',
       properties: {
         userId: 'testuser1234',
         action_source: 'email',
-        timestamp: '1631210020',
         currency: 'USD',
         revenue: 12.12,
         products: [
@@ -103,6 +108,10 @@ describe('purchase', () => {
 
     expect(responses.length).toBe(1)
     expect(responses[0].status).toBe(201)
+
+    expect(responses[0].options.body).toMatchInlineSnapshot(
+      `"{\\"data\\":[{\\"event_name\\":\\"Purchase\\",\\"event_time\\":\\"1631210063\\",\\"action_source\\":\\"email\\",\\"event_source_url\\":\\"https://segment.com/academy/\\",\\"event_id\\":\\"test\\",\\"user_data\\":{\\"external_id\\":\\"831c237928e6212bedaa4451a514ace3174562f6761f6a157a2fe5082b36e2fb\\",\\"client_ip_address\\":\\"8.8.8.8\\",\\"client_user_agent\\":\\"Mozilla/5.0 (iPhone; CPU iPhone OS 9_1 like Mac OS X) AppleWebKit/601.1.46 (KHTML, like Gecko) Version/9.0 Mobile/13B143 Safari/601.1\\"},\\"custom_data\\":{\\"currency\\":\\"USD\\",\\"value\\":12.12,\\"contents\\":[{\\"id\\":\\"123\\",\\"quantity\\":1,\\"item_price\\":100},{\\"id\\":\\"345\\",\\"quantity\\":2,\\"item_price\\":50}]}}]}"`
+    )
   })
 
   it('should throw an error when currency and value are missing', async () => {

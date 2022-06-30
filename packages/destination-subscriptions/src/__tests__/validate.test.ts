@@ -62,6 +62,42 @@ test('should handle empty event', () => {
   expect(validate(ast, {})).toEqual(false)
 })
 
+test('operators - equals (boolean true)', () => {
+  const ast = {
+    type: 'group',
+    operator: 'and',
+    children: [
+      {
+        type: 'event-property',
+        name: 'value',
+        operator: 'is_true'
+      }
+    ]
+  }
+
+  expect(validate(ast, { properties: { value: true } })).toEqual(true)
+  expect(validate(ast, { properties: { value: false } })).toEqual(false)
+  expect(validate(ast, { properties: { value: 'true' } })).toEqual(false)
+})
+
+test('operators - equals (boolean false)', () => {
+  const ast = {
+    type: 'group',
+    operator: 'and',
+    children: [
+      {
+        type: 'event-property',
+        name: 'value',
+        operator: 'is_false'
+      }
+    ]
+  }
+
+  expect(validate(ast, { properties: { value: false } })).toEqual(true)
+  expect(validate(ast, { properties: { value: true } })).toEqual(false)
+  expect(validate(ast, { properties: { value: 'false' } })).toEqual(false)
+})
+
 test('operators - equals (strings)', () => {
   const ast = {
     type: 'group',
@@ -95,7 +131,9 @@ test('operators - equals (numbers)', () => {
       ]
     }
 
-    expect(validate(ast, { properties: { value: 123 } })).toEqual(true)
+    // Since action tester UI only supports string type input, we assume the value in the ast is a string for now (i.e. 123 !== "123")
+    expect(validate(ast, { properties: { value: 123 } })).toEqual(false)
+
     expect(validate(ast, { properties: { value: '123' } })).toEqual(true)
     expect(validate(ast, { properties: { value: 0 } })).toEqual(false)
   }
@@ -134,7 +172,9 @@ test('operators - not equals (numbers)', () => {
       ]
     }
 
-    expect(validate(ast, { properties: { value: 123 } })).toEqual(false)
+    // Since action tester UI only supports string type input, we assume the value in the ast is a string for now (i.e. 123 !== "123")
+    expect(validate(ast, { properties: { value: 123 } })).toEqual(true)
+
     expect(validate(ast, { properties: { value: '123' } })).toEqual(false)
     expect(validate(ast, { properties: { value: 456 } })).toEqual(true)
     expect(validate(ast, { properties: { value: '456' } })).toEqual(true)

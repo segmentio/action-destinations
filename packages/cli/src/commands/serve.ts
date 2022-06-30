@@ -6,6 +6,8 @@ import chokidar from 'chokidar'
 import ora from 'ora'
 import path from 'path'
 import globby from 'globby'
+import { WebSocketServer } from 'ws'
+import open from 'open'
 
 export default class Serve extends Command {
   private spinner: ora.Ora = ora()
@@ -19,7 +21,8 @@ export default class Serve extends Command {
 
   static args = []
 
-  static flags = {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  static flags: flags.Input<any> = {
     help: flags.help({ char: 'h' }),
     destination: flags.string({
       char: 'd',
@@ -29,6 +32,10 @@ export default class Serve extends Command {
       char: 'b',
       description: 'destination actions directory',
       default: './packages/destination-actions/src/destinations'
+    }),
+    noUI: flags.boolean({
+      char: 'n',
+      description: 'do not open actions tester UI in browser'
     })
   }
 
@@ -75,6 +82,19 @@ export default class Serve extends Command {
     const watcher = chokidar.watch(folderPath, {
       cwd: process.cwd()
     })
+
+    const DEFAULT_PORT = 3000
+    const port = parseInt(process.env.PORT ?? '', 10) || DEFAULT_PORT
+
+    if (!flags.noUI) {
+      const wss = new WebSocketServer({ port: port + 1 })
+
+      wss.on('connection', function connection(ws) {
+        watcher.on('change', () => {
+          ws.send('change')
+        })
+      })
+    }
 
     const start = () => {
       child = fork(require.resolve('../lib/server.ts'), {
@@ -123,6 +143,13 @@ export default class Serve extends Command {
 
     watcher.once('ready', () => {
       this.log(chalk.greenBright`Watching required files for changes .. `)
+
+      if (!flags.noUI) {
+        this.log(
+          chalk.greenBright`Visit https://app.segment.com/dev-center/actions-tester to preview your integration.`
+        )
+        void open('https://app.segment.com/dev-center/actions-tester')
+      }
     })
 
     start()

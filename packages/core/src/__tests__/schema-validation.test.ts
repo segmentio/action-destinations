@@ -111,6 +111,20 @@ describe('validateSchema', () => {
     expect(payload).toMatchInlineSnapshot(`Object {}`)
   })
 
+  it('should not throw when type = hidden', () => {
+    const hiddenSchema = fieldsToJsonSchema({
+      h: {
+        label: 'h',
+        type: 'hidden'
+      }
+    })
+
+    const payload = {}
+
+    const isValid = validateSchema(payload, hiddenSchema, { schemaKey: `testSchema` })
+    expect(isValid).toBe(true)
+  })
+
   // For now we always remove unknown keys, until builders have a way to specify the behavior
   it.todo('should not remove nested keys for valid properties')
 
