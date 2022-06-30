@@ -1,7 +1,8 @@
-import { ActionDefinition } from '@segment/actions-core'
+import { ActionDefinition, IntegrationError } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
-import { verifyCurrency, verifyParams, convertTimestamp, formatItems } from '../ga4-functions'
+import { ProductItem } from '../ga4-types'
+import { verifyCurrency } from '../ga4-functions'
 import {
   formatUserProperties,
   user_properties,
@@ -11,8 +12,7 @@ import {
   client_id,
   items_single_products,
   user_id,
-  engagement_time_msec,
-  timestamp_micros
+  engagement_time_msec
 } from '../ga4-properties'
 
 const action: ActionDefinition<Settings, Payload> = {
@@ -22,7 +22,6 @@ const action: ActionDefinition<Settings, Payload> = {
   fields: {
     client_id: { ...client_id },
     user_id: { ...user_id },
-    timestamp_micros: { ...timestamp_micros },
     currency: { ...currency },
     items: {
       ...items_single_products,
@@ -34,8 +33,28 @@ const action: ActionDefinition<Settings, Payload> = {
     params: params
   },
   perform: (request, { payload }) => {
+    let googleItems: ProductItem[] = []
+
     if (payload.currency) {
       verifyCurrency(payload.currency)
+    }
+
+    if (payload.items) {
+      googleItems = payload.items.map((product) => {
+        if (product.item_name === undefined && product.item_id === undefined) {
+          throw new IntegrationError(
+            'One of product name or product id is required for product or impression data.',
+            'Misconfigured required field',
+            400
+          )
+        }
+
+        if (product.currency) {
+          verifyCurrency(product.currency)
+        }
+
+        return product as ProductItem
+      })
     }
 
     return request('https://www.google-analytics.com/mp/collect', {
@@ -43,16 +62,15 @@ const action: ActionDefinition<Settings, Payload> = {
       json: {
         client_id: payload.client_id,
         user_id: payload.user_id,
-        timestamp_micros: convertTimestamp(payload.timestamp_micros),
         events: [
           {
             name: 'add_to_cart',
             params: {
               currency: payload.currency,
-              items: formatItems(payload.items),
+              items: googleItems,
               value: payload.value,
               engagement_time_msec: payload.engagement_time_msec,
-              ...verifyParams(payload.params)
+              ...payload.params
             }
           }
         ],

@@ -7,21 +7,21 @@ import { processData } from './operations'
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Post Sheet',
   description: 'Write values to a Google Sheets spreadsheet.',
-  defaultSubscription: 'type = "track" and event = "updated" or event = "new" or event = "deleted"',
+  defaultSubscription: 'event = "updated" or event = "new"',
   // TODO: Hide record_identifier and operation_type
   fields: {
     record_identifier: {
       label: 'Record Identifier',
       description: 'Property which uniquely identifies each row in the spreadsheet.',
-      type: 'hidden',
+      type: 'string',
       required: true,
       default: { '@path': '$.__segment_id' }
     },
     operation_type: {
       label: 'Operation Type',
       description:
-        "Describes the nature of the operation being performed. Only supported values are 'new', 'updated', and 'deleted'.",
-      type: 'hidden',
+        "Describes the nature of the operation being performed. Only supported values are 'new' and 'updated'.",
+      type: 'string',
       required: true,
       default: { '@path': '$.event' }
     },

@@ -9,6 +9,17 @@ type Fields = {
   [k: string]: string
 }
 
+interface Identifiable {
+  identifier: string
+}
+
+interface Indexable {
+  index: number
+}
+
+type UpdateBatch = Identifiable & Indexable & { event: Fields }
+type AppendBatch = Identifiable & { event: Fields }
+
 /**
  * Invariant settings that are common to all events in the payload.
  */
@@ -64,8 +75,8 @@ function processGetSpreadsheetResponse(response: GetResponse, events: Payload[],
     throw new IntegrationError('Sheet has reached maximum limit', 'INVALID_REQUEST_DATA', 400)
   }
 
-  const updateBatch: { identifier: string; event: Fields; targetIndex: number }[] = []
-  const appendBatch: { identifier: string; event: Fields }[] = []
+  const updateBatch: UpdateBatch[] = []
+  const appendBatch: AppendBatch[] = []
 
   // Use a hashmap to efficiently find if the event already exists in the spreadsheet (update) or not (append).
   const eventMap = new Map(events.map((e) => [e.record_identifier, e]))
@@ -80,7 +91,7 @@ function processGetSpreadsheetResponse(response: GetResponse, events: Payload[],
           updateBatch.push({
             identifier: targetIdentifier,
             event: targetEvent.fields as Fields,
-            targetIndex: i
+            index: i
           })
         }
         eventMap.delete(targetIdentifier)
@@ -108,11 +119,7 @@ function processGetSpreadsheetResponse(response: GetResponse, events: Payload[],
  * @param updateBatch array of events to commit to the spreadsheet
  * @param gs interface object capable of interacting with Google Sheets API
  */
-async function processUpdateBatch(
-  mappingSettings: MappingSettings,
-  updateBatch: { identifier: string; event: { [k: string]: string }; targetIndex: number }[],
-  gs: GoogleSheets
-) {
+async function processUpdateBatch(mappingSettings: MappingSettings, updateBatch: UpdateBatch[], gs: GoogleSheets) {
   // Utility function used to calculate which range an event should be written to
   const getRange = (targetIndex: number, columnCount: number) => {
     const targetRange = new A1(1, targetIndex)
@@ -120,11 +127,11 @@ async function processUpdateBatch(
     return targetRange.toString()
   }
 
-  const batchPayload = updateBatch.map(({ identifier, event, targetIndex }) => {
+  const batchPayload = updateBatch.map(({ identifier, event, index }) => {
     // Flatten event fields to be just the values
     const values = generateColumnValuesFromFields(identifier, event, mappingSettings.columns)
     return {
-      range: `${mappingSettings.spreadsheetName}!${getRange(targetIndex + DATA_ROW_OFFSET, values.length)}`,
+      range: `${mappingSettings.spreadsheetName}!${getRange(index + DATA_ROW_OFFSET, values.length)}`,
       values: [values]
     }
   })
@@ -179,11 +186,7 @@ async function processUpdateBatch(
  * @param gs interface object capable of interacting with Google Sheets API
  * @returns
  */
-async function processAppendBatch(
-  mappingSettings: MappingSettings,
-  appendBatch: { identifier: string; event: { [k: string]: string } }[],
-  gs: GoogleSheets
-) {
+async function processAppendBatch(mappingSettings: MappingSettings, appendBatch: AppendBatch[], gs: GoogleSheets) {
   if (appendBatch.length <= 0) {
     return
   }

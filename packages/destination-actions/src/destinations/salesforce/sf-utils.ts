@@ -124,15 +124,23 @@ const buildCSVFromHeaderMap = (
 }
 
 const getUniqueIdValue = (payload: GenericPayload): string => {
-  if (payload.operation === 'bulkUpsert') {
-    return payload.bulkUpsertExternalId?.externalIdValue as string
+  if (
+    payload.operation === 'bulkUpsert' &&
+    payload.bulkUpsertExternalId &&
+    payload.bulkUpsertExternalId.externalIdValue
+  ) {
+    return payload.bulkUpsertExternalId.externalIdValue
   }
 
-  if (payload.operation === 'bulkUpdate') {
-    return payload.bulkUpdateRecordId as string
+  if (payload.operation === 'bulkUpdate' && payload.bulkUpdateRecordId) {
+    return payload.bulkUpdateRecordId
   }
 
-  return NO_VALUE
+  throw new IntegrationError(
+    `${payload.operation} is missing the required bulk ID`,
+    `${payload.operation} is missing the required bulk ID`,
+    400
+  )
 }
 
 /**

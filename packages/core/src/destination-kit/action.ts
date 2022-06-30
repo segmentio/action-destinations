@@ -76,6 +76,8 @@ interface ExecuteBundle<T = unknown, Data = unknown> {
   settings: T
   mapping: JSONObject
   auth: AuthTokens | undefined
+  /** For internal Segment/Twilio use only. */
+  features?: { [key: string]: boolean }
 }
 
 /**
@@ -87,12 +89,16 @@ export class Action<Settings, Payload extends JSONLikeObject> extends EventEmitt
   readonly destinationName: string
   readonly schema?: JSONSchema4
   readonly hasBatchSupport: boolean
-  private extendRequest: RequestExtension<Settings> | undefined
+  // Payloads may be any type so we use `any` explicitly here.
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  private extendRequest: RequestExtension<Settings, any> | undefined
 
   constructor(
     destinationName: string,
     definition: ActionDefinition<Settings, Payload>,
-    extendRequest?: RequestExtension<Settings>
+    // Payloads may be any type so we use `any` explicitly here.
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    extendRequest?: RequestExtension<Settings, any>
   ) {
     super()
     this.definition = definition
@@ -126,9 +132,12 @@ export class Action<Settings, Payload extends JSONLikeObject> extends EventEmitt
 
     // Construct the data bundle to send to an action
     const dataBundle = {
+      rawData: bundle.data,
+      rawMapping: bundle.mapping,
       settings: bundle.settings,
       payload,
-      auth: bundle.auth
+      auth: bundle.auth,
+      features: bundle.features
     }
 
     // Construct the request client and perform the action
@@ -166,9 +175,12 @@ export class Action<Settings, Payload extends JSONLikeObject> extends EventEmitt
 
     if (this.definition.performBatch) {
       const data = {
+        rawData: bundle.data,
+        rawMapping: bundle.mapping,
         settings: bundle.settings,
         payload: payloads,
-        auth: bundle.auth
+        auth: bundle.auth,
+        features: bundle.features
       }
       await this.performRequest(this.definition.performBatch, data)
     }

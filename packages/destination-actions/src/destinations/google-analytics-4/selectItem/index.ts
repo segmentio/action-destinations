@@ -1,5 +1,6 @@
-import { ActionDefinition } from '@segment/actions-core'
-import { convertTimestamp, formatItems, verifyParams } from '../ga4-functions'
+import { ActionDefinition, IntegrationError } from '@segment/actions-core'
+import { verifyCurrency } from '../ga4-functions'
+import { ProductItem } from '../ga4-types'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 import {
@@ -9,8 +10,7 @@ import {
   user_id,
   client_id,
   items_single_products,
-  engagement_time_msec,
-  timestamp_micros
+  engagement_time_msec
 } from '../ga4-properties'
 
 const action: ActionDefinition<Settings, Payload> = {
@@ -20,7 +20,6 @@ const action: ActionDefinition<Settings, Payload> = {
   fields: {
     client_id: { ...client_id },
     user_id: { ...user_id },
-    timestamp_micros: { ...timestamp_micros },
     item_list_name: {
       label: 'Item List Name',
       description: 'The name of the list in which the item was presented to the user.',
@@ -40,21 +39,40 @@ const action: ActionDefinition<Settings, Payload> = {
     params: params
   },
   perform: (request, { payload }) => {
+    let googleItems: ProductItem[] = []
+
+    if (payload.items) {
+      googleItems = payload.items.map((product) => {
+        if (product.item_name === undefined && product.item_id === undefined) {
+          throw new IntegrationError(
+            'One of product name or product id is required for product or impression data.',
+            'Misconfigured required field',
+            400
+          )
+        }
+
+        if (product.currency) {
+          verifyCurrency(product.currency)
+        }
+
+        return product as ProductItem
+      })
+    }
+
     return request('https://www.google-analytics.com/mp/collect', {
       method: 'POST',
       json: {
         client_id: payload.client_id,
         user_id: payload.user_id,
-        timestamp_micros: convertTimestamp(payload.timestamp_micros),
         events: [
           {
             name: 'select_item',
             params: {
-              items: formatItems(payload.items),
+              items: googleItems,
               item_list_name: payload.item_list_name,
               item_list_id: payload.item_list_id,
               engagement_time_msec: payload.engagement_time_msec,
-              ...verifyParams(payload.params)
+              ...payload.params
             }
           }
         ],

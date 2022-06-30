@@ -1,5 +1,4 @@
 import { InputField } from '@segment/actions-core/src/destination-kit/types'
-import { IntegrationError } from '@segment/actions-core'
 
 export const formatUserProperties = (userProperties: object | undefined): object | undefined => {
   if (!userProperties) {
@@ -9,13 +8,6 @@ export const formatUserProperties = (userProperties: object | undefined): object
   let properties = {}
 
   Object.entries(userProperties).forEach(([key, value]) => {
-    if (typeof value != 'string' && typeof value != 'number' && value != null) {
-      throw new IntegrationError(
-        'GA4 only accepts string, number or null values for user properties. Please ensure you are not including array or nested values.',
-        'Invalid value',
-        400
-      )
-    }
     properties = { ...properties, ...{ [key]: { value: value } } }
   })
 
@@ -338,14 +330,4 @@ export const engagement_time_msec: InputField = {
   description:
     'The amount of time a user interacted with your site, in milliseconds. Google only counts users who interact with your site for a non-zero amount of time. By default, Segment sets engagement time to 1 so users are counted.',
   default: 1
-}
-
-export const timestamp_micros: InputField = {
-  label: 'Event Timestamp',
-  type: 'string',
-  description:
-    'A Unix timestamp (in microseconds) for the time to associate with the event. Events can be backdated up to 3 calendar days based on the propertys timezone.',
-  default: {
-    '@path': '$.timestamp'
-  }
 }

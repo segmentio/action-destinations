@@ -1,1 +1,1 @@
-export const HEAP_LIBRARY_NAME = 'segment'
+export const HEAP_SEGMENT_LIBRARY_NAME = 'destinations-actions'

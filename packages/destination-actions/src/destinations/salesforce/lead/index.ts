@@ -162,11 +162,6 @@ const action: ActionDefinition<Settings, Payload> = {
       if (!payload[0].company || !payload[0].last_name) {
         throw new IntegrationError('Missing company or last_name value', 'Misconfigured required field', 400)
       }
-    } else if (payload[0].operation === 'bulkUpdate') {
-      return await sf.bulkUpdate(payload, OBJECT_NAME)
-    } else {
-      const errorMsg = 'Bulk Upsert action must be used with batching'
-      throw new IntegrationError(errorMsg, errorMsg, 400)
     }
 
     return sf.bulkHandler(payload, OBJECT_NAME)

@@ -16,7 +16,6 @@ describe('GA4', () => {
       const event = createTestEvent({
         event: 'Select Promotion',
         userId: 'abc123',
-        timestamp: '2022-06-22T22:20:58.905Z',
         anonymousId: 'anon-2134',
         type: 'track',
         properties: {
@@ -56,7 +55,7 @@ describe('GA4', () => {
       })
 
       expect(responses[0].options.body).toMatchInlineSnapshot(
-        `"{\\"client_id\\":\\"anon-2134\\",\\"timestamp_micros\\":1655936458905000,\\"events\\":[{\\"name\\":\\"select_promotion\\",\\"params\\":{\\"promotion_name\\":\\"Quadruple Stack Oreos, 52 ct\\",\\"items\\":[{\\"item_id\\":\\"12345abcde\\",\\"promotion_name\\":\\"Quadruple Stack Oreos, 52 ct\\"}],\\"engagement_time_msec\\":1}}],\\"user_properties\\":{\\"hello\\":{\\"value\\":\\"world\\"},\\"a\\":{\\"value\\":\\"1\\"},\\"b\\":{\\"value\\":\\"2\\"},\\"c\\":{\\"value\\":\\"3\\"}}}"`
+        `"{\\"client_id\\":\\"anon-2134\\",\\"events\\":[{\\"name\\":\\"select_promotion\\",\\"params\\":{\\"promotion_name\\":\\"Quadruple Stack Oreos, 52 ct\\",\\"items\\":[{\\"item_id\\":\\"12345abcde\\",\\"promotion_name\\":\\"Quadruple Stack Oreos, 52 ct\\"}],\\"engagement_time_msec\\":1}}],\\"user_properties\\":{\\"hello\\":{\\"value\\":\\"world\\"},\\"a\\":{\\"value\\":\\"1\\"},\\"b\\":{\\"value\\":\\"2\\"},\\"c\\":{\\"value\\":\\"3\\"}}}"`
       )
     })
 
@@ -67,7 +66,6 @@ describe('GA4', () => {
       const event = createTestEvent({
         event: 'Promotion Clicked',
         userId: '3456fff',
-        timestamp: '2022-06-22T22:20:58.905Z',
         anonymousId: 'anon-567890',
         type: 'track',
         properties: {
@@ -121,7 +119,7 @@ describe('GA4', () => {
       `)
 
       expect(responses[0].options.body).toMatchInlineSnapshot(
-        `"{\\"client_id\\":\\"3456fff\\",\\"timestamp_micros\\":1655936458905000,\\"events\\":[{\\"name\\":\\"select_promotion\\",\\"params\\":{\\"creative_slot\\":\\"top_banner_2\\",\\"location_id\\":\\"promo_1\\",\\"promotion_id\\":\\"promo_1\\",\\"promotion_name\\":\\"75% store-wide shoe sale\\",\\"items\\":[{\\"item_id\\":\\"abc\\",\\"promotion_name\\":\\"75% store-wide shoe sale\\"}],\\"engagement_time_msec\\":2}}]}"`
+        `"{\\"client_id\\":\\"3456fff\\",\\"events\\":[{\\"name\\":\\"select_promotion\\",\\"params\\":{\\"creative_slot\\":\\"top_banner_2\\",\\"location_id\\":\\"promo_1\\",\\"promotion_id\\":\\"promo_1\\",\\"promotion_name\\":\\"75% store-wide shoe sale\\",\\"items\\":[{\\"item_id\\":\\"abc\\",\\"promotion_name\\":\\"75% store-wide shoe sale\\"}],\\"engagement_time_msec\\":2}}]}"`
       )
     })
 
@@ -132,7 +130,6 @@ describe('GA4', () => {
       const event = createTestEvent({
         event: 'Promotion Clicked',
         userId: '3456fff',
-        timestamp: '2022-06-22T22:20:58.905Z',
         anonymousId: 'anon-567890',
         type: 'track',
         properties: {
@@ -211,7 +208,7 @@ describe('GA4', () => {
       `)
 
       expect(responses[0].options.body).toMatchInlineSnapshot(
-        `"{\\"client_id\\":\\"3456fff\\",\\"timestamp_micros\\":1655936458905000,\\"events\\":[{\\"name\\":\\"select_promotion\\",\\"params\\":{\\"creative_name\\":\\"top_banner_2\\",\\"creative_slot\\":\\"2\\",\\"location_id\\":\\"home\\",\\"promotion_id\\":\\"promo_1\\",\\"promotion_name\\":\\"75% store-wide shoe sale\\",\\"items\\":[{\\"item_id\\":\\"SKU_12345\\",\\"item_name\\":\\"jeggings\\",\\"coupon\\":\\"SUMMER_FUN\\",\\"discount\\":2.22,\\"promotion_id\\":\\"P_12345\\",\\"promotion_name\\":\\"Summer Sale\\",\\"creative_slot\\":\\"featured_app_1\\",\\"location_id\\":\\"L_12345\\",\\"affiliation\\":\\"Google Store\\",\\"item_brand\\":\\"Gucci\\",\\"item_category\\":\\"pants\\",\\"item_variant\\":\\"Black\\",\\"price\\":9.99,\\"currency\\":\\"USD\\"}],\\"engagement_time_msec\\":1}}]}"`
+        `"{\\"client_id\\":\\"3456fff\\",\\"events\\":[{\\"name\\":\\"select_promotion\\",\\"params\\":{\\"creative_name\\":\\"top_banner_2\\",\\"creative_slot\\":\\"2\\",\\"location_id\\":\\"home\\",\\"promotion_id\\":\\"promo_1\\",\\"promotion_name\\":\\"75% store-wide shoe sale\\",\\"items\\":[{\\"item_id\\":\\"SKU_12345\\",\\"item_name\\":\\"jeggings\\",\\"coupon\\":\\"SUMMER_FUN\\",\\"discount\\":2.22,\\"promotion_id\\":\\"P_12345\\",\\"promotion_name\\":\\"Summer Sale\\",\\"creative_slot\\":\\"featured_app_1\\",\\"location_id\\":\\"L_12345\\",\\"affiliation\\":\\"Google Store\\",\\"item_brand\\":\\"Gucci\\",\\"item_category\\":\\"pants\\",\\"item_variant\\":\\"Black\\",\\"price\\":9.99,\\"currency\\":\\"USD\\"}],\\"engagement_time_msec\\":1}}]}"`
       )
     })
 
@@ -222,7 +219,6 @@ describe('GA4', () => {
       const event = createTestEvent({
         event: 'Promotion Clicked',
         userId: '3456fff',
-        timestamp: '2022-06-22T22:20:58.905Z',
         anonymousId: 'anon-567890',
         type: 'track',
         properties: {
@@ -301,7 +297,7 @@ describe('GA4', () => {
       `)
 
       expect(responses[0].options.body).toMatchInlineSnapshot(
-        `"{\\"client_id\\":\\"3456fff\\",\\"timestamp_micros\\":1655936458905000,\\"events\\":[{\\"name\\":\\"select_promotion\\",\\"params\\":{\\"creative_name\\":\\"top_banner_2\\",\\"creative_slot\\":\\"2\\",\\"location_id\\":\\"home\\",\\"promotion_id\\":\\"promo_1\\",\\"promotion_name\\":\\"75% store-wide shoe sale\\",\\"items\\":[{\\"item_id\\":\\"SKU_12345\\",\\"item_name\\":\\"jeggings\\",\\"coupon\\":\\"SUMMER_FUN\\",\\"discount\\":2.22,\\"promotion_id\\":\\"P_12345\\",\\"promotion_name\\":\\"Summer Sale\\",\\"creative_slot\\":\\"featured_app_1\\",\\"location_id\\":\\"L_12345\\",\\"affiliation\\":\\"Google Store\\",\\"item_brand\\":\\"Gucci\\",\\"item_category\\":\\"pants\\",\\"item_variant\\":\\"Black\\",\\"price\\":9.99,\\"currency\\":\\"usd\\"}],\\"engagement_time_msec\\":1}}]}"`
+        `"{\\"client_id\\":\\"3456fff\\",\\"events\\":[{\\"name\\":\\"select_promotion\\",\\"params\\":{\\"creative_name\\":\\"top_banner_2\\",\\"creative_slot\\":\\"2\\",\\"location_id\\":\\"home\\",\\"promotion_id\\":\\"promo_1\\",\\"promotion_name\\":\\"75% store-wide shoe sale\\",\\"items\\":[{\\"item_id\\":\\"SKU_12345\\",\\"item_name\\":\\"jeggings\\",\\"coupon\\":\\"SUMMER_FUN\\",\\"discount\\":2.22,\\"promotion_id\\":\\"P_12345\\",\\"promotion_name\\":\\"Summer Sale\\",\\"creative_slot\\":\\"featured_app_1\\",\\"location_id\\":\\"L_12345\\",\\"affiliation\\":\\"Google Store\\",\\"item_brand\\":\\"Gucci\\",\\"item_category\\":\\"pants\\",\\"item_variant\\":\\"Black\\",\\"price\\":9.99,\\"currency\\":\\"usd\\"}],\\"engagement_time_msec\\":1}}]}"`
       )
     })
 
@@ -481,111 +477,6 @@ describe('GA4', () => {
         fail('the test should have thrown an error')
       } catch (e) {
         expect(e.message).toBe('US4D is not a valid currency code.')
-      }
-    })
-
-    it('should throw an error when params value is null', async () => {
-      nock('https://www.google-analytics.com/mp/collect')
-        .post(`?measurement_id=${measurementId}&api_secret=${apiSecret}`)
-        .reply(201, {})
-
-      const event = createTestEvent({
-        event: 'Select Promotion',
-        userId: 'abc123',
-        anonymousId: 'anon-2134',
-        type: 'track',
-        properties: {
-          id: '12345abcde',
-          name: 'Quadruple Stack Oreos, 52 ct',
-          currency: 'USD',
-          price: 12.99,
-          quantity: 1
-        }
-      })
-      try {
-        await testDestination.testAction('selectPromotion', {
-          event,
-          settings: {
-            apiSecret,
-            measurementId
-          },
-          mapping: {
-            client_id: {
-              '@path': '$.anonymousId'
-            },
-            params: {
-              test_value: null
-            },
-            items: {
-              item_id: {
-                '@path': '$.properties.id'
-              },
-              promotion_name: {
-                '@path': '$.properties.name'
-              }
-            }
-          },
-          useDefaultMappings: true
-        })
-        fail('the test should have thrown an error')
-      } catch (e) {
-        expect(e.message).toBe(
-          'GA4 only accepts string or number values for event parameters and item parameters. Please ensure you are not including null, array, or nested values.'
-        )
-      }
-    })
-
-    it('should throw an error when user_properties value is array', async () => {
-      nock('https://www.google-analytics.com/mp/collect')
-        .post(`?measurement_id=${measurementId}&api_secret=${apiSecret}`)
-        .reply(201, {})
-
-      const event = createTestEvent({
-        event: 'Select Promotion',
-        userId: 'abc123',
-        anonymousId: 'anon-2134',
-        type: 'track',
-        properties: {
-          id: '12345abcde',
-          name: 'Quadruple Stack Oreos, 52 ct',
-          currency: 'USD',
-          price: 12.99,
-          quantity: 1
-        }
-      })
-      try {
-        await testDestination.testAction('selectPromotion', {
-          event,
-          settings: {
-            apiSecret,
-            measurementId
-          },
-          mapping: {
-            client_id: {
-              '@path': '$.anonymousId'
-            },
-            user_properties: {
-              hello: ['World', 'world'],
-              a: '1',
-              b: '2',
-              c: '3'
-            },
-            items: {
-              item_id: {
-                '@path': '$.properties.id'
-              },
-              promotion_name: {
-                '@path': '$.properties.name'
-              }
-            }
-          },
-          useDefaultMappings: true
-        })
-        fail('the test should have thrown an error')
-      } catch (e) {
-        expect(e.message).toBe(
-          'GA4 only accepts string, number or null values for user properties. Please ensure you are not including array or nested values.'
-        )
       }
     })
   })

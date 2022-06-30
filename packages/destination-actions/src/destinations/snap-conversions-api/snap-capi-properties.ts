@@ -288,7 +288,7 @@ export const conversionType = (settings: Settings, event_conversion_type: String
     }
     delete settings?.pixel_id
   } else {
-    if (settings?.pixel_id === undefined || settings?.pixel_id === '') {
+    if (!settings?.pixel_id) {
       throw new IntegrationError(
         `If event conversion type is "${event_conversion_type}" then Pixel ID must be defined`,
         'Misconfigured required field',
