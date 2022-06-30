@@ -1,7 +1,7 @@
 import nock from 'nock'
 import { createTestEvent, createTestIntegration } from '@segment/actions-core'
 import Webhook from '../index'
-import { createHmac } from 'crypto'
+import { createHmac, timingSafeEqual } from 'crypto'
 
 const testDestination = createTestIntegration(Webhook)
 
@@ -55,15 +55,32 @@ describe('Webhook', () => {
       const event = createTestEvent({
         properties: { cool: true }
       })
-      const payload = event.properties
+      const payload = JSON.stringify(event.properties)
       const sharedSecret = 'abc123'
 
-      const digest = createHmac('sha1', sharedSecret).update(JSON.stringify(payload), 'utf8').digest('hex')
-
       nock(url)
-        .matchHeader('x-signature', digest)
-        .post('/', payload as any)
-        .reply(200)
+        .post('/', payload)
+        .reply(async function (_uri, body) {
+          // Normally you should use the raw body but nock automatically
+          // deserializes it (and doesn't allow us to access the raw request
+          // body) so we re-serialize the body here so that we can demonstrate
+          // signture validation.
+          const bodyString = JSON.stringify(body)
+
+          // Validate the signature
+          const expectSignature = this.req.headers['x-signature'][0]
+          const actualSignature = createHmac('sha1', sharedSecret).update(bodyString).digest('hex')
+
+          // Use constant-time comparison to avoid timing attacks
+          if (
+            expectSignature.length !== actualSignature.length ||
+            !timingSafeEqual(Buffer.from(actualSignature, 'hex'), Buffer.from(expectSignature, 'hex'))
+          ) {
+            return [400, 'Invalid signature']
+          }
+
+          return [200, 'OK']
+        })
 
       const responses = await testDestination.testAction('send', {
         event,
