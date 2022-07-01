@@ -49,10 +49,7 @@ const action: ActionDefinition<Settings, Payload> = {
     const { statsClient, tags = [] } = statsContext
 
     tags?.push('it works!')
-    statsClient?.incr?.('stats-google-analytics-4', 1, tags)
-
-    console.log('this is the stats client in the perform method', statsClient)
-    console.log('these are the tags', tags)
+    statsClient?.incr?.('stats-in-actions-ga4', 1, tags)
 
     return request('https://www.google-analytics.com/mp/collect', {
       method: 'POST',
