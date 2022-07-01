@@ -1,4 +1,4 @@
-import { Destination, DestinationDefinition, StatsClient } from '../destination-kit'
+import { Destination, DestinationDefinition, StatsClient, StatsContext } from '../destination-kit'
 import { JSONObject } from '../json-object'
 import { SegmentEvent } from '../segment-event'
 
@@ -330,7 +330,8 @@ describe('destination kit', () => {
       const eventOptions = {
         features: {
           test_feature: true
-        }
+        },
+        statsContext: {} as StatsContext
       }
 
       const res = await destinationTest.onEvent(testEvent, testSettings, eventOptions)
@@ -340,7 +341,7 @@ describe('destination kit', () => {
         {
           output: {
             features: eventOptions.features,
-            stats: {}
+            statsContext: {}
           }
         }
       ])
@@ -381,7 +382,7 @@ describe('destination kit', () => {
         {
           output: {
             features: {},
-            stats: eventOptions.statsContext
+            statsContext: eventOptions.statsContext
           }
         }
       ])
