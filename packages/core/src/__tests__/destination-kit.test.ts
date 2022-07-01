@@ -1,5 +1,4 @@
-import { StatsClient } from 'src/destination-kit/types'
-import { Destination, DestinationDefinition } from '../destination-kit'
+import { Destination, DestinationDefinition, StatsClient } from '../destination-kit'
 import { JSONObject } from '../json-object'
 import { SegmentEvent } from '../segment-event'
 
@@ -97,8 +96,8 @@ const destinationWithOptions: DestinationDefinition<JSONObject> = {
       description: 'Send events to a custom event in API',
       defaultSubscription: 'type = "track"',
       fields: {},
-      perform: (_request, { features, stats }) => {
-        return { features, stats }
+      perform: (_request, { features, statsContext }) => {
+        return { features, statsContext }
       }
     }
   }

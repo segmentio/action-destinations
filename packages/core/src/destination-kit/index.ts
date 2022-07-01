@@ -162,7 +162,7 @@ interface EventInput<Settings> {
   readonly auth?: AuthTokens
   /** `features` and `stats` are for internal Segment/Twilio use only. */
   readonly features?: { [key: string]: boolean }
-  readonly stats?: StatsContext
+  readonly statsContext?: StatsContext
 }
 
 interface BatchEventInput<Settings> {
@@ -173,7 +173,7 @@ interface BatchEventInput<Settings> {
   readonly auth?: AuthTokens
   /** `features` and `stats` are for internal Segment/Twilio use only. */
   readonly features?: { [key: string]: boolean }
-  readonly stats?: StatsContext
+  readonly statsContext?: StatsContext
 }
 
 export interface DecoratedResponse extends ModifiedResponse {
@@ -322,7 +322,7 @@ export class Destination<Settings = JSONObject> {
 
   protected async executeAction(
     actionSlug: string,
-    { event, mapping, settings, auth, features, stats }: EventInput<Settings>
+    { event, mapping, settings, auth, features, statsContext }: EventInput<Settings>
   ): Promise<Result[]> {
     const action = this.actions[actionSlug]
     if (!action) {
@@ -335,13 +335,13 @@ export class Destination<Settings = JSONObject> {
       settings,
       auth,
       features,
-      stats
+      statsContext
     })
   }
 
   public async executeBatch(
     actionSlug: string,
-    { events, mapping, settings, auth, features, stats }: BatchEventInput<Settings>
+    { events, mapping, settings, auth, features, statsContext }: BatchEventInput<Settings>
   ) {
     const action = this.actions[actionSlug]
     if (!action) {
@@ -354,7 +354,7 @@ export class Destination<Settings = JSONObject> {
       settings,
       auth,
       features,
-      stats
+      statsContext
     })
 
     return [{ output: 'successfully processed batch of events' }]
@@ -374,7 +374,7 @@ export class Destination<Settings = JSONObject> {
       settings,
       auth,
       features: options?.features || {},
-      stats: options?.statsContext
+      statsContext: options?.statsContext
     }
 
     let results: Result[] | null = null
