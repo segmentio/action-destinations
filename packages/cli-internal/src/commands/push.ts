@@ -168,7 +168,7 @@ export default class Push extends Command {
           }
         })
 
-        const hasBuilderDefinedBatchingField = fields.filter((f) => f.fieldKey === 'enable_batching').length === 1
+        const hasBuilderDefinedBatchingField = fields.some((f) => f.fieldKey === 'enable_batching')
         const isBatchingDestination = typeof action.performBatch === 'function'
 
         // Automatically include a field for customers to control batching behavior, when supported
