@@ -81,7 +81,7 @@ describe('requestParams', () => {
       expect(options.headers!['Content-Type']).toBe('application/json')
       expect(options.headers!['Authorization']).toBe(`Basic ${settings.apiKey}`)
       expect(url).toBe(`${baseUrl}/users/v1/individual/${userId}/customvars`)
-      expect(options.body).toBe(JSON.stringify(requestBody))
+      expect(options.json).toEqual(requestBody)
     })
   })
 

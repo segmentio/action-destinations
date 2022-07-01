@@ -35,10 +35,8 @@ const defaultRequestParams = (settings: Settings, relativeUrl: string): RequestP
   }
 }
 
-// TODO(nate): Remove "region specific" comments
-
 /**
- * Returns the region specific {@link RequestParams} for the list operations HTTP API endpoint.
+ * Returns {@link RequestParams} for the list operations HTTP API endpoint.
  *
  * @param settings Settings configured for the cloud mode destination.
  */
@@ -95,7 +93,7 @@ export const customEventRequestParams = (
 }
 
 /**
- * Returns the region specific {@link RequestParams} for the set user properties HTTP API endpoint.
+ * Returns {@link RequestParams} for the set user properties HTTP API endpoint.
  *
  * @param settings Settings configured for the cloud mode destination.
  * @param userId The id of the user to update.
@@ -109,14 +107,13 @@ export const setUserPropertiesRequestParams = (settings: Settings, userId: ID, r
     options: {
       ...defaultParams.options,
       method: 'post',
-      // TODO(nate): Specify json instead of body which will JSON.stringify for us and set the correct content-type header
-      body: JSON.stringify(requestBody)
+      json: requestBody
     }
   }
 }
 
 /**
- * Returns the region specific {@link RequestParams} for the delete user HTTP API endpoint.
+ * Returns {@link RequestParams} for the delete user HTTP API endpoint.
  *
  * @param settings Settings configured for the cloud mode destination.
  * @param userId The id of the user to delete.

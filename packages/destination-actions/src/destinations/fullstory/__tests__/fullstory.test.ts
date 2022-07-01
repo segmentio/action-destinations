@@ -122,8 +122,7 @@ describe('FullStory', () => {
       })
 
       expect(response.status).toBe(200)
-      // TODO(nate): Consider using .toEqual for full deep equality verification
-      expect(JSON.parse(response.options.body as string)).toMatchObject({
+      expect(JSON.parse(response.options.body as string)).toEqual({
         segmentAnonymousId_str: anonymousId,
         email,
         displayName,
@@ -137,10 +136,7 @@ describe('FullStory', () => {
   describe('onDelete', () => {
     it('makes expected request', async () => {
       nock(baseUrl).delete(`/users/v1/individual/${userId}`).reply(200)
-      const jsonSettings = {
-        apiKey: settings.apiKey
-      }
-      await expect(testDestination.onDelete!({ type: 'delete', userId }, jsonSettings)).resolves.not.toThrowError()
+      await expect(testDestination.onDelete!({ type: 'delete', userId }, settings)).resolves.not.toThrowError()
     })
   })
 })

@@ -76,8 +76,8 @@ const action: ActionDefinition<Settings> = {
     // TODO(nate): Include a source value once the HTTP API is updated to support it
     const requestBody = {
       ...newTraits,
-      ...(email !== undefined && { email: email }),
-      ...(displayName !== undefined && { displayName: displayName })
+      ...(email !== undefined && { email }),
+      ...(displayName !== undefined && { displayName })
     }
 
     const { url, options } = setUserPropertiesRequestParams(settings, userId, requestBody)
