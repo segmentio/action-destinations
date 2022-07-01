@@ -35,6 +35,8 @@ const defaultRequestParams = (settings: Settings, relativeUrl: string): RequestP
   }
 }
 
+// TODO(nate): Remove "region specific" comments
+
 /**
  * Returns the region specific {@link RequestParams} for the list operations HTTP API endpoint.
  *
@@ -42,6 +44,55 @@ const defaultRequestParams = (settings: Settings, relativeUrl: string): RequestP
  */
 export const listOperationsRequestParams = (settings: Settings): RequestParams =>
   defaultRequestParams(settings, `operations/v1?limit=1`)
+
+/**
+ * Returns {@link RequestParams} for the custom events HTTP API endpoint.
+ *
+ * @param settings Settings configured for the cloud mode destination.
+ * @param requestValues Values to send with the request.
+ */
+export const customEventRequestParams = (
+  settings: Settings,
+  requestValues: {
+    userId: string
+    eventName: string
+    eventData: {}
+    timestamp?: string
+    useRecentSession?: boolean
+    sessionUrl?: string
+  }
+): RequestParams => {
+  const { userId, eventName, eventData, timestamp, useRecentSession, sessionUrl } = requestValues
+  const defaultParams = defaultRequestParams(settings, `users/v1/individual/${userId}/customevent`)
+
+  const requestBody: Record<string, any> = {
+    event: {
+      event_name: eventName,
+      event_data: eventData
+    }
+  }
+
+  if (timestamp) {
+    requestBody.event.timestamp = timestamp
+  }
+
+  if (useRecentSession !== undefined) {
+    requestBody.event.use_recent_session = useRecentSession
+  }
+
+  if (sessionUrl) {
+    requestBody.event.session_url = sessionUrl
+  }
+
+  return {
+    ...defaultParams,
+    options: {
+      ...defaultParams.options,
+      method: 'post',
+      json: requestBody
+    }
+  }
+}
 
 /**
  * Returns the region specific {@link RequestParams} for the set user properties HTTP API endpoint.
@@ -58,6 +109,7 @@ export const setUserPropertiesRequestParams = (settings: Settings, userId: ID, r
     options: {
       ...defaultParams.options,
       method: 'post',
+      // TODO(nate): Specify json instead of body which will JSON.stringify for us and set the correct content-type header
       body: JSON.stringify(requestBody)
     }
   }

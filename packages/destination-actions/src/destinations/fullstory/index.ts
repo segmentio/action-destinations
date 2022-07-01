@@ -2,6 +2,7 @@ import type { DestinationDefinition } from '@segment/actions-core'
 import { defaultValues } from '@segment/actions-core'
 import type { Settings } from './generated-types'
 import identifyUser from './identifyUser'
+import trackEvent from './trackEvent'
 import { listOperationsRequestParams, deleteUserRequestParams } from './request-params'
 
 const destination: DestinationDefinition<Settings> = {
@@ -9,6 +10,12 @@ const destination: DestinationDefinition<Settings> = {
   slug: 'actions-fullstory',
   mode: 'cloud',
   presets: [
+    {
+      name: 'Track Event',
+      subscribe: 'type = "track"',
+      partnerAction: 'trackEvent',
+      mapping: defaultValues(trackEvent.fields)
+    },
     {
       name: 'Identify User',
       subscribe: 'type = "identify"',
@@ -39,6 +46,7 @@ const destination: DestinationDefinition<Settings> = {
   },
 
   actions: {
+    trackEvent,
     identifyUser
   }
 }
