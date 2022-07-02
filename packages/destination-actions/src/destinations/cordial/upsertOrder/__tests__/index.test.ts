@@ -69,7 +69,6 @@ describe('Cordial.upsertOrder', () => {
 
     expect(responses[0].status).toBe(202);
     expect(responses[0].data).toMatchObject({success: 'success'});
-    console.log(responses[0].options.json);
     expect(responses[0].options.json).toMatchObject({
       userIdentities: { 'channels.email.address': 'contact@example.com' },
       orderID: 'test-order',
@@ -172,7 +171,7 @@ describe('Cordial.upsertOrder', () => {
       purchaseDate: '1631210000',
       status: 'Order Completed',
       totalAmount: 546.05,
-      properties: {},
+      properties: undefined,
       items: [
         {
           productID: '51easf12',
