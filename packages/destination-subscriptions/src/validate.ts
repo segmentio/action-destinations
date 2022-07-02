@@ -72,9 +72,9 @@ const validateCondition = (condition: Condition, data: any): boolean => {
 const validateValue = (actual: unknown, operator: Operator, expected?: string | boolean | number): boolean => {
   switch (operator) {
     case '=':
-      return String(actual) === String(expected)
+      return actual === String(expected)
     case '!=':
-      return String(actual) !== String(expected)
+      return actual !== String(expected)
     case '<':
       return Number(actual) < Number(expected)
     case '<=':

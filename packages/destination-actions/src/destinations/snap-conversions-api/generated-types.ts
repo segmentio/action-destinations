@@ -2,11 +2,11 @@
 
 export interface Settings {
   /**
-   * The Pixel ID for your Snapchat Ad Account. Required for web and offline events.
+   * The Pixel ID for your Snapchat Ad Account. **Required for web and offline events**.
    */
   pixel_id?: string
   /**
-   * The Snap App ID associated with your app. This is a unique code generated in Snapchat Ads Manager and included in your MMP dashboard. Required for app events.
+   * The Snap App ID associated with your app. This is a unique code generated in Snapchat Ads Manager and included in your MMP dashboard. **Required for app events**.
    */
   snap_app_id?: string
   /**
