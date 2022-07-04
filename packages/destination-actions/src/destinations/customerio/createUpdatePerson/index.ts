@@ -18,7 +18,7 @@ const action: ActionDefinition<Settings, Payload> = {
         '@if': {
           exists: { '@path': '$.userId' },
           then: { '@path': '$.userId' },
-          else: { '@template': '{{traits.email}}' }
+          else: { '@path': '$.traits.email' }
         }
       }
     },
