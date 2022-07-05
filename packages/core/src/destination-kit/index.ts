@@ -198,7 +198,8 @@ export interface StatsClient {
 }
 
 /** DataDog stats client and tags passed from the `CreateActionDestination`
- * in the monoservice.
+ * in the monoservice as `options`.
+ * See: https://github.com/segmentio/integrations/blob/cbd8f80024eceb2f1229f2bd0c9eb5b204f66c58/createActionDestination/index.js#L205-L208
  */
 export interface StatsContext {
   statsClient: StatsClient
