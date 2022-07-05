@@ -102,7 +102,7 @@ import nock from 'nock'
 import { createTestIntegration, StatsClient } from '@segment/actions-core'
 import SendGrid from '../index'
 
-const statsClient = ({} as StatsClient)
+const statsClient = {} as StatsClient
 const tags = ['integration:actions-sendgrid']
 
 const testDestination = createTestDestination(SendGrid)
