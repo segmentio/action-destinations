@@ -2,11 +2,6 @@ import type { RequestOptions } from '@segment/actions-core'
 import type { Settings } from './generated-types'
 
 /**
- * Mirrors the ID type which isn't exported from the @segment/actions-core package root.
- */
-type ID = string | null | undefined
-
-/**
  * Parameters intended to be passed into a RequestClient.
  */
 interface RequestParams {
@@ -61,7 +56,7 @@ export const customEventRequestParams = (
   }
 ): RequestParams => {
   const { userId, eventName, eventData, timestamp, useRecentSession, sessionUrl } = requestValues
-  const defaultParams = defaultRequestParams(settings, `users/v1/individual/${userId}/customevent`)
+  const defaultParams = defaultRequestParams(settings, `users/v1/individual/${encodeURIComponent(userId)}/customevent`)
 
   const requestBody: Record<string, any> = {
     event: {
@@ -99,8 +94,12 @@ export const customEventRequestParams = (
  * @param userId The id of the user to update.
  * @param requestBody The request body containing user properties to set.
  */
-export const setUserPropertiesRequestParams = (settings: Settings, userId: ID, requestBody: Object): RequestParams => {
-  const defaultParams = defaultRequestParams(settings, `users/v1/individual/${userId}/customvars`)
+export const setUserPropertiesRequestParams = (
+  settings: Settings,
+  userId: string,
+  requestBody: Object
+): RequestParams => {
+  const defaultParams = defaultRequestParams(settings, `users/v1/individual/${encodeURIComponent(userId)}/customvars`)
 
   return {
     ...defaultParams,
@@ -118,8 +117,8 @@ export const setUserPropertiesRequestParams = (settings: Settings, userId: ID, r
  * @param settings Settings configured for the cloud mode destination.
  * @param userId The id of the user to delete.
  */
-export const deleteUserRequestParams = (settings: Settings, userId: ID): RequestParams => {
-  const defaultParams = defaultRequestParams(settings, `users/v1/individual/${userId}`)
+export const deleteUserRequestParams = (settings: Settings, userId: string): RequestParams => {
+  const defaultParams = defaultRequestParams(settings, `users/v1/individual/${encodeURIComponent(userId)}`)
 
   return {
     ...defaultParams,
