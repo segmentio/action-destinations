@@ -17,7 +17,7 @@ const presets: DestinationDefinition['presets'] = [
     mapping: defaultValues(logEvent.fields)
   },
   {
-    name: 'Track Calls',
+    name: 'Order Completed Calls',
     subscribe: 'type = "track" and event = "Order Completed"',
     partnerAction: 'logPurchase',
     mapping: defaultValues(logPurchase.fields)
