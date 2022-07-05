@@ -168,11 +168,11 @@ export default class Push extends Command {
           }
         })
 
-        const hasBuilderDefinedBatchingField = fields.some((f) => f.fieldKey === 'enable_batching')
+        const builderDefinedBatchingField = fields.filter((f) => f.fieldKey === 'enable_batching')
         const isBatchingDestination = typeof action.performBatch === 'function'
 
         // Automatically include a field for customers to control batching behavior, when supported
-        if (isBatchingDestination && !hasBuilderDefinedBatchingField) {
+        if (isBatchingDestination && builderDefinedBatchingField.length === 0) {
           fields.push({
             fieldKey: 'enable_batching',
             type: 'boolean',
@@ -184,11 +184,16 @@ export default class Push extends Command {
             dynamic: false,
             allowNull: false
           })
-        } else if (isBatchingDestination && hasBuilderDefinedBatchingField) {
-          const builderDefinedBatchingField = fields.filter((f) => f.fieldKey === 'enable_batching')[0]
-          if (builderDefinedBatchingField.type !== 'boolean') {
+        } else if (isBatchingDestination && builderDefinedBatchingField.length > 0) {
+          if (builderDefinedBatchingField[0].type !== 'boolean') {
             this.error(
               `The builder defined batching field is not a boolean. Please update the field type to "boolean".`
+            )
+          }
+
+          if (builderDefinedBatchingField[0].multiple) {
+            this.error(
+              `The builder defined batching field should not be a multiple field. Please update the field to not be a multiple field.`
             )
           }
         }
