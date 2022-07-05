@@ -380,7 +380,7 @@ function performBatch(request, { settings, payload }) {
 }
 ```
 
-All actions where a `performBatch` method is defined will automatically include an `enable_batching` input field for users. This field is a boolean switch which allows users to toggle batching functionality. Builders can override the automatically included field by explicitly defining a field named `enable_batching` with type boolean in the `fields` section of the `ActionDefinition`. This may be useful if the builder wants to specify custom labels or descriptions or set a default value.
+All actions where a `performBatch` method is defined will automatically include an `enable_batching` input field for users. This field is a boolean switch that allows users to toggle batching functionality. Builders can override the automatically included field by explicitly defining a field named `enable_batching` with type boolean in the `fields` section of the `ActionDefinition`. This may be useful if the builder wants to specify custom labels or descriptions or set a default value.
 
 ```js
 const action: ActionDefinition<Settings, Payload> = {
