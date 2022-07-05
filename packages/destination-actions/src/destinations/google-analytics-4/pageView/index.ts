@@ -47,8 +47,6 @@ const action: ActionDefinition<Settings, Payload> = {
   },
   perform: (request, { payload, statsContext = {} }) => {
     const { statsClient, tags = [] } = statsContext
-
-    tags?.push('it works!')
     statsClient?.incr?.('stats-in-actions-ga4', 1, tags)
 
     return request('https://www.google-analytics.com/mp/collect', {
