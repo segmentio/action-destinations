@@ -69,8 +69,14 @@ export interface DestinationDefinition<Settings = unknown> extends BaseDefinitio
   /** Actions */
   actions: Record<string, ActionDefinition<Settings>>
 
-  /** An optional function to extend requests sent from the destination (including all actions) */
-  extendRequest?: RequestExtension<Settings>
+  /**
+   * An optional function to extend requests sent from the destination
+   * (including all actions). Payloads may be any type -- destination authors
+   * will need to take that into account when extending requests with the contents
+   * of the payload.
+   */
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  extendRequest?: RequestExtension<Settings, any>
 
   /** Optional authentication configuration */
   authentication?: AuthenticationScheme<Settings>
@@ -160,8 +166,9 @@ interface EventInput<Settings> {
   readonly settings: Settings
   /** Authentication-related data based on the destination's authentication.fields definition and authentication scheme */
   readonly auth?: AuthTokens
-  /** For internal Segment/Twilio use only. */
+  /** `features` and `stats` are for internal Segment/Twilio use only. */
   readonly features?: { [key: string]: boolean }
+  readonly statsContext?: StatsContext
 }
 
 interface BatchEventInput<Settings> {
@@ -170,27 +177,14 @@ interface BatchEventInput<Settings> {
   readonly settings: Settings
   /** Authentication-related data based on the destination's authentication.fields definition and authentication scheme */
   readonly auth?: AuthTokens
-  /** For internal Segment/Twilio use only. */
+  /** `features` and `stats` are for internal Segment/Twilio use only. */
   readonly features?: { [key: string]: boolean }
+  readonly statsContext?: StatsContext
 }
 
 export interface DecoratedResponse extends ModifiedResponse {
   request: Request
   options: AllRequestOptions
-}
-
-interface StatsClient {
-  observe: (metric: any) => any
-  _name(name: string): string
-  _tags(tags?: string[]): string[]
-  incr(name: string, value?: number, tags?: string[]): void
-  set(name: string, value: number, tags?: string[]): void
-  histogram(name: string, value?: number, tags?: string[]): void
-}
-
-interface StatsContext {
-  stats: StatsClient
-  tags: string[]
 }
 
 interface OnEventOptions {
@@ -200,11 +194,31 @@ interface OnEventOptions {
   statsContext?: StatsContext
 }
 
+export interface StatsClient {
+  observe: (metric: any) => any
+  _name(name: string): string
+  _tags(tags?: string[]): string[]
+  incr(name: string, value?: number, tags?: string[]): void
+  set(name: string, value: number, tags?: string[]): void
+  histogram(name: string, value?: number, tags?: string[]): void
+}
+
+/** DataDog stats client and tags passed from the `CreateActionDestination`
+ * in the monoservice as `options`.
+ * See: https://github.com/segmentio/integrations/blob/cbd8f80024eceb2f1229f2bd0c9eb5b204f66c58/createActionDestination/index.js#L205-L208
+ */
+export interface StatsContext {
+  statsClient: StatsClient
+  tags: string[]
+}
+
 export class Destination<Settings = JSONObject> {
   readonly definition: DestinationDefinition<Settings>
   readonly name: string
   readonly authentication?: AuthenticationScheme<Settings>
-  readonly extendRequest?: RequestExtension<Settings>
+  // Payloads may be any type so we use `any` explicitly here.
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  readonly extendRequest?: RequestExtension<Settings, any>
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   readonly actions: PartnerActions<Settings, any>
   readonly responses: DecoratedResponse[]
@@ -253,7 +267,7 @@ export class Destination<Settings = JSONObject> {
     const auth = getAuthData(settings as unknown as JSONObject)
     const data = { settings: destinationSettings, auth }
 
-    const context: ExecuteInput<Settings, undefined> = { settings: destinationSettings, payload: undefined, auth }
+    const context: ExecuteInput<Settings, any> = { settings: destinationSettings, payload: undefined, auth }
 
     // Validate settings according to the destination's `authentication.fields` schema
     this.validateSettings(destinationSettings)
@@ -286,7 +300,7 @@ export class Destination<Settings = JSONObject> {
     }
 
     // TODO: clean up context/extendRequest so we don't have to send information that is not needed (payload & cachedFields)
-    const context: ExecuteInput<Settings, undefined> = {
+    const context: ExecuteInput<Settings, any> = {
       settings,
       payload: undefined,
       auth: getAuthData(settings as unknown as JSONObject)
@@ -317,7 +331,7 @@ export class Destination<Settings = JSONObject> {
 
   protected async executeAction(
     actionSlug: string,
-    { event, mapping, settings, auth, features }: EventInput<Settings>
+    { event, mapping, settings, auth, features, statsContext }: EventInput<Settings>
   ): Promise<Result[]> {
     const action = this.actions[actionSlug]
     if (!action) {
@@ -329,13 +343,14 @@ export class Destination<Settings = JSONObject> {
       data: event as unknown as InputData,
       settings,
       auth,
-      features
+      features,
+      statsContext
     })
   }
 
   public async executeBatch(
     actionSlug: string,
-    { events, mapping, settings, auth, features }: BatchEventInput<Settings>
+    { events, mapping, settings, auth, features, statsContext }: BatchEventInput<Settings>
   ) {
     const action = this.actions[actionSlug]
     if (!action) {
@@ -347,7 +362,8 @@ export class Destination<Settings = JSONObject> {
       data: events as unknown as InputData[],
       settings,
       auth,
-      features
+      features,
+      statsContext
     })
 
     return [{ output: 'successfully processed batch of events' }]
@@ -366,7 +382,8 @@ export class Destination<Settings = JSONObject> {
       mapping: subscription.mapping || {},
       settings,
       auth,
-      features: options?.features || {}
+      features: options?.features || {},
+      statsContext: options?.statsContext || ({} as StatsContext)
     }
 
     let results: Result[] | null = null
@@ -445,7 +462,7 @@ export class Destination<Settings = JSONObject> {
     this.validateSettings(destinationSettings)
     const auth = getAuthData(settings as unknown as JSONObject)
     const data: ExecuteInput<Settings, DeletionPayload> = { payload, settings: destinationSettings, auth }
-    const context: ExecuteInput<Settings, undefined> = { settings: destinationSettings, payload: undefined, auth }
+    const context: ExecuteInput<Settings, any> = { settings: destinationSettings, payload, auth }
 
     const opts = this.extendRequest?.(context) ?? {}
     const requestClient = createRequestClient(opts)
