@@ -19,8 +19,7 @@ export const enable_batching: InputField = {
   description:
     'If true, events are sent to [Salesforce’s Bulk API 2.0](https://developer.salesforce.com/docs/atlas.en-us.api_asynch.meta/api_asynch/asynch_api_intro.htm) rather than their streaming REST API. Once enabled, Segment will collect events into batches of 1000 before sending to Salesforce. *Enabling Bulk API is not compatible with the `create` operation*.',
   type: 'boolean',
-  default: false,
-  required: true
+  default: false
 }
 
 export const bulkUpsertExternalId: InputField = {
