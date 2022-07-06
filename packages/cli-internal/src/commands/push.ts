@@ -185,17 +185,7 @@ export default class Push extends Command {
             allowNull: false
           })
         } else if (isBatchingDestination && builderDefinedBatchingField.length > 0) {
-          if (builderDefinedBatchingField[0].type !== 'boolean') {
-            this.error(
-              `The builder defined batching field is not a boolean. Please update the field type to "boolean".`
-            )
-          }
-
-          if (builderDefinedBatchingField[0].multiple) {
-            this.error(
-              `The builder defined batching field should not be a multiple field. Please update the field to not be a multiple field.`
-            )
-          }
+          this.validateBatching(builderDefinedBatchingField)
         }
 
         const base: BaseActionInput = {
@@ -323,6 +313,18 @@ export default class Push extends Command {
 
       // We have to wait to do this until after the associated actions are created (otherwise it may fail)
       await setSubscriptionPresets(metadata.id, presets)
+    }
+  }
+
+  validateBatching = (builderDefinedBatchingField: DestinationMetadataActionFieldCreateInput[]) => {
+    if (builderDefinedBatchingField[0].type !== 'boolean') {
+      this.error(`The builder defined batching field is not a boolean. Please update the field type to "boolean".`)
+    }
+
+    if (builderDefinedBatchingField[0].multiple) {
+      this.error(
+        `The builder defined batching field should not be a multiple field. Please update the field to not be a multiple field.`
+      )
     }
   }
 }
