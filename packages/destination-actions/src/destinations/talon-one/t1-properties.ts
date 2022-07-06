@@ -63,10 +63,36 @@ export const audience: InputField = {
 
 export const audiencesToAdd: InputField = {
   ...audience,
-  label: 'The audiences for the customer to join.'
+  label: 'The audiences for the customer to join.',
+  default: {
+    '@arrayPath': [
+      '$.properties.audiencesToAdd',
+      {
+        name: {
+          '@path': '$.name'
+        },
+        integrationId: {
+          '@path': '$.integrationId'
+        }
+      }
+    ]
+  }
 }
 
 export const audiencesToDelete: InputField = {
   ...audience,
-  label: 'The audiences for the customer to leave.'
+  label: 'The audiences for the customer to leave.',
+  default: {
+    '@arrayPath': [
+      '$.properties.audiencesToDelete',
+      {
+        name: {
+          '@path': '$.name'
+        },
+        integrationId: {
+          '@path': '$.integrationId'
+        }
+      }
+    ]
+  }
 }
