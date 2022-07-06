@@ -10,7 +10,7 @@ export enum Command {
   Uninstall = 'uninstall'
 }
 
-export type IteratePlaceholder = {
+export type IterateApi = {
   (): void
   q: unknown[]
   command: (args: unknown[]) => void

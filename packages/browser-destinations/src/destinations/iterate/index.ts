@@ -1,7 +1,7 @@
 import type { BrowserDestinationDefinition } from '../../lib/browser-destinations'
 import { browserDestination } from '../../runtime/shim'
 import type { Settings } from './generated-types'
-import { Iterate, IteratePlaceholder, IterateSettings } from './types'
+import { Iterate, IterateApi, IterateSettings } from './types'
 import { defaultValues } from '@segment/actions-core'
 
 import trackEvent from './trackEvent'
@@ -54,7 +54,7 @@ export const destination: BrowserDestinationDefinition<Settings, Iterate> = {
     window.IterateObjectName = 'Iterate'
 
     // Initialize placeholder Iterate command
-    const iteratePlaceholder = <IteratePlaceholder>function (...args) {
+    const iteratePlaceholder = <IterateApi>function (...args) {
       iteratePlaceholder.command(args)
     }
     iteratePlaceholder.loaded = false
