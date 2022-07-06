@@ -4,6 +4,7 @@ import identifyUser from './identifyUser'
 import logEvent from './logEvent'
 import mapUser from './mapUser'
 import groupIdentifyUser from './groupIdentifyUser'
+import logPurchase from './logPurchase'
 import type { Settings } from './generated-types'
 import { getEndpointByRegion } from './regional-endpoints'
 
@@ -11,9 +12,15 @@ import { getEndpointByRegion } from './regional-endpoints'
 const presets: DestinationDefinition['presets'] = [
   {
     name: 'Track Calls',
-    subscribe: 'type = "track"',
+    subscribe: 'type = "track" and event != "Order Completed"',
     partnerAction: 'logEvent',
     mapping: defaultValues(logEvent.fields)
+  },
+  {
+    name: 'Order Completed Calls',
+    subscribe: 'type = "track" and event = "Order Completed"',
+    partnerAction: 'logPurchase',
+    mapping: defaultValues(logPurchase.fields)
   },
   {
     name: 'Page Calls',
@@ -115,7 +122,8 @@ const destination: DestinationDefinition<Settings> = {
     logEvent,
     identifyUser,
     mapUser,
-    groupIdentifyUser
+    groupIdentifyUser,
+    logPurchase
   }
 }
 
