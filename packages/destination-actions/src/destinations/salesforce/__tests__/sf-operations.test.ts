@@ -354,7 +354,8 @@ describe('Salesforce', () => {
 
     const bulkUpsertPayloads: GenericPayload[] = [
       {
-        operation: 'bulkUpsert',
+        operation: 'upsert',
+        enable_batching: true,
         bulkUpsertExternalId: {
           externalIdName: 'test__c',
           externalIdValue: 'ab'
@@ -364,7 +365,8 @@ describe('Salesforce', () => {
         description: 'Krusty Krab'
       },
       {
-        operation: 'bulkUpsert',
+        operation: 'upsert',
+        enable_batching: true,
         bulkUpsertExternalId: {
           externalIdName: 'test__c',
           externalIdValue: 'cd'
@@ -377,7 +379,8 @@ describe('Salesforce', () => {
 
     const customPayloads: GenericPayload[] = [
       {
-        operation: 'bulkUpsert',
+        operation: 'upsert',
+        enable_batching: true,
         bulkUpsertExternalId: {
           externalIdName: 'test__c',
           externalIdValue: 'ab'
@@ -390,7 +393,8 @@ describe('Salesforce', () => {
         }
       },
       {
-        operation: 'bulkUpsert',
+        operation: 'upsert',
+        enable_batching: true,
         bulkUpsertExternalId: {
           externalIdName: 'test__c',
           externalIdValue: 'cd'
@@ -406,14 +410,16 @@ describe('Salesforce', () => {
 
     const bulkUpdatePayloads: GenericPayload[] = [
       {
-        operation: 'bulkUpdate',
+        operation: 'update',
+        enable_batching: true,
         bulkUpdateRecordId: 'ab',
         name: 'SpongeBob Squarepants',
         phone: '1234567890',
         description: 'Krusty Krab'
       },
       {
-        operation: 'bulkUpdate',
+        operation: 'update',
+        enable_batching: true,
         bulkUpdateRecordId: 'cd',
         name: 'Squidward Tentacles',
         phone: '1234567891',
