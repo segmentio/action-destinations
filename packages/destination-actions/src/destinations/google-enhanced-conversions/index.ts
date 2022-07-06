@@ -19,6 +19,7 @@ const destination: DestinationDefinition<Settings> = {
   // NOTE: We need to match the name with the creation name in DB.
   // This is not the value used in the UI.
   name: 'Google Enhanced Conversions',
+  slug: 'actions-google-enhanced-conversions',
   mode: 'cloud',
   authentication: {
     scheme: 'oauth2',
