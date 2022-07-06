@@ -38,3 +38,35 @@ export const deleteAudienceId: InputField = {
   ...audienceId,
   label: 'List of audience ID to dissociate with the customer profile.'
 }
+
+export const audience: InputField = {
+  label: 'Audience (the label must not be used)',
+  description: 'Audience name and integrationId',
+  type: 'object',
+  properties: {
+    name: {
+      label: 'Name',
+      description: 'The name of the audience.',
+      type: 'string',
+      required: true
+    },
+    integrationId: {
+      label: 'integrationId',
+      description: 'The integrationId of the audience.',
+      type: 'string',
+      required: false
+    }
+  },
+  multiple: true,
+  required: false
+}
+
+export const audiencesToAdd: InputField = {
+  ...audience,
+  label: 'The audiences for the customer to join.'
+}
+
+export const audiencesToDelete: InputField = {
+  ...audience,
+  label: 'The audiences for the customer to leave.'
+}

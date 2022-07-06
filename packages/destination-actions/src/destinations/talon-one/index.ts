@@ -8,6 +8,7 @@ import updateCustomerProfile from './updateCustomerProfile'
 import updateCustomerProfilesAttributes from './updateCustomerProfilesAttributes'
 import updateCustomerProfilesAudiences from './updateCustomerProfilesAudiences'
 import trackEvent from './trackEvent'
+import updateCustomerProfileV2 from './updateCustomerProfileV2'
 
 const destination: DestinationDefinition<Settings> = {
   name: 'Talon.One (Actions)',
@@ -54,7 +55,8 @@ const destination: DestinationDefinition<Settings> = {
     updateCustomerProfile,
     updateCustomerProfilesAttributes,
     updateCustomerProfilesAudiences,
-    trackEvent
+    trackEvent,
+    updateCustomerProfileV2
   }
 }
 
