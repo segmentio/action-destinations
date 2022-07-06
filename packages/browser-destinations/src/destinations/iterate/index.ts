@@ -5,6 +5,7 @@ import { Iterate, IterateApi, IterateSettings } from './types'
 import { defaultValues } from '@segment/actions-core'
 
 import trackEvent from './trackEvent'
+import identifyUser from './identifyUser'
 
 // Declare global to access your client
 declare global {
@@ -26,13 +27,13 @@ export const destination: BrowserDestinationDefinition<Settings, Iterate> = {
       subscribe: 'type = "track"',
       partnerAction: 'trackEvent',
       mapping: defaultValues(trackEvent.fields)
+    },
+    {
+      name: 'Identify User',
+      subscribe: 'type = "identify"',
+      partnerAction: 'identifyUser',
+      mapping: defaultValues(identifyUser.fields)
     }
-    // {
-    //   name: 'Identify User',
-    //   subscribe: 'type = "identify"',
-    //   partnerAction: 'identifyUser',
-    //   mapping: defaultValues(identifyUser.fields)
-    // }
   ],
 
   settings: {
@@ -71,7 +72,8 @@ export const destination: BrowserDestinationDefinition<Settings, Iterate> = {
   },
 
   actions: {
-    trackEvent
+    trackEvent,
+    identifyUser
   }
 }
 
