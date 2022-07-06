@@ -41,18 +41,18 @@ export const deleteAudienceId: InputField = {
 
 export const audience: InputField = {
   label: 'Audience (the label must not be used)',
-  description: 'Audience name and integrationId',
+  description: 'Audience name and integration ID',
   type: 'object',
   properties: {
     name: {
       label: 'Name',
-      description: 'The name of the audience.',
+      description: 'The audience name.',
       type: 'string',
       required: true
     },
     integrationId: {
-      label: 'integrationId',
-      description: 'The integrationId of the audience.',
+      label: 'integrationID',
+      description: 'The audience integration ID.',
       type: 'string',
       required: false
     }

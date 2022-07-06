@@ -6,28 +6,28 @@ export interface Payload {
    */
   customerProfileId: string
   /**
-   * Audience name and integrationId
+   * Audience name and integration ID
    */
   audiencesToAdd?: {
     /**
-     * The name of the audience.
+     * The audience name.
      */
     name: string
     /**
-     * The integrationId of the audience.
+     * The audience integration ID.
      */
     integrationId?: string
   }[]
   /**
-   * Audience name and integrationId
+   * Audience name and integration ID
    */
   audiencesToDelete?: {
     /**
-     * The name of the audience.
+     * The audience name.
      */
     name: string
     /**
-     * The integrationId of the audience.
+     * The audience integration ID.
      */
     integrationId?: string
   }[]
