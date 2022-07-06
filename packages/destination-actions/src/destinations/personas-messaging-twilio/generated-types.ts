@@ -34,6 +34,10 @@ export interface Settings {
    */
   webhookUrl?: string
   /**
+   * Overrides the default Twilio host name used mainly for testing without having to send real messages.
+   */
+  twilioHostname?: string
+  /**
    * Connection overrides are configuration supported by twilio webhook services. Must be passed as fragments on the callback url
    */
   connectionOverrides?: string

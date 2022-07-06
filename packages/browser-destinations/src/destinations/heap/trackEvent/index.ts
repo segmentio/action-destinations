@@ -2,7 +2,7 @@ import type { BrowserActionDefinition } from '../../../lib/browser-destinations'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 import { HeapApi } from '../types'
-import { HEAP_LIBRARY_NAME } from '../constants'
+import { HEAP_SEGMENT_LIBRARY_NAME } from '../constants'
 
 const action: BrowserActionDefinition<Settings, HeapApi, Payload> = {
   title: 'Track Event',
@@ -30,7 +30,9 @@ const action: BrowserActionDefinition<Settings, HeapApi, Payload> = {
     }
   },
   perform: (heap, event) => {
-    heap.track(event.payload.name, event.payload.properties ?? {}, HEAP_LIBRARY_NAME)
+    const defaultEventProperties = { segment_library: HEAP_SEGMENT_LIBRARY_NAME }
+    const eventProperties = Object.assign(defaultEventProperties, event.payload.properties ?? {})
+    heap.track(event.payload.name, eventProperties)
   }
 }
 

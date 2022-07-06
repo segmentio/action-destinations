@@ -53,6 +53,7 @@ const presets: DestinationDefinition['presets'] = [
 
 const destination: DestinationDefinition<Settings> = {
   name: 'Actions Amplitude',
+  slug: 'actions-amplitude',
   mode: 'cloud',
   authentication: {
     scheme: 'custom',
