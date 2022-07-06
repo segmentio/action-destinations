@@ -6,7 +6,7 @@ export interface Payload {
    */
   operation: string
   /**
-   * Use the Salesforce Bulk API to perform bulk operations. *Not compatible with the create operation*. This will collect events into a batch of 1000 before delivery to Salesforce.
+   * If true, events are sent to [Salesforce’s Bulk API 2.0](https://developer.salesforce.com/docs/atlas.en-us.api_asynch.meta/api_asynch/asynch_api_intro.htm) rather than their streaming REST API. Once enabled, Segment will collect events into batches of 1000 before sending to Salesforce. *Enabling Bulk API is not compatible with the `create` operation*.
    */
   enable_batching: boolean
   /**
