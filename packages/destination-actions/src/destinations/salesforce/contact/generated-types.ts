@@ -6,7 +6,7 @@ export interface Payload {
    */
   operation: string
   /**
-   * Use the Salesforce Bulk API to perform bulk operations. Not compatible with the create operation.
+   * Use the Salesforce Bulk API to perform bulk operations. *Not compatible with the create operation*. This will collect events into a batch of 1000 before delivery to Salesforce.
    */
   enable_batching: boolean
   /**

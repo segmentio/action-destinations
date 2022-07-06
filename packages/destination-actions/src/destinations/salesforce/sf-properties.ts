@@ -17,8 +17,9 @@ export const operation: InputField = {
 }
 
 export const enable_batching: InputField = {
-  label: 'Use Salesforce Bulk API',
-  description: 'Use the Salesforce Bulk API to perform bulk operations. Not compatible with the create operation.',
+  label: 'Use Salesforce Bulk API to batch events.',
+  description:
+    'Use the Salesforce Bulk API to perform bulk operations. *Not compatible with the create operation*. This will collect events into a batch of 1000 before delivery to Salesforce.',
   type: 'boolean',
   default: false,
   required: true
