@@ -65,6 +65,26 @@ describe('requestParams', () => {
         }
       })
     })
+
+    it('omits use_recent_session request param if false', () => {
+      const requestValues = {
+        userId,
+        eventName: 'test-event',
+        eventData: {},
+        useRecentSession: false
+      }
+      const { url, options } = customEventRequestParams(settings, requestValues)
+      expect(options.method).toBe('post')
+      expect(options.headers!['Content-Type']).toBe('application/json')
+      expect(options.headers!['Authorization']).toBe(`Basic ${settings.apiKey}`)
+      expect(url).toBe(`${baseUrl}/users/v1/individual/${urlEncodedUserId}/customevent`)
+      expect(options.json).toEqual({
+        event: {
+          event_name: requestValues.eventName,
+          event_data: requestValues.eventData
+        }
+      })
+    })
   })
 
   describe('setUserProperties', () => {

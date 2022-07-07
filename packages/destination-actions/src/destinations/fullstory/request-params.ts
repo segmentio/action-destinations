@@ -69,7 +69,10 @@ export const customEventRequestParams = (
     requestBody.event.timestamp = timestamp
   }
 
-  if (useRecentSession !== undefined) {
+  // TODO(nate): We're intentionally omitting the use_recent_session request param when the given value is false. At
+  // time of writing, the API will treat use_recent_session=false as use_recent_session=true. This can be removed in
+  // the future when this bug is fixed in the API.
+  if (useRecentSession) {
     requestBody.event.use_recent_session = useRecentSession
   }
 
