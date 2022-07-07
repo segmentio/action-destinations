@@ -1,7 +1,7 @@
-import { isArray, isObject } from '@segment/actions-core'
 import type { BrowserActionDefinition } from '../../../lib/browser-destinations'
 import { Intercom } from '../api'
 import type { Settings } from '../generated-types'
+import { filterCustomTraits } from '../utils'
 import type { Payload } from './generated-types'
 
 // Change from unknown to the partner SDK types
@@ -19,7 +19,7 @@ const action: BrowserActionDefinition<Settings, Intercom, Payload> = {
         '@path': '$.event'
       }
     },
-    event_properties: {
+    event_metadata: {
       label: 'Event Parameters',
       description: 'Parameters specific to the event',
       type: 'object',
@@ -30,19 +30,28 @@ const action: BrowserActionDefinition<Settings, Intercom, Payload> = {
   },
   perform: (Intercom, event) => {
     const payload = event.payload
-    const properties = payload.event_properties
+    const metadata = payload.event_metadata
     const richLinkProperties = Intercom.richLinkProperties
 
-    for (const key in properties) {
-      const value = properties[key]
-      //filter out arrays and objects that are not richLinkProperties
-      if (isArray(value) || isObject(value)) {
-        if (isObject(value) && richLinkProperties?.includes(key)) continue
-        delete properties[key]
+    // create a list of the richLinkObjects that will be passed to Intercom
+    const richLinkObjects: Array<{ [k: string]: unknown }> = []
+    if (metadata && richLinkProperties) {
+      for (const [key, value] of Object.entries(metadata)) {
+        if (richLinkProperties?.includes(key)) {
+          richLinkObjects.push({ key: value })
+        }
       }
     }
 
-    Intercom('trackEvent', event.payload.event_name, properties)
+    //filters out all objects & arrays
+    const filteredMetadata = metadata ? filterCustomTraits([], metadata) : {}
+
+    //rejoin richLinkObjects in the final payload
+    //API CALL
+    Intercom('trackEvent', payload.event_name, {
+      ...filteredMetadata,
+      ...richLinkObjects
+    })
   }
 }
 

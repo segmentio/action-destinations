@@ -1,11 +1,13 @@
-import { isString } from '@segment/actions-core'
-import dayjs from 'dayjs'
+import { InputField } from '@segment/actions-core'
 import type { BrowserActionDefinition } from '../../../lib/browser-destinations'
 import { Intercom } from '../api'
 import type { Settings } from '../generated-types'
+import { extractCompanyProperties } from '../sharedCompany'
+import { convertISO8601toUnix, filterCustomTraits, isEmpty } from '../utils'
 import type { Payload } from './generated-types'
 
-// Change from unknown to the partner SDK types
+const companyProperties: Record<string, InputField> = extractCompanyProperties('company')
+
 const action: BrowserActionDefinition<Settings, Intercom, Payload> = {
   title: 'Update',
   description: '',
@@ -89,8 +91,17 @@ const action: BrowserActionDefinition<Settings, Intercom, Payload> = {
         'The avatar/profile image associated to the current record (typically gathered via social profiles via email address)',
       required: false,
       type: 'object',
-      default: {
-        '@path': '$.traits.avatar'
+      properties: {
+        image_url: {
+          label: 'Image URL',
+          type: 'string',
+          description: 'An avatar image URL. Note: needs to be https'
+        },
+        type: {
+          label: 'type',
+          type: 'string',
+          description: 'is not sent by the user, manually set to avatar'
+        }
       }
     },
     user_hash: {
@@ -107,9 +118,7 @@ const action: BrowserActionDefinition<Settings, Intercom, Payload> = {
       description: "The user's company",
       required: false,
       type: 'object',
-      default: {
-        '@path': '$.traits.company'
-      }
+      properties: companyProperties
     },
     companies: {
       label: 'Companies',
@@ -117,27 +126,70 @@ const action: BrowserActionDefinition<Settings, Intercom, Payload> = {
       required: false,
       multiple: true,
       type: 'object',
-      default: {
-        '@path': '$.traits.company'
-      }
+      properties: companyProperties
     }
   },
   perform: (Intercom, event) => {
-    //copy over everything but traits; traits will not be sent in the payload
-    const payload: { [k: string]: unknown } = {}
-    for (const [key, value] of Object.entries(event.payload)) {
-      if (key !== 'traits') {
-        payload[key] = value
+    // remove traits from payload; traits will not be sent in the final payload to Intercom
+    const { traits, ...rest } = event.payload
+    const payload = { ...rest }
+
+    // remove avatar & company if they are empty
+    if (isEmpty(payload.company)) {
+      delete payload.company
+    }
+    if (isEmpty(payload.avatar)) {
+      delete payload.avatar
+    } else {
+      // add type = 'avatar' to avatar object since Intercom requires it
+      if (payload.avatar) payload.avatar.type = 'avatar'
+    }
+
+    //convert dates from ISO-8601 to UNIX
+    const companies = Array.isArray(payload.companies) ? [...payload.companies] : []
+    const datesToConvert = [payload, payload.company, ...companies]
+    for (const objectWithDateProp of datesToConvert) {
+      if (objectWithDateProp && objectWithDateProp?.created_at) {
+        objectWithDateProp.created_at = convertISO8601toUnix(objectWithDateProp.created_at)
       }
     }
 
-    //change date from ISO-8601 (segment's format) to unix timestamp (intercom's format)
-    if (payload.created_at && isString(payload.created_at)) {
-      payload.created_at = dayjs(payload.created_at).unix()
+    // filter out reserved fields, drop custom objects & arrays
+    let filteredCustomTraits = {}
+    const reservedFields = [
+      ...Object.keys(action.fields),
+      ...Object.keys(companyProperties),
+      'createdAt',
+      'unsubscribedFromEmails',
+      'languageOverride',
+      'userHash',
+      'companyId',
+      'monthlySpend'
+    ]
+    filteredCustomTraits = filterCustomTraits(reservedFields, traits)
+
+    // filter out reserved fields, drop custom objects & arrays
+    if (payload.company) {
+      const { company_traits, ...rest } = payload.company
+      const companyFilteredCustomTraits = filterCustomTraits(reservedFields, company_traits)
+      payload.company = { ...rest, ...companyFilteredCustomTraits }
     }
 
+    // filter out reserved fields, drop custom objects & arrays
+    if (payload.companies) {
+      for (let i = 0; i < payload.companies.length; i++) {
+        const { company_traits, ...rest } = payload.companies[i]
+        const companyFilteredCustomTraits = filterCustomTraits(reservedFields, company_traits)
+        payload.companies[i] = { ...rest, ...companyFilteredCustomTraits }
+      }
+    }
+
+    console.log(payload)
+    console.log(filteredCustomTraits)
+    // API call
     Intercom('update', {
-      ...payload
+      ...payload,
+      ...filteredCustomTraits
     })
   }
 }

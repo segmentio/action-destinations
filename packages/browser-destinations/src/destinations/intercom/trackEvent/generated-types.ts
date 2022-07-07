@@ -8,7 +8,7 @@ export interface Payload {
   /**
    * Parameters specific to the event
    */
-  event_properties?: {
+  event_metadata?: {
     [k: string]: unknown
   }
 }

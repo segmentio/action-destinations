@@ -1,71 +1,91 @@
 {
- "appId": "qku3nygv",
- "subscriptions": [
-  {
-   "partnerAction": "trackEvent",
-   "name": "Show",
-   "enabled": true,
-   "subscribe": "type = \"track\"",
-   "mapping": {
-    "event_name": {
-     "@path": "$.event"
+  "appId": "qku3nygv",
+  "subscriptions": [
+    {
+      "partnerAction": "trackEvent",
+      "name": "Show",
+      "enabled": true,
+      "subscribe": "type = \"track\"",
+      "mapping": {
+        "event_name": {
+          "@path": "$.event"
+        },
+        "event_metadata": {
+          "@path": "$.properties"
+        }
+      }
     },
-    "event_properties": {
-     "@path": "$.properties"
+    {
+      "partnerAction": "updateUser",
+      "name": "Show",
+      "enabled": true,
+      "subscribe": "type = \"identify\" or \"page\"",
+      "mapping": {
+        "user_id": {
+          "@path": "$.userId"
+        },
+        "traits": {
+          "@path": "$.traits"
+        },
+        "name": {
+          "@path": "$.traits.name"
+        },
+        "email": {
+          "@path": "$.traits.email"
+        },
+        "created_at": {
+          "@path": "$.traits.createdAt"
+        },
+        "company": {
+          "company_id": { "@path": "$.traits.company.companyId" },
+          "name": { "@path": "$.traits.company.name" },
+          "plan": { "@path": "$.traits.company.plan" },
+          "monthly_spend": { "@path": "$.traits.company.monthlySpend" },
+          "created_at": { "@path": "$.traits.company.createdAt" },
+          "size": { "@path": "$.traits.company.size" },
+          "website": { "@path": "$.traits.company.website" },
+          "industry": { "@path": "$.traits.company.industry" },
+          "company_traits": { "@path": "$.traits.company" }
+        },
+        "avatar": {
+          "image_url": { "@path": "$.traits.company.imageUrl" }
+        },
+        "companies": {
+          "@arrayPath": [
+            "$.traits.companies",
+            {
+              "company_id": { "@path": "$.company.companyId" },
+              "name": { "@path": "$.company.name" },
+              "plan": { "@path": "$.company.plan" },
+              "monthly_spend": { "@path": "$.company.monthlySpend" },
+              "created_at": { "@path": "$.company.createdAt" },
+              "size": { "@path": "$.company.size" },
+              "website": { "@path": "$.company.website" },
+              "industry": { "@path": "$.company.industry" },
+              "company_traits": { "@path": "$.company" }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "partnerAction": "updateCompany",
+      "name": "Show",
+      "enabled": true,
+      "subscribe": "type = \"group\"",
+      "mapping": {
+        "company": {
+          "company_id": { "@path": "$.groupId" },
+          "company_traits": { "@path": "$.traits" },
+          "name": { "@path": "$.traits.name" },
+          "plan": { "@path": "$.traits.plan" },
+          "monthly_spend": { "@path": "$.traits.monthlySpend" },
+          "created_at": { "@path": "$.traits.createdAt" },
+          "size": { "@path": "$.traits.size" },
+          "website": { "@path": "$.traits.website" },
+          "industry": { "@path": "$.traits.industry" }
+        }
+      }
     }
-   }
-  },
-  {
-    "partnerAction": "updateUser",
-    "name": "Show",
-    "enabled": true,
-    "subscribe": "type = \"identify\"",
-    "mapping": {
-     "user_id": {
-      "@path": "$.userId"
-     },
-     "traits": {
-      "@path": "$.traits"
-     },
-     "name": {
-        "@path": "$.traits.name"
-     },
-     "email": {
-        "@path": "$.traits.email"
-     },
-     "created_at": {
-        "@path": "$.traits.createdAt"
-     },
-     "company": {
-        "@path": "$.traits.company"
-     }
-    }
-   },
-   {
-    "partnerAction": "updateGroup",
-    "name": "Show",
-    "enabled": true,
-    "subscribe": "type = \"group\"",
-    "mapping": {
-     "company_id": {
-      "@path": "$.groupId"
-     },
-     "traits": {
-      "@path": "$.traits"
-     },
-     "name": {
-        "@path": "$.traits.name"
-     },
-     "plan": {
-        "@path": "$.traits.plan"
-     },
-     "monthly_spend": {
-        "@path": "$.traits.monthlySpend"
-     },
-     "created_at": {
-        "@path": "$.traits.createdAt"
-     }
-    }
-   }
- ]
+  ]
 }
