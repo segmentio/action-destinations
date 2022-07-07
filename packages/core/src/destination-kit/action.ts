@@ -56,7 +56,7 @@ export interface ActionDefinition<Settings, Payload = any> extends BaseActionDef
    * This is likely going to change as we productionalize the data model and definition object
    */
   dynamicFields?: {
-    [K in keyof Payload]?: RequestFn<Settings, Payload, DynamicFieldResponse>
+    [K in keyof Payload]?: RequestFn<Settings, Payload>
   }
 
   /** The operation to perform when this action is triggered */

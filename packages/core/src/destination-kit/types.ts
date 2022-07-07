@@ -33,12 +33,8 @@ export interface ExecuteInput<Settings, Payload> {
 }
 
 export interface DynamicFieldResponse {
-  body: {
-    data: DynamicFieldItem[]
-    pagination: {
-      nextPage?: string
-    }
-  }
+  choices: DynamicFieldItem[]
+  nextPage?: string
 }
 
 export interface DynamicFieldItem {
