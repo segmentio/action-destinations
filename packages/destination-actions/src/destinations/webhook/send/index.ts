@@ -35,6 +35,12 @@ const action: ActionDefinition<Settings, Payload> = {
       type: 'object',
       defaultObjectUI: 'keyvalue:only'
     },
+    timeout: {
+      label: 'Timeout',
+      description: 'Time in milliseconds when a request should be aborted. Default is 10000',
+      type: 'number',
+      default: 10000
+    },
     data: {
       label: 'Data',
       description: 'Payload to deliver to webhook URL (JSON-encoded).',
@@ -46,17 +52,19 @@ const action: ActionDefinition<Settings, Payload> = {
     return request(payload.url, {
       method: payload.method as RequestMethod,
       headers: payload.headers as Record<string, string>,
-      json: payload.data
+      json: payload.data,
+      timeout: payload.timeout
     })
   },
   performBatch: (request, { payload }) => {
     // Expect these to be the same across the payloads
-    const { url, method, headers } = payload[0]
+    const { url, method, headers, timeout } = payload[0]
 
     return request(url, {
       method: method as RequestMethod,
       headers: headers as Record<string, string>,
-      json: payload.map(({ data }) => data)
+      json: payload.map(({ data }) => data),
+      timeout
     })
   }
 }
