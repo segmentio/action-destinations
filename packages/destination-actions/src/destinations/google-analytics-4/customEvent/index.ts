@@ -50,8 +50,29 @@ const action: ActionDefinition<Settings, Payload> = {
     engagement_time_msec: engagement_time_msec,
     params: { ...params }
   },
-  perform: (request, { payload }) => {
+  perform: (request, { payload, features }) => {
     const event_name = normalizeEventName(payload.name, payload.lowercase)
+
+    if (features && features['actions-google-analytics-4-verify-params-feature']) {
+      return request('https://www.google-analytics.com/mp/collect', {
+        method: 'POST',
+        json: {
+          client_id: payload.clientId,
+          user_id: payload.user_id,
+          events: [
+            {
+              name: event_name,
+              params: {
+                engagement_time_msec: payload.engagement_time_msec,
+                ...verifyParams(payload.params)
+              }
+            }
+          ],
+          ...formatUserProperties(payload.user_properties)
+        }
+      })
+    }
+
     return request('https://www.google-analytics.com/mp/collect', {
       method: 'POST',
       json: {
@@ -62,7 +83,7 @@ const action: ActionDefinition<Settings, Payload> = {
             name: event_name,
             params: {
               engagement_time_msec: payload.engagement_time_msec,
-              ...verifyParams(payload.params)
+              ...payload.params
             }
           }
         ],

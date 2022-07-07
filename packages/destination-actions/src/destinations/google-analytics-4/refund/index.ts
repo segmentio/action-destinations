@@ -44,7 +44,7 @@ const action: ActionDefinition<Settings, Payload> = {
     engagement_time_msec: engagement_time_msec,
     params: params
   },
-  perform: (request, { payload }) => {
+  perform: (request, { payload, features }) => {
     if (payload.currency) {
       verifyCurrency(payload.currency)
     }
@@ -87,6 +87,34 @@ const action: ActionDefinition<Settings, Payload> = {
       })
     }
 
+    if (features && features['actions-google-analytics-4-verify-params-feature']) {
+      return request('https://www.google-analytics.com/mp/collect', {
+        method: 'POST',
+        json: {
+          client_id: payload.client_id,
+          user_id: payload.user_id,
+          events: [
+            {
+              name: 'refund',
+              params: {
+                currency: payload.currency,
+                transaction_id: payload.transaction_id,
+                value: payload.value,
+                affiliation: payload.affiliation,
+                coupon: payload.coupon,
+                shipping: payload.shipping,
+                tax: payload.tax,
+                items: googleItems,
+                engagement_time_msec: payload.engagement_time_msec,
+                ...verifyParams(payload.params)
+              }
+            }
+          ],
+          ...formatUserProperties(payload.user_properties)
+        }
+      })
+    }
+
     return request('https://www.google-analytics.com/mp/collect', {
       method: 'POST',
       json: {
@@ -105,7 +133,7 @@ const action: ActionDefinition<Settings, Payload> = {
               tax: payload.tax,
               items: googleItems,
               engagement_time_msec: payload.engagement_time_msec,
-              ...verifyParams(payload.params)
+              ...payload.params
             }
           }
         ],

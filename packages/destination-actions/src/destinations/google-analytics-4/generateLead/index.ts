@@ -26,7 +26,7 @@ const action: ActionDefinition<Settings, Payload> = {
     engagement_time_msec: engagement_time_msec,
     params: params
   },
-  perform: (request, { payload }) => {
+  perform: (request, { payload, features }) => {
     if (payload.currency) {
       verifyCurrency(payload.currency)
     }
@@ -34,6 +34,28 @@ const action: ActionDefinition<Settings, Payload> = {
     // Google requires that currency be included at the event level if value is included.
     if (payload.value && payload.currency === undefined) {
       throw new IntegrationError('Currency is required if value is set.', 'Misconfigured required field', 400)
+    }
+
+    if (features && features['actions-google-analytics-4-verify-params-feature']) {
+      return request('https://www.google-analytics.com/mp/collect', {
+        method: 'POST',
+        json: {
+          client_id: payload.client_id,
+          user_id: payload.user_id,
+          events: [
+            {
+              name: 'generate_lead',
+              params: {
+                currency: payload.currency,
+                value: payload.value,
+                engagement_time_msec: payload.engagement_time_msec,
+                ...verifyParams(payload.params)
+              }
+            }
+          ],
+          ...formatUserProperties(payload.user_properties)
+        }
+      })
     }
 
     return request('https://www.google-analytics.com/mp/collect', {
@@ -48,7 +70,7 @@ const action: ActionDefinition<Settings, Payload> = {
               currency: payload.currency,
               value: payload.value,
               engagement_time_msec: payload.engagement_time_msec,
-              ...verifyParams(payload.params)
+              ...payload.params
             }
           }
         ],

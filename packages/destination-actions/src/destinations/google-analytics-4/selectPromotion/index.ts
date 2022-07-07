@@ -56,7 +56,7 @@ const action: ActionDefinition<Settings, Payload> = {
     engagement_time_msec: engagement_time_msec,
     params: params
   },
-  perform: (request, { payload }) => {
+  perform: (request, { payload, features }) => {
     let googleItems: PromotionProductItem[] = []
 
     if (payload.items) {
@@ -85,6 +85,32 @@ const action: ActionDefinition<Settings, Payload> = {
       })
     }
 
+    if (features && features['actions-google-analytics-4-verify-params-feature']) {
+      return request('https://www.google-analytics.com/mp/collect', {
+        method: 'POST',
+        json: {
+          client_id: payload.client_id,
+          user_id: payload.user_id,
+          events: [
+            {
+              name: 'select_promotion',
+              params: {
+                creative_name: payload.creative_name,
+                creative_slot: payload.creative_slot,
+                location_id: payload.location_id,
+                promotion_id: payload.promotion_id,
+                promotion_name: payload.promotion_name,
+                items: googleItems,
+                engagement_time_msec: payload.engagement_time_msec,
+                ...verifyParams(payload.params)
+              }
+            }
+          ],
+          ...formatUserProperties(payload.user_properties)
+        }
+      })
+    }
+
     return request('https://www.google-analytics.com/mp/collect', {
       method: 'POST',
       json: {
@@ -101,7 +127,7 @@ const action: ActionDefinition<Settings, Payload> = {
               promotion_name: payload.promotion_name,
               items: googleItems,
               engagement_time_msec: payload.engagement_time_msec,
-              ...verifyParams(payload.params)
+              ...payload.params
             }
           }
         ],
