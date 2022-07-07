@@ -531,5 +531,28 @@ describe('Salesforce', () => {
 
       await sf.bulkHandler(bulkUpdatePayloads, 'Account')
     })
+
+    it('should fail if the bulkHandler is triggered but enable_batching is not true', async () => {
+      const payloads: GenericPayload[] = [
+        {
+          operation: 'upsert',
+          enable_batching: false,
+          name: 'SpongeBob Squarepants',
+          phone: '1234567890',
+          description: 'Krusty Krab'
+        },
+        {
+          operation: 'upsert',
+          enable_batching: false,
+          name: 'Squidward Tentacles',
+          phone: '1234567891',
+          description: 'Krusty Krab'
+        }
+      ]
+
+      await expect(sf.bulkHandler(payloads, 'Account')).rejects.toThrow(
+        'Bulk operation triggered where enable_batching is false.'
+      )
+    })
   })
 })
