@@ -36,7 +36,7 @@ const action: ActionDefinition<Settings, Payload> = {
     engagement_time_msec: engagement_time_msec,
     params: params
   },
-  perform: (request, { payload }) => {
+  perform: (request, { payload, features }) => {
     // Google requires that `add_payment_info` events include an array of products: https://developers.google.com/analytics/devguides/collection/ga4/reference/events
     // This differs from the Segment spec, which doesn't require a products array: https://segment.com/docs/connections/spec/ecommerce/v2/#payment-info-entered
     if (payload.items && !payload.items.length) {
@@ -86,6 +86,31 @@ const action: ActionDefinition<Settings, Payload> = {
         }
 
         return product as ProductItem
+      })
+    }
+
+    if (features && features['actions-google-analytics-4-verify-params-feature']) {
+      return request('https://www.google-analytics.com/mp/collect', {
+        method: 'POST',
+        json: {
+          client_id: payload.client_id,
+          user_id: payload.user_id,
+          events: [
+            {
+              name: 'add_payment_info',
+              params: {
+                currency: payload.currency,
+                value: payload.value,
+                coupon: payload.coupon,
+                payment_type: payload.payment_type,
+                items: googleItems,
+                engagement_time_msec: payload.engagement_time_msec,
+                ...verifyParams(payload.params)
+              }
+            }
+          ],
+          ...formatUserProperties(payload.user_properties)
+        }
       })
     }
 
