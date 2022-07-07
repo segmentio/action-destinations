@@ -16,6 +16,10 @@ export interface Payload {
     [k: string]: unknown
   }
   /**
+   * Time in milliseconds when a request should be aborted. Default is 10000
+   */
+  timeout?: number
+  /**
    * Payload to deliver to webhook URL (JSON-encoded).
    */
   data?: {
