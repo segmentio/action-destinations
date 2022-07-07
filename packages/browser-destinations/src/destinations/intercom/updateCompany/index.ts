@@ -39,8 +39,7 @@ const action: BrowserActionDefinition<Settings, Intercom, Payload> = {
     //merge filtered custom traits back into company object
     company = { ...company, ...filteredCustomTraits }
 
-    console.log(company)
-    // //API call
+    //API call
     Intercom('update', {
       company
     })

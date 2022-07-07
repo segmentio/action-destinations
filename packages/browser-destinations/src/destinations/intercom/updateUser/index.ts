@@ -184,8 +184,6 @@ const action: BrowserActionDefinition<Settings, Intercom, Payload> = {
       }
     }
 
-    console.log(payload)
-    console.log(filteredCustomTraits)
     // API call
     Intercom('update', {
       ...payload,
