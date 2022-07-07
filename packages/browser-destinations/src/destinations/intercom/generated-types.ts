@@ -6,7 +6,7 @@ export interface Settings {
    */
   appId: string
   /**
-   * A list of Segment property names whose values include url and value keys
+   * A list of rich link property keys
    */
-  richLinkProperties?: string[]
+  richLinkProperties: string[]
 }

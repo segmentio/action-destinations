@@ -31,11 +31,11 @@ export const destination: BrowserDestinationDefinition<Settings, Intercom> = {
       description: 'The app_id of your Intercom app which will indicate where to store any data'
     },
     richLinkProperties: {
-      required: false,
+      required: true,
       label: 'Rich Link Properties',
       type: 'string',
       multiple: true,
-      description: 'A list of Segment property names whose values include url and value keys'
+      description: 'A list of rich link property keys'
     }
   },
 

@@ -12,11 +12,37 @@ const action: BrowserActionDefinition<Settings, Intercom, Payload> = {
   fields: {
     event_name: {
       description: 'The name of the event',
-      label: 'Name',
+      label: 'Event Name',
       required: true,
       type: 'string',
       default: {
         '@path': '$.event'
+      }
+    },
+    price: {
+      label: 'price',
+      description: 'price or monetary amount',
+      required: false,
+      type: 'object',
+      properties: {
+        amount: {
+          label: 'Amount',
+          type: 'number',
+          required: true,
+          description: 'the amount',
+          default: {
+            '@path': '$.properties.revenue'
+          }
+        },
+        currency: {
+          label: 'Currency',
+          type: 'string',
+          description: 'the currency of the amount. defaults to USD if left empty',
+          required: false,
+          default: {
+            '@path': '$.properties.currency'
+          }
+        }
       }
     },
     event_metadata: {
@@ -34,17 +60,29 @@ const action: BrowserActionDefinition<Settings, Intercom, Payload> = {
     const richLinkProperties = Intercom.richLinkProperties
 
     // create a list of the richLinkObjects that will be passed to Intercom
-    const richLinkObjects: Array<{ [k: string]: unknown }> = []
-    if (metadata && richLinkProperties) {
+    const richLinkObjects: { [k: string]: unknown } = {}
+    if (metadata && richLinkProperties != []) {
       for (const [key, value] of Object.entries(metadata)) {
-        if (richLinkProperties?.includes(key)) {
-          richLinkObjects.push({ key: value })
+        if (richLinkProperties.includes(key)) {
+          richLinkObjects[key] = value
         }
       }
     }
 
-    //filters out all objects & arrays
-    const filteredMetadata = metadata ? filterCustomTraits([], metadata) : {}
+    // some revenue logic
+    if (payload.price) {
+      //intercom requires amounts in cents
+      payload.price.amount *= 100
+
+      //currency defaults to USD
+      if (!payload.price.currency) {
+        payload.price.currency = 'usd'
+      }
+    }
+
+    // filter out reserved fields, drop custom objects & arrays
+    const reservedFields = [...richLinkProperties]
+    const filteredMetadata = metadata ? filterCustomTraits(reservedFields, metadata) : {}
 
     //rejoin richLinkObjects in the final payload
     //API CALL

@@ -9,7 +9,7 @@ analytics.track("product-searched", {
   product: 'surfboard',
   item: 394,
   article: {
-    link : 'ur mom'
+    link : 'https://www.google.com/'
   }
 })
 
