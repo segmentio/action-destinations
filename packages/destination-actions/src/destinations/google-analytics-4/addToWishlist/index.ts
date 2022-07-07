@@ -2,7 +2,7 @@ import { ActionDefinition, IntegrationError } from '@segment/actions-core'
 import { ProductItem } from '../ga4-types'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
-import { verifyCurrency } from '../ga4-functions'
+import { verifyCurrency, verifyParams } from '../ga4-functions'
 import {
   formatUserProperties,
   user_properties,
@@ -32,7 +32,7 @@ const action: ActionDefinition<Settings, Payload> = {
     engagement_time_msec: engagement_time_msec,
     params: params
   },
-  perform: (request, { payload }) => {
+  perform: (request, { payload, features }) => {
     if (payload.currency) {
       verifyCurrency(payload.currency)
     }
@@ -71,6 +71,29 @@ const action: ActionDefinition<Settings, Payload> = {
         }
 
         return product as ProductItem
+      })
+    }
+
+    if (features && features['actions-google-analytics-4-verify-params-feature']) {
+      return request('https://www.google-analytics.com/mp/collect', {
+        method: 'POST',
+        json: {
+          client_id: payload.client_id,
+          user_id: payload.user_id,
+          events: [
+            {
+              name: 'add_to_wishlist',
+              params: {
+                currency: payload.currency,
+                value: payload.value,
+                items: googleItems,
+                engagement_time_msec: payload.engagement_time_msec,
+                ...verifyParams(payload.params)
+              }
+            }
+          ],
+          ...formatUserProperties(payload.user_properties)
+        }
       })
     }
 

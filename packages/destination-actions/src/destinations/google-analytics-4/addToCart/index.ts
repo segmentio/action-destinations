@@ -2,7 +2,7 @@ import { ActionDefinition, IntegrationError } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 import { ProductItem } from '../ga4-types'
-import { verifyCurrency } from '../ga4-functions'
+import { verifyCurrency, verifyParams } from '../ga4-functions'
 import {
   formatUserProperties,
   user_properties,
