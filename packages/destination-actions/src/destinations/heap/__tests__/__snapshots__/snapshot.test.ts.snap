@@ -1,0 +1,27 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Testing snapshot for actions-heap destination: trackEvent action - all fields 1`] = `
+Object {
+  "app_id": "kFJwrNh$DP38FB",
+  "event": "kFJwrNh$DP38FB",
+  "idempotency_key": "1",
+  "identity": "kFJwrNh$DP38FB",
+  "properties": Object {
+    "segment_library": "kFJwrNh$DP38FB",
+    "testType": "kFJwrNh$DP38FB",
+  },
+  "timestamp": "2021-02-01T00:00:00.000Z",
+}
+`;
+
+exports[`Testing snapshot for actions-heap destination: trackEvent action - required fields 1`] = `
+Object {
+  "app_id": "kFJwrNh$DP38FB",
+  "event": "kFJwrNh$DP38FB",
+  "idempotency_key": "1",
+  "identity": "kFJwrNh$DP38FB",
+  "properties": Object {
+    "segment_library": "destinations-actions",
+  },
+}
+`;
