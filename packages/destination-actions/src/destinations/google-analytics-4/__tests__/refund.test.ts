@@ -455,6 +455,7 @@ describe('GA4', () => {
             apiSecret,
             measurementId
           },
+          features: { 'actions-google-analytics-4-verify-params-feature': true },
           mapping: {
             transaction_id: {
               '@path': '$.properties.order_number'
@@ -501,6 +502,7 @@ describe('GA4', () => {
             apiSecret,
             measurementId
           },
+          features: { 'actions-google-analytics-4-verify-params-feature': true },
           mapping: {
             transaction_id: {
               '@path': '$.properties.order_number'

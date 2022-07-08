@@ -465,6 +465,7 @@ describe('GA4', () => {
             apiSecret,
             measurementId
           },
+          features: { 'actions-google-analytics-4-verify-params-feature': true },
           mapping: {
             params: {
               test_value: null
@@ -546,6 +547,7 @@ describe('GA4', () => {
             apiSecret,
             measurementId
           },
+          features: { 'actions-google-analytics-4-verify-params-feature': true },
           mapping: {
             user_properties: {
               hello: ['World', 'world'],
