@@ -1,5 +1,6 @@
-import { RequestClient } from '@segment/actions-core'
-import type { ProspectsType } from './pa-type'
+import { IntegrationError, RequestClient } from '@segment/actions-core'
+import type { Payload as ProspectsPayload } from './prospects/generated-types'
+import { ProspectsType } from './pa-type'
 
 export const API_VERSION = 'v5'
 
@@ -19,7 +20,12 @@ export default class Pardot {
     this.request = request
   }
 
-  upsertRecord = async (email: string, prospect: ProspectsType, secondaryDeletedSearch = true) => {
+  upsertRecord = async (payload: ProspectsPayload) => {
+    if (!payload.email) {
+      throw new IntegrationError('The email field is always required', 'Undefined Email', 400)
+    }
+    const prospect = this.buildProspectJSON(payload)
+
     return this.request<ProspectUpsertResponseData>(
       `${this.baseUrl}/api/${API_VERSION}/prospects/do/upsertLatestByEmail`,
       {
@@ -28,11 +34,39 @@ export default class Pardot {
           'Content-Type': 'application/json'
         },
         json: {
-          matchEmail: email,
+          matchEmail: payload.email,
           prospect: prospect,
-          secondaryDeletedSearch: secondaryDeletedSearch
+          secondaryDeletedSearch: payload.secondaryDeletedSearch
         }
       }
     )
+  }
+
+  private ProspectsShape = (payload: ProspectsPayload): ProspectsType => {
+    return {
+      email: payload.email,
+      firstName: payload.city,
+      lastName: payload.lastName,
+      salutation: payload.salutation,
+      phone: payload.phone,
+      company: payload.company,
+      jobTitle: payload.jobTitle,
+      industry: payload.industry,
+      city: payload.city,
+      state: payload.state,
+      zip: payload.zip,
+      country: payload.country,
+      website: payload.website
+    }
+  }
+
+  private buildProspectJSON = (payload: ProspectsPayload) => {
+    let baseShape = this.ProspectsShape(payload)
+
+    if (payload.customFields) {
+      baseShape = { ...baseShape, ...payload.customFields }
+    }
+
+    return baseShape
   }
 }
