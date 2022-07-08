@@ -1,7 +1,7 @@
 import type { BrowserActionDefinition } from '../../../lib/browser-destinations'
 import { Intercom } from '../api'
 import type { Settings } from '../generated-types'
-import { filterCustomTraits } from '../utils'
+import { filterCustomTraits, isEmpty } from '../utils'
 import type { Payload } from './generated-types'
 
 // Change from unknown to the partner SDK types
@@ -55,22 +55,24 @@ const action: BrowserActionDefinition<Settings, Intercom, Payload> = {
     }
   },
   perform: (Intercom, event) => {
-    const payload = event.payload
-    const metadata = payload.event_metadata
+    const { event_name, event_metadata, ...rest } = event.payload
+    const payload = { ...rest }
     const richLinkProperties = Intercom.richLinkProperties
 
     // create a list of the richLinkObjects that will be passed to Intercom
     const richLinkObjects: { [k: string]: unknown } = {}
-    if (metadata && richLinkProperties != []) {
-      for (const [key, value] of Object.entries(metadata)) {
+    if (event_metadata && richLinkProperties.length != 0) {
+      for (const [key, value] of Object.entries(event_metadata)) {
         if (richLinkProperties.includes(key)) {
           richLinkObjects[key] = value
         }
       }
     }
 
-    // some revenue logic
-    if (payload.price) {
+    // remove price if it is empty
+    if (isEmpty(payload.price)) {
+      delete payload.price
+    } else if (payload.price) {
       //intercom requires amounts in cents
       payload.price.amount *= 100
 
@@ -81,12 +83,13 @@ const action: BrowserActionDefinition<Settings, Intercom, Payload> = {
     }
 
     // filter out reserved fields, drop custom objects & arrays
-    const reservedFields = [...richLinkProperties]
-    const filteredMetadata = metadata ? filterCustomTraits(reservedFields, metadata) : {}
+    const reservedFields = [...richLinkProperties, 'currency', 'revenue']
+    const filteredMetadata = filterCustomTraits(reservedFields, event_metadata)
 
     //rejoin richLinkObjects in the final payload
     //API CALL
-    Intercom('trackEvent', payload.event_name, {
+    Intercom('trackEvent', event_name, {
+      ...payload,
       ...filteredMetadata,
       ...richLinkObjects
     })

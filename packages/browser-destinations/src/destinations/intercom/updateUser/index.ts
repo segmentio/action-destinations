@@ -154,8 +154,7 @@ const action: BrowserActionDefinition<Settings, Intercom, Payload> = {
       }
     }
 
-    // filter out reserved fields, drop custom objects & arrays
-    let filteredCustomTraits = {}
+    //define the reservedFields
     const reservedFields = [
       ...Object.keys(action.fields),
       ...Object.keys(companyProperties),
@@ -166,22 +165,25 @@ const action: BrowserActionDefinition<Settings, Intercom, Payload> = {
       'companyId',
       'monthlySpend'
     ]
-    filteredCustomTraits = filterCustomTraits(reservedFields, traits)
 
-    // filter out reserved fields, drop custom objects & arrays
+    // filter out reserved fields for user, drop custom objects & arrays
+    const filteredCustomTraits = filterCustomTraits(reservedFields, traits)
+
+    // filter out reserved fields for company, drop custom objects & arrays
     if (payload.company) {
       const { company_traits, ...rest } = payload.company
       const companyFilteredCustomTraits = filterCustomTraits(reservedFields, company_traits)
       payload.company = { ...rest, ...companyFilteredCustomTraits }
     }
 
-    // filter out reserved fields, drop custom objects & arrays
+    // filter out reserved fields for companies array, drop custom objects & arrays
     if (payload.companies) {
-      for (let i = 0; i < payload.companies.length; i++) {
-        const { company_traits, ...rest } = payload.companies[i]
+      payload.companies = payload.companies.map((company) => {
+        const { company_traits, ...rest } = company
         const companyFilteredCustomTraits = filterCustomTraits(reservedFields, company_traits)
-        payload.companies[i] = { ...rest, ...companyFilteredCustomTraits }
-      }
+        company = { ...rest, ...companyFilteredCustomTraits }
+        return company
+      })
     }
 
     // API call
