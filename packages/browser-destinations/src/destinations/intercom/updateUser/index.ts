@@ -14,124 +14,129 @@ const action: BrowserActionDefinition<Settings, Intercom, Payload> = {
   platform: 'web',
   fields: {
     user_id: {
+      description: "The user's identity.",
+      label: 'Identity',
       type: 'string',
       required: false,
-      description: "The user's identity",
-      label: 'Identity',
       default: {
         '@path': '$.userId'
       }
     },
-    traits: {
+    custom_traits: {
+      description: "The user's custom traits.",
+      label: 'Custom Traits',
       type: 'object',
       required: false,
-      description: 'The Segment traits to be forwarded to Intercom',
-      label: 'Traits',
       default: {
         '@path': '$.traits'
       }
     },
     name: {
+      description: "The user's name.",
+      label: 'Name',
       type: 'string',
       required: false,
-      description: "User's name",
-      label: 'Name',
       default: {
         '@path': '$.traits.name'
       }
     },
     phone: {
+      description: 'The phone number of the current user/lead.',
+      label: 'Phone',
       type: 'string',
       required: false,
-      description: 'Phone number of the current user/lead',
-      label: 'Phone',
       default: {
         '@path': '$.traits.phone'
       }
     },
     unsubscribed_from_emails: {
+      description: 'The email unsubscribe status for the user.',
+      label: 'Unsubscribed From Emails',
       type: 'boolean',
       required: false,
-      description: 'Sets the [unsubscribe status] of the record',
-      label: 'Unsubscribed from emails',
       default: {
         '@path': '$.traits.unsubscribedFromEmails'
       }
     },
     language_override: {
+      description: 'The messenger language (instead of relying on browser language settings).',
+      label: 'Language Override',
       type: 'string',
       required: false,
-      description: 'The messenger language (instead of relying on browser language settings)',
-      label: 'Language Override',
       default: {
         '@path': '$.traits.languageOverride'
       }
     },
     email: {
+      description: "User's email.",
+      label: 'Name',
       type: 'string',
       required: false,
-      description: "User's email",
-      label: 'Name',
       default: {
         '@path': '$.traits.email'
       }
     },
     created_at: {
-      label: 'Created at',
-      description: 'A timestamp of when the person was created',
-      required: false,
+      description: 'A timestamp of when the person was created.',
+      label: 'Created At',
       type: 'datetime',
+      required: false,
       default: {
         '@path': '$.traits.createdAt'
       }
     },
     avatar: {
-      label: 'avatar',
-      description:
-        'The avatar/profile image associated to the current record (typically gathered via social profiles via email address)',
-      required: false,
+      description: 'The avatar/profile image associated to the user.',
+      label: 'Avatar',
       type: 'object',
+      required: false,
       properties: {
         image_url: {
+          description: 'The avatar/profile image URL.',
           label: 'Image URL',
           type: 'string',
-          description: 'An avatar image URL. Note: needs to be https'
+          required: true,
+          default: {
+            '@path': '$.traits.avatar.imageUrl'
+          }
         },
         type: {
-          label: 'type',
+          description: 'This is not sent by the user, it is manually set to avatar.',
+          label: 'Type',
           type: 'string',
-          description: 'is not sent by the user, manually set to avatar'
+          required: true,
+          default: 'avatar'
         }
       }
     },
     user_hash: {
+      description: 'This is used for identity verification.',
       label: 'User Hash',
-      description: 'Used for identity verification',
-      required: false,
       type: 'string',
+      required: false,
       default: {
         '@path': '$.traits.userHash'
       }
     },
     company: {
+      description: "The user's company.",
       label: 'Company',
-      description: "The user's company",
-      required: false,
       type: 'object',
+      required: false,
       properties: companyProperties
     },
     companies: {
+      description: 'The array of companies the user is associated to.',
       label: 'Companies',
-      description: 'An array of companies the user is associated to',
-      required: false,
-      multiple: true,
       type: 'object',
+      multiple: true,
+      required: false,
       properties: companyProperties
     }
   },
   perform: (Intercom, event) => {
     // remove traits from payload; traits will not be sent in the final payload to Intercom
-    const { traits, ...rest } = event.payload
+    const { custom_traits, ...rest } = event.payload
     const payload = { ...rest }
 
     // remove avatar & company if they are empty
@@ -167,20 +172,20 @@ const action: BrowserActionDefinition<Settings, Intercom, Payload> = {
     ]
 
     // filter out reserved fields for user, drop custom objects & arrays
-    const filteredCustomTraits = filterCustomTraits(reservedFields, traits)
+    const filteredCustomTraits = filterCustomTraits(reservedFields, custom_traits)
 
     // filter out reserved fields for company, drop custom objects & arrays
     if (payload.company) {
-      const { company_traits, ...rest } = payload.company
-      const companyFilteredCustomTraits = filterCustomTraits(reservedFields, company_traits)
+      const { company_custom_traits, ...rest } = payload.company
+      const companyFilteredCustomTraits = filterCustomTraits(reservedFields, company_custom_traits)
       payload.company = { ...rest, ...companyFilteredCustomTraits }
     }
 
     // filter out reserved fields for companies array, drop custom objects & arrays
     if (payload.companies) {
       payload.companies = payload.companies.map((company) => {
-        const { company_traits, ...rest } = company
-        const companyFilteredCustomTraits = filterCustomTraits(reservedFields, company_traits)
+        const { company_custom_traits, ...rest } = company
+        const companyFilteredCustomTraits = filterCustomTraits(reservedFields, company_custom_traits)
         company = { ...rest, ...companyFilteredCustomTraits }
         return company
       })

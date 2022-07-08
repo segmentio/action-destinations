@@ -6,7 +6,7 @@ import { extractCompanyProperties } from '../sharedCompany'
 import { convertISO8601toUnix, filterCustomTraits } from '../utils'
 import type { Payload } from './generated-types'
 
-const companyProperties: Record<string, InputField> = extractCompanyProperties('traits')
+const companyProperties: Record<string, InputField> = extractCompanyProperties()
 
 const action: BrowserActionDefinition<Settings, Intercom, Payload> = {
   title: 'Update Company',
@@ -14,8 +14,8 @@ const action: BrowserActionDefinition<Settings, Intercom, Payload> = {
   platform: 'web',
   fields: {
     company: {
+      description: "The user's company.",
       label: 'Company',
-      description: "The user's company",
       required: true,
       type: 'object',
       properties: companyProperties
@@ -23,7 +23,7 @@ const action: BrowserActionDefinition<Settings, Intercom, Payload> = {
   },
   perform: (Intercom, event) => {
     //remove traits from payload; traits will not be sent in the final payload to Intercom
-    const { company_traits, ...rest } = event.payload.company
+    const { company_custom_traits, ...rest } = event.payload.company
     let company = { ...rest }
 
     //convert date from ISO-8601 to UNIX
@@ -31,9 +31,9 @@ const action: BrowserActionDefinition<Settings, Intercom, Payload> = {
       company.created_at = convertISO8601toUnix(company.created_at)
     }
 
-    //filter out reserved fields
+    //filter out reserved fields, drop custom objects & arrays
     const reservedFields = [...Object.keys(companyProperties), 'createdAt', 'monthlySpend']
-    const filteredCustomTraits = filterCustomTraits(reservedFields, company_traits)
+    const filteredCustomTraits = filterCustomTraits(reservedFields, company_custom_traits)
 
     //merge filtered custom traits back into company object
     company = { ...company, ...filteredCustomTraits }

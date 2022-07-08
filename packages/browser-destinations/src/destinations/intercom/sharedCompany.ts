@@ -1,79 +1,58 @@
 import { InputField } from '@segment/actions-core'
 
-export const extractCompanyProperties = (path: string): Record<string, InputField> => ({
+export const extractCompanyProperties = (): Record<string, InputField> => ({
   company_id: {
+    description: 'The company id of the company.',
+    label: 'Company Id',
     type: 'string',
-    required: true,
-    description: 'The company ID of the company',
-    label: 'Company ID'
+    required: true
   },
   name: {
-    type: 'string',
-    required: true,
-    description: 'The name of the company',
+    description: 'The name of the company.',
     label: 'Company Name',
-    default: {
-      '@path': `$.${path}.name`
-    }
+    type: 'string',
+    required: true
   },
   created_at: {
+    description: 'The time the company was created in your system.',
     label: 'Created At',
-    description: 'The time the company was created in your system',
-    required: false,
     type: 'datetime',
-    default: {
-      '@path': `$.${path}.createdAt`
-    }
+    required: false
   },
   plan: {
-    type: 'string',
-    required: false,
-    description: 'The name of the plan the company is on',
+    description: 'The name of the plan the company is on.',
     label: 'Company Plan',
-    default: {
-      '@path': `$.${path}.plan`
-    }
+    type: 'string',
+    required: false
   },
   monthly_spend: {
+    description: 'How much revenue the company generates for your business.',
     label: 'Monthly Spend',
-    description: 'How much revenue the company generates for your business',
-    required: false,
     type: 'integer',
-    default: {
-      '@path': `$.${path}.monthlySpend`
-    }
+    required: false
   },
   size: {
-    label: 'size',
-    description: 'The number of employees in the company',
-    required: false,
+    description: 'The number of employees in the company.',
+    label: 'Size',
     type: 'integer',
-    default: {
-      '@path': `$.${path}.size`
-    }
+    required: false
   },
   website: {
+    description: 'The URL for the company website.',
     label: 'Website',
-    description: 'The URL for the company website',
-    required: false,
     type: 'string',
-    default: {
-      '@path': `$.${path}.website`
-    }
+    required: false
   },
   industry: {
+    description: 'The industry of the company.',
     label: 'Industry',
-    description: 'The industry of the company',
-    required: false,
     type: 'string',
-    default: {
-      '@path': `$.${path}.industry`
-    }
+    required: false
   },
-  company_traits: {
-    label: 'company traits',
-    description: 'the custom traits for the company object',
-    required: false,
-    type: 'object'
+  company_custom_traits: {
+    description: 'The custom traits for the company object.',
+    label: 'Company Custom Traits',
+    type: 'object',
+    required: false
   }
 })

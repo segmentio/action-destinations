@@ -2,139 +2,139 @@
 
 export interface Payload {
   /**
-   * The user's identity
+   * The user's identity.
    */
   user_id?: string
   /**
-   * The Segment traits to be forwarded to Intercom
+   * The user's custom traits.
    */
-  traits?: {
+  custom_traits?: {
     [k: string]: unknown
   }
   /**
-   * User's name
+   * The user's name.
    */
   name?: string
   /**
-   * Phone number of the current user/lead
+   * The phone number of the current user/lead.
    */
   phone?: string
   /**
-   * Sets the [unsubscribe status] of the record
+   * The email unsubscribe status for the user.
    */
   unsubscribed_from_emails?: boolean
   /**
-   * The messenger language (instead of relying on browser language settings)
+   * The messenger language (instead of relying on browser language settings).
    */
   language_override?: string
   /**
-   * User's email
+   * User's email.
    */
   email?: string
   /**
-   * A timestamp of when the person was created
+   * A timestamp of when the person was created.
    */
   created_at?: string | number
   /**
-   * The avatar/profile image associated to the current record (typically gathered via social profiles via email address)
+   * The avatar/profile image associated to the user.
    */
   avatar?: {
     /**
-     * An avatar image URL. Note: needs to be https
+     * The avatar/profile image URL.
      */
-    image_url?: string
+    image_url: string
     /**
-     * is not sent by the user, manually set to avatar
+     * This is not sent by the user, it is manually set to avatar.
      */
-    type?: string
+    type: string
   }
   /**
-   * Used for identity verification
+   * This is used for identity verification.
    */
   user_hash?: string
   /**
-   * The user's company
+   * The user's company.
    */
   company?: {
     /**
-     * The company ID of the company
+     * The company id of the company.
      */
     company_id: string
     /**
-     * The name of the company
+     * The name of the company.
      */
     name: string
     /**
-     * The time the company was created in your system
+     * The time the company was created in your system.
      */
     created_at?: string | number
     /**
-     * The name of the plan the company is on
+     * The name of the plan the company is on.
      */
     plan?: string
     /**
-     * How much revenue the company generates for your business
+     * How much revenue the company generates for your business.
      */
     monthly_spend?: number
     /**
-     * The number of employees in the company
+     * The number of employees in the company.
      */
     size?: number
     /**
-     * The URL for the company website
+     * The URL for the company website.
      */
     website?: string
     /**
-     * The industry of the company
+     * The industry of the company.
      */
     industry?: string
     /**
-     * the custom traits for the company object
+     * The custom traits for the company object.
      */
-    company_traits?: {
+    company_custom_traits?: {
       [k: string]: unknown
     }
   }
   /**
-   * An array of companies the user is associated to
+   * The array of companies the user is associated to.
    */
   companies?: {
     /**
-     * The company ID of the company
+     * The company id of the company.
      */
     company_id: string
     /**
-     * The name of the company
+     * The name of the company.
      */
     name: string
     /**
-     * The time the company was created in your system
+     * The time the company was created in your system.
      */
     created_at?: string | number
     /**
-     * The name of the plan the company is on
+     * The name of the plan the company is on.
      */
     plan?: string
     /**
-     * How much revenue the company generates for your business
+     * How much revenue the company generates for your business.
      */
     monthly_spend?: number
     /**
-     * The number of employees in the company
+     * The number of employees in the company.
      */
     size?: number
     /**
-     * The URL for the company website
+     * The URL for the company website.
      */
     website?: string
     /**
-     * The industry of the company
+     * The industry of the company.
      */
     industry?: string
     /**
-     * the custom traits for the company object
+     * The custom traits for the company object.
      */
-    company_traits?: {
+    company_custom_traits?: {
       [k: string]: unknown
     }
   }[]

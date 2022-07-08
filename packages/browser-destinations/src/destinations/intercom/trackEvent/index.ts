@@ -11,33 +11,33 @@ const action: BrowserActionDefinition<Settings, Intercom, Payload> = {
   platform: 'web',
   fields: {
     event_name: {
-      description: 'The name of the event',
+      description: 'The name of the event.',
       label: 'Event Name',
-      required: true,
       type: 'string',
+      required: true,
       default: {
         '@path': '$.event'
       }
     },
     price: {
-      label: 'price',
-      description: 'price or monetary amount',
-      required: false,
+      description: 'Price or monetary amount.',
+      label: 'Price',
       type: 'object',
+      required: false,
       properties: {
         amount: {
+          description: 'The amount.',
           label: 'Amount',
           type: 'number',
           required: true,
-          description: 'the amount',
           default: {
             '@path': '$.properties.revenue'
           }
         },
         currency: {
+          description: 'The currency of the amount. It defaults to USD if left empty.',
           label: 'Currency',
           type: 'string',
-          description: 'the currency of the amount. defaults to USD if left empty',
           required: false,
           default: {
             '@path': '$.properties.currency'
@@ -46,9 +46,10 @@ const action: BrowserActionDefinition<Settings, Intercom, Payload> = {
       }
     },
     event_metadata: {
+      description: 'Parameters specific to the event.',
       label: 'Event Parameters',
-      description: 'Parameters specific to the event',
       type: 'object',
+      required: true,
       default: {
         '@path': '$.properties'
       }
@@ -88,7 +89,7 @@ const action: BrowserActionDefinition<Settings, Intercom, Payload> = {
     const filteredMetadata = filterCustomTraits(reservedFields, event_metadata)
 
     //merge richLinkObjects into the final payload
-    //API CALL
+    //API call
     Intercom('trackEvent', event_name, {
       ...payload,
       ...filteredMetadata,
