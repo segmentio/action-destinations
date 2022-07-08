@@ -32,9 +32,8 @@ const action: BrowserActionDefinition<Settings, Intercom, Payload> = {
     }
 
     //filter out reserved fields
-    let filteredCustomTraits = {}
     const reservedFields = [...Object.keys(companyProperties), 'createdAt', 'monthlySpend']
-    filteredCustomTraits = filterCustomTraits(reservedFields, company_traits)
+    const filteredCustomTraits = filterCustomTraits(reservedFields, company_traits)
 
     //merge filtered custom traits back into company object
     company = { ...company, ...filteredCustomTraits }

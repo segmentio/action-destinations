@@ -55,6 +55,7 @@ const action: BrowserActionDefinition<Settings, Intercom, Payload> = {
     }
   },
   perform: (Intercom, event) => {
+    //remove event_name & event_metadata from the payload (they will be handled separately)
     const { event_name, event_metadata, ...rest } = event.payload
     const payload = { ...rest }
     const richLinkProperties = Intercom.richLinkProperties
@@ -86,7 +87,7 @@ const action: BrowserActionDefinition<Settings, Intercom, Payload> = {
     const reservedFields = [...richLinkProperties, 'currency', 'revenue']
     const filteredMetadata = filterCustomTraits(reservedFields, event_metadata)
 
-    //rejoin richLinkObjects in the final payload
+    //merge richLinkObjects into the final payload
     //API CALL
     Intercom('trackEvent', event_name, {
       ...payload,
