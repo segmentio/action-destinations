@@ -291,5 +291,142 @@ describe('GA4', () => {
         expect(e.message).toBe('One of product name or product id is required for product or impression data.')
       }
     })
+
+    it('should throw an error when params value is null', async () => {
+      nock('https://www.google-analytics.com/mp/collect')
+        .post(`?measurement_id=${measurementId}&api_secret=${apiSecret}`)
+        .reply(201, {})
+
+      const event = createTestEvent({
+        event: 'Product List Viewed',
+        userId: 'abc123',
+        anonymousId: 'anon-2134',
+        type: 'track',
+        properties: {
+          products: [
+            {
+              product_id: '12345abcde',
+              name: 'Quadruple Stack Oreos, 52 ct',
+              currency: 'USD',
+              price: 12.99,
+              quantity: 1
+            }
+          ]
+        }
+      })
+      try {
+        await testDestination.testAction('viewItemList', {
+          event,
+          settings: {
+            apiSecret,
+            measurementId
+          },
+          features: { 'actions-google-analytics-4-verify-params-feature': true },
+          mapping: {
+            client_id: {
+              '@path': '$.anonymousId'
+            },
+            engagement_time_msec: 2,
+            params: {
+              test_value: null
+            },
+            items: [
+              {
+                item_name: {
+                  '@path': `$.properties.products.0.name`
+                },
+                item_id: {
+                  '@path': `$.properties.products.0.product_id`
+                },
+                currency: {
+                  '@path': `$.properties.products.0.currency`
+                },
+                price: {
+                  '@path': `$.properties.products.0.price`
+                },
+                quantity: {
+                  '@path': `$.properties.products.0.quantity`
+                }
+              }
+            ]
+          }
+        })
+        fail('the test should have thrown an error')
+      } catch (e) {
+        expect(e.message).toBe(
+          'GA4 only accepts string or number values for event parameters and item parameters. Please ensure you are not including null, array, or nested values.'
+        )
+      }
+    })
+
+    it('should throw an error when user_properties value is array', async () => {
+      nock('https://www.google-analytics.com/mp/collect')
+        .post(`?measurement_id=${measurementId}&api_secret=${apiSecret}`)
+        .reply(201, {})
+
+      const event = createTestEvent({
+        event: 'Product List Viewed',
+        userId: 'abc123',
+        anonymousId: 'anon-2134',
+        type: 'track',
+        properties: {
+          products: [
+            {
+              product_id: '12345abcde',
+              name: 'Quadruple Stack Oreos, 52 ct',
+              currency: 'USD',
+              price: 12.99,
+              quantity: 1
+            }
+          ]
+        }
+      })
+      try {
+        await testDestination.testAction('viewItemList', {
+          event,
+          settings: {
+            apiSecret,
+            measurementId
+          },
+          features: { 'actions-google-analytics-4-verify-params-feature': true },
+          mapping: {
+            client_id: {
+              '@path': '$.anonymousId'
+            },
+            engagement_time_msec: 2,
+            user_properties: {
+              hello: ['World', 'world'],
+              a: '1',
+              b: '2',
+              c: '3'
+            },
+            items: [
+              {
+                item_name: {
+                  '@path': `$.properties.products.0.name`
+                },
+                item_id: {
+                  '@path': `$.properties.products.0.product_id`
+                },
+                currency: {
+                  '@path': `$.properties.products.0.currency`
+                },
+                price: {
+                  '@path': `$.properties.products.0.price`
+                },
+                quantity: {
+                  '@path': `$.properties.products.0.quantity`
+                }
+              }
+            ]
+          }
+        })
+        fail('the test should have thrown an error')
+      } catch (e) {
+        expect(e.message).toBe(
+          'GA4 only accepts string, number or null values for user properties. Please ensure you are not including array or nested values.'
+        )
+      }
+    })
   })
 })
