@@ -2,11 +2,11 @@
 
 export interface Settings {
   /**
-   * The app_id of your Intercom app which will indicate where to store any data
+   * The app_id of your Intercom app which will indicate where to store any data.
    */
   appId: string
   /**
-   * A list of rich link property keys
+   * A list of rich link property keys.
    */
   richLinkProperties: string[]
 }

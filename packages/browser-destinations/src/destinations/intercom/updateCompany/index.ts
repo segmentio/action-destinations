@@ -16,8 +16,8 @@ const action: BrowserActionDefinition<Settings, Intercom, Payload> = {
     company: {
       description: "The user's company.",
       label: 'Company',
-      required: true,
       type: 'object',
+      required: true,
       properties: companyProperties,
       default: {
         company_id: { '@path': '$.groupId' },

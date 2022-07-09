@@ -25,17 +25,17 @@ export const destination: BrowserDestinationDefinition<Settings, Intercom> = {
   settings: {
     // Add any Segment destination settings required here
     appId: {
-      required: true,
+      description: 'The app_id of your Intercom app which will indicate where to store any data.',
       label: 'App ID',
       type: 'string',
-      description: 'The app_id of your Intercom app which will indicate where to store any data'
+      required: true
     },
     richLinkProperties: {
-      required: true,
+      description: 'A list of rich link property keys.',
       label: 'Rich Link Properties',
       type: 'string',
       multiple: true,
-      description: 'A list of rich link property keys'
+      required: true
     }
   },
 
