@@ -6,7 +6,7 @@ import { extractCompanyProperties } from '../sharedCompany'
 import { convertISO8601toUnix, filterCustomTraits, isEmpty } from '../utils'
 import type { Payload } from './generated-types'
 
-const companyProperties: Record<string, InputField> = extractCompanyProperties('company')
+const companyProperties: Record<string, InputField> = extractCompanyProperties()
 
 const action: BrowserActionDefinition<Settings, Intercom, Payload> = {
   title: 'Update',
@@ -123,7 +123,18 @@ const action: BrowserActionDefinition<Settings, Intercom, Payload> = {
       label: 'Company',
       type: 'object',
       required: false,
-      properties: companyProperties
+      properties: companyProperties,
+      default: {
+        company_id: { '@path': '$.traits.company.companyId' },
+        name: { '@path': '$.traits.company.name' },
+        created_at: { '@path': '$.traits.company.createdAt' },
+        plan: { '@path': '$.traits.company.plan' },
+        monthly_spend: { '@path': '$.traits.company.monthlySpend' },
+        size: { '@path': '$.traits.company.size' },
+        website: { '@path': '$.traits.company.website' },
+        industry: { '@path': '$.traits.company.industry' },
+        company_custom_traits: { '@path': '$.traits.company' }
+      }
     },
     companies: {
       description: 'The array of companies the user is associated to.',
@@ -131,7 +142,23 @@ const action: BrowserActionDefinition<Settings, Intercom, Payload> = {
       type: 'object',
       multiple: true,
       required: false,
-      properties: companyProperties
+      properties: companyProperties,
+      default: {
+        '@arrayPath': [
+          '$.traits.companies',
+          {
+            company_id: { '@path': '$.company.companyId' },
+            name: { '@path': '$.company.name' },
+            created_at: { '@path': '$.company.createdAt' },
+            plan: { '@path': '$.company.plan' },
+            monthly_spend: { '@path': '$.company.monthlySpend' },
+            size: { '@path': '$.company.size' },
+            website: { '@path': '$.company.website' },
+            industry: { '@path': '$.company.industry' },
+            company_custom_traits: { '@path': '$.company' }
+          }
+        ]
+      }
     }
   },
   perform: (Intercom, event) => {

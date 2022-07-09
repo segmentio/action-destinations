@@ -18,7 +18,18 @@ const action: BrowserActionDefinition<Settings, Intercom, Payload> = {
       label: 'Company',
       required: true,
       type: 'object',
-      properties: companyProperties
+      properties: companyProperties,
+      default: {
+        company_id: { '@path': '$.groupId' },
+        name: { '@path': '$.traits.name' },
+        created_at: { '@path': '$.traits.createdAt' },
+        plan: { '@path': '$.traits.plan' },
+        monthly_spend: { '@path': '$.traits.monthlySpend' },
+        size: { '@path': '$.traits.size' },
+        website: { '@path': '$.traits.website' },
+        industry: { '@path': '$.traits.industry' },
+        company_custom_traits: { '@path': '$.traits' }
+      }
     }
   },
   perform: (Intercom, event) => {
