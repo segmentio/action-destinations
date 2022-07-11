@@ -1,7 +1,7 @@
 import { ActionDefinition, IntegrationError } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
-import { verifyCurrency, verifyParams } from '../ga4-functions'
+import { verifyCurrency, verifyParams, verifyUserProps } from '../ga4-functions'
 import { ProductItem } from '../ga4-types'
 import {
   coupon,
@@ -68,32 +68,10 @@ const action: ActionDefinition<Settings, Payload> = {
         return product as ProductItem
       })
     }
+
     if (features && features['actions-google-analytics-4-verify-params-feature']) {
-      return request('https://www.google-analytics.com/mp/collect', {
-        method: 'POST',
-        json: {
-          client_id: payload.client_id,
-          user_id: payload.user_id,
-          events: [
-            {
-              name: 'purchase',
-              params: {
-                affiliation: payload.affiliation,
-                coupon: payload.coupon,
-                currency: payload.currency,
-                items: googleItems,
-                transaction_id: payload.transaction_id,
-                shipping: payload.shipping,
-                value: payload.value,
-                tax: payload.tax,
-                engagement_time_msec: payload.engagement_time_msec,
-                ...verifyParams(payload.params)
-              }
-            }
-          ],
-          ...formatUserProperties(payload.user_properties)
-        }
-      })
+      verifyParams(payload.params)
+      verifyUserProps(payload.user_properties)
     }
 
     return request('https://www.google-analytics.com/mp/collect', {

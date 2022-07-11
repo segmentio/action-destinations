@@ -1,5 +1,4 @@
 import { InputField } from '@segment/actions-core/src/destination-kit/types'
-import { IntegrationError } from '@segment/actions-core'
 
 export const formatUserProperties = (userProperties: object | undefined): object | undefined => {
   if (!userProperties) {
@@ -9,13 +8,6 @@ export const formatUserProperties = (userProperties: object | undefined): object
   let properties = {}
 
   Object.entries(userProperties).forEach(([key, value]) => {
-    if (typeof value != 'string' && typeof value != 'number' && value != null) {
-      throw new IntegrationError(
-        'GA4 only accepts string, number or null values for user properties. Please ensure you are not including array or nested values.',
-        'Invalid value',
-        400
-      )
-    }
     properties = { ...properties, ...{ [key]: { value: value } } }
   })
 

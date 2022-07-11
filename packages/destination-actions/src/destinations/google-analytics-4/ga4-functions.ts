@@ -9,9 +9,9 @@ export function verifyCurrency(currency: string): void {
 }
 
 // Ensure the values in params match Googles expectations
-export function verifyParams(params: object | undefined): object | undefined {
+export function verifyParams(params: object | undefined): void {
   if (!params) {
-    return undefined
+    return
   }
 
   Object.entries(params).forEach(([_, value]) => {
@@ -23,6 +23,20 @@ export function verifyParams(params: object | undefined): object | undefined {
       )
     }
   })
+}
 
-  return params
+export function verifyUserProps(userProperties: object | undefined): void {
+  if (!userProperties) {
+    return
+  }
+
+  Object.entries(userProperties).forEach(([_, value]) => {
+    if (typeof value != 'string' && typeof value != 'number' && value != null) {
+      throw new IntegrationError(
+        'GA4 only accepts string, number or null values for user properties. Please ensure you are not including array or nested values.',
+        'Invalid value',
+        400
+      )
+    }
+  })
 }
