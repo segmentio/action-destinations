@@ -115,7 +115,7 @@ const action: BrowserActionDefinition<Settings, Intercom, Payload> = {
       type: 'string',
       required: false,
       default: {
-        '@path': '$.traits.userHash'
+        '@path': '$.context.Intercom.user_hash'
       }
     },
     company: {
