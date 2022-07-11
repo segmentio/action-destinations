@@ -27,11 +27,9 @@ describe('FullStory', () => {
       const eventName = 'test-event'
 
       const properties = {
-        eventData: {
-          'first-property': 'first-value',
-          second_property: 'second_value',
-          thirdProperty: 'thirdValue'
-        },
+        'first-property': 'first-value',
+        second_property: 'second_value',
+        thirdProperty: 'thirdValue',
         useRecentSession: true,
         sessionUrl: 'session-url'
       }
@@ -65,7 +63,13 @@ describe('FullStory', () => {
       expect(JSON.parse(response.options.body as string)).toEqual({
         event: {
           event_name: eventName,
-          event_data: properties,
+          event_data: {
+            'first-property_str': properties['first-property'],
+            second_property_str: properties.second_property,
+            thirdProperty_str: properties.thirdProperty,
+            useRecentSession_bool: properties.useRecentSession,
+            sessionUrl_str: properties.sessionUrl
+          },
           timestamp,
           use_recent_session: properties.useRecentSession,
           session_url: properties.sessionUrl
@@ -109,10 +113,11 @@ describe('FullStory', () => {
         anonymousId,
         traits: {
           email,
-          displayName,
-          'originally-hyphenated': true,
+          name: displayName,
+          'originally-hyphenated': 'some string',
           'originally spaced': true,
-          typeSuffixed_str: true
+          typeSuffixed_bool: true,
+          'originally.dotted': 1.23
         }
       })
 
@@ -126,10 +131,14 @@ describe('FullStory', () => {
       expect(JSON.parse(response.options.body as string)).toEqual({
         segmentAnonymousId_str: anonymousId,
         email,
+        // TODO(nate): See if we can eliminate duplicate email_str and name_str data based on mapping config.
+        email_str: email,
         displayName,
-        originallyHyphenated: true,
-        originallySpaced: true,
-        typeSuffixed_str: true
+        name_str: displayName,
+        originallyHyphenated_str: 'some string',
+        originallySpaced_bool: true,
+        typeSuffixed_bool: true,
+        originallyDotted_real: 1.23
       })
     })
   })

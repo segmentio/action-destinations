@@ -3,6 +3,7 @@ import dayjs from '../../../lib/dayjs'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 import { customEventRequestParams } from '../request-params'
+import { normalizePropertyNames } from '../vars'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Track Event',
@@ -70,7 +71,7 @@ const action: ActionDefinition<Settings, Payload> = {
     const { url, options } = customEventRequestParams(settings, {
       userId,
       eventName: name,
-      eventData: properties || {},
+      eventData: normalizePropertyNames(properties),
       timestamp: utcTimestamp && utcTimestamp.isValid() ? utcTimestamp.toISOString() : undefined,
       useRecentSession,
       sessionUrl
