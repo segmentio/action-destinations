@@ -1,5 +1,5 @@
 import { ActionDefinition, IntegrationError } from '@segment/actions-core'
-import { verifyCurrency } from '../ga4-functions'
+import { verifyCurrency, formatItems } from '../ga4-functions'
 import {
   formatUserProperties,
   user_properties,
@@ -32,41 +32,45 @@ const action: ActionDefinition<Settings, Payload> = {
     engagement_time_msec: engagement_time_msec,
     params: params
   },
-  perform: (request, { payload }) => {
+  perform: (request, { payload, features }) => {
     if (payload.currency) {
       verifyCurrency(payload.currency)
     }
-
     let googleItems: ProductItem[] = []
+    if (features && features['actions-google-analytics-4-refactor-perform-method']) {
+      if (payload.items) {
+        googleItems = formatItems(payload.items)
+      }
+    } else {
+      if (payload.items) {
+        googleItems = payload.items.map((product) => {
+          if (product.item_name === undefined && product.item_id === undefined) {
+            throw new IntegrationError(
+              'One of product name or product id is required for product or impression data.',
+              'Misconfigured required field',
+              400
+            )
+          }
 
-    if (payload.items) {
-      googleItems = payload.items.map((product) => {
-        if (product.item_name === undefined && product.item_id === undefined) {
-          throw new IntegrationError(
-            'One of product name or product id is required for product or impression data.',
-            'Misconfigured required field',
-            400
-          )
-        }
+          if (product.currency) {
+            verifyCurrency(product.currency)
+          }
 
-        if (product.currency) {
-          verifyCurrency(product.currency)
-        }
-
-        return {
-          item_id: product.item_id,
-          item_name: product.item_name,
-          quantity: product.quantity,
-          affiliation: product.affiliation,
-          coupon: product.coupon,
-          discount: product.discount,
-          item_brand: product.item_brand,
-          item_category: product.item_category,
-          item_variant: product.item_variant,
-          price: product.price,
-          currency: product.currency
-        } as ProductItem
-      })
+          return {
+            item_id: product.item_id,
+            item_name: product.item_name,
+            quantity: product.quantity,
+            affiliation: product.affiliation,
+            coupon: product.coupon,
+            discount: product.discount,
+            item_brand: product.item_brand,
+            item_category: product.item_category,
+            item_variant: product.item_variant,
+            price: product.price,
+            currency: product.currency
+          } as ProductItem
+        })
+      }
     }
 
     return request('https://www.google-analytics.com/mp/collect', {

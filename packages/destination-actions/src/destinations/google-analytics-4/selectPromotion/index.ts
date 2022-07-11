@@ -1,5 +1,5 @@
 import { ActionDefinition, IntegrationError } from '@segment/actions-core'
-import { verifyCurrency } from '../ga4-functions'
+import { verifyCurrency, formatPromotionItems } from '../ga4-functions'
 import {
   creative_name,
   client_id,
@@ -56,33 +56,38 @@ const action: ActionDefinition<Settings, Payload> = {
     engagement_time_msec: engagement_time_msec,
     params: params
   },
-  perform: (request, { payload }) => {
+  perform: (request, { payload, features }) => {
     let googleItems: PromotionProductItem[] = []
+    if (features && features['actions-google-analytics-4-refactor-perform-method']) {
+      if (payload.items) {
+        googleItems = formatPromotionItems(payload.items)
+      }
+    } else {
+      if (payload.items) {
+        googleItems = payload.items.map((product) => {
+          if (product.item_name === undefined && product.item_id === undefined) {
+            throw new IntegrationError(
+              'One of product name or product id is required for product or impression data.',
+              'Misconfigured required field',
+              400
+            )
+          }
 
-    if (payload.items) {
-      googleItems = payload.items.map((product) => {
-        if (product.item_name === undefined && product.item_id === undefined) {
-          throw new IntegrationError(
-            'One of product name or product id is required for product or impression data.',
-            'Misconfigured required field',
-            400
-          )
-        }
+          if (product.currency) {
+            verifyCurrency(product.currency)
+          }
 
-        if (product.currency) {
-          verifyCurrency(product.currency)
-        }
+          if (product.promotion_id === undefined && product.promotion_name === undefined) {
+            throw new IntegrationError(
+              'One of promotion name or promotion id is required.',
+              'Misconfigured required field',
+              400
+            )
+          }
 
-        if (product.promotion_id === undefined && product.promotion_name === undefined) {
-          throw new IntegrationError(
-            'One of promotion name or promotion id is required.',
-            'Misconfigured required field',
-            400
-          )
-        }
-
-        return product as PromotionProductItem
-      })
+          return product as PromotionProductItem
+        })
+      }
     }
 
     return request('https://www.google-analytics.com/mp/collect', {

@@ -1,5 +1,5 @@
 import { ActionDefinition, IntegrationError } from '@segment/actions-core'
-import { verifyCurrency } from '../ga4-functions'
+import { verifyCurrency, formatItems, checkCurrencyDefinition } from '../ga4-functions'
 import {
   formatUserProperties,
   user_properties,
@@ -32,47 +32,52 @@ const action: ActionDefinition<Settings, Payload> = {
     engagement_time_msec: engagement_time_msec,
     params: params
   },
-  perform: (request, { payload }) => {
+  perform: (request, { payload, features }) => {
     if (payload.currency) {
       verifyCurrency(payload.currency)
     }
-
-    // Google requires that currency be included at the event level if value is included.
-    if (payload.value && payload.currency === undefined) {
-      throw new IntegrationError('Currency is required if value is set.', 'Misconfigured required field', 400)
-    }
-
-    /**
-     * Google requires a currency be specified either at the event level or the item level.
-     * If set at the event level, item-level currency is ignored. If event-level currency is not set then
-     * currency from the first item in items is used.
-     */
-    if (payload.currency === undefined && (!payload.items || !payload.items[0] || !payload.items[0].currency)) {
-      throw new IntegrationError(
-        'One of item-level currency or top-level currency is required.',
-        'Misconfigured required field',
-        400
-      )
-    }
-
     let googleItems: ProductItem[] = []
+    if (features && features['actions-google-analytics-4-refactor-perform-method']) {
+      checkCurrencyDefinition(payload.value, payload.currency, payload.items)
+      if (payload.items) {
+        googleItems = formatItems(payload.items)
+      }
+    } else {
+      // Google requires that currency be included at the event level if value is included.
+      if (payload.value && payload.currency === undefined) {
+        throw new IntegrationError('Currency is required if value is set.', 'Misconfigured required field', 400)
+      }
 
-    if (payload.items) {
-      googleItems = payload.items.map((product) => {
-        if (product.item_name === undefined && product.item_id === undefined) {
-          throw new IntegrationError(
-            'One of product name or product id is required for product or impression data.',
-            'Misconfigured required field',
-            400
-          )
-        }
+      /**
+       * Google requires a currency be specified either at the event level or the item level.
+       * If set at the event level, item-level currency is ignored. If event-level currency is not set then
+       * currency from the first item in items is used.
+       */
+      if (payload.currency === undefined && (!payload.items || !payload.items[0] || !payload.items[0].currency)) {
+        throw new IntegrationError(
+          'One of item-level currency or top-level currency is required.',
+          'Misconfigured required field',
+          400
+        )
+      }
 
-        if (product.currency) {
-          verifyCurrency(product.currency)
-        }
+      if (payload.items) {
+        googleItems = payload.items.map((product) => {
+          if (product.item_name === undefined && product.item_id === undefined) {
+            throw new IntegrationError(
+              'One of product name or product id is required for product or impression data.',
+              'Misconfigured required field',
+              400
+            )
+          }
 
-        return product as ProductItem
-      })
+          if (product.currency) {
+            verifyCurrency(product.currency)
+          }
+
+          return product as ProductItem
+        })
+      }
     }
 
     return request('https://www.google-analytics.com/mp/collect', {
