@@ -1,3 +1,4 @@
+import { StatsContext } from './index'
 import type { RequestOptions } from '../request-client'
 import type { JSONObject } from '../json-object'
 import { AuthTokens } from './parse-settings'
@@ -23,6 +24,12 @@ export interface ExecuteInput<Settings, Payload> {
   page?: string
   /** The data needed in OAuth requests */
   readonly auth?: AuthTokens
+  /**
+   * The features available in the request based on either customer workspaceID or sourceID;
+   * Both `features` and `stats` are for internal Twilio/Segment use only.
+   */
+  readonly features?: { [key: string]: boolean }
+  readonly statsContext?: StatsContext
 }
 
 export interface DynamicFieldResponse {

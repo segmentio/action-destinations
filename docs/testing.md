@@ -1,8 +1,15 @@
 # Build & Test Cloud Destinations
 
-- [Local End-to-end Testing](#local-end-to-end-testing)
-- [Unit Testing](#unit-testing)
-- [Snapshot Testing](#snapshot-testing)
+- [Build & Test Cloud Destinations](#build--test-cloud-destinations)
+  - [Actions Tester](#actions-tester)
+  - [Local End-to-end Testing](#local-end-to-end-testing)
+    - [Example](#example)
+    - [Testing Batches](#testing-batches)
+  - [Unit Testing](#unit-testing)
+    - [Mocking HTTP Requests](#mocking-http-requests)
+    - [Examples](#examples)
+  - [Snapshot Testing](#snapshot-testing)
+  - [Code Coverage](#code-coverage)
 
 ## Actions Tester
 
@@ -25,7 +32,7 @@ To test a specific destination action, you can send a Postman or cURL request wi
 
 ### Example
 
-The following is an example of a cURL command for `google-analytics-4`'s `search` action. Note that `payload`, `settings`, and `auth` values are all optional in the request body. However, you must still pass in all required fields for the specific destination action under `payload`.
+The following is an example of a cURL command for `google-analytics-4`'s `search` action. Note that `payload`, `settings`, `auth`, and `features` values are all optional in the request body. However, you must still pass in all required fields for the specific destination action under `payload`. `features` is for internal Twilio/Segment use only.
 
 ```sh
 curl --location --request POST 'http://localhost:3000/search' \
@@ -42,6 +49,9 @@ curl --location --request POST 'http://localhost:3000/search' \
     "auth": {
         "accessToken": "<ACCESS_TOKEN>",
         "refreshToken": "<REFRESH_TOKEN>"
+    }
+    "features": {
+        "test_feature": true,
     }
 }'
 ```
@@ -62,7 +72,8 @@ curl --location --request POST 'http://localhost:3000/send' \
         }
     }],
     "settings": {},
-    "auth": {}
+    "auth": {},
+    "features": {}
 }'
 ```
 
@@ -88,8 +99,11 @@ While testing, we want to avoid hitting external APIs. We use `nock` to intercep
 
 ```sh
 import nock from 'nock'
-import { createTestIntegration } from '@segment/actions-core'
+import { createTestIntegration, StatsClient } from '@segment/actions-core'
 import SendGrid from '../index'
+
+const statsClient = {} as StatsClient
+const tags = ['integration:actions-sendgrid']
 
 const testDestination = createTestDestination(SendGrid)
 
@@ -115,7 +129,9 @@ describe('SendGrid', () => {
 
       await testDestination.testAction('createList', {
         mapping: { name: 'Some Name' },
-        settings: { apiKey: SENDGRID_API_KEY }
+        settings: { apiKey: SENDGRID_API_KEY },
+        features: { my_feature: true },
+        statsContext: { statsClient, tags }
       })
     })
   })
@@ -175,3 +191,7 @@ Once the actions under a new destination are complete, developers can run the fo
 ```
 yarn jest --testPathPattern='./packages/destination-actions/src/destinations/<DESTINATION SLUG>' --updateSnapshot
 ```
+
+## Code Coverage
+
+Code coverage is automatically collected upon completion of `yarn test`. Results may be inspected by examining the HTML report found at `coverage/lcov-report/index.html`, or directly in your IDE if _lcov_ is supported.

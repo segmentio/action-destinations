@@ -13,7 +13,7 @@ type EventProperties = {
 
 export type HeapApi = {
   appid: string
-  track: (eventName: string, eventProperties: EventProperties, library: string) => void
+  track: (eventName: string, eventProperties: EventProperties, library?: string) => void
   load: () => void
   config: UserConfig
   identify: (identity: string) => void

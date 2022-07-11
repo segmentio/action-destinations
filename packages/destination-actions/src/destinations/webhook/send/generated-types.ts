@@ -10,6 +10,12 @@ export interface Payload {
    */
   method: string
   /**
+   * HTTP headers to send with each request.
+   */
+  headers?: {
+    [k: string]: unknown
+  }
+  /**
    * Payload to deliver to webhook URL (JSON-encoded).
    */
   data?: {
