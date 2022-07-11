@@ -5,7 +5,7 @@ const testFql = (fql: string, ast: any): void => {
   expect(generateFql(ast)).toEqual(fql)
 }
 
-const expectedTypeError = new Error("Cannot read property 'type' of undefined")
+const expectedTypeError = new Error("Cannot read properties of undefined (reading 'type')")
 expectedTypeError.name = 'TypeError'
 
 test('should handle invalid payloads', () => {
