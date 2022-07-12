@@ -49,7 +49,7 @@ describe('GA4', () => {
       })
 
       expect(responses[0].options.body).toMatchInlineSnapshot(
-        `"{\\"client_id\\":\\"abc123\\",\\"timestamp_micros\\":1655936458905000,\\"events\\":[{\\"name\\":\\"page_view\\",\\"params\\":{\\"page_location\\":\\"https://segment.com/academy/\\",\\"page_title\\":\\"Analytics Academy\\",\\"engagement_time_msec\\":1}}],\\"user_properties\\":{\\"hello\\":{\\"value\\":\\"world\\"},\\"a\\":{\\"value\\":\\"1\\"},\\"b\\":{\\"value\\":\\"2\\"},\\"c\\":{\\"value\\":\\"3\\"}}}"`
+        `"{\\"client_id\\":\\"abc123\\",\\"events\\":[{\\"name\\":\\"page_view\\",\\"params\\":{\\"page_location\\":\\"https://segment.com/academy/\\",\\"page_title\\":\\"Analytics Academy\\",\\"engagement_time_msec\\":1}}],\\"user_properties\\":{\\"hello\\":{\\"value\\":\\"world\\"},\\"a\\":{\\"value\\":\\"1\\"},\\"b\\":{\\"value\\":\\"2\\"},\\"c\\":{\\"value\\":\\"3\\"}},\\"timestamp_micros\\":1655936458905000}"`
       )
     })
 
@@ -117,7 +117,7 @@ describe('GA4', () => {
       `)
 
       expect(responses[0].options.body).toMatchInlineSnapshot(
-        `"{\\"client_id\\":\\"anon-567890\\",\\"timestamp_micros\\":1655936458905000,\\"events\\":[{\\"name\\":\\"page_view\\",\\"params\\":{\\"page_location\\":\\"http://www.example.com/pageOne\\",\\"page_referrer\\":\\"https://segment.com/academy/\\",\\"engagement_time_msec\\":2}}]}"`
+        `"{\\"client_id\\":\\"anon-567890\\",\\"events\\":[{\\"name\\":\\"page_view\\",\\"params\\":{\\"page_location\\":\\"http://www.example.com/pageOne\\",\\"page_referrer\\":\\"https://segment.com/academy/\\",\\"engagement_time_msec\\":2}}],\\"timestamp_micros\\":1655936458905000}"`
       )
     })
 
@@ -173,7 +173,7 @@ describe('GA4', () => {
       `)
 
       expect(responses[0].options.body).toMatchInlineSnapshot(
-        `"{\\"client_id\\":\\"3456fff\\",\\"timestamp_micros\\":1655936458905000,\\"events\\":[{\\"name\\":\\"page_view\\",\\"params\\":{\\"page_location\\":\\"http://www.example.com/home\\",\\"page_referrer\\":\\"https://segment.com/academy/\\",\\"page_title\\":\\"Analytics Academy\\",\\"engagement_time_msec\\":1}}]}"`
+        `"{\\"client_id\\":\\"3456fff\\",\\"events\\":[{\\"name\\":\\"page_view\\",\\"params\\":{\\"page_location\\":\\"http://www.example.com/home\\",\\"page_referrer\\":\\"https://segment.com/academy/\\",\\"page_title\\":\\"Analytics Academy\\",\\"engagement_time_msec\\":1}}],\\"timestamp_micros\\":1655936458905000}"`
       )
     })
   })
