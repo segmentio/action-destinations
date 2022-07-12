@@ -150,15 +150,15 @@ const action: BrowserActionDefinition<Settings, Intercom, Payload> = {
         '@arrayPath': [
           '$.traits.companies',
           {
-            company_id: { '@path': '$.company.id' },
-            name: { '@path': '$.company.name' },
-            created_at: { '@path': '$.company.createdAt' },
-            plan: { '@path': '$.company.plan' },
-            monthly_spend: { '@path': '$.company.monthlySpend' },
-            size: { '@path': '$.company.size' },
-            website: { '@path': '$.company.website' },
-            industry: { '@path': '$.company.industry' },
-            company_custom_traits: { '@path': '$.company' }
+            company_id: { '@path': '$.id' },
+            name: { '@path': '$.name' },
+            created_at: { '@path': '$.createdAt' },
+            plan: { '@path': '$.plan' },
+            monthly_spend: { '@path': '$.monthlySpend' },
+            size: { '@path': '$.size' },
+            website: { '@path': '$.website' },
+            industry: { '@path': '$.industry' },
+            company_custom_traits: { '@path': '$.' }
           }
         ]
       }
