@@ -128,7 +128,7 @@ const action: BrowserActionDefinition<Settings, Intercom, Payload> = {
       required: false,
       properties: companyProperties,
       default: {
-        company_id: { '@path': '$.traits.company.companyId' },
+        company_id: { '@path': '$.traits.company.id' },
         name: { '@path': '$.traits.company.name' },
         created_at: { '@path': '$.traits.company.createdAt' },
         plan: { '@path': '$.traits.company.plan' },
@@ -150,7 +150,7 @@ const action: BrowserActionDefinition<Settings, Intercom, Payload> = {
         '@arrayPath': [
           '$.traits.companies',
           {
-            company_id: { '@path': '$.company.companyId' },
+            company_id: { '@path': '$.company.id' },
             name: { '@path': '$.company.name' },
             created_at: { '@path': '$.company.createdAt' },
             plan: { '@path': '$.company.plan' },
@@ -198,7 +198,8 @@ const action: BrowserActionDefinition<Settings, Intercom, Payload> = {
       'languageOverride',
       'userHash',
       'companyId',
-      'monthlySpend'
+      'monthlySpend',
+      'id'
     ]
 
     // filter out reserved fields for user, drop custom objects & arrays
@@ -222,13 +223,13 @@ const action: BrowserActionDefinition<Settings, Intercom, Payload> = {
     }
 
     // send user's inbox button selector option
-    const customInboxButtonSelector = { activator: Intercom.customInboxButtonSelector }
+    const widget = { activator: Intercom.customInboxButtonSelector }
 
     // API call
     Intercom('update', {
       ...payload,
       ...filteredCustomTraits,
-      customInboxButtonSelector
+      widget
     })
   }
 }

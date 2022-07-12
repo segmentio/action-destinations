@@ -39,6 +39,7 @@ const action: BrowserActionDefinition<Settings, Intercom, Payload> = {
     //remove traits from payload; traits will not be sent in the final payload to Intercom
     const { company_custom_traits, ...rest } = event.payload.company
     let company = { ...rest }
+    const hide_default_launcher = event.payload.hide_default_launcher
 
     //convert date from ISO-8601 to UNIX
     if (company?.created_at) {
@@ -53,12 +54,13 @@ const action: BrowserActionDefinition<Settings, Intercom, Payload> = {
     company = { ...company, ...filteredCustomTraits }
 
     // send user's inbox button selector option
-    const customInboxButtonSelector = { activator: Intercom.customInboxButtonSelector }
+    const widget = { activator: Intercom.customInboxButtonSelector }
 
     //API call
     Intercom('update', {
       company,
-      customInboxButtonSelector
+      widget,
+      hide_default_launcher
     })
   }
 }

@@ -72,7 +72,7 @@ const action: BrowserActionDefinition<Settings, Intercom, Payload> = {
     }
 
     // remove price if it is empty
-    if (isEmpty(payload.price)) {
+    if (isEmpty(payload.price) || !payload.price?.amount) {
       delete payload.price
     } else if (payload.price) {
       //intercom requires amounts in cents
@@ -80,7 +80,7 @@ const action: BrowserActionDefinition<Settings, Intercom, Payload> = {
 
       //currency defaults to USD
       if (!payload.price.currency) {
-        payload.price.currency = 'usd'
+        payload.price.currency = 'USD'
       }
     }
 
