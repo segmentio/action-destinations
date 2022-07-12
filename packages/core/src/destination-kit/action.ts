@@ -12,6 +12,7 @@ import { validateSchema } from '../schema-validation'
 import { AuthTokens } from './parse-settings'
 import { IntegrationError } from '../errors'
 import { removeEmptyValues } from '../remove-empty-values'
+import { StatsContext } from './index'
 
 type MaybePromise<T> = T | Promise<T>
 type RequestClient = ReturnType<typeof createRequestClient>
@@ -77,7 +78,8 @@ interface ExecuteBundle<T = unknown, Data = unknown> {
   mapping: JSONObject
   auth: AuthTokens | undefined
   /** For internal Segment/Twilio use only. */
-  features?: { [key: string]: boolean }
+  features?: { [key: string]: boolean } | undefined
+  statsContext?: StatsContext | undefined
 }
 
 /**
@@ -89,12 +91,16 @@ export class Action<Settings, Payload extends JSONLikeObject> extends EventEmitt
   readonly destinationName: string
   readonly schema?: JSONSchema4
   readonly hasBatchSupport: boolean
-  private extendRequest: RequestExtension<Settings> | undefined
+  // Payloads may be any type so we use `any` explicitly here.
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  private extendRequest: RequestExtension<Settings, any> | undefined
 
   constructor(
     destinationName: string,
     definition: ActionDefinition<Settings, Payload>,
-    extendRequest?: RequestExtension<Settings>
+    // Payloads may be any type so we use `any` explicitly here.
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    extendRequest?: RequestExtension<Settings, any>
   ) {
     super()
     this.definition = definition
@@ -133,7 +139,8 @@ export class Action<Settings, Payload extends JSONLikeObject> extends EventEmitt
       settings: bundle.settings,
       payload,
       auth: bundle.auth,
-      features: bundle.features
+      features: bundle.features,
+      statsContext: bundle.statsContext
     }
 
     // Construct the request client and perform the action
@@ -176,7 +183,8 @@ export class Action<Settings, Payload extends JSONLikeObject> extends EventEmitt
         settings: bundle.settings,
         payload: payloads,
         auth: bundle.auth,
-        features: bundle.features
+        features: bundle.features,
+        statsContext: bundle.statsContext
       }
       await this.performRequest(this.definition.performBatch, data)
     }

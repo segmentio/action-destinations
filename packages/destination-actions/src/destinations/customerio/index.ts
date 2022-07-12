@@ -11,6 +11,7 @@ import { AccountRegion, trackApiEndpoint } from './utils'
 
 const destination: DestinationDefinition<Settings> = {
   name: 'Actions Customerio',
+  slug: 'actions-customerio',
   mode: 'cloud',
   authentication: {
     scheme: 'basic',

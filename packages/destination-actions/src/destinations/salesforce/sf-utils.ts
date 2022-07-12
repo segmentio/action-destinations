@@ -5,6 +5,7 @@ import camelCase from 'lodash/camelCase'
 const isSettingsKey = new Set<string>([
   'operation',
   'traits',
+  'enable_batching',
   'customFields',
   'bulkUpsertExternalId',
   'bulkUpdateRecordId'
@@ -125,20 +126,21 @@ const buildCSVFromHeaderMap = (
 
 const getUniqueIdValue = (payload: GenericPayload): string => {
   if (
-    payload.operation === 'bulkUpsert' &&
+    payload.enable_batching &&
+    payload.operation === 'upsert' &&
     payload.bulkUpsertExternalId &&
     payload.bulkUpsertExternalId.externalIdValue
   ) {
     return payload.bulkUpsertExternalId.externalIdValue
   }
 
-  if (payload.operation === 'bulkUpdate' && payload.bulkUpdateRecordId) {
+  if (payload.enable_batching && payload.operation === 'update' && payload.bulkUpdateRecordId) {
     return payload.bulkUpdateRecordId
   }
 
   throw new IntegrationError(
-    `${payload.operation} is missing the required bulk ID`,
-    `${payload.operation} is missing the required bulk ID`,
+    `bulk ${payload.operation} is missing the required bulk ID`,
+    `bulk ${payload.operation} is missing the required bulk ID`,
     400
   )
 }
