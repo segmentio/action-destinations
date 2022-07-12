@@ -80,6 +80,7 @@ const destination: DestinationDefinition<Settings> = {
   //The name below is creation name however in partner portal this is Actions Personas Messaging Twilio
   //This is due to integrations-consumer fetches the creation name instead of current name
   name: 'Personas Messaging Twilio (Actions)',
+  slug: 'actions-personas-messaging-twilio',
   mode: 'cloud',
   authentication: {
     scheme: 'custom',
