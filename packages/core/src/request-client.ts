@@ -179,15 +179,20 @@ export class HTTPError extends CustomError {
   }
 }
 
-/** Error thrown when a request is aborted because of a client timeout. */
+/**
+ * Error thrown when a request is aborted because of a client timeout.
+ * We add a code so that the error is not treated as an "internal" error
+ */
 export class TimeoutError extends CustomError {
   request: Request
   options: NormalizedOptions
+  code: string
 
   constructor(request: Request, options: NormalizedOptions) {
     super(`Request timed out`)
     this.request = request
     this.options = options
+    this.code = 'ETIMEDOUT'
   }
 }
 

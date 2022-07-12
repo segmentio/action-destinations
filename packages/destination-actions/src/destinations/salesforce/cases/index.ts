@@ -7,7 +7,8 @@ import {
   customFields,
   operation,
   traits,
-  validateLookup
+  validateLookup,
+  enable_batching
 } from '../sf-properties'
 import Salesforce from '../sf-operations'
 
@@ -18,6 +19,7 @@ const action: ActionDefinition<Settings, Payload> = {
   description: 'Represents a case, which is a customer issue or problem.',
   fields: {
     operation: operation,
+    enable_batching: enable_batching,
     traits: traits,
     bulkUpsertExternalId: bulkUpsertExternalId,
     bulkUpdateRecordId: bulkUpdateRecordId,
