@@ -1,6 +1,7 @@
 import type { ActionDefinition } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
+import { verifyParams, verifyUserProps } from '../ga4-functions'
 import {
   formatUserProperties,
   user_properties,
@@ -27,7 +28,12 @@ const action: ActionDefinition<Settings, Payload> = {
     params: params
   },
 
-  perform: (request, { payload }) => {
+  perform: (request, { payload, features }) => {
+    if (features && features['actions-google-analytics-4-verify-params-feature']) {
+      verifyParams(payload.params)
+      verifyUserProps(payload.user_properties)
+    }
+
     return request('https://www.google-analytics.com/mp/collect', {
       method: 'POST',
       json: {

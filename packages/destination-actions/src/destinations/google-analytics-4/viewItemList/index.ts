@@ -1,5 +1,5 @@
 import { ActionDefinition, IntegrationError } from '@segment/actions-core'
-import { verifyCurrency } from '../ga4-functions'
+import { verifyCurrency, verifyParams, verifyUserProps } from '../ga4-functions'
 import {
   formatUserProperties,
   user_properties,
@@ -48,7 +48,7 @@ const action: ActionDefinition<Settings, Payload> = {
     engagement_time_msec: engagement_time_msec,
     params: params
   },
-  perform: (request, { payload }) => {
+  perform: (request, { payload, features }) => {
     let googleItems: ProductItem[] = []
 
     if (payload.items) {
@@ -67,6 +67,11 @@ const action: ActionDefinition<Settings, Payload> = {
 
         return product as ProductItem
       })
+    }
+
+    if (features && features['actions-google-analytics-4-verify-params-feature']) {
+      verifyParams(payload.params)
+      verifyUserProps(payload.user_properties)
     }
 
     return request('https://www.google-analytics.com/mp/collect', {

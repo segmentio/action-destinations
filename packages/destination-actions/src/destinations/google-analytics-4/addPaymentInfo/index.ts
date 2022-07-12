@@ -2,7 +2,7 @@ import { ActionDefinition, IntegrationError } from '@segment/actions-core'
 import { ProductItem } from '../ga4-types'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
-import { verifyCurrency } from '../ga4-functions'
+import { verifyCurrency, verifyParams, verifyUserProps } from '../ga4-functions'
 import {
   user_id,
   formatUserProperties,
@@ -36,7 +36,7 @@ const action: ActionDefinition<Settings, Payload> = {
     engagement_time_msec: engagement_time_msec,
     params: params
   },
-  perform: (request, { payload }) => {
+  perform: (request, { payload, features }) => {
     // Google requires that `add_payment_info` events include an array of products: https://developers.google.com/analytics/devguides/collection/ga4/reference/events
     // This differs from the Segment spec, which doesn't require a products array: https://segment.com/docs/connections/spec/ecommerce/v2/#payment-info-entered
     if (payload.items && !payload.items.length) {
@@ -87,6 +87,11 @@ const action: ActionDefinition<Settings, Payload> = {
 
         return product as ProductItem
       })
+    }
+
+    if (features && features['actions-google-analytics-4-verify-params-feature']) {
+      verifyParams(payload.params)
+      verifyUserProps(payload.user_properties)
     }
 
     return request('https://www.google-analytics.com/mp/collect', {
