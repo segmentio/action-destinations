@@ -5,6 +5,14 @@ import { buildCSVData } from './sf-utils'
 
 export const API_VERSION = 'v53.0'
 
+/**
+ * This error is triggered if the bulkHandler is ever triggered when the enable_batching setting is false.
+ */
+const throwBulkMismatchError = () => {
+  const errorMsg = 'Bulk operation triggered where enable_batching is false.'
+  throw new IntegrationError(errorMsg, errorMsg, 400)
+}
+
 interface Records {
   Id?: string
 }
@@ -74,6 +82,10 @@ export default class Salesforce {
   }
 
   bulkHandler = async (payloads: GenericPayload[], sobject: string) => {
+    if (!payloads[0].enable_batching) {
+      throwBulkMismatchError()
+    }
+
     if (payloads[0].operation === 'upsert') {
       return await this.bulkUpsert(payloads, sobject)
     } else if (payloads[0].operation === 'update') {
