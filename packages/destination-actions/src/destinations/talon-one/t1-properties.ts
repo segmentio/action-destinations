@@ -38,3 +38,96 @@ export const deleteAudienceId: InputField = {
   ...audienceId,
   label: 'List of audience ID to dissociate with the customer profile.'
 }
+
+export const audience: InputField = {
+  label: 'Audience (the label must not be used)',
+  description: 'Audience name and integration ID',
+  type: 'object',
+  properties: {
+    name: {
+      label: 'Name',
+      description: 'The audience name.',
+      type: 'string',
+      required: true
+    },
+    integrationId: {
+      label: 'integrationID',
+      description: 'The audience integration ID.',
+      type: 'string',
+      required: false
+    }
+  },
+  multiple: true,
+  required: false
+}
+
+export const audiencesToAdd: InputField = {
+  ...audience,
+  label: 'The audiences for the customer to join.',
+  default: {
+    '@arrayPath': [
+      '$.properties.audiencesToAdd',
+      {
+        name: {
+          '@path': '$.name'
+        },
+        integrationId: {
+          '@path': '$.integrationId'
+        }
+      }
+    ]
+  }
+}
+
+export const audiencesToDelete: InputField = {
+  ...audience,
+  label: 'The audiences for the customer to leave.',
+  default: {
+    '@arrayPath': [
+      '$.properties.audiencesToDelete',
+      {
+        name: {
+          '@path': '$.name'
+        },
+        integrationId: {
+          '@path': '$.integrationId'
+        }
+      }
+    ]
+  }
+}
+
+export const attributesInfo: InputField = {
+  label: 'Attributes info',
+  description: 'Use this field if you want to identify an attribute with a specific type',
+  type: 'object',
+  required: false,
+  multiple: true,
+  properties: {
+    name: {
+      label: 'Name',
+      description: 'Attribute name',
+      type: 'string',
+      required: true
+    },
+    type: {
+      label: 'Type',
+      description: 'Attribute type. Can be only `string`, `time`, `number`, `boolean`, `location`',
+      type: 'string',
+      required: true
+    }
+  },
+  default: {
+    '@arrayPath': [
+      '$.properties.attributesInfo',
+      {
+        name: {
+          '@path': '$.name'
+        },
+        type: {
+          '@path': '$.type'
+        }
+      }
+    ]
+  }
+}
