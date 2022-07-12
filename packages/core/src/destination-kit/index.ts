@@ -166,8 +166,9 @@ interface EventInput<Settings> {
   readonly settings: Settings
   /** Authentication-related data based on the destination's authentication.fields definition and authentication scheme */
   readonly auth?: AuthTokens
-  /** For internal Segment/Twilio use only. */
+  /** `features` and `stats` are for internal Segment/Twilio use only. */
   readonly features?: Features
+  readonly statsContext?: StatsContext
 }
 
 interface BatchEventInput<Settings> {
@@ -176,8 +177,9 @@ interface BatchEventInput<Settings> {
   readonly settings: Settings
   /** Authentication-related data based on the destination's authentication.fields definition and authentication scheme */
   readonly auth?: AuthTokens
-  /** For internal Segment/Twilio use only. */
+  /** `features` and `stats` are for internal Segment/Twilio use only. */
   readonly features?: Features
+  readonly statsContext?: StatsContext
 }
 
 export interface DecoratedResponse extends ModifiedResponse {
@@ -185,7 +187,14 @@ export interface DecoratedResponse extends ModifiedResponse {
   options: AllRequestOptions
 }
 
-interface StatsClient {
+interface OnEventOptions {
+  onTokenRefresh?: (tokens: RefreshAccessTokenResult) => void
+  onComplete?: (stats: SubscriptionStats) => void
+  features?: Features
+  statsContext?: StatsContext
+}
+
+export interface StatsClient {
   observe: (metric: any) => any
   _name(name: string): string
   _tags(tags?: string[]): string[]
@@ -194,16 +203,13 @@ interface StatsClient {
   histogram(name: string, value?: number, tags?: string[]): void
 }
 
-interface StatsContext {
-  stats: StatsClient
+/** DataDog stats client and tags passed from the `CreateActionDestination`
+ * in the monoservice as `options`.
+ * See: https://github.com/segmentio/integrations/blob/cbd8f80024eceb2f1229f2bd0c9eb5b204f66c58/createActionDestination/index.js#L205-L208
+ */
+export interface StatsContext {
+  statsClient: StatsClient
   tags: string[]
-}
-
-interface OnEventOptions {
-  onTokenRefresh?: (tokens: RefreshAccessTokenResult) => void
-  onComplete?: (stats: SubscriptionStats) => void
-  features?: Features
-  statsContext?: StatsContext
 }
 
 export class Destination<Settings = JSONObject> {
@@ -325,7 +331,7 @@ export class Destination<Settings = JSONObject> {
 
   protected async executeAction(
     actionSlug: string,
-    { event, mapping, settings, auth, features }: EventInput<Settings>
+    { event, mapping, settings, auth, features, statsContext }: EventInput<Settings>
   ): Promise<Result[]> {
     const action = this.actions[actionSlug]
     if (!action) {
@@ -337,13 +343,14 @@ export class Destination<Settings = JSONObject> {
       data: event as unknown as InputData,
       settings,
       auth,
-      features
+      features,
+      statsContext
     })
   }
 
   public async executeBatch(
     actionSlug: string,
-    { events, mapping, settings, auth, features }: BatchEventInput<Settings>
+    { events, mapping, settings, auth, features, statsContext }: BatchEventInput<Settings>
   ) {
     const action = this.actions[actionSlug]
     if (!action) {
@@ -355,7 +362,8 @@ export class Destination<Settings = JSONObject> {
       data: events as unknown as InputData[],
       settings,
       auth,
-      features
+      features,
+      statsContext
     })
 
     return [{ output: 'successfully processed batch of events' }]
@@ -374,7 +382,8 @@ export class Destination<Settings = JSONObject> {
       mapping: subscription.mapping || {},
       settings,
       auth,
-      features: options?.features || {}
+      features: options?.features || {},
+      statsContext: options?.statsContext || ({} as StatsContext)
     }
 
     let results: Result[] | null = null
