@@ -1,7 +1,7 @@
 import { EventEmitter } from 'events'
 import createRequestClient from '../create-request-client'
 import { JSONLikeObject, JSONObject } from '../json-object'
-import { InputData, transform, transformBatch } from '../mapping-kit'
+import { InputData, Features, transform, transformBatch } from '../mapping-kit'
 import { fieldsToJsonSchema } from './fields-to-jsonschema'
 import { Response } from '../fetch'
 import type { ModifiedResponse } from '../types'
@@ -78,7 +78,7 @@ interface ExecuteBundle<T = unknown, Data = unknown> {
   mapping: JSONObject
   auth: AuthTokens | undefined
   /** For internal Segment/Twilio use only. */
-  features?: { [key: string]: boolean } | undefined
+  features?: Features | undefined
   statsContext?: StatsContext | undefined
 }
 
@@ -119,7 +119,7 @@ export class Action<Settings, Payload extends JSONLikeObject> extends EventEmitt
     const results: Result[] = []
 
     // Resolve/transform the mapping with the input data
-    let payload = transform(bundle.mapping, bundle.data) as Payload
+    let payload = transform(bundle.mapping, bundle.data, bundle.features) as Payload
     results.push({ output: 'Mappings resolved' })
 
     // Remove empty values (`null`, `undefined`, `''`) when not explicitly accepted

@@ -5,6 +5,7 @@ import type { DestinationDefinition, StatsContext } from './destination-kit'
 import type { JSONObject } from './json-object'
 import type { SegmentEvent } from './segment-event'
 import { AuthTokens } from './destination-kit/parse-settings'
+import { Features } from './mapping-kit'
 
 interface InputData<Settings> {
   /**
@@ -34,7 +35,7 @@ interface InputData<Settings> {
    * The features available in the request based on either customer workspaceID or sourceID;
    * Both `features` and `stats` are for internal Twilio/Segment use only.
    */
-  features?: { [key: string]: boolean }
+  features?: Features
   statsContext?: StatsContext
 }
 
