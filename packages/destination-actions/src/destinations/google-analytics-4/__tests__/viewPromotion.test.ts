@@ -308,7 +308,7 @@ describe('GA4', () => {
         })
         fail('the test should have thrown an error')
       } catch (e) {
-        expect(e.message).toBe('One of product name or product id is required for product or impression data.')
+        expect(e.message).toBe('One of item id or item name is required.')
       }
     })
 
