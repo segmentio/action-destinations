@@ -131,7 +131,9 @@ describe('FullStory', () => {
       expect(JSON.parse(response.options.body as string)).toEqual({
         segmentAnonymousId_str: anonymousId,
         email,
-        // TODO(nate): See if we can eliminate duplicate email_str and name_str data based on mapping config.
+        // TODO(nate): In the future, see if we can eliminate duplicate email_str and name_str data based on mapping config.
+        // This may not be possible given the perform action doesn't have access to the mapping config to conclude that e.g.
+        // name has been mapped to displayName and thus name_str is not needed as a custom var.
         email_str: email,
         displayName,
         name_str: displayName,
