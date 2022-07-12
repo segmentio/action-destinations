@@ -1,4 +1,4 @@
-import { ActionDefinition } from '@segment/actions-core'
+import { ActionDefinition, IntegrationError } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 import { MixpanelEvent } from './types'
@@ -387,7 +387,7 @@ const action: ActionDefinition<Settings, Payload> = {
     }
 
     if (!settings.apiSecret) {
-      throw new Error('Missing api secret')
+      throw new IntegrationError('Missing api secret')
     }
     return request('https://api.mixpanel.com/import?strict=1', {
       method: 'post',
