@@ -2,8 +2,9 @@ type method = 'trackEvent' | 'update'
 
 type IntercomApi = {
   booted: boolean
-  richLinkProperties: string[]
+  richLinkProperties: string[] | undefined
   appId: string
+  customInboxButtonSelector: string | undefined
 }
 
 type IntercomFunction = (method: method, ...args: unknown[]) => void

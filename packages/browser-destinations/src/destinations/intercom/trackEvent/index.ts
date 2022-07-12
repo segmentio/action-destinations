@@ -59,7 +59,7 @@ const action: BrowserActionDefinition<Settings, Intercom, Payload> = {
     //remove event_name & event_metadata from the payload (they will be handled separately)
     const { event_name, event_metadata, ...rest } = event.payload
     const payload = { ...rest }
-    const richLinkProperties = Intercom.richLinkProperties
+    const richLinkProperties = Intercom.richLinkProperties ? Intercom.richLinkProperties : []
 
     // create a list of the richLinkObjects that will be passed to Intercom
     const richLinkObjects: { [k: string]: unknown } = {}

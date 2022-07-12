@@ -2,11 +2,13 @@ import { InputField } from '@segment/actions-core'
 import type { BrowserActionDefinition } from '../../../lib/browser-destinations'
 import { Intercom } from '../api'
 import type { Settings } from '../generated-types'
-import { extractCompanyProperties } from '../sharedCompany'
+import { getCompanyProperties } from '../sharedCompanyProperties'
+import { getLauncherProperties } from '../sharedLauncherProperties'
 import { convertISO8601toUnix, filterCustomTraits, isEmpty } from '../utils'
 import type { Payload } from './generated-types'
 
-const companyProperties: Record<string, InputField> = extractCompanyProperties()
+const companyProperties: Record<string, InputField> = getCompanyProperties()
+const launcherProperties: Record<string, InputField> = getLauncherProperties()
 
 const action: BrowserActionDefinition<Settings, Intercom, Payload> = {
   title: 'Update',
@@ -118,6 +120,7 @@ const action: BrowserActionDefinition<Settings, Intercom, Payload> = {
         '@path': '$.context.Intercom.user_hash'
       }
     },
+    ...launcherProperties,
     company: {
       description: "The user's company.",
       label: 'Company',
@@ -218,10 +221,14 @@ const action: BrowserActionDefinition<Settings, Intercom, Payload> = {
       })
     }
 
+    // send user's inbox button selector option
+    const customInboxButtonSelector = { activator: Intercom.customInboxButtonSelector }
+
     // API call
     Intercom('update', {
       ...payload,
-      ...filteredCustomTraits
+      ...filteredCustomTraits,
+      customInboxButtonSelector
     })
   }
 }

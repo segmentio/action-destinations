@@ -4,7 +4,6 @@
 export function initScript({ appId }) {
   //Set your APP_ID
   var APP_ID = appId
-
   ;(function () {
     var w = window
     var ic = w.Intercom

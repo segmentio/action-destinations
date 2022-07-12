@@ -2,11 +2,13 @@ import { InputField } from '@segment/actions-core'
 import type { BrowserActionDefinition } from '../../../lib/browser-destinations'
 import { Intercom } from '../api'
 import type { Settings } from '../generated-types'
-import { extractCompanyProperties } from '../sharedCompany'
+import { getCompanyProperties } from '../sharedCompanyProperties'
+import { getLauncherProperties } from '../sharedLauncherProperties'
 import { convertISO8601toUnix, filterCustomTraits } from '../utils'
 import type { Payload } from './generated-types'
 
-const companyProperties: Record<string, InputField> = extractCompanyProperties()
+const companyProperties: Record<string, InputField> = getCompanyProperties()
+const launcherProperties: Record<string, InputField> = getLauncherProperties()
 
 const action: BrowserActionDefinition<Settings, Intercom, Payload> = {
   title: 'Update Company',
@@ -30,7 +32,8 @@ const action: BrowserActionDefinition<Settings, Intercom, Payload> = {
         industry: { '@path': '$.traits.industry' },
         company_custom_traits: { '@path': '$.traits' }
       }
-    }
+    },
+    ...launcherProperties
   },
   perform: (Intercom, event) => {
     //remove traits from payload; traits will not be sent in the final payload to Intercom
@@ -49,9 +52,13 @@ const action: BrowserActionDefinition<Settings, Intercom, Payload> = {
     //merge filtered custom traits back into company object
     company = { ...company, ...filteredCustomTraits }
 
+    // send user's inbox button selector option
+    const customInboxButtonSelector = { activator: Intercom.customInboxButtonSelector }
+
     //API call
     Intercom('update', {
-      company
+      company,
+      customInboxButtonSelector
     })
   }
 }

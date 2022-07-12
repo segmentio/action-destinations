@@ -1,6 +1,6 @@
 import { InputField } from '@segment/actions-core'
 
-export const extractCompanyProperties = (): Record<string, InputField> => ({
+export const getCompanyProperties = (): Record<string, InputField> => ({
   company_id: {
     description: 'The company id of the company.',
     label: 'Company Id',
