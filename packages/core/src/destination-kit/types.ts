@@ -3,6 +3,7 @@ import type { JSONObject } from '../json-object'
 import { AuthTokens } from './parse-settings'
 import type { RequestClient } from '../create-request-client'
 import type { ID } from '../segment-event'
+import { Features } from 'src/mapping-kit'
 
 export type Optional<T, K extends keyof T> = Pick<Partial<T>, K> & Omit<T, K>
 export type MaybePromise<T> = T | Promise<T>
@@ -27,7 +28,7 @@ export interface ExecuteInput<Settings, Payload> {
    * The features available in the request based on either customer workspaceID or sourceID;
    * For internal Twilio/Segment use only.
    */
-  readonly features?: { [key: string]: boolean }
+  readonly features?: Features
 }
 
 export interface DynamicFieldResponse {

@@ -1,7 +1,7 @@
 import { EventEmitter } from 'events'
 import createRequestClient from '../create-request-client'
 import { JSONLikeObject, JSONObject } from '../json-object'
-import { InputData, transform, transformBatch } from '../mapping-kit'
+import { InputData, Features, transform, transformBatch } from '../mapping-kit'
 import { fieldsToJsonSchema } from './fields-to-jsonschema'
 import { Response } from '../fetch'
 import type { ModifiedResponse } from '../types'
@@ -77,7 +77,7 @@ interface ExecuteBundle<T = unknown, Data = unknown> {
   mapping: JSONObject
   auth: AuthTokens | undefined
   /** For internal Segment/Twilio use only. */
-  features?: { [key: string]: boolean }
+  features?: Features
 }
 
 /**

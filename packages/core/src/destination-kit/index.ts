@@ -12,7 +12,7 @@ import type { GlobalSetting, RequestExtension, ExecuteInput, Result, Deletion, D
 import type { AllRequestOptions } from '../request-client'
 import { IntegrationError, InvalidAuthenticationError } from '../errors'
 import { AuthTokens, getAuthData, getOAuth2Data, updateOAuthSettings } from './parse-settings'
-import { InputData } from '../mapping-kit'
+import { InputData, Features } from '../mapping-kit'
 import { retry } from '../retry'
 import { HTTPError } from '..'
 
@@ -167,7 +167,7 @@ interface EventInput<Settings> {
   /** Authentication-related data based on the destination's authentication.fields definition and authentication scheme */
   readonly auth?: AuthTokens
   /** For internal Segment/Twilio use only. */
-  readonly features?: { [key: string]: boolean }
+  readonly features?: Features
 }
 
 interface BatchEventInput<Settings> {
@@ -177,7 +177,7 @@ interface BatchEventInput<Settings> {
   /** Authentication-related data based on the destination's authentication.fields definition and authentication scheme */
   readonly auth?: AuthTokens
   /** For internal Segment/Twilio use only. */
-  readonly features?: { [key: string]: boolean }
+  readonly features?: Features
 }
 
 export interface DecoratedResponse extends ModifiedResponse {
@@ -202,7 +202,7 @@ interface StatsContext {
 interface OnEventOptions {
   onTokenRefresh?: (tokens: RefreshAccessTokenResult) => void
   onComplete?: (stats: SubscriptionStats) => void
-  features?: { [key: string]: boolean }
+  features?: Features
   statsContext?: StatsContext
 }
 
