@@ -58,7 +58,7 @@ const action: ActionDefinition<Settings, Payload> = {
     engagement_time_msec: engagement_time_msec,
     params: params
   },
-  perform: (request, { payload }) => {
+  perform: (request, { payload, features }) => {
     let googleItems: PromotionProductItem[] = []
 
     if (payload.items) {
@@ -87,29 +87,34 @@ const action: ActionDefinition<Settings, Payload> = {
       })
     }
 
+    let request_object = {
+      client_id: payload.client_id,
+      user_id: payload.user_id,
+      events: [
+        {
+          name: 'select_promotion',
+          params: {
+            creative_name: payload.creative_name,
+            creative_slot: payload.creative_slot,
+            location_id: payload.location_id,
+            promotion_id: payload.promotion_id,
+            promotion_name: payload.promotion_name,
+            items: googleItems,
+            engagement_time_msec: payload.engagement_time_msec,
+            ...payload.params
+          }
+        }
+      ],
+      ...formatUserProperties(payload.user_properties)
+    }
+
+    if (features && features['actions-google-analytics-4-add-timestamp']) {
+      request_object = { ...request_object, ...{ ['timestamp_micros']: convertTimestamp(payload.timestamp_micros) } }
+    }
+
     return request('https://www.google-analytics.com/mp/collect', {
       method: 'POST',
-      json: {
-        client_id: payload.client_id,
-        user_id: payload.user_id,
-        timestamp_micros: convertTimestamp(payload.timestamp_micros),
-        events: [
-          {
-            name: 'select_promotion',
-            params: {
-              creative_name: payload.creative_name,
-              creative_slot: payload.creative_slot,
-              location_id: payload.location_id,
-              promotion_id: payload.promotion_id,
-              promotion_name: payload.promotion_name,
-              items: googleItems,
-              engagement_time_msec: payload.engagement_time_msec,
-              ...payload.params
-            }
-          }
-        ],
-        ...formatUserProperties(payload.user_properties)
-      }
+      json: request_object
     })
   }
 }

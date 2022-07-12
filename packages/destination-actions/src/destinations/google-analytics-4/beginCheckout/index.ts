@@ -38,7 +38,7 @@ const action: ActionDefinition<Settings, Payload> = {
     engagement_time_msec: engagement_time_msec,
     params: params
   },
-  perform: (request, { payload }) => {
+  perform: (request, { payload, features }) => {
     if (payload.currency) {
       verifyCurrency(payload.currency)
     }
@@ -63,27 +63,32 @@ const action: ActionDefinition<Settings, Payload> = {
       })
     }
 
+    let request_object = {
+      client_id: payload.client_id,
+      user_id: payload.user_id,
+      events: [
+        {
+          name: 'begin_checkout',
+          params: {
+            coupon: payload.coupon,
+            currency: payload.currency,
+            items: googleItems,
+            value: payload.value,
+            engagement_time_msec: payload.engagement_time_msec,
+            ...payload.params
+          }
+        }
+      ],
+      ...formatUserProperties(payload.user_properties)
+    }
+
+    if (features && features['actions-google-analytics-4-add-timestamp']) {
+      request_object = { ...request_object, ...{ ['timestamp_micros']: convertTimestamp(payload.timestamp_micros) } }
+    }
+
     return request('https://www.google-analytics.com/mp/collect', {
       method: 'POST',
-      json: {
-        client_id: payload.client_id,
-        user_id: payload.user_id,
-        timestamp_micros: convertTimestamp(payload.timestamp_micros),
-        events: [
-          {
-            name: 'begin_checkout',
-            params: {
-              coupon: payload.coupon,
-              currency: payload.currency,
-              items: googleItems,
-              value: payload.value,
-              engagement_time_msec: payload.engagement_time_msec,
-              ...payload.params
-            }
-          }
-        ],
-        ...formatUserProperties(payload.user_properties)
-      }
+      json: request_object
     })
   }
 }

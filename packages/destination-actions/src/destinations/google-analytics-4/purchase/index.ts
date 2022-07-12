@@ -48,7 +48,7 @@ const action: ActionDefinition<Settings, Payload> = {
     engagement_time_msec: engagement_time_msec,
     params: params
   },
-  perform: (request, { payload }) => {
+  perform: (request, { payload, features }) => {
     verifyCurrency(payload.currency)
 
     let googleItems: ProductItem[] = []
@@ -71,31 +71,36 @@ const action: ActionDefinition<Settings, Payload> = {
       })
     }
 
+    let request_object = {
+      client_id: payload.client_id,
+      user_id: payload.user_id,
+      events: [
+        {
+          name: 'purchase',
+          params: {
+            affiliation: payload.affiliation,
+            coupon: payload.coupon,
+            currency: payload.currency,
+            items: googleItems,
+            transaction_id: payload.transaction_id,
+            shipping: payload.shipping,
+            value: payload.value,
+            tax: payload.tax,
+            engagement_time_msec: payload.engagement_time_msec,
+            ...payload.params
+          }
+        }
+      ],
+      ...formatUserProperties(payload.user_properties)
+    }
+
+    if (features && features['actions-google-analytics-4-add-timestamp']) {
+      request_object = { ...request_object, ...{ ['timestamp_micros']: convertTimestamp(payload.timestamp_micros) } }
+    }
+
     return request('https://www.google-analytics.com/mp/collect', {
       method: 'POST',
-      json: {
-        client_id: payload.client_id,
-        user_id: payload.user_id,
-        timestamp_micros: convertTimestamp(payload.timestamp_micros),
-        events: [
-          {
-            name: 'purchase',
-            params: {
-              affiliation: payload.affiliation,
-              coupon: payload.coupon,
-              currency: payload.currency,
-              items: googleItems,
-              transaction_id: payload.transaction_id,
-              shipping: payload.shipping,
-              value: payload.value,
-              tax: payload.tax,
-              engagement_time_msec: payload.engagement_time_msec,
-              ...payload.params
-            }
-          }
-        ],
-        ...formatUserProperties(payload.user_properties)
-      }
+      json: request_object
     })
   }
 }
