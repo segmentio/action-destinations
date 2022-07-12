@@ -7,6 +7,7 @@ const entityMap: Record<string, string> = {
   '>': '&gt;',
   '"': '&quot;',
   "'": '&#39;',
+  '/': '&#x2F;',
   '`': '&#x60;',
   '=': '&#x3D;'
 }
@@ -14,7 +15,7 @@ const entityMap: Record<string, string> = {
 function escapeHtml(value: unknown): string | unknown {
   if (typeof value !== 'string') return value
 
-  return value.replace(/[&<>"'`=]/g, (match) => {
+  return value.replace(/[&<>"'`=/]/g, (match) => {
     return entityMap[match]
   })
 }
@@ -22,7 +23,7 @@ function escapeHtml(value: unknown): string | unknown {
 /**
  * Replaces curly brace placeholders in a template with real content
  */
-export function render(template: string, data: unknown = {}): string {
+export function render(template: string, data: unknown = {}, features?: { [key: string]: boolean }): string {
   if (typeof template !== 'string') {
     throw new TypeError(`Invalid template! Template should be a "string" but ${realTypeOf(template)} was given.`)
   }
@@ -35,8 +36,9 @@ export function render(template: string, data: unknown = {}): string {
       // Grab the value from data, if it exists
       const value = get(data, match)
 
-      // Replace with the value (or empty string)
-      if (escape) {
+      // Replace with the value (or empty string) only if flag isn't set
+      const actionsEscapeOff = features && features.actionsEscapeOff
+      if (escape && !actionsEscapeOff) {
         return String(escapeHtml(value) ?? '')
       }
 
