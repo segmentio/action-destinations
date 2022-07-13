@@ -24,9 +24,11 @@ const subscriptions: Subscription[] = [
 ]
 
 describe('Intercom (actions)', () => {
-  test('loads Intercom', async () => {
+  test('loads Intercom with just appID', async () => {
     const [event] = await intercomDestination({
       appId: 'topSecretKey',
+      richLinkProperties: ['article'],
+      customInboxButtonSelector: '#test',
       subscriptions
     })
 

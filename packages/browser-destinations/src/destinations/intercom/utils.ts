@@ -1,11 +1,9 @@
-import { isArray, isObject, isString } from '@segment/actions-core'
+import { isArray, isObject } from '@segment/actions-core'
 import { isNonEmpty } from '@segment/actions-shared'
 import dayjs from 'dayjs'
 
-export function convertISO8601toUnix(created_at: string | unknown) {
-  if (isString(created_at)) {
-    return dayjs(created_at).unix()
-  }
+export function convertISO8601toUnix(created_at: string | number): number {
+  return dayjs(created_at).unix()
 }
 
 export function filterCustomTraits(reservedFields: Array<string>, traits: { [k: string]: unknown } | undefined) {
