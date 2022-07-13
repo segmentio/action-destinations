@@ -91,10 +91,8 @@ class PipedriveClient {
       value: f.key
     }))
     const record = {
-      body: {
-        data: fields,
-        pagination: {}
-      }
+      choices: fields,
+      pagination: {}
     }
     cachedFields[item] = record
     return record
@@ -110,10 +108,8 @@ class PipedriveClient {
       value: f.key_string
     }))
     const record = {
-      body: {
-        data: fields,
-        pagination: {}
-      }
+      choices: fields,
+      pagination: {}
     }
     return record
   }
