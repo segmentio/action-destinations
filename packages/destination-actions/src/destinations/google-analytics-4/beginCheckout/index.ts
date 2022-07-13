@@ -1,5 +1,5 @@
 import { ActionDefinition, IntegrationError } from '@segment/actions-core'
-import { verifyCurrency, verifyParams, verifyUserProps } from '../ga4-functions'
+import { verifyCurrency, verifyParams, verifyUserProps, convertTimestamp } from '../ga4-functions'
 import {
   formatUserProperties,
   user_properties,
@@ -10,6 +10,7 @@ import {
   value,
   items_multi_products,
   user_id,
+  timestamp_micros,
   engagement_time_msec
 } from '../ga4-properties'
 import { ProductItem } from '../ga4-types'
@@ -23,6 +24,7 @@ const action: ActionDefinition<Settings, Payload> = {
   fields: {
     client_id: { ...client_id },
     user_id: { ...user_id },
+    timestamp_micros: { ...timestamp_micros },
     coupon: { ...coupon, default: { '@path': '$.properties.coupon' } },
     currency: { ...currency },
     // Google does not have anything to map position, url and image url fields (Segment spec) to
@@ -66,26 +68,32 @@ const action: ActionDefinition<Settings, Payload> = {
       verifyUserProps(payload.user_properties)
     }
 
+    let request_object = {
+      client_id: payload.client_id,
+      user_id: payload.user_id,
+      events: [
+        {
+          name: 'begin_checkout',
+          params: {
+            coupon: payload.coupon,
+            currency: payload.currency,
+            items: googleItems,
+            value: payload.value,
+            engagement_time_msec: payload.engagement_time_msec,
+            ...payload.params
+          }
+        }
+      ],
+      ...formatUserProperties(payload.user_properties)
+    }
+
+    if (features && features['actions-google-analytics-4-add-timestamp']) {
+      request_object = { ...request_object, ...{ ['timestamp_micros']: convertTimestamp(payload.timestamp_micros) } }
+    }
+
     return request('https://www.google-analytics.com/mp/collect', {
       method: 'POST',
-      json: {
-        client_id: payload.client_id,
-        user_id: payload.user_id,
-        events: [
-          {
-            name: 'begin_checkout',
-            params: {
-              coupon: payload.coupon,
-              currency: payload.currency,
-              items: googleItems,
-              value: payload.value,
-              engagement_time_msec: payload.engagement_time_msec,
-              ...payload.params
-            }
-          }
-        ],
-        ...formatUserProperties(payload.user_properties)
-      }
+      json: request_object
     })
   }
 }

@@ -1,5 +1,5 @@
 import { ActionDefinition, IntegrationError } from '@segment/actions-core'
-import { verifyCurrency, verifyParams, verifyUserProps } from '../ga4-functions'
+import { verifyCurrency, verifyParams, verifyUserProps, convertTimestamp } from '../ga4-functions'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 import {
@@ -10,7 +10,8 @@ import {
   user_id,
   currency,
   value,
-  engagement_time_msec
+  engagement_time_msec,
+  timestamp_micros
 } from '../ga4-properties'
 
 const action: ActionDefinition<Settings, Payload> = {
@@ -20,6 +21,7 @@ const action: ActionDefinition<Settings, Payload> = {
   fields: {
     client_id: { ...client_id },
     user_id: { ...user_id },
+    timestamp_micros: { ...timestamp_micros },
     currency: { ...currency },
     value: { ...value },
     user_properties: user_properties,
@@ -41,24 +43,30 @@ const action: ActionDefinition<Settings, Payload> = {
       verifyUserProps(payload.user_properties)
     }
 
+    let request_object = {
+      client_id: payload.client_id,
+      user_id: payload.user_id,
+      events: [
+        {
+          name: 'generate_lead',
+          params: {
+            currency: payload.currency,
+            value: payload.value,
+            engagement_time_msec: payload.engagement_time_msec,
+            ...payload.params
+          }
+        }
+      ],
+      ...formatUserProperties(payload.user_properties)
+    }
+
+    if (features && features['actions-google-analytics-4-add-timestamp']) {
+      request_object = { ...request_object, ...{ ['timestamp_micros']: convertTimestamp(payload.timestamp_micros) } }
+    }
+
     return request('https://www.google-analytics.com/mp/collect', {
       method: 'POST',
-      json: {
-        client_id: payload.client_id,
-        user_id: payload.user_id,
-        events: [
-          {
-            name: 'generate_lead',
-            params: {
-              currency: payload.currency,
-              value: payload.value,
-              engagement_time_msec: payload.engagement_time_msec,
-              ...payload.params
-            }
-          }
-        ],
-        ...formatUserProperties(payload.user_properties)
-      }
+      json: request_object
     })
   }
 }
