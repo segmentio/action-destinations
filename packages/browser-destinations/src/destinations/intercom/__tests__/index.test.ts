@@ -1,4 +1,51 @@
+import { Subscription } from '../../../lib/browser-destinations'
 import { Analytics, Context } from '@segment/analytics-next'
-import plugins, { destination } from '../index'
+import intercomDestination, { destination } from '../index'
 
-describe('Intercom (actions)', () => {})
+const subscriptions: Subscription[] = [
+  {
+    partnerAction: 'trackEvent',
+    name: 'Show',
+    enabled: true,
+    subscribe: 'type = "track"',
+    mapping: {
+      event_name: {
+        '@path': '$.event'
+      },
+      event_metadata: {
+        '@path': '$.properties'
+      },
+      price: {
+        amount: { '@path': '$.properties.revenue' },
+        currency: { '@path': '$.properties.currency' }
+      }
+    }
+  }
+]
+
+describe('Intercom (actions)', () => {
+  test('loads Intercom', async () => {
+    const [event] = await intercomDestination({
+      appId: 'topSecretKey',
+      subscriptions
+    })
+
+    jest.spyOn(destination, 'initialize')
+
+    await event.load(Context.system(), {} as Analytics)
+    expect(destination.initialize).toHaveBeenCalled()
+
+    const scripts = window.document.querySelectorAll('script')
+    expect(scripts).toMatchInlineSnapshot(`
+      NodeList [
+        <script
+          src="https://widget.intercom.io/widget/topSecretKey"
+          type="text/javascript"
+        />,
+        <script>
+          // the emptiness
+        </script>,
+      ]
+    `)
+  })
+})

@@ -180,7 +180,7 @@ const action: BrowserActionDefinition<Settings, Intercom, Payload> = {
       if (payload.avatar) payload.avatar.type = 'avatar'
     }
 
-    //convert dates from ISO-8601 to UNIX
+    //mutate objects by converting their 'created_at' date properties from ISO-8601 to UNIX
     const companies = Array.isArray(payload.companies) ? [...payload.companies] : []
     const datesToConvert = [payload, payload.company, ...companies]
     for (const objectWithDateProp of datesToConvert) {

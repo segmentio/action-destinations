@@ -1,0 +1,15 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Intercom (actions) loads Intercom: 
+        <script type="text/javascript" async="" src="https://widget.intercom.io/widget/topSecretKey"></script>
+         1`] = `
+NodeList [
+  <script
+    src="https://widget.intercom.io/widget/topSecretKey"
+    type="text/javascript"
+  />,
+  <script>
+    // the emptiness
+  </script>,
+]
+`;

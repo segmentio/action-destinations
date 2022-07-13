@@ -63,12 +63,12 @@ const action: BrowserActionDefinition<Settings, Intercom, Payload> = {
 
     // create a list of the richLinkObjects that will be passed to Intercom
     const richLinkObjects: { [k: string]: unknown } = {}
-    if (event_metadata && richLinkProperties.length != 0) {
-      for (const [key, value] of Object.entries(event_metadata)) {
+    if (richLinkProperties.length != 0) {
+      Object.entries(event_metadata).forEach(([key, value]) => {
         if (richLinkProperties.includes(key)) {
           richLinkObjects[key] = value
         }
-      }
+      })
     }
 
     // remove price if it is empty

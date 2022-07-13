@@ -48,11 +48,13 @@ export const destination: BrowserDestinationDefinition<Settings, Intercom> = {
   },
 
   initialize: async ({ settings }, deps) => {
+    //initialize Intercom
     initScript({ appId: settings.appId })
     initialBoot(settings.appId)
 
     await deps.resolveWhen(() => window.Intercom.booted === true, 100)
 
+    //put settings on the Intercom object
     window.Intercom.richLinkProperties = settings.richLinkProperties
     window.Intercom.appId = settings.appId
     window.Intercom.customInboxButtonSelector = settings.customInboxButtonSelector
