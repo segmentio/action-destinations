@@ -1,4 +1,4 @@
-import { IntegrationError, RequestClient } from '@segment/actions-core'
+import { RequestClient } from '@segment/actions-core'
 import type { Payload as ProspectsPayload } from './prospects/generated-types'
 import { ProspectsType } from './pa-type'
 
@@ -21,9 +21,6 @@ export default class Pardot {
   }
 
   upsertRecord = async (payload: ProspectsPayload) => {
-    if (!payload.email) {
-      throw new IntegrationError('The email field is always required', 'Undefined Email', 400)
-    }
     const prospect = this.buildProspectJSON(payload)
 
     return this.request<ProspectUpsertResponseData>(
@@ -45,7 +42,7 @@ export default class Pardot {
   private ProspectsShape = (payload: ProspectsPayload): ProspectsType => {
     return {
       email: payload.email,
-      firstName: payload.city,
+      firstName: payload.firstName,
       lastName: payload.lastName,
       salutation: payload.salutation,
       phone: payload.phone,
