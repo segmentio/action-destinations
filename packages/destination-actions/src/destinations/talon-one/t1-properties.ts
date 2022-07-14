@@ -114,7 +114,14 @@ export const attributesInfo: InputField = {
       label: 'Type',
       description: 'Attribute type. Can be only `string`, `time`, `number`, `boolean`, `location`',
       type: 'string',
-      required: true
+      required: true,
+      choices: [
+        { label: 'String', value: 'string' },
+        { label: 'Time', value: 'time' },
+        { label: 'Number', value: 'number' },
+        { label: 'Boolean', value: 'boolean' },
+        { label: 'Location', value: 'location' }
+      ]
     }
   },
   default: {
