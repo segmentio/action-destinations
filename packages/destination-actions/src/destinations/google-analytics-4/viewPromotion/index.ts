@@ -1,5 +1,5 @@
 import { ActionDefinition, IntegrationError } from '@segment/actions-core'
-import { verifyCurrency, verifyParams, verifyUserProps, convertTimestamp } from '../ga4-functions'
+import { verifyCurrency } from '../ga4-functions'
 import {
   creative_name,
   creative_slot,
@@ -12,8 +12,7 @@ import {
   params,
   formatUserProperties,
   user_properties,
-  engagement_time_msec,
-  timestamp_micros
+  engagement_time_msec
 } from '../ga4-properties'
 import { PromotionProductItem } from '../ga4-types'
 import type { Settings } from '../generated-types'
@@ -30,7 +29,6 @@ const action: ActionDefinition<Settings, Payload> = {
   fields: {
     client_id: { ...client_id },
     user_id: { ...user_id },
-    timestamp_micros: { ...timestamp_micros },
     creative_name: { ...creative_name },
     creative_slot: { ...creative_slot, default: { '@path': '$.properties.creative' } },
     location_id: {
@@ -67,7 +65,7 @@ const action: ActionDefinition<Settings, Payload> = {
     params: params
   },
 
-  perform: (request, { payload, features }) => {
+  perform: (request, { payload }) => {
     let googleItems: PromotionProductItem[] = []
 
     if (payload.items) {
@@ -84,38 +82,28 @@ const action: ActionDefinition<Settings, Payload> = {
       })
     }
 
-    if (features && features['actions-google-analytics-4-verify-params-feature']) {
-      verifyParams(payload.params)
-      verifyUserProps(payload.user_properties)
-    }
-    let request_object = {
-      client_id: payload.client_id,
-      user_id: payload.user_id,
-      events: [
-        {
-          name: 'view_promotion',
-          params: {
-            creative_name: payload.creative_name,
-            creative_slot: payload.creative_slot,
-            location_id: payload.location_id,
-            promotion_id: payload.promotion_id,
-            promotion_name: payload.promotion_name,
-            items: googleItems,
-            engagement_time_msec: payload.engagement_time_msec,
-            ...payload.params
-          }
-        }
-      ],
-      ...formatUserProperties(payload.user_properties)
-    }
-
-    if (features && features['actions-google-analytics-4-add-timestamp']) {
-      request_object = { ...request_object, ...{ ['timestamp_micros']: convertTimestamp(payload.timestamp_micros) } }
-    }
-
     return request('https://www.google-analytics.com/mp/collect', {
       method: 'POST',
-      json: request_object
+      json: {
+        client_id: payload.client_id,
+        user_id: payload.user_id,
+        events: [
+          {
+            name: 'view_promotion',
+            params: {
+              creative_name: payload.creative_name,
+              creative_slot: payload.creative_slot,
+              location_id: payload.location_id,
+              promotion_id: payload.promotion_id,
+              promotion_name: payload.promotion_name,
+              items: googleItems,
+              engagement_time_msec: payload.engagement_time_msec,
+              ...payload.params
+            }
+          }
+        ],
+        ...formatUserProperties(payload.user_properties)
+      }
     })
   }
 }

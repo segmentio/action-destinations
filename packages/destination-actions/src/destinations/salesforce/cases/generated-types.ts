@@ -2,10 +2,6 @@
 
 export interface Payload {
   /**
-   * A test dynamic field.
-   */
-  test_dynamic_field?: string
-  /**
    * The Salesforce operation performed. The available operations are Create, Update or Upsert records in Salesforce.
    */
   operation: string

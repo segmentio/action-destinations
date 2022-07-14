@@ -1,16 +1,13 @@
 import type { ActionDefinition } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
-import { verifyParams, verifyUserProps, convertTimestamp } from '../ga4-functions'
-
 import {
   formatUserProperties,
   user_properties,
   params,
   client_id,
   user_id,
-  engagement_time_msec,
-  timestamp_micros
+  engagement_time_msec
 } from '../ga4-properties'
 
 const normalizeEventName = (name: string, lowercase: boolean | undefined): string => {
@@ -30,7 +27,6 @@ const action: ActionDefinition<Settings, Payload> = {
   fields: {
     clientId: { ...client_id },
     user_id: { ...user_id },
-    timestamp_micros: { ...timestamp_micros },
     name: {
       label: 'Event Name',
       description:
@@ -52,36 +48,24 @@ const action: ActionDefinition<Settings, Payload> = {
     engagement_time_msec: engagement_time_msec,
     params: { ...params }
   },
-  perform: (request, { payload, features }) => {
+  perform: (request, { payload }) => {
     const event_name = normalizeEventName(payload.name, payload.lowercase)
-
-    if (features && features['actions-google-analytics-4-verify-params-feature']) {
-      verifyParams(payload.params)
-      verifyUserProps(payload.user_properties)
-    }
-
-    let request_object = {
-      client_id: payload.clientId,
-      user_id: payload.user_id,
-      events: [
-        {
-          name: event_name,
-          params: {
-            engagement_time_msec: payload.engagement_time_msec,
-            ...payload.params
-          }
-        }
-      ],
-      ...formatUserProperties(payload.user_properties)
-    }
-
-    if (features && features['actions-google-analytics-4-add-timestamp']) {
-      request_object = { ...request_object, ...{ ['timestamp_micros']: convertTimestamp(payload.timestamp_micros) } }
-    }
-
     return request('https://www.google-analytics.com/mp/collect', {
       method: 'POST',
-      json: request_object
+      json: {
+        client_id: payload.clientId,
+        user_id: payload.user_id,
+        events: [
+          {
+            name: event_name,
+            params: {
+              engagement_time_msec: payload.engagement_time_msec,
+              ...payload.params
+            }
+          }
+        ],
+        ...formatUserProperties(payload.user_properties)
+      }
     })
   }
 }

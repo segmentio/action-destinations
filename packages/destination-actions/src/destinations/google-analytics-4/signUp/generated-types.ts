@@ -10,10 +10,6 @@ export interface Payload {
    */
   user_id?: string
   /**
-   * A Unix timestamp (in microseconds) for the time to associate with the event. Events can be backdated up to 3 calendar days based on the propertys timezone.
-   */
-  timestamp_micros?: string
-  /**
    * The method used for sign up.
    */
   method?: string

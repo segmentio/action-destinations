@@ -16,7 +16,6 @@ describe('GA4', () => {
       const event = createTestEvent({
         event: 'Page',
         userId: 'abc123',
-        timestamp: '2022-06-22T22:20:58.905Z',
         anonymousId: 'anon-2134',
         type: 'track',
         properties: {
@@ -33,7 +32,6 @@ describe('GA4', () => {
           apiSecret,
           measurementId
         },
-        features: { 'actions-google-analytics-4-add-timestamp': true },
         mapping: {
           client_id: {
             '@path': '$.anonymousId'
@@ -49,7 +47,7 @@ describe('GA4', () => {
       })
 
       expect(responses[0].options.body).toMatchInlineSnapshot(
-        `"{\\"client_id\\":\\"abc123\\",\\"events\\":[{\\"name\\":\\"page_view\\",\\"params\\":{\\"page_location\\":\\"https://segment.com/academy/\\",\\"page_title\\":\\"Analytics Academy\\",\\"engagement_time_msec\\":1}}],\\"user_properties\\":{\\"hello\\":{\\"value\\":\\"world\\"},\\"a\\":{\\"value\\":\\"1\\"},\\"b\\":{\\"value\\":\\"2\\"},\\"c\\":{\\"value\\":\\"3\\"}},\\"timestamp_micros\\":1655936458905000}"`
+        `"{\\"client_id\\":\\"abc123\\",\\"events\\":[{\\"name\\":\\"page_view\\",\\"params\\":{\\"page_location\\":\\"https://segment.com/academy/\\",\\"page_title\\":\\"Analytics Academy\\",\\"engagement_time_msec\\":1}}],\\"user_properties\\":{\\"hello\\":{\\"value\\":\\"world\\"},\\"a\\":{\\"value\\":\\"1\\"},\\"b\\":{\\"value\\":\\"2\\"},\\"c\\":{\\"value\\":\\"3\\"}}}"`
       )
     })
 
@@ -60,7 +58,6 @@ describe('GA4', () => {
       const event = createTestEvent({
         event: 'Page View',
         userId: '3456fff',
-        timestamp: '2022-06-22T22:20:58.905Z',
         anonymousId: 'anon-567890',
         type: 'track',
         properties: {
@@ -84,7 +81,6 @@ describe('GA4', () => {
           apiSecret,
           measurementId
         },
-        features: { 'actions-google-analytics-4-add-timestamp': true },
         mapping: {
           clientId: {
             '@path': '$.anonymousId'
@@ -117,7 +113,7 @@ describe('GA4', () => {
       `)
 
       expect(responses[0].options.body).toMatchInlineSnapshot(
-        `"{\\"client_id\\":\\"anon-567890\\",\\"events\\":[{\\"name\\":\\"page_view\\",\\"params\\":{\\"page_location\\":\\"http://www.example.com/pageOne\\",\\"page_referrer\\":\\"https://segment.com/academy/\\",\\"engagement_time_msec\\":2}}],\\"timestamp_micros\\":1655936458905000}"`
+        `"{\\"client_id\\":\\"anon-567890\\",\\"events\\":[{\\"name\\":\\"page_view\\",\\"params\\":{\\"page_location\\":\\"http://www.example.com/pageOne\\",\\"page_referrer\\":\\"https://segment.com/academy/\\",\\"engagement_time_msec\\":2}}]}"`
       )
     })
 
@@ -128,7 +124,6 @@ describe('GA4', () => {
       const event = createTestEvent({
         event: 'Page View',
         userId: '3456fff',
-        timestamp: '2022-06-22T22:20:58.905Z',
         anonymousId: 'anon-567890',
         type: 'track',
         properties: {
@@ -152,7 +147,6 @@ describe('GA4', () => {
           apiSecret,
           measurementId
         },
-        features: { 'actions-google-analytics-4-add-timestamp': true },
         useDefaultMappings: true
       })
 
@@ -173,96 +167,8 @@ describe('GA4', () => {
       `)
 
       expect(responses[0].options.body).toMatchInlineSnapshot(
-        `"{\\"client_id\\":\\"3456fff\\",\\"events\\":[{\\"name\\":\\"page_view\\",\\"params\\":{\\"page_location\\":\\"http://www.example.com/home\\",\\"page_referrer\\":\\"https://segment.com/academy/\\",\\"page_title\\":\\"Analytics Academy\\",\\"engagement_time_msec\\":1}}],\\"timestamp_micros\\":1655936458905000}"`
+        `"{\\"client_id\\":\\"3456fff\\",\\"events\\":[{\\"name\\":\\"page_view\\",\\"params\\":{\\"page_location\\":\\"http://www.example.com/home\\",\\"page_referrer\\":\\"https://segment.com/academy/\\",\\"page_title\\":\\"Analytics Academy\\",\\"engagement_time_msec\\":1}}]}"`
       )
-    })
-
-    it('should throw an error when param value is null', async () => {
-      nock('https://www.google-analytics.com/mp/collect')
-        .post(`?measurement_id=${measurementId}&api_secret=${apiSecret}`)
-        .reply(201, {})
-
-      const event = createTestEvent({
-        event: 'Page',
-        userId: 'abc123',
-        anonymousId: 'anon-2134',
-        type: 'track',
-        properties: {
-          product_id: '12345abcde',
-          name: 'Quadruple Stack Oreos, 52 ct',
-          currency: 'USD',
-          price: 12.99,
-          quantity: 1
-        }
-      })
-      try {
-        await testDestination.testAction('pageView', {
-          event,
-          settings: {
-            apiSecret,
-            measurementId
-          },
-          features: { 'actions-google-analytics-4-verify-params-feature': true },
-          mapping: {
-            client_id: {
-              '@path': '$.anonymousId'
-            },
-            params: {
-              test_input: null
-            }
-          },
-          useDefaultMappings: true
-        })
-        fail('the test should have thrown an error')
-      } catch (e) {
-        expect(e.message).toBe(
-          'GA4 only accepts string or number values for event parameters and item parameters. Please ensure you are not including null, array, or nested values.'
-        )
-      }
-    })
-
-    it('should throw an error when user_properties value is array', async () => {
-      nock('https://www.google-analytics.com/mp/collect')
-        .post(`?measurement_id=${measurementId}&api_secret=${apiSecret}`)
-        .reply(201, {})
-
-      const event = createTestEvent({
-        event: 'Page',
-        userId: 'abc123',
-        anonymousId: 'anon-2134',
-        type: 'track',
-        properties: {
-          product_id: '12345abcde',
-          name: 'Quadruple Stack Oreos, 52 ct',
-          currency: 'USD',
-          price: 12.99,
-          quantity: 1
-        }
-      })
-      try {
-        await testDestination.testAction('pageView', {
-          event,
-          settings: {
-            apiSecret,
-            measurementId
-          },
-          features: { 'actions-google-analytics-4-verify-params-feature': true },
-          mapping: {
-            client_id: {
-              '@path': '$.anonymousId'
-            },
-            user_properties: {
-              hello: ['World', 'world']
-            }
-          },
-          useDefaultMappings: true
-        })
-        fail('the test should have thrown an error')
-      } catch (e) {
-        expect(e.message).toBe(
-          'GA4 only accepts string, number or null values for user properties. Please ensure you are not including array or nested values.'
-        )
-      }
     })
   })
 })

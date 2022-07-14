@@ -1,5 +1,5 @@
 import { ActionDefinition, IntegrationError } from '@segment/actions-core'
-import { verifyCurrency, verifyParams, verifyUserProps, convertTimestamp } from '../ga4-functions'
+import { verifyCurrency } from '../ga4-functions'
 import {
   formatUserProperties,
   user_properties,
@@ -9,8 +9,7 @@ import {
   client_id,
   currency,
   items_single_products,
-  engagement_time_msec,
-  timestamp_micros
+  engagement_time_msec
 } from '../ga4-properties'
 import { ProductItem } from '../ga4-types'
 import type { Settings } from '../generated-types'
@@ -23,7 +22,6 @@ const action: ActionDefinition<Settings, Payload> = {
   fields: {
     client_id: { ...client_id },
     user_id: { ...user_id },
-    timestamp_micros: { ...timestamp_micros },
     currency: { ...currency },
     value: { ...value },
     items: {
@@ -34,7 +32,7 @@ const action: ActionDefinition<Settings, Payload> = {
     engagement_time_msec: engagement_time_msec,
     params: params
   },
-  perform: (request, { payload, features }) => {
+  perform: (request, { payload }) => {
     if (payload.currency) {
       verifyCurrency(payload.currency)
     }
@@ -77,35 +75,25 @@ const action: ActionDefinition<Settings, Payload> = {
       })
     }
 
-    if (features && features['actions-google-analytics-4-verify-params-feature']) {
-      verifyParams(payload.params)
-      verifyUserProps(payload.user_properties)
-    }
-    let request_object = {
-      client_id: payload.client_id,
-      user_id: payload.user_id,
-      events: [
-        {
-          name: 'remove_from_cart',
-          params: {
-            currency: payload.currency,
-            value: payload.value,
-            items: googleItems,
-            engagement_time_msec: payload.engagement_time_msec,
-            ...payload.params
-          }
-        }
-      ],
-      ...formatUserProperties(payload.user_properties)
-    }
-
-    if (features && features['actions-google-analytics-4-add-timestamp']) {
-      request_object = { ...request_object, ...{ ['timestamp_micros']: convertTimestamp(payload.timestamp_micros) } }
-    }
-
     return request('https://www.google-analytics.com/mp/collect', {
       method: 'POST',
-      json: request_object
+      json: {
+        client_id: payload.client_id,
+        user_id: payload.user_id,
+        events: [
+          {
+            name: 'remove_from_cart',
+            params: {
+              currency: payload.currency,
+              value: payload.value,
+              items: googleItems,
+              engagement_time_msec: payload.engagement_time_msec,
+              ...payload.params
+            }
+          }
+        ],
+        ...formatUserProperties(payload.user_properties)
+      }
     })
   }
 }
