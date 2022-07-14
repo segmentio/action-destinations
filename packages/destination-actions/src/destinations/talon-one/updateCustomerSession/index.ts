@@ -2,7 +2,6 @@ import type { ActionDefinition } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 import { attribute, attributesInfo, cardItems, customerProfileId } from '../t1-properties'
-import { validateContents } from '../../facebook-conversions-api/fb-capi-properties'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Update Customer Sessions',
@@ -96,10 +95,20 @@ const action: ActionDefinition<Settings, Payload> = {
     cartItemsAttributesInfo: { ...attributesInfo }
   },
   perform: (request, { payload }) => {
-    if (payload.customerSession.cardItems) {
-      const err = validateContents(payload.customerSession.cardItems)
-      if (err) throw err
-    }
+    // if (payload.customerSession.cardItems) {
+    //   for (let i = 0; i < payload.customerSession.cardItems.length; i++) {
+    //     const item = payload.customerSession.cardItems[i]
+    //
+    //     if (!item.name || !item.sku || !item.price || !item.quantity) {
+    //       throw new IntegrationError(
+    //         `card item must include an 'name', 'sku', 'price' and 'quantity' parameters.`,
+    //         'Misconfigured required field',
+    //         400
+    //       )
+    //     }
+    //   }
+    // }
+
     return request(`https://integration.talon.one/segment/customer_sessions/${payload.customerSessionId}`, {
       method: 'put',
       headers: {

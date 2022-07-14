@@ -138,3 +138,90 @@ export const attributesInfo: InputField = {
     ]
   }
 }
+
+export const cardItems: InputField = {
+  label: 'Card Items',
+  description:
+    'The items to add to this sessions.\n' +
+    '\n' +
+    'If cart item flattening is disabled: Do not exceed 1000 items (regardless of their quantity) per request.\n' +
+    "If cart item flattening is enabled: Do not exceed 1000 items and ensure the sum of all cart item's quantity does not exceed 10.000 per request.`",
+  type: 'object',
+  multiple: true,
+  properties: {
+    name: {
+      label: 'Name',
+      description: 'Name of item',
+      type: 'string'
+    },
+    sku: {
+      label: 'SKU',
+      description: 'Stock keeping unit of item.',
+      type: 'string'
+    },
+    quantity: {
+      label: 'Quantity',
+      description:
+        'Quantity of item. Important: If you enabled cart item flattening, the quantity is always one and the same cart item might receive multiple per-item discounts. Ensure you can process multiple discounts on one cart item correctly.',
+      type: 'number'
+    },
+    price: {
+      label: 'Price',
+      description: 'Price of item.',
+      type: 'number'
+    },
+    returnedQuantity: {
+      label: 'Returned quantity',
+      description: 'Number of returned items, calculated internally based on returns of this item.',
+      type: 'string'
+    },
+    remainingQuantity: {
+      label: 'Remaining quantity',
+      description: 'Remaining quantity of the item, calculated internally based on returns of this item.',
+      type: 'string'
+    },
+    category: {
+      label: 'Category',
+      description: 'Type, group or model of the item.',
+      type: 'string'
+    },
+    weight: {
+      label: 'Weight',
+      description: 'Weight of item in grams.',
+      type: 'string'
+    },
+    height: {
+      label: 'Height',
+      description: 'Height of item in mm.',
+      type: 'string'
+    },
+    length: {
+      label: 'Length',
+      description: 'Length of item in mm.',
+      type: 'string'
+    },
+    position: {
+      label: 'Position',
+      description: 'Position of the Cart Item in the Cart (calculated internally).',
+      type: 'string'
+    },
+    attributes: {
+      ...attribute,
+      default: {
+        '@path': '$.properties.attributes'
+      },
+      description:
+        'Use this property to set a value for the attributes of your choice. Attributes represent any information to attach to this cart item.\n' +
+        '\n' +
+        'Custom cart item attributes must be created in the Campaign Manager before you set them with this property.\n' +
+        '\n' +
+        '[See more info](https://docs.talon.one/docs/product/account/dev-tools/managing-attributes).'
+    },
+    additionalCosts: {
+      label: 'Additional Costs',
+      description:
+        'Use this property to set a value for the additional costs of this session, such as a shipping cost.`',
+      type: 'object'
+    }
+  }
+}
