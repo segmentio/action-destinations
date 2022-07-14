@@ -54,7 +54,7 @@ describe('TalonOne.updateCustomerSession', () => {
 
   it('should work', async () => {
     nock('https://integration.talon.one')
-      .put(`/segment/customer_session/session123abc`, {
+      .put(`/segment/customer_sessions/session123abc`, {
         customerSession: {
           state: 'open',
           attributes: {
