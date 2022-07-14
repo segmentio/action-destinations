@@ -55,19 +55,19 @@ export interface Payload {
       /**
        * Name of item
        */
-      name: string
+      name?: string
       /**
        * Stock keeping unit of item.
        */
-      sku: string
+      sku?: string
       /**
        * Quantity of item. Important: If you enabled cart item flattening, the quantity is always one and the same cart item might receive multiple per-item discounts. Ensure you can process multiple discounts on one cart item correctly.
        */
-      quantity: number
+      quantity?: number
       /**
        * Price of item.
        */
-      price: number
+      price?: number
       /**
        * Number of returned items, calculated internally based on returns of this item.
        */
