@@ -18,12 +18,6 @@ const action: ActionDefinition<Settings, Payload> = {
   title: 'Case',
   description: 'Represents a case, which is a customer issue or problem.',
   fields: {
-    test_dynamic_field: {
-      label: 'Test Dynamic Field',
-      description: 'A test dynamic field.',
-      type: 'string',
-      dynamic: true
-    },
     operation: operation,
     enable_batching: enable_batching,
     traits: traits,
@@ -35,21 +29,6 @@ const action: ActionDefinition<Settings, Payload> = {
       type: 'string'
     },
     customFields: customFields
-  },
-  dynamicFields: {
-    test_dynamic_field: async (request, _data) => {
-      const res = await request<string>('https://test-dynamic-fields.nick-aguilar.workers.dev/', {
-        method: 'GET'
-      })
-
-      return {
-        choices: [
-          { label: res.content, value: `test1 ${res.content}` },
-          { label: `${res.content} test2`, value: `test2 ${res.content}` }
-        ],
-        nextPage: '2'
-      }
-    }
   },
   perform: async (request, { settings, payload }) => {
     const sf: Salesforce = new Salesforce(settings.instanceUrl, request)
