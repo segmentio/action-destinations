@@ -103,7 +103,47 @@ describe('Intercom.trackEvent', () => {
     )
   })
 
-  test('currency defaults to USD if omitted, revenue in cents is converted to dollars by multiplying by 100', async () => {
+  test('amount is revenue multiplied by 100', async () => {
+    //boilerplate
+    const [trackEvent] = await intercomDestination({
+      appId: 'somekeydude',
+      subscriptions
+    })
+
+    jest.spyOn(destination.actions.trackEvent, 'perform')
+
+    await trackEvent.load(Context.system(), {} as Analytics)
+
+    //context
+    const context = new Context({
+      type: 'track',
+      event: 'surfboard-bought',
+      properties: {
+        revenue: 100,
+        currency: 'EUR'
+      }
+    })
+    await trackEvent.track?.(context)
+
+    expect(destination.actions.trackEvent.perform).toHaveBeenCalledWith(
+      expect.any(Function),
+      expect.objectContaining({
+        payload: {
+          event_name: 'surfboard-bought',
+          price: {
+            amount: 10000,
+            currency: 'EUR'
+          },
+          event_metadata: {
+            revenue: 100,
+            currency: 'EUR'
+          }
+        }
+      })
+    )
+  })
+
+  test('currency defaults to USD if omitted', async () => {
     //boilerplate
     const [trackEvent] = await intercomDestination({
       appId: 'somekeydude',
