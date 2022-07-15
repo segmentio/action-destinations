@@ -74,7 +74,7 @@ const action: BrowserActionDefinition<Settings, Intercom, Payload> = {
     // remove price if it is empty
     if (isEmpty(payload.price) || !payload.price?.amount) {
       delete payload.price
-    } else if (payload.price) {
+    } else {
       //intercom requires amounts in cents
       payload.price.amount *= 100
 
