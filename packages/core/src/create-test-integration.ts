@@ -6,6 +6,7 @@ import type { JSONObject } from './json-object'
 import type { SegmentEvent } from './segment-event'
 import { AuthTokens } from './destination-kit/parse-settings'
 import { Features } from './mapping-kit'
+import { ExecuteDynamicFieldInput } from './destination-kit/action'
 
 interface InputData<Settings> {
   /**
@@ -46,31 +47,13 @@ class TestDestination<T> extends Destination<T> {
     super(destination)
   }
 
-  async testDynamicField(action: string, fieldKey: string,{ event, mapping, settings, useDefaultMappings, auth, features, statsContext }: InputData<T>): Promise<Destination['responses']> {
-    const dynamicFields = this.definition.actions[action].dynamicFields
-    const theField = dynamicFields?[fieldKey]
+  async testDynamicField(action: string, fieldKey: string, data: ExecuteDynamicFieldInput<T, object>) {
+    await super.executeDynamicField(action, fieldKey, data)
 
-    // mapping = mapping ?? {}
+    const responses = this.responses
+    this.responses = []
 
-    // if (useDefaultMappings) {
-    //   const fields = this.definition.actions[action].fields
-    //   const defaultMappings = mapValues(fields, 'default')
-    //   mapping = { ...defaultMappings, ...mapping } as JSONObject
-    // }
-
-    // await super.executeDynamicField(action, {
-    //   event: createTestEvent(event),
-    //   mapping,
-    //   settings: settings ?? ({} as T),
-    //   auth,
-    //   features: features ?? {},
-    //   statsContext: statsContext ?? ({} as StatsContext
-    // }))
-
-    // const responses = this.responses
-    // this.responses = []
-
-    // return responses
+    return responses
   }
 
   /** Testing method that runs an action e2e while allowing slightly more flexible inputs */
