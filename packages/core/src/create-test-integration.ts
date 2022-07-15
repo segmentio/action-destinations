@@ -46,6 +46,33 @@ class TestDestination<T> extends Destination<T> {
     super(destination)
   }
 
+  async testDynamicField(action: string, fieldKey: string,{ event, mapping, settings, useDefaultMappings, auth, features, statsContext }: InputData<T>): Promise<Destination['responses']> {
+    const dynamicFields = this.definition.actions[action].dynamicFields
+    const theField = dynamicFields?[fieldKey]
+
+    // mapping = mapping ?? {}
+
+    // if (useDefaultMappings) {
+    //   const fields = this.definition.actions[action].fields
+    //   const defaultMappings = mapValues(fields, 'default')
+    //   mapping = { ...defaultMappings, ...mapping } as JSONObject
+    // }
+
+    // await super.executeDynamicField(action, {
+    //   event: createTestEvent(event),
+    //   mapping,
+    //   settings: settings ?? ({} as T),
+    //   auth,
+    //   features: features ?? {},
+    //   statsContext: statsContext ?? ({} as StatsContext
+    // }))
+
+    // const responses = this.responses
+    // this.responses = []
+
+    // return responses
+  }
+
   /** Testing method that runs an action e2e while allowing slightly more flexible inputs */
   async testAction(
     action: string,
