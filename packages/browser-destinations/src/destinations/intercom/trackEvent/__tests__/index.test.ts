@@ -28,15 +28,46 @@ describe('Intercom.trackEvent', () => {
     jest.restoreAllMocks()
   })
 
-  test('maps price correctly', async () => {
-    //boilerplate
+
+  test('maps custom traits correctly', async () => {
+
     const [trackEvent] = await intercomDestination({
       appId: 'superSecretAppID',
       subscriptions
     })
 
-    jest.spyOn(destination.actions.trackEvent, 'perform').mockImplementation()
+    const mockIntercom = jest.fn()
+    jest.spyOn(destination, 'initialize').mockImplementation(() => Promise.resolve(mockIntercom as any))
+    await trackEvent.load(Context.system(), {} as Analytics)
 
+    //context
+    const context = new Context({
+      type: 'track',
+      event: 'surfboard-bought',
+      properties: {
+        surfer: 'kelly slater'
+      }
+    })
+    await trackEvent.track?.(context)
+
+    expect(mockIntercom).toHaveBeenCalledWith(
+      'trackEvent',
+      'surfboard-bought',
+      {
+        surfer: 'kelly slater'
+      }
+    )
+  })
+
+  test('maps price correctly', async () => {
+
+    const [trackEvent] = await intercomDestination({
+      appId: 'topSecretKey',
+      subscriptions
+    })
+
+    const mockIntercom = jest.fn()
+    jest.spyOn(destination, 'initialize').mockImplementation(() => Promise.resolve(mockIntercom as any))
     await trackEvent.load(Context.system(), {} as Analytics)
 
     //context
@@ -50,108 +81,27 @@ describe('Intercom.trackEvent', () => {
     })
     await trackEvent.track?.(context)
 
-    expect(destination.actions.trackEvent.perform).toHaveBeenCalledWith(
-      expect.any(Function),
-      expect.objectContaining({
-        payload: {
-          event_name: 'surfboard-bought',
-          price: {
-            amount: 100,
-            currency: 'USD'
-          },
-          event_metadata: {
-            currency: 'USD',
-            revenue: 100
-          }
+    expect(mockIntercom).toHaveBeenCalledWith(
+      'trackEvent',
+      'surfboard-bought',
+      {
+        price: {
+          amount: 10000,
+          currency: 'USD'
         }
-      })
-    )
-  })
-
-  test('maps custom traits correctly', async () => {
-    //boilerplate
-    const [trackEvent] = await intercomDestination({
-      appId: 'superSecretAppID',
-      subscriptions
-    })
-
-    jest.spyOn(destination.actions.trackEvent, 'perform')
-
-    await trackEvent.load(Context.system(), {} as Analytics)
-
-    //context
-    const context = new Context({
-      type: 'track',
-      event: 'surfboard-bought',
-      properties: {
-        surfer: 'kelly slater'
       }
-    })
-    await trackEvent.track?.(context)
-
-    expect(destination.actions.trackEvent.perform).toHaveBeenCalledWith(
-      expect.any(Function),
-      expect.objectContaining({
-        payload: {
-          event_name: 'surfboard-bought',
-          price: {},
-          event_metadata: {
-            surfer: 'kelly slater'
-          }
-        }
-      })
-    )
-  })
-
-  test('amount is revenue multiplied by 100', async () => {
-    //boilerplate
-    const [trackEvent] = await intercomDestination({
-      appId: 'somekeydude',
-      subscriptions
-    })
-
-    jest.spyOn(destination.actions.trackEvent, 'perform')
-
-    await trackEvent.load(Context.system(), {} as Analytics)
-
-    //context
-    const context = new Context({
-      type: 'track',
-      event: 'surfboard-bought',
-      properties: {
-        revenue: 100,
-        currency: 'EUR'
-      }
-    })
-    await trackEvent.track?.(context)
-
-    expect(destination.actions.trackEvent.perform).toHaveBeenCalledWith(
-      expect.any(Function),
-      expect.objectContaining({
-        payload: {
-          event_name: 'surfboard-bought',
-          price: {
-            amount: 10000,
-            currency: 'EUR'
-          },
-          event_metadata: {
-            revenue: 100,
-            currency: 'EUR'
-          }
-        }
-      })
     )
   })
 
   test('currency defaults to USD if omitted', async () => {
-    //boilerplate
+    
     const [trackEvent] = await intercomDestination({
       appId: 'somekeydude',
       subscriptions
     })
 
-    jest.spyOn(destination.actions.trackEvent, 'perform')
-
+    const mockIntercom = jest.fn()
+    jest.spyOn(destination, 'initialize').mockImplementation(() => Promise.resolve(mockIntercom as any))
     await trackEvent.load(Context.system(), {} as Analytics)
 
     //context
@@ -164,25 +114,20 @@ describe('Intercom.trackEvent', () => {
     })
     await trackEvent.track?.(context)
 
-    expect(destination.actions.trackEvent.perform).toHaveBeenCalledWith(
-      expect.any(Function),
-      expect.objectContaining({
-        payload: {
-          event_name: 'surfboard-bought',
-          price: {
-            amount: 10000,
-            currency: 'USD'
-          },
-          event_metadata: {
-            revenue: 100
-          }
+    expect(mockIntercom).toHaveBeenCalledWith(
+      'trackEvent',
+      'surfboard-bought',
+      {
+        price: {
+          amount: 10000,
+          currency: 'USD'
         }
-      })
+      }
     )
   })
 
   test('drops arrays or objects in properties', async () => {
-    //boilerplate
+
     const [trackEvent] = await intercomDestination({
       appId: 'topSecretKey',
       subscriptions
@@ -210,21 +155,28 @@ describe('Intercom.trackEvent', () => {
 
     await trackEvent.track?.(context)
 
-    expect(mockIntercom).toHaveBeenCalledWith('trackEvent', 'surfboard-bought', { surfer: 'kelly slater' })
+    expect(mockIntercom).toHaveBeenCalledWith(
+      'trackEvent', 
+      'surfboard-bought', 
+      { 
+        surfer: 'kelly slater' 
+      }
+    )
   })
 
   test('richLinkProperties objects are permitted', async () => {
+    
     const settings = {
       appId: 'topSecretKey',
       richLinkProperties: ['article']
     }
-    //boilerplate
+
     const [trackEvent] = await intercomDestination({
       ...settings,
       subscriptions
     })
 
-    //mock an window.Intercom object & give it the settings props
+    //give it the settings props
     const mockIntercom = jest.fn()
     jest.spyOn(destination, 'initialize').mockImplementation(() => {
       const mockedWithProps = mockIntercom as any
@@ -251,12 +203,16 @@ describe('Intercom.trackEvent', () => {
 
     await trackEvent.track?.(context)
 
-    expect(mockIntercom).toHaveBeenCalledWith('trackEvent', 'surfboard-bought', {
-      surfer: 'kelly slater',
-      article: {
-        url: 'someurl',
-        value: 'hi'
+    expect(mockIntercom).toHaveBeenCalledWith(
+      'trackEvent', 
+      'surfboard-bought', 
+      {
+        surfer: 'kelly slater',
+        article: {
+          url: 'someurl',
+          value: 'hi'
+        }
       }
-    })
+    )
   })
 })
