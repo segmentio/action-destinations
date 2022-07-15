@@ -40,7 +40,11 @@ const action: ActionDefinition<Settings, Payload> = {
       label: 'Email',
       format: 'email',
       default: {
-        '@path': '$.email'
+        '@if': {
+          exists: { '@path': '$.properties.email' },
+          then: { '@path': '$.properties.email' },
+          else: { '@path': '$.traits.email' }
+        }
       }
     },
     metadata: {
@@ -55,6 +59,7 @@ const action: ActionDefinition<Settings, Payload> = {
   },
   perform: (request, { payload }) => {
     payload.created_at = convertValidTimestamp(payload.created_at)
+    delete payload.metadata?.email
     return request('https://api.intercom.io/events', {
       method: 'POST',
       json: payload
