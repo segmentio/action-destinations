@@ -61,7 +61,7 @@ describe('TalonOne.updateCustomerSession', () => {
             testAttribute1: 'value',
             testAttribute2: 'value'
           },
-          cardItems: [
+          cartItems: [
             {
               name: 'a_name',
               sku: '123sku',
@@ -106,7 +106,7 @@ describe('TalonOne.updateCustomerSession', () => {
             testAttribute1: 'value',
             testAttribute2: 'value'
           },
-          cardItems: [
+          cartItems: [
             {
               name: 'a_name',
               sku: '123sku',

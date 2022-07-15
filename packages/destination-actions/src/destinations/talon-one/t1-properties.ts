@@ -139,7 +139,7 @@ export const attributesInfo: InputField = {
   }
 }
 
-export const cardItems: InputField = {
+export const cartItems: InputField = {
   label: 'Card Items',
   description:
     'The items to add to this sessions.\n' +

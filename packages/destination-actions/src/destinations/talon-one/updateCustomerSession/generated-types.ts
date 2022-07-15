@@ -51,7 +51,7 @@ export interface Payload {
      * If cart item flattening is disabled: Do not exceed 1000 items (regardless of their quantity) per request.
      * If cart item flattening is enabled: Do not exceed 1000 items and ensure the sum of all cart item's quantity does not exceed 10.000 per request.`
      */
-    cardItems?: {
+    cartItems?: {
       /**
        * Name of item
        */
