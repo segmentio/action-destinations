@@ -19,6 +19,22 @@ export function filterCustomTraits(reservedFields: Array<string>, traits: { [k: 
   return filteredCustomTraits
 }
 
+export function getWidgetOptions(
+  hide_default_launcher: boolean | undefined,
+  activator: string | undefined
+): { [key: string]: unknown } {
+  const widgetOptions: { [key: string]: unknown } = {}
+  if (hide_default_launcher !== undefined) {
+    widgetOptions.hide_default_launcher = hide_default_launcher
+  }
+  if (activator !== '#IntercomDefaultWidget') {
+    widgetOptions.widget = {
+      activator: activator
+    }
+  }
+  return widgetOptions
+}
+
 export function isEmpty(o: object | undefined) {
   return !isNonEmpty(o)
 }

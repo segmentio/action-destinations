@@ -4,7 +4,7 @@ type IntercomApi = {
   booted: boolean
   richLinkProperties: string[] | undefined
   appId: string
-  customInboxButtonSelector: string | undefined
+  activator: string | undefined
 }
 
 type IntercomFunction = (method: method, ...args: unknown[]) => void

@@ -3,12 +3,10 @@ import type { BrowserActionDefinition } from '../../../lib/browser-destinations'
 import { Intercom } from '../api'
 import type { Settings } from '../generated-types'
 import { getCompanyProperties } from '../sharedCompanyProperties'
-import { getLauncherProperties } from '../sharedLauncherProperties'
-import { convertISO8601toUnix, filterCustomTraits } from '../utils'
+import { convertISO8601toUnix, filterCustomTraits, getWidgetOptions } from '../utils'
 import type { Payload } from './generated-types'
 
 const companyProperties: Record<string, InputField> = getCompanyProperties()
-const launcherProperties: Record<string, InputField> = getLauncherProperties()
 
 const action: BrowserActionDefinition<Settings, Intercom, Payload> = {
   title: 'Update Company',
@@ -33,13 +31,21 @@ const action: BrowserActionDefinition<Settings, Intercom, Payload> = {
         company_custom_traits: { '@path': '$.traits' }
       }
     },
-    ...launcherProperties
+    hide_default_launcher: {
+      description:
+        'selectively show the chat widget. According to Intercom’s docs, you want to first hide the Messenger for all users inside their UI using Messenger settings. Then think about how you want to programmatically decide which users you’d like to show the widget to.',
+      label: 'Hide Default Launcher',
+      type: 'boolean',
+      required: false,
+      default: {
+        '@path': '$.context.Intercom.hideDefaultLauncher'
+      }
+    }
   },
   perform: (Intercom, event) => {
     //remove traits from payload; traits will not be sent in the final payload to Intercom
     const { company_custom_traits, ...rest } = event.payload.company
     let company = { ...rest }
-    const hide_default_launcher = event.payload.hide_default_launcher
 
     //convert date from ISO-8601 to UNIX
     if (company?.created_at) {
@@ -53,14 +59,13 @@ const action: BrowserActionDefinition<Settings, Intercom, Payload> = {
     //merge filtered custom traits back into company object
     company = { ...company, ...filteredCustomTraits }
 
-    // send user's inbox button selector option
-    const widget = { activator: Intercom.customInboxButtonSelector }
+    //get user's widget options
+    const widgetOptions = getWidgetOptions(event.payload.hide_default_launcher, Intercom.activator)
 
     //API call
     Intercom('update', {
       company,
-      widget,
-      hide_default_launcher
+      ...widgetOptions
     })
   }
 }

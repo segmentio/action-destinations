@@ -3,12 +3,10 @@ import type { BrowserActionDefinition } from '../../../lib/browser-destinations'
 import { Intercom } from '../api'
 import type { Settings } from '../generated-types'
 import { getCompanyProperties } from '../sharedCompanyProperties'
-import { getLauncherProperties } from '../sharedLauncherProperties'
-import { convertISO8601toUnix, filterCustomTraits, isEmpty } from '../utils'
+import { convertISO8601toUnix, filterCustomTraits, getWidgetOptions, isEmpty } from '../utils'
 import type { Payload } from './generated-types'
 
 const companyProperties: Record<string, InputField> = getCompanyProperties()
-const launcherProperties: Record<string, InputField> = getLauncherProperties()
 
 const action: BrowserActionDefinition<Settings, Intercom, Payload> = {
   title: 'Update',
@@ -40,6 +38,24 @@ const action: BrowserActionDefinition<Settings, Intercom, Payload> = {
       required: false,
       default: {
         '@path': '$.traits.name'
+      }
+    },
+    first_name: {
+      description: "The user's first name.",
+      label: 'Name',
+      type: 'string',
+      required: false,
+      default: {
+        '@path': '$.traits.firstName'
+      }
+    },
+    last_name: {
+      description: "The user's last name.",
+      label: 'Name',
+      type: 'string',
+      required: false,
+      default: {
+        '@path': '$.traits.lastName'
       }
     },
     phone: {
@@ -120,7 +136,6 @@ const action: BrowserActionDefinition<Settings, Intercom, Payload> = {
         '@path': '$.context.Intercom.user_hash'
       }
     },
-    ...launcherProperties,
     company: {
       description: "The user's company.",
       label: 'Company',
@@ -162,6 +177,16 @@ const action: BrowserActionDefinition<Settings, Intercom, Payload> = {
           }
         ]
       }
+    },
+    hide_default_launcher: {
+      description:
+        'selectively show the chat widget. According to Intercom’s docs, you want to first hide the Messenger for all users inside their UI using Messenger settings. Then think about how you want to programmatically decide which users you’d like to show the widget to.',
+      label: 'Hide Default Launcher',
+      type: 'boolean',
+      required: false,
+      default: {
+        '@path': '$.context.Intercom.hideDefaultLauncher'
+      }
     }
   },
   perform: (Intercom, event) => {
@@ -178,6 +203,20 @@ const action: BrowserActionDefinition<Settings, Intercom, Payload> = {
     } else {
       // add type = 'avatar' to avatar object since Intercom requires it
       if (payload.avatar) payload.avatar.type = 'avatar'
+    }
+
+    // if no name provided, concat firstName & lastName to form name
+    if (!payload.name && payload.first_name) {
+      payload.name = payload.first_name
+      if (payload.last_name) {
+        payload.name += ' ' + payload.last_name
+      }
+    }
+    if (payload.first_name) {
+      delete payload.first_name
+    }
+    if (payload.last_name) {
+      delete payload.last_name
     }
 
     //mutate objects by converting their 'created_at' date properties from ISO-8601 to UNIX
@@ -199,7 +238,9 @@ const action: BrowserActionDefinition<Settings, Intercom, Payload> = {
       'userHash',
       'companyId',
       'monthlySpend',
-      'id'
+      'id',
+      'firstName',
+      'lastName'
     ]
 
     // filter out reserved fields for user, drop custom objects & arrays
@@ -222,14 +263,14 @@ const action: BrowserActionDefinition<Settings, Intercom, Payload> = {
       })
     }
 
-    // send user's inbox button selector option
-    const widget = { activator: Intercom.customInboxButtonSelector }
+    //get user's widget options
+    const widgetOptions = getWidgetOptions(payload.hide_default_launcher, Intercom.activator)
 
     // API call
     Intercom('update', {
       ...payload,
       ...filteredCustomTraits,
-      widget
+      ...widgetOptions
     })
   }
 }

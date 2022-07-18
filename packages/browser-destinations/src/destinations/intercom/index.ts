@@ -30,7 +30,7 @@ export const destination: BrowserDestinationDefinition<Settings, Intercom> = {
       type: 'string',
       required: true
     },
-    customInboxButtonSelector: {
+    activator: {
       description:
         'By default, Intercom will inject their own inbox button onto the page, but you can choose to use your own custom button instead by providing a CSS selector like: #my-button. Note: you must have enabled the Show the Intercom Inbox setting for this to work. The default value is #IntercomDefaultWidget',
       label: 'Custom Inbox Button Selector',
@@ -57,7 +57,7 @@ export const destination: BrowserDestinationDefinition<Settings, Intercom> = {
     //put settings on the Intercom object
     window.Intercom.richLinkProperties = settings.richLinkProperties
     window.Intercom.appId = settings.appId
-    window.Intercom.customInboxButtonSelector = settings.customInboxButtonSelector
+    window.Intercom.activator = settings.activator
 
     return window.Intercom
   },

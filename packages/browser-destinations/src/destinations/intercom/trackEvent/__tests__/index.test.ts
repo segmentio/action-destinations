@@ -24,23 +24,30 @@ const subscriptions: Subscription[] = [
 ]
 
 describe('Intercom.trackEvent', () => {
-  beforeEach(() => {
+  let mockIntercom: jest.Mock<any, any>
+  let trackEvent: any
+  beforeEach(async () => {
     jest.restoreAllMocks()
-  })
 
+    const settings = {
+      appId: 'superSecretAppID'
+    }
 
-  test('maps custom traits correctly', async () => {
-
-    const [trackEvent] = await intercomDestination({
-      appId: 'superSecretAppID',
+    const [trackEventPlugin] = await intercomDestination({
+      ...settings,
       subscriptions
     })
+    trackEvent = trackEventPlugin
 
-    const mockIntercom = jest.fn()
-    jest.spyOn(destination, 'initialize').mockImplementation(() => Promise.resolve(mockIntercom as any))
+    mockIntercom = jest.fn()
+    jest.spyOn(destination, 'initialize').mockImplementation(() => {
+      const mockedWithProps = Object.assign(mockIntercom as any, settings)
+      return Promise.resolve(mockedWithProps)
+    })
     await trackEvent.load(Context.system(), {} as Analytics)
+  })
 
-    //context
+  test('maps custom traits correctly', async () => {
     const context = new Context({
       type: 'track',
       event: 'surfboard-bought',
@@ -50,27 +57,12 @@ describe('Intercom.trackEvent', () => {
     })
     await trackEvent.track?.(context)
 
-    expect(mockIntercom).toHaveBeenCalledWith(
-      'trackEvent',
-      'surfboard-bought',
-      {
-        surfer: 'kelly slater'
-      }
-    )
+    expect(mockIntercom).toHaveBeenCalledWith('trackEvent', 'surfboard-bought', {
+      surfer: 'kelly slater'
+    })
   })
 
   test('maps price correctly', async () => {
-
-    const [trackEvent] = await intercomDestination({
-      appId: 'topSecretKey',
-      subscriptions
-    })
-
-    const mockIntercom = jest.fn()
-    jest.spyOn(destination, 'initialize').mockImplementation(() => Promise.resolve(mockIntercom as any))
-    await trackEvent.load(Context.system(), {} as Analytics)
-
-    //context
     const context = new Context({
       type: 'track',
       event: 'surfboard-bought',
@@ -81,30 +73,15 @@ describe('Intercom.trackEvent', () => {
     })
     await trackEvent.track?.(context)
 
-    expect(mockIntercom).toHaveBeenCalledWith(
-      'trackEvent',
-      'surfboard-bought',
-      {
-        price: {
-          amount: 10000,
-          currency: 'USD'
-        }
+    expect(mockIntercom).toHaveBeenCalledWith('trackEvent', 'surfboard-bought', {
+      price: {
+        amount: 10000,
+        currency: 'USD'
       }
-    )
+    })
   })
 
   test('currency defaults to USD if omitted', async () => {
-    
-    const [trackEvent] = await intercomDestination({
-      appId: 'somekeydude',
-      subscriptions
-    })
-
-    const mockIntercom = jest.fn()
-    jest.spyOn(destination, 'initialize').mockImplementation(() => Promise.resolve(mockIntercom as any))
-    await trackEvent.load(Context.system(), {} as Analytics)
-
-    //context
     const context = new Context({
       type: 'track',
       event: 'surfboard-bought',
@@ -114,30 +91,15 @@ describe('Intercom.trackEvent', () => {
     })
     await trackEvent.track?.(context)
 
-    expect(mockIntercom).toHaveBeenCalledWith(
-      'trackEvent',
-      'surfboard-bought',
-      {
-        price: {
-          amount: 10000,
-          currency: 'USD'
-        }
+    expect(mockIntercom).toHaveBeenCalledWith('trackEvent', 'surfboard-bought', {
+      price: {
+        amount: 10000,
+        currency: 'USD'
       }
-    )
+    })
   })
 
   test('drops arrays or objects in properties', async () => {
-
-    const [trackEvent] = await intercomDestination({
-      appId: 'topSecretKey',
-      subscriptions
-    })
-
-    const mockIntercom = jest.fn()
-    jest.spyOn(destination, 'initialize').mockImplementation(() => Promise.resolve(mockIntercom as any))
-    await trackEvent.load(Context.system(), {} as Analytics)
-
-    //context
     const context = new Context({
       type: 'track',
       event: 'surfboard-bought',
@@ -155,19 +117,18 @@ describe('Intercom.trackEvent', () => {
 
     await trackEvent.track?.(context)
 
-    expect(mockIntercom).toHaveBeenCalledWith(
-      'trackEvent', 
-      'surfboard-bought', 
-      { 
-        surfer: 'kelly slater' 
-      }
-    )
+    expect(mockIntercom).toHaveBeenCalledWith('trackEvent', 'surfboard-bought', {
+      surfer: 'kelly slater'
+    })
   })
+})
 
-  test('richLinkProperties objects are permitted', async () => {
-    
+describe('Intercom.trackEvent with rich link properties', () => {
+  test('rich link properties are permitted', async () => {
+    jest.restoreAllMocks()
+
     const settings = {
-      appId: 'topSecretKey',
+      appId: 'superSecretAppID',
       richLinkProperties: ['article']
     }
 
@@ -176,12 +137,9 @@ describe('Intercom.trackEvent', () => {
       subscriptions
     })
 
-    //give it the settings props
     const mockIntercom = jest.fn()
     jest.spyOn(destination, 'initialize').mockImplementation(() => {
-      const mockedWithProps = mockIntercom as any
-      mockedWithProps.appId = settings.appId
-      mockedWithProps.richLinkProperties = settings.richLinkProperties
+      const mockedWithProps = Object.assign(mockIntercom as any, settings)
       return Promise.resolve(mockedWithProps)
     })
     await trackEvent.load(Context.system(), {} as Analytics)
@@ -191,11 +149,11 @@ describe('Intercom.trackEvent', () => {
       event: 'surfboard-bought',
       properties: {
         surfer: 'kelly slater',
-        randomObj: {
-          willIBeDropped: true
+        dropMe: {
+          foo: 'bar'
         },
         article: {
-          url: 'someurl',
+          url: 'im a link',
           value: 'hi'
         }
       }
@@ -203,16 +161,12 @@ describe('Intercom.trackEvent', () => {
 
     await trackEvent.track?.(context)
 
-    expect(mockIntercom).toHaveBeenCalledWith(
-      'trackEvent', 
-      'surfboard-bought', 
-      {
-        surfer: 'kelly slater',
-        article: {
-          url: 'someurl',
-          value: 'hi'
-        }
+    expect(mockIntercom).toHaveBeenCalledWith('trackEvent', 'surfboard-bought', {
+      surfer: 'kelly slater',
+      article: {
+        url: 'im a link',
+        value: 'hi'
       }
-    )
+    })
   })
 })

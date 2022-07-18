@@ -8,7 +8,7 @@ export interface Settings {
   /**
    * By default, Intercom will inject their own inbox button onto the page, but you can choose to use your own custom button instead by providing a CSS selector like: #my-button. Note: you must have enabled the Show the Intercom Inbox setting for this to work. The default value is #IntercomDefaultWidget
    */
-  customInboxButtonSelector?: string
+  activator?: string
   /**
    * A list of rich link property keys.
    */

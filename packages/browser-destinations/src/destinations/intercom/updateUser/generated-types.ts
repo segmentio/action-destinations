@@ -16,6 +16,14 @@ export interface Payload {
    */
   name?: string
   /**
+   * The user's first name.
+   */
+  first_name?: string
+  /**
+   * The user's last name.
+   */
+  last_name?: string
+  /**
    * The phone number of the current user/lead.
    */
   phone?: string
@@ -52,10 +60,6 @@ export interface Payload {
    * This is used for identity verification.
    */
   user_hash?: string
-  /**
-   * selectively show the chat widget. According to Intercom’s docs, you want to first hide the Messenger for all users inside their UI using Messenger settings. Then think about how you want to programmatically decide which users you’d like to show the widget to.
-   */
-  hide_default_launcher?: boolean
   /**
    * The user's company.
    */
@@ -142,4 +146,8 @@ export interface Payload {
       [k: string]: unknown
     }
   }[]
+  /**
+   * selectively show the chat widget. According to Intercom’s docs, you want to first hide the Messenger for all users inside their UI using Messenger settings. Then think about how you want to programmatically decide which users you’d like to show the widget to.
+   */
+  hide_default_launcher?: boolean
 }
