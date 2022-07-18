@@ -336,7 +336,7 @@ export const timestamp_micros: InputField = {
   label: 'Event Timestamp',
   type: 'string',
   description:
-    'A Unix timestamp (in microseconds) for the time to associate with the event. Events can be backdated up to 3 calendar days based on the propertys timezone.',
+    "A Unix timestamp (in microseconds) for the time to associate with the event. Events can be backdated up to 3 calendar days based on the property's timezone.",
   default: {
     '@path': '$.timestamp'
   }

@@ -65,7 +65,8 @@ const action: ActionDefinition<Settings, Payload> = {
       verifyParams(payload.params)
       verifyUserProps(payload.user_properties)
     }
-    let request_object = {
+    let request_object: { [key: string]: any } = {}
+    request_object = {
       client_id: payload.client_id,
       user_id: payload.user_id,
       events: [
@@ -84,7 +85,7 @@ const action: ActionDefinition<Settings, Payload> = {
     }
 
     if (features && features['actions-google-analytics-4-add-timestamp']) {
-      request_object = { ...request_object, ...{ ['timestamp_micros']: convertTimestamp(payload.timestamp_micros) } }
+      request_object.timestamp_micros = convertTimestamp(payload.timestamp_micros)
     }
 
     return request('https://www.google-analytics.com/mp/collect', {
