@@ -1,15 +1,28 @@
 import { ActionDefinition, IntegrationError } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import Salesforce from '../sf-operations'
-import { customFields, operation, traits, validateLookup } from '../sf-properties'
+import {
+  bulkUpsertExternalId,
+  bulkUpdateRecordId,
+  customFields,
+  operation,
+  traits,
+  validateLookup,
+  enable_batching
+} from '../sf-properties'
 import type { Payload } from './generated-types'
+
+const OBJECT_NAME = 'Opportunity'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Opportunity',
   description: 'Represents an opportunity, which is a sale or pending deal.',
   fields: {
     operation: operation,
+    enable_batching: enable_batching,
     traits: traits,
+    bulkUpsertExternalId: bulkUpsertExternalId,
+    bulkUpdateRecordId: bulkUpdateRecordId,
     close_date: {
       label: 'Close Date',
       description:
@@ -45,21 +58,32 @@ const action: ActionDefinition<Settings, Payload> = {
       if (!payload.close_date || !payload.name || !payload.stage_name) {
         throw new IntegrationError('Missing close_date, name or stage_name value', 'Misconfigured required field', 400)
       }
-      return await sf.createRecord(payload, 'Opportunity')
+      return await sf.createRecord(payload, OBJECT_NAME)
     }
 
     validateLookup(payload)
 
     if (payload.operation === 'update') {
-      return await sf.updateRecord(payload, 'Opportunity')
+      return await sf.updateRecord(payload, OBJECT_NAME)
     }
 
     if (payload.operation === 'upsert') {
       if (!payload.close_date || !payload.name || !payload.stage_name) {
         throw new IntegrationError('Missing close_date, name or stage_name value', 'Misconfigured required field', 400)
       }
-      return await sf.upsertRecord(payload, 'Opportunity')
+      return await sf.upsertRecord(payload, OBJECT_NAME)
     }
+  },
+  performBatch: async (request, { settings, payload }) => {
+    const sf: Salesforce = new Salesforce(settings.instanceUrl, request)
+
+    if (payload[0].operation === 'upsert') {
+      if (!payload[0].close_date || !payload[0].name || !payload[0].stage_name) {
+        throw new IntegrationError('Missing close_date, name or stage_name value', 'Misconfigured required field', 400)
+      }
+    }
+
+    return sf.bulkHandler(payload, OBJECT_NAME)
   }
 }
 

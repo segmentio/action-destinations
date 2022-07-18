@@ -146,6 +146,105 @@ describe('GA4', () => {
       )
     })
 
+    it('should allow for currency to be lowercase', async () => {
+      nock('https://www.google-analytics.com/mp/collect')
+        .post(`?measurement_id=${measurementId}&api_secret=${apiSecret}`)
+        .reply(201, {})
+      const event = createTestEvent({
+        event: 'Product Added',
+        userId: '3456fff',
+        anonymousId: 'anon-567890',
+        type: 'track',
+        properties: {
+          cart_id: 'skdjsidjsdkdj29j',
+          product_id: '507f1f77bcf86cd799439011',
+          sku: 'G-32',
+          category: 'Games',
+          name: 'Monopoly: 3rd Edition',
+          brand: 'Hasbro',
+          variant: '200 pieces',
+          price: 18.99,
+          currency: 'usd',
+          quantity: 1,
+          coupon: 'MAYDEALS',
+          position: 3,
+          url: 'https://www.example.com/product/path',
+          image_url: 'https://www.example.com/product/path.jpg'
+        }
+      })
+      const responses = await testDestination.testAction('addToCart', {
+        event,
+        settings: {
+          apiSecret,
+          measurementId
+        },
+        mapping: {
+          client_id: {
+            '@path': '$.anonymousId'
+          },
+          coupon: {
+            '@path': '$.properties.coupon'
+          },
+          value: {
+            '@path': '$.properties.price'
+          },
+          engagement_time_msec: 2,
+          items: [
+            {
+              item_name: {
+                '@path': `$.properties.name`
+              },
+              item_id: {
+                '@path': `$.properties.product_id`
+              },
+              quantity: {
+                '@path': `$.properties.quantity`
+              },
+              coupon: {
+                '@path': `$.properties.coupon`
+              },
+              item_brand: {
+                '@path': `$.properties..brand`
+              },
+              item_category: {
+                '@path': `$.properties.category`
+              },
+              item_variant: {
+                '@path': `$.properties.variant`
+              },
+              price: {
+                '@path': `$.properties.price`
+              },
+              currency: {
+                '@path': `$.properties.currency`
+              }
+            }
+          ]
+        },
+        useDefaultMappings: true
+      })
+
+      expect(responses.length).toBe(1)
+      expect(responses[0].status).toBe(201)
+
+      expect(responses[0].request.headers).toMatchInlineSnapshot(`
+        Headers {
+          Symbol(map): Object {
+            "content-type": Array [
+              "application/json",
+            ],
+            "user-agent": Array [
+              "Segment (Actions)",
+            ],
+          },
+        }
+      `)
+
+      expect(responses[0].options.body).toMatchInlineSnapshot(
+        `"{\\"client_id\\":\\"anon-567890\\",\\"events\\":[{\\"name\\":\\"add_to_cart\\",\\"params\\":{\\"currency\\":\\"usd\\",\\"items\\":[{\\"item_name\\":\\"Monopoly: 3rd Edition\\",\\"item_id\\":\\"507f1f77bcf86cd799439011\\",\\"quantity\\":1,\\"coupon\\":\\"MAYDEALS\\",\\"item_brand\\":\\"Hasbro\\",\\"item_category\\":\\"Games\\",\\"item_variant\\":\\"200 pieces\\",\\"price\\":18.99,\\"currency\\":\\"usd\\"}],\\"value\\":18.99,\\"engagement_time_msec\\":2}}]}"`
+      )
+    })
+
     it('should throw an error when product name and id are missing', async () => {
       nock('https://www.google-analytics.com/mp/collect')
         .post(`?measurement_id=${measurementId}&api_secret=${apiSecret}`)

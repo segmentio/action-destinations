@@ -1,8 +1,17 @@
 import { IntegrationError, RequestClient } from '@segment/actions-core'
 import type { GenericPayload } from './sf-types'
 import { mapObjectToShape } from './sf-object-to-shape'
+import { buildCSVData } from './sf-utils'
 
 export const API_VERSION = 'v53.0'
+
+/**
+ * This error is triggered if the bulkHandler is ever triggered when the enable_batching setting is false.
+ */
+const throwBulkMismatchError = () => {
+  const errorMsg = 'Bulk operation triggered where enable_batching is false.'
+  throw new IntegrationError(errorMsg, errorMsg, 400)
+}
 
 interface Records {
   Id?: string
@@ -12,6 +21,10 @@ interface LookupResponseData {
   Id?: string
   totalSize?: number
   records?: Records[]
+}
+
+interface CreateJobResponseData {
+  id: string
 }
 
 export default class Salesforce {
@@ -68,6 +81,103 @@ export default class Salesforce {
     return await this.baseUpdate(recordId, sobject, payload)
   }
 
+  bulkHandler = async (payloads: GenericPayload[], sobject: string) => {
+    if (!payloads[0].enable_batching) {
+      throwBulkMismatchError()
+    }
+
+    if (payloads[0].operation === 'upsert') {
+      return await this.bulkUpsert(payloads, sobject)
+    } else if (payloads[0].operation === 'update') {
+      return await this.bulkUpdate(payloads, sobject)
+    }
+
+    throw new IntegrationError(
+      `Unsupported operation: Bulk API does not support the create operation`,
+      'Unsupported operation',
+      400
+    )
+  }
+
+  private bulkUpsert = async (payloads: GenericPayload[], sobject: string) => {
+    if (
+      !payloads[0].bulkUpsertExternalId ||
+      !payloads[0].bulkUpsertExternalId.externalIdName ||
+      !payloads[0].bulkUpsertExternalId.externalIdValue
+    ) {
+      throw new IntegrationError(
+        'Undefined bulkUpsertExternalId.externalIdName or externalIdValue when using bulkUpsert operation',
+        'Undefined bulkUpsertExternalId.externalIdName externalIdValue',
+        400
+      )
+    }
+    const externalIdFieldName = payloads[0].bulkUpsertExternalId.externalIdName
+
+    const jobId = await this.createBulkJob(sobject, externalIdFieldName, 'upsert')
+
+    const csv = buildCSVData(payloads, externalIdFieldName)
+
+    await this.uploadBulkCSV(jobId, csv)
+    return await this.closeBulkJob(jobId)
+  }
+
+  private bulkUpdate = async (payloads: GenericPayload[], sobject: string) => {
+    if (!payloads[0].bulkUpdateRecordId) {
+      throw new IntegrationError(
+        'Undefined bulkUpdateRecordId when using bulkUpdate operation',
+        'Undefined bulkUpdateRecordId',
+        400
+      )
+    }
+
+    const jobId = await this.createBulkJob(sobject, 'Id', 'update')
+    const csv = buildCSVData(payloads, 'Id')
+
+    await this.uploadBulkCSV(jobId, csv)
+    return await this.closeBulkJob(jobId)
+  }
+
+  private createBulkJob = async (sobject: string, externalIdFieldName: string, operation: string) => {
+    const res = await this.request<CreateJobResponseData>(
+      `${this.instanceUrl}services/data/${API_VERSION}/jobs/ingest`,
+      {
+        method: 'post',
+        json: {
+          object: sobject,
+          externalIdFieldName: externalIdFieldName,
+          contentType: 'CSV',
+          operation: operation
+        }
+      }
+    )
+
+    if (!res || !res.data || !res.data.id) {
+      throw new IntegrationError('Failed to create bulk job', 'Failed to create bulk job', 500)
+    }
+
+    return res.data.id
+  }
+
+  private uploadBulkCSV = async (jobId: string, csv: string) => {
+    return this.request(`${this.instanceUrl}services/data/${API_VERSION}/jobs/ingest/${jobId}/batches`, {
+      method: 'put',
+      headers: {
+        'Content-Type': 'text/csv',
+        Accept: 'application/json'
+      },
+      body: csv
+    })
+  }
+
+  private closeBulkJob = async (jobId: string) => {
+    return this.request(`${this.instanceUrl}services/data/${API_VERSION}/jobs/ingest/${jobId}`, {
+      method: 'PATCH',
+      json: {
+        state: 'UploadComplete'
+      }
+    })
+  }
+
   private baseUpdate = async (recordId: string, sobject: string, payload: GenericPayload) => {
     const json = this.buildJSONData(payload, sobject)
 
@@ -98,13 +208,31 @@ export default class Salesforce {
   // Salesforce field names should have only characters in {a-z, A-Z, 0-9, _}.
   private removeInvalidChars = (value: string) => value.replace(/[^a-zA-Z0-9_]/g, '')
 
+  // Pre-formats trait values based on datatypes for correct SOQL syntax
+  private typecast = (value: any) => {
+    switch (typeof value) {
+      case 'boolean':
+        return value
+      case 'number':
+        return value
+      case 'string':
+        return `'${this.escapeQuotes(value)}'`
+      default:
+        throw new IntegrationError(
+          'Unsupported datatype for record matcher traits - ' + typeof value,
+          'Unsupported Type',
+          400
+        )
+    }
+  }
+
   private buildQuery = (traits: object, sobject: string) => {
     let soql = `SELECT Id FROM ${sobject} WHERE `
 
     const entries = Object.entries(traits)
     let i = 0
     for (const [key, value] of entries) {
-      let token = `${this.removeInvalidChars(key)} = '${this.escapeQuotes(value)}'`
+      let token = `${this.removeInvalidChars(key)} = ${this.typecast(value)}`
 
       if (i < entries.length - 1) {
         token += ' OR '

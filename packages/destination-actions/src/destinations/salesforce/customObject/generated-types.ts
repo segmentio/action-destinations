@@ -6,6 +6,10 @@ export interface Payload {
    */
   operation: string
   /**
+   * If true, events are sent to [Salesforce’s Bulk API 2.0](https://developer.salesforce.com/docs/atlas.en-us.api_asynch.meta/api_asynch/asynch_api_intro.htm) rather than their streaming REST API. Once enabled, Segment will collect events into batches of 1000 before sending to Salesforce. *Enabling Bulk API is not compatible with the `create` operation*.
+   */
+  enable_batching?: boolean
+  /**
    * The fields used to find Salesforce records for updates. **This is required if the operation is Update or Upsert.**
    *
    *   Any field can function as a matcher, including Record ID, External IDs, standard fields and custom fields. On the left-hand side, input the Salesforce field API name. On the right-hand side, map the Segment field that contains the value.
@@ -19,6 +23,23 @@ export interface Payload {
   traits?: {
     [k: string]: unknown
   }
+  /**
+   * The external id field name and mapping to use for bulk upsert.
+   */
+  bulkUpsertExternalId?: {
+    /**
+     * The external id field name as defined in Salesforce.
+     */
+    externalIdName?: string
+    /**
+     * The external id field value to use for bulk upsert.
+     */
+    externalIdValue?: string
+  }
+  /**
+   * The record id value to use for bulk update.
+   */
+  bulkUpdateRecordId?: string
   /**
    * The API name of the Salesforce object that records will be added or updated within. This can be a standard or custom object. Custom objects must be predefined in your Salesforce account and should end with "__c".
    */

@@ -2,13 +2,17 @@
 
 export interface Settings {
   /**
-   * Twilio Account ID
+   * Twilio Account SID
    */
-  twilioAccountId: string
+  twilioAccountSID: string
   /**
-   * Twilio Auth Token
+   * Twilio API Key SID
    */
-  twilioAuthToken: string
+  twilioApiKeySID: string
+  /**
+   * Twilio API Key Secret
+   */
+  twilioApiKeySecret: string
   /**
    * Profile API Environment
    */
@@ -29,6 +33,10 @@ export interface Settings {
    * Webhook URL that will receive all events for the sent message
    */
   webhookUrl?: string
+  /**
+   * Overrides the default Twilio host name used mainly for testing without having to send real messages.
+   */
+  twilioHostname?: string
   /**
    * Connection overrides are configuration supported by twilio webhook services. Must be passed as fragments on the callback url
    */

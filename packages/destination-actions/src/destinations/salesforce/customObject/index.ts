@@ -1,7 +1,15 @@
-import type { ActionDefinition } from '@segment/actions-core'
+import { ActionDefinition } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
-import { operation, traits, customFields, validateLookup } from '../sf-properties'
+import {
+  bulkUpsertExternalId,
+  bulkUpdateRecordId,
+  operation,
+  traits,
+  customFields,
+  validateLookup,
+  enable_batching
+} from '../sf-properties'
 import Salesforce from '../sf-operations'
 
 const action: ActionDefinition<Settings, Payload> = {
@@ -10,7 +18,10 @@ const action: ActionDefinition<Settings, Payload> = {
     "Represents a custom object, which you create to store information that's specific to your company or industry, or a standard object.",
   fields: {
     operation: operation,
+    enable_batching: enable_batching,
     traits: traits,
+    bulkUpsertExternalId: bulkUpsertExternalId,
+    bulkUpdateRecordId: bulkUpdateRecordId,
     customObjectName: {
       label: 'Salesforce Object',
       description:
@@ -36,6 +47,11 @@ const action: ActionDefinition<Settings, Payload> = {
     if (payload.operation === 'upsert') {
       return await sf.upsertRecord(payload, payload.customObjectName)
     }
+  },
+  performBatch: async (request, { settings, payload }) => {
+    const sf: Salesforce = new Salesforce(settings.instanceUrl, request)
+
+    return sf.bulkHandler(payload, payload[0].customObjectName)
   }
 }
 

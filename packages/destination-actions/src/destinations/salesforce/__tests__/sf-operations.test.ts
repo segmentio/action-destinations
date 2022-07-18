@@ -2,12 +2,20 @@ import nock from 'nock'
 import createRequestClient from '../../../../../core/src/create-request-client'
 import Salesforce from '../sf-operations'
 import { API_VERSION } from '../sf-operations'
+import type { GenericPayload } from '../sf-types'
 
 const settings = {
   instanceUrl: 'https://test.com/'
 }
 
 const requestClient = createRequestClient()
+
+afterEach(() => {
+  if (!nock.isDone()) {
+    throw new Error(`Not all nock interceptors were used: ${nock.pendingMocks()}`)
+  }
+  nock.cleanAll()
+})
 
 describe('Salesforce', () => {
   describe('Operations', () => {
@@ -30,6 +38,29 @@ describe('Salesforce', () => {
         {
           traits: {
             email: 'sponge@seamail.com'
+          }
+        },
+        'Lead'
+      )
+    })
+
+    it('should lookup based on a single trait of type number', async () => {
+      const query = encodeURIComponent(`SELECT Id FROM Lead WHERE NumberOfEmployees = 2`)
+
+      nock(`${settings.instanceUrl}services/data/${API_VERSION}/query`)
+        .get(`/?q=${query}`)
+        .reply(201, {
+          Id: 'abc123',
+          totalSize: 1,
+          records: [{ Id: '123456' }]
+        })
+
+      nock(`${settings.instanceUrl}services/data/${API_VERSION}/sobjects`).patch('/Lead/123456').reply(201, {})
+
+      await sf.updateRecord(
+        {
+          traits: {
+            NumberOfEmployees: 2
           }
         },
         'Lead'
@@ -59,6 +90,69 @@ describe('Salesforce', () => {
         },
         'Lead'
       )
+    })
+
+    it('should lookup based on multiple traits of different datatypes', async () => {
+      const query = encodeURIComponent(`SELECT Id FROM Lead WHERE email = 'sponge@seamail.com' OR isDeleted = false`)
+      nock(`${settings.instanceUrl}services/data/${API_VERSION}/query`)
+        .get(`/?q=${query}`)
+        .reply(201, {
+          Id: 'abc123',
+          totalSize: 1,
+          records: [{ Id: '123456' }]
+        })
+
+      nock(`${settings.instanceUrl}services/data/${API_VERSION}/sobjects`).patch('/Lead/123456').reply(201, {})
+
+      await sf.updateRecord(
+        {
+          traits: {
+            email: 'sponge@seamail.com',
+            isDeleted: false
+          }
+        },
+        'Lead'
+      )
+    })
+
+    it('should create SOQL WHERE conditon based on the datatype of trait value', async () => {
+      const query = encodeURIComponent(
+        `SELECT Id FROM Lead WHERE email = 'sponge@seamail.com' OR isDeleted = false OR NumberOfEmployees = 3`
+      )
+      nock(`${settings.instanceUrl}services/data/${API_VERSION}/query`)
+        .get(`/?q=${query}`)
+        .reply(201, {
+          Id: 'abc123',
+          totalSize: 1,
+          records: [{ Id: '123456' }]
+        })
+
+      nock(`${settings.instanceUrl}services/data/${API_VERSION}/sobjects`).patch('/Lead/123456').reply(201, {})
+
+      await sf.updateRecord(
+        {
+          traits: {
+            email: 'sponge@seamail.com',
+            isDeleted: false,
+            NumberOfEmployees: 3
+          }
+        },
+        'Lead'
+      )
+    })
+
+    it('should fail when trait value is of an unsupported datatype - object or arrays', async () => {
+      await expect(
+        sf.updateRecord(
+          {
+            traits: {
+              email: { key: 'sponge@seamail.com' },
+              NoOfEmployees: [1, 2]
+            }
+          },
+          'Lead'
+        )
+      ).rejects.toThrowError('Unsupported datatype for record matcher traits - object')
     })
 
     it('should fail when a record is not found', async () => {
@@ -252,6 +346,213 @@ describe('Salesforce', () => {
           'Lead'
         )
       })
+    })
+  })
+
+  describe('Bulk Operations', () => {
+    const sf: Salesforce = new Salesforce(settings.instanceUrl, requestClient)
+
+    const bulkUpsertPayloads: GenericPayload[] = [
+      {
+        operation: 'upsert',
+        enable_batching: true,
+        bulkUpsertExternalId: {
+          externalIdName: 'test__c',
+          externalIdValue: 'ab'
+        },
+        name: 'SpongeBob Squarepants',
+        phone: '1234567890',
+        description: 'Krusty Krab'
+      },
+      {
+        operation: 'upsert',
+        enable_batching: true,
+        bulkUpsertExternalId: {
+          externalIdName: 'test__c',
+          externalIdValue: 'cd'
+        },
+        name: 'Squidward Tentacles',
+        phone: '1234567891',
+        description: 'Krusty Krab'
+      }
+    ]
+
+    const customPayloads: GenericPayload[] = [
+      {
+        operation: 'upsert',
+        enable_batching: true,
+        bulkUpsertExternalId: {
+          externalIdName: 'test__c',
+          externalIdValue: 'ab'
+        },
+        name: 'SpongeBob Squarepants',
+        phone: '1234567890',
+        description: 'Krusty Krab',
+        customFields: {
+          TickerSymbol: 'KRAB'
+        }
+      },
+      {
+        operation: 'upsert',
+        enable_batching: true,
+        bulkUpsertExternalId: {
+          externalIdName: 'test__c',
+          externalIdValue: 'cd'
+        },
+        name: 'Squidward Tentacles',
+        phone: '1234567891',
+        description: 'Krusty Krab',
+        customFields: {
+          TickerSymbol: 'KRAB'
+        }
+      }
+    ]
+
+    const bulkUpdatePayloads: GenericPayload[] = [
+      {
+        operation: 'update',
+        enable_batching: true,
+        bulkUpdateRecordId: 'ab',
+        name: 'SpongeBob Squarepants',
+        phone: '1234567890',
+        description: 'Krusty Krab'
+      },
+      {
+        operation: 'update',
+        enable_batching: true,
+        bulkUpdateRecordId: 'cd',
+        name: 'Squidward Tentacles',
+        phone: '1234567891',
+        description: 'Krusty Krab'
+      }
+    ]
+
+    it('should correctly upsert a batch of records', async () => {
+      //create bulk job
+      nock(`${settings.instanceUrl}services/data/${API_VERSION}/jobs/ingest`)
+        .post('', {
+          object: 'Account',
+          externalIdFieldName: 'test__c',
+          operation: 'upsert',
+          contentType: 'CSV'
+        })
+        .reply(201, {
+          id: 'abc123'
+        })
+
+      const CSV = `Name,Phone,Description,test__c\n"SpongeBob Squarepants","1234567890","Krusty Krab","ab"\n"Squidward Tentacles","1234567891","Krusty Krab","cd"\n`
+
+      //upload csv
+      nock(`${settings.instanceUrl}services/data/${API_VERSION}/jobs/ingest/abc123/batches`, {
+        reqheaders: {
+          'Content-Type': 'text/csv',
+          Accept: 'application/json'
+        }
+      })
+        .put('', CSV)
+        .reply(201, {})
+
+      //close bulk job
+      nock(`${settings.instanceUrl}services/data/${API_VERSION}/jobs/ingest/abc123`)
+        .patch('', {
+          state: 'UploadComplete'
+        })
+        .reply(201, {})
+
+      await sf.bulkHandler(bulkUpsertPayloads, 'Account')
+    })
+
+    it('should correctly parse the customFields object', async () => {
+      //create bulk job
+      nock(`${settings.instanceUrl}services/data/${API_VERSION}/jobs/ingest`)
+        .post('', {
+          object: 'Account',
+          externalIdFieldName: 'test__c',
+          operation: 'upsert',
+          contentType: 'CSV'
+        })
+        .reply(201, {
+          id: 'xyz987'
+        })
+
+      const CSV = `Name,Phone,Description,TickerSymbol,test__c\n"SpongeBob Squarepants","1234567890","Krusty Krab","KRAB","ab"\n"Squidward Tentacles","1234567891","Krusty Krab","KRAB","cd"\n`
+
+      //upload csv
+      nock(`${settings.instanceUrl}services/data/${API_VERSION}/jobs/ingest/xyz987/batches`, {
+        reqheaders: {
+          'Content-Type': 'text/csv',
+          Accept: 'application/json'
+        }
+      })
+        .put('', CSV)
+        .reply(201, {})
+
+      //close bulk job
+      nock(`${settings.instanceUrl}services/data/${API_VERSION}/jobs/ingest/xyz987`)
+        .patch('', {
+          state: 'UploadComplete'
+        })
+        .reply(201, {})
+
+      await sf.bulkHandler(customPayloads, 'Account')
+    })
+
+    it('should correctly update a batch of records', async () => {
+      //create bulk job
+      nock(`${settings.instanceUrl}services/data/${API_VERSION}/jobs/ingest`)
+        .post('', {
+          object: 'Account',
+          externalIdFieldName: 'Id',
+          operation: 'update',
+          contentType: 'CSV'
+        })
+        .reply(201, {
+          id: 'abc123'
+        })
+
+      const CSV = `Name,Phone,Description,Id\n"SpongeBob Squarepants","1234567890","Krusty Krab","ab"\n"Squidward Tentacles","1234567891","Krusty Krab","cd"\n`
+
+      //upload csv
+      nock(`${settings.instanceUrl}services/data/${API_VERSION}/jobs/ingest/abc123/batches`, {
+        reqheaders: {
+          'Content-Type': 'text/csv',
+          Accept: 'application/json'
+        }
+      })
+        .put('', CSV)
+        .reply(201, {})
+
+      //close bulk job
+      nock(`${settings.instanceUrl}services/data/${API_VERSION}/jobs/ingest/abc123`)
+        .patch('', {
+          state: 'UploadComplete'
+        })
+        .reply(201, {})
+
+      await sf.bulkHandler(bulkUpdatePayloads, 'Account')
+    })
+
+    it('should fail if the bulkHandler is triggered but enable_batching is not true', async () => {
+      const payloads: GenericPayload[] = [
+        {
+          operation: 'upsert',
+          enable_batching: false,
+          name: 'SpongeBob Squarepants',
+          phone: '1234567890',
+          description: 'Krusty Krab'
+        },
+        {
+          operation: 'upsert',
+          enable_batching: false,
+          name: 'Squidward Tentacles',
+          phone: '1234567891',
+          description: 'Krusty Krab'
+        }
+      ]
+
+      await expect(sf.bulkHandler(payloads, 'Account')).rejects.toThrow(
+        'Bulk operation triggered where enable_batching is false.'
+      )
     })
   })
 })

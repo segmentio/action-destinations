@@ -25,14 +25,12 @@ Object {
 
 exports[`Testing snapshot for actions-moengage destination: identifyUser action - required fields 1`] = `
 Object {
-  "anonymous_id": "z(%@QRCz7h$8M)#]",
   "context": Object {
     "app": Object {},
     "library": Object {},
     "os": Object {},
   },
   "type": "z(%@QRCz7h$8M)#]",
-  "user_id": "z(%@QRCz7h$8M)#]",
 }
 `;
 
@@ -62,7 +60,6 @@ Object {
 
 exports[`Testing snapshot for actions-moengage destination: trackEvent action - required fields 1`] = `
 Object {
-  "anonymous_id": "E@t!q#n(^u",
   "context": Object {
     "app": Object {},
     "library": Object {},
@@ -70,6 +67,5 @@ Object {
   },
   "event": "E@t!q#n(^u",
   "type": "E@t!q#n(^u",
-  "user_id": "E@t!q#n(^u",
 }
 `;
