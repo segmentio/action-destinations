@@ -245,6 +245,24 @@ const action: ActionDefinition<Settings, Payload> = {
           label: 'ID',
           description: 'The subscription status for the identity.',
           type: 'string'
+        },
+        groups: {
+          label: 'Groups',
+          description: 'An array of subscription groups status',
+          type: 'object',
+          multiple: true,
+          properties: {
+            id: {
+              label: 'ID',
+              description: 'A unique identifier for the subsription group.',
+              type: 'string'
+            },
+            subscriptionStatus: {
+              label: 'Subscription Group Status',
+              description: 'The subscription group status for the identity.',
+              type: 'string'
+            }
+          }
         }
       },
       default: {
@@ -263,6 +281,11 @@ const action: ActionDefinition<Settings, Payload> = {
           }
         ]
       }
+    },
+    groupId: {
+      label: 'Subscription Group ID',
+      description: 'The subscription group to send the email',
+      type: 'string'
     },
     customArgs: {
       label: 'Custom Args',
@@ -289,6 +312,21 @@ const action: ActionDefinition<Settings, Payload> = {
     } else if (['subscribed', 'true'].includes(emailProfile?.subscriptionStatus)) {
       statsClient?.incr('actions-personas-messaging-sendgrid.subscribed', 1, tags)
       const traits = await fetchProfileTraits(request, settings, payload.userId, statsClient, tags)
+      if (payload?.groupId) {
+        let subscribed = false
+        emailProfile?.groups?.forEach((group) => {
+          if (
+            group.id == payload?.groupId &&
+            group.subscriptionStatus &&
+            ['subscribed', 'true'].includes(group.subscriptionStatus)
+          ) {
+            subscribed = true
+          }
+        })
+        if (!subscribed) {
+          return
+        }
+      }
 
       const profile: Profile = {
         email: emailProfile.id,
