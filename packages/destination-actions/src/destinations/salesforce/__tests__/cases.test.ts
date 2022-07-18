@@ -274,4 +274,21 @@ describe('Salesforce', () => {
       expect(responses[1].options.body).toMatchInlineSnapshot(`"{\\"Description\\":\\"Test two\\"}"`)
     })
   })
+
+  describe('dynamic Field', () => {
+    it.only('should execeute a dynamic field', async () => {
+      nock(`https://test-dynamic-fields.nick-aguilar.workers.dev`).get('/').reply(200)
+
+      const payload = {}
+
+      const responses = await testDestination.testDynamicField('cases', 'test_dynamic_field', {
+        payload,
+        settings,
+        auth
+      })
+
+      expect(responses.length).toBe(1)
+      expect(responses[0].status).toBe(200)
+    })
+  })
 })
