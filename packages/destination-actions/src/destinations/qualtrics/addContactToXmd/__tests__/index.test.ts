@@ -114,9 +114,7 @@ describe('Qualtrics.addContactToXmd', () => {
 
     const event = createTestEvent({
       userId: CONTACT_INFO.extRef,
-      traits: {
-        directoryId: DIRECTORY_ID
-      }
+      traits: {}
     })
 
     await expect(
