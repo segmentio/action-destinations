@@ -64,8 +64,7 @@ const action: ActionDefinition<Settings, Payload> = {
       verifyUserProps(payload.user_properties)
     }
 
-    let request_object: { [key: string]: any } = {}
-    request_object = {
+    const request_object: { [key: string]: any } = {
       client_id: payload.client_id,
       user_id: payload.user_id,
       events: [
