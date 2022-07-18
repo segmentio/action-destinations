@@ -14,9 +14,9 @@ export interface Payload {
    */
   callbackAPIKey?: string
   /**
-   * This specifies a list of the fields from the response you need to receive. Comma character is separator. If omitted, all the fields will be forwarded from the response.
+   * This specifies a list of the fields from the response you need to receive. Comma character is separator. If omitted, all the fields will be forwarded from the response to the callback destination.
    */
-  callbackForwardedFields?: string
+  contentFields?: string
   /**
    * This specifies ID of the request that will be forwarded to the destination URI with the callback request with the same header name. If omitted, the X-Correlation-ID will not be in the callback request.
    */
@@ -127,7 +127,7 @@ export interface Payload {
     }
   }
   /**
-   * Use this field if you want to identify an attribute with a specific type
+   * Use this field if you want to identify a session attribute with a specific type
    */
   sessionAttributesInfo?: {
     /**
@@ -140,7 +140,7 @@ export interface Payload {
     type: string
   }[]
   /**
-   * Use this field if you want to identify an attribute with a specific type
+   * Use this field if you want to identify a cart item attribute with a specific type
    */
   cartItemsAttributesInfo?: {
     /**

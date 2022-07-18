@@ -175,6 +175,43 @@ Object {
 }
 `;
 
+exports[`Testing snapshot for actions-talon-one destination: updateCustomerSession action - all fields 1`] = `
+Object {
+  "cartItemAttributesInfo": Array [
+    Object {
+      "name": "rDTL^f[cL)m",
+      "type": "number",
+    },
+  ],
+  "customerSession": Object {
+    "additionalCosts": Object {
+      "testType": "rDTL^f[cL)m",
+    },
+    "attributes": Object {
+      "testType": "rDTL^f[cL)m",
+    },
+    "cartItems": Array [
+      Object {},
+    ],
+    "couponCodes": Array [
+      "rDTL^f[cL)m",
+    ],
+    "loyaltyCards": Array [
+      "rDTL^f[cL)m",
+    ],
+    "profileId": "rDTL^f[cL)m",
+    "referralCode": "rDTL^f[cL)m",
+    "state": "closed",
+  },
+  "sessionAttributesInfo": Array [
+    Object {
+      "name": "rDTL^f[cL)m",
+      "type": "number",
+    },
+  ],
+}
+`;
+
 exports[`Testing snapshot for actions-talon-one destination: updateCustomerSession action - required fields 1`] = `
 Object {
   "customerSession": Object {},

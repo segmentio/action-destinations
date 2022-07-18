@@ -25,11 +25,11 @@ const action: ActionDefinition<Settings, Payload> = {
       description: 'This specifies API key and relative header. The header is specified optionally',
       placeholder: 'X-API-Key 123456789123456789123456789123456789'
     },
-    callbackForwardedFields: {
+    contentFields: {
       type: 'string',
-      label: 'Callback Forwarded Fields',
+      label: 'Content Fields',
       description:
-        'This specifies a list of the fields from the response you need to receive. Comma character is separator. If omitted, all the fields will be forwarded from the response.',
+        'This specifies a list of the fields from the response you need to receive. Comma character is separator. If omitted, all the fields will be forwarded from the response to the callback destination.',
       placeholder: 'effects,customerProfile',
       default: 'effects'
     },
@@ -40,7 +40,7 @@ const action: ActionDefinition<Settings, Payload> = {
         'This specifies ID of the request that will be forwarded to the destination URI with the callback request with the same header name. If omitted, the X-Correlation-ID will not be in the callback request.'
     },
     customerSession: {
-      label: 'Customer Profile ID',
+      label: 'Customer Session Data',
       description: 'This contains all the data related to customer session.',
       type: 'object',
       required: true,
@@ -58,7 +58,7 @@ const action: ActionDefinition<Settings, Payload> = {
           type: 'string'
         },
         loyaltyCards: {
-          label: 'Referral Codes',
+          label: 'Loyalty Cards',
           description: 'Any loyalty cards used. Up to 1 loyalty cards.`',
           type: 'string',
           multiple: true
@@ -91,8 +91,16 @@ const action: ActionDefinition<Settings, Payload> = {
         }
       }
     },
-    sessionAttributesInfo: { ...attributesInfo },
-    cartItemsAttributesInfo: { ...attributesInfo }
+    sessionAttributesInfo: {
+      ...attributesInfo,
+      label: 'Session Attributes info',
+      description: 'Use this field if you want to identify a session attribute with a specific type'
+    },
+    cartItemsAttributesInfo: {
+      ...attributesInfo,
+      label: 'Cart Items Attributes info',
+      description: 'Use this field if you want to identify a cart item attribute with a specific type'
+    }
   },
   perform: (request, { payload }) => {
     // if (payload.customerSession.cartItems) {
@@ -114,7 +122,7 @@ const action: ActionDefinition<Settings, Payload> = {
       headers: {
         'X-Callback-Destination-URI': `${payload.callbackDestination}`,
         'X-Callback-API-Key': `${payload.callbackAPIKey}`,
-        'X-Callback-Forwarded-Fields': `${payload.callbackForwardedFields}`,
+        'X-Content-Fields': `${payload.contentFields}`,
         'X-Correlation-ID': `${payload.callbackCorrelationId}`
       },
       json: {

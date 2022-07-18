@@ -85,7 +85,7 @@ describe('TalonOne.updateCustomerSession', () => {
       .matchHeader('destination-hostname', 'https://something.europe-west1.talon.one')
       .matchHeader('X-Callback-Destination-URI', 'http://mydomain.com/api/callback_here')
       .matchHeader('X-Callback-API-Key', 'X-API-Key 123456789123456789123456789123456789')
-      .matchHeader('X-Callback-Forwarded-Fields', 'effects')
+      .matchHeader('X-Content-Fields', 'effects')
       .matchHeader('X-Correlation-ID', '123')
       .reply(200)
 
@@ -98,7 +98,7 @@ describe('TalonOne.updateCustomerSession', () => {
         customerSessionId: 'session123abc',
         callbackDestination: 'http://mydomain.com/api/callback_here',
         callbackAPIKey: 'X-API-Key 123456789123456789123456789123456789',
-        callbackForwardedFields: 'effects',
+        contentFields: 'effects',
         callbackCorrelationId: '123',
         customerSession: {
           state: 'open',
