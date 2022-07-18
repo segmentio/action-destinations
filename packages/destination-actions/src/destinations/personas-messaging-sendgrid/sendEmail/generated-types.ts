@@ -81,7 +81,24 @@ export interface Payload {
      * The subscription status for the identity.
      */
     subscriptionStatus?: string
+    /**
+     * An array of subscription groups status
+     */
+    groups?: {
+      /**
+       * A unique identifier for the subsription group.
+       */
+      id?: string
+      /**
+       * The subscription group status for the identity.
+       */
+      subscriptionStatus?: string
+    }[]
   }[]
+  /**
+   * The subscription group to send the email
+   */
+  groupId?: string
   /**
    * Additional custom args that we be passed back opaquely on webhook events
    */
