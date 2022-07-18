@@ -1,5 +1,5 @@
 import nock from 'nock'
-import { createTestEvent, createTestIntegration } from '@segment/actions-core'
+import { createTestEvent, createTestIntegration } from '../../../../../core/src/'
 import Destination from '../index'
 import { API_VERSION } from '../sf-operations'
 
@@ -277,16 +277,18 @@ describe('Salesforce', () => {
 
   describe('dynamic Field', () => {
     it.only('should execeute a dynamic field', async () => {
-      nock(`https://test-dynamic-fields.nick-aguilar.workers.dev`).get('/').reply(200)
+      nock(`https://test-dynamic-fields.nick-aguilar.workers.dev`).get('/').reply(200, {
+        body: 'test'
+      })
 
       const payload = {}
-
       const responses = await testDestination.testDynamicField('cases', 'test_dynamic_field', {
         payload,
         settings,
         auth
       })
 
+      console.log('responses', responses)
       expect(responses.length).toBe(1)
       expect(responses[0].status).toBe(200)
     })
