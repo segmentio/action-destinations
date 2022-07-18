@@ -77,6 +77,7 @@ const action: ActionDefinition<Settings, Payload> = {
     return request(CONVERSION_EVENT_URL, {
       method: 'post',
       json: {
+        integration: 'segment',
         ...payload,
         ...settings
       }

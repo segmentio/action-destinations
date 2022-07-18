@@ -13,6 +13,7 @@ import createUpdateNote from './createUpdateNote'
 
 const destination: DestinationDefinition<Settings> = {
   name: 'Actions Pipedrive',
+  slug: 'actions-pipedrive',
   mode: 'cloud',
   authentication: {
     scheme: 'custom',

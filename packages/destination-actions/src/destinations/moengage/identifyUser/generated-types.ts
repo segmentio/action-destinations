@@ -8,11 +8,11 @@ export interface Payload {
   /**
    * The unique user identifier set by you
    */
-  user_id?: string | null
+  userId?: string | null
   /**
    * The generated anonymous ID for the user
    */
-  anonymous_id?: string | null
+  anonymousId?: string | null
   /**
    * The name of the mobile operating system or browser that the user is using.
    */

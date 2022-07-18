@@ -26,20 +26,20 @@ const action: ActionDefinition<Settings, Payload> = {
         '@path': '$.event'
       }
     },
-    user_id: {
+    userId: {
       label: 'User ID',
       type: 'string',
       description: 'The unique identifier of the user.',
       default: {
-        '@path': '$.user_id'
+        '@path': '$.userId'
       }
     },
-    anonymous_id: {
+    anonymousId: {
       label: 'Anonymous ID',
       type: 'string',
       description: 'The unique identifier of the anonymous user.',
       default: {
-        '@path': '$.anonymous_id'
+        '@path': '$.anonymousId'
       }
     },
     os_name: {
@@ -91,8 +91,8 @@ const action: ActionDefinition<Settings, Payload> = {
 
     const event = {
       type: payload.type,
-      user_id: payload.user_id,
-      anonymous_id: payload.anonymous_id,
+      user_id: payload.userId,
+      anonymous_id: payload.anonymousId,
       event: payload.event,
       context: {
         app: { version: payload.app_version },

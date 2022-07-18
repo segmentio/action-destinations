@@ -62,6 +62,57 @@ describe('CustomerIO', () => {
       })
     })
 
+    it('should use email as the identifier if userId is not present', async () => {
+      const settings: Settings = {
+        siteId: '12345',
+        apiKey: 'abcde',
+        accountRegion: AccountRegion.US
+      }
+      const anonymousId = 'unknown_123'
+      const timestamp = dayjs.utc().toISOString()
+      const birthdate = dayjs.utc('1990-01-01T00:00:00Z').toISOString()
+      const traits = {
+        full_name: 'Test User',
+        email: 'test@example.com',
+        created_at: timestamp,
+        person: {
+          over18: true,
+          identification: 'valid',
+          birthdate
+        }
+      }
+      trackDeviceService.put(`/customers/${traits.email}`).reply(200, {}, { 'x-customerio-region': 'US' })
+      const event = createTestEvent({
+        userId: null,
+        anonymousId,
+        timestamp,
+        traits
+      })
+      const responses = await testDestination.testAction('createUpdatePerson', {
+        event,
+        settings,
+        useDefaultMappings: true
+      })
+
+      expect(responses.length).toBe(1)
+      expect(responses[0].status).toBe(200)
+      expect(responses[0].headers.toJSON()).toMatchObject({
+        'x-customerio-region': 'US',
+        'content-type': 'application/json'
+      })
+      expect(responses[0].data).toMatchObject({})
+      expect(responses[0].options.json).toMatchObject({
+        ...traits,
+        email: traits.email,
+        created_at: dayjs.utc(timestamp).unix(),
+        anonymous_id: anonymousId,
+        person: {
+          ...traits.person,
+          birthdate: dayjs.utc(birthdate).unix()
+        }
+      })
+    })
+
     it('should convert only ISO-8601 strings', async () => {
       const settings: Settings = {
         siteId: '12345',

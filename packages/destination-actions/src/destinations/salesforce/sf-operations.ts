@@ -6,14 +6,10 @@ import { buildCSVData } from './sf-utils'
 export const API_VERSION = 'v53.0'
 
 /**
- * This error is triggered if a batch of payloads arrives inside the performBatch handler
- * where the operation is not either bulkUpsert or bulkUpdate. This would occur if a user ever disables
- * the `enable_batching` setting on their action.
- * TODO: Automatically enable `enable_batching` for any action with a bulk operation.
- * https://segment.atlassian.net/browse/STRATCONN-1369
+ * This error is triggered if the bulkHandler is ever triggered when the enable_batching setting is false.
  */
 const throwBulkMismatchError = () => {
-  const errorMsg = 'Standard operation used with batching enabled.'
+  const errorMsg = 'Bulk operation triggered where enable_batching is false.'
   throw new IntegrationError(errorMsg, errorMsg, 400)
 }
 
@@ -86,13 +82,21 @@ export default class Salesforce {
   }
 
   bulkHandler = async (payloads: GenericPayload[], sobject: string) => {
-    if (payloads[0].operation === 'bulkUpsert') {
-      return await this.bulkUpsert(payloads, sobject)
-    } else if (payloads[0].operation === 'bulkUpdate') {
-      return await this.bulkUpdate(payloads, sobject)
-    } else {
+    if (!payloads[0].enable_batching) {
       throwBulkMismatchError()
     }
+
+    if (payloads[0].operation === 'upsert') {
+      return await this.bulkUpsert(payloads, sobject)
+    } else if (payloads[0].operation === 'update') {
+      return await this.bulkUpdate(payloads, sobject)
+    }
+
+    throw new IntegrationError(
+      `Unsupported operation: Bulk API does not support the create operation`,
+      'Unsupported operation',
+      400
+    )
   }
 
   private bulkUpsert = async (payloads: GenericPayload[], sobject: string) => {

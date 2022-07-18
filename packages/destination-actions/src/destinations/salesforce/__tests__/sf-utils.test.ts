@@ -6,7 +6,8 @@ describe('Salesforce Utils', () => {
     it('should correctly build a CSV from payloads with complete data', async () => {
       const completePayloads: GenericPayload[] = [
         {
-          operation: 'bulkUpsert',
+          operation: 'upsert',
+          enable_batching: true,
           bulkUpsertExternalId: {
             externalIdName: 'test__c',
             externalIdValue: '00'
@@ -16,7 +17,8 @@ describe('Salesforce Utils', () => {
           phone: '555-555-5555'
         },
         {
-          operation: 'bulkUpsert',
+          operation: 'upsert',
+          enable_batching: true,
           bulkUpsertExternalId: {
             externalIdName: 'test__c',
             externalIdValue: '01'
@@ -35,7 +37,8 @@ describe('Salesforce Utils', () => {
     it('should correctly build a CSV from payloads with incomplete data', async () => {
       const incompletePayloads: GenericPayload[] = [
         {
-          operation: 'bulkUpsert',
+          operation: 'upsert',
+          enable_batching: true,
           bulkUpsertExternalId: {
             externalIdName: 'test__c',
             externalIdValue: '00'
@@ -47,7 +50,8 @@ describe('Salesforce Utils', () => {
           }
         },
         {
-          operation: 'bulkUpsert',
+          operation: 'upsert',
+          enable_batching: true,
           bulkUpsertExternalId: {
             externalIdName: 'test__c',
             externalIdValue: '01'
@@ -56,7 +60,8 @@ describe('Salesforce Utils', () => {
           phone: '123-456-7890'
         },
         {
-          operation: 'bulkUpsert',
+          operation: 'upsert',
+          enable_batching: true,
           bulkUpsertExternalId: {
             externalIdName: 'test__c',
             externalIdValue: '11'
@@ -75,7 +80,8 @@ describe('Salesforce Utils', () => {
     it('should throw an error for invalid customFields', async () => {
       const invalidCustomFieldPayloads: GenericPayload[] = [
         {
-          operation: 'bulkUpsert',
+          operation: 'upsert',
+          enable_batching: true,
           traits: {
             externalIdFieldName: 'test__c',
             externalIdFieldValue: 'ab'
@@ -88,7 +94,8 @@ describe('Salesforce Utils', () => {
           }
         },
         {
-          operation: 'bulkUpsert',
+          operation: 'upsert',
+          enable_batching: true,
           traits: {
             externalIdFieldName: 'test__c',
             externalIdFieldValue: 'cd'
@@ -110,14 +117,16 @@ describe('Salesforce Utils', () => {
     it('should correctly build an update CSV', async () => {
       const updatePayloads: GenericPayload[] = [
         {
-          operation: 'bulkUpdate',
+          operation: 'update',
+          enable_batching: true,
           bulkUpdateRecordId: '00',
           name: 'SpongeBob Squarepants',
           phone: '1234567890',
           description: 'Krusty Krab'
         },
         {
-          operation: 'bulkUpdate',
+          operation: 'update',
+          enable_batching: true,
           bulkUpdateRecordId: '01',
           name: 'Squidward Tentacles',
           phone: '1234567891',
@@ -134,13 +143,15 @@ describe('Salesforce Utils', () => {
     it('should correctly build an update CSV with incomplete data', async () => {
       const incompleteUpdatePayloads: GenericPayload[] = [
         {
-          operation: 'bulkUpdate',
+          operation: 'update',
+          enable_batching: true,
           bulkUpdateRecordId: '00',
           name: 'SpongeBob Squarepants',
           phone: '1234567890'
         },
         {
-          operation: 'bulkUpdate',
+          operation: 'update',
+          enable_batching: true,
           bulkUpdateRecordId: '01',
           name: 'Squidward Tentacles',
           description: 'Krusty Krab'

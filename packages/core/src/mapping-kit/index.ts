@@ -7,8 +7,10 @@ import { removeUndefined } from '../remove-undefined'
 import validate from './validate'
 import { arrify } from '../arrify'
 
-type Directive = (options: JSONValue, payload: JSONObject) => JSONLike
-type StringDirective = (value: string, payload: JSONObject) => JSONLike
+export type InputData = { [key: string]: unknown }
+export type Features = { [key: string]: boolean }
+type Directive = (options: JSONValue, payload: JSONObject, features?: Features) => JSONLike
+type StringDirective = (value: string, payload: JSONObject, features?: Features) => JSONLike
 
 interface Directives {
   [directive: string]: Directive | undefined
@@ -26,17 +28,17 @@ function registerDirective(name: string, fn: Directive): void {
 }
 
 function registerStringDirective(name: string, fn: StringDirective): void {
-  registerDirective(name, (value, payload) => {
+  registerDirective(name, (value, payload, features) => {
     const str = resolve(value, payload)
     if (typeof str !== 'string') {
       throw new Error(`${name}: expected string, got ${realTypeOf(str)}`)
     }
 
-    return fn(str, payload)
+    return fn(str, payload, features)
   })
 }
 
-function runDirective(obj: JSONObject, payload: JSONObject): JSONLike {
+function runDirective(obj: JSONObject, payload: JSONObject, features?: Features): JSONLike {
   const name = Object.keys(obj).find((key) => key.startsWith('@')) as string
   const directiveFn = directives[name]
   const value = obj[name]
@@ -45,7 +47,7 @@ function runDirective(obj: JSONObject, payload: JSONObject): JSONLike {
     throw new Error(`${name} is not a valid directive, got ${realTypeOf(directiveFn)}`)
   }
 
-  return directiveFn(value, payload)
+  return directiveFn(value, payload, features)
 }
 
 registerDirective('@if', (opts, payload) => {
@@ -93,8 +95,8 @@ registerStringDirective('@path', (path, payload) => {
   return get(payload, path.replace('$.', ''))
 })
 
-registerStringDirective('@template', (template: string, payload) => {
-  return render(template, payload)
+registerStringDirective('@template', (template: string, payload, features) => {
+  return render(template, payload, features)
 })
 
 // Literal should be used in place of 'empty' template strings as they will not resolve correctly
@@ -106,39 +108,39 @@ registerDirective('@literal', (value, payload) => {
  * Resolves a mapping value/object by applying the input payload based on directives
  * @param mapping - the mapping directives or raw values to resolve
  * @param payload - the input data to apply to the mapping directives
+ * @param features - the object of feature flags (optional)
  * @todo support arrays or array directives?
  */
-function resolve(mapping: JSONLike, payload: JSONObject): JSONLike {
+function resolve(mapping: JSONLike, payload: JSONObject, features?: Features): JSONLike {
   if (!isObject(mapping) && !isArray(mapping)) {
     return mapping
   }
 
   if (isDirective(mapping)) {
-    return runDirective(mapping, payload)
+    return runDirective(mapping, payload, features)
   }
 
   if (Array.isArray(mapping)) {
-    return mapping.map((value) => resolve(value, payload))
+    return mapping.map((value) => resolve(value, payload, features))
   }
 
   const resolved: JSONLikeObject = {}
 
   for (const key of Object.keys(mapping)) {
-    resolved[key] = resolve(mapping[key], payload)
+    resolved[key] = resolve(mapping[key], payload, features)
   }
 
   return resolved
 }
-
-export type InputData = { [key: string]: unknown }
 
 /**
  * Validates and transforms a mapping by applying the input payload
  * based on the directives and raw values defined in the mapping object
  * @param mapping - the directives and raw values
  * @param data - the input data to apply to directives
+ * @param features - the object of feature flags (optional)
  */
-export function transform(mapping: JSONLikeObject, data: InputData | undefined = {}): JSONObject {
+export function transform(mapping: JSONLikeObject, data: InputData | undefined = {}, features?: Features): JSONObject {
   const realType = realTypeOf(data)
   if (realType !== 'object') {
     throw new Error(`data must be an object, got ${realType}`)
@@ -147,7 +149,7 @@ export function transform(mapping: JSONLikeObject, data: InputData | undefined =
   // throws if the mapping config is invalid
   validate(mapping)
 
-  const resolved = resolve(mapping, data as JSONObject)
+  const resolved = resolve(mapping, data as JSONObject, features)
   const cleaned = removeUndefined(resolved)
 
   // Cast because we know there are no `undefined` values anymore

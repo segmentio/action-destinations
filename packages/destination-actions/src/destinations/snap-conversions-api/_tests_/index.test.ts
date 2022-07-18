@@ -56,7 +56,7 @@ describe('Snap Conversions API ', () => {
       expect(responses[0].status).toBe(200)
 
       expect(responses[0].options.body).toMatchInlineSnapshot(
-        `"{\\"event_type\\":\\"PURCHASE\\",\\"event_conversion_type\\":\\"WEB\\",\\"timestamp\\":1652368875449,\\"hashed_email\\":\\"cc779c04191c2e736d89e45c11339c8382832bcaf70383f7df94e3d08ba7a6d9\\",\\"hashed_phone_number\\":\\"dc008fda46e2e64002cf2f82a4906236282d431c4f75e5b60bfe79fc48546383\\",\\"user_agent\\":\\"Mozilla/5.0 (iPhone; CPU iPhone OS 9_1 like Mac OS X) AppleWebKit/601.1.46 (KHTML, like Gecko) Version/9.0 Mobile/13B143 Safari/601.1\\",\\"hashed_ip_address\\":\\"838c4c2573848f58e74332341a7ca6bc5cd86a8aec7d644137d53b4d597f10f5\\",\\"price\\":15,\\"currency\\":\\"USD\\",\\"page_url\\":\\"https://segment.com/academy/\\",\\"pixel_id\\":\\"test123\\"}"`
+        `"{\\"integration\\":\\"segment\\",\\"event_type\\":\\"PURCHASE\\",\\"event_conversion_type\\":\\"WEB\\",\\"timestamp\\":1652368875449,\\"hashed_email\\":\\"cc779c04191c2e736d89e45c11339c8382832bcaf70383f7df94e3d08ba7a6d9\\",\\"hashed_phone_number\\":\\"dc008fda46e2e64002cf2f82a4906236282d431c4f75e5b60bfe79fc48546383\\",\\"user_agent\\":\\"Mozilla/5.0 (iPhone; CPU iPhone OS 9_1 like Mac OS X) AppleWebKit/601.1.46 (KHTML, like Gecko) Version/9.0 Mobile/13B143 Safari/601.1\\",\\"hashed_ip_address\\":\\"838c4c2573848f58e74332341a7ca6bc5cd86a8aec7d644137d53b4d597f10f5\\",\\"price\\":15,\\"currency\\":\\"USD\\",\\"page_url\\":\\"https://segment.com/academy/\\",\\"pixel_id\\":\\"test123\\"}"`
       )
     })
 
@@ -132,7 +132,7 @@ describe('Snap Conversions API ', () => {
       expect(responses[0].status).toBe(200)
 
       expect(responses[0].options.body).toMatchInlineSnapshot(
-        `"{\\"event_type\\":\\"SAVE\\",\\"event_conversion_type\\":\\"OFFLINE\\",\\"timestamp\\":1652368875449,\\"hashed_email\\":\\"cc779c04191c2e736d89e45c11339c8382832bcaf70383f7df94e3d08ba7a6d9\\",\\"hashed_phone_number\\":\\"dc008fda46e2e64002cf2f82a4906236282d431c4f75e5b60bfe79fc48546383\\",\\"user_agent\\":\\"Mozilla/5.0 (iPhone; CPU iPhone OS 9_1 like Mac OS X) AppleWebKit/601.1.46 (KHTML, like Gecko) Version/9.0 Mobile/13B143 Safari/601.1\\",\\"hashed_ip_address\\":\\"838c4c2573848f58e74332341a7ca6bc5cd86a8aec7d644137d53b4d597f10f5\\",\\"price\\":15,\\"currency\\":\\"USD\\",\\"page_url\\":\\"https://segment.com/academy/\\",\\"pixel_id\\":\\"test123\\"}"`
+        `"{\\"integration\\":\\"segment\\",\\"event_type\\":\\"SAVE\\",\\"event_conversion_type\\":\\"OFFLINE\\",\\"timestamp\\":1652368875449,\\"hashed_email\\":\\"cc779c04191c2e736d89e45c11339c8382832bcaf70383f7df94e3d08ba7a6d9\\",\\"hashed_phone_number\\":\\"dc008fda46e2e64002cf2f82a4906236282d431c4f75e5b60bfe79fc48546383\\",\\"user_agent\\":\\"Mozilla/5.0 (iPhone; CPU iPhone OS 9_1 like Mac OS X) AppleWebKit/601.1.46 (KHTML, like Gecko) Version/9.0 Mobile/13B143 Safari/601.1\\",\\"hashed_ip_address\\":\\"838c4c2573848f58e74332341a7ca6bc5cd86a8aec7d644137d53b4d597f10f5\\",\\"price\\":15,\\"currency\\":\\"USD\\",\\"page_url\\":\\"https://segment.com/academy/\\",\\"pixel_id\\":\\"test123\\"}"`
       )
     })
 
@@ -162,7 +162,7 @@ describe('Snap Conversions API ', () => {
       expect(responses[0].status).toBe(200)
 
       expect(responses[0].options.body).toMatchInlineSnapshot(
-        `"{\\"event_type\\":\\"SAVE\\",\\"event_conversion_type\\":\\"MOBILE_APP\\",\\"timestamp\\":1652368875449,\\"hashed_email\\":\\"cc779c04191c2e736d89e45c11339c8382832bcaf70383f7df94e3d08ba7a6d9\\",\\"hashed_phone_number\\":\\"dc008fda46e2e64002cf2f82a4906236282d431c4f75e5b60bfe79fc48546383\\",\\"user_agent\\":\\"Mozilla/5.0 (iPhone; CPU iPhone OS 9_1 like Mac OS X) AppleWebKit/601.1.46 (KHTML, like Gecko) Version/9.0 Mobile/13B143 Safari/601.1\\",\\"hashed_ip_address\\":\\"838c4c2573848f58e74332341a7ca6bc5cd86a8aec7d644137d53b4d597f10f5\\",\\"price\\":15,\\"currency\\":\\"USD\\",\\"page_url\\":\\"https://segment.com/academy/\\",\\"snap_app_id\\":\\"123\\",\\"app_id\\":\\"123\\"}"`
+        `"{\\"integration\\":\\"segment\\",\\"event_type\\":\\"SAVE\\",\\"event_conversion_type\\":\\"MOBILE_APP\\",\\"timestamp\\":1652368875449,\\"hashed_email\\":\\"cc779c04191c2e736d89e45c11339c8382832bcaf70383f7df94e3d08ba7a6d9\\",\\"hashed_phone_number\\":\\"dc008fda46e2e64002cf2f82a4906236282d431c4f75e5b60bfe79fc48546383\\",\\"user_agent\\":\\"Mozilla/5.0 (iPhone; CPU iPhone OS 9_1 like Mac OS X) AppleWebKit/601.1.46 (KHTML, like Gecko) Version/9.0 Mobile/13B143 Safari/601.1\\",\\"hashed_ip_address\\":\\"838c4c2573848f58e74332341a7ca6bc5cd86a8aec7d644137d53b4d597f10f5\\",\\"price\\":15,\\"currency\\":\\"USD\\",\\"page_url\\":\\"https://segment.com/academy/\\",\\"snap_app_id\\":\\"123\\",\\"app_id\\":\\"123\\"}"`
       )
     })
 
@@ -243,7 +243,7 @@ describe('Snap Conversions API ', () => {
       expect(responses[0].status).toBe(200)
 
       expect(responses[0].options.body).toMatchInlineSnapshot(
-        `"{\\"event_type\\":\\"CUSTOM_EVENT_5\\",\\"event_conversion_type\\":\\"MOBILE_APP\\",\\"timestamp\\":1652368875449,\\"hashed_email\\":\\"cc779c04191c2e736d89e45c11339c8382832bcaf70383f7df94e3d08ba7a6d9\\",\\"hashed_phone_number\\":\\"dc008fda46e2e64002cf2f82a4906236282d431c4f75e5b60bfe79fc48546383\\",\\"user_agent\\":\\"Mozilla/5.0 (iPhone; CPU iPhone OS 9_1 like Mac OS X) AppleWebKit/601.1.46 (KHTML, like Gecko) Version/9.0 Mobile/13B143 Safari/601.1\\",\\"hashed_ip_address\\":\\"838c4c2573848f58e74332341a7ca6bc5cd86a8aec7d644137d53b4d597f10f5\\",\\"price\\":15,\\"currency\\":\\"USD\\",\\"page_url\\":\\"https://segment.com/academy/\\",\\"snap_app_id\\":\\"123\\",\\"app_id\\":\\"123\\"}"`
+        `"{\\"integration\\":\\"segment\\",\\"event_type\\":\\"CUSTOM_EVENT_5\\",\\"event_conversion_type\\":\\"MOBILE_APP\\",\\"timestamp\\":1652368875449,\\"hashed_email\\":\\"cc779c04191c2e736d89e45c11339c8382832bcaf70383f7df94e3d08ba7a6d9\\",\\"hashed_phone_number\\":\\"dc008fda46e2e64002cf2f82a4906236282d431c4f75e5b60bfe79fc48546383\\",\\"user_agent\\":\\"Mozilla/5.0 (iPhone; CPU iPhone OS 9_1 like Mac OS X) AppleWebKit/601.1.46 (KHTML, like Gecko) Version/9.0 Mobile/13B143 Safari/601.1\\",\\"hashed_ip_address\\":\\"838c4c2573848f58e74332341a7ca6bc5cd86a8aec7d644137d53b4d597f10f5\\",\\"price\\":15,\\"currency\\":\\"USD\\",\\"page_url\\":\\"https://segment.com/academy/\\",\\"snap_app_id\\":\\"123\\",\\"app_id\\":\\"123\\"}"`
       )
     })
   })
