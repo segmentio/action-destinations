@@ -1,5 +1,5 @@
 import { ActionDefinition, IntegrationError } from '@segment/actions-core'
-import { CURRENCY_ISO_CODES } from '../constants'
+import { verifyCurrency } from '../ga4-functions'
 import {
   creative_name,
   creative_slot,
@@ -74,8 +74,8 @@ const action: ActionDefinition<Settings, Payload> = {
           throw new IntegrationError('One of item id or item name is required.', 'Misconfigured required field', 400)
         }
 
-        if (product.currency && !CURRENCY_ISO_CODES.includes(product.currency)) {
-          throw new IntegrationError(`${product.currency} is not a valid currency code.`, 'Incorrect value format', 400)
+        if (product.currency) {
+          verifyCurrency(product.currency)
         }
 
         return product as PromotionProductItem

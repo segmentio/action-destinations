@@ -17,7 +17,7 @@ declare global {
 export const segmentEventSource = 'segment-browser-actions'
 
 export const destination: BrowserDestinationDefinition<Settings, FS> = {
-  name: 'Fullstory (Actions)',
+  name: 'Fullstory',
   slug: 'actions-fullstory',
   mode: 'device',
   presets: [
@@ -50,7 +50,7 @@ export const destination: BrowserDestinationDefinition<Settings, FS> = {
     },
     recordOnlyThisIFrame: {
       description: 'Enables FullStory inside an iframe.',
-      label: 'Record only this iframe',
+      label: 'Capture only this iFrame',
       type: 'boolean',
       required: false,
       default: false

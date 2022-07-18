@@ -6,6 +6,7 @@ function toJsonSchemaType(type: FieldTypeName): JSONSchema4TypeName | JSONSchema
     case 'string':
     case 'text':
     case 'password':
+    case 'hidden':
       return 'string'
     case 'datetime':
       return ['string', 'number']
@@ -14,7 +15,9 @@ function toJsonSchemaType(type: FieldTypeName): JSONSchema4TypeName | JSONSchema
   }
 }
 
-export type MinimalInputField = Optional<InputField, 'description'> | Optional<GlobalSetting, 'description'> & { additionalProperties?: boolean }
+export type MinimalInputField =
+  | Optional<InputField, 'description'>
+  | (Optional<GlobalSetting, 'description'> & { additionalProperties?: boolean })
 
 export type MinimalFields = Record<string, MinimalInputField>
 
@@ -87,9 +90,14 @@ export function fieldsToJsonSchema(fields: MinimalFields = {}, options?: SchemaO
 
     if (schemaType === 'object' && field.properties) {
       if (isMulti) {
-        schema.items = fieldsToJsonSchema(field.properties, { additionalProperties: field?.additionalProperties || false })
+        schema.items = fieldsToJsonSchema(field.properties, {
+          additionalProperties: field?.additionalProperties || false
+        })
       } else {
-        schema = { ...schema, ...fieldsToJsonSchema(field.properties, { additionalProperties: field?.additionalProperties || false }) }
+        schema = {
+          ...schema,
+          ...fieldsToJsonSchema(field.properties, { additionalProperties: field?.additionalProperties || false })
+        }
       }
     }
 

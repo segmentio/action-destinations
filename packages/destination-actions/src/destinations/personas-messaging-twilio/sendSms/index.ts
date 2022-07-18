@@ -34,6 +34,7 @@ const fetchProfileTraits = async (
 }
 
 const EXTERNAL_ID_KEY = 'phone'
+const DEFAULT_HOSTNAME = 'api.twilio.com'
 
 const DEFAULT_CONNECTION_OVERRIDES = 'rp=all&rc=5'
 const action: ActionDefinition<Settings, Payload> = {
@@ -137,7 +138,6 @@ const action: ActionDefinition<Settings, Payload> = {
       return
     } else if (['subscribed', 'true'].includes(externalId.subscriptionStatus)) {
       const traits = await fetchProfileTraits(request, settings, payload.userId)
-
       const phone = payload.toNumber || externalId.id
       if (!phone) {
         return
@@ -150,7 +150,7 @@ const action: ActionDefinition<Settings, Payload> = {
 
       // TODO: GROW-259 remove this when we can extend the request
       // and we no longer need to call the profiles API first
-      const token = Buffer.from(`${settings.twilioAccountId}:${settings.twilioAuthToken}`).toString('base64')
+      const token = Buffer.from(`${settings.twilioApiKeySID}:${settings.twilioApiKeySecret}`).toString('base64')
       const parsedBody = await Liquid.parseAndRender(payload.body, { profile })
 
       const body = new URLSearchParams({
@@ -181,7 +181,8 @@ const action: ActionDefinition<Settings, Payload> = {
         body.append('StatusCallback', webhookUrlWithParams.toString())
       }
 
-      return request(`https://api.twilio.com/2010-04-01/Accounts/${settings.twilioAccountId}/Messages.json`, {
+      const hostname = settings.twilioHostname ?? DEFAULT_HOSTNAME
+      return request(`https://${hostname}/2010-04-01/Accounts/${settings.twilioAccountSID}/Messages.json`, {
         method: 'POST',
         headers: {
           authorization: `Basic ${token}`

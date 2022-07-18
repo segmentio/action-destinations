@@ -2,11 +2,11 @@
 
 export interface Settings {
   /**
-   * The version of the SDK to use. Defaults to 3.3.
+   * The version of the SDK to use.
    */
   sdkVersion: string
   /**
-   * Found in the Braze Dashboard under Settings → Manage Settings → Apps → Web
+   * Found in the Braze Dashboard under Manage Settings → Apps → Web
    */
   api_key: string
   /**

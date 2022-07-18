@@ -1,4 +1,4 @@
-import { Destination, DestinationDefinition } from '../destination-kit'
+import { Destination, DestinationDefinition, StatsClient, StatsContext } from '../destination-kit'
 import { JSONObject } from '../json-object'
 import { SegmentEvent } from '../segment-event'
 
@@ -64,6 +64,40 @@ const destinationOAuth2: DestinationDefinition<JSONObject> = {
       fields: {},
       perform: (_request) => {
         return 'this is a test'
+      }
+    }
+  }
+}
+
+const destinationWithOptions: DestinationDefinition<JSONObject> = {
+  name: 'Actions Google Analytic 4',
+  mode: 'cloud',
+  authentication: {
+    scheme: 'oauth2',
+    fields: {
+      apiSecret: {
+        label: 'API secret',
+        description: 'Api key',
+        type: 'string',
+        required: true
+      }
+    },
+    refreshAccessToken: (_request) => {
+      return new Promise((resolve, _reject) => {
+        setTimeout(() => {
+          resolve({ accessToken: 'fresh-token' })
+        }, 3)
+      })
+    }
+  },
+  actions: {
+    customEvent: {
+      title: 'Send a Custom Event',
+      description: 'Send events to a custom event in API',
+      defaultSubscription: 'type = "track"',
+      fields: {},
+      perform: (_request, { features, statsContext }) => {
+        return { features, statsContext }
       }
     }
   }
@@ -270,6 +304,88 @@ describe('destination kit', () => {
       const res = await destinationTest.refreshAccessToken(testSettings, oauthData)
 
       expect(res).toEqual({ accessToken: 'fresh-token' })
+    })
+  })
+
+  describe('features', () => {
+    test('should not crash when features are passed to the perform handler', async () => {
+      const destinationTest = new Destination(destinationWithOptions)
+      const testEvent: SegmentEvent = {
+        properties: { field_one: 'test input' },
+        userId: '3456fff',
+        type: 'track'
+      }
+      const testSettings = {
+        apiSecret: 'test_key',
+        subscription: {
+          subscribe: 'type = "track"',
+          partnerAction: 'customEvent',
+          mapping: {
+            clientId: '23455343467',
+            name: 'fancy_event',
+            parameters: { field_one: 'rogue one' }
+          }
+        }
+      }
+      const eventOptions = {
+        features: {
+          test_feature: true
+        },
+        statsContext: {} as StatsContext
+      }
+
+      const res = await destinationTest.onEvent(testEvent, testSettings, eventOptions)
+
+      expect(res).toEqual([
+        { output: 'Mappings resolved' },
+        {
+          output: {
+            features: eventOptions.features,
+            statsContext: {}
+          }
+        }
+      ])
+    })
+  })
+
+  describe('stats', () => {
+    test('should not crash when stats are passed to the perform handler', async () => {
+      const destinationTest = new Destination(destinationWithOptions)
+      const testEvent: SegmentEvent = {
+        properties: { field_one: 'test input' },
+        userId: '3456fff',
+        type: 'track'
+      }
+      const testSettings = {
+        apiSecret: 'test_key',
+        subscription: {
+          subscribe: 'type = "track"',
+          partnerAction: 'customEvent',
+          mapping: {
+            clientId: '23455343467',
+            name: 'fancy_event',
+            parameters: { field_one: 'rogue one' }
+          }
+        }
+      }
+      const eventOptions = {
+        statsContext: {
+          statsClient: {} as StatsClient,
+          tags: []
+        }
+      }
+
+      const res = await destinationTest.onEvent(testEvent, testSettings, eventOptions)
+
+      expect(res).toEqual([
+        { output: 'Mappings resolved' },
+        {
+          output: {
+            features: {},
+            statsContext: eventOptions.statsContext
+          }
+        }
+      ])
     })
   })
 })

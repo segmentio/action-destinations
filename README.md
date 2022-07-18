@@ -1,8 +1,16 @@
+<img src="https://brand.segment.com/site-assets/03d0de2f/images/brand-guidelines/content/twilio/twilio-segment-color-logo-white-2x.png" style="width:50%; height=50%" alt="Twilio Segment logo" >
+
 # Action Destinations
 
-Action Destinations are a way to build streaming destinations on Segment. To begin, follow the instructions in Get Started below.
+Action Destinations are the new way to build streaming destinations on Segment.
 
-Fore more detailed instruction, see the following READMEs:
+Action Destinations were [launched in December 2021](https://segment.com/blog/introducing-destination-actions/) to enable customers with a customizable framework to map Segment event sources to their favorite 3rd party tools like Google Analytics.
+
+This repository contains the Action Destination Definitions as well as a CLI to generate the scaffolding for new destinations and run unit tests. If you'd like to contribute, please review the [Contributing Guide](./CONTRIBUTING.md).
+
+To begin, follow the instructions in Get Started below.
+
+For more detailed instruction, see the following READMEs:
 
 - [Contributing Document](./CONTRIBUTING.md)
 - [Create a Destination Action](./docs/create.md)
@@ -12,7 +20,7 @@ Fore more detailed instruction, see the following READMEs:
 - [Mapping Kit](./packages/core/src/mapping-kit/README.md)
 - [Destination Kit](./packages/core/src/destination-kit/README.md)
 
-Table of Contents:
+## Table of Contents:
 
 - [Get Started](#get-started)
 - [Actions CLI](#actions-cli)
@@ -85,6 +93,8 @@ In order to run the CLI (`./bin/run`), your current working directory needs to b
 ```
 
 For specific information about each CLI command, please refer to this [README](https://github.com/segmentio/action-destinations/tree/main/packages/cli).
+
+For instructions on how to create a new integration, see the [Create a new Destination Action](./docs/create.md) docs.
 
 #### Troubleshooting CLI
 
@@ -292,14 +302,14 @@ const destination = {
       fields: {
         name: {
           label: 'Name',
-          description: 'The person\'s name',
+          description: "The person's name",
           type: 'string',
           default: { '@path': '$.traits.name' },
           required: true
         },
         email: {
           label: 'Email',
-          description: 'The person\'s email address',
+          description: "The person's email address",
           type: 'string',
           default: { '@path': '$.properties.email_address' }
         }
@@ -315,7 +325,15 @@ In addition to default values for input fields, you can also specify the default
 
 The `perform` function defines what the action actually does. All logic and request handling happens here. Every action MUST have a `perform` function defined.
 
-By the time the actions runtime invokes your action’s perform, payloads have already been resolved based on the customer’s configuration, validated against the schema, and can be expected to match the types provided in your `perform` function. You’ll get compile-time type-safety for how you access anything in the `data.payload` (the 2nd argument of the perform).
+By the time the actions runtime invokes your action’s perform, payloads have already been resolved based on the customer’s configuration, validated against the schema, and can be expected to match the types provided in your `perform` function.
+
+The `perform` method accepts two arguments, (1) the request client instance (extended with your destination's `extendRequest`, and (2) the data bundle. The data bundle includes the following fields:
+
+- `payload` - The transformed input data, based on `mapping` + `event` (or `events` if batched). You’ll get compile-time type-safety for how you access anything in the `data.payload`.
+- `settings` - The global destination settings.
+- `auth` - The data needed in OAuth requests. This is useful if fetching an updated OAuth `access_token` using a `refresh_token`. The `refresh_token` is available in `auth.refreshToken`.
+- `features` - The features available in the request based on either customer workspaceID or sourceID. Features can only be enabled and/or used by internal Twilio/Segment employees. Features cannot be used for Partner builds.
+- `statsContext` - An object, containing a `statsClient` and `tags`. Stats can only be used by internal Twilio/Segment employees. Stats cannot be used for Partner builds.
 
 A basic example:
 
@@ -334,8 +352,8 @@ const destination = {
       },
       // `perform` takes two arguments:
       // 1. the request client instance (extended with your destination's `extendRequest`
-      // 2. the data bundle which includes `settings` for top-level authentication fields and the `payload` which contains all the validated, resolved fields expected by the action
-      perform: (request, data) => {
+      // 2. the data bundle (destructured below)
+      perform: (request, { payload, settings, auth, features, statsContext }) => {
         return request('https://example.com', {
           headers: { Authorization: `Bearer ${data.settings.api_key}` },
           json: data.payload
@@ -360,6 +378,27 @@ function performBatch(request, { settings, payload }) {
     // `payload` is an array of objects, each matching your action's field definition
     json: payload
   })
+}
+```
+
+All actions where a `performBatch` method is defined will automatically include an `enable_batching` input field for users. This field is a boolean switch that allows users to toggle batching functionality. Builders can override the automatically included field by explicitly defining a field named `enable_batching` with type boolean in the `fields` section of the `ActionDefinition`. This may be useful if the builder wants to specify custom labels or descriptions or set a default value.
+
+```js
+const action: ActionDefinition<Settings, Payload> = {
+  title: 'Account',
+  description: 'Represents an individual account, which is an organization or person involved with your business.',
+  defaultSubscription: 'type = "group"',
+  fields: {
+    enable_batching: {
+      type: 'boolean',
+      label: 'Use Salesforce Bulk API',
+      description:
+        'When enabled, the action will use the Salesforce Bulk API to perform the operation. Not compatible with the insert operation.',
+      required: true,
+      default: false
+    }
+  },
+  performBatch: async (request, { settings, payload }) => { ... }
 }
 ```
 

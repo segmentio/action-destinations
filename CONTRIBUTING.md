@@ -109,7 +109,7 @@ Please find the below info for _Name of integration_ Catalog entry.
 
 ## Release to Private Beta for customer testing
 
-1. During Private Beta, the integration will not be publicly listed in the catalog. You and your customers can access the catalog page using a special URL.
+1. During Private Beta, the integration will not be publicly listed in the catalog. You and your customers can access the catalog page using a special URL: https://app.segment.com/goto-my-workspace/destinations/catalog/${destination-slug} (This will direct users to the install page in their workspace)
 
 2. Verify that the catalog entry renders correctly,
 

@@ -8,10 +8,44 @@ export const operation: InputField = {
   type: 'string',
   required: true,
   choices: [
-    { label: 'Create', value: 'create' },
-    { label: 'Update', value: 'update' },
-    { label: 'Upsert', value: 'upsert' }
+    { label: 'Create new record', value: 'create' },
+    { label: 'Update existing record', value: 'update' },
+    { label: `Update or create a record if one doesn't exist`, value: 'upsert' }
   ]
+}
+
+export const enable_batching: InputField = {
+  label: 'Use Salesforce Bulk API',
+  description:
+    'If true, events are sent to [Salesforce’s Bulk API 2.0](https://developer.salesforce.com/docs/atlas.en-us.api_asynch.meta/api_asynch/asynch_api_intro.htm) rather than their streaming REST API. Once enabled, Segment will collect events into batches of 1000 before sending to Salesforce. *Enabling Bulk API is not compatible with the `create` operation*.',
+  type: 'boolean',
+  default: false
+}
+
+export const bulkUpsertExternalId: InputField = {
+  label: 'Bulk Upsert External Id',
+  description: 'The external id field name and mapping to use for bulk upsert.',
+  type: 'object',
+  defaultObjectUI: 'keyvalue:only',
+  additionalProperties: false,
+  properties: {
+    externalIdName: {
+      label: 'External Id Name',
+      description: 'The external id field name as defined in Salesforce.',
+      type: 'string'
+    },
+    externalIdValue: {
+      label: 'External Id Value',
+      description: 'The external id field value to use for bulk upsert.',
+      type: 'string'
+    }
+  }
+}
+
+export const bulkUpdateRecordId: InputField = {
+  label: 'Bulk Update Record Id',
+  description: 'The record id value to use for bulk update.',
+  type: 'string'
 }
 
 export const traits: InputField = {

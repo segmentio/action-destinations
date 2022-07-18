@@ -2,11 +2,11 @@ import { Analytics, Context } from '@segment/analytics-next'
 import brazeDestination, { destination } from '../index'
 
 describe('trackEvent', () => {
-  test('invokes appboy`s logCustomEvent API', async () => {
+  test('invokes braze`s logCustomEvent API', async () => {
     const [trackEvent] = await brazeDestination({
       api_key: 'b_123',
       endpoint: 'endpoint',
-      sdkVersion: '3.3',
+      sdkVersion: '3.5',
       doNotLoadFontAwesome: true,
       subscriptions: [
         {
