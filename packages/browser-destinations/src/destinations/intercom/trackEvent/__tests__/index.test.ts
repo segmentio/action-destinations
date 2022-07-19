@@ -24,14 +24,14 @@ const subscriptions: Subscription[] = [
 ]
 
 describe('Intercom.trackEvent', () => {
+  const settings = {
+    appId: 'superSecretAppID'
+  }
+
   let mockIntercom: jest.Mock<any, any>
   let trackEvent: any
   beforeEach(async () => {
     jest.restoreAllMocks()
-
-    const settings = {
-      appId: 'superSecretAppID'
-    }
 
     const [trackEventPlugin] = await intercomDestination({
       ...settings,
@@ -124,26 +124,31 @@ describe('Intercom.trackEvent', () => {
 })
 
 describe('Intercom.trackEvent with rich link properties', () => {
-  test('rich link properties are permitted', async () => {
+  const settings = {
+    appId: 'superSecretAppID',
+    richLinkProperties: ['article']
+  }
+
+  let mockIntercom: jest.Mock<any, any>
+  let trackEvent: any
+  beforeEach(async () => {
     jest.restoreAllMocks()
 
-    const settings = {
-      appId: 'superSecretAppID',
-      richLinkProperties: ['article']
-    }
-
-    const [trackEvent] = await intercomDestination({
+    const [trackEventPlugin] = await intercomDestination({
       ...settings,
       subscriptions
     })
+    trackEvent = trackEventPlugin
 
-    const mockIntercom = jest.fn()
+    mockIntercom = jest.fn()
     jest.spyOn(destination, 'initialize').mockImplementation(() => {
       const mockedWithProps = Object.assign(mockIntercom as any, settings)
       return Promise.resolve(mockedWithProps)
     })
     await trackEvent.load(Context.system(), {} as Analytics)
+  })
 
+  test('rich link properties are permitted', async () => {
     const context = new Context({
       type: 'track',
       event: 'surfboard-bought',

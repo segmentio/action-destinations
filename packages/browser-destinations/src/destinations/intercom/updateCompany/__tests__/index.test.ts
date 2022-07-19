@@ -2,11 +2,6 @@ import { Analytics, Context } from '@segment/analytics-next'
 import { Subscription } from 'src/lib/browser-destinations'
 import intercomDestination, { destination } from '../../index'
 
-const settings = {
-  appId: 'superSecretAppID',
-  activator: '#IntercomDefaultWidget'
-}
-
 const subscriptions: Subscription[] = [
   {
     partnerAction: 'updateCompany',
@@ -33,6 +28,11 @@ const subscriptions: Subscription[] = [
 ]
 
 describe('Intercom.update (Company)', () => {
+  const settings = {
+    appId: 'superSecretAppID',
+    activator: '#IntercomDefaultWidget'
+  }
+
   let mockIntercom: jest.Mock<any, any>
   let updateCompany: any
   beforeEach(async () => {
@@ -149,6 +149,101 @@ describe('Intercom.update (Company)', () => {
         company_id: 'id',
         monthly_spend: 123,
         passMe: true
+      }
+    })
+  })
+
+  test('should set hide_default_launcher if the setting is there', async () => {
+    const context = new Context({
+      type: 'group',
+      groupId: 'id',
+      traits: {
+        name: 'Segment'
+      },
+      context: {
+        Intercom: {
+          hideDefaultLauncher: true
+        }
+      }
+    })
+
+    await updateCompany.group?.(context)
+
+    expect(mockIntercom).toHaveBeenCalledWith('update', {
+      company: {
+        company_id: 'id',
+        name: 'Segment'
+      },
+      hide_default_launcher: true
+    })
+  })
+})
+
+describe('Intercom.update (user) widget options', () => {
+  const settings = {
+    appId: 'superSecretAppID',
+    activator: '#customWidget'
+  }
+
+  let mockIntercom: jest.Mock<any, any>
+  let updateCompany: any
+  beforeEach(async () => {
+    jest.restoreAllMocks()
+
+    const [updateCompanyPlugin] = await intercomDestination({
+      ...settings,
+      subscriptions
+    })
+    updateCompany = updateCompanyPlugin
+
+    mockIntercom = jest.fn()
+    jest.spyOn(destination, 'initialize').mockImplementation(() => {
+      const mockedWithProps = Object.assign(mockIntercom as any, settings)
+      return Promise.resolve(mockedWithProps)
+    })
+    await updateCompany.load(Context.system(), {} as Analytics)
+  })
+
+  test('sets activator if activator is not #IntercomDefaultWidget', async () => {
+    const context = new Context({
+      type: 'group',
+      groupId: 'id',
+      traits: {}
+    })
+
+    await updateCompany.group?.(context)
+
+    expect(mockIntercom).toHaveBeenCalledWith('update', {
+      company: {
+        company_id: 'id'
+      },
+      widget: {
+        activator: '#customWidget'
+      }
+    })
+  })
+
+  test('should set hide_default_launcher if the setting is there', async () => {
+    const context = new Context({
+      type: 'group',
+      groupId: 'id',
+      traits: {},
+      context: {
+        Intercom: {
+          hideDefaultLauncher: false
+        }
+      }
+    })
+
+    await updateCompany.identify?.(context)
+
+    expect(mockIntercom).toHaveBeenCalledWith('update', {
+      company: {
+        company_id: 'id'
+      },
+      hide_default_launcher: false,
+      widget: {
+        activator: '#customWidget'
       }
     })
   })

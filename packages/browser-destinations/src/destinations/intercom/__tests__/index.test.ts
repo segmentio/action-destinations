@@ -28,7 +28,7 @@ describe('Intercom (actions)', () => {
     const [event] = await intercomDestination({
       appId: 'topSecretKey',
       richLinkProperties: ['article'],
-      customInboxButtonSelector: '#test',
+      activator: '#test',
       subscriptions
     })
 

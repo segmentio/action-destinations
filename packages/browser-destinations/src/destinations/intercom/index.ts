@@ -23,7 +23,6 @@ export const destination: BrowserDestinationDefinition<Settings, Intercom> = {
   mode: 'device',
 
   settings: {
-    // Add any Segment destination settings required here
     appId: {
       description: 'The app_id of your Intercom app which will indicate where to store any data.',
       label: 'App ID',

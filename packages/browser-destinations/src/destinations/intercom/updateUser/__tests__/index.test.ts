@@ -3,11 +3,6 @@ import { Subscription } from 'src/lib/browser-destinations'
 import intercomDestination, { destination } from '../../index'
 import { convertDateToUnix } from '../../utils'
 
-const settings = {
-  appId: 'superSecretAppID',
-  activator: '#IntercomDefaultWidget'
-}
-
 const subscriptions: Subscription[] = [
   {
     partnerAction: 'updateUser',
@@ -60,6 +55,11 @@ const subscriptions: Subscription[] = [
 ]
 
 describe('Intercom.update (user)', () => {
+  const settings = {
+    appId: 'superSecretAppID',
+    activator: '#IntercomDefaultWidget'
+  }
+
   let mockIntercom: jest.Mock<any, any>
   let updateUser: any
   beforeEach(async () => {
@@ -88,7 +88,7 @@ describe('Intercom.update (user)', () => {
       }
     })
 
-    await updateUser.group?.(context)
+    await updateUser.identify?.(context)
 
     expect(mockIntercom).toHaveBeenCalledWith('update', {
       user_id: 'id',
@@ -106,7 +106,7 @@ describe('Intercom.update (user)', () => {
       }
     })
 
-    await updateUser.group?.(context)
+    await updateUser.identify?.(context)
 
     expect(mockIntercom).toHaveBeenCalledWith('update', {
       user_id: 'id',
@@ -125,7 +125,7 @@ describe('Intercom.update (user)', () => {
       }
     })
 
-    await updateUser.group?.(context)
+    await updateUser.identify?.(context)
 
     expect(mockIntercom).toHaveBeenCalledWith('update', {
       user_id: 'id',
@@ -142,7 +142,7 @@ describe('Intercom.update (user)', () => {
       }
     })
 
-    await updateUser.group?.(context)
+    await updateUser.identify?.(context)
 
     expect(mockIntercom).toHaveBeenCalledWith('update', {
       user_id: 'id',
@@ -161,7 +161,7 @@ describe('Intercom.update (user)', () => {
       }
     })
 
-    await updateUser.group?.(context)
+    await updateUser.identify?.(context)
 
     expect(mockIntercom).toHaveBeenCalledWith('update', {
       user_id: 'id',
@@ -179,7 +179,7 @@ describe('Intercom.update (user)', () => {
       }
     })
 
-    await updateUser.group?.(context)
+    await updateUser.identify?.(context)
 
     expect(mockIntercom).toHaveBeenCalledWith('update', {
       user_id: 'id',
@@ -217,7 +217,7 @@ describe('Intercom.update (user)', () => {
       }
     })
 
-    await updateUser.group?.(context)
+    await updateUser.identify?.(context)
 
     expect(mockIntercom).toHaveBeenCalledWith('update', {
       user_id: 'id',
@@ -256,7 +256,7 @@ describe('Intercom.update (user)', () => {
       }
     })
 
-    await updateUser.group?.(context)
+    await updateUser.identify?.(context)
 
     expect(mockIntercom).toHaveBeenCalledWith('update', {
       user_id: 'id',
@@ -285,7 +285,7 @@ describe('Intercom.update (user)', () => {
       }
     })
 
-    await updateUser.group?.(context)
+    await updateUser.identify?.(context)
 
     expect(mockIntercom).toHaveBeenCalledWith('update', {
       user_id: 'id',
@@ -308,11 +308,77 @@ describe('Intercom.update (user)', () => {
       }
     })
 
-    await updateUser.group?.(context)
+    await updateUser.identify?.(context)
 
     expect(mockIntercom).toHaveBeenCalledWith('update', {
       user_id: 'id',
       user_hash: 'x'
+    })
+  })
+})
+
+describe('Intercom.update (user) widget options', () => {
+  const settings = {
+    appId: 'superSecretAppID',
+    activator: '#customWidget'
+  }
+
+  let mockIntercom: jest.Mock<any, any>
+  let updateUser: any
+  beforeEach(async () => {
+    jest.restoreAllMocks()
+
+    const [updateUserPlugin] = await intercomDestination({
+      ...settings,
+      subscriptions
+    })
+    updateUser = updateUserPlugin
+
+    mockIntercom = jest.fn()
+    jest.spyOn(destination, 'initialize').mockImplementation(() => {
+      const mockedWithProps = Object.assign(mockIntercom as any, settings)
+      return Promise.resolve(mockedWithProps)
+    })
+    await updateUser.load(Context.system(), {} as Analytics)
+  })
+
+  test('sets activator if activator is not #IntercomDefaultWidget', async () => {
+    const context = new Context({
+      type: 'identify',
+      userId: 'id',
+      traits: {}
+    })
+
+    await updateUser.identify?.(context)
+
+    expect(mockIntercom).toHaveBeenCalledWith('update', {
+      user_id: 'id',
+      widget: {
+        activator: '#customWidget'
+      }
+    })
+  })
+
+  test('should set hide_default_launcher if the setting is there', async () => {
+    const context = new Context({
+      type: 'identify',
+      userId: 'id',
+      traits: {},
+      context: {
+        Intercom: {
+          hideDefaultLauncher: true
+        }
+      }
+    })
+
+    await updateUser.identify?.(context)
+
+    expect(mockIntercom).toHaveBeenCalledWith('update', {
+      user_id: 'id',
+      hide_default_launcher: true,
+      widget: {
+        activator: '#customWidget'
+      }
     })
   })
 })
