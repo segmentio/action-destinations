@@ -1,31 +1,50 @@
-import { convertDateToUnix, filterCustomTraits, isEmpty } from '../utils'
+import dayjs from 'dayjs'
+import { convertDateToUnix, filterCustomTraits, getWidgetOptions, isEmpty } from '../utils'
 
 describe('Utils test', () => {
-  test('ISO 8601 date string converts to unix', () => {
-    const ISODate = '2021-09-23T22:28:55.111Z'
-    const unixDate = 1632436135
+  describe('date handling tests', () => {
+    test('handles ISO datestrings', () => {
+      const date = new Date()
+      const isoDate = date.toISOString()
+      const unixDate = dayjs(isoDate).unix()
 
-    expect(convertDateToUnix(ISODate)).toEqual(unixDate)
-  })
+      expect(convertDateToUnix(isoDate)).toEqual(unixDate)
+    })
 
-  test('custom traits will be filtered with traits object', () => {
-    const traits = {
-      name: 'ibum',
-      age: 21,
-      surf_quality: 'mid'
-    }
-    const reservedFields = ['name', 'age']
+    test('accepts Unix timestamps in seconds', () => {
+      const date = Math.floor(new Date().getTime() / 1000)
 
-    expect(filterCustomTraits(reservedFields, traits)).toEqual({
-      surf_quality: 'mid'
+      expect(convertDateToUnix(date)).toEqual(date)
+    })
+
+    test('accepts Unix timestamps in milliseconds', () => {
+      const dateInMS = Math.floor(new Date().getTime())
+      const dateInS = Math.floor(dateInMS / 1000)
+
+      expect(convertDateToUnix(dateInMS)).toEqual(dateInS)
     })
   })
 
-  test('custom traits will be filtered with undefined traits object', () => {
-    const traits = undefined
-    const reservedFields = ['name', 'age']
+  describe('custom trait filtering tests', () => {
+    test('custom traits will be filtered with traits object', () => {
+      const traits = {
+        name: 'ibum',
+        age: 21,
+        surf_quality: 'mid'
+      }
+      const reservedFields = ['name', 'age']
 
-    expect(filterCustomTraits(reservedFields, traits)).toEqual({})
+      expect(filterCustomTraits(reservedFields, traits)).toEqual({
+        surf_quality: 'mid'
+      })
+    })
+
+    test('custom traits will be filtered with undefined traits object', () => {
+      const traits = undefined
+      const reservedFields = ['name', 'age']
+
+      expect(filterCustomTraits(reservedFields, traits)).toEqual({})
+    })
   })
 
   describe('isEmpty tests', () => {
@@ -42,6 +61,31 @@ describe('Utils test', () => {
     test('isEmpty works for undefined obj', () => {
       const obj = undefined
       expect(isEmpty(obj)).toBe(true)
+    })
+  })
+
+  describe('widget options tests', () => {
+    test('attaches `activator` if activator is not default', () => {
+      const activator = '#my-widget'
+      const hide_default_launcher = undefined
+
+      expect(getWidgetOptions(hide_default_launcher, activator)).toEqual({
+        widget: {
+          activator: activator
+        }
+      })
+    })
+
+    test('attaches `hide_default_launcher` if its not undefined ', () => {
+      const activator = '#my-widget'
+      const hide_default_launcher = false
+
+      expect(getWidgetOptions(hide_default_launcher, activator)).toEqual({
+        widget: {
+          activator: activator
+        },
+        hide_default_launcher: false
+      })
     })
   })
 })

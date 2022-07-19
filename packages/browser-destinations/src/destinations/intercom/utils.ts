@@ -26,10 +26,7 @@ export function filterCustomTraits(reservedFields: Array<string>, traits: { [k: 
   return filteredCustomTraits
 }
 
-export function getWidgetOptions(
-  hide_default_launcher: boolean | undefined,
-  activator: string | undefined
-): { [key: string]: unknown } {
+export function getWidgetOptions(hide_default_launcher: boolean | undefined, activator: string | undefined) {
   const widgetOptions: { [key: string]: unknown } = {}
   if (hide_default_launcher !== undefined) {
     widgetOptions.hide_default_launcher = hide_default_launcher
