@@ -1,6 +1,6 @@
 import { validate, parseFql, ErrorCondition } from '@segment/destination-subscriptions'
 import type { JSONSchema4 } from 'json-schema'
-import { Action, ActionDefinition, BaseActionDefinition, RequestFn } from './action'
+import { Action, ActionDefinition, BaseActionDefinition, RequestFn, ExecuteDynamicFieldInput } from './action'
 import { time, duration } from '../time'
 import { JSONLikeObject, JSONObject, JSONValue } from '../json-object'
 import { SegmentEvent } from '../segment-event'
@@ -367,6 +367,19 @@ export class Destination<Settings = JSONObject> {
     })
 
     return [{ output: 'successfully processed batch of events' }]
+  }
+
+  public async executeDynamicField(
+    actionSlug: string,
+    fieldKey: string,
+    data: ExecuteDynamicFieldInput<Settings, object>
+  ) {
+    const action = this.actions[actionSlug]
+    if (!action) {
+      return []
+    }
+
+    return action.executeDynamicField(fieldKey, data)
   }
 
   private async onSubscription(
