@@ -34,6 +34,10 @@ export interface Payload {
    */
   is_app_incrementality?: boolean
   /**
+   * Description
+   */
+  pcc_game?: boolean
+  /**
    * Phone number of the individual who triggered the conversion event, in E.164 standard format, e.g. +14150000000.
    */
   phone_number?: string

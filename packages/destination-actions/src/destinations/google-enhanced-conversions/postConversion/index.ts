@@ -102,6 +102,12 @@ const action: ActionDefinition<Settings, Payload> = {
       type: 'boolean',
       default: false
     },
+    pcc_game: {
+      label: 'Name',
+      description: 'Description',
+      type: 'boolean',
+      default: false
+    },
     // PII Fields - These fields must be hashed using SHA 256 and encoded as websafe-base64.
     phone_number: {
       label: 'Phone Number',
@@ -210,8 +216,11 @@ const action: ActionDefinition<Settings, Payload> = {
       label: payload.conversion_label,
       value: payload.value,
       currency_code: payload.currency_code,
-      is_app_incrementality: payload.is_app_incrementality ? 1 : 0
+      is_app_incrementality: payload.is_app_incrementality ? 1 : 0,
+      pcc_game: payload.pcc_game ? 1 : 0
     })
+
+    console.log('Data', conversionData)
 
     const address = cleanData({
       hashed_first_name: formatFirstName(payload.first_name),
