@@ -2,7 +2,14 @@ import { isArray, isObject } from '@segment/actions-core'
 import { isNonEmpty } from '@segment/actions-shared'
 import dayjs from 'dayjs'
 
-export function convertISO8601toUnix(created_at: string | number): number {
+export function convertDateToUnix(created_at: string | number): number {
+  if (typeof created_at === 'number') {
+    let unixDate = dayjs.unix(created_at).unix()
+    if (unixDate.toString().length == 13) {
+      unixDate = Math.floor(unixDate / 1000)
+    }
+    return unixDate
+  }
   return dayjs(created_at).unix()
 }
 

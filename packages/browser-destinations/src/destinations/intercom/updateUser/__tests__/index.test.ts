@@ -1,6 +1,7 @@
 import { Analytics, Context } from '@segment/analytics-next'
 import { Subscription } from 'src/lib/browser-destinations'
 import intercomDestination, { destination } from '../../index'
+import { convertDateToUnix } from '../../utils'
 
 const settings = {
   appId: 'superSecretAppID',
@@ -17,6 +18,8 @@ const subscriptions: Subscription[] = [
       user_id: { '@path': '$.userId' },
       custom_traits: { '@path': '$.traits' },
       name: { '@path': '$.traits.name' },
+      first_name: { '@path': '$.traits.firstName' },
+      last_name: { '@path': '$.traits.lastName' },
       email: { '@path': '$.traits.email' },
       phone: { '@path': '$.traits.phone' },
       unsubscribed_from_emails: { '@path': '$.traits.unsubscribedFromEmails' },
@@ -112,6 +115,60 @@ describe('Intercom.update (user)', () => {
     })
   })
 
+  test('sets first and last as name', async () => {
+    const context = new Context({
+      type: 'identify',
+      userId: 'id',
+      traits: {
+        firstName: 'italo',
+        lastName: 'ferreira'
+      }
+    })
+
+    await updateUser.group?.(context)
+
+    expect(mockIntercom).toHaveBeenCalledWith('update', {
+      user_id: 'id',
+      name: 'italo ferreira'
+    })
+  })
+
+  test('set .firstName as .name if no .lastName', async () => {
+    const context = new Context({
+      type: 'identify',
+      userId: 'id',
+      traits: {
+        firstName: 'italo'
+      }
+    })
+
+    await updateUser.group?.(context)
+
+    expect(mockIntercom).toHaveBeenCalledWith('update', {
+      user_id: 'id',
+      name: 'italo'
+    })
+  })
+
+  test('respects name over firstName & lastName', async () => {
+    const context = new Context({
+      type: 'identify',
+      userId: 'id',
+      traits: {
+        name: 'myname',
+        firstName: 'italo',
+        lastName: 'ferreira'
+      }
+    })
+
+    await updateUser.group?.(context)
+
+    expect(mockIntercom).toHaveBeenCalledWith('update', {
+      user_id: 'id',
+      name: 'myname'
+    })
+  })
+
   test('sends custom traits', async () => {
     const context = new Context({
       type: 'identify',
@@ -140,6 +197,90 @@ describe('Intercom.update (user)', () => {
         dropMe: ['i', 'will', 'be', 'dropped'],
         objDrop: {
           foo: 'bar'
+        },
+        company: {
+          id: 'twilio',
+          dropMe: ['i', 'will', 'be', 'dropped'],
+          objDrop: {
+            foo: 'bar'
+          }
+        },
+        companies: [
+          {
+            id: 'segment',
+            dropMe: ['i', 'will', 'be', 'dropped'],
+            objDrop: {
+              foo: 'bar'
+            }
+          }
+        ]
+      }
+    })
+
+    await updateUser.group?.(context)
+
+    expect(mockIntercom).toHaveBeenCalledWith('update', {
+      user_id: 'id',
+      phone: '0000000',
+      company: {
+        company_id: 'twilio'
+      },
+      companies: [
+        {
+          company_id: 'segment'
+        }
+      ]
+    })
+  })
+
+  test('converts dates', async () => {
+    const date = new Date()
+    const isoDate = date.toISOString()
+    const unixDate = convertDateToUnix(isoDate)
+
+    const context = new Context({
+      type: 'identify',
+      userId: 'id',
+      traits: {
+        createdAt: isoDate,
+        company: {
+          id: 'twilio',
+          createdAt: isoDate
+        },
+        companies: [
+          {
+            id: 'segment',
+            createdAt: isoDate
+          }
+        ]
+      }
+    })
+
+    await updateUser.group?.(context)
+
+    expect(mockIntercom).toHaveBeenCalledWith('update', {
+      user_id: 'id',
+      created_at: unixDate,
+      company: {
+        company_id: 'twilio',
+        created_at: unixDate
+      },
+      companies: [
+        {
+          company_id: 'segment',
+          created_at: unixDate
+        }
+      ]
+    })
+  })
+
+  test('fills in `type=avatar` for the avatar object', async () => {
+    const context = new Context({
+      type: 'identify',
+      userId: 'id',
+      traits: {
+        avatar: {
+          imageUrl: 'someurl'
         }
       }
     })
@@ -148,7 +289,30 @@ describe('Intercom.update (user)', () => {
 
     expect(mockIntercom).toHaveBeenCalledWith('update', {
       user_id: 'id',
-      phone: '0000000'
+      avatar: {
+        image_url: 'someurl',
+        type: 'avatar'
+      }
+    })
+  })
+
+  test('allows passing a user hash', async () => {
+    const context = new Context({
+      type: 'identify',
+      userId: 'id',
+      traits: {},
+      context: {
+        Intercom: {
+          user_hash: 'x'
+        }
+      }
+    })
+
+    await updateUser.group?.(context)
+
+    expect(mockIntercom).toHaveBeenCalledWith('update', {
+      user_id: 'id',
+      user_hash: 'x'
     })
   })
 })

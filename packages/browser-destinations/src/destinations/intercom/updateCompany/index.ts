@@ -3,7 +3,7 @@ import type { BrowserActionDefinition } from '../../../lib/browser-destinations'
 import { Intercom } from '../api'
 import type { Settings } from '../generated-types'
 import { getCompanyProperties } from '../sharedCompanyProperties'
-import { convertISO8601toUnix, filterCustomTraits, getWidgetOptions } from '../utils'
+import { convertDateToUnix, filterCustomTraits, getWidgetOptions } from '../utils'
 import type { Payload } from './generated-types'
 
 const companyProperties: Record<string, InputField> = getCompanyProperties()
@@ -49,7 +49,7 @@ const action: BrowserActionDefinition<Settings, Intercom, Payload> = {
 
     //convert date from ISO-8601 to UNIX
     if (company?.created_at) {
-      company.created_at = convertISO8601toUnix(company.created_at)
+      company.created_at = convertDateToUnix(company.created_at)
     }
 
     //filter out reserved fields, drop custom objects & arrays

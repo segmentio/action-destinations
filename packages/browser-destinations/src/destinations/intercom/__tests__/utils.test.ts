@@ -1,11 +1,11 @@
-import { convertISO8601toUnix, filterCustomTraits, isEmpty } from '../utils'
+import { convertDateToUnix, filterCustomTraits, isEmpty } from '../utils'
 
 describe('Utils test', () => {
   test('ISO 8601 date string converts to unix', () => {
     const ISODate = '2021-09-23T22:28:55.111Z'
     const unixDate = 1632436135
 
-    expect(convertISO8601toUnix(ISODate)).toEqual(unixDate)
+    expect(convertDateToUnix(ISODate)).toEqual(unixDate)
   })
 
   test('custom traits will be filtered with traits object', () => {

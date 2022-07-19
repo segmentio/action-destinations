@@ -3,7 +3,7 @@ import type { BrowserActionDefinition } from '../../../lib/browser-destinations'
 import { Intercom } from '../api'
 import type { Settings } from '../generated-types'
 import { getCompanyProperties } from '../sharedCompanyProperties'
-import { convertISO8601toUnix, filterCustomTraits, getWidgetOptions, isEmpty } from '../utils'
+import { convertDateToUnix, filterCustomTraits, getWidgetOptions, isEmpty } from '../utils'
 import type { Payload } from './generated-types'
 
 const companyProperties: Record<string, InputField> = getCompanyProperties()
@@ -198,14 +198,14 @@ const action: BrowserActionDefinition<Settings, Intercom, Payload> = {
     if (isEmpty(payload.company)) {
       delete payload.company
     }
-    if (isEmpty(payload.avatar)) {
+    if (isEmpty(payload.avatar) || !payload.avatar) {
       delete payload.avatar
     } else {
       // add type = 'avatar' to avatar object since Intercom requires it
-      if (payload.avatar) payload.avatar.type = 'avatar'
+      payload.avatar.type = 'avatar'
     }
 
-    // if no name provided, concat firstName & lastName to form name
+    // if no name provided, concatenate firstName & lastName to form name
     if (!payload.name && payload.first_name) {
       payload.name = payload.first_name
       if (payload.last_name) {
@@ -219,12 +219,12 @@ const action: BrowserActionDefinition<Settings, Intercom, Payload> = {
       delete payload.last_name
     }
 
-    //mutate objects by converting their 'created_at' date properties from ISO-8601 to UNIX
+    //convert 'created_at' date properties from ISO-8601 to UNIX
     const companies = Array.isArray(payload.companies) ? [...payload.companies] : []
     const datesToConvert = [payload, payload.company, ...companies]
     for (const objectWithDateProp of datesToConvert) {
       if (objectWithDateProp && objectWithDateProp?.created_at) {
-        objectWithDateProp.created_at = convertISO8601toUnix(objectWithDateProp.created_at)
+        objectWithDateProp.created_at = convertDateToUnix(objectWithDateProp.created_at)
       }
     }
 
