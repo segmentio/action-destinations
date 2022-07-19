@@ -26,7 +26,7 @@ export interface ExecuteInput<Settings, Payload> {
   /** The data needed in OAuth requests */
   readonly auth?: AuthTokens
   /**
-   * The features available in the request based on either customer workspaceID or sourceID;
+   * The features available in the request based on the customer's sourceID;
    * Both `features` and `stats` are for internal Twilio/Segment use only.
    */
   readonly features?: Features
