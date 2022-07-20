@@ -157,7 +157,6 @@ const action: BrowserActionDefinition<Settings, Intercom, Payload> = {
           }
         },
         plan: { '@path': '$.traits.company.plan' },
-        monthly_spend: { '@path': '$.traits.company.monthlySpend' },
         size: { '@path': '$.traits.company.size' },
         website: { '@path': '$.traits.company.website' },
         industry: { '@path': '$.traits.company.industry' },
@@ -185,7 +184,6 @@ const action: BrowserActionDefinition<Settings, Intercom, Payload> = {
               }
             },
             plan: { '@path': '$.plan' },
-            monthly_spend: { '@path': '$.monthlySpend' },
             size: { '@path': '$.size' },
             website: { '@path': '$.website' },
             industry: { '@path': '$.industry' },
