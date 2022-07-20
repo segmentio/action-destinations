@@ -14,7 +14,6 @@ declare global {
   }
 }
 
-// Switch from unknown to the partner SDK client types
 export const destination: BrowserDestinationDefinition<Settings, Intercom> = {
   name: 'Intercom Web (Actions)',
   slug: 'actions-intercom-web',

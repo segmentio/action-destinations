@@ -4,7 +4,6 @@ import type { Settings } from '../generated-types'
 import { filterCustomTraits, isEmpty } from '../utils'
 import type { Payload } from './generated-types'
 
-// Change from unknown to the partner SDK types
 const action: BrowserActionDefinition<Settings, Intercom, Payload> = {
   title: 'Track Event',
   description: 'Track an event',
