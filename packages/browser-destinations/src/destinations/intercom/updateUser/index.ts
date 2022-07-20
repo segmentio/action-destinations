@@ -46,7 +46,11 @@ const action: BrowserActionDefinition<Settings, Intercom, Payload> = {
       type: 'string',
       required: false,
       default: {
-        '@path': '$.traits.firstName'
+        '@if': {
+          exists: { '@path': '$.traits.firstName' },
+          then: { '@path': '$.traits.firstName' },
+          else: { '@path': '$.traits.first_name' }
+        }
       }
     },
     last_name: {
@@ -55,11 +59,15 @@ const action: BrowserActionDefinition<Settings, Intercom, Payload> = {
       type: 'string',
       required: false,
       default: {
-        '@path': '$.traits.lastName'
+        '@if': {
+          exists: { '@path': '$.traits.lastName' },
+          then: { '@path': '$.traits.lastName' },
+          else: { '@path': '$.traits.last_name' }
+        }
       }
     },
     phone: {
-      description: 'The phone number of the current user/lead.',
+      description: "The user's phone number.",
       label: 'Phone',
       type: 'string',
       required: false,
@@ -68,25 +76,19 @@ const action: BrowserActionDefinition<Settings, Intercom, Payload> = {
       }
     },
     unsubscribed_from_emails: {
-      description: 'The email unsubscribe status for the user.',
+      description: "The user's email unsubscribe status.",
       label: 'Unsubscribed From Emails',
       type: 'boolean',
-      required: false,
-      default: {
-        '@path': '$.traits.unsubscribedFromEmails'
-      }
+      required: false
     },
     language_override: {
-      description: 'The messenger language (instead of relying on browser language settings).',
+      description: "The user's messenger language (instead of relying on browser language settings).",
       label: 'Language Override',
       type: 'string',
-      required: false,
-      default: {
-        '@path': '$.traits.languageOverride'
-      }
+      required: false
     },
     email: {
-      description: "User's email.",
+      description: "The user's email.",
       label: 'Name',
       type: 'string',
       required: false,
@@ -95,7 +97,7 @@ const action: BrowserActionDefinition<Settings, Intercom, Payload> = {
       }
     },
     created_at: {
-      description: 'A timestamp of when the person was created.',
+      description: 'A timestamp of when the user was created.',
       label: 'Created At',
       type: 'datetime',
       required: false,
@@ -108,7 +110,7 @@ const action: BrowserActionDefinition<Settings, Intercom, Payload> = {
       }
     },
     avatar: {
-      description: 'The avatar/profile image associated to the user.',
+      description: "The user's avatar/profile image.",
       label: 'Avatar',
       type: 'object',
       required: false,
@@ -123,7 +125,7 @@ const action: BrowserActionDefinition<Settings, Intercom, Payload> = {
           }
         },
         type: {
-          description: 'This is not sent by the user, it is manually set to avatar.',
+          description: "This is manually set to 'avatar'.",
           label: 'Type',
           type: 'string',
           required: true,
@@ -137,7 +139,11 @@ const action: BrowserActionDefinition<Settings, Intercom, Payload> = {
       type: 'string',
       required: false,
       default: {
-        '@path': '$.context.Intercom.user_hash'
+        '@if': {
+          exists: { '@path': '$.context.Intercom.user_hash' },
+          then: { '@path': '$.context.Intercom.user_hash' },
+          else: { '@path': '$.context.Intercom.userHash' }
+        }
       }
     },
     company: {
@@ -199,7 +205,11 @@ const action: BrowserActionDefinition<Settings, Intercom, Payload> = {
       type: 'boolean',
       required: false,
       default: {
-        '@path': '$.context.Intercom.hideDefaultLauncher'
+        '@if': {
+          exists: { '@path': '$.context.Intercom.hideDefaultLauncher' },
+          then: { '@path': '$.context.Intercom.hideDefaultLauncher' },
+          else: { '@path': '$.context.Intercom.hide_default_launcher' }
+        }
       }
     }
   },
@@ -247,8 +257,6 @@ const action: BrowserActionDefinition<Settings, Intercom, Payload> = {
       ...Object.keys(action.fields),
       ...Object.keys(companyProperties),
       'createdAt',
-      'unsubscribedFromEmails',
-      'languageOverride',
       'userHash',
       'companyId',
       'monthlySpend',

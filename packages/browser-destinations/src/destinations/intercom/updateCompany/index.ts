@@ -43,7 +43,11 @@ const action: BrowserActionDefinition<Settings, Intercom, Payload> = {
       type: 'boolean',
       required: false,
       default: {
-        '@path': '$.context.Intercom.hideDefaultLauncher'
+        '@if': {
+          exists: { '@path': '$.context.Intercom.hideDefaultLauncher' },
+          then: { '@path': '$.context.Intercom.hideDefaultLauncher' },
+          else: { '@path': '$.context.Intercom.hide_default_launcher' }
+        }
       }
     }
   },
