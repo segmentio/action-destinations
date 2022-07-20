@@ -295,7 +295,7 @@ const action: ActionDefinition<Settings, Payload> = {
       statsContext
 
     if (!payload.send) {
-      statsClient?.incr?.('te-sendgrid-send-disabled', 1, tags)
+      statsClient?.incr?.('actions-personas-messaging-sendgrid-send-disabled', 1, tags)
       return
     }
     const emailProfile = payload?.externalIds?.find((meta) => meta.type === 'email')
@@ -303,10 +303,10 @@ const action: ActionDefinition<Settings, Payload> = {
       !emailProfile?.subscriptionStatus ||
       ['unsubscribed', 'did not subscribed', 'false'].includes(emailProfile.subscriptionStatus)
     ) {
-      statsClient?.incr?.('te-sendgrid-notsubscribed', 1, tags)
+      statsClient?.incr?.('actions-personas-messaging-sendgrid-notsubscribed', 1, tags)
       return
     } else if (['subscribed', 'true'].includes(emailProfile?.subscriptionStatus)) {
-      statsClient?.incr?.('te-sendgrid-subscribed', 1, tags)
+      statsClient?.incr?.('actions-personas-messaging-sendgrid-subscribed', 1, tags)
       const traits = await fetchProfileTraits(request, settings, payload.userId)
 
       const profile: Profile = {
@@ -321,7 +321,7 @@ const action: ActionDefinition<Settings, Payload> = {
       }
 
       if (isRestrictedDomain(toEmail)) {
-        statsClient?.incr?.('te-sendgrid-restricteddomain', 1, tags)
+        statsClient?.incr?.('actions-personas-messaging-sendgrid-restricted-domain', 1, tags)
         throw new IntegrationError(
           'Emails with gmailx.com, yahoox.com, aolx.com, and hotmailx.com domains are blocked.',
           'Invalid input',
@@ -413,17 +413,18 @@ const action: ActionDefinition<Settings, Payload> = {
       })
 
       if (response.status > 200 && response.status < 300) {
-        statsClient?.incr?.('te-sendgrid-invoke-success', 1, tags)
+        tags.push('2xx')
       }
       if (response.status > 400 && response.status < 413) {
-        statsClient?.incr?.('te-sendgrid-invoke-4xx', 1, tags)
+        tags.push('4xx')
       }
       if (response.status == 429) {
-        statsClient?.incr?.('te-sendgrid-invoke-429', 1, tags)
+        tags.push('429')
       }
       if (response.status > 500) {
-        statsClient?.incr?.('te-sendgrid-invoke-5xx', 1, tags)
+        tags.push('5xx')
       }
+      statsClient?.incr?.('actions-personas-messaging-sendgrid-response-statuscode', 1, tags)
       return response
     } else {
       throw new IntegrationError(
