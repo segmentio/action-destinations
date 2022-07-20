@@ -15,13 +15,23 @@ const subscriptions: Subscription[] = [
         name: { '@path': '$.traits.name' },
         plan: { '@path': '$.traits.plan' },
         monthly_spend: { '@path': '$.traits.monthlySpend' },
-        created_at: { '@path': '$.traits.createdAt' },
+        created_at: {
+          '@if': {
+            exists: { '@path': '$.traits.createdAt' },
+            then: { '@path': '$.traits.createdAt' },
+            else: { '@path': '$.traits.created_at' }
+          }
+        },
         size: { '@path': '$.traits.size' },
         website: { '@path': '$.traits.website' },
         industry: { '@path': '$.traits.industry' }
       },
       hide_default_launcher: {
-        '@path': '$.context.Intercom.hideDefaultLauncher'
+        '@if': {
+          exists: { '@path': '$.context.Intercom.hideDefaultLauncher' },
+          then: { '@path': '$.context.Intercom.hideDefaultLauncher' },
+          else: { '@path': '$.context.Intercom.hide_default_launcher' }
+        }
       }
     }
   }
@@ -105,6 +115,25 @@ describe('Intercom.update (Company)', () => {
     })
   })
 
+  test('maps created_at properly regardless of it being sent in snake_case or camelCase', async () => {
+    const context = new Context({
+      type: 'group',
+      groupId: 'id',
+      traits: {
+        created_at: '2018-01-23T22:28:55.111Z'
+      }
+    })
+
+    await updateCompany.group?.(context)
+
+    expect(mockIntercom).toHaveBeenCalledWith('update', {
+      company: {
+        company_id: 'id',
+        created_at: 1516746535
+      }
+    })
+  })
+
   test('sends custom traits', async () => {
     const context = new Context({
       type: 'group',
@@ -133,7 +162,6 @@ describe('Intercom.update (Company)', () => {
       type: 'group',
       groupId: 'id',
       traits: {
-        monthlySpend: 123,
         badArray: ['i', 'shall', 'be', 'dropped'],
         badObject: {
           rip: 'i will cease to exist'
@@ -147,7 +175,6 @@ describe('Intercom.update (Company)', () => {
     expect(mockIntercom).toHaveBeenCalledWith('update', {
       company: {
         company_id: 'id',
-        monthly_spend: 123,
         passMe: true
       }
     })
@@ -224,6 +251,31 @@ describe('Intercom.update (user) widget options', () => {
   })
 
   test('should set hide_default_launcher if the setting is there', async () => {
+    const context = new Context({
+      type: 'group',
+      groupId: 'id',
+      traits: {},
+      context: {
+        Intercom: {
+          hideDefaultLauncher: false
+        }
+      }
+    })
+
+    await updateCompany.identify?.(context)
+
+    expect(mockIntercom).toHaveBeenCalledWith('update', {
+      company: {
+        company_id: 'id'
+      },
+      hide_default_launcher: false,
+      widget: {
+        activator: '#customWidget'
+      }
+    })
+  })
+
+  test('maps hide_default_launcher correctly regardless of it being sent in snake_case or camelCase', async () => {
     const context = new Context({
       type: 'group',
       groupId: 'id',

@@ -258,8 +258,6 @@ const action: BrowserActionDefinition<Settings, Intercom, Payload> = {
       ...Object.keys(companyProperties),
       'createdAt',
       'userHash',
-      'companyId',
-      'monthlySpend',
       'id',
       'firstName',
       'lastName'

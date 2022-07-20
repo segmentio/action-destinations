@@ -13,22 +13,58 @@ const subscriptions: Subscription[] = [
       user_id: { '@path': '$.userId' },
       custom_traits: { '@path': '$.traits' },
       name: { '@path': '$.traits.name' },
-      first_name: { '@path': '$.traits.firstName' },
-      last_name: { '@path': '$.traits.lastName' },
+      first_name: {
+        '@if': {
+          exists: { '@path': '$.traits.firstName' },
+          then: { '@path': '$.traits.firstName' },
+          else: { '@path': '$.traits.first_name' }
+        }
+      },
+      last_name: {
+        '@if': {
+          exists: { '@path': '$.traits.lastName' },
+          then: { '@path': '$.traits.lastName' },
+          else: { '@path': '$.traits.last_name' }
+        }
+      },
       email: { '@path': '$.traits.email' },
       phone: { '@path': '$.traits.phone' },
       unsubscribed_from_emails: { '@path': '$.traits.unsubscribedFromEmails' },
-      created_at: { '@path': '$.traits.createdAt' },
+      created_at: {
+        '@if': {
+          exists: { '@path': '$.traits.createdAt' },
+          then: { '@path': '$.traits.createdAt' },
+          else: { '@path': '$.traits.created_at' }
+        }
+      },
       language_override: { '@path': '$.traits.languageOverride' },
-      user_hash: { '@path': '$.context.Intercom.user_hash' },
-      hide_default_launcher: { '@path': '$.context.Intercom.hideDefaultLauncher' },
+      user_hash: {
+        '@if': {
+          exists: { '@path': '$.context.Intercom.user_hash' },
+          then: { '@path': '$.context.Intercom.user_hash' },
+          else: { '@path': '$.context.Intercom.userHash' }
+        }
+      },
+      hide_default_launcher: {
+        '@if': {
+          exists: { '@path': '$.context.Intercom.hideDefaultLauncher' },
+          then: { '@path': '$.context.Intercom.hideDefaultLauncher' },
+          else: { '@path': '$.context.Intercom.hide_default_launcher' }
+        }
+      },
       avatar: { image_url: { '@path': '$.traits.avatar' } },
       company: {
         company_id: { '@path': '$.traits.company.id' },
         name: { '@path': '$.traits.company.name' },
         plan: { '@path': '$.traits.company.plan' },
         monthly_spend: { '@path': '$.traits.company.monthlySpend' },
-        created_at: { '@path': '$.traits.company.createdAt' },
+        created_at: {
+          '@if': {
+            exists: { '@path': '$.traits.company.createdAt' },
+            then: { '@path': '$.traits.company.createdAt' },
+            else: { '@path': '$.traits.company.created_at' }
+          }
+        },
         size: { '@path': '$.traits.company.size' },
         website: { '@path': '$.traits.company.website' },
         industry: { '@path': '$.traits.company.industry' },
@@ -42,7 +78,13 @@ const subscriptions: Subscription[] = [
             name: { '@path': '$.name' },
             plan: { '@path': '$.plan' },
             monthly_spend: { '@path': '$.monthlySpend' },
-            created_at: { '@path': '$.createdAt' },
+            created_at: {
+              '@if': {
+                exists: { '@path': '$.createdAt' },
+                then: { '@path': '$.createdAt' },
+                else: { '@path': '$.created_at' }
+              }
+            },
             size: { '@path': '$.size' },
             website: { '@path': '$.website' },
             industry: { '@path': '$.industry' },
@@ -133,7 +175,7 @@ describe('Intercom.update (user)', () => {
     })
   })
 
-  test('set .firstName as .name if no .lastName', async () => {
+  test('set name = first_name if no last_name', async () => {
     const context = new Context({
       type: 'identify',
       userId: 'id',
@@ -150,7 +192,7 @@ describe('Intercom.update (user)', () => {
     })
   })
 
-  test('respects name over firstName & lastName', async () => {
+  test('respects name over first_name & last_name', async () => {
     const context = new Context({
       type: 'identify',
       userId: 'id',
@@ -166,6 +208,24 @@ describe('Intercom.update (user)', () => {
     expect(mockIntercom).toHaveBeenCalledWith('update', {
       user_id: 'id',
       name: 'myname'
+    })
+  })
+
+  test('accepts snake/camel case for first_name and last_name', async () => {
+    const context = new Context({
+      type: 'identify',
+      userId: 'id',
+      traits: {
+        first_name: 'italo',
+        last_name: 'ferreira'
+      }
+    })
+
+    await updateUser.identify?.(context)
+
+    expect(mockIntercom).toHaveBeenCalledWith('update', {
+      user_id: 'id',
+      name: 'italo ferreira'
     })
   })
 
@@ -274,6 +334,47 @@ describe('Intercom.update (user)', () => {
     })
   })
 
+  test('accepts camel/snake case for created_at', async () => {
+    const date = new Date()
+    const isoDate = date.toISOString()
+    const unixDate = convertDateToUnix(isoDate)
+
+    const context = new Context({
+      type: 'identify',
+      userId: 'id',
+      traits: {
+        created_at: isoDate,
+        company: {
+          id: 'twilio',
+          created_at: isoDate
+        },
+        companies: [
+          {
+            id: 'segment',
+            created_at: isoDate
+          }
+        ]
+      }
+    })
+
+    await updateUser.identify?.(context)
+
+    expect(mockIntercom).toHaveBeenCalledWith('update', {
+      user_id: 'id',
+      created_at: unixDate,
+      company: {
+        company_id: 'twilio',
+        created_at: unixDate
+      },
+      companies: [
+        {
+          company_id: 'segment',
+          created_at: unixDate
+        }
+      ]
+    })
+  })
+
   test('fills in `type=avatar` for the avatar object', async () => {
     const context = new Context({
       type: 'identify',
@@ -302,6 +403,26 @@ describe('Intercom.update (user)', () => {
       context: {
         Intercom: {
           user_hash: 'x'
+        }
+      }
+    })
+
+    await updateUser.identify?.(context)
+
+    expect(mockIntercom).toHaveBeenCalledWith('update', {
+      user_id: 'id',
+      user_hash: 'x'
+    })
+  })
+
+  test('accepts snake/camel case for user_hash', async () => {
+    const context = new Context({
+      type: 'identify',
+      userId: 'id',
+      traits: {},
+      context: {
+        Intercom: {
+          userHash: 'x'
         }
       }
     })
@@ -365,6 +486,29 @@ describe('Intercom.update (user) widget options', () => {
       context: {
         Intercom: {
           hideDefaultLauncher: true
+        }
+      }
+    })
+
+    await updateUser.identify?.(context)
+
+    expect(mockIntercom).toHaveBeenCalledWith('update', {
+      user_id: 'id',
+      hide_default_launcher: true,
+      widget: {
+        activator: '#customWidget'
+      }
+    })
+  })
+
+  test('accepts snake/camel case for hide_default_launcher', async () => {
+    const context = new Context({
+      type: 'identify',
+      userId: 'id',
+      traits: {},
+      context: {
+        Intercom: {
+          hide_default_launcher: true
         }
       }
     })
