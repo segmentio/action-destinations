@@ -8,7 +8,7 @@ interface TrackEventPayload {
   type?: string
   timestamp?: string | number
   data?: Record<string, unknown>
-  event_id?: string
+  id?: string
   // Required for anonymous events
   anonymous_id?: string
 }
@@ -98,7 +98,7 @@ const action: ActionDefinition<Settings, Payload> = {
     }
 
     if (payload.event_id) {
-      body.event_id = payload.event_id
+      body.id = payload.event_id
     }
 
     let url: string
