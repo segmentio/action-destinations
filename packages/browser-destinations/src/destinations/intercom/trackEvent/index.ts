@@ -7,7 +7,7 @@ import type { Payload } from './generated-types'
 // Change from unknown to the partner SDK types
 const action: BrowserActionDefinition<Settings, Intercom, Payload> = {
   title: 'Track Event',
-  description: '',
+  description: 'Track an event',
   platform: 'web',
   fields: {
     event_name: {

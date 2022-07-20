@@ -10,7 +10,7 @@ const companyProperties: Record<string, InputField> = getCompanyProperties()
 
 const action: BrowserActionDefinition<Settings, Intercom, Payload> = {
   title: 'Update Company',
-  description: '',
+  description: 'Create or Update an Intercom Company',
   platform: 'web',
   fields: {
     company: {

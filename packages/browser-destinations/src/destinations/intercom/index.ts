@@ -51,7 +51,6 @@ export const destination: BrowserDestinationDefinition<Settings, Intercom> = {
 
     await deps.resolveWhen(() => window.Intercom.booted === true, 100)
 
-    //put settings on the Intercom object
     window.Intercom.richLinkProperties = settings.richLinkProperties
     window.Intercom.appId = settings.appId
     window.Intercom.activator = settings.activator
