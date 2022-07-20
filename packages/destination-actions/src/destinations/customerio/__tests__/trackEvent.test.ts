@@ -16,13 +16,11 @@ describe('CustomerIO', () => {
         apiKey: 'abcde',
         accountRegion: AccountRegion.US
       }
-      const eventId = '000RZ3NDEKTSV4RRFFQ69G5BBB'
       const userId = 'abc123'
       const name = 'testEvent'
       const timestamp = dayjs.utc().toISOString()
       const birthdate = dayjs.utc('1990-01-01T00:00:00Z').toISOString()
       const data = {
-        id: eventId,
         property1: 'this is a test',
         person: {
           over18: true,
@@ -48,7 +46,6 @@ describe('CustomerIO', () => {
       expect(responses[0].data).toMatchObject({})
       expect(responses[0].options.json).toMatchObject({
         name,
-        event_id: eventId,
         timestamp: dayjs.utc(timestamp).unix(),
         data: {
           ...data,
@@ -272,5 +269,40 @@ describe('CustomerIO', () => {
         timestamp: dayjs.utc(timestamp).unix()
       })
     })
+
+    it('should extract properties.id when supplied and map to id in the payload', async () => {
+      const settings: Settings = {
+        siteId: '12345',
+        apiKey: 'abcde',
+      }
+      const eventId = '000RZ3NDEKTSV4RRFFQ69G5BBB'
+      const userId = 'abc123'
+      const name = 'testEvent'
+      const data = {
+        id: eventId,
+        property1: 'this is a test'
+      }
+      trackEventService.post(`/customers/${userId}/events`).reply(200, {}, { 'x-customerio-region': 'US-fallback' })
+      const event = createTestEvent({
+        event: name,
+        userId,
+        properties: data
+      })
+      const responses = await testDestination.testAction('trackEvent', { event, settings, useDefaultMappings: true })
+
+      expect(responses.length).toBe(1)
+      expect(responses[0].status).toBe(200)
+      expect(responses[0].headers.toJSON()).toMatchObject({
+        'x-customerio-region': 'US-fallback',
+        'content-type': 'application/json'
+      })
+      expect(responses[0].data).toMatchObject({})
+      expect(responses[0].options.json).toMatchObject({
+        id: eventId,
+        name,
+        data
+      })
+    })
+
   })
 })
