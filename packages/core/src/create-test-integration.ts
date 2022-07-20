@@ -6,6 +6,7 @@ import type { JSONObject } from './json-object'
 import type { SegmentEvent } from './segment-event'
 import { AuthTokens } from './destination-kit/parse-settings'
 import { Features } from './mapping-kit'
+import { ExecuteDynamicFieldInput } from './destination-kit/action'
 
 interface InputData<Settings> {
   /**
@@ -44,6 +45,15 @@ class TestDestination<T> extends Destination<T> {
 
   constructor(destination: DestinationDefinition<T>) {
     super(destination)
+  }
+
+  async testDynamicField(action: string, fieldKey: string, data: ExecuteDynamicFieldInput<T, object>) {
+    await super.executeDynamicField(action, fieldKey, data)
+
+    const responses = this.responses
+    this.responses = []
+
+    return responses
   }
 
   /** Testing method that runs an action e2e while allowing slightly more flexible inputs */
