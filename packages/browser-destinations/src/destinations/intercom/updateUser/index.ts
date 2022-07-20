@@ -9,8 +9,8 @@ import type { Payload } from './generated-types'
 const companyProperties: Record<string, InputField> = getCompanyProperties()
 
 const action: BrowserActionDefinition<Settings, Intercom, Payload> = {
-  title: 'Update',
-  description: 'Creates or Updates an Intercom User',
+  title: 'Update User',
+  description: 'Create or Update an Intercom User',
   platform: 'web',
   fields: {
     user_id: {
@@ -100,7 +100,11 @@ const action: BrowserActionDefinition<Settings, Intercom, Payload> = {
       type: 'datetime',
       required: false,
       default: {
-        '@path': '$.traits.createdAt'
+        '@if': {
+          exists: { '@path': '$.traits.createdAt' },
+          then: { '@path': '$.traits.createdAt' },
+          else: { '@path': '$.traits.created_at' }
+        }
       }
     },
     avatar: {
@@ -145,7 +149,13 @@ const action: BrowserActionDefinition<Settings, Intercom, Payload> = {
       default: {
         company_id: { '@path': '$.traits.company.id' },
         name: { '@path': '$.traits.company.name' },
-        created_at: { '@path': '$.traits.company.createdAt' },
+        created_at: {
+          '@if': {
+            exists: { '@path': '$.traits.company.createdAt' },
+            then: { '@path': '$.traits.company.createdAt' },
+            else: { '@path': '$.traits.company.created_at' }
+          }
+        },
         plan: { '@path': '$.traits.company.plan' },
         monthly_spend: { '@path': '$.traits.company.monthlySpend' },
         size: { '@path': '$.traits.company.size' },
@@ -167,7 +177,13 @@ const action: BrowserActionDefinition<Settings, Intercom, Payload> = {
           {
             company_id: { '@path': '$.id' },
             name: { '@path': '$.name' },
-            created_at: { '@path': '$.createdAt' },
+            created_at: {
+              '@if': {
+                exists: { '@path': '$.createdAt' },
+                then: { '@path': '$.createdAt' },
+                else: { '@path': '$.created_at' }
+              }
+            },
             plan: { '@path': '$.plan' },
             monthly_spend: { '@path': '$.monthlySpend' },
             size: { '@path': '$.size' },
@@ -180,7 +196,7 @@ const action: BrowserActionDefinition<Settings, Intercom, Payload> = {
     },
     hide_default_launcher: {
       description:
-        'selectively show the chat widget. According to Intercom’s docs, you want to first hide the Messenger for all users inside their UI using Messenger settings. Then think about how you want to programmatically decide which users you’d like to show the widget to.',
+        'Selectively show the chat widget. According to Intercom’s docs, you want to first hide the Messenger for all users inside their UI using Messenger settings. Then think about how you want to programmatically decide which users you’d like to show the widget to.',
       label: 'Hide Default Launcher',
       type: 'boolean',
       required: false,

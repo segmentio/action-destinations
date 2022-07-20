@@ -22,7 +22,13 @@ const action: BrowserActionDefinition<Settings, Intercom, Payload> = {
       default: {
         company_id: { '@path': '$.groupId' },
         name: { '@path': '$.traits.name' },
-        created_at: { '@path': '$.traits.createdAt' },
+        created_at: {
+          '@if': {
+            exists: { '@path': '$.traits.createdAt' },
+            then: { '@path': '$.traits.createdAt' },
+            else: { '@path': '$.traits.created_at' }
+          }
+        },
         plan: { '@path': '$.traits.plan' },
         monthly_spend: { '@path': '$.traits.monthlySpend' },
         size: { '@path': '$.traits.size' },
@@ -33,7 +39,7 @@ const action: BrowserActionDefinition<Settings, Intercom, Payload> = {
     },
     hide_default_launcher: {
       description:
-        'selectively show the chat widget. According to Intercom’s docs, you want to first hide the Messenger for all users inside their UI using Messenger settings. Then think about how you want to programmatically decide which users you’d like to show the widget to.',
+        'Selectively show the chat widget. According to Intercom’s docs, you want to first hide the Messenger for all users inside their UI using Messenger settings. Then think about how you want to programmatically decide which users you’d like to show the widget to.',
       label: 'Hide Default Launcher',
       type: 'boolean',
       required: false,
