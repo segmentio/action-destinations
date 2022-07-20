@@ -8,12 +8,18 @@ export const operation: InputField = {
   type: 'string',
   required: true,
   choices: [
-    { label: 'Create', value: 'create' },
-    { label: 'Update', value: 'update' },
-    { label: 'Upsert', value: 'upsert' },
-    { label: 'Bulk Upsert', value: 'bulkUpsert' },
-    { label: 'Bulk Update', value: 'bulkUpdate' }
+    { label: 'Create new record', value: 'create' },
+    { label: 'Update existing record', value: 'update' },
+    { label: `Update or create a record if one doesn't exist`, value: 'upsert' }
   ]
+}
+
+export const enable_batching: InputField = {
+  label: 'Use Salesforce Bulk API',
+  description:
+    'If true, events are sent to [Salesforce’s Bulk API 2.0](https://developer.salesforce.com/docs/atlas.en-us.api_asynch.meta/api_asynch/asynch_api_intro.htm) rather than their streaming REST API. Once enabled, Segment will collect events into batches of 1000 before sending to Salesforce. *Enabling Bulk API is not compatible with the `create` operation*.',
+  type: 'boolean',
+  default: false
 }
 
 export const bulkUpsertExternalId: InputField = {

@@ -1,8 +1,10 @@
+import { StatsContext } from './index'
 import type { RequestOptions } from '../request-client'
 import type { JSONObject } from '../json-object'
 import { AuthTokens } from './parse-settings'
 import type { RequestClient } from '../create-request-client'
 import type { ID } from '../segment-event'
+import { Features } from '../mapping-kit'
 
 export type Optional<T, K extends keyof T> = Pick<Partial<T>, K> & Omit<T, K>
 export type MaybePromise<T> = T | Promise<T>
@@ -23,15 +25,17 @@ export interface ExecuteInput<Settings, Payload> {
   page?: string
   /** The data needed in OAuth requests */
   readonly auth?: AuthTokens
+  /**
+   * The features available in the request based on either customer workspaceID or sourceID;
+   * Both `features` and `stats` are for internal Twilio/Segment use only.
+   */
+  readonly features?: Features
+  readonly statsContext?: StatsContext
 }
 
 export interface DynamicFieldResponse {
-  body: {
-    data: DynamicFieldItem[]
-    pagination: {
-      nextPage?: string
-    }
-  }
+  choices: DynamicFieldItem[]
+  nextPage?: string
 }
 
 export interface DynamicFieldItem {

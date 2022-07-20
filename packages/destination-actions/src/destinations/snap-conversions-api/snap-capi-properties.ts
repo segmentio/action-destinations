@@ -279,23 +279,18 @@ export const sign_up_method: InputField = {
 //Check to see what ids need to be passed depending on the event_conversion_type
 export const conversionType = (settings: Settings, event_conversion_type: String): Settings => {
   if (event_conversion_type === 'MOBILE_APP') {
-    if (
-      settings?.snap_app_id === undefined ||
-      settings?.app_id === undefined ||
-      settings?.snap_app_id === '' ||
-      settings?.app_id === ''
-    ) {
+    if (!settings?.snap_app_id || !settings?.app_id) {
       throw new IntegrationError(
-        'If event conversion type is "MOBILE_APP" then snap_app_id and app_id must be defined',
+        'If event conversion type is "MOBILE_APP" then Snap App ID and App ID must be defined',
         'Misconfigured required field',
         400
       )
     }
     delete settings?.pixel_id
   } else {
-    if (settings?.pixel_id === undefined) {
+    if (!settings?.pixel_id) {
       throw new IntegrationError(
-        `If event conversion type is "${event_conversion_type}" then pixel_id must be defined`,
+        `If event conversion type is "${event_conversion_type}" then Pixel ID must be defined`,
         'Misconfigured required field',
         400
       )
