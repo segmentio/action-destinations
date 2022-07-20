@@ -30,7 +30,6 @@ const action: BrowserActionDefinition<Settings, Intercom, Payload> = {
           }
         },
         plan: { '@path': '$.traits.plan' },
-        monthly_spend: { '@path': '$.traits.monthlySpend' },
         size: { '@path': '$.traits.size' },
         website: { '@path': '$.traits.website' },
         industry: { '@path': '$.traits.industry' },
