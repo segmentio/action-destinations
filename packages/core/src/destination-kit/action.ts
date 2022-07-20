@@ -66,7 +66,7 @@ export interface ActionDefinition<Settings, Payload = any> extends BaseActionDef
   performBatch?: RequestFn<Settings, Payload[]>
 }
 
-interface ExecuteDynamicFieldInput<Settings, Payload> {
+export interface ExecuteDynamicFieldInput<Settings, Payload> {
   settings: Settings
   payload: Payload
   page?: string
