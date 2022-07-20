@@ -24,27 +24,27 @@ export interface Payload {
    */
   last_name?: string
   /**
-   * The phone number of the current user/lead.
+   * The user's phone number.
    */
   phone?: string
   /**
-   * The email unsubscribe status for the user.
+   * The user's email unsubscribe status.
    */
   unsubscribed_from_emails?: boolean
   /**
-   * The messenger language (instead of relying on browser language settings).
+   * The user's messenger language (instead of relying on browser language settings).
    */
   language_override?: string
   /**
-   * User's email.
+   * The user's email.
    */
   email?: string
   /**
-   * A timestamp of when the person was created.
+   * A timestamp of when the user was created.
    */
   created_at?: string | number
   /**
-   * The avatar/profile image associated to the user.
+   * The user's avatar/profile image.
    */
   avatar?: {
     /**
@@ -52,7 +52,7 @@ export interface Payload {
      */
     image_url: string
     /**
-     * This is not sent by the user, it is manually set to avatar.
+     * This is manually set to 'avatar'.
      */
     type: string
   }
