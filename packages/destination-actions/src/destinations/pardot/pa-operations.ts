@@ -24,7 +24,7 @@ export default class Pardot {
     const prospect = this.buildProspectJSON(payload)
 
     return this.request<ProspectUpsertResponseData>(
-      `${this.baseUrl}/api/${API_VERSION}/prospects/do/upsertLatestByEmail`,
+      `${this.baseUrl}/api/${API_VERSION}/objects/prospects/do/upsertLatestByEmail`,
       {
         method: 'post',
         headers: {

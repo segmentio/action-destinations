@@ -40,7 +40,7 @@ const destination: DestinationDefinition<Settings> = {
     },
     refreshAccessToken: async (request, { auth, settings }) => {
       // Return a request that refreshes the access_token if the API supports it
-      const baseUrl = settings.isSandbox ? 'https://pi.demo.pardot.com' : 'https://pi.pardot.com'
+      const baseUrl = settings.isSandbox ? 'https://test.salesforce.com' : 'https://login.salesforce.com'
       const res = await request<RefreshTokenResponse>(`${baseUrl}/services/oauth2/token`, {
         method: 'POST',
         body: new URLSearchParams({

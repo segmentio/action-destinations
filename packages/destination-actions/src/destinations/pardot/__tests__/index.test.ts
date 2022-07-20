@@ -22,7 +22,7 @@ const sandboxUrl = 'https://pi.demo.pardot.com'
 describe('Pardot', () => {
   describe('Prospects', () => {
     it('should create prospects record', async () => {
-      nock(`${sandboxUrl}/api/${API_VERSION}/prospects/do`).post('/upsertLatestByEmail').reply(201, {})
+      nock(`${sandboxUrl}/api/${API_VERSION}/objects/prospects/do`).post('/upsertLatestByEmail').reply(201, {})
 
       const event = createTestEvent({
         type: 'identify',
@@ -79,7 +79,7 @@ describe('Pardot', () => {
     })
 
     it('should create prospects record with default mappings', async () => {
-      nock(`${baseUrl}/api/${API_VERSION}/prospects/do`).post('/upsertLatestByEmail').reply(201, {})
+      nock(`${baseUrl}/api/${API_VERSION}/objects/prospects/do`).post('/upsertLatestByEmail').reply(201, {})
 
       const event = createTestEvent({
         type: 'identify',
@@ -141,7 +141,7 @@ describe('Pardot', () => {
     })
 
     it('should create prospects record with custom fields', async () => {
-      nock(`${baseUrl}/api/${API_VERSION}/prospects/do`).post('/upsertLatestByEmail').reply(201, {})
+      nock(`${baseUrl}/api/${API_VERSION}/objects/prospects/do`).post('/upsertLatestByEmail').reply(201, {})
 
       const event = createTestEvent({
         type: 'identify',
@@ -208,7 +208,7 @@ describe('Pardot', () => {
     })
 
     it('[duplicate field] should prioritize with custom fields', async () => {
-      nock(`${baseUrl}/api/${API_VERSION}/prospects/do`).post('/upsertLatestByEmail').reply(201, {})
+      nock(`${baseUrl}/api/${API_VERSION}/objects/prospects/do`).post('/upsertLatestByEmail').reply(201, {})
 
       const event = createTestEvent({
         type: 'identify',
@@ -272,7 +272,7 @@ describe('Pardot', () => {
       )
     })
     it('should throw an error for missing required field: email', async () => {
-      nock(`${baseUrl}/api/${API_VERSION}/prospects/do`).post('/upsertLatestByEmail').reply(201, {})
+      nock(`${baseUrl}/api/${API_VERSION}/objects/prospects/do`).post('/upsertLatestByEmail').reply(201, {})
 
       const event = createTestEvent({
         type: 'identify',
