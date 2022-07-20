@@ -115,7 +115,7 @@ const action: BrowserActionDefinition<Settings, Intercom, Payload> = {
           type: 'string',
           required: true,
           default: {
-            '@path': '$.traits.avatar.imageUrl'
+            '@path': '$.traits.avatar'
           }
         },
         type: {

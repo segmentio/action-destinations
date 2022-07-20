@@ -22,7 +22,7 @@ const subscriptions: Subscription[] = [
       language_override: { '@path': '$.traits.languageOverride' },
       user_hash: { '@path': '$.context.Intercom.user_hash' },
       hide_default_launcher: { '@path': '$.context.Intercom.hideDefaultLauncher' },
-      avatar: { image_url: { '@path': '$.traits.avatar.imageUrl' } },
+      avatar: { image_url: { '@path': '$.traits.avatar' } },
       company: {
         company_id: { '@path': '$.traits.company.id' },
         name: { '@path': '$.traits.company.name' },
@@ -279,9 +279,7 @@ describe('Intercom.update (user)', () => {
       type: 'identify',
       userId: 'id',
       traits: {
-        avatar: {
-          imageUrl: 'someurl'
-        }
+        avatar: 'someurl'
       }
     })
 
