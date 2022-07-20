@@ -7,7 +7,8 @@ import {
   customFields,
   operation,
   traits,
-  validateLookup
+  validateLookup,
+  enable_batching
 } from '../sf-properties'
 import type { Payload } from './generated-types'
 
@@ -18,6 +19,7 @@ const action: ActionDefinition<Settings, Payload> = {
   description: 'Represents an opportunity, which is a sale or pending deal.',
   fields: {
     operation: operation,
+    enable_batching: enable_batching,
     traits: traits,
     bulkUpsertExternalId: bulkUpsertExternalId,
     bulkUpdateRecordId: bulkUpdateRecordId,
@@ -75,7 +77,7 @@ const action: ActionDefinition<Settings, Payload> = {
   performBatch: async (request, { settings, payload }) => {
     const sf: Salesforce = new Salesforce(settings.instanceUrl, request)
 
-    if (payload[0].operation === 'bulkUpsert') {
+    if (payload[0].operation === 'upsert') {
       if (!payload[0].close_date || !payload[0].name || !payload[0].stage_name) {
         throw new IntegrationError('Missing close_date, name or stage_name value', 'Misconfigured required field', 400)
       }

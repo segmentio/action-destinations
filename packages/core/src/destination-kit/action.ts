@@ -1,7 +1,7 @@
 import { EventEmitter } from 'events'
 import createRequestClient from '../create-request-client'
 import { JSONLikeObject, JSONObject } from '../json-object'
-import { InputData, transform, transformBatch } from '../mapping-kit'
+import { InputData, Features, transform, transformBatch } from '../mapping-kit'
 import { fieldsToJsonSchema } from './fields-to-jsonschema'
 import { Response } from '../fetch'
 import type { ModifiedResponse } from '../types'
@@ -12,6 +12,7 @@ import { validateSchema } from '../schema-validation'
 import { AuthTokens } from './parse-settings'
 import { IntegrationError } from '../errors'
 import { removeEmptyValues } from '../remove-empty-values'
+import { StatsContext } from './index'
 
 type MaybePromise<T> = T | Promise<T>
 type RequestClient = ReturnType<typeof createRequestClient>
@@ -65,7 +66,7 @@ export interface ActionDefinition<Settings, Payload = any> extends BaseActionDef
   performBatch?: RequestFn<Settings, Payload[]>
 }
 
-interface ExecuteDynamicFieldInput<Settings, Payload> {
+export interface ExecuteDynamicFieldInput<Settings, Payload> {
   settings: Settings
   payload: Payload
   page?: string
@@ -77,7 +78,8 @@ interface ExecuteBundle<T = unknown, Data = unknown> {
   mapping: JSONObject
   auth: AuthTokens | undefined
   /** For internal Segment/Twilio use only. */
-  features?: { [key: string]: boolean }
+  features?: Features | undefined
+  statsContext?: StatsContext | undefined
 }
 
 /**
@@ -89,12 +91,16 @@ export class Action<Settings, Payload extends JSONLikeObject> extends EventEmitt
   readonly destinationName: string
   readonly schema?: JSONSchema4
   readonly hasBatchSupport: boolean
-  private extendRequest: RequestExtension<Settings> | undefined
+  // Payloads may be any type so we use `any` explicitly here.
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  private extendRequest: RequestExtension<Settings, any> | undefined
 
   constructor(
     destinationName: string,
     definition: ActionDefinition<Settings, Payload>,
-    extendRequest?: RequestExtension<Settings>
+    // Payloads may be any type so we use `any` explicitly here.
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    extendRequest?: RequestExtension<Settings, any>
   ) {
     super()
     this.definition = definition
@@ -113,7 +119,7 @@ export class Action<Settings, Payload extends JSONLikeObject> extends EventEmitt
     const results: Result[] = []
 
     // Resolve/transform the mapping with the input data
-    let payload = transform(bundle.mapping, bundle.data) as Payload
+    let payload = transform(bundle.mapping, bundle.data, bundle.features) as Payload
     results.push({ output: 'Mappings resolved' })
 
     // Remove empty values (`null`, `undefined`, `''`) when not explicitly accepted
@@ -133,7 +139,8 @@ export class Action<Settings, Payload extends JSONLikeObject> extends EventEmitt
       settings: bundle.settings,
       payload,
       auth: bundle.auth,
-      features: bundle.features
+      features: bundle.features,
+      statsContext: bundle.statsContext
     }
 
     // Construct the request client and perform the action
@@ -176,7 +183,8 @@ export class Action<Settings, Payload extends JSONLikeObject> extends EventEmitt
         settings: bundle.settings,
         payload: payloads,
         auth: bundle.auth,
-        features: bundle.features
+        features: bundle.features,
+        statsContext: bundle.statsContext
       }
       await this.performRequest(this.definition.performBatch, data)
     }

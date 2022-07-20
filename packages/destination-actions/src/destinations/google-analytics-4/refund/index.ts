@@ -1,5 +1,5 @@
 import { ActionDefinition, IntegrationError } from '@segment/actions-core'
-import { verifyCurrency } from '../ga4-functions'
+import { verifyCurrency, verifyParams, verifyUserProps, convertTimestamp } from '../ga4-functions'
 import {
   coupon,
   transaction_id,
@@ -13,7 +13,8 @@ import {
   params,
   formatUserProperties,
   user_properties,
-  engagement_time_msec
+  engagement_time_msec,
+  timestamp_micros
 } from '../ga4-properties'
 import { ProductItem } from '../ga4-types'
 import type { Settings } from '../generated-types'
@@ -26,6 +27,7 @@ const action: ActionDefinition<Settings, Payload> = {
   fields: {
     client_id: { ...client_id },
     user_id: { ...user_id },
+    timestamp_micros: { ...timestamp_micros },
     currency: { ...currency },
     transaction_id: { ...transaction_id, required: true },
     value: { ...value, default: { '@path': '$.properties.total' } },
@@ -44,7 +46,7 @@ const action: ActionDefinition<Settings, Payload> = {
     engagement_time_msec: engagement_time_msec,
     params: params
   },
-  perform: (request, { payload }) => {
+  perform: (request, { payload, features }) => {
     if (payload.currency) {
       verifyCurrency(payload.currency)
     }
@@ -87,30 +89,40 @@ const action: ActionDefinition<Settings, Payload> = {
       })
     }
 
+    if (features && features['actions-google-analytics-4-verify-params-feature']) {
+      verifyParams(payload.params)
+      verifyUserProps(payload.user_properties)
+    }
+    const request_object: { [key: string]: any } = {
+      client_id: payload.client_id,
+      user_id: payload.user_id,
+      events: [
+        {
+          name: 'refund',
+          params: {
+            currency: payload.currency,
+            transaction_id: payload.transaction_id,
+            value: payload.value,
+            affiliation: payload.affiliation,
+            coupon: payload.coupon,
+            shipping: payload.shipping,
+            tax: payload.tax,
+            items: googleItems,
+            engagement_time_msec: payload.engagement_time_msec,
+            ...payload.params
+          }
+        }
+      ],
+      ...formatUserProperties(payload.user_properties)
+    }
+
+    if (features && features['actions-google-analytics-4-add-timestamp']) {
+      request_object.timestamp_micros = convertTimestamp(payload.timestamp_micros)
+    }
+
     return request('https://www.google-analytics.com/mp/collect', {
       method: 'POST',
-      json: {
-        client_id: payload.client_id,
-        user_id: payload.user_id,
-        events: [
-          {
-            name: 'refund',
-            params: {
-              currency: payload.currency,
-              transaction_id: payload.transaction_id,
-              value: payload.value,
-              affiliation: payload.affiliation,
-              coupon: payload.coupon,
-              shipping: payload.shipping,
-              tax: payload.tax,
-              items: googleItems,
-              engagement_time_msec: payload.engagement_time_msec,
-              ...payload.params
-            }
-          }
-        ],
-        ...formatUserProperties(payload.user_properties)
-      }
+      json: request_object
     })
   }
 }

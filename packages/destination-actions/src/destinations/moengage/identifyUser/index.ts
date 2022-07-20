@@ -17,7 +17,7 @@ const action: ActionDefinition<Settings, Payload> = {
         '@path': '$.type'
       }
     },
-    user_id: {
+    userId: {
       label: 'User ID',
       type: 'string',
       allowNull: true,
@@ -26,7 +26,7 @@ const action: ActionDefinition<Settings, Payload> = {
         '@path': '$.userId'
       }
     },
-    anonymous_id: {
+    anonymousId: {
       label: 'Anonymous ID',
       type: 'string',
       allowNull: true,
@@ -84,14 +84,14 @@ const action: ActionDefinition<Settings, Payload> = {
 
     const event = {
       type: payload.type,
-      user_id: payload.user_id,
+      user_id: payload.userId,
       traits: payload.traits,
       context: {
         app: { version: payload.app_version },
         os: { name: payload.os_name },
         library: { version: payload.library_version }
       },
-      anonymous_id: payload.anonymous_id,
+      anonymous_id: payload.anonymousId,
       timestamp: payload.timestamp
     }
 

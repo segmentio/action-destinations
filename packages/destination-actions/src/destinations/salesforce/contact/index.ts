@@ -7,7 +7,8 @@ import {
   customFields,
   operation,
   traits,
-  validateLookup
+  validateLookup,
+  enable_batching
 } from '../sf-properties'
 import Salesforce from '../sf-operations'
 
@@ -18,6 +19,7 @@ const action: ActionDefinition<Settings, Payload> = {
   description: 'Represents a contact, which is a person associated with an account.',
   fields: {
     operation: operation,
+    enable_batching: enable_batching,
     traits: traits,
     bulkUpsertExternalId: bulkUpsertExternalId,
     bulkUpdateRecordId: bulkUpdateRecordId,
@@ -151,7 +153,7 @@ const action: ActionDefinition<Settings, Payload> = {
   performBatch: async (request, { settings, payload }) => {
     const sf: Salesforce = new Salesforce(settings.instanceUrl, request)
 
-    if (payload[0].operation === 'bulkUpsert') {
+    if (payload[0].operation === 'upsert') {
       if (!payload[0].last_name) {
         throw new IntegrationError('Missing last_name value', 'Misconfigured required field', 400)
       }
