@@ -3,11 +3,9 @@ import type { BrowserDestinationDefinition } from '../../lib/browser-destination
 import { browserDestination } from '../../runtime/shim'
 import { initialBoot, initScript } from './init-script'
 
-import trackEvent from './trackEvent'
 import { Intercom } from './api'
-
+import trackEvent from './trackEvent'
 import updateUser from './updateUser'
-
 import updateCompany from './updateCompany'
 
 declare global {
