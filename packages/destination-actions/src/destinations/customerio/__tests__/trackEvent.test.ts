@@ -22,6 +22,7 @@ describe('CustomerIO', () => {
       const timestamp = dayjs.utc().toISOString()
       const birthdate = dayjs.utc('1990-01-01T00:00:00Z').toISOString()
       const data = {
+        id: eventId,
         property1: 'this is a test',
         person: {
           over18: true,
@@ -34,8 +35,7 @@ describe('CustomerIO', () => {
         event: name,
         userId,
         properties: data,
-        timestamp,
-        eventId
+        timestamp
       })
       const responses = await testDestination.testAction('trackEvent', { event, settings, useDefaultMappings: true })
 
