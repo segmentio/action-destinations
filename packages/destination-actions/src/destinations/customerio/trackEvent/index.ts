@@ -8,6 +8,7 @@ interface TrackEventPayload {
   type?: string
   timestamp?: string | number
   data?: Record<string, unknown>
+  event_id?: string
   // Required for anonymous events
   anonymous_id?: string
 }
@@ -42,6 +43,14 @@ const action: ActionDefinition<Settings, Payload> = {
       required: true,
       default: {
         '@path': '$.event'
+      }
+    },
+    event_id: {
+      label: 'Event ID',
+      description: 'An optional identifier used to dedulpicate events. This value must be a valid ULID otherwise one will be generated.',
+      type: 'string',
+      default: {
+        '@path': '$.eventId'
       }
     },
     timestamp: {
@@ -86,6 +95,10 @@ const action: ActionDefinition<Settings, Payload> = {
       name: payload.name,
       data,
       timestamp
+    }
+
+    if (payload.event_id) {
+      body.event_id = payload.event_id
     }
 
     let url: string

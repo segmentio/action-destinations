@@ -16,6 +16,7 @@ describe('CustomerIO', () => {
         apiKey: 'abcde',
         accountRegion: AccountRegion.US
       }
+      const eventId = '000RZ3NDEKTSV4RRFFQ69G5BBB'
       const userId = 'abc123'
       const name = 'testEvent'
       const timestamp = dayjs.utc().toISOString()
@@ -33,7 +34,8 @@ describe('CustomerIO', () => {
         event: name,
         userId,
         properties: data,
-        timestamp
+        timestamp,
+        eventId
       })
       const responses = await testDestination.testAction('trackEvent', { event, settings, useDefaultMappings: true })
 
@@ -46,6 +48,7 @@ describe('CustomerIO', () => {
       expect(responses[0].data).toMatchObject({})
       expect(responses[0].options.json).toMatchObject({
         name,
+        event_id: eventId,
         timestamp: dayjs.utc(timestamp).unix(),
         data: {
           ...data,
