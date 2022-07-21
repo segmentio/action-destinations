@@ -259,6 +259,30 @@ const action: ActionDefinition<Settings, Payload> = {
         ]
       }
     },
+    audience_id: {
+      label: 'Audience ID',
+      type: 'string',
+      description: 'The Audience ID of the Journey Step.',
+      default: {
+        '@path': '$.context.personas.computation_id'
+      }
+    },
+    space_id: {
+      label: 'Space ID',
+      type: 'string',
+      description: 'The Personas Space ID',
+      default: {
+        '@path': '$.context.personas.space_id'
+      }
+    },
+    project_id: {
+      label: 'Project ID',
+      type: 'string',
+      description: 'The Project ID or Destination Config Identifier to associate a Action instance.',
+      default: {
+        '@path': '$.projectId'
+      }
+    },
     customArgs: {
       label: 'Custom Args',
       description: 'Additional custom args that we be passed back opaquely on webhook events',
@@ -266,18 +290,23 @@ const action: ActionDefinition<Settings, Payload> = {
       required: false
     }
   },
-  perform: async (request, { settings, payload }) => {
+  perform: async (request, { settings, payload, statsContext = {} }) => {
+    const { statsClient, tags = [`${payload.space_id}`, `${payload.audience_id}`, `${payload.project_id}`] } =
+      statsContext
+
     if (!payload.send) {
+      statsClient?.incr?.('actions-personas-messaging-sendgrid.send-disabled', 1, tags)
       return
     }
-
     const emailProfile = payload?.externalIds?.find((meta) => meta.type === 'email')
     if (
       !emailProfile?.subscriptionStatus ||
       ['unsubscribed', 'did not subscribed', 'false'].includes(emailProfile.subscriptionStatus)
     ) {
+      statsClient?.incr?.('actions-personas-messaging-sendgrid.notsubscribed', 1, tags)
       return
     } else if (['subscribed', 'true'].includes(emailProfile?.subscriptionStatus)) {
+      statsClient?.incr?.('actions-personas-messaging-sendgrid.subscribed', 1, tags)
       const traits = await fetchProfileTraits(request, settings, payload.userId)
 
       const profile: Profile = {
@@ -292,6 +321,7 @@ const action: ActionDefinition<Settings, Payload> = {
       }
 
       if (isRestrictedDomain(toEmail)) {
+        statsClient?.incr?.('actions-personas-messaging-sendgrid.restricted-domain', 1, tags)
         throw new IntegrationError(
           'Emails with gmailx.com, yahoox.com, aolx.com, and hotmailx.com domains are blocked.',
           'Invalid input',
@@ -332,7 +362,7 @@ const action: ActionDefinition<Settings, Payload> = {
         parsedBodyHtml = insertEmailPreviewText(parsedBodyHtml, parsedPreviewText)
       }
 
-      return request('https://api.sendgrid.com/v3/mail/send', {
+      const response = await request('https://api.sendgrid.com/v3/mail/send', {
         method: 'post',
         headers: {
           authorization: `Bearer ${settings.sendGridApiKey}`
@@ -381,6 +411,21 @@ const action: ActionDefinition<Settings, Payload> = {
           }
         }
       })
+
+      if (response.status > 200 && response.status < 300) {
+        tags.push('2xx')
+      }
+      if (response.status > 400 && response.status < 413) {
+        tags.push('4xx')
+      }
+      if (response.status == 429) {
+        tags.push('429')
+      }
+      if (response.status > 500) {
+        tags.push('5xx')
+      }
+      statsClient?.incr?.('actions-personas-messaging-sendgrid.response', 1, tags)
+      return response
     } else {
       throw new IntegrationError(
         `Failed to process the subscription state: "${emailProfile.subscriptionStatus}"`,
