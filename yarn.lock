@@ -2310,7 +2310,7 @@
     liquidjs "^9.37.0"
     lodash "^4.17.21"
 
-"@segment/actions-core@^3.30.0":
+"@segment/actions-core@^3.29.1-alpha.4", "@segment/actions-core@^3.30.0":
   version "3.30.0"
   resolved "https://registry.yarnpkg.com/@segment/actions-core/-/actions-core-3.30.0.tgz#42a052319aec1a6a9a42a342cf2d928de1387b97"
   integrity sha512-njzXLLJPmwyktGpObzdhJyeMBB8h4RodGkbPkRLgHJtba1DI6XOPfaz+zEe8mNlShEV4j3TwLgwEPnkGqQaayQ==
@@ -2360,6 +2360,20 @@
   integrity sha512-lZwCyEXT4aaHBLNK433okEKdxGAuyrVmop4BpQqQSJuRz0DglPZgd9B/XjiiWs1UyOankg2aNYMN3VcS8t4eSQ==
   dependencies:
     unfetch "^3.1.1"
+
+"@segment/browser-destinations@^3.45.1-alpha.4":
+  version "3.46.0"
+  resolved "https://registry.yarnpkg.com/@segment/browser-destinations/-/browser-destinations-3.46.0.tgz#2afe11179c4fe28f5d0fb3be80b9bbaf6a279865"
+  integrity sha512-SRnaK2GvMQg4HIRZ4jAXjgoq0IzOXFmIo2XzBJQbbxw3uSfCDrgyXzvKlSd7OLZ6jcTMxXBIcNuvr0eIcCJTew==
+  dependencies:
+    "@braze/web-sdk" "^3.5.0"
+    "@fullstory/browser" "^1.4.9"
+    "@segment/actions-shared" "^1.13.0"
+    "@segment/analytics-next" "^1.29.3"
+    "@segment/destination-subscriptions" "^3.11.0"
+    dayjs "^1.10.7"
+    tslib "^2.3.1"
+    vm-browserify "^1.1.2"
 
 "@segment/control-plane-service-client@github:segmentio/control-plane-service-js-client.git#master":
   version "9.3.0"
