@@ -103,8 +103,9 @@ const action: ActionDefinition<Settings, Payload> = {
       default: false
     },
     pcc_game: {
-      label: 'Name',
-      description: 'Description',
+      label: 'PCC Game Flag',
+      description:
+        'Alpha feature offered by Google for gaming industry. When set to true, Segment will send pcc_game = 1 to Google.',
       type: 'boolean',
       default: false
     },
