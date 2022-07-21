@@ -270,23 +270,23 @@ describe('CustomerIO', () => {
       })
     })
 
-    it('should extract properties.id when supplied and map to id in the payload', async () => {
+    it('should map messageId to id in the payload', async () => {
       const settings: Settings = {
         siteId: '12345',
         apiKey: 'abcde',
       }
-      const eventId = '000RZ3NDEKTSV4RRFFQ69G5BBB'
+      const messageId = 'message123'
       const userId = 'abc123'
       const name = 'testEvent'
       const data = {
-        id: eventId,
         property1: 'this is a test'
       }
       trackEventService.post(`/customers/${userId}/events`).reply(200, {}, { 'x-customerio-region': 'US-fallback' })
       const event = createTestEvent({
         event: name,
         userId,
-        properties: data
+        properties: data,
+        messageId
       })
       const responses = await testDestination.testAction('trackEvent', { event, settings, useDefaultMappings: true })
 
@@ -298,7 +298,7 @@ describe('CustomerIO', () => {
       })
       expect(responses[0].data).toMatchObject({})
       expect(responses[0].options.json).toMatchObject({
-        id: eventId,
+        id: messageId,
         name,
         data
       })

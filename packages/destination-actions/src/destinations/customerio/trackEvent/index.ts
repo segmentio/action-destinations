@@ -47,10 +47,10 @@ const action: ActionDefinition<Settings, Payload> = {
     },
     event_id: {
       label: 'Event ID',
-      description: 'An optional identifier used to deduplicate events. This value must be a valid ULID otherwise one will be generated. [Learn more](https://customer.io/docs/api/#operation/track)',
+      description: 'An optional identifier used to deduplicate events. [Learn more](https://customer.io/docs/api/#operation/track)',
       type: 'string',
       default: {
-        '@path': '$.properties.id'
+        '@path': '$.messageId'
       }
     },
     timestamp: {
