@@ -6,7 +6,7 @@ import trackEvent from './trackEvent'
 import { listOperationsRequestParams, deleteUserRequestParams } from './request-params'
 
 const destination: DestinationDefinition<Settings> = {
-  name: 'Fullstory (Actions)',
+  name: 'Fullstory Cloud Mode (Actions)',
   slug: 'actions-fullstory-cloud',
   mode: 'cloud',
   presets: [
