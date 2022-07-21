@@ -64,7 +64,6 @@ const action: ActionDefinition<Settings> = {
       normalizedTraits.segmentAnonymousId_str = anonymousId
     }
 
-    // TODO(nate): Include a source value once the HTTP API is updated to support it
     const requestBody = {
       ...normalizedTraits,
       ...(email !== undefined && { email }),
