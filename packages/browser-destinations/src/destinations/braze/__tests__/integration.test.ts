@@ -143,7 +143,7 @@ describe('loads different versions from CDN', () => {
     expect(scripts).toMatchSnapshot(`
       NodeList [
         <script
-          src="https://js.appboycdn.com/web-sdk/4.0/braze.no-amd.min.js"
+          src="https://js.appboycdn.com/web-sdk/4.1/braze.no-module.min.js"
           status="loaded"
           type="text/javascript"
         />,

@@ -2,7 +2,7 @@
 
 export interface Settings {
   /**
-   * The version of the SDK to use.
+   * The version of the Braze SDK to use
    */
   sdkVersion: string
   /**

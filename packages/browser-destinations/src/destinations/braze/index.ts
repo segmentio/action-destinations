@@ -18,7 +18,7 @@ declare global {
   }
 }
 
-const defaultVersion = '4.0'
+const defaultVersion = '4.1'
 
 const presets: DestinationDefinition['presets'] = [
   {
@@ -72,8 +72,8 @@ export const destination: BrowserDestinationDefinition<Settings, BrazeType> = {
           label: '3.5'
         },
         {
-          value: '4.0',
-          label: '4.0'
+          value: '4.1',
+          label: '4.1'
         }
       ],
       default: defaultVersion,
@@ -287,7 +287,7 @@ export const destination: BrowserDestinationDefinition<Settings, BrazeType> = {
       if (version.indexOf('3.') === 0) {
         await dependencies.loadScript(`https://js.appboycdn.com/web-sdk/${version}/appboy.no-amd.min.js`)
       } else {
-        await dependencies.loadScript(`https://js.appboycdn.com/web-sdk/${version}/braze.no-amd.min.js`)
+        await dependencies.loadScript(`https://js.appboycdn.com/web-sdk/${version}/braze.no-module.min.js`)
       }
 
       const brazeObject: BrazeType = version.indexOf('3.') === 0 ? window.appboy : window.braze

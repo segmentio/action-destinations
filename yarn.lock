@@ -1016,10 +1016,10 @@
   resolved "https://registry.npmjs.org/@braze/web-sdk/-/web-sdk-3.5.1.tgz#04cd8e7021e13a690cd9c2ad7e7a3b5028d06178"
   integrity sha512-Quvqs2RqTZK7+VUCwsGMT9EHYwiXUYwWJk441ly2F0yj64WK2GPvXy3XdIpXLCgWVhGg42WNJ4X6WBgfaF+3EQ==
 
-"@braze/web-sdk@npm:@braze/web-sdk@^4.0.0":
-  version "4.0.2"
-  resolved "https://registry.npmjs.org/@braze/web-sdk/-/web-sdk-4.0.2.tgz#4e1b11702bbcd49de3ed8eadb63f1c3a600133f6"
-  integrity sha512-EU13eUYXvIxySnRXADsm24bswaL4ok+Z55wHgfz330k6oeafv+/U2dprKKVeuHfgv7JzK9UNc1CKh/aX61Ku9w==
+"@braze/web-sdk@npm:@braze/web-sdk@^4.1.0":
+  version "4.1.0"
+  resolved "https://registry.npmjs.org/@braze/web-sdk/-/web-sdk-4.1.0.tgz#e7045d6dc336bce74e313c0430163916e9984a18"
+  integrity sha512-tqrwrdVNiZDt1ZnYcD6vSnyOcr8eEq5Sc7O2UHpskGMKT7DRy/rtQu/agolrNLq7XLLgUbj/S9TdjopCkPq2Xw==
 
 "@discoveryjs/json-ext@^0.5.0", "@discoveryjs/json-ext@^0.5.5":
   version "0.5.5"
