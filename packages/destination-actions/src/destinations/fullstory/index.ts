@@ -7,7 +7,7 @@ import { listOperationsRequestParams, deleteUserRequestParams } from './request-
 
 const destination: DestinationDefinition<Settings> = {
   name: 'Fullstory (Actions)',
-  slug: 'actions-fullstory',
+  slug: 'actions-fullstory-cloud',
   mode: 'cloud',
   presets: [
     {
