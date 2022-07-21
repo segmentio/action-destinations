@@ -295,7 +295,7 @@ const action: ActionDefinition<Settings, Payload> = {
       statsContext
 
     if (!payload.send) {
-      statsClient?.incr?.('actions-personas-messaging-sendgrid-send-disabled', 1, tags)
+      statsClient?.incr?.('actions-personas-messaging-sendgrid.send-disabled', 1, tags)
       return
     }
     const emailProfile = payload?.externalIds?.find((meta) => meta.type === 'email')
