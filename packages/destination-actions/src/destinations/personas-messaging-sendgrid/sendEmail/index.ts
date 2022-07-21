@@ -303,7 +303,7 @@ const action: ActionDefinition<Settings, Payload> = {
       !emailProfile?.subscriptionStatus ||
       ['unsubscribed', 'did not subscribed', 'false'].includes(emailProfile.subscriptionStatus)
     ) {
-      statsClient?.incr?.('actions-personas-messaging-sendgrid-notsubscribed', 1, tags)
+      statsClient?.incr?.('actions-personas-messaging-sendgrid.notsubscribed', 1, tags)
       return
     } else if (['subscribed', 'true'].includes(emailProfile?.subscriptionStatus)) {
       statsClient?.incr?.('actions-personas-messaging-sendgrid-subscribed', 1, tags)
