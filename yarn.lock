@@ -2295,6 +2295,51 @@
   resolved "https://registry.yarnpkg.com/@segment/a1-notation/-/a1-notation-2.1.4.tgz#35a48a0688019c3ffff23b1ba890e864c891a11f"
   integrity sha512-SId7GOdDFmm/B9ajIQpXELHW4OTbVvmJbOsoJkQOcUEtoZIiX2UWfk1v4BpKql8wJW9oAhzhIIru2Pv2Yxcg+w==
 
+"@segment/action-destinations@^3.82.0":
+  version "3.83.0"
+  resolved "https://registry.yarnpkg.com/@segment/action-destinations/-/action-destinations-3.83.0.tgz#6eef9e4e002b30573d028507a3b106cc90ee33a7"
+  integrity sha512-efi800SYe//lnk6C0WfFp7vrFg6L47i+pzsUegEMrHzHIjAlybXHg46UrNUSkC1uiIcnSY01eT/rZnVE6tH+bA==
+  dependencies:
+    "@amplitude/ua-parser-js" "^0.7.25"
+    "@segment/a1-notation" "^2.1.4"
+    "@segment/actions-core" "^3.30.0"
+    "@segment/actions-shared" "^1.13.0"
+    cheerio "^1.0.0-rc.10"
+    dayjs "^1.10.7"
+    escape-goat "^3"
+    liquidjs "^9.37.0"
+    lodash "^4.17.21"
+
+"@segment/actions-core@^3.30.0":
+  version "3.30.0"
+  resolved "https://registry.yarnpkg.com/@segment/actions-core/-/actions-core-3.30.0.tgz#42a052319aec1a6a9a42a342cf2d928de1387b97"
+  integrity sha512-njzXLLJPmwyktGpObzdhJyeMBB8h4RodGkbPkRLgHJtba1DI6XOPfaz+zEe8mNlShEV4j3TwLgwEPnkGqQaayQ==
+  dependencies:
+    "@lukeed/uuid" "^2.0.0"
+    "@segment/ajv-human-errors" "^2.1.2"
+    "@segment/destination-subscriptions" "^3.11.0"
+    abort-controller "^3.0.0"
+    aggregate-error "^3.1.0"
+    ajv "^8.6.3"
+    ajv-formats "^2.1.1"
+    btoa-lite "^1.0.0"
+    cross-fetch "^3.1.4"
+    dayjs "^1.10.7"
+    ts-custom-error "^3.2.0"
+
+"@segment/actions-shared@^1.13.0":
+  version "1.13.0"
+  resolved "https://registry.yarnpkg.com/@segment/actions-shared/-/actions-shared-1.13.0.tgz#736f4898fcaf622e57964cdc81373ba86b2c81e9"
+  integrity sha512-YqQo1SekHc61KzwR6Zds0Q62Dippku4RmshSCYZ5Jd8LG8okpm/ZVyVlSt5FkfiI0SGBSi38U1xEOvAq8xXgOA==
+  dependencies:
+    "@amplitude/ua-parser-js" "^0.7.25"
+    "@segment/actions-core" "^3.30.0"
+    cheerio "^1.0.0-rc.10"
+    dayjs "^1.10.7"
+    escape-goat "^3"
+    liquidjs "^9.37.0"
+    lodash "^4.17.21"
+
 "@segment/analytics-next@^1.29.3":
   version "1.29.3"
   resolved "https://registry.yarnpkg.com/@segment/analytics-next/-/analytics-next-1.29.3.tgz#51ea4d7e487e95c2862ec5d52fd34a113c20161e"
