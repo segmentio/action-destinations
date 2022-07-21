@@ -321,7 +321,7 @@ const action: ActionDefinition<Settings, Payload> = {
       }
 
       if (isRestrictedDomain(toEmail)) {
-        statsClient?.incr?.('actions-personas-messaging-sendgrid-restricted-domain', 1, tags)
+        statsClient?.incr?.('actions-personas-messaging-sendgrid.restricted-domain', 1, tags)
         throw new IntegrationError(
           'Emails with gmailx.com, yahoox.com, aolx.com, and hotmailx.com domains are blocked.',
           'Invalid input',
