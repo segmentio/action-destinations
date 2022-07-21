@@ -306,7 +306,7 @@ const action: ActionDefinition<Settings, Payload> = {
       statsClient?.incr?.('actions-personas-messaging-sendgrid.notsubscribed', 1, tags)
       return
     } else if (['subscribed', 'true'].includes(emailProfile?.subscriptionStatus)) {
-      statsClient?.incr?.('actions-personas-messaging-sendgrid-subscribed', 1, tags)
+      statsClient?.incr?.('actions-personas-messaging-sendgrid.subscribed', 1, tags)
       const traits = await fetchProfileTraits(request, settings, payload.userId)
 
       const profile: Profile = {
