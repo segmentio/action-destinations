@@ -220,8 +220,6 @@ const action: ActionDefinition<Settings, Payload> = {
       pcc_game: payload.pcc_game ? 1 : 0
     })
 
-    console.log('Data', conversionData)
-
     const address = cleanData({
       hashed_first_name: formatFirstName(payload.first_name),
       hashed_last_name: formatLastName(payload.last_name),
