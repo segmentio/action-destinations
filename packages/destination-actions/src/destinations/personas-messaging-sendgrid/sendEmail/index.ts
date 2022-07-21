@@ -424,7 +424,7 @@ const action: ActionDefinition<Settings, Payload> = {
       if (response.status > 500) {
         tags.push('5xx')
       }
-      statsClient?.incr?.('actions-personas-messaging-sendgrid-response-statuscode', 1, tags)
+      statsClient?.incr?.('actions-personas-messaging-sendgrid.response', 1, tags)
       return response
     } else {
       throw new IntegrationError(
