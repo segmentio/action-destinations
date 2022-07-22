@@ -10,7 +10,7 @@ import type { Settings } from './generated-types'
 import { AccountRegion, trackApiEndpoint } from './utils'
 
 const destination: DestinationDefinition<Settings> = {
-  name: 'Actions Customerio',
+  name: 'Actions Customerio1',
   slug: 'actions-customerio',
   mode: 'cloud',
   authentication: {
