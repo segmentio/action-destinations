@@ -10,7 +10,7 @@ const companyProperties: Record<string, InputField> = getCompanyProperties()
 
 const action: BrowserActionDefinition<Settings, Intercom, Payload> = {
   title: 'Update Company',
-  description: 'Create or Update an Intercom Company',
+  description: 'Update a company in Intercom.',
   platform: 'web',
   fields: {
     company: {
@@ -38,7 +38,7 @@ const action: BrowserActionDefinition<Settings, Intercom, Payload> = {
     },
     hide_default_launcher: {
       description:
-        'Selectively show the chat widget. According to Intercom’s docs, you want to first hide the Messenger for all users inside their UI using Messenger settings. Then think about how you want to programmatically decide which users you’d like to show the widget to.',
+        'Selectively show the chat widget. As per [Intercom docs](https://www.intercom.com/help/en/articles/189-turn-off-show-or-hide-the-intercom-messenger), you want to first hide the Messenger for all users inside the Intercom UI using Messenger settings. Then think about how you want to programmatically decide which users you would like to show the widget to.',
       label: 'Hide Default Launcher',
       type: 'boolean',
       required: false,

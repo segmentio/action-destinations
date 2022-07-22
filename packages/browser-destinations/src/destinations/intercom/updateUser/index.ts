@@ -10,12 +10,12 @@ const companyProperties: Record<string, InputField> = getCompanyProperties()
 
 const action: BrowserActionDefinition<Settings, Intercom, Payload> = {
   title: 'Update User',
-  description: 'Create or Update an Intercom User',
+  description: 'Create or update a user in Intercom.',
   platform: 'web',
   fields: {
     user_id: {
-      description: "The user's identity.",
-      label: 'Identity',
+      description: "A unique identifier for the user.",
+      label: 'User ID',
       type: 'string',
       required: false,
       default: {
@@ -24,7 +24,7 @@ const action: BrowserActionDefinition<Settings, Intercom, Payload> = {
     },
     custom_traits: {
       description: "The user's custom traits.",
-      label: 'Custom Traits',
+      label: 'Custom Attributes',
       type: 'object',
       required: false,
       default: {
@@ -68,7 +68,7 @@ const action: BrowserActionDefinition<Settings, Intercom, Payload> = {
     },
     phone: {
       description: "The user's phone number.",
-      label: 'Phone',
+      label: 'Phone Number',
       type: 'string',
       required: false,
       default: {
@@ -88,8 +88,8 @@ const action: BrowserActionDefinition<Settings, Intercom, Payload> = {
       required: false
     },
     email: {
-      description: "The user's email.",
-      label: 'Name',
+      description: "The user's email address.",
+      label: 'Email Address',
       type: 'string',
       required: false,
       default: {
@@ -97,8 +97,8 @@ const action: BrowserActionDefinition<Settings, Intercom, Payload> = {
       }
     },
     created_at: {
-      description: 'A timestamp of when the user was created.',
-      label: 'Created At',
+      description: 'The time the user was created in your system.',
+      label: 'User Creation Time',
       type: 'datetime',
       required: false,
       default: {
@@ -116,8 +116,8 @@ const action: BrowserActionDefinition<Settings, Intercom, Payload> = {
       required: false,
       properties: {
         image_url: {
-          description: 'The avatar/profile image URL.',
-          label: 'Image URL',
+          description: 'An image URL containing the avatar of a user.',
+          label: 'Avatar Image URL',
           type: 'string',
           required: true,
           default: {
@@ -134,7 +134,7 @@ const action: BrowserActionDefinition<Settings, Intercom, Payload> = {
       }
     },
     user_hash: {
-      description: 'This is used for identity verification.',
+      description: 'The user hash used for identity verification. See [Intercom docs](https://www.intercom.com/help/en/articles/183-enable-identity-verification-for-web-and-mobile) for more information on how to set this field.',
       label: 'User Hash',
       type: 'string',
       required: false,
@@ -200,7 +200,7 @@ const action: BrowserActionDefinition<Settings, Intercom, Payload> = {
     },
     hide_default_launcher: {
       description:
-        'Selectively show the chat widget. According to Intercom’s docs, you want to first hide the Messenger for all users inside their UI using Messenger settings. Then think about how you want to programmatically decide which users you’d like to show the widget to.',
+        'Selectively show the chat widget. As per [Intercom docs](https://www.intercom.com/help/en/articles/189-turn-off-show-or-hide-the-intercom-messenger), you want to first hide the Messenger for all users inside the Intercom UI using Messenger settings. Then think about how you want to programmatically decide which users you would like to show the widget to.',
       label: 'Hide Default Launcher',
       type: 'boolean',
       required: false,
