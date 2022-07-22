@@ -52,11 +52,8 @@ const marshalError = (err: Error): ErrorOutput => {
 }
 
 const app = express()
-app.use(
-  express.json({
-    limit: '300mb'
-  })
-)
+app.use(express.json())
+
 app.use(
   cors({
     origin: [
