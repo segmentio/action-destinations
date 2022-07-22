@@ -13,6 +13,15 @@ describe('Intercom (actions)', () => {
 
       await expect(testDestination.testAuthentication(authData)).resolves.not.toThrowError()
     })
+
+    it('should fail on authentication failure', async () => {
+      nock(endpoint).get('/admins').reply(404, {})
+      const authData = {}
+
+      await expect(testDestination.testAuthentication(authData)).rejects.toThrowError(
+        new Error('Credentials are invalid:  Test authentication failed')
+      )
+    })
   })
 
   describe('onDelete', () => {

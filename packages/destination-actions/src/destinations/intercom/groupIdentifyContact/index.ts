@@ -1,4 +1,4 @@
-import { ActionDefinition, ModifiedResponse, RequestClient, RetryableError } from '@segment/actions-core'
+import { ActionDefinition, ModifiedResponse, RequestClient } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 
@@ -7,23 +7,21 @@ interface IntercomCreateCompanyData {
 }
 
 const action: ActionDefinition<Settings, Payload> = {
-  title: 'Group Identify Contact',
-  description:
-    "Create or Update A Company. Note: Companies will be only visible in Intercom's Dashboard when there is at least one associated contact.",
+  title: 'Identify Company',
+  description: 'Create or update a company in Intercom and attach a contact.',
   defaultSubscription: 'type = "group"',
-  platform: 'web',
   fields: {
     remote_created_at: {
       type: 'datetime',
       description: 'The time the company was created by you.',
-      label: 'Remote Created At',
+      label: 'Company Creation Time',
       default: {
         '@path': '$.traits.createdAt'
       }
     },
     company_id: {
       type: 'string',
-      description: "The unique identifier of the company. Can't be updated.",
+      description: "The unique identifier of the company. Once set, this can't be updated.",
       label: 'Company ID',
       required: true,
       default: {
@@ -33,55 +31,52 @@ const action: ActionDefinition<Settings, Payload> = {
     contact_id: {
       type: 'string',
       description:
-        'Attach this contact to the company. This ID is NOT the external_id or email; it is the Intercom unique identifier.',
-      label: 'Contact ID',
-      default: {
-        '@path': '$.userId'
-      }
+        'The unique identifier for the contact which is given by Intercom. Setting a Contact ID will attach this contact to the company.',
+      label: 'Contact ID'
     },
     name: {
       type: 'string',
       description: 'The name of the company.',
-      label: 'Name',
+      label: 'Company Name',
       default: {
         '@path': '$.traits.name'
       }
     },
     monthly_spend: {
       type: 'number',
-      description: 'The monthly spend of the company.',
+      description: 'The monthly spend of the company, e.g. how much revenue the company generates for your business.',
       label: 'Monthly Spend',
       default: {
-        '@path': '$.traits.plan'
+        '@path': '$.traits.monthly_spend'
       }
     },
     plan: {
       type: 'string',
-      description: 'The plan of the company.',
-      label: 'Plan',
+      description: 'The name of the plan you have associated with the company.',
+      label: 'Company Plan',
       default: {
         '@path': '$.traits.plan'
       }
     },
     size: {
       type: 'number',
-      description: 'The size of the company.',
-      label: 'Size',
+      description: 'The number of employees in the company.',
+      label: 'Company Size',
       default: {
         '@path': '$.traits.employees'
       }
     },
     website: {
       type: 'string',
-      description: 'The website of the company.',
-      label: 'Website',
+      description: "The URL for the company's website",
+      label: 'Company Website',
       default: {
         '@path': '$.traits.website'
       }
     },
     industry: {
       type: 'string',
-      description: 'The industry of the company.',
+      description: 'The industry that the company operates in.',
       label: 'Industry',
       default: {
         '@path': '$.traits.industry'
@@ -90,13 +85,13 @@ const action: ActionDefinition<Settings, Payload> = {
     custom_attributes: {
       type: 'object',
       description:
-        'Passing any traits not mapped to individual fields as Custom Attributes. Note: Will throw an error if you pass an attribute that isn`t explicitly defined.',
-      label: 'Custom Attributes'
+        'A hash of key-value pairs containing any other data about the company you want Intercom to store. You can only write to custom attributes that already exist in your Intercom workspace. Please ensure custom attributes are created in Intercom first. See [Intercom documentation](https://developers.intercom.com/intercom-api-reference/reference/create-data-attributes) for more information on creating attributes.',
+      label: 'Custom Attributes',
+      defaultObjectUI: 'keyvalue'
     }
   },
   /**
-   * Create or Update Company, then attach contact. If contact is not found (404), throw a retryable error
-   * as the contact might be created soon
+   * Create or Update Company, then attach contact.
    *
    * Note: Companies will be only visible in Intercom's Dashboard when there is at least one associated contact.
    */
@@ -106,16 +101,8 @@ const action: ActionDefinition<Settings, Payload> = {
 
     const response = await createOrUpdateIntercomCompany(request, payload)
     if (contactId) {
-      try {
-        const companyId = response.data.id
-        return await attachContactToIntercomCompany(request, contactId, companyId)
-      } catch (error) {
-        // Should be an HTTPError, but was failing instanceOf (?)
-        if (error?.response?.status === 404) {
-          throw new RetryableError(`Contact doesn't exist, retrying`)
-        }
-        throw error
-      }
+      const companyId = response.data.id
+      return attachContactToIntercomCompany(request, contactId, companyId)
     }
   }
 }

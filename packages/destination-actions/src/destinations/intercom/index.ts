@@ -12,10 +12,14 @@ const destination: DestinationDefinition<Settings> = {
   authentication: {
     scheme: 'oauth2',
     fields: {},
-    testAuthentication: (request) => {
+    testAuthentication: async (request) => {
       // Uses the admin route as a stand-in to test authentication creds.
       // Should be a light request since there most likely won't be many admins
-      return request('https://api.intercom.io/admins')
+      try {
+        return await request('https://api.intercom.io/admins')
+      } catch (error) {
+        throw new Error('Test authentication failed')
+      }
     }
   },
   extendRequest({ auth }) {

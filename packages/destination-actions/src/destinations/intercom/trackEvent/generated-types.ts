@@ -2,23 +2,24 @@
 
 export interface Payload {
   /**
-   * The name of the event. Names are treated as case insensitive. Periods (.) and dollars ($) in event names are replaced with hyphens.
+   * The name of the event that occurred. Names are treated as case insensitive. Periods and dollar signs in event names are replaced with hyphens.
    */
   event_name: string
   /**
-   * A datetime in Unix timestamp format (seconds since Epoch).
+   * The time the event occurred as a UTC Unix timestamp. Segment will convert to Unix if not already converted.
    */
   created_at: string | number
   /**
-   * The user's ID; required if no email provided.
+   * Your identifier for the user who performed the event. User ID is required if no email is provided.
    */
   user_id?: string
   /**
-   * The user's email; required if no User ID provided.
+   * The email address for the user who performed the event. Email is required if no User ID is provided.
    */
   email?: string
+  id?: string
   /**
-   * Metadata object describing the event. There is a limit to 10 keys. Intercom does not currently support nested JSON structures.
+   * Optional metadata describing the event. Each event can contain up to ten metadata key-value pairs. If you send more than ten keys, Intercom will ignore the rest. Intercom does not support nested JSON structures within metadata.
    */
   metadata?: {
     [k: string]: unknown

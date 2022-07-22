@@ -6,11 +6,11 @@ export interface Payload {
    */
   remote_created_at?: string | number
   /**
-   * The unique identifier of the company. Can't be updated.
+   * The unique identifier of the company. Once set, this can't be updated.
    */
   company_id: string
   /**
-   * Attach this contact to the company. This ID is NOT the external_id or email; it is the Intercom unique identifier.
+   * The unique identifier for the contact which is given by Intercom. Setting a Contact ID will attach this contact to the company.
    */
   contact_id?: string
   /**
@@ -18,27 +18,27 @@ export interface Payload {
    */
   name?: string
   /**
-   * The monthly spend of the company.
+   * The monthly spend of the company, e.g. how much revenue the company generates for your business.
    */
   monthly_spend?: number
   /**
-   * The plan of the company.
+   * The name of the plan you have associated with the company.
    */
   plan?: string
   /**
-   * The size of the company.
+   * The number of employees in the company.
    */
   size?: number
   /**
-   * The website of the company.
+   * The URL for the company's website
    */
   website?: string
   /**
-   * The industry of the company.
+   * The industry that the company operates in.
    */
   industry?: string
   /**
-   * Passing any traits not mapped to individual fields as Custom Attributes. Note: Will throw an error if you pass an attribute that isn`t explicitly defined.
+   * A hash of key-value pairs containing any other data about the company you want Intercom to store. You can only write to custom attributes that already exist in your Intercom workspace. Please ensure custom attributes are created in Intercom first. See [Intercom documentation](https://developers.intercom.com/intercom-api-reference/reference/create-data-attributes) for more information on creating attributes.
    */
   custom_attributes?: {
     [k: string]: unknown

@@ -1,5 +1,6 @@
 import { ActionDefinition, ModifiedResponse, RequestClient, RetryableError } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
+import { convertValidTimestamp } from '../util'
 import type { Payload } from './generated-types'
 
 interface IntercomSearchData {
@@ -13,20 +14,23 @@ interface IntercomContact {
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Identify Contact',
-  description: 'Create or Update a Contact.',
+  description: 'Create or update a contact in Intercom',
   defaultSubscription: 'type = "identify"',
-  platform: 'web',
   fields: {
     role: {
       type: 'string',
       required: true,
-      description: 'The role of the contact. Accepted values are `user` or `lead`. Can only be updated if `lead`.',
+      description: 'The role of the contact. Accepted values are `user` or `lead`.',
       label: 'Role',
-      default: 'lead'
+      choices: [
+        { label: 'Lead', value: 'lead' },
+        { label: 'User', value: 'user' }
+      ]
     },
     external_id: {
       type: 'string',
-      description: 'A unique identifier generated outside Intercom. Required if role=user and email is blank.',
+      description:
+        'A unique identifier for the contact generated outside Intercom. External ID is required if the role is `user` and email is blank.',
       label: 'External ID',
       default: {
         '@path': '$.userId'
@@ -34,8 +38,8 @@ const action: ActionDefinition<Settings, Payload> = {
     },
     email: {
       type: 'string',
-      description: "The contact's email. Required if role=user and external_id is blank.",
-      label: 'Email',
+      description: "The contact's email address. Email is required if the role is `user` and external ID is blank.",
+      label: 'Email Address',
       format: 'email',
       default: {
         '@path': '$.traits.email'
@@ -59,7 +63,7 @@ const action: ActionDefinition<Settings, Payload> = {
     },
     avatar: {
       label: 'Avatar',
-      description: 'URL of image to be associated with contact profile.',
+      description: 'An image URL containing the avatar of a contact.',
       type: 'string',
       format: 'uri',
       default: {
@@ -67,39 +71,34 @@ const action: ActionDefinition<Settings, Payload> = {
       }
     },
     signed_up_at: {
-      label: 'Signed Up At',
+      label: 'Signed Up Timestamp',
       type: 'datetime',
-      description: 'The timestamp when the contact was created.',
-      default: {
-        '@path': '$.createdAt'
-      }
+      description: 'The time specified for when a contact signed up.'
     },
     last_seen_at: {
-      label: 'Timestamp',
+      label: 'Last Seen Timestamp',
       type: 'datetime',
-      description: 'The timestamp the contact was last seen.',
+      description: 'The time when the contact was last seen.',
       default: {
         '@path': '$.timestamp'
       }
     },
     owner_id: {
-      label: 'Owner Id',
+      label: 'Owner ID',
       type: 'number',
-      description: 'The id of an admin that has been assigned account ownership of the contact.'
+      description: 'The ID of an admin that has been assigned account ownership of the contact.'
     },
     unsubscribed_from_emails: {
       label: 'Unsubscribed From Emails',
       type: 'boolean',
-      description: 'Whether the contact is unsubscribed from emails.'
+      description: "The contact's email unsubscribe status."
     },
     custom_attributes: {
       label: 'Custom Attributes',
       description:
-        'The custom attributes which are set for the contact. Note: Will throw an error if the object has an attribute that isn`t explicitly defined on Intercom.',
+        'The custom attributes which are set for the contact. You can only write to custom attributes that already exist in your Intercom workspace. Please ensure custom attributes are created in Intercom first. See [Intercom documentation](https://developers.intercom.com/intercom-api-reference/reference/create-data-attributes) for more information on creating attributes.',
       type: 'object',
-      default: {
-        '@path': '$.traits.customAttributes'
-      }
+      defaultObjectUI: 'keyvalue'
     }
   },
   perform: async (request, { payload }) => {
@@ -107,9 +106,10 @@ const action: ActionDefinition<Settings, Payload> = {
      * Tries to search and update the contact first. If no contact is found, then create.
      * This is because we anticipate many more updates than creations happening in practice.
      *
-     * Note: When creating a lead, Intercom doesn't accept an external_id (possibly a bug),
-     * it only accepts email.
+     * Note: When creating a lead, Intercom doesn't accept an external_id; they only accept email.
      */
+    payload.signed_up_at = convertValidTimestamp(payload.signed_up_at)
+    payload.last_seen_at = convertValidTimestamp(payload.last_seen_at)
     try {
       const contact = await searchIntercomContact(request, payload)
       if (contact) {
@@ -170,7 +170,7 @@ async function searchIntercomContact(request: RequestClient, payload: Payload) {
     json: { query }
   })
 
-  if (response.data.total_count === 1) {
+  if (response?.data?.total_count === 1) {
     return response.data.data[0]
   }
 }
@@ -178,9 +178,7 @@ async function searchIntercomContact(request: RequestClient, payload: Payload) {
 async function updateIntercomContact(request: RequestClient, contactId: String, payload: Payload) {
   return request(`https://api.intercom.io/contacts/${contactId}`, {
     method: 'PUT',
-    json: {
-      ...payload
-    }
+    json: payload
   })
 }
 

@@ -1,17 +1,18 @@
 import type { ActionDefinition } from '@segment/actions-core'
-import dayjs from '../../../lib/dayjs'
 import type { Settings } from '../generated-types'
+import { convertValidTimestamp } from '../util'
 import type { Payload } from './generated-types'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Track Event',
-  description: 'Submit a data event to Intercom.',
+  description: 'Submit an event to Intercom.',
+  defaultSubscription: 'type = "track"',
   fields: {
     event_name: {
       type: 'string',
       required: true,
       description:
-        'The name of the event. Names are treated as case insensitive. Periods (.) and dollars ($) in event names are replaced with hyphens.',
+        'The name of the event that occurred. Names are treated as case insensitive. Periods and dollar signs in event names are replaced with hyphens.',
       label: 'Event Name',
       default: {
         '@path': '$.event'
@@ -20,15 +21,16 @@ const action: ActionDefinition<Settings, Payload> = {
     created_at: {
       type: 'datetime',
       required: true,
-      description: 'A datetime in Unix timestamp format (seconds since Epoch).',
-      label: 'Created At',
+      description:
+        'The time the event occurred as a UTC Unix timestamp. Segment will convert to Unix if not already converted.',
+      label: 'Event Timestamp',
       default: {
         '@path': '$.timestamp'
       }
     },
     user_id: {
       type: 'string',
-      description: "The user's ID; required if no email provided.",
+      description: 'Your identifier for the user who performed the event. User ID is required if no email is provided.',
       label: 'User ID',
       default: {
         '@path': '$.userId'
@@ -36,22 +38,24 @@ const action: ActionDefinition<Settings, Payload> = {
     },
     email: {
       type: 'string',
-      description: "The user's email; required if no User ID provided.",
-      label: 'Email',
+      description:
+        'The email address for the user who performed the event. Email is required if no User ID is provided.',
+      label: 'Email Address',
       format: 'email',
       default: {
-        '@if': {
-          exists: { '@path': '$.properties.email' },
-          then: { '@path': '$.properties.email' },
-          else: { '@path': '$.traits.email' }
-        }
+        '@path': '$.properties.email'
       }
+    },
+    id: {
+      type: 'string',
+      description: '',
+      label: 'Contact ID'
     },
     metadata: {
       type: 'object',
       description:
-        'Metadata object describing the event. There is a limit to 10 keys. Intercom does not currently support nested JSON structures.',
-      label: 'Metadata',
+        'Optional metadata describing the event. Each event can contain up to ten metadata key-value pairs. If you send more than ten keys, Intercom will ignore the rest. Intercom does not support nested JSON structures within metadata.',
+      label: 'Event Metadata',
       default: {
         '@path': '$.properties'
       }
@@ -65,24 +69,6 @@ const action: ActionDefinition<Settings, Payload> = {
       json: payload
     })
   }
-}
-
-function convertValidTimestamp(value: string | number): string | number {
-  // Timestamps may be on a `string` field, so check if the string is only
-  // numbers. If it is, ignore it since it's probably already a unix timestamp.
-  // DayJS doesn't parse unix timestamps correctly outside of the `.unix()`
-  // initializer.
-  if (typeof value !== 'string' || /^\d+$/.test(value)) {
-    return value
-  }
-
-  const maybeDate = dayjs.utc(value)
-
-  if (maybeDate.isValid()) {
-    return maybeDate.unix()
-  }
-
-  return value
 }
 
 export default action
