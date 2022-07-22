@@ -34,13 +34,24 @@ const action: ActionDefinition<Settings, Payload> = {
   },
   dynamicFields: {
     customObjectName: async (request, { settings }) => {
-      const res = await request(`${settings.instanceUrl}/services/data/${API_VERSION}/sobjects/`, {
+      interface SObject {
+        label: string
+      }
+      interface Result {
+        sobjects: SObject[]
+      }
+      const res = await request<Result>(`${settings.instanceUrl}/services/data/${API_VERSION}/sobjects/`, {
         method: 'GET'
       })
 
       console.log('res', res)
+
+      const sobjects: SObject[] = res.data.sobjects
+
       return {
-        choices: [{ label: 'Custom Object', value: 'CustomObject__c' }]
+        choices: sobjects.map((sobject) => {
+          return { label: sobject.label, value: sobject.label }
+        })
       }
     }
   },
