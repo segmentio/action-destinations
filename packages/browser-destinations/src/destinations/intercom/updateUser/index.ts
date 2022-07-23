@@ -14,7 +14,7 @@ const action: BrowserActionDefinition<Settings, Intercom, Payload> = {
   platform: 'web',
   fields: {
     user_id: {
-      description: "A unique identifier for the user.",
+      description: 'A unique identifier for the user.',
       label: 'User ID',
       type: 'string',
       required: false,
@@ -109,32 +109,16 @@ const action: BrowserActionDefinition<Settings, Intercom, Payload> = {
         }
       }
     },
-    avatar: {
-      description: "The user's avatar/profile image.",
+    avatar_image_url: {
+      description: "The URL for the user's avatar/profile image.",
       label: 'Avatar',
-      type: 'object',
+      type: 'string',
       required: false,
-      properties: {
-        image_url: {
-          description: 'An image URL containing the avatar of a user.',
-          label: 'Avatar Image URL',
-          type: 'string',
-          required: true,
-          default: {
-            '@path': '$.traits.avatar'
-          }
-        },
-        type: {
-          description: "This is manually set to 'avatar'.",
-          label: 'Type',
-          type: 'string',
-          required: true,
-          default: 'avatar'
-        }
-      }
+      default: { '@path': '$.traits.avatar' }
     },
     user_hash: {
-      description: 'The user hash used for identity verification. See [Intercom docs](https://www.intercom.com/help/en/articles/183-enable-identity-verification-for-web-and-mobile) for more information on how to set this field.',
+      description:
+        'The user hash used for identity verification. See [Intercom docs](https://www.intercom.com/help/en/articles/183-enable-identity-verification-for-web-and-mobile) for more information on how to set this field.',
       label: 'User Hash',
       type: 'string',
       required: false,
@@ -214,19 +198,13 @@ const action: BrowserActionDefinition<Settings, Intercom, Payload> = {
     }
   },
   perform: (Intercom, event) => {
-    // remove traits from payload; traits will not be sent in the final payload to Intercom
-    const { custom_traits, ...rest } = event.payload
+    // remove properties that require extra handling
+    const { custom_traits, avatar_image_url, ...rest } = event.payload
     const payload = { ...rest }
 
-    // remove avatar & company if they are empty
+    // remove company if it is empty
     if (isEmpty(payload.company)) {
       delete payload.company
-    }
-    if (isEmpty(payload.avatar) || !payload.avatar) {
-      delete payload.avatar
-    } else {
-      // add type = 'avatar' to avatar object since Intercom requires it
-      payload.avatar.type = 'avatar'
     }
 
     // if no name provided, concatenate firstName & lastName to form name
@@ -243,7 +221,7 @@ const action: BrowserActionDefinition<Settings, Intercom, Payload> = {
       delete payload.last_name
     }
 
-    //convert 'created_at' date properties from ISO-8601 to UNIX
+    // convert 'created_at' date properties from ISO-8601 to UNIX
     const companies = Array.isArray(payload.companies) ? [...payload.companies] : []
     const datesToConvert = [payload, payload.company, ...companies]
     for (const objectWithDateProp of datesToConvert) {
@@ -283,14 +261,24 @@ const action: BrowserActionDefinition<Settings, Intercom, Payload> = {
       })
     }
 
-    //get user's widget options
+    // get user's widget options
     const widgetOptions = getWidgetOptions(payload.hide_default_launcher, Intercom.activator)
+
+    // create the avatar object
+    let avatar = undefined
+    if (avatar_image_url) {
+      avatar = {
+        image_url: avatar_image_url,
+        type: 'avatar'
+      }
+    }
 
     // API call
     Intercom('update', {
       ...payload,
       ...filteredCustomTraits,
-      ...widgetOptions
+      ...widgetOptions,
+      ...(avatar && { avatar })
     })
   }
 }

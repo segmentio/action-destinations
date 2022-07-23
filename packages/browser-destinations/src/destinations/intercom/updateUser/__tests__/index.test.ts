@@ -52,7 +52,7 @@ const subscriptions: Subscription[] = [
           else: { '@path': '$.context.Intercom.hide_default_launcher' }
         }
       },
-      avatar: { image_url: { '@path': '$.traits.avatar' } },
+      avatar_image_url: { '@path': '$.traits.avatar' },
       company: {
         company_id: { '@path': '$.traits.company.id' },
         name: { '@path': '$.traits.company.name' },
@@ -375,7 +375,7 @@ describe('Intercom.update (user)', () => {
     })
   })
 
-  test('fills in `type=avatar` for the avatar object', async () => {
+  test('avatar works', async () => {
     const context = new Context({
       type: 'identify',
       userId: 'id',

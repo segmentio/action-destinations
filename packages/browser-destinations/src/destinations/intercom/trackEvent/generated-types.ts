@@ -19,7 +19,7 @@ export interface Payload {
     currency?: string
   }
   /**
-   * Parameters specific to the event.
+   * Optional metadata describing the event.
    */
   event_metadata: {
     [k: string]: unknown

@@ -2,7 +2,7 @@
 
 export interface Payload {
   /**
-   * The user's identity.
+   * A unique identifier for the user.
    */
   user_id?: string
   /**
@@ -36,28 +36,19 @@ export interface Payload {
    */
   language_override?: string
   /**
-   * The user's email.
+   * The user's email address.
    */
   email?: string
   /**
-   * A timestamp of when the user was created.
+   * The time the user was created in your system.
    */
   created_at?: string | number
   /**
-   * The user's avatar/profile image.
+   * The URL for the user's avatar/profile image.
    */
-  avatar?: {
-    /**
-     * The avatar/profile image URL.
-     */
-    image_url: string
-    /**
-     * This is manually set to 'avatar'.
-     */
-    type: string
-  }
+  avatar_image_url?: string
   /**
-   * This is used for identity verification.
+   * The user hash used for identity verification. See [Intercom docs](https://www.intercom.com/help/en/articles/183-enable-identity-verification-for-web-and-mobile) for more information on how to set this field.
    */
   user_hash?: string
   /**
@@ -65,7 +56,7 @@ export interface Payload {
    */
   company?: {
     /**
-     * The company id of the company.
+     * The unique identifier of the company.
      */
     company_id: string
     /**
@@ -77,11 +68,11 @@ export interface Payload {
      */
     created_at?: string | number
     /**
-     * The name of the plan the company is on.
+     * The name of the plan you have associated with the company.
      */
     plan?: string
     /**
-     * How much revenue the company generates for your business.
+     * The monthly spend of the company, e.g. how much revenue the company generates for your business.
      */
     monthly_spend?: number
     /**
@@ -93,7 +84,7 @@ export interface Payload {
      */
     website?: string
     /**
-     * The industry of the company.
+     * The industry that the company operates in.
      */
     industry?: string
     /**
@@ -108,7 +99,7 @@ export interface Payload {
    */
   companies?: {
     /**
-     * The company id of the company.
+     * The unique identifier of the company.
      */
     company_id: string
     /**
@@ -120,11 +111,11 @@ export interface Payload {
      */
     created_at?: string | number
     /**
-     * The name of the plan the company is on.
+     * The name of the plan you have associated with the company.
      */
     plan?: string
     /**
-     * How much revenue the company generates for your business.
+     * The monthly spend of the company, e.g. how much revenue the company generates for your business.
      */
     monthly_spend?: number
     /**
@@ -136,7 +127,7 @@ export interface Payload {
      */
     website?: string
     /**
-     * The industry of the company.
+     * The industry that the company operates in.
      */
     industry?: string
     /**
@@ -147,7 +138,7 @@ export interface Payload {
     }
   }[]
   /**
-   * Selectively show the chat widget. According to Intercom’s docs, you want to first hide the Messenger for all users inside their UI using Messenger settings. Then think about how you want to programmatically decide which users you’d like to show the widget to.
+   * Selectively show the chat widget. As per [Intercom docs](https://www.intercom.com/help/en/articles/189-turn-off-show-or-hide-the-intercom-messenger), you want to first hide the Messenger for all users inside the Intercom UI using Messenger settings. Then think about how you want to programmatically decide which users you would like to show the widget to.
    */
   hide_default_launcher?: boolean
 }
