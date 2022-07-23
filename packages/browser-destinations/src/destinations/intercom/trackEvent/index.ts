@@ -18,30 +18,23 @@ const action: BrowserActionDefinition<Settings, Intercom, Payload> = {
         '@path': '$.event'
       }
     },
-    price: {
-      description: 'Price or monetary amount.',
-      label: 'Price',
-      type: 'object',
+    revenue: {
+      description:
+        'The amount associated with a purchase. Segment will multiply by 100 as Intercom requires the amount in cents.',
+      label: 'Revenue',
+      type: 'number',
+      required: true,
+      default: {
+        '@path': '$.properties.revenue'
+      }
+    },
+    currency: {
+      description: 'The currency of the amount. It defaults to USD if left empty.',
+      label: 'Currency',
+      type: 'string',
       required: false,
-      properties: {
-        amount: {
-          description: 'The amount.',
-          label: 'Amount',
-          type: 'number',
-          required: true,
-          default: {
-            '@path': '$.properties.revenue'
-          }
-        },
-        currency: {
-          description: 'The currency of the amount. It defaults to USD if left empty.',
-          label: 'Currency',
-          type: 'string',
-          required: false,
-          default: {
-            '@path': '$.properties.currency'
-          }
-        }
+      default: {
+        '@path': '$.properties.currency'
       }
     },
     event_metadata: {
@@ -70,16 +63,12 @@ const action: BrowserActionDefinition<Settings, Intercom, Payload> = {
       })
     }
 
-    // remove price if it is empty
-    if (isEmpty(payload.price) || !payload.price?.amount) {
-      delete payload.price
-    } else {
-      //intercom requires amounts in cents
-      payload.price.amount *= 100
-
-      //currency defaults to USD
-      if (!payload.price.currency) {
-        payload.price.currency = 'USD'
+    // create price object
+    let price = {}
+    if (payload.revenue) {
+      price = {
+        amount: payload.revenue * 100,
+        currency: payload.currency ?? 'USD'
       }
     }
 
@@ -90,9 +79,9 @@ const action: BrowserActionDefinition<Settings, Intercom, Payload> = {
     //merge richLinkObjects into the final payload
     //API call
     Intercom('trackEvent', event_name, {
-      ...payload,
       ...filteredMetadata,
-      ...richLinkObjects
+      ...richLinkObjects,
+      ...(!isEmpty(price) && { price })
     })
   }
 }

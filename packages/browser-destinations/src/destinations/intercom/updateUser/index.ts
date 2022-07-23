@@ -265,7 +265,7 @@ const action: BrowserActionDefinition<Settings, Intercom, Payload> = {
     const widgetOptions = getWidgetOptions(payload.hide_default_launcher, Intercom.activator)
 
     // create the avatar object
-    let avatar = undefined
+    let avatar = {}
     if (avatar_image_url) {
       avatar = {
         image_url: avatar_image_url,
@@ -278,7 +278,7 @@ const action: BrowserActionDefinition<Settings, Intercom, Payload> = {
       ...payload,
       ...filteredCustomTraits,
       ...widgetOptions,
-      ...(avatar && { avatar })
+      ...(!isEmpty(avatar) && { avatar })
     })
   }
 }

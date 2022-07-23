@@ -6,18 +6,13 @@ export interface Payload {
    */
   event_name: string
   /**
-   * Price or monetary amount.
+   * The amount associated with a purchase. Segment will multiply by 100 as Intercom requires the amount in cents.
    */
-  price?: {
-    /**
-     * The amount.
-     */
-    amount: number
-    /**
-     * The currency of the amount. It defaults to USD if left empty.
-     */
-    currency?: string
-  }
+  revenue: number
+  /**
+   * The currency of the amount. It defaults to USD if left empty.
+   */
+  currency?: string
   /**
    * Optional metadata describing the event.
    */
