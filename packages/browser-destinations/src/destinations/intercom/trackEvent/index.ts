@@ -29,7 +29,8 @@ const action: BrowserActionDefinition<Settings, Intercom, Payload> = {
       }
     },
     currency: {
-      description: 'The currency of the amount. It defaults to USD if left empty.',
+      description:
+        'The currency of the purchase amount. Segment will default to USD if revenue is provided without a currency.',
       label: 'Currency',
       type: 'string',
       required: false,

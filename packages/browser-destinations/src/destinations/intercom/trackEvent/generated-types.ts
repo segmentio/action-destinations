@@ -10,7 +10,7 @@ export interface Payload {
    */
   revenue: number
   /**
-   * The currency of the amount. It defaults to USD if left empty.
+   * The currency of the purchase amount. Segment will default to USD if revenue is provided without a currency.
    */
   currency?: string
   /**
