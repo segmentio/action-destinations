@@ -15,9 +15,11 @@ const subscriptions: Subscription[] = [
       event_metadata: {
         '@path': '$.properties'
       },
-      price: {
-        amount: { '@path': '$.properties.revenue' },
-        currency: { '@path': '$.properties.currency' }
+      revenue: {
+        '@path': '$.properties.revenue'
+      },
+      currency: {
+        '@path': '$.properties.currency'
       }
     }
   }
