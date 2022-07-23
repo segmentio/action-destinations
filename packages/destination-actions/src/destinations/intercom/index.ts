@@ -5,8 +5,8 @@ import groupIdentifyContact from './groupIdentifyContact'
 import trackEvent from './trackEvent'
 
 const destination: DestinationDefinition<Settings> = {
-  name: 'Intercom (Actions)',
-  slug: 'actions-intercom',
+  name: 'Intercom Cloud Mode (Actions)',
+  slug: 'actions-intercom-cloud',
   mode: 'cloud',
 
   authentication: {
