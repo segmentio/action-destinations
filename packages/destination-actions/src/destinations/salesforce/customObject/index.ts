@@ -31,6 +31,13 @@ const action: ActionDefinition<Settings, Payload> = {
     },
     customFields: { ...customFields, required: true }
   },
+  dynamicFields: {
+    bulkUpsertExternalId: async (request, { settings, payload }) => {
+      const sf: Salesforce = new Salesforce(settings.instanceUrl, request)
+
+      return sf.bulkUpsertExternalId(payload.customObjectName)
+    }
+  },
   perform: async (request, { settings, payload }) => {
     const sf: Salesforce = new Salesforce(settings.instanceUrl, request)
 
