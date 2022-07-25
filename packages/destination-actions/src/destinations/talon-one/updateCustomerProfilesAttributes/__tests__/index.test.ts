@@ -72,20 +72,37 @@ describe('Talon.One - Update Attribute-Value pairs in customer profiles', () => 
             customerProfileId: 'abc123',
             attributes: {
               attributeName1: 'value',
-              attributeName2: 'value'
+              attributeName2: 'value',
+              booleanAttribute: 'true'
             }
           },
           {
             customerProfileId: 'abc456',
             attributes: {
               attributeName1: 'value',
-              attributeName2: 'value'
+              attributeName2: 'value',
+              numberAttribute: '12345'
             }
           }
         ],
         mutualAttributes: {
-          attributeName3: 'value'
-        }
+          attributeName3: 'value',
+          stringAttribute: 'test'
+        },
+        attributesInfo: [
+          {
+            name: 'stringAttribute',
+            type: 'string'
+          },
+          {
+            name: 'booleanAttribute',
+            type: 'boolean'
+          },
+          {
+            name: 'numberAttribute',
+            type: 'number'
+          }
+        ]
       })
       .matchHeader('Authorization', 'ApiKey-v1 some_api_key')
       .matchHeader(`destination-hostname`, 'https://something.europe-west1.talon.one')
@@ -102,20 +119,37 @@ describe('Talon.One - Update Attribute-Value pairs in customer profiles', () => 
             customerProfileId: 'abc123',
             attributes: {
               attributeName1: 'value',
-              attributeName2: 'value'
+              attributeName2: 'value',
+              booleanAttribute: 'true'
             }
           },
           {
             customerProfileId: 'abc456',
             attributes: {
               attributeName1: 'value',
-              attributeName2: 'value'
+              attributeName2: 'value',
+              numberAttribute: '12345'
             }
           }
         ],
         mutualAttributes: {
-          attributeName3: 'value'
-        }
+          attributeName3: 'value',
+          stringAttribute: 'test'
+        },
+        attributesInfo: [
+          {
+            name: 'stringAttribute',
+            type: 'string'
+          },
+          {
+            name: 'booleanAttribute',
+            type: 'boolean'
+          },
+          {
+            name: 'numberAttribute',
+            type: 'number'
+          }
+        ]
       }
     })
   })
