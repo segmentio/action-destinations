@@ -57,4 +57,8 @@ export interface Payload {
   customFields: {
     [k: string]: unknown
   }
+  /**
+   * A dynamic field that is not defined in the Salesforce object.
+   */
+  test_dynamic_field?: string
 }

@@ -29,7 +29,25 @@ const action: ActionDefinition<Settings, Payload> = {
       type: 'string',
       required: true
     },
-    customFields: { ...customFields, required: true }
+    customFields: { ...customFields, required: true },
+    test_dynamic_field: {
+      label: 'Test Dynamic Field',
+      description: 'A dynamic field that is not defined in the Salesforce object.',
+      type: 'string',
+      dynamic: true
+    }
+  },
+  dynamicFields: {
+    test_dynamic_field: async (request, _data) => {
+      const res = await request('https://test-dynamic-fields.nick-aguilar.workers.dev/', {
+        method: 'get'
+      })
+
+      return {
+        choices: [{ label: res.data, value: res.data }],
+        nextPage: 2
+      }
+    }
   },
   perform: async (request, { settings, payload }) => {
     const sf: Salesforce = new Salesforce(settings.instanceUrl, request)
