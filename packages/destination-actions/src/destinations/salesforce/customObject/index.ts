@@ -27,7 +27,8 @@ const action: ActionDefinition<Settings, Payload> = {
       description:
         'The API name of the Salesforce object that records will be added or updated within. This can be a standard or custom object. Custom objects must be predefined in your Salesforce account and should end with "__c".',
       type: 'string',
-      required: true
+      required: true,
+      dynamic: true
     },
     customFields: { ...customFields, required: true },
     test_dynamic_field: {
@@ -45,6 +46,30 @@ const action: ActionDefinition<Settings, Payload> = {
 
       return {
         choices: [{ label: res.data, value: res.data }],
+        nextPage: 2
+      }
+    },
+    customObjectName: async (request, data) => {
+      interface RecentItem {
+        Name: string
+        Id: string
+      }
+
+      interface Return {
+        recentItems: RecentItem[]
+      }
+
+      const res = await request<Return>(`${data.settings.instanceUrl}/services/data/v46.0/sobjects/Lead`, {
+        method: 'get'
+      })
+      console.log('res', res.content)
+      const recentItems: RecentItem[] = res.data.recentItems
+      console.log('recentItems', recentItems)
+
+      return {
+        choices: recentItems.map((item) => {
+          return { label: item.Name, value: `<item.Id>` }
+        }),
         nextPage: 2
       }
     }

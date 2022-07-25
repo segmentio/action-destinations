@@ -257,10 +257,10 @@ function setupRoutes(def: DestinationDefinition | null): void {
               }
               const action = destination.actions[actionSlug]
 
-              await action.executeDynamicField(field, data)
+              const result = await action.executeDynamicField(field, data)
 
-              const debug = await getExchanges(destination.responses)
-              return res.status(200).json(debug)
+              console.log('result', result)
+              return res.status(200).json(result)
             } catch (err) {
               const output = marshalError(err as ResponseError)
               return res.status(200).json([output])
