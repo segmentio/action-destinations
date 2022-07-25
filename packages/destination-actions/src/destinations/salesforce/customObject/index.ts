@@ -10,7 +10,7 @@ import {
   validateLookup,
   enable_batching
 } from '../sf-properties'
-import Salesforce, { API_VERSION } from '../sf-operations'
+import Salesforce from '../sf-operations'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Custom Object',
@@ -27,33 +27,9 @@ const action: ActionDefinition<Settings, Payload> = {
       description:
         'The API name of the Salesforce object that records will be added or updated within. This can be a standard or custom object. Custom objects must be predefined in your Salesforce account and should end with "__c".',
       type: 'string',
-      required: true,
-      dynamic: true
+      required: true
     },
     customFields: { ...customFields, required: true }
-  },
-  dynamicFields: {
-    customObjectName: async (request, { settings }) => {
-      interface SObject {
-        label: string
-      }
-      interface Result {
-        sobjects: SObject[]
-      }
-      const res = await request<Result>(`${settings.instanceUrl}/services/data/${API_VERSION}/sobjects/`, {
-        method: 'GET'
-      })
-
-      console.log('res', res)
-
-      const sobjects: SObject[] = res.data.sobjects
-
-      return {
-        choices: sobjects.map((sobject) => {
-          return { label: sobject.label, value: sobject.label }
-        })
-      }
-    }
   },
   perform: async (request, { settings, payload }) => {
     const sf: Salesforce = new Salesforce(settings.instanceUrl, request)
