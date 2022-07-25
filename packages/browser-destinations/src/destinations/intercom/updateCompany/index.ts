@@ -32,7 +32,8 @@ const action: BrowserActionDefinition<Settings, Intercom, Payload> = {
         plan: { '@path': '$.traits.plan' },
         size: { '@path': '$.traits.size' },
         website: { '@path': '$.traits.website' },
-        industry: { '@path': '$.traits.industry' }
+        industry: { '@path': '$.traits.industry' },
+        monthly_spend: { '@path': '$.traits.monthly_spend' }
       }
     },
     hide_default_launcher: {
