@@ -8,7 +8,7 @@ interface RefreshTokenResponse {
 
 const destination: DestinationDefinition<Settings> = {
   name: 'Pardot (Actions)',
-  slug: 'pardot-actions',
+  slug: 'actions-pardot',
   mode: 'cloud',
 
   authentication: {
