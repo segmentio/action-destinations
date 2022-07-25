@@ -23,7 +23,7 @@ const action: BrowserActionDefinition<Settings, Intercom, Payload> = {
       }
     },
     custom_traits: {
-      description: "The user's custom traits.",
+      description: "The user's custom attributes.",
       label: 'Custom Attributes',
       type: 'object',
       required: false,
