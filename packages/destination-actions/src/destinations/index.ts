@@ -52,7 +52,7 @@ register('615cae349d109d6b7496a131', './tiktok-conversions')
 register('602efa1f249b9a5e2bf8a813', './twilio')
 register('614a3c7d791c91c41bae7599', './webhook')
 register('61dc4e96894a6d7954cc6e45', './voyage')
-register('62b5f2f40b10eaace2e12b23', './intercom')
+register('62ded0cf5753c743883ca0f3', './intercom')
 
 function register(id: MetadataId, destinationPath: string) {
   // eslint-disable-next-line @typescript-eslint/no-var-requires
