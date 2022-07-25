@@ -1,4 +1,5 @@
-import { ActionDefinition } from '@segment/actions-core'
+import { ActionDefinition, IntegrationError, HTTPError } from '@segment/actions-core'
+import type { ModifiedResponse } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import Pardot from '../pa-operations'
 import { customFields } from '../pa-properties'
@@ -177,8 +178,26 @@ const action: ActionDefinition<Settings, Payload> = {
   perform: async (request, { settings, payload }) => {
     const baseUrl = settings.isSandbox ? 'https://pi.demo.pardot.com' : 'https://pi.pardot.com'
     const pa: Pardot = new Pardot(settings.businessUnitID, baseUrl, request)
-
-    return await pa.upsertRecord(payload)
+    try {
+      return await pa.upsertRecord(payload)
+    } catch (err) {
+      const error = err as HTTPError
+      const statusCode = error.response.status
+      if (statusCode === 403) {
+        const data = (error.response as ModifiedResponse).content
+        const invalidId = data.includes(
+          'Business Unit specified in Pardot-Business-Unit-Id header not found or inactive.'
+        )
+        if (invalidId) {
+          throw new IntegrationError(
+            `The Business Unit ID is invalid or the business unit isn't active. This error is also returned when you use the wrong instance (Production or Sandbox).`,
+            'INVALID_BUSINESSUNITID',
+            403
+          )
+        }
+      }
+      throw err
+    }
   }
 }
 
