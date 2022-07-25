@@ -11,7 +11,14 @@ const subscriptions: Subscription[] = [
     mapping: {
       company: {
         company_id: { '@path': '$.groupId' },
-        company_custom_traits: { '@path': '$.traits' },
+        company_custom_traits: {
+          city: {
+            '@path': '$.traits.city'
+          },
+          tech: {
+            '@path': '$.traits.tech'
+          }
+        },
         name: { '@path': '$.traits.name' },
         plan: { '@path': '$.traits.plan' },
         monthly_spend: { '@path': '$.traits.monthlySpend' },
@@ -140,8 +147,8 @@ describe('Intercom.update (Company)', () => {
       groupId: 'id',
       traits: {
         wave: 'Capitola',
-        ft: 4,
-        stoked: true
+        city: 'SF',
+        tech: true
       }
     })
 
@@ -150,9 +157,8 @@ describe('Intercom.update (Company)', () => {
     expect(mockIntercom).toHaveBeenCalledWith('update', {
       company: {
         company_id: 'id',
-        wave: 'Capitola',
-        ft: 4,
-        stoked: true
+        city: 'SF',
+        tech: true
       }
     })
   })
@@ -166,7 +172,7 @@ describe('Intercom.update (Company)', () => {
         badObject: {
           rip: 'i will cease to exist'
         },
-        passMe: true
+        city: 'Belmar'
       }
     })
 
@@ -175,7 +181,7 @@ describe('Intercom.update (Company)', () => {
     expect(mockIntercom).toHaveBeenCalledWith('update', {
       company: {
         company_id: 'id',
-        passMe: true
+        city: 'Belmar'
       }
     })
   })

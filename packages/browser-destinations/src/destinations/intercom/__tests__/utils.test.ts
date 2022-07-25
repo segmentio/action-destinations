@@ -26,24 +26,23 @@ describe('Utils test', () => {
   })
 
   describe('custom trait filtering tests', () => {
-    test('custom traits will be filtered with traits object', () => {
+    test('objects & arrays will be filtered out of traits', () => {
       const traits = {
         name: 'ibum',
-        age: 21,
-        surf_quality: 'mid'
+        badObj: {
+          badKey: 'badValue'
+        },
+        badArray: ['i will be dropped']
       }
-      const reservedFields = ['name', 'age']
 
-      expect(filterCustomTraits(reservedFields, traits)).toEqual({
-        surf_quality: 'mid'
+      expect(filterCustomTraits(traits)).toEqual({
+        name: 'ibum'
       })
     })
 
     test('custom traits will be filtered with undefined traits object', () => {
       const traits = undefined
-      const reservedFields = ['name', 'age']
-
-      expect(filterCustomTraits(reservedFields, traits)).toEqual({})
+      expect(filterCustomTraits(traits)).toEqual({})
     })
   })
 

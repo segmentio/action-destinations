@@ -64,6 +64,9 @@ const action: BrowserActionDefinition<Settings, Intercom, Payload> = {
       })
     }
 
+    // filter out reserved fields, drop custom objects & arrays
+    const filteredMetadata = filterCustomTraits(event_metadata)
+
     // create price object
     let price = {}
     if (payload.revenue) {
@@ -71,12 +74,9 @@ const action: BrowserActionDefinition<Settings, Intercom, Payload> = {
         amount: payload.revenue * 100,
         currency: payload.currency ?? 'USD'
       }
-      delete payload.revenue
-      delete payload.currency
+      delete filteredMetadata.revenue
+      delete filteredMetadata.currency
     }
-
-    // filter out reserved fields, drop custom objects & arrays
-    const filteredMetadata = filterCustomTraits(event_metadata)
 
     //merge richLinkObjects into the final payload
     //API call

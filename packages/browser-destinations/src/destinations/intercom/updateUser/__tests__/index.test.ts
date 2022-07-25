@@ -11,7 +11,14 @@ const subscriptions: Subscription[] = [
     subscribe: 'type = "identify" or "page"',
     mapping: {
       user_id: { '@path': '$.userId' },
-      custom_traits: { '@path': '$.traits' },
+      custom_traits: {
+        height: {
+          '@path': '$.traits.height'
+        },
+        tech: {
+          '@path': '$.traits.weight'
+        }
+      },
       name: { '@path': '$.traits.name' },
       first_name: {
         '@if': {
@@ -68,7 +75,14 @@ const subscriptions: Subscription[] = [
         size: { '@path': '$.traits.company.size' },
         website: { '@path': '$.traits.company.website' },
         industry: { '@path': '$.traits.company.industry' },
-        company_custom_traits: { '@path': '$.traits.company' }
+        company_custom_traits: {
+          city: {
+            '@path': '$.traits.company.city'
+          },
+          tech: {
+            '@path': '$.traits.company.tech'
+          }
+        }
       },
       companies: {
         '@arrayPath': [
@@ -88,7 +102,14 @@ const subscriptions: Subscription[] = [
             size: { '@path': '$.size' },
             website: { '@path': '$.website' },
             industry: { '@path': '$.industry' },
-            company_custom_traits: { '@path': '$.' }
+            company_custom_traits: {
+              city: {
+                '@path': '$.city'
+              },
+              tech: {
+                '@path': '$.tech'
+              }
+            }
           }
         ]
       }
@@ -235,7 +256,7 @@ describe('Intercom.update (user)', () => {
       userId: 'id',
       traits: {
         shortboarder: true,
-        team: 'red bull'
+        height: 'short'
       }
     })
 
@@ -243,8 +264,7 @@ describe('Intercom.update (user)', () => {
 
     expect(mockIntercom).toHaveBeenCalledWith('update', {
       user_id: 'id',
-      shortboarder: true,
-      team: 'red bull'
+      height: 'short'
     })
   })
 
