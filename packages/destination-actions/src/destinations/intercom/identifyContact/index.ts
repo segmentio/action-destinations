@@ -1,16 +1,7 @@
-import { ActionDefinition, ModifiedResponse, RequestClient, RetryableError } from '@segment/actions-core'
+import { ActionDefinition, RequestClient, RetryableError } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
-import { convertValidTimestamp } from '../util'
+import { convertValidTimestamp, getUniqueIntercomContact } from '../util'
 import type { Payload } from './generated-types'
-
-interface IntercomSearchData {
-  total_count: number
-  data: Array<IntercomContact>
-}
-
-interface IntercomContact {
-  id: string
-}
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Identify Contact',
@@ -103,15 +94,18 @@ const action: ActionDefinition<Settings, Payload> = {
   },
   perform: async (request, { payload }) => {
     /**
-     * Tries to search and update the contact first. If no contact is found, then create.
+     * Searches for a contact with the given payload.
+     * If unique user is found, updates the contact first.
+     * If no contact (or many) are found, then we create a new contact.
+     *
      * This is because we anticipate many more updates than creations happening in practice.
      *
-     * Note: When creating a lead, Intercom doesn't accept an external_id; they only accept email.
+     * Note: When creating a lead, Intercom doesn't accept an external_id; Intercom only accepts email.
      */
     payload.signed_up_at = convertValidTimestamp(payload.signed_up_at)
     payload.last_seen_at = convertValidTimestamp(payload.last_seen_at)
     try {
-      const contact = await searchIntercomContact(request, payload)
+      const contact = await getUniqueIntercomContact(request, payload)
       if (contact) {
         return updateIntercomContact(request, contact.id, payload)
       }
@@ -128,51 +122,11 @@ const action: ActionDefinition<Settings, Payload> = {
   }
 }
 
-// Intercom's API Docs - https://developers.intercom.com/intercom-api-reference/reference/update-contact
 async function createIntercomContact(request: RequestClient, payload: Payload) {
   return request('https://api.intercom.io/contacts', {
     method: 'POST',
     json: payload
   })
-}
-
-/**
- * If there is a duplicate contact found, then search for the id of the contact.
- * Note: contact leads can have duplicate emails (and so the creation can never throw a 409),
- * but contact users can't.
- *
- * Intercom's API Docs - https://developers.intercom.com/intercom-api-reference/reference/search-for-contacts
- */
-async function searchIntercomContact(request: RequestClient, payload: Payload) {
-  const searchFields = {
-    email: payload.email,
-    external_id: payload.external_id,
-    role: payload.role
-  }
-  const value = []
-  for (const [key, fieldValue] of Object.entries(searchFields)) {
-    if (fieldValue) {
-      value.push({
-        field: key,
-        operator: '=',
-        value: fieldValue
-      })
-    }
-  }
-
-  const query = {
-    operator: 'AND',
-    value
-  }
-
-  const response: ModifiedResponse<IntercomSearchData> = await request('https://api.intercom.io/contacts/search', {
-    method: 'POST',
-    json: { query }
-  })
-
-  if (response?.data?.total_count === 1) {
-    return response.data.data[0]
-  }
 }
 
 async function updateIntercomContact(request: RequestClient, contactId: String, payload: Payload) {

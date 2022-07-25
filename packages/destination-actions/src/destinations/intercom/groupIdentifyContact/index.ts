@@ -1,5 +1,6 @@
 import { ActionDefinition, ModifiedResponse, RequestClient } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
+import { getUniqueIntercomContact } from '../util'
 import type { Payload } from './generated-types'
 
 interface IntercomCreateCompanyData {
@@ -17,6 +18,24 @@ const action: ActionDefinition<Settings, Payload> = {
       label: 'Company Creation Time',
       default: {
         '@path': '$.traits.createdAt'
+      }
+    },
+    external_id: {
+      type: 'string',
+      description:
+        'A unique identifier for the contact generated outside Intercom. External ID is required if the role is `user` and email is blank.',
+      label: 'External ID',
+      default: {
+        '@path': '$.userId'
+      }
+    },
+    email: {
+      type: 'string',
+      description: "The contact's email address. Email is required if the role is `user` and external ID is blank.",
+      label: 'Email Address',
+      format: 'email',
+      default: {
+        '@path': '$.traits.email'
       }
     },
     company_id: {
@@ -92,17 +111,20 @@ const action: ActionDefinition<Settings, Payload> = {
   },
   /**
    * Create or Update Company, then attach contact.
+   * We search for a unique contact by either their User ID or email.
    *
    * Note: Companies will be only visible in Intercom's Dashboard when there is at least one associated contact.
    */
   perform: async (request, { payload }) => {
-    const contactId = payload.contact_id
-    delete payload.contact_id
+    const contact = await getUniqueIntercomContact(request, payload)
+    delete payload.email
+    delete payload.external_id
 
     const response = await createOrUpdateIntercomCompany(request, payload)
-    if (contactId) {
+    if (contact) {
+      payload.contact_id = contact.id
       const companyId = response.data.id
-      return attachContactToIntercomCompany(request, contactId, companyId)
+      return attachContactToIntercomCompany(request, contact.id, companyId)
     }
   }
 }

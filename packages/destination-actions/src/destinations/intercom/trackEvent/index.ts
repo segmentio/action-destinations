@@ -1,6 +1,6 @@
 import type { ActionDefinition } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
-import { convertValidTimestamp } from '../util'
+import { convertValidTimestamp, getUniqueIntercomContact } from '../util'
 import type { Payload } from './generated-types'
 
 const action: ActionDefinition<Settings, Payload> = {
@@ -30,7 +30,8 @@ const action: ActionDefinition<Settings, Payload> = {
     },
     user_id: {
       type: 'string',
-      description: 'Your identifier for the user who performed the event. User ID is required if no email is provided.',
+      description:
+        'Your identifier for the user who performed the event. User ID is required if no email or Contact ID is provided.',
       label: 'User ID',
       default: {
         '@path': '$.userId'
@@ -39,17 +40,36 @@ const action: ActionDefinition<Settings, Payload> = {
     email: {
       type: 'string',
       description:
-        'The email address for the user who performed the event. Email is required if no User ID is provided.',
+        'The email address for the user who performed the event. Email is required if no User ID or Contact ID is provided.',
       label: 'Email Address',
       format: 'email',
       default: {
         '@path': '$.properties.email'
       }
     },
-    id: {
+    revenue: {
+      label: 'Revenue',
+      type: 'number',
+      description:
+        'The amount associated with a purchase. Segment will multiply by 100 as Intercom requires the amount in cents.',
+      default: {
+        '@path': '$.properties.revenue'
+      }
+    },
+    currency: {
+      label: 'Currency',
       type: 'string',
-      description: '',
-      label: 'Contact ID'
+      description:
+        'The currency of the purchase amount. Segment will default to USD if revenue is provided without a currency.',
+      default: {
+        '@path': '$.properties.currency'
+      }
+    },
+    id: {
+      label: 'Contact ID',
+      description:
+        "Intercom's unique identifier for the contact. If no Contact ID is provided, Segment will use User ID or Email to find a user or lead",
+      type: 'string'
     },
     metadata: {
       type: 'object',
@@ -61,13 +81,42 @@ const action: ActionDefinition<Settings, Payload> = {
       }
     }
   },
-  perform: (request, { payload }) => {
+  perform: async (request, { payload }) => {
     payload.created_at = convertValidTimestamp(payload.created_at)
     delete payload.metadata?.email
+
+    // This contact could possibly be a lead, in which case we need to grab the id
+    if (payload.email && !payload.user_id && !payload.id) {
+      const contact = await getUniqueIntercomContact(request, payload)
+      if (contact) {
+        payload.id = contact.id
+      }
+    }
+
+    possiblyPopulatePrice(payload)
+
     return request('https://api.intercom.io/events', {
       method: 'POST',
       json: payload
     })
+  }
+}
+
+/**
+ * If revenue (and possibly currency) is set, then transform and move
+ * the attributes into a price object inside metadata
+ */
+function possiblyPopulatePrice(payload: Payload) {
+  const { revenue, currency } = payload
+  if (revenue || revenue === 0) {
+    if (!payload.metadata) {
+      payload.metadata = {}
+    }
+
+    payload.metadata.price = {
+      amount: revenue * 100, //intercom requires amounts in cents
+      currency: currency || 'USD' //currency defaults to USD
+    }
   }
 }
 

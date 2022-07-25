@@ -6,6 +6,14 @@ export interface Payload {
    */
   remote_created_at?: string | number
   /**
+   * A unique identifier for the contact generated outside Intercom. External ID is required if the role is `user` and email is blank.
+   */
+  external_id?: string
+  /**
+   * The contact's email address. Email is required if the role is `user` and external ID is blank.
+   */
+  email?: string
+  /**
    * The unique identifier of the company. Once set, this can't be updated.
    */
   company_id: string
