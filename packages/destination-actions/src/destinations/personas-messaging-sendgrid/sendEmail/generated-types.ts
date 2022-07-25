@@ -85,15 +85,15 @@ export interface Payload {
   /**
    * The Audience ID of the Journey Step.
    */
-  audience_id?: string
+  audienceId?: string
   /**
    * The Personas Space ID
    */
-  space_id?: string
+  spaceId?: string
   /**
    * The Project ID or Destination Config Identifier to associate a Action instance.
    */
-  project_id?: string
+  projectId?: string
   /**
    * Additional custom args that we be passed back opaquely on webhook events
    */
