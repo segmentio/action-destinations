@@ -38,7 +38,7 @@ export interface Payload {
      */
     industry?: string
     /**
-     * The custom traits for the company object.
+     * The custom attributes for the company object.
      */
     company_custom_traits?: {
       [k: string]: unknown

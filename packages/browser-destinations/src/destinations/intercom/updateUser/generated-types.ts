@@ -6,7 +6,7 @@ export interface Payload {
    */
   user_id?: string
   /**
-   * The user's custom traits.
+   * The user's custom attributes.
    */
   custom_traits?: {
     [k: string]: unknown
@@ -88,7 +88,7 @@ export interface Payload {
      */
     industry?: string
     /**
-     * The custom traits for the company object.
+     * The custom attributes for the company object.
      */
     company_custom_traits?: {
       [k: string]: unknown
@@ -131,7 +131,7 @@ export interface Payload {
      */
     industry?: string
     /**
-     * The custom traits for the company object.
+     * The custom attributes for the company object.
      */
     company_custom_traits?: {
       [k: string]: unknown
