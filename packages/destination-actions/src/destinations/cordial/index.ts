@@ -5,9 +5,6 @@ import createContactactivity from './createContactactivity'
 import upsertContact from './upsertContact'
 import addContactToList from './addContactToList'
 import removeContactFromList from './removeContactFromList'
-import addProductToCart from './addProductToCart'
-import removeProductFromCart from './removeProductFromCart'
-import upsertOrder from './upsertOrder'
 
 const destination: DestinationDefinition<Settings> = {
   name: 'Cordial (Actions)',
@@ -35,13 +32,13 @@ const destination: DestinationDefinition<Settings> = {
       }
     },
     testAuthentication: (request, { settings }) => {
-      return request(settings.endpoint + '/api/checkAuth', { headers: { 'Content-Type': 'application/json' }});
+      return request(settings.endpoint + '/api/checkAuth')
     }
   },
 
   extendRequest({ settings }) {
     return {
-      headers: { 'x-api-key': `${settings.apiKey}`, 'Accept': 'application/json'}
+      headers: { 'x-api-key': `${settings.apiKey}`, 'Accept': 'application/json' },
     }
   },
 
@@ -49,10 +46,7 @@ const destination: DestinationDefinition<Settings> = {
     createContactactivity,
     upsertContact,
     addContactToList,
-    removeContactFromList,
-    addProductToCart,
-    removeProductFromCart,
-    upsertOrder
+    removeContactFromList
   }
 }
 

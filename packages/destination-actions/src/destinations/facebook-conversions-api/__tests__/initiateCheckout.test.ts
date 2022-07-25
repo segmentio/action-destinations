@@ -1,7 +1,6 @@
 import nock from 'nock'
 import { createTestEvent, createTestIntegration } from '@segment/actions-core'
 import Destination from '../index'
-import { API_VERSION } from '../constants'
 
 const testDestination = createTestIntegration(Destination)
 const settings = {
@@ -11,7 +10,7 @@ const settings = {
 describe('FacebookConversionsApi', () => {
   describe('InitiateCheckout', () => {
     it('should handle basic mapping overrides', async () => {
-      nock(`https://graph.facebook.com/v${API_VERSION}/${settings.pixelId}`).post(`/events`).reply(201, {})
+      nock(`https://graph.facebook.com/v12.0/${settings.pixelId}`).post(`/events`).reply(201, {})
 
       const event = createTestEvent({
         event: 'Checkout Started',
@@ -58,7 +57,7 @@ describe('FacebookConversionsApi', () => {
     })
 
     it('should throw an error for invalid currency values', async () => {
-      nock(`https://graph.facebook.com/v${API_VERSION}0/${settings.pixelId}`).post(`/events`).reply(201, {})
+      nock(`https://graph.facebook.com/v12.0/${settings.pixelId}`).post(`/events`).reply(201, {})
 
       const event = createTestEvent({
         event: 'Checkout Started',
@@ -100,7 +99,7 @@ describe('FacebookConversionsApi', () => {
     })
 
     it('should handle default mappings', async () => {
-      nock(`https://graph.facebook.com/v${API_VERSION}/${settings.pixelId}`).post(`/events`).reply(201, {})
+      nock(`https://graph.facebook.com/v12.0/${settings.pixelId}`).post(`/events`).reply(201, {})
 
       const event = createTestEvent({
         event: 'Checkout Started',
@@ -134,7 +133,7 @@ describe('FacebookConversionsApi', () => {
     })
 
     it('should throw an error if no user_data keys are included', async () => {
-      nock(`https://graph.facebook.com/v${API_VERSION}/${settings.pixelId}`).post(`/events`).reply(201, {})
+      nock(`https://graph.facebook.com/v12.0/${settings.pixelId}`).post(`/events`).reply(201, {})
 
       const event = createTestEvent({
         event: 'Checkout Started',

@@ -33,44 +33,10 @@ const action: ActionDefinition<Settings, Payload> = {
     attributes: {
       ...attribute,
       default: {
-        '@path': '$.properties.attributes'
+        '@path': '$.properties'
       },
       description:
         'Extra attributes associated with the event. [See more info](https://docs.talon.one/docs/product/account/dev-tools/managing-attributes).'
-    },
-    attributesInfo: {
-      label: 'Attributes info',
-      description: 'Use this field if you want to identify an attribute with a specific type',
-      type: 'object',
-      required: false,
-      multiple: true,
-      properties: {
-        name: {
-          label: 'Name',
-          description: 'Attribute name',
-          type: 'string',
-          required: true
-        },
-        type: {
-          label: 'Type',
-          description: 'Attribute type. Can be only `string`, `time`, `number`, `boolean`, `location`',
-          type: 'string',
-          required: true
-        }
-      },
-      default: {
-        '@arrayPath': [
-          '$.properties.attributesInfo',
-          {
-            name: {
-              '@path': '$.name'
-            },
-            type: {
-              '@path': '$.type'
-            }
-          }
-        ]
-      }
     }
   },
   perform: (request, { payload }) => {
@@ -81,8 +47,7 @@ const action: ActionDefinition<Settings, Payload> = {
         customerProfileId: payload.customerProfileId,
         eventType: payload.eventType,
         type: payload.type,
-        eventAttributes: payload.attributes,
-        attributesInfo: payload.attributesInfo
+        eventAttributes: payload.attributes
       }
     })
   }

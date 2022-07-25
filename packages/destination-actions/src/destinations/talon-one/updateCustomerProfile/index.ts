@@ -13,44 +13,9 @@ const action: ActionDefinition<Settings, Payload> = {
     addAudienceIds: { ...addAudienceId },
     runRuleEngine: {
       label: 'Run rule engine',
-      description:
-        'This runs rule engine in Talon.One upon updating customer profile. Set to true to trigger rules. Setting this property to false improves response times. For audiences changes the runRuleEngine should be true. Default value is false.',
+      description: 'This runs rule engine in Talon.One upon updating customer profile. Set to true to trigger rules.',
       type: 'boolean',
-      default: false
-    },
-    attributesInfo: {
-      label: 'Attributes with types',
-      description: 'Use this field if you want to identify an attribute with a specific type',
-      type: 'object',
-      required: false,
-      multiple: true,
-      properties: {
-        name: {
-          label: 'Name',
-          description: 'Attribute name',
-          type: 'string',
-          required: true
-        },
-        type: {
-          label: 'Type',
-          description: 'Attribute type. Can be only `string`, `time`, `number`, `boolean`, `location`',
-          type: 'string',
-          required: true
-        }
-      },
-      default: {
-        '@arrayPath': [
-          '$.traits.attributesInfo',
-          {
-            name: {
-              '@path': '$.name'
-            },
-            type: {
-              '@path': '$.type'
-            }
-          }
-        ]
-      }
+      default: true
     }
   },
   perform: (request, { payload }) => {
@@ -63,8 +28,7 @@ const action: ActionDefinition<Settings, Payload> = {
           adds: payload.addAudienceIds,
           deletes: payload.deleteAudienceIds
         },
-        runRuleEngine: payload.runRuleEngine,
-        attributesInfo: payload.attributesInfo
+        runRuleEngine: payload.runRuleEngine
       }
     })
   }

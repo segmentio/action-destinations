@@ -59,25 +59,8 @@ describe('Talon.One - Track Event', () => {
         type: 'string',
         eventAttributes: {
           favoriteProduct: 'fruits',
-          isDogLover: true,
-          stringAttribute: 'test',
-          booleanAttribute: 'true',
-          numberAttribute: '12345'
-        },
-        attributesInfo: [
-          {
-            name: 'stringAttribute',
-            type: 'string'
-          },
-          {
-            name: 'booleanAttribute',
-            type: 'boolean'
-          },
-          {
-            name: 'numberAttribute',
-            type: 'number'
-          }
-        ]
+          isDogLover: true
+        }
       })
       .matchHeader('Authorization', 'ApiKey-v1 some_api_key')
       .matchHeader('destination-hostname', 'https://something.europe-west1.talon.one')
@@ -94,25 +77,8 @@ describe('Talon.One - Track Event', () => {
         type: 'string',
         attributes: {
           favoriteProduct: 'fruits',
-          isDogLover: true,
-          stringAttribute: 'test',
-          booleanAttribute: 'true',
-          numberAttribute: '12345'
-        },
-        attributesInfo: [
-          {
-            name: 'stringAttribute',
-            type: 'string'
-          },
-          {
-            name: 'booleanAttribute',
-            type: 'boolean'
-          },
-          {
-            name: 'numberAttribute',
-            type: 'number'
-          }
-        ]
+          isDogLover: true
+        }
       }
     })
   })
