@@ -1,7 +1,8 @@
 import { ActionDefinition, IntegrationError } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
-import { CURRENCY_ISO_CODES, API_VERSION } from '../constants'
+import { CURRENCY_ISO_CODES } from '../constants'
+import { get_api_version } from '../utils'
 import {
   currency,
   value,
@@ -61,7 +62,7 @@ const action: ActionDefinition<Settings, Payload> = {
     num_items: num_items,
     custom_data: custom_data
   },
-  perform: (request, { payload, settings }) => {
+  perform: (request, { payload, settings, features, statsContext }) => {
     if (!CURRENCY_ISO_CODES.has(payload.currency)) {
       throw new IntegrationError(
         `${payload.currency} is not a valid currency code.`,
@@ -87,31 +88,34 @@ const action: ActionDefinition<Settings, Payload> = {
       if (err) throw err
     }
 
-    return request(`https://graph.facebook.com/v${API_VERSION}/${settings.pixelId}/events`, {
-      method: 'POST',
-      json: {
-        data: [
-          {
-            event_name: 'Purchase',
-            event_time: payload.event_time,
-            action_source: payload.action_source,
-            event_source_url: payload.event_source_url,
-            event_id: payload.event_id,
-            user_data: hash_user_data({ user_data: payload.user_data }),
-            custom_data: {
-              ...payload.custom_data,
-              currency: payload.currency,
-              value: payload.value,
-              content_ids: payload.content_ids,
-              content_name: payload.content_name,
-              content_type: payload.content_type,
-              contents: payload.contents,
-              num_items: payload.num_items
+    return request(
+      `https://graph.facebook.com/v${get_api_version(features, statsContext)}/${settings.pixelId}/events`,
+      {
+        method: 'POST',
+        json: {
+          data: [
+            {
+              event_name: 'Purchase',
+              event_time: payload.event_time,
+              action_source: payload.action_source,
+              event_source_url: payload.event_source_url,
+              event_id: payload.event_id,
+              user_data: hash_user_data({ user_data: payload.user_data }),
+              custom_data: {
+                ...payload.custom_data,
+                currency: payload.currency,
+                value: payload.value,
+                content_ids: payload.content_ids,
+                content_name: payload.content_name,
+                content_type: payload.content_type,
+                contents: payload.contents,
+                num_items: payload.num_items
+              }
             }
-          }
-        ]
+          ]
+        }
       }
-    })
+    )
   }
 }
 

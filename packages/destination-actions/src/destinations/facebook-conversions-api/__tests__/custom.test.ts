@@ -1,6 +1,7 @@
 import nock from 'nock'
 import { createTestEvent, createTestIntegration } from '@segment/actions-core'
 import Destination from '../index'
+import { API_VERSION } from '../constants'
 
 const testDestination = createTestIntegration(Destination)
 const settings = {
@@ -11,7 +12,7 @@ const settings = {
 describe('FacebookConversionsApi', () => {
   describe('Custom', () => {
     it('should fail if no event_name is passed', async () => {
-      nock(`https://graph.facebook.com/v12.0/${settings.pixelId}`).post(`/events`).reply(201, {})
+      nock(`https://graph.facebook.com/v${API_VERSION}/${settings.pixelId}`).post(`/events`).reply(201, {})
 
       const event = createTestEvent({
         userId: 'abc123',
@@ -39,7 +40,7 @@ describe('FacebookConversionsApi', () => {
     })
 
     it('should fail if an empty event_name is passed', async () => {
-      nock(`https://graph.facebook.com/v12.0/${settings.pixelId}`).post(`/events`).reply(201, {})
+      nock(`https://graph.facebook.com/v${API_VERSION}/${settings.pixelId}`).post(`/events`).reply(201, {})
 
       const event = createTestEvent({
         event: '',
@@ -68,7 +69,7 @@ describe('FacebookConversionsApi', () => {
     })
 
     it('should throw an error for an invalid action_source', async () => {
-      nock(`https://graph.facebook.com/v12.0/${settings.pixelId}`).post(`/events`).reply(201, {})
+      nock(`https://graph.facebook.com/v${API_VERSION}/${settings.pixelId}`).post(`/events`).reply(201, {})
 
       const event = createTestEvent({
         event: 'custom',
@@ -102,7 +103,7 @@ describe('FacebookConversionsApi', () => {
     })
 
     it('should map a standard identify event to a custom event', async () => {
-      nock(`https://graph.facebook.com/v12.0/${settings.pixelId}`).post(`/events`).reply(201, {})
+      nock(`https://graph.facebook.com/v${API_VERSION}/${settings.pixelId}`).post(`/events`).reply(201, {})
 
       const event = createTestEvent({
         anonymousId: '507f191e810c19729de860ea',
