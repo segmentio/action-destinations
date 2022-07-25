@@ -53,6 +53,7 @@ export const getCompanyProperties = (): Record<string, InputField> => ({
     description: 'The custom traits for the company object.',
     label: 'Company Custom Traits',
     type: 'object',
-    required: false
+    required: false,
+    defaultObjectUI: 'keyvalue'
   }
 })

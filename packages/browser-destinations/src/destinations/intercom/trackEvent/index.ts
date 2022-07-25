@@ -23,7 +23,7 @@ const action: BrowserActionDefinition<Settings, Intercom, Payload> = {
         'The amount associated with a purchase. Segment will multiply by 100 as Intercom requires the amount in cents.',
       label: 'Revenue',
       type: 'number',
-      required: true,
+      required: false,
       default: {
         '@path': '$.properties.revenue'
       }
@@ -71,11 +71,12 @@ const action: BrowserActionDefinition<Settings, Intercom, Payload> = {
         amount: payload.revenue * 100,
         currency: payload.currency ?? 'USD'
       }
+      delete payload.revenue
+      delete payload.currency
     }
 
     // filter out reserved fields, drop custom objects & arrays
-    const reservedFields = [...richLinkProperties, 'currency', 'revenue']
-    const filteredMetadata = filterCustomTraits(reservedFields, event_metadata)
+    const filteredMetadata = filterCustomTraits(event_metadata)
 
     //merge richLinkObjects into the final payload
     //API call

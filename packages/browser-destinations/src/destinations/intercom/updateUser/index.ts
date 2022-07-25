@@ -27,9 +27,7 @@ const action: BrowserActionDefinition<Settings, Intercom, Payload> = {
       label: 'Custom Attributes',
       type: 'object',
       required: false,
-      default: {
-        '@path': '$.traits'
-      }
+      defaultObjectUI: 'keyvalue'
     },
     name: {
       description: "The user's name.",
@@ -149,8 +147,7 @@ const action: BrowserActionDefinition<Settings, Intercom, Payload> = {
         plan: { '@path': '$.traits.company.plan' },
         size: { '@path': '$.traits.company.size' },
         website: { '@path': '$.traits.company.website' },
-        industry: { '@path': '$.traits.company.industry' },
-        company_custom_traits: { '@path': '$.traits.company' }
+        industry: { '@path': '$.traits.company.industry' }
       }
     },
     companies: {
@@ -176,8 +173,7 @@ const action: BrowserActionDefinition<Settings, Intercom, Payload> = {
             plan: { '@path': '$.plan' },
             size: { '@path': '$.size' },
             website: { '@path': '$.website' },
-            industry: { '@path': '$.industry' },
-            company_custom_traits: { '@path': '$.' }
+            industry: { '@path': '$.industry' }
           }
         ]
       }
@@ -203,6 +199,9 @@ const action: BrowserActionDefinition<Settings, Intercom, Payload> = {
     const payload = { ...rest }
 
     // remove company if it is empty
+    if (isEmpty(payload.company?.company_custom_traits)) {
+      delete payload.company?.company_custom_traits
+    }
     if (isEmpty(payload.company)) {
       delete payload.company
     }
@@ -230,24 +229,13 @@ const action: BrowserActionDefinition<Settings, Intercom, Payload> = {
       }
     }
 
-    //define the reservedFields
-    const reservedFields = [
-      ...Object.keys(action.fields),
-      ...Object.keys(companyProperties),
-      'createdAt',
-      'userHash',
-      'id',
-      'firstName',
-      'lastName'
-    ]
-
     // filter out reserved fields for user, drop custom objects & arrays
-    const filteredCustomTraits = filterCustomTraits(reservedFields, custom_traits)
+    const filteredCustomTraits = filterCustomTraits(custom_traits)
 
     // filter out reserved fields for company, drop custom objects & arrays
     if (payload.company) {
       const { company_custom_traits, ...rest } = payload.company
-      const companyFilteredCustomTraits = filterCustomTraits(reservedFields, company_custom_traits)
+      const companyFilteredCustomTraits = filterCustomTraits(company_custom_traits)
       payload.company = { ...rest, ...companyFilteredCustomTraits }
     }
 
@@ -255,7 +243,7 @@ const action: BrowserActionDefinition<Settings, Intercom, Payload> = {
     if (payload.companies) {
       payload.companies = payload.companies.map((company) => {
         const { company_custom_traits, ...rest } = company
-        const companyFilteredCustomTraits = filterCustomTraits(reservedFields, company_custom_traits)
+        const companyFilteredCustomTraits = filterCustomTraits(company_custom_traits)
         company = { ...rest, ...companyFilteredCustomTraits }
         return company
       })

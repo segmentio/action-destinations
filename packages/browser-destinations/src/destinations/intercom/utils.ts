@@ -13,12 +13,11 @@ export function convertDateToUnix(created_at: string | number): number {
   return dayjs(created_at).unix()
 }
 
-export function filterCustomTraits(reservedFields: Array<string>, traits: { [k: string]: unknown } | undefined) {
+export function filterCustomTraits(traits: { [k: string]: unknown } | undefined) {
   const filteredCustomTraits: { [k: string]: unknown } = {}
   if (traits) {
-    const reservedFieldsSet = new Set(reservedFields)
     for (const [key, value] of Object.entries(traits)) {
-      if (!reservedFieldsSet.has(key) && !isArray(value) && !isObject(value) && value) {
+      if (!isArray(value) && !isObject(value)) {
         filteredCustomTraits[key] = value
       }
     }

@@ -32,8 +32,7 @@ const action: BrowserActionDefinition<Settings, Intercom, Payload> = {
         plan: { '@path': '$.traits.plan' },
         size: { '@path': '$.traits.size' },
         website: { '@path': '$.traits.website' },
-        industry: { '@path': '$.traits.industry' },
-        company_custom_traits: { '@path': '$.traits' }
+        industry: { '@path': '$.traits.industry' }
       }
     },
     hide_default_launcher: {
@@ -52,23 +51,22 @@ const action: BrowserActionDefinition<Settings, Intercom, Payload> = {
     }
   },
   perform: (Intercom, event) => {
-    //remove traits from payload; traits will not be sent in the final payload to Intercom
+    // remove traits from payload; traits will not be sent in the final payload to Intercom
     const { company_custom_traits, ...rest } = event.payload.company
     let company = { ...rest }
 
-    //convert date from ISO-8601 to UNIX
+    // convert date from ISO-8601 to UNIX
     if (company?.created_at) {
       company.created_at = convertDateToUnix(company.created_at)
     }
 
-    //filter out reserved fields, drop custom objects & arrays
-    const reservedFields = [...Object.keys(companyProperties), 'createdAt']
-    const filteredCustomTraits = filterCustomTraits(reservedFields, company_custom_traits)
+    // drop custom objects & arrays
+    const filteredCustomTraits = filterCustomTraits(company_custom_traits)
 
-    //merge filtered custom traits back into company object
+    // merge filtered custom traits back into company object
     company = { ...company, ...filteredCustomTraits }
 
-    //get user's widget options
+    // get user's widget options
     const widgetOptions = getWidgetOptions(event.payload.hide_default_launcher, Intercom.activator)
 
     //API call
