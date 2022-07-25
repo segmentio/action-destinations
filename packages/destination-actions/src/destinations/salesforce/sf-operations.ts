@@ -40,6 +40,17 @@ interface DescribeObjectResponseData {
   ]
 }
 
+interface SObjectsResponseData {
+  sobjects: [
+    {
+      label: string
+      name: string
+      createable: boolean
+      queryable: boolean
+    }
+  ]
+}
+
 export default class Salesforce {
   instanceUrl: string
   request: RequestClient
@@ -123,6 +134,27 @@ export default class Salesforce {
 
     const fields = result.data.fields.filter((field) => {
       return field.externalId === true
+    })
+
+    return {
+      choices: fields.map((field) => {
+        return { value: field.name, label: field.label }
+      }),
+      nextPage: '2'
+    }
+  }
+
+  customObjectName = async (): Promise<DynamicFieldResponse> => {
+    const result = await this.request<SObjectsResponseData>(
+      `${this.instanceUrl}services/data/${API_VERSION}/sobjects`,
+      {
+        method: 'get',
+        skipResponseCloning: true
+      }
+    )
+
+    const fields = result.data.sobjects.filter((field) => {
+      return field.createable === true
     })
 
     return {
