@@ -116,6 +116,7 @@ const action: ActionDefinition<Settings, Payload> = {
     if (payload.timestamp && dayjs.utc(payload.timestamp).isValid()) {
       event.timestamp = dayjs.utc(payload.timestamp).toISOString()
     }
+    
     return request('https://heapanalytics.com/api/track', {
       method: 'post',
       json: event
