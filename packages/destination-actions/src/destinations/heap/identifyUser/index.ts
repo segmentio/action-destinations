@@ -47,7 +47,6 @@ const action: ActionDefinition<Settings, Payload> = {
     const responses = []
 
     if (payload.anonymous_id) {
-      // :TODO: Verify parameters
       const data = {
         app_id: settings.appId,
         identity: payload.user_id,

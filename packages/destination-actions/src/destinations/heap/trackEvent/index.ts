@@ -5,6 +5,7 @@ import dayjs from '../../../lib/dayjs'
 import { HEAP_SEGMENT_LIBRARY_NAME } from '../constants'
 import { getHeapUserId } from '../userIdHash'
 import { flat } from '../flat'
+import { IntegrationError } from '@segment/actions-core'
 
 type HeapEvent = {
   app_id: string
@@ -89,11 +90,11 @@ const action: ActionDefinition<Settings, Payload> = {
   },
   perform: (request, { payload, settings }) => {
     if (!settings.appId) {
-      throw new Error('Missing app ID')
+      throw new IntegrationError('Missing app ID')
     }
 
     if (!payload.anonymous_id && !payload.identity) {
-      throw new Error('Either anonymous user id or identity should be specified.')
+      throw new IntegrationError('Either anonymous user id or identity should be specified.')
     }
 
     const defaultEventProperties = { segment_library: payload.library_name || HEAP_SEGMENT_LIBRARY_NAME }
