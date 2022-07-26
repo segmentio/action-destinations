@@ -16,14 +16,6 @@ export interface Payload {
    */
   name?: string
   /**
-   * The user's first name.
-   */
-  first_name?: string
-  /**
-   * The user's last name.
-   */
-  last_name?: string
-  /**
    * The user's phone number.
    */
   phone?: string
