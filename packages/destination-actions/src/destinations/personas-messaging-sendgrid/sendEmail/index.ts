@@ -258,27 +258,6 @@ const action: ActionDefinition<Settings, Payload> = {
         ]
       }
     },
-    audienceId: {
-      label: 'Audience ID',
-      type: 'string',
-      description: 'The Audience ID of the Journey Step.',
-      required: false,
-      default: { '@path': '$.context.personas.computation_id' }
-    },
-    spaceId: {
-      label: 'Space ID',
-      type: 'string',
-      description: 'The Personas Space ID',
-      default: { '@path': '$.context.personas.space_id' },
-      required: false
-    },
-    projectId: {
-      label: 'Project ID',
-      type: 'string',
-      description: 'The Project ID or Destination Config Identifier to associate a Action instance.',
-      default: { '@path': '$.projectId' },
-      required: false
-    },
     customArgs: {
       label: 'Custom Args',
       description: 'Additional custom args that we be passed back opaquely on webhook events',
@@ -289,8 +268,7 @@ const action: ActionDefinition<Settings, Payload> = {
   perform: async (request, { settings, payload, statsContext }) => {
     const statsClient = statsContext?.statsClient
     const tags = statsContext?.tags
-    tags?.push(`${payload.spaceId}:${payload.audienceId}:${payload.projectId}`)
-
+    tags?.push(settings.spaceId)
     if (!payload.send) {
       statsClient?.incr('actions-personas-messaging-sendgrid.send-disabled', 1, tags)
       return
@@ -422,6 +400,7 @@ const action: ActionDefinition<Settings, Payload> = {
         tags?.push('5xx')
       }
       statsClient?.incr('actions-personas-messaging-sendgrid.response', 1, tags)
+      console.log('tags:', tags)
       return response
     } else {
       throw new IntegrationError(
