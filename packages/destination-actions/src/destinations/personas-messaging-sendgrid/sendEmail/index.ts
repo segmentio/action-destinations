@@ -262,25 +262,22 @@ const action: ActionDefinition<Settings, Payload> = {
       label: 'Audience ID',
       type: 'string',
       description: 'The Audience ID of the Journey Step.',
-      default: {
-        '@path': '$.context.personas.computation_id'
-      }
+      required: false,
+      default: { '@path': '$.context.personas.computation_id' }
     },
     spaceId: {
       label: 'Space ID',
       type: 'string',
       description: 'The Personas Space ID',
-      default: {
-        '@path': '$.context.personas.space_id'
-      }
+      default: { '@path': '$.context.personas.space_id' },
+      required: false
     },
     projectId: {
       label: 'Project ID',
       type: 'string',
       description: 'The Project ID or Destination Config Identifier to associate a Action instance.',
-      default: {
-        '@path': '$.projectId'
-      }
+      default: { '@path': '$.projectId' },
+      required: false
     },
     customArgs: {
       label: 'Custom Args',
