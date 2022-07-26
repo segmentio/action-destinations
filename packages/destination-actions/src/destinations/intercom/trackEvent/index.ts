@@ -1,4 +1,4 @@
-import type { ActionDefinition } from '@segment/actions-core'
+import { ActionDefinition, IntegrationError } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import { convertValidTimestamp, getUniqueIntercomContact } from '../util'
 import type { Payload } from './generated-types'
@@ -85,11 +85,13 @@ const action: ActionDefinition<Settings, Payload> = {
     payload.created_at = convertValidTimestamp(payload.created_at)
     delete payload.metadata?.email
 
-    // This contact could possibly be a lead, in which case we need to grab the id
+    // If only an email is passed, then this might be a lead - so retrieve the contact
     if (payload.email && !payload.user_id && !payload.id) {
       const contact = await getUniqueIntercomContact(request, payload)
       if (contact) {
         payload.id = contact.id
+      } else {
+        throw new IntegrationError('No unique contact found', 'Contact not found', 404)
       }
     }
 
@@ -108,6 +110,11 @@ const action: ActionDefinition<Settings, Payload> = {
  */
 function possiblyPopulatePrice(payload: Payload) {
   const { revenue, currency } = payload
+  delete payload.revenue
+  delete payload.currency
+  delete payload.metadata?.revenue
+  delete payload.metadata?.currency
+
   if (revenue || revenue === 0) {
     if (!payload.metadata) {
       payload.metadata = {}
