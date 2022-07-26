@@ -1,6 +1,7 @@
 import nock from 'nock'
 import { createTestEvent, createTestIntegration } from '@segment/actions-core'
 import Destination from '../index'
+import { API_VERSION } from '../constants'
 
 const testDestination = createTestIntegration(Destination)
 
@@ -11,7 +12,7 @@ const settings = {
 
 describe('purchase', () => {
   it('should handle a basic event', async () => {
-    nock(`https://graph.facebook.com/v12.0/${settings.pixelId}`).post(`/events`).reply(201, {})
+    nock(`https://graph.facebook.com/v${API_VERSION}/${settings.pixelId}`).post(`/events`).reply(201, {})
 
     const event = createTestEvent({
       event: 'Order Completed',
@@ -81,7 +82,7 @@ describe('purchase', () => {
   })
 
   it('should handle default mappings', async () => {
-    nock(`https://graph.facebook.com/v12.0/${settings.pixelId}`).post(`/events`).reply(201, {})
+    nock(`https://graph.facebook.com/v${API_VERSION}/${settings.pixelId}`).post(`/events`).reply(201, {})
 
     const event = createTestEvent({
       event: 'Order Completed',
@@ -115,7 +116,7 @@ describe('purchase', () => {
   })
 
   it('should throw an error when currency and value are missing', async () => {
-    nock(`https://graph.facebook.com/v12.0/${settings.pixelId}`).post(`/events`).reply(201, {})
+    nock(`https://graph.facebook.com/v${API_VERSION}/${settings.pixelId}`).post(`/events`).reply(201, {})
 
     const event = createTestEvent({
       event: 'Order Completed',
@@ -156,7 +157,7 @@ describe('purchase', () => {
   })
 
   it('should throw an error if no user_data keys are included', async () => {
-    nock(`https://graph.facebook.com/v12.0/${settings.pixelId}`).post(`/events`).reply(201, {})
+    nock(`https://graph.facebook.com/v${API_VERSION}/${settings.pixelId}`).post(`/events`).reply(201, {})
 
     const event = createTestEvent({
       event: 'Order Completed',
