@@ -39,32 +39,6 @@ const action: BrowserActionDefinition<Settings, Intercom, Payload> = {
         '@path': '$.traits.name'
       }
     },
-    first_name: {
-      description: "The user's first name.",
-      label: 'Name',
-      type: 'string',
-      required: false,
-      default: {
-        '@if': {
-          exists: { '@path': '$.traits.firstName' },
-          then: { '@path': '$.traits.firstName' },
-          else: { '@path': '$.traits.first_name' }
-        }
-      }
-    },
-    last_name: {
-      description: "The user's last name.",
-      label: 'Name',
-      type: 'string',
-      required: false,
-      default: {
-        '@if': {
-          exists: { '@path': '$.traits.lastName' },
-          then: { '@path': '$.traits.lastName' },
-          else: { '@path': '$.traits.last_name' }
-        }
-      }
-    },
     phone: {
       description: "The user's phone number.",
       label: 'Phone Number',
@@ -207,20 +181,6 @@ const action: BrowserActionDefinition<Settings, Intercom, Payload> = {
     }
     if (isEmpty(payload.company)) {
       delete payload.company
-    }
-
-    // if no name provided, concatenate firstName & lastName to form name
-    if (!payload.name && payload.first_name) {
-      payload.name = payload.first_name
-      if (payload.last_name) {
-        payload.name += ' ' + payload.last_name
-      }
-    }
-    if (payload.first_name) {
-      delete payload.first_name
-    }
-    if (payload.last_name) {
-      delete payload.last_name
     }
 
     // convert 'created_at' date properties from ISO-8601 to UNIX

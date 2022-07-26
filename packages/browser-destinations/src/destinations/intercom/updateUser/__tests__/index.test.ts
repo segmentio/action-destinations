@@ -20,20 +20,6 @@ const subscriptions: Subscription[] = [
         }
       },
       name: { '@path': '$.traits.name' },
-      first_name: {
-        '@if': {
-          exists: { '@path': '$.traits.firstName' },
-          then: { '@path': '$.traits.firstName' },
-          else: { '@path': '$.traits.first_name' }
-        }
-      },
-      last_name: {
-        '@if': {
-          exists: { '@path': '$.traits.lastName' },
-          then: { '@path': '$.traits.lastName' },
-          else: { '@path': '$.traits.last_name' }
-        }
-      },
       email: { '@path': '$.traits.email' },
       phone: { '@path': '$.traits.phone' },
       unsubscribed_from_emails: { '@path': '$.traits.unsubscribedFromEmails' },
@@ -174,78 +160,6 @@ describe('Intercom.update (user)', () => {
     expect(mockIntercom).toHaveBeenCalledWith('update', {
       user_id: 'id',
       email: 'italo@gmail.com',
-      name: 'italo ferreira'
-    })
-  })
-
-  test('sets first and last as name', async () => {
-    const context = new Context({
-      type: 'identify',
-      userId: 'id',
-      traits: {
-        firstName: 'italo',
-        lastName: 'ferreira'
-      }
-    })
-
-    await updateUser.identify?.(context)
-
-    expect(mockIntercom).toHaveBeenCalledWith('update', {
-      user_id: 'id',
-      name: 'italo ferreira'
-    })
-  })
-
-  test('set name = first_name if no last_name', async () => {
-    const context = new Context({
-      type: 'identify',
-      userId: 'id',
-      traits: {
-        firstName: 'italo'
-      }
-    })
-
-    await updateUser.identify?.(context)
-
-    expect(mockIntercom).toHaveBeenCalledWith('update', {
-      user_id: 'id',
-      name: 'italo'
-    })
-  })
-
-  test('respects name over first_name & last_name', async () => {
-    const context = new Context({
-      type: 'identify',
-      userId: 'id',
-      traits: {
-        name: 'myname',
-        firstName: 'italo',
-        lastName: 'ferreira'
-      }
-    })
-
-    await updateUser.identify?.(context)
-
-    expect(mockIntercom).toHaveBeenCalledWith('update', {
-      user_id: 'id',
-      name: 'myname'
-    })
-  })
-
-  test('accepts snake/camel case for first_name and last_name', async () => {
-    const context = new Context({
-      type: 'identify',
-      userId: 'id',
-      traits: {
-        first_name: 'italo',
-        last_name: 'ferreira'
-      }
-    })
-
-    await updateUser.identify?.(context)
-
-    expect(mockIntercom).toHaveBeenCalledWith('update', {
-      user_id: 'id',
       name: 'italo ferreira'
     })
   })
