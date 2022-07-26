@@ -12,11 +12,11 @@ const subscriptions: Subscription[] = [
     mapping: {
       user_id: { '@path': '$.userId' },
       custom_traits: {
-        height: {
-          '@path': '$.traits.height'
+        major: {
+          '@path': '$.traits.major'
         },
-        tech: {
-          '@path': '$.traits.weight'
+        school: {
+          '@path': '$.traits.school'
         }
       },
       name: { '@path': '$.traits.name' },
@@ -256,7 +256,7 @@ describe('Intercom.update (user)', () => {
       userId: 'id',
       traits: {
         shortboarder: true,
-        height: 'short'
+        major: 'cs'
       }
     })
 
@@ -264,7 +264,7 @@ describe('Intercom.update (user)', () => {
 
     expect(mockIntercom).toHaveBeenCalledWith('update', {
       user_id: 'id',
-      height: 'short'
+      major: 'cs'
     })
   })
 
