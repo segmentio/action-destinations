@@ -18,19 +18,23 @@ const fetchProfileTraits = async (
   settings: Settings,
   profileId: string
 ): Promise<Record<string, string>> => {
-  const endpoint = getProfileApiEndpoint(settings.profileApiEnvironment)
-  const response = await request(
-    `${endpoint}/v1/spaces/${settings.spaceId}/collections/users/profiles/user_id:${profileId}/traits?limit=200`,
-    {
-      headers: {
-        authorization: `Basic ${Buffer.from(settings.profileApiAccessToken + ':').toString('base64')}`,
-        'content-type': 'application/json'
+  try {
+    const endpoint = getProfileApiEndpoint(settings.profileApiEnvironment)
+    const response = await request(
+      `${endpoint}/v1/spaces/${settings.spaceId}/collections/users/profiles/user_id:${profileId}/traits?limit=200`,
+      {
+        headers: {
+          authorization: `Basic ${Buffer.from(settings.profileApiAccessToken + ':').toString('base64')}`,
+          'content-type': 'application/json'
+        }
       }
-    }
-  )
+    )
 
-  const body = await response.json()
-  return body.traits
+    const body = await response.json()
+    return body.traits
+  } catch (error) {
+    throw new IntegrationError('Unable to get profile traits for SMS message', 'SMS trait fetch failure', 500)
+  }
 }
 
 const EXTERNAL_ID_KEY = 'phone'
@@ -151,7 +155,13 @@ const action: ActionDefinition<Settings, Payload> = {
       // TODO: GROW-259 remove this when we can extend the request
       // and we no longer need to call the profiles API first
       const token = Buffer.from(`${settings.twilioApiKeySID}:${settings.twilioApiKeySecret}`).toString('base64')
-      const parsedBody = await Liquid.parseAndRender(payload.body, { profile })
+      let parsedBody
+
+      try {
+        parsedBody = await Liquid.parseAndRender(payload.body, { profile })
+      } catch (error) {
+        throw new IntegrationError(`Unable to parse templating in SMS`, `SMS templating parse failure`, 400)
+      }
 
       const body = new URLSearchParams({
         Body: parsedBody,
