@@ -7,6 +7,7 @@ import type { Payload } from './generated-types'
 const action: BrowserActionDefinition<Settings, Intercom, Payload> = {
   title: 'Track Event',
   description: 'Submit an event to Intercom.',
+  defaultSubscription: 'type = "track"',
   platform: 'web',
   fields: {
     event_name: {
