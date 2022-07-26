@@ -110,6 +110,7 @@ const action: ActionDefinition<Settings, Payload> = {
       event.use_user_id = true
       event.user_id = getHeapUserId(payload.anonymous_id)
     }
+    
     if (payload.identity) {
       event.identity = payload.identity
     }
