@@ -42,7 +42,7 @@ const action: BrowserActionDefinition<Settings, Intercom, Payload> = {
       description: 'Optional metadata describing the event.',
       label: 'Event Metadata',
       type: 'object',
-      required: true,
+      required: false,
       default: {
         '@path': '$.properties'
       }
@@ -56,7 +56,7 @@ const action: BrowserActionDefinition<Settings, Intercom, Payload> = {
 
     // create a list of the richLinkObjects that will be passed to Intercom
     const richLinkObjects: { [k: string]: unknown } = {}
-    if (richLinkProperties.length != 0) {
+    if (event_metadata && richLinkProperties.length != 0) {
       Object.entries(event_metadata).forEach(([key, value]) => {
         if (richLinkProperties.includes(key)) {
           richLinkObjects[key] = value

@@ -16,7 +16,7 @@ export interface Payload {
   /**
    * Optional metadata describing the event.
    */
-  event_metadata: {
+  event_metadata?: {
     [k: string]: unknown
   }
 }
