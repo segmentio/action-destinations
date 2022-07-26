@@ -113,6 +113,7 @@ const action: ActionDefinition<Settings, Payload> = {
     if (payload.identity) {
       event.identity = payload.identity
     }
+    
     if (payload.timestamp && dayjs.utc(payload.timestamp).isValid()) {
       event.timestamp = dayjs.utc(payload.timestamp).toISOString()
     }
