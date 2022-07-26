@@ -32,7 +32,7 @@ const fetchProfileTraits = async (
 
     const body = await response.json()
     return body.traits
-  } catch (error) {
+  } catch (error: unknown) {
     throw new IntegrationError('Unable to get profile traits for SMS message', 'SMS trait fetch failure', 500)
   }
 }
@@ -159,7 +159,7 @@ const action: ActionDefinition<Settings, Payload> = {
 
       try {
         parsedBody = await Liquid.parseAndRender(payload.body, { profile })
-      } catch (error) {
+      } catch (error: unknown) {
         throw new IntegrationError(`Unable to parse templating in SMS`, `SMS templating parse failure`, 400)
       }
 
