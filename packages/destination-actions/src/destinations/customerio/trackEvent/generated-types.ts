@@ -14,7 +14,7 @@ export interface Payload {
    */
   name: string
   /**
-   * An optional identifier used to deduplicate events. This value must be a valid ULID otherwise one will be generated. [Learn more](https://customer.io/docs/api/#operation/track)
+   * An optional identifier used to deduplicate events. [Learn more](https://customer.io/docs/api/#operation/track).
    */
   event_id?: string
   /**
