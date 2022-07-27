@@ -16,14 +16,14 @@ const destination: DestinationDefinition<Settings> = {
     fields: {
       apiToken: {
         label: 'API Token',
-        description: 'Qualtrics API token found in your Qualtrics account under "Account settings" -> "Qualtrics IDs"',
+        description: 'Qualtrics API token found in your Qualtrics account under "Account settings" -> "Qualtrics IDs."',
         type: 'string',
         required: true
       },
       datacenter: {
         label: 'Datacenter ID',
         description:
-          'Qualtrics datacenter id that identifies where your qualtrics instance is located. Found under "Account settings" -> "Qualtrics IDs"',
+          'Qualtrics datacenter id that identifies where your qualtrics instance is located. Found under "Account settings" -> "Qualtrics IDs".',
         type: 'string',
         required: true
       }

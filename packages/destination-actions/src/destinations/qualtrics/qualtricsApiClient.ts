@@ -102,7 +102,7 @@ export default class QualtricsApiClient {
     })
   }
 
-  private buildUrl(endpoint: string) {
+  private buildUrl(endpoint: string): string {
     let parsedEndpoint = endpoint
     if (parsedEndpoint.startsWith('/')) {
       parsedEndpoint = parsedEndpoint.substring(1)

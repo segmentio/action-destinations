@@ -11,13 +11,13 @@ const action: ActionDefinition<Settings, Payload> = {
       type: 'string',
       format: 'uri',
       description:
-        'Enter the full URL as you see in your Xflow trigger. See more details on setting up an xflow trigger and getting the URL here',
+        'Enter the full URL as you see in your Xflow trigger. See more details on setting up an xflow trigger and getting the URL here.',
       required: true
     },
     eventPayload: {
       label: 'Event payload',
       type: 'object',
-      description: 'A mapping of key values to send to Qualtrics xflow',
+      description: 'A mapping of key values to send to Qualtrics xflow.',
       defaultObjectUI: 'keyvalue',
       default: {
         event: {
