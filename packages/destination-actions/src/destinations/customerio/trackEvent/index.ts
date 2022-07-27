@@ -47,7 +47,7 @@ const action: ActionDefinition<Settings, Payload> = {
     },
     event_id: {
       label: 'Event ID',
-      description: 'An optional identifier used to deduplicate events. [Learn more](https://customer.io/docs/api/#operation/track)',
+      description: 'An optional identifier used to deduplicate events. [Learn more](https://customer.io/docs/api/#operation/track).',
       type: 'string',
       default: {
         '@path': '$.messageId'
