@@ -21,7 +21,7 @@ const presets: DestinationDefinition['presets'] = [
 ]
 
 const destination: DestinationDefinition<Settings> = {
-  name: 'Heap',
+  name: 'Heap Cloud (Actions)',
   slug: 'actions-heap',
   mode: 'cloud',
   authentication: {
