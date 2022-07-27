@@ -10,6 +10,7 @@ export const email = 'fake+email@example.com'
 export const displayName = 'fake-display-name'
 export const baseUrl = 'https://api.fullstory.com'
 export const settings = { apiKey }
+export const integrationSourceQueryParam = `integration=segment`
 
 const testDestination = createTestIntegration(Definition)
 
@@ -23,7 +24,9 @@ describe('FullStory', () => {
 
   describe('trackEvent', () => {
     it('makes expected request with default mappings', async () => {
-      nock(baseUrl).post(`/users/v1/individual/${urlEncodedUserId}/customevent`).reply(200)
+      nock(baseUrl)
+        .post(`/users/v1/individual/${urlEncodedUserId}/customevent?${integrationSourceQueryParam}`)
+        .reply(200)
       const eventName = 'test-event'
 
       const properties = {
@@ -78,7 +81,9 @@ describe('FullStory', () => {
     })
 
     it('handles undefined event values', async () => {
-      nock(baseUrl).post(`/users/v1/individual/${urlEncodedUserId}/customevent`).reply(200)
+      nock(baseUrl)
+        .post(`/users/v1/individual/${urlEncodedUserId}/customevent?${integrationSourceQueryParam}`)
+        .reply(200)
       const eventName = 'test-event'
 
       const event = createTestEvent({
@@ -106,7 +111,9 @@ describe('FullStory', () => {
 
   describe('identifyUser', () => {
     it('makes expected request with default mappings', async () => {
-      nock(baseUrl).post(`/users/v1/individual/${urlEncodedUserId}/customvars`).reply(200)
+      nock(baseUrl)
+        .post(`/users/v1/individual/${urlEncodedUserId}/customvars?${integrationSourceQueryParam}`)
+        .reply(200)
       const event = createTestEvent({
         type: 'identify',
         userId,
