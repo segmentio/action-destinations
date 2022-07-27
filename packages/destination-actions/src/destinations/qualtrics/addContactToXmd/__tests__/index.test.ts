@@ -18,7 +18,7 @@ const CONTACT_INFO = {
   region: 'region'
 }
 
-describe('Qualtrics.addContactToXmd', () => {
+describe('addContactToXmd', () => {
   it('should send a valid action with default mapping', async () => {
     nock('https://testdc.qualtrics.com')
       .post(`/API/v3/directories/${DIRECTORY_ID}/contacts`)

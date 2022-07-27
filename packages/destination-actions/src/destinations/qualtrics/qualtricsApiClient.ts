@@ -66,6 +66,11 @@ export type CreateDirectoryContactResponse = {
   id: string
 }
 
+type StandardRequestParams = {
+  headers: Record<string, string>
+  method: SupportedMethods
+}
+
 export default class QualtricsApiClient {
   private baseUrl: string
   private apiToken: string
@@ -110,7 +115,7 @@ export default class QualtricsApiClient {
     return `${this.baseUrl}/${parsedEndpoint}`
   }
 
-  private buildRequestParams(method: SupportedMethods) {
+  private buildRequestParams(method: SupportedMethods): StandardRequestParams {
     return {
       method,
       headers: {
