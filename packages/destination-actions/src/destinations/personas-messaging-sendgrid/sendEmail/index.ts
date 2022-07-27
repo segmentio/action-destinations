@@ -51,7 +51,7 @@ const fetchProfileTraits = async (
     const body = await response.json()
     return body.traits
   } catch (error) {
-    throw new IntegrationError('Unable to get profile traits', 'Trait fetch failure', 500)
+    throw new IntegrationError('Unable to get profile traits for email message', 'Email trait fetch failure', 500)
   }
 }
 
