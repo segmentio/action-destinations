@@ -2295,10 +2295,10 @@
   resolved "https://registry.yarnpkg.com/@segment/a1-notation/-/a1-notation-2.1.4.tgz#35a48a0688019c3ffff23b1ba890e864c891a11f"
   integrity sha512-SId7GOdDFmm/B9ajIQpXELHW4OTbVvmJbOsoJkQOcUEtoZIiX2UWfk1v4BpKql8wJW9oAhzhIIru2Pv2Yxcg+w==
 
-"@segment/action-destinations@^3.82.0":
-  version "3.83.0"
-  resolved "https://registry.yarnpkg.com/@segment/action-destinations/-/action-destinations-3.83.0.tgz#6eef9e4e002b30573d028507a3b106cc90ee33a7"
-  integrity sha512-efi800SYe//lnk6C0WfFp7vrFg6L47i+pzsUegEMrHzHIjAlybXHg46UrNUSkC1uiIcnSY01eT/rZnVE6tH+bA==
+"@segment/action-destinations@^3.86.0":
+  version "3.86.0"
+  resolved "https://registry.yarnpkg.com/@segment/action-destinations/-/action-destinations-3.86.0.tgz#48160f3983fb1950a8e4a42401757162060b44cc"
+  integrity sha512-NNwzJ2ovMCQSjTmH8VLlq9rQF57fHAbLErBTCIlvqOOx8uO6dq6BUPp8cH/tKe5ysNMVtWSGT8qfRatAG7C1Uw==
   dependencies:
     "@amplitude/ua-parser-js" "^0.7.25"
     "@segment/a1-notation" "^2.1.4"
@@ -2310,7 +2310,7 @@
     liquidjs "^9.37.0"
     lodash "^4.17.21"
 
-"@segment/actions-core@^3.29.1-alpha.4", "@segment/actions-core@^3.30.0":
+"@segment/actions-core@^3.30.0":
   version "3.30.0"
   resolved "https://registry.yarnpkg.com/@segment/actions-core/-/actions-core-3.30.0.tgz#42a052319aec1a6a9a42a342cf2d928de1387b97"
   integrity sha512-njzXLLJPmwyktGpObzdhJyeMBB8h4RodGkbPkRLgHJtba1DI6XOPfaz+zEe8mNlShEV4j3TwLgwEPnkGqQaayQ==
@@ -2327,18 +2327,23 @@
     dayjs "^1.10.7"
     ts-custom-error "^3.2.0"
 
-"@segment/actions-shared@^1.13.0":
-  version "1.13.0"
-  resolved "https://registry.yarnpkg.com/@segment/actions-shared/-/actions-shared-1.13.0.tgz#736f4898fcaf622e57964cdc81373ba86b2c81e9"
-  integrity sha512-YqQo1SekHc61KzwR6Zds0Q62Dippku4RmshSCYZ5Jd8LG8okpm/ZVyVlSt5FkfiI0SGBSi38U1xEOvAq8xXgOA==
+"@segment/actions-shared@^1.13.1-alpha.8":
+  version "1.13.1-alpha.5"
+  resolved "https://registry.yarnpkg.com/@segment/actions-shared/-/actions-shared-1.13.1-alpha.5.tgz#cbdd8943571c9cab355a3e663d8ad9bc64bcdf57"
+  integrity sha512-FWCsoFpuySG0JcbGyUxl2n56ljj4VZtHt7DKQdeoJStpcPXBcEKQ7Z1KwBr6px4kgLWFMnnGC+KAtB7K9+cong==
   dependencies:
     "@amplitude/ua-parser-js" "^0.7.25"
-    "@segment/actions-core" "^3.30.0"
+    "@segment/actions-core" "^3.30.1-alpha.6"
     cheerio "^1.0.0-rc.10"
     dayjs "^1.10.7"
     escape-goat "^3"
     liquidjs "^9.37.0"
     lodash "^4.17.21"
+
+"@segment/ajv-human-errors@^2.2.0-alpha.16":
+  version "2.2.0-alpha.16"
+  resolved "https://registry.yarnpkg.com/@segment/ajv-human-errors/-/ajv-human-errors-2.2.0-alpha.16.tgz#b8f81d7d8748ab2016446d2dd7f40a5223bc763f"
+  integrity sha512-m/Sjd1WczHOp9xZpNRiceiV8t7FiLxAtuNk/JSwF2fRuFK9P+ndUwFcSY57wGRoWPwZOc6C2kgI5afoESFvz7w==
 
 "@segment/analytics-next@^1.29.3":
   version "1.29.3"
@@ -2361,20 +2366,6 @@
   dependencies:
     unfetch "^3.1.1"
 
-"@segment/browser-destinations@^3.45.1-alpha.4":
-  version "3.46.0"
-  resolved "https://registry.yarnpkg.com/@segment/browser-destinations/-/browser-destinations-3.46.0.tgz#2afe11179c4fe28f5d0fb3be80b9bbaf6a279865"
-  integrity sha512-SRnaK2GvMQg4HIRZ4jAXjgoq0IzOXFmIo2XzBJQbbxw3uSfCDrgyXzvKlSd7OLZ6jcTMxXBIcNuvr0eIcCJTew==
-  dependencies:
-    "@braze/web-sdk" "^3.5.0"
-    "@fullstory/browser" "^1.4.9"
-    "@segment/actions-shared" "^1.13.0"
-    "@segment/analytics-next" "^1.29.3"
-    "@segment/destination-subscriptions" "^3.11.0"
-    dayjs "^1.10.7"
-    tslib "^2.3.1"
-    vm-browserify "^1.1.2"
-
 "@segment/control-plane-service-client@github:segmentio/control-plane-service-js-client.git#master":
   version "9.3.0"
   resolved "git+ssh://git@github.com/segmentio/control-plane-service-js-client.git#e5cd6e7cd335cf00640e43a5ece17a290e003ddd"
@@ -2385,6 +2376,13 @@
     lodash "^4.17.15"
     path-to-regexp "^6.1.0"
     querystring "^0.2.0"
+
+"@segment/destination-subscriptions@^3.11.1-alpha.0":
+  version "3.11.1-alpha.27"
+  resolved "https://registry.yarnpkg.com/@segment/destination-subscriptions/-/destination-subscriptions-3.11.1-alpha.27.tgz#99d47c947dc2031089560d0c911ce3604416af7c"
+  integrity sha512-MNhYJu7tAL/0+ETHEdcY1fzyfqS5lfc/Ugwvysr3IqhbNWEr/Kgs4IUm/GQ9SE4t9voDA0IZF1I2mKb2bfjiyA==
+  dependencies:
+    "@segment/fql-ts" "^1.10.1"
 
 "@segment/facade@3.3.10":
   version "3.3.10"

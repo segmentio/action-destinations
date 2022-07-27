@@ -270,7 +270,7 @@ const action: ActionDefinition<Settings, Payload> = {
     const tags = statsContext?.tags
     tags?.push(settings.spaceId)
     if (!payload.send) {
-      statsClient?.incr('actions-personas-messaging-sendgrid.send-disabled', 1, tags)
+      statsClient?.incr('te_sendgrid_send_disabled', 1, tags)
       return
     }
     const emailProfile = payload?.externalIds?.find((meta) => meta.type === 'email')
@@ -278,10 +278,10 @@ const action: ActionDefinition<Settings, Payload> = {
       !emailProfile?.subscriptionStatus ||
       ['unsubscribed', 'did not subscribed', 'false'].includes(emailProfile.subscriptionStatus)
     ) {
-      statsClient?.incr('actions-personas-messaging-sendgrid.notsubscribed', 1, tags)
+      statsClient?.incr('te_sendgrid_notsubscribed', 1, tags)
       return
     } else if (['subscribed', 'true'].includes(emailProfile?.subscriptionStatus)) {
-      statsClient?.incr('actions-personas-messaging-sendgrid.subscribed', 1, tags)
+      statsClient?.incr('te_sendgrid_subscribed', 1, tags)
       const traits = await fetchProfileTraits(request, settings, payload.userId)
 
       const profile: Profile = {
@@ -296,7 +296,7 @@ const action: ActionDefinition<Settings, Payload> = {
       }
 
       if (isRestrictedDomain(toEmail)) {
-        statsClient?.incr('actions-personas-messaging-sendgrid.restricted-domain', 1, tags)
+        statsClient?.incr('te_sendgrid_restricted_domain', 1, tags)
         throw new IntegrationError(
           'Emails with gmailx.com, yahoox.com, aolx.com, and hotmailx.com domains are blocked.',
           'Invalid input',
@@ -399,8 +399,7 @@ const action: ActionDefinition<Settings, Payload> = {
       if (response.status > 500) {
         tags?.push('5xx')
       }
-      statsClient?.incr('actions-personas-messaging-sendgrid.response', 1, tags)
-      console.log('tags:', tags)
+      statsClient?.incr('te_sendgrid_response', 1, tags)
       return response
     } else {
       throw new IntegrationError(
