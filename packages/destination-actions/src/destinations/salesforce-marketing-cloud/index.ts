@@ -4,7 +4,7 @@ import type { Settings } from './generated-types'
 import contact from './contact'
 
 const destination: DestinationDefinition<Settings> = {
-  name: 'Salesforce Marketing Cloud',
+  name: 'Salesforce Marketing Cloud (Actions)',
   slug: 'actions-salesforce-marketing-cloud',
   mode: 'cloud',
 
