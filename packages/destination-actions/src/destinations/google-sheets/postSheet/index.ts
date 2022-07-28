@@ -68,6 +68,12 @@ const action: ActionDefinition<Settings, Payload> = {
       type: 'object',
       required: true,
       defaultObjectUI: 'keyvalue:only'
+    },
+    enable_batching: {
+      type: 'boolean',
+      label: 'Batch Data to Google Sheets',
+      description: 'Set as true to ensure Segment sends data to Google Sheets in batches. Please do not set to false.',
+      default: true
     }
   },
   perform: (request, { payload }) => {

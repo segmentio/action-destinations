@@ -36,4 +36,8 @@ export interface Payload {
   fields: {
     [k: string]: unknown
   }
+  /**
+   * Set as true to ensure Segment sends data to Google Sheets in batches. Please do not set to false.
+   */
+  enable_batching?: boolean
 }
