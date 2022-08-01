@@ -5,7 +5,7 @@ import Pardot from '../pa-operations'
 import { customFields } from '../pa-properties'
 import type { Payload } from './generated-types'
 
-interface PardotError{
+interface PardotError {
   code: number
   message: string
 }
@@ -190,11 +190,11 @@ const action: ActionDefinition<Settings, Payload> = {
       const statusCode = error.response.status
       //Pardot error response is a mix of json and xml.
       //Json error response handle the error in body payload.
-      if (error.response.headers.get('content-type')?.includes('application/json')){
+      if (error.response.headers.get('content-type')?.includes('application/json')) {
         const data = (error.response as ModifiedResponse).data as PardotError
         throw new IntegrationError(
-          `Pardot responded witha error code ${data.code}: ${data.message}. This means Pardot has received the call, but consider the payload to be invalid.  To identify the exact error, please refer to ` + 
-          `[Pardot doc](https://developer.salesforce.com/docs/marketing/pardot/guide/error-codes.html?q=error#numerical-list-of-error-codes) and search for the error code you received`,
+          `Pardot responded witha error code ${data.code}: ${data.message}. This means Pardot has received the call, but consider the payload to be invalid.  To identify the exact error, please refer to ` +
+            `https://developer.salesforce.com/docs/marketing/pardot/guide/error-codes.html?q=error#numerical-list-of-error-codes and search for the error code you received`,
           'PARDOT_ERROR',
           400
         )
@@ -202,13 +202,13 @@ const action: ActionDefinition<Settings, Payload> = {
       //XML error response handles the error in headers.
       //https://developer.salesforce.com/docs/marketing/pardot/guide/error-codes.html?q=error#numerical-list-of-error-codes
       else if (error.response.headers.get('content-type')?.includes('text/xml')) {
-        if (statusCode === 403 || statusCode === 400){
+        if (statusCode === 403 || statusCode === 400) {
           throw new IntegrationError(
-          `The Business Unit ID or access_token is invalid. This error is also returned when you use the wrong instance (Sandbox or Prod). `+
-          `If you toggled the Sandbox instance, please disconnect and reconnect with your corresponding username.`,
-          'PARDOT_ERROR',
-          403
-        )
+            `The Business Unit ID or access_token is invalid. This error is also returned when you use the wrong instance (Sandbox or Prod). ` +
+              `If you toggled the Sandbox instance, please disconnect and reconnect with your corresponding username.`,
+            'PARDOT_ERROR',
+            403
+          )
         }
       }
       throw err
