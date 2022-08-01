@@ -1,7 +1,7 @@
 import { createTestEvent } from './create-test-event'
 import { Destination } from './destination-kit'
 import { mapValues } from './map-values'
-import type { DestinationDefinition, StatsContext } from './destination-kit'
+import type { DestinationDefinition, StatsContext, LoggerContext } from './destination-kit'
 import type { JSONObject } from './json-object'
 import type { SegmentEvent } from './segment-event'
 import { AuthTokens } from './destination-kit/parse-settings'
@@ -34,10 +34,11 @@ interface InputData<Settings> {
   auth?: AuthTokens
   /**
    * The features available in the request based on the customer's sourceID;
-   * Both `features` and `stats` are for internal Twilio/Segment use only.
+   * `features`, `stats` and `logs` are for internal Segment/Twilio use only.
    */
   features?: Features
   statsContext?: StatsContext
+  loggerContext?: LoggerContext
 }
 
 class TestDestination<T> extends Destination<T> {
@@ -59,7 +60,7 @@ class TestDestination<T> extends Destination<T> {
   /** Testing method that runs an action e2e while allowing slightly more flexible inputs */
   async testAction(
     action: string,
-    { event, mapping, settings, useDefaultMappings, auth, features, statsContext }: InputData<T>
+    { event, mapping, settings, useDefaultMappings, auth, features, statsContext, loggerContext }: InputData<T>
   ): Promise<Destination['responses']> {
     mapping = mapping ?? {}
 
@@ -75,7 +76,8 @@ class TestDestination<T> extends Destination<T> {
       settings: settings ?? ({} as T),
       auth,
       features: features ?? {},
-      statsContext: statsContext ?? ({} as StatsContext)
+      statsContext: statsContext ?? ({} as StatsContext),
+      loggerContext: loggerContext ?? ({} as LoggerContext)
     })
 
     const responses = this.responses
@@ -93,7 +95,8 @@ class TestDestination<T> extends Destination<T> {
       useDefaultMappings,
       auth,
       features,
-      statsContext
+      statsContext,
+      loggerContext
     }: Omit<InputData<T>, 'event'> & { events?: SegmentEvent[] }
   ): Promise<Destination['responses']> {
     mapping = mapping ?? {}
@@ -114,7 +117,8 @@ class TestDestination<T> extends Destination<T> {
       settings: settings ?? ({} as T),
       auth,
       features: features ?? {},
-      statsContext: statsContext ?? ({} as StatsContext)
+      statsContext: statsContext ?? ({} as StatsContext),
+      loggerContext: loggerContext ?? ({} as LoggerContext)
     })
 
     const responses = this.responses

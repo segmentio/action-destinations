@@ -166,9 +166,10 @@ interface EventInput<Settings> {
   readonly settings: Settings
   /** Authentication-related data based on the destination's authentication.fields definition and authentication scheme */
   readonly auth?: AuthTokens
-  /** `features` and `stats` are for internal Segment/Twilio use only. */
+  /** `features`, `stats` and `logs` are for internal Segment/Twilio use only. */
   readonly features?: Features
   readonly statsContext?: StatsContext
+  readonly loggerContext?: LoggerContext
 }
 
 interface BatchEventInput<Settings> {
@@ -177,9 +178,10 @@ interface BatchEventInput<Settings> {
   readonly settings: Settings
   /** Authentication-related data based on the destination's authentication.fields definition and authentication scheme */
   readonly auth?: AuthTokens
-  /** `features` and `stats` are for internal Segment/Twilio use only. */
+  /** `features`, `stats` and `logs` are for internal Segment/Twilio use only. */
   readonly features?: Features
   readonly statsContext?: StatsContext
+  readonly loggerContext?: LoggerContext
 }
 
 export interface DecoratedResponse extends ModifiedResponse {
@@ -192,6 +194,7 @@ interface OnEventOptions {
   onComplete?: (stats: SubscriptionStats) => void
   features?: Features
   statsContext?: StatsContext
+  loggerContext?: LoggerContext
 }
 
 export interface StatsClient {
@@ -210,6 +213,22 @@ export interface StatsClient {
 export interface StatsContext {
   statsClient: StatsClient
   tags: string[]
+}
+
+export interface Logger {
+  put(msglvl: string, ...message: string[]): void
+  debug(...message: string[]): void
+  info(...message: string[]): void
+  warn(...message: string[]): void
+  error(...message: string[]): void
+  crit(...message: string[]): void
+  log(...message: string[]): void
+  withTags(extraTags: object): void
+}
+
+export interface LoggerContext {
+  logger: Logger
+  logLevel: string
 }
 
 export class Destination<Settings = JSONObject> {
@@ -331,7 +350,7 @@ export class Destination<Settings = JSONObject> {
 
   protected async executeAction(
     actionSlug: string,
-    { event, mapping, settings, auth, features, statsContext }: EventInput<Settings>
+    { event, mapping, settings, auth, features, statsContext, loggerContext }: EventInput<Settings>
   ): Promise<Result[]> {
     const action = this.actions[actionSlug]
     if (!action) {
@@ -344,13 +363,14 @@ export class Destination<Settings = JSONObject> {
       settings,
       auth,
       features,
-      statsContext
+      statsContext,
+      loggerContext
     })
   }
 
   public async executeBatch(
     actionSlug: string,
-    { events, mapping, settings, auth, features, statsContext }: BatchEventInput<Settings>
+    { events, mapping, settings, auth, features, statsContext, loggerContext }: BatchEventInput<Settings>
   ) {
     const action = this.actions[actionSlug]
     if (!action) {
@@ -363,7 +383,8 @@ export class Destination<Settings = JSONObject> {
       settings,
       auth,
       features,
-      statsContext
+      statsContext,
+      loggerContext
     })
 
     return [{ output: 'successfully processed batch of events' }]
@@ -396,7 +417,8 @@ export class Destination<Settings = JSONObject> {
       settings,
       auth,
       features: options?.features || {},
-      statsContext: options?.statsContext || ({} as StatsContext)
+      statsContext: options?.statsContext || ({} as StatsContext),
+      loggerContext: options?.loggerContext || ({} as LoggerContext)
     }
 
     let results: Result[] | null = null

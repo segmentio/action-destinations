@@ -12,7 +12,7 @@ import { validateSchema } from '../schema-validation'
 import { AuthTokens } from './parse-settings'
 import { IntegrationError } from '../errors'
 import { removeEmptyValues } from '../remove-empty-values'
-import { StatsContext } from './index'
+import { StatsContext, LoggerContext } from './index'
 
 type MaybePromise<T> = T | Promise<T>
 type RequestClient = ReturnType<typeof createRequestClient>
@@ -81,6 +81,7 @@ interface ExecuteBundle<T = unknown, Data = unknown> {
   /** For internal Segment/Twilio use only. */
   features?: Features | undefined
   statsContext?: StatsContext | undefined
+  loggerContext?: LoggerContext | undefined
 }
 
 /**
@@ -141,7 +142,8 @@ export class Action<Settings, Payload extends JSONLikeObject> extends EventEmitt
       payload,
       auth: bundle.auth,
       features: bundle.features,
-      statsContext: bundle.statsContext
+      statsContext: bundle.statsContext,
+      loggerContext: bundle.loggerContext
     }
 
     // Construct the request client and perform the action
@@ -185,7 +187,8 @@ export class Action<Settings, Payload extends JSONLikeObject> extends EventEmitt
         payload: payloads,
         auth: bundle.auth,
         features: bundle.features,
-        statsContext: bundle.statsContext
+        statsContext: bundle.statsContext,
+        loggerContext: bundle.loggerContext
       }
       await this.performRequest(this.definition.performBatch, data)
     }
