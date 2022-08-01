@@ -12,7 +12,7 @@ const action: BrowserActionDefinition<Settings, IterateClient, Payload> = {
     userId: {
       type: 'string',
       required: false,
-      description: "The user's identity",
+      description: "The user's identity.",
       label: 'Identity',
       default: {
         '@path': '$.userId'
@@ -21,7 +21,7 @@ const action: BrowserActionDefinition<Settings, IterateClient, Payload> = {
     traits: {
       type: 'object',
       required: false,
-      description: 'The Segment traits to be forwarded to Iterate',
+      description: 'The Segment traits to be forwarded to Iterate.',
       label: 'Traits',
       default: {
         '@path': '$.traits'
