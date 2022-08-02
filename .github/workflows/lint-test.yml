@@ -1,0 +1,18 @@
+name: lint & test
+on:
+  pull_request:
+    branches:
+      - master
+  push:
+    branches:
+      - master
+jobs:
+  lint-test:
+    uses: pipedrive/gha-setup/.github/workflows/reusable_lint-test-node.yml@master
+    with:
+      npmCommands: lint
+    secrets:
+      NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+      SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+      SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
+      GHA_ACCESS_TOKEN: ${{ secrets.GHA_ACCESS_TOKEN }}
