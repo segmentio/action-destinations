@@ -4,7 +4,7 @@ import type { ActionDefinition, RequestOptions } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 import { IntegrationError } from '@segment/actions-core'
-
+import { StatsClient } from '@segment/actions-core/src/destination-kit'
 const Liquid = new LiquidJs()
 
 const getProfileApiEndpoint = (environment: string): string => {
@@ -16,7 +16,9 @@ type RequestFn = (url: string, options?: RequestOptions) => Promise<Response>
 const fetchProfileTraits = async (
   request: RequestFn,
   settings: Settings,
-  profileId: string
+  profileId: string,
+  statsClient?: StatsClient | undefined,
+  tags?: string[] | undefined
 ): Promise<Record<string, string>> => {
   try {
     const endpoint = getProfileApiEndpoint(settings.profileApiEnvironment)
@@ -29,10 +31,12 @@ const fetchProfileTraits = async (
         }
       }
     )
-
+    tags?.push(`profile-status-${response.status}`)
+    statsClient?.incr('actions-personas-messaging-twilio.profile_invoked', 1, tags)
     const body = await response.json()
     return body.traits
   } catch (error: unknown) {
+    statsClient?.incr('actions-personas-messaging-twilio.profile_error', 1, tags)
     throw new IntegrationError('Unable to get profile traits for SMS message', 'SMS trait fetch failure', 500)
   }
 }
@@ -130,8 +134,12 @@ const action: ActionDefinition<Settings, Payload> = {
       }
     }
   },
-  perform: async (request, { settings, payload }) => {
+  perform: async (request, { settings, payload, statsContext }) => {
+    const statsClient = statsContext?.statsClient
+    const tags = statsContext?.tags
+    tags?.push(settings.spaceId)
     if (!payload.send) {
+      statsClient?.incr('actions-personas-messaging-twilio.send-disabled', 1, tags)
       return
     }
     const externalId = payload.externalIds?.find(({ type }) => type === 'phone')
@@ -139,9 +147,11 @@ const action: ActionDefinition<Settings, Payload> = {
       !externalId?.subscriptionStatus ||
       ['unsubscribed', 'did not subscribed', 'false'].includes(externalId.subscriptionStatus)
     ) {
+      statsClient?.incr('actions-personas-messaging-twilio.notsubscribed', 1, tags)
       return
     } else if (['subscribed', 'true'].includes(externalId.subscriptionStatus)) {
-      const traits = await fetchProfileTraits(request, settings, payload.userId)
+      statsClient?.incr('actions-personas-messaging-twilio.subscribed', 1, tags)
+      const traits = await fetchProfileTraits(request, settings, payload.userId, statsClient, tags)
       const phone = payload.toNumber || externalId.id
       if (!phone) {
         return
@@ -192,14 +202,21 @@ const action: ActionDefinition<Settings, Payload> = {
       }
 
       const hostname = settings.twilioHostname ?? DEFAULT_HOSTNAME
-      return request(`https://${hostname}/2010-04-01/Accounts/${settings.twilioAccountSID}/Messages.json`, {
-        method: 'POST',
-        headers: {
-          authorization: `Basic ${token}`
-        },
-        body
-      })
+      const response = await request(
+        `https://${hostname}/2010-04-01/Accounts/${settings.twilioAccountSID}/Messages.json`,
+        {
+          method: 'POST',
+          headers: {
+            authorization: `Basic ${token}`
+          },
+          body
+        }
+      )
+      tags?.push(`code-${response.status}`)
+      statsClient?.incr('actions-personas-messaging-twilio.response', 1, tags)
+      return response
     } else {
+      statsClient?.incr('actions-personas-messaging-twilio.twilio-error', 1, tags)
       throw new IntegrationError(
         `Failed to recognize the subscriptionStatus in the payload: "${externalId.subscriptionStatus}".`,
         'Invalid subscriptionStatus value',
