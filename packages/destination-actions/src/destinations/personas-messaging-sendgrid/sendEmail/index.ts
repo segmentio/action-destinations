@@ -4,6 +4,7 @@ import type { Payload } from './generated-types'
 import { Liquid as LiquidJs } from 'liquidjs'
 import cheerio from 'cheerio'
 import { htmlEscape } from 'escape-goat'
+import { StatsClient } from '@segment/actions-core/src/destination-kit'
 const Liquid = new LiquidJs()
 
 const insertEmailPreviewText = (html: string, previewText: string): string => {
@@ -33,7 +34,9 @@ type RequestFn = (url: string, options?: RequestOptions) => Promise<Response>
 const fetchProfileTraits = async (
   request: RequestFn,
   settings: Settings,
-  profileId: string
+  profileId: string,
+  statsClient?: StatsClient | undefined,
+  tags?: string[] | undefined
 ): Promise<Record<string, string>> => {
   try {
     const endpoint = getProfileApiEndpoint(settings.profileApiEnvironment)
@@ -46,10 +49,13 @@ const fetchProfileTraits = async (
         }
       }
     )
+    tags?.push(`profile-status-${response.status}`)
+    statsClient?.incr('actions-personas-messaging-sendgrid.profile_invoked', 1, tags)
 
     const body = await response.json()
     return body.traits
   } catch (error) {
+    statsClient?.incr('actions-personas-messaging-sendgrid.profile_error', 1, tags)
     throw new IntegrationError('Unable to get profile traits for email message', 'Email trait fetch failure', 500)
   }
 }
@@ -281,8 +287,8 @@ const action: ActionDefinition<Settings, Payload> = {
       statsClient?.incr('te_sendgrid_notsubscribed', 1, tags)
       return
     } else if (['subscribed', 'true'].includes(emailProfile?.subscriptionStatus)) {
-      statsClient?.incr('te_sendgrid_subscribed', 1, tags)
-      const traits = await fetchProfileTraits(request, settings, payload.userId)
+      statsClient?.incr('actions-personas-messaging-sendgrid.subscribed', 1, tags)
+      const traits = await fetchProfileTraits(request, settings, payload.userId, statsClient, tags)
 
       const profile: Profile = {
         email: emailProfile.id,
@@ -386,22 +392,11 @@ const action: ActionDefinition<Settings, Payload> = {
           }
         }
       })
-
-      if (response.status > 200 && response.status < 300) {
-        tags?.push('2xx')
-      }
-      if (response.status > 400 && response.status < 413) {
-        tags?.push('4xx')
-      }
-      if (response.status == 429) {
-        tags?.push('429')
-      }
-      if (response.status > 500) {
-        tags?.push('5xx')
-      }
-      statsClient?.incr('te_sendgrid_response', 1, tags)
+      tags?.push(`code-${response.status}`)
+      statsClient?.incr('actions-personas-messaging-sendgrid.response', 1, tags)
       return response
     } else {
+      statsClient?.incr('actions-personas-messaging-sendgrid.sendgrid-error', 1, tags)
       throw new IntegrationError(
         `Failed to process the subscription state: "${emailProfile.subscriptionStatus}"`,
         'Invalid subscriptionStatus value',
