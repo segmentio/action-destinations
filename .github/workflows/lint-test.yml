@@ -2,10 +2,10 @@ name: lint & test
 on:
   pull_request:
     branches:
-      - master
+      - main
   push:
     branches:
-      - master
+      - main
 jobs:
   lint-test:
     uses: pipedrive/gha-setup/.github/workflows/reusable_lint-test-node.yml@master
