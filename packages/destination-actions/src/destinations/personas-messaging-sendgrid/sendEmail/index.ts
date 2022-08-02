@@ -386,21 +386,8 @@ const action: ActionDefinition<Settings, Payload> = {
           }
         }
       })
-
-      if (response.status > 200 && response.status < 300) {
-        tags?.push('2xx')
-      }
-      if (response.status > 400 && response.status < 413) {
-        tags?.push('4xx')
-      }
-      if (response.status == 429) {
-        tags?.push('429')
-      }
-      if (response.status > 500) {
-        tags?.push('5xx')
-      }
+      tags?.push(`code-${response.status}`)
       statsClient?.incr('actions-personas-messaging-sendgrid.response', 1, tags)
-      console.log('tags:', tags)
       return response
     } else {
       throw new IntegrationError(
