@@ -53,6 +53,7 @@ const marshalError = (err: Error): ErrorOutput => {
 
 const app = express()
 app.use(express.json())
+
 app.use(
   cors({
     origin: [
@@ -237,6 +238,35 @@ function setupRoutes(def: DestinationDefinition | null): void {
         }
       })
     )
+  }
+
+  for (const actionSlug of Object.keys(destination.actions)) {
+    const definition = destination.actions[actionSlug].definition
+
+    if (definition.dynamicFields) {
+      for (const field in definition.dynamicFields) {
+        router.post(
+          `/${actionSlug}/${field}`,
+          asyncHandler(async (req: express.Request, res: express.Response) => {
+            try {
+              const data = {
+                settings: req.body.settings || {},
+                payload: req.body.payload || {},
+                page: req.body.page || 1,
+                auth: req.body.auth || {}
+              }
+              const action = destination.actions[actionSlug]
+              const result = await action.executeDynamicField(field, data)
+
+              return res.status(200).json(result)
+            } catch (err) {
+              const output = marshalError(err as ResponseError)
+              return res.status(200).json([output])
+            }
+          })
+        )
+      }
+    }
   }
 
   app.use(router)
