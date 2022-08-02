@@ -10,6 +10,8 @@ interface RequestParams {
 }
 
 const apiBaseUrl = 'https://api.fullstory.com'
+const segmentIntegrationSource = 'segment'
+const integrationSourceQueryParam = `integration=${segmentIntegrationSource}`
 
 /**
  * Returns default {@link RequestParams} suitable for most FullStory HTTP API requests.
@@ -56,7 +58,10 @@ export const customEventRequestParams = (
   }
 ): RequestParams => {
   const { userId, eventName, eventData, timestamp, useRecentSession, sessionUrl } = requestValues
-  const defaultParams = defaultRequestParams(settings, `users/v1/individual/${encodeURIComponent(userId)}/customevent`)
+  const defaultParams = defaultRequestParams(
+    settings,
+    `users/v1/individual/${encodeURIComponent(userId)}/customevent?${integrationSourceQueryParam}`
+  )
 
   const requestBody: Record<string, any> = {
     event: {
@@ -102,7 +107,10 @@ export const setUserPropertiesRequestParams = (
   userId: string,
   requestBody: Object
 ): RequestParams => {
-  const defaultParams = defaultRequestParams(settings, `users/v1/individual/${encodeURIComponent(userId)}/customvars`)
+  const defaultParams = defaultRequestParams(
+    settings,
+    `users/v1/individual/${encodeURIComponent(userId)}/customvars?${integrationSourceQueryParam}`
+  )
 
   return {
     ...defaultParams,

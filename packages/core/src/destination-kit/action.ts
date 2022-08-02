@@ -70,6 +70,7 @@ export interface ExecuteDynamicFieldInput<Settings, Payload> {
   settings: Settings
   payload: Payload
   page?: string
+  auth?: AuthTokens
 }
 
 interface ExecuteBundle<T = unknown, Data = unknown> {

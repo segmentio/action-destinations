@@ -4,7 +4,16 @@ import {
   setUserPropertiesRequestParams,
   deleteUserRequestParams
 } from '../request-params'
-import { anonymousId, displayName, email, userId, urlEncodedUserId, baseUrl, settings } from './fullstory.test'
+import {
+  anonymousId,
+  displayName,
+  email,
+  userId,
+  urlEncodedUserId,
+  baseUrl,
+  settings,
+  integrationSourceQueryParam
+} from './fullstory.test'
 
 describe('requestParams', () => {
   describe('listOperations', () => {
@@ -35,7 +44,7 @@ describe('requestParams', () => {
       expect(options.method).toBe('post')
       expect(options.headers!['Content-Type']).toBe('application/json')
       expect(options.headers!['Authorization']).toBe(`Basic ${settings.apiKey}`)
-      expect(url).toBe(`${baseUrl}/users/v1/individual/${urlEncodedUserId}/customevent`)
+      expect(url).toBe(`${baseUrl}/users/v1/individual/${urlEncodedUserId}/customevent?${integrationSourceQueryParam}`)
       expect(options.json).toEqual({
         event: {
           event_name: requestValues.eventName,
@@ -57,7 +66,7 @@ describe('requestParams', () => {
       expect(options.method).toBe('post')
       expect(options.headers!['Content-Type']).toBe('application/json')
       expect(options.headers!['Authorization']).toBe(`Basic ${settings.apiKey}`)
-      expect(url).toBe(`${baseUrl}/users/v1/individual/${urlEncodedUserId}/customevent`)
+      expect(url).toBe(`${baseUrl}/users/v1/individual/${urlEncodedUserId}/customevent?${integrationSourceQueryParam}`)
       expect(options.json).toEqual({
         event: {
           event_name: requestValues.eventName,
@@ -77,7 +86,7 @@ describe('requestParams', () => {
       expect(options.method).toBe('post')
       expect(options.headers!['Content-Type']).toBe('application/json')
       expect(options.headers!['Authorization']).toBe(`Basic ${settings.apiKey}`)
-      expect(url).toBe(`${baseUrl}/users/v1/individual/${urlEncodedUserId}/customevent`)
+      expect(url).toBe(`${baseUrl}/users/v1/individual/${urlEncodedUserId}/customevent?${integrationSourceQueryParam}`)
       expect(options.json).toEqual({
         event: {
           event_name: requestValues.eventName,
@@ -100,7 +109,7 @@ describe('requestParams', () => {
       expect(options.method).toBe('post')
       expect(options.headers!['Content-Type']).toBe('application/json')
       expect(options.headers!['Authorization']).toBe(`Basic ${settings.apiKey}`)
-      expect(url).toBe(`${baseUrl}/users/v1/individual/${urlEncodedUserId}/customvars`)
+      expect(url).toBe(`${baseUrl}/users/v1/individual/${urlEncodedUserId}/customvars?${integrationSourceQueryParam}`)
       expect(options.json).toEqual(requestBody)
     })
   })

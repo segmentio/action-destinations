@@ -67,7 +67,6 @@ const action: ActionDefinition<Settings, Payload> = {
     const { userId, name, properties, timestamp, useRecentSession, sessionUrl } = payload
     const utcTimestamp = timestamp ? dayjs.utc(timestamp) : undefined
 
-    // TODO(nate): Include a source value once the HTTP API is updated to support it
     const { url, options } = customEventRequestParams(settings, {
       userId,
       eventName: name,
