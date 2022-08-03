@@ -277,6 +277,19 @@ const action: ActionDefinition<Settings, Payload> = {
             },
             subscriptionStatus: {
               '@path': '$.isSubscribed'
+            },
+            groups: {
+              '@arrayPath': [
+                '$.external_ids.groups',
+                {
+                  id: {
+                    '@path': '$.id'
+                  },
+                  subscriptionStatus: {
+                    '@path': '$.isSubscribed'
+                  }
+                }
+              ]
             }
           }
         ]
