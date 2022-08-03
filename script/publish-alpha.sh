@@ -10,7 +10,7 @@
 true
 brew install coreutils
 MODULE_DIR="$(dirname "$(realpath "${BASH_SOURCE[0]}")")"
-PACKAGE_DIR="$MODULE_DIR/../../"
+PACKAGE_DIR="$MODULE_DIR/../packages"
 IGNORE_DIR=("cli" "cli-internal" "..")
 export NVM_DIR=$HOME/.nvm;
 source $NVM_DIR/nvm.sh;
@@ -22,7 +22,7 @@ yarn install
 
 # Try to publish alpha version
 {
-    yarn alpha
+    yarn lerna publish prerelease --pre-dist-tag next --allow-branch '**' --no-git-tag-version --yes
 }||{
     echo "❌Failed to publish alpha, updating version to next tag"
     for d in $(find $PACKAGE_DIR -maxdepth 1 -type d)
@@ -46,5 +46,5 @@ yarn install
         fi
     done
     cd "${PACKAGE_DIR}/.."
-    yarn alpha
+    yarn lerna publish prerelease --pre-dist-tag next --allow-branch '**' --no-git-tag-version --yes
 } 
