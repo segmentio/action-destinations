@@ -19,7 +19,6 @@ describe('Heap.trackEvent', () => {
     }
     timestamp: string
     identity?: string
-    use_user_id?: boolean
     user_id?: number
   }
   beforeEach(() => {
@@ -76,7 +75,6 @@ describe('Heap.trackEvent', () => {
       messageId: '123'
     })
 
-    body.use_user_id = true
     body.user_id = 8325872782136936
 
     nock('https://heapanalytics.com').post('/api/track', body).reply(200, {})
@@ -107,7 +105,6 @@ describe('Heap.trackEvent', () => {
       properties
     })
 
-    body.use_user_id = true
     body.user_id = 8325872782136936
     body.properties = {
       segment_library: 'analytics.js',
