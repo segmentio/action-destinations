@@ -160,7 +160,7 @@ export class Action<Settings, Payload extends JSONLikeObject> extends EventEmitt
       throw new IntegrationError('This action does not support batched requests.', 'NotImplemented', 501)
     }
 
-    const transformData = bundle.data.map((data) => {
+    const transformData: InputData[] = bundle.data.map((data) => {
       if (bundle.mappingRoot) return get(data, bundle.mappingRoot) || {}
       return data
     })
