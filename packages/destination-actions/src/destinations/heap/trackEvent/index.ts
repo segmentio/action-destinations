@@ -10,7 +10,6 @@ import { IntegrationError } from '@segment/actions-core'
 type HeapEvent = {
   app_id: string
   identity?: string
-  use_user_id?: boolean
   user_id?: number
   event: string
   properties: {
@@ -106,20 +105,19 @@ const action: ActionDefinition<Settings, Payload> = {
       properties: eventProperties,
       idempotency_key: payload.message_id
     }
-    
+
     if (payload.anonymous_id && !payload.identity) {
-      event.use_user_id = true
       event.user_id = getHeapUserId(payload.anonymous_id)
     }
-    
+
     if (payload.identity) {
       event.identity = payload.identity
     }
-    
+
     if (payload.timestamp && dayjs.utc(payload.timestamp).isValid()) {
       event.timestamp = dayjs.utc(payload.timestamp).toISOString()
     }
-    
+
     return request('https://heapanalytics.com/api/track', {
       method: 'post',
       json: event
