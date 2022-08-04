@@ -1,6 +1,7 @@
 import { DestinationDefinition } from '@segment/actions-core'
 import type { Settings } from './generated-types'
 import postConversion from './postConversion'
+import uploadClickConversion from './uploadClickConversion'
 
 interface RefreshTokenResponse {
   access_token: string
@@ -30,6 +31,12 @@ const destination: DestinationDefinition<Settings> = {
           'You will find this information in the event snippet for your conversion action, for example `send_to: AW-CONVERSION_ID/AW-CONVERSION_LABEL`. In the sample snippet, AW-CONVERSION_ID stands for the conversion ID unique to your account. Enter the conversion Id, without the AW- prefix.',
         type: 'string',
         required: true
+      },
+      customerId: {
+        label: 'Customer ID',
+        description:
+          'ID of your Google Ads Account. This should be 10-digits and in XXX-XXX-XXXX format. Required if you are using an Action that sends data to the Google Ads API.',
+        type: 'string'
       }
     },
     testAuthentication: async (_request) => {
@@ -59,7 +66,8 @@ const destination: DestinationDefinition<Settings> = {
   extendRequest({ settings, auth }) {
     return {
       headers: {
-        authorization: `Bearer ${auth?.accessToken}`
+        authorization: `Bearer ${auth?.accessToken}`,
+        developer_token: settings.customerId
       },
       searchParams: {
         conversion_tracking_id: settings.conversionTrackingId
@@ -67,7 +75,8 @@ const destination: DestinationDefinition<Settings> = {
     }
   },
   actions: {
-    postConversion
+    postConversion,
+    uploadClickConversion
   }
 }
 
