@@ -91,7 +91,7 @@ describe.each(['stage', 'production'])('%s environment', (environment) => {
       bodyHtml: 'Hi {{profile.traits.firstName}}, Welcome to segment',
       send: true,
       toEmail: '',
-      externalIds: [
+      externalIds: JSON.stringify([
         {
           id: userData.email,
           type: 'email',
@@ -99,7 +99,7 @@ describe.each(['stage', 'production'])('%s environment', (environment) => {
           groups: [{ id: 'grp_1', subscriptionStatus: 'subscribed' }]
         },
         { id: userData.phone, type: 'phone', subscriptionStatus: 'subscribed' }
-      ],
+      ]),
       ...overrides
     }
   }
@@ -719,7 +719,7 @@ describe.each(['stage', 'production'])('%s environment', (environment) => {
                 id: userData.email,
                 type: 'email',
                 subscriptionStatus: 'subscribed',
-                groups: [{ id: 'grp_1', subscriptionStatus: subscriptionStatus }]
+                groups: JSON.stringify([{ id: 'grp_1', subscriptionStatus: subscriptionStatus }])
               },
               { id: userData.phone, type: 'phone', subscriptionStatus: 'subscribed' }
             ],

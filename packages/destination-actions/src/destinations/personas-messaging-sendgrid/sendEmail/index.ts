@@ -248,21 +248,8 @@ const action: ActionDefinition<Settings, Payload> = {
         },
         groups: {
           label: 'Groups',
-          description: 'An array of subscription groups status',
-          type: 'object',
-          multiple: true,
-          properties: {
-            id: {
-              label: 'ID',
-              description: 'A unique identifier for the subsription group.',
-              type: 'string'
-            },
-            subscriptionStatus: {
-              label: 'Subscription Group Status',
-              description: 'The subscription group status for the identity.',
-              type: 'string'
-            }
-          }
+          description: 'An json stringify array of subscription groups status',
+          type: 'string'
         }
       },
       default: {
@@ -279,17 +266,7 @@ const action: ActionDefinition<Settings, Payload> = {
               '@path': '$.isSubscribed'
             },
             groups: {
-              '@arrayPath': [
-                '$.external_ids.groups',
-                {
-                  id: {
-                    '@path': '$.id'
-                  },
-                  subscriptionStatus: {
-                    '@path': '$.isSubscribed'
-                  }
-                }
-              ]
+              '@path': '$.groups'
             }
           }
         ]
@@ -326,9 +303,10 @@ const action: ActionDefinition<Settings, Payload> = {
       statsClient?.incr('actions-personas-messaging-sendgrid.subscribed', 1, tags)
       if (payload?.groupId) {
         let subscribed = false
-        emailProfile?.groups?.forEach((group) => {
+        const groups = JSON.parse(emailProfile.groups ?? '')
+        groups.forEach((group: { id: string | undefined; subscriptionStatus: string | undefined }) => {
           if (
-            group.id == payload?.groupId &&
+            group.id == payload.groupId &&
             group.subscriptionStatus &&
             ['subscribed', 'true'].includes(group.subscriptionStatus)
           ) {

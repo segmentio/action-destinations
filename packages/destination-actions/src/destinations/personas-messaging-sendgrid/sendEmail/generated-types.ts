@@ -82,18 +82,9 @@ export interface Payload {
      */
     subscriptionStatus?: string
     /**
-     * An array of subscription groups status
+     * An json stringify array of subscription groups status
      */
-    groups?: {
-      /**
-       * A unique identifier for the subsription group.
-       */
-      id?: string
-      /**
-       * The subscription group status for the identity.
-       */
-      subscriptionStatus?: string
-    }[]
+    groups?: string
   }[]
   /**
    * The subscription group to send the email
