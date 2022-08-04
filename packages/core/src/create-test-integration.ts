@@ -20,6 +20,10 @@ interface InputData<Settings> {
    */
   mapping?: JSONObject
   /**
+   * Optional path that mappings should be evaluated against.
+   */
+  mappingRoot?: string
+  /**
    * The settings for a destination instance. Includes things like
    * `apiKey` or `subdomain`. Any fields that are used across all actions
    * in a destination.
@@ -59,7 +63,7 @@ class TestDestination<T> extends Destination<T> {
   /** Testing method that runs an action e2e while allowing slightly more flexible inputs */
   async testAction(
     action: string,
-    { event, mapping, settings, useDefaultMappings, auth, features, statsContext }: InputData<T>
+    { event, mapping, mappingRoot = '', settings, useDefaultMappings, auth, features, statsContext }: InputData<T>
   ): Promise<Destination['responses']> {
     mapping = mapping ?? {}
 
@@ -72,6 +76,7 @@ class TestDestination<T> extends Destination<T> {
     await super.executeAction(action, {
       event: createTestEvent(event),
       mapping,
+      mappingRoot,
       settings: settings ?? ({} as T),
       auth,
       features: features ?? {},
@@ -89,6 +94,7 @@ class TestDestination<T> extends Destination<T> {
     {
       events,
       mapping,
+      mappingRoot = '',
       settings,
       useDefaultMappings,
       auth,
@@ -111,6 +117,7 @@ class TestDestination<T> extends Destination<T> {
     await super.executeBatch(action, {
       events: events.map((event) => createTestEvent(event)),
       mapping,
+      mappingRoot,
       settings: settings ?? ({} as T),
       auth,
       features: features ?? {},
