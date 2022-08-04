@@ -163,6 +163,7 @@ export type AuthenticationScheme<Settings = any> =
 interface EventInput<Settings> {
   readonly event: SegmentEvent
   readonly mapping: JSONObject
+  readonly mappingRoot: string
   readonly settings: Settings
   /** Authentication-related data based on the destination's authentication.fields definition and authentication scheme */
   readonly auth?: AuthTokens
@@ -174,6 +175,7 @@ interface EventInput<Settings> {
 interface BatchEventInput<Settings> {
   readonly events: SegmentEvent[]
   readonly mapping: JSONObject
+  readonly mappingRoot: string
   readonly settings: Settings
   /** Authentication-related data based on the destination's authentication.fields definition and authentication scheme */
   readonly auth?: AuthTokens
@@ -192,6 +194,7 @@ interface OnEventOptions {
   onComplete?: (stats: SubscriptionStats) => void
   features?: Features
   statsContext?: StatsContext
+  mappingRoot?: string
 }
 
 export interface StatsClient {
@@ -331,7 +334,7 @@ export class Destination<Settings = JSONObject> {
 
   protected async executeAction(
     actionSlug: string,
-    { event, mapping, settings, auth, features, statsContext }: EventInput<Settings>
+    { event, mapping, mappingRoot, settings, auth, features, statsContext }: EventInput<Settings>
   ): Promise<Result[]> {
     const action = this.actions[actionSlug]
     if (!action) {
@@ -341,6 +344,7 @@ export class Destination<Settings = JSONObject> {
     return action.execute({
       mapping,
       data: event as unknown as InputData,
+      mappingRoot,
       settings,
       auth,
       features,
@@ -350,7 +354,7 @@ export class Destination<Settings = JSONObject> {
 
   public async executeBatch(
     actionSlug: string,
-    { events, mapping, settings, auth, features, statsContext }: BatchEventInput<Settings>
+    { events, mapping, mappingRoot, settings, auth, features, statsContext }: BatchEventInput<Settings>
   ) {
     const action = this.actions[actionSlug]
     if (!action) {
@@ -359,6 +363,7 @@ export class Destination<Settings = JSONObject> {
 
     await action.executeBatch({
       mapping,
+      mappingRoot,
       data: events as unknown as InputData[],
       settings,
       auth,
@@ -393,6 +398,7 @@ export class Destination<Settings = JSONObject> {
     const actionSlug = subscription.partnerAction
     const input = {
       mapping: subscription.mapping || {},
+      mappingRoot: options?.mappingRoot || '',
       settings,
       auth,
       features: options?.features || {},

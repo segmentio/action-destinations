@@ -13,6 +13,7 @@ import { AuthTokens } from './parse-settings'
 import { IntegrationError } from '../errors'
 import { removeEmptyValues } from '../remove-empty-values'
 import { StatsContext } from './index'
+import { get } from '../get'
 
 type MaybePromise<T> = T | Promise<T>
 type RequestClient = ReturnType<typeof createRequestClient>
@@ -77,6 +78,7 @@ interface ExecuteBundle<T = unknown, Data = unknown> {
   data: Data
   settings: T
   mapping: JSONObject
+  mappingRoot?: string
   auth: AuthTokens | undefined
   /** For internal Segment/Twilio use only. */
   features?: Features | undefined
@@ -120,7 +122,9 @@ export class Action<Settings, Payload extends JSONLikeObject> extends EventEmitt
     const results: Result[] = []
 
     // Resolve/transform the mapping with the input data
-    let payload = transform(bundle.mapping, bundle.data, bundle.features) as Payload
+    let transformData = bundle.data
+    if (bundle.mappingRoot) transformData = get(transformData, bundle.mappingRoot)
+    let payload = transform(bundle.mapping, transformData, bundle.features) as Payload
     results.push({ output: 'Mappings resolved' })
 
     // Remove empty values (`null`, `undefined`, `''`) when not explicitly accepted
@@ -156,7 +160,11 @@ export class Action<Settings, Payload extends JSONLikeObject> extends EventEmitt
       throw new IntegrationError('This action does not support batched requests.', 'NotImplemented', 501)
     }
 
-    let payloads = transformBatch(bundle.mapping, bundle.data) as Payload[]
+    const transformData = bundle.data.map((data) => {
+      if (bundle.mappingRoot) return get(data, bundle.mappingRoot) || {}
+      return data
+    })
+    let payloads = transformBatch(bundle.mapping, transformData) as Payload[]
 
     // Validate the resolved payloads against the schema
     if (this.schema) {
