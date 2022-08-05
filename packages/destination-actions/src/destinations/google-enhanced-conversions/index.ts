@@ -3,6 +3,8 @@ import type { Settings } from './generated-types'
 import postConversion from './postConversion'
 import uploadClickConversion from './uploadClickConversion'
 
+import uploadCallConversion from './uploadCallConversion'
+
 interface RefreshTokenResponse {
   access_token: string
   scope: string
@@ -75,7 +77,8 @@ const destination: DestinationDefinition<Settings> = {
   },
   actions: {
     postConversion,
-    uploadClickConversion
+    uploadClickConversion,
+    uploadCallConversion
   }
 }
 
