@@ -7,7 +7,7 @@ import type { Payload } from './generated-types'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Prospect',
-  description: 'Represents an opportunity, which is a sale or pending deal.',
+  description: 'Create or update a prospect in Pardot using email address.',
   defaultSubscription: 'type = "identify"',
   fields: {
     email: {
