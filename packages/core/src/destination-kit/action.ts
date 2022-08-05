@@ -195,8 +195,12 @@ export class Action<Settings, Payload extends JSONLikeObject> extends EventEmitt
     const fn = this.definition.dynamicFields?.[field]
     if (typeof fn !== 'function') {
       return {
-        data: [],
-        pagination: {}
+        choices: [],
+        nextPage: '',
+        error: {
+          message: `No dynamic field named ${field} found.`,
+          code: '404'
+        }
       }
     }
 
