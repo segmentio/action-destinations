@@ -4,7 +4,7 @@ import type { Payload } from './generated-types'
 import { Liquid as LiquidJs } from 'liquidjs'
 import cheerio from 'cheerio'
 import { htmlEscape } from 'escape-goat'
-
+import { StatsClient } from '@segment/actions-core/src/destination-kit'
 const Liquid = new LiquidJs()
 
 const insertEmailPreviewText = (html: string, previewText: string): string => {
@@ -34,7 +34,9 @@ type RequestFn = (url: string, options?: RequestOptions) => Promise<Response>
 const fetchProfileTraits = async (
   request: RequestFn,
   settings: Settings,
-  profileId: string
+  profileId: string,
+  statsClient?: StatsClient | undefined,
+  tags?: string[] | undefined
 ): Promise<Record<string, string>> => {
   try {
     const endpoint = getProfileApiEndpoint(settings.profileApiEnvironment)
@@ -47,10 +49,13 @@ const fetchProfileTraits = async (
         }
       }
     )
+    tags?.push(`profile-status-${response.status}`)
+    statsClient?.incr('actions-personas-messaging-sendgrid.profile_invoked', 1, tags)
 
     const body = await response.json()
     return body.traits
   } catch (error) {
+    statsClient?.incr('actions-personas-messaging-sendgrid.profile_error', 1, tags)
     throw new IntegrationError('Unable to get profile traits for email message', 'Email trait fetch failure', 500)
   }
 }
@@ -266,19 +271,24 @@ const action: ActionDefinition<Settings, Payload> = {
       required: false
     }
   },
-  perform: async (request, { settings, payload }) => {
+  perform: async (request, { settings, payload, statsContext }) => {
+    const statsClient = statsContext?.statsClient
+    const tags = statsContext?.tags
+    tags?.push(settings.spaceId)
     if (!payload.send) {
+      statsClient?.incr('actions-personas-messaging-sendgrid.send-disabled', 1, tags)
       return
     }
-
     const emailProfile = payload?.externalIds?.find((meta) => meta.type === 'email')
     if (
       !emailProfile?.subscriptionStatus ||
       ['unsubscribed', 'did not subscribed', 'false'].includes(emailProfile.subscriptionStatus)
     ) {
+      statsClient?.incr('actions-personas-messaging-sendgrid.notsubscribed', 1, tags)
       return
     } else if (['subscribed', 'true'].includes(emailProfile?.subscriptionStatus)) {
-      const traits = await fetchProfileTraits(request, settings, payload.userId)
+      statsClient?.incr('actions-personas-messaging-sendgrid.subscribed', 1, tags)
+      const traits = await fetchProfileTraits(request, settings, payload.userId, statsClient, tags)
 
       const profile: Profile = {
         email: emailProfile.id,
@@ -292,6 +302,7 @@ const action: ActionDefinition<Settings, Payload> = {
       }
 
       if (isRestrictedDomain(toEmail)) {
+        statsClient?.incr('actions-personas-messaging-sendgrid.restricted-domain', 1, tags)
         throw new IntegrationError(
           'Emails with gmailx.com, yahoox.com, aolx.com, and hotmailx.com domains are blocked.',
           'Invalid input',
@@ -332,7 +343,7 @@ const action: ActionDefinition<Settings, Payload> = {
         parsedBodyHtml = insertEmailPreviewText(parsedBodyHtml, parsedPreviewText)
       }
 
-      return request('https://api.sendgrid.com/v3/mail/send', {
+      const response = await request('https://api.sendgrid.com/v3/mail/send', {
         method: 'post',
         headers: {
           authorization: `Bearer ${settings.sendGridApiKey}`
@@ -381,7 +392,11 @@ const action: ActionDefinition<Settings, Payload> = {
           }
         }
       })
+      tags?.push(`code-${response.status}`)
+      statsClient?.incr('actions-personas-messaging-sendgrid.response', 1, tags)
+      return response
     } else {
+      statsClient?.incr('actions-personas-messaging-sendgrid.sendgrid-error', 1, tags)
       throw new IntegrationError(
         `Failed to process the subscription state: "${emailProfile.subscriptionStatus}"`,
         'Invalid subscriptionStatus value',
