@@ -304,12 +304,8 @@ const action: ActionDefinition<Settings, Payload> = {
       if (payload?.groupId) {
         let subscribed = false
         const groups = JSON.parse(emailProfile.groups ?? '')
-        groups.forEach((group: { id: string | undefined; subscriptionStatus: string | undefined }) => {
-          if (
-            group.id == payload.groupId &&
-            group.subscriptionStatus &&
-            ['subscribed', 'true'].includes(group.subscriptionStatus)
-          ) {
+        groups.forEach((group: { id: string; isSubscribed: boolean }) => {
+          if (group.id == payload.groupId && group.isSubscribed) {
             subscribed = true
           }
         })
