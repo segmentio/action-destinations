@@ -63,15 +63,14 @@ const destination: DestinationDefinition<Settings> = {
       return { accessToken: res.data.access_token }
     }
   },
-  extendRequest({ settings, auth }) {
+  extendRequest({ auth }) {
     return {
       headers: {
-        authorization: `Bearer ${auth?.accessToken}`,
-        developer_token: settings.customerId
-      },
-      searchParams: {
-        conversion_tracking_id: settings.conversionTrackingId
+        authorization: `Bearer ${auth?.accessToken}`
       }
+      // searchParams: {
+      //   conversion_tracking_id: settings.conversionTrackingId
+      // }
     }
   },
   actions: {

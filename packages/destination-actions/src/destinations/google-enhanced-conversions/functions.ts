@@ -12,11 +12,11 @@ export const formatCustomVariables = (customVariables: object | undefined): obje
     return undefined
   }
 
-  const variables: { conversionCustomVarable: string; value: string }[] = []
+  const variables: { conversionCustomVariable: string; value: string }[] = []
 
   Object.entries(customVariables).forEach(([key, value]) => {
     const variable = {
-      conversionCustomVarable: key,
+      conversionCustomVariable: key,
       value: value
     }
     variables.push(variable)

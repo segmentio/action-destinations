@@ -209,7 +209,7 @@ const action: ActionDefinition<Settings, Payload> = {
     }
 
     const request_object: { [key: string]: any } = {
-      conversionAction: payload.conversion_action,
+      conversionAction: `customers/${settings.customerId}/conversionActions/${payload.conversion_action}`,
       conversionDateTime: payload.conversion_timestamp, // TODO: format so timezone is specified
       gclid: payload.gclid,
       gbraid: payload.gbraid,
@@ -224,20 +224,21 @@ const action: ActionDefinition<Settings, Payload> = {
       conversionValue: payload.value,
       currencyCode: payload.currency,
       conversionEnvironment: payload.conversion_environment,
-      cartData: [
-        {
-          merchantId: payload.merchant_id,
-          feedCountryCode: payload.merchant_country_code,
-          feedLanguageCode: payload.merchant_language_code,
-          localTransactionCost: payload.local_cost,
-          items: cartItems
-        }
-      ],
+      cartData: {
+        merchantId: payload.merchant_id,
+        feedCountryCode: payload.merchant_country_code,
+        feedLanguageCode: payload.merchant_language_code,
+        localTransactionCost: payload.local_cost,
+        items: cartItems
+      },
       customVariables: formatCustomVariables(payload.custom_variables)
     }
 
     return request(`https://googleads.googleapis.com/v11/customers/${settings.customerId}:uploadClickConversions`, {
       method: 'post',
+      headers: {
+        'developer-token': ''
+      },
       json: {
         conversions: [request_object],
         partialFailure: true
