@@ -8,6 +8,7 @@ import type { Payload } from './generated-types'
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Prospect',
   description: 'Represents an opportunity, which is a sale or pending deal.',
+  defaultSubscription: 'type = "identify"',
   fields: {
     email: {
       label: 'Email Address',
