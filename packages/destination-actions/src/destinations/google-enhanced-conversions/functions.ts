@@ -7,7 +7,10 @@ export function verifyCurrency(currency: string): void {
   }
 }
 
-export const formatCustomVariables = (customVariables: object | undefined): object | undefined => {
+export const formatCustomVariables = (
+  customVariables: object | undefined,
+  customer_id: string | undefined
+): object | undefined => {
   if (!customVariables) {
     return undefined
   }
@@ -16,7 +19,7 @@ export const formatCustomVariables = (customVariables: object | undefined): obje
 
   Object.entries(customVariables).forEach(([key, value]) => {
     const variable = {
-      conversionCustomVariable: key,
+      conversionCustomVariable: `customers/${customer_id}/conversionCustomVariables/${key}`,
       value: value
     }
     variables.push(variable)

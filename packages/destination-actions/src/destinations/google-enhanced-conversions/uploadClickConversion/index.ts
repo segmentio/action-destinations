@@ -1,4 +1,4 @@
-import type { ActionDefinition } from '@segment/actions-core'
+import { ActionDefinition, IntegrationError } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import { formatEmail, formatPhone } from '../postConversion/formatter'
 import type { Payload } from './generated-types'
@@ -184,14 +184,6 @@ const action: ActionDefinition<Settings, Payload> = {
   },
   perform: (request, { settings, payload }) => {
     // Make your partner api request here!
-    let formattedEmail
-    let formattedPhoneNumber
-    if (payload.email_address) {
-      formattedEmail = formatEmail(payload.email_address)
-    }
-    if (payload.phone_number) {
-      formattedPhoneNumber = formatPhone(payload.phone_number)
-    }
 
     let cartItems: CartItem[] = []
     if (payload.items) {
@@ -214,12 +206,6 @@ const action: ActionDefinition<Settings, Payload> = {
       gclid: payload.gclid,
       gbraid: payload.gbraid,
       wbraid: payload.wbraid,
-      userIdentifiers: [
-        {
-          hashedEmail: formattedEmail,
-          hashedPhoneNumber: formattedPhoneNumber
-        }
-      ],
       orderId: payload.order_id,
       conversionValue: payload.value,
       currencyCode: payload.currency,
@@ -231,7 +217,33 @@ const action: ActionDefinition<Settings, Payload> = {
         localTransactionCost: payload.local_cost,
         items: cartItems
       },
-      customVariables: formatCustomVariables(payload.custom_variables)
+      customVariables: formatCustomVariables(payload.custom_variables, settings.customerId)
+    }
+
+    if (payload.email_address && payload.phone_number) {
+      throw new IntegrationError(
+        'Only set oneof phone number or email address. Cannot have multiple user_identifiers',
+        'Too many fields set.',
+        400
+      )
+    }
+
+    if (payload.email_address) {
+      const formattedEmail = formatEmail(payload.email_address)
+      request_object.userIdentifiers = [
+        {
+          hashedEmail: formattedEmail
+        }
+      ]
+    }
+
+    if (payload.phone_number) {
+      const formattedPhoneNumber = formatPhone(payload.phone_number)
+      request_object.userIdentifiers = [
+        {
+          hashedPhoneNumber: formattedPhoneNumber
+        }
+      ]
     }
 
     return request(`https://googleads.googleapis.com/v11/customers/${settings.customerId}:uploadClickConversions`, {
