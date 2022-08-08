@@ -155,11 +155,12 @@ const action: BrowserActionDefinition<Settings, BrazeType, Payload> = {
     }
 
     const user = client.getUser()
+    if (!user) return
 
-    payload.country !== undefined && user?.setCountry(payload.country)
+    payload.country !== undefined && user.setCountry(payload.country)
 
     payload.current_location?.key !== undefined &&
-      user?.setCustomLocationAttribute(
+      user.setCustomLocationAttribute(
         payload.current_location.key,
         payload.current_location.latitude,
         payload.current_location.longitude
@@ -167,10 +168,10 @@ const action: BrowserActionDefinition<Settings, BrazeType, Payload> = {
 
     if (payload.dob !== undefined) {
       if (payload.dob === null) {
-        user?.setDateOfBirth(null, null, null)
+        user.setDateOfBirth(null, null, null)
       } else {
         const date = dayjs(payload.dob)
-        user?.setDateOfBirth(date.year(), date.month() + 1, date.date())
+        user.setDateOfBirth(date.year(), date.month() + 1, date.date())
       }
     }
 
@@ -179,25 +180,25 @@ const action: BrowserActionDefinition<Settings, BrazeType, Payload> = {
     if (payload.custom_attributes !== undefined) {
       Object.entries(payload.custom_attributes).forEach(([key, value]) => {
         if (!reservedFields.includes(key)) {
-          user?.setCustomUserAttribute(key, value as string | number | boolean | Date | string[] | null)
+          user.setCustomUserAttribute(key, value as string | number | boolean | Date | string[] | null)
         }
       })
     }
 
     payload.email_subscribe !== undefined &&
-      user?.setEmailNotificationSubscriptionType(payload.email_subscribe as braze.NotificationSubscriptionTypes)
+      user.setEmailNotificationSubscriptionType(payload.email_subscribe as braze.NotificationSubscriptionTypes)
 
-    payload.email !== undefined && user?.setEmail(payload.email)
-    payload.first_name !== undefined && user?.setFirstName(payload.first_name)
-    payload.gender !== undefined && user?.setGender(toBrazeGender(payload.gender) as braze.Genders)
-    payload.home_city !== undefined && user?.setHomeCity(payload.home_city)
-    payload.language !== undefined && user?.setLanguage(payload.language)
+    payload.email !== undefined && user.setEmail(payload.email)
+    payload.first_name !== undefined && user.setFirstName(payload.first_name)
+    payload.gender !== undefined && user.setGender(toBrazeGender(payload.gender) as braze.Genders)
+    payload.home_city !== undefined && user.setHomeCity(payload.home_city)
+    payload.language !== undefined && user.setLanguage(payload.language)
     payload.current_location !== undefined &&
-      user?.setLastKnownLocation(payload.current_location.latitude, payload.current_location.longitude)
-    payload.last_name !== undefined && user?.setLastName(payload.last_name)
-    payload.phone !== undefined && user?.setPhoneNumber(payload.phone)
+      user.setLastKnownLocation(payload.current_location.latitude, payload.current_location.longitude)
+    payload.last_name !== undefined && user.setLastName(payload.last_name)
+    payload.phone !== undefined && user.setPhoneNumber(payload.phone)
     payload.push_subscribe !== undefined &&
-      user?.setPushNotificationSubscriptionType(payload.push_subscribe as braze.NotificationSubscriptionTypes)
+      user.setPushNotificationSubscriptionType(payload.push_subscribe as braze.NotificationSubscriptionTypes)
   }
 }
 
