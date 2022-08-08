@@ -11,10 +11,12 @@ beforeEach(() => {
 })
 
 test('reports products when present', async () => {
+  const brazeLogPurchase = jest.spyOn(spyMethods, 'logPurchase').mockReturnValue(true)
+
   const [trackPurchase] = await brazeDestination({
     api_key: 'b_123',
     endpoint: 'endpoint',
-    sdkVersion: '4.1',
+    sdkVersion: '3.5',
     doNotLoadFontAwesome: true,
     subscriptions: [
       {
@@ -35,9 +37,6 @@ test('reports products when present', async () => {
   })
 
   await trackPurchase.load(Context.system(), {} as Analytics)
-
-  const brazeLogPurchase = jest.spyOn(window.braze, 'logPurchase').mockReturnValue(true)
-
   await trackPurchase.track?.(
     new Context({
       type: 'track',
