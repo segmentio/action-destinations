@@ -96,7 +96,7 @@ describe.each(['stage', 'production'])('%s environment', (environment) => {
           id: userData.email,
           type: 'email',
           subscriptionStatus: 'subscribed',
-          groups: JSON.stringify([{ id: 'grp_1', subscriptionStatus: 'subscribed' }])
+          groups: JSON.stringify([{ id: 'grp_1', isSubscribed: true }])
         },
         { id: userData.phone, type: 'phone', subscriptionStatus: 'subscribed' }
       ],
@@ -719,7 +719,7 @@ describe.each(['stage', 'production'])('%s environment', (environment) => {
                 id: userData.email,
                 type: 'email',
                 subscriptionStatus: 'subscribed',
-                groups: JSON.stringify([{ id: 'grp_1', subscriptionStatus: subscriptionStatus }])
+                groups: JSON.stringify([{ id: 'grp_1', isSubscribed: subscriptionStatus }])
               },
               { id: userData.phone, type: 'phone', subscriptionStatus: 'subscribed' }
             ],
