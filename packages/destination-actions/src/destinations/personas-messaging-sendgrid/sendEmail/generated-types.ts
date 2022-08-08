@@ -88,4 +88,10 @@ export interface Payload {
   customArgs?: {
     [k: string]: unknown
   }
+  /**
+   * A user profile traits
+   */
+  traits?: {
+    [k: string]: unknown
+  }
 }

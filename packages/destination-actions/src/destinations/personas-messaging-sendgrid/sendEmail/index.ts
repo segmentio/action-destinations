@@ -269,6 +269,13 @@ const action: ActionDefinition<Settings, Payload> = {
       description: 'Additional custom args that we be passed back opaquely on webhook events',
       type: 'object',
       required: false
+    },
+    traits: {
+      label: 'Traits',
+      description: 'A user profile traits',
+      type: 'object',
+      required: false,
+      default: { '@path': '$.properties' }
     }
   },
   perform: async (request, { settings, payload, statsContext }) => {
@@ -288,7 +295,18 @@ const action: ActionDefinition<Settings, Payload> = {
       return
     } else if (['subscribed', 'true'].includes(emailProfile?.subscriptionStatus)) {
       statsClient?.incr('actions-personas-messaging-sendgrid.subscribed', 1, tags)
-      const traits = await fetchProfileTraits(request, settings, payload.userId, statsClient, tags)
+
+      let traits
+      const traitEnrichment = true // TODO use flagon
+
+      if (!traitEnrichment) {
+        traits = await fetchProfileTraits(request, settings, payload.userId, statsClient, tags)
+      } else {
+        console.log(payload?.traits)
+        traits = payload?.traits ? payload?.traits : JSON.parse('{}')
+      }
+
+      console.log(traits)
 
       const profile: Profile = {
         email: emailProfile.id,
