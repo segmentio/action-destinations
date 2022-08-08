@@ -703,7 +703,7 @@ describe.each(['stage', 'production'])('%s environment', (environment) => {
       expect(sendGridRequest.isDone()).toEqual(true)
     })
 
-    it.each(['unsubscribed', 'did not subscribed', '', null, false])(
+    it.each([null, false])(
       'does NOT send the email to group when group\'s subscriptionStatus = "%s"',
       async (subscriptionStatus) => {
         await sendgrid.testAction('sendEmail', {
