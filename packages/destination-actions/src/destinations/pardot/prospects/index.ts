@@ -6,7 +6,7 @@ import { customFields } from '../pa-properties'
 import type { Payload } from './generated-types'
 
 const action: ActionDefinition<Settings, Payload> = {
-  title: 'Prospect',
+  title: 'Upsert Prospect',
   description: 'Create or update a prospect in Pardot using email address.',
   defaultSubscription: 'type = "identify"',
   fields: {
