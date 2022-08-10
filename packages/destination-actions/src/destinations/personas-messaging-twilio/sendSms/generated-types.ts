@@ -48,4 +48,10 @@ export interface Payload {
      */
     subscriptionStatus?: string
   }[]
+  /**
+   * A user profile traits
+   */
+  traits?: {
+    [k: string]: unknown
+  }
 }

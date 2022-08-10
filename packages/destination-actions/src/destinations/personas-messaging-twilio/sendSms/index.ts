@@ -132,6 +132,13 @@ const action: ActionDefinition<Settings, Payload> = {
           }
         ]
       }
+    },
+    traits: {
+      label: 'Traits',
+      description: 'A user profile traits',
+      type: 'object',
+      required: false,
+      default: { '@path': '$.properties' }
     }
   },
   perform: async (request, { settings, payload, statsContext }) => {
@@ -151,11 +158,20 @@ const action: ActionDefinition<Settings, Payload> = {
       return
     } else if (['subscribed', 'true'].includes(externalId.subscriptionStatus)) {
       statsClient?.incr('actions-personas-messaging-twilio.subscribed', 1, tags)
-      const traits = await fetchProfileTraits(request, settings, payload.userId, statsClient, tags)
+
       const phone = payload.toNumber || externalId.id
       if (!phone) {
         return
       }
+      let traits
+      const traitEnrichment = false // TODO use flagon
+
+      if (!traitEnrichment) {
+        traits = await fetchProfileTraits(request, settings, payload.userId, statsClient, tags)
+      } else {
+        traits = payload?.traits ? payload?.traits : JSON.parse('{}')
+      }
+
       const profile = {
         user_id: payload.userId,
         phone,

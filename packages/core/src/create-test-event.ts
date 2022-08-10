@@ -31,7 +31,10 @@ export function createTestEvent(event: Partial<SegmentEvent> = {}): SegmentEvent
     },
     event: 'Test Event',
     messageId: uuidv4(),
-    properties: {},
+    properties: {
+      firstName: 'First Name',
+      lastName: 'Browning'
+    },
     receivedAt: new Date().toISOString(),
     sentAt: new Date().toISOString(),
     timestamp: new Date().toISOString(),

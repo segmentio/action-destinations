@@ -95,6 +95,7 @@ describe.each(['stage', 'production'])('%s environment', (environment) => {
         { id: userData.email, type: 'email', subscriptionStatus: 'subscribed' },
         { id: userData.phone, type: 'phone', subscriptionStatus: 'subscribed' }
       ],
+      traits: { '@path': '$.properties' },
       ...overrides
     }
   }
@@ -130,6 +131,23 @@ describe.each(['stage', 'production'])('%s environment', (environment) => {
 
       expect(responses.length).toBeGreaterThan(0)
       expect(sendGridRequest.isDone()).toEqual(true)
+    })
+    it('should send Email using traits from the Segment Event', async () => {
+      const sendGridRequest = nock('https://api.sendgrid.com').post('/v3/mail/send', sendgridRequestBody).reply(200, {})
+
+      const responses = await sendgrid.testAction('sendEmail', {
+        event: createTestEvent({
+          timestamp,
+          event: 'Audience Entered',
+          userId: userData.userId
+        }),
+        settings,
+        mapping: getDefaultMapping()
+      })
+
+      expect(responses.length).toBeGreaterThan(0)
+      expect(sendGridRequest.isDone()).toEqual(true)
+      console.log(responses)
     })
 
     it('should not send email when send = false', async () => {
@@ -251,14 +269,12 @@ describe.each(['stage', 'production'])('%s environment', (environment) => {
           externalIds: [
             { id: userData.email, type: 'email', subscriptionStatus: 'subscribed' },
             { id: userData.phone, type: 'phone', subscriptionStatus: 'subscribed' }
-          ]
+          ],
+          traits: { '@path': '$.properties' }
         }
       })
 
-      expect(responses.map((r) => r.url)).toStrictEqual([
-        `${endpoint}/v1/spaces/spaceId/collections/users/profiles/user_id:jane/traits?limit=200`,
-        `https://api.sendgrid.com/v3/mail/send`
-      ])
+      expect(responses.map((r) => r.url)).toStrictEqual([`https://api.sendgrid.com/v3/mail/send`])
       expect(sendGridRequest.isDone()).toEqual(true)
     })
 

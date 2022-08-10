@@ -302,11 +302,8 @@ const action: ActionDefinition<Settings, Payload> = {
       if (!traitEnrichment) {
         traits = await fetchProfileTraits(request, settings, payload.userId, statsClient, tags)
       } else {
-        console.log(payload?.traits)
         traits = payload?.traits ? payload?.traits : JSON.parse('{}')
       }
-
-      console.log(traits)
 
       const profile: Profile = {
         email: emailProfile.id,
