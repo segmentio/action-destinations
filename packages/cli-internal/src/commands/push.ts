@@ -198,12 +198,14 @@ export default class Push extends Command {
         mobile: false
       }
 
+      const name = definition.name
+      const description = definition.description
       const options = getOptions(definition, metadata.options)
       const basicOptions = getBasicOptions(options)
       const diff = diffString(
         asJson({
-          name: metadata.name,
-          description: metadata.description,
+          name,
+          description,
           basicOptions: filterOAuth(metadata.basicOptions),
           options: pick(metadata.options, filterOAuth(Object.keys(options))),
           platforms: metadata.platforms,
