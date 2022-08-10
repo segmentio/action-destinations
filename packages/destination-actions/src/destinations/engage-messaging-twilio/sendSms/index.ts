@@ -164,7 +164,7 @@ const action: ActionDefinition<Settings, Payload> = {
         return
       }
       let traits
-      const traitEnrichment = true // TODO use flagon
+      const traitEnrichment = true // TODO use mapping to switch like "SendTrait: true or false"
 
       if (!traitEnrichment) {
         traits = await fetchProfileTraits(request, settings, payload.userId, statsClient, tags)
