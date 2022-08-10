@@ -263,7 +263,6 @@ export default class Push extends Command {
         continue
       }
 
-      //blah
       try {
         await Promise.all([
           updateDestinationMetadata(metadata.id, {
