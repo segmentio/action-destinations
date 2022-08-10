@@ -202,8 +202,6 @@ export default class Push extends Command {
       const basicOptions = getBasicOptions(options)
       const diff = diffString(
         asJson({
-          name: metadata.name,
-          description: metadata.description,
           basicOptions: filterOAuth(metadata.basicOptions),
           options: pick(metadata.options, filterOAuth(Object.keys(options))),
           platforms: metadata.platforms,
@@ -219,8 +217,6 @@ export default class Push extends Command {
           presets: sortBy(existingPresets, 'name')
         }),
         asJson({
-          name: definition.name,
-          description: definition.description,
           basicOptions: filterOAuth(basicOptions),
           options: pick(options, filterOAuth(Object.keys(options))),
           platforms,
@@ -266,8 +262,6 @@ export default class Push extends Command {
       try {
         await Promise.all([
           updateDestinationMetadata(metadata.id, {
-            name,
-            description,
             advancedOptions: [], // make sure this gets cleared out since we don't use advancedOptions in Actions
             basicOptions,
             options,
