@@ -2,11 +2,11 @@
 
 export interface Payload {
   /**
-   * The user's identity
+   * The user's identity.
    */
   userId?: string
   /**
-   * The Segment traits to be forwarded to Iterate
+   * The Segment traits to be forwarded to Iterate.
    */
   traits?: {
     [k: string]: unknown

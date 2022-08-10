@@ -3,10 +3,10 @@ import type { Settings } from './generated-types'
 import sendEmail from './sendEmail'
 
 const destination: DestinationDefinition<Settings> = {
-  name: 'Actions Personas Messaging Sendgrid',
+  name: 'Engage Messaging SendGrid',
   slug: 'actions-personas-messaging-sendgrid',
   mode: 'cloud',
-  description: 'This is a personas specific action to send an email',
+  description: 'This is an Engage specific action to send an email',
   authentication: {
     scheme: 'custom',
     fields: {
@@ -18,7 +18,7 @@ const destination: DestinationDefinition<Settings> = {
       sendGridApiKey: {
         label: 'API Key',
         type: 'password',
-        description: 'The Api Key for your sendGrid account',
+        description: 'The Api Key for your SendGrid account',
         required: true
       },
       profileApiEnvironment: {
