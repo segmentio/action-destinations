@@ -4,7 +4,7 @@ import type { Payload } from './generated-types'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Contact',
-  description: '',
+  description: 'TODO',
   fields: {},
   perform: () => {
     //request, data
