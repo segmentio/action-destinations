@@ -4,7 +4,7 @@ import sendEmail from './sendEmail'
 
 const destination: DestinationDefinition<Settings> = {
   name: 'Engage Messaging Sendgrid',
-  slug: 'actions-engage-messaging-sendgrid',
+  slug: 'actions-personas-messaging-sendgrid',
   mode: 'cloud',
   description: 'This is an Engage specific action to send an email',
   authentication: {
@@ -18,7 +18,7 @@ const destination: DestinationDefinition<Settings> = {
       sendGridApiKey: {
         label: 'API Key',
         type: 'password',
-        description: 'The Api Key for your sendGrid account',
+        description: 'The Api Key for your SendGrid account',
         required: true
       },
       profileApiEnvironment: {
