@@ -1,5 +1,5 @@
 import nock from 'nock'
-import { createTestEvent, createTestIntegration, omit } from '@segment/actions-core'
+import { createMessagingTestEvent, createTestIntegration, omit } from '@segment/actions-core'
 import Sendgrid from '..'
 
 const sendgrid = createTestIntegration(Sendgrid)
@@ -120,7 +120,7 @@ describe.each(['stage', 'production'])('%s environment', (environment) => {
       const sendGridRequest = nock('https://api.sendgrid.com').post('/v3/mail/send', sendgridRequestBody).reply(200, {})
 
       const responses = await sendgrid.testAction('sendEmail', {
-        event: createTestEvent({
+        event: createMessagingTestEvent({
           timestamp,
           event: 'Audience Entered',
           userId: userData.userId
@@ -131,29 +131,12 @@ describe.each(['stage', 'production'])('%s environment', (environment) => {
 
       expect(responses.length).toBeGreaterThan(0)
       expect(sendGridRequest.isDone()).toEqual(true)
-    })
-    it('should send Email using traits from the Segment Event', async () => {
-      const sendGridRequest = nock('https://api.sendgrid.com').post('/v3/mail/send', sendgridRequestBody).reply(200, {})
-
-      const responses = await sendgrid.testAction('sendEmail', {
-        event: createTestEvent({
-          timestamp,
-          event: 'Audience Entered',
-          userId: userData.userId
-        }),
-        settings,
-        mapping: getDefaultMapping()
-      })
-
-      expect(responses.length).toBeGreaterThan(0)
-      expect(sendGridRequest.isDone()).toEqual(true)
-      console.log(responses)
     })
 
     it('should not send email when send = false', async () => {
       const mapping = getDefaultMapping({ send: false })
       await sendgrid.testAction('sendEmail', {
-        event: createTestEvent({
+        event: createMessagingTestEvent({
           timestamp,
           event: 'Audience Entered',
           userId: userData.userId
@@ -168,7 +151,7 @@ describe.each(['stage', 'production'])('%s environment', (environment) => {
 
     it('should not send an email when send field not in payload', async () => {
       const responses = await sendgrid.testAction('sendEmail', {
-        event: createTestEvent({
+        event: createMessagingTestEvent({
           timestamp,
           event: 'Audience Entered',
           userId: userData.userId
@@ -237,7 +220,7 @@ describe.each(['stage', 'production'])('%s environment', (environment) => {
         .reply(200, {})
 
       const responses = await sendgrid.testAction('sendEmail', {
-        event: createTestEvent({
+        event: createMessagingTestEvent({
           timestamp,
           event: 'Audience Entered',
           userId: userData.userId
@@ -283,7 +266,7 @@ describe.each(['stage', 'production'])('%s environment', (environment) => {
       async (domain) => {
         try {
           await sendgrid.testAction('sendEmail', {
-            event: createTestEvent({
+            event: createMessagingTestEvent({
               timestamp,
               event: 'Audience Entered',
               userId: userData.userId
@@ -356,7 +339,7 @@ describe.each(['stage', 'production'])('%s environment', (environment) => {
         .reply(200, {})
 
       const responses = await sendgrid.testAction('sendEmail', {
-        event: createTestEvent({
+        event: createMessagingTestEvent({
           timestamp,
           event: 'Audience Entered',
           userId: userData.userId
@@ -441,7 +424,7 @@ describe.each(['stage', 'production'])('%s environment', (environment) => {
         .reply(200, {})
 
       const responses = await sendgrid.testAction('sendEmail', {
-        event: createTestEvent({
+        event: createMessagingTestEvent({
           timestamp,
           event: 'Audience Entered',
           userId: userData.userId
@@ -542,7 +525,7 @@ describe.each(['stage', 'production'])('%s environment', (environment) => {
         .reply(200, {})
 
       const responses = await sendgrid.testAction('sendEmail', {
-        event: createTestEvent({
+        event: createMessagingTestEvent({
           timestamp,
           event: 'Audience Entered',
           userId: userData.userId
@@ -569,7 +552,7 @@ describe.each(['stage', 'production'])('%s environment', (environment) => {
         .reply(200, {})
 
       const responses = await sendgrid.testAction('sendEmail', {
-        event: createTestEvent({
+        event: createMessagingTestEvent({
           timestamp,
           event: 'Audience Entered',
           userId: userData.userId
@@ -598,7 +581,7 @@ describe.each(['stage', 'production'])('%s environment', (environment) => {
         .reply(200, {})
 
       const responses = await sendgrid.testAction('sendEmail', {
-        event: createTestEvent({
+        event: createMessagingTestEvent({
           timestamp,
           event: 'Audience Entered',
           userId: userData.userId
@@ -634,7 +617,7 @@ describe.each(['stage', 'production'])('%s environment', (environment) => {
       const sendGridRequest = nock('https://api.sendgrid.com').post('/v3/mail/send').reply(200, {})
 
       const responses = await sendgrid.testAction('sendEmail', {
-        event: createTestEvent({
+        event: createMessagingTestEvent({
           timestamp,
           event: 'Audience Entered',
           userId: userData.userId
@@ -656,7 +639,7 @@ describe.each(['stage', 'production'])('%s environment', (environment) => {
       'does NOT send the email when subscriptionStatus = "%s"',
       async (subscriptionStatus) => {
         await sendgrid.testAction('sendEmail', {
-          event: createTestEvent({
+          event: createMessagingTestEvent({
             timestamp,
             event: 'Audience Entered',
             userId: userData.userId
@@ -680,7 +663,7 @@ describe.each(['stage', 'production'])('%s environment', (environment) => {
     it('throws an error when subscriptionStatus is unrecognizable"', async () => {
       const subscriptionStatus = 'random-string'
       const response = sendgrid.testAction('sendEmail', {
-        event: createTestEvent({
+        event: createMessagingTestEvent({
           timestamp,
           event: 'Audience Entered',
           userId: userData.userId
