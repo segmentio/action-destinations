@@ -6,7 +6,7 @@ export interface Settings {
    */
   unlayerApiKey?: string
   /**
-   * The Api Key for your sendGrid account
+   * The Api Key for your SendGrid account
    */
   sendGridApiKey: string
   /**
