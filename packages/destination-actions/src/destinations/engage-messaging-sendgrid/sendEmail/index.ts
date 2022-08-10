@@ -49,7 +49,7 @@ const fetchProfileTraits = async (
         }
       }
     )
-    tags?.push(`profile-status-${response.status}`)
+    tags?.push(`profile_status_code:${response.status}`)
     statsClient?.incr('actions-personas-messaging-sendgrid.profile_invoked', 1, tags)
 
     const body = await response.json()
@@ -281,7 +281,7 @@ const action: ActionDefinition<Settings, Payload> = {
   perform: async (request, { settings, payload, statsContext }) => {
     const statsClient = statsContext?.statsClient
     const tags = statsContext?.tags
-    tags?.push(settings.spaceId)
+    tags?.push(`space_id:${settings.spaceId}`, `projectid:${settings.sourceId}`)
     if (!payload.send) {
       statsClient?.incr('actions-personas-messaging-sendgrid.send-disabled', 1, tags)
       return
@@ -407,7 +407,7 @@ const action: ActionDefinition<Settings, Payload> = {
           }
         }
       })
-      tags?.push(`code-${response.status}`)
+      tags?.push(`sendgrid_status_code:${response.status}`)
       statsClient?.incr('actions-personas-messaging-sendgrid.response', 1, tags)
       return response
     } else {

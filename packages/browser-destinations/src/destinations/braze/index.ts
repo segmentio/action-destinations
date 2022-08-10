@@ -1,18 +1,24 @@
 import type { Settings } from './generated-types'
 import type { BrowserDestinationDefinition } from '../../lib/browser-destinations'
 import { browserDestination } from '../../runtime/shim'
-import type appboy from '@braze/web-sdk'
+import type braze from '@braze/web-sdk'
+import type appboy from '@braze/web-sdk-v3'
 import trackEvent from './trackEvent'
 import updateUserProfile from './updateUserProfile'
 import trackPurchase from './trackPurchase'
 import debounce, { resetUserCache } from './debounce'
 import { defaultValues, DestinationDefinition } from '@segment/actions-core'
+import { BrazeType } from './braze-types'
 
 declare global {
   interface Window {
+    braze: typeof braze
     appboy: typeof appboy
+    BRAZE_BASE_URL?: string
   }
 }
+
+const defaultVersion = '4.1'
 
 const presets: DestinationDefinition['presets'] = [
   {
@@ -43,16 +49,20 @@ const presets: DestinationDefinition['presets'] = [
   }
 ]
 
-export const destination: BrowserDestinationDefinition<Settings, typeof appboy> = {
+export const destination: BrowserDestinationDefinition<Settings, BrazeType> = {
   name: 'Braze Web Mode (Actions)',
   slug: 'actions-braze-web',
   mode: 'device',
   settings: {
     sdkVersion: {
-      description: 'The version of the SDK to use. Defaults to 3.3.',
+      description: 'The version of the Braze SDK to use',
       label: 'SDK Version',
       type: 'string',
       choices: [
+        {
+          value: '3.1',
+          label: '3.1'
+        },
         {
           value: '3.3',
           label: '3.3'
@@ -60,15 +70,19 @@ export const destination: BrowserDestinationDefinition<Settings, typeof appboy> 
         {
           value: '3.5',
           label: '3.5'
+        },
+        {
+          value: '4.1',
+          label: '4.1'
         }
       ],
-      default: '3.5',
+      default: defaultVersion,
       required: true
     },
     api_key: {
-      description: 'Found in the Braze Dashboard under Settings → Manage Settings → Apps → Web',
+      description: 'Found in the Braze Dashboard under Manage Settings → Apps → Web',
       label: 'API Key',
-      type: 'password',
+      type: 'string', // SDK API keys are not secret
       required: true
     },
     endpoint: {
@@ -132,7 +146,7 @@ export const destination: BrowserDestinationDefinition<Settings, typeof appboy> 
     disablePushTokenMaintenance: {
       label: 'Disable Push Token Maintenance',
       type: 'boolean',
-      default: true,
+      default: false,
       required: false,
       description:
         'By default, users who have already granted web push permission will sync their push token with the Braze backend automatically on new session to ensure deliverability. To disable this behavior, set this option to false'
@@ -265,28 +279,39 @@ export const destination: BrowserDestinationDefinition<Settings, typeof appboy> 
         subscriptions,
         ...expectedConfig
       } = settings
-      const version = sdkVersion ?? '3.5'
+
+      const version = sdkVersion ?? defaultVersion
 
       resetUserCache()
 
-      await dependencies.loadScript(`https://js.appboycdn.com/web-sdk/${version}/appboy.no-amd.min.js`)
+      if (version.indexOf('3.') === 0) {
+        await dependencies.loadScript(`https://js.appboycdn.com/web-sdk/${version}/appboy.no-amd.min.js`)
+      } else {
+        await dependencies.loadScript(`https://js.appboycdn.com/web-sdk/${version}/braze.no-module.min.js`)
+      }
 
-      window.appboy.initialize(api_key, {
-        baseUrl: endpoint,
+      const brazeObject: BrazeType = version.indexOf('3.') === 0 ? window.appboy : window.braze
+
+      brazeObject.initialize(api_key, {
+        baseUrl: window.BRAZE_BASE_URL || endpoint,
         ...expectedConfig
       })
 
-      if (window.appboy.addSdkMetadata) {
-        window.appboy.addSdkMetadata([window.appboy.BrazeSdkMetadata.SEGMENT])
+      if (brazeObject.addSdkMetadata) {
+        brazeObject.addSdkMetadata([brazeObject.BrazeSdkMetadata.SEGMENT])
       }
 
       if (automaticallyDisplayMessages) {
-        window.appboy.display.automaticallyShowNewInAppMessages()
+        if ('display' in brazeObject) {
+          brazeObject.display.automaticallyShowNewInAppMessages()
+        } else {
+          brazeObject.automaticallyShowInAppMessages()
+        }
       }
 
-      window.appboy.openSession()
+      brazeObject.openSession()
 
-      return window.appboy
+      return brazeObject
     } catch (e) {
       throw new Error(`Failed to initialize Braze ${e}`)
     }

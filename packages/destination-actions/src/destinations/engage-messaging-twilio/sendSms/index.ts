@@ -31,7 +31,7 @@ const fetchProfileTraits = async (
         }
       }
     )
-    tags?.push(`profile-status-${response.status}`)
+    tags?.push(`profile_status_code:${response.status}`)
     statsClient?.incr('actions-personas-messaging-twilio.profile_invoked', 1, tags)
     const body = await response.json()
     return body.traits
@@ -144,7 +144,7 @@ const action: ActionDefinition<Settings, Payload> = {
   perform: async (request, { settings, payload, statsContext }) => {
     const statsClient = statsContext?.statsClient
     const tags = statsContext?.tags
-    tags?.push(settings.spaceId)
+    tags?.push(`space_id:${settings.spaceId}`, `projectid:${settings.sourceId}`)
     if (!payload.send) {
       statsClient?.incr('actions-personas-messaging-twilio.send-disabled', 1, tags)
       return
@@ -228,7 +228,7 @@ const action: ActionDefinition<Settings, Payload> = {
           body
         }
       )
-      tags?.push(`code-${response.status}`)
+      tags?.push(`twilio_status_code:${response.status}`)
       statsClient?.incr('actions-personas-messaging-twilio.response', 1, tags)
       return response
     } else {
