@@ -4,9 +4,9 @@ import sendEmail from './sendEmail'
 
 const destination: DestinationDefinition<Settings> = {
   name: 'Engage Messaging Sendgrid',
-  slug: 'engage-messaging-sendgrid',
+  slug: 'actions-engage-messaging-sendgrid',
   mode: 'cloud',
-  description: 'This is an engage specific action to send an email',
+  description: 'This is an Engage specific action to send an email',
   authentication: {
     scheme: 'custom',
     fields: {
