@@ -1,10 +1,11 @@
 import type { BrowserActionDefinition } from '../../../lib/browser-destinations'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
-import appboy from '@braze/web-sdk'
+import * as braze from '@braze/web-sdk'
 import dayjs from '../../../lib/dayjs'
+import { BrazeType } from '../braze-types'
 
-const action: BrowserActionDefinition<Settings, typeof appboy, Payload> = {
+const action: BrowserActionDefinition<Settings, BrazeType, Payload> = {
   title: 'Update User Profile',
   description: 'Updates a users profile attributes in Braze',
   defaultSubscription: 'type = "identify" or type = "group"',
@@ -154,8 +155,8 @@ const action: BrowserActionDefinition<Settings, typeof appboy, Payload> = {
     }
 
     const user = client.getUser()
+    if (!user) return
 
-    payload.image_url !== undefined && user.setAvatarImageUrl(payload.image_url)
     payload.country !== undefined && user.setCountry(payload.country)
 
     payload.current_location?.key !== undefined &&
@@ -185,11 +186,11 @@ const action: BrowserActionDefinition<Settings, typeof appboy, Payload> = {
     }
 
     payload.email_subscribe !== undefined &&
-      user.setEmailNotificationSubscriptionType(payload.email_subscribe as appboy.User.NotificationSubscriptionTypes)
+      user.setEmailNotificationSubscriptionType(payload.email_subscribe as braze.NotificationSubscriptionTypes)
 
     payload.email !== undefined && user.setEmail(payload.email)
     payload.first_name !== undefined && user.setFirstName(payload.first_name)
-    payload.gender !== undefined && user.setGender(toBrazeGender(payload.gender) as appboy.User.Genders)
+    payload.gender !== undefined && user.setGender(toBrazeGender(payload.gender) as braze.Genders)
     payload.home_city !== undefined && user.setHomeCity(payload.home_city)
     payload.language !== undefined && user.setLanguage(payload.language)
     payload.current_location !== undefined &&
@@ -197,7 +198,7 @@ const action: BrowserActionDefinition<Settings, typeof appboy, Payload> = {
     payload.last_name !== undefined && user.setLastName(payload.last_name)
     payload.phone !== undefined && user.setPhoneNumber(payload.phone)
     payload.push_subscribe !== undefined &&
-      user.setPushNotificationSubscriptionType(payload.push_subscribe as appboy.User.NotificationSubscriptionTypes)
+      user.setPushNotificationSubscriptionType(payload.push_subscribe as braze.NotificationSubscriptionTypes)
   }
 }
 

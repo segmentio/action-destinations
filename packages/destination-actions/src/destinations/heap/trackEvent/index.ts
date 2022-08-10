@@ -10,7 +10,6 @@ import { IntegrationError } from '@segment/actions-core'
 type HeapEvent = {
   app_id: string
   identity?: string
-  use_user_id?: boolean
   user_id?: number
   event: string
   properties: {
@@ -108,7 +107,6 @@ const action: ActionDefinition<Settings, Payload> = {
     }
 
     if (payload.anonymous_id && !payload.identity) {
-      event.use_user_id = true
       event.user_id = getHeapUserId(payload.anonymous_id)
     }
 

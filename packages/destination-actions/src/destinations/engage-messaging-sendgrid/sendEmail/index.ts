@@ -49,7 +49,7 @@ const fetchProfileTraits = async (
         }
       }
     )
-    tags?.push(`profile-status-${response.status}`)
+    tags?.push(`profile_status_code:${response.status}`)
     statsClient?.incr('actions-personas-messaging-sendgrid.profile_invoked', 1, tags)
 
     const body = await response.json()
@@ -292,12 +292,19 @@ const action: ActionDefinition<Settings, Payload> = {
       description: 'Additional custom args that we be passed back opaquely on webhook events',
       type: 'object',
       required: false
+    },
+    traits: {
+      label: 'Traits',
+      description: 'A user profile traits',
+      type: 'object',
+      required: false,
+      default: { '@path': '$.properties' }
     }
   },
   perform: async (request, { settings, payload, statsContext }) => {
     const statsClient = statsContext?.statsClient
     const tags = statsContext?.tags
-    tags?.push(settings.spaceId)
+    tags?.push(`space_id:${settings.spaceId}`, `projectid:${settings.sourceId}`)
     if (!payload.send) {
       statsClient?.incr('actions-personas-messaging-sendgrid.send-disabled', 1, tags)
       return
@@ -311,7 +318,7 @@ const action: ActionDefinition<Settings, Payload> = {
       return
     } else if (['subscribed', 'true'].includes(emailProfile?.subscriptionStatus)) {
       statsClient?.incr('actions-personas-messaging-sendgrid.subscribed', 1, tags)
-      const traits = await fetchProfileTraits(request, settings, payload.userId, statsClient, tags)
+
       if (payload?.groupId) {
         let subscribed = false
         emailProfile?.groups?.forEach((group) => {
@@ -326,6 +333,14 @@ const action: ActionDefinition<Settings, Payload> = {
         if (!subscribed) {
           return
         }
+      }
+
+      let traits
+      const traitEnrichment = true // TODO use mapping to switch like "SendTrait: true or false"
+      if (!traitEnrichment) {
+        traits = await fetchProfileTraits(request, settings, payload.userId, statsClient, tags)
+      } else {
+        traits = payload?.traits ? payload?.traits : JSON.parse('{}')
       }
 
       const profile: Profile = {
@@ -430,7 +445,7 @@ const action: ActionDefinition<Settings, Payload> = {
           }
         }
       })
-      tags?.push(`code-${response.status}`)
+      tags?.push(`sendgrid_status_code:${response.status}`)
       statsClient?.incr('actions-personas-messaging-sendgrid.response', 1, tags)
       return response
     } else {

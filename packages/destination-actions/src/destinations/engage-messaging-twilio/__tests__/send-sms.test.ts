@@ -1,5 +1,5 @@
 import nock from 'nock'
-import { createTestEvent, createTestIntegration } from '@segment/actions-core'
+import { createMessagingTestEvent, createTestIntegration } from '@segment/actions-core'
 import Twilio from '..'
 
 const twilio = createTestIntegration(Twilio)
@@ -32,7 +32,7 @@ describe.each(['stage', 'production'])('%s environment', (environment) => {
   describe('send SMS', () => {
     it('should abort when there is no `phone` external ID in the payload', async () => {
       const responses = await twilio.testAction('sendSms', {
-        event: createTestEvent({
+        event: createMessagingTestEvent({
           timestamp,
           event: 'Audience Entered',
           userId: 'jane'
@@ -62,7 +62,7 @@ describe.each(['stage', 'production'])('%s environment', (environment) => {
         .reply(201, {})
 
       const actionInputData = {
-        event: createTestEvent({
+        event: createMessagingTestEvent({
           timestamp,
           event: 'Audience Entered',
           userId: 'jane'
@@ -82,7 +82,6 @@ describe.each(['stage', 'production'])('%s environment', (environment) => {
 
       const responses = await twilio.testAction('sendSms', actionInputData)
       expect(responses.map((response) => response.url)).toStrictEqual([
-        `${endpoint}/v1/spaces/d/collections/users/profiles/user_id:jane/traits?limit=200`,
         'https://api.twilio.com/2010-04-01/Accounts/a/Messages.json'
       ])
       expect(twilioRequest.isDone()).toEqual(true)
@@ -102,7 +101,7 @@ describe.each(['stage', 'production'])('%s environment', (environment) => {
         .reply(201, {})
 
       const actionInputData = {
-        event: createTestEvent({
+        event: createMessagingTestEvent({
           timestamp,
           event: 'Audience Entered',
           userId: 'jane'
@@ -125,7 +124,6 @@ describe.each(['stage', 'production'])('%s environment', (environment) => {
 
       const responses = await twilio.testAction('sendSms', actionInputData)
       expect(responses.map((response) => response.url)).toStrictEqual([
-        `${endpoint}/v1/spaces/d/collections/users/profiles/user_id:jane/traits?limit=200`,
         `https://${twilioHostname}/2010-04-01/Accounts/a/Messages.json`
       ])
       expect(twilioRequest.isDone()).toEqual(true)
@@ -144,7 +142,7 @@ describe.each(['stage', 'production'])('%s environment', (environment) => {
         .reply(201, {})
 
       const actionInputData = {
-        event: createTestEvent({
+        event: createMessagingTestEvent({
           timestamp,
           event: 'Audience Entered',
           userId: 'jane'
@@ -172,7 +170,6 @@ describe.each(['stage', 'production'])('%s environment', (environment) => {
       const responses = await twilio.testAction('sendSms', actionInputData)
 
       expect(responses.map((response) => response.url)).toStrictEqual([
-        `${endpoint}/v1/spaces/d/collections/users/profiles/user_id:jane/traits?limit=200`,
         'https://api.twilio.com/2010-04-01/Accounts/a/Messages.json'
       ])
       expect(twilioRequest.isDone()).toEqual(true)
@@ -180,7 +177,7 @@ describe.each(['stage', 'production'])('%s environment', (environment) => {
 
     it('should fail on invalid webhook url', async () => {
       const actionInputData = {
-        event: createTestEvent({
+        event: createMessagingTestEvent({
           timestamp,
           event: 'Audience Entered',
           userId: 'jane'
@@ -219,7 +216,7 @@ describe.each(['stage', 'production'])('%s environment', (environment) => {
         .reply(201, {})
 
       const actionInputData = {
-        event: createTestEvent({
+        event: createMessagingTestEvent({
           timestamp,
           event: 'Audience Entered',
           userId: 'jane'
@@ -236,7 +233,6 @@ describe.each(['stage', 'production'])('%s environment', (environment) => {
 
       const responses = await twilio.testAction('sendSms', actionInputData)
       expect(responses.map((response) => response.url)).toStrictEqual([
-        `${endpoint}/v1/spaces/d/collections/users/profiles/user_id:jane/traits?limit=200`,
         'https://api.twilio.com/2010-04-01/Accounts/a/Messages.json'
       ])
       expect(twilioRequest.isDone()).toEqual(true)
@@ -256,7 +252,7 @@ describe.each(['stage', 'production'])('%s environment', (environment) => {
           .reply(201, {})
 
         const actionInputData = {
-          event: createTestEvent({
+          event: createMessagingTestEvent({
             timestamp,
             event: 'Audience Entered',
             userId: 'jane'
@@ -291,7 +287,7 @@ describe.each(['stage', 'production'])('%s environment', (environment) => {
         .reply(201, {})
 
       const actionInputData = {
-        event: createTestEvent({
+        event: createMessagingTestEvent({
           timestamp,
           event: 'Audience Entered',
           userId: 'jane'
