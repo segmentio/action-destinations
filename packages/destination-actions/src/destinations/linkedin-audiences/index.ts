@@ -1,6 +1,8 @@
 import type { DestinationDefinition } from '@segment/actions-core'
 import type { Settings } from './generated-types'
 
+import updateAudience from './updateAudience'
+
 const destination: DestinationDefinition<Settings> = {
   name: 'Linkedin Audiences',
   slug: 'actions-linkedin-audiences',
@@ -38,7 +40,9 @@ const destination: DestinationDefinition<Settings> = {
     }
   },
 
-  actions: {}
+  actions: {
+    updateAudience
+  }
 }
 
 export default destination
