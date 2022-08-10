@@ -198,8 +198,7 @@ export default class Push extends Command {
         mobile: false
       }
 
-      const name = definition.name
-      const description = definition.description
+      const { name, description } = definition
       const options = getOptions(definition, metadata.options)
       const basicOptions = getBasicOptions(options)
       const diff = diffString(
