@@ -158,14 +158,13 @@ const action: ActionDefinition<Settings, Payload> = {
       return
     } else if (['subscribed', 'true'].includes(externalId.subscriptionStatus)) {
       statsClient?.incr('actions-personas-messaging-twilio.subscribed', 1, tags)
-
       const phone = payload.toNumber || externalId.id
       if (!phone) {
         return
       }
+
       let traits
       const traitEnrichment = true // TODO use mapping to switch like "SendTrait: true or false"
-
       if (!traitEnrichment) {
         traits = await fetchProfileTraits(request, settings, payload.userId, statsClient, tags)
       } else {
