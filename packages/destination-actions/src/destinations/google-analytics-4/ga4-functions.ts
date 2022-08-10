@@ -15,9 +15,9 @@ export function verifyParams(params: object | undefined): void {
   }
 
   Object.values(params).forEach((value) => {
-    if (typeof value != 'string' && typeof value != 'number') {
+    if (typeof value == 'object' || value instanceof Array) {
       throw new IntegrationError(
-        'GA4 only accepts string or number values for event parameters and item parameters. Please ensure you are not including null, array, or nested values.',
+        'GA4 does not accept null, array, or nested values for event parameters and item parameters. Please ensure you are using allowed data types.',
         'Invalid value',
         400
       )
@@ -31,9 +31,10 @@ export function verifyUserProps(userProperties: object | undefined): void {
   }
 
   Object.values(userProperties).forEach((value) => {
-    if (typeof value != 'string' && typeof value != 'number' && value != null) {
+    // typeof null == 'object' and GA4 accepts nulls for user_properties
+    if ((value != null && typeof value == 'object') || value instanceof Array) {
       throw new IntegrationError(
-        'GA4 only accepts string, number or null values for user properties. Please ensure you are not including array or nested values.',
+        'GA4 does not accept array or nested values for user properties. Please ensure you are using allowed data types.',
         'Invalid value',
         400
       )
