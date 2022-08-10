@@ -82,7 +82,7 @@ const destination: DestinationDefinition<Settings> = {
   name: 'Engage Messaging Twilio',
   slug: 'actions-personas-messaging-twilio',
   mode: 'cloud',
-  description: 'This is an Engage specific action to send an SNS',
+  description: 'This is an Engage specific action to send an SMS',
   authentication: {
     scheme: 'custom',
     fields: {
