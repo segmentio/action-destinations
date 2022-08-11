@@ -11,7 +11,7 @@ const companyProperties: Record<string, InputField> = getCompanyProperties()
 const action: BrowserActionDefinition<Settings, Intercom, Payload> = {
   title: 'Update User',
   description: 'Create or update a user in Intercom.',
-  defaultSubscription: 'type = "identify" or "page"',
+  defaultSubscription: 'type = "identify" or type = "page"',
   platform: 'web',
   fields: {
     user_id: {
