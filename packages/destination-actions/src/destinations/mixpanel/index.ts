@@ -71,6 +71,13 @@ const destination: DestinationDefinition<Settings> = {
         description: 'Mixpanel project secret.',
         type: 'string',
         required: true
+      },
+      eu: {
+        label: 'EU Data Residency',
+        description: 'Mixpanel project EU data residency',
+        type: 'boolean',
+        required: true,
+        default: false
       }
     },
     testAuthentication: (request, { settings }) => {

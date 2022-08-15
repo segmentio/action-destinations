@@ -52,7 +52,7 @@ const action: ActionDefinition<Settings, Payload> = {
       $set: payload.traits
     }
 
-    return request('https://api.mixpanel.com/groups', {
+    return request(`https://${settings.eu ? 'api-eu' : 'api'}.mixpanel.com/groups`, {
       method: 'post',
       body: new URLSearchParams({ data: JSON.stringify(data) })
     })
