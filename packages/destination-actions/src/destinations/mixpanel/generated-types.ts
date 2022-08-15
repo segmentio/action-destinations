@@ -9,4 +9,8 @@ export interface Settings {
    * Mixpanel project secret.
    */
   apiSecret: string
+  /**
+   * Mixpanel project EU data residency
+   */
+  eu: boolean
 }
