@@ -23,7 +23,7 @@ const action: ActionDefinition<Settings, Payload> = {
     external_id: {
       type: 'string',
       description:
-        'A unique identifier for the contact generated outside Intercom. External ID is required if the role is `user` and email is blank.',
+        'A unique identifier for the contact generated outside Intercom. External ID is required to attach a contact to a company if no email or Contact ID is provided.',
       label: 'External ID',
       default: {
         '@path': '$.userId'
@@ -31,7 +31,8 @@ const action: ActionDefinition<Settings, Payload> = {
     },
     email: {
       type: 'string',
-      description: "The contact's email address. Email is required if the role is `user` and external ID is blank.",
+      description:
+        "The contact's email address. Email is required to attach a contact to a company if no External ID or Contact ID is provided.",
       label: 'Email Address',
       format: 'email',
       default: {
@@ -50,7 +51,7 @@ const action: ActionDefinition<Settings, Payload> = {
     contact_id: {
       type: 'string',
       description:
-        'The unique identifier for the contact which is given by Intercom. Setting a Contact ID will attach this contact to the company.',
+        'The unique identifier for the contact which is given by Intercom. If no Contact ID is provided, Segment will use External ID or email to find a contact to attach to the company.',
       label: 'Contact ID'
     },
     name: {

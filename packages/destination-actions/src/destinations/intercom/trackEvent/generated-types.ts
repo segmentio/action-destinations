@@ -26,7 +26,7 @@ export interface Payload {
    */
   currency?: string
   /**
-   * Intercom's unique identifier for the contact. If no Contact ID is provided, Segment will use User ID or Email to find a user or lead
+   * Intercom's unique identifier for the contact. If no Contact ID is provided, Segment will use User ID or Email to find a user or lead.
    */
   id?: string
   /**

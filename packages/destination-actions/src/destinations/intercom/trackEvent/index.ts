@@ -68,7 +68,7 @@ const action: ActionDefinition<Settings, Payload> = {
     id: {
       label: 'Contact ID',
       description:
-        "Intercom's unique identifier for the contact. If no Contact ID is provided, Segment will use User ID or Email to find a user or lead",
+        "Intercom's unique identifier for the contact. If no Contact ID is provided, Segment will use User ID or Email to find a user or lead.",
       type: 'string'
     },
     metadata: {

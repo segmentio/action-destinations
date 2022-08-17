@@ -29,7 +29,7 @@ const action: ActionDefinition<Settings, Payload> = {
     },
     email: {
       type: 'string',
-      description: "The contact's email address. Email is required if the role is `user` and external ID is blank.",
+      description: "The contact's email address. Email is required if the role is `user` and External ID is blank.",
       label: 'Email Address',
       format: 'email',
       default: {

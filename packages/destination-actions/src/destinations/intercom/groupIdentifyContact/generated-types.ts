@@ -6,11 +6,11 @@ export interface Payload {
    */
   remote_created_at?: string | number
   /**
-   * A unique identifier for the contact generated outside Intercom. External ID is required if the role is `user` and email is blank.
+   * A unique identifier for the contact generated outside Intercom. External ID is required to attach a contact to a company if no email or Contact ID is provided.
    */
   external_id?: string
   /**
-   * The contact's email address. Email is required if the role is `user` and external ID is blank.
+   * The contact's email address. Email is required to attach a contact to a company if no External ID or Contact ID is provided.
    */
   email?: string
   /**
@@ -18,7 +18,7 @@ export interface Payload {
    */
   company_id: string
   /**
-   * The unique identifier for the contact which is given by Intercom. Setting a Contact ID will attach this contact to the company.
+   * The unique identifier for the contact which is given by Intercom. If no Contact ID is provided, Segment will use External ID or email to find a contact to attach to the company.
    */
   contact_id?: string
   /**
