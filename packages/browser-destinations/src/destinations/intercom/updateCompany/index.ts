@@ -53,7 +53,7 @@ const action: BrowserActionDefinition<Settings, Intercom, Payload> = {
     }
   },
   perform: (Intercom, event) => {
-    // remove traits from payload; traits will not be sent in the final payload to Intercom
+    // remove properties that require extra handling
     const { company_custom_traits, ...rest } = event.payload.company
     let company = { ...rest }
 
