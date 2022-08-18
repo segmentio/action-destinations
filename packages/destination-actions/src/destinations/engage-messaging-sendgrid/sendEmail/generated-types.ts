@@ -6,6 +6,10 @@ export interface Payload {
    */
   send?: boolean
   /**
+   * Whether or not trait enrich from event (i.e without profile api call)
+   */
+  traitEnrichment?: boolean
+  /**
    * User ID in Segment
    */
   userId: string

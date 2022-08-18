@@ -90,6 +90,7 @@ describe.each(['stage', 'production'])('%s environment', (environment) => {
       bodyType: 'html',
       bodyHtml: 'Hi {{profile.traits.firstName}}, Welcome to segment',
       send: true,
+      traitEnrichment: true,
       toEmail: '',
       externalIds: [
         { id: userData.email, type: 'email', subscriptionStatus: 'subscribed' },
@@ -249,6 +250,7 @@ describe.each(['stage', 'production'])('%s environment', (environment) => {
           bodyType: 'html',
           bodyHtml: 'Welcome to segment',
           send: true,
+          traitEnrichment: true,
           externalIds: [
             { id: userData.email, type: 'email', subscriptionStatus: 'subscribed' },
             { id: userData.phone, type: 'phone', subscriptionStatus: 'subscribed' }
