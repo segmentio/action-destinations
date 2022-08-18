@@ -2,6 +2,8 @@ import type { ActionDefinition } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 
+import { getApiServerUrl } from '../utils'
+
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Alias',
   description:
@@ -40,7 +42,7 @@ const action: ActionDefinition<Settings, Payload> = {
       }
     }
 
-    return request('https://api.mixpanel.com/track', {
+    return request(`${getApiServerUrl(settings.apiRegion)}/track`, {
       method: 'post',
       body: new URLSearchParams({ data: JSON.stringify(data) })
     })
