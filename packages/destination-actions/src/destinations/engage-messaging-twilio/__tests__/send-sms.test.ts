@@ -15,6 +15,20 @@ describe.each(['stage', 'production'])('%s environment', (environment) => {
     spaceId: 'd',
     sourceId: 'e'
   }
+  const getDefaultMapping = (overrides?: any) => {
+    return {
+      userId: { '@path': '$.userId' },
+      from: 'MG1111222233334444',
+      body: 'Hello world, {{profile.user_id}}!',
+      send: true,
+      traitEnrichment: true,
+      externalIds: [
+        { type: 'email', id: 'test@twilio.com', subscriptionStatus: 'subscribed' },
+        { type: 'phone', id: '+1234567891', subscriptionStatus: 'subscribed' }
+      ],
+      ...overrides
+    }
+  }
 
   const endpoint = `https://profiles.segment.${environment === 'production' ? 'com' : 'build'}`
 
@@ -38,13 +52,9 @@ describe.each(['stage', 'production'])('%s environment', (environment) => {
           userId: 'jane'
         }),
         settings,
-        mapping: {
-          userId: { '@path': '$.userId' },
-          from: 'MG1111222233334444',
-          body: 'Hello world, {{profile.user_id}}!',
-          send: true,
+        mapping: getDefaultMapping({
           externalIds: [{ type: 'email', id: 'test@twilio.com', subscriptionStatus: 'subscribed' }]
-        }
+        })
       })
 
       expect(responses.length).toEqual(0)
@@ -68,16 +78,7 @@ describe.each(['stage', 'production'])('%s environment', (environment) => {
           userId: 'jane'
         }),
         settings,
-        mapping: {
-          userId: { '@path': '$.userId' },
-          from: 'MG1111222233334444',
-          body: 'Hello world, {{profile.user_id}}!',
-          send: true,
-          externalIds: [
-            { type: 'email', id: 'test@twilio.com', subscriptionStatus: 'subscribed' },
-            { type: 'phone', id: '+1234567891', subscriptionStatus: 'subscribed' }
-          ]
-        }
+        mapping: getDefaultMapping()
       }
 
       const responses = await twilio.testAction('sendSms', actionInputData)
@@ -110,16 +111,7 @@ describe.each(['stage', 'production'])('%s environment', (environment) => {
           ...settings,
           twilioHostname
         },
-        mapping: {
-          userId: { '@path': '$.userId' },
-          from: 'MG1111222233334444',
-          body: 'Hello world, {{profile.user_id}}!',
-          send: true,
-          externalIds: [
-            { type: 'email', id: 'test@twilio.com', subscriptionStatus: 'subscribed' },
-            { type: 'phone', id: '+1234567891', subscriptionStatus: 'subscribed' }
-          ]
-        }
+        mapping: getDefaultMapping()
       }
 
       const responses = await twilio.testAction('sendSms', actionInputData)
@@ -152,19 +144,7 @@ describe.each(['stage', 'production'])('%s environment', (environment) => {
           webhookUrl: 'http://localhost',
           connectionOverrides: 'rp=all&rc=5'
         },
-        mapping: {
-          userId: { '@path': '$.userId' },
-          from: 'MG1111222233334444',
-          body: 'Hello world, {{profile.user_id}}!',
-          customArgs: {
-            foo: 'bar'
-          },
-          send: true,
-          externalIds: [
-            { type: 'email', id: 'test@twilio.com', subscriptionStatus: 'subscribed' },
-            { type: 'phone', id: '+1234567891', subscriptionStatus: 'subscribed' }
-          ]
-        }
+        mapping: getDefaultMapping({ customArgs: { foo: 'bar' } })
       }
 
       const responses = await twilio.testAction('sendSms', actionInputData)
@@ -186,19 +166,7 @@ describe.each(['stage', 'production'])('%s environment', (environment) => {
           ...settings,
           webhookUrl: 'foo'
         },
-        mapping: {
-          userId: { '@path': '$.userId' },
-          from: 'MG1111222233334444',
-          body: 'Hello world, {{profile.user_id}}!',
-          customArgs: {
-            foo: 'bar'
-          },
-          send: true,
-          externalIds: [
-            { type: 'email', id: 'test@twilio.com', subscriptionStatus: 'subscribed' },
-            { type: 'phone', id: '+1234567891', subscriptionStatus: 'subscribed' }
-          ]
-        }
+        mapping: getDefaultMapping({ customArgs: { foo: 'bar' } })
       }
       await expect(twilio.testAction('sendSms', actionInputData)).rejects.toHaveProperty('code', 'ERR_INVALID_URL')
     })
@@ -222,13 +190,7 @@ describe.each(['stage', 'production'])('%s environment', (environment) => {
           userId: 'jane'
         }),
         settings,
-        mapping: {
-          userId: { '@path': '$.userId' },
-          from: 'MG1111222233334444',
-          body: 'Hello world, {{profile.user_id}}!',
-          send: true,
-          externalIds: [{ type: 'phone', id: '+1234567891', subscriptionStatus }]
-        }
+        mapping: getDefaultMapping({ externalIds: [{ type: 'phone', id: '+1234567891', subscriptionStatus }] })
       }
 
       const responses = await twilio.testAction('sendSms', actionInputData)
@@ -258,13 +220,7 @@ describe.each(['stage', 'production'])('%s environment', (environment) => {
             userId: 'jane'
           }),
           settings,
-          mapping: {
-            userId: { '@path': '$.userId' },
-            from: 'MG1111222233334444',
-            body: 'Hello world, {{profile.user_id}}!',
-            send: true,
-            externalIds: [{ type: 'phone', id: '+1234567891', subscriptionStatus }]
-          }
+          mapping: getDefaultMapping({ externalIds: [{ type: 'phone', id: '+1234567891', subscriptionStatus }] })
         }
 
         const responses = await twilio.testAction('sendSms', actionInputData)
@@ -293,13 +249,9 @@ describe.each(['stage', 'production'])('%s environment', (environment) => {
           userId: 'jane'
         }),
         settings,
-        mapping: {
-          userId: { '@path': '$.userId' },
-          from: 'MG1111222233334444',
-          body: 'Hello world, {{profile.user_id}}!',
-          send: true,
+        mapping: getDefaultMapping({
           externalIds: [{ type: 'phone', id: '+1234567891', subscriptionStatus: randomSubscriptionStatusPhrase }]
-        }
+        })
       }
 
       const response = twilio.testAction('sendSms', actionInputData)

@@ -94,6 +94,13 @@ const action: ActionDefinition<Settings, Payload> = {
       required: false,
       default: false
     },
+    traitEnrichment: {
+      label: 'Trait Enrich',
+      description: 'Whether or not trait enrich from event (i.e without profile api call)',
+      type: 'boolean',
+      required: false,
+      default: true
+    },
     externalIds: {
       label: 'External IDs',
       description: 'An array of user profile identity information.',
@@ -165,11 +172,10 @@ const action: ActionDefinition<Settings, Payload> = {
       }
 
       let traits
-      const traitEnrichment = true // TODO use mapping to switch like "SendTrait: true or false"
-      if (!traitEnrichment) {
-        traits = await fetchProfileTraits(request, settings, payload.userId, statsClient, tags)
-      } else {
+      if (payload.traitEnrichment) {
         traits = payload?.traits ? payload?.traits : JSON.parse('{}')
+      } else {
+        traits = await fetchProfileTraits(request, settings, payload.userId, statsClient, tags)
       }
 
       const profile = {
