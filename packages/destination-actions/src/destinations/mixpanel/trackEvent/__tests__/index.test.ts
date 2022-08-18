@@ -1,6 +1,7 @@
 import nock from 'nock'
 import { createTestEvent, createTestIntegration } from '@segment/actions-core'
 import Destination from '../../index'
+import { ApiRegions } from '../../utils'
 
 const testDestination = createTestIntegration(Destination)
 const MIXPANEL_API_SECRET = 'test-api-key'
@@ -18,7 +19,8 @@ describe('Mixpanel.trackEvent', () => {
       useDefaultMappings: true,
       settings: {
         projectToken: MIXPANEL_PROJECT_TOKEN,
-        apiSecret: MIXPANEL_API_SECRET
+        apiSecret: MIXPANEL_API_SECRET,
+        apiRegion: ApiRegions.US
       }
     })
     expect(responses.length).toBe(1)
@@ -50,7 +52,7 @@ describe('Mixpanel.trackEvent', () => {
       settings: {
         projectToken: MIXPANEL_PROJECT_TOKEN,
         apiSecret: MIXPANEL_API_SECRET,
-        eu: true
+        apiRegion: ApiRegions.EU
       }
     })
     expect(responses.length).toBe(1)
@@ -65,8 +67,7 @@ describe('Mixpanel.trackEvent', () => {
           $current_url: 'https://segment.com/academy/',
           $locale: 'en-US',
           mp_country_code: 'United States',
-          mp_lib: 'Segment: analytics.js',
-          $mp_api_endpoint: 'api-eu.mixpanel.com'
+          mp_lib: 'Segment: analytics.js'
         })
       }
     ])

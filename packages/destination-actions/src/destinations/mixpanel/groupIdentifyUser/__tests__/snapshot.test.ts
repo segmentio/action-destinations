@@ -30,6 +30,8 @@ describe(`Testing snapshot for ${destinationSlug}'s ${actionSlug} destination ac
       auth: undefined
     })
 
+    console.log(responses[0].request)
+
     const request = responses[0].request
     const rawBody = await request.text()
 

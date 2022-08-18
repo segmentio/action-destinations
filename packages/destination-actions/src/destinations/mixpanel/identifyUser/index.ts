@@ -51,7 +51,7 @@ const action: ActionDefinition<Settings, Payload> = {
         }
       }
 
-      const identifyResponse = await request(`https://${settings.eu ? 'api-eu' : 'api'}.mixpanel.com/track`, {
+      const identifyResponse = await request(`https://${settings.apiRegion}.mixpanel.com/track`, {
         method: 'post',
         body: new URLSearchParams({ data: JSON.stringify(identifyEvent) })
       })
@@ -65,7 +65,7 @@ const action: ActionDefinition<Settings, Payload> = {
         $set: payload.traits
       }
 
-      const engageResponse = request(`https://${settings.eu ? 'api-eu' : 'api'}.mixpanel.com/engage`, {
+      const engageResponse = request(`https://${settings.apiRegion}.mixpanel.com/engage`, {
         method: 'post',
         body: new URLSearchParams({ data: JSON.stringify(data) })
       })

@@ -389,7 +389,7 @@ const action: ActionDefinition<Settings, Payload> = {
     if (!settings.apiSecret) {
       throw new InvalidAuthenticationError('Missing api secret')
     }
-    return request(`https://${settings.eu ? 'api-eu' : 'api'}.mixpanel.com/import?strict=1`, {
+    return request(`https://${settings.apiRegion}.mixpanel.com/import?strict=1`, {
       method: 'post',
       json: [event],
       headers: {

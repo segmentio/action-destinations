@@ -40,7 +40,7 @@ const action: ActionDefinition<Settings, Payload> = {
       }
     }
 
-    return request(`https://${settings.eu ? 'api-eu' : 'api'}.mixpanel.com/track`, {
+    return request(`https://${settings.apiRegion}.mixpanel.com/track`, {
       method: 'post',
       body: new URLSearchParams({ data: JSON.stringify(data) })
     })

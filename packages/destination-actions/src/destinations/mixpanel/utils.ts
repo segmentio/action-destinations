@@ -1,3 +1,8 @@
+export enum ApiRegions {
+  US = 'api',
+  EU = 'api-eu'
+}
+
 export function getBrowser(userAgent: string, vendor: string | undefined): string {
   vendor = vendor || '' // vendor is undefined for at least IE9
   if (userAgent.includes(' OPR/')) {
