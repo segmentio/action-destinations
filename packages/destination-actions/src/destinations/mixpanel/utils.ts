@@ -3,6 +3,13 @@ export enum ApiRegions {
   EU = 'api-eu'
 }
 
+export function getApiServerUrl(apiRegion: string) {
+  if (apiRegion == ApiRegions.EU) {
+    return 'https://api-eu.mixpanel.com'
+  }
+  return 'https://api.mixpanel.com'
+}
+
 export function getBrowser(userAgent: string, vendor: string | undefined): string {
   vendor = vendor || '' // vendor is undefined for at least IE9
   if (userAgent.includes(' OPR/')) {
