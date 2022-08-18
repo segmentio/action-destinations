@@ -1,4 +1,4 @@
-import { ActionDefinition, InvalidAuthenticationError, RequestClient } from '@segment/actions-core'
+import { ActionDefinition, RequestClient } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 import { MixpanelEvent } from './types'
@@ -398,6 +398,12 @@ const action: ActionDefinition<Settings, Payload> = {
       default: {
         '@path': '$.context.userAgent'
       }
+    },
+    enable_batching: {
+      type: 'boolean',
+      label: 'Batch Data to Mixpanel',
+      description: 'Set as true to ensure Segment sends data to Mixpanel in batches. Please do not set to false.',
+      default: true
     }
   },
 
