@@ -1,6 +1,6 @@
 export enum ApiRegions {
-  US = 'api',
-  EU = 'api-eu'
+  US = 'US 🇺🇸',
+  EU = 'EU 🇪🇺'
 }
 
 export function getApiServerUrl(apiRegion: string) {

@@ -78,10 +78,7 @@ const destination: DestinationDefinition<Settings> = {
         description:
           'Learn about [EU data residency](https://help.mixpanel.com/hc/en-us/articles/360039135652-Data-Residency-in-EU)',
         type: 'string',
-        choices: [
-          { label: 'US 🇺🇸', value: ApiRegions.US },
-          { label: 'EU 🇪🇺', value: ApiRegions.EU }
-        ],
+        choices: Object.values(ApiRegions).map((apiRegion) => ({ label: apiRegion, value: apiRegion })),
         default: ApiRegions.US,
         required: true
       }
