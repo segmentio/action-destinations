@@ -99,7 +99,8 @@ describe('Mixpanel.trackEvent', () => {
       useDefaultMappings: true,
       settings: {
         projectToken: MIXPANEL_PROJECT_TOKEN,
-        apiSecret: MIXPANEL_API_SECRET
+        apiSecret: MIXPANEL_API_SECRET,
+        apiRegion: ApiRegions.US,
       }
     })
     expect(responses.length).toBe(1)
