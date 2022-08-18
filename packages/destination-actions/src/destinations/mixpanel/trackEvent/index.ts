@@ -67,10 +67,6 @@ const getEventFromPayload = (payload: Payload): MixpanelEvent => {
 }
 
 const processData = async (request: RequestClient, settings: Settings, payload: Payload[]) => {
-  if (!settings.apiSecret) {
-    throw new InvalidAuthenticationError('Missing api secret')
-  }
-
   const events = payload.map((value) => getEventFromPayload(value))
   return request(`${getApiServerUrl(settings.apiRegion)}/import?strict=1`, {
     method: 'post',
