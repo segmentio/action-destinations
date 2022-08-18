@@ -31,9 +31,11 @@
     "typecheck": "tsc -p tsconfig.build.json --noEmit"
   },
   "devDependencies": {
+    "@cloudflare/workers-types": "^3.14.1",
     "@types/jest": "^27.0.0",
     "jest": "^27.3.1",
-    "nock": "^13.1.4"
+    "nock": "^13.1.4",
+    "wrangler": "^2.0.25"
   },
   "dependencies": {
     "@amplitude/ua-parser-js": "^0.7.25",
