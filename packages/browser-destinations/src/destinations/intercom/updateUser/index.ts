@@ -11,7 +11,7 @@ const companyProperties: Record<string, InputField> = getCompanyProperties()
 const action: BrowserActionDefinition<Settings, Intercom, Payload> = {
   title: 'Update User',
   description: 'Create or update a user in Intercom.',
-  defaultSubscription: 'type = "identify" or "page"',
+  defaultSubscription: 'type = "identify" or type = "page"',
   platform: 'web',
   fields: {
     user_id: {
@@ -192,17 +192,17 @@ const action: BrowserActionDefinition<Settings, Intercom, Payload> = {
       }
     }
 
-    // filter out reserved fields for user, drop custom objects & arrays
+    // drop custom objects & arrays
     const filteredCustomTraits = filterCustomTraits(custom_traits)
 
-    // filter out reserved fields for company, drop custom objects & arrays
+    // drop custom objects & arrays
     if (payload.company) {
       const { company_custom_traits, ...rest } = payload.company
       const companyFilteredCustomTraits = filterCustomTraits(company_custom_traits)
       payload.company = { ...rest, ...companyFilteredCustomTraits }
     }
 
-    // filter out reserved fields for companies array, drop custom objects & arrays
+    // drop custom objects & arrays
     if (payload.companies) {
       payload.companies = payload.companies.map((company) => {
         const { company_custom_traits, ...rest } = company

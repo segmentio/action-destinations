@@ -2,7 +2,7 @@ import { ActionDefinition, InvalidAuthenticationError } from '@segment/actions-c
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 import { MixpanelEvent } from './types'
-import { getBrowser, getBrowserVersion, cheapGuid } from '../utils'
+import { getApiServerUrl, getBrowser, getBrowserVersion, cheapGuid } from '../utils'
 import dayjs from '../../../lib/dayjs'
 
 const action: ActionDefinition<Settings, Payload> = {
@@ -389,7 +389,7 @@ const action: ActionDefinition<Settings, Payload> = {
     if (!settings.apiSecret) {
       throw new InvalidAuthenticationError('Missing api secret')
     }
-    return request('https://api.mixpanel.com/import?strict=1', {
+    return request(`${getApiServerUrl(settings.apiRegion)}/import?strict=1`, {
       method: 'post',
       json: [event],
       headers: {

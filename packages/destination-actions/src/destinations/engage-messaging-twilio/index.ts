@@ -79,9 +79,10 @@ const ConnectionOverridesProperties: Record<string, InputField> = {
 const destination: DestinationDefinition<Settings> = {
   //The name below is creation name however in partner portal this is Actions Personas Messaging Twilio
   //This is due to integrations-consumer fetches the creation name instead of current name
-  name: 'Personas Messaging Twilio (Actions)',
+  name: 'Engage Messaging Twilio',
   slug: 'actions-personas-messaging-twilio',
   mode: 'cloud',
+  description: 'This is an Engage specific action to send an SMS',
   authentication: {
     scheme: 'custom',
     fields: {

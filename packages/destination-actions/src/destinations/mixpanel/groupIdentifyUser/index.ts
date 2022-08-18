@@ -1,5 +1,6 @@
 import { ActionDefinition, IntegrationError } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
+import { getApiServerUrl } from '../utils'
 import type { Payload } from './generated-types'
 
 const action: ActionDefinition<Settings, Payload> = {
@@ -52,7 +53,7 @@ const action: ActionDefinition<Settings, Payload> = {
       $set: payload.traits
     }
 
-    return request('https://api.mixpanel.com/groups', {
+    return request(`${getApiServerUrl(settings.apiRegion)}/groups`, {
       method: 'post',
       body: new URLSearchParams({ data: JSON.stringify(data) })
     })
