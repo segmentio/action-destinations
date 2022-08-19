@@ -117,4 +117,75 @@ describe('Mixpanel.groupIdentifyUser', () => {
       })
     )
   })
+
+  it('should use EU server URL', async () => {
+    const event = createTestEvent({
+      timestamp,
+      groupId: 'test-group-id',
+      traits: { hello: 'world', company: 'Mixpanel' }
+    })
+
+    nock('https://api-eu.mixpanel.com').post('/groups').reply(200, {})
+
+    const responses = await testDestination.testAction('groupIdentifyUser', {
+      event,
+      useDefaultMappings: true,
+      settings: {
+        projectToken: MIXPANEL_PROJECT_TOKEN,
+        apiSecret: MIXPANEL_API_SECRET,
+        apiRegion: ApiRegions.EU
+      }
+    })
+    expect(responses.length).toBe(1)
+    expect(responses[0].status).toBe(200)
+    expect(responses[0].data).toMatchObject({})
+    expect(responses[0].options.body).toMatchObject(
+      new URLSearchParams({
+        data: JSON.stringify({
+          $token: MIXPANEL_PROJECT_TOKEN,
+          $group_key: '$group_id',
+          $group_id: 'test-group-id',
+          $set: {
+            hello: 'world',
+            company: 'Mixpanel'
+          }
+        })
+      })
+    )
+  })
+
+  it('should default to US endpoint if apiRegion setting is undefined', async () => {
+    const event = createTestEvent({
+      timestamp,
+      groupId: 'test-group-id',
+      traits: { hello: 'world', company: 'Mixpanel' }
+    })
+
+    nock('https://api.mixpanel.com').post('/groups').reply(200, {})
+
+    const responses = await testDestination.testAction('groupIdentifyUser', {
+      event,
+      useDefaultMappings: true,
+      settings: {
+        projectToken: MIXPANEL_PROJECT_TOKEN,
+        apiSecret: MIXPANEL_API_SECRET
+      }
+    })
+    expect(responses.length).toBe(1)
+    expect(responses[0].status).toBe(200)
+    expect(responses[0].data).toMatchObject({})
+    expect(responses[0].options.body).toMatchObject(
+      new URLSearchParams({
+        data: JSON.stringify({
+          $token: MIXPANEL_PROJECT_TOKEN,
+          $group_key: '$group_id',
+          $group_id: 'test-group-id',
+          $set: {
+            hello: 'world',
+            company: 'Mixpanel'
+          }
+        })
+      })
+    )
+  })
 })
