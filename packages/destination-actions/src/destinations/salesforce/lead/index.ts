@@ -16,7 +16,7 @@ const OBJECT_NAME = 'Lead'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Lead',
-  description: 'Represents a prospect or lead.',
+  description: 'Create, update, or upsert prospects in Salesforce.',
   defaultSubscription: 'type = "identify"',
   fields: {
     operation: operation,

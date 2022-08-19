@@ -16,7 +16,7 @@ const OBJECT_NAME = 'Opportunity'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Opportunity',
-  description: 'Represents an opportunity, which is a sale or pending deal.',
+  description: 'Create, update, or upsert opportunities in Salesforce.',
   fields: {
     operation: operation,
     enable_batching: enable_batching,
