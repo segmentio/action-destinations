@@ -3,6 +3,13 @@ import type { Settings } from './generated-types'
 
 import updateAudience from './updateAudience'
 
+interface RefreshTokenResponse {
+  access_token: string
+  scope: string
+  expires_in: number
+  token_type: string
+}
+
 const destination: DestinationDefinition<Settings> = {
   name: 'Linkedin Audiences',
   slug: 'actions-linkedin-audiences',
@@ -18,8 +25,7 @@ const destination: DestinationDefinition<Settings> = {
       return request
     },
     refreshAccessToken: async (request, { auth }) => {
-      // Return a request that refreshes the access_token if the API supports it
-      const res = await request('https://www.example.com/oauth/refresh', {
+      const res = await request<RefreshTokenResponse>('https://www.linkedin.com/oauth/v2/accessToken', {
         method: 'POST',
         body: new URLSearchParams({
           refresh_token: auth.refreshToken,
@@ -29,7 +35,7 @@ const destination: DestinationDefinition<Settings> = {
         })
       })
 
-      return { accessToken: res?.body?.access_token }
+      return { accessToken: res?.data?.access_token }
     }
   },
   extendRequest({ auth }) {

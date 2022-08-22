@@ -19,7 +19,7 @@ const action: ActionDefinition<Settings, Payload> = {
       label: 'Enable Batching',
       description: 'Enable batching of requests to the DMP Segment.',
       type: 'boolean',
-      default: true,
+      default: true
     },
     send_email_address: {
       label: 'Send Email Address',
@@ -29,17 +29,14 @@ const action: ActionDefinition<Settings, Payload> = {
     },
     send_google_advertising_id: {
       label: 'Send Google Advertising ID',
-      description: "Whether to send each user's Google Advertising ID (GAID) to LinkedIn. GAID is sometimes referred to as Android Advertising ID.",
+      description:
+        "Whether to send each user's Google Advertising ID (GAID) to LinkedIn. GAID is sometimes referred to as Android Advertising ID.",
       type: 'boolean',
       default: true
     }
   },
   perform: (request, data) => {
-    // Make your partner api request here!
-    // return request('https://example.com', {
-    //   method: 'post',
-    //   json: data.payload
-    // })
+    return { request, data }
   }
 }
 
