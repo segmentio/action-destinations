@@ -1,9 +1,9 @@
 export enum ApiRegions {
-  US = 'US 🇺🇸',
-  EU = 'EU 🇪🇺'
+  US = 'US',
+  EU = 'EU'
 }
 
-export function getApiServerUrl(apiRegion: string) {
+export function getApiServerUrl(apiRegion: string | undefined) {
   if (apiRegion == ApiRegions.EU) {
     return 'https://api-eu.mixpanel.com'
   }
