@@ -14,7 +14,7 @@ import Salesforce from '../sf-operations'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Custom Object',
-  description: 'Create, update, or upsert records in a custom object in Salesforce.',
+  description: 'Create, update, or upsert records in any custom or standard object in Salesforce.',
   fields: {
     operation: operation,
     enable_batching: enable_batching,
