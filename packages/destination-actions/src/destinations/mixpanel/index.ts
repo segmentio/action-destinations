@@ -7,6 +7,7 @@ import identifyUser from './identifyUser'
 import groupIdentifyUser from './groupIdentifyUser'
 
 import alias from './alias'
+import { ApiRegions } from './utils'
 
 /** used in the quick setup */
 const presets: DestinationDefinition['presets'] = [
@@ -71,6 +72,14 @@ const destination: DestinationDefinition<Settings> = {
         description: 'Mixpanel project secret.',
         type: 'string',
         required: true
+      },
+      apiRegion: {
+        label: 'Data Residency',
+        description:
+          'Learn about [EU data residency](https://help.mixpanel.com/hc/en-us/articles/360039135652-Data-Residency-in-EU)',
+        type: 'string',
+        choices: Object.values(ApiRegions).map((apiRegion) => ({ label: apiRegion, value: apiRegion })),
+        default: ApiRegions.US
       }
     },
     testAuthentication: (request, { settings }) => {
