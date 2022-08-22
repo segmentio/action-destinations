@@ -208,7 +208,9 @@ const action: ActionDefinition<Settings, Payload> = {
     }
   },
 
-  perform: async (request, { payload }) => {
+  perform: async (request, { payload, logger }) => {
+    logger?.info('STRATCONN - 15345 - Test Log - Processing Google Enhanced Conversation postConversion action')
+
     const conversionData = cleanData({
       oid: payload.transaction_id,
       user_agent: payload.user_agent,

@@ -134,8 +134,10 @@ const action: ActionDefinition<Settings, Payload> = {
     },
     customFields: customFields
   },
-  perform: async (request, { settings, payload }) => {
+  perform: async (request, { settings, payload, logger }) => {
     const sf: Salesforce = new Salesforce(settings.instanceUrl, request)
+
+    logger?.info('STRATCONN - 15345 - Test Log - Processing Salesforce Lead action')
 
     if (payload.operation === 'create') {
       if (!payload.company || !payload.last_name) {
