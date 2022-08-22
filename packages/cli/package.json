@@ -1,7 +1,7 @@
 {
   "name": "@segment/actions-cli",
   "description": "CLI to interact with Segment integrations",
-  "version": "3.90.2-alpha.10",
+  "version": "3.90.2-alpha.13",
   "license": "MIT",
   "repository": {
     "type": "git",
@@ -57,7 +57,7 @@
     "@oclif/errors": "^1",
     "@oclif/plugin-help": "^3.3",
     "@segment/action-destinations": "^3.93.3-alpha.5",
-    "@segment/actions-core": "^3.31.1-alpha.14",
+    "@segment/actions-core": "^3.31.1-alpha.15",
     "chalk": "^4.1.1",
     "chokidar": "^3.5.1",
     "dotenv": "^10.0.0",
@@ -80,7 +80,7 @@
     "tslib": "^2.3.1"
   },
   "optionalDependencies": {
-    "@segment/actions-cli-internal": "^3.90.2-alpha.10",
+    "@segment/actions-cli-internal": "^3.90.2-alpha.13",
     "@segment/browser-destinations": "^3.48.2-alpha.5"
   },
   "oclif": {
