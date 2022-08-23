@@ -32,6 +32,10 @@ export interface Payload {
    */
   send?: boolean
   /**
+   * Whether or not trait enrich from event (i.e without profile api call)
+   */
+  traitEnrichment?: boolean
+  /**
    * An array of user profile identity information.
    */
   externalIds?: {
@@ -48,4 +52,10 @@ export interface Payload {
      */
     subscriptionStatus?: string
   }[]
+  /**
+   * A user profile's traits
+   */
+  traits?: {
+    [k: string]: unknown
+  }
 }

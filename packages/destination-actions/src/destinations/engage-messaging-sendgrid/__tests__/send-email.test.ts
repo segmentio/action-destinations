@@ -1,5 +1,6 @@
 import nock from 'nock'
-import { createTestEvent, createTestIntegration, omit } from '@segment/actions-core'
+import { createTestIntegration, omit } from '@segment/actions-core'
+import { createMessagingTestEvent } from '../../../lib/engage-test-data/create-messaging-test-event'
 import Sendgrid from '..'
 
 const sendgrid = createTestIntegration(Sendgrid)
@@ -90,11 +91,13 @@ describe.each(['stage', 'production'])('%s environment', (environment) => {
       bodyType: 'html',
       bodyHtml: 'Hi {{profile.traits.firstName}}, Welcome to segment',
       send: true,
+      traitEnrichment: true,
       toEmail: '',
       externalIds: [
         { id: userData.email, type: 'email', subscriptionStatus: 'subscribed' },
         { id: userData.phone, type: 'phone', subscriptionStatus: 'subscribed' }
       ],
+      traits: { '@path': '$.properties' },
       ...overrides
     }
   }
@@ -119,7 +122,7 @@ describe.each(['stage', 'production'])('%s environment', (environment) => {
       const sendGridRequest = nock('https://api.sendgrid.com').post('/v3/mail/send', sendgridRequestBody).reply(200, {})
 
       const responses = await sendgrid.testAction('sendEmail', {
-        event: createTestEvent({
+        event: createMessagingTestEvent({
           timestamp,
           event: 'Audience Entered',
           userId: userData.userId
@@ -135,7 +138,7 @@ describe.each(['stage', 'production'])('%s environment', (environment) => {
     it('should not send email when send = false', async () => {
       const mapping = getDefaultMapping({ send: false })
       await sendgrid.testAction('sendEmail', {
-        event: createTestEvent({
+        event: createMessagingTestEvent({
           timestamp,
           event: 'Audience Entered',
           userId: userData.userId
@@ -150,7 +153,7 @@ describe.each(['stage', 'production'])('%s environment', (environment) => {
 
     it('should not send an email when send field not in payload', async () => {
       const responses = await sendgrid.testAction('sendEmail', {
-        event: createTestEvent({
+        event: createMessagingTestEvent({
           timestamp,
           event: 'Audience Entered',
           userId: userData.userId
@@ -219,7 +222,7 @@ describe.each(['stage', 'production'])('%s environment', (environment) => {
         .reply(200, {})
 
       const responses = await sendgrid.testAction('sendEmail', {
-        event: createTestEvent({
+        event: createMessagingTestEvent({
           timestamp,
           event: 'Audience Entered',
           userId: userData.userId
@@ -248,17 +251,16 @@ describe.each(['stage', 'production'])('%s environment', (environment) => {
           bodyType: 'html',
           bodyHtml: 'Welcome to segment',
           send: true,
+          traitEnrichment: true,
           externalIds: [
             { id: userData.email, type: 'email', subscriptionStatus: 'subscribed' },
             { id: userData.phone, type: 'phone', subscriptionStatus: 'subscribed' }
-          ]
+          ],
+          traits: { '@path': '$.properties' }
         }
       })
 
-      expect(responses.map((r) => r.url)).toStrictEqual([
-        `${endpoint}/v1/spaces/spaceId/collections/users/profiles/user_id:jane/traits?limit=200`,
-        `https://api.sendgrid.com/v3/mail/send`
-      ])
+      expect(responses.map((r) => r.url)).toStrictEqual([`https://api.sendgrid.com/v3/mail/send`])
       expect(sendGridRequest.isDone()).toEqual(true)
     })
 
@@ -267,7 +269,7 @@ describe.each(['stage', 'production'])('%s environment', (environment) => {
       async (domain) => {
         try {
           await sendgrid.testAction('sendEmail', {
-            event: createTestEvent({
+            event: createMessagingTestEvent({
               timestamp,
               event: 'Audience Entered',
               userId: userData.userId
@@ -340,7 +342,7 @@ describe.each(['stage', 'production'])('%s environment', (environment) => {
         .reply(200, {})
 
       const responses = await sendgrid.testAction('sendEmail', {
-        event: createTestEvent({
+        event: createMessagingTestEvent({
           timestamp,
           event: 'Audience Entered',
           userId: userData.userId
@@ -425,7 +427,7 @@ describe.each(['stage', 'production'])('%s environment', (environment) => {
         .reply(200, {})
 
       const responses = await sendgrid.testAction('sendEmail', {
-        event: createTestEvent({
+        event: createMessagingTestEvent({
           timestamp,
           event: 'Audience Entered',
           userId: userData.userId
@@ -526,7 +528,7 @@ describe.each(['stage', 'production'])('%s environment', (environment) => {
         .reply(200, {})
 
       const responses = await sendgrid.testAction('sendEmail', {
-        event: createTestEvent({
+        event: createMessagingTestEvent({
           timestamp,
           event: 'Audience Entered',
           userId: userData.userId
@@ -553,7 +555,7 @@ describe.each(['stage', 'production'])('%s environment', (environment) => {
         .reply(200, {})
 
       const responses = await sendgrid.testAction('sendEmail', {
-        event: createTestEvent({
+        event: createMessagingTestEvent({
           timestamp,
           event: 'Audience Entered',
           userId: userData.userId
@@ -582,7 +584,7 @@ describe.each(['stage', 'production'])('%s environment', (environment) => {
         .reply(200, {})
 
       const responses = await sendgrid.testAction('sendEmail', {
-        event: createTestEvent({
+        event: createMessagingTestEvent({
           timestamp,
           event: 'Audience Entered',
           userId: userData.userId
@@ -618,7 +620,7 @@ describe.each(['stage', 'production'])('%s environment', (environment) => {
       const sendGridRequest = nock('https://api.sendgrid.com').post('/v3/mail/send').reply(200, {})
 
       const responses = await sendgrid.testAction('sendEmail', {
-        event: createTestEvent({
+        event: createMessagingTestEvent({
           timestamp,
           event: 'Audience Entered',
           userId: userData.userId
@@ -640,7 +642,7 @@ describe.each(['stage', 'production'])('%s environment', (environment) => {
       'does NOT send the email when subscriptionStatus = "%s"',
       async (subscriptionStatus) => {
         await sendgrid.testAction('sendEmail', {
-          event: createTestEvent({
+          event: createMessagingTestEvent({
             timestamp,
             event: 'Audience Entered',
             userId: userData.userId
@@ -664,7 +666,7 @@ describe.each(['stage', 'production'])('%s environment', (environment) => {
     it('throws an error when subscriptionStatus is unrecognizable"', async () => {
       const subscriptionStatus = 'random-string'
       const response = sendgrid.testAction('sendEmail', {
-        event: createTestEvent({
+        event: createMessagingTestEvent({
           timestamp,
           event: 'Audience Entered',
           userId: userData.userId
