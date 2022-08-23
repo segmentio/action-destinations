@@ -142,7 +142,7 @@ const action: ActionDefinition<Settings, Payload> = {
     },
     traits: {
       label: 'Traits',
-      description: 'A user profile traits',
+      description: "A user profile's traits",
       type: 'object',
       required: false,
       default: { '@path': '$.properties' }

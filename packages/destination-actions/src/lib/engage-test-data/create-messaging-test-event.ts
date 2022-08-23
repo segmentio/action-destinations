@@ -1,7 +1,7 @@
 import { v4 as uuidv4 } from '@lukeed/uuid'
-import type { SegmentEvent } from './segment-event'
+import type { SegmentEvent } from '@segment/actions-core'
 
-export function createTestEvent(event: Partial<SegmentEvent> = {}): SegmentEvent {
+export function createMessagingTestEvent(event: Partial<SegmentEvent> = {}): SegmentEvent {
   return {
     anonymousId: uuidv4(),
     context: {
@@ -31,7 +31,10 @@ export function createTestEvent(event: Partial<SegmentEvent> = {}): SegmentEvent
     },
     event: 'Test Event',
     messageId: uuidv4(),
-    properties: {},
+    properties: {
+      firstName: 'First Name',
+      lastName: 'Browning'
+    },
     receivedAt: new Date().toISOString(),
     sentAt: new Date().toISOString(),
     timestamp: new Date().toISOString(),

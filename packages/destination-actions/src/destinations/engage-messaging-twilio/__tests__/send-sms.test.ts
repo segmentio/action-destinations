@@ -1,5 +1,6 @@
 import nock from 'nock'
-import { createMessagingTestEvent, createTestIntegration } from '@segment/actions-core'
+import { createTestIntegration } from '@segment/actions-core'
+import { createMessagingTestEvent } from '../../../lib/engage-test-data/create-messaging-test-event'
 import Twilio from '..'
 
 const twilio = createTestIntegration(Twilio)

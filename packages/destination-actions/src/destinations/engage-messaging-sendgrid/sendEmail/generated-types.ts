@@ -93,7 +93,7 @@ export interface Payload {
     [k: string]: unknown
   }
   /**
-   * A user profile traits
+   * A user profile's traits
    */
   traits?: {
     [k: string]: unknown

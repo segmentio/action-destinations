@@ -1,5 +1,6 @@
 import nock from 'nock'
-import { createMessagingTestEvent, createTestIntegration, omit } from '@segment/actions-core'
+import { createTestIntegration, omit } from '@segment/actions-core'
+import { createMessagingTestEvent } from '../../../lib/engage-test-data/create-messaging-test-event'
 import Sendgrid from '..'
 
 const sendgrid = createTestIntegration(Sendgrid)
