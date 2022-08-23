@@ -68,9 +68,6 @@ const destination: DestinationDefinition<Settings> = {
       headers: {
         authorization: `Bearer ${auth?.accessToken}`
       }
-      // searchParams: {
-      //   conversion_tracking_id: settings.conversionTrackingId
-      // }
     }
   },
   actions: {
