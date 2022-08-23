@@ -1,5 +1,5 @@
 import { Command, flags } from '@oclif/command'
-import { ChildProcess, fork } from 'child_process'
+import { ChildProcess, fork, exec } from 'child_process'
 import { autoPrompt } from '../lib/prompt'
 import chalk from 'chalk'
 import chokidar from 'chokidar'
@@ -36,6 +36,10 @@ export default class Serve extends Command {
     noUI: flags.boolean({
       char: 'n',
       description: 'do not open actions tester UI in browser'
+    }),
+    browser: flags.boolean({
+      char: 'r',
+      description: 'serve browser destinations'
     })
   }
 
@@ -122,6 +126,10 @@ export default class Serve extends Command {
         child?.removeAllListeners()
         child = undefined
       })
+
+      if (flags.browser) {
+        exec('yarn --cwd packages/browser-destinations dev')
+      }
     }
 
     watcher.on('change', (file) => {
