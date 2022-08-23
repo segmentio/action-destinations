@@ -184,6 +184,7 @@ const action: ActionDefinition<Settings, Payload> = {
     }
   },
   perform: async (request, { settings, payload }) => {
+    //Generate this automatically  from CLI
     const wk: Workers = new Workers(ACTION_NAME, request)
     return wk.sendPayload(payload, settings)
   }

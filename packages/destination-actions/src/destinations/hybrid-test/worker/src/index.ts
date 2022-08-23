@@ -14,6 +14,7 @@ async function handleRequest(event) {
     })
   }
   const { pathname } = new URL(request.url)
+  const settings = json.settings as Settings
 
   /**
    * Prospects Route
@@ -22,27 +23,44 @@ async function handleRequest(event) {
    */
   if (pathname.startsWith('/prospects')) {
     const payload = json.payload as ProspectsPayload
-    const settings = json.settings as Settings
     const baseUrl = settings.isSandbox ? 'https://pi.demo.pardot.com' : 'https://pi.pardot.com'
     const url = `${baseUrl}/api/v5/objects/prospects/do/upsertLatestByEmail`
     const data = buildProspectJSON(payload)
-    console.log(payload)
-    console.log(settings)
+
+    const newRequestInit = {
+      method: 'POST',
+      body: JSON.stringify({
+        matchEmail: payload.email,
+        prospect: data,
+        secondaryDeletedSearch: payload.secondaryDeletedSearch
+      }),
+      headers: {
+        'Content-Type': 'application/json'
+      }
+    }
+
+    const AC = new Actions(request, url)
+    return AC.perform(newRequestInit)
+  }
+}
+
+class Actions {
+  request: Request
+  url: string
+
+  constructor(request: Request, url: string) {
+    this.request = request
+    this.url = url
+  }
+
+  perform = async (newRequestInit: RequestInit) => {
+    const newRequest = new Request(this.url, newRequestInit)
+    this.request.headers.forEach((headerValue, key) => {
+      newRequest.headers.set(key, headerValue)
+    })
+    newRequest.headers.delete('Cloudflare-Auth-Token')
     try {
-      return await fetch(url, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Pardot-Business-Unit-Id': settings.businessUnitID,
-          Authorization: request.headers.get('Authorization')
-        },
-        redirect: 'follow',
-        body: JSON.stringify({
-          matchEmail: payload.email,
-          prospect: data,
-          secondaryDeletedSearch: payload.secondaryDeletedSearch
-        })
-      })
+      return await fetch(newRequest)
     } catch (e) {
       return new Response(JSON.stringify({ error: e.message }), { status: 500 })
     }
