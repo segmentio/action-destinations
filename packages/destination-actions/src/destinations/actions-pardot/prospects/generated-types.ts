@@ -3,7 +3,7 @@
 export interface Payload {
   /**
    * The prospect's email address.
-   *         Used to upsert prospect.  If multiple prospects have the given email, the prospect with the latest activity is updated. If there's no prospect with the given email, a prospect is created. Please note that Pardot treats email address as case sensitive and will create multiple prospects for casing differences.
+   *         Used to upsert a prospect in Pardot. If multiple prospects have the given email, the prospect with the latest activity is updated. If there's no prospect with the given email, a prospect is created. Please note that Pardot treats email address as case sensitive and will create multiple prospects for casing differences.
    */
   email: string
   /**

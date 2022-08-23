@@ -2,7 +2,7 @@ import { RequestClient } from '@segment/actions-core'
 import type { Payload as ProspectsPayload } from './prospects/generated-types'
 import { ProspectsType } from './pa-type'
 
-export const API_VERSION = 'v5'
+export const PARDOT_API_VERSION = 'v5'
 
 interface ProspectUpsertResponseData {
   id: string
@@ -24,7 +24,7 @@ export default class Pardot {
     const prospect = this.buildProspectJSON(payload)
 
     return this.request<ProspectUpsertResponseData>(
-      `${this.baseUrl}/api/${API_VERSION}/objects/prospects/do/upsertLatestByEmail`,
+      `${this.baseUrl}/api/${PARDOT_API_VERSION}/objects/prospects/do/upsertLatestByEmail`,
       {
         method: 'post',
         headers: {
