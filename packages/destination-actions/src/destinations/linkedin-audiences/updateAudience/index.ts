@@ -4,11 +4,11 @@ import type { Payload } from './generated-types'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Update Audience',
-  description: '',
+  description: 'Updates a LinkedIn DMP Segment.',
   fields: {
     dmp_segment_name: {
       label: 'DMP Segment Name',
-      description: 'The name of the LinkedIn DMP Segment to send data to.',
+      description: 'The name of the LinkedIn DMP Segment to update.',
       type: 'string',
       required: true,
       default: {

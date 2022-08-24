@@ -2,7 +2,7 @@
 
 export interface Payload {
   /**
-   * The name of the LinkedIn DMP Segment to send data to.
+   * The name of the LinkedIn DMP Segment to update.
    */
   dmp_segment_name: string
   /**
