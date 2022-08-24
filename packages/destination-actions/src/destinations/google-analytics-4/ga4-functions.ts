@@ -15,9 +15,10 @@ export function verifyParams(params: object | undefined): void {
   }
 
   Object.values(params).forEach((value) => {
-    if (typeof value == 'object' || value instanceof Array) {
+    const invalidEventType = typeof value == 'object' || value instanceof Array
+    if (invalidEventType) {
       throw new IntegrationError(
-        'GA4 does not accept null, array, or nested values for event parameters and item parameters. Please ensure you are using allowed data types.',
+        'GA4 does not accept null, array, or object values for event parameters and item parameters. Please ensure you are using allowed data types.',
         'Invalid value',
         400
       )
@@ -31,10 +32,10 @@ export function verifyUserProps(userProperties: object | undefined): void {
   }
 
   Object.values(userProperties).forEach((value) => {
-    // typeof null == 'object' and GA4 accepts nulls for user_properties
+    // Extra check to ensure null values are not filtered out since GA4 accepts nulls for user_properties
     if ((value != null && typeof value == 'object') || value instanceof Array) {
       throw new IntegrationError(
-        'GA4 does not accept array or nested values for user properties. Please ensure you are using allowed data types.',
+        'GA4 does not accept array or object values for user properties. Please ensure you are using allowed data types.',
         'Invalid value',
         400
       )
