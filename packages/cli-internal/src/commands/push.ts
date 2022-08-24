@@ -267,8 +267,8 @@ export default class Push extends Command {
       try {
         await Promise.all([
           updateDestinationMetadata(metadata.id, {
-            name,
-            description,
+            ...(name !== metadata.name && { name }),
+            ...(description !== metadata.description && { description }),
             advancedOptions: [], // make sure this gets cleared out since we don't use advancedOptions in Actions
             basicOptions,
             options,
