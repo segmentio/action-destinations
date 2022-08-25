@@ -9,7 +9,24 @@ export const destination: BrowserDestinationDefinition<Settings, unknown> = {
   mode: 'device',
 
   settings: {
-    // Add any Segment destination settings required here
+    portalId: {
+      description: 'The Hub ID of your Hubspot account.',
+      label: 'Hub ID',
+      type: 'string',
+      required: true
+    },
+    loadFormsSdk: {
+      description: 'Load the Hubspot forms SDK.',
+      label: 'Load Forms SDK',
+      type: 'boolean',
+      required: false
+    },
+    enableEuropeanDataCenter: {
+      description: 'Enable the European Data Center.',
+      label: 'Enable European Data Center',
+      type: 'boolean',
+      required: false
+    }
   },
 
   initialize: async ({ settings }, deps) => {
