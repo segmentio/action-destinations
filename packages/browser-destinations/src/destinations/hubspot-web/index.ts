@@ -2,6 +2,12 @@ import type { Settings } from './generated-types'
 import type { BrowserDestinationDefinition } from '../../lib/browser-destinations'
 import { browserDestination } from '../../runtime/shim'
 
+import trackCustomBehavioralEvent from './trackCustomBehavioralEvent'
+
+import trackPageView from './trackPageView'
+
+import upsertContact from './upsertContact'
+
 // Switch from unknown to the partner SDK client types
 export const destination: BrowserDestinationDefinition<Settings, unknown> = {
   name: 'Hubspot Web (Actions)',
@@ -34,7 +40,11 @@ export const destination: BrowserDestinationDefinition<Settings, unknown> = {
     // initialize client code here
   },
 
-  actions: {}
+  actions: {
+    trackCustomBehavioralEvent,
+    trackPageView,
+    upsertContact
+  }
 }
 
 export default browserDestination(destination)
