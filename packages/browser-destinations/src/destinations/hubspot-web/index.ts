@@ -8,6 +8,12 @@ import trackPageView from './trackPageView'
 
 import upsertContact from './upsertContact'
 
+declare global {
+  interface Window {
+    _hsq: any
+  }
+}
+
 // Switch from unknown to the partner SDK client types
 export const destination: BrowserDestinationDefinition<Settings, unknown> = {
   name: 'Hubspot Web (Actions)',
@@ -36,8 +42,9 @@ export const destination: BrowserDestinationDefinition<Settings, unknown> = {
   },
 
   initialize: async ({ settings }, deps) => {
-    await deps.loadScript('<path_to_partner_script>')
-    // initialize client code here
+    await deps.loadScript(`https://js.hs-scripts.com/${settings.portalId}.js`)
+    await deps.resolveWhen(() => !!(window._hsq && window._hsq.push !== Array.prototype.push), 100)
+    return window._hsq
   },
 
   actions: {
