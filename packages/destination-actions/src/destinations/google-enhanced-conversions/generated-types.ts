@@ -6,7 +6,7 @@ export interface Settings {
    */
   conversionTrackingId: string
   /**
-   * ID of your Google Ads Account. This should be 10-digits and in XXX-XXX-XXXX format. Required if you are using an Action that sends data to the Google Ads API.
+   * ID of your Google Ads Account. This should be 10-digits and in XXX-XXX-XXXX format. **Required if you are using an Action that sends data to the Google Ads API.**
    */
   customerId?: string
 }
