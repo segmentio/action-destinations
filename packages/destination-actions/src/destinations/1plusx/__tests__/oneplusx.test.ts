@@ -198,7 +198,7 @@ describe('1plusX', () => {
             '@path': '$.properties.consents'
           },
           ope_alt_user_ids: {
-            '@path': `assetId:{$.properties.assetId},title:{$.properties.title},genre:{$.properties.genre}`
+            '@path': `assetId:{$properties.assetId},title:{$properties.title},genre:{$properties.genre}`
           }
         },
         useDefaultMappings: true
