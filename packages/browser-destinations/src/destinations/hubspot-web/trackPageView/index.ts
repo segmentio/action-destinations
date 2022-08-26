@@ -1,15 +1,28 @@
 import type { BrowserActionDefinition } from '../../../lib/browser-destinations'
 import type { Settings } from '../generated-types'
+import { Hubspot } from '../types'
 import type { Payload } from './generated-types'
 
 // Change from unknown to the partner SDK types
-const action: BrowserActionDefinition<Settings, unknown, Payload> = {
+const action: BrowserActionDefinition<Settings, Hubspot, Payload> = {
   title: 'Track Page View',
-  description: '',
+  description: 'Track the page view for the current page.',
+  defaultSubscription: 'type = "page"',
   platform: 'web',
-  fields: {},
-  perform: (_client) => {
-    // Invoke Partner SDK here
+  fields: {
+    path: {
+      description:
+        'The path of the current page. The set path will be treated as relative to the current domain being viewed.',
+      label: 'Path String',
+      type: 'string',
+      required: false
+    }
+  },
+  perform: (_hsq, event) => {
+    if (event.payload.path) {
+      _hsq.push(['setPath', event.payload.path])
+    }
+    _hsq.push(['trackPageView'])
   }
 }
 
