@@ -183,8 +183,13 @@ const action: ActionDefinition<Settings, Payload> = {
     }
   },
   perform: (request, { settings, payload }) => {
-    // Make your partner api request here!
-
+    if (!settings.customerId) {
+      throw new IntegrationError(
+        'Customer id is required for this action. Please set it in destination settings.',
+        'Missing required fields.',
+        400
+      )
+    }
     let cartItems: CartItem[] = []
     if (payload.items) {
       cartItems = payload.items.map((product) => {
@@ -202,7 +207,7 @@ const action: ActionDefinition<Settings, Payload> = {
 
     const request_object: { [key: string]: any } = {
       conversionAction: `customers/${settings.customerId}/conversionActions/${payload.conversion_action}`,
-      conversionDateTime: payload.conversion_timestamp, // TODO: format so timezone is specified
+      conversionDateTime: payload.conversion_timestamp.replace(/T/, ' ').replace(/\..+/, '+00:00'),
       gclid: payload.gclid,
       gbraid: payload.gbraid,
       wbraid: payload.wbraid,
