@@ -30,8 +30,8 @@ const action: ActionDefinition<Settings, Payload> = {
       label: 'Alternative User IDs',
       description:
         'Alternative user ids if there is more than one identifier available, each prefixed with the identifier type and separated by commas',
-      type: 'string',
-      multiple: true
+      type: 'string'
+      //multiple: true  --commenting this since Fox wants ope_alt_user_ids to be a string value
     },
     //Highly recommended to include
     ope_item_uri: {
