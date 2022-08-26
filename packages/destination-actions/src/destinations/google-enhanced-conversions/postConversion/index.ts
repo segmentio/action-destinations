@@ -209,8 +209,7 @@ const action: ActionDefinition<Settings, Payload> = {
     }
   },
 
-  perform: async (request, { payload, settings, logger }) => {
-    logger?.info('STRATCONN - 15345 - Test Log - Processing Google Enhanced Conversation postConversion action')
+  perform: async (request, { payload, settings }) => {
     if (!settings.conversionTrackingId) {
       throw new IntegrationError(
         'Conversion tracking id is required for this action. Please set it in destination settings.',
@@ -229,8 +228,6 @@ const action: ActionDefinition<Settings, Payload> = {
       is_app_incrementality: payload.is_app_incrementality ? 1 : 0,
       pcc_game: payload.pcc_game ? 1 : 0
     })
-
-    console.log('Data', conversionData)
 
     const address = cleanData({
       hashed_first_name: formatFirstName(payload.first_name),
