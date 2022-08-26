@@ -217,7 +217,7 @@ describe('1plusX', () => {
         gdpr: 1,
         gdpr_consent: 'Functional',
         ope_usp_string: 'Functional',
-        ope_alt_user_ids: 'assetId:12345,title:The Simpsons,genre:Comedy'
+        ope_alt_user_ids: '12345'
       })
     })
   })
