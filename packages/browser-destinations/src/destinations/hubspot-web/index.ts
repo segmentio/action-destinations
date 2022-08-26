@@ -7,6 +7,7 @@ import trackCustomBehavioralEvent from './trackCustomBehavioralEvent'
 import trackPageView from './trackPageView'
 
 import upsertContact from './upsertContact'
+import { Hubspot } from './types'
 
 declare global {
   interface Window {
@@ -15,7 +16,7 @@ declare global {
 }
 
 // Switch from unknown to the partner SDK client types
-export const destination: BrowserDestinationDefinition<Settings, unknown> = {
+export const destination: BrowserDestinationDefinition<Settings, Hubspot> = {
   name: 'Hubspot Web (Actions)',
   slug: 'actions-hubspot-web',
   mode: 'device',
@@ -42,7 +43,11 @@ export const destination: BrowserDestinationDefinition<Settings, unknown> = {
   },
 
   initialize: async ({ settings }, deps) => {
-    await deps.loadScript(`https://js.hs-scripts.com/${settings.portalId}.js`)
+    const scriptPath = settings.enableEuropeanDataCenter
+      ? `https://js-eu1.hs-scripts.com/${settings.portalId}.js`
+      : `https://js.hs-scripts.com/${settings.portalId}.js`
+
+    await deps.loadScript(scriptPath)
     await deps.resolveWhen(() => !!(window._hsq && window._hsq.push !== Array.prototype.push), 100)
     return window._hsq
   },
