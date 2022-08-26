@@ -4,7 +4,7 @@ export interface Payload {
   /**
    * Identify a visitor by email address when you want to update an existing contact or create a new one.
    */
-  email: string
+  email?: string
   /**
    * a custom external ID that identifies the visitor.
    */

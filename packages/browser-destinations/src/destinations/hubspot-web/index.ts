@@ -28,17 +28,18 @@ export const destination: BrowserDestinationDefinition<Settings, Hubspot> = {
       type: 'string',
       required: true
     },
-    loadFormsSdk: {
-      description: 'Load the Hubspot forms SDK.',
-      label: 'Load Forms SDK',
-      type: 'boolean',
-      required: false
-    },
     enableEuropeanDataCenter: {
       description: 'Enable the European Data Center.',
       label: 'Enable European Data Center',
       type: 'boolean',
       required: false
+    },
+    flushIdentifyImmediately: {
+      description: 'Fire a Page View immediately after an Identify to send the data to Hubspot.',
+      label: 'Flush Identify calls immediately',
+      type: 'boolean',
+      required: false,
+      default: false
     }
   },
 

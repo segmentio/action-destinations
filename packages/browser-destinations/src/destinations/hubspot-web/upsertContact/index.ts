@@ -3,7 +3,6 @@ import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 import { Hubspot } from '../types'
 
-// Change from unknown to the partner SDK types
 const action: BrowserActionDefinition<Settings, Hubspot, Payload> = {
   title: 'Update an Existing Contact or Create a New One',
   description: 'Use this action to identify website visitors and contacts.',
@@ -45,6 +44,10 @@ const action: BrowserActionDefinition<Settings, Hubspot, Payload> = {
       return
     }
     _hsq.push(['identify', { ...payload.custom_properties, email: payload.email, id: payload.id }])
+
+    if (event.settings.flushIdentifyImmediately) {
+      _hsq.push(['trackPageView'])
+    }
   }
 }
 

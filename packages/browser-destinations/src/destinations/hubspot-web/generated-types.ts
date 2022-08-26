@@ -6,11 +6,11 @@ export interface Settings {
    */
   portalId: string
   /**
-   * Load the Hubspot forms SDK.
-   */
-  loadFormsSdk?: boolean
-  /**
    * Enable the European Data Center.
    */
   enableEuropeanDataCenter?: boolean
+  /**
+   * Fire a Page View immediately after an Identify to send the data to Hubspot.
+   */
+  flushIdentifyImmediately?: boolean
 }
