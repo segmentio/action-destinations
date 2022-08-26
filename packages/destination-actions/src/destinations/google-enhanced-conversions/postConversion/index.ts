@@ -103,8 +103,9 @@ const action: ActionDefinition<Settings, Payload> = {
       default: false
     },
     pcc_game: {
-      label: 'Name',
-      description: 'Description',
+      label: 'PCC Game Flag',
+      description:
+        'Alpha feature offered by Google for gaming industry. When set to true, Segment will send pcc_game = 1 to Google.',
       type: 'boolean',
       default: false
     },
@@ -208,8 +209,15 @@ const action: ActionDefinition<Settings, Payload> = {
     }
   },
 
-  perform: async (request, { payload, logger }) => {
+  perform: async (request, { payload, settings, logger }) => {
     logger?.info('STRATCONN - 15345 - Test Log - Processing Google Enhanced Conversation postConversion action')
+    if (!settings.conversionTrackingId) {
+      throw new IntegrationError(
+        'Conversion tracking id is required for this action. Please set it in destination settings.',
+        'Missing required fields.',
+        400
+      )
+    }
 
     const conversionData = cleanData({
       oid: payload.transaction_id,
@@ -250,6 +258,9 @@ const action: ActionDefinition<Settings, Payload> = {
     try {
       return await request('https://www.google.com/ads/event/api/v1', {
         method: 'post',
+        searchParams: {
+          conversion_tracking_id: settings.conversionTrackingId
+        },
         json: {
           pii_data: { ...pii_data, address: [address] },
           ...conversionData
