@@ -31,7 +31,31 @@ const action: BrowserActionDefinition<Settings, Hubspot, Payload> = {
     }
   },
   perform: (_hsq, event) => {
-    _hsq.push(['trackCustomBehavioralEvent', { ...event.payload }])
+    let { name, properties } = event.payload
+
+    if (event.settings.formatCustomBehavioralEventNames) {
+      name = `pe${event.settings.portalId}_${name.replace(/[\s.]+/g, '_').toLocaleLowerCase()}`
+    }
+
+    // for custom properties, we will:
+    // remove any non-primitives, replace spaces and dots with underscores, then lowercase
+    properties = properties
+      ? {
+          properties: Object.keys(properties).reduce(
+            (acc, key) => {
+              if (properties && typeof properties[key] !== 'object') {
+                acc[key.replace(/[\s.]+/g, '_').toLocaleLowerCase()] = properties[key]
+              }
+              return acc
+            },
+            {} as {
+              [k: string]: unknown
+            }
+          )
+        }
+      : {}
+
+    _hsq.push(['trackCustomBehavioralEvent', { name, ...properties }])
   }
 }
 

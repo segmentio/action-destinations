@@ -26,8 +26,7 @@ export const destination: BrowserDestinationDefinition<Settings, Hubspot> = {
       description: 'The Hub ID of your Hubspot account.',
       label: 'Hub ID',
       type: 'string',
-      required: true,
-      default: '9316626'
+      required: true
     },
     enableEuropeanDataCenter: {
       description: 'Enable the European Data Center.',
@@ -39,7 +38,14 @@ export const destination: BrowserDestinationDefinition<Settings, Hubspot> = {
       description: 'Fire a Page View immediately after an Identify to send the data to Hubspot.',
       label: 'Flush Identify calls immediately',
       type: 'boolean',
-      required: false,
+      required: false
+    },
+    formatCustomBehavioralEventNames: {
+      description:
+        'Format the event names for custom behavioral event automatically to standard Hubspot format (pe<HubID>_event_name).',
+      label: 'Format Custom Behavioral Event Names',
+      type: 'boolean',
+      required: true,
       default: true
     }
   },

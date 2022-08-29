@@ -22,7 +22,8 @@ const subscriptions: Subscription[] = [
 
 describe('Hubspot.trackCustomBehavioralEvent', () => {
   const settings = {
-    portalId: '1234'
+    portalId: '1234',
+    formatCustomBehavioralEventNames: true
   }
 
   let mockHubspot: Hubspot
@@ -59,7 +60,52 @@ describe('Hubspot.trackCustomBehavioralEvent', () => {
 
     expect(mockHubspot.push).toHaveBeenCalledWith([
       'trackCustomBehavioralEvent',
-      { name: 'purchased a 🍱', properties: { currency: 'USD', price: '$12.00', type: '🍣' } }
+      { name: 'pe1234_purchased_a_🍱', properties: { currency: 'USD', price: '$12.00', type: '🍣' } }
+    ])
+  })
+
+  test('ignores nested object properties', async () => {
+    const context = new Context({
+      type: 'track',
+      event: 'purchased a 🍱',
+      properties: {
+        type: '🍣',
+        price: '$12.00',
+        currency: 'USD',
+        sides: {
+          item1: '🧉',
+          item2: '🧋'
+        }
+      }
+    })
+    await trackCustomBehavioralEvent.track?.(context)
+
+    expect(mockHubspot.push).toHaveBeenCalledWith([
+      'trackCustomBehavioralEvent',
+      { name: 'pe1234_purchased_a_🍱', properties: { currency: 'USD', price: '$12.00', type: '🍣' } }
+    ])
+  })
+
+  test('snake case spaces and dots', async () => {
+    const context = new Context({
+      type: 'track',
+      event: 'purchased a 🍱',
+      properties: {
+        type: '🍣',
+        price: '$12.00',
+        currency: 'USD',
+        'type of fish': '🐟',
+        'brown.rice': false
+      }
+    })
+    await trackCustomBehavioralEvent.track?.(context)
+
+    expect(mockHubspot.push).toHaveBeenCalledWith([
+      'trackCustomBehavioralEvent',
+      {
+        name: 'pe1234_purchased_a_🍱',
+        properties: { currency: 'USD', price: '$12.00', type: '🍣', type_of_fish: '🐟', brown_rice: false }
+      }
     ])
   })
 })
