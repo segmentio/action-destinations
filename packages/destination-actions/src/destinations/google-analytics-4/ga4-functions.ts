@@ -17,19 +17,19 @@ export function verifyParams(params: object | undefined): void {
   Object.entries(params).forEach(([key, value]) => {
     if (value instanceof Array) {
       throw new IntegrationError(
-        `Param [${key}] has unsupported value. GA4 does not accept array values for event parameters and item parameters.`,
+        `Param [${key}] has unsupported value of type [Array]. GA4 does not accept null, array, or object values for event parameters and item parameters.`,
         'Invalid value',
         400
       )
     } else if (value == null) {
       throw new IntegrationError(
-        `Param [${key}] has unsupported value. GA4 does not accept null values for event parameters and item parameters.`,
+        `Param [${key}] has unsupported value of type [NULL]. GA4 does not accept null, array, or object values for event parameters and item parameters.`,
         'Invalid value',
         400
       )
     } else if (typeof value == 'object') {
       throw new IntegrationError(
-        `Param [${key}] has unsupported value. GA4 does not accept object values for event parameters and item parameters.`,
+        `Param [${key}] has unsupported value of type [${typeof value}]. GA4 does not accept null, array, or object values for event parameters and item parameters.`,
         'Invalid value',
         400
       )
@@ -45,13 +45,13 @@ export function verifyUserProps(userProperties: object | undefined): void {
   Object.entries(userProperties).forEach(([key, value]) => {
     if (value instanceof Array) {
       throw new IntegrationError(
-        `Param [${key}] has unsupported value. GA4 does not accept array values for user properties.`,
+        `Param [${key}] has unsupported value of type [Array]. GA4 does not accept array or object values for user properties.`,
         'Invalid value',
         400
       )
     } else if (value != null && typeof value == 'object') {
       throw new IntegrationError(
-        `Param [${key}] has unsupported value. GA4 does not accept object values for user properties.`,
+        `Param [${key}] has unsupported value of type [${typeof value}]. GA4 does not accept array or object values for user properties.`,
         'Invalid value',
         400
       )

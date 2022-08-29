@@ -576,7 +576,7 @@ describe('GA4', () => {
       )
     })
 
-    it('should allow boolean value and user_property', async () => {
+    it('should allow boolean and null values for user_property', async () => {
       nock('https://www.google-analytics.com/mp/collect')
         .post(`?measurement_id=${measurementId}&api_secret=${apiSecret}`)
         .reply(201, {})
@@ -606,7 +606,8 @@ describe('GA4', () => {
             '@path': '$.userId'
           },
           user_properties: {
-            hello: true
+            hello: true,
+            goodbye: null
           },
           params: {
             test_key: true
@@ -677,7 +678,7 @@ describe('GA4', () => {
         fail('the test should have thrown an error')
       } catch (e) {
         expect(e.message).toBe(
-          'Param [test_key] has unsupported value. GA4 does not accept null values for event parameters and item parameters.'
+          'Param [test_key] has unsupported value of type [NULL]. GA4 does not accept null, array, or object values for event parameters and item parameters.'
         )
       }
     })
@@ -731,7 +732,7 @@ describe('GA4', () => {
         fail('the test should have thrown an error')
       } catch (e) {
         expect(e.message).toBe(
-          'Param [test_key] has unsupported value. GA4 does not accept array values for event parameters and item parameters.'
+          'Param [test_key] has unsupported value of type [Array]. GA4 does not accept null, array, or object values for event parameters and item parameters.'
         )
       }
     })
@@ -785,7 +786,7 @@ describe('GA4', () => {
         fail('the test should have thrown an error')
       } catch (e) {
         expect(e.message).toBe(
-          'Param [test_key] has unsupported value. GA4 does not accept object values for event parameters and item parameters.'
+          'Param [test_key] has unsupported value of type [object]. GA4 does not accept null, array, or object values for event parameters and item parameters.'
         )
       }
     })
@@ -855,7 +856,7 @@ describe('GA4', () => {
         fail('the test should have thrown an error')
       } catch (e) {
         expect(e.message).toBe(
-          'Param [hello] has unsupported value. GA4 does not accept array values for user properties.'
+          'Param [hello] has unsupported value of type [Array]. GA4 does not accept array or object values for user properties.'
         )
       }
     })
@@ -925,7 +926,7 @@ describe('GA4', () => {
         fail('the test should have thrown an error')
       } catch (e) {
         expect(e.message).toBe(
-          'Param [hello] has unsupported value. GA4 does not accept object values for user properties.'
+          'Param [hello] has unsupported value of type [object]. GA4 does not accept array or object values for user properties.'
         )
       }
     })
