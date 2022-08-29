@@ -6,7 +6,7 @@ export interface Payload {
    */
   email?: string
   /**
-   * a custom external ID that identifies the visitor.
+   * A custom external ID that identifies the visitor.
    */
   id?: string
   /**
