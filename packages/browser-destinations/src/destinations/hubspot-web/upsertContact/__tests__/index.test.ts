@@ -41,7 +41,7 @@ const subscriptions: Subscription[] = [
   }
 ]
 
-describe('Hubspot.trackPageView', () => {
+describe('Hubspot.upsertContact', () => {
   const settings = {
     portalId: '1234'
   }
@@ -66,10 +66,10 @@ describe('Hubspot.trackPageView', () => {
     await upsertContactEvent.load(Context.system(), {} as Analytics)
   })
 
-  test('does not call Hubspot if there is no email or id', async () => {
+  test('does not call Hubspot if there is no email', async () => {
     const context = new Context({
       type: 'identify',
-      anonymousId: '👻',
+      userId: '👻',
       traits: {
         friendly: true
       }
@@ -79,7 +79,7 @@ describe('Hubspot.trackPageView', () => {
     expect(mockHubspot.push).toHaveBeenCalledTimes(0)
   })
 
-  test('Identifies the user to Hubspot using when both email and id are present', async () => {
+  test('Identifies the user to Hubspot when email is present', async () => {
     const context = new Context({
       type: 'identify',
       userId: 'real_hubspot_tester',

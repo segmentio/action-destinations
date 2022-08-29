@@ -14,7 +14,7 @@ const action: BrowserActionDefinition<Settings, Hubspot, Payload> = {
         'Identify a visitor by email address when you want to update an existing contact or create a new one.',
       label: 'Email Address',
       type: 'string',
-      required: false,
+      required: true,
       default: {
         '@path': '$.traits.email'
       }
@@ -94,7 +94,7 @@ const action: BrowserActionDefinition<Settings, Hubspot, Payload> = {
   },
   perform: (_hsq, event) => {
     const payload = event.payload
-    if (!payload.email && !payload.id) {
+    if (!payload.email) {
       return
     }
 
