@@ -7,7 +7,7 @@ import trackCustomBehavioralEvent from './trackCustomBehavioralEvent'
 import trackPageView from './trackPageView'
 
 import upsertContact from './upsertContact'
-import { Hubspot } from './types'
+import type { Hubspot } from './types'
 
 declare global {
   interface Window {
