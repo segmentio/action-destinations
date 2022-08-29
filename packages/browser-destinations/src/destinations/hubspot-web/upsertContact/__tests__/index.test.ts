@@ -18,6 +18,24 @@ const subscriptions: Subscription[] = [
       },
       id: {
         '@path': '$.userId'
+      },
+      company: {
+        '@path': '$.traits.company.name'
+      },
+      country: {
+        '@path': '$.traits.address.country'
+      },
+      state: {
+        '@path': '$.traits.address.state'
+      },
+      city: {
+        '@path': '$.traits.address.city'
+      },
+      address: {
+        '@path': '$.traits.address.street'
+      },
+      zip: {
+        '@path': '$.traits.address.postalCode'
       }
     }
   }
@@ -76,6 +94,65 @@ describe('Hubspot.trackPageView', () => {
     expect(mockHubspot.push).toHaveBeenCalledWith([
       'identify',
       { email: 'real_hubspot_tester@jest_experts.com', id: 'real_hubspot_tester', friendly: false }
+    ])
+  })
+
+  test('populates company info from the traits', async () => {
+    const context = new Context({
+      type: 'identify',
+      userId: 'mike',
+      traits: {
+        friendly: false,
+        email: 'mike_eh@lph.com',
+        company: {
+          id: '123',
+          name: 'Los Pollos Hermanos',
+          industry: 'Transportation',
+          employee_count: 128,
+          plan: 'startup'
+        }
+      }
+    })
+
+    await upsertContactEvent.identify?.(context)
+    expect(mockHubspot.push).toHaveBeenCalledTimes(1)
+    expect(mockHubspot.push).toHaveBeenCalledWith([
+      'identify',
+      { email: 'mike_eh@lph.com', id: 'mike', friendly: false, company: 'Los Pollos Hermanos' }
+    ])
+  })
+
+  test('populates address info from the traits', async () => {
+    const context = new Context({
+      type: 'identify',
+      userId: 'mike',
+      traits: {
+        friendly: false,
+        email: 'mike_eh@lph.com',
+        address: {
+          street: '6th St',
+          city: 'San Francisco',
+          state: 'CA',
+          postalCode: '94103',
+          country: 'USA'
+        }
+      }
+    })
+
+    await upsertContactEvent.identify?.(context)
+    expect(mockHubspot.push).toHaveBeenCalledTimes(1)
+    expect(mockHubspot.push).toHaveBeenCalledWith([
+      'identify',
+      {
+        email: 'mike_eh@lph.com',
+        id: 'mike',
+        friendly: false,
+        address: '6th St',
+        country: 'USA',
+        state: 'CA',
+        city: 'San Francisco',
+        zip: '94103'
+      }
     ])
   })
 })

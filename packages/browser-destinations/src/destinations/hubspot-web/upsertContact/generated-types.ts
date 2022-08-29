@@ -15,4 +15,28 @@ export interface Payload {
   custom_properties?: {
     [k: string]: unknown
   }
+  /**
+   * The name of the company the visitor is associated with.
+   */
+  company?: string
+  /**
+   * The name of the country the visitor is associated with.
+   */
+  country?: string
+  /**
+   * The name of the state the visitor is associated with.
+   */
+  state?: string
+  /**
+   * The name of the city the visitor is associated with.
+   */
+  city?: string
+  /**
+   * The street address of the visitor.
+   */
+  address?: string
+  /**
+   * The postal code of the visitor.
+   */
+  zip?: string
 }

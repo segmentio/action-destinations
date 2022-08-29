@@ -26,7 +26,8 @@ export const destination: BrowserDestinationDefinition<Settings, Hubspot> = {
       description: 'The Hub ID of your Hubspot account.',
       label: 'Hub ID',
       type: 'string',
-      required: true
+      required: true,
+      default: '9316626'
     },
     enableEuropeanDataCenter: {
       description: 'Enable the European Data Center.',
@@ -39,7 +40,7 @@ export const destination: BrowserDestinationDefinition<Settings, Hubspot> = {
       label: 'Flush Identify calls immediately',
       type: 'boolean',
       required: false,
-      default: false
+      default: true
     }
   },
 
