@@ -1,5 +1,5 @@
 import { Command, flags } from '@oclif/command'
-import { ChildProcess, fork, exec } from 'child_process'
+import { ChildProcess, fork } from 'child_process'
 import { autoPrompt } from '../lib/prompt'
 import chalk from 'chalk'
 import chokidar from 'chokidar'
@@ -8,7 +8,7 @@ import path from 'path'
 import globby from 'globby'
 import { WebSocketServer } from 'ws'
 import open from 'open'
-
+import execa from 'execa'
 export default class Serve extends Command {
   private spinner: ora.Ora = ora()
 
@@ -128,7 +128,7 @@ export default class Serve extends Command {
       })
 
       if (flags.browser) {
-        exec('yarn --cwd packages/browser-destinations dev')
+        execa.command('yarn browser dev').stdout
       }
     }
 
