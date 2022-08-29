@@ -20,7 +20,7 @@ const action: BrowserActionDefinition<Settings, Hubspot, Payload> = {
       }
     },
     id: {
-      description: 'a custom external ID that identifies the visitor.',
+      description: 'A custom external ID that identifies the visitor.',
       label: 'Unique external ID',
       type: 'string',
       required: false,
