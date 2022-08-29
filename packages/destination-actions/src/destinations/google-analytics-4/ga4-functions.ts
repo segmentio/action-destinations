@@ -14,11 +14,22 @@ export function verifyParams(params: object | undefined): void {
     return
   }
 
-  Object.values(params).forEach((value) => {
-    const invalidEventType = typeof value == 'object' || value instanceof Array
-    if (invalidEventType) {
+  Object.entries(params).forEach(([key, value]) => {
+    if (value instanceof Array) {
       throw new IntegrationError(
-        'GA4 does not accept null, array, or object values for event parameters and item parameters. Please ensure you are using allowed data types.',
+        `Param [${key}] has unsupported value. GA4 does not accept array values for event parameters and item parameters.`,
+        'Invalid value',
+        400
+      )
+    } else if (value == null) {
+      throw new IntegrationError(
+        `Param [${key}] has unsupported value. GA4 does not accept null values for event parameters and item parameters.`,
+        'Invalid value',
+        400
+      )
+    } else if (typeof value == 'object') {
+      throw new IntegrationError(
+        `Param [${key}] has unsupported value. GA4 does not accept object values for event parameters and item parameters.`,
         'Invalid value',
         400
       )
@@ -31,11 +42,16 @@ export function verifyUserProps(userProperties: object | undefined): void {
     return
   }
 
-  Object.values(userProperties).forEach((value) => {
-    // Extra check to ensure null values are not filtered out since GA4 accepts nulls for user_properties
-    if ((value != null && typeof value == 'object') || value instanceof Array) {
+  Object.entries(userProperties).forEach(([key, value]) => {
+    if (value instanceof Array) {
       throw new IntegrationError(
-        'GA4 does not accept array or object values for user properties. Please ensure you are using allowed data types.',
+        `Param [${key}] has unsupported value. GA4 does not accept array values for user properties.`,
+        'Invalid value',
+        400
+      )
+    } else if (value != null && typeof value == 'object') {
+      throw new IntegrationError(
+        `Param [${key}] has unsupported value. GA4 does not accept object values for user properties.`,
         'Invalid value',
         400
       )
