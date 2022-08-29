@@ -1,4 +1,4 @@
-import { Destination, DestinationDefinition, StatsClient, StatsContext } from '../destination-kit'
+import { Destination, DestinationDefinition, Logger, StatsClient, StatsContext } from '../destination-kit'
 import { JSONObject } from '../json-object'
 import { SegmentEvent } from '../segment-event'
 
@@ -96,8 +96,8 @@ const destinationWithOptions: DestinationDefinition<JSONObject> = {
       description: 'Send events to a custom event in API',
       defaultSubscription: 'type = "track"',
       fields: {},
-      perform: (_request, { features, statsContext }) => {
-        return { features, statsContext }
+      perform: (_request, { features, statsContext, logger }) => {
+        return { features, statsContext, logger }
       }
     }
   }
@@ -383,6 +383,45 @@ describe('destination kit', () => {
           output: {
             features: {},
             statsContext: eventOptions.statsContext
+          }
+        }
+      ])
+    })
+  })
+
+  describe('logger', () => {
+    test('should not crash when logger is passed to the perform handler', async () => {
+      const destinationTest = new Destination(destinationWithOptions)
+      const testEvent: SegmentEvent = {
+        properties: { field_one: 'test input' },
+        userId: '3456fff',
+        type: 'track'
+      }
+      const testSettings = {
+        apiSecret: 'test_key',
+        subscription: {
+          subscribe: 'type = "track"',
+          partnerAction: 'customEvent',
+          mapping: {
+            clientId: '23455343467',
+            name: 'fancy_event',
+            parameters: { field_one: 'rogue one' }
+          }
+        }
+      }
+      const eventOptions = {
+        features: {},
+        statsContext: {} as StatsContext,
+        logger: { name: 'test-integraiton', level: 'debug' } as Logger
+      }
+      const res = await destinationTest.onEvent(testEvent, testSettings, eventOptions)
+      expect(res).toEqual([
+        { output: 'Mappings resolved' },
+        {
+          output: {
+            features: {},
+            statsContext: {},
+            logger: eventOptions.logger
           }
         }
       ])

@@ -1,4 +1,4 @@
-import { StatsContext } from './index'
+import { Logger, StatsContext } from './index'
 import type { RequestOptions } from '../request-client'
 import type { JSONObject } from '../json-object'
 import { AuthTokens } from './parse-settings'
@@ -27,10 +27,11 @@ export interface ExecuteInput<Settings, Payload> {
   readonly auth?: AuthTokens
   /**
    * The features available in the request based on the customer's sourceID;
-   * Both `features` and `stats` are for internal Twilio/Segment use only.
+   * `features`,`stats` and `logger` are for internal Twilio/Segment use only.
    */
   readonly features?: Features
   readonly statsContext?: StatsContext
+  readonly logger?: Logger
 }
 
 export interface DynamicFieldResponse {
