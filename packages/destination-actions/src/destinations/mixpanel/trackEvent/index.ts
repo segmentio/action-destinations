@@ -6,7 +6,7 @@ import { getApiServerUrl, getBrowser, getBrowserVersion, cheapGuid } from '../ut
 import dayjs from '../../../lib/dayjs'
 
 
-const getEventFromPayload = (payload: Payload): MixpanelEvent => {
+const getEventFromPayload = (payload: Payload, settings: Settings): MixpanelEvent => {
   const datetime = payload.time
   const time = datetime && dayjs.utc(datetime).isValid() ? dayjs.utc(datetime).valueOf() : Date.now()
 
@@ -55,6 +55,7 @@ const getEventFromPayload = (payload: Payload): MixpanelEvent => {
       $wifi_enabled: payload.wifi,
       mp_country_code: payload.country,
       mp_lib: payload.library_name && `Segment: ${payload.library_name}`,
+      segment_source_name: settings.sourceName,
       utm_campaign: utm.utm_campaign,
       utm_content: utm.utm_content,
       utm_medium: utm.utm_medium,
@@ -63,11 +64,11 @@ const getEventFromPayload = (payload: Payload): MixpanelEvent => {
       ...payload.event_properties
     }
   }
-  return event;
+  return event
 }
 
 const processData = async (request: RequestClient, settings: Settings, payload: Payload[]) => {
-  const events = payload.map((value) => getEventFromPayload(value))
+  const events = payload.map((value) => getEventFromPayload(value, settings))
   return request(`${getApiServerUrl(settings.apiRegion)}/import?strict=1`, {
     method: 'post',
     json: events,
