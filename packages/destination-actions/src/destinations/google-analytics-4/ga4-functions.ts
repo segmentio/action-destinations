@@ -14,10 +14,22 @@ export function verifyParams(params: object | undefined): void {
     return
   }
 
-  Object.values(params).forEach((value) => {
-    if (typeof value == 'object' || value instanceof Array) {
+  Object.entries(params).forEach(([key, value]) => {
+    if (value instanceof Array) {
       throw new IntegrationError(
-        'GA4 does not accept null, array, or nested values for event parameters and item parameters. Please ensure you are using allowed data types.',
+        `Param [${key}] has unsupported value of type [Array]. GA4 does not accept null, array, or object values for event parameters and item parameters.`,
+        'Invalid value',
+        400
+      )
+    } else if (value == null) {
+      throw new IntegrationError(
+        `Param [${key}] has unsupported value of type [NULL]. GA4 does not accept null, array, or object values for event parameters and item parameters.`,
+        'Invalid value',
+        400
+      )
+    } else if (typeof value == 'object') {
+      throw new IntegrationError(
+        `Param [${key}] has unsupported value of type [${typeof value}]. GA4 does not accept null, array, or object values for event parameters and item parameters.`,
         'Invalid value',
         400
       )
@@ -30,11 +42,16 @@ export function verifyUserProps(userProperties: object | undefined): void {
     return
   }
 
-  Object.values(userProperties).forEach((value) => {
-    // typeof null == 'object' and GA4 accepts nulls for user_properties
-    if ((value != null && typeof value == 'object') || value instanceof Array) {
+  Object.entries(userProperties).forEach(([key, value]) => {
+    if (value instanceof Array) {
       throw new IntegrationError(
-        'GA4 does not accept array or nested values for user properties. Please ensure you are using allowed data types.',
+        `Param [${key}] has unsupported value of type [Array]. GA4 does not accept array or object values for user properties.`,
+        'Invalid value',
+        400
+      )
+    } else if (value != null && typeof value == 'object') {
+      throw new IntegrationError(
+        `Param [${key}] has unsupported value of type [${typeof value}]. GA4 does not accept array or object values for user properties.`,
         'Invalid value',
         400
       )
