@@ -114,11 +114,11 @@ describe('Intercom.update (user)', () => {
   beforeEach(async () => {
     jest.restoreAllMocks()
 
-    const [updateUserPlugin] = await intercomDestination({
+    const [identifyUserPlugin] = await intercomDestination({
       ...settings,
       subscriptions
     })
-    identifyUser = updateUserPlugin
+    identifyUser = identifyUserPlugin
 
     mockIntercom = jest.fn()
     jest.spyOn(destination, 'initialize').mockImplementation(() => {
@@ -381,11 +381,11 @@ describe('Intercom.update (user) widget options', () => {
   beforeEach(async () => {
     jest.restoreAllMocks()
 
-    const [updateUserPlugin] = await intercomDestination({
+    const [identifyUserPlugin] = await intercomDestination({
       ...settings,
       subscriptions
     })
-    identifyUser = updateUserPlugin
+    identifyUser = identifyUserPlugin
 
     mockIntercom = jest.fn()
     jest.spyOn(destination, 'initialize').mockImplementation(() => {
