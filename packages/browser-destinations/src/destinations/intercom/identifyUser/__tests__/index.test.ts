@@ -5,7 +5,7 @@ import { convertDateToUnix } from '../../utils'
 
 const subscriptions: Subscription[] = [
   {
-    partnerAction: 'updateUser',
+    partnerAction: 'identifyUser',
     name: 'Show',
     enabled: true,
     subscribe: 'type = "identify" or "page"',
@@ -110,7 +110,7 @@ describe('Intercom.update (user)', () => {
   }
 
   let mockIntercom: jest.Mock<any, any>
-  let updateUser: any
+  let identifyUser: any
   beforeEach(async () => {
     jest.restoreAllMocks()
 
@@ -118,14 +118,14 @@ describe('Intercom.update (user)', () => {
       ...settings,
       subscriptions
     })
-    updateUser = updateUserPlugin
+    identifyUser = updateUserPlugin
 
     mockIntercom = jest.fn()
     jest.spyOn(destination, 'initialize').mockImplementation(() => {
       const mockedWithProps = Object.assign(mockIntercom as any, settings)
       return Promise.resolve(mockedWithProps)
     })
-    await updateUser.load(Context.system(), {} as Analytics)
+    await identifyUser.load(Context.system(), {} as Analytics)
   })
 
   test('sends an id and traits', async () => {
@@ -137,7 +137,7 @@ describe('Intercom.update (user)', () => {
       }
     })
 
-    await updateUser.identify?.(context)
+    await identifyUser.identify?.(context)
 
     expect(mockIntercom).toHaveBeenCalledWith('update', {
       user_id: 'id',
@@ -155,7 +155,7 @@ describe('Intercom.update (user)', () => {
       }
     })
 
-    await updateUser.identify?.(context)
+    await identifyUser.identify?.(context)
 
     expect(mockIntercom).toHaveBeenCalledWith('update', {
       user_id: 'id',
@@ -174,7 +174,7 @@ describe('Intercom.update (user)', () => {
       }
     })
 
-    await updateUser.identify?.(context)
+    await identifyUser.identify?.(context)
 
     expect(mockIntercom).toHaveBeenCalledWith('update', {
       user_id: 'id',
@@ -211,7 +211,7 @@ describe('Intercom.update (user)', () => {
       }
     })
 
-    await updateUser.identify?.(context)
+    await identifyUser.identify?.(context)
 
     expect(mockIntercom).toHaveBeenCalledWith('update', {
       user_id: 'id',
@@ -250,7 +250,7 @@ describe('Intercom.update (user)', () => {
       }
     })
 
-    await updateUser.identify?.(context)
+    await identifyUser.identify?.(context)
 
     expect(mockIntercom).toHaveBeenCalledWith('update', {
       user_id: 'id',
@@ -291,7 +291,7 @@ describe('Intercom.update (user)', () => {
       }
     })
 
-    await updateUser.identify?.(context)
+    await identifyUser.identify?.(context)
 
     expect(mockIntercom).toHaveBeenCalledWith('update', {
       user_id: 'id',
@@ -318,7 +318,7 @@ describe('Intercom.update (user)', () => {
       }
     })
 
-    await updateUser.identify?.(context)
+    await identifyUser.identify?.(context)
 
     expect(mockIntercom).toHaveBeenCalledWith('update', {
       user_id: 'id',
@@ -341,7 +341,7 @@ describe('Intercom.update (user)', () => {
       }
     })
 
-    await updateUser.identify?.(context)
+    await identifyUser.identify?.(context)
 
     expect(mockIntercom).toHaveBeenCalledWith('update', {
       user_id: 'id',
@@ -361,7 +361,7 @@ describe('Intercom.update (user)', () => {
       }
     })
 
-    await updateUser.identify?.(context)
+    await identifyUser.identify?.(context)
 
     expect(mockIntercom).toHaveBeenCalledWith('update', {
       user_id: 'id',
@@ -377,7 +377,7 @@ describe('Intercom.update (user) widget options', () => {
   }
 
   let mockIntercom: jest.Mock<any, any>
-  let updateUser: any
+  let identifyUser: any
   beforeEach(async () => {
     jest.restoreAllMocks()
 
@@ -385,14 +385,14 @@ describe('Intercom.update (user) widget options', () => {
       ...settings,
       subscriptions
     })
-    updateUser = updateUserPlugin
+    identifyUser = updateUserPlugin
 
     mockIntercom = jest.fn()
     jest.spyOn(destination, 'initialize').mockImplementation(() => {
       const mockedWithProps = Object.assign(mockIntercom as any, settings)
       return Promise.resolve(mockedWithProps)
     })
-    await updateUser.load(Context.system(), {} as Analytics)
+    await identifyUser.load(Context.system(), {} as Analytics)
   })
 
   test('sets activator if activator is not #IntercomDefaultWidget', async () => {
@@ -402,7 +402,7 @@ describe('Intercom.update (user) widget options', () => {
       traits: {}
     })
 
-    await updateUser.identify?.(context)
+    await identifyUser.identify?.(context)
 
     expect(mockIntercom).toHaveBeenCalledWith('update', {
       user_id: 'id',
@@ -424,7 +424,7 @@ describe('Intercom.update (user) widget options', () => {
       }
     })
 
-    await updateUser.identify?.(context)
+    await identifyUser.identify?.(context)
 
     expect(mockIntercom).toHaveBeenCalledWith('update', {
       user_id: 'id',
@@ -447,7 +447,7 @@ describe('Intercom.update (user) widget options', () => {
       }
     })
 
-    await updateUser.identify?.(context)
+    await identifyUser.identify?.(context)
 
     expect(mockIntercom).toHaveBeenCalledWith('update', {
       user_id: 'id',

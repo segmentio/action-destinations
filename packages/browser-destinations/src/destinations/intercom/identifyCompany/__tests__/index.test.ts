@@ -4,7 +4,7 @@ import intercomDestination, { destination } from '../../index'
 
 const subscriptions: Subscription[] = [
   {
-    partnerAction: 'updateCompany',
+    partnerAction: 'identifyCompany',
     name: 'Show',
     enabled: true,
     subscribe: 'type = "group"',
@@ -51,7 +51,7 @@ describe('Intercom.update (Company)', () => {
   }
 
   let mockIntercom: jest.Mock<any, any>
-  let updateCompany: any
+  let identifyCompany: any
   beforeEach(async () => {
     jest.restoreAllMocks()
 
@@ -59,14 +59,14 @@ describe('Intercom.update (Company)', () => {
       ...settings,
       subscriptions
     })
-    updateCompany = updateCompanyPlugin
+    identifyCompany = updateCompanyPlugin
 
     mockIntercom = jest.fn()
     jest.spyOn(destination, 'initialize').mockImplementation(() => {
       const mockedWithProps = Object.assign(mockIntercom as any, settings)
       return Promise.resolve(mockedWithProps)
     })
-    await updateCompany.load(Context.system(), {} as Analytics)
+    await identifyCompany.load(Context.system(), {} as Analytics)
   })
 
   test('sends an id', async () => {
@@ -75,7 +75,7 @@ describe('Intercom.update (Company)', () => {
       groupId: 'id'
     })
 
-    await updateCompany.group?.(context)
+    await identifyCompany.group?.(context)
 
     expect(mockIntercom).toHaveBeenCalledWith('update', {
       company: {
@@ -93,7 +93,7 @@ describe('Intercom.update (Company)', () => {
       }
     })
 
-    await updateCompany.group?.(context)
+    await identifyCompany.group?.(context)
 
     expect(mockIntercom).toHaveBeenCalledWith('update', {
       company: {
@@ -112,7 +112,7 @@ describe('Intercom.update (Company)', () => {
       }
     })
 
-    await updateCompany.group?.(context)
+    await identifyCompany.group?.(context)
 
     expect(mockIntercom).toHaveBeenCalledWith('update', {
       company: {
@@ -131,7 +131,7 @@ describe('Intercom.update (Company)', () => {
       }
     })
 
-    await updateCompany.group?.(context)
+    await identifyCompany.group?.(context)
 
     expect(mockIntercom).toHaveBeenCalledWith('update', {
       company: {
@@ -152,7 +152,7 @@ describe('Intercom.update (Company)', () => {
       }
     })
 
-    await updateCompany.group?.(context)
+    await identifyCompany.group?.(context)
 
     expect(mockIntercom).toHaveBeenCalledWith('update', {
       company: {
@@ -176,7 +176,7 @@ describe('Intercom.update (Company)', () => {
       }
     })
 
-    await updateCompany.group?.(context)
+    await identifyCompany.group?.(context)
 
     expect(mockIntercom).toHaveBeenCalledWith('update', {
       company: {
@@ -200,7 +200,7 @@ describe('Intercom.update (Company)', () => {
       }
     })
 
-    await updateCompany.group?.(context)
+    await identifyCompany.group?.(context)
 
     expect(mockIntercom).toHaveBeenCalledWith('update', {
       company: {
@@ -219,7 +219,7 @@ describe('Intercom.update (user) widget options', () => {
   }
 
   let mockIntercom: jest.Mock<any, any>
-  let updateCompany: any
+  let identifyCompany: any
   beforeEach(async () => {
     jest.restoreAllMocks()
 
@@ -227,14 +227,14 @@ describe('Intercom.update (user) widget options', () => {
       ...settings,
       subscriptions
     })
-    updateCompany = updateCompanyPlugin
+    identifyCompany = updateCompanyPlugin
 
     mockIntercom = jest.fn()
     jest.spyOn(destination, 'initialize').mockImplementation(() => {
       const mockedWithProps = Object.assign(mockIntercom as any, settings)
       return Promise.resolve(mockedWithProps)
     })
-    await updateCompany.load(Context.system(), {} as Analytics)
+    await identifyCompany.load(Context.system(), {} as Analytics)
   })
 
   test('sets activator if activator is not #IntercomDefaultWidget', async () => {
@@ -244,7 +244,7 @@ describe('Intercom.update (user) widget options', () => {
       traits: {}
     })
 
-    await updateCompany.group?.(context)
+    await identifyCompany.group?.(context)
 
     expect(mockIntercom).toHaveBeenCalledWith('update', {
       company: {
@@ -268,7 +268,7 @@ describe('Intercom.update (user) widget options', () => {
       }
     })
 
-    await updateCompany.identify?.(context)
+    await identifyCompany.identify?.(context)
 
     expect(mockIntercom).toHaveBeenCalledWith('update', {
       company: {
@@ -293,7 +293,7 @@ describe('Intercom.update (user) widget options', () => {
       }
     })
 
-    await updateCompany.identify?.(context)
+    await identifyCompany.identify?.(context)
 
     expect(mockIntercom).toHaveBeenCalledWith('update', {
       company: {
