@@ -149,7 +149,7 @@ export const destination: BrowserDestinationDefinition<Settings, BrazeType> = {
       default: false,
       required: false,
       description:
-        'By default, users who have already granted web push permission will sync their push token with the Braze backend automatically on new session to ensure deliverability. To disable this behavior, set this option to false'
+        'By default, users who have already granted web push permission will sync their push token with the Braze backend automatically on new session to ensure deliverability. To disable this behavior, set this option to true'
     },
     doNotLoadFontAwesome: {
       label: 'Do Not Load Font Awesome',
