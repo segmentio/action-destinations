@@ -2,7 +2,7 @@
 
 export interface Payload {
   /**
-   * Identify a visitor by email address when you want to update an existing contact or create a new one.
+   * Identify a contacts by email address when you want to update an existing contact or create a new one.
    */
   email: string
   /**
@@ -16,27 +16,27 @@ export interface Payload {
     [k: string]: unknown
   }
   /**
-   * The name of the company the visitor is associated with.
+   * The name of the company the contacts is associated with.
    */
   company?: string
   /**
-   * The name of the country the visitor is associated with.
+   * The name of the country the contacts is associated with.
    */
   country?: string
   /**
-   * The name of the state the visitor is associated with.
+   * The name of the state the contacts is associated with.
    */
   state?: string
   /**
-   * The name of the city the visitor is associated with.
+   * The name of the city the contacts is associated with.
    */
   city?: string
   /**
-   * The street address of the visitor.
+   * The street address of the contacts.
    */
   address?: string
   /**
-   * The postal code of the visitor.
+   * The postal code of the contacts.
    */
   zip?: string
 }
