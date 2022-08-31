@@ -16,7 +16,7 @@ const OBJECT_NAME = 'Account'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Account',
-  description: 'Represents an individual account, which is an organization or person involved with your business.',
+  description: 'Create, update, or upsert accounts in Salesforce.',
   defaultSubscription: 'type = "group"',
   fields: {
     operation: operation,
