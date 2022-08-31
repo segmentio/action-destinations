@@ -52,7 +52,8 @@ const action: ActionDefinition<Settings, Payload> = {
         properties: {
           $identified_id: payload.user_id,
           $anon_id: payload.anonymous_id,
-          token: settings.projectToken
+          token: settings.projectToken,
+          segment_source_name: settings.sourceName
         }
       }
 
@@ -67,7 +68,8 @@ const action: ActionDefinition<Settings, Payload> = {
       const data = {
         $token: settings.projectToken,
         $distinct_id: payload.user_id,
-        $set: payload.traits
+        $set: payload.traits,
+        segment_source_name: settings.sourceName
       }
 
       const engageResponse = request(`${apiServerUrl}/engage`, {
