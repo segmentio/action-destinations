@@ -38,7 +38,8 @@ const action: ActionDefinition<Settings, Payload> = {
       properties: {
         distinct_id: payload.distinct_id,
         alias: payload.alias,
-        token: settings.projectToken
+        token: settings.projectToken,
+        segment_source_name: settings.sourceName
       }
     }
 
