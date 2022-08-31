@@ -27,9 +27,8 @@ const destination: DestinationDefinition<Settings> = {
       conversionTrackingId: {
         label: 'Conversion ID',
         description:
-          'You will find this information in the event snippet for your conversion action, for example `send_to: AW-CONVERSION_ID/AW-CONVERSION_LABEL`. In the sample snippet, AW-CONVERSION_ID stands for the conversion ID unique to your account. Enter the conversion Id, without the AW- prefix.',
-        type: 'string',
-        required: true
+          'You will find this information in the event snippet for your conversion action, for example `send_to: AW-CONVERSION_ID/AW-CONVERSION_LABEL`. In the sample snippet, AW-CONVERSION_ID stands for the conversion ID unique to your account. Enter the conversion Id, without the AW- prefix. **Required if you are using an Action that sends data to the legacy Google Enhanced Conversions API.**',
+        type: 'string'
       }
     },
     testAuthentication: async (_request) => {
@@ -56,13 +55,10 @@ const destination: DestinationDefinition<Settings> = {
       return { accessToken: res.data.access_token }
     }
   },
-  extendRequest({ settings, auth }) {
+  extendRequest({ auth }) {
     return {
       headers: {
         authorization: `Bearer ${auth?.accessToken}`
-      },
-      searchParams: {
-        conversion_tracking_id: settings.conversionTrackingId
       }
     }
   },
