@@ -4,9 +4,6 @@ import { eventSchema } from '../event-schema'
 import type { ActionDefinition } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
-import { convertUTMProperties } from '../utm'
-import { convertReferrerProperty } from '../referrer'
-import { mergeUserProperties } from '../merge-user-properties'
 import { parseUserAgentProperties } from '../user-agent'
 import { getEndpointByRegion } from '../regional-endpoints'
 
@@ -108,6 +105,96 @@ const action: ActionDefinition<Settings, Payload> = {
         'Enabling this setting will set the Device manufacturer, Device Model and OS Name properties based on the user agent string provided in the userAgent field',
       default: true
     },
+    setOnce: {
+      label: 'Set Once',
+      description: 'The following fields will be set only once per session when using AJS2 as the source',
+      type: 'object',
+      additionalProperties: true,
+      properties: {
+        //should the types of these properties be string? Is there anything else they could be?
+        initial_referrer: {
+          label: 'Initial Referrer',
+          type: 'string',
+          description: 'The referrer of the web request'
+        },
+        initial_utm_source: {
+          label: 'Initial UTM Source',
+          type: 'string'
+        },
+        initial_utm_medium: {
+          label: 'Initial UTM Medium',
+          type: 'string'
+        },
+        initial_utm_campaign: {
+          label: 'Initial UTM Campaign',
+          type: 'string'
+        },
+        initial_utm_term: {
+          label: 'Initial UTM Term',
+          type: 'string'
+        },
+        initial_utm_content: {
+          label: 'Initial UTM Content',
+          type: 'string'
+        }
+      },
+      default: {
+        initial_referrer: { '@path': '$.context.page.referrer' },
+        initial_utm_source: { '@path': '$.context.campaign.source' },
+        initial_utm_medium: { '@path': '$.context.campaign.medium' },
+        initial_utm_campaign: { '@path': '$.context.campaign.name' },
+        initial_utm_term: { '@path': '$.context.campaign.term' },
+        initial_utm_content: { '@path': '$.context.campaign.content' }
+      }
+    },
+    setAlways: {
+      label: 'Set Always',
+      description: 'The following fields will be set every session when using AJS2 as the source',
+      type: 'object',
+      additionalProperties: true,
+      properties: {
+        //should the types of these properties be string? Is there anything else they could be?
+        referrer: {
+          label: 'Referrer',
+          type: 'string'
+        },
+        utm_source: {
+          label: 'UTM Source',
+          type: 'string'
+        },
+        utm_medium: {
+          label: 'UTM Medium',
+          type: 'string'
+        },
+        utm_campaign: {
+          label: 'UTM Campaign',
+          type: 'string'
+        },
+        utm_term: {
+          label: 'UTM Term',
+          type: 'string'
+        },
+        utm_content: {
+          label: 'UTM Content',
+          type: 'string'
+        }
+      },
+      default: {
+        referrer: { '@path': '$.context.page.referrer' },
+        utm_source: { '@path': '$.context.campaign.source' },
+        utm_medium: { '@path': '$.context.campaign.medium' },
+        utm_campaign: { '@path': '$.context.campaign.name' },
+        utm_term: { '@path': '$.context.campaign.term' },
+        utm_content: { '@path': '$.context.campaign.content' }
+      }
+    },
+    //Looking at the amplitude docs, do we expect this to be an object containing types of number?
+    add: {
+      label: 'Add',
+      description: 'The following fields will be set only once per session when using AJS2 as the source',
+      type: 'object',
+      additionalProperties: true
+    },
     utm_properties: {
       label: 'UTM Properties',
       type: 'object',
@@ -161,9 +248,25 @@ const action: ActionDefinition<Settings, Payload> = {
   },
   perform: (request, { payload, settings }) => {
     // Omit revenue properties initially because we will manually stitch those into events as prescribed
-    const { time, session_id, userAgent, userAgentParsing, utm_properties, referrer, min_id_length, library, ...rest } =
-      omit(payload, revenueKeys)
-    const properties = rest as AmplitudeEvent
+    const {
+      time,
+      session_id,
+      userAgent,
+      userAgentParsing,
+      utm_properties,
+      referrer,
+      min_id_length,
+      library,
+      setOnce,
+      setAlways,
+      add,
+      ...rest
+    } = omit(payload, revenueKeys)
+    const properties = {
+      ...(rest as AmplitudeEvent),
+      user_properties: { ...rest.user_properties, $set: setAlways, $setOnce: setOnce, $add: add }
+    }
+
     let options
 
     if (properties.platform) {
@@ -180,14 +283,6 @@ const action: ActionDefinition<Settings, Payload> = {
 
     if (session_id && dayjs.utc(session_id).isValid()) {
       properties.session_id = dayjs.utc(session_id).valueOf()
-    }
-
-    if (Object.keys(payload.utm_properties ?? {}).length || payload.referrer) {
-      properties.user_properties = mergeUserProperties(
-        convertUTMProperties({ utm_properties }),
-        convertReferrerProperty({ referrer }),
-        omit(properties.user_properties ?? {}, ['utm_properties', 'referrer'])
-      )
     }
 
     if (min_id_length && min_id_length > 0) {

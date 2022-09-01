@@ -190,6 +190,39 @@ export interface Payload {
    */
   userAgentParsing?: boolean
   /**
+   * The following fields will be set only once per session when using AJS2 as the source
+   */
+  setOnce?: {
+    /**
+     * The referrer of the web request
+     */
+    initial_referrer?: string
+    initial_utm_source?: string
+    initial_utm_medium?: string
+    initial_utm_campaign?: string
+    initial_utm_term?: string
+    initial_utm_content?: string
+    [k: string]: unknown
+  }
+  /**
+   * The following fields will be set every session when using AJS2 as the source
+   */
+  setAlways?: {
+    referrer?: string
+    utm_source?: string
+    utm_medium?: string
+    utm_campaign?: string
+    utm_term?: string
+    utm_content?: string
+    [k: string]: unknown
+  }
+  /**
+   * The following fields will be set only once per session when using AJS2 as the source
+   */
+  add?: {
+    [k: string]: unknown
+  }
+  /**
    * UTM Tracking Properties
    */
   utm_properties?: {
