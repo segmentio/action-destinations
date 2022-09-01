@@ -2,6 +2,10 @@
 
 export interface Payload {
   /**
+   * When enabled, the action will use the Sendgrid  Contacts PUT API to perform the operation
+   */
+  enable_batching?: boolean
+  /**
    * The user's first name
    */
   first_name?: string | null

@@ -2,11 +2,18 @@ import type { ActionDefinition } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 import { customFields } from '../sendgrid-properties'
+import { IntegrationError } from '@segment/actions-core'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Sendgrid Marketing Campaign Update User Profile',
   description: 'Updating Sendgrid contacts using user profile',
   fields: {
+    enable_batching: {
+      type: 'boolean',
+      label: 'Use Sendgrid Contacts PUT API which support up to 10K records in a request',
+      description: 'When enabled, the action will use the Sendgrid  Contacts PUT API to perform the operation',
+      default: true
+    },
     first_name: {
       label: 'First Name',
       description: `The user's first name`,
@@ -219,6 +226,10 @@ const action: ActionDefinition<Settings, Payload> = {
   },
 
   perform: (request, data) => {
+    if (!data.payload.primary_email) {
+      throw new IntegrationError('Missing email value', 'Misconfigured required field', 400)
+    }
+
     // Making contacts upsert call here
     // Reference: https://docs.sendgrid.com/api-reference/contacts/add-or-update-a-contact
     return request('https://api.sendgrid.com/v3/marketing/contacts', {
@@ -249,6 +260,60 @@ const action: ActionDefinition<Settings, Payload> = {
           }
         ]
       }
+    })
+  },
+
+  performBatch: (request, data) => {
+    const n = data.payload.length
+    if (n < 1) {
+      throw new IntegrationError('No record to send', 'No data', 400)
+    }
+
+    let rows = '"contacts": ['
+    for (let i = 0; i < n; i++) {
+      if (!data.payload[i].primary_email) {
+        continue
+      }
+
+      let row = '{'
+      row += `"email": "${data.payload[i].primary_email}",`
+      row += `"first_name": "${data.payload[i].first_name}",`
+      row += `"last_name": "${data.payload[i].last_name}",`
+      row += `"address_line_1": "${data.payload[i].address_line_1}",`
+      row += `"address_line_2": "${data.payload[i].address_line_2}",`
+      row += `"city": "${data.payload[i].city}",`
+      row += `"state_province_region": "${data.payload[i].state}",`
+      row += `"country": "${data.payload[i].country}",`
+      row += `"postal_code": "${data.payload[i].postal_code}",`
+      row += `"phone_number": "${data.payload[i].phone_number}",`
+      row += `"whatsapp": "${data.payload[i].whatsapp}",`
+      row += `"line": "${data.payload[i].line}",`
+      row += `"facebook": "${data.payload[i].facebook}",`
+      row += `"unique_name": "${data.payload[i].unique_name}",`
+      row += `"identity": "${data.payload[i].identity}",`
+
+      if (data.payload[i].alternate_email != '') {
+        row += `"alternate_emails": ["${data.payload[i].alternate_email}"],`
+      }
+      if (data.payload[i].customFields) {
+        const cfs = { ...data.payload[i].customFields }
+        row += `"custom_fields": ${JSON.stringify(cfs)}`
+      }
+      if (i == n - 1) {
+        row += '}'
+      } else {
+        row += '},'
+      }
+      rows += `${row}\n`
+    }
+    rows += `]`
+    const jsonData = JSON.parse(`{${rows}}`)
+    return request('https://api.sendgrid.com/v3/marketing/contacts', {
+      method: 'put',
+      headers: {
+        authorization: `Bearer ${data.settings.sendGridApiKey}`
+      },
+      json: jsonData
     })
   }
 }
