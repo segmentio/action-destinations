@@ -158,6 +158,68 @@ describe('1plusX', () => {
         ope_usp_string: 'Functional'
       })
     })
+
+    it('should send ope_alt_user_ids as string type with custom mappings', async () => {
+      nock('https://tagger-test.opecloud.com').post(`/${client_id}/v2/native/event`).reply(204)
+      const event = createTestEvent({
+        anonymousId: 'anon-user123',
+        userId: 'user123',
+        timestamp: '2021-07-12T23:02:40.563Z',
+        event: 'Test Event',
+        type: 'track',
+        properties: {
+          assetId: '12345',
+          title: 'The Simpsons',
+          genre: 'Comedy',
+          full_episode: true,
+          platform: 'web',
+          opt_out: 1,
+          consents: 'Functional'
+        }
+      })
+
+      const responses = await testDestination.testAction('sendEvent', {
+        event,
+        settings: {
+          client_id,
+          use_test_endpoint
+        },
+        mapping: {
+          platform: {
+            '@path': '$.properties.platform'
+          },
+          gdpr: {
+            '@path': '$.properties.opt_out'
+          },
+          gdpr_consent: {
+            '@path': '$.properties.consents'
+          },
+          ope_usp_string: {
+            '@path': '$.properties.consents'
+          },
+          ope_alt_user_ids: {
+            '@path': '$.properties.assetId'
+          }
+        },
+        useDefaultMappings: true
+      })
+      expect(responses.length).toBe(1)
+      expect(responses[0].status).toBe(204)
+      expect(responses[0].options.json).toMatchObject({
+        ope_user_id: 'ANONYMOUSID:anon-user123',
+        ope_event_type: 'Test Event',
+        ope_event_time_ms: '2021-07-12T23:02:40.563Z',
+        assetId: '12345',
+        title: 'The Simpsons',
+        genre: 'Comedy',
+        full_episode: 'true',
+        platform: 'web',
+        gdpr: 1,
+        gdpr_consent: 'Functional',
+        ope_usp_string: 'Functional',
+        ope_alt_user_ids: '12345'
+      })
+    })
   })
 
   describe('sendPageview', () => {
