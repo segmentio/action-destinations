@@ -4,6 +4,9 @@ import { eventSchema } from '../event-schema'
 import type { ActionDefinition } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
+import { convertUTMProperties } from '../utm'
+import { convertReferrerProperty } from '../referrer'
+import { mergeUserProperties } from '../merge-user-properties'
 import { parseUserAgentProperties } from '../user-agent'
 import { getEndpointByRegion } from '../regional-endpoints'
 
@@ -241,7 +244,7 @@ const action: ActionDefinition<Settings, Payload> = {
     min_id_length: {
       label: 'Minimum ID Length',
       description:
-        'Amplitude has a default minimum id lenght of 5 characters for user_id and device_id fields. This field allows the minimum to be overridden to allow shorter id lengths.',
+        'Amplitude has a default minimum id length of 5 characters for user_id and device_id fields. This field allows the minimum to be overridden to allow shorter id lengths.',
       allowNull: true,
       type: 'integer'
     }
@@ -262,10 +265,7 @@ const action: ActionDefinition<Settings, Payload> = {
       add,
       ...rest
     } = omit(payload, revenueKeys)
-    const properties = {
-      ...(rest as AmplitudeEvent),
-      user_properties: { ...rest.user_properties, $set: setAlways, $setOnce: setOnce, $add: add }
-    }
+    const properties = rest as AmplitudeEvent
 
     let options
 
@@ -283,6 +283,24 @@ const action: ActionDefinition<Settings, Payload> = {
 
     if (session_id && dayjs.utc(session_id).isValid()) {
       properties.session_id = dayjs.utc(session_id).valueOf()
+    }
+
+    if (Object.keys(Object.fromEntries(Object.entries(setOnce ?? {}).filter(([_, v]) => v))).length) {
+      properties.user_properties = { ...properties.user_properties, $setOnce: setOnce }
+    }
+    if (Object.keys(Object.fromEntries(Object.entries(setAlways ?? {}).filter(([_, v]) => v))).length) {
+      properties.user_properties = { ...properties.user_properties, $set: setAlways }
+    }
+    if (Object.keys(Object.fromEntries(Object.entries(add ?? {}).filter(([_, v]) => v))).length) {
+      properties.user_properties = { ...properties.user_properties, $add: add }
+    }
+
+    if (Object.keys(payload.utm_properties ?? {}).length || payload.referrer) {
+      properties.user_properties = mergeUserProperties(
+        omit(properties.user_properties ?? {}, ['utm_properties', 'referrer']),
+        convertUTMProperties({ utm_properties }),
+        convertReferrerProperty({ referrer })
+      )
     }
 
     if (min_id_length && min_id_length > 0) {
