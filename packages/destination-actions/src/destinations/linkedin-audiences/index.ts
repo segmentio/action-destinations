@@ -41,7 +41,9 @@ const destination: DestinationDefinition<Settings> = {
   extendRequest({ auth }) {
     return {
       headers: {
-        authorization: `Bearer ${auth?.accessToken}`
+        authorization: `Bearer ${auth?.accessToken}`,
+        'LinkedIn-Version': '202207',
+        'Content-Type': 'application/json'
       }
     }
   },

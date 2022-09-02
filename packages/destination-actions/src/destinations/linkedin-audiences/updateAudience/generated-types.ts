@@ -2,19 +2,31 @@
 
 export interface Payload {
   /**
-   * The name of the LinkedIn DMP Segment to update.
+   * The name of the LinkedIn DMP Segment.
    */
   dmp_segment_name: string
+  /**
+   * The id of the LinkedIn Ad Account associated with the DMP Segment where batches should be synced.
+   */
+  ad_account_id: string
   /**
    * Enable batching of requests to the DMP Segment.
    */
   enable_batching?: boolean
   /**
-   * Whether to send a SHA-256 hash of users' email address to LinkedIn.
+   * The user's email address to send to LinkedIn.
    */
-  send_email_address?: boolean
+  email?: string
   /**
-   * Whether to send each user's Google Advertising ID (GAID) to LinkedIn. GAID is sometimes referred to as Android Advertising ID.
+   * The user's email address to send to LinkedIn.
    */
-  send_google_advertising_id?: boolean
+  google_advertising_id?: string
+  /**
+   * A Segment-specific key associated with the DMP Segment. This is the lookup key Segment uses to fetch the DMP Segment from LinkedIn's API_VERSION.
+   */
+  source_segment_id?: string
+  /**
+   * The name of the current Segment event.
+   */
+  event_name?: string
 }
