@@ -264,9 +264,13 @@ const action: ActionDefinition<Settings, Payload> = {
       }
     )
 
-    // Catch partial failure error
-    if (response.data.partialFailureError.code !== 0) {
-      throw new IntegrationError(response.data.partialFailureError.message, 'INVALID_ARGUMENT', 400)
+    // Catch and return partial failure error
+    if (typeof response.data === 'object' && response.data != null) {
+      Object.entries(response.data).forEach(([key, value]) => {
+        if (key === 'partialFailureError' && value.code !== 0) {
+          throw new IntegrationError(value.message, 'INVALID_ARGUMENT', 400)
+        }
+      })
     }
     return response
   }
