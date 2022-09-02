@@ -402,7 +402,7 @@ const action: ActionDefinition<Settings, Payload> = {
     enable_batching: {
       type: 'boolean',
       label: 'Batch Data to Mixpanel',
-      description: 'Set as true to ensure Segment sends data to Mixpanel in batches. Please do not set to false.',
+      description: 'Set as true to ensure Segment sends data to Mixpanel in batches.',
       default: true
     }
   },
