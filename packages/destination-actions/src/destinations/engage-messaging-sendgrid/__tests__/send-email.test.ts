@@ -93,10 +93,35 @@ describe.each(['stage', 'production'])('%s environment', (environment) => {
       send: true,
       traitEnrichment: true,
       toEmail: '',
-      externalIds: [
-        { id: userData.email, type: 'email', subscriptionStatus: 'subscribed' },
-        { id: userData.phone, type: 'phone', subscriptionStatus: 'subscribed' }
-      ],
+      externalIds: {
+        '@arrayPath': [
+          '$.external_ids',
+          {
+            id: {
+              '@path': '$.id'
+            },
+            type: {
+              '@path': '$.type'
+            },
+            subscriptionStatus: {
+              '@path': '$.isSubscribed'
+            },
+            groups: {
+              '@arrayPath': [
+                '$.groups',
+                {
+                  id: {
+                    '@path': '$.id'
+                  },
+                  subscriptionStatus: {
+                    '@path': '$.isSubscribed'
+                  }
+                }
+              ]
+            }
+          }
+        ]
+      },
       traits: { '@path': '$.properties' },
       ...overrides
     }
@@ -125,7 +150,16 @@ describe.each(['stage', 'production'])('%s environment', (environment) => {
         event: createMessagingTestEvent({
           timestamp,
           event: 'Audience Entered',
-          userId: userData.userId
+          userId: userData.userId,
+          external_ids: [
+            {
+              collection: 'users',
+              encoding: 'none',
+              id: userData.email,
+              isSubscribed: true,
+              type: 'email'
+            }
+          ]
         }),
         settings,
         mapping: getDefaultMapping()
@@ -345,7 +379,16 @@ describe.each(['stage', 'production'])('%s environment', (environment) => {
         event: createMessagingTestEvent({
           timestamp,
           event: 'Audience Entered',
-          userId: userData.userId
+          userId: userData.userId,
+          external_ids: [
+            {
+              collection: 'users',
+              encoding: 'none',
+              id: userData.email,
+              isSubscribed: true,
+              type: 'email'
+            }
+          ]
         }),
         settings,
         mapping: getDefaultMapping({
@@ -430,7 +473,16 @@ describe.each(['stage', 'production'])('%s environment', (environment) => {
         event: createMessagingTestEvent({
           timestamp,
           event: 'Audience Entered',
-          userId: userData.userId
+          userId: userData.userId,
+          external_ids: [
+            {
+              collection: 'users',
+              encoding: 'none',
+              id: userData.email,
+              isSubscribed: true,
+              type: 'email'
+            }
+          ]
         }),
         settings,
         mapping: getDefaultMapping({
@@ -531,7 +583,16 @@ describe.each(['stage', 'production'])('%s environment', (environment) => {
         event: createMessagingTestEvent({
           timestamp,
           event: 'Audience Entered',
-          userId: userData.userId
+          userId: userData.userId,
+          external_ids: [
+            {
+              collection: 'users',
+              encoding: 'none',
+              id: userData.email,
+              isSubscribed: true,
+              type: 'email'
+            }
+          ]
         }),
         settings,
         mapping: getDefaultMapping({
@@ -558,7 +619,16 @@ describe.each(['stage', 'production'])('%s environment', (environment) => {
         event: createMessagingTestEvent({
           timestamp,
           event: 'Audience Entered',
-          userId: userData.userId
+          userId: userData.userId,
+          external_ids: [
+            {
+              collection: 'users',
+              encoding: 'none',
+              id: userData.email,
+              isSubscribed: true,
+              type: 'email'
+            }
+          ]
         }),
         settings,
         mapping: getDefaultMapping({
@@ -587,7 +657,16 @@ describe.each(['stage', 'production'])('%s environment', (environment) => {
         event: createMessagingTestEvent({
           timestamp,
           event: 'Audience Entered',
-          userId: userData.userId
+          userId: userData.userId,
+          external_ids: [
+            {
+              collection: 'users',
+              encoding: 'none',
+              id: userData.email,
+              isSubscribed: true,
+              type: 'email'
+            }
+          ]
         }),
         settings,
         mapping: getDefaultMapping({
@@ -616,44 +695,124 @@ describe.each(['stage', 'production'])('%s environment', (environment) => {
       nock.cleanAll()
     })
 
-    it.each(['subscribed', true])('sends the email when subscriptionStatus = "%s"', async (subscriptionStatus) => {
+    it('sends the email when subscriptionStatus is true', async () => {
       const sendGridRequest = nock('https://api.sendgrid.com').post('/v3/mail/send').reply(200, {})
 
+      const isSubscribed = true
       const responses = await sendgrid.testAction('sendEmail', {
         event: createMessagingTestEvent({
           timestamp,
           event: 'Audience Entered',
-          userId: userData.userId
+          userId: userData.userId,
+          external_ids: [
+            { id: userData.email, type: 'email', isSubscribed, collection: 'users', encoding: 'none' },
+            { id: userData.phone, type: 'phone', isSubscribed: true, collection: 'users', encoding: 'none' }
+          ]
         }),
         settings,
-        mapping: getDefaultMapping({
-          externalIds: [
-            { id: userData.email, type: 'email', subscriptionStatus },
-            { id: userData.phone, type: 'phone', subscriptionStatus: 'subscribed' }
-          ]
-        })
+        mapping: getDefaultMapping()
       })
 
       expect(responses.length).toBeGreaterThan(0)
       expect(sendGridRequest.isDone()).toEqual(true)
     })
 
-    it.each(['unsubscribed', 'did not subscribed', '', null, false])(
+    it.each([null, false])(
       'does NOT send the email when subscriptionStatus = "%s"',
-      async (subscriptionStatus) => {
+      async (isSubscribed: boolean | null) => {
         await sendgrid.testAction('sendEmail', {
           event: createMessagingTestEvent({
             timestamp,
             event: 'Audience Entered',
-            userId: userData.userId
+            userId: userData.userId,
+            external_ids: [
+              { id: userData.email, type: 'email', isSubscribed, collection: 'users', encoding: 'none' },
+              { id: userData.phone, type: 'phone', isSubscribed: true, collection: 'users', encoding: 'none' }
+            ]
           }),
           settings,
-          mapping: getDefaultMapping({
-            externalIds: [
-              { id: userData.email, type: 'email', subscriptionStatus },
-              { id: userData.phone, type: 'phone', subscriptionStatus: 'subscribed' }
+          mapping: getDefaultMapping()
+        })
+        const sendGridRequest = nock('https://api.sendgrid.com')
+          .post('/v3/mail/send', sendgridRequestBody)
+          .reply(200, {})
+
+        expect(sendGridRequest.isDone()).toBe(false)
+      }
+    )
+  })
+
+  describe('subscription groups', () => {
+    beforeEach(() => {
+      nock(`${endpoint}/v1/spaces/spaceId/collections/users/profiles/user_id:${userData.userId}`)
+        .get('/traits?limit=200')
+        .reply(200, {
+          traits: {
+            firstName: userData.firstName,
+            lastName: userData.lastName
+          }
+        })
+    })
+
+    afterEach(() => {
+      nock.cleanAll()
+    })
+
+    it('should send email to group', async () => {
+      const sendGridRequest = nock('https://api.sendgrid.com').post('/v3/mail/send').reply(200, {})
+
+      const responses = await sendgrid.testAction('sendEmail', {
+        event: createMessagingTestEvent({
+          timestamp,
+          event: 'Audience Entered',
+          userId: userData.userId,
+          external_ids: [
+            {
+              id: userData.email,
+              type: 'email',
+              isSubscribed: true,
+              collection: 'users',
+              encoding: 'none',
+              groups: [{ id: 'grp_1', isSubscribed: true }]
+            }
+          ]
+        }),
+        settings: {
+          ...settings,
+          groupId: 'grp_1'
+        },
+        mapping: getDefaultMapping()
+      })
+
+      expect(responses.length).toBeGreaterThan(0)
+      expect(sendGridRequest.isDone()).toEqual(true)
+    })
+
+    it.each([null, false])(
+      'does NOT send the email to group when group\'s subscriptionStatus = "%s"',
+      async (isSubscribed: boolean | null) => {
+        await sendgrid.testAction('sendEmail', {
+          event: createMessagingTestEvent({
+            timestamp,
+            event: 'Audience Entered',
+            userId: userData.userId,
+            external_ids: [
+              {
+                id: userData.email,
+                type: 'email',
+                isSubscribed: true,
+                collection: 'users',
+                encoding: 'none',
+                groups: [{ id: 'grp_1', isSubscribed }]
+              },
+              { id: userData.phone, type: 'phone', isSubscribed: true, collection: 'users', encoding: 'none' }
             ]
-          })
+          }),
+          settings: {
+            groupId: 'grp_1',
+            ...settings
+          },
+          mapping: getDefaultMapping()
         })
         const sendGridRequest = nock('https://api.sendgrid.com')
           .post('/v3/mail/send', sendgridRequestBody)
@@ -663,24 +822,58 @@ describe.each(['stage', 'production'])('%s environment', (environment) => {
       }
     )
 
-    it('throws an error when subscriptionStatus is unrecognizable"', async () => {
-      const subscriptionStatus = 'random-string'
-      const response = sendgrid.testAction('sendEmail', {
+    it('does NOT send email to group when groupId is not in groups', async () => {
+      await sendgrid.testAction('sendEmail', {
         event: createMessagingTestEvent({
           timestamp,
           event: 'Audience Entered',
-          userId: userData.userId
-        }),
-        settings,
-        mapping: getDefaultMapping({
-          externalIds: [
-            { id: userData.email, type: 'email', subscriptionStatus },
-            { id: userData.phone, type: 'phone', subscriptionStatus: 'subscribed' }
+          userId: userData.userId,
+          external_ids: [
+            {
+              collection: 'users',
+              encoding: 'none',
+              id: userData.email,
+              isSubscribed: true,
+              type: 'email',
+              groups: [
+                {
+                  id: 'grp_1',
+                  isSubscribed: true
+                }
+              ]
+            }
           ]
-        })
+        }),
+        settings: {
+          groupId: 'grp_2',
+          ...settings
+        },
+        mapping: getDefaultMapping()
       })
 
-      await expect(response).rejects.toThrowError(`Failed to process the subscription state: "${subscriptionStatus}"`)
+      const sendGridRequest = nock('https://api.sendgrid.com').post('/v3/mail/send', sendgridRequestBody).reply(200, {})
+
+      expect(sendGridRequest.isDone()).toBe(false)
+    })
+
+    it('does NOT send email to group when external ids are not present', async () => {
+      await sendgrid.testAction('sendEmail', {
+        event: createMessagingTestEvent({
+          timestamp,
+          event: 'Audience Entered',
+          userId: userData.userId,
+          external_ids: undefined
+        }),
+        settings: {
+          groupId: 'grp_2',
+          ...settings
+        },
+        mapping: getDefaultMapping()
+      })
+
+      const sendGridRequest = nock('https://api.sendgrid.com').post('/v3/mail/send', sendgridRequestBody).reply(200, {})
+
+      expect(sendGridRequest.isDone()).toBe(false)
     })
   })
 })
