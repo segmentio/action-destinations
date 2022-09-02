@@ -223,23 +223,13 @@ const action: ActionDefinition<Settings, Payload> = {
           label: 'UTM Content',
           type: 'string'
         }
-      },
-      default: {
-        utm_source: { '@path': '$.context.campaign.source' },
-        utm_medium: { '@path': '$.context.campaign.medium' },
-        utm_campaign: { '@path': '$.context.campaign.name' },
-        utm_term: { '@path': '$.context.campaign.term' },
-        utm_content: { '@path': '$.context.campaign.content' }
       }
     },
     referrer: {
       label: 'Referrer',
       type: 'string',
       description:
-        'The referrer of the web request. Sent to Amplitude as both last touch “referrer” and first touch “initial_referrer”',
-      default: {
-        '@path': '$.context.page.referrer'
-      }
+        'The referrer of the web request. Sent to Amplitude as both last touch “referrer” and first touch “initial_referrer”'
     },
     min_id_length: {
       label: 'Minimum ID Length',
