@@ -1,4 +1,5 @@
 import { InputField } from '@segment/actions-core'
+import { Payload } from './updateUserProfile/generated-types'
 
 export const customFields: InputField = {
   label: 'Other Fields',
@@ -14,11 +15,7 @@ export const customFields: InputField = {
   defaultObjectUI: 'keyvalue'
 }
 
-// export const fetchCustomFields  = (request: RequestClient, settings: Settings) => {
-//    return request('https://api.sendgrid.com/v3/marketing/field_definitions', {
-//      method: 'get',
-//      headers: {
-//       authorization: `Bearer ${settings.sendGridApiKey}`
-//     }
-//   })
-// }
+export const convertPayload = (payload: Payload) => {
+  const { state, primary_email, enable_batching, customFields, ...rest } = payload
+  return { ...rest, state_province_region: state, email: primary_email, custom_fields: customFields }
+}

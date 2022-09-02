@@ -1,7 +1,7 @@
 import type { ActionDefinition } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
-import { customFields } from '../sendgrid-properties'
+import { customFields, convertPayload } from '../sendgrid-properties'
 import { IntegrationError } from '@segment/actions-core'
 
 const action: ActionDefinition<Settings, Payload> = {
@@ -209,19 +209,6 @@ const action: ActionDefinition<Settings, Payload> = {
         }
       }
     },
-    alternate_email: {
-      label: 'Alternate Emails',
-      description: `The user's alternate email address`,
-      type: 'string',
-      allowNull: true,
-      default: {
-        '@if': {
-          exists: { '@path': '$.traits.alternate_email' },
-          then: { '@path': '$.traits.alternate_email' },
-          else: { '@path': '$.properties.alternate_email' }
-        }
-      }
-    },
     customFields: customFields
   },
 
@@ -230,6 +217,9 @@ const action: ActionDefinition<Settings, Payload> = {
       throw new IntegrationError('Missing email value', 'Misconfigured required field', 400)
     }
 
+    // Convert input payload into sendgrid compatible request payload
+    const formattedData = { contacts: [convertPayload(data.payload)] }
+
     // Making contacts upsert call here
     // Reference: https://docs.sendgrid.com/api-reference/contacts/add-or-update-a-contact
     return request('https://api.sendgrid.com/v3/marketing/contacts', {
@@ -237,29 +227,7 @@ const action: ActionDefinition<Settings, Payload> = {
       headers: {
         authorization: `Bearer ${data.settings.sendGridApiKey}`
       },
-      json: {
-        contacts: [
-          {
-            email: data.payload.primary_email,
-            first_name: data.payload.first_name,
-            last_name: data.payload.last_name,
-            address_line_1: data.payload.address_line_1,
-            address_line_2: data.payload.address_line_2,
-            city: data.payload.city,
-            state_province_region: data.payload.state,
-            country: data.payload.country,
-            postal_code: data.payload.postal_code,
-            phone_number: data.payload.phone_number,
-            whatsapp: data.payload.whatsapp,
-            line: data.payload.line,
-            facebook: data.payload.facebook,
-            unique_name: data.payload.unique_name,
-            identity: data.payload.identity,
-            alternate_emails: [data.payload.alternate_email],
-            custom_fields: { ...data.payload.customFields }
-          }
-        ]
-      }
+      json: formattedData
     })
   },
 
@@ -292,9 +260,6 @@ const action: ActionDefinition<Settings, Payload> = {
       row += `"unique_name": "${data.payload[i].unique_name}",`
       row += `"identity": "${data.payload[i].identity}",`
 
-      if (data.payload[i].alternate_email != '') {
-        row += `"alternate_emails": ["${data.payload[i].alternate_email}"],`
-      }
       if (data.payload[i].customFields) {
         const cfs = { ...data.payload[i].customFields }
         row += `"custom_fields": ${JSON.stringify(cfs)}`
@@ -308,12 +273,20 @@ const action: ActionDefinition<Settings, Payload> = {
     }
     rows += `]`
     const jsonData = JSON.parse(`{${rows}}`)
+
+    console.log('option 1 ')
+    console.log(jsonData)
+
+    const formattedData = { contacts: data.payload.map(convertPayload) }
+    console.log('option 2 ')
+    console.log(formattedData)
+
     return request('https://api.sendgrid.com/v3/marketing/contacts', {
       method: 'put',
       headers: {
         authorization: `Bearer ${data.settings.sendGridApiKey}`
       },
-      json: jsonData
+      json: formattedData
     })
   }
 }
