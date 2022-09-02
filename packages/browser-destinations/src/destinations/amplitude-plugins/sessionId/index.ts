@@ -40,22 +40,29 @@ const action: BrowserActionDefinition<Settings, {}, Payload> = {
     }
   },
   lifecycleHook: 'enrichment',
-  perform: (_, { context, payload }) => {
-    const ls = window.localStorage
+  perform: (_, { context, payload, analytics }) => {
     const newSession = newSessionId()
 
-    const raw = ls.getItem('analytics_session_id')
-    const updated = ls.getItem('analytics_session_id.last_access')
+    let getFromStorage = (_key: string): string | null => null
+    let writeToStorage = (_key: string, _val: string | number): string | null => null
+
+    if (analytics.user()['cookies']) {
+      getFromStorage = analytics.user()['chainGet']
+      writeToStorage = analytics.user()['trySet']
+    }
+
+    const raw = getFromStorage('analytics_session_id')
+    const updated = getFromStorage('analytics_session_id.last_access')
 
     let id: number | string | null = raw
     if (stale(raw, updated, payload.sessionLength)) {
       id = newSession
-      ls.setItem('analytics_session_id', id.toString())
+      writeToStorage('analytics_session_id', id)
     } else {
       id = parseInt(id as string, 10)
     }
 
-    ls.setItem('analytics_session_id.last_access', newSession.toString())
+    writeToStorage('analytics_session_id.last_access', newSession)
 
     if (context.event.integrations?.All !== false || context.event.integrations['Actions Amplitude']) {
       context.updateEvent('integrations.Actions Amplitude', {})
