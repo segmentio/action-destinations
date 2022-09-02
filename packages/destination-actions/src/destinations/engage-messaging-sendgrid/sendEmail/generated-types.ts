@@ -86,17 +86,14 @@ export interface Payload {
      */
     subscriptionStatus?: string
     /**
-     * An array of subscription groups status
+     * Subscription groups and their statuses for this id.
      */
     groups?: {
-      /**
-       * A unique identifier for the subsription group.
-       */
       id?: string
       /**
-       * The subscription group status for the identity.
+       * Group subscription status true is subscribed, false is unsubscribed or did-not-subscribe
        */
-      subscriptionStatus?: string
+      subscriptionStatus?: boolean
     }[]
   }[]
   /**

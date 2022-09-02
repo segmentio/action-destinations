@@ -254,20 +254,19 @@ const action: ActionDefinition<Settings, Payload> = {
           type: 'string'
         },
         groups: {
-          label: 'Groups',
-          description: 'An array of subscription groups status',
+          label: 'Subscription Groups',
+          description: 'Subscription groups and their statuses for this id.',
           type: 'object',
           multiple: true,
           properties: {
             id: {
-              label: 'ID',
-              description: 'A unique identifier for the subsription group.',
+              label: 'Subscription group id',
               type: 'string'
             },
             subscriptionStatus: {
-              label: 'Subscription Group Status',
-              description: 'The subscription group status for the identity.',
-              type: 'string'
+              label: 'status',
+              description: 'Group subscription status true is subscribed, false is unsubscribed or did-not-subscribe',
+              type: 'boolean'
             }
           }
         }
@@ -284,6 +283,19 @@ const action: ActionDefinition<Settings, Payload> = {
             },
             subscriptionStatus: {
               '@path': '$.isSubscribed'
+            },
+            groups: {
+              '@arrayPath': [
+                '$.groups',
+                {
+                  id: {
+                    '@path': '$.id'
+                  },
+                  subscriptionStatus: {
+                    '@path': '$.isSubscribed'
+                  }
+                }
+              ]
             }
           }
         ]
@@ -325,6 +337,16 @@ const action: ActionDefinition<Settings, Payload> = {
       return
     } else if (['subscribed', 'true'].includes(emailProfile?.subscriptionStatus)) {
       statsClient?.incr('actions-personas-messaging-sendgrid.subscribed', 1, tags)
+      if (settings.groupId) {
+        const group = (payload.externalIds ?? [])
+          .flatMap((externalId) => externalId.groups)
+          .find((group) => group?.id == settings.groupId)
+        if (!group || !group.subscriptionStatus) {
+          statsClient?.incr('actions-personas-messaging-sendgrid.group_notsubscribed', 1, tags)
+          return
+        }
+        statsClient?.incr('actions-personas-messaging-sendgrid.group_subscribed', 1, tags)
+      }
 
       if (payload?.groupId) {
         let subscribed = false
