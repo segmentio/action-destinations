@@ -213,7 +213,7 @@ const action: ActionDefinition<Settings, Payload> = {
   },
 
   perform: (request, data) => {
-    if (!data.payload.primary_email) {
+    if (data.payload.primary_email == '') {
       throw new IntegrationError('Missing email value', 'Misconfigured required field', 400)
     }
 

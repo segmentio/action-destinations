@@ -64,7 +64,7 @@ export interface Payload {
   /**
    * The user's email address
    */
-  primary_email?: string | null
+  primary_email?: string
   /**
    *
    *   Additional fields to send to Sendgrid. On the left-hand side, input the Sendgrid field API name. On the right-hand side, map the Segment field that contains the value.
