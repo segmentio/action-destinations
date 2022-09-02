@@ -2,6 +2,8 @@ import { DestinationDefinition } from '@segment/actions-core'
 import type { Settings } from './generated-types'
 import postConversion from './postConversion'
 
+import uploadCallConversion from './uploadCallConversion'
+
 interface RefreshTokenResponse {
   access_token: string
   scope: string
@@ -63,7 +65,8 @@ const destination: DestinationDefinition<Settings> = {
     }
   },
   actions: {
-    postConversion
+    postConversion,
+    uploadCallConversion
   }
 }
 
