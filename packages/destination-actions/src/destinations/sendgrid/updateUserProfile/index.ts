@@ -200,7 +200,7 @@ const action: ActionDefinition<Settings, Payload> = {
       label: 'Email',
       description: `The user's email address`,
       type: 'string',
-      allowNull: true,
+      allowNull: false,
       default: {
         '@if': {
           exists: { '@path': '$.traits.email' },
@@ -237,50 +237,7 @@ const action: ActionDefinition<Settings, Payload> = {
       throw new IntegrationError('No record to send', 'No data', 400)
     }
 
-    let rows = '"contacts": ['
-    for (let i = 0; i < n; i++) {
-      if (!data.payload[i].primary_email) {
-        continue
-      }
-
-      let row = '{'
-      row += `"email": "${data.payload[i].primary_email}",`
-      row += `"first_name": "${data.payload[i].first_name}",`
-      row += `"last_name": "${data.payload[i].last_name}",`
-      row += `"address_line_1": "${data.payload[i].address_line_1}",`
-      row += `"address_line_2": "${data.payload[i].address_line_2}",`
-      row += `"city": "${data.payload[i].city}",`
-      row += `"state_province_region": "${data.payload[i].state}",`
-      row += `"country": "${data.payload[i].country}",`
-      row += `"postal_code": "${data.payload[i].postal_code}",`
-      row += `"phone_number": "${data.payload[i].phone_number}",`
-      row += `"whatsapp": "${data.payload[i].whatsapp}",`
-      row += `"line": "${data.payload[i].line}",`
-      row += `"facebook": "${data.payload[i].facebook}",`
-      row += `"unique_name": "${data.payload[i].unique_name}",`
-      row += `"identity": "${data.payload[i].identity}",`
-
-      if (data.payload[i].customFields) {
-        const cfs = { ...data.payload[i].customFields }
-        row += `"custom_fields": ${JSON.stringify(cfs)}`
-      }
-      if (i == n - 1) {
-        row += '}'
-      } else {
-        row += '},'
-      }
-      rows += `${row}\n`
-    }
-    rows += `]`
-    const jsonData = JSON.parse(`{${rows}}`)
-
-    console.log('option 1 ')
-    console.log(jsonData)
-
     const formattedData = { contacts: data.payload.map(convertPayload) }
-    console.log('option 2 ')
-    console.log(formattedData)
-
     return request('https://api.sendgrid.com/v3/marketing/contacts', {
       method: 'put',
       headers: {
