@@ -16,7 +16,11 @@ const action: BrowserActionDefinition<Settings, Hubspot, Payload> = {
       type: 'string',
       required: true,
       default: {
-        '@path': '$.traits.email'
+        '@if': {
+          exists: { '@path': '$.traits.email' },
+          then: { '@path': '$.traits.email' },
+          else: { '@path': '$.email' }
+        }
       }
     },
     id: {
