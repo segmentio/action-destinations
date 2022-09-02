@@ -41,6 +41,22 @@ export function createMessagingTestEvent(event: Partial<SegmentEvent> = {}): Seg
     traits: {},
     type: 'track',
     userId: 'user1234',
+    external_ids: [
+      {
+        collection: 'users',
+        encoding: 'none',
+        groups:
+          [
+            {
+              id: uuidv4(),
+              isSubscribed: true
+            }
+          ] || undefined,
+        id: uuidv4() + '@unittest.com',
+        isSubscribed: true,
+        type: 'email'
+      }
+    ],
     ...event
   }
 }
