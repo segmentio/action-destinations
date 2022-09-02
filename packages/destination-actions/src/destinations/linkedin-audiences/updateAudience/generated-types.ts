@@ -26,6 +26,10 @@ export interface Payload {
    */
   source_segment_id?: string
   /**
+   * The `audience_key` of the Personas audience.
+   */
+  personas_audience_key: string
+  /**
    * The name of the current Segment event.
    */
   event_name?: string

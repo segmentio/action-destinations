@@ -4,6 +4,7 @@ import { RetryableError } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 import { createHash } from 'crypto'
+import { IntegrationError } from '@segment/actions-core'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Sync To LinkedIn DMP Segment',
@@ -35,11 +36,7 @@ const action: ActionDefinition<Settings, Payload> = {
       description: "The user's email address to send to LinkedIn.",
       type: 'string',
       default: {
-        '@if': {
-          exists: { '@path': '$.context.traits.email' },
-          then: { '@path': '$.context.traits.email' },
-          else: { '@path': '$.traits.email' }
-        }
+        '@path': '$.context.traits.email'
       }
     },
     google_advertising_id: {
@@ -59,6 +56,12 @@ const action: ActionDefinition<Settings, Payload> = {
         '@path': '$.properties.audience_key'
       }
     },
+    personas_audience_key: {
+      label: 'Segment Personas Audience Key',
+      description: 'The `audience_key` of the Personas audience.',
+      type: 'string',
+      required: true
+    },
     event_name: {
       label: 'Event Name',
       description: 'The name of the current Segment event.',
@@ -77,6 +80,14 @@ const action: ActionDefinition<Settings, Payload> = {
 }
 
 async function processPayload(request: RequestClient, payloads: Payload[]) {
+  if (payloads[0].source_segment_id !== payloads[0].personas_audience_key) {
+    throw new IntegrationError(
+      'The value of`source_segment_id` and `personas_audience_key must match.',
+      'Invalid settings.',
+      400
+    )
+  }
+
   const dmpSegmentId = await getDmpSegmentId(request, payloads[0])
   const elements = getUsers(payloads)
   return request(`https://api.linkedin.com/rest/dmpSegments/${dmpSegmentId}/users`, {
@@ -113,7 +124,7 @@ async function createDmpSegment(request: RequestClient, payload: Payload) {
     json: {
       name: payload.dmp_segment_name,
       sourcePlatform: 'SEGMENT',
-      sourceSegmentId: payload.dmp_segment_name,
+      sourceSegmentId: payload.source_segment_id,
       account: `urn:li:sponsoredAccount:${payload.ad_account_id}`,
       accessPolicy: 'PRIVATE',
       type: 'USER',
