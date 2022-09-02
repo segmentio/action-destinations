@@ -49,7 +49,7 @@ const action: ActionDefinition<Settings, Payload> = {
     email_address: {
       label: 'Email Address',
       description:
-        'Email address of the individual who triggered the conversion event. Segment will hash this value before sending to Google.',
+        'Email address of the individual who triggered the conversion event. Segment will hash this value before sending to Google. Google only accepts one user identifier; if email address and phone number are provided, Segment will only send the hashed email address.',
       type: 'string',
       format: 'email',
       default: {
@@ -63,7 +63,7 @@ const action: ActionDefinition<Settings, Payload> = {
     phone_number: {
       label: 'Phone Number',
       description:
-        'Phone number of the individual who triggered the conversion event, in E.164 standard format, e.g. +14150000000. Segment will hash this value before sending to Google.',
+        'Phone number of the individual who triggered the conversion event, in E.164 standard format, e.g. +14150000000. Segment will hash this value before sending to Google. Google only accepts one user identifier; if email address and phone number are provided, Segment will only send the hashed email address.',
       type: 'string',
       default: {
         '@if': {
@@ -226,23 +226,13 @@ const action: ActionDefinition<Settings, Payload> = {
       customVariables: formatCustomVariables(payload.custom_variables, settings.customerId)
     }
 
-    if (payload.email_address && payload.phone_number) {
-      throw new IntegrationError(
-        'Only set oneof phone number or email address. Cannot have multiple user_identifiers',
-        'Too many fields set.',
-        400
-      )
-    }
-
     if (payload.email_address) {
       request_object.userIdentifiers = [
         {
           hashedEmail: hash(payload.email_address)
         }
       ]
-    }
-
-    if (payload.phone_number) {
+    } else if (payload.phone_number) {
       request_object.userIdentifiers = [
         {
           hashedPhoneNumber: hash(payload.phone_number)
