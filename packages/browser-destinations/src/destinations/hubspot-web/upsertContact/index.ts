@@ -2,6 +2,7 @@ import type { BrowserActionDefinition } from '../../../lib/browser-destinations'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 import { Hubspot } from '../types'
+import { flatten } from '../utils/flatten'
 
 const action: BrowserActionDefinition<Settings, Hubspot, Payload> = {
   title: 'Update an Existing Contact or Create a New One',
@@ -104,22 +105,12 @@ const action: BrowserActionDefinition<Settings, Hubspot, Payload> = {
 
     // custom properties should be key-value pairs of strings, therefore, filtering out any non-primitive
     const { custom_properties, ...rest } = payload
-    let nonObjectProperties
+    let flattenProperties
     if (custom_properties) {
-      nonObjectProperties = Object.keys(custom_properties).reduce(
-        (acc, key) => {
-          if (custom_properties && typeof custom_properties[key] !== 'object') {
-            acc[key] = custom_properties[key]
-          }
-          return acc
-        },
-        {} as {
-          [k: string]: unknown
-        }
-      )
+      flattenProperties = flatten(custom_properties, '', ['address', 'company'])
     }
 
-    _hsq.push(['identify', { ...nonObjectProperties, ...rest }])
+    _hsq.push(['identify', { ...flattenProperties, ...rest }])
 
     if (event.settings.flushIdentifyImmediately) {
       _hsq.push(['trackPageView'])

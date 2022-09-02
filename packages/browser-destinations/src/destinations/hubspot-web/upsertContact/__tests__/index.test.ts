@@ -43,7 +43,8 @@ const subscriptions: Subscription[] = [
 
 describe('Hubspot.upsertContact', () => {
   const settings = {
-    portalId: '1234'
+    portalId: '1234',
+    formatCustomBehavioralEventNames: true
   }
 
   let mockHubspot: Hubspot
@@ -152,6 +153,54 @@ describe('Hubspot.upsertContact', () => {
         state: 'CA',
         city: 'San Francisco',
         zip: '94103'
+      }
+    ])
+  })
+
+  test('flattens nested traits', async () => {
+    const context = new Context({
+      type: 'identify',
+      userId: 'mike',
+      traits: {
+        friendly: false,
+        email: 'mike_eh@lph.com',
+        address: {
+          street: '6th St',
+          city: 'San Francisco',
+          state: 'CA',
+          postalCode: '94103',
+          country: 'USA'
+        },
+        equipment: {
+          type: '🚘',
+          color: 'red',
+          make: {
+            make: 'Tesla',
+            model: 'Model S',
+            year: 2019
+          }
+        }
+      }
+    })
+
+    await upsertContactEvent.identify?.(context)
+    expect(mockHubspot.push).toHaveBeenCalledTimes(1)
+    expect(mockHubspot.push).toHaveBeenCalledWith([
+      'identify',
+      {
+        email: 'mike_eh@lph.com',
+        id: 'mike',
+        friendly: false,
+        address: '6th St',
+        country: 'USA',
+        state: 'CA',
+        city: 'San Francisco',
+        zip: '94103',
+        equipment_type: '🚘',
+        equipment_color: 'red',
+        equipment_make_make: 'Tesla',
+        equipment_make_model: 'Model S',
+        equipment_make_year: 2019
       }
     ])
   })
