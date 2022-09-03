@@ -8,7 +8,7 @@ const customerId = '1234'
 
 describe('GoogleEnhancedConversions', () => {
   describe('uploadClickConversion', () => {
-    it('should should send an event with default mappings', async () => {
+    it('should send an event with default mappings', async () => {
       const event = createTestEvent({
         timestamp,
         event: 'Test Event',
