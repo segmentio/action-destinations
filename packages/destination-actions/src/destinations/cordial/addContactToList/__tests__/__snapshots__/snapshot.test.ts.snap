@@ -2,7 +2,11 @@
 
 exports[`Testing snapshot for Cordial's addContactToList destination action: default fields, group id only 1`] = `
 Object {
+  "anonymousId": "246d1e7f-3dd3-4e4a-b7d0-5530bd9b5945",
+  "anonymousIdsKey": "2APwb",
   "groupId": "group1234",
+  "segmentId": "user1234",
+  "segmentIdKey": "2APwb",
   "userIdentities": Object {
     "channels.email.address": "contact@example.com",
   },
@@ -11,8 +15,12 @@ Object {
 
 exports[`Testing snapshot for Cordial's addContactToList destination action: default fields, group name 1`] = `
 Object {
+  "anonymousId": "4608919c-246d-4e7f-bdd3-2e4a37d05530",
+  "anonymousIdsKey": "2APwb",
   "groupId": "group1234",
   "listName": "test group",
+  "segmentId": "user1234",
+  "segmentIdKey": "2APwb",
   "userIdentities": Object {
     "channels.email.address": "contact@example.com",
   },

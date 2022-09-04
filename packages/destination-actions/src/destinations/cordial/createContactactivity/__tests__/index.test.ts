@@ -15,7 +15,9 @@ describe('Cordial.createContactactivity', () => {
 
     const settings = {
       apiKey: 'cordialApiKey',
-      endpoint: 'https://api.cordial.io' as const
+      endpoint: 'https://api.cordial.io' as const,
+      segmentIdKey: 'segment_id',
+      anonymousIdsKey: 'segment_anonymous_ids'
     }
 
     await testDestination.testAction('createContactactivity', {

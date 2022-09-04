@@ -8,6 +8,14 @@ import { Payload as AddProductToCartPayload } from './addProductToCart/generated
 import { Payload as RemoveProductFromCartPayload } from './removeProductFromCart/generated-types'
 import { Payload as UpsertOrder } from './upsertOrder/generated-types'
 
+export interface IdentifiableRequest {
+  segmentId?: string | null,
+  anonymousId?: string | null,
+  userIdentities?: {
+    [k: string]: unknown
+  }
+}
+
 class CordialClient {
   private readonly apiUrl: string
   private readonly request: RequestClient
@@ -18,15 +26,15 @@ class CordialClient {
     this.request = request
     this.identityKeys = {
       segmentIdKey: settings.segmentIdKey,
-      anonymousIdsKey: settings.anonymousIdKey
+      anonymousIdsKey: settings.anonymousIdsKey
     }
   }
 
-  extractIdentities(payload: object): object {
+  extractIdentities(payload: IdentifiableRequest): IdentifiableRequest {
     return {
       segmentId: payload.segmentId,
       anonymousId: payload.anonymousId,
-      userIdentities: payload.userIdentities ?? [],
+      userIdentities: payload.userIdentities,
     }
   }
 

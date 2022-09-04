@@ -57,7 +57,9 @@ describe('Cordial.upsertOrder', () => {
 
     const settings = {
       apiKey: 'cordialApiKey',
-      endpoint: 'https://api.cordial.io' as const
+      endpoint: 'https://api.cordial.io' as const,
+      segmentIdKey: 'segment_id',
+      anonymousIdsKey: 'segment_anonymous_ids'
     }
 
     const responses = await testDestination.testAction('upsertOrder', {
