@@ -6,7 +6,7 @@ export interface Payload {
    */
   segmentId?: string
   /**
-   * Please define the system name of Segment Anonymousd ID contact attribute in Cordial (e.g. segment_anonymous_id)
+   * Segment Anonymous ID value
    */
   anonymousId?: string
   /**

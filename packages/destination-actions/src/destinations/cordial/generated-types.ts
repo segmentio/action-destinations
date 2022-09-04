@@ -10,11 +10,11 @@ export interface Settings {
    */
   endpoint: string
   /**
-   * Cordial attribute key to store Segment User ID in (e.g. `segment_id`)
+   * Cordial string unique attribute key to store Segment User ID in (e.g. `segment_id`)
    */
   segmentIdKey?: string
   /**
-   * Cordial attribute key to store Segment Anonymous ID in (e.g. `segment_anonymous_id`)
+   * Cordial array attribute key to store Segment Anonymous IDs in (e.g. `segment_anonymous_ids`)
    */
-  anonymousIdKey?: string
+  anonymousIdsKey?: string
 }
