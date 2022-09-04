@@ -2,20 +2,14 @@ import type { ActionDefinition } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 import CordialClient from "../cordial-client";
+import userIdentityFields from "../identities-fields";
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Upsert Order',
   description: 'Upserts order to Cordial',
   defaultSubscription: 'event = "Order Completed" or event = "Order Updated" or event = "Order Refunded" or event = "Order Cancelled"',
   fields: {
-    userIdentities: {
-      label: 'User Identities',
-      description:
-        'An ordered list of contact identifiers in Cordial. Each item in the list represents an identifier. For example, `channels.email.address -> userId` and/or `customerId -> traits.customerId`. At least one identifier should be valid otherwise the contact will not be identified and the request will be ignored.',
-      type: 'object',
-      required: true,
-      defaultObjectUI: 'keyvalue:only'
-    },
+    ...userIdentityFields,
     orderID: {
       label: 'Order ID',
       description: 'Internal identifier of an order',

@@ -14,7 +14,6 @@ const destination: DestinationDefinition<Settings> = {
   description: 'Sync Segment Users, Groups and Events to Cordial',
   slug: 'actions-cordial',
   mode: 'cloud',
-
   authentication: {
     scheme: 'custom',
     fields: {
@@ -32,6 +31,18 @@ const destination: DestinationDefinition<Settings> = {
         required: true,
         format: 'uri',
         default: 'https://integrations-ingest-svc.usw1.cordial.com'
+      },
+      segmentIdKey: {
+        label: 'User ID attribute key',
+        description: 'Cordial string unique attribute key to store Segment User ID in (e.g. `segment_id`)',
+        type: 'string',
+        required: false,
+      },
+      anonymousIdsKey: {
+        label: 'Anonymous ID attribute key',
+        description: 'Cordial array attribute key to store Segment Anonymous IDs in (e.g. `segment_anonymous_ids`)',
+        type: 'string',
+        required: false,
       }
     },
     testAuthentication: (request, { settings }) => {
