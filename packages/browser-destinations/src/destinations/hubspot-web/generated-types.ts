@@ -16,5 +16,9 @@ export interface Settings {
   /**
    * Format the event names for custom behavioral event automatically to standard Hubspot format (pe<HubID>_event_name).
    */
-  formatCustomBehavioralEventNames: boolean
+  formatCustomBehavioralEventNames?: boolean
+  /**
+   * Load the Hubspot Forms SDK.
+   */
+  loadFormsSDK?: boolean
 }

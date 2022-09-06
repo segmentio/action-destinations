@@ -12,6 +12,7 @@ import type { Hubspot } from './types'
 declare global {
   interface Window {
     _hsq: any
+    hbspt: any
   }
 }
 
@@ -45,8 +46,15 @@ export const destination: BrowserDestinationDefinition<Settings, Hubspot> = {
         'Format the event names for custom behavioral event automatically to standard Hubspot format (pe<HubID>_event_name).',
       label: 'Format Custom Behavioral Event Names',
       type: 'boolean',
-      required: true,
+      required: false,
       default: true
+    },
+    loadFormsSDK: {
+      description: 'Load the Hubspot Forms SDK.',
+      label: 'Load Forms SDK',
+      type: 'boolean',
+      required: false,
+      default: false
     }
   },
 
@@ -56,7 +64,15 @@ export const destination: BrowserDestinationDefinition<Settings, Hubspot> = {
       : `https://js.hs-scripts.com/${settings.portalId}.js`
 
     await deps.loadScript(scriptPath)
-    await deps.resolveWhen(() => !!(window._hsq && window._hsq.push !== Array.prototype.push), 100)
+    if (settings.loadFormsSDK) {
+      await deps.loadScript('https://js.hsforms.net/forms/v2.js')
+    }
+    await deps.resolveWhen(
+      () =>
+        !!(window._hsq && window._hsq.push !== Array.prototype.push) &&
+        (!settings.loadFormsSDK || !!(window.hbspt && window.hbspt.forms)),
+      100
+    )
     return window._hsq
   },
 

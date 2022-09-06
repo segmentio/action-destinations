@@ -29,8 +29,12 @@ describe('Hubspot Web (Actions)', () => {
     expect(destination.initialize).toHaveBeenCalled()
 
     const hsScript = window.document.querySelector('#hs-analytics') as HTMLScriptElement
+    const hsForms = window.document.querySelector(
+      'script[src~="https://js.hsforms.net/forms/v2.js"]'
+    ) as HTMLScriptElement
 
     expect(hsScript).toBeDefined()
+    expect(hsForms).toBeNull()
     expect(hsScript?.src).toContain('https://js.hs-analytics.net/analytics')
   })
 
@@ -50,5 +54,26 @@ describe('Hubspot Web (Actions)', () => {
 
     expect(hsScript).toBeDefined()
     expect(hsScript?.src).toContain('https://js-eu1.hs-analytics.net')
+  })
+
+  test('loads hubspot forms SDK', async () => {
+    const [event] = await hubspotDestination({
+      portalId: '12345',
+      loadFormsSDK: true,
+      subscriptions
+    })
+
+    jest.spyOn(destination, 'initialize')
+
+    await event.load(Context.system(), {} as Analytics)
+    expect(destination.initialize).toHaveBeenCalled()
+
+    const hsScript = window.document.querySelector('#hs-analytics') as HTMLScriptElement
+    const hsForms = window.document.querySelector(
+      'script[src~="https://js.hsforms.net/forms/v2.js"]'
+    ) as HTMLScriptElement
+
+    expect(hsScript).toBeDefined()
+    expect(hsForms).toBeDefined()
   })
 })
