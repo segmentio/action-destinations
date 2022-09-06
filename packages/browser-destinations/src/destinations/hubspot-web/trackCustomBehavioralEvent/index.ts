@@ -2,6 +2,7 @@ import type { BrowserActionDefinition } from '../../../lib/browser-destinations'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 import type { Hubspot } from '../types'
+import { flatten } from '../utils/flatten'
 
 // Change from unknown to the partner SDK types
 const action: BrowserActionDefinition<Settings, Hubspot, Payload> = {
@@ -39,23 +40,9 @@ const action: BrowserActionDefinition<Settings, Hubspot, Payload> = {
 
     // for custom properties, we will:
     // remove any non-primitives, replace spaces and dots with underscores, then lowercase
-    properties = properties
-      ? {
-          properties: Object.keys(properties).reduce(
-            (acc, key) => {
-              if (properties && typeof properties[key] !== 'object') {
-                acc[key.replace(/[\s.]+/g, '_').toLocaleLowerCase()] = properties[key]
-              }
-              return acc
-            },
-            {} as {
-              [k: string]: unknown
-            }
-          )
-        }
-      : {}
+    properties = properties && flatten(properties, '', [], (key) => key.replace(/[\s.]+/g, '_').toLocaleLowerCase())
 
-    _hsq.push(['trackCustomBehavioralEvent', { name, ...properties }])
+    _hsq.push(['trackCustomBehavioralEvent', { name, properties }])
   }
 }
 

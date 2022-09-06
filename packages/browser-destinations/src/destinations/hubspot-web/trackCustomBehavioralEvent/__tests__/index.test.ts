@@ -64,7 +64,7 @@ describe('Hubspot.trackCustomBehavioralEvent', () => {
     ])
   })
 
-  test('ignores nested object properties', async () => {
+  test('flattens nested object properties', async () => {
     const context = new Context({
       type: 'track',
       event: 'purchased a 🍱',
@@ -74,7 +74,10 @@ describe('Hubspot.trackCustomBehavioralEvent', () => {
         currency: 'USD',
         sides: {
           item1: '🧉',
-          item2: '🧋'
+          item2: '🧋',
+          'auxilery Sauces': {
+            'Soy Sauce': '🍶'
+          }
         }
       }
     })
@@ -82,7 +85,17 @@ describe('Hubspot.trackCustomBehavioralEvent', () => {
 
     expect(mockHubspot.push).toHaveBeenCalledWith([
       'trackCustomBehavioralEvent',
-      { name: 'pe1234_purchased_a_🍱', properties: { currency: 'USD', price: '$12.00', type: '🍣' } }
+      {
+        name: 'pe1234_purchased_a_🍱',
+        properties: {
+          currency: 'USD',
+          price: '$12.00',
+          type: '🍣',
+          sides_item1: '🧉',
+          sides_item2: '🧋',
+          sides_auxilery_sauces_soy_sauce: '🍶'
+        }
+      }
     ])
   })
 
