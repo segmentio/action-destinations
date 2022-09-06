@@ -301,11 +301,6 @@ const action: ActionDefinition<Settings, Payload> = {
         ]
       }
     },
-    groupId: {
-      label: 'Subscription Group ID',
-      description: 'The subscription group to send the email',
-      type: 'string'
-    },
     customArgs: {
       label: 'Custom Args',
       description: 'Additional custom args that we be passed back opaquely on webhook events',
@@ -314,7 +309,7 @@ const action: ActionDefinition<Settings, Payload> = {
     },
     traits: {
       label: 'Traits',
-      description: 'A user profile traits',
+      description: "A user profile's traits",
       type: 'object',
       required: false,
       default: { '@path': '$.properties' }
@@ -346,22 +341,6 @@ const action: ActionDefinition<Settings, Payload> = {
           return
         }
         statsClient?.incr('actions-personas-messaging-sendgrid.group_subscribed', 1, tags)
-      }
-
-      if (payload?.groupId) {
-        let subscribed = false
-        emailProfile?.groups?.forEach((group) => {
-          if (
-            group.id == payload?.groupId &&
-            group.subscriptionStatus &&
-            ['subscribed', 'true'].includes(group.subscriptionStatus)
-          ) {
-            subscribed = true
-          }
-        })
-        if (!subscribed) {
-          return
-        }
       }
 
       let traits

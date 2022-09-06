@@ -97,17 +97,13 @@ export interface Payload {
     }[]
   }[]
   /**
-   * The subscription group to send the email
-   */
-  groupId?: string
-  /**
    * Additional custom args that we be passed back opaquely on webhook events
    */
   customArgs?: {
     [k: string]: unknown
   }
   /**
-   * A user profile traits
+   * A user profile's traits
    */
   traits?: {
     [k: string]: unknown
