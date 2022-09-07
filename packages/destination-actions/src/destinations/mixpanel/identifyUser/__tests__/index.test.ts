@@ -142,4 +142,51 @@ describe('Mixpanel.identifyUser', () => {
       })
     )
   })
+
+  it('should send segment_source_name property if sourceName setting is defined', async () => {
+    const event = createTestEvent({ timestamp, traits: { abc: '123' } })
+
+    nock('https://api.mixpanel.com').post('/engage').reply(200, {})
+    nock('https://api.mixpanel.com').post('/track').reply(200, {})
+
+    const responses = await testDestination.testAction('identifyUser', {
+      event,
+      useDefaultMappings: true,
+      settings: {
+        projectToken: MIXPANEL_PROJECT_TOKEN,
+        apiSecret: MIXPANEL_API_SECRET,
+        sourceName: 'example segment source name',
+      }
+    })
+    expect(responses.length).toBe(2)
+    expect(responses[0].status).toBe(200)
+    expect(responses[0].data).toMatchObject({})
+    expect(responses[0].options.body).toMatchObject(
+      new URLSearchParams({
+        data: JSON.stringify({
+          event: '$identify',
+          properties: {
+            $identified_id: 'user1234',
+            $anon_id: event.anonymousId,
+            token: MIXPANEL_PROJECT_TOKEN,
+            segment_source_name: 'example segment source name'
+          }
+        })
+      })
+    )
+    expect(responses[1].status).toBe(200)
+    expect(responses[1].data).toMatchObject({})
+    expect(responses[1].options.body).toMatchObject(
+      new URLSearchParams({
+        data: JSON.stringify({
+          $token: MIXPANEL_PROJECT_TOKEN,
+          $distinct_id: 'user1234',
+          $set: {
+            abc: '123'
+          },
+          segment_source_name: 'example segment source name'
+        })
+      })
+    )
+  })
 })

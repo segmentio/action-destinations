@@ -80,6 +80,12 @@ const destination: DestinationDefinition<Settings> = {
         type: 'string',
         choices: Object.values(ApiRegions).map((apiRegion) => ({ label: apiRegion, value: apiRegion })),
         default: ApiRegions.US
+      },
+      sourceName: {
+        label: 'Source Name',
+        description:
+          "This value, if it's not blank, will be sent as segment_source_name to Mixpanel for every event/page/screen call.",
+        type: 'string',
       }
     },
     testAuthentication: (request, { settings }) => {
