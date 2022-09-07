@@ -9,8 +9,8 @@ import type { Payload } from './generated-types'
 const companyProperties: Record<string, InputField> = getCompanyProperties()
 
 const action: BrowserActionDefinition<Settings, Intercom, Payload> = {
-  title: 'Update Company',
-  description: 'Update a company in Intercom.',
+  title: 'Identify Company',
+  description: 'Create or update a company in Intercom.',
   defaultSubscription: 'type = "group"',
   platform: 'web',
   fields: {
