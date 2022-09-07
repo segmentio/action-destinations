@@ -2,6 +2,8 @@ import { DestinationDefinition } from '@segment/actions-core'
 import type { Settings } from './generated-types'
 import postConversion from './postConversion'
 
+import uploadConversionAdjustment from './uploadConversionAdjustment'
+
 interface RefreshTokenResponse {
   access_token: string
   scope: string
@@ -28,6 +30,12 @@ const destination: DestinationDefinition<Settings> = {
         label: 'Conversion ID',
         description:
           'You will find this information in the event snippet for your conversion action, for example `send_to: AW-CONVERSION_ID/AW-CONVERSION_LABEL`. In the sample snippet, AW-CONVERSION_ID stands for the conversion ID unique to your account. Enter the conversion Id, without the AW- prefix. **Required if you are using an Action that sends data to the legacy Google Enhanced Conversions API.**',
+        type: 'string'
+      },
+      customerId: {
+        label: 'Customer ID',
+        description:
+          'ID of your Google Ads Account. This should be 10-digits and in XXX-XXX-XXXX format. **Required if you are using an Action that sends data to the Google Ads API.**',
         type: 'string'
       }
     },
@@ -63,7 +71,8 @@ const destination: DestinationDefinition<Settings> = {
     }
   },
   actions: {
-    postConversion
+    postConversion,
+    uploadConversionAdjustment
   }
 }
 
