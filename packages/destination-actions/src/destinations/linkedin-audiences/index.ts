@@ -17,7 +17,14 @@ const destination: DestinationDefinition<Settings> = {
 
   authentication: {
     scheme: 'oauth2',
-    fields: {},
+    fields: {
+      ad_account_id: {
+        label: 'LinkedIn Ad Account Id',
+        description: 'The id of the LinkedIn Ad Account where batches should be synced.',
+        type: 'string',
+        required: true
+      }
+    },
     testAuthentication: (request) => {
       // Return a request that tests/validates the user's credentials.
       // If you do not have a way to validate the authentication fields safely,

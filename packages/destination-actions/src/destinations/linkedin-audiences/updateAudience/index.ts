@@ -19,12 +19,6 @@ const action: ActionDefinition<Settings, Payload> = {
         '@path': '$.properties.audience_key'
       }
     },
-    ad_account_id: {
-      label: 'LinkedIn Ad Account Id',
-      description: 'The id of the LinkedIn Ad Account associated with the DMP Segment where batches should be synced.',
-      type: 'string',
-      required: true
-    },
     enable_batching: {
       label: 'Enable Batching',
       description: 'Enable batching of requests to the DMP Segment.',
