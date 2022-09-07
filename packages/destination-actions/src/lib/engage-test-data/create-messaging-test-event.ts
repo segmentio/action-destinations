@@ -1,7 +1,23 @@
 import { v4 as uuidv4 } from '@lukeed/uuid'
 import type { SegmentEvent } from '@segment/actions-core'
 
-export function createMessagingTestEvent(event: Partial<SegmentEvent> = {}): SegmentEvent {
+type SegmentEventWithExternalIds = SegmentEvent & {
+  external_ids?: {
+    id: string
+    type: 'email' | 'phone'
+    isSubscribed: boolean | null
+    collection: 'users'
+    encoding: 'none'
+    groups?: {
+      id: string
+      isSubscribed: boolean | null
+    }[]
+  }[]
+}
+
+export function createMessagingTestEvent(
+  event: Partial<SegmentEventWithExternalIds> = {}
+): SegmentEventWithExternalIds {
   return {
     anonymousId: uuidv4(),
     context: {

@@ -155,16 +155,4 @@ export interface SegmentEvent {
   }
 
   timestamp?: Date | string
-
-  external_ids?: {
-    id: string
-    type: 'email' | 'phone'
-    isSubscribed: boolean | null
-    collection: 'users'
-    encoding: 'none'
-    groups?: {
-      id: string
-      isSubscribed: boolean | null
-    }[]
-  }[]
 }
