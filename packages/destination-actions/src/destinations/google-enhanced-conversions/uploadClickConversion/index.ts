@@ -49,7 +49,7 @@ const action: ActionDefinition<Settings, Payload> = {
     email_address: {
       label: 'Email Address',
       description:
-        'Email address of the individual who triggered the conversion event. Segment will hash this value before sending to Google. Google only accepts one user identifier; if email address and phone number are provided, Segment will only send the hashed email address.',
+        'Email address of the individual who triggered the conversion event. Segment will hash this value before sending to Google.',
       type: 'string',
       format: 'email',
       default: {
@@ -63,7 +63,7 @@ const action: ActionDefinition<Settings, Payload> = {
     phone_number: {
       label: 'Phone Number',
       description:
-        'Phone number of the individual who triggered the conversion event, in E.164 standard format, e.g. +14150000000. Segment will hash this value before sending to Google. Google only accepts one user identifier; if email address and phone number are provided, Segment will only send the hashed email address.',
+        'Phone number of the individual who triggered the conversion event, in E.164 standard format, e.g. +14150000000. Segment will hash this value before sending to Google.',
       type: 'string',
       default: {
         '@if': {
@@ -223,21 +223,16 @@ const action: ActionDefinition<Settings, Payload> = {
         localTransactionCost: payload.local_cost,
         items: cartItems
       },
+      userIdentifiers: [],
       customVariables: formatCustomVariables(payload.custom_variables, settings.customerId)
     }
 
     if (payload.email_address) {
-      request_object.userIdentifiers = [
-        {
-          hashedEmail: hash(payload.email_address)
-        }
-      ]
-    } else if (payload.phone_number) {
-      request_object.userIdentifiers = [
-        {
-          hashedPhoneNumber: hash(payload.phone_number)
-        }
-      ]
+      request_object.userIdentifiers.push({ hashedEmail: hash(payload.email_address) })
+    }
+
+    if (payload.phone_number) {
+      request_object.userIdentifiers.push({ hashedPhoneNumber: hash(payload.phone_number) })
     }
 
     const response = await request(

@@ -22,11 +22,11 @@ export interface Payload {
    */
   conversion_timestamp: string
   /**
-   * Email address of the individual who triggered the conversion event. Segment will hash this value before sending to Google. Google only accepts one user identifier; if email address and phone number are provided, Segment will only send the hashed email address.
+   * Email address of the individual who triggered the conversion event. Segment will hash this value before sending to Google.
    */
   email_address?: string
   /**
-   * Phone number of the individual who triggered the conversion event, in E.164 standard format, e.g. +14150000000. Segment will hash this value before sending to Google. Google only accepts one user identifier; if email address and phone number are provided, Segment will only send the hashed email address.
+   * Phone number of the individual who triggered the conversion event, in E.164 standard format, e.g. +14150000000. Segment will hash this value before sending to Google.
    */
   phone_number?: string
   /**
