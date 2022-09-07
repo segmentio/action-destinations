@@ -14,66 +14,78 @@ const action: ActionDefinition<Settings, Payload> = {
       label: 'DMP Segment Name',
       description: 'The name of the LinkedIn DMP Segment.',
       type: 'string',
-      required: true,
       default: {
         '@path': '$.properties.audience_key'
       }
     },
     enable_batching: {
       label: 'Enable Batching',
-      description: 'Enable batching of requests to the DMP Segment.',
+      description: 'Enable batching of requests to the LinkedIn DMP Segment.',
       type: 'boolean',
       default: true
     },
     email: {
       label: 'User Email',
       description: "The user's email address to send to LinkedIn.",
-      type: 'string',
+      type: 'hidden',
       default: {
         '@path': '$.context.traits.email'
       }
     },
+    send_email: {
+      label: 'Send Email',
+      description: 'Whether to send `email` to LinkedIn.',
+      type: 'boolean',
+      default: true
+    },
     google_advertising_id: {
       label: 'User Google Advertising ID',
       description: "The user's email address to send to LinkedIn.",
-      type: 'string',
+      type: 'hidden',
       default: {
         '@path': '$.context.device.advertisingId'
       }
     },
+    send_google_advertising_id: {
+      label: 'Send Google Advertising ID',
+      description: 'Whether to send Google Advertising ID to LinkedIn.',
+      type: 'boolean',
+      default: true
+    },
     source_segment_id: {
-      label: 'LinkedIn Source Segment Id',
+      label: 'LinkedIn Source Segment ID',
       description:
-        "A Segment-specific key associated with the DMP Segment. This is the lookup key Segment uses to fetch the DMP Segment from LinkedIn's API_VERSION.",
-      type: 'string',
+        "A Segment-specific key associated with the LinkedIn DMP Segment. This is the lookup key Segment uses to fetch the DMP Segment from LinkedIn's API.",
+      type: 'hidden',
       default: {
         '@path': '$.properties.audience_key'
       }
     },
     personas_audience_key: {
       label: 'Segment Personas Audience Key',
-      description: 'The `audience_key` of the Personas audience.',
+      description:
+        'The `audience_key` of the Personas audience you want to sync to LinkedIn. This value must be a hard-coded string variable, e.g. `personas_test_audience`, in order for batching to work properly.',
       type: 'string',
       required: true
     },
     event_name: {
       label: 'Event Name',
       description: 'The name of the current Segment event.',
-      type: 'string',
+      type: 'hidden',
       default: {
         '@path': '$.event'
       }
     }
   },
-  perform: async (request, { payload }) => {
-    return processPayload(request, [payload])
+  perform: async (request, { settings, payload }) => {
+    return processPayload(request, settings, [payload])
   },
-  performBatch: async (request, { payload }) => {
-    return processPayload(request, payload)
+  performBatch: async (request, { settings, payload }) => {
+    return processPayload(request, settings, payload)
   }
 }
 
-async function processPayload(request: RequestClient, payloads: Payload[]) {
+async function processPayload(request: RequestClient, settings: Settings, payloads: Payload[]) {
   if (payloads[0].source_segment_id !== payloads[0].personas_audience_key) {
     throw new IntegrationError(
       'The value of`source_segment_id` and `personas_audience_key must match.',
@@ -82,8 +94,8 @@ async function processPayload(request: RequestClient, payloads: Payload[]) {
     )
   }
 
-  const dmpSegmentId = await getDmpSegmentId(request, payloads[0])
-  const elements = getUsers(payloads)
+  const dmpSegmentId = await getDmpSegmentId(request, settings, payloads[0])
+  const elements = extractUsers(payloads)
   return request(`https://api.linkedin.com/rest/dmpSegments/${dmpSegmentId}/users`, {
     method: 'POST',
     headers: {
@@ -95,31 +107,31 @@ async function processPayload(request: RequestClient, payloads: Payload[]) {
   })
 }
 
-async function getDmpSegmentId(request: RequestClient, payload: Payload) {
-  const res = await getSegmentDmp(request, payload)
+async function getDmpSegmentId(request: RequestClient, settings: Settings, payload: Payload) {
+  const res = await getSegmentDmp(request, settings, payload)
   const body = await res.json()
 
   if (body.elements?.length > 0) {
     return body.elements[0].id
   }
 
-  return createDmpSegment(request, payload)
+  return createDmpSegment(request, settings, payload)
 }
 
-async function getSegmentDmp(request: RequestClient, payload: Payload) {
+async function getSegmentDmp(request: RequestClient, settings: Settings, payload: Payload) {
   return request(
-    `https://api.linkedin.com/rest/dmpSegments?q=account&account=urn:li:sponsoredAccount:${payload.ad_account_id}&sourceSegmentId=${payload.source_segment_id}&sourcePlatform=SEGMENT`
+    `https://api.linkedin.com/rest/dmpSegments?q=account&account=urn:li:sponsoredAccount:${settings.ad_account_id}&sourceSegmentId=${payload.source_segment_id}&sourcePlatform=SEGMENT`
   )
 }
 
-async function createDmpSegment(request: RequestClient, payload: Payload) {
+async function createDmpSegment(request: RequestClient, settings: Settings, payload: Payload) {
   await request('https://api.linkedin.com/rest/dmpSegments', {
     method: 'POST',
     json: {
       name: payload.dmp_segment_name,
       sourcePlatform: 'SEGMENT',
       sourceSegmentId: payload.source_segment_id,
-      account: `urn:li:sponsoredAccount:${payload.ad_account_id}`,
+      account: `urn:li:sponsoredAccount:${settings.ad_account_id}`,
       accessPolicy: 'PRIVATE',
       type: 'USER',
       destinations: [
@@ -130,7 +142,7 @@ async function createDmpSegment(request: RequestClient, payload: Payload) {
     }
   })
 
-  const res = await getSegmentDmp(request, payload)
+  const res = await getSegmentDmp(request, settings, payload)
   const body = await res.json()
 
   if (body.elements?.length > 0) {
@@ -140,7 +152,7 @@ async function createDmpSegment(request: RequestClient, payload: Payload) {
   throw new RetryableError('Failed to fetch or create a LinkedIn DMP Segment.')
 }
 
-function getUsers(payloads: Payload[]) {
+function extractUsers(payloads: Payload[]) {
   const elements: Record<string, any>[] = []
 
   payloads.forEach((payload: Payload) => {
