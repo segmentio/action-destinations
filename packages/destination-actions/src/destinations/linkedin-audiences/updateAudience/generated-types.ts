@@ -6,10 +6,6 @@ export interface Payload {
    */
   dmp_segment_name: string
   /**
-   * The id of the LinkedIn Ad Account associated with the DMP Segment where batches should be synced.
-   */
-  ad_account_id: string
-  /**
    * Enable batching of requests to the DMP Segment.
    */
   enable_batching?: boolean
