@@ -152,7 +152,7 @@ export interface Payload {
    */
   userAgent?: string
   /**
-   * Set as true to ensure Segment sends data to Mixpanel in batches. Please do not set to false.
+   * Set as true to ensure Segment sends data to Mixpanel in batches.
    */
   enable_batching?: boolean
 }
