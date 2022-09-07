@@ -16,7 +16,7 @@ const OBJECT_NAME = 'Case'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Case',
-  description: 'Represents a case, which is a customer issue or problem.',
+  description: 'Create, update, or upsert cases in Salesforce.',
   fields: {
     operation: operation,
     enable_batching: enable_batching,
