@@ -116,4 +116,50 @@ describe('Mixpanel.trackEvent', () => {
       expect(e.message).toBe("The root value is missing the required field 'event'.")
     }
   })
+
+  it('should invoke performBatch for batches', async () => {
+    const events = [
+      createTestEvent({ timestamp, event: 'Test Event1' }),
+      createTestEvent({ timestamp, event: 'Test Event2' })
+    ]
+
+    nock('https://api.mixpanel.com').post('/import?strict=1').reply(200, {})
+
+    const responses = await testDestination.testBatchAction('trackEvent', {
+      events,
+      useDefaultMappings: true,
+      settings: {
+        projectToken: MIXPANEL_PROJECT_TOKEN,
+        apiSecret: MIXPANEL_API_SECRET,
+        apiRegion: ApiRegions.US,
+      }
+    })
+    expect(responses.length).toBe(1)
+    expect(responses[0].status).toBe(200)
+    expect(responses[0].data).toMatchObject({})
+    expect(responses[0].options.json).toMatchObject([
+      {
+        event: 'Test Event1',
+        properties: expect.objectContaining({
+          ip: '8.8.8.8',
+          distinct_id: 'user1234',
+          $current_url: 'https://segment.com/academy/',
+          $locale: 'en-US',
+          mp_country_code: 'United States',
+          mp_lib: 'Segment: analytics.js'
+        })
+      },
+      {
+        event: 'Test Event2',
+        properties: expect.objectContaining({
+          ip: '8.8.8.8',
+          distinct_id: 'user1234',
+          $current_url: 'https://segment.com/academy/',
+          $locale: 'en-US',
+          mp_country_code: 'United States',
+          mp_lib: 'Segment: analytics.js'
+        })
+      }
+    ])
+  })
 })
