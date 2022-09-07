@@ -481,7 +481,7 @@ describe('GA4', () => {
         fail('the test should have thrown an error')
       } catch (e) {
         expect(e.message).toBe(
-          'GA4 only accepts string or number values for event parameters and item parameters. Please ensure you are not including null, array, or nested values.'
+          'Param [test_key] has unsupported value of type [NULL]. GA4 does not accept null, array, or object values for event parameters and item parameters.'
         )
       }
     })
@@ -550,7 +550,7 @@ describe('GA4', () => {
         fail('the test should have thrown an error')
       } catch (e) {
         expect(e.message).toBe(
-          'GA4 only accepts string, number or null values for user properties. Please ensure you are not including array or nested values.'
+          'Param [hello] has unsupported value of type [Array]. GA4 does not accept array or object values for user properties.'
         )
       }
     })
