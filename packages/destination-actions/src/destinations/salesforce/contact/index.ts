@@ -16,7 +16,7 @@ const OBJECT_NAME = 'Contact'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Contact',
-  description: 'Represents a contact, which is a person associated with an account.',
+  description: 'Create, update, or upsert contacts in Salesforce.',
   fields: {
     operation: operation,
     enable_batching: enable_batching,
