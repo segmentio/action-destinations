@@ -46,6 +46,7 @@ register('62f435d1d311567bd5bf0e8d', './linkedin-audiences')
 register('615c7438d93d9b61b1e9e192', './mixpanel')
 register('61a8032ea5f157ee37a720be', './metronome')
 register('620feaa207e70f6c6a765ff7', './moengage')
+register('62df16e45ba0058c864a75d1', './actions-pardot')
 register('5f7dd8191ad74f868ab1fc48', './pipedrive')
 register('62e17e6f687e4a3d32d0f875', './qualtrics')
 register('61957755c4d820be968457de', './salesforce')
@@ -56,6 +57,7 @@ register('615cae349d109d6b7496a131', './tiktok-conversions')
 register('602efa1f249b9a5e2bf8a813', './twilio')
 register('614a3c7d791c91c41bae7599', './webhook')
 register('61dc4e96894a6d7954cc6e45', './voyage')
+register('62ded0cf5753c743883ca0f3', './intercom')
 
 function register(id: MetadataId, destinationPath: string) {
   // eslint-disable-next-line @typescript-eslint/no-var-requires

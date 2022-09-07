@@ -1,5 +1,6 @@
 import nock from 'nock'
-import { createTestEvent, createTestIntegration } from '@segment/actions-core'
+import { createTestIntegration } from '@segment/actions-core'
+import { createMessagingTestEvent } from '../../../lib/engage-test-data/create-messaging-test-event'
 import Twilio from '..'
 
 const twilio = createTestIntegration(Twilio)
@@ -14,6 +15,20 @@ describe.each(['stage', 'production'])('%s environment', (environment) => {
     profileApiAccessToken: 'c',
     spaceId: 'd',
     sourceId: 'e'
+  }
+  const getDefaultMapping = (overrides?: any) => {
+    return {
+      userId: { '@path': '$.userId' },
+      from: 'MG1111222233334444',
+      body: 'Hello world, {{profile.user_id}}!',
+      send: true,
+      traitEnrichment: true,
+      externalIds: [
+        { type: 'email', id: 'test@twilio.com', subscriptionStatus: 'subscribed' },
+        { type: 'phone', id: '+1234567891', subscriptionStatus: 'subscribed' }
+      ],
+      ...overrides
+    }
   }
 
   const endpoint = `https://profiles.segment.${environment === 'production' ? 'com' : 'build'}`
@@ -32,19 +47,15 @@ describe.each(['stage', 'production'])('%s environment', (environment) => {
   describe('send SMS', () => {
     it('should abort when there is no `phone` external ID in the payload', async () => {
       const responses = await twilio.testAction('sendSms', {
-        event: createTestEvent({
+        event: createMessagingTestEvent({
           timestamp,
           event: 'Audience Entered',
           userId: 'jane'
         }),
         settings,
-        mapping: {
-          userId: { '@path': '$.userId' },
-          from: 'MG1111222233334444',
-          body: 'Hello world, {{profile.user_id}}!',
-          send: true,
+        mapping: getDefaultMapping({
           externalIds: [{ type: 'email', id: 'test@twilio.com', subscriptionStatus: 'subscribed' }]
-        }
+        })
       })
 
       expect(responses.length).toEqual(0)
@@ -62,27 +73,17 @@ describe.each(['stage', 'production'])('%s environment', (environment) => {
         .reply(201, {})
 
       const actionInputData = {
-        event: createTestEvent({
+        event: createMessagingTestEvent({
           timestamp,
           event: 'Audience Entered',
           userId: 'jane'
         }),
         settings,
-        mapping: {
-          userId: { '@path': '$.userId' },
-          from: 'MG1111222233334444',
-          body: 'Hello world, {{profile.user_id}}!',
-          send: true,
-          externalIds: [
-            { type: 'email', id: 'test@twilio.com', subscriptionStatus: 'subscribed' },
-            { type: 'phone', id: '+1234567891', subscriptionStatus: 'subscribed' }
-          ]
-        }
+        mapping: getDefaultMapping()
       }
 
       const responses = await twilio.testAction('sendSms', actionInputData)
       expect(responses.map((response) => response.url)).toStrictEqual([
-        `${endpoint}/v1/spaces/d/collections/users/profiles/user_id:jane/traits?limit=200`,
         'https://api.twilio.com/2010-04-01/Accounts/a/Messages.json'
       ])
       expect(twilioRequest.isDone()).toEqual(true)
@@ -102,7 +103,7 @@ describe.each(['stage', 'production'])('%s environment', (environment) => {
         .reply(201, {})
 
       const actionInputData = {
-        event: createTestEvent({
+        event: createMessagingTestEvent({
           timestamp,
           event: 'Audience Entered',
           userId: 'jane'
@@ -111,21 +112,11 @@ describe.each(['stage', 'production'])('%s environment', (environment) => {
           ...settings,
           twilioHostname
         },
-        mapping: {
-          userId: { '@path': '$.userId' },
-          from: 'MG1111222233334444',
-          body: 'Hello world, {{profile.user_id}}!',
-          send: true,
-          externalIds: [
-            { type: 'email', id: 'test@twilio.com', subscriptionStatus: 'subscribed' },
-            { type: 'phone', id: '+1234567891', subscriptionStatus: 'subscribed' }
-          ]
-        }
+        mapping: getDefaultMapping()
       }
 
       const responses = await twilio.testAction('sendSms', actionInputData)
       expect(responses.map((response) => response.url)).toStrictEqual([
-        `${endpoint}/v1/spaces/d/collections/users/profiles/user_id:jane/traits?limit=200`,
         `https://${twilioHostname}/2010-04-01/Accounts/a/Messages.json`
       ])
       expect(twilioRequest.isDone()).toEqual(true)
@@ -144,7 +135,7 @@ describe.each(['stage', 'production'])('%s environment', (environment) => {
         .reply(201, {})
 
       const actionInputData = {
-        event: createTestEvent({
+        event: createMessagingTestEvent({
           timestamp,
           event: 'Audience Entered',
           userId: 'jane'
@@ -154,25 +145,12 @@ describe.each(['stage', 'production'])('%s environment', (environment) => {
           webhookUrl: 'http://localhost',
           connectionOverrides: 'rp=all&rc=5'
         },
-        mapping: {
-          userId: { '@path': '$.userId' },
-          from: 'MG1111222233334444',
-          body: 'Hello world, {{profile.user_id}}!',
-          customArgs: {
-            foo: 'bar'
-          },
-          send: true,
-          externalIds: [
-            { type: 'email', id: 'test@twilio.com', subscriptionStatus: 'subscribed' },
-            { type: 'phone', id: '+1234567891', subscriptionStatus: 'subscribed' }
-          ]
-        }
+        mapping: getDefaultMapping({ customArgs: { foo: 'bar' } })
       }
 
       const responses = await twilio.testAction('sendSms', actionInputData)
 
       expect(responses.map((response) => response.url)).toStrictEqual([
-        `${endpoint}/v1/spaces/d/collections/users/profiles/user_id:jane/traits?limit=200`,
         'https://api.twilio.com/2010-04-01/Accounts/a/Messages.json'
       ])
       expect(twilioRequest.isDone()).toEqual(true)
@@ -180,7 +158,7 @@ describe.each(['stage', 'production'])('%s environment', (environment) => {
 
     it('should fail on invalid webhook url', async () => {
       const actionInputData = {
-        event: createTestEvent({
+        event: createMessagingTestEvent({
           timestamp,
           event: 'Audience Entered',
           userId: 'jane'
@@ -189,19 +167,7 @@ describe.each(['stage', 'production'])('%s environment', (environment) => {
           ...settings,
           webhookUrl: 'foo'
         },
-        mapping: {
-          userId: { '@path': '$.userId' },
-          from: 'MG1111222233334444',
-          body: 'Hello world, {{profile.user_id}}!',
-          customArgs: {
-            foo: 'bar'
-          },
-          send: true,
-          externalIds: [
-            { type: 'email', id: 'test@twilio.com', subscriptionStatus: 'subscribed' },
-            { type: 'phone', id: '+1234567891', subscriptionStatus: 'subscribed' }
-          ]
-        }
+        mapping: getDefaultMapping({ customArgs: { foo: 'bar' } })
       }
       await expect(twilio.testAction('sendSms', actionInputData)).rejects.toHaveProperty('code', 'ERR_INVALID_URL')
     })
@@ -219,24 +185,17 @@ describe.each(['stage', 'production'])('%s environment', (environment) => {
         .reply(201, {})
 
       const actionInputData = {
-        event: createTestEvent({
+        event: createMessagingTestEvent({
           timestamp,
           event: 'Audience Entered',
           userId: 'jane'
         }),
         settings,
-        mapping: {
-          userId: { '@path': '$.userId' },
-          from: 'MG1111222233334444',
-          body: 'Hello world, {{profile.user_id}}!',
-          send: true,
-          externalIds: [{ type: 'phone', id: '+1234567891', subscriptionStatus }]
-        }
+        mapping: getDefaultMapping({ externalIds: [{ type: 'phone', id: '+1234567891', subscriptionStatus }] })
       }
 
       const responses = await twilio.testAction('sendSms', actionInputData)
       expect(responses.map((response) => response.url)).toStrictEqual([
-        `${endpoint}/v1/spaces/d/collections/users/profiles/user_id:jane/traits?limit=200`,
         'https://api.twilio.com/2010-04-01/Accounts/a/Messages.json'
       ])
       expect(twilioRequest.isDone()).toEqual(true)
@@ -256,19 +215,13 @@ describe.each(['stage', 'production'])('%s environment', (environment) => {
           .reply(201, {})
 
         const actionInputData = {
-          event: createTestEvent({
+          event: createMessagingTestEvent({
             timestamp,
             event: 'Audience Entered',
             userId: 'jane'
           }),
           settings,
-          mapping: {
-            userId: { '@path': '$.userId' },
-            from: 'MG1111222233334444',
-            body: 'Hello world, {{profile.user_id}}!',
-            send: true,
-            externalIds: [{ type: 'phone', id: '+1234567891', subscriptionStatus }]
-          }
+          mapping: getDefaultMapping({ externalIds: [{ type: 'phone', id: '+1234567891', subscriptionStatus }] })
         }
 
         const responses = await twilio.testAction('sendSms', actionInputData)
@@ -291,19 +244,15 @@ describe.each(['stage', 'production'])('%s environment', (environment) => {
         .reply(201, {})
 
       const actionInputData = {
-        event: createTestEvent({
+        event: createMessagingTestEvent({
           timestamp,
           event: 'Audience Entered',
           userId: 'jane'
         }),
         settings,
-        mapping: {
-          userId: { '@path': '$.userId' },
-          from: 'MG1111222233334444',
-          body: 'Hello world, {{profile.user_id}}!',
-          send: true,
+        mapping: getDefaultMapping({
           externalIds: [{ type: 'phone', id: '+1234567891', subscriptionStatus: randomSubscriptionStatusPhrase }]
-        }
+        })
       }
 
       const response = twilio.testAction('sendSms', actionInputData)

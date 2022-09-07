@@ -5,8 +5,8 @@ import { initialBoot, initScript } from './init-script'
 
 import { Intercom } from './api'
 import trackEvent from './trackEvent'
-import updateUser from './updateUser'
-import updateCompany from './updateCompany'
+import identifyUser from './identifyUser'
+import identifyCompany from './identifyCompany'
 
 declare global {
   interface Window {
@@ -40,15 +40,37 @@ export const destination: BrowserDestinationDefinition<Settings, Intercom> = {
       type: 'string',
       multiple: true,
       required: false
+    },
+    apiBase: {
+      description: 'The regional API to use for processing the data',
+      label: 'Regional Data Hosting',
+      type: 'string',
+      choices: [
+        {
+          label: 'US',
+          value: 'https://api-iam.intercom.io'
+        },
+        {
+          label: 'EU',
+          value: 'https://api-iam.eu.intercom.io'
+        },
+        {
+          label: 'Australia',
+          value: 'https://api-iam.au.intercom.io'
+        }
+      ],
+      default: 'https://api-iam.intercom.io',
+      required: false
     }
   },
 
   initialize: async ({ settings }, deps) => {
     //initialize Intercom
     initScript({ appId: settings.appId })
-    initialBoot(settings.appId)
+    const preloadedIntercom = window.Intercom
+    initialBoot(settings.appId, { api_base: settings.apiBase })
 
-    await deps.resolveWhen(() => window.Intercom.booted === true, 100)
+    await deps.resolveWhen(() => window.Intercom !== preloadedIntercom, 100)
 
     window.Intercom.richLinkProperties = settings.richLinkProperties
     window.Intercom.appId = settings.appId
@@ -59,8 +81,8 @@ export const destination: BrowserDestinationDefinition<Settings, Intercom> = {
 
   actions: {
     trackEvent,
-    updateUser,
-    updateCompany
+    identifyUser,
+    identifyCompany
   }
 }
 

@@ -18,7 +18,7 @@ declare global {
 
 // Switch from unknown to the partner SDK client types
 export const destination: BrowserDestinationDefinition<Settings, Iterate> = {
-  name: 'Iterate',
+  name: 'Iterate Web (Actions)',
   slug: 'actions-iterate',
   mode: 'device',
   presets: [

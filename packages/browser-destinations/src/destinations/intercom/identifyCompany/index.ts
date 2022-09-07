@@ -9,8 +9,8 @@ import type { Payload } from './generated-types'
 const companyProperties: Record<string, InputField> = getCompanyProperties()
 
 const action: BrowserActionDefinition<Settings, Intercom, Payload> = {
-  title: 'Update Company',
-  description: 'Update a company in Intercom.',
+  title: 'Identify Company',
+  description: 'Create or update a company in Intercom.',
   defaultSubscription: 'type = "group"',
   platform: 'web',
   fields: {
@@ -53,7 +53,7 @@ const action: BrowserActionDefinition<Settings, Intercom, Payload> = {
     }
   },
   perform: (Intercom, event) => {
-    // remove traits from payload; traits will not be sent in the final payload to Intercom
+    // remove properties that require extra handling
     const { company_custom_traits, ...rest } = event.payload.company
     let company = { ...rest }
 

@@ -6,6 +6,10 @@ export interface Payload {
    */
   send?: boolean
   /**
+   * Whether or not trait enrich from event (i.e without profile api call)
+   */
+  traitEnrichment?: boolean
+  /**
    * User ID in Segment
    */
   userId: string
@@ -86,6 +90,12 @@ export interface Payload {
    * Additional custom args that we be passed back opaquely on webhook events
    */
   customArgs?: {
+    [k: string]: unknown
+  }
+  /**
+   * A user profile's traits
+   */
+  traits?: {
     [k: string]: unknown
   }
 }

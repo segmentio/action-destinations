@@ -140,6 +140,13 @@ const action: ActionDefinition<Settings, Payload> = {
       required: false,
       default: false
     },
+    traitEnrichment: {
+      label: 'Trait Enrich',
+      description: 'Whether or not trait enrich from event (i.e without profile api call)',
+      type: 'boolean',
+      required: false,
+      default: true
+    },
     userId: {
       label: 'User ID',
       description: 'User ID in Segment',
@@ -269,6 +276,13 @@ const action: ActionDefinition<Settings, Payload> = {
       description: 'Additional custom args that we be passed back opaquely on webhook events',
       type: 'object',
       required: false
+    },
+    traits: {
+      label: 'Traits',
+      description: "A user profile's traits",
+      type: 'object',
+      required: false,
+      default: { '@path': '$.properties' }
     }
   },
   perform: async (request, { settings, payload, statsContext }) => {
@@ -288,7 +302,13 @@ const action: ActionDefinition<Settings, Payload> = {
       return
     } else if (['subscribed', 'true'].includes(emailProfile?.subscriptionStatus)) {
       statsClient?.incr('actions-personas-messaging-sendgrid.subscribed', 1, tags)
-      const traits = await fetchProfileTraits(request, settings, payload.userId, statsClient, tags)
+
+      let traits
+      if (payload.traitEnrichment) {
+        traits = payload?.traits ? payload?.traits : JSON.parse('{}')
+      } else {
+        traits = await fetchProfileTraits(request, settings, payload.userId, statsClient, tags)
+      }
 
       const profile: Profile = {
         email: emailProfile.id,
