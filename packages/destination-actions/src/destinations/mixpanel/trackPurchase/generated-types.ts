@@ -2,9 +2,9 @@
 
 export interface Payload {
   /**
-   * The name of the action being performed.
+   * When enabled, send "Product Purchased" with each product within the event.
    */
-  event: string
+  generatePurchaseEventPerProduct?: boolean
   /**
    * A distinct ID specified by you.
    */
@@ -159,4 +159,62 @@ export interface Payload {
    * Set as true to ensure Segment sends data to Mixpanel in batches.
    */
   enable_batching?: boolean
+  /**
+   * Products in the order
+   */
+  products?: {
+    /**
+     * Database id of the product being viewed
+     */
+    product_id?: string
+    /**
+     * Sku of the product being viewed
+     */
+    sku?: string
+    /**
+     * Product category being viewed
+     */
+    category?: string
+    /**
+     * Name of the product being viewed
+     */
+    name?: string
+    /**
+     * Brand associated with the product
+     */
+    brand?: string
+    /**
+     * Variant of the product
+     */
+    variant?: string
+    /**
+     * Price ($) of the product being viewed
+     */
+    price?: number
+    /**
+     * Quantity of a product
+     */
+    quantity?: number
+    /**
+     * Coupon code associated with a product (for example, MAY_DEALS_3)
+     */
+    coupon?: string
+    /**
+     * Position in the product list (ex. 3)
+     */
+    position?: number
+    /**
+     * URL of the product page
+     */
+    url?: string
+    /**
+     * Image url of the product
+     */
+    image_url?: string
+    [k: string]: unknown
+  }[]
+  /**
+   * The name of the action being performed.
+   */
+  event: string
 }

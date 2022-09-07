@@ -161,6 +161,7 @@ describe('Amplitude', () => {
       const responses = await testDestination.testAction('logPurchase', { event, mapping, useDefaultMappings: true })
       expect(responses.length).toBe(1)
       expect(responses[0].status).toBe(200)
+
       expect(responses[0].options.json).toMatchObject({
         api_key: undefined,
         events: expect.arrayContaining([
@@ -192,7 +193,7 @@ describe('Amplitude', () => {
       })
 
       const mapping = {
-        trackRevenuePerProduct: true
+        trackRevenuePerProduct: false
       }
 
       const responses = await testDestination.testAction('logPurchase', { event, mapping, useDefaultMappings: true })

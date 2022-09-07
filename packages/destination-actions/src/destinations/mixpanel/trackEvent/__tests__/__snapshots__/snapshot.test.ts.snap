@@ -19,7 +19,7 @@ Array [
       "$device_name": "pNBru",
       "$device_type": "pNBru",
       "$group_id": "pNBru",
-      "$insert_id": "",
+      "$insert_id": "pNBru",
       "$ios_ifa": "pNBru",
       "$lib_version": "pNBru",
       "$locale": "pNBru",
@@ -58,7 +58,7 @@ Array [
     "properties": Object {
       "$device_id": "pNBru",
       "$group_id": "pNBru",
-      "$insert_id": "",
+      "$insert_id": "pNBru",
       "$ios_ifa": "pNBru",
       "$screen_width": -83997876740423.69,
       "$source": "segment",
