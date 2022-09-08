@@ -8,6 +8,7 @@ export const customFields: InputField = {
 
   This can include standard or custom fields. Custom fields must be predefined in your Sendgrid account and the API field name should have __c appended.
 
+  Reference: https://docs.sendgrid.com/api-reference/custom-fields/get-all-field-definitions
   ---
 
   `,

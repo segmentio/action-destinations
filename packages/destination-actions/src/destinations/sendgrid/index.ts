@@ -4,10 +4,10 @@ import type { Settings } from './generated-types'
 import updateUserProfile from './updateUserProfile'
 
 const destination: DestinationDefinition<Settings> = {
-  name: 'Sendgrid',
+  name: 'Sendgrid Marketing Campaigns',
   slug: 'actions-sendgrid',
   mode: 'cloud',
-  description: 'This is used for sendgrid marketing campaign integration',
+  description: 'This is used for Sendgrid Marketing Campaigns integration',
 
   authentication: {
     scheme: 'custom',
@@ -15,7 +15,7 @@ const destination: DestinationDefinition<Settings> = {
       sendGridApiKey: {
         label: 'API Key',
         type: 'password',
-        description: 'The Api Key for your sendGrid account',
+        description: 'The Api Key for your Sendgrid account',
         required: true
       }
     },

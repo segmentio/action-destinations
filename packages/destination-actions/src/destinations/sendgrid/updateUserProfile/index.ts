@@ -5,13 +5,13 @@ import { customFields, convertPayload } from '../sendgrid-properties'
 import { IntegrationError } from '@segment/actions-core'
 
 const action: ActionDefinition<Settings, Payload> = {
-  title: 'Sendgrid Marketing Campaign Update User Profile',
-  description: 'Updating Sendgrid contacts using user profile',
+  title: 'Sendgrid Marketing Campaigns Update User Profile',
+  description: 'Updating Sendgrid Contacts using user profile',
   fields: {
     enable_batching: {
       type: 'boolean',
       label: 'Use Sendgrid Contacts PUT API which support up to 10K records in a request',
-      description: 'When enabled, the action will use the Sendgrid  Contacts PUT API to perform the operation',
+      description: 'When enabled, the action will use the Sendgrid Contacts PUT API to perform the operation',
       default: true
     },
     first_name: {
@@ -217,7 +217,7 @@ const action: ActionDefinition<Settings, Payload> = {
       throw new IntegrationError('Missing email value', 'Misconfigured required field', 400)
     }
 
-    // Convert input payload into sendgrid compatible request payload
+    // Convert input payload into Sendgrid Marketing Campaigns compatible request payload
     const formattedData = { contacts: [convertPayload(data.payload)] }
 
     // Making contacts upsert call here
