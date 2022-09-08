@@ -8,6 +8,7 @@ import trackPageView from './trackPageView'
 
 import upsertContact from './upsertContact'
 import type { Hubspot } from './types'
+import { defaultValues } from '@segment/actions-core'
 
 declare global {
   interface Window {
@@ -21,7 +22,26 @@ export const destination: BrowserDestinationDefinition<Settings, Hubspot> = {
   name: 'Hubspot Web (Actions)',
   slug: 'actions-hubspot-web',
   mode: 'device',
-
+  presets: [
+    {
+      name: 'Track Custom Behavioral Event',
+      subscribe: 'type = "track"',
+      partnerAction: 'trackCustomBehavioralEvent',
+      mapping: defaultValues(trackCustomBehavioralEvent.fields)
+    },
+    {
+      name: 'Update an Existing Contact or Create a New One',
+      subscribe: 'type = "identify"',
+      partnerAction: 'upsertContact',
+      mapping: defaultValues(upsertContact.fields)
+    },
+    {
+      name: 'Track Page View',
+      subscribe: 'type = "page"',
+      partnerAction: 'trackPageView',
+      mapping: defaultValues(trackPageView.fields)
+    }
+  ],
   settings: {
     portalId: {
       description: 'The Hub ID of your Hubspot account.',
