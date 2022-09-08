@@ -125,14 +125,14 @@ const action: ActionDefinition<Settings, Payload> = {
       allowNull: true,
       default: {
         '@if': {
-          exists: { '@path': '$.traits.phone_number' },
-          then: { '@path': '$.traits.phone_number' },
-          else: { '@path': '$.properties.phone_number' }
+          exists: { '@path': '$.traits.phone' },
+          then: { '@path': '$.traits.phone' },
+          else: { '@path': '$.properties.phone' }
         }
       }
     },
     whatsapp: {
-      label: 'whatsapp',
+      label: 'WhatsApp',
       description: `The contact's whatsapp.`,
       type: 'string',
       allowNull: true,
@@ -145,7 +145,7 @@ const action: ActionDefinition<Settings, Payload> = {
       }
     },
     line: {
-      label: 'Line Id',
+      label: 'LINE ID',
       description: `The contact's line id.`,
       type: 'string',
       allowNull: true,
@@ -158,7 +158,7 @@ const action: ActionDefinition<Settings, Payload> = {
       }
     },
     facebook: {
-      label: 'Facebook Id',
+      label: 'Facebook ID',
       description: `The contact's facebook id.`,
       type: 'string',
       allowNull: true,
