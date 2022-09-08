@@ -5,18 +5,18 @@ import { customFields, convertPayload } from '../sendgrid-properties'
 import { IntegrationError } from '@segment/actions-core'
 
 const action: ActionDefinition<Settings, Payload> = {
-  title: 'Sendgrid Marketing Campaigns Update User Profile',
-  description: 'Updating Sendgrid Contacts using user profile',
+  title: 'SendGrid Marketing Campaigns Update Contact',
+  description: 'Update Contact',
   fields: {
     enable_batching: {
       type: 'boolean',
-      label: 'Use Sendgrid Contacts PUT API which support up to 10K records in a request',
-      description: 'When enabled, the action will use the Sendgrid Contacts PUT API to perform the operation',
+      label: 'Use SendGrid Contacts PUT API which support up to 10K records in a request',
+      description: 'When enabled, the action will use the SendGrid Contacts PUT API to perform the batch operation.',
       default: true
     },
     first_name: {
       label: 'First Name',
-      description: `The user's first name`,
+      description: `The contact's first name.`,
       type: 'string',
       allowNull: true,
       default: {
@@ -29,7 +29,7 @@ const action: ActionDefinition<Settings, Payload> = {
     },
     last_name: {
       label: 'Last Name',
-      description: `The user's last name`,
+      description: `The contact's last name.`,
       type: 'string',
       allowNull: true,
       default: {
@@ -42,7 +42,7 @@ const action: ActionDefinition<Settings, Payload> = {
     },
     country: {
       label: 'Country',
-      description: `The user's country`,
+      description: `The contact's country.`,
       type: 'string',
       allowNull: true,
       default: {
@@ -55,7 +55,7 @@ const action: ActionDefinition<Settings, Payload> = {
     },
     postal_code: {
       label: 'Postal Code',
-      description: `The user's postal code`,
+      description: `The contact's postal code.`,
       type: 'string',
       allowNull: true,
       default: {
@@ -68,7 +68,7 @@ const action: ActionDefinition<Settings, Payload> = {
     },
     city: {
       label: 'City',
-      description: `The user's city`,
+      description: `The contact's city.`,
       type: 'string',
       allowNull: true,
       default: {
@@ -81,7 +81,7 @@ const action: ActionDefinition<Settings, Payload> = {
     },
     state: {
       label: 'State',
-      description: `The user's state`,
+      description: `The contact's state.`,
       type: 'string',
       allowNull: true,
       default: {
@@ -94,7 +94,7 @@ const action: ActionDefinition<Settings, Payload> = {
     },
     address_line_1: {
       label: 'Address Line 1',
-      description: `The user's address line 1`,
+      description: `The contact's address line 1.`,
       type: 'string',
       allowNull: true,
       default: {
@@ -107,7 +107,7 @@ const action: ActionDefinition<Settings, Payload> = {
     },
     address_line_2: {
       label: 'Address Line 2',
-      description: `The user's address line 2`,
+      description: `The contact's address line 2.`,
       type: 'string',
       allowNull: true,
       default: {
@@ -120,7 +120,7 @@ const action: ActionDefinition<Settings, Payload> = {
     },
     phone_number: {
       label: 'Phone Number',
-      description: `The user's phone number`,
+      description: `The contact's phone number.`,
       type: 'string',
       allowNull: true,
       default: {
@@ -133,7 +133,7 @@ const action: ActionDefinition<Settings, Payload> = {
     },
     whatsapp: {
       label: 'whatsapp',
-      description: `The user's whatsapp`,
+      description: `The contact's whatsapp.`,
       type: 'string',
       allowNull: true,
       default: {
@@ -146,7 +146,7 @@ const action: ActionDefinition<Settings, Payload> = {
     },
     line: {
       label: 'Line Id',
-      description: `The user's line id`,
+      description: `The contact's line id.`,
       type: 'string',
       allowNull: true,
       default: {
@@ -159,7 +159,7 @@ const action: ActionDefinition<Settings, Payload> = {
     },
     facebook: {
       label: 'Facebook Id',
-      description: `The user's facebook id`,
+      description: `The contact's facebook id.`,
       type: 'string',
       allowNull: true,
       default: {
@@ -171,8 +171,8 @@ const action: ActionDefinition<Settings, Payload> = {
       }
     },
     unique_name: {
-      label: 'UniqueName',
-      description: `The user's UniqueName`,
+      label: 'Unique Name',
+      description: `The contact's unique name.`,
       type: 'string',
       allowNull: true,
       default: {
@@ -185,7 +185,7 @@ const action: ActionDefinition<Settings, Payload> = {
     },
     identity: {
       label: 'Identity',
-      description: `The user's Identity`,
+      description: `The contact's identity.`,
       type: 'string',
       allowNull: true,
       default: {
@@ -197,10 +197,11 @@ const action: ActionDefinition<Settings, Payload> = {
       }
     },
     primary_email: {
-      label: 'Email',
-      description: `The user's email address`,
+      label: 'Email Address',
+      description: `The contact's email address.`,
       type: 'string',
       allowNull: false,
+      required: true,
       default: {
         '@if': {
           exists: { '@path': '$.traits.email' },
@@ -213,11 +214,7 @@ const action: ActionDefinition<Settings, Payload> = {
   },
 
   perform: (request, data) => {
-    if (data.payload.primary_email == '') {
-      throw new IntegrationError('Missing email value', 'Misconfigured required field', 400)
-    }
-
-    // Convert input payload into Sendgrid Marketing Campaigns compatible request payload
+    // Convert input payload into SendGrid Marketing Campaigns compatible request payload
     const formattedData = { contacts: [convertPayload(data.payload)] }
 
     // Making contacts upsert call here

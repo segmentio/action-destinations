@@ -2,75 +2,76 @@
 
 export interface Payload {
   /**
-   * When enabled, the action will use the Sendgrid  Contacts PUT API to perform the operation
+   * When enabled, the action will use the SendGrid Contacts PUT API to perform the batch operation.
    */
   enable_batching?: boolean
   /**
-   * The user's first name
+   * The contact's first name.
    */
   first_name?: string | null
   /**
-   * The user's last name
+   * The contact's last name.
    */
   last_name?: string | null
   /**
-   * The user's country
+   * The contact's country.
    */
   country?: string | null
   /**
-   * The user's postal code
+   * The contact's postal code.
    */
   postal_code?: string | null
   /**
-   * The user's city
+   * The contact's city.
    */
   city?: string | null
   /**
-   * The user's state
+   * The contact's state.
    */
   state?: string | null
   /**
-   * The user's address line 1
+   * The contact's address line 1.
    */
   address_line_1?: string | null
   /**
-   * The user's address line 2
+   * The contact's address line 2.
    */
   address_line_2?: string | null
   /**
-   * The user's phone number
+   * The contact's phone number.
    */
   phone_number?: string | null
   /**
-   * The user's whatsapp
+   * The contact's whatsapp.
    */
   whatsapp?: string | null
   /**
-   * The user's line id
+   * The contact's line id.
    */
   line?: string | null
   /**
-   * The user's facebook id
+   * The contact's facebook id.
    */
   facebook?: string | null
   /**
-   * The user's UniqueName
+   * The contact's unique name.
    */
   unique_name?: string | null
   /**
-   * The user's Identity
+   * The contact's identity.
    */
   identity?: string | null
   /**
-   * The user's email address
+   * The contact's email address.
    */
-  primary_email?: string
+  primary_email: string
   /**
    *
-   *   Additional fields to send to Sendgrid. On the left-hand side, input the Sendgrid field API name. On the right-hand side, map the Segment field that contains the value.
+   *   Additional fields to send to SendGrid. On the left-hand side, input the SendGrid Custom Fields Id. On the right-hand side, map the Segment field that contains the value.
    *
-   *   This can include standard or custom fields. Custom fields must be predefined in your Sendgrid account and the API field name should have __c appended.
+   *   Custom Fields must be predefined in your SendGrid account and you can retrieve corresponding Id using get all field definitions endpoint.
    *
+   *   Reference: https://docs.sendgrid.com/api-reference/custom-fields/get-all-field-definitions
    *   ---
    *
    *

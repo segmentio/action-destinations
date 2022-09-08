@@ -4,9 +4,9 @@ import { Payload } from './updateUserProfile/generated-types'
 export const customFields: InputField = {
   label: 'Other Fields',
   description: `
-  Additional fields to send to Sendgrid. On the left-hand side, input the Sendgrid field API name. On the right-hand side, map the Segment field that contains the value.
+  Additional fields to send to SendGrid. On the left-hand side, input the SendGrid Custom Fields Id. On the right-hand side, map the Segment field that contains the value.
 
-  This can include standard or custom fields. Custom fields must be predefined in your Sendgrid account and the API field name should have __c appended.
+  Custom Fields must be predefined in your SendGrid account and you can retrieve corresponding Id using get all field definitions endpoint.
 
   Reference: https://docs.sendgrid.com/api-reference/custom-fields/get-all-field-definitions
   ---

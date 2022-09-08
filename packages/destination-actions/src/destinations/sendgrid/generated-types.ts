@@ -2,7 +2,7 @@
 
 export interface Settings {
   /**
-   * The Api Key for your sendGrid account
+   * The Api key for your SendGrid account.
    */
   sendGridApiKey: string
 }
