@@ -88,7 +88,7 @@ const action: ActionDefinition<Settings, Payload> = {
 async function processPayload(request: RequestClient, settings: Settings, payloads: Payload[]) {
   if (payloads[0].source_segment_id !== payloads[0].personas_audience_key) {
     throw new IntegrationError(
-      'The value of`source_segment_id` and `personas_audience_key must match.',
+      'The value of `source_segment_id` and `personas_audience_key` must match.',
       'Invalid settings.',
       400
     )
@@ -108,7 +108,7 @@ async function processPayload(request: RequestClient, settings: Settings, payloa
 }
 
 async function getDmpSegmentId(request: RequestClient, settings: Settings, payload: Payload) {
-  const res = await getSegmentDmp(request, settings, payload)
+  const res = await getDmpSegment(request, settings, payload)
   const body = await res.json()
 
   if (body.elements?.length > 0) {
@@ -118,7 +118,7 @@ async function getDmpSegmentId(request: RequestClient, settings: Settings, paylo
   return createDmpSegment(request, settings, payload)
 }
 
-async function getSegmentDmp(request: RequestClient, settings: Settings, payload: Payload) {
+async function getDmpSegment(request: RequestClient, settings: Settings, payload: Payload) {
   return request(
     `https://api.linkedin.com/rest/dmpSegments?q=account&account=urn:li:sponsoredAccount:${settings.ad_account_id}&sourceSegmentId=${payload.source_segment_id}&sourcePlatform=SEGMENT`
   )
@@ -142,7 +142,7 @@ async function createDmpSegment(request: RequestClient, settings: Settings, payl
     }
   })
 
-  const res = await getSegmentDmp(request, settings, payload)
+  const res = await getDmpSegment(request, settings, payload)
   const body = await res.json()
 
   if (body.elements?.length > 0) {
