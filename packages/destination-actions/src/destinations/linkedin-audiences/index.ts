@@ -1,7 +1,7 @@
 import type { DestinationDefinition } from '@segment/actions-core'
 import type { Settings } from './generated-types'
-
 import updateAudience from './updateAudience'
+import { LINKEDIN_API_VERSION } from './linkedin-properties'
 
 interface RefreshTokenResponse {
   access_token: string
@@ -49,7 +49,7 @@ const destination: DestinationDefinition<Settings> = {
     return {
       headers: {
         authorization: `Bearer ${auth?.accessToken}`,
-        'LinkedIn-Version': '202207',
+        'LinkedIn-Version': LINKEDIN_API_VERSION,
         'Content-Type': 'application/json'
       }
     }
