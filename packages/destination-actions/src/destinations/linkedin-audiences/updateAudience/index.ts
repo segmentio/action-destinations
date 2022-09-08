@@ -11,8 +11,8 @@ const action: ActionDefinition<Settings, Payload> = {
   description: 'Syncs contacts from a Personas Audience to a LinkedIn DMP Segment.',
   fields: {
     dmp_segment_name: {
-      label: 'DMP Segment Name',
-      description: 'The name of the LinkedIn DMP Segment.',
+      label: 'DMP Segment Display Name',
+      description: 'The display name of the LinkedIn DMP Segment.',
       type: 'string',
       default: {
         '@path': '$.properties.audience_key'
@@ -21,7 +21,7 @@ const action: ActionDefinition<Settings, Payload> = {
     enable_batching: {
       label: 'Enable Batching',
       description: 'Enable batching of requests to the LinkedIn DMP Segment.',
-      type: 'boolean',
+      type: 'hidden',
       default: true
     },
     email: {

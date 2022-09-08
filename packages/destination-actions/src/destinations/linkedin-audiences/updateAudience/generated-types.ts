@@ -2,13 +2,13 @@
 
 export interface Payload {
   /**
-   * The name of the LinkedIn DMP Segment.
+   * The display name of the LinkedIn DMP Segment.
    */
   dmp_segment_name?: string
   /**
    * Enable batching of requests to the LinkedIn DMP Segment.
    */
-  enable_batching?: boolean
+  enable_batching?: boolean & string
   /**
    * The user's email address to send to LinkedIn.
    */
