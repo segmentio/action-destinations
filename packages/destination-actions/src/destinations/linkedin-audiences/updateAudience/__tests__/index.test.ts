@@ -23,6 +23,9 @@ const event = createTestEvent({
   context: {
     device: {
       advertisingId: '123'
+    },
+    traits: {
+      email: 'testing@testing.com'
     }
   }
 })
@@ -39,10 +42,10 @@ const updateUsersRequestBody = {
     {
       action: 'ADD',
       userIds: [
-        // {
-        //   idType: 'SHA256_EMAIL',
-        //   idValue: '2cbc46cfe86407789f9430ae7bec0ffea8fa4f064bcd600df01d5207a75f0a6a'
-        // },
+        {
+          idType: 'SHA256_EMAIL',
+          idValue: '584c4423c421df49955759498a71495aba49b8780eb9387dff333b6f0982c777'
+        },
         {
           idType: 'GOOGLE_AID',
           idValue: '123'
