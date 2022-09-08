@@ -7,6 +7,7 @@ import { Intercom } from './api'
 import trackEvent from './trackEvent'
 import identifyUser from './identifyUser'
 import identifyCompany from './identifyCompany'
+import { defaultValues } from '@segment/actions-core'
 
 declare global {
   interface Window {
@@ -18,7 +19,26 @@ export const destination: BrowserDestinationDefinition<Settings, Intercom> = {
   name: 'Intercom Web (Actions)',
   slug: 'actions-intercom-web',
   mode: 'device',
-
+  presets: [
+    {
+      name: 'Track Event',
+      subscribe: 'type = "track"',
+      partnerAction: 'trackEvent',
+      mapping: defaultValues(trackEvent.fields)
+    },
+    {
+      name: 'Identify User',
+      subscribe: 'type = "identify" or type = "page"',
+      partnerAction: 'identifyUser',
+      mapping: defaultValues(identifyUser.fields)
+    },
+    {
+      name: 'Identify Company',
+      subscribe: 'type = "group"',
+      partnerAction: 'identifyCompany',
+      mapping: defaultValues(identifyCompany.fields)
+    }
+  ],
   settings: {
     appId: {
       description: 'The app_id of your Intercom app which will indicate where to store any data.',
