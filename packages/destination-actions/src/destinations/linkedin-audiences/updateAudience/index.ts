@@ -40,7 +40,7 @@ const action: ActionDefinition<Settings, Payload> = {
     },
     google_advertising_id: {
       label: 'User Google Advertising ID',
-      description: "The user's email address to send to LinkedIn.",
+      description: "The user's Google Advertising ID to send to LinkedIn.",
       type: 'hidden',
       default: {
         '@path': '$.context.device.advertisingId'

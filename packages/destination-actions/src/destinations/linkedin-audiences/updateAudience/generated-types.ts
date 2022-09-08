@@ -18,7 +18,7 @@ export interface Payload {
    */
   send_email?: boolean
   /**
-   * The user's email address to send to LinkedIn.
+   * The user's Google Advertising ID to send to LinkedIn.
    */
   google_advertising_id?: string
   /**
