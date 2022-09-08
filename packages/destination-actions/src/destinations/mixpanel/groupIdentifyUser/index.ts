@@ -50,7 +50,8 @@ const action: ActionDefinition<Settings, Payload> = {
       $token: settings.projectToken,
       $group_key: group_key,
       $group_id: group_id,
-      $set: payload.traits
+      $set: payload.traits,
+      segment_source_name: settings.sourceName
     }
 
     return request(`${getApiServerUrl(settings.apiRegion)}/groups`, {
