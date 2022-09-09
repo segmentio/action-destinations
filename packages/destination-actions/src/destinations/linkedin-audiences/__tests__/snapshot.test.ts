@@ -13,7 +13,10 @@ describe(`Testing snapshot for ${destinationSlug} destination:`, () => {
       const action = destination.actions[actionSlug]
       const [eventData, settingsData] = generateTestData(seedName, destination, action, true)
 
-      nock(/.*/).persist().get(/.*/).reply(200)
+      nock(/.*/)
+        .persist()
+        .get(/.*/)
+        .reply(200, { elements: [{ id: 'dmp_segment_id' }] })
       nock(/.*/).persist().post(/.*/).reply(200)
       nock(/.*/).persist().put(/.*/).reply(200)
 
@@ -47,7 +50,10 @@ describe(`Testing snapshot for ${destinationSlug} destination:`, () => {
       const action = destination.actions[actionSlug]
       const [eventData, settingsData] = generateTestData(seedName, destination, action, false)
 
-      nock(/.*/).persist().get(/.*/).reply(200)
+      nock(/.*/)
+        .persist()
+        .get(/.*/)
+        .reply(200, { elements: [{ id: 'dmp_segment_id' }] })
       nock(/.*/).persist().post(/.*/).reply(200)
       nock(/.*/).persist().put(/.*/).reply(200)
 
