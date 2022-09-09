@@ -33,7 +33,7 @@ describe('Sendgrid.updateUserProfile', () => {
       settings,
       auth,
       mapping: {
-        email: {
+        primary_email: {
           '@path': '$.properties.email'
         },
         last_name: {
@@ -75,7 +75,7 @@ describe('Sendgrid.updateUserProfile', () => {
       settings,
       auth,
       mapping: {
-        email: {
+        primary_email: {
           '@path': '$.properties.email'
         },
         last_name: {
