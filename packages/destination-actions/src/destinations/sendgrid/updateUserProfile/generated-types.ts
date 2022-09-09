@@ -2,7 +2,7 @@
 
 export interface Payload {
   /**
-   * When enabled, the action will use the SendGrid Contacts PUT API to perform the batch operation. Batches can contain up to 10k records in a request.
+   * When enabled, the action will use the SendGrid Contacts PUT API to perform the batch operation. Batches can contain up to 30k records in a request.
    */
   enable_batching?: boolean
   /**
@@ -42,15 +42,15 @@ export interface Payload {
    */
   phone_number?: string | null
   /**
-   * The contact's whatsapp.
+   * The contact's WhatsApp.
    */
   whatsapp?: string | null
   /**
-   * The contact's line id.
+   * The contact's LINE ID.
    */
   line?: string | null
   /**
-   * The contact's facebook id.
+   * The contact's Facebook ID.
    */
   facebook?: string | null
   /**

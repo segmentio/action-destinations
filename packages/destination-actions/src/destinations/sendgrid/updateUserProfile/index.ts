@@ -12,7 +12,7 @@ const action: ActionDefinition<Settings, Payload> = {
       type: 'boolean',
       label: 'Batch Data to SendGrid Contacts PUT API',
       description:
-        'When enabled, the action will use the SendGrid Contacts PUT API to perform the batch operation. Batches can contain up to 10k records in a request.',
+        'When enabled, the action will use the SendGrid Contacts PUT API to perform the batch operation. Batches can contain up to 30k records in a request.',
       default: true
     },
     first_name: {
@@ -134,7 +134,7 @@ const action: ActionDefinition<Settings, Payload> = {
     },
     whatsapp: {
       label: 'WhatsApp',
-      description: `The contact's whatsapp.`,
+      description: `The contact's WhatsApp.`,
       type: 'string',
       allowNull: true,
       default: {
@@ -147,7 +147,7 @@ const action: ActionDefinition<Settings, Payload> = {
     },
     line: {
       label: 'LINE ID',
-      description: `The contact's line id.`,
+      description: `The contact's LINE ID.`,
       type: 'string',
       allowNull: true,
       default: {
@@ -160,7 +160,7 @@ const action: ActionDefinition<Settings, Payload> = {
     },
     facebook: {
       label: 'Facebook ID',
-      description: `The contact's facebook id.`,
+      description: `The contact's Facebook ID.`,
       type: 'string',
       allowNull: true,
       default: {
