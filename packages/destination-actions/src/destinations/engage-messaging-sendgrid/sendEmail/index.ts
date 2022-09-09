@@ -335,7 +335,7 @@ const action: ActionDefinition<Settings, Payload> = {
       if (settings.groupId) {
         const group = (payload.externalIds ?? [])
           .flatMap((externalId) => externalId.groups)
-          .find((group) => group?.id == settings.groupId)
+          .find((group) => group?.id === settings.groupId)
         if (!group) {
           statsClient?.incr('actions-personas-messaging-sendgrid.group_notfound', 1, tags)
           return
