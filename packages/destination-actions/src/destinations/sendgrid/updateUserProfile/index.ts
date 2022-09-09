@@ -5,13 +5,14 @@ import { customFields, convertPayload } from '../sendgrid-properties'
 import { IntegrationError } from '@segment/actions-core'
 
 const action: ActionDefinition<Settings, Payload> = {
-  title: 'SendGrid Marketing Campaigns Update Contact',
-  description: 'Update Contact',
+  title: 'Upsert Contact',
+  description: 'Add or update a Contact in SendGrid.',
   fields: {
     enable_batching: {
       type: 'boolean',
-      label: 'Use SendGrid Contacts PUT API which support up to 10K records in a request',
-      description: 'When enabled, the action will use the SendGrid Contacts PUT API to perform the batch operation.',
+      label: 'Batch Data to SendGrid Contacts PUT API',
+      description:
+        'When enabled, the action will use the SendGrid Contacts PUT API to perform the batch operation. Batches can contain up to 10k records in a request.',
       default: true
     },
     first_name: {

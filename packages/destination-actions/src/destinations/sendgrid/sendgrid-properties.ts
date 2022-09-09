@@ -8,7 +8,7 @@ export const customFields: InputField = {
 
   Custom Fields must be predefined in your SendGrid account and you can retrieve corresponding Id using get all field definitions endpoint.
 
-  Reference: https://docs.sendgrid.com/api-reference/custom-fields/get-all-field-definitions
+  Reference: [Get All field definitions](https://docs.sendgrid.com/api-reference/custom-fields/get-all-field-definitions)
   ---
 
   `,

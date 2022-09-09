@@ -2,7 +2,7 @@
 
 export interface Payload {
   /**
-   * When enabled, the action will use the SendGrid Contacts PUT API to perform the batch operation.
+   * When enabled, the action will use the SendGrid Contacts PUT API to perform the batch operation. Batches can contain up to 10k records in a request.
    */
   enable_batching?: boolean
   /**
@@ -71,7 +71,7 @@ export interface Payload {
    *
    *   Custom Fields must be predefined in your SendGrid account and you can retrieve corresponding Id using get all field definitions endpoint.
    *
-   *   Reference: https://docs.sendgrid.com/api-reference/custom-fields/get-all-field-definitions
+   *   Reference: [Get All field definitions](https://docs.sendgrid.com/api-reference/custom-fields/get-all-field-definitions)
    *   ---
    *
    *
