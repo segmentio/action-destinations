@@ -333,7 +333,8 @@ const action: ActionDefinition<Settings, Payload> = {
     } else if (['subscribed', 'true'].includes(emailProfile?.subscriptionStatus)) {
       statsClient?.incr('actions-personas-messaging-sendgrid.subscribed', 1, tags)
       if (settings.groupId) {
-        if (typeof logger?.info === 'function') {
+        if (Object.keys(logger ?? {}).length > 0) {
+          statsClient?.incr('actions-personas-messaging-sendgrid.logged_msg', 1, tags)
           logger?.info(`groups ${JSON.stringify(payload.externalIds)}`)
         }
         const group = (payload.externalIds ?? [])
