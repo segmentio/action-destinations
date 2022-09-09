@@ -336,7 +336,10 @@ const action: ActionDefinition<Settings, Payload> = {
         const group = (payload.externalIds ?? [])
           .flatMap((externalId) => externalId.groups)
           .find((group) => group?.id == settings.groupId)
-        if (!group || !group.subscriptionStatus) {
+        if (!group) {
+          statsClient?.incr('actions-personas-messaging-sendgrid.group_notfound', 1, tags)
+          return
+        } else if (!group.subscriptionStatus) {
           statsClient?.incr('actions-personas-messaging-sendgrid.group_notsubscribed', 1, tags)
           return
         }
