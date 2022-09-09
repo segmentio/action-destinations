@@ -114,7 +114,6 @@ const action: ActionDefinition<Settings, Payload> = {
       type: 'object',
       additionalProperties: true,
       properties: {
-        //should the types of these properties be string? Is there anything else they could be?
         initial_referrer: {
           label: 'Initial Referrer',
           type: 'string',
@@ -156,7 +155,6 @@ const action: ActionDefinition<Settings, Payload> = {
       type: 'object',
       additionalProperties: true,
       properties: {
-        //should the types of these properties be string? Is there anything else they could be?
         referrer: {
           label: 'Referrer',
           type: 'string'
@@ -191,7 +189,6 @@ const action: ActionDefinition<Settings, Payload> = {
         utm_content: { '@path': '$.context.campaign.content' }
       }
     },
-    //Looking at the amplitude docs, do we expect this to be an object containing types of number?
     add: {
       label: 'Add',
       description: 'The following fields will be set only once per session when using AJS2 as the source',
