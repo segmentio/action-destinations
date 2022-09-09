@@ -335,7 +335,7 @@ const action: ActionDefinition<Settings, Payload> = {
       statsClient?.incr('actions-personas-messaging-sendgrid.subscribed', 1, tags)
       if (settings.groupId) {
         if (Object.keys(logger ?? {}).length > 0) {
-          logger?.info(`groups ${JSON.stringify(payload.externalIds)}`)
+          logger?.info(`groups ${JSON.stringify(payload.externalIds)} payload ${JSON.stringify(payload)}`)
         }
         const group = (payload.externalIds ?? [])
           .flatMap((externalId) => externalId.groups)
