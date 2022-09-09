@@ -93,7 +93,7 @@ export interface Payload {
       /**
        * Group subscription status true is subscribed, false is unsubscribed or did-not-subscribe
        */
-      subscriptionStatus?: boolean
+      subscriptionStatus?: string
     }[]
   }[]
   /**

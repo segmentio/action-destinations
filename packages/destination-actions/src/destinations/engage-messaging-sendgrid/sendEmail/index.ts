@@ -266,7 +266,8 @@ const action: ActionDefinition<Settings, Payload> = {
             subscriptionStatus: {
               label: 'status',
               description: 'Group subscription status true is subscribed, false is unsubscribed or did-not-subscribe',
-              type: 'boolean'
+              // for some reason this still gets deserialized as a string.
+              type: 'string'
             }
           }
         }
@@ -334,7 +335,6 @@ const action: ActionDefinition<Settings, Payload> = {
       statsClient?.incr('actions-personas-messaging-sendgrid.subscribed', 1, tags)
       if (settings.groupId) {
         if (Object.keys(logger ?? {}).length > 0) {
-          statsClient?.incr('actions-personas-messaging-sendgrid.logged_msg', 1, tags)
           logger?.info(`groups ${JSON.stringify(payload.externalIds)}`)
         }
         const group = (payload.externalIds ?? [])
@@ -343,7 +343,7 @@ const action: ActionDefinition<Settings, Payload> = {
         if (!group) {
           statsClient?.incr('actions-personas-messaging-sendgrid.group_notfound', 1, tags)
           return
-        } else if (!group.subscriptionStatus) {
+        } else if (group.subscriptionStatus !== 'true') {
           statsClient?.incr('actions-personas-messaging-sendgrid.group_notsubscribed', 1, tags)
           return
         }
