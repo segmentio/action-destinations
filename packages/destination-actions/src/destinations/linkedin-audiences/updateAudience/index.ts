@@ -143,6 +143,7 @@ async function createDmpSegment(request: RequestClient, settings: Settings, payl
   })
 
   const res = await getDmpSegment(request, settings, payload)
+  console.log('this is the response body', res.body)
   const body = await res.json()
 
   if (body.elements?.length > 0) {

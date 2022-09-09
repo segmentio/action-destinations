@@ -25,12 +25,16 @@ const destination: DestinationDefinition<Settings> = {
         required: true
       }
     },
-    // testAuthentication: (request) => {
-    //   // Return a request that tests/validates the user's credentials.
-    //   // If you do not have a way to validate the authentication fields safely,
-    //   // you can remove the `testAuthentication` function, though discouraged.
-    //   return true
-    // },
+    testAuthentication: async (request, { auth, settings }) => {
+      return request(`https://api.linkedin.com/rest/adAccountsV2/${settings.ad_account_id}`, {
+        method: 'POST',
+        headers: {
+          'X-Restli-Protocol-Version': '2.0.0',
+          'LinkedIn-Version': LINKEDIN_API_VERSION,
+          authorization: auth.accessToken
+        }
+      })
+    },
     refreshAccessToken: async (request, { auth }) => {
       const res = await request<RefreshTokenResponse>('https://www.linkedin.com/oauth/v2/accessToken', {
         method: 'POST',
