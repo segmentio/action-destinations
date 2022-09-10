@@ -26,6 +26,9 @@ describe(`Testing snapshot for ${destinationSlug}'s ${actionSlug} destination ac
       }
     })
 
+    // static anonId
+    event.anonymousId = "373d36f4-985b-44bf-89ce-a7be430a583d"
+
     const mapping = {
       userIdentities: {'channels.email.address': 'contact@example.com'}
     }
@@ -62,6 +65,9 @@ describe(`Testing snapshot for ${destinationSlug}'s ${actionSlug} destination ac
       properties: eventData,
       groupId: 'group1234'
     })
+
+    // static anonId
+    event.anonymousId = "985b44bf-09ce-47be-830a-583d54d049cb"
 
     const mapping = {
       userIdentities: {'channels.email.address': 'contact@example.com'}

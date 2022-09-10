@@ -26,7 +26,6 @@ class CordialClient {
     this.request = request
     this.identityKeys = {
       segmentIdKey: settings.segmentIdKey,
-      anonymousIdsKey: settings.anonymousIdsKey
     }
   }
 

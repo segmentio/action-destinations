@@ -3,7 +3,6 @@
 exports[`Testing snapshot for Cordial's addProductToCart destination action: all fields 1`] = `
 Object {
   "anonymousId": "n%y8UQvAZo",
-  "anonymousIdsKey": "n%y8UQvAZo",
   "category": "n%y8UQvAZo",
   "description": "n%y8UQvAZo",
   "imageUrl": "n%y8UQvAZo",
@@ -26,7 +25,6 @@ Object {
 
 exports[`Testing snapshot for Cordial's addProductToCart destination action: required fields 1`] = `
 Object {
-  "anonymousIdsKey": "n%y8UQvAZo",
   "category": "n%y8UQvAZo",
   "name": "n%y8UQvAZo",
   "productID": "n%y8UQvAZo",

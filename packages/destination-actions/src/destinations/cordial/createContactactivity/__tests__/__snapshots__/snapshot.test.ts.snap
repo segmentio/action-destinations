@@ -3,7 +3,6 @@
 exports[`Testing snapshot for Cordial's createContactactivity destination action: all fields 1`] = `
 Object {
   "action": "Test Event",
-  "anonymousIdsKey": "%!C)I@n7Uu54P",
   "context": Object {
     "ip": "8.8.8.8",
     "library": Object {
@@ -54,7 +53,6 @@ Object {
 exports[`Testing snapshot for Cordial's createContactactivity destination action: required fields 1`] = `
 Object {
   "action": "%!C)I@n7Uu54P",
-  "anonymousIdsKey": "%!C)I@n7Uu54P",
   "segmentIdKey": "%!C)I@n7Uu54P",
 }
 `;

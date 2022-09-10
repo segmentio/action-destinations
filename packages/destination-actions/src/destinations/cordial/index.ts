@@ -38,12 +38,6 @@ const destination: DestinationDefinition<Settings> = {
         type: 'string',
         required: false,
       },
-      anonymousIdsKey: {
-        label: 'Anonymous ID attribute key',
-        description: 'Cordial array attribute key to store Segment Anonymous IDs in (e.g. `segment_anonymous_ids`)',
-        type: 'string',
-        required: false,
-      }
     },
     testAuthentication: (request, { settings }) => {
       return request(settings.endpoint + '/api/checkAuth', { headers: { 'Content-Type': 'application/json' }});
