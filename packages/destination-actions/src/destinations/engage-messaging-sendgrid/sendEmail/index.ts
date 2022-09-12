@@ -263,11 +263,11 @@ const action: ActionDefinition<Settings, Payload> = {
               label: 'Subscription group id',
               type: 'string'
             },
-            subscriptionStatus: {
+            isSubscribed: {
               label: 'status',
               description: 'Group subscription status true is subscribed, false is unsubscribed or did-not-subscribe',
               // for some reason this still gets deserialized as a string.
-              type: 'string'
+              type: 'boolean'
             }
           }
         }
@@ -286,17 +286,7 @@ const action: ActionDefinition<Settings, Payload> = {
               '@path': '$.isSubscribed'
             },
             groups: {
-              '@arrayPath': [
-                '$.groups',
-                {
-                  id: {
-                    '@path': '$.id'
-                  },
-                  subscriptionStatus: {
-                    '@path': '$.isSubscribed'
-                  }
-                }
-              ]
+              '@path': '$.groups'
             }
           }
         ]
@@ -343,7 +333,7 @@ const action: ActionDefinition<Settings, Payload> = {
         if (!group) {
           statsClient?.incr('actions-personas-messaging-sendgrid.group_notfound', 1, tags)
           return
-        } else if (group.subscriptionStatus !== 'true') {
+        } else if (!group.isSubscribed) {
           statsClient?.incr('actions-personas-messaging-sendgrid.group_notsubscribed', 1, tags)
           return
         }

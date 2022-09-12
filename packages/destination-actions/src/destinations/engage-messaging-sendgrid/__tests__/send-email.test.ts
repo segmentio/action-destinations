@@ -107,17 +107,7 @@ describe.each(['stage', 'production'])('%s environment', (environment) => {
               '@path': '$.isSubscribed'
             },
             groups: {
-              '@arrayPath': [
-                '$.groups',
-                {
-                  id: {
-                    '@path': '$.id'
-                  },
-                  subscriptionStatus: {
-                    '@path': '$.isSubscribed'
-                  }
-                }
-              ]
+              '@path': '$.groups'
             }
           }
         ]
