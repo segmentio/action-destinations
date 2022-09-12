@@ -306,7 +306,7 @@ const action: ActionDefinition<Settings, Payload> = {
       default: { '@path': '$.properties' }
     }
   },
-  perform: async (request, { settings, payload, statsContext, logger }) => {
+  perform: async (request, { settings, payload, statsContext }) => {
     const statsClient = statsContext?.statsClient
     const tags = statsContext?.tags
     tags?.push(`space_id:${settings.spaceId}`, `projectid:${settings.sourceId}`)
@@ -324,9 +324,6 @@ const action: ActionDefinition<Settings, Payload> = {
     } else if (['subscribed', 'true'].includes(emailProfile?.subscriptionStatus)) {
       statsClient?.incr('actions-personas-messaging-sendgrid.subscribed', 1, tags)
       if (settings.groupId) {
-        if (Object.keys(logger ?? {}).length > 0) {
-          logger?.info(`groups ${JSON.stringify(payload.externalIds)} payload ${JSON.stringify(payload)}`)
-        }
         const group = (payload.externalIds ?? [])
           .flatMap((externalId) => externalId.groups)
           .find((group) => group?.id === settings.groupId)
