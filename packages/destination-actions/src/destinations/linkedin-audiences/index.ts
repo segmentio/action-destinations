@@ -53,8 +53,7 @@ const destination: DestinationDefinition<Settings> = {
     return {
       headers: {
         authorization: `Bearer ${auth?.accessToken}`,
-        'LinkedIn-Version': LINKEDIN_API_VERSION,
-        'Content-Type': 'application/json'
+        'LinkedIn-Version': LINKEDIN_API_VERSION
       }
     }
   },

@@ -119,9 +119,15 @@ async function getDmpSegmentId(request: RequestClient, settings: Settings, paylo
 }
 
 async function getDmpSegment(request: RequestClient, settings: Settings, payload: Payload) {
-  return request(
-    `https://api.linkedin.com/rest/dmpSegments?q=account&account=urn:li:sponsoredAccount:${settings.ad_account_id}&sourceSegmentId=${payload.source_segment_id}&sourcePlatform=SEGMENT`
-  )
+  return request('https://api.linkedin.com/rest/dmpSegments', {
+    method: 'GET',
+    searchParams: {
+      q: 'account',
+      account: `urn:li:sponsoredAccount:${settings.ad_account_id}`,
+      sourceSegmentId: payload.source_segment_id || '',
+      sourcePlatform: 'SEGMENT'
+    }
+  })
 }
 
 async function createDmpSegment(request: RequestClient, settings: Settings, payload: Payload) {
