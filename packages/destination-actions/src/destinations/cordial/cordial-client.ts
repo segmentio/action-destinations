@@ -7,6 +7,7 @@ import { Payload as UpsertContactPayload } from './upsertContact/generated-types
 import { Payload as AddProductToCartPayload } from './addProductToCart/generated-types'
 import { Payload as RemoveProductFromCartPayload } from './removeProductFromCart/generated-types'
 import { Payload as UpsertOrder } from './upsertOrder/generated-types'
+import { Payload as MergeContacts } from './mergeContacts/generated-types'
 
 export interface IdentifiableRequest {
   segmentId?: string | null,
@@ -129,6 +130,18 @@ class CordialClient {
         totalAmount: payload.totalAmount,
         properties: payload.properties,
         items: payload.items
+      }
+    })
+  }
+
+  mergeContacts(payload: MergeContacts) {
+    return this.request(`${this.apiUrl}/mergeContacts`, {
+      method: 'post',
+      json: {
+        ...this.identityKeys,
+        anonymousId: payload.anonymousId,
+        segmentId: payload.segmentId,
+        previousId: payload.previousId
       }
     })
   }
