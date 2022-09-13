@@ -9,6 +9,7 @@ import { convertReferrerProperty } from '../referrer'
 import { mergeUserProperties } from '../merge-user-properties'
 import { parseUserAgentProperties } from '../user-agent'
 import { getEndpointByRegion } from '../regional-endpoints'
+import removeEmptyKeysAndCheckIfEmpty from '../emptyObject'
 
 export interface AmplitudeEvent extends Omit<Payload, 'products' | 'time' | 'session_id'> {
   library?: string
@@ -191,9 +192,11 @@ const action: ActionDefinition<Settings, Payload> = {
     },
     add: {
       label: 'Add',
-      description: 'The following fields will be set only once per session when using AJS2 as the source',
+      description:
+        "Increment a user property by a number with add. If the user property doesn't have a value set yet, it's initialized to 0.",
       type: 'object',
-      additionalProperties: true
+      additionalProperties: true,
+      defaultObjectUI: 'keyvalue'
     },
     utm_properties: {
       label: 'UTM Properties',
@@ -272,13 +275,13 @@ const action: ActionDefinition<Settings, Payload> = {
       properties.session_id = dayjs.utc(session_id).valueOf()
     }
 
-    if (Object.keys(Object.fromEntries(Object.entries(setOnce ?? {}).filter(([_, v]) => v))).length) {
+    if (removeEmptyKeysAndCheckIfEmpty(setOnce)) {
       properties.user_properties = { ...properties.user_properties, $setOnce: setOnce }
     }
-    if (Object.keys(Object.fromEntries(Object.entries(setAlways ?? {}).filter(([_, v]) => v))).length) {
+    if (removeEmptyKeysAndCheckIfEmpty(setAlways)) {
       properties.user_properties = { ...properties.user_properties, $set: setAlways }
     }
-    if (Object.keys(Object.fromEntries(Object.entries(add ?? {}).filter(([_, v]) => v))).length) {
+    if (removeEmptyKeysAndCheckIfEmpty(add)) {
       properties.user_properties = { ...properties.user_properties, $add: add }
     }
 

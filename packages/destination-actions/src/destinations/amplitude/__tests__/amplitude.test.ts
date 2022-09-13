@@ -645,6 +645,190 @@ describe('Amplitude', () => {
       })
     })
 
+    it('should override values of the setOnce and setAlways with the values in utm_properties and referrer', async () => {
+      nock('https://api2.amplitude.com/2').post('/httpapi').reply(200, {})
+
+      const event = createTestEvent({
+        timestamp,
+        event: 'Test Event',
+        traits: {
+          'some-trait-key': 'some-trait-value'
+        },
+        context: {
+          page: {
+            referrer: 'some-referrer'
+          },
+          campaign: {
+            name: 'TPS Innovation Newsletter',
+            source: 'Newsletter',
+            medium: 'email',
+            term: 'tps reports',
+            content: 'image link'
+          }
+        }
+      })
+
+      const mapping = {
+        utm_properties: {
+          utm_source: 'Override source'
+        },
+        referrer: 'Override referrer'
+      }
+
+      const responses = await testDestination.testAction('logEvent', { event, mapping, useDefaultMappings: true })
+      expect(responses.length).toBe(1)
+      expect(responses[0].status).toBe(200)
+      expect(responses[0].options.json).toMatchObject({
+        api_key: undefined,
+        events: expect.arrayContaining([
+          expect.objectContaining({
+            user_properties: expect.objectContaining({
+              $set: {
+                referrer: 'Override referrer',
+                utm_campaign: 'TPS Innovation Newsletter',
+                utm_content: 'image link',
+                utm_medium: 'email',
+                utm_source: 'Override source',
+                utm_term: 'tps reports'
+              },
+              $setOnce: {
+                initial_referrer: 'Override referrer',
+                initial_utm_campaign: 'TPS Innovation Newsletter',
+                initial_utm_content: 'image link',
+                initial_utm_medium: 'email',
+                initial_utm_source: 'Override source',
+                initial_utm_term: 'tps reports'
+              }
+            })
+          })
+        ])
+      })
+    })
+
+    it('should correctly handle the default values for setOnce and setAlways when utm_properties/referrer is empty', async () => {
+      nock('https://api2.amplitude.com/2').post('/httpapi').reply(200, {})
+
+      const event = createTestEvent({
+        timestamp,
+        event: 'Test Event',
+        traits: {
+          'some-trait-key': 'some-trait-value'
+        },
+        context: {
+          page: {
+            referrer: 'some-referrer'
+          },
+          campaign: {
+            name: 'TPS Innovation Newsletter',
+            source: 'Newsletter',
+            medium: 'email',
+            term: 'tps reports',
+            content: 'image link'
+          }
+        }
+      })
+
+      const mapping = {
+        utm_properties: {},
+        referrer: ''
+      }
+
+      const responses = await testDestination.testAction('logEvent', { event, mapping, useDefaultMappings: true })
+      expect(responses.length).toBe(1)
+      expect(responses[0].status).toBe(200)
+      expect(responses[0].options.json).toMatchObject({
+        api_key: undefined,
+        events: expect.arrayContaining([
+          expect.objectContaining({
+            user_properties: expect.objectContaining({
+              $set: {
+                referrer: 'some-referrer',
+                utm_campaign: 'TPS Innovation Newsletter',
+                utm_content: 'image link',
+                utm_medium: 'email',
+                utm_source: 'Newsletter',
+                utm_term: 'tps reports'
+              },
+              $setOnce: {
+                initial_referrer: 'some-referrer',
+                initial_utm_campaign: 'TPS Innovation Newsletter',
+                initial_utm_content: 'image link',
+                initial_utm_medium: 'email',
+                initial_utm_source: 'Newsletter',
+                initial_utm_term: 'tps reports'
+              }
+            })
+          })
+        ])
+      })
+    })
+
+    it('should correctly use the values of utm_properties and referrer when setOnce/setAlways is empty', async () => {
+      nock('https://api2.amplitude.com/2').post('/httpapi').reply(200, {})
+
+      const event = createTestEvent({
+        timestamp,
+        event: 'Test Event',
+        traits: {
+          'some-trait-key': 'some-trait-value'
+        },
+        context: {
+          page: {
+            referrer: 'some-referrer'
+          },
+          campaign: {
+            name: 'TPS Innovation Newsletter',
+            source: 'Newsletter',
+            medium: 'email',
+            term: 'tps reports',
+            content: 'image link'
+          }
+        }
+      })
+
+      const mapping = {
+        setOnce: {},
+        setAlways: {},
+        utm_properties: {
+          utm_campaign: 'Dummy campaign',
+          utm_content: 'dummy link',
+          utm_medium: 'dummy email',
+          utm_source: 'dummy newsletter',
+          utm_term: 'dummy reports'
+        },
+        referrer: 'dummy referrer'
+      }
+
+      const responses = await testDestination.testAction('logEvent', { event, mapping, useDefaultMappings: true })
+      expect(responses.length).toBe(1)
+      expect(responses[0].status).toBe(200)
+      expect(responses[0].options.json).toMatchObject({
+        api_key: undefined,
+        events: expect.arrayContaining([
+          expect.objectContaining({
+            user_properties: expect.objectContaining({
+              $set: {
+                referrer: 'dummy referrer',
+                utm_campaign: 'Dummy campaign',
+                utm_content: 'dummy link',
+                utm_medium: 'dummy email',
+                utm_source: 'dummy newsletter',
+                utm_term: 'dummy reports'
+              },
+              $setOnce: {
+                initial_referrer: 'dummy referrer',
+                initial_utm_campaign: 'Dummy campaign',
+                initial_utm_content: 'dummy link',
+                initial_utm_medium: 'dummy email',
+                initial_utm_source: 'dummy newsletter',
+                initial_utm_term: 'dummy reports'
+              }
+            })
+          })
+        ])
+      })
+    })
+
     it('should allow alternate revenue names at the root level', async () => {
       //understand that this is basically just testing mapping kit which is already tested
       nock('https://api2.amplitude.com/2').post('/httpapi').reply(200, {})

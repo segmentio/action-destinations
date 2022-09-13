@@ -217,7 +217,7 @@ export interface Payload {
     [k: string]: unknown
   }
   /**
-   * The following fields will be set only once per session when using AJS2 as the source
+   * Increment a user property by a number with add. If the user property doesn't have a value set yet, it's initialized to 0.
    */
   add?: {
     [k: string]: unknown
