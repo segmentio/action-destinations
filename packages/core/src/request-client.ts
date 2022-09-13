@@ -50,6 +50,8 @@ export interface RequestOptions extends Omit<RequestInit, 'headers'> {
    * If enabled, will not clone the response as part of post-request processing
    */
   skipResponseCloning?: boolean
+
+  agent?: any
 }
 
 /**
