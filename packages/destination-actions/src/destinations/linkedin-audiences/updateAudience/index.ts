@@ -114,6 +114,8 @@ async function processPayload(request: RequestClient, settings: Settings, payloa
   if (res.status !== 200) {
     throw new RetryableError('Error while attempting to update LinkedIn DMP Segment. This batch will be retried.')
   }
+
+  return res
 }
 
 async function getDmpSegmentId(request: RequestClient, settings: Settings, payload: Payload) {
