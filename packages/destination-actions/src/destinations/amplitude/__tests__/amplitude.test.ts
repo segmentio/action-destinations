@@ -645,7 +645,7 @@ describe('Amplitude', () => {
       })
     })
 
-    it('should override values of the setOnce and setAlways with the values in utm_properties and referrer', async () => {
+    it.only('should override values of the setOnce and setAlways with the values in utm_properties and referrer', async () => {
       nock('https://api2.amplitude.com/2').post('/httpapi').reply(200, {})
 
       const event = createTestEvent({
@@ -672,7 +672,15 @@ describe('Amplitude', () => {
         utm_properties: {
           utm_source: 'Override source'
         },
-        referrer: 'Override referrer'
+        referrer: 'Override referrer',
+        setOnce: {
+          initial_utm_source: 'Second source',
+          initial_utm_campaign: 'TPS Innovation Newsletter',
+          initial_utm_content: 'image link',
+          initial_utm_medium: 'email',
+          initial_utm_term: 'tps reports',
+          test: true
+        }
       }
 
       const responses = await testDestination.testAction('logEvent', { event, mapping, useDefaultMappings: true })
@@ -697,7 +705,8 @@ describe('Amplitude', () => {
                 initial_utm_content: 'image link',
                 initial_utm_medium: 'email',
                 initial_utm_source: 'Override source',
-                initial_utm_term: 'tps reports'
+                initial_utm_term: 'tps reports',
+                test: true
               }
             })
           })
