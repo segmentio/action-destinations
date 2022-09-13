@@ -96,15 +96,24 @@ async function processPayload(request: RequestClient, settings: Settings, payloa
 
   const dmpSegmentId = await getDmpSegmentId(request, settings, payloads[0])
   const elements = extractUsers(payloads)
-  return request(`https://api.linkedin.com/rest/dmpSegments/${dmpSegmentId}/users`, {
+  const res = await request(`https://api.linkedin.com/rest/dmpSegments/${dmpSegmentId}/users`, {
     method: 'POST',
     headers: {
       'X-RestLi-Method': 'BATCH_CREATE'
     },
     json: {
       elements
-    }
+    },
+    throwHttpErrors: false
   })
+
+  // At this point, if LinkedIn's API returns a 404 error, it's because the audience
+  // Segment just created isn't available yet for updates via this endpoint.
+  // Audiences are usually available to accept batches of data 1 - 2 minutes after
+  // they're created. Here, we'll throw an error and let Centrifuge handle the retry.
+  if (res.status === 404) {
+    throw new RetryableError('Error while attempting to update LinkedIn DMP Segment. This batch will be retried.')
+  }
 }
 
 async function getDmpSegmentId(request: RequestClient, settings: Settings, payload: Payload) {
@@ -131,7 +140,7 @@ async function getDmpSegment(request: RequestClient, settings: Settings, payload
 }
 
 async function createDmpSegment(request: RequestClient, settings: Settings, payload: Payload) {
-  await request('https://api.linkedin.com/rest/dmpSegments', {
+  const res = await request('https://api.linkedin.com/rest/dmpSegments', {
     method: 'POST',
     json: {
       name: payload.dmp_segment_name,
@@ -148,14 +157,8 @@ async function createDmpSegment(request: RequestClient, settings: Settings, payl
     }
   })
 
-  const res = await getDmpSegment(request, settings, payload)
-  const body = await res.json()
-
-  if (body.elements?.length > 0) {
-    return body.elements[0].id
-  }
-
-  throw new RetryableError('Failed to fetch or create a LinkedIn DMP Segment.')
+  const headers = res.headers.toJSON()
+  return headers['x-linkedin-id']
 }
 
 function extractUsers(payloads: Payload[]) {
