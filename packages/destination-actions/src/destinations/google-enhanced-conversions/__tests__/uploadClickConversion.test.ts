@@ -28,6 +28,22 @@ describe('GoogleEnhancedConversions', () => {
         }
       })
 
+      nock(`https://googleads.googleapis.com/v11/customers/${customerId}/googleAds:searchStream`)
+        .post('')
+        .reply(200, [
+          {
+            results: [
+              {
+                conversionCustomVariable: {
+                  resourceName: 'customers/1234/conversionCustomVariables/123445',
+                  id: '123445',
+                  name: 'username'
+                }
+              }
+            ]
+          }
+        ])
+
       nock(`https://googleads.googleapis.com/v11/customers/${customerId}:uploadClickConversions`)
         .post('')
         .reply(201, {})
@@ -41,12 +57,12 @@ describe('GoogleEnhancedConversions', () => {
         }
       })
 
-      expect(responses[0].options.body).toMatchInlineSnapshot(
+      expect(responses[1].options.body).toMatchInlineSnapshot(
         `"{\\"conversions\\":[{\\"conversionAction\\":\\"customers/1234/conversionActions/12345\\",\\"conversionDateTime\\":\\"2021-06-10 18:08:04+00:00\\",\\"orderId\\":\\"1234\\",\\"conversionValue\\":200,\\"currencyCode\\":\\"USD\\",\\"cartData\\":{\\"items\\":[{\\"productId\\":\\"1234\\",\\"quantity\\":3,\\"unitPrice\\":10.99}]},\\"userIdentifiers\\":[{\\"hashedEmail\\":\\"87924606b4131a8aceeeae8868531fbb9712aaa07a5d3a756b26ce0f5d6ca674\\"}]}],\\"partialFailure\\":true}"`
       )
 
-      expect(responses.length).toBe(1)
-      expect(responses[0].status).toBe(201)
+      expect(responses.length).toBe(2)
+      expect(responses[1].status).toBe(201)
     })
 
     it('should send email and phone user_identifiers', async () => {
@@ -70,6 +86,22 @@ describe('GoogleEnhancedConversions', () => {
         }
       })
 
+      nock(`https://googleads.googleapis.com/v11/customers/${customerId}/googleAds:searchStream`)
+        .post('')
+        .reply(200, [
+          {
+            results: [
+              {
+                conversionCustomVariable: {
+                  resourceName: 'customers/1234/conversionCustomVariables/123445',
+                  id: '123445',
+                  name: 'username'
+                }
+              }
+            ]
+          }
+        ])
+
       nock(`https://googleads.googleapis.com/v11/customers/${customerId}:uploadClickConversions`)
         .post('')
         .reply(201, {})
@@ -83,12 +115,68 @@ describe('GoogleEnhancedConversions', () => {
         }
       })
 
-      expect(responses[0].options.body).toMatchInlineSnapshot(
+      expect(responses[1].options.body).toMatchInlineSnapshot(
         `"{\\"conversions\\":[{\\"conversionAction\\":\\"customers/1234/conversionActions/12345\\",\\"conversionDateTime\\":\\"2021-06-10 18:08:04+00:00\\",\\"orderId\\":\\"1234\\",\\"conversionValue\\":200,\\"currencyCode\\":\\"USD\\",\\"cartData\\":{\\"items\\":[{\\"productId\\":\\"1234\\",\\"quantity\\":3,\\"unitPrice\\":10.99}]},\\"userIdentifiers\\":[{\\"hashedEmail\\":\\"87924606b4131a8aceeeae8868531fbb9712aaa07a5d3a756b26ce0f5d6ca674\\"},{\\"hashedPhoneNumber\\":\\"1dba01a96da19f6df771cff07e0a8d822126709b82ae7adc6a3839b3aaa68a16\\"}]}],\\"partialFailure\\":true}"`
       )
 
-      expect(responses.length).toBe(1)
-      expect(responses[0].status).toBe(201)
+      expect(responses.length).toBe(2)
+      expect(responses[1].status).toBe(201)
+    })
+
+    it('should correctly map custom variables', async () => {
+      const event = createTestEvent({
+        timestamp,
+        event: 'Test Event',
+        properties: {
+          gclid: '54321',
+          orderId: '1234',
+          total: '200',
+          currency: 'USD',
+          products: [
+            {
+              product_id: '1234',
+              quantity: 3,
+              price: 10.99
+            }
+          ]
+        }
+      })
+
+      nock(`https://googleads.googleapis.com/v11/customers/${customerId}/googleAds:searchStream`)
+        .post('')
+        .reply(200, [
+          {
+            results: [
+              {
+                conversionCustomVariable: {
+                  resourceName: 'customers/1234/conversionCustomVariables/123445',
+                  id: '123445',
+                  name: 'username'
+                }
+              }
+            ]
+          }
+        ])
+
+      nock(`https://googleads.googleapis.com/v11/customers/${customerId}:uploadClickConversions`)
+        .post('')
+        .reply(201, {})
+
+      const responses = await testDestination.testAction('uploadClickConversion', {
+        event,
+        mapping: { conversion_action: '12345', custom_variables: { username: 'spongebob' } },
+        useDefaultMappings: true,
+        settings: {
+          customerId
+        }
+      })
+
+      expect(responses[1].options.body).toMatchInlineSnapshot(
+        `"{\\"conversions\\":[{\\"conversionAction\\":\\"customers/1234/conversionActions/12345\\",\\"conversionDateTime\\":\\"2021-06-10 18:08:04+00:00\\",\\"orderId\\":\\"1234\\",\\"conversionValue\\":200,\\"currencyCode\\":\\"USD\\",\\"cartData\\":{\\"items\\":[{\\"productId\\":\\"1234\\",\\"quantity\\":3,\\"unitPrice\\":10.99}]},\\"userIdentifiers\\":[],\\"customVariables\\":[{\\"conversionCustomVariable\\":\\"customers/1234/conversionCustomVariables/123445\\",\\"value\\":\\"spongebob\\"}]}],\\"partialFailure\\":true}"`
+      )
+
+      expect(responses.length).toBe(2)
+      expect(responses[1].status).toBe(201)
     })
 
     it('should fail if customerId not set', async () => {
@@ -110,6 +198,26 @@ describe('GoogleEnhancedConversions', () => {
           ]
         }
       })
+
+      nock(`https://googleads.googleapis.com/v11/customers/${customerId}/googleAds:searchStream`)
+        .post('')
+        .reply(200, [
+          {
+            data: [
+              {
+                results: [
+                  {
+                    conversionCustomVariable: {
+                      resourceName: 'customers/1234/conversionCustomVariables/123445',
+                      id: '123445',
+                      name: 'username'
+                    }
+                  }
+                ]
+              }
+            ]
+          }
+        ])
 
       nock(`https://googleads.googleapis.com/v11/customers/${customerId}:uploadClickConversions`)
         .post('')
