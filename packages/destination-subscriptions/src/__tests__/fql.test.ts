@@ -194,7 +194,7 @@ test('name = "Home"', () => {
   })
 })
 
-test.only('name != null', () => {
+test('name != null', () => {
   testFql('name != null', {
     type: 'group',
     operator: 'and',
@@ -207,7 +207,7 @@ test.only('name != null', () => {
   })
 })
 
-test.only('name = null', () => {
+test('name = null', () => {
   testFql('name = null', {
     type: 'group',
     operator: 'and',
