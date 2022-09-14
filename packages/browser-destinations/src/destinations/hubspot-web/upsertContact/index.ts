@@ -17,11 +17,7 @@ const action: BrowserActionDefinition<Settings, Hubspot, Payload> = {
       type: 'string',
       required: true,
       default: {
-        '@if': {
-          exists: { '@path': '$.traits.email' },
-          then: { '@path': '$.traits.email' },
-          else: { '@path': '$.email' }
-        }
+        '@path': '$.traits.email'
       }
     },
     id: {
@@ -93,7 +89,11 @@ const action: BrowserActionDefinition<Settings, Hubspot, Payload> = {
       type: 'string',
       required: false,
       default: {
-        '@path': '$.traits.address.postalCode'
+        '@if': {
+          exists: { '@path': '$.traits.address.postalCode' },
+          then: { '@path': '$.traits.address.postalCode' },
+          else: { '@path': '$.traits.address.postal_code' }
+        }
       }
     }
   },
