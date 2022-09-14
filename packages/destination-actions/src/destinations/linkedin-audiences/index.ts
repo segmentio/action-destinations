@@ -12,7 +12,7 @@ interface RefreshTokenResponse {
 }
 
 const destination: DestinationDefinition<Settings> = {
-  name: 'Linkedin Audiences',
+  name: 'LinkedIn Audiences',
   slug: 'actions-linkedin-audiences',
   mode: 'cloud',
 
