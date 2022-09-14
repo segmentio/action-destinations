@@ -70,7 +70,7 @@ const action: BrowserActionDefinition<Settings, Hubspot, Payload> = {
       }
     },
     city: {
-      description: 'The name of the city the contacts is associated with.',
+      description: 'The name of the city the contact is associated with.',
       label: 'City',
       type: 'string',
       required: false,
