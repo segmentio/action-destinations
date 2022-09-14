@@ -52,7 +52,7 @@ const action: BrowserActionDefinition<Settings, Hubspot, Payload> = {
       }
     },
     country: {
-      description: 'The name of the country the contacts is associated with.',
+      description: 'The name of the country the contact is associated with.',
       label: 'Country',
       type: 'string',
       required: false,
