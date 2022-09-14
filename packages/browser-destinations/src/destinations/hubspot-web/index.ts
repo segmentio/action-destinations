@@ -83,9 +83,13 @@ export const destination: BrowserDestinationDefinition<Settings, Hubspot> = {
       ? `https://js-eu1.hs-scripts.com/${settings.portalId}.js`
       : `https://js.hs-scripts.com/${settings.portalId}.js`
 
+    const formsScriptPath = settings.enableEuropeanDataCenter
+      ? 'https://js-eu1.hsforms.net/forms/v2.js'
+      : 'https://js.hsforms.net/forms/v2.js'
+
     await deps.loadScript(scriptPath)
     if (settings.loadFormsSDK) {
-      await deps.loadScript('https://js.hsforms.net/forms/v2.js')
+      await deps.loadScript(formsScriptPath)
     }
     await deps.resolveWhen(
       () =>
