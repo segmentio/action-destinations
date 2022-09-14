@@ -1,6 +1,5 @@
 import { createHash } from 'crypto'
 import { ConversionCustomVariable } from './uploadClickConversion/types'
-import { IntegrationError } from '@segment/actions-core'
 
 export function formatCustomVariables(
   customVariables: object | undefined,
@@ -17,20 +16,14 @@ export function formatCustomVariables(
   })
 
   const variables: { conversionCustomVariable: string; value: string }[] = []
-
   Object.entries(customVariables).forEach(([key, value]) => {
-    if (resourceNames[key] == undefined) {
-      throw new IntegrationError(
-        `Custom variable [${key}] not defined in Google Ads Account.`,
-        'Missing required fields.',
-        400
-      )
+    if (resourceNames[key] != undefined) {
+      const variable = {
+        conversionCustomVariable: resourceNames[key],
+        value: value
+      }
+      variables.push(variable)
     }
-    const variable = {
-      conversionCustomVariable: resourceNames[key],
-      value: value
-    }
-    variables.push(variable)
   })
 
   return variables
