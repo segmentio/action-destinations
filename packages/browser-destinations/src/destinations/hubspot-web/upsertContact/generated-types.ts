@@ -16,27 +16,27 @@ export interface Payload {
     [k: string]: unknown
   }
   /**
-   * The name of the company the contacts is associated with.
+   * The name of the company the contact is associated with.
    */
   company?: string
   /**
-   * The name of the country the contacts is associated with.
+   * The name of the country the contact is associated with.
    */
   country?: string
   /**
-   * The name of the state the contacts is associated with.
+   * The name of the state the contact is associated with.
    */
   state?: string
   /**
-   * The name of the city the contacts is associated with.
+   * The name of the city the contact is associated with.
    */
   city?: string
   /**
-   * The street address of the contacts.
+   * The street address of the contact.
    */
   address?: string
   /**
-   * The postal code of the contacts.
+   * The postal code of the contact.
    */
   zip?: string
 }

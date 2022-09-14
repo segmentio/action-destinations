@@ -3,7 +3,6 @@ import type { Settings } from '../generated-types'
 import { Hubspot } from '../types'
 import type { Payload } from './generated-types'
 
-// Change from unknown to the partner SDK types
 const action: BrowserActionDefinition<Settings, Hubspot, Payload> = {
   title: 'Track Page View',
   description: 'Track the page view for the current page.',
