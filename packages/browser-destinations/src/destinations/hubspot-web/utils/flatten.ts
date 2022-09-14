@@ -1,11 +1,11 @@
-import { JSONValue } from '@segment/actions-core'
+import { JSONPrimitive } from '@segment/actions-core'
 
 export type Properties = {
   [k: string]: unknown
 }
 
 type FlattenProperties = object & {
-  [k: string]: JSONValue
+  [k: string]: JSONPrimitive
 }
 
 export function flatten(
@@ -19,11 +19,11 @@ export function flatten(
     // skips flattening specific keys on the top level
     if (!prefix && skipList.includes(key)) continue
 
-    if (typeof data[key] == 'object' && data[key] !== null) {
+    if (typeof data[key] === 'object' && data[key] !== null) {
       const flattened = flatten(data[key] as Properties, `${prefix}_${key}`, skipList, keyTransformation)
       result = { ...result, ...flattened }
     } else {
-      result[keyTransformation(`${prefix}_${key}`.replace(/^_/, ''))] = data[key] as JSONValue
+      result[keyTransformation(`${prefix}_${key}`.replace(/^_/, ''))] = data[key] as JSONPrimitive
     }
   }
   return result
