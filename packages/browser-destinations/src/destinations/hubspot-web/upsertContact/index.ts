@@ -61,7 +61,7 @@ const action: BrowserActionDefinition<Settings, Hubspot, Payload> = {
       }
     },
     state: {
-      description: 'The name of the state the contacts is associated with.',
+      description: 'The name of the state the contact is associated with.',
       label: 'State',
       type: 'string',
       required: false,
