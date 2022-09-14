@@ -79,7 +79,7 @@ const action: BrowserActionDefinition<Settings, Hubspot, Payload> = {
       }
     },
     address: {
-      description: 'The street address of the contacts.',
+      description: 'The street address of the contact.',
       label: 'Street Address',
       type: 'string',
       required: false,
