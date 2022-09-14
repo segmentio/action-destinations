@@ -1,26 +1,33 @@
-import { IntegrationError } from '@segment/actions-core'
-import { CURRENCY_ISO_CODES } from './constants'
 import { createHash } from 'crypto'
+import { ConversionCustomVariable } from './uploadClickConversion/types'
+import { IntegrationError } from '@segment/actions-core'
 
-export function verifyCurrency(currency: string): void {
-  if (!CURRENCY_ISO_CODES.includes(currency.toUpperCase())) {
-    throw new IntegrationError(`${currency} is not a valid currency code.`, 'Incorrect value format', 400)
-  }
-}
-
-export const formatCustomVariables = (
+export function formatCustomVariables(
   customVariables: object | undefined,
-  customer_id: string | undefined
-): object | undefined => {
+  customVariableIdsResults: Array<ConversionCustomVariable>
+): object | undefined {
   if (!customVariables) {
     return undefined
   }
 
+  // map custom variable names to resource name
+  const resourceNames: { [key: string]: any } = {}
+  Object.entries(customVariableIdsResults).forEach(([_, customVariables]) => {
+    resourceNames[customVariables.conversionCustomVariable.name] = customVariables.conversionCustomVariable.resourceName
+  })
+
   const variables: { conversionCustomVariable: string; value: string }[] = []
 
   Object.entries(customVariables).forEach(([key, value]) => {
+    if (resourceNames[key] == undefined) {
+      throw new IntegrationError(
+        `Custom variable [${key}] not defined in Google Ads Account.`,
+        'Missing required fields.',
+        400
+      )
+    }
     const variable = {
-      conversionCustomVariable: `customers/${customer_id}/conversionCustomVariables/${key}`,
+      conversionCustomVariable: resourceNames[key],
       value: value
     }
     variables.push(variable)
