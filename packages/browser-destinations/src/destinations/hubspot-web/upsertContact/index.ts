@@ -43,7 +43,7 @@ const action: BrowserActionDefinition<Settings, Hubspot, Payload> = {
       }
     },
     company: {
-      description: 'The name of the company the contacts is associated with.',
+      description: 'The name of the company the contact is associated with.',
       label: 'Company Name',
       type: 'string',
       required: false,
