@@ -88,7 +88,7 @@ const action: BrowserActionDefinition<Settings, Hubspot, Payload> = {
       }
     },
     zip: {
-      description: 'The postal code of the contacts.',
+      description: 'The postal code of the contact.',
       label: 'Postal Code',
       type: 'string',
       required: false,
