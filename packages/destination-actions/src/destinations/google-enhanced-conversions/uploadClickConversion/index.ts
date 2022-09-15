@@ -1,7 +1,7 @@
 import { ActionDefinition, IntegrationError, ModifiedResponse } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
-import { CartItem, QueryResponse } from './types'
+import { CartItem, QueryResponse } from '../types'
 import { formatCustomVariables, hash } from '../functions'
 
 const action: ActionDefinition<Settings, Payload> = {
