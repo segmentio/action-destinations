@@ -1,7 +1,8 @@
-import { ActionDefinition, IntegrationError } from '@segment/actions-core'
+import { ActionDefinition, IntegrationError, ModifiedResponse } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
-import { formatCustomVariables, verifyCurrency } from '../functions'
+import { formatCustomVariables } from '../functions'
+import { QueryResponse } from '../types'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Upload Call Conversion',
@@ -58,13 +59,13 @@ const action: ActionDefinition<Settings, Payload> = {
     custom_variables: {
       label: 'Custom Variables',
       description:
-        'The custom variables associated with this conversion. See Google’s documentation on how to create custom conversion variables.',
+        'The custom variables associated with this conversion. On the left-hand side, input the name of the custom variable as it appears in your Google Ads account. On the right-hand side, map the Segment field that contains the corresponding value See [Google’s documentation on how to create custom conversion variables.](https://developers.google.com/google-ads/api/docs/conversions/conversion-custom-variables)',
       type: 'object',
       additionalProperties: true,
       defaultObjectUI: 'keyvalue'
     }
   },
-  perform: async (request, { settings, payload }) => {
+  perform: async (request, { auth, settings, payload }) => {
     if (!settings.customerId) {
       throw new IntegrationError(
         'Customer id is required for this action. Please set it in destination settings.',
@@ -75,9 +76,20 @@ const action: ActionDefinition<Settings, Payload> = {
 
     settings.customerId = settings.customerId.replace(/[^0-9.]+/g, '')
 
-    if (payload.currency) {
-      verifyCurrency(payload.currency)
-    }
+    // query to get customers defined custom variables
+    const customVariableIds: ModifiedResponse<Array<QueryResponse>> = await request(
+      `https://googleads.googleapis.com/v11/customers/${settings.customerId}/googleAds:searchStream`,
+      {
+        method: 'post',
+        headers: {
+          authorization: `Bearer ${auth?.accessToken}`,
+          'developer-token': `${process.env.ADWORDS_DEVELOPER_TOKEN}`
+        },
+        json: {
+          query: `SELECT conversion_custom_variable.id, conversion_custom_variable.name FROM conversion_custom_variable`
+        }
+      }
+    )
 
     const request_object: { [key: string]: any } = {
       conversionAction: `customers/${settings.customerId}/conversionActions/${payload.conversion_action}`,
@@ -86,7 +98,7 @@ const action: ActionDefinition<Settings, Payload> = {
       conversionDateTime: payload.conversion_timestamp.replace(/T/, ' ').replace(/\..+/, '+00:00'),
       conversionValue: payload.value,
       currencyCode: payload.currency,
-      customVariables: formatCustomVariables(payload.custom_variables, settings.customerId)
+      customVariables: formatCustomVariables(payload.custom_variables, customVariableIds.data[0].results)
     }
 
     const response = await request(
