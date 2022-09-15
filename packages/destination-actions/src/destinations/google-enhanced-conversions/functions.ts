@@ -1,5 +1,5 @@
 import { createHash } from 'crypto'
-import { ConversionCustomVariable } from './uploadClickConversion/types'
+import { ConversionCustomVariable } from './types'
 
 export function formatCustomVariables(
   customVariables: object | undefined,
