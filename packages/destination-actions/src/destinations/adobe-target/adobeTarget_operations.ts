@@ -1,15 +1,19 @@
 import { RequestClient, IntegrationError } from '@segment/actions-core'
 
 function getNestedObjects(obj: { [x: string]: any }, objectPath = '', attributes: { [x: string]: string } = {}) {
-  Object.keys(obj).forEach((key) => {
-    const currObjectPath = objectPath ? `${objectPath}.${key}` : key
-    if (typeof obj[key] !== 'object') {
-      attributes[currObjectPath] = obj[key].toString()
-    } else {
-      getNestedObjects(obj[key], currObjectPath, attributes)
-    }
-  })
-  return attributes
+  // Do not run on null or undefined
+  if (obj != null || obj != undefined) {
+    Object.keys(obj).forEach((key) => {
+      const currObjectPath = objectPath ? `${objectPath}.${key}` : key
+
+      if (typeof obj[key] !== 'object') {
+        attributes[currObjectPath] = obj[key].toString()
+      } else {
+        getNestedObjects(obj[key], currObjectPath, attributes)
+      }
+    })
+    return attributes
+  }
 }
 const objectToQueryString = (object: { [x: string]: { toString: () => string } }) =>
   Object.keys(object)
