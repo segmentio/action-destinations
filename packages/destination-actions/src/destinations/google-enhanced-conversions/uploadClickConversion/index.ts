@@ -202,7 +202,7 @@ const action: ActionDefinition<Settings, Payload> = {
       })
     }
 
-    // Retrieves all of the custom variables that the customer has created in their Google Ads account.
+    // Retrieves all of the custom variables that the customer has created in their Google Ads account
     const customVariableIds: ModifiedResponse<Array<QueryResponse>> = await request(
       `https://googleads.googleapis.com/v11/customers/${settings.customerId}/googleAds:searchStream`,
       {
