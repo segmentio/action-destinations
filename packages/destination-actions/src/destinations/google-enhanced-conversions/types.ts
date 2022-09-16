@@ -15,3 +15,10 @@ export interface ConversionCustomVariable {
 export interface QueryResponse {
   results: Array<ConversionCustomVariable>
 }
+
+export interface PartialFailureError {
+  partialFailureError: {
+    code: number
+    message: string
+  }
+}
