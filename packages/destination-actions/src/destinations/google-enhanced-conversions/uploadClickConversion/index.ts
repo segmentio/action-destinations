@@ -1,7 +1,7 @@
 import { ActionDefinition, IntegrationError, ModifiedResponse } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
-import { CartItem, QueryResponse, PartialFailureError } from '../types'
+import { CartItem, QueryResponse } from '../types'
 import { formatCustomVariables, hash } from '../functions'
 
 const action: ActionDefinition<Settings, Payload> = {
@@ -246,7 +246,7 @@ const action: ActionDefinition<Settings, Payload> = {
       request_object.userIdentifiers.push({ hashedPhoneNumber: hash(payload.phone_number) })
     }
 
-    const response: ModifiedResponse<PartialFailureError> = await request(
+    const response = await request(
       `https://googleads.googleapis.com/v11/customers/${settings.customerId}:uploadClickConversions`,
       {
         method: 'post',
@@ -261,8 +261,12 @@ const action: ActionDefinition<Settings, Payload> = {
     )
 
     // Catch and return partial failure error
-    if (response.data.partialFailureError.code != 0) {
-      throw new IntegrationError(response.data.partialFailureError.message, 'INVALID_ARGUMENT', 400)
+    if (typeof response.data === 'object' && response.data != null) {
+      Object.entries(response.data).forEach(([key, value]) => {
+        if (key === 'partialFailureError' && value.code !== 0) {
+          throw new IntegrationError(value.message, 'INVALID_ARGUMENT', 400)
+        }
+      })
     }
     return response
   }
