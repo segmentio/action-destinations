@@ -9,7 +9,7 @@ export function formatCustomVariables(
     return undefined
   }
 
-  // map custom variable names to resource name
+  // Maps custom variable keys to their resource names
   const resourceNames: { [key: string]: any } = {}
   Object.entries(customVariableIdsResults).forEach(([_, customVariables]) => {
     resourceNames[customVariables.conversionCustomVariable.name] = customVariables.conversionCustomVariable.resourceName
