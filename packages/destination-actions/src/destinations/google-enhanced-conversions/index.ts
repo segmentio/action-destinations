@@ -1,7 +1,8 @@
 import { DestinationDefinition } from '@segment/actions-core'
 import type { Settings } from './generated-types'
 import postConversion from './postConversion'
-
+import uploadCallConversion from './uploadCallConversion'
+import uploadClickConversion from './uploadClickConversion'
 import uploadConversionAdjustment from './uploadConversionAdjustment'
 
 interface RefreshTokenResponse {
@@ -72,6 +73,8 @@ const destination: DestinationDefinition<Settings> = {
   },
   actions: {
     postConversion,
+    uploadClickConversion,
+    uploadCallConversion,
     uploadConversionAdjustment
   }
 }
