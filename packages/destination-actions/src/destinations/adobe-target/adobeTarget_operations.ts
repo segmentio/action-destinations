@@ -39,13 +39,15 @@ export default class AdobeTarget {
       throw err
     } else {
       const traits = getNestedObjects(this.traits)
-      const requestUrl = `https://${this.clientCode}.tt.omtrdc.net/m2/${
-        this.clientCode
-      }/profile/update?mbox3rdPartyId=${this.userId}&${objectToQueryString(traits)}`
+      if (traits) {
+        const requestUrl = `https://${this.clientCode}.tt.omtrdc.net/m2/${
+          this.clientCode
+        }/profile/update?mbox3rdPartyId=${this.userId}&${objectToQueryString(traits)}`
 
-      return this.request(requestUrl, {
-        method: 'POST'
-      })
+        return this.request(requestUrl, {
+          method: 'POST'
+        })
+      }
     }
   }
 
