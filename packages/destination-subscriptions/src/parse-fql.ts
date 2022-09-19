@@ -165,14 +165,6 @@ const parseFqlFunction = (
   }
 }
 
-/**
- *  The prior assumption of this method is that either `isExists` or `isNotExists` is true
- */
-const pushExistsEvent = (isExists: boolean, type: ConditionType, name: string | undefined, nodes: Condition[]) => {
-  const operator = isExists ? 'exists' : 'not_exists'
-  nodes.push({ type, name, operator } as Condition)
-}
-
 const parse = (tokens: Token[]): Condition => {
   const nodes: Condition[] = []
   let operator = 'and'
@@ -215,7 +207,8 @@ const parse = (tokens: Token[]): Condition => {
           })
         } else if (conditionType === 'name') {
           if (isExists || isNotExists) {
-            pushExistsEvent(isExists, conditionType, undefined, nodes)
+            const operator = isExists ? 'exists' : 'not_exists'
+            nodes.push({ type: conditionType, operator })
           } else {
             nodes.push({
               type: 'name',
@@ -225,7 +218,8 @@ const parse = (tokens: Token[]): Condition => {
           }
         } else if (conditionType === 'userId') {
           if (isExists || isNotExists) {
-            pushExistsEvent(isExists, conditionType, undefined, nodes)
+            const operator = isExists ? 'exists' : 'not_exists'
+            nodes.push({ type: conditionType, operator } as Condition)
           } else if (isTrue) {
             nodes.push({
               type: 'userId',
@@ -244,73 +238,79 @@ const parse = (tokens: Token[]): Condition => {
             })
           }
         } else if (conditionType === 'event-property') {
+          const name = token.value.replace(/^(properties)\./, '')
+
           if (isExists || isNotExists) {
-            const name = token.value.replace(/^(properties)\./, '')
-            pushExistsEvent(isExists, conditionType, name, nodes)
+            const operator = isExists ? 'exists' : 'not_exists'
+            nodes.push({ type: conditionType, name, operator })
           } else if (isTrue) {
             nodes.push({
               type: 'event-property',
-              name: token.value.replace(/^(properties)\./, ''),
+              name,
               operator: 'is_true'
             })
           } else if (isFalse) {
             nodes.push({
               type: 'event-property',
-              name: token.value.replace(/^(properties)\./, ''),
+              name,
               operator: 'is_false'
             })
           } else {
             nodes.push({
               type: 'event-property',
-              name: token.value.replace(/^(properties)\./, ''),
+              name,
               operator: operatorToken.value as Operator,
               value: getTokenValue(valueToken)
             })
           }
         } else if (conditionType === 'event-trait') {
+          const name = token.value.replace(/^(traits)\./, '')
+
           if (isExists || isNotExists) {
-            const name = token.value.replace(/^(traits)\./, '')
-            pushExistsEvent(isExists, conditionType, name, nodes)
+            const operator = isExists ? 'exists' : 'not_exists'
+            nodes.push({ type: conditionType, name, operator })
           } else if (isTrue) {
             nodes.push({
               type: 'event-trait',
-              name: token.value.replace(/^(traits)\./, ''),
+              name,
               operator: 'is_true'
             })
           } else if (isFalse) {
             nodes.push({
               type: 'event-trait',
-              name: token.value.replace(/^(traits)\./, ''),
+              name,
               operator: 'is_false'
             })
           } else {
             nodes.push({
               type: 'event-trait',
-              name: token.value.replace(/^(traits)\./, ''),
+              name,
               operator: operatorToken.value as Operator,
               value: getTokenValue(valueToken)
             })
           }
         } else if (conditionType === 'event-context') {
+          const name = token.value.replace(/^(context)\./, '')
+
           if (isExists || isNotExists) {
-            const name = token.value.replace(/^(context)\./, '')
-            pushExistsEvent(isExists, conditionType, name, nodes)
+            const operator = isExists ? 'exists' : 'not_exists'
+            nodes.push({ type: conditionType, name, operator })
           } else if (isTrue) {
             nodes.push({
               type: 'event-context',
-              name: token.value.replace(/^(context)\./, ''),
+              name,
               operator: 'is_true'
             })
           } else if (isFalse) {
             nodes.push({
               type: 'event-context',
-              name: token.value.replace(/^(context)\./, ''),
+              name,
               operator: 'is_false'
             })
           } else {
             nodes.push({
               type: 'event-context',
-              name: token.value.replace(/^(context)\./, ''),
+              name,
               operator: operatorToken.value as Operator,
               value: getTokenValue(valueToken)
             })
