@@ -1,17 +1,43 @@
 import type { ActionDefinition } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
+import { contactKey, id, key, values } from '../sfmc-properties'
 import type { Payload } from './generated-types'
+import SalesforceMarketingCloud from '../sfmc-operations'
 
 const action: ActionDefinition<Settings, Payload> = {
-  title: 'Contact',
-  description: 'TODO',
-  fields: {},
-  perform: () => {
-    //request, data
-    // Make your partner api request here!
-    // return request('https://example.com', {
+  title: 'Upsert Contact',
+  description: 'Create contacts and store their data in a data extension in Salesforce Marketing Cloud.',
+  fields: {
+    contactKey: { ...contactKey, required: true },
+    key: key,
+    id: id,
+    //keys: { ...keys, required: true },
+    values: values
+  },
+  perform: (request, { settings, payload }) => {
+    const sfmc: SalesforceMarketingCloud = new SalesforceMarketingCloud(
+      settings.subdomain,
+      payload.contactKey,
+      payload.key,
+      payload.id,
+      payload.values,
+      payload.keys,
+      request
+    )
+    return sfmc.upsertContact()
+    // const contact = {
+    //   contactID: payload.contactKey,
+    //   attributeSets: []
+    // }
+    // const requestUrl = `https://${settings.subdomain}.rest.marketingcloudapis.com/contacts/v1/contacts`
+    // console.log("requestURl:", requestUrl)
+    // console.log("contact:", contact)
+    // return request(requestUrl, {
     //   method: 'post',
-    //   json: data.payload
+    //   json: {
+    //     "contactKey": payload.contactKey,
+    //     "attributeSets": []
+    //   }
     // })
   }
 }

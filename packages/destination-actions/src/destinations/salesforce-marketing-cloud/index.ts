@@ -3,6 +3,8 @@ import type { Settings } from './generated-types'
 
 import contact from './contact'
 
+import dataExtension from './dataExtension'
+
 const destination: DestinationDefinition<Settings> = {
   name: 'Salesforce Marketing Cloud (Actions)',
   slug: 'actions-salesforce-marketing-cloud',
@@ -10,7 +12,14 @@ const destination: DestinationDefinition<Settings> = {
 
   authentication: {
     scheme: 'oauth2',
-    fields: {}
+    fields: {
+      subdomain: {
+        label: 'Subdomain',
+        description:
+          'The unique subdomain Salesforce Marketing Cloud assigned to your account. Subdomains are tenant specific and should be a 28-character string starting with the letters "mc". Do not include the .rest.marketingcloudapis.com part of your subdomain URL. See more information on how to find your subdomain [here](https://developer.salesforce.com/docs/marketing/marketing-cloud/guide/your-subdomain-tenant-specific-endpoints.html)',
+        type: 'string'
+      }
+    }
     // testAuthentication: (request) => {
     //   // Return a request that tests/validates the user's credentials.
     //   // If you do not have a way to validate the authentication fields safely,
@@ -45,7 +54,8 @@ const destination: DestinationDefinition<Settings> = {
   //   // implement this function and should remove it completely.
 
   actions: {
-    contact
+    contact,
+    dataExtension
   }
 }
 
