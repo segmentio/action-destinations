@@ -151,4 +151,8 @@ export interface Payload {
    * User agent
    */
   userAgent?: string
+  /**
+   * Set as true to ensure Segment sends data to Mixpanel in batches.
+   */
+  enable_batching?: boolean
 }

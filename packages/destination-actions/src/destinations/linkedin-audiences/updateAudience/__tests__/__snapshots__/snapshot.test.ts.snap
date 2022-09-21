@@ -1,0 +1,24 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Testing snapshot for LinkedinAudiences's updateAudience destination action: all fields 1`] = `""`;
+
+exports[`Testing snapshot for LinkedinAudiences's updateAudience destination action: required fields 1`] = `""`;
+
+exports[`Testing snapshot for LinkedinAudiences's updateAudience destination action: required fields 2`] = `
+Headers {
+  Symbol(map): Object {
+    "authorization": Array [
+      "Bearer undefined",
+    ],
+    "content-type": Array [
+      "application/json",
+    ],
+    "linkedin-version": Array [
+      "202207",
+    ],
+    "user-agent": Array [
+      "Segment (Actions)",
+    ],
+  },
+}
+`;
