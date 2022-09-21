@@ -252,6 +252,24 @@ const action: ActionDefinition<Settings, Payload> = {
           label: 'ID',
           description: 'The subscription status for the identity.',
           type: 'string'
+        },
+        groups: {
+          label: 'Subscription Groups',
+          description: 'Subscription groups and their statuses for this id.',
+          type: 'object',
+          multiple: true,
+          properties: {
+            id: {
+              label: 'Subscription group id',
+              type: 'string'
+            },
+            isSubscribed: {
+              label: 'status',
+              description: 'Group subscription status true is subscribed, false is unsubscribed or did-not-subscribe',
+              // for some reason this still gets deserialized as a string.
+              type: 'boolean'
+            }
+          }
         }
       },
       default: {
@@ -266,6 +284,9 @@ const action: ActionDefinition<Settings, Payload> = {
             },
             subscriptionStatus: {
               '@path': '$.isSubscribed'
+            },
+            groups: {
+              '@path': '$.groups'
             }
           }
         ]
@@ -302,6 +323,19 @@ const action: ActionDefinition<Settings, Payload> = {
       return
     } else if (['subscribed', 'true'].includes(emailProfile?.subscriptionStatus)) {
       statsClient?.incr('actions-personas-messaging-sendgrid.subscribed', 1, tags)
+      if (settings.groupId) {
+        const group = (payload.externalIds ?? [])
+          .flatMap((externalId) => externalId.groups)
+          .find((group) => group?.id === settings.groupId)
+        if (!group) {
+          statsClient?.incr('actions-personas-messaging-sendgrid.group_notfound', 1, tags)
+          return
+        } else if (!group.isSubscribed) {
+          statsClient?.incr('actions-personas-messaging-sendgrid.group_notsubscribed', 1, tags)
+          return
+        }
+        statsClient?.incr('actions-personas-messaging-sendgrid.group_subscribed', 1, tags)
+      }
 
       let traits
       if (payload.traitEnrichment) {

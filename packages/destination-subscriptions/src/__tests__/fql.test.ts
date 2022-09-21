@@ -194,6 +194,32 @@ test('name = "Home"', () => {
   })
 })
 
+test('name != null', () => {
+  testFql('name != null', {
+    type: 'group',
+    operator: 'and',
+    children: [
+      {
+        type: 'name',
+        operator: 'exists'
+      }
+    ]
+  })
+})
+
+test('name = null', () => {
+  testFql('name = null', {
+    type: 'group',
+    operator: 'and',
+    children: [
+      {
+        type: 'name',
+        operator: 'not_exists'
+      }
+    ]
+  })
+})
+
 test('event = "Product Added" or event = "Order Completed"', () => {
   testFql('event = "Product Added" or event = "Order Completed"', {
     type: 'group',

@@ -165,7 +165,8 @@ export class Action<Settings, Payload extends JSONLikeObject> extends EventEmitt
       const schema = this.schema
       const validationOptions = {
         schemaKey: `${this.destinationName}:${this.definition.title}`,
-        throwIfInvalid: false
+        throwIfInvalid: false,
+        statsContext: bundle.statsContext
       }
 
       payloads = payloads
