@@ -1,4 +1,4 @@
-import type { AfterResponseHook, NormalizedOptions } from '../../request-client'
+import type { AfterResponseHook } from '../../request-client'
 import type { ModifiedResponse } from '../../types'
 
 const prepareResponse: AfterResponseHook = async (_request, _options, response) => {
@@ -15,12 +15,6 @@ const prepareResponse: AfterResponseHook = async (_request, _options, response) 
     const clone = response.clone()
     content = await clone.text()
   }
-
-  const agent: NormalizedOptions['agent'] = _options.agent
-  if (agent) {
-    agent.destroy()
-  }
-
   let data: unknown
 
   try {
