@@ -12,7 +12,9 @@ interface RefreshTokenResponse {
 }
 
 const destination: DestinationDefinition<Settings> = {
-  name: 'LinkedIn Audiences',
+  // We  need to match `name` with the creationName in the db.
+  // The name used in the UI is "LinkedIn Audiences".
+  name: 'Linkedin Audiences',
   slug: 'actions-linkedin-audiences',
   mode: 'cloud',
 
