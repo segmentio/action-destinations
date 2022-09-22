@@ -27,8 +27,8 @@ const destination: DestinationDefinition<Settings> = {
       }
     },
     testAuthentication: async (request, { auth, settings }) => {
-      return request(`https://api.linkedin.com/rest/adAccountsV2/${settings.ad_account_id}`, {
-        method: 'POST',
+      return request(`https://api.linkedin.com/rest/adAccounts/${settings.ad_account_id}`, {
+        method: 'GET',
         headers: {
           'X-Restli-Protocol-Version': '2.0.0',
           'LinkedIn-Version': LINKEDIN_API_VERSION,
