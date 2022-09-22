@@ -21,7 +21,7 @@ const action: ActionDefinition<Settings, Payload> = {
     external_id: {
       type: 'string',
       description:
-        'A unique identifier for the contact generated outside Intercom. External ID is required if the role is `user` and email is blank.',
+        'A unique identifier for the contact generated outside of Intercom. External ID is required if the role is `user` and email is blank. External IDs cannot be set if the role is `lead`.',
       label: 'External ID',
       default: {
         '@path': '$.userId'
