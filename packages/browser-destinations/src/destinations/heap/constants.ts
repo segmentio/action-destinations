@@ -1,1 +1,1 @@
-export const HEAP_SEGMENT_LIBRARY_NAME = 'destinations-actions'
+export const HEAP_SEGMENT_LIBRARY_NAME = 'browser-destination'
