@@ -10,14 +10,15 @@ const action: ActionDefinition<Settings, Payload> = {
     conversion_action: {
       label: 'Conversion Action ID',
       description:
-        'The ID of the conversion action associated with this conversion. To find the Conversion Action ID, click on your conversion in Google Ads and get the value for ctId in the URL. For example, if the URL is https://ads.google.com/aw/conversions/detail?ocid=00000000&ctId=576882000, your Conversion Action ID is 576882000.',
+        'The ID of the conversion action associated with this conversion. To find the Conversion Action ID, click on your conversion in Google Ads and get the value for `ctId` in the URL. For example, if the URL is `https://ads.google.com/aw/conversions/detail?ocid=00000000&ctId=570000000`, your Conversion Action ID is `570000000`.',
       type: 'string',
       required: true,
       default: ''
     },
     adjustment_type: {
       label: 'Adjustment Type',
-      description: 'The adjustment type. See Google’s documentation for details on each type.',
+      description:
+        'The adjustment type. See [Google’s documentation](https://developers.google.com/google-ads/api/reference/rpc/v11/ConversionAdjustmentTypeEnum.ConversionAdjustmentType) for details on each type.',
       type: 'string',
       choices: [
         { label: 'UNSPECIFIED', value: 'UNSPECIFIED' },
@@ -31,7 +32,7 @@ const action: ActionDefinition<Settings, Payload> = {
     adjustment_timestamp: {
       label: 'Adjustment Timestamp',
       description:
-        'The date time at which the adjustment occurred. Must be after the conversion_date_time. The timezone must be specified. The format is "yyyy-mm-dd hh:mm:ss+|-hh:mm", e.g. "2019-01-01 12:32:45-08:00".',
+        'The date time at which the adjustment occurred. Must be after the conversion timestamp. The timezone must be specified. The format is "yyyy-mm-dd hh:mm:ss+|-hh:mm", e.g. "2019-01-01 12:32:45-08:00".',
       type: 'string',
       required: true,
       default: {
@@ -44,36 +45,36 @@ const action: ActionDefinition<Settings, Payload> = {
         'The order ID of the conversion to be adjusted. If the conversion was reported with an order ID specified, that order ID must be used as the identifier here. Required for ENHANCEMENT adjustments.',
       type: 'string',
       default: {
-        '@path': '$.properties.orderId'
+        '@if': {
+          exists: { '@path': '$.properties.orderId' },
+          then: { '@path': '$.properties.orderId' },
+          else: { '@path': '$.properties.order_id' }
+        }
       }
     },
     gclid: {
       label: 'GCLID',
       description:
         'Google click ID associated with the original conversion for this adjustment. This is used for the GCLID Date Time Pair. Required for non-ENHANCEMENT adjustments. If adjustment is ENHANCEMENT, this value is optional but may be set in addition to the order ID.',
-      type: 'string',
-      default: ''
+      type: 'string'
     },
     conversion_timestamp: {
       label: 'Conversion Timestamp',
       description:
         'The date time at which the original conversion for this adjustment occurred. The timezone must be specified. The format is "yyyy-mm-dd hh:mm:ss+|-hh:mm", e.g. "2019-01-01 12:32:45-08:00". This is used for the GCLID Date Time Pair. Required for non-ENHANCEMENT adjustments. If adjustment is ENHANCEMENT, this value is optional but may be set in addition to the order ID.',
-      type: 'string',
-      default: ''
+      type: 'string'
     },
     restatement_value: {
       label: 'Restatement Value',
       description:
         'The restated conversion value. This is the value of the conversion after restatement. For example, to change the value of a conversion from 100 to 70, an adjusted value of 70 should be reported. Required for RESTATEMENT adjustments.',
-      type: 'number',
-      default: ''
+      type: 'number'
     },
     restatement_currency_code: {
       label: 'Restatement Currency Code',
       description:
-        'The currency of the restated value. If not provided, then the default currency from the conversion action is used, and if that is not set then the account currency is used. This is the ISO 4217 3-character currency code e.g. USD or EUR.',
-      type: 'string',
-      default: ''
+        'The currency of the restated value. If not provided, then the default currency from the conversion action is used, and if that is not set then the account currency is used. This is the ISO 4217 3-character currency code, e.g. USD or EUR.',
+      type: 'string'
     },
     email_address: {
       label: 'Email Address',
@@ -85,7 +86,7 @@ const action: ActionDefinition<Settings, Payload> = {
         '@if': {
           exists: { '@path': '$.properties.email' },
           then: { '@path': '$.properties.email' },
-          else: { '@path': '$context.traits.email' }
+          else: { '@path': '$.context.traits.email' }
         }
       }
     },
@@ -98,7 +99,7 @@ const action: ActionDefinition<Settings, Payload> = {
         '@if': {
           exists: { '@path': '$.properties.phone' },
           then: { '@path': '$.properties.phone' },
-          else: { '@path': '$context.traits.phone' }
+          else: { '@path': '$.context.traits.phone' }
         }
       }
     },
@@ -111,7 +112,7 @@ const action: ActionDefinition<Settings, Payload> = {
         '@if': {
           exists: { '@path': '$.properties.firstName' },
           then: { '@path': '$.properties.firstName' },
-          else: { '@path': '$context.traits.firstName' }
+          else: { '@path': '$.context.traits.firstName' }
         }
       }
     },
@@ -124,7 +125,7 @@ const action: ActionDefinition<Settings, Payload> = {
         '@if': {
           exists: { '@path': '$.properties.lastName' },
           then: { '@path': '$.properties.lastName' },
-          else: { '@path': '$context.traits.lastName' }
+          else: { '@path': '$.context.traits.lastName' }
         }
       }
     },
@@ -202,7 +203,7 @@ const action: ActionDefinition<Settings, Payload> = {
   perform: async (request, { settings, payload }) => {
     if (!settings.customerId) {
       throw new IntegrationError(
-        'Customer id is required for this action. Please set it in destination settings.',
+        'Customer ID is required for this action. Please set it in destination settings.',
         'Missing required fields.',
         400
       )
@@ -211,16 +212,16 @@ const action: ActionDefinition<Settings, Payload> = {
 
     // Ensuring the required values are set for different types of adjustments
     if (payload.adjustment_type == 'ENHANCEMENT' && !payload.order_id) {
-      throw new IntegrationError('Order id required for enhancement conversion', 'INVALID_ARGUMENT', 400)
+      throw new IntegrationError('Order ID required for enhancements', 'INVALID_ARGUMENT', 400)
     } else if (payload.adjustment_type != 'ENHANCEMENT') {
       if (!payload.gclid) {
-        throw new IntegrationError('Gclid required for chosen conversion type', 'INVALID_ARGUMENT', 400)
+        throw new IntegrationError('GCLID required for chosen conversion type', 'INVALID_ARGUMENT', 400)
       }
       if (!payload.conversion_timestamp) {
         throw new IntegrationError('Conversion timestamp required for chosen conversion type', 'INVALID_ARGUMENT', 400)
       }
       if (payload.adjustment_type == 'RESTATEMENT' && !payload.restatement_value) {
-        throw new IntegrationError('Restatement value required for restatement conversion', 'INVALID_ARGUMENT', 400)
+        throw new IntegrationError('Restatement value required for restatements', 'INVALID_ARGUMENT', 400)
       }
     }
     const request_object: { [key: string]: any } = {

@@ -2,7 +2,7 @@
 
 export interface Payload {
   /**
-   * The ID of the conversion action associated with this conversion. To find the Conversion Action ID, click on your conversion in Google Ads and get the value for ctId in the URL. For example, if the URL is https://ads.google.com/aw/conversions/detail?ocid=00000000&ctId=570000000, your Conversion Action ID is 570000000.
+   * The ID of the conversion action associated with this conversion. To find the Conversion Action ID, click on your conversion in Google Ads and get the value for `ctId` in the URL. For example, if the URL is `https://ads.google.com/aw/conversions/detail?ocid=00000000&ctId=570000000`, your Conversion Action ID is `570000000`.
    */
   conversion_action: string
   /**
@@ -30,7 +30,7 @@ export interface Payload {
    */
   phone_number?: string
   /**
-   * The order ID associated with the conversion. An order id can only be used for one conversion per conversion action.
+   * The order ID associated with the conversion. An order ID can only be used for one conversion per conversion action.
    */
   order_id?: string
   /**
@@ -42,7 +42,7 @@ export interface Payload {
    */
   currency?: string
   /**
-   * The environment this conversion was recorded on. e.g. App or Web.
+   * The environment this conversion was recorded on, e.g. APP or WEB.
    */
   conversion_environment?: string
   /**
@@ -60,7 +60,7 @@ export interface Payload {
   /**
    * Sum of all transaction-level discounts, such as free shipping and coupon discounts for the whole cart.
    */
-  local_cost?: number & string
+  local_cost?: number
   /**
    * Data of the items purchased.
    */

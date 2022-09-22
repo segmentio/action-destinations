@@ -11,18 +11,16 @@ const action: ActionDefinition<Settings, Payload> = {
     conversion_action: {
       label: 'Conversion Action ID',
       description:
-        'The ID of the conversion action associated with this conversion. To find the Conversion Action ID, click on your conversion in Google Ads and get the value for ctId in the URL. For example, if the URL is https://ads.google.com/aw/conversions/detail?ocid=00000000&ctId=570000000, your Conversion Action ID is 570000000.',
+        'The ID of the conversion action associated with this conversion. To find the Conversion Action ID, click on your conversion in Google Ads and get the value for `ctId` in the URL. For example, if the URL is `https://ads.google.com/aw/conversions/detail?ocid=00000000&ctId=570000000`, your Conversion Action ID is `570000000`.',
       type: 'string',
-      required: true,
-      default: ''
+      required: true
     },
     caller_id: {
       label: 'Caller ID',
       description:
-        'The caller id from which this call was placed. Caller id is expected to be in E.164 format with preceding + sign. e.g. "+16502531234".',
+        'The caller ID from which this call was placed. Caller ID is expected to be in E.164 format with preceding + sign, e.g. "+16502531234".',
       type: 'string',
-      required: true,
-      default: ''
+      required: true
     },
     call_timestamp: {
       label: 'Call Timestamp',
@@ -59,16 +57,16 @@ const action: ActionDefinition<Settings, Payload> = {
     custom_variables: {
       label: 'Custom Variables',
       description:
-        'The custom variables associated with this conversion. On the left-hand side, input the name of the custom variable as it appears in your Google Ads account. On the right-hand side, map the Segment field that contains the corresponding value See [Google’s documentation on how to create custom conversion variables.](https://developers.google.com/google-ads/api/docs/conversions/conversion-custom-variables)',
+        'The custom variables associated with this conversion. On the left-hand side, input the name of the custom variable as it appears in your Google Ads account. On the right-hand side, map the Segment field that contains the corresponding value See [Google’s documentation on how to create custom conversion variables](https://developers.google.com/google-ads/api/docs/conversions/conversion-custom-variables).',
       type: 'object',
       additionalProperties: true,
-      defaultObjectUI: 'keyvalue'
+      defaultObjectUI: 'keyvalue:only'
     }
   },
   perform: async (request, { auth, settings, payload }) => {
     if (!settings.customerId) {
       throw new IntegrationError(
-        'Customer id is required for this action. Please set it in destination settings.',
+        'Customer ID is required for this action. Please set it in destination settings.',
         'Missing required fields.',
         400
       )
@@ -79,7 +77,7 @@ const action: ActionDefinition<Settings, Payload> = {
     const request_object: { [key: string]: any } = {
       conversionAction: `customers/${settings.customerId}/conversionActions/${payload.conversion_action}`,
       callerId: payload.caller_id,
-      callStartDateTime: payload.call_timestamp,
+      callStartDateTime: payload.call_timestamp?.replace(/T/, ' ').replace(/\..+/, '+00:00'),
       conversionDateTime: payload.conversion_timestamp.replace(/T/, ' ').replace(/\..+/, '+00:00'),
       conversionValue: payload.value,
       currencyCode: payload.currency

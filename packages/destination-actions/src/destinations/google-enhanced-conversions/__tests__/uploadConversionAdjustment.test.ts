@@ -46,7 +46,9 @@ describe('GoogleEnhancedConversions', () => {
         }
       })
 
-      expect(responses[0].options.body).toMatchInlineSnapshot()
+      expect(responses[0].options.body).toMatchInlineSnapshot(
+        `"{\\"conversionAdjustments\\":[{\\"conversionAction\\":\\"customers/1234/conversionActions/12345\\",\\"adjustmentType\\":\\"UNSPECIFIED\\",\\"adjustmentDateTime\\":\\"2021-06-10 18:08:04+00:00\\",\\"orderId\\":\\"1234\\",\\"gclidDateTimePair\\":{\\"gclid\\":\\"123a\\",\\"conversionDateTime\\":\\"2021-06-10T18:08:04.000Z\\"},\\"restatementValue\\":{},\\"userIdentifiers\\":[{\\"hashedEmail\\":\\"87924606b4131a8aceeeae8868531fbb9712aaa07a5d3a756b26ce0f5d6ca674\\"},{\\"hashedPhoneNumber\\":\\"c775e7b757ede630cd0aa1113bd102661ab38829ca52a6422ab782862f268646\\"},{\\"addressInfo\\":{\\"hashedFirstName\\":\\"4f23798d92708359b734a18172c9c864f1d48044a754115a0d4b843bca3a5332\\",\\"hashedLastName\\":\\"fd53ef835b15485572a6e82cf470dcb41fd218ae5751ab7531c956a2a6bcd3c7\\"}}],\\"userAgent\\":\\"Mozilla/5.0 (iPhone; CPU iPhone OS 9_1 like Mac OS X) AppleWebKit/601.1.46 (KHTML, like Gecko) Version/9.0 Mobile/13B143 Safari/601.1\\"}],\\"partialFailure\\":true}"`
+      )
 
       expect(responses.length).toBe(1)
       expect(responses[0].status).toBe(201)
@@ -76,7 +78,7 @@ describe('GoogleEnhancedConversions', () => {
         })
         fail('the test should have thrown an error')
       } catch (e) {
-        expect(e.message).toBe('Customer id is required for this action. Please set it in destination settings.')
+        expect(e.message).toBe('Customer ID is required for this action. Please set it in destination settings.')
       }
     })
 
@@ -105,7 +107,7 @@ describe('GoogleEnhancedConversions', () => {
         })
         fail('the test should have thrown an error')
       } catch (e) {
-        expect(e.message).toBe('Order id required for enhancement conversion')
+        expect(e.message).toBe('Order ID required for enhancements')
       }
     })
 
@@ -134,7 +136,7 @@ describe('GoogleEnhancedConversions', () => {
         })
         fail('the test should have thrown an error')
       } catch (e) {
-        expect(e.message).toBe('Gclid required for chosen conversion type')
+        expect(e.message).toBe('GCLID required for chosen conversion type')
       }
     })
 
@@ -197,7 +199,7 @@ describe('GoogleEnhancedConversions', () => {
         })
         fail('the test should have thrown an error')
       } catch (e) {
-        expect(e.message).toBe('Restatement value required for restatement conversion')
+        expect(e.message).toBe('Restatement value required for restatements')
       }
     })
   })

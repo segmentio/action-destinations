@@ -11,30 +11,26 @@ const action: ActionDefinition<Settings, Payload> = {
     conversion_action: {
       label: 'Conversion Action ID',
       description:
-        'The ID of the conversion action associated with this conversion. To find the Conversion Action ID, click on your conversion in Google Ads and get the value for ctId in the URL. For example, if the URL is https://ads.google.com/aw/conversions/detail?ocid=00000000&ctId=570000000, your Conversion Action ID is 570000000.',
+        'The ID of the conversion action associated with this conversion. To find the Conversion Action ID, click on your conversion in Google Ads and get the value for `ctId` in the URL. For example, if the URL is `https://ads.google.com/aw/conversions/detail?ocid=00000000&ctId=570000000`, your Conversion Action ID is `570000000`.',
       type: 'string',
-      required: true,
-      default: ''
+      required: true
     },
     gclid: {
       label: 'GCLID',
       description: 'The Google click ID (gclid) associated with this conversion.',
-      type: 'string',
-      default: ''
+      type: 'string'
     },
     gbraid: {
       label: 'GBRAID',
       description:
         'The click identifier for clicks associated with app conversions and originating from iOS devices starting with iOS14.',
-      type: 'string',
-      default: ''
+      type: 'string'
     },
     wbraid: {
       label: 'WBRAID',
       description:
         'The click identifier for clicks associated with web conversions and originating from iOS devices starting with iOS14.',
-      type: 'string',
-      default: ''
+      type: 'string'
     },
     conversion_timestamp: {
       label: 'Conversion Timestamp',
@@ -56,7 +52,7 @@ const action: ActionDefinition<Settings, Payload> = {
         '@if': {
           exists: { '@path': '$.properties.email' },
           then: { '@path': '$.properties.email' },
-          else: { '@path': '$context.traits.email' }
+          else: { '@path': '$.context.traits.email' }
         }
       }
     },
@@ -69,17 +65,21 @@ const action: ActionDefinition<Settings, Payload> = {
         '@if': {
           exists: { '@path': '$.properties.phone' },
           then: { '@path': '$.properties.phone' },
-          else: { '@path': '$context.traits.phone' }
+          else: { '@path': '$.context.traits.phone' }
         }
       }
     },
     order_id: {
       label: 'Order ID',
       description:
-        'The order ID associated with the conversion. An order id can only be used for one conversion per conversion action.',
+        'The order ID associated with the conversion. An order ID can only be used for one conversion per conversion action.',
       type: 'string',
       default: {
-        '@path': '$.properties.orderId'
+        '@if': {
+          exists: { '@path': '$.properties.orderId' },
+          then: { '@path': '$.properties.orderId' },
+          else: { '@path': '$.properties.order_id' }
+        }
       }
     },
     value: {
@@ -100,38 +100,34 @@ const action: ActionDefinition<Settings, Payload> = {
     },
     conversion_environment: {
       label: 'Conversion Environment',
-      description: 'The environment this conversion was recorded on. e.g. App or Web.',
+      description: 'The environment this conversion was recorded on, e.g. APP or WEB.',
       type: 'string',
       choices: [
         { label: 'APP', value: 'APP' },
         { label: 'WEB', value: 'WEB' },
-        { label: `UNSPECIFIED`, value: 'UNSPECIFIED' }
+        { label: 'UNSPECIFIED', value: 'UNSPECIFIED' }
       ]
     },
     merchant_id: {
       label: 'Merchant Center ID',
       description: 'The ID of the Merchant Center account where the items are uploaded.',
-      type: 'string',
-      default: ''
+      type: 'string'
     },
     merchant_country_code: {
       label: 'Merchant Center Feed Country Code',
       description: 'The ISO 3166 two-character region code of the Merchant Center feed where the items are uploaded.',
-      type: 'string',
-      default: ''
+      type: 'string'
     },
     merchant_language_code: {
       label: 'Merchant Center Feed Language Code',
       description: 'The ISO 639-1 language code of the Merchant Center feed where the items are uploaded.',
-      type: 'string',
-      default: ''
+      type: 'string'
     },
     local_cost: {
       label: 'Local Transaction Cost',
       description:
         'Sum of all transaction-level discounts, such as free shipping and coupon discounts for the whole cart.',
-      type: 'number',
-      default: ''
+      type: 'number'
     },
     items: {
       label: 'Items',
@@ -178,13 +174,13 @@ const action: ActionDefinition<Settings, Payload> = {
         'The custom variables associated with this conversion. On the left-hand side, input the name of the custom variable as it appears in your Google Ads account. On the right-hand side, map the Segment field that contains the corresponding value See [Google’s documentation on how to create custom conversion variables.](https://developers.google.com/google-ads/api/docs/conversions/conversion-custom-variables) ',
       type: 'object',
       additionalProperties: true,
-      defaultObjectUI: 'keyvalue'
+      defaultObjectUI: 'keyvalue:only'
     }
   },
   perform: async (request, { auth, settings, payload }) => {
     if (!settings.customerId) {
       throw new IntegrationError(
-        'Customer id is required for this action. Please set it in destination settings.',
+        'Customer ID is required for this action. Please set it in destination settings.',
         'Missing required fields.',
         400
       )

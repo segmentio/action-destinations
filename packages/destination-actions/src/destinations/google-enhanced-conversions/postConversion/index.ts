@@ -212,7 +212,7 @@ const action: ActionDefinition<Settings, Payload> = {
   perform: async (request, { payload, settings }) => {
     if (!settings.conversionTrackingId) {
       throw new IntegrationError(
-        'Conversion tracking id is required for this action. Please set it in destination settings.',
+        'Conversion ID is required for this action. Please set it in destination settings.',
         'Missing required fields.',
         400
       )

@@ -20,22 +20,6 @@ describe('GoogleEnhancedConversions', () => {
         }
       })
 
-      nock(`https://googleads.googleapis.com/v11/customers/${customerId}/googleAds:searchStream`)
-        .post('')
-        .reply(200, [
-          {
-            results: [
-              {
-                conversionCustomVariable: {
-                  resourceName: 'customers/1234/conversionCustomVariables/123445',
-                  id: '123445',
-                  name: 'username'
-                }
-              }
-            ]
-          }
-        ])
-
       nock(`https://googleads.googleapis.com/v11/customers/${customerId}:uploadCallConversions`).post('').reply(201, {})
 
       const responses = await testDestination.testAction('uploadCallConversion', {
@@ -47,12 +31,12 @@ describe('GoogleEnhancedConversions', () => {
         }
       })
 
-      expect(responses[1].options.body).toMatchInlineSnapshot(
+      expect(responses[0].options.body).toMatchInlineSnapshot(
         `"{\\"conversions\\":[{\\"conversionAction\\":\\"customers/1234/conversionActions/12345\\",\\"callerId\\":\\"+1234567890\\",\\"conversionDateTime\\":\\"2021-06-10 18:08:04+00:00\\",\\"conversionValue\\":200,\\"currencyCode\\":\\"USD\\"}],\\"partialFailure\\":true}"`
       )
 
-      expect(responses.length).toBe(2)
-      expect(responses[1].status).toBe(201)
+      expect(responses.length).toBe(1)
+      expect(responses[0].status).toBe(201)
     })
 
     it('should map custom variables correctly', async () => {
@@ -114,22 +98,6 @@ describe('GoogleEnhancedConversions', () => {
         }
       })
 
-      nock(`https://googleads.googleapis.com/v11/customers/${customerId}/googleAds:searchStream`)
-        .post('')
-        .reply(200, [
-          {
-            results: [
-              {
-                conversionCustomVariable: {
-                  resourceName: 'customers/1234/conversionCustomVariables/123445',
-                  id: '123445',
-                  name: 'username'
-                }
-              }
-            ]
-          }
-        ])
-
       nock(`https://googleads.googleapis.com/v11/customers/${customerId}:uploadCallConversions`).post('').reply(201, {})
 
       try {
@@ -141,7 +109,7 @@ describe('GoogleEnhancedConversions', () => {
         })
         fail('the test should have thrown an error')
       } catch (e) {
-        expect(e.message).toBe('Customer id is required for this action. Please set it in destination settings.')
+        expect(e.message).toBe('Customer ID is required for this action. Please set it in destination settings.')
       }
     })
   })
