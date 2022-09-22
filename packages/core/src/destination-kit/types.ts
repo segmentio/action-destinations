@@ -1,4 +1,4 @@
-import { Logger, StatsContext } from './index'
+import { Logger, StatsContext, TransactionContext } from './index'
 import type { RequestOptions } from '../request-client'
 import type { JSONObject } from '../json-object'
 import { AuthTokens } from './parse-settings'
@@ -32,6 +32,7 @@ export interface ExecuteInput<Settings, Payload> {
   readonly features?: Features
   readonly statsContext?: StatsContext
   readonly logger?: Logger
+  readonly transactionContext?: TransactionContext
 }
 
 export interface DynamicFieldResponse {
