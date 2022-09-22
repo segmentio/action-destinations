@@ -51,6 +51,17 @@ interface SObjectsResponseData {
   ]
 }
 
+interface SalesforceError {
+  response: {
+    data: [
+      {
+        message?: string
+        errorCode?: string
+      }
+    ]
+  }
+}
+
 export default class Salesforce {
   instanceUrl: string
   request: RequestClient
@@ -145,23 +156,34 @@ export default class Salesforce {
   }
 
   customObjectName = async (): Promise<DynamicFieldResponse> => {
-    const result = await this.request<SObjectsResponseData>(
-      `${this.instanceUrl}services/data/${API_VERSION}/sobjects`,
-      {
-        method: 'get',
-        skipResponseCloning: true
+    try {
+      const result = await this.request<SObjectsResponseData>(
+        `${this.instanceUrl}services/data/${API_VERSION}/sobjects`,
+        {
+          method: 'get',
+          skipResponseCloning: true
+        }
+      )
+
+      const fields = result.data.sobjects.filter((field) => {
+        return field.createable === true
+      })
+
+      return {
+        choices: fields.map((field) => {
+          return { value: field.name, label: field.label }
+        }),
+        nextPage: '2'
       }
-    )
-
-    const fields = result.data.sobjects.filter((field) => {
-      return field.createable === true
-    })
-
-    return {
-      choices: fields.map((field) => {
-        return { value: field.name, label: field.label }
-      }),
-      nextPage: '2'
+    } catch (err) {
+      return {
+        choices: [],
+        nextPage: '',
+        error: {
+          message: (err as SalesforceError).response.data[0].message ?? 'Unknown error',
+          code: (err as SalesforceError).response.data[0].errorCode ?? 'Unknown error'
+        }
+      }
     }
   }
 
