@@ -1,5 +1,14 @@
 import { ActionDefinition, IntegrationError } from '@segment/actions-core'
-import { action_source, custom_data, event_time, event_id, event_source_url } from '../fb-capi-properties'
+import {
+  action_source,
+  custom_data,
+  event_time,
+  event_id,
+  event_source_url,
+  enable_limited_data_use,
+  data_processing_country,
+  data_processing_state
+} from '../fb-capi-properties'
 import { user_data_field, hash_user_data } from '../fb-capi-user-data'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
@@ -14,7 +23,10 @@ const action: ActionDefinition<Settings, Payload> = {
     user_data: user_data_field,
     event_id: event_id,
     event_source_url: event_source_url,
-    custom_data: custom_data
+    custom_data: custom_data,
+    enable_limited_data_use: enable_limited_data_use,
+    data_processing_country: data_processing_country,
+    data_processing_state: data_processing_state
   },
   perform: (request, { payload, settings, features, statsContext }) => {
     if (!payload.user_data) {
@@ -28,6 +40,15 @@ const action: ActionDefinition<Settings, Payload> = {
         400
       )
     }
+
+    let data_options
+    if (payload.enable_limited_data_use) {
+      data_options = ['LDU']
+    } else {
+      delete payload?.data_processing_country
+      delete payload?.data_processing_state
+    }
+
     return request(
       `https://graph.facebook.com/v${get_api_version(features, statsContext)}/${settings.pixelId}/events`,
       {
@@ -40,7 +61,10 @@ const action: ActionDefinition<Settings, Payload> = {
               action_source: payload.action_source,
               event_source_url: payload.event_source_url,
               event_id: payload.event_id,
-              user_data: hash_user_data({ user_data: payload.user_data })
+              user_data: hash_user_data({ user_data: payload.user_data }),
+              data_processing_options: data_options,
+              data_processing_state: payload?.data_processing_state,
+              data_processing_country: payload?.data_processing_country
             }
           ]
         }

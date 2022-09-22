@@ -1,5 +1,14 @@
 import { ActionDefinition, IntegrationError } from '@segment/actions-core'
-import { action_source, custom_data, event_id, event_source_url, event_time } from '../fb-capi-properties'
+import {
+  action_source,
+  custom_data,
+  event_id,
+  event_source_url,
+  event_time,
+  enable_limited_data_use,
+  data_processing_country,
+  data_processing_state
+} from '../fb-capi-properties'
 import { hash_user_data, user_data_field } from '../fb-capi-user-data'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
@@ -24,11 +33,21 @@ const action: ActionDefinition<Settings, Payload> = {
     user_data: user_data_field,
     custom_data: custom_data,
     event_id: event_id,
-    event_source_url: event_source_url
+    event_source_url: event_source_url,
+    enable_limited_data_use: enable_limited_data_use,
+    data_processing_country: data_processing_country,
+    data_processing_state: data_processing_state
   },
   perform: (request, { payload, settings, features, statsContext }) => {
     if (!payload.user_data) {
       throw new IntegrationError('Must include at least one user data property', 'Misconfigured required field', 400)
+    }
+    let data_options
+    if (payload.enable_limited_data_use) {
+      data_options = ['LDU']
+    } else {
+      delete payload?.data_processing_country
+      delete payload?.data_processing_state
     }
 
     return request(
@@ -44,7 +63,10 @@ const action: ActionDefinition<Settings, Payload> = {
               event_id: payload.event_id,
               event_source_url: payload.event_source_url,
               user_data: hash_user_data({ user_data: payload.user_data }),
-              custom_data: payload.custom_data
+              custom_data: payload.custom_data,
+              data_processing_options: data_options,
+              data_processing_state: payload?.data_processing_state,
+              data_processing_country: payload?.data_processing_country
             }
           ]
         }

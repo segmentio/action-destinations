@@ -145,4 +145,16 @@ export interface Payload {
   custom_data?: {
     [k: string]: unknown
   }
+  /**
+   * The Data Processing Options to send to Facebook. If set to true, Segment will send an array to Facebook indicating events should be processed with Limited Data Use (LDU) restrictions. More information can be found in [Facebook’s documentation](https://developers.facebook.com/docs/marketing-apis/data-processing-options).
+   */
+  enable_limited_data_use?: boolean
+  /**
+   * A country that you want to associate to the Data Processing Options. Accepted values are 1, for the United States of America, or 0, to request that Facebook geolocates the event using IP address. This is required if Data Processing Options is set to true.
+   */
+  data_processing_country?: number
+  /**
+   * A state that you want to associate to the Data Processing Options. Accepted values are 1000, for California, or 0, to request that Facebook geolocates the event using IP address. This is required if Data Processing Options is set to true.
+   */
+  data_processing_state?: number
 }

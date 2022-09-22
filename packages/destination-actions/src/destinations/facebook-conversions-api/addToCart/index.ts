@@ -13,7 +13,10 @@ import {
   event_time,
   event_source_url,
   event_id,
-  custom_data
+  custom_data,
+  enable_limited_data_use,
+  data_processing_country,
+  data_processing_state
 } from '../fb-capi-properties'
 import { CURRENCY_ISO_CODES } from '../constants'
 import { hash_user_data, user_data_field } from '../fb-capi-user-data'
@@ -54,8 +57,12 @@ const action: ActionDefinition<Settings, Payload> = {
     event_id: event_id,
     event_source_url: event_source_url,
     value: { ...value, default: { '@path': '$.properties.price' } },
-    custom_data: custom_data
+    custom_data: custom_data,
+    enable_limited_data_use: enable_limited_data_use,
+    data_processing_country: data_processing_country,
+    data_processing_state: data_processing_state
   },
+
   perform: (request, { payload, settings, features, statsContext }) => {
     if (payload.currency && !CURRENCY_ISO_CODES.has(payload.currency)) {
       throw new IntegrationError(
@@ -82,6 +89,14 @@ const action: ActionDefinition<Settings, Payload> = {
       if (err) throw err
     }
 
+    let data_options
+    if (payload.enable_limited_data_use) {
+      data_options = ['LDU']
+    } else {
+      delete payload?.data_processing_country
+      delete payload?.data_processing_state
+    }
+
     return request(
       `https://graph.facebook.com/v${get_api_version(features, statsContext)}/${settings.pixelId}/events`,
       {
@@ -103,7 +118,10 @@ const action: ActionDefinition<Settings, Payload> = {
                 content_name: payload.content_name,
                 contents: payload.contents,
                 content_type: payload.content_type
-              }
+              },
+              data_processing_options: data_options,
+              data_processing_state: payload?.data_processing_state,
+              data_processing_country: payload?.data_processing_country
             }
           ]
         }

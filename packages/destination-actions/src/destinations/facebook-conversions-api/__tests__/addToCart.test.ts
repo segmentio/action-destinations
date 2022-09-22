@@ -20,6 +20,9 @@ describe('FacebookConversionsApi', () => {
         timestamp: '1631210000',
         properties: {
           action_source: 'email',
+          enable_limited_data_use: false,
+          data_processing_state: 1,
+          data_processing_country: 1000,
           currency: 'USD',
           value: 12.12,
           email: 'nicholas.aguilar@segment.com',
@@ -54,6 +57,15 @@ describe('FacebookConversionsApi', () => {
           },
           custom_data: {
             '@path': '$.properties.traits'
+          },
+          enable_limited_data_use: {
+            '@path': '$.properties.enable_limited_data_use'
+          },
+          data_processing_state: {
+            '@path': '$.properties.data_processing_state'
+          },
+          data_processing_country: {
+            '@path': '$.properties.data_processing_country'
           }
         }
       })

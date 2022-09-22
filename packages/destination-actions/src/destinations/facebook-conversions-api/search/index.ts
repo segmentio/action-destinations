@@ -14,7 +14,10 @@ import {
   action_source,
   content_category,
   event_id,
-  event_source_url
+  event_source_url,
+  enable_limited_data_use,
+  data_processing_country,
+  data_processing_state
 } from '../fb-capi-properties'
 import { user_data_field, hash_user_data } from '../fb-capi-user-data'
 
@@ -60,7 +63,10 @@ const action: ActionDefinition<Settings, Payload> = {
       }
     },
     value: value,
-    custom_data: custom_data
+    custom_data: custom_data,
+    enable_limited_data_use: enable_limited_data_use,
+    data_processing_country: data_processing_country,
+    data_processing_state: data_processing_state
   },
   perform: (request, { payload, settings, features, statsContext }) => {
     if (payload.currency && !CURRENCY_ISO_CODES.has(payload.currency)) {
@@ -88,6 +94,14 @@ const action: ActionDefinition<Settings, Payload> = {
       if (err) throw err
     }
 
+    let data_options
+    if (payload.enable_limited_data_use) {
+      data_options = ['LDU']
+    } else {
+      delete payload?.data_processing_country
+      delete payload?.data_processing_state
+    }
+
     return request(
       `https://graph.facebook.com/v${get_api_version(features, statsContext)}/${settings.pixelId}/events`,
       {
@@ -109,7 +123,10 @@ const action: ActionDefinition<Settings, Payload> = {
                 content_category: payload.content_category,
                 value: payload.value,
                 search_string: payload.search_string
-              }
+              },
+              data_processing_options: data_options,
+              data_processing_state: payload?.data_processing_state,
+              data_processing_country: payload?.data_processing_country
             }
           ]
         }
