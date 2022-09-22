@@ -76,29 +76,34 @@ const action: ActionDefinition<Settings, Payload> = {
 
     settings.customerId = settings.customerId.replace(/[^0-9.]+/g, '')
 
-    // Retrieves all of the custom variables that the customer has created in their Google Ads account
-    const customVariableIds: ModifiedResponse<Array<QueryResponse>> = await request(
-      `https://googleads.googleapis.com/v11/customers/${settings.customerId}/googleAds:searchStream`,
-      {
-        method: 'post',
-        headers: {
-          authorization: `Bearer ${auth?.accessToken}`,
-          'developer-token': `${process.env.ADWORDS_DEVELOPER_TOKEN}`
-        },
-        json: {
-          query: `SELECT conversion_custom_variable.id, conversion_custom_variable.name FROM conversion_custom_variable`
-        }
-      }
-    )
-
     const request_object: { [key: string]: any } = {
       conversionAction: `customers/${settings.customerId}/conversionActions/${payload.conversion_action}`,
       callerId: payload.caller_id,
       callStartDateTime: payload.call_timestamp,
       conversionDateTime: payload.conversion_timestamp.replace(/T/, ' ').replace(/\..+/, '+00:00'),
       conversionValue: payload.value,
-      currencyCode: payload.currency,
-      customVariables: formatCustomVariables(payload.custom_variables, customVariableIds.data[0].results)
+      currencyCode: payload.currency
+    }
+
+    // Retrieves all of the custom variables that the customer has created in their Google Ads account
+    if (payload.custom_variables) {
+      const customVariableIds: ModifiedResponse<Array<QueryResponse>> = await request(
+        `https://googleads.googleapis.com/v11/customers/${settings.customerId}/googleAds:searchStream`,
+        {
+          method: 'post',
+          headers: {
+            authorization: `Bearer ${auth?.accessToken}`,
+            'developer-token': `GWRwRGYZe8LOxcJf_BjSiw`
+          },
+          json: {
+            query: `SELECT conversion_custom_variable.id, conversion_custom_variable.name FROM conversion_custom_variable`
+          }
+        }
+      )
+      request_object.customVariables = formatCustomVariables(
+        payload.custom_variables,
+        customVariableIds.data[0].results
+      )
     }
 
     const response = await request(
@@ -106,7 +111,7 @@ const action: ActionDefinition<Settings, Payload> = {
       {
         method: 'post',
         headers: {
-          'developer-token': `${process.env.ADWORDS_DEVELOPER_TOKEN}`
+          'developer-token': `GWRwRGYZe8LOxcJf_BjSiw`
         },
         json: {
           conversions: [request_object],
