@@ -10,6 +10,9 @@ Headers {
     "authorization": Array [
       "Bearer undefined",
     ],
+    "content-type": Array [
+      "application/json",
+    ],
     "linkedin-version": Array [
       "202207",
     ],
