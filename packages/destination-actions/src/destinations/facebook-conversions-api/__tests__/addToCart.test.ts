@@ -20,9 +20,6 @@ describe('FacebookConversionsApi', () => {
         timestamp: '1631210000',
         properties: {
           action_source: 'email',
-          enable_limited_data_use: false,
-          data_processing_state: 1,
-          data_processing_country: 1000,
           currency: 'USD',
           value: 12.12,
           email: 'nicholas.aguilar@segment.com',
@@ -57,15 +54,6 @@ describe('FacebookConversionsApi', () => {
           },
           custom_data: {
             '@path': '$.properties.traits'
-          },
-          enable_limited_data_use: {
-            '@path': '$.properties.enable_limited_data_use'
-          },
-          data_processing_state: {
-            '@path': '$.properties.data_processing_state'
-          },
-          data_processing_country: {
-            '@path': '$.properties.data_processing_country'
           }
         }
       })
@@ -204,6 +192,130 @@ describe('FacebookConversionsApi', () => {
           }
         })
       ).rejects.toThrowError("contents[0] must include an 'id' parameter.")
+    })
+
+    it('should send data processing options', async () => {
+      nock(`https://graph.facebook.com/v${API_VERSION}/${settings.pixelId}`).post(`/events`).reply(201, {})
+
+      const event = createTestEvent({
+        event: 'Product Added',
+        timestamp: '1631210020',
+        messageId: 'test',
+        properties: {
+          data_processing_options: true,
+          data_processing_options_state: 1000,
+          data_processing_options_country: 1,
+          userId: 'testuser1234',
+          action_source: 'email',
+          currency: 'USD',
+          product_id: 'abc12345',
+          quantity: 1,
+          price: 100
+        }
+      })
+
+      const responses = await testDestination.testAction('addToCart', {
+        event,
+        settings,
+        useDefaultMappings: true,
+        mapping: {
+          action_source: { '@path': '$.properties.action_source' },
+          data_processing_options: {
+            '@path': '$.properties.data_processing_options'
+          },
+          data_processing_options_state: {
+            '@path': '$.properties.data_processing_options_state'
+          },
+          data_processing_options_country: {
+            '@path': '$.properties.data_processing_options_country'
+          }
+        }
+      })
+
+      expect(responses.length).toBe(1)
+      expect(responses[0].status).toBe(201)
+
+      expect(responses[0].options.body).toMatchInlineSnapshot(
+        `"{\\"data\\":[{\\"event_name\\":\\"AddToCart\\",\\"event_time\\":\\"1631210020\\",\\"event_source_url\\":\\"https://segment.com/academy/\\",\\"event_id\\":\\"test\\",\\"action_source\\":\\"email\\",\\"user_data\\":{\\"external_id\\":\\"831c237928e6212bedaa4451a514ace3174562f6761f6a157a2fe5082b36e2fb\\",\\"client_ip_address\\":\\"8.8.8.8\\",\\"client_user_agent\\":\\"Mozilla/5.0 (iPhone; CPU iPhone OS 9_1 like Mac OS X) AppleWebKit/601.1.46 (KHTML, like Gecko) Version/9.0 Mobile/13B143 Safari/601.1\\"},\\"custom_data\\":{\\"currency\\":\\"USD\\",\\"value\\":100,\\"contents\\":[{\\"id\\":\\"abc12345\\",\\"quantity\\":1,\\"item_price\\":100}]},\\"data_processing_options\\":[\\"LDU\\"],\\"data_processing_options_country\\":1,\\"data_processing_options_state\\":1000}]}"`
+      )
+    })
+
+    it('should not send data processing options', async () => {
+      nock(`https://graph.facebook.com/v${API_VERSION}/${settings.pixelId}`).post(`/events`).reply(201, {})
+
+      const event = createTestEvent({
+        event: 'Product Added',
+        timestamp: '1631210020',
+        messageId: 'test',
+        properties: {
+          userId: 'testuser1234',
+          data_processing_options: false,
+          action_source: 'email',
+          currency: 'USD',
+          product_id: 'abc12345',
+          quantity: 1,
+          price: 100
+        }
+      })
+
+      const responses = await testDestination.testAction('addToCart', {
+        event,
+        settings,
+        useDefaultMappings: true,
+        mapping: {
+          action_source: {
+            '@path': '$.properties.action_source'
+          },
+          data_processing_options: {
+            '@path': '$.properties.data_processing_options'
+          }
+        }
+      })
+
+      expect(responses.length).toBe(1)
+      expect(responses[0].status).toBe(201)
+
+      expect(responses[0].options.body).toMatchInlineSnapshot(
+        `"{\\"data\\":[{\\"event_name\\":\\"AddToCart\\",\\"event_time\\":\\"1631210020\\",\\"event_source_url\\":\\"https://segment.com/academy/\\",\\"event_id\\":\\"test\\",\\"action_source\\":\\"email\\",\\"user_data\\":{\\"external_id\\":\\"831c237928e6212bedaa4451a514ace3174562f6761f6a157a2fe5082b36e2fb\\",\\"client_ip_address\\":\\"8.8.8.8\\",\\"client_user_agent\\":\\"Mozilla/5.0 (iPhone; CPU iPhone OS 9_1 like Mac OS X) AppleWebKit/601.1.46 (KHTML, like Gecko) Version/9.0 Mobile/13B143 Safari/601.1\\"},\\"custom_data\\":{\\"currency\\":\\"USD\\",\\"value\\":100,\\"contents\\":[{\\"id\\":\\"abc12345\\",\\"quantity\\":1,\\"item_price\\":100}]}}]}"`
+      )
+    })
+
+    it('should send data processing options without state or country code set by user', async () => {
+      nock(`https://graph.facebook.com/v${API_VERSION}/${settings.pixelId}`).post(`/events`).reply(201, {})
+
+      const event = createTestEvent({
+        event: 'Product Added',
+        timestamp: '1631210020',
+        messageId: 'test',
+        properties: {
+          data_processing_options: true,
+          userId: 'testuser1234',
+          action_source: 'email',
+          currency: 'USD',
+          product_id: 'abc12345',
+          quantity: 1,
+          price: 100
+        }
+      })
+
+      const responses = await testDestination.testAction('addToCart', {
+        event,
+        settings,
+        useDefaultMappings: true,
+        mapping: {
+          action_source: { '@path': '$.properties.action_source' },
+          data_processing_options: {
+            '@path': '$.properties.data_processing_options'
+          }
+        }
+      })
+
+      expect(responses.length).toBe(1)
+      expect(responses[0].status).toBe(201)
+
+      expect(responses[0].options.body).toMatchInlineSnapshot(
+        `"{\\"data\\":[{\\"event_name\\":\\"AddToCart\\",\\"event_time\\":\\"1631210020\\",\\"event_source_url\\":\\"https://segment.com/academy/\\",\\"event_id\\":\\"test\\",\\"action_source\\":\\"email\\",\\"user_data\\":{\\"external_id\\":\\"831c237928e6212bedaa4451a514ace3174562f6761f6a157a2fe5082b36e2fb\\",\\"client_ip_address\\":\\"8.8.8.8\\",\\"client_user_agent\\":\\"Mozilla/5.0 (iPhone; CPU iPhone OS 9_1 like Mac OS X) AppleWebKit/601.1.46 (KHTML, like Gecko) Version/9.0 Mobile/13B143 Safari/601.1\\"},\\"custom_data\\":{\\"currency\\":\\"USD\\",\\"value\\":100,\\"contents\\":[{\\"id\\":\\"abc12345\\",\\"quantity\\":1,\\"item_price\\":100}]},\\"data_processing_options\\":[\\"LDU\\"],\\"data_processing_options_country\\":0,\\"data_processing_options_state\\":0}]}"`
+      )
     })
 
     it('should throw an error if contents.delivery_category is not supported', async () => {

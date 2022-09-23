@@ -13,9 +13,9 @@ import {
   event_source_url,
   event_time,
   value,
-  enable_limited_data_use,
-  data_processing_country,
-  data_processing_state
+  data_processing_options,
+  data_processing_options_country,
+  data_processing_options_state
 } from '../fb-capi-properties'
 import { user_data_field, hash_user_data } from '../fb-capi-user-data'
 import type { Settings } from '../generated-types'
@@ -60,9 +60,9 @@ const action: ActionDefinition<Settings, Payload> = {
     event_source_url: event_source_url,
     value: { ...value, default: { '@path': '$.properties.price' } },
     custom_data: custom_data,
-    enable_limited_data_use: enable_limited_data_use,
-    data_processing_country: data_processing_country,
-    data_processing_state: data_processing_state
+    data_processing_options: data_processing_options,
+    data_processing_options_country: data_processing_options_country,
+    data_processing_options_state: data_processing_options_state
   },
   perform: (request, { payload, settings, features, statsContext }) => {
     if (payload.currency && !CURRENCY_ISO_CODES.has(payload.currency)) {
@@ -90,12 +90,11 @@ const action: ActionDefinition<Settings, Payload> = {
       if (err) throw err
     }
 
-    let data_options
-    if (payload.enable_limited_data_use) {
+    let data_options, country_code, state_code
+    if (payload.data_processing_options) {
       data_options = ['LDU']
-    } else {
-      delete payload?.data_processing_country
-      delete payload?.data_processing_state
+      country_code = payload.data_processing_options_country ? payload.data_processing_options_country : 0
+      state_code = payload.data_processing_options_state ? payload.data_processing_options_state : 0
     }
 
     return request(
@@ -121,8 +120,8 @@ const action: ActionDefinition<Settings, Payload> = {
                 contents: payload.contents
               },
               data_processing_options: data_options,
-              data_processing_state: payload?.data_processing_state,
-              data_processing_country: payload?.data_processing_country
+              data_processing_options_country: country_code,
+              data_processing_options_state: state_code
             }
           ]
         }

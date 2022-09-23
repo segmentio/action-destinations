@@ -91,16 +91,16 @@ export const contents: InputField = {
   }
 }
 
-export const enable_limited_data_use: InputField = {
-  label: 'Enable Limited Data Use',
+export const data_processing_options: InputField = {
+  label: 'Data Processing Options',
   description: `The Data Processing Options to send to Facebook. If set to true, Segment will send an array to Facebook indicating events should be processed with Limited Data Use (LDU) restrictions. More information can be found in [Facebook’s documentation](https://developers.facebook.com/docs/marketing-apis/data-processing-options).`,
   type: 'boolean'
 }
 
-export const data_processing_country: InputField = {
+export const data_processing_options_country: InputField = {
   label: 'Data Processing Country',
   description:
-    'A country that you want to associate to the Data Processing Options. Accepted values are 1, for the United States of America, or 0, to request that Facebook geolocates the event using IP address. This is required if Data Processing Options is set to true.',
+    'A country that you want to associate to the Data Processing Options. Accepted values are 1, for the United States of America, or 0, to request that Facebook geolocates the event using IP address. This is required if Data Processing Options is set to true. If nothing is provided, Segment will send 0.',
   type: 'number',
   choices: [
     { label: '0', value: 0 },
@@ -108,10 +108,10 @@ export const data_processing_country: InputField = {
   ]
 }
 
-export const data_processing_state: InputField = {
+export const data_processing_options_state: InputField = {
   label: 'Data Processing State',
   description:
-    'A state that you want to associate to the Data Processing Options. Accepted values are 1000, for California, or 0, to request that Facebook geolocates the event using IP address. This is required if Data Processing Options is set to true.',
+    'A state that you want to associate to the Data Processing Options. Accepted values are 1000, for California, or 0, to request that Facebook geolocates the event using IP address. This is required if Data Processing Options is set to true. If nothing is provided, Segment will send 0.',
   type: 'number',
   choices: [
     { label: '0', value: 0 },
