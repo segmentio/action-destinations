@@ -103,8 +103,8 @@ export const data_processing_options_country: InputField = {
     'A country that you want to associate to the Data Processing Options. Accepted values are 1, for the United States of America, or 0, to request that Facebook geolocates the event using IP address. This is required if Data Processing Options is set to true. If nothing is provided, Segment will send 0.',
   type: 'number',
   choices: [
-    { label: '0', value: 0 },
-    { label: '1', value: 1 }
+    { label: 'Use Facebook’s Geolocation Logic', value: 0 },
+    { label: 'United States of America', value: 1 }
   ]
 }
 
@@ -114,8 +114,8 @@ export const data_processing_options_state: InputField = {
     'A state that you want to associate to the Data Processing Options. Accepted values are 1000, for California, or 0, to request that Facebook geolocates the event using IP address. This is required if Data Processing Options is set to true. If nothing is provided, Segment will send 0.',
   type: 'number',
   choices: [
-    { label: '0', value: 0 },
-    { label: '1000', value: 1000 }
+    { label: 'Use Facebook’s Geolocation Logic', value: 0 },
+    { label: 'California', value: 1000 }
   ]
 }
 
