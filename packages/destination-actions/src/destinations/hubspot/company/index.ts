@@ -47,12 +47,16 @@ const action: ActionDefinition<Settings, Payload> = {
       defaultObjectUI: 'keyvalue:only'
     }
   },
-  perform: (_request) => {
+  perform: (_request, data) => {
     // Make your partner api request here!
     // return request('https://example.com', {
     //   method: 'post',
     //   json: data.payload
     // })
+    data.logger?.info(
+      `Hubspot Cloud: Company Action: Received Transactio Node: ${JSON.stringify(data.transactionContext?.transaction)}`
+    )
+    data.transactionContext?.setTransaction('contact_id', '801')
   }
 }
 
