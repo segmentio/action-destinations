@@ -1,6 +1,8 @@
 import type { DestinationDefinition } from '@segment/actions-core'
 import type { Settings } from './generated-types'
 
+import contact from './contact'
+
 const destination: DestinationDefinition<Settings> = {
   name: 'Hubspot Cloud Mode (Actions)',
   slug: 'actions-hubspot-cloud',
@@ -47,7 +49,9 @@ const destination: DestinationDefinition<Settings> = {
     // implement this function and should remove it completely.
   },
 
-  actions: {}
+  actions: {
+    contact
+  }
 }
 
 export default destination
