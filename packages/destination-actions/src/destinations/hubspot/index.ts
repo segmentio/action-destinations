@@ -3,6 +3,8 @@ import type { Settings } from './generated-types'
 
 import contact from './contact'
 
+import company from './company'
+
 const destination: DestinationDefinition<Settings> = {
   name: 'Hubspot Cloud Mode (Actions)',
   slug: 'actions-hubspot-cloud',
@@ -50,7 +52,8 @@ const destination: DestinationDefinition<Settings> = {
   },
 
   actions: {
-    contact
+    contact,
+    company
   }
 }
 
