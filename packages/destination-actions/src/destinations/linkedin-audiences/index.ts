@@ -28,13 +28,13 @@ const destination: DestinationDefinition<Settings> = {
         required: true
       }
     },
-    testAuthentication: async (request, { auth, settings }) => {
-      return request(`https://api.linkedin.com/rest/adAccounts/${settings.ad_account_id}`, {
+    testAuthentication: async (request, { settings, auth }) => {
+      return await request(`https://api.linkedin.com/rest/adAccounts/${settings.ad_account_id}`, {
         method: 'GET',
         headers: {
           'X-Restli-Protocol-Version': '2.0.0',
           'LinkedIn-Version': LINKEDIN_API_VERSION,
-          authorization: auth.accessToken
+          authorization: `Bearer ${auth?.accessToken}`
         }
       })
     },
