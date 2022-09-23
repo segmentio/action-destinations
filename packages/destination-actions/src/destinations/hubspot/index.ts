@@ -2,7 +2,7 @@ import type { DestinationDefinition } from '@segment/actions-core'
 import type { Settings } from './generated-types'
 
 const destination: DestinationDefinition<Settings> = {
-  name: 'Hubspot Cloud Mode (actions)',
+  name: 'Hubspot Cloud Mode (Actions)',
   slug: 'actions-hubspot-cloud',
   mode: 'cloud',
 
