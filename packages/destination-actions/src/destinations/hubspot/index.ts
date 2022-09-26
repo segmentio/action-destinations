@@ -4,6 +4,9 @@ import type { Settings } from './generated-types'
 import contact from './contact'
 
 import company from './company'
+interface RefreshTokenResponse {
+  access_token: string
+}
 
 const destination: DestinationDefinition<Settings> = {
   name: 'Hubspot Cloud Mode (Actions)',
@@ -14,15 +17,13 @@ const destination: DestinationDefinition<Settings> = {
     scheme: 'oauth2',
     fields: {},
     testAuthentication: (request) => {
-      console.debug(request)
-      return {}
-      // Return a request that tests/validates the user's credentials.
-      // If you do not have a way to validate the authentication fields safely,
-      // you can remove the `testAuthentication` function, though discouraged.
+      // HubSPot doesn't have a test authentication endpoint, so we using a lightweight CRM API to validate access token
+      console.log('testAuthentication')
+      return request(`https://api.hubapi.com/crm/v3/objects/contacts?limit=1`)
     },
     refreshAccessToken: async (request, { auth }) => {
       // Return a request that refreshes the access_token if the API supports it
-      const res = await request('https://www.example.com/oauth/refresh', {
+      const res = await request<RefreshTokenResponse>('https://api.hubapi.com/oauth/v1/token', {
         method: 'POST',
         body: new URLSearchParams({
           refresh_token: auth.refreshToken,
@@ -31,9 +32,8 @@ const destination: DestinationDefinition<Settings> = {
           grant_type: 'refresh_token'
         })
       })
-      console.debug(res)
 
-      return { accessToken: '' }
+      return { accessToken: res.data.access_token }
     }
   },
   extendRequest({ auth }) {
