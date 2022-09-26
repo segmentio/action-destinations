@@ -1,6 +1,6 @@
 import type { ActionDefinition } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
-import { contactKey, id, key, values } from '../sfmc-properties'
+import { contactKey, id, key, values, keys } from '../sfmc-properties'
 import type { Payload } from './generated-types'
 import SalesforceMarketingCloud from '../sfmc-operations'
 
@@ -11,17 +11,21 @@ const action: ActionDefinition<Settings, Payload> = {
     contactKey: { ...contactKey, required: true },
     key: key,
     id: id,
-    //keys: { ...keys, required: true },
+    keys: { ...keys, required: true },
     values: values
   },
   perform: (request, { settings, payload }) => {
+    let vals
+    if (payload.values) {
+      vals = payload.values
+    }
     const sfmc: SalesforceMarketingCloud = new SalesforceMarketingCloud(
       settings.subdomain,
       payload.contactKey,
       payload.key,
       payload.id,
-      payload.values,
       payload.keys,
+      vals,
       request
     )
     return sfmc.upsertContact()

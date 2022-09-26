@@ -7,6 +7,16 @@ export const contactKey: InputField = {
   type: 'string',
   default: { '@path': '$.userId' }
 }
+
+export const contactKeyAPIEvent: InputField = {
+  label: 'Contact Key',
+  description:
+    'The unique identifier that identifies a subscriber or a contact.',
+  type: 'string',
+  default: { '@path': '$.userId' },
+  required: true
+}
+
 export const key: InputField = {
   label: 'Data Extension Key',
   description:
@@ -46,9 +56,10 @@ export const eventDefinitionKey: InputField = {
   label: 'Event Definition Key',
   description:
     'The unique key for an event definition in Salesforce Marketing Cloud. The event defintion must be predefined in SFMC. ',
-  type: 'string'
+  type: 'string',
+  required: true
 }
-export const object: InputField = {
+export const eventData: InputField = {
   label: 'Event Data',
   description:
     'The properties of the event. Fields must be created in the event definition schema before sending data for it.On the left-hand side, input the SFMC field name exactly how it appears in the event definition schema. On the right-hand side, map the Segment field that contains the corresponding value.',

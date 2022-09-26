@@ -4,7 +4,7 @@ export default class SalesforceMarketingCloud {
   contactKey: string
   key?: string
   id?: string
-  keys?: object
+  keys: object
   values?: object
   request: RequestClient
 
@@ -31,17 +31,13 @@ export default class SalesforceMarketingCloud {
     if (err) {
       throw err
     } else {
-      const keys = {
-        contactKey: this.contactKey
-      }
-      console.log('keys:', keys)
-      console.log('values', this.keys)
-      return this.request(`https://${this.subdomain}.rest.marketingcloudapis.com/hub/v1/dataevents/key:${key}/rowset`, {
+      console.log('keys:', this.keys)
+      console.log('values', this.values)
+      return this.request(`https://${this.subdomain}.rest.marketingcloudapis.com/hub/v1/dataevents/key:${this.key}/rowset`, {
         method: 'post',
         json: [
           {
-            keys: keys,
-            values: this.keys
+            keys: this.keys
           }
         ]
       })
@@ -50,7 +46,7 @@ export default class SalesforceMarketingCloud {
 
   private createContact = async (contactKey: String, subdomain: string): Promise<IntegrationError | undefined> => {
     const requestUrl = `https://${subdomain}.rest.marketingcloudapis.com/contacts/v1/contacts`
-    console.log(requestUrl)
+    console.log(requestUrl, contactKey)
     try {
       await this.request(requestUrl, {
         method: 'POST',
@@ -60,7 +56,10 @@ export default class SalesforceMarketingCloud {
         }
       })
     } catch (error) {
-      return new IntegrationError('No profile found in Adobe Target with this mbox3rdPartyId', 'Profile not found', 404)
+      //return new IntegrationError('No profile found in Adobe Target with this mbox3rdPartyId', 'Profile not found', 404)
+      return error
+
+
     }
 
     return undefined
