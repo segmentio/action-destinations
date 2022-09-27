@@ -2300,23 +2300,6 @@
   resolved "https://registry.yarnpkg.com/@segment/a1-notation/-/a1-notation-2.1.4.tgz#35a48a0688019c3ffff23b1ba890e864c891a11f"
   integrity sha512-SId7GOdDFmm/B9ajIQpXELHW4OTbVvmJbOsoJkQOcUEtoZIiX2UWfk1v4BpKql8wJW9oAhzhIIru2Pv2Yxcg+w==
 
-"@segment/actions-core@^3.35.0":
-  version "3.35.0"
-  resolved "https://registry.yarnpkg.com/@segment/actions-core/-/actions-core-3.35.0.tgz#f35e2b1d66472590d729228a30fe2bf98c5679a7"
-  integrity sha512-yAGWagiUKuSu7XOne8U6QpvLTXdWww6+AabTTIk4D8zWPUgF84V2HIxkkjxaQKAPlEZsyLERqrqrWr3eHm+m+Q==
-  dependencies:
-    "@lukeed/uuid" "^2.0.0"
-    "@segment/ajv-human-errors" "^2.1.2"
-    "@segment/destination-subscriptions" "^3.12.0"
-    abort-controller "^3.0.0"
-    aggregate-error "^3.1.0"
-    ajv "^8.6.3"
-    ajv-formats "^2.1.1"
-    btoa-lite "^1.0.0"
-    cross-fetch "^3.1.4"
-    dayjs "^1.10.7"
-    ts-custom-error "^3.2.0"
-
 "@segment/analytics-next@^1.29.3":
   version "1.29.3"
   resolved "https://registry.yarnpkg.com/@segment/analytics-next/-/analytics-next-1.29.3.tgz#51ea4d7e487e95c2862ec5d52fd34a113c20161e"

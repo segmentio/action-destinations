@@ -63,9 +63,7 @@ const action: ActionDefinition<Settings, Payload> = {
     //   json: data.payload
     // })
     logger?.info(
-      `Custom Behavioral Event Triggered. Transaction Variables received are:${JSON.stringify(
-        transactionContext?.transaction
-      )}`
+      `Custom Behavioral Event Triggered. Transaction Variables received are:${transactionContext?.transaction}`
     )
   }
 }
