@@ -8,7 +8,7 @@ import path from 'path'
 import globby from 'globby'
 import { WebSocketServer } from 'ws'
 import open from 'open'
-
+import execa from 'execa'
 export default class Serve extends Command {
   private spinner: ora.Ora = ora()
 
@@ -36,6 +36,10 @@ export default class Serve extends Command {
     noUI: flags.boolean({
       char: 'n',
       description: 'do not open actions tester UI in browser'
+    }),
+    browser: flags.boolean({
+      char: 'r',
+      description: 'serve browser destinations'
     })
   }
 
@@ -122,6 +126,10 @@ export default class Serve extends Command {
         child?.removeAllListeners()
         child = undefined
       })
+
+      if (flags.browser) {
+        execa.command('yarn browser dev').stdout
+      }
     }
 
     watcher.on('change', (file) => {

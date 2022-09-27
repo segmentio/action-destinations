@@ -1,0 +1,1 @@
+export const LINKEDIN_API_VERSION = '202207'

@@ -37,7 +37,7 @@ describe('updateUserProfile', () => {
     const [event] = await brazeDestination({
       api_key: 'b_123',
       endpoint: 'endpoint',
-      sdkVersion: '3.3',
+      sdkVersion: '3.5',
       doNotLoadFontAwesome: true,
       subscriptions: [
         {
@@ -79,7 +79,7 @@ describe('updateUserProfile', () => {
     const [event] = await brazeDestination({
       api_key: 'b_123',
       endpoint: 'endpoint',
-      sdkVersion: '3.3',
+      sdkVersion: '3.5',
       doNotLoadFontAwesome: true,
       subscriptions
     })

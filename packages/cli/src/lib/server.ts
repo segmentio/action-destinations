@@ -153,7 +153,7 @@ function setupRoutes(def: DestinationDefinition | null): void {
   router.get(
     '/manifest',
     asyncHandler(async (_, res: express.Response) => {
-      res.json(destination.definition)
+      res.json({ ...destination.definition, directoryName: process.env.DESTINATION })
     })
   )
 
