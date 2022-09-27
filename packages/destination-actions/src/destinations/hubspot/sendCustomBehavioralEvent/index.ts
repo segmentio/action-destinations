@@ -56,15 +56,12 @@ const action: ActionDefinition<Settings, Payload> = {
       defaultObjectUI: 'keyvalue:only'
     }
   },
-  perform: (_request, { logger, transactionContext }) => {
+  perform: (_request, _) => {
     // Make your partner api request here!
     // return request('https://example.com', {
     //   method: 'post',
     //   json: data.payload
     // })
-    logger?.info(
-      `Custom Behavioral Event Triggered. Transaction Variables received are:${transactionContext?.transaction}`
-    )
   }
 }
 
