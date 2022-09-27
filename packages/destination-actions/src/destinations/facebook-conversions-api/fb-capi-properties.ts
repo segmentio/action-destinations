@@ -141,15 +141,20 @@ export const validateContents = (contents: Content[]): IntegrationError | false 
   return false
 }
 
+type DPOption = string[] | number
+
 export const dataProcessingOptions = (
+  data_processing_options: boolean | undefined,
   countryOption: number | undefined,
   stateOption: number | undefined
-): Array<Array<String> | number> => {
-  const data_options = ['LDU']
-  const country_code = countryOption ? countryOption : 0
-  const state_code = stateOption ? stateOption : 0
-  const DPO: (Array<String> | number)[] = [data_options, country_code, state_code]
-  return DPO
+): DPOption[] => {
+  if (data_processing_options) {
+    const data_options = ['LDU']
+    const country_code = countryOption ? countryOption : 0
+    const state_code = stateOption ? stateOption : 0
+    return [data_options, country_code, state_code]
+  }
+  return []
 }
 
 export const num_items: InputField = {

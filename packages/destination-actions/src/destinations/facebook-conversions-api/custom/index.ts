@@ -44,13 +44,11 @@ const action: ActionDefinition<Settings, Payload> = {
       throw new IntegrationError('Must include at least one user data property', 'Misconfigured required field', 400)
     }
 
-    let data_options, country_code, state_code
-    if (payload.data_processing_options) {
-      ;[data_options, country_code, state_code] = dataProcessingOptions(
-        payload.data_processing_options_country,
-        payload.data_processing_options_state
-      )
-    }
+    const [data_options, country_code, state_code] = dataProcessingOptions(
+      payload.data_processing_options,
+      payload.data_processing_options_country,
+      payload.data_processing_options_state
+    )
 
     return request(
       `https://graph.facebook.com/v${get_api_version(features, statsContext)}/${settings.pixelId}/events`,
