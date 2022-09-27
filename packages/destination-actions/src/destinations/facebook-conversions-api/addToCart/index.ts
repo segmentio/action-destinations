@@ -92,7 +92,7 @@ const action: ActionDefinition<Settings, Payload> = {
 
     let data_options, country_code, state_code
     if (payload.data_processing_options) {
-      ;[data_options, country_code, state_code] = dataProcessingOptions(
+      [data_options, country_code, state_code] = dataProcessingOptions(
         payload.data_processing_options_country,
         payload.data_processing_options_state
       )
