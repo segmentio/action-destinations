@@ -17,7 +17,8 @@ import {
   event_id,
   data_processing_options,
   data_processing_options_country,
-  data_processing_options_state
+  data_processing_options_state,
+  dataProcessingOptions
 } from '../fb-capi-properties'
 import { user_data_field, hash_user_data } from '../fb-capi-user-data'
 import { get_api_version } from '../utils'
@@ -93,11 +94,11 @@ const action: ActionDefinition<Settings, Payload> = {
 
     let data_options, country_code, state_code
     if (payload.data_processing_options) {
-      data_options = ['LDU']
-      country_code = payload.data_processing_options_country ? payload.data_processing_options_country : 0
-      state_code = payload.data_processing_options_state ? payload.data_processing_options_state : 0
+      ;[data_options, country_code, state_code] = dataProcessingOptions(
+        payload.data_processing_options_country,
+        payload.data_processing_options_state
+      )
     }
-
     return request(
       `https://graph.facebook.com/v${get_api_version(features, statsContext)}/${settings.pixelId}/events`,
       {

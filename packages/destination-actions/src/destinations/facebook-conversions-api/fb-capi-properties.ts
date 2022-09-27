@@ -141,6 +141,17 @@ export const validateContents = (contents: Content[]): IntegrationError | false 
   return false
 }
 
+export const dataProcessingOptions = (
+  countryOption: number | undefined,
+  stateOption: number | undefined
+): Array<Array<String> | number> => {
+  const data_options = ['LDU']
+  const country_code = countryOption ? countryOption : 0
+  const state_code = stateOption ? stateOption : 0
+  const DPO: (Array<String> | number)[] = [data_options, country_code, state_code]
+  return DPO
+}
+
 export const num_items: InputField = {
   label: 'Number of Items',
   description: 'The number of items when checkout was initiated.',
