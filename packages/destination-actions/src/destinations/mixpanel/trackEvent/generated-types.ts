@@ -18,18 +18,6 @@ export interface Payload {
    */
   time?: string | number
   /**
-   * An object of key-value pairs that represent additional data to be sent along with the event.
-   */
-  event_properties?: {
-    [k: string]: unknown
-  }
-  /**
-   * An object of key-value pairs that represent additional data tied to the user.
-   */
-  user_properties?: {
-    [k: string]: unknown
-  }
-  /**
    * The name of your application
    */
   app_name?: string
@@ -118,16 +106,6 @@ export interface Payload {
    */
   idfa?: string
   /**
-   * UTM Tracking Properties
-   */
-  utm_properties?: {
-    utm_source?: string
-    utm_medium?: string
-    utm_campaign?: string
-    utm_term?: string
-    utm_content?: string
-  }
-  /**
    * The full URL of the webpage on which the event is triggered.
    */
   url?: string
@@ -151,6 +129,28 @@ export interface Payload {
    * User agent
    */
   userAgent?: string
+  /**
+   * An object of key-value pairs that represent additional data to be sent along with the event.
+   */
+  event_properties?: {
+    [k: string]: unknown
+  }
+  /**
+   * An object of key-value pairs that represent additional data tied to the user.
+   */
+  user_properties?: {
+    [k: string]: unknown
+  }
+  /**
+   * UTM Tracking Properties
+   */
+  utm_properties?: {
+    utm_source?: string
+    utm_medium?: string
+    utm_campaign?: string
+    utm_term?: string
+    utm_content?: string
+  }
   /**
    * Set as true to ensure Segment sends data to Mixpanel in batches.
    */
