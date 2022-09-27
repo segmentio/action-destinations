@@ -210,6 +210,8 @@ const action: ActionDefinition<Settings, Payload> = {
   },
 
   perform: async (request, { payload, settings }) => {
+    /* Enforcing this here since Conversion ID is required for the Enhanced Conversions API 
+    but not for the Google Ads API. */
     if (!settings.conversionTrackingId) {
       throw new IntegrationError(
         'Conversion ID is required for this action. Please set it in destination settings.',

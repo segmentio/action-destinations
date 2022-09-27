@@ -20,7 +20,9 @@ describe('GoogleEnhancedConversions', () => {
         }
       })
 
-      nock(`https://googleads.googleapis.com/v11/customers/${customerId}:uploadCallConversions`).post('').reply(201, {})
+      nock(`https://googleads.googleapis.com/v11/customers/${customerId}:uploadCallConversions`)
+        .post('')
+        .reply(201, { partialFailureError: { code: 0, message: '' }, results: [{}] })
 
       const responses = await testDestination.testAction('uploadCallConversion', {
         event,
@@ -67,7 +69,9 @@ describe('GoogleEnhancedConversions', () => {
           }
         ])
 
-      nock(`https://googleads.googleapis.com/v11/customers/${customerId}:uploadCallConversions`).post('').reply(201, {})
+      nock(`https://googleads.googleapis.com/v11/customers/${customerId}:uploadCallConversions`)
+        .post('')
+        .reply(201, { partialFailureError: { code: 0, message: '' }, results: [{}] })
 
       const responses = await testDestination.testAction('uploadCallConversion', {
         event,
@@ -98,7 +102,9 @@ describe('GoogleEnhancedConversions', () => {
         }
       })
 
-      nock(`https://googleads.googleapis.com/v11/customers/${customerId}:uploadCallConversions`).post('').reply(201, {})
+      nock(`https://googleads.googleapis.com/v11/customers/${customerId}:uploadCallConversions`)
+        .post('')
+        .reply(201, { partialFailureError: { code: 0, message: '' }, results: [{}] })
 
       try {
         await testDestination.testAction('uploadCallConversion', {

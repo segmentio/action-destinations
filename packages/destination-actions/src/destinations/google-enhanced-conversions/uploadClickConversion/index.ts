@@ -1,8 +1,9 @@
-import { ActionDefinition, IntegrationError, ModifiedResponse } from '@segment/actions-core'
+import { ActionDefinition, IntegrationError } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
-import { CartItem, QueryResponse } from '../types'
-import { formatCustomVariables, hash } from '../functions'
+import { CartItem, GoogleAdsAPI, PartialErrorResponse } from '../types'
+import { formatCustomVariables, hash, getCustomVariables, handleGoogleErrors } from '../functions'
+import { ModifiedResponse } from '@segment/actions-core'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Upload Click Conversion',
@@ -178,6 +179,8 @@ const action: ActionDefinition<Settings, Payload> = {
     }
   },
   perform: async (request, { auth, settings, payload }) => {
+    /* Enforcing this here since Customer ID is required for the Google Ads API 
+    but not for the Enhanced Conversions API. */
     if (!settings.customerId) {
       throw new IntegrationError(
         'Customer ID is required for this action. Please set it in destination settings.',
@@ -185,7 +188,7 @@ const action: ActionDefinition<Settings, Payload> = {
         400
       )
     }
-    settings.customerId = settings.customerId.replace(/[^0-9.]+/g, '')
+    settings.customerId = settings.customerId.replace(/-/g, '')
 
     let cartItems: CartItem[] = []
     if (payload.items) {
@@ -220,19 +223,7 @@ const action: ActionDefinition<Settings, Payload> = {
 
     // Retrieves all of the custom variables that the customer has created in their Google Ads account
     if (payload.custom_variables) {
-      const customVariableIds: ModifiedResponse<Array<QueryResponse>> = await request(
-        `https://googleads.googleapis.com/v11/customers/${settings.customerId}/googleAds:searchStream`,
-        {
-          method: 'post',
-          headers: {
-            authorization: `Bearer ${auth?.accessToken}`,
-            'developer-token': `${process.env.ADWORDS_DEVELOPER_TOKEN}`
-          },
-          json: {
-            query: `SELECT conversion_custom_variable.id, conversion_custom_variable.name FROM conversion_custom_variable`
-          }
-        }
-      )
+      const customVariableIds = await getCustomVariables(settings.customerId, auth, request)
       request_object.customVariables = formatCustomVariables(
         payload.custom_variables,
         customVariableIds.data[0].results
@@ -247,8 +238,8 @@ const action: ActionDefinition<Settings, Payload> = {
       request_object.userIdentifiers.push({ hashedPhoneNumber: hash(payload.phone_number) })
     }
 
-    const response = await request(
-      `https://googleads.googleapis.com/v11/customers/${settings.customerId}:uploadClickConversions`,
+    const response: ModifiedResponse<PartialErrorResponse> = await request(
+      `${GoogleAdsAPI}/${settings.customerId}:uploadClickConversions`,
       {
         method: 'post',
         headers: {
@@ -261,14 +252,7 @@ const action: ActionDefinition<Settings, Payload> = {
       }
     )
 
-    // Catch and return partial failure error
-    if (typeof response.data === 'object' && response.data != null) {
-      Object.entries(response.data).forEach(([key, value]) => {
-        if (key === 'partialFailureError' && value.code !== 0) {
-          throw new IntegrationError(value.message, 'INVALID_ARGUMENT', 400)
-        }
-      })
-    }
+    handleGoogleErrors(response)
     return response
   }
 }

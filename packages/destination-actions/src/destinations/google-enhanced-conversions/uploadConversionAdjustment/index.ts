@@ -1,7 +1,9 @@
 import { ActionDefinition, IntegrationError } from '@segment/actions-core'
-import { hash } from '../functions'
+import { hash, handleGoogleErrors } from '../functions'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
+import { GoogleAdsAPI, PartialErrorResponse } from '../types'
+import { ModifiedResponse } from '@segment/actions-core'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Upload Conversion Adjustment',
@@ -12,8 +14,7 @@ const action: ActionDefinition<Settings, Payload> = {
       description:
         'The ID of the conversion action associated with this conversion. To find the Conversion Action ID, click on your conversion in Google Ads and get the value for `ctId` in the URL. For example, if the URL is `https://ads.google.com/aw/conversions/detail?ocid=00000000&ctId=570000000`, your Conversion Action ID is `570000000`.',
       type: 'string',
-      required: true,
-      default: ''
+      required: true
     },
     adjustment_type: {
       label: 'Adjustment Type',
@@ -201,6 +202,8 @@ const action: ActionDefinition<Settings, Payload> = {
     }
   },
   perform: async (request, { settings, payload }) => {
+    /* Enforcing this here since Customer ID is required for the Google Ads API 
+    but not for the Enhanced Conversions API. */
     if (!settings.customerId) {
       throw new IntegrationError(
         'Customer ID is required for this action. Please set it in destination settings.',
@@ -208,22 +211,47 @@ const action: ActionDefinition<Settings, Payload> = {
         400
       )
     }
-    settings.customerId = settings.customerId.replace(/[^0-9.]+/g, '')
 
-    // Ensuring the required values are set for different types of adjustments
-    if (payload.adjustment_type == 'ENHANCEMENT' && !payload.order_id) {
-      throw new IntegrationError('Order ID required for enhancements', 'INVALID_ARGUMENT', 400)
-    } else if (payload.adjustment_type != 'ENHANCEMENT') {
-      if (!payload.gclid) {
-        throw new IntegrationError('GCLID required for chosen conversion type', 'INVALID_ARGUMENT', 400)
-      }
-      if (!payload.conversion_timestamp) {
-        throw new IntegrationError('Conversion timestamp required for chosen conversion type', 'INVALID_ARGUMENT', 400)
-      }
-      if (payload.adjustment_type == 'RESTATEMENT' && !payload.restatement_value) {
-        throw new IntegrationError('Restatement value required for restatements', 'INVALID_ARGUMENT', 400)
+    settings.customerId = settings.customerId.replace(/-/g, '')
+
+    const validations: { [key: string]: any } = {
+      ENHANCEMENT: {
+        validation: (payload: Payload) => !payload.order_id,
+        error: {
+          message: 'Order ID required for enhancements'
+        }
+      },
+      RESTATEMENT: {
+        validation: (payload: Payload) => !payload.restatement_value,
+        error: {
+          message: 'Restatement value required for restatements'
+        }
+      },
+      RETRACTION: {
+        validation: (payload: Payload) => !payload.gclid || !payload.conversion_timestamp,
+        error: {
+          message: 'GCLID and conversion timestamp required for chosen conversion type'
+        }
+      },
+      UNKNOWN: {
+        validation: (payload: Payload) => !payload.gclid || !payload.conversion_timestamp,
+        error: {
+          message: 'GCLID and conversion timestamp required for chosen conversion type'
+        }
+      },
+      UNSPECIFIED: {
+        validation: (payload: Payload) => !payload.gclid || !payload.conversion_timestamp,
+        error: {
+          message: 'GCLID and conversion timestamp required for chosen conversion type'
+        }
       }
     }
+
+    const key = payload.adjustment_type
+    if (validations[key].validation(payload)) {
+      throw new IntegrationError(validations[key].error.message, 'INVALID_ARGUMENT', 400)
+    }
+
     const request_object: { [key: string]: any } = {
       conversionAction: `customers/${settings.customerId}/conversionActions/${payload.conversion_action}`,
       adjustmentType: payload.adjustment_type,
@@ -249,7 +277,7 @@ const action: ActionDefinition<Settings, Payload> = {
       request_object.userIdentifiers.push({ hashedPhoneNumber: hash(payload.phone_number) })
     }
 
-    if (
+    const containsAddressInfo =
       payload.first_name ||
       payload.last_name ||
       payload.city ||
@@ -257,7 +285,8 @@ const action: ActionDefinition<Settings, Payload> = {
       payload.country ||
       payload.postal_code ||
       payload.street_address
-    ) {
+
+    if (containsAddressInfo) {
       request_object.userIdentifiers.push({
         addressInfo: {
           hashedFirstName: hash(payload.first_name),
@@ -271,8 +300,8 @@ const action: ActionDefinition<Settings, Payload> = {
       })
     }
 
-    const response = await request(
-      `https://googleads.googleapis.com/v11/customers/${settings.customerId}:uploadConversionAdjustments`,
+    const response: ModifiedResponse<PartialErrorResponse> = await request(
+      `${GoogleAdsAPI}/${settings.customerId}:uploadConversionAdjustments`,
       {
         method: 'post',
         headers: {
@@ -285,14 +314,7 @@ const action: ActionDefinition<Settings, Payload> = {
       }
     )
 
-    // Catch and return partial failure error
-    if (typeof response.data === 'object' && response.data != null) {
-      Object.entries(response.data).forEach(([key, value]) => {
-        if (key === 'partialFailureError' && value.code !== 0) {
-          throw new IntegrationError(value.message, 'INVALID_ARGUMENT', 400)
-        }
-      })
-    }
+    handleGoogleErrors(response)
     return response
   }
 }

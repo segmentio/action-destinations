@@ -1,5 +1,7 @@
 import { createHash } from 'crypto'
-import { ConversionCustomVariable } from './types'
+import { ConversionCustomVariable, PartialErrorResponse, QueryResponse } from './types'
+import { ModifiedResponse, RequestClient, IntegrationError } from '@segment/actions-core'
+import { GoogleAdsAPI } from './types'
 
 export function formatCustomVariables(
   customVariables: object | undefined,
@@ -35,4 +37,30 @@ export const hash = (value: string | undefined): string | undefined => {
   const hash = createHash('sha256')
   hash.update(value)
   return hash.digest('hex')
+}
+
+export async function getCustomVariables(
+  customerId: string,
+  auth: any,
+  request: RequestClient
+): Promise<ModifiedResponse<QueryResponse[]>> {
+  return await request(`${GoogleAdsAPI}/${customerId}/googleAds:searchStream`, {
+    method: 'post',
+    headers: {
+      authorization: `Bearer ${auth?.accessToken}`,
+      'developer-token': `${process.env.ADWORDS_DEVELOPER_TOKEN}`
+    },
+    json: {
+      query: `SELECT conversion_custom_variable.id, conversion_custom_variable.name FROM conversion_custom_variable`
+    }
+  })
+}
+
+/* Ensures there is no error when using Google's partialFailure mode
+   See here: https://developers.google.com/google-ads/api/docs/best-practices/partial-failures
+ */
+export function handleGoogleErrors(response: ModifiedResponse<PartialErrorResponse>) {
+  if (response.data.partialFailureError.code !== 0) {
+    throw new IntegrationError(response.data.partialFailureError.message, 'INVALID_ARGUMENT', 400)
+  }
 }

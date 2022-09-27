@@ -3,6 +3,7 @@ export interface CartItem {
   quantity?: number
   unitPrice?: number
 }
+
 export interface ConversionCustomVariable {
   conversionCustomVariable: {
     resourceName: string
@@ -14,3 +15,13 @@ export interface ConversionCustomVariable {
 export interface QueryResponse {
   results: Array<ConversionCustomVariable>
 }
+
+export interface PartialErrorResponse {
+  partialFailureError: {
+    code: number
+    message: string
+  }
+  results: {}[]
+}
+
+export const GoogleAdsAPI = 'https://googleads.googleapis.com/v11/customers'

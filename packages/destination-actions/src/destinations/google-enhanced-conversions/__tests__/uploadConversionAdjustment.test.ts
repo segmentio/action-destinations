@@ -30,7 +30,7 @@ describe('GoogleEnhancedConversions', () => {
 
       nock(`https://googleads.googleapis.com/v11/customers/${customerId}:uploadConversionAdjustments`)
         .post('')
-        .reply(201, {})
+        .reply(201, { partialFailureError: { code: 0, message: '' }, results: [{}] })
 
       const responses = await testDestination.testAction('uploadConversionAdjustment', {
         event,
@@ -67,7 +67,7 @@ describe('GoogleEnhancedConversions', () => {
 
       nock(`https://googleads.googleapis.com/v11/customers/${customerId}:uploadConversionAdjustments`)
         .post('')
-        .reply(201, {})
+        .reply(201, { partialFailureError: { code: 0, message: '' }, results: [{}] })
 
       try {
         await testDestination.testAction('uploadConversionAdjustment', {
@@ -94,7 +94,7 @@ describe('GoogleEnhancedConversions', () => {
 
       nock(`https://googleads.googleapis.com/v11/customers/${customerId}:uploadConversionAdjustments`)
         .post('')
-        .reply(201, {})
+        .reply(201, { partialFailureError: { code: 0, message: '' }, results: [{}] })
 
       try {
         await testDestination.testAction('uploadConversionAdjustment', {
@@ -123,7 +123,7 @@ describe('GoogleEnhancedConversions', () => {
 
       nock(`https://googleads.googleapis.com/v11/customers/${customerId}:uploadConversionAdjustments`)
         .post('')
-        .reply(201, {})
+        .reply(201, { partialFailureError: { code: 0, message: '' }, results: [{}] })
 
       try {
         await testDestination.testAction('uploadConversionAdjustment', {
@@ -136,7 +136,7 @@ describe('GoogleEnhancedConversions', () => {
         })
         fail('the test should have thrown an error')
       } catch (e) {
-        expect(e.message).toBe('GCLID required for chosen conversion type')
+        expect(e.message).toBe('GCLID and conversion timestamp required for chosen conversion type')
       }
     })
 
@@ -152,12 +152,12 @@ describe('GoogleEnhancedConversions', () => {
 
       nock(`https://googleads.googleapis.com/v11/customers/${customerId}:uploadConversionAdjustments`)
         .post('')
-        .reply(201, {})
+        .reply(201, { partialFailureError: { code: 0, message: '' }, results: [{}] })
 
       try {
         await testDestination.testAction('uploadConversionAdjustment', {
           event,
-          mapping: { gclid: '123a', conversion_action: '12345', adjustment_type: 'UNKNOWN' },
+          mapping: { gclid: '123a', conversion_action: '12345', adjustment_type: 'RETRACTION' },
           useDefaultMappings: true,
           settings: {
             customerId
@@ -165,7 +165,7 @@ describe('GoogleEnhancedConversions', () => {
         })
         fail('the test should have thrown an error')
       } catch (e) {
-        expect(e.message).toBe('Conversion timestamp required for chosen conversion type')
+        expect(e.message).toBe('GCLID and conversion timestamp required for chosen conversion type')
       }
     })
 
@@ -181,7 +181,7 @@ describe('GoogleEnhancedConversions', () => {
 
       nock(`https://googleads.googleapis.com/v11/customers/${customerId}:uploadConversionAdjustments`)
         .post('')
-        .reply(201, {})
+        .reply(201, { partialFailureError: { code: 0, message: '' }, results: [{}] })
 
       try {
         await testDestination.testAction('uploadConversionAdjustment', {
