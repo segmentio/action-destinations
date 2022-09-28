@@ -27,7 +27,7 @@ export interface ExecuteInput<Settings, Payload> {
   readonly auth?: AuthTokens
   /**
    * The features available in the request based on the customer's sourceID;
-   * `features`,`stats` and `logger` are for internal Twilio/Segment use only.
+   * `features`,`stats`, `logger` and `transactionContext` are for internal Twilio/Segment use only.
    */
   readonly features?: Features
   readonly statsContext?: StatsContext

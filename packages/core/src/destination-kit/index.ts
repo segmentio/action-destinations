@@ -200,6 +200,9 @@ interface OnEventOptions {
   transactionContext?: TransactionContext
 }
 
+/** Transaction variables and setTransaction method are passed from mono service for few Segment built integrations.
+ * Transaction context is for Twilio/Segment use only and are not for Partner Builds.
+ */
 export interface TransactionContext {
   transaction: Record<string, string>
   setTransaction: (key: string, value: string) => void
