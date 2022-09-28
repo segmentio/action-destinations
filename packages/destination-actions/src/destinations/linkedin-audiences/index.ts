@@ -2,6 +2,7 @@ import type { DestinationDefinition } from '@segment/actions-core'
 import type { Settings } from './generated-types'
 import updateAudience from './updateAudience'
 import { LINKEDIN_API_VERSION } from './linkedin-properties'
+import https from 'https'
 
 interface RefreshTokenResponse {
   access_token: string
@@ -11,6 +12,8 @@ interface RefreshTokenResponse {
 }
 
 const destination: DestinationDefinition<Settings> = {
+  // We  need to match `name` with the creationName in the db.
+  // The name used in the UI is "LinkedIn Audiences".
   name: 'Linkedin Audiences',
   slug: 'actions-linkedin-audiences',
   mode: 'cloud',
@@ -25,13 +28,13 @@ const destination: DestinationDefinition<Settings> = {
         required: true
       }
     },
-    testAuthentication: async (request, { auth, settings }) => {
-      return request(`https://api.linkedin.com/rest/adAccountsV2/${settings.ad_account_id}`, {
-        method: 'POST',
+    testAuthentication: async (request, { settings, auth }) => {
+      return await request(`https://api.linkedin.com/rest/adAccounts/${settings.ad_account_id}`, {
+        method: 'GET',
         headers: {
           'X-Restli-Protocol-Version': '2.0.0',
           'LinkedIn-Version': LINKEDIN_API_VERSION,
-          authorization: auth.accessToken
+          authorization: `Bearer ${auth?.accessToken}`
         }
       })
     },
@@ -50,12 +53,16 @@ const destination: DestinationDefinition<Settings> = {
     }
   },
   extendRequest({ auth }) {
+    // Repeat calls to the same LinkedIn API endpoint were failing due to a `socket hang up`.
+    // This seems to fix it: https://stackoverflow.com/questions/62500011/reuse-tcp-connection-with-node-fetch-in-node-js
+    const agent = new https.Agent({ keepAlive: true })
+
     return {
       headers: {
         authorization: `Bearer ${auth?.accessToken}`,
-        'LinkedIn-Version': LINKEDIN_API_VERSION,
-        'Content-Type': 'application/json'
-      }
+        'LinkedIn-Version': LINKEDIN_API_VERSION
+      },
+      agent
     }
   },
 
