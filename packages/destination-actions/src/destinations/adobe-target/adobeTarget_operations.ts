@@ -58,7 +58,9 @@ export default class AdobeTarget {
         { method: 'get' }
       )
     } catch (error) {
-      return new IntegrationError('No profile found in Adobe Target with this mbox3rdPartyId', 'Profile not found', 404)
+      if (error instanceof Error) {
+        return new IntegrationError(error.message, error.stack, error.message == 'Forbidden' ? 403 : 400)
+      }
     }
 
     return undefined
