@@ -2,6 +2,7 @@ import { IntegrationError, RequestClient } from '@segment/actions-core'
 import type { GenericPayload } from './sf-types'
 import { mapObjectToShape } from './sf-object-to-shape'
 import { buildCSVData } from './sf-utils'
+import { DynamicFieldResponse } from '@segment/actions-core'
 
 export const API_VERSION = 'v53.0'
 
@@ -25,6 +26,40 @@ interface LookupResponseData {
 
 interface CreateJobResponseData {
   id: string
+}
+
+interface DescribeObjectResponseData {
+  fields: [
+    {
+      createable: boolean
+      externalId: boolean
+      filterable: boolean
+      name: string
+      label: string
+    }
+  ]
+}
+
+interface SObjectsResponseData {
+  sobjects: [
+    {
+      label: string
+      name: string
+      createable: boolean
+      queryable: boolean
+    }
+  ]
+}
+
+interface SalesforceError {
+  response: {
+    data: [
+      {
+        message?: string
+        errorCode?: string
+      }
+    ]
+  }
 }
 
 export default class Salesforce {
@@ -97,6 +132,59 @@ export default class Salesforce {
       'Unsupported operation',
       400
     )
+  }
+
+  bulkUpsertExternalId = async (sobject: string): Promise<DynamicFieldResponse> => {
+    const result = await this.request<DescribeObjectResponseData>(
+      `${this.instanceUrl}services/data/${API_VERSION}/sobjects/${sobject}/describe`,
+      {
+        method: 'get',
+        skipResponseCloning: true
+      }
+    )
+
+    const fields = result.data.fields.filter((field) => {
+      return field.externalId === true
+    })
+
+    return {
+      choices: fields.map((field) => {
+        return { value: field.name, label: field.label }
+      }),
+      nextPage: '2'
+    }
+  }
+
+  customObjectName = async (): Promise<DynamicFieldResponse> => {
+    try {
+      const result = await this.request<SObjectsResponseData>(
+        `${this.instanceUrl}services/data/${API_VERSION}/sobjects`,
+        {
+          method: 'get',
+          skipResponseCloning: true
+        }
+      )
+
+      const fields = result.data.sobjects.filter((field) => {
+        return field.createable === true
+      })
+
+      return {
+        choices: fields.map((field) => {
+          return { value: field.name, label: field.label }
+        }),
+        nextPage: '2'
+      }
+    } catch (err) {
+      return {
+        choices: [],
+        nextPage: '',
+        error: {
+          message: (err as SalesforceError).response.data[0].message ?? 'Unknown error',
+          code: (err as SalesforceError).response.data[0].errorCode ?? 'Unknown error'
+        }
+      }
+    }
   }
 
   private bulkUpsert = async (payloads: GenericPayload[], sobject: string) => {

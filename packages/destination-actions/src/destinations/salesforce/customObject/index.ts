@@ -26,9 +26,22 @@ const action: ActionDefinition<Settings, Payload> = {
       description:
         'The API name of the Salesforce object that records will be added or updated within. This can be a standard or custom object. Custom objects must be predefined in your Salesforce account and should end with "__c".',
       type: 'string',
-      required: true
+      required: true,
+      dynamic: true
     },
     customFields: { ...customFields, required: true }
+  },
+  dynamicFields: {
+    customObjectName: async (request, data) => {
+      const sf: Salesforce = new Salesforce(data.settings.instanceUrl, request)
+
+      return sf.customObjectName()
+    },
+    bulkUpsertExternalId: async (request, { settings, payload }) => {
+      const sf: Salesforce = new Salesforce(settings.instanceUrl, request)
+
+      return sf.bulkUpsertExternalId(payload.customObjectName)
+    }
   },
   perform: async (request, { settings, payload }) => {
     const sf: Salesforce = new Salesforce(settings.instanceUrl, request)
