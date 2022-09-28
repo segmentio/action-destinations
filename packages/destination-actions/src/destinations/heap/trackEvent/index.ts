@@ -117,6 +117,9 @@ const action: ActionDefinition<Settings, Payload> = {
       heapPayload.identity = payload.identity
     }
 
+    console.log(payload.timestamp)
+    console.log(dayjs.utc(payload.timestamp).isValid())
+
     if (payload.timestamp && dayjs.utc(payload.timestamp).isValid()) {
       heapPayload.timestamp = dayjs.utc(payload.timestamp).toISOString()
     }

@@ -66,7 +66,7 @@ describe('#trackEvent', () => {
     )
 
     expect(heapTrackSpy).toHaveBeenCalledWith('hello!', {
-      segment_library: segmentLibraryValue
+      segment_library: HEAP_SEGMENT_LIBRARY_NAME
     })
   })
 })
