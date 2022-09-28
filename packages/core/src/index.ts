@@ -39,6 +39,7 @@ export type {
 export type {
   DynamicFieldResponse,
   DynamicFieldItem,
+  DynamicFieldError,
   InputField,
   GlobalSetting,
   RequestExtension
