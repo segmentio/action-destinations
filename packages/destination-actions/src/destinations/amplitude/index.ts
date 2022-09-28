@@ -8,6 +8,8 @@ import logPurchase from './logPurchase'
 import type { Settings } from './generated-types'
 import { getEndpointByRegion } from './regional-endpoints'
 
+import logEventV2 from './logEventV2'
+
 /** used in the quick setup */
 const presets: DestinationDefinition['presets'] = [
   {
@@ -123,7 +125,8 @@ const destination: DestinationDefinition<Settings> = {
     identifyUser,
     mapUser,
     groupIdentifyUser,
-    logPurchase
+    logPurchase,
+    logEventV2
   }
 }
 
