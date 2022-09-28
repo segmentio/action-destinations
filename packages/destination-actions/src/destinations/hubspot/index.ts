@@ -2,8 +2,8 @@ import type { DestinationDefinition } from '@segment/actions-core'
 import type { Settings } from './generated-types'
 
 import contact from './contact'
-
 import company from './company'
+import customObject from './customObject'
 interface RefreshTokenResponse {
   access_token: string
 }
@@ -17,7 +17,7 @@ const destination: DestinationDefinition<Settings> = {
     scheme: 'oauth2',
     fields: {},
     testAuthentication: (request) => {
-      // HubSPot doesn't have a test authentication endpoint, so we using a lightweight CRM API to validate access token
+      // HubSpot doesn't have a test authentication endpoint, so we using a lightweight CRM API to validate access token
       console.log('testAuthentication')
       return request(`https://api.hubapi.com/crm/v3/objects/contacts?limit=1`)
     },
@@ -53,7 +53,8 @@ const destination: DestinationDefinition<Settings> = {
 
   actions: {
     contact,
-    company
+    company,
+    customObject
   }
 }
 
