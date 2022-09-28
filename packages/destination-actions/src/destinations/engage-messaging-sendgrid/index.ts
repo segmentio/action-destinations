@@ -44,12 +44,12 @@ const destination: DestinationDefinition<Settings> = {
         description: 'Source ID',
         type: 'string',
         required: true
-      },
-      groupId: {
-        label: 'Group ID',
-        description: 'Subscription group ID',
-        type: 'string'
       }
+      // groupId: {
+      //   label: 'Group ID',
+      //   description: 'Subscription group ID',
+      //   type: 'string'
+      // }
     },
     testAuthentication: (request) => {
       return request('https://api.sendgrid.com/v3/mail_settings')
