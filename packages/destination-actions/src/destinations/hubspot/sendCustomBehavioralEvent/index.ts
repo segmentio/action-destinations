@@ -2,6 +2,17 @@ import type { ActionDefinition } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 
+type CustomBehvioralEvent = {
+  eventName: string
+  occurredAt?: string | number
+  properties?: { [k: string]: unknown }
+  // One of utk, email or objectId is mandatory. Hubspot takes care of validating if any one of these fields are missing
+  // and hence skipping validation here.
+  utk?: string
+  email?: string
+  objectId?: string
+}
+
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Send Custom Behavioral Event',
   description: 'Send a custom behavioral event to HubSpot.',
@@ -14,10 +25,10 @@ const action: ActionDefinition<Settings, Payload> = {
       type: 'string',
       required: true
     },
-    occuredAt: {
+    occurredAt: {
       label: 'Event Timestamp',
       description: "The time when this event occurred. If this isn't set, the current time will be used.",
-      type: 'string',
+      type: 'datetime',
       default: {
         '@path': '$.timestamp'
       }
@@ -56,12 +67,22 @@ const action: ActionDefinition<Settings, Payload> = {
       defaultObjectUI: 'keyvalue:only'
     }
   },
-  perform: (_request, _) => {
-    // Make your partner api request here!
-    // return request('https://example.com', {
-    //   method: 'post',
-    //   json: data.payload
-    // })
+  perform: (request, { payload }) => {
+    const event: CustomBehvioralEvent = {
+      eventName: payload.eventName,
+      occurredAt: payload.occurredAt,
+      properties: payload.properties,
+      utk: payload.utk,
+      email: payload.email,
+      objectId: payload.objectId
+    }
+    return request('https://api.hubapi.com/events/v3/send', {
+      method: 'post',
+      headers: {
+        Authorization: 'Bearer pat-na1-456b868c-34fc-4295-b5f8-cb2616f145c8'
+      },
+      json: event
+    })
   }
 }
 

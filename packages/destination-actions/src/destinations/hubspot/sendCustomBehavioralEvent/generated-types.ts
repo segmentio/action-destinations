@@ -8,7 +8,7 @@ export interface Payload {
   /**
    * The time when this event occurred. If this isn't set, the current time will be used.
    */
-  occuredAt?: string
+  occurredAt?: string | number
   /**
    * The email of the contact associated with this event. This is required if no user token or object ID is provided.
    */
