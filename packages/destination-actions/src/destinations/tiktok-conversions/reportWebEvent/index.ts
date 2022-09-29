@@ -73,7 +73,7 @@ const action: ActionDefinition<Settings, Payload> = {
       }
     },
     ttclid: {
-      label: 'TikTok Click  ID',
+      label: 'TikTok Click ID',
       description:
         'The value of the ttclid used to match website visitor events with TikTok ads. The ttclid is valid for 7 days. See [Set up ttclid](https://ads.tiktok.com/marketing_api/docs?rid=4eezrhr6lg4&id=1681728034437121) for details.',
       type: 'string',
@@ -82,6 +82,19 @@ const action: ActionDefinition<Settings, Payload> = {
           exists: { '@path': '$.properties.ttclid' },
           then: { '@path': '$.properties.ttclid' },
           else: { '@path': '$.traits.ttclid' }
+        }
+      }
+    },
+    lead_id: {
+      label: 'TikTok Lead ID',
+      description:
+        'ID of TikTok leads. Every lead will have its own lead_id when exported from TikTok. This feature is in Beta. Please contact your TikTok representative to inquire regarding availability',
+      type: 'string',
+      default: {
+        '@if': {
+          exists: { '@path': '$.properties.lead_id' },
+          then: { '@path': '$.properties.lead_id' },
+          else: { '@path': '$.traits.lead_id' }
         }
       }
     },
@@ -216,7 +229,8 @@ const action: ActionDefinition<Settings, Payload> = {
           user: {
             external_id: userData.hashedExternalId,
             phone_number: userData.hashedPhoneNumber,
-            email: userData.hashedEmail
+            email: userData.hashedEmail,
+            lead_id: payload.lead_id
           },
           ad: {
             callback: payload.ttclid ? payload.ttclid : urlTtclid ? urlTtclid : undefined
