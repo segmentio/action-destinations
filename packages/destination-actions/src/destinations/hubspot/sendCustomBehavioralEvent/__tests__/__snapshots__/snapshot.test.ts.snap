@@ -7,7 +7,7 @@ Object {
   "objectId": "L1tO7SSIyhf3tBB7",
   "occurredAt": "2021-02-01T00:00:00.000Z",
   "properties": Object {
-    "testType": "L1tO7SSIyhf3tBB7",
+    "testtype": "L1tO7SSIyhf3tBB7",
   },
   "utk": "L1tO7SSIyhf3tBB7",
 }
@@ -15,6 +15,8 @@ Object {
 
 exports[`Testing snapshot for Hubspot's sendCustomBehavioralEvent destination action: required fields 1`] = `
 Object {
+  "email": "hello@world.com",
   "eventName": "L1tO7SSIyhf3tBB7",
+  "properties": Object {},
 }
 `;

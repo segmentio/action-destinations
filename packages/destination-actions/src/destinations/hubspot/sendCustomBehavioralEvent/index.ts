@@ -1,13 +1,12 @@
 import type { ActionDefinition } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
+import { HubSpotBaseURL } from '../properties'
 import type { Payload } from './generated-types'
 
 type CustomBehvioralEvent = {
   eventName: string
   occurredAt?: string | number
   properties?: { [k: string]: unknown }
-  // One of utk, email or objectId is mandatory. Hubspot takes care of validating if any one of these fields are missing
-  // and hence skipping validation here.
   utk?: string
   email?: string
   objectId?: string
@@ -68,22 +67,32 @@ const action: ActionDefinition<Settings, Payload> = {
     }
   },
   perform: (request, { payload }) => {
+    const eventProperties = payload.properties ? santizePropertyKeys(payload.properties) : {}
+
     const event: CustomBehvioralEvent = {
       eventName: payload.eventName,
       occurredAt: payload.occurredAt,
-      properties: payload.properties,
       utk: payload.utk,
       email: payload.email,
-      objectId: payload.objectId
+      objectId: payload.objectId,
+      properties: eventProperties
     }
-    return request('https://api.hubapi.com/events/v3/send', {
+    return request(`${HubSpotBaseURL}/events/v3/send`, {
       method: 'post',
-      headers: {
-        Authorization: 'Bearer pat-na1-456b868c-34fc-4295-b5f8-cb2616f145c8'
-      },
       json: event
     })
   }
+}
+
+// Lowercases property names as hubspot accepts only lowercased names.
+function santizePropertyKeys(payload: { [k: string]: unknown }) {
+  const santizedPayload: Record<string, string> = {}
+  Object.entries(payload).forEach(([key, value]) => {
+    // it is safe to type cast the value as properties is of type keyvalue:only
+    // and cannot contain nested objects
+    santizedPayload[key.toLowerCase()] = value as string
+  })
+  return santizedPayload
 }
 
 export default action
