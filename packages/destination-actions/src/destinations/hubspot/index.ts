@@ -17,7 +17,6 @@ const destination: DestinationDefinition<Settings> = {
     fields: {},
     testAuthentication: (request) => {
       // HubSpot doesn't have a test authentication endpoint, so we using a lightweight CRM API to validate access token
-      console.log('testAuthentication')
       return request(`https://api.hubapi.com/crm/v3/objects/contacts?limit=1`)
     },
     refreshAccessToken: async (request, { auth }) => {
@@ -41,13 +40,6 @@ const destination: DestinationDefinition<Settings> = {
         authorization: `Bearer ${auth?.accessToken}`
       }
     }
-  },
-
-  onDelete: async (request, { settings, payload }) => {
-    console.debug(request, settings, payload)
-    // Return a request that performs a GDPR delete for the provided Segment userId or anonymousId
-    // provided in the payload. If your destination does not support GDPR deletion you should not
-    // implement this function and should remove it completely.
   },
 
   actions: {
