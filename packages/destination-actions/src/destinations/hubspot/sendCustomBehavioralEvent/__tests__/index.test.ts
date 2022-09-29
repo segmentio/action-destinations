@@ -96,4 +96,56 @@ describe('Hubspot.sendCustomBehavioralEvent', () => {
       })
     ).resolves.not.toThrowError()
   })
+  test('should ignore properties of type object', async () => {
+    const event = createTestEvent({
+      type: 'track',
+      event: 'pe22596207_test_event_http',
+      properties: {
+        city: 'city',
+        state: {
+          state: 'city'
+        }
+      }
+    })
+    const mapping = {
+      eventName: {
+        '@path': '$.event'
+      },
+      utk: {
+        '@path': '$.properties.utk'
+      },
+      objectId: {
+        '@path': '$.properties.userId'
+      },
+      properties: {
+        hs_city: {
+          '@path': '$.properties.city'
+        },
+        hs_state: {
+          '@path': '$.properties.state'
+        }
+      }
+    }
+
+    const expectedPayload = {
+      eventName: event.event,
+      occurredAt: event.timestamp as string,
+      utk: event.properties?.utk,
+      email: event.properties?.email,
+      objectId: event.properties?.userId,
+      properties: {
+        hs_city: event.properties?.city
+      }
+    }
+
+    nock(HubSpotBaseURL).post('/events/v3/send', expectedPayload).reply(204, {})
+
+    return expect(
+      testDestination.testAction('sendCustomBehavioralEvent', {
+        event,
+        useDefaultMappings: true,
+        mapping: mapping
+      })
+    ).resolves.not.toThrowError()
+  })
 })

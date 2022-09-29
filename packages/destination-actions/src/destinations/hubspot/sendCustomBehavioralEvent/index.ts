@@ -1,4 +1,5 @@
 import type { ActionDefinition } from '@segment/actions-core'
+import transform from 'lodash/transform'
 import type { Settings } from '../generated-types'
 import { HubSpotBaseURL } from '../properties'
 import type { Payload } from './generated-types'
@@ -84,15 +85,15 @@ const action: ActionDefinition<Settings, Payload> = {
   }
 }
 
-// Lowercases property names as hubspot accepts only lowercased names.
-function santizePropertyKeys(payload: { [k: string]: unknown }) {
-  const santizedPayload: Record<string, string> = {}
-  Object.entries(payload).forEach(([key, value]) => {
-    // it is safe to type cast the value as properties is of type keyvalue:only
-    // and cannot contain nested objects
-    santizedPayload[key.toLowerCase()] = value as string
+// Converts property names to Lowercases as HubSpot accepts only lowercased names.
+function santizePropertyKeys(properties: { [k: string]: unknown }) {
+  return transform(properties, (result: Record<string, unknown>, value, key) => {
+    // HubSpot only accepts strings and numbers as values. Refer - https://developers.hubspot.com/docs/api/analytics/events
+    // this check is to skip properties of type object although that is unlikely since
+    // properties is of type keyvalue:only.
+    // For dates, both ISO 8601 and Unix timestamp formats are supported - https://developers.hubspot.com/docs/api/faq
+    if (typeof value != 'object') result[key.toLowerCase()] = value
   })
-  return santizedPayload
 }
 
 export default action
