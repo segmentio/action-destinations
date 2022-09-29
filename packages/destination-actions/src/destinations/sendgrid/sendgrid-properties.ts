@@ -28,16 +28,15 @@ interface APIData {
 // Fetch all custom field definitions for the account using the Sendgrid API
 // https://docs.sendgrid.com/api-reference/custom-fields/get-all-field-definitions
 export const fetchAccountCustomFields = async (request: RequestClient): Promise<CustomField[]> => {
-  return await request('https://api.sendgrid.com/v3/marketing/field_definitions').then((response): CustomField[] => {
-    const data: APIData = response.data as APIData
-    const customFields: CustomField[] = data.custom_fields as CustomField[]
-    return customFields.map(
-      // Strip out other fields provided by the API and return only what we need
-      ({ id, name }: CustomField): CustomField => {
-        return { id, name }
-      }
-    )
-  })
+  const response = await request('https://api.sendgrid.com/v3/marketing/field_definitions')
+  const data: APIData = response.data as APIData
+  const customFields: CustomField[] = data.custom_fields as CustomField[]
+  return customFields.map(
+    // Strip out other fields provided by the API and return only what we need
+    ({ id, name }: CustomField): CustomField => {
+      return { id, name }
+    }
+  )
 }
 
 // Check if a custom field key in the Segment payload is a valid Sendgrid custom field name or ID for in the customer's
