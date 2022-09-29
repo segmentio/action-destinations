@@ -1,7 +1,7 @@
 import type { ActionDefinition } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
-import { customFields, convertPayload } from '../sendgrid-properties'
+import { customFields, convertPayload, fetchAccountCustomFields, CustomField } from '../sendgrid-properties'
 import { IntegrationError } from '@segment/actions-core'
 
 const action: ActionDefinition<Settings, Payload> = {
@@ -214,33 +214,31 @@ const action: ActionDefinition<Settings, Payload> = {
     customFields: customFields
   },
 
-  perform: (request, data) => {
+  perform: async (request, data) => {
+    const accountCustomFields: CustomField[] = await fetchAccountCustomFields(request)
+
     // Convert input payload into SendGrid Marketing Campaigns compatible request payload
-    const formattedData = { contacts: [convertPayload(data.payload)] }
+    const formattedData = { contacts: [convertPayload(data.payload, accountCustomFields)] }
 
     // Making contacts upsert call here
     // Reference: https://docs.sendgrid.com/api-reference/contacts/add-or-update-a-contact
     return request('https://api.sendgrid.com/v3/marketing/contacts', {
       method: 'put',
-      headers: {
-        authorization: `Bearer ${data.settings.sendGridApiKey}`
-      },
       json: formattedData
     })
   },
 
-  performBatch: (request, data) => {
+  performBatch: async (request, data) => {
     const n = data.payload.length
     if (n < 1) {
       throw new IntegrationError('No record to send', 'No data', 400)
     }
 
-    const formattedData = { contacts: data.payload.map(convertPayload) }
+    const accountCustomFields: CustomField[] = await fetchAccountCustomFields(request)
+
+    const formattedData = { contacts: data.payload.map((p) => convertPayload(p, accountCustomFields)) }
     return request('https://api.sendgrid.com/v3/marketing/contacts', {
       method: 'put',
-      headers: {
-        authorization: `Bearer ${data.settings.sendGridApiKey}`
-      },
       json: formattedData
     })
   }
