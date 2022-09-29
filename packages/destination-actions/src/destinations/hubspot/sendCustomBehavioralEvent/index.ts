@@ -7,11 +7,13 @@ import type { Payload } from './generated-types'
 type CustomBehvioralEvent = {
   eventName: string
   occurredAt?: string | number
-  properties?: { [k: string]: unknown }
+  properties?: EventProperties
   utk?: string
   email?: string
   objectId?: string
 }
+
+type EventProperties = { [k: string]: unknown }
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Send Custom Behavioral Event',
@@ -85,9 +87,11 @@ const action: ActionDefinition<Settings, Payload> = {
   }
 }
 
-// Converts property names to Lowercases as HubSpot accepts only lowercased names.
-function santizePropertyKeys(properties: { [k: string]: unknown }) {
-  return transform(properties, (result: Record<string, unknown>, value, key) => {
+/**
+ * Converts property names to Lowercase as HubSpot accepts only lowercased names.
+ * */
+function santizePropertyKeys(properties: EventProperties) {
+  return transform(properties, (result: EventProperties, value, key) => {
     // HubSpot only accepts strings and numbers as values. Refer - https://developers.hubspot.com/docs/api/analytics/events
     // this check is to skip properties of type object although that is unlikely since
     // properties is of type keyvalue:only.
