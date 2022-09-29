@@ -30,8 +30,8 @@ const action: BrowserActionDefinition<Settings, HeapApi, Payload> = {
     }
   },
   perform: (heap, event) => {
-    const defaultEventProperties = { segment_library: HEAP_SEGMENT_LIBRARY_NAME }
-    const eventProperties = Object.assign(defaultEventProperties, event.payload.properties ?? {})
+    const eventProperties = Object.assign({}, event.payload.properties ?? {})
+    eventProperties.segment_library = HEAP_SEGMENT_LIBRARY_NAME
     heap.track(event.payload.name, eventProperties)
   }
 }
