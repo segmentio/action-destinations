@@ -4,7 +4,7 @@ import type { Settings } from './generated-types'
 import createContact from './createContact'
 
 const destination: DestinationDefinition<Settings> = {
-  name: 'Loops',
+  name: 'Loops (Actions)',
   slug: 'actions-loops',
   mode: 'cloud',
 
