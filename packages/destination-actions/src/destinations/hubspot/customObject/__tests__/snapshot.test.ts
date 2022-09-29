@@ -2,6 +2,7 @@ import { createTestEvent, createTestIntegration } from '@segment/actions-core'
 import { generateTestData } from '../../../../lib/test-data'
 import destination from '../../index'
 import nock from 'nock'
+import { generateValidHubSpotCustomObjectName } from '../../testHelper'
 
 const testDestination = createTestIntegration(destination)
 const actionSlug = 'customObject'
@@ -9,45 +10,50 @@ const destinationSlug = 'Hubspot'
 const seedName = `${destinationSlug}#${actionSlug}`
 
 describe(`Testing snapshot for ${destinationSlug}'s ${actionSlug} destination action:`, () => {
-  it('required fields', async () => {
+  it('randomly generated fields', async () => {
     const action = destination.actions[actionSlug]
     const [eventData, settingsData] = generateTestData(seedName, destination, action, true)
 
     nock(/.*/).persist().get(/.*/).reply(200)
-    nock(/.*/).persist().post(/.*/).reply(200)
+    nock(/.*/).persist().post(/.*/).reply(201)
     nock(/.*/).persist().put(/.*/).reply(200)
 
     const event = createTestEvent({
       properties: eventData
     })
-
-    const responses = await testDestination.testAction(actionSlug, {
-      event: event,
-      mapping: event.properties,
-      settings: settingsData,
-      auth: undefined
-    })
-
-    const request = responses[0].request
-    const rawBody = await request.text()
 
     try {
-      const json = JSON.parse(rawBody)
-      expect(json).toMatchSnapshot()
-      return
-    } catch (err) {
-      expect(rawBody).toMatchSnapshot()
-    }
+      const responses = await testDestination.testAction(actionSlug, {
+        event: event,
+        mapping: event.properties,
+        settings: settingsData,
+        auth: undefined
+      })
 
-    expect(request.headers).toMatchSnapshot()
+      const request = responses[0].request
+      const rawBody = await request.text()
+
+      try {
+        const json = JSON.parse(rawBody)
+        expect(json).toMatchSnapshot()
+        return
+      } catch (err) {
+        expect(rawBody).toMatchSnapshot()
+      }
+
+      expect(request.headers).toMatchSnapshot()
+    } catch (e) {
+      const serializedError = JSON.stringify(e, Object.getOwnPropertyNames(e))
+      expect(serializedError).toMatchSnapshot()
+    }
   })
 
-  it('all fields', async () => {
-    const action = destination.actions[actionSlug]
-    const [eventData, settingsData] = generateTestData(seedName, destination, action, false)
+  it('valid fields', async () => {
+    // const action = destination.actions[actionSlug]
+    const eventData = generateValidHubSpotCustomObjectName(seedName)
 
     nock(/.*/).persist().get(/.*/).reply(200)
-    nock(/.*/).persist().post(/.*/).reply(200)
+    nock(/.*/).persist().post(/.*/).reply(201)
     nock(/.*/).persist().put(/.*/).reply(200)
 
     const event = createTestEvent({
@@ -57,7 +63,7 @@ describe(`Testing snapshot for ${destinationSlug}'s ${actionSlug} destination ac
     const responses = await testDestination.testAction(actionSlug, {
       event: event,
       mapping: event.properties,
-      settings: settingsData,
+      settings: {},
       auth: undefined
     })
 

@@ -14,32 +14,37 @@ describe(`Testing snapshot for ${destinationSlug} destination:`, () => {
       const [eventData, settingsData] = generateTestData(seedName, destination, action, true)
 
       nock(/.*/).persist().get(/.*/).reply(200)
-      nock(/.*/).persist().post(/.*/).reply(200)
+      nock(/.*/).persist().post(/.*/).reply(201)
       nock(/.*/).persist().put(/.*/).reply(200)
 
       const event = createTestEvent({
         properties: eventData
       })
 
-      const responses = await testDestination.testAction(actionSlug, {
-        event: event,
-        mapping: event.properties,
-        settings: settingsData,
-        auth: undefined
-      })
-
-      const request = responses[0].request
-      const rawBody = await request.text()
-
       try {
-        const json = JSON.parse(rawBody)
-        expect(json).toMatchSnapshot()
-        return
-      } catch (err) {
-        expect(rawBody).toMatchSnapshot()
-      }
+        const responses = await testDestination.testAction(actionSlug, {
+          event: event,
+          mapping: event.properties,
+          settings: settingsData,
+          auth: undefined
+        })
 
-      expect(request.headers).toMatchSnapshot()
+        const request = responses[0].request
+        const rawBody = await request.text()
+
+        try {
+          const json = JSON.parse(rawBody)
+          expect(json).toMatchSnapshot()
+          return
+        } catch (err) {
+          expect(rawBody).toMatchSnapshot()
+        }
+
+        expect(request.headers).toMatchSnapshot()
+      } catch (e) {
+        const serializedError = JSON.stringify(e, Object.getOwnPropertyNames(e))
+        expect(serializedError).toMatchSnapshot()
+      }
     })
 
     it(`${actionSlug} action - all fields`, async () => {
@@ -48,29 +53,34 @@ describe(`Testing snapshot for ${destinationSlug} destination:`, () => {
       const [eventData, settingsData] = generateTestData(seedName, destination, action, false)
 
       nock(/.*/).persist().get(/.*/).reply(200)
-      nock(/.*/).persist().post(/.*/).reply(200)
+      nock(/.*/).persist().post(/.*/).reply(201)
       nock(/.*/).persist().put(/.*/).reply(200)
 
       const event = createTestEvent({
         properties: eventData
       })
 
-      const responses = await testDestination.testAction(actionSlug, {
-        event: event,
-        mapping: event.properties,
-        settings: settingsData,
-        auth: undefined
-      })
-
-      const request = responses[0].request
-      const rawBody = await request.text()
-
       try {
-        const json = JSON.parse(rawBody)
-        expect(json).toMatchSnapshot()
-        return
-      } catch (err) {
-        expect(rawBody).toMatchSnapshot()
+        const responses = await testDestination.testAction(actionSlug, {
+          event: event,
+          mapping: event.properties,
+          settings: settingsData,
+          auth: undefined
+        })
+
+        const request = responses[0].request
+        const rawBody = await request.text()
+
+        try {
+          const json = JSON.parse(rawBody)
+          expect(json).toMatchSnapshot()
+          return
+        } catch (err) {
+          expect(rawBody).toMatchSnapshot()
+        }
+      } catch (e) {
+        const serializedError = JSON.stringify(e, Object.getOwnPropertyNames(e))
+        expect(serializedError).toMatchSnapshot()
       }
     })
   }
