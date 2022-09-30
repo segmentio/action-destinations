@@ -7,7 +7,7 @@ Object {
   "objectId": "L1tO7SSIyhf3tBB7",
   "occurredAt": "2021-02-01T00:00:00.000Z",
   "properties": Object {
-    "testtype": "L1tO7SSIyhf3tBB7",
+    "testType": "L1tO7SSIyhf3tBB7",
   },
   "utk": "L1tO7SSIyhf3tBB7",
 }
@@ -17,6 +17,5 @@ exports[`Testing snapshot for Hubspot's sendCustomBehavioralEvent destination ac
 Object {
   "email": "hello@world.com",
   "eventName": "L1tO7SSIyhf3tBB7",
-  "properties": Object {},
 }
 `;

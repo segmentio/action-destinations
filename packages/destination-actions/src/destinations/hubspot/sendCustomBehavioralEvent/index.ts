@@ -1,19 +1,16 @@
 import type { ActionDefinition } from '@segment/actions-core'
-import transform from 'lodash/transform'
 import type { Settings } from '../generated-types'
 import { HubSpotBaseURL } from '../properties'
 import type { Payload } from './generated-types'
 
-type CustomBehvioralEvent = {
+interface CustomBehvioralEvent {
   eventName: string
   occurredAt?: string | number
-  properties?: EventProperties
+  properties?: { [key: string]: unknown }
   utk?: string
   email?: string
   objectId?: string
 }
-
-type EventProperties = { [k: string]: unknown }
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Send Custom Behavioral Event',
@@ -70,34 +67,19 @@ const action: ActionDefinition<Settings, Payload> = {
     }
   },
   perform: (request, { payload }) => {
-    const eventProperties = payload.properties ? santizePropertyKeys(payload.properties) : {}
-
     const event: CustomBehvioralEvent = {
       eventName: payload.eventName,
       occurredAt: payload.occurredAt,
       utk: payload.utk,
       email: payload.email,
       objectId: payload.objectId,
-      properties: eventProperties
+      properties: payload.properties
     }
     return request(`${HubSpotBaseURL}/events/v3/send`, {
       method: 'post',
       json: event
     })
   }
-}
-
-/**
- * Converts property names to Lowercase as HubSpot accepts only lowercased names.
- * */
-function santizePropertyKeys(properties: EventProperties) {
-  return transform(properties, (result: EventProperties, value, key) => {
-    // HubSpot only accepts strings and numbers as values. Refer - https://developers.hubspot.com/docs/api/analytics/events
-    // this check is to skip properties of type object although that is unlikely since
-    // properties is of type keyvalue:only.
-    // For dates, both ISO 8601 and Unix timestamp formats are supported - https://developers.hubspot.com/docs/api/faq
-    if (typeof value != 'object') result[key.toLowerCase()] = value
-  })
 }
 
 export default action
