@@ -3,6 +3,7 @@ import type { Settings } from './generated-types'
 
 import customObject from './customObject'
 import sendCustomBehavioralEvent from './sendCustomBehavioralEvent'
+import contact from './contact'
 interface RefreshTokenResponse {
   access_token: string
 }
@@ -44,7 +45,8 @@ const destination: DestinationDefinition<Settings> = {
 
   actions: {
     customObject,
-    sendCustomBehavioralEvent
+    sendCustomBehavioralEvent,
+    contact
   }
 }
 
