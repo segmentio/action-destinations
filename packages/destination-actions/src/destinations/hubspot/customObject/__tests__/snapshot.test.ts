@@ -43,8 +43,7 @@ describe(`Testing snapshot for ${destinationSlug}'s ${actionSlug} destination ac
 
       expect(request.headers).toMatchSnapshot()
     } catch (e) {
-      const serializedError = JSON.stringify(e, Object.getOwnPropertyNames(e))
-      expect(serializedError).toMatchSnapshot()
+      expect(e).toMatchSnapshot()
     }
   })
 
