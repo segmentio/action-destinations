@@ -6,7 +6,7 @@ import Sendgrid from '..'
 const sendgrid = createTestIntegration(Sendgrid)
 const timestamp = new Date().toISOString()
 
-describe.each(['stage', 'production'])('%s environment', (environment) => {
+describe.each(['stage'])('%s environment', (environment) => {
   const settings = {
     unlayerApiKey: 'unlayerApiKey',
     sendGridApiKey: 'sendGridApiKey',
@@ -72,7 +72,7 @@ describe.each(['stage', 'production'])('%s environment', (environment) => {
     }
   }
 
-  const getDefaultMapping = (overrides?: any) => {
+  const getDefaultMapping = (groupId?: string, overrides?: any) => {
     return {
       userId: { '@path': '$.userId' },
       fromDomain: null,
@@ -92,6 +92,7 @@ describe.each(['stage', 'production'])('%s environment', (environment) => {
       bodyHtml: 'Hi {{profile.traits.firstName}}, Welcome to segment',
       send: true,
       traitEnrichment: true,
+      groupId: groupId,
       toEmail: '',
       externalIds: {
         '@arrayPath': [
@@ -160,7 +161,7 @@ describe.each(['stage', 'production'])('%s environment', (environment) => {
     })
 
     it('should not send email when send = false', async () => {
-      const mapping = getDefaultMapping({ send: false })
+      const mapping = getDefaultMapping('any_group', { send: false })
       await sendgrid.testAction('sendEmail', {
         event: createMessagingTestEvent({
           timestamp,
@@ -299,7 +300,7 @@ describe.each(['stage', 'production'])('%s environment', (environment) => {
               userId: userData.userId
             }),
             settings,
-            mapping: getDefaultMapping({ toEmail: `lauren@${domain}` })
+            mapping: getDefaultMapping(undefined, { toEmail: `lauren@${domain}` })
           })
           fail('Test should throw an error')
         } catch (e) {
@@ -381,7 +382,7 @@ describe.each(['stage', 'production'])('%s environment', (environment) => {
           ]
         }),
         settings,
-        mapping: getDefaultMapping({
+        mapping: getDefaultMapping('group1', {
           body: undefined,
           bodyUrl: 'https://s3.com/body.txt',
           bodyHtml: undefined
@@ -475,7 +476,7 @@ describe.each(['stage', 'production'])('%s environment', (environment) => {
           ]
         }),
         settings,
-        mapping: getDefaultMapping({
+        mapping: getDefaultMapping('group1', {
           body: undefined,
           bodyUrl: 'https://s3.com/body.txt',
           bodyHtml: undefined,
@@ -585,7 +586,7 @@ describe.each(['stage', 'production'])('%s environment', (environment) => {
           ]
         }),
         settings,
-        mapping: getDefaultMapping({
+        mapping: getDefaultMapping('group1', {
           previewText: 'Preview text {{profile.traits.first_name | default: "customer"}}',
           body: undefined,
           bodyUrl: 'https://s3.com/body.txt',
@@ -621,7 +622,7 @@ describe.each(['stage', 'production'])('%s environment', (environment) => {
           ]
         }),
         settings,
-        mapping: getDefaultMapping({
+        mapping: getDefaultMapping('group1', {
           subject: 'Hello {{profile.traits.last_name | default: "you"}}'
         })
       })
@@ -659,7 +660,7 @@ describe.each(['stage', 'production'])('%s environment', (environment) => {
           ]
         }),
         settings,
-        mapping: getDefaultMapping({
+        mapping: getDefaultMapping('group1', {
           bodyHtml: 'Hi {{profile.traits.first_name | default: "you"}}, Welcome to segment'
         })
       })
@@ -768,10 +769,9 @@ describe.each(['stage', 'production'])('%s environment', (environment) => {
           ]
         }),
         settings: {
-          ...settings,
-          groupId: 'grp_1'
+          ...settings
         },
-        mapping: getDefaultMapping()
+        mapping: getDefaultMapping('grp_1')
       })
 
       expect(responses.length).toBeGreaterThan(0)
@@ -799,10 +799,9 @@ describe.each(['stage', 'production'])('%s environment', (environment) => {
             ]
           }),
           settings: {
-            groupId: 'grp_1',
             ...settings
           },
-          mapping: getDefaultMapping()
+          mapping: getDefaultMapping('grp_1')
         })
         const sendGridRequest = nock('https://api.sendgrid.com')
           .post('/v3/mail/send', sendgridRequestBody)
@@ -835,10 +834,9 @@ describe.each(['stage', 'production'])('%s environment', (environment) => {
           ]
         }),
         settings: {
-          groupId: 'grp_2',
           ...settings
         },
-        mapping: getDefaultMapping()
+        mapping: getDefaultMapping('grp_2')
       })
 
       const sendGridRequest = nock('https://api.sendgrid.com').post('/v3/mail/send', sendgridRequestBody).reply(200, {})
@@ -855,10 +853,9 @@ describe.each(['stage', 'production'])('%s environment', (environment) => {
           external_ids: undefined
         }),
         settings: {
-          groupId: 'grp_2',
           ...settings
         },
-        mapping: getDefaultMapping()
+        mapping: getDefaultMapping('grp_2')
       })
 
       const sendGridRequest = nock('https://api.sendgrid.com').post('/v3/mail/send', sendgridRequestBody).reply(200, {})
