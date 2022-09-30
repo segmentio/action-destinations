@@ -9,23 +9,6 @@ interface ContactResponse {
   properties: Record<string, string>
 }
 
-interface PropertiesResponse {
-  results: Property[]
-}
-
-interface Property {
-  name: string
-  label: string
-  options: PropertyOption[]
-}
-
-interface PropertyOption {
-  label: string
-  value: string
-  displayOrder: number
-  hidden: boolean
-}
-
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Upsert Contact',
   description: 'Create or update a contact in HubSpot.',
@@ -163,16 +146,26 @@ const action: ActionDefinition<Settings, Payload> = {
       ...payload.properties
     }
 
+    /**
+     * An attempt is made to update contact with given properties. If HubSpot returns 404 indicating
+     * the contact is not found, an attempt will be made to create contact with the given properties
+     */
+
     try {
       const response = await updateContact(request, payload.email, contactProperties)
 
-      // cache contact_id
+      // cache contact_id for it to be avaialble for company action
       transactionContext?.setTransaction('contact_id', response.data.id)
 
-      if (payload.lifecyclestage && response.data.properties) {
+      // HubSpot returns the updated lifecylestage as part of the response.
+      // If the stage we are trying to set is former/older state, it retains the advanced stage
+      // and updates the timestamp. For determining if reset is required or not, we can compare
+      // the state returned in response with the desired state. If they are not the same, reset
+      // and update.
+      if (payload.lifecyclestage) {
         const currentLCS = response.data.properties['lifecyclestage']
-        const isValid = await isLCSStageValid(request, payload.lifecyclestage, currentLCS)
-        if (isValid) return response
+        const hasLCSChanged = currentLCS == payload.lifecyclestage
+        if (hasLCSChanged) return response
         // reset lifecycle stage
         await updateContact(request, payload.email, { lifecylestage: '' })
         // update contact again with new lifecycle stage
@@ -201,30 +194,6 @@ async function createContact(request: RequestClient, contactProperties: { [key: 
       }
     }
   })
-}
-
-async function isLCSStageValid(request: RequestClient, newLCS: string, currentLCS: string) {
-  if (newLCS == currentLCS) return true
-
-  const response = await request<PropertiesResponse>(`${HubSpotBaseURL}/crm/v3/properties/contacts`, {
-    method: 'GET'
-  })
-
-  const lifecycleStage = response.data.results.find((property) => property.name == 'lifecyclestage')
-  if (!lifecycleStage) {
-    return
-  }
-
-  const stageOrderMap = Object.fromEntries(
-    lifecycleStage.options.map(({ value, displayOrder }) => [value, displayOrder])
-  )
-
-  const newLCSOrder = stageOrderMap[newLCS]
-  const existingLCSOrder = stageOrderMap[currentLCS]
-
-  if (!newLCS) return true
-
-  return newLCSOrder >= existingLCSOrder
 }
 
 async function updateContact(request: RequestClient, email: string, properties: { [key: string]: unknown }) {
