@@ -6,7 +6,7 @@ import Sendgrid from '..'
 const sendgrid = createTestIntegration(Sendgrid)
 const timestamp = new Date().toISOString()
 
-describe.each(['stage'])('%s environment', (environment) => {
+describe.each(['stage', 'production'])('%s environment', (environment) => {
   const settings = {
     unlayerApiKey: 'unlayerApiKey',
     sendGridApiKey: 'sendGridApiKey',
@@ -382,7 +382,7 @@ describe.each(['stage'])('%s environment', (environment) => {
           ]
         }),
         settings,
-        mapping: getDefaultMapping('group1', {
+        mapping: getDefaultMapping(undefined, {
           body: undefined,
           bodyUrl: 'https://s3.com/body.txt',
           bodyHtml: undefined
@@ -476,7 +476,7 @@ describe.each(['stage'])('%s environment', (environment) => {
           ]
         }),
         settings,
-        mapping: getDefaultMapping('group1', {
+        mapping: getDefaultMapping(undefined, {
           body: undefined,
           bodyUrl: 'https://s3.com/body.txt',
           bodyHtml: undefined,
@@ -586,7 +586,7 @@ describe.each(['stage'])('%s environment', (environment) => {
           ]
         }),
         settings,
-        mapping: getDefaultMapping('group1', {
+        mapping: getDefaultMapping(undefined, {
           previewText: 'Preview text {{profile.traits.first_name | default: "customer"}}',
           body: undefined,
           bodyUrl: 'https://s3.com/body.txt',
@@ -622,7 +622,7 @@ describe.each(['stage'])('%s environment', (environment) => {
           ]
         }),
         settings,
-        mapping: getDefaultMapping('group1', {
+        mapping: getDefaultMapping(undefined, {
           subject: 'Hello {{profile.traits.last_name | default: "you"}}'
         })
       })
@@ -660,7 +660,7 @@ describe.each(['stage'])('%s environment', (environment) => {
           ]
         }),
         settings,
-        mapping: getDefaultMapping('group1', {
+        mapping: getDefaultMapping(undefined, {
           bodyHtml: 'Hi {{profile.traits.first_name | default: "you"}}, Welcome to segment'
         })
       })
