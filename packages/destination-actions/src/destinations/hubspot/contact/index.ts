@@ -5,6 +5,7 @@ import { HubSpotBaseURL } from '../properties'
 import type { Payload } from './generated-types'
 
 interface ContactResponse {
+  id: string
   properties: Record<string, string>
 }
 
@@ -147,7 +148,7 @@ const action: ActionDefinition<Settings, Payload> = {
       defaultObjectUI: 'keyvalue:only'
     }
   },
-  perform: async (request, { payload }) => {
+  perform: async (request, { payload, transactionContext }) => {
     const contactProperties = {
       company: payload.company,
       firstname: payload.firstname,
@@ -164,6 +165,10 @@ const action: ActionDefinition<Settings, Payload> = {
 
     try {
       const response = await updateContact(request, payload.email, contactProperties)
+
+      // cache contact_id
+      transactionContext?.setTransaction('contact_id', response.data.id)
+
       if (payload.lifecyclestage && response.data.properties) {
         const currentLCS = response.data.properties['lifecyclestage']
         const isValid = await isLCSStageValid(request, payload.lifecyclestage, currentLCS)
@@ -178,7 +183,9 @@ const action: ActionDefinition<Settings, Payload> = {
       const error = ex as HTTPError
       const statusCode = error.response.status
       if (statusCode == 404) {
-        return createContact(request, { email: payload.email, ...contactProperties })
+        const result = await createContact(request, { email: payload.email, ...contactProperties })
+        transactionContext?.setTransaction('contact_id', result.data.id)
+        return result
       }
       throw error
     }
@@ -186,7 +193,7 @@ const action: ActionDefinition<Settings, Payload> = {
 }
 
 async function createContact(request: RequestClient, contactProperties: { [key: string]: unknown }) {
-  return request(`${HubSpotBaseURL}/crm/v3/objects/contacts`, {
+  return request<ContactResponse>(`${HubSpotBaseURL}/crm/v3/objects/contacts`, {
     method: 'POST',
     json: {
       properties: {
