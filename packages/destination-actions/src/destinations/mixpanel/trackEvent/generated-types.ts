@@ -6,6 +6,14 @@ export interface Payload {
    */
   event: string
   /**
+   * A distinct ID randomly generated prior to calling identify.
+   */
+  anonymous_id?: string
+  /**
+   * The distinct ID after calling identify.
+   */
+  user_id?: string
+  /**
    * A distinct ID specified by you.
    */
   distinct_id?: string
@@ -14,13 +22,21 @@ export interface Payload {
    */
   group_id?: string
   /**
-   * A random id that is unique to an event. Mixpanel uses $insert_id to deduplicate events.
-   */
-  insert_id?: string
-  /**
    * The timestamp of the event. If time is not sent with the event, it will be set to the time our servers receive it.
    */
   time?: string | number
+  /**
+   * An object of key-value pairs that represent additional data to be sent along with the event.
+   */
+  event_properties?: {
+    [k: string]: unknown
+  }
+  /**
+   * An object of key-value pairs that represent additional data tied to the user.
+   */
+  user_properties?: {
+    [k: string]: unknown
+  }
   /**
    * The name of your application
    */
@@ -110,6 +126,20 @@ export interface Payload {
    */
   idfa?: string
   /**
+   * Mixpanel will deduplicate subsequent events sent with this ID.
+   */
+  insert_id?: string
+  /**
+   * UTM Tracking Properties
+   */
+  utm_properties?: {
+    utm_source?: string
+    utm_medium?: string
+    utm_campaign?: string
+    utm_term?: string
+    utm_content?: string
+  }
+  /**
    * The full URL of the webpage on which the event is triggered.
    */
   url?: string
@@ -133,28 +163,6 @@ export interface Payload {
    * User agent
    */
   userAgent?: string
-  /**
-   * An object of key-value pairs that represent additional data to be sent along with the event.
-   */
-  event_properties?: {
-    [k: string]: unknown
-  }
-  /**
-   * An object of key-value pairs that represent additional data tied to the user.
-   */
-  user_properties?: {
-    [k: string]: unknown
-  }
-  /**
-   * UTM Tracking Properties
-   */
-  utm_properties?: {
-    utm_source?: string
-    utm_medium?: string
-    utm_campaign?: string
-    utm_term?: string
-    utm_content?: string
-  }
   /**
    * Set as true to ensure Segment sends data to Mixpanel in batches.
    */
