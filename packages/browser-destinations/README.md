@@ -32,7 +32,7 @@ You can use our Action Tester environment to test your browser actions:
 ./bin/run serve --directory ./packages/browser-destinations/src/destinations --browser
 ```
 
-This will give you an option to pick a destination to work on, and then opens the action tester. 
+This will give you an option to pick a destination to work on, and then opens the action tester. You can also debug the code from Visual Studio Code. Goto VSCode Debug Tab, and select "Launch Action Tester Web" from the "RUN AND DEBUG" dropdown ( make sure you ran the above command first ). This will launch a new instance of Google Chrome, and allow you to run your code in debug mode. 
 
 
 ### Automated tests
