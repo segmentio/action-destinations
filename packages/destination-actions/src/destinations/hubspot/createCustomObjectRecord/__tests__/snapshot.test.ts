@@ -5,12 +5,12 @@ import nock from 'nock'
 import { generateValidHubSpotCustomObjectName } from '../../testHelper'
 
 const testDestination = createTestIntegration(destination)
-const actionSlug = 'customObject'
+const actionSlug = 'createCustomObjectRecord'
 const destinationSlug = 'Hubspot'
 const seedName = `${destinationSlug}#${actionSlug}`
 
 describe(`Testing snapshot for ${destinationSlug}'s ${actionSlug} destination action:`, () => {
-  it('randomly generated fields', async () => {
+  it('should throw error on randomly generated fields', async () => {
     const action = destination.actions[actionSlug]
     const [eventData, settingsData] = generateTestData(seedName, destination, action, true)
 
@@ -43,13 +43,11 @@ describe(`Testing snapshot for ${destinationSlug}'s ${actionSlug} destination ac
 
       expect(request.headers).toMatchSnapshot()
     } catch (e) {
-      const serializedError = JSON.stringify(e, Object.getOwnPropertyNames(e))
-      expect(serializedError).toMatchSnapshot()
+      expect(e).toMatchSnapshot()
     }
   })
 
-  it('valid fields', async () => {
-    // const action = destination.actions[actionSlug]
+  it('should not through error on valid fields', async () => {
     const eventData = generateValidHubSpotCustomObjectName(seedName)
 
     nock(/.*/).persist().get(/.*/).reply(200)

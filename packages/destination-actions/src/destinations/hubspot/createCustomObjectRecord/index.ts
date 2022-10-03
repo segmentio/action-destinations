@@ -12,7 +12,7 @@ const hubspotDefinedObjects: string[] = ['contacts', 'companies', 'deals', 'tick
 const customObjectExpression = new RegExp('^[a-zA-Z0-9]+_[a-zA-Z][a-zA-Z0-9_-]+$')
 
 const action: ActionDefinition<Settings, Payload> = {
-  title: 'Custom Object',
+  title: 'Create Custom Object',
   description: 'Create or Update a Custom Object in HubSpot',
   fields: {
     objectType: {

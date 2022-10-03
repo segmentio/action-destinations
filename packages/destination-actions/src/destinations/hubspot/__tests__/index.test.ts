@@ -1,5 +1,4 @@
 import nock from 'nock'
-// import { createTestEvent,
 import { createTestIntegration } from '@segment/actions-core'
 import Definition from '../index'
 

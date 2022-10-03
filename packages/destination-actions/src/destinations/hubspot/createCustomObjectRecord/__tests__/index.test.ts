@@ -33,7 +33,7 @@ describe('Hubspot.customObject', () => {
       }
     })
 
-    const responses = await testDestination.testAction('customObject', {
+    const responses = await testDestination.testAction('createCustomObjectRecord', {
       event,
       mapping: {
         objectType: 'p11223344_discount',
@@ -94,7 +94,7 @@ describe('Hubspot.customObject', () => {
       }
     })
 
-    const responses = await testDestination.testAction('customObject', {
+    const responses = await testDestination.testAction('createCustomObjectRecord', {
       event,
       mapping: {
         objectType: 'deals',
@@ -139,7 +139,7 @@ describe('Hubspot.customObject', () => {
     })
 
     await expect(
-      testDestination.testAction('customObject', {
+      testDestination.testAction('createCustomObjectRecord', {
         event,
         mapping: {
           objectType: objectName,

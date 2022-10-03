@@ -1,7 +1,6 @@
 const generateHash = (seed: string) => {
-  let i,
-    chr,
-    hash = 0
+  let i, chr, hash
+  hash = 0
 
   if (seed.length === 0) return hash
   for (i = 0; i < seed.length; i++) {
@@ -9,7 +8,7 @@ const generateHash = (seed: string) => {
     hash = (hash << 5) - hash + chr
     hash |= 0
   }
-  return hash
+  return Math.abs(hash)
 }
 
 const generateValidHubSpotCustomObjectName = (seed: string) => {

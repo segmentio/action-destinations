@@ -1,6 +1,7 @@
 import { createTestEvent, createTestIntegration } from '@segment/actions-core'
 import { generateTestData } from '../../../lib/test-data'
 import destination from '../index'
+import { generateValidHubSpotCustomObjectName } from '../testHelper'
 import nock from 'nock'
 
 const testDestination = createTestIntegration(destination)
@@ -42,8 +43,7 @@ describe(`Testing snapshot for ${destinationSlug} destination:`, () => {
 
         expect(request.headers).toMatchSnapshot()
       } catch (e) {
-        const serializedError = JSON.stringify(e, Object.getOwnPropertyNames(e))
-        expect(serializedError).toMatchSnapshot()
+        expect(e).toMatchSnapshot()
       }
     })
 
@@ -79,9 +79,15 @@ describe(`Testing snapshot for ${destinationSlug} destination:`, () => {
           expect(rawBody).toMatchSnapshot()
         }
       } catch (e) {
-        const serializedError = JSON.stringify(e, Object.getOwnPropertyNames(e))
-        expect(serializedError).toMatchSnapshot()
+        expect(e).toMatchSnapshot()
       }
     })
   }
+})
+
+describe(`Testing snapshot for testHelper:`, () => {
+  it(`empty seed`, async () => {
+    const customObjectName = generateValidHubSpotCustomObjectName('')
+    expect(customObjectName).toMatchSnapshot()
+  })
 })
