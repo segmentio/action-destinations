@@ -30,7 +30,7 @@ const destination: DestinationDefinition<Settings> = {
         })
       })
 
-      return { accessToken: res.data.access_token }
+      return { accessToken: res.data?.access_token }
     }
   },
   extendRequest({ auth }) {
@@ -39,13 +39,6 @@ const destination: DestinationDefinition<Settings> = {
         authorization: `Bearer ${auth?.accessToken}`
       }
     }
-  },
-
-  onDelete: async (request, { settings, payload }) => {
-    console.debug(request, settings, payload)
-    // Return a request that performs a GDPR delete for the provided Segment userId or anonymousId
-    // provided in the payload. If your destination does not support GDPR deletion you should not
-    // implement this function and should remove it completely.
   },
 
   actions: {

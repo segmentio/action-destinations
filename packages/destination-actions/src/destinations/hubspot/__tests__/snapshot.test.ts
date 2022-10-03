@@ -86,8 +86,13 @@ describe(`Testing snapshot for ${destinationSlug} destination:`, () => {
 })
 
 describe(`Testing snapshot for testHelper:`, () => {
-  it(`empty seed`, async () => {
+  it(`should generate a valid hash with empty seed value`, async () => {
     const customObjectName = generateValidHubSpotCustomObjectName('')
+    expect(customObjectName).toMatchSnapshot()
+  })
+  it(`should generate a valid hash with a seed value`, async () => {
+    const seed = 'test-seed-value'
+    const customObjectName = generateValidHubSpotCustomObjectName(seed)
     expect(customObjectName).toMatchSnapshot()
   })
 })
