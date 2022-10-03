@@ -16,6 +16,7 @@ describe(`Testing snapshot for ${destinationSlug} destination:`, () => {
 
       nock(/.*/).persist().get(/.*/).reply(200)
       nock(/.*/).persist().post(/.*/).reply(201)
+      nock(/.*/).persist().patch(/.*/).reply(200)
       nock(/.*/).persist().put(/.*/).reply(200)
 
       const event = createTestEvent({
@@ -54,6 +55,7 @@ describe(`Testing snapshot for ${destinationSlug} destination:`, () => {
 
       nock(/.*/).persist().get(/.*/).reply(200)
       nock(/.*/).persist().post(/.*/).reply(201)
+      nock(/.*/).persist().patch(/.*/).reply(200)
       nock(/.*/).persist().put(/.*/).reply(200)
 
       const event = createTestEvent({

@@ -1,8 +1,31 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
+exports[`Testing snapshot for actions-hubspot-cloud destination: contact action - all fields 1`] = `[TypeError: transactionContext?.setTransaction is not a function]`;
+
+exports[`Testing snapshot for actions-hubspot-cloud destination: contact action - required fields 1`] = `[TypeError: transactionContext?.setTransaction is not a function]`;
+
 exports[`Testing snapshot for actions-hubspot-cloud destination: createCustomObjectRecord action - all fields 1`] = `[IntegrationError: Custom Object is not in valid format. Please make sure that you are using either a valid format of object’s fullyQualifiedName (eg: p11223344_myobject) or a supported HubSpot defined object (i.e.: deals, tickets, contacts and companies).]`;
 
 exports[`Testing snapshot for actions-hubspot-cloud destination: createCustomObjectRecord action - required fields 1`] = `[IntegrationError: Custom Object is not in valid format. Please make sure that you are using either a valid format of object’s fullyQualifiedName (eg: p11223344_myobject) or a supported HubSpot defined object (i.e.: deals, tickets, contacts and companies).]`;
+
+exports[`Testing snapshot for actions-hubspot-cloud destination: sendCustomBehavioralEvent action - all fields 1`] = `
+Object {
+  "email": "geoli@sekuki.mg",
+  "eventName": "NTxWtuPi(z!bOHmgT^*3",
+  "objectId": "NTxWtuPi(z!bOHmgT^*3",
+  "occurredAt": "2021-02-01T00:00:00.000Z",
+  "properties": Object {
+    "testType": "NTxWtuPi(z!bOHmgT^*3",
+  },
+  "utk": "NTxWtuPi(z!bOHmgT^*3",
+}
+`;
+
+exports[`Testing snapshot for actions-hubspot-cloud destination: sendCustomBehavioralEvent action - required fields 1`] = `
+Object {
+  "eventName": "NTxWtuPi(z!bOHmgT^*3",
+}
+`;
 
 exports[`Testing snapshot for testHelper: should generate a valid hash with a seed value 1`] = `
 Object {
