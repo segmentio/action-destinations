@@ -103,12 +103,12 @@ describe('Hubspot.contact', () => {
     }
 
     const mapping = {
+      lifecyclestage: {
+        '@path': '$.traits.lifecyclestage'
+      },
       properties: {
         graduation_date: {
           '@path': '$.traits.graduation_date'
-        },
-        lifecyclestage: {
-          '@path': '$.traits.lifecyclestage'
         }
       }
     }
@@ -163,12 +163,12 @@ describe('Hubspot.contact', () => {
     }
 
     const mapping = {
+      lifecyclestage: {
+        '@path': '$.traits.lifecyclestage'
+      },
       properties: {
         graduation_date: {
           '@path': '$.traits.graduation_date'
-        },
-        lifecyclestage: {
-          '@path': '$.traits.lifecyclestage'
         }
       }
     }

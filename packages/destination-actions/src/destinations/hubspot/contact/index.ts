@@ -1,5 +1,4 @@
-import type { ActionDefinition, RequestClient } from '@segment/actions-core'
-import { HTTPError } from '@segment/actions-core'
+import { ActionDefinition, HTTPError, RequestClient } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import { HubSpotBaseURL } from '../properties'
 import type { Payload } from './generated-types'
@@ -154,11 +153,11 @@ const action: ActionDefinition<Settings, Payload> = {
     try {
       const response = await updateContact(request, payload.email, contactProperties)
 
-      // cache contact_id for it to be avaialble for company action
+      // cache contact_id for it to be available for company action
       transactionContext?.setTransaction('contact_id', response.data.id)
 
       // HubSpot returns the updated lifecylestage as part of the response.
-      // If the stage we are trying to set is former/older state, it retains the advanced stage
+      // If the stage we are trying to set is backward than the current stage, it retains the current stage and
       // and updates the timestamp. For determining if reset is required or not, we can compare
       // the state returned in response with the desired state. If they are not the same, reset
       // and update.
@@ -167,21 +166,25 @@ const action: ActionDefinition<Settings, Payload> = {
         const hasLCSChanged = currentLCS == payload.lifecyclestage.toLowerCase()
         if (hasLCSChanged) return response
         // reset lifecycle stage
-        await updateContact(request, payload.email, { lifecylestage: '' })
+        await updateContact(request, payload.email, { lifecyclestage: '' })
         // update contact again with new lifecycle stage
         return updateContact(request, payload.email, contactProperties)
       }
       return response
     } catch (ex) {
-      if (!(ex instanceof HTTPError)) throw ex
-      const error = ex
-      const statusCode = error.response.status
-      if (statusCode == 404) {
-        const result = await createContact(request, { email: payload.email, ...contactProperties })
-        transactionContext?.setTransaction('contact_id', result.data.id)
-        return result
-      }
-      throw error
+      if (ex instanceof HTTPError) {
+        const error = ex
+        const statusCode = error.response.status
+        if (statusCode == 404) {
+          const result = await createContact(request, { email: payload.email, ...contactProperties })
+
+          // cache contact_id for it to be available for company action
+          transactionContext?.setTransaction('contact_id', result.data.id)
+
+          return result
+        }
+        throw error
+      } else throw ex
     }
   }
 }
