@@ -15,10 +15,34 @@ const auth = {
   sendGridApiKey: 'test'
 }
 
+beforeEach(() => {
+  nock(`${settings.instanceUrl}`)
+    .get('/v3/marketing/field_definitions')
+    .reply(200, {
+      custom_fields: [
+        {
+          id: 'e1_N',
+          name: 'Age',
+          field_type: 'Number',
+          _metadata: {
+            self: 'https://api.sendgrid.com/v3/marketing/field_definitions/e1_N'
+          }
+        },
+        {
+          id: 'e2_N',
+          name: 'Source',
+          field_type: 'String',
+          _metadata: {
+            self: 'https://api.sendgrid.com/v3/marketing/field_definitions/e2_N'
+          }
+        }
+      ]
+    })
+  nock(`${settings.instanceUrl}`).put('/v3/marketing/contacts').reply(202, {})
+})
+
 describe('Sendgrid.updateUserProfile', () => {
   it('should create a contact record', async () => {
-    nock(`${settings.instanceUrl}`).put('/v3/marketing/contacts').reply(202, {})
-
     const event = createTestEvent({
       type: 'track',
       event: 'Segment Test Event Name',
@@ -42,13 +66,11 @@ describe('Sendgrid.updateUserProfile', () => {
       }
     })
 
-    expect(responses.length).toBe(1)
-    expect(responses[0].status).toBe(202)
+    expect(responses.length).toBe(2)
+    expect(responses[1].status).toBe(202)
   })
 
   it('should create two contact record', async () => {
-    nock(`${settings.instanceUrl}`).put('/v3/marketing/contacts').reply(202, {})
-
     const event1 = createTestEvent({
       type: 'track',
       event: 'Segment Test Event 1',
@@ -84,7 +106,39 @@ describe('Sendgrid.updateUserProfile', () => {
       }
     })
 
-    expect(responses.length).toBe(1)
-    expect(responses[0].status).toBe(202)
+    expect(responses.length).toBe(2)
+    expect(responses[1].status).toBe(202)
+  })
+
+  it('should substitute custom field names for their corresponding IDs', async () => {
+    const event = createTestEvent({
+      type: 'identify',
+      event: 'Segment Test Event Name',
+      traits: {
+        email: 'homer@simpsons.com',
+        last_name: 'simpson',
+        age: 42,
+        source: 'facebook'
+      }
+    })
+
+    const responses = await testDestination.testAction('updateUserProfile', {
+      event,
+      settings,
+      auth,
+      mapping: {
+        primary_email: { '@path': '$.traits.email' },
+        customFields: {
+          aGE: { '@path': '$.traits.age' },
+          e2_N: { '@path': '$.traits.source' }
+        }
+      }
+    })
+
+    expect(responses.length).toBe(2)
+    expect(responses[1].status).toBe(202)
+    expect(responses[1].options.body).toEqual(
+      '{"contacts":[{"email":"homer@simpsons.com","custom_fields":{"e1_N":42,"e2_N":"facebook"}}]}'
+    )
   })
 })
