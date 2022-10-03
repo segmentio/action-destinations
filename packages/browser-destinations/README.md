@@ -26,43 +26,14 @@ bin/run generate:types
 
 ### Manual testing
 
-You can run a test webpage that makes every browser destination available for testing.
-Steps include:
-
-- 1. Run the web server
+You can use our Action Tester environment to test your browser actions: 
 
 ```
-yarn dev
+./bin/run serve --directory ./packages/browser-destinations/src/destinations --browser
 ```
 
-- 2. Visit the webserver: [http://localhost:9000](http://localhost:9000)
-- 3. Set up a subscription in the settings box. A minimum of one subscription is required to load your destination. A valid subscription and settings look like this:
+This will give you an option to pick a destination to work on, and then opens the action tester. 
 
-```
-{
-  "client_code": "segmentexchangepartn",
-  "admin_number": "10",
-  "version": "2.8.0",
-  "cookie_domain": "localhost",
-  "mbox_name": "target-global-mbox",
-  "subscriptions": [
-    {
-      "partnerAction": "upsertProfile",
-      "name": "Upsert Profile",
-      "enabled": true,
-      "subscribe": "type = \"identify\"",
-      "mapping": {}
-    }
-  ]
-}
-```
-
-- 4. Select a destination from the picker and click `load`
-
-Notes:
-
-- Be careful of matching the name and type of the subscriptions. The parser is case sensitive and also "" vs '' sensitive.
-- The `partnerAction` key must have an action that matches its value.
 
 ### Automated tests
 
