@@ -13,12 +13,12 @@ const customObjectExpression = new RegExp('^[a-zA-Z0-9]+_[a-zA-Z][a-zA-Z0-9_-]+$
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Create Custom Object',
-  description: 'Create or Update a Custom Object in HubSpot',
+  description: 'Create a Custom Object in HubSpot',
   fields: {
     objectType: {
       label: 'Object Type',
       description:
-        'The CRM object schema to use for creating a record. This can be a standard object (i.e. tickets, deals) or ***fullyQualifiedName*** of a custom object. Custom objects and their schema must be predefined in HubSpot.',
+        'The CRM object schema to use for creating a record. This can be a standard object (i.e. tickets, deals) or ***fullyQualifiedName*** of a custom object. Schema for the Custom Objects must be predefined in HubSpot. More information on Custom Objects and *fullyQualifiedName* in [HubSpot documentation](https://developers.hubspot.com/docs/cms/data/crm-objects#getting-a-custom-object-type-s-details).',
       type: 'string',
       required: true
     },
@@ -42,10 +42,10 @@ const action: ActionDefinition<Settings, Payload> = {
       )
     }
 
-    // Check if Custom Object is in valid format or a segment sup ported HubSpot object
+    // Check if Custom Object is in valid format or is a Segment-supported HubSpot object.
     if (!customObjectExpression.test(payload.objectType) && !hubspotDefinedObjects.includes(payload.objectType)) {
       throw new IntegrationError(
-        'Custom Object is not in valid format. Please make sure that you are using either a valid format of object’s fullyQualifiedName (eg: p11223344_myobject) or a supported HubSpot defined object (ie: deals, tickets, contacts and companies).',
+        'Custom Object is not in valid format. Please make sure that you are using either a valid format of object’s fullyQualifiedName (eg: p11223344_myobject) or a supported HubSpot defined object (i.e.: deals, tickets, contacts and companies).',
         'Custom Object is not in valid format',
         400
       )
