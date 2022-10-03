@@ -2,7 +2,7 @@ import type { DestinationDefinition } from '@segment/actions-core'
 import type { Settings } from './generated-types'
 
 import sendCustomBehavioralEvent from './sendCustomBehavioralEvent'
-import contact from './contact'
+import upsertContact from './upsertContact'
 import createCustomObjectRecord from './createCustomObjectRecord'
 interface RefreshTokenResponse {
   access_token: string
@@ -45,7 +45,7 @@ const destination: DestinationDefinition<Settings> = {
 
   actions: {
     sendCustomBehavioralEvent,
-    contact,
+    upsertContact,
     createCustomObjectRecord
   }
 }

@@ -7,7 +7,7 @@ const testDestination = createTestIntegration(Destination)
 
 beforeEach(() => nock.cleanAll())
 
-describe('Hubspot.contact', () => {
+describe('Hubspot.upsertContact', () => {
   test('should create contact successfully and set contact id in transaction context', async () => {
     const testEmail = 'vep@beri.dz'
     const event = createTestEvent({
@@ -66,7 +66,7 @@ describe('Hubspot.contact', () => {
     const setTransactionContext = (key: string, value: string) => (transactionContext[key] = value)
 
     await expect(
-      testDestination.testAction('contact', {
+      testDestination.testAction('upsertContact', {
         mapping,
         useDefaultMappings: true,
         event,
@@ -126,7 +126,7 @@ describe('Hubspot.contact', () => {
     const setTransactionContext = (key: string, value: string) => (transactionContext[key] = value)
 
     await expect(
-      testDestination.testAction('contact', {
+      testDestination.testAction('upsertContact', {
         mapping,
         useDefaultMappings: true,
         event,
@@ -204,7 +204,7 @@ describe('Hubspot.contact', () => {
     const setTransactionContext = (key: string, value: string) => (transactionContext[key] = value)
 
     await expect(
-      testDestination.testAction('contact', {
+      testDestination.testAction('upsertContact', {
         mapping,
         useDefaultMappings: true,
         event,

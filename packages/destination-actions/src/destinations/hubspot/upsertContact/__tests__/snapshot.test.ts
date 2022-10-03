@@ -5,7 +5,7 @@ import nock from 'nock'
 import { TransactionContext } from '@segment/actions-core/src/destination-kit'
 
 const testDestination = createTestIntegration(destination)
-const actionSlug = 'contact'
+const actionSlug = 'upsertContact'
 const destinationSlug = 'Hubspot'
 const seedName = `${destinationSlug}#${actionSlug}`
 
