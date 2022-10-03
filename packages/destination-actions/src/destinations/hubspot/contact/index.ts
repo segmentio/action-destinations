@@ -142,7 +142,7 @@ const action: ActionDefinition<Settings, Payload> = {
       state: payload.state,
       country: payload.country,
       zip: payload.zip,
-      lifecyclestage: payload.lifecyclestage,
+      lifecyclestage: payload.lifecyclestage?.toLowerCase(),
       ...payload.properties
     }
 
@@ -164,7 +164,7 @@ const action: ActionDefinition<Settings, Payload> = {
       // and update.
       if (payload.lifecyclestage) {
         const currentLCS = response.data.properties['lifecyclestage']
-        const hasLCSChanged = currentLCS == payload.lifecyclestage
+        const hasLCSChanged = currentLCS == payload.lifecyclestage.toLowerCase()
         if (hasLCSChanged) return response
         // reset lifecycle stage
         await updateContact(request, payload.email, { lifecylestage: '' })
@@ -173,7 +173,8 @@ const action: ActionDefinition<Settings, Payload> = {
       }
       return response
     } catch (ex) {
-      const error = ex as HTTPError
+      if (!(ex instanceof HTTPError)) throw ex
+      const error = ex
       const statusCode = error.response.status
       if (statusCode == 404) {
         const result = await createContact(request, { email: payload.email, ...contactProperties })
@@ -197,7 +198,7 @@ async function createContact(request: RequestClient, contactProperties: { [key: 
 }
 
 async function updateContact(request: RequestClient, email: string, properties: { [key: string]: unknown }) {
-  return await request<ContactResponse>(`${HubSpotBaseURL}/crm/v3/objects/contacts/${email}?idProperty=email`, {
+  return request<ContactResponse>(`${HubSpotBaseURL}/crm/v3/objects/contacts/${email}?idProperty=email`, {
     method: 'PATCH',
     json: {
       properties: {
