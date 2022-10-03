@@ -21,6 +21,7 @@ const revenueKeys = ['revenue', 'price', 'productId', 'quantity', 'revenueType']
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Log Event V2',
   description: 'Send an event to Amplitude',
+  defaultSubscription: 'type = "track"',
   fields: {
     ...eventSchema,
     products: {
