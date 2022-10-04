@@ -23,9 +23,32 @@ Object {
 }
 `;
 
-exports[`Testing snapshot for actions-hubspot-cloud destination: upsertContact action - all fields 1`] = `[TypeError: transactionContext?.setTransaction is not a function]`;
+exports[`Testing snapshot for actions-hubspot-cloud destination: upsertContact action - all fields 1`] = `
+Object {
+  "properties": Object {
+    "address": "fL&&$lZA!6gsh",
+    "city": "fL&&$lZA!6gsh",
+    "company": "fL&&$lZA!6gsh",
+    "country": "fL&&$lZA!6gsh",
+    "email": "zejkulcih@ras.sh",
+    "firstname": "fL&&$lZA!6gsh",
+    "lastname": "fL&&$lZA!6gsh",
+    "lifecyclestage": "fl&&$lza!6gsh",
+    "phone": "fL&&$lZA!6gsh",
+    "state": "fL&&$lZA!6gsh",
+    "testType": "fL&&$lZA!6gsh",
+    "zip": "fL&&$lZA!6gsh",
+  },
+}
+`;
 
-exports[`Testing snapshot for actions-hubspot-cloud destination: upsertContact action - required fields 1`] = `[TypeError: transactionContext?.setTransaction is not a function]`;
+exports[`Testing snapshot for actions-hubspot-cloud destination: upsertContact action - required fields 1`] = `
+Object {
+  "properties": Object {
+    "email": "zejkulcih@ras.sh",
+  },
+}
+`;
 
 exports[`Testing snapshot for testHelper: should generate a valid hash with a seed value 1`] = `
 Object {

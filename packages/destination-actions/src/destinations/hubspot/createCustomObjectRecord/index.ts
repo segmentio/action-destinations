@@ -1,6 +1,7 @@
 import type { ActionDefinition } from '@segment/actions-core'
 import { IntegrationError } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
+import { HubSpotBaseURL } from '../properties'
 import type { Payload } from './generated-types'
 
 // List of HubSpot defined Objects that segment has OAuth Scope to access
@@ -51,7 +52,7 @@ const action: ActionDefinition<Settings, Payload> = {
       )
     }
 
-    return request(`https://api.hubapi.com/crm/v3/objects/${payload.objectType}`, {
+    return request(`${HubSpotBaseURL}/crm/v3/objects/${payload.objectType}`, {
       method: 'POST',
       json: {
         properties: { ...payload.properties }

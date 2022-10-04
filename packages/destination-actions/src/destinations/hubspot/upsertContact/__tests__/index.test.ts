@@ -2,6 +2,7 @@ import nock from 'nock'
 import { createTestEvent, createTestIntegration } from '@segment/actions-core'
 import Destination from '../../index'
 import { HubSpotBaseURL } from '../../properties'
+import { IntegrationError } from '@segment/actions-core'
 
 const testDestination = createTestIntegration(Destination)
 
@@ -23,16 +24,7 @@ describe('Hubspot.upsertContact', () => {
       }
     })
 
-    const patchExpectedPayload = {
-      properties: {
-        firstname: 'John',
-        lastname: 'Doe',
-        city: 'San Fransico',
-        graduation_date: 1664533942262
-      }
-    }
-
-    const postExpectedPayload = {
+    const expectedPayload = {
       properties: {
         email: testEmail,
         firstname: 'John',
@@ -49,17 +41,15 @@ describe('Hubspot.upsertContact', () => {
         }
       }
     }
-    nock(HubSpotBaseURL)
-      .patch(`/crm/v3/objects/contacts/${testEmail}?idProperty=email`, patchExpectedPayload)
-      .reply(404, {
-        status: 'error',
-        message: 'resource not found',
-        correlationId: 'be56c5f3-5841-4661-b52f-65b3aacd0244'
-      })
+    nock(HubSpotBaseURL).patch(`/crm/v3/objects/contacts/${testEmail}?idProperty=email`, expectedPayload).reply(404, {
+      status: 'error',
+      message: 'resource not found',
+      correlationId: 'be56c5f3-5841-4661-b52f-65b3aacd0244'
+    })
 
-    nock(HubSpotBaseURL).post('/crm/v3/objects/contacts', postExpectedPayload).reply(201, {
+    nock(HubSpotBaseURL).post('/crm/v3/objects/contacts', expectedPayload).reply(201, {
       id: '801',
-      properties: postExpectedPayload.properties
+      properties: expectedPayload.properties
     })
 
     const transactionContext: Record<string, string> = {}
@@ -76,6 +66,7 @@ describe('Hubspot.upsertContact', () => {
 
     expect(transactionContext['contact_id']).toEqual('801')
   })
+
   test('should update contact successfully and set contact id in transaction context', async () => {
     const testEmail = 'vep@beri.dz'
     const event = createTestEvent({
@@ -96,6 +87,7 @@ describe('Hubspot.upsertContact', () => {
       properties: {
         firstname: 'John',
         lastname: 'Doe',
+        email: testEmail,
         city: 'San Fransico',
         graduation_date: 1664533942262,
         lifecyclestage: 'subscriber'
@@ -136,6 +128,74 @@ describe('Hubspot.upsertContact', () => {
 
     expect(transactionContext['contact_id']).toEqual('801')
   })
+
+  test('should throw non 404 errors', async () => {
+    const testEmail = 'vep@beri.dz'
+    const event = createTestEvent({
+      type: 'identify',
+      traits: {
+        email: testEmail,
+        first_name: 'John',
+        last_name: 'Doe',
+        address: {
+          city: 'San Fransico'
+        },
+        graduation_date: 1664533942262,
+        lifecyclestage: 'subscriber'
+      }
+    })
+
+    const patchExpectedPayload = {
+      properties: {
+        firstname: 'John',
+        lastname: 'Doe',
+        email: testEmail,
+        city: 'San Fransico',
+        graduation_date: 1664533942262,
+        lifecyclestage: 'subscriber'
+      }
+    }
+
+    const mapping = {
+      lifecyclestage: {
+        '@path': '$.traits.lifecyclestage'
+      },
+      properties: {
+        graduation_date: {
+          '@path': '$.traits.graduation_date'
+        }
+      }
+    }
+
+    const errorResponse = {
+      status: 'error',
+      message: 'No properties found to update, please provide at least one.',
+      correlationId: '7b13bba7-f51b-4fd3-a251-46242abb92e6',
+      context: {
+        properties: ['{}']
+      },
+      category: 'VALIDATION_ERROR'
+    }
+
+    nock(HubSpotBaseURL)
+      .patch(`/crm/v3/objects/contacts/${testEmail}?idProperty=email`, patchExpectedPayload)
+      .reply(400, errorResponse)
+
+    const transactionContext: Record<string, string> = {}
+    const setTransactionContext = (key: string, value: string) => (transactionContext[key] = value)
+
+    await expect(
+      testDestination.testAction('upsertContact', {
+        mapping,
+        useDefaultMappings: true,
+        event,
+        transactionContext: { transaction: {}, setTransaction: setTransactionContext }
+      })
+    ).rejects.toThrowError(new IntegrationError(errorResponse.message, errorResponse.status, 400))
+
+    expect(!transactionContext['contact_id'])
+  })
+
   test('should reset lifecyclestage and update if lifecyclestage is to be moved backwards', async () => {
     const testEmail = 'vep@beri.dz'
     const event = createTestEvent({
@@ -158,7 +218,8 @@ describe('Hubspot.upsertContact', () => {
         lastname: 'Doe',
         city: 'San Fransico',
         graduation_date: 1664533942262,
-        lifecyclestage: 'subscriber'
+        lifecyclestage: 'subscriber',
+        email: testEmail
       }
     }
 

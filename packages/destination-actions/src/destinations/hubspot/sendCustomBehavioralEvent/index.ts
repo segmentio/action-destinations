@@ -3,7 +3,7 @@ import type { Settings } from '../generated-types'
 import { HubSpotBaseURL } from '../properties'
 import type { Payload } from './generated-types'
 
-interface CustomBehvioralEvent {
+interface CustomBehavioralEvent {
   eventName: string
   occurredAt?: string | number
   properties?: { [key: string]: unknown }
@@ -67,7 +67,7 @@ const action: ActionDefinition<Settings, Payload> = {
     }
   },
   perform: (request, { payload }) => {
-    const event: CustomBehvioralEvent = {
+    const event: CustomBehavioralEvent = {
       eventName: payload.eventName,
       occurredAt: payload.occurredAt,
       utk: payload.utk,
