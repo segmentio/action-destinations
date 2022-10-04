@@ -38,6 +38,12 @@ export interface ExecuteInput<Settings, Payload> {
 export interface DynamicFieldResponse {
   choices: DynamicFieldItem[]
   nextPage?: string
+  error?: DynamicFieldError
+}
+
+export interface DynamicFieldError {
+  code: string
+  message: string
 }
 
 export interface DynamicFieldItem {

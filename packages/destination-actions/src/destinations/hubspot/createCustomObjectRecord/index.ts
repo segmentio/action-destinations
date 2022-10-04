@@ -1,11 +1,10 @@
 import type { ActionDefinition } from '@segment/actions-core'
 import { IntegrationError } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
-import { HubSpotBaseURL } from '../properties'
 import type { Payload } from './generated-types'
 
 // List of HubSpot defined Objects that segment has OAuth Scope to access
-const hubspotDefinedObjects: string[] = ['contacts', 'companies', 'deals', 'tickets']
+const hubspotDefinedObjects: string[] = ['deals', 'tickets']
 
 // HubSpot validation rule suggests Custom Object type must start with a letter and can only contain letters, numbers, underscores, and hyphens.
 // HubSpot appends a workspace specific prefix like "p1122334455_" during the Custom Object creation
@@ -34,25 +33,16 @@ const action: ActionDefinition<Settings, Payload> = {
     }
   },
   perform: async (request, { payload }) => {
-    // Redundant check: Validate if at-least one Custom Object property is being mapped
-    if (Object.keys(payload.properties).length === 0) {
-      throw new IntegrationError(
-        'At-least one Custom Object property should be mapped',
-        'Object properties are not defined',
-        400
-      )
-    }
-
     // Check if Custom Object is in valid format or is a Segment-supported HubSpot object.
     if (!customObjectExpression.test(payload.objectType) && !hubspotDefinedObjects.includes(payload.objectType)) {
       throw new IntegrationError(
-        'Custom Object is not in valid format. Please make sure that you are using either a valid format of object’s fullyQualifiedName (eg: p11223344_myobject) or a supported HubSpot defined object (i.e.: deals, tickets, contacts and companies).',
+        'Custom Object is not in valid format. Please make sure that you are using either a valid format of object’s fullyQualifiedName (eg: p11223344_myobject) or a supported HubSpot defined object (i.e.: deals, tickets).',
         'Custom Object is not in valid format',
         400
       )
     }
 
-    return request(`${HubSpotBaseURL}/crm/v3/objects/${payload.objectType}`, {
+    return request(`https://api.hubapi.com/crm/v3/objects/${payload.objectType}`, {
       method: 'POST',
       json: {
         properties: { ...payload.properties }
