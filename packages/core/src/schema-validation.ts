@@ -65,7 +65,7 @@ export function validateSchema(obj: unknown, schema: JSONSchema4, options?: Vali
   const isValid = validate(obj)
 
   if (throwIfInvalid && !isValid && validate.errors) {
-    statsContext && statsContext?.statsClient.incr('ajv.discard', 1, statsContext.tags)
+    statsContext && statsContext?.statsClient?.incr('ajv.discard', 1, statsContext.tags)
     throw new AggregateAjvError(validate.errors)
   }
 
