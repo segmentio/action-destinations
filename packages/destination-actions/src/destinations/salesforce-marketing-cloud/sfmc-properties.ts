@@ -1,4 +1,5 @@
 import { InputField } from '@segment/actions-core/src/destination-kit/types'
+import { Payload } from './dataExtension/generated-types'
 
 export const contactKey: InputField = {
   label: 'Contact Key',
@@ -10,8 +11,7 @@ export const contactKey: InputField = {
 
 export const contactKeyAPIEvent: InputField = {
   label: 'Contact Key',
-  description:
-    'The unique identifier that identifies a subscriber or a contact.',
+  description: 'The unique identifier that identifies a subscriber or a contact.',
   type: 'string',
   default: { '@path': '$.userId' },
   required: true
@@ -65,4 +65,17 @@ export const eventData: InputField = {
     'The properties of the event. Fields must be created in the event definition schema before sending data for it.On the left-hand side, input the SFMC field name exactly how it appears in the event definition schema. On the right-hand side, map the Segment field that contains the corresponding value.',
   type: 'object',
   defaultObjectUI: 'keyvalue:only'
+}
+
+export const enable_batching: InputField = {
+  label: 'Enable Batching',
+  description: 'If true, data is batched before sending to the SFMC Data Extension to help reduce API calls.',
+  type: 'boolean',
+  default: true
+}
+
+export function extractEvents(payloads: Payload[]) {
+  payloads.forEach((payload: Payload) => {
+    console.log('Payload Seperated:', payload)
+  })
 }

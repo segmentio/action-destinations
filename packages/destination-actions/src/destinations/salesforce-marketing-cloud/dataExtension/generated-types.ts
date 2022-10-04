@@ -25,4 +25,8 @@ export interface Payload {
   values?: {
     [k: string]: unknown
   }
+  /**
+   * If true, data is batched before sending to the SFMC Data Extension to help reduce API calls.
+   */
+  enable_batching?: boolean
 }
