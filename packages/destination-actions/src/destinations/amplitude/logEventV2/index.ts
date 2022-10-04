@@ -1,6 +1,6 @@
 import { ActionDefinition, omit, removeUndefined } from '@segment/actions-core'
 import dayjs from 'dayjs'
-import removeEmptyKeysAndCheckIfEmpty from '../emptyObject'
+import compact from '../compact'
 import { eventSchema } from '../event-schema'
 import type { Settings } from '../generated-types'
 import { getEndpointByRegion } from '../regional-endpoints'
@@ -214,7 +214,9 @@ const action: ActionDefinition<Settings, Payload> = {
     }
 
     if (library) {
-      if (library === 'analytics.js') properties.platform = 'Web'
+      if (library === 'analytics.js') {
+        properties.platform = 'Web'
+      }
     }
 
     if (time && dayjs.utc(time).isValid()) {
@@ -229,13 +231,13 @@ const action: ActionDefinition<Settings, Payload> = {
       options = { min_id_length }
     }
 
-    if (removeEmptyKeysAndCheckIfEmpty(setOnce)) {
+    if (compact(setOnce)) {
       properties.user_properties = { ...properties.user_properties, $setOnce: setOnce }
     }
-    if (removeEmptyKeysAndCheckIfEmpty(setAlways)) {
+    if (compact(setAlways)) {
       properties.user_properties = { ...properties.user_properties, $set: setAlways }
     }
-    if (removeEmptyKeysAndCheckIfEmpty(add)) {
+    if (compact(add)) {
       properties.user_properties = { ...properties.user_properties, $add: add }
     }
 
