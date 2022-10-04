@@ -54,7 +54,7 @@ exports[`Testing snapshot for Hubspot's upsertContact destination action: requir
 Headers {
   Symbol(map): Object {
     "authorization": Array [
-      "Bearer pat-na1-456b868c-34fc-4295-b5f8-cb2616f145c8",
+      "Bearer undefined",
     ],
     "content-type": Array [
       "application/json",
@@ -80,7 +80,7 @@ exports[`Testing snapshot for Hubspot's upsertContact destination action: requir
 Headers {
   Symbol(map): Object {
     "authorization": Array [
-      "Bearer pat-na1-456b868c-34fc-4295-b5f8-cb2616f145c8",
+      "Bearer undefined",
     ],
     "content-type": Array [
       "application/json",
