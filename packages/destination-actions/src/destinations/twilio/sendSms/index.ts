@@ -18,6 +18,12 @@ const action: ActionDefinition<Settings, Payload> = {
       description: 'The message body',
       type: 'text',
       required: true
+    },
+    MediaUrl: {
+      label: 'Media URL',
+      description: 'The URL of the media to send with the message.',
+      type: 'string',
+      required: false
     }
   },
   perform: (request, data) => {
