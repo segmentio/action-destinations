@@ -9,6 +9,8 @@ import addProductToCart from './addProductToCart'
 import removeProductFromCart from './removeProductFromCart'
 import upsertOrder from './upsertOrder'
 
+import mergeContacts from './mergeContacts'
+
 const destination: DestinationDefinition<Settings> = {
   name: 'Cordial (Actions)',
   description: 'Sync Segment Users, Groups and Events to Cordial',
@@ -36,11 +38,11 @@ const destination: DestinationDefinition<Settings> = {
         label: 'User ID attribute key',
         description: 'Cordial string unique attribute key to store Segment User ID in (e.g. `segment_id`)',
         type: 'string',
-        required: false,
-      },
+        required: false
+      }
     },
     testAuthentication: (request, { settings }) => {
-      return request(settings.endpoint + '/api/checkAuth', { headers: { 'Content-Type': 'application/json' }});
+      return request(settings.endpoint + '/api/checkAuth', { headers: { 'Content-Type': 'application/json' } })
     }
   },
 
@@ -57,7 +59,8 @@ const destination: DestinationDefinition<Settings> = {
     removeContactFromList,
     addProductToCart,
     removeProductFromCart,
-    upsertOrder
+    upsertOrder,
+    mergeContacts
   }
 }
 
