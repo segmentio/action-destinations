@@ -8,7 +8,7 @@ const customerId = '1234'
 
 describe('GoogleEnhancedConversions', () => {
   describe('uploadConversionAdjustment', () => {
-    it('should send an event with default mappings', async () => {
+    it('sends an event with default mappings', async () => {
       const event = createTestEvent({
         timestamp,
         event: 'Test Event',
@@ -54,7 +54,7 @@ describe('GoogleEnhancedConversions', () => {
       expect(responses[0].status).toBe(201)
     })
 
-    it('should fail if customerId not set', async () => {
+    it('fails if customerId not set', async () => {
       const event = createTestEvent({
         timestamp,
         event: 'Test Event',
@@ -82,7 +82,7 @@ describe('GoogleEnhancedConversions', () => {
       }
     })
 
-    it('should fail if conversion_type is enhancement and orderid not set', async () => {
+    it('fails if conversion_type is enhancement and orderid not set', async () => {
       const event = createTestEvent({
         timestamp,
         event: 'Test Event',
@@ -111,7 +111,7 @@ describe('GoogleEnhancedConversions', () => {
       }
     })
 
-    it('should fail if conversion_type is not enhancement and gclid not set', async () => {
+    it('fails if conversion_type is not enhancement and gclid not set', async () => {
       const event = createTestEvent({
         timestamp,
         event: 'Test Event',
@@ -140,7 +140,7 @@ describe('GoogleEnhancedConversions', () => {
       }
     })
 
-    it('should fail if conversion_type is not enhancement and conversion_timestamp not set', async () => {
+    it('fails if conversion_type is not enhancement and conversion_timestamp not set', async () => {
       const event = createTestEvent({
         timestamp,
         event: 'Test Event',
@@ -169,7 +169,7 @@ describe('GoogleEnhancedConversions', () => {
       }
     })
 
-    it('should fail if conversion_type is not restatement and restatement_value not set', async () => {
+    it('fails if conversion_type is not restatement and restatement_value not set', async () => {
       const event = createTestEvent({
         timestamp,
         event: 'Test Event',
