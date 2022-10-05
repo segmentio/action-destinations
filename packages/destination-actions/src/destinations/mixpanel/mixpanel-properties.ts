@@ -98,7 +98,7 @@ export const eventProperties: Record<string, InputField> = {
   device_type: {
     label: 'Device Type',
     type: 'string',
-    description: "The type of the user's device",
+    description: "The type of the user's device.",
     default: {
       '@path': '$.context.device.type'
     }
