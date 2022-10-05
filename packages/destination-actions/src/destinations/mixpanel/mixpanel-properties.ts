@@ -186,7 +186,7 @@ export const eventProperties: Record<string, InputField> = {
   library_name: {
     label: 'Library Name',
     type: 'string',
-    description: 'The name of the SDK used to send events',
+    description: 'The name of the SDK used to send events.',
     default: {
       '@path': '$.context.library.name'
     }
