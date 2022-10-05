@@ -6,7 +6,7 @@ export interface Settings {
    */
   client_code: string
   /**
-   * Self managed bearer token generated via [Adobe's authentication API](https://developers.adobetarget.com/api/#authentication-tokens). Expires every 90 days.
+   * If you choose to require authentication for Adobe Target's Profile API, you will need to generate an authentication token. Tokens can be generated in your Adobe Target account under the Implementation Settings tab or via the [Adobe.IO Authentication Token API](https://developers.adobetarget.com/api/#authentication-tokens). Input the authentication token here. Note: Authentication tokens expire so a new token will need to be generated and updated here prior to expiration.
    */
   bearer_token?: string
 }
