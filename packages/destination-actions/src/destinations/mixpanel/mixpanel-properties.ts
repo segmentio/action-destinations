@@ -194,7 +194,7 @@ export const eventProperties: Record<string, InputField> = {
   library_version: {
     label: 'Library Version',
     type: 'string',
-    description: 'The version of the SDK used to send events',
+    description: 'The version of the SDK used to send events.',
     default: {
       '@path': '$.context.library.version'
     }
