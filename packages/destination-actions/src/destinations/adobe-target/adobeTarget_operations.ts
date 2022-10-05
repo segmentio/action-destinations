@@ -1,15 +1,19 @@
 import { RequestClient, IntegrationError } from '@segment/actions-core'
 
 function getNestedObjects(obj: { [x: string]: any }, objectPath = '', attributes: { [x: string]: string } = {}) {
-  Object.keys(obj).forEach((key) => {
-    const currObjectPath = objectPath ? `${objectPath}.${key}` : key
-    if (typeof obj[key] !== 'object') {
-      attributes[currObjectPath] = obj[key].toString()
-    } else {
-      getNestedObjects(obj[key], currObjectPath, attributes)
-    }
-  })
-  return attributes
+  // Do not run on null or undefined
+  if (obj != null || obj != undefined) {
+    Object.keys(obj).forEach((key) => {
+      const currObjectPath = objectPath ? `${objectPath}.${key}` : key
+
+      if (typeof obj[key] !== 'object') {
+        attributes[currObjectPath] = obj[key].toString()
+      } else {
+        getNestedObjects(obj[key], currObjectPath, attributes)
+      }
+    })
+    return attributes
+  }
 }
 const objectToQueryString = (object: { [x: string]: { toString: () => string } }) =>
   Object.keys(object)
@@ -35,13 +39,15 @@ export default class AdobeTarget {
       throw err
     } else {
       const traits = getNestedObjects(this.traits)
-      const requestUrl = `https://${this.clientCode}.tt.omtrdc.net/m2/${
-        this.clientCode
-      }/profile/update?mbox3rdPartyId=${this.userId}&${objectToQueryString(traits)}`
+      if (traits) {
+        const requestUrl = `https://${this.clientCode}.tt.omtrdc.net/m2/${
+          this.clientCode
+        }/profile/update?mbox3rdPartyId=${this.userId}&${objectToQueryString(traits)}`
 
-      return this.request(requestUrl, {
-        method: 'POST'
-      })
+        return this.request(requestUrl, {
+          method: 'POST'
+        })
+      }
     }
   }
 
@@ -52,7 +58,9 @@ export default class AdobeTarget {
         { method: 'get' }
       )
     } catch (error) {
-      return new IntegrationError('No profile found in Adobe Target with this mbox3rdPartyId', 'Profile not found', 404)
+      if (error instanceof Error) {
+        return new IntegrationError(error.message, error.stack, error.message == 'Forbidden' ? 403 : 400)
+      }
     }
 
     return undefined
