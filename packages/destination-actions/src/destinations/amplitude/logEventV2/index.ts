@@ -86,14 +86,14 @@ const action: ActionDefinition<Settings, Payload> = {
     },
     setOnce: {
       label: 'Set Once',
-      description: 'The following fields will be set only once per session when using AJS2 as the source',
+      description: 'The following fields will be set only once per session when using AJS2 as the source.',
       type: 'object',
       additionalProperties: true,
       properties: {
         initial_referrer: {
           label: 'Initial Referrer',
           type: 'string',
-          description: 'The referrer of the web request'
+          description: 'The referrer of the web request.'
         },
         initial_utm_source: {
           label: 'Initial UTM Source',
@@ -127,7 +127,7 @@ const action: ActionDefinition<Settings, Payload> = {
     },
     setAlways: {
       label: 'Set Always',
-      description: 'The following fields will be set every session when using AJS2 as the source',
+      description: 'The following fields will be set every session when using AJS2 as the source.',
       type: 'object',
       additionalProperties: true,
       properties: {
@@ -192,7 +192,7 @@ const action: ActionDefinition<Settings, Payload> = {
       label: 'User Agent Parsing',
       type: 'boolean',
       description:
-        'Enabling this setting will set the Device manufacturer, Device Model and OS Name properties based on the user agent string provided in the userAgent field',
+        'Enabling this setting will set the Device manufacturer, Device Model and OS Name properties based on the user agent string provided in the userAgent field.',
       default: true
     },
     min_id_length: {
@@ -231,15 +231,18 @@ const action: ActionDefinition<Settings, Payload> = {
       options = { min_id_length }
     }
 
-    if (compact(setOnce)) {
-      properties.user_properties = { ...properties.user_properties, $setOnce: setOnce }
+    const setUserProperties = (
+      name: '$setOnce' | '$set' | '$add',
+      obj: Payload['setOnce'] | Payload['setAlways'] | Payload['add']
+    ) => {
+      if (compact(obj)) {
+        properties.user_properties = { ...properties.user_properties, [name]: obj }
+      }
     }
-    if (compact(setAlways)) {
-      properties.user_properties = { ...properties.user_properties, $set: setAlways }
-    }
-    if (compact(add)) {
-      properties.user_properties = { ...properties.user_properties, $add: add }
-    }
+
+    setUserProperties('$setOnce', setOnce)
+    setUserProperties('$set', setAlways)
+    setUserProperties('$add', add)
 
     const events: AmplitudeEvent[] = [
       {
