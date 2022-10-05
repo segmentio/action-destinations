@@ -130,7 +130,7 @@ export const eventProperties: Record<string, InputField> = {
   bluetooth: {
     label: 'Bluetooth Enabled',
     type: 'boolean',
-    description: 'Whether bluetooth is enabled',
+    description: 'Whether bluetooth is enabled.',
     default: {
       '@path': '$.context.network.bluetooth'
     }
