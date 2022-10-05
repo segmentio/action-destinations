@@ -10,5 +10,5 @@ import { Payload as LogV2Payload } from './logEventV2/generated-types'
 export default function compact(
   object: LogV2Payload['setOnce'] | LogV2Payload['setAlways'] | LogV2Payload['add']
 ): boolean {
-  return Object.keys(Object.fromEntries(Object.entries(object ?? {}).filter(([_, v]) => v))).length > 0
+  return Object.keys(Object.fromEntries(Object.entries(object ?? {}).filter(([_, v]) => v !== ''))).length > 0
 }
