@@ -146,7 +146,7 @@ export const eventProperties: Record<string, InputField> = {
   cellular: {
     label: 'Cellular Enabled',
     type: 'boolean',
-    description: 'Whether cellular is enabled',
+    description: 'Whether cellular is enabled.',
     default: {
       '@path': '$.context.network.cellular'
     }
