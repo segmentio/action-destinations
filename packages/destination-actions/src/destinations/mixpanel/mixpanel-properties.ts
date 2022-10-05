@@ -328,7 +328,7 @@ export const eventProperties: Record<string, InputField> = {
 export const productsProperties: Record<string, InputField> = {
   products: {
     label: 'Products',
-    description: 'Products in the order',
+    description: 'Products in the order.',
     type: 'object',
     multiple: true,
     additionalProperties: true,
