@@ -42,7 +42,7 @@ export const eventProperties: Record<string, InputField> = {
   app_name: {
     label: 'App Name',
     type: 'string',
-    description: 'The name of your application',
+    description: 'The name of your application.',
     default: {
       '@path': '$.context.app.name'
     }
