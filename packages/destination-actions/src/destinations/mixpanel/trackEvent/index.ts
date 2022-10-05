@@ -1,7 +1,7 @@
 import { ActionDefinition, RequestClient } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
-import { MixpanelEvent } from './types'
+import { MixpanelEvent } from '../mixpanel-types'
 import { getApiServerUrl, getBrowser, getBrowserVersion, cheapGuid } from '../utils'
 import dayjs from '../../../lib/dayjs'
 
