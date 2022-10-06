@@ -1,5 +1,5 @@
 import { createTestEvent } from './create-test-event'
-import { Destination } from './destination-kit'
+import { Destination, TransactionContext } from './destination-kit'
 import { mapValues } from './map-values'
 import type { DestinationDefinition, StatsContext, Logger } from './destination-kit'
 import type { JSONObject } from './json-object'
@@ -34,11 +34,12 @@ interface InputData<Settings> {
   auth?: AuthTokens
   /**
    * The features available in the request based on the customer's sourceID;
-   * `features`, `stats` and `logger` are for internal Twilio/Segment use only.
+   * `features`, `stats`, `logger` and `transactionContext` are for internal Twilio/Segment use only.
    */
   features?: Features
   statsContext?: StatsContext
   logger?: Logger
+  transactionContext?: TransactionContext
 }
 
 class TestDestination<T> extends Destination<T> {
@@ -49,18 +50,23 @@ class TestDestination<T> extends Destination<T> {
   }
 
   async testDynamicField(action: string, fieldKey: string, data: ExecuteDynamicFieldInput<T, object>) {
-    await super.executeDynamicField(action, fieldKey, data)
-
-    const responses = this.responses
-    this.responses = []
-
-    return responses
+    return await super.executeDynamicField(action, fieldKey, data)
   }
 
   /** Testing method that runs an action e2e while allowing slightly more flexible inputs */
   async testAction(
     action: string,
-    { event, mapping, settings, useDefaultMappings, auth, features, statsContext, logger }: InputData<T>
+    {
+      event,
+      mapping,
+      settings,
+      useDefaultMappings,
+      auth,
+      features,
+      statsContext,
+      logger,
+      transactionContext
+    }: InputData<T>
   ): Promise<Destination['responses']> {
     mapping = mapping ?? {}
 
@@ -77,7 +83,8 @@ class TestDestination<T> extends Destination<T> {
       auth,
       features: features ?? {},
       statsContext: statsContext ?? ({} as StatsContext),
-      logger: logger ?? ({} as Logger)
+      logger: logger ?? ({} as Logger),
+      transactionContext: transactionContext ?? ({} as TransactionContext)
     })
 
     const responses = this.responses
@@ -96,7 +103,8 @@ class TestDestination<T> extends Destination<T> {
       auth,
       features,
       statsContext,
-      logger
+      logger,
+      transactionContext
     }: Omit<InputData<T>, 'event'> & { events?: SegmentEvent[] }
   ): Promise<Destination['responses']> {
     mapping = mapping ?? {}
@@ -118,7 +126,8 @@ class TestDestination<T> extends Destination<T> {
       auth,
       features: features ?? {},
       statsContext: statsContext ?? ({} as StatsContext),
-      logger: logger ?? ({} as Logger)
+      logger: logger ?? ({} as Logger),
+      transactionContext: transactionContext ?? ({} as TransactionContext)
     })
 
     const responses = this.responses
