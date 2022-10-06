@@ -310,6 +310,6 @@ describe('Hubspot.upsertContact', () => {
         event,
         transactionContext: { transaction: {}, setTransaction: setTransactionContext }
       })
-    ).rejects.toThrowError(new RegExp("The root value is missing the required field 'email'."))
+    ).rejects.toThrowError("The root value is missing the required field 'email'.")
   })
 })

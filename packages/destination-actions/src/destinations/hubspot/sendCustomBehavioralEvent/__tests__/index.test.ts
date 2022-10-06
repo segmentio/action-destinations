@@ -92,6 +92,6 @@ describe('Hubspot.sendCustomBehavioralEvent', () => {
         useDefaultMappings: true,
         mapping: mapping
       })
-    ).rejects.toThrowError(new RegExp("The root value is missing the required field 'eventName'."))
+    ).rejects.toThrowError("The root value is missing the required field 'eventName'.")
   })
 })
