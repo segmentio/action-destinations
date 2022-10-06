@@ -1,7 +1,7 @@
 {
   "name": "@segment/action-destinations",
   "description": "Destination Actions engine and definitions.",
-  "version": "3.88.0",
+  "version": "3.88.1-alpha.1",
   "repository": {
     "type": "git",
     "url": "https://github.com/segmentio/action-destinations",
@@ -64,5 +64,6 @@
     "coverageReporters": [
       "lcov"
     ]
-  }
+  },
+  "gitHead": "407cee0cb841610c288e37aa00b4ab043fb8393d"
 }

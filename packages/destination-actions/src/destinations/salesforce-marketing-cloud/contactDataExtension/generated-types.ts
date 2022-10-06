@@ -13,6 +13,10 @@ export interface Payload {
    * The primary key(s) that uniquely identify a contact in the data extension. At a minimum, Contact Key must exist in your data extension as a Primary Key.On the left-hand side, input the SFMC key name. On the right-hand side, map the Segment field that contains the corresponding value.When multiple primary keys are provided, SFMC will update an existing row if all primary keys match, otherwise a new row will be created.
    */
   keys: {
+    /**
+     * TODO
+     */
+    contactKey: string
     [k: string]: unknown
   }
   /**
