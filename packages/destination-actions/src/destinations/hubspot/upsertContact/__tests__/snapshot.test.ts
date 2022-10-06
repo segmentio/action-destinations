@@ -36,14 +36,9 @@ describe(`Testing snapshot for ${destinationSlug}'s ${actionSlug} destination ac
     })
 
     const request = responses[0].request
-    const rawBody = await request.text()
+    const json = await request.json()
 
-    try {
-      const json = JSON.parse(rawBody)
-      expect(json).toMatchSnapshot()
-    } catch (err) {
-      expect(rawBody).toMatchSnapshot()
-    }
+    expect(json).toMatchSnapshot()
 
     expect(request.headers).toMatchSnapshot()
     expect(request.url).toMatchSnapshot()
@@ -82,14 +77,9 @@ describe(`Testing snapshot for ${destinationSlug}'s ${actionSlug} destination ac
     })
 
     const request = responses[0].request
-    const rawBody = await request.text()
+    const json = await request.json()
 
-    try {
-      const json = JSON.parse(rawBody)
-      expect(json).toMatchSnapshot()
-    } catch (err) {
-      expect(rawBody).toMatchSnapshot()
-    }
+    expect(json).toMatchSnapshot()
     expect(request.url).toMatchSnapshot()
   })
 
@@ -118,14 +108,9 @@ describe(`Testing snapshot for ${destinationSlug}'s ${actionSlug} destination ac
     })
 
     const request = responses[1].request
-    const rawBody = await request.text()
+    const json = await request.json()
 
-    try {
-      const json = JSON.parse(rawBody)
-      expect(json).toMatchSnapshot()
-    } catch (err) {
-      expect(rawBody).toMatchSnapshot()
-    }
+    expect(json).toMatchSnapshot()
 
     expect(request.headers).toMatchSnapshot()
     expect(request.url).toMatchSnapshot()
@@ -156,13 +141,9 @@ describe(`Testing snapshot for ${destinationSlug}'s ${actionSlug} destination ac
     })
 
     const request = responses[1].request
-    const rawBody = await request.text()
-    try {
-      const json = JSON.parse(rawBody)
-      expect(json).toMatchSnapshot()
-    } catch (err) {
-      expect(rawBody).toMatchSnapshot()
-    }
+    const json = await request.json()
+
+    expect(json).toMatchSnapshot()
     expect(request.url).toMatchSnapshot()
   })
 })

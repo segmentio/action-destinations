@@ -1,6 +1,6 @@
 import { ActionDefinition, IntegrationError, RequestClient } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
-import { HubSpotBaseURL } from '../properties'
+import { hubSpotBaseURL } from '../properties'
 import type { Payload } from './generated-types'
 
 interface ContactResponse {
@@ -160,6 +160,7 @@ const action: ActionDefinition<Settings, Payload> = {
       return result
     }
 
+    // Throw all other errors
     if (!response.ok) {
       const errorResponse = response.data as unknown as { message: string; error: string }
       throw new IntegrationError(errorResponse.message, errorResponse.error, response.status)
@@ -187,7 +188,7 @@ const action: ActionDefinition<Settings, Payload> = {
 }
 
 async function createContact(request: RequestClient, contactProperties: { [key: string]: unknown }) {
-  return request<ContactResponse>(`${HubSpotBaseURL}/crm/v3/objects/contacts`, {
+  return request<ContactResponse>(`${hubSpotBaseURL}/crm/v3/objects/contacts`, {
     method: 'POST',
     json: {
       properties: {
@@ -203,7 +204,7 @@ async function updateContact(
   properties: { [key: string]: unknown },
   throwHttpErrors = true
 ) {
-  return request<ContactResponse>(`${HubSpotBaseURL}/crm/v3/objects/contacts/${email}?idProperty=email`, {
+  return request<ContactResponse>(`${hubSpotBaseURL}/crm/v3/objects/contacts/${email}?idProperty=email`, {
     method: 'PATCH',
     json: {
       properties: {
