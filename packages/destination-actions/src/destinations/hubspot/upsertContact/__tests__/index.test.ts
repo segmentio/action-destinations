@@ -2,7 +2,6 @@ import nock from 'nock'
 import { createTestEvent, createTestIntegration } from '@segment/actions-core'
 import Destination from '../../index'
 import { hubSpotBaseURL } from '../../properties'
-import { IntegrationError } from '@segment/actions-core'
 
 const testDestination = createTestIntegration(Destination)
 
@@ -191,7 +190,7 @@ describe('Hubspot.upsertContact', () => {
         event,
         transactionContext: { transaction: {}, setTransaction: setTransactionContext }
       })
-    ).rejects.toThrowError(new IntegrationError(errorResponse.message, errorResponse.status, 400))
+    ).rejects.toThrowError()
 
     expect(!transactionContext['contact_id'])
   })

@@ -1,4 +1,5 @@
-import { ActionDefinition, IntegrationError, RequestClient } from '@segment/actions-core'
+import { HTTPError } from '@segment/actions-core'
+import { ActionDefinition, RequestClient } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import { hubSpotBaseURL } from '../properties'
 import type { Payload } from './generated-types'
@@ -151,39 +152,37 @@ const action: ActionDefinition<Settings, Payload> = {
      * the contact is not found, an attempt will be made to create contact with the given properties
      */
 
-    const response = await updateContact(request, payload.email, contactProperties, false)
+    try {
+      const response = await updateContact(request, payload.email, contactProperties)
 
-    // If contact is not found, create
-    if (response.status == 404) {
-      const result = await createContact(request, contactProperties)
-      transactionContext?.setTransaction('contact_id', result.data.id)
-      return result
+      // cache contact_id for it to be available for company action
+      transactionContext?.setTransaction('contact_id', response.data.id)
+
+      // HubSpot returns the updated lifecylestage(LCS) as part of the response.
+      // If the stage we are trying to set is backward than the current stage, it retains the current stage
+      // and updates the timestamp. For determining if reset is required or not, we can compare
+      // the stage returned in response with the desired stage . If they are not the same, reset
+      // and update. More details -
+      if (payload.lifecyclestage) {
+        const currentLCS = response.data.properties['lifecyclestage']
+        const hasLCSChanged = currentLCS === payload.lifecyclestage.toLowerCase()
+        if (hasLCSChanged) return response
+        // reset lifecycle stage
+        await updateContact(request, payload.email, { lifecyclestage: '' })
+        // update contact again with new lifecycle stage
+        return updateContact(request, payload.email, contactProperties)
+      }
+      return response
+    } catch (ex) {
+      if (ex instanceof HTTPError && ex.response.status == 404) {
+        const result = await createContact(request, contactProperties)
+
+        // cache contact_id for it to be available for company action
+        transactionContext?.setTransaction('contact_id', result.data.id)
+        return result
+      }
+      throw ex
     }
-
-    // Throw all other errors
-    if (!response.ok) {
-      const errorResponse = response.data as unknown as { message: string; error: string }
-      throw new IntegrationError(errorResponse.message, errorResponse.error, response.status)
-    }
-
-    // cache contact_id for it to be available for company action
-    transactionContext?.setTransaction('contact_id', response.data.id)
-
-    // HubSpot returns the updated lifecylestage as part of the response.
-    // If the stage we are trying to set is backward than the current stage, it retains the current stage
-    // and updates the timestamp. For determining if reset is required or not, we can compare
-    // the stage returned in response with the desired stage  . If they are not the same, reset
-    // and update.
-    if (payload.lifecyclestage) {
-      const currentLCS = response.data.properties['lifecyclestage']
-      const hasLCSChanged = currentLCS == payload.lifecyclestage.toLowerCase()
-      if (hasLCSChanged) return response
-      // reset lifecycle stage
-      await updateContact(request, payload.email, { lifecyclestage: '' })
-      // update contact again with new lifecycle stage
-      return updateContact(request, payload.email, contactProperties)
-    }
-    return response
   }
 }
 
@@ -198,20 +197,14 @@ async function createContact(request: RequestClient, contactProperties: { [key: 
   })
 }
 
-async function updateContact(
-  request: RequestClient,
-  email: string,
-  properties: { [key: string]: unknown },
-  throwHttpErrors = true
-) {
+async function updateContact(request: RequestClient, email: string, properties: { [key: string]: unknown }) {
   return request<ContactResponse>(`${hubSpotBaseURL}/crm/v3/objects/contacts/${email}?idProperty=email`, {
     method: 'PATCH',
     json: {
       properties: {
         ...properties
       }
-    },
-    throwHttpErrors
+    }
   })
 }
 
