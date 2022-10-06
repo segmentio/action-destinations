@@ -72,7 +72,7 @@ describe.each(['stage', 'production'])('%s environment', (environment) => {
     }
   }
 
-  const getDefaultMapping = (groupId?: string, overrides?: any) => {
+  const getDefaultMapping = (overrides?: any) => {
     return {
       userId: { '@path': '$.userId' },
       fromDomain: null,
@@ -92,7 +92,7 @@ describe.each(['stage', 'production'])('%s environment', (environment) => {
       bodyHtml: 'Hi {{profile.traits.firstName}}, Welcome to segment',
       send: true,
       traitEnrichment: true,
-      groupId: groupId,
+      groupId: undefined,
       toEmail: '',
       externalIds: {
         '@arrayPath': [
@@ -161,7 +161,10 @@ describe.each(['stage', 'production'])('%s environment', (environment) => {
     })
 
     it('should not send email when send = false', async () => {
-      const mapping = getDefaultMapping('any_group', { send: false })
+      const mapping = getDefaultMapping({
+        groupId: 'any_group',
+        send: false
+      })
       await sendgrid.testAction('sendEmail', {
         event: createMessagingTestEvent({
           timestamp,
@@ -300,7 +303,7 @@ describe.each(['stage', 'production'])('%s environment', (environment) => {
               userId: userData.userId
             }),
             settings,
-            mapping: getDefaultMapping(undefined, { toEmail: `lauren@${domain}` })
+            mapping: getDefaultMapping({ toEmail: `lauren@${domain}` })
           })
           fail('Test should throw an error')
         } catch (e) {
@@ -382,7 +385,7 @@ describe.each(['stage', 'production'])('%s environment', (environment) => {
           ]
         }),
         settings,
-        mapping: getDefaultMapping(undefined, {
+        mapping: getDefaultMapping({
           body: undefined,
           bodyUrl: 'https://s3.com/body.txt',
           bodyHtml: undefined
@@ -476,7 +479,7 @@ describe.each(['stage', 'production'])('%s environment', (environment) => {
           ]
         }),
         settings,
-        mapping: getDefaultMapping(undefined, {
+        mapping: getDefaultMapping({
           body: undefined,
           bodyUrl: 'https://s3.com/body.txt',
           bodyHtml: undefined,
@@ -586,7 +589,7 @@ describe.each(['stage', 'production'])('%s environment', (environment) => {
           ]
         }),
         settings,
-        mapping: getDefaultMapping(undefined, {
+        mapping: getDefaultMapping({
           previewText: 'Preview text {{profile.traits.first_name | default: "customer"}}',
           body: undefined,
           bodyUrl: 'https://s3.com/body.txt',
@@ -622,7 +625,7 @@ describe.each(['stage', 'production'])('%s environment', (environment) => {
           ]
         }),
         settings,
-        mapping: getDefaultMapping(undefined, {
+        mapping: getDefaultMapping({
           subject: 'Hello {{profile.traits.last_name | default: "you"}}'
         })
       })
@@ -660,7 +663,7 @@ describe.each(['stage', 'production'])('%s environment', (environment) => {
           ]
         }),
         settings,
-        mapping: getDefaultMapping(undefined, {
+        mapping: getDefaultMapping({
           bodyHtml: 'Hi {{profile.traits.first_name | default: "you"}}, Welcome to segment'
         })
       })
@@ -771,7 +774,7 @@ describe.each(['stage', 'production'])('%s environment', (environment) => {
         settings: {
           ...settings
         },
-        mapping: getDefaultMapping('grp_1')
+        mapping: getDefaultMapping({ groupId: 'grp_1' })
       })
 
       expect(responses.length).toBeGreaterThan(0)
@@ -801,7 +804,7 @@ describe.each(['stage', 'production'])('%s environment', (environment) => {
           settings: {
             ...settings
           },
-          mapping: getDefaultMapping('grp_1')
+          mapping: getDefaultMapping({ groupId: 'grp_1' })
         })
         const sendGridRequest = nock('https://api.sendgrid.com')
           .post('/v3/mail/send', sendgridRequestBody)
@@ -836,7 +839,7 @@ describe.each(['stage', 'production'])('%s environment', (environment) => {
         settings: {
           ...settings
         },
-        mapping: getDefaultMapping('grp_2')
+        mapping: getDefaultMapping({ groupId: 'grp_2' })
       })
 
       const sendGridRequest = nock('https://api.sendgrid.com').post('/v3/mail/send', sendgridRequestBody).reply(200, {})
@@ -855,7 +858,7 @@ describe.each(['stage', 'production'])('%s environment', (environment) => {
         settings: {
           ...settings
         },
-        mapping: getDefaultMapping('grp_2')
+        mapping: getDefaultMapping({ groupId: 'grp_2' })
       })
 
       const sendGridRequest = nock('https://api.sendgrid.com').post('/v3/mail/send', sendgridRequestBody).reply(200, {})
