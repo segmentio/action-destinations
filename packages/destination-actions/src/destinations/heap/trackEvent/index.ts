@@ -2,7 +2,7 @@ import type { ActionDefinition } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 import dayjs from '../../../lib/dayjs'
-import { HEAP_SEGMENT_LIBRARY_NAME } from '../constants'
+import { HEAP_SEGMENT_CLOUD_LIBRARY_NAME } from '../constants'
 import { getHeapUserId } from '../userIdHash'
 import { flat } from '../flat'
 import { IntegrationError } from '@segment/actions-core'
@@ -98,7 +98,7 @@ const action: ActionDefinition<Settings, Payload> = {
       throw new IntegrationError('Either anonymous user id or identity should be specified.')
     }
 
-    const defaultEventProperties = { segment_library: HEAP_SEGMENT_LIBRARY_NAME }
+    const defaultEventProperties = { segment_library: HEAP_SEGMENT_CLOUD_LIBRARY_NAME }
     const flatten = flat(payload.properties || {})
     const eventProperties = Object.assign(defaultEventProperties, flatten)
 
@@ -116,9 +116,6 @@ const action: ActionDefinition<Settings, Payload> = {
     if (payload.identity) {
       heapPayload.identity = payload.identity
     }
-
-    console.log(payload.timestamp)
-    console.log(dayjs.utc(payload.timestamp).isValid())
 
     if (payload.timestamp && dayjs.utc(payload.timestamp).isValid()) {
       heapPayload.timestamp = dayjs.utc(payload.timestamp).toISOString()
