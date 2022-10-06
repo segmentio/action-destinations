@@ -232,6 +232,11 @@ const action: ActionDefinition<Settings, Payload> = {
       description: 'The HTML content of the body',
       type: 'string'
     },
+    groupId: {
+      label: 'Group ID',
+      description: 'Subscription group ID',
+      type: 'string'
+    },
     externalIds: {
       label: 'External IDs',
       description: 'An array of user profile identity information.',
@@ -323,10 +328,10 @@ const action: ActionDefinition<Settings, Payload> = {
       return
     } else if (['subscribed', 'true'].includes(emailProfile?.subscriptionStatus)) {
       statsClient?.incr('actions-personas-messaging-sendgrid.subscribed', 1, tags)
-      if (settings.groupId) {
+      if (payload.groupId) {
         const group = (payload.externalIds ?? [])
           .flatMap((externalId) => externalId.groups)
-          .find((group) => group?.id === settings.groupId)
+          .find((group) => group?.id === payload.groupId)
         if (!group) {
           statsClient?.incr('actions-personas-messaging-sendgrid.group_notfound', 1, tags)
           return

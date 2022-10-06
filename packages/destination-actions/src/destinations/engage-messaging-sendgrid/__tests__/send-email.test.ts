@@ -92,6 +92,7 @@ describe.each(['stage', 'production'])('%s environment', (environment) => {
       bodyHtml: 'Hi {{profile.traits.firstName}}, Welcome to segment',
       send: true,
       traitEnrichment: true,
+      groupId: undefined,
       toEmail: '',
       externalIds: {
         '@arrayPath': [
@@ -160,7 +161,10 @@ describe.each(['stage', 'production'])('%s environment', (environment) => {
     })
 
     it('should not send email when send = false', async () => {
-      const mapping = getDefaultMapping({ send: false })
+      const mapping = getDefaultMapping({
+        groupId: 'any_group',
+        send: false
+      })
       await sendgrid.testAction('sendEmail', {
         event: createMessagingTestEvent({
           timestamp,
@@ -768,10 +772,9 @@ describe.each(['stage', 'production'])('%s environment', (environment) => {
           ]
         }),
         settings: {
-          ...settings,
-          groupId: 'grp_1'
+          ...settings
         },
-        mapping: getDefaultMapping()
+        mapping: getDefaultMapping({ groupId: 'grp_1' })
       })
 
       expect(responses.length).toBeGreaterThan(0)
@@ -799,10 +802,9 @@ describe.each(['stage', 'production'])('%s environment', (environment) => {
             ]
           }),
           settings: {
-            groupId: 'grp_1',
             ...settings
           },
-          mapping: getDefaultMapping()
+          mapping: getDefaultMapping({ groupId: 'grp_1' })
         })
         const sendGridRequest = nock('https://api.sendgrid.com')
           .post('/v3/mail/send', sendgridRequestBody)
@@ -835,10 +837,9 @@ describe.each(['stage', 'production'])('%s environment', (environment) => {
           ]
         }),
         settings: {
-          groupId: 'grp_2',
           ...settings
         },
-        mapping: getDefaultMapping()
+        mapping: getDefaultMapping({ groupId: 'grp_2' })
       })
 
       const sendGridRequest = nock('https://api.sendgrid.com').post('/v3/mail/send', sendgridRequestBody).reply(200, {})
@@ -855,10 +856,9 @@ describe.each(['stage', 'production'])('%s environment', (environment) => {
           external_ids: undefined
         }),
         settings: {
-          groupId: 'grp_2',
           ...settings
         },
-        mapping: getDefaultMapping()
+        mapping: getDefaultMapping({ groupId: 'grp_2' })
       })
 
       const sendGridRequest = nock('https://api.sendgrid.com').post('/v3/mail/send', sendgridRequestBody).reply(200, {})
