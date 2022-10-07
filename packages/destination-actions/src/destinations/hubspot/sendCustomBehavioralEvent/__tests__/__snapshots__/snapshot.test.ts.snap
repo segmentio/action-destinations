@@ -1,0 +1,37 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Testing snapshot for Hubspot's sendCustomBehavioralEvent destination action: all fields 1`] = `
+Object {
+  "email": "vep@beri.dz",
+  "eventName": "L1tO7SSIyhf3tBB7",
+  "objectId": "L1tO7SSIyhf3tBB7",
+  "occurredAt": "2021-02-01T00:00:00.000Z",
+  "properties": Object {
+    "testType": "L1tO7SSIyhf3tBB7",
+  },
+  "utk": "L1tO7SSIyhf3tBB7",
+}
+`;
+
+exports[`Testing snapshot for Hubspot's sendCustomBehavioralEvent destination action: required fields 1`] = `
+Object {
+  "email": "hello@world.com",
+  "eventName": "L1tO7SSIyhf3tBB7",
+}
+`;
+
+exports[`Testing snapshot for Hubspot's sendCustomBehavioralEvent destination action: required fields 2`] = `
+Headers {
+  Symbol(map): Object {
+    "authorization": Array [
+      "Bearer undefined",
+    ],
+    "content-type": Array [
+      "application/json",
+    ],
+    "user-agent": Array [
+      "Segment (Actions)",
+    ],
+  },
+}
+`;

@@ -3,6 +3,7 @@ import { generateTestData } from '../../../lib/test-data'
 import destination from '../index'
 import { generateValidHubSpotCustomObjectName } from '../testHelper'
 import nock from 'nock'
+import { TransactionContext } from '@segment/actions-core/src/destination-kit'
 
 const testDestination = createTestIntegration(destination)
 const destinationSlug = 'actions-hubspot-cloud'
@@ -16,7 +17,21 @@ describe(`Testing snapshot for ${destinationSlug} destination:`, () => {
 
       nock(/.*/).persist().get(/.*/).reply(200)
       nock(/.*/).persist().post(/.*/).reply(201)
+      nock(/.*/)
+        .persist()
+        .patch(/.*/)
+        .reply(200, {
+          id: '801',
+          properties: {
+            lifecyclestage: eventData.lifecyclestage
+          }
+        })
       nock(/.*/).persist().put(/.*/).reply(200)
+
+      const transactionContext: TransactionContext = {
+        transaction: {},
+        setTransaction: (key, value) => ({ [key]: value })
+      }
 
       const event = createTestEvent({
         properties: eventData
@@ -27,7 +42,8 @@ describe(`Testing snapshot for ${destinationSlug} destination:`, () => {
           event: event,
           mapping: event.properties,
           settings: settingsData,
-          auth: undefined
+          auth: undefined,
+          transactionContext
         })
 
         const request = responses[0].request
@@ -52,8 +68,22 @@ describe(`Testing snapshot for ${destinationSlug} destination:`, () => {
       const action = destination.actions[actionSlug]
       const [eventData, settingsData] = generateTestData(seedName, destination, action, false)
 
+      const transactionContext: TransactionContext = {
+        transaction: {},
+        setTransaction: (key, value) => ({ [key]: value })
+      }
+
       nock(/.*/).persist().get(/.*/).reply(200)
       nock(/.*/).persist().post(/.*/).reply(201)
+      nock(/.*/)
+        .persist()
+        .patch(/.*/)
+        .reply(200, {
+          id: '801',
+          properties: {
+            lifecyclestage: eventData.lifecyclestage
+          }
+        })
       nock(/.*/).persist().put(/.*/).reply(200)
 
       const event = createTestEvent({
@@ -65,7 +95,8 @@ describe(`Testing snapshot for ${destinationSlug} destination:`, () => {
           event: event,
           mapping: event.properties,
           settings: settingsData,
-          auth: undefined
+          auth: undefined,
+          transactionContext
         })
 
         const request = responses[0].request

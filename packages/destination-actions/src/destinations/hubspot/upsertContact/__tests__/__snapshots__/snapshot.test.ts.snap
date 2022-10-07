@@ -1,0 +1,95 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Testing snapshot for Hubspot's upsertContact destination action: all fields - create contact 1`] = `
+Object {
+  "properties": Object {
+    "address": "VEF)ihejcy1f",
+    "city": "VEF)ihejcy1f",
+    "company": "VEF)ihejcy1f",
+    "country": "VEF)ihejcy1f",
+    "email": "wifeji@zizin.hk",
+    "firstname": "VEF)ihejcy1f",
+    "lastname": "VEF)ihejcy1f",
+    "lifecyclestage": "vef)ihejcy1f",
+    "phone": "VEF)ihejcy1f",
+    "state": "VEF)ihejcy1f",
+    "testType": "VEF)ihejcy1f",
+    "zip": "VEF)ihejcy1f",
+  },
+}
+`;
+
+exports[`Testing snapshot for Hubspot's upsertContact destination action: all fields - create contact 2`] = `"https://api.hubapi.com/crm/v3/objects/contacts"`;
+
+exports[`Testing snapshot for Hubspot's upsertContact destination action: all fields - update contact 1`] = `
+Object {
+  "properties": Object {
+    "address": "VEF)ihejcy1f",
+    "city": "VEF)ihejcy1f",
+    "company": "VEF)ihejcy1f",
+    "country": "VEF)ihejcy1f",
+    "email": "wifeji@zizin.hk",
+    "firstname": "VEF)ihejcy1f",
+    "lastname": "VEF)ihejcy1f",
+    "lifecyclestage": "vef)ihejcy1f",
+    "phone": "VEF)ihejcy1f",
+    "state": "VEF)ihejcy1f",
+    "testType": "VEF)ihejcy1f",
+    "zip": "VEF)ihejcy1f",
+  },
+}
+`;
+
+exports[`Testing snapshot for Hubspot's upsertContact destination action: all fields - update contact 2`] = `"https://api.hubapi.com/crm/v3/objects/contacts/wifeji@zizin.hk?idProperty=email"`;
+
+exports[`Testing snapshot for Hubspot's upsertContact destination action: required fields - create contact 1`] = `
+Object {
+  "properties": Object {
+    "email": "wifeji@zizin.hk",
+  },
+}
+`;
+
+exports[`Testing snapshot for Hubspot's upsertContact destination action: required fields - create contact 2`] = `
+Headers {
+  Symbol(map): Object {
+    "authorization": Array [
+      "Bearer undefined",
+    ],
+    "content-type": Array [
+      "application/json",
+    ],
+    "user-agent": Array [
+      "Segment (Actions)",
+    ],
+  },
+}
+`;
+
+exports[`Testing snapshot for Hubspot's upsertContact destination action: required fields - create contact 3`] = `"https://api.hubapi.com/crm/v3/objects/contacts"`;
+
+exports[`Testing snapshot for Hubspot's upsertContact destination action: required fields - update contact 1`] = `
+Object {
+  "properties": Object {
+    "email": "wifeji@zizin.hk",
+  },
+}
+`;
+
+exports[`Testing snapshot for Hubspot's upsertContact destination action: required fields - update contact 2`] = `
+Headers {
+  Symbol(map): Object {
+    "authorization": Array [
+      "Bearer undefined",
+    ],
+    "content-type": Array [
+      "application/json",
+    ],
+    "user-agent": Array [
+      "Segment (Actions)",
+    ],
+  },
+}
+`;
+
+exports[`Testing snapshot for Hubspot's upsertContact destination action: required fields - update contact 3`] = `"https://api.hubapi.com/crm/v3/objects/contacts/wifeji@zizin.hk?idProperty=email"`;
