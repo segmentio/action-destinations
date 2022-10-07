@@ -7,22 +7,33 @@ const testDestination = createTestIntegration(Destination)
 
 beforeEach(() => nock.cleanAll())
 
+const testEmail = 'vep@beri.dz'
+const event = createTestEvent({
+  type: 'identify',
+  traits: {
+    email: testEmail,
+    first_name: 'John',
+    last_name: 'Doe',
+    address: {
+      city: 'San Fransico'
+    },
+    graduation_date: 1664533942262,
+    lifecyclestage: 'subscriber'
+  }
+})
+const mapping = {
+  lifecyclestage: {
+    '@path': '$.traits.lifecyclestage'
+  },
+  properties: {
+    graduation_date: {
+      '@path': '$.traits.graduation_date'
+    }
+  }
+}
+
 describe('Hubspot.upsertContact', () => {
   test('should create contact successfully and set contact id in transaction context', async () => {
-    const testEmail = 'vep@beri.dz'
-    const event = createTestEvent({
-      type: 'identify',
-      traits: {
-        email: testEmail,
-        first_name: 'John',
-        last_name: 'Doe',
-        address: {
-          city: 'San Fransico'
-        },
-        graduation_date: 1664533942262
-      }
-    })
-
     const expectedPayload = {
       properties: {
         email: testEmail,
@@ -67,21 +78,6 @@ describe('Hubspot.upsertContact', () => {
   })
 
   test('should update contact successfully and set contact id in transaction context', async () => {
-    const testEmail = 'vep@beri.dz'
-    const event = createTestEvent({
-      type: 'identify',
-      traits: {
-        email: testEmail,
-        first_name: 'John',
-        last_name: 'Doe',
-        address: {
-          city: 'San Fransico'
-        },
-        graduation_date: 1664533942262,
-        lifecyclestage: 'subscriber'
-      }
-    })
-
     const patchExpectedPayload = {
       properties: {
         firstname: 'John',
@@ -90,17 +86,6 @@ describe('Hubspot.upsertContact', () => {
         city: 'San Fransico',
         graduation_date: 1664533942262,
         lifecyclestage: 'subscriber'
-      }
-    }
-
-    const mapping = {
-      lifecyclestage: {
-        '@path': '$.traits.lifecyclestage'
-      },
-      properties: {
-        graduation_date: {
-          '@path': '$.traits.graduation_date'
-        }
       }
     }
 
@@ -113,37 +98,24 @@ describe('Hubspot.upsertContact', () => {
         }
       })
 
-    const transactionContext: Record<string, string> = {}
-    const setTransactionContext = (key: string, value: string) => (transactionContext[key] = value)
+    const transactionContext = {
+      transaction: {} as Record<string, string>,
+      setTransaction: (key: string, value: string) => (transactionContext.transaction[key] = value)
+    }
 
     await expect(
       testDestination.testAction('upsertContact', {
         mapping,
         useDefaultMappings: true,
         event,
-        transactionContext: { transaction: {}, setTransaction: setTransactionContext }
+        transactionContext
       })
     ).resolves.not.toThrowError()
 
-    expect(transactionContext['contact_id']).toEqual('801')
+    expect(transactionContext.transaction['contact_id']).toEqual('801')
   })
 
   test('should throw non 404 errors', async () => {
-    const testEmail = 'vep@beri.dz'
-    const event = createTestEvent({
-      type: 'identify',
-      traits: {
-        email: testEmail,
-        first_name: 'John',
-        last_name: 'Doe',
-        address: {
-          city: 'San Fransico'
-        },
-        graduation_date: 1664533942262,
-        lifecyclestage: 'subscriber'
-      }
-    })
-
     const patchExpectedPayload = {
       properties: {
         firstname: 'John',
@@ -152,17 +124,6 @@ describe('Hubspot.upsertContact', () => {
         city: 'San Fransico',
         graduation_date: 1664533942262,
         lifecyclestage: 'subscriber'
-      }
-    }
-
-    const mapping = {
-      lifecyclestage: {
-        '@path': '$.traits.lifecyclestage'
-      },
-      properties: {
-        graduation_date: {
-          '@path': '$.traits.graduation_date'
-        }
       }
     }
 
@@ -180,37 +141,24 @@ describe('Hubspot.upsertContact', () => {
       .patch(`/crm/v3/objects/contacts/${testEmail}?idProperty=email`, patchExpectedPayload)
       .reply(400, errorResponse)
 
-    const transactionContext: Record<string, string> = {}
-    const setTransactionContext = (key: string, value: string) => (transactionContext[key] = value)
+    const transactionContext = {
+      transaction: {} as Record<string, string>,
+      setTransaction: (key: string, value: string) => ({ [key]: value })
+    }
 
     await expect(
       testDestination.testAction('upsertContact', {
         mapping,
         useDefaultMappings: true,
         event,
-        transactionContext: { transaction: {}, setTransaction: setTransactionContext }
+        transactionContext
       })
     ).rejects.toThrowError()
 
-    expect(!transactionContext['contact_id'])
+    expect(!transactionContext.transaction['contact_id'])
   })
 
   test('should reset lifecyclestage and update if lifecyclestage is to be moved backwards', async () => {
-    const testEmail = 'vep@beri.dz'
-    const event = createTestEvent({
-      type: 'identify',
-      traits: {
-        email: testEmail,
-        first_name: 'John',
-        last_name: 'Doe',
-        address: {
-          city: 'San Fransico'
-        },
-        graduation_date: 1664533942262,
-        lifecyclestage: 'subscriber'
-      }
-    })
-
     const patchExpectedPayload = {
       properties: {
         firstname: 'John',
@@ -219,17 +167,6 @@ describe('Hubspot.upsertContact', () => {
         graduation_date: 1664533942262,
         lifecyclestage: 'subscriber',
         email: testEmail
-      }
-    }
-
-    const mapping = {
-      lifecyclestage: {
-        '@path': '$.traits.lifecyclestage'
-      },
-      properties: {
-        graduation_date: {
-          '@path': '$.traits.graduation_date'
-        }
       }
     }
 
@@ -260,19 +197,21 @@ describe('Hubspot.upsertContact', () => {
         }
       })
 
-    const transactionContext: Record<string, string> = {}
-    const setTransactionContext = (key: string, value: string) => (transactionContext[key] = value)
+    const transactionContext = {
+      transaction: {} as Record<string, string>,
+      setTransaction: (key: string, value: string) => (transactionContext.transaction[key] = value)
+    }
 
     await expect(
       testDestination.testAction('upsertContact', {
         mapping,
         useDefaultMappings: true,
         event,
-        transactionContext: { transaction: {}, setTransaction: setTransactionContext }
+        transactionContext
       })
     ).resolves.not.toThrowError()
 
-    expect(transactionContext['contact_id']).toEqual('801')
+    expect(transactionContext.transaction['contact_id']).toEqual('801')
   })
 
   test('should fail if email is missing', async () => {
@@ -289,26 +228,17 @@ describe('Hubspot.upsertContact', () => {
       }
     })
 
-    const mapping = {
-      lifecyclestage: {
-        '@path': '$.traits.lifecyclestage'
-      },
-      properties: {
-        graduation_date: {
-          '@path': '$.traits.graduation_date'
-        }
-      }
+    const transactionContext = {
+      transaction: {} as Record<string, string>,
+      setTransaction: (key: string, value: string) => (transactionContext.transaction[key] = value)
     }
-
-    const transactionContext: Record<string, string> = {}
-    const setTransactionContext = (key: string, value: string) => (transactionContext[key] = value)
 
     await expect(
       testDestination.testAction('upsertContact', {
         mapping,
         useDefaultMappings: true,
         event,
-        transactionContext: { transaction: {}, setTransaction: setTransactionContext }
+        transactionContext
       })
     ).rejects.toThrowError("The root value is missing the required field 'email'.")
   })
