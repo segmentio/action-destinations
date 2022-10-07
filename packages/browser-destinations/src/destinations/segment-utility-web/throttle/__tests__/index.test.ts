@@ -115,7 +115,7 @@ describe('throttle', () => {
     for (let i = 0; i < 10; i++) {
       const ctx = await throttle.track?.(new Context({ type: 'track', event: 'Video Played' }))
       if (ctx?.event.integrations?.['Segment.io'] !== false) {
-        passedThroguh++
+        passedThrough++
       }
     }
 
