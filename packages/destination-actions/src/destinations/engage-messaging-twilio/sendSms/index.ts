@@ -204,7 +204,7 @@ const action: ActionDefinition<Settings, Payload> = {
       const connectionOverrides = settings.connectionOverrides
       const customArgs: Record<string, string | undefined> = {
         ...payload.customArgs,
-        space_id: settings.spaceId,
+        space_id: webhookUrl && webhookUrl.includes('space_id') ? webhookUrl.substring(webhookUrl.indexOf('space_id=') + 9 , webhookUrl.length): settings.spaceId,
         __segment_internal_external_id_key__: EXTERNAL_ID_KEY,
         __segment_internal_external_id_value__: phone
       }

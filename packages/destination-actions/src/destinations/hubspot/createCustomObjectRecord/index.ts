@@ -4,7 +4,11 @@ import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 
 // List of HubSpot defined Objects that segment has OAuth Scope to access
+<<<<<<< HEAD
 const hubspotDefinedObjects: string[] = ['contacts', 'companies', 'deals', 'tickets']
+=======
+const hubspotDefinedObjects: string[] = ['deals', 'tickets']
+>>>>>>> CONMAN-199
 
 // HubSpot validation rule suggests Custom Object type must start with a letter and can only contain letters, numbers, underscores, and hyphens.
 // HubSpot appends a workspace specific prefix like "p1122334455_" during the Custom Object creation
@@ -13,12 +17,20 @@ const customObjectExpression = new RegExp('^[a-zA-Z0-9]+_[a-zA-Z][a-zA-Z0-9_-]+$
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Create Custom Object',
+<<<<<<< HEAD
   description: 'Create or Update a Custom Object in HubSpot',
+=======
+  description: 'Create a Custom Object in HubSpot',
+>>>>>>> CONMAN-199
   fields: {
     objectType: {
       label: 'Object Type',
       description:
+<<<<<<< HEAD
         'The CRM object schema to use for creating a record. This can be a standard object (i.e. tickets, deals) or ***fullyQualifiedName*** of a custom object. Custom objects and their schema must be predefined in HubSpot.',
+=======
+        'The CRM object schema to use for creating a record. This can be a standard object (i.e. tickets, deals) or ***fullyQualifiedName*** of a custom object. Schema for the Custom Objects must be predefined in HubSpot. More information on Custom Objects and *fullyQualifiedName* in [HubSpot documentation](https://developers.hubspot.com/docs/cms/data/crm-objects#getting-a-custom-object-type-s-details).',
+>>>>>>> CONMAN-199
       type: 'string',
       required: true
     },
@@ -33,6 +45,7 @@ const action: ActionDefinition<Settings, Payload> = {
     }
   },
   perform: async (request, { payload }) => {
+<<<<<<< HEAD
     // Redundant check: Validate if at-least one Custom Object property is being mapped
     if (Object.keys(payload.properties).length === 0) {
       throw new IntegrationError(
@@ -46,6 +59,12 @@ const action: ActionDefinition<Settings, Payload> = {
     if (!customObjectExpression.test(payload.objectType) && !hubspotDefinedObjects.includes(payload.objectType)) {
       throw new IntegrationError(
         'Custom Object is not in valid format. Please make sure that you are using either a valid format of object’s fullyQualifiedName (eg: p11223344_myobject) or a supported HubSpot defined object (ie: deals, tickets, contacts and companies).',
+=======
+    // Check if Custom Object is in valid format or is a Segment-supported HubSpot object.
+    if (!customObjectExpression.test(payload.objectType) && !hubspotDefinedObjects.includes(payload.objectType)) {
+      throw new IntegrationError(
+        'Custom Object is not in valid format. Please make sure that you are using either a valid format of object’s fullyQualifiedName (eg: p11223344_myobject) or a supported HubSpot defined object (i.e.: deals, tickets).',
+>>>>>>> CONMAN-199
         'Custom Object is not in valid format',
         400
       )

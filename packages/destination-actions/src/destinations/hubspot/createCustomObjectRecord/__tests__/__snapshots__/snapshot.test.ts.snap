@@ -8,4 +8,8 @@ Object {
 }
 `;
 
+<<<<<<< HEAD
 exports[`Testing snapshot for Hubspot's createCustomObjectRecord destination action: should throw error on randomly generated fields 1`] = `[IntegrationError: Custom Object is not in valid format. Please make sure that you are using either a valid format of object’s fullyQualifiedName (eg: p11223344_myobject) or a supported HubSpot defined object (ie: deals, tickets, contacts and companies).]`;
+=======
+exports[`Testing snapshot for Hubspot's createCustomObjectRecord destination action: should throw error on randomly generated fields 1`] = `[IntegrationError: Custom Object is not in valid format. Please make sure that you are using either a valid format of object’s fullyQualifiedName (eg: p11223344_myobject) or a supported HubSpot defined object (i.e.: deals, tickets).]`;
+>>>>>>> CONMAN-199

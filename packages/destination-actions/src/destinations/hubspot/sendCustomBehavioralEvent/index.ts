@@ -1,9 +1,16 @@
 import type { ActionDefinition } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
+<<<<<<< HEAD
 import { HubSpotBaseURL } from '../properties'
 import type { Payload } from './generated-types'
 
 interface CustomBehvioralEvent {
+=======
+import { hubSpotBaseURL } from '../properties'
+import type { Payload } from './generated-types'
+
+interface CustomBehavioralEvent {
+>>>>>>> CONMAN-199
   eventName: string
   occurredAt?: string | number
   properties?: { [key: string]: unknown }
@@ -20,7 +27,11 @@ const action: ActionDefinition<Settings, Payload> = {
     eventName: {
       label: 'Event Name',
       description:
+<<<<<<< HEAD
         'The internal event name assigned by HubSpot. This can be found in your HubSpot account. Events must be predefined in HubSpot. Learn how to find the internal name in [HubSpot’s documentation](https://knowledge.hubspot.com/analytics-tools/create-custom-behavioral-events?_ga=2.219778269.578939721.1663963266-497800475.1660075188#define-the-api-call).',
+=======
+        'The internal event name assigned by HubSpot. This can be found in your HubSpot account. Events must be predefined in HubSpot. Learn how to find the internal name in [HubSpot’s documentation](https://knowledge.hubspot.com/analytics-tools/create-custom-behavioral-events).',
+>>>>>>> CONMAN-199
       type: 'string',
       required: true
     },
@@ -67,7 +78,11 @@ const action: ActionDefinition<Settings, Payload> = {
     }
   },
   perform: (request, { payload }) => {
+<<<<<<< HEAD
     const event: CustomBehvioralEvent = {
+=======
+    const event: CustomBehavioralEvent = {
+>>>>>>> CONMAN-199
       eventName: payload.eventName,
       occurredAt: payload.occurredAt,
       utk: payload.utk,
@@ -75,7 +90,11 @@ const action: ActionDefinition<Settings, Payload> = {
       objectId: payload.objectId,
       properties: payload.properties
     }
+<<<<<<< HEAD
     return request(`${HubSpotBaseURL}/events/v3/send`, {
+=======
+    return request(`${hubSpotBaseURL}/events/v3/send`, {
+>>>>>>> CONMAN-199
       method: 'post',
       json: event
     })

@@ -921,8 +921,13 @@ describe('Amplitude', () => {
     })
   })
 
+<<<<<<< HEAD
   describe.only('logEvent V2', () => {
     it('should work with default mappings', async () => {
+=======
+  describe('logEvent V2', () => {
+    it('works with default mappings', async () => {
+>>>>>>> CONMAN-199
       const event = createTestEvent({ timestamp, event: 'Test Event' })
 
       nock('https://api2.amplitude.com/2').post('/httpapi').reply(200, {})
@@ -943,7 +948,11 @@ describe('Amplitude', () => {
       })
     })
 
+<<<<<<< HEAD
     it('should change casing for device type when value is ios', async () => {
+=======
+    it('changes casing for device type when value is ios', async () => {
+>>>>>>> CONMAN-199
       const event = createTestEvent({
         event: 'Test Event',
         context: {
@@ -968,7 +977,11 @@ describe('Amplitude', () => {
       })
     })
 
+<<<<<<< HEAD
     it('should change casing for device type when value is android', async () => {
+=======
+    it('changes casing for device type when value is android', async () => {
+>>>>>>> CONMAN-199
       const event = createTestEvent({
         event: 'Test Event',
         context: {
@@ -993,7 +1006,11 @@ describe('Amplitude', () => {
       })
     })
 
+<<<<<<< HEAD
     it('should accept null for user_id', async () => {
+=======
+    it('accepts null for user_id', async () => {
+>>>>>>> CONMAN-199
       const event = createTestEvent({ timestamp, userId: null, event: 'Null User' })
 
       nock('https://api2.amplitude.com/2').post('/httpapi').reply(200, {})
@@ -1013,7 +1030,11 @@ describe('Amplitude', () => {
       })
     })
 
+<<<<<<< HEAD
     it('should work with default mappings without generating additional events from products array', async () => {
+=======
+    it('works with default mappings without generating additional events from products array', async () => {
+>>>>>>> CONMAN-199
       const event = createTestEvent({
         event: 'Order Completed',
         timestamp,
@@ -1046,7 +1067,11 @@ describe('Amplitude', () => {
       })
     })
 
+<<<<<<< HEAD
     it('should allow alternate revenue names at the root level', async () => {
+=======
+    it('allows alternate revenue names at the root level', async () => {
+>>>>>>> CONMAN-199
       //understand that this is basically just testing mapping kit which is already tested
       nock('https://api2.amplitude.com/2').post('/httpapi').reply(200, {})
 
@@ -1079,7 +1104,11 @@ describe('Amplitude', () => {
       })
     })
 
+<<<<<<< HEAD
     it('should not inject userData if the default mapping is not satisfied and utm / referrer are not provided', async () => {
+=======
+    it('does not inject userData if the default mapping is not satisfied and utm / referrer are not provided', async () => {
+>>>>>>> CONMAN-199
       const event = createTestEvent({
         timestamp,
         event: 'Test Event',
@@ -1110,7 +1139,11 @@ describe('Amplitude', () => {
       })
     })
 
+<<<<<<< HEAD
     it('should support referrer and utm properties in logEvent call to amplitude', async () => {
+=======
+    it('supports referrer and utm properties in logEvent call to amplitude', async () => {
+>>>>>>> CONMAN-199
       const event = createTestEvent({
         timestamp,
         event: 'Test Event',
@@ -1164,7 +1197,11 @@ describe('Amplitude', () => {
       })
     })
 
+<<<<<<< HEAD
     it('should support parsing userAgent when the setting is true', async () => {
+=======
+    it('supports parsing userAgent when the setting is true', async () => {
+>>>>>>> CONMAN-199
       const event = createTestEvent({
         anonymousId: '6fd32a7e-3c56-44c2-bd32-62bbec44c53d',
         timestamp,
@@ -1206,7 +1243,11 @@ describe('Amplitude', () => {
       `)
     })
 
+<<<<<<< HEAD
     it('should support session_id from `integrations.Actions Amplitude.session_id`', async () => {
+=======
+    it('supports session_id from `integrations.Actions Amplitude.session_id`', async () => {
+>>>>>>> CONMAN-199
       const event = createTestEvent({
         timestamp,
         event: 'Test Event',
@@ -1259,7 +1300,11 @@ describe('Amplitude', () => {
       `)
     })
 
+<<<<<<< HEAD
     it('should send data to the EU endpoint', async () => {
+=======
+    it('sends data to the EU endpoint', async () => {
+>>>>>>> CONMAN-199
       const event = createTestEvent({ timestamp, event: 'Test Event' })
 
       nock('https://api.eu.amplitude.com/2').post('/httpapi').reply(200, {})
@@ -1287,7 +1332,11 @@ describe('Amplitude', () => {
       })
     })
 
+<<<<<<< HEAD
     it('should send data to the batch EU endpoint when specified in settings', async () => {
+=======
+    it('sends data to the batch EU endpoint when specified in settings', async () => {
+>>>>>>> CONMAN-199
       const event = createTestEvent({
         timestamp,
         event: 'Test Event'
@@ -1321,7 +1370,11 @@ describe('Amplitude', () => {
       })
     })
 
+<<<<<<< HEAD
     it.only('should correctly handle the default mappings for setOnce, setAlways, and add', async () => {
+=======
+    it('correctly handles the default mappings for setOnce, setAlways, and add', async () => {
+>>>>>>> CONMAN-199
       nock('https://api2.amplitude.com/2').post('/httpapi').reply(200, {})
 
       const event = createTestEvent({
@@ -1374,7 +1427,11 @@ describe('Amplitude', () => {
       })
     })
 
+<<<<<<< HEAD
     it('should work when setOnce, setAlways, and add are empty', async () => {
+=======
+    it('works when setOnce, setAlways, and add are empty', async () => {
+>>>>>>> CONMAN-199
       nock('https://api2.amplitude.com/2').post('/httpapi').reply(200, {})
 
       const event = createTestEvent({
@@ -1419,7 +1476,11 @@ describe('Amplitude', () => {
     })
   })
 
+<<<<<<< HEAD
   it('should not send parsed user agent properties when setting is false', async () => {
+=======
+  it('does not send parsed user agent properties when setting is false', async () => {
+>>>>>>> CONMAN-199
     const event = createTestEvent({
       timestamp: '2021-04-12T16:32:37.710Z',
       event: 'Test Event',
