@@ -3,6 +3,7 @@ import type { Settings } from './generated-types'
 
 import sendCustomBehavioralEvent from './sendCustomBehavioralEvent'
 import upsertContact from './upsertContact'
+import upsertCompany from './upsertCompany'
 import createCustomObjectRecord from './createCustomObjectRecord'
 import { hubSpotBaseURL } from './properties'
 interface RefreshTokenResponse {
@@ -47,6 +48,7 @@ const destination: DestinationDefinition<Settings> = {
   actions: {
     sendCustomBehavioralEvent,
     upsertContact,
+    upsertCompany,
     createCustomObjectRecord
   }
 }
