@@ -5,7 +5,7 @@ describe('Segment Utility Web', () => {
   test('loads hubspot analytics with just a HubID', async () => {
     const [throttle] = await segmentUtilityDestination({
       throttleWindow: 3000,
-      passThroughRate: 0.5,
+      passThroughCount: 1,
       subscriptions: [
         {
           partnerAction: 'throttle',
