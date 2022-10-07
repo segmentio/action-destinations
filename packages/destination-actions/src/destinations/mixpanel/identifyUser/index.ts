@@ -67,13 +67,12 @@ const action: ActionDefinition<Settings, Payload> = {
     if (payload.traits && Object.keys(payload.traits).length > 0) {
       const traits = {
         ...omit(payload.traits, ['name']),
-        $name: payload.traits.name,  // transform to Mixpanel reserved property
+        $name: payload.traits.name  // transform to Mixpanel reserved property
       }
       const data = {
         $token: settings.projectToken,
         $distinct_id: payload.user_id,
-        $set: traits,
-        segment_source_name: settings.sourceName
+        $set: traits
       }
 
       const engageResponse = request(`${ apiServerUrl }/engage`, {

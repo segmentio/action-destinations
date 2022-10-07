@@ -122,13 +122,6 @@ const action: ActionDefinition<Settings, Payload> = {
         '@path': '$.timestamp'
       }
     },
-    $source: {
-      label: '$source',
-      type: 'string',
-      description:
-        '',
-      default: 'segment'
-    },
     event_properties: {
       label: 'Event Properties',
       type: 'object',

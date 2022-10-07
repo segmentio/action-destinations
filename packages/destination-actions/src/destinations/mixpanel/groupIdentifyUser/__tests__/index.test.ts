@@ -220,8 +220,7 @@ describe('Mixpanel.groupIdentifyUser', () => {
           $set: {
             hello: 'world',
             company: 'Mixpanel'
-          },
-          segment_source_name: 'example segment source name'
+          }
         })
       })
     )

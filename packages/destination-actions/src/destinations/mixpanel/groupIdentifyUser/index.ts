@@ -1,4 +1,4 @@
-import { omit, ActionDefinition, IntegrationError } from '@segment/actions-core'
+import { ActionDefinition, IntegrationError, omit } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import { getApiServerUrl } from '../utils'
 import type { Payload } from './generated-types'
@@ -32,7 +32,7 @@ const action: ActionDefinition<Settings, Payload> = {
       default: {
         '@path': '$.traits'
       }
-    },
+    }
   },
   perform: (request, { payload, settings }) => {
     const group_key = payload.group_key || '$group_id'
@@ -48,14 +48,13 @@ const action: ActionDefinition<Settings, Payload> = {
 
     const traits = {
       ...omit(payload.traits, ['name']),
-      $name: payload.traits.name,  // transform to Mixpanel reserved property
+      $name: payload.traits.name  // transform to Mixpanel reserved property
     }
     const data = {
       $token: settings.projectToken,
       $group_key: group_key,
       $group_id: group_id,
       $set: traits,
-      segment_source_name: settings.sourceName
     }
 
     return request(`${ getApiServerUrl(settings.apiRegion) }/groups`, {

@@ -184,8 +184,7 @@ describe('Mixpanel.identifyUser', () => {
           $distinct_id: 'user1234',
           $set: {
             abc: '123'
-          },
-          segment_source_name: 'example segment source name'
+          }
         })
       })
     )
