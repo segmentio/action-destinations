@@ -92,7 +92,7 @@ describe.each(['stage', 'production'])('%s environment', (environment) => {
       bodyHtml: 'Hi {{profile.traits.firstName}}, Welcome to segment',
       send: true,
       traitEnrichment: true,
-      groupId: undefined,
+      groupId: '',
       toEmail: '',
       externalIds: {
         '@arrayPath': [
@@ -775,6 +775,35 @@ describe.each(['stage', 'production'])('%s environment', (environment) => {
           ...settings
         },
         mapping: getDefaultMapping({ groupId: 'grp_1' })
+      })
+
+      expect(responses.length).toBeGreaterThan(0)
+      expect(sendGridRequest.isDone()).toEqual(true)
+    })
+
+    it('should send email to group when group id is empty string', async () => {
+      const sendGridRequest = nock('https://api.sendgrid.com').post('/v3/mail/send').reply(200, {})
+
+      const responses = await sendgrid.testAction('sendEmail', {
+        event: createMessagingTestEvent({
+          timestamp,
+          event: 'Audience Entered',
+          userId: userData.userId,
+          external_ids: [
+            {
+              id: userData.email,
+              type: 'email',
+              isSubscribed: true,
+              collection: 'users',
+              encoding: 'none',
+              groups: [{ id: 'grp_1', isSubscribed: true }]
+            }
+          ]
+        }),
+        settings: {
+          ...settings
+        },
+        mapping: getDefaultMapping({ groupId: '', toEmail: 'asdad@asd.com' })
       })
 
       expect(responses.length).toBeGreaterThan(0)
