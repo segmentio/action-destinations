@@ -11,28 +11,37 @@ const action: BrowserActionDefinition<Settings, SegmentUtilityInstance, Payload>
   fields: {},
   perform: ({ eventMap }, data) => {
     const { context, settings } = data
-    const passThroughRate = settings.passThroughRate ?? 0.0
-    const throttleTime = settings.throttleTime ?? 3000
+    const passThroughCount = settings.passThroughCount ?? 1
+    const throttleWindow = settings.throttleWindow ?? 3000
     const event = context.event.event
-    let shouldBlock = false
 
     if (!event) {
       return
     }
 
     if (eventMap[event]) {
-      const { lastSent, receivedSinceLastSent } = eventMap[event]
+      const { windowStarted } = eventMap[event]
       const now = Date.now()
-      if (now - lastSent < throttleTime && 1 / (receivedSinceLastSent + 1) > passThroughRate) {
-        eventMap[event].receivedSinceLastSent += 1
-        shouldBlock = true
+      if (now - windowStarted < throttleWindow) {
+        // within the throttle window
+        eventMap[event].receivedCount++
+      } else {
+        eventMap[event] = {
+          // reset the window
+          windowStarted: Date.now(),
+          receivedCount: 1
+        }
+      }
+    } else {
+      // first time we've seen this event, start the window
+      eventMap[event] = {
+        windowStarted: Date.now(),
+        receivedCount: 1
       }
     }
 
-    if (shouldBlock) {
+    if (eventMap[event].receivedCount > passThroughCount) {
       context.updateEvent('integrations', { ...context.event.integrations, 'Segment.io': false })
-    } else {
-      eventMap[event] = { lastSent: Date.now(), receivedSinceLastSent: 0 }
     }
   }
 }

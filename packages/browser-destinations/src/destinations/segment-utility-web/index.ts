@@ -5,7 +5,7 @@ import { browserDestination } from '../../runtime/shim'
 import throttle from './throttle'
 
 export type SegmentUtilityInstance = {
-  eventMap: Record<string, { lastSent: number; receivedSinceLastSent: number }>
+  eventMap: Record<string, { windowStarted: number; receivedCount: number }>
 }
 
 // Switch from unknown to the partner SDK client types
@@ -15,15 +15,15 @@ export const destination: BrowserDestinationDefinition<Settings, SegmentUtilityI
   mode: 'device',
 
   settings: {
-    throttleTime: {
+    throttleWindow: {
       label: 'Throttle time',
-      description: 'Amount of time to wait before sending the same event again.',
+      description: 'The window of time in milliseconds to throttle events.',
       type: 'number',
       default: 3000
     },
-    passThroughRate: {
-      label: 'Pass through rate',
-      description: 'Percentage of events to pass through while waiting for the throttle time to expire.',
+    passThroughCount: {
+      label: 'Number of events to pass through',
+      description: 'Number of events to pass through while waiting for the throttle time to expire.',
       type: 'number',
       default: 0.1
     }

@@ -4,7 +4,7 @@ import segmentUtilityDestination, { destination } from '../index'
 describe('Segment Utility Web', () => {
   test('loads hubspot analytics with just a HubID', async () => {
     const [throttle] = await segmentUtilityDestination({
-      throttleTime: 3000,
+      throttleWindow: 3000,
       passThroughRate: 0.5,
       subscriptions: [
         {

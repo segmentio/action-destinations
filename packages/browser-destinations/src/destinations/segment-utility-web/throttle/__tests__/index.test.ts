@@ -12,8 +12,8 @@ describe('throttle', () => {
 
   test('throttles events', async () => {
     const [throttle] = await segmentUtility({
-      throttleTime: 3000,
-      passThroughRate: 0.5,
+      throttleWindow: 3000,
+      passThroughCount: 1,
       subscriptions: [
         {
           partnerAction: 'throttle',
@@ -29,6 +29,33 @@ describe('throttle', () => {
     let ctx = await throttle.track?.(new Context({ type: 'track', event: 'Video Played' }))
 
     expect(ctx?.event.integrations).not.toBeDefined()
+
+    ctx = await throttle.track?.(new Context({ type: 'track', event: 'Video Played' }))
+
+    expect(ctx?.event.integrations).toBeDefined()
+    expect(ctx?.event.integrations?.['Segment.io']).toEqual(false)
+  })
+
+  test('does not allow any event to pass through if the pass through count is 0', async () => {
+    const [throttle] = await segmentUtility({
+      throttleWindow: 3000,
+      passThroughCount: 0,
+      subscriptions: [
+        {
+          partnerAction: 'throttle',
+          name: 'Throttle',
+          enabled: true,
+          subscribe: 'type = "track"',
+          mapping: {}
+        }
+      ]
+    })
+
+    await throttle.load(Context.system(), ajs)
+    let ctx = await throttle.track?.(new Context({ type: 'track', event: 'Video Played' }))
+
+    expect(ctx?.event.integrations).toBeDefined()
+    expect(ctx?.event.integrations?.['Segment.io']).toEqual(false)
 
     ctx = await throttle.track?.(new Context({ type: 'track', event: 'Video Played' }))
 
@@ -38,8 +65,8 @@ describe('throttle', () => {
 
   test('throttles multiple events names separately', async () => {
     const [throttle] = await segmentUtility({
-      throttleTime: 3000,
-      passThroughRate: 0.5,
+      throttleWindow: 3000,
+      passThroughCount: 1,
       subscriptions: [
         {
           partnerAction: 'throttle',
@@ -68,11 +95,10 @@ describe('throttle', () => {
     expect(ctx?.event.integrations?.['Segment.io']).toEqual(false)
   })
 
-  test('Allow events to pass through at the pass-through rate', async () => {
-    // pass through rate of 0.5 means that 50% of events should pass through
+  test('Allow n events to pass through during the window', async () => {
     const [throttle] = await segmentUtility({
-      throttleTime: 3000,
-      passThroughRate: 0.5,
+      throttleWindow: 3000,
+      passThroughCount: 3,
       subscriptions: [
         {
           partnerAction: 'throttle',
@@ -93,12 +119,11 @@ describe('throttle', () => {
       }
     }
 
-    expect(passedThroguh).toBe(5)
+    expect(passedThroguh).toBe(3)
 
-    // pass through rate of 0.1 means that 10% of events should pass through
     const [throttle2] = await segmentUtility({
-      throttleTime: 3000,
-      passThroughRate: 0.1,
+      throttleWindow: 3000,
+      passThroughCount: 8,
       subscriptions: [
         {
           partnerAction: 'throttle',
@@ -120,13 +145,13 @@ describe('throttle', () => {
       }
     }
 
-    expect(passedThroguh).toBe(1)
+    expect(passedThroguh).toBe(8)
   })
 
   test('Preserves the integrations object while flipping the Segment destination to false', async () => {
     const [throttle] = await segmentUtility({
-      throttleTime: 3000,
-      passThroughRate: 0.5,
+      throttleWindow: 3000,
+      passThroughCount: 1,
       subscriptions: [
         {
           partnerAction: 'throttle',
@@ -159,8 +184,8 @@ describe('throttle', () => {
 
   test('Time-based throttling', async () => {
     const [throttle] = await segmentUtility({
-      throttleTime: 3000,
-      passThroughRate: 0,
+      throttleWindow: 3000,
+      passThroughCount: 1,
       subscriptions: [
         {
           partnerAction: 'throttle',
@@ -196,10 +221,49 @@ describe('throttle', () => {
     expect(ctx?.event.integrations).not.toBeDefined()
   })
 
+  test('Complex Time-based throttling', async () => {
+    const [throttle] = await segmentUtility({
+      throttleWindow: 3000,
+      passThroughCount: 2,
+      subscriptions: [
+        {
+          partnerAction: 'throttle',
+          name: 'Throttle',
+          enabled: true,
+          subscribe: 'type = "track"',
+          mapping: {}
+        }
+      ]
+    })
+
+    await throttle.load(Context.system(), ajs)
+
+    // Canada Day
+    jest.spyOn(global.Date, 'now').mockImplementationOnce(() => new Date('2022-07-01T00:00:00.000Z').valueOf())
+    let ctx = await throttle.track?.(new Context({ type: 'track', event: 'Video Played' }))
+    expect(ctx?.event.integrations).not.toBeDefined()
+
+    // One second later, still allowed because of the passThroughCount
+    jest.spyOn(global.Date, 'now').mockImplementationOnce(() => new Date('2022-07-01T00:00:01.000Z').valueOf())
+    ctx = await throttle.track?.(new Context({ type: 'track', event: 'Video Played' }))
+    expect(ctx?.event.integrations).not.toBeDefined()
+
+    // One second later, throttle this event
+    jest.spyOn(global.Date, 'now').mockImplementationOnce(() => new Date('2022-07-01T00:00:02.000Z').valueOf())
+    ctx = await throttle.track?.(new Context({ type: 'track', event: 'Video Played' }))
+    expect(ctx?.event.integrations).toBeDefined()
+    expect(ctx?.event.integrations?.['Segment.io']).toEqual(false)
+
+    // One second later, window expired, let this event through
+    jest.spyOn(global.Date, 'now').mockImplementationOnce(() => new Date('2022-07-01T00:00:03.100Z').valueOf())
+    ctx = await throttle.track?.(new Context({ type: 'track', event: 'Video Played' }))
+    expect(ctx?.event.integrations).not.toBeDefined()
+  })
+
   test('Only throttles the events that match the subscription', async () => {
     const [throttle] = await segmentUtility({
-      throttleTime: 3000,
-      passThroughRate: 0,
+      throttleWindow: 3000,
+      passThroughCount: 1,
       subscriptions: [
         {
           partnerAction: 'throttle',
