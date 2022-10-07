@@ -136,7 +136,7 @@ describe('throttle', () => {
     })
 
     await throttle2.load(Context.system(), ajs)
-    passedThroguh = 0
+    passedThrough = 0
 
     for (let i = 0; i < 10; i++) {
       const ctx = await throttle2.track?.(new Context({ type: 'track', event: 'Video Played' }))
