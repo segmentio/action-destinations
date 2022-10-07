@@ -119,7 +119,7 @@ describe('throttle', () => {
       }
     }
 
-    expect(passedThroguh).toBe(3)
+    expect(passedThrough).toBe(3)
 
     const [throttle2] = await segmentUtility({
       throttleWindow: 3000,
