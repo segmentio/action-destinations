@@ -145,7 +145,7 @@ describe('throttle', () => {
       }
     }
 
-    expect(passedThroguh).toBe(8)
+    expect(passedThrough).toBe(8)
   })
 
   test('Preserves the integrations object while flipping the Segment destination to false', async () => {
