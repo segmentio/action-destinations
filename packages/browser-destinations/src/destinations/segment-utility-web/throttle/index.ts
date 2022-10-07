@@ -9,6 +9,7 @@ const action: BrowserActionDefinition<Settings, SegmentUtilityInstance, Payload>
   platform: 'web',
   defaultSubscription: 'type = "track"',
   fields: {},
+  lifecycleHook: 'before',
   perform: ({ eventMap }, data) => {
     const { context, settings } = data
     const passThroughCount = settings.passThroughCount ?? 1

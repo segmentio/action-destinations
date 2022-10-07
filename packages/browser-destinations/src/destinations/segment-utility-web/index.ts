@@ -25,7 +25,7 @@ export const destination: BrowserDestinationDefinition<Settings, SegmentUtilityI
       label: 'Number of events to pass through',
       description: 'Number of events to pass through while waiting for the throttle time to expire.',
       type: 'number',
-      default: 0.1
+      default: 1
     }
   },
 
