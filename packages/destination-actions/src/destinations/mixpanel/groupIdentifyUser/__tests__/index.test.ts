@@ -13,7 +13,7 @@ describe('Mixpanel.groupIdentifyUser', () => {
     const event = createTestEvent({
       timestamp,
       groupId: 'test-group-id',
-      traits: { hello: 'world', company: 'Mixpanel' }
+      traits: { hello: 'world', company: 'Mixpanel', name: 'test' }
     })
 
     nock('https://api.mixpanel.com').post('/groups').reply(200, {})
@@ -39,7 +39,8 @@ describe('Mixpanel.groupIdentifyUser', () => {
           $group_id: 'Mixpanel',
           $set: {
             hello: 'world',
-            company: 'Mixpanel'
+            company: 'Mixpanel',
+            $name: 'test' // validate name -> $name
           }
         })
       })

@@ -54,7 +54,7 @@ const getEventFromPayload = (payload: Payload, settings: Settings): MixpanelEven
       $source: 'segment',
       $wifi_enabled: payload.wifi,
       mp_country_code: payload.country,
-      mp_lib: payload.library_name && `Segment: ${payload.library_name}`,
+      mp_lib: payload.library_name && `Segment: ${ payload.library_name }`,
       segment_source_name: settings.sourceName,
       utm_campaign: utm.utm_campaign,
       utm_content: utm.utm_content,
@@ -69,11 +69,11 @@ const getEventFromPayload = (payload: Payload, settings: Settings): MixpanelEven
 
 const processData = async (request: RequestClient, settings: Settings, payload: Payload[]) => {
   const events = payload.map((value) => getEventFromPayload(value, settings))
-  return request(`${getApiServerUrl(settings.apiRegion)}/import?strict=1`, {
+  return request(`${ getApiServerUrl(settings.apiRegion) }/import?strict=1`, {
     method: 'post',
     json: events,
     headers: {
-      authorization: `Basic ${Buffer.from(`${settings.apiSecret}:`).toString('base64')}`
+      authorization: `Basic ${ Buffer.from(`${ settings.apiSecret }:`).toString('base64') }`
     }
   })
 }
@@ -121,6 +121,13 @@ const action: ActionDefinition<Settings, Payload> = {
       default: {
         '@path': '$.timestamp'
       }
+    },
+    $source: {
+      label: '$source',
+      type: 'string',
+      description:
+        '',
+      default: 'segment'
     },
     event_properties: {
       label: 'Event Properties',

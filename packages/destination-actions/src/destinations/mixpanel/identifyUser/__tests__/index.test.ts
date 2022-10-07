@@ -10,7 +10,7 @@ const timestamp = '2021-08-17T15:21:15.449Z'
 
 describe('Mixpanel.identifyUser', () => {
   it('should validate action fields', async () => {
-    const event = createTestEvent({ timestamp, traits: { abc: '123' } })
+    const event = createTestEvent({ timestamp, traits: { abc: '123', name: 'Joe' } })
 
     nock('https://api.mixpanel.com').post('/engage').reply(200, {})
     nock('https://api.mixpanel.com').post('/track').reply(200, {})
@@ -47,7 +47,8 @@ describe('Mixpanel.identifyUser', () => {
           $token: MIXPANEL_PROJECT_TOKEN,
           $distinct_id: 'user1234',
           $set: {
-            abc: '123'
+            abc: '123',
+            $name: 'Joe' // transformed to reserved property $name
           }
         })
       })
