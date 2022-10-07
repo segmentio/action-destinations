@@ -337,72 +337,72 @@ export const productsProperties: Record<string, InputField> = {
         label: 'Product Id',
         type: 'string',
         description:
-          'Database id of the product being viewed'
+          'Database id of the product being viewed.'
       },
       sku: {
         label: 'SKU',
         type: 'string',
         description:
-          'Sku of the product being viewed'
+          'Sku of the product being viewed.'
       },
       category: {
         label: 'Category',
         type: 'string',
         description:
-          'Product category being viewed'
+          'Product category being viewed.'
       },
       name: {
         label: 'Name',
         type: 'string',
         description:
-          'Name of the product being viewed'
+          'Name of the product being viewed.'
       },
       brand: {
         label: 'Brand',
         type: 'string',
         description:
-          'Brand associated with the product'
+          'Brand associated with the product.'
       },
       variant: {
         label: 'Variant',
         type: 'string',
         description:
-          'Variant of the product'
+          'Variant of the product.'
       },
       price: {
         label: 'Price',
         type: 'number',
         description:
-          'Price ($) of the product being viewed'
+          'Price ($) of the product being viewed.'
       },
       quantity: {
         label: 'Quantity',
         type: 'integer',
-        description: 'Quantity of a product'
+        description: 'Quantity of a product.'
       },
       coupon: {
         label: 'Coupon',
         type: 'string',
         description:
-          'Coupon code associated with a product (for example, MAY_DEALS_3)'
+          'Coupon code associated with a product (for example, MAY_DEALS_3).'
       },
       position: {
         label: 'position',
         type: 'number',
         description:
-          'Position in the product list (ex. 3)'
+          'Position in the product list (ex. 3).'
       },
       url: {
         label: 'url',
         type: 'string',
         description:
-          'URL of the product page'
+          'URL of the product page.'
       },
       image_url: {
         label: 'Image url',
         type: 'string',
         description:
-          'Image url of the product'
+          'Image url of the product.'
       }
     },
     default: {
