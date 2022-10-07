@@ -4,7 +4,7 @@ import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 
 const action: BrowserActionDefinition<Settings, SegmentUtilityInstance, Payload> = {
-  title: 'Throttle',
+  title: 'Throttle by event name',
   description: 'Throttle events sent to Segment. Throttling is on a per event name basis.',
   platform: 'web',
   defaultSubscription: 'type = "track"',
