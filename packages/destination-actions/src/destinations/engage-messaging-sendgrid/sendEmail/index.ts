@@ -328,7 +328,7 @@ const action: ActionDefinition<Settings, Payload> = {
       return
     } else if (['subscribed', 'true'].includes(emailProfile?.subscriptionStatus)) {
       statsClient?.incr('actions-personas-messaging-sendgrid.subscribed', 1, tags)
-      if (payload.groupId) {
+      if (payload.groupId && payload.groupId.length !== 0) {
         const group = (payload.externalIds ?? [])
           .flatMap((externalId) => externalId.groups)
           .find((group) => group?.id === payload.groupId)
