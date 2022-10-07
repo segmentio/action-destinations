@@ -2,11 +2,11 @@
 
 export interface Settings {
   /**
-   * Amount of time to wait before sending the same event again.
+   * The window of time in milliseconds to throttle events.
    */
-  throttleTime?: number
+  throttleWindow?: number
   /**
-   * Percentage of events to pass through while waiting for the throttle time to expire.
+   * Number of events to pass through while waiting for the throttle time to expire.
    */
-  passThroughRate?: number
+  passThroughCount?: number
 }
