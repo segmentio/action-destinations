@@ -1,9 +1,9 @@
 import { Analytics, Context } from '@segment/analytics-next'
-import segmentUtilityDestination, { destination } from '../index'
+import segmentUtilitiesDestination, { destination } from '../index'
 
-describe('Segment Utility Web', () => {
+describe('Segment Utilities Web', () => {
   test('loads the destination', async () => {
-    const [throttle] = await segmentUtilityDestination({
+    const [throttle] = await segmentUtilitiesDestination({
       throttleWindow: 3000,
       passThroughCount: 1,
       subscriptions: [

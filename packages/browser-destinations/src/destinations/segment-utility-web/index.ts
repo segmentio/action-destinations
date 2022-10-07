@@ -4,14 +4,14 @@ import { browserDestination } from '../../runtime/shim'
 
 import throttle from './throttle'
 
-export type SegmentUtilityInstance = {
+export type SegmentUtilitiesInstance = {
   eventMap: Record<string, { windowStarted: number; receivedCount: number }>
 }
 
 // Switch from unknown to the partner SDK client types
-export const destination: BrowserDestinationDefinition<Settings, SegmentUtilityInstance> = {
-  name: 'Segment Utility Web',
-  slug: 'actions-segment-utility-web',
+export const destination: BrowserDestinationDefinition<Settings, SegmentUtilitiesInstance> = {
+  name: 'Segment Utilities Web',
+  slug: 'actions-segment-utilities-web',
   mode: 'device',
 
   settings: {

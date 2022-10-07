@@ -1,5 +1,5 @@
 import { Analytics, Context } from '@segment/analytics-next'
-import segmentUtility from '../../index'
+import segmentUtilities from '../../index'
 
 let ajs: Analytics
 
@@ -11,7 +11,7 @@ describe('throttle', () => {
   })
 
   test('throttles events', async () => {
-    const [throttle] = await segmentUtility({
+    const [throttle] = await segmentUtilities({
       throttleWindow: 3000,
       passThroughCount: 1,
       subscriptions: [
@@ -37,7 +37,7 @@ describe('throttle', () => {
   })
 
   test('does not allow any event to pass through if the pass through count is 0', async () => {
-    const [throttle] = await segmentUtility({
+    const [throttle] = await segmentUtilities({
       throttleWindow: 3000,
       passThroughCount: 0,
       subscriptions: [
@@ -64,7 +64,7 @@ describe('throttle', () => {
   })
 
   test('throttles multiple events names separately', async () => {
-    const [throttle] = await segmentUtility({
+    const [throttle] = await segmentUtilities({
       throttleWindow: 3000,
       passThroughCount: 1,
       subscriptions: [
@@ -96,7 +96,7 @@ describe('throttle', () => {
   })
 
   test('Allow n events to pass through during the window', async () => {
-    const [throttle] = await segmentUtility({
+    const [throttle] = await segmentUtilities({
       throttleWindow: 3000,
       passThroughCount: 3,
       subscriptions: [
@@ -121,7 +121,7 @@ describe('throttle', () => {
 
     expect(passedThrough).toBe(3)
 
-    const [throttle2] = await segmentUtility({
+    const [throttle2] = await segmentUtilities({
       throttleWindow: 3000,
       passThroughCount: 8,
       subscriptions: [
@@ -149,7 +149,7 @@ describe('throttle', () => {
   })
 
   test('Preserves the integrations object while flipping the Segment destination to false', async () => {
-    const [throttle] = await segmentUtility({
+    const [throttle] = await segmentUtilities({
       throttleWindow: 3000,
       passThroughCount: 1,
       subscriptions: [
@@ -183,7 +183,7 @@ describe('throttle', () => {
   })
 
   test('Time-based throttling', async () => {
-    const [throttle] = await segmentUtility({
+    const [throttle] = await segmentUtilities({
       throttleWindow: 3000,
       passThroughCount: 1,
       subscriptions: [
@@ -222,7 +222,7 @@ describe('throttle', () => {
   })
 
   test('Complex Time-based throttling', async () => {
-    const [throttle] = await segmentUtility({
+    const [throttle] = await segmentUtilities({
       throttleWindow: 3000,
       passThroughCount: 2,
       subscriptions: [
@@ -261,7 +261,7 @@ describe('throttle', () => {
   })
 
   test('Only throttles the events that match the subscription', async () => {
-    const [throttle] = await segmentUtility({
+    const [throttle] = await segmentUtilities({
       throttleWindow: 3000,
       passThroughCount: 1,
       subscriptions: [

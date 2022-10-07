@@ -1,9 +1,9 @@
-import { SegmentUtilityInstance } from '..'
+import { SegmentUtilitiesInstance } from '..'
 import type { BrowserActionDefinition } from '../../../lib/browser-destinations'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 
-const action: BrowserActionDefinition<Settings, SegmentUtilityInstance, Payload> = {
+const action: BrowserActionDefinition<Settings, SegmentUtilitiesInstance, Payload> = {
   title: 'Throttle by event name',
   description: 'Throttle events sent to Segment. Throttling is on a per event name basis.',
   platform: 'web',
