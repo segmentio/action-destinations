@@ -17,13 +17,13 @@ export const destination: BrowserDestinationDefinition<Settings, SegmentUtilityI
   settings: {
     throttleTime: {
       label: 'Throttle time',
-      description: 'throttles events to prevent duplicate events from being sent to Segment.',
+      description: 'Amount of time to wait before sending the same event again.',
       type: 'number',
       default: 3000
     },
     passThroughRate: {
       label: 'Pass through rate',
-      description: 'throttles events to prevent duplicate events from being sent to Segment.',
+      description: 'Percentage of events to pass through while waiting for the throttle time to expire.',
       type: 'number',
       default: 0.1
     }
