@@ -2,7 +2,7 @@ import { Analytics, Context } from '@segment/analytics-next'
 import segmentUtilityDestination, { destination } from '../index'
 
 describe('Segment Utility Web', () => {
-  test('loads hubspot analytics with just a HubID', async () => {
+  test('loads the destination', async () => {
     const [throttle] = await segmentUtilityDestination({
       throttleWindow: 3000,
       passThroughCount: 1,
