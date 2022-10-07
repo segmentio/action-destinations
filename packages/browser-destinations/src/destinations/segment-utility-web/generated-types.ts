@@ -2,11 +2,11 @@
 
 export interface Settings {
   /**
-   * throttles events to prevent duplicate events from being sent to Segment.
+   * Amount of time to wait before sending the same event again.
    */
   throttleTime?: number
   /**
-   * throttles events to prevent duplicate events from being sent to Segment.
+   * Percentage of events to pass through while waiting for the throttle time to expire.
    */
   passThroughRate?: number
 }
