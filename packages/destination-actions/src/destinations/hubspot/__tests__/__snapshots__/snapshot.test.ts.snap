@@ -1,6 +1,5 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-<<<<<<< HEAD
 exports[`Testing snapshot for actions-hubspot-cloud destination: contact action - all fields 1`] = `
 [FetchError: request to https://api.hubapi.com/crm/v3/objects/contacts/fodhudwu@megjif.fr?idProperty=email failed, reason: Nock: No match for request {
   "method": "PATCH",
@@ -66,11 +65,6 @@ exports[`Testing snapshot for actions-hubspot-cloud destination: contact action 
 exports[`Testing snapshot for actions-hubspot-cloud destination: createCustomObjectRecord action - all fields 1`] = `[IntegrationError: Custom Object is not in valid format. Please make sure that you are using either a valid format of object’s fullyQualifiedName (eg: p11223344_myobject) or a supported HubSpot defined object (ie: deals, tickets, contacts and companies).]`;
 
 exports[`Testing snapshot for actions-hubspot-cloud destination: createCustomObjectRecord action - required fields 1`] = `[IntegrationError: Custom Object is not in valid format. Please make sure that you are using either a valid format of object’s fullyQualifiedName (eg: p11223344_myobject) or a supported HubSpot defined object (ie: deals, tickets, contacts and companies).]`;
-=======
-exports[`Testing snapshot for actions-hubspot-cloud destination: createCustomObjectRecord action - all fields 1`] = `[IntegrationError: Custom Object is not in valid format. Please make sure that you are using either a valid format of object’s fullyQualifiedName (eg: p11223344_myobject) or a supported HubSpot defined object (i.e.: deals, tickets).]`;
-
-exports[`Testing snapshot for actions-hubspot-cloud destination: createCustomObjectRecord action - required fields 1`] = `[IntegrationError: Custom Object is not in valid format. Please make sure that you are using either a valid format of object’s fullyQualifiedName (eg: p11223344_myobject) or a supported HubSpot defined object (i.e.: deals, tickets).]`;
->>>>>>> CONMAN-199
 
 exports[`Testing snapshot for actions-hubspot-cloud destination: sendCustomBehavioralEvent action - all fields 1`] = `
 Object {
@@ -91,47 +85,7 @@ Object {
 }
 `;
 
-<<<<<<< HEAD
 exports[`Testing snapshot for testHelper: empty seed 1`] = `
-=======
-exports[`Testing snapshot for actions-hubspot-cloud destination: upsertContact action - all fields 1`] = `
-Object {
-  "properties": Object {
-    "address": "fL&&$lZA!6gsh",
-    "city": "fL&&$lZA!6gsh",
-    "company": "fL&&$lZA!6gsh",
-    "country": "fL&&$lZA!6gsh",
-    "email": "zejkulcih@ras.sh",
-    "firstname": "fL&&$lZA!6gsh",
-    "lastname": "fL&&$lZA!6gsh",
-    "lifecyclestage": "fl&&$lza!6gsh",
-    "phone": "fL&&$lZA!6gsh",
-    "state": "fL&&$lZA!6gsh",
-    "testType": "fL&&$lZA!6gsh",
-    "zip": "fL&&$lZA!6gsh",
-  },
-}
-`;
-
-exports[`Testing snapshot for actions-hubspot-cloud destination: upsertContact action - required fields 1`] = `
-Object {
-  "properties": Object {
-    "email": "zejkulcih@ras.sh",
-  },
-}
-`;
-
-exports[`Testing snapshot for testHelper: should generate a valid hash with a seed value 1`] = `
-Object {
-  "objectType": "p692776144_Obj692776144",
-  "properties": Object {
-    "testProperty": "testValue-692776144",
-  },
-}
-`;
-
-exports[`Testing snapshot for testHelper: should generate a valid hash with empty seed value 1`] = `
->>>>>>> CONMAN-199
 Object {
   "objectType": "p0_Obj0",
   "properties": Object {

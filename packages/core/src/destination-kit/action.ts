@@ -131,7 +131,7 @@ export class Action<Settings, Payload extends JSONLikeObject> extends EventEmitt
     // Validate the resolved payload against the schema
     if (this.schema) {
       const schemaKey = `${this.destinationName}:${this.definition.title}`
-      validateSchema(payload, this.schema, { schemaKey, statsContext: bundle.statsContext })
+      validateSchema(payload, this.schema, { schemaKey })
       results.push({ output: 'Payload validated' })
     }
 

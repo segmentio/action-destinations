@@ -15,8 +15,8 @@ const presets: DestinationDefinition['presets'] = [
   {
     name: 'Track Calls',
     subscribe: 'type = "track" and event != "Order Completed"',
-    partnerAction: 'logEventV2',
-    mapping: defaultValues(logEventV2.fields)
+    partnerAction: 'logEvent',
+    mapping: defaultValues(logEvent.fields)
   },
   {
     name: 'Order Completed Calls',
@@ -27,9 +27,9 @@ const presets: DestinationDefinition['presets'] = [
   {
     name: 'Page Calls',
     subscribe: 'type = "page"',
-    partnerAction: 'logEventV2',
+    partnerAction: 'logEvent',
     mapping: {
-      ...defaultValues(logEventV2.fields),
+      ...defaultValues(logEvent.fields),
       event_type: {
         '@template': 'Viewed {{name}}'
       }
@@ -38,9 +38,9 @@ const presets: DestinationDefinition['presets'] = [
   {
     name: 'Screen Calls',
     subscribe: 'type = "screen"',
-    partnerAction: 'logEventV2',
+    partnerAction: 'logEvent',
     mapping: {
-      ...defaultValues(logEventV2.fields),
+      ...defaultValues(logEvent.fields),
       event_type: {
         '@template': 'Viewed {{name}}'
       }

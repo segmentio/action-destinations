@@ -36,6 +36,11 @@ const action: ActionDefinition<Settings, Payload> = {
       const sf: Salesforce = new Salesforce(data.settings.instanceUrl, request)
 
       return sf.customObjectName()
+    },
+    bulkUpsertExternalId: async (request, { settings, payload }) => {
+      const sf: Salesforce = new Salesforce(settings.instanceUrl, request)
+
+      return sf.bulkUpsertExternalId(payload.customObjectName)
     }
   },
   perform: async (request, { settings, payload }) => {

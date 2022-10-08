@@ -4,7 +4,6 @@ import { ModifiedResponse, RequestClient, IntegrationError } from '@segment/acti
 import { GoogleAdsAPI } from './types'
 
 export function formatCustomVariables(
-<<<<<<< HEAD
   customVariables: object | undefined,
   customVariableIdsResults: Array<ConversionCustomVariable>
 ): object | undefined {
@@ -16,16 +15,6 @@ export function formatCustomVariables(
   const resourceNames: { [key: string]: any } = {}
   Object.entries(customVariableIdsResults).forEach(([_, customVariables]) => {
     resourceNames[customVariables.conversionCustomVariable.name] = customVariables.conversionCustomVariable.resourceName
-=======
-  customVariables: object,
-  customVariableIdsResults: Array<ConversionCustomVariable>
-): object {
-  // Maps custom variable keys to their resource names
-  const resourceNames: { [key: string]: any } = {}
-  Object.entries(customVariableIdsResults).forEach(([_, customVariablesIds]) => {
-    resourceNames[customVariablesIds.conversionCustomVariable.name] =
-      customVariablesIds.conversionCustomVariable.resourceName
->>>>>>> CONMAN-199
   })
 
   const variables: { conversionCustomVariable: string; value: string }[] = []
@@ -43,13 +32,7 @@ export function formatCustomVariables(
 }
 
 export const hash = (value: string | undefined): string | undefined => {
-<<<<<<< HEAD
   if (value === undefined) return
-=======
-  if (value === undefined) {
-    return
-  }
->>>>>>> CONMAN-199
 
   const hash = createHash('sha256')
   hash.update(value)

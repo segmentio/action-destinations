@@ -28,7 +28,6 @@ interface CreateJobResponseData {
   id: string
 }
 
-<<<<<<< HEAD
 interface DescribeObjectResponseData {
   fields: [
     {
@@ -41,8 +40,6 @@ interface DescribeObjectResponseData {
   ]
 }
 
-=======
->>>>>>> CONMAN-199
 interface SObjectsResponseData {
   sobjects: [
     {
@@ -137,7 +134,6 @@ export default class Salesforce {
     )
   }
 
-<<<<<<< HEAD
   bulkUpsertExternalId = async (sobject: string): Promise<DynamicFieldResponse> => {
     const result = await this.request<DescribeObjectResponseData>(
       `${this.instanceUrl}services/data/${API_VERSION}/sobjects/${sobject}/describe`,
@@ -159,8 +155,6 @@ export default class Salesforce {
     }
   }
 
-=======
->>>>>>> CONMAN-199
   customObjectName = async (): Promise<DynamicFieldResponse> => {
     try {
       const result = await this.request<SObjectsResponseData>(
@@ -175,19 +169,10 @@ export default class Salesforce {
         return field.createable === true
       })
 
-<<<<<<< HEAD
       return {
         choices: fields.map((field) => {
           return { value: field.name, label: field.label }
         }),
-=======
-      const choices = fields.map((field) => {
-        return { value: field.name, label: field.label }
-      })
-
-      return {
-        choices: choices,
->>>>>>> CONMAN-199
         nextPage: '2'
       }
     } catch (err) {
@@ -195,13 +180,8 @@ export default class Salesforce {
         choices: [],
         nextPage: '',
         error: {
-<<<<<<< HEAD
           message: (err as SalesforceError).response.data[0].message ?? 'Unknown error',
           code: (err as SalesforceError).response.data[0].errorCode ?? 'Unknown error'
-=======
-          message: (err as SalesforceError).response?.data[0]?.message ?? 'Unknown error',
-          code: (err as SalesforceError).response?.data[0]?.errorCode ?? 'Unknown error'
->>>>>>> CONMAN-199
         }
       }
     }

@@ -8,11 +8,7 @@ const customerId = '1234'
 
 describe('GoogleEnhancedConversions', () => {
   describe('uploadClickConversion', () => {
-<<<<<<< HEAD
     it('should send an event with default mappings', async () => {
-=======
-    it('sends an event with default mappings', async () => {
->>>>>>> CONMAN-199
       const event = createTestEvent({
         timestamp,
         event: 'Test Event',
@@ -53,11 +49,7 @@ describe('GoogleEnhancedConversions', () => {
       expect(responses[0].status).toBe(201)
     })
 
-<<<<<<< HEAD
     it('should send email and phone user_identifiers', async () => {
-=======
-    it('sends email and phone user_identifiers', async () => {
->>>>>>> CONMAN-199
       const event = createTestEvent({
         timestamp,
         event: 'Test Event',
@@ -99,11 +91,7 @@ describe('GoogleEnhancedConversions', () => {
       expect(responses[0].status).toBe(201)
     })
 
-<<<<<<< HEAD
     it('should correctly map custom variables', async () => {
-=======
-    it('correctly maps custom variables', async () => {
->>>>>>> CONMAN-199
       const event = createTestEvent({
         timestamp,
         event: 'Test Event',
@@ -159,11 +147,7 @@ describe('GoogleEnhancedConversions', () => {
       expect(responses[1].status).toBe(201)
     })
 
-<<<<<<< HEAD
     it('should fail if customerId not set', async () => {
-=======
-    it('fails if customerId not set', async () => {
->>>>>>> CONMAN-199
       const event = createTestEvent({
         timestamp,
         event: 'Test Event',

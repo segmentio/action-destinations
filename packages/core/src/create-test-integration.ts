@@ -50,7 +50,12 @@ class TestDestination<T> extends Destination<T> {
   }
 
   async testDynamicField(action: string, fieldKey: string, data: ExecuteDynamicFieldInput<T, object>) {
-    return await super.executeDynamicField(action, fieldKey, data)
+    await super.executeDynamicField(action, fieldKey, data)
+
+    const responses = this.responses
+    this.responses = []
+
+    return responses
   }
 
   /** Testing method that runs an action e2e while allowing slightly more flexible inputs */

@@ -19,22 +19,3 @@ Object {
   "eventName": "L1tO7SSIyhf3tBB7",
 }
 `;
-<<<<<<< HEAD
-=======
-
-exports[`Testing snapshot for Hubspot's sendCustomBehavioralEvent destination action: required fields 2`] = `
-Headers {
-  Symbol(map): Object {
-    "authorization": Array [
-      "Bearer undefined",
-    ],
-    "content-type": Array [
-      "application/json",
-    ],
-    "user-agent": Array [
-      "Segment (Actions)",
-    ],
-  },
-}
-`;
->>>>>>> CONMAN-199

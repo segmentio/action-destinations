@@ -178,19 +178,11 @@ export interface Payload {
     [k: string]: unknown
   }[]
   /**
-<<<<<<< HEAD
    * The following fields will be set only once per session when using AJS2 as the source
    */
   setOnce?: {
     /**
      * The referrer of the web request
-=======
-   * The following fields will be set only once per session when using AJS2 as the source.
-   */
-  setOnce?: {
-    /**
-     * The referrer of the web request.
->>>>>>> CONMAN-199
      */
     initial_referrer?: string
     initial_utm_source?: string
@@ -201,11 +193,7 @@ export interface Payload {
     [k: string]: unknown
   }
   /**
-<<<<<<< HEAD
    * The following fields will be set every session when using AJS2 as the source
-=======
-   * The following fields will be set every session when using AJS2 as the source.
->>>>>>> CONMAN-199
    */
   setAlways?: {
     referrer?: string
@@ -231,11 +219,7 @@ export interface Payload {
    */
   userAgent?: string
   /**
-<<<<<<< HEAD
    * Enabling this setting will set the Device manufacturer, Device Model and OS Name properties based on the user agent string provided in the userAgent field
-=======
-   * Enabling this setting will set the Device manufacturer, Device Model and OS Name properties based on the user agent string provided in the userAgent field.
->>>>>>> CONMAN-199
    */
   userAgentParsing?: boolean
   /**
