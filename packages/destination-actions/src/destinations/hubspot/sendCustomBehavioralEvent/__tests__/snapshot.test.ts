@@ -2,7 +2,7 @@ import { createTestEvent, createTestIntegration } from '@segment/actions-core'
 import { generateTestData } from '../../../../lib/test-data'
 import destination from '../../index'
 import nock from 'nock'
-import { HubSpotBaseURL } from '../../properties'
+import { hubSpotBaseURL } from '../../properties'
 
 const testDestination = createTestIntegration(destination)
 const actionSlug = 'sendCustomBehavioralEvent'
@@ -14,7 +14,7 @@ describe(`Testing snapshot for ${destinationSlug}'s ${actionSlug} destination ac
     const action = destination.actions[actionSlug]
     const [eventData, settingsData] = generateTestData(seedName, destination, action, true)
 
-    nock(HubSpotBaseURL).persist().post('/events/v3/send').reply(204)
+    nock(hubSpotBaseURL).persist().post('/events/v3/send').reply(204)
 
     // one of email, user token or objectID is required
     const event = createTestEvent({
@@ -29,15 +29,9 @@ describe(`Testing snapshot for ${destinationSlug}'s ${actionSlug} destination ac
     })
 
     const request = responses[0].request
-    const rawBody = await request.text()
+    const json = await request.json()
 
-    try {
-      const json = JSON.parse(rawBody)
-      expect(json).toMatchSnapshot()
-      return
-    } catch (err) {
-      expect(rawBody).toMatchSnapshot()
-    }
+    expect(json).toMatchSnapshot()
 
     expect(request.headers).toMatchSnapshot()
   })
@@ -46,7 +40,7 @@ describe(`Testing snapshot for ${destinationSlug}'s ${actionSlug} destination ac
     const action = destination.actions[actionSlug]
     const [eventData, settingsData] = generateTestData(seedName, destination, action, false)
 
-    nock(HubSpotBaseURL).persist().post('/events/v3/send').reply(200)
+    nock(hubSpotBaseURL).persist().post('/events/v3/send').reply(200)
 
     const event = createTestEvent({
       properties: eventData
@@ -60,14 +54,7 @@ describe(`Testing snapshot for ${destinationSlug}'s ${actionSlug} destination ac
     })
 
     const request = responses[0].request
-    const rawBody = await request.text()
-
-    try {
-      const json = JSON.parse(rawBody)
-      expect(json).toMatchSnapshot()
-      return
-    } catch (err) {
-      expect(rawBody).toMatchSnapshot()
-    }
+    const json = await request.json()
+    expect(json).toMatchSnapshot()
   })
 })

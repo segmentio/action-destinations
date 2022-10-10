@@ -28,18 +28,6 @@ interface CreateJobResponseData {
   id: string
 }
 
-interface DescribeObjectResponseData {
-  fields: [
-    {
-      createable: boolean
-      externalId: boolean
-      filterable: boolean
-      name: string
-      label: string
-    }
-  ]
-}
-
 interface SObjectsResponseData {
   sobjects: [
     {
@@ -134,27 +122,6 @@ export default class Salesforce {
     )
   }
 
-  bulkUpsertExternalId = async (sobject: string): Promise<DynamicFieldResponse> => {
-    const result = await this.request<DescribeObjectResponseData>(
-      `${this.instanceUrl}services/data/${API_VERSION}/sobjects/${sobject}/describe`,
-      {
-        method: 'get',
-        skipResponseCloning: true
-      }
-    )
-
-    const fields = result.data.fields.filter((field) => {
-      return field.externalId === true
-    })
-
-    return {
-      choices: fields.map((field) => {
-        return { value: field.name, label: field.label }
-      }),
-      nextPage: '2'
-    }
-  }
-
   customObjectName = async (): Promise<DynamicFieldResponse> => {
     try {
       const result = await this.request<SObjectsResponseData>(
@@ -169,10 +136,12 @@ export default class Salesforce {
         return field.createable === true
       })
 
+      const choices = fields.map((field) => {
+        return { value: field.name, label: field.label }
+      })
+
       return {
-        choices: fields.map((field) => {
-          return { value: field.name, label: field.label }
-        }),
+        choices: choices,
         nextPage: '2'
       }
     } catch (err) {
@@ -180,8 +149,8 @@ export default class Salesforce {
         choices: [],
         nextPage: '',
         error: {
-          message: (err as SalesforceError).response.data[0].message ?? 'Unknown error',
-          code: (err as SalesforceError).response.data[0].errorCode ?? 'Unknown error'
+          message: (err as SalesforceError).response?.data[0]?.message ?? 'Unknown error',
+          code: (err as SalesforceError).response?.data[0]?.errorCode ?? 'Unknown error'
         }
       }
     }

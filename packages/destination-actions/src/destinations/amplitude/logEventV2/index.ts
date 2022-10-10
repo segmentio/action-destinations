@@ -1,6 +1,6 @@
 import { ActionDefinition, omit, removeUndefined } from '@segment/actions-core'
 import dayjs from 'dayjs'
-import removeEmptyKeysAndCheckIfEmpty from '../emptyObject'
+import compact from '../compact'
 import { eventSchema } from '../event-schema'
 import type { Settings } from '../generated-types'
 import { getEndpointByRegion } from '../regional-endpoints'
@@ -21,6 +21,7 @@ const revenueKeys = ['revenue', 'price', 'productId', 'quantity', 'revenueType']
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Log Event V2',
   description: 'Send an event to Amplitude',
+  defaultSubscription: 'type = "track"',
   fields: {
     ...eventSchema,
     products: {
@@ -85,14 +86,14 @@ const action: ActionDefinition<Settings, Payload> = {
     },
     setOnce: {
       label: 'Set Once',
-      description: 'The following fields will be set only once per session when using AJS2 as the source',
+      description: 'The following fields will be set only once per session when using AJS2 as the source.',
       type: 'object',
       additionalProperties: true,
       properties: {
         initial_referrer: {
           label: 'Initial Referrer',
           type: 'string',
-          description: 'The referrer of the web request'
+          description: 'The referrer of the web request.'
         },
         initial_utm_source: {
           label: 'Initial UTM Source',
@@ -126,7 +127,7 @@ const action: ActionDefinition<Settings, Payload> = {
     },
     setAlways: {
       label: 'Set Always',
-      description: 'The following fields will be set every session when using AJS2 as the source',
+      description: 'The following fields will be set every session when using AJS2 as the source.',
       type: 'object',
       additionalProperties: true,
       properties: {
@@ -191,7 +192,7 @@ const action: ActionDefinition<Settings, Payload> = {
       label: 'User Agent Parsing',
       type: 'boolean',
       description:
-        'Enabling this setting will set the Device manufacturer, Device Model and OS Name properties based on the user agent string provided in the userAgent field',
+        'Enabling this setting will set the Device manufacturer, Device Model and OS Name properties based on the user agent string provided in the userAgent field.',
       default: true
     },
     min_id_length: {
@@ -213,7 +214,9 @@ const action: ActionDefinition<Settings, Payload> = {
     }
 
     if (library) {
-      if (library === 'analytics.js') properties.platform = 'Web'
+      if (library === 'analytics.js') {
+        properties.platform = 'Web'
+      }
     }
 
     if (time && dayjs.utc(time).isValid()) {
@@ -228,15 +231,18 @@ const action: ActionDefinition<Settings, Payload> = {
       options = { min_id_length }
     }
 
-    if (removeEmptyKeysAndCheckIfEmpty(setOnce)) {
-      properties.user_properties = { ...properties.user_properties, $setOnce: setOnce }
+    const setUserProperties = (
+      name: '$setOnce' | '$set' | '$add',
+      obj: Payload['setOnce'] | Payload['setAlways'] | Payload['add']
+    ) => {
+      if (compact(obj)) {
+        properties.user_properties = { ...properties.user_properties, [name]: obj }
+      }
     }
-    if (removeEmptyKeysAndCheckIfEmpty(setAlways)) {
-      properties.user_properties = { ...properties.user_properties, $set: setAlways }
-    }
-    if (removeEmptyKeysAndCheckIfEmpty(add)) {
-      properties.user_properties = { ...properties.user_properties, $add: add }
-    }
+
+    setUserProperties('$setOnce', setOnce)
+    setUserProperties('$set', setAlways)
+    setUserProperties('$add', add)
 
     const events: AmplitudeEvent[] = [
       {

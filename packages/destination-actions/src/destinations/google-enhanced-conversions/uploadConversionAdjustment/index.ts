@@ -259,7 +259,7 @@ const action: ActionDefinition<Settings, Payload> = {
       orderId: payload.order_id,
       gclidDateTimePair: {
         gclid: payload.gclid,
-        conversionDateTime: payload.conversion_timestamp
+        conversionDateTime: payload.conversion_timestamp?.replace(/T/, ' ').replace(/\..+/, '+00:00')
       },
       restatementValue: {
         adjustedValue: payload.restatement_value,

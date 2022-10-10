@@ -1,7 +1,7 @@
-import type { ActionDefinition, RequestClient } from '@segment/actions-core'
 import { HTTPError } from '@segment/actions-core'
+import { ActionDefinition, RequestClient } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
-import { HubSpotBaseURL } from '../properties'
+import { hubSpotBaseURL } from '../properties'
 import type { Payload } from './generated-types'
 
 interface ContactResponse {
@@ -142,6 +142,7 @@ const action: ActionDefinition<Settings, Payload> = {
       state: payload.state,
       country: payload.country,
       zip: payload.zip,
+      email: payload.email,
       lifecyclestage: payload.lifecyclestage?.toLowerCase(),
       ...payload.properties
     }
@@ -154,40 +155,39 @@ const action: ActionDefinition<Settings, Payload> = {
     try {
       const response = await updateContact(request, payload.email, contactProperties)
 
-      // cache contact_id for it to be avaialble for company action
+      // cache contact_id for it to be available for company action
       transactionContext?.setTransaction('contact_id', response.data.id)
 
-      // HubSpot returns the updated lifecylestage as part of the response.
-      // If the stage we are trying to set is former/older state, it retains the advanced stage
+      // HubSpot returns the updated lifecylestage(LCS) as part of the response.
+      // If the stage we are trying to set is backward than the current stage, it retains the current stage
       // and updates the timestamp. For determining if reset is required or not, we can compare
-      // the state returned in response with the desired state. If they are not the same, reset
-      // and update.
+      // the stage returned in response with the desired stage . If they are not the same, reset
+      // and update. More details -
       if (payload.lifecyclestage) {
         const currentLCS = response.data.properties['lifecyclestage']
-        const hasLCSChanged = currentLCS == payload.lifecyclestage.toLowerCase()
+        const hasLCSChanged = currentLCS === payload.lifecyclestage.toLowerCase()
         if (hasLCSChanged) return response
         // reset lifecycle stage
-        await updateContact(request, payload.email, { lifecylestage: '' })
+        await updateContact(request, payload.email, { lifecyclestage: '' })
         // update contact again with new lifecycle stage
         return updateContact(request, payload.email, contactProperties)
       }
       return response
     } catch (ex) {
-      if (!(ex instanceof HTTPError)) throw ex
-      const error = ex
-      const statusCode = error.response.status
-      if (statusCode == 404) {
-        const result = await createContact(request, { email: payload.email, ...contactProperties })
+      if (ex instanceof HTTPError && ex.response.status == 404) {
+        const result = await createContact(request, contactProperties)
+
+        // cache contact_id for it to be available for company action
         transactionContext?.setTransaction('contact_id', result.data.id)
         return result
       }
-      throw error
+      throw ex
     }
   }
 }
 
 async function createContact(request: RequestClient, contactProperties: { [key: string]: unknown }) {
-  return request<ContactResponse>(`${HubSpotBaseURL}/crm/v3/objects/contacts`, {
+  return request<ContactResponse>(`${hubSpotBaseURL}/crm/v3/objects/contacts`, {
     method: 'POST',
     json: {
       properties: {
@@ -198,7 +198,7 @@ async function createContact(request: RequestClient, contactProperties: { [key: 
 }
 
 async function updateContact(request: RequestClient, email: string, properties: { [key: string]: unknown }) {
-  return request<ContactResponse>(`${HubSpotBaseURL}/crm/v3/objects/contacts/${email}?idProperty=email`, {
+  return request<ContactResponse>(`${hubSpotBaseURL}/crm/v3/objects/contacts/${email}?idProperty=email`, {
     method: 'PATCH',
     json: {
       properties: {

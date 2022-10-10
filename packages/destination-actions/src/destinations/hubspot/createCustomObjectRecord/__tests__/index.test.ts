@@ -52,7 +52,7 @@ describe('Hubspot.customObject', () => {
   })
 
   // Validate creation of custom object with Segment supported HubSpot Objects
-  it('should create a Deals object with Custom Objects Actions', async () => {
+  it('should create a Deals object with Custom Objects Action', async () => {
     nock(endpoint)
       .post(/.*/)
       .reply(201, {
@@ -118,6 +118,61 @@ describe('Hubspot.customObject', () => {
     expect(responses[0].status).toBe(201)
   })
 
+  it('should create a Ticket object with Custom Objects Action', async () => {
+    nock(endpoint)
+      .post(/.*/)
+      .reply(201, {
+        id: '1000000001',
+        properties: {
+          createdate: '2022-10-03T12:38:36.776Z',
+          hs_lastmodifieddate: '2022-10-03T12:38:36.776Z',
+          hs_object_id: '1000000001',
+          hs_pipeline: '0',
+          hs_pipeline_stage: '1',
+          hs_ticket_id: '1000000001',
+          hs_ticket_priority: 'HIGH',
+          subject: 'troubleshoot report'
+        },
+        createdAt: '2022-10-03T12:38:36.776Z',
+        updatedAt: '2022-10-03T12:38:36.776Z',
+        archived: false
+      })
+
+    const event = createTestEvent({
+      type: 'track',
+      event: 'Create Ticket',
+      properties: {
+        hs_pipeline: '0',
+        hs_pipeline_stage: '1',
+        hs_ticket_priority: 'HIGH',
+        subject: 'troubleshoot report'
+      }
+    })
+
+    const responses = await testDestination.testAction('createCustomObjectRecord', {
+      event,
+      mapping: {
+        objectType: 'tickets',
+        properties: {
+          hs_pipeline: {
+            '@path': '$.properties.hs_pipeline'
+          },
+          hs_pipeline_stage: {
+            '@path': '$.properties.hs_pipeline_stage'
+          },
+          hs_ticket_priority: {
+            '@path': '$.properties.hs_ticket_priority'
+          },
+          subject: {
+            '@path': '$.properties.subject'
+          }
+        }
+      }
+    })
+
+    expect(responses[0].status).toBe(201)
+  })
+
   // Validate that Custom Object creation throws errors on unsupported HubSpot Objects
   const objectName = 'unknown-object'
 
@@ -152,7 +207,7 @@ describe('Hubspot.customObject', () => {
       })
     ).rejects.toThrowError(
       new IntegrationError(
-        'Custom Object is not in valid format. Please make sure that you are using either a valid format of object’s fullyQualifiedName (eg: p11223344_myobject) or a supported HubSpot defined object (ie: deals, tickets, contacts and companies).',
+        'Custom Object is not in valid format. Please make sure that you are using either a valid format of object’s fullyQualifiedName (eg: p11223344_myobject) or a supported HubSpot defined object (i.e.: deals, tickets).',
         'Custom Object is not in valid format',
         400
       )

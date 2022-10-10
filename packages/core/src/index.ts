@@ -38,8 +38,8 @@ export type {
 
 export type {
   DynamicFieldResponse,
-  DynamicFieldItem,
   DynamicFieldError,
+  DynamicFieldItem,
   InputField,
   GlobalSetting,
   RequestExtension

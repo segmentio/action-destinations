@@ -32,8 +32,7 @@ export const bulkUpsertExternalId: InputField = {
     externalIdName: {
       label: 'External Id Name',
       description: 'The external id field name as defined in Salesforce.',
-      type: 'string',
-      dynamic: true
+      type: 'string'
     },
     externalIdValue: {
       label: 'External Id Value',
