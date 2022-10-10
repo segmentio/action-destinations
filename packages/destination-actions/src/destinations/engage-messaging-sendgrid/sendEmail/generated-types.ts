@@ -70,6 +70,10 @@ export interface Payload {
    */
   bodyHtml?: string
   /**
+   * Subscription group ID
+   */
+  groupId?: string
+  /**
    * An array of user profile identity information.
    */
   externalIds?: {
