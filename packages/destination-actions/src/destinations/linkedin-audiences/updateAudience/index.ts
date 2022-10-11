@@ -1,10 +1,9 @@
-import type { ActionDefinition } from '@segment/actions-core'
-import type { RequestClient } from '@segment/actions-core'
-import { RetryableError } from '@segment/actions-core'
-import type { Settings } from '../generated-types'
+import type { ActionDefinition, RequestClient } from '@segment/actions-core'
+import { RetryableError, IntegrationError } from '@segment/actions-core'
 import type { Payload } from './generated-types'
+import type { Settings } from '../generated-types'
+import { BASE_URL } from '../linkedin-properties'
 import { createHash } from 'crypto'
-import { IntegrationError } from '@segment/actions-core'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Sync To LinkedIn DMP Segment',
@@ -96,7 +95,7 @@ async function processPayload(request: RequestClient, settings: Settings, payloa
 
   const dmpSegmentId = await getDmpSegmentId(request, settings, payloads[0])
   const elements = extractUsers(payloads)
-  const res = await request(`https://api.linkedin.com/rest/dmpSegments/${dmpSegmentId}/users`, {
+  const res = await request(`${BASE_URL}/dmpSegments/${dmpSegmentId}/users`, {
     method: 'POST',
     headers: {
       'X-RestLi-Method': 'BATCH_CREATE'
@@ -130,7 +129,7 @@ async function getDmpSegmentId(request: RequestClient, settings: Settings, paylo
 }
 
 async function getDmpSegment(request: RequestClient, settings: Settings, payload: Payload) {
-  return request('https://api.linkedin.com/rest/dmpSegments', {
+  return request(`${BASE_URL}/dmpSegments`, {
     method: 'GET',
     searchParams: {
       q: 'account',
@@ -142,7 +141,7 @@ async function getDmpSegment(request: RequestClient, settings: Settings, payload
 }
 
 async function createDmpSegment(request: RequestClient, settings: Settings, payload: Payload) {
-  const res = await request('https://api.linkedin.com/rest/dmpSegments', {
+  const res = await request(`${BASE_URL}/dmpSegments`, {
     method: 'POST',
     json: {
       name: payload.dmp_segment_name,
@@ -159,6 +158,7 @@ async function createDmpSegment(request: RequestClient, settings: Settings, payl
     }
   })
 
+  // LinkedIn returns the id of the newly created DMP Segment in the `x-linkedin-id` header. There is no response body.
   const headers = res.headers.toJSON()
   return headers['x-linkedin-id']
 }

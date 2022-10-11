@@ -1,7 +1,7 @@
 import type { DestinationDefinition } from '@segment/actions-core'
 import type { Settings } from './generated-types'
 import updateAudience from './updateAudience'
-import { LINKEDIN_API_VERSION } from './linkedin-properties'
+import { LINKEDIN_API_VERSION, BASE_URL } from './linkedin-properties'
 import https from 'https'
 
 interface RefreshTokenResponse {
@@ -46,7 +46,7 @@ const destination: DestinationDefinition<Settings> = {
       try {
         // GET the current user's id from LinkedIn's profile API: https://learn.microsoft.com/en-us/linkedin/shared/integrations/people/profile-api?context=linkedin%2Fcompliance%2Fcontext&view=li-lms-unversioned&preserve-view=true#request
         // We request `r_basicprofile` scope when a user oauths into LinkedIn, so we retrieve the "Basic Profile Fields": https://learn.microsoft.com/en-us/linkedin/shared/references/v2/profile/basic-profile
-        firstRes = await request<ProfileAPIResponse>(`https://api.linkedin.com/rest/me`, {
+        firstRes = await request<ProfileAPIResponse>(`${BASE_URL}/me`, {
           method: 'GET'
         })
       } catch (e: any) {
@@ -66,7 +66,7 @@ const destination: DestinationDefinition<Settings> = {
         // GET the current user's permissions for this specific Ad Account: https://learn.microsoft.com/en-us/linkedin/marketing/integrations/ads/account-structure/create-and-manage-account-users?view=li-lms-2022-09&tabs=http#get-ad-account-user
         // If the user's role is VIEWER, then they won't have adequate permission to send batch updates to any DMP Segment audience in this LinkedIn account.
         secondRes = await request<AdAccountUserResponse>(
-          `https://api.linkedin.com/rest/adAccountUsers/account=urn:li:sponsoredAccount:${settings.ad_account_id}&user=urn:li:person:${userId}`,
+          `${BASE_URL}/adAccountUsers/account=urn:li:sponsoredAccount:${settings.ad_account_id}&user=urn:li:person:${userId}`,
           {
             method: 'GET'
           }
