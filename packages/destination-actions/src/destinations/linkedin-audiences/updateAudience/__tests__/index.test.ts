@@ -1,10 +1,11 @@
 import nock from 'nock'
 import { createTestEvent, createTestIntegration } from '@segment/actions-core'
 import Destination from '../../index'
+import { BASE_URL } from '../../linkedin-properties'
 
 const testDestination = createTestIntegration(Destination)
 
-type AuthTokens = {
+interface AuthTokens {
   accessToken: string
   refreshToken: string
 }
@@ -87,11 +88,11 @@ describe('LinkedinAudiences.updateAudience', () => {
   })
 
   it('should succeed if an exisitng DMP Segment is found', async () => {
-    nock(`https://api.linkedin.com/rest/dmpSegments`)
+    nock(`${BASE_URL}/dmpSegments`)
       .get(/.*/)
       .query(urlParams)
       .reply(200, { elements: [{ id: 'dmp_segment_id' }] })
-    nock('https://api.linkedin.com/rest/dmpSegments/dmp_segment_id/users').post(/.*/, updateUsersRequestBody).reply(200)
+    nock(`${BASE_URL}/dmpSegments/dmp_segment_id/users`).post(/.*/, updateUsersRequestBody).reply(200)
 
     await expect(
       testDestination.testAction('updateAudience', {
@@ -111,13 +112,13 @@ describe('LinkedinAudiences.updateAudience', () => {
   it('should successfully create a new DMP Segment if an existing Segment is not found', async () => {
     urlParams.account = 'urn:li:sponsoredAccount:456'
 
-    nock(`https://api.linkedin.com/rest/dmpSegments`).get(/.*/).query(urlParams).reply(200, { elements: [] })
-    nock(`https://api.linkedin.com/rest/dmpSegments`)
+    nock(`${BASE_URL}/dmpSegments`).get(/.*/).query(urlParams).reply(200, { elements: [] })
+    nock(`${BASE_URL}/dmpSegments`)
       .get(/.*/)
       .query(urlParams)
       .reply(200, { elements: [{ id: 'dmp_segment_id' }] })
-    nock('https://api.linkedin.com/rest/dmpSegments').post(/.*/, createDmpSegmentRequestBody).reply(200)
-    nock('https://api.linkedin.com/rest/dmpSegments/dmp_segment_id/users').post(/.*/, updateUsersRequestBody).reply(200)
+    nock(`${BASE_URL}/dmpSegments`).post(/.*/, createDmpSegmentRequestBody).reply(200)
+    nock(`${BASE_URL}/dmpSegments/dmp_segment_id/users`).post(/.*/, updateUsersRequestBody).reply(200)
 
     await expect(
       testDestination.testAction('updateAudience', {
