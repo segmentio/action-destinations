@@ -30,7 +30,7 @@ describe('GoogleEnhancedConversions', () => {
 
       nock(`https://googleads.googleapis.com/v11/customers/${customerId}:uploadClickConversions`)
         .post('')
-        .reply(201, { partialFailureError: { code: 0, message: '' }, results: [{}] })
+        .reply(201, { results: [{}] })
 
       const responses = await testDestination.testAction('uploadClickConversion', {
         event,
@@ -72,7 +72,7 @@ describe('GoogleEnhancedConversions', () => {
 
       nock(`https://googleads.googleapis.com/v11/customers/${customerId}:uploadClickConversions`)
         .post('')
-        .reply(201, { partialFailureError: { code: 0, message: '' }, results: [{}] })
+        .reply(201, { results: [{}] })
 
       const responses = await testDestination.testAction('uploadClickConversion', {
         event,
@@ -128,7 +128,7 @@ describe('GoogleEnhancedConversions', () => {
 
       nock(`https://googleads.googleapis.com/v11/customers/${customerId}:uploadClickConversions`)
         .post('')
-        .reply(201, { partialFailureError: { code: 0, message: '' }, results: [{}] })
+        .reply(201, { results: [{}] })
 
       const responses = await testDestination.testAction('uploadClickConversion', {
         event,
