@@ -1,6 +1,64 @@
-import type { ActionDefinition } from '@segment/actions-core'
+import { ActionDefinition, HTTPError, RequestClient, ModifiedResponse } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
+import { hubSpotBaseURL } from '../properties'
+
+enum CompanySearchFilterOperator {
+  EQ = 'EQ',
+  NEQ = 'NEQ',
+  LT = 'LT',
+  LTE = 'LTE',
+  GT = 'GT',
+  GTE = 'GTE',
+  BETWEEN = 'BETWEEN',
+  IN = 'IN',
+  NOT_IN = 'NOT_IN',
+  HAS_PROPERTY = 'HAS_PROPERTY',
+  NOT_HAS_PROPERTY = 'NOT_HAS_PROPERTY',
+  CONTAINS_TOKEN = 'CONTAINS_TOKEN',
+  NOT_CONTAINS_TOKEN = 'NOT_CONTAINS_TOKEN'
+}
+
+interface CompanySearchFilter {
+  propertyName: string
+  operator: CompanySearchFilterOperator
+  value: unknown
+}
+
+interface companySearchFilterGroup {
+  filters: CompanySearchFilter[]
+}
+
+interface CompanySearchPayload {
+  filterGroups: companySearchFilterGroup[]
+  properties?: string[]
+  sorts?: string[]
+  limit?: number
+  after?: number
+}
+
+interface CompanyInfo {
+  id: string
+  properties: Record<string, string>
+}
+
+interface SearchCompanyResponse {
+  total: number
+  results: CompanyInfo[]
+}
+
+interface UpsertCompanyResponse extends CompanyInfo {}
+
+interface CompanyContactAssociationResponse extends CompanyInfo {
+  associations: {
+    contacts?: {
+      results: Record<string, unknown>[]
+    }
+  }
+}
+
+// Association identifier for HubSpot
+const ASSOCIATION_TYPE = 'company_to_contact'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Upsert Company',
@@ -134,13 +192,196 @@ const action: ActionDefinition<Settings, Payload> = {
       allowNull: false
     }
   },
-  perform: (_request, _data) => {
-    // Make your partner api request here!
-    // return request('https://example.com', {
-    //   method: 'post',
-    //   json: data.payload
-    // })
+  perform: async (request, { payload, transactionContext }) => {
+    /**
+     * Upsert Company action works as follows:
+     * 1. Check if you have contact_id is available in transactionContext. If not throw error
+     * 2. Search by record identifiers
+     * 3. If a record
+     *   a. exists
+     *     i.  Try to update the record
+     *     ii. If it fails due to custom property error, create custom property and update
+     *   b. doesn’t exist
+     *     i.  Try to create company
+     *     ii. If it fails due to custom property error, create custom property and create company
+     * 4. Associate company with contact
+     * For all other errors in the flow, throw the error as is.
+     */
+
+    // Check if transactionContext is defined and contact_id is present in TransactionContext
+    if (!transactionContext || !transactionContext?.transaction?.contact_id) {
+      throw new Error(
+        'Identify (Upsert Contact) must be called before Group (Upsert Company) for the HubSpot Cloud (Actions) destination.'
+      )
+    }
+
+    // Add groupId to company search fields
+    const companySearchFields = {
+      ...payload.companysearchfields,
+      segment_group_id: payload.groupid
+    }
+
+    // Search for company by record identifiers
+    const companySearchResponse = await searchCompany(request, companySearchFields)
+
+    // Construct company properties if search operation didn't throw an error
+    const companyProperties = {
+      name: payload.name,
+      description: payload.description,
+      createdate: payload.createdate,
+      streetaddress: payload.streetaddress,
+      city: payload.city,
+      state: payload.state,
+      postalcode: payload.postalcode,
+      domain: payload.domain,
+      phone: payload.phone,
+      numberofemployees: payload.numberofemployees,
+      industry: payload.industry,
+      lifecyclestage: payload.lifecyclestage?.toLocaleLowerCase(),
+      segment_group_id: payload.groupid
+    }
+
+    // A variable to store Company ID outside the scope of the following if-else block
+    // This would later be used to associate company with contact
+    let companyId: string
+
+    // Check if any companies were found based on search criteria
+    if (companySearchResponse.data.total === 0) {
+      // No existing company found with search criteria, attempt to create a company
+
+      // A variable to store custom property error if any
+      let createCompanyResponse: ModifiedResponse<UpsertCompanyResponse>
+
+      try {
+        createCompanyResponse = await createCompany(request, companyProperties)
+        companyId = createCompanyResponse.data.id
+      } catch (e) {
+        if (e instanceof HTTPError && e.response.status === 400) {
+          // If creation fails due to 'segment_group_id' custom property error,
+          // attempt to create the custom property and retry
+          await createCompanyProperty(request)
+          createCompanyResponse = await createCompany(request, companyProperties)
+          companyId = createCompanyResponse.data.id
+        } else {
+          throw e
+        }
+      }
+    } else {
+      // Existing company found, update the company, attempt to update the company
+      companyId = companySearchResponse.data.results[0].id
+
+      try {
+        await updateCompany(request, companyId, companyProperties)
+      } catch (e) {
+        if (e instanceof HTTPError && e.response.status === 400) {
+          // If update fails due to 'segment_group_id' custom property error,
+          // attempt to create the custom property and retry
+          await createCompanyProperty(request)
+          await updateCompany(request, companyId, companyProperties)
+        } else {
+          throw e
+        }
+      }
+    }
+
+    // If upsert company is successful, associate company with contact
+    await associateCompanyToContact(request, transactionContext.transaction.contact_id, companyId, ASSOCIATION_TYPE)
   }
+}
+
+// Searches for a company by record identifiers
+function searchCompany(request: RequestClient, companySearchFields: { [key: string]: unknown }) {
+  // Generate company search payload
+  const responseProperties: string[] = ['name', 'domain', 'lifecyclestage', 'segment_group_id']
+  const responseSortBy: string[] = ['name']
+
+  const companySearchPayload: CompanySearchPayload = {
+    filterGroups: [],
+    properties: [...responseProperties],
+    sorts: [...responseSortBy]
+  }
+
+  for (const [key, value] of Object.entries(companySearchFields)) {
+    companySearchPayload.filterGroups.push({
+      filters: [
+        {
+          propertyName: key,
+          operator: CompanySearchFilterOperator.EQ,
+          value
+        }
+      ]
+    })
+  }
+
+  return request<SearchCompanyResponse>(`${hubSpotBaseURL}/crm/v3/objects/companies/search`, {
+    method: 'POST',
+    json: {
+      ...companySearchPayload
+    }
+  })
+}
+
+// Creates a Company CRM object in HubSPot
+function createCompany(request: RequestClient, properties: { [key: string]: unknown }) {
+  return request<UpsertCompanyResponse>(`${hubSpotBaseURL}/crm/v3/objects/companies`, {
+    method: 'POST',
+    json: {
+      properties: {
+        ...properties
+      }
+    }
+  })
+}
+
+// Updates a Company CRM object in HubSPot identified by companyId
+function updateCompany(request: RequestClient, companyId: string, properties: { [key: string]: unknown }) {
+  return request<UpsertCompanyResponse>(`${hubSpotBaseURL}/crm/v3/objects/companies/${companyId}`, {
+    method: 'PATCH',
+    json: {
+      properties: {
+        ...properties
+      }
+    }
+  })
+}
+
+// Adds segment_group_id as a custom property to COmpanies CRM Object
+function createCompanyProperty(request: RequestClient) {
+  const segmentGroupIDProperty = {
+    name: 'segment_group_id',
+    label: 'Segment Group ID',
+    description: 'Unique Property to map Segment Group ID with a HubSpot Company Object',
+    groupName: 'companyinformation',
+    type: 'string',
+    fieldType: 'text',
+    hidden: true,
+    displayOrder: -1,
+    hasUniqueValue: true,
+    formField: false
+  }
+
+  return request<UpsertCompanyResponse>(`${hubSpotBaseURL}/crm/v3/properties/companies`, {
+    method: 'POST',
+    throwHttpErrors: false,
+    json: {
+      ...segmentGroupIDProperty
+    }
+  })
+}
+
+// Associates a Company CRM object with a Contact CRM object
+function associateCompanyToContact(
+  request: RequestClient,
+  companyId: string,
+  contactId: string,
+  associationType: string
+) {
+  return request<CompanyContactAssociationResponse>(
+    `${hubSpotBaseURL}/crm/v3/objects/companies/${companyId}/associations/contacts/${contactId}/${associationType}`,
+    {
+      method: 'PUT'
+    }
+  )
 }
 
 export default action
