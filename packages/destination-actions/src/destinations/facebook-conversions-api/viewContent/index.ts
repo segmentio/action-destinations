@@ -117,7 +117,8 @@ const action: ActionDefinition<Settings, Payload> = {
                 content_ids: payload.content_ids,
                 content_name: payload.content_name,
                 content_type: payload.content_type,
-                contents: payload.contents
+                contents: payload.contents,
+                content_category: payload.content_category
               },
               data_processing_options: data_options,
               data_processing_options_country: country_code,
