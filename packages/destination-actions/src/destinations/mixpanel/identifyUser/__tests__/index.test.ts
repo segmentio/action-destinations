@@ -10,7 +10,18 @@ const timestamp = '2021-08-17T15:21:15.449Z'
 
 describe('Mixpanel.identifyUser', () => {
   it('should validate action fields', async () => {
-    const event = createTestEvent({ timestamp, traits: { abc: '123', name: 'Joe' } })
+    const event = createTestEvent({
+      timestamp, traits: {
+        abc: '123',
+        created: '2022-10-12T00:00:00.000Z',
+        email: 'joe@mixpanel.com',
+        firstName: 'Joe',
+        lastName: 'Doe',
+        username: 'Joe Doe',
+        phone: '12345678',
+        name: 'Joe',
+      }
+    })
 
     nock('https://api.mixpanel.com').post('/engage').reply(200, {})
     nock('https://api.mixpanel.com').post('/track').reply(200, {})
@@ -48,7 +59,13 @@ describe('Mixpanel.identifyUser', () => {
           $distinct_id: 'user1234',
           $set: {
             abc: '123',
-            $name: 'Joe' // transformed to reserved property $name
+            $created: '2022-10-12T00:00:00.000Z',
+            $email: 'joe@mixpanel.com',
+            $first_name: 'Joe',
+            $last_name: 'Doe',
+            $name: 'Joe',
+            $username: 'Joe Doe',
+            $phone: '12345678'
           }
         })
       })

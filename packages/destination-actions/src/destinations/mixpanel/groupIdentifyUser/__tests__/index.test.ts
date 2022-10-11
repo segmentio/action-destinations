@@ -40,7 +40,7 @@ describe('Mixpanel.groupIdentifyUser', () => {
           $set: {
             hello: 'world',
             company: 'Mixpanel',
-            $name: 'test' // validate name -> $name
+            $name: 'test'
           }
         })
       })
