@@ -1,6 +1,11 @@
 module.exports = {
   root: true,
-  ignorePatterns: ['node_modules', 'dist', 'templates'],
+  ignorePatterns: [
+    'node_modules',
+    'dist',
+    'templates',
+    'packages/destination-actions/src/destinations/google-sheets/poc/index.ts'
+  ],
   parser: '@typescript-eslint/parser',
   parserOptions: {
     ecmaVersion: 2019,
@@ -62,10 +67,7 @@ module.exports = {
       }
     },
     {
-      files: [
-        'packages/cli/**/*.ts',
-        'packages/cli-internal/**/*.ts'
-      ],
+      files: ['packages/cli/**/*.ts', 'packages/cli-internal/**/*.ts'],
       rules: {
         'lodash/import-scope': ['error', 'member'],
         '@typescript-eslint/no-var-requires': 'off'

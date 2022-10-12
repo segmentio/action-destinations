@@ -3,7 +3,7 @@ import { google, Auth } from 'googleapis'
 import express from 'express'
 import Session from 'express-session'
 import fs from 'fs'
-import A1 from '@flighter/a1-notation'
+// import A1 from '@flighter/a1-notation'
 
 const app = express()
 app.use(
@@ -15,7 +15,7 @@ app.use(
 )
 
 const CONFIG = {
-  spreadsheetId: '1ORcFZ73VJXzj7rruKTrbUCgtRjqvKS4qW1uwDGP8tiY',
+  spreadsheetId: '1uvyE_oEs9NG_WrL2aWG_XDcMYwPm6Q2dlppwzy73f90',
   credentialsFile: 'client_secret_165061189510-oljt4tbppq7nu0cmh81sqivof5ta1vh2.apps.googleusercontent.com.json'
 }
 const keys = JSON.parse(fs.readFileSync(`${__dirname}/${CONFIG.credentialsFile}`, 'utf-8'))
@@ -77,8 +77,14 @@ app.use('/call', function (req, res) {
   })
 
   const event = () => {
-    //const randomSeed = `${Math.random().toString(36).replace(/[^a-z]+/g, '').substr(0, 8)}${Math.random().toString(36).replace(/[^a-z]+/g, '').substr(0, 8)}`
-    const randomSeed = ''
+    const randomSeed = `${Math.random()
+      .toString(36)
+      .replace(/[^a-z]+/g, '')
+      .substr(0, 8)}${Math.random()
+      .toString(36)
+      .replace(/[^a-z]+/g, '')
+      .substr(0, 8)}`
+    //const randomSeed = ''
     return {
       type: 'track',
       event: 'updated', // or: "new", "deleted"
@@ -119,7 +125,7 @@ app.use('/call', function (req, res) {
     }
   }
 
-  const events = Array.from({ length: 1000 }, () => event())
+  const events = Array.from({ length: 50 }, () => event())
   const columns = [
     'ENTRY_POINT',
     'MISSING_COLUMN',
@@ -158,11 +164,11 @@ app.use('/call', function (req, res) {
     return event.__segment_id
   }
 
-  const getRange = (targetIndex: number, columnCount: number, startRow = 1, startColumn = 1) => {
-    const targetRange = new A1(startColumn, targetIndex + startRow)
-    targetRange.addX(columnCount)
-    return targetRange.toString()
-  }
+  // const getRange = (targetIndex: number, columnCount: number, startRow = 1, startColumn = 1) => {
+  //   const targetRange = new A1(startColumn, targetIndex + startRow)
+  //   targetRange.addX(columnCount)
+  //   return targetRange.toString()
+  // }
 
   const getColumnValuesFromEvent = (event: any, columns: string[]) => {
     const retVal = columns.map((col) => event.properties[col] ?? '')
@@ -205,58 +211,62 @@ app.use('/call', function (req, res) {
       console.timeEnd('getProcessing')
 
       const promises = []
-      if (updateBatch.length > 0) {
-        console.time('update')
-        promises.push(
-          sheets.spreadsheets.values
-            .batchUpdate({
-              spreadsheetId: CONFIG.spreadsheetId,
-              requestBody: {
-                valueInputOption: 'USER_ENTERED', // TODO: Get from input
-                data: updateBatch.map(({ event, targetIndex }) => {
-                  const values = getColumnValuesFromEvent(event, columns)
-                  return {
-                    range: getRange(targetIndex, values.length),
-                    values: [values]
-                  }
-                })
-              }
-            })
-            .then(() => {
-              console.timeEnd('update')
-            })
-            .catch((error) => {
-              res.json(error)
-              console.log(error)
-            })
-        )
-      }
+      // if (updateBatch.length > 0) {
+      //   console.time('update')
+      //   promises.push(
+      //     sheets.spreadsheets.values
+      //       .batchUpdate({
+      //         spreadsheetId: CONFIG.spreadsheetId,
+      //         requestBody: {
+      //           valueInputOption: 'USER_ENTERED', // TODO: Get from input
+      //           data: updateBatch.map(({ event, targetIndex }) => {
+      //             const values = getColumnValuesFromEvent(event, columns)
+      //             return {
+      //               range: getRange(targetIndex, values.length),
+      //               values: [values]
+      //             }
+      //           })
+      //         }
+      //       })
+      //       .then(() => {
+      //         console.timeEnd('update')
+      //       })
+      //       .catch((error) => {
+      //         res.json(error)
+      //         console.log(error)
+      //       })
+      //   )
+      // }
 
       if (appendBatch.length > 0) {
-        console.time('append')
-        promises.push(
-          sheets.spreadsheets.values
-            .append(
-              {
-                spreadsheetId: CONFIG.spreadsheetId,
-                range: 'A1', // TODO: Consider offset
-                valueInputOption: 'USER_ENTERED',
-                requestBody: {
-                  values: appendBatch.map((event) => getColumnValuesFromEvent(event, columns))
-                }
-              },
-              {
-                http2: true
+        //console.time('append')
+
+        const promise = appendBatch.map((event) => {
+          return sheets.spreadsheets.values
+            .append({
+              spreadsheetId: CONFIG.spreadsheetId,
+              range: 'A1',
+              valueInputOption: 'USER_ENTERED',
+              requestBody: {
+                values: [getColumnValuesFromEvent(event, columns)]
               }
-            )
-            .then(() => {
-              console.timeEnd('append')
             })
             .catch((error) => {
               res.json(error)
               console.log(error)
             })
-        )
+        })
+        promises.push(...promise)
+
+        // const promise = sheets.spreadsheets.values.append({
+        //   spreadsheetId: CONFIG.spreadsheetId,
+        //   range: 'A1', // TODO: Consider offset
+        //   valueInputOption: 'USER_ENTERED',
+        //   requestBody: {
+        //     values: appendBatch.map((event) => getColumnValuesFromEvent(event, columns))
+        //   }
+        // })
+        // promises.push(promise)
       }
 
       Promise.all(promises)
