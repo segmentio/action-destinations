@@ -5,6 +5,7 @@ Array [
   Object {
     "event": "pNBru",
     "properties": Object {
+      "$anon_id": "pNBru",
       "$app_build_number": "pNBru",
       "$app_name": "pNBru",
       "$app_namespace": "pNBru",
@@ -19,7 +20,8 @@ Array [
       "$device_name": "pNBru",
       "$device_type": "pNBru",
       "$group_id": "pNBru",
-      "$insert_id": "",
+      "$identified_id": "pNBru",
+      "$insert_id": "pNBru",
       "$ios_ifa": "pNBru",
       "$lib_version": "pNBru",
       "$locale": "pNBru",
@@ -32,6 +34,7 @@ Array [
       "$screen_height": -83997876740423.69,
       "$screen_width": -83997876740423.69,
       "$source": "segment",
+      "$user_id": "pNBru",
       "$wifi_enabled": true,
       "distinct_id": "pNBru",
       "id": "pNBru",
@@ -56,12 +59,15 @@ Array [
   Object {
     "event": "pNBru",
     "properties": Object {
+      "$anon_id": "pNBru",
       "$device_id": "pNBru",
       "$group_id": "pNBru",
-      "$insert_id": "",
+      "$identified_id": "pNBru",
+      "$insert_id": "pNBru",
       "$ios_ifa": "pNBru",
       "$screen_width": -83997876740423.69,
       "$source": "segment",
+      "$user_id": "pNBru",
       "distinct_id": "pNBru",
       "id": "pNBru",
       "segment_source_name": "pNBru",
