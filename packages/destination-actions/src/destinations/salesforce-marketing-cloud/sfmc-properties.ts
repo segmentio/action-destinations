@@ -63,5 +63,5 @@ export const enable_batching: InputField = {
   label: 'Enable Batching',
   description: 'If true, data is batched before sending to the SFMC Data Extension to help reduce API calls.',
   type: 'boolean',
-  default: true
+  default: false
 }

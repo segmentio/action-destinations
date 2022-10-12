@@ -6,7 +6,8 @@ import { upsertRows } from '../sfmc-operations'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Contact Data Extension',
-  description: '',
+  defaultSubscription: 'type = "identify"',
+  description: 'Upsert contact data as rows into an existing data extension in Salesforce Marketing Cloud.',
   fields: {
     key: key,
     id: id,
@@ -15,7 +16,8 @@ const action: ActionDefinition<Settings, Payload> = {
       properties: {
         contactKey: {
           label: 'Contact Key',
-          description: 'TODO',
+          description:
+            'The unique identifier that you assign to a contact. Contact Key must be a Primary Key in the data extension that contains contact information.',
           type: 'string',
           required: true,
           default: { '@path': '$.userId' }
