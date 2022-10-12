@@ -5,7 +5,7 @@ import nock from 'nock'
 import { generateValidHubSpotCustomObjectName } from '../../testHelper'
 
 const testDestination = createTestIntegration(destination)
-const actionSlug = 'createCustomObjectRecord'
+const actionSlug = 'upsertCustomObjectRecord'
 const destinationSlug = 'Hubspot'
 const seedName = `${destinationSlug}#${actionSlug}`
 
