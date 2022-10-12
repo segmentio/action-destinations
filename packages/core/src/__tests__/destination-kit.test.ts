@@ -460,7 +460,7 @@ describe('destination kit', () => {
         logger: { name: 'test-integration', level: 'debug' } as Logger,
         transactionContext: {
           transaction: { contact_id: '801' },
-          setTransaction: (key: string, value: string) => console.log(key, value)
+          setTransaction: (key: string, value: string) => ({ [key]: value })
         } as TransactionContext
       }
       const res = await destinationTest.onEvent(testEvent, testSettings, eventOptions)
