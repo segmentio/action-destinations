@@ -209,7 +209,17 @@ const action: ActionDefinition<Settings, Payload> = {
     }
   },
 
-  perform: async (request, { payload }) => {
+  perform: async (request, { payload, settings }) => {
+    /* Enforcing this here since Conversion ID is required for the Enhanced Conversions API 
+    but not for the Google Ads API. */
+    if (!settings.conversionTrackingId) {
+      throw new IntegrationError(
+        'Conversion ID is required for this action. Please set it in destination settings.',
+        'Missing required fields.',
+        400
+      )
+    }
+
     const conversionData = cleanData({
       oid: payload.transaction_id,
       user_agent: payload.user_agent,
@@ -247,6 +257,9 @@ const action: ActionDefinition<Settings, Payload> = {
     try {
       return await request('https://www.google.com/ads/event/api/v1', {
         method: 'post',
+        searchParams: {
+          conversion_tracking_id: settings.conversionTrackingId
+        },
         json: {
           pii_data: { ...pii_data, address: [address] },
           ...conversionData

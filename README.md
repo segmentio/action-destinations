@@ -321,6 +321,63 @@ const destination = {
 
 In addition to default values for input fields, you can also specify the defaultSubscription for a given action – this is the FQL query that will be automatically populated when a customer configures a new subscription triggering a given action.
 
+## Dynamic Fields
+
+You can setup a field which dynamically fetches inputs from your destination. These dynamic fields can be used to populate a dropdown menu of options for your users to select.
+
+```js
+const destination = {
+  // ...other properties
+  actions: {
+    doSomething: {
+      // ...
+      fields: {
+        objectName: {
+          label: 'Name',
+          description: "The name of the object to update.",
+          type: 'string',
+          required: true,
+          dynamic: true
+        }
+      },
+      dynamicFields: {
+        objectName = async (): Promise<DynamicFieldResponse> => {
+          try {
+            const result = await this.request<ObjectsResponseData>(`http://<destination>/objects`,
+            {
+              method: 'get',
+              skipResponseCloning: true // This is useful if you expect a large response.
+            })
+
+            const fields = result.data.objects.filter((field) => {
+              return field.createable === true
+            })
+
+            const choices = fields.map((field) => {
+              return { value: field.name, label: field.label }
+            })
+
+            return {
+              choices: choices,
+              nextPage: '2'
+            }
+          } catch (err) {
+            return {
+              choices: [],
+              nextPage: '',
+              error: {
+                message: (err as ResponseError).response?.data[0]?.message ?? 'Unknown error',
+                code: (err as ResponseError).response?.data[0]?.errorCode ?? 'Unknown error'
+              }
+            }
+          }
+  }
+      }
+    }
+  }
+}
+```
+
 ## The `perform` function
 
 The `perform` function defines what the action actually does. All logic and request handling happens here. Every action MUST have a `perform` function defined.
@@ -334,6 +391,8 @@ The `perform` method accepts two arguments, (1) the request client instance (ext
 - `auth` - The data needed in OAuth requests. This is useful if fetching an updated OAuth `access_token` using a `refresh_token`. The `refresh_token` is available in `auth.refreshToken`.
 - `features` - The features available in the request based on the customer's sourceID. Features can only be enabled and/or used by internal Twilio/Segment employees. Features cannot be used for Partner builds.
 - `statsContext` - An object, containing a `statsClient` and `tags`. Stats can only be used by internal Twilio/Segment employees. Stats cannot be used for Partner builds.
+- `logger` - Logger can only be used by internal Twilio/Segment employees. Logger cannot be used for Partner builds.
+- `transactionContext` - An object, containing transaction variables and a method to update transaction variables which are required for few segment developed actions. Transaction Context cannot be used for Partner builds.
 
 A basic example:
 

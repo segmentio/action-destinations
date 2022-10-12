@@ -62,11 +62,21 @@ describe('AdobeTarget', () => {
       })
 
       expect(responses.length).toBe(2)
-      expect(responses[0].status).toBe(200)
-      expect(responses[1].status).toBe(200)
       expect(responses[1].url).toBe(
         'https://segmentexchangepartn.tt.omtrdc.net/m2/segmentexchangepartn/profile/update?mbox3rdPartyId=123-test&profile.city=New%20York%20City&profile.name=Rajul&profile.age=21&profile.param1=value1&profile.param2=value2'
       )
+      responses.forEach((response) => {
+        expect(response.request.headers).toMatchInlineSnapshot(`
+          Headers {
+            Symbol(map): Object {
+              "user-agent": Array [
+                "Segment (Actions)",
+              ],
+            },
+          }
+        `)
+        expect(response.status).toBe(200)
+      })
     })
     it('Handle a Nested Event', async () => {
       nock(
@@ -205,6 +215,142 @@ describe('AdobeTarget', () => {
           }
         })
       ).rejects.toThrowError("The root value is missing the required field 'traits'.")
+    })
+
+    it('removes null values from nested event', async () => {
+      nock(
+        `https://${settings.client_code}.tt.omtrdc.net/rest/v1/profiles/thirdPartyId/${settings.client_id}?client=${settings.client_code}`
+      )
+        .get(/.*/)
+        .reply(200, {})
+      nock(
+        `https://${settings.client_code}.tt.omtrdc.net/m2/${settings.client_code}/profile/update?mbox3rdPartyId=${settings.client_id}`
+      )
+        .post(/.*/)
+        .reply(200, {})
+
+      const event = createTestEvent({
+        type: 'identify',
+        userId: '123-test',
+        traits: {
+          name: 'Rajul',
+          age: null,
+          address: {
+            city: 'New York City',
+            zipCode: null
+          },
+          param1: 'value1',
+          param2: 'value2'
+        }
+      })
+      const responses = await testDestination.testAction('updateProfile', {
+        event,
+        settings,
+        mapping: {
+          traits: {
+            address: {
+              city: {
+                '@path': '$.traits.address.city'
+              },
+              zipCode: {
+                '@path': '$.traits.address.zipCode'
+              }
+            },
+            name: {
+              '@path': '$.traits.name'
+            },
+            age: {
+              '@path': '$.traits.age'
+            },
+            param1: {
+              '@path': '$.traits.param1'
+            },
+            param2: {
+              '@path': '$.traits.param2'
+            }
+          },
+          user_id: {
+            '@path': '$.userId'
+          }
+        }
+      })
+      expect(responses.length).toBe(2)
+      expect(responses[0].status).toBe(200)
+      expect(responses[1].status).toBe(200)
+      expect(responses[1].url).toBe(
+        'https://segmentexchangepartn.tt.omtrdc.net/m2/segmentexchangepartn/profile/update?mbox3rdPartyId=123-test&profile.address.city=New%20York%20City&profile.name=Rajul&profile.param1=value1&profile.param2=value2'
+      )
+    })
+
+    it('uses bearer token if provided', async () => {
+      const authSettings = {
+        bearer_token: 'test-token',
+        ...settings
+      }
+
+      const event = createTestEvent({
+        type: 'identify',
+        userId: '123-test',
+        traits: {
+          name: 'Rajul',
+          age: '21',
+          city: 'New York City',
+          zipCode: '12345',
+          param1: 'value1',
+          param2: 'value2'
+        }
+      })
+
+      nock(/.*/).persist().get(/.*/).reply(200)
+      nock(/.*/).persist().post(/.*/).reply(200)
+
+      const responses = await testDestination.testAction('updateProfile', {
+        event,
+        settings: authSettings,
+        mapping: {
+          traits: {
+            city: {
+              '@path': '$.traits.city'
+            },
+            name: {
+              '@path': '$.traits.name'
+            },
+            age: {
+              '@path': '$.traits.age'
+            },
+            param1: {
+              '@path': '$.traits.param1'
+            },
+            param2: {
+              '@path': '$.traits.param2'
+            }
+          },
+          user_id: {
+            '@path': '$.userId'
+          }
+        }
+      })
+
+      expect(responses.length).toBe(2)
+      expect(responses[1].url).toBe(
+        'https://segmentexchangepartn.tt.omtrdc.net/m2/segmentexchangepartn/profile/update?mbox3rdPartyId=123-test&profile.city=New%20York%20City&profile.name=Rajul&profile.age=21&profile.param1=value1&profile.param2=value2'
+      )
+
+      responses.forEach((response) => {
+        expect(response.request.headers).toMatchInlineSnapshot(`
+          Headers {
+            Symbol(map): Object {
+              "authorization": Array [
+                "Bearer test-token",
+              ],
+              "user-agent": Array [
+                "Segment (Actions)",
+              ],
+            },
+          }
+        `)
+        expect(response.status).toBe(200)
+      })
     })
   })
   it('should handle default mappings', async () => {

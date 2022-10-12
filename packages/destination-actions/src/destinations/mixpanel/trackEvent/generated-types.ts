@@ -6,6 +6,14 @@ export interface Payload {
    */
   event: string
   /**
+   * A distinct ID randomly generated prior to calling identify.
+   */
+  anonymous_id?: string
+  /**
+   * The distinct ID after calling identify.
+   */
+  user_id?: string
+  /**
    * A distinct ID specified by you.
    */
   distinct_id?: string
@@ -118,6 +126,10 @@ export interface Payload {
    */
   idfa?: string
   /**
+   * Mixpanel will deduplicate subsequent events sent with this ID.
+   */
+  insert_id?: string
+  /**
    * UTM Tracking Properties
    */
   utm_properties?: {
@@ -151,4 +163,8 @@ export interface Payload {
    * User agent
    */
   userAgent?: string
+  /**
+   * Set as true to ensure Segment sends data to Mixpanel in batches.
+   */
+  enable_batching?: boolean
 }

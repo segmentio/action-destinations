@@ -2,11 +2,11 @@
 
 export interface Settings {
   /**
-   * The version of the SDK to use. Defaults to 3.3.
+   * The version of the Braze SDK to use
    */
   sdkVersion: string
   /**
-   * Found in the Braze Dashboard under Settings → Manage Settings → Apps → Web
+   * Found in the Braze Dashboard under Manage Settings → Apps → Web
    */
   api_key: string
   /**
@@ -34,7 +34,7 @@ export interface Settings {
    */
   devicePropertyAllowlist?: string[]
   /**
-   * By default, users who have already granted web push permission will sync their push token with the Braze backend automatically on new session to ensure deliverability. To disable this behavior, set this option to false
+   * By default, users who have already granted web push permission will sync their push token with the Braze backend automatically on new session to ensure deliverability. To disable this behavior, set this option to true
    */
   disablePushTokenMaintenance?: boolean
   /**

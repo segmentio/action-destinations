@@ -12,7 +12,7 @@ import { validateSchema } from '../schema-validation'
 import { AuthTokens } from './parse-settings'
 import { IntegrationError } from '../errors'
 import { removeEmptyValues } from '../remove-empty-values'
-import { StatsContext } from './index'
+import { Logger, StatsContext, TransactionContext } from './index'
 
 type MaybePromise<T> = T | Promise<T>
 type RequestClient = ReturnType<typeof createRequestClient>
@@ -81,6 +81,8 @@ interface ExecuteBundle<T = unknown, Data = unknown> {
   /** For internal Segment/Twilio use only. */
   features?: Features | undefined
   statsContext?: StatsContext | undefined
+  logger?: Logger | undefined
+  transactionContext?: TransactionContext
 }
 
 /**
@@ -129,7 +131,7 @@ export class Action<Settings, Payload extends JSONLikeObject> extends EventEmitt
     // Validate the resolved payload against the schema
     if (this.schema) {
       const schemaKey = `${this.destinationName}:${this.definition.title}`
-      validateSchema(payload, this.schema, { schemaKey })
+      validateSchema(payload, this.schema, { schemaKey, statsContext: bundle.statsContext })
       results.push({ output: 'Payload validated' })
     }
 
@@ -141,7 +143,9 @@ export class Action<Settings, Payload extends JSONLikeObject> extends EventEmitt
       payload,
       auth: bundle.auth,
       features: bundle.features,
-      statsContext: bundle.statsContext
+      statsContext: bundle.statsContext,
+      logger: bundle.logger,
+      transactionContext: bundle.transactionContext
     }
 
     // Construct the request client and perform the action
@@ -163,7 +167,8 @@ export class Action<Settings, Payload extends JSONLikeObject> extends EventEmitt
       const schema = this.schema
       const validationOptions = {
         schemaKey: `${this.destinationName}:${this.definition.title}`,
-        throwIfInvalid: false
+        throwIfInvalid: false,
+        statsContext: bundle.statsContext
       }
 
       payloads = payloads
@@ -185,7 +190,9 @@ export class Action<Settings, Payload extends JSONLikeObject> extends EventEmitt
         payload: payloads,
         auth: bundle.auth,
         features: bundle.features,
-        statsContext: bundle.statsContext
+        statsContext: bundle.statsContext,
+        logger: bundle.logger,
+        transactionContext: bundle.transactionContext
       }
       await this.performRequest(this.definition.performBatch, data)
     }
@@ -195,8 +202,12 @@ export class Action<Settings, Payload extends JSONLikeObject> extends EventEmitt
     const fn = this.definition.dynamicFields?.[field]
     if (typeof fn !== 'function') {
       return {
-        data: [],
-        pagination: {}
+        choices: [],
+        nextPage: '',
+        error: {
+          message: `No dynamic field named ${field} found.`,
+          code: '404'
+        }
       }
     }
 
