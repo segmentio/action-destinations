@@ -22,7 +22,7 @@ export interface Payload {
    */
   time?: string | number
   /**
-   * The name of your application
+   * The name of your application.
    */
   app_name?: string
   /**
@@ -50,11 +50,11 @@ export interface Payload {
    */
   device_id?: string
   /**
-   * The type of the user's device
+   * The type of the user's device.
    */
   device_type?: string
   /**
-   * The name of the user's device
+   * The name of the user's device.
    */
   device_name?: string
   /**
@@ -66,7 +66,7 @@ export interface Payload {
    */
   device_model?: string
   /**
-   * Whether bluetooth is enabled
+   * Whether bluetooth is enabled.
    */
   bluetooth?: boolean
   /**
@@ -74,7 +74,7 @@ export interface Payload {
    */
   carrier?: string
   /**
-   * Whether cellular is enabled
+   * Whether cellular is enabled.
    */
   cellular?: boolean
   /**
@@ -94,11 +94,11 @@ export interface Payload {
    */
   language?: string
   /**
-   * The name of the SDK used to send events
+   * The name of the SDK used to send events.
    */
   library_name?: string
   /**
-   * The version of the SDK used to send events
+   * The version of the SDK used to send events.
    */
   library_version?: string
   /**
@@ -160,55 +160,55 @@ export interface Payload {
    */
   enable_batching?: boolean
   /**
-   * Products in the order
+   * Products in the order.
    */
   products?: {
     /**
-     * Database id of the product being viewed
+     * Database id of the product being viewed.
      */
     product_id?: string
     /**
-     * Sku of the product being viewed
+     * Sku of the product being viewed.
      */
     sku?: string
     /**
-     * Product category being viewed
+     * Product category being viewed.
      */
     category?: string
     /**
-     * Name of the product being viewed
+     * Name of the product being viewed.
      */
     name?: string
     /**
-     * Brand associated with the product
+     * Brand associated with the product.
      */
     brand?: string
     /**
-     * Variant of the product
+     * Variant of the product.
      */
     variant?: string
     /**
-     * Price ($) of the product being viewed
+     * Price ($) of the product being viewed.
      */
     price?: number
     /**
-     * Quantity of a product
+     * Quantity of a product.
      */
     quantity?: number
     /**
-     * Coupon code associated with a product (for example, MAY_DEALS_3)
+     * Coupon code associated with a product (for example, MAY_DEALS_3).
      */
     coupon?: string
     /**
-     * Position in the product list (ex. 3)
+     * Position in the product list (ex. 3).
      */
     position?: number
     /**
-     * URL of the product page
+     * URL of the product page.
      */
     url?: string
     /**
-     * Image url of the product
+     * Image url of the product.
      */
     image_url?: string
     [k: string]: unknown
