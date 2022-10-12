@@ -14,7 +14,7 @@ export interface Payload {
    */
   keys: {
     /**
-     * TODO
+     * The unique identifier that you assign to a contact. Contact Key must be a Primary Key in the data extension that contains contact information.
      */
     contactKey: string
     [k: string]: unknown
