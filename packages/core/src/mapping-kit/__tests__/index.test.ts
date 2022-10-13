@@ -99,7 +99,7 @@ describe('@literal', () => {
   })
 })
 
-describe.only('@if', () => {
+describe('@if', () => {
   const payload = { a: 1, b: true, c: false, d: null, e: '' }
 
   test('exists', () => {
