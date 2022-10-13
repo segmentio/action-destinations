@@ -4,11 +4,11 @@ export interface Payload {
   /**
    * Used for constructing the unique segment_group_id for HubSpot.
    */
-  groupid?: string
+  groupid: string
   /**
    * The unique field(s) used to search for an existing company in HubSpot to update. By default, Segment creates a custom property to store groupId for each company and uses this property to search for companies. If a company is not found, the fields provided here are then used to search. If a company is still not found, a new one is created.
    */
-  companysearchfields: {
+  companysearchfields?: {
     [k: string]: unknown
   }
   /**
@@ -60,7 +60,7 @@ export interface Payload {
    */
   lifecyclestage?: string
   /**
-   * Any other default or custom company properties. Custom properties must be predefined in HubSpot. See more information in [HubSpot’s documentation](https://knowledge.hubspot.com/crm-setup/manage-your-properties#create-custom-properties).
+   * Any other default or custom company properties. Custom properties must be predefined in HubSpot. See more information in [HubSpot’s documentation](https://knowledge.hubspot.com/crm-setup/manage-your-properties#create-custom-properties). Important: Please do not use ’segment_group_id’ here as it is an internal property and will result in an an error.
    */
   properties?: {
     [k: string]: unknown
