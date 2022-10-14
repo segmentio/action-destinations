@@ -1,6 +1,6 @@
 import type { RequestClient, ModifiedResponse } from '@segment/actions-core'
-import { Settings } from '../generated-types'
-import { Payload } from '../updateAudience/generated-types'
+import type { Settings } from '../generated-types'
+import type { Payload } from '../updateAudience/generated-types'
 import { BASE_URL } from '../constants'
 import type { ProfileAPIResponse, AdAccountUserResponse } from '../types'
 

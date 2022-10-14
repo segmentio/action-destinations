@@ -6,7 +6,7 @@ import { LINKEDIN_API_VERSION } from './constants'
 import https from 'https'
 import { LinkedInAudiences } from './api'
 import type { RefreshTokenResponse, ProfileAPIResponse, AdAccountUserResponse } from './types'
-import { ModifiedResponse } from '@segment/actions-core'
+import type { ModifiedResponse } from '@segment/actions-core'
 
 const destination: DestinationDefinition<Settings> = {
   // We  need to match `name` with the creationName in the db. The name used in the UI is "LinkedIn Audiences".
