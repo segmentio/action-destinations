@@ -2,23 +2,11 @@ import type { DestinationDefinition } from '@segment/actions-core'
 import { InvalidAuthenticationError } from '@segment/actions-core'
 import type { Settings } from './generated-types'
 import updateAudience from './updateAudience'
-import { LINKEDIN_API_VERSION, BASE_URL } from './constants'
+import { LINKEDIN_API_VERSION } from './constants'
 import https from 'https'
-
-interface RefreshTokenResponse {
-  access_token: string
-  scope: string
-  expires_in: number
-  token_type: string
-}
-
-interface ProfileAPIResponse {
-  id: string
-}
-
-interface AdAccountUserResponse {
-  role: string
-}
+import { LinkedInAudiences } from './api'
+import type { RefreshTokenResponse, ProfileAPIResponse, AdAccountUserResponse } from './types'
+import { ModifiedResponse } from '@segment/actions-core'
 
 const destination: DestinationDefinition<Settings> = {
   // We  need to match `name` with the creationName in the db. The name used in the UI is "LinkedIn Audiences".
@@ -63,14 +51,14 @@ const destination: DestinationDefinition<Settings> = {
         throw new Error('At least one of `Send Email` or `Send Google Advertising ID` must be set to `true`.')
       }
 
-      let firstRes
+      const linkedinApiClient: LinkedInAudiences = new LinkedInAudiences(request)
+
+      let firstRes: ModifiedResponse<ProfileAPIResponse>
 
       try {
         // GET the current user's id from LinkedIn's profile API: https://learn.microsoft.com/en-us/linkedin/shared/integrations/people/profile-api?context=linkedin%2Fcompliance%2Fcontext&view=li-lms-unversioned&preserve-view=true#request
         // We request `r_basicprofile` scope when a user oauths into LinkedIn, so we retrieve the "Basic Profile Fields": https://learn.microsoft.com/en-us/linkedin/shared/references/v2/profile/basic-profile
-        firstRes = await request<ProfileAPIResponse>(`${BASE_URL}/me`, {
-          method: 'GET'
-        })
+        firstRes = await linkedinApiClient.getProfile()
       } catch (e: any) {
         if (e.message === 'Unauthorized') {
           throw new Error(
@@ -82,17 +70,12 @@ const destination: DestinationDefinition<Settings> = {
 
       const userId = firstRes?.data?.id
 
-      let secondRes
+      let secondRes: ModifiedResponse<AdAccountUserResponse>
 
       try {
         // GET the current user's permissions for this specific Ad Account: https://learn.microsoft.com/en-us/linkedin/marketing/integrations/ads/account-structure/create-and-manage-account-users?view=li-lms-2022-09&tabs=http#get-ad-account-user
         // If the user's role is VIEWER, then they won't have adequate permission to send batch updates to any DMP Segment audience in this LinkedIn account.
-        secondRes = await request<AdAccountUserResponse>(
-          `${BASE_URL}/adAccountUsers/account=urn:li:sponsoredAccount:${settings.ad_account_id}&user=urn:li:person:${userId}`,
-          {
-            method: 'GET'
-          }
-        )
+        secondRes = await linkedinApiClient.getAdAccountUserProfile(settings, userId)
       } catch (e: any) {
         if (e.message === 'Not Found') {
           throw new Error(
