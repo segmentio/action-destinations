@@ -1,4 +1,5 @@
 import type { DestinationDefinition } from '@segment/actions-core'
+import { InvalidAuthenticationError } from '@segment/actions-core'
 import type { Settings } from './generated-types'
 import updateAudience from './updateAudience'
 import { LINKEDIN_API_VERSION, BASE_URL } from './linkedin-properties'
@@ -20,8 +21,7 @@ interface AdAccountUserResponse {
 }
 
 const destination: DestinationDefinition<Settings> = {
-  // We  need to match `name` with the creationName in the db.
-  // The name used in the UI is "LinkedIn Audiences".
+  // We  need to match `name` with the creationName in the db. The name used in the UI is "LinkedIn Audiences".
   name: 'Linkedin Audiences',
   slug: 'actions-linkedin-audiences',
   mode: 'cloud',
@@ -34,11 +34,33 @@ const destination: DestinationDefinition<Settings> = {
         description: 'The id of the LinkedIn Ad Account where batches should be synced.',
         type: 'string',
         required: true
+      },
+      send_email: {
+        label: 'Send Email',
+        description:
+          'Whether to send `email` to LinkedIn. This setting applies to mappings you create in this destination instance.',
+        type: 'boolean',
+        default: true,
+        required: true
+      },
+      send_google_advertising_id: {
+        label: 'Send Google Advertising ID',
+        description:
+          'Whether to send Google Advertising ID to LinkedIn. This setting applies to all mappings you create in this destination instance.',
+        type: 'boolean',
+        default: true,
+        required: true
       }
     },
     testAuthentication: async (request, { settings, auth }) => {
       if (!auth?.accessToken) {
-        throw new Error('Please authenticate via Oauth before updating other settings and/or enabling the destination.')
+        throw new InvalidAuthenticationError(
+          'Please authenticate via Oauth before updating other settings and/or enabling the destination.'
+        )
+      }
+
+      if (!settings.send_email && !settings.send_google_advertising_id) {
+        throw new Error('At least one of `Send Email` or `Send Google Advertising ID` must be set to `true`.')
       }
 
       let firstRes

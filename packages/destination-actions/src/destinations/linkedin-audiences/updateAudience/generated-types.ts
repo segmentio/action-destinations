@@ -14,17 +14,9 @@ export interface Payload {
    */
   email?: string
   /**
-   * Whether to send `email` to LinkedIn.
-   */
-  send_email?: boolean
-  /**
    * The user's Google Advertising ID to send to LinkedIn.
    */
   google_advertising_id?: string
-  /**
-   * Whether to send Google Advertising ID to LinkedIn.
-   */
-  send_google_advertising_id?: boolean
   /**
    * A Segment-specific key associated with the LinkedIn DMP Segment. This is the lookup key Segment uses to fetch the DMP Segment from LinkedIn's API.
    */

@@ -1,7 +1,7 @@
-import type { ActionDefinition, RequestClient } from '@segment/actions-core'
+import type { ActionDefinition, RequestClient, ModifiedResponse } from '@segment/actions-core'
 import { RetryableError, IntegrationError } from '@segment/actions-core'
-import type { Payload } from './generated-types'
 import type { Settings } from '../generated-types'
+import type { Payload } from './generated-types'
 import { BASE_URL } from '../linkedin-properties'
 import { createHash } from 'crypto'
 
@@ -31,12 +31,6 @@ const action: ActionDefinition<Settings, Payload> = {
         '@path': '$.context.traits.email'
       }
     },
-    send_email: {
-      label: 'Send Email',
-      description: 'Whether to send `email` to LinkedIn.',
-      type: 'boolean',
-      default: true
-    },
     google_advertising_id: {
       label: 'User Google Advertising ID',
       description: "The user's Google Advertising ID to send to LinkedIn.",
@@ -44,12 +38,6 @@ const action: ActionDefinition<Settings, Payload> = {
       default: {
         '@path': '$.context.device.advertisingId'
       }
-    },
-    send_google_advertising_id: {
-      label: 'Send Google Advertising ID',
-      description: 'Whether to send Google Advertising ID to LinkedIn.',
-      type: 'boolean',
-      default: true
     },
     source_segment_id: {
       label: 'LinkedIn Source Segment ID',
@@ -85,17 +73,20 @@ const action: ActionDefinition<Settings, Payload> = {
 }
 
 async function processPayload(request: RequestClient, settings: Settings, payloads: Payload[]) {
-  if (payloads[0].source_segment_id !== payloads[0].personas_audience_key) {
-    throw new IntegrationError(
-      'The value of `source_segment_id` and `personas_audience_key` must match.',
-      'Invalid settings.',
-      400
-    )
-  }
+  validate(settings, payloads)
 
   const dmpSegmentId = await getDmpSegmentId(request, settings, payloads[0])
-  const elements = extractUsers(payloads)
-  const res = await request(`${BASE_URL}/dmpSegments/${dmpSegmentId}/users`, {
+  const elements = extractUsers(settings, payloads)
+
+  // We should never hit this condition, but if we do, returning a 200 response
+  // rather than hitting LinkedIn's API (with no data) is more efficient. If a request
+  // with an empty elements array were sent to LINKEDIN_API_VERSION, their API would
+  // also respond with status 200.
+  if (elements.length < 1) {
+    return { status: 200 } as ModifiedResponse
+  }
+
+  const res = await request(`https://api.linkedin.com/rest/dmpSegments/${dmpSegmentId}/users`, {
     method: 'POST',
     headers: {
       'X-RestLi-Method': 'BATCH_CREATE'
@@ -115,6 +106,24 @@ async function processPayload(request: RequestClient, settings: Settings, payloa
   }
 
   return res
+}
+
+function validate(settings: Settings, payloads: Payload[]): void {
+  if (payloads[0].source_segment_id !== payloads[0].personas_audience_key) {
+    throw new IntegrationError(
+      'The value of `source_segment_id` and `personas_audience_key` must match.',
+      'Invalid settings.',
+      400
+    )
+  }
+
+  if (!settings.send_google_advertising_id && !settings.send_email) {
+    throw new IntegrationError(
+      'At least one of `Send Email` or `Send Google Advertising ID` must be set to `true`.',
+      'Invalid settings.',
+      400
+    )
+  }
 }
 
 async function getDmpSegmentId(request: RequestClient, settings: Settings, payload: Payload) {
@@ -163,7 +172,7 @@ async function createDmpSegment(request: RequestClient, settings: Settings, payl
   return headers['x-linkedin-id']
 }
 
-function extractUsers(payloads: Payload[]) {
+function extractUsers(settings: Settings, payloads: Payload[]) {
   const elements: Record<string, any>[] = []
 
   payloads.forEach((payload: Payload) => {
@@ -173,7 +182,7 @@ function extractUsers(payloads: Payload[]) {
 
     elements.push({
       action: getAction(payload),
-      userIds: getUserIds(payload)
+      userIds: getUserIds(settings, payload)
     })
   })
 
@@ -188,17 +197,17 @@ function getAction(payload: Payload) {
   }
 }
 
-function getUserIds(payload: Payload): Record<string, string>[] {
+function getUserIds(settings: Settings, payload: Payload): Record<string, string>[] {
   const users = []
 
-  if (payload.email) {
+  if (payload.email && settings.send_email === true) {
     users.push({
       idType: 'SHA256_EMAIL',
       idValue: createHash('sha256').update(payload.email).digest('hex')
     })
   }
 
-  if (payload.google_advertising_id) {
+  if (payload.google_advertising_id && settings.send_google_advertising_id === true) {
     users.push({
       idType: 'GOOGLE_AID',
       idValue: payload.google_advertising_id
