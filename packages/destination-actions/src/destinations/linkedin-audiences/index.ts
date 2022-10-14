@@ -2,7 +2,7 @@ import type { DestinationDefinition } from '@segment/actions-core'
 import { InvalidAuthenticationError } from '@segment/actions-core'
 import type { Settings } from './generated-types'
 import updateAudience from './updateAudience'
-import { LINKEDIN_API_VERSION, BASE_URL } from './linkedin-properties'
+import { LINKEDIN_API_VERSION, BASE_URL } from './constants'
 import https from 'https'
 
 interface RefreshTokenResponse {

@@ -1,7 +1,7 @@
 import nock from 'nock'
 import { createTestIntegration } from '@segment/actions-core'
 import Definition from '../index'
-import { BASE_URL } from '../linkedin-properties'
+import { BASE_URL } from '../constants'
 
 const testDestination = createTestIntegration(Definition)
 

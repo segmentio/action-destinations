@@ -1,9 +1,9 @@
-import type { ActionDefinition, RequestClient, ModifiedResponse } from '@segment/actions-core'
-import { RetryableError, IntegrationError } from '@segment/actions-core'
+import { ActionDefinition, ModifiedResponse } from '@segment/actions-core'
+import { RequestClient, RetryableError, IntegrationError } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
-import { BASE_URL } from '../linkedin-properties'
 import { createHash } from 'crypto'
+import { LinkedInAudiences } from '../api'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Sync To LinkedIn DMP Segment',
@@ -75,7 +75,9 @@ const action: ActionDefinition<Settings, Payload> = {
 async function processPayload(request: RequestClient, settings: Settings, payloads: Payload[]) {
   validate(settings, payloads)
 
-  const dmpSegmentId = await getDmpSegmentId(request, settings, payloads[0])
+  const linkedinApiClient: LinkedInAudiences = new LinkedInAudiences(request)
+
+  const dmpSegmentId = await getDmpSegmentId(linkedinApiClient, settings, payloads[0])
   const elements = extractUsers(settings, payloads)
 
   // We should never hit this condition, but if we do, returning a 200 response
@@ -86,16 +88,7 @@ async function processPayload(request: RequestClient, settings: Settings, payloa
     return { status: 200 } as ModifiedResponse
   }
 
-  const res = await request(`https://api.linkedin.com/rest/dmpSegments/${dmpSegmentId}/users`, {
-    method: 'POST',
-    headers: {
-      'X-RestLi-Method': 'BATCH_CREATE'
-    },
-    json: {
-      elements
-    },
-    throwHttpErrors: false
-  })
+  const res = await linkedinApiClient.batchUpdate(dmpSegmentId, elements)
 
   // At this point, if LinkedIn's API returns a 404 error, it's because the audience
   // Segment just created isn't available yet for updates via this endpoint.
@@ -126,48 +119,19 @@ function validate(settings: Settings, payloads: Payload[]): void {
   }
 }
 
-async function getDmpSegmentId(request: RequestClient, settings: Settings, payload: Payload) {
-  const res = await getDmpSegment(request, settings, payload)
+async function getDmpSegmentId(linkedinApiClient: LinkedInAudiences, settings: Settings, payload: Payload) {
+  const res = await linkedinApiClient.getDmpSegment(settings, payload)
   const body = await res.json()
 
   if (body.elements?.length > 0) {
     return body.elements[0].id
   }
 
-  return createDmpSegment(request, settings, payload)
+  return createDmpSegment(linkedinApiClient, settings, payload)
 }
 
-async function getDmpSegment(request: RequestClient, settings: Settings, payload: Payload) {
-  return request(`${BASE_URL}/dmpSegments`, {
-    method: 'GET',
-    searchParams: {
-      q: 'account',
-      account: `urn:li:sponsoredAccount:${settings.ad_account_id}`,
-      sourceSegmentId: payload.source_segment_id || '',
-      sourcePlatform: 'SEGMENT'
-    }
-  })
-}
-
-async function createDmpSegment(request: RequestClient, settings: Settings, payload: Payload) {
-  const res = await request(`${BASE_URL}/dmpSegments`, {
-    method: 'POST',
-    json: {
-      name: payload.dmp_segment_name,
-      sourcePlatform: 'SEGMENT',
-      sourceSegmentId: payload.source_segment_id,
-      account: `urn:li:sponsoredAccount:${settings.ad_account_id}`,
-      accessPolicy: 'PRIVATE',
-      type: 'USER',
-      destinations: [
-        {
-          destination: 'LINKEDIN'
-        }
-      ]
-    }
-  })
-
-  // LinkedIn returns the id of the newly created DMP Segment in the `x-linkedin-id` header. There is no response body.
+async function createDmpSegment(linkedinApiClient: LinkedInAudiences, settings: Settings, payload: Payload) {
+  const res = await linkedinApiClient.createDmpSegment(settings, payload)
   const headers = res.headers.toJSON()
   return headers['x-linkedin-id']
 }
