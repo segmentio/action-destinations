@@ -1,10 +1,9 @@
 import { ActionDefinition, RequestClient } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
-import { MixpanelEvent } from './types'
+import { MixpanelEvent } from '../mixpanel-types'
 import { getApiServerUrl, getBrowser, getBrowserVersion, cheapGuid } from '../utils'
 import dayjs from '../../../lib/dayjs'
-
 
 const getEventFromPayload = (payload: Payload, settings: Settings): MixpanelEvent => {
   const datetime = payload.time
@@ -23,6 +22,7 @@ const getEventFromPayload = (payload: Payload, settings: Settings): MixpanelEven
       time: time,
       ip: payload.ip,
       id: payload.distinct_id,
+      $anon_id: payload.anonymous_id,
       distinct_id: payload.distinct_id,
       $app_build_number: payload.app_build,
       $app_version_string: payload.app_version,
@@ -39,7 +39,8 @@ const getEventFromPayload = (payload: Payload, settings: Settings): MixpanelEven
       $device_type: payload.device_type,
       $device_name: payload.device_name,
       $group_id: payload.group_id,
-      $insert_id: cheapGuid(),
+      $identified_id: payload.user_id,
+      $insert_id: payload.insert_id || cheapGuid(),
       $ios_ifa: payload.idfa,
       $lib_version: payload.library_version,
       $locale: payload.language,
@@ -52,9 +53,10 @@ const getEventFromPayload = (payload: Payload, settings: Settings): MixpanelEven
       $screen_width: payload.screen_width,
       $screen_density: payload.screen_density,
       $source: 'segment',
+      $user_id: payload.user_id,
       $wifi_enabled: payload.wifi,
       mp_country_code: payload.country,
-      mp_lib: payload.library_name && `Segment: ${payload.library_name}`,
+      mp_lib: payload.library_name && `Segment: ${ payload.library_name }`,
       segment_source_name: settings.sourceName,
       utm_campaign: utm.utm_campaign,
       utm_content: utm.utm_content,
@@ -69,11 +71,11 @@ const getEventFromPayload = (payload: Payload, settings: Settings): MixpanelEven
 
 const processData = async (request: RequestClient, settings: Settings, payload: Payload[]) => {
   const events = payload.map((value) => getEventFromPayload(value, settings))
-  return request(`${getApiServerUrl(settings.apiRegion)}/import?strict=1`, {
+  return request(`${ getApiServerUrl(settings.apiRegion) }/import?strict=1`, {
     method: 'post',
     json: events,
     headers: {
-      authorization: `Basic ${Buffer.from(`${settings.apiSecret}:`).toString('base64')}`
+      authorization: `Basic ${ Buffer.from(`${ settings.apiSecret }:`).toString('base64') }`
     }
   })
 }
@@ -91,6 +93,22 @@ const action: ActionDefinition<Settings, Payload> = {
       required: true,
       default: {
         '@path': '$.event'
+      }
+    },
+    anonymous_id: {
+      label: 'Anonymous ID',
+      type: 'string',
+      description: 'A distinct ID randomly generated prior to calling identify.',
+      default: {
+        '@path': '$.anonymousId'
+      }
+    },
+    user_id: {
+      label: 'User ID',
+      type: 'string',
+      description: 'The distinct ID after calling identify.',
+      default: {
+        '@path': '$.userId'
       }
     },
     distinct_id: {
@@ -317,6 +335,11 @@ const action: ActionDefinition<Settings, Payload> = {
           else: { '@path': '$.context.device.idfa' }
         }
       }
+    },
+    insert_id: {
+      label: 'Insert ID',
+      type: 'string',
+      description: 'Mixpanel will deduplicate subsequent events sent with this ID.'
     },
     utm_properties: {
       label: 'UTM Properties',
