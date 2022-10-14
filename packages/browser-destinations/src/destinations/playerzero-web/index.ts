@@ -1,3 +1,4 @@
+import { defaultValues } from '@segment/actions-core'
 import type { Settings } from './generated-types'
 import type { BrowserDestinationDefinition } from '../../lib/browser-destinations'
 import { browserDestination } from '../../runtime/shim'
@@ -16,7 +17,7 @@ declare global {
 // Switch from unknown to the partner SDK client types
 export const destination: BrowserDestinationDefinition<Settings, PlayerZero> = {
   name: 'PlayerZero Web',
-  slug: 'playerzero-web',
+  slug: 'actions-playerzero-web',
   mode: 'device',
 
   settings: {
@@ -29,6 +30,21 @@ export const destination: BrowserDestinationDefinition<Settings, PlayerZero> = {
       required: true
     }
   },
+
+  presets: [
+    {
+      name: 'Track Event',
+      subscribe: 'type = "track"',
+      partnerAction: 'trackEvent',
+      mapping: defaultValues(trackEvent.fields)
+    },
+    {
+      name: 'Identify User',
+      subscribe: 'type = "identify"',
+      partnerAction: 'identifyUser',
+      mapping: defaultValues(identifyUser.fields)
+    }
+  ],
 
   initialize: async ({ settings }, deps) => {
     await deps.loadScript(`https://go.playerzero.app/record/${settings.projectId}`)

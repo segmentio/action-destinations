@@ -73,7 +73,6 @@ const action: BrowserActionDefinition<Settings, PlayerZero, Payload> = {
     }
 
     if (event.payload.userId) {
-      console.log(event.payload.userId, newTraits, event)
       playerzero.identify(event.payload.userId, newTraits)
     } else {
       playerzero.setUserVars({
