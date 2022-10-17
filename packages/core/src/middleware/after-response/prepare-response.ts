@@ -2,7 +2,7 @@ import type { AfterResponseHook, NormalizedOptions } from '../../request-client'
 import type { ModifiedResponse } from '../../types'
 
 const prepareResponse: AfterResponseHook = async (_request, _options, response) => {
-  const modifiedResponse = response as unknown as ModifiedResponse
+  const modifiedResponse = response as ModifiedResponse
   // We're consuming the body here. Since it can only be read once,
   // the ModifiedResponse strips away methods that would throw a `Type Error` if called.
   const content = await response.text()
