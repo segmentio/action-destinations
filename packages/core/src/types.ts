@@ -1,10 +1,5 @@
-/**
- * Remove the stream reading methods from the response so we don't get `Type Error: body already used`
- * See https://segment.atlassian.net/browse/ACT-242 for more context.
- */
-type ResponseWithoutMethods = Omit<Response, 'json' | 'text' | 'arrayBuffer' | 'blob' | 'formData'>
 /** A modified response object that is handled by the `prepareResponse` hook */
-export interface ModifiedResponse<T = unknown> extends ResponseWithoutMethods {
+export interface ModifiedResponse<T = unknown> extends Response {
   /** The raw response content as a string – same as `await response.text()` */
   content: string
   /** The parsed content string into a JavaScript object, if applicable */
