@@ -8,6 +8,7 @@ import {
   CompanySearchThrowableError,
   RestrictedPropertyThrowableError,
   SegmentUniqueIdentifierMissingRetryableError,
+  MultipleCompaniesInSearchResultThrowableError,
   isSegmentUniqueIdentifierPropertyError
 } from '../errors'
 
@@ -155,7 +156,7 @@ const action: ActionDefinition<Settings, Payload> = {
         '@path': '$.traits.createdAt'
       }
     },
-    streetaddress: {
+    address: {
       label: 'Street Address',
       description: 'The street address of the company.',
       type: 'string',
@@ -179,7 +180,7 @@ const action: ActionDefinition<Settings, Payload> = {
         '@path': '$.traits.address.state'
       }
     },
-    postalcode: {
+    zip: {
       label: 'Postal Code',
       description: 'The postal or zip code of the company.',
       type: 'string',
@@ -253,10 +254,10 @@ const action: ActionDefinition<Settings, Payload> = {
       name: payload.name,
       description: payload.description,
       createdate: payload.createdate,
-      streetaddress: payload.streetaddress,
+      address: payload.address,
       city: payload.city,
       state: payload.state,
-      postalcode: payload.postalcode,
+      zip: payload.zip,
       domain: payload.domain,
       phone: payload.phone,
       numberofemployees: payload.numberofemployees,
@@ -365,7 +366,12 @@ const action: ActionDefinition<Settings, Payload> = {
           }
         }
       } else {
-        // Existing company found, update the company, attempt to update the company
+        // Throw error if more than one companies were found with search criteria
+        if (searchCompanyResponse.data.total > 1) {
+          throw MultipleCompaniesInSearchResultThrowableError
+        }
+
+        // An existing company was identified, attempt to update the company
         companyId = searchCompanyResponse.data.results[0].id
 
         try {
@@ -381,7 +387,7 @@ const action: ActionDefinition<Settings, Payload> = {
             } catch (e) {
               // If custom property already exists HubSpot throws 409 Conflict
               // This is ignored to avoid race conditions where multiple requests try to create the same custom property
-              if ((e as HTTPError).response.status !== 409) {
+              if ((e as HTTPError)?.response?.status !== 409) {
                 throw e
               }
             }
@@ -394,7 +400,12 @@ const action: ActionDefinition<Settings, Payload> = {
       }
     }
     // If upsert company is successful, associate company with contact
-    await associateCompanyToContact(request, companyId, transactionContext?.transaction?.['user_id'], ASSOCIATION_TYPE)
+    await associateCompanyToContact(
+      request,
+      companyId,
+      transactionContext?.transaction?.['contact_id'],
+      ASSOCIATION_TYPE
+    )
   }
 }
 
@@ -492,7 +503,6 @@ function updateCompany(
 function createCompanyProperty(request: RequestClient, property: CompanyProperty) {
   return request<UpsertCompanyResponse>(`${hubSpotBaseURL}/crm/v3/properties/companies`, {
     method: 'POST',
-    throwHttpErrors: false,
     json: {
       ...property
     }

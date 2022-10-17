@@ -26,7 +26,7 @@ export interface Payload {
   /**
    * The street address of the company.
    */
-  streetaddress?: string
+  address?: string
   /**
    * The city where the company is located.
    */
@@ -38,7 +38,7 @@ export interface Payload {
   /**
    * The postal or zip code of the company.
    */
-  postalcode?: string
+  zip?: string
   /**
    * The company’s website domain.
    */

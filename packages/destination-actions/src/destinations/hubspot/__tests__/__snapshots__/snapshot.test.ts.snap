@@ -23,6 +23,10 @@ Object {
 }
 `;
 
+exports[`Testing snapshot for actions-hubspot-cloud destination: upsertCompany action - all fields 1`] = `[IntegrationError: Identify (Upsert Contact) must be called before Group (Upsert Company) for the HubSpot Cloud (Actions) destination.]`;
+
+exports[`Testing snapshot for actions-hubspot-cloud destination: upsertCompany action - required fields 1`] = `[IntegrationError: Identify (Upsert Contact) must be called before Group (Upsert Company) for the HubSpot Cloud (Actions) destination.]`;
+
 exports[`Testing snapshot for actions-hubspot-cloud destination: upsertContact action - all fields 1`] = `
 Object {
   "properties": Object {

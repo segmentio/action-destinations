@@ -29,6 +29,12 @@ export const RestrictedPropertyThrowableError = new IntegrationError(
   400
 )
 
+export const MultipleCompaniesInSearchResultThrowableError = new IntegrationError(
+  `The search criteria defined by Company Search Fields returned more than one companies. The update request will be rejected.`,
+  'Search Criteria Not Unique',
+  400
+)
+
 export const SegmentUniqueIdentifierMissingRetryableError = new RetryableError(
   `The ’${SEGMENT_UNIQUE_IDENTIFIER}’ property doesn't exist in HubSpot. Segment will attempt to create the property and retry the action.`
 )
@@ -37,12 +43,12 @@ export function isSegmentUniqueIdentifierPropertyError(
   error: UpsertCompanyError,
   segmentUniqueIdentifierProperty: string
 ): boolean {
-  if (error.response.status !== 400) {
+  if (error?.response?.status !== 400) {
     return false
   }
 
   try {
-    const errorMessage = error.response.data.message.replace('Property values were not valid: ', '')
+    const errorMessage = error?.response?.data?.message?.replace('Property values were not valid: ', '')
     const errorList = JSON.parse(errorMessage)
 
     return (

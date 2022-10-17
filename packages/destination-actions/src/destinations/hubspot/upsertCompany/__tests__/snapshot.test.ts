@@ -21,25 +21,38 @@ describe(`Testing snapshot for ${destinationSlug}'s ${actionSlug} destination ac
       properties: eventData
     })
 
-    const responses = await testDestination.testAction(actionSlug, {
-      event: event,
-      mapping: event.properties,
-      settings: settingsData,
-      auth: undefined
-    })
-
-    const request = responses[0].request
-    const rawBody = await request.text()
+    const contactId = '123456789'
+    const setTransaction = () => {}
 
     try {
-      const json = JSON.parse(rawBody)
-      expect(json).toMatchSnapshot()
-      return
-    } catch (err) {
-      expect(rawBody).toMatchSnapshot()
-    }
+      const responses = await testDestination.testAction(actionSlug, {
+        event: event,
+        mapping: event.properties,
+        settings: settingsData,
+        auth: undefined,
+        transactionContext: {
+          transaction: {
+            contact_id: contactId
+          },
+          setTransaction
+        }
+      })
 
-    expect(request.headers).toMatchSnapshot()
+      const request = responses[0].request
+      const rawBody = await request.text()
+
+      try {
+        const json = JSON.parse(rawBody)
+        expect(json).toMatchSnapshot()
+        return
+      } catch (err) {
+        expect(rawBody).toMatchSnapshot()
+      }
+
+      expect(request.headers).toMatchSnapshot()
+    } catch (e) {
+      expect(e).toMatchSnapshot()
+    }
   })
 
   it('all fields', async () => {
@@ -54,22 +67,35 @@ describe(`Testing snapshot for ${destinationSlug}'s ${actionSlug} destination ac
       properties: eventData
     })
 
-    const responses = await testDestination.testAction(actionSlug, {
-      event: event,
-      mapping: event.properties,
-      settings: settingsData,
-      auth: undefined
-    })
-
-    const request = responses[0].request
-    const rawBody = await request.text()
+    const contactId = '123456789'
+    const setTransaction = () => {}
 
     try {
-      const json = JSON.parse(rawBody)
-      expect(json).toMatchSnapshot()
-      return
-    } catch (err) {
-      expect(rawBody).toMatchSnapshot()
+      const responses = await testDestination.testAction(actionSlug, {
+        event: event,
+        mapping: event.properties,
+        settings: settingsData,
+        auth: undefined,
+        transactionContext: {
+          transaction: {
+            contact_id: contactId
+          },
+          setTransaction
+        }
+      })
+
+      const request = responses[0].request
+      const rawBody = await request.text()
+
+      try {
+        const json = JSON.parse(rawBody)
+        expect(json).toMatchSnapshot()
+        return
+      } catch (err) {
+        expect(rawBody).toMatchSnapshot()
+      }
+    } catch (e) {
+      expect(e).toMatchSnapshot()
     }
   })
 })
