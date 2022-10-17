@@ -30,7 +30,7 @@ describe('GoogleEnhancedConversions', () => {
 
       nock(`https://googleads.googleapis.com/v11/customers/${customerId}:uploadConversionAdjustments`)
         .post('')
-        .reply(201, { partialFailureError: { code: 0, message: '' }, results: [{}] })
+        .reply(201, { results: [{}] })
 
       const responses = await testDestination.testAction('uploadConversionAdjustment', {
         event,
@@ -67,7 +67,7 @@ describe('GoogleEnhancedConversions', () => {
 
       nock(`https://googleads.googleapis.com/v11/customers/${customerId}:uploadConversionAdjustments`)
         .post('')
-        .reply(201, { partialFailureError: { code: 0, message: '' }, results: [{}] })
+        .reply(201, { results: [{}] })
 
       try {
         await testDestination.testAction('uploadConversionAdjustment', {
@@ -94,7 +94,7 @@ describe('GoogleEnhancedConversions', () => {
 
       nock(`https://googleads.googleapis.com/v11/customers/${customerId}:uploadConversionAdjustments`)
         .post('')
-        .reply(201, { partialFailureError: { code: 0, message: '' }, results: [{}] })
+        .reply(201, { results: [{}] })
 
       try {
         await testDestination.testAction('uploadConversionAdjustment', {
@@ -123,7 +123,7 @@ describe('GoogleEnhancedConversions', () => {
 
       nock(`https://googleads.googleapis.com/v11/customers/${customerId}:uploadConversionAdjustments`)
         .post('')
-        .reply(201, { partialFailureError: { code: 0, message: '' }, results: [{}] })
+        .reply(201, { results: [{}] })
 
       try {
         await testDestination.testAction('uploadConversionAdjustment', {
@@ -152,7 +152,7 @@ describe('GoogleEnhancedConversions', () => {
 
       nock(`https://googleads.googleapis.com/v11/customers/${customerId}:uploadConversionAdjustments`)
         .post('')
-        .reply(201, { partialFailureError: { code: 0, message: '' }, results: [{}] })
+        .reply(201, { results: [{}] })
 
       try {
         await testDestination.testAction('uploadConversionAdjustment', {
@@ -181,7 +181,7 @@ describe('GoogleEnhancedConversions', () => {
 
       nock(`https://googleads.googleapis.com/v11/customers/${customerId}:uploadConversionAdjustments`)
         .post('')
-        .reply(201, { partialFailureError: { code: 0, message: '' }, results: [{}] })
+        .reply(201, { results: [{}] })
 
       try {
         await testDestination.testAction('uploadConversionAdjustment', {

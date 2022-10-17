@@ -31,6 +31,12 @@ export const fetchAccountCustomFields = async (request: RequestClient): Promise<
   const response = await request('https://api.sendgrid.com/v3/marketing/field_definitions')
   const data: APIData = response.data as APIData
   const customFields: CustomField[] = data.custom_fields as CustomField[]
+
+  // True if the SendGrid account does not have any defined custom fields
+  if (customFields === undefined) {
+    return []
+  }
+
   return customFields.map(
     // Strip out other fields provided by the API and return only what we need
     ({ id, name }: CustomField): CustomField => {

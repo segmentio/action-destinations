@@ -11,9 +11,11 @@ const hubspotDefinedObjects: string[] = ['deals', 'tickets']
 // Examples of valid fullyQualifiedName: p22334455_TestObject, p22695334_TE_ST-obj5
 const customObjectExpression = new RegExp('^[a-zA-Z0-9]+_[a-zA-Z][a-zA-Z0-9_-]+$')
 
+// slug name - upsertCustomObjectRecord. We will be introducing upsert logic soon.
+// To avoid slug name changes in future, naming it as upsertCustomObjectRecord straight away.
 const action: ActionDefinition<Settings, Payload> = {
-  title: 'Create Custom Object',
-  description: 'Create a Custom Object in HubSpot',
+  title: 'Create Custom Object Record',
+  description: 'Create records in any HubSpot standard or custom object.',
   fields: {
     objectType: {
       label: 'Object Type',

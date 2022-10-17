@@ -9,13 +9,21 @@ import groupIdentifyUser from './groupIdentifyUser'
 import alias from './alias'
 import { ApiRegions } from './utils'
 
+import trackPurchase from './trackPurchase'
+
 /** used in the quick setup */
 const presets: DestinationDefinition['presets'] = [
   {
     name: 'Track Calls',
-    subscribe: 'type = "track"',
+    subscribe: 'type = "track" and event != "Order Completed"',
     partnerAction: 'trackEvent',
     mapping: defaultValues(trackEvent.fields)
+  },
+  {
+    name: 'Order Completed Calls',
+    subscribe: 'type = "track" and event = "Order Completed"',
+    partnerAction: 'trackPurchase',
+    mapping: defaultValues(trackPurchase.fields)
   },
   {
     name: 'Page Calls',
@@ -85,7 +93,7 @@ const destination: DestinationDefinition<Settings> = {
         label: 'Source Name',
         description:
           "This value, if it's not blank, will be sent as segment_source_name to Mixpanel for every event/page/screen call.",
-        type: 'string',
+        type: 'string'
       }
     },
     testAuthentication: (request, { settings }) => {
@@ -103,7 +111,8 @@ const destination: DestinationDefinition<Settings> = {
     trackEvent,
     identifyUser,
     groupIdentifyUser,
-    alias
+    alias,
+    trackPurchase
   }
 }
 

@@ -8,6 +8,17 @@ const MIXPANEL_API_SECRET = 'test-api-key'
 const MIXPANEL_PROJECT_TOKEN = 'test-proj-token'
 const timestamp = '2021-08-17T15:21:15.449Z'
 
+const expectedProperties = {
+  ip: '8.8.8.8',
+  distinct_id: 'user1234',
+  $anon_id: 'anonId1234',
+  $identified_id: 'user1234',
+  $current_url: 'https://segment.com/academy/',
+  $locale: 'en-US',
+  mp_country_code: 'United States',
+  mp_lib: 'Segment: analytics.js'
+}
+
 describe('Mixpanel.trackEvent', () => {
   it('should validate action fields', async () => {
     const event = createTestEvent({ timestamp, event: 'Test Event' })
@@ -29,14 +40,7 @@ describe('Mixpanel.trackEvent', () => {
     expect(responses[0].options.json).toMatchObject([
       {
         event: 'Test Event',
-        properties: expect.objectContaining({
-          ip: '8.8.8.8',
-          distinct_id: 'user1234',
-          $current_url: 'https://segment.com/academy/',
-          $locale: 'en-US',
-          mp_country_code: 'United States',
-          mp_lib: 'Segment: analytics.js'
-        })
+        properties: expect.objectContaining(expectedProperties)
       }
     ])
   })
@@ -61,14 +65,7 @@ describe('Mixpanel.trackEvent', () => {
     expect(responses[0].options.json).toMatchObject([
       {
         event: 'Test Event',
-        properties: expect.objectContaining({
-          ip: '8.8.8.8',
-          distinct_id: 'user1234',
-          $current_url: 'https://segment.com/academy/',
-          $locale: 'en-US',
-          mp_country_code: 'United States',
-          mp_lib: 'Segment: analytics.js'
-        })
+        properties: expect.objectContaining(expectedProperties)
       }
     ])
   })
@@ -92,14 +89,7 @@ describe('Mixpanel.trackEvent', () => {
     expect(responses[0].options.json).toMatchObject([
       {
         event: 'Test Event',
-        properties: expect.objectContaining({
-          ip: '8.8.8.8',
-          distinct_id: 'user1234',
-          $current_url: 'https://segment.com/academy/',
-          $locale: 'en-US',
-          mp_country_code: 'United States',
-          mp_lib: 'Segment: analytics.js'
-        })
+        properties: expect.objectContaining(expectedProperties)
       }
     ])
   })
@@ -115,7 +105,7 @@ describe('Mixpanel.trackEvent', () => {
       settings: {
         projectToken: MIXPANEL_PROJECT_TOKEN,
         apiSecret: MIXPANEL_API_SECRET,
-        sourceName: "example segment source name",
+        sourceName: 'example segment source name'
       }
     })
     expect(responses.length).toBe(1)
@@ -184,7 +174,7 @@ describe('Mixpanel.trackEvent', () => {
       settings: {
         projectToken: MIXPANEL_PROJECT_TOKEN,
         apiSecret: MIXPANEL_API_SECRET,
-        apiRegion: ApiRegions.US,
+        apiRegion: ApiRegions.US
       }
     })
     expect(responses.length).toBe(1)
@@ -193,25 +183,11 @@ describe('Mixpanel.trackEvent', () => {
     expect(responses[0].options.json).toMatchObject([
       {
         event: 'Test Event1',
-        properties: expect.objectContaining({
-          ip: '8.8.8.8',
-          distinct_id: 'user1234',
-          $current_url: 'https://segment.com/academy/',
-          $locale: 'en-US',
-          mp_country_code: 'United States',
-          mp_lib: 'Segment: analytics.js'
-        })
+        properties: expect.objectContaining(expectedProperties)
       },
       {
         event: 'Test Event2',
-        properties: expect.objectContaining({
-          ip: '8.8.8.8',
-          distinct_id: 'user1234',
-          $current_url: 'https://segment.com/academy/',
-          $locale: 'en-US',
-          mp_country_code: 'United States',
-          mp_lib: 'Segment: analytics.js'
-        })
+        properties: expect.objectContaining(expectedProperties)
       }
     ])
   })
