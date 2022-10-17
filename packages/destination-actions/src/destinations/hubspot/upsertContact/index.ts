@@ -143,6 +143,7 @@ const action: ActionDefinition<Settings, Payload> = {
       country: payload.country,
       zip: payload.zip,
       email: payload.email,
+      website: payload.website,
       lifecyclestage: payload.lifecyclestage?.toLowerCase(),
       ...payload.properties
     }

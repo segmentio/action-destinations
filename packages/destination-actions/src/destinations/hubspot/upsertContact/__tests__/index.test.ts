@@ -18,7 +18,10 @@ const event = createTestEvent({
       city: 'San Fransico'
     },
     graduation_date: 1664533942262,
-    lifecyclestage: 'subscriber'
+    lifecyclestage: 'subscriber',
+    company: 'Segment',
+    phone: '+13134561129',
+    website: 'segment.inc1'
   }
 })
 const mapping = {
@@ -40,7 +43,10 @@ describe('Hubspot.upsertContact', () => {
         firstname: 'John',
         lastname: 'Doe',
         city: 'San Fransico',
-        graduation_date: 1664533942262
+        graduation_date: 1664533942262,
+        company: 'Segment',
+        phone: '+13134561129',
+        website: 'segment.inc1'
       }
     }
 
@@ -85,7 +91,10 @@ describe('Hubspot.upsertContact', () => {
         email: testEmail,
         city: 'San Fransico',
         graduation_date: 1664533942262,
-        lifecyclestage: 'subscriber'
+        lifecyclestage: 'subscriber',
+        company: 'Segment',
+        phone: '+13134561129',
+        website: 'segment.inc1'
       }
     }
 
@@ -123,7 +132,10 @@ describe('Hubspot.upsertContact', () => {
         email: testEmail,
         city: 'San Fransico',
         graduation_date: 1664533942262,
-        lifecyclestage: 'subscriber'
+        lifecyclestage: 'subscriber',
+        company: 'Segment',
+        phone: '+13134561129',
+        website: 'segment.inc1'
       }
     }
 
@@ -166,7 +178,10 @@ describe('Hubspot.upsertContact', () => {
         city: 'San Fransico',
         graduation_date: 1664533942262,
         lifecyclestage: 'subscriber',
-        email: testEmail
+        email: testEmail,
+        company: 'Segment',
+        phone: '+13134561129',
+        website: 'segment.inc1'
       }
     }
 
