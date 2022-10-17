@@ -11,16 +11,13 @@ export class LinkedInAudiences {
     this.request = request
   }
 
-  getProfile = async (): Promise<ModifiedResponse<ProfileAPIResponse>> => {
+  async getProfile(): Promise<ModifiedResponse<ProfileAPIResponse>> {
     return this.request(`${BASE_URL}/me`, {
       method: 'GET'
     })
   }
 
-  getAdAccountUserProfile = async (
-    settings: Settings,
-    userId: string
-  ): Promise<ModifiedResponse<AdAccountUserResponse>> => {
+  async getAdAccountUserProfile(settings: Settings, userId: string): Promise<ModifiedResponse<AdAccountUserResponse>> {
     return this.request(
       `${BASE_URL}/adAccountUsers/account=urn:li:sponsoredAccount:${settings.ad_account_id}&user=urn:li:person:${userId}`,
       {
@@ -29,7 +26,7 @@ export class LinkedInAudiences {
     )
   }
 
-  getDmpSegment = async (settings: Settings, payload: Payload): Promise<ModifiedResponse> => {
+  async getDmpSegment(settings: Settings, payload: Payload): Promise<ModifiedResponse> {
     return this.request(`${BASE_URL}/dmpSegments`, {
       method: 'GET',
       searchParams: {
@@ -41,7 +38,7 @@ export class LinkedInAudiences {
     })
   }
 
-  createDmpSegment = async (settings: Settings, payload: Payload): Promise<ModifiedResponse> => {
+  async createDmpSegment(settings: Settings, payload: Payload): Promise<ModifiedResponse> {
     return this.request(`${BASE_URL}/dmpSegments`, {
       method: 'POST',
       json: {
@@ -60,7 +57,7 @@ export class LinkedInAudiences {
     })
   }
 
-  batchUpdate = async (dmpSegmentId: string, elements: Record<string, string>[]): Promise<ModifiedResponse> => {
+  async batchUpdate(dmpSegmentId: string, elements: Record<string, string>[]): Promise<ModifiedResponse> {
     return this.request(`${BASE_URL}/dmpSegments/${dmpSegmentId}/users`, {
       method: 'POST',
       headers: {
