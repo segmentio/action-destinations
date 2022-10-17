@@ -2,7 +2,7 @@ import { ActionDefinition, IntegrationError } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 import { CartItem, GoogleAdsAPI, PartialErrorResponse } from '../types'
-import { formatCustomVariables, hash, getCustomVariables, handleGoogleErrors } from '../functions'
+import { formatCustomVariables, hash, getCustomVariables, handleGoogleErrors, convertTimestamp } from '../functions'
 import { ModifiedResponse } from '@segment/actions-core'
 
 const action: ActionDefinition<Settings, Payload> = {
@@ -203,7 +203,7 @@ const action: ActionDefinition<Settings, Payload> = {
 
     const request_object: { [key: string]: any } = {
       conversionAction: `customers/${settings.customerId}/conversionActions/${payload.conversion_action}`,
-      conversionDateTime: payload.conversion_timestamp.replace(/T/, ' ').replace(/\..+/, '+00:00'),
+      conversionDateTime: convertTimestamp(payload.conversion_timestamp),
       gclid: payload.gclid,
       gbraid: payload.gbraid,
       wbraid: payload.wbraid,
