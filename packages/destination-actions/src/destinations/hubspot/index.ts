@@ -3,6 +3,7 @@ import type { Settings } from './generated-types'
 
 import sendCustomBehavioralEvent from './sendCustomBehavioralEvent'
 import upsertContact from './upsertContact'
+import upsertCompany from './upsertCompany'
 import upsertCustomObjectRecord from './upsertCustomObjectRecord'
 import { hubSpotBaseURL } from './properties'
 interface RefreshTokenResponse {
@@ -10,7 +11,7 @@ interface RefreshTokenResponse {
 }
 
 const destination: DestinationDefinition<Settings> = {
-  name: 'Hubspot Cloud Mode (Actions)',
+  name: 'HubSpot Cloud Mode (Actions)',
   slug: 'actions-hubspot-cloud',
   mode: 'cloud',
 
@@ -47,6 +48,7 @@ const destination: DestinationDefinition<Settings> = {
   actions: {
     sendCustomBehavioralEvent,
     upsertContact,
+    upsertCompany,
     upsertCustomObjectRecord
   }
 }
