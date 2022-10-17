@@ -1,7 +1,7 @@
 import { ActionDefinition, IntegrationError } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
-import { formatCustomVariables, getCustomVariables, handleGoogleErrors } from '../functions'
+import { convertTimestamp, formatCustomVariables, getCustomVariables, handleGoogleErrors } from '../functions'
 import { GoogleAdsAPI, PartialErrorResponse } from '../types'
 import { ModifiedResponse } from '@segment/actions-core'
 
@@ -81,8 +81,8 @@ const action: ActionDefinition<Settings, Payload> = {
     const request_object: { [key: string]: any } = {
       conversionAction: `customers/${settings.customerId}/conversionActions/${payload.conversion_action}`,
       callerId: payload.caller_id,
-      callStartDateTime: payload.call_timestamp.replace(/T/, ' ').replace(/\..+/, '+00:00'),
-      conversionDateTime: payload.conversion_timestamp.replace(/T/, ' ').replace(/\..+/, '+00:00'),
+      callStartDateTime: convertTimestamp(payload.call_timestamp),
+      conversionDateTime: convertTimestamp(payload.conversion_timestamp),
       conversionValue: payload.value,
       currencyCode: payload.currency
     }
