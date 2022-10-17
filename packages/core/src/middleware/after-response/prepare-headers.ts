@@ -1,4 +1,4 @@
-import { ModifiedResponse } from 'src/types'
+import type { ModifiedResponse } from '../../types'
 import type { AfterResponseHook } from '../../request-client'
 
 const headersToObject = (headers: Headers) => {
