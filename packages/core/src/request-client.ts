@@ -3,7 +3,6 @@ import { CustomError } from 'ts-custom-error'
 import fetch, { Headers, Request, Response } from './fetch'
 import { isObject } from './real-type-of'
 import type https from 'https'
-import { ModifiedResponse } from './types'
 
 /**
  * The supported request options you can use with the request client
@@ -87,7 +86,7 @@ type MaybePromise<T> = Promise<T> | T
 export type BeforeRequestHook = (options: NormalizedOptions) => MaybePromise<RequestOptions | void>
 
 /** A hook that executes after a response is received. Useful for logging, cleanup, or modifying the response object */
-export type AfterResponseHook<OutputResponse extends ModifiedResponse = ModifiedResponse> = (
+export type AfterResponseHook<OutputResponse extends Response = Response> = (
   request: Request,
   options: NormalizedOptions,
   response: Response
