@@ -6,7 +6,7 @@ import { generateValidHubSpotCustomObjectName } from '../../testHelper'
 
 const testDestination = createTestIntegration(destination)
 const actionSlug = 'upsertCustomObjectRecord'
-const destinationSlug = 'Hubspot'
+const destinationSlug = 'HubSpot'
 const seedName = `${destinationSlug}#${actionSlug}`
 
 describe(`Testing snapshot for ${destinationSlug}'s ${actionSlug} destination action:`, () => {

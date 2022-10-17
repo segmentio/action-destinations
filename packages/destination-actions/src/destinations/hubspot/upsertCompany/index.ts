@@ -1,7 +1,7 @@
 import { ActionDefinition, RequestClient, ModifiedResponse, HTTPError } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
-import { hubSpotBaseURL, SEGMENT_UNIQUE_IDENTIFIER, ASSOCIATION_TYPE } from '../properties'
+import { HUBSPOT_BASE_URL, SEGMENT_UNIQUE_IDENTIFIER, ASSOCIATION_TYPE } from '../properties'
 import {
   UpsertCompanyError,
   MissingIdentityCallThrowableError,
@@ -109,6 +109,7 @@ interface CompanyContactAssociationResponse extends CompanyInfo {
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Upsert Company',
   description: 'Create or update a company in HubSpot.',
+  defaultSubscription: 'type = "group"',
   fields: {
     groupid: {
       label: 'Group ID',
@@ -439,7 +440,7 @@ function searchCompany(request: RequestClient, companySearchFields: { [key: stri
     })
   }
 
-  return request<SearchCompanyResponse>(`${hubSpotBaseURL}/crm/v3/objects/companies/search`, {
+  return request<SearchCompanyResponse>(`${HUBSPOT_BASE_URL}/crm/v3/objects/companies/search`, {
     method: 'POST',
     json: {
       ...companySearchPayload
@@ -454,7 +455,7 @@ function searchCompany(request: RequestClient, companySearchFields: { [key: stri
  * @returns {Promise<ModifiedResponse<UpsertCompanyResponse>>} A promise that resolves to updated company object
  */
 function createCompany(request: RequestClient, properties: { [key: string]: unknown }) {
-  return request<UpsertCompanyResponse>(`${hubSpotBaseURL}/crm/v3/objects/companies`, {
+  return request<UpsertCompanyResponse>(`${HUBSPOT_BASE_URL}/crm/v3/objects/companies`, {
     method: 'POST',
     json: {
       properties: {
@@ -482,7 +483,7 @@ function updateCompany(
   // URL to update company by ID: /crm/v3/objects/companies/{companyId}
   // URL to update company by unique property: /crm/v3/objects/companies/{uniqueIdentifier}?idProperty={uniquePropertyInternalName}
   const updateCompanyURL =
-    `${hubSpotBaseURL}/crm/v3/objects/companies/${uniqueIdentifier}` + (idProperty ? `?idProperty=${idProperty}` : '')
+    `${HUBSPOT_BASE_URL}/crm/v3/objects/companies/${uniqueIdentifier}` + (idProperty ? `?idProperty=${idProperty}` : '')
 
   return request<UpsertCompanyResponse>(updateCompanyURL, {
     method: 'PATCH',
@@ -501,7 +502,7 @@ function updateCompany(
  * @returns {Promise<ModifiedResponse<UpsertCompanyResponse>>} A promise that resolves to Property creation status
  */
 function createCompanyProperty(request: RequestClient, property: CompanyProperty) {
-  return request<UpsertCompanyResponse>(`${hubSpotBaseURL}/crm/v3/properties/companies`, {
+  return request<UpsertCompanyResponse>(`${HUBSPOT_BASE_URL}/crm/v3/properties/companies`, {
     method: 'POST',
     json: {
       ...property
@@ -523,7 +524,7 @@ function associateCompanyToContact(
   associationType: string
 ) {
   return request<CompanyContactAssociationResponse>(
-    `${hubSpotBaseURL}/crm/v3/objects/companies/${companyId}/associations/contacts/${contactId}/${associationType}`,
+    `${HUBSPOT_BASE_URL}/crm/v3/objects/companies/${companyId}/associations/contacts/${contactId}/${associationType}`,
     {
       method: 'PUT'
     }

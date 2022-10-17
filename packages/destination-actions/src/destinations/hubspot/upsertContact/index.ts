@@ -1,8 +1,8 @@
 import { HTTPError } from '@segment/actions-core'
 import { ActionDefinition, RequestClient } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
-import { hubSpotBaseURL } from '../properties'
 import type { Payload } from './generated-types'
+import { HUBSPOT_BASE_URL } from '../properties'
 
 interface ContactResponse {
   id: string
@@ -187,7 +187,7 @@ const action: ActionDefinition<Settings, Payload> = {
 }
 
 async function createContact(request: RequestClient, contactProperties: { [key: string]: unknown }) {
-  return request<ContactResponse>(`${hubSpotBaseURL}/crm/v3/objects/contacts`, {
+  return request<ContactResponse>(`${HUBSPOT_BASE_URL}/crm/v3/objects/contacts`, {
     method: 'POST',
     json: {
       properties: {
@@ -198,7 +198,7 @@ async function createContact(request: RequestClient, contactProperties: { [key: 
 }
 
 async function updateContact(request: RequestClient, email: string, properties: { [key: string]: unknown }) {
-  return request<ContactResponse>(`${hubSpotBaseURL}/crm/v3/objects/contacts/${email}?idProperty=email`, {
+  return request<ContactResponse>(`${HUBSPOT_BASE_URL}/crm/v3/objects/contacts/${email}?idProperty=email`, {
     method: 'PATCH',
     json: {
       properties: {

@@ -5,8 +5,11 @@ import nock from 'nock'
 
 const testDestination = createTestIntegration(destination)
 const actionSlug = 'upsertCompany'
-const destinationSlug = 'Hubspot'
+const destinationSlug = 'HubSpot'
 const seedName = `${destinationSlug}#${actionSlug}`
+
+// const contactId = '123456789'
+const hubspotGeneratedCompanyID = '1000000000'
 
 describe(`Testing snapshot for ${destinationSlug}'s ${actionSlug} destination action:`, () => {
   it('required fields', async () => {
@@ -16,6 +19,7 @@ describe(`Testing snapshot for ${destinationSlug}'s ${actionSlug} destination ac
     nock(/.*/).persist().get(/.*/).reply(200)
     nock(/.*/).persist().post(/.*/).reply(200)
     nock(/.*/).persist().put(/.*/).reply(200)
+    nock(/.*/).persist().patch(/.*/).reply(200, { id: hubspotGeneratedCompanyID })
 
     const event = createTestEvent({
       properties: eventData
@@ -62,6 +66,7 @@ describe(`Testing snapshot for ${destinationSlug}'s ${actionSlug} destination ac
     nock(/.*/).persist().get(/.*/).reply(200)
     nock(/.*/).persist().post(/.*/).reply(200)
     nock(/.*/).persist().put(/.*/).reply(200)
+    nock(/.*/).persist().patch(/.*/).reply(200, { id: hubspotGeneratedCompanyID })
 
     const event = createTestEvent({
       properties: eventData

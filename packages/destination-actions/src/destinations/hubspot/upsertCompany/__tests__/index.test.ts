@@ -1,7 +1,7 @@
 import nock from 'nock'
 import { createTestEvent, createTestIntegration } from '@segment/actions-core'
 import Destination from '../../index'
-import { hubSpotBaseURL, SEGMENT_UNIQUE_IDENTIFIER, ASSOCIATION_TYPE } from '../../properties'
+import { HUBSPOT_BASE_URL, SEGMENT_UNIQUE_IDENTIFIER, ASSOCIATION_TYPE } from '../../properties'
 import {
   RestrictedPropertyThrowableError,
   MissingIdentityCallThrowableError,
@@ -70,7 +70,7 @@ const defaultGroupMapping = {
   // properties: {}
 }
 
-describe('Hubspot.upsertCompany', () => {
+describe('HubSpot.upsertCompany', () => {
   it('should throw an error if contact_id is missing in transactionContext', async () => {
     const event = createTestEvent({
       type: 'group',
@@ -109,7 +109,7 @@ describe('Hubspot.upsertCompany', () => {
     const hubspotGeneratedCompanyID = '1000000000'
 
     // Mock: Update company using SEGMENT_UNIQUE_IDENTIFIER
-    nock(hubSpotBaseURL)
+    nock(HUBSPOT_BASE_URL)
       .patch(`/crm/v3/objects/companies/${event.groupId}?idProperty=${SEGMENT_UNIQUE_IDENTIFIER}`)
       .reply(200, {
         id: hubspotGeneratedCompanyID,
@@ -133,7 +133,7 @@ describe('Hubspot.upsertCompany', () => {
       })
 
     // Mock: Associate a contact with company
-    nock(hubSpotBaseURL)
+    nock(HUBSPOT_BASE_URL)
       .put(
         `/crm/v3/objects/companies/${hubspotGeneratedCompanyID}/associations/contacts/${contactId}/${ASSOCIATION_TYPE}`
       )
@@ -194,7 +194,7 @@ describe('Hubspot.upsertCompany', () => {
     const hubspotGeneratedCompanyID = '1000000000'
 
     // Mock: Failed to search company with SEGMENT_UNIQUE_IDENTIFIER
-    nock(hubSpotBaseURL)
+    nock(HUBSPOT_BASE_URL)
       .patch(`/crm/v3/objects/companies/${event.groupId}?idProperty=${SEGMENT_UNIQUE_IDENTIFIER}`)
       .reply(404, {
         status: 'error',
@@ -203,7 +203,7 @@ describe('Hubspot.upsertCompany', () => {
       })
 
     // Mock: Search company with Company Search Fields
-    nock(hubSpotBaseURL)
+    nock(HUBSPOT_BASE_URL)
       .post('/crm/v3/objects/companies/search')
       .reply(200, {
         total: 1,
@@ -226,7 +226,7 @@ describe('Hubspot.upsertCompany', () => {
       })
 
     // Mock: Update a company with Company ID
-    nock(hubSpotBaseURL)
+    nock(HUBSPOT_BASE_URL)
       .patch(`/crm/v3/objects/companies/${hubspotGeneratedCompanyID}`)
       .reply(200, {
         id: 'hubspotGeneratedCompanyID',
@@ -252,7 +252,7 @@ describe('Hubspot.upsertCompany', () => {
       })
 
     // Mock: Associate a contact with company
-    nock(hubSpotBaseURL)
+    nock(HUBSPOT_BASE_URL)
       .put(
         `/crm/v3/objects/companies/${hubspotGeneratedCompanyID}/associations/contacts/${contactId}/${ASSOCIATION_TYPE}`
       )
@@ -320,7 +320,7 @@ describe('Hubspot.upsertCompany', () => {
     const hubspotGeneratedCompanyID = '1000000000'
 
     // Mock: Failed to search company with SEGMENT_UNIQUE_IDENTIFIER
-    nock(hubSpotBaseURL)
+    nock(HUBSPOT_BASE_URL)
       .patch(`/crm/v3/objects/companies/${event.groupId}?idProperty=${SEGMENT_UNIQUE_IDENTIFIER}`)
       .reply(404, {
         status: 'error',
@@ -329,7 +329,7 @@ describe('Hubspot.upsertCompany', () => {
       })
 
     // Mock: Create a company with Company ID
-    nock(hubSpotBaseURL)
+    nock(HUBSPOT_BASE_URL)
       .post('/crm/v3/objects/companies')
       .reply(201, {
         id: hubspotGeneratedCompanyID,
@@ -355,7 +355,7 @@ describe('Hubspot.upsertCompany', () => {
       })
 
     // Mock: Associate a contact with company
-    nock(hubSpotBaseURL)
+    nock(HUBSPOT_BASE_URL)
       .put(
         `/crm/v3/objects/companies/${hubspotGeneratedCompanyID}/associations/contacts/${contactId}/${ASSOCIATION_TYPE}`
       )
@@ -417,7 +417,7 @@ describe('Hubspot.upsertCompany', () => {
     const hubspotGeneratedCompanyID = '1000000000'
 
     // Mock: Failed to search company with SEGMENT_UNIQUE_IDENTIFIER
-    nock(hubSpotBaseURL)
+    nock(HUBSPOT_BASE_URL)
       .patch(`/crm/v3/objects/companies/${event.groupId}?idProperty=${SEGMENT_UNIQUE_IDENTIFIER}`)
       .reply(404, {
         status: 'error',
@@ -426,7 +426,7 @@ describe('Hubspot.upsertCompany', () => {
       })
 
     // Mock: Failed to create a company due to missing SEGMENT_UNIQUE_IDENTIFIER property
-    nock(hubSpotBaseURL).post('/crm/v3/objects/companies').reply(400, {
+    nock(HUBSPOT_BASE_URL).post('/crm/v3/objects/companies').reply(400, {
       status: 'error',
       message:
         'Property values were not valid: [{"isValid":false,"message":"Property \\"segment_group_id\\" does not exist","error":"PROPERTY_DOESNT_EXIST","name":"segment_group_id"}]',
@@ -435,7 +435,7 @@ describe('Hubspot.upsertCompany', () => {
     })
 
     // Mock: Create SEGMENT_UNIQUE_IDENTIFIER
-    nock(hubSpotBaseURL)
+    nock(HUBSPOT_BASE_URL)
       .post('/crm/v3/properties/companies')
       .reply(201, {
         updatedAt: '2022-10-15T06:05:51.599Z',
@@ -464,7 +464,7 @@ describe('Hubspot.upsertCompany', () => {
       })
 
     // Mock: Retry to Create a company
-    nock(hubSpotBaseURL)
+    nock(HUBSPOT_BASE_URL)
       .post('/crm/v3/objects/companies')
       .reply(201, {
         id: hubspotGeneratedCompanyID,
@@ -490,7 +490,7 @@ describe('Hubspot.upsertCompany', () => {
       })
 
     // Mock: Associate a contact with company
-    nock(hubSpotBaseURL)
+    nock(HUBSPOT_BASE_URL)
       .put(
         `/crm/v3/objects/companies/${hubspotGeneratedCompanyID}/associations/contacts/${contactId}/${ASSOCIATION_TYPE}`
       )
@@ -554,7 +554,7 @@ describe('Hubspot.upsertCompany', () => {
     const hubspotGeneratedCompanyID = '1000000000'
 
     // Mock: Failed to search company with SEGMENT_UNIQUE_IDENTIFIER
-    nock(hubSpotBaseURL)
+    nock(HUBSPOT_BASE_URL)
       .patch(`/crm/v3/objects/companies/${event.groupId}?idProperty=${SEGMENT_UNIQUE_IDENTIFIER}`)
       .reply(404, {
         status: 'error',
@@ -563,7 +563,7 @@ describe('Hubspot.upsertCompany', () => {
       })
 
     // Mock: Search company with Company Search Fields
-    nock(hubSpotBaseURL)
+    nock(HUBSPOT_BASE_URL)
       .post('/crm/v3/objects/companies/search')
       .reply(200, {
         total: 1,
@@ -586,7 +586,7 @@ describe('Hubspot.upsertCompany', () => {
       })
 
     // Mock: Failed to update company due to missing SEGMENT_UNIQUE_IDENTIFIER property
-    nock(hubSpotBaseURL).patch(`/crm/v3/objects/companies/${hubspotGeneratedCompanyID}`).reply(400, {
+    nock(HUBSPOT_BASE_URL).patch(`/crm/v3/objects/companies/${hubspotGeneratedCompanyID}`).reply(400, {
       status: 'error',
       message:
         'Property values were not valid: [{"isValid":false,"message":"Property \\"segment_group_id\\" does not exist","error":"PROPERTY_DOESNT_EXIST","name":"segment_group_id"}]',
@@ -595,7 +595,7 @@ describe('Hubspot.upsertCompany', () => {
     })
 
     // Mock: Create SEGMENT_UNIQUE_IDENTIFIER property
-    nock(hubSpotBaseURL)
+    nock(HUBSPOT_BASE_URL)
       .post('/crm/v3/properties/companies')
       .reply(201, {
         updatedAt: '2022-10-15T06:05:51.599Z',
@@ -624,7 +624,7 @@ describe('Hubspot.upsertCompany', () => {
       })
 
     // Mock: Retry to update company
-    nock(hubSpotBaseURL)
+    nock(HUBSPOT_BASE_URL)
       .patch(`/crm/v3/objects/companies/${hubspotGeneratedCompanyID}`)
       .reply(200, {
         id: hubspotGeneratedCompanyID,
@@ -650,7 +650,7 @@ describe('Hubspot.upsertCompany', () => {
       })
 
     // Mock: Associate a contact with company
-    nock(hubSpotBaseURL)
+    nock(HUBSPOT_BASE_URL)
       .put(
         `/crm/v3/objects/companies/${hubspotGeneratedCompanyID}/associations/contacts/${contactId}/${ASSOCIATION_TYPE}`
       )
@@ -770,7 +770,7 @@ describe('Hubspot.upsertCompany', () => {
     const contactId = '123456789'
 
     // Mock: Failed to search update company with SEGMENT_UNIQUE_IDENTIFIER
-    nock(hubSpotBaseURL)
+    nock(HUBSPOT_BASE_URL)
       .patch(`/crm/v3/objects/companies/${event.groupId}?idProperty=${SEGMENT_UNIQUE_IDENTIFIER}`)
       .reply(500, { ...errorResponse })
 
@@ -808,7 +808,7 @@ describe('Hubspot.upsertCompany', () => {
     const contactId = '123456789'
 
     // Mock: Failed to search company with SEGMENT_UNIQUE_IDENTIFIER
-    nock(hubSpotBaseURL)
+    nock(HUBSPOT_BASE_URL)
       .patch(`/crm/v3/objects/companies/${event.groupId}?idProperty=${SEGMENT_UNIQUE_IDENTIFIER}`)
       .reply(404, {
         status: 'error',
@@ -817,7 +817,7 @@ describe('Hubspot.upsertCompany', () => {
       })
 
     // Mock: Search company with Company Search Fields
-    nock(hubSpotBaseURL)
+    nock(HUBSPOT_BASE_URL)
       .post('/crm/v3/objects/companies/search')
       .reply(200, {
         total: 2,
@@ -887,7 +887,7 @@ describe('Hubspot.upsertCompany', () => {
     const contactId = '123456789'
 
     // Mock: Failed to search company with SEGMENT_UNIQUE_IDENTIFIER
-    nock(hubSpotBaseURL)
+    nock(HUBSPOT_BASE_URL)
       .patch(`/crm/v3/objects/companies/${event.groupId}?idProperty=${SEGMENT_UNIQUE_IDENTIFIER}`)
       .reply(404, {
         status: 'error',
@@ -896,7 +896,7 @@ describe('Hubspot.upsertCompany', () => {
       })
 
     // Mock: Search company with Company Search Fields
-    nock(hubSpotBaseURL).post('/crm/v3/objects/companies/search').reply(400, {
+    nock(HUBSPOT_BASE_URL).post('/crm/v3/objects/companies/search').reply(400, {
       status: 'error',
       message: 'There was a problem with the request.',
       correlationId: 'aabbcc5b01-c9c7-4000-9191-000000000000'
@@ -943,7 +943,7 @@ describe('Hubspot.upsertCompany', () => {
     const contactId = '123456789'
 
     // Mock: Failed to search company with SEGMENT_UNIQUE_IDENTIFIER
-    nock(hubSpotBaseURL)
+    nock(HUBSPOT_BASE_URL)
       .patch(`/crm/v3/objects/companies/${event.groupId}?idProperty=${SEGMENT_UNIQUE_IDENTIFIER}`)
       .reply(404, {
         status: 'error',
@@ -952,7 +952,7 @@ describe('Hubspot.upsertCompany', () => {
       })
 
     // Mock: Search company with Company Search Fields
-    nock(hubSpotBaseURL)
+    nock(HUBSPOT_BASE_URL)
       .post('/crm/v3/objects/companies/search')
       .reply(500, { ...errorResponse })
 
@@ -1002,7 +1002,7 @@ describe('Hubspot.upsertCompany', () => {
     const contactId = '123456789'
 
     // Mock: Failed to search company with SEGMENT_UNIQUE_IDENTIFIER
-    nock(hubSpotBaseURL)
+    nock(HUBSPOT_BASE_URL)
       .patch(`/crm/v3/objects/companies/${event.groupId}?idProperty=${SEGMENT_UNIQUE_IDENTIFIER}`)
       .reply(404, {
         status: 'error',
@@ -1011,7 +1011,7 @@ describe('Hubspot.upsertCompany', () => {
       })
 
     // Mock: Failed to create a company due to an unknown error
-    nock(hubSpotBaseURL)
+    nock(HUBSPOT_BASE_URL)
       .post('/crm/v3/objects/companies')
       .reply(500, {
         ...errorResponse
@@ -1059,7 +1059,7 @@ describe('Hubspot.upsertCompany', () => {
     const hubspotGeneratedCompanyID = '1000000000'
 
     // Mock: Failed to search company with SEGMENT_UNIQUE_IDENTIFIER
-    nock(hubSpotBaseURL)
+    nock(HUBSPOT_BASE_URL)
       .patch(`/crm/v3/objects/companies/${event.groupId}?idProperty=${SEGMENT_UNIQUE_IDENTIFIER}`)
       .reply(404, {
         status: 'error',
@@ -1068,7 +1068,7 @@ describe('Hubspot.upsertCompany', () => {
       })
 
     // Mock: Search company with Company Search Fields
-    nock(hubSpotBaseURL)
+    nock(HUBSPOT_BASE_URL)
       .post('/crm/v3/objects/companies/search')
       .reply(200, {
         total: 1,
@@ -1091,7 +1091,7 @@ describe('Hubspot.upsertCompany', () => {
       })
 
     // Mock: Failed to update a company due to an unknown error
-    nock(hubSpotBaseURL)
+    nock(HUBSPOT_BASE_URL)
       .patch(`/crm/v3/objects/companies/${hubspotGeneratedCompanyID}`)
       .reply(500, {
         ...errorResponse
@@ -1143,7 +1143,7 @@ describe('Hubspot.upsertCompany', () => {
     const contactId = '123456789'
 
     // Mock: Failed to search company with SEGMENT_UNIQUE_IDENTIFIER
-    nock(hubSpotBaseURL)
+    nock(HUBSPOT_BASE_URL)
       .patch(`/crm/v3/objects/companies/${event.groupId}?idProperty=${SEGMENT_UNIQUE_IDENTIFIER}`)
       .reply(404, {
         status: 'error',
@@ -1152,7 +1152,7 @@ describe('Hubspot.upsertCompany', () => {
       })
 
     // Mock: Failed to create a company due to an unknown error
-    nock(hubSpotBaseURL).post('/crm/v3/objects/companies').reply(400, {
+    nock(HUBSPOT_BASE_URL).post('/crm/v3/objects/companies').reply(400, {
       status: 'error',
       message:
         'Property values were not valid: [{"isValid":false,"message":"Property \\"segment_group_id\\" does not exist","error":"PROPERTY_DOESNT_EXIST","name":"segment_group_id"}]',
@@ -1161,7 +1161,7 @@ describe('Hubspot.upsertCompany', () => {
     })
 
     // Mock: Create SEGMENT_UNIQUE_IDENTIFIER
-    nock(hubSpotBaseURL)
+    nock(HUBSPOT_BASE_URL)
       .post('/crm/v3/properties/companies')
       .reply(500, {
         ...errorResponse
@@ -1209,7 +1209,7 @@ describe('Hubspot.upsertCompany', () => {
     const hubspotGeneratedCompanyID = '1000000000'
 
     // Mock: Failed to search company with SEGMENT_UNIQUE_IDENTIFIER
-    nock(hubSpotBaseURL)
+    nock(HUBSPOT_BASE_URL)
       .patch(`/crm/v3/objects/companies/${event.groupId}?idProperty=${SEGMENT_UNIQUE_IDENTIFIER}`)
       .reply(404, {
         status: 'error',
@@ -1218,7 +1218,7 @@ describe('Hubspot.upsertCompany', () => {
       })
 
     // Mock: Search company with Company Search Fields
-    nock(hubSpotBaseURL)
+    nock(HUBSPOT_BASE_URL)
       .post('/crm/v3/objects/companies/search')
       .reply(200, {
         total: 1,
@@ -1241,7 +1241,7 @@ describe('Hubspot.upsertCompany', () => {
       })
 
     // Mock: Failed to update company due to missing SEGMENT_UNIQUE_IDENTIFIER property
-    nock(hubSpotBaseURL).patch(`/crm/v3/objects/companies/${hubspotGeneratedCompanyID}`).reply(400, {
+    nock(HUBSPOT_BASE_URL).patch(`/crm/v3/objects/companies/${hubspotGeneratedCompanyID}`).reply(400, {
       status: 'error',
       message:
         'Property values were not valid: [{"isValid":false,"message":"Property \\"segment_group_id\\" does not exist","error":"PROPERTY_DOESNT_EXIST","name":"segment_group_id"}]',
@@ -1250,7 +1250,7 @@ describe('Hubspot.upsertCompany', () => {
     })
 
     // Mock: Create SEGMENT_UNIQUE_IDENTIFIER
-    nock(hubSpotBaseURL)
+    nock(HUBSPOT_BASE_URL)
       .post('/crm/v3/properties/companies')
       .reply(500, {
         ...errorResponse
@@ -1298,7 +1298,7 @@ describe('Hubspot.upsertCompany', () => {
     const contactId = '123456789'
 
     // Mock: Failed to search update company with SEGMENT_UNIQUE_IDENTIFIER
-    nock(hubSpotBaseURL)
+    nock(HUBSPOT_BASE_URL)
       .patch(`/crm/v3/objects/companies/${event.groupId}?idProperty=${SEGMENT_UNIQUE_IDENTIFIER}`)
       .reply(400, {
         status: 'error',
@@ -1309,7 +1309,7 @@ describe('Hubspot.upsertCompany', () => {
       })
 
     // Mock: Create SEGMENT_UNIQUE_IDENTIFIER property for company
-    nock(hubSpotBaseURL)
+    nock(HUBSPOT_BASE_URL)
       .post('/crm/v3/properties/companies')
       .reply(201, {
         updatedAt: '2022-10-14T20:04:48.613Z',

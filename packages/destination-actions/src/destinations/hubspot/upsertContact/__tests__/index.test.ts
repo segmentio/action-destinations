@@ -1,7 +1,7 @@
 import nock from 'nock'
 import { createTestEvent, createTestIntegration } from '@segment/actions-core'
 import Destination from '../../index'
-import { hubSpotBaseURL } from '../../properties'
+import { HUBSPOT_BASE_URL } from '../../properties'
 
 const testDestination = createTestIntegration(Destination)
 
@@ -32,7 +32,7 @@ const mapping = {
   }
 }
 
-describe('Hubspot.upsertContact', () => {
+describe('HubSpot.upsertContact', () => {
   test('should create contact successfully and set contact id in transaction context', async () => {
     const expectedPayload = {
       properties: {
@@ -51,13 +51,13 @@ describe('Hubspot.upsertContact', () => {
         }
       }
     }
-    nock(hubSpotBaseURL).patch(`/crm/v3/objects/contacts/${testEmail}?idProperty=email`, expectedPayload).reply(404, {
+    nock(HUBSPOT_BASE_URL).patch(`/crm/v3/objects/contacts/${testEmail}?idProperty=email`, expectedPayload).reply(404, {
       status: 'error',
       message: 'resource not found',
       correlationId: 'be56c5f3-5841-4661-b52f-65b3aacd0244'
     })
 
-    nock(hubSpotBaseURL).post('/crm/v3/objects/contacts', expectedPayload).reply(201, {
+    nock(HUBSPOT_BASE_URL).post('/crm/v3/objects/contacts', expectedPayload).reply(201, {
       id: '801',
       properties: expectedPayload.properties
     })
@@ -89,7 +89,7 @@ describe('Hubspot.upsertContact', () => {
       }
     }
 
-    nock(hubSpotBaseURL)
+    nock(HUBSPOT_BASE_URL)
       .patch(`/crm/v3/objects/contacts/${testEmail}?idProperty=email`, patchExpectedPayload)
       .reply(200, {
         id: '801',
@@ -137,7 +137,7 @@ describe('Hubspot.upsertContact', () => {
       category: 'VALIDATION_ERROR'
     }
 
-    nock(hubSpotBaseURL)
+    nock(HUBSPOT_BASE_URL)
       .patch(`/crm/v3/objects/contacts/${testEmail}?idProperty=email`, patchExpectedPayload)
       .reply(400, errorResponse)
 
@@ -170,7 +170,7 @@ describe('Hubspot.upsertContact', () => {
       }
     }
 
-    nock(hubSpotBaseURL)
+    nock(HUBSPOT_BASE_URL)
       .patch(`/crm/v3/objects/contacts/${testEmail}?idProperty=email`, patchExpectedPayload)
       .reply(200, {
         id: '801',
@@ -179,7 +179,7 @@ describe('Hubspot.upsertContact', () => {
         }
       })
 
-    nock(hubSpotBaseURL)
+    nock(HUBSPOT_BASE_URL)
       .patch(`/crm/v3/objects/contacts/${testEmail}?idProperty=email`, { properties: { lifecyclestage: '' } })
       .reply(200, {
         id: '801',
@@ -188,7 +188,7 @@ describe('Hubspot.upsertContact', () => {
         }
       })
 
-    nock(hubSpotBaseURL)
+    nock(HUBSPOT_BASE_URL)
       .patch(`/crm/v3/objects/contacts/${testEmail}?idProperty=email`, patchExpectedPayload)
       .reply(200, {
         id: '801',

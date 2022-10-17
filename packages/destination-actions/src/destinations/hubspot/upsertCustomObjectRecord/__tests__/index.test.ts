@@ -5,7 +5,7 @@ import Destination from '../../index'
 const testDestination = createTestIntegration(Destination)
 const endpoint = 'https://api.hubapi.com/crm/v3/objects'
 
-describe('Hubspot.upsertCustomObjectRecord', () => {
+describe('HubSpot.upsertCustomObjectRecord', () => {
   // Validate creation of custom object with fullyQualifiedName of a HubSpot Schema
   it('should create a Custom Object with fullyQualifiedName of a Schema', async () => {
     nock(endpoint)

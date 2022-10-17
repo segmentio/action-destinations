@@ -1,63 +1,31 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`Testing snapshot for Hubspot's upsertCompany destination action: all fields 1`] = `
-[FetchError: request to https://api.hubapi.com/crm/v3/objects/companies/wEehCy&KAKMYU6K?idProperty=segment_group_id failed, reason: Nock: No match for request {
-  "method": "PATCH",
-  "url": "https://api.hubapi.com/crm/v3/objects/companies/wEehCy&KAKMYU6K?idProperty=segment_group_id",
-  "headers": {
-    "authorization": [
-      "Bearer undefined"
-    ],
-    "user-agent": [
-      "Segment (Actions)"
-    ],
-    "content-type": [
-      "application/json"
-    ],
-    "accept": [
-      "*/*"
-    ],
-    "content-length": [
-      "427"
-    ],
-    "accept-encoding": [
-      "gzip,deflate"
-    ],
-    "connection": [
-      "close"
-    ]
+exports[`Testing snapshot for HubSpot's upsertCompany destination action: all fields 1`] = `
+Object {
+  "properties": Object {
+    "address": "F9hZOtvgHY(T6dF5vS7",
+    "city": "F9hZOtvgHY(T6dF5vS7",
+    "createdate": "F9hZOtvgHY(T6dF5vS7",
+    "description": "F9hZOtvgHY(T6dF5vS7",
+    "domain": "F9hZOtvgHY(T6dF5vS7",
+    "industry": "F9hZOtvgHY(T6dF5vS7",
+    "lifecyclestage": "f9hzotvghy(t6df5vs7",
+    "name": "F9hZOtvgHY(T6dF5vS7",
+    "numberofemployees": 7464592431120384,
+    "phone": "F9hZOtvgHY(T6dF5vS7",
+    "segment_group_id": "F9hZOtvgHY(T6dF5vS7",
+    "state": "F9hZOtvgHY(T6dF5vS7",
+    "testType": "F9hZOtvgHY(T6dF5vS7",
+    "zip": "F9hZOtvgHY(T6dF5vS7",
   },
-  "body": "{\\"properties\\":{\\"name\\":\\"wEehCy&KAKMYU6K\\",\\"description\\":\\"wEehCy&KAKMYU6K\\",\\"createdate\\":\\"wEehCy&KAKMYU6K\\",\\"address\\":\\"wEehCy&KAKMYU6K\\",\\"city\\":\\"wEehCy&KAKMYU6K\\",\\"state\\":\\"wEehCy&KAKMYU6K\\",\\"zip\\":\\"wEehCy&KAKMYU6K\\",\\"domain\\":\\"wEehCy&KAKMYU6K\\",\\"phone\\":\\"wEehCy&KAKMYU6K\\",\\"numberofemployees\\":3153531238350848,\\"industry\\":\\"wEehCy&KAKMYU6K\\",\\"lifecyclestage\\":\\"weehcy&kakmyu6k\\",\\"segment_group_id\\":\\"wEehCy&KAKMYU6K\\",\\"testType\\":\\"wEehCy&KAKMYU6K\\"}}"
-}]
+}
 `;
 
-exports[`Testing snapshot for Hubspot's upsertCompany destination action: required fields 1`] = `
-[FetchError: request to https://api.hubapi.com/crm/v3/objects/companies/wEehCy&KAKMYU6K?idProperty=segment_group_id failed, reason: Nock: No match for request {
-  "method": "PATCH",
-  "url": "https://api.hubapi.com/crm/v3/objects/companies/wEehCy&KAKMYU6K?idProperty=segment_group_id",
-  "headers": {
-    "authorization": [
-      "Bearer undefined"
-    ],
-    "user-agent": [
-      "Segment (Actions)"
-    ],
-    "content-type": [
-      "application/json"
-    ],
-    "accept": [
-      "*/*"
-    ],
-    "content-length": [
-      "78"
-    ],
-    "accept-encoding": [
-      "gzip,deflate"
-    ],
-    "connection": [
-      "close"
-    ]
+exports[`Testing snapshot for HubSpot's upsertCompany destination action: required fields 1`] = `
+Object {
+  "properties": Object {
+    "name": "F9hZOtvgHY(T6dF5vS7",
+    "segment_group_id": "F9hZOtvgHY(T6dF5vS7",
   },
-  "body": "{\\"properties\\":{\\"name\\":\\"wEehCy&KAKMYU6K\\",\\"segment_group_id\\":\\"wEehCy&KAKMYU6K\\"}}"
-}]
+}
 `;
