@@ -64,7 +64,7 @@ registerDirective('@if', (opts, payload) => {
     condition = value !== undefined && value !== null
   } else if (opts.blank !== undefined) {
     const value = resolve(opts.blank, payload)
-    condition = value !== undefined && value !== null && value != +''
+    condition = value !== undefined && value !== null && value != ''
   }
 
   if (condition && opts.then !== undefined) {
