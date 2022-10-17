@@ -5,7 +5,7 @@ import Destination from '../../index'
 const testDestination = createTestIntegration(Destination)
 const endpoint = 'https://api.hubapi.com/crm/v3/objects'
 
-describe('Hubspot.customObject', () => {
+describe('Hubspot.upsertCustomObjectRecord', () => {
   // Validate creation of custom object with fullyQualifiedName of a HubSpot Schema
   it('should create a Custom Object with fullyQualifiedName of a Schema', async () => {
     nock(endpoint)
@@ -33,7 +33,7 @@ describe('Hubspot.customObject', () => {
       }
     })
 
-    const responses = await testDestination.testAction('createCustomObjectRecord', {
+    const responses = await testDestination.testAction('upsertCustomObjectRecord', {
       event,
       mapping: {
         objectType: 'p11223344_discount',
@@ -94,7 +94,7 @@ describe('Hubspot.customObject', () => {
       }
     })
 
-    const responses = await testDestination.testAction('createCustomObjectRecord', {
+    const responses = await testDestination.testAction('upsertCustomObjectRecord', {
       event,
       mapping: {
         objectType: 'deals',
@@ -149,7 +149,7 @@ describe('Hubspot.customObject', () => {
       }
     })
 
-    const responses = await testDestination.testAction('createCustomObjectRecord', {
+    const responses = await testDestination.testAction('upsertCustomObjectRecord', {
       event,
       mapping: {
         objectType: 'tickets',
@@ -194,7 +194,7 @@ describe('Hubspot.customObject', () => {
     })
 
     await expect(
-      testDestination.testAction('createCustomObjectRecord', {
+      testDestination.testAction('upsertCustomObjectRecord', {
         event,
         mapping: {
           objectType: objectName,

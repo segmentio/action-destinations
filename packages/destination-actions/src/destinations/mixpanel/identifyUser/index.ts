@@ -1,4 +1,4 @@
-import { ActionDefinition, IntegrationError } from '@segment/actions-core'
+import { ActionDefinition, IntegrationError, omit } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 
@@ -65,11 +65,21 @@ const action: ActionDefinition<Settings, Payload> = {
     }
 
     if (payload.traits && Object.keys(payload.traits).length > 0) {
+      const traits = {
+        ...omit(payload.traits, ['created', 'email', 'firstName', 'lastName', 'name', 'username', 'phone']),
+        // to fit the Mixpanel expectations, transform the special traits to Mixpanel reserved property
+        $created: payload.traits.created,
+        $email: payload.traits.email,
+        $first_name: payload.traits.firstName,
+        $last_name: payload.traits.lastName,
+        $name: payload.traits.name,
+        $username: payload.traits.username,
+        $phone: payload.traits.phone
+      }
       const data = {
         $token: settings.projectToken,
         $distinct_id: payload.user_id,
-        $set: payload.traits,
-        segment_source_name: settings.sourceName
+        $set: traits
       }
 
       const engageResponse = request(`${apiServerUrl}/engage`, {

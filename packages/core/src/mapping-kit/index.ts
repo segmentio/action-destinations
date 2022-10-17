@@ -57,11 +57,14 @@ registerDirective('@if', (opts, payload) => {
     throw new Error('@if requires an object with an "exists" key')
   }
 
-  if (opts.exists !== undefined) {
+  if (!opts.exists && !opts.blank) {
+    throw new Error('@if requires an "exists" key or a "blank" key')
+  } else if (opts.exists !== undefined) {
     const value = resolve(opts.exists, payload)
     condition = value !== undefined && value !== null
-  } else {
-    throw new Error('@if requires an "exists" key')
+  } else if (opts.blank !== undefined) {
+    const value = resolve(opts.blank, payload)
+    condition = value !== undefined && value !== null && value != +''
   }
 
   if (condition && opts.then !== undefined) {
