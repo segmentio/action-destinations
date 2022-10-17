@@ -1,4 +1,4 @@
-import type { ActionDefinition, ModifiedResponse } from '@segment/actions-core'
+import type { ActionDefinition } from '@segment/actions-core'
 import { RequestClient, RetryableError, IntegrationError } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
@@ -80,12 +80,14 @@ async function processPayload(request: RequestClient, settings: Settings, payloa
   const dmpSegmentId = await getDmpSegmentId(linkedinApiClient, settings, payloads[0])
   const elements = extractUsers(settings, payloads)
 
-  // We should never hit this condition, but if we do, returning a 200 response
-  // rather than hitting LinkedIn's API (with no data) is more efficient. If a request
-  // with an empty elements array were sent to LINKEDIN_API_VERSION, their API would
-  // also respond with status 200.
+  // We should never hit this condition because at least an email or a
+  // google ad id is required in each payload, but if we do, returning early
+  // rather than hitting LinkedIn's API (with no data) is more efficient.
+  // The monoservice will interpret this early return as a 200.
+  // If we were to send an empty elements array to LINKEDIN_API_VERSION,
+  // their API would also respond with status 200.
   if (elements.length < 1) {
-    return { status: 200 } as ModifiedResponse
+    return
   }
 
   const res = await linkedinApiClient.batchUpdate(dmpSegmentId, elements)
