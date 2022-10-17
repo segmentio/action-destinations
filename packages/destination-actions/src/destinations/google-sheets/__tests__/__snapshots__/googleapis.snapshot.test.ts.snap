@@ -2,7 +2,7 @@
 
 exports[`Google Sheets Testing snapshots for googleapis library: append 1`] = `
 Array [
-  "https://sheets.googleapis.com/v4/spreadsheets/myId/values/myName!B:B:append?valueInputOption=myFormat",
+  "https://sheets.googleapis.com/v4/spreadsheets/myId/values/myName!B:B:append?valueInputOption=myFormat&insertDataOption=INSERT_ROWS",
   Object {
     "json": Object {
       "values": Array [
