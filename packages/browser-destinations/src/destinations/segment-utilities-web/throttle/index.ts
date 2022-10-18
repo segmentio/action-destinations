@@ -8,12 +8,31 @@ const action: BrowserActionDefinition<Settings, SegmentUtilitiesInstance, Payloa
   description: 'Throttle events sent to Segment. Throttling is on a per event name basis.',
   platform: 'web',
   defaultSubscription: 'type = "track"',
-  fields: {},
+  fields: {
+    passThroughCount: {
+      label: 'Number of events to pass through',
+      description: 'Override the global pass through count.',
+      type: 'integer',
+      allowNull: true
+    },
+    throttleWindow: {
+      label: 'Throttle time',
+      description: 'Override the global throttle time.',
+      type: 'number',
+      allowNull: true
+    }
+  },
   lifecycleHook: 'before',
   perform: ({ eventMap }, data) => {
-    const { context, settings } = data
-    const passThroughCount = settings.passThroughCount ?? 1
-    const throttleWindow = settings.throttleWindow ?? 3000
+    const { context, settings, payload } = data
+
+    const overridePassThroughCount = isNaN(Number(payload.passThroughCount))
+      ? undefined
+      : Number(payload.passThroughCount)
+    const overrideThrottleWindow = isNaN(Number(payload.throttleWindow)) ? undefined : Number(payload.throttleWindow)
+
+    const passThroughCount = overridePassThroughCount ?? settings.passThroughCount ?? 1
+    const throttleWindow = overrideThrottleWindow ?? settings.throttleWindow ?? 0
     const event = context.event.event
 
     if (!event) {

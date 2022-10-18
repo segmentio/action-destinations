@@ -36,6 +36,91 @@ describe('throttle', () => {
     expect(ctx?.event.integrations?.['Segment.io']).toEqual(false)
   })
 
+  test('does not throttle if no settings provided', async () => {
+    const [throttle] = await segmentUtilities({
+      subscriptions: [
+        {
+          partnerAction: 'throttle',
+          name: 'Throttle',
+          enabled: true,
+          subscribe: 'type = "track"',
+          mapping: {}
+        }
+      ]
+    })
+
+    await throttle.load(Context.system(), ajs)
+    let ctx = await throttle.track?.(new Context({ type: 'track', event: 'Video Played' }))
+
+    expect(ctx?.event.integrations).not.toBeDefined()
+
+    ctx = await throttle.track?.(new Context({ type: 'track', event: 'Video Played' }))
+
+    expect(ctx?.event.integrations).not.toBeDefined()
+  })
+
+  test('accept overrides', async () => {
+    const [throttle] = await segmentUtilities({
+      throttleWindow: 3000,
+      passThroughCount: 1,
+      subscriptions: [
+        {
+          partnerAction: 'throttle',
+          name: 'Throttle',
+          enabled: true,
+          subscribe: 'type = "track"',
+          mapping: {
+            passThroughCount: 2
+          }
+        }
+      ]
+    })
+
+    await throttle.load(Context.system(), ajs)
+    let ctx = await throttle.track?.(new Context({ type: 'track', event: 'Video Played' }))
+
+    expect(ctx?.event.integrations).not.toBeDefined()
+
+    ctx = await throttle.track?.(new Context({ type: 'track', event: 'Video Played' }))
+
+    expect(ctx?.event.integrations).not.toBeDefined()
+
+    ctx = await throttle.track?.(new Context({ type: 'track', event: 'Video Played' }))
+
+    expect(ctx?.event.integrations).toBeDefined()
+    expect(ctx?.event.integrations?.['Segment.io']).toEqual(false)
+  })
+
+  test('ignores invalid overrides', async () => {
+    const [throttle] = await segmentUtilities({
+      throttleWindow: 3000,
+      passThroughCount: 1,
+      subscriptions: [
+        {
+          partnerAction: 'throttle',
+          name: 'Throttle',
+          enabled: true,
+          subscribe: 'type = "track"',
+          mapping: {
+            passThroughCount: {
+              '@path': '$.event'
+            }
+          }
+        }
+      ]
+    })
+
+    await throttle.load(Context.system(), ajs)
+    let ctx = await throttle.track?.(new Context({ type: 'track', event: 'Video Played' }))
+
+    expect(ctx?.event.integrations).not.toBeDefined()
+
+    ctx = await throttle.track?.(new Context({ type: 'track', event: 'Video Played' }))
+
+    expect(ctx?.event.integrations).toBeDefined()
+    expect(ctx?.event.integrations?.['Segment.io']).toEqual(false)
+  })
+
   test('does not allow any event to pass through if the pass through count is 0', async () => {
     const [throttle] = await segmentUtilities({
       throttleWindow: 3000,
