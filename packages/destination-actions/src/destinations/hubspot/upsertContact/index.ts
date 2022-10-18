@@ -163,7 +163,7 @@ const action: ActionDefinition<Settings, Payload> = {
       // If the stage we are trying to set is backward than the current stage, it retains the current stage
       // and updates the timestamp. For determining if reset is required or not, we can compare
       // the stage returned in response with the desired stage . If they are not the same, reset
-      // and update. More details -
+      // and update. More details - https://knowledge.hubspot.com/contacts/use-lifecycle-stages
       if (payload.lifecyclestage) {
         const currentLCS = response.data.properties['lifecyclestage']
         const hasLCSChanged = currentLCS === payload.lifecyclestage.toLowerCase()

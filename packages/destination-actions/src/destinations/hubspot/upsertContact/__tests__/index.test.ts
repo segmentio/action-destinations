@@ -15,7 +15,11 @@ const event = createTestEvent({
     first_name: 'John',
     last_name: 'Doe',
     address: {
-      city: 'San Fransico'
+      city: 'San Francisco',
+      country: 'USA',
+      postal_code: '600001',
+      state: 'California',
+      street: 'Vancover st'
     },
     graduation_date: 1664533942262,
     lifecyclestage: 'subscriber',
@@ -42,7 +46,11 @@ describe('Hubspot.upsertContact', () => {
         email: testEmail,
         firstname: 'John',
         lastname: 'Doe',
-        city: 'San Fransico',
+        country: 'USA',
+        zip: '600001',
+        state: 'California',
+        address: 'Vancover st',
+        city: 'San Francisco',
         graduation_date: 1664533942262,
         company: 'Segment',
         phone: '+13134561129',
@@ -57,6 +65,7 @@ describe('Hubspot.upsertContact', () => {
         }
       }
     }
+
     nock(hubSpotBaseURL).patch(`/crm/v3/objects/contacts/${testEmail}?idProperty=email`, expectedPayload).reply(404, {
       status: 'error',
       message: 'resource not found',
@@ -89,7 +98,11 @@ describe('Hubspot.upsertContact', () => {
         firstname: 'John',
         lastname: 'Doe',
         email: testEmail,
-        city: 'San Fransico',
+        country: 'USA',
+        zip: '600001',
+        state: 'California',
+        address: 'Vancover st',
+        city: 'San Francisco',
         graduation_date: 1664533942262,
         lifecyclestage: 'subscriber',
         company: 'Segment',
@@ -130,7 +143,11 @@ describe('Hubspot.upsertContact', () => {
         firstname: 'John',
         lastname: 'Doe',
         email: testEmail,
-        city: 'San Fransico',
+        country: 'USA',
+        zip: '600001',
+        state: 'California',
+        address: 'Vancover st',
+        city: 'San Francisco',
         graduation_date: 1664533942262,
         lifecyclestage: 'subscriber',
         company: 'Segment',
@@ -175,7 +192,11 @@ describe('Hubspot.upsertContact', () => {
       properties: {
         firstname: 'John',
         lastname: 'Doe',
-        city: 'San Fransico',
+        city: 'San Francisco',
+        country: 'USA',
+        zip: '600001',
+        state: 'California',
+        address: 'Vancover st',
         graduation_date: 1664533942262,
         lifecyclestage: 'subscriber',
         email: testEmail,
@@ -236,7 +257,7 @@ describe('Hubspot.upsertContact', () => {
         first_name: 'John',
         last_name: 'Doe',
         address: {
-          city: 'San Fransico'
+          city: 'San Francisco'
         },
         graduation_date: 1664533942262,
         lifecyclestage: 'subscriber'
