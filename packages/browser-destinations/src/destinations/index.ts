@@ -40,3 +40,5 @@ register('62d9daff84a6bf190da9f592', './intercom')
 register('62fec615a42fa3dbfd208ce7', './iterate')
 register('631a1c2bfdce36a23f0a14ec', './hubspot-web')
 register('6340a951fbda093061f5f1d7', './segment-utilities-web')
+register('634ef204885be3def430af66', './playerzero-web')
+
