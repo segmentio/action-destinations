@@ -4,6 +4,7 @@ import type { BrowserDestinationDefinition } from '../../lib/browser-destination
 import { browserDestination } from '../../runtime/shim'
 import LogRocket from 'logrocket'
 import track from './track'
+import identify from './identify'
 import { defaultValues } from '@segment/actions-core'
 
 declare global {
@@ -23,6 +24,12 @@ export const destination: BrowserDestinationDefinition<Settings, LR> = {
       subscribe: 'type = "track"',
       partnerAction: 'track',
       mapping: defaultValues(track.fields)
+    },
+    {
+      name: 'Identify',
+      subscribe: 'type = "identify"',
+      partnerAction: 'identify',
+      mapping: defaultValues(identify.fields)
     }
   ],
 
@@ -43,7 +50,8 @@ export const destination: BrowserDestinationDefinition<Settings, LR> = {
   },
 
   actions: {
-    track
+    track,
+    identify
   }
 }
 
