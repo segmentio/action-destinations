@@ -39,9 +39,7 @@ describe('Logrocket', () => {
   test('can load', async () => {
     const [event] = await plugins({ appID: 'log/rocket', subscriptions })
 
-    /* tslint:disable-next-line */
     window.XMLHttpRequest = jest.fn()
-    /* tslint:disable-next-line */
     window.Worker = WorkerStub
     jest.spyOn(destination, 'initialize')
 
