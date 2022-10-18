@@ -7,6 +7,7 @@ import https from 'https'
 import { LinkedInAudiences } from './api'
 import type { RefreshTokenResponse, ProfileAPIResponse, AdAccountUserResponse } from './types'
 import type { ModifiedResponse } from '@segment/actions-core'
+import { IntegrationError } from '@segment/actions-core'
 
 const destination: DestinationDefinition<Settings> = {
   // We  need to match `name` with the creationName in the db. The name used in the UI is "LinkedIn Audiences".
@@ -96,15 +97,25 @@ const destination: DestinationDefinition<Settings> = {
       return true
     },
     refreshAccessToken: async (request, { auth }) => {
-      const res = await request<RefreshTokenResponse>('https://www.linkedin.com/oauth/v2/accessToken', {
-        method: 'POST',
-        body: new URLSearchParams({
-          refresh_token: auth.refreshToken,
-          client_id: auth.clientId,
-          client_secret: auth.clientSecret,
-          grant_type: 'refresh_token'
+      let res
+
+      try {
+        res = await request<RefreshTokenResponse>('https://www.linkedin.com/oauth/v2/accessToken', {
+          method: 'POST',
+          body: new URLSearchParams({
+            refresh_token: auth.refreshToken,
+            client_id: auth.clientId,
+            client_secret: auth.clientSecret,
+            grant_type: 'refresh_token'
+          })
         })
-      })
+      } catch (e: any) {
+        if (e.response?.data?.error === 'invalid_grant') {
+          throw new IntegrationError('Invalid Authentication', 'EXPIRED_REFRESH_TOKEN', 401)
+        }
+
+        throw e
+      }
 
       return { accessToken: res?.data?.access_token }
     }
