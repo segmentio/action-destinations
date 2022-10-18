@@ -5,6 +5,10 @@ import dataExtension from './dataExtension'
 import contactDataExtension from './contactDataExtension'
 import apiEvent from './apiEvent'
 
+interface RefreshTokenResponse {
+  access_token: string
+}
+
 const destination: DestinationDefinition<Settings> = {
   name: 'Salesforce Marketing Cloud (Actions)',
   slug: 'actions-salesforce-marketing-cloud',
@@ -25,22 +29,47 @@ const destination: DestinationDefinition<Settings> = {
         description: 'STAGE TESTING',
         type: 'string',
         required: true
+      },
+      account_id: {
+        label: 'account id',
+        description: 'STAGE TESTING',
+        type: 'string',
+        required: true
+      },
+      client_id: {
+        label: 'client_id',
+        description: 'STAGE TESTING',
+        type: 'string',
+        required: true
+      },
+      client_secret: {
+        label: 'client_secret',
+        description: 'STAGE TESTING',
+        type: 'string',
+        required: true
       }
+    },
+    refreshAccessToken: async (request, { settings }) => {
+      const baseUrl = `https://${settings.subdomain}.auth.marketingcloudapis.com/v2/token`
+      const res = await request<RefreshTokenResponse>(`${baseUrl}`, {
+        method: 'POST',
+        body: new URLSearchParams({
+          account_id: settings.account_id,
+          client_id: settings.client_id,
+          client_secret: settings.client_secret,
+          grant_type: 'client_credentials'
+        })
+      })
+      return { accessToken: res.data.access_token }
     }
   },
-  extendRequest({ settings }) {
+  extendRequest({ auth }) {
     return {
       headers: {
-        authorization: `Bearer ${settings.token}`
+        authorization: `Bearer ${auth?.accessToken}`
       }
     }
   },
-
-  // onDelete: async (request, { settings, payload }) => {
-  //   // Return a request that performs a GDPR delete for the provided Segment userId or anonymousId
-  //   // provided in the payload. If your destination does not support GDPR deletion you should not
-  //   // implement this function and should remove it completely.
-
   actions: {
     contact,
     dataExtension,

@@ -10,7 +10,7 @@ export interface Payload {
    */
   contactKey: string
   /**
-   * The properties of the event. Fields must be created in the event definition schema before sending data for it.On the left-hand side, input the SFMC field name exactly how it appears in the event definition schema. On the right-hand side, map the Segment field that contains the corresponding value.
+   * The properties of the event. Fields must be created in the event definition schema before sending data for it. On the left-hand side, input the SFMC field name exactly how it appears in the event definition schema. On the right-hand side, map the Segment field that contains the corresponding value.
    */
   data?: {
     [k: string]: unknown
