@@ -54,14 +54,14 @@ export const eventDefinitionKey: InputField = {
 export const eventData: InputField = {
   label: 'Event Data',
   description:
-    'The properties of the event. Fields must be created in the event definition schema before sending data for it.On the left-hand side, input the SFMC field name exactly how it appears in the event definition schema. On the right-hand side, map the Segment field that contains the corresponding value.',
+    'The properties of the event. Fields must be created in the event definition schema before sending data for it. On the left-hand side, input the SFMC field name exactly how it appears in the event definition schema. On the right-hand side, map the Segment field that contains the corresponding value.',
   type: 'object',
   defaultObjectUI: 'keyvalue:only'
 }
 
 export const enable_batching: InputField = {
-  label: 'Enable Batching',
-  description: 'If true, data is batched before sending to the SFMC Data Extension to help reduce API calls.',
+  label: 'Batch data to SFMC',
+  description: 'If true, data is batched before sending to the SFMC Data Extension.',
   type: 'boolean',
   default: false
 }
