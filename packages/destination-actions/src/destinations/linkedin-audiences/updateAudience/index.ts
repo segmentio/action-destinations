@@ -120,10 +120,12 @@ async function processPayload(request: RequestClient, settings: Settings, payloa
 
 async function getDmpSegmentId(request: RequestClient, settings: Settings, payload: Payload) {
   const res = await getDmpSegment(request, settings, payload)
-  const body = await res.json()
+  const body = res.data as { elements?: Array<any> }
 
-  if (body.elements?.length > 0) {
-    return body.elements[0].id
+  if (body && body.elements) {
+    if (body.elements?.length > 0) {
+      return body.elements[0].id
+    }
   }
 
   return createDmpSegment(request, settings, payload)

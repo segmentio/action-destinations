@@ -3,18 +3,9 @@ import type { ModifiedResponse } from '../../types'
 
 const prepareResponse: AfterResponseHook = async (_request, _options, response) => {
   const modifiedResponse = response as ModifiedResponse
-
-  let content: string
-  if (_options.skipResponseCloning) {
-    // Skip cloning the response to avoid a Node crash in case the response payload is larger than 16KB
-    // TODO STRATCONN-1396: Move all action-destinations to follow this code path instead of cloning the response
-    content = await response.text()
-  } else {
-    // Clone the response before reading the body to avoid
-    // `TypeError: body used already` elsewhere
-    const clone = response.clone()
-    content = await clone.text()
-  }
+  // We're consuming the body here. Since it can only be read once,
+  // the ModifiedResponse strips away methods that would throw a `Type Error` if called.
+  const content = await response.text()
 
   const agent: NormalizedOptions['agent'] = _options.agent
   if (agent) {

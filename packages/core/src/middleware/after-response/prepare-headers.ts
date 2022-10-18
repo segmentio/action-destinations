@@ -1,3 +1,4 @@
+import type { ModifiedResponse } from '../../types'
 import type { AfterResponseHook } from '../../request-client'
 
 const headersToObject = (headers: Headers) => {
@@ -19,7 +20,7 @@ const prepareHeaders: AfterResponseHook = async (_request, _options, response) =
     value: () => headersToObject(response.headers)
   })
 
-  return response
+  return response as ModifiedResponse
 }
 
 export default prepareHeaders
