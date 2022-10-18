@@ -127,7 +127,7 @@ const action: ActionDefinition<Settings, Payload> = {
       label: 'Other properties',
       type: 'object',
       description:
-        'Any other default or custom contact properties. Custom properties must be predefined in HubSpot. See more information in [HubSpot’s documentation](https://knowledge.hubspot.com/crm-setup/manage-your-properties#create-custom-properties).',
+        'Any other default or custom contact properties. On the left-hand side, input the internal name of the property as seen in your HubSpot account. On the right-hand side, map the Segment field that contains the value. Custom properties must be predefined in HubSpot. See more information in [HubSpot’s documentation](https://knowledge.hubspot.com/crm-setup/manage-your-properties#create-custom-properties).',
       defaultObjectUI: 'keyvalue:only'
     }
   },
