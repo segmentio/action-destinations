@@ -85,7 +85,12 @@ describe('HubSpot.upsertCompany', () => {
       testDestination.testAction('upsertCompany', {
         event,
         mapping: {
-          ...defaultGroupMapping
+          ...defaultGroupMapping,
+          companysearchfields: {
+            domain: {
+              '@path': '$.traits.website'
+            }
+          }
         },
         transactionContext: {
           transaction: {},
@@ -166,7 +171,12 @@ describe('HubSpot.upsertCompany', () => {
     const responses = await testDestination.testAction('upsertCompany', {
       event,
       mapping: {
-        ...defaultGroupMapping
+        ...defaultGroupMapping,
+        companysearchfields: {
+          domain: {
+            '@path': '$.traits.website'
+          }
+        }
       },
       transactionContext: {
         transaction: {
@@ -328,6 +338,12 @@ describe('HubSpot.upsertCompany', () => {
         correlationId: 'aabbcc5b01-c9c7-4000-9191-000000000000'
       })
 
+    // Mock: Search company returned no results
+    nock(HUBSPOT_BASE_URL).post('/crm/v3/objects/companies/search').reply(200, {
+      total: 0,
+      results: []
+    })
+
     // Mock: Create a company with Company ID
     nock(HUBSPOT_BASE_URL)
       .post('/crm/v3/objects/companies')
@@ -388,7 +404,12 @@ describe('HubSpot.upsertCompany', () => {
     const responses = await testDestination.testAction('upsertCompany', {
       event,
       mapping: {
-        ...defaultGroupMapping
+        ...defaultGroupMapping,
+        companysearchfields: {
+          domain: {
+            '@path': '$.traits.website'
+          }
+        }
       },
       transactionContext: {
         transaction: {
@@ -399,8 +420,9 @@ describe('HubSpot.upsertCompany', () => {
     })
 
     expect(responses[0].status).toEqual(404)
-    expect(responses[1].status).toEqual(201)
-    expect(responses[2].status).toEqual(200)
+    expect(responses[1].status).toEqual(200)
+    expect(responses[2].status).toEqual(201)
+    expect(responses[3].status).toEqual(200)
   })
 
   it('should create SEGMENT_UNIQUE_IDENTIFIER and create a company if SEGMENT_UNIQUE_IDENTIFIER property is not found', async () => {
@@ -424,6 +446,12 @@ describe('HubSpot.upsertCompany', () => {
         message: 'resource not found',
         correlationId: 'aabbcc5b01-c9c7-4000-9191-000000000000'
       })
+
+    // Mock: Search company returned no results
+    nock(HUBSPOT_BASE_URL).post('/crm/v3/objects/companies/search').reply(200, {
+      total: 0,
+      results: []
+    })
 
     // Mock: Failed to create a company due to missing SEGMENT_UNIQUE_IDENTIFIER property
     nock(HUBSPOT_BASE_URL).post('/crm/v3/objects/companies').reply(400, {
@@ -523,7 +551,12 @@ describe('HubSpot.upsertCompany', () => {
     const responses = await testDestination.testAction('upsertCompany', {
       event,
       mapping: {
-        ...defaultGroupMapping
+        ...defaultGroupMapping,
+        companysearchfields: {
+          domain: {
+            '@path': '$.traits.website'
+          }
+        }
       },
       transactionContext: {
         transaction: {
@@ -534,10 +567,11 @@ describe('HubSpot.upsertCompany', () => {
     })
 
     expect(responses[0].status).toEqual(404)
-    expect(responses[1].status).toEqual(400)
-    expect(responses[2].status).toEqual(201)
+    expect(responses[1].status).toEqual(200)
+    expect(responses[2].status).toEqual(400)
     expect(responses[3].status).toEqual(201)
-    expect(responses[4].status).toEqual(200)
+    expect(responses[4].status).toEqual(201)
+    expect(responses[5].status).toEqual(200)
   })
 
   it('should create SEGMENT_UNIQUE_IDENTIFIER and update a company if SEGMENT_UNIQUE_IDENTIFIER property is not found', async () => {
@@ -720,6 +754,11 @@ describe('HubSpot.upsertCompany', () => {
         event,
         mapping: {
           ...defaultGroupMapping,
+          companysearchfields: {
+            domain: {
+              '@path': '$.traits.website'
+            }
+          },
           properties: {
             [SEGMENT_UNIQUE_IDENTIFIER]: {
               '@path': '$.groupId'
@@ -744,7 +783,12 @@ describe('HubSpot.upsertCompany', () => {
       testDestination.testAction('upsertCompany', {
         event,
         mapping: {
-          ...defaultGroupMapping
+          ...defaultGroupMapping,
+          companysearchfields: {
+            domain: {
+              '@path': '$.traits.website'
+            }
+          }
         }
       })
     ).rejects.toThrowError(MissingIdentityCallThrowableError)
@@ -778,7 +822,12 @@ describe('HubSpot.upsertCompany', () => {
       testDestination.testAction('upsertCompany', {
         event,
         mapping: {
-          ...defaultGroupMapping
+          ...defaultGroupMapping,
+          companysearchfields: {
+            domain: {
+              '@path': '$.traits.website'
+            }
+          }
         },
         transactionContext: {
           transaction: {
@@ -1010,6 +1059,12 @@ describe('HubSpot.upsertCompany', () => {
         correlationId: 'aabbcc5b01-c9c7-4000-9191-000000000000'
       })
 
+    // Mock: Search company returned no results
+    nock(HUBSPOT_BASE_URL).post('/crm/v3/objects/companies/search').reply(200, {
+      total: 0,
+      results: []
+    })
+
     // Mock: Failed to create a company due to an unknown error
     nock(HUBSPOT_BASE_URL)
       .post('/crm/v3/objects/companies')
@@ -1021,7 +1076,12 @@ describe('HubSpot.upsertCompany', () => {
       testDestination.testAction('upsertCompany', {
         event,
         mapping: {
-          ...defaultGroupMapping
+          ...defaultGroupMapping,
+          companysearchfields: {
+            domain: {
+              '@path': '$.traits.website'
+            }
+          }
         },
         transactionContext: {
           transaction: {
@@ -1151,6 +1211,12 @@ describe('HubSpot.upsertCompany', () => {
         correlationId: 'aabbcc5b01-c9c7-4000-9191-000000000000'
       })
 
+    // Mock: Search company returned no results
+    nock(HUBSPOT_BASE_URL).post('/crm/v3/objects/companies/search').reply(200, {
+      total: 0,
+      results: []
+    })
+
     // Mock: Failed to create a company due to an unknown error
     nock(HUBSPOT_BASE_URL).post('/crm/v3/objects/companies').reply(400, {
       status: 'error',
@@ -1171,7 +1237,12 @@ describe('HubSpot.upsertCompany', () => {
       testDestination.testAction('upsertCompany', {
         event,
         mapping: {
-          ...defaultGroupMapping
+          ...defaultGroupMapping,
+          companysearchfields: {
+            domain: {
+              '@path': '$.traits.website'
+            }
+          }
         },
         transactionContext: {
           transaction: {
@@ -1341,7 +1412,12 @@ describe('HubSpot.upsertCompany', () => {
       testDestination.testAction('upsertCompany', {
         event,
         mapping: {
-          ...defaultGroupMapping
+          ...defaultGroupMapping,
+          companysearchfields: {
+            domain: {
+              '@path': '$.traits.website'
+            }
+          }
         },
         transactionContext: {
           transaction: {

@@ -8,7 +8,7 @@ export interface Payload {
   /**
    * The unique field(s) used to search for an existing company in HubSpot to update. By default, Segment creates a custom property to store groupId for each company and uses this property to search for companies. If a company is not found, the fields provided here are then used to search. If a company is still not found, a new one is created.
    */
-  companysearchfields?: {
+  companysearchfields: {
     [k: string]: unknown
   }
   /**
