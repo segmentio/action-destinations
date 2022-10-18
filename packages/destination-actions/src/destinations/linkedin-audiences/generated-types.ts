@@ -6,7 +6,7 @@ export interface Settings {
    */
   ad_account_id: string
   /**
-   * Whether to send `email` to LinkedIn. This setting applies to mappings you create in this destination instance.
+   * Whether to send `email` to LinkedIn. This setting applies to all mappings you create in this destination instance.
    */
   send_email: boolean
   /**

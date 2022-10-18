@@ -27,7 +27,7 @@ const destination: DestinationDefinition<Settings> = {
       send_email: {
         label: 'Send Email',
         description:
-          'Whether to send `email` to LinkedIn. This setting applies to mappings you create in this destination instance.',
+          'Whether to send `email` to LinkedIn. This setting applies to all mappings you create in this destination instance.',
         type: 'boolean',
         default: true,
         required: true
