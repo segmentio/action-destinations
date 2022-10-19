@@ -198,20 +198,21 @@ export class Action<Settings, Payload extends JSONLikeObject> extends EventEmitt
     }
   }
 
-  executeDynamicField(field: string, data: ExecuteDynamicFieldInput<Settings, Payload>): unknown {
+  executeDynamicField(field: string, data: ExecuteDynamicFieldInput<Settings, Payload>): Promise<DynamicFieldResponse> {
     const fn = this.definition.dynamicFields?.[field]
     if (typeof fn !== 'function') {
-      return {
+      return Promise.resolve({
         choices: [],
         nextPage: '',
         error: {
           message: `No dynamic field named ${field} found.`,
           code: '404'
         }
-      }
+      })
     }
 
-    return this.performRequest(fn, data)
+    // fn will always be a dynamic field function, so we can safely cast it to Promise<DynamicFieldResponse>
+    return this.performRequest(fn, data) as Promise<DynamicFieldResponse>
   }
 
   /**
