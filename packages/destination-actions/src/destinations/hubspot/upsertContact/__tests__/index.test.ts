@@ -15,10 +15,17 @@ const event = createTestEvent({
     first_name: 'John',
     last_name: 'Doe',
     address: {
-      city: 'San Fransico'
+      city: 'San Francisco',
+      country: 'USA',
+      postal_code: '600001',
+      state: 'California',
+      street: 'Vancover st'
     },
     graduation_date: 1664533942262,
-    lifecyclestage: 'subscriber'
+    lifecyclestage: 'subscriber',
+    company: 'Segment',
+    phone: '+13134561129',
+    website: 'segment.inc1'
   }
 })
 const mapping = {
@@ -39,8 +46,15 @@ describe('HubSpot.upsertContact', () => {
         email: testEmail,
         firstname: 'John',
         lastname: 'Doe',
-        city: 'San Fransico',
-        graduation_date: 1664533942262
+        country: 'USA',
+        zip: '600001',
+        state: 'California',
+        address: 'Vancover st',
+        city: 'San Francisco',
+        graduation_date: 1664533942262,
+        company: 'Segment',
+        phone: '+13134561129',
+        website: 'segment.inc1'
       }
     }
 
@@ -83,9 +97,16 @@ describe('HubSpot.upsertContact', () => {
         firstname: 'John',
         lastname: 'Doe',
         email: testEmail,
-        city: 'San Fransico',
+        country: 'USA',
+        zip: '600001',
+        state: 'California',
+        address: 'Vancover st',
+        city: 'San Francisco',
         graduation_date: 1664533942262,
-        lifecyclestage: 'subscriber'
+        lifecyclestage: 'subscriber',
+        company: 'Segment',
+        phone: '+13134561129',
+        website: 'segment.inc1'
       }
     }
 
@@ -121,9 +142,16 @@ describe('HubSpot.upsertContact', () => {
         firstname: 'John',
         lastname: 'Doe',
         email: testEmail,
-        city: 'San Fransico',
+        country: 'USA',
+        zip: '600001',
+        state: 'California',
+        address: 'Vancover st',
+        city: 'San Francisco',
         graduation_date: 1664533942262,
-        lifecyclestage: 'subscriber'
+        lifecyclestage: 'subscriber',
+        company: 'Segment',
+        phone: '+13134561129',
+        website: 'segment.inc1'
       }
     }
 
@@ -163,10 +191,17 @@ describe('HubSpot.upsertContact', () => {
       properties: {
         firstname: 'John',
         lastname: 'Doe',
-        city: 'San Fransico',
+        city: 'San Francisco',
+        country: 'USA',
+        zip: '600001',
+        state: 'California',
+        address: 'Vancover st',
         graduation_date: 1664533942262,
         lifecyclestage: 'subscriber',
-        email: testEmail
+        email: testEmail,
+        company: 'Segment',
+        phone: '+13134561129',
+        website: 'segment.inc1'
       }
     }
 
@@ -221,7 +256,7 @@ describe('HubSpot.upsertContact', () => {
         first_name: 'John',
         last_name: 'Doe',
         address: {
-          city: 'San Fransico'
+          city: 'San Francisco'
         },
         graduation_date: 1664533942262,
         lifecyclestage: 'subscriber'

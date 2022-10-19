@@ -127,7 +127,7 @@ const action: ActionDefinition<Settings, Payload> = {
       label: 'Other properties',
       type: 'object',
       description:
-        'Any other default or custom contact properties. Custom properties must be predefined in HubSpot. See more information in [HubSpot’s documentation](https://knowledge.hubspot.com/crm-setup/manage-your-properties#create-custom-properties).',
+        'Any other default or custom contact properties. On the left-hand side, input the internal name of the property as seen in your HubSpot account. On the right-hand side, map the Segment field that contains the value. Custom properties must be predefined in HubSpot. See more information in [HubSpot’s documentation](https://knowledge.hubspot.com/crm-setup/manage-your-properties#create-custom-properties).',
       defaultObjectUI: 'keyvalue:only'
     }
   },
@@ -143,6 +143,7 @@ const action: ActionDefinition<Settings, Payload> = {
       country: payload.country,
       zip: payload.zip,
       email: payload.email,
+      website: payload.website,
       lifecyclestage: payload.lifecyclestage?.toLowerCase(),
       ...payload.properties
     }
@@ -162,7 +163,7 @@ const action: ActionDefinition<Settings, Payload> = {
       // If the stage we are trying to set is backward than the current stage, it retains the current stage
       // and updates the timestamp. For determining if reset is required or not, we can compare
       // the stage returned in response with the desired stage . If they are not the same, reset
-      // and update. More details -
+      // and update. More details - https://knowledge.hubspot.com/contacts/use-lifecycle-stages
       if (payload.lifecyclestage) {
         const currentLCS = response.data.properties['lifecyclestage']
         const hasLCSChanged = currentLCS === payload.lifecyclestage.toLowerCase()
@@ -174,7 +175,7 @@ const action: ActionDefinition<Settings, Payload> = {
       }
       return response
     } catch (ex) {
-      if (ex instanceof HTTPError && ex.response.status == 404) {
+      if ((ex as HTTPError)?.response.status == 404) {
         const result = await createContact(request, contactProperties)
 
         // cache contact_id for it to be available for company action
