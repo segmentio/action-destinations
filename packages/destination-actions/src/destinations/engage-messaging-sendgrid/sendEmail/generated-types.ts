@@ -70,6 +70,10 @@ export interface Payload {
    */
   bodyHtml?: string
   /**
+   * Subscription group ID
+   */
+  groupId?: string
+  /**
    * An array of user profile identity information.
    */
   externalIds?: {
@@ -85,6 +89,16 @@ export interface Payload {
      * The subscription status for the identity.
      */
     subscriptionStatus?: string
+    /**
+     * Subscription groups and their statuses for this id.
+     */
+    groups?: {
+      id?: string
+      /**
+       * Group subscription status true is subscribed, false is unsubscribed or did-not-subscribe
+       */
+      isSubscribed?: boolean
+    }[]
   }[]
   /**
    * Additional custom args that we be passed back opaquely on webhook events

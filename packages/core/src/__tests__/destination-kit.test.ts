@@ -1,4 +1,11 @@
-import { Destination, DestinationDefinition, Logger, StatsClient, StatsContext } from '../destination-kit'
+import {
+  Destination,
+  DestinationDefinition,
+  Logger,
+  StatsClient,
+  StatsContext,
+  TransactionContext
+} from '../destination-kit'
 import { JSONObject } from '../json-object'
 import { SegmentEvent } from '../segment-event'
 
@@ -96,8 +103,8 @@ const destinationWithOptions: DestinationDefinition<JSONObject> = {
       description: 'Send events to a custom event in API',
       defaultSubscription: 'type = "track"',
       fields: {},
-      perform: (_request, { features, statsContext, logger }) => {
-        return { features, statsContext, logger }
+      perform: (_request, { features, statsContext, logger, transactionContext }) => {
+        return { features, statsContext, logger, transactionContext }
       }
     }
   }
@@ -412,7 +419,7 @@ describe('destination kit', () => {
       const eventOptions = {
         features: {},
         statsContext: {} as StatsContext,
-        logger: { name: 'test-integraiton', level: 'debug' } as Logger
+        logger: { name: 'test-integration', level: 'debug' } as Logger
       }
       const res = await destinationTest.onEvent(testEvent, testSettings, eventOptions)
       expect(res).toEqual([
@@ -422,6 +429,49 @@ describe('destination kit', () => {
             features: {},
             statsContext: {},
             logger: eventOptions.logger
+          }
+        }
+      ])
+    })
+  })
+  describe('transactionContext', () => {
+    test('should not crash when transactionContext is passed to the perform handler', async () => {
+      const destinationTest = new Destination(destinationWithOptions)
+      const testEvent: SegmentEvent = {
+        properties: { field_one: 'test input' },
+        userId: '3456fff',
+        type: 'track'
+      }
+      const testSettings = {
+        apiSecret: 'test_key',
+        subscription: {
+          subscribe: 'type = "track"',
+          partnerAction: 'customEvent',
+          mapping: {
+            clientId: '23455343467',
+            name: 'fancy_event',
+            parameters: { field_one: 'rogue one' }
+          }
+        }
+      }
+      const eventOptions = {
+        features: {},
+        statsContext: {} as StatsContext,
+        logger: { name: 'test-integration', level: 'debug' } as Logger,
+        transactionContext: {
+          transaction: { contact_id: '801' },
+          setTransaction: (key: string, value: string) => ({ [key]: value })
+        } as TransactionContext
+      }
+      const res = await destinationTest.onEvent(testEvent, testSettings, eventOptions)
+      expect(res).toEqual([
+        { output: 'Mappings resolved' },
+        {
+          output: {
+            features: {},
+            statsContext: {},
+            logger: eventOptions.logger,
+            transactionContext: eventOptions.transactionContext
           }
         }
       ])

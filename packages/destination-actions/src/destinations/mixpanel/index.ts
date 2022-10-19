@@ -9,13 +9,21 @@ import groupIdentifyUser from './groupIdentifyUser'
 import alias from './alias'
 import { ApiRegions } from './utils'
 
+import trackPurchase from './trackPurchase'
+
 /** used in the quick setup */
 const presets: DestinationDefinition['presets'] = [
   {
     name: 'Track Calls',
-    subscribe: 'type = "track"',
+    subscribe: 'type = "track" and event != "Order Completed"',
     partnerAction: 'trackEvent',
     mapping: defaultValues(trackEvent.fields)
+  },
+  {
+    name: 'Order Completed Calls',
+    subscribe: 'type = "track" and event = "Order Completed"',
+    partnerAction: 'trackPurchase',
+    mapping: defaultValues(trackPurchase.fields)
   },
   {
     name: 'Page Calls',
@@ -103,7 +111,8 @@ const destination: DestinationDefinition<Settings> = {
     trackEvent,
     identifyUser,
     groupIdentifyUser,
-    alias
+    alias,
+    trackPurchase
   }
 }
 

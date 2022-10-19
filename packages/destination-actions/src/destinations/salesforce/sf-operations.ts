@@ -2,6 +2,7 @@ import { IntegrationError, RequestClient } from '@segment/actions-core'
 import type { GenericPayload } from './sf-types'
 import { mapObjectToShape } from './sf-object-to-shape'
 import { buildCSVData } from './sf-utils'
+import { DynamicFieldResponse } from '@segment/actions-core'
 
 export const API_VERSION = 'v53.0'
 
@@ -25,6 +26,28 @@ interface LookupResponseData {
 
 interface CreateJobResponseData {
   id: string
+}
+
+interface SObjectsResponseData {
+  sobjects: [
+    {
+      label: string
+      name: string
+      createable: boolean
+      queryable: boolean
+    }
+  ]
+}
+
+interface SalesforceError {
+  response: {
+    data: [
+      {
+        message?: string
+        errorCode?: string
+      }
+    ]
+  }
 }
 
 export default class Salesforce {
@@ -97,6 +120,40 @@ export default class Salesforce {
       'Unsupported operation',
       400
     )
+  }
+
+  customObjectName = async (): Promise<DynamicFieldResponse> => {
+    try {
+      const result = await this.request<SObjectsResponseData>(
+        `${this.instanceUrl}services/data/${API_VERSION}/sobjects`,
+        {
+          method: 'get',
+          skipResponseCloning: true
+        }
+      )
+
+      const fields = result.data.sobjects.filter((field) => {
+        return field.createable === true
+      })
+
+      const choices = fields.map((field) => {
+        return { value: field.name, label: field.label }
+      })
+
+      return {
+        choices: choices,
+        nextPage: '2'
+      }
+    } catch (err) {
+      return {
+        choices: [],
+        nextPage: '',
+        error: {
+          message: (err as SalesforceError).response?.data[0]?.message ?? 'Unknown error',
+          code: (err as SalesforceError).response?.data[0]?.errorCode ?? 'Unknown error'
+        }
+      }
+    }
   }
 
   private bulkUpsert = async (payloads: GenericPayload[], sobject: string) => {

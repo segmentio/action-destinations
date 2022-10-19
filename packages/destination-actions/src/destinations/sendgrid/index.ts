@@ -27,6 +27,15 @@ const destination: DestinationDefinition<Settings> = {
     }
   },
 
+  extendRequest({ settings }) {
+    return {
+      headers: {
+        Authorization: `Bearer ${settings.sendGridApiKey}`,
+        Accept: 'application/json'
+      }
+    }
+  },
+
   actions: {
     updateUserProfile
   }

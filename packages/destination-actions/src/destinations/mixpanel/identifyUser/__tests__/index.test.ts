@@ -10,7 +10,18 @@ const timestamp = '2021-08-17T15:21:15.449Z'
 
 describe('Mixpanel.identifyUser', () => {
   it('should validate action fields', async () => {
-    const event = createTestEvent({ timestamp, traits: { abc: '123' } })
+    const event = createTestEvent({
+      timestamp, traits: {
+        abc: '123',
+        created: '2022-10-12T00:00:00.000Z',
+        email: 'joe@mixpanel.com',
+        firstName: 'Joe',
+        lastName: 'Doe',
+        username: 'Joe Doe',
+        phone: '12345678',
+        name: 'Joe',
+      }
+    })
 
     nock('https://api.mixpanel.com').post('/engage').reply(200, {})
     nock('https://api.mixpanel.com').post('/track').reply(200, {})
@@ -46,8 +57,16 @@ describe('Mixpanel.identifyUser', () => {
         data: JSON.stringify({
           $token: MIXPANEL_PROJECT_TOKEN,
           $distinct_id: 'user1234',
+          $ip: '8.8.8.8',
           $set: {
-            abc: '123'
+            abc: '123',
+            $created: '2022-10-12T00:00:00.000Z',
+            $email: 'joe@mixpanel.com',
+            $first_name: 'Joe',
+            $last_name: 'Doe',
+            $name: 'Joe',
+            $username: 'Joe Doe',
+            $phone: '12345678'
           }
         })
       })
@@ -91,6 +110,7 @@ describe('Mixpanel.identifyUser', () => {
         data: JSON.stringify({
           $token: MIXPANEL_PROJECT_TOKEN,
           $distinct_id: 'user1234',
+          $ip: '8.8.8.8',
           $set: {
             abc: '123'
           }
@@ -135,6 +155,7 @@ describe('Mixpanel.identifyUser', () => {
         data: JSON.stringify({
           $token: MIXPANEL_PROJECT_TOKEN,
           $distinct_id: 'user1234',
+          $ip: '8.8.8.8',
           $set: {
             abc: '123'
           }
@@ -181,10 +202,10 @@ describe('Mixpanel.identifyUser', () => {
         data: JSON.stringify({
           $token: MIXPANEL_PROJECT_TOKEN,
           $distinct_id: 'user1234',
+          $ip: '8.8.8.8',
           $set: {
             abc: '123'
-          },
-          segment_source_name: 'example segment source name'
+          }
         })
       })
     )

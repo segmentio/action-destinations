@@ -6,6 +6,14 @@ export interface Payload {
    */
   event: string
   /**
+   * A distinct ID randomly generated prior to calling identify.
+   */
+  anonymous_id?: string
+  /**
+   * The distinct ID after calling identify.
+   */
+  user_id?: string
+  /**
    * A distinct ID specified by you.
    */
   distinct_id?: string
@@ -117,6 +125,10 @@ export interface Payload {
    * Identifier for Advertiser. _(iOS)_
    */
   idfa?: string
+  /**
+   * Mixpanel will deduplicate subsequent events sent with this ID.
+   */
+  insert_id?: string
   /**
    * UTM Tracking Properties
    */
