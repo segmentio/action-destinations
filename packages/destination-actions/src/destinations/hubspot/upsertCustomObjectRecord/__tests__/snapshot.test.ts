@@ -2,7 +2,6 @@ import { createTestEvent, createTestIntegration } from '@segment/actions-core'
 import { generateTestData } from '../../../../lib/test-data'
 import destination from '../../index'
 import nock from 'nock'
-import { generateValidHubSpotCustomObjectName } from '../../testHelper'
 
 const testDestination = createTestIntegration(destination)
 const actionSlug = 'upsertCustomObjectRecord'
@@ -10,7 +9,7 @@ const destinationSlug = 'HubSpot'
 const seedName = `${destinationSlug}#${actionSlug}`
 
 describe(`Testing snapshot for ${destinationSlug}'s ${actionSlug} destination action:`, () => {
-  it('should throw error on randomly generated fields', async () => {
+  it('required fields', async () => {
     const action = destination.actions[actionSlug]
     const [eventData, settingsData] = generateTestData(seedName, destination, action, true)
 
@@ -33,26 +32,22 @@ describe(`Testing snapshot for ${destinationSlug}'s ${actionSlug} destination ac
       const request = responses[0].request
       const rawBody = await request.text()
 
-      try {
-        const json = JSON.parse(rawBody)
-        expect(json).toMatchSnapshot()
-        return
-      } catch (err) {
-        expect(rawBody).toMatchSnapshot()
-      }
+      const json = JSON.parse(rawBody)
+      expect(json).toMatchSnapshot()
 
-      expect(request.headers).toMatchSnapshot()
+      expect(request.url).toMatchSnapshot()
     } catch (e) {
       expect(e).toMatchSnapshot()
     }
   })
 
-  it('should not through error on valid fields', async () => {
-    const eventData = generateValidHubSpotCustomObjectName(seedName)
-
+  it('all fields', async () => {
     nock(/.*/).persist().get(/.*/).reply(200)
     nock(/.*/).persist().post(/.*/).reply(201)
     nock(/.*/).persist().put(/.*/).reply(200)
+
+    const action = destination.actions[actionSlug]
+    const [eventData, settingsData] = generateTestData(seedName, destination, action, false)
 
     const event = createTestEvent({
       properties: eventData
@@ -61,19 +56,14 @@ describe(`Testing snapshot for ${destinationSlug}'s ${actionSlug} destination ac
     const responses = await testDestination.testAction(actionSlug, {
       event: event,
       mapping: event.properties,
-      settings: {},
+      settings: settingsData,
       auth: undefined
     })
 
     const request = responses[0].request
     const rawBody = await request.text()
-
-    try {
-      const json = JSON.parse(rawBody)
-      expect(json).toMatchSnapshot()
-      return
-    } catch (err) {
-      expect(rawBody).toMatchSnapshot()
-    }
+    const json = JSON.parse(rawBody)
+    expect(json).toMatchSnapshot()
+    expect(request.url).toMatchSnapshot()
   })
 })
