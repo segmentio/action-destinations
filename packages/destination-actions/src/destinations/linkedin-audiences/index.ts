@@ -5,7 +5,13 @@ import updateAudience from './updateAudience'
 import { LINKEDIN_API_VERSION } from './constants'
 import https from 'https'
 import { LinkedInAudiences } from './api'
-import type { RefreshTokenResponse, ProfileAPIResponse, AdAccountUserResponse } from './types'
+import type {
+  RefreshTokenResponse,
+  ProfileAPIResponse,
+  AdAccountUserResponse,
+  LinkedInRefreshTokenError,
+  LinkedInTestAuthenticationError
+} from './types'
 import type { ModifiedResponse } from '@segment/actions-core'
 import { IntegrationError } from '@segment/actions-core'
 
@@ -61,7 +67,8 @@ const destination: DestinationDefinition<Settings> = {
         // We request `r_basicprofile` scope when a user oauths into LinkedIn, so we retrieve the "Basic Profile Fields": https://learn.microsoft.com/en-us/linkedin/shared/references/v2/profile/basic-profile
         firstRes = await linkedinApiClient.getProfile()
       } catch (e: any) {
-        if (e.message === 'Unauthorized') {
+        const error = e as LinkedInTestAuthenticationError
+        if (error.message === 'Unauthorized') {
           throw new Error(
             'Invalid LinkedIn Oauth access token. Please reauthenticate to retrieve a valid access token before updating other settings and/or enabling the destination.'
           )
@@ -78,7 +85,8 @@ const destination: DestinationDefinition<Settings> = {
         // If the user's role is VIEWER, then they won't have adequate permission to send batch updates to any DMP Segment audience in this LinkedIn account.
         secondRes = await linkedinApiClient.getAdAccountUserProfile(settings, userId)
       } catch (e: any) {
-        if (e.message === 'Not Found') {
+        const error = e as LinkedInTestAuthenticationError
+        if (error.message === 'Not Found') {
           throw new Error(
             'Invalid LinkedIn Ad Account id. Please verify that the LinkedIn Ad Account exists and that you have access to it.'
           )
@@ -110,11 +118,20 @@ const destination: DestinationDefinition<Settings> = {
           })
         })
       } catch (e: any) {
-        if (e.response?.data?.error === 'invalid_grant') {
-          throw new IntegrationError('Invalid Authentication', 'EXPIRED_REFRESH_TOKEN', 401)
+        const error = e as LinkedInRefreshTokenError
+        if (error.response?.data?.error === 'invalid_grant') {
+          throw new IntegrationError(
+            `Invalid Authentication: Your refresh token is invalid or expired. Please re-authenticate to fetch a new refresh token.`,
+            'REFRESH_TOKEN_EXPIRED',
+            401
+          )
         }
 
-        throw e
+        throw new IntegrationError(
+          `Failed to fetch a new access token. Reason: ${error.response?.data?.error}`,
+          'OAUTH_REFRESH_FAILED',
+          401
+        )
       }
 
       return { accessToken: res?.data?.access_token }

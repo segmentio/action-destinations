@@ -107,7 +107,7 @@ function validate(settings: Settings, payloads: Payload[]): void {
   if (payloads[0].source_segment_id !== payloads[0].personas_audience_key) {
     throw new IntegrationError(
       'The value of `source_segment_id` and `personas_audience_key` must match.',
-      'Invalid settings.',
+      'INVALID_SETTINGS',
       400
     )
   }
@@ -115,7 +115,7 @@ function validate(settings: Settings, payloads: Payload[]): void {
   if (!settings.send_google_advertising_id && !settings.send_email) {
     throw new IntegrationError(
       'At least one of `Send Email` or `Send Google Advertising ID` must be set to `true`.',
-      'Invalid settings.',
+      'INVALID_SETTINGS.',
       400
     )
   }
