@@ -1,5 +1,5 @@
 import { ActionDefinition, IntegrationError } from '@segment/actions-core'
-import { hash, handleGoogleErrors } from '../functions'
+import { hash, handleGoogleErrors, convertTimestamp } from '../functions'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 import { GoogleAdsAPI, PartialErrorResponse } from '../types'
@@ -22,8 +22,6 @@ const action: ActionDefinition<Settings, Payload> = {
         'The adjustment type. See [Google’s documentation](https://developers.google.com/google-ads/api/reference/rpc/v11/ConversionAdjustmentTypeEnum.ConversionAdjustmentType) for details on each type.',
       type: 'string',
       choices: [
-        { label: 'UNSPECIFIED', value: 'UNSPECIFIED' },
-        { label: 'UNKNOWN', value: 'UNKNOWN' },
         { label: `RETRACTION`, value: 'RETRACTION' },
         { label: 'RESTATEMENT', value: 'RESTATEMENT' },
         { label: `ENHANCEMENT`, value: 'ENHANCEMENT' }
@@ -214,59 +212,24 @@ const action: ActionDefinition<Settings, Payload> = {
 
     settings.customerId = settings.customerId.replace(/-/g, '')
 
-    const validations: { [key: string]: any } = {
-      ENHANCEMENT: {
-        validation: (payload: Payload) => !payload.order_id,
-        error: {
-          message: 'Order ID required for enhancements'
-        }
-      },
-      RESTATEMENT: {
-        validation: (payload: Payload) => !payload.restatement_value,
-        error: {
-          message: 'Restatement value required for restatements'
-        }
-      },
-      RETRACTION: {
-        validation: (payload: Payload) => !payload.gclid || !payload.conversion_timestamp,
-        error: {
-          message: 'GCLID and conversion timestamp required for chosen conversion type'
-        }
-      },
-      UNKNOWN: {
-        validation: (payload: Payload) => !payload.gclid || !payload.conversion_timestamp,
-        error: {
-          message: 'GCLID and conversion timestamp required for chosen conversion type'
-        }
-      },
-      UNSPECIFIED: {
-        validation: (payload: Payload) => !payload.gclid || !payload.conversion_timestamp,
-        error: {
-          message: 'GCLID and conversion timestamp required for chosen conversion type'
-        }
-      }
-    }
-
-    const key = payload.adjustment_type
-    if (validations[key].validation(payload)) {
-      throw new IntegrationError(validations[key].error.message, 'INVALID_ARGUMENT', 400)
-    }
-
     const request_object: { [key: string]: any } = {
       conversionAction: `customers/${settings.customerId}/conversionActions/${payload.conversion_action}`,
       adjustmentType: payload.adjustment_type,
-      adjustmentDateTime: payload.adjustment_timestamp.replace(/T/, ' ').replace(/\..+/, '+00:00'),
+      adjustmentDateTime: convertTimestamp(payload.adjustment_timestamp),
       orderId: payload.order_id,
       gclidDateTimePair: {
         gclid: payload.gclid,
-        conversionDateTime: payload.conversion_timestamp?.replace(/T/, ' ').replace(/\..+/, '+00:00')
-      },
-      restatementValue: {
-        adjustedValue: payload.restatement_value,
-        currencyCode: payload.restatement_currency_code
+        conversionDateTime: convertTimestamp(payload.conversion_timestamp)
       },
       userIdentifiers: [],
       userAgent: payload.user_agent
+    }
+
+    if (payload.adjustment_type == 'RESTATEMENT') {
+      request_object.restatementValue = {
+        adjustedValue: payload.restatement_value,
+        currencyCode: payload.restatement_currency_code
+      }
     }
 
     if (payload.email_address) {
