@@ -1,14 +1,14 @@
 import nock from 'nock'
 import { createTestEvent, createTestIntegration, IntegrationError } from '@segment/actions-core'
 import Destination from '../../index'
+import { HUBSPOT_BASE_URL } from '../../properties'
 
 const testDestination = createTestIntegration(Destination)
-const endpoint = 'https://api.hubapi.com/crm/v3/objects'
 
-describe('Hubspot.upsertCustomObjectRecord', () => {
+describe('HubSpot.upsertCustomObjectRecord', () => {
   // Validate creation of custom object with fullyQualifiedName of a HubSpot Schema
   it('should create a Custom Object with fullyQualifiedName of a Schema', async () => {
-    nock(endpoint)
+    nock(HUBSPOT_BASE_URL)
       .post(/.*/)
       .reply(201, {
         id: '1234567890',
@@ -53,7 +53,7 @@ describe('Hubspot.upsertCustomObjectRecord', () => {
 
   // Validate creation of custom object with Segment supported HubSpot Objects
   it('should create a Deals object with Custom Objects Action', async () => {
-    nock(endpoint)
+    nock(HUBSPOT_BASE_URL)
       .post(/.*/)
       .reply(201, {
         id: '12345678900',
@@ -119,7 +119,7 @@ describe('Hubspot.upsertCustomObjectRecord', () => {
   })
 
   it('should create a Ticket object with Custom Objects Action', async () => {
-    nock(endpoint)
+    nock(HUBSPOT_BASE_URL)
       .post(/.*/)
       .reply(201, {
         id: '1000000001',
@@ -177,7 +177,7 @@ describe('Hubspot.upsertCustomObjectRecord', () => {
   const objectName = 'unknown-object'
 
   it('should throw an error on unsupported HubSpot Objects', async () => {
-    nock(endpoint)
+    nock(HUBSPOT_BASE_URL)
       .post(/.*/)
       .reply(400, {
         status: 'error',
