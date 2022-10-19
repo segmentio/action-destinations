@@ -1,4 +1,4 @@
-import { InputField, RequestClient } from '@segment/actions-core'
+import { InputField, RequestClient, IntegrationError } from '@segment/actions-core'
 import { Payload } from './updateUserProfile/generated-types'
 
 export const customFields: InputField = {
@@ -62,8 +62,10 @@ const convertCustomFieldNamesToIds = (customFields: any, accountCustomFields: Cu
       )[0]
       actualKey = matchingCustomField.id
     } else {
-      throw new Error(
-        `Unknown custom field '${key}'. To see your defined custom fields, visit https://mc.sendgrid.com/custom-fields`
+      throw new IntegrationError(
+        `Unknown custom field '${key}'. To see your defined custom fields, visit https://mc.sendgrid.com/custom-fields`,
+        'Invalid value',
+        400
       )
     }
     result[actualKey] = customFields[key]
