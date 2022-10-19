@@ -3,7 +3,7 @@ import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 import { HUBSPOT_BASE_URL, SEGMENT_UNIQUE_IDENTIFIER, ASSOCIATION_TYPE } from '../properties'
 import {
-  UpsertCompanyError,
+  HubSpotError,
   MissingIdentityCallThrowableError,
   CompanySearchThrowableError,
   RestrictedPropertyThrowableError,
@@ -285,7 +285,7 @@ const action: ActionDefinition<Settings, Payload> = {
 
       companyId = updateCompanyResponse.data.id
     } catch (e) {
-      const error = e as UpsertCompanyError
+      const error = e as HubSpotError
       // Special Case: If a company already has a SEGMENT_UNIQUE_IDENTIFIER property value, but the property is later deleted from HubSpot
       // the search would still find the correct company, but the update would fail with a 400 error stating property doesn't exist
       // Segment will attempt to create the SEGMENT_UNIQUE_IDENTIFIER property and throw a retryable error to Centrifuge
@@ -507,7 +507,7 @@ async function upsertCompanyWithRetry(request: RequestClient, upsertCompanyFunct
     const upsertCompanyResponse = await upsertCompanyFunction()
     return upsertCompanyResponse.data.id
   } catch (e) {
-    const error = e as UpsertCompanyError
+    const error = e as HubSpotError
     if (isSegmentUniqueIdentifierPropertyError(error, SEGMENT_UNIQUE_IDENTIFIER)) {
       // If upsert action fails due to SEGMENT_UNIQUE_IDENTIFIER custom property error,
       // attempt to create the custom property and retry

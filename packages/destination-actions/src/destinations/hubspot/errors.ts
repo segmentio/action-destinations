@@ -1,7 +1,7 @@
 import { IntegrationError, RetryableError, HTTPError } from '@segment/actions-core'
 import { SEGMENT_UNIQUE_IDENTIFIER } from './properties'
 
-export class UpsertCompanyError extends HTTPError {
+export class HubSpotError extends HTTPError {
   response: Response & {
     data: {
       status: string
@@ -40,7 +40,7 @@ export const SegmentUniqueIdentifierMissingRetryableError = new RetryableError(
 )
 
 export function isSegmentUniqueIdentifierPropertyError(
-  error: UpsertCompanyError,
+  error: HubSpotError,
   segmentUniqueIdentifierProperty: string
 ): boolean {
   if (error?.response?.status !== 400) {
