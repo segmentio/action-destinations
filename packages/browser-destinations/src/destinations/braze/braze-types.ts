@@ -5,6 +5,5 @@ export type BrazeType = typeof braze | typeof appboy
 
 export type BrazeDestinationClient = {
   instance: BrazeType
-  initialized: boolean
-  initialize: () => void
+  ready: () => boolean
 }

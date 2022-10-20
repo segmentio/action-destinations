@@ -29,7 +29,11 @@ const action: BrowserActionDefinition<Settings, BrazeDestinationClient, Payload>
     }
   },
   perform: (client, event) => {
-    client.initialized && client.instance.logCustomEvent(event.payload.eventName, event.payload.eventProperties)
+    if (!client.ready()) {
+      return
+    }
+
+    client.instance.logCustomEvent(event.payload.eventName, event.payload.eventProperties)
   }
 }
 

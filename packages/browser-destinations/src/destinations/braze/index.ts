@@ -299,12 +299,19 @@ export const destination: BrowserDestinationDefinition<Settings, BrazeDestinatio
         await dependencies.loadScript(`https://js.appboycdn.com/web-sdk/${version}/braze.no-module.min.js`)
       }
 
-      const shouldInit = !deferUntilIdentified || (deferUntilIdentified && typeof analytics.user().id() === 'string')
+      let initialized = false
 
       const client: BrazeDestinationClient = {
         instance: version.indexOf('3.') === 0 ? window.appboy : window.braze,
-        initialized: shouldInit,
-        initialize: () => {
+        ready: () => {
+          if (initialized) {
+            return true
+          }
+
+          if (deferUntilIdentified && typeof analytics.user().id() !== 'string') {
+            return false
+          }
+
           client.instance.initialize(api_key, {
             baseUrl: window.BRAZE_BASE_URL || endpoint,
             ...expectedConfig
@@ -324,13 +331,11 @@ export const destination: BrowserDestinationDefinition<Settings, BrazeDestinatio
 
           client.instance.openSession()
 
-          client.initialized = true
+          return (initialized = true)
         }
       }
 
-      if (shouldInit) {
-        client.initialize()
-      }
+      client.ready()
 
       return client
     } catch (e) {

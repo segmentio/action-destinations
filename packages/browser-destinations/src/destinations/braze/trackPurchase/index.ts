@@ -53,7 +53,7 @@ const action: BrowserActionDefinition<Settings, BrazeDestinationClient, Payload>
     }
   },
   perform: (client, data) => {
-    if (!client.initialized) {
+    if (!client.ready()) {
       return
     }
 

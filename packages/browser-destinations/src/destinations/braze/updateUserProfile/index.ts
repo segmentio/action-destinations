@@ -149,9 +149,8 @@ const action: BrowserActionDefinition<Settings, BrazeDestinationClient, Payload>
   },
 
   perform: (client, { payload }) => {
-    // client is initialized here when tracking unidentifed user has been disabled
-    if (!client.initialized) {
-      client.initialize()
+    if (!client.ready()) {
+      return
     }
 
     // TODO - addAlias / addToCustomAttributeArray?
