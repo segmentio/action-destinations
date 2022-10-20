@@ -56,7 +56,6 @@ describe('Salesforce Marketing Cloud', () => {
         useDefaultMappings: true,
         mapping: {
           key: { '@path': '$.properties.key' },
-          //keys: { '@path': '$.properties.keys' },
           values: { '@path': '$.properties.values' }
         }
       })
