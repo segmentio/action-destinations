@@ -96,6 +96,7 @@ describe('initialization', () => {
 
     // Spy on the braze APIs now that braze has been loaded.
     const { instance: braze } = await initializeSpy.mock.results[0].value
+    const openSessionSpy = jest.spyOn(braze, 'openSession')
     const logCustomEventSpy = jest.spyOn(braze, 'logCustomEvent')
 
     await analytics.track?.({
@@ -119,6 +120,7 @@ describe('initialization', () => {
     )
 
     expect(analytics.user().id()).toBe(null)
+    expect(openSessionSpy).not.toHaveBeenCalled()
     expect(logCustomEventSpy).not.toHaveBeenCalled()
 
     await analytics.identify('27413')
@@ -131,6 +133,7 @@ describe('initialization', () => {
       }
     })
 
+    expect(openSessionSpy).toHaveBeenCalled()
     expect(logCustomEventSpy).toHaveBeenCalledWith('FIFA', { goat: 'deno' })
   })
 })
