@@ -151,14 +151,6 @@ const action: ActionDefinition<Settings, Payload> = {
         '@path': '$.traits.description'
       }
     },
-    createdate: {
-      label: 'Company Create Date',
-      description: 'The date the company was added to your account.',
-      type: 'string',
-      default: {
-        '@path': '$.traits.createdAt'
-      }
-    },
     address: {
       label: 'Street Address',
       description: 'The street address of the company.',
@@ -256,7 +248,6 @@ const action: ActionDefinition<Settings, Payload> = {
     const companyProperties = {
       name: payload.name,
       description: payload.description,
-      createdate: payload.createdate,
       address: payload.address,
       city: payload.city,
       state: payload.state,

@@ -20,10 +20,6 @@ export interface Payload {
    */
   description?: string
   /**
-   * The date the company was added to your account.
-   */
-  createdate?: string
-  /**
    * The street address of the company.
    */
   address?: string

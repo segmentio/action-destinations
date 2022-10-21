@@ -18,7 +18,7 @@ interface GetSchemasResponse {
 // To avoid slug name changes in future, naming it as upsertCustomObjectRecord straight away.
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Create Custom Object Record',
-  description: 'Create records in any HubSpot standard or custom object.',
+  description: 'Create records of Deals, Tickets or other Custom Objects in HubSpot.',
   fields: {
     objectType: {
       label: 'Object Type',
