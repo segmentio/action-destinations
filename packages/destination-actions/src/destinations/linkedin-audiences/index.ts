@@ -26,7 +26,8 @@ const destination: DestinationDefinition<Settings> = {
     fields: {
       ad_account_id: {
         label: 'LinkedIn Ad Account Id',
-        description: 'The id of the LinkedIn Ad Account where batches should be synced.',
+        description:
+          'The id of the LinkedIn Ad Account where batches should be synced. You can find your Ad Account id in your [LinkedIn Campaign Manager](https://www.linkedin.com/campaignmanager/login).',
         type: 'string',
         required: true
       },

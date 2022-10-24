@@ -11,7 +11,8 @@ const action: ActionDefinition<Settings, Payload> = {
   fields: {
     dmp_segment_name: {
       label: 'DMP Segment Display Name',
-      description: 'The display name of the LinkedIn DMP Segment.',
+      description:
+        'The display name of the LinkedIn DMP Segment. This field is set only when Segment creates a new audience. Updating this field after Segment has created an audience will not update the audience name in LinkedIn.',
       type: 'string',
       default: {
         '@path': '$.properties.audience_key'

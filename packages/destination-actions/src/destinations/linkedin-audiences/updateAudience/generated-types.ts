@@ -2,7 +2,7 @@
 
 export interface Payload {
   /**
-   * The display name of the LinkedIn DMP Segment.
+   * The display name of the LinkedIn DMP Segment. This field is set only when Segment creates a new audience. Updating this field after Segment has created an audience will not update the audience name in LinkedIn.
    */
   dmp_segment_name?: string
   /**
