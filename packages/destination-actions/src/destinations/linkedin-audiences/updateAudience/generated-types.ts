@@ -22,7 +22,7 @@ export interface Payload {
    */
   source_segment_id?: string
   /**
-   * The `audience_key` of the Personas audience you want to sync to LinkedIn. This value must be a hard-coded string variable, e.g. `personas_test_audience`, in order for batching to work properly.
+   * The `audience_key` of the Engage audience you want to sync to LinkedIn. This value must be a hard-coded string variable, e.g. `personas_test_audience`, in order for batching to work properly.
    */
   personas_audience_key: string
   /**
