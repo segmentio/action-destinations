@@ -42,7 +42,7 @@ const destination: DestinationDefinition<Settings> = {
         label: 'client_secret',
         description:
           'Your Salesforce Marketing Cloud client secret. The client secret is issued when you create an API integration in Installed Packages.',
-        type: 'string',
+        type: 'password',
         required: true
       }
     },
