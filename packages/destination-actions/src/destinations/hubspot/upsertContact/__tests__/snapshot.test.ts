@@ -6,7 +6,7 @@ import { TransactionContext } from '@segment/actions-core/src/destination-kit'
 
 const testDestination = createTestIntegration(destination)
 const actionSlug = 'upsertContact'
-const destinationSlug = 'Hubspot'
+const destinationSlug = 'HubSpot'
 const seedName = `${destinationSlug}#${actionSlug}`
 
 beforeEach(() => nock.cleanAll())

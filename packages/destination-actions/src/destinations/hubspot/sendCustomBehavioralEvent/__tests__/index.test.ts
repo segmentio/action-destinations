@@ -1,11 +1,11 @@
 import nock from 'nock'
 import { createTestEvent, createTestIntegration } from '@segment/actions-core'
 import Destination from '../../index'
-import { hubSpotBaseURL } from '../../properties'
+import { HUBSPOT_BASE_URL } from '../../properties'
 
 const testDestination = createTestIntegration(Destination)
 
-describe('Hubspot.sendCustomBehavioralEvent', () => {
+describe('HubSpot.sendCustomBehavioralEvent', () => {
   test('should succeed in sending event', async () => {
     const event = createTestEvent({
       type: 'track',
@@ -46,7 +46,7 @@ describe('Hubspot.sendCustomBehavioralEvent', () => {
       }
     }
 
-    nock(hubSpotBaseURL).post('/events/v3/send', expectedPayload).reply(204, {})
+    nock(HUBSPOT_BASE_URL).post('/events/v3/send', expectedPayload).reply(204, {})
 
     return expect(
       testDestination.testAction('sendCustomBehavioralEvent', {

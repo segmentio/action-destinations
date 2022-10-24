@@ -1,21 +1,21 @@
 import nock from 'nock'
 import { createTestIntegration } from '@segment/actions-core'
 import Definition from '../index'
+import { HUBSPOT_BASE_URL } from '../properties'
 
 const testDestination = createTestIntegration(Definition)
-const endpoint = 'https://api.hubapi.com/crm/v3/objects'
 
-describe('Hubspot Cloud Mode (actions)', () => {
+describe('HubSpot Cloud Mode (Actions)', () => {
   describe('testAuthentication', () => {
     it('should validate authentication inputs', async () => {
-      nock(endpoint).get('/contacts?limit=1').reply(200, {})
+      nock(HUBSPOT_BASE_URL).get('/crm/v3/objects/contacts?limit=1').reply(200, {})
       const authData = {}
 
       await expect(testDestination.testAuthentication(authData)).resolves.not.toThrowError()
     })
 
     it('should fail on authentication failure', async () => {
-      nock(endpoint).get('/contacts?limit=1').reply(401, {})
+      nock(HUBSPOT_BASE_URL).get('/crm/v3/objects/contacts?limit=1').reply(401, {})
       const authData = {}
 
       await expect(testDestination.testAuthentication(authData)).rejects.toThrowError(

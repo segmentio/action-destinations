@@ -57,6 +57,7 @@ describe('Mixpanel.identifyUser', () => {
         data: JSON.stringify({
           $token: MIXPANEL_PROJECT_TOKEN,
           $distinct_id: 'user1234',
+          $ip: '8.8.8.8',
           $set: {
             abc: '123',
             $created: '2022-10-12T00:00:00.000Z',
@@ -109,6 +110,7 @@ describe('Mixpanel.identifyUser', () => {
         data: JSON.stringify({
           $token: MIXPANEL_PROJECT_TOKEN,
           $distinct_id: 'user1234',
+          $ip: '8.8.8.8',
           $set: {
             abc: '123'
           }
@@ -153,6 +155,7 @@ describe('Mixpanel.identifyUser', () => {
         data: JSON.stringify({
           $token: MIXPANEL_PROJECT_TOKEN,
           $distinct_id: 'user1234',
+          $ip: '8.8.8.8',
           $set: {
             abc: '123'
           }
@@ -199,6 +202,7 @@ describe('Mixpanel.identifyUser', () => {
         data: JSON.stringify({
           $token: MIXPANEL_PROJECT_TOKEN,
           $distinct_id: 'user1234',
+          $ip: '8.8.8.8',
           $set: {
             abc: '123'
           }

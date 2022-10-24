@@ -2,11 +2,11 @@ import { createTestEvent, createTestIntegration } from '@segment/actions-core'
 import { generateTestData } from '../../../../lib/test-data'
 import destination from '../../index'
 import nock from 'nock'
-import { hubSpotBaseURL } from '../../properties'
+import { HUBSPOT_BASE_URL } from '../../properties'
 
 const testDestination = createTestIntegration(destination)
 const actionSlug = 'sendCustomBehavioralEvent'
-const destinationSlug = 'Hubspot'
+const destinationSlug = 'HubSpot'
 const seedName = `${destinationSlug}#${actionSlug}`
 
 describe(`Testing snapshot for ${destinationSlug}'s ${actionSlug} destination action:`, () => {
@@ -14,7 +14,7 @@ describe(`Testing snapshot for ${destinationSlug}'s ${actionSlug} destination ac
     const action = destination.actions[actionSlug]
     const [eventData, settingsData] = generateTestData(seedName, destination, action, true)
 
-    nock(hubSpotBaseURL).persist().post('/events/v3/send').reply(204)
+    nock(HUBSPOT_BASE_URL).persist().post('/events/v3/send').reply(204)
 
     // one of email, user token or objectID is required
     const event = createTestEvent({
@@ -40,7 +40,7 @@ describe(`Testing snapshot for ${destinationSlug}'s ${actionSlug} destination ac
     const action = destination.actions[actionSlug]
     const [eventData, settingsData] = generateTestData(seedName, destination, action, false)
 
-    nock(hubSpotBaseURL).persist().post('/events/v3/send').reply(200)
+    nock(HUBSPOT_BASE_URL).persist().post('/events/v3/send').reply(200)
 
     const event = createTestEvent({
       properties: eventData
