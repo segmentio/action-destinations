@@ -49,9 +49,9 @@ const action: ActionDefinition<Settings, Payload> = {
       }
     },
     personas_audience_key: {
-      label: 'Segment Personas Audience Key',
+      label: 'Segment Engage Audience Key',
       description:
-        'The `audience_key` of the Personas audience you want to sync to LinkedIn. This value must be a hard-coded string variable, e.g. `personas_test_audience`, in order for batching to work properly.',
+        'The `audience_key` of the Engage audience you want to sync to LinkedIn. This value must be a hard-coded string variable, e.g. `personas_test_audience`, in order for batching to work properly.',
       type: 'string',
       required: true
     },
@@ -115,7 +115,7 @@ function validate(settings: Settings, payloads: Payload[]): void {
   if (!settings.send_google_advertising_id && !settings.send_email) {
     throw new IntegrationError(
       'At least one of `Send Email` or `Send Google Advertising ID` must be set to `true`.',
-      'INVALID_SETTINGS.',
+      'INVALID_SETTINGS',
       400
     )
   }
