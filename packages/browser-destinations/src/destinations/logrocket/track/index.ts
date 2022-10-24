@@ -1,9 +1,13 @@
 import type { BrowserActionDefinition } from '../../../lib/browser-destinations'
 import type { Settings } from '../generated-types'
-// import type { Payload } from './generated-types'
+import type { Payload } from './generated-types'
 import type { LR } from '../types'
 
-const action: BrowserActionDefinition<Settings, LR> = {
+type TrackEventProperties = {
+  [key: string]: string | number | boolean | string[] | number[] | boolean[] | undefined
+}
+
+const action: BrowserActionDefinition<Settings, LR, Payload> = {
   title: 'Track',
   description: 'Send track events to logrocket for filtering and tagging.',
   platform: 'web',
@@ -29,8 +33,7 @@ const action: BrowserActionDefinition<Settings, LR> = {
     }
   },
   perform: (LogRocket, event) => {
-    console.log('track called', event)
-    LogRocket.track(event.payload.name, event.payload.properties ?? {})
+    LogRocket.track(event.payload.name, (event.payload.properties as TrackEventProperties) ?? {})
   }
 }
 

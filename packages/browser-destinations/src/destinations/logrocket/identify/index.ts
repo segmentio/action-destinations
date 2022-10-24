@@ -1,9 +1,13 @@
 import type { BrowserActionDefinition } from '../../../lib/browser-destinations'
 import type { Settings } from '../generated-types'
-// import type { Payload } from './generated-types'
+import type { Payload } from './generated-types'
 import type { LR } from '../types'
 
-const action: BrowserActionDefinition<Settings, LR> = {
+type Traits = {
+  [propName: string]: string | number | boolean
+}
+
+const action: BrowserActionDefinition<Settings, LR, Payload> = {
   title: 'Identify',
   description: 'Send identification information to logrocket.',
   platform: 'web',
@@ -31,10 +35,10 @@ const action: BrowserActionDefinition<Settings, LR> = {
   perform: (LogRocket, event) => {
     const { userId, traits } = event.payload
     if (userId) {
-      LogRocket.identify(userId, traits)
+      LogRocket.identify(userId, traits as Traits)
       return
     }
-    LogRocket.identify(traits)
+    LogRocket.identify(traits as Traits)
   }
 }
 
