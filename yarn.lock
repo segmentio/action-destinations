@@ -2300,6 +2300,68 @@
   resolved "https://registry.yarnpkg.com/@segment/a1-notation/-/a1-notation-2.1.4.tgz#35a48a0688019c3ffff23b1ba890e864c891a11f"
   integrity sha512-SId7GOdDFmm/B9ajIQpXELHW4OTbVvmJbOsoJkQOcUEtoZIiX2UWfk1v4BpKql8wJW9oAhzhIIru2Pv2Yxcg+w==
 
+"@segment/action-destinations@^3.112.1-alpha.2":
+  version "3.113.0"
+  resolved "https://registry.yarnpkg.com/@segment/action-destinations/-/action-destinations-3.113.0.tgz#9071b9432f501865610eee587539c2309e7f9157"
+  integrity sha512-D4not4Tb+pq4Tsv3j0+peLbKy8j1UP/twDc5pLgvaHAGSubO8fwvpk+PMug4WjjtHuzVwfNm4HPhAsj+3veMjw==
+  dependencies:
+    "@amplitude/ua-parser-js" "^0.7.25"
+    "@segment/a1-notation" "^2.1.4"
+    "@segment/actions-core" "^3.41.0"
+    "@segment/actions-shared" "^1.24.0"
+    cheerio "^1.0.0-rc.10"
+    dayjs "^1.10.7"
+    escape-goat "^3"
+    liquidjs "^9.37.0"
+    lodash "^4.17.21"
+
+"@segment/actions-core@3.41.1-alpha.2":
+  version "3.41.1-alpha.2"
+  resolved "https://registry.yarnpkg.com/@segment/actions-core/-/actions-core-3.41.1-alpha.2.tgz#3721aeece4895f32d167d34869a0e5622d437979"
+  integrity sha512-nJUm6zvidTl3qS5tlKO8UGv9tsv/IgqzBYqVJiRAHNn0BiY6XCJxgz8RiA7/d6G5vg4HcWu5RSicsNi2EfeL3A==
+  dependencies:
+    "@lukeed/uuid" "^2.0.0"
+    "@segment/ajv-human-errors" "^2.1.2"
+    "@segment/destination-subscriptions" "^3.12.0"
+    abort-controller "^3.0.0"
+    aggregate-error "^3.1.0"
+    ajv "^8.6.3"
+    ajv-formats "^2.1.1"
+    btoa-lite "^1.0.0"
+    cross-fetch "^3.1.4"
+    dayjs "^1.10.7"
+    ts-custom-error "^3.2.0"
+
+"@segment/actions-core@^3.41.0":
+  version "3.41.0"
+  resolved "https://registry.yarnpkg.com/@segment/actions-core/-/actions-core-3.41.0.tgz#5ffe5fb9e1a73adf3b5d435769dd1686232fd5ce"
+  integrity sha512-AwTiuF8jm08NI9kkYmnECUSTyNqmSbjtpbVUEfIIQoy0wyZYE6z/ybZzOn3ubB03izlTf6AUbbsRf295TC0SAQ==
+  dependencies:
+    "@lukeed/uuid" "^2.0.0"
+    "@segment/ajv-human-errors" "^2.1.2"
+    "@segment/destination-subscriptions" "^3.12.0"
+    abort-controller "^3.0.0"
+    aggregate-error "^3.1.0"
+    ajv "^8.6.3"
+    ajv-formats "^2.1.1"
+    btoa-lite "^1.0.0"
+    cross-fetch "^3.1.4"
+    dayjs "^1.10.7"
+    ts-custom-error "^3.2.0"
+
+"@segment/actions-shared@^1.24.0":
+  version "1.24.0"
+  resolved "https://registry.yarnpkg.com/@segment/actions-shared/-/actions-shared-1.24.0.tgz#13fff5e2d07ba88ab0a8dfa9fdf803b83a045ac1"
+  integrity sha512-b6HAUQSgIMMRpbBi6BAnj90TH/iOcZNpoSqlSwe6FUpEgtSMuBwxAZF5T6nLxES/23Tyy+68qddnGzb7vJunTg==
+  dependencies:
+    "@amplitude/ua-parser-js" "^0.7.25"
+    "@segment/actions-core" "^3.41.0"
+    cheerio "^1.0.0-rc.10"
+    dayjs "^1.10.7"
+    escape-goat "^3"
+    liquidjs "^9.37.0"
+    lodash "^4.17.21"
+
 "@segment/analytics-next@^1.29.3":
   version "1.29.3"
   resolved "https://registry.yarnpkg.com/@segment/analytics-next/-/analytics-next-1.29.3.tgz#51ea4d7e487e95c2862ec5d52fd34a113c20161e"
