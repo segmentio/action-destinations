@@ -64,6 +64,5 @@
     "coverageReporters": [
       "lcov"
     ]
-  },
-  "gitHead": "407cee0cb841610c288e37aa00b4ab043fb8393d"
+  }
 }
