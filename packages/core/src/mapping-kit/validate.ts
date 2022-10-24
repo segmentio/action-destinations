@@ -225,7 +225,7 @@ directive('@case', (v, stack) => {
     v,
     {
       operator: { optional: validateString },
-      value: { optional: validateDirectiveOrRaw }
+      value: { optional: validateDirectiveOrString }
     },
     stack
   )

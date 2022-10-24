@@ -203,7 +203,7 @@ describe('@if', () => {
   })
 })
 
-describe.only('@case', () => {
+describe('@case', () => {
   const payload = { a: 1, b: 'MAKE ME LOWER CASE', c: 'make me upper case', d: null, e: '', f: false }
 
   test('operator', () => {
