@@ -2,6 +2,10 @@
 
 export interface Payload {
   /**
+   * What type of message is being sent?
+   */
+  messageType?: string
+  /**
    * User ID in Segment
    */
   userId: string

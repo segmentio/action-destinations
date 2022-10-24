@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unsafe-call */
 import { Liquid as LiquidJs } from 'liquidjs'
 
 import type { ActionDefinition, RequestOptions } from '@segment/actions-core'
@@ -5,6 +6,13 @@ import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 import { IntegrationError } from '@segment/actions-core'
 import { StatsClient } from '@segment/actions-core/src/destination-kit'
+
+import { PhoneNumberFormat } from 'google-libphonenumber'
+import { PhoneNumberUtil } from 'google-libphonenumber'
+
+// Get an instance of `PhoneNumberUtil`.
+const phoneUtil = PhoneNumberUtil.getInstance()
+
 const Liquid = new LiquidJs()
 
 const getProfileApiEndpoint = (environment: string): string => {
@@ -50,6 +58,11 @@ const action: ActionDefinition<Settings, Payload> = {
   description: 'Send SMS using Twilio',
   defaultSubscription: 'type = "track" and event = "Audience Entered"',
   fields: {
+    messageType: {
+      label: 'Message type (e.g. whatsapp, sms, etc.)',
+      description: 'What type of message is being sent?',
+      type: 'string'
+    },
     userId: {
       label: 'User ID',
       description: 'User ID in Segment',
@@ -174,7 +187,7 @@ const action: ActionDefinition<Settings, Payload> = {
       return
     } else if (['subscribed', 'true'].includes(externalId.subscriptionStatus)) {
       statsClient?.incr('actions-personas-messaging-twilio.subscribed', 1, tags)
-      const phone = payload.toNumber || externalId.id
+      let phone = payload.toNumber || externalId.id
       if (!phone) {
         return
       }
@@ -203,8 +216,30 @@ const action: ActionDefinition<Settings, Payload> = {
         throw new IntegrationError(`Unable to parse templating in SMS`, `SMS templating parse failure`, 400)
       }
 
+      const externalIdValue = phone
+
+      if (payload.messageType === 'whatsapp') {
+        try {
+          // Defaulting to US for now as that's where most users will seemingly be. Though
+          // any number already given in e164 format should parse correctly even with the
+          // default region being US.
+          const parsedPhone = phoneUtil.parse(phone, 'US')
+          phone = phoneUtil.format(parsedPhone, PhoneNumberFormat.E164)
+          phone = `whatsapp:${phone}`
+        } catch (error: unknown) {
+          tags?.push('type:invalid_phone_e164')
+          statsClient?.incr('actions-personas-messaging-twilio.error', 1, tags)
+          throw new IntegrationError(
+            'The string supplied did not seem to be a phone number. Phone number must be able to be formatted to e164 for whatsapp.',
+            `INVALID_PHONE`,
+            400
+          )
+        }
+      }
+
       const body = new URLSearchParams({
         Body: parsedBody,
+        // Assuming this is in the right format for whatsapp.
         From: payload.from,
         To: phone
       })
@@ -215,7 +250,7 @@ const action: ActionDefinition<Settings, Payload> = {
         ...payload.customArgs,
         space_id: settings.spaceId,
         __segment_internal_external_id_key__: EXTERNAL_ID_KEY,
-        __segment_internal_external_id_value__: phone
+        __segment_internal_external_id_value__: externalIdValue
       }
 
       if (webhookUrl && customArgs) {

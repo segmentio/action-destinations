@@ -260,5 +260,62 @@ describe.each(['stage', 'production'])('%s environment', (environment) => {
         `Failed to recognize the subscriptionStatus in the payload: "${randomSubscriptionStatusPhrase}".`
       )
     })
+
+    it('formats the to number correctly for whatsapp', async () => {
+      const expectedTwilioRequest = new URLSearchParams({
+        Body: 'Hello world, jane!',
+        From: 'whatsapp:+19876543210',
+        To: 'whatsapp:+19195551234',
+        StatusCallback:
+          'http://localhost/?space_id=d&__segment_internal_external_id_key__=phone&__segment_internal_external_id_value__=%28919%29+555+1234#rp=all&rc=5'
+      })
+
+      const twilioRequest = nock('https://api.twilio.com/2010-04-01/Accounts/a')
+        .post('/Messages.json', expectedTwilioRequest.toString())
+        .reply(201, {})
+
+      const actionInputData = {
+        event: createMessagingTestEvent({
+          timestamp,
+          event: 'Audience Entered',
+          userId: 'jane'
+        }),
+        settings: {
+          ...settings,
+          webhookUrl: 'http://localhost'
+        },
+        mapping: getDefaultMapping({
+          from: 'whatsapp:+19876543210',
+          messageType: 'whatsapp',
+          externalIds: [{ type: 'phone', id: '(919) 555 1234', subscriptionStatus: true }]
+        })
+      }
+
+      const responses = await twilio.testAction('sendSms', actionInputData)
+      expect(responses.map((response) => response.url)).toStrictEqual([
+        'https://api.twilio.com/2010-04-01/Accounts/a/Messages.json'
+      ])
+      expect(twilioRequest.isDone()).toEqual(true)
+    })
+
+    it('throws an error when whatsapp number cannot be formatted', async () => {
+      const actionInputData = {
+        event: createMessagingTestEvent({
+          timestamp,
+          event: 'Audience Entered',
+          userId: 'jane'
+        }),
+        settings,
+        mapping: getDefaultMapping({
+          messageType: 'whatsapp',
+          externalIds: [{ type: 'phone', id: 'abcd', subscriptionStatus: true }]
+        })
+      }
+
+      const response = twilio.testAction('sendSms', actionInputData)
+      await expect(response).rejects.toThrowError(
+        'The string supplied did not seem to be a phone number. Phone number must be able to be formatted to e164 for whatsapp.'
+      )
+    })
   })
 })
