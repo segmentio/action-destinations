@@ -203,6 +203,78 @@ describe('@if', () => {
   })
 })
 
+describe.only('@case', () => {
+  const payload = { a: 1, b: 'MAKE ME LOWER CASE', c: 'make me upper case', d: null, e: '', f: false }
+
+  test('operator', () => {
+    let output = transform(
+      {
+        '@case': {
+          operator: 'lower',
+          value: { '@path': '$.a' }
+        }
+      },
+      payload
+    )
+    expect(output).toStrictEqual(undefined)
+
+    output = transform(
+      {
+        '@case': {
+          operator: 'lower',
+          value: { '@path': '$.b' }
+        }
+      },
+      payload
+    )
+    expect(output).toStrictEqual('make me lower case')
+
+    output = transform(
+      {
+        '@case': {
+          operator: 'upper',
+          value: { '@path': '$.c' }
+        }
+      },
+      payload
+    )
+    expect(output).toStrictEqual('MAKE ME UPPER CASE')
+
+    output = transform(
+      {
+        '@case': {
+          operator: 'lower',
+          value: { '@path': '$.d' }
+        }
+      },
+      payload
+    )
+    expect(output).toStrictEqual(undefined)
+
+    output = transform(
+      {
+        '@case': {
+          operator: 'lower',
+          value: { '@path': '$.e' }
+        }
+      },
+      payload
+    )
+    expect(output).toStrictEqual('')
+
+    output = transform(
+      {
+        '@case': {
+          operator: 'lower',
+          value: { '@path': '$.f' }
+        }
+      },
+      payload
+    )
+    expect(output).toStrictEqual(undefined)
+  })
+})
+
 describe('@arrayPath', () => {
   const data = {
     products: [
