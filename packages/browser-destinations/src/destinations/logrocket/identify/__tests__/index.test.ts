@@ -1,9 +1,12 @@
 import { Analytics, Context } from '@segment/analytics-next'
 import plugins from '../../index'
+import LogRocket from 'logrocket'
 import { identifySubscription } from '../../__tests__/subscriptions'
 import { mockWorkerAndXMLHttpRequest } from '../../__tests__/utilities'
 
 describe('Logrocket.identify', () => {
+  const settings = { appID: 'log/rocket' }
+
   beforeAll(mockWorkerAndXMLHttpRequest)
   afterAll(jest.restoreAllMocks)
 
@@ -12,10 +15,10 @@ describe('Logrocket.identify', () => {
   }
 
   it('should send user ID and traits to logrocket', async () => {
-    const [identify] = await plugins({ appID: 'log/rocket', subscriptions: [identifySubscription] })
+    const [identify] = await plugins({ ...settings, subscriptions: [identifySubscription] })
 
     await identify.load(Context.system(), {} as Analytics)
-    const logRocket = jest.spyOn(window.LogRocket, 'identify')
+    const identifySpy = jest.spyOn(LogRocket, 'identify')
 
     const userId = 'user1'
 
@@ -27,14 +30,14 @@ describe('Logrocket.identify', () => {
       })
     )
 
-    expect(logRocket).toHaveBeenCalledWith(userId, traits)
+    expect(identifySpy).toHaveBeenCalledWith(userId, traits)
   })
 
   it("shouldn't send an ID if the user is anonymous", async () => {
     const [identify] = await plugins({ appID: 'log/rocket', subscriptions: [identifySubscription] })
 
     await identify.load(Context.system(), {} as Analytics)
-    const logRocket = jest.spyOn(window.LogRocket, 'identify')
+    const identifySpy = jest.spyOn(LogRocket, 'identify')
 
     await identify.identify?.(
       new Context({
@@ -43,6 +46,6 @@ describe('Logrocket.identify', () => {
       })
     )
 
-    expect(logRocket).toHaveBeenCalledWith(traits)
+    expect(identifySpy).toHaveBeenCalledWith(traits)
   })
 })

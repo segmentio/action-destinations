@@ -15,19 +15,6 @@ describe('Logrocket', () => {
     await event.load(Context.system(), {} as Analytics)
     expect(destination.initialize).toHaveBeenCalled()
 
-    // const script = document.getElementsByTagName('script')[1];
-    // console.log(script.innerHTML)
-
-    const headElements = window.document.head.children
-
-    const scriptCandidate = headElements[0]
-    console.log('data form test', headElements.length)
-    console.log(headElements[0].innerHTML)
-
-    expect(headElements.length).toBe(2)
-
-    const source = scriptCandidate.getAttribute('src')
-    expect(source).toEqual('https://cdn.lr-in-prod.com/logger-1.min.js')
-    // expect(window.__SDKCONFIG__).toBeDefined()
+    expect(window._LRLogger).toBeDefined()
   })
 })

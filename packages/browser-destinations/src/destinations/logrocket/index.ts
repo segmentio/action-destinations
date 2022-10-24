@@ -10,6 +10,7 @@ import { defaultValues } from '@segment/actions-core'
 declare global {
   interface Window {
     LogRocket: LR
+    _LRLogger: () => void
   }
 }
 // Switch from unknown to the partner SDK client types
@@ -45,7 +46,6 @@ export const destination: BrowserDestinationDefinition<Settings, LR> = {
   initialize: async ({ settings: { appID } }, deps) => {
     LogRocket.init(appID)
     await deps.resolveWhen(() => Object.prototype.hasOwnProperty.call(window, '_LRLogger'), 100)
-    window.LogRocket = LogRocket // not functionally required, but helpful for tests/debug
     return LogRocket
   },
 

@@ -1,5 +1,6 @@
 import { Analytics, Context } from '@segment/analytics-next'
 import plugins from '../../index'
+import LogRocket from 'logrocket'
 import { trackSubscription } from '../../__tests__/subscriptions'
 import { mockWorkerAndXMLHttpRequest } from '../../__tests__/utilities'
 
@@ -10,7 +11,7 @@ describe('Logrocket.track', () => {
     const [event] = await plugins({ appID: 'log/rocket', subscriptions: [trackSubscription] })
 
     await event.load(Context.system(), {} as Analytics)
-    const logRocket = jest.spyOn(window.LogRocket, 'track')
+    const trackSpy = jest.spyOn(LogRocket, 'track')
 
     const name = 'testName'
     const properties = {
@@ -25,6 +26,6 @@ describe('Logrocket.track', () => {
       })
     )
 
-    expect(logRocket).toHaveBeenCalledWith(name, properties)
+    expect(trackSpy).toHaveBeenCalledWith(name, properties)
   })
 })
