@@ -205,6 +205,8 @@ const action: ActionDefinition<Settings, Payload> = {
         throw new IntegrationError(`Unable to parse templating in SMS`, `SMS templating parse failure`, 400)
       }
 
+      const externalIdValue = phone
+
       if (payload.messageType === 'whatsapp') {
         try {
           // Defaulting to US for now as that's where most users will seemingly be. Though
@@ -237,7 +239,7 @@ const action: ActionDefinition<Settings, Payload> = {
         ...payload.customArgs,
         space_id: settings.spaceId,
         __segment_internal_external_id_key__: EXTERNAL_ID_KEY,
-        __segment_internal_external_id_value__: phone
+        __segment_internal_external_id_value__: externalIdValue
       }
 
       if (webhookUrl && customArgs) {
