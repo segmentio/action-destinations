@@ -1,0 +1,41 @@
+{
+  "channel": "server",
+  "context": {
+    "library": {
+      "name": "unknown",
+      "version": "unknown"
+    },
+    "personas": {
+      "computation_class": "trait",
+      "computation_id": "tra_2FxbanfoEFHlrFfrJO2P9mDvZTg",
+      "computation_key": "vik_subscriptions_sql",
+      "namespace": "spa_hH3PhsvDYeRPPTxQaM1uo1",
+      "space_id": "spa_hH3PhsvDYeRPPTxQaM1uo1"
+    }
+  },
+  "integrations": {
+    "All": false,
+    "Warehouses": {
+      "all": false
+    }
+  },
+  "messageId": "personas_2GSl5LUdF4EDVmPjjePvHDwkQlT",
+  "originalTimestamp": "2022-10-21T22:01:21.749105858Z",
+  "projectId": "5kXbpcJxms8WWaEdQUkRWc",
+  "receivedAt": "2022-10-21T22:01:22.822Z",
+  "sentAt": null,
+  "timestamp": "2022-10-21T22:01:21.749Z",
+  "traits": {
+    "__segment_internal_email_subscription__": true,
+    "__segment_internal_sms_subscription__": null,
+    "email": "vijeko8072@ishyp.com",
+    "phone": null
+  },
+  "type": "identify",
+  "userId": "oct_21_vijeko8072@ishyp.com",
+  "version": 2,
+  "writeKey": "VRruQSeB20c7T2hLWOQO2Z5BTuKd6OZh",
+  "dedupe_metadata": {
+    "offset": "8886532191"
+  }
+}
