@@ -2,9 +2,11 @@ import { RequestClient, IntegrationError } from '@segment/actions-core'
 import { Payload as payload_dataExtension } from './dataExtension/generated-types'
 import { Payload as payload_contactDataExtension } from './contactDataExtension/generated-types'
 
-type Payload = payload_dataExtension & payload_contactDataExtension
-
-export function upsertRows(request: RequestClient, subdomain: String, payloads: Payload[]) {
+export function upsertRows(
+  request: RequestClient,
+  subdomain: String,
+  payloads: payload_dataExtension[] | payload_contactDataExtension[]
+) {
   const { key, id } = payloads[0]
   //Check to make sure either key or id exists
   if (!key && !id) {
@@ -15,7 +17,7 @@ export function upsertRows(request: RequestClient, subdomain: String, payloads: 
     )
   }
   const rows: Record<string, any>[] = []
-  payloads.forEach((payload: Payload) => {
+  payloads.forEach((payload: payload_dataExtension | payload_contactDataExtension) => {
     rows.push({
       keys: payload.keys,
       values: payload.values
