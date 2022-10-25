@@ -12,8 +12,9 @@ const settings: Settings = {
   account_id: 'test123'
 }
 
-const testEvent = createTestEvent({
+const event = createTestEvent({
   timestamp: timestamp,
+  type: 'track',
   userId: 'harry-1',
   properties: {
     id: '1234567890',
@@ -25,7 +26,7 @@ const testEvent = createTestEvent({
     }
   }
 })
-const event = createTestEvent(testEvent)
+
 const requestUrl = `https://${settings.subdomain}.rest.marketingcloudapis.com/hub/v1/dataevents/1234567890/rowset`
 describe('Salesforce Marketing Cloud', () => {
   describe('Data Extension Action', () => {

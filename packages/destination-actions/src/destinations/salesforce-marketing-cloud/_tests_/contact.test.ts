@@ -12,15 +12,15 @@ const settings: Settings = {
   account_id: 'test123'
 }
 
-const testEvent = createTestEvent({
+const event = createTestEvent({
   timestamp: timestamp,
   userId: 'eric-15',
   type: 'identify',
-  properties: {
+  traits: {
     contactKey: 'ericForman15'
   }
 })
-const event = createTestEvent(testEvent)
+
 const requestUrl = `https://${settings.subdomain}.rest.marketingcloudapis.com/contacts/v1/contacts`
 describe('Salesforce Marketing Cloud', () => {
   describe('Create Contact Action', () => {
@@ -30,7 +30,7 @@ describe('Salesforce Marketing Cloud', () => {
         event,
         settings,
         mapping: {
-          contactKey: { '@path': '$.properties.contactKey' }
+          contactKey: { '@path': '$.traits.contactKey' }
         }
       })
       expect(responses[0].status).toBe(200)

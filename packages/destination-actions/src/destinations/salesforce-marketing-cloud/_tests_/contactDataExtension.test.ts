@@ -12,11 +12,11 @@ const settings: Settings = {
   account_id: 'test123'
 }
 
-const testEvent = createTestEvent({
+const event = createTestEvent({
   timestamp: timestamp,
   userId: 'harry-1',
   type: 'identify',
-  properties: {
+  traits: {
     key: 'dataExtension12',
     keys: {
       contactKey: 'harryStyles1',
@@ -28,7 +28,6 @@ const testEvent = createTestEvent({
     }
   }
 })
-const event = createTestEvent(testEvent)
 const requestUrl = `https://${settings.subdomain}.rest.marketingcloudapis.com/hub/v1/dataevents/key:dataExtension12/rowset`
 describe('Salesforce Marketing Cloud', () => {
   describe('Contact Data Extension Action', () => {
@@ -38,9 +37,9 @@ describe('Salesforce Marketing Cloud', () => {
         event,
         settings,
         mapping: {
-          key: { '@path': '$.properties.key' },
-          keys: { '@path': '$.properties.keys' },
-          values: { '@path': '$.properties.values' }
+          key: { '@path': '$.traits.key' },
+          keys: { '@path': '$.traits.keys' },
+          values: { '@path': '$.traits.values' }
         }
       })
       expect(responses[0].status).toBe(200)
@@ -55,8 +54,8 @@ describe('Salesforce Marketing Cloud', () => {
         settings,
         useDefaultMappings: true,
         mapping: {
-          key: { '@path': '$.properties.key' },
-          values: { '@path': '$.properties.values' }
+          key: { '@path': '$.traits.key' },
+          values: { '@path': '$.traits.values' }
         }
       })
       expect(responses[0].status).toBe(200)
@@ -71,8 +70,8 @@ describe('Salesforce Marketing Cloud', () => {
           event,
           settings,
           mapping: {
-            keys: { '@path': '$.properties.keys' },
-            values: { '@path': '$.properties.values' }
+            keys: { '@path': '$.traits.keys' },
+            values: { '@path': '$.traits.values' }
           }
         })
       ).rejects.toThrowError(

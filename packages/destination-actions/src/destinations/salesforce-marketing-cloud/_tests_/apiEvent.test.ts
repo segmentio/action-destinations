@@ -12,9 +12,10 @@ const settings: Settings = {
   account_id: 'test123'
 }
 
-const testEvent = createTestEvent({
+const event = createTestEvent({
   timestamp: timestamp,
   userId: 'eric-15',
+  type: 'track',
   properties: {
     contactKey: 'ericForman15',
     eventDefinitionKey: '123',
@@ -26,7 +27,6 @@ const testEvent = createTestEvent({
   }
 })
 
-const event = createTestEvent(testEvent)
 const requestUrl = `https://${settings.subdomain}.rest.marketingcloudapis.com/interaction/v1/events`
 describe('Salesforce Marketing Cloud', () => {
   describe('Send API Event Action', () => {

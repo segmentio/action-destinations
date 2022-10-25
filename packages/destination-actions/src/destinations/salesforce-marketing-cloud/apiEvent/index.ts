@@ -13,7 +13,7 @@ const action: ActionDefinition<Settings, Payload> = {
   },
   perform: (request, { settings, payload }) => {
     return request(`https://${settings.subdomain}.rest.marketingcloudapis.com/interaction/v1/events`, {
-      method: 'post',
+      method: 'POST',
       json: payload
     })
   }
