@@ -107,12 +107,10 @@ function validateDirectiveOrString(v: unknown, stack: string[] = []) {
 
 function validateString(v: unknown, stack: string[] = []) {
   const type = realTypeOrDirective(v)
-  switch (type) {
-    case 'string':
-      return
-    default:
-      throw new ValidationError(`should be a string but it is ${indefiniteArticle(type)} ${type}`, stack)
+  if (type !== 'string') {
+    throw new ValidationError(`should be a string but it is ${indefiniteArticle(type)} ${type}`, stack)
   }
+  return
 }
 
 function validateObject(value: unknown, stack: string[] = []) {

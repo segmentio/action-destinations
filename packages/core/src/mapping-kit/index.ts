@@ -98,6 +98,7 @@ registerDirective('@case', (opts, payload) => {
           throw new Error('operator key should have a value of "lower" or "upper"')
       }
     }
+    return value
   }
 })
 

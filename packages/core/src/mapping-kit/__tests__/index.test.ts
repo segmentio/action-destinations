@@ -203,22 +203,20 @@ describe('@if', () => {
   })
 })
 
-describe('@case', () => {
-  const payload = { a: 1, b: 'MAKE ME LOWER CASE', c: 'make me upper case', d: null, e: '', f: false }
+describe.only('@case', () => {
+  const payload = {
+    a: 1,
+    b: 'MAKE ME LOWER CASE',
+    c: 'make me upper case',
+    d: null,
+    e: '',
+    f: false,
+    g: 'mIXeD StRinG CasING W/ NuMBErs 190wdB',
+    h: { key1: 'with values', key2: ['hi', true, null] }
+  }
 
-  test('operator', () => {
+  test('handle string-input transformations', () => {
     let output = transform(
-      {
-        '@case': {
-          operator: 'lower',
-          value: { '@path': '$.a' }
-        }
-      },
-      payload
-    )
-    expect(output).toStrictEqual(undefined)
-
-    output = transform(
       {
         '@case': {
           operator: 'lower',
@@ -244,17 +242,6 @@ describe('@case', () => {
       {
         '@case': {
           operator: 'lower',
-          value: { '@path': '$.d' }
-        }
-      },
-      payload
-    )
-    expect(output).toStrictEqual(undefined)
-
-    output = transform(
-      {
-        '@case': {
-          operator: 'lower',
           value: { '@path': '$.e' }
         }
       },
@@ -266,12 +253,112 @@ describe('@case', () => {
       {
         '@case': {
           operator: 'lower',
+          value: { '@path': '$.g' }
+        }
+      },
+      payload
+    )
+    expect(output).toStrictEqual('mixed string casing w/ numbers 190wdb')
+
+    output = transform(
+      {
+        '@case': {
+          operator: 'upper',
+          value: { '@path': '$.g' }
+        }
+      },
+      payload
+    )
+    expect(output).toStrictEqual('MIXED STRING CASING W/ NUMBERS 190WDB')
+  })
+
+  test('handle non-string-input correctly', () => {
+    let output = transform(
+      {
+        '@case': {
+          operator: 'lower',
+          value: { '@path': '$.a' }
+        }
+      },
+      payload
+    )
+    console.log('number', output)
+    expect(output).toStrictEqual(1)
+
+    output = transform(
+      {
+        '@case': {
+          operator: 'lower',
+          value: { '@path': '$.d' }
+        }
+      },
+      payload
+    )
+    console.log('null', output)
+    expect(output).toStrictEqual(null)
+
+    output = transform(
+      {
+        '@case': {
+          operator: 'lower',
           value: { '@path': '$.f' }
         }
       },
       payload
     )
-    expect(output).toStrictEqual(undefined)
+    console.log('boolean', output)
+    expect(output).toStrictEqual(false)
+
+    output = transform(
+      {
+        '@case': {
+          operator: 'lower',
+          value: { '@path': '$.h' }
+        }
+      },
+      payload
+    )
+    expect(output).toStrictEqual({ key1: 'with values', key2: ['hi', true, null] })
+  })
+
+  test('Correctly handle errors', () => {
+    let test = () => {
+      transform(
+        {
+          '@case': {
+            wrongKey: 'lower',
+            value: { '@path': '$.b' }
+          }
+        },
+        payload
+      )
+    }
+
+    expect(test).toThrow(Error)
+    expect(test).toThrow('@case requires a "operator" key')
+
+    test = () =>
+      transform(
+        {
+          '@case': {
+            operator: 'unsupported snake',
+            value: { '@path': '$.b' }
+          }
+        },
+        payload
+      )
+    expect(test).toThrow(Error)
+    expect(test).toThrow('operator key should have a value of "lower" or "upper"')
+
+    test = () =>
+      transform(
+        {
+          '@case': 'not an object'
+        },
+        payload
+      )
+    expect(test).toThrow(Error)
+    expect(test).toThrow('/@case should be an object but it is a string.')
   })
 })
 
