@@ -7,7 +7,6 @@ export const contactKey: InputField = {
   type: 'string',
   default: { '@path': '$.userId' }
 }
-
 export const contactKeyAPIEvent: InputField = {
   label: 'Contact Key',
   description: 'The unique identifier that identifies a subscriber or a contact.',
@@ -15,7 +14,6 @@ export const contactKeyAPIEvent: InputField = {
   default: { '@path': '$.userId' },
   required: true
 }
-
 export const key: InputField = {
   label: 'Data Extension Key',
   description:
@@ -58,7 +56,6 @@ export const eventData: InputField = {
   type: 'object',
   defaultObjectUI: 'keyvalue:only'
 }
-
 export const enable_batching: InputField = {
   label: 'Batch data to SFMC',
   description: 'If true, data is batched before sending to the SFMC Data Extension.',
