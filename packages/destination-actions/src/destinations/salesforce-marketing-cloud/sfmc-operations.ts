@@ -8,7 +8,6 @@ export function upsertRows(
   payloads: payload_dataExtension[] | payload_contactDataExtension[]
 ) {
   const { key, id } = payloads[0]
-  //Check to make sure either key or id exists
   if (!key && !id) {
     throw new IntegrationError(
       `In order to send an event to a data extension either Data Extension ID or Data Extension Key must be defined.`,

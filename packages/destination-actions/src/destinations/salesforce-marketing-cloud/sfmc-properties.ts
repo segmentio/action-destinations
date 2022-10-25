@@ -7,6 +7,7 @@ export const contactKey: InputField = {
   type: 'string',
   default: { '@path': '$.userId' }
 }
+
 export const contactKeyAPIEvent: InputField = {
   label: 'Contact Key',
   description: 'The unique identifier that identifies a subscriber or a contact.',
@@ -14,18 +15,21 @@ export const contactKeyAPIEvent: InputField = {
   default: { '@path': '$.userId' },
   required: true
 }
+
 export const key: InputField = {
   label: 'Data Extension Key',
   description:
     'The key of the data extension that you want to store contact information in. The data extension must be predefined in SFMC. Segment recommends storing all contact information in a single data extension. The key is required if a Data Extension ID is not provided.',
   type: 'string'
 }
+
 export const id: InputField = {
   label: 'Data Extension ID',
   description:
     'The ID of the data extension that you want to store contact information in. The data extension must be predefined in SFMC. Segment recommends storing all contact information in a single data extension. The ID is required if a Data Extension Key is not provided.',
   type: 'string'
 }
+
 export const keys: InputField = {
   label: 'Data Extension Primary Keys',
   description:
@@ -35,6 +39,7 @@ export const keys: InputField = {
   defaultObjectUI: 'keyvalue:only',
   additionalProperties: true
 }
+
 export const values: InputField = {
   label: 'Contact Fields',
   description:
@@ -42,6 +47,7 @@ export const values: InputField = {
   type: 'object',
   defaultObjectUI: 'keyvalue:only'
 }
+
 export const eventDefinitionKey: InputField = {
   label: 'Event Definition Key',
   description:
@@ -49,6 +55,7 @@ export const eventDefinitionKey: InputField = {
   type: 'string',
   required: true
 }
+
 export const eventData: InputField = {
   label: 'Event Data',
   description:
@@ -56,6 +63,7 @@ export const eventData: InputField = {
   type: 'object',
   defaultObjectUI: 'keyvalue:only'
 }
+
 export const enable_batching: InputField = {
   label: 'Batch data to SFMC',
   description: 'If true, data is batched before sending to the SFMC Data Extension.',
