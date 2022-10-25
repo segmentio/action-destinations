@@ -1,28 +1,32 @@
 import type { ActionDefinition } from '@segment/actions-core'
-import { IntegrationError } from '@segment/actions-core'
+import { RequestClient } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
+import { HUBSPOT_BASE_URL } from '../properties'
+import { HubSpotError } from '../errors'
 
-// List of HubSpot defined Objects that segment has OAuth Scope to access
-const hubspotDefinedObjects: string[] = ['deals', 'tickets']
+interface ObjectSchema {
+  labels: { singular: string; plural: string }
+  fullyQualifiedName: string
+}
 
-// HubSpot validation rule suggests Custom Object type must start with a letter and can only contain letters, numbers, underscores, and hyphens.
-// HubSpot appends a workspace specific prefix like "p1122334455_" during the Custom Object creation
-// Examples of valid fullyQualifiedName: p22334455_TestObject, p22695334_TE_ST-obj5
-const customObjectExpression = new RegExp('^[a-zA-Z0-9]+_[a-zA-Z][a-zA-Z0-9_-]+$')
+interface GetSchemasResponse {
+  results: ObjectSchema[]
+}
 
 // slug name - upsertCustomObjectRecord. We will be introducing upsert logic soon.
 // To avoid slug name changes in future, naming it as upsertCustomObjectRecord straight away.
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Create Custom Object Record',
-  description: 'Create records in any HubSpot standard or custom object.',
+  description: 'Create records of Deals, Tickets or other Custom Objects in HubSpot.',
   fields: {
     objectType: {
       label: 'Object Type',
       description:
         'The CRM object schema to use for creating a record. This can be a standard object (i.e. tickets, deals) or ***fullyQualifiedName*** of a custom object. Schema for the Custom Objects must be predefined in HubSpot. More information on Custom Objects and *fullyQualifiedName* in [HubSpot documentation](https://developers.hubspot.com/docs/api/crm/crm-custom-objects#retrieve-existing-custom-objects).',
       type: 'string',
-      required: true
+      required: true,
+      dynamic: true
     },
     properties: {
       label: 'Properties',
@@ -34,22 +38,50 @@ const action: ActionDefinition<Settings, Payload> = {
       allowNull: false
     }
   },
-  perform: async (request, { payload }) => {
-    // Check if Custom Object is in valid format or is a Segment-supported HubSpot object.
-    if (!customObjectExpression.test(payload.objectType) && !hubspotDefinedObjects.includes(payload.objectType)) {
-      throw new IntegrationError(
-        'Custom Object is not in valid format. Please make sure that you are using either a valid format of object’s fullyQualifiedName (eg: p11223344_myobject) or a supported HubSpot defined object (i.e.: deals, tickets).',
-        'Custom Object is not in valid format',
-        400
-      )
+  dynamicFields: {
+    objectType: async (request, _) => {
+      return getCustomObjects(request)
     }
-
-    return request(`https://api.hubapi.com/crm/v3/objects/${payload.objectType}`, {
+  },
+  perform: async (request, { payload }) => {
+    return request(`${HUBSPOT_BASE_URL}/crm/v3/objects/${payload.objectType}`, {
       method: 'POST',
       json: {
         properties: { ...payload.properties }
       }
     })
+  }
+}
+
+async function getCustomObjects(request: RequestClient) {
+  // List of HubSpot defined Objects that segment has OAuth Scope to access
+  const defaultChoices = [
+    { value: 'deals', label: 'Deals' },
+    { value: 'tickets', label: 'Tickets' }
+  ]
+
+  try {
+    // API Doc - https://developers.hubspot.com/docs/api/crm/crm-custom-objects#endpoint?spec=GET-/crm/v3/schemas
+    //
+    const response = await request<GetSchemasResponse>(`${HUBSPOT_BASE_URL}/crm/v3/schemas?archived=false`, {
+      method: 'GET',
+      skipResponseCloning: true
+    })
+    const choices = response.data.results.map((schema) => ({
+      label: schema.labels.plural,
+      value: schema.fullyQualifiedName
+    }))
+    return {
+      choices: [...choices, ...defaultChoices]
+    }
+  } catch (err) {
+    return {
+      choices: [],
+      error: {
+        message: (err as HubSpotError)?.response?.data?.message ?? 'Unknown error',
+        code: (err as HubSpotError)?.response?.data?.category ?? 'Unknown code'
+      }
+    }
   }
 }
 

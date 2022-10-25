@@ -41,7 +41,7 @@ const getPurchaseEventsFromPayload = (payload: Payload, settings: Settings): Mix
         event: 'Product Purchased',
         properties: {
           ...omit(orderCompletedEvent.properties, topLevelKeys),
-          $insert_id: insertId + (insertIdCount++).toString(),
+          $insert_id: (insertIdCount++).toString() + insertId,
           time: --time,
           ...product
         }

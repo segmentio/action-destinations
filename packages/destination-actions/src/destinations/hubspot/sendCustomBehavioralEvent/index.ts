@@ -1,6 +1,6 @@
 import type { ActionDefinition } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
-import { hubSpotBaseURL } from '../properties'
+import { HUBSPOT_BASE_URL } from '../properties'
 import type { Payload } from './generated-types'
 
 interface CustomBehavioralEvent {
@@ -75,7 +75,7 @@ const action: ActionDefinition<Settings, Payload> = {
       objectId: payload.objectId,
       properties: payload.properties
     }
-    return request(`${hubSpotBaseURL}/events/v3/send`, {
+    return request(`${HUBSPOT_BASE_URL}/events/v3/send`, {
       method: 'post',
       json: event
     })
