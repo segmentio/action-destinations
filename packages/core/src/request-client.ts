@@ -1,6 +1,6 @@
 import AbortController from 'abort-controller'
 import { CustomError } from 'ts-custom-error'
-import fetch, { Headers, Request, Response } from './fetch'
+import fetch, { Headers, Request, Response } from './fetch-updated'
 import { isObject } from './real-type-of'
 import type https from 'https'
 
