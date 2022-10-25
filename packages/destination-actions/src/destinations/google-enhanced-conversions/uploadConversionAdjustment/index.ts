@@ -31,9 +31,8 @@ const action: ActionDefinition<Settings, Payload> = {
     adjustment_timestamp: {
       label: 'Adjustment Timestamp',
       description:
-        'The date time at which the adjustment occurred. Must be after the conversion timestamp. The timezone must be specified. The format is "yyyy-mm-dd hh:mm:ss+|-hh:mm", e.g. "2019-01-01 12:32:45-08:00".',
+        'The date time at which the adjustment occurred. Must be after the conversion timestamp. The timezone must be specified. The format is "yyyy-mm-dd hh:mm:ss+|-hh:mm", e.g. "2019-01-01 12:32:45-08:00". If no timestamp is provided, Segment will fallback on the current time.',
       type: 'string',
-      required: true,
       default: {
         '@path': '$.timestamp'
       }
@@ -212,6 +211,10 @@ const action: ActionDefinition<Settings, Payload> = {
 
     settings.customerId = settings.customerId.replace(/-/g, '')
 
+    if (!payload.adjustment_timestamp) {
+      payload.adjustment_timestamp = new Date().toISOString()
+    }
+
     const request_object: { [key: string]: any } = {
       conversionAction: `customers/${settings.customerId}/conversionActions/${payload.conversion_action}`,
       adjustmentType: payload.adjustment_type,
@@ -225,7 +228,8 @@ const action: ActionDefinition<Settings, Payload> = {
       userAgent: payload.user_agent
     }
 
-    if (payload.adjustment_type == 'RESTATEMENT') {
+    // Google will return an error if this value is sent with retractions.
+    if (payload.adjustment_type != 'RETRACTION') {
       request_object.restatementValue = {
         adjustedValue: payload.restatement_value,
         currencyCode: payload.restatement_currency_code
