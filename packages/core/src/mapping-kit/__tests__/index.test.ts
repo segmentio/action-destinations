@@ -203,7 +203,7 @@ describe('@if', () => {
   })
 })
 
-describe.only('@case', () => {
+describe('@case', () => {
   const payload = {
     a: 1,
     b: 'MAKE ME LOWER CASE',
@@ -282,7 +282,6 @@ describe.only('@case', () => {
       },
       payload
     )
-    console.log('number', output)
     expect(output).toStrictEqual(1)
 
     output = transform(
@@ -294,7 +293,6 @@ describe.only('@case', () => {
       },
       payload
     )
-    console.log('null', output)
     expect(output).toStrictEqual(null)
 
     output = transform(
@@ -306,7 +304,6 @@ describe.only('@case', () => {
       },
       payload
     )
-    console.log('boolean', output)
     expect(output).toStrictEqual(false)
 
     output = transform(
