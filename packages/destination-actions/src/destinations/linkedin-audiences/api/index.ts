@@ -1,7 +1,7 @@
 import type { RequestClient, ModifiedResponse } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from '../updateAudience/generated-types'
-import { BASE_URL } from '../constants'
+import { BASE_URL, LINKEDIN_SOURCE_PLATFORM } from '../constants'
 import type { ProfileAPIResponse, AdAccountUserResponse } from '../types'
 
 export class LinkedInAudiences {
@@ -33,7 +33,7 @@ export class LinkedInAudiences {
         q: 'account',
         account: `urn:li:sponsoredAccount:${settings.ad_account_id}`,
         sourceSegmentId: payload.source_segment_id || '',
-        sourcePlatform: 'SEGMENT'
+        sourcePlatform: LINKEDIN_SOURCE_PLATFORM
       }
     })
   }
@@ -43,7 +43,7 @@ export class LinkedInAudiences {
       method: 'POST',
       json: {
         name: payload.dmp_segment_name,
-        sourcePlatform: 'SEGMENT',
+        sourcePlatform: LINKEDIN_SOURCE_PLATFORM,
         sourceSegmentId: payload.source_segment_id,
         account: `urn:li:sponsoredAccount:${settings.ad_account_id}`,
         accessPolicy: 'PRIVATE',

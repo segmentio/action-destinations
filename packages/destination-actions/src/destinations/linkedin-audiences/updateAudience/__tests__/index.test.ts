@@ -1,7 +1,7 @@
 import nock from 'nock'
 import { createTestEvent, createTestIntegration } from '@segment/actions-core'
 import Destination from '../../index'
-import { BASE_URL } from '../../constants'
+import { BASE_URL, LINKEDIN_SOURCE_PLATFORM } from '../../constants'
 
 const testDestination = createTestIntegration(Destination)
 
@@ -35,7 +35,7 @@ const urlParams = {
   q: 'account',
   account: 'urn:li:sponsoredAccount:123',
   sourceSegmentId: 'personas_test_audience',
-  sourcePlatform: 'SEGMENT'
+  sourcePlatform: LINKEDIN_SOURCE_PLATFORM
 }
 
 const updateUsersRequestBody = {
@@ -58,7 +58,7 @@ const updateUsersRequestBody = {
 
 const createDmpSegmentRequestBody = {
   name: 'personas_test_audience',
-  sourcePlatform: 'SEGMENT',
+  sourcePlatform: LINKEDIN_SOURCE_PLATFORM,
   sourceSegmentId: 'personas_test_audience',
   account: `urn:li:sponsoredAccount:456`,
   accessPolicy: 'PRIVATE',
