@@ -1,7 +1,5 @@
 import type { DestinationDefinition } from '@segment/actions-core'
 import type { Settings } from './generated-types'
-import sendGroup from './sendGroup'
-
 import sendScreen from './sendScreen'
 
 const destination: DestinationDefinition<Settings> = {
@@ -46,7 +44,6 @@ const destination: DestinationDefinition<Settings> = {
     }
   },
   actions: {
-    sendGroup,
     sendScreen
   }
 }
