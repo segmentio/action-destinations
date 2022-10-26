@@ -81,7 +81,7 @@ export default class PushBrowserDestinations extends Command {
     const pluginsToCreate = []
     const pluginsToUpdate = []
 
-    const definitionCreationNameExceptions = new Set(['Amplitude (Actions)'])
+    const definitionCreationNameExceptions = new Set(['Amplitude (Actions)', 'Fullstory (Actions)'])
 
     for (const metadata of metadatas) {
       this.spinner.start(`Saving remote plugin for ${metadata.name}`)
