@@ -2,7 +2,7 @@
 import AbortController from 'abort-controller'
 import createTestServer from 'create-test-server'
 import createInstance from '../request-client'
-import { Response } from '../fetch'
+import { Response } from '../fetch-updated'
 
 describe('createInstance', () => {
   it('should create a new request client instance', async () => {
