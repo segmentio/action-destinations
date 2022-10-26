@@ -1,4 +1,5 @@
 import { Analytics, Context } from '@segment/analytics-next'
+import { Subscription } from 'src/lib/browser-destinations'
 import brazeDestination, { destination } from '../index'
 
 describe('initialization', () => {
@@ -76,5 +77,63 @@ describe('initialization', () => {
         </script>,
       ]
     `)
+  })
+
+  test('can defer braze initialization when deferUntilIdentified is on', async () => {
+    const [updateUserProfile, trackEvent] = await brazeDestination({
+      api_key: 'b_123',
+      deferUntilIdentified: true,
+      subscriptions: destination.presets?.map((sub) => ({ ...sub, enabled: true })) as Subscription[],
+      ...settings
+    })
+
+    jest.spyOn(destination.actions.trackEvent, 'perform')
+    const initializeSpy = jest.spyOn(destination, 'initialize')
+
+    const analytics = new Analytics({ writeKey: '123' })
+
+    await analytics.register(updateUserProfile, trackEvent)
+
+    // Spy on the braze APIs now that braze has been loaded.
+    const { instance: braze } = await initializeSpy.mock.results[0].value
+    const openSessionSpy = jest.spyOn(braze, 'openSession')
+    const logCustomEventSpy = jest.spyOn(braze, 'logCustomEvent')
+
+    await analytics.track?.({
+      type: 'track',
+      event: 'UFC',
+      properties: {
+        goat: 'hasbulla'
+      }
+    })
+
+    expect(destination.actions.trackEvent.perform).toHaveBeenCalledWith(
+      expect.objectContaining({
+        instance: expect.objectContaining({
+          logCustomEvent: expect.any(Function)
+        })
+      }),
+
+      expect.objectContaining({
+        payload: { eventName: 'UFC', eventProperties: { goat: 'hasbulla' } }
+      })
+    )
+
+    expect(analytics.user().id()).toBe(null)
+    expect(openSessionSpy).not.toHaveBeenCalled()
+    expect(logCustomEventSpy).not.toHaveBeenCalled()
+
+    await analytics.identify('27413')
+
+    await analytics.track?.({
+      type: 'track',
+      event: 'FIFA',
+      properties: {
+        goat: 'deno'
+      }
+    })
+
+    expect(openSessionSpy).toHaveBeenCalled()
+    expect(logCustomEventSpy).toHaveBeenCalledWith('FIFA', { goat: 'deno' })
   })
 })
