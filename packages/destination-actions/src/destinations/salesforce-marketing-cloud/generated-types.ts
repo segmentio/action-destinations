@@ -6,19 +6,15 @@ export interface Settings {
    */
   subdomain: string
   /**
-   * STAGE TESTING
-   */
-  token: string
-  /**
-   * STAGE TESTING
+   * Your Salesforce Marketing Cloud account identifier (or MID). See more information on how to find your MID [here](https://help.salesforce.com/s/articleView?id=sf.mc_overview_determine_your_marketing_cloud_instance.htm&type=5).
    */
   account_id: string
   /**
-   * STAGE TESTING
+   * Your Salesforce Marketing Cloud client ID. The client ID is issued when you create an API integration in [Installed Packages](https://developer.salesforce.com/docs/marketing/marketing-cloud/guide/install-packages.html).
    */
   client_id: string
   /**
-   * STAGE TESTING
+   * Your Salesforce Marketing Cloud client secret. The client secret is issued when you create an API integration in Installed Packages.
    */
   client_secret: string
 }

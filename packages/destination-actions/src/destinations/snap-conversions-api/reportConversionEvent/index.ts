@@ -27,7 +27,10 @@ import {
   sign_up_method,
   formatPayload,
   CURRENCY_ISO_4217_CODES,
-  conversionType
+  conversionType,
+  device_model,
+  os_version,
+  click_id
 } from '../snap-capi-properties'
 
 const CONVERSION_EVENT_URL = 'https://tr.snapchat.com/v2/conversion'
@@ -59,7 +62,10 @@ const action: ActionDefinition<Settings, Payload> = {
     client_dedup_id: client_dedup_id,
     search_string: search_string,
     page_url: page_url,
-    sign_up_method: sign_up_method
+    sign_up_method: sign_up_method,
+    os_version: os_version,
+    device_model: device_model,
+    click_id: click_id
   },
   perform: (request, data) => {
     const payload: Object = formatPayload(data.payload)

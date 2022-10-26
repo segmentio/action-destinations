@@ -11,9 +11,8 @@ const action: ActionDefinition<Settings, Payload> = {
     contactKey: { ...contactKey, required: true }
   },
   perform: (request, { settings, payload }) => {
-    const requestUrl = `https://${settings.subdomain}.rest.marketingcloudapis.com/contacts/v1/contacts`
-    return request(requestUrl, {
-      method: 'post',
+    return request(`https://${settings.subdomain}.rest.marketingcloudapis.com/contacts/v1/contacts`, {
+      method: 'POST',
       json: {
         contactKey: payload.contactKey,
         attributeSets: []

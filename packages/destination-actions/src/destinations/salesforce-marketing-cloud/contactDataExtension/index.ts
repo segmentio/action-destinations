@@ -19,9 +19,11 @@ const action: ActionDefinition<Settings, Payload> = {
           description:
             'The unique identifier that you assign to a contact. Contact Key must be a Primary Key in the data extension that contains contact information.',
           type: 'string',
-          required: true,
-          default: { '@path': '$.userId' }
+          required: true
         }
+      },
+      default: {
+        contactKey: { '@path': '$.userId' }
       }
     },
     values: values,

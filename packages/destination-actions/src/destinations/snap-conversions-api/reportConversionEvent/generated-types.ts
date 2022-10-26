@@ -70,7 +70,7 @@ export interface Payload {
    */
   currency?: string
   /**
-   * Transaction ID or order ID tied to the conversion event. Please refer to the [Snapchat Marketing API docs](https://marketingapi.snapchat.com/docs/conversion.html#deduplication) for information on how this field is used for deduplication against Snap Pixel SDK and App Adds Kit events.
+   * Transaction ID or order ID tied to the conversion event. Please refer to the [Snapchat Marketing API docs](https://marketingapi.snapchat.com/docs/conversion.html#deduplication) for information on how this field is used for deduplication against Snap Pixel SDK and App Ads Kit events.
    */
   transaction_id?: string
   /**
@@ -93,4 +93,16 @@ export interface Payload {
    * A string indicating the sign up method.
    */
   sign_up_method?: string
+  /**
+   * The user’s OS version.
+   */
+  os_version?: string
+  /**
+   * The user’s device model.
+   */
+  device_model?: string
+  /**
+   * The ID value stored in the landing page URL's `&ScCid=` query parameter. Using this ID improves ad measurement performance. We also encourage advertisers who are using `click_id` to pass the full url in the `page_url` field. For more details, please refer to [Sending a Click ID](#sending-a-click-id)
+   */
+  click_id?: string
 }
