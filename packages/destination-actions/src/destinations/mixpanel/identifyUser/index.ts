@@ -2,7 +2,7 @@ import { ActionDefinition, IntegrationError, omit } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 
-import { getApiServerUrl } from '../utils'
+import { getApiServerUrl, getName } from '../utils'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Identify User',
@@ -80,7 +80,11 @@ const action: ActionDefinition<Settings, Payload> = {
         $email: payload.traits.email,
         $first_name: payload.traits.firstName,
         $last_name: payload.traits.lastName,
-        $name: payload.traits.name,
+        $name: getName(
+          payload.traits.firstName as string | undefined,
+          payload.traits.lastName as string | undefined,
+          payload.traits.name as string | undefined
+        ),
         $username: payload.traits.username,
         $phone: payload.traits.phone
       }
