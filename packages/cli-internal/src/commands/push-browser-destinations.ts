@@ -81,6 +81,8 @@ export default class PushBrowserDestinations extends Command {
     const pluginsToCreate = []
     const pluginsToUpdate = []
 
+    const definitionCreationNameExceptions = new Set(['Amplitude (Actions)'])
+
     for (const metadata of metadatas) {
       this.spinner.start(`Saving remote plugin for ${metadata.name}`)
       const entry = manifest[metadata.id]
@@ -100,7 +102,10 @@ export default class PushBrowserDestinations extends Command {
       // `metadataId` is guaranteed to be unique
       const existingPlugin = remotePlugins.find((p) => p.metadataId === metadata.id)
 
-      if (metadata.creationName !== entry.definition.name) {
+      if (
+        metadata.creationName !== entry.definition.name &&
+        !definitionCreationNameExceptions.has(entry.definition.name)
+      ) {
         this.spinner.fail()
         throw new Error(
           `The definition name '${entry.definition.name}' should always match the control plane creationName '${metadata.creationName}'.`
