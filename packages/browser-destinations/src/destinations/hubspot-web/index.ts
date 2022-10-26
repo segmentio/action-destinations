@@ -56,7 +56,7 @@ export const destination: BrowserDestinationDefinition<Settings, Hubspot> = {
       required: false
     },
     flushIdentifyImmediately: {
-      description: 'Enable this option to fire a Page View immediately after an identify call to send the data to HubSpot.',
+      description: 'Enable this option to fire a `trackPageView` HubSpot event immediately after each Segment `identify` call to flush the data to HubSpot immediately.',
       label: 'Flush Identify Calls Immediately',
       type: 'boolean',
       required: false
