@@ -18,8 +18,8 @@ class WorkerStub {
 }
 
 export function mockWorkerAndXMLHttpRequest(): void {
-  window.XMLHttpRequest = jest.fn()
-  window.Worker = WorkerStub
+  window.XMLHttpRequest = jest.fn() as any
+  window.Worker = WorkerStub as any
 }
 
 export const trackSubscription: Subscription = {
