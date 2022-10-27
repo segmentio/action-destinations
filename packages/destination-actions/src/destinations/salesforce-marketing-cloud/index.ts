@@ -25,21 +25,21 @@ const destination: DestinationDefinition<Settings> = {
         required: true
       },
       account_id: {
-        label: 'account id',
+        label: 'Account ID',
         description:
           'Your Salesforce Marketing Cloud account identifier (or MID). See more information on how to find your MID [here](https://help.salesforce.com/s/articleView?id=sf.mc_overview_determine_your_marketing_cloud_instance.htm&type=5).',
         type: 'string',
         required: true
       },
       client_id: {
-        label: 'client_id',
+        label: 'Client ID',
         description:
           'Your Salesforce Marketing Cloud client ID. The client ID is issued when you create an API integration in [Installed Packages](https://developer.salesforce.com/docs/marketing/marketing-cloud/guide/install-packages.html).',
         type: 'string',
         required: true
       },
       client_secret: {
-        label: 'client_secret',
+        label: 'Client Secret',
         description:
           'Your Salesforce Marketing Cloud client secret. The client secret is issued when you create an API integration in Installed Packages.',
         type: 'password',
