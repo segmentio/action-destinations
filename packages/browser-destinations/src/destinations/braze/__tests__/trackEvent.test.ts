@@ -31,10 +31,10 @@ testSdkVersions.forEach((sdkVersion) => {
       jest.spyOn(destination.actions.trackEvent, 'perform')
       const initializeSpy = jest.spyOn(destination, 'initialize')
 
-      await trackEvent.load(Context.system(), {} as Analytics)
+      await trackEvent.load(Context.system(), new Analytics({ writeKey: '123' }))
 
       // Spy on the braze APIs now that braze has been loaded.
-      const braze = await initializeSpy.mock.results[0].value
+      const { instance: braze } = await initializeSpy.mock.results[0].value
       const logCustomEventSpy = jest.spyOn(braze, 'logCustomEvent')
 
       await trackEvent.track?.(
@@ -49,7 +49,9 @@ testSdkVersions.forEach((sdkVersion) => {
 
       expect(destination.actions.trackEvent.perform).toHaveBeenCalledWith(
         expect.objectContaining({
-          logCustomEvent: expect.any(Function)
+          instance: expect.objectContaining({
+            logCustomEvent: expect.any(Function)
+          })
         }),
 
         expect.objectContaining({

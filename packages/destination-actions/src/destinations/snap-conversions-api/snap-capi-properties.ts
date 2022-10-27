@@ -232,7 +232,7 @@ export const currency: InputField = {
 export const transaction_id: InputField = {
   label: 'Transaction ID',
   description:
-    'Transaction ID or order ID tied to the conversion event. Please refer to the [Snapchat Marketing API docs](https://marketingapi.snapchat.com/docs/conversion.html#deduplication) for information on how this field is used for deduplication against Snap Pixel SDK and App Adds Kit events.',
+    'Transaction ID or order ID tied to the conversion event. Please refer to the [Snapchat Marketing API docs](https://marketingapi.snapchat.com/docs/conversion.html#deduplication) for information on how this field is used for deduplication against Snap Pixel SDK and App Ads Kit events.',
   type: 'string',
   default: {
     '@path': '$.properties.order_id'
@@ -273,6 +273,25 @@ export const page_url: InputField = {
 export const sign_up_method: InputField = {
   label: 'Sign Up Method',
   description: 'A string indicating the sign up method.',
+  type: 'string'
+}
+
+export const device_model: InputField = {
+  label: 'Device Model',
+  description: 'The user’s device model.',
+  type: 'string'
+}
+
+export const os_version: InputField = {
+  label: 'OS Version',
+  description: 'The user’s OS version.',
+  type: 'string'
+}
+
+export const click_id: InputField = {
+  label: 'Click ID',
+  description:
+    "The ID value stored in the landing page URL's `&ScCid=` query parameter. Using this ID improves ad measurement performance. We also encourage advertisers who are using `click_id` to pass the full url in the `page_url` field. For more details, please refer to [Sending a Click ID](#sending-a-click-id)",
   type: 'string'
 }
 
@@ -349,6 +368,9 @@ export const formatPayload = (payload: Payload): Object => {
     client_dedup_id: payload?.client_dedup_id,
     search_string: payload?.search_string,
     page_url: payload?.page_url,
-    sign_up_method: payload?.sign_up_method
+    sign_up_method: payload?.sign_up_method,
+    device_model: payload?.device_model,
+    os_version: payload?.os_version,
+    click_id: payload?.click_id
   }
 }
