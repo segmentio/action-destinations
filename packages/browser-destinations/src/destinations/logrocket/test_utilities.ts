@@ -1,4 +1,26 @@
-import { Subscription } from '../../../lib/browser-destinations'
+import { Subscription } from '../../lib/browser-destinations'
+
+class WorkerStub {
+  url: string
+  onmessage: (_arg: string) => void
+  constructor(stringUrl: string) {
+    this.url = stringUrl
+    // eslint-disable-next-line @typescript-eslint/no-empty-function
+    this.onmessage = (_arg: string) => {}
+  }
+
+  postMessage(msg: string) {
+    this.onmessage(msg)
+  }
+
+  // eslint-disable-next-line @typescript-eslint/no-empty-function
+  addEventListener() {}
+}
+
+export function mockWorkerAndXMLHttpRequest(): void {
+  window.XMLHttpRequest = jest.fn()
+  window.Worker = WorkerStub
+}
 
 export const trackSubscription: Subscription = {
   partnerAction: 'track',

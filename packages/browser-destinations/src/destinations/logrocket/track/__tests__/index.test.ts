@@ -1,8 +1,7 @@
 import { Analytics, Context } from '@segment/analytics-next'
 import plugins from '../../index'
 import LogRocket from 'logrocket'
-import { trackSubscription } from '../../__tests__/subscriptions'
-import { mockWorkerAndXMLHttpRequest } from '../../__tests__/utilities'
+import { mockWorkerAndXMLHttpRequest, trackSubscription } from '../../test_utilities'
 
 describe('Logrocket.track', () => {
   beforeAll(mockWorkerAndXMLHttpRequest)
