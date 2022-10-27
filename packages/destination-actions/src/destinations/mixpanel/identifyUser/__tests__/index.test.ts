@@ -77,7 +77,19 @@ describe('Mixpanel.identifyUser', () => {
     const event = createTestEvent({
       timestamp, traits: {
         firstName: 'Joe',
-        lastName: 'Doe',
+        lastName: 'Doe'
+      }
+    })
+
+    const event2 = createTestEvent({
+      timestamp, traits: {
+        firstName: 'Joe'
+      }
+    })
+
+    const event3 = createTestEvent({
+      timestamp, traits: {
+        lastName: 'Doe'
       }
     })
 
@@ -98,14 +110,62 @@ describe('Mixpanel.identifyUser', () => {
         data: JSON.stringify({
           $token: MIXPANEL_PROJECT_TOKEN,
           $distinct_id: 'user1234',
+          $ip: '8.8.8.8',
           $set: {
             $first_name: 'Joe',
             $last_name: 'Doe',
-            $name: 'Joe Doe',
+            $name: 'Joe Doe'
           }
         })
       })
     )
+    nock('https://api.mixpanel.com').post('/engage').reply(200, {})
+    nock('https://api.mixpanel.com').post('/track').reply(200, {})
+    const responses2 = await testDestination.testAction('identifyUser', {
+      event: event2,
+      useDefaultMappings: true,
+      settings: {
+        projectToken: MIXPANEL_PROJECT_TOKEN,
+        apiSecret: MIXPANEL_API_SECRET,
+        apiRegion: ApiRegions.US
+      }
+    })
+    expect(responses2[1].options.body).toMatchObject(
+      new URLSearchParams({
+        data: JSON.stringify({
+          $token: MIXPANEL_PROJECT_TOKEN,
+          $distinct_id: 'user1234',
+          $ip: '8.8.8.8',
+          $set: {
+            $first_name: 'Joe'
+          }
+        })
+      })
+    )
+    nock('https://api.mixpanel.com').post('/engage').reply(200, {})
+    nock('https://api.mixpanel.com').post('/track').reply(200, {})
+    const responses3 = await testDestination.testAction('identifyUser', {
+      event: event3,
+      useDefaultMappings: true,
+      settings: {
+        projectToken: MIXPANEL_PROJECT_TOKEN,
+        apiSecret: MIXPANEL_API_SECRET,
+        apiRegion: ApiRegions.US
+      }
+    })
+    expect(responses3[1].options.body).toMatchObject(
+      new URLSearchParams({
+        data: JSON.stringify({
+          $token: MIXPANEL_PROJECT_TOKEN,
+          $distinct_id: 'user1234',
+          $ip: '8.8.8.8',
+          $set: {
+            $last_name: 'Doe'
+          }
+        })
+      })
+    )
+
   })
 
   it('should use EU server URL', async () => {

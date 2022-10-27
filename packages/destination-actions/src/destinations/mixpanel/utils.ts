@@ -3,7 +3,7 @@ export enum ApiRegions {
   EU = 'EU 🇪🇺'
 }
 
-export function getName(firstName: unknown, lastName: unknown, name: unknown): unknown {
+export function getConcatenatedName(firstName: unknown, lastName: unknown, name: unknown): unknown {
   return (
     name ?? (firstName && lastName ? `${ firstName } ${ lastName }` : undefined)
   )
