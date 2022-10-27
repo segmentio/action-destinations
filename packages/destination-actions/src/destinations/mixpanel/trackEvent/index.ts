@@ -6,7 +6,7 @@ import { getApiServerUrl, getBrowser, getBrowserVersion, cheapGuid } from '../ut
 import dayjs from '../../../lib/dayjs'
 import { eventProperties } from '../mixpanel-properties'
 
-const mixpanelReservedProperties = ['time']
+const mixpanelReservedProperties = ['time', 'id', '$anon_id', 'distinct_id', '$group_id', '$insert_id', '$user_id']
 
 const getEventFromPayload = (payload: Payload, settings: Settings): MixpanelEvent => {
   const datetime = payload.time
