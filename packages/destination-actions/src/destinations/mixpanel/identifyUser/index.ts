@@ -81,9 +81,9 @@ const action: ActionDefinition<Settings, Payload> = {
         $first_name: payload.traits.firstName,
         $last_name: payload.traits.lastName,
         $name: getName(
-          payload.traits.firstName as string | undefined,
-          payload.traits.lastName as string | undefined,
-          payload.traits.name as string | undefined
+          payload.traits.firstName,
+          payload.traits.lastName,
+          payload.traits.name
         ),
         $username: payload.traits.username,
         $phone: payload.traits.phone
