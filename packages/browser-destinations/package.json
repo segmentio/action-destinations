@@ -38,6 +38,7 @@
     "@segment/analytics-next": "^1.29.3",
     "@segment/destination-subscriptions": "^3.12.0",
     "dayjs": "^1.10.7",
+    "logrocket": "^3.0.1",
     "tslib": "^2.3.1",
     "vm-browserify": "^1.1.2"
   },
