@@ -75,8 +75,6 @@ registerDirective('@if', (opts, payload) => {
 })
 
 registerDirective('@case', (opts, payload) => {
-  // let condition = false
-
   if (!isObject(opts)) {
     throw new Error('@case requires an object with a "operator" key')
   }

@@ -215,7 +215,7 @@ describe('@case', () => {
     h: { key1: 'with values', key2: ['hi', true, null] }
   }
 
-  test('handle string-input transformations', () => {
+  test('handle string-input transformations by performing correct operation', () => {
     let output = transform(
       {
         '@case': {
@@ -272,7 +272,7 @@ describe('@case', () => {
     expect(output).toStrictEqual('MIXED STRING CASING W/ NUMBERS 190WDB')
   })
 
-  test('handle non-string-input correctly', () => {
+  test('handle non-string-input correctly by returning the given value unmodified', () => {
     let output = transform(
       {
         '@case': {
@@ -318,7 +318,7 @@ describe('@case', () => {
     expect(output).toStrictEqual({ key1: 'with values', key2: ['hi', true, null] })
   })
 
-  test('Correctly handle errors', () => {
+  test('Throw errors when directive is not setup correctly', () => {
     let test = () => {
       transform(
         {
