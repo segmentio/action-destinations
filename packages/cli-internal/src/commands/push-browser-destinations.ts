@@ -81,6 +81,8 @@ export default class PushBrowserDestinations extends Command {
     const pluginsToCreate = []
     const pluginsToUpdate = []
 
+    // These destinations differ from their creation name but were published before we added that check.
+    // These are exempted from the creation name check for backwards-compabitibility reasons.
     const definitionCreationNameExceptions = new Set(['Amplitude (Actions)', 'Fullstory (Actions)'])
 
     for (const metadata of metadatas) {
