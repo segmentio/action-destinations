@@ -233,7 +233,9 @@ export class Action<Settings, Payload extends JSONLikeObject> extends EventEmitt
     // TODO turn `extendRequest` into a beforeRequest hook
     const options = this.extendRequest?.(data) ?? {}
     return createRequestClient(options, {
-      afterResponse: [this.afterResponse.bind(this)]
+      afterResponse: [this.afterResponse.bind(this)],
+      features: data.features,
+      statsContext: data.statsContext
     })
   }
 
