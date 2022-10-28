@@ -47,7 +47,24 @@ export function initScript(orgId) {
           return {}
         }
       }),
-        (a.CommandBar = new Proxy(f, {
+        // (a.CommandBar = new Proxy(f, {
+        //   get: function (o, n) {
+        //     return n in y
+        //       ? f[n]
+        //       : p.includes(n)
+        //       ? function () {
+        //           var o = Array.prototype.slice.call(arguments)
+        //           return new Promise(function (a, t) {
+        //             o.unshift(n, a, t), f[m].push(o)
+        //           })
+        //         }
+        //       : function () {
+        //           var o = Array.prototype.slice.call(arguments)
+        //           o.unshift(n), f[m].push(o)
+        //         }
+        //   }
+        // })),
+        (a.CommandBar = {
           get: function (o, n) {
             return n in y
               ? f[n]
@@ -63,8 +80,9 @@ export function initScript(orgId) {
                   o.unshift(n), f[m].push(o)
                 }
           }
-        })),
-        null !== s && d.push('lc='.concat(s)),
+        })
+
+      null !== s && d.push('lc='.concat(s)),
         d.push('version=2'),
         t(''.concat(u, '/latest/').concat(o, '?').concat(d.join('&')), !0)
     }
