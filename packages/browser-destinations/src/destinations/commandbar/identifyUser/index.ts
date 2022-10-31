@@ -17,16 +17,16 @@ const action: BrowserActionDefinition<Settings, CommandBarClientSDK, Payload> = 
         '@path': '$.userId'
       }
     },
-    // hmac: {
-    //   description:
-    //     'The user hash used for identity verification. See [Intercom docs](https://www.intercom.com/help/en/articles/183-enable-identity-verification-for-web-and-mobile) for more information on how to set this field.',
-    //   label: 'User Hash',
-    //   type: 'string',
-    //   required: false,
-    //   default: {
-    //     '@path': '$.context.CommandBar.hmac'
-    //   }
-    // },
+    hmac: {
+      description:
+        'The user hash used for identity verification. See [Intercom docs](https://www.intercom.com/help/en/articles/183-enable-identity-verification-for-web-and-mobile) for more information on how to set this field.',
+      label: 'User Hash',
+      type: 'string',
+      required: false,
+      default: {
+        '@path': '$.context.CommandBar.hmac'
+      }
+    },
     traits: {
       type: 'object',
       required: false,
@@ -40,8 +40,7 @@ const action: BrowserActionDefinition<Settings, CommandBarClientSDK, Payload> = 
   perform: (CommandBar, event) => {
     const traits = event.payload.traits || {}
 
-    // CommandBar.boot(event.payload.userId, traits, { ...(!!event.payload.hmac && { hmac: event.payload.hmac }) })
-    CommandBar.boot(event.payload.userId, traits, {})
+    CommandBar.boot(event.payload.userId, traits, { ...(!!event.payload.hmac && { hmac: event.payload.hmac }) })
   }
 }
 

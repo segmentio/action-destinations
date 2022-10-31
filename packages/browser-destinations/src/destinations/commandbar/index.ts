@@ -15,10 +15,6 @@ declare global {
   }
 }
 
-// function initScript(orgId: string) {
-//   return
-// }
-
 export const destination: BrowserDestinationDefinition<Settings, CommandBarClientSDK> = {
   name: 'Command Bar',
   slug: 'commandbar',
@@ -55,7 +51,7 @@ export const destination: BrowserDestinationDefinition<Settings, CommandBarClien
 
     await deps.resolveWhen(() => {
       return window.CommandBar !== preloadedCommandBar
-    }, 500)
+    }, 100)
 
     return window.CommandBar
   },

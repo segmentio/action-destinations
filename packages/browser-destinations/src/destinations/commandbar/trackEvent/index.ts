@@ -3,7 +3,6 @@ import type { Settings } from '../generated-types'
 import { CommandBarClientSDK } from '../types'
 import type { Payload } from './generated-types'
 
-// Change from unknown to the partner SDK types
 const action: BrowserActionDefinition<Settings, CommandBarClientSDK, Payload> = {
   title: 'Track Event',
   description: "Submit an event's properties as CommandBar metaData.",

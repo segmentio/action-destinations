@@ -1,6 +1,6 @@
 import { Subscription } from '../../../lib/browser-destinations'
 import { Analytics, Context } from '@segment/analytics-next'
-import commandbarDestination, { destination } from '../index'
+import commandBarDestination, { destination } from '../index'
 
 const subscriptions: Subscription[] = [
   {
@@ -21,7 +21,7 @@ const subscriptions: Subscription[] = [
 
 describe('CommandBar initialization', () => {
   test('can load CommandBar with just orgId', async () => {
-    const [event] = await commandbarDestination({
+    const [event] = await commandBarDestination({
       orgId: '05f077f2',
       subscriptions
     })
