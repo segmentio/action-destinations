@@ -1,0 +1,32 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Testing snapshot for ActablePredictive's sendTransactionEvent destination action: all fields 1`] = `
+Object {
+  "data": Array [
+    Object {
+      "customer_id": "GhPb^Ubs!o",
+      "discount_code": "GhPb^Ubs!o",
+      "product_column": "",
+      "purchase_datetime": 1612137600,
+      "spend": -32616567422320.64,
+      "stream_key": "GhPb^Ubs!o",
+      "transaction_id": "GhPb^Ubs!o",
+    },
+  ],
+}
+`;
+
+exports[`Testing snapshot for ActablePredictive's sendTransactionEvent destination action: required fields 1`] = `
+Object {
+  "data": Array [
+    Object {
+      "customer_id": "GhPb^Ubs!o",
+      "discount_code": "",
+      "product_column": "",
+      "purchase_datetime": 1612137600,
+      "stream_key": "GhPb^Ubs!o",
+      "transaction_id": "GhPb^Ubs!o",
+    },
+  ],
+}
+`;
