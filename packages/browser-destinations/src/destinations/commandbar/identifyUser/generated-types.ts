@@ -6,9 +6,15 @@ export interface Payload {
    */
   userId: string
   /**
-   * The user hash used for identity verification. See [Intercom docs](https://www.intercom.com/help/en/articles/183-enable-identity-verification-for-web-and-mobile) for more information on how to set this field.
+   * Identify users with an HMAC of their user ID; this enables end user customizable shortcuts and other features. [Learn about identity verification](https://app.commandbar.com/identity-verification).
    */
   hmac?: string
+  /**
+   * Configures the way the bar is displayed. An 'inline' bar is always visible and hosted within an element on your page. A 'modal' bar will display in a modal dialog when open.
+   */
+  formFactor?: {
+    [k: string]: unknown
+  }
   /**
    * The Segment traits to be forwarded to CommandBar
    */

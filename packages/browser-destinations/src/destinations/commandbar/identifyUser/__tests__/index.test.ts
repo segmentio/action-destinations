@@ -20,6 +20,9 @@ describe('Commandbar.identifyUser', () => {
             },
             hmac: {
               '@path': '$.context.CommandBar.hmac'
+            },
+            formFactor: {
+              '@path': '$.context.CommandBar.formFactor'
             }
           }
         }
@@ -39,7 +42,11 @@ describe('Commandbar.identifyUser', () => {
         },
         context: {
           CommandBar: {
-            hmac: 'x'
+            hmac: 'x',
+            formFactor: {
+              type: 'inline',
+              rootElement: 'commandbar-inline-root'
+            }
           }
         }
       })
@@ -51,6 +58,10 @@ describe('Commandbar.identifyUser', () => {
         payload: {
           userId: 'test-user',
           hmac: 'x',
+          formFactor: {
+            type: 'inline',
+            rootElement: 'commandbar-inline-root'
+          },
           traits: {
             foo: 'bar'
           }

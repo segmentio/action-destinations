@@ -19,12 +19,22 @@ const action: BrowserActionDefinition<Settings, CommandBarClientSDK, Payload> = 
     },
     hmac: {
       description:
-        'The user hash used for identity verification. See [Intercom docs](https://www.intercom.com/help/en/articles/183-enable-identity-verification-for-web-and-mobile) for more information on how to set this field.',
-      label: 'User Hash',
+        'Identify users with an HMAC of their user ID; this enables end user customizable shortcuts and other features. [Learn about identity verification](https://app.commandbar.com/identity-verification).',
+      label: 'HMAC',
       type: 'string',
       required: false,
       default: {
         '@path': '$.context.CommandBar.hmac'
+      }
+    },
+    formFactor: {
+      description:
+        "Configures the way the bar is displayed. An 'inline' bar is always visible and hosted within an element on your page. A 'modal' bar will display in a modal dialog when open.",
+      label: 'Event Metadata',
+      type: 'object',
+      required: false,
+      default: {
+        '@path': '$.context.CommandBar.formFactor'
       }
     },
     traits: {
