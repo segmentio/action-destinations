@@ -36,8 +36,8 @@ export interface ExecuteInput<Settings, Payload> {
 }
 
 export type WrappedDynamicFieldResponse = {
-  httpErrorStatus?: number
-  httpErrorStatusText?: string
+  status?: number
+  statusText?: string
 } & DynamicFieldResponse
 
 export interface DynamicFieldResponse {
