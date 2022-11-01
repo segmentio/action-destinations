@@ -1,12 +1,12 @@
 import { EventEmitter } from 'events'
-import createRequestClient from '../create-request-client'
+import createRequestClient, { ResponseError } from '../create-request-client'
 import { JSONLikeObject, JSONObject } from '../json-object'
 import { InputData, Features, transform, transformBatch } from '../mapping-kit'
 import { fieldsToJsonSchema } from './fields-to-jsonschema'
 import { Response } from '../fetch'
 import type { ModifiedResponse } from '../types'
-import type { DynamicFieldResponse, InputField, RequestExtension, ExecuteInput, Result } from './types'
-import type { NormalizedOptions } from '../request-client'
+import type { DynamicFieldResponse, WrappedDynamicFieldResponse, InputField, RequestExtension, ExecuteInput, Result } from './types'
+import { HTTPError, NormalizedOptions } from '../request-client'
 import type { JSONSchema4 } from 'json-schema'
 import { validateSchema } from '../schema-validation'
 import { AuthTokens } from './parse-settings'
@@ -85,6 +85,11 @@ interface ExecuteBundle<T = unknown, Data = unknown> {
   transactionContext?: TransactionContext
 }
 
+interface HttpResponse {
+  status: number
+  statusText: string
+}
+
 /**
  * Action is the beginning step for all partner actions. Entrypoints always start with the
  * MapAndValidateInput step.
@@ -97,6 +102,7 @@ export class Action<Settings, Payload extends JSONLikeObject> extends EventEmitt
   // Payloads may be any type so we use `any` explicitly here.
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   private extendRequest: RequestExtension<Settings, any> | undefined
+  public response: HttpResponse | undefined
 
   constructor(
     destinationName: string,
@@ -110,6 +116,7 @@ export class Action<Settings, Payload extends JSONLikeObject> extends EventEmitt
     this.destinationName = destinationName
     this.extendRequest = extendRequest
     this.hasBatchSupport = typeof definition.performBatch === 'function'
+    this.response = undefined
 
     // Generate json schema based on the field definitions
     if (Object.keys(definition.fields ?? {}).length) {
@@ -198,7 +205,7 @@ export class Action<Settings, Payload extends JSONLikeObject> extends EventEmitt
     }
   }
 
-  executeDynamicField(field: string, data: ExecuteDynamicFieldInput<Settings, Payload>): Promise<DynamicFieldResponse> {
+  async executeDynamicField(field: string, data: ExecuteDynamicFieldInput<Settings, Payload>): Promise<WrappedDynamicFieldResponse> {
     const fn = this.definition.dynamicFields?.[field]
     if (typeof fn !== 'function') {
       return Promise.resolve({
@@ -211,8 +218,17 @@ export class Action<Settings, Payload extends JSONLikeObject> extends EventEmitt
       })
     }
 
+    this.on('response', (response) => {
+      this.response = {
+        status: response.status ?? 200,
+        statusText: response.statusText ?? 'OK'
+      }
+    })
+    const result = await this.performRequest(fn, data) as DynamicFieldResponse
     // fn will always be a dynamic field function, so we can safely cast it to Promise<DynamicFieldResponse>
-    return this.performRequest(fn, data) as Promise<DynamicFieldResponse>
+    const httpErrorStatus = this.response?.status ?? undefined
+    const httpErrorStatusText = this.response?.statusText ?? undefined
+    return {...result, httpErrorStatus, httpErrorStatusText} as WrappedDynamicFieldResponse
   }
 
   /**
@@ -246,7 +262,7 @@ export class Action<Settings, Payload extends JSONLikeObject> extends EventEmitt
     modifiedResponse.request = request
     modifiedResponse.options = options
 
-    this.emit('response', modifiedResponse)
+    this.emit('response', response)
     return modifiedResponse
   }
 

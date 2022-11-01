@@ -35,6 +35,11 @@ export interface ExecuteInput<Settings, Payload> {
   readonly transactionContext?: TransactionContext
 }
 
+export type WrappedDynamicFieldResponse = {
+  httpErrorStatus?: number
+  httpErrorStatusText?: string
+} & DynamicFieldResponse
+
 export interface DynamicFieldResponse {
   choices: DynamicFieldItem[]
   nextPage?: string
