@@ -99,7 +99,7 @@ const destination: DestinationDefinition<Settings> = {
 
       if (userRole === 'VIEWER') {
         throw new Error(
-          "It looks like you don't have access to this LinkedIn Ad Account. Please reach out to a LinkedIn Ad Account Admin on your team to grant access."
+          'Access to the provided Ad Account with a role other than Viewer is required. Please reach out to a LinkedIn Ad Account Admin on your team to grant proper access.'
         )
       }
 

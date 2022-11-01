@@ -93,7 +93,7 @@ describe('Linkedin Audiences', () => {
       nock(`${BASE_URL}/adAccounts`).get(/.*/).reply(200, mockAdAccountResponse)
 
       await expect(testDestination.testAuthentication(validSettings)).rejects.toThrowError(
-        "Credentials are invalid:  It looks like you don't have access to this LinkedIn Ad Account. Please reach out to a LinkedIn Ad Account Admin on your team to grant access."
+        'Credentials are invalid:  Access to the provided Ad Account with a role other than Viewer is required. Please reach out to a LinkedIn Ad Account Admin on your team to grant proper access.'
       )
     })
 
