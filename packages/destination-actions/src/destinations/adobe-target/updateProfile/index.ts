@@ -39,7 +39,7 @@ const action: ActionDefinition<Settings, Payload> = {
       return await at.updateProfile()
     } catch (error) {
       if (error instanceof Error) {
-        throw new IntegrationError(error.message, error.stack, error.message == 'Forbidden' ? 403 : 400)
+        throw new IntegrationError(error.message, error.message == 'Forbidden' ? '403' : '400')
       }
     }
   }
