@@ -217,6 +217,60 @@ describe('AdobeTarget', () => {
       ).rejects.toThrowError("The root value is missing the required field 'traits'.")
     })
 
+    it('should throw an error for invalid cliend code', async () => {
+      nock(
+        `https://${settings.client_code}.tt.omtrdc.net/rest/v1/profiles/thirdPartyId/${settings.client_id}?client=FAKE`
+      )
+        .get(/.*/)
+        .reply(400, {})
+      nock(
+        `https://${settings.client_code}.tt.omtrdc.net/m2/${settings.client_code}/profile/update?mbox3rdPartyId=FAKE`
+      )
+        .post(/.*/)
+        .reply(400, {})
+      const event = createTestEvent({
+        type: 'identify',
+        userId: '123-test',
+        traits: {
+          name: 'Rajul',
+          age: '21',
+          city: 'New York City',
+          zipCode: '12345',
+          param1: 'value1',
+          param2: 'value2'
+        }
+      })
+
+      await expect(
+        testDestination.testAction('updateProfile', {
+          event,
+          settings,
+          mapping: {
+            traits: {
+              city: {
+                '@path': '$.traits.city'
+              },
+              name: {
+                '@path': '$.traits.name'
+              },
+              age: {
+                '@path': '$.traits.age'
+              },
+              param1: {
+                '@path': '$.traits.param1'
+              },
+              param2: {
+                '@path': '$.traits.param2'
+              }
+            },
+            user_id: {
+              '@path': '$.userId'
+            }
+          }
+        })
+      ).rejects.toThrowError('Bad Request')
+    })
+
     it('removes null values from nested event', async () => {
       nock(
         `https://${settings.client_code}.tt.omtrdc.net/rest/v1/profiles/thirdPartyId/${settings.client_id}?client=${settings.client_code}`
