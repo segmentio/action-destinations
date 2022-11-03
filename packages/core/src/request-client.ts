@@ -6,7 +6,7 @@ import type https from 'https'
 
 const REQUEST_HIGH_WATER_MARK = process.env.REQUEST_HIGH_WATER_MARK
   ? parseInt(process.env.REQUEST_HIGH_WATER_MARK)
-  : undefined
+  : 1042 * 1024 //1MB
 
 /**
  * The supported request options you can use with the request client
