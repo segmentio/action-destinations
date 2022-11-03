@@ -8,6 +8,11 @@ const settings = {
   client_id: '123-test'
 }
 
+beforeEach((done) => {
+  nock.cleanAll()
+  done()
+})
+
 describe('AdobeTarget', () => {
   describe('updateProfile', () => {
     it('Handle a Basic Event', async () => {
