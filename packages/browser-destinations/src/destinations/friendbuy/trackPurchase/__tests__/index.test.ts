@@ -1,7 +1,6 @@
 import { Analytics, Context, JSONValue } from '@segment/analytics-next'
 import friendbuyDestination from '../../index'
-import trackPurchaseObject, { trackPurchaseDefaultSubscription } from '../index'
-import { trackPurchaseFields } from '@segment/actions-shared'
+import trackPurchaseObject, { browserTrackPurchaseFields, trackPurchaseDefaultSubscription } from '../index'
 
 import { loadScript } from '../../../../runtime/load-script'
 jest.mock('../../../../runtime/load-script')
@@ -17,7 +16,9 @@ describe('Friendbuy.trackPurchase', () => {
       name: trackPurchaseObject.title,
       enabled: true,
       subscribe: trackPurchaseDefaultSubscription,
-      mapping: Object.fromEntries(Object.entries(trackPurchaseFields).map(([name, value]) => [name, value.default]))
+      mapping: Object.fromEntries(
+        Object.entries(browserTrackPurchaseFields).map(([name, value]) => [name, value.default])
+      )
     }
   ]
 
@@ -42,8 +43,10 @@ describe('Friendbuy.trackPurchase', () => {
     const anonymousId = 'cbce64f6-a45a-4d9c-a63d-4c7b42773276'
     const currency = 'USD'
     const coupon = 'coupon-xyzzy'
+    const attributionId = '878123ed-0439-4a73-b2fe-72c4f09ec64f'
+    const referralCode = 'ref-plugh'
     const giftCardCodes = ['card-a', 'card-b']
-    const friendbuyAttributes = { referralCode: 'ref-plugh' }
+    const friendbuyAttributes = { promotion: 'fall 2021' }
     const email = 'john.doe@example.com'
     const name = 'John Doe'
 
@@ -83,6 +86,8 @@ describe('Friendbuy.trackPurchase', () => {
           total: amount + 2,
           currency,
           coupon,
+          attributionId,
+          referralCode,
           giftCardCodes,
           products: products as JSONValue,
           email,
@@ -103,6 +108,8 @@ describe('Friendbuy.trackPurchase', () => {
           amount: amount + 2, // amount defaults to total
           currency,
           couponCode: coupon,
+          attributionId,
+          referralCode,
           giftCardCodes,
           customer: { id: userId, anonymousId, email, name },
           products: expectedProducts,
@@ -165,6 +172,37 @@ describe('Friendbuy.trackPurchase', () => {
           id: orderId,
           amount,
           currency
+        },
+        true
+      ])
+    }
+
+    {
+      // enjoined fields are converted
+      const context4 = new Context({
+        type: 'track',
+        event: 'Order Completed',
+        properties: {
+          order_id: 12345,
+          total: '129.50',
+          currency,
+          products: [{ sku: 99999, quantity: '2', price: '64.75' }],
+          customerId: 1138,
+          age: '30'
+        }
+      })
+
+      trackPurchase.track?.(context4)
+
+      expect(window.friendbuyAPI?.push).toHaveBeenNthCalledWith(4, [
+        'track',
+        'purchase',
+        {
+          id: '12345',
+          amount: 129.5,
+          currency,
+          products: [{ name: 'unknown', sku: '99999', quantity: 2, price: 64.75 }],
+          customer: { id: '1138', age: 30 }
         },
         true
       ])

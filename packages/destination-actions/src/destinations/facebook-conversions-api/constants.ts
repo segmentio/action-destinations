@@ -1,4 +1,5 @@
-export const API_VERSION = '11.0'
+export const API_VERSION = '14.0'
+export const CANARY_API_VERSION = '14.0'
 export const CURRENCY_ISO_CODES = new Set([
   'AED',
   'AFN',
@@ -231,7 +232,7 @@ export const US_STATE_CODES = new Map<string, string>([
   ['washington', 'wa'],
   ['westvirginia', 'wv'],
   ['wisconsin', 'wi'],
-  ['wyoming', 'wy'],
+  ['wyoming', 'wy']
 ])
 
 export const COUNTRY_CODES = new Map<string, string>([
@@ -479,5 +480,5 @@ export const COUNTRY_CODES = new Map<string, string>([
   ['westernsahara', 'eh'],
   ['yemen', 'ye'],
   ['zambia', 'zm'],
-  ['zimbabwe', 'zw'],
+  ['zimbabwe', 'zw']
 ])

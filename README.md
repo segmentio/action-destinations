@@ -1,14 +1,26 @@
+<img src="https://brand.segment.com/site-assets/03d0de2f/images/brand-guidelines/content/twilio/twilio-segment-color-logo-white-2x.png" style="width:50%; height=50%" alt="Twilio Segment logo" >
+
 # Action Destinations
 
-Action Destinations are a way to build streaming destinations on Segment. To begin, follow the instructions in Get Started below.
+Action Destinations are the new way to build streaming destinations on Segment.
 
-Fore more detailed instruction, see the following READMEs:
+Action Destinations were [launched in December 2021](https://segment.com/blog/introducing-destination-actions/) to enable customers with a customizable framework to map Segment event sources to their favorite 3rd party tools like Google Analytics.
 
+This repository contains the Action Destination Definitions as well as a CLI to generate the scaffolding for new destinations and run unit tests. If you'd like to contribute, please review the [Contributing Guide](./CONTRIBUTING.md).
+
+To begin, follow the instructions in Get Started below.
+
+For more detailed instruction, see the following READMEs:
+
+- [Contributing Document](./CONTRIBUTING.md)
 - [Create a Destination Action](./docs/create.md)
+- [Build & Test Cloud Destinations](./docs/testing.md)
 - [Troubleshooting](./docs/testing.md)
 - [Authentication](./docs/authentication.md)
+- [Mapping Kit](./packages/core/src/mapping-kit/README.md)
+- [Destination Kit](./packages/core/src/destination-kit/README.md)
 
-Table of Contents:
+## Table of Contents:
 
 - [Get Started](#get-started)
 - [Actions CLI](#actions-cli)
@@ -52,6 +64,8 @@ yarn login
 # Requires node 14.17, optionally: nvm use 14.17
 yarn --ignore-optional
 yarn bootstrap
+yarn build
+yarn install
 
 # Run unit tests to ensure things are working! All tests should pass :)
 yarn test
@@ -79,6 +93,8 @@ In order to run the CLI (`./bin/run`), your current working directory needs to b
 ```
 
 For specific information about each CLI command, please refer to this [README](https://github.com/segmentio/action-destinations/tree/main/packages/cli).
+
+For instructions on how to create a new integration, see the [Create a new Destination Action](./docs/create.md) docs.
 
 #### Troubleshooting CLI
 
@@ -157,7 +173,7 @@ packages/destination-actions/src/destinations/slack
 
 The main definition of your Destination will look something like this, and is what your index.ts should export as the default export:
 
-```
+```js
 const destination = {
   name: 'Example Destination',
 
@@ -183,8 +199,7 @@ For each action or authentication scheme you can define a collection of inputs a
 
 Input fields have various properties that help define how they are rendered, how their values are parsed and more. Here’s an example:
 
-```
-
+```js
 const destination = {
   // ...other properties
   actions: {
@@ -213,8 +228,7 @@ const destination = {
 
 Here's the full interface that input fields allow:
 
-```
-
+```ts
 interface InputField {
   /** A short, human-friendly label for the field */
   label: string
@@ -279,8 +293,7 @@ You can set default values for fields. These defaults are not used at run-time, 
 
 Default values can be literal values that match the `type` of the field (e.g. a literal string: ` "``hello``" `) or they can be mapping-kit directives just like the values from Segment’s rich input in the app. It’s likely that you’ll want to use directives to the default value. Here are some examples:
 
-```
-
+```js
 const destination = {
   // ...other properties
   actions: {
@@ -289,14 +302,14 @@ const destination = {
       fields: {
         name: {
           label: 'Name',
-          description: 'The person\'s name',
+          description: "The person's name",
           type: 'string',
           default: { '@path': '$.traits.name' },
           required: true
         },
         email: {
           label: 'Email',
-          description: 'The person\'s email address',
+          description: "The person's email address",
           type: 'string',
           default: { '@path': '$.properties.email_address' }
         }
@@ -308,16 +321,82 @@ const destination = {
 
 In addition to default values for input fields, you can also specify the defaultSubscription for a given action – this is the FQL query that will be automatically populated when a customer configures a new subscription triggering a given action.
 
+## Dynamic Fields
+
+You can setup a field which dynamically fetches inputs from your destination. These dynamic fields can be used to populate a dropdown menu of options for your users to select.
+
+```js
+const destination = {
+  // ...other properties
+  actions: {
+    doSomething: {
+      // ...
+      fields: {
+        objectName: {
+          label: 'Name',
+          description: "The name of the object to update.",
+          type: 'string',
+          required: true,
+          dynamic: true
+        }
+      },
+      dynamicFields: {
+        objectName = async (): Promise<DynamicFieldResponse> => {
+          try {
+            const result = await this.request<ObjectsResponseData>(`http://<destination>/objects`,
+            {
+              method: 'get',
+              skipResponseCloning: true // This is useful if you expect a large response.
+            })
+
+            const fields = result.data.objects.filter((field) => {
+              return field.createable === true
+            })
+
+            const choices = fields.map((field) => {
+              return { value: field.name, label: field.label }
+            })
+
+            return {
+              choices: choices,
+              nextPage: '2'
+            }
+          } catch (err) {
+            return {
+              choices: [],
+              nextPage: '',
+              error: {
+                message: (err as ResponseError).response?.data[0]?.message ?? 'Unknown error',
+                code: (err as ResponseError).response?.data[0]?.errorCode ?? 'Unknown error'
+              }
+            }
+          }
+  }
+      }
+    }
+  }
+}
+```
+
 ## The `perform` function
 
 The `perform` function defines what the action actually does. All logic and request handling happens here. Every action MUST have a `perform` function defined.
 
-By the time the actions runtime invokes your action’s perform, payloads have already been resolved based on the customer’s configuration, validated against the schema, and can be expected to match the types provided in your `perform` function. You’ll get compile-time type-safety for how you access anything in the `data.payload` (the 2nd argument of the perform).
+By the time the actions runtime invokes your action’s perform, payloads have already been resolved based on the customer’s configuration, validated against the schema, and can be expected to match the types provided in your `perform` function.
+
+The `perform` method accepts two arguments, (1) the request client instance (extended with your destination's `extendRequest`, and (2) the data bundle. The data bundle includes the following fields:
+
+- `payload` - The transformed input data, based on `mapping` + `event` (or `events` if batched). You’ll get compile-time type-safety for how you access anything in the `data.payload`.
+- `settings` - The global destination settings.
+- `auth` - The data needed in OAuth requests. This is useful if fetching an updated OAuth `access_token` using a `refresh_token`. The `refresh_token` is available in `auth.refreshToken`.
+- `features` - The features available in the request based on the customer's sourceID. Features can only be enabled and/or used by internal Twilio/Segment employees. Features cannot be used for Partner builds.
+- `statsContext` - An object, containing a `statsClient` and `tags`. Stats can only be used by internal Twilio/Segment employees. Stats cannot be used for Partner builds.
+- `logger` - Logger can only be used by internal Twilio/Segment employees. Logger cannot be used for Partner builds.
+- `transactionContext` - An object, containing transaction variables and a method to update transaction variables which are required for few segment developed actions. Transaction Context cannot be used for Partner builds.
 
 A basic example:
 
-```
-
+```js
 const destination = {
   actions: {
     someAction: {
@@ -332,8 +411,8 @@ const destination = {
       },
       // `perform` takes two arguments:
       // 1. the request client instance (extended with your destination's `extendRequest`
-      // 2. the data bundle which includes `settings` for top-level authentication fields and the `payload` which contains all the validated, resolved fields expected by the action
-      perform: (request, data) => {
+      // 2. the data bundle (destructured below)
+      perform: (request, { payload, settings, auth, features, statsContext }) => {
         return request('https://example.com', {
           headers: { Authorization: `Bearer ${data.settings.api_key}` },
           json: data.payload
@@ -352,8 +431,7 @@ Sometimes your customers have a lot of events, and your API supports a more effi
 
 You can implement an _additional_ perform method named `performBatch` in the action definition, alongside the `perform` method. The method signature looks like identical to `perform` except the `payload` is an array of data, where each item is an object matching your action’s field schema:
 
-```
-
+```js
 function performBatch(request, { settings, payload }) {
   return request('https://example.com/batch', {
     // `payload` is an array of objects, each matching your action's field definition
@@ -362,12 +440,33 @@ function performBatch(request, { settings, payload }) {
 }
 ```
 
+All actions where a `performBatch` method is defined will automatically include an `enable_batching` input field for users. This field is a boolean switch that allows users to toggle batching functionality. Builders can override the automatically included field by explicitly defining a field named `enable_batching` with type boolean in the `fields` section of the `ActionDefinition`. This may be useful if the builder wants to specify custom labels or descriptions or set a default value.
+
+```js
+const action: ActionDefinition<Settings, Payload> = {
+  title: 'Account',
+  description: 'Represents an individual account, which is an organization or person involved with your business.',
+  defaultSubscription: 'type = "group"',
+  fields: {
+    enable_batching: {
+      type: 'boolean',
+      label: 'Use Salesforce Bulk API',
+      description:
+        'When enabled, the action will use the Salesforce Bulk API to perform the operation. Not compatible with the insert operation.',
+      required: true,
+      default: false
+    }
+  },
+  performBatch: async (request, { settings, payload }) => { ... }
+}
+```
+
 This will give customers the ability to opt-in to batching (there may be trade-offs they need to consider before opting in). Each customer subscription will be given the ability to Enable Batching.
 
 Keep in mind a few important things about how batching works:
 
 - Batching can add latency while Segment accumulates events in batches internally. This can be up to a minute, currently, but this is subject to change at any time. Latency is lower when you send a higher volume of events.
-- Batches may have to up 50 events, currently. This, too, is subject to change.
+- Batches may have to up 1,000 events, currently. This, too, is subject to change.
 - Batch sizes are not guaranteed. Due to the way that batches are accumulated internally, you may see smaller batch sizes than you expect when sending low rates of events.
 
 Additionally, you’ll need to coordinate with Segment’s R&D team for the time being. Please reach out to us in your dedicated Slack channel!
@@ -380,8 +479,7 @@ You can use the `request` object to make requests and curate responses. This `re
 
 In addition to making manual HTTP requests, you can use the `extendRequest` helper to reduce boilerplate across actions and authentication operations in the definition:
 
-```
-
+```js
 const destination = {
   // ...other properties
   extendRequest: (request, { settings }) => {
@@ -420,8 +518,7 @@ Both the `request(url, options)` function and the `extendRequest` return value a
 - `timeout`: Time in milliseconds when a request should be aborted. Default is `10000`.
 - `username`: Basic authentication username field. Will automatically get base64 encoded with the password and added to the request headers: `Authorization: Basic <username:password>`
 
-```
-
+```js
 const response = await request('https://example.com', {
   method: 'post',
   headers: { 'content-type': 'application/json' },
@@ -447,7 +544,7 @@ There are a few subtle differences from the Fetch API which are meant to limit t
 
 MIT License
 
-Copyright (c) 2021 Segment
+Copyright (c) 2022 Segment
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal

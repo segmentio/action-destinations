@@ -1,5 +1,6 @@
-import { ActionDefinition, IntegrationError } from '@segment/actions-core'
+import { ActionDefinition, IntegrationError, omit } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
+import { getApiServerUrl } from '../utils'
 import type { Payload } from './generated-types'
 
 const action: ActionDefinition<Settings, Payload> = {
@@ -45,14 +46,18 @@ const action: ActionDefinition<Settings, Payload> = {
      */
     const group_id = payload.traits[group_key] || payload.group_id
 
+    const traits = {
+      ...omit(payload.traits, ['name']),
+      $name: payload.traits.name  // transform to Mixpanel reserved property
+    }
     const data = {
       $token: settings.projectToken,
       $group_key: group_key,
       $group_id: group_id,
-      $set: payload.traits
+      $set: traits,
     }
 
-    return request('https://api.mixpanel.com/groups', {
+    return request(`${ getApiServerUrl(settings.apiRegion) }/groups`, {
       method: 'post',
       body: new URLSearchParams({ data: JSON.stringify(data) })
     })

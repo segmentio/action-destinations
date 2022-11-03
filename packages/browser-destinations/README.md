@@ -2,30 +2,62 @@
 
 This package contains the implementations for browser destinations.
 
+# Glossary
+
+- Action: A method defined by the author of the destination that's linked to a Segment event.
+- Plugin: A plugin is an action in AJS lingo. You can see the loaded plugins by typing `analytics.queue.plugins` in the browser's console.
+- Subscription: A "way-in" into an action. For example: the `updateUser` action uses a subscription of the type `identify`. See the test section for more information.
+
 ## Developing
 
-> Alert: Please develop from the root directory of this repo. Every command should be run using lerna.
+> NOTE: The shell commands mentioned below must be run with `browser-destinations` as root directory. Every command should be run using lerna.
 
-### Local testing
+### Actions CLI
 
-You can run a test webpage that makes every browser destination available for testing.
-Steps include:
+See the [Actions CLI](https://github.com/segmentio/action-destinations#actions-cli) of the root directory of this repo to learn how to interact with the Actions CLI. Interacting with the actions CLI will allow you to create new destinations, actions and update your type definitions.
 
-- 1. Run the web server
+### Types
+
+When updating the types inside of your actions remember to regenerate the types of your integration by running this command in the top level directory.
 
 ```
-$ yarn browser dev
+bin/run generate:types
 ```
 
-- 2. Visit the webserver: [http://localhost:9000](http://localhost:9000)
-- 3. Select a destination from the picker and click `load`
-- 4. Make sure you have a subscription propertly set up
+### Manual testing
+
+You can use our Action Tester environment to test your browser actions: 
+
+```
+./bin/run serve --directory ./packages/browser-destinations/src/destinations --browser
+```
+
+This will give you an option to pick a destination to work on, and then opens the action tester. You can also debug the code from Visual Studio Code. Goto VSCode Debug Tab, and select "Launch Action Tester Web" from the "RUN AND DEBUG" dropdown ( make sure you ran the above command first ). This will launch a new instance of Google Chrome, and allow you to run your code in debug mode. 
+
+
+### Automated tests
+
+Running the test suite
+
+```
+yarn test
+```
+
+Running one file at the time
+
+```
+yarn jest src/destinations/PATH-TO-YOUR-DESTINATION/__tests__/index.test.ts
+```
+
+## Deploying
+
+Coming Soon
 
 ## License
 
 MIT License
 
-Copyright (c) 2021 Segment
+Copyright (c) 2022 Segment
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal

@@ -2,21 +2,25 @@ import nock from 'nock'
 import { createTestEvent, createTestIntegration } from '@segment/actions-core'
 import Destination from '../../index'
 
-import { mapiUrl } from '../../cloudUtil'
+import { defaultMapiBaseUrl } from '../../cloudUtil'
 import { nockAuth, authKey, authSecret } from '../../__tests__/cloudUtil.mock'
 
 const testDestination = createTestIntegration(Destination)
 
 describe('Friendbuy.trackCustomer', () => {
-  test('all fields', async () => {
+  function setUpTest() {
     nockAuth()
     const nockRequests: any[] /* (typeof nock.ReplyFnContext.req)[] */ = []
-    nock(mapiUrl)
+    nock(defaultMapiBaseUrl)
       .post('/v1/customer')
       .reply(200, function (_uri, _requestBody) {
         nockRequests.push(this.req)
         return {}
       })
+  }
+
+  test('all fields', async () => {
+    setUpTest()
 
     const userId = 'john-doe-12345'
     const email = 'john.doe@example.com'
@@ -89,6 +93,40 @@ describe('Friendbuy.trackCustomer', () => {
         customerSince,
         favoriteColor
       }
+    })
+  })
+
+  test('enjoined fields', async () => {
+    setUpTest()
+
+    const email = 'test@example.com'
+
+    const event = createTestEvent({
+      type: 'identify',
+      userId: 98765 as unknown as string,
+      traits: {
+        email,
+        age: '99',
+        address: { postalCode: 99999 }
+      },
+      timestamp: '2021-10-05T15:30:35Z'
+    })
+
+    const r = await testDestination.testAction('trackCustomer', {
+      event,
+      settings: { authKey, authSecret },
+      useDefaultMappings: true
+      // mapping,
+      // auth,
+    })
+
+    // console.log(JSON.stringify(r, null, 2))
+    expect(r.length).toBe(1) // (no auth request +) trackCustomer request
+    expect(r[0].options.json).toMatchObject({
+      customerId: '98765',
+      email,
+      age: 99,
+      zipCode: '99999'
     })
   })
 })

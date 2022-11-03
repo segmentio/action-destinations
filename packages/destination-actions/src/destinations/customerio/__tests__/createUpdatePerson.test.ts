@@ -62,6 +62,57 @@ describe('CustomerIO', () => {
       })
     })
 
+    it('should use email as the identifier if userId is not present', async () => {
+      const settings: Settings = {
+        siteId: '12345',
+        apiKey: 'abcde',
+        accountRegion: AccountRegion.US
+      }
+      const anonymousId = 'unknown_123'
+      const timestamp = dayjs.utc().toISOString()
+      const birthdate = dayjs.utc('1990-01-01T00:00:00Z').toISOString()
+      const traits = {
+        full_name: 'Test User',
+        email: 'test@example.com',
+        created_at: timestamp,
+        person: {
+          over18: true,
+          identification: 'valid',
+          birthdate
+        }
+      }
+      trackDeviceService.put(`/customers/${traits.email}`).reply(200, {}, { 'x-customerio-region': 'US' })
+      const event = createTestEvent({
+        userId: null,
+        anonymousId,
+        timestamp,
+        traits
+      })
+      const responses = await testDestination.testAction('createUpdatePerson', {
+        event,
+        settings,
+        useDefaultMappings: true
+      })
+
+      expect(responses.length).toBe(1)
+      expect(responses[0].status).toBe(200)
+      expect(responses[0].headers.toJSON()).toMatchObject({
+        'x-customerio-region': 'US',
+        'content-type': 'application/json'
+      })
+      expect(responses[0].data).toMatchObject({})
+      expect(responses[0].options.json).toMatchObject({
+        ...traits,
+        email: traits.email,
+        created_at: dayjs.utc(timestamp).unix(),
+        anonymous_id: anonymousId,
+        person: {
+          ...traits.person,
+          birthdate: dayjs.utc(birthdate).unix()
+        }
+      })
+    })
+
     it('should convert only ISO-8601 strings', async () => {
       const settings: Settings = {
         siteId: '12345',
@@ -85,7 +136,10 @@ describe('CustomerIO', () => {
         date11: '2018-03-04T12:08:56 PDT',
         date12: '2018-03-04T12:08:56.235 PDT',
         date13: '15/MAR/18',
-        date14: '11-Jan-18'
+        date14: '11-Jan-18',
+        date15: '2006-01-02T15:04:05-0800',
+        date16: '2006-01-02T15:04:05.07-0800',
+        date17: '2006-01-02T15:04:05.007-0800'
       }
       trackDeviceService.put(`/customers/${userId}`).reply(200, {}, { 'x-customerio-region': 'US' })
       const event = createTestEvent({
@@ -116,7 +170,10 @@ describe('CustomerIO', () => {
         date11: testTimestamps.date11,
         date12: testTimestamps.date12,
         date13: testTimestamps.date13,
-        date14: testTimestamps.date14
+        date14: testTimestamps.date14,
+        date15: dayjs(testTimestamps.date15).unix(),
+        date16: dayjs(testTimestamps.date16).unix(),
+        date17: dayjs(testTimestamps.date17).unix()
       })
     })
 

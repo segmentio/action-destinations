@@ -2,15 +2,19 @@ import nock from 'nock'
 import { createTestEvent, createTestIntegration, JSONValue } from '@segment/actions-core'
 import Destination from '../../index'
 
-import { mapiUrl } from '../../cloudUtil'
+import { defaultMapiBaseUrl } from '../../cloudUtil'
 import { nockAuth, authKey, authSecret } from '../../__tests__/cloudUtil.mock'
 
 const testDestination = createTestIntegration(Destination)
 
 describe('Friendbuy.trackPurchase', () => {
-  test('all fields', async () => {
+  function setUpTest() {
     nockAuth()
-    nock(mapiUrl).post('/v1/event/purchase').reply(200, {})
+    nock(defaultMapiBaseUrl).post('/v1/event/purchase').reply(200, {})
+  }
+
+  test('all fields', async () => {
+    setUpTest()
 
     const orderId = 'my order'
     const products = [
@@ -35,6 +39,7 @@ describe('Friendbuy.trackPurchase', () => {
     const name = `${firstName} ${lastName}`
     const age = 42
     const birthday = '0000-12-25'
+    const promotion = 'winter 2022'
 
     const event = createTestEvent({
       type: 'track',
@@ -47,6 +52,7 @@ describe('Friendbuy.trackPurchase', () => {
         currency,
         coupon,
         attributionId,
+        referralCode,
         giftCardCodes,
         products: products as JSONValue,
         email,
@@ -57,7 +63,7 @@ describe('Friendbuy.trackPurchase', () => {
         name,
         age,
         birthday,
-        friendbuyAttributes: { attributionId, referralCode }
+        friendbuyAttributes: { promotion }
       },
       timestamp: '2021-10-05T15:30:35Z'
     })
@@ -91,10 +97,42 @@ describe('Friendbuy.trackPurchase', () => {
       additionalProperties: {
         // age, // dropped because not string.
         anonymousId,
+        promotion,
         name,
         // birthday: { month: 12, day: 25 }, // dropped because not string.
         loyaltyStatus
       }
+    })
+  })
+
+  test('enjoined fields', async () => {
+    setUpTest()
+
+    const event = createTestEvent({
+      type: 'track',
+      event: 'Order Completed',
+      properties: {
+        order_id: 12345,
+        total: '12.99',
+        currency: 'USD',
+        products: [{ sku: 99999, quantity: '1', price: '12.99' }]
+      }
+    })
+    const r = await testDestination.testAction('trackPurchase', {
+      event,
+      settings: { authKey, authSecret },
+      useDefaultMappings: true
+      // mapping,
+      // auth,
+    })
+
+    // console.log(JSON.stringify(r, null, 2))
+    expect(r.length).toBe(1) // (no auth request +) trackPurchase request
+    expect(r[0].options.json).toMatchObject({
+      orderId: '12345',
+      amount: 12.99,
+      currency: 'USD',
+      products: [{ sku: '99999', quantity: 1, price: 12.99 }]
     })
   })
 })

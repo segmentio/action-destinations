@@ -40,7 +40,8 @@ export default class Push extends Command {
 
   static examples = [`$ ./bin/run push`]
 
-  static flags = {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  static flags: flags.Input<any> = {
     help: flags.help({ char: 'h' }),
     force: flags.boolean({ char: 'f' })
   }
@@ -81,23 +82,6 @@ export default class Push extends Command {
     if (metadatas.length !== Object.keys(metadataIds).length) {
       this.spinner.fail()
       throw new Error('Number of metadatas must match number of schemas')
-    }
-
-    // Guardrails to ensure action-destination definition don't
-    // deviate from stable idenfitiers in the control-plane definition.
-    // We check this to fail fast and early, before parsing actions and
-    // building request payloads.
-    for (const metadata of metadatas) {
-      const entry = manifest[metadata.id]
-      const definition = entry.definition
-
-      // Creation Name check
-      if (metadata.creationName !== definition.name) {
-        this.spinner.fail()
-        throw new Error(
-          `The definition name '${definition.name}' should always match the control plane creation name '${metadata.creationName}'.`
-        )
-      }
     }
 
     this.spinner.stop()
@@ -162,12 +146,16 @@ export default class Push extends Command {
             dynamic: field.dynamic ?? false,
             placeholder: field.placeholder ?? '',
             allowNull: field.allowNull ?? false,
+            defaultObjectUI: field.defaultObjectUI,
             fieldSchema: getFieldPropertySchema(fieldKey, field)
           }
         })
 
+        const builderDefinedBatchingField = fields.find((f) => f.fieldKey === 'enable_batching')
+        const isBatchingDestination = typeof action.performBatch === 'function'
+
         // Automatically include a field for customers to control batching behavior, when supported
-        if (typeof action.performBatch === 'function') {
+        if (isBatchingDestination && !builderDefinedBatchingField) {
           fields.push({
             fieldKey: 'enable_batching',
             type: 'boolean',
@@ -179,6 +167,8 @@ export default class Push extends Command {
             dynamic: false,
             allowNull: false
           })
+        } else if (isBatchingDestination && builderDefinedBatchingField) {
+          this.validateBatching(builderDefinedBatchingField)
         }
 
         const base: BaseActionInput = {
@@ -208,10 +198,13 @@ export default class Push extends Command {
         mobile: false
       }
 
+      const { name, description } = definition
       const options = getOptions(definition, metadata.options)
       const basicOptions = getBasicOptions(options)
       const diff = diffString(
         asJson({
+          name,
+          description,
           basicOptions: filterOAuth(metadata.basicOptions),
           options: pick(metadata.options, filterOAuth(Object.keys(options))),
           platforms: metadata.platforms,
@@ -227,6 +220,8 @@ export default class Push extends Command {
           presets: sortBy(existingPresets, 'name')
         }),
         asJson({
+          name: definition.name,
+          description: definition.description,
           basicOptions: filterOAuth(basicOptions),
           options: pick(options, filterOAuth(Object.keys(options))),
           platforms,
@@ -272,20 +267,22 @@ export default class Push extends Command {
       try {
         await Promise.all([
           updateDestinationMetadata(metadata.id, {
+            ...(name !== definition.name && { name }),
+            ...(description !== definition.description && { description }),
             advancedOptions: [], // make sure this gets cleared out since we don't use advancedOptions in Actions
             basicOptions,
             options,
             platforms,
-            supportedRegions: ['us-west-2'] // always default to US until regional action destinations are supported
+            supportedRegions: ['us-west-2', 'eu-west-1'] // always default to US until regional action destinations are supported
           }),
           updateDestinationMetadataActions(actionsToUpdate),
           createDestinationMetadataActions(actionsToCreate)
         ])
       } catch (e) {
         const error = e as ClientRequestError
-        chalk.red(error.message)
+        this.log(chalk.red(error.message))
         if (error.isMultiError) {
-          error.errors.map((error) => error.message).forEach((error) => chalk.red(error))
+          error.errors.map((error) => error.message).forEach((error) => this.log(chalk.red(error)))
         }
       }
 
@@ -306,6 +303,18 @@ export default class Push extends Command {
 
       // We have to wait to do this until after the associated actions are created (otherwise it may fail)
       await setSubscriptionPresets(metadata.id, presets)
+    }
+  }
+
+  validateBatching = (builderDefinedBatchingField: DestinationMetadataActionFieldCreateInput) => {
+    if (builderDefinedBatchingField.type !== 'boolean') {
+      this.error(`The builder defined batching field is not a boolean. Please update the field type to "boolean".`)
+    }
+
+    if (builderDefinedBatchingField.multiple) {
+      this.error(
+        `The builder defined batching field should not be a multiple field. Please update the field to not be a multiple field.`
+      )
     }
   }
 }
@@ -409,10 +418,17 @@ export function getOptions(
       tags.push('authentication:test') //valid values here can eventually be test, no-test if needed
     }
 
+    const defaultValues = {
+      number: 0,
+      boolean: false,
+      string: '',
+      password: ''
+    }
+
     options[fieldKey] = {
       ...existing,
       tags,
-      default: schema.default ?? '',
+      default: schema.default ?? defaultValues[schema.type],
       description: schema.description,
       encrypt: schema.type === 'password',
       hidden: false,

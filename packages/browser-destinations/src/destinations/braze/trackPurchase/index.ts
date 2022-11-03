@@ -1,10 +1,10 @@
-import type appboy from '@braze/web-sdk'
+import { BrazeDestinationClient } from '../braze-types'
 import { omit } from '@segment/actions-core'
 import type { BrowserActionDefinition } from '../../../lib/browser-destinations'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 
-const action: BrowserActionDefinition<Settings, typeof appboy, Payload> = {
+const action: BrowserActionDefinition<Settings, BrazeDestinationClient, Payload> = {
   title: 'Track Purchase',
   defaultSubscription: 'type = "track" and event = "Order Completed"',
   description: 'Reports that the current user made an in-app purchase.',
@@ -53,6 +53,10 @@ const action: BrowserActionDefinition<Settings, typeof appboy, Payload> = {
     }
   },
   perform: (client, data) => {
+    if (!client.ready()) {
+      return
+    }
+
     const payload = data.payload
 
     const reservedKeys = Object.keys(action.fields.products.properties ?? {})
@@ -60,7 +64,7 @@ const action: BrowserActionDefinition<Settings, typeof appboy, Payload> = {
 
     if (purchaseProperties?.products && Array.isArray(purchaseProperties?.products)) {
       purchaseProperties?.products?.forEach((product) => {
-        const result = client.logPurchase(
+        const result = client.instance.logPurchase(
           (product.product_id as string | number).toString(),
           product.price,
           product.currency ?? 'USD',

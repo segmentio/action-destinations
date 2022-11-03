@@ -1,7 +1,17 @@
 import type { ActionDefinition } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
-import { client_id } from '../ga4-properties'
+import { verifyParams, verifyUserProps, convertTimestamp } from '../ga4-functions'
+
+import {
+  formatUserProperties,
+  user_properties,
+  params,
+  client_id,
+  user_id,
+  engagement_time_msec,
+  timestamp_micros
+} from '../ga4-properties'
 
 const normalizeEventName = (name: string, lowercase: boolean | undefined): string => {
   name = name.trim()
@@ -19,6 +29,8 @@ const action: ActionDefinition<Settings, Payload> = {
   defaultSubscription: 'type = "track"',
   fields: {
     clientId: { ...client_id },
+    user_id: { ...user_id },
+    timestamp_micros: { ...timestamp_micros },
     name: {
       label: 'Event Name',
       description:
@@ -36,27 +48,40 @@ const action: ActionDefinition<Settings, Payload> = {
       type: 'boolean',
       default: false
     },
-    params: {
-      label: 'Event Parameters',
-      description: 'The event parameters to send to Google',
-      type: 'object',
-      additionalProperties: true,
-      default: { '@path': '$.properties' }
-    }
+    user_properties: user_properties,
+    engagement_time_msec: engagement_time_msec,
+    params: { ...params }
   },
-  perform: (request, { payload }) => {
+  perform: (request, { payload, features }) => {
     const event_name = normalizeEventName(payload.name, payload.lowercase)
+
+    if (features && features['actions-google-analytics-4-verify-params-feature']) {
+      verifyParams(payload.params)
+      verifyUserProps(payload.user_properties)
+    }
+
+    const request_object: { [key: string]: any } = {
+      client_id: payload.clientId,
+      user_id: payload.user_id,
+      events: [
+        {
+          name: event_name,
+          params: {
+            engagement_time_msec: payload.engagement_time_msec,
+            ...payload.params
+          }
+        }
+      ],
+      ...formatUserProperties(payload.user_properties)
+    }
+
+    if (features && features['actions-google-analytics-4-add-timestamp']) {
+      request_object.timestamp_micros = convertTimestamp(payload.timestamp_micros)
+    }
+
     return request('https://www.google-analytics.com/mp/collect', {
       method: 'POST',
-      json: {
-        client_id: payload.clientId,
-        events: [
-          {
-            name: event_name,
-            params: payload.params
-          }
-        ]
-      }
+      json: request_object
     })
   }
 }

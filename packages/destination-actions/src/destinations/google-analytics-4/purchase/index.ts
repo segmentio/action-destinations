@@ -1,7 +1,7 @@
 import { ActionDefinition, IntegrationError } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
-import { CURRENCY_ISO_CODES } from '../constants'
+import { verifyCurrency, verifyParams, verifyUserProps, convertTimestamp } from '../ga4-functions'
 import { ProductItem } from '../ga4-types'
 import {
   coupon,
@@ -9,10 +9,16 @@ import {
   transaction_id,
   value,
   client_id,
+  user_id,
   affiliation,
   shipping,
   tax,
-  items_multi_products
+  items_multi_products,
+  params,
+  formatUserProperties,
+  user_properties,
+  engagement_time_msec,
+  timestamp_micros
 } from '../ga4-properties'
 
 // https://segment.com/docs/connections/spec/ecommerce/v2/#order-completed
@@ -23,6 +29,8 @@ const action: ActionDefinition<Settings, Payload> = {
   defaultSubscription: 'type = "track" and event = "Order Completed"',
   fields: {
     client_id: { ...client_id },
+    user_id: { ...user_id },
+    timestamp_micros: { ...timestamp_micros },
     affiliation: { ...affiliation },
     coupon: { ...coupon, default: { '@path': '$.properties.coupon' } },
     currency: { ...currency, required: true },
@@ -35,12 +43,13 @@ const action: ActionDefinition<Settings, Payload> = {
     transaction_id: { ...transaction_id, required: true },
     shipping: { ...shipping },
     tax: { ...tax },
-    value: { ...value, default: { '@path': '$.properties.total' } }
+    value: { ...value, default: { '@path': '$.properties.total' } },
+    user_properties: user_properties,
+    engagement_time_msec: engagement_time_msec,
+    params: params
   },
-  perform: (request, { payload }) => {
-    if (!CURRENCY_ISO_CODES.includes(payload.currency)) {
-      throw new Error(`${payload.currency} is not a valid currency code.`)
-    }
+  perform: (request, { payload, features }) => {
+    verifyCurrency(payload.currency)
 
     let googleItems: ProductItem[] = []
 
@@ -54,34 +63,48 @@ const action: ActionDefinition<Settings, Payload> = {
           )
         }
 
-        if (product.currency && !CURRENCY_ISO_CODES.includes(product.currency)) {
-          throw new IntegrationError(`${product.currency} is not a valid currency code.`, 'Incorrect value format', 400)
+        if (product.currency) {
+          verifyCurrency(product.currency)
         }
 
         return product as ProductItem
       })
     }
 
+    if (features && features['actions-google-analytics-4-verify-params-feature']) {
+      verifyParams(payload.params)
+      verifyUserProps(payload.user_properties)
+    }
+    const request_object: { [key: string]: any } = {
+      client_id: payload.client_id,
+      user_id: payload.user_id,
+      events: [
+        {
+          name: 'purchase',
+          params: {
+            affiliation: payload.affiliation,
+            coupon: payload.coupon,
+            currency: payload.currency,
+            items: googleItems,
+            transaction_id: payload.transaction_id,
+            shipping: payload.shipping,
+            value: payload.value,
+            tax: payload.tax,
+            engagement_time_msec: payload.engagement_time_msec,
+            ...payload.params
+          }
+        }
+      ],
+      ...formatUserProperties(payload.user_properties)
+    }
+
+    if (features && features['actions-google-analytics-4-add-timestamp']) {
+      request_object.timestamp_micros = convertTimestamp(payload.timestamp_micros)
+    }
+
     return request('https://www.google-analytics.com/mp/collect', {
       method: 'POST',
-      json: {
-        client_id: payload.client_id,
-        events: [
-          {
-            name: 'purchase',
-            params: {
-              affiliation: payload.affiliation,
-              coupon: payload.coupon,
-              currency: payload.currency,
-              items: googleItems,
-              transaction_id: payload.transaction_id,
-              shipping: payload.shipping,
-              value: payload.value,
-              tax: payload.tax
-            }
-          }
-        ]
-      }
+      json: request_object
     })
   }
 }

@@ -1,6 +1,7 @@
 import type { InputField } from '@segment/actions-core'
+import type { FieldConfig } from './commonFields'
 
-export const trackCustomEventFields: Record<string, InputField> = {
+export const trackCustomEventFields = (fieldConfig: FieldConfig): Record<string, InputField> => ({
   eventType: {
     type: 'string',
     required: true,
@@ -26,10 +27,20 @@ export const trackCustomEventFields: Record<string, InputField> = {
   },
   customerId: {
     label: 'Customer ID',
-    description: "The user's customerId.",
+    description: "The user's customer ID.",
     type: 'string',
     required: true,
-    default: { '@path': '$.userId' }
+    default: {
+      // We hope that we have a userId because analytics.identify has been
+      // called but, if not, allow a customerId to be specified in the
+      // event.  If one is specified, it overrides the one from the identify
+      // call.
+      '@if': {
+        exists: { '@path': '$.properties.customerId' },
+        then: { '@path': '$.properties.customerId' },
+        else: { '@path': '$.userId' }
+      }
+    }
   },
   anonymousId: {
     label: 'Anonymous ID',
@@ -37,5 +48,12 @@ export const trackCustomEventFields: Record<string, InputField> = {
     type: 'string',
     required: false,
     default: { '@path': '$.anonymousId' }
+  },
+  email: {
+    label: 'Email',
+    description: "The user's email address.",
+    type: 'string',
+    required: Boolean(fieldConfig.requireEmail),
+    default: { '@path': '$.properties.email' }
   }
-}
+})

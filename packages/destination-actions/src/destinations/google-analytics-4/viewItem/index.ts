@@ -1,6 +1,17 @@
 import { ActionDefinition, IntegrationError } from '@segment/actions-core'
-import { CURRENCY_ISO_CODES } from '../constants'
-import { currency, client_id, value, items_single_products } from '../ga4-properties'
+import { verifyCurrency, verifyParams, verifyUserProps, convertTimestamp } from '../ga4-functions'
+import {
+  formatUserProperties,
+  user_properties,
+  params,
+  currency,
+  user_id,
+  client_id,
+  value,
+  items_single_products,
+  engagement_time_msec,
+  timestamp_micros
+} from '../ga4-properties'
 import { ProductItem } from '../ga4-types'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
@@ -11,16 +22,21 @@ const action: ActionDefinition<Settings, Payload> = {
   defaultSubscription: 'type = "track" and event =  "Product Viewed"',
   fields: {
     client_id: { ...client_id },
+    user_id: { ...user_id },
+    timestamp_micros: { ...timestamp_micros },
     currency: { ...currency },
     value: { ...value },
     items: {
       ...items_single_products,
       required: true
-    }
+    },
+    user_properties: user_properties,
+    engagement_time_msec: engagement_time_msec,
+    params: params
   },
-  perform: (request, { payload }) => {
-    if (payload.currency && !CURRENCY_ISO_CODES.includes(payload.currency)) {
-      throw new IntegrationError(`${payload.currency} is not a valid currency code.`, 'Incorrect value format', 400)
+  perform: (request, { payload, features }) => {
+    if (payload.currency) {
+      verifyCurrency(payload.currency)
     }
 
     let googleItems: ProductItem[] = []
@@ -35,8 +51,8 @@ const action: ActionDefinition<Settings, Payload> = {
           )
         }
 
-        if (product.currency && !CURRENCY_ISO_CODES.includes(product.currency)) {
-          throw new IntegrationError(`${product.currency} is not a valid currency code.`, 'Incorrect value format', 400)
+        if (product.currency) {
+          verifyCurrency(product.currency)
         }
 
         return {
@@ -55,21 +71,35 @@ const action: ActionDefinition<Settings, Payload> = {
       })
     }
 
+    if (features && features['actions-google-analytics-4-verify-params-feature']) {
+      verifyParams(payload.params)
+      verifyUserProps(payload.user_properties)
+    }
+    const request_object: { [key: string]: any } = {
+      client_id: payload.client_id,
+      user_id: payload.user_id,
+      events: [
+        {
+          name: 'view_item',
+          params: {
+            currency: payload.currency,
+            items: googleItems,
+            value: payload.value,
+            engagement_time_msec: payload.engagement_time_msec,
+            ...payload.params
+          }
+        }
+      ],
+      ...formatUserProperties(payload.user_properties)
+    }
+
+    if (features && features['actions-google-analytics-4-add-timestamp']) {
+      request_object.timestamp_micros = convertTimestamp(payload.timestamp_micros)
+    }
+
     return request('https://www.google-analytics.com/mp/collect', {
       method: 'POST',
-      json: {
-        client_id: payload.client_id,
-        events: [
-          {
-            name: 'view_item',
-            params: {
-              currency: payload.currency,
-              items: googleItems,
-              value: payload.value
-            }
-          }
-        ]
-      }
+      json: request_object
     })
   }
 }

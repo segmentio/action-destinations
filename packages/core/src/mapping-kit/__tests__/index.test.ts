@@ -100,7 +100,7 @@ describe('@literal', () => {
 })
 
 describe('@if', () => {
-  const payload = { a: 1, b: true, c: false, d: null }
+  const payload = { a: 1, b: true, c: false, d: null, e: '' }
 
   test('exists', () => {
     let output = transform(
@@ -131,6 +131,68 @@ describe('@if', () => {
       {
         '@if': {
           exists: { '@path': '$.x' },
+          then: 1,
+          else: 2
+        }
+      },
+      payload
+    )
+    expect(output).toStrictEqual(2)
+
+    output = transform(
+      {
+        '@if': {
+          exists: { '@path': '$.e' },
+          then: 1,
+          else: 2
+        }
+      },
+      payload
+    )
+    expect(output).toStrictEqual(1)
+  })
+
+  test('blank', () => {
+    let output = transform(
+      {
+        '@if': {
+          blank: { '@path': '$.a' },
+          then: 1,
+          else: 2
+        }
+      },
+      payload
+    )
+    expect(output).toStrictEqual(1)
+
+    output = transform(
+      {
+        '@if': {
+          blank: { '@path': '$.d' },
+          then: 1,
+          else: 2
+        }
+      },
+      payload
+    )
+    expect(output).toStrictEqual(2)
+
+    output = transform(
+      {
+        '@if': {
+          blank: { '@path': '$.x' },
+          then: 1,
+          else: 2
+        }
+      },
+      payload
+    )
+    expect(output).toStrictEqual(2)
+
+    output = transform(
+      {
+        '@if': {
+          blank: { '@path': '$.e' },
           then: 1,
           else: 2
         }
@@ -333,9 +395,18 @@ describe('@template', () => {
     expect(output).toStrictEqual('Hello, World!')
   })
 
-  test('no escaping', () => {
+  test('escaping', () => {
     const output = transform({ '@template': '<blink>{{a}} {{{a}}}</blink>' }, { a: '<b>Hi</b>' })
     expect(output).toStrictEqual('<blink>&lt;b&gt;Hi&lt;&#x2F;b&gt; <b>Hi</b></blink>')
+  })
+
+  test('no escaping if flag is on', () => {
+    const output = transform(
+      { '@template': '<blink>{{a}} {{{a}}}</blink>' },
+      { a: '<b>Hi</b>' },
+      { actionsEscapeOff: true }
+    )
+    expect(output).toStrictEqual('<blink><b>Hi</b> <b>Hi</b></blink>')
   })
 
   test('missing fields', () => {

@@ -3,6 +3,11 @@ import type { BaseActionDefinition } from '@segment/actions-core'
 import { ErrorCondition, parseFql } from '@segment/destination-subscriptions'
 import ora from 'ora'
 import { getManifest, DestinationDefinition } from '../lib/destinations'
+import type { DestinationDefinition as CloudDestinationDefinition } from '@segment/actions-core'
+
+const isDefined = (value: any): boolean => {
+  return value !== null && value !== undefined
+}
 
 export default class Validate extends Command {
   private spinner: ora.Ora = ora()
@@ -12,7 +17,8 @@ export default class Validate extends Command {
 
   static examples = [`$ ./bin/run validate`]
 
-  static flags = {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  static flags: flags.Input<any> = {
     help: flags.help({ char: 'h' })
   }
 
@@ -25,7 +31,11 @@ export default class Validate extends Command {
     for (const destination of destinations) {
       this.spinner.start(`Validating definition for ${destination.definition.name}`)
 
-      const errors = [...this.validatePresets(destination.definition), ...this.validateActions(destination.definition)]
+      const errors = [
+        ...this.validatePresets(destination.definition),
+        ...this.validateActions(destination.definition),
+        ...this.validateSettings(destination.definition)
+      ]
 
       if (errors.length) {
         this.spinner.fail(
@@ -62,6 +72,16 @@ export default class Validate extends Command {
           errors.push(
             new Error(`The action "${actionKey}" has an invalid \`defaultSubscription\` query: ${fqlError.message}`)
           )
+        }
+      }
+
+      //Validate descriptions
+      if (!action.description) {
+        errors.push(new Error(`The action "${actionKey}" is missing a description.`))
+      }
+      for (const [fieldKey, field] of Object.entries(action.fields)) {
+        if (!field.description) {
+          errors.push(new Error(`The action "${actionKey}" is missing a description for the field "${fieldKey}".`))
         }
       }
     }
@@ -109,6 +129,35 @@ export default class Validate extends Command {
   validateFQL(fql: string): Error | null {
     const trigger = parseFql(fql)
     return (trigger as ErrorCondition).error || null
+  }
+
+  validateSettings(destination: DestinationDefinition) {
+    const errors: Error[] = []
+    if (destination.mode === 'cloud') {
+      const dest = destination as CloudDestinationDefinition
+      Object.keys(dest.authentication?.fields ?? {}).forEach((field) => {
+        const fieldValues = dest.authentication?.fields[field]
+        //TODO: consider invalidating here -- for now we just warn
+        // this.isInvalid = true
+        const typ = fieldValues?.type
+
+        if (typ === 'boolean' || typ === 'number') {
+          if (!isDefined(fieldValues?.default)) {
+            errors.push(
+              new Error(
+                `The authentication field "${field}" of type "${fieldValues?.type}" does not contain a default value. It is recommended to choose a sane default to avoid validation issues.`
+              )
+            )
+          }
+          if (typeof fieldValues?.default !== typ) {
+            errors.push(
+              new Error(`The default value for field "${field}" is of type "${typeof fieldValues?.default}", but the type is set to "${typ}".`)
+            )
+          }
+        }
+      })
+    }
+    return errors
   }
 
   async catch(error: unknown) {

@@ -1,4 +1,5 @@
 import express from 'express'
+import cors from 'cors'
 import http from 'http'
 import { once } from 'lodash'
 import logger from './logger'
@@ -13,15 +14,61 @@ import {
 } from '@segment/actions-core'
 import asyncHandler from './async-handler'
 import getExchanges from './summarize-http'
+import { AggregateAjvError } from '../../../ajv-human-errors/src/aggregate-ajv-error'
+import { DynamicFieldResponse } from '@segment/actions-core'
 interface ResponseError extends Error {
   status?: number
+}
+
+interface ErrorOutput {
+  statusCode: number
+  message?: string
+  stack?: string[]
+  requestError: true
+  fields?: { [key: string]: string }
+}
+
+const marshalError = (err: Error): ErrorOutput => {
+  const error = err as ResponseError
+  let statusCode = error?.status ?? 500
+  let msg = error?.message
+  let fields: { [key: string]: string } | undefined
+
+  if (error.name === 'AggregateAjvError') {
+    fields = {}
+    const ajvErr = error as AggregateAjvError
+    for (const fieldError of ajvErr) {
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-call
+      const name = fieldError.path.replace('$.', '')
+      fields[name] = fieldError.message
+    }
+  }
+
+  if (err instanceof HTTPError) {
+    statusCode = err.response?.status ?? statusCode
+    msg = ((err.response as ModifiedResponse).data as string) ?? (err.response as ModifiedResponse).content
+  }
+
+  return { statusCode, message: msg, stack: err.stack?.split('\n'), fields, requestError: true }
 }
 
 const app = express()
 app.use(express.json())
 
+app.use(
+  cors({
+    origin: [
+      'https://app.segment.com',
+      'https://eu1.app.segment.com',
+      'https://app.segment.build',
+      'https://eu1.app.segment.build',
+      'http://localhost:8000'
+    ]
+  })
+)
+
 const DEFAULT_PORT = 3000
-const port = process.env.PORT || DEFAULT_PORT
+const port = parseInt(process.env.PORT ?? '', 10) || DEFAULT_PORT
 const server = http.createServer(app)
 const destinationSlug = process.env.DESTINATION as string
 const directory = process.env.DIRECTORY as string
@@ -103,6 +150,13 @@ function setupRoutes(def: DestinationDefinition | null): void {
 
   const router = express.Router()
 
+  router.get(
+    '/manifest',
+    asyncHandler(async (_, res: express.Response) => {
+      res.json({ ...destination.definition, directoryName: process.env.DESTINATION })
+    })
+  )
+
   if (supportsDelete) {
     router.post(
       '/delete',
@@ -115,16 +169,8 @@ function setupRoutes(def: DestinationDefinition | null): void {
           const debug = await getExchanges(destination.responses)
           return res.status(200).json(debug)
         } catch (err) {
-          const error = err as ResponseError
-          let statusCode = error?.status ?? 500
-          let msg = error?.message
-
-          if (err instanceof HTTPError) {
-            statusCode = err.response?.status ?? statusCode
-            msg = ((err.response as ModifiedResponse).data as string) ?? (err.response as ModifiedResponse).content
-          }
-
-          return res.status(statusCode).send(msg + '<br/>' + error.stack?.split('\n').join('<br/>'))
+          const output = marshalError(err as ResponseError)
+          return res.status(200).json([output])
         }
       })
     )
@@ -136,11 +182,13 @@ function setupRoutes(def: DestinationDefinition | null): void {
       try {
         await destination.testAuthentication(req.body)
         res.status(200).json({ ok: true })
-      } catch (error) {
+      } catch (e) {
+        const error = e as ResponseError
         const fields: Record<string, string> = {}
 
         if (error.name === 'AggregateAjvError') {
-          for (const fieldError of error) {
+          const ajvErr = error as AggregateAjvError
+          for (const fieldError of ajvErr) {
             // eslint-disable-next-line @typescript-eslint/no-unsafe-call
             const name = fieldError.path.replace('$.', '')
             fields[name] = fieldError.message
@@ -168,29 +216,61 @@ function setupRoutes(def: DestinationDefinition | null): void {
             return res.status(400).send(msg)
           }
 
-          await action.execute({
+          const eventParams = {
             data: req.body.payload || {},
             settings: req.body.settings || {},
-            mapping: req.body.payload || {},
+            mapping: req.body.mapping || req.body.payload || {},
             auth: req.body.auth || {}
-          })
+          }
+
+          if (Array.isArray(eventParams.data)) {
+            // If no mapping is provided default to using the first payload across all events.
+            eventParams.mapping = req.body.mapping ?? eventParams.data[0] ?? {}
+            await action.executeBatch(eventParams)
+          } else {
+            await action.execute(eventParams)
+          }
 
           const debug = await getExchanges(destination.responses)
           return res.status(200).json(debug)
         } catch (err) {
-          const error = err as ResponseError
-          let statusCode = error?.status ?? 500
-          let msg = error?.message ?? ''
-
-          if (err instanceof HTTPError) {
-            statusCode = err?.response?.status ?? statusCode
-            msg = ((err.response as ModifiedResponse).data as string) ?? (err.response as ModifiedResponse).content
-          }
-
-          return res.status(statusCode).send(msg)
+          const output = marshalError(err as ResponseError)
+          return res.status(200).json([output])
         }
       })
     )
+  }
+
+  for (const actionSlug of Object.keys(destination.actions)) {
+    const definition = destination.actions[actionSlug].definition
+
+    if (definition.dynamicFields) {
+      for (const field in definition.dynamicFields) {
+        router.post(
+          `/${actionSlug}/${field}`,
+          asyncHandler(async (req: express.Request, res: express.Response) => {
+            try {
+              const data = {
+                settings: req.body.settings || {},
+                payload: req.body.payload || {},
+                page: req.body.page || 1,
+                auth: req.body.auth || {}
+              }
+              const action = destination.actions[actionSlug]
+              const result = await action.executeDynamicField(field, data)
+
+              if ((result as DynamicFieldResponse).error) {
+                throw (result as DynamicFieldResponse).error
+              }
+
+              return res.status(200).json(result)
+            } catch (err) {
+              return res.status(500).json([err])
+            }
+          })
+        )
+      }
+    }
   }
 
   app.use(router)
@@ -199,13 +279,13 @@ function setupRoutes(def: DestinationDefinition | null): void {
   const routes: string[] = []
   for (const r of router.stack) {
     for (const [m, enabled] of Object.entries(r.route.methods)) {
-      if (enabled) {
+      if (enabled && r.route.path !== '/manifest') {
         routes.push(`  ${m.toUpperCase()} ${r.route.path}`)
       }
     }
   }
 
-  server.listen(port, () => {
+  server.listen(port, '127.0.0.1', () => {
     logger.info(`Listening at http://localhost:${port} -> \n${routes.join('\n')}`)
   })
 }

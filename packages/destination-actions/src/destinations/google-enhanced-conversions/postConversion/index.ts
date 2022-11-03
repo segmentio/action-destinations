@@ -62,7 +62,8 @@ const action: ActionDefinition<Settings, Payload> = {
     },
     user_agent: {
       label: 'User Agent',
-      description: 'User agent of the individual who triggered the conversion event. This should match the user agent of the request that sent the original conversion so the conversion and its enhancement are either both attributed as same-device or both attributed as cross-device. This field is optional but recommended.',
+      description:
+        'User agent of the individual who triggered the conversion event. This should match the user agent of the request that sent the original conversion so the conversion and its enhancement are either both attributed as same-device or both attributed as cross-device. This field is optional but recommended.',
       type: 'string',
       default: {
         '@path': '$.context.userAgent'
@@ -88,16 +89,31 @@ const action: ActionDefinition<Settings, Payload> = {
     },
     currency_code: {
       label: 'Currency Code',
-      description: 'Currency of the purchase or items associated with the conversion event, in 3-letter ISO 4217 format.',
+      description:
+        'Currency of the purchase or items associated with the conversion event, in 3-letter ISO 4217 format.',
       type: 'string',
       default: {
         '@path': '$.properties.currency'
       }
     },
+    is_app_incrementality: {
+      label: 'App Conversion for Incrementality Study',
+      description: 'Set to true if this is an app conversion for an incrementality study.',
+      type: 'boolean',
+      default: false
+    },
+    pcc_game: {
+      label: 'PCC Game Flag',
+      description:
+        'Alpha feature offered by Google for gaming industry. When set to true, Segment will send pcc_game = 1 to Google.',
+      type: 'boolean',
+      default: false
+    },
     // PII Fields - These fields must be hashed using SHA 256 and encoded as websafe-base64.
     phone_number: {
       label: 'Phone Number',
-      description: 'Phone number of the individual who triggered the conversion event, in E.164 standard format, e.g. +14150000000.',
+      description:
+        'Phone number of the individual who triggered the conversion event, in E.164 standard format, e.g. +14150000000.',
       type: 'string',
       default: {
         '@if': {
@@ -193,14 +209,26 @@ const action: ActionDefinition<Settings, Payload> = {
     }
   },
 
-  perform: async (request, { payload }) => {
+  perform: async (request, { payload, settings }) => {
+    /* Enforcing this here since Conversion ID is required for the Enhanced Conversions API 
+    but not for the Google Ads API. */
+    if (!settings.conversionTrackingId) {
+      throw new IntegrationError(
+        'Conversion ID is required for this action. Please set it in destination settings.',
+        'Missing required fields.',
+        400
+      )
+    }
+
     const conversionData = cleanData({
       oid: payload.transaction_id,
       user_agent: payload.user_agent,
       conversion_time: +new Date(payload.conversion_time) * 1000,
       label: payload.conversion_label,
       value: payload.value,
-      currency_code: payload.currency_code
+      currency_code: payload.currency_code,
+      is_app_incrementality: payload.is_app_incrementality ? 1 : 0,
+      pcc_game: payload.pcc_game ? 1 : 0
     })
 
     const address = cleanData({
@@ -229,6 +257,9 @@ const action: ActionDefinition<Settings, Payload> = {
     try {
       return await request('https://www.google.com/ads/event/api/v1', {
         method: 'post',
+        searchParams: {
+          conversion_tracking_id: settings.conversionTrackingId
+        },
         json: {
           pii_data: { ...pii_data, address: [address] },
           ...conversionData

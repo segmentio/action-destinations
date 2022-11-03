@@ -6,15 +6,22 @@ import {
   content_name,
   content_type,
   contents,
+  validateContents,
   currency,
   value,
   action_source,
   event_time,
   event_source_url,
-  event_id
+  event_id,
+  custom_data,
+  data_processing_options,
+  data_processing_options_country,
+  data_processing_options_state,
+  dataProcessingOptions
 } from '../fb-capi-properties'
-import { CURRENCY_ISO_CODES, API_VERSION } from '../constants'
+import { CURRENCY_ISO_CODES } from '../constants'
 import { hash_user_data, user_data_field } from '../fb-capi-user-data'
+import { get_api_version } from '../utils'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Add to Cart',
@@ -50,9 +57,14 @@ const action: ActionDefinition<Settings, Payload> = {
     currency: currency,
     event_id: event_id,
     event_source_url: event_source_url,
-    value: { ...value, default: { '@path': '$.properties.price' } }
+    value: { ...value, default: { '@path': '$.properties.price' } },
+    custom_data: custom_data,
+    data_processing_options: data_processing_options,
+    data_processing_options_country: data_processing_options_country,
+    data_processing_options_state: data_processing_options_state
   },
-  perform: (request, { payload, settings }) => {
+
+  perform: (request, { payload, settings, features, statsContext }) => {
     if (payload.currency && !CURRENCY_ISO_CODES.has(payload.currency)) {
       throw new IntegrationError(
         `${payload.currency} is not a valid currency code.`,
@@ -73,50 +85,47 @@ const action: ActionDefinition<Settings, Payload> = {
       )
     }
 
-    const valid_delivery_categories = ['in_store', 'curbside', 'home_delivery']
     if (payload.contents) {
-      payload.contents.forEach((obj, index) => {
-        if (!obj.id) {
-          throw new IntegrationError(
-            "Contents objects must include an 'id' parameter.",
-            'Misconfigured required field',
-            400
-          )
-        }
-
-        if (obj.delivery_category && !valid_delivery_categories.includes(obj.delivery_category)) {
-          throw new IntegrationError(
-            `contents[${index}].delivery_category must be one of {in_store, home_delivery, curbside}.`,
-            'Misconfigured field',
-            400
-          )
-        }
-      })
+      const err = validateContents(payload.contents)
+      if (err) throw err
     }
 
-    return request(`https://graph.facebook.com/v${API_VERSION}/${settings.pixelId}/events`, {
-      method: 'POST',
-      json: {
-        data: [
-          {
-            event_name: 'AddToCart',
-            event_time: payload.event_time,
-            event_source_url: payload.event_source_url,
-            event_id: payload.event_id,
-            action_source: payload.action_source,
-            user_data: hash_user_data({ user_data: payload.user_data }),
-            custom_data: {
-              currency: payload.currency,
-              value: payload.value,
-              content_ids: payload.content_ids,
-              content_name: payload.content_name,
-              contents: payload.contents,
-              content_type: payload.content_type
+    const [data_options, country_code, state_code] = dataProcessingOptions(
+      payload.data_processing_options,
+      payload.data_processing_options_country,
+      payload.data_processing_options_state
+    )
+
+    return request(
+      `https://graph.facebook.com/v${get_api_version(features, statsContext)}/${settings.pixelId}/events`,
+      {
+        method: 'POST',
+        json: {
+          data: [
+            {
+              event_name: 'AddToCart',
+              event_time: payload.event_time,
+              event_source_url: payload.event_source_url,
+              event_id: payload.event_id,
+              action_source: payload.action_source,
+              user_data: hash_user_data({ user_data: payload.user_data }),
+              custom_data: {
+                ...payload.custom_data,
+                currency: payload.currency,
+                value: payload.value,
+                content_ids: payload.content_ids,
+                content_name: payload.content_name,
+                contents: payload.contents,
+                content_type: payload.content_type
+              },
+              data_processing_options: data_options,
+              data_processing_options_country: country_code,
+              data_processing_options_state: state_code
             }
-          }
-        ]
+          ]
+        }
       }
-    })
+    )
   }
 }
 
