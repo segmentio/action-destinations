@@ -8,6 +8,7 @@ import { LinkedInAudiences } from '../api'
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Sync To LinkedIn DMP Segment',
   description: 'Syncs contacts from a Personas Audience to a LinkedIn DMP Segment.',
+  defaultSubscription: 'event = "Audience Entered" or event = "Audience Exited"',
   fields: {
     dmp_segment_name: {
       label: 'DMP Segment Display Name',
