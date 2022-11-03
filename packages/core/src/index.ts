@@ -38,6 +38,7 @@ export type {
 
 export type {
   DynamicFieldResponse,
+  WrappedDynamicFieldResponse,
   DynamicFieldError,
   DynamicFieldItem,
   InputField,
