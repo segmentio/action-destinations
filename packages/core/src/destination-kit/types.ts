@@ -180,7 +180,14 @@ export interface PathDirective {
   '@path': string
 }
 
-export type Directive = IfDirective | TemplateDirective | PathDirective
+export interface CaseDirective {
+  '@case': {
+    operator: string
+    value: FieldValue
+  }
+}
+
+export type Directive = IfDirective | TemplateDirective | PathDirective | CaseDirective
 
 /**
  * A function to configure a request client instance with options

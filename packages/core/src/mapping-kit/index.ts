@@ -74,6 +74,32 @@ registerDirective('@if', (opts, payload) => {
   }
 })
 
+registerDirective('@case', (opts, payload) => {
+  if (!isObject(opts)) {
+    throw new Error('@case requires an object with a "operator" key')
+  }
+
+  if (!opts.operator) {
+    throw new Error('@case requires a "operator" key')
+  }
+
+  const operator = opts.operator
+  if (opts.value) {
+    const value = resolve(opts.value, payload)
+    if (typeof value === 'string') {
+      switch (operator) {
+        case 'lower':
+          return value.toLowerCase()
+        case 'upper':
+          return value.toUpperCase()
+        default:
+          throw new Error('operator key should have a value of "lower" or "upper"')
+      }
+    }
+    return value
+  }
+})
+
 registerDirective('@arrayPath', (data, payload) => {
   if (!Array.isArray(data)) {
     throw new Error(`@arrayPath expected array, got ${realTypeOf(data)}`)
