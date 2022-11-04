@@ -78,7 +78,15 @@ const action: ActionDefinition<Settings, Payload> = {
         400
       )
     }
-
+    
+    if(!data.payload.email && !data.payload.phone_number && !data.payload.mobile_ad_id && (!data.payload.ip_address || !data.payload.user_agent)) {
+      throw new IntegrationError(
+        `payload must contain email or phone_number or mobile_ad_id or both ip_address and user_agent fields`,
+        'Misconfigured required field',
+        400
+      )
+    }
+    
     //Create Conversion Event Request
     return request(CONVERSION_EVENT_URL, {
       method: 'post',
