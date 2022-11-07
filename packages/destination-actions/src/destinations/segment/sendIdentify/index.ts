@@ -11,52 +11,49 @@ import {
   network,
   operating_system,
   page,
-  properties,
-  screen_name,
   timestamp,
   timezone,
   user_agent,
   user_id,
   screen,
   locale,
-  location
+  location,
+  traits
 } from '../segment-properties'
 import { SEGMENT_ENDPOINTS } from '../properties'
 
 const action: ActionDefinition<Settings, Payload> = {
-  title: 'Send Screen',
-  description: 'Send a screen call to Segment’s tracking API. This is used to track mobile app screen views.',
-  defaultSubscription: 'type = "screen"',
+  title: 'Send Identify',
+  description: '',
+  defaultSubscription: 'type = "identify"',
   fields: {
-    user_id: user_id,
-    anonymous_id: anonymous_id,
-    timestamp: timestamp,
-    screen_name: screen_name,
-    application: application,
-    campaign_parameters: campaign_parameters,
-    device: device,
-    ip_address: ip_address,
-    locale: locale,
-    location: location,
-    network: network,
-    operating_system: operating_system,
-    page: page,
-    screen: screen,
-    user_agent: user_agent,
-    timezone: timezone,
-    group_id: group_id,
-    properties: properties
+    user_id,
+    anonymous_id,
+    timestamp,
+    application,
+    campaign_parameters,
+    device,
+    ip_address,
+    locale,
+    location,
+    network,
+    operating_system,
+    page,
+    screen,
+    user_agent,
+    timezone,
+    group_id,
+    traits
   },
   perform: (request, { payload, settings }) => {
     if (!payload.anonymous_id && !payload.user_id) {
       throw new IntegrationError('Either Anonymous ID or User ID must be defined.', 'Misconfigured required field', 400)
     }
 
-    const screenPayload: Object = {
+    const identifyPayload = {
       userId: payload?.user_id,
       annymousId: payload?.anonymous_id,
       timestampe: payload?.timestamp,
-      name: payload?.screen_name,
       context: {
         app: payload?.application,
         campaign: payload?.campaign_parameters,
@@ -69,11 +66,11 @@ const action: ActionDefinition<Settings, Payload> = {
         page: payload?.page,
         screen: payload?.screen,
         userAgent: payload?.user_agent,
+        timezone: payload?.timezone,
         groupId: payload?.group_id
       },
-      properties: {
-        ...payload.properties,
-        name: payload?.screen_name
+      traits: {
+        ...payload?.traits
       }
     }
 
@@ -85,12 +82,11 @@ const action: ActionDefinition<Settings, Payload> = {
         400
       )
     }
-
     const selectedSegmentEndpoint = SEGMENT_ENDPOINTS[settings.endpoint]
 
-    return request(`${selectedSegmentEndpoint}/screen`, {
+    return request(`${selectedSegmentEndpoint}/identify`, {
       method: 'POST',
-      json: screenPayload
+      json: identifyPayload
     })
   }
 }
