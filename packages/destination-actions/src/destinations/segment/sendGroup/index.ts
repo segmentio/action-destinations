@@ -1,6 +1,7 @@
-import type { ActionDefinition } from '@segment/actions-core'
+import { ActionDefinition, IntegrationError } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
+import { SEGMENT_ENDPOINTS } from '../properties'
 import {
   user_id,
   anonymous_id,
@@ -44,13 +45,49 @@ const action: ActionDefinition<Settings, Payload> = {
     timezone: timezone,
     traits: traits
   },
-  perform: (request, { payload }) => {
-    console.log(request, payload)
-    // Make your partner api request here!
-    // return request('https://example.com', {
-    //   method: 'post',
-    //   json: data.payload
-    // })
+  perform: (request, { payload, settings }) => {
+    if (!payload.anonymous_id && !payload.user_id) {
+      throw new IntegrationError('Either Anonymous ID or User ID must be defined.', 'Misconfigured required field', 400)
+    }
+
+    const groupPayload: Object = {
+      type: 'group',
+      userId: payload?.user_id,
+      annymousId: payload?.anonymous_id,
+      timestamp: payload?.timestamp,
+      context: {
+        app: payload?.application,
+        campaign: payload?.campaign_parameters,
+        device: payload?.device,
+        ip: payload?.ip_address,
+        locale: payload?.locale,
+        location: payload?.location,
+        network: payload?.network,
+        os: payload?.operating_system,
+        page: payload?.page,
+        screen: payload?.screen,
+        userAgent: payload?.user_agent,
+        timezone: payload?.timezone
+      },
+      traits: {
+        ...payload?.traits
+      }
+    }
+
+    // Throw an error if endpoint is not defined or invalid
+    if (!settings.endpoint || !(settings.endpoint in SEGMENT_ENDPOINTS)) {
+      throw new IntegrationError(
+        'A valid endpoint must be selected. Please check your Segment settings.',
+        'Misconfigured endpoint',
+        400
+      )
+    }
+
+    const selectedSegmentEndpoint = SEGMENT_ENDPOINTS[settings.endpoint].url
+    return request(`${selectedSegmentEndpoint}/group`, {
+      method: 'POST',
+      json: groupPayload
+    })
   }
 }
 
