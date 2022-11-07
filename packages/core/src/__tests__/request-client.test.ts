@@ -2,7 +2,7 @@
 import AbortController from 'abort-controller'
 import createTestServer from 'create-test-server'
 import createInstance from '../request-client'
-import { Response } from '../fetch'
+import { Response } from '../fetch-updated'
 
 describe('createInstance', () => {
   it('should create a new request client instance', async () => {
@@ -245,7 +245,7 @@ describe('request()', () => {
       controller.abort()
     }, 500)
 
-    await expect(request(server.url, { signal: controller.signal })).rejects.toThrowError('The user aborted a request.')
+    await expect(request(server.url, { signal: controller.signal })).rejects.toThrowError('The operation was aborted.')
     await server.close()
   })
 

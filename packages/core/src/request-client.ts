@@ -1,8 +1,12 @@
 import AbortController from 'abort-controller'
 import { CustomError } from 'ts-custom-error'
-import fetch, { Headers, Request, Response } from './fetch'
+import fetch, { Headers, Request, Response } from './fetch-updated'
 import { isObject } from './real-type-of'
 import type https from 'https'
+
+const REQUEST_HIGH_WATER_MARK = process.env.REQUEST_HIGH_WATER_MARK
+  ? parseInt(process.env.REQUEST_HIGH_WATER_MARK)
+  : 1042 * 1024 //1MB
 
 /**
  * The supported request options you can use with the request client
@@ -55,6 +59,12 @@ export interface RequestOptions extends Omit<RequestInit, 'headers'> {
    * Uses the provided https.Agent
    */
   agent?: https.Agent
+  /**
+   * The maximum number of bytes to store in the internal buffer before ceasing to read from the underlying resource.
+   * This can be set in individual requests, or for all requests via the env variable REQUEST_HIGH_WATER_MARK.
+   * If no option is passed, and no env var is set, it will default to node-fetch's default of 16kb.
+   */
+  highWaterMark?: number
 }
 
 /**
@@ -239,7 +249,8 @@ class RequestClient {
       ...options,
       method: getRequestMethod(options.method ?? 'get'),
       throwHttpErrors: options.throwHttpErrors !== false,
-      timeout: options.timeout ?? 10000
+      timeout: options.timeout ?? 10000,
+      highWaterMark: options.highWaterMark ?? REQUEST_HIGH_WATER_MARK
     } as NormalizedOptions
 
     // Timeout support. Use our own abort controller so consumers can pass in their own `signal`

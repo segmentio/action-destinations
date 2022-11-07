@@ -2332,6 +2332,13 @@
     path-to-regexp "^6.1.0"
     querystring "^0.2.0"
 
+"@segment/cross-fetch@4.1.3":
+  version "4.1.3"
+  resolved "https://registry.yarnpkg.com/@segment/cross-fetch/-/cross-fetch-4.1.3.tgz#b4045e6b0218b912bb1a9d8facef097e4062e01f"
+  integrity sha512-uz4osuCm7oqGaiKPy2JT4buLc4+3MUhNAUvRUYjlYg2sxk3jDaCtI7WkYt8R6fSBYtB5BE9suYrzcr2xI0i45w==
+  dependencies:
+    node-fetch-cjs "3.1.0"
+
 "@segment/facade@3.3.10":
   version "3.3.10"
   resolved "https://registry.yarnpkg.com/@segment/facade/-/facade-3.3.10.tgz#94381079d326f8d4b2d11e0b2b1a85ca7aac28c4"
@@ -9306,6 +9313,11 @@ node-dir@^0.1.17:
   integrity sha1-X1Zl2TNRM1yqvvjxxVRRbPXx5OU=
   dependencies:
     minimatch "^3.0.2"
+
+node-fetch-cjs@3.1.0:
+  version "3.1.0"
+  resolved "https://registry.yarnpkg.com/node-fetch-cjs/-/node-fetch-cjs-3.1.0.tgz#53e76315b1f6e364fb2f34104ec40787b2ebe5b5"
+  integrity sha512-7L9HJh/QiaptntSENZT5A86gJSvGFkNqeTlkqWh55H//iTae9gocOD/GCh1aBFB9B0xdPhFFBNYQ4m2J6xxxpw==
 
 node-fetch@2.6.1, node-fetch@^2.6.1:
   version "2.6.1"
