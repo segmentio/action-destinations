@@ -104,7 +104,7 @@ export const timestamp: InputField = {
 export const email: InputField = {
   label: 'Email',
   description:
-    'Email address of the user who triggered the conversion event. Segment will normalize and hash this value before sending to Snapchat. Snapchat requires that every payload contain values for Email or Phone Number or Mobile Ad Identifier or both IP Address and User Agent fields.',
+    'Email address of the user who triggered the conversion event. Segment will normalize and hash this value before sending to Snapchat. [Snapchat requires](https://marketingapi.snapchat.com/docs/conversion.html#conversion-parameters) that every payload contain values for Email or Phone Number or Mobile Ad Identifier or both IP Address and User Agent fields. Also see [Segment documentation](https://segment.com/docs/connections/destinations/catalog/actions-snap-conversions/#required-parameters-and-hashing).',
   type: 'string',
   default: {
     '@if': {
@@ -118,7 +118,7 @@ export const email: InputField = {
 export const mobile_ad_id: InputField = {
   label: 'Mobile Ad Identifier',
   description:
-    'Mobile ad identifier (IDFA or AAID) of the user who triggered the conversion event. Segment will normalize and hash this value before sending to Snapchat. Snapchat requires that every payload contain values for Email or Phone Number or Mobile Ad Identifier or both IP Address and User Agent fields.',
+    'Mobile ad identifier (IDFA or AAID) of the user who triggered the conversion event. Segment will normalize and hash this value before sending to Snapchat. [Snapchat requires](https://marketingapi.snapchat.com/docs/conversion.html#conversion-parameters) that every payload contain values for Email or Phone Number or Mobile Ad Identifier or both IP Address and User Agent fields. Also see [Segment documentation](https://segment.com/docs/connections/destinations/catalog/actions-snap-conversions/#required-parameters-and-hashing).',
   type: 'string',
   default: {
     '@path': '$.context.device.advertisingId'
@@ -144,7 +144,7 @@ export const idfv: InputField = {
 export const phone_number: InputField = {
   label: 'Phone Number',
   description:
-    'Phone number of the user who triggered the conversion event. Segment will normalize and hash this value before sending to Snapchat. Snapchat requires that every payload contain values for Email or Phone Number or Mobile Ad Identifier or both IP Address and User Agent fields.',
+    'Phone number of the user who triggered the conversion event. Segment will normalize and hash this value before sending to Snapchat. [Snapchat requires](https://marketingapi.snapchat.com/docs/conversion.html#conversion-parameters) that every payload contain values for Email or Phone Number or Mobile Ad Identifier or both IP Address and User Agent fields. Also see [Segment documentation](https://segment.com/docs/connections/destinations/catalog/actions-snap-conversions/#required-parameters-and-hashing).',
   type: 'string',
   default: {
     '@if': {
@@ -157,7 +157,8 @@ export const phone_number: InputField = {
 
 export const user_agent: InputField = {
   label: 'User Agent',
-  description: 'User agent from the user’s device. Snapchat requires that every payload contain values for Email or Phone Number or Mobile Ad Identifier or both IP Address and User Agent fields.',
+  description:
+    'User agent from the user’s device. [Snapchat requires](https://marketingapi.snapchat.com/docs/conversion.html#conversion-parameters) that every payload contain values for Email or Phone Number or Mobile Ad Identifier or both IP Address and User Agent fields. Also see [Segment documentation](https://segment.com/docs/connections/destinations/catalog/actions-snap-conversions/#required-parameters-and-hashing).',
   type: 'string',
   default: {
     '@path': '$.context.userAgent'
@@ -167,7 +168,7 @@ export const user_agent: InputField = {
 export const ip_address: InputField = {
   label: 'IP Address',
   description:
-    'IP address of the device or browser. Segment will normalize and hash this value before sending to Snapchat. Snapchat requires that every payload contain values for Email or Phone Number or Mobile Ad Identifier or both IP Address and User Agent fields.',
+    'IP address of the device or browser. Segment will normalize and hash this value before sending to Snapchat. [Snapchat requires](https://marketingapi.snapchat.com/docs/conversion.html#conversion-parameters) that every payload contain values for Email or Phone Number or Mobile Ad Identifier or both IP Address and User Agent fields. Also see [Segment documentation](https://segment.com/docs/connections/destinations/catalog/actions-snap-conversions/#required-parameters-and-hashing).',
   type: 'string',
   default: {
     '@path': '$.context.ip'
