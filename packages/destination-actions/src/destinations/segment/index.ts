@@ -2,6 +2,8 @@ import type { DestinationDefinition } from '@segment/actions-core'
 import type { Settings } from './generated-types'
 import sendScreen from './sendScreen'
 
+import sendGroup from './sendGroup'
+
 const destination: DestinationDefinition<Settings> = {
   //Needs to be updated when name & slug are finalized
   name: 'Segment',
@@ -44,7 +46,8 @@ const destination: DestinationDefinition<Settings> = {
     }
   },
   actions: {
-    sendScreen
+    sendScreen,
+    sendGroup
   }
 }
 

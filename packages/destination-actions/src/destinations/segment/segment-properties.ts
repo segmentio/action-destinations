@@ -320,3 +320,11 @@ export const properties: InputField = {
   defaultObjectUI: 'keyvalue',
   additionalProperties: true
 }
+
+export const traits: InputField = {
+  label: 'Traits',
+  description: 'Free-form dictionary of traits that describe the user or group of users.',
+  type: 'object',
+  defaultObjectUI: 'keyvalue',
+  additionalProperties: true
+}
