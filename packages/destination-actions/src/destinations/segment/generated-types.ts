@@ -2,7 +2,7 @@
 
 export interface Settings {
   /**
-   * TODO
+   * The **Write Key** of a Segment source.
    */
   source_write_key: string
   /**
