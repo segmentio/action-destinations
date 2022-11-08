@@ -65,7 +65,8 @@ describe('HubSpot.upsertContact', () => {
         }
       }
     }
-    nock(HUBSPOT_BASE_URL).patch(`/crm/v3/objects/contacts/${testEmail}?idProperty=email`, expectedPayload).reply(404, {
+
+    nock(hubSpotBaseURL).patch(`/crm/v3/objects/contacts/${testEmail}?idProperty=email`, expectedPayload).reply(404, {
       status: 'error',
       message: 'resource not found',
       correlationId: 'be56c5f3-5841-4661-b52f-65b3aacd0244'
@@ -256,7 +257,7 @@ describe('HubSpot.upsertContact', () => {
         first_name: 'John',
         last_name: 'Doe',
         address: {
-          city: 'San Francisco'
+          city: 'San Fransico'
         },
         graduation_date: 1664533942262,
         lifecyclestage: 'subscriber'
