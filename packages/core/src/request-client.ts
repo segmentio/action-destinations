@@ -1,15 +1,8 @@
 import AbortController from 'abort-controller'
 import { CustomError } from 'ts-custom-error'
-import updatedFetch, { Headers, Request, Response } from './fetch-updated'
-import fetch from './fetch'
+import fetch, { Headers, Request, Response } from './fetch'
 import { isObject } from './real-type-of'
 import type https from 'https'
-import { Features } from './mapping-kit'
-import { StatsContext } from './destination-kit'
-
-const REQUEST_HIGH_WATER_MARK = process.env.REQUEST_HIGH_WATER_MARK
-  ? parseInt(process.env.REQUEST_HIGH_WATER_MARK)
-  : undefined
 
 /**
  * The supported request options you can use with the request client
@@ -62,12 +55,6 @@ export interface RequestOptions extends Omit<RequestInit, 'headers'> {
    * Uses the provided https.Agent
    */
   agent?: https.Agent
-  /**
-   * The maximum number of bytes to store in the internal buffer before ceasing to read from the underlying resource.
-   * This can be set in individual requests, or for all requests via the env variable REQUEST_HIGH_WATER_MARK.
-   * If no option is passed, and no env var is set, it will default to node-fetch's default of 16kb.
-   */
-  highWaterMark?: number
 }
 
 /**
@@ -84,10 +71,6 @@ export interface AllRequestOptions extends RequestOptions {
    * Useful for logging, cleanup, or modifying the response object
    */
   afterResponse?: AfterResponseHook[]
-
-  features?: Features
-
-  statsContext?: StatsContext
 }
 
 export interface NormalizedOptions extends Omit<AllRequestOptions, 'headers'> {
@@ -218,23 +201,6 @@ export class TimeoutError extends CustomError {
   }
 }
 
-export const getCorrectFetchVersion = (
-  features: Features | undefined,
-  statsContext: StatsContext | undefined
-): typeof updatedFetch => {
-  const statsClient = statsContext?.statsClient
-  const tags = statsContext?.tags
-
-  // explicitly want undefined here so we can see how frequently features are not defined
-  const shouldUseForkedVersion: boolean | undefined = features ? features['use-forked-cross-fetch-package'] : undefined
-
-  tags?.push(`flag:${shouldUseForkedVersion}`)
-  statsClient?.incr(`should_use_forked_cross_fetch`, 1, tags)
-
-  return updatedFetch
-  return shouldUseForkedVersion ? updatedFetch : fetch
-}
-
 /**
  * Given a request, reject the request when a timeout is exceeded
  */
@@ -251,8 +217,6 @@ function timeoutFetch(
 
       reject(new TimeoutError(request, options))
     }, options.timeout as number)
-
-    const fetch = getCorrectFetchVersion(options.features, options.statsContext)
 
     void fetch(request)
       .then(resolve)
@@ -275,8 +239,7 @@ class RequestClient {
       ...options,
       method: getRequestMethod(options.method ?? 'get'),
       throwHttpErrors: options.throwHttpErrors !== false,
-      timeout: options.timeout ?? 10000,
-      highWaterMark: options.highWaterMark ?? REQUEST_HIGH_WATER_MARK
+      timeout: options.timeout ?? 10000
     } as NormalizedOptions
 
     // Timeout support. Use our own abort controller so consumers can pass in their own `signal`
@@ -341,8 +304,6 @@ class RequestClient {
         this.setOptions(this.request.url, mergeOptions(this.options, newOptions))
       }
     }
-
-    const fetch = getCorrectFetchVersion(this.options.features, this.options.statsContext)
 
     if (this.options.timeout === false) {
       return fetch(this.request.clone())

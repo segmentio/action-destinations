@@ -8,8 +8,6 @@ import { eventProperties, productsProperties } from '../mixpanel-properties'
 import dayjs from '../../../lib/dayjs'
 
 const topLevelKeys = [
-  'checkout_id',
-  'order_id',
   'affiliation',
   'subtotal',
   'total',

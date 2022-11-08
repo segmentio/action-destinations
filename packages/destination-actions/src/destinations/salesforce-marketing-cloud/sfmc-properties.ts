@@ -22,12 +22,14 @@ export const key: InputField = {
     'The key of the data extension that you want to store contact information in. The data extension must be predefined in SFMC. Segment recommends storing all contact information in a single data extension. The key is required if a Data Extension ID is not provided.',
   type: 'string'
 }
+
 export const id: InputField = {
   label: 'Data Extension ID',
   description:
     'The ID of the data extension that you want to store contact information in. The data extension must be predefined in SFMC. Segment recommends storing all contact information in a single data extension. The ID is required if a Data Extension Key is not provided.',
   type: 'string'
 }
+
 export const keys: InputField = {
   label: 'Data Extension Primary Keys',
   description:
@@ -55,6 +57,7 @@ export const values_dataExtensionFields: InputField = {
   defaultObjectUI: 'keyvalue:only',
   required: true
 }
+
 export const eventDefinitionKey: InputField = {
   label: 'Event Definition Key',
   description:
@@ -62,6 +65,7 @@ export const eventDefinitionKey: InputField = {
   type: 'string',
   required: true
 }
+
 export const eventData: InputField = {
   label: 'Event Data',
   description:

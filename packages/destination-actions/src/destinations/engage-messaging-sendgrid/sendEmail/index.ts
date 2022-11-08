@@ -1,4 +1,4 @@
-import { ActionDefinition, IntegrationError, RequestClient } from '@segment/actions-core'
+import { ActionDefinition, IntegrationError, RequestOptions } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 import { Liquid as LiquidJs } from 'liquidjs'
@@ -29,8 +29,10 @@ const getProfileApiEndpoint = (environment: string): string => {
   return `https://profiles.segment.${environment === 'production' ? 'com' : 'build'}`
 }
 
+type RequestFn = (url: string, options?: RequestOptions) => Promise<Response>
+
 const fetchProfileTraits = async (
-  request: RequestClient,
+  request: RequestFn,
   settings: Settings,
   profileId: string,
   statsClient?: StatsClient | undefined,
@@ -38,7 +40,7 @@ const fetchProfileTraits = async (
 ): Promise<Record<string, string>> => {
   try {
     const endpoint = getProfileApiEndpoint(settings.profileApiEnvironment)
-    const response = await request<{ traits: Record<string, string> }>(
+    const response = await request(
       `${endpoint}/v1/spaces/${settings.spaceId}/collections/users/profiles/user_id:${profileId}/traits?limit=200`,
       {
         headers: {
@@ -50,7 +52,7 @@ const fetchProfileTraits = async (
     tags?.push(`profile_status_code:${response.status}`)
     statsClient?.incr('actions-personas-messaging-sendgrid.profile_invoked', 1, tags)
 
-    const body = response.data
+    const body = await response.json()
     return body.traits
   } catch (error) {
     statsClient?.incr('actions-personas-messaging-sendgrid.profile_error', 1, tags)
@@ -83,9 +85,9 @@ interface UnlayerResponse {
   }
 }
 
-const generateEmailHtml = async (request: RequestClient, apiKey: string, design: string): Promise<string> => {
+const generateEmailHtml = async (request: RequestFn, apiKey: string, design: string): Promise<string> => {
   try {
-    const response = await request<UnlayerResponse>('https://api.unlayer.com/v2/export/html', {
+    const response = await request('https://api.unlayer.com/v2/export/html', {
       method: 'POST',
       headers: {
         authorization: `Basic ${Buffer.from(`${apiKey}:`).toString('base64')}`,
@@ -97,8 +99,8 @@ const generateEmailHtml = async (request: RequestClient, apiKey: string, design:
       })
     })
 
-    const body = response.data
-    return body.data.html
+    const body = await response.json()
+    return (body as UnlayerResponse).data.html
   } catch (error) {
     throw new IntegrationError('Unable to export email as HTML', 'Export HTML failure', 400)
   }
@@ -385,7 +387,7 @@ const action: ActionDefinition<Settings, Payload> = {
 
       if (payload.bodyUrl && settings.unlayerApiKey) {
         const response = await request(payload.bodyUrl)
-        const body = response.content
+        const body = await response.text()
 
         const bodyHtml =
           payload.bodyType === 'html' ? body : await generateEmailHtml(request, settings.unlayerApiKey, body)

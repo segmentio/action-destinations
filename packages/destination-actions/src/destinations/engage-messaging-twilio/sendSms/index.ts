@@ -1,9 +1,9 @@
 import { Liquid as LiquidJs } from 'liquidjs'
 
-import type { ActionDefinition } from '@segment/actions-core'
+import type { ActionDefinition, RequestOptions } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
-import { IntegrationError, RequestClient } from '@segment/actions-core'
+import { IntegrationError } from '@segment/actions-core'
 import { StatsClient } from '@segment/actions-core/src/destination-kit'
 const Liquid = new LiquidJs()
 
@@ -11,8 +11,10 @@ const getProfileApiEndpoint = (environment: string): string => {
   return `https://profiles.segment.${environment === 'production' ? 'com' : 'build'}`
 }
 
+type RequestFn = (url: string, options?: RequestOptions) => Promise<Response>
+
 const fetchProfileTraits = async (
-  request: RequestClient,
+  request: RequestFn,
   settings: Settings,
   profileId: string,
   statsClient?: StatsClient | undefined,
@@ -20,7 +22,7 @@ const fetchProfileTraits = async (
 ): Promise<Record<string, string>> => {
   try {
     const endpoint = getProfileApiEndpoint(settings.profileApiEnvironment)
-    const response = await request<{ traits: Record<string, string> }>(
+    const response = await request(
       `${endpoint}/v1/spaces/${settings.spaceId}/collections/users/profiles/user_id:${profileId}/traits?limit=200`,
       {
         headers: {
@@ -31,7 +33,7 @@ const fetchProfileTraits = async (
     )
     tags?.push(`profile_status_code:${response.status}`)
     statsClient?.incr('actions-personas-messaging-twilio.profile_invoked', 1, tags)
-    const body = response.data
+    const body = await response.json()
     return body.traits
   } catch (error: unknown) {
     statsClient?.incr('actions-personas-messaging-twilio.profile_error', 1, tags)

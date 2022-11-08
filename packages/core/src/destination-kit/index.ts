@@ -303,10 +303,7 @@ export class Destination<Settings = JSONObject> {
     }
 
     const options = this.extendRequest?.(context) ?? {}
-    const requestClient = createRequestClient(options, {
-      features: context.features,
-      statsContext: context.statsContext
-    })
+    const requestClient = createRequestClient(options)
 
     try {
       await this.authentication.testAuthentication(requestClient, data)
@@ -335,10 +332,7 @@ export class Destination<Settings = JSONObject> {
       auth: getAuthData(settings as unknown as JSONObject)
     }
     const options = this.extendRequest?.(context) ?? {}
-    const requestClient = createRequestClient(options, {
-      features: context.features,
-      statsContext: context.statsContext
-    })
+    const requestClient = createRequestClient(options)
 
     if (!this.authentication?.refreshAccessToken) {
       return undefined
@@ -516,7 +510,7 @@ export class Destination<Settings = JSONObject> {
     const context: ExecuteInput<Settings, any> = { settings: destinationSettings, payload, auth }
 
     const opts = this.extendRequest?.(context) ?? {}
-    const requestClient = createRequestClient(opts, { features: context.features, statsContext: context.statsContext })
+    const requestClient = createRequestClient(opts)
 
     const run = async () => {
       const deleteResult = await this.definition.onDelete?.(requestClient, data)

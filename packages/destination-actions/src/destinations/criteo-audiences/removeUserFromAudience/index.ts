@@ -3,7 +3,8 @@ import { getAudienceId, patchAudience } from '../criteo-audiences'
 import type { Operation, ClientCredentials } from '../criteo-audiences'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
-import type { RequestClient, ModifiedResponse } from '@segment/actions-core'
+import type { RequestClient } from '@segment/actions-core'
+
 
 const getOperationFromPayload = async (
   request: RequestClient,
@@ -15,30 +16,33 @@ const getOperationFromPayload = async (
   let audience_key = ''
 
   for (const event of payload) {
-    if (!audience_key && event.audience_key) audience_key = event.audience_key
-    if (event.email) remove_user_list.push(event.email)
+    if (!audience_key && event.audience_key)
+      audience_key = event.audience_key
+    if (event.email)
+      remove_user_list.push(event.email)
   }
 
   const audience_id = await getAudienceId(request, advertiser_id, audience_key, credentials)
 
   const operation: Operation = {
-    operation_type: 'remove',
+    operation_type: "remove",
     audience_id: audience_id,
-    user_list: remove_user_list
+    user_list: remove_user_list,
   }
-  return operation
+  return operation;
 }
 
 const processPayload = async (
   request: RequestClient,
   settings: Settings,
   payload: Payload[]
-): Promise<ModifiedResponse> => {
+): Promise<Response> => {
+
   const credentials: ClientCredentials = {
     client_id: settings.client_id,
     client_secret: settings.client_secret
   }
-  const operation: Operation = await getOperationFromPayload(request, settings.advertiser_id, payload, credentials)
+  const operation: Operation = await getOperationFromPayload(request, settings.advertiser_id, payload, credentials);
   return await patchAudience(request, operation, credentials)
 }
 
@@ -49,7 +53,7 @@ const action: ActionDefinition<Settings, Payload> = {
   fields: {
     audience_key: {
       label: 'Audience key',
-      description: 'Unique name for personas audience',
+      description: "Unique name for personas audience",
       type: 'string',
       default: {
         '@path': '$.properties.audience_key'
@@ -57,7 +61,7 @@ const action: ActionDefinition<Settings, Payload> = {
     },
     event: {
       label: 'Event name',
-      description: 'Event for audience entering or exiting',
+      description: "Event for audience entering or exiting",
       type: 'string',
       default: {
         '@path': '$.event'
@@ -71,7 +75,7 @@ const action: ActionDefinition<Settings, Payload> = {
       default: {
         '@path': '$.context.traits.email'
       }
-    }
+    },
   },
   perform: async (request, { settings, payload }) => {
     return await processPayload(request, settings, [payload])
@@ -80,5 +84,6 @@ const action: ActionDefinition<Settings, Payload> = {
     return await processPayload(request, settings, payload)
   }
 }
+
 
 export default action

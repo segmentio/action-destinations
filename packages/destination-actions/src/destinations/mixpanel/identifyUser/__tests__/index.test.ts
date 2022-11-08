@@ -11,8 +11,7 @@ const timestamp = '2021-08-17T15:21:15.449Z'
 describe('Mixpanel.identifyUser', () => {
   it('should validate action fields', async () => {
     const event = createTestEvent({
-      timestamp,
-      traits: {
+      timestamp, traits: {
         abc: '123',
         created: '2022-10-12T00:00:00.000Z',
         email: 'joe@mixpanel.com',
@@ -20,7 +19,7 @@ describe('Mixpanel.identifyUser', () => {
         lastName: 'Doe',
         username: 'Joe Doe',
         phone: '12345678',
-        name: 'Joe'
+        name: 'Joe',
       }
     })
 
@@ -272,7 +271,7 @@ describe('Mixpanel.identifyUser', () => {
       settings: {
         projectToken: MIXPANEL_PROJECT_TOKEN,
         apiSecret: MIXPANEL_API_SECRET,
-        sourceName: 'example segment source name'
+        sourceName: 'example segment source name',
       }
     })
     expect(responses.length).toBe(2)

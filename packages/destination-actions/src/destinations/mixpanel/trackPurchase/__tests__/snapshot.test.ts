@@ -6,12 +6,12 @@ import nock from 'nock'
 const testDestination = createTestIntegration(destination)
 const actionSlug = 'trackPurchase'
 const destinationSlug = 'Mixpanel'
-const seedName = `${destinationSlug}#${actionSlug}`
+const seedName = `${ destinationSlug }#${ actionSlug }`
 
 Math.random = jest.fn(() => 1)
 global.Date.now = jest.fn(() => 1234556)
 
-describe(`Testing snapshot for ${destinationSlug}'s ${actionSlug} destination action:`, () => {
+describe(`Testing snapshot for ${ destinationSlug }'s ${ actionSlug } destination action:`, () => {
   it('required fields', async () => {
     const action = destination.actions[actionSlug]
     const [eventData, settingsData] = generateTestData(seedName, destination, action, true)
@@ -29,7 +29,7 @@ describe(`Testing snapshot for ${destinationSlug}'s ${actionSlug} destination ac
       event: event,
       mapping: {
         generatePurchaseEventPerProduct: true,
-        ...event.properties
+        ...event.properties,
       },
       settings: settingsData,
       auth: undefined
@@ -65,7 +65,7 @@ describe(`Testing snapshot for ${destinationSlug}'s ${actionSlug} destination ac
       event: event,
       mapping: {
         generatePurchaseEventPerProduct: true,
-        ...event.properties
+        ...event.properties,
       },
       settings: settingsData,
       auth: undefined

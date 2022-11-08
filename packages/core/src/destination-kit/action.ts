@@ -3,7 +3,7 @@ import createRequestClient from '../create-request-client'
 import { JSONLikeObject, JSONObject } from '../json-object'
 import { InputData, Features, transform, transformBatch } from '../mapping-kit'
 import { fieldsToJsonSchema } from './fields-to-jsonschema'
-import { Response } from '../fetch-updated'
+import { Response } from '../fetch'
 import type { ModifiedResponse } from '../types'
 import type { DynamicFieldResponse, InputField, RequestExtension, ExecuteInput, Result } from './types'
 import type { NormalizedOptions } from '../request-client'
@@ -233,9 +233,7 @@ export class Action<Settings, Payload extends JSONLikeObject> extends EventEmitt
     // TODO turn `extendRequest` into a beforeRequest hook
     const options = this.extendRequest?.(data) ?? {}
     return createRequestClient(options, {
-      afterResponse: [this.afterResponse.bind(this)],
-      features: data.features,
-      statsContext: data.statsContext
+      afterResponse: [this.afterResponse.bind(this)]
     })
   }
 

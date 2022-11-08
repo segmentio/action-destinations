@@ -48,7 +48,7 @@ describe('createRequestClient', () => {
     })
 
     const response = await request(server.url, { headers: { 'user-agent': 'foo' } })
-    expect(await response.data).toMatchObject({ greeting: 'Yo' })
+    expect(await response.json()).toMatchObject({ greeting: 'Yo' })
     expect(response.url).toBe(`${server.url}/`)
     expect(log.request).toBeDefined()
     expect(log.request.url).toBe(`${server.url}/`)

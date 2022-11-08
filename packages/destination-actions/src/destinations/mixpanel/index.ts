@@ -93,7 +93,7 @@ const destination: DestinationDefinition<Settings> = {
         label: 'Source Name',
         description:
           "This value, if it's not blank, will be sent as segment_source_name to Mixpanel for every event/page/screen call.",
-        type: 'string'
+        type: 'string',
       }
     },
     testAuthentication: (request, { settings }) => {
