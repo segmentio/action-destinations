@@ -13,16 +13,32 @@
 import nock from 'nock'
 import { createTestEvent, createTestIntegration } from '@segment/actions-core'
 import oneplusx_asset_api from '../index'
+import { ExecuteInput } from '@segment/actions-core'
+import { Settings } from '../generated-types'
 
 const testDestination = createTestIntegration(oneplusx_asset_api)
 
-const client_id = 'fox'
+// Define settings values
+const client_id = '123abc'
+const client_secret = '456def'
+const client_name = 'test01'
 
 describe('1Plusx Asset Api', () => {
   describe('sendAssetData', () => {
-    it('should send asset data with custom mappings', async () => {
+    it('should authenticate with the API and receive the token', async () => {
+      const accessToken = '12345abcde'
+      const authData: Partial<ExecuteInput<Settings, undefined>> = {
+        auth: {
+          accessToken,
+          refreshToken: ''
+        }
+      }
+
+      const extendedRequest = testDestination.extendRequest?.(authData as ExecuteInput<Settings, undefined>)
+      expect(extendedRequest?.headers?.['authorization']).toContain(`Bearer ${accessToken}`)
+    })
+    it('should send asset data with default mappigs', async () => {
       const event = createTestEvent({
-        anonymousId: 'anon-user123',
         userId: 'user123',
         timestamp: '2021-07-12T23:02:40.563Z',
         event: 'Test Event',
@@ -30,9 +46,7 @@ describe('1Plusx Asset Api', () => {
         properties: {
           asset_uri: 'Video:123456',
           title: 'Solace',
-          content: 'Detailed desciption of the asset',
-          genre: ['Thriller', 'Horror'],
-          actors: ['Hopkins', 'Affleck']
+          content: 'Detailed desciption of the asset'
         },
         context: {
           app: {
@@ -45,25 +59,19 @@ describe('1Plusx Asset Api', () => {
             'Mozilla/5.0 (iPhone; CPU iPhone OS 12_1_4 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/16D57'
         }
       })
-
-      nock(`https://${client_id}.assets.tagger.opecloud.com`)
-        .post(`/v2/native/asset/${event.properties.asset_uri}`)
-        .reply(200)
+      const asset_uri = 'Video:123456'
+      nock(`https://${client_name}.assets.tagger.opecloud.com`).post(`/v2/native/asset/${asset_uri}`).reply(200)
 
       const responses = await testDestination.testAction('sendAssetData', {
         event,
         settings: {
-          client_id
+          client_id,
+          client_secret,
+          client_name
         },
         mapping: {
           asset_uri: {
             '@path': '$.properties.asset_uri'
-          },
-          ope_title: {
-            '@path': '$.properties.title'
-          },
-          ope_content: {
-            '@path': '$.properties.content'
           }
         },
         useDefaultMappings: true
@@ -77,7 +85,53 @@ describe('1Plusx Asset Api', () => {
       })
     })
 
-    it('should send asset data with custom mappings', async () => {
+    it('should send asset data without custom fields', async () => {
+      const event = createTestEvent({
+        userId: 'user123',
+        timestamp: '2021-07-12T23:02:40.563Z',
+        event: 'Test Event',
+        type: 'track',
+        properties: {
+          asset_uri: 'Video:123456',
+          video_title: 'Solace',
+          video_content: 'Detailed desciption of the asset',
+          genre: ['Thriller', 'Horror'],
+          actors: ['Hopkins', 'Affleck']
+        }
+      })
+      const asset_uri = 'Video:123456'
+      nock(`https://${client_name}.assets.tagger.opecloud.com`).post(`/v2/native/asset/${asset_uri}`).reply(200)
+
+      const responses = await testDestination.testAction('sendAssetData', {
+        event,
+        settings: {
+          client_id,
+          client_secret,
+          client_name
+        },
+        mapping: {
+          asset_uri: {
+            '@path': '$.properties.asset_uri'
+          },
+          ope_title: {
+            '@path': '$.properties.video_title'
+          },
+          ope_content: {
+            '@path': '$.properties.video_content'
+          }
+        },
+        useDefaultMappings: false
+      })
+
+      expect(responses.length).toBe(1)
+      expect(responses[0].status).toBe(200)
+      expect(responses[0].options.json).toMatchObject({
+        ope_title: 'Solace',
+        ope_content: 'Detailed desciption of the asset'
+      })
+    })
+
+    it('should send asset data with custom fields', async () => {
       const event = createTestEvent({
         anonymousId: 'anon-user123',
         userId: 'user123',
@@ -92,15 +146,15 @@ describe('1Plusx Asset Api', () => {
           actors: ['Hopkins', 'Affleck']
         }
       })
+      const asset_uri = 'Video:123456'
+      nock(`https://${client_name}.assets.tagger.opecloud.com`).post(`/v2/native/asset/${asset_uri}`).reply(200)
 
-      nock(`https://${client_id}.assets.tagger.opecloud.com`)
-        .post(`/v2/native/asset/${event.properties.asset_uri}`)
-        .reply(200)
-
-      const responses = await testDestination.testAction('sendEvent', {
+      const responses = await testDestination.testAction('sendAssetData', {
         event,
         settings: {
-          client_id
+          client_id,
+          client_secret,
+          client_name
         },
         mapping: {
           asset_uri: {
@@ -127,7 +181,7 @@ describe('1Plusx Asset Api', () => {
       expect(responses[0].status).toBe(200)
       expect(responses[0].options.json).toMatchObject({
         ope_title: 'Solace',
-        ope_content: 'Test Event',
+        ope_content: 'Detailed desciption of the asset',
         custom_fields: {
           genre: ['Thriller', 'Horror'],
           actors: ['Hopkins', 'Affleck']
@@ -135,7 +189,7 @@ describe('1Plusx Asset Api', () => {
       })
     })
 
-    it('should send asset data if optional fields are missing', async () => {
+    it('should send asset data if optional ope_ props are missing and useDefaultMappings=false', async () => {
       const event = createTestEvent({
         anonymousId: 'anon-user123',
         userId: 'user123',
@@ -146,25 +200,24 @@ describe('1Plusx Asset Api', () => {
           asset_uri: 'Video:123456',
           title: 'Solace',
           content: 'Detailed desciption of the asset',
-          genre: ['Thriller', 'Horror'],
-          actors: ['Hopkins', 'Affleck']
+          genre: 'Thriller',
+          actors: 'Hopkins'
         }
       })
+      const asset_uri = 'Video:123456'
+      nock(`https://${client_name}.assets.tagger.opecloud.com`).post(`/v2/native/asset/${asset_uri}`).reply(200)
 
-      nock(`https://${client_id}.assets.tagger.opecloud.com`)
-        .post(`/v2/native/asset/${event.properties.asset_uri}`)
-        .reply(200)
-
-      const responses = await testDestination.testAction('sendEvent', {
+      const responses = await testDestination.testAction('sendAssetData', {
         event,
         settings: {
-          client_id
+          client_id,
+          client_name,
+          client_secret
         },
         mapping: {
           asset_uri: {
             '@path': '$.properties.asset_uri'
           },
-
           custom_fields: {
             genre: {
               '@path': '$.properties.genre'
@@ -174,14 +227,14 @@ describe('1Plusx Asset Api', () => {
             }
           }
         },
-        useDefaultMappings: true
+        useDefaultMappings: false
       })
       expect(responses.length).toBe(1)
       expect(responses[0].status).toBe(200)
       expect(responses[0].options.json).toMatchObject({
         custom_fields: {
-          genre: ['Thriller', 'Horror'],
-          actors: ['Hopkins', 'Affleck']
+          genre: 'Thriller',
+          actors: 'Hopkins'
         }
       })
     })
