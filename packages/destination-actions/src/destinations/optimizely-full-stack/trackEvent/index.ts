@@ -3,7 +3,6 @@ import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 import { ProjectConfig, VisitorAttribute, Event } from '../types'
 import reduceRight from 'lodash/reduceRight'
-import { v4 as uuidv4 } from '@lukeed/uuid'
 import { IntegrationError } from '@segment/actions-core'
 import dayjs from '../../../lib/dayjs'
 
@@ -63,18 +62,6 @@ These can be used to track numeric metrics, allowing you to track actions beyond
         '@path': '$.properties'
       },
       required: false
-      // properties: {
-      //   revenue: {
-      //     label: 'Revenue',
-      //     type: 'integer',
-      //     required: false
-      //   },
-      //   value: {
-      //     label: 'Value',
-      //     type: 'number',
-      //     required: false
-      //   }
-      // }
     },
     timestamp: {
       label: 'Timestamp',
@@ -115,7 +102,7 @@ These can be used to track numeric metrics, allowing you to track actions beyond
               {
                 entity_id: eventId,
                 timestamp: dayjs.utc(payload.timestamp).valueOf(),
-                uuid: uuidv4(),
+                uuid: payload.eventId,
                 key: payload.eventKey,
                 revenue,
                 value,
