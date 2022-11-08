@@ -16,20 +16,20 @@ export interface Payload {
     [k: string]: unknown
   }
   /**
+   * An integer value that is used to track the revenue metric for your experiments, aggregated across all conversion events.
+   */
+  revenue?: number
+  /**
+   * A floating point value that is used to track a custom value for your experiments. Use this to pass the value for numeric metrics.
+   */
+  value?: number
+  /**
    * A map of key-value pairs specifying tag names and their corresponding tag values for this particular event occurrence. Values can be strings, numbers, or booleans.
-   *
-   *       These can be used to track numeric metrics, allowing you to track actions beyond conversions, for example: revenue, load time, or total value. See details on reserved tag keys.
+   * These can be used to track numeric metrics, allowing you to track actions beyond conversions, for example: revenue, load time, or total value. See details on reserved tag keys.
    *
    */
   eventTags?: {
-    /**
-     * An integer value that is used to track the revenue metric for your experiments, aggregated across all conversion events.
-     */
-    revenue?: number
-    /**
-     * A floating point value that is used to track a custom value for your experiments. Use this to pass the value for numeric metrics.
-     */
-    value?: number
+    [k: string]: unknown
   }
   /**
    * Timestamp of the event

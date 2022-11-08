@@ -52,6 +52,26 @@ const action: ActionDefinition<Settings, Payload> = {
         '@path': '$.context.traits'
       }
     },
+    revenue: {
+      label: 'Revenue',
+      type: 'integer',
+      description:
+        'An integer value that is used to track the revenue metric for your experiments, aggregated across all conversion events.',
+      required: false,
+      default: {
+        '@path': '$.properties.revenue'
+      }
+    },
+    value: {
+      label: 'Value',
+      type: 'number',
+      description:
+        'A floating point value that is used to track a custom value for your experiments. Use this to pass the value for numeric metrics.',
+      required: false,
+      default: {
+        '@path': '$.properties.value'
+      }
+    },
     eventTags: {
       label: 'Event Tags',
       type: 'object',
@@ -91,8 +111,7 @@ These can be used to track numeric metrics, allowing you to track actions beyond
     if (!eventId) {
       throw new IntegrationError(`Event with name ${payload.eventKey} is not defined`)
     }
-    const revenue = payload.eventTags ? payload.eventTags['revenue'] : undefined
-    const value = payload.eventTags ? payload.eventTags['value'] : undefined
+    // omit revenue and value from eventTags
     const eventTags = omit(payload.eventTags, ['revenue', 'value'])
     const visitors = [
       {
@@ -104,8 +123,8 @@ These can be used to track numeric metrics, allowing you to track actions beyond
                 timestamp: dayjs.utc(payload.timestamp).valueOf(),
                 uuid: payload.eventId,
                 key: payload.eventKey,
-                revenue,
-                value,
+                revenue: payload.revenue,
+                value: payload.value,
                 tags: eventTags
               }
             ],
