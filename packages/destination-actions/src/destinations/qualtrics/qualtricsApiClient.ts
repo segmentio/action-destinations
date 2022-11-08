@@ -84,8 +84,7 @@ export default class QualtricsApiClient {
 
   public async whoaAmI(): Promise<WhoAmiResponse> {
     const endpoint = `/API/v3/whoami`
-    return ((await this.makeRequest(endpoint, 'get')).json() as unknown as QualtricsApiResponse)
-      .result as WhoAmiResponse
+    return (await this.makeRequest<QualtricsApiResponse>(endpoint, 'get')).data.result as WhoAmiResponse
   }
 
   public async createDirectoryContact(
@@ -96,11 +95,11 @@ export default class QualtricsApiClient {
     return await this.makeRequest(endpoint, 'post', body)
   }
 
-  private async makeRequest(
+  private async makeRequest<T>(
     endpoint: string,
     method: SupportedMethods,
     body?: Record<string, any> | undefined
-  ): Promise<ModifiedResponse> {
+  ): Promise<ModifiedResponse<T>> {
     return await this.request(this.buildUrl(endpoint), {
       ...this.buildRequestParams(method),
       json: body

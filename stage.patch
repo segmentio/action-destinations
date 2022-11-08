@@ -1,0 +1,3110 @@
+diff --git a/README.md b/README.md
+index 98fdb30a..ba15cb1a 100644
+--- a/README.md
++++ b/README.md
+@@ -321,6 +321,63 @@ const destination = {
+ 
+ In addition to default values for input fields, you can also specify the defaultSubscription for a given action – this is the FQL query that will be automatically populated when a customer configures a new subscription triggering a given action.
+ 
++## Dynamic Fields
++
++You can setup a field which dynamically fetches inputs from your destination. These dynamic fields can be used to populate a dropdown menu of options for your users to select.
++
++```js
++const destination = {
++  // ...other properties
++  actions: {
++    doSomething: {
++      // ...
++      fields: {
++        objectName: {
++          label: 'Name',
++          description: "The name of the object to update.",
++          type: 'string',
++          required: true,
++          dynamic: true
++        }
++      },
++      dynamicFields: {
++        objectName = async (): Promise<DynamicFieldResponse> => {
++          try {
++            const result = await this.request<ObjectsResponseData>(`http://<destination>/objects`,
++            {
++              method: 'get',
++              skipResponseCloning: true // This is useful if you expect a large response.
++            })
++
++            const fields = result.data.objects.filter((field) => {
++              return field.createable === true
++            })
++
++            const choices = fields.map((field) => {
++              return { value: field.name, label: field.label }
++            })
++
++            return {
++              choices: choices,
++              nextPage: '2'
++            }
++          } catch (err) {
++            return {
++              choices: [],
++              nextPage: '',
++              error: {
++                message: (err as ResponseError).response?.data[0]?.message ?? 'Unknown error',
++                code: (err as ResponseError).response?.data[0]?.errorCode ?? 'Unknown error'
++              }
++            }
++          }
++  }
++      }
++    }
++  }
++}
++```
++
+ ## The `perform` function
+ 
+ The `perform` function defines what the action actually does. All logic and request handling happens here. Every action MUST have a `perform` function defined.
+diff --git a/packages/actions-shared/package.json b/packages/actions-shared/package.json
+index 7c76ae52..4f45b7db 100644
+--- a/packages/actions-shared/package.json
++++ b/packages/actions-shared/package.json
+@@ -1,7 +1,7 @@
+ {
+   "name": "@segment/actions-shared",
+   "description": "Shared destination action methods and definitions.",
+-  "version": "1.19.0",
++  "version": "1.22.0",
+   "repository": {
+     "type": "git",
+     "url": "https://github.com/segmentio/action-destinations",
+@@ -37,7 +37,7 @@
+   },
+   "dependencies": {
+     "@amplitude/ua-parser-js": "^0.7.25",
+-    "@segment/actions-core": "^3.36.0",
++    "@segment/actions-core": "^3.39.0",
+     "cheerio": "^1.0.0-rc.10",
+     "dayjs": "^1.10.7",
+     "escape-goat": "^3",
+diff --git a/packages/browser-destinations/package.json b/packages/browser-destinations/package.json
+index edf78634..bbbb5f13 100644
+--- a/packages/browser-destinations/package.json
++++ b/packages/browser-destinations/package.json
+@@ -1,6 +1,6 @@
+ {
+   "name": "@segment/browser-destinations",
+-  "version": "3.57.0",
++  "version": "3.60.0",
+   "description": "Action based browser destinations",
+   "author": "Netto Farah",
+   "license": "MIT",
+@@ -34,7 +34,7 @@
+     "@braze/web-sdk": "npm:@braze/web-sdk@^4.1.0",
+     "@braze/web-sdk-v3": "npm:@braze/web-sdk@^3.5.1",
+     "@fullstory/browser": "^1.4.9",
+-    "@segment/actions-shared": "^1.19.0",
++    "@segment/actions-shared": "^1.22.0",
+     "@segment/analytics-next": "^1.29.3",
+     "@segment/destination-subscriptions": "^3.12.0",
+     "dayjs": "^1.10.7",
+@@ -47,7 +47,7 @@
+     "@babel/plugin-transform-modules-commonjs": "^7.13.8",
+     "@babel/preset-env": "^7.13.10",
+     "@babel/preset-typescript": "^7.13.0",
+-    "@segment/actions-core": "^3.36.0",
++    "@segment/actions-core": "^3.39.0",
+     "@types/amplitude-js": "^7.0.1",
+     "@types/jest": "^27.0.0",
+     "babel-jest": "^27.3.1",
+diff --git a/packages/cli-internal/package.json b/packages/cli-internal/package.json
+index d38aa6ce..6b1c7ba3 100644
+--- a/packages/cli-internal/package.json
++++ b/packages/cli-internal/package.json
+@@ -1,7 +1,7 @@
+ {
+   "name": "@segment/actions-cli-internal",
+   "description": "CLI to interact with Segment integrations",
+-  "version": "3.103.1-alpha.1",
++  "version": "3.106.0",
+   "license": "MIT",
+   "repository": {
+     "type": "git",
+@@ -53,8 +53,8 @@
+     "@oclif/config": "^1",
+     "@oclif/errors": "^1",
+     "@oclif/plugin-help": "^3.3",
+-    "@segment/action-destinations": "^3.107.0",
+-    "@segment/actions-core": "^3.36.1-alpha.1",
++    "@segment/action-destinations": "^3.110.0",
++    "@segment/actions-core": "^3.39.0",
+     "chalk": "^4.1.1",
+     "chokidar": "^3.5.1",
+     "dotenv": "^10.0.0",
+@@ -77,7 +77,7 @@
+     "tslib": "^2.3.1"
+   },
+   "optionalDependencies": {
+-    "@segment/browser-destinations": "^3.57.1-alpha.1",
++    "@segment/browser-destinations": "^3.60.0",
+     "@segment/control-plane-service-client": "github:segmentio/control-plane-service-js-client.git#master"
+   },
+   "oclif": {
+diff --git a/packages/cli/package.json b/packages/cli/package.json
+index 0c0a3edf..1d68db96 100644
+--- a/packages/cli/package.json
++++ b/packages/cli/package.json
+@@ -1,7 +1,7 @@
+ {
+   "name": "@segment/actions-cli",
+   "description": "CLI to interact with Segment integrations",
+-  "version": "3.103.1-alpha.1",
++  "version": "3.106.0",
+   "license": "MIT",
+   "repository": {
+     "type": "git",
+@@ -56,8 +56,8 @@
+     "@oclif/config": "^1",
+     "@oclif/errors": "^1",
+     "@oclif/plugin-help": "^3.3",
+-    "@segment/action-destinations": "^3.107.0",
+-    "@segment/actions-core": "^3.36.1-alpha.1",
++    "@segment/action-destinations": "^3.110.0",
++    "@segment/actions-core": "^3.39.0",
+     "chalk": "^4.1.1",
+     "chokidar": "^3.5.1",
+     "dotenv": "^10.0.0",
+@@ -80,8 +80,8 @@
+     "tslib": "^2.3.1"
+   },
+   "optionalDependencies": {
+-    "@segment/actions-cli-internal": "^3.103.1-alpha.1",
+-    "@segment/browser-destinations": "^3.57.1-alpha.1"
++    "@segment/actions-cli-internal": "^3.106.0",
++    "@segment/browser-destinations": "^3.60.0"
+   },
+   "oclif": {
+     "commands": "./dist/commands",
+diff --git a/packages/core/package.json b/packages/core/package.json
+index 0f24e5b2..fbe53baa 100644
+--- a/packages/core/package.json
++++ b/packages/core/package.json
+@@ -1,7 +1,7 @@
+ {
+   "name": "@segment/actions-core",
+   "description": "Core runtime for Destinations Actions.",
+-  "version": "3.36.0",
++  "version": "3.39.0",
+   "repository": {
+     "type": "git",
+     "url": "https://github.com/segmentio/fab-5-engine",
+diff --git a/packages/core/src/create-test-integration.ts b/packages/core/src/create-test-integration.ts
+index 37ecd2b6..93ba9d76 100644
+--- a/packages/core/src/create-test-integration.ts
++++ b/packages/core/src/create-test-integration.ts
+@@ -50,12 +50,7 @@ class TestDestination<T> extends Destination<T> {
+   }
+ 
+   async testDynamicField(action: string, fieldKey: string, data: ExecuteDynamicFieldInput<T, object>) {
+-    await super.executeDynamicField(action, fieldKey, data)
+-
+-    const responses = this.responses
+-    this.responses = []
+-
+-    return responses
++    return await super.executeDynamicField(action, fieldKey, data)
+   }
+ 
+   /** Testing method that runs an action e2e while allowing slightly more flexible inputs */
+diff --git a/packages/core/src/destination-kit/action.ts b/packages/core/src/destination-kit/action.ts
+index b902284d..b5b19574 100644
+--- a/packages/core/src/destination-kit/action.ts
++++ b/packages/core/src/destination-kit/action.ts
+@@ -131,7 +131,7 @@ export class Action<Settings, Payload extends JSONLikeObject> extends EventEmitt
+     // Validate the resolved payload against the schema
+     if (this.schema) {
+       const schemaKey = `${this.destinationName}:${this.definition.title}`
+-      validateSchema(payload, this.schema, { schemaKey })
++      validateSchema(payload, this.schema, { schemaKey, statsContext: bundle.statsContext })
+       results.push({ output: 'Payload validated' })
+     }
+ 
+diff --git a/packages/core/src/index.ts b/packages/core/src/index.ts
+index 6ef6a71d..c499f296 100644
+--- a/packages/core/src/index.ts
++++ b/packages/core/src/index.ts
+@@ -38,8 +38,8 @@ export type {
+ 
+ export type {
+   DynamicFieldResponse,
+-  DynamicFieldItem,
+   DynamicFieldError,
++  DynamicFieldItem,
+   InputField,
+   GlobalSetting,
+   RequestExtension
+diff --git a/packages/core/src/middleware/after-response/prepare-response.ts b/packages/core/src/middleware/after-response/prepare-response.ts
+index 90ab6593..5d87c8ea 100644
+--- a/packages/core/src/middleware/after-response/prepare-response.ts
++++ b/packages/core/src/middleware/after-response/prepare-response.ts
+@@ -4,7 +4,17 @@ import type { ModifiedResponse } from '../../types'
+ const prepareResponse: AfterResponseHook = async (_request, _options, response) => {
+   const modifiedResponse = response as ModifiedResponse
+ 
+-  const content = await response.text()
++  let content: string
++  if (_options.skipResponseCloning) {
++    // Skip cloning the response to avoid a Node crash in case the response payload is larger than 16KB
++    // TODO STRATCONN-1396: Move all action-destinations to follow this code path instead of cloning the response
++    content = await response.text()
++  } else {
++    // Clone the response before reading the body to avoid
++    // `TypeError: body used already` elsewhere
++    const clone = response.clone()
++    content = await clone.text()
++  }
+ 
+   const agent: NormalizedOptions['agent'] = _options.agent
+   if (agent) {
+diff --git a/packages/core/src/schema-validation.ts b/packages/core/src/schema-validation.ts
+index aadbecea..fcb11d62 100644
+--- a/packages/core/src/schema-validation.ts
++++ b/packages/core/src/schema-validation.ts
+@@ -65,7 +65,7 @@ export function validateSchema(obj: unknown, schema: JSONSchema4, options?: Vali
+   const isValid = validate(obj)
+ 
+   if (throwIfInvalid && !isValid && validate.errors) {
+-    statsContext && statsContext?.statsClient.incr('ajv_discard', 1, statsContext.tags)
++    statsContext?.statsClient?.incr('ajv.discard', 1, statsContext.tags)
+     throw new AggregateAjvError(validate.errors)
+   }
+ 
+diff --git a/packages/destination-actions/package.json b/packages/destination-actions/package.json
+index 55ecbed0..714e112b 100644
+--- a/packages/destination-actions/package.json
++++ b/packages/destination-actions/package.json
+@@ -1,7 +1,7 @@
+ {
+   "name": "@segment/action-destinations",
+   "description": "Destination Actions engine and definitions.",
+-  "version": "3.107.0-alpha.7",
++  "version": "3.110.0",
+   "repository": {
+     "type": "git",
+     "url": "https://github.com/segmentio/action-destinations",
+@@ -38,8 +38,8 @@
+   "dependencies": {
+     "@amplitude/ua-parser-js": "^0.7.25",
+     "@segment/a1-notation": "^2.1.4",
+-    "@segment/actions-core": "^3.36.0",
+-    "@segment/actions-shared": "^1.19.0",
++    "@segment/actions-core": "^3.39.0",
++    "@segment/actions-shared": "^1.22.0",
+     "cheerio": "^1.0.0-rc.10",
+     "dayjs": "^1.10.7",
+     "escape-goat": "^3",
+diff --git a/packages/destination-actions/src/destinations/adobe-target/adobeTarget_operations.ts b/packages/destination-actions/src/destinations/adobe-target/adobeTarget_operations.ts
+index 4ea77b46..27d78516 100644
+--- a/packages/destination-actions/src/destinations/adobe-target/adobeTarget_operations.ts
++++ b/packages/destination-actions/src/destinations/adobe-target/adobeTarget_operations.ts
+@@ -58,7 +58,9 @@ export default class AdobeTarget {
+         { method: 'get' }
+       )
+     } catch (error) {
+-      return new IntegrationError('No profile found in Adobe Target with this mbox3rdPartyId', 'Profile not found', 404)
++      if (error instanceof Error) {
++        return new IntegrationError(error.message, error.stack, error.message == 'Forbidden' ? 403 : 400)
++      }
+     }
+ 
+     return undefined
+diff --git a/packages/destination-actions/src/destinations/adobe-target/generated-types.ts b/packages/destination-actions/src/destinations/adobe-target/generated-types.ts
+index 102d626e..c3917de6 100644
+--- a/packages/destination-actions/src/destinations/adobe-target/generated-types.ts
++++ b/packages/destination-actions/src/destinations/adobe-target/generated-types.ts
+@@ -5,4 +5,8 @@ export interface Settings {
+    * Your Adobe Target client code. To find your client code in Adobe Target, navigate to **Administration > Implementation**. The client code is shown at the top under Account Details.
+    */
+   client_code: string
++  /**
++   * If you choose to require authentication for Adobe Target's Profile API, you will need to generate an authentication token. Tokens can be generated in your Adobe Target account under the Implementation Settings tab or via the [Adobe.IO Authentication Token API](https://developers.adobetarget.com/api/#authentication-tokens). Input the authentication token here. Note: Authentication tokens expire so a new token will need to be generated and updated here prior to expiration.
++   */
++  bearer_token?: string
+ }
+diff --git a/packages/destination-actions/src/destinations/adobe-target/index.ts b/packages/destination-actions/src/destinations/adobe-target/index.ts
+index b58032cf..796e133c 100644
+--- a/packages/destination-actions/src/destinations/adobe-target/index.ts
++++ b/packages/destination-actions/src/destinations/adobe-target/index.ts
+@@ -17,8 +17,24 @@ const destination: DestinationDefinition<Settings> = {
+           'Your Adobe Target client code. To find your client code in Adobe Target, navigate to **Administration > Implementation**. The client code is shown at the top under Account Details.',
+         type: 'string',
+         required: true
++      },
++      bearer_token: {
++        label: 'Authentication Token',
++        description:
++          "If you choose to require authentication for Adobe Target's Profile API, you will need to generate an authentication token. Tokens can be generated in your Adobe Target account under the Implementation Settings tab or via the [Adobe.IO Authentication Token API](https://developers.adobetarget.com/api/#authentication-tokens). Input the authentication token here. Note: Authentication tokens expire so a new token will need to be generated and updated here prior to expiration.",
++        type: 'string'
++      }
++    }
++  },
++  extendRequest({ settings }) {
++    if (settings.bearer_token) {
++      return {
++        headers: {
++          Authorization: `Bearer ${settings.bearer_token}`
++        }
+       }
+     }
++    return {}
+   },
+   actions: {
+     updateProfile
+diff --git a/packages/destination-actions/src/destinations/adobe-target/updateProfile/__tests__/index.test.ts b/packages/destination-actions/src/destinations/adobe-target/updateProfile/__tests__/index.test.ts
+index e4ac2cae..e6ee0827 100644
+--- a/packages/destination-actions/src/destinations/adobe-target/updateProfile/__tests__/index.test.ts
++++ b/packages/destination-actions/src/destinations/adobe-target/updateProfile/__tests__/index.test.ts
+@@ -62,11 +62,21 @@ describe('AdobeTarget', () => {
+       })
+ 
+       expect(responses.length).toBe(2)
+-      expect(responses[0].status).toBe(200)
+-      expect(responses[1].status).toBe(200)
+       expect(responses[1].url).toBe(
+         'https://segmentexchangepartn.tt.omtrdc.net/m2/segmentexchangepartn/profile/update?mbox3rdPartyId=123-test&profile.city=New%20York%20City&profile.name=Rajul&profile.age=21&profile.param1=value1&profile.param2=value2'
+       )
++      responses.forEach((response) => {
++        expect(response.request.headers).toMatchInlineSnapshot(`
++          Headers {
++            Symbol(map): Object {
++              "user-agent": Array [
++                "Segment (Actions)",
++              ],
++            },
++          }
++        `)
++        expect(response.status).toBe(200)
++      })
+     })
+     it('Handle a Nested Event', async () => {
+       nock(
+@@ -271,6 +281,77 @@ describe('AdobeTarget', () => {
+         'https://segmentexchangepartn.tt.omtrdc.net/m2/segmentexchangepartn/profile/update?mbox3rdPartyId=123-test&profile.address.city=New%20York%20City&profile.name=Rajul&profile.param1=value1&profile.param2=value2'
+       )
+     })
++
++    it('uses bearer token if provided', async () => {
++      const authSettings = {
++        bearer_token: 'test-token',
++        ...settings
++      }
++
++      const event = createTestEvent({
++        type: 'identify',
++        userId: '123-test',
++        traits: {
++          name: 'Rajul',
++          age: '21',
++          city: 'New York City',
++          zipCode: '12345',
++          param1: 'value1',
++          param2: 'value2'
++        }
++      })
++
++      nock(/.*/).persist().get(/.*/).reply(200)
++      nock(/.*/).persist().post(/.*/).reply(200)
++
++      const responses = await testDestination.testAction('updateProfile', {
++        event,
++        settings: authSettings,
++        mapping: {
++          traits: {
++            city: {
++              '@path': '$.traits.city'
++            },
++            name: {
++              '@path': '$.traits.name'
++            },
++            age: {
++              '@path': '$.traits.age'
++            },
++            param1: {
++              '@path': '$.traits.param1'
++            },
++            param2: {
++              '@path': '$.traits.param2'
++            }
++          },
++          user_id: {
++            '@path': '$.userId'
++          }
++        }
++      })
++
++      expect(responses.length).toBe(2)
++      expect(responses[1].url).toBe(
++        'https://segmentexchangepartn.tt.omtrdc.net/m2/segmentexchangepartn/profile/update?mbox3rdPartyId=123-test&profile.city=New%20York%20City&profile.name=Rajul&profile.age=21&profile.param1=value1&profile.param2=value2'
++      )
++
++      responses.forEach((response) => {
++        expect(response.request.headers).toMatchInlineSnapshot(`
++          Headers {
++            Symbol(map): Object {
++              "authorization": Array [
++                "Bearer test-token",
++              ],
++              "user-agent": Array [
++                "Segment (Actions)",
++              ],
++            },
++          }
++        `)
++        expect(response.status).toBe(200)
++      })
++    })
+   })
+   it('should handle default mappings', async () => {
+     nock(
+diff --git a/packages/destination-actions/src/destinations/amplitude/__tests__/amplitude.test.ts b/packages/destination-actions/src/destinations/amplitude/__tests__/amplitude.test.ts
+index 9f6c0333..83421417 100644
+--- a/packages/destination-actions/src/destinations/amplitude/__tests__/amplitude.test.ts
++++ b/packages/destination-actions/src/destinations/amplitude/__tests__/amplitude.test.ts
+@@ -921,8 +921,8 @@ describe('Amplitude', () => {
+     })
+   })
+ 
+-  describe.only('logEvent V2', () => {
+-    it('should work with default mappings', async () => {
++  describe('logEvent V2', () => {
++    it('works with default mappings', async () => {
+       const event = createTestEvent({ timestamp, event: 'Test Event' })
+ 
+       nock('https://api2.amplitude.com/2').post('/httpapi').reply(200, {})
+@@ -943,7 +943,7 @@ describe('Amplitude', () => {
+       })
+     })
+ 
+-    it('should change casing for device type when value is ios', async () => {
++    it('changes casing for device type when value is ios', async () => {
+       const event = createTestEvent({
+         event: 'Test Event',
+         context: {
+@@ -968,7 +968,7 @@ describe('Amplitude', () => {
+       })
+     })
+ 
+-    it('should change casing for device type when value is android', async () => {
++    it('changes casing for device type when value is android', async () => {
+       const event = createTestEvent({
+         event: 'Test Event',
+         context: {
+@@ -993,7 +993,7 @@ describe('Amplitude', () => {
+       })
+     })
+ 
+-    it('should accept null for user_id', async () => {
++    it('accepts null for user_id', async () => {
+       const event = createTestEvent({ timestamp, userId: null, event: 'Null User' })
+ 
+       nock('https://api2.amplitude.com/2').post('/httpapi').reply(200, {})
+@@ -1013,7 +1013,7 @@ describe('Amplitude', () => {
+       })
+     })
+ 
+-    it('should work with default mappings without generating additional events from products array', async () => {
++    it('works with default mappings without generating additional events from products array', async () => {
+       const event = createTestEvent({
+         event: 'Order Completed',
+         timestamp,
+@@ -1046,7 +1046,7 @@ describe('Amplitude', () => {
+       })
+     })
+ 
+-    it('should allow alternate revenue names at the root level', async () => {
++    it('allows alternate revenue names at the root level', async () => {
+       //understand that this is basically just testing mapping kit which is already tested
+       nock('https://api2.amplitude.com/2').post('/httpapi').reply(200, {})
+ 
+@@ -1079,7 +1079,7 @@ describe('Amplitude', () => {
+       })
+     })
+ 
+-    it('should not inject userData if the default mapping is not satisfied and utm / referrer are not provided', async () => {
++    it('does not inject userData if the default mapping is not satisfied and utm / referrer are not provided', async () => {
+       const event = createTestEvent({
+         timestamp,
+         event: 'Test Event',
+@@ -1110,7 +1110,7 @@ describe('Amplitude', () => {
+       })
+     })
+ 
+-    it('should support referrer and utm properties in logEvent call to amplitude', async () => {
++    it('supports referrer and utm properties in logEvent call to amplitude', async () => {
+       const event = createTestEvent({
+         timestamp,
+         event: 'Test Event',
+@@ -1164,7 +1164,7 @@ describe('Amplitude', () => {
+       })
+     })
+ 
+-    it('should support parsing userAgent when the setting is true', async () => {
++    it('supports parsing userAgent when the setting is true', async () => {
+       const event = createTestEvent({
+         anonymousId: '6fd32a7e-3c56-44c2-bd32-62bbec44c53d',
+         timestamp,
+@@ -1206,7 +1206,7 @@ describe('Amplitude', () => {
+       `)
+     })
+ 
+-    it('should support session_id from `integrations.Actions Amplitude.session_id`', async () => {
++    it('supports session_id from `integrations.Actions Amplitude.session_id`', async () => {
+       const event = createTestEvent({
+         timestamp,
+         event: 'Test Event',
+@@ -1259,7 +1259,7 @@ describe('Amplitude', () => {
+       `)
+     })
+ 
+-    it('should send data to the EU endpoint', async () => {
++    it('sends data to the EU endpoint', async () => {
+       const event = createTestEvent({ timestamp, event: 'Test Event' })
+ 
+       nock('https://api.eu.amplitude.com/2').post('/httpapi').reply(200, {})
+@@ -1287,7 +1287,7 @@ describe('Amplitude', () => {
+       })
+     })
+ 
+-    it('should send data to the batch EU endpoint when specified in settings', async () => {
++    it('sends data to the batch EU endpoint when specified in settings', async () => {
+       const event = createTestEvent({
+         timestamp,
+         event: 'Test Event'
+@@ -1321,7 +1321,7 @@ describe('Amplitude', () => {
+       })
+     })
+ 
+-    it.only('should correctly handle the default mappings for setOnce, setAlways, and add', async () => {
++    it('correctly handles the default mappings for setOnce, setAlways, and add', async () => {
+       nock('https://api2.amplitude.com/2').post('/httpapi').reply(200, {})
+ 
+       const event = createTestEvent({
+@@ -1374,7 +1374,7 @@ describe('Amplitude', () => {
+       })
+     })
+ 
+-    it('should work when setOnce, setAlways, and add are empty', async () => {
++    it('works when setOnce, setAlways, and add are empty', async () => {
+       nock('https://api2.amplitude.com/2').post('/httpapi').reply(200, {})
+ 
+       const event = createTestEvent({
+@@ -1419,7 +1419,7 @@ describe('Amplitude', () => {
+     })
+   })
+ 
+-  it('should not send parsed user agent properties when setting is false', async () => {
++  it('does not send parsed user agent properties when setting is false', async () => {
+     const event = createTestEvent({
+       timestamp: '2021-04-12T16:32:37.710Z',
+       event: 'Test Event',
+diff --git a/packages/destination-actions/src/destinations/amplitude/emptyObject.ts b/packages/destination-actions/src/destinations/amplitude/compact.ts
+similarity index 67%
+rename from packages/destination-actions/src/destinations/amplitude/emptyObject.ts
+rename to packages/destination-actions/src/destinations/amplitude/compact.ts
+index 8aedddbb..34186e5c 100644
+--- a/packages/destination-actions/src/destinations/amplitude/emptyObject.ts
++++ b/packages/destination-actions/src/destinations/amplitude/compact.ts
+@@ -1,14 +1,14 @@
+ import { Payload as LogV2Payload } from './logEventV2/generated-types'
+ 
+ /**
+- * takes a object and removes all keys with a falsey value. Then checks if the object is empty or not
++ * Takes an object and removes all keys with a "falsey" value. Then, checks if the object is empty or not.
+  *
+  * @param object the setAlways, setOnce, or add object from the LogEvent payload
+  * @returns a boolean signifying whether the resulting object is empty or not
+  */
+ 
+-export default function removeEmptyKeysAndCheckIfEmpty(
++export default function compact(
+   object: LogV2Payload['setOnce'] | LogV2Payload['setAlways'] | LogV2Payload['add']
+ ): boolean {
+-  return Object.keys(Object.fromEntries(Object.entries(object ?? {}).filter(([_, v]) => v))).length > 0
++  return Object.keys(Object.fromEntries(Object.entries(object ?? {}).filter(([_, v]) => v !== ''))).length > 0
+ }
+diff --git a/packages/destination-actions/src/destinations/amplitude/index.ts b/packages/destination-actions/src/destinations/amplitude/index.ts
+index 50080312..7263885d 100644
+--- a/packages/destination-actions/src/destinations/amplitude/index.ts
++++ b/packages/destination-actions/src/destinations/amplitude/index.ts
+@@ -15,8 +15,8 @@ const presets: DestinationDefinition['presets'] = [
+   {
+     name: 'Track Calls',
+     subscribe: 'type = "track" and event != "Order Completed"',
+-    partnerAction: 'logEvent',
+-    mapping: defaultValues(logEvent.fields)
++    partnerAction: 'logEventV2',
++    mapping: defaultValues(logEventV2.fields)
+   },
+   {
+     name: 'Order Completed Calls',
+@@ -27,9 +27,9 @@ const presets: DestinationDefinition['presets'] = [
+   {
+     name: 'Page Calls',
+     subscribe: 'type = "page"',
+-    partnerAction: 'logEvent',
++    partnerAction: 'logEventV2',
+     mapping: {
+-      ...defaultValues(logEvent.fields),
++      ...defaultValues(logEventV2.fields),
+       event_type: {
+         '@template': 'Viewed {{name}}'
+       }
+@@ -38,9 +38,9 @@ const presets: DestinationDefinition['presets'] = [
+   {
+     name: 'Screen Calls',
+     subscribe: 'type = "screen"',
+-    partnerAction: 'logEvent',
++    partnerAction: 'logEventV2',
+     mapping: {
+-      ...defaultValues(logEvent.fields),
++      ...defaultValues(logEventV2.fields),
+       event_type: {
+         '@template': 'Viewed {{name}}'
+       }
+diff --git a/packages/destination-actions/src/destinations/amplitude/logEventV2/generated-types.ts b/packages/destination-actions/src/destinations/amplitude/logEventV2/generated-types.ts
+index f4119c0c..e2a51bbc 100644
+--- a/packages/destination-actions/src/destinations/amplitude/logEventV2/generated-types.ts
++++ b/packages/destination-actions/src/destinations/amplitude/logEventV2/generated-types.ts
+@@ -178,11 +178,11 @@ export interface Payload {
+     [k: string]: unknown
+   }[]
+   /**
+-   * The following fields will be set only once per session when using AJS2 as the source
++   * The following fields will be set only once per session when using AJS2 as the source.
+    */
+   setOnce?: {
+     /**
+-     * The referrer of the web request
++     * The referrer of the web request.
+      */
+     initial_referrer?: string
+     initial_utm_source?: string
+@@ -193,7 +193,7 @@ export interface Payload {
+     [k: string]: unknown
+   }
+   /**
+-   * The following fields will be set every session when using AJS2 as the source
++   * The following fields will be set every session when using AJS2 as the source.
+    */
+   setAlways?: {
+     referrer?: string
+@@ -219,7 +219,7 @@ export interface Payload {
+    */
+   userAgent?: string
+   /**
+-   * Enabling this setting will set the Device manufacturer, Device Model and OS Name properties based on the user agent string provided in the userAgent field
++   * Enabling this setting will set the Device manufacturer, Device Model and OS Name properties based on the user agent string provided in the userAgent field.
+    */
+   userAgentParsing?: boolean
+   /**
+diff --git a/packages/destination-actions/src/destinations/amplitude/logEventV2/index.ts b/packages/destination-actions/src/destinations/amplitude/logEventV2/index.ts
+index 881791f3..97944e5d 100644
+--- a/packages/destination-actions/src/destinations/amplitude/logEventV2/index.ts
++++ b/packages/destination-actions/src/destinations/amplitude/logEventV2/index.ts
+@@ -1,6 +1,6 @@
+ import { ActionDefinition, omit, removeUndefined } from '@segment/actions-core'
+ import dayjs from 'dayjs'
+-import removeEmptyKeysAndCheckIfEmpty from '../emptyObject'
++import compact from '../compact'
+ import { eventSchema } from '../event-schema'
+ import type { Settings } from '../generated-types'
+ import { getEndpointByRegion } from '../regional-endpoints'
+@@ -21,6 +21,7 @@ const revenueKeys = ['revenue', 'price', 'productId', 'quantity', 'revenueType']
+ const action: ActionDefinition<Settings, Payload> = {
+   title: 'Log Event V2',
+   description: 'Send an event to Amplitude',
++  defaultSubscription: 'type = "track"',
+   fields: {
+     ...eventSchema,
+     products: {
+@@ -85,14 +86,14 @@ const action: ActionDefinition<Settings, Payload> = {
+     },
+     setOnce: {
+       label: 'Set Once',
+-      description: 'The following fields will be set only once per session when using AJS2 as the source',
++      description: 'The following fields will be set only once per session when using AJS2 as the source.',
+       type: 'object',
+       additionalProperties: true,
+       properties: {
+         initial_referrer: {
+           label: 'Initial Referrer',
+           type: 'string',
+-          description: 'The referrer of the web request'
++          description: 'The referrer of the web request.'
+         },
+         initial_utm_source: {
+           label: 'Initial UTM Source',
+@@ -126,7 +127,7 @@ const action: ActionDefinition<Settings, Payload> = {
+     },
+     setAlways: {
+       label: 'Set Always',
+-      description: 'The following fields will be set every session when using AJS2 as the source',
++      description: 'The following fields will be set every session when using AJS2 as the source.',
+       type: 'object',
+       additionalProperties: true,
+       properties: {
+@@ -191,7 +192,7 @@ const action: ActionDefinition<Settings, Payload> = {
+       label: 'User Agent Parsing',
+       type: 'boolean',
+       description:
+-        'Enabling this setting will set the Device manufacturer, Device Model and OS Name properties based on the user agent string provided in the userAgent field',
++        'Enabling this setting will set the Device manufacturer, Device Model and OS Name properties based on the user agent string provided in the userAgent field.',
+       default: true
+     },
+     min_id_length: {
+@@ -213,7 +214,9 @@ const action: ActionDefinition<Settings, Payload> = {
+     }
+ 
+     if (library) {
+-      if (library === 'analytics.js') properties.platform = 'Web'
++      if (library === 'analytics.js') {
++        properties.platform = 'Web'
++      }
+     }
+ 
+     if (time && dayjs.utc(time).isValid()) {
+@@ -228,16 +231,19 @@ const action: ActionDefinition<Settings, Payload> = {
+       options = { min_id_length }
+     }
+ 
+-    if (removeEmptyKeysAndCheckIfEmpty(setOnce)) {
+-      properties.user_properties = { ...properties.user_properties, $setOnce: setOnce }
+-    }
+-    if (removeEmptyKeysAndCheckIfEmpty(setAlways)) {
+-      properties.user_properties = { ...properties.user_properties, $set: setAlways }
+-    }
+-    if (removeEmptyKeysAndCheckIfEmpty(add)) {
+-      properties.user_properties = { ...properties.user_properties, $add: add }
++    const setUserProperties = (
++      name: '$setOnce' | '$set' | '$add',
++      obj: Payload['setOnce'] | Payload['setAlways'] | Payload['add']
++    ) => {
++      if (compact(obj)) {
++        properties.user_properties = { ...properties.user_properties, [name]: obj }
++      }
+     }
+ 
++    setUserProperties('$setOnce', setOnce)
++    setUserProperties('$set', setAlways)
++    setUserProperties('$add', add)
++
+     const events: AmplitudeEvent[] = [
+       {
+         // Conditionally parse user agent using amplitude's library
+diff --git a/packages/destination-actions/src/destinations/google-enhanced-conversions/__tests__/uploadCallConversion.test.ts b/packages/destination-actions/src/destinations/google-enhanced-conversions/__tests__/uploadCallConversion.test.ts
+index d421cc6a..0dac57f1 100644
+--- a/packages/destination-actions/src/destinations/google-enhanced-conversions/__tests__/uploadCallConversion.test.ts
++++ b/packages/destination-actions/src/destinations/google-enhanced-conversions/__tests__/uploadCallConversion.test.ts
+@@ -8,7 +8,7 @@ const customerId = '1234'
+ 
+ describe('GoogleEnhancedConversions', () => {
+   describe('uploadCallConversion', () => {
+-    it('should send an event with default mappings', async () => {
++    it('sends an event with default mappings', async () => {
+       const event = createTestEvent({
+         timestamp,
+         event: 'Test Event',
+@@ -41,7 +41,7 @@ describe('GoogleEnhancedConversions', () => {
+       expect(responses[0].status).toBe(201)
+     })
+ 
+-    it('should map custom variables correctly', async () => {
++    it('maps custom variables correctly', async () => {
+       const event = createTestEvent({
+         timestamp,
+         event: 'Test Event',
+@@ -90,7 +90,7 @@ describe('GoogleEnhancedConversions', () => {
+       expect(responses[1].status).toBe(201)
+     })
+ 
+-    it('should fail if customerId not set', async () => {
++    it('fails if customerId not set', async () => {
+       const event = createTestEvent({
+         timestamp,
+         event: 'Test Event',
+diff --git a/packages/destination-actions/src/destinations/google-enhanced-conversions/__tests__/uploadClickConversion.test.ts b/packages/destination-actions/src/destinations/google-enhanced-conversions/__tests__/uploadClickConversion.test.ts
+index 05629e4d..16ba57b1 100644
+--- a/packages/destination-actions/src/destinations/google-enhanced-conversions/__tests__/uploadClickConversion.test.ts
++++ b/packages/destination-actions/src/destinations/google-enhanced-conversions/__tests__/uploadClickConversion.test.ts
+@@ -8,7 +8,7 @@ const customerId = '1234'
+ 
+ describe('GoogleEnhancedConversions', () => {
+   describe('uploadClickConversion', () => {
+-    it('should send an event with default mappings', async () => {
++    it('sends an event with default mappings', async () => {
+       const event = createTestEvent({
+         timestamp,
+         event: 'Test Event',
+@@ -49,7 +49,7 @@ describe('GoogleEnhancedConversions', () => {
+       expect(responses[0].status).toBe(201)
+     })
+ 
+-    it('should send email and phone user_identifiers', async () => {
++    it('sends email and phone user_identifiers', async () => {
+       const event = createTestEvent({
+         timestamp,
+         event: 'Test Event',
+@@ -91,7 +91,7 @@ describe('GoogleEnhancedConversions', () => {
+       expect(responses[0].status).toBe(201)
+     })
+ 
+-    it('should correctly map custom variables', async () => {
++    it('correctly maps custom variables', async () => {
+       const event = createTestEvent({
+         timestamp,
+         event: 'Test Event',
+@@ -147,7 +147,7 @@ describe('GoogleEnhancedConversions', () => {
+       expect(responses[1].status).toBe(201)
+     })
+ 
+-    it('should fail if customerId not set', async () => {
++    it('fails if customerId not set', async () => {
+       const event = createTestEvent({
+         timestamp,
+         event: 'Test Event',
+diff --git a/packages/destination-actions/src/destinations/google-enhanced-conversions/__tests__/uploadConversionAdjustment.test.ts b/packages/destination-actions/src/destinations/google-enhanced-conversions/__tests__/uploadConversionAdjustment.test.ts
+index 252437c4..d1b62ef2 100644
+--- a/packages/destination-actions/src/destinations/google-enhanced-conversions/__tests__/uploadConversionAdjustment.test.ts
++++ b/packages/destination-actions/src/destinations/google-enhanced-conversions/__tests__/uploadConversionAdjustment.test.ts
+@@ -8,7 +8,7 @@ const customerId = '1234'
+ 
+ describe('GoogleEnhancedConversions', () => {
+   describe('uploadConversionAdjustment', () => {
+-    it('should send an event with default mappings', async () => {
++    it('sends an event with default mappings', async () => {
+       const event = createTestEvent({
+         timestamp,
+         event: 'Test Event',
+@@ -47,14 +47,14 @@ describe('GoogleEnhancedConversions', () => {
+       })
+ 
+       expect(responses[0].options.body).toMatchInlineSnapshot(
+-        `"{\\"conversionAdjustments\\":[{\\"conversionAction\\":\\"customers/1234/conversionActions/12345\\",\\"adjustmentType\\":\\"UNSPECIFIED\\",\\"adjustmentDateTime\\":\\"2021-06-10 18:08:04+00:00\\",\\"orderId\\":\\"1234\\",\\"gclidDateTimePair\\":{\\"gclid\\":\\"123a\\",\\"conversionDateTime\\":\\"2021-06-10T18:08:04.000Z\\"},\\"restatementValue\\":{},\\"userIdentifiers\\":[{\\"hashedEmail\\":\\"87924606b4131a8aceeeae8868531fbb9712aaa07a5d3a756b26ce0f5d6ca674\\"},{\\"hashedPhoneNumber\\":\\"c775e7b757ede630cd0aa1113bd102661ab38829ca52a6422ab782862f268646\\"},{\\"addressInfo\\":{\\"hashedFirstName\\":\\"4f23798d92708359b734a18172c9c864f1d48044a754115a0d4b843bca3a5332\\",\\"hashedLastName\\":\\"fd53ef835b15485572a6e82cf470dcb41fd218ae5751ab7531c956a2a6bcd3c7\\"}}],\\"userAgent\\":\\"Mozilla/5.0 (iPhone; CPU iPhone OS 9_1 like Mac OS X) AppleWebKit/601.1.46 (KHTML, like Gecko) Version/9.0 Mobile/13B143 Safari/601.1\\"}],\\"partialFailure\\":true}"`
++        `"{\\"conversionAdjustments\\":[{\\"conversionAction\\":\\"customers/1234/conversionActions/12345\\",\\"adjustmentType\\":\\"UNSPECIFIED\\",\\"adjustmentDateTime\\":\\"2021-06-10 18:08:04+00:00\\",\\"orderId\\":\\"1234\\",\\"gclidDateTimePair\\":{\\"gclid\\":\\"123a\\",\\"conversionDateTime\\":\\"2021-06-10 18:08:04+00:00\\"},\\"restatementValue\\":{},\\"userIdentifiers\\":[{\\"hashedEmail\\":\\"87924606b4131a8aceeeae8868531fbb9712aaa07a5d3a756b26ce0f5d6ca674\\"},{\\"hashedPhoneNumber\\":\\"c775e7b757ede630cd0aa1113bd102661ab38829ca52a6422ab782862f268646\\"},{\\"addressInfo\\":{\\"hashedFirstName\\":\\"4f23798d92708359b734a18172c9c864f1d48044a754115a0d4b843bca3a5332\\",\\"hashedLastName\\":\\"fd53ef835b15485572a6e82cf470dcb41fd218ae5751ab7531c956a2a6bcd3c7\\"}}],\\"userAgent\\":\\"Mozilla/5.0 (iPhone; CPU iPhone OS 9_1 like Mac OS X) AppleWebKit/601.1.46 (KHTML, like Gecko) Version/9.0 Mobile/13B143 Safari/601.1\\"}],\\"partialFailure\\":true}"`
+       )
+ 
+       expect(responses.length).toBe(1)
+       expect(responses[0].status).toBe(201)
+     })
+ 
+-    it('should fail if customerId not set', async () => {
++    it('fails if customerId not set', async () => {
+       const event = createTestEvent({
+         timestamp,
+         event: 'Test Event',
+@@ -82,7 +82,7 @@ describe('GoogleEnhancedConversions', () => {
+       }
+     })
+ 
+-    it('should fail if conversion_type is enhancement and orderid not set', async () => {
++    it('fails if conversion_type is enhancement and orderid not set', async () => {
+       const event = createTestEvent({
+         timestamp,
+         event: 'Test Event',
+@@ -111,7 +111,7 @@ describe('GoogleEnhancedConversions', () => {
+       }
+     })
+ 
+-    it('should fail if conversion_type is not enhancement and gclid not set', async () => {
++    it('fails if conversion_type is not enhancement and gclid not set', async () => {
+       const event = createTestEvent({
+         timestamp,
+         event: 'Test Event',
+@@ -140,7 +140,7 @@ describe('GoogleEnhancedConversions', () => {
+       }
+     })
+ 
+-    it('should fail if conversion_type is not enhancement and conversion_timestamp not set', async () => {
++    it('fails if conversion_type is not enhancement and conversion_timestamp not set', async () => {
+       const event = createTestEvent({
+         timestamp,
+         event: 'Test Event',
+@@ -169,7 +169,7 @@ describe('GoogleEnhancedConversions', () => {
+       }
+     })
+ 
+-    it('should fail if conversion_type is not restatement and restatement_value not set', async () => {
++    it('fails if conversion_type is not restatement and restatement_value not set', async () => {
+       const event = createTestEvent({
+         timestamp,
+         event: 'Test Event',
+diff --git a/packages/destination-actions/src/destinations/google-enhanced-conversions/functions.ts b/packages/destination-actions/src/destinations/google-enhanced-conversions/functions.ts
+index aa6808c1..765220f2 100644
+--- a/packages/destination-actions/src/destinations/google-enhanced-conversions/functions.ts
++++ b/packages/destination-actions/src/destinations/google-enhanced-conversions/functions.ts
+@@ -4,17 +4,14 @@ import { ModifiedResponse, RequestClient, IntegrationError } from '@segment/acti
+ import { GoogleAdsAPI } from './types'
+ 
+ export function formatCustomVariables(
+-  customVariables: object | undefined,
++  customVariables: object,
+   customVariableIdsResults: Array<ConversionCustomVariable>
+-): object | undefined {
+-  if (!customVariables) {
+-    return undefined
+-  }
+-
++): object {
+   // Maps custom variable keys to their resource names
+   const resourceNames: { [key: string]: any } = {}
+-  Object.entries(customVariableIdsResults).forEach(([_, customVariables]) => {
+-    resourceNames[customVariables.conversionCustomVariable.name] = customVariables.conversionCustomVariable.resourceName
++  Object.entries(customVariableIdsResults).forEach(([_, customVariablesIds]) => {
++    resourceNames[customVariablesIds.conversionCustomVariable.name] =
++      customVariablesIds.conversionCustomVariable.resourceName
+   })
+ 
+   const variables: { conversionCustomVariable: string; value: string }[] = []
+@@ -32,7 +29,9 @@ export function formatCustomVariables(
+ }
+ 
+ export const hash = (value: string | undefined): string | undefined => {
+-  if (value === undefined) return
++  if (value === undefined) {
++    return
++  }
+ 
+   const hash = createHash('sha256')
+   hash.update(value)
+diff --git a/packages/destination-actions/src/destinations/google-enhanced-conversions/uploadConversionAdjustment/index.ts b/packages/destination-actions/src/destinations/google-enhanced-conversions/uploadConversionAdjustment/index.ts
+index b09d06bb..c38562c9 100644
+--- a/packages/destination-actions/src/destinations/google-enhanced-conversions/uploadConversionAdjustment/index.ts
++++ b/packages/destination-actions/src/destinations/google-enhanced-conversions/uploadConversionAdjustment/index.ts
+@@ -259,7 +259,7 @@ const action: ActionDefinition<Settings, Payload> = {
+       orderId: payload.order_id,
+       gclidDateTimePair: {
+         gclid: payload.gclid,
+-        conversionDateTime: payload.conversion_timestamp
++        conversionDateTime: payload.conversion_timestamp?.replace(/T/, ' ').replace(/\..+/, '+00:00')
+       },
+       restatementValue: {
+         adjustedValue: payload.restatement_value,
+diff --git a/packages/destination-actions/src/destinations/hubspot/__tests__/__snapshots__/snapshot.test.ts.snap b/packages/destination-actions/src/destinations/hubspot/__tests__/__snapshots__/snapshot.test.ts.snap
+index 8b64423c..4635120b 100644
+--- a/packages/destination-actions/src/destinations/hubspot/__tests__/__snapshots__/snapshot.test.ts.snap
++++ b/packages/destination-actions/src/destinations/hubspot/__tests__/__snapshots__/snapshot.test.ts.snap
+@@ -1,70 +1,8 @@
+ // Jest Snapshot v1, https://goo.gl/fbAQLP
+ 
+-exports[`Testing snapshot for actions-hubspot-cloud destination: contact action - all fields 1`] = `
+-[FetchError: request to https://api.hubapi.com/crm/v3/objects/contacts/fodhudwu@megjif.fr?idProperty=email failed, reason: Nock: No match for request {
+-  "method": "PATCH",
+-  "url": "https://api.hubapi.com/crm/v3/objects/contacts/fodhudwu@megjif.fr?idProperty=email",
+-  "headers": {
+-    "authorization": [
+-      "Bearer undefined"
+-    ],
+-    "user-agent": [
+-      "Segment (Actions)"
+-    ],
+-    "content-type": [
+-      "application/json"
+-    ],
+-    "accept": [
+-      "*/*"
+-    ],
+-    "content-length": [
+-      "335"
+-    ],
+-    "accept-encoding": [
+-      "gzip,deflate"
+-    ],
+-    "connection": [
+-      "close"
+-    ]
+-  },
+-  "body": "{\\"properties\\":{\\"company\\":\\"5$BQNVB&l2hAJON0\\",\\"firstname\\":\\"5$BQNVB&l2hAJON0\\",\\"lastname\\":\\"5$BQNVB&l2hAJON0\\",\\"phone\\":\\"5$BQNVB&l2hAJON0\\",\\"address\\":\\"5$BQNVB&l2hAJON0\\",\\"city\\":\\"5$BQNVB&l2hAJON0\\",\\"state\\":\\"5$BQNVB&l2hAJON0\\",\\"country\\":\\"5$BQNVB&l2hAJON0\\",\\"zip\\":\\"5$BQNVB&l2hAJON0\\",\\"lifecyclestage\\":\\"5$bqnvb&l2hajon0\\",\\"testType\\":\\"5$BQNVB&l2hAJON0\\"}}"
+-}]
+-`;
+-
+-exports[`Testing snapshot for actions-hubspot-cloud destination: contact action - required fields 1`] = `
+-[FetchError: request to https://api.hubapi.com/crm/v3/objects/contacts/fodhudwu@megjif.fr?idProperty=email failed, reason: Nock: No match for request {
+-  "method": "PATCH",
+-  "url": "https://api.hubapi.com/crm/v3/objects/contacts/fodhudwu@megjif.fr?idProperty=email",
+-  "headers": {
+-    "authorization": [
+-      "Bearer undefined"
+-    ],
+-    "user-agent": [
+-      "Segment (Actions)"
+-    ],
+-    "content-type": [
+-      "application/json"
+-    ],
+-    "accept": [
+-      "*/*"
+-    ],
+-    "content-length": [
+-      "17"
+-    ],
+-    "accept-encoding": [
+-      "gzip,deflate"
+-    ],
+-    "connection": [
+-      "close"
+-    ]
+-  },
+-  "body": "{\\"properties\\":{}}"
+-}]
+-`;
+-
+-exports[`Testing snapshot for actions-hubspot-cloud destination: createCustomObjectRecord action - all fields 1`] = `[IntegrationError: Custom Object is not in valid format. Please make sure that you are using either a valid format of object’s fullyQualifiedName (eg: p11223344_myobject) or a supported HubSpot defined object (ie: deals, tickets, contacts and companies).]`;
++exports[`Testing snapshot for actions-hubspot-cloud destination: createCustomObjectRecord action - all fields 1`] = `[IntegrationError: Custom Object is not in valid format. Please make sure that you are using either a valid format of object’s fullyQualifiedName (eg: p11223344_myobject) or a supported HubSpot defined object (i.e.: deals, tickets).]`;
+ 
+-exports[`Testing snapshot for actions-hubspot-cloud destination: createCustomObjectRecord action - required fields 1`] = `[IntegrationError: Custom Object is not in valid format. Please make sure that you are using either a valid format of object’s fullyQualifiedName (eg: p11223344_myobject) or a supported HubSpot defined object (ie: deals, tickets, contacts and companies).]`;
++exports[`Testing snapshot for actions-hubspot-cloud destination: createCustomObjectRecord action - required fields 1`] = `[IntegrationError: Custom Object is not in valid format. Please make sure that you are using either a valid format of object’s fullyQualifiedName (eg: p11223344_myobject) or a supported HubSpot defined object (i.e.: deals, tickets).]`;
+ 
+ exports[`Testing snapshot for actions-hubspot-cloud destination: sendCustomBehavioralEvent action - all fields 1`] = `
+ Object {
+@@ -85,7 +23,43 @@ Object {
+ }
+ `;
+ 
+-exports[`Testing snapshot for testHelper: empty seed 1`] = `
++exports[`Testing snapshot for actions-hubspot-cloud destination: upsertContact action - all fields 1`] = `
++Object {
++  "properties": Object {
++    "address": "fL&&$lZA!6gsh",
++    "city": "fL&&$lZA!6gsh",
++    "company": "fL&&$lZA!6gsh",
++    "country": "fL&&$lZA!6gsh",
++    "email": "zejkulcih@ras.sh",
++    "firstname": "fL&&$lZA!6gsh",
++    "lastname": "fL&&$lZA!6gsh",
++    "lifecyclestage": "fl&&$lza!6gsh",
++    "phone": "fL&&$lZA!6gsh",
++    "state": "fL&&$lZA!6gsh",
++    "testType": "fL&&$lZA!6gsh",
++    "zip": "fL&&$lZA!6gsh",
++  },
++}
++`;
++
++exports[`Testing snapshot for actions-hubspot-cloud destination: upsertContact action - required fields 1`] = `
++Object {
++  "properties": Object {
++    "email": "zejkulcih@ras.sh",
++  },
++}
++`;
++
++exports[`Testing snapshot for testHelper: should generate a valid hash with a seed value 1`] = `
++Object {
++  "objectType": "p692776144_Obj692776144",
++  "properties": Object {
++    "testProperty": "testValue-692776144",
++  },
++}
++`;
++
++exports[`Testing snapshot for testHelper: should generate a valid hash with empty seed value 1`] = `
+ Object {
+   "objectType": "p0_Obj0",
+   "properties": Object {
+diff --git a/packages/destination-actions/src/destinations/hubspot/__tests__/snapshot.test.ts b/packages/destination-actions/src/destinations/hubspot/__tests__/snapshot.test.ts
+index d2ed026d..d4778577 100644
+--- a/packages/destination-actions/src/destinations/hubspot/__tests__/snapshot.test.ts
++++ b/packages/destination-actions/src/destinations/hubspot/__tests__/snapshot.test.ts
+@@ -3,6 +3,7 @@ import { generateTestData } from '../../../lib/test-data'
+ import destination from '../index'
+ import { generateValidHubSpotCustomObjectName } from '../testHelper'
+ import nock from 'nock'
++import { TransactionContext } from '@segment/actions-core/src/destination-kit'
+ 
+ const testDestination = createTestIntegration(destination)
+ const destinationSlug = 'actions-hubspot-cloud'
+@@ -16,8 +17,22 @@ describe(`Testing snapshot for ${destinationSlug} destination:`, () => {
+ 
+       nock(/.*/).persist().get(/.*/).reply(200)
+       nock(/.*/).persist().post(/.*/).reply(201)
++      nock(/.*/)
++        .persist()
++        .patch(/.*/)
++        .reply(200, {
++          id: '801',
++          properties: {
++            lifecyclestage: eventData.lifecyclestage
++          }
++        })
+       nock(/.*/).persist().put(/.*/).reply(200)
+ 
++      const transactionContext: TransactionContext = {
++        transaction: {},
++        setTransaction: (key, value) => ({ [key]: value })
++      }
++
+       const event = createTestEvent({
+         properties: eventData
+       })
+@@ -27,7 +42,8 @@ describe(`Testing snapshot for ${destinationSlug} destination:`, () => {
+           event: event,
+           mapping: event.properties,
+           settings: settingsData,
+-          auth: undefined
++          auth: undefined,
++          transactionContext
+         })
+ 
+         const request = responses[0].request
+@@ -52,8 +68,22 @@ describe(`Testing snapshot for ${destinationSlug} destination:`, () => {
+       const action = destination.actions[actionSlug]
+       const [eventData, settingsData] = generateTestData(seedName, destination, action, false)
+ 
++      const transactionContext: TransactionContext = {
++        transaction: {},
++        setTransaction: (key, value) => ({ [key]: value })
++      }
++
+       nock(/.*/).persist().get(/.*/).reply(200)
+       nock(/.*/).persist().post(/.*/).reply(201)
++      nock(/.*/)
++        .persist()
++        .patch(/.*/)
++        .reply(200, {
++          id: '801',
++          properties: {
++            lifecyclestage: eventData.lifecyclestage
++          }
++        })
+       nock(/.*/).persist().put(/.*/).reply(200)
+ 
+       const event = createTestEvent({
+@@ -65,7 +95,8 @@ describe(`Testing snapshot for ${destinationSlug} destination:`, () => {
+           event: event,
+           mapping: event.properties,
+           settings: settingsData,
+-          auth: undefined
++          auth: undefined,
++          transactionContext
+         })
+ 
+         const request = responses[0].request
+@@ -86,8 +117,13 @@ describe(`Testing snapshot for ${destinationSlug} destination:`, () => {
+ })
+ 
+ describe(`Testing snapshot for testHelper:`, () => {
+-  it(`empty seed`, async () => {
++  it(`should generate a valid hash with empty seed value`, async () => {
+     const customObjectName = generateValidHubSpotCustomObjectName('')
+     expect(customObjectName).toMatchSnapshot()
+   })
++  it(`should generate a valid hash with a seed value`, async () => {
++    const seed = 'test-seed-value'
++    const customObjectName = generateValidHubSpotCustomObjectName(seed)
++    expect(customObjectName).toMatchSnapshot()
++  })
+ })
+diff --git a/packages/destination-actions/src/destinations/hubspot/contact/__tests__/__snapshots__/snapshot.test.ts.snap b/packages/destination-actions/src/destinations/hubspot/contact/__tests__/__snapshots__/snapshot.test.ts.snap
+deleted file mode 100644
+index 8c6ec201..00000000
+--- a/packages/destination-actions/src/destinations/hubspot/contact/__tests__/__snapshots__/snapshot.test.ts.snap
++++ /dev/null
+@@ -1,25 +0,0 @@
+-// Jest Snapshot v1, https://goo.gl/fbAQLP
+-
+-exports[`Testing snapshot for Hubspot's contact destination action: all fields 1`] = `
+-Object {
+-  "properties": Object {
+-    "address": "Tju6AP&lazvq)F",
+-    "city": "Tju6AP&lazvq)F",
+-    "company": "Tju6AP&lazvq)F",
+-    "country": "Tju6AP&lazvq)F",
+-    "firstname": "Tju6AP&lazvq)F",
+-    "lastname": "Tju6AP&lazvq)F",
+-    "lifecyclestage": "tju6ap&lazvq)f",
+-    "phone": "Tju6AP&lazvq)F",
+-    "state": "Tju6AP&lazvq)F",
+-    "testType": "Tju6AP&lazvq)F",
+-    "zip": "Tju6AP&lazvq)F",
+-  },
+-}
+-`;
+-
+-exports[`Testing snapshot for Hubspot's contact destination action: required fields 1`] = `
+-Object {
+-  "properties": Object {},
+-}
+-`;
+diff --git a/packages/destination-actions/src/destinations/hubspot/contact/__tests__/snapshot.test.ts b/packages/destination-actions/src/destinations/hubspot/contact/__tests__/snapshot.test.ts
+deleted file mode 100644
+index 3be63dfc..00000000
+--- a/packages/destination-actions/src/destinations/hubspot/contact/__tests__/snapshot.test.ts
++++ /dev/null
+@@ -1,95 +0,0 @@
+-import { createTestEvent, createTestIntegration } from '@segment/actions-core'
+-import { generateTestData } from '../../../../lib/test-data'
+-import destination from '../../index'
+-import nock from 'nock'
+-import { TransactionContext } from '@segment/actions-core/src/destination-kit'
+-
+-const testDestination = createTestIntegration(destination)
+-const actionSlug = 'contact'
+-const destinationSlug = 'Hubspot'
+-const seedName = `${destinationSlug}#${actionSlug}`
+-
+-beforeEach(() => nock.cleanAll())
+-
+-describe(`Testing snapshot for ${destinationSlug}'s ${actionSlug} destination action:`, () => {
+-  it('required fields', async () => {
+-    const action = destination.actions[actionSlug]
+-    const [eventData, settingsData] = generateTestData(seedName, destination, action, true)
+-
+-    nock(/.*/).persist().patch(/.*/).reply(200)
+-
+-    const event = createTestEvent({
+-      properties: eventData
+-    })
+-
+-    const transactionContext: TransactionContext = {
+-      transaction: {},
+-      setTransaction: (key, value) => ({ [key]: value })
+-    }
+-
+-    const responses = await testDestination.testAction(actionSlug, {
+-      event: event,
+-      mapping: event.properties,
+-      settings: settingsData,
+-      auth: undefined,
+-      transactionContext
+-    })
+-
+-    const request = responses[0].request
+-    const rawBody = await request.text()
+-
+-    try {
+-      const json = JSON.parse(rawBody)
+-      expect(json).toMatchSnapshot()
+-      return
+-    } catch (err) {
+-      expect(rawBody).toMatchSnapshot()
+-    }
+-
+-    expect(request.headers).toMatchSnapshot()
+-  })
+-
+-  it('all fields', async () => {
+-    const action = destination.actions[actionSlug]
+-    const [eventData, settingsData] = generateTestData(seedName, destination, action, false)
+-
+-    nock(/.*/).persist().post(/.*/).reply(200)
+-    nock(/.*/)
+-      .persist()
+-      .patch(/.*/)
+-      .reply(200, {
+-        id: '801',
+-        properties: {
+-          lifecyclestage: eventData.lifecyclestage.toLowerCase()
+-        }
+-      })
+-
+-    const event = createTestEvent({
+-      properties: eventData
+-    })
+-
+-    const transactionContext: TransactionContext = {
+-      transaction: {},
+-      setTransaction: (key, value) => ({ [key]: value })
+-    }
+-
+-    const responses = await testDestination.testAction(actionSlug, {
+-      event: event,
+-      mapping: event.properties,
+-      settings: settingsData,
+-      auth: undefined,
+-      transactionContext
+-    })
+-
+-    const request = responses[0].request
+-    const rawBody = await request.text()
+-
+-    try {
+-      const json = JSON.parse(rawBody)
+-      expect(json).toMatchSnapshot()
+-      return
+-    } catch (err) {
+-      expect(rawBody).toMatchSnapshot()
+-    }
+-  })
+-})
+diff --git a/packages/destination-actions/src/destinations/hubspot/createCustomObjectRecord/__tests__/__snapshots__/snapshot.test.ts.snap b/packages/destination-actions/src/destinations/hubspot/createCustomObjectRecord/__tests__/__snapshots__/snapshot.test.ts.snap
+index 06011a26..b12c0edd 100644
+--- a/packages/destination-actions/src/destinations/hubspot/createCustomObjectRecord/__tests__/__snapshots__/snapshot.test.ts.snap
++++ b/packages/destination-actions/src/destinations/hubspot/createCustomObjectRecord/__tests__/__snapshots__/snapshot.test.ts.snap
+@@ -8,4 +8,4 @@ Object {
+ }
+ `;
+ 
+-exports[`Testing snapshot for Hubspot's createCustomObjectRecord destination action: should throw error on randomly generated fields 1`] = `[IntegrationError: Custom Object is not in valid format. Please make sure that you are using either a valid format of object’s fullyQualifiedName (eg: p11223344_myobject) or a supported HubSpot defined object (ie: deals, tickets, contacts and companies).]`;
++exports[`Testing snapshot for Hubspot's createCustomObjectRecord destination action: should throw error on randomly generated fields 1`] = `[IntegrationError: Custom Object is not in valid format. Please make sure that you are using either a valid format of object’s fullyQualifiedName (eg: p11223344_myobject) or a supported HubSpot defined object (i.e.: deals, tickets).]`;
+diff --git a/packages/destination-actions/src/destinations/hubspot/createCustomObjectRecord/__tests__/index.test.ts b/packages/destination-actions/src/destinations/hubspot/createCustomObjectRecord/__tests__/index.test.ts
+index f1fe75d2..4b004e59 100644
+--- a/packages/destination-actions/src/destinations/hubspot/createCustomObjectRecord/__tests__/index.test.ts
++++ b/packages/destination-actions/src/destinations/hubspot/createCustomObjectRecord/__tests__/index.test.ts
+@@ -52,7 +52,7 @@ describe('Hubspot.customObject', () => {
+   })
+ 
+   // Validate creation of custom object with Segment supported HubSpot Objects
+-  it('should create a Deals object with Custom Objects Actions', async () => {
++  it('should create a Deals object with Custom Objects Action', async () => {
+     nock(endpoint)
+       .post(/.*/)
+       .reply(201, {
+@@ -118,6 +118,61 @@ describe('Hubspot.customObject', () => {
+     expect(responses[0].status).toBe(201)
+   })
+ 
++  it('should create a Ticket object with Custom Objects Action', async () => {
++    nock(endpoint)
++      .post(/.*/)
++      .reply(201, {
++        id: '1000000001',
++        properties: {
++          createdate: '2022-10-03T12:38:36.776Z',
++          hs_lastmodifieddate: '2022-10-03T12:38:36.776Z',
++          hs_object_id: '1000000001',
++          hs_pipeline: '0',
++          hs_pipeline_stage: '1',
++          hs_ticket_id: '1000000001',
++          hs_ticket_priority: 'HIGH',
++          subject: 'troubleshoot report'
++        },
++        createdAt: '2022-10-03T12:38:36.776Z',
++        updatedAt: '2022-10-03T12:38:36.776Z',
++        archived: false
++      })
++
++    const event = createTestEvent({
++      type: 'track',
++      event: 'Create Ticket',
++      properties: {
++        hs_pipeline: '0',
++        hs_pipeline_stage: '1',
++        hs_ticket_priority: 'HIGH',
++        subject: 'troubleshoot report'
++      }
++    })
++
++    const responses = await testDestination.testAction('createCustomObjectRecord', {
++      event,
++      mapping: {
++        objectType: 'tickets',
++        properties: {
++          hs_pipeline: {
++            '@path': '$.properties.hs_pipeline'
++          },
++          hs_pipeline_stage: {
++            '@path': '$.properties.hs_pipeline_stage'
++          },
++          hs_ticket_priority: {
++            '@path': '$.properties.hs_ticket_priority'
++          },
++          subject: {
++            '@path': '$.properties.subject'
++          }
++        }
++      }
++    })
++
++    expect(responses[0].status).toBe(201)
++  })
++
+   // Validate that Custom Object creation throws errors on unsupported HubSpot Objects
+   const objectName = 'unknown-object'
+ 
+@@ -152,7 +207,7 @@ describe('Hubspot.customObject', () => {
+       })
+     ).rejects.toThrowError(
+       new IntegrationError(
+-        'Custom Object is not in valid format. Please make sure that you are using either a valid format of object’s fullyQualifiedName (eg: p11223344_myobject) or a supported HubSpot defined object (ie: deals, tickets, contacts and companies).',
++        'Custom Object is not in valid format. Please make sure that you are using either a valid format of object’s fullyQualifiedName (eg: p11223344_myobject) or a supported HubSpot defined object (i.e.: deals, tickets).',
+         'Custom Object is not in valid format',
+         400
+       )
+diff --git a/packages/destination-actions/src/destinations/hubspot/createCustomObjectRecord/generated-types.ts b/packages/destination-actions/src/destinations/hubspot/createCustomObjectRecord/generated-types.ts
+index 49877896..8b702761 100644
+--- a/packages/destination-actions/src/destinations/hubspot/createCustomObjectRecord/generated-types.ts
++++ b/packages/destination-actions/src/destinations/hubspot/createCustomObjectRecord/generated-types.ts
+@@ -2,7 +2,7 @@
+ 
+ export interface Payload {
+   /**
+-   * The CRM object schema to use for creating a record. This can be a standard object (i.e. tickets, deals) or ***fullyQualifiedName*** of a custom object. Custom objects and their schema must be predefined in HubSpot.
++   * The CRM object schema to use for creating a record. This can be a standard object (i.e. tickets, deals) or ***fullyQualifiedName*** of a custom object. Schema for the Custom Objects must be predefined in HubSpot. More information on Custom Objects and *fullyQualifiedName* in [HubSpot documentation](https://developers.hubspot.com/docs/cms/data/crm-objects#getting-a-custom-object-type-s-details).
+    */
+   objectType: string
+   /**
+diff --git a/packages/destination-actions/src/destinations/hubspot/createCustomObjectRecord/index.ts b/packages/destination-actions/src/destinations/hubspot/createCustomObjectRecord/index.ts
+index 9a36f9ce..e44bf915 100644
+--- a/packages/destination-actions/src/destinations/hubspot/createCustomObjectRecord/index.ts
++++ b/packages/destination-actions/src/destinations/hubspot/createCustomObjectRecord/index.ts
+@@ -4,7 +4,7 @@ import type { Settings } from '../generated-types'
+ import type { Payload } from './generated-types'
+ 
+ // List of HubSpot defined Objects that segment has OAuth Scope to access
+-const hubspotDefinedObjects: string[] = ['contacts', 'companies', 'deals', 'tickets']
++const hubspotDefinedObjects: string[] = ['deals', 'tickets']
+ 
+ // HubSpot validation rule suggests Custom Object type must start with a letter and can only contain letters, numbers, underscores, and hyphens.
+ // HubSpot appends a workspace specific prefix like "p1122334455_" during the Custom Object creation
+@@ -13,12 +13,12 @@ const customObjectExpression = new RegExp('^[a-zA-Z0-9]+_[a-zA-Z][a-zA-Z0-9_-]+$
+ 
+ const action: ActionDefinition<Settings, Payload> = {
+   title: 'Create Custom Object',
+-  description: 'Create or Update a Custom Object in HubSpot',
++  description: 'Create a Custom Object in HubSpot',
+   fields: {
+     objectType: {
+       label: 'Object Type',
+       description:
+-        'The CRM object schema to use for creating a record. This can be a standard object (i.e. tickets, deals) or ***fullyQualifiedName*** of a custom object. Custom objects and their schema must be predefined in HubSpot.',
++        'The CRM object schema to use for creating a record. This can be a standard object (i.e. tickets, deals) or ***fullyQualifiedName*** of a custom object. Schema for the Custom Objects must be predefined in HubSpot. More information on Custom Objects and *fullyQualifiedName* in [HubSpot documentation](https://developers.hubspot.com/docs/cms/data/crm-objects#getting-a-custom-object-type-s-details).',
+       type: 'string',
+       required: true
+     },
+@@ -33,19 +33,10 @@ const action: ActionDefinition<Settings, Payload> = {
+     }
+   },
+   perform: async (request, { payload }) => {
+-    // Redundant check: Validate if at-least one Custom Object property is being mapped
+-    if (Object.keys(payload.properties).length === 0) {
+-      throw new IntegrationError(
+-        'At-least one Custom Object property should be mapped',
+-        'Object properties are not defined',
+-        400
+-      )
+-    }
+-
+-    // Check if Custom Object is in valid format or a segment sup ported HubSpot object
++    // Check if Custom Object is in valid format or is a Segment-supported HubSpot object.
+     if (!customObjectExpression.test(payload.objectType) && !hubspotDefinedObjects.includes(payload.objectType)) {
+       throw new IntegrationError(
+-        'Custom Object is not in valid format. Please make sure that you are using either a valid format of object’s fullyQualifiedName (eg: p11223344_myobject) or a supported HubSpot defined object (ie: deals, tickets, contacts and companies).',
++        'Custom Object is not in valid format. Please make sure that you are using either a valid format of object’s fullyQualifiedName (eg: p11223344_myobject) or a supported HubSpot defined object (i.e.: deals, tickets).',
+         'Custom Object is not in valid format',
+         400
+       )
+diff --git a/packages/destination-actions/src/destinations/hubspot/index.ts b/packages/destination-actions/src/destinations/hubspot/index.ts
+index ca4a9259..111dcf39 100644
+--- a/packages/destination-actions/src/destinations/hubspot/index.ts
++++ b/packages/destination-actions/src/destinations/hubspot/index.ts
+@@ -2,8 +2,9 @@ import type { DestinationDefinition } from '@segment/actions-core'
+ import type { Settings } from './generated-types'
+ 
+ import sendCustomBehavioralEvent from './sendCustomBehavioralEvent'
+-import contact from './contact'
++import upsertContact from './upsertContact'
+ import createCustomObjectRecord from './createCustomObjectRecord'
++import { hubSpotBaseURL } from './properties'
+ interface RefreshTokenResponse {
+   access_token: string
+ }
+@@ -18,11 +19,11 @@ const destination: DestinationDefinition<Settings> = {
+     fields: {},
+     testAuthentication: (request) => {
+       // HubSpot doesn't have a test authentication endpoint, so we using a lightweight CRM API to validate access token
+-      return request(`https://api.hubapi.com/crm/v3/objects/contacts?limit=1`)
++      return request(`${hubSpotBaseURL}/crm/v3/objects/contacts?limit=1`)
+     },
+     refreshAccessToken: async (request, { auth }) => {
+       // Return a request that refreshes the access_token if the API supports it
+-      const res = await request<RefreshTokenResponse>('https://api.hubapi.com/oauth/v1/token', {
++      const res = await request<RefreshTokenResponse>(`${hubSpotBaseURL}/oauth/v1/token`, {
+         method: 'POST',
+         body: new URLSearchParams({
+           refresh_token: auth.refreshToken,
+@@ -32,7 +33,7 @@ const destination: DestinationDefinition<Settings> = {
+         })
+       })
+ 
+-      return { accessToken: res.data.access_token }
++      return { accessToken: res.data?.access_token }
+     }
+   },
+   extendRequest({ auth }) {
+@@ -45,7 +46,7 @@ const destination: DestinationDefinition<Settings> = {
+ 
+   actions: {
+     sendCustomBehavioralEvent,
+-    contact,
++    upsertContact,
+     createCustomObjectRecord
+   }
+ }
+diff --git a/packages/destination-actions/src/destinations/hubspot/properties.ts b/packages/destination-actions/src/destinations/hubspot/properties.ts
+index e9730762..5b9011f7 100644
+--- a/packages/destination-actions/src/destinations/hubspot/properties.ts
++++ b/packages/destination-actions/src/destinations/hubspot/properties.ts
+@@ -1 +1 @@
+-export const HubSpotBaseURL = 'https://api.hubapi.com'
++export const hubSpotBaseURL = 'https://api.hubapi.com'
+diff --git a/packages/destination-actions/src/destinations/hubspot/sendCustomBehavioralEvent/__tests__/__snapshots__/snapshot.test.ts.snap b/packages/destination-actions/src/destinations/hubspot/sendCustomBehavioralEvent/__tests__/__snapshots__/snapshot.test.ts.snap
+index d9242134..922e6ebc 100644
+--- a/packages/destination-actions/src/destinations/hubspot/sendCustomBehavioralEvent/__tests__/__snapshots__/snapshot.test.ts.snap
++++ b/packages/destination-actions/src/destinations/hubspot/sendCustomBehavioralEvent/__tests__/__snapshots__/snapshot.test.ts.snap
+@@ -19,3 +19,19 @@ Object {
+   "eventName": "L1tO7SSIyhf3tBB7",
+ }
+ `;
++
++exports[`Testing snapshot for Hubspot's sendCustomBehavioralEvent destination action: required fields 2`] = `
++Headers {
++  Symbol(map): Object {
++    "authorization": Array [
++      "Bearer undefined",
++    ],
++    "content-type": Array [
++      "application/json",
++    ],
++    "user-agent": Array [
++      "Segment (Actions)",
++    ],
++  },
++}
++`;
+diff --git a/packages/destination-actions/src/destinations/hubspot/sendCustomBehavioralEvent/__tests__/index.test.ts b/packages/destination-actions/src/destinations/hubspot/sendCustomBehavioralEvent/__tests__/index.test.ts
+index e37a8be7..5c93fce4 100644
+--- a/packages/destination-actions/src/destinations/hubspot/sendCustomBehavioralEvent/__tests__/index.test.ts
++++ b/packages/destination-actions/src/destinations/hubspot/sendCustomBehavioralEvent/__tests__/index.test.ts
+@@ -1,12 +1,12 @@
+ import nock from 'nock'
+ import { createTestEvent, createTestIntegration } from '@segment/actions-core'
+ import Destination from '../../index'
+-import { HubSpotBaseURL } from '../../properties'
++import { hubSpotBaseURL } from '../../properties'
+ 
+ const testDestination = createTestIntegration(Destination)
+ 
+ describe('Hubspot.sendCustomBehavioralEvent', () => {
+-  test('should succeed', async () => {
++  test('should succeed in sending event', async () => {
+     const event = createTestEvent({
+       type: 'track',
+       event: 'pe22596207_test_event_http',
+@@ -28,6 +28,7 @@ describe('Hubspot.sendCustomBehavioralEvent', () => {
+         hs_city: event.properties?.city
+       }
+     }
++
+     const mapping = {
+       eventName: {
+         '@path': '$.event'
+@@ -44,7 +45,8 @@ describe('Hubspot.sendCustomBehavioralEvent', () => {
+         }
+       }
+     }
+-    nock(HubSpotBaseURL).post('/events/v3/send', expectedPayload).reply(204, {})
++
++    nock(hubSpotBaseURL).post('/events/v3/send', expectedPayload).reply(204, {})
+ 
+     return expect(
+       testDestination.testAction('sendCustomBehavioralEvent', {
+@@ -54,4 +56,42 @@ describe('Hubspot.sendCustomBehavioralEvent', () => {
+       })
+     ).resolves.not.toThrowError()
+   })
++
++  test('should fail when event name is missing', async () => {
++    const event = createTestEvent({
++      type: 'track',
++      event: undefined,
++      properties: {
++        email: 'vep@beri.dz',
++        utk: 'abverazffa===1314122f',
++        userId: '802',
++        city: 'city'
++      }
++    })
++
++    const mapping = {
++      eventName: {
++        '@path': '$.event'
++      },
++      utk: {
++        '@path': '$.properties.utk'
++      },
++      objectId: {
++        '@path': '$.properties.userId'
++      },
++      properties: {
++        hs_city: {
++          '@path': '$.properties.city'
++        }
++      }
++    }
++
++    return expect(
++      testDestination.testAction('sendCustomBehavioralEvent', {
++        event,
++        useDefaultMappings: true,
++        mapping: mapping
++      })
++    ).rejects.toThrowError("The root value is missing the required field 'eventName'.")
++  })
+ })
+diff --git a/packages/destination-actions/src/destinations/hubspot/sendCustomBehavioralEvent/__tests__/snapshot.test.ts b/packages/destination-actions/src/destinations/hubspot/sendCustomBehavioralEvent/__tests__/snapshot.test.ts
+index 989b5801..2e356783 100644
+--- a/packages/destination-actions/src/destinations/hubspot/sendCustomBehavioralEvent/__tests__/snapshot.test.ts
++++ b/packages/destination-actions/src/destinations/hubspot/sendCustomBehavioralEvent/__tests__/snapshot.test.ts
+@@ -2,7 +2,7 @@ import { createTestEvent, createTestIntegration } from '@segment/actions-core'
+ import { generateTestData } from '../../../../lib/test-data'
+ import destination from '../../index'
+ import nock from 'nock'
+-import { HubSpotBaseURL } from '../../properties'
++import { hubSpotBaseURL } from '../../properties'
+ 
+ const testDestination = createTestIntegration(destination)
+ const actionSlug = 'sendCustomBehavioralEvent'
+@@ -14,7 +14,7 @@ describe(`Testing snapshot for ${destinationSlug}'s ${actionSlug} destination ac
+     const action = destination.actions[actionSlug]
+     const [eventData, settingsData] = generateTestData(seedName, destination, action, true)
+ 
+-    nock(HubSpotBaseURL).persist().post('/events/v3/send').reply(204)
++    nock(hubSpotBaseURL).persist().post('/events/v3/send').reply(204)
+ 
+     // one of email, user token or objectID is required
+     const event = createTestEvent({
+@@ -29,15 +29,9 @@ describe(`Testing snapshot for ${destinationSlug}'s ${actionSlug} destination ac
+     })
+ 
+     const request = responses[0].request
+-    const rawBody = await request.text()
++    const json = await request.json()
+ 
+-    try {
+-      const json = JSON.parse(rawBody)
+-      expect(json).toMatchSnapshot()
+-      return
+-    } catch (err) {
+-      expect(rawBody).toMatchSnapshot()
+-    }
++    expect(json).toMatchSnapshot()
+ 
+     expect(request.headers).toMatchSnapshot()
+   })
+@@ -46,7 +40,7 @@ describe(`Testing snapshot for ${destinationSlug}'s ${actionSlug} destination ac
+     const action = destination.actions[actionSlug]
+     const [eventData, settingsData] = generateTestData(seedName, destination, action, false)
+ 
+-    nock(HubSpotBaseURL).persist().post('/events/v3/send').reply(200)
++    nock(hubSpotBaseURL).persist().post('/events/v3/send').reply(200)
+ 
+     const event = createTestEvent({
+       properties: eventData
+@@ -60,14 +54,7 @@ describe(`Testing snapshot for ${destinationSlug}'s ${actionSlug} destination ac
+     })
+ 
+     const request = responses[0].request
+-    const rawBody = await request.text()
+-
+-    try {
+-      const json = JSON.parse(rawBody)
+-      expect(json).toMatchSnapshot()
+-      return
+-    } catch (err) {
+-      expect(rawBody).toMatchSnapshot()
+-    }
++    const json = await request.json()
++    expect(json).toMatchSnapshot()
+   })
+ })
+diff --git a/packages/destination-actions/src/destinations/hubspot/sendCustomBehavioralEvent/generated-types.ts b/packages/destination-actions/src/destinations/hubspot/sendCustomBehavioralEvent/generated-types.ts
+index bdd10d09..169cad46 100644
+--- a/packages/destination-actions/src/destinations/hubspot/sendCustomBehavioralEvent/generated-types.ts
++++ b/packages/destination-actions/src/destinations/hubspot/sendCustomBehavioralEvent/generated-types.ts
+@@ -2,7 +2,7 @@
+ 
+ export interface Payload {
+   /**
+-   * The internal event name assigned by HubSpot. This can be found in your HubSpot account. Events must be predefined in HubSpot. Learn how to find the internal name in [HubSpot’s documentation](https://knowledge.hubspot.com/analytics-tools/create-custom-behavioral-events?_ga=2.219778269.578939721.1663963266-497800475.1660075188#define-the-api-call).
++   * The internal event name assigned by HubSpot. This can be found in your HubSpot account. Events must be predefined in HubSpot. Learn how to find the internal name in [HubSpot’s documentation](https://knowledge.hubspot.com/analytics-tools/create-custom-behavioral-events).
+    */
+   eventName: string
+   /**
+diff --git a/packages/destination-actions/src/destinations/hubspot/sendCustomBehavioralEvent/index.ts b/packages/destination-actions/src/destinations/hubspot/sendCustomBehavioralEvent/index.ts
+index b13a75ad..d80ee31c 100644
+--- a/packages/destination-actions/src/destinations/hubspot/sendCustomBehavioralEvent/index.ts
++++ b/packages/destination-actions/src/destinations/hubspot/sendCustomBehavioralEvent/index.ts
+@@ -1,9 +1,9 @@
+ import type { ActionDefinition } from '@segment/actions-core'
+ import type { Settings } from '../generated-types'
+-import { HubSpotBaseURL } from '../properties'
++import { hubSpotBaseURL } from '../properties'
+ import type { Payload } from './generated-types'
+ 
+-interface CustomBehvioralEvent {
++interface CustomBehavioralEvent {
+   eventName: string
+   occurredAt?: string | number
+   properties?: { [key: string]: unknown }
+@@ -20,7 +20,7 @@ const action: ActionDefinition<Settings, Payload> = {
+     eventName: {
+       label: 'Event Name',
+       description:
+-        'The internal event name assigned by HubSpot. This can be found in your HubSpot account. Events must be predefined in HubSpot. Learn how to find the internal name in [HubSpot’s documentation](https://knowledge.hubspot.com/analytics-tools/create-custom-behavioral-events?_ga=2.219778269.578939721.1663963266-497800475.1660075188#define-the-api-call).',
++        'The internal event name assigned by HubSpot. This can be found in your HubSpot account. Events must be predefined in HubSpot. Learn how to find the internal name in [HubSpot’s documentation](https://knowledge.hubspot.com/analytics-tools/create-custom-behavioral-events).',
+       type: 'string',
+       required: true
+     },
+@@ -67,7 +67,7 @@ const action: ActionDefinition<Settings, Payload> = {
+     }
+   },
+   perform: (request, { payload }) => {
+-    const event: CustomBehvioralEvent = {
++    const event: CustomBehavioralEvent = {
+       eventName: payload.eventName,
+       occurredAt: payload.occurredAt,
+       utk: payload.utk,
+@@ -75,7 +75,7 @@ const action: ActionDefinition<Settings, Payload> = {
+       objectId: payload.objectId,
+       properties: payload.properties
+     }
+-    return request(`${HubSpotBaseURL}/events/v3/send`, {
++    return request(`${hubSpotBaseURL}/events/v3/send`, {
+       method: 'post',
+       json: event
+     })
+diff --git a/packages/destination-actions/src/destinations/hubspot/upsertContact/__tests__/__snapshots__/snapshot.test.ts.snap b/packages/destination-actions/src/destinations/hubspot/upsertContact/__tests__/__snapshots__/snapshot.test.ts.snap
+new file mode 100644
+index 00000000..1378acf1
+--- /dev/null
++++ b/packages/destination-actions/src/destinations/hubspot/upsertContact/__tests__/__snapshots__/snapshot.test.ts.snap
+@@ -0,0 +1,95 @@
++// Jest Snapshot v1, https://goo.gl/fbAQLP
++
++exports[`Testing snapshot for Hubspot's upsertContact destination action: all fields - create contact 1`] = `
++Object {
++  "properties": Object {
++    "address": "VEF)ihejcy1f",
++    "city": "VEF)ihejcy1f",
++    "company": "VEF)ihejcy1f",
++    "country": "VEF)ihejcy1f",
++    "email": "wifeji@zizin.hk",
++    "firstname": "VEF)ihejcy1f",
++    "lastname": "VEF)ihejcy1f",
++    "lifecyclestage": "vef)ihejcy1f",
++    "phone": "VEF)ihejcy1f",
++    "state": "VEF)ihejcy1f",
++    "testType": "VEF)ihejcy1f",
++    "zip": "VEF)ihejcy1f",
++  },
++}
++`;
++
++exports[`Testing snapshot for Hubspot's upsertContact destination action: all fields - create contact 2`] = `"https://api.hubapi.com/crm/v3/objects/contacts"`;
++
++exports[`Testing snapshot for Hubspot's upsertContact destination action: all fields - update contact 1`] = `
++Object {
++  "properties": Object {
++    "address": "VEF)ihejcy1f",
++    "city": "VEF)ihejcy1f",
++    "company": "VEF)ihejcy1f",
++    "country": "VEF)ihejcy1f",
++    "email": "wifeji@zizin.hk",
++    "firstname": "VEF)ihejcy1f",
++    "lastname": "VEF)ihejcy1f",
++    "lifecyclestage": "vef)ihejcy1f",
++    "phone": "VEF)ihejcy1f",
++    "state": "VEF)ihejcy1f",
++    "testType": "VEF)ihejcy1f",
++    "zip": "VEF)ihejcy1f",
++  },
++}
++`;
++
++exports[`Testing snapshot for Hubspot's upsertContact destination action: all fields - update contact 2`] = `"https://api.hubapi.com/crm/v3/objects/contacts/wifeji@zizin.hk?idProperty=email"`;
++
++exports[`Testing snapshot for Hubspot's upsertContact destination action: required fields - create contact 1`] = `
++Object {
++  "properties": Object {
++    "email": "wifeji@zizin.hk",
++  },
++}
++`;
++
++exports[`Testing snapshot for Hubspot's upsertContact destination action: required fields - create contact 2`] = `
++Headers {
++  Symbol(map): Object {
++    "authorization": Array [
++      "Bearer undefined",
++    ],
++    "content-type": Array [
++      "application/json",
++    ],
++    "user-agent": Array [
++      "Segment (Actions)",
++    ],
++  },
++}
++`;
++
++exports[`Testing snapshot for Hubspot's upsertContact destination action: required fields - create contact 3`] = `"https://api.hubapi.com/crm/v3/objects/contacts"`;
++
++exports[`Testing snapshot for Hubspot's upsertContact destination action: required fields - update contact 1`] = `
++Object {
++  "properties": Object {
++    "email": "wifeji@zizin.hk",
++  },
++}
++`;
++
++exports[`Testing snapshot for Hubspot's upsertContact destination action: required fields - update contact 2`] = `
++Headers {
++  Symbol(map): Object {
++    "authorization": Array [
++      "Bearer undefined",
++    ],
++    "content-type": Array [
++      "application/json",
++    ],
++    "user-agent": Array [
++      "Segment (Actions)",
++    ],
++  },
++}
++`;
++
++exports[`Testing snapshot for Hubspot's upsertContact destination action: required fields - update contact 3`] = `"https://api.hubapi.com/crm/v3/objects/contacts/wifeji@zizin.hk?idProperty=email"`;
+diff --git a/packages/destination-actions/src/destinations/hubspot/contact/__tests__/index.test.ts b/packages/destination-actions/src/destinations/hubspot/upsertContact/__tests__/index.test.ts
+similarity index 53%
+rename from packages/destination-actions/src/destinations/hubspot/contact/__tests__/index.test.ts
+rename to packages/destination-actions/src/destinations/hubspot/upsertContact/__tests__/index.test.ts
+index 8857b7f5..620d75cd 100644
+--- a/packages/destination-actions/src/destinations/hubspot/contact/__tests__/index.test.ts
++++ b/packages/destination-actions/src/destinations/hubspot/upsertContact/__tests__/index.test.ts
+@@ -1,38 +1,40 @@
+ import nock from 'nock'
+ import { createTestEvent, createTestIntegration } from '@segment/actions-core'
+ import Destination from '../../index'
+-import { HubSpotBaseURL } from '../../properties'
++import { hubSpotBaseURL } from '../../properties'
+ 
+ const testDestination = createTestIntegration(Destination)
+ 
+ beforeEach(() => nock.cleanAll())
+ 
+-describe('Hubspot.contact', () => {
+-  test('should create contact successfully and set contact id in transaction context', async () => {
+-    const testEmail = 'vep@beri.dz'
+-    const event = createTestEvent({
+-      type: 'identify',
+-      traits: {
+-        email: testEmail,
+-        first_name: 'John',
+-        last_name: 'Doe',
+-        address: {
+-          city: 'San Fransico'
+-        },
+-        graduation_date: 1664533942262
+-      }
+-    })
+-
+-    const patchExpectedPayload = {
+-      properties: {
+-        firstname: 'John',
+-        lastname: 'Doe',
+-        city: 'San Fransico',
+-        graduation_date: 1664533942262
+-      }
++const testEmail = 'vep@beri.dz'
++const event = createTestEvent({
++  type: 'identify',
++  traits: {
++    email: testEmail,
++    first_name: 'John',
++    last_name: 'Doe',
++    address: {
++      city: 'San Fransico'
++    },
++    graduation_date: 1664533942262,
++    lifecyclestage: 'subscriber'
++  }
++})
++const mapping = {
++  lifecyclestage: {
++    '@path': '$.traits.lifecyclestage'
++  },
++  properties: {
++    graduation_date: {
++      '@path': '$.traits.graduation_date'
+     }
++  }
++}
+ 
+-    const postExpectedPayload = {
++describe('Hubspot.upsertContact', () => {
++  test('should create contact successfully and set contact id in transaction context', async () => {
++    const expectedPayload = {
+       properties: {
+         email: testEmail,
+         firstname: 'John',
+@@ -49,24 +51,22 @@ describe('Hubspot.contact', () => {
+         }
+       }
+     }
+-    nock(HubSpotBaseURL)
+-      .patch(`/crm/v3/objects/contacts/${testEmail}?idProperty=email`, patchExpectedPayload)
+-      .reply(404, {
+-        status: 'error',
+-        message: 'resource not found',
+-        correlationId: 'be56c5f3-5841-4661-b52f-65b3aacd0244'
+-      })
++    nock(hubSpotBaseURL).patch(`/crm/v3/objects/contacts/${testEmail}?idProperty=email`, expectedPayload).reply(404, {
++      status: 'error',
++      message: 'resource not found',
++      correlationId: 'be56c5f3-5841-4661-b52f-65b3aacd0244'
++    })
+ 
+-    nock(HubSpotBaseURL).post('/crm/v3/objects/contacts', postExpectedPayload).reply(201, {
++    nock(hubSpotBaseURL).post('/crm/v3/objects/contacts', expectedPayload).reply(201, {
+       id: '801',
+-      properties: postExpectedPayload.properties
++      properties: expectedPayload.properties
+     })
+ 
+     const transactionContext: Record<string, string> = {}
+     const setTransactionContext = (key: string, value: string) => (transactionContext[key] = value)
+ 
+     await expect(
+-      testDestination.testAction('contact', {
++      testDestination.testAction('upsertContact', {
+         mapping,
+         useDefaultMappings: true,
+         event,
+@@ -76,44 +76,20 @@ describe('Hubspot.contact', () => {
+ 
+     expect(transactionContext['contact_id']).toEqual('801')
+   })
+-  test('should update contact successfully and set contact id in transaction context', async () => {
+-    const testEmail = 'vep@beri.dz'
+-    const event = createTestEvent({
+-      type: 'identify',
+-      traits: {
+-        email: testEmail,
+-        first_name: 'John',
+-        last_name: 'Doe',
+-        address: {
+-          city: 'San Fransico'
+-        },
+-        graduation_date: 1664533942262,
+-        lifecyclestage: 'subscriber'
+-      }
+-    })
+ 
++  test('should update contact successfully and set contact id in transaction context', async () => {
+     const patchExpectedPayload = {
+       properties: {
+         firstname: 'John',
+         lastname: 'Doe',
++        email: testEmail,
+         city: 'San Fransico',
+         graduation_date: 1664533942262,
+         lifecyclestage: 'subscriber'
+       }
+     }
+ 
+-    const mapping = {
+-      properties: {
+-        graduation_date: {
+-          '@path': '$.traits.graduation_date'
+-        },
+-        lifecyclestage: {
+-          '@path': '$.traits.lifecyclestage'
+-        }
+-      }
+-    }
+-
+-    nock(HubSpotBaseURL)
++    nock(hubSpotBaseURL)
+       .patch(`/crm/v3/objects/contacts/${testEmail}?idProperty=email`, patchExpectedPayload)
+       .reply(200, {
+         id: '801',
+@@ -122,58 +98,79 @@ describe('Hubspot.contact', () => {
+         }
+       })
+ 
+-    const transactionContext: Record<string, string> = {}
+-    const setTransactionContext = (key: string, value: string) => (transactionContext[key] = value)
++    const transactionContext = {
++      transaction: {} as Record<string, string>,
++      setTransaction: (key: string, value: string) => (transactionContext.transaction[key] = value)
++    }
+ 
+     await expect(
+-      testDestination.testAction('contact', {
++      testDestination.testAction('upsertContact', {
+         mapping,
+         useDefaultMappings: true,
+         event,
+-        transactionContext: { transaction: {}, setTransaction: setTransactionContext }
++        transactionContext
+       })
+     ).resolves.not.toThrowError()
+ 
+-    expect(transactionContext['contact_id']).toEqual('801')
++    expect(transactionContext.transaction['contact_id']).toEqual('801')
+   })
+-  test('should reset lifecyclestage and update if lifecyclestage is to be moved backwards', async () => {
+-    const testEmail = 'vep@beri.dz'
+-    const event = createTestEvent({
+-      type: 'identify',
+-      traits: {
+-        email: testEmail,
+-        first_name: 'John',
+-        last_name: 'Doe',
+-        address: {
+-          city: 'San Fransico'
+-        },
+-        graduation_date: 1664533942262,
+-        lifecyclestage: 'subscriber'
+-      }
+-    })
+ 
++  test('should throw non 404 errors', async () => {
+     const patchExpectedPayload = {
+       properties: {
+         firstname: 'John',
+         lastname: 'Doe',
++        email: testEmail,
+         city: 'San Fransico',
+         graduation_date: 1664533942262,
+         lifecyclestage: 'subscriber'
+       }
+     }
+ 
+-    const mapping = {
++    const errorResponse = {
++      status: 'error',
++      message: 'No properties found to update, please provide at least one.',
++      correlationId: '7b13bba7-f51b-4fd3-a251-46242abb92e6',
++      context: {
++        properties: ['{}']
++      },
++      category: 'VALIDATION_ERROR'
++    }
++
++    nock(hubSpotBaseURL)
++      .patch(`/crm/v3/objects/contacts/${testEmail}?idProperty=email`, patchExpectedPayload)
++      .reply(400, errorResponse)
++
++    const transactionContext = {
++      transaction: {} as Record<string, string>,
++      setTransaction: (key: string, value: string) => ({ [key]: value })
++    }
++
++    await expect(
++      testDestination.testAction('upsertContact', {
++        mapping,
++        useDefaultMappings: true,
++        event,
++        transactionContext
++      })
++    ).rejects.toThrowError()
++
++    expect(!transactionContext.transaction['contact_id'])
++  })
++
++  test('should reset lifecyclestage and update if lifecyclestage is to be moved backwards', async () => {
++    const patchExpectedPayload = {
+       properties: {
+-        graduation_date: {
+-          '@path': '$.traits.graduation_date'
+-        },
+-        lifecyclestage: {
+-          '@path': '$.traits.lifecyclestage'
+-        }
++        firstname: 'John',
++        lastname: 'Doe',
++        city: 'San Fransico',
++        graduation_date: 1664533942262,
++        lifecyclestage: 'subscriber',
++        email: testEmail
+       }
+     }
+ 
+-    nock(HubSpotBaseURL)
++    nock(hubSpotBaseURL)
+       .patch(`/crm/v3/objects/contacts/${testEmail}?idProperty=email`, patchExpectedPayload)
+       .reply(200, {
+         id: '801',
+@@ -182,7 +179,7 @@ describe('Hubspot.contact', () => {
+         }
+       })
+ 
+-    nock(HubSpotBaseURL)
++    nock(hubSpotBaseURL)
+       .patch(`/crm/v3/objects/contacts/${testEmail}?idProperty=email`, { properties: { lifecyclestage: '' } })
+       .reply(200, {
+         id: '801',
+@@ -191,7 +188,7 @@ describe('Hubspot.contact', () => {
+         }
+       })
+ 
+-    nock(HubSpotBaseURL)
++    nock(hubSpotBaseURL)
+       .patch(`/crm/v3/objects/contacts/${testEmail}?idProperty=email`, patchExpectedPayload)
+       .reply(200, {
+         id: '801',
+@@ -200,18 +197,49 @@ describe('Hubspot.contact', () => {
+         }
+       })
+ 
+-    const transactionContext: Record<string, string> = {}
+-    const setTransactionContext = (key: string, value: string) => (transactionContext[key] = value)
++    const transactionContext = {
++      transaction: {} as Record<string, string>,
++      setTransaction: (key: string, value: string) => (transactionContext.transaction[key] = value)
++    }
+ 
+     await expect(
+-      testDestination.testAction('contact', {
++      testDestination.testAction('upsertContact', {
+         mapping,
+         useDefaultMappings: true,
+         event,
+-        transactionContext: { transaction: {}, setTransaction: setTransactionContext }
++        transactionContext
+       })
+     ).resolves.not.toThrowError()
+ 
+-    expect(transactionContext['contact_id']).toEqual('801')
++    expect(transactionContext.transaction['contact_id']).toEqual('801')
++  })
++
++  test('should fail if email is missing', async () => {
++    const event = createTestEvent({
++      type: 'identify',
++      traits: {
++        first_name: 'John',
++        last_name: 'Doe',
++        address: {
++          city: 'San Fransico'
++        },
++        graduation_date: 1664533942262,
++        lifecyclestage: 'subscriber'
++      }
++    })
++
++    const transactionContext = {
++      transaction: {} as Record<string, string>,
++      setTransaction: (key: string, value: string) => (transactionContext.transaction[key] = value)
++    }
++
++    await expect(
++      testDestination.testAction('upsertContact', {
++        mapping,
++        useDefaultMappings: true,
++        event,
++        transactionContext
++      })
++    ).rejects.toThrowError("The root value is missing the required field 'email'.")
+   })
+ })
+diff --git a/packages/destination-actions/src/destinations/hubspot/upsertContact/__tests__/snapshot.test.ts b/packages/destination-actions/src/destinations/hubspot/upsertContact/__tests__/snapshot.test.ts
+new file mode 100644
+index 00000000..33953935
+--- /dev/null
++++ b/packages/destination-actions/src/destinations/hubspot/upsertContact/__tests__/snapshot.test.ts
+@@ -0,0 +1,149 @@
++import { createTestEvent, createTestIntegration } from '@segment/actions-core'
++import { generateTestData } from '../../../../lib/test-data'
++import destination from '../../index'
++import nock from 'nock'
++import { TransactionContext } from '@segment/actions-core/src/destination-kit'
++
++const testDestination = createTestIntegration(destination)
++const actionSlug = 'upsertContact'
++const destinationSlug = 'Hubspot'
++const seedName = `${destinationSlug}#${actionSlug}`
++
++beforeEach(() => nock.cleanAll())
++
++describe(`Testing snapshot for ${destinationSlug}'s ${actionSlug} destination action:`, () => {
++  it('required fields - update contact', async () => {
++    const action = destination.actions[actionSlug]
++    const [eventData, settingsData] = generateTestData(seedName, destination, action, true)
++
++    nock(/.*/).persist().patch(/.*/).reply(200)
++
++    const event = createTestEvent({
++      properties: eventData
++    })
++
++    const transactionContext: TransactionContext = {
++      transaction: {},
++      setTransaction: (key, value) => ({ [key]: value })
++    }
++
++    const responses = await testDestination.testAction(actionSlug, {
++      event: event,
++      mapping: event.properties,
++      settings: settingsData,
++      auth: undefined,
++      transactionContext
++    })
++
++    const request = responses[0].request
++    const json = await request.json()
++
++    expect(json).toMatchSnapshot()
++
++    expect(request.headers).toMatchSnapshot()
++    expect(request.url).toMatchSnapshot()
++  })
++
++  it('all fields - update contact', async () => {
++    const action = destination.actions[actionSlug]
++    const [eventData, settingsData] = generateTestData(seedName, destination, action, false)
++
++    nock(/.*/).persist().post(/.*/).reply(200)
++    nock(/.*/)
++      .persist()
++      .patch(/.*/)
++      .reply(200, {
++        id: '801',
++        properties: {
++          lifecyclestage: eventData.lifecyclestage.toLowerCase()
++        }
++      })
++
++    const event = createTestEvent({
++      properties: eventData
++    })
++
++    const transactionContext: TransactionContext = {
++      transaction: {},
++      setTransaction: (key, value) => ({ [key]: value })
++    }
++
++    const responses = await testDestination.testAction(actionSlug, {
++      event: event,
++      mapping: event.properties,
++      settings: settingsData,
++      auth: undefined,
++      transactionContext
++    })
++
++    const request = responses[0].request
++    const json = await request.json()
++
++    expect(json).toMatchSnapshot()
++    expect(request.url).toMatchSnapshot()
++  })
++
++  it('required fields - create contact', async () => {
++    const action = destination.actions[actionSlug]
++    const [eventData, settingsData] = generateTestData(seedName, destination, action, true)
++
++    nock(/.*/).persist().patch(/.*/).reply(404)
++    nock(/.*/).persist().post(/.*/).reply(200)
++
++    const event = createTestEvent({
++      properties: eventData
++    })
++
++    const transactionContext: TransactionContext = {
++      transaction: {},
++      setTransaction: (key, value) => ({ [key]: value })
++    }
++
++    const responses = await testDestination.testAction(actionSlug, {
++      event: event,
++      mapping: event.properties,
++      settings: settingsData,
++      auth: undefined,
++      transactionContext
++    })
++
++    const request = responses[1].request
++    const json = await request.json()
++
++    expect(json).toMatchSnapshot()
++
++    expect(request.headers).toMatchSnapshot()
++    expect(request.url).toMatchSnapshot()
++  })
++
++  it('all fields - create contact', async () => {
++    const action = destination.actions[actionSlug]
++    const [eventData, settingsData] = generateTestData(seedName, destination, action, false)
++
++    nock(/.*/).persist().patch(/.*/).reply(404)
++    nock(/.*/).persist().post(/.*/).reply(200)
++
++    const event = createTestEvent({
++      properties: eventData
++    })
++
++    const transactionContext: TransactionContext = {
++      transaction: {},
++      setTransaction: (key, value) => ({ [key]: value })
++    }
++
++    const responses = await testDestination.testAction(actionSlug, {
++      event: event,
++      mapping: event.properties,
++      settings: settingsData,
++      auth: undefined,
++      transactionContext
++    })
++
++    const request = responses[1].request
++    const json = await request.json()
++
++    expect(json).toMatchSnapshot()
++    expect(request.url).toMatchSnapshot()
++  })
++})
+diff --git a/packages/destination-actions/src/destinations/hubspot/contact/generated-types.ts b/packages/destination-actions/src/destinations/hubspot/upsertContact/generated-types.ts
+similarity index 100%
+rename from packages/destination-actions/src/destinations/hubspot/contact/generated-types.ts
+rename to packages/destination-actions/src/destinations/hubspot/upsertContact/generated-types.ts
+diff --git a/packages/destination-actions/src/destinations/hubspot/contact/index.ts b/packages/destination-actions/src/destinations/hubspot/upsertContact/index.ts
+similarity index 84%
+rename from packages/destination-actions/src/destinations/hubspot/contact/index.ts
+rename to packages/destination-actions/src/destinations/hubspot/upsertContact/index.ts
+index 9b9c3bc4..b00e7e9d 100644
+--- a/packages/destination-actions/src/destinations/hubspot/contact/index.ts
++++ b/packages/destination-actions/src/destinations/hubspot/upsertContact/index.ts
+@@ -1,7 +1,7 @@
+-import type { ActionDefinition, RequestClient } from '@segment/actions-core'
+ import { HTTPError } from '@segment/actions-core'
++import { ActionDefinition, RequestClient } from '@segment/actions-core'
+ import type { Settings } from '../generated-types'
+-import { HubSpotBaseURL } from '../properties'
++import { hubSpotBaseURL } from '../properties'
+ import type { Payload } from './generated-types'
+ 
+ interface ContactResponse {
+@@ -142,6 +142,7 @@ const action: ActionDefinition<Settings, Payload> = {
+       state: payload.state,
+       country: payload.country,
+       zip: payload.zip,
++      email: payload.email,
+       lifecyclestage: payload.lifecyclestage?.toLowerCase(),
+       ...payload.properties
+     }
+@@ -154,40 +155,39 @@ const action: ActionDefinition<Settings, Payload> = {
+     try {
+       const response = await updateContact(request, payload.email, contactProperties)
+ 
+-      // cache contact_id for it to be avaialble for company action
++      // cache contact_id for it to be available for company action
+       transactionContext?.setTransaction('contact_id', response.data.id)
+ 
+-      // HubSpot returns the updated lifecylestage as part of the response.
+-      // If the stage we are trying to set is former/older state, it retains the advanced stage
++      // HubSpot returns the updated lifecylestage(LCS) as part of the response.
++      // If the stage we are trying to set is backward than the current stage, it retains the current stage
+       // and updates the timestamp. For determining if reset is required or not, we can compare
+-      // the state returned in response with the desired state. If they are not the same, reset
+-      // and update.
++      // the stage returned in response with the desired stage . If they are not the same, reset
++      // and update. More details -
+       if (payload.lifecyclestage) {
+         const currentLCS = response.data.properties['lifecyclestage']
+-        const hasLCSChanged = currentLCS == payload.lifecyclestage.toLowerCase()
++        const hasLCSChanged = currentLCS === payload.lifecyclestage.toLowerCase()
+         if (hasLCSChanged) return response
+         // reset lifecycle stage
+-        await updateContact(request, payload.email, { lifecylestage: '' })
++        await updateContact(request, payload.email, { lifecyclestage: '' })
+         // update contact again with new lifecycle stage
+         return updateContact(request, payload.email, contactProperties)
+       }
+       return response
+     } catch (ex) {
+-      if (!(ex instanceof HTTPError)) throw ex
+-      const error = ex
+-      const statusCode = error.response.status
+-      if (statusCode == 404) {
+-        const result = await createContact(request, { email: payload.email, ...contactProperties })
++      if (ex instanceof HTTPError && ex.response.status == 404) {
++        const result = await createContact(request, contactProperties)
++
++        // cache contact_id for it to be available for company action
+         transactionContext?.setTransaction('contact_id', result.data.id)
+         return result
+       }
+-      throw error
++      throw ex
+     }
+   }
+ }
+ 
+ async function createContact(request: RequestClient, contactProperties: { [key: string]: unknown }) {
+-  return request<ContactResponse>(`${HubSpotBaseURL}/crm/v3/objects/contacts`, {
++  return request<ContactResponse>(`${hubSpotBaseURL}/crm/v3/objects/contacts`, {
+     method: 'POST',
+     json: {
+       properties: {
+@@ -198,7 +198,7 @@ async function createContact(request: RequestClient, contactProperties: { [key:
+ }
+ 
+ async function updateContact(request: RequestClient, email: string, properties: { [key: string]: unknown }) {
+-  return request<ContactResponse>(`${HubSpotBaseURL}/crm/v3/objects/contacts/${email}?idProperty=email`, {
++  return request<ContactResponse>(`${hubSpotBaseURL}/crm/v3/objects/contacts/${email}?idProperty=email`, {
+     method: 'PATCH',
+     json: {
+       properties: {
+diff --git a/packages/destination-actions/src/destinations/index.ts b/packages/destination-actions/src/destinations/index.ts
+index e2c7f04a..e2659233 100644
+--- a/packages/destination-actions/src/destinations/index.ts
++++ b/packages/destination-actions/src/destinations/index.ts
+@@ -51,7 +51,6 @@ register('62df16e45ba0058c864a75d1', './actions-pardot')
+ register('5f7dd8191ad74f868ab1fc48', './pipedrive')
+ register('62e17e6f687e4a3d32d0f875', './qualtrics')
+ register('61957755c4d820be968457de', './salesforce')
+-register('62e30bad99f1bfb98ee8ce08', './salesforce-marketing-cloud')
+ register('5f7dd8e302173ff732db5cc4', './slack')
+ register('6261a8b6cb4caa70e19116e8', './snap-conversions-api')
+ register('6234b137d3b6404a64f2a0f0', './talon-one')
+diff --git a/packages/destination-actions/src/destinations/salesforce-marketing-cloud/apiEvent/generated-types.ts b/packages/destination-actions/src/destinations/salesforce-marketing-cloud/apiEvent/generated-types.ts
+deleted file mode 100644
+index 49aced03..00000000
+--- a/packages/destination-actions/src/destinations/salesforce-marketing-cloud/apiEvent/generated-types.ts
++++ /dev/null
+@@ -1,18 +0,0 @@
+-// Generated file. DO NOT MODIFY IT BY HAND.
+-
+-export interface Payload {
+-  /**
+-   * The unique key for an event definition in Salesforce Marketing Cloud. The event defintion must be predefined in SFMC.
+-   */
+-  eventDefinitionKey: string
+-  /**
+-   * The unique identifier that identifies a subscriber or a contact.
+-   */
+-  contactKey: string
+-  /**
+-   * The properties of the event. Fields must be created in the event definition schema before sending data for it.On the left-hand side, input the SFMC field name exactly how it appears in the event definition schema. On the right-hand side, map the Segment field that contains the corresponding value.
+-   */
+-  data?: {
+-    [k: string]: unknown
+-  }
+-}
+diff --git a/packages/destination-actions/src/destinations/salesforce-marketing-cloud/apiEvent/index.ts b/packages/destination-actions/src/destinations/salesforce-marketing-cloud/apiEvent/index.ts
+deleted file mode 100644
+index 387a3481..00000000
+--- a/packages/destination-actions/src/destinations/salesforce-marketing-cloud/apiEvent/index.ts
++++ /dev/null
+@@ -1,22 +0,0 @@
+-import type { ActionDefinition } from '@segment/actions-core'
+-import type { Settings } from '../generated-types'
+-import { eventDefinitionKey, contactKeyAPIEvent, eventData } from '../sfmc-properties'
+-import type { Payload } from './generated-types'
+-
+-const action: ActionDefinition<Settings, Payload> = {
+-  title: 'Send API Event',
+-  description: 'Send events into an existing Event Definition in Salesforce Marketing Cloud.',
+-  fields: {
+-    eventDefinitionKey: eventDefinitionKey,
+-    contactKey: contactKeyAPIEvent,
+-    data: eventData
+-  },
+-  perform: (request, { settings, payload }) => {
+-    return request(`https://${settings.subdomain}.rest.marketingcloudapis.com/interaction/v1/events`, {
+-      method: 'post',
+-      json: payload
+-    })
+-  }
+-}
+-
+-export default action
+diff --git a/packages/destination-actions/src/destinations/salesforce-marketing-cloud/contact/generated-types.ts b/packages/destination-actions/src/destinations/salesforce-marketing-cloud/contact/generated-types.ts
+deleted file mode 100644
+index 3499e35b..00000000
+--- a/packages/destination-actions/src/destinations/salesforce-marketing-cloud/contact/generated-types.ts
++++ /dev/null
+@@ -1,8 +0,0 @@
+-// Generated file. DO NOT MODIFY IT BY HAND.
+-
+-export interface Payload {
+-  /**
+-   * The unique identifier that you assign to a contact. This will be used to create a contact if one does not already exist with this Contact Key.
+-   */
+-  contactKey: string
+-}
+diff --git a/packages/destination-actions/src/destinations/salesforce-marketing-cloud/contact/index.ts b/packages/destination-actions/src/destinations/salesforce-marketing-cloud/contact/index.ts
+deleted file mode 100644
+index af950edd..00000000
+--- a/packages/destination-actions/src/destinations/salesforce-marketing-cloud/contact/index.ts
++++ /dev/null
+@@ -1,25 +0,0 @@
+-import type { ActionDefinition } from '@segment/actions-core'
+-import type { Settings } from '../generated-types'
+-import { contactKey } from '../sfmc-properties'
+-import type { Payload } from './generated-types'
+-
+-const action: ActionDefinition<Settings, Payload> = {
+-  title: 'Create Contact',
+-  description: 'Create contacts in Salesforce Marketing Cloud.',
+-  defaultSubscription: 'type = "identify"',
+-  fields: {
+-    contactKey: { ...contactKey, required: true }
+-  },
+-  perform: (request, { settings, payload }) => {
+-    const requestUrl = `https://${settings.subdomain}.rest.marketingcloudapis.com/contacts/v1/contacts`
+-    return request(requestUrl, {
+-      method: 'post',
+-      json: {
+-        contactKey: payload.contactKey,
+-        attributeSets: []
+-      }
+-    })
+-  }
+-}
+-
+-export default action
+diff --git a/packages/destination-actions/src/destinations/salesforce-marketing-cloud/contactDataExtension/generated-types.ts b/packages/destination-actions/src/destinations/salesforce-marketing-cloud/contactDataExtension/generated-types.ts
+deleted file mode 100644
+index 80d28857..00000000
+--- a/packages/destination-actions/src/destinations/salesforce-marketing-cloud/contactDataExtension/generated-types.ts
++++ /dev/null
+@@ -1,32 +0,0 @@
+-// Generated file. DO NOT MODIFY IT BY HAND.
+-
+-export interface Payload {
+-  /**
+-   * The key of the data extension that you want to store contact information in. The data extension must be predefined in SFMC. Segment recommends storing all contact information in a single data extension. The key is required if a Data Extension ID is not provided.
+-   */
+-  key?: string
+-  /**
+-   * The ID of the data extension that you want to store contact information in. The data extension must be predefined in SFMC. Segment recommends storing all contact information in a single data extension. The ID is required if a Data Extension Key is not provided.
+-   */
+-  id?: string
+-  /**
+-   * The primary key(s) that uniquely identify a contact in the data extension. At a minimum, Contact Key must exist in your data extension as a Primary Key.On the left-hand side, input the SFMC key name. On the right-hand side, map the Segment field that contains the corresponding value.When multiple primary keys are provided, SFMC will update an existing row if all primary keys match, otherwise a new row will be created.
+-   */
+-  keys: {
+-    /**
+-     * TODO
+-     */
+-    contactKey: string
+-    [k: string]: unknown
+-  }
+-  /**
+-   * The fields in the data extension that contain data about a contact, such as Email, Last Name, etc. Fields must be created in the data extension before sending data for it.On the left-hand side, input the SFMC field name exactly how it appears in the data extension. On the right-hand side, map the Segment field that contains the corresponding value.
+-   */
+-  values?: {
+-    [k: string]: unknown
+-  }
+-  /**
+-   * If true, data is batched before sending to the SFMC Data Extension to help reduce API calls.
+-   */
+-  enable_batching?: boolean
+-}
+diff --git a/packages/destination-actions/src/destinations/salesforce-marketing-cloud/contactDataExtension/index.ts b/packages/destination-actions/src/destinations/salesforce-marketing-cloud/contactDataExtension/index.ts
+deleted file mode 100644
+index 7f356343..00000000
+--- a/packages/destination-actions/src/destinations/salesforce-marketing-cloud/contactDataExtension/index.ts
++++ /dev/null
+@@ -1,36 +0,0 @@
+-import type { ActionDefinition } from '@segment/actions-core'
+-import type { Settings } from '../generated-types'
+-import type { Payload } from './generated-types'
+-import { key, id, keys, values, enable_batching } from '../sfmc-properties'
+-import { upsertRows } from '../sfmc-operations'
+-
+-const action: ActionDefinition<Settings, Payload> = {
+-  title: 'Contact Data Extension',
+-  description: '',
+-  fields: {
+-    key: key,
+-    id: id,
+-    keys: {
+-      ...keys,
+-      properties: {
+-        contactKey: {
+-          label: 'Contact Key',
+-          description: 'TODO',
+-          type: 'string',
+-          required: true,
+-          default: { '@path': '$.userId' }
+-        }
+-      }
+-    },
+-    values: values,
+-    enable_batching: enable_batching
+-  },
+-  perform: async (request, { settings, payload }) => {
+-    return upsertRows(request, settings.subdomain, [payload])
+-  },
+-  performBatch: async (request, { settings, payload }) => {
+-    return upsertRows(request, settings.subdomain, payload)
+-  }
+-}
+-
+-export default action
+diff --git a/packages/destination-actions/src/destinations/salesforce-marketing-cloud/dataExtension/generated-types.ts b/packages/destination-actions/src/destinations/salesforce-marketing-cloud/dataExtension/generated-types.ts
+deleted file mode 100644
+index cf12527e..00000000
+--- a/packages/destination-actions/src/destinations/salesforce-marketing-cloud/dataExtension/generated-types.ts
++++ /dev/null
+@@ -1,28 +0,0 @@
+-// Generated file. DO NOT MODIFY IT BY HAND.
+-
+-export interface Payload {
+-  /**
+-   * The key of the data extension that you want to store contact information in. The data extension must be predefined in SFMC. Segment recommends storing all contact information in a single data extension. The key is required if a Data Extension ID is not provided.
+-   */
+-  key?: string
+-  /**
+-   * The ID of the data extension that you want to store contact information in. The data extension must be predefined in SFMC. Segment recommends storing all contact information in a single data extension. The ID is required if a Data Extension Key is not provided.
+-   */
+-  id?: string
+-  /**
+-   * The primary key(s) that uniquely identify a contact in the data extension. At a minimum, Contact Key must exist in your data extension as a Primary Key.On the left-hand side, input the SFMC key name. On the right-hand side, map the Segment field that contains the corresponding value.When multiple primary keys are provided, SFMC will update an existing row if all primary keys match, otherwise a new row will be created.
+-   */
+-  keys: {
+-    [k: string]: unknown
+-  }
+-  /**
+-   * The fields in the data extension that contain data about a contact, such as Email, Last Name, etc. Fields must be created in the data extension before sending data for it.On the left-hand side, input the SFMC field name exactly how it appears in the data extension. On the right-hand side, map the Segment field that contains the corresponding value.
+-   */
+-  values?: {
+-    [k: string]: unknown
+-  }
+-  /**
+-   * If true, data is batched before sending to the SFMC Data Extension to help reduce API calls.
+-   */
+-  enable_batching?: boolean
+-}
+diff --git a/packages/destination-actions/src/destinations/salesforce-marketing-cloud/dataExtension/index.ts b/packages/destination-actions/src/destinations/salesforce-marketing-cloud/dataExtension/index.ts
+deleted file mode 100644
+index 5d13cf76..00000000
+--- a/packages/destination-actions/src/destinations/salesforce-marketing-cloud/dataExtension/index.ts
++++ /dev/null
+@@ -1,25 +0,0 @@
+-import { ActionDefinition } from '@segment/actions-core'
+-import type { Settings } from '../generated-types'
+-import type { Payload } from './generated-types'
+-import { key, id, keys, values, enable_batching } from '../sfmc-properties'
+-import { upsertRows } from '../sfmc-operations'
+-
+-const action: ActionDefinition<Settings, Payload> = {
+-  title: 'Send Event to Data Extension',
+-  description: 'Upsert events as rows into an existing data extension in Salesforce Marketing Cloud.',
+-  fields: {
+-    key: key,
+-    id: id,
+-    keys: { ...keys, required: true },
+-    values: values,
+-    enable_batching: enable_batching
+-  },
+-  perform: async (request, { settings, payload }) => {
+-    return upsertRows(request, settings.subdomain, [payload])
+-  },
+-  performBatch: async (request, { settings, payload }) => {
+-    return upsertRows(request, settings.subdomain, payload)
+-  }
+-}
+-
+-export default action
+diff --git a/packages/destination-actions/src/destinations/salesforce-marketing-cloud/generated-types.ts b/packages/destination-actions/src/destinations/salesforce-marketing-cloud/generated-types.ts
+deleted file mode 100644
+index 6043e7c9..00000000
+--- a/packages/destination-actions/src/destinations/salesforce-marketing-cloud/generated-types.ts
++++ /dev/null
+@@ -1,12 +0,0 @@
+-// Generated file. DO NOT MODIFY IT BY HAND.
+-
+-export interface Settings {
+-  /**
+-   * The unique subdomain Salesforce Marketing Cloud assigned to your account. Subdomains are tenant specific and should be a 28-character string starting with the letters "mc". Do not include the .rest.marketingcloudapis.com part of your subdomain URL. See more information on how to find your subdomain [here](https://developer.salesforce.com/docs/marketing/marketing-cloud/guide/your-subdomain-tenant-specific-endpoints.html)
+-   */
+-  subdomain: string
+-  /**
+-   * STAGE TESTING
+-   */
+-  token: string
+-}
+diff --git a/packages/destination-actions/src/destinations/salesforce-marketing-cloud/index.ts b/packages/destination-actions/src/destinations/salesforce-marketing-cloud/index.ts
+deleted file mode 100644
+index 8af8d861..00000000
+--- a/packages/destination-actions/src/destinations/salesforce-marketing-cloud/index.ts
++++ /dev/null
+@@ -1,52 +0,0 @@
+-import type { DestinationDefinition } from '@segment/actions-core'
+-import type { Settings } from './generated-types'
+-import contact from './contact'
+-import dataExtension from './dataExtension'
+-import contactDataExtension from './contactDataExtension'
+-import apiEvent from './apiEvent'
+-
+-const destination: DestinationDefinition<Settings> = {
+-  name: 'Salesforce Marketing Cloud (Actions)',
+-  slug: 'actions-salesforce-marketing-cloud',
+-  mode: 'cloud',
+-
+-  authentication: {
+-    scheme: 'oauth2',
+-    fields: {
+-      subdomain: {
+-        label: 'Subdomain',
+-        description:
+-          'The unique subdomain Salesforce Marketing Cloud assigned to your account. Subdomains are tenant specific and should be a 28-character string starting with the letters "mc". Do not include the .rest.marketingcloudapis.com part of your subdomain URL. See more information on how to find your subdomain [here](https://developer.salesforce.com/docs/marketing/marketing-cloud/guide/your-subdomain-tenant-specific-endpoints.html)',
+-        type: 'string',
+-        required: true
+-      },
+-      token: {
+-        label: 'Token',
+-        description: 'STAGE TESTING',
+-        type: 'string',
+-        required: true
+-      }
+-    }
+-  },
+-  extendRequest({ settings }) {
+-    return {
+-      headers: {
+-        authorization: `Bearer ${settings.token}`
+-      }
+-    }
+-  },
+-
+-  // onDelete: async (request, { settings, payload }) => {
+-  //   // Return a request that performs a GDPR delete for the provided Segment userId or anonymousId
+-  //   // provided in the payload. If your destination does not support GDPR deletion you should not
+-  //   // implement this function and should remove it completely.
+-
+-  actions: {
+-    contact,
+-    dataExtension,
+-    contactDataExtension,
+-    apiEvent
+-  }
+-}
+-
+-export default destination
+diff --git a/packages/destination-actions/src/destinations/salesforce-marketing-cloud/sfmc-operations.ts b/packages/destination-actions/src/destinations/salesforce-marketing-cloud/sfmc-operations.ts
+deleted file mode 100644
+index 4a7d17d5..00000000
+--- a/packages/destination-actions/src/destinations/salesforce-marketing-cloud/sfmc-operations.ts
++++ /dev/null
+@@ -1,32 +0,0 @@
+-import { RequestClient, IntegrationError } from '@segment/actions-core'
+-import { Payload } from './dataExtension/generated-types'
+-
+-export function upsertRows(request: RequestClient, subdomain: String, payloads: Payload[]) {
+-  const { key, id } = payloads[0]
+-  //Check to make sure either key or id exists
+-  if (!key && !id) {
+-    throw new IntegrationError(
+-      `In order to send an event to a data extension either Data Extension ID or Data Extension Key must be defined.`,
+-      'Misconfigured required field',
+-      400
+-    )
+-  }
+-  const rows: Record<string, any>[] = []
+-  payloads.forEach((payload: Payload) => {
+-    rows.push({
+-      keys: payload.keys,
+-      values: payload.values
+-    })
+-  })
+-  if (key) {
+-    return request(`https://${subdomain}.rest.marketingcloudapis.com/hub/v1/dataevents/key:${key}/rowset`, {
+-      method: 'post',
+-      json: rows
+-    })
+-  } else {
+-    return request(`https://${subdomain}.rest.marketingcloudapis.com/hub/v1/dataevents/${id}/rowset`, {
+-      method: 'post',
+-      json: rows
+-    })
+-  }
+-}
+diff --git a/packages/destination-actions/src/destinations/salesforce-marketing-cloud/sfmc-properties.ts b/packages/destination-actions/src/destinations/salesforce-marketing-cloud/sfmc-properties.ts
+deleted file mode 100644
+index 96915faa..00000000
+--- a/packages/destination-actions/src/destinations/salesforce-marketing-cloud/sfmc-properties.ts
++++ /dev/null
+@@ -1,67 +0,0 @@
+-import { InputField } from '@segment/actions-core/src/destination-kit/types'
+-
+-export const contactKey: InputField = {
+-  label: 'Contact Key',
+-  description:
+-    'The unique identifier that you assign to a contact. This will be used to create a contact if one does not already exist with this Contact Key.',
+-  type: 'string',
+-  default: { '@path': '$.userId' }
+-}
+-
+-export const contactKeyAPIEvent: InputField = {
+-  label: 'Contact Key',
+-  description: 'The unique identifier that identifies a subscriber or a contact.',
+-  type: 'string',
+-  default: { '@path': '$.userId' },
+-  required: true
+-}
+-
+-export const key: InputField = {
+-  label: 'Data Extension Key',
+-  description:
+-    'The key of the data extension that you want to store contact information in. The data extension must be predefined in SFMC. Segment recommends storing all contact information in a single data extension. The key is required if a Data Extension ID is not provided.',
+-  type: 'string'
+-}
+-export const id: InputField = {
+-  label: 'Data Extension ID',
+-  description:
+-    'The ID of the data extension that you want to store contact information in. The data extension must be predefined in SFMC. Segment recommends storing all contact information in a single data extension. The ID is required if a Data Extension Key is not provided.',
+-  type: 'string'
+-}
+-export const keys: InputField = {
+-  label: 'Data Extension Primary Keys',
+-  description:
+-    'The primary key(s) that uniquely identify a contact in the data extension. At a minimum, Contact Key must exist in your data extension as a Primary Key.On the left-hand side, input the SFMC key name. On the right-hand side, map the Segment field that contains the corresponding value.When multiple primary keys are provided, SFMC will update an existing row if all primary keys match, otherwise a new row will be created.',
+-  type: 'object',
+-  required: true,
+-  defaultObjectUI: 'keyvalue:only',
+-  additionalProperties: true
+-}
+-export const values: InputField = {
+-  label: 'Contact Fields',
+-  description:
+-    'The fields in the data extension that contain data about a contact, such as Email, Last Name, etc. Fields must be created in the data extension before sending data for it.On the left-hand side, input the SFMC field name exactly how it appears in the data extension. On the right-hand side, map the Segment field that contains the corresponding value.',
+-  type: 'object',
+-  defaultObjectUI: 'keyvalue:only'
+-}
+-export const eventDefinitionKey: InputField = {
+-  label: 'Event Definition Key',
+-  description:
+-    'The unique key for an event definition in Salesforce Marketing Cloud. The event defintion must be predefined in SFMC. ',
+-  type: 'string',
+-  required: true
+-}
+-export const eventData: InputField = {
+-  label: 'Event Data',
+-  description:
+-    'The properties of the event. Fields must be created in the event definition schema before sending data for it.On the left-hand side, input the SFMC field name exactly how it appears in the event definition schema. On the right-hand side, map the Segment field that contains the corresponding value.',
+-  type: 'object',
+-  defaultObjectUI: 'keyvalue:only'
+-}
+-
+-export const enable_batching: InputField = {
+-  label: 'Enable Batching',
+-  description: 'If true, data is batched before sending to the SFMC Data Extension to help reduce API calls.',
+-  type: 'boolean',
+-  default: true
+-}
+diff --git a/packages/destination-actions/src/destinations/salesforce/__tests__/customObject.test.ts b/packages/destination-actions/src/destinations/salesforce/__tests__/customObject.test.ts
+index 59108b3c..ef3809ba 100644
+--- a/packages/destination-actions/src/destinations/salesforce/__tests__/customObject.test.ts
++++ b/packages/destination-actions/src/destinations/salesforce/__tests__/customObject.test.ts
+@@ -2,6 +2,7 @@ import nock from 'nock'
+ import { createTestEvent, createTestIntegration } from '@segment/actions-core'
+ import Destination from '../index'
+ import { API_VERSION } from '../sf-operations'
++import { DynamicFieldResponse } from '@segment/actions-core'
+ 
+ const testDestination = createTestIntegration(Destination)
+ 
+@@ -64,5 +65,63 @@ describe('Salesforce', () => {
+         `"{\\"email\\":\\"sponge@seamail.com\\",\\"company\\":\\"Krusty Krab\\",\\"last_name\\":\\"Squarepants\\"}"`
+       )
+     })
++
++    it('should dynamically fetch customObjectName', async () => {
++      nock(`${settings.instanceUrl}/services/data/${API_VERSION}`)
++        .get('/sobjects')
++        .reply(200, {
++          sobjects: [
++            {
++              label: 'Accounts',
++              name: 'Account',
++              createable: true,
++              queryable: true
++            },
++            {
++              label: 'Contacts',
++              name: 'Contact',
++              createable: true,
++              queryable: true
++            },
++            {
++              label: 'Test Custom Object',
++              name: 'TestCustom__c',
++              createable: true,
++              queryable: true
++            },
++            {
++              label: 'Hidden Object',
++              name: 'HiddenObject__c',
++              createable: false,
++              queryable: false
++            }
++          ]
++        })
++
++      const payload = {}
++      const responses = (await testDestination.testDynamicField('customObject', 'customObjectName', {
++        payload,
++        settings,
++        auth
++      })) as DynamicFieldResponse
++
++      expect(responses.choices.length).toBe(3)
++      expect(responses.choices).toEqual(
++        expect.arrayContaining([
++          expect.objectContaining({
++            label: 'Accounts',
++            value: 'Account'
++          }),
++          expect.objectContaining({
++            label: 'Contacts',
++            value: 'Contact'
++          }),
++          expect.objectContaining({
++            label: 'Test Custom Object',
++            value: 'TestCustom__c'
++          })
++        ])
++      )
++    })
+   })
+ })
+diff --git a/packages/destination-actions/src/destinations/salesforce/customObject/index.ts b/packages/destination-actions/src/destinations/salesforce/customObject/index.ts
+index 7fc36732..aca555dc 100644
+--- a/packages/destination-actions/src/destinations/salesforce/customObject/index.ts
++++ b/packages/destination-actions/src/destinations/salesforce/customObject/index.ts
+@@ -36,11 +36,6 @@ const action: ActionDefinition<Settings, Payload> = {
+       const sf: Salesforce = new Salesforce(data.settings.instanceUrl, request)
+ 
+       return sf.customObjectName()
+-    },
+-    bulkUpsertExternalId: async (request, { settings, payload }) => {
+-      const sf: Salesforce = new Salesforce(settings.instanceUrl, request)
+-
+-      return sf.bulkUpsertExternalId(payload.customObjectName)
+     }
+   },
+   perform: async (request, { settings, payload }) => {
+diff --git a/packages/destination-actions/src/destinations/salesforce/sf-operations.ts b/packages/destination-actions/src/destinations/salesforce/sf-operations.ts
+index dbcd22e0..3d6c281a 100644
+--- a/packages/destination-actions/src/destinations/salesforce/sf-operations.ts
++++ b/packages/destination-actions/src/destinations/salesforce/sf-operations.ts
+@@ -28,18 +28,6 @@ interface CreateJobResponseData {
+   id: string
+ }
+ 
+-interface DescribeObjectResponseData {
+-  fields: [
+-    {
+-      createable: boolean
+-      externalId: boolean
+-      filterable: boolean
+-      name: string
+-      label: string
+-    }
+-  ]
+-}
+-
+ interface SObjectsResponseData {
+   sobjects: [
+     {
+@@ -134,27 +122,6 @@ export default class Salesforce {
+     )
+   }
+ 
+-  bulkUpsertExternalId = async (sobject: string): Promise<DynamicFieldResponse> => {
+-    const result = await this.request<DescribeObjectResponseData>(
+-      `${this.instanceUrl}services/data/${API_VERSION}/sobjects/${sobject}/describe`,
+-      {
+-        method: 'get',
+-        skipResponseCloning: true
+-      }
+-    )
+-
+-    const fields = result.data.fields.filter((field) => {
+-      return field.externalId === true
+-    })
+-
+-    return {
+-      choices: fields.map((field) => {
+-        return { value: field.name, label: field.label }
+-      }),
+-      nextPage: '2'
+-    }
+-  }
+-
+   customObjectName = async (): Promise<DynamicFieldResponse> => {
+     try {
+       const result = await this.request<SObjectsResponseData>(
+@@ -169,10 +136,12 @@ export default class Salesforce {
+         return field.createable === true
+       })
+ 
++      const choices = fields.map((field) => {
++        return { value: field.name, label: field.label }
++      })
++
+       return {
+-        choices: fields.map((field) => {
+-          return { value: field.name, label: field.label }
+-        }),
++        choices: choices,
+         nextPage: '2'
+       }
+     } catch (err) {
+@@ -180,8 +149,8 @@ export default class Salesforce {
+         choices: [],
+         nextPage: '',
+         error: {
+-          message: (err as SalesforceError).response.data[0].message ?? 'Unknown error',
+-          code: (err as SalesforceError).response.data[0].errorCode ?? 'Unknown error'
++          message: (err as SalesforceError).response?.data[0]?.message ?? 'Unknown error',
++          code: (err as SalesforceError).response?.data[0]?.errorCode ?? 'Unknown error'
+         }
+       }
+     }
+diff --git a/packages/destination-actions/src/destinations/salesforce/sf-properties.ts b/packages/destination-actions/src/destinations/salesforce/sf-properties.ts
+index d906cf18..8d37cd04 100644
+--- a/packages/destination-actions/src/destinations/salesforce/sf-properties.ts
++++ b/packages/destination-actions/src/destinations/salesforce/sf-properties.ts
+@@ -32,8 +32,7 @@ export const bulkUpsertExternalId: InputField = {
+     externalIdName: {
+       label: 'External Id Name',
+       description: 'The external id field name as defined in Salesforce.',
+-      type: 'string',
+-      dynamic: true
++      type: 'string'
+     },
+     externalIdValue: {
+       label: 'External Id Value',
+diff --git a/yarn.lock b/yarn.lock
+index 9c9039aa..ba3c4674 100644
+--- a/yarn.lock
++++ b/yarn.lock
+@@ -2300,21 +2300,6 @@
+   resolved "https://registry.yarnpkg.com/@segment/a1-notation/-/a1-notation-2.1.4.tgz#35a48a0688019c3ffff23b1ba890e864c891a11f"
+   integrity sha512-SId7GOdDFmm/B9ajIQpXELHW4OTbVvmJbOsoJkQOcUEtoZIiX2UWfk1v4BpKql8wJW9oAhzhIIru2Pv2Yxcg+w==
+ 
+-"@segment/action-destinations@^3.107.0":
+-  version "3.107.0"
+-  resolved "https://registry.yarnpkg.com/@segment/action-destinations/-/action-destinations-3.107.0.tgz#1fa91a9c9224d06eb43d6b3cd38df3e7a59f2a42"
+-  integrity sha512-PIQDukQaH1R/sDedgS9ge3xxZIedJWZn9wR56qpGxFbYeB2Owu2dGpfEhdwd5IvpnjncJhlTg/iTfp83r9Rv4w==
+-  dependencies:
+-    "@amplitude/ua-parser-js" "^0.7.25"
+-    "@segment/a1-notation" "^2.1.4"
+-    "@segment/actions-core" "^3.36.0"
+-    "@segment/actions-shared" "^1.19.0"
+-    cheerio "^1.0.0-rc.10"
+-    dayjs "^1.10.7"
+-    escape-goat "^3"
+-    liquidjs "^9.37.0"
+-    lodash "^4.17.21"
+-
+ "@segment/analytics-next@^1.29.3":
+   version "1.29.3"
+   resolved "https://registry.yarnpkg.com/@segment/analytics-next/-/analytics-next-1.29.3.tgz#51ea4d7e487e95c2862ec5d52fd34a113c20161e"

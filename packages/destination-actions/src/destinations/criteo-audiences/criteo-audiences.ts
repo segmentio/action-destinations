@@ -1,5 +1,5 @@
 import { IntegrationError, RetryableError } from '@segment/actions-core'
-import type { RequestClient } from '@segment/actions-core'
+import type { RequestClient, ModifiedResponse } from '@segment/actions-core'
 
 const BASE_API_URL = 'https://api.criteo.com/2022-01'
 
@@ -38,7 +38,7 @@ const getRequestHeaders = async (
 }
 
 export const getAccessToken = async (request: RequestClient, credentials: ClientCredentials): Promise<string> => {
-  const res = await request(`https://api.criteo.com/oauth2/token`, {
+  const res = await request<{ access_token: string }>(`https://api.criteo.com/oauth2/token`, {
     method: 'POST',
     body: new URLSearchParams({
       client_id: credentials.client_id,
@@ -50,7 +50,7 @@ export const getAccessToken = async (request: RequestClient, credentials: Client
       'Content-Type': 'application/x-www-form-urlencoded'
     }
   })
-  const body = await res.json()
+  const body = res.data
 
   if (res.status !== 200)
     // Centrifuge will automatically retry the batch if there's
@@ -73,7 +73,7 @@ export const patchAudience = async (
   request: RequestClient,
   operation: Operation,
   credentials: ClientCredentials
-): Promise<Response> => {
+): Promise<ModifiedResponse> => {
   if (isNaN(+operation.audience_id))
     throw new IntegrationError(`The Audience ID should be a number (${operation.audience_id})`, 'Invalid input', 400)
 
@@ -105,9 +105,9 @@ export const getAdvertiserAudiences = async (
 
   const endpoint = `${BASE_API_URL}/audiences?advertiser-id=${advertiser_id}`
   const headers = await getRequestHeaders(request, credentials)
-  const response = await request(endpoint, { method: 'GET', headers: headers })
+  const response = await request<{ data: Array<Record<string, any>> }>(endpoint, { method: 'GET', headers: headers })
 
-  const body = await response.json()
+  const body = response.data
 
   if (response.status !== 200)
     // Centrifuge will automatically retry the batch if there's
@@ -187,10 +187,15 @@ export const createAudience = async (
     }
   }
 
-  const response = await request(endpoint, { method: 'POST', headers: headers, json: payload, throwHttpErrors: false })
-  const body = await response.json()
+  const response = await request<{ data?: { id: string }; errors: Array<any> }>(endpoint, {
+    method: 'POST',
+    headers: headers,
+    json: payload,
+    throwHttpErrors: false
+  })
+  const body = response.data
 
-  if (response.status !== 200) {
+  if (response.status !== 200 || !body.data) {
     const err = body.errors && body.errors[0] ? body.errors[0] : undefined
     throw new CriteoAPIError(`Error while creating the Audience`, 'Criteo audience creation error', 400, err)
   }

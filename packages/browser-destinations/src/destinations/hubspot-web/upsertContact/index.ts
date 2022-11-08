@@ -30,7 +30,8 @@ const action: BrowserActionDefinition<Settings, Hubspot, Payload> = {
       }
     },
     custom_properties: {
-      description: 'A list of key-value pairs that describe the contact. Please see [HubSpot`s documentation](https://knowledge.hubspot.com/account/prevent-contact-properties-update-through-tracking-code-api) for limitations in updating contact properties.',
+      description:
+        'A list of key-value pairs that describe the contact. Please see [HubSpot`s documentation](https://knowledge.hubspot.com/account/prevent-contact-properties-update-through-tracking-code-api) for limitations in updating contact properties.',
       label: 'Custom Properties',
       type: 'object',
       required: false,
