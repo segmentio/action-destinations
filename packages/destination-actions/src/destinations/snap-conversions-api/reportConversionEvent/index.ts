@@ -82,7 +82,6 @@ const action: ActionDefinition<Settings, Payload> = {
       !data.payload.mobile_ad_id &&
       (!data.payload.ip_address || !data.payload.user_agent)
     ) {
-      console.log('GOT TO HERE------')
       throw new IntegrationError(
         `Payload must contain values for Email or Phone Number or Mobile Ad Identifier or both IP Address and User Agent fields`,
         'Misconfigured required field',
