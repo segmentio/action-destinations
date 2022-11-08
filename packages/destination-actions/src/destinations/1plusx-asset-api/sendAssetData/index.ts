@@ -21,21 +21,24 @@ const action: ActionDefinition<Settings, Payload> = {
       label: 'Asset Title',
       description: 'User friendly description of the asset in the UI',
       type: 'string',
-      required: false
+      required: false,
+      default: {
+        '@path': '$.properties.title'
+      }
     },
     ope_content: {
       label: 'Asset Content',
       description: 'Textual content of the asset processing using NLP alogrithms',
       type: 'string',
-      required: false
+      required: false,
+      default: {
+        '@path': '$.properties.content'
+      }
     },
     custom_fields: {
       label: 'Custom Fields',
       description: 'Custom fields to include with the event',
-      type: 'object',
-      default: {
-        '@path': '$.properties'
-      }
+      type: 'object'
     }
   },
   perform: (request, { settings, payload }) => {
@@ -47,6 +50,7 @@ const action: ActionDefinition<Settings, Payload> = {
     //Convert custom_field values to strings as per 1plusX requirements
     const cleanProps = mapValues(custom_fields, function (value) {
       //Drop arrays and objects
+      // TODO still must include Date!
       if (typeof value === 'object') return
       //Pass strings straight through
       else if (typeof value === 'string') return value
@@ -54,7 +58,7 @@ const action: ActionDefinition<Settings, Payload> = {
       else return JSON.stringify(value)
     })
 
-    const endpoint = `https://${settings.client_id}.assets.tagger.opecloud.com/v2/native/asset/${payload.asset_uri}`
+    const endpoint = `https://${settings.client_name}.assets.tagger.opecloud.com/v2/native/asset/${payload.asset_uri}`
 
     return request(endpoint, {
       method: 'post',
