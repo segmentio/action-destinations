@@ -53,6 +53,7 @@ register('62e17e6f687e4a3d32d0f875', './qualtrics')
 register('61957755c4d820be968457de', './salesforce')
 register('62e30bad99f1bfb98ee8ce08', './salesforce-marketing-cloud')
 register('5f7dd8e302173ff732db5cc4', './slack')
+register('62e30bad99f1bfb98ee8ce08', './salesforce-marketing-cloud')
 register('6261a8b6cb4caa70e19116e8', './snap-conversions-api')
 register('6234b137d3b6404a64f2a0f0', './talon-one')
 register('615cae349d109d6b7496a131', './tiktok-conversions')
@@ -62,6 +63,7 @@ register('61dc4e96894a6d7954cc6e45', './voyage')
 register('62ded0cf5753c743883ca0f3', './intercom')
 register('631a6f32946dd8197e9cab66', './sendgrid')
 register('632b1116e0cb83902f3fd717', './hubspot')
+register('635fea9131814aa2aa18a640', './google-sheets-partner')
 
 function register(id: MetadataId, destinationPath: string) {
   // eslint-disable-next-line @typescript-eslint/no-var-requires

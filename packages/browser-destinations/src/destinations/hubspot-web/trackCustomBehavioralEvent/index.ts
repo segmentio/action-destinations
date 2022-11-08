@@ -12,7 +12,8 @@ const action: BrowserActionDefinition<Settings, Hubspot, Payload> = {
   defaultSubscription: 'type = "track"',
   fields: {
     name: {
-      description: 'The internal event name assigned by HubSpot. This can be found in your HubSpot account. If the "Format Custom Behavioral Event Names" setting is enabled, Segment will automatically convert your Segment event name into the expected HubSpot internal event name format.',
+      description:
+        'The internal event name assigned by HubSpot. This can be found in your HubSpot account. If the "Format Custom Behavioral Event Names" setting is enabled, Segment will automatically convert your Segment event name into the expected HubSpot internal event name format.',
       label: 'Event Name',
       type: 'string',
       required: true,
