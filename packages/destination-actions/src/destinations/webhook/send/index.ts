@@ -22,9 +22,7 @@ const action: ActionDefinition<Settings, Payload> = {
       choices: [
         { label: 'POST', value: 'POST' },
         { label: 'PUT', value: 'PUT' },
-        { label: 'PATCH', value: 'PATCH' },
-        { label: 'DELETE', value: 'DELETE' },
-        { label: 'GET', value: 'GET' }
+        { label: 'PATCH', value: 'PATCH' }
       ],
       default: 'POST',
       required: true
