@@ -6,6 +6,8 @@ import sendGroup from './sendGroup'
 
 import { SEGMENT_ENDPOINTS, DEFAULT_SEGMENT_ENDPOINT } from './properties'
 
+import sendPage from './sendPage'
+
 const destination: DestinationDefinition<Settings> = {
   //Needs to be updated when name & slug are finalized
   name: 'Segment',
@@ -44,7 +46,8 @@ const destination: DestinationDefinition<Settings> = {
   actions: {
     sendScreen,
     sendIdentify,
-    sendGroup
+    sendGroup,
+    sendPage
   }
 }
 

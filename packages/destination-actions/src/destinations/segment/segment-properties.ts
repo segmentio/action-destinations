@@ -38,6 +38,12 @@ export const event_name: InputField = {
   type: 'string'
 }
 
+export const page_category: InputField = {
+  label: 'Page Category',
+  description: 'Category of the page that was viewed.',
+  type: 'string'
+}
+
 export const application: InputField = {
   label: 'Application',
   description: 'Dictionary of information about the current application.',
