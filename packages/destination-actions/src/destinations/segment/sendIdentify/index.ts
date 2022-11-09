@@ -24,7 +24,8 @@ import { SEGMENT_ENDPOINTS } from '../properties'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Send Identify',
-  description: '',
+  description:
+    'Send an identify call to Segment’s tracking API. This is used to tie your users to their actions and record traits about them.',
   defaultSubscription: 'type = "identify"',
   fields: {
     user_id,
@@ -82,7 +83,7 @@ const action: ActionDefinition<Settings, Payload> = {
         400
       )
     }
-    const selectedSegmentEndpoint = SEGMENT_ENDPOINTS[settings.endpoint]
+    const selectedSegmentEndpoint = SEGMENT_ENDPOINTS[settings.endpoint].url
 
     return request(`${selectedSegmentEndpoint}/identify`, {
       method: 'POST',

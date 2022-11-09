@@ -86,7 +86,7 @@ const action: ActionDefinition<Settings, Payload> = {
       )
     }
 
-    const selectedSegmentEndpoint = SEGMENT_ENDPOINTS[settings.endpoint]
+    const selectedSegmentEndpoint = SEGMENT_ENDPOINTS[settings.endpoint].url
 
     return request(`${selectedSegmentEndpoint}/screen`, {
       method: 'POST',
