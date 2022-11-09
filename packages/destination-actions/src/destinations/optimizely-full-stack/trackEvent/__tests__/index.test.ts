@@ -12,6 +12,7 @@ describe('OptimizelyFullStack.trackEvent', () => {
       dataFileUrl: 'https://cdn.example.com/dataFile.json'
     }
     nock(settings.dataFileUrl).get('').reply(200, dataFile)
+    nock('https://logx.optimizely.com/v1/events').post('').reply(200)
     const event = createTestEvent({
       event: 'Product List Clicked',
       properties: {
