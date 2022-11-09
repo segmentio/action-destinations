@@ -51,10 +51,11 @@ const action: ActionDefinition<Settings, Payload> = {
     const cleanProps = mapValues(custom_fields, function (value) {
       //Drop arrays and objects
       // TODO still must include Date!
-      if (typeof value === 'object') return
+      if (typeof value === 'object' && !(value instanceof Array) && !(value instanceof Date)) return
       //Pass strings straight through
-      else if (typeof value === 'string') return value
+      else if (typeof value === 'string' || typeof value === 'number' || typeof value === 'boolean') return value
       //Otherwise stringify all other data types
+      else if (value instanceof Array) return value
       else return JSON.stringify(value)
     })
 

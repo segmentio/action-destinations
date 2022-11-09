@@ -167,12 +167,8 @@ describe('1Plusx Asset Api', () => {
             '@path': '$.properties.content'
           },
           custom_fields: {
-            genre: {
-              '@path': '$.properties.genre'
-            },
-            actors: {
-              '@path': '$.properties.actors'
-            }
+            genre: { '@path': '$.properties.genre' },
+            actors: { '@path': '$.properties.actors' }
           }
         },
         useDefaultMappings: true
@@ -182,10 +178,8 @@ describe('1Plusx Asset Api', () => {
       expect(responses[0].options.json).toMatchObject({
         ope_title: 'Solace',
         ope_content: 'Detailed desciption of the asset',
-        custom_fields: {
-          genre: ['Thriller', 'Horror'],
-          actors: ['Hopkins', 'Affleck']
-        }
+        genre: ['Thriller', 'Horror'],
+        actors: ['Hopkins', 'Affleck']
       })
     })
 
@@ -219,23 +213,19 @@ describe('1Plusx Asset Api', () => {
             '@path': '$.properties.asset_uri'
           },
           custom_fields: {
-            genre: {
-              '@path': '$.properties.genre'
-            },
-            actors: {
-              '@path': '$.properties.actors'
-            }
+            genre: { '@path': '$.properties.genre' },
+            actors: { '@path': '$.properties.actors' }
           }
         },
         useDefaultMappings: false
       })
+
+      console.log(responses[0].options.json)
       expect(responses.length).toBe(1)
       expect(responses[0].status).toBe(200)
       expect(responses[0].options.json).toMatchObject({
-        custom_fields: {
-          genre: 'Thriller',
-          actors: 'Hopkins'
-        }
+        genre: 'Thriller',
+        actors: 'Hopkins'
       })
     })
   })
