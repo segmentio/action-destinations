@@ -54,6 +54,7 @@ const action: ActionDefinition<Settings, Payload> = {
     }
 
     const pagePayload: Object = {
+      type: 'page',
       userId: payload?.user_id,
       annymousId: payload?.anonymous_id,
       timestampe: payload?.timestamp,
