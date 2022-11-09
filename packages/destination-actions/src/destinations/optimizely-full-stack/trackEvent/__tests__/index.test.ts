@@ -1,9 +1,30 @@
-// import nock from 'nock'
-// import { createTestEvent, createTestIntegration } from '@segment/actions-core'
-// import Destination from '../../index'
+import nock from 'nock'
+import { createTestEvent, createTestIntegration } from '@segment/actions-core'
+import Destination from '../../index'
+import { dataFile } from '../dataFile'
 
-// const testDestination = createTestIntegration(Destination)
+const testDestination = createTestIntegration(Destination)
 
-// describe('OptimizelyFullStack.trackEvent', () => {
-//   // TODO: Test your action
-// })
+describe('OptimizelyFullStack.trackEvent', () => {
+  it('should send event successfully', async () => {
+    const settings = {
+      accountId: '12345566',
+      dataFileUrl: 'https://cdn.example.com/dataFile.json'
+    }
+    nock(settings.dataFileUrl).get('').reply(200, dataFile)
+    const event = createTestEvent({
+      event: 'Product List Clicked',
+      properties: {
+        revenue: 1000
+      },
+      context: {
+        traits: {
+          test: 'test'
+        }
+      }
+    })
+    await expect(
+      testDestination.testAction('trackEvent', { event, settings, useDefaultMappings: true })
+    ).resolves.not.toThrowError()
+  })
+})

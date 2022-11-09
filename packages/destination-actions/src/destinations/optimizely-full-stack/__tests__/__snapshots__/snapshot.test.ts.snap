@@ -1,0 +1,15 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Testing snapshot for actions-optimizely-full-stack destination: trackEvent action - all fields 1`] = `""`;
+
+exports[`Testing snapshot for actions-optimizely-full-stack destination: trackEvent action - required fields 1`] = `""`;
+
+exports[`Testing snapshot for actions-optimizely-full-stack destination: trackEvent action - required fields 2`] = `
+Headers {
+  Symbol(map): Object {
+    "user-agent": Array [
+      "Segment (Actions)",
+    ],
+  },
+}
+`;

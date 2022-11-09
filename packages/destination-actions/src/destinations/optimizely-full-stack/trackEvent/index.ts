@@ -105,7 +105,6 @@ These can be used to track numeric metrics, allowing you to track actions beyond
   perform: async (request, { settings, payload }) => {
     const result = await request<ProjectConfig>(settings.dataFileUrl)
     const dataFile = result.data
-
     const eventId = getEventId(dataFile, payload.eventKey)
 
     if (!eventId) {

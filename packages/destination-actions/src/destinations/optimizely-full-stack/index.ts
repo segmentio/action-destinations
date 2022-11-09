@@ -21,6 +21,7 @@ const destination: DestinationDefinition<Settings> = {
         label: 'Datafile URL',
         type: 'string',
         required: true,
+        format: 'uri',
         description:
           'In order to use Optimizely X server side, you must enter the entire URL for your datafile. It should look something like https://cdn.optimizely.com/json/9218021209.json'
       }
