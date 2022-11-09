@@ -112,7 +112,7 @@ export interface Payload {
    */
   min_id_length?: number | null
   /**
-   * The name of the library that generated the event.
+   * The name of the library that generated the event. If nothing is provided, Segment will send "segment" as the Library.
    */
   library?: string
 }

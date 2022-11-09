@@ -237,10 +237,8 @@ const action: ActionDefinition<Settings, Payload> = {
     library: {
       label: 'Library',
       type: 'string',
-      description: 'The name of the library that generated the event.',
-      default: {
-        '@path': '$.context.library.name'
-      }
+      description:
+        'The name of the library that generated the event. If nothing is provided, Segment will send "segment" as the Library.'
     }
   },
 
@@ -275,7 +273,7 @@ const action: ActionDefinition<Settings, Payload> = {
       ...(userAgentParsing && parseUserAgentProperties(userAgent)),
       // Make sure any top-level properties take precedence over user-agent properties
       ...removeUndefined(properties),
-      library: 'segment'
+      library: library ?? 'segment'
     })
 
     return request(getEndpointByRegion('identify', settings.endpoint), {

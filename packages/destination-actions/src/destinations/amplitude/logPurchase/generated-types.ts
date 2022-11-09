@@ -152,7 +152,7 @@ export interface Payload {
    */
   insert_id?: string
   /**
-   * The name of the library that generated the event.
+   * The name of the library that generated the event. If nothing is provided, Segment will send "segment" as the Library.
    */
   library?: string
   /**
