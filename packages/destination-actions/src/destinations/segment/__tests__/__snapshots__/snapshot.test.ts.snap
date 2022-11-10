@@ -2,7 +2,7 @@
 
 exports[`Testing snapshot for segment destination: sendGroup action - all fields 1`] = `
 Object {
-  "annymousId": "(m6Ifxh1N4",
+  "anonymousId": "(m6Ifxh1N4",
   "context": Object {
     "app": Object {
       "build": "(m6Ifxh1N4",
@@ -72,7 +72,7 @@ Object {
 
 exports[`Testing snapshot for segment destination: sendGroup action - required fields 1`] = `
 Object {
-  "annymousId": "(m6Ifxh1N4",
+  "anonymousId": "(m6Ifxh1N4",
   "context": Object {},
   "traits": Object {},
   "type": "group",
