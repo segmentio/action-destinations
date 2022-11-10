@@ -2,7 +2,7 @@ import { ActionDefinition } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 
-type RequestMethod = 'GET' | 'POST' | 'PUT' | 'DELETE' | 'PATCH'
+type RequestMethod = 'POST' | 'PUT' | 'PATCH'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Send',
@@ -22,9 +22,7 @@ const action: ActionDefinition<Settings, Payload> = {
       choices: [
         { label: 'POST', value: 'POST' },
         { label: 'PUT', value: 'PUT' },
-        { label: 'PATCH', value: 'PATCH' },
-        { label: 'DELETE', value: 'DELETE' },
-        { label: 'GET', value: 'GET' }
+        { label: 'PATCH', value: 'PATCH' }
       ],
       default: 'POST',
       required: true
