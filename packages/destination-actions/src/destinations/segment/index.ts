@@ -30,6 +30,13 @@ const destination: DestinationDefinition<Settings> = {
         })),
         default: DEFAULT_SEGMENT_ENDPOINT
       }
+    },
+    testAuthentication: async (request, { settings }) => {
+      const { source_write_key, endpoint } = settings
+
+      return request(
+        `${SEGMENT_ENDPOINTS[endpoint || DEFAULT_SEGMENT_ENDPOINT].cdn}/projects/${source_write_key}/settings`
+      )
     }
   },
   extendRequest({ settings }) {
