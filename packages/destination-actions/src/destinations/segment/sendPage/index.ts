@@ -26,7 +26,7 @@ import { SEGMENT_ENDPOINTS } from '../properties'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Send Page',
-  description: 'Send a page call to Segment’s tracking API. This is used to track mobile app page views.',
+  description: 'Send a page call to Segment’s tracking API. This is used to track website page views.',
   defaultSubscription: 'type = "page"',
   fields: {
     user_id: user_id,

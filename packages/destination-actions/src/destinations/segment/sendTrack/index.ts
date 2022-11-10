@@ -1,12 +1,11 @@
 import { ActionDefinition, IntegrationError } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
-import { SEGMENT_ENDPOINTS } from '../properties'
 import {
   user_id,
   anonymous_id,
-  group_id,
   timestamp,
+  event_name,
   application,
   campaign_parameters,
   device,
@@ -19,18 +18,20 @@ import {
   screen,
   user_agent,
   timezone,
-  traits
+  group_id,
+  properties
 } from '../segment-properties'
+import { SEGMENT_ENDPOINTS } from '../properties'
 
 const action: ActionDefinition<Settings, Payload> = {
-  title: 'Send Group',
-  description: 'Send a group call to Segment’s tracking API. This is used to associate an individual user with a group',
-  defaultSubscription: 'type = "group"',
+  title: 'Send Track',
+  description: 'Send a track call to Segment’s tracking API. This is used to record actions your users perform.',
+  defaultSubscription: 'type = "track"',
   fields: {
     user_id: user_id,
     anonymous_id: anonymous_id,
-    group_id: group_id,
     timestamp: timestamp,
+    event_name: event_name,
     application: application,
     campaign_parameters: campaign_parameters,
     device: device,
@@ -43,18 +44,20 @@ const action: ActionDefinition<Settings, Payload> = {
     screen: screen,
     user_agent: user_agent,
     timezone: timezone,
-    traits: traits
+    group_id: group_id,
+    properties: properties
   },
   perform: (request, { payload, settings }) => {
     if (!payload.anonymous_id && !payload.user_id) {
       throw new IntegrationError('Either Anonymous ID or User ID must be defined.', 'Misconfigured required field', 400)
     }
 
-    const groupPayload: Object = {
-      type: 'group',
+    const trackPayload: Object = {
+      type: 'track',
       userId: payload?.user_id,
       annymousId: payload?.anonymous_id,
       timestamp: payload?.timestamp,
+      event: payload?.event_name,
       context: {
         app: payload?.application,
         campaign: payload?.campaign_parameters,
@@ -67,10 +70,11 @@ const action: ActionDefinition<Settings, Payload> = {
         page: payload?.page,
         screen: payload?.screen,
         userAgent: payload?.user_agent,
-        timezone: payload?.timezone
+        timezone: payload?.timezone,
+        groupId: payload?.group_id
       },
-      traits: {
-        ...payload?.traits
+      properties: {
+        ...payload.properties
       }
     }
 
@@ -84,9 +88,9 @@ const action: ActionDefinition<Settings, Payload> = {
     }
 
     const selectedSegmentEndpoint = SEGMENT_ENDPOINTS[settings.endpoint].url
-    return request(`${selectedSegmentEndpoint}/group`, {
+    return request(`${selectedSegmentEndpoint}/track`, {
       method: 'POST',
-      json: groupPayload
+      json: trackPayload
     })
   }
 }

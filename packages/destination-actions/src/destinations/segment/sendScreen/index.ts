@@ -55,7 +55,7 @@ const action: ActionDefinition<Settings, Payload> = {
     const screenPayload: Object = {
       userId: payload?.user_id,
       annymousId: payload?.anonymous_id,
-      timestampe: payload?.timestamp,
+      timestamp: payload?.timestamp,
       name: payload?.screen_name,
       context: {
         app: payload?.application,
