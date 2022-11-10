@@ -25,6 +25,7 @@
     "test": "lerna run test --stream",
     "typecheck": "lerna run typecheck --stream",
     "alpha": "lerna publish prerelease --pre-dist-tag next --allow-branch '**' --no-git-tag-version",
+    "alpha-two": "lerna publish --canary --preid $(git branch --show-current)",
     "prepare": "husky install"
   },
   "devDependencies": {
