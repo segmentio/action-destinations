@@ -65,7 +65,6 @@ Object {
   "traits": Object {
     "testType": "92N!&JfP",
   },
-  "type": "group",
   "userId": "92N!&JfP",
 }
 `;
@@ -75,7 +74,6 @@ Object {
   "anonymousId": "92N!&JfP",
   "context": Object {},
   "traits": Object {},
-  "type": "group",
   "userId": "92N!&JfP",
 }
 `;

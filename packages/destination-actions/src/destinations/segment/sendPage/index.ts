@@ -30,25 +30,25 @@ const action: ActionDefinition<Settings, Payload> = {
   description: 'Send a page call to Segment’s tracking API. This is used to track website page views.',
   defaultSubscription: 'type = "page"',
   fields: {
-    user_id: user_id,
-    anonymous_id: anonymous_id,
-    timestamp: timestamp,
-    page_name: page_name,
-    page_category: page_category,
-    application: application,
-    campaign_parameters: campaign_parameters,
-    device: device,
-    ip_address: ip_address,
-    locale: locale,
-    location: location,
-    network: network,
-    operating_system: operating_system,
-    page: page,
-    screen: screen,
-    user_agent: user_agent,
-    timezone: timezone,
-    group_id: group_id,
-    properties: properties
+    user_id,
+    anonymous_id,
+    timestamp,
+    page_name,
+    page_category,
+    application,
+    campaign_parameters,
+    device,
+    ip_address,
+    locale,
+    location,
+    network,
+    operating_system,
+    page,
+    screen,
+    user_agent,
+    timezone,
+    group_id,
+    properties
   },
   perform: (request, { payload, settings }) => {
     if (!payload.anonymous_id && !payload.user_id) {
@@ -56,10 +56,9 @@ const action: ActionDefinition<Settings, Payload> = {
     }
 
     const pagePayload: Object = {
-      type: 'page',
       userId: payload?.user_id,
-      annymousId: payload?.anonymous_id,
-      timestampe: payload?.timestamp,
+      anonymousId: payload?.anonymous_id,
+      timestamp: payload?.timestamp,
       name: payload?.page_name,
       context: {
         app: payload?.application,
@@ -78,7 +77,13 @@ const action: ActionDefinition<Settings, Payload> = {
       },
       properties: {
         ...payload.properties,
-        name: payload?.page_name
+        name: payload?.page_name,
+        category: payload?.page_category,
+        path: payload?.page?.path,
+        referrer: payload?.page?.referrer,
+        search: payload?.page?.search,
+        title: payload?.page?.title,
+        url: payload?.page?.url
       }
     }
 

@@ -22,9 +22,9 @@ describe('Segment.sendScreen', () => {
   test('Should throw an error if `userId or` `anonymousId` is not defined', async () => {
     const event = createTestEvent({
       type: 'screen',
-      traits: {
-        name: 'Test User',
-        email: 'test-user@test-company.com'
+      name: 'Home',
+      properties: {
+        'Feed Type': 'private'
       }
     })
 
@@ -39,9 +39,9 @@ describe('Segment.sendScreen', () => {
   test('Should throw an error if Segment Endpoint is incorrectly defined', async () => {
     const event = createTestEvent({
       type: 'screen',
-      traits: {
-        name: 'Test User',
-        email: 'test-user@test-company.com'
+      name: 'Home',
+      properties: {
+        'Feed Type': 'private'
       },
       userId: 'test-user-ufi5bgkko5',
       anonymousId: 'arky4h2sh7k'
@@ -66,9 +66,9 @@ describe('Segment.sendScreen', () => {
 
     const event = createTestEvent({
       type: 'screen',
-      traits: {
-        name: 'Test User',
-        email: 'test-user@test-company.com'
+      name: 'Home',
+      properties: {
+        'Feed Type': 'private'
       },
       userId: 'test-user-ufi5bgkko5',
       anonymousId: 'arky4h2sh7k'

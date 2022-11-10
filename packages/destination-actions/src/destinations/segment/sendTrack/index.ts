@@ -29,24 +29,24 @@ const action: ActionDefinition<Settings, Payload> = {
   description: 'Send a track call to Segment’s tracking API. This is used to record actions your users perform.',
   defaultSubscription: 'type = "track"',
   fields: {
-    user_id: user_id,
-    anonymous_id: anonymous_id,
-    timestamp: timestamp,
-    event_name: event_name,
-    application: application,
-    campaign_parameters: campaign_parameters,
-    device: device,
-    ip_address: ip_address,
-    locale: locale,
-    location: location,
-    network: network,
-    operating_system: operating_system,
-    page: page,
-    screen: screen,
-    user_agent: user_agent,
-    timezone: timezone,
-    group_id: group_id,
-    properties: properties
+    user_id,
+    anonymous_id,
+    timestamp,
+    event_name,
+    application,
+    campaign_parameters,
+    device,
+    ip_address,
+    locale,
+    location,
+    network,
+    operating_system,
+    page,
+    screen,
+    user_agent,
+    timezone,
+    group_id,
+    properties
   },
   perform: (request, { payload, settings }) => {
     if (!payload.anonymous_id && !payload.user_id) {
@@ -54,9 +54,8 @@ const action: ActionDefinition<Settings, Payload> = {
     }
 
     const trackPayload: Object = {
-      type: 'track',
       userId: payload?.user_id,
-      annymousId: payload?.anonymous_id,
+      anonymousId: payload?.anonymous_id,
       timestamp: payload?.timestamp,
       event: payload?.event_name,
       context: {

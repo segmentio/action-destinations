@@ -5,7 +5,7 @@ import { DEFAULT_SEGMENT_ENDPOINT } from '../../properties'
 import nock from 'nock'
 
 const testDestination = createTestIntegration(destination)
-const actionSlug = 'sendScreen'
+const actionSlug = 'sendPage'
 const destinationSlug = 'Segment'
 const seedName = `${destinationSlug}#${actionSlug}`
 

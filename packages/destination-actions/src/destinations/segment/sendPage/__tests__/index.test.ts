@@ -8,58 +8,49 @@ const testDestination = createTestIntegration(Destination)
 
 beforeEach(() => nock.cleanAll())
 
-// Default Group Mapping
-const defaultGroupMapping = {
+// Default Page Mapping
+const defaultPageMapping = {
   user_id: {
     '@path': '$.userId'
   },
   anonymous_id: {
     '@path': '$.anonymousId'
-  },
-  group_id: {
-    '@path': '$.groupId'
   }
 }
 
-describe('Segment.sendGroup', () => {
+describe('Segment.sendPage', () => {
   test('Should throw an error if `userId or` `anonymousId` is not defined', async () => {
     const event = createTestEvent({
-      type: 'group',
-      traits: {
-        name: 'Example Corp',
-        industry: 'Technology'
-      },
-      groupId: 'test-group-ks2i7e'
+      type: 'page',
+      properties: {
+        title: 'Home',
+        url: 'http://www.example.com'
+      }
     })
 
     await expect(
-      testDestination.testAction('sendGroup', {
+      testDestination.testAction('sendPage', {
         event,
-        mapping: {
-          group_id: {
-            '@path': '$.groupId'
-          }
-        }
+        mapping: {}
       })
     ).rejects.toThrowError(MissingUserOrAnonymousIdThrowableError)
   })
 
   test('Should throw an error if Segment Endpoint is incorrectly defined', async () => {
     const event = createTestEvent({
-      type: 'group',
-      traits: {
-        name: 'Example Corp',
-        industry: 'Technology'
+      type: 'page',
+      properties: {
+        title: 'Home',
+        url: 'http://www.example.com'
       },
       userId: 'test-user-ufi5bgkko5',
-      anonymousId: 'arky4h2sh7k',
-      groupId: 'test-group-ks2i7e'
+      anonymousId: 'arky4h2sh7k'
     })
 
     await expect(
-      testDestination.testAction('sendGroup', {
+      testDestination.testAction('sendPage', {
         event,
-        mapping: defaultGroupMapping,
+        mapping: defaultPageMapping,
         settings: {
           source_write_key: 'test-source-write-key',
           endpoint: 'incorrect-endpoint'
@@ -68,25 +59,24 @@ describe('Segment.sendGroup', () => {
     ).rejects.toThrowError(InvalidEndpointSelectedThrowableError)
   })
 
-  test('Should send an group event to Segment', async () => {
-    // Mock: Segment Group Call
+  test('Should send an page event to Segment', async () => {
+    // Mock: Segment Page Call
     const segmentEndpoint = SEGMENT_ENDPOINTS[DEFAULT_SEGMENT_ENDPOINT].url
-    nock(segmentEndpoint).post('/group').reply(200, { success: true })
+    nock(segmentEndpoint).post('/page').reply(200, { success: true })
 
     const event = createTestEvent({
-      type: 'group',
-      traits: {
-        name: 'Example Corp',
-        industry: 'Technology'
+      type: 'page',
+      properties: {
+        title: 'Home',
+        url: 'http://www.example.com'
       },
       userId: 'test-user-ufi5bgkko5',
-      anonymousId: 'arky4h2sh7k',
-      groupId: 'test-group-ks2i7e'
+      anonymousId: 'arky4h2sh7k'
     })
 
-    const responses = await testDestination.testAction('sendGroup', {
+    const responses = await testDestination.testAction('sendPage', {
       event,
-      mapping: defaultGroupMapping,
+      mapping: defaultPageMapping,
       settings: {
         source_write_key: 'test-source-write-key',
         endpoint: DEFAULT_SEGMENT_ENDPOINT

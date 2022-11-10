@@ -65,7 +65,6 @@ Object {
   "traits": Object {
     "testType": "(m6Ifxh1N4",
   },
-  "type": "group",
   "userId": "(m6Ifxh1N4",
 }
 `;
@@ -75,7 +74,6 @@ Object {
   "anonymousId": "(m6Ifxh1N4",
   "context": Object {},
   "traits": Object {},
-  "type": "group",
   "userId": "(m6Ifxh1N4",
 }
 `;
@@ -163,7 +161,7 @@ Object {
 
 exports[`Testing snapshot for segment destination: sendPage action - all fields 1`] = `
 Object {
-  "annymousId": "qB3uqzs44u!@O",
+  "anonymousId": "qB3uqzs44u!@O",
   "context": Object {
     "app": Object {
       "build": "qB3uqzs44u!@O",
@@ -225,23 +223,27 @@ Object {
   },
   "name": "qB3uqzs44u!@O",
   "properties": Object {
+    "category": "qB3uqzs44u!@O",
     "name": "qB3uqzs44u!@O",
+    "path": "qB3uqzs44u!@O",
+    "referrer": "qB3uqzs44u!@O",
+    "search": "qB3uqzs44u!@O",
     "testType": "qB3uqzs44u!@O",
+    "title": "qB3uqzs44u!@O",
+    "url": "qB3uqzs44u!@O",
   },
-  "timestampe": "qB3uqzs44u!@O",
-  "type": "page",
+  "timestamp": "qB3uqzs44u!@O",
   "userId": "qB3uqzs44u!@O",
 }
 `;
 
 exports[`Testing snapshot for segment destination: sendPage action - required fields 1`] = `
 Object {
-  "annymousId": "qB3uqzs44u!@O",
+  "anonymousId": "qB3uqzs44u!@O",
   "context": Object {
     "groupId": "qB3uqzs44u!@O",
   },
   "properties": Object {},
-  "type": "page",
   "userId": "qB3uqzs44u!@O",
 }
 `;
@@ -330,7 +332,7 @@ Object {
 
 exports[`Testing snapshot for segment destination: sendTrack action - all fields 1`] = `
 Object {
-  "annymousId": "CYyxkIddLM",
+  "anonymousId": "CYyxkIddLM",
   "context": Object {
     "app": Object {
       "build": "CYyxkIddLM",
@@ -395,19 +397,17 @@ Object {
     "testType": "CYyxkIddLM",
   },
   "timestamp": "CYyxkIddLM",
-  "type": "track",
   "userId": "CYyxkIddLM",
 }
 `;
 
 exports[`Testing snapshot for segment destination: sendTrack action - required fields 1`] = `
 Object {
-  "annymousId": "CYyxkIddLM",
+  "anonymousId": "CYyxkIddLM",
   "context": Object {
     "groupId": "CYyxkIddLM",
   },
   "properties": Object {},
-  "type": "track",
   "userId": "CYyxkIddLM",
 }
 `;
