@@ -1,7 +1,6 @@
-import { ActionDefinition, IntegrationError } from '@segment/actions-core'
+import { ActionDefinition } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
-import { SEGMENT_ENDPOINTS } from '../properties'
 import {
   user_id,
   anonymous_id,
@@ -21,33 +20,35 @@ import {
   timezone,
   traits
 } from '../segment-properties'
+import { SEGMENT_ENDPOINTS } from '../properties'
+import { MissingUserOrAnonymousIdThrowableError, InvalidEndpointSelectedThrowableError } from '../errors'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Send Group',
   description: 'Send a group call to Segment’s tracking API. This is used to associate an individual user with a group',
   defaultSubscription: 'type = "group"',
   fields: {
-    user_id: user_id,
-    anonymous_id: anonymous_id,
-    group_id: group_id,
-    timestamp: timestamp,
-    application: application,
-    campaign_parameters: campaign_parameters,
-    device: device,
-    ip_address: ip_address,
-    locale: locale,
-    location: location,
-    network: network,
-    operating_system: operating_system,
-    page: page,
-    screen: screen,
-    user_agent: user_agent,
-    timezone: timezone,
-    traits: traits
+    user_id,
+    anonymous_id,
+    group_id: { ...group_id, required: true },
+    timestamp,
+    application,
+    campaign_parameters,
+    device,
+    ip_address,
+    locale,
+    location,
+    network,
+    operating_system,
+    page,
+    screen,
+    user_agent,
+    timezone,
+    traits
   },
   perform: (request, { payload, settings }) => {
     if (!payload.anonymous_id && !payload.user_id) {
-      throw new IntegrationError('Either Anonymous ID or User ID must be defined.', 'Misconfigured required field', 400)
+      throw MissingUserOrAnonymousIdThrowableError
     }
 
     const groupPayload: Object = {
@@ -76,11 +77,7 @@ const action: ActionDefinition<Settings, Payload> = {
 
     // Throw an error if endpoint is not defined or invalid
     if (!settings.endpoint || !(settings.endpoint in SEGMENT_ENDPOINTS)) {
-      throw new IntegrationError(
-        'A valid endpoint must be selected. Please check your Segment settings.',
-        'Misconfigured endpoint',
-        400
-      )
+      throw InvalidEndpointSelectedThrowableError
     }
 
     const selectedSegmentEndpoint = SEGMENT_ENDPOINTS[settings.endpoint].url

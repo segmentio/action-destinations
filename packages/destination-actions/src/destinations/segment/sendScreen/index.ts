@@ -1,4 +1,4 @@
-import { ActionDefinition, IntegrationError } from '@segment/actions-core'
+import { ActionDefinition } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 import {
@@ -22,39 +22,40 @@ import {
   location
 } from '../segment-properties'
 import { SEGMENT_ENDPOINTS } from '../properties'
+import { MissingUserOrAnonymousIdThrowableError, InvalidEndpointSelectedThrowableError } from '../errors'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Send Screen',
   description: 'Send a screen call to Segment’s tracking API. This is used to track mobile app screen views.',
   defaultSubscription: 'type = "screen"',
   fields: {
-    user_id: user_id,
-    anonymous_id: anonymous_id,
-    timestamp: timestamp,
-    screen_name: screen_name,
-    application: application,
-    campaign_parameters: campaign_parameters,
-    device: device,
-    ip_address: ip_address,
-    locale: locale,
-    location: location,
-    network: network,
-    operating_system: operating_system,
-    page: page,
-    screen: screen,
-    user_agent: user_agent,
-    timezone: timezone,
-    group_id: group_id,
-    properties: properties
+    user_id,
+    anonymous_id,
+    timestamp,
+    screen_name,
+    application,
+    campaign_parameters,
+    device,
+    ip_address,
+    locale,
+    location,
+    network,
+    operating_system,
+    page,
+    screen,
+    user_agent,
+    timezone,
+    group_id,
+    properties
   },
   perform: (request, { payload, settings }) => {
     if (!payload.anonymous_id && !payload.user_id) {
-      throw new IntegrationError('Either Anonymous ID or User ID must be defined.', 'Misconfigured required field', 400)
+      throw MissingUserOrAnonymousIdThrowableError
     }
 
     const screenPayload: Object = {
       userId: payload?.user_id,
-      annymousId: payload?.anonymous_id,
+      anonymousId: payload?.anonymous_id,
       timestamp: payload?.timestamp,
       name: payload?.screen_name,
       context: {
@@ -79,14 +80,10 @@ const action: ActionDefinition<Settings, Payload> = {
 
     // Throw an error if endpoint is not defined or invalid
     if (!settings.endpoint || !(settings.endpoint in SEGMENT_ENDPOINTS)) {
-      throw new IntegrationError(
-        'A valid endpoint must be selected. Please check your Segment settings.',
-        'Misconfigured endpoint',
-        400
-      )
+      throw InvalidEndpointSelectedThrowableError
     }
 
-    const selectedSegmentEndpoint = SEGMENT_ENDPOINTS[settings.endpoint]
+    const selectedSegmentEndpoint = SEGMENT_ENDPOINTS[settings.endpoint].url
 
     return request(`${selectedSegmentEndpoint}/screen`, {
       method: 'POST',

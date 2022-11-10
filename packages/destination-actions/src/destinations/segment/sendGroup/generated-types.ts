@@ -12,7 +12,7 @@ export interface Payload {
   /**
    * The group or account ID a user is associated with.
    */
-  group_id?: string
+  group_id: string
   /**
    * Timestamp when the message itself took place as a ISO-8601 format date string. Defaults to current time if not provided.
    */

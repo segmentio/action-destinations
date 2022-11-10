@@ -1,14 +1,13 @@
 import type { DestinationDefinition } from '@segment/actions-core'
 import type { Settings } from './generated-types'
-import sendScreen from './sendScreen'
+
 import sendIdentify from './sendIdentify'
 import sendGroup from './sendGroup'
+import sendScreen from './sendScreen'
+import sendPage from './sendPage'
+import sendTrack from './sendTrack'
 
 import { SEGMENT_ENDPOINTS, DEFAULT_SEGMENT_ENDPOINT } from './properties'
-
-import sendPage from './sendPage'
-
-import sendTrack from './sendTrack'
 
 const destination: DestinationDefinition<Settings> = {
   //Needs to be updated when name & slug are finalized
@@ -36,6 +35,13 @@ const destination: DestinationDefinition<Settings> = {
         })),
         default: DEFAULT_SEGMENT_ENDPOINT
       }
+    },
+    testAuthentication: async (request, { settings }) => {
+      const { source_write_key, endpoint } = settings
+
+      return request(
+        `${SEGMENT_ENDPOINTS[endpoint || DEFAULT_SEGMENT_ENDPOINT].cdn}/projects/${source_write_key}/settings`
+      )
     }
   },
   extendRequest({ settings }) {
@@ -46,9 +52,9 @@ const destination: DestinationDefinition<Settings> = {
     }
   },
   actions: {
-    sendScreen,
     sendIdentify,
     sendGroup,
+    sendScreen,
     sendPage,
     sendTrack
   }
