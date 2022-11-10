@@ -80,6 +80,14 @@ const action: ActionDefinition<Settings, Payload> = {
       type: 'string',
       description:
         'The name of the library that generated the event. If nothing is provided, Segment will send "segment" as the Library.'
+    },
+    library_hidden: {
+      label: 'Library Hidden',
+      type: 'hidden',
+      description: 'The name of the library which generated the event, taken from context.library.name',
+      default: {
+        '@path': '$.context.library.name'
+      }
     }
   },
   perform: async (request, { payload, settings }) => {

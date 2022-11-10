@@ -161,8 +161,18 @@ const action: ActionDefinition<Settings, Payload> = {
   },
   perform: (request, { payload, settings }) => {
     // Omit revenue properties initially because we will manually stitch those into events as prescribed
-    const { time, session_id, userAgent, userAgentParsing, utm_properties, referrer, min_id_length, library, ...rest } =
-      omit(payload, revenueKeys)
+    const {
+      time,
+      session_id,
+      userAgent,
+      userAgentParsing,
+      utm_properties,
+      referrer,
+      min_id_length,
+      library,
+      library_hidden,
+      ...rest
+    } = omit(payload, revenueKeys)
     const properties = rest as AmplitudeEvent
     let options
 
@@ -170,8 +180,8 @@ const action: ActionDefinition<Settings, Payload> = {
       properties.platform = properties.platform.replace(/ios/i, 'iOS').replace(/android/i, 'Android')
     }
 
-    if (library) {
-      if (library === 'analytics.js') properties.platform = 'Web'
+    if (library_hidden) {
+      if (library_hidden === 'analytics.js') properties.platform = 'Web'
     }
 
     if (time && dayjs.utc(time).isValid()) {

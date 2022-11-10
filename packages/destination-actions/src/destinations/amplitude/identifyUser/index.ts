@@ -239,11 +239,20 @@ const action: ActionDefinition<Settings, Payload> = {
       type: 'string',
       description:
         'The name of the library that generated the event. If nothing is provided, Segment will send "segment" as the Library.'
+    },
+    library_hidden: {
+      label: 'Library Hidden',
+      type: 'hidden',
+      description: 'The name of the library which generated the event, taken from context.library.name',
+      default: {
+        '@path': '$.context.library.name'
+      }
     }
   },
 
   perform: (request, { payload, settings }) => {
-    const { utm_properties, referrer, userAgent, userAgentParsing, min_id_length, library, ...rest } = payload
+    const { utm_properties, referrer, userAgent, userAgentParsing, min_id_length, library, library_hidden, ...rest } =
+      payload
 
     let options
     const properties = rest as AmplitudeEvent
@@ -252,8 +261,8 @@ const action: ActionDefinition<Settings, Payload> = {
       properties.platform = properties.platform.replace(/ios/i, 'iOS').replace(/android/i, 'Android')
     }
 
-    if (library === 'analytics.js') {
-      properties.platform = 'Web'
+    if (library_hidden) {
+      if (library_hidden === 'analytics.js') properties.platform = 'Web'
     }
 
     if (Object.keys(utm_properties ?? {}).length || referrer) {

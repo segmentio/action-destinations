@@ -156,6 +156,10 @@ export interface Payload {
    */
   library?: string
   /**
+   * The name of the library which generated the event, taken from context.library.name
+   */
+  library_hidden?: string
+  /**
    * The list of products purchased.
    */
   products?: {

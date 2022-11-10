@@ -39,4 +39,8 @@ export interface Payload {
    * The name of the library that generated the event. If nothing is provided, Segment will send "segment" as the Library.
    */
   library?: string
+  /**
+   * The name of the library which generated the event, taken from context.library.name
+   */
+  library_hidden?: string
 }

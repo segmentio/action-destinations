@@ -8,6 +8,66 @@ const timestamp = '2021-08-17T15:21:15.449Z'
 
 describe('Amplitude', () => {
   describe('logPurchase', () => {
+    it('should set library value if library directive is configured', async () => {
+      const event = createTestEvent({
+        timestamp,
+        event: 'Test Event',
+        context: { library: { name: 'node.js', version: '1.2.3' } }
+      })
+
+      nock('https://api2.amplitude.com/2').post('/httpapi').reply(200, {})
+
+      const mapping = {
+        library: { '@path': '$.context.library.name' }
+      }
+
+      const responses = await testDestination.testAction('logPurchase', {
+        event,
+        mapping,
+        useDefaultMappings: true
+      })
+
+      expect(responses[0].options.json).toMatchObject({
+        events: expect.arrayContaining([
+          expect.objectContaining({
+            library: 'node.js'
+          })
+        ])
+      })
+    })
+
+    it('should set library value to "segment" if library directive is not configured', async () => {
+      const event = createTestEvent({ timestamp, event: 'Test Event' })
+
+      nock('https://api2.amplitude.com/2').post('/httpapi').reply(200, {})
+
+      const responses = await testDestination.testAction('logPurchase', { event, useDefaultMappings: true })
+
+      expect(responses[0].options.json).toMatchObject({
+        events: expect.arrayContaining([
+          expect.objectContaining({
+            library: 'segment'
+          })
+        ])
+      })
+    })
+
+    it('should set platform = "Web" if library_hidden = analytics.js', async () => {
+      const event = createTestEvent({ timestamp, event: 'Test Event' })
+
+      nock('https://api2.amplitude.com/2').post('/httpapi').reply(200, {})
+
+      const responses = await testDestination.testAction('logPurchase', { event, useDefaultMappings: true })
+
+      expect(responses[0].options.json).toMatchObject({
+        events: expect.arrayContaining([
+          expect.objectContaining({
+            platform: 'Web'
+          })
+        ])
+      })
+    })
+
     it('should work with default mappings', async () => {
       const event = createTestEvent({ timestamp, event: 'Test Event' })
 
@@ -521,6 +581,66 @@ describe('Amplitude', () => {
   })
 
   describe('logEvent', () => {
+    it('should set library value if library directive is configured', async () => {
+      const event = createTestEvent({
+        timestamp,
+        event: 'Test Event',
+        context: { library: { name: 'node.js', version: '1.2.3' } }
+      })
+
+      nock('https://api2.amplitude.com/2').post('/httpapi').reply(200, {})
+
+      const mapping = {
+        library: { '@path': '$.context.library.name' }
+      }
+
+      const responses = await testDestination.testAction('logEvent', {
+        event,
+        mapping,
+        useDefaultMappings: true
+      })
+
+      expect(responses[0].options.json).toMatchObject({
+        events: expect.arrayContaining([
+          expect.objectContaining({
+            library: 'node.js'
+          })
+        ])
+      })
+    })
+
+    it('should set library value to "segment" if library directive is not configured', async () => {
+      const event = createTestEvent({ timestamp, event: 'Test Event' })
+
+      nock('https://api2.amplitude.com/2').post('/httpapi').reply(200, {})
+
+      const responses = await testDestination.testAction('logEvent', { event, useDefaultMappings: true })
+
+      expect(responses[0].options.json).toMatchObject({
+        events: expect.arrayContaining([
+          expect.objectContaining({
+            library: 'segment'
+          })
+        ])
+      })
+    })
+
+    it('should set platform = "Web" if library_hidden = analytics.js', async () => {
+      const event = createTestEvent({ timestamp, event: 'Test Event' })
+
+      nock('https://api2.amplitude.com/2').post('/httpapi').reply(200, {})
+
+      const responses = await testDestination.testAction('logEvent', { event, useDefaultMappings: true })
+
+      expect(responses[0].options.json).toMatchObject({
+        events: expect.arrayContaining([
+          expect.objectContaining({
+            platform: 'Web'
+          })
+        ])
+      })
+    })
+
     it('should work with default mappings', async () => {
       const event = createTestEvent({ timestamp, event: 'Test Event' })
 
@@ -922,6 +1042,66 @@ describe('Amplitude', () => {
   })
 
   describe('logEvent V2', () => {
+    it('should set library value if library directive is configured', async () => {
+      const event = createTestEvent({
+        timestamp,
+        event: 'Test Event',
+        context: { library: { name: 'node.js', version: '1.2.3' } }
+      })
+
+      nock('https://api2.amplitude.com/2').post('/httpapi').reply(200, {})
+
+      const mapping = {
+        library: { '@path': '$.context.library.name' }
+      }
+
+      const responses = await testDestination.testAction('logEventV2', {
+        event,
+        mapping,
+        useDefaultMappings: true
+      })
+
+      expect(responses[0].options.json).toMatchObject({
+        events: expect.arrayContaining([
+          expect.objectContaining({
+            library: 'node.js'
+          })
+        ])
+      })
+    })
+
+    it('should set library value to "segment" if library directive is not configured', async () => {
+      const event = createTestEvent({ timestamp, event: 'Test Event' })
+
+      nock('https://api2.amplitude.com/2').post('/httpapi').reply(200, {})
+
+      const responses = await testDestination.testAction('logEventV2', { event, useDefaultMappings: true })
+
+      expect(responses[0].options.json).toMatchObject({
+        events: expect.arrayContaining([
+          expect.objectContaining({
+            library: 'segment'
+          })
+        ])
+      })
+    })
+
+    it('should set platform = "Web" if library_hidden = analytics.js', async () => {
+      const event = createTestEvent({ timestamp, event: 'Test Event' })
+
+      nock('https://api2.amplitude.com/2').post('/httpapi').reply(200, {})
+
+      const responses = await testDestination.testAction('logEventV2', { event, useDefaultMappings: true })
+
+      expect(responses[0].options.json).toMatchObject({
+        events: expect.arrayContaining([
+          expect.objectContaining({
+            platform: 'Web'
+          })
+        ])
+      })
+    })
+
     it('works with default mappings', async () => {
       const event = createTestEvent({ timestamp, event: 'Test Event' })
 
@@ -1461,6 +1641,103 @@ describe('Amplitude', () => {
   })
 
   describe('identifyUser', () => {
+    it('should set library value if library directive is configured', async () => {
+      const event = createTestEvent({
+        anonymousId: 'some-anonymous-id',
+        timestamp: '2021-04-12T16:32:37.710Z',
+        type: 'group',
+        userId: 'some-user-id',
+        traits: {
+          'some-trait-key': 'some-trait-value'
+        }
+      })
+
+      const mapping = {
+        library: { '@path': '$.context.library.name' }
+      }
+
+      nock('https://api2.amplitude.com').post('/identify').reply(200, {})
+      const responses = await testDestination.testAction('identifyUser', { event, mapping, useDefaultMappings: true })
+      expect(responses.length).toBe(1)
+      expect(responses[0].status).toBe(200)
+      expect(responses[0].data).toMatchObject({})
+      expect(responses[0].options.body).toMatchInlineSnapshot(`
+        URLSearchParams {
+          Symbol(query): Array [
+            "api_key",
+            "undefined",
+            "identification",
+            "{\\"os_name\\":\\"Mobile Safari\\",\\"os_version\\":\\"9\\",\\"device_model\\":\\"iPhone\\",\\"device_type\\":\\"mobile\\",\\"user_id\\":\\"some-user-id\\",\\"device_id\\":\\"some-anonymous-id\\",\\"user_properties\\":{\\"some-trait-key\\":\\"some-trait-value\\"},\\"country\\":\\"United States\\",\\"city\\":\\"San Francisco\\",\\"language\\":\\"en-US\\",\\"platform\\":\\"Web\\",\\"library\\":\\"analytics.js\\"}",
+            "options",
+            "undefined",
+          ],
+          Symbol(context): null,
+        }
+      `)
+    })
+
+    it('should set library value to "segment" if library directive is not configured', async () => {
+      const event = createTestEvent({
+        anonymousId: 'some-anonymous-id',
+        timestamp: '2021-04-12T16:32:37.710Z',
+        type: 'group',
+        userId: 'some-user-id',
+        traits: {
+          'some-trait-key': 'some-trait-value'
+        }
+      })
+
+      nock('https://api2.amplitude.com').post('/identify').reply(200, {})
+      const responses = await testDestination.testAction('identifyUser', { event, useDefaultMappings: true })
+      expect(responses.length).toBe(1)
+      expect(responses[0].status).toBe(200)
+      expect(responses[0].data).toMatchObject({})
+      expect(responses[0].options.body).toMatchInlineSnapshot(`
+        URLSearchParams {
+          Symbol(query): Array [
+            "api_key",
+            "undefined",
+            "identification",
+            "{\\"os_name\\":\\"Mobile Safari\\",\\"os_version\\":\\"9\\",\\"device_model\\":\\"iPhone\\",\\"device_type\\":\\"mobile\\",\\"user_id\\":\\"some-user-id\\",\\"device_id\\":\\"some-anonymous-id\\",\\"user_properties\\":{\\"some-trait-key\\":\\"some-trait-value\\"},\\"country\\":\\"United States\\",\\"city\\":\\"San Francisco\\",\\"language\\":\\"en-US\\",\\"platform\\":\\"Web\\",\\"library\\":\\"segment\\"}",
+            "options",
+            "undefined",
+          ],
+          Symbol(context): null,
+        }
+      `)
+    })
+
+    it('should set platform = "Web" if library_hidden = analytics.js', async () => {
+      const event = createTestEvent({
+        anonymousId: 'some-anonymous-id',
+        timestamp: '2021-04-12T16:32:37.710Z',
+        type: 'group',
+        userId: 'some-user-id',
+        traits: {
+          'some-trait-key': 'some-trait-value'
+        }
+      })
+
+      nock('https://api2.amplitude.com').post('/identify').reply(200, {})
+      const responses = await testDestination.testAction('identifyUser', { event, useDefaultMappings: true })
+      expect(responses.length).toBe(1)
+      expect(responses[0].status).toBe(200)
+      expect(responses[0].data).toMatchObject({})
+      expect(responses[0].options.body).toMatchInlineSnapshot(`
+        URLSearchParams {
+          Symbol(query): Array [
+            "api_key",
+            "undefined",
+            "identification",
+            "{\\"os_name\\":\\"Mobile Safari\\",\\"os_version\\":\\"9\\",\\"device_model\\":\\"iPhone\\",\\"device_type\\":\\"mobile\\",\\"user_id\\":\\"some-user-id\\",\\"device_id\\":\\"some-anonymous-id\\",\\"user_properties\\":{\\"some-trait-key\\":\\"some-trait-value\\"},\\"country\\":\\"United States\\",\\"city\\":\\"San Francisco\\",\\"language\\":\\"en-US\\",\\"platform\\":\\"Web\\",\\"library\\":\\"segment\\"}",
+            "options",
+            "undefined",
+          ],
+          Symbol(context): null,
+        }
+      `)
+    })
+
     it('should work with default mappings', async () => {
       const event = createTestEvent({
         anonymousId: 'some-anonymous-id',
@@ -1770,6 +2047,60 @@ describe('Amplitude', () => {
       group_type: 'some-type',
       group_value: 'some-value'
     }
+
+    it('should set library value if library directive is configured', async () => {
+      nock('https://api2.amplitude.com').post('/identify').reply(200, {})
+      nock('https://api2.amplitude.com').post('/groupidentify').reply(200, {})
+
+      const [response] = await testDestination.testAction('groupIdentifyUser', {
+        event,
+        mapping: { ...mapping, ...{ library: { '@path': '$.context.library.name' } } },
+        useDefaultMappings: true
+      })
+
+      expect(response.status).toBe(200)
+      expect(response.data).toMatchObject({})
+      expect(response.options.body).toMatchInlineSnapshot(`
+        URLSearchParams {
+          Symbol(query): Array [
+            "api_key",
+            "undefined",
+            "identification",
+            "[{\\"device_id\\":\\"some-anonymous-id\\",\\"groups\\":{\\"some-type\\":\\"some-value\\"},\\"insert_id\\":\\"some-insert-id\\",\\"library\\":\\"analytics.js\\",\\"time\\":1618245157710,\\"user_id\\":\\"some-user-id\\",\\"user_properties\\":{\\"some-type\\":\\"some-value\\"}}]",
+            "options",
+            "undefined",
+          ],
+          Symbol(context): null,
+        }
+      `)
+    })
+
+    it('should set library value to "segment" if library directive is not configured', async () => {
+      nock('https://api2.amplitude.com').post('/identify').reply(200, {})
+      nock('https://api2.amplitude.com').post('/groupidentify').reply(200, {})
+
+      const [response] = await testDestination.testAction('groupIdentifyUser', {
+        event,
+        mapping,
+        useDefaultMappings: true
+      })
+
+      expect(response.status).toBe(200)
+      expect(response.data).toMatchObject({})
+      expect(response.options.body).toMatchInlineSnapshot(`
+        URLSearchParams {
+          Symbol(query): Array [
+            "api_key",
+            "undefined",
+            "identification",
+            "[{\\"device_id\\":\\"some-anonymous-id\\",\\"groups\\":{\\"some-type\\":\\"some-value\\"},\\"insert_id\\":\\"some-insert-id\\",\\"library\\":\\"segment\\",\\"time\\":1618245157710,\\"user_id\\":\\"some-user-id\\",\\"user_properties\\":{\\"some-type\\":\\"some-value\\"}}]",
+            "options",
+            "undefined",
+          ],
+          Symbol(context): null,
+        }
+      `)
+    })
 
     it('should fire identify call to Amplitude', async () => {
       nock('https://api2.amplitude.com').post('/identify').reply(200, {})
