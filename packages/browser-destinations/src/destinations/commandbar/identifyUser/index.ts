@@ -50,7 +50,11 @@ const action: BrowserActionDefinition<Settings, CommandBarClientSDK, Payload> = 
   perform: (CommandBar, event) => {
     const traits = event.payload.traits || {}
 
-    CommandBar.boot(event.payload.userId, traits, { ...(!!event.payload.hmac && { hmac: event.payload.hmac }) })
+    if (!!event.settings.deploy) {
+      CommandBar.boot(event.payload.userId, traits, { ...(!!event.payload.hmac && { hmac: event.payload.hmac }) })
+    } else {
+      CommandBar.addMetadataBatch(traits, true)
+    }
   }
 }
 

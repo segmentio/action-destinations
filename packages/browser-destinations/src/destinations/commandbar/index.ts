@@ -26,6 +26,13 @@ export const destination: BrowserDestinationDefinition<Settings, CommandBarClien
       label: 'Organization ID',
       type: 'string',
       required: true
+    },
+    deploy: {
+      description:
+        'If enabled, the CommandBar will be deployed to your site automatically and you can remove the the snippet from your source code.',
+      label: 'Deploy via Segment',
+      type: 'boolean',
+      required: false
     }
   },
 

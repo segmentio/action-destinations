@@ -12,8 +12,12 @@ export type InstanceAttributes = {
 
 export type ContextLoader = (chosenValues?: undefined | Record<string, unknown[]>) => unknown
 
+export type Metadata = Record<string, unknown>
+
 export type CommandBarClientSDK = {
   boot(id: string, userAttributes?: UserAttributes, instanceAttributes?: Partial<InstanceAttributes>): Promise<void>
 
-  addMetadata(key: string, value: unknown | ContextLoader): void
+  addMetadataBatch(data: Metadata, addToUserProperties?: boolean): void
+
+  trackEvent(key: string, properties: Metadata): void
 }
