@@ -175,16 +175,12 @@ export class HTTPError extends CustomError {
   request: Request
   response: Response
   options: NormalizedOptions
-  status: number
-  statusText: string
 
   constructor(response: Response, request: Request, options: NormalizedOptions) {
     super(response.statusText ?? String(response.status ?? 'Unknown response error'))
     this.response = response
     this.request = request
     this.options = options
-    this.status = response.status
-    this.statusText = response.statusText
   }
 }
 

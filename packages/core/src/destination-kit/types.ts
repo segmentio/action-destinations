@@ -35,11 +35,6 @@ export interface ExecuteInput<Settings, Payload> {
   readonly transactionContext?: TransactionContext
 }
 
-export type WrappedDynamicFieldResponse = {
-  status?: number
-  statusText?: string
-} & DynamicFieldResponse
-
 export interface DynamicFieldResponse {
   choices: DynamicFieldItem[]
   nextPage?: string
