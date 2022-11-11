@@ -1,5 +1,7 @@
 import { ModifiedResponse, RequestClient } from '@segment/actions-core'
 import dayjs from '../../lib/dayjs'
+import type { Settings } from './generated-types'
+import { getEndpointByRegion } from './regional-endpoints'
 
 interface IntercomContact {
   id: string
@@ -20,8 +22,10 @@ interface SearchPayload {
  *
  * Intercom's API Docs - https://developers.intercom.com/intercom-api-reference/reference/search-for-contacts
  */
-export async function getUniqueIntercomContact(request: RequestClient, payload: SearchPayload) {
+export async function getUniqueIntercomContact(request: RequestClient, payload: SearchPayload, settings: Settings) {
   const { external_id, email } = payload
+  const endpoint = getEndpointByRegion(settings.endpoint)
+
   let query
   if (external_id) {
     query = {
@@ -39,7 +43,7 @@ export async function getUniqueIntercomContact(request: RequestClient, payload: 
     return
   }
 
-  const response: ModifiedResponse<IntercomSearchData> = await request('https://api.intercom.io/contacts/search', {
+  const response: ModifiedResponse<IntercomSearchData> = await request(`${endpoint}/contacts/search`, {
     method: 'POST',
     json: { query }
   })

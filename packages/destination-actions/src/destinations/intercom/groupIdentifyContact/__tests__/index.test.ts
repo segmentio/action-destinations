@@ -1,9 +1,13 @@
 import nock from 'nock'
 import { createTestEvent, createTestIntegration } from '@segment/actions-core'
 import Destination from '../../index'
+import { getEndpointByRegion } from '../../regional-endpoints'
 
 const testDestination = createTestIntegration(Destination)
-const endpoint = 'https://api.intercom.io'
+const settings = {
+  endpoint: 'north_america'
+}
+const endpoint = getEndpointByRegion(settings.endpoint)
 
 describe('Intercom.groupIdentifyContact', () => {
   it('should create a company and attach a contact', async () => {
@@ -19,6 +23,7 @@ describe('Intercom.groupIdentifyContact', () => {
 
     const responses = await testDestination.testAction('groupIdentifyContact', {
       event,
+      settings,
       useDefaultMappings: true
     })
 
@@ -37,6 +42,7 @@ describe('Intercom.groupIdentifyContact', () => {
 
     const responses = await testDestination.testAction('groupIdentifyContact', {
       event,
+      settings,
       useDefaultMappings: true
     })
 
