@@ -1,0 +1,92 @@
+import type { Settings } from './generated-types'
+import type { BrowserDestinationDefinition } from '../../lib/browser-destinations'
+import { browserDestination } from '../../runtime/shim'
+import type { Wisepops } from './types'
+
+import { defaultValues } from '@segment/actions-core'
+
+import setCustomProperties from './setCustomProperties'
+import setNestedCustomProperties from './setNestedCustomProperties'
+import trackEvent from './trackEvent'
+import trackGoal from './trackGoal'
+import trackPage from './trackPage'
+
+declare global {
+  interface Window {
+    wisepops: Wisepops
+    WisePopsObject: string
+  }
+}
+
+export const destination: BrowserDestinationDefinition<Settings, Wisepops> = {
+  name: 'Wisepops',
+  slug: 'actions-wisepops',
+  mode: 'device',
+
+  presets: [
+    {
+      name: setCustomProperties.title,
+      subscribe: setCustomProperties.defaultSubscription!,
+      partnerAction: 'setCustomProperties',
+      mapping: defaultValues(setCustomProperties.fields)
+    },
+    {
+      name: setNestedCustomProperties.title,
+      subscribe: setNestedCustomProperties.defaultSubscription!,
+      partnerAction: 'setNestedCustomProperties',
+      mapping: defaultValues(setNestedCustomProperties.fields)
+    },
+    {
+      name: trackEvent.title,
+      subscribe: 'type = "track"',
+      partnerAction: 'trackEvent',
+      mapping: defaultValues(trackEvent.fields)
+    },
+    {
+      name: trackGoal.title,
+      subscribe: trackGoal.defaultSubscription!,
+      partnerAction: 'trackGoal',
+      mapping: defaultValues(trackGoal.fields)
+    },
+    {
+      name: trackPage.title,
+      subscribe: trackPage.defaultSubscription!,
+      partnerAction: 'trackPage',
+      mapping: defaultValues(trackPage.fields)
+    }
+  ],
+
+  settings: {
+    websiteHash: {
+      description:
+        "The hash of your Wisepops' website. You can find it in [your setup code on Wisepops](https://app.wisepops.com/f/settings/websites).",
+      label: 'Website hash',
+      type: 'string',
+      required: true
+    }
+  },
+
+  initialize: async ({ settings }, deps) => {
+    window.WisePopsObject = 'wisepops'
+    window.wisepops =
+      window.wisepops ||
+      function (...arg) {
+        ;(window.wisepops.q = window.wisepops.q || []).push(arg)
+      }
+    window.wisepops.l = Date.now()
+    window.wisepops('options', { autoPageview: false })
+    // Can load asynchronously, no need to wait
+    void deps.loadScript(`https://loader.wisepops.com/get-loader.js?v=1&site=${settings.websiteHash}`)
+    return window.wisepops
+  },
+
+  actions: {
+    setCustomProperties,
+    setNestedCustomProperties,
+    trackEvent,
+    trackGoal,
+    trackPage,
+  }
+}
+
+export default browserDestination(destination)
