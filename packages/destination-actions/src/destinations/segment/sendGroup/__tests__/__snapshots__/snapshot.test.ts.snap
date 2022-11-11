@@ -61,6 +61,7 @@ Object {
     "timezone": "92N!&JfP",
     "userAgent": "92N!&JfP",
   },
+  "groupId": "92N!&JfP",
   "timestamp": "92N!&JfP",
   "traits": Object {
     "testType": "92N!&JfP",
@@ -73,6 +74,7 @@ exports[`Testing snapshot for Segment's sendGroup destination action: required f
 Object {
   "anonymousId": "92N!&JfP",
   "context": Object {},
+  "groupId": "92N!&JfP",
   "traits": Object {},
   "userId": "92N!&JfP",
 }

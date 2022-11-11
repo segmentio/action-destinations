@@ -61,6 +61,7 @@ Object {
     "timezone": "(m6Ifxh1N4",
     "userAgent": "(m6Ifxh1N4",
   },
+  "groupId": "(m6Ifxh1N4",
   "timestamp": "(m6Ifxh1N4",
   "traits": Object {
     "testType": "(m6Ifxh1N4",
@@ -73,6 +74,7 @@ exports[`Testing snapshot for segment destination: sendGroup action - required f
 Object {
   "anonymousId": "(m6Ifxh1N4",
   "context": Object {},
+  "groupId": "(m6Ifxh1N4",
   "traits": Object {},
   "userId": "(m6Ifxh1N4",
 }

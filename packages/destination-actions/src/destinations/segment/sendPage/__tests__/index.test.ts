@@ -3,7 +3,6 @@ import { createTestEvent, createTestIntegration } from '@segment/actions-core'
 import Destination from '../../index'
 import { SEGMENT_ENDPOINTS, DEFAULT_SEGMENT_ENDPOINT } from '../../properties'
 import { MissingUserOrAnonymousIdThrowableError, InvalidEndpointSelectedThrowableError } from '../../errors'
-
 const testDestination = createTestIntegration(Destination)
 
 beforeEach(() => nock.cleanAll())
@@ -15,15 +14,21 @@ const defaultPageMapping = {
   },
   anonymous_id: {
     '@path': '$.anonymousId'
+  },
+  page_name: {
+    '@path': '$.name'
+  },
+  properties: {
+    '@path': '$.properties'
   }
 }
 
 describe('Segment.sendPage', () => {
   test('Should throw an error if `userId or` `anonymousId` is not defined', async () => {
     const event = createTestEvent({
-      type: 'page',
+      name: 'Home',
       properties: {
-        title: 'Home',
+        title: 'Home | Example Company',
         url: 'http://www.example.com'
       }
     })
@@ -38,9 +43,9 @@ describe('Segment.sendPage', () => {
 
   test('Should throw an error if Segment Endpoint is incorrectly defined', async () => {
     const event = createTestEvent({
-      type: 'page',
+      name: 'Home',
       properties: {
-        title: 'Home',
+        title: 'Home | Example Company',
         url: 'http://www.example.com'
       },
       userId: 'test-user-ufi5bgkko5',
@@ -65,9 +70,9 @@ describe('Segment.sendPage', () => {
     nock(segmentEndpoint).post('/page').reply(200, { success: true })
 
     const event = createTestEvent({
-      type: 'page',
+      name: 'Home',
       properties: {
-        title: 'Home',
+        title: 'Home | Example Company',
         url: 'http://www.example.com'
       },
       userId: 'test-user-ufi5bgkko5',
@@ -83,6 +88,16 @@ describe('Segment.sendPage', () => {
       }
     })
 
+    expect(responses.length).toBe(1)
     expect(responses[0].status).toEqual(200)
+    expect(responses[0].options.json).toMatchObject({
+      userId: event.userId,
+      anonymousId: event.anonymousId,
+      properties: {
+        name: event.name,
+        ...event.properties
+      },
+      context: {}
+    })
   })
 })

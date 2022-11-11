@@ -15,6 +15,9 @@ const defaultIdentifyMapping = {
   },
   anonymous_id: {
     '@path': '$.anonymousId'
+  },
+  traits: {
+    '@path': '$.traits'
   }
 }
 
@@ -83,6 +86,15 @@ describe('Segment.sendIdentify', () => {
       }
     })
 
+    expect(responses.length).toBe(1)
     expect(responses[0].status).toEqual(200)
+    expect(responses[0].options.json).toMatchObject({
+      userId: event.userId,
+      anonymousId: event.anonymousId,
+      traits: {
+        ...event.traits
+      },
+      context: {}
+    })
   })
 })

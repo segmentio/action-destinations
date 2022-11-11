@@ -15,13 +15,15 @@ const defaultPageMapping = {
   },
   anonymous_id: {
     '@path': '$.anonymousId'
+  },
+  properties: {
+    '@path': '$.properties'
   }
 }
 
 describe('Segment.sendTrack', () => {
   test('Should throw an error if `userId or` `anonymousId` is not defined', async () => {
     const event = createTestEvent({
-      type: 'track',
       properties: {
         plan: 'Business'
       }
@@ -37,7 +39,6 @@ describe('Segment.sendTrack', () => {
 
   test('Should throw an error if Segment Endpoint is incorrectly defined', async () => {
     const event = createTestEvent({
-      type: 'track',
       properties: {
         plan: 'Business'
       },
@@ -63,7 +64,6 @@ describe('Segment.sendTrack', () => {
     nock(segmentEndpoint).post('/track').reply(200, { success: true })
 
     const event = createTestEvent({
-      type: 'track',
       properties: {
         plan: 'Business'
       },
@@ -80,6 +80,15 @@ describe('Segment.sendTrack', () => {
       }
     })
 
+    expect(responses.length).toBe(1)
     expect(responses[0].status).toEqual(200)
+    expect(responses[0].options.json).toMatchObject({
+      userId: event.userId,
+      anonymousId: event.anonymousId,
+      properties: {
+        ...event.properties
+      },
+      context: {}
+    })
   })
 })

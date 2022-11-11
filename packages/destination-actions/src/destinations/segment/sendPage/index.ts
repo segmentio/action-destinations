@@ -76,14 +76,14 @@ const action: ActionDefinition<Settings, Payload> = {
         groupId: payload?.group_id
       },
       properties: {
-        ...payload.properties,
         name: payload?.page_name,
         category: payload?.page_category,
         path: payload?.page?.path,
         referrer: payload?.page?.referrer,
         search: payload?.page?.search,
         title: payload?.page?.title,
-        url: payload?.page?.url
+        url: payload?.page?.url,
+        ...payload?.properties
       }
     }
 

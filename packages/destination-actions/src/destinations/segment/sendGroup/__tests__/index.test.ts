@@ -18,13 +18,15 @@ const defaultGroupMapping = {
   },
   group_id: {
     '@path': '$.groupId'
+  },
+  traits: {
+    '@path': '$.traits'
   }
 }
 
 describe('Segment.sendGroup', () => {
   test('Should throw an error if `userId or` `anonymousId` is not defined', async () => {
     const event = createTestEvent({
-      type: 'group',
       traits: {
         name: 'Example Corp',
         industry: 'Technology'
@@ -46,7 +48,6 @@ describe('Segment.sendGroup', () => {
 
   test('Should throw an error if Segment Endpoint is incorrectly defined', async () => {
     const event = createTestEvent({
-      type: 'group',
       traits: {
         name: 'Example Corp',
         industry: 'Technology'
@@ -74,7 +75,6 @@ describe('Segment.sendGroup', () => {
     nock(segmentEndpoint).post('/group').reply(200, { success: true })
 
     const event = createTestEvent({
-      type: 'group',
       traits: {
         name: 'Example Corp',
         industry: 'Technology'
@@ -93,6 +93,16 @@ describe('Segment.sendGroup', () => {
       }
     })
 
+    expect(responses.length).toBe(1)
     expect(responses[0].status).toEqual(200)
+    expect(responses[0].options.json).toMatchObject({
+      userId: event.userId,
+      anonymousId: event.anonymousId,
+      groupId: event.groupId,
+      traits: {
+        ...event.traits
+      },
+      context: {}
+    })
   })
 })

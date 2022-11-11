@@ -73,8 +73,8 @@ const action: ActionDefinition<Settings, Payload> = {
         groupId: payload?.group_id
       },
       properties: {
-        ...payload.properties,
-        name: payload?.screen_name
+        name: payload?.screen_name,
+        ...payload?.properties
       }
     }
 

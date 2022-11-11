@@ -54,6 +54,7 @@ const action: ActionDefinition<Settings, Payload> = {
     const groupPayload: Object = {
       userId: payload?.user_id,
       anonymousId: payload?.anonymous_id,
+      groupId: payload?.group_id,
       timestamp: payload?.timestamp,
       context: {
         app: payload?.application,
