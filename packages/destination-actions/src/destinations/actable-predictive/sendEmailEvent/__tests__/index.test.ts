@@ -9,7 +9,7 @@ describe('ActablePredictive.sendEmailEvent', () => {
     // nockAuth()
     const nockRequests: any[] /* (typeof nock.ReplyFnContext.req)[] */ = []
     nock(API_URL)
-      .post('/')
+      .post('')
       .reply(200, function (_uri, _requestBody) {
         nockRequests.push(this.req)
         return {}
