@@ -31,6 +31,14 @@ const destination: DestinationDefinition<Settings> = {
 
   actions: {
     createOrUpdateContact
+  },
+  onDelete: async (request, { payload }) => {
+    return request('https://app.loops.so/api/v1/contacts/delete', {
+      method: 'DELETE',
+      json: {
+        userId: [payload.userId]
+      }
+    })
   }
 }
 
