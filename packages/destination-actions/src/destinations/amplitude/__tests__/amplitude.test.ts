@@ -456,6 +456,46 @@ describe('Amplitude', () => {
         ])
       })
     })
+
+    it('Platform falls back to context.device.type if context.library.name is not available', async () => {
+      const event = createTestEvent({
+        anonymousId: '6fd32a7e-3c56-44c2-bd32-62bbec44c53d',
+        timestamp,
+        event: 'Test Event',
+        context: {
+          device: {
+            type: 'ios'
+          }
+        }
+      })
+      const mapping = {
+        userAgentParsing: true
+      }
+      nock('https://api2.amplitude.com/2').post('/httpapi').reply(200, {})
+      const responses = await testDestination.testAction('logPurchase', { event, mapping, useDefaultMappings: true })
+      expect(responses.length).toBe(1)
+      expect(responses[0].status).toBe(200)
+      expect(responses[0].data).toMatchObject({})
+      expect(responses[0].options.json).toMatchInlineSnapshot(`
+        Object {
+          "api_key": undefined,
+          "events": Array [
+            Object {
+              "device_id": "6fd32a7e-3c56-44c2-bd32-62bbec44c53d",
+              "event_properties": Object {},
+              "event_type": "Test Event",
+              "library": "segment",
+              "platform": "iOS",
+              "time": 1629213675449,
+              "use_batch_endpoint": false,
+              "user_id": "user1234",
+              "user_properties": Object {},
+            },
+          ],
+          "options": undefined,
+        }
+      `)
+    })
   })
 
   describe('mapUser', () => {
@@ -918,6 +958,46 @@ describe('Amplitude', () => {
           })
         ])
       })
+    })
+
+    it('Platform falls back to context.device.type if context.library.name is not available', async () => {
+      const event = createTestEvent({
+        anonymousId: '6fd32a7e-3c56-44c2-bd32-62bbec44c53d',
+        timestamp,
+        event: 'Test Event',
+        context: {
+          device: {
+            type: 'iOS'
+          }
+        }
+      })
+      const mapping = {
+        userAgentParsing: true
+      }
+      nock('https://api2.amplitude.com/2').post('/httpapi').reply(200, {})
+      const responses = await testDestination.testAction('logEvent', { event, mapping, useDefaultMappings: true })
+      expect(responses.length).toBe(1)
+      expect(responses[0].status).toBe(200)
+      expect(responses[0].data).toMatchObject({})
+      expect(responses[0].options.json).toMatchInlineSnapshot(`
+        Object {
+          "api_key": undefined,
+          "events": Array [
+            Object {
+              "device_id": "6fd32a7e-3c56-44c2-bd32-62bbec44c53d",
+              "event_properties": Object {},
+              "event_type": "Test Event",
+              "library": "segment",
+              "platform": "iOS",
+              "time": 1629213675449,
+              "use_batch_endpoint": false,
+              "user_id": "user1234",
+              "user_properties": Object {},
+            },
+          ],
+          "options": undefined,
+        }
+      `)
     })
   })
 
@@ -1417,6 +1497,45 @@ describe('Amplitude', () => {
         ])
       })
     })
+    it('Platform falls back to context.device.type if context.library.name is not available', async () => {
+      const event = createTestEvent({
+        anonymousId: '6fd32a7e-3c56-44c2-bd32-62bbec44c53d',
+        timestamp,
+        event: 'Test Event',
+        context: {
+          device: {
+            type: 'ios'
+          }
+        }
+      })
+      const mapping = {
+        userAgentParsing: true
+      }
+      nock('https://api2.amplitude.com/2').post('/httpapi').reply(200, {})
+      const responses = await testDestination.testAction('logEventV2', { event, mapping, useDefaultMappings: true })
+      expect(responses.length).toBe(1)
+      expect(responses[0].status).toBe(200)
+      expect(responses[0].data).toMatchObject({})
+      expect(responses[0].options.json).toMatchInlineSnapshot(`
+        Object {
+          "api_key": undefined,
+          "events": Array [
+            Object {
+              "device_id": "6fd32a7e-3c56-44c2-bd32-62bbec44c53d",
+              "event_properties": Object {},
+              "event_type": "Test Event",
+              "library": "segment",
+              "platform": "iOS",
+              "time": 1629213675449,
+              "use_batch_endpoint": false,
+              "user_id": "user1234",
+              "user_properties": Object {},
+            },
+          ],
+          "options": undefined,
+        }
+      `)
+    })
   })
 
   it('does not send parsed user agent properties when setting is false', async () => {
@@ -1483,7 +1602,7 @@ describe('Amplitude', () => {
             "api_key",
             "undefined",
             "identification",
-            "{\\"os_name\\":\\"Mobile Safari\\",\\"os_version\\":\\"9\\",\\"device_model\\":\\"iPhone\\",\\"device_type\\":\\"mobile\\",\\"user_id\\":\\"some-user-id\\",\\"device_id\\":\\"some-anonymous-id\\",\\"user_properties\\":{\\"some-trait-key\\":\\"some-trait-value\\"},\\"country\\":\\"United States\\",\\"city\\":\\"San Francisco\\",\\"language\\":\\"en-US\\",\\"platform\\":\\"Web\\",\\"library\\":\\"segment\\"}",
+            "{\\"os_name\\":\\"Mobile Safari\\",\\"os_version\\":\\"9\\",\\"device_model\\":\\"iPhone\\",\\"device_type\\":\\"mobile\\",\\"user_id\\":\\"some-user-id\\",\\"device_id\\":\\"some-anonymous-id\\",\\"user_properties\\":{\\"some-trait-key\\":\\"some-trait-value\\"},\\"platform\\":\\"Web\\",\\"country\\":\\"United States\\",\\"city\\":\\"San Francisco\\",\\"language\\":\\"en-US\\",\\"library\\":\\"segment\\"}",
             "options",
             "undefined",
           ],
@@ -1557,7 +1676,7 @@ describe('Amplitude', () => {
             "api_key",
             "undefined",
             "identification",
-            "{\\"os_name\\":\\"Mobile Safari\\",\\"os_version\\":\\"9\\",\\"device_model\\":\\"iPhone\\",\\"device_type\\":\\"mobile\\",\\"user_id\\":\\"some-user-id\\",\\"device_id\\":\\"some-anonymous-id\\",\\"user_properties\\":{\\"some-trait-key\\":\\"some-trait-value\\"},\\"country\\":\\"United States\\",\\"city\\":\\"San Francisco\\",\\"language\\":\\"en-US\\",\\"platform\\":\\"Web\\",\\"library\\":\\"segment\\"}",
+            "{\\"os_name\\":\\"Mobile Safari\\",\\"os_version\\":\\"9\\",\\"device_model\\":\\"iPhone\\",\\"device_type\\":\\"mobile\\",\\"user_id\\":\\"some-user-id\\",\\"device_id\\":\\"some-anonymous-id\\",\\"user_properties\\":{\\"some-trait-key\\":\\"some-trait-value\\"},\\"platform\\":\\"Web\\",\\"country\\":\\"United States\\",\\"city\\":\\"San Francisco\\",\\"language\\":\\"en-US\\",\\"library\\":\\"segment\\"}",
             "options",
             "undefined",
           ],
@@ -1744,7 +1863,51 @@ describe('Amplitude', () => {
             "api_key",
             "",
             "identification",
-            "{\\"os_name\\":\\"Mobile Safari\\",\\"os_version\\":\\"9\\",\\"device_model\\":\\"iPhone\\",\\"device_type\\":\\"mobile\\",\\"user_id\\":\\"some-user-id\\",\\"device_id\\":\\"some-anonymous-id\\",\\"user_properties\\":{\\"some-trait-key\\":\\"some-trait-value\\"},\\"country\\":\\"United States\\",\\"city\\":\\"San Francisco\\",\\"language\\":\\"en-US\\",\\"platform\\":\\"Web\\",\\"library\\":\\"segment\\"}",
+            "{\\"os_name\\":\\"Mobile Safari\\",\\"os_version\\":\\"9\\",\\"device_model\\":\\"iPhone\\",\\"device_type\\":\\"mobile\\",\\"user_id\\":\\"some-user-id\\",\\"device_id\\":\\"some-anonymous-id\\",\\"user_properties\\":{\\"some-trait-key\\":\\"some-trait-value\\"},\\"platform\\":\\"Web\\",\\"country\\":\\"United States\\",\\"city\\":\\"San Francisco\\",\\"language\\":\\"en-US\\",\\"library\\":\\"segment\\"}",
+            "options",
+            "undefined",
+          ],
+          Symbol(context): null,
+        }
+      `)
+    })
+
+    it('Platform falls back to context.device.type if context.library.name is not available', async () => {
+      const event = createTestEvent({
+        anonymousId: 'some-anonymous-id',
+        timestamp: '2021-04-12T16:32:37.710Z',
+        type: 'group',
+        userId: 'some-user-id',
+        event: 'Test Event',
+        traits: {
+          'some-trait-key': 'some-trait-value'
+        },
+        context: {
+          device: {
+            id: 'foo',
+            type: 'iOS'
+          },
+          userAgent:
+            'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_11_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/53.0.2785.143 Safari/537.36'
+        }
+      })
+
+      const mapping = {
+        userAgentParsing: true
+      }
+
+      nock('https://api2.amplitude.com').post('/identify').reply(200, {})
+      const responses = await testDestination.testAction('identifyUser', { event, mapping, useDefaultMappings: true })
+      expect(responses.length).toBe(1)
+      expect(responses[0].status).toBe(200)
+      expect(responses[0].data).toMatchObject({})
+      expect(responses[0].options.body).toMatchInlineSnapshot(`
+        URLSearchParams {
+          Symbol(query): Array [
+            "api_key",
+            "undefined",
+            "identification",
+            "{\\"os_name\\":\\"Chrome\\",\\"os_version\\":\\"53\\",\\"device_model\\":\\"Mac OS\\",\\"user_id\\":\\"some-user-id\\",\\"device_id\\":\\"foo\\",\\"user_properties\\":{\\"some-trait-key\\":\\"some-trait-value\\"},\\"platform\\":\\"iOS\\",\\"library\\":\\"segment\\"}",
             "options",
             "undefined",
           ],
