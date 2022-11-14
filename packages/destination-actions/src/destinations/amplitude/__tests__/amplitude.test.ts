@@ -503,7 +503,7 @@ describe('Amplitude', () => {
         `)
     })
 
-    it('Platform falls back to context.device.type if context.library.name is not available', async () => {
+    it('should set platform to context.device.type if context.library.name is not available', async () => {
       const event = createTestEvent({
         anonymousId: '6fd32a7e-3c56-44c2-bd32-62bbec44c53d',
         timestamp,
@@ -1053,7 +1053,7 @@ describe('logEvent', () => {
         `)
   })
 
-  it('Platform falls back to context.device.type if context.library.name is not available', async () => {
+  it('should set platform to context.device.type if context.library.name is not available', async () => {
     const event = createTestEvent({
       anonymousId: '6fd32a7e-3c56-44c2-bd32-62bbec44c53d',
       timestamp,
@@ -1637,7 +1637,7 @@ describe('logEvent V2', () => {
       `)
   })
 
-  it('Platform falls back to context.device.type if context.library.name is not available', async () => {
+  it('should set platform to context.device.type if context.library.name is not available', async () => {
     const event = createTestEvent({
       anonymousId: '6fd32a7e-3c56-44c2-bd32-62bbec44c53d',
       timestamp,
@@ -2059,7 +2059,7 @@ describe('identifyUser', () => {
       `)
   })
 
-  it('Platform falls back to context.device.type if context.library.name is not available', async () => {
+  it('should set platform to context.device.type if context.library.name is not available', async () => {
     const event = createTestEvent({
       anonymousId: 'some-anonymous-id',
       timestamp: '2021-04-12T16:32:37.710Z',
