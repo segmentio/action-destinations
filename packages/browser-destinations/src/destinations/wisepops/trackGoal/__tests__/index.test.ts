@@ -40,13 +40,13 @@ describe('Wisepops.trackGoal', () => {
 
     const context = new Context({
       type: 'track',
-      event: 'Something happens',
+      event: 'Order Completed',
       properties: {
         revenue: 15
       }
     })
     trackGoal.track?.(context)
 
-    expect(window.wisepops.q.push).toHaveBeenCalledWith(['goal', 'Something happens', 15])
+    expect(window.wisepops.q.push).toHaveBeenCalledWith(['goal', 'Order Completed', 15])
   })
 })
