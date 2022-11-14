@@ -7,7 +7,7 @@ import type { Wisepops } from '../types'
 const action: BrowserActionDefinition<Settings, Wisepops, Payload> = {
   title: 'Track Goal',
   description: '[Track goals and revenue](https://support.wisepops.com/article/mx3z8na6yb-set-up-goal-tracking) to know which campaigns are generating the most value.',
-  defaultSubscription: 'type = "track" and properties.revenue > 0',
+  defaultSubscription: 'type = "track" and event = "Order Completed"',
   platform: 'web',
   fields: {
     goalName: {
