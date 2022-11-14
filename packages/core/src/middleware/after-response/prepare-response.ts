@@ -20,7 +20,9 @@ const prepareResponse: AfterResponseHook = async (_request, _options, response) 
   // `TypeError: body used already` elsewhere
   const clone = response.clone()
   const content = await clone.text()
-  statsClient?.incr('after-response-clone', 1)
+  if (content) {
+    statsClient?.incr('after-response-clone', 1)
+  }
 
   // }
 
