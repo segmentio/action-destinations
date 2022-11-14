@@ -2300,6 +2300,38 @@
   resolved "https://registry.yarnpkg.com/@segment/a1-notation/-/a1-notation-2.1.4.tgz#35a48a0688019c3ffff23b1ba890e864c891a11f"
   integrity sha512-SId7GOdDFmm/B9ajIQpXELHW4OTbVvmJbOsoJkQOcUEtoZIiX2UWfk1v4BpKql8wJW9oAhzhIIru2Pv2Yxcg+w==
 
+"@segment/action-destinations@^3.116.0-alpha.4":
+  version "3.116.0-alpha.4"
+  resolved "https://registry.npmjs.org/@segment/action-destinations/-/action-destinations-3.116.0-alpha.4.tgz#5c9e40b469628ec94e1aa6d07aca6e027411c596"
+  integrity sha512-7E4BlakcqxOkb/WyKVs/4COmFPm9VEzXlZOVzYgs2uyXfU0inouTtnwk2WwZW9osDiSGMIF2jTdNFB63QveySA==
+  dependencies:
+    "@amplitude/ua-parser-js" "^0.7.25"
+    "@segment/a1-notation" "^2.1.4"
+    "@segment/actions-core" "^3.42.1-alpha.0"
+    "@segment/actions-shared" "^1.25.1-alpha.0"
+    cheerio "^1.0.0-rc.10"
+    dayjs "^1.10.7"
+    escape-goat "^3"
+    liquidjs "^9.37.0"
+    lodash "^4.17.21"
+
+"@segment/actions-core@^3.43.0-alpha.4":
+  version "3.43.0-alpha.4"
+  resolved "https://registry.npmjs.org/@segment/actions-core/-/actions-core-3.43.0-alpha.4.tgz#c4c40707e302e3dce2df74b8c20c3d756cdbcb91"
+  integrity sha512-iwZJ5IwNIasT/QSIBXoBIivtmv9Xh73OdjZd27I8C8vdXdgmCRIKT81gmLJYp3LKmPmeAEJthcTFYN1vMxXkXg==
+  dependencies:
+    "@lukeed/uuid" "^2.0.0"
+    "@segment/ajv-human-errors" "^2.1.2"
+    "@segment/destination-subscriptions" "^3.12.0"
+    abort-controller "^3.0.0"
+    aggregate-error "^3.1.0"
+    ajv "^8.6.3"
+    ajv-formats "^2.1.1"
+    btoa-lite "^1.0.0"
+    cross-fetch "^3.1.4"
+    dayjs "^1.10.7"
+    ts-custom-error "^3.2.0"
+
 "@segment/analytics-next@^1.29.3":
   version "1.29.3"
   resolved "https://registry.yarnpkg.com/@segment/analytics-next/-/analytics-next-1.29.3.tgz#51ea4d7e487e95c2862ec5d52fd34a113c20161e"
@@ -2320,6 +2352,22 @@
   integrity sha512-lZwCyEXT4aaHBLNK433okEKdxGAuyrVmop4BpQqQSJuRz0DglPZgd9B/XjiiWs1UyOankg2aNYMN3VcS8t4eSQ==
   dependencies:
     unfetch "^3.1.1"
+
+"@segment/browser-destinations@^3.65.0-alpha.4":
+  version "3.65.0-alpha.4"
+  resolved "https://registry.npmjs.org/@segment/browser-destinations/-/browser-destinations-3.65.0-alpha.4.tgz#4fba0f373420821d1d838fa4eaa4c48bec29e03d"
+  integrity sha512-Xw9d6HZyU3vbnHAY11T05Oy4dFRs+AJwZtbQhmWRg0APpXUuhIPoBVSjPs4L6LtS7Xul1cz8mzVsxSGtb/ey0A==
+  dependencies:
+    "@braze/web-sdk" "npm:@braze/web-sdk@^4.1.0"
+    "@braze/web-sdk-v3" "npm:@braze/web-sdk@^3.5.1"
+    "@fullstory/browser" "^1.4.9"
+    "@segment/actions-shared" "^1.25.1-alpha.0"
+    "@segment/analytics-next" "^1.29.3"
+    "@segment/destination-subscriptions" "^3.12.0"
+    dayjs "^1.10.7"
+    logrocket "^3.0.1"
+    tslib "^2.3.1"
+    vm-browserify "^1.1.2"
 
 "@segment/control-plane-service-client@github:segmentio/control-plane-service-js-client.git#master":
   version "9.3.0"
