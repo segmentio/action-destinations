@@ -19,7 +19,7 @@ const subscriptions: Subscription[] = [
   }
 ]
 
-describe('Commandbar.trackEvent', () => {
+describe('CommandBar.trackEvent', () => {
   const settings = {
     orgId: 'xxxxxxxx'
   }

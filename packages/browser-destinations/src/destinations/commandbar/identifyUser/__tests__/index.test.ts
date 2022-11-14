@@ -25,12 +25,12 @@ const subscriptions: Subscription[] = [
   }
 ]
 
-describe('Commandbar.boot when with deploy enabled', () => {
+describe('CommandBar.boot when with deploy enabled', () => {
   const settings = {
     orgId: 'xxxxxxxx'
   }
   let mockCommandBarBoot: jest.Mock<any, any>
-  let mockCommanBarMetadataBatch: jest.Mock<any, any>
+  let mockCommandBarMetadataBatch: jest.Mock<any, any>
 
   let identifyUser: any
 
@@ -43,11 +43,11 @@ describe('Commandbar.boot when with deploy enabled', () => {
     identifyUser = identifyUserPlugin
 
     mockCommandBarBoot = jest.fn()
-    mockCommanBarMetadataBatch = jest.fn()
+    mockCommandBarMetadataBatch = jest.fn()
     jest.spyOn(destination, 'initialize').mockImplementation(() => {
       const mockedWithBoot = {
         boot: mockCommandBarBoot,
-        addMetadataBatch: mockCommanBarMetadataBatch,
+        addMetadataBatch: mockCommandBarMetadataBatch,
         trackEvent: jest.fn()
       }
       return Promise.resolve(mockedWithBoot)
@@ -66,18 +66,18 @@ describe('Commandbar.boot when with deploy enabled', () => {
       })
     )
 
-    expect(mockCommanBarMetadataBatch).toHaveBeenCalledWith({ foo: 'bar' }, true)
+    expect(mockCommandBarMetadataBatch).toHaveBeenCalledWith({ foo: 'bar' }, true)
     expect(mockCommandBarBoot).not.toHaveBeenCalled()
   })
 })
 
-describe('Commandbar.addMetadataBatch with deploy disabled', () => {
+describe('CommandBar.addMetadataBatch with deploy disabled', () => {
   const settings = {
     orgId: 'xxxxxxxx',
     deploy: true
   }
   let mockCommandBarBoot: jest.Mock<any, any>
-  let mockCommanBarMetadataBatch: jest.Mock<any, any>
+  let mockCommandBarMetadataBatch: jest.Mock<any, any>
 
   let identifyUser: any
 
@@ -90,11 +90,11 @@ describe('Commandbar.addMetadataBatch with deploy disabled', () => {
     identifyUser = identifyUserPlugin
 
     mockCommandBarBoot = jest.fn()
-    mockCommanBarMetadataBatch = jest.fn()
+    mockCommandBarMetadataBatch = jest.fn()
     jest.spyOn(destination, 'initialize').mockImplementation(() => {
       const mockedWithBoot = {
         boot: mockCommandBarBoot,
-        addMetadataBatch: mockCommanBarMetadataBatch,
+        addMetadataBatch: mockCommandBarMetadataBatch,
         trackEvent: jest.fn()
       }
       return Promise.resolve(mockedWithBoot)
@@ -114,7 +114,7 @@ describe('Commandbar.addMetadataBatch with deploy disabled', () => {
     )
 
     expect(mockCommandBarBoot).toHaveBeenCalledWith('test-user', { foo: 'bar' }, {})
-    expect(mockCommanBarMetadataBatch).not.toHaveBeenCalled()
+    expect(mockCommandBarMetadataBatch).not.toHaveBeenCalled()
   })
 
   it('Can pass instanceAttributes to boot', async () => {
@@ -148,6 +148,6 @@ describe('Commandbar.addMetadataBatch with deploy disabled', () => {
         }
       }
     )
-    expect(mockCommanBarMetadataBatch).not.toHaveBeenCalled()
+    expect(mockCommandBarMetadataBatch).not.toHaveBeenCalled()
   })
 })
