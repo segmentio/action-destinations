@@ -41,6 +41,12 @@ export const destination: BrowserDestinationDefinition<Settings, Wisepops> = {
       }
     },
     {
+      name: trackEvent.title,
+      subscribe: trackEvent.defaultSubscription!,
+      partnerAction: 'trackEvent',
+      mapping: defaultValues(trackEvent.fields)
+    },
+    {
       name: trackGoal.title,
       subscribe: trackGoal.defaultSubscription!,
       partnerAction: 'trackGoal',
