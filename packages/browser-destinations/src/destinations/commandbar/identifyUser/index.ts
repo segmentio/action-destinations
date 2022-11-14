@@ -1,6 +1,6 @@
 import type { BrowserActionDefinition } from '../../../lib/browser-destinations'
 import type { Settings } from '../generated-types'
-import { CommandBarClientSDK } from '../types'
+import { CommandBarClientSDK, FormFactorConfig, InstanceAttributes } from '../types'
 import type { Payload } from './generated-types'
 
 const action: BrowserActionDefinition<Settings, CommandBarClientSDK, Payload> = {
@@ -51,7 +51,10 @@ const action: BrowserActionDefinition<Settings, CommandBarClientSDK, Payload> = 
     const traits = event.payload.traits || {}
 
     if (!!event.settings.deploy) {
-      CommandBar.boot(event.payload.userId, traits, { ...(!!event.payload.hmac && { hmac: event.payload.hmac }) })
+      CommandBar.boot(event.payload.userId, traits, {
+        ...(!!event.payload.hmac && { hmac: event.payload.hmac }),
+        ...(!!event.payload.formFactor && { formFactor: event.payload.formFactor as FormFactorConfig })
+      })
     } else {
       CommandBar.addMetadataBatch(traits, true)
     }

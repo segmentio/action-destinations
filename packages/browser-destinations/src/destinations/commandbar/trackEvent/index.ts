@@ -30,8 +30,8 @@ const action: BrowserActionDefinition<Settings, CommandBarClientSDK, Payload> = 
   },
 
   perform: (CommandBar, event) => {
-    if (event.payload.event_metadata) {
-      CommandBar.trackEvent(event.payload.event_name, event.payload.event_metadata)
+    if (!!event.payload.event_name) {
+      CommandBar.trackEvent(event.payload.event_name, event.payload.event_metadata || {})
     }
   }
 }
