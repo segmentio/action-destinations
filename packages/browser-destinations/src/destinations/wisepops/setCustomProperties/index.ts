@@ -10,7 +10,7 @@ const action: BrowserActionDefinition<Settings, Wisepops, Payload> = {
   platform: 'web',
   fields: {
     traits: {
-      description: "The user's custom properties to send to Wisepops.",
+      description: "The custom properties to send to Wisepops.",
       label: 'Custom Properties',
       type: 'object',
       required: true,
@@ -18,30 +18,40 @@ const action: BrowserActionDefinition<Settings, Wisepops, Payload> = {
         '@path': '$.traits'
       }
     },
-    userId: {
-      description: 'A unique identifier for the user.',
-      label: 'User ID',
+    id: {
+      description: 'A unique identifier. Typically, a user ID or group ID.',
+      label: 'Entity ID',
       type: 'string',
       required: false,
       default: {
         '@path': '$.userId'
       }
     },
-    temporary: {
-      description: "By default, custom properties persist across pages. Enable temporary properties to limit them to the current page only.",
-      label: 'Temporary Properties',
-      type: 'boolean',
+    idProperty: {
+      description: 'What property name should be used to set the entity ID as a Wisepops custom property?',
+      label: 'Property name for the entity ID',
+      type: 'string',
       required: false,
-      default: false
-    }
+      default: 'userId'
+    },
+    prefix: {
+      description: 'This lets you define the properties as a nested object. If you set the property `"name"` with the prefix `"group"`, you\'ll access it in Wisepops as `"group.name"`.',
+      label: 'Prefix',
+      type: 'string',
+      required: false,
+    },
   },
   perform: (wisepops, event) => {
-    wisepops('properties', {
-      userId: event.payload.userId,
-      ...event.payload.traits
-    }, {
-      temporary: !!event.payload.temporary
-    });
+    let properties = event.payload.traits;
+    if (event.payload.idProperty && event.payload.id) {
+      properties[event.payload.idProperty] = event.payload.id;
+    }
+    if (event.payload.prefix) {
+      properties = {
+        [event.payload.prefix]: properties
+      };
+    }
+    wisepops('properties', properties);
   }
 }
 

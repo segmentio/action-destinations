@@ -6,7 +6,6 @@ import type { Wisepops } from './types'
 import { defaultValues } from '@segment/actions-core'
 
 import setCustomProperties from './setCustomProperties'
-import setNestedCustomProperties from './setNestedCustomProperties'
 import trackEvent from './trackEvent'
 import trackGoal from './trackGoal'
 import trackPage from './trackPage'
@@ -25,16 +24,21 @@ export const destination: BrowserDestinationDefinition<Settings, Wisepops> = {
 
   presets: [
     {
-      name: setCustomProperties.title,
+      name: 'Set User Traits as Custom Properties',
       subscribe: setCustomProperties.defaultSubscription!,
       partnerAction: 'setCustomProperties',
       mapping: defaultValues(setCustomProperties.fields)
     },
     {
-      name: setNestedCustomProperties.title,
-      subscribe: setNestedCustomProperties.defaultSubscription!,
-      partnerAction: 'setNestedCustomProperties',
-      mapping: defaultValues(setNestedCustomProperties.fields)
+      name: 'Set Group Traits as Custom Properties',
+      subscribe: 'type = "group"',
+      partnerAction: 'setCustomProperties',
+      mapping: {
+        traits: { '@path': '$.traits' },
+        id: { '@path': '$.groupId' },
+        idProperty: 'groupId',
+        prefix: 'group',
+      }
     },
     {
       name: trackEvent.title,
@@ -82,7 +86,6 @@ export const destination: BrowserDestinationDefinition<Settings, Wisepops> = {
 
   actions: {
     setCustomProperties,
-    setNestedCustomProperties,
     trackEvent,
     trackGoal,
     trackPage,
