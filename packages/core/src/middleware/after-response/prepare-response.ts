@@ -19,9 +19,9 @@ const prepareResponse: AfterResponseHook = async (_request, _options, response) 
   // Clone the response before reading the body to avoid
   // `TypeError: body used already` elsewhere
   const clone = response.clone()
+  const content = await clone.text()
   statsClient?.incr('after-response-clone', 1)
 
-  const content = await clone.text()
   // }
 
   const agent: NormalizedOptions['agent'] = _options.agent
