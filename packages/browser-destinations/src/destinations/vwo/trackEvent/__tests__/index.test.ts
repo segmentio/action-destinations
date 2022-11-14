@@ -39,9 +39,7 @@ describe('VWO.trackEvent', () => {
     })
     trackEvent = trackEventPlugin
 
-    // mockVWO = jest.fn()
     jest.spyOn(destination, 'initialize').mockImplementation(() => {
-      // const mockedWithProps = Object.assign(mockVWO as any, settings)
       mockVWO = {
         event: jest.fn()
       }
@@ -72,6 +70,30 @@ describe('VWO.trackEvent', () => {
 
     expect(mockVWO.event).toHaveBeenCalledWith('buyButtonClick', {
       amount: 1000
+    })
+  })
+
+  test('Filters Properties', async () => {
+    const context = new Context({
+      type: 'track',
+      event: 'buyButtonClick',
+      properties: {
+        amount: 1000,
+        currency: 'INR',
+        isOutbound: true,
+        unwanted: {
+          abc: 1,
+          def: 2
+        },
+        unwanted_array: [1, 2, 3]
+      }
+    })
+    await trackEvent.track?.(context)
+
+    expect(mockVWO.event).toHaveBeenCalledWith('buyButtonClick', {
+      amount: 1000,
+      currency: 'INR',
+      isOutbound: true
     })
   })
 })

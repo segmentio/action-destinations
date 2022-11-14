@@ -14,8 +14,8 @@ declare global {
 
 // Switch from unknown to the partner SDK client types
 export const destination: BrowserDestinationDefinition<Settings, VWO> = {
-  name: 'Vwo',
-  slug: 'actions-vwo',
+  name: 'VWO Web Mode (Actions)',
+  slug: 'actions-vwo-web',
   mode: 'device',
   presets: [
     {
@@ -37,7 +37,6 @@ export const destination: BrowserDestinationDefinition<Settings, VWO> = {
 
   initialize: async ({ settings }, deps) => {
     initScript({ vwoAccountId: settings.vwoAccountId })
-    console.log('start')
     await deps.resolveWhen(() => Object.prototype.hasOwnProperty.call(window, 'VWO'), 100)
     return window.VWO
   },
