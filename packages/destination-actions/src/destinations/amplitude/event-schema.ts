@@ -92,7 +92,11 @@ export const eventSchema: Record<string, InputField> = {
     type: 'string',
     description: 'Platform of the device.',
     default: {
-      '@path': '$.context.device.type'
+      '@if': {
+        exists: { '@path': '$.context.library.name' },
+        then: { '@path': '$.context.library.name' },
+        else: { '@path': '$.context.device.type' }
+      }
     }
   },
   os_name: {
