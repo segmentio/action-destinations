@@ -4,6 +4,7 @@ export type InlineFormFactor = { type: 'inline'; rootElement: string /* | HTMLEl
 export type FormFactorConfig = ModalFormFactor | InlineFormFactor
 
 export type UserAttributes = Record<string, unknown>
+
 export type InstanceAttributes = {
   canOpenEditor: boolean
   hmac?: string
