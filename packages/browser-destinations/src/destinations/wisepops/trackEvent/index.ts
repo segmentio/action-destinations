@@ -6,8 +6,7 @@ import type { Wisepops } from '../types';
 const action: BrowserActionDefinition<Settings, Wisepops, Payload> = {
   title: 'Track Event',
   description: 'Send a [custom event](https://support.wisepops.com/article/zbpq1z0exk-set-up-custom-events-to-trigger-popups) to Wisepops. Keep in mind that events are counted as page views in your monthly quota.',
-  // Don't send custom events by default
-  // defaultSubscription: 'type = "track"',
+  defaultSubscription: 'type = "track"',
   platform: 'web',
   fields: {
     eventName: {
