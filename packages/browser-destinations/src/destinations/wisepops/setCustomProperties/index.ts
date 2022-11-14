@@ -28,7 +28,7 @@ const action: BrowserActionDefinition<Settings, Wisepops, Payload> = {
       }
     },
     idProperty: {
-      description: 'What property name should be used to set the entity ID as a Wisepops custom property?',
+      description: 'How to name the entity ID among the other custom properties?',
       label: 'Property name for the entity ID',
       type: 'string',
       required: false,
