@@ -23,7 +23,7 @@ describe('Wisepops.trackPage', () => {
 
   test('pageview', async () => {
     const [trackPage] = await wisepopsDestination({
-      websiteHash: '1234567890',
+      websiteId: '1234567890',
       subscriptions
     })
 

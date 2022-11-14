@@ -30,7 +30,7 @@ describe('Wisepops.trackGoal', () => {
 
   test('named goal with revenue', async () => {
     const [trackGoal] = await wisepopsDestination({
-      websiteHash: '1234567890',
+      websiteId: '1234567890',
       subscriptions
     })
     expect(trackGoal).toBeDefined()

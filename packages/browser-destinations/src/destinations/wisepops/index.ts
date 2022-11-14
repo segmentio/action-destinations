@@ -57,10 +57,10 @@ export const destination: BrowserDestinationDefinition<Settings, Wisepops> = {
   ],
 
   settings: {
-    websiteHash: {
+    websiteId: {
       description:
-        "The hash of your Wisepops' website. You can find it in [your setup code on Wisepops](https://app.wisepops.com/f/settings/websites).",
-      label: 'Website hash',
+        "The identifier of your Wisepops' website. You can find it in [your setup code on Wisepops](https://app.wisepops.com/f/settings/websites).",
+      label: 'Website Identifier',
       type: 'string',
       required: true
     }
@@ -76,7 +76,7 @@ export const destination: BrowserDestinationDefinition<Settings, Wisepops> = {
     window.wisepops.l = Date.now()
     window.wisepops('options', { autoPageview: false })
     // Can load asynchronously, no need to wait
-    void deps.loadScript(`https://loader.wisepops.com/get-loader.js?v=1&site=${settings.websiteHash}`)
+    void deps.loadScript(`https://loader.wisepops.com/get-loader.js?v=1&site=${settings.websiteId}`)
     return window.wisepops
   },
 

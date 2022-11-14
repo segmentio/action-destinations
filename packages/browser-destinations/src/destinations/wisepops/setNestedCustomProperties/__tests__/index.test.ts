@@ -32,7 +32,7 @@ describe('Wisepops.setNestedCustomProperties', () => {
 
   test('nested custom properties', async () => {
     const [setNestedCustomProperties] = await wisepopsDestination({
-      websiteHash: '1234567890',
+      websiteId: '1234567890',
       subscriptions
     })
 

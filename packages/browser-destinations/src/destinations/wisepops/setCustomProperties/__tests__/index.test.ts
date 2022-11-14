@@ -31,7 +31,7 @@ describe('Wisepops.setCustomProperties', () => {
 
   test('custom properties', async () => {
     const [setCustomProperties] = await wisepopsDestination({
-      websiteHash: '1234567890',
+      websiteId: '1234567890',
       subscriptions
     })
 

@@ -20,7 +20,7 @@ describe('Wisepops', () => {
     nock('https://loader.wisepops.com').get('/get-loader.js?v=1&site=1234567890').reply(200, {})
 
     const [event] = await wisepopsDestination({
-      websiteHash: '1234567890',
+      websiteId: '1234567890',
       subscriptions
     })
 

@@ -27,7 +27,7 @@ describe('Wisepops.trackEvent', () => {
 
   test('custom event', async () => {
     const [trackEvent] = await wisepopsDestination({
-      websiteHash: '1234567890',
+      websiteId: '1234567890',
       subscriptions
     })
 
