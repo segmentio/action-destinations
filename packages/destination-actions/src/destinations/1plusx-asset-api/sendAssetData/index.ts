@@ -62,7 +62,7 @@ const action: ActionDefinition<Settings, Payload> = {
     const endpoint = `https://${settings.client_name}.assets.tagger.opecloud.com/v2/native/asset/${payload.asset_uri}`
 
     return request(endpoint, {
-      method: 'post',
+      method: 'put',
       json: {
         ...cleanPayload,
         ...cleanProps
