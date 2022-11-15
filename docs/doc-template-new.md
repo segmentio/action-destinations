@@ -1,6 +1,6 @@
 ---
 # The end name should be similar to `Slack  Destination`
-title: CommandBar Destination
+title: <destination_name>
 hide-boilerplate: true
 hide-dossier: true
 ---
@@ -11,11 +11,18 @@ hide-dossier: true
 
 <!-- Include a brief description of the destination here, along with a link to your website. -->
 
-CommandBar gives your users a searchable index of your app's features and content.
-
 <!-- This include describes the requirement of A.js 2.0 or higher for Actions compatibility, and is required if your destination has a web component. -->
 
 {% include content/ajs-upgrade.md %}
+
+<!-- In the section below, explain the value of this actions-based destination. If you don't have a classic version of the destination, remove this section. -->
+
+## Benefits of <destination_name> (Actions)
+
+<destination_name> (Actions) provides the following benefits:
+
+- **Main point 1**. One or two sentences that back up the main point.
+- **Main point 2**. One or two sentences that back up the main point.
 
 <!-- The section below explains how to enable and configure the destination. Include any configuration steps not captured below. For example, obtaining an API key from your platform and any configuration steps required to connect to the destination. -->
 
@@ -23,10 +30,8 @@ CommandBar gives your users a searchable index of your app's features and conten
 
 1. From the Segment web app, click **Catalog**, then click **Destinations**.
 2. Find the Destinations Actions item in the left navigation, and click it.
-3. Click **Configure CommandBar**.
-4. Sign in to [CommandBar](app.commandbar.com/login), click on your organization name in the top right, and copy the `Org ID` into "Organization ID" field.
-5. If you want to deploy CommandBar to your users via Segment, check "Deploy via Segment".
-6. Select an existing Source to connect to CommandBar.
+3. Click **Configure <desintation_name>**.
+4. Select an existing Source to connect to <destination_name> (Actions).
 
 <!-- The line below renders a table of connection settings (if applicable), Pre-built Mappings, and available actions. -->
 
