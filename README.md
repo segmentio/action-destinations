@@ -1,6 +1,6 @@
 <p align="center"><a href="https://segment.com"><img src="https://brand.segment.com/site-assets/7b19c1a2/images/brand-guidelines/content/twilio/twilio-segment-logo-2x.png" width="300"></a></p>
 
-# Action Destinations
+# Action Destinations!
 
 Action Destinations are the new way to build streaming destinations on Segment.
 
