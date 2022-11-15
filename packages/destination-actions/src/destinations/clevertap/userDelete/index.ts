@@ -10,7 +10,7 @@ const action: ActionDefinition<Settings, Payload> = {
     identity: {
       label: 'Identity',
       type: 'string',
-      description: 'The ID used to uniquely identify a person in CleverTap',
+      description: 'ID of the person that this device belongs to.',
       default: {'@path': '$.userId'},
       required: true
     },
