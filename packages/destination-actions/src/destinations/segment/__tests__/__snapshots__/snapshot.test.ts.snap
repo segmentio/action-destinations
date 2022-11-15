@@ -1,0 +1,415 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Testing snapshot for segment destination: sendGroup action - all fields 1`] = `
+Object {
+  "anonymousId": "(m6Ifxh1N4",
+  "context": Object {
+    "app": Object {
+      "build": "(m6Ifxh1N4",
+      "name": "(m6Ifxh1N4",
+      "namespace": "(m6Ifxh1N4",
+      "version": "(m6Ifxh1N4",
+    },
+    "campaign": Object {
+      "content": "(m6Ifxh1N4",
+      "medium": "(m6Ifxh1N4",
+      "name": "(m6Ifxh1N4",
+      "source": "(m6Ifxh1N4",
+      "term": "(m6Ifxh1N4",
+    },
+    "device": Object {
+      "adTracking_Enabled": true,
+      "advertising_id": "(m6Ifxh1N4",
+      "id": "(m6Ifxh1N4",
+      "manufacturer": "(m6Ifxh1N4",
+      "model": "(m6Ifxh1N4",
+      "name": "(m6Ifxh1N4",
+      "token": "(m6Ifxh1N4",
+      "type": "(m6Ifxh1N4",
+    },
+    "ip": "(m6Ifxh1N4",
+    "locale": "(m6Ifxh1N4",
+    "location": Object {
+      "city": "(m6Ifxh1N4",
+      "country": "(m6Ifxh1N4",
+      "latitude": -31928132986470.4,
+      "longitude": -31928132986470.4,
+      "speed": -31928132986470.4,
+    },
+    "network": Object {
+      "bluetooth": true,
+      "carrier": "(m6Ifxh1N4",
+      "cellular": true,
+      "wifi": true,
+    },
+    "os": Object {
+      "name": "(m6Ifxh1N4",
+      "version": "(m6Ifxh1N4",
+    },
+    "page": Object {
+      "path": "(m6Ifxh1N4",
+      "referrer": "(m6Ifxh1N4",
+      "search": "(m6Ifxh1N4",
+      "title": "(m6Ifxh1N4",
+      "url": "(m6Ifxh1N4",
+    },
+    "screen": Object {
+      "density": -31928132986470.4,
+      "height": -31928132986470.4,
+      "width": -31928132986470.4,
+    },
+    "timezone": "(m6Ifxh1N4",
+    "userAgent": "(m6Ifxh1N4",
+  },
+  "groupId": "(m6Ifxh1N4",
+  "timestamp": "(m6Ifxh1N4",
+  "traits": Object {
+    "testType": "(m6Ifxh1N4",
+  },
+  "userId": "(m6Ifxh1N4",
+}
+`;
+
+exports[`Testing snapshot for segment destination: sendGroup action - required fields 1`] = `
+Object {
+  "anonymousId": "(m6Ifxh1N4",
+  "context": Object {},
+  "groupId": "(m6Ifxh1N4",
+  "traits": Object {},
+  "userId": "(m6Ifxh1N4",
+}
+`;
+
+exports[`Testing snapshot for segment destination: sendIdentify action - all fields 1`] = `
+Object {
+  "anonymousId": ")#1JCeQHYVLgzRan",
+  "context": Object {
+    "app": Object {
+      "build": ")#1JCeQHYVLgzRan",
+      "name": ")#1JCeQHYVLgzRan",
+      "namespace": ")#1JCeQHYVLgzRan",
+      "version": ")#1JCeQHYVLgzRan",
+    },
+    "campaign": Object {
+      "content": ")#1JCeQHYVLgzRan",
+      "medium": ")#1JCeQHYVLgzRan",
+      "name": ")#1JCeQHYVLgzRan",
+      "source": ")#1JCeQHYVLgzRan",
+      "term": ")#1JCeQHYVLgzRan",
+    },
+    "device": Object {
+      "adTracking_Enabled": false,
+      "advertising_id": ")#1JCeQHYVLgzRan",
+      "id": ")#1JCeQHYVLgzRan",
+      "manufacturer": ")#1JCeQHYVLgzRan",
+      "model": ")#1JCeQHYVLgzRan",
+      "name": ")#1JCeQHYVLgzRan",
+      "token": ")#1JCeQHYVLgzRan",
+      "type": ")#1JCeQHYVLgzRan",
+    },
+    "groupId": ")#1JCeQHYVLgzRan",
+    "ip": ")#1JCeQHYVLgzRan",
+    "locale": ")#1JCeQHYVLgzRan",
+    "location": Object {
+      "city": ")#1JCeQHYVLgzRan",
+      "country": ")#1JCeQHYVLgzRan",
+      "latitude": 39096203094261.76,
+      "longitude": 39096203094261.76,
+      "speed": 39096203094261.76,
+    },
+    "network": Object {
+      "bluetooth": false,
+      "carrier": ")#1JCeQHYVLgzRan",
+      "cellular": false,
+      "wifi": false,
+    },
+    "os": Object {
+      "name": ")#1JCeQHYVLgzRan",
+      "version": ")#1JCeQHYVLgzRan",
+    },
+    "page": Object {
+      "path": ")#1JCeQHYVLgzRan",
+      "referrer": ")#1JCeQHYVLgzRan",
+      "search": ")#1JCeQHYVLgzRan",
+      "title": ")#1JCeQHYVLgzRan",
+      "url": ")#1JCeQHYVLgzRan",
+    },
+    "screen": Object {
+      "density": 39096203094261.76,
+      "height": 39096203094261.76,
+      "width": 39096203094261.76,
+    },
+    "timezone": ")#1JCeQHYVLgzRan",
+    "userAgent": ")#1JCeQHYVLgzRan",
+  },
+  "timestamp": ")#1JCeQHYVLgzRan",
+  "traits": Object {
+    "testType": ")#1JCeQHYVLgzRan",
+  },
+  "userId": ")#1JCeQHYVLgzRan",
+}
+`;
+
+exports[`Testing snapshot for segment destination: sendIdentify action - required fields 1`] = `
+Object {
+  "anonymousId": ")#1JCeQHYVLgzRan",
+  "context": Object {
+    "groupId": ")#1JCeQHYVLgzRan",
+  },
+  "traits": Object {},
+  "userId": ")#1JCeQHYVLgzRan",
+}
+`;
+
+exports[`Testing snapshot for segment destination: sendPage action - all fields 1`] = `
+Object {
+  "anonymousId": "qB3uqzs44u!@O",
+  "context": Object {
+    "app": Object {
+      "build": "qB3uqzs44u!@O",
+      "name": "qB3uqzs44u!@O",
+      "namespace": "qB3uqzs44u!@O",
+      "version": "qB3uqzs44u!@O",
+    },
+    "campaign": Object {
+      "content": "qB3uqzs44u!@O",
+      "medium": "qB3uqzs44u!@O",
+      "name": "qB3uqzs44u!@O",
+      "source": "qB3uqzs44u!@O",
+      "term": "qB3uqzs44u!@O",
+    },
+    "device": Object {
+      "adTracking_Enabled": false,
+      "advertising_id": "qB3uqzs44u!@O",
+      "id": "qB3uqzs44u!@O",
+      "manufacturer": "qB3uqzs44u!@O",
+      "model": "qB3uqzs44u!@O",
+      "name": "qB3uqzs44u!@O",
+      "token": "qB3uqzs44u!@O",
+      "type": "qB3uqzs44u!@O",
+    },
+    "groupId": "qB3uqzs44u!@O",
+    "ip": "qB3uqzs44u!@O",
+    "locale": "qB3uqzs44u!@O",
+    "location": Object {
+      "city": "qB3uqzs44u!@O",
+      "country": "qB3uqzs44u!@O",
+      "latitude": 8593345651671.04,
+      "longitude": 8593345651671.04,
+      "speed": 8593345651671.04,
+    },
+    "network": Object {
+      "bluetooth": false,
+      "carrier": "qB3uqzs44u!@O",
+      "cellular": false,
+      "wifi": false,
+    },
+    "os": Object {
+      "name": "qB3uqzs44u!@O",
+      "version": "qB3uqzs44u!@O",
+    },
+    "page": Object {
+      "path": "qB3uqzs44u!@O",
+      "referrer": "qB3uqzs44u!@O",
+      "search": "qB3uqzs44u!@O",
+      "title": "qB3uqzs44u!@O",
+      "url": "qB3uqzs44u!@O",
+    },
+    "screen": Object {
+      "density": 8593345651671.04,
+      "height": 8593345651671.04,
+      "width": 8593345651671.04,
+    },
+    "timezone": "qB3uqzs44u!@O",
+    "userAgent": "qB3uqzs44u!@O",
+  },
+  "name": "qB3uqzs44u!@O",
+  "properties": Object {
+    "category": "qB3uqzs44u!@O",
+    "name": "qB3uqzs44u!@O",
+    "path": "qB3uqzs44u!@O",
+    "referrer": "qB3uqzs44u!@O",
+    "search": "qB3uqzs44u!@O",
+    "testType": "qB3uqzs44u!@O",
+    "title": "qB3uqzs44u!@O",
+    "url": "qB3uqzs44u!@O",
+  },
+  "timestamp": "qB3uqzs44u!@O",
+  "userId": "qB3uqzs44u!@O",
+}
+`;
+
+exports[`Testing snapshot for segment destination: sendPage action - required fields 1`] = `
+Object {
+  "anonymousId": "qB3uqzs44u!@O",
+  "context": Object {
+    "groupId": "qB3uqzs44u!@O",
+  },
+  "properties": Object {},
+  "userId": "qB3uqzs44u!@O",
+}
+`;
+
+exports[`Testing snapshot for segment destination: sendScreen action - all fields 1`] = `
+Object {
+  "anonymousId": "s62Sv8d1C1w",
+  "context": Object {
+    "app": Object {
+      "build": "s62Sv8d1C1w",
+      "name": "s62Sv8d1C1w",
+      "namespace": "s62Sv8d1C1w",
+      "version": "s62Sv8d1C1w",
+    },
+    "campaign": Object {
+      "content": "s62Sv8d1C1w",
+      "medium": "s62Sv8d1C1w",
+      "name": "s62Sv8d1C1w",
+      "source": "s62Sv8d1C1w",
+      "term": "s62Sv8d1C1w",
+    },
+    "device": Object {
+      "adTracking_Enabled": true,
+      "advertising_id": "s62Sv8d1C1w",
+      "id": "s62Sv8d1C1w",
+      "manufacturer": "s62Sv8d1C1w",
+      "model": "s62Sv8d1C1w",
+      "name": "s62Sv8d1C1w",
+      "token": "s62Sv8d1C1w",
+      "type": "s62Sv8d1C1w",
+    },
+    "groupId": "s62Sv8d1C1w",
+    "ip": "s62Sv8d1C1w",
+    "locale": "s62Sv8d1C1w",
+    "location": Object {
+      "city": "s62Sv8d1C1w",
+      "country": "s62Sv8d1C1w",
+      "latitude": -18209183933399.04,
+      "longitude": -18209183933399.04,
+      "speed": -18209183933399.04,
+    },
+    "network": Object {
+      "bluetooth": true,
+      "carrier": "s62Sv8d1C1w",
+      "cellular": true,
+      "wifi": true,
+    },
+    "os": Object {
+      "name": "s62Sv8d1C1w",
+      "version": "s62Sv8d1C1w",
+    },
+    "page": Object {
+      "path": "s62Sv8d1C1w",
+      "referrer": "s62Sv8d1C1w",
+      "search": "s62Sv8d1C1w",
+      "title": "s62Sv8d1C1w",
+      "url": "s62Sv8d1C1w",
+    },
+    "screen": Object {
+      "density": -18209183933399.04,
+      "height": -18209183933399.04,
+      "width": -18209183933399.04,
+    },
+    "userAgent": "s62Sv8d1C1w",
+  },
+  "name": "s62Sv8d1C1w",
+  "properties": Object {
+    "name": "s62Sv8d1C1w",
+    "testType": "s62Sv8d1C1w",
+  },
+  "timestamp": "s62Sv8d1C1w",
+  "userId": "s62Sv8d1C1w",
+}
+`;
+
+exports[`Testing snapshot for segment destination: sendScreen action - required fields 1`] = `
+Object {
+  "anonymousId": "s62Sv8d1C1w",
+  "context": Object {
+    "groupId": "s62Sv8d1C1w",
+  },
+  "properties": Object {},
+  "userId": "s62Sv8d1C1w",
+}
+`;
+
+exports[`Testing snapshot for segment destination: sendTrack action - all fields 1`] = `
+Object {
+  "anonymousId": "CYyxkIddLM",
+  "context": Object {
+    "app": Object {
+      "build": "CYyxkIddLM",
+      "name": "CYyxkIddLM",
+      "namespace": "CYyxkIddLM",
+      "version": "CYyxkIddLM",
+    },
+    "campaign": Object {
+      "content": "CYyxkIddLM",
+      "medium": "CYyxkIddLM",
+      "name": "CYyxkIddLM",
+      "source": "CYyxkIddLM",
+      "term": "CYyxkIddLM",
+    },
+    "device": Object {
+      "adTracking_Enabled": true,
+      "advertising_id": "CYyxkIddLM",
+      "id": "CYyxkIddLM",
+      "manufacturer": "CYyxkIddLM",
+      "model": "CYyxkIddLM",
+      "name": "CYyxkIddLM",
+      "token": "CYyxkIddLM",
+      "type": "CYyxkIddLM",
+    },
+    "groupId": "CYyxkIddLM",
+    "ip": "CYyxkIddLM",
+    "locale": "CYyxkIddLM",
+    "location": Object {
+      "city": "CYyxkIddLM",
+      "country": "CYyxkIddLM",
+      "latitude": -29887526831390.72,
+      "longitude": -29887526831390.72,
+      "speed": -29887526831390.72,
+    },
+    "network": Object {
+      "bluetooth": true,
+      "carrier": "CYyxkIddLM",
+      "cellular": true,
+      "wifi": true,
+    },
+    "os": Object {
+      "name": "CYyxkIddLM",
+      "version": "CYyxkIddLM",
+    },
+    "page": Object {
+      "path": "CYyxkIddLM",
+      "referrer": "CYyxkIddLM",
+      "search": "CYyxkIddLM",
+      "title": "CYyxkIddLM",
+      "url": "CYyxkIddLM",
+    },
+    "screen": Object {
+      "density": -29887526831390.72,
+      "height": -29887526831390.72,
+      "width": -29887526831390.72,
+    },
+    "timezone": "CYyxkIddLM",
+    "userAgent": "CYyxkIddLM",
+  },
+  "event": "CYyxkIddLM",
+  "properties": Object {
+    "testType": "CYyxkIddLM",
+  },
+  "timestamp": "CYyxkIddLM",
+  "userId": "CYyxkIddLM",
+}
+`;
+
+exports[`Testing snapshot for segment destination: sendTrack action - required fields 1`] = `
+Object {
+  "anonymousId": "CYyxkIddLM",
+  "context": Object {
+    "groupId": "CYyxkIddLM",
+  },
+  "properties": Object {},
+  "userId": "CYyxkIddLM",
+}
+`;
