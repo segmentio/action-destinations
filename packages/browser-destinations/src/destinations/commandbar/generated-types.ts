@@ -6,7 +6,7 @@ export interface Settings {
    */
   orgId: string
   /**
-   * If enabled, the CommandBar will be deployed to your site automatically and you can remove the the snippet from your source code.
+   * If enabled, CommandBar will be deployed to your site automatically and you can remove the snippet from your source code.
    */
   deploy?: boolean
 }
