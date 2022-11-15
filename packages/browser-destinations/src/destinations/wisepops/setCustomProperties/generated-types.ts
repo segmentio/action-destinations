@@ -8,19 +8,15 @@ export interface Payload {
     [k: string]: unknown
   }
   /**
-   * This lets you to store the properties as a nested object. If you set the property `name` with the prefix `group`, you'll access it in Wisepops as `group.name`.
-   */
-  prefix?: string
-  /**
-   * A unique identifier. Typically a user or group ID.
+   * A unique identifier. Typically, a user ID or group ID.
    */
   id?: string
   /**
-   * What property name should be used to set the entity ID as a Wisepops custom property?
+   * How to name the entity ID among the other custom properties?
    */
   idProperty?: string
   /**
-   * By default, custom properties persist across pages. Enable temporary properties to limit them to the current page only.
+   * This lets you define the properties as a nested object. If you set the property `"name"` with the prefix `"group"`, you'll access it in Wisepops as `"group.name"`.
    */
-  temporary?: boolean
+  prefix?: string
 }
