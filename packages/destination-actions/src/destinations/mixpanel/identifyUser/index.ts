@@ -2,7 +2,7 @@ import { ActionDefinition, IntegrationError, omit } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 
-import { getApiServerUrl } from '../utils'
+import { getApiServerUrl, getConcatenatedName } from '../utils'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Identify User',
@@ -73,6 +73,11 @@ const action: ActionDefinition<Settings, Payload> = {
     }
 
     if (payload.traits && Object.keys(payload.traits).length > 0) {
+      const concatenatedName = getConcatenatedName(
+        payload.traits.firstName,
+        payload.traits.lastName,
+        payload.traits.name
+      )
       const traits = {
         ...omit(payload.traits, ['created', 'email', 'firstName', 'lastName', 'name', 'username', 'phone']),
         // to fit the Mixpanel expectations, transform the special traits to Mixpanel reserved property
@@ -80,7 +85,7 @@ const action: ActionDefinition<Settings, Payload> = {
         $email: payload.traits.email,
         $first_name: payload.traits.firstName,
         $last_name: payload.traits.lastName,
-        $name: payload.traits.name,
+        $name: concatenatedName,
         $username: payload.traits.username,
         $phone: payload.traits.phone
       }

@@ -1,7 +1,7 @@
 import type { ActionDefinition } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
-import { key, id, keys, values, enable_batching } from '../sfmc-properties'
+import { key, id, keys, enable_batching, values_contactFields } from '../sfmc-properties'
 import { upsertRows } from '../sfmc-operations'
 
 const action: ActionDefinition<Settings, Payload> = {
@@ -26,7 +26,7 @@ const action: ActionDefinition<Settings, Payload> = {
         contactKey: { '@path': '$.userId' }
       }
     },
-    values: values,
+    values: values_contactFields,
     enable_batching: enable_batching
   },
   perform: async (request, { settings, payload }) => {
