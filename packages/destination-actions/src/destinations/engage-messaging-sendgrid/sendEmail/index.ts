@@ -309,6 +309,15 @@ const action: ActionDefinition<Settings, Payload> = {
       type: 'object',
       required: false,
       default: { '@path': '$.properties' }
+    },
+    event_occured_time_ms: {
+      label: 'Event Timestamp',
+      description: 'Time of when the actual event happened.',
+      type: 'number',
+      required: false,
+      default: {
+        '@path': '$.timestamp'
+      }
     }
   },
   perform: async (request, { settings, payload, statsContext }) => {
@@ -453,6 +462,13 @@ const action: ActionDefinition<Settings, Payload> = {
       })
       tags?.push(`sendgrid_status_code:${response.status}`)
       statsClient?.incr('actions-personas-messaging-sendgrid.response', 1, tags)
+      if (payload?.event_occured_time_ms != undefined) {
+        statsClient?.histogram(
+          'actions-personas-messaging-sendgrid.eventDeliveryTS',
+          Date.now() - payload?.event_occured_time_ms,
+          tags
+        )
+      }
       return response
     } else {
       statsClient?.incr('actions-personas-messaging-sendgrid.sendgrid-error', 1, tags)
