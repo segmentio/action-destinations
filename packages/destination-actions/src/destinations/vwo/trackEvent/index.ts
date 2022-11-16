@@ -54,16 +54,10 @@ const action: ActionDefinition<Settings, Payload> = {
   },
   perform: (request, { settings, payload }) => {
     const formattedProperties = { ...payload.properties }
-    const validDataTypes = ['string', 'boolean', 'number']
+    formattedProperties['source'] = `segment.cloud`
     const endpoint = `https://dev.visualwebsiteoptimizer.com/events/t?en=${payload.name}&a=${settings.vwoAccountId}`
     const vwo_uuid = formattedProperties.vwo_uuid
     delete formattedProperties['vwo_uuid']
-
-    for (const key in formattedProperties) {
-      if (!validDataTypes.includes(typeof formattedProperties[key])) {
-        delete formattedProperties[key]
-      }
-    }
     const epochTime = new Date(payload.timestamp).valueOf()
     const time = Math.floor(epochTime)
     const sessionId = Math.floor(epochTime / 1000)

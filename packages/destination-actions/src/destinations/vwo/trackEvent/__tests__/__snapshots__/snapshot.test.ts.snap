@@ -10,6 +10,7 @@ Object {
         "page": Object {
           "testType": "t*!1v8&HTqVu",
         },
+        "source": "segment.cloud",
         "testType": "t*!1v8&HTqVu",
         "vwoMeta": Object {
           "metric": Object {},
@@ -33,6 +34,7 @@ Object {
         "page": Object {
           "testType": "t*!1v8&HTqVu",
         },
+        "source": "segment.cloud",
         "vwoMeta": Object {
           "metric": Object {},
         },
