@@ -59,7 +59,9 @@ const action: ActionDefinition<Settings, Payload> = {
       else return JSON.stringify(value)
     })
 
-    const endpoint = `https://${settings.client_name}.assets.tagger.opecloud.com/v2/native/asset/${payload.asset_uri}`
+    const endpoint = encodeURI(
+      `https://${settings.client_name}.assets.tagger.opecloud.com/v2/native/asset/${payload.asset_uri}`
+    )
 
     return request(endpoint, {
       method: 'put',
