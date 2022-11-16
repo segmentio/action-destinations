@@ -3,7 +3,7 @@ import playerzero, { destination } from '../../index'
 import { subscriptions, TEST_PROJECT_ID } from '../../test-utils'
 
 describe('PlayerzeroWeb.trackEvent', () => {
-  it('emits a PlayerZero track event', async () => {
+  it.skip('emits a PlayerZero track event', async () => {
     const [event] = await playerzero({
       projectId: TEST_PROJECT_ID,
       subscriptions
