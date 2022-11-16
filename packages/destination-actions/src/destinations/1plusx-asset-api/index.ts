@@ -66,7 +66,7 @@ const destination: DestinationDefinition<Settings> = {
     }
   },
   extendRequest({ auth }) {
-    console.log('access token ' + auth?.accessToken)
+    //console.log('access token ' + auth?.accessToken)
     console.log('extendRequest starts')
     return {
       headers: {
