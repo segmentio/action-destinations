@@ -7,7 +7,7 @@ function formatPurchasePayload(purchaseEvent: Payload) {
   purchaseEvent.purchase_datetime = formatTimestampAsUnixSeconds(purchaseEvent.purchase_datetime)
 
   // flatten discount codes + use any top level discount code
-  let codeList = []
+  const codeList = []
   if (purchaseEvent.discount_code) {
     codeList.push(purchaseEvent.discount_code)
   }
@@ -20,7 +20,7 @@ function formatPurchasePayload(purchaseEvent: Payload) {
   }
 
   // flatten product SKUs or IDs
-  let productList = []
+  const productList = []
   if (purchaseEvent.products) {
     for (const product of purchaseEvent.products) {
       const productIdentifier = product.product_id || product.sku
@@ -110,7 +110,7 @@ const action: ActionDefinition<Settings, Payload> = {
     })
   },
   performBatch: (request, data) => {
-    let formattedPayload: object[] = []
+    const formattedPayload: object[] = []
 
     for (const ev of data.payload) {
       formattedPayload.push(formatPurchasePayload(ev))
