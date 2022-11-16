@@ -44,7 +44,7 @@ describe('1Plusx Asset Api', () => {
         event: 'Test Event',
         type: 'track',
         properties: {
-          asset_uri: 'Video:123456',
+          asset_uri: 'test_id:123456',
           title: 'Solace',
           content: 'Detailed desciption of the asset'
         },
@@ -59,8 +59,8 @@ describe('1Plusx Asset Api', () => {
             'Mozilla/5.0 (iPhone; CPU iPhone OS 12_1_4 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/16D57'
         }
       })
-      const asset_uri = 'Video:123456'
-      nock(`https://${client_name}.assets.tagger.opecloud.com`).post(`/v2/native/asset/${asset_uri}`).reply(200)
+      const encoded_asset_uri = encodeURIComponent('test_id:123456')
+      nock(`https://${client_name}.assets.tagger.opecloud.com`).put(`/v2/native/asset/${encoded_asset_uri}`).reply(200)
 
       const responses = await testDestination.testAction('sendAssetData', {
         event,
@@ -92,15 +92,15 @@ describe('1Plusx Asset Api', () => {
         event: 'Test Event',
         type: 'track',
         properties: {
-          asset_uri: 'Video:123456',
+          asset_uri: 'test_id:123456',
           video_title: 'Solace',
           video_content: 'Detailed desciption of the asset',
           genre: ['Thriller', 'Horror'],
           actors: ['Hopkins', 'Affleck']
         }
       })
-      const asset_uri = 'Video:123456'
-      nock(`https://${client_name}.assets.tagger.opecloud.com`).post(`/v2/native/asset/${asset_uri}`).reply(200)
+      const encoded_asset_uri = encodeURIComponent('test_id:123456')
+      nock(`https://${client_name}.assets.tagger.opecloud.com`).put(`/v2/native/asset/${encoded_asset_uri}`).reply(200)
 
       const responses = await testDestination.testAction('sendAssetData', {
         event,
@@ -139,15 +139,15 @@ describe('1Plusx Asset Api', () => {
         event: 'Test Event',
         type: 'track',
         properties: {
-          asset_uri: 'Video:123456',
+          asset_uri: 'test_id:123456',
           title: 'Solace',
           content: 'Detailed desciption of the asset',
           genre: ['Thriller', 'Horror'],
           actors: ['Hopkins', 'Affleck']
         }
       })
-      const asset_uri = 'Video:123456'
-      nock(`https://${client_name}.assets.tagger.opecloud.com`).post(`/v2/native/asset/${asset_uri}`).reply(200)
+      const encoded_asset_uri = encodeURIComponent('test_id:123456')
+      nock(`https://${client_name}.assets.tagger.opecloud.com`).put(`/v2/native/asset/${encoded_asset_uri}`).reply(200)
 
       const responses = await testDestination.testAction('sendAssetData', {
         event,
@@ -191,15 +191,15 @@ describe('1Plusx Asset Api', () => {
         event: 'Test Event',
         type: 'track',
         properties: {
-          asset_uri: 'Video:123456',
+          asset_uri: 'test_id:123456',
           title: 'Solace',
           content: 'Detailed desciption of the asset',
           genre: 'Thriller',
           actors: 'Hopkins'
         }
       })
-      const asset_uri = 'Video:123456'
-      nock(`https://${client_name}.assets.tagger.opecloud.com`).post(`/v2/native/asset/${asset_uri}`).reply(200)
+      const encoded_asset_uri = encodeURIComponent('test_id:123456')
+      nock(`https://${client_name}.assets.tagger.opecloud.com`).put(`/v2/native/asset/${encoded_asset_uri}`).reply(200)
 
       const responses = await testDestination.testAction('sendAssetData', {
         event,
