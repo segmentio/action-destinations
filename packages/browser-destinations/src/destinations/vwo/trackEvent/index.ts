@@ -41,11 +41,9 @@ const action: BrowserActionDefinition<Settings, VWO, Payload> = {
   perform: (VWO, event) => {
     const { eventName, properties } = event.payload
     const formattedProperties = { ...properties }
-    const validDataTypes = ['string', 'boolean', 'number']
-    for (const key in formattedProperties) {
-      if (!validDataTypes.includes(typeof formattedProperties[key])) {
-        delete formattedProperties[key]
-      }
+    formattedProperties['source'] = `segment.web`
+    if (!VWO.event) {
+      return
     }
     VWO.event(eventName, formattedProperties)
   }
