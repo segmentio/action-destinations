@@ -1,47 +1,21 @@
 import { get } from '../get'
 import { realTypeOf } from '../real-type-of'
-import { Features } from './index'
-
-const entityMap: Record<string, string> = {
-  '&': '&amp;',
-  '<': '&lt;',
-  '>': '&gt;',
-  '"': '&quot;',
-  "'": '&#39;',
-  '/': '&#x2F;',
-  '`': '&#x60;',
-  '=': '&#x3D;'
-}
-
-function escapeHtml(value: unknown): string | unknown {
-  if (typeof value !== 'string') return value
-
-  return value.replace(/[&<>"'`=/]/g, (match) => {
-    return entityMap[match]
-  })
-}
 
 /**
  * Replaces curly brace placeholders in a template with real content
  */
-export function render(template: string, data: unknown = {}, features?: Features): string {
+export function render(template: string, data: unknown = {}): string {
   if (typeof template !== 'string') {
     throw new TypeError(`Invalid template! Template should be a "string" but ${realTypeOf(template)} was given.`)
   }
 
-  function replacer(chars: number, escape: boolean) {
+  function replacer(chars: number) {
     return (match: string): string => {
       // Remove the wrapping curly braces
       match = match.slice(chars, -chars).trim()
 
       // Grab the value from data, if it exists
       const value = get(data, match)
-
-      // Replace with the value (or empty string) only if flag isn't set
-      const actionsEscapeOff = features && features.actionsEscapeOff
-      if (escape && !actionsEscapeOff) {
-        return String(escapeHtml(value) ?? '')
-      }
 
       return (value ?? '') as string
     }
@@ -50,8 +24,8 @@ export function render(template: string, data: unknown = {}, features?: Features
   return (
     template
       // Replace unescaped content
-      .replace(/\{\{\{([^}]+)\}\}\}/g, replacer(3, false))
+      .replace(/\{\{\{([^}]+)\}\}\}/g, replacer(3))
       // Replace escaped content
-      .replace(/\{\{([^}]+)\}\}/g, replacer(2, true))
+      .replace(/\{\{([^}]+)\}\}/g, replacer(2))
   )
 }
