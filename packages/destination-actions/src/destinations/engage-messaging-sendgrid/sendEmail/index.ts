@@ -310,7 +310,7 @@ const action: ActionDefinition<Settings, Payload> = {
       required: false,
       default: { '@path': '$.properties' }
     },
-    event_occured_time_ms: {
+    eventOccurredTS: {
       label: 'Event Timestamp',
       description: 'Time of when the actual event happened.',
       type: 'number',
@@ -462,10 +462,10 @@ const action: ActionDefinition<Settings, Payload> = {
       })
       tags?.push(`sendgrid_status_code:${response.status}`)
       statsClient?.incr('actions-personas-messaging-sendgrid.response', 1, tags)
-      if (payload?.event_occured_time_ms != undefined) {
+      if (payload?.eventOccurredTS != undefined) {
         statsClient?.histogram(
           'actions-personas-messaging-sendgrid.eventDeliveryTS',
-          Date.now() - payload?.event_occured_time_ms,
+          Date.now() - payload?.eventOccurredTS,
           tags
         )
       }

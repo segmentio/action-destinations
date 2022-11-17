@@ -115,5 +115,5 @@ export interface Payload {
   /**
    * Time of when the actual event happened.
    */
-  event_occured_time_ms?: number
+  eventOccurredTS?: number
 }
