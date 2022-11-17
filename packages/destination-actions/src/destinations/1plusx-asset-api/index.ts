@@ -23,14 +23,14 @@ const destination: DestinationDefinition<Settings> = {
       },
       client_id: {
         label: 'Client ID',
-        description: 'Your 1plusX Client ID. Available in 1plusX UI in the "API Keys" section.',
-        type: 'string',
+        description: 'Your 1plusX Client (Key) ID. Available in 1plusX UI in the "API Keys" section.',
+        type: 'password',
         required: true
       },
       client_secret: {
         label: 'Client Secret',
         description: 'Your 1plusX Client Secret. Available in 1plusX UI in the "API Keys" section.',
-        type: 'string',
+        type: 'password',
         required: true
       }
     },
