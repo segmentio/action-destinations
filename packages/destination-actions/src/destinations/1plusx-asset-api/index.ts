@@ -50,9 +50,7 @@ const destination: DestinationDefinition<Settings> = {
       }
     },
     refreshAccessToken: async (request, { settings }) => {
-      console.log('refreshAccessToken start')
       // Refresh access token using client_id and client_secret provided in the Settings
-
       const res = await request<RefreshTokenResponse>('https://ui.1plusx.io/api/auth/token', {
         method: 'POST',
         headers: {
@@ -66,8 +64,6 @@ const destination: DestinationDefinition<Settings> = {
     }
   },
   extendRequest({ auth }) {
-    //console.log('access token ' + auth?.accessToken)
-    console.log('extendRequest starts')
     return {
       headers: {
         authorization: `Bearer ${auth?.accessToken}`
