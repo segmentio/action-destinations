@@ -4,7 +4,7 @@ import type { ActionDefinition, RequestOptions } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 import { IntegrationError } from '@segment/actions-core'
-import { StatsClient } from '@segment/actions-core/src/destination-kit'
+import { Logger, StatsClient } from '@segment/actions-core/src/destination-kit'
 const Liquid = new LiquidJs()
 
 const getProfileApiEndpoint = (environment: string): string => {
@@ -18,7 +18,8 @@ const fetchProfileTraits = async (
   settings: Settings,
   profileId: string,
   statsClient?: StatsClient | undefined,
-  tags?: string[] | undefined
+  tags?: string[] | undefined,
+  logger?: Logger | undefined
 ): Promise<Record<string, string>> => {
   try {
     const endpoint = getProfileApiEndpoint(settings.profileApiEnvironment)
@@ -36,6 +37,7 @@ const fetchProfileTraits = async (
     const body = await response.json()
     return body.traits
   } catch (error: unknown) {
+    logger?.error('TE Messaging: SMS profile traits request failure')
     statsClient?.incr('actions-personas-messaging-twilio.profile_error', 1, tags)
     throw new IntegrationError('Unable to get profile traits for SMS message', 'SMS trait fetch failure', 500)
   }
@@ -148,11 +150,12 @@ const action: ActionDefinition<Settings, Payload> = {
       default: { '@path': '$.properties' }
     }
   },
-  perform: async (request, { settings, payload, statsContext }) => {
+  perform: async (request, { settings, payload, statsContext, logger }) => {
     const statsClient = statsContext?.statsClient
     const tags = statsContext?.tags
     tags?.push(`space_id:${settings.spaceId}`, `projectid:${settings.sourceId}`)
     if (!payload.send) {
+      logger?.error('TE Messaging: SMS send disabled')
       statsClient?.incr('actions-personas-messaging-twilio.send-disabled', 1, tags)
       return
     }
@@ -161,9 +164,11 @@ const action: ActionDefinition<Settings, Payload> = {
       !externalId?.subscriptionStatus ||
       ['unsubscribed', 'did not subscribed', 'false'].includes(externalId.subscriptionStatus)
     ) {
+      logger.info('TE Messaging: SMS recipient not subscribed')
       statsClient?.incr('actions-personas-messaging-twilio.notsubscribed', 1, tags)
       return
     } else if (['subscribed', 'true'].includes(externalId.subscriptionStatus)) {
+      logger.info('TE Messaging: SMS recipient subscribed')
       statsClient?.incr('actions-personas-messaging-twilio.subscribed', 1, tags)
       const phone = payload.toNumber || externalId.id
       if (!phone) {
@@ -191,6 +196,8 @@ const action: ActionDefinition<Settings, Payload> = {
       try {
         parsedBody = await Liquid.parseAndRender(payload.body, { profile })
       } catch (error: unknown) {
+        logger?.error('TE Messaging: SMS templating failure')
+        statsClient?.incr('actions-personas-messaging-twilio.templating-failure', 1, tags)
         throw new IntegrationError(`Unable to parse templating in SMS`, `SMS templating parse failure`, 400)
       }
 
@@ -224,20 +231,28 @@ const action: ActionDefinition<Settings, Payload> = {
       }
 
       const hostname = settings.twilioHostname ?? DEFAULT_HOSTNAME
-      const response = await request(
-        `https://${hostname}/2010-04-01/Accounts/${settings.twilioAccountSID}/Messages.json`,
-        {
-          method: 'POST',
-          headers: {
-            authorization: `Basic ${token}`
-          },
-          body
-        }
-      )
-      tags?.push(`twilio_status_code:${response.status}`)
-      statsClient?.incr('actions-personas-messaging-twilio.response', 1, tags)
-      return response
+
+      try {
+        const response = await request(
+          `https://${hostname}/2010-04-01/Accounts/${settings.twilioAccountSID}/Messages.json`,
+          {
+            method: 'POST',
+            headers: {
+              authorization: `Basic ${token}`
+            },
+            body
+          }
+        )
+        tags?.push(`twilio_status_code:${response.status}`)
+        logger?.info('TE Messaging: SMS message response received')
+        statsClient?.incr('actions-personas-messaging-twilio.response', 1, tags)
+        return response
+      } catch (error: unknown) {
+        logger?.error('TE Messaging: SMS message request failure')
+        statsClient?.incr('actions-personas-messaging-twilio.request-failure', 1, tags)
+      }
     } else {
+      logger?.error(`TE Messaging: SMS subscription status invalid "${externalId.subscriptionStatus}"`)
       statsClient?.incr('actions-personas-messaging-twilio.twilio-error', 1, tags)
       throw new IntegrationError(
         `Failed to recognize the subscriptionStatus in the payload: "${externalId.subscriptionStatus}".`,
