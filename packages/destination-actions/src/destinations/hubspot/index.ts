@@ -11,7 +11,8 @@ interface RefreshTokenResponse {
 }
 
 const destination: DestinationDefinition<Settings> = {
-  name: 'HubSpot Cloud Mode (Actions)',
+  // We  need to match `name` with the creationName in the db. The name used in the UI is "HubSpot Cloud Mode (Actions)".
+  name: 'HubSpot Cloud Mode (actions)',
   slug: 'actions-hubspot-cloud',
   mode: 'cloud',
 
