@@ -15,7 +15,7 @@ const destination: DestinationDefinition<Settings> = {
     scheme: 'oauth2',
     fields: {
       endpoint: {
-        description: 'The destination will send your data to an endpoint in this region.',
+        description: 'The destination will send your data to the endpoint in this region.',
         label: 'Endpoint Region',
         type: 'string',
         choices: [
