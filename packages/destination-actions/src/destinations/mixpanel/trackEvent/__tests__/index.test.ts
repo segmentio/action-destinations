@@ -16,7 +16,7 @@ const expectedProperties = {
   $current_url: 'https://segment.com/academy/',
   $locale: 'en-US',
   mp_country_code: 'United States',
-  mp_lib: 'Segment: analytics.js'
+  mp_lib: 'Segment Actions: analytics.js'
 }
 
 describe('Mixpanel.trackEvent', () => {

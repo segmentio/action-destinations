@@ -56,7 +56,7 @@ export function getEventProperties(payload: Payload, settings: Settings): Mixpan
         $user_id: payload.user_id,
         $wifi_enabled: payload.wifi,
         mp_country_code: payload.country,
-        mp_lib: payload.library_name && `Segment: ${ payload.library_name }`,
+        mp_lib: payload.library_name && `Segment Actions: ${ payload.library_name }`,
         segment_source_name: settings.sourceName,
         utm_campaign: utm.utm_campaign,
         utm_content: utm.utm_content,
