@@ -42,22 +42,6 @@ const action: ActionDefinition<Settings, Payload> = {
         '@path': '$.event'
       }
     },
-    anonymous_id: {
-      label: 'Anonymous ID',
-      type: 'string',
-      description: 'A distinct ID randomly generated prior to calling identify.',
-      default: {
-        '@path': '$.anonymousId'
-      }
-    },
-    user_id: {
-      label: 'User ID',
-      type: 'string',
-      description: 'The distinct ID after calling identify.',
-      default: {
-        '@path': '$.userId'
-      }
-    },
     ...eventProperties
   },
 

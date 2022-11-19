@@ -11,13 +11,13 @@ const mixpanelReservedProperties = ['time', 'id', '$anon_id', 'distinct_id', '$g
 export function getEventProperties(payload: Payload, settings: Settings): MixpanelEventProperties {
     const datetime = payload.time
     const time = datetime && dayjs.utc(datetime).isValid() ? dayjs.utc(datetime).valueOf() : Date.now()
-
     const utm = payload.utm_properties || {}
     let browser, browserVersion
     if (payload.userAgent) {
         browser = getBrowser(payload.userAgent, payload.device_manufacturer)
         browserVersion = getBrowserVersion(payload.userAgent, payload.device_manufacturer)
     }
+    const integration = payload.context?.integration as Record<string, string>
     return {
         time: time,
         ip: payload.ip,
@@ -52,7 +52,7 @@ export function getEventProperties(payload: Payload, settings: Settings): Mixpan
         $screen_height: payload.screen_height,
         $screen_width: payload.screen_width,
         $screen_density: payload.screen_density,
-        $source: 'segment',
+        $source: integration?.name == "Iterable" ? "Iterable" : 'segment',
         $user_id: payload.user_id,
         $wifi_enabled: payload.wifi,
         mp_country_code: payload.country,
