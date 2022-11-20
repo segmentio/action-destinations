@@ -51,7 +51,7 @@ const getPurchaseEventsFromPayload = (payload: Payload, settings: Settings): Mix
 
 const processData = async (request: RequestClient, settings: Settings, payload: Payload[]) => {
   const events = payload.map((value) => getPurchaseEventsFromPayload(value, settings)).flat()
-  return request(`${ getApiServerUrl(settings.apiRegion) }/import?strict=1`, {
+  return request(`${ getApiServerUrl(settings.apiRegion) }/import?strict=${ settings.strictMode ?? `1` }`, {
     method: 'post',
     json: events,
     headers: {
