@@ -71,7 +71,7 @@ export default class Salesforce {
   }
 
   updateRecord = async (payload: GenericPayload, sobject: string) => {
-    if (!payload.traits || Object.keys(payload.traits).length === 0) {
+    if (!payload.traits || (Object.keys(payload.traits).length === 0 && !payload.enable_batching)) {
       throw new IntegrationError('Undefined Traits when using update operation', 'Undefined Traits', 400)
     }
 
@@ -89,8 +89,10 @@ export default class Salesforce {
   }
 
   upsertRecord = async (payload: GenericPayload, sobject: string) => {
-    if (!payload.traits || Object.keys(payload.traits).length === 0) {
+    if (!payload.traits || (Object.keys(payload.traits).length === 0 && !payload.enable_batching)) {
       throw new IntegrationError('Undefined Traits when using upsert operation', 'Undefined Traits', 400)
+    } else {
+      payload.traits = payload.bulkUpsertExternalId
     }
 
     const [recordId, err] = await this.lookupTraits(payload.traits, sobject)

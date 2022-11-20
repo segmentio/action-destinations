@@ -27,7 +27,7 @@ export const bulkUpsertExternalId: InputField = {
   description: 'The external id field name and mapping to use for bulk upsert.',
   type: 'object',
   defaultObjectUI: 'keyvalue:only',
-  additionalProperties: false,
+  additionalProperties: true,
   properties: {
     externalIdName: {
       label: 'External Id Name',
