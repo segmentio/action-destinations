@@ -27,15 +27,6 @@ const action: BrowserActionDefinition<Settings, VWO, Payload> = {
       default: {
         '@path': '$.properties'
       }
-    },
-    page: {
-      description: 'Page Context',
-      label: 'Page',
-      required: false,
-      type: 'object',
-      default: {
-        '@path': '$.context.page'
-      }
     }
   },
   perform: (VWO, event) => {

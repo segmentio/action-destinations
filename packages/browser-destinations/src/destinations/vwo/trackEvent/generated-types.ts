@@ -11,10 +11,4 @@ export interface Payload {
   properties?: {
     [k: string]: unknown
   }
-  /**
-   * Page Context
-   */
-  page?: {
-    [k: string]: unknown
-  }
 }

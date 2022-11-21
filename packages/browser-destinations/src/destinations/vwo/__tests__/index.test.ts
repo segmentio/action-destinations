@@ -14,9 +14,6 @@ const subscriptions: Subscription[] = [
       },
       properties: {
         '@path': '$.properties'
-      },
-      page: {
-        '@path': '$.context.page'
       }
     }
   }
