@@ -5,10 +5,6 @@ import { ModifiedResponse } from '@segment/actions-core'
 import { getAccessToken } from './formatter'
 
 let authenticationToken = 'XXXXXXXX' //accessToken here;
-const aId = '138093021' //aid here;
-const cId = '252186800' //cid here
-const devToken = '1455Q19VPS983002' //devToken here
-// const clientId = '93a71c20-5cd5-4791-a43c-a9ffb6c0b0d7'//clientId here
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Offline Conversions',
@@ -160,13 +156,13 @@ const action: ActionDefinition<Settings, Payload> = {
       authenticationToken +
       '</AuthenticationToken>' +
       '<CustomerAccountId i:nil="false">' +
-      aId +
+      data.settings.customer_account_id +
       '</CustomerAccountId>' +
       '<CustomerId i:nil="false">' +
-      cId +
+      data.settings.customer_id +
       '</CustomerId>' +
       '<DeveloperToken i:nil="false">' +
-      devToken +
+      data.settings.developer_token +
       '</DeveloperToken>' +
       '</s:Header>' +
       '<s:Body>' +
