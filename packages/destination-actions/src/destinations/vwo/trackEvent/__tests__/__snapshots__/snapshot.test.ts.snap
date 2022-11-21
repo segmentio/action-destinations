@@ -18,8 +18,9 @@ Object {
       },
       "time": null,
     },
-    "msgId": "undefined-NaN",
+    "msgId": "t*!1v8&HTqVu-NaN",
     "sessionId": null,
+    "visId": "t*!1v8&HTqVu",
   },
 }
 `;
@@ -41,8 +42,9 @@ Object {
       },
       "time": null,
     },
-    "msgId": "undefined-NaN",
+    "msgId": "t*!1v8&HTqVu-NaN",
     "sessionId": null,
+    "visId": "t*!1v8&HTqVu",
   },
 }
 `;

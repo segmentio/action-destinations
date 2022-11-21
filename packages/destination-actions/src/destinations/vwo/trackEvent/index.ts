@@ -24,7 +24,7 @@ const action: ActionDefinition<Settings, Payload> = {
         '@path': '$.properties'
       }
     },
-    vwo_uuid: {
+    vwoUuid: {
       description: 'VWO UUID',
       label: 'VWO UUID',
       required: true,
@@ -56,15 +56,15 @@ const action: ActionDefinition<Settings, Payload> = {
     const formattedProperties = { ...payload.properties }
     formattedProperties['source'] = `segment.cloud`
     const endpoint = `https://dev.visualwebsiteoptimizer.com/events/t?en=${payload.name}&a=${settings.vwoAccountId}`
-    const vwo_uuid = formattedProperties.vwo_uuid
-    delete formattedProperties['vwo_uuid']
+    const vwoUuid = payload.vwoUuid
+    delete formattedProperties['vwoUuid']
     const epochTime = new Date(payload.timestamp).valueOf()
     const time = Math.floor(epochTime)
     const sessionId = Math.floor(epochTime / 1000)
     const structuredPayload = {
       d: {
-        msgId: `${vwo_uuid}-${sessionId}`,
-        visId: vwo_uuid,
+        msgId: `${vwoUuid}-${sessionId}`,
+        visId: vwoUuid,
         event: {
           props: {
             ...formattedProperties,

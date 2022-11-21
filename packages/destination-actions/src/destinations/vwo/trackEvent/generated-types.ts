@@ -14,7 +14,7 @@ export interface Payload {
   /**
    * VWO UUID
    */
-  vwo_uuid: string
+  vwoUuid: string
   /**
    * Page Context
    */

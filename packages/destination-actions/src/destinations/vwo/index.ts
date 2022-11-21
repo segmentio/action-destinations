@@ -25,6 +25,13 @@ const destination: DestinationDefinition<Settings> = {
         type: 'number',
         required: true
       }
+    },
+    testAuthentication: (_request, { settings }) => {
+      if (settings.vwoAccountId < 1 || settings.vwoAccountId.toString().length > 7) {
+        throw new Error('Invalid AccountID. Please check your AccountID')
+      } else {
+        return true
+      }
     }
   },
 
