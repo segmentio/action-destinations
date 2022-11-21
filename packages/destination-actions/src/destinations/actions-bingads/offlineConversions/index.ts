@@ -107,7 +107,7 @@ const action: ActionDefinition<Settings, Payload> = {
   },
   perform: async (request, data) => {
     // console.log('Raw Data: ', data.rawData.properties)
-    console.log('Payload: ', data.payload)
+    // console.log('Payload: ', data.payload)
 
     const response_data = await getAccessToken({
       client_id: data.settings.client_id, //data.payload.client_id,
