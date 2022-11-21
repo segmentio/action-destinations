@@ -5,9 +5,6 @@ import { ModifiedResponse } from '@segment/actions-core'
 import { getAccessToken } from './formatter'
 
 let authenticationToken = 'XXXXXXXX' //accessToken here;
-// var refreshToken = 'M.R3_BAY.-Ccb7GdPKpKqhefUoUDICHhxpxa7K6oCL24voPUZd1Jcj7gH3plGr6tjQxsmSMnvHE*SFbtxDZMx74Q0wyVBXa2GAjGhGu1NC6PE95Ffgil*ZIrb1IgDgFUF0YeK6PDK!UocQJVgDVUB2d5v6hAn*p!Dva2IMkGWRltJdcYjxP0fVJ2MRNlo!YsJI7Ix6wkZ9bpN!7R*ysCDESnSp!blNhWARjeDH2OdboFB5m!s1wf9Od3MKzHkYnKNVGyCiRIPGVEAIKDtttMswLSGXtbnE9Bxaq7XaAjqdo0fceb7fK3S0qfj0xQdGDwlEv91Ej8b0Bq4BM4VIhrLfOJcM6oh3gBAHsii7Y8HDLoxmLZ06SE6ctgvWZBYM8TCgvm!*RiYGKxKautznLZ0uUQu5wvQfAe7RRSxgcG6crrnyTdpQWNhZ'//refreshToken here;
-// var msCode = 'M.R3_BAY.c645685b-2439-70a0-3f90-c6ca26b8189b'//msCode here;
-// const clientSecret = 'OnJ8Q~q6vhOeOz5EGUZ5wU0NGvFRKMT~aTD6Ua_w'//clientSecret here;
 const aId = '138093021' //aid here;
 const cId = '252186800' //cid here
 const devToken = '1455Q19VPS983002' //devToken here
