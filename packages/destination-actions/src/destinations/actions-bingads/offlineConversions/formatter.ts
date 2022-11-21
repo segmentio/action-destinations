@@ -1,12 +1,12 @@
 import { fetch } from '@segment/actions-core'
 // @ts-ignore This is to bypass for testing purpose
 export function getAccessToken(mapping: {
-  refresh_token: string
+  refresh_token: string | undefined
   grant_type: string
-  scope: string
-  redirect_uri: string
-  client_secret: string
-  client_id: string
+  scope: string | undefined
+  redirect_uri: string | undefined
+  client_secret: string | undefined
+  client_id: string | undefined
 }) {
   const endpoint = 'https://login.microsoftonline.com/common/oauth2/v2.0/token'
   const uspCoded = new URLSearchParams({

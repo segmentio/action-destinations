@@ -17,6 +17,51 @@ const action: ActionDefinition<Settings, Payload> = {
   title: 'Offline Conversions',
   description: '',
   fields: {
+    ConversionCurrencyCode: {
+      label: 'Conversion Currency Code',
+      description: 'Conversion Currency Code',
+      type: 'string',
+      required: true,
+      default: {
+        '@path': '$.properties.conversionCurrency'
+      }
+    },
+    ConversionName: {
+      label: 'Conversion Name',
+      description: 'Conversion Name',
+      type: 'string',
+      required: true,
+      default: {
+        '@path': '$.properties.conversionName'
+      }
+    },
+    ConversionTime: {
+      label: 'Conversion Time',
+      description: 'Conversion Time',
+      type: 'string',
+      required: true,
+      default: {
+        '@path': '$.properties.conversionTime'
+      }
+    },
+    ConversionValue: {
+      label: 'Conversion Value',
+      description: 'Conversion Value',
+      type: 'string',
+      required: true,
+      default: {
+        '@path': '$.properties.conversionValue'
+      }
+    },
+    MicrosoftClickId: {
+      label: 'Microsoft Click Id',
+      description: 'Microsoft Click Id',
+      type: 'string',
+      required: true,
+      default: {
+        '@path': '$.properties.msCId'
+      }
+    }
     // client_id: {
     //   label: 'Client ID',
     //   description: 'Client ID',
@@ -24,13 +69,13 @@ const action: ActionDefinition<Settings, Payload> = {
     //   format: 'text',
     //   required: true
     // },
-    scope: {
-      label: 'scope',
-      description: 'scope',
-      type: 'string',
-      format: 'text',
-      required: true
-    },
+    // scope: {
+    //   label: 'scope',
+    //   description: 'scope',
+    //   type: 'string',
+    //   format: 'text',
+    //   required: true
+    // },
     // redirect_uri: {
     //   label: 'redirect_uri',
     //   description: 'redirect_uri',
@@ -52,13 +97,13 @@ const action: ActionDefinition<Settings, Payload> = {
     //   format: 'text',
     //   required: true
     // },
-    refresh_token: {
-      label: 'refresh_token',
-      description: 'refresh_token',
-      type: 'string',
-      format: 'text',
-      required: true
-    }
+    // refresh_token: {
+    //   label: 'refresh_token',
+    //   description: 'refresh_token',
+    //   type: 'string',
+    //   format: 'text',
+    //   required: true
+    // }
     // code: {
     //   label: 'code',
     //   description: 'code',
@@ -68,32 +113,31 @@ const action: ActionDefinition<Settings, Payload> = {
     // }
   },
   perform: async (request, data) => {
-    console.log('Raw Data: ', data.rawData.properties)
+    // console.log('Raw Data: ', data.rawData.properties)
     console.log('Payload: ', data.payload)
 
     const response_data = await getAccessToken({
       client_id: data.settings.client_id, //data.payload.client_id,
-      scope: data.payload.scope,
+      scope: data.settings.scope,
       redirect_uri: data.settings.redirect_uri,
       grant_type: 'refresh_token',
       client_secret: data.settings.client_secret,
-      refresh_token: data.payload.refresh_token
+      refresh_token: data.settings.refreshToken
     })
 
     authenticationToken = response_data.access_token
     console.log('Access Token retrieved using Refresh Token ')
-    let conversionTime = data.rawData.properties.conversionTime || data.rawData.properties.Conversion_Time
+    let conversionTime = data.payload.ConversionTime //|| data.rawData.properties.Conversion_Time
     //this (if statement below) is custom code to convert payload timestamp to correct XML Soap format
     //not needed if client is sending in correct format
     if (conversionTime.includes('UTC')) {
       const val2 = conversionTime.replace(' UTC', '')
       conversionTime = val2.replace(' ', 'T')
     }
-    const conversionCurrency =
-      data.rawData.properties.conversionCurrency || data.rawData.properties.Conversion_Currency || 'USD'
-    const msCId = data.rawData.properties.msCId || data.rawData.properties.msCID
-    const conversionValue = data.rawData.properties.conversionValue || data.rawData.properties.Conversion_Value
-    const conversionName = data.rawData.properties.conversionName || data.rawData.properties.Conversion_Name
+    const conversionCurrency = data.payload.ConversionCurrencyCode //|| data.rawData.properties.Conversion_Currency || 'USD'
+    const msCId = data.payload.MicrosoftClickId //|| data.rawData.properties.msCID
+    const conversionValue = data.payload.ConversionValue //|| data.rawData.properties.Conversion_Value
+    const conversionName = data.payload.ConversionName //|| data.rawData.properties.Conversion_Name
     console.log('Conversion Goal: ', conversionName)
     // this code is to switch to a second MS account based on need of client (all of this will move to settings for mapping)
     // if (conversionName == 'CCRevenue') {

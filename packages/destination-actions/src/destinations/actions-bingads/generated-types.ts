@@ -13,4 +13,24 @@ export interface Settings {
    * Redirect URI for user consent (https://login.microsoftonline.com/common/oauth2/nativeclient). **Required**
    */
   redirect_uri?: string
+  /**
+   * Scope. **Required**
+   */
+  scope?: string
+  /**
+   * Refresh Token. **Required**
+   */
+  refreshToken?: string
+  /**
+   * Customer Account ID. **Required**
+   */
+  customer_account_id?: string
+  /**
+   * Customer ID. **Required**
+   */
+  customer_id?: string
+  /**
+   * Developer Token. **Required**
+   */
+  developer_token?: string
 }

@@ -31,6 +31,31 @@ const destination: DestinationDefinition<Settings> = {
         description:
           'Redirect URI for user consent (https://login.microsoftonline.com/common/oauth2/nativeclient). **Required**',
         type: 'string'
+      },
+      scope: {
+        label: 'Scope',
+        description: 'Scope. **Required**',
+        type: 'string'
+      },
+      refreshToken: {
+        label: 'Refresh Token',
+        description: 'Refresh Token. **Required**',
+        type: 'string'
+      },
+      customer_account_id: {
+        label: 'Customer Account ID',
+        description: 'Customer Account ID. **Required**',
+        type: 'string'
+      },
+      customer_id: {
+        label: 'Customer ID',
+        description: 'Customer ID. **Required**',
+        type: 'string'
+      },
+      developer_token: {
+        label: 'Developer Token',
+        description: 'Developer Token. **Required**',
+        type: 'string'
       }
     },
     // testAuthentication: (request) => {

@@ -2,11 +2,23 @@
 
 export interface Payload {
   /**
-   * scope
+   * Conversion Currency Code
    */
-  scope: string
+  ConversionCurrencyCode: string
   /**
-   * refresh_token
+   * Conversion Name
    */
-  refresh_token: string
+  ConversionName: string
+  /**
+   * Conversion Time
+   */
+  ConversionTime: string
+  /**
+   * Conversion Value
+   */
+  ConversionValue: string
+  /**
+   * Microsoft Click Id
+   */
+  MicrosoftClickId: string
 }
