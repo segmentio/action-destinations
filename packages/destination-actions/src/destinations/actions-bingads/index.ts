@@ -77,21 +77,21 @@ const destination: DestinationDefinition<Settings> = {
           client_id: auth.clientId,
           client_secret: auth.clientSecret,
           grant_type: 'refresh_token',
-          scope: auth.scope,
-          redirect_uri: auth.redirect_uri
+          scope: 'openid offline_access https://ads.microsoft.com/msads.manage',
+          redirect_uri: 'https://login.microsoftonline.com/common/oauth2/nativeclient'
         })
       })
       //console.log({ accessToken: res.data.access_token })
       return { accessToken: res.data.access_token }
-    },
-
-    extendRequest({ auth }) {
-      return {
-        headers: {
-          authorization: `Bearer ${auth?.accessToken}`
-        }
-      }
     }
+
+    // extendRequest({ auth }) {
+    //   return {
+    //     headers: {
+    //       authorization: `Bearer ${auth?.accessToken}`
+    //     }
+    //   }
+    // }
   },
 
   // onDelete: async (request, { settings, payload }) => {
