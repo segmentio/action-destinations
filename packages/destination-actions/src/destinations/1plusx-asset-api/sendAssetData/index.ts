@@ -41,7 +41,7 @@ const action: ActionDefinition<Settings, Payload> = {
       type: 'object'
     }
   },
-  perform: async (request, { settings, payload }) => {
+  perform: (request, { settings, payload }) => {
     //Create cleanPayload with custom_fields and asset_uri
     //Removed custom_fields as these must be unnested
     //Removed asset_uri as it should only be used as a part of the API endpoint and not the outgoing payload
@@ -61,19 +61,13 @@ const action: ActionDefinition<Settings, Payload> = {
     // Encoding asset_uri
     const encoded_asset_uri = encodeURIComponent(payload.asset_uri)
     const endpoint = `https://${settings.client_name}.assets.tagger.opecloud.com/v2/native/asset/${encoded_asset_uri}`
-    const pp = await request(endpoint, {
+    return request(endpoint, {
       method: 'put',
       json: {
         ...cleanPayload,
         ...cleanProps
       }
     })
-    console.log(
-      console.log(
-        `Event: ${JSON.stringify({ ...cleanPayload, ...cleanProps })}. Reponse: ${pp.status}  ${pp.statusText}`
-      )
-    )
-    return pp
   }
 }
 export default action
