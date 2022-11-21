@@ -9,6 +9,7 @@ export function getAccessToken(mapping: {
   client_id: string | undefined
 }) {
   const endpoint = 'https://login.microsoftonline.com/common/oauth2/v2.0/token'
+
   // @ts-ignore This is to bypass for testing purpose
   const uspCoded = new URLSearchParams({
     client_id: mapping.client_id,
