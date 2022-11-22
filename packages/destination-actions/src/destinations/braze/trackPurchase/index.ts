@@ -108,6 +108,13 @@ const action: ActionDefinition<Settings, Payload> = {
         'Setting this flag to true will put the API in "Update Only" mode. When using a "user_alias", "Update Only" mode is always true.',
       type: 'boolean',
       default: false
+    },
+    enable_batching: {
+      type: 'boolean',
+      label: 'Batch Data to Braze',
+      description:
+        'If true, Segment will batch events before sending to Braze’s user track endpoint. Braze accepts batches of up to 75 events.',
+      default: false
     }
   },
   perform: (request, { settings, payload }) => {
