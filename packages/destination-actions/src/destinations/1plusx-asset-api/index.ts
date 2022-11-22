@@ -35,7 +35,7 @@ const destination: DestinationDefinition<Settings> = {
       }
     },
     testAuthentication: async (request, { settings }) => {
-      const res = await request<RefreshTokenResponse>('https://ui.1plusx.io/api/auth/token', {
+      const res = await request<RefreshTokenResponse>('https://us.1plusx.io/api/auth/token', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -51,7 +51,7 @@ const destination: DestinationDefinition<Settings> = {
     },
     refreshAccessToken: async (request, { settings }) => {
       // Refresh access token using client_id and client_secret provided in the Settings
-      const res = await request<RefreshTokenResponse>('https://ui.1plusx.io/api/auth/token', {
+      const res = await request<RefreshTokenResponse>('https://us.1plusx.io/api/auth/token', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
