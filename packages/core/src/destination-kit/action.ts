@@ -1,18 +1,18 @@
 import { EventEmitter } from 'events'
 import createRequestClient from '../create-request-client'
 import { JSONLikeObject, JSONObject } from '../json-object'
-import { InputData, transform, transformBatch } from '../mapping-kit'
+import { InputData, Features, transform, transformBatch } from '../mapping-kit'
 import { fieldsToJsonSchema } from './fields-to-jsonschema'
 import { Response } from '../fetch'
 import type { ModifiedResponse } from '../types'
 import type { DynamicFieldResponse, InputField, RequestExtension, ExecuteInput, Result } from './types'
-import type { NormalizedOptions } from '../request-client'
+import { NormalizedOptions } from '../request-client'
 import type { JSONSchema4 } from 'json-schema'
 import { validateSchema } from '../schema-validation'
 import { AuthTokens } from './parse-settings'
 import { IntegrationError } from '../errors'
 import { removeEmptyValues } from '../remove-empty-values'
-import { StatsContext } from './index'
+import { Logger, StatsContext, TransactionContext } from './index'
 
 type MaybePromise<T> = T | Promise<T>
 type RequestClient = ReturnType<typeof createRequestClient>
@@ -66,10 +66,11 @@ export interface ActionDefinition<Settings, Payload = any> extends BaseActionDef
   performBatch?: RequestFn<Settings, Payload[]>
 }
 
-interface ExecuteDynamicFieldInput<Settings, Payload> {
+export interface ExecuteDynamicFieldInput<Settings, Payload> {
   settings: Settings
   payload: Payload
   page?: string
+  auth?: AuthTokens
 }
 
 interface ExecuteBundle<T = unknown, Data = unknown> {
@@ -78,8 +79,10 @@ interface ExecuteBundle<T = unknown, Data = unknown> {
   mapping: JSONObject
   auth: AuthTokens | undefined
   /** For internal Segment/Twilio use only. */
-  features?: { [key: string]: boolean } | undefined
+  features?: Features | undefined
   statsContext?: StatsContext | undefined
+  logger?: Logger | undefined
+  transactionContext?: TransactionContext
 }
 
 /**
@@ -128,7 +131,7 @@ export class Action<Settings, Payload extends JSONLikeObject> extends EventEmitt
     // Validate the resolved payload against the schema
     if (this.schema) {
       const schemaKey = `${this.destinationName}:${this.definition.title}`
-      validateSchema(payload, this.schema, { schemaKey })
+      validateSchema(payload, this.schema, { schemaKey, statsContext: bundle.statsContext })
       results.push({ output: 'Payload validated' })
     }
 
@@ -140,7 +143,9 @@ export class Action<Settings, Payload extends JSONLikeObject> extends EventEmitt
       payload,
       auth: bundle.auth,
       features: bundle.features,
-      statsContext: bundle.statsContext
+      statsContext: bundle.statsContext,
+      logger: bundle.logger,
+      transactionContext: bundle.transactionContext
     }
 
     // Construct the request client and perform the action
@@ -162,7 +167,8 @@ export class Action<Settings, Payload extends JSONLikeObject> extends EventEmitt
       const schema = this.schema
       const validationOptions = {
         schemaKey: `${this.destinationName}:${this.definition.title}`,
-        throwIfInvalid: false
+        throwIfInvalid: false,
+        statsContext: bundle.statsContext
       }
 
       payloads = payloads
@@ -184,22 +190,32 @@ export class Action<Settings, Payload extends JSONLikeObject> extends EventEmitt
         payload: payloads,
         auth: bundle.auth,
         features: bundle.features,
-        statsContext: bundle.statsContext
+        statsContext: bundle.statsContext,
+        logger: bundle.logger,
+        transactionContext: bundle.transactionContext
       }
       await this.performRequest(this.definition.performBatch, data)
     }
   }
 
-  executeDynamicField(field: string, data: ExecuteDynamicFieldInput<Settings, Payload>): unknown {
+  async executeDynamicField(
+    field: string,
+    data: ExecuteDynamicFieldInput<Settings, Payload>
+  ): Promise<DynamicFieldResponse> {
     const fn = this.definition.dynamicFields?.[field]
     if (typeof fn !== 'function') {
-      return {
-        data: [],
-        pagination: {}
-      }
+      return Promise.resolve({
+        choices: [],
+        nextPage: '',
+        error: {
+          message: `No dynamic field named ${field} found.`,
+          code: '404'
+        }
+      })
     }
 
-    return this.performRequest(fn, data)
+    // fn will always be a dynamic field function, so we can safely cast it to DynamicFieldResponse
+    return (await this.performRequest(fn, data)) as DynamicFieldResponse
   }
 
   /**
@@ -221,7 +237,8 @@ export class Action<Settings, Payload extends JSONLikeObject> extends EventEmitt
     // TODO turn `extendRequest` into a beforeRequest hook
     const options = this.extendRequest?.(data) ?? {}
     return createRequestClient(options, {
-      afterResponse: [this.afterResponse.bind(this)]
+      afterResponse: [this.afterResponse.bind(this)],
+      statsContext: data.statsContext
     })
   }
 

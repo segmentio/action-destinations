@@ -1,6 +1,6 @@
 import { validate, parseFql, ErrorCondition } from '@segment/destination-subscriptions'
 import type { JSONSchema4 } from 'json-schema'
-import { Action, ActionDefinition, BaseActionDefinition, RequestFn } from './action'
+import { Action, ActionDefinition, BaseActionDefinition, RequestFn, ExecuteDynamicFieldInput } from './action'
 import { time, duration } from '../time'
 import { JSONLikeObject, JSONObject, JSONValue } from '../json-object'
 import { SegmentEvent } from '../segment-event'
@@ -12,7 +12,7 @@ import type { GlobalSetting, RequestExtension, ExecuteInput, Result, Deletion, D
 import type { AllRequestOptions } from '../request-client'
 import { IntegrationError, InvalidAuthenticationError } from '../errors'
 import { AuthTokens, getAuthData, getOAuth2Data, updateOAuthSettings } from './parse-settings'
-import { InputData } from '../mapping-kit'
+import { InputData, Features } from '../mapping-kit'
 import { retry } from '../retry'
 import { HTTPError } from '..'
 
@@ -117,7 +117,7 @@ interface RefreshAuthSettings<Settings> {
 
 interface Authentication<Settings> {
   /** The authentication scheme */
-  scheme: 'basic' | 'custom' | 'oauth2'
+  scheme: 'basic' | 'custom' | 'oauth2' | 'oauth-managed'
   /** The fields related to authentication */
   fields: Record<string, GlobalSetting>
   /** A function that validates the user's authentication inputs. It is highly encouraged to define this whenever possible. */
@@ -154,11 +154,25 @@ export interface OAuth2Authentication<Settings> extends Authentication<Settings>
   ) => Promise<RefreshAccessTokenResult>
 }
 
+/**
+ * OAuth2 authentication scheme where the credentials and settings are managed by the partner.
+ */
+export interface OAuthManagedAuthentication<Settings> extends Authentication<Settings> {
+  scheme: 'oauth-managed'
+  /** A function that is used to refresh the access token
+   */
+  refreshAccessToken?: (
+    request: RequestClient,
+    input: RefreshAuthSettings<Settings>
+  ) => Promise<RefreshAccessTokenResult>
+}
+
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export type AuthenticationScheme<Settings = any> =
   | BasicAuthentication<Settings>
   | CustomAuthentication<Settings>
   | OAuth2Authentication<Settings>
+  | OAuthManagedAuthentication<Settings>
 
 interface EventInput<Settings> {
   readonly event: SegmentEvent
@@ -167,8 +181,10 @@ interface EventInput<Settings> {
   /** Authentication-related data based on the destination's authentication.fields definition and authentication scheme */
   readonly auth?: AuthTokens
   /** `features` and `stats` are for internal Segment/Twilio use only. */
-  readonly features?: { [key: string]: boolean }
+  readonly features?: Features
   readonly statsContext?: StatsContext
+  readonly logger?: Logger
+  readonly transactionContext?: TransactionContext
 }
 
 interface BatchEventInput<Settings> {
@@ -178,8 +194,10 @@ interface BatchEventInput<Settings> {
   /** Authentication-related data based on the destination's authentication.fields definition and authentication scheme */
   readonly auth?: AuthTokens
   /** `features` and `stats` are for internal Segment/Twilio use only. */
-  readonly features?: { [key: string]: boolean }
+  readonly features?: Features
   readonly statsContext?: StatsContext
+  readonly logger?: Logger
+  readonly transactionContext?: TransactionContext
 }
 
 export interface DecoratedResponse extends ModifiedResponse {
@@ -190,8 +208,18 @@ export interface DecoratedResponse extends ModifiedResponse {
 interface OnEventOptions {
   onTokenRefresh?: (tokens: RefreshAccessTokenResult) => void
   onComplete?: (stats: SubscriptionStats) => void
-  features?: { [key: string]: boolean }
+  features?: Features
   statsContext?: StatsContext
+  logger?: Logger
+  transactionContext?: TransactionContext
+}
+
+/** Transaction variables and setTransaction method are passed from mono service for few Segment built integrations.
+ * Transaction context is for Twilio/Segment use only and are not for Partner Builds.
+ */
+export interface TransactionContext {
+  transaction: Record<string, string>
+  setTransaction: (key: string, value: string) => void
 }
 
 export interface StatsClient {
@@ -210,6 +238,18 @@ export interface StatsClient {
 export interface StatsContext {
   statsClient: StatsClient
   tags: string[]
+}
+
+export interface Logger {
+  level: string
+  name: string
+  debug(...message: string[]): void
+  info(...message: string[]): void
+  warn(...message: string[]): void
+  error(...message: string[]): void
+  crit(...message: string[]): void
+  log(...message: string[]): void
+  withTags(extraTags: any): void
 }
 
 export class Destination<Settings = JSONObject> {
@@ -277,7 +317,7 @@ export class Destination<Settings = JSONObject> {
     }
 
     const options = this.extendRequest?.(context) ?? {}
-    const requestClient = createRequestClient(options)
+    const requestClient = createRequestClient({ ...options, statsContext: context.statsContext })
 
     try {
       await this.authentication.testAuthentication(requestClient, data)
@@ -306,7 +346,7 @@ export class Destination<Settings = JSONObject> {
       auth: getAuthData(settings as unknown as JSONObject)
     }
     const options = this.extendRequest?.(context) ?? {}
-    const requestClient = createRequestClient(options)
+    const requestClient = createRequestClient({ ...options, statsContext: context.statsContext })
 
     if (!this.authentication?.refreshAccessToken) {
       return undefined
@@ -331,7 +371,7 @@ export class Destination<Settings = JSONObject> {
 
   protected async executeAction(
     actionSlug: string,
-    { event, mapping, settings, auth, features, statsContext }: EventInput<Settings>
+    { event, mapping, settings, auth, features, statsContext, logger, transactionContext }: EventInput<Settings>
   ): Promise<Result[]> {
     const action = this.actions[actionSlug]
     if (!action) {
@@ -344,13 +384,15 @@ export class Destination<Settings = JSONObject> {
       settings,
       auth,
       features,
-      statsContext
+      statsContext,
+      logger,
+      transactionContext
     })
   }
 
   public async executeBatch(
     actionSlug: string,
-    { events, mapping, settings, auth, features, statsContext }: BatchEventInput<Settings>
+    { events, mapping, settings, auth, features, statsContext, logger, transactionContext }: BatchEventInput<Settings>
   ) {
     const action = this.actions[actionSlug]
     if (!action) {
@@ -363,10 +405,25 @@ export class Destination<Settings = JSONObject> {
       settings,
       auth,
       features,
-      statsContext
+      statsContext,
+      logger,
+      transactionContext
     })
 
     return [{ output: 'successfully processed batch of events' }]
+  }
+
+  public async executeDynamicField(
+    actionSlug: string,
+    fieldKey: string,
+    data: ExecuteDynamicFieldInput<Settings, object>
+  ) {
+    const action = this.actions[actionSlug]
+    if (!action) {
+      return []
+    }
+
+    return action.executeDynamicField(fieldKey, data)
   }
 
   private async onSubscription(
@@ -383,7 +440,9 @@ export class Destination<Settings = JSONObject> {
       settings,
       auth,
       features: options?.features || {},
-      statsContext: options?.statsContext || ({} as StatsContext)
+      statsContext: options?.statsContext || ({} as StatsContext),
+      logger: options?.logger,
+      transactionContext: options?.transactionContext
     }
 
     let results: Result[] | null = null
@@ -465,7 +524,7 @@ export class Destination<Settings = JSONObject> {
     const context: ExecuteInput<Settings, any> = { settings: destinationSettings, payload, auth }
 
     const opts = this.extendRequest?.(context) ?? {}
-    const requestClient = createRequestClient(opts)
+    const requestClient = createRequestClient({ ...opts, statsContext: context.statsContext })
 
     const run = async () => {
       const deleteResult = await this.definition.onDelete?.(requestClient, data)

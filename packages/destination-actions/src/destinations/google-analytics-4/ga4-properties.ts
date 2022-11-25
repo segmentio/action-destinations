@@ -331,3 +331,13 @@ export const engagement_time_msec: InputField = {
     'The amount of time a user interacted with your site, in milliseconds. Google only counts users who interact with your site for a non-zero amount of time. By default, Segment sets engagement time to 1 so users are counted.',
   default: 1
 }
+
+export const timestamp_micros: InputField = {
+  label: 'Event Timestamp',
+  type: 'string',
+  description:
+    "A Unix timestamp (in microseconds) for the time to associate with the event. Segment will convert to Unix if not already converted. Events can be backdated up to 3 calendar days based on the property's timezone.",
+  default: {
+    '@path': '$.timestamp'
+  }
+}

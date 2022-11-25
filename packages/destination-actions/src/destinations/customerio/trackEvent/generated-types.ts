@@ -14,6 +14,10 @@ export interface Payload {
    */
   name: string
   /**
+   * An optional identifier used to deduplicate events. [Learn more](https://customer.io/docs/api/#operation/track).
+   */
+  event_id?: string
+  /**
    * A timestamp of when the event took place. Default is current date and time.
    */
   timestamp?: string

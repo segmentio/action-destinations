@@ -1,0 +1,72 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Testing snapshot for Mixpanel's trackPurchase destination action: all fields 1`] = `
+Array [
+  Object {
+    "event": "*P3(DdQMdBkiT",
+    "properties": Object {
+      "$app_build_number": "*P3(DdQMdBkiT",
+      "$app_name": "*P3(DdQMdBkiT",
+      "$app_namespace": "*P3(DdQMdBkiT",
+      "$app_version_string": "*P3(DdQMdBkiT",
+      "$bluetooth_enabled": false,
+      "$browser": "",
+      "$carrier": "*P3(DdQMdBkiT",
+      "$cellular_enabled": false,
+      "$current_url": "*P3(DdQMdBkiT",
+      "$device": "*P3(DdQMdBkiT",
+      "$device_id": "*P3(DdQMdBkiT",
+      "$device_name": "*P3(DdQMdBkiT",
+      "$device_type": "*P3(DdQMdBkiT",
+      "$group_id": "*P3(DdQMdBkiT",
+      "$insert_id": "*P3(DdQMdBkiT",
+      "$ios_ifa": "*P3(DdQMdBkiT",
+      "$lib_version": "*P3(DdQMdBkiT",
+      "$locale": "*P3(DdQMdBkiT",
+      "$manufacturer": "*P3(DdQMdBkiT",
+      "$model": "*P3(DdQMdBkiT",
+      "$os": "*P3(DdQMdBkiT",
+      "$os_version": "*P3(DdQMdBkiT",
+      "$referrer": "*P3(DdQMdBkiT",
+      "$screen_density": 10401360201646.08,
+      "$screen_height": 10401360201646.08,
+      "$screen_width": 10401360201646.08,
+      "$source": "segment",
+      "$wifi_enabled": false,
+      "distinct_id": "*P3(DdQMdBkiT",
+      "id": "*P3(DdQMdBkiT",
+      "ip": "*P3(DdQMdBkiT",
+      "mp_country_code": "*P3(DdQMdBkiT",
+      "mp_lib": "Segment: *P3(DdQMdBkiT",
+      "segment_source_name": "*P3(DdQMdBkiT",
+      "testType": "*P3(DdQMdBkiT",
+      "time": 1612137600000,
+      "utm_campaign": "*P3(DdQMdBkiT",
+      "utm_content": "*P3(DdQMdBkiT",
+      "utm_medium": "*P3(DdQMdBkiT",
+      "utm_source": "*P3(DdQMdBkiT",
+      "utm_term": "*P3(DdQMdBkiT",
+    },
+  },
+]
+`;
+
+exports[`Testing snapshot for Mixpanel's trackPurchase destination action: required fields 1`] = `
+Array [
+  Object {
+    "event": "*P3(DdQMdBkiT",
+    "properties": Object {
+      "$device_id": "*P3(DdQMdBkiT",
+      "$group_id": "*P3(DdQMdBkiT",
+      "$insert_id": "*P3(DdQMdBkiT",
+      "$ios_ifa": "*P3(DdQMdBkiT",
+      "$screen_width": 10401360201646.08,
+      "$source": "segment",
+      "distinct_id": "*P3(DdQMdBkiT",
+      "id": "*P3(DdQMdBkiT",
+      "segment_source_name": "*P3(DdQMdBkiT",
+      "time": 1234556,
+    },
+  },
+]
+`;

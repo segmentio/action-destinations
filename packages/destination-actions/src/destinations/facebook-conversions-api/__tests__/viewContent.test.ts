@@ -1,6 +1,7 @@
 import nock from 'nock'
 import { createTestEvent, createTestIntegration } from '@segment/actions-core'
 import Destination from '../index'
+import { API_VERSION } from '../constants'
 
 const testDestination = createTestIntegration(Destination)
 const settings = {
@@ -10,7 +11,7 @@ const settings = {
 describe('FacebookConversionsApi', () => {
   describe('ViewContent', () => {
     it('should handle a basic event', async () => {
-      nock(`https://graph.facebook.com/v12.0/${settings.pixelId}`).post(`/events`).reply(201, {})
+      nock(`https://graph.facebook.com/v${API_VERSION}/${settings.pixelId}`).post(`/events`).reply(201, {})
 
       const event = createTestEvent({
         event: 'Product Viewed',
@@ -78,12 +79,12 @@ describe('FacebookConversionsApi', () => {
       expect(responses[0].status).toBe(201)
 
       expect(responses[0].options.body).toMatchInlineSnapshot(
-        `"{\\"data\\":[{\\"event_name\\":\\"ViewContent\\",\\"event_time\\":\\"1631210063\\",\\"action_source\\":\\"email\\",\\"user_data\\":{\\"em\\":\\"eeaf810ee0e3cef3307089f22c3804f54c79eed19ef29bf70df864b43862c380\\"},\\"custom_data\\":{\\"currency\\":\\"USD\\",\\"value\\":12.12,\\"content_ids\\":[\\"ABC123\\",\\"XYZ789\\"],\\"content_name\\":\\"Oreo's Quadruple Stack\\",\\"content_type\\":\\"product\\",\\"contents\\":[{\\"id\\":\\"ABC123\\",\\"quantity\\":2},{\\"id\\":\\"XYZ789\\",\\"quantity\\":3}]}}]}"`
+        `"{\\"data\\":[{\\"event_name\\":\\"ViewContent\\",\\"event_time\\":\\"1631210063\\",\\"action_source\\":\\"email\\",\\"user_data\\":{\\"em\\":\\"eeaf810ee0e3cef3307089f22c3804f54c79eed19ef29bf70df864b43862c380\\"},\\"custom_data\\":{\\"currency\\":\\"USD\\",\\"value\\":12.12,\\"content_ids\\":[\\"ABC123\\",\\"XYZ789\\"],\\"content_name\\":\\"Oreo's Quadruple Stack\\",\\"content_type\\":\\"product\\",\\"contents\\":[{\\"id\\":\\"ABC123\\",\\"quantity\\":2},{\\"id\\":\\"XYZ789\\",\\"quantity\\":3}],\\"content_category\\":\\"Cookies\\"}}]}"`
       )
     })
 
     it('should handle default mappings', async () => {
-      nock(`https://graph.facebook.com/v12.0/${settings.pixelId}`).post(`/events`).reply(201, {})
+      nock(`https://graph.facebook.com/v${API_VERSION}/${settings.pixelId}`).post(`/events`).reply(201, {})
 
       const event = createTestEvent({
         event: 'Product Viewed',
@@ -116,7 +117,7 @@ describe('FacebookConversionsApi', () => {
     })
 
     it('should throw an error if no user_data keys are included', async () => {
-      nock(`https://graph.facebook.com/v12.0/${settings.pixelId}`).post(`/events`).reply(201, {})
+      nock(`https://graph.facebook.com/v${API_VERSION}/${settings.pixelId}`).post(`/events`).reply(201, {})
 
       const event = createTestEvent({
         event: 'Product Viewed',

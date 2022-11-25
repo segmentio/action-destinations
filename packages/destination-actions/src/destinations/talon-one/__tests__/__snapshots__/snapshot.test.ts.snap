@@ -36,6 +36,12 @@ Headers {
 
 exports[`Testing snapshot for actions-talon-one destination: trackEvent action - all fields 1`] = `
 Object {
+  "attributesInfo": Array [
+    Object {
+      "name": "fU[[CRDXd2",
+      "type": "fU[[CRDXd2",
+    },
+  ],
   "customerProfileId": "fU[[CRDXd2",
   "eventAttributes": Object {
     "testType": "fU[[CRDXd2",
@@ -70,6 +76,12 @@ Object {
   "attributes": Object {
     "testType": "GSv&J8",
   },
+  "attributesInfo": Array [
+    Object {
+      "name": "GSv&J8",
+      "type": "GSv&J8",
+    },
+  ],
   "audiencesChanges": Object {
     "adds": Array [
       -7356410144751616,
@@ -88,29 +100,38 @@ Object {
 }
 `;
 
-exports[`Testing snapshot for actions-talon-one destination: updateCustomerProfilesAttributes action - all fields 1`] = `
+exports[`Testing snapshot for actions-talon-one destination: updateCustomerProfileV2 action - all fields 1`] = `
 Object {
-  "data": Array [
+  "attributes": Object {
+    "testType": "8Yg2!m9eP3^U",
+  },
+  "attributesInfo": Array [
     Object {
-      "attributes": Object {
-        "testType": "zIuxxC8$",
-      },
-      "customerProfileId": "zIuxxC8$",
+      "name": "8Yg2!m9eP3^U",
+      "type": "number",
     },
   ],
-  "mutualAttributes": Object {
-    "testType": "zIuxxC8$",
+  "audiencesChanges": Object {
+    "adds": Array [
+      Object {
+        "integrationId": "8Yg2!m9eP3^U",
+        "name": "8Yg2!m9eP3^U",
+      },
+    ],
+    "deletes": Array [
+      Object {
+        "integrationId": "8Yg2!m9eP3^U",
+        "name": "8Yg2!m9eP3^U",
+      },
+    ],
   },
+  "runRuleEngine": true,
 }
 `;
 
-exports[`Testing snapshot for actions-talon-one destination: updateCustomerProfilesAttributes action - required fields 1`] = `
+exports[`Testing snapshot for actions-talon-one destination: updateCustomerProfileV2 action - required fields 1`] = `
 Object {
-  "data": Array [
-    Object {
-      "customerProfileId": "zIuxxC8$",
-    },
-  ],
+  "audiencesChanges": Object {},
 }
 `;
 
@@ -137,5 +158,48 @@ Object {
       "customerProfileId": "g64#i$3",
     },
   ],
+}
+`;
+
+exports[`Testing snapshot for actions-talon-one destination: updateCustomerSession action - all fields 1`] = `
+Object {
+  "cartItemAttributesInfo": Array [
+    Object {
+      "name": "rDTL^f[cL)m",
+      "type": "number",
+    },
+  ],
+  "customerSession": Object {
+    "additionalCosts": Object {
+      "testType": "rDTL^f[cL)m",
+    },
+    "attributes": Object {
+      "testType": "rDTL^f[cL)m",
+    },
+    "cartItems": Array [
+      Object {},
+    ],
+    "couponCodes": Array [
+      "rDTL^f[cL)m",
+    ],
+    "loyaltyCards": Array [
+      "rDTL^f[cL)m",
+    ],
+    "profileId": "rDTL^f[cL)m",
+    "referralCode": "rDTL^f[cL)m",
+    "state": "closed",
+  },
+  "sessionAttributesInfo": Array [
+    Object {
+      "name": "rDTL^f[cL)m",
+      "type": "number",
+    },
+  ],
+}
+`;
+
+exports[`Testing snapshot for actions-talon-one destination: updateCustomerSession action - required fields 1`] = `
+Object {
+  "customerSession": Object {},
 }
 `;

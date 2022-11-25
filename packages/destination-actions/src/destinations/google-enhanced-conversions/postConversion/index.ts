@@ -102,6 +102,13 @@ const action: ActionDefinition<Settings, Payload> = {
       type: 'boolean',
       default: false
     },
+    pcc_game: {
+      label: 'PCC Game Flag',
+      description:
+        'Alpha feature offered by Google for gaming industry. When set to true, Segment will send pcc_game = 1 to Google.',
+      type: 'boolean',
+      default: false
+    },
     // PII Fields - These fields must be hashed using SHA 256 and encoded as websafe-base64.
     phone_number: {
       label: 'Phone Number',
@@ -202,7 +209,17 @@ const action: ActionDefinition<Settings, Payload> = {
     }
   },
 
-  perform: async (request, { payload }) => {
+  perform: async (request, { payload, settings }) => {
+    /* Enforcing this here since Conversion ID is required for the Enhanced Conversions API 
+    but not for the Google Ads API. */
+    if (!settings.conversionTrackingId) {
+      throw new IntegrationError(
+        'Conversion ID is required for this action. Please set it in destination settings.',
+        'Missing required fields.',
+        400
+      )
+    }
+
     const conversionData = cleanData({
       oid: payload.transaction_id,
       user_agent: payload.user_agent,
@@ -210,7 +227,8 @@ const action: ActionDefinition<Settings, Payload> = {
       label: payload.conversion_label,
       value: payload.value,
       currency_code: payload.currency_code,
-      is_app_incrementality: payload.is_app_incrementality ? 1 : 0
+      is_app_incrementality: payload.is_app_incrementality ? 1 : 0,
+      pcc_game: payload.pcc_game ? 1 : 0
     })
 
     const address = cleanData({
@@ -239,6 +257,9 @@ const action: ActionDefinition<Settings, Payload> = {
     try {
       return await request('https://www.google.com/ads/event/api/v1', {
         method: 'post',
+        searchParams: {
+          conversion_tracking_id: settings.conversionTrackingId
+        },
         json: {
           pii_data: { ...pii_data, address: [address] },
           ...conversionData

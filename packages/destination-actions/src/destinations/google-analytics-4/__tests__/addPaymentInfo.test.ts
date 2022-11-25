@@ -16,6 +16,7 @@ describe('GA4', () => {
       const event = createTestEvent({
         event: 'Payment Info Entered',
         userId: 'abc123',
+        timestamp: '2022-06-22T22:20:58.905Z',
         anonymousId: 'anon-2134',
         type: 'track',
         properties: {
@@ -36,6 +37,7 @@ describe('GA4', () => {
           apiSecret,
           measurementId
         },
+        features: { 'actions-google-analytics-4-add-timestamp': true },
         mapping: {
           client_id: {
             '@path': '$.anonymousId'
@@ -70,7 +72,7 @@ describe('GA4', () => {
       })
 
       expect(responses[0].options.body).toMatchInlineSnapshot(
-        `"{\\"client_id\\":\\"anon-2134\\",\\"events\\":[{\\"name\\":\\"add_payment_info\\",\\"params\\":{\\"items\\":[{\\"item_name\\":\\"Quadruple Stack Oreos, 52 ct\\",\\"item_id\\":\\"12345abcde\\",\\"currency\\":\\"USD\\",\\"price\\":12.99,\\"quantity\\":1}],\\"engagement_time_msec\\":1}}],\\"user_properties\\":{\\"hello\\":{\\"value\\":\\"world\\"},\\"a\\":{\\"value\\":\\"1\\"},\\"b\\":{\\"value\\":\\"2\\"},\\"c\\":{\\"value\\":\\"3\\"}}}"`
+        `"{\\"client_id\\":\\"anon-2134\\",\\"events\\":[{\\"name\\":\\"add_payment_info\\",\\"params\\":{\\"items\\":[{\\"item_name\\":\\"Quadruple Stack Oreos, 52 ct\\",\\"item_id\\":\\"12345abcde\\",\\"currency\\":\\"USD\\",\\"price\\":12.99,\\"quantity\\":1}],\\"engagement_time_msec\\":1}}],\\"user_properties\\":{\\"hello\\":{\\"value\\":\\"world\\"},\\"a\\":{\\"value\\":\\"1\\"},\\"b\\":{\\"value\\":\\"2\\"},\\"c\\":{\\"value\\":\\"3\\"}},\\"timestamp_micros\\":1655936458905000}"`
       )
     })
 
@@ -242,6 +244,7 @@ describe('GA4', () => {
       const event = createTestEvent({
         event: 'Payment Info Entered',
         userId: '1234abc',
+        timestamp: '2022-06-22T22:20:58.905Z',
         type: 'track',
         properties: {
           currency: 'USD',
@@ -263,6 +266,7 @@ describe('GA4', () => {
           apiSecret,
           measurementId
         },
+        features: { 'actions-google-analytics-4-add-timestamp': true },
         mapping: {
           currency: {
             '@path': '$.properties.currency'
@@ -304,7 +308,7 @@ describe('GA4', () => {
       `)
 
       expect(responses[0].options.body).toMatchInlineSnapshot(
-        `"{\\"client_id\\":\\"1234abc\\",\\"events\\":[{\\"name\\":\\"add_payment_info\\",\\"params\\":{\\"currency\\":\\"USD\\",\\"value\\":10,\\"coupon\\":\\"SUMMER_FUN\\",\\"payment_type\\":\\"Credit Card\\",\\"items\\":[{\\"item_name\\":\\"Monopoly: 3rd Edition\\",\\"item_id\\":\\"12345\\"}],\\"engagement_time_msec\\":1}}]}"`
+        `"{\\"client_id\\":\\"1234abc\\",\\"events\\":[{\\"name\\":\\"add_payment_info\\",\\"params\\":{\\"currency\\":\\"USD\\",\\"value\\":10,\\"coupon\\":\\"SUMMER_FUN\\",\\"payment_type\\":\\"Credit Card\\",\\"items\\":[{\\"item_name\\":\\"Monopoly: 3rd Edition\\",\\"item_id\\":\\"12345\\"}],\\"engagement_time_msec\\":1}}],\\"timestamp_micros\\":1655936458905000}"`
       )
     })
 
@@ -570,6 +574,361 @@ describe('GA4', () => {
       expect(responses[0].options.body).toMatchInlineSnapshot(
         `"{\\"client_id\\":\\"anon-2134\\",\\"user_id\\":\\"abc123\\",\\"events\\":[{\\"name\\":\\"add_payment_info\\",\\"params\\":{\\"items\\":[{\\"item_name\\":\\"Quadruple Stack Oreos, 52 ct\\",\\"item_id\\":\\"12345abcde\\",\\"currency\\":\\"USD\\",\\"price\\":12.99,\\"quantity\\":1}],\\"Test_key\\":\\"test_value\\"}}]}"`
       )
+    })
+
+    it('should allow boolean and null values for user_property', async () => {
+      nock('https://www.google-analytics.com/mp/collect')
+        .post(`?measurement_id=${measurementId}&api_secret=${apiSecret}`)
+        .reply(201, {})
+
+      const event = createTestEvent({
+        event: 'Payment Info Entered',
+        userId: 'abc123',
+        type: 'track',
+        properties: {
+          products: [
+            {
+              product_id: '123456',
+              currency: 'USD'
+            }
+          ]
+        }
+      })
+      const responses = await testDestination.testAction('addPaymentInfo', {
+        event,
+        settings: {
+          apiSecret,
+          measurementId
+        },
+        features: { 'actions-google-analytics-4-verify-params-feature': true },
+        mapping: {
+          client_id: {
+            '@path': '$.userId'
+          },
+          user_properties: {
+            hello: true,
+            goodbye: null
+          },
+          params: {
+            test_key: true
+          },
+          items: [
+            {
+              item_id: {
+                '@path': '$.properties.products.0.product_id'
+              },
+              currency: {
+                '@path': `$.properties.products.0.currency`
+              }
+            }
+          ]
+        },
+        useDefaultMappings: false
+      })
+      expect(responses.length).toBe(1)
+      expect(responses[0].status).toBe(201)
+    })
+
+    it('should throw an error when param value is null', async () => {
+      nock('https://www.google-analytics.com/mp/collect')
+        .post(`?measurement_id=${measurementId}&api_secret=${apiSecret}`)
+        .reply(201, {})
+
+      const event = createTestEvent({
+        event: 'Payment Info Entered',
+        userId: 'abc123',
+        type: 'track',
+        properties: {
+          products: [
+            {
+              product_id: '123456',
+              currency: 'USD'
+            }
+          ]
+        }
+      })
+      try {
+        await testDestination.testAction('addPaymentInfo', {
+          event,
+          settings: {
+            apiSecret,
+            measurementId
+          },
+          features: { 'actions-google-analytics-4-verify-params-feature': true },
+          mapping: {
+            client_id: {
+              '@path': '$.userId'
+            },
+            params: {
+              test_key: null
+            },
+            items: [
+              {
+                item_id: {
+                  '@path': '$.properties.products.0.product_id'
+                },
+                currency: {
+                  '@path': `$.properties.products.0.currency`
+                }
+              }
+            ]
+          },
+          useDefaultMappings: false
+        })
+        fail('the test should have thrown an error')
+      } catch (e) {
+        expect(e.message).toBe(
+          'Param [test_key] has unsupported value of type [NULL]. GA4 does not accept null, array, or object values for event parameters and item parameters.'
+        )
+      }
+    })
+
+    it('should throw an error when param value is array', async () => {
+      nock('https://www.google-analytics.com/mp/collect')
+        .post(`?measurement_id=${measurementId}&api_secret=${apiSecret}`)
+        .reply(201, {})
+
+      const event = createTestEvent({
+        event: 'Payment Info Entered',
+        userId: 'abc123',
+        type: 'track',
+        properties: {
+          products: [
+            {
+              product_id: '123456',
+              currency: 'USD'
+            }
+          ]
+        }
+      })
+      try {
+        await testDestination.testAction('addPaymentInfo', {
+          event,
+          settings: {
+            apiSecret,
+            measurementId
+          },
+          features: { 'actions-google-analytics-4-verify-params-feature': true },
+          mapping: {
+            client_id: {
+              '@path': '$.userId'
+            },
+            params: {
+              test_key: ['one', 'two']
+            },
+            items: [
+              {
+                item_id: {
+                  '@path': '$.properties.products.0.product_id'
+                },
+                currency: {
+                  '@path': `$.properties.products.0.currency`
+                }
+              }
+            ]
+          },
+          useDefaultMappings: false
+        })
+        fail('the test should have thrown an error')
+      } catch (e) {
+        expect(e.message).toBe(
+          'Param [test_key] has unsupported value of type [Array]. GA4 does not accept null, array, or object values for event parameters and item parameters.'
+        )
+      }
+    })
+
+    it('should throw an error when param value is object', async () => {
+      nock('https://www.google-analytics.com/mp/collect')
+        .post(`?measurement_id=${measurementId}&api_secret=${apiSecret}`)
+        .reply(201, {})
+
+      const event = createTestEvent({
+        event: 'Payment Info Entered',
+        userId: 'abc123',
+        type: 'track',
+        properties: {
+          products: [
+            {
+              product_id: '123456',
+              currency: 'USD'
+            }
+          ]
+        }
+      })
+      try {
+        await testDestination.testAction('addPaymentInfo', {
+          event,
+          settings: {
+            apiSecret,
+            measurementId
+          },
+          features: { 'actions-google-analytics-4-verify-params-feature': true },
+          mapping: {
+            client_id: {
+              '@path': '$.userId'
+            },
+            params: {
+              test_key: { key: 'value' }
+            },
+            items: [
+              {
+                item_id: {
+                  '@path': '$.properties.products.0.product_id'
+                },
+                currency: {
+                  '@path': `$.properties.products.0.currency`
+                }
+              }
+            ]
+          },
+          useDefaultMappings: false
+        })
+        fail('the test should have thrown an error')
+      } catch (e) {
+        expect(e.message).toBe(
+          'Param [test_key] has unsupported value of type [object]. GA4 does not accept null, array, or object values for event parameters and item parameters.'
+        )
+      }
+    })
+
+    it('should throw an error when user_properties value is an array', async () => {
+      nock('https://www.google-analytics.com/mp/collect')
+        .post(`?measurement_id=${measurementId}&api_secret=${apiSecret}`)
+        .reply(201, {})
+
+      const event = createTestEvent({
+        event: 'Payment Info Entered',
+        userId: 'abc123',
+        anonymousId: 'anon-2134',
+        type: 'track',
+        properties: {
+          products: [
+            {
+              product_id: '12345abcde',
+              name: 'Quadruple Stack Oreos, 52 ct',
+              currency: 'USD',
+              price: 12.99,
+              quantity: 1
+            }
+          ]
+        }
+      })
+      try {
+        await testDestination.testAction('addPaymentInfo', {
+          event,
+          settings: {
+            apiSecret,
+            measurementId
+          },
+          features: { 'actions-google-analytics-4-verify-params-feature': true },
+          mapping: {
+            client_id: {
+              '@path': '$.anonymousId'
+            },
+            user_properties: {
+              hello: ['World', 'world'],
+              a: '1',
+              b: '2',
+              c: '3'
+            },
+            items: [
+              {
+                item_name: {
+                  '@path': `$.properties.products.0.name`
+                },
+                item_id: {
+                  '@path': `$.properties.products.0.product_id`
+                },
+                currency: {
+                  '@path': `$.properties.products.0.currency`
+                },
+                price: {
+                  '@path': `$.properties.products.0.price`
+                },
+                quantity: {
+                  '@path': `$.properties.products.0.quantity`
+                }
+              }
+            ]
+          },
+          useDefaultMappings: true
+        })
+        fail('the test should have thrown an error')
+      } catch (e) {
+        expect(e.message).toBe(
+          'Param [hello] has unsupported value of type [Array]. GA4 does not accept array or object values for user properties.'
+        )
+      }
+    })
+
+    it('should throw an error when user_properties value is an object', async () => {
+      nock('https://www.google-analytics.com/mp/collect')
+        .post(`?measurement_id=${measurementId}&api_secret=${apiSecret}`)
+        .reply(201, {})
+
+      const event = createTestEvent({
+        event: 'Payment Info Entered',
+        userId: 'abc123',
+        anonymousId: 'anon-2134',
+        type: 'track',
+        properties: {
+          products: [
+            {
+              product_id: '12345abcde',
+              name: 'Quadruple Stack Oreos, 52 ct',
+              currency: 'USD',
+              price: 12.99,
+              quantity: 1
+            }
+          ]
+        }
+      })
+      try {
+        await testDestination.testAction('addPaymentInfo', {
+          event,
+          settings: {
+            apiSecret,
+            measurementId
+          },
+          features: { 'actions-google-analytics-4-verify-params-feature': true },
+          mapping: {
+            client_id: {
+              '@path': '$.anonymousId'
+            },
+            user_properties: {
+              hello: { World: 'world' },
+              a: '1',
+              b: '2',
+              c: '3'
+            },
+            items: [
+              {
+                item_name: {
+                  '@path': `$.properties.products.0.name`
+                },
+                item_id: {
+                  '@path': `$.properties.products.0.product_id`
+                },
+                currency: {
+                  '@path': `$.properties.products.0.currency`
+                },
+                price: {
+                  '@path': `$.properties.products.0.price`
+                },
+                quantity: {
+                  '@path': `$.properties.products.0.quantity`
+                }
+              }
+            ]
+          },
+          useDefaultMappings: true
+        })
+        fail('the test should have thrown an error')
+      } catch (e) {
+        expect(e.message).toBe(
+          'Param [hello] has unsupported value of type [object]. GA4 does not accept array or object values for user properties.'
+        )
+      }
     })
   })
 })

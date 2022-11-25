@@ -100,7 +100,7 @@ describe('@literal', () => {
 })
 
 describe('@if', () => {
-  const payload = { a: 1, b: true, c: false, d: null }
+  const payload = { a: 1, b: true, c: false, d: null, e: '' }
 
   test('exists', () => {
     let output = transform(
@@ -138,6 +138,224 @@ describe('@if', () => {
       payload
     )
     expect(output).toStrictEqual(2)
+
+    output = transform(
+      {
+        '@if': {
+          exists: { '@path': '$.e' },
+          then: 1,
+          else: 2
+        }
+      },
+      payload
+    )
+    expect(output).toStrictEqual(1)
+  })
+
+  test('blank', () => {
+    let output = transform(
+      {
+        '@if': {
+          blank: { '@path': '$.a' },
+          then: 1,
+          else: 2
+        }
+      },
+      payload
+    )
+    expect(output).toStrictEqual(1)
+
+    output = transform(
+      {
+        '@if': {
+          blank: { '@path': '$.d' },
+          then: 1,
+          else: 2
+        }
+      },
+      payload
+    )
+    expect(output).toStrictEqual(2)
+
+    output = transform(
+      {
+        '@if': {
+          blank: { '@path': '$.x' },
+          then: 1,
+          else: 2
+        }
+      },
+      payload
+    )
+    expect(output).toStrictEqual(2)
+
+    output = transform(
+      {
+        '@if': {
+          blank: { '@path': '$.e' },
+          then: 1,
+          else: 2
+        }
+      },
+      payload
+    )
+    expect(output).toStrictEqual(2)
+  })
+})
+
+describe('@case', () => {
+  const payload = {
+    a: 1,
+    b: 'MAKE ME LOWER CASE',
+    c: 'make me upper case',
+    d: null,
+    e: '',
+    f: false,
+    g: 'mIXeD StRinG CasING W/ NuMBErs 190wdB',
+    h: { key1: 'with values', key2: ['hi', true, null] }
+  }
+
+  test('handle string-input transformations by performing correct operation', () => {
+    let output = transform(
+      {
+        '@case': {
+          operator: 'lower',
+          value: { '@path': '$.b' }
+        }
+      },
+      payload
+    )
+    expect(output).toStrictEqual('make me lower case')
+
+    output = transform(
+      {
+        '@case': {
+          operator: 'upper',
+          value: { '@path': '$.c' }
+        }
+      },
+      payload
+    )
+    expect(output).toStrictEqual('MAKE ME UPPER CASE')
+
+    output = transform(
+      {
+        '@case': {
+          operator: 'lower',
+          value: { '@path': '$.e' }
+        }
+      },
+      payload
+    )
+    expect(output).toStrictEqual('')
+
+    output = transform(
+      {
+        '@case': {
+          operator: 'lower',
+          value: { '@path': '$.g' }
+        }
+      },
+      payload
+    )
+    expect(output).toStrictEqual('mixed string casing w/ numbers 190wdb')
+
+    output = transform(
+      {
+        '@case': {
+          operator: 'upper',
+          value: { '@path': '$.g' }
+        }
+      },
+      payload
+    )
+    expect(output).toStrictEqual('MIXED STRING CASING W/ NUMBERS 190WDB')
+  })
+
+  test('handle non-string-input correctly by returning the given value unmodified', () => {
+    let output = transform(
+      {
+        '@case': {
+          operator: 'lower',
+          value: { '@path': '$.a' }
+        }
+      },
+      payload
+    )
+    expect(output).toStrictEqual(1)
+
+    output = transform(
+      {
+        '@case': {
+          operator: 'lower',
+          value: { '@path': '$.d' }
+        }
+      },
+      payload
+    )
+    expect(output).toStrictEqual(null)
+
+    output = transform(
+      {
+        '@case': {
+          operator: 'lower',
+          value: { '@path': '$.f' }
+        }
+      },
+      payload
+    )
+    expect(output).toStrictEqual(false)
+
+    output = transform(
+      {
+        '@case': {
+          operator: 'lower',
+          value: { '@path': '$.h' }
+        }
+      },
+      payload
+    )
+    expect(output).toStrictEqual({ key1: 'with values', key2: ['hi', true, null] })
+  })
+
+  test('Throw errors when directive is not setup correctly', () => {
+    let test = () => {
+      transform(
+        {
+          '@case': {
+            wrongKey: 'lower',
+            value: { '@path': '$.b' }
+          }
+        },
+        payload
+      )
+    }
+
+    expect(test).toThrow(Error)
+    expect(test).toThrow('@case requires a "operator" key')
+
+    test = () =>
+      transform(
+        {
+          '@case': {
+            operator: 'unsupported snake',
+            value: { '@path': '$.b' }
+          }
+        },
+        payload
+      )
+    expect(test).toThrow(Error)
+    expect(test).toThrow('operator key should have a value of "lower" or "upper"')
+
+    test = () =>
+      transform(
+        {
+          '@case': 'not an object'
+        },
+        payload
+      )
+    expect(test).toThrow(Error)
+    expect(test).toThrow('/@case should be an object but it is a string.')
   })
 })
 
@@ -335,7 +553,7 @@ describe('@template', () => {
 
   test('no escaping', () => {
     const output = transform({ '@template': '<blink>{{a}} {{{a}}}</blink>' }, { a: '<b>Hi</b>' })
-    expect(output).toStrictEqual('<blink>&lt;b&gt;Hi&lt;&#x2F;b&gt; <b>Hi</b></blink>')
+    expect(output).toStrictEqual('<blink><b>Hi</b> <b>Hi</b></blink>')
   })
 
   test('missing fields', () => {

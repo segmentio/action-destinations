@@ -7,6 +7,8 @@ import { removeUndefined } from '../remove-undefined'
 import validate from './validate'
 import { arrify } from '../arrify'
 
+export type InputData = { [key: string]: unknown }
+export type Features = { [key: string]: boolean }
 type Directive = (options: JSONValue, payload: JSONObject) => JSONLike
 type StringDirective = (value: string, payload: JSONObject) => JSONLike
 
@@ -55,17 +57,46 @@ registerDirective('@if', (opts, payload) => {
     throw new Error('@if requires an object with an "exists" key')
   }
 
-  if (opts.exists !== undefined) {
+  if (!opts.exists && !opts.blank) {
+    throw new Error('@if requires an "exists" key or a "blank" key')
+  } else if (opts.exists !== undefined) {
     const value = resolve(opts.exists, payload)
     condition = value !== undefined && value !== null
-  } else {
-    throw new Error('@if requires an "exists" key')
+  } else if (opts.blank !== undefined) {
+    const value = resolve(opts.blank, payload)
+    condition = value !== undefined && value !== null && value != ''
   }
 
   if (condition && opts.then !== undefined) {
     return resolve(opts.then, payload)
   } else if (!condition && opts.else) {
     return resolve(opts.else, payload)
+  }
+})
+
+registerDirective('@case', (opts, payload) => {
+  if (!isObject(opts)) {
+    throw new Error('@case requires an object with a "operator" key')
+  }
+
+  if (!opts.operator) {
+    throw new Error('@case requires a "operator" key')
+  }
+
+  const operator = opts.operator
+  if (opts.value) {
+    const value = resolve(opts.value, payload)
+    if (typeof value === 'string') {
+      switch (operator) {
+        case 'lower':
+          return value.toLowerCase()
+        case 'upper':
+          return value.toUpperCase()
+        default:
+          throw new Error('operator key should have a value of "lower" or "upper"')
+      }
+    }
+    return value
   }
 })
 
@@ -129,8 +160,6 @@ function resolve(mapping: JSONLike, payload: JSONObject): JSONLike {
 
   return resolved
 }
-
-export type InputData = { [key: string]: unknown }
 
 /**
  * Validates and transforms a mapping by applying the input payload

@@ -23,15 +23,21 @@ export interface Payload {
   data_format: string
   /**
    *
-   *       The fields to write to the spreadsheet.
-   *       On the left-hand side, input the name of the field as it will appear in the Google Sheet.
-   *       On the right-hand side, select the field from your data model that maps to the given field in your sheet.
+   *   The fields to write to the spreadsheet.
    *
-   *       ---
+   *   On the left-hand side, input the name of the field as it will appear in the Google Sheet.
+   *
+   *   On the right-hand side, select the field from your data model that maps to the given field in your sheet.
+   *
+   *   ---
    *
    *
    */
   fields: {
     [k: string]: unknown
   }
+  /**
+   * Set as true to ensure Segment sends data to Google Sheets in batches. Please do not set to false.
+   */
+  enable_batching?: boolean
 }

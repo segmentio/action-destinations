@@ -10,6 +10,10 @@ export interface Payload {
    */
   user_id?: string
   /**
+   * A Unix timestamp (in microseconds) for the time to associate with the event. Segment will convert to Unix if not already converted. Events can be backdated up to 3 calendar days based on the property's timezone.
+   */
+  timestamp_micros?: string
+  /**
    * Coupon code used for a purchase.
    */
   coupon?: string

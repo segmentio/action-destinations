@@ -4,6 +4,9 @@ import { Payload as AddContactToListPayload } from './addContactToList/generated
 import { Payload as CreateContactactivityPayload } from './createContactactivity/generated-types'
 import { Payload as RemoveContactFromListPayload } from './removeContactFromList/generated-types'
 import { Payload as UpsertContactPayload } from './upsertContact/generated-types'
+import { Payload as AddProductToCartPayload } from './addProductToCart/generated-types'
+import { Payload as RemoveProductFromCartPayload } from './removeProductFromCart/generated-types'
+import { Payload as UpsertOrder } from './upsertOrder/generated-types'
 
 class CordialClient {
   private readonly apiUrl: string
@@ -37,7 +40,6 @@ class CordialClient {
     })
   }
 
-
   async addContactToList(payload: AddContactToListPayload) {
     return this.request(`${this.apiUrl}/addContactToList`, {
       method: 'post',
@@ -55,6 +57,51 @@ class CordialClient {
       json: {
         userIdentities: payload.userIdentities,
         groupId: payload.groupId
+      }
+    })
+  }
+
+  async addProductToCart(payload: AddProductToCartPayload) {
+    return this.request(`${this.apiUrl}/addProductToCart`, {
+      method: 'post',
+      json: {
+        userIdentities: payload.userIdentities,
+        productID: payload.productID,
+        sku: payload.sku,
+        qty: payload.qty,
+        category: payload.category,
+        name: payload.name,
+        description: payload.description,
+        itemPrice: payload.itemPrice,
+        url: payload.url,
+        imageUrl: payload.imageUrl,
+        properties: payload.properties
+      }
+    })
+  }
+
+  async removeProductFromCart(payload: RemoveProductFromCartPayload) {
+    return this.request(`${this.apiUrl}/removeProductFromCart`, {
+      method: 'post',
+      json: {
+        userIdentities: payload.userIdentities,
+        productID: payload.productID,
+        qty: payload.qty
+      }
+    })
+  }
+
+  async upsertOrder(payload: UpsertOrder) {
+    return this.request(`${this.apiUrl}/upsertOrder`, {
+      method: 'post',
+      json: {
+        userIdentities: payload.userIdentities,
+        orderID: payload.orderID,
+        purchaseDate: payload.purchaseDate,
+        status: payload.status,
+        totalAmount: payload.totalAmount,
+        properties: payload.properties,
+        items: payload.items
       }
     })
   }
