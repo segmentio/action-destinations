@@ -9,7 +9,8 @@ const action: ActionDefinition<Settings, Payload> = {
   fields: {
     external_id: {
       label: 'External User ID',
-      description: 'The unique user identifier',
+      description:
+        'The external_id serves as a unique user identifier for whom you are submitting data. This identifier should be the same as the one you set in the Braze SDK in order to avoid creating multiple profiles for the same user.',
       type: 'string',
       default: {
         '@path': '$.userId'
