@@ -2,7 +2,7 @@
 
 export interface Payload {
   /**
-   * The unique user identifier
+   * The external_id serves as a unique user identifier for whom you are submitting data. This identifier should be the same as the one you set in the Braze SDK in order to avoid creating multiple profiles for the same user.
    */
   external_id?: string
   /**
