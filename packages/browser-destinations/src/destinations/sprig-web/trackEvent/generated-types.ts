@@ -13,4 +13,10 @@ export interface Payload {
    * Anonymous identifier for the user
    */
   anonymousId?: string
+  /**
+   * Object containing the properties of the event
+   */
+  properties?: {
+    [k: string]: unknown
+  }
 }

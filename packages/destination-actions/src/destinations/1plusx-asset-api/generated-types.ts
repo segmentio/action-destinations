@@ -6,7 +6,7 @@ export interface Settings {
    */
   client_name: string
   /**
-   * Your 1plusX Client ID. Available in 1plusX UI in the "API Keys" section.
+   * Your 1plusX Client (Key) ID. Available in 1plusX UI in the "API Keys" section.
    */
   client_id: string
   /**

@@ -2,6 +2,7 @@ import { ActionDefinition, RequestClient, RetryableError } from '@segment/action
 import type { Settings } from '../generated-types'
 import { convertValidTimestamp, getUniqueIntercomContact } from '../util'
 import type { Payload } from './generated-types'
+import { getEndpointByRegion } from '../regional-endpoints'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Identify Contact',
@@ -92,7 +93,7 @@ const action: ActionDefinition<Settings, Payload> = {
       defaultObjectUI: 'keyvalue'
     }
   },
-  perform: async (request, { payload }) => {
+  perform: async (request, { payload, settings }) => {
     /**
      * Searches for a contact with the given payload.
      * If unique user is found, updates the contact first.
@@ -105,11 +106,11 @@ const action: ActionDefinition<Settings, Payload> = {
     payload.signed_up_at = convertValidTimestamp(payload.signed_up_at)
     payload.last_seen_at = convertValidTimestamp(payload.last_seen_at)
     try {
-      const contact = await getUniqueIntercomContact(request, payload)
+      const contact = await getUniqueIntercomContact(request, payload, settings)
       if (contact) {
-        return updateIntercomContact(request, contact.id, payload)
+        return updateIntercomContact(request, contact.id, payload, settings)
       }
-      return await createIntercomContact(request, payload)
+      return await createIntercomContact(request, payload, settings)
     } catch (error) {
       if (error?.response?.status === 409) {
         // The contact already exists but the Intercom cache most likely wasn't updated yet
@@ -122,15 +123,17 @@ const action: ActionDefinition<Settings, Payload> = {
   }
 }
 
-async function createIntercomContact(request: RequestClient, payload: Payload) {
-  return request('https://api.intercom.io/contacts', {
+async function createIntercomContact(request: RequestClient, payload: Payload, settings: Settings) {
+  const endpoint = getEndpointByRegion(settings.endpoint)
+  return request(`${endpoint}/contacts`, {
     method: 'POST',
     json: payload
   })
 }
 
-async function updateIntercomContact(request: RequestClient, contactId: String, payload: Payload) {
-  return request(`https://api.intercom.io/contacts/${contactId}`, {
+async function updateIntercomContact(request: RequestClient, contactId: String, payload: Payload, settings: Settings) {
+  const endpoint = getEndpointByRegion(settings.endpoint)
+  return request(`${endpoint}/contacts/${contactId}`, {
     method: 'PUT',
     json: payload
   })

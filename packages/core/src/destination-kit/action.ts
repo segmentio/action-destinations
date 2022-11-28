@@ -122,7 +122,7 @@ export class Action<Settings, Payload extends JSONLikeObject> extends EventEmitt
     const results: Result[] = []
 
     // Resolve/transform the mapping with the input data
-    let payload = transform(bundle.mapping, bundle.data, bundle.features) as Payload
+    let payload = transform(bundle.mapping, bundle.data) as Payload
     results.push({ output: 'Mappings resolved' })
 
     // Remove empty values (`null`, `undefined`, `''`) when not explicitly accepted
@@ -237,7 +237,8 @@ export class Action<Settings, Payload extends JSONLikeObject> extends EventEmitt
     // TODO turn `extendRequest` into a beforeRequest hook
     const options = this.extendRequest?.(data) ?? {}
     return createRequestClient(options, {
-      afterResponse: [this.afterResponse.bind(this)]
+      afterResponse: [this.afterResponse.bind(this)],
+      statsContext: data.statsContext
     })
   }
 
