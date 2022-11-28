@@ -30,6 +30,7 @@ import {
 } from '../lib/control-plane-client'
 import { DestinationDefinition, getManifest, hasOauthAuthentication } from '@segment/actions-cli/lib/destinations'
 import type { JSONSchema4 } from 'json-schema'
+import deprecationWarning from '../lib/warning'
 
 type BaseActionInput = Omit<DestinationMetadataActionCreateInput, 'metadataId'>
 
@@ -51,6 +52,7 @@ export default class Push extends Command {
   async run() {
     const { flags } = this.parse(Push)
     const manifest = getManifest()
+    await deprecationWarning(this.warn)
 
     const { metadataIds } = await prompt<{ metadataIds: string[] }>({
       type: 'multiselect',

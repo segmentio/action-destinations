@@ -1,7 +1,6 @@
 import { createTestEvent, createTestIntegration } from '@segment/actions-core'
 import { generateTestData } from '../../../lib/test-data'
 import destination from '../index'
-import { generateValidHubSpotCustomObjectName } from '../testHelper'
 import nock from 'nock'
 import { TransactionContext } from '@segment/actions-core/src/destination-kit'
 
@@ -114,16 +113,4 @@ describe(`Testing snapshot for ${destinationSlug} destination:`, () => {
       }
     })
   }
-})
-
-describe(`Testing snapshot for testHelper:`, () => {
-  it(`should generate a valid hash with empty seed value`, async () => {
-    const customObjectName = generateValidHubSpotCustomObjectName('')
-    expect(customObjectName).toMatchSnapshot()
-  })
-  it(`should generate a valid hash with a seed value`, async () => {
-    const seed = 'test-seed-value'
-    const customObjectName = generateValidHubSpotCustomObjectName(seed)
-    expect(customObjectName).toMatchSnapshot()
-  })
 })

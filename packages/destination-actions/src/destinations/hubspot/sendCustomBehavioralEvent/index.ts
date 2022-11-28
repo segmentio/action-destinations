@@ -1,6 +1,6 @@
 import type { ActionDefinition } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
-import { hubSpotBaseURL } from '../properties'
+import { HUBSPOT_BASE_URL } from '../properties'
 import type { Payload } from './generated-types'
 
 interface CustomBehavioralEvent {
@@ -61,7 +61,7 @@ const action: ActionDefinition<Settings, Payload> = {
     properties: {
       label: 'Event Properties',
       description:
-        'Default or custom properties that describe the event. See more information in [HubSpot’s documentation](https://knowledge.hubspot.com/analytics-tools/create-custom-behavioral-events#add-and-manage-event-properties).',
+        'Default or custom properties that describe the event. On the left-hand side, input the internal name of the property as seen in your HubSpot account. On the right-hand side, map the Segment field that contains the value. See more information in [HubSpot’s documentation](https://knowledge.hubspot.com/analytics-tools/create-custom-behavioral-events#add-and-manage-event-properties).',
       type: 'object',
       defaultObjectUI: 'keyvalue:only'
     }
@@ -75,7 +75,7 @@ const action: ActionDefinition<Settings, Payload> = {
       objectId: payload.objectId,
       properties: payload.properties
     }
-    return request(`${hubSpotBaseURL}/events/v3/send`, {
+    return request(`${HUBSPOT_BASE_URL}/events/v3/send`, {
       method: 'post',
       json: event
     })

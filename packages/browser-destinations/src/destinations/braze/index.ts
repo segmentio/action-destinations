@@ -8,7 +8,7 @@ import updateUserProfile from './updateUserProfile'
 import trackPurchase from './trackPurchase'
 import debounce, { resetUserCache } from './debounce'
 import { defaultValues, DestinationDefinition } from '@segment/actions-core'
-import { BrazeType } from './braze-types'
+import { BrazeDestinationClient } from './braze-types'
 
 declare global {
   interface Window {
@@ -49,7 +49,7 @@ const presets: DestinationDefinition['presets'] = [
   }
 ]
 
-export const destination: BrowserDestinationDefinition<Settings, BrazeType> = {
+export const destination: BrowserDestinationDefinition<Settings, BrazeDestinationClient> = {
   name: 'Braze Web Mode (Actions)',
   slug: 'actions-braze-web',
   mode: 'device',
@@ -117,6 +117,14 @@ export const destination: BrowserDestinationDefinition<Settings, BrazeType> = {
       description:
         'To indicate that you trust the Braze dashboard users to write non-malicious Javascript click actions, set this property to true. If enableHtmlInAppMessages is true, this option will also be set to true. [See more details](https://js.appboycdn.com/web-sdk/latest/doc/modules/appboy.html#initializationoptions)',
       label: 'Allow User Supplied Javascript',
+      default: false,
+      type: 'boolean',
+      required: false
+    },
+    deferUntilIdentified: {
+      description:
+        'If enabled, this setting delays initialization of the Braze SDK until the user has been identified. When enabled, events for anonymous users will no longer be sent to Braze.',
+      label: 'Only Track Known Users',
       default: false,
       type: 'boolean',
       required: false
@@ -266,7 +274,7 @@ export const destination: BrowserDestinationDefinition<Settings, BrazeType> = {
         'By default, sessions time out after 30 minutes of inactivity. Provide a value for this configuration option to override that default with a value of your own.'
     }
   },
-  initialize: async ({ settings }, dependencies) => {
+  initialize: async ({ settings, analytics }, dependencies) => {
     try {
       const {
         endpoint,
@@ -277,6 +285,7 @@ export const destination: BrowserDestinationDefinition<Settings, BrazeType> = {
         versionSettings,
         // @ts-expect-error same as above.
         subscriptions,
+        deferUntilIdentified,
         ...expectedConfig
       } = settings
 
@@ -290,28 +299,45 @@ export const destination: BrowserDestinationDefinition<Settings, BrazeType> = {
         await dependencies.loadScript(`https://js.appboycdn.com/web-sdk/${version}/braze.no-module.min.js`)
       }
 
-      const brazeObject: BrazeType = version.indexOf('3.') === 0 ? window.appboy : window.braze
+      let initialized = false
 
-      brazeObject.initialize(api_key, {
-        baseUrl: window.BRAZE_BASE_URL || endpoint,
-        ...expectedConfig
-      })
+      const client: BrazeDestinationClient = {
+        instance: version.indexOf('3.') === 0 ? window.appboy : window.braze,
+        ready: () => {
+          if (initialized) {
+            return true
+          }
 
-      if (brazeObject.addSdkMetadata) {
-        brazeObject.addSdkMetadata([brazeObject.BrazeSdkMetadata.SEGMENT])
-      }
+          if (deferUntilIdentified && typeof analytics.user().id() !== 'string') {
+            return false
+          }
 
-      if (automaticallyDisplayMessages) {
-        if ('display' in brazeObject) {
-          brazeObject.display.automaticallyShowNewInAppMessages()
-        } else {
-          brazeObject.automaticallyShowInAppMessages()
+          client.instance.initialize(api_key, {
+            baseUrl: window.BRAZE_BASE_URL || endpoint,
+            ...expectedConfig
+          })
+
+          if (typeof client.instance.addSdkMetadata === 'function') {
+            client.instance.addSdkMetadata([client.instance.BrazeSdkMetadata.SEGMENT])
+          }
+
+          if (automaticallyDisplayMessages) {
+            if ('display' in client.instance) {
+              client.instance.display.automaticallyShowNewInAppMessages()
+            } else {
+              client.instance.automaticallyShowInAppMessages()
+            }
+          }
+
+          client.instance.openSession()
+
+          return (initialized = true)
         }
       }
 
-      brazeObject.openSession()
+      client.ready()
 
-      return brazeObject
+      return client
     } catch (e) {
       throw new Error(`Failed to initialize Braze ${e}`)
     }

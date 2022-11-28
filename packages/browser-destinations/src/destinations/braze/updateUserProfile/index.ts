@@ -3,9 +3,9 @@ import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 import * as braze from '@braze/web-sdk'
 import dayjs from '../../../lib/dayjs'
-import { BrazeType } from '../braze-types'
+import { BrazeDestinationClient } from '../braze-types'
 
-const action: BrowserActionDefinition<Settings, BrazeType, Payload> = {
+const action: BrowserActionDefinition<Settings, BrazeDestinationClient, Payload> = {
   title: 'Update User Profile',
   description: 'Updates a users profile attributes in Braze',
   defaultSubscription: 'type = "identify" or type = "group"',
@@ -149,12 +149,16 @@ const action: BrowserActionDefinition<Settings, BrazeType, Payload> = {
   },
 
   perform: (client, { payload }) => {
-    // TODO - addAlias / addToCustomAttributeArray?
-    if (payload.external_id !== undefined) {
-      client.changeUser(payload.external_id)
+    if (!client.ready()) {
+      return
     }
 
-    const user = client.getUser()
+    // TODO - addAlias / addToCustomAttributeArray?
+    if (payload.external_id !== undefined) {
+      client.instance.changeUser(payload.external_id)
+    }
+
+    const user = client.instance.getUser()
     if (!user) return
 
     payload.country !== undefined && user.setCountry(payload.country)

@@ -1,0 +1,81 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Testing snapshot for Segment's sendGroup destination action: all fields 1`] = `
+Object {
+  "anonymousId": "92N!&JfP",
+  "context": Object {
+    "app": Object {
+      "build": "92N!&JfP",
+      "name": "92N!&JfP",
+      "namespace": "92N!&JfP",
+      "version": "92N!&JfP",
+    },
+    "campaign": Object {
+      "content": "92N!&JfP",
+      "medium": "92N!&JfP",
+      "name": "92N!&JfP",
+      "source": "92N!&JfP",
+      "term": "92N!&JfP",
+    },
+    "device": Object {
+      "adTracking_Enabled": true,
+      "advertising_id": "92N!&JfP",
+      "id": "92N!&JfP",
+      "manufacturer": "92N!&JfP",
+      "model": "92N!&JfP",
+      "name": "92N!&JfP",
+      "token": "92N!&JfP",
+      "type": "92N!&JfP",
+    },
+    "ip": "92N!&JfP",
+    "locale": "92N!&JfP",
+    "location": Object {
+      "city": "92N!&JfP",
+      "country": "92N!&JfP",
+      "latitude": -53044051338854.4,
+      "longitude": -53044051338854.4,
+      "speed": -53044051338854.4,
+    },
+    "network": Object {
+      "bluetooth": true,
+      "carrier": "92N!&JfP",
+      "cellular": true,
+      "wifi": true,
+    },
+    "os": Object {
+      "name": "92N!&JfP",
+      "version": "92N!&JfP",
+    },
+    "page": Object {
+      "path": "92N!&JfP",
+      "referrer": "92N!&JfP",
+      "search": "92N!&JfP",
+      "title": "92N!&JfP",
+      "url": "92N!&JfP",
+    },
+    "screen": Object {
+      "density": -53044051338854.4,
+      "height": -53044051338854.4,
+      "width": -53044051338854.4,
+    },
+    "timezone": "92N!&JfP",
+    "userAgent": "92N!&JfP",
+  },
+  "groupId": "92N!&JfP",
+  "timestamp": "92N!&JfP",
+  "traits": Object {
+    "testType": "92N!&JfP",
+  },
+  "userId": "92N!&JfP",
+}
+`;
+
+exports[`Testing snapshot for Segment's sendGroup destination action: required fields 1`] = `
+Object {
+  "anonymousId": "92N!&JfP",
+  "context": Object {},
+  "groupId": "92N!&JfP",
+  "traits": Object {},
+  "userId": "92N!&JfP",
+}
+`;

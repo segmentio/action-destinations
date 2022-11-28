@@ -1,4 +1,4 @@
-import { InputField, RequestClient } from '@segment/actions-core'
+import { InputField, RequestClient, IntegrationError } from '@segment/actions-core'
 import { Payload } from './updateUserProfile/generated-types'
 
 export const customFields: InputField = {
@@ -62,13 +62,36 @@ const convertCustomFieldNamesToIds = (customFields: any, accountCustomFields: Cu
       )[0]
       actualKey = matchingCustomField.id
     } else {
-      throw new Error(
-        `Unknown custom field '${key}'. To see your defined custom fields, visit https://mc.sendgrid.com/custom-fields`
+      throw new IntegrationError(
+        `Unknown custom field '${key}'. To see your defined custom fields, visit https://mc.sendgrid.com/custom-fields`,
+        'Invalid value',
+        400
       )
     }
     result[actualKey] = customFields[key]
     return result
   }, {})
+}
+
+// This function transforms data types for values that the Sendgrid MC API does not accept (boolean, array, object) and
+// transforms them into a type that is accepted
+export const tranformValueToAcceptedDataType = (value: any): any => {
+  // typeof for arrays is also 'object', so this branch will transform boolean, arrays, and objects
+  if (typeof value === 'boolean' || typeof value === 'object') {
+    return JSON.stringify(value)
+  } else {
+    return value
+  }
+}
+
+const transformValuesToAcceptedDataTypes = (data: any): any => {
+  const tranformedData: any = {}
+
+  for (const property in data) {
+    tranformedData[property] = tranformValueToAcceptedDataType(data[property])
+  }
+
+  return tranformedData
 }
 
 export const convertPayload = (payload: Payload, accountCustomFields: CustomField[]) => {
@@ -79,5 +102,11 @@ export const convertPayload = (payload: Payload, accountCustomFields: CustomFiel
     ? convertCustomFieldNamesToIds(customFields, accountCustomFields)
     : customFields
 
-  return { ...rest, state_province_region: state, email: primary_email, custom_fields: updatedCustomFields }
+  return {
+    ...rest,
+    state_province_region: state,
+    email: primary_email,
+    // We only need to transform custom fields because reserved fields are types Sendgrid MC API accepts
+    custom_fields: transformValuesToAcceptedDataTypes(updatedCustomFields)
+  }
 }

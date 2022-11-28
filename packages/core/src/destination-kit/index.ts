@@ -96,6 +96,8 @@ export interface OAuth2ClientCredentials extends AuthTokens {
   clientId: string
   /** Used to authenticate the identity of the application to the partner API when the application requests to access a user’s account, must be kept private between the application and the API. */
   clientSecret: string
+  /** The refresh token url used to get an updated access token. This value is configured in the developer portal. **/
+  refreshTokenUrl: string
 }
 
 export interface RefreshAccessTokenResult {
@@ -117,7 +119,7 @@ interface RefreshAuthSettings<Settings> {
 
 interface Authentication<Settings> {
   /** The authentication scheme */
-  scheme: 'basic' | 'custom' | 'oauth2'
+  scheme: 'basic' | 'custom' | 'oauth2' | 'oauth-managed'
   /** The fields related to authentication */
   fields: Record<string, GlobalSetting>
   /** A function that validates the user's authentication inputs. It is highly encouraged to define this whenever possible. */
@@ -154,11 +156,25 @@ export interface OAuth2Authentication<Settings> extends Authentication<Settings>
   ) => Promise<RefreshAccessTokenResult>
 }
 
+/**
+ * OAuth2 authentication scheme where the credentials and settings are managed by the partner.
+ */
+export interface OAuthManagedAuthentication<Settings> extends Authentication<Settings> {
+  scheme: 'oauth-managed'
+  /** A function that is used to refresh the access token
+   */
+  refreshAccessToken?: (
+    request: RequestClient,
+    input: RefreshAuthSettings<Settings>
+  ) => Promise<RefreshAccessTokenResult>
+}
+
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export type AuthenticationScheme<Settings = any> =
   | BasicAuthentication<Settings>
   | CustomAuthentication<Settings>
   | OAuth2Authentication<Settings>
+  | OAuthManagedAuthentication<Settings>
 
 interface EventInput<Settings> {
   readonly event: SegmentEvent
@@ -303,7 +319,7 @@ export class Destination<Settings = JSONObject> {
     }
 
     const options = this.extendRequest?.(context) ?? {}
-    const requestClient = createRequestClient(options)
+    const requestClient = createRequestClient({ ...options, statsContext: context.statsContext })
 
     try {
       await this.authentication.testAuthentication(requestClient, data)
@@ -332,7 +348,7 @@ export class Destination<Settings = JSONObject> {
       auth: getAuthData(settings as unknown as JSONObject)
     }
     const options = this.extendRequest?.(context) ?? {}
-    const requestClient = createRequestClient(options)
+    const requestClient = createRequestClient({ ...options, statsContext: context.statsContext })
 
     if (!this.authentication?.refreshAccessToken) {
       return undefined
@@ -510,7 +526,7 @@ export class Destination<Settings = JSONObject> {
     const context: ExecuteInput<Settings, any> = { settings: destinationSettings, payload, auth }
 
     const opts = this.extendRequest?.(context) ?? {}
-    const requestClient = createRequestClient(opts)
+    const requestClient = createRequestClient({ ...opts, statsContext: context.statsContext })
 
     const run = async () => {
       const deleteResult = await this.definition.onDelete?.(requestClient, data)

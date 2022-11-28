@@ -63,3 +63,10 @@ export function handleGoogleErrors(response: ModifiedResponse<PartialErrorRespon
     throw new IntegrationError(response.data.partialFailureError.message, 'INVALID_ARGUMENT', 400)
   }
 }
+
+export function convertTimestamp(timestamp: string | undefined): string | undefined {
+  if (!timestamp) {
+    return undefined
+  }
+  return timestamp.replace(/T/, ' ').replace(/\..+/, '+00:00')
+}

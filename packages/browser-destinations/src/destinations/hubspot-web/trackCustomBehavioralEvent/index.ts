@@ -7,13 +7,12 @@ import { flatten } from '../utils/flatten'
 // Change from unknown to the partner SDK types
 const action: BrowserActionDefinition<Settings, Hubspot, Payload> = {
   title: 'Track Custom Behavioral Event',
-  description:
-    'Using custom behavioral events, you can tie event completions to contacts records and populate event properties with metadata about the event.',
+  description: 'Send a custom behavioral event to HubSpot.',
   platform: 'web',
   defaultSubscription: 'type = "track"',
   fields: {
     name: {
-      description: 'The event_id or internal name of the event that you created in HubSpot.',
+      description: 'The internal event name assigned by HubSpot. This can be found in your HubSpot account. If the "Format Custom Behavioral Event Names" setting is enabled, Segment will automatically convert your Segment event name into the expected HubSpot internal event name format.',
       label: 'Event Name',
       type: 'string',
       required: true,
@@ -22,7 +21,7 @@ const action: BrowserActionDefinition<Settings, Hubspot, Payload> = {
       }
     },
     properties: {
-      description: 'A list of key-value pairs, with one key-value pair per property.',
+      description: 'A list of key-value pairs that describe the event.',
       label: 'Event Properties',
       type: 'object',
       required: false,

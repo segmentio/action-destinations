@@ -22,23 +22,15 @@ export interface Payload {
    */
   group_id?: string
   /**
-   * The timestamp of the event. If time is not sent with the event, it will be set to the time our servers receive it.
+   * A random id that is unique to an event. Mixpanel uses $insert_id to deduplicate events.
+   */
+  insert_id?: string
+  /**
+   * The timestamp of the event. Mixpanel expects epoch timestamp in millisecond or second. Please note, Mixpanel only accepts this field as the timestamp. If the field is empty, it will be set to the time Mixpanel servers receive it.
    */
   time?: string | number
   /**
-   * An object of key-value pairs that represent additional data to be sent along with the event.
-   */
-  event_properties?: {
-    [k: string]: unknown
-  }
-  /**
-   * An object of key-value pairs that represent additional data tied to the user.
-   */
-  user_properties?: {
-    [k: string]: unknown
-  }
-  /**
-   * The name of your application
+   * The name of your application.
    */
   app_name?: string
   /**
@@ -66,11 +58,11 @@ export interface Payload {
    */
   device_id?: string
   /**
-   * The type of the user's device
+   * The type of the user's device.
    */
   device_type?: string
   /**
-   * The name of the user's device
+   * The name of the user's device.
    */
   device_name?: string
   /**
@@ -82,7 +74,7 @@ export interface Payload {
    */
   device_model?: string
   /**
-   * Whether bluetooth is enabled
+   * Whether bluetooth is enabled.
    */
   bluetooth?: boolean
   /**
@@ -90,7 +82,7 @@ export interface Payload {
    */
   carrier?: string
   /**
-   * Whether cellular is enabled
+   * Whether cellular is enabled.
    */
   cellular?: boolean
   /**
@@ -110,11 +102,11 @@ export interface Payload {
    */
   language?: string
   /**
-   * The name of the SDK used to send events
+   * The name of the SDK used to send events.
    */
   library_name?: string
   /**
-   * The version of the SDK used to send events
+   * The version of the SDK used to send events.
    */
   library_version?: string
   /**
@@ -125,20 +117,6 @@ export interface Payload {
    * Identifier for Advertiser. _(iOS)_
    */
   idfa?: string
-  /**
-   * Mixpanel will deduplicate subsequent events sent with this ID.
-   */
-  insert_id?: string
-  /**
-   * UTM Tracking Properties
-   */
-  utm_properties?: {
-    utm_source?: string
-    utm_medium?: string
-    utm_campaign?: string
-    utm_term?: string
-    utm_content?: string
-  }
   /**
    * The full URL of the webpage on which the event is triggered.
    */
@@ -163,6 +141,28 @@ export interface Payload {
    * User agent
    */
   userAgent?: string
+  /**
+   * An object of key-value pairs that represent additional data to be sent along with the event.
+   */
+  event_properties?: {
+    [k: string]: unknown
+  }
+  /**
+   * An object of key-value pairs that represent additional data tied to the user.
+   */
+  user_properties?: {
+    [k: string]: unknown
+  }
+  /**
+   * UTM Tracking Properties
+   */
+  utm_properties?: {
+    utm_source?: string
+    utm_medium?: string
+    utm_campaign?: string
+    utm_term?: string
+    utm_content?: string
+  }
   /**
    * Set as true to ensure Segment sends data to Mixpanel in batches.
    */

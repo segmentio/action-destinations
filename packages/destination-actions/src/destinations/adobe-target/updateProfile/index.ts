@@ -1,4 +1,5 @@
 import type { ActionDefinition } from '@segment/actions-core'
+import { IntegrationError } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import AdobeTarget from '../adobeTarget_operations'
 import type { Payload } from './generated-types'
@@ -33,8 +34,14 @@ const action: ActionDefinition<Settings, Payload> = {
   },
 
   perform: async (request, { settings, payload }) => {
-    const at: AdobeTarget = new AdobeTarget(payload.user_id, settings.client_code, payload.traits, request)
-    return await at.updateProfile()
+    try {
+      const at: AdobeTarget = new AdobeTarget(payload.user_id, settings.client_code, payload.traits, request)
+      return await at.updateProfile()
+    } catch (error) {
+      if (error instanceof Error) {
+        throw new IntegrationError(error.message, error.message == 'Forbidden' ? '403' : '400')
+      }
+    }
   }
 }
 

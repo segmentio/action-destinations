@@ -33,8 +33,9 @@ export const eventProperties: Record<string, InputField> = {
   time: {
     label: 'Timestamp',
     type: 'datetime',
+    required: false,
     description:
-      'The timestamp of the event. If time is not sent with the event, it will be set to the time our servers receive it.',
+      'The timestamp of the event. Mixpanel expects epoch timestamp in millisecond or second. Please note, Mixpanel only accepts this field as the timestamp. If the field is empty, it will be set to the time Mixpanel servers receive it.',
     default: {
       '@path': '$.timestamp'
     }

@@ -7,8 +7,19 @@ import { getEventProperties } from '../trackEvent/functions'
 import { eventProperties, productsProperties } from '../mixpanel-properties'
 import dayjs from '../../../lib/dayjs'
 
-
-const topLevelKeys = ["checkout_id", "order_id", "affiliation", "subtotal", "total", "revenue", "shipping", "tax", "discount", "coupon", "currency", "order_number", "products"]
+const topLevelKeys = [
+  'affiliation',
+  'subtotal',
+  'total',
+  'revenue',
+  'shipping',
+  'tax',
+  'discount',
+  'coupon',
+  'currency',
+  'order_number',
+  'products'
+]
 
 const getPurchaseEventsFromPayload = (payload: Payload, settings: Settings): MixpanelEvent[] => {
   const orderCompletedEvent: MixpanelEvent = {
@@ -25,12 +36,12 @@ const getPurchaseEventsFromPayload = (payload: Payload, settings: Settings): Mix
     let insertIdCount = 0
     purchaseEvents = payload.products.map((product) => {
       return {
-        event: "Product Purchased",
+        event: 'Product Purchased',
         properties: {
           ...omit(orderCompletedEvent.properties, topLevelKeys),
-          $insert_id: insertId + (insertIdCount++).toString(),
+          $insert_id: (insertIdCount++).toString() + insertId,
           time: --time,
-          ...product,
+          ...product
         }
       }
     })
@@ -40,25 +51,23 @@ const getPurchaseEventsFromPayload = (payload: Payload, settings: Settings): Mix
 
 const processData = async (request: RequestClient, settings: Settings, payload: Payload[]) => {
   const events = payload.map((value) => getPurchaseEventsFromPayload(value, settings)).flat()
-  return request(`${ getApiServerUrl(settings.apiRegion) }/import?strict=1`, {
+  return request(`${getApiServerUrl(settings.apiRegion)}/import?strict=1`, {
     method: 'post',
     json: events,
     headers: {
-      authorization: `Basic ${ Buffer.from(`${ settings.apiSecret }:`).toString('base64') }`
+      authorization: `Basic ${Buffer.from(`${settings.apiSecret}:`).toString('base64')}`
     }
   })
 }
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Track Purchase',
-  description:
-    "Send an 'Order Completed' Event to Mixpanel.",
+  description: "Send an 'Order Completed' Event to Mixpanel.",
   defaultSubscription: 'type = "track"',
   fields: {
     generatePurchaseEventPerProduct: {
       label: 'Generate Purchase Event Per Product',
-      description:
-        'When enabled, send "Product Purchased" with each product within the event.',
+      description: 'When enabled, send "Product Purchased" with each product within the event.',
       type: 'boolean',
       default: false
     },
@@ -72,7 +81,7 @@ const action: ActionDefinition<Settings, Payload> = {
       default: {
         '@path': '$.event'
       }
-    },
+    }
   },
 
   perform: async (request, { settings, payload }) => {
@@ -81,7 +90,7 @@ const action: ActionDefinition<Settings, Payload> = {
 
   performBatch: async (request, { settings, payload }) => {
     return processData(request, settings, payload)
-  },
+  }
 }
 
 export default action
