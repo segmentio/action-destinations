@@ -7,7 +7,8 @@ describe('oauth settings', () => {
       two: '2',
       oauth: {
         access_token: 'test-access-token',
-        refresh_token: 'test-refresh-token'
+        refresh_token: 'test-refresh-token',
+        refresh_token_url: 'test.xyz'
       },
       three: '3'
     }
@@ -16,7 +17,8 @@ describe('oauth settings', () => {
 
     const expectedResult = {
       accessToken: 'test-access-token',
-      refreshToken: 'test-refresh-token'
+      refreshToken: 'test-refresh-token',
+      refreshTokenUrl: 'test.xyz'
     }
     expect(result).toEqual(expectedResult)
   })
@@ -33,7 +35,8 @@ describe('oauth settings', () => {
       accessToken: undefined,
       clientId: undefined,
       clientSecret: undefined,
-      refreshToken: undefined
+      refreshToken: undefined,
+      refreshTokenUrl: undefined
     }
     expect(result).toEqual(expectedResult)
   })
