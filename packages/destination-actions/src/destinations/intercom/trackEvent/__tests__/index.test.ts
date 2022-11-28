@@ -1,13 +1,9 @@
 import nock from 'nock'
 import { createTestEvent, createTestIntegration, IntegrationError } from '@segment/actions-core'
 import Destination from '../../index'
-import { getEndpointByRegion } from '../../regional-endpoints'
 
 const testDestination = createTestIntegration(Destination)
-const settings = {
-  endpoint: 'north_america'
-}
-const endpoint = getEndpointByRegion(settings.endpoint)
+const endpoint = 'https://api.intercom.io'
 
 describe('Intercom.trackEvent', () => {
   it('should create an event with epoch seconds and userId', async () => {
@@ -17,7 +13,6 @@ describe('Intercom.trackEvent', () => {
 
     const responses = await testDestination.testAction('trackEvent', {
       event,
-      settings,
       useDefaultMappings: true
     })
 
@@ -37,7 +32,6 @@ describe('Intercom.trackEvent', () => {
 
     const responses = await testDestination.testAction('trackEvent', {
       event,
-      settings,
       mapping: { revenue: { '@path': '$.properties.payment' } },
       useDefaultMappings: true
     })
@@ -62,7 +56,6 @@ describe('Intercom.trackEvent', () => {
 
     const responses = await testDestination.testAction('trackEvent', {
       event,
-      settings,
       useDefaultMappings: true
     })
 
@@ -88,7 +81,6 @@ describe('Intercom.trackEvent', () => {
     await expect(
       testDestination.testAction('trackEvent', {
         event,
-        settings,
         useDefaultMappings: true
       })
     ).rejects.toThrowError(new IntegrationError('No unique contact found', 'Contact not found', 404))

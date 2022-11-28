@@ -2,7 +2,6 @@ import { ActionDefinition, ModifiedResponse, RequestClient } from '@segment/acti
 import type { Settings } from '../generated-types'
 import { getUniqueIntercomContact } from '../util'
 import type { Payload } from './generated-types'
-import { getEndpointByRegion } from '../regional-endpoints'
 
 interface IntercomCreateCompanyData {
   id: string
@@ -117,40 +116,32 @@ const action: ActionDefinition<Settings, Payload> = {
    *
    * Note: Companies will be only visible in Intercom's Dashboard when there is at least one associated contact.
    */
-  perform: async (request, { payload, settings }) => {
-    const contact = await getUniqueIntercomContact(request, payload, settings)
+  perform: async (request, { payload }) => {
+    const contact = await getUniqueIntercomContact(request, payload)
     delete payload.email
     delete payload.external_id
 
-    const response = await createOrUpdateIntercomCompany(request, payload, settings)
+    const response = await createOrUpdateIntercomCompany(request, payload)
     if (contact) {
       payload.contact_id = contact.id
       const companyId = response.data.id
-      return attachContactToIntercomCompany(request, contact.id, companyId, settings)
+      return attachContactToIntercomCompany(request, contact.id, companyId)
     }
   }
 }
 
 function createOrUpdateIntercomCompany(
   request: RequestClient,
-  payload: Payload,
-  settings: Settings
+  payload: Payload
 ): Promise<ModifiedResponse<IntercomCreateCompanyData>> {
-  const endpoint = getEndpointByRegion(settings.endpoint)
-  return request(`${endpoint}/companies`, {
+  return request(`https://api.intercom.io/companies`, {
     method: 'POST',
     json: payload
   })
 }
 
-function attachContactToIntercomCompany(
-  request: RequestClient,
-  contactId: string,
-  companyId: string,
-  settings: Settings
-) {
-  const endpoint = getEndpointByRegion(settings.endpoint)
-  return request(`${endpoint}/contacts/${contactId}/companies`, {
+function attachContactToIntercomCompany(request: RequestClient, contactId: string, companyId: string) {
+  return request(`https://api.intercom.io/contacts/${contactId}/companies`, {
     method: 'POST',
     json: {
       id: companyId

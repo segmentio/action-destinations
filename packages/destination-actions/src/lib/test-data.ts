@@ -104,8 +104,8 @@ export function generateTestData(
   const authentication = destination.authentication
   if (authentication) {
     for (const settingKey in authentication.fields) {
-      const { format, type, choices } = authentication.fields[settingKey]
-      settingsData[settingKey] = setTestData(seedName, type, undefined, format, choices as Choices)
+      const { format, type } = authentication.fields[settingKey]
+      settingsData[settingKey] = setTestData(seedName, type, undefined, format)
     }
   }
 

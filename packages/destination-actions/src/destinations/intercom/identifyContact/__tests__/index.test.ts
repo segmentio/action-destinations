@@ -2,13 +2,9 @@ import nock from 'nock'
 import { createTestEvent, createTestIntegration, RetryableError } from '@segment/actions-core'
 import Destination from '../../index'
 import { convertValidTimestamp } from '../../util'
-import { getEndpointByRegion } from '../../regional-endpoints'
 
 const testDestination = createTestIntegration(Destination)
-const settings = {
-  endpoint: 'north_america'
-}
-const endpoint = getEndpointByRegion(settings.endpoint)
+const endpoint = 'https://api.intercom.io'
 
 describe('Intercom.identifyContact', () => {
   it('should update a user if the user already exists', async () => {
@@ -23,7 +19,6 @@ describe('Intercom.identifyContact', () => {
 
     const responses = await testDestination.testAction('identifyContact', {
       event,
-      settings,
       mapping: { role: { '@path': '$.traits.role' } },
       useDefaultMappings: true
     })
@@ -45,7 +40,6 @@ describe('Intercom.identifyContact', () => {
 
     const responses = await testDestination.testAction('identifyContact', {
       event,
-      settings,
       mapping: { role: { '@path': '$.traits.role' } },
       useDefaultMappings: true
     })
@@ -72,7 +66,6 @@ describe('Intercom.identifyContact', () => {
 
     const responses = await testDestination.testAction('identifyContact', {
       event,
-      settings,
       mapping: { role: { '@path': '$.traits.role' } },
       useDefaultMappings: true
     })
@@ -96,7 +89,6 @@ describe('Intercom.identifyContact', () => {
 
     const responses = await testDestination.testAction('identifyContact', {
       event,
-      settings,
       mapping: { role: { '@path': '$.traits.role' } },
       useDefaultMappings: true
     })
@@ -114,7 +106,6 @@ describe('Intercom.identifyContact', () => {
     await expect(
       testDestination.testAction('identifyContact', {
         event,
-        settings,
         mapping: { role: { '@path': '$.traits.role' } },
         useDefaultMappings: true
       })

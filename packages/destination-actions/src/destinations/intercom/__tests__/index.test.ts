@@ -1,25 +1,24 @@
 import nock from 'nock'
 import { createTestEvent, createTestIntegration, DecoratedResponse, IntegrationError } from '@segment/actions-core'
 import Definition from '../index'
-import { getEndpointByRegion } from '../regional-endpoints'
 
 const testDestination = createTestIntegration(Definition)
-const settings = {
-  endpoint: 'north_america'
-}
-const endpoint = getEndpointByRegion(settings.endpoint)
+const endpoint = 'https://api.intercom.io'
 
 describe('Intercom (actions)', () => {
   describe('testAuthentication', () => {
     it('should validate authentication inputs', async () => {
       nock(endpoint).get('/admins').reply(200, {})
-      await expect(testDestination.testAuthentication(settings)).resolves.not.toThrowError()
+      const authData = {}
+
+      await expect(testDestination.testAuthentication(authData)).resolves.not.toThrowError()
     })
 
     it('should fail on authentication failure', async () => {
       nock(endpoint).get('/admins').reply(404, {})
+      const authData = {}
 
-      await expect(testDestination.testAuthentication(settings)).rejects.toThrowError(
+      await expect(testDestination.testAuthentication(authData)).rejects.toThrowError(
         new Error('Credentials are invalid:  Test authentication failed')
       )
     })
@@ -35,7 +34,7 @@ describe('Intercom (actions)', () => {
         .reply(200, { total_count: 1, data: [{ id: 1 }] })
 
       if (testDestination.onDelete) {
-        const response = await testDestination.onDelete(event, settings)
+        const response = await testDestination.onDelete(event, {})
         const resp = response as DecoratedResponse
         expect(resp.status).toBe(200)
         expect(resp.data).toMatchObject({})
@@ -49,7 +48,7 @@ describe('Intercom (actions)', () => {
       nock(`${endpoint}`).post(`/contacts/search`).reply(200, { total_count: 0, data: [] })
 
       if (testDestination.onDelete) {
-        await expect(testDestination.onDelete(event, settings)).rejects.toThrowError(
+        await expect(testDestination.onDelete(event, {})).rejects.toThrowError(
           new IntegrationError('No unique contact found', 'Contact not found', 404)
         )
       }

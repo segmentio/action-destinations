@@ -2,7 +2,6 @@ import { ActionDefinition, IntegrationError } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import { convertValidTimestamp, getUniqueIntercomContact } from '../util'
 import type { Payload } from './generated-types'
-import { getEndpointByRegion } from '../regional-endpoints'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Track Event',
@@ -82,15 +81,13 @@ const action: ActionDefinition<Settings, Payload> = {
       }
     }
   },
-  perform: async (request, { payload, settings }) => {
+  perform: async (request, { payload }) => {
     payload.created_at = convertValidTimestamp(payload.created_at)
     delete payload.metadata?.email
 
-    const endpoint = getEndpointByRegion(settings.endpoint)
-
     // If only an email is passed, then this might be a lead - so retrieve the contact
     if (payload.email && !payload.user_id && !payload.id) {
-      const contact = await getUniqueIntercomContact(request, payload, settings)
+      const contact = await getUniqueIntercomContact(request, payload)
       if (contact) {
         payload.id = contact.id
       } else {
@@ -100,7 +97,7 @@ const action: ActionDefinition<Settings, Payload> = {
 
     possiblyPopulatePrice(payload)
 
-    return request(`${endpoint}/events`, {
+    return request('https://api.intercom.io/events', {
       method: 'POST',
       json: payload
     })
