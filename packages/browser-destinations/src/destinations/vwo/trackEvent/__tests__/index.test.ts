@@ -38,7 +38,8 @@ describe('VWO.trackEvent', () => {
 
     jest.spyOn(destination, 'initialize').mockImplementation(() => {
       mockVWO = {
-        event: jest.fn()
+        event: jest.fn(),
+        visitor: jest.fn()
       }
       return Promise.resolve(mockVWO)
     })

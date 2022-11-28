@@ -1,0 +1,36 @@
+import type { BrowserActionDefinition } from '../../../lib/browser-destinations'
+import type { VWO } from '../types'
+import type { Settings } from '../generated-types'
+import type { Payload } from './generated-types'
+
+// Change from unknown to the partner SDK types
+const action: BrowserActionDefinition<Settings, VWO, Payload> = {
+  title: 'Identify User',
+  description: 'Forwards user traits to VWO Data360 attributes',
+  defaultSubscription: 'type = "identify"',
+  platform: 'web',
+  fields: {
+    attributes: {
+      description: 'A JSON object containing additional attributes that will be associated with the user.',
+      label: 'Attributes',
+      required: true,
+      type: 'object',
+      default: {
+        '@path': '$.traits'
+      }
+    }
+  },
+  perform: (VWO, event) => {
+    const { attributes } = event.payload
+    const formattedAttributes = {
+      ...attributes,
+      vwo_source: 'segment.web'
+    }
+    if (!VWO.visitor) {
+      return
+    }
+    VWO.visitor(formattedAttributes)
+  }
+}
+
+export default action
