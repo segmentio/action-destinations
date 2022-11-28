@@ -2,7 +2,7 @@
 
 export interface Settings {
   /**
-   * Created under Developer Console in the Braze Dashboard.
+   * Data Import Key for the client whose cohort this belongs to. Also known as customer key.
    */
   client_secret: string
   /**
