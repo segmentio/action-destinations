@@ -8,7 +8,7 @@ let authenticationToken = 'XXXXXXXX' //accessToken here;
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Offline Conversions',
-  description: '',
+  description: 'TODO',
   fields: {
     ConversionCurrencyCode: {
       label: 'Conversion Currency Code',
