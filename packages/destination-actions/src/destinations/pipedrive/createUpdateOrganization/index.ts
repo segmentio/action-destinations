@@ -16,7 +16,7 @@ const action: ActionDefinition<Settings, Payload> = {
       description: 'If present, used instead of field in settings to find existing organization in Pipedrive.',
       type: 'string',
       required: false,
-      dynamic: true,
+      dynamic: true
     },
     match_value: {
       label: 'Match value',
@@ -57,7 +57,7 @@ const action: ActionDefinition<Settings, Payload> = {
   },
 
   perform: async (request, { payload, settings }) => {
-    const searchField = payload.match_field || settings.personField || 'id'
+    const searchField = payload.match_field || settings.organizationField || 'id'
 
     const client = new PipedriveClient(settings, request)
 
