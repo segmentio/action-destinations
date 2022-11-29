@@ -58,6 +58,10 @@ const expectedOrderCompleted = {
   ...omit(orderCompletedEvent, ['anonymousId', 'messageId', 'timestamp', 'type', 'userId']),
 }
 
+const mapping = {
+  generatePurchaseEventPerProduct: false
+}
+
 const settingsObj = {
   projectToken: MIXPANEL_PROJECT_TOKEN,
   apiSecret: MIXPANEL_API_SECRET,
@@ -72,9 +76,7 @@ describe('Mixpanel.trackPurchase', () => {
 
     nock('https://api.mixpanel.com').post('/import?strict=1').reply(200, {})
 
-    const mapping = {
-      generatePurchaseEventPerProduct: false
-    }
+
     const responses = await testDestination.testAction('trackPurchase', {
       event,
       mapping,
@@ -126,9 +128,6 @@ describe('Mixpanel.trackPurchase', () => {
     const event = createTestEvent(orderCompletedEvent)
 
     nock('https://api.mixpanel.com').post('/import?strict=1').reply(200, {})
-    const mapping = {
-      generatePurchaseEventPerProduct: false
-    }
     const sourceName = 'example segment source name'
     const responses = await testDestination.testAction('trackPurchase', {
       event,
@@ -158,9 +157,6 @@ describe('Mixpanel.trackPurchase', () => {
     const event = createTestEvent(orderCompletedEvent)
 
     nock('https://api.mixpanel.com').post('/import?strict=1').reply(200, {})
-    const mapping = {
-      generatePurchaseEventPerProduct: false
-    }
     const responses = await testDestination.testAction('trackPurchase', {
       event,
       mapping,
@@ -193,9 +189,6 @@ describe('Mixpanel.trackPurchase', () => {
     const events = [createTestEvent(orderCompletedEvent), createTestEvent(orderCompletedEvent)]
 
     nock('https://api.mixpanel.com').post('/import?strict=1').reply(200, {})
-    const mapping = {
-      generatePurchaseEventPerProduct: false
-    }
     const responses = await testDestination.testBatchAction('trackPurchase', {
       events,
       mapping,
