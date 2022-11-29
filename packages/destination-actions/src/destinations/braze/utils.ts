@@ -85,6 +85,7 @@ export function sendTrackPurchase(request: RequestClient, settings: Settings, pa
 
   return request(`${settings.endpoint}/users/track`, {
     method: 'post',
+    ...(payload.products.length > 1 ? { headers: { 'X-Braze-Batch': 'true' } } : undefined),
     json: {
       purchases: payload.products.map((product) => ({
         ...base,
