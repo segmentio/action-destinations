@@ -1,7 +1,6 @@
-import dayjs from '../../../lib/dayjs'
 import type { ActionDefinition } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
-import { trackApiEndpoint } from '../utils'
+import { convertAttributeTimestamps, convertValidTimestamp, trackApiEndpoint } from '../utils'
 import type { Payload } from './generated-types'
 
 interface TrackEventPayload {
@@ -9,6 +8,7 @@ interface TrackEventPayload {
   type?: string
   timestamp?: string | number
   data?: Record<string, unknown>
+  id?: string
   // Required for anonymous events
   anonymous_id?: string
 }
@@ -45,6 +45,14 @@ const action: ActionDefinition<Settings, Payload> = {
         '@path': '$.event'
       }
     },
+    event_id: {
+      label: 'Event ID',
+      description: 'An optional identifier used to deduplicate events. [Learn more](https://customer.io/docs/api/#operation/track).',
+      type: 'string',
+      default: {
+        '@path': '$.messageId'
+      }
+    },
     timestamp: {
       label: 'Timestamp',
       description: 'A timestamp of when the event took place. Default is current date and time.',
@@ -63,7 +71,7 @@ const action: ActionDefinition<Settings, Payload> = {
     },
     convert_timestamp: {
       label: 'Convert Timestamps',
-      description: 'Convert `timestamp` to a Unix timestamp (seconds since Epoch).',
+      description: 'Convert dates to Unix timestamps (seconds since Epoch).',
       type: 'boolean',
       default: true
     }
@@ -71,15 +79,26 @@ const action: ActionDefinition<Settings, Payload> = {
 
   perform: (request, { settings, payload }) => {
     let timestamp: string | number | undefined = payload.timestamp
+    let data = payload.data
 
-    if (timestamp && payload.convert_timestamp !== false) {
-      timestamp = dayjs.utc(timestamp).unix()
+    if (payload.convert_timestamp !== false) {
+      if (timestamp) {
+        timestamp = convertValidTimestamp(timestamp)
+      }
+
+      if (data) {
+        data = convertAttributeTimestamps(data)
+      }
     }
 
     const body: TrackEventPayload = {
       name: payload.name,
-      data: payload.data,
+      data,
       timestamp
+    }
+
+    if (payload.event_id) {
+      body.id = payload.event_id
     }
 
     let url: string

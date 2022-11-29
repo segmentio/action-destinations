@@ -3,12 +3,14 @@ import Ajv, { ValidateFunction } from 'ajv'
 import addFormats from 'ajv-formats'
 import dayjs from 'dayjs'
 import type { JSONSchema4 } from 'json-schema'
+import { arrifyFields } from './arrify'
+import { StatsContext } from './destination-kit'
 
 // `addFormats` includes many standard formats we use like `uri`, `date`, `email`, etc.
 const ajv = addFormats(
   new Ajv({
     // Coerce types to be a bit more liberal.
-    coerceTypes: true,
+    coerceTypes: 'array',
     // Return all validation errors, not just the first.
     allErrors: true,
     // Allow multiple non-null types in `type` keyword.
@@ -40,6 +42,7 @@ ajv.addFormat('date-like', (data: string) => {
 interface ValidationOptions {
   schemaKey?: string
   throwIfInvalid?: boolean
+  statsContext?: StatsContext
 }
 
 /**
@@ -47,7 +50,7 @@ interface ValidationOptions {
  * and caches the schema for subsequent validations when a key is provided
  */
 export function validateSchema(obj: unknown, schema: JSONSchema4, options?: ValidationOptions) {
-  const { schemaKey, throwIfInvalid = true } = options ?? {}
+  const { schemaKey, throwIfInvalid = true, statsContext } = options ?? {}
   let validate: ValidateFunction
 
   if (schemaKey) {
@@ -57,9 +60,12 @@ export function validateSchema(obj: unknown, schema: JSONSchema4, options?: Vali
     validate = ajv.compile(schema)
   }
 
+  // Ajv's `coerceTypes: 'array'` only works on scalars, so we need to manually arrify ourselves!
+  arrifyFields(obj, schema)
   const isValid = validate(obj)
 
   if (throwIfInvalid && !isValid && validate.errors) {
+    statsContext?.statsClient?.incr('ajv.discard', 1, statsContext.tags)
     throw new AggregateAjvError(validate.errors)
   }
 

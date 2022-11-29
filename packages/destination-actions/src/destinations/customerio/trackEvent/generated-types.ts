@@ -14,6 +14,10 @@ export interface Payload {
    */
   name: string
   /**
+   * An optional identifier used to deduplicate events. [Learn more](https://customer.io/docs/api/#operation/track).
+   */
+  event_id?: string
+  /**
    * A timestamp of when the event took place. Default is current date and time.
    */
   timestamp?: string
@@ -24,7 +28,7 @@ export interface Payload {
     [k: string]: unknown
   }
   /**
-   * Convert `timestamp` to a Unix timestamp (seconds since Epoch).
+   * Convert dates to Unix timestamps (seconds since Epoch).
    */
   convert_timestamp?: boolean
 }

@@ -7,6 +7,7 @@ import type { CreateDestinationMetadataInput } from '../lib/control-plane-servic
 import { autoPrompt, prompt } from '@segment/actions-cli/lib/prompt'
 import { loadDestination } from '@segment/actions-cli/lib/destinations'
 import { generateSlug } from '@segment/actions-cli/lib/slugs'
+import deprecationWarning from '../lib/warning'
 
 const NOOP_CONTEXT = {}
 
@@ -17,7 +18,8 @@ export default class Register extends Command {
 
   static examples = [`$ ./bin/run register`]
 
-  static flags = {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  static flags: flags.Input<any> = {
     help: flags.help({ char: 'h' }),
     path: flags.string({ char: 'p', description: 'Path to the destination to register.' }),
     env: flags.enum({
@@ -32,6 +34,7 @@ export default class Register extends Command {
 
   async run() {
     const { flags } = this.parse(Register)
+    await deprecationWarning(this.warn)
 
     let destinationPath = flags.path
     if (!destinationPath) {

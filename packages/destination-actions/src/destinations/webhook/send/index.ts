@@ -1,8 +1,8 @@
-import type { ActionDefinition } from '@segment/actions-core'
+import { ActionDefinition } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 
-type RequestMethod = 'GET' | 'POST' | 'PUT' | 'DELETE' | 'PATCH'
+type RequestMethod = 'POST' | 'PUT' | 'PATCH'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Send',
@@ -22,12 +22,16 @@ const action: ActionDefinition<Settings, Payload> = {
       choices: [
         { label: 'POST', value: 'POST' },
         { label: 'PUT', value: 'PUT' },
-        { label: 'PATCH', value: 'PATCH' },
-        { label: 'DELETE', value: 'DELETE' },
-        { label: 'GET', value: 'GET' }
+        { label: 'PATCH', value: 'PATCH' }
       ],
       default: 'POST',
       required: true
+    },
+    headers: {
+      label: 'Headers',
+      description: 'HTTP headers to send with each request.',
+      type: 'object',
+      defaultObjectUI: 'keyvalue:only'
     },
     data: {
       label: 'Data',
@@ -39,15 +43,17 @@ const action: ActionDefinition<Settings, Payload> = {
   perform: (request, { payload }) => {
     return request(payload.url, {
       method: payload.method as RequestMethod,
+      headers: payload.headers as Record<string, string>,
       json: payload.data
     })
   },
   performBatch: (request, { payload }) => {
     // Expect these to be the same across the payloads
-    const { url, method } = payload[0]
+    const { url, method, headers } = payload[0]
 
     return request(url, {
       method: method as RequestMethod,
+      headers: headers as Record<string, string>,
       json: payload.map(({ data }) => data)
     })
   }

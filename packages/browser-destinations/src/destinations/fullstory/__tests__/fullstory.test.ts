@@ -70,9 +70,8 @@ test('can load fullstory', async () => {
   expect(scripts).toMatchInlineSnapshot(`
     NodeList [
       <script
+        crossorigin="anonymous"
         src="https://edge.fullstory.com/s/fs.js"
-        status="loaded"
-        type="text/javascript"
       />,
       <script>
         // the emptiness
@@ -101,9 +100,13 @@ describe('#track', () => {
       })
     )
 
-    expect(fs).toHaveBeenCalledWith('hello!', {
-      banana: '📞'
-    })
+    expect(fs).toHaveBeenCalledWith(
+      'hello!',
+      {
+        banana: '📞'
+      },
+      'segment-browser-actions'
+    )
   })
 })
 
@@ -130,7 +133,7 @@ describe('#identify', () => {
 
     expect(fs).toHaveBeenCalled()
     expect(fsId).not.toHaveBeenCalled()
-    expect(fs).toHaveBeenCalledWith({ segmentAnonymousId_str: 'anon', testProp: false })
+    expect(fs).toHaveBeenCalledWith({ segmentAnonymousId_str: 'anon', testProp: false }, 'segment-browser-actions')
   }),
     it('should send an id', async () => {
       const [_, identifyUser] = await fullstory({
@@ -141,7 +144,7 @@ describe('#identify', () => {
       const fsId = jest.spyOn(window.FS, 'identify')
 
       await identifyUser.identify?.(new Context({ type: 'identify', userId: 'id' }))
-      expect(fsId).toHaveBeenCalledWith('id', {})
+      expect(fsId).toHaveBeenCalledWith('id', {}, 'segment-browser-actions')
     }),
     it('should camelCase custom traits', async () => {
       const [_, identifyUser] = await fullstory({
@@ -162,7 +165,11 @@ describe('#identify', () => {
           }
         })
       )
-      expect(fsId).toHaveBeenCalledWith('id', { notCameled: false, firstName: 'John', lastName: 'Doe' })
+      expect(fsId).toHaveBeenCalledWith(
+        'id',
+        { notCameled: false, firstName: 'John', lastName: 'Doe' },
+        'segment-browser-actions'
+      )
     })
 
   it('can set user vars', async () => {
@@ -185,11 +192,14 @@ describe('#identify', () => {
       })
     )
 
-    expect(fs).toHaveBeenCalledWith({
-      displayName: 'Hasbulla',
-      email: 'thegoat@world',
-      height: '50cm',
-      name: 'Hasbulla'
-    })
+    expect(fs).toHaveBeenCalledWith(
+      {
+        displayName: 'Hasbulla',
+        email: 'thegoat@world',
+        height: '50cm',
+        name: 'Hasbulla'
+      },
+      'segment-browser-actions'
+    )
   })
 })

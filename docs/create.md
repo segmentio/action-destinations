@@ -31,6 +31,8 @@ yarn login
 # Requires node 14.17, optionally: nvm use 14.17
 yarn --ignore-engines --ignore-optional
 yarn bootstrap
+yarn build
+yarn install
 yarn test
 ```
 
@@ -256,13 +258,14 @@ Documentation for Destinations consists of one markdown file that explains at a 
 - Benefits of an actions-based destination over a classic destination (if applicable)
 - Steps to add and configure the destination within segment
 - Breaking differences with a classic destination (if applicable)
-- Default subscriptions
-- Available actions
 - Migration steps (if applicable)
 
-This documentation is stored in the form of a markdown file that contains the structure of the content, and a yaml data file that contains information about configuration, migration, and action definitions.
+This documentation is stored in the form of a markdown that incorporates information directly from your destination's code (prebuilt mappings, available actions, fields, and settings).
 
-For more information, see the template markdown file [here](doc-template.md).
+For more information, see the template markdown files:
+
+- [doc-template-new.md](doc-template-new.md)
+- [doc-template-update.md](doc-template-update.md)
 
 ### Submit your documentation for review
 

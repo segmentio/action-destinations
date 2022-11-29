@@ -1,8 +1,8 @@
 import type { FS } from './types'
 import type { BrowserDestinationDefinition } from '../../lib/browser-destinations'
+import { FSPackage } from './types'
 import { browserDestination } from '../../runtime/shim'
 import type { Settings } from './generated-types'
-import { initScript } from './init-script'
 import trackEvent from './trackEvent'
 import identifyUser from './identifyUser'
 import viewedPage from './viewedPage'
@@ -13,6 +13,8 @@ declare global {
     FS: FS
   }
 }
+
+export const segmentEventSource = 'segment-browser-actions'
 
 export const destination: BrowserDestinationDefinition<Settings, FS> = {
   name: 'Fullstory (Actions)',
@@ -45,6 +47,13 @@ export const destination: BrowserDestinationDefinition<Settings, FS> = {
       type: 'boolean',
       required: false,
       default: false
+    },
+    recordOnlyThisIFrame: {
+      description: 'Enables FullStory inside an iframe.',
+      label: 'Capture only this iFrame',
+      type: 'boolean',
+      required: false,
+      default: false
     }
   },
   actions: {
@@ -53,8 +62,7 @@ export const destination: BrowserDestinationDefinition<Settings, FS> = {
     viewedPage
   },
   initialize: async ({ settings }, dependencies) => {
-    initScript({ debug: settings.debug, org: settings.orgId })
-    await dependencies.loadScript('https://edge.fullstory.com/s/fs.js')
+    FSPackage.init(settings)
     await dependencies.resolveWhen(() => Object.prototype.hasOwnProperty.call(window, 'FS'), 100)
     return window.FS
   }

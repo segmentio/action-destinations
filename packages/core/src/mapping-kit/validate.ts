@@ -105,6 +105,14 @@ function validateDirectiveOrString(v: unknown, stack: string[] = []) {
   }
 }
 
+function validateString(v: unknown, stack: string[] = []) {
+  const type = realTypeOrDirective(v)
+  if (type !== 'string') {
+    throw new ValidationError(`should be a string but it is ${indefiniteArticle(type)} ${type}`, stack)
+  }
+  return
+}
+
 function validateObject(value: unknown, stack: string[] = []) {
   const type = realTypeOrDirective(value)
   if (type !== 'object') {
@@ -205,6 +213,17 @@ directive('@if', (v, stack) => {
       exists: { optional: validateDirectiveOrRaw },
       then: { optional: validateDirectiveOrRaw },
       else: { optional: validateDirectiveOrRaw }
+    },
+    stack
+  )
+})
+
+directive('@case', (v, stack) => {
+  validateObjectWithFields(
+    v,
+    {
+      operator: { optional: validateString },
+      value: { optional: validateDirectiveOrString }
     },
     stack
   )

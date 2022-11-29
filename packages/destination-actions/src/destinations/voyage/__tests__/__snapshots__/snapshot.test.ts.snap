@@ -1,0 +1,43 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Testing snapshot for voyage destination: trackOrderPlaced action - all fields 1`] = `
+Object {
+  "eventMeta": Object {
+    "CustomerId": "g4Y8hDsoLI[^l]yE",
+    "DateCreated": "2021-02-01T00:00:00.000Z",
+    "Email": "zodigpi@fujlosut.tr",
+    "FirstName": "g4Y8hDsoLI[^l]yE",
+    "HomepageUrl": "http://zodigpi.wf/ujlosut",
+    "LastUpdated": "2021-02-01T00:00:00.000Z",
+    "LinkReference": "g4Y8hDsoLI[^l]yE",
+    "OrderNumber": "g4Y8hDsoLI[^l]yE",
+    "OrderTotal": 34762578324357.12,
+    "Phone": "g4Y8hDsoLI[^l]yE",
+    "ProductImageUrl": "http://zodigpi.wf/ujlosut",
+    "SourceId": "g4Y8hDsoLI[^l]yE",
+    "TokenId": "g4Y8hDsoLI[^l]yE",
+    "TotalSpent": 34762578324357.12,
+    "Url": "http://zodigpi.wf/ujlosut",
+    "Zip": "g4Y8hDsoLI[^l]yE",
+    "lastName": "g4Y8hDsoLI[^l]yE",
+  },
+  "eventTypeId": 7310,
+  "phone": "g4Y8hDsoLI[^l]yE",
+}
+`;
+
+exports[`Testing snapshot for voyage destination: trackOrderPlaced action - required fields 1`] = `
+Object {
+  "eventMeta": Object {
+    "CustomerId": "g4Y8hDsoLI[^l]yE",
+    "DateCreated": "2021-02-01T00:00:00.000Z",
+    "OrderTotal": 34762578324357.12,
+    "Phone": "g4Y8hDsoLI[^l]yE",
+    "TotalSpent": 34762578324357.12,
+    "Url": "http://zodigpi.wf/ujlosut",
+    "Zip": "g4Y8hDsoLI[^l]yE",
+  },
+  "eventTypeId": 7310,
+  "phone": "g4Y8hDsoLI[^l]yE",
+}
+`;

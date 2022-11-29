@@ -1,4 +1,4 @@
-import type appboy from '@braze/web-sdk'
+import { BrazeDestinationClient } from '../braze-types'
 import type { ID, SegmentEvent, User } from '@segment/analytics-next'
 import type { BrowserActionDefinition } from '../../../lib/browser-destinations'
 import type { Settings } from '../generated-types'
@@ -37,7 +37,7 @@ function shouldSendToBraze(event: SegmentEvent) {
   return JSON.stringify(cachedUser.traits) !== JSON.stringify(traits)
 }
 
-const action: BrowserActionDefinition<Settings, typeof appboy, Payload> = {
+const action: BrowserActionDefinition<Settings, BrazeDestinationClient, Payload> = {
   title: 'Debounce Middleware',
   description:
     'When enabled, it ensures that only events where at least one changed trait value are sent to Braze, and events with duplicate traits are not sent.',

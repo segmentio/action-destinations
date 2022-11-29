@@ -6,6 +6,7 @@ interface OAuthSettings {
   refresh_token: string
   clientId: string
   clientSecret: string
+  refresh_token_url: string
 }
 
 export interface AuthTokens {
@@ -37,7 +38,8 @@ export function getOAuth2Data(settings: JSONObject): OAuth2ClientCredentials {
     accessToken: (oauth as unknown as OAuthSettings)?.access_token,
     refreshToken: (oauth as unknown as OAuthSettings)?.refresh_token,
     clientId: (oauth as unknown as OAuthSettings)?.clientId,
-    clientSecret: (oauth as unknown as OAuthSettings)?.clientSecret
+    clientSecret: (oauth as unknown as OAuthSettings)?.clientSecret,
+    refreshTokenUrl: (oauth as unknown as OAuthSettings)?.refresh_token_url
   } as OAuth2ClientCredentials
 }
 

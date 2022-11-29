@@ -1,18 +1,24 @@
 import type { Settings } from './generated-types'
 import type { BrowserDestinationDefinition } from '../../lib/browser-destinations'
 import { browserDestination } from '../../runtime/shim'
-import type appboy from '@braze/web-sdk'
+import type braze from '@braze/web-sdk'
+import type appboy from '@braze/web-sdk-v3'
 import trackEvent from './trackEvent'
 import updateUserProfile from './updateUserProfile'
 import trackPurchase from './trackPurchase'
 import debounce, { resetUserCache } from './debounce'
 import { defaultValues, DestinationDefinition } from '@segment/actions-core'
+import { BrazeDestinationClient } from './braze-types'
 
 declare global {
   interface Window {
+    braze: typeof braze
     appboy: typeof appboy
+    BRAZE_BASE_URL?: string
   }
 }
+
+const defaultVersion = '4.1'
 
 const presets: DestinationDefinition['presets'] = [
   {
@@ -43,28 +49,40 @@ const presets: DestinationDefinition['presets'] = [
   }
 ]
 
-export const destination: BrowserDestinationDefinition<Settings, typeof appboy> = {
+export const destination: BrowserDestinationDefinition<Settings, BrazeDestinationClient> = {
   name: 'Braze Web Mode (Actions)',
   slug: 'actions-braze-web',
   mode: 'device',
   settings: {
     sdkVersion: {
-      description: 'The version of the SDK to use. Defaults to 3.3.',
+      description: 'The version of the Braze SDK to use',
       label: 'SDK Version',
       type: 'string',
       choices: [
         {
+          value: '3.1',
+          label: '3.1'
+        },
+        {
           value: '3.3',
           label: '3.3'
+        },
+        {
+          value: '3.5',
+          label: '3.5'
+        },
+        {
+          value: '4.1',
+          label: '4.1'
         }
       ],
-      default: '3.3',
+      default: defaultVersion,
       required: true
     },
     api_key: {
-      description: 'Found in the Braze Dashboard under Settings → Manage Settings → Apps → Web',
+      description: 'Found in the Braze Dashboard under Manage Settings → Apps → Web',
       label: 'API Key',
-      type: 'password',
+      type: 'string', // SDK API keys are not secret
       required: true
     },
     endpoint: {
@@ -81,7 +99,8 @@ export const destination: BrowserDestinationDefinition<Settings, typeof appboy> 
         { label: 'US-05	(https://dashboard-05.braze.com)', value: 'sdk.iad-05.braze.com' },
         { label: 'US-06	(https://dashboard-06.braze.com)', value: 'sdk.iad-06.braze.com' },
         { label: 'US-08	(https://dashboard-08.braze.com)', value: 'sdk.iad-08.braze.com' },
-        { label: 'EU-01	(https://dashboard-01.braze.eu)', value: 'sdk.fra-01.braze.eu' }
+        { label: 'EU-01	(https://dashboard-01.braze.eu)', value: 'sdk.fra-01.braze.eu' },
+        { label: 'EU-02	(https://dashboard-02.braze.eu)', value: 'sdk.fra-02.braze.eu' }
       ],
       default: 'sdk.iad-01.braze.com',
       required: true
@@ -98,6 +117,14 @@ export const destination: BrowserDestinationDefinition<Settings, typeof appboy> 
       description:
         'To indicate that you trust the Braze dashboard users to write non-malicious Javascript click actions, set this property to true. If enableHtmlInAppMessages is true, this option will also be set to true. [See more details](https://js.appboycdn.com/web-sdk/latest/doc/modules/appboy.html#initializationoptions)',
       label: 'Allow User Supplied Javascript',
+      default: false,
+      type: 'boolean',
+      required: false
+    },
+    deferUntilIdentified: {
+      description:
+        'If enabled, this setting delays initialization of the Braze SDK until the user has been identified. When enabled, events for anonymous users will no longer be sent to Braze.',
+      label: 'Only Track Known Users',
       default: false,
       type: 'boolean',
       required: false
@@ -127,10 +154,10 @@ export const destination: BrowserDestinationDefinition<Settings, typeof appboy> 
     disablePushTokenMaintenance: {
       label: 'Disable Push Token Maintenance',
       type: 'boolean',
-      default: true,
+      default: false,
       required: false,
       description:
-        'By default, users who have already granted web push permission will sync their push token with the Braze backend automatically on new session to ensure deliverability. To disable this behavior, set this option to false'
+        'By default, users who have already granted web push permission will sync their push token with the Braze backend automatically on new session to ensure deliverability. To disable this behavior, set this option to true'
     },
     doNotLoadFontAwesome: {
       label: 'Do Not Load Font Awesome',
@@ -247,7 +274,7 @@ export const destination: BrowserDestinationDefinition<Settings, typeof appboy> 
         'By default, sessions time out after 30 minutes of inactivity. Provide a value for this configuration option to override that default with a value of your own.'
     }
   },
-  initialize: async ({ settings }, dependencies) => {
+  initialize: async ({ settings, analytics }, dependencies) => {
     try {
       const {
         endpoint,
@@ -258,26 +285,59 @@ export const destination: BrowserDestinationDefinition<Settings, typeof appboy> 
         versionSettings,
         // @ts-expect-error same as above.
         subscriptions,
+        deferUntilIdentified,
         ...expectedConfig
       } = settings
-      const version = sdkVersion ?? '3.3'
+
+      const version = sdkVersion ?? defaultVersion
 
       resetUserCache()
 
-      await dependencies.loadScript(`https://js.appboycdn.com/web-sdk/${version}/appboy.min.js`)
-
-      window.appboy.initialize(api_key, {
-        baseUrl: endpoint,
-        ...expectedConfig
-      })
-
-      if (automaticallyDisplayMessages) {
-        window.appboy.display.automaticallyShowNewInAppMessages()
+      if (version.indexOf('3.') === 0) {
+        await dependencies.loadScript(`https://js.appboycdn.com/web-sdk/${version}/appboy.no-amd.min.js`)
+      } else {
+        await dependencies.loadScript(`https://js.appboycdn.com/web-sdk/${version}/braze.no-module.min.js`)
       }
 
-      window.appboy.openSession()
+      let initialized = false
 
-      return window.appboy
+      const client: BrazeDestinationClient = {
+        instance: version.indexOf('3.') === 0 ? window.appboy : window.braze,
+        ready: () => {
+          if (initialized) {
+            return true
+          }
+
+          if (deferUntilIdentified && typeof analytics.user().id() !== 'string') {
+            return false
+          }
+
+          client.instance.initialize(api_key, {
+            baseUrl: window.BRAZE_BASE_URL || endpoint,
+            ...expectedConfig
+          })
+
+          if (typeof client.instance.addSdkMetadata === 'function') {
+            client.instance.addSdkMetadata([client.instance.BrazeSdkMetadata.SEGMENT])
+          }
+
+          if (automaticallyDisplayMessages) {
+            if ('display' in client.instance) {
+              client.instance.display.automaticallyShowNewInAppMessages()
+            } else {
+              client.instance.automaticallyShowInAppMessages()
+            }
+          }
+
+          client.instance.openSession()
+
+          return (initialized = true)
+        }
+      }
+
+      client.ready()
+
+      return client
     } catch (e) {
       throw new Error(`Failed to initialize Braze ${e}`)
     }

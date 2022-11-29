@@ -10,8 +10,8 @@ describe('amplitude - custom user agent parsing', () => {
     const result = parseUserAgentProperties(userAgent)
 
     expect(result).toEqual({
-      os_name: 'Chrome WebView',
-      os_version: '74',
+      os_name: 'Android',
+      os_version: '5.0.1',
       device_model: 'TAB 2 A7',
       device_type: 'tablet'
     })
@@ -24,8 +24,8 @@ describe('amplitude - custom user agent parsing', () => {
     expect(result).toEqual({
       device_model: 'Mac OS',
       device_type: undefined,
-      os_name: 'Chrome',
-      os_version: '93'
+      os_name: 'Mac OS',
+      os_version: '10.15.7'
     })
   })
 

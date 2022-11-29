@@ -2,35 +2,35 @@
 
 export interface Payload {
   /**
+   * The name of the action being performed.
+   */
+  event: string
+  /**
+   * A distinct ID randomly generated prior to calling identify.
+   */
+  anonymous_id?: string
+  /**
+   * The distinct ID after calling identify.
+   */
+  user_id?: string
+  /**
    * A distinct ID specified by you.
    */
   distinct_id?: string
   /**
-   * A device-specific identifier, such as the Identifier for Vendor on iOS. Required unless user ID is present. If a device ID is not sent with the event, it will be set to a hashed version of the user ID.
+   * The unique identifier of the group that performed this event.
    */
-  device_id?: string
+  group_id?: string
   /**
-   * A unique identifier for your event.
+   * A random id that is unique to an event. Mixpanel uses $insert_id to deduplicate events.
    */
-  event: string
+  insert_id?: string
   /**
-   * The timestamp of the event. If time is not sent with the event, it will be set to the request upload time.
+   * The timestamp of the event. Mixpanel expects epoch timestamp in millisecond or second. Please note, Mixpanel only accepts this field as the timestamp. If the field is empty, it will be set to the time Mixpanel servers receive it.
    */
   time?: string | number
   /**
-   * An object of key-value pairs that represent additional data to be sent along with the event.
-   */
-  event_properties?: {
-    [k: string]: unknown
-  }
-  /**
-   * An object of key-value pairs that represent additional data tied to the user.
-   */
-  user_properties?: {
-    [k: string]: unknown
-  }
-  /**
-   * The name of your application
+   * The name of your application.
    */
   app_name?: string
   /**
@@ -54,11 +54,15 @@ export interface Payload {
    */
   os_version?: string
   /**
-   * The type of the user's device
+   * A unique identifier for the device the user is using.
+   */
+  device_id?: string
+  /**
+   * The type of the user's device.
    */
   device_type?: string
   /**
-   * The name of the user's device
+   * The name of the user's device.
    */
   device_name?: string
   /**
@@ -70,7 +74,7 @@ export interface Payload {
    */
   device_model?: string
   /**
-   * Whether bluetooth is enabled
+   * Whether bluetooth is enabled.
    */
   bluetooth?: boolean
   /**
@@ -78,9 +82,13 @@ export interface Payload {
    */
   carrier?: string
   /**
-   * Whether cellular was enabled
+   * Whether cellular is enabled.
    */
   cellular?: boolean
+  /**
+   * Set to true if user’s device has an active, available Wifi connection, false if not.
+   */
+  wifi?: boolean
   /**
    * The current country of the user.
    */
@@ -94,15 +102,15 @@ export interface Payload {
    */
   language?: string
   /**
-   * Library name
+   * The name of the SDK used to send events.
    */
   library_name?: string
   /**
-   * Library version
+   * The version of the SDK used to send events.
    */
   library_version?: string
   /**
-   * The IP address of the user. Use "$remote" to use the IP address on the upload request.
+   * The IP address of the user. This is only used for geolocation and won't be stored.
    */
   ip?: string
   /**
@@ -110,23 +118,9 @@ export interface Payload {
    */
   idfa?: string
   /**
-   * UTM Tracking Properties
-   */
-  utm_properties?: {
-    utm_source?: string
-    utm_medium?: string
-    utm_campaign?: string
-    utm_term?: string
-    utm_content?: string
-  }
-  /**
    * The full URL of the webpage on which the event is triggered.
    */
   url?: string
-  /**
-   * Set to true if user’s device has an active, available Wifi connection, false if not.
-   */
-  wifi?: boolean
   /**
    * Width, in pixels, of the device screen.
    */
@@ -147,4 +141,30 @@ export interface Payload {
    * User agent
    */
   userAgent?: string
+  /**
+   * An object of key-value pairs that represent additional data to be sent along with the event.
+   */
+  event_properties?: {
+    [k: string]: unknown
+  }
+  /**
+   * An object of key-value pairs that represent additional data tied to the user.
+   */
+  user_properties?: {
+    [k: string]: unknown
+  }
+  /**
+   * UTM Tracking Properties
+   */
+  utm_properties?: {
+    utm_source?: string
+    utm_medium?: string
+    utm_campaign?: string
+    utm_term?: string
+    utm_content?: string
+  }
+  /**
+   * Set as true to ensure Segment sends data to Mixpanel in batches.
+   */
+  enable_batching?: boolean
 }
