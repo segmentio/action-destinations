@@ -65,7 +65,11 @@ const action: ActionDefinition<Settings, Payload> = {
       type: 'string',
       description: "The platform of the user's device.",
       default: {
-        '@path': '$.context.device.type'
+        '@if': {
+          exists: { '@path': '$.context.library.name' },
+          then: { '@path': '$.context.library.name' },
+          else: { '@path': '$.context.device.type' }
+        }
       }
     },
     os_name: {
