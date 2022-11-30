@@ -20,8 +20,6 @@ export type { BaseActionDefinition, ActionDefinition, ExecuteInput, RequestFn }
 export type { MinimalInputField }
 export { fieldsToJsonSchema }
 
-const OAUTH2_SCHEME = 'oauth2'
-
 export interface SubscriptionStats {
   duration: number
   destination: string
@@ -333,7 +331,7 @@ export class Destination<Settings = JSONObject> {
     settings: Settings,
     oauthData: OAuth2ClientCredentials
   ): Promise<RefreshAccessTokenResult> | undefined {
-    if (this.authentication?.scheme !== OAUTH2_SCHEME) {
+    if (!(this.authentication?.scheme === 'oauth2' || this.authentication?.scheme === 'oauth-managed')) {
       throw new IntegrationError(
         'refreshAccessToken is only valid with oauth2 authentication scheme',
         'NotImplemented',
@@ -539,7 +537,12 @@ export class Destination<Settings = JSONObject> {
       const statusCode = error?.status ?? error?.response?.status ?? 500
 
       // Throw original error if it is unrelated to invalid access tokens and not an oauth2 scheme
-      if (!(statusCode === 401 && this.authentication?.scheme === OAUTH2_SCHEME)) {
+      if (
+        !(
+          statusCode === 401 &&
+          (this.authentication?.scheme === 'oauth2' || this.authentication?.scheme === 'oauth-managed')
+        )
+      ) {
         throw error
       }
 
@@ -582,7 +585,12 @@ export class Destination<Settings = JSONObject> {
       const statusCode = error?.status ?? error?.response?.status ?? 500
 
       // Throw original error if it is unrelated to invalid access tokens and not an oauth2 scheme
-      if (!(statusCode === 401 && this.authentication?.scheme === OAUTH2_SCHEME)) {
+      if (
+        !(
+          statusCode === 401 &&
+          (this.authentication?.scheme === 'oauth2' || this.authentication?.scheme === 'oauth-managed')
+        )
+      ) {
         throw error
       }
 
