@@ -1,5 +1,5 @@
 export type ModalFormFactor = { type: 'modal' }
-export type InlineFormFactor = { type: 'inline'; rootElement: string /* | HTMLElement */ }
+export type InlineFormFactor = { type: 'inline'; rootElement: string | HTMLElement }
 
 export type FormFactorConfig = ModalFormFactor | InlineFormFactor
 
