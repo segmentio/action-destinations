@@ -48,6 +48,17 @@ export const bulkUpdateRecordId: InputField = {
   type: 'string'
 }
 
+export const operator: InputField = {
+  label: 'Operator',
+  description: 'The Salesforce operator performed. The available operator to use multiple Record Matchers.',
+  type: 'string',
+  required: false,
+  choices: [
+    { label: 'Or', value: 'OR' },
+    { label: 'And', value: 'AND' }
+  ]
+}
+
 export const traits: InputField = {
   label: 'Record Matchers',
   description: `The fields used to find Salesforce records for updates. **This is required if the operation is Update or Upsert.**
@@ -80,6 +91,7 @@ export const customFields: InputField = {
 interface Payload {
   operation?: string
   traits?: object
+  operator?: string
 }
 
 export const validateLookup = (payload: Payload) => {
