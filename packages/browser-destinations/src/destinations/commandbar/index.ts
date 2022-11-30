@@ -16,7 +16,7 @@ declare global {
 }
 
 export const destination: BrowserDestinationDefinition<Settings, CommandBarClientSDK> = {
-  name: 'Command Bar',
+  name: 'CommandBar',
   slug: 'commandbar',
   mode: 'device',
 
