@@ -4,16 +4,17 @@ exports[`Testing snapshot for vwo's trackEvent destination action: all fields 1`
 Object {
   "d": Object {
     "event": Object {
-      "name": "t*!1v8&HTqVu",
+      "name": "segment_t*!1v8&HTqVu",
       "props": Object {
         "isCustomEvent": true,
         "page": Object {
           "testType": "t*!1v8&HTqVu",
         },
-        "source": "segment.cloud",
         "testType": "t*!1v8&HTqVu",
         "vwoMeta": Object {
           "metric": Object {},
+          "vwo_og_event_name": "t*!1v8&HTqVu",
+          "vwo_source": "segment.cloud",
         },
       },
       "time": null,
@@ -29,15 +30,16 @@ exports[`Testing snapshot for vwo's trackEvent destination action: required fiel
 Object {
   "d": Object {
     "event": Object {
-      "name": "t*!1v8&HTqVu",
+      "name": "segment_t*!1v8&HTqVu",
       "props": Object {
         "isCustomEvent": true,
         "page": Object {
           "testType": "t*!1v8&HTqVu",
         },
-        "source": "segment.cloud",
         "vwoMeta": Object {
           "metric": Object {},
+          "vwo_og_event_name": "t*!1v8&HTqVu",
+          "vwo_source": "segment.cloud",
         },
       },
       "time": null,

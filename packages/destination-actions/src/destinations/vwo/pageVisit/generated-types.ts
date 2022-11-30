@@ -2,15 +2,9 @@
 
 export interface Payload {
   /**
-   * The name of the event.
+   * The URL of the page
    */
-  name: string
-  /**
-   * A JSON object containing additional properties that will be associated with the event.
-   */
-  properties?: {
-    [k: string]: unknown
-  }
+  url: string
   /**
    * VWO UUID
    */

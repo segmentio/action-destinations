@@ -1,6 +1,7 @@
 import nock from 'nock'
 import { createTestEvent, createTestIntegration } from '@segment/actions-core'
 import Destination from '../../index'
+import { sanitiseEventName } from '../../utility'
 
 const testDestination = createTestIntegration(Destination)
 
@@ -17,7 +18,7 @@ describe('VWO.trackEvent', () => {
       }
     })
     nock(BASE_ENDPOINT)
-      .post(`/events/t?en=${encodeURI('testEvent')}&a=${VWO_ACCOUNT_ID}`)
+      .post(`/events/t?en=${sanitiseEventName('testEvent')}&a=${VWO_ACCOUNT_ID}`)
       .reply(200, {})
     const responses = await testDestination.testAction('trackEvent', {
       event,
@@ -32,15 +33,18 @@ describe('VWO.trackEvent', () => {
     const expectedRequest = {
       d: {
         visId: VWO_UUID,
+        msgId: `${VWO_UUID}-${sessionId}`,
         event: {
           props: {
             page,
             isCustomEvent: true,
             vwoMeta: {
+              vwo_source: 'segment.cloud',
+              vwo_og_event_name: 'testEvent',
               metric: {}
             }
           },
-          name: 'testEvent',
+          name: sanitiseEventName('testEvent'),
           time: epochDate
         },
         sessionId
@@ -48,6 +52,18 @@ describe('VWO.trackEvent', () => {
     }
     expect(responses[0].status).toBe(200)
     expect(responses[0].options.json).toMatchObject(expectedRequest)
+    expect(responses[0].options.headers).toMatchInlineSnapshot(`
+      Headers {
+        Symbol(map): Object {
+          "user-agent": Array [
+            "Mozilla/5.0 (iPhone; CPU iPhone OS 9_1 like Mac OS X) AppleWebKit/601.1.46 (KHTML, like Gecko) Version/9.0 Mobile/13B143 Safari/601.1",
+          ],
+          "x-forwarded-for": Array [
+            "8.8.8.8",
+          ],
+        },
+      }
+    `)
   })
 
   it('should send segment properties as VWO properties', async () => {
@@ -61,7 +77,7 @@ describe('VWO.trackEvent', () => {
       }
     })
     nock(BASE_ENDPOINT)
-      .post(`/events/t?en=${encodeURI('testEvent')}&a=${VWO_ACCOUNT_ID}`)
+      .post(`/events/t?en=${sanitiseEventName('testEvent')}&a=${VWO_ACCOUNT_ID}`)
       .reply(200, {})
     const responses = await testDestination.testAction('trackEvent', {
       event,
@@ -76,6 +92,7 @@ describe('VWO.trackEvent', () => {
     const expectedRequest = {
       d: {
         visId: VWO_UUID,
+        msgId: `${VWO_UUID}-${sessionId}`,
         event: {
           props: {
             amount: 100,
@@ -84,10 +101,12 @@ describe('VWO.trackEvent', () => {
             page,
             isCustomEvent: true,
             vwoMeta: {
-              metric: {}
+              metric: {},
+              vwo_source: 'segment.cloud',
+              vwo_og_event_name: 'testEvent'
             }
           },
-          name: 'testEvent',
+          name: sanitiseEventName('testEvent'),
           time: epochDate
         },
         sessionId

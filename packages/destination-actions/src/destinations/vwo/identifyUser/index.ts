@@ -1,29 +1,20 @@
 import { ActionDefinition } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
-import { formatPayload, sanitiseEventName } from '../utility'
+import { formatPayload, formatAttributes } from '../utility'
 
 const action: ActionDefinition<Settings, Payload> = {
-  title: 'Track Event',
-  description: 'Sends track events to VWO',
-  defaultSubscription: 'type = "track"',
+  title: 'Identify User',
+  description: '',
+  defaultSubscription: 'type = "identify"',
   fields: {
-    name: {
-      description: 'The name of the event.',
-      label: 'Name',
+    attributes: {
+      description: 'A JSON object containing additional attributes that will be associated with the event.',
+      label: 'attributes',
       required: true,
-      type: 'string',
-      default: {
-        '@path': '$.event'
-      }
-    },
-    properties: {
-      description: 'A JSON object containing additional properties that will be associated with the event.',
-      label: 'Properties',
-      required: false,
       type: 'object',
       default: {
-        '@path': '$.properties'
+        '@path': '$.traits'
       }
     },
     vwoUuid: {
@@ -32,7 +23,7 @@ const action: ActionDefinition<Settings, Payload> = {
       required: true,
       type: 'string',
       default: {
-        '@path': '$.properties.vwo_uuid'
+        '@path': '$.traits.vwo_uuid'
       }
     },
     page: {
@@ -73,14 +64,17 @@ const action: ActionDefinition<Settings, Payload> = {
     }
   },
   perform: (request, { settings, payload }) => {
-    const sanitisedEventName = sanitiseEventName(payload.name)
-    const { headers, structuredPayload } = formatPayload(sanitisedEventName, payload, true, true)
-    structuredPayload.d.event.props.vwoMeta['vwo_og_event_name'] = payload.name
-    const endpoint = `https://dev.visualwebsiteoptimizer.com/events/t?en=${sanitisedEventName}&a=${settings.vwoAccountId}`
+    const eventName = 'vwo_syncVisitorProp'
+    const attributes = payload.attributes
+    delete attributes['vwo_uuid']
+    const visitor = { props: formatAttributes(attributes) }
+    const { headers, structuredPayload } = formatPayload(eventName, payload, true)
+    structuredPayload.d.visitor = structuredPayload.d.event.props['$visitor'] = visitor
+    const endpoint = `https://dev.visualwebsiteoptimizer.com/events/t?en=${eventName}&a=${settings.vwoAccountId}`
     return request(endpoint, {
       method: 'POST',
-      headers,
-      json: structuredPayload
+      json: structuredPayload,
+      headers
     })
   }
 }
