@@ -96,8 +96,6 @@ export interface OAuth2ClientCredentials extends AuthTokens {
   clientId: string
   /** Used to authenticate the identity of the application to the partner API when the application requests to access a user’s account, must be kept private between the application and the API. */
   clientSecret: string
-  /** The refresh token url used to get an updated access token. This value is configured in the developer portal. **/
-  refreshTokenUrl: string
 }
 
 export interface RefreshAccessTokenResult {
