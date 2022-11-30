@@ -37,7 +37,6 @@ const destination: DestinationDefinition<Settings> = {
         label: 'VWO Account ID',
         description: 'Enter your VWO Account ID',
         type: 'number',
-        default: 654331,
         required: true
       }
     },
