@@ -1,0 +1,1 @@
+export type gtag = (method: string, ...args: unknown[]) => void
