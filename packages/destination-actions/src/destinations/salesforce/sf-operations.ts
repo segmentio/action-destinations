@@ -79,7 +79,7 @@ export default class Salesforce {
       return await this.baseUpdate(payload.traits['Id'] as string, sobject, payload)
     }
 
-    const [recordId, err] = await this.lookupTraits(payload.traits, sobject)
+    const [recordId, err] = await this.lookupTraits(payload.traits, sobject, payload.operator ?? 'OR')
 
     if (err) {
       throw err
@@ -93,7 +93,7 @@ export default class Salesforce {
       throw new IntegrationError('Undefined Traits when using upsert operation', 'Undefined Traits', 400)
     }
 
-    const [recordId, err] = await this.lookupTraits(payload.traits, sobject)
+    const [recordId, err] = await this.lookupTraits(payload.traits, sobject, payload.operator ?? 'OR')
 
     if (err) {
       if (err.status === 404) {
@@ -283,7 +283,7 @@ export default class Salesforce {
     }
   }
 
-  private buildQuery = (traits: object, sobject: string) => {
+  private buildQuery = (traits: object, sobject: string, operator: string) => {
     let soql = `SELECT Id FROM ${sobject} WHERE `
 
     const entries = Object.entries(traits)
@@ -292,7 +292,7 @@ export default class Salesforce {
       let token = `${this.removeInvalidChars(key)} = ${this.typecast(value)}`
 
       if (i < entries.length - 1) {
-        token += ' OR '
+        token += ' ' + operator + ' ' // We need to change here...
       }
 
       soql += token
@@ -301,8 +301,12 @@ export default class Salesforce {
     return soql
   }
 
-  private lookupTraits = async (traits: object, sobject: string): Promise<[string, IntegrationError | undefined]> => {
-    const SOQLQuery = encodeURIComponent(this.buildQuery(traits, sobject))
+  private lookupTraits = async (
+    traits: object,
+    sobject: string,
+    operator: string
+  ): Promise<[string, IntegrationError | undefined]> => {
+    const SOQLQuery = encodeURIComponent(this.buildQuery(traits, sobject, operator))
 
     const res = await this.request<LookupResponseData>(
       `${this.instanceUrl}services/data/${API_VERSION}/query/?q=${SOQLQuery}`,

@@ -8,7 +8,8 @@ import {
   operation,
   traits,
   validateLookup,
-  enable_batching
+  enable_batching,
+  operator
 } from '../sf-properties'
 import Salesforce from '../sf-operations'
 
@@ -20,6 +21,7 @@ const action: ActionDefinition<Settings, Payload> = {
   defaultSubscription: 'type = "identify"',
   fields: {
     operation: operation,
+    operator: operator,
     enable_batching: enable_batching,
     traits: traits,
     bulkUpsertExternalId: bulkUpsertExternalId,
