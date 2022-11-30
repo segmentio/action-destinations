@@ -15,7 +15,7 @@ export interface AuthTokens {
   /** OAuth2 refresh token */
   refreshToken: string
   /** The refresh token url used to get an updated access token. This value is configured in the developer portal. **/
-  refreshTokenUrl: string
+  refreshTokenUrl?: string
 }
 
 /**
