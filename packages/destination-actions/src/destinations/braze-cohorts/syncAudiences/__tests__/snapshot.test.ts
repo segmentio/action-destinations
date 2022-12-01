@@ -4,7 +4,7 @@ import destination from '../../index'
 import nock from 'nock'
 
 const testDestination = createTestIntegration(destination)
-const actionSlug = 'brazeCohorts'
+const actionSlug = 'syncAudiences'
 const destinationSlug = 'BrazeCohorts'
 const seedName = `${destinationSlug}#${actionSlug}`
 
@@ -21,11 +21,20 @@ describe(`Testing snapshot for ${destinationSlug}'s ${actionSlug} destination ac
       properties: eventData
     })
 
+    const stateContext = {
+      getRequestContext: (_key: string): any => {},
+      setResponseContext: (
+        _key: string,
+        _value: string,
+        _ttl: { hour?: number; minute?: number; second?: number }
+      ): void => {}
+    }
     const responses = await testDestination.testAction(actionSlug, {
       event: event,
       mapping: event.properties,
       settings: settingsData,
-      auth: undefined
+      auth: undefined,
+      stateContext
     })
 
     const request = responses[0].request
@@ -53,12 +62,21 @@ describe(`Testing snapshot for ${destinationSlug}'s ${actionSlug} destination ac
     const event = createTestEvent({
       properties: eventData
     })
+    const stateContext = {
+      getRequestContext: (_key: string): any => {},
+      setResponseContext: (
+        _key: string,
+        _value: string,
+        _ttl: { hour?: number; minute?: number; second?: number }
+      ): void => {}
+    }
 
     const responses = await testDestination.testAction(actionSlug, {
       event: event,
       mapping: event.properties,
       settings: settingsData,
-      auth: undefined
+      auth: undefined,
+      stateContext
     })
 
     const request = responses[0].request

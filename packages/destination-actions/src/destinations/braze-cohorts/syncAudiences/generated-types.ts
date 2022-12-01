@@ -9,8 +9,8 @@ export interface Payload {
    * A user alias object. See [the docs](https://www.braze.com/docs/api/objects_filters/user_alias_object/).
    */
   user_alias?: {
-    alias_name?: string
-    alias_label?: string
+    alias_name: string
+    alias_label: string
   }
   /**
    * The unique device Identifier
@@ -19,11 +19,11 @@ export interface Payload {
   /**
    * The Cohort Identifier
    */
-  cohort_id?: string
+  cohort_id: string
   /**
    * The name of Cohort
    */
-  name?: string
+  cohort_name: string
   /**
    * Enable batching of requests to the Braze cohorts.
    */
@@ -38,4 +38,8 @@ export interface Payload {
   event_properties: {
     [k: string]: unknown
   }
+  /**
+   * When the event occurred.
+   */
+  time: string
 }

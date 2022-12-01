@@ -37,13 +37,13 @@ const destination: DestinationDefinition<Settings> = {
       }
     },
     testAuthentication: (request, { settings }) => {
-      console.log('when will it comme here ***********************')
-      const partnerName = 'segment'
-      return request(`${settings.endpoint}/partners/${partnerName}/cohorts/users`, {
+      return request(`${settings.endpoint}/partners/segment/cohorts/users`, {
         method: 'post',
         json: {
           client_secret: settings.client_secret,
-          partner_api_key: 'partner_api-key',
+          partner_api_key: settings.endpoint.includes('eu')
+            ? process.env.BRAZE_COHORTS_PARTNER_API_KEY_EU
+            : process.env.BRAZE_COHORTS_PARTNER_API_KEY_US,
           cohort_id: 'will_add_in_constant',
           cohort_changes: []
         }

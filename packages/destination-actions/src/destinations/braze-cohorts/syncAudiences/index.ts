@@ -1,6 +1,9 @@
-import type { ActionDefinition } from '@segment/actions-core'
+import { ActionDefinition, RequestClient, IntegrationError } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
+import { SyncAudiences } from '../api'
+import { CohortChanges } from '../cohortChanges'
+import { StateContext } from '@segment/actions-core/src/destination-kit'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Sync Audience',
@@ -24,31 +27,41 @@ const action: ActionDefinition<Settings, Payload> = {
       properties: {
         alias_name: {
           label: 'Alias Name',
-          type: 'string'
+          type: 'string',
+          required: true
         },
         alias_label: {
           label: 'Alias Label',
-          type: 'string'
+          type: 'string',
+          required: true
         }
+      },
+      default: {
+        '@path': '$.userAlias'
       }
     },
     device_id: {
       label: 'Device ID',
       description: 'The unique device Identifier',
-      type: 'string'
+      type: 'string',
+      default: {
+        '@path': '$.deviceId'
+      }
     },
     cohort_id: {
       label: 'Cohort ID',
       description: 'The Cohort Identifier',
       type: 'hidden',
+      required: true,
       default: {
         '@path': '$.personas.computation_id'
       }
     },
-    name: {
+    cohort_name: {
       label: 'Cohort Name',
       description: 'The name of Cohort',
       type: 'hidden',
+      required: true,
       default: {
         '@path': '$.personas.computation_key'
       }
@@ -78,50 +91,106 @@ const action: ActionDefinition<Settings, Payload> = {
           else: { '@path': '$.traits' }
         }
       }
+    },
+    time: {
+      label: 'Time',
+      description: 'When the event occurred.',
+      type: 'hidden',
+      required: true,
+      default: {
+        '@path': '$.receivedAt'
+      }
     }
   },
-  perform: (request, { settings }) => {
-    // const {  external_id } = payload
-    const partnerName = 'segment'
-    return request(`${settings.endpoint}/partners/${partnerName}/cohorts/users`, {
-      method: 'post',
-      json: {
-        client_secret: settings.client_secret,
-        partner_api_key: 'partner-api-key',
-        cohort_id: 'will_add_in_constant',
-        cohort_changes: []
-      }
-    })
-
-    // // Extract valid user_alias shape. Since it is optional (oneOf braze_id, external_id) we need to only include it if fully formed.
-    // const user_alias = getUserAlias(payload.user_alias)
-
-    // if (!braze_id && !user_alias && !external_id) {
-    //   throw new IntegrationError(
-    //     'One of "external_id" or "user_alias" or "braze_id" is required.',
-    //     'Missing required fields',
-    //     400
-    //   )
-    // }
-
-    // return request(`${settings.endpoint}/users/track`, {
-    //   method: 'post',
-    //   json: {
-    //     events: [
-    //       {
-    //         braze_id,
-    //         external_id,
-    //         user_alias,
-    //         app_id: settings.app_id,
-    //         name: payload.name,
-    //         time: toISO8601(payload.time),
-    //         properties: payload.properties,
-    //         _update_existing_only: payload._update_existing_only
-    //       }
-    //     ]
-    //   }
-    // })
+  perform: async (request, { settings, payload, logger, stateContext }) => {
+    return processPayload(request, settings, [payload], logger, stateContext)
+  },
+  performBatch: async (request, { settings, payload, logger, stateContext }) => {
+    return processPayload(request, settings, payload, logger, stateContext)
   }
+}
+async function processPayload(
+  request: RequestClient,
+  settings: Settings,
+  payloads: Payload[],
+  stateContext?: StateContext
+) {
+  validate(payloads)
+  const syncAudiencesApiClient: SyncAudiences = new SyncAudiences(request)
+  const { cohort_name, cohort_id } = payloads[0]
+
+  if (stateContext?.getRequestContext?.('cohort_name') != cohort_name) {
+    await syncAudiencesApiClient.createCohort(settings, payloads[0])
+    stateContext?.setResponseContext?.(`cohort_name`, cohort_name, { minute: 2 })
+  }
+  const { addUsers, removeUsers } = extractUsers(payloads)
+  const users = {
+    addUsers,
+    removeUsers,
+    hasAddUsers: hasUsersToAddOrRemove(addUsers),
+    hasRemoveUsers: hasUsersToAddOrRemove(removeUsers)
+  }
+
+  // We should never hit this condition because at least an user_id or device_id
+  // or user_alias is required in each payload, but if we do, returning early
+  // rather than hitting Cohort's API (with no data) is more efficient.
+  // The monoservice will interpret this early return as a 200.
+
+  if (!users.hasAddUsers && !users.hasRemoveUsers) {
+    return
+  }
+
+  const res = await syncAudiencesApiClient.batchUpdate(settings, cohort_id, users)
+  return res
+}
+
+function validate(payloads: Payload[]): void {
+  if (payloads[0].cohort_name !== payloads[0].personas_audience_key) {
+    throw new IntegrationError(
+      'The value of `personas computation key` and `personas_audience_key` must match.',
+      'INVALID_SETTINGS',
+      400
+    )
+  }
+}
+
+function extractUsers(payloads: Payload[]) {
+  const addUsers: CohortChanges = { user_ids: [], device_ids: [], aliases: [] }
+  const removeUsers: CohortChanges = { user_ids: [], device_ids: [], aliases: [], should_remove: true }
+
+  payloads.forEach((payload: Payload) => {
+    const { event_properties, external_id, device_id, user_alias } = payload
+    const userEnteredOrRemoved: boolean = (
+      event_properties?.audience_key
+        ? event_properties[`${event_properties?.audience_key}`]
+        : Object.values(event_properties)[0]
+    ) as boolean
+    const user = userEnteredOrRemoved ? addUsers : removeUsers
+
+    if (external_id) {
+      user?.user_ids.push(external_id)
+    } else if (device_id) {
+      user?.device_ids.push(device_id)
+    } else if (user_alias) {
+      user?.aliases.push(user_alias)
+    }
+  })
+
+  return {
+    addUsers,
+    removeUsers
+  }
+}
+
+function hasUsersToAddOrRemove(user: CohortChanges): boolean {
+  if (
+    user &&
+    typeof user === 'object' &&
+    (user?.user_ids?.length || user?.device_ids?.length || user?.aliases?.length)
+  ) {
+    return true
+  }
+  return false
 }
 
 export default action
