@@ -2,6 +2,7 @@ import type { BrowserActionDefinition } from '../../../lib/browser-destinations'
 import type { VWO } from '../types'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
+import { formatAttributes } from '../utility'
 
 // Change from unknown to the partner SDK types
 const action: BrowserActionDefinition<Settings, VWO, Payload> = {
@@ -23,7 +24,7 @@ const action: BrowserActionDefinition<Settings, VWO, Payload> = {
   perform: (VWO, event) => {
     const { attributes } = event.payload
     const formattedAttributes = {
-      ...attributes,
+      ...formatAttributes(attributes),
       vwo_source: 'segment.web'
     }
     if (!VWO.visitor) {

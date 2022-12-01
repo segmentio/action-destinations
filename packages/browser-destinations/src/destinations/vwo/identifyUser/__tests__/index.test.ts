@@ -53,8 +53,8 @@ describe('VWO.identifyUser', () => {
     await identifyUser.identify?.(context)
 
     expect(mockVWO.visitor).toHaveBeenCalledWith({
-      textAttribute: 'Hello',
-      source: 'segment.web'
+      segment_textAttribute: 'Hello',
+      vwo_source: 'segment.web'
     })
   })
 })

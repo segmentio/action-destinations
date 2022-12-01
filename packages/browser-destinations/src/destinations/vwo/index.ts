@@ -36,15 +36,42 @@ export const destination: BrowserDestinationDefinition<Settings, VWO> = {
   settings: {
     // Add any Segment destination settings required here
     vwoAccountId: {
-      description: 'The VWO AccountID from VWO dashboard',
+      description: 'Your VWO account ID, used for fetching your VWO async smart code.',
       label: 'VWO Account ID',
       type: 'number',
+      default: 654331,
       required: true
+    },
+    settingsTolerance: {
+      description:
+        'The maximum amount of time (in milliseconds) to wait for test settings before VWO will simply display your original page.',
+      label: 'Settings Tolerance',
+      type: 'number',
+      default: 2000
+    },
+    libraryTolerance: {
+      description:
+        'The maximum amount of time (in milliseconds) to wait for VWO’s full library to be downloaded before simply displaying your original page.',
+      label: 'Library Tolerance',
+      type: 'number',
+      default: 2000
+    },
+    useExistingJquery: {
+      description:
+        'If your page already includes JQuery, you can set this to “true”. Otherwise, VWO will include JQuery onto the page for you. VWO needs JQuery on the page to function correctly. ',
+      label: 'Use Existing JQuery',
+      type: 'boolean',
+      default: false
     }
   },
 
   initialize: async ({ settings }, deps) => {
-    initScript({ vwoAccountId: settings.vwoAccountId })
+    initScript({
+      vwoAccountId: settings.vwoAccountId,
+      settingsTolerance: settings.settingsTolerance,
+      libraryTolerance: settings.libraryTolerance,
+      useExistingJquery: settings.useExistingJquery
+    })
     await deps.resolveWhen(() => Object.prototype.hasOwnProperty.call(window, 'VWO'), 100)
     return window.VWO
   },

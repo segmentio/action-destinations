@@ -36,7 +36,7 @@ const action: BrowserActionDefinition<Settings, VWO, Payload> = {
     const formattedProperties = {
       ...properties,
       vwo_source: 'segment.web',
-      vwo_og_event: eventName
+      vwo_og_event_name: eventName
     }
     if (!VWO.event) {
       return

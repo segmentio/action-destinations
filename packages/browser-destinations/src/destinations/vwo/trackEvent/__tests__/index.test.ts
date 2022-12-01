@@ -53,8 +53,9 @@ describe('VWO.trackEvent', () => {
     })
     await trackEvent.track?.(context)
 
-    expect(mockVWO.event).toHaveBeenCalledWith('ctaClick', {
-      source: 'segment.web'
+    expect(mockVWO.event).toHaveBeenCalledWith('segment_ctaClick', {
+      vwo_source: 'segment.web',
+      vwo_og_event_name: 'ctaClick'
     })
   })
 
@@ -68,9 +69,10 @@ describe('VWO.trackEvent', () => {
     })
     await trackEvent.track?.(context)
 
-    expect(mockVWO.event).toHaveBeenCalledWith('buyButtonClick', {
+    expect(mockVWO.event).toHaveBeenCalledWith('segment_buyButtonClick', {
       amount: 1000,
-      source: 'segment.web'
+      vwo_source: 'segment.web',
+      vwo_og_event_name: 'buyButtonClick'
     })
   })
 })
