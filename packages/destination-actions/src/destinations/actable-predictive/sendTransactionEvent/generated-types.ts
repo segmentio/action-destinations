@@ -18,7 +18,7 @@ export interface Payload {
    */
   spend?: number
   /**
-   * product(s) purchased in transaction.
+   * product(s) purchased in transaction. This value should be an array of objects which at the minimum contains a Product ID or SKU per-product.
    */
   products: {
     [k: string]: unknown
@@ -28,7 +28,7 @@ export interface Payload {
    */
   purchase_datetime: string | number
   /**
-   * Dataset label, should be left as default unless specified otherwise
+   * Dataset label, should be left as default unless directed otherwise.
    */
   stream_key: string
 }
