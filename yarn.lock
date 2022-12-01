@@ -2454,23 +2454,6 @@
     liquidjs "^9.37.0"
     lodash "^4.17.21"
 
-"@segment/actions-core@3.43.1-staging.62":
-  version "3.43.1-staging.62"
-  resolved "https://registry.yarnpkg.com/@segment/actions-core/-/actions-core-3.43.1-staging.62.tgz#5825466b71867531349bbdb565b6de930fa306de"
-  integrity sha512-zcLdGfRSIW7Qndg19iO7PmFPDmtmOU9RgtiGo3ChT8GOaGoPKJJgDxW06SmJdW7GeU4oi/0VR/K7HrKfl9p42g==
-  dependencies:
-    "@lukeed/uuid" "^2.0.0"
-    "@segment/ajv-human-errors" "^2.1.2"
-    "@segment/destination-subscriptions" "^3.12.0"
-    abort-controller "^3.0.0"
-    aggregate-error "^3.1.0"
-    ajv "^8.6.3"
-    ajv-formats "^2.1.1"
-    btoa-lite "^1.0.0"
-    cross-fetch "^3.1.4"
-    dayjs "^1.10.7"
-    ts-custom-error "^3.2.0"
-
 "@segment/analytics-next@^1.29.3":
   version "1.29.3"
   resolved "https://registry.yarnpkg.com/@segment/analytics-next/-/analytics-next-1.29.3.tgz#51ea4d7e487e95c2862ec5d52fd34a113c20161e"
