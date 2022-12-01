@@ -5,7 +5,7 @@ import { formatPayload } from '../utility'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Page Visit',
-  description: '',
+  description: 'Sends page visit information to VWO',
   fields: {
     url: {
       description: 'The URL of the page',

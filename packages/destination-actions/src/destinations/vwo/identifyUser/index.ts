@@ -5,7 +5,7 @@ import { formatPayload, formatAttributes } from '../utility'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Identify User',
-  description: '',
+  description: "Maps segment's visitor traits to VWO visitors' attributes",
   defaultSubscription: 'type = "identify"',
   fields: {
     attributes: {
