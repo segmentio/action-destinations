@@ -285,7 +285,8 @@ describe('destination kit', () => {
         accessToken: 'test-access-token',
         refreshToken: 'refresh-token',
         clientId: 'test-clientid',
-        clientSecret: 'test-clientsecret'
+        clientSecret: 'test-clientsecret',
+        refreshTokenUrl: 'abc123.xyz'
       }
       try {
         await destinationTest.refreshAccessToken(testSettings, oauthData)
@@ -306,7 +307,8 @@ describe('destination kit', () => {
         accessToken: 'test-access-token',
         refreshToken: 'refresh-token',
         clientId: 'test-clientid',
-        clientSecret: 'test-clientsecret'
+        clientSecret: 'test-clientsecret',
+        refreshTokenUrl: 'abc123.xyz'
       }
       const res = await destinationTest.refreshAccessToken(testSettings, oauthData)
 
