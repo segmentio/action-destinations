@@ -23,6 +23,10 @@ const destination: DestinationDefinition<Settings> = {
     //   // you can remove the `testAuthentication` function, though discouraged.
     // },
     refreshAccessToken: async (request, { auth }) => {
+      if (!auth.refreshTokenUrl) {
+        console.log('Could not find refresh token Url')
+        auth.refreshTokenUrl = 'https://www.googleapis.com/oauth2/v4/token'
+      }
       const res = await request<RefreshTokenResponse>(auth.refreshTokenUrl, {
         method: 'POST',
         body: new URLSearchParams({
