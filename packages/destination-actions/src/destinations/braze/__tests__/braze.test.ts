@@ -236,6 +236,25 @@ describe('Braze Cloud Mode (Actions)', () => {
   })
 
   describe('trackPurchase', () => {
+    it('should skip if no products are available', async () => {
+      const event = createTestEvent({
+        event: 'Order Completed',
+        type: 'track',
+        receivedAt,
+        properties: {
+          products: []
+        }
+      })
+
+      const responses = await testDestination.testAction('trackPurchase', {
+        event,
+        settings,
+        useDefaultMappings: true
+      })
+
+      expect(responses.length).toBe(0)
+    })
+
     it('should work with default mappings', async () => {
       nock('https://rest.iad-01.braze.com').post('/users/track').reply(200, {})
 
