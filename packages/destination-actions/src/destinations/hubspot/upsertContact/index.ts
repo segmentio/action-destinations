@@ -175,7 +175,7 @@ const action: ActionDefinition<Settings, Payload> = {
       }
       return response
     } catch (ex) {
-      if ((ex as HTTPError)?.response.status == 404) {
+      if ((ex as HTTPError)?.response?.status == 404) {
         const result = await createContact(request, contactProperties)
 
         // cache contact_id for it to be available for company action
