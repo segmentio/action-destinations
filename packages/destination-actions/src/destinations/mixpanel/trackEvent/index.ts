@@ -18,7 +18,8 @@ const getEventFromPayload = (payload: Payload, settings: Settings): MixpanelEven
 
 const processData = async (request: RequestClient, settings: Settings, payload: Payload[]) => {
   const events = payload.map((value) => getEventFromPayload(value, settings))
-  return request(`${ getApiServerUrl(settings.apiRegion) }/import?strict=1`, {
+
+  return request(`${ getApiServerUrl(settings.apiRegion) }/import?strict=${ settings.strictMode ?? `1` }`, {
     method: 'post',
     json: events,
     headers: {

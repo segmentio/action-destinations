@@ -1,7 +1,7 @@
 import nock from 'nock'
 import { createTestEvent, createTestIntegration, omit } from '@segment/actions-core'
 import Destination from '../../index'
-import { ApiRegions } from '../../utils'
+import { ApiRegions, StrictMode } from '../../utils'
 import { SegmentEvent } from '@segment/actions-core'
 
 const testDestination = createTestIntegration(Destination)
@@ -170,6 +170,62 @@ describe('Mixpanel.trackPurchase', () => {
     expect(responses[0].status).toBe(200)
     expect(responses[0].data).toMatchObject({})
     expect(responses[0].options.json).toMatchObject([expectedOrderCompleted])
+  })
+
+  it('should use strict mode end point by default', async () => {
+    const event = createTestEvent(orderCompletedEvent)
+
+    nock('https://api.mixpanel.com').post('/import?strict=1').reply(200, {})
+
+    const responses = await testDestination.testAction('trackPurchase', {
+      event,
+      useDefaultMappings: true,
+      settings: {
+        projectToken: MIXPANEL_PROJECT_TOKEN,
+        apiSecret: MIXPANEL_API_SECRET,
+        apiRegion: ApiRegions.US,
+      }
+    })
+    expect(responses.length).toBe(1)
+    expect(responses[0].status).toBe(200)
+  })
+
+  it('should use strict mode end point when the strict mode setting is on', async () => {
+    const event = createTestEvent(orderCompletedEvent)
+
+    nock('https://api.mixpanel.com').post('/import?strict=1').reply(200, {})
+
+    const responses = await testDestination.testAction('trackPurchase', {
+      event,
+      useDefaultMappings: true,
+      settings: {
+        projectToken: MIXPANEL_PROJECT_TOKEN,
+        apiSecret: MIXPANEL_API_SECRET,
+        apiRegion: ApiRegions.US,
+        strictMode: StrictMode.ON
+      }
+    })
+    expect(responses.length).toBe(1)
+    expect(responses[0].status).toBe(200)
+  })
+
+  it('should not use strict mode end point when the strict mode setting is off', async () => {
+    const event = createTestEvent(orderCompletedEvent)
+
+    nock('https://api.mixpanel.com').post('/import?strict=0').reply(200, {})
+
+    const responses = await testDestination.testAction('trackPurchase', {
+      event,
+      useDefaultMappings: true,
+      settings: {
+        projectToken: MIXPANEL_PROJECT_TOKEN,
+        apiSecret: MIXPANEL_API_SECRET,
+        apiRegion: ApiRegions.US,
+        strictMode: StrictMode.OFF
+      }
+    })
+    expect(responses.length).toBe(1)
+    expect(responses[0].status).toBe(200)
   })
 
   it('should require event field', async () => {
