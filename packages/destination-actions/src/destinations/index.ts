@@ -64,6 +64,7 @@ register('62ded0cf5753c743883ca0f3', './intercom')
 register('631a6f32946dd8197e9cab66', './sendgrid')
 register('632b1116e0cb83902f3fd717', './hubspot')
 register('6371eee1ae5e324869aa8b1b', './segment')
+register('63872c01c0c112b9b4d75412', './braze-cohorts')
 
 function register(id: MetadataId, destinationPath: string) {
   // eslint-disable-next-line @typescript-eslint/no-var-requires

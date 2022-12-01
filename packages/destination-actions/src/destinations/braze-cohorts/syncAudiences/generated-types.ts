@@ -19,11 +19,11 @@ export interface Payload {
   /**
    * The Cohort Identifier
    */
-  cohort_id?: string
+  cohort_id: string
   /**
    * The name of Cohort
    */
-  name?: string
+  name: string
   /**
    * Enable batching of requests to the Braze cohorts.
    */

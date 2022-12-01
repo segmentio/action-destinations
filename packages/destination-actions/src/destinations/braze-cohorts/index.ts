@@ -13,8 +13,8 @@ const destination: DestinationDefinition<Settings> = {
       client_secret: {
         label: 'Client Secret key',
         description: 'Data Import Key for the client whose cohort this belongs to. Also known as customer key.',
-        type: 'password',
-        required: true
+        type: 'password'
+        // required: true Hard Coding in code due to issue in action tester
       },
       endpoint: {
         label: 'REST Endpoint',
@@ -37,13 +37,13 @@ const destination: DestinationDefinition<Settings> = {
       }
     },
     testAuthentication: (request, { settings }) => {
-      console.log('when will it comme here ***********************')
-      const partnerName = 'segment'
-      return request(`${settings.endpoint}/partners/${partnerName}/cohorts/users`, {
+      return request(`${settings.endpoint}/partners/segment/cohorts/users`, {
         method: 'post',
         json: {
           client_secret: settings.client_secret,
-          partner_api_key: 'partner_api-key',
+          partner_api_key: settings.endpoint.includes('eu')
+            ? process.env.braze_cohorts_partner_api_key_eu
+            : process.env.braze_cohorts_partner_api_key_us,
           cohort_id: 'will_add_in_constant',
           cohort_changes: []
         }
