@@ -10,11 +10,12 @@ const action: ActionDefinition<Settings, Payload> = {
     //A user identifier must be in the form IDSPACE:ID, i.e. idfa:6D92078A-8246-4BA4-AE5B-76104861E7DC
     asset_uri: {
       label: 'Asset ID',
-      description: "The asset's unique identifier",
+      description:
+        "The asset's unique identifier. Please make sure to map only the fields where values don't include space character",
       type: 'string',
       required: true,
       default: {
-        '@template': 'ASSETnamespace:ASSETid'
+        '@template': 'NAMESPACE:asset_uri'
       }
     },
     ope_title: {
