@@ -1,6 +1,9 @@
-import type { ActionDefinition } from '@segment/actions-core'
+import { ActionDefinition, RequestClient, RetryableError } from '@segment/actions-core'
+
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
+import { SyncAudiences } from '../api'
+import { CohortChanges } from '../cohortChanges'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Sync Audience',
@@ -40,7 +43,8 @@ const action: ActionDefinition<Settings, Payload> = {
     cohort_id: {
       label: 'Cohort ID',
       description: 'The Cohort Identifier',
-      type: 'hidden',
+      type: 'string',
+      required: true,
       default: {
         '@path': '$.personas.computation_id'
       }
@@ -48,7 +52,8 @@ const action: ActionDefinition<Settings, Payload> = {
     name: {
       label: 'Cohort Name',
       description: 'The name of Cohort',
-      type: 'hidden',
+      type: 'string',
+      required: true,
       default: {
         '@path': '$.personas.computation_key'
       }
@@ -80,48 +85,82 @@ const action: ActionDefinition<Settings, Payload> = {
       }
     }
   },
-  perform: (request, { settings }) => {
-    // const {  external_id } = payload
-    const partnerName = 'segment'
-    return request(`${settings.endpoint}/partners/${partnerName}/cohorts/users`, {
-      method: 'post',
-      json: {
-        client_secret: settings.client_secret,
-        partner_api_key: 'partner-api-key',
-        cohort_id: 'will_add_in_constant',
-        cohort_changes: []
-      }
-    })
-
-    // // Extract valid user_alias shape. Since it is optional (oneOf braze_id, external_id) we need to only include it if fully formed.
-    // const user_alias = getUserAlias(payload.user_alias)
-
-    // if (!braze_id && !user_alias && !external_id) {
-    //   throw new IntegrationError(
-    //     'One of "external_id" or "user_alias" or "braze_id" is required.',
-    //     'Missing required fields',
-    //     400
-    //   )
-    // }
-
-    // return request(`${settings.endpoint}/users/track`, {
-    //   method: 'post',
-    //   json: {
-    //     events: [
-    //       {
-    //         braze_id,
-    //         external_id,
-    //         user_alias,
-    //         app_id: settings.app_id,
-    //         name: payload.name,
-    //         time: toISO8601(payload.time),
-    //         properties: payload.properties,
-    //         _update_existing_only: payload._update_existing_only
-    //       }
-    //     ]
-    //   }
-    // })
+  perform: async (request, { settings, payload }) => {
+    return processPayload(request, settings, [payload])
+  },
+  performBatch: async (request, { settings, payload }) => {
+    return processPayload(request, settings, payload)
   }
+}
+async function processPayload(request: RequestClient, settings: Settings, payloads: Payload[]) {
+  settings.client_secret = 'Client_secret_key' //hard coding here as issue is in event tester.
+
+  const SyncAudiencesApiClient: SyncAudiences = new SyncAudiences(request)
+
+  await SyncAudiencesApiClient.createCohort(settings, payloads[0])
+  const { addUsers, removeUsers } = extractUsers(payloads)
+  const users = {
+    addUsers,
+    removeUsers,
+    hasAddUsers: hasUsersToAddOrRemove(addUsers),
+    hasRemoveUsers: hasUsersToAddOrRemove(removeUsers)
+  }
+
+  // We should never hit this condition because at least an user_id or device_id
+  // or user_alias is required in each payload, but if we do, returning early
+  // rather than hitting Cohort's API (with no data) is more efficient.
+  // The monoservice will interpret this early return as a 200.
+
+  if (!users.hasAddUsers && !users.hasRemoveUsers) {
+    return
+  }
+
+  const res = await SyncAudiencesApiClient.batchUpdate(settings, payloads[0], users)
+
+  // When User gets added or removed successfully , it will give 201 statua code other than there could be an error of invalid keys or some internal error.
+  if (res.status !== 201) {
+    throw new RetryableError('Error while attempting to sync audience to braze. This batch will be retried.')
+  }
+
+  return res
+}
+
+function extractUsers(payloads: Payload[]) {
+  const addUsers: CohortChanges = { user_ids: [], device_ids: [], aliases: [] }
+  const removeUsers: CohortChanges = { user_ids: [], device_ids: [], aliases: [], should_remove: true }
+
+  payloads.forEach((payload: Payload) => {
+    const { event_properties, external_id, device_id, user_alias } = payload
+    const userEnteredOrRemoved: boolean = event_properties?.audience_key
+      ? event_properties[`${event_properties?.audience_key}`]
+      : Object.values(event_properties)[0]
+    const user = userEnteredOrRemoved ? addUsers : removeUsers
+
+    // external_id => device_id => user_alias Priority Order
+    if (external_id) {
+      user.user_ids.push(external_id)
+    } else if (device_id) {
+      user.device_ids.push(device_id)
+    } else if (user_alias) {
+      user.aliases.push(user_alias)
+    }
+  })
+
+  return {
+    addUsers,
+    removeUsers
+  }
+}
+
+function hasUsersToAddOrRemove(user: CohortChanges): boolean {
+  if (
+    user &&
+    typeof user === 'object' &&
+    (user?.user_ids?.length || user?.device_ids?.length || user?.aliases?.length)
+  ) {
+    return true
+  }
+  return false
 }
 
 export default action
