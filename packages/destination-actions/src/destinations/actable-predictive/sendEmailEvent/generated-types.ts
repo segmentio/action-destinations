@@ -26,7 +26,7 @@ export interface Payload {
    */
   unsub_flag?: number
   /**
-   * Dataset label, should be left as default unless specified otherwise
+   * Dataset label, should be left as default unless directed otherwise
    */
   stream_key: string
 }

@@ -6,7 +6,7 @@ export interface Payload {
    */
   customer_id: string
   /**
-   * Timestamp of event
+   * Timestamp of when the custom event occured.
    */
   timestamp: string | number
   /**
@@ -14,9 +14,9 @@ export interface Payload {
    */
   properties: {
     [k: string]: unknown
-  }[]
+  }
   /**
-   * Dataset label, should be left as default unless specified otherwise
+   * Dataset label, should be left as default unless specified otherwise.
    */
   stream_key: string
 }

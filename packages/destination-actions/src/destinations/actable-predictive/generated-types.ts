@@ -2,7 +2,7 @@
 
 export interface Settings {
   /**
-   * Your Actable-supplied Client ID
+   * Your Actable-supplied Client ID.
    */
   client_id: string
   /**
