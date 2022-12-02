@@ -5,7 +5,7 @@ import type { Payload } from './generated-types'
 
 const action: BrowserActionDefinition<Settings, CommandBarClientSDK, Payload> = {
   title: 'Identify User',
-  description: '',
+  description: 'Set attributes for the user in CommandBar. If "Deploy via Segment" is enabled, then also boot CommandBar for the user, which makes CommandBar available to the user.',
   platform: 'web',
   defaultSubscription: 'type = "identify"',
   fields: {
