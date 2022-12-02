@@ -6,6 +6,7 @@ import type { Settings } from '../generated-types'
 import { getEndpointByRegion } from '../regional-endpoints'
 import { parseUserAgentProperties } from '../user-agent'
 import type { Payload } from './generated-types'
+import { formatSessionId } from '../convert-timestamp'
 
 export interface AmplitudeEvent extends Omit<Payload, 'products' | 'time' | 'session_id'> {
   library?: string
@@ -224,7 +225,7 @@ const action: ActionDefinition<Settings, Payload> = {
     }
 
     if (session_id && dayjs.utc(session_id).isValid()) {
-      properties.session_id = dayjs.utc(session_id).valueOf()
+      properties.session_id = formatSessionId(session_id)
     }
 
     if (min_id_length && min_id_length > 0) {
