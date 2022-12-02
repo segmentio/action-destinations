@@ -27,11 +27,13 @@ const action: ActionDefinition<Settings, Payload> = {
       properties: {
         alias_name: {
           label: 'Alias Name',
-          type: 'string'
+          type: 'string',
+          required: true
         },
         alias_label: {
           label: 'Alias Label',
-          type: 'string'
+          type: 'string',
+          required: true
         }
       }
     },
@@ -131,9 +133,11 @@ function extractUsers(payloads: Payload[]) {
 
   payloads.forEach((payload: Payload) => {
     const { event_properties, external_id, device_id, user_alias } = payload
-    const userEnteredOrRemoved: boolean = event_properties?.audience_key
-      ? event_properties[`${event_properties?.audience_key}`]
-      : Object.values(event_properties)[0]
+    const userEnteredOrRemoved: boolean = (
+      event_properties?.audience_key
+        ? event_properties[`${event_properties?.audience_key}`]
+        : Object.values(event_properties)[0]
+    ) as boolean
     const user = userEnteredOrRemoved ? addUsers : removeUsers
 
     // external_id => device_id => user_alias Priority Order
