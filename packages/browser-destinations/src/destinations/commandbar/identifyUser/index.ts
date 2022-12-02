@@ -1,12 +1,13 @@
 import type { BrowserActionDefinition } from '../../../lib/browser-destinations'
 import type { Settings } from '../generated-types'
-import { CommandBarClientSDK, FormFactorConfig, InstanceAttributes } from '../types'
+import { CommandBarClientSDK, FormFactorConfig } from '../types'
 import type { Payload } from './generated-types'
 
 const action: BrowserActionDefinition<Settings, CommandBarClientSDK, Payload> = {
   title: 'Identify User',
   description: '',
   platform: 'web',
+  defaultSubscription: 'type = "identify"',
   fields: {
     userId: {
       type: 'string',

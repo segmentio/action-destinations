@@ -7,6 +7,7 @@ const action: BrowserActionDefinition<Settings, CommandBarClientSDK, Payload> = 
   title: 'Track Event',
   description: "Submit an event's properties as CommandBar metaData.",
   platform: 'web',
+  defaultSubscription: 'type = "track"',
 
   fields: {
     event_name: {
