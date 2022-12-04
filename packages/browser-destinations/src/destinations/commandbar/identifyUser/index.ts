@@ -5,7 +5,8 @@ import type { Payload } from './generated-types'
 
 const action: BrowserActionDefinition<Settings, CommandBarClientSDK, Payload> = {
   title: 'Identify User',
-  description: 'Set attributes for the user in CommandBar. If "Deploy via Segment" is enabled, then also boot CommandBar for the user, which makes CommandBar available to the user.',
+  description:
+    'Set attributes for the user in CommandBar. If "Deploy via Segment" is enabled, then also boot CommandBar for the user, which makes CommandBar available to the user.',
   platform: 'web',
   defaultSubscription: 'type = "identify"',
   fields: {
@@ -51,8 +52,8 @@ const action: BrowserActionDefinition<Settings, CommandBarClientSDK, Payload> = 
   perform: (CommandBar, event) => {
     const traits = event.payload.traits || {}
 
-    if (!!event.settings.deploy) {
-      CommandBar.boot(event.payload.userId, traits, {
+    if (event.settings.deploy) {
+      void CommandBar.boot(event.payload.userId, traits, {
         ...(!!event.payload.hmac && { hmac: event.payload.hmac }),
         ...(!!event.payload.formFactor && { formFactor: event.payload.formFactor as FormFactorConfig })
       })
