@@ -6,9 +6,9 @@ export interface Payload {
    */
   operation: string
   /**
-   * The Salesforce operator performed. The available operator to use multiple Record Matchers.
+   * This field affects how Segment uses the record matchers to query Salesforce records. By default, Segment uses the "OR" operator to query Salesforce for a record. If you would like to query Salesforce records using a combination of multiple record matchers, change this to "AND".
    */
-  operator?: string
+  recordMatcherOperator?: string
   /**
    * If true, events are sent to [Salesforce’s Bulk API 2.0](https://developer.salesforce.com/docs/atlas.en-us.api_asynch.meta/api_asynch/asynch_api_intro.htm) rather than their streaming REST API. Once enabled, Segment will collect events into batches of 1000 before sending to Salesforce. *Enabling Bulk API is not compatible with the `create` operation*.
    */

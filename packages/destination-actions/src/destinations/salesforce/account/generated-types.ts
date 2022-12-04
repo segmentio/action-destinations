@@ -10,9 +10,9 @@ export interface Payload {
    */
   enable_batching?: boolean
   /**
-   * The Salesforce operator performed. The available operator to use multiple Record Matchers.
+   * This field affects how Segment uses the record matchers to query Salesforce records. By default, Segment uses the "OR" operator to query Salesforce for a record. If you would like to query Salesforce records using a combination of multiple record matchers, change this to "AND".
    */
-  operator?: string
+  recordMatcherOperator?: string
   /**
    * The fields used to find Salesforce records for updates. **This is required if the operation is Update or Upsert.**
    *
