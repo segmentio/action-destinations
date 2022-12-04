@@ -1,13 +1,14 @@
-import { getOAuth2Data, updateOAuthSettings } from '../destination-kit/parse-settings'
+import { getOAuth2Data, updateOAuthSettings, getAuthData } from '../destination-kit/parse-settings'
 
 describe('oauth settings', () => {
-  test('should return oauth data', () => {
+  test('getOAuth2Data should return oauth data', () => {
     const settings = {
       one: '1',
       two: '2',
       oauth: {
         access_token: 'test-access-token',
-        refresh_token: 'test-refresh-token'
+        refresh_token: 'test-refresh-token',
+        refresh_token_url: 'test.xyz'
       },
       three: '3'
     }
@@ -16,7 +17,30 @@ describe('oauth settings', () => {
 
     const expectedResult = {
       accessToken: 'test-access-token',
-      refreshToken: 'test-refresh-token'
+      refreshToken: 'test-refresh-token',
+      refreshTokenUrl: 'test.xyz'
+    }
+    expect(result).toEqual(expectedResult)
+  })
+
+  test('getAuthData should return oauth data', () => {
+    const settings = {
+      one: '1',
+      two: '2',
+      oauth: {
+        access_token: 'test-access-token',
+        refresh_token: 'test-refresh-token',
+        refresh_token_url: 'test.xyz'
+      },
+      three: '3'
+    }
+
+    const result = getAuthData(settings)
+
+    const expectedResult = {
+      accessToken: 'test-access-token',
+      refreshToken: 'test-refresh-token',
+      refreshTokenUrl: 'test.xyz'
     }
     expect(result).toEqual(expectedResult)
   })
@@ -33,7 +57,8 @@ describe('oauth settings', () => {
       accessToken: undefined,
       clientId: undefined,
       clientSecret: undefined,
-      refreshToken: undefined
+      refreshToken: undefined,
+      refreshTokenUrl: undefined
     }
     expect(result).toEqual(expectedResult)
   })

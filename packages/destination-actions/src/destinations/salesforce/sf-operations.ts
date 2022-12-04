@@ -80,7 +80,6 @@ export default class Salesforce {
     }
 
     const [recordId, err] = await this.lookupTraits(payload.traits, sobject, payload.recordMatcherOperator ?? 'OR')
-
     if (err) {
       throw err
     }

@@ -67,7 +67,7 @@ describe('FullStory', () => {
         event: {
           event_name: eventName,
           event_data: {
-            'first-property_str': properties['first-property'],
+            firstproperty_str: properties['first-property'],
             second_property_str: properties.second_property,
             thirdProperty_str: properties.thirdProperty,
             useRecentSession_bool: properties.useRecentSession,

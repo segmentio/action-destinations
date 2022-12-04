@@ -92,6 +92,7 @@ export const customFields: InputField = {
 interface Payload {
   operation?: string
   traits?: object
+  operator?: string
 }
 
 export const validateLookup = (payload: Payload) => {

@@ -3,6 +3,7 @@ import { CustomError } from 'ts-custom-error'
 import fetch, { Headers, Request, Response } from './fetch'
 import { isObject } from './real-type-of'
 import type https from 'https'
+import { StatsContext } from './destination-kit'
 
 /**
  * The supported request options you can use with the request client
@@ -71,6 +72,8 @@ export interface AllRequestOptions extends RequestOptions {
    * Useful for logging, cleanup, or modifying the response object
    */
   afterResponse?: AfterResponseHook[]
+
+  statsContext?: StatsContext
 }
 
 export interface NormalizedOptions extends Omit<AllRequestOptions, 'headers'> {
