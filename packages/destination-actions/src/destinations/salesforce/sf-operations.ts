@@ -79,7 +79,7 @@ export default class Salesforce {
       return await this.baseUpdate(payload.traits['Id'] as string, sobject, payload)
     }
 
-    const [recordId, err] = await this.lookupTraits(payload.traits, sobject, payload.operator ?? 'OR')
+    const [recordId, err] = await this.lookupTraits(payload.traits, sobject, payload.recordMatcherOperator ?? 'OR')
 
     if (err) {
       throw err
@@ -93,7 +93,7 @@ export default class Salesforce {
       throw new IntegrationError('Undefined Traits when using upsert operation', 'Undefined Traits', 400)
     }
 
-    const [recordId, err] = await this.lookupTraits(payload.traits, sobject, payload.operator ?? 'OR')
+    const [recordId, err] = await this.lookupTraits(payload.traits, sobject, payload.recordMatcherOperator ?? 'OR')
 
     if (err) {
       if (err.status === 404) {

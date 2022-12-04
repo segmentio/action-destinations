@@ -9,7 +9,7 @@ import {
   traits,
   validateLookup,
   enable_batching,
-  operator
+  recordMatcherOperator
 } from '../sf-properties'
 import Salesforce from '../sf-operations'
 
@@ -20,7 +20,7 @@ const action: ActionDefinition<Settings, Payload> = {
   description: 'Create, update, or upsert contacts in Salesforce.',
   fields: {
     operation: operation,
-    operator: operator,
+    recordMatcherOperator: recordMatcherOperator,
     enable_batching: enable_batching,
     traits: traits,
     bulkUpsertExternalId: bulkUpsertExternalId,
