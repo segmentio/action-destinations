@@ -15,14 +15,12 @@ const destination: DestinationDefinition<Settings> = {
   authentication: {
     scheme: 'oauth2',
     fields: {
-      // update to client_id. Was "client_name"
       client_id: {
         label: 'Client ID',
         description: 'Your 1plusX Client ID. Please refer to your 1PlusX representative to obtain it.',
         type: 'string',
         required: true
       },
-      // update to key_id. Was "client_id"
       key_id: {
         label: 'Key ID',
         description: 'Your 1plusX Key ID. Available in 1plusX UI in the "API Keys" section.',
