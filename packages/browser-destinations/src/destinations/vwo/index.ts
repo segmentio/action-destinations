@@ -39,7 +39,6 @@ export const destination: BrowserDestinationDefinition<Settings, VWO> = {
       description: 'Your VWO account ID, used for fetching your VWO async smart code.',
       label: 'VWO Account ID',
       type: 'number',
-      default: 654331,
       required: true
     },
     settingsTolerance: {
