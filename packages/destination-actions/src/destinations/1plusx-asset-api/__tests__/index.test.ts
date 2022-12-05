@@ -1,15 +1,3 @@
-//import nock from 'nock'
-//import { createTestEvent, createTestIntegration } from '@segment/actions-core'
-//import oneplusx_asset_api from '../index'
-
-//const testDestination = createTestIntegration(oneplusx_asset_api)
-
-//describe('1Plusx Asset Api', () => {
-//  describe('sendAssetData', () => {
-
-//  })
-//})
-
 import nock from 'nock'
 import { createTestEvent, createTestIntegration } from '@segment/actions-core'
 import oneplusx_asset_api from '../index'
@@ -19,9 +7,9 @@ import { Settings } from '../generated-types'
 const testDestination = createTestIntegration(oneplusx_asset_api)
 
 // Define settings values
-const client_id = '123abc'
+const key_id = '123abc'
 const client_secret = '456def'
-const client_name = 'test01'
+const client_id = 'test01'
 
 describe('1Plusx Asset Api', () => {
   describe('sendAssetData', () => {
@@ -60,14 +48,14 @@ describe('1Plusx Asset Api', () => {
         }
       })
       const encoded_asset_uri = encodeURIComponent('test_id:123456')
-      nock(`https://${client_name}.assets.tagger.opecloud.com`).put(`/v2/native/asset/${encoded_asset_uri}`).reply(200)
+      nock(`https://${client_id}.assets.tagger.opecloud.com`).put(`/v2/native/asset/${encoded_asset_uri}`).reply(200)
 
       const responses = await testDestination.testAction('sendAssetData', {
         event,
         settings: {
           client_id,
           client_secret,
-          client_name
+          key_id
         },
         mapping: {
           asset_uri: {
@@ -100,14 +88,14 @@ describe('1Plusx Asset Api', () => {
         }
       })
       const encoded_asset_uri = encodeURIComponent('test_id:123456')
-      nock(`https://${client_name}.assets.tagger.opecloud.com`).put(`/v2/native/asset/${encoded_asset_uri}`).reply(200)
+      nock(`https://${client_id}.assets.tagger.opecloud.com`).put(`/v2/native/asset/${encoded_asset_uri}`).reply(200)
 
       const responses = await testDestination.testAction('sendAssetData', {
         event,
         settings: {
           client_id,
           client_secret,
-          client_name
+          key_id
         },
         mapping: {
           asset_uri: {
@@ -147,14 +135,14 @@ describe('1Plusx Asset Api', () => {
         }
       })
       const encoded_asset_uri = encodeURIComponent('test_id:123456')
-      nock(`https://${client_name}.assets.tagger.opecloud.com`).put(`/v2/native/asset/${encoded_asset_uri}`).reply(200)
+      nock(`https://${client_id}.assets.tagger.opecloud.com`).put(`/v2/native/asset/${encoded_asset_uri}`).reply(200)
 
       const responses = await testDestination.testAction('sendAssetData', {
         event,
         settings: {
           client_id,
           client_secret,
-          client_name
+          key_id
         },
         mapping: {
           asset_uri: {
@@ -199,14 +187,14 @@ describe('1Plusx Asset Api', () => {
         }
       })
       const encoded_asset_uri = encodeURIComponent('test_id:123456')
-      nock(`https://${client_name}.assets.tagger.opecloud.com`).put(`/v2/native/asset/${encoded_asset_uri}`).reply(200)
+      nock(`https://${client_id}.assets.tagger.opecloud.com`).put(`/v2/native/asset/${encoded_asset_uri}`).reply(200)
 
       const responses = await testDestination.testAction('sendAssetData', {
         event,
         settings: {
           client_id,
-          client_name,
-          client_secret
+          client_secret,
+          key_id
         },
         mapping: {
           asset_uri: {

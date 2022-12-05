@@ -2,7 +2,7 @@
 
 export interface Payload {
   /**
-   * The asset's unique identifier
+   * The asset's unique identifier. Please make sure to map only the fields where values don't include space character
    */
   asset_uri: string
   /**

@@ -51,7 +51,6 @@ const action: ActionDefinition<Settings, Payload> = {
     //Convert custom_field values to strings as per 1plusX requirements
     const cleanProps = mapValues(custom_fields, function (value) {
       //Drop arrays and objects
-      // TODO still must include Date!
       if (typeof value === 'object' && !(value instanceof Array) && !(value instanceof Date)) return
       //Pass strings straight through
       else if (typeof value === 'string' || typeof value === 'number' || typeof value === 'boolean') return value
@@ -61,7 +60,7 @@ const action: ActionDefinition<Settings, Payload> = {
     })
     // Encoding asset_uri
     const encoded_asset_uri = encodeURIComponent(payload.asset_uri)
-    const endpoint = `https://${settings.client_name}.assets.tagger.opecloud.com/v2/native/asset/${encoded_asset_uri}`
+    const endpoint = `https://${settings.client_id}.assets.tagger.opecloud.com/v2/native/asset/${encoded_asset_uri}`
     return request(endpoint, {
       method: 'put',
       json: {
