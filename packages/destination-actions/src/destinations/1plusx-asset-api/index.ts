@@ -15,21 +15,23 @@ const destination: DestinationDefinition<Settings> = {
   authentication: {
     scheme: 'oauth2',
     fields: {
-      client_name: {
-        label: 'Client Name',
-        description: 'Your 1plusX Client Name. Please refer to your 1PlusX representative to obtain it.',
+      // update to client_id. Was "client_name"
+      client_id: {
+        label: 'Client ID',
+        description: 'Your 1plusX Client ID. Please refer to your 1PlusX representative to obtain it.',
         type: 'string',
         required: true
       },
-      client_id: {
-        label: 'Client ID',
-        description: 'Your 1plusX Client (Key) ID. Available in 1plusX UI in the "API Keys" section.',
+      // update to key_id. Was "client_id"
+      key_id: {
+        label: 'Key ID',
+        description: 'Your 1plusX Key ID. Available in 1plusX UI in the "API Keys" section.',
         type: 'password',
         required: true
       },
       client_secret: {
-        label: 'Client Secret',
-        description: 'Your 1plusX Client Secret. Available in 1plusX UI in the "API Keys" section.',
+        label: 'Secret',
+        description: 'Your 1plusX Secret. Available in 1plusX UI in the "API Keys" section.',
         type: 'password',
         required: true
       }
@@ -39,7 +41,7 @@ const destination: DestinationDefinition<Settings> = {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          Authorization: `Basic ${Buffer.from(settings.client_id + ':' + settings.client_secret).toString('base64')}`
+          Authorization: `Basic ${Buffer.from(settings.key_id + ':' + settings.client_secret).toString('base64')}`
         },
         body: '{"grant_type":"client_credentials"}'
       })
@@ -55,11 +57,11 @@ const destination: DestinationDefinition<Settings> = {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          Authorization: `Basic ${Buffer.from(settings.client_id + ':' + settings.client_secret).toString('base64')}`
+          Authorization: `Basic ${Buffer.from(settings.key_id + ':' + settings.client_secret).toString('base64')}`
         },
         body: '{"grant_type":"client_credentials"}'
       })
-      console.log('refreshed token')
+
       return { accessToken: res.data.access_token }
     }
   },
