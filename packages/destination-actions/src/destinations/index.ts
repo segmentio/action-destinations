@@ -23,6 +23,7 @@ export const manifest: Record<MetadataId, ManifestEntry> = {}
  * in production and sync them into staging via `sprout`.
  */
 register('60f64ae3eaebd66d17d28e9f', './1plusx')
+register('6388fddea33fcc69c0f8d9ce', './actable-predictive')
 register('61aa712b857e8c85c3b5a849', './adobe-target')
 register('5f7dd6d21ad74f3842b1fc47', './amplitude')
 register('60f9d0d048950c356be2e4da', './braze')
@@ -64,6 +65,7 @@ register('62ded0cf5753c743883ca0f3', './intercom')
 register('631a6f32946dd8197e9cab66', './sendgrid')
 register('632b1116e0cb83902f3fd717', './hubspot')
 register('635fea9131814aa2aa18a640', './google-sheets-partner')
+register('636d38db78d7834347d76c44', './1plusx-asset-api')
 register('6371eee1ae5e324869aa8b1b', './segment')
 register('637c12fa86e32b125be33bca', './actions-bingads')
 

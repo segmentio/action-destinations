@@ -36,7 +36,7 @@ export type MixpanelEventProperties = {
   $screen_width?: number
   $user_id?: string
   $wifi_enabled?: boolean
-  $source: 'segment'
+  $source: string // 'segment'
   distinct_id?: string | null // 'test_segment_user'
   id?: string | null // this is just to maintain backwards compatibility  with the classic segment integration, I'm not completely sure what the purpose of this was.
   mp_country_code?: string // 'US'
