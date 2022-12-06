@@ -15,4 +15,9 @@ describe('Amplitude - Convert timestamp - format session_id', () => {
     const result = formatSessionId('2000-10-31T01:30:00.000-05:00')
     expect(result).toEqual(972973800000)
   })
+
+  it('should convert string to unix timestamp', () => {
+    const result = formatSessionId('2021-06-08')
+    expect(result).toEqual(1623110400000)
+  })
 })
