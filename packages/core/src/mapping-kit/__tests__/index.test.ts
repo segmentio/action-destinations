@@ -551,17 +551,8 @@ describe('@template', () => {
     expect(output).toStrictEqual('Hello, World!')
   })
 
-  test('escaping', () => {
+  test('no escaping', () => {
     const output = transform({ '@template': '<blink>{{a}} {{{a}}}</blink>' }, { a: '<b>Hi</b>' })
-    expect(output).toStrictEqual('<blink>&lt;b&gt;Hi&lt;&#x2F;b&gt; <b>Hi</b></blink>')
-  })
-
-  test('no escaping if flag is on', () => {
-    const output = transform(
-      { '@template': '<blink>{{a}} {{{a}}}</blink>' },
-      { a: '<b>Hi</b>' },
-      { actionsEscapeOff: true }
-    )
     expect(output).toStrictEqual('<blink><b>Hi</b> <b>Hi</b></blink>')
   })
 

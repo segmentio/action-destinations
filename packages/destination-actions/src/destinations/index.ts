@@ -23,6 +23,7 @@ export const manifest: Record<MetadataId, ManifestEntry> = {}
  * in production and sync them into staging via `sprout`.
  */
 register('60f64ae3eaebd66d17d28e9f', './1plusx')
+register('6388fddea33fcc69c0f8d9ce', './actable-predictive')
 register('61aa712b857e8c85c3b5a849', './adobe-target')
 register('5f7dd6d21ad74f3842b1fc47', './amplitude')
 register('60f9d0d048950c356be2e4da', './braze')
@@ -62,6 +63,7 @@ register('61dc4e96894a6d7954cc6e45', './voyage')
 register('62ded0cf5753c743883ca0f3', './intercom')
 register('631a6f32946dd8197e9cab66', './sendgrid')
 register('632b1116e0cb83902f3fd717', './hubspot')
+register('6371eee1ae5e324869aa8b1b', './segment')
 
 function register(id: MetadataId, destinationPath: string) {
   // eslint-disable-next-line @typescript-eslint/no-var-requires

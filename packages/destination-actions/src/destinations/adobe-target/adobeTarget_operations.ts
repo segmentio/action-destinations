@@ -59,7 +59,7 @@ export default class AdobeTarget {
       )
     } catch (error) {
       if (error instanceof Error) {
-        return new IntegrationError(error.message, error.stack, error.message == 'Forbidden' ? 403 : 400)
+        return new IntegrationError(error.message, error.message == 'Forbidden' ? '403' : '400')
       }
     }
 

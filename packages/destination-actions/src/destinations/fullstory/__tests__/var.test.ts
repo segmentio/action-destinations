@@ -103,4 +103,45 @@ describe('normalizePropertyNames', () => {
     const actual = normalizePropertyNames(obj, { camelCase: true })
     expect(actual).toEqual(expected)
   })
+
+  const unsupportedPropertyNameChars = [' ', '.', '-', ':']
+
+  unsupportedPropertyNameChars.forEach((char) => {
+    it(`strips unsupported char '${char}' from property name`, () => {
+      const originalNameIncludingTypeSuffix = `type${char}_suffixed${char}${char}_property_str`
+      const expectedNamePreservingTypeSuffix = 'type_suffixed_property_str'
+
+      const originalNameExcludingTypeSuffix = `type${char}${char}_without${char}_suffix`
+      const expectedNameAddingTypeSuffix = 'type_without_suffix_str'
+
+      const obj = {
+        [originalNameIncludingTypeSuffix]: 'some-string',
+        [originalNameExcludingTypeSuffix]: 'some-other-string'
+      }
+
+      const expected = {
+        [expectedNamePreservingTypeSuffix]: obj[originalNameIncludingTypeSuffix],
+        [expectedNameAddingTypeSuffix]: obj[originalNameExcludingTypeSuffix]
+      }
+
+      const actual = normalizePropertyNames(obj)
+      expect(actual).toEqual(expected)
+    })
+  })
+
+  it('camel cases before stripping supported property name chars', () => {
+    const originalNameIncludingTypeSuffix = 'type.including camel-case:targets_str'
+    const expectedNamePreservingTypeSuffix = 'typeIncludingCamelCaseTargets_str'
+
+    const obj = {
+      [originalNameIncludingTypeSuffix]: 'some-string'
+    }
+
+    const expected = {
+      [expectedNamePreservingTypeSuffix]: obj[originalNameIncludingTypeSuffix]
+    }
+
+    const actual = normalizePropertyNames(obj, { camelCase: true })
+    expect(actual).toEqual(expected)
+  })
 })

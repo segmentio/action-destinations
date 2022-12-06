@@ -14,6 +14,7 @@ import {
   updateRemotePlugin
 } from '../lib/control-plane-client'
 import { build, webBundles } from '@segment/actions-cli/lib/web-bundles'
+import deprecationWarning from '../lib/warning'
 
 export default class PushBrowserDestinations extends Command {
   private spinner: ora.Ora = ora()
@@ -36,6 +37,8 @@ export default class PushBrowserDestinations extends Command {
 
   async run() {
     const { flags } = this.parse(PushBrowserDestinations)
+    await deprecationWarning(this.warn)
+
     const { destinationIds } = await prompt<{ destinationIds: string[] }>({
       type: 'multiselect',
       name: 'destinationIds',
