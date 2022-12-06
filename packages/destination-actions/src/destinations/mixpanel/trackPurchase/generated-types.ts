@@ -10,6 +10,14 @@ export interface Payload {
    */
   distinct_id?: string
   /**
+   * A distinct ID randomly generated prior to calling identify.
+   */
+  anonymous_id?: string
+  /**
+   * The distinct ID after calling identify.
+   */
+  user_id?: string
+  /**
    * The unique identifier of the group that performed this event.
    */
   group_id?: string
@@ -143,6 +151,12 @@ export interface Payload {
    * An object of key-value pairs that represent additional data tied to the user.
    */
   user_properties?: {
+    [k: string]: unknown
+  }
+  /**
+   * An object of key-value pairs that provides useful context about the event.
+   */
+  context?: {
     [k: string]: unknown
   }
   /**
