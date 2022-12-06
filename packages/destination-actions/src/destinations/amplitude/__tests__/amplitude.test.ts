@@ -348,7 +348,7 @@ describe('Amplitude', () => {
         event: 'Test Event',
         anonymousId: 'julio',
         integrations: {
-          // @ts-expect-error integrations should accept complext objects;
+          // @ts-expect-error integrations should accept complex objects;
           'Actions Amplitude': {
             session_id: '1234567890'
           }
@@ -401,7 +401,7 @@ describe('Amplitude', () => {
         event: 'Test Event',
         anonymousId: 'julio',
         integrations: {
-          // @ts-expect-error integrations should accept complext objects;
+          // @ts-expect-error integrations should accept complex objects;
           'Actions Amplitude': {
             session_id: 1234567890
           }
@@ -910,7 +910,7 @@ describe('Amplitude', () => {
         event: 'Test Event',
         anonymousId: 'julio',
         integrations: {
-          // @ts-expect-error integrations should accept complext objects;
+          // @ts-expect-error integrations should accept complex objects;
           'Actions Amplitude': {
             session_id: '1234567890'
           }
@@ -963,7 +963,7 @@ describe('Amplitude', () => {
         event: 'Test Event',
         anonymousId: 'julio',
         integrations: {
-          // @ts-expect-error integrations should accept complext objects;
+          // @ts-expect-error integrations should accept complex objects;
           'Actions Amplitude': {
             session_id: 1234567890
           }
@@ -1410,7 +1410,7 @@ describe('Amplitude', () => {
         event: 'Test Event',
         anonymousId: 'julio',
         integrations: {
-          // @ts-expect-error integrations should accept complext objects;
+          // @ts-expect-error integrations should accept complex objects;
           'Actions Amplitude': {
             session_id: '1234567890'
           }
@@ -1463,7 +1463,7 @@ describe('Amplitude', () => {
         event: 'Test Event',
         anonymousId: 'julio',
         integrations: {
-          // @ts-expect-error integrations should accept complext objects;
+          // @ts-expect-error integrations should accept complex objects;
           'Actions Amplitude': {
             session_id: 1234567890
           }
