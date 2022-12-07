@@ -57,7 +57,8 @@ export const recordMatcherOperator: InputField = {
   choices: [
     { label: 'OR', value: 'OR' },
     { label: 'AND', value: 'AND' }
-  ]
+  ],
+  default: 'OR'
 }
 
 export const traits: InputField = {

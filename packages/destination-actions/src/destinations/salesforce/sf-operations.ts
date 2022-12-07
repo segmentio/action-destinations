@@ -292,7 +292,7 @@ export default class Salesforce {
       let token = `${this.removeInvalidChars(key)} = ${this.typecast(value)}`
 
       if (i < entries.length - 1) {
-        token += ' ' + operator + ' ' // We need to change here...
+        token += ' ' + operator + ' '
       }
 
       soql += token
