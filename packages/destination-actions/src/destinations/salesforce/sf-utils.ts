@@ -105,9 +105,9 @@ const buildCSVFromHeaderMap = (
         const column = headerMap.get(key) as [[string, number]]
 
         if (column !== undefined && column.length > 0 && column[column.length - 1][1] === i) {
-          const value = column.pop()
-          if (value !== undefined) {
-            row += `"${value[0]}",`
+          const valueTuple = column.pop()
+          if (valueTuple !== undefined && valueTuple[0] !== undefined && valueTuple[0] !== null) {
+            row += `"${valueTuple[0]}",`
             noValueFound = false
           }
         }
@@ -157,6 +157,7 @@ export const buildCSVData = (payloads: GenericPayload[], uniqueIdName: string): 
 
   csv += `${uniqueIdName}\n` + buildCSVFromHeaderMap(payloads, headerMap, payloads.length)
 
+  console.log('csv', csv)
   return csv
 }
 
