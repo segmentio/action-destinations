@@ -8,7 +8,7 @@ on:
 
 jobs:
   install-and-test:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-20.04
 
     timeout-minutes: 10
 
