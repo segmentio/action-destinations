@@ -1,9 +1,11 @@
-import { ActionDefinition, RequestClient, RetryableError } from '@segment/actions-core'
-
+import { ActionDefinition, RequestClient, IntegrationError } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 import { SyncAudiences } from '../api'
 import { CohortChanges } from '../cohortChanges'
+import { Logger, StateContext } from '@segment/actions-core/src/destination-kit'
+// import {isEmpty} from "lodash";
+// const _cacheContext={context:{},setContext:(key: string, value: string) => ({ [key]: value })}
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Sync Audience',
@@ -35,26 +37,32 @@ const action: ActionDefinition<Settings, Payload> = {
           type: 'string',
           required: true
         }
+      },
+      default: {
+        '@path': '$.userAlias'
       }
     },
     device_id: {
       label: 'Device ID',
       description: 'The unique device Identifier',
-      type: 'string'
+      type: 'string',
+      default: {
+        '@path': '$.deviceId'
+      }
     },
     cohort_id: {
       label: 'Cohort ID',
       description: 'The Cohort Identifier',
-      type: 'string',
+      type: 'hidden',
       required: true,
       default: {
         '@path': '$.personas.computation_id'
       }
     },
-    name: {
+    cohort_name: {
       label: 'Cohort Name',
       description: 'The name of Cohort',
-      type: 'string',
+      type: 'hidden',
       required: true,
       default: {
         '@path': '$.personas.computation_key'
@@ -85,21 +93,41 @@ const action: ActionDefinition<Settings, Payload> = {
           else: { '@path': '$.traits' }
         }
       }
+    },
+    time: {
+      label: 'Time',
+      description: 'When the event occurred.',
+      type: 'datetime',
+      required: true,
+      default: {
+        '@path': '$.receivedAt'
+      }
     }
   },
-  perform: async (request, { settings, payload }) => {
-    return processPayload(request, settings, [payload])
+  perform: async (request, { settings, payload, logger, stateContext }) => {
+    return processPayload(request, settings, [payload], logger as Logger, stateContext as StateContext)
   },
-  performBatch: async (request, { settings, payload }) => {
-    return processPayload(request, settings, payload)
+  performBatch: async (request, { settings, payload, logger, stateContext }) => {
+    return processPayload(request, settings, payload, logger as Logger, stateContext as StateContext)
   }
 }
-async function processPayload(request: RequestClient, settings: Settings, payloads: Payload[]) {
-  settings.client_secret = 'Client_secret_key' //hard coding here as issue is in event tester.
+async function processPayload(
+  request: RequestClient,
+  settings: Settings,
+  payloads: Payload[],
+  logger: Logger,
+  stateContext: StateContext
+) {
+  validate(payloads)
+  const syncAudiencesApiClient: SyncAudiences = new SyncAudiences(request)
+  const { cohort_name, cohort_id } = payloads[0]
+  console.log('Check stateContext', stateContext)
+  logger.info('Braze Cohorts', stateContext.getState('cohort_name'))
 
-  const SyncAudiencesApiClient: SyncAudiences = new SyncAudiences(request)
-
-  await SyncAudiencesApiClient.createCohort(settings, payloads[0])
+  if (stateContext.getState('cohort_name') != cohort_name) {
+    await syncAudiencesApiClient.createCohort(settings, payloads[0])
+    stateContext.setState(`cohort_name`, cohort_name, { minute: 2 })
+  }
   const { addUsers, removeUsers } = extractUsers(payloads)
   const users = {
     addUsers,
@@ -117,14 +145,18 @@ async function processPayload(request: RequestClient, settings: Settings, payloa
     return
   }
 
-  const res = await SyncAudiencesApiClient.batchUpdate(settings, payloads[0], users)
-
-  // When User gets added or removed successfully , it will give 201 statua code other than there could be an error of invalid keys or some internal error.
-  if (res.status !== 201) {
-    throw new RetryableError('Error while attempting to sync audience to braze. This batch will be retried.')
-  }
-
+  const res = await syncAudiencesApiClient.batchUpdate(settings, cohort_id, users)
   return res
+}
+
+function validate(payloads: Payload[]): void {
+  if (payloads[0].cohort_name !== payloads[0].personas_audience_key) {
+    throw new IntegrationError(
+      'The value of `personas computation key` and `personas_audience_key` must match.',
+      'INVALID_SETTINGS',
+      400
+    )
+  }
 }
 
 function extractUsers(payloads: Payload[]) {
@@ -142,11 +174,11 @@ function extractUsers(payloads: Payload[]) {
 
     // external_id => device_id => user_alias Priority Order
     if (external_id) {
-      user.user_ids.push(external_id)
+      user?.user_ids.push(external_id)
     } else if (device_id) {
-      user.device_ids.push(device_id)
+      user?.device_ids.push(device_id)
     } else if (user_alias) {
-      user.aliases.push(user_alias)
+      user?.aliases.push(user_alias)
     }
   })
 

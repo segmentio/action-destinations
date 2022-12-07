@@ -13,8 +13,8 @@ const destination: DestinationDefinition<Settings> = {
       client_secret: {
         label: 'Client Secret key',
         description: 'Data Import Key for the client whose cohort this belongs to. Also known as customer key.',
-        type: 'password'
-        // required: true Hard Coding in code due to issue in action tester
+        type: 'password',
+        required: true
       },
       endpoint: {
         label: 'REST Endpoint',

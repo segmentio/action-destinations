@@ -23,7 +23,7 @@ export interface Payload {
   /**
    * The name of Cohort
    */
-  name: string
+  cohort_name: string
   /**
    * Enable batching of requests to the Braze cohorts.
    */
@@ -38,4 +38,8 @@ export interface Payload {
   event_properties: {
     [k: string]: unknown
   }
+  /**
+   * When the event occurred.
+   */
+  time: string | number
 }

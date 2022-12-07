@@ -1,7 +1,6 @@
 import type { RequestClient, ModifiedResponse } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from '../syncAudiences/generated-types'
-import dayjs from '../../../lib/dayjs'
 import { CohortChanges } from '../cohortChanges'
 
 interface APIResponse {
@@ -23,16 +22,16 @@ export class SyncAudiences {
           ? process.env.braze_cohorts_partner_api_key_eu
           : process.env.braze_cohorts_partner_api_key_us,
         client_secret: settings.client_secret,
-        name: payload?.name,
+        name: payload?.cohort_name,
         cohort_id: payload?.cohort_id,
-        created_at: dayjs.utc().toISOString()
+        created_at: payload?.time
       }
     })
   }
 
   async batchUpdate(
     settings: Settings,
-    payload: Payload,
+    cohort_id: string,
     { addUsers, removeUsers, hasAddUsers, hasRemoveUsers }: any
   ): Promise<ModifiedResponse> {
     const cohortChanges: Array<CohortChanges> = []
@@ -50,7 +49,7 @@ export class SyncAudiences {
           ? process.env.braze_cohorts_partner_api_key_eu
           : process.env.braze_cohorts_partner_api_key_us,
         client_secret: settings.client_secret,
-        cohort_id: payload.cohort_id,
+        cohort_id: cohort_id,
         cohort_changes: cohortChanges
       }
     })
