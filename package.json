@@ -25,7 +25,7 @@
     "test": "lerna run test --stream",
     "test-partners": "lerna run test --stream --ignore @segment/actions-core --ignore @segment/actions-cli --ignore @segment/ajv-human-errors",
     "typecheck": "lerna run typecheck --stream",
-    "alpha": "lerna publish --canary --preid $(git branch --show-current)",
+    "alpha": "lerna publish --canary --preid $(git branch --show-current) --include-merged-tags",
     "prepare": "husky install"
   },
   "devDependencies": {

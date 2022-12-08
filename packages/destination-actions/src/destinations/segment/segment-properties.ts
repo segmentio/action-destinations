@@ -35,7 +35,8 @@ export const screen_name: InputField = {
 export const event_name: InputField = {
   label: 'Event Name',
   description: 'Name of the action that a user has performed.',
-  type: 'string'
+  type: 'string',
+  required: true
 }
 
 export const page_category: InputField = {
@@ -48,7 +49,7 @@ export const application: InputField = {
   label: 'Application',
   description: 'Dictionary of information about the current application.',
   type: 'object',
-  defaultObjectUI: 'object',
+  defaultObjectUI: 'keyvalue',
   properties: {
     name: {
       label: 'Name',
@@ -78,7 +79,7 @@ export const campaign_parameters: InputField = {
   description:
     'Dictionary of information about the campaign that resulted in the API call. This maps directly to the common UTM campaign parameters.',
   type: 'object',
-  defaultObjectUI: 'object',
+  defaultObjectUI: 'keyvalue',
   properties: {
     name: {
       label: 'Name',
@@ -112,7 +113,7 @@ export const device: InputField = {
   label: 'Device',
   description: 'Dictionary of information about the device the API call originated from.',
   type: 'object',
-  defaultObjectUI: 'object',
+  defaultObjectUI: 'keyvalue',
   properties: {
     id: {
       label: 'ID',
@@ -173,7 +174,7 @@ export const location: InputField = {
   label: 'Location',
   description: 'Dictionary of information about the user’s current location.',
   type: 'object',
-  defaultObjectUI: 'object',
+  defaultObjectUI: 'keyvalue',
   properties: {
     city: {
       label: 'City',
@@ -207,7 +208,7 @@ export const network: InputField = {
   label: 'Network',
   description: 'Dictionary of information about the current network connection.',
   type: 'object',
-  defaultObjectUI: 'object',
+  defaultObjectUI: 'keyvalue',
   properties: {
     bluetooth: {
       label: 'Bluetooth',
@@ -236,7 +237,7 @@ export const operating_system: InputField = {
   label: 'Operating System',
   description: 'Dictionary of information about the operating system.',
   type: 'object',
-  defaultObjectUI: 'object',
+  defaultObjectUI: 'keyvalue',
   properties: {
     name: {
       label: 'Name',
@@ -255,7 +256,7 @@ export const page: InputField = {
   label: 'Page',
   description: 'Dictionary of information about the current page in the browser.',
   type: 'object',
-  defaultObjectUI: 'object',
+  defaultObjectUI: 'keyvalue',
   properties: {
     path: {
       label: 'Path',
@@ -289,7 +290,7 @@ export const screen: InputField = {
   label: 'Screen',
   description: 'Dictionary of information about the device’s screen.',
   type: 'object',
-  defaultObjectUI: 'object',
+  defaultObjectUI: 'keyvalue',
   properties: {
     density: {
       label: 'Density',
@@ -331,7 +332,7 @@ export const properties: InputField = {
   label: 'Properties',
   description: 'Free-form dictionary of properties that describe the screen.',
   type: 'object',
-  defaultObjectUI: 'object',
+  defaultObjectUI: 'keyvalue',
   additionalProperties: true
 }
 

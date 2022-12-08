@@ -9,6 +9,7 @@ import { convertReferrerProperty } from '../referrer'
 import { mergeUserProperties } from '../merge-user-properties'
 import { parseUserAgentProperties } from '../user-agent'
 import { getEndpointByRegion } from '../regional-endpoints'
+import { formatSessionId } from '../convert-timestamp'
 
 export interface AmplitudeEvent extends Omit<Payload, 'products' | 'trackRevenuePerProduct' | 'time' | 'session_id'> {
   library?: string
@@ -30,12 +31,17 @@ interface EventRevenue {
 }
 
 function getRevenueProperties(payload: EventRevenue): EventRevenue {
-  if (typeof payload.revenue !== 'number') {
+  let revenue = payload.revenue
+  if (typeof payload.quantity === 'number' && typeof payload.price === 'number') {
+    revenue = payload.quantity * payload.price
+  }
+
+  if (!revenue) {
     return {}
   }
 
   return {
-    revenue: payload.revenue,
+    revenue,
     revenueType: payload.revenueType ?? 'Purchase',
     quantity: typeof payload.quantity === 'number' ? Math.round(payload.quantity) : undefined,
     price: payload.price,
@@ -220,7 +226,7 @@ const action: ActionDefinition<Settings, Payload> = {
     }
 
     if (session_id && dayjs.utc(session_id).isValid()) {
-      properties.session_id = dayjs.utc(session_id).valueOf()
+      properties.session_id = formatSessionId(session_id)
     }
 
     if (Object.keys(payload.utm_properties ?? {}).length || payload.referrer) {

@@ -1,7 +1,7 @@
 import nock from 'nock'
 import { createTestEvent, createTestIntegration, omit } from '@segment/actions-core'
 import Destination from '../../index'
-import { ApiRegions } from '../../utils'
+import { ApiRegions, StrictMode } from '../../utils'
 import { SegmentEvent } from '@segment/actions-core'
 
 const testDestination = createTestIntegration(Destination)
@@ -55,7 +55,11 @@ const orderCompletedEvent: Partial<SegmentEvent> = {
 }
 
 const expectedOrderCompleted = {
-  ...omit(orderCompletedEvent, ['anonymousId', 'messageId', 'timestamp', 'type', 'userId'])
+  ...omit(orderCompletedEvent, ['anonymousId', 'messageId', 'timestamp', 'type', 'userId']),
+}
+
+const mapping = {
+  generatePurchaseEventPerProduct: false
 }
 
 const settingsObj = {
@@ -72,8 +76,10 @@ describe('Mixpanel.trackPurchase', () => {
 
     nock('https://api.mixpanel.com').post('/import?strict=1').reply(200, {})
 
+
     const responses = await testDestination.testAction('trackPurchase', {
       event,
+      mapping,
       useDefaultMappings: true,
       settings: settingsObj
     })
@@ -99,8 +105,6 @@ describe('Mixpanel.trackPurchase', () => {
     })
     expect(responses.length).toBe(1)
     expect(responses[0].status).toBe(200)
-    expect(responses[0].data).toMatchObject({})
-    expect(responses[0].options.json).toMatchObject([expectedOrderCompleted])
   })
 
   it('should default to US endpoint if apiRegion setting is undefined', async () => {
@@ -118,18 +122,16 @@ describe('Mixpanel.trackPurchase', () => {
     })
     expect(responses.length).toBe(1)
     expect(responses[0].status).toBe(200)
-    expect(responses[0].data).toMatchObject({})
-    expect(responses[0].options.json).toMatchObject([expectedOrderCompleted])
   })
 
   it('should send segment_source_name property if sourceName setting is defined', async () => {
     const event = createTestEvent(orderCompletedEvent)
 
     nock('https://api.mixpanel.com').post('/import?strict=1').reply(200, {})
-
     const sourceName = 'example segment source name'
     const responses = await testDestination.testAction('trackPurchase', {
       event,
+      mapping,
       useDefaultMappings: true,
       settings: {
         projectToken: MIXPANEL_PROJECT_TOKEN,
@@ -155,9 +157,9 @@ describe('Mixpanel.trackPurchase', () => {
     const event = createTestEvent(orderCompletedEvent)
 
     nock('https://api.mixpanel.com').post('/import?strict=1').reply(200, {})
-
     const responses = await testDestination.testAction('trackPurchase', {
       event,
+      mapping,
       useDefaultMappings: true,
       settings: {
         projectToken: MIXPANEL_PROJECT_TOKEN,
@@ -168,6 +170,62 @@ describe('Mixpanel.trackPurchase', () => {
     expect(responses[0].status).toBe(200)
     expect(responses[0].data).toMatchObject({})
     expect(responses[0].options.json).toMatchObject([expectedOrderCompleted])
+  })
+
+  it('should use strict mode end point by default', async () => {
+    const event = createTestEvent(orderCompletedEvent)
+
+    nock('https://api.mixpanel.com').post('/import?strict=1').reply(200, {})
+
+    const responses = await testDestination.testAction('trackPurchase', {
+      event,
+      useDefaultMappings: true,
+      settings: {
+        projectToken: MIXPANEL_PROJECT_TOKEN,
+        apiSecret: MIXPANEL_API_SECRET,
+        apiRegion: ApiRegions.US,
+      }
+    })
+    expect(responses.length).toBe(1)
+    expect(responses[0].status).toBe(200)
+  })
+
+  it('should use strict mode end point when the strict mode setting is on', async () => {
+    const event = createTestEvent(orderCompletedEvent)
+
+    nock('https://api.mixpanel.com').post('/import?strict=1').reply(200, {})
+
+    const responses = await testDestination.testAction('trackPurchase', {
+      event,
+      useDefaultMappings: true,
+      settings: {
+        projectToken: MIXPANEL_PROJECT_TOKEN,
+        apiSecret: MIXPANEL_API_SECRET,
+        apiRegion: ApiRegions.US,
+        strictMode: StrictMode.ON
+      }
+    })
+    expect(responses.length).toBe(1)
+    expect(responses[0].status).toBe(200)
+  })
+
+  it('should not use strict mode end point when the strict mode setting is off', async () => {
+    const event = createTestEvent(orderCompletedEvent)
+
+    nock('https://api.mixpanel.com').post('/import?strict=0').reply(200, {})
+
+    const responses = await testDestination.testAction('trackPurchase', {
+      event,
+      useDefaultMappings: true,
+      settings: {
+        projectToken: MIXPANEL_PROJECT_TOKEN,
+        apiSecret: MIXPANEL_API_SECRET,
+        apiRegion: ApiRegions.US,
+        strictMode: StrictMode.OFF
+      }
+    })
+    expect(responses.length).toBe(1)
+    expect(responses[0].status).toBe(200)
   })
 
   it('should require event field', async () => {
@@ -187,9 +245,9 @@ describe('Mixpanel.trackPurchase', () => {
     const events = [createTestEvent(orderCompletedEvent), createTestEvent(orderCompletedEvent)]
 
     nock('https://api.mixpanel.com').post('/import?strict=1').reply(200, {})
-
     const responses = await testDestination.testBatchAction('trackPurchase', {
       events,
+      mapping,
       useDefaultMappings: true,
       settings: {
         projectToken: MIXPANEL_PROJECT_TOKEN,
@@ -234,7 +292,7 @@ describe('Mixpanel.trackPurchase', () => {
           $locale: 'en-US',
           $source: 'segment',
           mp_country_code: 'United States',
-          mp_lib: 'Segment: analytics.js',
+          mp_lib: 'Segment Actions: analytics.js',
           affiliation: 'Super Online Store',
           order_id: 'order-id-123',
           checkout_id: 'checkout-id-123',
@@ -285,7 +343,7 @@ describe('Mixpanel.trackPurchase', () => {
           $locale: 'en-US',
           $source: 'segment',
           mp_country_code: 'United States',
-          mp_lib: 'Segment: analytics.js',
+          mp_lib: 'Segment Actions: analytics.js',
           product_id: '507f1f77bcf86cd799439011',
           sku: '45790-32',
           category: 'Games',
@@ -316,7 +374,7 @@ describe('Mixpanel.trackPurchase', () => {
           $locale: 'en-US',
           $source: 'segment',
           mp_country_code: 'United States',
-          mp_lib: 'Segment: analytics.js',
+          mp_lib: 'Segment Actions: analytics.js',
           product_id: '505bd76785ebb509fc183733',
           sku: '46493-32',
           category: 'Games',
@@ -347,11 +405,11 @@ describe('Mixpanel.trackPurchase', () => {
     expect(responses.length).toBe(1)
     expect(responses[0].status).toBe(200)
     expect(responses[0].options.body).toMatchInlineSnapshot(
-      `"[{\\"event\\":\\"Order Completed\\",\\"properties\\":{\\"time\\":1629213675449,\\"ip\\":\\"8.8.8.8\\",\\"id\\":\\"abc123\\",\\"distinct_id\\":\\"abc123\\",\\"$browser\\":\\"Mozilla\\",\\"$current_url\\":\\"https://segment.com/academy/\\",\\"$insert_id\\":\\"112c2a3c-7242-4327-9090-48a89de6a4110\\",\\"$lib_version\\":\\"2.11.1\\",\\"$locale\\":\\"en-US\\",\\"$source\\":\\"segment\\",\\"mp_country_code\\":\\"United States\\",\\"mp_lib\\":\\"Segment: analytics.js\\",\\"affiliation\\":\\"Super Online Store\\",\\"order_id\\":\\"order-id-123\\",\\"checkout_id\\":\\"checkout-id-123\\",\\"coupon\\":\\"Mixpanel Day\\",\\"currency\\":\\"USD\\",\\"products\\":[{\\"product_id\\":\\"507f1f77bcf86cd799439011\\",\\"sku\\":\\"45790-32\\",\\"name\\":\\"Monopoly: 3rd Edition\\",\\"price\\":19,\\"position\\":1,\\"quantity\\":2,\\"coupon\\":\\"MOUNTAIN\\",\\"brand\\":\\"Unknown\\",\\"category\\":\\"Games\\",\\"variant\\":\\"Black\\",\\"url\\":\\"https://www.example.com/product/path\\",\\"image_url\\":\\"https://www.example.com/product/path.jpg\\"},{\\"product_id\\":\\"505bd76785ebb509fc183733\\",\\"sku\\":\\"46493-32\\",\\"name\\":\\"Uno Card Game\\",\\"price\\":3,\\"position\\":2,\\"category\\":\\"Games\\",\\"custom\\":\\"xyz\\"}],\\"revenue\\":5.99,\\"shipping\\":1.5,\\"tax\\":3,\\"total\\":24.48}}]"`
+      `"[{\\"event\\":\\"Order Completed\\",\\"properties\\":{\\"time\\":1629213675449,\\"ip\\":\\"8.8.8.8\\",\\"id\\":\\"abc123\\",\\"$anon_id\\":\\"anon-2134\\",\\"distinct_id\\":\\"abc123\\",\\"$browser\\":\\"Mozilla\\",\\"$current_url\\":\\"https://segment.com/academy/\\",\\"$identified_id\\":\\"abc123\\",\\"$insert_id\\":\\"112c2a3c-7242-4327-9090-48a89de6a4110\\",\\"$lib_version\\":\\"2.11.1\\",\\"$locale\\":\\"en-US\\",\\"$source\\":\\"segment\\",\\"$user_id\\":\\"abc123\\",\\"mp_country_code\\":\\"United States\\",\\"mp_lib\\":\\"Segment Actions: analytics.js\\",\\"affiliation\\":\\"Super Online Store\\",\\"order_id\\":\\"order-id-123\\",\\"checkout_id\\":\\"checkout-id-123\\",\\"coupon\\":\\"Mixpanel Day\\",\\"currency\\":\\"USD\\",\\"products\\":[{\\"product_id\\":\\"507f1f77bcf86cd799439011\\",\\"sku\\":\\"45790-32\\",\\"name\\":\\"Monopoly: 3rd Edition\\",\\"price\\":19,\\"position\\":1,\\"quantity\\":2,\\"coupon\\":\\"MOUNTAIN\\",\\"brand\\":\\"Unknown\\",\\"category\\":\\"Games\\",\\"variant\\":\\"Black\\",\\"url\\":\\"https://www.example.com/product/path\\",\\"image_url\\":\\"https://www.example.com/product/path.jpg\\"},{\\"product_id\\":\\"505bd76785ebb509fc183733\\",\\"sku\\":\\"46493-32\\",\\"name\\":\\"Uno Card Game\\",\\"price\\":3,\\"position\\":2,\\"category\\":\\"Games\\",\\"custom\\":\\"xyz\\"}],\\"revenue\\":5.99,\\"shipping\\":1.5,\\"tax\\":3,\\"total\\":24.48}}]"`
     )
   })
 
-  it('should NOT generate a purchase event for each product by default', async () => {
+  it('should generate a purchase event for each product by default', async () => {
     const event = createTestEvent(orderCompletedEvent)
 
     nock('https://api.mixpanel.com').post('/import?strict=1').reply(200, {})
@@ -364,7 +422,7 @@ describe('Mixpanel.trackPurchase', () => {
     expect(responses.length).toBe(1)
     expect(responses[0].status).toBe(200)
     expect(responses[0].options.body).toMatchInlineSnapshot(
-      `"[{\\"event\\":\\"Order Completed\\",\\"properties\\":{\\"time\\":1629213675449,\\"ip\\":\\"8.8.8.8\\",\\"id\\":\\"abc123\\",\\"distinct_id\\":\\"abc123\\",\\"$browser\\":\\"Mozilla\\",\\"$current_url\\":\\"https://segment.com/academy/\\",\\"$insert_id\\":\\"112c2a3c-7242-4327-9090-48a89de6a4110\\",\\"$lib_version\\":\\"2.11.1\\",\\"$locale\\":\\"en-US\\",\\"$source\\":\\"segment\\",\\"mp_country_code\\":\\"United States\\",\\"mp_lib\\":\\"Segment: analytics.js\\",\\"affiliation\\":\\"Super Online Store\\",\\"order_id\\":\\"order-id-123\\",\\"checkout_id\\":\\"checkout-id-123\\",\\"coupon\\":\\"Mixpanel Day\\",\\"currency\\":\\"USD\\",\\"products\\":[{\\"product_id\\":\\"507f1f77bcf86cd799439011\\",\\"sku\\":\\"45790-32\\",\\"name\\":\\"Monopoly: 3rd Edition\\",\\"price\\":19,\\"position\\":1,\\"quantity\\":2,\\"coupon\\":\\"MOUNTAIN\\",\\"brand\\":\\"Unknown\\",\\"category\\":\\"Games\\",\\"variant\\":\\"Black\\",\\"url\\":\\"https://www.example.com/product/path\\",\\"image_url\\":\\"https://www.example.com/product/path.jpg\\"},{\\"product_id\\":\\"505bd76785ebb509fc183733\\",\\"sku\\":\\"46493-32\\",\\"name\\":\\"Uno Card Game\\",\\"price\\":3,\\"position\\":2,\\"category\\":\\"Games\\",\\"custom\\":\\"xyz\\"}],\\"revenue\\":5.99,\\"shipping\\":1.5,\\"tax\\":3,\\"total\\":24.48}}]"`
+      `"[{\\"event\\":\\"Order Completed\\",\\"properties\\":{\\"time\\":1629213675449,\\"ip\\":\\"8.8.8.8\\",\\"id\\":\\"abc123\\",\\"$anon_id\\":\\"anon-2134\\",\\"distinct_id\\":\\"abc123\\",\\"$browser\\":\\"Mozilla\\",\\"$current_url\\":\\"https://segment.com/academy/\\",\\"$identified_id\\":\\"abc123\\",\\"$insert_id\\":\\"112c2a3c-7242-4327-9090-48a89de6a4110\\",\\"$lib_version\\":\\"2.11.1\\",\\"$locale\\":\\"en-US\\",\\"$source\\":\\"segment\\",\\"$user_id\\":\\"abc123\\",\\"mp_country_code\\":\\"United States\\",\\"mp_lib\\":\\"Segment Actions: analytics.js\\",\\"affiliation\\":\\"Super Online Store\\",\\"order_id\\":\\"order-id-123\\",\\"checkout_id\\":\\"checkout-id-123\\",\\"coupon\\":\\"Mixpanel Day\\",\\"currency\\":\\"USD\\",\\"products\\":[{\\"product_id\\":\\"507f1f77bcf86cd799439011\\",\\"sku\\":\\"45790-32\\",\\"name\\":\\"Monopoly: 3rd Edition\\",\\"price\\":19,\\"position\\":1,\\"quantity\\":2,\\"coupon\\":\\"MOUNTAIN\\",\\"brand\\":\\"Unknown\\",\\"category\\":\\"Games\\",\\"variant\\":\\"Black\\",\\"url\\":\\"https://www.example.com/product/path\\",\\"image_url\\":\\"https://www.example.com/product/path.jpg\\"},{\\"product_id\\":\\"505bd76785ebb509fc183733\\",\\"sku\\":\\"46493-32\\",\\"name\\":\\"Uno Card Game\\",\\"price\\":3,\\"position\\":2,\\"category\\":\\"Games\\",\\"custom\\":\\"xyz\\"}],\\"revenue\\":5.99,\\"shipping\\":1.5,\\"tax\\":3,\\"total\\":24.48}},{\\"event\\":\\"Product Purchased\\",\\"properties\\":{\\"time\\":1629213675448,\\"ip\\":\\"8.8.8.8\\",\\"id\\":\\"abc123\\",\\"$anon_id\\":\\"anon-2134\\",\\"distinct_id\\":\\"abc123\\",\\"$browser\\":\\"Mozilla\\",\\"$current_url\\":\\"https://segment.com/academy/\\",\\"$identified_id\\":\\"abc123\\",\\"$insert_id\\":\\"0112c2a3c-7242-4327-9090-48a89de6a4110\\",\\"$lib_version\\":\\"2.11.1\\",\\"$locale\\":\\"en-US\\",\\"$source\\":\\"segment\\",\\"$user_id\\":\\"abc123\\",\\"mp_country_code\\":\\"United States\\",\\"mp_lib\\":\\"Segment Actions: analytics.js\\",\\"order_id\\":\\"order-id-123\\",\\"checkout_id\\":\\"checkout-id-123\\",\\"product_id\\":\\"507f1f77bcf86cd799439011\\",\\"sku\\":\\"45790-32\\",\\"category\\":\\"Games\\",\\"name\\":\\"Monopoly: 3rd Edition\\",\\"brand\\":\\"Unknown\\",\\"variant\\":\\"Black\\",\\"price\\":19,\\"quantity\\":2,\\"coupon\\":\\"MOUNTAIN\\",\\"position\\":1,\\"url\\":\\"https://www.example.com/product/path\\",\\"image_url\\":\\"https://www.example.com/product/path.jpg\\"}},{\\"event\\":\\"Product Purchased\\",\\"properties\\":{\\"time\\":1629213675447,\\"ip\\":\\"8.8.8.8\\",\\"id\\":\\"abc123\\",\\"$anon_id\\":\\"anon-2134\\",\\"distinct_id\\":\\"abc123\\",\\"$browser\\":\\"Mozilla\\",\\"$current_url\\":\\"https://segment.com/academy/\\",\\"$identified_id\\":\\"abc123\\",\\"$insert_id\\":\\"1112c2a3c-7242-4327-9090-48a89de6a4110\\",\\"$lib_version\\":\\"2.11.1\\",\\"$locale\\":\\"en-US\\",\\"$source\\":\\"segment\\",\\"$user_id\\":\\"abc123\\",\\"mp_country_code\\":\\"United States\\",\\"mp_lib\\":\\"Segment Actions: analytics.js\\",\\"order_id\\":\\"order-id-123\\",\\"checkout_id\\":\\"checkout-id-123\\",\\"product_id\\":\\"505bd76785ebb509fc183733\\",\\"sku\\":\\"46493-32\\",\\"category\\":\\"Games\\",\\"name\\":\\"Uno Card Game\\",\\"price\\":3,\\"position\\":2}}]"`
     )
   })
 })

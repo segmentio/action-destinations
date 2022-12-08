@@ -20,8 +20,6 @@ export type { BaseActionDefinition, ActionDefinition, ExecuteInput, RequestFn }
 export type { MinimalInputField }
 export { fieldsToJsonSchema }
 
-const OAUTH2_SCHEME = 'oauth2'
-
 export interface SubscriptionStats {
   duration: number
   destination: string
@@ -117,7 +115,7 @@ interface RefreshAuthSettings<Settings> {
 
 interface Authentication<Settings> {
   /** The authentication scheme */
-  scheme: 'basic' | 'custom' | 'oauth2'
+  scheme: 'basic' | 'custom' | 'oauth2' | 'oauth-managed'
   /** The fields related to authentication */
   fields: Record<string, GlobalSetting>
   /** A function that validates the user's authentication inputs. It is highly encouraged to define this whenever possible. */
@@ -154,11 +152,25 @@ export interface OAuth2Authentication<Settings> extends Authentication<Settings>
   ) => Promise<RefreshAccessTokenResult>
 }
 
+/**
+ * OAuth2 authentication scheme where the credentials and settings are managed by the partner.
+ */
+export interface OAuthManagedAuthentication<Settings> extends Authentication<Settings> {
+  scheme: 'oauth-managed'
+  /** A function that is used to refresh the access token
+   */
+  refreshAccessToken?: (
+    request: RequestClient,
+    input: RefreshAuthSettings<Settings>
+  ) => Promise<RefreshAccessTokenResult>
+}
+
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export type AuthenticationScheme<Settings = any> =
   | BasicAuthentication<Settings>
   | CustomAuthentication<Settings>
   | OAuth2Authentication<Settings>
+  | OAuthManagedAuthentication<Settings>
 
 interface EventInput<Settings> {
   readonly event: SegmentEvent
@@ -317,7 +329,7 @@ export class Destination<Settings = JSONObject> {
     settings: Settings,
     oauthData: OAuth2ClientCredentials
   ): Promise<RefreshAccessTokenResult> | undefined {
-    if (this.authentication?.scheme !== OAUTH2_SCHEME) {
+    if (!(this.authentication?.scheme === 'oauth2' || this.authentication?.scheme === 'oauth-managed')) {
       throw new IntegrationError(
         'refreshAccessToken is only valid with oauth2 authentication scheme',
         'NotImplemented',
@@ -523,7 +535,12 @@ export class Destination<Settings = JSONObject> {
       const statusCode = error?.status ?? error?.response?.status ?? 500
 
       // Throw original error if it is unrelated to invalid access tokens and not an oauth2 scheme
-      if (!(statusCode === 401 && this.authentication?.scheme === OAUTH2_SCHEME)) {
+      if (
+        !(
+          statusCode === 401 &&
+          (this.authentication?.scheme === 'oauth2' || this.authentication?.scheme === 'oauth-managed')
+        )
+      ) {
         throw error
       }
 
@@ -566,7 +583,12 @@ export class Destination<Settings = JSONObject> {
       const statusCode = error?.status ?? error?.response?.status ?? 500
 
       // Throw original error if it is unrelated to invalid access tokens and not an oauth2 scheme
-      if (!(statusCode === 401 && this.authentication?.scheme === OAUTH2_SCHEME)) {
+      if (
+        !(
+          statusCode === 401 &&
+          (this.authentication?.scheme === 'oauth2' || this.authentication?.scheme === 'oauth-managed')
+        )
+      ) {
         throw error
       }
 

@@ -4,7 +4,7 @@ import chalk from 'chalk'
 const warning = chalk.red`
 🚨🚨🚨🚨🚨 Warning 🚨🚨🚨🚨🚨🚨
 Internal CLI Commands have been deprecated
-please see the actions-cli repo for more details
+please see the action-cli repo for more details
 🚨🚨🚨🚨🚨 Warning 🚨🚨🚨🚨🚨🚨
 `
 
