@@ -313,7 +313,7 @@ const action: ActionDefinition<Settings, Payload> = {
     eventOccurredTS: {
       label: 'Event Timestamp',
       description: 'Time of when the actual event happened.',
-      type: 'number',
+      type: 'string',
       required: false,
       default: {
         '@path': '$.timestamp'
@@ -465,7 +465,7 @@ const action: ActionDefinition<Settings, Payload> = {
       if (payload?.eventOccurredTS != undefined) {
         statsClient?.histogram(
           'actions-personas-messaging-sendgrid.eventDeliveryTS',
-          Date.now() - payload?.eventOccurredTS,
+          Date.now() - new Date(payload?.eventOccurredTS).getTime(),
           tags
         )
       }
