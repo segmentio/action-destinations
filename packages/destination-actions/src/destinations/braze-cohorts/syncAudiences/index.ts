@@ -105,10 +105,10 @@ const action: ActionDefinition<Settings, Payload> = {
     }
   },
   perform: async (request, { settings, payload, logger, stateContext }) => {
-    return processPayload(request, settings, [payload], logger as Logger, stateContext)
+    return processPayload(request, settings, [payload], logger as Logger, stateContext as StateContext)
   },
   performBatch: async (request, { settings, payload, logger, stateContext }) => {
-    return processPayload(request, settings, payload, logger as Logger, stateContext)
+    return processPayload(request, settings, payload, logger as Logger, stateContext as StateContext)
   }
 }
 async function processPayload(
