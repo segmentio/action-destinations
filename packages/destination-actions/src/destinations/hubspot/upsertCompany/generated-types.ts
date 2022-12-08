@@ -22,7 +22,7 @@ export interface Payload {
   /**
    * The name of the company.
    */
-  name: string
+  name?: string
   /**
    * A short statement about the company’s mission and goals.
    */

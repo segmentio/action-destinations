@@ -160,7 +160,6 @@ const action: ActionDefinition<Settings, Payload> = {
       label: 'Company Name',
       description: 'The name of the company.',
       type: 'string',
-      required: true,
       default: {
         '@path': '$.traits.name'
       }
