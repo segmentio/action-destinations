@@ -510,10 +510,12 @@ describe('destination kit', () => {
           setTransaction: (key: string, value: string) => ({ [key]: value })
         } as TransactionContext,
         stateContext: {
-          // eslint-disable-next-line @typescript-eslint/no-unused-vars
-          getState: (key: string, cb?: (res?: string) => any): any => {},
-          // eslint-disable-next-line @typescript-eslint/no-unused-vars
-          setState: (key: string, value: string, ttl: { hour?: number; minute?: number; second?: number }): void => {}
+          getState: (_key: string, _cb?: (res?: string) => any): any => {},
+          setState: (
+            _key: string,
+            _value: string,
+            _ttl: { hour?: number; minute?: number; second?: number }
+          ): void => {}
         } as StateContext
       }
       const res = await destinationTest.onEvent(testEvent, testSettings, eventOptions)
