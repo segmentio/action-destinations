@@ -164,34 +164,26 @@ describe('Salesforce Utils', () => {
       expect(csv).toEqual(expected)
     })
 
-    /* 
-    If a field value contains a comma, a new line, or a double quote, the field value must be contained within double quotes: 
-      for example, "Director of Operations, Western Region".
-
-    If a field value contains a double quote, the double quote must be escaped by preceding it with another double quote: 
-      for example, "This is the ""gold"" standard".
-    */
-
-    it('should correctly escape special characters', async () => {
+    it('should correctly escape double quotes', async () => {
       const updatePayloads: GenericPayload[] = [
         {
           operation: 'update',
           enable_batching: true,
           bulkUpdateRecordId: '00',
-          name: 'Sponge "Bob" "Square" "pants"'
+          name: 'Sponge ""Bob"" "Square" "pants"'
         },
         {
           operation: 'update',
           enable_batching: true,
           bulkUpdateRecordId: '01',
-          name: 'Tentacles, Squidward',
+          name: 'Tentacles, "Squidward"',
           description:
             'Squidward Tentacles is a fictional character in the American animated television series "SpongeBob SquarePants".\n He is voiced by actor Rodger Bumpass and first appeared on television in the series\' pilot episode on May 1, 1999.'
         }
       ]
 
       const csv = buildCSVData(updatePayloads, 'Id')
-      const expected = `Name,Description,Id\n"Sponge ""Bob"" ""Square"" ""pants""",#N/A,"00"\n"Tentacles, Squidward","Squidward Tentacles is a fictional character in the American animated television series ""SpongeBob SquarePants"".\n He is voiced by actor Rodger Bumpass and first appeared on television in the series' pilot episode on May 1, 1999.","01"\n`
+      const expected = `Name,Description,Id\n"Sponge """"Bob"""" ""Square"" ""pants""",#N/A,"00"\n"Tentacles, ""Squidward""","Squidward Tentacles is a fictional character in the American animated television series ""SpongeBob SquarePants"".\n He is voiced by actor Rodger Bumpass and first appeared on television in the series' pilot episode on May 1, 1999.","01"\n`
       expect(csv).toEqual(expected)
     })
   })
