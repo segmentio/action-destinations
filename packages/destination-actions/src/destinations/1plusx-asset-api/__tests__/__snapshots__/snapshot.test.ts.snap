@@ -1,0 +1,11 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Testing snapshot for actions-1plusx-asset-api destination: sendAssetData action - all fields 1`] = `
+Object {
+  "ope_content": "ElP)krdS65",
+  "ope_title": "ElP)krdS65",
+  "testType": "ElP)krdS65",
+}
+`;
+
+exports[`Testing snapshot for actions-1plusx-asset-api destination: sendAssetData action - required fields 1`] = `Object {}`;
