@@ -83,8 +83,8 @@ type UpsertCompanyFunction = () => Promise<ModifiedResponse<UpsertCompanyRespons
 
 /**
  * Upsert Company Action works as follows:
- * 1. Check if contact_id is available in transactionContext,
- *    if not available throw error, else continue to step 2
+ * 1. Check if associateContact flag is set to true AND contact_id is not defined in transactionContext,
+ *    if the above condition is true then throw error, else continue to step 2
  * 2. Check if internal property SEGMENT_UNIQUE_IDENTIFIER is re-defined in other properties,
  *    if defined throw error, else continue to step 3
  * 3. Try to update the company using SEGMENT_UNIQUE_IDENTIFIER
@@ -120,9 +120,10 @@ const action: ActionDefinition<Settings, Payload> = {
   defaultSubscription: 'type = "group"',
   fields: {
     groupid: {
-      label: 'Group ID',
-      description: `Used for constructing the unique ${SEGMENT_UNIQUE_IDENTIFIER} for HubSpot.`,
-      type: 'hidden',
+      label: 'Unique Company Identifier',
+      description:
+        'A unique identifier you assign to a company. Segment creates a custom property in HubSpot to store this value for each company so it can be used as a unique search field. Segment recommends not changing this value once set to avoid creating duplicate companies.',
+      type: 'string',
       required: true,
       default: {
         '@if': {
@@ -153,7 +154,6 @@ const action: ActionDefinition<Settings, Payload> = {
       description:
         'The unique field(s) used to search for an existing company in HubSpot to update. By default, Segment creates a custom property to store groupId for each company and uses this property to search for companies. If a company is not found, the fields provided here are then used to search. If a company is still not found, a new one is created.',
       type: 'object',
-      required: true,
       defaultObjectUI: 'keyvalue:only'
     },
     name: {
