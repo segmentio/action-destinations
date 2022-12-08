@@ -1,5 +1,5 @@
 import nock from 'nock'
-import { createTestEvent, createTestIntegration } from '@segment/actions-core'
+import { createTestEvent, createTestIntegration, DecoratedResponse } from '@segment/actions-core'
 import Destination from '../../index'
 import { HUBSPOT_BASE_URL, SEGMENT_UNIQUE_IDENTIFIER, ASSOCIATION_TYPE } from '../../properties'
 import {
@@ -75,8 +75,17 @@ const defaultGroupMapping = {
   // properties: {}
 }
 
+// Helper function to check length of responses, match status code and snapshot
+const checkResponses = (responses: DecoratedResponse[], expectedResponseCodes: number[]) => {
+  expect(responses).toHaveLength(expectedResponseCodes.length)
+  for (let i = 0; i < responses.length; i++) {
+    expect(responses[i].status).toEqual(expectedResponseCodes[i])
+    expect(responses[i].options.json).toMatchSnapshot()
+  }
+}
+
 describe('HubSpot.upsertCompany', () => {
-  it('should throw an error if contact_id is missing in transactionContext', async () => {
+  it('should throw an error if associateContact flag is set to true and contact_id is missing in transactionContext', async () => {
     const event = createTestEvent({
       type: 'group',
       traits: {
@@ -90,12 +99,7 @@ describe('HubSpot.upsertCompany', () => {
       testDestination.testAction('upsertCompany', {
         event,
         mapping: {
-          ...defaultGroupMapping,
-          companysearchfields: {
-            domain: {
-              '@path': '$.traits.website'
-            }
-          }
+          ...defaultGroupMapping
         },
         transactionContext: {
           transaction: {},
@@ -176,12 +180,7 @@ describe('HubSpot.upsertCompany', () => {
     const responses = await testDestination.testAction('upsertCompany', {
       event,
       mapping: {
-        ...defaultGroupMapping,
-        companysearchfields: {
-          domain: {
-            '@path': '$.traits.website'
-          }
-        }
+        ...defaultGroupMapping
       },
       transactionContext: {
         transaction: {
@@ -191,8 +190,8 @@ describe('HubSpot.upsertCompany', () => {
       }
     })
 
-    expect(responses[0].status).toEqual(200)
-    expect(responses[1].status).toEqual(200)
+    const expectedResponseCodes = [200, 200]
+    checkResponses(responses, expectedResponseCodes)
   })
 
   it('should update a company with Company Search Fields and associate a contact', async () => {
@@ -315,10 +314,8 @@ describe('HubSpot.upsertCompany', () => {
       }
     })
 
-    expect(responses[0].status).toEqual(404)
-    expect(responses[1].status).toEqual(200)
-    expect(responses[2].status).toEqual(200)
-    expect(responses[3].status).toEqual(200)
+    const expectedResponseCodes = [404, 200, 200, 200]
+    checkResponses(responses, expectedResponseCodes)
   })
 
   it('should create a company with and associate a contact', async () => {
@@ -424,10 +421,8 @@ describe('HubSpot.upsertCompany', () => {
       }
     })
 
-    expect(responses[0].status).toEqual(404)
-    expect(responses[1].status).toEqual(200)
-    expect(responses[2].status).toEqual(201)
-    expect(responses[3].status).toEqual(200)
+    const expectedResponseCodes = [404, 200, 201, 200]
+    checkResponses(responses, expectedResponseCodes)
   })
 
   it('should create SEGMENT_UNIQUE_IDENTIFIER and create a company if SEGMENT_UNIQUE_IDENTIFIER property is not found', async () => {
@@ -571,12 +566,8 @@ describe('HubSpot.upsertCompany', () => {
       }
     })
 
-    expect(responses[0].status).toEqual(404)
-    expect(responses[1].status).toEqual(200)
-    expect(responses[2].status).toEqual(400)
-    expect(responses[3].status).toEqual(201)
-    expect(responses[4].status).toEqual(201)
-    expect(responses[5].status).toEqual(200)
+    const expectedResponseCodes = [404, 200, 400, 201, 201, 200]
+    checkResponses(responses, expectedResponseCodes)
   })
 
   it('should create SEGMENT_UNIQUE_IDENTIFIER and update a company if SEGMENT_UNIQUE_IDENTIFIER property is not found', async () => {
@@ -737,11 +728,8 @@ describe('HubSpot.upsertCompany', () => {
       }
     })
 
-    expect(responses[0].status).toEqual(404)
-    expect(responses[1].status).toEqual(200)
-    expect(responses[2].status).toEqual(400)
-    expect(responses[3].status).toEqual(201)
-    expect(responses[4].status).toEqual(200)
+    const expectedResponseCodes = [404, 200, 400, 201, 200, 200]
+    checkResponses(responses, expectedResponseCodes)
   })
 
   it('should throw an error if SEGMENT_UNIQUE_IDENTIFIER is defined in options', async () => {
@@ -1150,49 +1138,8 @@ describe('HubSpot.upsertCompany', () => {
       }
     })
 
-    // expect(responses.length).toBe(2)
-    expect(responses[0].options.json).toMatchInlineSnapshot(`
-    Object {
-      "properties": Object {
-        "address": undefined,
-        "city": undefined,
-        "description": undefined,
-        "domain": "test-company.com",
-        "industry": undefined,
-        "lifecyclestage": undefined,
-        "name": "Test Company",
-        "numberofemployees": undefined,
-        "phone": undefined,
-        "segment_group_id": "test-group-id",
-        "state": undefined,
-        "zip": undefined,
-      },
-    }
-    `)
-    expect(responses[1].options.json).toMatchInlineSnapshot(`
-    Object {
-      "filterGroups": Array [
-        Object {
-          "filters": Array [
-            Object {
-              "operator": "EQ",
-              "propertyName": "domain",
-              "value": "test-company.com",
-            },
-          ],
-        },
-      ],
-      "properties": Array [
-        "name",
-        "domain",
-        "lifecyclestage",
-        "segment_group_id",
-      ],
-      "sorts": Array [
-        "name",
-      ],
-    }
-    `)
+    const expectedResponseCodes = [404, 200]
+    checkResponses(responses, expectedResponseCodes)
   })
 
   it('should throw an error if updateCompany returns an unexpected HTTP error', async () => {
@@ -1491,12 +1438,7 @@ describe('HubSpot.upsertCompany', () => {
       event,
       mapping: {
         ...defaultGroupMapping,
-        associateContact: false,
-        companysearchfields: {
-          domain: {
-            '@path': '$.traits.website'
-          }
-        }
+        associateContact: false
       },
       transactionContext: {
         transaction: {
@@ -1506,7 +1448,8 @@ describe('HubSpot.upsertCompany', () => {
       }
     })
 
-    expect(responses[0].status).toEqual(200)
+    const expectedResponseCodes = [200]
+    checkResponses(responses, expectedResponseCodes)
   })
 
   it('should throw an error if associateContact flag is set to true and contact doesn’t exist', async () => {
