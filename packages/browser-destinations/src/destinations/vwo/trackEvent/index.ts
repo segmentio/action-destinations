@@ -2,6 +2,7 @@ import type { BrowserActionDefinition } from '../../../lib/browser-destinations'
 import type { VWO } from '../types'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
+import { sanitiseEventName } from '../utility'
 
 // Change from unknown to the partner SDK types
 const action: BrowserActionDefinition<Settings, VWO, Payload> = {
@@ -31,12 +32,15 @@ const action: BrowserActionDefinition<Settings, VWO, Payload> = {
   },
   perform: (VWO, event) => {
     const { eventName, properties } = event.payload
+    const sanitisedEventName = sanitiseEventName(eventName)
     const formattedProperties = { ...properties }
-    formattedProperties['source'] = `segment.web`
     if (!VWO.event) {
       return
     }
-    VWO.event(eventName, formattedProperties)
+    VWO.event(sanitisedEventName, formattedProperties, {
+      source: 'segment.web',
+      ogName: eventName
+    })
   }
 }
 
