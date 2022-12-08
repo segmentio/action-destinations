@@ -69,7 +69,8 @@ export function initScript({
                 '&f=' +
                 +is_spa +
                 '&r=' +
-                Math.random()
+                Math.random() +
+                '&s=segment.web'
             )
             return settings_timer
           }

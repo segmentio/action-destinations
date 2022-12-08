@@ -53,10 +53,14 @@ describe('VWO.trackEvent', () => {
     })
     await trackEvent.track?.(context)
 
-    expect(mockVWO.event).toHaveBeenCalledWith('segment_ctaClick', {
-      vwo_source: 'segment.web',
-      vwo_og_event_name: 'ctaClick'
-    })
+    expect(mockVWO.event).toHaveBeenCalledWith(
+      'segment_ctaClick',
+      {},
+      {
+        source: 'segment.web',
+        ogName: 'ctaClick'
+      }
+    )
   })
 
   test('Track call with parameters', async () => {
@@ -69,10 +73,15 @@ describe('VWO.trackEvent', () => {
     })
     await trackEvent.track?.(context)
 
-    expect(mockVWO.event).toHaveBeenCalledWith('segment_buyButtonClick', {
-      amount: 1000,
-      vwo_source: 'segment.web',
-      vwo_og_event_name: 'buyButtonClick'
-    })
+    expect(mockVWO.event).toHaveBeenCalledWith(
+      'segment_buyButtonClick',
+      {
+        amount: 1000
+      },
+      {
+        source: 'segment.web',
+        ogName: 'buyButtonClick'
+      }
+    )
   })
 })

@@ -23,14 +23,12 @@ const action: BrowserActionDefinition<Settings, VWO, Payload> = {
   },
   perform: (VWO, event) => {
     const { attributes } = event.payload
-    const formattedAttributes = {
-      ...formatAttributes(attributes),
-      vwo_source: 'segment.web'
-    }
+    const formattedAttributes = formatAttributes(attributes)
+
     if (!VWO.visitor) {
       return
     }
-    VWO.visitor(formattedAttributes)
+    VWO.visitor(formattedAttributes, { source: 'segment.web' })
   }
 }
 
