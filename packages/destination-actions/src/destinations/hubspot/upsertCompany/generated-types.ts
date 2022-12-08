@@ -2,7 +2,7 @@
 
 export interface Payload {
   /**
-   * Used for constructing the unique segment_group_id for HubSpot.
+   * A unique identifier you assign to a company. Segment creates a custom property in HubSpot to store this value for each company so it can be used as a unique search field. Segment recommends not changing this value once set to avoid creating duplicate companies.
    */
   groupid: string
   /**
@@ -16,7 +16,7 @@ export interface Payload {
   /**
    * The unique field(s) used to search for an existing company in HubSpot to update. By default, Segment creates a custom property to store groupId for each company and uses this property to search for companies. If a company is not found, the fields provided here are then used to search. If a company is still not found, a new one is created.
    */
-  companysearchfields: {
+  companysearchfields?: {
     [k: string]: unknown
   }
   /**
