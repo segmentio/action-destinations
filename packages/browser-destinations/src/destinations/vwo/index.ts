@@ -53,7 +53,7 @@ export const destination: BrowserDestinationDefinition<Settings, VWO> = {
         'The maximum amount of time (in milliseconds) to wait for VWO’s full library to be downloaded before simply displaying your original page.',
       label: 'Library Tolerance',
       type: 'number',
-      default: 2000
+      default: 2500
     },
     useExistingJquery: {
       description:
