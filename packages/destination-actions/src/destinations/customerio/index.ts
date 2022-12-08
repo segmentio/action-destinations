@@ -9,6 +9,8 @@ import type { DestinationDefinition } from '@segment/actions-core'
 import type { Settings } from './generated-types'
 import { AccountRegion, trackApiEndpoint } from './utils'
 
+import createUpdateObject from './createUpdateObject'
+
 const destination: DestinationDefinition<Settings> = {
   name: 'Actions Customerio',
   mode: 'cloud',
@@ -55,7 +57,8 @@ const destination: DestinationDefinition<Settings> = {
     createUpdatePerson,
     trackEvent,
     trackPageView,
-    trackScreenView
+    trackScreenView,
+    createUpdateObject
   },
 
   presets: [
@@ -94,6 +97,12 @@ const destination: DestinationDefinition<Settings> = {
       subscribe: 'type = "screen"',
       partnerAction: 'trackScreenView',
       mapping: defaultValues(trackScreenView.fields)
+    },
+    {
+      name: 'Create or Update Object',
+      subscribe: 'type = "group"',
+      partnerAction: 'createUpdateObject',
+      mapping: defaultValues(createUpdateObject.fields)
     }
   ],
 
