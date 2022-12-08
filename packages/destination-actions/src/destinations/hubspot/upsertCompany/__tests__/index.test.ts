@@ -10,11 +10,14 @@ import {
   SegmentUniqueIdentifierMissingRetryableError
 } from '../../errors'
 
-const testDestination = createTestIntegration(Destination)
+let testDestination = createTestIntegration(Destination)
 
 const setTransaction = () => {}
 
 beforeEach((done) => {
+  // Re-Initialize the destination before each test
+  // This is done to mitigate a bug where action responses persist into other tests
+  testDestination = createTestIntegration(Destination)
   nock.cleanAll()
   done()
 })
@@ -28,6 +31,8 @@ const defaultGroupMapping = {
       else: { '@path': '$.context.groupId' }
     }
   },
+  createNewCompany: true,
+  associateContact: true,
   name: {
     '@path': '$.traits.name'
   },
@@ -1098,6 +1103,98 @@ describe('HubSpot.upsertCompany', () => {
     })
   })
 
+  it('should skip creating a company if createNewCompany flag is set to false', async () => {
+    const event = createTestEvent({
+      type: 'group',
+      traits: {
+        name: 'Test Company',
+        website: 'test-company.com'
+      },
+      groupId: 'test-group-id'
+    })
+
+    const contactId = '123456789'
+
+    // Mock: Failed to search company with SEGMENT_UNIQUE_IDENTIFIER
+    nock(HUBSPOT_BASE_URL)
+      .patch(`/crm/v3/objects/companies/${event.groupId}?idProperty=${SEGMENT_UNIQUE_IDENTIFIER}`)
+      .reply(404, {
+        status: 'error',
+        message: 'resource not found',
+        correlationId: 'aabbcc5b01-c9c7-4000-9191-000000000000'
+      })
+
+    // Mock: Search company returned no results
+    nock(HUBSPOT_BASE_URL).post('/crm/v3/objects/companies/search').reply(200, {
+      total: 0,
+      results: []
+    })
+
+    const responses = await testDestination.testAction('upsertCompany', {
+      event,
+      mapping: {
+        ...defaultGroupMapping,
+        // Disable create company flag
+        createNewCompany: false,
+        companysearchfields: {
+          domain: {
+            '@path': '$.traits.website'
+          }
+        }
+      },
+      transactionContext: {
+        transaction: {
+          contact_id: contactId
+        },
+        setTransaction
+      }
+    })
+
+    // expect(responses.length).toBe(2)
+    expect(responses[0].options.json).toMatchInlineSnapshot(`
+    Object {
+      "properties": Object {
+        "address": undefined,
+        "city": undefined,
+        "description": undefined,
+        "domain": "test-company.com",
+        "industry": undefined,
+        "lifecyclestage": undefined,
+        "name": "Test Company",
+        "numberofemployees": undefined,
+        "phone": undefined,
+        "segment_group_id": "test-group-id",
+        "state": undefined,
+        "zip": undefined,
+      },
+    }
+    `)
+    expect(responses[1].options.json).toMatchInlineSnapshot(`
+    Object {
+      "filterGroups": Array [
+        Object {
+          "filters": Array [
+            Object {
+              "operator": "EQ",
+              "propertyName": "domain",
+              "value": "test-company.com",
+            },
+          ],
+        },
+      ],
+      "properties": Array [
+        "name",
+        "domain",
+        "lifecyclestage",
+        "segment_group_id",
+      ],
+      "sorts": Array [
+        "name",
+      ],
+    }
+    `)
+  })
+
   it('should throw an error if updateCompany returns an unexpected HTTP error', async () => {
     const event = createTestEvent({
       type: 'group',
@@ -1348,6 +1445,152 @@ describe('HubSpot.upsertCompany', () => {
     ).rejects.toMatchObject({
       response: {
         status: 500,
+        data: errorResponse
+      }
+    })
+  })
+
+  it('should not associate contact if associateContact flag is set to false', async () => {
+    const event = createTestEvent({
+      type: 'group',
+      traits: {
+        name: 'Test Company',
+        website: 'test-company.com'
+      },
+      groupId: 'test-group-id'
+    })
+
+    const contactId = '123456789'
+    const hubspotGeneratedCompanyID = '1000000000'
+
+    // Mock: Update company using SEGMENT_UNIQUE_IDENTIFIER
+    nock(HUBSPOT_BASE_URL)
+      .patch(`/crm/v3/objects/companies/${event.groupId}?idProperty=${SEGMENT_UNIQUE_IDENTIFIER}`)
+      .reply(200, {
+        id: hubspotGeneratedCompanyID,
+        properties: {
+          createdate: '2022-10-13T17:57:46.778Z',
+          hs_all_owner_ids: '100000000',
+          hs_created_by_user_id: '10000000',
+          hs_lastmodifieddate: '2022-10-13T17:58:14.622Z',
+          hs_object_id: hubspotGeneratedCompanyID,
+          hs_pipeline: 'companies-lifecycle-pipeline',
+          hs_updated_by_user_id: '10000000',
+          hs_user_ids_of_all_owners: '10000000',
+          hubspot_owner_assigneddate: '2022-10-13T17:57:46.778Z',
+          hubspot_owner_id: '100000000',
+          lifecyclestage: 'lead',
+          segment_group_id: event?.groupId
+        },
+        createdAt: '2022-10-13T17:57:46.778Z',
+        updatedAt: '2022-10-13T17:58:14.622Z',
+        archived: false
+      })
+
+    const responses = await testDestination.testAction('upsertCompany', {
+      event,
+      mapping: {
+        ...defaultGroupMapping,
+        associateContact: false,
+        companysearchfields: {
+          domain: {
+            '@path': '$.traits.website'
+          }
+        }
+      },
+      transactionContext: {
+        transaction: {
+          contact_id: contactId
+        },
+        setTransaction
+      }
+    })
+
+    expect(responses[0].status).toEqual(200)
+  })
+
+  it('should throw an error if associateContact flag is set to true and contact doesn’t exist', async () => {
+    const event = createTestEvent({
+      type: 'group',
+      traits: {
+        name: 'Test Company',
+        website: 'test-company.com'
+      },
+      groupId: 'test-group-id'
+    })
+
+    const contactId = '123456789'
+    const hubspotGeneratedCompanyID = '1000000000'
+
+    const errorResponse = {
+      status: 'error',
+      message: `No contact with ID ${contactId} exists`,
+      correlationId: 'aabbcc5b01-c9c7-4000-9191-000000000000',
+      category: 'OBJECT_NOT_FOUND'
+    }
+
+    // Mock: Update company using SEGMENT_UNIQUE_IDENTIFIER
+    nock(HUBSPOT_BASE_URL)
+      .patch(`/crm/v3/objects/companies/${event.groupId}?idProperty=${SEGMENT_UNIQUE_IDENTIFIER}`)
+      .reply(200, {
+        id: hubspotGeneratedCompanyID,
+        properties: {
+          createdate: '2022-10-13T17:57:46.778Z',
+          hs_all_owner_ids: '100000000',
+          hs_created_by_user_id: '10000000',
+          hs_lastmodifieddate: '2022-10-13T17:58:14.622Z',
+          hs_object_id: hubspotGeneratedCompanyID,
+          hs_pipeline: 'companies-lifecycle-pipeline',
+          hs_updated_by_user_id: '10000000',
+          hs_user_ids_of_all_owners: '10000000',
+          hubspot_owner_assigneddate: '2022-10-13T17:57:46.778Z',
+          hubspot_owner_id: '100000000',
+          lifecyclestage: 'lead',
+          segment_group_id: event?.groupId
+        },
+        createdAt: '2022-10-13T17:57:46.778Z',
+        updatedAt: '2022-10-13T17:58:14.622Z',
+        archived: false
+      })
+
+    // Mock: Associate a contact with company
+    nock(HUBSPOT_BASE_URL)
+      .put(
+        `/crm/v3/objects/companies/${hubspotGeneratedCompanyID}/associations/contacts/${contactId}/${ASSOCIATION_TYPE}`
+      )
+      .reply(404, {
+        status: 'error',
+        message: `No contact with ID ${contactId} exists`,
+        correlationId: 'aabbcc5b01-c9c7-4000-9191-000000000000',
+        context: {
+          objectType: ['contact'],
+          id: [contactId]
+        },
+        category: 'OBJECT_NOT_FOUND',
+        subCategory: 'crm.associations.TO_OBJECT_NOT_FOUND'
+      })
+
+    await expect(
+      testDestination.testAction('upsertCompany', {
+        event,
+        mapping: {
+          ...defaultGroupMapping,
+          companysearchfields: {
+            domain: {
+              '@path': '$.traits.website'
+            }
+          }
+        },
+        transactionContext: {
+          transaction: {
+            contact_id: contactId
+          },
+          setTransaction
+        }
+      })
+    ).rejects.toMatchObject({
+      response: {
+        status: 404,
         data: errorResponse
       }
     })
