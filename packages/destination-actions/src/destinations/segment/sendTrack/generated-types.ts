@@ -16,7 +16,7 @@ export interface Payload {
   /**
    * Name of the action that a user has performed.
    */
-  event_name?: string
+  event_name: string
   /**
    * Dictionary of information about the current application.
    */

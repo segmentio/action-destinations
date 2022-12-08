@@ -1,21 +1,7 @@
-import { IntegrationError } from '@segment/actions-core'
 import type { ActionDefinition } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
-import dayjs from '../../../lib/dayjs'
-import { getUserAlias } from '../userAlias'
-
-type DateInput = string | Date | number | null | undefined
-type DateOutput = string | undefined | null
-
-function toISO8601(date: DateInput): DateOutput {
-  if (date === null || date === undefined) {
-    return date
-  }
-
-  const d = dayjs(date)
-  return d.isValid() ? d.toISOString() : undefined
-}
+import { sendTrackEvent } from '../utils'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Track Event',
@@ -87,39 +73,20 @@ const action: ActionDefinition<Settings, Payload> = {
         'Setting this flag to true will put the API in "Update Only" mode. When using a "user_alias", "Update Only" mode is always true.',
       type: 'boolean',
       default: false
+    },
+    enable_batching: {
+      type: 'boolean',
+      label: 'Batch Data to Braze',
+      description:
+        'If true, Segment will batch events before sending to Braze’s user track endpoint. Braze accepts batches of up to 75 events.',
+      default: false
     }
   },
   perform: (request, { settings, payload }) => {
-    const { braze_id, external_id } = payload
-
-    // Extract valid user_alias shape. Since it is optional (oneOf braze_id, external_id) we need to only include it if fully formed.
-    const user_alias = getUserAlias(payload.user_alias)
-
-    if (!braze_id && !user_alias && !external_id) {
-      throw new IntegrationError(
-        'One of "external_id" or "user_alias" or "braze_id" is required.',
-        'Missing required fields',
-        400
-      )
-    }
-
-    return request(`${settings.endpoint}/users/track`, {
-      method: 'post',
-      json: {
-        events: [
-          {
-            braze_id,
-            external_id,
-            user_alias,
-            app_id: settings.app_id,
-            name: payload.name,
-            time: toISO8601(payload.time),
-            properties: payload.properties,
-            _update_existing_only: payload._update_existing_only
-          }
-        ]
-      }
-    })
+    return sendTrackEvent(request, settings, [payload])
+  },
+  performBatch: (request, { settings, payload }) => {
+    return sendTrackEvent(request, settings, payload)
   }
 }
 
