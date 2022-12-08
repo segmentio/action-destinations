@@ -23,6 +23,12 @@ const validateHeaderField = (field: string): void => {
   }
 }
 
+// Salesforce bulk API CSVs require double quotes to be escaped with another double quote.
+// https://developer.salesforce.com/docs/atlas.en-us.api_asynch.meta/api_asynch/datafiles_csv_valid_record_rows.htm
+const escapeDoubleQuotes = (value: string): string => {
+  return value.replace(/"/g, '""')
+}
+
 /**
  * Iterates over each payload in the batch, and creates a map which represents each column in the CSV file.
  *
@@ -107,7 +113,7 @@ const buildCSVFromHeaderMap = (
         if (column !== undefined && column.length > 0 && column[column.length - 1][1] === i) {
           const valueTuple = column.pop()
           if (valueTuple !== undefined && valueTuple[0] !== undefined && valueTuple[0] !== null) {
-            row += `"${valueTuple[0]}",`
+            row += `"${escapeDoubleQuotes(valueTuple[0])}",`
             noValueFound = false
           }
         }
