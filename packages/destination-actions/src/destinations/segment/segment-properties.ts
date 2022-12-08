@@ -35,7 +35,8 @@ export const screen_name: InputField = {
 export const event_name: InputField = {
   label: 'Event Name',
   description: 'Name of the action that a user has performed.',
-  type: 'string'
+  type: 'string',
+  required: true
 }
 
 export const page_category: InputField = {
