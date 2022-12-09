@@ -11,7 +11,8 @@ export type vwoPayload = {
         [k: string]: unknown
         isCustomEvent?: boolean
         vwoMeta: {
-          vwo_source: string
+          source: string
+          ogName?: string
           [k: string]: unknown
         }
       }

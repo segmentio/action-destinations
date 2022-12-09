@@ -38,6 +38,9 @@ describe('VWO.identifyUser', () => {
                 segment_textProperty: 'Hello'
               }
             },
+            vwoMeta: {
+              source: 'segment.cloud'
+            },
             page,
             isCustomEvent: true
           },

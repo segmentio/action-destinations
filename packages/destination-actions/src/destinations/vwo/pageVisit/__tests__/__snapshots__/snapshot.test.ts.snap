@@ -1,6 +1,6 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`Testing snapshot for Vwo's pageVisit destination action: all fields 1`] = `
+exports[`Testing snapshot for actions-vwo-cloud's pageVisit destination action: all fields 1`] = `
 Object {
   "d": Object {
     "event": Object {
@@ -8,24 +8,24 @@ Object {
       "props": Object {
         "isCustomEvent": false,
         "page": Object {
-          "testType": "^dK!1x%4eKyU",
+          "testType": "Cr*5Vs3e2@*dYNybfL",
         },
-        "url": "^dK!1x%4eKyU",
+        "url": "Cr*5Vs3e2@*dYNybfL",
         "vwoMeta": Object {
           "metric": Object {},
-          "vwo_source": "segment.cloud",
+          "source": "segment.cloud",
         },
       },
       "time": null,
     },
-    "msgId": "^dK!1x%4eKyU-NaN",
+    "msgId": "Cr*5Vs3e2@*dYNybfL-NaN",
     "sessionId": null,
-    "visId": "^dK!1x%4eKyU",
+    "visId": "Cr*5Vs3e2@*dYNybfL",
   },
 }
 `;
 
-exports[`Testing snapshot for Vwo's pageVisit destination action: required fields 1`] = `
+exports[`Testing snapshot for actions-vwo-cloud's pageVisit destination action: required fields 1`] = `
 Object {
   "d": Object {
     "event": Object {
@@ -33,19 +33,19 @@ Object {
       "props": Object {
         "isCustomEvent": false,
         "page": Object {
-          "testType": "^dK!1x%4eKyU",
+          "testType": "Cr*5Vs3e2@*dYNybfL",
         },
-        "url": "^dK!1x%4eKyU",
+        "url": "Cr*5Vs3e2@*dYNybfL",
         "vwoMeta": Object {
           "metric": Object {},
-          "vwo_source": "segment.cloud",
+          "source": "segment.cloud",
         },
       },
       "time": null,
     },
-    "msgId": "^dK!1x%4eKyU-NaN",
+    "msgId": "Cr*5Vs3e2@*dYNybfL-NaN",
     "sessionId": null,
-    "visId": "^dK!1x%4eKyU",
+    "visId": "Cr*5Vs3e2@*dYNybfL",
   },
 }
 `;

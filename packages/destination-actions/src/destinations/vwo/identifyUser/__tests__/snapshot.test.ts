@@ -5,7 +5,7 @@ import nock from 'nock'
 
 const testDestination = createTestIntegration(destination)
 const actionSlug = 'identifyUser'
-const destinationSlug = 'vwo'
+const destinationSlug = 'actions-vwo-cloud'
 const seedName = `${destinationSlug}#${actionSlug}`
 
 describe(`Testing snapshot for ${destinationSlug}'s ${actionSlug} destination action:`, () => {

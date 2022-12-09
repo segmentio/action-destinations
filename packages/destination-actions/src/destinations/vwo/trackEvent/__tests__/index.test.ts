@@ -39,8 +39,8 @@ describe('VWO.trackEvent', () => {
             page,
             isCustomEvent: true,
             vwoMeta: {
-              vwo_source: 'segment.cloud',
-              vwo_og_event_name: 'testEvent',
+              source: 'segment.cloud',
+              ogName: 'testEvent',
               metric: {}
             }
           },
@@ -101,9 +101,9 @@ describe('VWO.trackEvent', () => {
             page,
             isCustomEvent: true,
             vwoMeta: {
-              metric: {},
-              vwo_source: 'segment.cloud',
-              vwo_og_event_name: 'testEvent'
+              source: 'segment.cloud',
+              ogName: 'testEvent',
+              metric: {}
             }
           },
           name: sanitiseEventName('testEvent'),

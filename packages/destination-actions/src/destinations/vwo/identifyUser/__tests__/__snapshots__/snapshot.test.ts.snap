@@ -1,6 +1,6 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`Testing snapshot for vwo's identifyUser destination action: all fields 1`] = `
+exports[`Testing snapshot for actions-vwo-cloud's identifyUser destination action: all fields 1`] = `
 Object {
   "d": Object {
     "event": Object {
@@ -8,33 +8,33 @@ Object {
       "props": Object {
         "$visitor": Object {
           "props": Object {
-            "segment_testType": "#fKkWqGg(",
+            "segment_testType": "sl#5^du3V5b#Q5V",
           },
         },
         "isCustomEvent": true,
         "page": Object {
-          "testType": "#fKkWqGg(",
+          "testType": "sl#5^du3V5b#Q5V",
         },
         "vwoMeta": Object {
           "metric": Object {},
-          "vwo_source": "segment.cloud",
+          "source": "segment.cloud",
         },
       },
       "time": null,
     },
-    "msgId": "#fKkWqGg(-NaN",
+    "msgId": "sl#5^du3V5b#Q5V-NaN",
     "sessionId": null,
-    "visId": "#fKkWqGg(",
+    "visId": "sl#5^du3V5b#Q5V",
     "visitor": Object {
       "props": Object {
-        "segment_testType": "#fKkWqGg(",
+        "segment_testType": "sl#5^du3V5b#Q5V",
       },
     },
   },
 }
 `;
 
-exports[`Testing snapshot for vwo's identifyUser destination action: required fields 1`] = `
+exports[`Testing snapshot for actions-vwo-cloud's identifyUser destination action: required fields 1`] = `
 Object {
   "d": Object {
     "event": Object {
@@ -42,26 +42,26 @@ Object {
       "props": Object {
         "$visitor": Object {
           "props": Object {
-            "segment_testType": "#fKkWqGg(",
+            "segment_testType": "sl#5^du3V5b#Q5V",
           },
         },
         "isCustomEvent": true,
         "page": Object {
-          "testType": "#fKkWqGg(",
+          "testType": "sl#5^du3V5b#Q5V",
         },
         "vwoMeta": Object {
           "metric": Object {},
-          "vwo_source": "segment.cloud",
+          "source": "segment.cloud",
         },
       },
       "time": null,
     },
-    "msgId": "#fKkWqGg(-NaN",
+    "msgId": "sl#5^du3V5b#Q5V-NaN",
     "sessionId": null,
-    "visId": "#fKkWqGg(",
+    "visId": "sl#5^du3V5b#Q5V",
     "visitor": Object {
       "props": Object {
-        "segment_testType": "#fKkWqGg(",
+        "segment_testType": "sl#5^du3V5b#Q5V",
       },
     },
   },

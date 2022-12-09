@@ -24,7 +24,7 @@ export function formatPayload(name: string, payload: commonPayload, isCustomEven
           page,
           isCustomEvent,
           vwoMeta: {
-            vwo_source: 'segment.cloud',
+            source: 'segment.cloud',
             metric: {}
           }
         },

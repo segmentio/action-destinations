@@ -1,52 +1,52 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`Testing snapshot for vwo's trackEvent destination action: all fields 1`] = `
+exports[`Testing snapshot for actions-vwo-cloud's trackEvent destination action: all fields 1`] = `
 Object {
   "d": Object {
     "event": Object {
-      "name": "segment_t*!1v8&HTqVu",
+      "name": "segment_yw0zltLcbQ",
       "props": Object {
         "isCustomEvent": true,
         "page": Object {
-          "testType": "t*!1v8&HTqVu",
+          "testType": "yw0zltLcbQ",
         },
-        "testType": "t*!1v8&HTqVu",
+        "testType": "yw0zltLcbQ",
         "vwoMeta": Object {
           "metric": Object {},
-          "vwo_og_event_name": "t*!1v8&HTqVu",
-          "vwo_source": "segment.cloud",
+          "ogName": "yw0zltLcbQ",
+          "source": "segment.cloud",
         },
       },
       "time": null,
     },
-    "msgId": "t*!1v8&HTqVu-NaN",
+    "msgId": "yw0zltLcbQ-NaN",
     "sessionId": null,
-    "visId": "t*!1v8&HTqVu",
+    "visId": "yw0zltLcbQ",
   },
 }
 `;
 
-exports[`Testing snapshot for vwo's trackEvent destination action: required fields 1`] = `
+exports[`Testing snapshot for actions-vwo-cloud's trackEvent destination action: required fields 1`] = `
 Object {
   "d": Object {
     "event": Object {
-      "name": "segment_t*!1v8&HTqVu",
+      "name": "segment_yw0zltLcbQ",
       "props": Object {
         "isCustomEvent": true,
         "page": Object {
-          "testType": "t*!1v8&HTqVu",
+          "testType": "yw0zltLcbQ",
         },
         "vwoMeta": Object {
           "metric": Object {},
-          "vwo_og_event_name": "t*!1v8&HTqVu",
-          "vwo_source": "segment.cloud",
+          "ogName": "yw0zltLcbQ",
+          "source": "segment.cloud",
         },
       },
       "time": null,
     },
-    "msgId": "t*!1v8&HTqVu-NaN",
+    "msgId": "yw0zltLcbQ-NaN",
     "sessionId": null,
-    "visId": "t*!1v8&HTqVu",
+    "visId": "yw0zltLcbQ",
   },
 }
 `;
