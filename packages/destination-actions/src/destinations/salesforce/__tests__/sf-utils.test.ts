@@ -164,6 +164,36 @@ describe('Salesforce Utils', () => {
       expect(csv).toEqual(expected)
     })
 
+    it('should handle null data correctly', async () => {
+      const nullPayloads: GenericPayload[] = [
+        {
+          operation: 'upsert',
+          enable_batching: true,
+          bulkUpsertExternalId: {
+            externalIdName: 'test__c',
+            externalIdValue: '00'
+          },
+          name: 'SpongeBob Squarepants',
+          description: undefined
+        },
+        {
+          operation: 'upsert',
+          enable_batching: true,
+          bulkUpsertExternalId: {
+            externalIdName: 'test__c',
+            externalIdValue: '01'
+          },
+          name: 'Squidward Tentacles',
+          description: undefined
+        }
+      ]
+
+      const csv = buildCSVData(nullPayloads, 'test__c')
+      const expected = `Name,Description,test__c\n"SpongeBob Squarepants",#N/A,"00"\n"Squidward Tentacles",#N/A,"01"\n`
+
+      expect(csv).toEqual(expected)
+    })
+
     it('should correctly escape double quotes', async () => {
       const updatePayloads: GenericPayload[] = [
         {
