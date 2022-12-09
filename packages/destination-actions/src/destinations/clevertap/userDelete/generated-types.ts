@@ -2,7 +2,7 @@
 
 export interface Payload {
   /**
-   * The ID used to uniquely identify a person in CleverTap
+   * The ID of the profile which you want to delete
    */
   identity: string
 }
