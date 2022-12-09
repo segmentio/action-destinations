@@ -101,12 +101,12 @@ const action: ActionDefinition<Settings, Payload> = {
     },
     conversion_environment: {
       label: 'Conversion Environment',
-      description: 'The environment this conversion was recorded on, e.g. APP or WEB.',
+      description:
+        'The environment this conversion was recorded on, e.g. APP or WEB. Sending the environment field requires an allowlist in your Google Ads account. Leave this field blank if your account has not been allowlisted.',
       type: 'string',
       choices: [
         { label: 'APP', value: 'APP' },
-        { label: 'WEB', value: 'WEB' },
-        { label: 'UNSPECIFIED', value: 'UNSPECIFIED' }
+        { label: 'WEB', value: 'WEB' }
       ]
     },
     merchant_id: {
