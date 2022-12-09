@@ -105,28 +105,27 @@ const action: ActionDefinition<Settings, Payload> = {
     }
   },
   perform: async (request, { settings, payload, logger, stateContext }) => {
-    return processPayload(request, settings, [payload], logger as Logger, stateContext as StateContext)
+    return processPayload(request, settings, [payload], logger, stateContext)
   },
   performBatch: async (request, { settings, payload, logger, stateContext }) => {
-    return processPayload(request, settings, payload, logger as Logger, stateContext as StateContext)
+    return processPayload(request, settings, payload, logger, stateContext)
   }
 }
 async function processPayload(
   request: RequestClient,
   settings: Settings,
   payloads: Payload[],
-  logger: Logger,
-  stateContext: StateContext
+  logger: Logger | undefined,
+  stateContext?: StateContext
 ) {
   validate(payloads)
   const syncAudiencesApiClient: SyncAudiences = new SyncAudiences(request)
   const { cohort_name, cohort_id } = payloads[0]
-  console.log('Check stateContext', stateContext)
-  logger.info('Braze Cohorts', stateContext.getState('cohort_name'))
+  logger?.info('Braze Cohorts', stateContext?.getState('cohort_name'))
 
-  if (stateContext.getState('cohort_name') != cohort_name) {
+  if (stateContext?.getState('cohort_name') != cohort_name) {
     await syncAudiencesApiClient.createCohort(settings, payloads[0])
-    stateContext.setState(`cohort_name`, cohort_name, { minute: 2 })
+    stateContext?.setState(`cohort_name`, cohort_name, { minute: 2 })
   }
   const { addUsers, removeUsers } = extractUsers(payloads)
   const users = {
@@ -172,7 +171,6 @@ function extractUsers(payloads: Payload[]) {
     ) as boolean
     const user = userEnteredOrRemoved ? addUsers : removeUsers
 
-    // external_id => device_id => user_alias Priority Order
     if (external_id) {
       user?.user_ids.push(external_id)
     } else if (device_id) {
