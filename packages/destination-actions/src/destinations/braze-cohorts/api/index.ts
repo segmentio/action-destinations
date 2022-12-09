@@ -19,8 +19,8 @@ export class SyncAudiences {
       method: 'POST',
       json: {
         partner_api_key: settings.endpoint.includes('eu')
-          ? process.env.braze_cohorts_partner_api_key_eu
-          : process.env.braze_cohorts_partner_api_key_us,
+          ? process.env.BRAZE_COHORTS_PARTNER_API_KEY_EU
+          : process.env.BRAZE_COHORTS_PARTNER_API_KEY_US,
         client_secret: settings.client_secret,
         name: payload?.cohort_name,
         cohort_id: payload?.cohort_id,
@@ -46,8 +46,8 @@ export class SyncAudiences {
       method: 'POST',
       json: {
         partner_api_key: settings.endpoint.includes('eu')
-          ? process.env.braze_cohorts_partner_api_key_eu
-          : process.env.braze_cohorts_partner_api_key_us,
+          ? process.env.BRAZE_COHORTS_PARTNER_API_KEY_EU
+          : process.env.BRAZE_COHORTS_PARTNER_API_KEY_US,
         client_secret: settings.client_secret,
         cohort_id: cohort_id,
         cohort_changes: cohortChanges

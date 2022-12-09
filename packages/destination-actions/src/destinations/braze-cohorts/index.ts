@@ -42,8 +42,8 @@ const destination: DestinationDefinition<Settings> = {
         json: {
           client_secret: settings.client_secret,
           partner_api_key: settings.endpoint.includes('eu')
-            ? process.env.braze_cohorts_partner_api_key_eu
-            : process.env.braze_cohorts_partner_api_key_us,
+            ? process.env.BRAZE_COHORTS_PARTNER_API_KEY_EU
+            : process.env.BRAZE_COHORTS_PARTNER_API_KEY_US,
           cohort_id: 'will_add_in_constant',
           cohort_changes: []
         }
