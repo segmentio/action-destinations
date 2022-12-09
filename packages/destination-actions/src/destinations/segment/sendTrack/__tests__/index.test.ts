@@ -9,10 +9,7 @@ const testDestination = createTestIntegration(Destination)
 beforeEach(() => nock.cleanAll())
 
 // Default Page Mapping
-const defaultTrackMapping = {
-  event_name: {
-    '@path': '$.event'
-  },
+const defaultPageMapping = {
   user_id: {
     '@path': '$.userId'
   },
@@ -29,18 +26,13 @@ describe('Segment.sendTrack', () => {
     const event = createTestEvent({
       properties: {
         plan: 'Business'
-      },
-      event: 'Test Event'
+      }
     })
 
     await expect(
       testDestination.testAction('sendTrack', {
         event,
-        mapping: {
-          event_name: {
-            '@path': '$.event'
-          }
-        }
+        mapping: {}
       })
     ).rejects.toThrowError(MissingUserOrAnonymousIdThrowableError)
   })
@@ -51,14 +43,13 @@ describe('Segment.sendTrack', () => {
         plan: 'Business'
       },
       userId: 'test-user-ufi5bgkko5',
-      anonymousId: 'arky4h2sh7k',
-      event: 'Test Event'
+      anonymousId: 'arky4h2sh7k'
     })
 
     await expect(
       testDestination.testAction('sendTrack', {
         event,
-        mapping: defaultTrackMapping,
+        mapping: defaultPageMapping,
         settings: {
           source_write_key: 'test-source-write-key',
           endpoint: 'incorrect-endpoint'
@@ -77,13 +68,12 @@ describe('Segment.sendTrack', () => {
         plan: 'Business'
       },
       userId: 'test-user-ufi5bgkko5',
-      anonymousId: 'arky4h2sh7k',
-      event: 'Test Event'
+      anonymousId: 'arky4h2sh7k'
     })
 
     const responses = await testDestination.testAction('sendTrack', {
       event,
-      mapping: defaultTrackMapping,
+      mapping: defaultPageMapping,
       settings: {
         source_write_key: 'test-source-write-key',
         endpoint: DEFAULT_SEGMENT_ENDPOINT
