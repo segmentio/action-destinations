@@ -120,8 +120,13 @@ async function processPayload(
 ) {
   validate(payloads)
   const syncAudiencesApiClient: SyncAudiences = new SyncAudiences(request)
-  const { cohort_name, cohort_id } = payloads[0]
+  const { cohort_name, cohort_id, time } = payloads[0]
+
+  logger?.info('Testing State Context', stateContext?.getState('test_context'))
   logger?.info('Braze Cohorts', stateContext?.getState('cohort_name'))
+  logger?.info(`Testing internal variable EU:-${process?.env?.BRAZE_COHORTS_PARTNER_API_KEY_EU}`)
+  logger?.info(`Testing internal variable US:-${process?.env?.BRAZE_COHORTS_PARTNER_API_KEY_US}`)
+  stateContext?.setState('test_context', time, { minute: 5 })
 
   if (stateContext?.getState('cohort_name') != cohort_name) {
     await syncAudiencesApiClient.createCohort(settings, payloads[0])
