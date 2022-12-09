@@ -106,7 +106,8 @@ const action: ActionDefinition<Settings, Payload> = {
       type: 'string',
       choices: [
         { label: 'APP', value: 'APP' },
-        { label: 'WEB', value: 'WEB' }
+        { label: 'WEB', value: 'WEB' },
+        { label: 'UNSPECIFIED', value: 'UNSPECIFIED' }
       ]
     },
     merchant_id: {
