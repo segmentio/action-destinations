@@ -97,7 +97,7 @@ const action: ActionDefinition<Settings, Payload> = {
     time: {
       label: 'Time',
       description: 'When the event occurred.',
-      type: 'datetime',
+      type: 'hidden',
       required: true,
       default: {
         '@path': '$.receivedAt'

@@ -41,5 +41,5 @@ export interface Payload {
   /**
    * When the event occurred.
    */
-  time: string | number
+  time: string
 }
