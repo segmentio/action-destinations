@@ -222,6 +222,10 @@ function setupRoutes(def: DestinationDefinition | null): void {
             auth: req.body.auth || {}
           }
 
+          if (eventParams.mapping.enable_batching === true && !Array.isArray(eventParams.data)) {
+            eventParams.data = [eventParams.data]
+          }
+
           if (Array.isArray(eventParams.data)) {
             // If no mapping is provided default to using the first payload across all events.
             eventParams.mapping = req.body.mapping ?? eventParams.data[0] ?? {}
