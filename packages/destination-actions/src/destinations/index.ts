@@ -65,6 +65,7 @@ register('631a6f32946dd8197e9cab66', './sendgrid')
 register('632b1116e0cb83902f3fd717', './hubspot')
 register('636d38db78d7834347d76c44', './1plusx-asset-api')
 register('6371eee1ae5e324869aa8b1b', './segment')
+register('63936c37dbc54a052e34e30e', './google-sheets-dev')
 
 function register(id: MetadataId, destinationPath: string) {
   // eslint-disable-next-line @typescript-eslint/no-var-requires
