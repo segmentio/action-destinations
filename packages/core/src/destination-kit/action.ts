@@ -155,10 +155,12 @@ export class Action<Settings, Payload extends JSONLikeObject> extends EventEmitt
     return results
   }
 
-  async executeBatch(bundle: ExecuteBundle<Settings, InputData[]>): Promise<void> {
+  async executeBatch(bundle: ExecuteBundle<Settings, InputData[]>): Promise<Result[]> {
     if (!this.hasBatchSupport) {
       throw new IntegrationError('This action does not support batched requests.', 'NotImplemented', 501)
     }
+
+    const results: Result[] = []
 
     let payloads = transformBatch(bundle.mapping, bundle.data) as Payload[]
 
@@ -179,7 +181,7 @@ export class Action<Settings, Payload extends JSONLikeObject> extends EventEmitt
     }
 
     if (payloads.length === 0) {
-      return
+      return results
     }
 
     if (this.definition.performBatch) {
@@ -194,8 +196,10 @@ export class Action<Settings, Payload extends JSONLikeObject> extends EventEmitt
         logger: bundle.logger,
         transactionContext: bundle.transactionContext
       }
-      await this.performRequest(this.definition.performBatch, data)
+      const output = await this.performRequest(this.definition.performBatch, data)
+      results.push(output as JSONObject)
     }
+    return results
   }
 
   async executeDynamicField(
