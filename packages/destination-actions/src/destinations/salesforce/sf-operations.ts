@@ -14,10 +14,16 @@ const throwBulkMismatchError = () => {
   throw new IntegrationError(errorMsg, errorMsg, 400)
 }
 
-const validateSOQLOperator = (operator: string | undefined) => {
-  if (!operator || (operator !== 'OR' && operator !== 'AND')) {
+const validateSOQLOperator = (operator: string | undefined): SOQLOperator => {
+  if (operator !== undefined && operator !== 'OR' && operator !== 'AND') {
     throw new IntegrationError(`Invalid SOQL operator - ${operator}`, 'Invalid SOQL operator', 400)
   }
+
+  if (operator === undefined) {
+    return 'OR'
+  }
+
+  return operator
 }
 
 interface Records {
@@ -87,12 +93,8 @@ export default class Salesforce {
       return await this.baseUpdate(payload.traits['Id'] as string, sobject, payload)
     }
 
-    validateSOQLOperator(payload.recordMatcherOperator)
-    const [recordId, err] = await this.lookupTraits(
-      payload.traits,
-      sobject,
-      payload.recordMatcherOperator as SOQLOperator
-    )
+    const soqlOperator: SOQLOperator = validateSOQLOperator(payload.recordMatcherOperator)
+    const [recordId, err] = await this.lookupTraits(payload.traits, sobject, soqlOperator)
 
     if (err) {
       throw err
@@ -106,12 +108,8 @@ export default class Salesforce {
       throw new IntegrationError('Undefined Traits when using upsert operation', 'Undefined Traits', 400)
     }
 
-    validateSOQLOperator(payload.recordMatcherOperator)
-    const [recordId, err] = await this.lookupTraits(
-      payload.traits,
-      sobject,
-      payload.recordMatcherOperator as SOQLOperator
-    )
+    const soqlOperator: SOQLOperator = validateSOQLOperator(payload.recordMatcherOperator)
+    const [recordId, err] = await this.lookupTraits(payload.traits, sobject, soqlOperator)
 
     if (err) {
       if (err.status === 404) {
@@ -316,6 +314,8 @@ export default class Salesforce {
       soql += token
       i += 1
     }
+
+    console.log('soqlOperator', soqlOperator)
     return soql
   }
 
