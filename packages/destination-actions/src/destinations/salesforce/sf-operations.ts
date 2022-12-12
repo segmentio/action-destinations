@@ -14,6 +14,12 @@ const throwBulkMismatchError = () => {
   throw new IntegrationError(errorMsg, errorMsg, 400)
 }
 
+const validateSOQLOperator = (operator: string | undefined) => {
+  if (!operator || (operator !== 'OR' && operator !== 'AND')) {
+    throw new IntegrationError(`Invalid SOQL operator - ${operator}`, 'Invalid SOQL operator', 400)
+  }
+}
+
 interface Records {
   Id?: string
 }
@@ -50,6 +56,8 @@ interface SalesforceError {
   }
 }
 
+type SOQLOperator = 'OR' | 'AND'
+
 export default class Salesforce {
   instanceUrl: string
   request: RequestClient
@@ -79,7 +87,12 @@ export default class Salesforce {
       return await this.baseUpdate(payload.traits['Id'] as string, sobject, payload)
     }
 
-    const [recordId, err] = await this.lookupTraits(payload.traits, sobject, payload.recordMatcherOperator ?? 'OR')
+    validateSOQLOperator(payload.recordMatcherOperator)
+    const [recordId, err] = await this.lookupTraits(
+      payload.traits,
+      sobject,
+      payload.recordMatcherOperator as SOQLOperator
+    )
 
     if (err) {
       throw err
@@ -93,7 +106,12 @@ export default class Salesforce {
       throw new IntegrationError('Undefined Traits when using upsert operation', 'Undefined Traits', 400)
     }
 
-    const [recordId, err] = await this.lookupTraits(payload.traits, sobject, payload.recordMatcherOperator ?? 'OR')
+    validateSOQLOperator(payload.recordMatcherOperator)
+    const [recordId, err] = await this.lookupTraits(
+      payload.traits,
+      sobject,
+      payload.recordMatcherOperator as SOQLOperator
+    )
 
     if (err) {
       if (err.status === 404) {
@@ -283,7 +301,7 @@ export default class Salesforce {
     }
   }
 
-  private buildQuery = (traits: object, sobject: string, operator: string) => {
+  private buildQuery = (traits: object, sobject: string, soqlOperator: SOQLOperator) => {
     let soql = `SELECT Id FROM ${sobject} WHERE `
 
     const entries = Object.entries(traits)
@@ -292,7 +310,7 @@ export default class Salesforce {
       let token = `${this.removeInvalidChars(key)} = ${this.typecast(value)}`
 
       if (i < entries.length - 1) {
-        token += ' ' + operator + ' '
+        token += ' ' + soqlOperator + ' '
       }
 
       soql += token
@@ -304,9 +322,9 @@ export default class Salesforce {
   private lookupTraits = async (
     traits: object,
     sobject: string,
-    operator: string
+    soqlOperator: SOQLOperator
   ): Promise<[string, IntegrationError | undefined]> => {
-    const SOQLQuery = encodeURIComponent(this.buildQuery(traits, sobject, operator))
+    const SOQLQuery = encodeURIComponent(this.buildQuery(traits, sobject, soqlOperator))
 
     const res = await this.request<LookupResponseData>(
       `${this.instanceUrl}services/data/${API_VERSION}/query/?q=${SOQLQuery}`,
