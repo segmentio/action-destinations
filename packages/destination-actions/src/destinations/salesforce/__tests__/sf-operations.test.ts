@@ -532,6 +532,50 @@ describe('Salesforce', () => {
       await sf.bulkHandler(bulkUpdatePayloads, 'Account')
     })
 
+    it('should pass NO_VALUE when a bulk record ID is missing', async () => {
+      const missingRecordPayload = {
+        operation: 'update',
+        enable_batching: true,
+        bulkUpdateRecordId: undefined,
+        name: 'Plankton',
+        phone: '123-evil',
+        description: 'Proprietor of the 1 star restaurant, The Chum Bucket'
+      }
+
+      //create bulk job
+      nock(`${settings.instanceUrl}services/data/${API_VERSION}/jobs/ingest`)
+        .post('', {
+          object: 'Account',
+          externalIdFieldName: 'Id',
+          operation: 'update',
+          contentType: 'CSV'
+        })
+        .reply(201, {
+          id: 'abc123'
+        })
+
+      const CSV = `Name,Phone,Description,Id\n"SpongeBob Squarepants","1234567890","Krusty Krab","ab"\n"Squidward Tentacles","1234567891","Krusty Krab","cd"\n"Plankton","123-evil","Proprietor of the 1 star restaurant, The Chum Bucket","#N/A"\n`
+
+      //upload csv
+      nock(`${settings.instanceUrl}services/data/${API_VERSION}/jobs/ingest/abc123/batches`, {
+        reqheaders: {
+          'Content-Type': 'text/csv',
+          Accept: 'application/json'
+        }
+      })
+        .put('', CSV)
+        .reply(201, {})
+
+      //close bulk job
+      nock(`${settings.instanceUrl}services/data/${API_VERSION}/jobs/ingest/abc123`)
+        .patch('', {
+          state: 'UploadComplete'
+        })
+        .reply(201, {})
+
+      await sf.bulkHandler([...bulkUpdatePayloads, missingRecordPayload], 'Account')
+    })
+
     it('should fail if the bulkHandler is triggered but enable_batching is not true', async () => {
       const payloads: GenericPayload[] = [
         {
