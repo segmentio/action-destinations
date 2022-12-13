@@ -41,8 +41,9 @@ export default class AdobeTarget {
     } else {
       const traits = getNestedObjects(this.traits)
       if (traits) {
-        const requestUrl = `https://${this.clientCode}.tt.omtrdc.net/m2/${this.clientCode
-          }/profile/update?mbox3rdPartyId=${this.userId}&${objectToQueryString(traits)}`
+        const requestUrl = `https://${this.clientCode}.tt.omtrdc.net/m2/${
+          this.clientCode
+        }/profile/update?mbox3rdPartyId=${this.userId}&${objectToQueryString(traits)}`
 
         return this.request(requestUrl, {
           method: 'POST'
@@ -67,14 +68,14 @@ export default class AdobeTarget {
         // If we throw a 404, Centrifuge will discard the job and it will never be retried. Thereforce, we are throwing a 500.
         // Unless the API is failing, errors from this endpoint will reference that the user profile does not exist.
         // The 500 error code also works in Centrifuge in the scenario where the API is down. Hence, its choice as a trigger for a retry.
-        const errorCode = error.message == 'Forbidden' ? 403 : 500
+        const errorCode = error.message == 'Forbidden' ? '403' : '500'
 
-        if (errorCode == 500) {
+        if (errorCode == '500') {
           // For now, we will keep track of the number of times we run this flow.
           statsContext?.statsClient.incr('actions-adobe-target.profile-not-found', 1, statsContext.tags)
         }
 
-        throw new IntegrationError(error.message, error.stack, errorCode)
+        throw new IntegrationError(error.message, errorCode)
       }
     }
 
