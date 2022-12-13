@@ -48,6 +48,8 @@ export const bulkUpdateRecordId: InputField = {
   type: 'string'
 }
 
+// Any actions configured before this field was added will have an undefined value for this field.
+// We default to the 'OR' when consuming this field if it is undefined.
 export const recordMatcherOperator: InputField = {
   label: 'Record Matchers Operator',
   description:
