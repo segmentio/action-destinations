@@ -19,6 +19,7 @@ const validateSOQLOperator = (operator: string | undefined): SOQLOperator => {
     throw new IntegrationError(`Invalid SOQL operator - ${operator}`, 'Invalid SOQL operator', 400)
   }
 
+  // 'OR' is the default operator. Therefore, when we encounter 'undefined' we will return 'OR'.
   if (operator === undefined) {
     return 'OR'
   }
