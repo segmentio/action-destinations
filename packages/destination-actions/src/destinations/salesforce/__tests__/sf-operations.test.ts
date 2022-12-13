@@ -172,7 +172,7 @@ describe('Salesforce', () => {
       await expect(
         sf.updateRecord(
           {
-            recordMatcherOperator: 'HELLO I AM INVALID',
+            recordMatcherOperator: 'NOR',
             traits: {
               email: { key: 'sponge@seamail.com' },
               NoOfEmployees: [1, 2]
@@ -180,7 +180,7 @@ describe('Salesforce', () => {
           },
           'Lead'
         )
-      ).rejects.toThrowError('Invalid SOQL operator - HELLO I AM INVALID')
+      ).rejects.toThrowError('Invalid SOQL operator - NOR')
     })
 
     it('should fail when trait value is of an unsupported datatype - object or arrays', async () => {
