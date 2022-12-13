@@ -141,6 +141,48 @@ describe('Salesforce', () => {
       )
     })
 
+    it('should support the AND soql operator', async () => {
+      const query = encodeURIComponent(
+        `SELECT Id FROM Lead WHERE email = 'sponge@seamail.com' AND isDeleted = false AND NumberOfEmployees = 3`
+      )
+      nock(`${settings.instanceUrl}services/data/${API_VERSION}/query`)
+        .get(`/?q=${query}`)
+        .reply(201, {
+          Id: 'abc123',
+          totalSize: 1,
+          records: [{ Id: '123456' }]
+        })
+
+      nock(`${settings.instanceUrl}services/data/${API_VERSION}/sobjects`).patch('/Lead/123456').reply(201, {})
+
+      await sf.updateRecord(
+        {
+          recordMatcherOperator: 'AND',
+          traits: {
+            email: 'sponge@seamail.com',
+            isDeleted: false,
+            NumberOfEmployees: 3
+          }
+        },
+        'Lead'
+      )
+    })
+
+    it('should fail when the soql operator is not OR and not AND', async () => {
+      await expect(
+        sf.updateRecord(
+          {
+            recordMatcherOperator: 'NOR',
+            traits: {
+              email: { key: 'sponge@seamail.com' },
+              NoOfEmployees: [1, 2]
+            }
+          },
+          'Lead'
+        )
+      ).rejects.toThrowError('Invalid SOQL operator - NOR')
+    })
+
     it('should fail when trait value is of an unsupported datatype - object or arrays', async () => {
       await expect(
         sf.updateRecord(
