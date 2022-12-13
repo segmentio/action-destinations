@@ -316,7 +316,6 @@ export default class Salesforce {
       i += 1
     }
 
-    console.log('soqlOperator', soqlOperator)
     return soql
   }
 
