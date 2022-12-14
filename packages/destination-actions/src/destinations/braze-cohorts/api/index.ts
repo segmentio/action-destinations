@@ -9,18 +9,22 @@ interface APIResponse {
 
 export class SyncAudiences {
   request: RequestClient
+  partnerApiKey: String
 
-  constructor(request: RequestClient) {
+  constructor(request: RequestClient, settings: Settings) {
     this.request = request
+    this.partnerApiKey = (
+      settings.endpoint.includes('eu')
+        ? process.env.BRAZE_COHORTS_PARTNER_API_KEY_EU
+        : process.env.BRAZE_COHORTS_PARTNER_API_KEY_US
+    ) as String
   }
 
   async createCohort(settings: Settings, payload: Payload): Promise<ModifiedResponse<APIResponse>> {
     return this.request(`${settings.endpoint}/partners/segment/cohorts`, {
       method: 'POST',
       json: {
-        partner_api_key: settings.endpoint.includes('eu')
-          ? process.env.BRAZE_COHORTS_PARTNER_API_KEY_EU
-          : process.env.BRAZE_COHORTS_PARTNER_API_KEY_US,
+        partner_api_key: this.partnerApiKey,
         client_secret: settings.client_secret,
         name: payload?.cohort_name,
         cohort_id: payload?.cohort_id,
@@ -45,9 +49,7 @@ export class SyncAudiences {
     return this.request(`${settings.endpoint}/partners/segment/cohorts/users`, {
       method: 'POST',
       json: {
-        partner_api_key: settings.endpoint.includes('eu')
-          ? process.env.BRAZE_COHORTS_PARTNER_API_KEY_EU
-          : process.env.BRAZE_COHORTS_PARTNER_API_KEY_US,
+        partner_api_key: this.partnerApiKey,
         client_secret: settings.client_secret,
         cohort_id: cohort_id,
         cohort_changes: cohortChanges

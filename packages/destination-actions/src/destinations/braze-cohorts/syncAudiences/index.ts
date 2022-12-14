@@ -116,7 +116,7 @@ async function processPayload(
   stateContext?: StateContext
 ) {
   validate(payloads)
-  const syncAudiencesApiClient: SyncAudiences = new SyncAudiences(request)
+  const syncAudiencesApiClient: SyncAudiences = new SyncAudiences(request, settings)
   const { cohort_name, cohort_id } = payloads[0]
 
   if (stateContext?.getRequestContext?.('cohort_name') != cohort_name) {
