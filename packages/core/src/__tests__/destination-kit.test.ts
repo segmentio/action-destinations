@@ -510,8 +510,8 @@ describe('destination kit', () => {
           setTransaction: (key: string, value: string) => ({ [key]: value })
         } as TransactionContext,
         stateContext: {
-          getState: (_key: string, _cb?: (res?: string) => any): any => {},
-          setState: (
+          getRequestContext: (_key: string, _cb?: (res?: string) => any): any => {},
+          setResponseContext: (
             _key: string,
             _value: string,
             _ttl: { hour?: number; minute?: number; second?: number }

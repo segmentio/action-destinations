@@ -224,11 +224,11 @@ export interface TransactionContext {
 }
 
 export interface StateContext {
-  // setState reads the `context` field from the request
-  getState(key: string, cb?: (res?: string) => any): any
-  // setState sets values in the `setContext` field in the response
+  // getRequestContext reads the `context` field from the request
+  getRequestContext(key: string, cb?: (res?: string) => any): any
+  // setResponseContext sets values in the `setContext` field in the response
   // values set on the response will be available on subsequent requests
-  setState(key: string, value: string, ttl: { hour?: number; minute?: number; second?: number }): void
+  setResponseContext(key: string, value: string, ttl: { hour?: number; minute?: number; second?: number }): void
 }
 
 export interface StatsClient {
