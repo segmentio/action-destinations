@@ -1,0 +1,235 @@
+import nock from 'nock'
+import { createTestEvent, createTestIntegration } from '@segment/actions-core'
+import CustomerIO from '../index'
+import { Settings } from '../generated-types'
+import dayjs from '../../../lib/dayjs'
+import { AccountRegion } from '../utils'
+
+const testDestination = createTestIntegration(CustomerIO)
+const trackObjectService = nock('https://track.customer.io')
+
+describe('CustomerIO', () => {
+  describe('createUpdateObject', () => {
+    it('should work with default mappings when userId is supplied', async () => {
+      const settings: Settings = {
+        siteId: '12345',
+        apiKey: 'abcde',
+        accountRegion: AccountRegion.US
+      }
+      const userId = 'abc123'
+      const anonymousId = 'unknown_123'
+      const timestamp = dayjs.utc().toISOString()
+      const groupId = 'grp123'
+      const traits = {
+        name: 'Sales',
+        created_at: timestamp,
+        object_type_id: '1'
+      }
+      trackObjectService.post(`/api/v2/profile`).reply(200, {}, { 'x-customerio-region': 'US' })
+      const event = createTestEvent({
+        userId,
+        anonymousId,
+        timestamp,
+        traits,
+        groupId
+      })
+      const responses = await testDestination.testAction('createUpdateObject', {
+        event,
+        settings,
+        useDefaultMappings: true
+      })
+
+      expect(responses.length).toBe(1)
+      expect(responses[0].status).toBe(200)
+      expect(responses[0].headers.toJSON()).toMatchObject({
+        'x-customerio-region': 'US',
+        'content-type': 'application/json'
+      })
+      expect(responses[0].data).toMatchObject({})
+    })
+
+    it('should work with the EU account region', async () => {
+      const trackEUObjectService = nock('https://track-eu.customer.io')
+      const settings: Settings = {
+        siteId: '12345',
+        apiKey: 'abcde',
+        accountRegion: AccountRegion.EU
+      }
+      const userId = 'abc123'
+      const anonymousId = 'unknown_123'
+      const timestamp = dayjs.utc().toISOString()
+      const groupId = 'grp123'
+      const traits = {
+        name: 'Sales',
+        created_at: timestamp,
+        object_type_id: '1'
+      }
+      trackEUObjectService.post(`/api/v2/profile`).reply(200, {}, { 'x-customerio-region': 'EU' })
+      const event = createTestEvent({
+        userId,
+        anonymousId,
+        timestamp,
+        traits,
+        groupId
+      })
+      const responses = await testDestination.testAction('createUpdateObject', {
+        event,
+        settings,
+        useDefaultMappings: true
+      })
+
+      expect(responses.length).toBe(1)
+      expect(responses[0].status).toBe(200)
+      expect(responses[0].headers.toJSON()).toMatchObject({
+        'x-customerio-region': 'EU',
+        'content-type': 'application/json'
+      })
+      expect(responses[0].data).toMatchObject({})
+    })
+
+    it('should fall back to the US account region', async () => {
+      const settings: Settings = {
+        siteId: '12345',
+        apiKey: 'abcde'
+      }
+      const userId = 'abc123'
+      const anonymousId = 'unknown_123'
+      const timestamp = dayjs.utc().toISOString()
+      const groupId = 'grp123'
+      const traits = {
+        name: 'Sales',
+        created_at: timestamp,
+        object_type_id: '1'
+      }
+      trackObjectService.post(`/api/v2/profile`).reply(200, {}, { 'x-customerio-region': 'US-fallback' })
+      const event = createTestEvent({
+        userId,
+        anonymousId,
+        timestamp,
+        traits,
+        groupId
+      })
+      const responses = await testDestination.testAction('createUpdateObject', {
+        event,
+        settings,
+        useDefaultMappings: true
+      })
+
+      expect(responses.length).toBe(1)
+      expect(responses[0].status).toBe(200)
+      expect(responses[0].headers.toJSON()).toMatchObject({
+        'x-customerio-region': 'US-fallback',
+        'content-type': 'application/json'
+      })
+      expect(responses[0].data).toMatchObject({})
+    })
+
+    it('should work with anonymous id when userId is not supplied', async () => {
+      const settings: Settings = {
+        siteId: '12345',
+        apiKey: 'abcde',
+        accountRegion: AccountRegion.US
+      }
+      const anonymousId = 'unknown_123'
+      const timestamp = dayjs.utc().toISOString()
+      const groupId = 'grp123'
+      const traits = {
+        name: 'Sales',
+        created_at: timestamp,
+        object_type_id: '1'
+      }
+      trackObjectService.post(`/api/v2/profile`).reply(200, {}, { 'x-customerio-region': 'US' })
+      const event = createTestEvent({
+        userId: undefined,
+        anonymousId,
+        timestamp,
+        traits,
+        groupId
+      })
+      const responses = await testDestination.testAction('createUpdateObject', {
+        event,
+        settings,
+        useDefaultMappings: true
+      })
+
+      expect(responses.length).toBe(1)
+      expect(responses[0].status).toBe(200)
+      expect(responses[0].headers.toJSON()).toMatchObject({
+        'x-customerio-region': 'US',
+        'content-type': 'application/json'
+      })
+      expect(responses[0].data).toMatchObject({})
+    })
+
+    it('should work with default object_type_id when object_type_id is not supplied', async () => {
+      const settings: Settings = {
+        siteId: '12345',
+        apiKey: 'abcde',
+        accountRegion: AccountRegion.US
+      }
+      const anonymousId = 'unknown_123'
+      const timestamp = dayjs.utc().toISOString()
+      const groupId = 'grp123'
+      const traits = {
+        name: 'Sales',
+        created_at: timestamp
+      }
+      trackObjectService.post(`/api/v2/profile`).reply(200, {}, { 'x-customerio-region': 'US' })
+      const event = createTestEvent({
+        userId: undefined,
+        anonymousId,
+        timestamp,
+        traits,
+        groupId
+      })
+      const responses = await testDestination.testAction('createUpdateObject', {
+        event,
+        settings,
+        useDefaultMappings: true
+      })
+
+      expect(responses.length).toBe(1)
+      expect(responses[0].status).toBe(200)
+      expect(responses[0].headers.toJSON()).toMatchObject({
+        'x-customerio-region': 'US',
+        'content-type': 'application/json'
+      })
+      expect(responses[0].data).toMatchObject({})
+    })
+
+    it('should work when no created_at is given', async () => {
+      const settings: Settings = {
+        siteId: '12345',
+        apiKey: 'abcde',
+        accountRegion: AccountRegion.US
+      }
+      const anonymousId = 'unknown_123'
+      const timestamp = dayjs.utc().toISOString()
+      const groupId = 'grp123'
+      const traits = {
+        name: 'Sales'
+      }
+      trackObjectService.post(`/api/v2/profile`).reply(200, {}, { 'x-customerio-region': 'US' })
+      const event = createTestEvent({
+        userId: undefined,
+        anonymousId,
+        timestamp,
+        traits,
+        groupId
+      })
+      const responses = await testDestination.testAction('createUpdateObject', {
+        event,
+        settings,
+        useDefaultMappings: true
+      })
+
+      expect(responses.length).toBe(1)
+      expect(responses[0].status).toBe(200)
+      expect(responses[0].headers.toJSON()).toMatchObject({
+        'x-customerio-region': 'US',
+        'content-type': 'application/json'
+      })
+      expect(responses[0].data).toMatchObject({})
+    })
+  })
+})

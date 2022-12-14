@@ -10,7 +10,8 @@ const action: ActionDefinition<Settings, Payload> = {
   fields: {
     id: {
       label: 'Object ID',
-      description: 'The ID used to uniquely identify an object in Customer.io.',
+      description:
+        'The ID used to uniquely identify an object in Customer.io. [Learn more](https://customer.io/docs/object-relationships).',
       type: 'string',
       required: true,
       default: {
@@ -36,10 +37,20 @@ const action: ActionDefinition<Settings, Payload> = {
     },
     user_id: {
       label: 'User ID',
-      description: 'The ID used to relate user to an object in Customer.io.',
+      description:
+        'The ID used to relate user to an object in Customer.io. [Learn more](https://customer.io/docs/identifying-people/#identifiers).',
       type: 'string',
       default: {
         '@path': '$.userId'
+      }
+    },
+    anonymous_id: {
+      label: 'Anonymous ID',
+      description:
+        'An anonymous ID for when no Person ID exists. [Learn more](https://customer.io/docs/anonymous-events/).',
+      type: 'string',
+      default: {
+        '@path': '$.anonymousId'
       }
     },
     convert_timestamp: {
@@ -54,6 +65,7 @@ const action: ActionDefinition<Settings, Payload> = {
     let customAttributes = payload.custom_attributes
     const userID = payload.user_id
     const objectID = payload.id
+    const anonymousId = payload.anonymous_id
     if (payload.convert_timestamp !== false) {
       if (createdAt) {
         createdAt = convertValidTimestamp(createdAt)
@@ -67,16 +79,26 @@ const action: ActionDefinition<Settings, Payload> = {
     const body: Record<string, unknown> = {
       ...customAttributes
     }
+    let typeID
+    if (customAttributes) {
+      typeID = customAttributes.object_type_id
+    }
 
     if (createdAt) {
       body.created_at = createdAt
     }
     body.type = 'object'
-    body.action = 'identify'
-    body.identifiers = { type_id: '1', id: objectID }
-    body.cio_relationships = [{ identifiers: { id: userID } }]
+    body.identifiers = { type_id: typeID ?? '1', id: objectID }
 
-    return request(`${trackApiEndpoint(settings.accountRegion)}/alpha-api/v2/profile`, {
+    if (userID) {
+      body.action = 'identify'
+      body.cio_relationships = [{ identifiers: { id: userID } }]
+    } else {
+      body.action = 'identify_anonymous'
+      body.cio_relationships = [{ identifiers: { anonymous_id: anonymousId } }]
+    }
+
+    return request(`${trackApiEndpoint(settings.accountRegion)}/api/v2/profile`, {
       method: 'post',
       json: body
     })
