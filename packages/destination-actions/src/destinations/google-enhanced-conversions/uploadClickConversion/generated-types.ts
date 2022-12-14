@@ -42,7 +42,7 @@ export interface Payload {
    */
   currency?: string
   /**
-   * The environment this conversion was recorded on, e.g. APP or WEB.
+   * The environment this conversion was recorded on, e.g. APP or WEB. Sending the environment field requires an allowlist in your Google Ads account. Leave this field blank if your account has not been allowlisted.
    */
   conversion_environment?: string
   /**

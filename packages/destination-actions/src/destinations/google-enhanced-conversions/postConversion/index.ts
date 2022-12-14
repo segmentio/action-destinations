@@ -24,8 +24,8 @@ interface GoogleError {
 }
 
 const action: ActionDefinition<Settings, Payload> = {
-  title: 'Post Conversion',
-  description: 'Send a conversion event to Google Ads.',
+  title: 'Upload Enhanced Conversion (Legacy)',
+  description: 'Upload a conversion enhancement to the legacy Google Enhanced Conversions API.',
   fields: {
     // Required Fields - These fields are required by Google's EC API to successfully match conversions.
     conversion_label: {

@@ -144,11 +144,7 @@ const getUniqueIdValue = (payload: GenericPayload): string => {
     return payload.bulkUpdateRecordId
   }
 
-  throw new IntegrationError(
-    `bulk ${payload.operation} is missing the required bulk ID`,
-    `bulk ${payload.operation} is missing the required bulk ID`,
-    400
-  )
+  return NO_VALUE
 }
 
 /**
