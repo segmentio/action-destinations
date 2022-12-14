@@ -1,7 +1,7 @@
 {
   "name": "@segment/actions-core",
   "description": "Core runtime for Destinations Actions.",
-  "version": "3.45.0",
+  "version": "3.45.1-braze-cohorts.137",
   "repository": {
     "type": "git",
     "url": "https://github.com/segmentio/fab-5-engine",
@@ -75,5 +75,6 @@
       "@segment/ajv-human-errors": "<rootDir>/../ajv-human-errors/src",
       "@segment/destination-subscriptions": "<rootDir>/../destination-subscriptions/src"
     }
-  }
+  },
+  "gitHead": "1eb0a0f81eb4998cd129cd8a89c358f009849213"
 }

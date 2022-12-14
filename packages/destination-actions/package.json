@@ -1,7 +1,7 @@
 {
   "name": "@segment/action-destinations",
   "description": "Destination Actions engine and definitions.",
-  "version": "3.118.1-braze-cohorts.128",
+  "version": "3.118.1-braze-cohorts.134",
   "repository": {
     "type": "git",
     "url": "https://github.com/segmentio/action-destinations",
@@ -39,7 +39,7 @@
     "@amplitude/ua-parser-js": "^0.7.25",
     "@segment/a1-notation": "^2.1.4",
     "@segment/actions-core": "3.45.1-stage-test-braze-cohorts.127",
-    "@segment/actions-shared": "^1.27.0",
+    "@segment/actions-shared": "^1.27.1-braze-cohorts.137",
     "cheerio": "^1.0.0-rc.10",
     "dayjs": "^1.10.7",
     "escape-goat": "^3",
@@ -64,5 +64,6 @@
     "coverageReporters": [
       "lcov"
     ]
-  }
+  },
+  "gitHead": "1eb0a0f81eb4998cd129cd8a89c358f009849213"
 }
