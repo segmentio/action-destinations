@@ -225,6 +225,7 @@ export interface TransactionContext {
 
 export interface StateContext {
   // getRequestContext reads the `context` field from the request
+  //dummy Comment
   getRequestContext(key: string, cb?: (res?: string) => any): any
   // setResponseContext sets values in the `setContext` field in the response
   // values set on the response will be available on subsequent requests
