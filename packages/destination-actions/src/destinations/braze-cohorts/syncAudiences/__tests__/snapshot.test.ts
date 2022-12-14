@@ -22,8 +22,12 @@ describe(`Testing snapshot for ${destinationSlug}'s ${actionSlug} destination ac
     })
 
     const stateContext = {
-      getState: (_key: string): any => {},
-      setState: (_key: string, _value: string, _ttl: { hour?: number; minute?: number; second?: number }): void => {}
+      getRequestContext: (_key: string): any => {},
+      setResponseContext: (
+        _key: string,
+        _value: string,
+        _ttl: { hour?: number; minute?: number; second?: number }
+      ): void => {}
     }
     const responses = await testDestination.testAction(actionSlug, {
       event: event,
@@ -59,8 +63,12 @@ describe(`Testing snapshot for ${destinationSlug}'s ${actionSlug} destination ac
       properties: eventData
     })
     const stateContext = {
-      getState: (_key: string): any => {},
-      setState: (_key: string, _value: string, _ttl: { hour?: number; minute?: number; second?: number }): void => {}
+      getRequestContext: (_key: string): any => {},
+      setResponseContext: (
+        _key: string,
+        _value: string,
+        _ttl: { hour?: number; minute?: number; second?: number }
+      ): void => {}
     }
 
     const responses = await testDestination.testAction(actionSlug, {

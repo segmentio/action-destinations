@@ -167,7 +167,7 @@ export interface SegmentEvent {
     alias_label?: string
   }
   stateContext?: {
-    getState(key: string, cb?: (res?: string) => any): any
-    setState(key: string, value: string, ttl: { hour?: number; minute?: number; second?: number }): void
+    getRequestContext(key: string, cb?: (res?: string) => any): any
+    setResponseContext(key: string, value: string, ttl: { hour?: number; minute?: number; second?: number }): void
   }
 }

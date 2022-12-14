@@ -13,12 +13,7 @@ const event = createTestEvent({
     computation_key: 'j_o_jons__step_1_ns3i7'
   },
   userId: 'w8KWCsdTxe1Ydaf3s62UMc',
-  receivedAt: receivedAt,
-  //  logger: { name: 'Test Braze Cohort ', level: 'info' ,info:(_message): void=>{}},
-  stateContext: {
-    getState: (_key: string): any => {},
-    setState: (_key: string, _value: string, _ttl: { hour?: number; minute?: number; second?: number }): void => {}
-  }
+  receivedAt: receivedAt
 })
 
 describe('BrazeCohorts.syncAudiences', () => {
@@ -64,14 +59,6 @@ describe('BrazeCohorts.syncAudiences', () => {
         useDefaultMappings: true,
         mapping: {
           personas_audience_key: 'j_o_jons__step_1_ns3i7'
-        },
-        stateContext: {
-          getState: (_key: string): any => {},
-          setState: (
-            _key: string,
-            _value: string,
-            _ttl: { hour?: number; minute?: number; second?: number }
-          ): void => {}
         }
       })
     ).resolves.not.toThrowError()
@@ -105,13 +92,8 @@ describe('BrazeCohorts.syncAudiences', () => {
       useDefaultMappings: true,
       mapping: {
         personas_audience_key: 'j_o_jons__step_1_ns3i7'
-      },
-      stateContext: {
-        getState: (_key: string): any => {},
-        setState: (_key: string, _value: string, _ttl: { hour?: number; minute?: number; second?: number }): void => {}
       }
     })
-    // console.log(responses[1].options.json);
     expect(responses.length).toBe(2)
     expect(responses[0].status).toBe(201)
     expect(responses[1].status).toBe(201)
@@ -155,10 +137,6 @@ describe('BrazeCohorts.syncAudiences', () => {
       useDefaultMappings: true,
       mapping: {
         personas_audience_key: 'j_o_jons__step_1_ns3i7'
-      },
-      stateContext: {
-        getState: (_key: string): any => {},
-        setState: (_key: string, _value: string, _ttl: { hour?: number; minute?: number; second?: number }): void => {}
       }
     })
     expect(responses.length).toBe(2)
@@ -203,10 +181,6 @@ describe('BrazeCohorts.syncAudiences', () => {
       useDefaultMappings: true,
       mapping: {
         personas_audience_key: 'j_o_jons__step_1_ns3i7'
-      },
-      stateContext: {
-        getState: (_key: string): any => {},
-        setState: (_key: string, _value: string, _ttl: { hour?: number; minute?: number; second?: number }): void => {}
       }
     })
     expect(responses.length).toBe(2)
@@ -243,8 +217,12 @@ describe('BrazeCohorts.syncAudiences', () => {
         receivedAt: receivedAt
       },
       stateContext: {
-        getState: (_key: string): any => 'j_o_jons__step_1_ns3i7',
-        setState: (_key: string, _value: string, _ttl: { hour?: number; minute?: number; second?: number }): void => {}
+        getRequestContext: (_key: string): any => 'j_o_jons__step_1_ns3i7',
+        setResponseContext: (
+          _key: string,
+          _value: string,
+          _ttl: { hour?: number; minute?: number; second?: number }
+        ): void => {}
       },
       settings: {
         endpoint: 'https://rest.iad-01.braze.com',
