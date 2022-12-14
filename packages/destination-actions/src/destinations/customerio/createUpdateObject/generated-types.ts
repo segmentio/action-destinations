@@ -6,7 +6,7 @@ export interface Payload {
    */
   id: string
   /**
-   * A timestamp of when the person was created.
+   * A timestamp of when the object was created.
    */
   created_at?: string
   /**
@@ -16,11 +16,11 @@ export interface Payload {
     [k: string]: unknown
   }
   /**
-   * The ID used to relate user to an object in Customer.io. [Learn more](https://customer.io/docs/identifying-people/#identifiers).
+   * The ID used to relate a user to an object in Customer.io. [Learn more](https://customer.io/docs/identifying-people/#identifiers).
    */
   user_id?: string
   /**
-   * An anonymous ID for when no Person ID exists. [Learn more](https://customer.io/docs/anonymous-events/).
+   * An anonymous ID to relate to an object when no Person ID exists. [Learn more](https://customer.io/docs/anonymous-events/).
    */
   anonymous_id?: string
   /**
