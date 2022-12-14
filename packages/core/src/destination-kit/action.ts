@@ -179,7 +179,7 @@ export class Action<Settings, Payload extends JSONLikeObject> extends EventEmitt
     }
 
     if (payloads.length === 0) {
-      return []
+      throw new IntegrationError('No valid payloads found.', 'InvalidPayload', 400)
     }
 
     if (this.definition.performBatch) {
@@ -198,7 +198,7 @@ export class Action<Settings, Payload extends JSONLikeObject> extends EventEmitt
       return [{ output: output as JSONObject }]
     }
 
-    return []
+    throw new IntegrationError('This action does not support batched requests.', 'NotImplemented', 501)
   }
 
   async executeDynamicField(

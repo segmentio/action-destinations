@@ -9,7 +9,7 @@ export { get } from './get'
 export { omit } from './omit'
 export { removeUndefined } from './remove-undefined'
 export { time, duration } from './time'
-
+export { validateSchema } from './schema-validation'
 export { realTypeOf, isObject, isArray, isString } from './real-type-of'
 
 export type { RequestOptions } from './request-client'
