@@ -6,7 +6,7 @@ on:
 
 jobs:
   create-jira:
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-latest
     name: Create a ticket in Jira to track the pull request
     if: github.event.pull_request.head.repo.fork
     steps:

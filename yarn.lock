@@ -2439,20 +2439,37 @@
   resolved "https://registry.yarnpkg.com/@segment/a1-notation/-/a1-notation-2.1.4.tgz#35a48a0688019c3ffff23b1ba890e864c891a11f"
   integrity sha512-SId7GOdDFmm/B9ajIQpXELHW4OTbVvmJbOsoJkQOcUEtoZIiX2UWfk1v4BpKql8wJW9oAhzhIIru2Pv2Yxcg+w==
 
-"@segment/action-destinations@^3.116.0":
-  version "3.116.0"
-  resolved "https://registry.yarnpkg.com/@segment/action-destinations/-/action-destinations-3.116.0.tgz#63b2d1646c3ab8192d80800f298a4c9ef7158bd4"
-  integrity sha512-jg9+GrDct6ISl5PByuYEsacTXF767nG//5+cZOnjTUXW29DLVeC60FGRedwmHuEbR01Fh2g0yWt7ci5l7N+K2A==
+"@segment/action-destinations@^3.118.0":
+  version "3.119.0"
+  resolved "https://registry.yarnpkg.com/@segment/action-destinations/-/action-destinations-3.119.0.tgz#d543889efc2d10d04a7fe8b88b80a9a434954e86"
+  integrity sha512-c3RajP3PKIlYDh7GZtVRZPfgLT9lkYroTSUvqbDRovVdFGis4XRFa4rH4BEtgJSX8g62baEEzug7EaC0TpT6mA==
   dependencies:
     "@amplitude/ua-parser-js" "^0.7.25"
     "@segment/a1-notation" "^2.1.4"
-    "@segment/actions-core" "^3.43.0"
-    "@segment/actions-shared" "^1.26.0"
+    "@segment/actions-core" "^3.45.0"
+    "@segment/actions-shared" "^1.27.0"
     cheerio "^1.0.0-rc.10"
     dayjs "^1.10.7"
     escape-goat "^3"
     liquidjs "^9.37.0"
     lodash "^4.17.21"
+
+"@segment/actions-core@3.45.1-stage-test-braze-cohorts.127":
+  version "3.45.1-stage-test-braze-cohorts.127"
+  resolved "https://registry.yarnpkg.com/@segment/actions-core/-/actions-core-3.45.1-stage-test-braze-cohorts.127.tgz#6b2a257ff3dae206639b6004111c62e725000af8"
+  integrity sha512-gpn4SIn/7+bb0Z1G/IghMhXZN2ofcjRvSZ7HUOmRl2aXmPUw3mUwolgbGfw6YbYDxVUcVmZCo+sQAUhZohzTDw==
+  dependencies:
+    "@lukeed/uuid" "^2.0.0"
+    "@segment/ajv-human-errors" "^2.1.2"
+    "@segment/destination-subscriptions" "^3.12.0"
+    abort-controller "^3.0.0"
+    aggregate-error "^3.1.0"
+    ajv "^8.6.3"
+    ajv-formats "^2.1.1"
+    btoa-lite "^1.0.0"
+    cross-fetch "^3.1.4"
+    dayjs "^1.10.7"
+    ts-custom-error "^3.2.0"
 
 "@segment/analytics-next@^1.29.3":
   version "1.29.3"

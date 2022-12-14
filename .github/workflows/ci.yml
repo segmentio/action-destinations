@@ -9,7 +9,7 @@ on:
 
 jobs:
   test-and-build:
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-latest
 
     timeout-minutes: 10
 
@@ -67,7 +67,7 @@ jobs:
           fi
 
   snyk:
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-latest
 
     timeout-minutes: 5
 
