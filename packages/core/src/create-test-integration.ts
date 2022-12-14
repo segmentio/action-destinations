@@ -1,5 +1,5 @@
 import { createTestEvent } from './create-test-event'
-import { Destination, TransactionContext } from './destination-kit'
+import { StateContext, Destination, TransactionContext } from './destination-kit'
 import { mapValues } from './map-values'
 import type { DestinationDefinition, StatsContext, Logger } from './destination-kit'
 import type { JSONObject } from './json-object'
@@ -34,12 +34,13 @@ interface InputData<Settings> {
   auth?: AuthTokens
   /**
    * The features available in the request based on the customer's sourceID;
-   * `features`, `stats`, `logger` and `transactionContext` are for internal Twilio/Segment use only.
+   * `features`, `stats`, `logger` , `transactionContext` and `stateContext` are for internal Twilio/Segment use only.
    */
   features?: Features
   statsContext?: StatsContext
   logger?: Logger
   transactionContext?: TransactionContext
+  stateContext?: StateContext
 }
 
 class TestDestination<T> extends Destination<T> {
@@ -65,7 +66,8 @@ class TestDestination<T> extends Destination<T> {
       features,
       statsContext,
       logger,
-      transactionContext
+      transactionContext,
+      stateContext
     }: InputData<T>
   ): Promise<Destination['responses']> {
     mapping = mapping ?? {}
@@ -84,7 +86,8 @@ class TestDestination<T> extends Destination<T> {
       features: features ?? {},
       statsContext: statsContext ?? ({} as StatsContext),
       logger: logger ?? ({} as Logger),
-      transactionContext: transactionContext ?? ({} as TransactionContext)
+      transactionContext: transactionContext ?? ({} as TransactionContext),
+      stateContext: stateContext ?? ({} as StateContext)
     })
 
     const responses = this.responses
@@ -104,7 +107,8 @@ class TestDestination<T> extends Destination<T> {
       features,
       statsContext,
       logger,
-      transactionContext
+      transactionContext,
+      stateContext
     }: Omit<InputData<T>, 'event'> & { events?: SegmentEvent[] }
   ): Promise<Destination['responses']> {
     mapping = mapping ?? {}
@@ -127,7 +131,8 @@ class TestDestination<T> extends Destination<T> {
       features: features ?? {},
       statsContext: statsContext ?? ({} as StatsContext),
       logger: logger ?? ({} as Logger),
-      transactionContext: transactionContext ?? ({} as TransactionContext)
+      transactionContext: transactionContext ?? ({} as TransactionContext),
+      stateContext: stateContext ?? ({} as StateContext)
     })
 
     const responses = this.responses
