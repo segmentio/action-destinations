@@ -2439,6 +2439,51 @@
   resolved "https://registry.yarnpkg.com/@segment/a1-notation/-/a1-notation-2.1.4.tgz#35a48a0688019c3ffff23b1ba890e864c891a11f"
   integrity sha512-SId7GOdDFmm/B9ajIQpXELHW4OTbVvmJbOsoJkQOcUEtoZIiX2UWfk1v4BpKql8wJW9oAhzhIIru2Pv2Yxcg+w==
 
+"@segment/action-destinations@^3.121.0":
+  version "3.121.0"
+  resolved "https://registry.yarnpkg.com/@segment/action-destinations/-/action-destinations-3.121.0.tgz#5f4d7d9adb93066a3e0bb70a4764c5e0febd9d88"
+  integrity sha512-euwTii5uSO6oCiIUwM/HuLAAAbWXz07lcfUPiZ48xUTCiMMZ7aIx4Z2DMxiJ1iKQdVotx2TDyocHJk8Cx1jNIQ==
+  dependencies:
+    "@amplitude/ua-parser-js" "^0.7.25"
+    "@segment/a1-notation" "^2.1.4"
+    "@segment/actions-core" "^3.45.0"
+    "@segment/actions-shared" "^1.27.0"
+    cheerio "^1.0.0-rc.10"
+    dayjs "^1.10.7"
+    escape-goat "^3"
+    liquidjs "^9.37.0"
+    lodash "^4.17.21"
+
+"@segment/actions-core@^3.45.0":
+  version "3.45.0"
+  resolved "https://registry.yarnpkg.com/@segment/actions-core/-/actions-core-3.45.0.tgz#d24d7924f0ee3593e9b62d6128afe00c72e15473"
+  integrity sha512-crRJwdgOyM2mbGiQ/as990KR6Z//2zqVPHpW9hSARdE+yuYniou9LzWarKZnIoTjd4J5qfhOwamhjg73d5LQKA==
+  dependencies:
+    "@lukeed/uuid" "^2.0.0"
+    "@segment/ajv-human-errors" "^2.1.2"
+    "@segment/destination-subscriptions" "^3.12.0"
+    abort-controller "^3.0.0"
+    aggregate-error "^3.1.0"
+    ajv "^8.6.3"
+    ajv-formats "^2.1.1"
+    btoa-lite "^1.0.0"
+    cross-fetch "^3.1.4"
+    dayjs "^1.10.7"
+    ts-custom-error "^3.2.0"
+
+"@segment/actions-shared@^1.27.0":
+  version "1.27.0"
+  resolved "https://registry.yarnpkg.com/@segment/actions-shared/-/actions-shared-1.27.0.tgz#159839b3822d361a03848c076cb0df44b286be42"
+  integrity sha512-E81f5vfVO7HsutcZwjdh/o4cADL05C8bkOeTSNDO3RyOqoB2V5YJhHmaWDziNfSkkkIKijahljQTlcNvFYOV4A==
+  dependencies:
+    "@amplitude/ua-parser-js" "^0.7.25"
+    "@segment/actions-core" "^3.45.0"
+    cheerio "^1.0.0-rc.10"
+    dayjs "^1.10.7"
+    escape-goat "^3"
+    liquidjs "^9.37.0"
+    lodash "^4.17.21"
+
 "@segment/analytics-next@^1.29.3":
   version "1.29.3"
   resolved "https://registry.yarnpkg.com/@segment/analytics-next/-/analytics-next-1.29.3.tgz#51ea4d7e487e95c2862ec5d52fd34a113c20161e"
@@ -2459,6 +2504,22 @@
   integrity sha512-lZwCyEXT4aaHBLNK433okEKdxGAuyrVmop4BpQqQSJuRz0DglPZgd9B/XjiiWs1UyOankg2aNYMN3VcS8t4eSQ==
   dependencies:
     unfetch "^3.1.1"
+
+"@segment/browser-destinations@^3.67.0":
+  version "3.67.0"
+  resolved "https://registry.yarnpkg.com/@segment/browser-destinations/-/browser-destinations-3.67.0.tgz#b14862c3c28908cffe382574fe0c3729215ae2e4"
+  integrity sha512-iT7YmsgtvbSeNKJdTrvNfFRep0RhNXAadjwCJaYNfYrCXy7btGasXCJxWU/EEP7kjezGcSSuBm3810wd/RozJg==
+  dependencies:
+    "@braze/web-sdk" "npm:@braze/web-sdk@^4.1.0"
+    "@braze/web-sdk-v3" "npm:@braze/web-sdk@^3.5.1"
+    "@fullstory/browser" "^1.4.9"
+    "@segment/actions-shared" "^1.27.0"
+    "@segment/analytics-next" "^1.29.3"
+    "@segment/destination-subscriptions" "^3.12.0"
+    dayjs "^1.10.7"
+    logrocket "^3.0.1"
+    tslib "^2.3.1"
+    vm-browserify "^1.1.2"
 
 "@segment/control-plane-service-client@github:segmentio/control-plane-service-js-client.git#master":
   version "9.3.0"
