@@ -9,7 +9,7 @@
     "directory": "packages/cli-internal"
   },
   "engines": {
-    "node": "^14.16"
+    "node": "^18.12"
   },
   "engineStrict": true,
   "files": [
