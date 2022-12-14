@@ -50,14 +50,14 @@ export const destination: BrowserDestinationDefinition<Settings, LR> = {
       label: 'Network Sanitization',
       type: 'boolean',
       required: true,
-      default: false
+      default: true
     },
     inputSanitization: {
       description: 'Obfuscate all user-input elements (like <input> and <select>) from session recordings.',
       label: 'Input Sanitization',
       type: 'boolean',
       required: true,
-      default: false
+      default: true
     }
   },
 
