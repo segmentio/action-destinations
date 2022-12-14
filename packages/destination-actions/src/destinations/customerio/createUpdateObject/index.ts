@@ -20,7 +20,7 @@ const action: ActionDefinition<Settings, Payload> = {
     },
     created_at: {
       label: 'Created At',
-      description: 'A timestamp of when the person was created.',
+      description: 'A timestamp of when the object was created.',
       type: 'string',
       default: {
         '@template': '{{traits.created_at}}'
@@ -38,7 +38,7 @@ const action: ActionDefinition<Settings, Payload> = {
     user_id: {
       label: 'User ID',
       description:
-        'The ID used to relate user to an object in Customer.io. [Learn more](https://customer.io/docs/identifying-people/#identifiers).',
+        'The ID used to relate a user to an object in Customer.io. [Learn more](https://customer.io/docs/identifying-people/#identifiers).',
       type: 'string',
       default: {
         '@path': '$.userId'
@@ -47,7 +47,7 @@ const action: ActionDefinition<Settings, Payload> = {
     anonymous_id: {
       label: 'Anonymous ID',
       description:
-        'An anonymous ID for when no Person ID exists. [Learn more](https://customer.io/docs/anonymous-events/).',
+        'An anonymous ID to relate to an object when no Person ID exists. [Learn more](https://customer.io/docs/anonymous-events/).',
       type: 'string',
       default: {
         '@path': '$.anonymousId'

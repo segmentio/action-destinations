@@ -5,11 +5,10 @@ import createUpdatePerson from './createUpdatePerson'
 import trackEvent from './trackEvent'
 import trackPageView from './trackPageView'
 import trackScreenView from './trackScreenView'
+import createUpdateObject from './createUpdateObject'
 import type { DestinationDefinition } from '@segment/actions-core'
 import type { Settings } from './generated-types'
 import { AccountRegion, trackApiEndpoint } from './utils'
-
-import createUpdateObject from './createUpdateObject'
 
 const destination: DestinationDefinition<Settings> = {
   name: 'Actions Customerio',

@@ -22,6 +22,7 @@ describe('CustomerIO', () => {
       const groupId = 'grp123'
       const traits = {
         name: 'Sales',
+        industry: 'Technology',
         created_at: timestamp,
         object_type_id: '1'
       }
@@ -46,6 +47,17 @@ describe('CustomerIO', () => {
         'content-type': 'application/json'
       })
       expect(responses[0].data).toMatchObject({})
+      expect(responses[0].options.json).toMatchObject({
+        ...traits,
+        created_at: dayjs.utc(timestamp).unix(),
+        type: 'object',
+        action: 'identify',
+        identifiers: {
+          type_id: traits.object_type_id,
+          id: groupId
+        },
+        cio_relationships: [{ identifiers: { id: userId } }]
+      })
     })
 
     it('should work with the EU account region', async () => {
@@ -61,6 +73,7 @@ describe('CustomerIO', () => {
       const groupId = 'grp123'
       const traits = {
         name: 'Sales',
+        industry: 'Technology',
         created_at: timestamp,
         object_type_id: '1'
       }
@@ -85,6 +98,17 @@ describe('CustomerIO', () => {
         'content-type': 'application/json'
       })
       expect(responses[0].data).toMatchObject({})
+      expect(responses[0].options.json).toMatchObject({
+        ...traits,
+        created_at: dayjs.utc(timestamp).unix(),
+        type: 'object',
+        action: 'identify',
+        identifiers: {
+          type_id: traits.object_type_id,
+          id: groupId
+        },
+        cio_relationships: [{ identifiers: { id: userId } }]
+      })
     })
 
     it('should fall back to the US account region', async () => {
@@ -98,6 +122,7 @@ describe('CustomerIO', () => {
       const groupId = 'grp123'
       const traits = {
         name: 'Sales',
+        industry: 'Technology',
         created_at: timestamp,
         object_type_id: '1'
       }
@@ -122,6 +147,17 @@ describe('CustomerIO', () => {
         'content-type': 'application/json'
       })
       expect(responses[0].data).toMatchObject({})
+      expect(responses[0].options.json).toMatchObject({
+        ...traits,
+        created_at: dayjs.utc(timestamp).unix(),
+        type: 'object',
+        action: 'identify',
+        identifiers: {
+          type_id: traits.object_type_id,
+          id: groupId
+        },
+        cio_relationships: [{ identifiers: { id: userId } }]
+      })
     })
 
     it('should work with anonymous id when userId is not supplied', async () => {
@@ -159,6 +195,17 @@ describe('CustomerIO', () => {
         'content-type': 'application/json'
       })
       expect(responses[0].data).toMatchObject({})
+      expect(responses[0].options.json).toMatchObject({
+        ...traits,
+        created_at: dayjs.utc(timestamp).unix(),
+        type: 'object',
+        action: 'identify_anonymous',
+        identifiers: {
+          type_id: traits.object_type_id,
+          id: groupId
+        },
+        cio_relationships: [{ identifiers: { anonymous_id: anonymousId } }]
+      })
     })
 
     it('should work with default object_type_id when object_type_id is not supplied', async () => {
@@ -167,6 +214,7 @@ describe('CustomerIO', () => {
         apiKey: 'abcde',
         accountRegion: AccountRegion.US
       }
+      const userId = 'abc123'
       const anonymousId = 'unknown_123'
       const timestamp = dayjs.utc().toISOString()
       const groupId = 'grp123'
@@ -176,7 +224,7 @@ describe('CustomerIO', () => {
       }
       trackObjectService.post(`/api/v2/profile`).reply(200, {}, { 'x-customerio-region': 'US' })
       const event = createTestEvent({
-        userId: undefined,
+        userId,
         anonymousId,
         timestamp,
         traits,
@@ -195,6 +243,17 @@ describe('CustomerIO', () => {
         'content-type': 'application/json'
       })
       expect(responses[0].data).toMatchObject({})
+      expect(responses[0].options.json).toMatchObject({
+        ...traits,
+        created_at: dayjs.utc(timestamp).unix(),
+        type: 'object',
+        action: 'identify',
+        identifiers: {
+          type_id: '1',
+          id: groupId
+        },
+        cio_relationships: [{ identifiers: { id: userId } }]
+      })
     })
 
     it('should work when no created_at is given', async () => {
@@ -203,15 +262,17 @@ describe('CustomerIO', () => {
         apiKey: 'abcde',
         accountRegion: AccountRegion.US
       }
+      const userId = 'abc123'
       const anonymousId = 'unknown_123'
       const timestamp = dayjs.utc().toISOString()
       const groupId = 'grp123'
       const traits = {
-        name: 'Sales'
+        name: 'Sales',
+        object_type_id: '1'
       }
       trackObjectService.post(`/api/v2/profile`).reply(200, {}, { 'x-customerio-region': 'US' })
       const event = createTestEvent({
-        userId: undefined,
+        userId,
         anonymousId,
         timestamp,
         traits,
@@ -230,6 +291,16 @@ describe('CustomerIO', () => {
         'content-type': 'application/json'
       })
       expect(responses[0].data).toMatchObject({})
+      expect(responses[0].options.json).toMatchObject({
+        ...traits,
+        type: 'object',
+        action: 'identify',
+        identifiers: {
+          type_id: traits.object_type_id,
+          id: groupId
+        },
+        cio_relationships: [{ identifiers: { id: userId } }]
+      })
     })
   })
 })
