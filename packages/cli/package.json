@@ -58,6 +58,7 @@
     "@oclif/plugin-help": "^3.3",
     "@segment/action-destinations": "^3.121.0",
     "@segment/actions-core": "^3.45.0",
+    "@types/node": "^18.11.15",
     "chalk": "^4.1.1",
     "chokidar": "^3.5.1",
     "dotenv": "^10.0.0",

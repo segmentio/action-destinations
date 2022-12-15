@@ -40,6 +40,7 @@
     "@segment/a1-notation": "^2.1.4",
     "@segment/actions-core": "^3.45.0",
     "@segment/actions-shared": "^1.27.0",
+    "@types/node": "^18.11.15",
     "cheerio": "^1.0.0-rc.10",
     "dayjs": "^1.10.7",
     "escape-goat": "^3",
