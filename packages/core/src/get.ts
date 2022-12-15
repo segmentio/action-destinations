@@ -3,6 +3,16 @@
  * Supports basic path lookup via dot notation `'foo.bar[0].baz'` or an array ['foo', 'bar', '0', 'baz']
  */
 
+let arrayRe: RegExp
+
+try {
+  arrayRe = /\[(?="|'|\d)|\.|(?<="|'|\d)]+/g
+} catch (e) {
+  //safari does not support lookbehind operator so we will default
+  //to a simpler approach wherein [bar] will not be a valid key
+  arrayRe = /\[|\.|]+/g
+}
+
 export function get<T = unknown>(
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   obj: any,
@@ -22,7 +32,7 @@ export function get<T = unknown>(
   const pathArray = Array.isArray(path)
     ? path
     : path
-        .split(/\[(?="|'|\d)|\.|(?<="|'|\d)]+/g)
+        .split(arrayRe)
         .filter((f) => f)
         .map((s) => s.replace(/'|"/g, ''))
 
