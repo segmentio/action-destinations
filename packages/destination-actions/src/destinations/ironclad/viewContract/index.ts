@@ -11,111 +11,131 @@ const action: ActionDefinition<Settings, Payload> = {
       description:
         'The unique identifier used to save your signer’s signature. Can be email, mobile number, UUID, or any integer. Should be URL encoded',
       type: 'string',
-      default: { '@path': 'userId' },
+      default: {
+        '@if': {
+          exists: { '@path': '$.userId' },
+          then: { '@path': '$.userId' },
+          else: { '@path': '$.anonymousId' }
+        }
+      },
       required: true
     },
     event_name: {
       label: 'Event Name',
       description:
-        'The name of the event coming from the source, this will get translated into the Group Key and event type before the call goes to Ironclad',
+        'The name of the event coming from the source, this is an additional information field before the call goes to Ironclad',
       type: 'string',
       default: { '@path': 'event' },
-      required: true
+      required: false
     },
-    group_key: {
-      label: 'Group Key',
-      description: 'The Key of the Group associated with the acceptance event',
+    group_id: {
+      label: 'Group Id',
+      description: 'The ID of the Group associated with the acceptance event.',
       type: 'string',
-      default: 'sign-up',
+      default: '',
       required: true
     },
     event_type: {
       label: 'Event Type',
-      description:
-        ' The type of event being logged. Default values are displayed, updated, agreed, visited, sent, and disagreed',
+      description: 'The type of event being logged, the available choices are displayed, agreed, and disagreed',
       type: 'string',
-      default: 'visited',
+      default: 'displayed',
       required: true,
-      multiple: true,
       choices: [
         { label: 'Displayed', value: 'displayed' },
-        { label: 'Updated', value: 'updated' },
+        // { label: 'Updated', value: 'updated' },
         { label: 'Agreed', value: 'agreed' },
-        { label: 'Visited', value: 'visited' },
-        { label: 'Sent', value: 'sent' },
+        // { label: 'Visited', value: 'visited' },
+        // { label: 'Sent', value: 'sent' },
         { label: 'Disagreed', value: 'disagreed' }
       ]
+    },
+    contextParameters: {
+      type: 'object',
+      required: false,
+      description: 'Context Parameters including page, time and other information.',
+      label: 'Context Parameters',
+      default: {
+        addr: { '@path': '$.ip' },
+        ts: { '@path': '$.timestamp' },
+        pat: { '@path': '$.context.page.title' },
+        pau: { '@path': '$.context.page.url' },
+        pap: { '@path': '$.context.page.path' },
+        paq: { '@path': '$.context.page.search' },
+        ref: { '@path': '$.context.page.referrer' },
+        btz: { '@path': '$.context.timezone' },
+        bl: { '@path': '$.context.locale' },
+        os: { '@path': '$.context.os.name' },
+        res: { '@path': '$.context.screen' }
+      }
+    },
+    customData: {
+      type: 'object',
+      required: false,
+      description:
+        'Optional. Custom Data. URL encode a JSON object to attach custom data to your Activity. The example is URL encoded for { "first name": "Eric" } Using this in an updated Activity will append the data to the Signer, otherwise it will be added to the specific Activity call/transaction.',
+      label: 'Custom Data',
+      default: {
+        first_name: { '@path': '$.custom_data.first_name' },
+        last_name: { '@path': '$.custom_data.last_name' },
+        company_name: { '@path': '$.custom_data.company_name' },
+        title: { '@path': '$.custom_data.title' },
+        customer_id: { '@path': '$.custom_data.customer_id' }
+      }
     }
   },
   perform: async (request, data) => {
-    console.log('data: ', data.payload)
+    // console.log('data.settings: ', data.settings)
+    // console.log('data.payload: ', data.payload)
 
-    const versionURL = `https://staging.pactsafe.io/published?sid=${data.settings.sid}&gkey=${data.payload.group_key}`
+    let ironcladURL = `https://pactsafe.io`
 
-    console.log('======> versionURL: ', versionURL)
-
+    if (data.settings.staging_endpoint) {
+      ironcladURL = `https://staging.pactsafe.io`
+    }
     type versions = {
       data?: Object
     }
 
     let objVersions = Object
 
+    const versionURL = `${ironcladURL}/published?sid=${data.settings.sid}&gid=${data.payload.group_id}`
+
+    // console.log('======> versionURL: ', versionURL)
+
     const versions = await request(versionURL, { method: 'get' })
-    objVersions = versions.data as any
+    objVersions = versions.data as ObjectConstructor
     const versionCSV = String(Object.values(objVersions))
 
-    // console.log('======> versionCSV: ', versionCSV);
-
-    //TODO: Move this to configuration
-    const ironcladURL = `https://staging.pactsafe.io/send`
+    //TODO: Test Mode to Settings
     const jsonData = {
-      sid: data.settings.sid,
-      sig: data.payload.sig,
+      sid: data.settings?.sid,
+      sig: data.payload?.sig,
+      gid: data.payload?.group_id,
       vid: versionCSV,
+      ts: data.payload?.contextParameters?.ts,
+      pat: data.payload?.contextParameters?.pat,
+      pau: data.payload?.contextParameters?.pau,
+      pap: data.payload?.contextParameters?.pap,
+      paq: data.payload?.contextParameters?.paq,
+      ref: data.payload?.contextParameters?.ref,
+      btz: data.payload?.contextParameters?.btz,
+      bl: data.payload?.contextParameters?.bl,
+      os: data.payload?.contextParameters?.os,
+      res: data.payload?.contextParameters?.res,
+      addr: data.payload?.contextParameters?.addr,
       et: String(data.payload.event_type),
+      cus: data.payload.customData,
       server_side: true,
-      tm: true
+      tm: data.settings.test_mode
     }
-    // console.log('======> jsonData: ', jsonData);
-    const ironcladEndpoint = await request(ironcladURL, {
+    // console.log('======> PROD - jsonData: ', jsonData);
+    const ironcladEndpoint = await request(ironcladURL + '/send/sync', {
       method: 'POST',
       json: jsonData
     })
 
-    // console.log('======> ironcladEndpoint: ', ironcladEndpoint);
-
     return ironcladEndpoint
-
-    // console.log('======> pipedream: ', pipedream);
-
-    // if (data.payload !== undefined) {
-    // try {
-    //   Object.entries(versionsArr).forEach(async ([vkey, vid]) => {
-    //     Object.entries(data.payload.event_type).forEach(async ([key, et]) => {
-    //       console.log('======> Event Type: ', et);
-    //       const ironcladURL = `https://staging.pactsafe.io/send`
-    //       console.log('======> DEBUG: ', ironcladURL);
-    //       const ironcladEndpoint = await request(ironcladURL, {
-    //         method: 'post',
-    //         json: {
-    //           sid: data.settings.sid,
-    //           sig: data.settings.sig,
-    //           vid: data.settings.vid,
-    //           et: data.settings.et,
-    //           server_side: true,
-    //           tm: true
-    //         }
-    //       })
-    //       console.log('======> ironcladEndpoint: ', ironcladEndpoint);
-    //       return { status: 'OK' }
-    //     })
-    //   })
-    //   return { status: 'OK' }
-    // } catch (error) {
-    //   console.log('======> error: ', error);
-    // }
-
-    // }
   }
 }
 

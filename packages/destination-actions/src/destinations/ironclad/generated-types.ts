@@ -6,7 +6,11 @@ export interface Settings {
    */
   sid: string
   /**
-   * Execute the integration agains the Staging site
+   * Turn this ON, to send request to the staging server, ONLY if Clickwrap support instructs you to do so
    */
-  staging?: boolean
+  staging_endpoint: boolean
+  /**
+   * Test Mode, whether or not to process the acceptance in test_mode. Defaults to false, Toggle to ON to enable it.
+   */
+  test_mode: boolean
 }

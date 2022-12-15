@@ -16,35 +16,27 @@ const destination: DestinationDefinition<Settings> = {
         description:
           'Site Access ID. An ID that’s unique for each Site within your account. Information on finding your sid can be found in the Authentication section',
         type: 'string',
-        default: '410d5d75-56b6-43b5-9130-13b6ea0713c0',
+        default: '',
         required: true
       },
-      staging: {
-        label: 'Staging Site',
-        description: 'Execute the integration agains the Staging site',
+      staging_endpoint: {
+        label: 'Staging Endpoint',
+        description:
+          'Turn this ON, to send request to the staging server, ONLY if Clickwrap support instructs you to do so',
         type: 'boolean',
-        default: true
+        required: true,
+        default: false
+      },
+      test_mode: {
+        label: 'Test Mode',
+        description:
+          'Test Mode, whether or not to process the acceptance in test_mode. Defaults to false, Toggle to ON to enable it.',
+        type: 'boolean',
+        required: true,
+        default: false
       }
     }
-    // testAuthentication: (request) => {
-    //   // Return a request that tests/validates the user's credentials.
-    //   // If you do not have a way to validate the authentication fields safely,
-    //   // you can remove the `testAuthentication` function, though discouraged.
-    // }
   },
-
-  // extendRequest({ settings }) {
-  //   return {
-  //     username: settings.username,
-  //     password: settings.password
-  //   }
-  // },
-
-  // onDelete: async (request, { settings, payload }) => {
-  //   // Return a request that performs a GDPR delete for the provided Segment userId or anonymousId
-  //   // provided in the payload. If your destination does not support GDPR deletion you should not
-  //   // implement this function and should remove it completely.
-  // },
 
   actions: {
     viewContract

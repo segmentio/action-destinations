@@ -4,39 +4,67 @@ import Destination from '../../index'
 
 const testDestination = createTestIntegration(Destination)
 
-const settings = {
-  sid: '15f7972a-d01b-4d41-9438-118eb10d0e0b'
+const settingsStaging = {
+  sid: '15f7972a-d01b-4d41-9438-118eb10d0e0b',
+  staging_endpoint: true,
+  test_mode: true
+}
+
+const settingsProd = {
+  sid: '15f7972a-d01b-4d41-9438-118eb10d0e0b',
+  staging_endpoint: false,
+  test_mode: false
 }
 
 const payload = {
   sig: 'test-user-njs1haohmb',
-  group_key: 'sign-up'
+  group_id: '1335'
 }
 
 describe('Ironclad.viewContract', () => {
   it('test View contract', async () => {
-    const versionURL = `https://staging.pactsafe.io`
+    //Mock Staging
+    const ironcladURLStaging = `https://staging.pactsafe.io`
+    nock(ironcladURLStaging)
+      .get(`/published?sid=${settingsStaging.sid}&gid=${payload.group_id}`)
+      .reply(200, { '15299': '636aa4956e4e161e69d0a110', '15483': '6388c828932984001c888e1c' })
 
-    console.log('======> TEST - versionURL: ', versionURL)
+    // console.log('======> TEST - ironcladURLStaging: ', ironcladURLStaging)
 
-    nock(versionURL)
-      .persist()
-      .get(`/published?sid=${settings.sid}&gkey=${payload.group_key}`)
-      .reply(200, { '15299': '636aa4956e4e161e69d0a110' })
-
-    const ironcladURL = `https://staging.pactsafe.io`
-    const jsonData = {
-      sid: settings.sid,
+    const jsonDataStaging = {
+      sid: settingsStaging.sid,
       sig: payload.sig,
-      vid: '636aa4956e4e161e69d0a110',
-      et: 'visited',
+      gid: payload.group_id,
+      vid: '636aa4956e4e161e69d0a110,6388c828932984001c888e1c',
+      et: 'displayed',
       server_side: true,
       tm: true
     }
 
-    nock(ironcladURL).persist().post('/send', jsonData).reply(200, {})
+    // console.log('======> TEST - jsonDataStaging: ', jsonDataStaging);
 
-    console.log('======> nock.activeMocks(): ', nock.activeMocks())
+    nock(ironcladURLStaging).persist().post('/send/sync', jsonDataStaging).reply(200, {})
+
+    //Mock Production
+    const ironcladURLProd = `https://pactsafe.io`
+    nock(ironcladURLProd)
+      .get(`/published?sid=${settingsProd.sid}&gid=${payload.group_id}`)
+      .reply(200, { '15299': '636aa4956e4e161e69d0a110', '15483': '6388c828932984001c888e1c' })
+
+    // console.log('======> TEST - ironcladURLProd: ', ironcladURLProd)
+
+    const jsonDataProd = {
+      sid: settingsProd.sid,
+      sig: payload.sig,
+      vid: '636aa4956e4e161e69d0a110,6388c828932984001c888e1c',
+      et: 'displayed',
+      server_side: true,
+      tm: true
+    }
+
+    nock(ironcladURLProd).post('/send/sync', jsonDataProd).reply(200, {})
+
+    // console.log('======> TEST - nock.activeMocks(): ', nock.activeMocks())
 
     const event = createTestEvent({
       type: 'track',
@@ -44,9 +72,11 @@ describe('Ironclad.viewContract', () => {
       userId: 'test-user-njs1haohmb'
     })
 
+    // console.log('======> TEST - event: ', event)
+
     const responses = await testDestination.testAction('viewContract', {
       event,
-      settings: settings,
+      settings: settingsStaging,
       mapping: {
         sig: {
           '@path': '$.userId'
@@ -54,33 +84,14 @@ describe('Ironclad.viewContract', () => {
         event_name: {
           '@path': '$.event'
         },
-        group_key: 'sign-up',
-        event_type: 'visited'
+        group_id: '1335',
+        event_type: 'displayed'
       }
     })
 
     console.log('======> responses: ', responses)
 
-    expect(responses.length).toBe(2)
-    expect(responses[0].status).toBe(200)
-
-    // expect(responses[0].request.headers).toMatchInlineSnapshot(`
-    //     Headers {
-    //       Symbol(map): Object {
-    //         "user-agent": Array [
-    //           "Segment (Actions)",
-    //         ],
-    //         "accept": Array [
-    //           "*/*",
-    //         ],
-    //         "accept-encoding": Array [
-    //           "gzip,deflate",
-    //         ],
-    //         "connection": Array [
-    //           "close",
-    //         ],
-    //       },
-    //     }
-    //   `)
+    // expect(responses.length).toBe(2)
+    // expect(responses[0].status).toBe(200)
   })
 })

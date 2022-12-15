@@ -7,10 +7,12 @@ const testDestination = createTestIntegration(Definition)
 describe('Ironclad', () => {
   describe('testAuthentication', () => {
     it('should validate authentication inputs', async () => {
-      nock('https://your.destination.endpoint').get('*').reply(200, {})
+      nock('https://staging.pactsafe.io').get('*').reply(200, {})
 
       const authData = {
-        sid: 'site-access-id'
+        sid: 'site-access-id',
+        staging_endpoint: true,
+        test_mode: true
       }
 
       await expect(testDestination.testAuthentication(authData)).resolves.not.toThrowError()
