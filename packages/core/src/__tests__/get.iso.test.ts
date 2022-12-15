@@ -22,6 +22,7 @@ const fixtures: Record<string, unknown> = {
   a: obj.a,
   'a.b': obj.a.b,
   "['a'].b": obj.a.b,
+  '["a"].b': obj.a.b,
   'a.b.c': obj.a.b.c,
   'a.b.d': obj.a.b.d,
   'a.b.e': obj.a.b.e,
