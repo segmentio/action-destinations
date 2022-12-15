@@ -2,6 +2,7 @@
  * Lightweight alternative to lodash.get with similar coverage
  * Supports basic path lookup via dot notation `'foo.bar[0].baz'` or an array ['foo', 'bar', '0', 'baz']
  */
+
 export function get<T = unknown>(
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   obj: any,
@@ -15,7 +16,13 @@ export function get<T = unknown>(
 
   // Check if path is string or array. Regex : ensure that we do not have '.' and brackets.
   // Regex explained: https://regexr.com/58j0k
-  const pathArray = Array.isArray(path) ? path : (path.match(/([^[.\]])+/g) as string[])
+  const pathArray = Array.isArray(path)
+    ? path
+    : path
+        .split(/\[(?='|\d)|\.|(?<='|\d)]+/g)
+        .filter((f) => f)
+        .map((s) => s.replace(/'/g, ''))
+  // const pathArray = Array.isArray(path) ? path : (path.match(/([^[.\]])+/g) as string[])
 
   // Find value if exist return otherwise return undefined value
   return pathArray.reduce((prevObj, key) => prevObj && prevObj[key], obj)
