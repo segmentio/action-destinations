@@ -123,6 +123,7 @@ async function processPayload(
   const { cohort_name, cohort_id, time } = payloads[0]
   //commenting for now
 
+  logger?.info?.('New Log Added', stateContext?.getRequestContext?.('test_context'))
   logger?.info?.('Testing State Context', stateContext?.getRequestContext?.('test_context'))
   logger?.info?.('Braze Cohorts', stateContext?.getRequestContext?.('cohort_name'))
   logger?.info?.(`Testing internal variable EU:-${process?.env?.BRAZE_COHORTS_PARTNER_API_KEY_EU}`)
