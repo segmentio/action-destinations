@@ -4,6 +4,8 @@ import { browserDestination } from '../../runtime/shim'
 
 import addPaymentInfo from './addPaymentInfo'
 
+import setConfigurationFields from './setConfigurationFields'
+
 declare global {
   interface Window {
     gtag: Function
@@ -19,7 +21,8 @@ export const destination: BrowserDestinationDefinition<Settings, Function> = {
 
   settings: {
     measurementID: {
-      description: 'The measurement ID associated with the web stream. Found in the Google Analytics UI under: Admin > Data Streams > Web > Measurement ID.',
+      description:
+        'The measurement ID associated with the web stream. Found in the Google Analytics UI under: Admin > Data Streams > Web > Measurement ID.',
       label: 'Measurement ID',
       type: 'string',
       required: true
@@ -46,7 +49,7 @@ export const destination: BrowserDestinationDefinition<Settings, Function> = {
       description: 'Specifies the domain used to store the analytics cookie. Set to “auto” by default.',
       label: 'Cookie Domain',
       type: 'string',
-      default: "auto"
+      default: 'auto'
     },
     cookieExpirationInSeconds: {
       description: `Every time a hit is sent to GA4, the analytics cookie expiration time is updated to be the current time plus the value of this field. The default value is two years (63072000 seconds). Please input the expiration value in seconds. More information in [Google Documentation](https://developers.google.com/analytics/devguides/collection/ga4/reference/config#)`,
@@ -85,7 +88,8 @@ export const destination: BrowserDestinationDefinition<Settings, Function> = {
       default: false
     },
     defaultAdsStorageConsentState: {
-      description: 'The default value for ad cookies consent state. This is only used if Enable Consent Mode is on. Set to  “granted” if it is not explicitly set. Consent state can be updated for each user in the Set Configuration Fields action.',
+      description:
+        'The default value for ad cookies consent state. This is only used if Enable Consent Mode is on. Set to  “granted” if it is not explicitly set. Consent state can be updated for each user in the Set Configuration Fields action.',
       label: 'Default Ads Storage Consent State',
       type: 'string',
       choices: [
@@ -95,7 +99,8 @@ export const destination: BrowserDestinationDefinition<Settings, Function> = {
       default: 'granted'
     },
     defaultAnalyticsStorageConsentState: {
-      description: 'The default value for analytics cookies consent state. This is only used if Enable Consent Mode is on. Set to  “granted” if it is not explicitly set. Consent state can be updated for each user in the Set Configuration Fields action.',
+      description:
+        'The default value for analytics cookies consent state. This is only used if Enable Consent Mode is on. Set to  “granted” if it is not explicitly set. Consent state can be updated for each user in the Set Configuration Fields action.',
       label: 'Default Analytics Storage Consent State',
       type: 'string',
       choices: [
@@ -105,7 +110,8 @@ export const destination: BrowserDestinationDefinition<Settings, Function> = {
       default: 'granted'
     },
     waitTimeToUpdateConsentStage: {
-      description: 'If your CMP loads asynchronously, it might not always run before the Google tag. To handle such situations, specify a millisecond value to control how long to wait before the consent state update is sent. Please input the wait_for_update in milliseconds.',
+      description:
+        'If your CMP loads asynchronously, it might not always run before the Google tag. To handle such situations, specify a millisecond value to control how long to wait before the consent state update is sent. Please input the wait_for_update in milliseconds.',
       label: 'Wait Time to Update Consent State',
       type: 'number'
     }
@@ -113,16 +119,16 @@ export const destination: BrowserDestinationDefinition<Settings, Function> = {
 
   initialize: async ({ settings }, deps) => {
     const config = {
-      'send_page_view': settings.pageView,
-      'cookie_update': settings.cookieUpdate,
-      'cookie_domain': settings.cookieDomain,
-      'cookie_prefix': settings.cookiePrefix,
-      'cookie_expires': settings.cookieExpirationInSeconds,
-      'cookie_path': settings.cookiePath,
-      'allow_ad_personalization_signals': settings.allowAdPersonalizationSignals,
-      'allow_google_signals': settings.allowGoogleSignals
+      send_page_view: settings.pageView,
+      cookie_update: settings.cookieUpdate,
+      cookie_domain: settings.cookieDomain,
+      cookie_prefix: settings.cookiePrefix,
+      cookie_expires: settings.cookieExpirationInSeconds,
+      cookie_path: settings.cookiePath,
+      allow_ad_personalization_signals: settings.allowAdPersonalizationSignals,
+      allow_google_signals: settings.allowGoogleSignals
     }
-    //TODO 
+    //TODO
     // const consent = {
 
     // }
@@ -131,18 +137,19 @@ export const destination: BrowserDestinationDefinition<Settings, Function> = {
       window.dataLayer.push(arguments)
     }
     window.gtag('js', new Date())
-    //Easier for testing actions 
+    //Easier for testing actions
     window.gtag('config', settings.measurementID)
     //window.gtag('config', settings.measurementID, { config })
     const script = `https://www.googletagmanager.com/gtag/js?id=${settings.measurementID}`
     await deps.loadScript(script)
-    console.log("loaded")
+    console.log('loaded')
     //add ResolveWhen
     return window.gtag
   },
 
   actions: {
-    addPaymentInfo
+    addPaymentInfo,
+    setConfigurationFields
   }
 }
 
