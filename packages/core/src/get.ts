@@ -19,9 +19,9 @@ export function get<T = unknown>(
   const pathArray = Array.isArray(path)
     ? path
     : path
-        .split(/\[(?='|\d)|\.|(?<='|\d)]+/g)
+        .split(/\[(?="|'|\d)|\.|(?<="|'|\d)]+/g)
         .filter((f) => f)
-        .map((s) => s.replace(/'/g, ''))
+        .map((s) => s.replace(/'|"/g, ''))
   // const pathArray = Array.isArray(path) ? path : (path.match(/([^[.\]])+/g) as string[])
 
   // Find value if exist return otherwise return undefined value
