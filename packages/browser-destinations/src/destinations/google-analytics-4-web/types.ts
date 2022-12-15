@@ -1,1 +1,4 @@
-export type gtag = (method: string, ...args: unknown[]) => void
+export type GA = {
+    //dataLayer: any
+    gtag: Function
+}
