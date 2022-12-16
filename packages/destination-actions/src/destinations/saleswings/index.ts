@@ -1,6 +1,8 @@
 import type { DestinationDefinition } from '@segment/actions-core'
 import type { Settings } from './generated-types'
 
+import submitEvent from './submitEvent'
+
 const destination: DestinationDefinition<Settings> = {
   name: 'Saleswings (Actions)',
   slug: 'actions-saleswings',
@@ -18,7 +20,9 @@ const destination: DestinationDefinition<Settings> = {
     }
   },
 
-  actions: {}
+  actions: {
+    submitEvent
+  }
 }
 
 export default destination
