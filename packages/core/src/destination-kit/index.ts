@@ -223,6 +223,9 @@ export interface TransactionContext {
   setTransaction: (key: string, value: string) => void
 }
 
+/** StateContext getRequestContext and setResponseContext method are passed from mono service for few Segment built integrations.
+ * State context is for Twilio/Segment use only and are not for Partner Builds.
+ */
 export interface StateContext {
   // getRequestContext reads the `context` field from the request
   getRequestContext(key: string, cb?: (res?: string) => any): any
