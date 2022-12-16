@@ -2439,6 +2439,21 @@
   resolved "https://registry.yarnpkg.com/@segment/a1-notation/-/a1-notation-2.1.4.tgz#35a48a0688019c3ffff23b1ba890e864c891a11f"
   integrity sha512-SId7GOdDFmm/B9ajIQpXELHW4OTbVvmJbOsoJkQOcUEtoZIiX2UWfk1v4BpKql8wJW9oAhzhIIru2Pv2Yxcg+w==
 
+"@segment/action-destinations@^3.121.1":
+  version "3.121.1"
+  resolved "https://registry.yarnpkg.com/@segment/action-destinations/-/action-destinations-3.121.1.tgz#b7dc952d7ba7a13939ae537f7f6f79a8837c7f0c"
+  integrity sha512-W87uXXIQIxwY4Ps6ilvVj4YRNSj9v2QqBXFW6yaKsFjIcFhu4RtTJ++GJTt8FWkF4sUTABbX5UZpOBQIj9X2sA==
+  dependencies:
+    "@amplitude/ua-parser-js" "^0.7.25"
+    "@segment/a1-notation" "^2.1.4"
+    "@segment/actions-core" "^3.45.0"
+    "@segment/actions-shared" "^1.27.0"
+    cheerio "^1.0.0-rc.10"
+    dayjs "^1.10.7"
+    escape-goat "^3"
+    liquidjs "^9.37.0"
+    lodash "^4.17.21"
+
 "@segment/analytics-next@^1.29.3":
   version "1.29.3"
   resolved "https://registry.yarnpkg.com/@segment/analytics-next/-/analytics-next-1.29.3.tgz#51ea4d7e487e95c2862ec5d52fd34a113c20161e"
