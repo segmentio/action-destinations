@@ -19,7 +19,7 @@ function stale(id: number | null, updated: number | null, length: number = THIRT
   }
 
   const accessedAt = updated
-  console.log(now(), accessedAt, '***')
+
   if (now() - accessedAt >= length) {
     return true
   }
@@ -43,6 +43,7 @@ const action: BrowserActionDefinition<Settings, {}, Payload> = {
   },
   lifecycleHook: 'enrichment',
   perform: (_, { context, payload, analytics }) => {
+    // TODO: this can be removed when storage layer in AJS is rolled out to all customers
     const storageFallback = {
       get: (key: string) => {
         const data = window.localStorage.getItem(key)
@@ -66,7 +67,9 @@ const action: BrowserActionDefinition<Settings, {}, Payload> = {
       id = newSession
       storage.set('analytics_session_id', id)
     } else {
-      storage.set('analytics_session_id', id as number)
+      // we are storing the session id regardless, so it gets synced between different storage mediums
+      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion -- id can't be null because of stale check
+      storage.set('analytics_session_id', id!)
     }
 
     storage.set('analytics_session_id.last_access', newSession)
