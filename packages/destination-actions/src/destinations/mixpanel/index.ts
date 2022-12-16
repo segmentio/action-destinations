@@ -65,6 +65,11 @@ const destination: DestinationDefinition<Settings> = {
   name: 'Mixpanel (Actions)',
   slug: 'actions-mixpanel',
   mode: 'cloud',
+  endpoints: {
+    US: { url: 'https://api.mixpanel.com' },
+    EU: { url: 'https://api-eu.mixpanel.com', label: 'You are holding it wrong' },
+    CUSTOM: { url: 'https://www.mixpanel.com', label: 'Custom!!' }
+  },
   authentication: {
     scheme: 'custom',
     fields: {
@@ -93,7 +98,7 @@ const destination: DestinationDefinition<Settings> = {
         label: 'Source Name',
         description:
           "This value, if it's not blank, will be sent as segment_source_name to Mixpanel for every event/page/screen call.",
-        type: 'string',
+        type: 'string'
       },
       strictMode: {
         label: 'Strict Mode',

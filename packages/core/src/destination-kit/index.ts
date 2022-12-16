@@ -79,6 +79,9 @@ export interface DestinationDefinition<Settings = unknown> extends BaseDefinitio
   /** Optional authentication configuration */
   authentication?: AuthenticationScheme<Settings>
 
+  /** Optional regional endpoints */
+  endpoints?: { [K in Regions | string]: GetRegion<K> }
+
   onDelete?: Deletion<Settings>
 }
 
@@ -112,6 +115,19 @@ interface RefreshAuthSettings<Settings> {
   settings: Settings
   auth: OAuth2ClientCredentials
 }
+
+export type Endpoint = {
+  url: string
+  label?: never
+}
+
+export type CustomEndpoint = {
+  url: string
+  label?: string
+}
+
+export type Regions = 'US' | 'EU'
+export type GetRegion<K> = K extends Regions ? Endpoint : CustomEndpoint
 
 interface Authentication<Settings> {
   /** The authentication scheme */
