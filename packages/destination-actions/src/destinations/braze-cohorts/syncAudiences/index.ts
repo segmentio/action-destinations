@@ -3,7 +3,7 @@ import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 import { SyncAudiences } from '../api'
 import { CohortChanges } from '../cohortChanges'
-import { StateContext } from '@segment/actions-core/src/destination-kit'
+import { Logger, StateContext } from '@segment/actions-core/src/destination-kit'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Sync Audience',
@@ -113,11 +113,14 @@ async function processPayload(
   request: RequestClient,
   settings: Settings,
   payloads: Payload[],
+  logger?: Logger,
   stateContext?: StateContext
 ) {
   validate(payloads)
   const syncAudiencesApiClient: SyncAudiences = new SyncAudiences(request, settings)
   const { cohort_name, cohort_id } = payloads[0]
+  logger?.info?.('Added New Log', payloads[0].time)
+  logger?.info?.('Testing State Context', stateContext?.getRequestContext?.('cohort_name'))
 
   if (stateContext?.getRequestContext?.('cohort_name') != cohort_name) {
     await syncAudiencesApiClient.createCohort(settings, payloads[0])
