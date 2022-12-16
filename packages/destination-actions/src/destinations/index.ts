@@ -66,6 +66,7 @@ register('632b1116e0cb83902f3fd717', './hubspot')
 register('636d38db78d7834347d76c44', './1plusx-asset-api')
 register('6371eee1ae5e324869aa8b1b', './segment')
 register('63936c37dbc54a052e34e30e', './google-sheets-dev')
+register('63872c01c0c112b9b4d75412', './braze-cohorts')
 
 function register(id: MetadataId, destinationPath: string) {
   // eslint-disable-next-line @typescript-eslint/no-var-requires
