@@ -67,8 +67,7 @@ const destination: DestinationDefinition<Settings> = {
   mode: 'cloud',
   endpoints: {
     US: { url: 'https://api.mixpanel.com' },
-    EU: { url: 'https://api-eu.mixpanel.com', label: 'You are holding it wrong' },
-    CUSTOM: { url: 'https://www.mixpanel.com', label: 'Custom!!' }
+    EU: { url: 'https://api-eu.mixpanel.com' }
   },
   authentication: {
     scheme: 'custom',

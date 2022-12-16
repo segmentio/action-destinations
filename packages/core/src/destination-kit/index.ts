@@ -80,7 +80,7 @@ export interface DestinationDefinition<Settings = unknown> extends BaseDefinitio
   authentication?: AuthenticationScheme<Settings>
 
   /** Optional regional endpoints */
-  endpoints?: { [K in Regions | string]: GetRegion<K> }
+  endpoints?: RegionList
 
   onDelete?: Deletion<Settings>
 }
@@ -127,7 +127,7 @@ export type CustomEndpoint = {
 }
 
 export type Regions = 'US' | 'EU'
-export type GetRegion<K> = K extends Regions ? Endpoint : CustomEndpoint
+type RegionList = { [K in Regions]?: Endpoint } & { [key: string]: CustomEndpoint }
 
 interface Authentication<Settings> {
   /** The authentication scheme */
