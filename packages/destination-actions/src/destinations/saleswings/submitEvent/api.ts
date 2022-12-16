@@ -10,6 +10,7 @@ export class TrackingEvent {
   data: string
   url?: string
   referrerUrl?: string
+  userAgent?: string
   timestamp: number
   values: Map<string, Value>
   readonly type: string = 'tracking'
@@ -23,6 +24,7 @@ export class PageViewEvent {
   leadRefs: Array<LeadRef>
   url: string
   referrerUrl?: string
+  userAgent?: string
   timestamp: number
   readonly type: string = 'pageView'
 

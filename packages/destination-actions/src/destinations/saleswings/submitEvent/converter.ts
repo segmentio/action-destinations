@@ -37,6 +37,7 @@ const convertTrackEvent = (payload: Payload): TrackingEvent | undefined => {
     data,
     url: payload.contextUrl,
     referrerUrl: payload.contextReferrerUrl,
+    userAgent: payload.userAgent,
     timestamp: convertTimestamp(payload),
     values: convertValues(payload.properties)
   })
@@ -52,6 +53,7 @@ const convertPageEvent = (payload: Payload): PageViewEvent | undefined => {
     leadRefs,
     url: payload.url,
     referrerUrl: payload.referrerUrl,
+    userAgent: payload.userAgent,
     timestamp: convertTimestamp(payload)
   })
 }
@@ -69,6 +71,7 @@ const convertIdentifyEvent = (payload: Payload): TrackingEvent | undefined => {
     data: payload.email,
     url: payload.contextUrl,
     referrerUrl: payload.contextReferrerUrl,
+    userAgent: payload.userAgent,
     timestamp: convertTimestamp(payload),
     values: convertValues(payload.traits)
   })
@@ -86,6 +89,7 @@ const convertScreenEvent = (payload: Payload): TrackingEvent | undefined => {
     data: payload.screenName,
     url: payload.contextUrl,
     referrerUrl: payload.contextReferrerUrl,
+    userAgent: payload.userAgent,
     timestamp: convertTimestamp(payload),
     values: convertValues(payload.properties)
   })
