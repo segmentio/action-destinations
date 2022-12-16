@@ -3958,6 +3958,11 @@
     jest-diff "^27.0.0"
     pretty-format "^27.0.0"
 
+"@types/js-cookie@^3.0.0":
+  version "3.0.2"
+  resolved "https://registry.yarnpkg.com/@types/js-cookie/-/js-cookie-3.0.2.tgz#451eaeece64c6bdac8b2dde0caab23b085899e0d"
+  integrity sha512-6+0ekgfusHftJNYpihfkMu8BWdeHs9EOJuGcSofErjstGPfPGEu9yTu4t460lTzzAMl2cM5zngQJqPMHbbnvYA==
+
 "@types/jscodeshift@^0.11.0":
   version "0.11.2"
   resolved "https://registry.yarnpkg.com/@types/jscodeshift/-/jscodeshift-0.11.2.tgz#cbad968d5bf6055529531364e57be119563e9685"
@@ -10737,7 +10742,7 @@ jora@^1.0.0-beta.5:
   resolved "https://registry.yarnpkg.com/jora/-/jora-1.0.0-beta.5.tgz#55b2c4d86078af1bc74da401e88b67be42b0bddd"
   integrity sha512-hPJKQyF0eiCqQOwfgIuQa+8wIn+WcEcjjyeOchuiXEUnt6zbV0tHKsUqRRwJY47ZtBiGcJQNr/BGuYW1Sfwbvg==
 
-js-cookie@3.0.1:
+js-cookie@3.0.1, js-cookie@^3.0.1:
   version "3.0.1"
   resolved "https://registry.yarnpkg.com/js-cookie/-/js-cookie-3.0.1.tgz#9e39b4c6c2f56563708d7d31f6f5f21873a92414"
   integrity sha512-+0rgsUXZu4ncpPxRL+lNEptWMOWl9etvPHc/koSRp6MPwpRYAhmk0dUG00J4bxVV3r9uUzfo24wW0knS07SKSw==

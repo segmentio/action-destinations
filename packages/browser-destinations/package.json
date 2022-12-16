@@ -62,7 +62,9 @@
     "webpack": "^5.36.1",
     "webpack-bundle-analyzer": "^4.4.1",
     "webpack-cli": "^4.4.0",
-    "webpack-dev-server": "^4.2.0"
+    "webpack-dev-server": "^4.2.0",
+    "js-cookie": "^3.0.1",
+    "@types/js-cookie": "^3.0.0"
   },
   "jest": {
     "testEnvironment": "jsdom",

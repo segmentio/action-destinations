@@ -71,6 +71,8 @@ describe('ajs-integration', () => {
 
     // @ts-expect-error Need to fix ajs-next types to allow for complex objects in `integrations`
     expect(updatedCtx?.event.integrations['Actions Amplitude']?.session_id).not.toBeUndefined()
+    // @ts-expect-error
+    expect(typeof updatedCtx?.event.integrations['Actions Amplitude']?.session_id).toBe('number')
   })
 
   test('updates the original eveent when All: false but Actions Amplitude: true', async () => {
@@ -92,6 +94,8 @@ describe('ajs-integration', () => {
 
     // @ts-expect-error Need to fix ajs-next types to allow for complex objects in `integrations`
     expect(updatedCtx?.event.integrations['Actions Amplitude']?.session_id).not.toBeUndefined()
+    // @ts-expect-error
+    expect(typeof updatedCtx?.event.integrations['Actions Amplitude']?.session_id).toBe('number')
   })
 
   test('doesnt update the original event with a session id when All: false', async () => {
@@ -179,6 +183,8 @@ describe('sessionId', () => {
       expect(window.localStorage.getItem('analytics_session_id.last_access')).toBeWithinOneSecondOf(id().toString())
       expect(jar.get('analytics_session_id')).toBeWithinOneSecondOf(id().toString())
       expect(jar.get('analytics_session_id.last_access')).toBeWithinOneSecondOf(id().toString())
+      expect(jar.get('analytics_session_id')).toBe(window.localStorage.getItem('analytics_session_id'))
+      expect(jar.get('analytics_session_id.last_access')).toBe(window.localStorage.getItem('analytics_session_id'))
     })
   })
 
@@ -206,7 +212,7 @@ describe('sessionId', () => {
       const then = id()
 
       window.localStorage.setItem('analytics_session_id', then.toString())
-      window.localStorage.setItem('analytics_session_id.las', then.toString())
+      window.localStorage.setItem('analytics_session_id.last_access', then.toString())
 
       const ctx = new Context({
         type: 'track',
@@ -219,10 +225,10 @@ describe('sessionId', () => {
       const updatedCtx = await sessionIdPlugin.track?.(ctx)
       // @ts-expect-error Need to fix ajs-next types to allow for complex objects in `integrations`
       expect(updatedCtx?.event.integrations['Actions Amplitude']?.session_id).toBeWithinOneSecondOf(then)
-      expect(jar.get('analytics_session_id')).toBeWithinOneSecondOf(then.toString())
+      expect(jar.get('analytics_session_id')).toBeWithinOneSecondOf(then)
     })
 
-    test('uses an existing session id stored in cookies', async () => {
+    test('uses an existing session id stored in cookies and sync it with local storage', async () => {
       const then = id()
       jest.advanceTimersByTime(10000)
       jar.set('analytics_session_id', then.toString())
@@ -234,10 +240,13 @@ describe('sessionId', () => {
           greeting: 'Oi!'
         }
       })
-
+      const now = id()
       const updatedCtx = await sessionIdPlugin.track?.(ctx)
       // @ts-expect-error Need to fix ajs-next types to allow for complex objects in `integrations`
       expect(updatedCtx?.event.integrations['Actions Amplitude']?.session_id).toBeWithinOneSecondOf(then)
+      // synced to local storage
+      expect(window.localStorage.getItem('analytics_session_id.last_access')).toBeWithinOneSecondOf(now)
+      expect(window.localStorage.getItem('analytics_session_id')).toBeWithinOneSecondOf(then)
     })
 
     test('keeps track of when the session was last accessed', async () => {
@@ -293,7 +302,7 @@ describe('sessionId', () => {
   })
 
   describe('work without AJS storage layer', () => {
-    test('uses an existing session id in LS', async () => {
+    test('uses an existing session id in LS when AJS storage layer is not available', async () => {
       const then = id()
       //@ts-expect-error
       jest.spyOn(ajs, 'storage', 'get').mockReturnValue(undefined)
@@ -313,6 +322,37 @@ describe('sessionId', () => {
       // @ts-expect-error Need to fix ajs-next types to allow for complex objects in `integrations`
       expect(updatedCtx?.event.integrations['Actions Amplitude']?.session_id).toBeWithinOneSecondOf(then)
       expect(jar.get('analytics_session_id')).toBe(undefined)
+    })
+
+    test('uses an existing session id in LS when AJS storage layer is not available', async () => {
+      const then = id()
+      //@ts-expect-error
+      jest.spyOn(ajs, 'storage', 'get').mockReturnValue(undefined)
+
+      window.localStorage.setItem('analytics_session_id.last_access', then.toString())
+      window.localStorage.setItem('analytics_session_id', then.toString())
+
+      const THIRTY_MINUTES = 30 * 60000
+      jest.advanceTimersByTime(THIRTY_MINUTES)
+
+      const now = id()
+
+      const ctx = new Context({
+        type: 'track',
+        event: 'greet',
+        properties: {
+          greeting: 'Oi!'
+        }
+      })
+
+      const updatedCtx = await sessionIdPlugin.track?.(ctx)
+      // @ts-expect-error Need to fix ajs-next types to allow for complex objects in `integrations`
+      expect(updatedCtx?.event.integrations['Actions Amplitude']?.session_id).toBeWithinOneSecondOf(now)
+
+      expect(window.localStorage.getItem('analytics_session_id')).toBeWithinOneSecondOf(now.toString())
+      expect(window.localStorage.getItem('analytics_session_id.last_access')).toBeWithinOneSecondOf(now.toString())
+      expect(jar.get('analytics_session_id')).toBeUndefined()
+      expect(jar.get('analytics_session_id.last_access')).toBeUndefined()
     })
   })
 })
