@@ -1,3 +1,4 @@
+import { UniversalStorage } from '@segment/analytics-next'
 import type { BrowserActionDefinition } from '../../../lib/browser-destinations'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
@@ -12,12 +13,13 @@ function now(): number {
 
 const THIRTY_MINUTES = 30 * 60000
 
-function stale(id: string | null, updated: string | null, length: number = THIRTY_MINUTES): id is null {
+function stale(id: number | null, updated: number | null, length: number = THIRTY_MINUTES): id is null {
   if (id === null || updated === null) {
     return true
   }
 
-  const accessedAt = parseInt(updated, 10)
+  const accessedAt = updated
+  console.log(now(), accessedAt, '***')
   if (now() - accessedAt >= length) {
     return true
   }
@@ -40,22 +42,34 @@ const action: BrowserActionDefinition<Settings, {}, Payload> = {
     }
   },
   lifecycleHook: 'enrichment',
-  perform: (_, { context, payload }) => {
-    const ls = window.localStorage
-    const newSession = newSessionId()
-
-    const raw = ls.getItem('analytics_session_id')
-    const updated = ls.getItem('analytics_session_id.last_access')
-
-    let id: number | string | null = raw
-    if (stale(raw, updated, payload.sessionLength)) {
-      id = newSession
-      ls.setItem('analytics_session_id', id.toString())
-    } else {
-      id = parseInt(id as string, 10)
+  perform: (_, { context, payload, analytics }) => {
+    const storageFallback = {
+      get: (key: string) => {
+        const data = window.localStorage.getItem(key)
+        return data === null ? null : parseInt(data, 10)
+      },
+      set: (key: string, value: number) => {
+        return window.localStorage.setItem(key, value.toString())
+      }
     }
 
-    ls.setItem('analytics_session_id.last_access', newSession.toString())
+    const newSession = newSessionId()
+    const storage = analytics.storage
+      ? (analytics.storage as UniversalStorage<Record<string, number>>)
+      : storageFallback
+
+    const raw = storage.get('analytics_session_id')
+    const updated = storage.get('analytics_session_id.last_access')
+
+    let id: number | null = raw
+    if (stale(raw, updated, payload.sessionLength)) {
+      id = newSession
+      storage.set('analytics_session_id', id)
+    } else {
+      storage.set('analytics_session_id', id as number)
+    }
+
+    storage.set('analytics_session_id.last_access', newSession)
 
     if (context.event.integrations?.All !== false || context.event.integrations['Actions Amplitude']) {
       context.updateEvent('integrations.Actions Amplitude', {})
