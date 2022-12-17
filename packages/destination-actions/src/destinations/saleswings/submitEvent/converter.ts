@@ -1,5 +1,5 @@
 import { Payload } from './generated-types'
-import { Event, EventBatch, LeadRef, PageViewEvent, TrackingEvent, Value } from './api'
+import { Event, EventBatch, LeadRef, PageVisitEvent, TrackingEvent, ValueMap } from './api'
 
 export const convertEvent = (payload: Payload): Event | undefined => {
   switch (payload.type) {
@@ -43,13 +43,13 @@ const convertTrackEvent = (payload: Payload): TrackingEvent | undefined => {
   })
 }
 
-const convertPageEvent = (payload: Payload): PageViewEvent | undefined => {
+const convertPageEvent = (payload: Payload): PageVisitEvent | undefined => {
   if (!payload.url) return undefined
 
   const leadRefs = convertLeadRefs(payload)
   if (leadRefs.length == 0) return undefined
 
-  return new PageViewEvent({
+  return new PageVisitEvent({
     leadRefs,
     url: payload.url,
     referrerUrl: payload.referrerUrl,
@@ -64,6 +64,8 @@ const convertIdentifyEvent = (payload: Payload): TrackingEvent | undefined => {
   const leadRefs = convertLeadRefs(payload)
   if (leadRefs.length == 0) return undefined
   leadRefs.push({ type: 'email', value: payload.email })
+
+  if (payload.traits) delete payload.traits['email']
 
   return new TrackingEvent({
     leadRefs,
@@ -97,24 +99,18 @@ const convertScreenEvent = (payload: Payload): TrackingEvent | undefined => {
 
 const convertLeadRefs = (payload: Payload): LeadRef[] => {
   const refs: LeadRef[] = []
-  if (payload.anonymousId) refs.push({ type: 'clientID', value: payload.anonymousId })
-  if (payload.userId) refs.push({ type: 'clientID', value: payload.userId })
+  if (payload.userId) refs.push({ type: 'client-id', value: payload.userId })
+  if (payload.anonymousId) refs.push({ type: 'client-id', value: payload.anonymousId })
   return refs
 }
 
-const convertValues = (source: { [k: string]: unknown } | undefined): Map<string, Value> => {
-  const values = new Map<string, Value>()
+const convertValues = (source: { [k: string]: unknown } | undefined): ValueMap => {
+  const values: ValueMap = {}
   if (!source) return values
   Object.entries(source).forEach(([key, prop]) => {
-    const val = convertValue(prop)
-    if (val) values.set(key, val)
+    if (typeof prop === 'number' || typeof prop === 'boolean' || typeof prop === 'string') values[key] = prop
   })
   return values
-}
-
-const convertValue = (prop: unknown): Value | undefined => {
-  if (typeof prop === 'number' || typeof prop === 'boolean' || typeof prop === 'string') return prop as Value
-  else return undefined
 }
 
 const convertTimestamp = (payload: Payload): number => {
