@@ -131,7 +131,6 @@ const action: ActionDefinition<Settings, Payload> = {
   perform: (request, data) => {
     const event = convertEvent(data.payload)
     if (!event) return
-    console.log(JSON.stringify(event))
     return request('https://helium.saleswings.pro/api/core/events', {
       method: 'post',
       json: event,
