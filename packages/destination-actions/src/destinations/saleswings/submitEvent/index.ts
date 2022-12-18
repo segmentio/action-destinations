@@ -2,6 +2,7 @@ import type { ActionDefinition } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 import { convertEvent, convertEventBatch } from './converter'
+import { apiBaseUrl } from '../api'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Submit Event',
@@ -131,7 +132,7 @@ const action: ActionDefinition<Settings, Payload> = {
   perform: (request, data) => {
     const event = convertEvent(data.payload)
     if (!event) return
-    return request('https://helium.saleswings.pro/api/core/events', {
+    return request(`${apiBaseUrl}/events`, {
       method: 'post',
       json: event,
       headers: { Authorization: `Bearer ${data.settings.apiKey}` }
@@ -140,7 +141,7 @@ const action: ActionDefinition<Settings, Payload> = {
   performBatch: (request, data) => {
     const batch = convertEventBatch(data.payload)
     if (!batch) return
-    return request('https://helium.saleswings.pro/api/core/events/batches', {
+    return request(`${apiBaseUrl}/events/batches`, {
       method: 'post',
       json: batch,
       headers: { Authorization: `Bearer ${data.settings.apiKey}` }

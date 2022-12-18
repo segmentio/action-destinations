@@ -1,4 +1,5 @@
 import type { DestinationDefinition } from '@segment/actions-core'
+import { apiBaseUrl } from './api'
 import type { Settings } from './generated-types'
 
 import submitEvent from './submitEvent'
@@ -17,6 +18,12 @@ const destination: DestinationDefinition<Settings> = {
         type: 'password',
         required: true
       }
+    },
+    testAuthentication: async (request, { settings }) => {
+      const resp = await request(`${apiBaseUrl}/project/account`, {
+        headers: { Authorization: `Bearer ${settings.apiKey}` }
+      })
+      return resp.status == 200
     }
   },
 

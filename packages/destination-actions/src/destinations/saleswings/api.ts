@@ -1,3 +1,5 @@
+export const apiBaseUrl = 'https://helium.saleswings.pro/api/core'
+
 export type Event = TrackingEvent | PageVisitEvent
 
 export type EventBatch = {

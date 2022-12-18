@@ -1,5 +1,5 @@
 import { Payload } from './generated-types'
-import { Event, EventBatch, LeadRef, PageVisitEvent, TrackingEvent, ValueMap } from './api'
+import { Event, EventBatch, LeadRef, PageVisitEvent, TrackingEvent, ValueMap } from '../api'
 
 export const convertEvent = (payload: Payload): Event | undefined => {
   switch (payload.type) {
