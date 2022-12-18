@@ -182,11 +182,78 @@ describe('SalesWings', () => {
       await testActionWithSkippedEvent(event)
     })
 
-    it('should submit event on Identify event', async () => {})
+    it('should submit event on Identify event', async () => {
+      const event = createTestEvent({
+        type: 'identify',
+        traits: {
+          name: 'Peter Gibbons',
+          email: 'peter@example.com',
+          plan: 'premium',
+          logins: 5
+        },
+        context: {
+          userAgent,
+          page: {
+            url: 'https://example.com',
+            referrer: 'https://example.com/other'
+          }
+        }
+      })
+      const request = await testAction(event)
+      expect(request).toMatchObject({
+        type: 'tracking',
+        leadRefs: [
+          { type: 'client-id', value: event.userId },
+          { type: 'client-id', value: event.anonymousId },
+          { type: 'email', value: event.traits?.email }
+        ],
+        kind: 'Identify',
+        data: 'peter@example.com',
+        url: 'https://example.com',
+        referrerUrl: 'https://example.com/other',
+        userAgent,
+        timestamp: expectedTs(event.timestamp),
+        values: {
+          name: 'Peter Gibbons',
+          plan: 'premium',
+          logins: 5
+        }
+      })
+    })
 
-    it('should skip Identify event if email not specified', async () => {})
+    it('should submit event on Identify event with all optional fields omitted', async () => {
+      const event = createTestEvent({
+        type: 'identify',
+        traits: {
+          email: 'peter@example.com'
+        }
+      })
+      const request = await testAction(event)
+      expect(request).toMatchObject({
+        type: 'tracking',
+        leadRefs: [
+          { type: 'client-id', value: event.userId },
+          { type: 'client-id', value: event.anonymousId },
+          { type: 'email', value: event.traits?.email }
+        ],
+        kind: 'Identify',
+        data: 'peter@example.com',
+        timestamp: expectedTs(event.timestamp),
+        values: {}
+      })
+    })
+
+    it('should skip Identify event if email not specified', async () => {
+      const event = createTestEvent({
+        type: 'identify',
+        traits: {}
+      })
+      await testActionWithSkippedEvent(event)
+    })
 
     it('should submit event on Screen event', async () => {})
+
+    it('should submit event on Screen event with all optional fields omitted', async () => {})
 
     it('should skip Screen event if name not specified', async () => {})
 
