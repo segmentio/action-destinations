@@ -251,11 +251,65 @@ describe('SalesWings', () => {
       await testActionWithSkippedEvent(event)
     })
 
-    it('should submit event on Screen event', async () => {})
+    it('should submit event on Screen event', async () => {
+      const event = createTestEvent({
+        type: 'screen',
+        name: 'Home',
+        properties: {
+          'Feed Type': 'private'
+        },
+        context: {
+          userAgent,
+          page: {
+            url: 'https://example.com',
+            referrer: 'https://example.com/other'
+          }
+        }
+      })
+      const request = await testAction(event)
+      expect(request).toMatchObject({
+        type: 'tracking',
+        leadRefs: [
+          { type: 'client-id', value: event.userId },
+          { type: 'client-id', value: event.anonymousId }
+        ],
+        kind: 'Screen',
+        data: 'Home',
+        url: 'https://example.com',
+        referrerUrl: 'https://example.com/other',
+        userAgent,
+        timestamp: expectedTs(event.timestamp),
+        values: {
+          'Feed Type': 'private'
+        }
+      })
+    })
 
-    it('should submit event on Screen event with all optional fields omitted', async () => {})
+    it('should submit event on Screen event with all optional fields omitted', async () => {
+      const event = createTestEvent({
+        type: 'screen',
+        name: 'Home'
+      })
+      const request = await testAction(event)
+      expect(request).toMatchObject({
+        type: 'tracking',
+        leadRefs: [
+          { type: 'client-id', value: event.userId },
+          { type: 'client-id', value: event.anonymousId }
+        ],
+        kind: 'Screen',
+        data: 'Home',
+        timestamp: expectedTs(event.timestamp),
+        values: {}
+      })
+    })
 
-    it('should skip Screen event if name not specified', async () => {})
+    it('should skip Screen event if name not specified', async () => {
+      const event = createTestEvent({
+        type: 'screen'
+      })
+      await testActionWithSkippedEvent(event)
+    })
 
     it('should submit event batch', async () => {})
   })
