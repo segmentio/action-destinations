@@ -311,7 +311,85 @@ describe('SalesWings', () => {
       await testActionWithSkippedEvent(event)
     })
 
-    it('should submit event batch', async () => {})
+    it('should submit event batch', async () => {
+      nock(apiBaseUrl).post('/events/batches').reply(200, {})
+      const events = [
+        createTestEvent({
+          type: 'track',
+          event: 'User Registered'
+        }),
+        createTestEvent({
+          type: 'page',
+          properties: {
+            url: 'https://example.com'
+          }
+        }),
+        createTestEvent({
+          type: 'identify',
+          traits: {
+            email: 'peter@example.com'
+          }
+        }),
+        createTestEvent({
+          type: 'screen',
+          name: 'Home'
+        })
+      ]
+      const input = { events, settings, useDefaultMappings: true }
+      const responses = await testDestination.testBatchAction('submitEvent', input)
+      expect(responses.length).toBe(1)
+      const request = responses[0].request
+      expect(request.headers.get('Authorization')).toBe(`Bearer ${settings.apiKey}`)
+      const rawBody = await request.text()
+      const requestJson = JSON.parse(rawBody)
+      expect(requestJson).toMatchObject({
+        events: [
+          {
+            type: 'tracking',
+            leadRefs: [
+              { type: 'client-id', value: events[0].userId },
+              { type: 'client-id', value: events[0].anonymousId }
+            ],
+            kind: 'Track',
+            data: 'User Registered',
+            timestamp: expectedTs(events[0].timestamp),
+            values: {}
+          },
+          {
+            type: 'page-visit',
+            leadRefs: [
+              { type: 'client-id', value: events[1].userId },
+              { type: 'client-id', value: events[1].anonymousId }
+            ],
+            url: 'https://example.com',
+            timestamp: expectedTs(events[1].timestamp)
+          },
+          {
+            type: 'tracking',
+            leadRefs: [
+              { type: 'client-id', value: events[2].userId },
+              { type: 'client-id', value: events[2].anonymousId },
+              { type: 'email', value: events[2].traits?.email }
+            ],
+            kind: 'Identify',
+            data: 'peter@example.com',
+            timestamp: expectedTs(events[2].timestamp),
+            values: {}
+          },
+          {
+            type: 'tracking',
+            leadRefs: [
+              { type: 'client-id', value: events[3].userId },
+              { type: 'client-id', value: events[3].anonymousId }
+            ],
+            kind: 'Screen',
+            data: 'Home',
+            timestamp: expectedTs(events[3].timestamp),
+            values: {}
+          }
+        ]
+      })
+    })
   })
 })
 
