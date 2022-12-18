@@ -312,7 +312,6 @@ describe('SalesWings', () => {
     })
 
     it('should submit event batch', async () => {
-      nock(apiBaseUrl).post('/events/batches').reply(200, {})
       const events = [
         createTestEvent({
           type: 'track',
@@ -335,14 +334,8 @@ describe('SalesWings', () => {
           name: 'Home'
         })
       ]
-      const input = { events, settings, useDefaultMappings: true }
-      const responses = await testDestination.testBatchAction('submitEvent', input)
-      expect(responses.length).toBe(1)
-      const request = responses[0].request
-      expect(request.headers.get('Authorization')).toBe(`Bearer ${settings.apiKey}`)
-      const rawBody = await request.text()
-      const requestJson = JSON.parse(rawBody)
-      expect(requestJson).toMatchObject({
+      const request = await testBatchAction(events)
+      expect(request).toMatchObject({
         events: [
           {
             type: 'tracking',
@@ -390,6 +383,85 @@ describe('SalesWings', () => {
         ]
       })
     })
+
+    it('should not include skippable events into a batch', async () => {
+      const events = [
+        createTestEvent({
+          type: 'track',
+          event: 'User Registered'
+        }),
+        createTestEvent({
+          type: 'page'
+        }),
+        createTestEvent({
+          type: 'identify',
+          traits: {
+            email: 'peter@example.com'
+          }
+        }),
+        createTestEvent({
+          type: 'screen'
+        }),
+        createTestEvent({
+          type: 'group'
+        })
+      ]
+      const request = await testBatchAction(events)
+      expect(request).toMatchObject({
+        events: [
+          {
+            type: 'tracking',
+            leadRefs: [
+              { type: 'client-id', value: events[0].userId },
+              { type: 'client-id', value: events[0].anonymousId }
+            ],
+            kind: 'Track',
+            data: 'User Registered',
+            timestamp: expectedTs(events[0].timestamp),
+            values: {}
+          },
+          {
+            type: 'tracking',
+            leadRefs: [
+              { type: 'client-id', value: events[2].userId },
+              { type: 'client-id', value: events[2].anonymousId },
+              { type: 'email', value: events[2].traits?.email }
+            ],
+            kind: 'Identify',
+            data: 'peter@example.com',
+            timestamp: expectedTs(events[2].timestamp),
+            values: {}
+          }
+        ]
+      })
+    })
+
+    it('should not submit a batch if all the events are skippable', async () => {
+      const events = [
+        createTestEvent({
+          type: 'track',
+          event: undefined
+        }),
+        createTestEvent({
+          type: 'page'
+        }),
+        createTestEvent({
+          type: 'identify'
+        }),
+        createTestEvent({
+          type: 'screen'
+        }),
+        createTestEvent({
+          type: 'group'
+        })
+      ]
+      const responses = await testDestination.testBatchAction('submitEvent', {
+        events,
+        settings,
+        useDefaultMappings: true
+      })
+      expect(responses.length).toBe(0)
+    })
   })
 })
 
@@ -401,6 +473,17 @@ const testAction = async (event: SegmentEvent, mapping: JSONObject | undefined =
   nock(apiBaseUrl).post('/events').reply(200, {})
   const input = { event, settings, mapping, useDefaultMappings: mapping === undefined }
   const responses = await testDestination.testAction('submitEvent', input)
+  expect(responses.length).toBe(1)
+  const request = responses[0].request
+  expect(request.headers.get('Authorization')).toBe(`Bearer ${settings.apiKey}`)
+  const rawBody = await request.text()
+  return JSON.parse(rawBody)
+}
+
+const testBatchAction = async (events: SegmentEvent[]): Promise<any> => {
+  nock(apiBaseUrl).post('/events/batches').reply(200, {})
+  const input = { events, settings, useDefaultMappings: true }
+  const responses = await testDestination.testBatchAction('submitEvent', input)
   expect(responses.length).toBe(1)
   const request = responses[0].request
   expect(request.headers.get('Authorization')).toBe(`Bearer ${settings.apiKey}`)
