@@ -130,9 +130,57 @@ describe('SalesWings', () => {
       })
     })
 
-    it('should submit event on Page event', async () => {})
+    it('should submit event on Page event', async () => {
+      const event = createTestEvent({
+        type: 'page',
+        properties: {
+          url: 'https://example.com',
+          referrer: 'https://example.com/other'
+        },
+        context: {
+          userAgent
+        }
+      })
+      const request = await testAction(event)
+      expect(request).toMatchObject({
+        type: 'page-visit',
+        leadRefs: [
+          { type: 'client-id', value: event.userId },
+          { type: 'client-id', value: event.anonymousId }
+        ],
+        url: 'https://example.com',
+        referrerUrl: 'https://example.com/other',
+        userAgent,
+        timestamp: expectedTs(event.timestamp)
+      })
+    })
 
-    it('should skip Page event if url not specified', async () => {})
+    it('should submit event on Page event with all optional fields omitted', async () => {
+      const event = createTestEvent({
+        type: 'page',
+        properties: {
+          url: 'https://example.com'
+        }
+      })
+      const request = await testAction(event)
+      expect(request).toMatchObject({
+        type: 'page-visit',
+        leadRefs: [
+          { type: 'client-id', value: event.userId },
+          { type: 'client-id', value: event.anonymousId }
+        ],
+        url: 'https://example.com',
+        timestamp: expectedTs(event.timestamp)
+      })
+    })
+
+    it('should skip Page event if url not specified', async () => {
+      const event = createTestEvent({
+        type: 'page',
+        properties: {}
+      })
+      await testActionWithSkippedEvent(event)
+    })
 
     it('should submit event on Identify event', async () => {})
 
@@ -148,8 +196,9 @@ describe('SalesWings', () => {
 
 const testDestination = createTestIntegration(Destination)
 
+const settings = { apiKey: 'TEST_API_KEY' }
+
 const testAction = async (event: SegmentEvent, mapping: JSONObject | undefined = undefined): Promise<any> => {
-  const settings = { apiKey: 'TEST_API_KEY' }
   nock(apiBaseUrl).post('/events').reply(200, {})
   const input = { event, settings, mapping, useDefaultMappings: mapping === undefined }
   const responses = await testDestination.testAction('submitEvent', input)
@@ -158,6 +207,11 @@ const testAction = async (event: SegmentEvent, mapping: JSONObject | undefined =
   expect(request.headers.get('Authorization')).toBe(`Bearer ${settings.apiKey}`)
   const rawBody = await request.text()
   return JSON.parse(rawBody)
+}
+
+const testActionWithSkippedEvent = async (event: SegmentEvent): Promise<void> => {
+  const responses = await testDestination.testAction('submitEvent', { event, settings, useDefaultMappings: true })
+  expect(responses.length).toBe(0)
 }
 
 const expectedTs = (segmentEventTs: string | Date | undefined): number => {
