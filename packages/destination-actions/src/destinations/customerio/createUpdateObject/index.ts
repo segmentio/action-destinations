@@ -53,6 +53,15 @@ const action: ActionDefinition<Settings, Payload> = {
         '@path': '$.anonymousId'
       }
     },
+    type_id: {
+      label: 'Object Type Id',
+      description:
+        'The ID used to uniquely identify a custom object type in Customer.io. [Learn more](https://customer.io/docs/object-relationships).',
+      type: 'string',
+      default: {
+        '@path': '$.typeId'
+      }
+    },
     convert_timestamp: {
       label: 'Convert Timestamps',
       description: 'Convert dates to Unix timestamps (seconds since Epoch).',
@@ -63,6 +72,7 @@ const action: ActionDefinition<Settings, Payload> = {
   perform: (request, { settings, payload }) => {
     let createdAt: string | number | undefined = payload.created_at
     let customAttributes = payload.custom_attributes
+    const typeID = payload.type_id
     const userID = payload.user_id
     const objectID = payload.id
     const anonymousId = payload.anonymous_id
@@ -79,11 +89,6 @@ const action: ActionDefinition<Settings, Payload> = {
     const body: Record<string, unknown> = {
       ...customAttributes
     }
-    let typeID
-    if (customAttributes) {
-      typeID = customAttributes.object_type_id
-    }
-
     if (createdAt) {
       body.created_at = createdAt
     }
@@ -98,7 +103,7 @@ const action: ActionDefinition<Settings, Payload> = {
       body.cio_relationships = [{ identifiers: { anonymous_id: anonymousId } }]
     }
 
-    return request(`${trackApiEndpoint(settings.accountRegion)}/api/v2/profile`, {
+    return request(`${trackApiEndpoint(settings.accountRegion)}/api/v2/entity`, {
       method: 'post',
       json: body
     })

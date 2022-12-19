@@ -24,6 +24,10 @@ export interface Payload {
    */
   anonymous_id?: string
   /**
+   * The ID used to uniquely identify a custom object type in Customer.io. [Learn more](https://customer.io/docs/object-relationships).
+   */
+  type_id?: string
+  /**
    * Convert dates to Unix timestamps (seconds since Epoch).
    */
   convert_timestamp?: boolean

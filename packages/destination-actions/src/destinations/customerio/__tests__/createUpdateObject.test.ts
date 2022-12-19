@@ -26,7 +26,7 @@ describe('CustomerIO', () => {
         created_at: timestamp,
         object_type_id: '1'
       }
-      trackObjectService.post(`/api/v2/profile`).reply(200, {}, { 'x-customerio-region': 'US' })
+      trackObjectService.post(`/api/v2/entity`).reply(200, {}, { 'x-customerio-region': 'US' })
       const event = createTestEvent({
         userId,
         anonymousId,
@@ -77,7 +77,7 @@ describe('CustomerIO', () => {
         created_at: timestamp,
         object_type_id: '1'
       }
-      trackEUObjectService.post(`/api/v2/profile`).reply(200, {}, { 'x-customerio-region': 'EU' })
+      trackEUObjectService.post(`/api/v2/entity`).reply(200, {}, { 'x-customerio-region': 'EU' })
       const event = createTestEvent({
         userId,
         anonymousId,
@@ -126,7 +126,7 @@ describe('CustomerIO', () => {
         created_at: timestamp,
         object_type_id: '1'
       }
-      trackObjectService.post(`/api/v2/profile`).reply(200, {}, { 'x-customerio-region': 'US-fallback' })
+      trackObjectService.post(`/api/v2/entity`).reply(200, {}, { 'x-customerio-region': 'US-fallback' })
       const event = createTestEvent({
         userId,
         anonymousId,
@@ -174,7 +174,7 @@ describe('CustomerIO', () => {
         created_at: timestamp,
         object_type_id: '1'
       }
-      trackObjectService.post(`/api/v2/profile`).reply(200, {}, { 'x-customerio-region': 'US' })
+      trackObjectService.post(`/api/v2/entity`).reply(200, {}, { 'x-customerio-region': 'US' })
       const event = createTestEvent({
         userId: undefined,
         anonymousId,
@@ -222,7 +222,7 @@ describe('CustomerIO', () => {
         name: 'Sales',
         created_at: timestamp
       }
-      trackObjectService.post(`/api/v2/profile`).reply(200, {}, { 'x-customerio-region': 'US' })
+      trackObjectService.post(`/api/v2/entity`).reply(200, {}, { 'x-customerio-region': 'US' })
       const event = createTestEvent({
         userId,
         anonymousId,
@@ -266,11 +266,12 @@ describe('CustomerIO', () => {
       const anonymousId = 'unknown_123'
       const timestamp = dayjs.utc().toISOString()
       const groupId = 'grp123'
+      const typeId = '1'
       const traits = {
         name: 'Sales',
         object_type_id: '1'
       }
-      trackObjectService.post(`/api/v2/profile`).reply(200, {}, { 'x-customerio-region': 'US' })
+      trackObjectService.post(`/api/v2/entity`).reply(200, {}, { 'x-customerio-region': 'US' })
       const event = createTestEvent({
         userId,
         anonymousId,
@@ -296,7 +297,7 @@ describe('CustomerIO', () => {
         type: 'object',
         action: 'identify',
         identifiers: {
-          type_id: traits.object_type_id,
+          type_id: typeId,
           id: groupId
         },
         cio_relationships: [{ identifiers: { id: userId } }]
