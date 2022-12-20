@@ -10,13 +10,19 @@ const obj = {
     },
     h: null
   },
-  u: undefined
+  u: undefined,
+  '[txt] non': true,
+  '[txt] nest': {
+    inner: true
+  }
 }
 
 const fixtures: Record<string, unknown> = {
   '': obj,
   a: obj.a,
   'a.b': obj.a.b,
+  "['a'].b": obj.a.b,
+  '["a"].b': obj.a.b,
   'a.b.c': obj.a.b.c,
   'a.b.d': obj.a.b.d,
   'a.b.e': obj.a.b.e,
@@ -24,6 +30,8 @@ const fixtures: Record<string, unknown> = {
   'a.b.f[0].g': obj.a.b.f[0].g,
   'a.h': obj.a.h,
   'a.b.x': undefined,
+  '[txt] non': true,
+  '[txt] nest.inner': true,
   u: undefined
 }
 

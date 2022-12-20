@@ -367,7 +367,7 @@ describe('Snap Conversions API ', () => {
       expect(responses[0].status).toBe(200)
 
       expect(responses[0].options.body).toMatchInlineSnapshot(
-        `"{\\"integration\\":\\"segment\\",\\"event_type\\":\\"PURCHASE\\",\\"event_conversion_type\\":\\"WEB\\",\\"timestamp\\":1652368875449,\\"mobile_ad_id\\":\\"5af103f270fdc673b5e121ea929d1e47b2cee679e2059226a23c4cba37f8c9a9\\",\\"pixel_id\\":\\"test123\\"}"`
+        `"{\\"integration\\":\\"segment\\",\\"event_type\\":\\"PURCHASE\\",\\"event_conversion_type\\":\\"WEB\\",\\"timestamp\\":1652368875449,\\"hashed_mobile_ad_id\\":\\"5af103f270fdc673b5e121ea929d1e47b2cee679e2059226a23c4cba37f8c9a9\\",\\"pixel_id\\":\\"test123\\"}"`
       )
     })
 
