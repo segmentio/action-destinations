@@ -1,5 +1,5 @@
 import nock from 'nock'
-import { createTestEvent as _createTestEvent, createTestIntegration } from '@segment/actions-core'
+import { createTestIntegration } from '@segment/actions-core'
 import Definition from '../index'
 import { apiBaseUrl } from '../api'
 

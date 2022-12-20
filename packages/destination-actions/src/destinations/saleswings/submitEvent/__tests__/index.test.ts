@@ -1,9 +1,4 @@
-import {
-  createTestEvent as createTestEvent,
-  createTestIntegration,
-  JSONObject,
-  SegmentEvent
-} from '@segment/actions-core'
+import { createTestEvent, createTestIntegration, JSONObject, SegmentEvent } from '@segment/actions-core'
 import Destination from '../../index'
 import nock from 'nock'
 import { apiBaseUrl } from '../../api'
