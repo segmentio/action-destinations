@@ -9,7 +9,6 @@ describe('Braze Cohorts', () => {
     it('should throw an error in case of invalid client secret key', async () => {
       nock('https://rest.iad-01.braze.com').post('/partners/segment/cohorts/users').reply(401, {})
 
-      // This should match your authentication.fields
       const authData = {
         settings: {
           endpoint: 'https://rest.iad-01.braze.com',
@@ -23,7 +22,6 @@ describe('Braze Cohorts', () => {
     it('should not throw an error when settings is appropriate and api gives sucess', async () => {
       nock('https://rest.iad-01.braze.com').post('/partners/segment/cohorts/users').reply(201, {})
 
-      // This should match your authentication.fields
       const authData = {
         settings: {
           endpoint: 'https://rest.iad-01.braze.com',

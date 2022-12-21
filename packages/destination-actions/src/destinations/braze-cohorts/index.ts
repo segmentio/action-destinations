@@ -1,6 +1,7 @@
 import type { DestinationDefinition } from '@segment/actions-core'
 import type { Settings } from './generated-types'
-
+import { CohortChanges } from './braze-cohorts-types'
+import { SyncAudiences } from './api/index'
 import syncAudiences from './syncAudiences'
 
 const destination: DestinationDefinition<Settings> = {
@@ -36,18 +37,12 @@ const destination: DestinationDefinition<Settings> = {
         required: true
       }
     },
-    testAuthentication: (request, { settings }) => {
-      return request(`${settings.endpoint}/partners/segment/cohorts/users`, {
-        method: 'post',
-        json: {
-          client_secret: settings.client_secret,
-          partner_api_key: settings.endpoint.includes('eu')
-            ? process.env.BRAZE_COHORTS_PARTNER_API_KEY_EU
-            : process.env.BRAZE_COHORTS_PARTNER_API_KEY_US,
-          cohort_id: 'will_add_in_constant',
-          cohort_changes: []
-        }
-      })
+    testAuthentication: async (request, { settings }) => {
+      const syncAudiencesApiClient: SyncAudiences = new SyncAudiences(request, settings)
+      const cohort_id = 'will_add_in_constant'
+      const cohortChanges: Array<CohortChanges> = []
+      const res = await syncAudiencesApiClient.batchUpdate(settings, cohort_id, cohortChanges)
+      return res
     }
   },
   actions: {

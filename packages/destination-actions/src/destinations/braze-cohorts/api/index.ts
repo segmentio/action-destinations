@@ -1,7 +1,7 @@
 import type { RequestClient, ModifiedResponse } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from '../syncAudiences/generated-types'
-import { CohortChanges } from '../cohortChanges'
+import { CohortChanges } from '../braze-cohorts-types'
 
 interface APIResponse {
   message: string
@@ -36,16 +36,8 @@ export class SyncAudiences {
   async batchUpdate(
     settings: Settings,
     cohort_id: string,
-    { addUsers, removeUsers, hasAddUsers, hasRemoveUsers }: any
+    cohortChanges: Array<CohortChanges>
   ): Promise<ModifiedResponse> {
-    const cohortChanges: Array<CohortChanges> = []
-    if (hasAddUsers) {
-      cohortChanges.push(addUsers)
-    }
-    if (hasRemoveUsers) {
-      cohortChanges.push(removeUsers)
-    }
-
     return this.request(`${settings.endpoint}/partners/segment/cohorts/users`, {
       method: 'POST',
       json: {

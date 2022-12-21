@@ -2,7 +2,7 @@ import { ActionDefinition, RequestClient, IntegrationError } from '@segment/acti
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 import { SyncAudiences } from '../api'
-import { CohortChanges } from '../cohortChanges'
+import { CohortChanges } from '../braze-cohorts-types'
 import { StateContext } from '@segment/actions-core/src/destination-kit'
 
 const action: ActionDefinition<Settings, Payload> = {
@@ -35,18 +35,12 @@ const action: ActionDefinition<Settings, Payload> = {
           type: 'string',
           required: true
         }
-      },
-      default: {
-        '@path': '$.userAlias'
       }
     },
     device_id: {
       label: 'Device ID',
       description: 'The unique device Identifier',
-      type: 'string',
-      default: {
-        '@path': '$.deviceId'
-      }
+      type: 'string'
     },
     cohort_id: {
       label: 'Cohort ID',
@@ -98,15 +92,15 @@ const action: ActionDefinition<Settings, Payload> = {
       type: 'hidden',
       required: true,
       default: {
-        '@path': '$.receivedAt'
+        '@path': '$.timestamp'
       }
     }
   },
-  perform: async (request, { settings, payload, logger, stateContext }) => {
-    return processPayload(request, settings, [payload], logger, stateContext)
+  perform: async (request, { settings, payload, stateContext }) => {
+    return processPayload(request, settings, [payload], stateContext)
   },
-  performBatch: async (request, { settings, payload, logger, stateContext }) => {
-    return processPayload(request, settings, payload, logger, stateContext)
+  performBatch: async (request, { settings, payload, stateContext }) => {
+    return processPayload(request, settings, payload, stateContext)
   }
 }
 async function processPayload(
@@ -118,29 +112,32 @@ async function processPayload(
   validate(payloads)
   const syncAudiencesApiClient: SyncAudiences = new SyncAudiences(request, settings)
   const { cohort_name, cohort_id } = payloads[0]
+  const cohortChanges: Array<CohortChanges> = []
 
   if (stateContext?.getRequestContext?.('cohort_name') != cohort_name) {
     await syncAudiencesApiClient.createCohort(settings, payloads[0])
-    stateContext?.setResponseContext?.(`cohort_name`, cohort_name, { minute: 2 })
+    stateContext?.setResponseContext?.(`cohort_name`, cohort_name)
   }
   const { addUsers, removeUsers } = extractUsers(payloads)
-  const users = {
-    addUsers,
-    removeUsers,
-    hasAddUsers: hasUsersToAddOrRemove(addUsers),
-    hasRemoveUsers: hasUsersToAddOrRemove(removeUsers)
-  }
+  const hasAddUsers = hasUsersToAddOrRemove(addUsers)
+  const hasRemoveUsers = hasUsersToAddOrRemove(removeUsers)
 
   // We should never hit this condition because at least an user_id or device_id
   // or user_alias is required in each payload, but if we do, returning early
   // rather than hitting Cohort's API (with no data) is more efficient.
   // The monoservice will interpret this early return as a 200.
 
-  if (!users.hasAddUsers && !users.hasRemoveUsers) {
+  if (!hasAddUsers && !hasRemoveUsers) {
     return
   }
+  if (hasAddUsers) {
+    cohortChanges.push(addUsers)
+  }
+  if (hasRemoveUsers) {
+    cohortChanges.push(removeUsers)
+  }
 
-  const res = await syncAudiencesApiClient.batchUpdate(settings, cohort_id, users)
+  const res = await syncAudiencesApiClient.batchUpdate(settings, cohort_id, cohortChanges)
   return res
 }
 
@@ -168,11 +165,11 @@ function extractUsers(payloads: Payload[]) {
     const user = userEnteredOrRemoved ? addUsers : removeUsers
 
     if (external_id) {
-      user?.user_ids.push(external_id)
+      user?.user_ids?.push(external_id)
     } else if (device_id) {
-      user?.device_ids.push(device_id)
+      user?.device_ids?.push(device_id)
     } else if (user_alias) {
-      user?.aliases.push(user_alias)
+      user?.aliases?.push(user_alias)
     }
   })
 
