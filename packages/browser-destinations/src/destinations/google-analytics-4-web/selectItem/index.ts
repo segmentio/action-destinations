@@ -1,38 +1,33 @@
 import type { BrowserActionDefinition } from '../../../lib/browser-destinations'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
+
 import {
-  user_id,
   user_properties,
-  currency,
-  value,
-  coupon,
-  payment_type,
-  items_multi_products,
-  params
+  params,
+  user_id,
+  items_single_products,
+  item_list_name,
+  item_list_id
 } from '../ga4-properties'
 
-// Change from unknown to the partner SDK types
 const action: BrowserActionDefinition<Settings, Function, Payload> = {
-  title: 'Add Payment Info',
-  description: 'Send event when a user submits their payment information',
+  title: 'Select Item',
+  description: 'This event signifies an item was selected from a list.',
   defaultSubscription: 'type = "track"',
   platform: 'web',
   fields: {
-    user_id: { ...user_id },
-    currency: { ...currency },
-    value: { ...value },
-    coupon: { ...coupon },
-    payment_type: { ...payment_type },
+    user_id: user_id,
+    item_list_name: item_list_name,
+    item_list_id: item_list_id,
     items: {
-      ...items_multi_products,
+      ...items_single_products,
       required: true
     },
     user_properties: user_properties,
     params: params
   },
   perform: (gtag, event) => {
-    console.log('reached addPaymentInfo')
     const payload = event.payload
     if (payload.user_id) {
       gtag('set', { user_id: payload.user_id })
@@ -41,11 +36,9 @@ const action: BrowserActionDefinition<Settings, Function, Payload> = {
       gtag('set', { user_properties: payload.user_properties })
     }
 
-    gtag('event', 'add_payment_info', {
-      currency: payload.currency,
-      value: payload.value,
-      coupon: payload.coupon,
-      payment_type: payload.payment_type,
+    gtag('event', 'select_item', {
+      item_list_id: payload.item_list_id,
+      item_list_name: payload.item_list_name,
       items: payload.items,
       ...payload.params
     })

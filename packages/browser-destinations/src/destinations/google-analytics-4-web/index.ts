@@ -4,7 +4,37 @@ import { browserDestination } from '../../runtime/shim'
 
 import addPaymentInfo from './addPaymentInfo'
 
-import setConfigurationFields from './setConfigurationFields'
+import login from './login'
+
+import signUp from './signUp'
+
+import search from './search'
+
+import addToCart from './addToCart'
+
+import addToWishlist from './addToWishlist'
+
+import removeFromCart from './removeFromCart'
+
+import selectItem from './selectItem'
+
+import selectPromotion from './selectPromotion'
+
+import viewItem from './viewItem'
+
+import viewPromotion from './viewPromotion'
+
+import beginCheckout from './beginCheckout'
+
+import purchase from './purchase'
+
+import refund from './refund'
+
+import viewCart from './viewCart'
+
+import viewItemList from './viewItemList'
+
+import generateLead from './generateLead'
 
 declare global {
   interface Window {
@@ -25,7 +55,7 @@ export const destination: BrowserDestinationDefinition<Settings, Function> = {
         'The measurement ID associated with the web stream. Found in the Google Analytics UI under: Admin > Data Streams > Web > Measurement ID.',
       label: 'Measurement ID',
       type: 'string',
-      required: true
+      required: false
     },
     pageView: {
       description: 'Set to false to prevent the default snippet from sending page views. Enabled by default.',
@@ -118,29 +148,29 @@ export const destination: BrowserDestinationDefinition<Settings, Function> = {
   },
 
   initialize: async ({ settings }, deps) => {
-    const config = {
-      send_page_view: settings.pageView,
-      cookie_update: settings.cookieUpdate,
-      cookie_domain: settings.cookieDomain,
-      cookie_prefix: settings.cookiePrefix,
-      cookie_expires: settings.cookieExpirationInSeconds,
-      cookie_path: settings.cookiePath,
-      allow_ad_personalization_signals: settings.allowAdPersonalizationSignals,
-      allow_google_signals: settings.allowGoogleSignals
-    }
+    // const config = {
+    //   send_page_view: settings.pageView,
+    //   cookie_update: settings.cookieUpdate,
+    //   cookie_domain: settings.cookieDomain,
+    //   cookie_prefix: settings.cookiePrefix,
+    //   cookie_expires: settings.cookieExpirationInSeconds,
+    //   cookie_path: settings.cookiePath,
+    //   allow_ad_personalization_signals: settings.allowAdPersonalizationSignals,
+    //   allow_google_signals: settings.allowGoogleSignals
+    // }
     //TODO
     // const consent = {
 
     // }
     window.dataLayer = window.dataLayer || []
-    window.gtag = function () {
-      window.dataLayer.push(arguments)
-    }
+    // window.gtag = function () {
+    //   window.dataLayer.push(arguments)
+    // }
     window.gtag('js', new Date())
     //Easier for testing actions
     window.gtag('config', settings.measurementID)
     //window.gtag('config', settings.measurementID, { config })
-    const script = `https://www.googletagmanager.com/gtag/js?id=${settings.measurementID}`
+    const script = `https://www.googletagmanager.com/gtag/js?id=G-P8JMEEJC9G`
     await deps.loadScript(script)
     console.log('loaded')
     //add ResolveWhen
@@ -149,7 +179,22 @@ export const destination: BrowserDestinationDefinition<Settings, Function> = {
 
   actions: {
     addPaymentInfo,
-    setConfigurationFields
+    login,
+    signUp,
+    search,
+    addToCart,
+    addToWishlist,
+    removeFromCart,
+    selectItem,
+    selectPromotion,
+    viewItem,
+    viewPromotion,
+    beginCheckout,
+    purchase,
+    refund,
+    viewCart,
+    viewItemList,
+    generateLead
   }
 }
 
