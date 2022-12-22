@@ -51,12 +51,18 @@ const action: ActionDefinition<Settings, Payload> = {
       default: {
         '@path': '$.properties'
       }
+    },
+    type: {
+      label: 'Event Type',
+      description: 'Type of event',
+      type: 'string',
+      default: {
+        '@path': '$.type'
+      }
     }
   },
 
   perform: (request, { settings, payload }) => {
-    payload.type = 'screen'
-
     const url = `${trackApiEndpoint(settings.apiEndpoint)}/v1/events`
     // const url = `http://localhost:3005/segmentio/event-processing`
 
