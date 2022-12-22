@@ -2,6 +2,9 @@ import { DestinationDefinition } from '@segment/actions-core'
 import { AccountRegion } from '../customerio/utils'
 import { Settings } from './generated-types'
 import identifyCustomer from './identifyCustomer'
+import trackEvent from './trackEvent'
+import pageEvent from './pageEvent'
+import screenEvent from './screenEvent'
 
 const destination: DestinationDefinition<Settings> = {
   name: 'Voucherify (Actions)',
@@ -44,7 +47,10 @@ const destination: DestinationDefinition<Settings> = {
     }
   },
   actions: {
-    identifyCustomer
+    identifyCustomer,
+    trackEvent,
+    pageEvent,
+    screenEvent
   }
 }
 

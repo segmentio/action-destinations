@@ -3,7 +3,7 @@ import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 import { trackApiEndpoint } from '../utils'
 
-interface TrackEventPayload {
+interface PageEventPayload {
   source_id?: string
   event: string
   type?: string
@@ -13,8 +13,8 @@ interface TrackEventPayload {
 }
 
 const action: ActionDefinition<Settings, Payload> = {
-  title: 'Track Event',
-  description: 'Track an event.',
+  title: 'Page Event',
+  description: 'Track the page event.',
   fields: {
     source_id: {
       label: 'Voucherify Customer ID',
@@ -36,7 +36,11 @@ const action: ActionDefinition<Settings, Payload> = {
       type: 'string',
       required: true,
       default: {
-        '@path': '$.event'
+        '@if': {
+          exists: { '@path': '$.name' },
+          then: { '@path': '$.name' },
+          else: { '@path': '$.event' }
+        }
       }
     },
 
@@ -59,7 +63,7 @@ const action: ActionDefinition<Settings, Payload> = {
   },
 
   perform: (request, { settings, payload }) => {
-    const body: TrackEventPayload = {
+    const body: PageEventPayload = {
       source_id: payload.source_id,
       event: payload.event,
       metadata: payload.metadata,
