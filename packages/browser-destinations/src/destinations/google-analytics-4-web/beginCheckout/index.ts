@@ -1,38 +1,27 @@
 import type { BrowserActionDefinition } from '../../../lib/browser-destinations'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
-import {
-  user_id,
-  user_properties,
-  currency,
-  value,
-  coupon,
-  payment_type,
-  items_multi_products,
-  params
-} from '../ga4-properties'
 
-// Change from unknown to the partner SDK types
+import { params, coupon, currency, value, items_multi_products, user_id, user_properties } from '../ga4-properties'
+
 const action: BrowserActionDefinition<Settings, Function, Payload> = {
-  title: 'Add Payment Info',
-  description: 'Send event when a user submits their payment information',
+  title: 'Begin Checkout',
+  description: 'This event signifies that a user has begun a checkout.',
   defaultSubscription: 'type = "track"',
   platform: 'web',
   fields: {
-    user_id: { ...user_id },
-    currency: { ...currency },
-    value: { ...value },
-    coupon: { ...coupon },
-    payment_type: { ...payment_type },
+    user_id: user_id,
+    coupon: { ...coupon, default: { '@path': '$.properties.coupon' } },
+    currency: currency,
     items: {
       ...items_multi_products,
       required: true
     },
-    user_properties: user_properties,
-    params: params
+    value: value,
+    params: params,
+    user_properties: user_properties
   },
   perform: (gtag, event) => {
-    console.log('reached addPaymentInfo')
     const payload = event.payload
     if (payload.user_id) {
       gtag('set', { user_id: payload.user_id })
@@ -41,11 +30,10 @@ const action: BrowserActionDefinition<Settings, Function, Payload> = {
       gtag('set', { user_properties: payload.user_properties })
     }
 
-    gtag('event', 'add_payment_info', {
+    gtag('event', 'begin_checkout', {
       currency: payload.currency,
       value: payload.value,
       coupon: payload.coupon,
-      payment_type: payload.payment_type,
       items: payload.items,
       ...payload.params
     })

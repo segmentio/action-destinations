@@ -1,38 +1,42 @@
 import type { BrowserActionDefinition } from '../../../lib/browser-destinations'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
+
 import {
+  coupon,
+  transaction_id,
   user_id,
-  user_properties,
   currency,
   value,
-  coupon,
-  payment_type,
+  affiliation,
+  shipping,
   items_multi_products,
-  params
+  params,
+  user_properties,
+  tax
 } from '../ga4-properties'
 
-// Change from unknown to the partner SDK types
 const action: BrowserActionDefinition<Settings, Function, Payload> = {
-  title: 'Add Payment Info',
-  description: 'Send event when a user submits their payment information',
+  title: 'Refund',
+  description: 'This event signifies when one or more items is refunded to a user.',
   defaultSubscription: 'type = "track"',
   platform: 'web',
   fields: {
-    user_id: { ...user_id },
-    currency: { ...currency },
-    value: { ...value },
-    coupon: { ...coupon },
-    payment_type: { ...payment_type },
+    user_id: user_id,
+    currency: currency,
+    transaction_id: { ...transaction_id, required: true },
+    value: { ...value, default: { '@path': '$.properties.total' } },
+    affiliation: affiliation,
+    coupon: coupon,
+    shipping: shipping,
+    tax: tax,
     items: {
-      ...items_multi_products,
-      required: true
+      ...items_multi_products
     },
     user_properties: user_properties,
     params: params
   },
   perform: (gtag, event) => {
-    console.log('reached addPaymentInfo')
     const payload = event.payload
     if (payload.user_id) {
       gtag('set', { user_id: payload.user_id })
@@ -41,11 +45,14 @@ const action: BrowserActionDefinition<Settings, Function, Payload> = {
       gtag('set', { user_properties: payload.user_properties })
     }
 
-    gtag('event', 'add_payment_info', {
+    gtag('event', 'refund', {
       currency: payload.currency,
+      transaction_id: payload.transaction_id, // Transaction ID. Required for purchases and refunds.
       value: payload.value,
+      affiliation: payload.affiliation,
       coupon: payload.coupon,
-      payment_type: payload.payment_type,
+      shipping: payload.shipping,
+      tax: payload.tax,
       items: payload.items,
       ...payload.params
     })
