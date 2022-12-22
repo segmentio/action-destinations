@@ -1,24 +1,16 @@
 import type { ActionDefinition } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
-import type { Payload } from './generated-types'
 import { trackApiEndpoint } from '../utils'
-
-interface TrackEventPayload {
-  source_id?: string
-  event: string
-  type?: string
-  created_at?: string
-  metadata?: Record<string, unknown>
-  // anonymous_id?: string
-}
+import type { Payload } from './generated-types'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Track Event',
-  description: 'Track an event.',
+  description: 'Track a custom event.',
   fields: {
     source_id: {
       label: 'Voucherify Customer ID',
-      description: 'The unique ID that identifies customer in Voucherify.',
+      description:
+        'The ID necessary to [create or update customer](https://docs.voucherify.io/reference/the-customer-object) and [create custom event](https://docs.voucherify.io/reference/create-custom-event) in Voucherify.',
       type: 'string',
       required: true,
       default: {
@@ -32,7 +24,7 @@ const action: ActionDefinition<Settings, Payload> = {
 
     event: {
       label: 'Event Name',
-      description: 'The name of the event.',
+      description: 'The name of the [custom event](https://docs.voucherify.io/reference/the-custom-event-object).',
       type: 'string',
       required: true,
       default: {
@@ -41,16 +33,16 @@ const action: ActionDefinition<Settings, Payload> = {
     },
 
     created_at: {
-      label: 'Timestamp',
-      description: 'When the event took place.',
+      label: 'Created At',
+      description: 'Timestamp when the event was created.',
       type: 'string',
       default: {
         '@path': '$.timestamp'
       }
     },
     metadata: {
-      label: 'Event Metadata',
-      description: 'Optional data to include with the event.',
+      label: 'Track Event Metadata',
+      description: 'Additional data to include with the event.',
       type: 'object',
       default: {
         '@path': '$.properties'
@@ -59,19 +51,14 @@ const action: ActionDefinition<Settings, Payload> = {
   },
 
   perform: (request, { settings, payload }) => {
-    const body: TrackEventPayload = {
-      source_id: payload.source_id,
-      event: payload.event,
-      metadata: payload.metadata,
-      created_at: payload.created_at
-    }
+    payload.type = 'track'
 
     const url = `${trackApiEndpoint(settings.apiEndpoint)}/v1/events`
-    // const url = `http://localhost:3005/segmentio/event-processing`
+    // const url = 'http://localhost:3005/segmentio/event-processing'
 
     return request(url, {
       method: 'post',
-      json: body
+      json: payload
     })
   }
 }

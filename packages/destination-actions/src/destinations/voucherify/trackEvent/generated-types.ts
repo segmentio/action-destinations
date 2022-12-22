@@ -2,19 +2,19 @@
 
 export interface Payload {
   /**
-   * The unique ID that identifies customer in Voucherify.
+   * The ID necessary to [create or update customer](https://docs.voucherify.io/reference/the-customer-object) and [create custom event](https://docs.voucherify.io/reference/create-custom-event) in Voucherify.
    */
   source_id: string
   /**
-   * The name of the event.
+   * The name of the [custom event](https://docs.voucherify.io/reference/the-custom-event-object).
    */
   event: string
   /**
-   * When the event took place.
+   * Timestamp when the event was created.
    */
   created_at?: string
   /**
-   * Optional data to include with the event.
+   * Additional data to include with the event.
    */
   metadata?: {
     [k: string]: unknown
