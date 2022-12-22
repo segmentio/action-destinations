@@ -1,6 +1,7 @@
 import { DestinationDefinition } from '@segment/actions-core'
 import { AccountRegion } from '../customerio/utils'
 import { Settings } from './generated-types'
+import identifyCustomer from './identifyCustomer'
 
 const destination: DestinationDefinition<Settings> = {
   name: 'Voucherify (Actions)',
@@ -42,7 +43,9 @@ const destination: DestinationDefinition<Settings> = {
       }
     }
   },
-  actions: {}
+  actions: {
+    identifyCustomer
+  }
 }
 
 export default destination
