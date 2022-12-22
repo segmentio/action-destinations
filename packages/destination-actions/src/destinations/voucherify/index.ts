@@ -37,8 +37,8 @@ const destination: DestinationDefinition<Settings> = {
   extendRequest({ settings }) {
     return {
       headers: {
-        authorization: `Basic ${settings.apiKey}`,
-        'x-segment-settings': settings.secretKey
+        authorization: `Basic ${Buffer.from(settings.apiKey).toString('base64')}`,
+        'secret-key': settings.secretKey
       }
     }
   },
