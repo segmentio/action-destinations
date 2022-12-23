@@ -2,6 +2,7 @@ import { DestinationDefinition } from '@segment/actions-core'
 import { AccountRegion } from '../customerio/utils'
 import { Settings } from './generated-types'
 import identifyCustomer from './identifyCustomer'
+import groupEvent from './groupEvent'
 
 const destination: DestinationDefinition<Settings> = {
   name: 'Voucherify (Actions)',
@@ -39,12 +40,13 @@ const destination: DestinationDefinition<Settings> = {
     return {
       headers: {
         authorization: `Basic ${Buffer.from(settings.apiKey).toString('base64')}`,
-        'secret-key': settings.secretKey
+        'secret-key': Buffer.from(settings.secretKey).toString('base64')
       }
     }
   },
   actions: {
-    identifyCustomer
+    identifyCustomer,
+    groupEvent
   }
 }
 
