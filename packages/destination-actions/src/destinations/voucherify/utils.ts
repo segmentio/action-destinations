@@ -1,11 +1,11 @@
 export const trackApiEndpoint = (accountRegion?: string) => {
   if (accountRegion === AccountRegion.US) {
-    return 'https://us1.api.voucherify.io'
+    return 'http://localhost:3005'
   }
   if (accountRegion === AccountRegion.AS) {
-    return 'https://as1.api.voucherify.io'
+    return 'http://localhost:3005'
   }
-  return 'https://api.voucherify.io'
+  return 'http://localhost:3005'
 }
 
 export enum AccountRegion {
