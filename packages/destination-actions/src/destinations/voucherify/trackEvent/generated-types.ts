@@ -10,10 +10,6 @@ export interface Payload {
    */
   event: string
   /**
-   * Timestamp when the event was created.
-   */
-  created_at?: string
-  /**
    * Additional data to include with the event.
    */
   metadata?: {

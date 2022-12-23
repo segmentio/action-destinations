@@ -31,15 +31,6 @@ const action: ActionDefinition<Settings, Payload> = {
         '@path': '$.event'
       }
     },
-
-    created_at: {
-      label: 'Created At',
-      description: 'Timestamp when the event was created.',
-      type: 'string',
-      default: {
-        '@path': '$.timestamp'
-      }
-    },
     metadata: {
       label: 'Track Event Metadata',
       description: 'Additional data to include with the event.',

@@ -35,15 +35,6 @@ const action: ActionDefinition<Settings, Payload> = {
         }
       }
     },
-
-    created_at: {
-      label: 'Timestamp',
-      description: 'Timestamp when the event was created.',
-      type: 'string',
-      default: {
-        '@path': '$.timestamp'
-      }
-    },
     metadata: {
       label: 'Screen Event Metadata',
       description: 'Optional data to include with the event.',
