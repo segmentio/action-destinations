@@ -5,6 +5,7 @@ import identifyCustomer from './identifyCustomer'
 import trackEvent from './trackEvent'
 import pageEvent from './pageEvent'
 import screenEvent from './screenEvent'
+import groupEvent from './groupEvent'
 
 const destination: DestinationDefinition<Settings> = {
   name: 'Voucherify (Actions)',
@@ -42,7 +43,7 @@ const destination: DestinationDefinition<Settings> = {
     return {
       headers: {
         authorization: `Basic ${Buffer.from(settings.apiKey).toString('base64')}`,
-        'secret-key': settings.secretKey
+        'secret-key': Buffer.from(settings.secretKey).toString('base64')
       }
     }
   },
@@ -50,7 +51,8 @@ const destination: DestinationDefinition<Settings> = {
     identifyCustomer,
     trackEvent,
     pageEvent,
-    screenEvent
+    screenEvent,
+    groupEvent
   }
 }
 

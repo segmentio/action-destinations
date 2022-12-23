@@ -1,43 +1,42 @@
 import { ActionDefinition } from '@segment/actions-core'
 import { Settings } from '../generated-types'
-import { trackApiEndpoint } from '../utils'
 import { Payload } from './generated-types'
+import { trackApiEndpoint } from '../utils'
 
 const action: ActionDefinition<Settings, Payload> = {
-  title: 'Identify Customer',
-  description: 'Track an event for known or anonymous person',
-  defaultSubscription: 'type = "identify"',
+  title: 'Group Event',
+  description: 'Assign individual traits to user, such as company, organization and much more.',
+  defaultSubscription: 'type = "group"',
   fields: {
+    groupId: {
+      label: 'Group ID',
+      description: 'The ID used to uniquely identify a customer group.',
+      type: 'string',
+      default: {
+        '@path': '$.groupId'
+      }
+    },
     source_id: {
       label: 'Customer ID',
       description:
         'The ID necessary to [create or update customer](https://docs.voucherify.io/reference/the-customer-object) and [create custom event](https://docs.voucherify.io/reference/create-custom-event) in Voucherify.',
       type: 'string',
-      required: true,
       default: {
         '@path': '$.userId'
       }
     },
     traits: {
-      label: 'Person Attributes',
+      label: 'Metadata custom attributes',
       description:
-        'Optional attributes for the person. When updating a person, attributes are added or updated, not removed.',
+        'Metada custom attributes for each customer. [Learn more](https://www.voucherify.io/glossary/metadata-custom-attributes).',
       type: 'object',
       default: {
         '@path': '$.traits'
       }
-    },
-    email: {
-      label: 'Email Address',
-      description: "The person's email address.",
-      type: 'string',
-      default: {
-        '@template': '{{traits.email}}'
-      }
     }
   },
   perform: (request, { settings, payload }) => {
-    const url = `${trackApiEndpoint(settings.apiEndpoint)}/segmentio/customer-processing`
+    const url = `${trackApiEndpoint(settings.apiEndpoint)}/segmentio/group-processing`
 
     return request(url, {
       method: 'post',
