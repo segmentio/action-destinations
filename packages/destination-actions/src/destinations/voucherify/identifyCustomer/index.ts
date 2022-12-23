@@ -18,14 +18,6 @@ const action: ActionDefinition<Settings, Payload> = {
         '@path': '$.userId'
       }
     },
-    created_at: {
-      label: 'Created At',
-      description: 'A timestamp of when the person was created.',
-      type: 'string',
-      default: {
-        '@template': '{{traits.created_at}}'
-      }
-    },
     traits: {
       label: 'Person Attributes',
       description:
@@ -42,18 +34,10 @@ const action: ActionDefinition<Settings, Payload> = {
       default: {
         '@template': '{{traits.email}}'
       }
-    },
-    type: {
-      label: 'Event Type',
-      description: 'Type of event',
-      type: 'string',
-      default: {
-        '@path': '$.type'
-      }
     }
   },
   perform: (request, { settings, payload }) => {
-    const url = `${trackApiEndpoint(settings.apiEndpoint)}/segmentio/event-processing`
+    const url = `${trackApiEndpoint(settings.apiEndpoint)}/segmentio/customer-processing`
 
     return request(url, {
       method: 'post',

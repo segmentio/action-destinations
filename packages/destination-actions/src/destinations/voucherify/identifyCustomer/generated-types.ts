@@ -6,10 +6,6 @@ export interface Payload {
    */
   source_id: string
   /**
-   * A timestamp of when the person was created.
-   */
-  created_at?: string
-  /**
    * Optional attributes for the person. When updating a person, attributes are added or updated, not removed.
    */
   traits?: {
@@ -19,8 +15,4 @@ export interface Payload {
    * The person's email address.
    */
   email?: string
-  /**
-   * Type of event
-   */
-  type?: string
 }
