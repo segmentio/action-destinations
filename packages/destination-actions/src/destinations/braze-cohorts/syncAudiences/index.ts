@@ -119,27 +119,6 @@ async function processPayload(
   const syncAudiencesApiClient: SyncAudiences = new SyncAudiences(request, settings)
   const { cohort_name, cohort_id } = payloads[0]
   const cohortChanges: Array<CohortChanges> = []
-  payloads.push({
-    ...payloads[0],
-    external_id: 'external_gaurav_kochar020',
-    event_properties: {
-      abc: false
-    }
-  })
-  payloads.push({
-    ...payloads[0],
-    external_id: 'external_gaurav_kochar021',
-    event_properties: {
-      abc: false
-    }
-  })
-  payloads.push({
-    ...payloads[0],
-    external_id: 'external_gaurav_kochar',
-    event_properties: {
-      abc: true
-    }
-  })
 
   if (stateContext?.getRequestContext?.('cohort_name') != cohort_name) {
     await syncAudiencesApiClient.createCohort(settings, payloads[0])
