@@ -54,7 +54,7 @@ const action: ActionDefinition<Settings, Payload> = {
       type: 'hidden',
       required: true,
       default: {
-        '@path': '$.personas.computation_id'
+        '@path': '$.context.personas.computation_id'
       }
     },
     cohort_name: {
@@ -63,7 +63,7 @@ const action: ActionDefinition<Settings, Payload> = {
       type: 'hidden',
       required: true,
       default: {
-        '@path': '$.personas.computation_key'
+        '@path': '$.context.personas.computation_key'
       }
     },
     enable_batching: {
