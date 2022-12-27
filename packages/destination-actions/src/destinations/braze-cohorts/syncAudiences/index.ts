@@ -35,23 +35,17 @@ const action: ActionDefinition<Settings, Payload> = {
           type: 'string',
           required: true
         }
-      },
-      default: {
-        '@path': '$.userAlias'
       }
     },
     device_id: {
       label: 'Device ID',
       description: 'The unique device Identifier',
-      type: 'string',
-      default: {
-        '@path': '$.deviceId'
-      }
+      type: 'string'
     },
     cohort_id: {
       label: 'Cohort ID',
       description: 'The Cohort Identifier',
-      type: 'string',
+      type: 'hidden',
       required: true,
       default: {
         '@path': '$.context.personas.computation_id'
@@ -60,7 +54,7 @@ const action: ActionDefinition<Settings, Payload> = {
     cohort_name: {
       label: 'Cohort Name',
       description: 'The name of Cohort',
-      type: 'string',
+      type: 'hidden',
       required: true,
       default: {
         '@path': '$.context.personas.computation_key'
