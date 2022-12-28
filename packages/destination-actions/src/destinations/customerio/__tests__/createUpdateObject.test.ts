@@ -26,6 +26,13 @@ describe('CustomerIO', () => {
         created_at: timestamp,
         object_type_id: '1'
       }
+
+      const attributes = {
+        name: 'Sales',
+        industry: 'Technology',
+        created_at: dayjs.utc(timestamp).unix(),
+        object_type_id: '1'
+      }
       trackObjectService.post(`/api/v2/entity`).reply(200, {}, { 'x-customerio-region': 'US' })
       const event = createTestEvent({
         userId,
@@ -48,7 +55,7 @@ describe('CustomerIO', () => {
       })
       expect(responses[0].data).toMatchObject({})
       expect(responses[0].options.json).toMatchObject({
-        ...traits,
+        attributes: attributes,
         created_at: dayjs.utc(timestamp).unix(),
         type: 'object',
         action: 'identify',
@@ -77,6 +84,12 @@ describe('CustomerIO', () => {
         created_at: timestamp,
         object_type_id: '1'
       }
+      const attributes = {
+        name: 'Sales',
+        industry: 'Technology',
+        created_at: dayjs.utc(timestamp).unix(),
+        object_type_id: '1'
+      }
       trackEUObjectService.post(`/api/v2/entity`).reply(200, {}, { 'x-customerio-region': 'EU' })
       const event = createTestEvent({
         userId,
@@ -99,7 +112,7 @@ describe('CustomerIO', () => {
       })
       expect(responses[0].data).toMatchObject({})
       expect(responses[0].options.json).toMatchObject({
-        ...traits,
+        attributes: attributes,
         created_at: dayjs.utc(timestamp).unix(),
         type: 'object',
         action: 'identify',
@@ -126,6 +139,12 @@ describe('CustomerIO', () => {
         created_at: timestamp,
         object_type_id: '1'
       }
+      const attributes = {
+        name: 'Sales',
+        industry: 'Technology',
+        created_at: dayjs.utc(timestamp).unix(),
+        object_type_id: '1'
+      }
       trackObjectService.post(`/api/v2/entity`).reply(200, {}, { 'x-customerio-region': 'US-fallback' })
       const event = createTestEvent({
         userId,
@@ -148,7 +167,7 @@ describe('CustomerIO', () => {
       })
       expect(responses[0].data).toMatchObject({})
       expect(responses[0].options.json).toMatchObject({
-        ...traits,
+        attributes: attributes,
         created_at: dayjs.utc(timestamp).unix(),
         type: 'object',
         action: 'identify',
@@ -174,6 +193,12 @@ describe('CustomerIO', () => {
         created_at: timestamp,
         object_type_id: '1'
       }
+
+      const attributes = {
+        name: 'Sales',
+        created_at: dayjs.utc(timestamp).unix(),
+        object_type_id: '1'
+      }
       trackObjectService.post(`/api/v2/entity`).reply(200, {}, { 'x-customerio-region': 'US' })
       const event = createTestEvent({
         userId: undefined,
@@ -196,7 +221,7 @@ describe('CustomerIO', () => {
       })
       expect(responses[0].data).toMatchObject({})
       expect(responses[0].options.json).toMatchObject({
-        ...traits,
+        attributes: attributes,
         created_at: dayjs.utc(timestamp).unix(),
         type: 'object',
         action: 'identify_anonymous',
@@ -222,6 +247,11 @@ describe('CustomerIO', () => {
         name: 'Sales',
         created_at: timestamp
       }
+
+      const attributes = {
+        name: 'Sales',
+        created_at: dayjs.utc(timestamp).unix()
+      }
       trackObjectService.post(`/api/v2/entity`).reply(200, {}, { 'x-customerio-region': 'US' })
       const event = createTestEvent({
         userId,
@@ -244,7 +274,7 @@ describe('CustomerIO', () => {
       })
       expect(responses[0].data).toMatchObject({})
       expect(responses[0].options.json).toMatchObject({
-        ...traits,
+        attributes: attributes,
         created_at: dayjs.utc(timestamp).unix(),
         type: 'object',
         action: 'identify',
@@ -293,7 +323,7 @@ describe('CustomerIO', () => {
       })
       expect(responses[0].data).toMatchObject({})
       expect(responses[0].options.json).toMatchObject({
-        ...traits,
+        attributes: traits,
         type: 'object',
         action: 'identify',
         identifiers: {

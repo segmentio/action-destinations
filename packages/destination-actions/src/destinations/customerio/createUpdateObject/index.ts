@@ -86,9 +86,8 @@ const action: ActionDefinition<Settings, Payload> = {
       }
     }
 
-    const body: Record<string, unknown> = {
-      ...customAttributes
-    }
+    const body: Record<string, unknown> = {}
+    body.attributes = customAttributes
     if (createdAt) {
       body.created_at = createdAt
     }
