@@ -114,7 +114,7 @@ const action: ActionDefinition<Settings, Payload> = {
     },
     properties: {
       label: 'Event Properties',
-      description: 'Properties of the Track event',
+      description: 'Properties of the Track event.',
       type: 'object',
       default: {
         '@path': '$.properties'
