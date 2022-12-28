@@ -98,7 +98,7 @@ const action: ActionDefinition<Settings, Payload> = {
     },
     eventName: {
       label: 'Event Name',
-      description: 'Name of the Track event',
+      description: 'Name of the Track event.',
       type: 'string',
       default: {
         '@path': '$.event'
