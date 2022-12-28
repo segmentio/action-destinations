@@ -4,6 +4,7 @@ import type { Payload } from './generated-types'
 import { SyncAudiences } from '../api'
 import { CohortChanges } from '../braze-cohorts-types'
 import { StateContext } from '@segment/actions-core/src/destination-kit'
+import isEmpty from 'lodash/isEmpty'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Sync Audience',
@@ -116,7 +117,8 @@ async function processPayload(
 
   if (stateContext?.getRequestContext?.('cohort_name') != cohort_name) {
     await syncAudiencesApiClient.createCohort(settings, payloads[0])
-    stateContext?.setResponseContext?.(`cohort_name`, cohort_name)
+    //setting cohort_name in cache context with ttl 0 so that it can keep the value as long as possible.
+    stateContext?.setResponseContext?.(`cohort_name`, cohort_name, {})
   }
   const { addUsers, removeUsers } = extractUsers(payloads)
   const hasAddUsers = hasUsersToAddOrRemove(addUsers)
@@ -156,12 +158,8 @@ function extractUsers(payloads: Payload[]) {
   const removeUsers: CohortChanges = { user_ids: [], device_ids: [], aliases: [], should_remove: true }
 
   payloads.forEach((payload: Payload) => {
-    const { event_properties, external_id, device_id, user_alias } = payload
-    const userEnteredOrRemoved: boolean = (
-      event_properties?.audience_key
-        ? event_properties[`${event_properties?.audience_key}`]
-        : Object.values(event_properties)[0]
-    ) as boolean
+    const { event_properties, external_id, device_id, user_alias, personas_audience_key } = payload
+    const userEnteredOrRemoved: boolean = event_properties[`${personas_audience_key}`] as boolean
     const user = userEnteredOrRemoved ? addUsers : removeUsers
 
     if (external_id) {
@@ -180,14 +178,7 @@ function extractUsers(payloads: Payload[]) {
 }
 
 function hasUsersToAddOrRemove(user: CohortChanges): boolean {
-  if (
-    user &&
-    typeof user === 'object' &&
-    (user?.user_ids?.length || user?.device_ids?.length || user?.aliases?.length)
-  ) {
-    return true
-  }
-  return false
+  return !(isEmpty(user?.user_ids) && isEmpty(user?.device_ids) && isEmpty(user?.aliases))
 }
 
 export default action

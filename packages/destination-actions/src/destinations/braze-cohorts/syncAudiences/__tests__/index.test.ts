@@ -4,17 +4,35 @@ import Destination from '../../index'
 const receivedAt = '2022-12-01T17:40:04.055Z'
 const testDestination = createTestIntegration(Destination)
 const event = createTestEvent({
-  personas: {
-    computation_id: 'aud_23WNzkzsTS3ydnKz5H71SEhMxls',
-    computation_key: 'j_o_jons__step_1_ns3i7'
+  context: {
+    personas: {
+      computation_id: 'aud_23WNzkzsTS3ydnKz5H71SEhMxls',
+      computation_key: 'j_o_jons__step_1_ns3i7'
+    },
+    traits: {
+      email: 'test@twilio.com'
+    },
+    device: {
+      id: '1234567'
+    }
   },
   userId: 'w8KWCsdTxe1Ydaf3s62UMc',
   receivedAt: receivedAt
 })
+const mapping = {
+  personas_audience_key: 'j_o_jons__step_1_ns3i7',
+  user_alias: {
+    alias_name: 'email',
+    alias_label: {
+      '@path': '$.context.traits.email'
+    }
+  },
+  device_id: {
+    '@path': '$.context.device.id'
+  }
+}
 
 describe('BrazeCohorts.syncAudiences', () => {
-  // TODO: Test your action
-
   it('should throw an error if `personas_audience_key` field does not match the `personas.computation_key` field', async () => {
     await expect(
       testDestination.testAction('syncAudiences', {
@@ -48,9 +66,11 @@ describe('BrazeCohorts.syncAudiences', () => {
             audience_key: 'j_o_jons__step_1_ns3i7',
             j_o_jons__step_1_ns3i7: true
           },
-          personas: {
-            computation_id: 'aud_23WNzkzsTS3ydnKz5H71SEhMxls',
-            computation_key: 'j_o_jons__step_1_ns3i7'
+          context: {
+            personas: {
+              computation_id: 'aud_23WNzkzsTS3ydnKz5H71SEhMxls',
+              computation_key: 'j_o_jons__step_1_ns3i7'
+            }
           },
           receivedAt: receivedAt
         },
@@ -66,7 +86,7 @@ describe('BrazeCohorts.syncAudiences', () => {
     ).resolves.not.toThrowError()
   })
 
-  it('should give priority to userId,deviceId and then UserAlias,if all are provided', async () => {
+  it('should give priority in a order like userId,deviceId and then UserAlias,if it is provided', async () => {
     nock('https://rest.iad-01.braze.com').post('/partners/segment/cohorts').reply(201, {})
     nock('https://rest.iad-01.braze.com').post('/partners/segment/cohorts/users').reply(201, {})
 
@@ -75,11 +95,6 @@ describe('BrazeCohorts.syncAudiences', () => {
         ...event,
         traits: {
           j_o_jons__step_1_ns3i7: true
-        },
-        deviceId: 'device123',
-        userAlias: {
-          alias_name: 'email',
-          alias_label: 'test@twilio.com'
         }
       },
       settings: {
@@ -87,9 +102,7 @@ describe('BrazeCohorts.syncAudiences', () => {
         client_secret: 'valid_client_secret_key'
       },
       useDefaultMappings: true,
-      mapping: {
-        personas_audience_key: 'j_o_jons__step_1_ns3i7'
-      }
+      mapping
     })
     expect(responses.length).toBe(2)
     expect(responses[0].status).toBe(201)
@@ -115,11 +128,6 @@ describe('BrazeCohorts.syncAudiences', () => {
         properties: {
           audience_key: 'j_o_jons__step_1_ns3i7',
           j_o_jons__step_1_ns3i7: true
-        },
-        deviceId: 'device123',
-        userAlias: {
-          alias_name: 'email',
-          alias_label: 'test@twilio.com'
         }
       },
       settings: {
@@ -127,9 +135,7 @@ describe('BrazeCohorts.syncAudiences', () => {
         client_secret: 'valid_client_secret_key'
       },
       useDefaultMappings: true,
-      mapping: {
-        personas_audience_key: 'j_o_jons__step_1_ns3i7'
-      }
+      mapping
     })
     expect(responses.length).toBe(2)
     expect(responses[0].status).toBe(201)
@@ -161,9 +167,7 @@ describe('BrazeCohorts.syncAudiences', () => {
         client_secret: 'valid_client_secret_key'
       },
       useDefaultMappings: true,
-      mapping: {
-        personas_audience_key: 'j_o_jons__step_1_ns3i7'
-      }
+      mapping
     })
     expect(responses.length).toBe(2)
     expect(responses[0].status).toBe(201)
@@ -187,7 +191,14 @@ describe('BrazeCohorts.syncAudiences', () => {
       event: {
         ...event,
         context: {
-          cohort_name: 'j_o_jons__step_1_ns3i7'
+          cohort_name: 'j_o_jons__step_1_ns3i7',
+          personas: {
+            computation_id: 'aud_23WNzkzsTS3ydnKz5H71SEhMxls',
+            computation_key: 'j_o_jons__step_1_ns3i7'
+          },
+          traits: {
+            email: 'test@twilio.com'
+          }
         }
       },
       stateContext: {
@@ -203,9 +214,7 @@ describe('BrazeCohorts.syncAudiences', () => {
         client_secret: 'valid_client_secret_key'
       },
       useDefaultMappings: true,
-      mapping: {
-        personas_audience_key: 'j_o_jons__step_1_ns3i7'
-      }
+      mapping
     })
 
     expect(responses.length).toBe(1)
