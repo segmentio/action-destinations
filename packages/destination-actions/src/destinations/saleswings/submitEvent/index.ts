@@ -90,7 +90,7 @@ const action: ActionDefinition<Settings, Payload> = {
     },
     timestamp: {
       label: 'Event timestamp',
-      description: 'When the event was sent',
+      description: 'When the event was sent.',
       type: 'datetime',
       default: {
         '@path': '$.timestamp'
