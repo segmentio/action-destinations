@@ -11,7 +11,7 @@ const action: ActionDefinition<Settings, Payload> = {
     customEventPropertyMapping: {
       label: 'Custom Event Properties',
       description:
-        'Control how Segment Track events are mapped to SalesWings custom events. In SalesWings, custom events are displayed and evaluated in the Rule Engine as "[[Name]] Payload", where "Name" is the name of the event and "Payload" is a string representing any event specific information. SalesWings Falcon Engine allows you to define rules based on this representation. To control how it is formed, provide the Segment Track event name on the left-hand side and the Track event property name on the right side. For example, Segment Track event "User Registered" with property "plan" set to "Pro Annual" will be formatted as SalesWings custom event "[[User Registered]] Pro Annual" if you configure "User Registered" on the left-side and "plan" on the right side',
+        'Control how Segment Track events are mapped to SalesWings custom events. In SalesWings, custom events are displayed and evaluated in the Rule Engine as "[[Name]] Payload", where "Name" is the name of the event and "Payload" is a string representing any event specific information. SalesWings Falcon Engine allows you to define rules based on this representation. To control how it is formed, provide the Segment Track event name on the left-hand side and the Track event property name on the right side. For example, Segment Track event "User Registered" with property "plan" set to "Pro Annual" will be formatted as SalesWings custom event "[[User Registered]] Pro Annual" if you configure "User Registered" on the left-side and "plan" on the right side.',
       type: 'object',
       defaultObjectUI: 'keyvalue:only'
     },
