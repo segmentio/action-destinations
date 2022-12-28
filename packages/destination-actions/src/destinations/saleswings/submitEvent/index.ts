@@ -106,7 +106,7 @@ const action: ActionDefinition<Settings, Payload> = {
     },
     screenName: {
       label: 'Screen Name',
-      description: 'Screen name of the Screen event',
+      description: 'Screen name of the Screen event.',
       type: 'string',
       default: {
         '@path': '$.name'
