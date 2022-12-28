@@ -17,7 +17,7 @@ const action: ActionDefinition<Settings, Payload> = {
     },
     userId: {
       label: 'Segment User ID',
-      description: 'Permanent identifier of a Segment user the event is attributed to',
+      description: 'Permanent identifier of a Segment user the event is attributed to.',
       type: 'string',
       dynamic: true,
       default: {
