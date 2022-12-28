@@ -26,7 +26,7 @@ const action: ActionDefinition<Settings, Payload> = {
     },
     anonymousId: {
       label: 'Segment Anonymous User ID',
-      description: 'A pseudo-unique substitute for a Segment user ID the event is attributed to',
+      description: 'A pseudo-unique substitute for a Segment user ID the event is attributed to.',
       type: 'string',
       default: {
         '@path': '$.anonymousId'
