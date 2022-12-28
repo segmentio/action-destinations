@@ -14,7 +14,7 @@ const destination: DestinationDefinition<Settings> = {
     fields: {
       apiKey: {
         label: 'API Key',
-        description: 'Segment.io API key for your SalesWings project',
+        description: 'Segment.io API key for your SalesWings project.',
         type: 'password',
         required: true
       }
