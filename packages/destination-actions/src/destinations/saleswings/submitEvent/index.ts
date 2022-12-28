@@ -122,7 +122,7 @@ const action: ActionDefinition<Settings, Payload> = {
     },
     traits: {
       label: 'Event Traits',
-      description: 'Traits of the Identify event',
+      description: 'Traits of the Identify event.',
       type: 'object',
       default: {
         '@path': '$.traits'
