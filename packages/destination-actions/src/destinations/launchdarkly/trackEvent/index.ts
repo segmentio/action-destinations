@@ -3,24 +3,36 @@ import type { Settings } from '../generated-types'
 import { getEventsUrl, parseTimestamp } from '../utils'
 import type { Payload } from './generated-types'
 
+type ContextKeys = {
+  [kind: string]: string
+}
+
 type LDCustomEvent = {
   kind: 'custom'
   key: string
-  user: {
-    key: string
-  }
+  contextKeys: ContextKeys
   metricValue?: number
   data: { [k: string]: unknown }
   creationDate: number
+}
+
+const constructContextKeys = (payload: Payload): ContextKeys => {
+  const baseContextKeys = { [payload.context_kind || 'user']: payload.user_key }
+  if (!payload.additional_context_keys) {
+    return baseContextKeys
+  }
+  const coercedContextKeys: ContextKeys = {}
+  Object.entries(payload.additional_context_keys).forEach(([k, v]) => {
+    coercedContextKeys[k] = String(v)
+  })
+  return { ...coercedContextKeys, ...baseContextKeys }
 }
 
 const convertPayloadToLDEvent = (payload: Payload): LDCustomEvent => {
   return {
     kind: 'custom',
     key: payload.event_name,
-    user: {
-      key: payload.user_key
-    },
+    contextKeys: constructContextKeys(payload),
     creationDate: parseTimestamp(payload.timestamp),
     metricValue: payload.metric_value,
     data: payload.event_properties ? payload.event_properties : {}
@@ -29,20 +41,38 @@ const convertPayloadToLDEvent = (payload: Payload): LDCustomEvent => {
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Track Event',
-  description: 'Track custom user events for use in A/B tests and experimentation.',
+  description: 'Track custom events for use in A/B tests and experimentation.',
   defaultSubscription: 'type = "track"',
   fields: {
-    user_key: {
-      label: 'User Key',
+    context_kind: {
+      label: 'Context Kind',
       type: 'string',
       required: true,
-      description: "The user's unique key.",
+      description:
+        'The context kind. Specifying values other than the default of "user" is only available to customers in the LaunchDarkly contexts Early Access Program (EAP). If you want access to this feature, [join the EAP](https://launchdarkly.com/eap).',
+      default: 'user'
+    },
+    user_key: {
+      label: 'Context Key',
+      type: 'string',
+      required: true,
+      description:
+        'The unique LaunchDarkly context key. This is equivalent to the "User Key" for customers who are not participating in the LaunchDarkly contexts Early Access Program (EAP). If you want access to this feature, [join the EAP](https://launchdarkly.com/eap).',
       default: {
         '@if': {
           exists: { '@path': '$.userId' },
           then: { '@path': '$.userId' },
           else: { '@path': '$.anonymousId' }
         }
+      }
+    },
+    additional_context_keys: {
+      label: 'Additional Context Keys',
+      type: 'object',
+      description:
+        'A mapping of additional context kinds to context keys. This mapping will only apply to customers in the LaunchDarkly contexts Early Access Program (EAP). If you want access to this feature, [join the EAP](https://launchdarkly.com/eap).',
+      default: {
+        anonymousUser: { '@path': '$.anonymousId' }
       }
     },
     event_name: {

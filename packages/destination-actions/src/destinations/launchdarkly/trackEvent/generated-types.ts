@@ -2,9 +2,19 @@
 
 export interface Payload {
   /**
-   * The user's unique key.
+   * The context kind. Specifying values other than the default of "user" is only available to customers in the LaunchDarkly contexts Early Access Program (EAP). If you want access to this feature, [join the EAP](https://launchdarkly.com/eap).
+   */
+  context_kind: string
+  /**
+   * The unique LaunchDarkly context key. This is equivalent to the "User Key" for customers who are not participating in the LaunchDarkly contexts Early Access Program (EAP). If you want access to this feature, [join the EAP](https://launchdarkly.com/eap).
    */
   user_key: string
+  /**
+   * A mapping of additional context kinds to context keys. This mapping will only apply to customers in the LaunchDarkly contexts Early Access Program (EAP). If you want access to this feature, [join the EAP](https://launchdarkly.com/eap).
+   */
+  additional_context_keys?: {
+    [k: string]: unknown
+  }
   /**
    * The name of the event to track. This name typically corresponds to a LaunchDarkly metric with the same key.
    */
