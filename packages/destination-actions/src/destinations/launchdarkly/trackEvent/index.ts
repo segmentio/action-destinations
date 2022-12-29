@@ -35,7 +35,7 @@ const convertPayloadToLDEvent = (payload: Payload): LDCustomEvent => {
     contextKeys: constructContextKeys(payload),
     creationDate: parseTimestamp(payload.timestamp),
     metricValue: payload.metric_value,
-    data: payload.event_properties ? payload.event_properties : {}
+    data: payload.event_properties || {}
   }
 }
 
