@@ -17,6 +17,7 @@ describe('LaunchDarkly.trackEvent', () => {
       type: 'track',
       event: 'Test Event',
       userId: 'user1234',
+      anonymousId: '72d7bed1-4f42-4f2f-8955-72677340546b',
       timestamp: '2022-03-30T17:24:58Z',
       properties: {
         revenue: 123.456
@@ -34,7 +35,7 @@ describe('LaunchDarkly.trackEvent', () => {
     expect(responses[0].options.json).toMatchObject([
       {
         key: 'Test Event',
-        user: { key: 'user1234' },
+        contextKeys: { user: 'user1234', anonymousUser: '72d7bed1-4f42-4f2f-8955-72677340546b' },
         kind: 'custom',
         metricValue: 123.456,
         creationDate: 1648661098000
@@ -66,7 +67,7 @@ describe('LaunchDarkly.trackEvent', () => {
     expect(responses[0].options.json).toMatchObject([
       {
         key: 'Test Event',
-        user: { key: '72d7bed1-4f42-4f2f-8955-72677340546b' },
+        contextKeys: { user: '72d7bed1-4f42-4f2f-8955-72677340546b' },
         kind: 'custom',
         metricValue: 123.456,
         creationDate: 1648661098000
