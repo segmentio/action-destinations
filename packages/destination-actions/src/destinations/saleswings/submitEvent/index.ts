@@ -34,7 +34,7 @@ const action: ActionDefinition<Settings, Payload> = {
     },
     email: {
       label: 'Email',
-      description: 'Identified email of the Segment User',
+      description: 'Identified email of the Segment User.',
       type: 'string',
       default: {
         '@path': '$.traits.email'
