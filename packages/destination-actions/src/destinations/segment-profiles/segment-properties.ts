@@ -26,3 +26,11 @@ export const traits: InputField = {
   defaultObjectUI: 'keyvalue',
   additionalProperties: true
 }
+
+export const engage_space: InputField = {
+  label: 'Engage Space',
+  description: 'The engage space to use for creating a record.',
+  type: 'string',
+  required: true,
+  dynamic: true
+}

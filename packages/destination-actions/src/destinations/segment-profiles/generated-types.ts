@@ -2,11 +2,11 @@
 
 export interface Settings {
   /**
-   * The **Write Key** of a Segment source.
+   * The Segment Public API requires that you have an authentication token before you send requests. [This document](https://docs.segmentapis.com/tag/Getting-Started#section/Get-an-API-token) explains how to setup a token.
    */
-  source_write_key: string
+  segment_papi_token: string
   /**
    * The region to send your data.
    */
-  endpoint?: string
+  endpoint: string
 }

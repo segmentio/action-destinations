@@ -13,9 +13,10 @@ const destination: DestinationDefinition<Settings> = {
   authentication: {
     scheme: 'custom',
     fields: {
-      source_write_key: {
-        label: 'Source Write Key',
-        description: 'The **Write Key** of a Segment source.',
+      segment_papi_token: {
+        label: 'Segment Public API Token',
+        description:
+          'The Segment Public API requires that you have an authentication token before you send requests. [This document](https://docs.segmentapis.com/tag/Getting-Started#section/Get-an-API-token) explains how to setup a token.',
         type: 'string',
         required: true
       },
@@ -28,21 +29,19 @@ const destination: DestinationDefinition<Settings> = {
           label: SEGMENT_ENDPOINTS[key].label,
           value: key
         })),
-        default: DEFAULT_SEGMENT_ENDPOINT
+        default: DEFAULT_SEGMENT_ENDPOINT,
+        required: true
       }
     },
     testAuthentication: async (request, { settings }) => {
-      const { source_write_key, endpoint } = settings
-
-      return request(
-        `${SEGMENT_ENDPOINTS[endpoint || DEFAULT_SEGMENT_ENDPOINT].cdn}/projects/${source_write_key}/settings`
-      )
+      const { endpoint } = settings
+      return request(SEGMENT_ENDPOINTS[endpoint || DEFAULT_SEGMENT_ENDPOINT].papi)
     }
   },
   extendRequest({ settings }) {
     return {
       headers: {
-        authorization: `Basic ${Buffer.from(settings.source_write_key + ':').toString('base64')}`
+        authorization: `Bearer ${settings.segment_papi_token}`
       }
     }
   },

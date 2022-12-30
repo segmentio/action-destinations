@@ -2,6 +2,10 @@
 
 export interface Payload {
   /**
+   * The engage space to use for creating a record.
+   */
+  engage_space: string
+  /**
    * Unique identifier for the user in your database. A userId or an anonymousId is required.
    */
   user_id?: string
