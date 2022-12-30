@@ -66,7 +66,7 @@ const action: ActionDefinition<Settings, Payload> = {
     },
     contextUrl: {
       label: 'Context URL',
-      description: 'URL associated with the event in the event context',
+      description: 'URL associated with the event in the event context.',
       type: 'string',
       default: {
         '@path': '$.context.page.url'
