@@ -50,7 +50,7 @@ const action: ActionDefinition<Settings, Payload> = {
     },
     url: {
       label: 'URL',
-      description: 'URL associated with the Page event',
+      description: 'URL associated with the Page event.',
       type: 'string',
       default: {
         '@path': '$.properties.url'
