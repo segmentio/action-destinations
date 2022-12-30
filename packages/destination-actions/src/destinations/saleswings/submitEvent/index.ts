@@ -82,7 +82,7 @@ const action: ActionDefinition<Settings, Payload> = {
     },
     userAgent: {
       label: 'User Agent',
-      description: 'User Agent associated with the event',
+      description: 'User Agent associated with the event.',
       type: 'string',
       default: {
         '@path': '$.context.userAgent'
