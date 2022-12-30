@@ -58,7 +58,7 @@ const action: ActionDefinition<Settings, Payload> = {
     },
     referrerUrl: {
       label: 'Referrer URL',
-      description: 'Referrer URL associated with the Page event',
+      description: 'Referrer URL associated with the Page event.',
       type: 'string',
       default: {
         '@path': '$.properties.referrer'
