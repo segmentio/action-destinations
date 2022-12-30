@@ -74,7 +74,7 @@ const action: ActionDefinition<Settings, Payload> = {
     },
     contextReferrerUrl: {
       label: 'Context Referrer URL',
-      description: 'Referrer URL associated with the event in the event context',
+      description: 'Referrer URL associated with the event in the event context.',
       type: 'string',
       default: {
         '@path': '$.context.page.referrer'
