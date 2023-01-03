@@ -126,7 +126,6 @@ const action: ActionDefinition<Settings, Payload> = {
       server_side: true,
       tm: data.settings.test_mode
     }
-    // console.log('======> PROD - jsonData: ', jsonData);
     const ironcladEndpoint = await request(ironcladURL + '/send/sync', {
       method: 'POST',
       json: jsonData
