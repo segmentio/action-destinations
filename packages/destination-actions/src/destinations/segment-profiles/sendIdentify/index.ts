@@ -2,7 +2,7 @@ import type { ActionDefinition } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 import { user_id, anonymous_id, group_id, traits, engage_space } from '../segment-properties'
-import { getEngageSpaces } from '../helperFunctions'
+import { getEngageSpaces, generateSegmentAPIAuthHeaders } from '../helperFunctions'
 import { SEGMENT_ENDPOINTS } from '../properties'
 import { MissingUserOrAnonymousIdThrowableError, InvalidEndpointSelectedThrowableError } from '../errors'
 
@@ -45,9 +45,12 @@ const action: ActionDefinition<Settings, Payload> = {
     }
 
     const selectedSegmentEndpoint = SEGMENT_ENDPOINTS[settings.endpoint].url
-    return request(`${selectedSegmentEndpoint}/group`, {
+    return request(`${selectedSegmentEndpoint}/identify`, {
       method: 'POST',
-      json: groupPayload
+      json: groupPayload,
+      headers: {
+        authorization: generateSegmentAPIAuthHeaders(payload.engage_space)
+      }
     })
   }
 }

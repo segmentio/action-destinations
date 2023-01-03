@@ -35,17 +35,13 @@ const destination: DestinationDefinition<Settings> = {
     },
     testAuthentication: async (request, { settings }) => {
       const { endpoint } = settings
-      return request(SEGMENT_ENDPOINTS[endpoint || DEFAULT_SEGMENT_ENDPOINT].papi)
+      return request(SEGMENT_ENDPOINTS[endpoint || DEFAULT_SEGMENT_ENDPOINT].papi, {
+        headers: {
+          authorization: `Bearer ${settings.segment_papi_token}`
+        }
+      })
     }
   },
-  extendRequest({ settings }) {
-    return {
-      headers: {
-        authorization: `Bearer ${settings.segment_papi_token}`
-      }
-    }
-  },
-
   actions: {
     sendGroup,
     sendIdentify

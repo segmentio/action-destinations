@@ -21,7 +21,8 @@ const defaultGroupMapping = {
   },
   traits: {
     '@path': '$.traits'
-  }
+  },
+  engage_space: 'engage-space-writekey'
 }
 
 describe('SegmentProfiles.sendGroup', () => {
@@ -40,7 +41,8 @@ describe('SegmentProfiles.sendGroup', () => {
         mapping: {
           group_id: {
             '@path': '$.groupId'
-          }
+          },
+          engage_space: 'engage-space-writekey'
         }
       })
     ).rejects.toThrowError(MissingUserOrAnonymousIdThrowableError)
@@ -61,7 +63,7 @@ describe('SegmentProfiles.sendGroup', () => {
         event,
         mapping: defaultGroupMapping,
         settings: {
-          source_write_key: 'test-source-write-key',
+          segment_papi_token: 'segment-papi-token',
           endpoint: 'incorrect-endpoint'
         }
       })
@@ -87,21 +89,14 @@ describe('SegmentProfiles.sendGroup', () => {
       event,
       mapping: defaultGroupMapping,
       settings: {
-        source_write_key: 'test-source-write-key',
+        segment_papi_token: 'segment-papi-token',
         endpoint: DEFAULT_SEGMENT_ENDPOINT
       }
     })
 
     expect(responses.length).toBe(1)
     expect(responses[0].status).toEqual(200)
-    expect(responses[0].options.json).toMatchObject({
-      userId: event.userId,
-      anonymousId: event.anonymousId,
-      groupId: event.groupId,
-      traits: {
-        ...event.traits
-      },
-      context: {}
-    })
+    expect(responses[0].options.headers).toMatchSnapshot()
+    expect(responses[0].options.json).toMatchSnapshot()
   })
 })

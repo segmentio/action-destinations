@@ -18,7 +18,8 @@ const defaultIdentifyMapping = {
   },
   traits: {
     '@path': '$.traits'
-  }
+  },
+  engage_space: 'engage-space-writekey'
 }
 
 describe('Segment.sendIdentify', () => {
@@ -34,7 +35,9 @@ describe('Segment.sendIdentify', () => {
     await expect(
       testDestination.testAction('sendIdentify', {
         event,
-        mapping: {}
+        mapping: {
+          engage_space: 'engage-space-writekey'
+        }
       })
     ).rejects.toThrowError(MissingUserOrAnonymousIdThrowableError)
   })
@@ -55,7 +58,7 @@ describe('Segment.sendIdentify', () => {
         event,
         mapping: defaultIdentifyMapping,
         settings: {
-          source_write_key: 'test-source-write-key',
+          segment_papi_token: 'segment-papi-token',
           endpoint: 'incorrect-endpoint'
         }
       })
@@ -81,20 +84,14 @@ describe('Segment.sendIdentify', () => {
       event,
       mapping: defaultIdentifyMapping,
       settings: {
-        source_write_key: 'test-source-write-key',
+        segment_papi_token: 'segment-papi-token',
         endpoint: DEFAULT_SEGMENT_ENDPOINT
       }
     })
 
     expect(responses.length).toBe(1)
     expect(responses[0].status).toEqual(200)
-    expect(responses[0].options.json).toMatchObject({
-      userId: event.userId,
-      anonymousId: event.anonymousId,
-      traits: {
-        ...event.traits
-      },
-      context: {}
-    })
+    expect(responses[0].options.headers).toMatchSnapshot()
+    expect(responses[0].options.json).toMatchSnapshot()
   })
 })

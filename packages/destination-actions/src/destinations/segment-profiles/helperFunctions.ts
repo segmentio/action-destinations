@@ -87,3 +87,7 @@ export async function getEngageSpaces(
     choices
   }
 }
+
+export function generateSegmentAPIAuthHeaders(writeKey: string): string {
+  return `Basic ${Buffer.from(writeKey + ':').toString('base64')}`
+}
