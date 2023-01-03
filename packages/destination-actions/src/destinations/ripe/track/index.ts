@@ -51,8 +51,8 @@ const action: ActionDefinition<Settings, Payload> = {
       default: { '@path': '$.timestamp' }
     }
   },
-  perform: (request, { settings, payload }) => {
-    return request(`${settings.endpoint}/track`, {
+  perform: (request, { payload }) => {
+    return request('https://core-backend-dot-production-365112.ey.r.appspot.com/api/track', {
       method: 'post',
       json: {
         name: payload.event,

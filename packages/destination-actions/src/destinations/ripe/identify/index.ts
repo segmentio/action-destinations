@@ -44,8 +44,8 @@ const action: ActionDefinition<Settings, Payload> = {
       default: { '@path': '$.timestamp' }
     }
   },
-  perform: (request, { settings, payload }) => {
-    return request(`${settings.endpoint}/identify`, {
+  perform: (request, { payload }) => {
+    return request('https://core-backend-dot-production-365112.ey.r.appspot.com/api/identify', {
       method: 'post',
       json: {
         anonymousId: payload.anonymousId,

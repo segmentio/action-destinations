@@ -14,6 +14,7 @@ const destination: DestinationDefinition<Settings> = {
   name: 'Ripe Cloud Mode (Actions)',
   slug: 'actions-ripe-cloud',
   mode: 'cloud',
+  description: 'Send server-side events to the Ripe REST API.',
 
   authentication: {
     scheme: 'custom',
@@ -22,14 +23,6 @@ const destination: DestinationDefinition<Settings> = {
         label: 'API Key',
         description: 'The Ripe API key found in the Ripe App',
         type: 'string',
-        required: true
-      },
-      endpoint: {
-        label: 'API endpoint',
-        description: 'Your Ripe API endpoint',
-        type: 'string',
-        format: 'uri',
-        default: 'https://core-backend-dot-production-365112.ey.r.appspot.com/api',
         required: true
       }
     }
