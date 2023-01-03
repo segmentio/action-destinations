@@ -98,7 +98,7 @@ const action: ActionDefinition<Settings, Payload> = {
     // console.log('======> versionURL: ', versionURL)
 
     const versions = await request(versionURL, { method: 'get' })
-    objVersions = versions.data as ObjectConstructor
+    const objVersions = versions.data as ObjectConstructor
     const versionCSV = String(Object.values(objVersions))
 
     //TODO: Test Mode to Settings
