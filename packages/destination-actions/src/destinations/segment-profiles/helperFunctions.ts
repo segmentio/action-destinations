@@ -49,11 +49,14 @@ export async function getEngageSpaces(
   const segmentPAPIEndpoint = SEGMENT_ENDPOINTS[data.endpoint || DEFAULT_SEGMENT_ENDPOINT].papi
 
   do {
-    // https://api.segmentapis.build/sources?pagination%5Bcount%5D=<COUNT>&pagination%5Bcursor%5D=<PAGE>Í
+    // https://api.segmentapis.build/sources?pagination%5Bcount%5D=<COUNT>&pagination%5Bcursor%5D=<PAGE>
     const publicApiUrl = `${segmentPAPIEndpoint}/sources?pagination%5Bcount%5D=${PAGINATION_COUNT}&pagination%5Bcursor%5D=${cursor}`
 
     try {
       response = await request<SourcesResponse>(publicApiUrl, {
+        headers: {
+          authorization: `Bearer ${data.bearerToken}`
+        },
         method: 'GET',
         skipResponseCloning: true
       })
@@ -89,5 +92,8 @@ export async function getEngageSpaces(
 }
 
 export function generateSegmentAPIAuthHeaders(writeKey: string): string {
+  // Segment's Tracking API uses HTTP Basic Authentication with the
+  // Source Write Key. A colon needs to be added to the end of the
+  // write key and then base64 encoded. Eg: BASE64(WriteKey + ':')
   return `Basic ${Buffer.from(writeKey + ':').toString('base64')}`
 }
