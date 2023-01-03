@@ -546,7 +546,7 @@ There are a few subtle differences from the Fetch API which are meant to limit t
 
 ## Support
 
-For any issues, please contact our support team at friends@segment.com
+For any issues, please contact our support team at friends@segment.com.
 
 ## License
 
