@@ -9,7 +9,7 @@ const action: ActionDefinition<Settings, Payload> = {
     sig: {
       label: 'Signer ID',
       description:
-        'The unique identifier used to save your signer’s signature. Can be email, mobile number, UUID, or any integer. Should be URL encoded',
+        'The unique identifier used to save your signer’s signature. Can be email, mobile number, UUID, or any integer. Should be URL encoded.',
       type: 'string',
       default: {
         '@if': {
