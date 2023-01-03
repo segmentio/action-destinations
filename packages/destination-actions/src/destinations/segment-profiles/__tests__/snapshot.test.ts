@@ -1,6 +1,7 @@
 import { createTestEvent, createTestIntegration } from '@segment/actions-core'
 import { generateTestData } from '../../../lib/test-data'
 import destination from '../index'
+import { DEFAULT_SEGMENT_ENDPOINT } from '../properties'
 import nock from 'nock'
 
 const testDestination = createTestIntegration(destination)
@@ -24,7 +25,7 @@ describe(`Testing snapshot for ${destinationSlug} destination:`, () => {
       const responses = await testDestination.testAction(actionSlug, {
         event: event,
         mapping: event.properties,
-        settings: settingsData,
+        settings: { ...settingsData, endpoint: DEFAULT_SEGMENT_ENDPOINT },
         auth: undefined
       })
 
@@ -58,7 +59,7 @@ describe(`Testing snapshot for ${destinationSlug} destination:`, () => {
       const responses = await testDestination.testAction(actionSlug, {
         event: event,
         mapping: event.properties,
-        settings: settingsData,
+        settings: { ...settingsData, endpoint: DEFAULT_SEGMENT_ENDPOINT },
         auth: undefined
       })
 
