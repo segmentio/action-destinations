@@ -29,9 +29,9 @@ const destination: DestinationDefinition<Settings> = {
         description: 'Your Ripe API endpoint',
         type: 'string',
         format: 'uri',
-        default: 'https://core-backend-dot-staging-365112.ey.r.appspot.com/api',
+        default: 'https://core-backend-dot-production-365112.ey.r.appspot.com/api',
         required: true
-      } // FIXME: change to prod url when done with PR
+      }
     }
   },
 
