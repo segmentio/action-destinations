@@ -139,8 +139,7 @@ async function processPayload(
     cohortChanges.push(removeUsers)
   }
 
-  const res = await syncAudiencesApiClient.batchUpdate(settings, cohort_id, cohortChanges)
-  return res
+  return await syncAudiencesApiClient.batchUpdate(settings, cohort_id, cohortChanges)
 }
 
 function validate(payloads: Payload[]): void {
