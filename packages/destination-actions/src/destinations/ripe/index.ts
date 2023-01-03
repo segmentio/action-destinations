@@ -4,6 +4,7 @@ import type { DestinationDefinition } from '@segment/actions-core'
 import type { Settings } from './generated-types'
 
 import alias from './alias'
+import group from './group'
 
 const destination: DestinationDefinition<Settings> = {
   name: 'Ripe Cloud Mode (Actions)',
@@ -40,7 +41,8 @@ const destination: DestinationDefinition<Settings> = {
   },
 
   actions: {
-    alias
+    alias,
+    group
   }
 }
 
