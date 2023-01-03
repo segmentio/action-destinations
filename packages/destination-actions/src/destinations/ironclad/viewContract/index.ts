@@ -23,7 +23,7 @@ const action: ActionDefinition<Settings, Payload> = {
     event_name: {
       label: 'Event Name',
       description:
-        'The name of the event coming from the source, this is an additional information field before the call goes to Ironclad',
+        'The name of the event coming from the source, this is an additional information field before the call goes to Ironclad.',
       type: 'string',
       default: { '@path': 'event' },
       required: false
