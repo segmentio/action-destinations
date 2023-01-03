@@ -42,8 +42,7 @@ const destination: DestinationDefinition<Settings> = {
       const syncAudiencesApiClient: SyncAudiences = new SyncAudiences(request, settings)
       const cohort_id = 'will_add_in_constant'
       const cohortChanges: Array<CohortChanges> = []
-      const res = await syncAudiencesApiClient.batchUpdate(settings, cohort_id, cohortChanges)
-      return res
+      return await syncAudiencesApiClient.batchUpdate(settings, cohort_id, cohortChanges)
     }
   },
   actions: {

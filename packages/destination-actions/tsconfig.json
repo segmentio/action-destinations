@@ -10,5 +10,5 @@
     }
   },
   "exclude": [],
-  "include": ["src", "test", "src/destinations/braze-cohorts/.ts"]
+  "include": ["src", "test"]
 }
