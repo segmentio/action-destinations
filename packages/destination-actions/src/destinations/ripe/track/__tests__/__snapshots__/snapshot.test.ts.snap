@@ -1,0 +1,29 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Testing snapshot for Ripe's track destination action: all fields 1`] = `
+Object {
+  "anonymousId": "f6t8rQsKdU^N",
+  "context": Object {
+    "groupId": "f6t8rQsKdU^N",
+  },
+  "event": "f6t8rQsKdU^N",
+  "messageId": "94f19cfb-ab8d-4ed0-a72c-183f41d84c6c",
+  "name": "f6t8rQsKdU^N",
+  "properties": Object {
+    "testType": "f6t8rQsKdU^N",
+  },
+  "timestamp": "2023-01-03T14:05:53.354Z",
+  "userId": "f6t8rQsKdU^N",
+}
+`;
+
+exports[`Testing snapshot for Ripe's track destination action: required fields 1`] = `
+Object {
+  "anonymousId": "f6t8rQsKdU^N",
+  "context": Object {},
+  "event": "f6t8rQsKdU^N",
+  "messageId": "36fd9d8c-8a86-4dfb-8d92-cce6bdff5088",
+  "name": "f6t8rQsKdU^N",
+  "timestamp": "2023-01-03T14:05:53.342Z",
+}
+`;

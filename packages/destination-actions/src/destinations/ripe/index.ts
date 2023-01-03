@@ -7,6 +7,7 @@ import alias from './alias'
 import group from './group'
 import identify from './identify'
 import page from './page'
+import track from './track'
 
 const destination: DestinationDefinition<Settings> = {
   name: 'Ripe Cloud Mode (Actions)',
@@ -46,7 +47,8 @@ const destination: DestinationDefinition<Settings> = {
     alias,
     group,
     identify,
-    page
+    page,
+    track
   }
 }
 
