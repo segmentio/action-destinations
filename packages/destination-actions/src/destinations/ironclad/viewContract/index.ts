@@ -82,7 +82,6 @@ const action: ActionDefinition<Settings, Payload> = {
     }
   },
   perform: async (request, data) => {
-    // console.log('data.payload: ', data.payload)
 
     let ironcladURL = `https://pactsafe.io`
 
