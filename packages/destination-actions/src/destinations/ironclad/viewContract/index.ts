@@ -45,7 +45,6 @@ const action: ActionDefinition<Settings, Payload> = {
         { label: 'Displayed', value: 'displayed' },
         // { label: 'Updated', value: 'updated' },
         { label: 'Agreed', value: 'agreed' },
-        // { label: 'Visited', value: 'visited' },
         // { label: 'Sent', value: 'sent' },
         { label: 'Disagreed', value: 'disagreed' }
       ]
