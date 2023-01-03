@@ -37,7 +37,7 @@ const action: ActionDefinition<Settings, Payload> = {
     },
     event_type: {
       label: 'Event Type',
-      description: 'The type of event being logged, the available choices are displayed, agreed, and disagreed',
+      description: 'The type of event being logged, the available choices are displayed, agreed, and disagreed.',
       type: 'string',
       default: 'displayed',
       required: true,
