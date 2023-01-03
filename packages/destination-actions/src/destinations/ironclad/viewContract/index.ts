@@ -43,7 +43,6 @@ const action: ActionDefinition<Settings, Payload> = {
       required: true,
       choices: [
         { label: 'Displayed', value: 'displayed' },
-        // { label: 'Updated', value: 'updated' },
         { label: 'Agreed', value: 'agreed' },
         // { label: 'Sent', value: 'sent' },
         { label: 'Disagreed', value: 'disagreed' }
