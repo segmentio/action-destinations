@@ -22,7 +22,7 @@ const destination: DestinationDefinition<Settings> = {
       staging_endpoint: {
         label: 'Staging Endpoint',
         description:
-          'Turn this ON, to send request to the staging server, ONLY if Clickwrap support instructs you to do so',
+          'Turn this ON, to send requests to the staging server, ONLY if Clickwrap support instructs you to do so.',
         type: 'boolean',
         required: true,
         default: false
