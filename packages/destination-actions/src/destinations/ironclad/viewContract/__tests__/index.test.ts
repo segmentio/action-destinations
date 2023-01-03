@@ -24,12 +24,10 @@ const payload = {
 describe('Ironclad.viewContract', () => {
   it('test View contract', async () => {
     //Mock Staging
-    const ironcladURLStaging = `https://staging.pactsafe.io`
-    nock(ironcladURLStaging)
+    const ironcladURL = `https://pactsafe.io`
+    nock(ironcladURL)
       .get(`/published?sid=${settingsStaging.sid}&gid=${payload.group_id}`)
       .reply(200, { '15299': '636aa4956e4e161e69d0a110', '15483': '6388c828932984001c888e1c' })
-
-    // console.log('======> TEST - ironcladURLStaging: ', ironcladURLStaging)
 
     const jsonDataStaging = {
       sid: settingsStaging.sid,
@@ -41,17 +39,13 @@ describe('Ironclad.viewContract', () => {
       tm: true
     }
 
-    // console.log('======> TEST - jsonDataStaging: ', jsonDataStaging);
-
-    nock(ironcladURLStaging).persist().post('/send/sync', jsonDataStaging).reply(200, {})
+    nock(ironcladURL).persist().post('/send/sync', jsonDataStaging).reply(200, {})
 
     //Mock Production
     const ironcladURLProd = `https://pactsafe.io`
     nock(ironcladURLProd)
       .get(`/published?sid=${settingsProd.sid}&gid=${payload.group_id}`)
       .reply(200, { '15299': '636aa4956e4e161e69d0a110', '15483': '6388c828932984001c888e1c' })
-
-    // console.log('======> TEST - ironcladURLProd: ', ironcladURLProd)
 
     const jsonDataProd = {
       sid: settingsProd.sid,
@@ -64,15 +58,11 @@ describe('Ironclad.viewContract', () => {
 
     nock(ironcladURLProd).post('/send/sync', jsonDataProd).reply(200, {})
 
-    // console.log('======> TEST - nock.activeMocks(): ', nock.activeMocks())
-
     const event = createTestEvent({
       type: 'track',
       event: 'Test Account Creation',
       userId: 'test-user-njs1haohmb'
     })
-
-    // console.log('======> TEST - event: ', event)
 
     const responses = await testDestination.testAction('viewContract', {
       event,
@@ -89,9 +79,7 @@ describe('Ironclad.viewContract', () => {
       }
     })
 
-    console.log('======> responses: ', responses)
-
-    // expect(responses.length).toBe(2)
-    // expect(responses[0].status).toBe(200)
+    expect(responses.length).toBe(2)
+    expect(responses[0].status).toBe(200)
   })
 })

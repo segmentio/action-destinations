@@ -2,11 +2,11 @@
 
 export interface Payload {
   /**
-   * The unique identifier used to save your signer’s signature. Can be email, mobile number, UUID, or any integer. Should be URL encoded
+   * The unique identifier used to save your signer’s signature. Can be email, mobile number, UUID, or any integer. Should be URL encoded.
    */
   sig: string
   /**
-   * The name of the event coming from the source, this is an additional information field before the call goes to Ironclad
+   * The name of the event coming from the source, this is an additional information field before the call goes to Ironclad.
    */
   event_name?: string
   /**
@@ -14,7 +14,7 @@ export interface Payload {
    */
   group_id: string
   /**
-   * The type of event being logged, the available choices are displayed, agreed, and disagreed
+   * The type of event being logged, the available choices are displayed, agreed, and disagreed.
    */
   event_type: string
   /**

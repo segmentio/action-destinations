@@ -82,7 +82,6 @@ const action: ActionDefinition<Settings, Payload> = {
     }
   },
   perform: async (request, data) => {
-
     let ironcladURL = `https://pactsafe.io`
 
     if (data.settings.staging_endpoint) {
@@ -92,16 +91,12 @@ const action: ActionDefinition<Settings, Payload> = {
       data?: Object
     }
 
-
     const versionURL = `${ironcladURL}/published?sid=${data.settings.sid}&gid=${data.payload.group_id}`
-
-    // console.log('======> versionURL: ', versionURL)
 
     const versions = await request(versionURL, { method: 'get' })
     const objVersions = versions.data as ObjectConstructor
     const versionCSV = String(Object.values(objVersions))
 
-    //TODO: Test Mode to Settings
     const jsonData = {
       sid: data.settings?.sid,
       sig: data.payload?.sig,
@@ -123,6 +118,7 @@ const action: ActionDefinition<Settings, Payload> = {
       server_side: true,
       tm: data.settings.test_mode
     }
+
     const ironcladEndpoint = await request(ironcladURL + '/send/sync', {
       method: 'POST',
       json: jsonData

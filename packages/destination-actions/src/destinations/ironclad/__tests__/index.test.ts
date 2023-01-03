@@ -7,7 +7,7 @@ const testDestination = createTestIntegration(Definition)
 describe('Ironclad', () => {
   describe('testAuthentication', () => {
     it('should validate authentication inputs', async () => {
-      nock('https://staging.pactsafe.io').get('*').reply(200, {})
+      nock('https://pactsafe.io').get('*').reply(200, {})
 
       const authData = {
         sid: 'site-access-id',

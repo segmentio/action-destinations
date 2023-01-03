@@ -2,11 +2,11 @@
 
 export interface Settings {
   /**
-   * Site Access ID. An ID that’s unique for each Site within your account. Information on finding your sid can be found in the Authentication section
+   * Site Access ID. An ID that’s unique for each site within your account. Information on finding your sid can be found in the authentication section.
    */
   sid: string
   /**
-   * Turn this ON, to send request to the staging server, ONLY if Clickwrap support instructs you to do so
+   * Turn this ON, to send requests to the staging server, ONLY if Clickwrap support instructs you to do so.
    */
   staging_endpoint: boolean
   /**

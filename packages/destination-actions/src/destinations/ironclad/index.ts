@@ -14,7 +14,7 @@ const destination: DestinationDefinition<Settings> = {
       sid: {
         label: 'Site Access ID',
         description:
-          'Site Access ID. An ID that’s unique for each Site within your account. Information on finding your sid can be found in the Authentication section.',
+          'Site Access ID. An ID that’s unique for each site within your account. Information on finding your sid can be found in the authentication section.',
         type: 'string',
         default: '',
         required: true
