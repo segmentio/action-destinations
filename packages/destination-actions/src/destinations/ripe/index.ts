@@ -8,6 +8,7 @@ import group from './group'
 import identify from './identify'
 import page from './page'
 import track from './track'
+import { defaultValues } from '@segment/actions-core'
 
 const destination: DestinationDefinition<Settings> = {
   name: 'Ripe Cloud Mode (Actions)',
@@ -49,7 +50,40 @@ const destination: DestinationDefinition<Settings> = {
     identify,
     page,
     track
-  }
+  },
+
+  presets: [
+    {
+      name: 'Alias user',
+      subscribe: 'type = "alias"',
+      partnerAction: 'alias',
+      mapping: defaultValues(alias.fields)
+    },
+    {
+      name: 'Group user',
+      subscribe: 'type = "group"',
+      partnerAction: 'group',
+      mapping: defaultValues(group.fields)
+    },
+    {
+      name: 'Identify user',
+      subscribe: 'type = "identify"',
+      partnerAction: 'identify',
+      mapping: defaultValues(identify.fields)
+    },
+    {
+      name: 'Page view',
+      subscribe: 'type = "page"',
+      partnerAction: 'page',
+      mapping: defaultValues(page.fields)
+    },
+    {
+      name: 'Track event',
+      subscribe: 'type = "track"',
+      partnerAction: 'track',
+      mapping: defaultValues(track.fields)
+    }
+  ]
 }
 
 export default destination
