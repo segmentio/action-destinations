@@ -92,7 +92,6 @@ const action: ActionDefinition<Settings, Payload> = {
       data?: Object
     }
 
-    let objVersions = Object
 
     const versionURL = `${ironcladURL}/published?sid=${data.settings.sid}&gid=${data.payload.group_id}`
 
