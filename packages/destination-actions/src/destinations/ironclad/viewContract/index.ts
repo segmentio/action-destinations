@@ -44,7 +44,6 @@ const action: ActionDefinition<Settings, Payload> = {
       choices: [
         { label: 'Displayed', value: 'displayed' },
         { label: 'Agreed', value: 'agreed' },
-        // { label: 'Sent', value: 'sent' },
         { label: 'Disagreed', value: 'disagreed' }
       ]
     },
