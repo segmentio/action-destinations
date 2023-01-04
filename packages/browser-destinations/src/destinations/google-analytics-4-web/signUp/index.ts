@@ -16,7 +16,6 @@ const action: BrowserActionDefinition<Settings, Function, Payload> = {
     params: params
   },
   perform: (gtag, event) => {
-    console.log('reached addPaymentInfo')
     const payload = event.payload
     if (payload.user_id) {
       gtag('set', { user_id: payload.user_id })
