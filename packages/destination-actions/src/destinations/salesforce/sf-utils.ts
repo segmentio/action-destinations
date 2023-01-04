@@ -26,6 +26,8 @@ const validateHeaderField = (field: string): void => {
 // Salesforce bulk API CSVs require double quotes to be escaped with another double quote.
 // https://developer.salesforce.com/docs/atlas.en-us.api_asynch.meta/api_asynch/datafiles_csv_valid_record_rows.htm
 const escapeDoubleQuotes = (value: string): string => {
+  if (typeof value !== 'string') return value
+
   return value.replace(/"/g, '""')
 }
 
@@ -159,6 +161,7 @@ export const buildCSVData = (payloads: GenericPayload[], uniqueIdName: string): 
 
   csv += `${uniqueIdName}\n` + buildCSVFromHeaderMap(payloads, headerMap, payloads.length)
 
+  console.log('csv', csv)
   return csv
 }
 
