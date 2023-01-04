@@ -9,6 +9,7 @@ const action: BrowserActionDefinition<Settings, Function, Payload> = {
   description:
     'Log this event when a lead has been generated to understand the efficacy of your re-engagement campaigns.',
   platform: 'web',
+  defaultSubscription: 'type = "track"',
   fields: {
     user_id: user_id,
     currency: currency,
