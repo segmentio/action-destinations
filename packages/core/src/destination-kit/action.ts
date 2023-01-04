@@ -12,7 +12,7 @@ import { validateSchema } from '../schema-validation'
 import { AuthTokens } from './parse-settings'
 import { IntegrationError } from '../errors'
 import { removeEmptyValues } from '../remove-empty-values'
-import { Logger, StatsContext, TransactionContext } from './index'
+import { Logger, StatsContext, TransactionContext, StateContext } from './index'
 
 type MaybePromise<T> = T | Promise<T>
 type RequestClient = ReturnType<typeof createRequestClient>
@@ -83,6 +83,7 @@ interface ExecuteBundle<T = unknown, Data = unknown> {
   statsContext?: StatsContext | undefined
   logger?: Logger | undefined
   transactionContext?: TransactionContext
+  stateContext?: StateContext
 }
 
 /**
@@ -145,7 +146,8 @@ export class Action<Settings, Payload extends JSONLikeObject> extends EventEmitt
       features: bundle.features,
       statsContext: bundle.statsContext,
       logger: bundle.logger,
-      transactionContext: bundle.transactionContext
+      transactionContext: bundle.transactionContext,
+      stateContext: bundle.stateContext
     }
 
     // Construct the request client and perform the action
@@ -192,7 +194,8 @@ export class Action<Settings, Payload extends JSONLikeObject> extends EventEmitt
         features: bundle.features,
         statsContext: bundle.statsContext,
         logger: bundle.logger,
-        transactionContext: bundle.transactionContext
+        transactionContext: bundle.transactionContext,
+        stateContext: bundle.stateContext
       }
       await this.performRequest(this.definition.performBatch, data)
     }
