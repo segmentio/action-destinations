@@ -10,6 +10,7 @@ const seedName = `${destinationSlug}#${actionSlug}`
 
 describe(`Testing snapshot for ${destinationSlug}'s ${actionSlug} destination action:`, () => {
   it('required fields', async () => {
+    const timestamp = new Date(1671371213632).toISOString()
     const action = destination.actions[actionSlug]
     const [eventData, settingsData] = generateTestData(seedName, destination, action, true)
 
@@ -18,7 +19,8 @@ describe(`Testing snapshot for ${destinationSlug}'s ${actionSlug} destination ac
     nock(/.*/).persist().put(/.*/).reply(200)
 
     const event = createTestEvent({
-      properties: eventData
+      properties: eventData,
+      timestamp
     })
 
     const responses = await testDestination.testAction(actionSlug, {
@@ -42,6 +44,7 @@ describe(`Testing snapshot for ${destinationSlug}'s ${actionSlug} destination ac
   })
 
   it('all fields', async () => {
+    const timestamp = new Date(1671371213652).toISOString()
     const action = destination.actions[actionSlug]
     const [eventData, settingsData] = generateTestData(seedName, destination, action, false)
 
@@ -50,7 +53,8 @@ describe(`Testing snapshot for ${destinationSlug}'s ${actionSlug} destination ac
     nock(/.*/).persist().put(/.*/).reply(200)
 
     const event = createTestEvent({
-      properties: eventData
+      properties: eventData,
+      timestamp
     })
 
     const responses = await testDestination.testAction(actionSlug, {
