@@ -10,8 +10,12 @@ import { defaultValues } from '@segment/actions-core'
 declare global {
   interface Window {
     LogRocket: LR
+    logRocketSettings?: LogRocketSettings
     _LRLogger: () => void
   }
+
+  type LogRocketSettings = NonNullable<Parameters<LR['init']>[1]>
+  type RequestSanitizer = NonNullable<LogRocketSettings['network']>['requestSanitizer']
 }
 // Switch from unknown to the partner SDK client types
 export const destination: BrowserDestinationDefinition<Settings, LR> = {
@@ -40,11 +44,42 @@ export const destination: BrowserDestinationDefinition<Settings, LR> = {
       label: 'LogRocket App',
       type: 'string',
       required: true
+    },
+    networkSanitization: {
+      description: 'Sanitize all network request and response bodies from session recordings.',
+      label: 'Network Sanitization',
+      type: 'boolean',
+      required: true,
+      default: true
+    },
+    inputSanitization: {
+      description: 'Obfuscate all user-input elements (like <input> and <select>) from session recordings.',
+      label: 'Input Sanitization',
+      type: 'boolean',
+      required: true,
+      default: true
     }
   },
 
-  initialize: async ({ settings: { appID } }, deps) => {
-    LogRocket.init(appID)
+  initialize: async ({ settings: { appID, inputSanitization: inputSanitizer, networkSanitization } }, deps) => {
+    const requestSanitizer: RequestSanitizer = (request) => {
+      if (networkSanitization) {
+        request.body = undefined
+        request.headers = {}
+      }
+
+      return request
+    }
+    const settings: LogRocketSettings = {
+      dom: {
+        inputSanitizer
+      },
+      network: {
+        requestSanitizer,
+        responseSanitizer: requestSanitizer
+      }
+    }
+    LogRocket.init(appID, window.logRocketSettings || settings)
     await deps.resolveWhen(() => Object.prototype.hasOwnProperty.call(window, '_LRLogger'), 100)
     return LogRocket
   },
