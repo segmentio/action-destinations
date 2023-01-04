@@ -30,6 +30,7 @@ For more detailed instruction, see the following READMEs:
 - [perform function](#the-perform-function)
 - [Batching Requests](#batching-requests)
 - [HTTP Requests](#http-requests)
+- [Support](#support)
 
 ## Get started
 
@@ -542,6 +543,10 @@ There are a few subtle differences from the Fetch API which are meant to limit t
 - `headers` can only be a plain object instead of also accepting a `Headers` object.
 - some options and behaviors are not applicable to Node.js and will be ignored by `node-fetch`. See this list of [known differences](https://github.com/node-fetch/node-fetch/blob/1780f5ae89107ded4f232f43219ab0e548b0647c/docs/v2-LIMITS.md).
 - `method` will automatically get upcased for consistency.
+
+## Support
+
+For any issues, please contact our support team at partner-support@segment.com.
 
 ## License
 
