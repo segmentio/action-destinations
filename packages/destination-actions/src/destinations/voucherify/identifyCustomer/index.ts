@@ -32,7 +32,11 @@ const action: ActionDefinition<Settings, Payload> = {
       description: "The person's email address.",
       type: 'string',
       default: {
-        '@template': '{{traits.email}}'
+        '@if': {
+          exists: { '@path': '$.email' },
+          then: { '@path': '$.email' },
+          else: { '@path': '$.traits.email' }
+        }
       }
     }
   },

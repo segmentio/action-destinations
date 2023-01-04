@@ -18,5 +18,5 @@ export interface Payload {
   /**
    * Type of event
    */
-  type?: string
+  type: string
 }

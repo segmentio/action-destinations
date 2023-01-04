@@ -1,5 +1,5 @@
 import { DestinationDefinition } from '@segment/actions-core'
-import { AccountRegion } from '../customerio/utils'
+import { AccountRegion } from '../voucherify/utils'
 import { Settings } from './generated-types'
 import identifyCustomer from './identifyCustomer'
 import trackEvent from './trackEvent'
@@ -38,6 +38,12 @@ const destination: DestinationDefinition<Settings> = {
         required: true
       }
     }
+    // Maybe for future use - testing authentication
+    // testAuthentication: (request) => {
+    //   return request('http://localhost:3005/segmentio/event-processing', {
+    //     headers: { 'Content-Type': 'application/json' }
+    //   })
+    // }
   },
   extendRequest({ settings }) {
     return {
