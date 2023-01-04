@@ -293,7 +293,7 @@ export const items_single_products: InputField = {
   ...minimal_items,
   default: {
     '@arrayPath': [
-      '$.properties',
+      '$.properties.products',
       {
         item_id: {
           '@path': '$.product_id'
