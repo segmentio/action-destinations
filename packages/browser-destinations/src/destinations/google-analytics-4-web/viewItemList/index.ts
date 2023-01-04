@@ -8,6 +8,7 @@ const action: BrowserActionDefinition<Settings, Function, Payload> = {
   title: 'View Item List',
   description: 'Log this event when the user has been presented with a list of items of a certain category.',
   platform: 'web',
+  defaultSubscription: 'type = "track"',
   fields: {
     user_id: user_id,
     item_list_id: item_list_id,
