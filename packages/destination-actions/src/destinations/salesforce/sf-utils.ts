@@ -163,7 +163,6 @@ export const buildCSVData = (payloads: GenericPayload[], uniqueIdName: string): 
 
   csv += `${uniqueIdName}\n` + buildCSVFromHeaderMap(payloads, headerMap, payloads.length)
 
-  console.log('csv', csv)
   return csv
 }
 
