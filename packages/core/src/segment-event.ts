@@ -157,4 +157,17 @@ export interface SegmentEvent {
   }
 
   timestamp?: Date | string
+  personas?: {
+    computation_key?: string
+    computation_id?: string
+  }
+  deviceId?: string
+  userAlias?: {
+    alias_name?: string
+    alias_label?: string
+  }
+  stateContext?: {
+    getRequestContext(key: string, cb?: (res?: string) => any): any
+    setResponseContext(key: string, value: string, ttl: { hour?: number; minute?: number; second?: number }): void
+  }
 }

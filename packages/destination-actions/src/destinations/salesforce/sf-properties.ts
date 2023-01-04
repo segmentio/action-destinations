@@ -48,6 +48,18 @@ export const bulkUpdateRecordId: InputField = {
   type: 'string'
 }
 
+export const recordMatcherOperator: InputField = {
+  label: 'Record Matchers Operator',
+  description:
+    'This field affects how Segment uses the record matchers to query Salesforce records. By default, Segment uses the "OR" operator to query Salesforce for a record. If you would like to query Salesforce records using a combination of multiple record matchers, change this to "AND".',
+  type: 'string',
+  required: false,
+  choices: [
+    { label: 'OR', value: 'OR' },
+    { label: 'AND', value: 'AND' }
+  ]
+}
+
 export const traits: InputField = {
   label: 'Record Matchers',
   description: `The fields used to find Salesforce records for updates. **This is required if the operation is Update or Upsert.**
@@ -80,6 +92,7 @@ export const customFields: InputField = {
 interface Payload {
   operation?: string
   traits?: object
+  operator?: string
 }
 
 export const validateLookup = (payload: Payload) => {

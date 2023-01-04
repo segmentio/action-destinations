@@ -67,7 +67,10 @@ yarn bootstrap
 yarn build
 yarn install
 
-# Run unit tests to ensure things are working! All tests should pass :)
+# Run unit tests to ensure things are working! For partners who don't have access to internal packages, you can run:
+yarn test-partners
+
+# For segment employees, you can run:
 yarn test
 ```
 
