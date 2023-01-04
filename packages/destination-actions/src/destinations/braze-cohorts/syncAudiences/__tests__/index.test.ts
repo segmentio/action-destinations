@@ -1,5 +1,5 @@
 import nock from 'nock'
-import { createTestIntegration } from '@segment/actions-core'
+import { createTestIntegration, SegmentEvent, createTestEvent } from '@segment/actions-core'
 import Destination from '../../index'
 const receivedAt = '2022-12-01T17:40:04.055Z'
 const testDestination = createTestIntegration(Destination)
@@ -101,6 +101,7 @@ describe('BrazeCohorts.syncAudiences', () => {
     })
     expect(responses.length).toBe(1)
     expect(responses[0].status).toBe(201)
+    expect(responses[0].options.json).toMatchSnapshot()
   })
 
   it('should give priority in a order like userId,deviceId and then UserAlias,if it is provided', async () => {
@@ -133,6 +134,8 @@ describe('BrazeCohorts.syncAudiences', () => {
         })
       ])
     })
+    expect(responses[0].options.json).toMatchSnapshot()
+    expect(responses[1].options.json).toMatchSnapshot()
   })
 
   it('should give second priority to deviceId ,if userId is not provided', async () => {
@@ -196,6 +199,8 @@ describe('BrazeCohorts.syncAudiences', () => {
         })
       ])
     })
+    expect(responses[0].options.json).toMatchSnapshot()
+    expect(responses[1].options.json).toMatchSnapshot()
   })
 
   it('should give priority to userAlias,if userId and deviceId both are not provided', async () => {
@@ -261,6 +266,8 @@ describe('BrazeCohorts.syncAudiences', () => {
         })
       ])
     })
+    expect(responses[0].options.json).toMatchSnapshot()
+    expect(responses[1].options.json).toMatchSnapshot()
   })
 
   it('should add user to braze when event_properties is set to true', async () => {
@@ -294,6 +301,8 @@ describe('BrazeCohorts.syncAudiences', () => {
         })
       ])
     })
+    expect(responses[0].options.json).toMatchSnapshot()
+    expect(responses[1].options.json).toMatchSnapshot()
   })
 
   it('should remove user to braze when event_properties set to false', async () => {
@@ -327,9 +336,11 @@ describe('BrazeCohorts.syncAudiences', () => {
         })
       ])
     })
+    expect(responses[0].options.json).toMatchSnapshot()
+    expect(responses[1].options.json).toMatchSnapshot()
   })
 
-  it('should not hit create cohort api when cohort_name is available in state context', async () => {
+  it('should not hit create cohort api when cohort_name is available in state context is matching with computation key', async () => {
     nock('https://rest.iad-01.braze.com').post('/partners/segment/cohorts/users').reply(201, {})
 
     const responses = await testDestination.testAction('syncAudiences', {
@@ -364,6 +375,7 @@ describe('BrazeCohorts.syncAudiences', () => {
 
     expect(responses.length).toBe(1)
     expect(responses[0].status).toBe(201)
+    expect(responses[0].options.json).toMatchSnapshot()
   })
 
   it('should hit create cohort api when cohort_name available in stateContext is not matching with computation key', async () => {
@@ -399,9 +411,70 @@ describe('BrazeCohorts.syncAudiences', () => {
       useDefaultMappings: true,
       mapping
     })
+    expect(responses.length).toBe(2)
+    expect(responses[0].status).toBe(201)
+    expect(responses[1].status).toBe(201)
+    expect(responses[0].options.json).toMatchSnapshot()
+    expect(responses[1].options.json).toMatchSnapshot()
+  })
+
+  it('should work with batch events', async () => {
+    nock('https://rest.iad-01.braze.com').post('/partners/segment/cohorts').reply(201, {})
+    nock('https://rest.iad-01.braze.com').post('/partners/segment/cohorts/users').reply(201, {})
+    const events: SegmentEvent[] = [
+      createTestEvent({
+        ...event,
+        properties: {
+          audience_key: 'j_o_jons__step_1_ns3i7',
+          j_o_jons__step_1_ns3i7: true
+        }
+      }),
+      createTestEvent({
+        context: {
+          personas: {
+            computation_id: 'aud_23WNzkzsTS3ydnKz5H71SEhMxls',
+            computation_key: 'j_o_jons__step_1_ns3i7'
+          }
+        },
+        properties: {
+          audience_key: 'j_o_jons__step_1_ns3i7',
+          j_o_jons__step_1_ns3i7: false
+        },
+        receivedAt: receivedAt
+      })
+    ]
+
+    const responses = await testDestination.testBatchAction('syncAudiences', {
+      events,
+      settings: {
+        endpoint: 'https://rest.iad-01.braze.com',
+        client_secret: 'valid_client_secret_key'
+      },
+      useDefaultMappings: true,
+      mapping: {
+        personas_audience_key: 'j_o_jons__step_1_ns3i7'
+      }
+    })
 
     expect(responses.length).toBe(2)
     expect(responses[0].status).toBe(201)
     expect(responses[1].status).toBe(201)
+    expect(responses[1].options.json).toMatchObject({
+      cohort_changes: expect.arrayContaining([
+        expect.objectContaining({
+          user_ids: ['w8KWCsdTxe1Ydaf3s62UMc'],
+          aliases: [],
+          device_ids: []
+        }),
+        expect.objectContaining({
+          user_ids: ['user1234'],
+          aliases: [],
+          device_ids: [],
+          should_remove: true
+        })
+      ])
+    })
+    expect(responses[0].options.json).toMatchSnapshot()
+    expect(responses[1].options.json).toMatchSnapshot()
   })
 })
