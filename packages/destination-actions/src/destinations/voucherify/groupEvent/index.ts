@@ -35,6 +35,14 @@ const action: ActionDefinition<Settings, Payload> = {
       default: {
         '@path': '$.traits'
       }
+    },
+    email: {
+      label: 'Email Address',
+      description: "The person's email address.",
+      type: 'string',
+      default: {
+        '@path': '$.email'
+      }
     }
   },
   perform: (request, { settings, payload }) => {

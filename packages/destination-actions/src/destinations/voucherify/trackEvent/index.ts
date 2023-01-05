@@ -1,6 +1,6 @@
 import { ActionDefinition } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
-// import { trackApiEndpoint } from '../utils'
+import { trackApiEndpoint } from '../utils'
 import type { Payload } from './generated-types'
 
 const action: ActionDefinition<Settings, Payload> = {
@@ -50,10 +50,8 @@ const action: ActionDefinition<Settings, Payload> = {
     }
   },
 
-  perform: (request, { payload }) => {
-    // const url = `${trackApiEndpoint(settings.apiEndpoint)}/v1/events`
-    const url = 'http://localhost:3005/segmentio/event-processing'
-
+  perform: (request, { settings, payload }) => {
+    const url = `${trackApiEndpoint(settings.apiEndpoint)}/segmentio/event-processing`
     return request(url, {
       method: 'post',
       json: payload
