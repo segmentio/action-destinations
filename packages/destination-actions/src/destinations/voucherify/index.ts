@@ -38,12 +38,6 @@ const destination: DestinationDefinition<Settings> = {
         required: true
       }
     }
-    // Maybe for future use - testing authentication
-    // testAuthentication: (request) => {
-    //   return request('http://localhost:3005/segmentio/event-processing', {
-    //     headers: { 'Content-Type': 'application/json' }
-    //   })
-    // }
   },
   extendRequest({ settings }) {
     return {
