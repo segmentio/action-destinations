@@ -25,6 +25,12 @@ const destination: DestinationDefinition<Settings> = {
         type: 'string',
         required: true
       }
+    },
+
+    testAuthentication: (request) => {
+      return request(`https://core-backend-dot-production-365112.ey.r.appspot.com/api/auth/sdk`, {
+        method: 'get'
+      })
     }
   },
 
