@@ -1,0 +1,20 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Testing snapshot for Voucherify's trackEvent destination action: all fields 1`] = `
+Object {
+  "event": "zZm7vcBG@OEp8WTA%GqD",
+  "metadata": Object {
+    "testType": "zZm7vcBG@OEp8WTA%GqD",
+  },
+  "source_id": "zZm7vcBG@OEp8WTA%GqD",
+  "type": "zZm7vcBG@OEp8WTA%GqD",
+}
+`;
+
+exports[`Testing snapshot for Voucherify's trackEvent destination action: required fields 1`] = `
+Object {
+  "event": "zZm7vcBG@OEp8WTA%GqD",
+  "source_id": "zZm7vcBG@OEp8WTA%GqD",
+  "type": "zZm7vcBG@OEp8WTA%GqD",
+}
+`;
