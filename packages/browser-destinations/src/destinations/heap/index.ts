@@ -57,6 +57,10 @@ export const destination: BrowserDestinationDefinition<Settings, HeapApi> = {
   },
 
   initialize: async ({ settings }, deps) => {
+    if (window.heap) {
+      return window.heap
+    }
+
     const config = {
       disableTextCapture: settings.disableTextCapture || false,
       secureCookie: settings.secureCookie || false
@@ -68,6 +72,7 @@ export const destination: BrowserDestinationDefinition<Settings, HeapApi> = {
     window.heap.config = config
 
     await deps.loadScript(`https://cdn.heapanalytics.com/js/heap-${settings.appId}.js`)
+    // Explained here: https://stackoverflow.com/questions/14859058/why-does-the-segment-io-loader-script-push-method-names-args-onto-a-queue-which
     await deps.resolveWhen(() => Object.prototype.hasOwnProperty.call(window, 'heap'), 100)
 
     return window.heap
