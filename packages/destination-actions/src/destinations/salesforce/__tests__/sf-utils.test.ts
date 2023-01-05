@@ -216,5 +216,34 @@ describe('Salesforce Utils', () => {
       const expected = `Name,Description,Id\n"Sponge """"Bob"""" ""Square"" ""pants""",#N/A,"00"\n"Tentacles, ""Squidward""","Squidward Tentacles is a fictional character in the American animated television series ""SpongeBob SquarePants"".\n He is voiced by actor Rodger Bumpass and first appeared on television in the series' pilot episode on May 1, 1999.","01"\n`
       expect(csv).toEqual(expected)
     })
+
+    it('should handle non-string data correctly', async () => {
+      const updatePayloads: GenericPayload[] = [
+        {
+          operation: 'update',
+          enable_batching: true,
+          bulkUpdateRecordId: '00',
+          name: 'Krusty Krab',
+          number_of_employees: 2,
+          customFields: {
+            sellsKrabbyPatties__c: true
+          }
+        },
+        {
+          operation: 'update',
+          enable_batching: true,
+          bulkUpdateRecordId: '01',
+          name: 'Chum Bucket',
+          number_of_employees: 1,
+          customFields: {
+            sellsKrabbyPatties__c: false
+          }
+        }
+      ]
+
+      const csv = buildCSVData(updatePayloads, 'Id')
+      const expected = `Name,NumberOfEmployees,sellsKrabbyPatties__c,Id\n"Krusty Krab","2","true","00"\n"Chum Bucket","1","false","01"\n`
+      expect(csv).toEqual(expected)
+    })
   })
 })

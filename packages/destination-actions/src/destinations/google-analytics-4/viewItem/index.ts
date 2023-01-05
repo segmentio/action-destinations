@@ -55,19 +55,7 @@ const action: ActionDefinition<Settings, Payload> = {
           verifyCurrency(product.currency)
         }
 
-        return {
-          item_id: product.item_id,
-          item_name: product.item_name,
-          quantity: product.quantity,
-          affiliation: product.affiliation,
-          coupon: product.coupon,
-          discount: product.discount,
-          item_brand: product.item_brand,
-          item_category: product.item_category,
-          item_variant: product.item_variant,
-          price: product.price,
-          currency: product.currency
-        } as ProductItem
+        return product as ProductItem
       })
     }
 
