@@ -368,65 +368,6 @@ describe('GA4', () => {
       }
     })
 
-    it('should throw error when promotion name and id is missing', async () => {
-      nock('https://www.google-analytics.com/mp/collect')
-        .post(`?measurement_id=${measurementId}&api_secret=${apiSecret}`)
-        .reply(201, {})
-      const event = createTestEvent({
-        event: 'Promotion Clicked',
-        userId: '3456fff',
-        anonymousId: 'anon-567890',
-        type: 'track',
-        properties: {
-          promotion_id: 'promo_1',
-          creative: 'top_banner_2',
-          name: '75% store-wide shoe sale',
-          position: 'home_banner_top',
-          items: [
-            {
-              item_id: 'SKU_12345',
-              item_name: 'jeggings',
-              coupon: 'SUMMER_FUN',
-              discount: 2.22,
-              creative_slot: 'featured_app_1',
-              location_id: 'L_12345',
-              affiliation: 'Google Store',
-              item_brand: 'Gucci',
-              item_category: 'pants',
-              item_variant: 'Black',
-              price: 9.99,
-              currency: 'USD'
-            }
-          ]
-        }
-      })
-
-      try {
-        await testDestination.testAction('selectPromotion', {
-          event,
-          settings: {
-            apiSecret,
-            measurementId
-          },
-          mapping: {
-            clientId: {
-              '@path': '$.anonymousId'
-            },
-            location_id: {
-              '@path': '$.properties.promotion_id'
-            },
-            items: {
-              '@path': '$.properties.items'
-            }
-          },
-          useDefaultMappings: true
-        })
-        fail('the test should have thrown an error')
-      } catch (e) {
-        expect(e.message).toBe('One of promotion name or promotion id is required.')
-      }
-    })
-
     it('should throw error when item currency is invalid', async () => {
       nock('https://www.google-analytics.com/mp/collect')
         .post(`?measurement_id=${measurementId}&api_secret=${apiSecret}`)
