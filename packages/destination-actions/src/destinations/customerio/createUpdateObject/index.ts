@@ -7,6 +7,7 @@ const action: ActionDefinition<Settings, Payload> = {
   title: 'Create or Update Object',
   description: 'Create an object in Customer.io or update them if they exist.',
   defaultSubscription: 'type = "object"',
+  hidden: true,
   fields: {
     id: {
       label: 'Object ID',
