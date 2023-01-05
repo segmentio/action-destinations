@@ -1,7 +1,7 @@
 import nock from 'nock'
 import { createTestIntegration, SegmentEvent, createTestEvent } from '@segment/actions-core'
 import Destination from '../../index'
-const receivedAt = '2022-12-01T17:40:04.055Z'
+const timestamp = '2022-12-01T17:40:04.055Z'
 const testDestination = createTestIntegration(Destination)
 const event = {
   context: {
@@ -17,7 +17,7 @@ const event = {
     }
   },
   userId: 'w8KWCsdTxe1Ydaf3s62UMc',
-  receivedAt: receivedAt
+  timestamp: timestamp
 }
 
 const mapping = {
@@ -71,7 +71,7 @@ describe('BrazeCohorts.syncAudiences', () => {
             computation_key: 'j_o_jons__step_1_ns3i7'
           }
         },
-        receivedAt: receivedAt
+        timestamp: timestamp
       },
       settings: {
         endpoint: 'https://rest.iad-01.braze.com',
@@ -87,7 +87,7 @@ describe('BrazeCohorts.syncAudiences', () => {
           '@path': '$.context.personas.computation_key'
         },
         time: {
-          '@path': '$.receivedAt'
+          '@path': '$.timestamp'
         },
         event_properties: {
           '@if': {
@@ -159,7 +159,7 @@ describe('BrazeCohorts.syncAudiences', () => {
         traits: {
           j_o_jons__step_1_ns3i7: true
         },
-        receivedAt: receivedAt
+        timestamp: timestamp
       },
       settings: {
         endpoint: 'https://rest.iad-01.braze.com',
@@ -175,7 +175,7 @@ describe('BrazeCohorts.syncAudiences', () => {
           '@path': '$.context.personas.computation_key'
         },
         time: {
-          '@path': '$.receivedAt'
+          '@path': '$.timestamp'
         },
         event_properties: {
           '@if': {
@@ -221,7 +221,7 @@ describe('BrazeCohorts.syncAudiences', () => {
         traits: {
           j_o_jons__step_1_ns3i7: true
         },
-        receivedAt: receivedAt
+        timestamp: timestamp
       },
       settings: {
         endpoint: 'https://rest.iad-01.braze.com',
@@ -237,7 +237,7 @@ describe('BrazeCohorts.syncAudiences', () => {
           '@path': '$.context.personas.computation_key'
         },
         time: {
-          '@path': '$.receivedAt'
+          '@path': '$.timestamp'
         },
         event_properties: {
           '@if': {
@@ -440,7 +440,7 @@ describe('BrazeCohorts.syncAudiences', () => {
           audience_key: 'j_o_jons__step_1_ns3i7',
           j_o_jons__step_1_ns3i7: false
         },
-        receivedAt: receivedAt
+        timestamp: timestamp
       })
     ]
 
