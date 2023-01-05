@@ -3,6 +3,7 @@ import { createTestEvent, createTestIntegration } from '@segment/actions-core'
 import Voucherify from '../index'
 import { Settings } from '../generated-types'
 import { AccountRegion } from '../utils'
+import { trackApiEndpoint } from '../utils'
 
 const testDestination = createTestIntegration(Voucherify)
 
@@ -20,7 +21,9 @@ describe('Voucherify', () => {
         secretKey: 'voucherifySecretKey',
         apiEndpoint: 'Wrong endpoint'
       }
-      nock('http://localhost:3005/segmentio').post('/event-processing').reply(200)
+      nock(`${trackApiEndpoint(settings.apiEndpoint)}/segmentio`)
+        .post('/event-processing')
+        .reply(200)
 
       await expect(testDestination.testAuthentication(wrongSettings)).rejects.toThrowError(
         // eslint-disable-next-line no-useless-escape
@@ -29,7 +32,9 @@ describe('Voucherify', () => {
     })
 
     it('should work when source_id, type and event are supplied', async () => {
-      nock('http://localhost:3005/segmentio').post('/event-processing').reply(200)
+      nock(`${trackApiEndpoint(settings.apiEndpoint)}/segmentio`)
+        .post('/event-processing')
+        .reply(200)
       const testEvent = createTestEvent({
         event: 'Test Track Event',
         properties: {
@@ -59,7 +64,9 @@ describe('Voucherify', () => {
     })
 
     it('should throw an error if the source_id and email are not specified', async () => {
-      nock('http://localhost:3005/segmentio').post('/event-processing').reply(200)
+      nock(`${trackApiEndpoint(settings.apiEndpoint)}/segmentio`)
+        .post('/event-processing')
+        .reply(200)
 
       const testEvent = createTestEvent({
         event: 'Test Track Event',
@@ -85,7 +92,9 @@ describe('Voucherify', () => {
     })
 
     it('should throw an error if the type is not specified', async () => {
-      nock('http://localhost:3005/segmentio').post('/event-processing').reply(200)
+      nock(`${trackApiEndpoint(settings.apiEndpoint)}/segmentio`)
+        .post('/event-processing')
+        .reply(200)
 
       const testEvent = createTestEvent({
         event: 'Test Track Event',
@@ -109,8 +118,10 @@ describe('Voucherify', () => {
       ).rejects.toThrowError("The root value is missing the required field 'type'.")
     })
 
-    it('should work if the email is supplied instead of the userId', async () => {
-      nock('http://localhost:3005/segmentio').post('/event-processing').reply(200)
+    it('should work if the email is supplied instead of the source_id', async () => {
+      nock(`${trackApiEndpoint(settings.apiEndpoint)}/segmentio`)
+        .post('/event-processing')
+        .reply(200)
 
       const testEvent = createTestEvent({
         event: 'Test Track Event',
@@ -134,7 +145,9 @@ describe('Voucherify', () => {
   })
   describe('pageEvent', () => {
     it('should throw an error when the name is not provided using page event', async () => {
-      nock('http://localhost:3005/segmentio').post('/event-processing').reply(200)
+      nock(`${trackApiEndpoint(settings.apiEndpoint)}/segmentio`)
+        .post('/event-processing')
+        .reply(200)
       const testEvent = createTestEvent({
         event: 'Test Page Event',
         properties: {

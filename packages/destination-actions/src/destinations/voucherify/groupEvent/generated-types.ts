@@ -15,4 +15,8 @@ export interface Payload {
   traits?: {
     [k: string]: unknown
   }
+  /**
+   * The person's email address.
+   */
+  email?: string
 }

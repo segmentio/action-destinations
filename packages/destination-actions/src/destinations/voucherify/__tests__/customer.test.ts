@@ -3,6 +3,7 @@ import { createTestEvent, createTestIntegration } from '@segment/actions-core'
 import Voucherify from '../index'
 import { Settings } from '../generated-types'
 import { AccountRegion } from '../utils'
+import { trackApiEndpoint } from '../utils'
 
 const testDestination = createTestIntegration(Voucherify)
 
@@ -15,7 +16,9 @@ const settings: Settings = {
 describe('Voucherify', () => {
   describe('identifyCustomer', () => {
     it('should throw error when source_id is not specified', async () => {
-      nock('http://localhost:3005/segmentio').post('/customer-processing').reply(200)
+      nock(`${trackApiEndpoint(settings.apiEndpoint)}/segmentio`)
+        .post('/customer-processing')
+        .reply(200)
       const testEvent = createTestEvent({
         traits: {
           name: 'Test'
@@ -33,8 +36,10 @@ describe('Voucherify', () => {
   })
 
   describe('groupEvent', () => {
-    it('should throw error when groupId is not specified', async () => {
-      nock('http://localhost:3005/segmentio').post('/customer-processing').reply(200)
+    it('should throw error when group_id is not specified', async () => {
+      nock(`${trackApiEndpoint(settings.apiEndpoint)}/segmentio`)
+        .post('/group-processing')
+        .reply(200)
       const testEvent = createTestEvent({
         traits: {
           name: 'Test'
