@@ -1,10 +1,22 @@
 import nock from 'nock'
 import { createTestEvent, createTestIntegration } from '@segment/actions-core'
 import ga4 from '../index'
+import { DataStreamType } from '../ga4-types'
 
 const testDestination = createTestIntegration(ga4)
 const apiSecret = 'b287432uhkjHIUEL'
 const measurementId = 'G-TESTTOKEN'
+
+const testEvent = createTestEvent({
+  event: 'Signed Up',
+  type: 'track',
+  userId: '3456fff',
+  timestamp: '2022-06-22T22:20:58.905Z',
+  properties: {
+    type: 'Google'
+  }
+})
+const firebaseAppId = 'G-FAF1123'
 
 describe('GA4', () => {
   describe('Signed Up', () => {
@@ -120,6 +132,7 @@ describe('GA4', () => {
           client_id: {
             '@path': '$.anonymousId'
           },
+          data_stream_type: DataStreamType.Web,
           engagement_time_msec: 2,
           method: {
             '@path': '$.properties.signup_method'
@@ -187,7 +200,7 @@ describe('GA4', () => {
         })
         fail('the test should have thrown an error')
       } catch (e) {
-        expect(e.message).toBe(
+        expect((e as Error).message).toBe(
           'Param [test_value] has unsupported value of type [NULL]. GA4 does not accept null, array, or object values for event parameters and item parameters.'
         )
       }
@@ -234,10 +247,100 @@ describe('GA4', () => {
         })
         fail('the test should have thrown an error')
       } catch (e) {
-        expect(e.message).toBe(
+        expect((e as Error).message).toBe(
           'Param [hello] has unsupported value of type [Array]. GA4 does not accept array or object values for user properties.'
         )
       }
+    })
+
+    it('should use mobile stream params when datastream is mobile app', async () => {
+      nock('https://www.google-analytics.com/mp/collect')
+        .post(`?api_secret=${apiSecret}&firebase_app_id=${firebaseAppId}`, {
+          app_instance_id: 'anonId1234',
+          events: [{ name: 'sign_up', params: { method: 'Google', engagement_time_msec: 1 } }]
+        })
+        .reply(201, {})
+
+      await expect(
+        testDestination.testAction('signUp', {
+          event: testEvent,
+          settings: {
+            apiSecret,
+            firebaseAppId
+          },
+          mapping: {
+            data_stream_type: DataStreamType.Mobile,
+            app_instance_id: {
+              '@path': '$.anonymousId'
+            }
+          },
+          useDefaultMappings: true
+        })
+      ).resolves.not.toThrowError()
+    })
+
+    it('should throw error when data stream type is mobile app and firebase_app_id is not provided', async () => {
+      await expect(
+        testDestination.testAction('signUp', {
+          event: testEvent,
+          settings: {
+            apiSecret
+          },
+          mapping: {
+            data_stream_type: DataStreamType.Mobile,
+            app_instance_id: {
+              '@path': '$.anonymousId'
+            }
+          },
+          useDefaultMappings: true
+        })
+      ).rejects.toThrowError('Firebase App ID is required for mobile app streams')
+    })
+
+    it('should throw error when data stream type is mobile app and app_instance_id is not provided', async () => {
+      await expect(
+        testDestination.testAction('signUp', {
+          event: testEvent,
+          settings: {
+            apiSecret,
+            firebaseAppId
+          },
+          mapping: {
+            data_stream_type: DataStreamType.Mobile
+          },
+          useDefaultMappings: true
+        })
+      ).rejects.toThrowError('Firebase App Instance ID is required for mobile app streams')
+    })
+
+    it('should throw error when data stream type is web and measurement_id is not provided', async () => {
+      await expect(
+        testDestination.testAction('signUp', {
+          event: testEvent,
+          settings: {
+            apiSecret
+          },
+          useDefaultMappings: true
+        })
+      ).rejects.toThrowError('Measurement ID is required for web streams')
+    })
+
+    it('should throw error when data stream type is web and client_is is not provided', async () => {
+      await expect(
+        testDestination.testAction('signUp', {
+          event: testEvent,
+          settings: {
+            apiSecret,
+            measurementId
+          },
+          mapping: {
+            client_id: {
+              '@path': '$.traits.dummy'
+            }
+          },
+          useDefaultMappings: true
+        })
+      ).rejects.toThrowError('Client ID is required for web streams')
     })
   })
 })
