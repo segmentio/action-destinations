@@ -1,15 +1,21 @@
 /* eslint-disable */
 // @ts-nocheck
 
-export function initScript({ vwoAccountId }) {
+export function initScript({
+  vwoAccountId,
+  settingsTolerance = 2000,
+  libraryTolerance = 2500,
+  useExistingJquery = false,
+  isSpa = 1
+}) {
   window._vwo_code =
     window._vwo_code ||
     (function () {
       var account_id = vwoAccountId,
-        settings_tolerance = 2000,
-        library_tolerance = 2500,
-        use_existing_jquery = false,
-        is_spa = 1,
+        settings_tolerance = settingsTolerance,
+        library_tolerance = libraryTolerance,
+        use_existing_jquery = useExistingJquery,
+        is_spa = isSpa,
         hide_element = 'body',
         /* DO NOT EDIT BELOW THIS LINE */
         f = false,
@@ -63,7 +69,8 @@ export function initScript({ vwoAccountId }) {
                 '&f=' +
                 +is_spa +
                 '&r=' +
-                Math.random()
+                Math.random() +
+                '&s=segment.web'
             )
             return settings_timer
           }

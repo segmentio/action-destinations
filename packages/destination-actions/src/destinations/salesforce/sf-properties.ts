@@ -48,16 +48,18 @@ export const bulkUpdateRecordId: InputField = {
   type: 'string'
 }
 
+// Any actions configured before this field was added will have an undefined value for this field.
+// We default to the 'OR' when consuming this field if it is undefined.
 export const recordMatcherOperator: InputField = {
   label: 'Record Matchers Operator',
   description:
     'This field affects how Segment uses the record matchers to query Salesforce records. By default, Segment uses the "OR" operator to query Salesforce for a record. If you would like to query Salesforce records using a combination of multiple record matchers, change this to "AND".',
   type: 'string',
-  required: false,
   choices: [
     { label: 'OR', value: 'OR' },
     { label: 'AND', value: 'AND' }
-  ]
+  ],
+  default: 'OR'
 }
 
 export const traits: InputField = {
@@ -92,7 +94,6 @@ export const customFields: InputField = {
 interface Payload {
   operation?: string
   traits?: object
-  operator?: string
 }
 
 export const validateLookup = (payload: Payload) => {

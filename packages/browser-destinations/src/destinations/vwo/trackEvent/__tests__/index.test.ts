@@ -38,7 +38,8 @@ describe('VWO.trackEvent', () => {
 
     jest.spyOn(destination, 'initialize').mockImplementation(() => {
       mockVWO = {
-        event: jest.fn()
+        event: jest.fn(),
+        visitor: jest.fn()
       }
       return Promise.resolve(mockVWO)
     })
@@ -52,9 +53,14 @@ describe('VWO.trackEvent', () => {
     })
     await trackEvent.track?.(context)
 
-    expect(mockVWO.event).toHaveBeenCalledWith('ctaClick', {
-      source: 'segment.web'
-    })
+    expect(mockVWO.event).toHaveBeenCalledWith(
+      'segment_ctaClick',
+      {},
+      {
+        source: 'segment.web',
+        ogName: 'ctaClick'
+      }
+    )
   })
 
   test('Track call with parameters', async () => {
@@ -67,9 +73,15 @@ describe('VWO.trackEvent', () => {
     })
     await trackEvent.track?.(context)
 
-    expect(mockVWO.event).toHaveBeenCalledWith('buyButtonClick', {
-      amount: 1000,
-      source: 'segment.web'
-    })
+    expect(mockVWO.event).toHaveBeenCalledWith(
+      'segment_buyButtonClick',
+      {
+        amount: 1000
+      },
+      {
+        source: 'segment.web',
+        ogName: 'buyButtonClick'
+      }
+    )
   })
 })

@@ -114,6 +114,7 @@ describe.each(['stage', 'production'])('%s environment', (environment) => {
         ]
       },
       traits: { '@path': '$.properties' },
+      eventOccurredTS: { '@path': '$.timestamp' },
       ...overrides
     }
   }
@@ -284,7 +285,8 @@ describe.each(['stage', 'production'])('%s environment', (environment) => {
             { id: userData.email, type: 'email', subscriptionStatus: 'subscribed' },
             { id: userData.phone, type: 'phone', subscriptionStatus: 'subscribed' }
           ],
-          traits: { '@path': '$.properties' }
+          traits: { '@path': '$.properties' },
+          eventOccurredTS: { '@path': '$.timestamp' }
         }
       })
 

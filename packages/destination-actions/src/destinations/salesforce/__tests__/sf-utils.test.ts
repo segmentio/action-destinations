@@ -164,6 +164,36 @@ describe('Salesforce Utils', () => {
       expect(csv).toEqual(expected)
     })
 
+    it('should handle null data correctly', async () => {
+      const nullPayloads: GenericPayload[] = [
+        {
+          operation: 'upsert',
+          enable_batching: true,
+          bulkUpsertExternalId: {
+            externalIdName: 'test__c',
+            externalIdValue: '00'
+          },
+          name: 'SpongeBob Squarepants',
+          description: undefined
+        },
+        {
+          operation: 'upsert',
+          enable_batching: true,
+          bulkUpsertExternalId: {
+            externalIdName: 'test__c',
+            externalIdValue: '01'
+          },
+          name: 'Squidward Tentacles',
+          description: undefined
+        }
+      ]
+
+      const csv = buildCSVData(nullPayloads, 'test__c')
+      const expected = `Name,Description,test__c\n"SpongeBob Squarepants",#N/A,"00"\n"Squidward Tentacles",#N/A,"01"\n`
+
+      expect(csv).toEqual(expected)
+    })
+
     it('should correctly escape double quotes', async () => {
       const updatePayloads: GenericPayload[] = [
         {
@@ -184,6 +214,35 @@ describe('Salesforce Utils', () => {
 
       const csv = buildCSVData(updatePayloads, 'Id')
       const expected = `Name,Description,Id\n"Sponge """"Bob"""" ""Square"" ""pants""",#N/A,"00"\n"Tentacles, ""Squidward""","Squidward Tentacles is a fictional character in the American animated television series ""SpongeBob SquarePants"".\n He is voiced by actor Rodger Bumpass and first appeared on television in the series' pilot episode on May 1, 1999.","01"\n`
+      expect(csv).toEqual(expected)
+    })
+
+    it('should handle non-string data correctly', async () => {
+      const updatePayloads: GenericPayload[] = [
+        {
+          operation: 'update',
+          enable_batching: true,
+          bulkUpdateRecordId: '00',
+          name: 'Krusty Krab',
+          number_of_employees: 2,
+          customFields: {
+            sellsKrabbyPatties__c: true
+          }
+        },
+        {
+          operation: 'update',
+          enable_batching: true,
+          bulkUpdateRecordId: '01',
+          name: 'Chum Bucket',
+          number_of_employees: 1,
+          customFields: {
+            sellsKrabbyPatties__c: false
+          }
+        }
+      ]
+
+      const csv = buildCSVData(updatePayloads, 'Id')
+      const expected = `Name,NumberOfEmployees,sellsKrabbyPatties__c,Id\n"Krusty Krab","2","true","00"\n"Chum Bucket","1","false","01"\n`
       expect(csv).toEqual(expected)
     })
   })
