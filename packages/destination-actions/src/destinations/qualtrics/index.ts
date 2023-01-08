@@ -3,6 +3,7 @@ import type { Settings } from './generated-types'
 import { RequestClient } from '@segment/actions-core'
 
 import addContactToXmd from './addContactToXmd'
+import upsertContactTransaction from './upsertContactTransaction'
 import triggerXflowWorkflow from './triggerXflowWorkflow'
 import QualtricsApiClient from './qualtricsApiClient'
 
@@ -35,6 +36,7 @@ const destination: DestinationDefinition<Settings> = {
   },
   actions: {
     addContactToXmd,
+    upsertContactTransaction,
     triggerXflowWorkflow
   }
 }
