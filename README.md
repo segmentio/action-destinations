@@ -30,6 +30,7 @@ For more detailed instruction, see the following READMEs:
 - [perform function](#the-perform-function)
 - [Batching Requests](#batching-requests)
 - [HTTP Requests](#http-requests)
+- [Support](#support)
 
 ## Get started
 
@@ -396,6 +397,7 @@ The `perform` method accepts two arguments, (1) the request client instance (ext
 - `statsContext` - An object, containing a `statsClient` and `tags`. Stats can only be used by internal Twilio/Segment employees. Stats cannot be used for Partner builds.
 - `logger` - Logger can only be used by internal Twilio/Segment employees. Logger cannot be used for Partner builds.
 - `transactionContext` - An object, containing transaction variables and a method to update transaction variables which are required for few segment developed actions. Transaction Context cannot be used for Partner builds.
+- `stateContext` - An object, containing context variables and a method to get and set context variables which are required for few segment developed actions. State Context cannot be used for Partner builds.
 
 A basic example:
 
@@ -542,6 +544,10 @@ There are a few subtle differences from the Fetch API which are meant to limit t
 - `headers` can only be a plain object instead of also accepting a `Headers` object.
 - some options and behaviors are not applicable to Node.js and will be ignored by `node-fetch`. See this list of [known differences](https://github.com/node-fetch/node-fetch/blob/1780f5ae89107ded4f232f43219ab0e548b0647c/docs/v2-LIMITS.md).
 - `method` will automatically get upcased for consistency.
+
+## Support
+
+For any issues, please contact our support team at partner-support@segment.com.
 
 ## License
 
