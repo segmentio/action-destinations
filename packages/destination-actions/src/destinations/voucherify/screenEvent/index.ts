@@ -47,6 +47,7 @@ const action: ActionDefinition<Settings, Payload> = {
       label: 'Event Type',
       description: 'Type of event',
       type: 'string',
+      required: true,
       default: {
         '@path': '$.type'
       }
