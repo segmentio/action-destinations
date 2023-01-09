@@ -1,7 +1,7 @@
 import { ActionDefinition } from '@segment/actions-core'
 import { Settings } from '../generated-types'
 import { Payload } from './generated-types'
-import { trackApiEndpoint } from '../utils'
+import { setVoucherifyRequestURL } from '../utils'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Group Event',
@@ -46,9 +46,8 @@ const action: ActionDefinition<Settings, Payload> = {
     }
   },
   perform: (request, { settings, payload }) => {
-    const url = `${trackApiEndpoint(settings.apiEndpoint)}/segmentio/group-processing`
-
-    return request(url, {
+    const voucherifyRequestURL = setVoucherifyRequestURL(settings, 'group')
+    return request(voucherifyRequestURL, {
       method: 'post',
       json: payload
     })

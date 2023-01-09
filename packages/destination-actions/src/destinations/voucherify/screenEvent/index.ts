@@ -1,6 +1,6 @@
 import type { ActionDefinition } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
-import { trackApiEndpoint } from '../utils'
+import { setVoucherifyRequestURL } from '../utils'
 import type { Payload } from './generated-types'
 
 const action: ActionDefinition<Settings, Payload> = {
@@ -54,8 +54,8 @@ const action: ActionDefinition<Settings, Payload> = {
   },
 
   perform: (request, { settings, payload }) => {
-    const url = `${trackApiEndpoint(settings.apiEndpoint)}/segmentio/event-processing`
-    return request(url, {
+    const voucherifyRequestURL = setVoucherifyRequestURL(settings, 'event')
+    return request(voucherifyRequestURL, {
       method: 'post',
       json: payload
     })

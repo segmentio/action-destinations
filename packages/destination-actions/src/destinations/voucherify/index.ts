@@ -1,3 +1,4 @@
+/* eslint-disable no-useless-escape */
 import { DestinationDefinition } from '@segment/actions-core'
 import { AccountRegion } from '../voucherify/utils'
 import { Settings } from './generated-types'
@@ -34,12 +35,34 @@ const destination: DestinationDefinition<Settings> = {
         description: 'Set your [Api Endpoint](https://docs.voucherify.io/docs/api-endpoints).',
         type: 'string',
         choices: Object.values(AccountRegion).map((v) => ({ label: v, value: v })),
-        default: AccountRegion.EU,
-        required: true
+        default: AccountRegion.EU
+      },
+
+      customURL: {
+        label: 'Custom Voucherify  URL',
+        description: 'If you do not want to use the default Voucherify URL, then enter your own here.',
+        type: 'string'
       }
     }
   },
   extendRequest({ settings }) {
+    if (!settings.apiKey || !settings.secretKey) {
+      throw new Error('The request is missing Application ID or Secret Key.')
+    }
+
+    if (settings.customURL) {
+      const urlRegEx =
+        /^https?:\/\/(?:www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b(?:[-a-zA-Z0-9()@:%_\+.~#?&\/=]*)$/
+      const regExMatcher = new RegExp(urlRegEx)
+      const isCustomURLValid = typeof settings.customURL === 'string' && regExMatcher.test(settings.customURL)
+
+      if (!isCustomURLValid) {
+        throw new Error(
+          `The Custom URL: ${settings.customURL} is invalid. It probably lacks the HTTP/HTTPS protocol or has an incorrect format.`
+        )
+      }
+    }
+
     return {
       headers: {
         authorization: `Basic ${Buffer.from(settings.apiKey).toString('base64')}`,
