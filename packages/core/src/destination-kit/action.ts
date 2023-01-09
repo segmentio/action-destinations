@@ -237,9 +237,14 @@ export class Action<Settings, Payload extends JSONLikeObject> extends EventEmitt
     // TODO turn `extendRequest` into a beforeRequest hook
     const options = this.extendRequest?.(data) ?? {}
     return createRequestClient(options, {
+      beforeRequest: [this.attachEndpoint.bind(this)],
       afterResponse: [this.afterResponse.bind(this)],
       statsContext: data.statsContext
     })
+  }
+
+  private attachEndpoint(options: NormalizedOptions): void {
+    console.log('eggs')
   }
 
   // Keep track of the request(s) associated with a response

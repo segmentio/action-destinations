@@ -309,6 +309,7 @@ class RequestClient {
     }
 
     if (this.options.timeout === false) {
+      // fetch(this.url, this.options)
       return fetch(this.request.clone())
     }
 
@@ -323,6 +324,7 @@ class RequestClient {
 export default function createInstance(defaults: AllRequestOptions = {}) {
   const client = <R extends Response = Response>(url: string, options: RequestOptions = {}) =>
     new RequestClient(url, mergeOptions(defaults, options)).executeRequest<R>()
+
   client.extend = (newDefaults: AllRequestOptions) => createInstance(mergeOptions(defaults, newDefaults))
   return client
 }
