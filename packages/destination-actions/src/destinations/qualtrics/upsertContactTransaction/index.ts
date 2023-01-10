@@ -1,9 +1,60 @@
 import type { ActionDefinition } from '@segment/actions-core'
 import { IntegrationError } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
-import QualtricsApiClient, { CreateDirectoryContactRequest } from '../qualtricsApiClient'
+import QualtricsApiClient, {
+  CreateDirectoryContactRequest,
+  CreateDirectoryContactResponse,
+  SearchDirectoryContactResponse
+} from '../qualtricsApiClient'
 import { generateRandomId, parsedEmbeddedData, parsedTransactionDate } from '../utils'
 import type { Payload } from './generated-types'
+
+async function searchOrCreateContact(payload: Payload, apiClient: QualtricsApiClient): Promise<string> {
+  const contacts = await searchContact(payload, apiClient)
+  if (contacts.length === 0) {
+    const contact = await createContact(payload, apiClient)
+    return contact.id
+  } else if (contacts.length !== 1) {
+    throw new IntegrationError(
+      'Unable to located one and only one contact in directory search',
+      'directory_lookup_error',
+      400
+    )
+  } else {
+    return contacts[0].id
+  }
+}
+
+async function searchContact(
+  payload: Payload,
+  apiClient: QualtricsApiClient
+): Promise<SearchDirectoryContactResponse[]> {
+  if (!payload.email && !payload.extRef && !payload.phone) {
+    throw new IntegrationError(
+      'Unable to lookup contact. At least 1 field is required: contactId, extRef, email or phone',
+      'directory_lookup_error',
+      400
+    )
+  }
+  return await apiClient.searchDirectoryForContact(payload.directoryId, {
+    email: payload?.email,
+    extRef: payload?.extRef,
+    phone: payload?.phone
+  })
+}
+async function createContact(payload: Payload, apiClient: QualtricsApiClient): Promise<CreateDirectoryContactResponse> {
+  const requestPayload: CreateDirectoryContactRequest = {
+    firstName: payload.firstName,
+    lastName: payload.lastName,
+    phone: payload.phone,
+    email: payload.email,
+    extRef: payload.extRef,
+    unsubscribed: payload.unsubscribed,
+    language: payload.language,
+    embeddedData: payload.embeddedData
+  }
+  return await apiClient.createDirectoryContact(payload.directoryId, requestPayload)
+}
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Upsert contact transaction',
@@ -129,40 +180,7 @@ const action: ActionDefinition<Settings, Payload> = {
     let contactId = data.payload.contactId
     const apiClient = new QualtricsApiClient(data.settings.datacenter, data.settings.apiToken, request)
     if (!contactId) {
-      if (!data.payload.email && !data.payload.extRef && !data.payload.phone) {
-        throw new IntegrationError(
-          'Unable to lookup contact. At least 1 field is required: contactId, extRef, email or phone',
-          'directory_lookup_error',
-          400
-        )
-      }
-      const contacts = await apiClient.searchDirectoryForContact(data.payload.directoryId, {
-        email: data.payload.email ? data.payload.email : undefined,
-        extRef: data.payload.extRef ? data.payload.extRef : undefined,
-        phone: data.payload.phone ? data.payload.phone : undefined
-      })
-      if (contacts.length === 0) {
-        const payload: CreateDirectoryContactRequest = {
-          firstName: data.payload.firstName,
-          lastName: data.payload.lastName,
-          phone: data.payload.phone,
-          email: data.payload.email,
-          extRef: data.payload.extRef,
-          unsubscribed: data.payload.unsubscribed,
-          language: data.payload.language,
-          embeddedData: data.payload.embeddedData
-        }
-        const contact = await apiClient.createDirectoryContact(data.payload.directoryId, payload)
-        contactId = contact.id
-      } else if (contacts.length !== 1) {
-        throw new IntegrationError(
-          'Unable to located one and only one contact in directory search',
-          'directory_lookup_error',
-          400
-        )
-      } else {
-        contactId = contacts[0].id
-      }
+      contactId = await searchOrCreateContact(data.payload, apiClient)
     }
     const parsedData = parsedEmbeddedData(data.payload?.transactionData)
     const transactionDate = parsedTransactionDate(data.payload?.transactionDate)
