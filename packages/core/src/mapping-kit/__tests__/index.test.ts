@@ -520,6 +520,20 @@ describe('@path', () => {
     expect(output).toStrictEqual({ neat: 'bar' })
   })
 
+  test('invalid bracket-spaced nested value', () => {
+    const output = transform(
+      { neat: { '@path': "$.integrations['Actions Amplitude'].session_id" } },
+      {
+        integrations: {
+          'Actions Amplitude': {
+            session_id: 'bar'
+          }
+        }
+      }
+    )
+    expect(output).toStrictEqual({})
+  })
+
   test('invalid nested value type', () => {
     const output = transform({ neat: { '@path': '$.foo.bar.baz' } }, { foo: 'bar' })
     expect(output).toStrictEqual({})
