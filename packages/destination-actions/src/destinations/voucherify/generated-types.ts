@@ -12,5 +12,9 @@ export interface Settings {
   /**
    * Set your [Api Endpoint](https://docs.voucherify.io/docs/api-endpoints).
    */
-  apiEndpoint: string
+  apiEndpoint?: string
+  /**
+   * If you do not want to use the default Voucherify URL, then enter your own here.
+   */
+  customURL?: string
 }

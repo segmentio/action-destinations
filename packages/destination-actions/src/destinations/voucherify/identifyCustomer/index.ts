@@ -1,6 +1,6 @@
 import { ActionDefinition } from '@segment/actions-core'
 import { Settings } from '../generated-types'
-import { trackApiEndpoint } from '../utils'
+import { setVoucherifyRequestURL } from '../utils'
 import { Payload } from './generated-types'
 
 const action: ActionDefinition<Settings, Payload> = {
@@ -32,14 +32,17 @@ const action: ActionDefinition<Settings, Payload> = {
       description: "The person's email address.",
       type: 'string',
       default: {
-        '@template': '{{traits.email}}'
+        '@if': {
+          exists: { '@path': '$.email' },
+          then: { '@path': '$.email' },
+          else: { '@path': '$.traits.email' }
+        }
       }
     }
   },
   perform: (request, { settings, payload }) => {
-    const url = `${trackApiEndpoint(settings.apiEndpoint)}/segmentio/customer-processing`
-
-    return request(url, {
+    const voucherifyRequestURL = setVoucherifyRequestURL(settings, 'customer')
+    return request(voucherifyRequestURL, {
       method: 'post',
       json: payload
     })
