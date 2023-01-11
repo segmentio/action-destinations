@@ -183,6 +183,7 @@ interface EventInput<Settings> {
   readonly statsContext?: StatsContext
   readonly logger?: Logger
   readonly transactionContext?: TransactionContext
+  readonly stateContext?: StateContext
 }
 
 interface BatchEventInput<Settings> {
@@ -196,6 +197,7 @@ interface BatchEventInput<Settings> {
   readonly statsContext?: StatsContext
   readonly logger?: Logger
   readonly transactionContext?: TransactionContext
+  readonly stateContext?: StateContext
 }
 
 export interface DecoratedResponse extends ModifiedResponse {
@@ -210,6 +212,7 @@ interface OnEventOptions {
   statsContext?: StatsContext
   logger?: Logger
   transactionContext?: TransactionContext
+  stateContext?: StateContext
 }
 
 /** Transaction variables and setTransaction method are passed from mono service for few Segment built integrations.
@@ -218,6 +221,14 @@ interface OnEventOptions {
 export interface TransactionContext {
   transaction: Record<string, string>
   setTransaction: (key: string, value: string) => void
+}
+
+export interface StateContext {
+  // getRequestContext reads the `context` field from the request
+  getRequestContext(key: string, cb?: (res?: string) => any): any
+  // setResponseContext sets values in the `setContext` field in the response
+  // values set on the response will be available on subsequent requests
+  setResponseContext(key: string, value: string, ttl: { hour?: number; minute?: number; second?: number }): void
 }
 
 export interface StatsClient {
@@ -369,7 +380,17 @@ export class Destination<Settings = JSONObject> {
 
   protected async executeAction(
     actionSlug: string,
-    { event, mapping, settings, auth, features, statsContext, logger, transactionContext }: EventInput<Settings>
+    {
+      event,
+      mapping,
+      settings,
+      auth,
+      features,
+      statsContext,
+      logger,
+      transactionContext,
+      stateContext
+    }: EventInput<Settings>
   ): Promise<Result[]> {
     const action = this.actions[actionSlug]
     if (!action) {
@@ -384,13 +405,24 @@ export class Destination<Settings = JSONObject> {
       features,
       statsContext,
       logger,
-      transactionContext
+      transactionContext,
+      stateContext
     })
   }
 
   public async executeBatch(
     actionSlug: string,
-    { events, mapping, settings, auth, features, statsContext, logger, transactionContext }: BatchEventInput<Settings>
+    {
+      events,
+      mapping,
+      settings,
+      auth,
+      features,
+      statsContext,
+      logger,
+      transactionContext,
+      stateContext
+    }: BatchEventInput<Settings>
   ) {
     const action = this.actions[actionSlug]
     if (!action) {
@@ -405,7 +437,8 @@ export class Destination<Settings = JSONObject> {
       features,
       statsContext,
       logger,
-      transactionContext
+      transactionContext,
+      stateContext
     })
 
     return [{ output: 'successfully processed batch of events' }]
@@ -440,7 +473,8 @@ export class Destination<Settings = JSONObject> {
       features: options?.features || {},
       statsContext: options?.statsContext || ({} as StatsContext),
       logger: options?.logger,
-      transactionContext: options?.transactionContext
+      transactionContext: options?.transactionContext,
+      stateContext: options?.stateContext
     }
 
     let results: Result[] | null = null
