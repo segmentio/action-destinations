@@ -36,6 +36,8 @@ import viewItemList from './viewItemList'
 
 import generateLead from './generateLead'
 
+import customEvent from './customEvent'
+
 declare global {
   interface Window {
     gtag: Function
@@ -194,7 +196,8 @@ export const destination: BrowserDestinationDefinition<Settings, Function> = {
     refund,
     viewCart,
     viewItemList,
-    generateLead
+    generateLead,
+    customEvent
   }
 }
 
