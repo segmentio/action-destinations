@@ -20,13 +20,20 @@ const searchFieldMap: SearchFieldTypes = {
   organization: 'organizationField'
 }
 
+const searchFieldMapForDynamicFields = {
+  deal: 'dealFields',
+  person: 'personFields',
+  product: 'productFields',
+  organization: 'organizationFields'
+}
+
 interface PipedriveFieldTypes extends SearchFieldTypes {
   activity: 'activityFields'
   note: 'noteFields'
 }
 
-const pipedriveFieldMap: PipedriveFieldTypes = {
-  ...searchFieldMap,
+const pipedriveFieldMap = {
+  ...searchFieldMapForDynamicFields,
   activity: 'activityFields',
   note: 'noteFields'
 }
