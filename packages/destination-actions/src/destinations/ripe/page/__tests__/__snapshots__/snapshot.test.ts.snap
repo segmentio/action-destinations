@@ -13,27 +13,22 @@ Object {
       "url": "http://fujav.cx/ef",
     },
   },
-  "messageId": "961fed34-4795-4432-b622-84abc47362b4",
+  "messageId": "eb294288-a6c9-4251-bb5d-7641d5a3942c",
   "name": "Gm^2vj@raF9m",
   "properties": Object {
     "testType": "Gm^2vj@raF9m",
   },
-  "timestamp": "2023-01-03T13:36:02.932Z",
+  "timestamp": "2021-02-01T00:00:00.000Z",
   "userId": "Gm^2vj@raF9m",
 }
 `;
 
 exports[`Testing snapshot for Ripe's page destination action: required fields 1`] = `
 Object {
-  "anonymousId": "Gm^2vj@raF9m",
   "context": Object {
     "page": Object {},
   },
-  "messageId": "93a807f9-05e0-4ff4-82f7-763a7c22c279",
-  "name": "Gm^2vj@raF9m",
-  "properties": Object {
-    "testType": "Gm^2vj@raF9m",
-  },
-  "timestamp": "2023-01-03T13:36:02.919Z",
+  "messageId": "59c73602-1049-4d47-ae52-390e357c4671",
+  "timestamp": "2023-01-12T12:09:02.663Z",
 }
 `;

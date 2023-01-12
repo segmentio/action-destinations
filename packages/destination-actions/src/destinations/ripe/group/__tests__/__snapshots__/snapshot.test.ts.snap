@@ -4,7 +4,7 @@ exports[`Testing snapshot for Ripe's group destination action: all fields 1`] = 
 Object {
   "anonymousId": "DY&TUQqmpg2I",
   "groupId": "DY&TUQqmpg2I",
-  "messageId": "c2ccb6f5-54af-4eda-9d3b-1c7ab5006397",
+  "messageId": "32efad2e-d314-436b-b9c0-1c0b7182fa30",
   "timestamp": "2021-02-01T00:00:00.000Z",
   "traits": Object {
     "testType": "DY&TUQqmpg2I",
@@ -17,7 +17,7 @@ exports[`Testing snapshot for Ripe's group destination action: required fields 1
 Object {
   "anonymousId": "DY&TUQqmpg2I",
   "groupId": "DY&TUQqmpg2I",
-  "messageId": "65ceebcd-6b96-4177-8e5d-f9ffc66b74cb",
-  "timestamp": "2023-01-03T13:44:10.985Z",
+  "messageId": "a35913da-cf84-4e24-8c0a-7ecbc1b4578c",
+  "timestamp": "2023-01-12T12:11:39.063Z",
 }
 `;

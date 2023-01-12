@@ -12,7 +12,7 @@ const action: ActionDefinition<Settings, Payload> = {
     anonymousId: {
       type: 'string',
       allowNull: true,
-      description: 'The anonymized user id',
+      description: 'An anonymous identifier',
       label: 'Anonymous ID',
       default: { '@path': '$.anonymousId' }
     },
@@ -32,14 +32,16 @@ const action: ActionDefinition<Settings, Payload> = {
     },
     properties: {
       type: 'object',
-      required: true,
+      required: false,
+      allowNull: false,
       description: 'Page properties',
       label: 'Properties',
       default: { '@path': '$.properties' }
     },
     name: {
       type: 'string',
-      required: true,
+      required: false,
+      allowNull: false,
       description: 'The name of the page',
       label: 'Page Name',
       default: { '@path': '$.properties.name' }
@@ -118,8 +120,8 @@ const action: ActionDefinition<Settings, Payload> = {
       default: { '@path': '$.timestamp' }
     }
   },
-  perform: (request, { payload }) => {
-    return request('https://core-backend-dot-production-365112.ey.r.appspot.com/api/page', {
+  perform: (request, { payload, settings }) => {
+    return request(`${settings.endpoint}/page`, {
       method: 'post',
       json: {
         anonymousId: payload.anonymousId,

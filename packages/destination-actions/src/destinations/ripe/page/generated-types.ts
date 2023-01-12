@@ -2,7 +2,7 @@
 
 export interface Payload {
   /**
-   * The anonymized user id
+   * An anonymous identifier
    */
   anonymousId?: string | null
   /**
@@ -16,13 +16,13 @@ export interface Payload {
   /**
    * Page properties
    */
-  properties: {
+  properties?: {
     [k: string]: unknown
   }
   /**
    * The name of the page
    */
-  name: string
+  name?: string
   /**
    * The page URL
    */

@@ -12,17 +12,16 @@ describe('Ripe', () => {
           settings: { apiKey: 'api-key' }
         })
       } catch (err) {
-        expect(err.message).toContain("missing the required field 'anonymousId'.")
         expect(err.message).toContain("missing the required field 'event'.")
       }
     })
 
     it('should work', async () => {
-      nock('https://core-backend-dot-production-365112.ey.r.appspot.com').post('/api/track').reply(200, {})
+      nock('https://api.getripe.com/core-backend').post('/track').reply(200, {})
 
       const responses = await testDestination.testAction('track', {
         mapping: { anonymousId: 'my-id', event: 'event-name' },
-        settings: { apiKey: 'api-key' }
+        settings: { apiKey: 'api-key', endpoint: 'https://api.getripe.com/core-backend' }
       })
 
       expect(responses.length).toBe(1)

@@ -17,11 +17,11 @@ describe('Ripe', () => {
     })
 
     it('should work', async () => {
-      nock('https://core-backend-dot-production-365112.ey.r.appspot.com').post('/api/group').reply(200, {})
+      nock('https://api.getripe.com/core-backend').post('/group').reply(200, {})
 
       const responses = await testDestination.testAction('group', {
         mapping: { anonymousId: 'my-anonymous-id', groupId: 'my-group-id' },
-        settings: { apiKey: 'api-key' }
+        settings: { apiKey: 'api-key', endpoint: 'https://api.getripe.com/core-backend' }
       })
 
       expect(responses.length).toBe(1)

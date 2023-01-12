@@ -11,7 +11,7 @@ const action: ActionDefinition<Settings, Payload> = {
     anonymousId: {
       type: 'string',
       required: true,
-      description: 'The anonymized user id',
+      description: 'Anonymous id',
       label: 'Anonymous ID',
       default: { '@path': '$.anonymousId' }
     },
@@ -44,8 +44,8 @@ const action: ActionDefinition<Settings, Payload> = {
       default: { '@path': '$.timestamp' }
     }
   },
-  perform: (request, { payload }) => {
-    return request('https://core-backend-dot-production-365112.ey.r.appspot.com/api/group', {
+  perform: (request, { payload, settings }) => {
+    return request(`${settings.endpoint}/group`, {
       method: 'post',
       json: {
         anonymousId: payload.anonymousId,

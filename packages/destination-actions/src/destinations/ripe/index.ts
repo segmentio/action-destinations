@@ -3,7 +3,6 @@ import btoa from 'btoa-lite'
 import type { DestinationDefinition } from '@segment/actions-core'
 import type { Settings } from './generated-types'
 
-import alias from './alias'
 import group from './group'
 import identify from './identify'
 import page from './page'
@@ -24,13 +23,21 @@ const destination: DestinationDefinition<Settings> = {
         description: 'The Ripe API key found in the Ripe App',
         type: 'string',
         required: true
+      },
+      endpoint: {
+        label: 'API Endpoint',
+        description: `The Ripe API endpoint (do not change this unless you know what you're doing)`,
+        type: 'string',
+        format: 'uri',
+        default: 'https://api.getripe.com/core-backend'
       }
     },
 
-    testAuthentication: (request) => {
-      return request(`https://core-backend-dot-production-365112.ey.r.appspot.com/api/auth/sdk`, {
+    testAuthentication: async (request, { settings }) => {
+      const res = await request(`${settings.endpoint}/auth/sdk`, {
         method: 'get'
       })
+      return res.status == 200
     }
   },
 
@@ -44,7 +51,6 @@ const destination: DestinationDefinition<Settings> = {
   },
 
   actions: {
-    alias,
     group,
     identify,
     page,
@@ -53,16 +59,10 @@ const destination: DestinationDefinition<Settings> = {
 
   presets: [
     {
-      name: 'Alias user',
-      subscribe: 'type = "alias"',
-      partnerAction: 'alias',
-      mapping: defaultValues(alias.fields)
-    },
-    {
       name: 'Group user',
       subscribe: 'type = "group"',
       partnerAction: 'group',
-      mapping: defaultValues(group.fields)
+      mapping: defaultValues(identify.fields)
     },
     {
       name: 'Identify user',

@@ -7,23 +7,22 @@ Object {
     "groupId": "f6t8rQsKdU^N",
   },
   "event": "f6t8rQsKdU^N",
-  "messageId": "94f19cfb-ab8d-4ed0-a72c-183f41d84c6c",
+  "messageId": "49f47ad3-36fa-465d-ace2-84c2ff82c788",
   "name": "f6t8rQsKdU^N",
   "properties": Object {
     "testType": "f6t8rQsKdU^N",
   },
-  "timestamp": "2023-01-03T14:05:53.354Z",
+  "timestamp": "2021-02-01T00:00:00.000Z",
   "userId": "f6t8rQsKdU^N",
 }
 `;
 
 exports[`Testing snapshot for Ripe's track destination action: required fields 1`] = `
 Object {
-  "anonymousId": "f6t8rQsKdU^N",
   "context": Object {},
   "event": "f6t8rQsKdU^N",
-  "messageId": "36fd9d8c-8a86-4dfb-8d92-cce6bdff5088",
+  "messageId": "51d38587-7401-40f7-9672-80830c28cb13",
   "name": "f6t8rQsKdU^N",
-  "timestamp": "2023-01-03T14:05:53.342Z",
+  "timestamp": "2023-01-12T12:08:21.517Z",
 }
 `;
