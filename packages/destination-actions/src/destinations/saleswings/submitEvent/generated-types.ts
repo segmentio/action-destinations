@@ -24,21 +24,13 @@ export interface Payload {
    */
   type?: string
   /**
-   * URL associated with the Page event.
+   * URL associated with the event.
    */
   url?: string
   /**
-   * Referrer URL associated with the Page event.
+   * Referrer URL associated with the event.
    */
   referrerUrl?: string
-  /**
-   * URL associated with the event in the event context.
-   */
-  contextUrl?: string
-  /**
-   * Referrer URL associated with the event in the event context.
-   */
-  contextReferrerUrl?: string
   /**
    * User Agent associated with the event.
    */

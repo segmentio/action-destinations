@@ -197,6 +197,7 @@ describe('SalesWings', () => {
         type: 'page',
         properties: {}
       })
+      if (event.context?.page?.url) delete event.context.page['url']
       await testActionWithSkippedEvent(event)
     })
 
@@ -409,7 +410,8 @@ describe('SalesWings', () => {
           event: 'User Registered'
         }),
         createTestEvent({
-          type: 'page'
+          type: 'page',
+          context: {}
         }),
         createTestEvent({
           type: 'identify',
@@ -461,7 +463,8 @@ describe('SalesWings', () => {
           event: undefined
         }),
         createTestEvent({
-          type: 'page'
+          type: 'page',
+          context: {}
         }),
         createTestEvent({
           type: 'identify'

@@ -20,12 +20,10 @@ Object {
   ],
   "timestamp": 1671371213652,
   "type": "tracking",
-  "url": "https://segment.com/academy/",
+  "url": "GOiMP04lKeABeAI4",
   "userAgent": "Mozilla/5.0 (iPhone; CPU iPhone OS 9_1 like Mac OS X) AppleWebKit/601.1.46 (KHTML, like Gecko) Version/9.0 Mobile/13B143 Safari/601.1",
   "values": Object {
     "anonymousId": "GOiMP04lKeABeAI4",
-    "contextReferrerUrl": "GOiMP04lKeABeAI4",
-    "contextUrl": "GOiMP04lKeABeAI4",
     "eventName": "GOiMP04lKeABeAI4",
     "referrerUrl": "GOiMP04lKeABeAI4",
     "screenName": "GOiMP04lKeABeAI4",

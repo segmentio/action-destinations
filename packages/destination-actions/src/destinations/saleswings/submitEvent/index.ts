@@ -55,34 +55,26 @@ const action: ActionDefinition<Settings, Payload> = {
     },
     url: {
       label: 'URL',
-      description: 'URL associated with the Page event.',
+      description: 'URL associated with the event.',
       type: 'string',
       default: {
-        '@path': '$.properties.url'
+        '@if': {
+          exists: { '@path': '$.properties.url' },
+          then: { '@path': '$.properties.url' },
+          else: { '@path': '$.context.page.url' }
+        }
       }
     },
     referrerUrl: {
       label: 'Referrer URL',
-      description: 'Referrer URL associated with the Page event.',
+      description: 'Referrer URL associated with the event.',
       type: 'string',
       default: {
-        '@path': '$.properties.referrer'
-      }
-    },
-    contextUrl: {
-      label: 'Context URL',
-      description: 'URL associated with the event in the event context.',
-      type: 'string',
-      default: {
-        '@path': '$.context.page.url'
-      }
-    },
-    contextReferrerUrl: {
-      label: 'Context Referrer URL',
-      description: 'Referrer URL associated with the event in the event context.',
-      type: 'string',
-      default: {
-        '@path': '$.context.page.referrer'
+        '@if': {
+          exists: { '@path': '$.properties.referrer' },
+          then: { '@path': '$.properties.referrer' },
+          else: { '@path': '$.context.page.referrer' }
+        }
       }
     },
     userAgent: {
