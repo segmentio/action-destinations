@@ -1,6 +1,5 @@
 /* eslint-disable no-useless-escape */
 import { DestinationDefinition } from '@segment/actions-core'
-import { AccountRegion } from '../voucherify/utils'
 import { Settings } from './generated-types'
 import identifyCustomer from './identifyCustomer'
 import trackEvent from './trackEvent'
@@ -30,17 +29,11 @@ const destination: DestinationDefinition<Settings> = {
         type: 'string',
         required: true
       },
-      apiEndpoint: {
-        label: 'Api Endpoint',
-        description: 'Set your [Api Endpoint](https://docs.voucherify.io/docs/api-endpoints).',
-        type: 'string',
-        choices: Object.values(AccountRegion).map((v) => ({ label: v, value: v })),
-        default: AccountRegion.EU
-      },
       customURL: {
-        label: 'Custom Voucherify  URL',
-        description: 'If you do not want to use the default Voucherify URL, then enter your own here.',
-        type: 'string'
+        label: 'Custom Voucherify URL',
+        description: 'Enter your [Voucherify URL](https://docs.voucherify.io/docs/api-endpoints)',
+        type: 'string',
+        required: true
       }
     }
   },

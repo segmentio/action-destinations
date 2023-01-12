@@ -2,71 +2,76 @@ import nock from 'nock'
 import { createTestEvent, createTestIntegration } from '@segment/actions-core'
 import Voucherify from '../index'
 import { Settings } from '../generated-types'
-import { AccountRegion } from '../utils'
-import { trackApiEndpoint } from '../utils'
 
 const testDestination = createTestIntegration(Voucherify)
 
 const settings: Settings = {
   apiKey: 'voucherifyApiKey',
   secretKey: 'voucherifySecretKey',
-  apiEndpoint: AccountRegion.EU
+  customURL: 'https://us1.api.voucherify.io/segmentio'
 }
 
 describe('Voucherify', () => {
   describe('trackEvent', () => {
-    it('should throw error if apiEndpoint is not EU, US or AS', async () => {
+    it('should throw error if the custom URL is invalid.', async () => {
       const wrongSettings: Settings = {
         apiKey: 'voucherifyApiKey',
         secretKey: 'voucherifySecretKey',
-        apiEndpoint: 'Wrong endpoint'
+        customURL: 'wrongURL.com'
       }
-      nock(`${trackApiEndpoint(settings.apiEndpoint)}/segmentio`)
-        .post('/event-processing')
-        .reply(200)
+      nock(wrongSettings.customURL).post('/event-processing').reply(200)
 
-      await expect(testDestination.testAuthentication(wrongSettings)).rejects.toThrowError(
-        // eslint-disable-next-line no-useless-escape
-        `Api Endpoint must be one of: \"EU\", \"US\", or \"AS\".`
-      )
-    })
-
-    it('should work when source_id, type and event are supplied', async () => {
-      nock(`${trackApiEndpoint(settings.apiEndpoint)}/segmentio`)
-        .post('/event-processing')
-        .reply(200)
       const testEvent = createTestEvent({
         event: 'Test Track Event',
+        type: 'track',
         properties: {
           source_id: 'test_customer_1'
-        },
-        type: 'track'
-      })
-
-      const responses = await testDestination.testAction('trackEvent', {
-        event: testEvent,
-        settings,
-        mapping: {
-          source_id: {
-            '@path': '$.properties.source_id'
-          },
-          event: {
-            '@path': '$.event'
-          },
-          type: {
-            '@path': '$.type'
-          }
         }
       })
 
-      expect(responses.length).toBe(1)
-      expect(responses[0].status).toBe(200)
+      await expect(
+        testDestination.testAction('trackEvent', {
+          event: testEvent,
+          settings: wrongSettings,
+          mapping: {
+            event: {
+              '@path': '$.event'
+            },
+            type: {
+              '@path': '$.type'
+            },
+            source_id: {
+              '@path': '$.properties.source_id'
+            }
+          }
+        })
+      ).rejects.toThrowError(
+        `The Custom URL: ${wrongSettings.customURL} is invalid. It probably lacks the HTTP/HTTPS protocol or has an incorrect format.`
+      )
+    })
+
+    it('should work with the default mapping', async () => {
+      nock(settings.customURL).post('/event-processing').reply(200)
+
+      const testEvent = createTestEvent({
+        event: 'Test Track Event',
+        type: 'track',
+        properties: {
+          source_id: 'test_customer_1'
+        }
+      })
+
+      await expect(
+        testDestination.testAction('trackEvent', {
+          event: testEvent,
+          settings,
+          useDefaultMappings: true
+        })
+      ).rejects.not.toThrowError("The root value is missing the required field 'source_id'.")
     })
 
     it('should throw an error if the source_id and email are not specified', async () => {
-      nock(`${trackApiEndpoint(settings.apiEndpoint)}/segmentio`)
-        .post('/event-processing')
-        .reply(200)
+      nock(settings.customURL).post('/event-processing').reply(200)
 
       const testEvent = createTestEvent({
         event: 'Test Track Event',
@@ -75,6 +80,7 @@ describe('Voucherify', () => {
           testProp: 'property'
         }
       })
+
       await expect(
         testDestination.testAction('trackEvent', {
           event: testEvent,
@@ -92,9 +98,7 @@ describe('Voucherify', () => {
     })
 
     it('should throw an error if the type is not specified', async () => {
-      nock(`${trackApiEndpoint(settings.apiEndpoint)}/segmentio`)
-        .post('/event-processing')
-        .reply(200)
+      nock(settings.customURL).post('/event-processing').reply(200)
 
       const testEvent = createTestEvent({
         event: 'Test Track Event',
@@ -119,9 +123,7 @@ describe('Voucherify', () => {
     })
 
     it('should work if the email is supplied instead of the source_id', async () => {
-      nock(`${trackApiEndpoint(settings.apiEndpoint)}/segmentio`)
-        .post('/event-processing')
-        .reply(200)
+      nock(settings.customURL).post('/event-processing').reply(200)
 
       const testEvent = createTestEvent({
         event: 'Test Track Event',
@@ -145,9 +147,7 @@ describe('Voucherify', () => {
   })
   describe('pageEvent', () => {
     it('should throw an error when the name is not provided using page event', async () => {
-      nock(`${trackApiEndpoint(settings.apiEndpoint)}/segmentio`)
-        .post('/event-processing')
-        .reply(200)
+      nock(settings.customURL).post('/event-processing').reply(200)
       const testEvent = createTestEvent({
         event: 'Test Page Event',
         properties: {

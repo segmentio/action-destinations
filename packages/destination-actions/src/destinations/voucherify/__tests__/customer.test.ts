@@ -2,23 +2,19 @@ import nock from 'nock'
 import { createTestEvent, createTestIntegration } from '@segment/actions-core'
 import Voucherify from '../index'
 import { Settings } from '../generated-types'
-import { AccountRegion } from '../utils'
-import { trackApiEndpoint } from '../utils'
 
 const testDestination = createTestIntegration(Voucherify)
 
 const settings: Settings = {
   apiKey: 'voucherifyApiKey',
   secretKey: 'voucherifySecretKey',
-  apiEndpoint: AccountRegion.EU
+  customURL: 'https://us1.api.voucherify.io/segmentio'
 }
 
 describe('Voucherify', () => {
   describe('identifyCustomer', () => {
     it('should throw error when source_id is not specified', async () => {
-      nock(`${trackApiEndpoint(settings.apiEndpoint)}/segmentio`)
-        .post('/customer-processing')
-        .reply(200)
+      nock(settings.customURL).post('/customer-processing').reply(200)
       const testEvent = createTestEvent({
         traits: {
           name: 'Test'
@@ -37,9 +33,7 @@ describe('Voucherify', () => {
 
   describe('groupEvent', () => {
     it('should throw error when group_id is not specified', async () => {
-      nock(`${trackApiEndpoint(settings.apiEndpoint)}/segmentio`)
-        .post('/group-processing')
-        .reply(200)
+      nock(settings.customURL).post('/group-processing').reply(200)
       const testEvent = createTestEvent({
         traits: {
           name: 'Test'
