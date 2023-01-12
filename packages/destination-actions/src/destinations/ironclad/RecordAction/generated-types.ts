@@ -10,7 +10,7 @@ export interface Payload {
    */
   event_name?: string
   /**
-   * The ID of the Group associated with the acceptance event.
+   * The ID of the Clickwrap Group associated with the acceptance event.
    */
   group_id: string
   /**
@@ -24,7 +24,7 @@ export interface Payload {
     [k: string]: unknown
   }
   /**
-   * Optional. Custom Data. URL encode a JSON object to attach custom data to your Activity. The example is URL encoded for { "first name": "Eric" } Using this in an updated Activity will append the data to the Signer, otherwise it will be added to the specific Activity call/transaction.
+   * Optional, located in the properties object, used to attach custom data to your Activity. The example is URL encoded for { "first name": "Eric" } Using this in an updated activity will append the data to the signer, otherwise it will be added to the specific activity call/transaction.
    */
   customData?: {
     [k: string]: unknown

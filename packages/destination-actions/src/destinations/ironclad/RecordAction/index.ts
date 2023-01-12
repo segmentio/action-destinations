@@ -3,8 +3,9 @@ import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 
 const action: ActionDefinition<Settings, Payload> = {
-  title: 'View Contract',
-  description: '',
+  title: 'Record Action',
+  description:
+    'Based on the action destination configuration, this will record an action to Clickwrap either agreeing, disagreeing, or agreeing to a contract configured in the event.',
   fields: {
     sig: {
       label: 'Signer ID',
@@ -29,8 +30,8 @@ const action: ActionDefinition<Settings, Payload> = {
       required: false
     },
     group_id: {
-      label: 'Group Id',
-      description: 'The ID of the Group associated with the acceptance event.',
+      label: 'Clickwrap Group Id',
+      description: 'The ID of the Clickwrap Group associated with the acceptance event.',
       type: 'string',
       default: '',
       required: true
@@ -70,14 +71,14 @@ const action: ActionDefinition<Settings, Payload> = {
       type: 'object',
       required: false,
       description:
-        'Optional. Custom Data. URL encode a JSON object to attach custom data to your Activity. The example is URL encoded for { "first name": "Eric" } Using this in an updated Activity will append the data to the Signer, otherwise it will be added to the specific Activity call/transaction.',
+        'Optional, located in the properties object, used to attach custom data to your Activity. The example is URL encoded for { "first name": "Eric" } Using this in an updated activity will append the data to the signer, otherwise it will be added to the specific activity call/transaction.',
       label: 'Custom Data',
       default: {
-        first_name: { '@path': '$.custom_data.first_name' },
-        last_name: { '@path': '$.custom_data.last_name' },
-        company_name: { '@path': '$.custom_data.company_name' },
-        title: { '@path': '$.custom_data.title' },
-        customer_id: { '@path': '$.custom_data.customer_id' }
+        first_name: { '@path': '$.properties.first_name' },
+        last_name: { '@path': '$.properties.last_name' },
+        company_name: { '@path': '$.properties.company_name' },
+        title: { '@path': '$.properties.title' },
+        customer_id: { '@path': '$.properties.customer_id' }
       }
     }
   },

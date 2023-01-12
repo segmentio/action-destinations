@@ -21,8 +21,8 @@ const payload = {
   group_id: '1335'
 }
 
-describe('Ironclad.viewContract', () => {
-  it('test View contract', async () => {
+describe('Ironclad.recordAction', () => {
+  it('test recordAction', async () => {
     //Mock Staging
     const ironcladURL = `https://pactsafe.io`
     nock(ironcladURL)
@@ -64,7 +64,7 @@ describe('Ironclad.viewContract', () => {
       userId: 'test-user-njs1haohmb'
     })
 
-    const responses = await testDestination.testAction('viewContract', {
+    const responses = await testDestination.testAction('recordAction', {
       event,
       settings: settingsStaging,
       mapping: {

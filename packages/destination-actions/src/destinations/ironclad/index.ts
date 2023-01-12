@@ -1,7 +1,7 @@
 import type { DestinationDefinition } from '@segment/actions-core'
 import type { Settings } from './generated-types'
 
-import viewContract from './viewContract'
+import recordAction from './RecordAction'
 
 const destination: DestinationDefinition<Settings> = {
   name: 'Ironclad',
@@ -39,7 +39,7 @@ const destination: DestinationDefinition<Settings> = {
   },
 
   actions: {
-    viewContract
+    recordAction
   }
 }
 
