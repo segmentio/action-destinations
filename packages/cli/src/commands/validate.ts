@@ -77,6 +77,7 @@ export default class Validate extends Command {
 
       //Validate descriptions
       if (!action.description) {
+        this.isInvalid = true
         errors.push(new Error(`The action "${actionKey}" is missing a description.`))
       }
       for (const [fieldKey, field] of Object.entries(action.fields)) {
@@ -151,7 +152,9 @@ export default class Validate extends Command {
           }
           if (typeof fieldValues?.default !== typ) {
             errors.push(
-              new Error(`The default value for field "${field}" is of type "${typeof fieldValues?.default}", but the type is set to "${typ}".`)
+              new Error(
+                `The default value for field "${field}" is of type "${typeof fieldValues?.default}", but the type is set to "${typ}".`
+              )
             )
           }
         }

@@ -32,9 +32,16 @@ const destination: DestinationDefinition<Settings> = {
       measurementId: {
         label: 'Measurement ID',
         description:
-          'The measurement ID associated with a stream. Found in the Google Analytics UI under: Admin > Data Streams > choose your stream > Measurement ID',
+          'The Measurement ID associated with a stream. Required for web streams. Found in the Google Analytics UI under: Admin > Data Streams > choose your stream > Measurement ID.',
         type: 'string',
-        required: true
+        required: false
+      },
+      firebaseAppId: {
+        label: 'Firebase App ID',
+        description:
+          'The Firebase App ID associated with the Firebase app. Required for mobile app streams. Found in the Firebase console under: Project Settings > General > Your Apps > App ID.',
+        type: 'string',
+        required: false
       },
       apiSecret: {
         label: 'API Secret',
@@ -42,14 +49,6 @@ const destination: DestinationDefinition<Settings> = {
           'An API SECRET generated in the Google Analytics UI, navigate to: Admin > Data Streams > choose your stream > Measurement Protocol > Create',
         type: 'string',
         required: true
-      }
-    }
-  },
-  extendRequest({ settings }) {
-    return {
-      searchParams: {
-        measurement_id: settings.measurementId,
-        api_secret: settings.apiSecret
       }
     }
   },
