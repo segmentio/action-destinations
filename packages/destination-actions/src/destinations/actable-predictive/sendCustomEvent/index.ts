@@ -5,7 +5,7 @@ import { API_URL, formatTimestampAsUnixSeconds } from '../index'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Send Custom Event',
-  description: 'Send a custom event to Actable for prediction.',
+  description: 'Send a custom event to Actable for prediction. Use this to supply events that are not in Actable \'s customer view.',
   fields: {
     customer_id: {
       label: 'Customer ID',
