@@ -28,7 +28,7 @@ const action: BrowserActionDefinition<Settings, RipeSDK, Payload> = {
       required: false,
       description: 'The ID associated groupId',
       label: 'Group ID',
-      default: { '@path': '$.groupId' }
+      default: { '@path': '$.context.groupId' }
     },
     traits: {
       type: 'object',
