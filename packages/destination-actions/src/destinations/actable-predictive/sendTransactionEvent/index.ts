@@ -41,7 +41,7 @@ function formatPurchasePayload(purchaseEvent: Payload) {
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Send Transaction Event',
-  description: '',
+  description: 'Send a purchase event to Actable for prediction. Purchase events should be in v2 Commerce Spec.',
   fields: {
     customer_id: {
       label: 'Customer ID',
