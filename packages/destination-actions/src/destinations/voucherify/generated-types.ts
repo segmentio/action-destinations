@@ -10,7 +10,7 @@ export interface Settings {
    */
   secretKey: string
   /**
-   * Enter your [Voucherify URL](https://docs.voucherify.io/docs/api-endpoints)
+   * Enter your [Voucherify URL](https://docs.voucherify.io/docs/api-endpoints).
    */
   customURL: string
 }
