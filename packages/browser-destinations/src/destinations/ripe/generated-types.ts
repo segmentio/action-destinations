@@ -9,4 +9,8 @@ export interface Settings {
    * The Ripe API key found in the Ripe App
    */
   apiKey: string
+  /**
+   * The Ripe API endpoint (do not change this unless you know what you're doing)
+   */
+  endpoint?: string
 }

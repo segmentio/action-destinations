@@ -1,5 +1,4 @@
 export interface RipeSDK {
-  alias: (userId: string) => Promise<void>
   group: (groupId: string, traits?: Record<string, unknown>) => Promise<void>
   identify: (userId?: string | undefined | null, traits?: Record<string, unknown>) => Promise<void>
   init: (apiKey: string) => Promise<void>

@@ -12,8 +12,6 @@ import { initScript } from './init-script'
 
 import page from './page'
 
-import alias from './alias'
-
 const defaultVersion = 'latest'
 
 declare global {
@@ -46,6 +44,13 @@ export const destination: BrowserDestinationDefinition<Settings, RipeSDK> = {
       label: 'API Key',
       type: 'string',
       required: true
+    },
+    endpoint: {
+      label: 'API Endpoint',
+      description: `The Ripe API endpoint (do not change this unless you know what you're doing)`,
+      type: 'string',
+      format: 'uri',
+      default: 'https://storage.getripe.com'
     }
   },
 
@@ -56,7 +61,7 @@ export const destination: BrowserDestinationDefinition<Settings, RipeSDK> = {
     const version = sdkVersion ?? defaultVersion
 
     await deps
-      .loadScript(`https://storage.googleapis.com/sdk.getripe.com/sdk/${version}/sdk.umd.js`)
+      .loadScript(`${settings.endpoint}/sdk/${version}/sdk.umd.js`)
       .catch((err) => console.error('Unable to load Ripe SDK script', err))
 
     await deps.resolveWhen(() => Object.prototype.hasOwnProperty.call(window, 'Ripe'), 100)
@@ -66,7 +71,6 @@ export const destination: BrowserDestinationDefinition<Settings, RipeSDK> = {
   },
 
   actions: {
-    alias,
     group,
     identify,
     page,
@@ -74,12 +78,6 @@ export const destination: BrowserDestinationDefinition<Settings, RipeSDK> = {
   },
 
   presets: [
-    {
-      name: 'Alias user',
-      subscribe: 'type = "alias"',
-      partnerAction: 'alias',
-      mapping: defaultValues(alias.fields)
-    },
     {
       name: 'Group user',
       subscribe: 'type = "group"',
