@@ -6,7 +6,7 @@ import { DataStreamType } from '../ga4-types'
 const testDestination = createTestIntegration(ga4)
 const apiSecret = 'b287432uhkjHIUEL'
 const measurementId = 'G-TESTTOKEN'
-const firebaseAppId = 'G-FAF1123'
+const firebaseAppId = '2:925731738562:android:a9c393108115c5581abc5b'
 const testEvent = createTestEvent({
   event: 'Select Item',
   userId: 'abc123',

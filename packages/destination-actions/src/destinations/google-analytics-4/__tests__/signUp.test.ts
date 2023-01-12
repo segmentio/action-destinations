@@ -16,7 +16,7 @@ const testEvent = createTestEvent({
     type: 'Google'
   }
 })
-const firebaseAppId = 'G-FAF1123'
+const firebaseAppId = '2:925731738562:android:a9c393108115c5581abc5b'
 
 describe('GA4', () => {
   describe('Signed Up', () => {
