@@ -31,7 +31,7 @@ const destination: DestinationDefinition<Settings> = {
       },
       customURL: {
         label: 'Custom Voucherify URL',
-        description: 'Enter your [Voucherify URL](https://docs.voucherify.io/docs/api-endpoints)',
+        description: 'Enter your [Voucherify URL](https://docs.voucherify.io/docs/api-endpoints).',
         type: 'string',
         required: true
       }
