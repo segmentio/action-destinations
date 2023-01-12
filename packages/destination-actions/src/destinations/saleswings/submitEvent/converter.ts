@@ -63,9 +63,6 @@ const convertIdentifyEvent = (payload: Payload): TrackingEvent | undefined => {
 
   const leadRefs = convertLeadRefs(payload)
   if (leadRefs.length == 0) return undefined
-  leadRefs.push({ type: 'email', value: payload.email })
-
-  if (payload.traits) delete payload.traits['email']
 
   return new TrackingEvent({
     leadRefs,
@@ -101,6 +98,11 @@ const convertLeadRefs = (payload: Payload): LeadRef[] => {
   const refs: LeadRef[] = []
   if (payload.userId) refs.push({ type: 'client-id', value: payload.userId })
   if (payload.anonymousId) refs.push({ type: 'client-id', value: payload.anonymousId })
+  if (payload.email) {
+    refs.push({ type: 'email', value: payload.email })
+    if (payload.traits) delete payload.traits['email']
+    if (payload.properties) delete payload.properties['email']
+  }
   return refs
 }
 

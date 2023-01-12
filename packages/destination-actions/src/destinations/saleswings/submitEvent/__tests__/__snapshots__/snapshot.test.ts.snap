@@ -13,6 +13,10 @@ Object {
       "type": "client-id",
       "value": "anonId1234",
     },
+    Object {
+      "type": "email",
+      "value": "iwdezle@wadgop.lu",
+    },
   ],
   "timestamp": 1671371213652,
   "type": "tracking",
@@ -22,7 +26,6 @@ Object {
     "anonymousId": "GOiMP04lKeABeAI4",
     "contextReferrerUrl": "GOiMP04lKeABeAI4",
     "contextUrl": "GOiMP04lKeABeAI4",
-    "email": "iwdezle@wadgop.lu",
     "eventName": "GOiMP04lKeABeAI4",
     "referrerUrl": "GOiMP04lKeABeAI4",
     "screenName": "GOiMP04lKeABeAI4",

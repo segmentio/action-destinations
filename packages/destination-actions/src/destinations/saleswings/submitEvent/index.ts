@@ -37,7 +37,11 @@ const action: ActionDefinition<Settings, Payload> = {
       description: 'Identified email of the Segment User.',
       type: 'string',
       default: {
-        '@path': '$.traits.email'
+        '@if': {
+          exists: { '@path': '$.traits.email' },
+          then: { '@path': '$.traits.email' },
+          else: { '@path': '$.properties.email' }
+        }
       }
     },
     type: {

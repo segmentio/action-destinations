@@ -60,6 +60,29 @@ describe('SalesWings', () => {
       })
     })
 
+    it('should submit event on Track event with email in properties', async () => {
+      const event = createTestEvent({
+        type: 'track',
+        event: 'User Registered',
+        properties: {
+          email: 'peter@example.com'
+        }
+      })
+      const request = await testAction(event)
+      expect(request).toMatchObject({
+        type: 'tracking',
+        leadRefs: [
+          { type: 'client-id', value: event.userId },
+          { type: 'client-id', value: event.anonymousId },
+          { type: 'email', value: 'peter@example.com' }
+        ],
+        kind: 'Track',
+        data: 'User Registered',
+        timestamp: expectedTs(event.timestamp),
+        values: {}
+      })
+    })
+
     it('should use custom event property mapping', async () => {
       const event = createTestEvent({
         type: 'track',
