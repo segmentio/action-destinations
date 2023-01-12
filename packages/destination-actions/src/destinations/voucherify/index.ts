@@ -37,7 +37,6 @@ const destination: DestinationDefinition<Settings> = {
         choices: Object.values(AccountRegion).map((v) => ({ label: v, value: v })),
         default: AccountRegion.EU
       },
-
       customURL: {
         label: 'Custom Voucherify  URL',
         description: 'If you do not want to use the default Voucherify URL, then enter your own here.',
