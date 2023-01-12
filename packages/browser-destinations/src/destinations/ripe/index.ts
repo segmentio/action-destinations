@@ -59,9 +59,10 @@ export const destination: BrowserDestinationDefinition<Settings, RipeSDK> = {
 
     const { sdkVersion, apiKey } = settings
     const version = sdkVersion ?? defaultVersion
+    const endpoint = settings.endpoint || 'https://storage.getripe.com'
 
     await deps
-      .loadScript(`${settings.endpoint}/sdk/${version}/sdk.umd.js`)
+      .loadScript(`${endpoint}/sdk/${version}/sdk.umd.js`)
       .catch((err) => console.error('Unable to load Ripe SDK script', err))
 
     await deps.resolveWhen(() => Object.prototype.hasOwnProperty.call(window, 'Ripe'), 100)
