@@ -1,4 +1,4 @@
-import type { DestinationDefinition } from '@segment/actions-core'
+import { defaultValues, DestinationDefinition } from '@segment/actions-core'
 import { apiBaseUrl } from './api'
 import type { Settings } from './generated-types'
 
@@ -26,6 +26,15 @@ const destination: DestinationDefinition<Settings> = {
       return resp.status == 200
     }
   },
+
+  presets: [
+    {
+      name: 'Submit Event',
+      subscribe: 'type = "identify" or type = "track" or type = "screen" or type = "page"',
+      partnerAction: 'submitEvent',
+      mapping: defaultValues(submitEvent.fields)
+    }
+  ],
 
   actions: {
     submitEvent
