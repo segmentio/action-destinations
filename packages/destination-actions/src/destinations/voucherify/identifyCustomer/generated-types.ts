@@ -6,6 +6,10 @@ export interface Payload {
    */
   source_id: string
   /**
+   * Type of event
+   */
+  type: string
+  /**
    * Optional attributes for the person. When updating a person, attributes are added or updated, not removed.
    */
   traits?: {

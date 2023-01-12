@@ -16,6 +16,10 @@ export interface Payload {
     [k: string]: unknown
   }
   /**
+   * Type of event
+   */
+  type: string
+  /**
    * The person's email address.
    */
   email?: string
