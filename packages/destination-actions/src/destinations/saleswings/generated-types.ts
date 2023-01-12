@@ -2,7 +2,7 @@
 
 export interface Settings {
   /**
-   * Segment.io API key for your SalesWings project
+   * Segment.io API key for your SalesWings project.
    */
   apiKey: string
 }

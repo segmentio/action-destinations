@@ -6,7 +6,7 @@ import { apiBaseUrl } from '../api'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Submit Event',
-  description: '',
+  description: 'Send your data from Segment to SalesWings to use it for tagging, scoring and prioritising your leads.',
   fields: {
     customEventPropertyMapping: {
       label: 'Custom Event Properties',
