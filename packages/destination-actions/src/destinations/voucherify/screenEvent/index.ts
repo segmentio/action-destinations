@@ -22,7 +22,7 @@ const action: ActionDefinition<Settings, Payload> = {
       }
     },
 
-    name: {
+    event: {
       label: 'Event Name',
       description: 'The name of the [custom event](https://docs.voucherify.io/reference/the-custom-event-object).',
       type: 'string',

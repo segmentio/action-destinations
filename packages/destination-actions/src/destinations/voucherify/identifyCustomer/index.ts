@@ -22,6 +22,15 @@ const action: ActionDefinition<Settings, Payload> = {
         }
       }
     },
+    type: {
+      label: 'Event Type',
+      description: 'Type of event',
+      type: 'string',
+      required: true,
+      default: {
+        '@path': '$.type'
+      }
+    },
     traits: {
       label: 'Person Attributes',
       description:

@@ -40,6 +40,15 @@ const action: ActionDefinition<Settings, Payload> = {
         '@path': '$.traits'
       }
     },
+    type: {
+      label: 'Event Type',
+      description: 'Type of event',
+      type: 'string',
+      required: true,
+      default: {
+        '@path': '$.type'
+      }
+    },
     email: {
       label: 'Email Address',
       description: "The person's email address.",

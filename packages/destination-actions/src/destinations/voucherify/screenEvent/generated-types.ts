@@ -8,7 +8,7 @@ export interface Payload {
   /**
    * The name of the [custom event](https://docs.voucherify.io/reference/the-custom-event-object).
    */
-  name: string
+  event: string
   /**
    * Optional data to include with the event.
    */
