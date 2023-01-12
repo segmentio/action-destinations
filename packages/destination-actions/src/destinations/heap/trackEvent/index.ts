@@ -22,7 +22,7 @@ type HeapEvent = {
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Track Event',
   description: 'Send an event to Heap.',
-  defaultSubscription: 'type = "track"',
+  defaultSubscription: 'type = "track" or type = "page" or type = "screen"',
   fields: {
     message_id: {
       label: 'Message ID',
@@ -56,7 +56,6 @@ const action: ActionDefinition<Settings, Payload> = {
       label: 'Event Type',
       type: 'string',
       description: 'The name of the event. Limited to 1024 characters.',
-      required: true,
       default: {
         '@path': '$.event'
       }
