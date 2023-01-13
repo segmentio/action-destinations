@@ -20,7 +20,7 @@ const action: ActionDefinition<Settings, Payload> = {
     source_id: {
       label: 'Customer ID',
       description:
-        'The ID necessary to [create or update customer](https://docs.voucherify.io/reference/the-customer-object) and [create custom event](https://docs.voucherify.io/reference/create-custom-event) in Voucherify.',
+        'The ID necessary to [create or update customer](https://docs.voucherify.io/reference/the-customer-object) in Voucherify.',
       type: 'string',
       required: true,
       default: {
@@ -32,9 +32,9 @@ const action: ActionDefinition<Settings, Payload> = {
       }
     },
     traits: {
-      label: 'Custom group metadata',
+      label: 'Group metadata',
       description:
-        'Custom group metadata for each customer. [Learn more](https://www.voucherify.io/glossary/metadata-custom-attributes).',
+        'The group metadata for each customer. [Learn more](https://www.voucherify.io/glossary/metadata-custom-attributes).',
       type: 'object',
       default: {
         '@path': '$.traits'

@@ -11,7 +11,7 @@ const action: ActionDefinition<Settings, Payload> = {
     source_id: {
       label: 'Customer ID',
       description:
-        'The ID necessary to [create or update customer](https://docs.voucherify.io/reference/the-customer-object) and [create custom event](https://docs.voucherify.io/reference/create-custom-event) in Voucherify.',
+        'The ID necessary to [create or update customer](https://docs.voucherify.io/reference/the-customer-object) in Voucherify.',
       type: 'string',
       required: true,
       default: {
@@ -32,9 +32,9 @@ const action: ActionDefinition<Settings, Payload> = {
       }
     },
     traits: {
-      label: 'Person Attributes',
+      label: 'Customer Attributes',
       description:
-        'Optional attributes for the person. When updating a person, attributes are added or updated, not removed.',
+        'Optional attributes for the customer. When updating a customer, attributes are added or updated, not removed.',
       type: 'object',
       default: {
         '@path': '$.traits'
@@ -42,7 +42,7 @@ const action: ActionDefinition<Settings, Payload> = {
     },
     email: {
       label: 'Email Address',
-      description: "The person's email address.",
+      description: "The customer's email address.",
       type: 'string',
       default: {
         '@if': {
