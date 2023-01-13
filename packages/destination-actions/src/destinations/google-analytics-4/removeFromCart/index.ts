@@ -119,7 +119,7 @@ const action: ActionDefinition<Settings, Payload> = {
       request_object.timestamp_micros = convertTimestamp(payload.timestamp_micros)
     }
 
-    // Firebase App ID can contain colons(:) and they should not be encoded. Hence, interpolating search params to url string instead passing them as search_params
+    // Firebase App ID can contain colons(:) and they should not be encoded. Hence, interpolating search params to url string instead of passing them as search_params
     return request(`https://www.google-analytics.com/mp/collect?${stream_params.search_params}`, {
       method: 'POST',
       json: request_object
