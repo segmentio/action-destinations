@@ -19,6 +19,7 @@ import addToWishlist from './addToWishlist'
 import addPaymentInfo from './addPaymentInfo'
 import refund from './refund'
 import removeFromCart from './removeFromCart'
+import { IntegrationError } from '@segment/actions-core'
 
 const destination: DestinationDefinition<Settings> = {
   // NOTE: We need to match the name with the creation name in DB.
@@ -50,6 +51,16 @@ const destination: DestinationDefinition<Settings> = {
         type: 'string',
         required: true
       }
+    },
+    testAuthentication(_, { settings }) {
+      if (!settings.firebaseAppId && !settings.measurementId) {
+        throw new IntegrationError(
+          'One of Firebase App ID (Mobile app Stream) or Measurement ID (Web Stream) is required',
+          'Misconfigured field',
+          400
+        )
+      }
+      return {}
     }
   },
   actions: {
