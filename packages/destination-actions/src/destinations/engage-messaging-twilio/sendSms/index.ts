@@ -1,14 +1,24 @@
 /* eslint-disable @typescript-eslint/no-unsafe-call */
 import { Liquid as LiquidJs } from 'liquidjs'
-
 import type { ActionDefinition, RequestOptions } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 import { IntegrationError } from '@segment/actions-core'
 import { StatsClient } from '@segment/actions-core/src/destination-kit'
-
 import { PhoneNumberFormat } from 'google-libphonenumber'
 import { PhoneNumberUtil } from 'google-libphonenumber'
+
+type RequestFn = (url: string, options?: RequestOptions) => Promise<Response>
+
+enum SendabilityStatus {
+  NoSenderPhone = 'no_sender_phone',
+  ShouldSend = 'should_send',
+  DoNotSend = 'do_not_send',
+  SendDisabled = 'send_disabled',
+  InvalidSubscriptionStatus = 'invalid_subscription_status'
+}
+
+type SendabilityPayload = { sendabilityStatus: SendabilityStatus; phone: string | undefined }
 
 // Get an instance of `PhoneNumberUtil`.
 const phoneUtil = PhoneNumberUtil.getInstance()
@@ -18,8 +28,6 @@ const Liquid = new LiquidJs()
 const getProfileApiEndpoint = (environment: string): string => {
   return `https://profiles.segment.${environment === 'production' ? 'com' : 'build'}`
 }
-
-type RequestFn = (url: string, options?: RequestOptions) => Promise<Response>
 
 const fetchProfileTraits = async (
   request: RequestFn,
@@ -47,6 +55,45 @@ const fetchProfileTraits = async (
     statsClient?.incr('actions-personas-messaging-twilio.profile_error', 1, tags)
     throw new IntegrationError('Unable to get profile traits for SMS message', 'SMS trait fetch failure', 500)
   }
+}
+
+const getSendabilityPayload = (
+  payload: Payload,
+  statsClient: StatsClient | undefined,
+  tags: string[] | undefined
+): SendabilityPayload => {
+  const nonSendableStatuses = ['unsubscribed', 'did not subscribed', 'false']
+  const sendableStatuses = ['subscribed', 'true']
+  const externalId = payload.externalIds?.find(({ type }) => type === 'phone')
+
+  let status: SendabilityStatus
+
+  if (!payload.send) {
+    statsClient?.incr('actions-personas-messaging-twilio.send-disabled', 1, tags)
+    return { sendabilityStatus: SendabilityStatus.SendDisabled, phone: undefined }
+  }
+
+  if (!externalId?.subscriptionStatus || nonSendableStatuses.includes(externalId.subscriptionStatus)) {
+    statsClient?.incr('actions-personas-messaging-twilio.notsubscribed', 1, tags)
+    status = SendabilityStatus.DoNotSend
+  } else if (sendableStatuses.includes(externalId.subscriptionStatus)) {
+    statsClient?.incr('actions-personas-messaging-twilio.subscribed', 1, tags)
+    status = SendabilityStatus.ShouldSend
+  } else {
+    statsClient?.incr('actions-personas-messaging-twilio.twilio-error', 1, tags)
+    throw new IntegrationError(
+      `Failed to recognize the subscriptionStatus in the payload: "${externalId.subscriptionStatus}".`,
+      'Invalid subscriptionStatus value',
+      400
+    )
+  }
+
+  const phone = payload.toNumber || externalId?.id
+  if (!phone) {
+    status = SendabilityStatus.NoSenderPhone
+  }
+
+  return { sendabilityStatus: status, phone }
 }
 
 const EXTERNAL_ID_KEY = 'phone'
@@ -174,128 +221,104 @@ const action: ActionDefinition<Settings, Payload> = {
     const statsClient = statsContext?.statsClient
     const tags = statsContext?.tags
     tags?.push(`space_id:${settings.spaceId}`, `projectid:${settings.sourceId}`)
-    if (!payload.send) {
-      statsClient?.incr('actions-personas-messaging-twilio.send-disabled', 1, tags)
+
+    const sendabilityPayload = getSendabilityPayload(payload, statsClient, tags)
+    let phone = sendabilityPayload.phone
+
+    if (sendabilityPayload.sendabilityStatus !== SendabilityStatus.ShouldSend || !phone) {
       return
     }
-    const externalId = payload.externalIds?.find(({ type }) => type === 'phone')
-    if (
-      !externalId?.subscriptionStatus ||
-      ['unsubscribed', 'did not subscribed', 'false'].includes(externalId.subscriptionStatus)
-    ) {
-      statsClient?.incr('actions-personas-messaging-twilio.notsubscribed', 1, tags)
-      return
-    } else if (['subscribed', 'true'].includes(externalId.subscriptionStatus)) {
-      statsClient?.incr('actions-personas-messaging-twilio.subscribed', 1, tags)
-      let phone = payload.toNumber || externalId.id
-      if (!phone) {
-        return
-      }
 
-      let traits
-      if (payload.traitEnrichment) {
-        traits = payload?.traits ? payload?.traits : JSON.parse('{}')
-      } else {
-        traits = await fetchProfileTraits(request, settings, payload.userId, statsClient, tags)
-      }
+    let traits
+    if (payload.traitEnrichment) {
+      traits = payload?.traits ? payload?.traits : JSON.parse('{}')
+    } else {
+      traits = await fetchProfileTraits(request, settings, payload.userId, statsClient, tags)
+    }
 
-      const profile = {
-        user_id: payload.userId,
-        phone,
-        traits
-      }
+    const profile = {
+      user_id: payload.userId,
+      phone,
+      traits
+    }
 
-      // TODO: GROW-259 remove this when we can extend the request
-      // and we no longer need to call the profiles API first
-      const token = Buffer.from(`${settings.twilioApiKeySID}:${settings.twilioApiKeySecret}`).toString('base64')
-      let parsedBody
+    // TODO: GROW-259 remove this when we can extend the request
+    // and we no longer need to call the profiles API first
+    const token = Buffer.from(`${settings.twilioApiKeySID}:${settings.twilioApiKeySecret}`).toString('base64')
+    let parsedBody
 
+    try {
+      parsedBody = await Liquid.parseAndRender(payload.body, { profile })
+    } catch (error: unknown) {
+      throw new IntegrationError(`Unable to parse templating in SMS`, `SMS templating parse failure`, 400)
+    }
+
+    const externalIdValue = phone
+
+    if (payload.messageType === 'whatsapp') {
       try {
-        parsedBody = await Liquid.parseAndRender(payload.body, { profile })
+        // Defaulting to US for now as that's where most users will seemingly be. Though
+        // any number already given in e164 format should parse correctly even with the
+        // default region being US.
+        const parsedPhone = phoneUtil.parse(phone, 'US')
+        phone = phoneUtil.format(parsedPhone, PhoneNumberFormat.E164)
+        phone = `whatsapp:${phone}`
       } catch (error: unknown) {
-        throw new IntegrationError(`Unable to parse templating in SMS`, `SMS templating parse failure`, 400)
-      }
-
-      const externalIdValue = phone
-
-      if (payload.messageType === 'whatsapp') {
-        try {
-          // Defaulting to US for now as that's where most users will seemingly be. Though
-          // any number already given in e164 format should parse correctly even with the
-          // default region being US.
-          const parsedPhone = phoneUtil.parse(phone, 'US')
-          phone = phoneUtil.format(parsedPhone, PhoneNumberFormat.E164)
-          phone = `whatsapp:${phone}`
-        } catch (error: unknown) {
-          tags?.push('type:invalid_phone_e164')
-          statsClient?.incr('actions-personas-messaging-twilio.error', 1, tags)
-          throw new IntegrationError(
-            'The string supplied did not seem to be a phone number. Phone number must be able to be formatted to e164 for whatsapp.',
-            `INVALID_PHONE`,
-            400
-          )
-        }
-      }
-
-      const body = new URLSearchParams({
-        Body: parsedBody,
-        // Assuming this is in the right format for whatsapp.
-        From: payload.from,
-        To: phone
-      })
-
-      const webhookUrl = settings.webhookUrl
-      const connectionOverrides = settings.connectionOverrides
-      const customArgs: Record<string, string | undefined> = {
-        ...payload.customArgs,
-        space_id: settings.spaceId,
-        __segment_internal_external_id_key__: EXTERNAL_ID_KEY,
-        __segment_internal_external_id_value__: externalIdValue
-      }
-
-      if (webhookUrl && customArgs) {
-        // Webhook URL parsing has a potential of failing. I think it's better that
-        // we fail out of any invocation than silently not getting analytics
-        // data if that's what we're expecting.
-        const webhookUrlWithParams = new URL(webhookUrl)
-        for (const key of Object.keys(customArgs)) {
-          webhookUrlWithParams.searchParams.append(key, String(customArgs[key]))
-        }
-
-        webhookUrlWithParams.hash = connectionOverrides || DEFAULT_CONNECTION_OVERRIDES
-
-        body.append('StatusCallback', webhookUrlWithParams.toString())
-      }
-
-      const hostname = settings.twilioHostname ?? DEFAULT_HOSTNAME
-      const response = await request(
-        `https://${hostname}/2010-04-01/Accounts/${settings.twilioAccountSID}/Messages.json`,
-        {
-          method: 'POST',
-          headers: {
-            authorization: `Basic ${token}`
-          },
-          body
-        }
-      )
-      tags?.push(`twilio_status_code:${response.status}`)
-      statsClient?.incr('actions-personas-messaging-twilio.response', 1, tags)
-      if (payload?.eventOccurredTS != undefined) {
-        statsClient?.histogram(
-          'actions-personas-messaging-twilio.eventDeliveryTS',
-          Date.now() - new Date(payload?.eventOccurredTS).getTime(),
-          tags
+        tags?.push('type:invalid_phone_e164')
+        statsClient?.incr('actions-personas-messaging-twilio.error', 1, tags)
+        throw new IntegrationError(
+          'The string supplied did not seem to be a phone number. Phone number must be able to be formatted to e164 for whatsapp.',
+          `INVALID_PHONE`,
+          400
         )
       }
-      return response
-    } else {
-      statsClient?.incr('actions-personas-messaging-twilio.twilio-error', 1, tags)
-      throw new IntegrationError(
-        `Failed to recognize the subscriptionStatus in the payload: "${externalId.subscriptionStatus}".`,
-        'Invalid subscriptionStatus value',
-        400
-      )
     }
+
+    const body = new URLSearchParams({
+      Body: parsedBody,
+      // Assuming this is in the right format for whatsapp.
+      // TODO: verify this payload.from doesnt have to be "whatsapp:<NUMBER>" if it does, is it already in that format?
+      From: payload.from,
+      To: phone
+    })
+
+    const webhookUrl = settings.webhookUrl
+    const connectionOverrides = settings.connectionOverrides
+    const customArgs: Record<string, string | undefined> = {
+      ...payload.customArgs,
+      space_id: settings.spaceId,
+      __segment_internal_external_id_key__: EXTERNAL_ID_KEY,
+      __segment_internal_external_id_value__: externalIdValue
+    }
+
+    if (webhookUrl && customArgs) {
+      // Webhook URL parsing has a potential of failing. I think it's better that
+      // we fail out of any invocation than silently not getting analytics
+      // data if that's what we're expecting.
+      const webhookUrlWithParams = new URL(webhookUrl)
+      for (const key of Object.keys(customArgs)) {
+        webhookUrlWithParams.searchParams.append(key, String(customArgs[key]))
+      }
+
+      webhookUrlWithParams.hash = connectionOverrides || DEFAULT_CONNECTION_OVERRIDES
+
+      body.append('StatusCallback', webhookUrlWithParams.toString())
+    }
+
+    const hostname = settings.twilioHostname ?? DEFAULT_HOSTNAME
+    const response = await request(
+      `https://${hostname}/2010-04-01/Accounts/${settings.twilioAccountSID}/Messages.json`,
+      {
+        method: 'POST',
+        headers: {
+          authorization: `Basic ${token}`
+        },
+        body
+      }
+    )
+    tags?.push(`twilio_status_code:${response.status}`)
+    statsClient?.incr('actions-personas-messaging-twilio.response', 1, tags)
+    return response
   }
 }
 
