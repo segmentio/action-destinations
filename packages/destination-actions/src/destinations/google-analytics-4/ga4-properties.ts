@@ -354,9 +354,9 @@ export const timestamp_micros: InputField = {
 export const data_stream_type: InputField = {
   label: 'Data Stream Type',
   type: 'string',
-  choices: [DataStreamType.Web.valueOf(), DataStreamType.Mobile.valueOf()],
+  choices: [DataStreamType.Web, DataStreamType.Mobile],
   description:
     'The type of data stream this data belongs in. This can either be a web stream or a mobile app stream (iOS or Android).',
-  default: DataStreamType.Web.valueOf(),
+  default: DataStreamType.Web,
   required: true
 }
