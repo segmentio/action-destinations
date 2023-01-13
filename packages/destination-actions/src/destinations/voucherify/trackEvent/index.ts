@@ -8,7 +8,7 @@ const action: ActionDefinition<Settings, Payload> = {
   description: 'Track a custom event.',
   fields: {
     source_id: {
-      label: 'Voucherify Customer ID',
+      label: 'Customer ID',
       description:
         'The ID necessary to [create or update customer](https://docs.voucherify.io/reference/the-customer-object) and [create custom event](https://docs.voucherify.io/reference/create-custom-event) in Voucherify.',
       type: 'string',
