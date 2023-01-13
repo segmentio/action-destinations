@@ -6,11 +6,11 @@ export interface Payload {
    */
   group_id: string
   /**
-   * The ID necessary to [create or update customer](https://docs.voucherify.io/reference/the-customer-object) and [create custom event](https://docs.voucherify.io/reference/create-custom-event) in Voucherify.
+   * The ID necessary to [create or update customer](https://docs.voucherify.io/reference/the-customer-object) in Voucherify.
    */
   source_id: string
   /**
-   * Custom group metadata for each customer. [Learn more](https://www.voucherify.io/glossary/metadata-custom-attributes).
+   * The group metadata for each customer. [Learn more](https://www.voucherify.io/glossary/metadata-custom-attributes).
    */
   traits?: {
     [k: string]: unknown
