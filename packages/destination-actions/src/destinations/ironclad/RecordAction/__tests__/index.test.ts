@@ -23,9 +23,14 @@ const payload = {
 
 describe('Ironclad.recordAction', () => {
   it('test recordAction', async () => {
-    //Mock Staging
+    //Mock Staging and prod
     const ironcladURL = `https://pactsafe.io`
     nock(ironcladURL)
+      .get(`/published?sid=${settingsStaging.sid}&gid=${payload.group_id}`)
+      .reply(200, { '15299': '636aa4956e4e161e69d0a110', '15483': '6388c828932984001c888e1c' })
+
+    const stagingIroncladURL = `https://staging.pactsafe.io`
+    nock(stagingIroncladURL)
       .get(`/published?sid=${settingsStaging.sid}&gid=${payload.group_id}`)
       .reply(200, { '15299': '636aa4956e4e161e69d0a110', '15483': '6388c828932984001c888e1c' })
 
@@ -40,6 +45,7 @@ describe('Ironclad.recordAction', () => {
     }
 
     nock(ironcladURL).persist().post('/send/sync', jsonDataStaging).reply(200, {})
+    nock(stagingIroncladURL).persist().post('/send/sync', jsonDataStaging).reply(200, {})
 
     //Mock Production
     const ironcladURLProd = `https://pactsafe.io`
