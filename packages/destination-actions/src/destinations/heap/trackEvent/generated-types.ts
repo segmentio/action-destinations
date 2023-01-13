@@ -16,7 +16,7 @@ export interface Payload {
   /**
    * The name of the event. Limited to 1024 characters.
    */
-  event: string
+  event?: string
   /**
    * An object with key-value properties you want associated with the event. Each key and property must either be a number or string with fewer than 1024 characters.
    */
@@ -31,4 +31,12 @@ export interface Payload {
    * The name of the SDK used to send events
    */
   library_name?: string
+  /**
+   * The type of event
+   */
+  type: string
+  /**
+   * Name of the event
+   */
+  name?: string
 }
