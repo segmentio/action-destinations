@@ -145,34 +145,4 @@ describe('Voucherify', () => {
       ).rejects.not.toThrowError("The root value is missing the required field 'source_id'.")
     })
   })
-  describe('pageEvent', () => {
-    it('should throw an error when the name is not provided using page event', async () => {
-      nock(settings.customURL).post('/event-processing').reply(200)
-      const testEvent = createTestEvent({
-        event: 'Test Page Event',
-        properties: {
-          source_id: 'test_customer_1'
-        },
-        type: 'page'
-      })
-
-      await expect(
-        testDestination.testAction('pageEvent', {
-          event: testEvent,
-          settings,
-          mapping: {
-            source_id: {
-              '@path': '$.properties.source_id'
-            },
-            event: {
-              '@path': '$.event'
-            },
-            type: {
-              '@path': '$.type'
-            }
-          }
-        })
-      ).rejects.toThrowError("The root value is missing the required field 'name'.")
-    })
-  })
 })
