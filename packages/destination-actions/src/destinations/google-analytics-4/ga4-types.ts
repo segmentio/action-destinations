@@ -29,7 +29,7 @@ export interface PromotionProductItem extends ProductItem {
 
 export enum DataStreamType {
   'Web' = 'Web',
-  'Mobile' = 'Mobile'
+  'MobileApp' = 'Mobile App'
 }
 
 export interface DataStreamParams {

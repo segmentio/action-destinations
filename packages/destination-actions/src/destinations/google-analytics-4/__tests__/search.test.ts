@@ -237,7 +237,7 @@ describe('GA4', () => {
             firebaseAppId
           },
           mapping: {
-            data_stream_type: DataStreamType.Mobile,
+            data_stream_type: DataStreamType.MobileApp,
             app_instance_id: {
               '@path': '$.anonymousId'
             }
@@ -255,7 +255,7 @@ describe('GA4', () => {
             apiSecret
           },
           mapping: {
-            data_stream_type: DataStreamType.Mobile,
+            data_stream_type: DataStreamType.MobileApp,
             app_instance_id: {
               '@path': '$.anonymousId'
             }
@@ -274,7 +274,7 @@ describe('GA4', () => {
             firebaseAppId
           },
           mapping: {
-            data_stream_type: DataStreamType.Mobile
+            data_stream_type: DataStreamType.MobileApp
           },
           useDefaultMappings: true
         })
