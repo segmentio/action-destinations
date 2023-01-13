@@ -11,7 +11,7 @@ type HeapEvent = {
   app_id: string
   identity?: string
   user_id?: number
-  event: string
+  event: string | undefined
   properties: {
     [k: string]: unknown
   }
@@ -84,6 +84,23 @@ const action: ActionDefinition<Settings, Payload> = {
       default: {
         '@path': '$.context.library.name'
       }
+    },
+    type: {
+      label: 'Type',
+      type: 'string',
+      description: 'The type of event',
+      required: true,
+      default: {
+        '@path': '$.type'
+      }
+    },
+    name: {
+      label: 'Name',
+      type: 'string',
+      description: 'Name of the event',
+      default: {
+        '@path': '$.name'
+      }
     }
   },
   perform: (request, { payload, settings }) => {
@@ -100,7 +117,7 @@ const action: ActionDefinition<Settings, Payload> = {
     const eventProperties = Object.assign(defaultEventProperties, flatten)
     const event: HeapEvent = {
       app_id: settings.appId,
-      event: payload.event,
+      event: getEventName(payload),
       properties: eventProperties,
       idempotency_key: payload.message_id
     }
@@ -121,6 +138,18 @@ const action: ActionDefinition<Settings, Payload> = {
       method: 'post',
       json: event
     })
+  }
+}
+
+const getEventName = (payload: Payload) => {
+  switch (payload.type) {
+    case 'track':
+      return payload.event
+    case 'page':
+    case 'screen':
+      return payload.name
+    default:
+      return undefined
   }
 }
 
