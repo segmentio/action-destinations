@@ -20,6 +20,15 @@ enum SendabilityStatus {
 
 type SendabilityPayload = { sendabilityStatus: SendabilityStatus; phone: string | undefined }
 
+type MessageBodyParser = (
+  request: RequestFn,
+  payload: Payload,
+  phone: string,
+  profile: any,
+  tags?: string[] | undefined,
+  statsClient?: StatsClient
+) => Promise<URLSearchParams>
+
 // Get an instance of `PhoneNumberUtil`.
 const phoneUtil = PhoneNumberUtil.getInstance()
 
@@ -96,10 +105,64 @@ const getSendabilityPayload = (
   return { sendabilityStatus: status, phone }
 }
 
+const getSmsBody: MessageBodyParser = async (_request, payload, phone, profile) => {
+  let parsedBody
+
+  try {
+    parsedBody = await Liquid.parseAndRender(payload.body, { profile })
+  } catch (error: unknown) {
+    throw new IntegrationError(`Unable to parse templating in SMS`, `SMS templating parse failure`, 400)
+  }
+
+  const body = new URLSearchParams({
+    Body: parsedBody,
+    From: payload.from,
+    To: phone
+  })
+
+  return body
+}
+
+const getWhatsAppBody: MessageBodyParser = async (_request, payload, phone, profile, tags, statsClient) => {
+  let parsedPhone
+
+  try {
+    // Defaulting to US for now as that's where most users will seemingly be. Though
+    // any number already given in e164 format should parse correctly even with the
+    // default region being US.
+    parsedPhone = phoneUtil.parse(phone, 'US')
+    parsedPhone = phoneUtil.format(parsedPhone, PhoneNumberFormat.E164)
+    parsedPhone = `whatsapp:${parsedPhone}`
+  } catch (error: unknown) {
+    tags?.push('type:invalid_phone_e164')
+    statsClient?.incr('actions-personas-messaging-twilio.error', 1, tags)
+    throw new IntegrationError(
+      'The string supplied did not seem to be a phone number. Phone number must be able to be formatted to e164 for whatsapp.',
+      `INVALID_PHONE`,
+      400
+    )
+  }
+
+  return new URLSearchParams({
+    ContentSid: payload.contentSid,
+    ContentVariables: payload.contentVariables,
+    // TODO: is MessagingServiceSid required here or can we assume 'whatsapp:${payload.from}' works
+    From: payload.from,
+    To: parsedPhone
+  })
+}
+
 const EXTERNAL_ID_KEY = 'phone'
 const DEFAULT_HOSTNAME = 'api.twilio.com'
 
 const DEFAULT_CONNECTION_OVERRIDES = 'rp=all&rc=5'
+
+// allow extensibility for sms, mms, whatsapp
+const messageBodyParsers: Record<string, MessageBodyParser> = Object.freeze({
+  sms: getSmsBody,
+  whatsapp: getWhatsAppBody
+})
+
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Send SMS',
   description: 'Send SMS using Twilio',
@@ -218,17 +281,30 @@ const action: ActionDefinition<Settings, Payload> = {
     }
   },
   perform: async (request, { settings, payload, statsContext }) => {
+    // Fallback to SMS if messageType is not included
+    const messageType = payload.messageType || 'sms'
     const statsClient = statsContext?.statsClient
     const tags = statsContext?.tags
     tags?.push(`space_id:${settings.spaceId}`, `projectid:${settings.sourceId}`)
 
-    const sendabilityPayload = getSendabilityPayload(payload, statsClient, tags)
-    let phone = sendabilityPayload.phone
+    if (messageType in messageBodyParsers === false) {
+      tags?.push('type:invalid_message_type')
+      statsClient?.incr('actions-personas-messaging-twilio.error', 1, tags)
+      throw new IntegrationError(
+        'The message type supplied is invalid. Message type must be sms or whatsapp.',
+        `INVALID_MESSAGE_TYPE`,
+        400
+      )
+    }
 
-    if (sendabilityPayload.sendabilityStatus !== SendabilityStatus.ShouldSend || !phone) {
+    const { phone, sendabilityStatus } = getSendabilityPayload(payload, statsClient, tags)
+
+    if (sendabilityStatus !== SendabilityStatus.ShouldSend || !phone) {
       return
     }
 
+    // TODO: GROW-259 remove this when we can extend the request
+    // and we no longer need to call the profiles API first
     let traits
     if (payload.traitEnrichment) {
       traits = payload?.traits ? payload?.traits : JSON.parse('{}')
@@ -242,45 +318,7 @@ const action: ActionDefinition<Settings, Payload> = {
       traits
     }
 
-    // TODO: GROW-259 remove this when we can extend the request
-    // and we no longer need to call the profiles API first
-    const token = Buffer.from(`${settings.twilioApiKeySID}:${settings.twilioApiKeySecret}`).toString('base64')
-    let parsedBody
-
-    try {
-      parsedBody = await Liquid.parseAndRender(payload.body, { profile })
-    } catch (error: unknown) {
-      throw new IntegrationError(`Unable to parse templating in SMS`, `SMS templating parse failure`, 400)
-    }
-
-    const externalIdValue = phone
-
-    if (payload.messageType === 'whatsapp') {
-      try {
-        // Defaulting to US for now as that's where most users will seemingly be. Though
-        // any number already given in e164 format should parse correctly even with the
-        // default region being US.
-        const parsedPhone = phoneUtil.parse(phone, 'US')
-        phone = phoneUtil.format(parsedPhone, PhoneNumberFormat.E164)
-        phone = `whatsapp:${phone}`
-      } catch (error: unknown) {
-        tags?.push('type:invalid_phone_e164')
-        statsClient?.incr('actions-personas-messaging-twilio.error', 1, tags)
-        throw new IntegrationError(
-          'The string supplied did not seem to be a phone number. Phone number must be able to be formatted to e164 for whatsapp.',
-          `INVALID_PHONE`,
-          400
-        )
-      }
-    }
-
-    const body = new URLSearchParams({
-      Body: parsedBody,
-      // Assuming this is in the right format for whatsapp.
-      // TODO: verify this payload.from doesnt have to be "whatsapp:<NUMBER>" if it does, is it already in that format?
-      From: payload.from,
-      To: phone
-    })
+    const body = await messageBodyParsers[messageType](request, payload, phone, profile, tags, statsClient)
 
     const webhookUrl = settings.webhookUrl
     const connectionOverrides = settings.connectionOverrides
@@ -288,7 +326,7 @@ const action: ActionDefinition<Settings, Payload> = {
       ...payload.customArgs,
       space_id: settings.spaceId,
       __segment_internal_external_id_key__: EXTERNAL_ID_KEY,
-      __segment_internal_external_id_value__: externalIdValue
+      __segment_internal_external_id_value__: phone
     }
 
     if (webhookUrl && customArgs) {
@@ -305,6 +343,7 @@ const action: ActionDefinition<Settings, Payload> = {
       body.append('StatusCallback', webhookUrlWithParams.toString())
     }
 
+    const token = Buffer.from(`${settings.twilioApiKeySID}:${settings.twilioApiKeySecret}`).toString('base64')
     const hostname = settings.twilioHostname ?? DEFAULT_HOSTNAME
     const response = await request(
       `https://${hostname}/2010-04-01/Accounts/${settings.twilioAccountSID}/Messages.json`,
