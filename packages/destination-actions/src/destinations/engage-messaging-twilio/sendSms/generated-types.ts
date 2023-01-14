@@ -6,6 +6,14 @@ export interface Payload {
    */
   messageType?: string
   /**
+   * Content SID for whatsApp
+   */
+  contentSid?: string
+  /**
+   * Content personalization variables for WhatsApp
+   */
+  contentVariables?: string
+  /**
    * User ID in Segment
    */
   userId: string
