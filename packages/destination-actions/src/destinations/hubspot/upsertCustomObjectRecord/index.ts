@@ -4,6 +4,7 @@ import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 import { HUBSPOT_BASE_URL } from '../properties'
 import { HubSpotError } from '../errors'
+import { flattenObject } from '../helperFunctions'
 
 interface ObjectSchema {
   labels: { singular: string; plural: string }
@@ -47,7 +48,7 @@ const action: ActionDefinition<Settings, Payload> = {
     return request(`${HUBSPOT_BASE_URL}/crm/v3/objects/${payload.objectType}`, {
       method: 'POST',
       json: {
-        properties: { ...payload.properties }
+        properties: flattenObject(payload.properties)
       }
     })
   }

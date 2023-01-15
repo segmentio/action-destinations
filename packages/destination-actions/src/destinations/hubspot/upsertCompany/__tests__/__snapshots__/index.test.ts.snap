@@ -3,18 +3,9 @@
 exports[`HubSpot.upsertCompany should create SEGMENT_UNIQUE_IDENTIFIER and create a company if SEGMENT_UNIQUE_IDENTIFIER property is not found 1`] = `
 Object {
   "properties": Object {
-    "address": undefined,
-    "city": undefined,
-    "description": undefined,
     "domain": "test-company.com",
-    "industry": undefined,
-    "lifecyclestage": undefined,
     "name": "Test Company",
-    "numberofemployees": undefined,
-    "phone": undefined,
     "segment_group_id": "test-group-id",
-    "state": undefined,
-    "zip": undefined,
   },
 }
 `;
@@ -47,18 +38,9 @@ Object {
 exports[`HubSpot.upsertCompany should create SEGMENT_UNIQUE_IDENTIFIER and create a company if SEGMENT_UNIQUE_IDENTIFIER property is not found 3`] = `
 Object {
   "properties": Object {
-    "address": undefined,
-    "city": undefined,
-    "description": undefined,
     "domain": "test-company.com",
-    "industry": undefined,
-    "lifecyclestage": undefined,
     "name": "Test Company",
-    "numberofemployees": undefined,
-    "phone": undefined,
     "segment_group_id": "test-group-id",
-    "state": undefined,
-    "zip": undefined,
   },
 }
 `;
@@ -81,18 +63,9 @@ Object {
 exports[`HubSpot.upsertCompany should create SEGMENT_UNIQUE_IDENTIFIER and create a company if SEGMENT_UNIQUE_IDENTIFIER property is not found 5`] = `
 Object {
   "properties": Object {
-    "address": undefined,
-    "city": undefined,
-    "description": undefined,
     "domain": "test-company.com",
-    "industry": undefined,
-    "lifecyclestage": undefined,
     "name": "Test Company",
-    "numberofemployees": undefined,
-    "phone": undefined,
     "segment_group_id": "test-group-id",
-    "state": undefined,
-    "zip": undefined,
   },
 }
 `;
@@ -102,18 +75,9 @@ exports[`HubSpot.upsertCompany should create SEGMENT_UNIQUE_IDENTIFIER and creat
 exports[`HubSpot.upsertCompany should create SEGMENT_UNIQUE_IDENTIFIER and update a company if SEGMENT_UNIQUE_IDENTIFIER property is not found 1`] = `
 Object {
   "properties": Object {
-    "address": undefined,
-    "city": undefined,
-    "description": undefined,
     "domain": "test-company.com",
-    "industry": undefined,
-    "lifecyclestage": undefined,
     "name": "Test Company",
-    "numberofemployees": undefined,
-    "phone": undefined,
     "segment_group_id": "test-group-id",
-    "state": undefined,
-    "zip": undefined,
   },
 }
 `;
@@ -146,18 +110,9 @@ Object {
 exports[`HubSpot.upsertCompany should create SEGMENT_UNIQUE_IDENTIFIER and update a company if SEGMENT_UNIQUE_IDENTIFIER property is not found 3`] = `
 Object {
   "properties": Object {
-    "address": undefined,
-    "city": undefined,
-    "description": undefined,
     "domain": "test-company.com",
-    "industry": undefined,
-    "lifecyclestage": undefined,
     "name": "Test Company",
-    "numberofemployees": undefined,
-    "phone": undefined,
     "segment_group_id": "test-group-id",
-    "state": undefined,
-    "zip": undefined,
   },
 }
 `;
@@ -180,18 +135,9 @@ Object {
 exports[`HubSpot.upsertCompany should create SEGMENT_UNIQUE_IDENTIFIER and update a company if SEGMENT_UNIQUE_IDENTIFIER property is not found 5`] = `
 Object {
   "properties": Object {
-    "address": undefined,
-    "city": undefined,
-    "description": undefined,
     "domain": "test-company.com",
-    "industry": undefined,
-    "lifecyclestage": undefined,
     "name": "Test Company",
-    "numberofemployees": undefined,
-    "phone": undefined,
     "segment_group_id": "test-group-id",
-    "state": undefined,
-    "zip": undefined,
   },
 }
 `;
@@ -201,18 +147,9 @@ exports[`HubSpot.upsertCompany should create SEGMENT_UNIQUE_IDENTIFIER and updat
 exports[`HubSpot.upsertCompany should create a company with and associate a contact 1`] = `
 Object {
   "properties": Object {
-    "address": undefined,
-    "city": undefined,
-    "description": undefined,
     "domain": "test-company.com",
-    "industry": undefined,
-    "lifecyclestage": undefined,
     "name": "Test Company",
-    "numberofemployees": undefined,
-    "phone": undefined,
     "segment_group_id": "test-group-id",
-    "state": undefined,
-    "zip": undefined,
   },
 }
 `;
@@ -245,18 +182,9 @@ Object {
 exports[`HubSpot.upsertCompany should create a company with and associate a contact 3`] = `
 Object {
   "properties": Object {
-    "address": undefined,
-    "city": undefined,
-    "description": undefined,
     "domain": "test-company.com",
-    "industry": undefined,
-    "lifecyclestage": undefined,
     "name": "Test Company",
-    "numberofemployees": undefined,
-    "phone": undefined,
     "segment_group_id": "test-group-id",
-    "state": undefined,
-    "zip": undefined,
   },
 }
 `;
@@ -266,18 +194,9 @@ exports[`HubSpot.upsertCompany should create a company with and associate a cont
 exports[`HubSpot.upsertCompany should not associate contact if associateContact flag is set to false 1`] = `
 Object {
   "properties": Object {
-    "address": undefined,
-    "city": undefined,
-    "description": undefined,
     "domain": "test-company.com",
-    "industry": undefined,
-    "lifecyclestage": undefined,
     "name": "Test Company",
-    "numberofemployees": undefined,
-    "phone": undefined,
     "segment_group_id": "test-group-id",
-    "state": undefined,
-    "zip": undefined,
   },
 }
 `;
@@ -285,18 +204,9 @@ Object {
 exports[`HubSpot.upsertCompany should skip creating a company if createNewCompany flag is set to false 1`] = `
 Object {
   "properties": Object {
-    "address": undefined,
-    "city": undefined,
-    "description": undefined,
     "domain": "test-company.com",
-    "industry": undefined,
-    "lifecyclestage": undefined,
     "name": "Test Company",
-    "numberofemployees": undefined,
-    "phone": undefined,
     "segment_group_id": "test-group-id",
-    "state": undefined,
-    "zip": undefined,
   },
 }
 `;
@@ -329,18 +239,9 @@ Object {
 exports[`HubSpot.upsertCompany should update a company with Company Search Fields and associate a contact 1`] = `
 Object {
   "properties": Object {
-    "address": undefined,
-    "city": undefined,
-    "description": undefined,
     "domain": "test-company.com",
-    "industry": undefined,
-    "lifecyclestage": undefined,
     "name": "Test Company",
-    "numberofemployees": undefined,
-    "phone": undefined,
     "segment_group_id": "test-group-id",
-    "state": undefined,
-    "zip": undefined,
   },
 }
 `;
@@ -373,18 +274,9 @@ Object {
 exports[`HubSpot.upsertCompany should update a company with Company Search Fields and associate a contact 3`] = `
 Object {
   "properties": Object {
-    "address": undefined,
-    "city": undefined,
-    "description": undefined,
     "domain": "test-company.com",
-    "industry": undefined,
-    "lifecyclestage": undefined,
     "name": "Test Company",
-    "numberofemployees": undefined,
-    "phone": undefined,
     "segment_group_id": "test-group-id",
-    "state": undefined,
-    "zip": undefined,
   },
 }
 `;
@@ -394,18 +286,9 @@ exports[`HubSpot.upsertCompany should update a company with Company Search Field
 exports[`HubSpot.upsertCompany should update a company with SEGMENT_UNIQUE_IDENTIFIER and associate a contact 1`] = `
 Object {
   "properties": Object {
-    "address": undefined,
-    "city": undefined,
-    "description": undefined,
     "domain": "test-company.com",
-    "industry": undefined,
-    "lifecyclestage": undefined,
     "name": "Test Company",
-    "numberofemployees": undefined,
-    "phone": undefined,
     "segment_group_id": "test-group-id",
-    "state": undefined,
-    "zip": undefined,
   },
 }
 `;
