@@ -15,7 +15,7 @@ describe('debounce', () => {
       api_key: 'b_123',
       endpoint: 'endpoint',
       doNotLoadFontAwesome: true,
-      sdkVersion: '3.3',
+      sdkVersion: '3.5',
       subscriptions: [
         {
           partnerAction: 'debounce',
@@ -45,7 +45,7 @@ describe('debounce', () => {
       api_key: 'b_123',
       endpoint: 'endpoint',
       doNotLoadFontAwesome: true,
-      sdkVersion: '3.3',
+      sdkVersion: '3.5',
       subscriptions: [
         {
           partnerAction: 'debounce',
@@ -75,7 +75,7 @@ describe('debounce', () => {
       api_key: 'b_123',
       endpoint: 'endpoint',
       doNotLoadFontAwesome: true,
-      sdkVersion: '3.3',
+      sdkVersion: '4.1',
       subscriptions: [
         {
           partnerAction: 'debounce',
@@ -101,7 +101,7 @@ describe('debounce', () => {
       api_key: 'b_123',
       endpoint: 'endpoint',
       doNotLoadFontAwesome: true,
-      sdkVersion: '3.3',
+      sdkVersion: '4.1',
       subscriptions: [
         {
           partnerAction: 'debounce',

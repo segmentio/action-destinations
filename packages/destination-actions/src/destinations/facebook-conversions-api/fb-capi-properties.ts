@@ -29,7 +29,8 @@ export const currency: InputField = {
 
 export const value: InputField = {
   label: 'Value',
-  description: 'A numeric value associated with this event. This could be a monetary value or a value in some other metric.',
+  description:
+    'A numeric value associated with this event. This could be a monetary value or a value in some other metric.',
   type: 'number'
 }
 
@@ -54,7 +55,8 @@ export const content_name: InputField = {
 
 export const content_type: InputField = {
   label: 'Content Type',
-  description: 'The content type should be set to product or product_group. See [Facebook documentation](https://developers.facebook.com/docs/marketing-api/conversions-api/parameters/custom-data) for more information.',
+  description:
+    'The content type should be set to product or product_group. See [Facebook documentation](https://developers.facebook.com/docs/marketing-api/conversions-api/parameters/custom-data) for more information.',
   type: 'string'
 }
 
@@ -89,6 +91,34 @@ export const contents: InputField = {
   }
 }
 
+export const data_processing_options: InputField = {
+  label: 'Data Processing Options',
+  description: `The Data Processing Options to send to Facebook. If set to true, Segment will send an array to Facebook indicating events should be processed with Limited Data Use (LDU) restrictions. More information can be found in [Facebook’s documentation](https://developers.facebook.com/docs/marketing-apis/data-processing-options).`,
+  type: 'boolean'
+}
+
+export const data_processing_options_country: InputField = {
+  label: 'Data Processing Country',
+  description:
+    'A country that you want to associate to the Data Processing Options. Accepted values are 1, for the United States of America, or 0, to request that Facebook geolocates the event using IP address. This is required if Data Processing Options is set to true. If nothing is provided, Segment will send 0.',
+  type: 'number',
+  choices: [
+    { label: 'Use Facebook’s Geolocation Logic', value: 0 },
+    { label: 'United States of America', value: 1 }
+  ]
+}
+
+export const data_processing_options_state: InputField = {
+  label: 'Data Processing State',
+  description:
+    'A state that you want to associate to the Data Processing Options. Accepted values are 1000, for California, or 0, to request that Facebook geolocates the event using IP address. This is required if Data Processing Options is set to true. If nothing is provided, Segment will send 0.',
+  type: 'number',
+  choices: [
+    { label: 'Use Facebook’s Geolocation Logic', value: 0 },
+    { label: 'California', value: 1000 }
+  ]
+}
+
 export const validateContents = (contents: Content[]): IntegrationError | false => {
   const valid_delivery_categories = ['in_store', 'curbside', 'home_delivery']
 
@@ -111,6 +141,22 @@ export const validateContents = (contents: Content[]): IntegrationError | false 
   return false
 }
 
+type DPOption = string[] | number
+
+export const dataProcessingOptions = (
+  data_processing_options: boolean | undefined,
+  countryOption: number | undefined,
+  stateOption: number | undefined
+): DPOption[] => {
+  if (data_processing_options) {
+    const data_options = ['LDU']
+    const country_code = countryOption ? countryOption : 0
+    const state_code = stateOption ? stateOption : 0
+    return [data_options, country_code, state_code]
+  }
+  return []
+}
+
 export const num_items: InputField = {
   label: 'Number of Items',
   description: 'The number of items when checkout was initiated.',
@@ -122,7 +168,8 @@ export const num_items: InputField = {
 
 export const event_time: InputField = {
   label: 'Event Time',
-  description: 'A Unix timestamp in seconds indicating when the actual event occurred. Facebook will automatically convert ISO 8601 timestamps to Unix.',
+  description:
+    'A Unix timestamp in seconds indicating when the actual event occurred. Facebook will automatically convert ISO 8601 timestamps to Unix.',
   type: 'string',
   default: {
     '@path': '$.timestamp'
@@ -131,7 +178,8 @@ export const event_time: InputField = {
 
 export const action_source: InputField = {
   label: 'Action Source',
-  description: 'This field allows you to specify where your conversions occurred. See [Facebook documentation](https://developers.facebook.com/docs/marketing-api/conversions-api/parameters/server-event) for supported values.',
+  description:
+    'This field allows you to specify where your conversions occurred. See [Facebook documentation](https://developers.facebook.com/docs/marketing-api/conversions-api/parameters/server-event) for supported values.',
   type: 'string'
 }
 

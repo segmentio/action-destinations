@@ -20,7 +20,20 @@ export interface Payload {
    */
   addAudienceIds?: number[]
   /**
-   * This runs rule engine in Talon.One upon updating customer profile. Set to true to trigger rules.
+   * This runs rule engine in Talon.One upon updating customer profile. Set to true to trigger rules. Setting this property to false improves response times. For audiences changes the runRuleEngine should be true. Default value is false.
    */
   runRuleEngine?: boolean
+  /**
+   * Use this field if you want to identify an attribute with a specific type
+   */
+  attributesInfo?: {
+    /**
+     * Attribute name
+     */
+    name: string
+    /**
+     * Attribute type. Can be only `string`, `time`, `number`, `boolean`, `location`
+     */
+    type: string
+  }[]
 }

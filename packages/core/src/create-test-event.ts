@@ -3,7 +3,7 @@ import type { SegmentEvent } from './segment-event'
 
 export function createTestEvent(event: Partial<SegmentEvent> = {}): SegmentEvent {
   return {
-    anonymousId: uuidv4(),
+    anonymousId: 'anonId1234',
     context: {
       ip: '8.8.8.8',
       library: {

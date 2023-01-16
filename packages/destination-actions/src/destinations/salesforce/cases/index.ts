@@ -7,7 +7,9 @@ import {
   customFields,
   operation,
   traits,
-  validateLookup
+  validateLookup,
+  enable_batching,
+  recordMatcherOperator
 } from '../sf-properties'
 import Salesforce from '../sf-operations'
 
@@ -15,9 +17,11 @@ const OBJECT_NAME = 'Case'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Case',
-  description: 'Represents a case, which is a customer issue or problem.',
+  description: 'Create, update, or upsert cases in Salesforce.',
   fields: {
     operation: operation,
+    recordMatcherOperator: recordMatcherOperator,
+    enable_batching: enable_batching,
     traits: traits,
     bulkUpsertExternalId: bulkUpsertExternalId,
     bulkUpdateRecordId: bulkUpdateRecordId,

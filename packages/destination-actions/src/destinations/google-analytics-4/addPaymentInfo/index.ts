@@ -2,7 +2,7 @@ import { ActionDefinition, IntegrationError } from '@segment/actions-core'
 import { ProductItem } from '../ga4-types'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
-import { verifyCurrency } from '../ga4-functions'
+import { verifyCurrency, verifyParams, verifyUserProps, convertTimestamp } from '../ga4-functions'
 import {
   user_id,
   formatUserProperties,
@@ -14,6 +14,7 @@ import {
   payment_type,
   items_multi_products,
   engagement_time_msec,
+  timestamp_micros,
   params
 } from '../ga4-properties'
 
@@ -24,6 +25,7 @@ const action: ActionDefinition<Settings, Payload> = {
   fields: {
     client_id: { ...client_id },
     user_id: { ...user_id },
+    timestamp_micros: { ...timestamp_micros },
     currency: { ...currency },
     value: { ...value },
     coupon: { ...coupon },
@@ -36,7 +38,7 @@ const action: ActionDefinition<Settings, Payload> = {
     engagement_time_msec: engagement_time_msec,
     params: params
   },
-  perform: (request, { payload }) => {
+  perform: (request, { payload, features }) => {
     // Google requires that `add_payment_info` events include an array of products: https://developers.google.com/analytics/devguides/collection/ga4/reference/events
     // This differs from the Segment spec, which doesn't require a products array: https://segment.com/docs/connections/spec/ecommerce/v2/#payment-info-entered
     if (payload.items && !payload.items.length) {
@@ -89,27 +91,38 @@ const action: ActionDefinition<Settings, Payload> = {
       })
     }
 
+    if (features && features['actions-google-analytics-4-verify-params-feature']) {
+      verifyParams(payload.params)
+      verifyUserProps(payload.user_properties)
+    }
+
+    const request_object: { [key: string]: any } = {
+      client_id: payload.client_id,
+      user_id: payload.user_id,
+      events: [
+        {
+          name: 'add_payment_info',
+          params: {
+            currency: payload.currency,
+            value: payload.value,
+            coupon: payload.coupon,
+            payment_type: payload.payment_type,
+            items: googleItems,
+            engagement_time_msec: payload.engagement_time_msec,
+            ...payload.params
+          }
+        }
+      ],
+      ...formatUserProperties(payload.user_properties)
+    }
+
+    if (features && features['actions-google-analytics-4-add-timestamp']) {
+      request_object.timestamp_micros = convertTimestamp(payload.timestamp_micros)
+    }
+
     return request('https://www.google-analytics.com/mp/collect', {
       method: 'POST',
-      json: {
-        client_id: payload.client_id,
-        user_id: payload.user_id,
-        events: [
-          {
-            name: 'add_payment_info',
-            params: {
-              currency: payload.currency,
-              value: payload.value,
-              coupon: payload.coupon,
-              payment_type: payload.payment_type,
-              items: googleItems,
-              engagement_time_msec: payload.engagement_time_msec,
-              ...payload.params
-            }
-          }
-        ],
-        ...formatUserProperties(payload.user_properties)
-      }
+      json: request_object
     })
   }
 }

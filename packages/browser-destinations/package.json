@@ -1,21 +1,24 @@
 {
   "name": "@segment/browser-destinations",
-  "version": "3.43.0",
+  "version": "3.70.0",
   "description": "Action based browser destinations",
   "author": "Netto Farah",
-  "private": true,
   "license": "MIT",
   "repository": {
     "type": "git",
     "url": "https://github.com/segmentio/action-destinations",
     "directory": "packages/browser-destinations"
   },
-  "main": "dist/index.js",
+  "exports": {
+    "import": "./dist/index.js",
+    "require": "./dist/cjs/index.js"
+  },
   "types": "dist/index.d.ts",
   "scripts": {
     "analyze": "NODE_ENV=production webpack --profile --json > stats.json && webpack-bundle-analyzer --port 4200 stats.json",
-    "build": "yarn clean && yarn build-ts && yarn build-web",
+    "build": "yarn clean && yarn build-ts && yarn build-cjs && yarn build-web",
     "build-ts": "yarn tsc -b tsconfig.build.json",
+    "build-cjs": "yarn tsc -p ./tsconfig.build.json -m commonjs --outDir ./dist/cjs/",
     "build-web": "NODE_ENV=production ASSET_ENV=production yarn webpack -c webpack.config.js",
     "build-web-stage": "NODE_ENV=production ASSET_ENV=stage yarn webpack -c webpack.config.js",
     "deploy-prod": "yarn build-web && aws s3 sync ./dist/web/ s3://segment-ajs-next-destinations-production/next-integrations/actions --grants read=id=$npm_config_prod_cdn_oai,id=$npm_config_prod_custom_domain_oai",
@@ -25,15 +28,17 @@
     "prepublishOnly": "yarn build",
     "test": "jest",
     "typecheck": "tsc -p tsconfig.build.json --noEmit",
-    "dev": "NODE_ENV=development concurrently \"webpack serve --open\" \"webpack -c webpack.config.js --watch\""
+    "dev": "NODE_ENV=development concurrently \"webpack serve\" \"webpack -c webpack.config.js --watch\""
   },
   "dependencies": {
-    "@braze/web-sdk": "^3.5.0",
+    "@braze/web-sdk": "npm:@braze/web-sdk@^4.1.0",
+    "@braze/web-sdk-v3": "npm:@braze/web-sdk@^3.5.1",
     "@fullstory/browser": "^1.4.9",
-    "@segment/actions-shared": "^1.10.0",
+    "@segment/actions-shared": "^1.30.0",
     "@segment/analytics-next": "^1.29.3",
-    "@segment/destination-subscriptions": "^3.11.0",
+    "@segment/destination-subscriptions": "^3.14.0",
     "dayjs": "^1.10.7",
+    "logrocket": "^3.0.1",
     "tslib": "^2.3.1",
     "vm-browserify": "^1.1.2"
   },
@@ -43,7 +48,7 @@
     "@babel/plugin-transform-modules-commonjs": "^7.13.8",
     "@babel/preset-env": "^7.13.10",
     "@babel/preset-typescript": "^7.13.0",
-    "@segment/actions-core": "^3.27.0",
+    "@segment/actions-core": "^3.48.0",
     "@types/amplitude-js": "^7.0.1",
     "@types/jest": "^27.0.0",
     "babel-jest": "^27.3.1",
@@ -77,7 +82,7 @@
       "^.+\\.[t|j]sx?$": "babel-jest"
     },
     "transformIgnorePatterns": [
-      "/node_modules/(?!@segment/analytics-next).+\\.js$"
+      "/node_modules/(?!(@segment/analytics-next|@braze/web-sdk/)).+\\.js$"
     ],
     "setupFilesAfterEnv": [
       "<rootDir>/test/setup-after-env.ts"

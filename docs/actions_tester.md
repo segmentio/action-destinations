@@ -10,9 +10,13 @@ You will also need a valid account on the Segment app (free tier is fine) which 
 
 ### Getting started
 
-Getting started with actions tester is quite easy. Simply type the following inside the folder where you have cloned the actions-destinations repository:
+Getting started with actions tester is quite easy. For cloud action destinations, simply type the following inside the folder where you have cloned the actions-destinations repository:
 
 `./bin/run serve`
+
+For web action destinations, use the following command instead:
+
+`./bin/run serve --directory ./packages/browser-destinations/src/destinations --browser`
 
 You may either select your new action destination via the command line menu, or optionally pass it via enviornment variable to skip that step.
 

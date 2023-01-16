@@ -4,6 +4,7 @@ import postToChannel from './postToChannel'
 
 const destination: DestinationDefinition<Settings> = {
   name: 'Slack',
+  slug: 'actions-slack',
   mode: 'cloud',
   actions: {
     postToChannel

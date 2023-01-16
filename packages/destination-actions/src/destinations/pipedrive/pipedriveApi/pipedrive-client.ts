@@ -20,13 +20,20 @@ const searchFieldMap: SearchFieldTypes = {
   organization: 'organizationField'
 }
 
+const searchFieldMapForDynamicFields = {
+  deal: 'dealFields',
+  person: 'personFields',
+  product: 'productFields',
+  organization: 'organizationFields'
+}
+
 interface PipedriveFieldTypes extends SearchFieldTypes {
   activity: 'activityFields'
   note: 'noteFields'
 }
 
-const pipedriveFieldMap: PipedriveFieldTypes = {
-  ...searchFieldMap,
+const pipedriveFieldMap = {
+  ...searchFieldMapForDynamicFields,
   activity: 'activityFields',
   note: 'noteFields'
 }
@@ -91,10 +98,8 @@ class PipedriveClient {
       value: f.key
     }))
     const record = {
-      body: {
-        data: fields,
-        pagination: {}
-      }
+      choices: fields,
+      pagination: {}
     }
     cachedFields[item] = record
     return record
@@ -110,10 +115,8 @@ class PipedriveClient {
       value: f.key_string
     }))
     const record = {
-      body: {
-        data: fields,
-        pagination: {}
-      }
+      choices: fields,
+      pagination: {}
     }
     return record
   }

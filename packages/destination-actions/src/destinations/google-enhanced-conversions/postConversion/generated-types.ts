@@ -34,6 +34,10 @@ export interface Payload {
    */
   is_app_incrementality?: boolean
   /**
+   * Alpha feature offered by Google for gaming industry. When set to true, Segment will send pcc_game = 1 to Google.
+   */
+  pcc_game?: boolean
+  /**
    * Phone number of the individual who triggered the conversion event, in E.164 standard format, e.g. +14150000000.
    */
   phone_number?: string

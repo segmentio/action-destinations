@@ -10,7 +10,7 @@ const action: ActionDefinition<Settings, Payload> = {
     identity: {
       label: 'Identity',
       type: 'string',
-      description: 'The ID used to uniquely identify a person in CleverTap',
+      description: 'The ID of the profile which you want to delete',
       default: {'@path': '$.userId'},
       required: true
     },

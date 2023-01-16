@@ -16,6 +16,7 @@ describe('GA4', () => {
       const event = createTestEvent({
         event: 'Cart Viewed',
         userId: 'abc123',
+        timestamp: '2022-06-22T22:20:58.905Z',
         anonymousId: 'anon-2134',
         type: 'track',
         properties: {
@@ -47,6 +48,7 @@ describe('GA4', () => {
           apiSecret,
           measurementId
         },
+        features: { 'actions-google-analytics-4-add-timestamp': true },
         mapping: {
           client_id: {
             '@path': '$.anonymousId'
@@ -62,7 +64,7 @@ describe('GA4', () => {
       })
 
       expect(responses[0].options.body).toMatchInlineSnapshot(
-        `"{\\"client_id\\":\\"anon-2134\\",\\"events\\":[{\\"name\\":\\"view_cart\\",\\"params\\":{\\"currency\\":\\"USD\\",\\"items\\":[{\\"item_id\\":\\"507f1f77bcf86cd799439011\\",\\"item_name\\":\\"Monopoly: 3rd Edition\\",\\"item_category\\":\\"Games\\",\\"price\\":19,\\"quantity\\":1}],\\"engagement_time_msec\\":1}}],\\"user_properties\\":{\\"hello\\":{\\"value\\":\\"world\\"},\\"a\\":{\\"value\\":\\"1\\"},\\"b\\":{\\"value\\":\\"2\\"},\\"c\\":{\\"value\\":\\"3\\"}}}"`
+        `"{\\"client_id\\":\\"anon-2134\\",\\"events\\":[{\\"name\\":\\"view_cart\\",\\"params\\":{\\"currency\\":\\"USD\\",\\"items\\":[{\\"item_id\\":\\"507f1f77bcf86cd799439011\\",\\"item_name\\":\\"Monopoly: 3rd Edition\\",\\"item_category\\":\\"Games\\",\\"price\\":19,\\"quantity\\":1}],\\"engagement_time_msec\\":1}}],\\"user_properties\\":{\\"hello\\":{\\"value\\":\\"world\\"},\\"a\\":{\\"value\\":\\"1\\"},\\"b\\":{\\"value\\":\\"2\\"},\\"c\\":{\\"value\\":\\"3\\"}},\\"timestamp_micros\\":1655936458905000}"`
       )
     })
 
@@ -74,6 +76,7 @@ describe('GA4', () => {
       const event = createTestEvent({
         event: 'Cart Viewed',
         userId: 'abc123',
+        timestamp: '2022-06-22T22:20:58.905Z',
         anonymousId: 'anon-2134',
         type: 'track',
         properties: {
@@ -94,9 +97,13 @@ describe('GA4', () => {
           apiSecret,
           measurementId
         },
+        features: { 'actions-google-analytics-4-add-timestamp': true },
         mapping: {
           client_id: {
             '@path': '$.anonymousId'
+          },
+          timestamp_micros: {
+            '@path': '$.timestamp'
           },
           engagement_time_msec: 2,
           items: [
@@ -139,7 +146,7 @@ describe('GA4', () => {
       `)
 
       expect(responses[0].options.body).toMatchInlineSnapshot(
-        `"{\\"client_id\\":\\"anon-2134\\",\\"events\\":[{\\"name\\":\\"view_cart\\",\\"params\\":{\\"items\\":[{\\"item_name\\":\\"Quadruple Stack Oreos, 52 ct\\",\\"item_id\\":\\"12345abcde\\",\\"currency\\":\\"USD\\",\\"price\\":12.99,\\"quantity\\":1}],\\"engagement_time_msec\\":2}}]}"`
+        `"{\\"client_id\\":\\"anon-2134\\",\\"events\\":[{\\"name\\":\\"view_cart\\",\\"params\\":{\\"items\\":[{\\"item_name\\":\\"Quadruple Stack Oreos, 52 ct\\",\\"item_id\\":\\"12345abcde\\",\\"currency\\":\\"USD\\",\\"price\\":12.99,\\"quantity\\":1}],\\"engagement_time_msec\\":2}}],\\"timestamp_micros\\":1655936458905000}"`
       )
     })
 
@@ -357,6 +364,127 @@ describe('GA4', () => {
         fail('the test should have thrown an error')
       } catch (e) {
         expect(e.message).toBe('One of item-level currency or top-level currency is required.')
+      }
+    })
+
+    it('should throw an error when params value is null', async () => {
+      nock('https://www.google-analytics.com/mp/collect')
+        .post(`?measurement_id=${measurementId}&api_secret=${apiSecret}`)
+        .reply(201, {})
+
+      const event = createTestEvent({
+        event: 'Cart Viewed',
+        userId: 'abc123',
+        anonymousId: 'anon-2134',
+        type: 'track',
+        properties: {
+          currency: 'USD',
+          promotion_id: 'promo_1',
+          creative: 'top_banner_2',
+          name: '75% store-wide shoe sale',
+          position: 'home_banner_top',
+          products: [
+            {
+              product_id: '507f1f77bcf86cd799439011',
+              sku: '45790-32',
+              name: 'Monopoly: 3rd Edition',
+              price: 19,
+              quantity: 1,
+              currency: 'USD',
+              category: 'Games',
+              promotion: 'SUPER SUMMER SALE; 3% off',
+              slot: '2',
+              promo_id: '12345',
+              creative_name: 'Sale'
+            }
+          ]
+        }
+      })
+      try {
+        await testDestination.testAction('viewCart', {
+          event,
+          settings: {
+            apiSecret,
+            measurementId
+          },
+          features: { 'actions-google-analytics-4-verify-params-feature': true },
+          mapping: {
+            client_id: {
+              '@path': '$.anonymousId'
+            },
+            params: {
+              test_value: null
+            }
+          },
+          useDefaultMappings: true
+        })
+        fail('the test should have thrown an error')
+      } catch (e) {
+        expect(e.message).toBe(
+          'Param [test_value] has unsupported value of type [NULL]. GA4 does not accept null, array, or object values for event parameters and item parameters.'
+        )
+      }
+    })
+
+    it('should throw an error when user_properties value is array', async () => {
+      nock('https://www.google-analytics.com/mp/collect')
+        .post(`?measurement_id=${measurementId}&api_secret=${apiSecret}`)
+        .reply(201, {})
+
+      const event = createTestEvent({
+        event: 'Cart Viewed',
+        userId: 'abc123',
+        anonymousId: 'anon-2134',
+        type: 'track',
+        properties: {
+          currency: 'USD',
+          promotion_id: 'promo_1',
+          creative: 'top_banner_2',
+          name: '75% store-wide shoe sale',
+          position: 'home_banner_top',
+          products: [
+            {
+              product_id: '507f1f77bcf86cd799439011',
+              sku: '45790-32',
+              name: 'Monopoly: 3rd Edition',
+              price: 19,
+              quantity: 1,
+              currency: 'USD',
+              category: 'Games',
+              promotion: 'SUPER SUMMER SALE; 3% off',
+              slot: '2',
+              promo_id: '12345',
+              creative_name: 'Sale'
+            }
+          ]
+        }
+      })
+      try {
+        await testDestination.testAction('viewCart', {
+          event,
+          settings: {
+            apiSecret,
+            measurementId
+          },
+          features: { 'actions-google-analytics-4-verify-params-feature': true },
+          mapping: {
+            client_id: {
+              '@path': '$.anonymousId'
+            },
+            user_properties: {
+              hello: ['World', 'world'],
+              a: '1',
+              b: '2',
+              c: '3'
+            }
+          },
+          useDefaultMappings: true
+        })
+        fail('the test should have thrown an error')
+      } catch (e) {
+        expect(e.message).toBe(
+          'Param [hello] has unsupported value of type [Array]. GA4 does not accept array or object values for user properties.'
+        )
       }
     })
   })

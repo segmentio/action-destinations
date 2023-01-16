@@ -15,6 +15,7 @@ describe('GA4', () => {
       const event = createTestEvent({
         event: 'Promotion Viewed',
         userId: '3456fff',
+        timestamp: '2022-06-22T22:20:58.905Z',
         anonymousId: 'anon-567890',
         type: 'track',
         properties: {
@@ -44,9 +45,13 @@ describe('GA4', () => {
           apiSecret,
           measurementId
         },
+        features: { 'actions-google-analytics-4-add-timestamp': true },
         mapping: {
           clientId: {
             '@path': '$.anonymousId'
+          },
+          timestamp_micros: {
+            '@path': '$.timestamp'
           },
           engagement_time_msec: 2,
           location_id: {
@@ -95,7 +100,7 @@ describe('GA4', () => {
       `)
 
       expect(responses[0].options.body).toMatchInlineSnapshot(
-        `"{\\"client_id\\":\\"3456fff\\",\\"events\\":[{\\"name\\":\\"view_promotion\\",\\"params\\":{\\"creative_slot\\":\\"top_banner_2\\",\\"location_id\\":\\"promo_1\\",\\"promotion_id\\":\\"promo_1\\",\\"promotion_name\\":\\"75% store-wide shoe sale\\",\\"items\\":[{\\"item_name\\":\\"Monopoly: 3rd Edition\\",\\"item_id\\":\\"507f1f77bcf86cd799439011\\",\\"promotion_name\\":\\"SUPER SUMMER SALE; 3% off\\",\\"creative_slot\\":\\"2\\",\\"promotion_id\\":\\"12345\\",\\"creative_name\\":\\"Sale\\"}],\\"engagement_time_msec\\":2}}]}"`
+        `"{\\"client_id\\":\\"3456fff\\",\\"events\\":[{\\"name\\":\\"view_promotion\\",\\"params\\":{\\"creative_slot\\":\\"top_banner_2\\",\\"location_id\\":\\"promo_1\\",\\"promotion_id\\":\\"promo_1\\",\\"promotion_name\\":\\"75% store-wide shoe sale\\",\\"items\\":[{\\"item_name\\":\\"Monopoly: 3rd Edition\\",\\"item_id\\":\\"507f1f77bcf86cd799439011\\",\\"promotion_name\\":\\"SUPER SUMMER SALE; 3% off\\",\\"creative_slot\\":\\"2\\",\\"promotion_id\\":\\"12345\\",\\"creative_name\\":\\"Sale\\"}],\\"engagement_time_msec\\":2}}],\\"timestamp_micros\\":1655936458905000}"`
       )
     })
 
@@ -106,6 +111,7 @@ describe('GA4', () => {
       const event = createTestEvent({
         event: 'Promotion Viewed',
         userId: '3456fff',
+        timestamp: '2022-06-22T22:20:58.905Z',
         anonymousId: 'anon-567890',
         type: 'track',
         properties: {
@@ -136,6 +142,7 @@ describe('GA4', () => {
           apiSecret,
           measurementId
         },
+        features: { 'actions-google-analytics-4-add-timestamp': true },
         mapping: {
           clientId: {
             '@path': '$.anonymousId'
@@ -190,7 +197,7 @@ describe('GA4', () => {
       `)
 
       expect(responses[0].options.body).toMatchInlineSnapshot(
-        `"{\\"client_id\\":\\"3456fff\\",\\"events\\":[{\\"name\\":\\"view_promotion\\",\\"params\\":{\\"creative_slot\\":\\"top_banner_2\\",\\"location_id\\":\\"promo_1\\",\\"promotion_id\\":\\"promo_1\\",\\"promotion_name\\":\\"75% store-wide shoe sale\\",\\"items\\":[{\\"item_name\\":\\"Monopoly: 3rd Edition\\",\\"item_id\\":\\"507f1f77bcf86cd799439011\\",\\"promotion_name\\":\\"SUPER SUMMER SALE; 3% off\\",\\"creative_slot\\":\\"2\\",\\"promotion_id\\":\\"12345\\",\\"creative_name\\":\\"Sale\\",\\"currency\\":\\"usd\\"}],\\"engagement_time_msec\\":2}}]}"`
+        `"{\\"client_id\\":\\"3456fff\\",\\"events\\":[{\\"name\\":\\"view_promotion\\",\\"params\\":{\\"creative_slot\\":\\"top_banner_2\\",\\"location_id\\":\\"promo_1\\",\\"promotion_id\\":\\"promo_1\\",\\"promotion_name\\":\\"75% store-wide shoe sale\\",\\"items\\":[{\\"item_name\\":\\"Monopoly: 3rd Edition\\",\\"item_id\\":\\"507f1f77bcf86cd799439011\\",\\"promotion_name\\":\\"SUPER SUMMER SALE; 3% off\\",\\"creative_slot\\":\\"2\\",\\"promotion_id\\":\\"12345\\",\\"creative_name\\":\\"Sale\\",\\"currency\\":\\"usd\\"}],\\"engagement_time_msec\\":2}}],\\"timestamp_micros\\":1655936458905000}"`
       )
     })
 
@@ -353,6 +360,7 @@ describe('GA4', () => {
       const event = createTestEvent({
         event: 'Promotion Viewed',
         userId: '3456fff',
+        timestamp: '2022-06-22T22:20:58.905Z',
         anonymousId: 'anon-567890',
         type: 'track',
         properties: {
@@ -383,6 +391,7 @@ describe('GA4', () => {
           apiSecret,
           measurementId
         },
+        features: { 'actions-google-analytics-4-add-timestamp': true },
         mapping: {
           user_properties: {
             hello: 'world',
@@ -423,8 +432,175 @@ describe('GA4', () => {
       })
 
       expect(responses[0].options.body).toMatchInlineSnapshot(
-        `"{\\"client_id\\":\\"3456fff\\",\\"events\\":[{\\"name\\":\\"view_promotion\\",\\"params\\":{\\"creative_slot\\":\\"top_banner_2\\",\\"location_id\\":\\"promo_1\\",\\"promotion_id\\":\\"promo_1\\",\\"promotion_name\\":\\"75% store-wide shoe sale\\",\\"items\\":[{\\"item_name\\":\\"Monopoly: 3rd Edition\\",\\"item_id\\":\\"507f1f77bcf86cd799439011\\",\\"promotion_name\\":\\"SUPER SUMMER SALE; 3% off\\",\\"creative_slot\\":\\"2\\",\\"promotion_id\\":\\"12345\\",\\"creative_name\\":\\"Sale\\"}],\\"engagement_time_msec\\":1}}],\\"user_properties\\":{\\"hello\\":{\\"value\\":\\"world\\"},\\"a\\":{\\"value\\":\\"1\\"},\\"b\\":{\\"value\\":\\"2\\"},\\"c\\":{\\"value\\":\\"3\\"}}}"`
+        `"{\\"client_id\\":\\"3456fff\\",\\"events\\":[{\\"name\\":\\"view_promotion\\",\\"params\\":{\\"creative_slot\\":\\"top_banner_2\\",\\"location_id\\":\\"promo_1\\",\\"promotion_id\\":\\"promo_1\\",\\"promotion_name\\":\\"75% store-wide shoe sale\\",\\"items\\":[{\\"item_name\\":\\"Monopoly: 3rd Edition\\",\\"item_id\\":\\"507f1f77bcf86cd799439011\\",\\"promotion_name\\":\\"SUPER SUMMER SALE; 3% off\\",\\"creative_slot\\":\\"2\\",\\"promotion_id\\":\\"12345\\",\\"creative_name\\":\\"Sale\\"}],\\"engagement_time_msec\\":1}}],\\"user_properties\\":{\\"hello\\":{\\"value\\":\\"world\\"},\\"a\\":{\\"value\\":\\"1\\"},\\"b\\":{\\"value\\":\\"2\\"},\\"c\\":{\\"value\\":\\"3\\"}},\\"timestamp_micros\\":1655936458905000}"`
       )
+    })
+
+    it('should throw an error when params value is null', async () => {
+      nock('https://www.google-analytics.com/mp/collect')
+        .post(`?measurement_id=${measurementId}&api_secret=${apiSecret}`)
+        .reply(201, {})
+      const event = createTestEvent({
+        event: 'Promotion Viewed',
+        userId: '3456fff',
+        anonymousId: 'anon-567890',
+        type: 'track',
+        properties: {
+          promotion_id: 'promo_1',
+          creative: 'top_banner_2',
+          name: '75% store-wide shoe sale',
+          position: 'home_banner_top',
+          products: [
+            {
+              product_id: '507f1f77bcf86cd799439011',
+              sku: '45790-32',
+              name: 'Monopoly: 3rd Edition',
+              price: 19,
+              quantity: 1,
+              category: 'Games',
+              promotion: 'SUPER SUMMER SALE; 3% off',
+              slot: '2',
+              promo_id: '12345',
+              creative_name: 'Sale'
+            }
+          ]
+        }
+      })
+
+      try {
+        await testDestination.testAction('viewPromotion', {
+          event,
+          settings: {
+            apiSecret,
+            measurementId
+          },
+          features: { 'actions-google-analytics-4-verify-params-feature': true },
+          mapping: {
+            params: {
+              test_value: null
+            },
+            clientId: {
+              '@path': '$.anonymousId'
+            },
+            location_id: {
+              '@path': '$.properties.promotion_id'
+            },
+            items: [
+              {
+                item_name: {
+                  '@path': `$.properties.products.0.name`
+                },
+                item_id: {
+                  '@path': `$.properties.products.0.product_id`
+                },
+                promotion_name: {
+                  '@path': `$.properties.products.0.promotion`
+                },
+                creative_slot: {
+                  '@path': `$.properties.products.0.slot`
+                },
+                promotion_id: {
+                  '@path': `$.properties.products.0.promo_id`
+                },
+                creative_name: {
+                  '@path': `$.properties.products.0.creative_name`
+                }
+              }
+            ]
+          },
+          useDefaultMappings: true
+        })
+        fail('the test should have thrown an error')
+      } catch (e) {
+        expect(e.message).toBe(
+          'Param [test_value] has unsupported value of type [NULL]. GA4 does not accept null, array, or object values for event parameters and item parameters.'
+        )
+      }
+    })
+
+    it('should throw an error when user_properties value is array', async () => {
+      nock('https://www.google-analytics.com/mp/collect')
+        .post(`?measurement_id=${measurementId}&api_secret=${apiSecret}`)
+        .reply(201, {})
+      const event = createTestEvent({
+        event: 'Promotion Viewed',
+        userId: '3456fff',
+        anonymousId: 'anon-567890',
+        type: 'track',
+        properties: {
+          promotion_id: 'promo_1',
+          creative: 'top_banner_2',
+          name: '75% store-wide shoe sale',
+          position: 'home_banner_top',
+          products: [
+            {
+              product_id: '507f1f77bcf86cd799439011',
+              sku: '45790-32',
+              name: 'Monopoly: 3rd Edition',
+              price: 19,
+              quantity: 1,
+              category: 'Games',
+              promotion: 'SUPER SUMMER SALE; 3% off',
+              slot: '2',
+              promo_id: '12345',
+              creative_name: 'Sale'
+            }
+          ]
+        }
+      })
+
+      try {
+        await testDestination.testAction('viewPromotion', {
+          event,
+          settings: {
+            apiSecret,
+            measurementId
+          },
+          features: { 'actions-google-analytics-4-verify-params-feature': true },
+          mapping: {
+            user_properties: {
+              hello: ['World', 'world'],
+              a: '1',
+              b: '2',
+              c: '3'
+            },
+            clientId: {
+              '@path': '$.anonymousId'
+            },
+            location_id: {
+              '@path': '$.properties.promotion_id'
+            },
+            items: [
+              {
+                item_name: {
+                  '@path': `$.properties.products.0.name`
+                },
+                item_id: {
+                  '@path': `$.properties.products.0.product_id`
+                },
+                promotion_name: {
+                  '@path': `$.properties.products.0.promotion`
+                },
+                creative_slot: {
+                  '@path': `$.properties.products.0.slot`
+                },
+                promotion_id: {
+                  '@path': `$.properties.products.0.promo_id`
+                },
+                creative_name: {
+                  '@path': `$.properties.products.0.creative_name`
+                }
+              }
+            ]
+          },
+          useDefaultMappings: true
+        })
+        fail('the test should have thrown an error')
+      } catch (e) {
+        expect(e.message).toBe(
+          'Param [hello] has unsupported value of type [Array]. GA4 does not accept array or object values for user properties.'
+        )
+      }
     })
   })
 })

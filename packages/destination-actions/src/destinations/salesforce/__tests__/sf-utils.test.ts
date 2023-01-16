@@ -6,7 +6,8 @@ describe('Salesforce Utils', () => {
     it('should correctly build a CSV from payloads with complete data', async () => {
       const completePayloads: GenericPayload[] = [
         {
-          operation: 'bulkUpsert',
+          operation: 'upsert',
+          enable_batching: true,
           bulkUpsertExternalId: {
             externalIdName: 'test__c',
             externalIdValue: '00'
@@ -16,7 +17,8 @@ describe('Salesforce Utils', () => {
           phone: '555-555-5555'
         },
         {
-          operation: 'bulkUpsert',
+          operation: 'upsert',
+          enable_batching: true,
           bulkUpsertExternalId: {
             externalIdName: 'test__c',
             externalIdValue: '01'
@@ -35,7 +37,8 @@ describe('Salesforce Utils', () => {
     it('should correctly build a CSV from payloads with incomplete data', async () => {
       const incompletePayloads: GenericPayload[] = [
         {
-          operation: 'bulkUpsert',
+          operation: 'upsert',
+          enable_batching: true,
           bulkUpsertExternalId: {
             externalIdName: 'test__c',
             externalIdValue: '00'
@@ -47,7 +50,8 @@ describe('Salesforce Utils', () => {
           }
         },
         {
-          operation: 'bulkUpsert',
+          operation: 'upsert',
+          enable_batching: true,
           bulkUpsertExternalId: {
             externalIdName: 'test__c',
             externalIdValue: '01'
@@ -56,7 +60,8 @@ describe('Salesforce Utils', () => {
           phone: '123-456-7890'
         },
         {
-          operation: 'bulkUpsert',
+          operation: 'upsert',
+          enable_batching: true,
           bulkUpsertExternalId: {
             externalIdName: 'test__c',
             externalIdValue: '11'
@@ -75,7 +80,8 @@ describe('Salesforce Utils', () => {
     it('should throw an error for invalid customFields', async () => {
       const invalidCustomFieldPayloads: GenericPayload[] = [
         {
-          operation: 'bulkUpsert',
+          operation: 'upsert',
+          enable_batching: true,
           traits: {
             externalIdFieldName: 'test__c',
             externalIdFieldValue: 'ab'
@@ -88,7 +94,8 @@ describe('Salesforce Utils', () => {
           }
         },
         {
-          operation: 'bulkUpsert',
+          operation: 'upsert',
+          enable_batching: true,
           traits: {
             externalIdFieldName: 'test__c',
             externalIdFieldValue: 'cd'
@@ -110,14 +117,16 @@ describe('Salesforce Utils', () => {
     it('should correctly build an update CSV', async () => {
       const updatePayloads: GenericPayload[] = [
         {
-          operation: 'bulkUpdate',
+          operation: 'update',
+          enable_batching: true,
           bulkUpdateRecordId: '00',
           name: 'SpongeBob Squarepants',
           phone: '1234567890',
           description: 'Krusty Krab'
         },
         {
-          operation: 'bulkUpdate',
+          operation: 'update',
+          enable_batching: true,
           bulkUpdateRecordId: '01',
           name: 'Squidward Tentacles',
           phone: '1234567891',
@@ -134,13 +143,15 @@ describe('Salesforce Utils', () => {
     it('should correctly build an update CSV with incomplete data', async () => {
       const incompleteUpdatePayloads: GenericPayload[] = [
         {
-          operation: 'bulkUpdate',
+          operation: 'update',
+          enable_batching: true,
           bulkUpdateRecordId: '00',
           name: 'SpongeBob Squarepants',
           phone: '1234567890'
         },
         {
-          operation: 'bulkUpdate',
+          operation: 'update',
+          enable_batching: true,
           bulkUpdateRecordId: '01',
           name: 'Squidward Tentacles',
           description: 'Krusty Krab'
@@ -150,6 +161,88 @@ describe('Salesforce Utils', () => {
       const csv = buildCSVData(incompleteUpdatePayloads, 'Id')
       const expected = `Name,Description,Phone,Id\n"SpongeBob Squarepants",#N/A,"1234567890","00"\n"Squidward Tentacles","Krusty Krab",#N/A,"01"\n`
 
+      expect(csv).toEqual(expected)
+    })
+
+    it('should handle null data correctly', async () => {
+      const nullPayloads: GenericPayload[] = [
+        {
+          operation: 'upsert',
+          enable_batching: true,
+          bulkUpsertExternalId: {
+            externalIdName: 'test__c',
+            externalIdValue: '00'
+          },
+          name: 'SpongeBob Squarepants',
+          description: undefined
+        },
+        {
+          operation: 'upsert',
+          enable_batching: true,
+          bulkUpsertExternalId: {
+            externalIdName: 'test__c',
+            externalIdValue: '01'
+          },
+          name: 'Squidward Tentacles',
+          description: undefined
+        }
+      ]
+
+      const csv = buildCSVData(nullPayloads, 'test__c')
+      const expected = `Name,Description,test__c\n"SpongeBob Squarepants",#N/A,"00"\n"Squidward Tentacles",#N/A,"01"\n`
+
+      expect(csv).toEqual(expected)
+    })
+
+    it('should correctly escape double quotes', async () => {
+      const updatePayloads: GenericPayload[] = [
+        {
+          operation: 'update',
+          enable_batching: true,
+          bulkUpdateRecordId: '00',
+          name: 'Sponge ""Bob"" "Square" "pants"'
+        },
+        {
+          operation: 'update',
+          enable_batching: true,
+          bulkUpdateRecordId: '01',
+          name: 'Tentacles, "Squidward"',
+          description:
+            'Squidward Tentacles is a fictional character in the American animated television series "SpongeBob SquarePants".\n He is voiced by actor Rodger Bumpass and first appeared on television in the series\' pilot episode on May 1, 1999.'
+        }
+      ]
+
+      const csv = buildCSVData(updatePayloads, 'Id')
+      const expected = `Name,Description,Id\n"Sponge """"Bob"""" ""Square"" ""pants""",#N/A,"00"\n"Tentacles, ""Squidward""","Squidward Tentacles is a fictional character in the American animated television series ""SpongeBob SquarePants"".\n He is voiced by actor Rodger Bumpass and first appeared on television in the series' pilot episode on May 1, 1999.","01"\n`
+      expect(csv).toEqual(expected)
+    })
+
+    it('should handle non-string data correctly', async () => {
+      const updatePayloads: GenericPayload[] = [
+        {
+          operation: 'update',
+          enable_batching: true,
+          bulkUpdateRecordId: '00',
+          name: 'Krusty Krab',
+          number_of_employees: 2,
+          customFields: {
+            sellsKrabbyPatties__c: true
+          }
+        },
+        {
+          operation: 'update',
+          enable_batching: true,
+          bulkUpdateRecordId: '01',
+          name: 'Chum Bucket',
+          number_of_employees: 1,
+          customFields: {
+            sellsKrabbyPatties__c: false
+          }
+        }
+      ]
+
+      const csv = buildCSVData(updatePayloads, 'Id')
+      const expected = `Name,NumberOfEmployees,sellsKrabbyPatties__c,Id\n"Krusty Krab","2","true","00"\n"Chum Bucket","1","false","01"\n`
       expect(csv).toEqual(expected)
     })
   })

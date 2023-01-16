@@ -12,11 +12,11 @@ export interface Payload {
   /**
    * The unique identifier of the user.
    */
-  user_id?: string
+  userId?: string
   /**
    * The unique identifier of the anonymous user.
    */
-  anonymous_id?: string
+  anonymousId?: string
   /**
    * The name of the mobile operating system or browser that the user is using.
    */

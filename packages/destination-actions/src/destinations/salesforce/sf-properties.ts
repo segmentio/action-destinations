@@ -10,10 +10,16 @@ export const operation: InputField = {
   choices: [
     { label: 'Create new record', value: 'create' },
     { label: 'Update existing record', value: 'update' },
-    { label: `Update or create a record if one doesn't exist`, value: 'upsert' },
-    { label: 'Bulk Upsert', value: 'bulkUpsert' },
-    { label: 'Bulk Update', value: 'bulkUpdate' }
+    { label: `Update or create a record if one doesn't exist`, value: 'upsert' }
   ]
+}
+
+export const enable_batching: InputField = {
+  label: 'Use Salesforce Bulk API',
+  description:
+    'If true, events are sent to [Salesforce’s Bulk API 2.0](https://developer.salesforce.com/docs/atlas.en-us.api_asynch.meta/api_asynch/asynch_api_intro.htm) rather than their streaming REST API. Once enabled, Segment will collect events into batches of 1000 before sending to Salesforce. *Enabling Bulk API is not compatible with the `create` operation*.',
+  type: 'boolean',
+  default: false
 }
 
 export const bulkUpsertExternalId: InputField = {
@@ -40,6 +46,20 @@ export const bulkUpdateRecordId: InputField = {
   label: 'Bulk Update Record Id',
   description: 'The record id value to use for bulk update.',
   type: 'string'
+}
+
+// Any actions configured before this field was added will have an undefined value for this field.
+// We default to the 'OR' when consuming this field if it is undefined.
+export const recordMatcherOperator: InputField = {
+  label: 'Record Matchers Operator',
+  description:
+    'This field affects how Segment uses the record matchers to query Salesforce records. By default, Segment uses the "OR" operator to query Salesforce for a record. If you would like to query Salesforce records using a combination of multiple record matchers, change this to "AND".',
+  type: 'string',
+  choices: [
+    { label: 'OR', value: 'OR' },
+    { label: 'AND', value: 'AND' }
+  ],
+  default: 'OR'
 }
 
 export const traits: InputField = {

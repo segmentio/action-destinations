@@ -2,10 +2,6 @@
 
 export interface Payload {
   /**
-   * When enabled, track revenue with each product within the event. When disabled, track total revenue once for the event.
-   */
-  trackRevenuePerProduct?: boolean
-  /**
    * A readable ID specified by you. Must have a minimum length of 5 characters. Required unless device ID is present. **Note:** If you send a request with a user ID that is not in the Amplitude system yet, then the user tied to that ID will not be marked new until their first event.
    */
   user_id?: string | null
@@ -179,6 +175,7 @@ export interface Payload {
      * The type of revenue for the item purchased. You must send a price and quantity or revenue with this field.
      */
     revenueType?: string
+    [k: string]: unknown
   }[]
   /**
    * If true, events are sent to Amplitude's `batch` endpoint rather than their `httpapi` events endpoint. Enabling this setting may help reduce 429s – or throttling errors – from Amplitude. More information about Amplitude's throttling is available in [their docs](https://developers.amplitude.com/docs/batch-event-upload-api#429s-in-depth).

@@ -1,0 +1,67 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Testing snapshot for actions-intercom destination: groupIdentifyContact action - all fields 1`] = `
+Object {
+  "query": Object {
+    "field": "external_id",
+    "operator": "=",
+    "value": "&c*y@t",
+  },
+}
+`;
+
+exports[`Testing snapshot for actions-intercom destination: groupIdentifyContact action - required fields 1`] = `
+Object {
+  "query": Object {
+    "field": "external_id",
+    "operator": "=",
+    "value": "&c*y@t",
+  },
+}
+`;
+
+exports[`Testing snapshot for actions-intercom destination: identifyContact action - all fields 1`] = `
+Object {
+  "query": Object {
+    "field": "external_id",
+    "operator": "=",
+    "value": "w4Cd)ds3Aa1uN",
+  },
+}
+`;
+
+exports[`Testing snapshot for actions-intercom destination: identifyContact action - required fields 1`] = `
+Object {
+  "query": Object {
+    "field": "external_id",
+    "operator": "=",
+    "value": "w4Cd)ds3Aa1uN",
+  },
+}
+`;
+
+exports[`Testing snapshot for actions-intercom destination: trackEvent action - all fields 1`] = `
+Object {
+  "created_at": 1612137600,
+  "email": "wuveska@faoh.jm",
+  "event_name": "LTimWPMaHwGcz)",
+  "id": "LTimWPMaHwGcz)",
+  "metadata": Object {
+    "price": Object {
+      "amount": 1670923425939456,
+      "currency": "SYP",
+    },
+    "testType": "LTimWPMaHwGcz)",
+  },
+  "user_id": "LTimWPMaHwGcz)",
+}
+`;
+
+exports[`Testing snapshot for actions-intercom destination: trackEvent action - required fields 1`] = `
+Object {
+  "created_at": 1612137600,
+  "event_name": "LTimWPMaHwGcz)",
+  "id": "LTimWPMaHwGcz)",
+  "user_id": "LTimWPMaHwGcz)",
+}
+`;

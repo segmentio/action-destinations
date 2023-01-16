@@ -1,18 +1,15 @@
 import nock from 'nock'
 import { createTestEvent, createTestIntegration } from '@segment/actions-core'
 import Webhook from '../index'
+import { createHmac, timingSafeEqual } from 'crypto'
 
 const testDestination = createTestIntegration(Webhook)
-const timestamp = new Date().toISOString()
 
 describe('Webhook', () => {
   describe('send', () => {
     it('should work with default mapping', async () => {
       const url = 'https://example.com'
-      const event = createTestEvent({
-        timestamp,
-        event: 'Test Event'
-      })
+      const event = createTestEvent()
 
       nock(url)
         .post('/', event as any)
@@ -32,10 +29,7 @@ describe('Webhook', () => {
 
     it('supports customizations', async () => {
       const url = 'https://example.build'
-      const event = createTestEvent({
-        timestamp,
-        event: 'Test Event'
-      })
+      const event = createTestEvent()
       const headerField = 'Custom-Header'
       const headerValue = 'Custom-Value'
       const data = { cool: true }
@@ -50,6 +44,52 @@ describe('Webhook', () => {
           headers: { [headerField]: headerValue },
           data
         }
+      })
+
+      expect(responses.length).toBe(1)
+      expect(responses[0].status).toBe(200)
+    })
+
+    it('supports request signing', async () => {
+      const url = 'https://example.com'
+      const event = createTestEvent({
+        properties: { cool: true }
+      })
+      const payload = JSON.stringify(event.properties)
+      const sharedSecret = 'abc123'
+
+      nock(url)
+        .post('/', payload)
+        .reply(async function (_uri, body) {
+          // Normally you should use the raw body but nock automatically
+          // deserializes it (and doesn't allow us to access the raw request
+          // body) so we re-serialize the body here so that we can demonstrate
+          // signture validation.
+          const bodyString = JSON.stringify(body)
+
+          // Validate the signature
+          const expectSignature = this.req.headers['x-signature'][0]
+          const actualSignature = createHmac('sha1', sharedSecret).update(bodyString).digest('hex')
+
+          // Use constant-time comparison to avoid timing attacks
+          if (
+            expectSignature.length !== actualSignature.length ||
+            !timingSafeEqual(Buffer.from(actualSignature, 'hex'), Buffer.from(expectSignature, 'hex'))
+          ) {
+            return [400, 'Invalid signature']
+          }
+
+          return [200, 'OK']
+        })
+
+      const responses = await testDestination.testAction('send', {
+        event,
+        mapping: {
+          url,
+          data: { '@path': '$.properties' }
+        },
+        settings: { sharedSecret },
+        useDefaultMappings: true
       })
 
       expect(responses.length).toBe(1)

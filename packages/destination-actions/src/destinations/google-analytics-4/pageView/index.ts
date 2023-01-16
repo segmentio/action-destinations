@@ -1,13 +1,15 @@
 import type { ActionDefinition } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
+import { verifyParams, verifyUserProps, convertTimestamp } from '../ga4-functions'
 import {
   formatUserProperties,
   user_properties,
   params,
   user_id,
   client_id,
-  engagement_time_msec
+  engagement_time_msec,
+  timestamp_micros
 } from '../ga4-properties'
 
 const action: ActionDefinition<Settings, Payload> = {
@@ -17,6 +19,7 @@ const action: ActionDefinition<Settings, Payload> = {
   fields: {
     clientId: { ...client_id },
     user_id: { ...user_id },
+    timestamp_micros: { ...timestamp_micros },
     page_location: {
       label: 'Page Location',
       type: 'string',
@@ -45,26 +48,35 @@ const action: ActionDefinition<Settings, Payload> = {
     engagement_time_msec: engagement_time_msec,
     params: params
   },
-  perform: (request, { payload }) => {
+  perform: (request, { payload, features }) => {
+    if (features && features['actions-google-analytics-4-verify-params-feature']) {
+      verifyParams(payload.params)
+      verifyUserProps(payload.user_properties)
+    }
+    const request_object: { [key: string]: any } = {
+      client_id: payload.clientId,
+      user_id: payload.user_id,
+      events: [
+        {
+          name: 'page_view',
+          params: {
+            page_location: payload.page_location,
+            page_referrer: payload.page_referrer,
+            page_title: payload.page_title,
+            engagement_time_msec: payload.engagement_time_msec,
+            ...payload.params
+          }
+        }
+      ],
+      ...formatUserProperties(payload.user_properties)
+    }
+
+    if (features && features['actions-google-analytics-4-add-timestamp']) {
+      request_object.timestamp_micros = convertTimestamp(payload.timestamp_micros)
+    }
     return request('https://www.google-analytics.com/mp/collect', {
       method: 'POST',
-      json: {
-        client_id: payload.clientId,
-        user_id: payload.user_id,
-        events: [
-          {
-            name: 'page_view',
-            params: {
-              page_location: payload.page_location,
-              page_referrer: payload.page_referrer,
-              page_title: payload.page_title,
-              engagement_time_msec: payload.engagement_time_msec,
-              ...payload.params
-            }
-          }
-        ],
-        ...formatUserProperties(payload.user_properties)
-      }
+      json: request_object
     })
   }
 }

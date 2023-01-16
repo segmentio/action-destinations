@@ -25,13 +25,11 @@ Object {
 
 exports[`Testing snapshot for ActionsMoengage's identifyUser destination action: required fields 1`] = `
 Object {
-  "anonymous_id": "UQmlPo5)xL",
   "context": Object {
     "app": Object {},
     "library": Object {},
     "os": Object {},
   },
   "type": "UQmlPo5)xL",
-  "user_id": "UQmlPo5)xL",
 }
 `;

@@ -2,19 +2,29 @@ import { IntegrationError, RequestClient } from '@segment/actions-core'
 import type { GenericPayload } from './sf-types'
 import { mapObjectToShape } from './sf-object-to-shape'
 import { buildCSVData } from './sf-utils'
+import { DynamicFieldResponse } from '@segment/actions-core'
 
 export const API_VERSION = 'v53.0'
 
 /**
- * This error is triggered if a batch of payloads arrives inside the performBatch handler
- * where the operation is not either bulkUpsert or bulkUpdate. This would occur if a user ever disables
- * the `enable_batching` setting on their action.
- * TODO: Automatically enable `enable_batching` for any action with a bulk operation.
- * https://segment.atlassian.net/browse/STRATCONN-1369
+ * This error is triggered if the bulkHandler is ever triggered when the enable_batching setting is false.
  */
 const throwBulkMismatchError = () => {
-  const errorMsg = 'Standard operation used with batching enabled.'
+  const errorMsg = 'Bulk operation triggered where enable_batching is false.'
   throw new IntegrationError(errorMsg, errorMsg, 400)
+}
+
+const validateSOQLOperator = (operator: string | undefined): SOQLOperator => {
+  if (operator !== undefined && operator !== 'OR' && operator !== 'AND') {
+    throw new IntegrationError(`Invalid SOQL operator - ${operator}`, 'Invalid SOQL operator', 400)
+  }
+
+  // 'OR' is the default operator. Therefore, when we encounter 'undefined' we will return 'OR'.
+  if (operator === undefined) {
+    return 'OR'
+  }
+
+  return operator
 }
 
 interface Records {
@@ -30,6 +40,30 @@ interface LookupResponseData {
 interface CreateJobResponseData {
   id: string
 }
+
+interface SObjectsResponseData {
+  sobjects: [
+    {
+      label: string
+      name: string
+      createable: boolean
+      queryable: boolean
+    }
+  ]
+}
+
+interface SalesforceError {
+  response: {
+    data: [
+      {
+        message?: string
+        errorCode?: string
+      }
+    ]
+  }
+}
+
+type SOQLOperator = 'OR' | 'AND'
 
 export default class Salesforce {
   instanceUrl: string
@@ -60,7 +94,8 @@ export default class Salesforce {
       return await this.baseUpdate(payload.traits['Id'] as string, sobject, payload)
     }
 
-    const [recordId, err] = await this.lookupTraits(payload.traits, sobject)
+    const soqlOperator: SOQLOperator = validateSOQLOperator(payload.recordMatcherOperator)
+    const [recordId, err] = await this.lookupTraits(payload.traits, sobject, soqlOperator)
 
     if (err) {
       throw err
@@ -74,7 +109,8 @@ export default class Salesforce {
       throw new IntegrationError('Undefined Traits when using upsert operation', 'Undefined Traits', 400)
     }
 
-    const [recordId, err] = await this.lookupTraits(payload.traits, sobject)
+    const soqlOperator: SOQLOperator = validateSOQLOperator(payload.recordMatcherOperator)
+    const [recordId, err] = await this.lookupTraits(payload.traits, sobject, soqlOperator)
 
     if (err) {
       if (err.status === 404) {
@@ -86,12 +122,54 @@ export default class Salesforce {
   }
 
   bulkHandler = async (payloads: GenericPayload[], sobject: string) => {
-    if (payloads[0].operation === 'bulkUpsert') {
-      return await this.bulkUpsert(payloads, sobject)
-    } else if (payloads[0].operation === 'bulkUpdate') {
-      return await this.bulkUpdate(payloads, sobject)
-    } else {
+    if (!payloads[0].enable_batching) {
       throwBulkMismatchError()
+    }
+
+    if (payloads[0].operation === 'upsert') {
+      return await this.bulkUpsert(payloads, sobject)
+    } else if (payloads[0].operation === 'update') {
+      return await this.bulkUpdate(payloads, sobject)
+    }
+
+    throw new IntegrationError(
+      `Unsupported operation: Bulk API does not support the create operation`,
+      'Unsupported operation',
+      400
+    )
+  }
+
+  customObjectName = async (): Promise<DynamicFieldResponse> => {
+    try {
+      const result = await this.request<SObjectsResponseData>(
+        `${this.instanceUrl}services/data/${API_VERSION}/sobjects`,
+        {
+          method: 'get',
+          skipResponseCloning: true
+        }
+      )
+
+      const fields = result.data.sobjects.filter((field) => {
+        return field.createable === true
+      })
+
+      const choices = fields.map((field) => {
+        return { value: field.name, label: field.label }
+      })
+
+      return {
+        choices: choices,
+        nextPage: '2'
+      }
+    } catch (err) {
+      return {
+        choices: [],
+        nextPage: '',
+        error: {
+          message: (err as SalesforceError).response?.data[0]?.message ?? 'Unknown error',
+          code: (err as SalesforceError).response?.data[0]?.errorCode ?? 'Unknown error'
+        }
+      }
     }
   }
 
@@ -222,7 +300,7 @@ export default class Salesforce {
     }
   }
 
-  private buildQuery = (traits: object, sobject: string) => {
+  private buildQuery = (traits: object, sobject: string, soqlOperator: SOQLOperator) => {
     let soql = `SELECT Id FROM ${sobject} WHERE `
 
     const entries = Object.entries(traits)
@@ -231,17 +309,22 @@ export default class Salesforce {
       let token = `${this.removeInvalidChars(key)} = ${this.typecast(value)}`
 
       if (i < entries.length - 1) {
-        token += ' OR '
+        token += ' ' + soqlOperator + ' '
       }
 
       soql += token
       i += 1
     }
+
     return soql
   }
 
-  private lookupTraits = async (traits: object, sobject: string): Promise<[string, IntegrationError | undefined]> => {
-    const SOQLQuery = encodeURIComponent(this.buildQuery(traits, sobject))
+  private lookupTraits = async (
+    traits: object,
+    sobject: string,
+    soqlOperator: SOQLOperator
+  ): Promise<[string, IntegrationError | undefined]> => {
+    const SOQLQuery = encodeURIComponent(this.buildQuery(traits, sobject, soqlOperator))
 
     const res = await this.request<LookupResponseData>(
       `${this.instanceUrl}services/data/${API_VERSION}/query/?q=${SOQLQuery}`,

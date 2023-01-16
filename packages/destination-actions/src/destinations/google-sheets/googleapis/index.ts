@@ -53,7 +53,7 @@ export class GoogleSheets {
 
   append = async (mappingSettings: MappingSettings, range: string, values: string[][]) => {
     return this.request(
-      `https://sheets.googleapis.com/${API_VERSION}/spreadsheets/${mappingSettings.spreadsheetId}/values/${mappingSettings.spreadsheetName}!${range}:append?valueInputOption=${mappingSettings.dataFormat}`,
+      `https://sheets.googleapis.com/${API_VERSION}/spreadsheets/${mappingSettings.spreadsheetId}/values/${mappingSettings.spreadsheetName}!${range}:append?valueInputOption=${mappingSettings.dataFormat}&insertDataOption=INSERT_ROWS`,
       {
         method: 'post',
         json: {

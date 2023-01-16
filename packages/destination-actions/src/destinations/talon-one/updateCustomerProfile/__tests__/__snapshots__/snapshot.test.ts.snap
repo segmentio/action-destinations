@@ -5,6 +5,12 @@ Object {
   "attributes": Object {
     "testType": "GSv&J8",
   },
+  "attributesInfo": Array [
+    Object {
+      "name": "GSv&J8",
+      "type": "GSv&J8",
+    },
+  ],
   "audiencesChanges": Object {
     "adds": Array [
       -7356410144751616,

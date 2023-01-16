@@ -1,10 +1,12 @@
 import { createTestEvent } from './create-test-event'
-import { Destination } from './destination-kit'
+import { StateContext, Destination, TransactionContext } from './destination-kit'
 import { mapValues } from './map-values'
-import type { DestinationDefinition } from './destination-kit'
+import type { DestinationDefinition, StatsContext, Logger } from './destination-kit'
 import type { JSONObject } from './json-object'
 import type { SegmentEvent } from './segment-event'
 import { AuthTokens } from './destination-kit/parse-settings'
+import { Features } from './mapping-kit'
+import { ExecuteDynamicFieldInput } from './destination-kit/action'
 
 interface InputData<Settings> {
   /**
@@ -30,6 +32,15 @@ interface InputData<Settings> {
    */
   useDefaultMappings?: boolean
   auth?: AuthTokens
+  /**
+   * The features available in the request based on the customer's sourceID;
+   * `features`, `stats`, `logger` , `transactionContext` and `stateContext` are for internal Twilio/Segment use only.
+   */
+  features?: Features
+  statsContext?: StatsContext
+  logger?: Logger
+  transactionContext?: TransactionContext
+  stateContext?: StateContext
 }
 
 class TestDestination<T> extends Destination<T> {
@@ -39,10 +50,25 @@ class TestDestination<T> extends Destination<T> {
     super(destination)
   }
 
+  async testDynamicField(action: string, fieldKey: string, data: ExecuteDynamicFieldInput<T, object>) {
+    return await super.executeDynamicField(action, fieldKey, data)
+  }
+
   /** Testing method that runs an action e2e while allowing slightly more flexible inputs */
   async testAction(
     action: string,
-    { event, mapping, settings, useDefaultMappings, auth }: InputData<T>
+    {
+      event,
+      mapping,
+      settings,
+      useDefaultMappings,
+      auth,
+      features,
+      statsContext,
+      logger,
+      transactionContext,
+      stateContext
+    }: InputData<T>
   ): Promise<Destination['responses']> {
     mapping = mapping ?? {}
 
@@ -56,7 +82,12 @@ class TestDestination<T> extends Destination<T> {
       event: createTestEvent(event),
       mapping,
       settings: settings ?? ({} as T),
-      auth
+      auth,
+      features: features ?? {},
+      statsContext: statsContext ?? ({} as StatsContext),
+      logger: logger ?? ({} as Logger),
+      transactionContext: transactionContext ?? ({} as TransactionContext),
+      stateContext: stateContext ?? ({} as StateContext)
     })
 
     const responses = this.responses
@@ -67,7 +98,18 @@ class TestDestination<T> extends Destination<T> {
 
   async testBatchAction(
     action: string,
-    { events, mapping, settings, useDefaultMappings, auth }: Omit<InputData<T>, 'event'> & { events?: SegmentEvent[] }
+    {
+      events,
+      mapping,
+      settings,
+      useDefaultMappings,
+      auth,
+      features,
+      statsContext,
+      logger,
+      transactionContext,
+      stateContext
+    }: Omit<InputData<T>, 'event'> & { events?: SegmentEvent[] }
   ): Promise<Destination['responses']> {
     mapping = mapping ?? {}
 
@@ -85,7 +127,12 @@ class TestDestination<T> extends Destination<T> {
       events: events.map((event) => createTestEvent(event)),
       mapping,
       settings: settings ?? ({} as T),
-      auth
+      auth,
+      features: features ?? {},
+      statsContext: statsContext ?? ({} as StatsContext),
+      logger: logger ?? ({} as Logger),
+      transactionContext: transactionContext ?? ({} as TransactionContext),
+      stateContext: stateContext ?? ({} as StateContext)
     })
 
     const responses = this.responses
