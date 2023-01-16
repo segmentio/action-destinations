@@ -23,7 +23,7 @@ export function flattenObject(obj: JSONObject) {
             try {
               return `Object(${JSON.stringify(item)})`
             } catch (e) {
-              return 'Object(non-serializable)'
+              return '[non-serializable]'
             }
           }
           return item
@@ -37,7 +37,7 @@ export function flattenObject(obj: JSONObject) {
       try {
         flattened[key] = `Object(${JSON.stringify(obj[key])})`
       } catch (e) {
-        flattened[key] = 'Object(non-serializable)'
+        flattened[key] = '[non-serializable]'
       }
       return
     }
