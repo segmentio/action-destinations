@@ -25,14 +25,17 @@ const action: ActionDefinition<Settings, Payload> = {
       type: 'string',
       required: true,
       default: {
-        '@path': '$.userId'
+        '@path': '$.groupId'
       }
     },
     name: {
       label: 'Organization Name',
       description: 'Name of the organization',
       type: 'string',
-      required: false
+      required: false,
+      default: {
+        '@path': '$.traits.name'
+      }
     },
     visible_to: {
       label: 'Visible To',
@@ -43,7 +46,10 @@ const action: ActionDefinition<Settings, Payload> = {
         { label: 'Owner & followers (private)', value: 1 },
         { label: 'Entire company (shared)', value: 3 }
       ],
-      required: false
+      required: false,
+      default: {
+        '@path': '$.traits.visible_to'
+      }
     },
     add_time: {
       label: 'Created At',
@@ -76,6 +82,8 @@ const action: ActionDefinition<Settings, Payload> = {
       add_time: payload.add_time ? `${payload.add_time}` : undefined,
       visible_to: payload.visible_to
     }
+
+    if (payload.match_field) Object.assign(organization, { [payload.match_field]: payload.match_value }) // write the organization external id to the root of the payload
 
     addCustomFieldsFromPayloadToEntity(payload, organization)
 

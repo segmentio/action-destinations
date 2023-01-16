@@ -28,13 +28,11 @@ export interface Payload {
   /**
    * Potential value of the lead
    */
-  value?: {
-    amount?: number
-    /**
-     * Three-letter code of the currency, e.g. USD
-     */
-    currency?: string
-  }
+  amount?: number
+  /**
+   * Three-letter code of the currency, e.g. USD
+   */
+  currency?: string
   /**
    * The date of when the Deal which will be created from the Lead is expected to be closed. In ISO 8601 format: YYYY-MM-DD.
    */

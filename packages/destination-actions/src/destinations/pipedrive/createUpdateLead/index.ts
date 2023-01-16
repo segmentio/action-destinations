@@ -2,7 +2,7 @@ import type { ActionDefinition } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 import PipedriveClient from '../pipedriveApi/pipedrive-client'
-import { createUpdateLead, Lead } from '../pipedriveApi/leads'
+import { createUpdateLead, Lead, LeadValue } from '../pipedriveApi/leads'
 import { IntegrationError } from '@segment/actions-core'
 import { addCustomFieldsFromPayloadToEntity } from '../utils'
 
@@ -17,7 +17,10 @@ const action: ActionDefinition<Settings, Payload> = {
       label: 'Lead ID',
       description: 'ID of Lead in Pipedrive to Update. If left empty, a new one will be created',
       type: 'integer',
-      required: false
+      required: false,
+      default: {
+        '@path': '$.userId'
+      }
     },
     person_match_field: {
       label: 'Person match field',
@@ -30,12 +33,8 @@ const action: ActionDefinition<Settings, Payload> = {
       label: 'Person match value',
       description: 'Value to find existing person by. Required unless organization_match_value present',
       type: 'string',
-      required: false,
-      default: {
-        '@path': '$.userId'
-      }
+      required: false
     },
-
     organization_match_field: {
       label: 'Organization match field',
       description: 'If present, used instead of field in settings to find existing organization in Pipedrive.',
@@ -49,30 +48,34 @@ const action: ActionDefinition<Settings, Payload> = {
       type: 'string',
       required: false,
       default: {
-        '@path': '$.userId'
+        '@path': '$.context.groupId'
       }
     },
-
     title: {
       label: 'Title',
       description: 'The name of the Lead',
       type: 'string',
-      required: true
+      required: true,
+      default: {
+        '@path': '$.properties.title'
+      }
     },
-    value: {
-      type: 'object',
-      label: 'Value',
+    amount: {
+      label: 'Amount',
       description: 'Potential value of the lead',
-      properties: {
-        amount: {
-          label: 'Amount',
-          type: 'number'
-        },
-        currency: {
-          label: 'Currency',
-          description: 'Three-letter code of the currency, e.g. USD',
-          type: 'string'
-        }
+      type: 'number',
+      required: false,
+      default: {
+        '@path': '$.properties.value'
+      }
+    },
+    currency: {
+      label: 'Currency',
+      description: 'Three-letter code of the currency, e.g. USD',
+      type: 'string',
+      required: false,
+      default: {
+        '@path': '$.properties.currency'
       }
     },
     expected_close_date: {
@@ -80,7 +83,10 @@ const action: ActionDefinition<Settings, Payload> = {
       description:
         'The date of when the Deal which will be created from the Lead is expected to be closed. In ISO 8601 format: YYYY-MM-DD.',
       type: 'string',
-      required: false
+      required: false,
+      default: {
+        '@path': '$.properties.expected_close_date'
+      }
     },
     visible_to: {
       label: 'Visible To',
@@ -91,7 +97,10 @@ const action: ActionDefinition<Settings, Payload> = {
         { label: 'Owner & followers (private)', value: 1 },
         { label: 'Entire company (shared)', value: 3 }
       ],
-      required: false
+      required: false,
+      default: {
+        '@path': '$.properties.visible_to'
+      }
     },
     add_time: {
       label: 'Created At',
@@ -123,6 +132,11 @@ const action: ActionDefinition<Settings, Payload> = {
       client.getId('organization', organizationSearchField, payload.organization_match_value)
     ])
 
+    const leadValue: LeadValue = {
+      amount: payload.amount,
+      currency: payload.currency
+    }
+
     const lead: Lead = {
       id: payload.lead_id,
       title: payload.title,
@@ -130,7 +144,7 @@ const action: ActionDefinition<Settings, Payload> = {
       visible_to: payload.visible_to,
       person_id: personId || undefined,
       organization_id: organizationId || undefined,
-      value: payload.value,
+      value: leadValue,
       add_time: payload.add_time ? `${payload.add_time}` : undefined
     }
 

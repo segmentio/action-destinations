@@ -32,21 +32,30 @@ const action: ActionDefinition<Settings, Payload> = {
       label: 'Person Name',
       description: 'Name of the person',
       type: 'string',
-      required: false
+      required: false,
+      default: {
+        '@path': '$.traits.name'
+      }
     },
     email: {
       label: 'Email Address',
       description: 'Email addresses for this person.',
       type: 'string',
       required: false,
-      multiple: true
+      multiple: true,
+      default: {
+        '@path': '$.traits.email'
+      }
     },
     phone: {
       label: 'Phone Number',
       description: 'Phone numbers for the person.',
       type: 'string',
       required: false,
-      multiple: true
+      multiple: true,
+      default: {
+        '@path': '$.traits.phone'
+      }
     },
     visible_to: {
       label: 'Visible To',
@@ -57,7 +66,10 @@ const action: ActionDefinition<Settings, Payload> = {
         { label: 'Owner & followers (private)', value: 1 },
         { label: 'Entire company (shared)', value: 3 }
       ],
-      required: false
+      required: false,
+      default: {
+        '@path': '$.traits.visible_to'
+      }
     },
     add_time: {
       label: 'Created At',
@@ -91,6 +103,8 @@ const action: ActionDefinition<Settings, Payload> = {
       add_time: payload.add_time ? `${payload.add_time}` : undefined,
       visible_to: payload.visible_to
     }
+
+    if (payload.match_field) Object.assign(person, { custom_fields: { [payload.match_field]: payload.match_value } }) // write the person external id to the custom_fields object in the payload
 
     addCustomFieldsFromPayloadToEntity(payload, person)
 
