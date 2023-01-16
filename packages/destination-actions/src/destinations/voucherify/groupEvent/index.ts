@@ -1,7 +1,7 @@
 import { ActionDefinition } from '@segment/actions-core'
 import { Settings } from '../generated-types'
 import { Payload } from './generated-types'
-import { setVoucherifyRequestURL } from '../utils'
+import { setVoucherifyRequestURL } from '../url-provider'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Group Event',

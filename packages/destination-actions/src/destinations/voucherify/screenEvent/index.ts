@@ -1,6 +1,6 @@
 import type { ActionDefinition } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
-import { setVoucherifyRequestURL } from '../utils'
+import { getVoucherifyEndpointURL } from '../url-provider'
 import type { Payload } from './generated-types'
 
 const action: ActionDefinition<Settings, Payload> = {
@@ -55,7 +55,7 @@ const action: ActionDefinition<Settings, Payload> = {
   },
 
   perform: (request, { settings, payload }) => {
-    const voucherifyRequestURL = setVoucherifyRequestURL(settings, 'event')
+    const voucherifyRequestURL = getVoucherifyEndpointURL(settings, 'event')
     return request(voucherifyRequestURL, {
       method: 'post',
       json: payload

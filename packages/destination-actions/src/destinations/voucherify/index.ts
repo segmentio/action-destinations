@@ -6,6 +6,7 @@ import trackEvent from './trackEvent'
 import pageEvent from './pageEvent'
 import screenEvent from './screenEvent'
 import groupEvent from './groupEvent'
+import { validateURL } from './url-validator'
 
 const destination: DestinationDefinition<Settings> = {
   name: 'Voucherify (Actions)',
@@ -42,18 +43,7 @@ const destination: DestinationDefinition<Settings> = {
       throw new Error('The request is missing Application ID or Secret Key.')
     }
 
-    if (settings.customURL) {
-      const urlRegEx =
-        /^https?:\/\/(?:www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b(?:[-a-zA-Z0-9()@:%_\+.~#?&\/=]*)$/
-      const regExMatcher = new RegExp(urlRegEx)
-      const isCustomURLValid = typeof settings.customURL === 'string' && regExMatcher.test(settings.customURL)
-
-      if (!isCustomURLValid) {
-        throw new Error(
-          `The Custom URL: ${settings.customURL} is invalid. It probably lacks the HTTP/HTTPS protocol or has an incorrect format.`
-        )
-      }
-    }
+    validateURL(settings)
 
     return {
       headers: {

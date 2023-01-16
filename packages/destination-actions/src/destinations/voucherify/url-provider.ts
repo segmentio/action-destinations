@@ -1,6 +1,6 @@
 import type { Settings } from './generated-types'
 
-export const setVoucherifyRequestURL = (settings: Settings, eventType: string) => {
+export const getVoucherifyEndpointURL = (settings: Settings, eventType: string) => {
   let voucherifyRequestURL: string
 
   if (settings.customURL) {
