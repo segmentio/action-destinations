@@ -18,27 +18,14 @@ export function flattenObject(obj: JSONObject) {
     // Flatten if item is an array
     if (obj[key] instanceof Array) {
       flattened[key] = (obj[key] as Array<unknown>)
-        .map((item: unknown) => {
-          if (typeof item === 'object') {
-            try {
-              return `Object(${JSON.stringify(item)})`
-            } catch (e) {
-              return '[non-serializable]'
-            }
-          }
-          return item
-        })
+        .map((item: unknown) => (typeof item === 'object' ? JSON.stringify(item) : item))
         .join(';')
       return
     }
 
     // Flatten if item is an object
     if (typeof obj[key] === 'object') {
-      try {
-        flattened[key] = `Object(${JSON.stringify(obj[key])})`
-      } catch (e) {
-        flattened[key] = '[non-serializable]'
-      }
+      flattened[key] = JSON.stringify(obj[key])
       return
     }
 
