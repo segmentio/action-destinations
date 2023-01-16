@@ -280,7 +280,7 @@ const action: ActionDefinition<Settings, Payload> = {
       industry: payload.industry,
       lifecyclestage: payload.lifecyclestage?.toLocaleLowerCase(),
       [SEGMENT_UNIQUE_IDENTIFIER]: payload.groupid,
-      ...payload.properties
+      ...flattenObject(payload.properties)
     }
 
     // Store Company ID in parent scope
@@ -424,7 +424,7 @@ function createCompany(request: RequestClient, properties: { [key: string]: unkn
   return request<UpsertCompanyResponse>(`${HUBSPOT_BASE_URL}/crm/v3/objects/companies`, {
     method: 'POST',
     json: {
-      properties: flattenObject(properties)
+      properties: properties
     }
   })
 }
@@ -452,7 +452,7 @@ function updateCompany(
   return request<UpsertCompanyResponse>(updateCompanyURL, {
     method: 'PATCH',
     json: {
-      properties: flattenObject(properties)
+      properties: properties
     }
   })
 }
