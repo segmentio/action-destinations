@@ -5,12 +5,12 @@ const testDestination = createTestIntegration(Definition)
 
 describe('Google Analytics 4', () => {
   describe('testAuthentication', () => {
-    it('should not throw error when Measurement ID is provided but Firebase App ID is provided', async () => {
+    it('should not throw error when Measurement ID is provided but Firebase App ID is not provided', async () => {
       await expect(
         testDestination.testAuthentication({ apiSecret: 'apiSecret', measurementId: 'G-M12312' })
       ).resolves.not.toThrowError()
     })
-    it('should not throw error when Firebase App ID is provided but Measurement ID is provided', async () => {
+    it('should not throw error when Firebase App ID is provided but Measurement ID is not provided', async () => {
       await expect(
         testDestination.testAuthentication({ apiSecret: 'apiSecret', firebaseAppId: 'G:android:M12312' })
       ).resolves.not.toThrowError()
