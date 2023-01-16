@@ -4,7 +4,6 @@ import type { Payload } from './generated-types'
 import PipedriveClient from '../pipedriveApi/pipedrive-client'
 import { createUpdateLead, Lead, LeadValue } from '../pipedriveApi/leads'
 import { IntegrationError } from '@segment/actions-core'
-import { addCustomFieldsFromPayloadToEntity } from '../utils'
 
 const fieldHandler = PipedriveClient.fieldHandler
 
@@ -107,13 +106,6 @@ const action: ActionDefinition<Settings, Payload> = {
       description: 'If the lead is created, use this timestamp as the creation timestamp. Format: YYY-MM-DD HH:MM:SS',
       type: 'datetime',
       required: false
-    },
-
-    custom_fields: {
-      label: 'Custom fields',
-      description: 'New values for custom fields.',
-      type: 'object',
-      required: false
     }
   },
 
@@ -155,8 +147,6 @@ const action: ActionDefinition<Settings, Payload> = {
         400
       )
     }
-
-    addCustomFieldsFromPayloadToEntity(payload, lead)
 
     return createUpdateLead(client, lead)
   }

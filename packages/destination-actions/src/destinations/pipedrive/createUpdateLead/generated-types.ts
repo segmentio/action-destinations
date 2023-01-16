@@ -45,10 +45,4 @@ export interface Payload {
    * If the lead is created, use this timestamp as the creation timestamp. Format: YYY-MM-DD HH:MM:SS
    */
   add_time?: string | number
-  /**
-   * New values for custom fields.
-   */
-  custom_fields?: {
-    [k: string]: unknown
-  }
 }
