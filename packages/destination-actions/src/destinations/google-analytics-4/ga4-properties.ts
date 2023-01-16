@@ -100,7 +100,7 @@ export const affiliation: InputField = {
 
 export const client_id: InputField = {
   label: 'Client ID',
-  description: 'Uniquely identifies a user instance of a web client.',
+  description: 'Uniquely identifies a user instance of a web client. **Required for web streams.**',
   type: 'string',
   required: false,
   default: {
@@ -115,7 +115,7 @@ export const client_id: InputField = {
 export const app_instance_id: InputField = {
   label: 'Firebase App Instance ID',
   description:
-    'Uniquely identifies a specific installation of a Firebase app. This value needs to be retrieved through the Firebase SDK. Required for mobile app streams.',
+    'Uniquely identifies a specific installation of a Firebase app. This value needs to be retrieved through the Firebase SDK. **Required for mobile app streams.**',
   type: 'string',
   required: false
 }

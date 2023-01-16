@@ -6,11 +6,11 @@ export interface Payload {
    */
   data_stream_type: string
   /**
-   * Uniquely identifies a specific installation of a Firebase app. This value needs to be retrieved through the Firebase SDK. Required for mobile app streams.
+   * Uniquely identifies a specific installation of a Firebase app. This value needs to be retrieved through the Firebase SDK. **Required for mobile app streams.**
    */
   app_instance_id?: string
   /**
-   * Uniquely identifies a user instance of a web client.
+   * Uniquely identifies a user instance of a web client. **Required for web streams.**
    */
   clientId?: string
   /**

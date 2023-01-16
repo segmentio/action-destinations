@@ -33,14 +33,14 @@ const destination: DestinationDefinition<Settings> = {
       measurementId: {
         label: 'Measurement ID',
         description:
-          'The Measurement ID associated with a stream. Required for web streams. Found in the Google Analytics UI under: Admin > Data Streams > choose your stream > Measurement ID.',
+          'The Measurement ID associated with a stream. Found in the Google Analytics UI under: Admin > Data Streams > choose your stream > Measurement ID. **Required for web streams.**',
         type: 'string',
         required: false
       },
       firebaseAppId: {
         label: 'Firebase App ID',
         description:
-          'The Firebase App ID associated with the Firebase app. Required for mobile app streams. Found in the Firebase console under: Project Settings > General > Your Apps > App ID.',
+          'The Firebase App ID associated with the Firebase app. Found in the Firebase console under: Project Settings > General > Your Apps > App ID. **Required for mobile app streams.**',
         type: 'string',
         required: false
       },

@@ -542,7 +542,7 @@ describe('GA4', () => {
       ).rejects.toThrowError('Measurement ID is required for web streams')
     })
 
-    it('should throw error when data stream type is web and client_is is not provided', async () => {
+    it('should throw error when data stream type is web and client_id is not provided', async () => {
       await expect(
         testDestination.testAction('removeFromCart', {
           event: testEvent,
