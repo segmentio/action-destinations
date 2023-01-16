@@ -9,7 +9,7 @@ import { addCustomFieldsFromPayloadToEntity } from '../utils'
 const fieldHandler = PipedriveClient.fieldHandler
 
 const action: ActionDefinition<Settings, Payload> = {
-  title: 'Upsert Deal',
+  title: 'Upsert a Deal',
   description: "Update a Deal in Pipedrive or create it if it doesn't exist yet.",
   defaultSubscription: 'type = "track" and event == "Upsert Deal"',
   fields: {
@@ -26,7 +26,7 @@ const action: ActionDefinition<Settings, Payload> = {
       type: 'string',
       required: false,
       default: {
-        '@path': '$.properties.external_deal_id'
+        '@path': '$.properties.deal_id'
       }
     },
     person_match_field: {

@@ -57,7 +57,6 @@ const action: ActionDefinition<Settings, Payload> = {
         'If the organization is created, use this timestamp as the creation timestamp. Format: YYY-MM-DD HH:MM:SS',
       type: 'datetime'
     },
-
     custom_fields: {
       label: 'Custom fields',
       description: 'New values for custom fields.',

@@ -23,9 +23,12 @@ const action: ActionDefinition<Settings, Payload> = {
     },
     lead_id: {
       label: 'Lead ID',
-      description: 'ID of Lead in Pipedrive to link to.  One of Lead, Person, Organization or Deal must be linked!',
-      type: 'integer',
-      required: false
+      description: 'ID of Lead in Pipedrive to link to. One of Lead, Person, Organization or Deal must be linked!',
+      type: 'string',
+      required: false,
+      default: {
+        '@path': '$.properties.lead_id'
+      }
     },
     person_match_field: {
       label: 'Person match field',
@@ -43,7 +46,6 @@ const action: ActionDefinition<Settings, Payload> = {
         '@path': '$.userId'
       }
     },
-
     organization_match_field: {
       label: 'Organization match field',
       description: 'If present, used instead of field in settings to find existing organization in Pipedrive.',
@@ -57,10 +59,9 @@ const action: ActionDefinition<Settings, Payload> = {
       type: 'string',
       required: false,
       default: {
-        '@path': '$.userId'
+        '@path': '$.context.groupId'
       }
     },
-
     deal_match_field: {
       label: 'Deal match field',
       description: 'If present, used instead of field in settings to find existing deal in Pipedrive.',
@@ -74,15 +75,17 @@ const action: ActionDefinition<Settings, Payload> = {
       type: 'string',
       required: false,
       default: {
-        '@path': '$.userId'
+        '@path': '$.properties.deal_id'
       }
     },
-
     content: {
       label: 'Note Content',
-      description: 'Content of the note in HTML format. Subject to sanitization on the back-end.',
+      description: 'Content of the note in text or HTML format. Subject to sanitization on the back-end.',
       type: 'string',
-      required: true
+      required: true,
+      default: {
+        '@path': '$.properties.content'
+      }
     }
   },
 

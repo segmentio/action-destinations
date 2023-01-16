@@ -8,9 +8,9 @@ import { IntegrationError } from '@segment/actions-core'
 const fieldHandler = PipedriveClient.fieldHandler
 
 const action: ActionDefinition<Settings, Payload> = {
-  title: 'Create or Update a Lead',
+  title: 'Upsert Lead',
   description: "Update a Lead in Pipedrive or create it if it doesn't exist yet.",
-  defaultSubscription: 'type = "identify"',
+  defaultSubscription: '',
   fields: {
     lead_id: {
       label: 'Lead ID',
@@ -18,7 +18,11 @@ const action: ActionDefinition<Settings, Payload> = {
       type: 'string',
       required: false,
       default: {
-        '@path': '$.userId'
+        '@if': {
+          exists: { '@path': '$.traits.lead_id' },
+          then: { '@path': '$.traits.lead_id' },
+          else: { '@path': '$.properties.lead_id' }
+        }
       }
     },
     person_match_field: {
@@ -32,7 +36,10 @@ const action: ActionDefinition<Settings, Payload> = {
       label: 'Person match value',
       description: 'Value to find existing person by. Required unless organization_match_value present',
       type: 'string',
-      required: false
+      required: false,
+      default: {
+        '@path': '$.userId'
+      }
     },
     organization_match_field: {
       label: 'Organization match field',
@@ -56,7 +63,11 @@ const action: ActionDefinition<Settings, Payload> = {
       type: 'string',
       required: true,
       default: {
-        '@path': '$.traits.title'
+        '@if': {
+          exists: { '@path': '$.traits.title' },
+          then: { '@path': '$.traits.title' },
+          else: { '@path': '$.properties.title' }
+        }
       }
     },
     amount: {
@@ -65,7 +76,11 @@ const action: ActionDefinition<Settings, Payload> = {
       type: 'number',
       required: false,
       default: {
-        '@path': '$.traits.amount'
+        '@if': {
+          exists: { '@path': '$.traits.amount' },
+          then: { '@path': '$.traits.amount' },
+          else: { '@path': '$.properties.amount' }
+        }
       }
     },
     currency: {
@@ -74,7 +89,11 @@ const action: ActionDefinition<Settings, Payload> = {
       type: 'string',
       required: false,
       default: {
-        '@path': '$.traits.currency'
+        '@if': {
+          exists: { '@path': '$.traits.currency' },
+          then: { '@path': '$.traits.currency' },
+          else: { '@path': '$.properties.currency' }
+        }
       }
     },
     expected_close_date: {
@@ -84,7 +103,11 @@ const action: ActionDefinition<Settings, Payload> = {
       type: 'string',
       required: false,
       default: {
-        '@path': '$.traits.expected_close_date'
+        '@if': {
+          exists: { '@path': '$.traits.expected_close_date' },
+          then: { '@path': '$.traits.expected_close_date' },
+          else: { '@path': '$.properties.expected_close_date' }
+        }
       }
     },
     visible_to: {
@@ -98,7 +121,11 @@ const action: ActionDefinition<Settings, Payload> = {
       ],
       required: false,
       default: {
-        '@path': '$.traits.visible_to'
+        '@if': {
+          exists: { '@path': '$.traits.visible_to' },
+          then: { '@path': '$.traits.visible_to' },
+          else: { '@path': '$.properties.visible_to' }
+        }
       }
     },
     add_time: {
