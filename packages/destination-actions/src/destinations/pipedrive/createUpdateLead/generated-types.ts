@@ -4,7 +4,7 @@ export interface Payload {
   /**
    * ID of Lead in Pipedrive to Update. If left empty, a new one will be created
    */
-  lead_id?: number
+  lead_id?: string
   /**
    * If present, used instead of field in settings to find existing person in Pipedrive.
    */

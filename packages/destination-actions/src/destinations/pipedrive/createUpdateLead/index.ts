@@ -16,7 +16,7 @@ const action: ActionDefinition<Settings, Payload> = {
     lead_id: {
       label: 'Lead ID',
       description: 'ID of Lead in Pipedrive to Update. If left empty, a new one will be created',
-      type: 'integer',
+      type: 'string',
       required: false,
       default: {
         '@path': '$.userId'
@@ -57,7 +57,7 @@ const action: ActionDefinition<Settings, Payload> = {
       type: 'string',
       required: true,
       default: {
-        '@path': '$.properties.title'
+        '@path': '$.traits.title'
       }
     },
     amount: {
@@ -66,7 +66,7 @@ const action: ActionDefinition<Settings, Payload> = {
       type: 'number',
       required: false,
       default: {
-        '@path': '$.properties.value'
+        '@path': '$.traits.amount'
       }
     },
     currency: {
@@ -75,7 +75,7 @@ const action: ActionDefinition<Settings, Payload> = {
       type: 'string',
       required: false,
       default: {
-        '@path': '$.properties.currency'
+        '@path': '$.traits.currency'
       }
     },
     expected_close_date: {
@@ -85,7 +85,7 @@ const action: ActionDefinition<Settings, Payload> = {
       type: 'string',
       required: false,
       default: {
-        '@path': '$.properties.expected_close_date'
+        '@path': '$.traits.expected_close_date'
       }
     },
     visible_to: {
@@ -99,7 +99,7 @@ const action: ActionDefinition<Settings, Payload> = {
       ],
       required: false,
       default: {
-        '@path': '$.properties.visible_to'
+        '@path': '$.traits.visible_to'
       }
     },
     add_time: {
@@ -144,7 +144,7 @@ const action: ActionDefinition<Settings, Payload> = {
       visible_to: payload.visible_to,
       person_id: personId || undefined,
       organization_id: organizationId || undefined,
-      value: leadValue,
+      value: payload.amount && payload.currency ? leadValue : undefined,
       add_time: payload.add_time ? `${payload.add_time}` : undefined
     }
 
