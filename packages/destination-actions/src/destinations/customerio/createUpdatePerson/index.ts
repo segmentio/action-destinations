@@ -112,7 +112,7 @@ const action: ActionDefinition<Settings, Payload> = {
     if (objectId) {
       body.cio_relationships = {
         action: 'add_relationships',
-        relationships: [{ identifiers: { type_id: objectTypeId ?? '1', id: objectId } }]
+        relationships: [{ identifiers: { object_type_id: objectTypeId ?? '1', object_id: objectId } }]
       }
     }
 
