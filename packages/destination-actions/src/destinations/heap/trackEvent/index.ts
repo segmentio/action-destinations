@@ -3,20 +3,29 @@ import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 import dayjs from '../../../lib/dayjs'
 import { HEAP_SEGMENT_LIBRARY_NAME } from '../constants'
-import { getHeapUserId } from '../userIdHash'
 import { flat } from '../flat'
+import { getUserIdentifier } from '../heapUtils'
 import { IntegrationError } from '@segment/actions-core'
 
 type HeapEvent = {
-  app_id: string
-  identity?: string
-  user_id?: number
   event: string
-  properties: {
+  timestamp?: string
+  idempotency_key: string
+  properties?: {
     [k: string]: unknown
   }
-  idempotency_key: string
-  timestamp?: string
+  custom_roperties?: {
+    [k: string]: unknown
+  }
+  user_identifier?: {
+    [k: string]: string
+  }
+}
+
+type IntegrationsTrackPayload = {
+  app_id: string
+  events: Array<HeapEvent>
+  library: string
 }
 
 const action: ActionDefinition<Settings, Payload> = {
@@ -96,31 +105,30 @@ const action: ActionDefinition<Settings, Payload> = {
       throw new IntegrationError('Either anonymous user id or identity should be specified.')
     }
 
-    const defaultEventProperties = { segment_library: payload.library_name || HEAP_SEGMENT_LIBRARY_NAME }
-    const flatten = flat(payload.properties || {})
-    const eventProperties = Object.assign(defaultEventProperties, flatten)
+    const standardProperties = { segment_library: payload.library_name || HEAP_SEGMENT_LIBRARY_NAME }
+    const flattenedProperties = flat(payload.properties || {})
     const event: HeapEvent = {
-      app_id: settings.appId,
       event: payload.event,
-      properties: eventProperties,
+      custom_roperties: flattenedProperties,
+      properties: standardProperties,
       idempotency_key: payload.message_id
     }
 
-    if (payload.anonymous_id && !payload.identity) {
-      event.user_id = getHeapUserId(payload.anonymous_id)
-    }
-
-    if (payload.identity) {
-      event.identity = payload.identity
-    }
+    event.user_identifier = getUserIdentifier({ identity: payload.identity, anonymous_id: payload.anonymous_id })
 
     if (payload.timestamp && dayjs.utc(payload.timestamp).isValid()) {
       event.timestamp = dayjs.utc(payload.timestamp).toISOString()
     }
 
-    return request('https://heapanalytics.com/api/track', {
+    const payLoad: IntegrationsTrackPayload = {
+      app_id: settings.appId,
+      events: [event],
+      library: 'segment-cloud'
+    }
+
+    return request('https://heapanalytics.com/api/integrations/track', {
       method: 'post',
-      json: event
+      json: payLoad
     })
   }
 }
