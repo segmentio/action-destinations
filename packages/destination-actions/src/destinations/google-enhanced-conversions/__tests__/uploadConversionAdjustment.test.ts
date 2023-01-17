@@ -19,6 +19,8 @@ describe('GoogleEnhancedConversions', () => {
           phone: '1234567890',
           firstName: 'Jane',
           lastName: 'Doe',
+          currency: 'USD',
+          value: '123',
           address: {
             street: '123 Street SW',
             city: 'San Diego',
@@ -30,15 +32,25 @@ describe('GoogleEnhancedConversions', () => {
 
       nock(`https://googleads.googleapis.com/v11/customers/${customerId}:uploadConversionAdjustments`)
         .post('')
-        .reply(201, { partialFailureError: { code: 0, message: '' }, results: [{}] })
+        .reply(201, { results: [{}] })
 
       const responses = await testDestination.testAction('uploadConversionAdjustment', {
         event,
         mapping: {
-          gclid: '123a',
+          gclid: {
+            '@path': '$.properties.gclid'
+          },
           conversion_action: '12345',
-          adjustment_type: 'UNSPECIFIED',
-          conversion_timestamp: timestamp
+          adjustment_type: 'ENHANCEMENT',
+          conversion_timestamp: {
+            '@path': '$.timestamp'
+          },
+          restatement_value: {
+            '@path': '$.properties.value'
+          },
+          restatement_currency_code: {
+            '@path': '$.properties.currency'
+          }
         },
         useDefaultMappings: true,
         settings: {
@@ -47,7 +59,7 @@ describe('GoogleEnhancedConversions', () => {
       })
 
       expect(responses[0].options.body).toMatchInlineSnapshot(
-        `"{\\"conversionAdjustments\\":[{\\"conversionAction\\":\\"customers/1234/conversionActions/12345\\",\\"adjustmentType\\":\\"UNSPECIFIED\\",\\"adjustmentDateTime\\":\\"2021-06-10 18:08:04+00:00\\",\\"orderId\\":\\"1234\\",\\"gclidDateTimePair\\":{\\"gclid\\":\\"123a\\",\\"conversionDateTime\\":\\"2021-06-10 18:08:04+00:00\\"},\\"restatementValue\\":{},\\"userIdentifiers\\":[{\\"hashedEmail\\":\\"87924606b4131a8aceeeae8868531fbb9712aaa07a5d3a756b26ce0f5d6ca674\\"},{\\"hashedPhoneNumber\\":\\"c775e7b757ede630cd0aa1113bd102661ab38829ca52a6422ab782862f268646\\"},{\\"addressInfo\\":{\\"hashedFirstName\\":\\"4f23798d92708359b734a18172c9c864f1d48044a754115a0d4b843bca3a5332\\",\\"hashedLastName\\":\\"fd53ef835b15485572a6e82cf470dcb41fd218ae5751ab7531c956a2a6bcd3c7\\"}}],\\"userAgent\\":\\"Mozilla/5.0 (iPhone; CPU iPhone OS 9_1 like Mac OS X) AppleWebKit/601.1.46 (KHTML, like Gecko) Version/9.0 Mobile/13B143 Safari/601.1\\"}],\\"partialFailure\\":true}"`
+        `"{\\"conversionAdjustments\\":[{\\"conversionAction\\":\\"customers/1234/conversionActions/12345\\",\\"adjustmentType\\":\\"ENHANCEMENT\\",\\"adjustmentDateTime\\":\\"2021-06-10 18:08:04+00:00\\",\\"orderId\\":\\"1234\\",\\"gclidDateTimePair\\":{\\"gclid\\":\\"54321\\",\\"conversionDateTime\\":\\"2021-06-10 18:08:04+00:00\\"},\\"userIdentifiers\\":[{\\"hashedEmail\\":\\"87924606b4131a8aceeeae8868531fbb9712aaa07a5d3a756b26ce0f5d6ca674\\"},{\\"hashedPhoneNumber\\":\\"c775e7b757ede630cd0aa1113bd102661ab38829ca52a6422ab782862f268646\\"},{\\"addressInfo\\":{\\"hashedFirstName\\":\\"4f23798d92708359b734a18172c9c864f1d48044a754115a0d4b843bca3a5332\\",\\"hashedLastName\\":\\"fd53ef835b15485572a6e82cf470dcb41fd218ae5751ab7531c956a2a6bcd3c7\\"}}],\\"userAgent\\":\\"Mozilla/5.0 (iPhone; CPU iPhone OS 9_1 like Mac OS X) AppleWebKit/601.1.46 (KHTML, like Gecko) Version/9.0 Mobile/13B143 Safari/601.1\\",\\"restatementValue\\":{\\"adjustedValue\\":123,\\"currencyCode\\":\\"USD\\"}}],\\"partialFailure\\":true}"`
       )
 
       expect(responses.length).toBe(1)
@@ -67,12 +79,12 @@ describe('GoogleEnhancedConversions', () => {
 
       nock(`https://googleads.googleapis.com/v11/customers/${customerId}:uploadConversionAdjustments`)
         .post('')
-        .reply(201, { partialFailureError: { code: 0, message: '' }, results: [{}] })
+        .reply(201, { results: [{}] })
 
       try {
         await testDestination.testAction('uploadConversionAdjustment', {
           event,
-          mapping: { gclid: '123a', conversion_action: '12345', adjustment_type: 'UNSPECIFIED' },
+          mapping: { gclid: '123a', conversion_action: '12345', adjustment_type: 'ENHANCEMENT' },
           useDefaultMappings: true,
           settings: {}
         })
@@ -82,125 +94,86 @@ describe('GoogleEnhancedConversions', () => {
       }
     })
 
-    it('fails if conversion_type is enhancement and orderid not set', async () => {
+    it('sends restatement_value for restatements', async () => {
       const event = createTestEvent({
         timestamp,
         event: 'Test Event',
         properties: {
           email: 'test@gmail.com',
-          phone: '1234567890'
+          phone: '1234567890',
+          value: '123',
+          currency: 'USD'
         }
       })
 
       nock(`https://googleads.googleapis.com/v11/customers/${customerId}:uploadConversionAdjustments`)
         .post('')
-        .reply(201, { partialFailureError: { code: 0, message: '' }, results: [{}] })
+        .reply(201, { results: [{}] })
 
-      try {
-        await testDestination.testAction('uploadConversionAdjustment', {
-          event,
-          mapping: { gclid: '123a', conversion_action: '12345', adjustment_type: 'ENHANCEMENT' },
-          useDefaultMappings: true,
-          settings: {
-            customerId
-          }
-        })
-        fail('the test should have thrown an error')
-      } catch (e) {
-        expect(e.message).toBe('Order ID required for enhancements')
-      }
-    })
-
-    it('fails if conversion_type is not enhancement and gclid not set', async () => {
-      const event = createTestEvent({
-        timestamp,
-        event: 'Test Event',
-        properties: {
-          email: 'test@gmail.com',
-          phone: '1234567890'
-        }
-      })
-
-      nock(`https://googleads.googleapis.com/v11/customers/${customerId}:uploadConversionAdjustments`)
-        .post('')
-        .reply(201, { partialFailureError: { code: 0, message: '' }, results: [{}] })
-
-      try {
-        await testDestination.testAction('uploadConversionAdjustment', {
-          event,
-          mapping: { conversion_action: '12345', adjustment_type: 'UNKNOWN' },
-          useDefaultMappings: true,
-          settings: {
-            customerId
-          }
-        })
-        fail('the test should have thrown an error')
-      } catch (e) {
-        expect(e.message).toBe('GCLID and conversion timestamp required for chosen conversion type')
-      }
-    })
-
-    it('fails if conversion_type is not enhancement and conversion_timestamp not set', async () => {
-      const event = createTestEvent({
-        timestamp,
-        event: 'Test Event',
-        properties: {
-          email: 'test@gmail.com',
-          phone: '1234567890'
-        }
-      })
-
-      nock(`https://googleads.googleapis.com/v11/customers/${customerId}:uploadConversionAdjustments`)
-        .post('')
-        .reply(201, { partialFailureError: { code: 0, message: '' }, results: [{}] })
-
-      try {
-        await testDestination.testAction('uploadConversionAdjustment', {
-          event,
-          mapping: { gclid: '123a', conversion_action: '12345', adjustment_type: 'RETRACTION' },
-          useDefaultMappings: true,
-          settings: {
-            customerId
-          }
-        })
-        fail('the test should have thrown an error')
-      } catch (e) {
-        expect(e.message).toBe('GCLID and conversion timestamp required for chosen conversion type')
-      }
-    })
-
-    it('fails if conversion_type is not restatement and restatement_value not set', async () => {
-      const event = createTestEvent({
-        timestamp,
-        event: 'Test Event',
-        properties: {
-          email: 'test@gmail.com',
-          phone: '1234567890'
-        }
-      })
-
-      nock(`https://googleads.googleapis.com/v11/customers/${customerId}:uploadConversionAdjustments`)
-        .post('')
-        .reply(201, { partialFailureError: { code: 0, message: '' }, results: [{}] })
-
-      try {
-        await testDestination.testAction('uploadConversionAdjustment', {
-          event,
-          mapping: {
-            gclid: '123a',
-            conversion_action: '12345',
-            adjustment_type: 'RESTATEMENT',
-            conversion_timestamp: timestamp
+      const responses = await testDestination.testAction('uploadConversionAdjustment', {
+        event,
+        mapping: {
+          gclid: '123a',
+          conversion_action: '12345',
+          adjustment_type: 'RESTATEMENT',
+          conversion_timestamp: {
+            '@path': '$.timestamp'
           },
-          useDefaultMappings: true,
-          settings: {
-            customerId
+          restatement_value: {
+            '@path': '$.properties.value'
+          },
+          restatement_currency_code: {
+            '@path': '$.properties.currency'
           }
-        })
-        fail('the test should have thrown an error')
-      } catch (e) {
-        expect(e.message).toBe('Restatement value required for restatements')
-      }
+        },
+        useDefaultMappings: true,
+        settings: {
+          customerId
+        }
+      })
+
+      expect(responses[0].options.body).toMatchInlineSnapshot(
+        `"{\\"conversionAdjustments\\":[{\\"conversionAction\\":\\"customers/1234/conversionActions/12345\\",\\"adjustmentType\\":\\"RESTATEMENT\\",\\"adjustmentDateTime\\":\\"2021-06-10 18:08:04+00:00\\",\\"gclidDateTimePair\\":{\\"gclid\\":\\"123a\\",\\"conversionDateTime\\":\\"2021-06-10 18:08:04+00:00\\"},\\"userIdentifiers\\":[{\\"hashedEmail\\":\\"87924606b4131a8aceeeae8868531fbb9712aaa07a5d3a756b26ce0f5d6ca674\\"},{\\"hashedPhoneNumber\\":\\"c775e7b757ede630cd0aa1113bd102661ab38829ca52a6422ab782862f268646\\"}],\\"userAgent\\":\\"Mozilla/5.0 (iPhone; CPU iPhone OS 9_1 like Mac OS X) AppleWebKit/601.1.46 (KHTML, like Gecko) Version/9.0 Mobile/13B143 Safari/601.1\\",\\"restatementValue\\":{\\"adjustedValue\\":123,\\"currencyCode\\":\\"USD\\"}}],\\"partialFailure\\":true}"`
+      )
+
+      expect(responses.length).toBe(1)
+      expect(responses[0].status).toBe(201)
+    })
+
+    it('does not send restatement_value for retractions', async () => {
+      const event = createTestEvent({
+        timestamp,
+        event: 'Test Event',
+        properties: {
+          email: 'test@gmail.com',
+          phone: '1234567890'
+        }
+      })
+
+      nock(`https://googleads.googleapis.com/v11/customers/${customerId}:uploadConversionAdjustments`)
+        .post('')
+        .reply(201, { results: [{}] })
+
+      const responses = await testDestination.testAction('uploadConversionAdjustment', {
+        event,
+        mapping: {
+          gclid: '123a',
+          conversion_action: '12345',
+          adjustment_type: 'RETRACTION',
+          conversion_timestamp: timestamp
+        },
+        useDefaultMappings: true,
+        settings: {
+          customerId
+        }
+      })
+
+      expect(responses[0].options.body).toMatchInlineSnapshot(
+        `"{\\"conversionAdjustments\\":[{\\"conversionAction\\":\\"customers/1234/conversionActions/12345\\",\\"adjustmentType\\":\\"RETRACTION\\",\\"adjustmentDateTime\\":\\"2021-06-10 18:08:04+00:00\\",\\"gclidDateTimePair\\":{\\"gclid\\":\\"123a\\",\\"conversionDateTime\\":\\"2021-06-10 18:08:04+00:00\\"},\\"userIdentifiers\\":[{\\"hashedEmail\\":\\"87924606b4131a8aceeeae8868531fbb9712aaa07a5d3a756b26ce0f5d6ca674\\"},{\\"hashedPhoneNumber\\":\\"c775e7b757ede630cd0aa1113bd102661ab38829ca52a6422ab782862f268646\\"}],\\"userAgent\\":\\"Mozilla/5.0 (iPhone; CPU iPhone OS 9_1 like Mac OS X) AppleWebKit/601.1.46 (KHTML, like Gecko) Version/9.0 Mobile/13B143 Safari/601.1\\"}],\\"partialFailure\\":true}"`
+      )
+
+      expect(responses.length).toBe(1)
+      expect(responses[0].status).toBe(201)
     })
   })
 })

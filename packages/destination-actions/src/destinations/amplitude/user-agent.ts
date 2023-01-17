@@ -22,8 +22,8 @@ export function parseUserAgentProperties(userAgent?: string): ParsedUA {
   const browser = parser.getBrowser()
 
   return {
-    os_name: browser.name ?? os.name,
-    os_version: browser.major ?? os.version,
+    os_name: os.name ?? browser.name,
+    os_version: os.version ?? browser.major,
     device_model: device.model ?? os.name,
     device_type: device.type
   }

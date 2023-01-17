@@ -1,5 +1,5 @@
 import { ActionDefinition, IntegrationError } from '@segment/actions-core'
-import { hash, handleGoogleErrors } from '../functions'
+import { hash, handleGoogleErrors, convertTimestamp } from '../functions'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 import { GoogleAdsAPI, PartialErrorResponse } from '../types'
@@ -13,7 +13,7 @@ const action: ActionDefinition<Settings, Payload> = {
       label: 'Conversion Action ID',
       description:
         'The ID of the conversion action associated with this conversion. To find the Conversion Action ID, click on your conversion in Google Ads and get the value for `ctId` in the URL. For example, if the URL is `https://ads.google.com/aw/conversions/detail?ocid=00000000&ctId=570000000`, your Conversion Action ID is `570000000`.',
-      type: 'string',
+      type: 'number',
       required: true
     },
     adjustment_type: {
@@ -22,8 +22,6 @@ const action: ActionDefinition<Settings, Payload> = {
         'The adjustment type. See [Google’s documentation](https://developers.google.com/google-ads/api/reference/rpc/v11/ConversionAdjustmentTypeEnum.ConversionAdjustmentType) for details on each type.',
       type: 'string',
       choices: [
-        { label: 'UNSPECIFIED', value: 'UNSPECIFIED' },
-        { label: 'UNKNOWN', value: 'UNKNOWN' },
         { label: `RETRACTION`, value: 'RETRACTION' },
         { label: 'RESTATEMENT', value: 'RESTATEMENT' },
         { label: `ENHANCEMENT`, value: 'ENHANCEMENT' }
@@ -33,9 +31,8 @@ const action: ActionDefinition<Settings, Payload> = {
     adjustment_timestamp: {
       label: 'Adjustment Timestamp',
       description:
-        'The date time at which the adjustment occurred. Must be after the conversion timestamp. The timezone must be specified. The format is "yyyy-mm-dd hh:mm:ss+|-hh:mm", e.g. "2019-01-01 12:32:45-08:00".',
+        'The date time at which the adjustment occurred. Must be after the conversion timestamp. The timezone must be specified. The format is "yyyy-mm-dd hh:mm:ss+|-hh:mm", e.g. "2019-01-01 12:32:45-08:00". If no timestamp is provided, Segment will fall back on the current time.',
       type: 'string',
-      required: true,
       default: {
         '@path': '$.timestamp'
       }
@@ -43,7 +40,7 @@ const action: ActionDefinition<Settings, Payload> = {
     order_id: {
       label: 'Order ID',
       description:
-        'The order ID of the conversion to be adjusted. If the conversion was reported with an order ID specified, that order ID must be used as the identifier here. Required for ENHANCEMENT adjustments.',
+        'The order ID of the conversion to be adjusted. If the conversion was reported with an order ID specified, that order ID must be used as the identifier here.',
       type: 'string',
       default: {
         '@if': {
@@ -56,13 +53,13 @@ const action: ActionDefinition<Settings, Payload> = {
     gclid: {
       label: 'GCLID',
       description:
-        'Google click ID associated with the original conversion for this adjustment. This is used for the GCLID Date Time Pair. Required for non-ENHANCEMENT adjustments. If adjustment is ENHANCEMENT, this value is optional but may be set in addition to the order ID.',
+        'Google click ID associated with the original conversion for this adjustment. This is used for the GCLID Date Time Pair.',
       type: 'string'
     },
     conversion_timestamp: {
       label: 'Conversion Timestamp',
       description:
-        'The date time at which the original conversion for this adjustment occurred. The timezone must be specified. The format is "yyyy-mm-dd hh:mm:ss+|-hh:mm", e.g. "2019-01-01 12:32:45-08:00". This is used for the GCLID Date Time Pair. Required for non-ENHANCEMENT adjustments. If adjustment is ENHANCEMENT, this value is optional but may be set in addition to the order ID.',
+        'The date time at which the original conversion for this adjustment occurred. The timezone must be specified. The format is "yyyy-mm-dd hh:mm:ss+|-hh:mm", e.g. "2019-01-01 12:32:45-08:00". This is used for the GCLID Date Time Pair.',
       type: 'string'
     },
     restatement_value: {
@@ -214,59 +211,29 @@ const action: ActionDefinition<Settings, Payload> = {
 
     settings.customerId = settings.customerId.replace(/-/g, '')
 
-    const validations: { [key: string]: any } = {
-      ENHANCEMENT: {
-        validation: (payload: Payload) => !payload.order_id,
-        error: {
-          message: 'Order ID required for enhancements'
-        }
-      },
-      RESTATEMENT: {
-        validation: (payload: Payload) => !payload.restatement_value,
-        error: {
-          message: 'Restatement value required for restatements'
-        }
-      },
-      RETRACTION: {
-        validation: (payload: Payload) => !payload.gclid || !payload.conversion_timestamp,
-        error: {
-          message: 'GCLID and conversion timestamp required for chosen conversion type'
-        }
-      },
-      UNKNOWN: {
-        validation: (payload: Payload) => !payload.gclid || !payload.conversion_timestamp,
-        error: {
-          message: 'GCLID and conversion timestamp required for chosen conversion type'
-        }
-      },
-      UNSPECIFIED: {
-        validation: (payload: Payload) => !payload.gclid || !payload.conversion_timestamp,
-        error: {
-          message: 'GCLID and conversion timestamp required for chosen conversion type'
-        }
-      }
-    }
-
-    const key = payload.adjustment_type
-    if (validations[key].validation(payload)) {
-      throw new IntegrationError(validations[key].error.message, 'INVALID_ARGUMENT', 400)
+    if (!payload.adjustment_timestamp) {
+      payload.adjustment_timestamp = new Date().toISOString()
     }
 
     const request_object: { [key: string]: any } = {
       conversionAction: `customers/${settings.customerId}/conversionActions/${payload.conversion_action}`,
       adjustmentType: payload.adjustment_type,
-      adjustmentDateTime: payload.adjustment_timestamp.replace(/T/, ' ').replace(/\..+/, '+00:00'),
+      adjustmentDateTime: convertTimestamp(payload.adjustment_timestamp),
       orderId: payload.order_id,
       gclidDateTimePair: {
         gclid: payload.gclid,
-        conversionDateTime: payload.conversion_timestamp?.replace(/T/, ' ').replace(/\..+/, '+00:00')
-      },
-      restatementValue: {
-        adjustedValue: payload.restatement_value,
-        currencyCode: payload.restatement_currency_code
+        conversionDateTime: convertTimestamp(payload.conversion_timestamp)
       },
       userIdentifiers: [],
       userAgent: payload.user_agent
+    }
+
+    // Google will return an error if this value is sent with retractions.
+    if (payload.adjustment_type !== 'RETRACTION') {
+      request_object.restatementValue = {
+        adjustedValue: payload.restatement_value,
+        currencyCode: payload.restatement_currency_code
+      }
     }
 
     if (payload.email_address) {

@@ -25,8 +25,4 @@ export interface Settings {
    * Source ID
    */
   sourceId: string
-  /**
-   * Subscription group ID
-   */
-  groupId?: string
 }

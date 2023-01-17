@@ -14,7 +14,8 @@ describe('Twilio', () => {
         event: 'Test Event',
         properties: {
           To: '+17758638863',
-          Body: 'Hello, World!'
+          Body: 'Hello, World!',
+          MediaUrl: 'https://demo.twilio.com/owl.png'
         }
       })
 
@@ -33,6 +34,9 @@ describe('Twilio', () => {
           },
           Body: {
             '@path': '$.properties.Body'
+          },
+          MediaUrl: {
+            '@path': '$.properties.MediaUrl'
           }
         },
         useDefaultMappings: true
@@ -50,6 +54,8 @@ describe('Twilio', () => {
             "+17758638863",
             "Body",
             "Hello, World!",
+            "MediaUrl",
+            "https://demo.twilio.com/owl.png",
           ],
           Symbol(context): null,
         }

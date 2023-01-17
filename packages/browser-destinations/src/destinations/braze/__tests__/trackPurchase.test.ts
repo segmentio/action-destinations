@@ -30,10 +30,10 @@ testSdkVersions.forEach((sdkVersion) => {
       ]
     })
 
-    await trackPurchase.load(Context.system(), {} as Analytics)
+    await trackPurchase.load(Context.system(), new Analytics({ writeKey: '123' }))
 
     // Spy on the braze APIs now that braze has been loaded.
-    const braze = await initializeSpy.mock.results[0].value
+    const { instance: braze } = await initializeSpy.mock.results[0].value
     const brazeLogPurchase = jest.spyOn(braze, 'logPurchase').mockReturnValue(true)
 
     await trackPurchase.track?.(

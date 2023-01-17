@@ -2,6 +2,8 @@
 
 exports[`Testing snapshot for LinkedinAudiences's updateAudience destination action: all fields 1`] = `""`;
 
+exports[`Testing snapshot for LinkedinAudiences's updateAudience destination action: required fields - invalid combination 1`] = `[IntegrationError: At least one of \`Send Email\` or \`Send Google Advertising ID\` must be set to \`true\`.]`;
+
 exports[`Testing snapshot for LinkedinAudiences's updateAudience destination action: required fields 1`] = `""`;
 
 exports[`Testing snapshot for LinkedinAudiences's updateAudience destination action: required fields 2`] = `

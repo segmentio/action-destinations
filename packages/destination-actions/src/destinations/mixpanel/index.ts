@@ -7,15 +7,23 @@ import identifyUser from './identifyUser'
 import groupIdentifyUser from './groupIdentifyUser'
 
 import alias from './alias'
-import { ApiRegions } from './utils'
+import { ApiRegions, StrictMode } from './utils'
+
+import trackPurchase from './trackPurchase'
 
 /** used in the quick setup */
 const presets: DestinationDefinition['presets'] = [
   {
     name: 'Track Calls',
-    subscribe: 'type = "track"',
+    subscribe: 'type = "track" and event != "Order Completed"',
     partnerAction: 'trackEvent',
     mapping: defaultValues(trackEvent.fields)
+  },
+  {
+    name: 'Order Completed Calls',
+    subscribe: 'type = "track" and event = "Order Completed"',
+    partnerAction: 'trackPurchase',
+    mapping: defaultValues(trackPurchase.fields)
   },
   {
     name: 'Page Calls',
@@ -86,6 +94,14 @@ const destination: DestinationDefinition<Settings> = {
         description:
           "This value, if it's not blank, will be sent as segment_source_name to Mixpanel for every event/page/screen call.",
         type: 'string',
+      },
+      strictMode: {
+        label: 'Strict Mode',
+        description:
+          "This value, if it's 1 (recommended), Mixpanel will validate the events you are trying to send and return errors per event that failed. Learn more about the Mixpanel [Import Events API](https://developer.mixpanel.com/reference/import-events)",
+        type: 'string',
+        choices: Object.values(StrictMode).map((strictMode) => ({ label: strictMode, value: strictMode })),
+        default: StrictMode.ON
       }
     },
     testAuthentication: (request, { settings }) => {
@@ -103,7 +119,8 @@ const destination: DestinationDefinition<Settings> = {
     trackEvent,
     identifyUser,
     groupIdentifyUser,
-    alias
+    alias,
+    trackPurchase
   }
 }
 

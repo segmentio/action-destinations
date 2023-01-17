@@ -8,13 +8,15 @@ import logPurchase from './logPurchase'
 import type { Settings } from './generated-types'
 import { getEndpointByRegion } from './regional-endpoints'
 
+import logEventV2 from './logEventV2'
+
 /** used in the quick setup */
 const presets: DestinationDefinition['presets'] = [
   {
     name: 'Track Calls',
     subscribe: 'type = "track" and event != "Order Completed"',
-    partnerAction: 'logEvent',
-    mapping: defaultValues(logEvent.fields)
+    partnerAction: 'logEventV2',
+    mapping: defaultValues(logEventV2.fields)
   },
   {
     name: 'Order Completed Calls',
@@ -25,9 +27,9 @@ const presets: DestinationDefinition['presets'] = [
   {
     name: 'Page Calls',
     subscribe: 'type = "page"',
-    partnerAction: 'logEvent',
+    partnerAction: 'logEventV2',
     mapping: {
-      ...defaultValues(logEvent.fields),
+      ...defaultValues(logEventV2.fields),
       event_type: {
         '@template': 'Viewed {{name}}'
       }
@@ -36,9 +38,9 @@ const presets: DestinationDefinition['presets'] = [
   {
     name: 'Screen Calls',
     subscribe: 'type = "screen"',
-    partnerAction: 'logEvent',
+    partnerAction: 'logEventV2',
     mapping: {
-      ...defaultValues(logEvent.fields),
+      ...defaultValues(logEventV2.fields),
       event_type: {
         '@template': 'Viewed {{name}}'
       }
@@ -123,7 +125,8 @@ const destination: DestinationDefinition<Settings> = {
     identifyUser,
     mapUser,
     groupIdentifyUser,
-    logPurchase
+    logPurchase,
+    logEventV2
   }
 }
 

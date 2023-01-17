@@ -1,18 +1,19 @@
 import type { ActionDefinition } from '@segment/actions-core'
-import type { RequestClient } from '@segment/actions-core'
-import { RetryableError } from '@segment/actions-core'
+import { RequestClient, RetryableError, IntegrationError } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 import { createHash } from 'crypto'
-import { IntegrationError } from '@segment/actions-core'
+import { LinkedInAudiences } from '../api'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Sync To LinkedIn DMP Segment',
   description: 'Syncs contacts from a Personas Audience to a LinkedIn DMP Segment.',
+  defaultSubscription: 'event = "Audience Entered" or event = "Audience Exited"',
   fields: {
     dmp_segment_name: {
       label: 'DMP Segment Display Name',
-      description: 'The display name of the LinkedIn DMP Segment.',
+      description:
+        'The display name of the LinkedIn DMP Segment. This field is set only when Segment creates a new audience. Updating this field after Segment has created an audience will not update the audience name in LinkedIn.',
       type: 'string',
       default: {
         '@path': '$.properties.audience_key'
@@ -27,51 +28,39 @@ const action: ActionDefinition<Settings, Payload> = {
     email: {
       label: 'User Email',
       description: "The user's email address to send to LinkedIn.",
-      type: 'hidden',
+      type: 'hidden', // This field is hidden from customers because the desired value always appears at path '$.context.traits.email' in Personas events.
       default: {
         '@path': '$.context.traits.email'
       }
     },
-    send_email: {
-      label: 'Send Email',
-      description: 'Whether to send `email` to LinkedIn.',
-      type: 'boolean',
-      default: true
-    },
     google_advertising_id: {
       label: 'User Google Advertising ID',
       description: "The user's Google Advertising ID to send to LinkedIn.",
-      type: 'hidden',
+      type: 'hidden', // This field is hidden from customers because the desired value always appears at path '$.context.device.advertisingId' in Personas events.
       default: {
         '@path': '$.context.device.advertisingId'
       }
-    },
-    send_google_advertising_id: {
-      label: 'Send Google Advertising ID',
-      description: 'Whether to send Google Advertising ID to LinkedIn.',
-      type: 'boolean',
-      default: true
     },
     source_segment_id: {
       label: 'LinkedIn Source Segment ID',
       description:
         "A Segment-specific key associated with the LinkedIn DMP Segment. This is the lookup key Segment uses to fetch the DMP Segment from LinkedIn's API.",
-      type: 'hidden',
+      type: 'hidden', // This field is hidden from customers because the desired value always appears at '$.properties.audience_key' in Personas events.
       default: {
         '@path': '$.properties.audience_key'
       }
     },
     personas_audience_key: {
-      label: 'Segment Personas Audience Key',
+      label: 'Segment Engage Audience Key',
       description:
-        'The `audience_key` of the Personas audience you want to sync to LinkedIn. This value must be a hard-coded string variable, e.g. `personas_test_audience`, in order for batching to work properly.',
+        'The `audience_key` of the Engage audience you want to sync to LinkedIn. This value must be a hard-coded string variable, e.g. `personas_test_audience`, in order for batching to work properly.',
       type: 'string',
       required: true
     },
     event_name: {
       label: 'Event Name',
       description: 'The name of the current Segment event.',
-      type: 'hidden',
+      type: 'hidden', // This field is hidden from customers because the desired value always appears at path '$.event' in Personas events.
       default: {
         '@path': '$.event'
       }
@@ -86,26 +75,24 @@ const action: ActionDefinition<Settings, Payload> = {
 }
 
 async function processPayload(request: RequestClient, settings: Settings, payloads: Payload[]) {
-  if (payloads[0].source_segment_id !== payloads[0].personas_audience_key) {
-    throw new IntegrationError(
-      'The value of `source_segment_id` and `personas_audience_key` must match.',
-      'Invalid settings.',
-      400
-    )
+  validate(settings, payloads)
+
+  const linkedinApiClient: LinkedInAudiences = new LinkedInAudiences(request)
+
+  const dmpSegmentId = await getDmpSegmentId(linkedinApiClient, settings, payloads[0])
+  const elements = extractUsers(settings, payloads)
+
+  // We should never hit this condition because at least an email or a
+  // google ad id is required in each payload, but if we do, returning early
+  // rather than hitting LinkedIn's API (with no data) is more efficient.
+  // The monoservice will interpret this early return as a 200.
+  // If we were to send an empty elements array to LINKEDIN_API_VERSION,
+  // their API would also respond with status 200.
+  if (elements.length < 1) {
+    return
   }
 
-  const dmpSegmentId = await getDmpSegmentId(request, settings, payloads[0])
-  const elements = extractUsers(payloads)
-  const res = await request(`https://api.linkedin.com/rest/dmpSegments/${dmpSegmentId}/users`, {
-    method: 'POST',
-    headers: {
-      'X-RestLi-Method': 'BATCH_CREATE'
-    },
-    json: {
-      elements
-    },
-    throwHttpErrors: false
-  })
+  const res = await linkedinApiClient.batchUpdate(dmpSegmentId, elements)
 
   // At this point, if LinkedIn's API returns a 404 error, it's because the audience
   // Segment just created isn't available yet for updates via this endpoint.
@@ -118,52 +105,42 @@ async function processPayload(request: RequestClient, settings: Settings, payloa
   return res
 }
 
-async function getDmpSegmentId(request: RequestClient, settings: Settings, payload: Payload) {
-  const res = await getDmpSegment(request, settings, payload)
+function validate(settings: Settings, payloads: Payload[]): void {
+  if (payloads[0].source_segment_id !== payloads[0].personas_audience_key) {
+    throw new IntegrationError(
+      'The value of `source_segment_id` and `personas_audience_key` must match.',
+      'INVALID_SETTINGS',
+      400
+    )
+  }
+
+  if (!settings.send_google_advertising_id && !settings.send_email) {
+    throw new IntegrationError(
+      'At least one of `Send Email` or `Send Google Advertising ID` must be set to `true`.',
+      'INVALID_SETTINGS',
+      400
+    )
+  }
+}
+
+async function getDmpSegmentId(linkedinApiClient: LinkedInAudiences, settings: Settings, payload: Payload) {
+  const res = await linkedinApiClient.getDmpSegment(settings, payload)
   const body = await res.json()
 
   if (body.elements?.length > 0) {
     return body.elements[0].id
   }
 
-  return createDmpSegment(request, settings, payload)
+  return createDmpSegment(linkedinApiClient, settings, payload)
 }
 
-async function getDmpSegment(request: RequestClient, settings: Settings, payload: Payload) {
-  return request('https://api.linkedin.com/rest/dmpSegments', {
-    method: 'GET',
-    searchParams: {
-      q: 'account',
-      account: `urn:li:sponsoredAccount:${settings.ad_account_id}`,
-      sourceSegmentId: payload.source_segment_id || '',
-      sourcePlatform: 'SEGMENT'
-    }
-  })
-}
-
-async function createDmpSegment(request: RequestClient, settings: Settings, payload: Payload) {
-  const res = await request('https://api.linkedin.com/rest/dmpSegments', {
-    method: 'POST',
-    json: {
-      name: payload.dmp_segment_name,
-      sourcePlatform: 'SEGMENT',
-      sourceSegmentId: payload.source_segment_id,
-      account: `urn:li:sponsoredAccount:${settings.ad_account_id}`,
-      accessPolicy: 'PRIVATE',
-      type: 'USER',
-      destinations: [
-        {
-          destination: 'LINKEDIN'
-        }
-      ]
-    }
-  })
-
+async function createDmpSegment(linkedinApiClient: LinkedInAudiences, settings: Settings, payload: Payload) {
+  const res = await linkedinApiClient.createDmpSegment(settings, payload)
   const headers = res.headers.toJSON()
   return headers['x-linkedin-id']
 }
 
-function extractUsers(payloads: Payload[]) {
+function extractUsers(settings: Settings, payloads: Payload[]) {
   const elements: Record<string, any>[] = []
 
   payloads.forEach((payload: Payload) => {
@@ -173,7 +150,7 @@ function extractUsers(payloads: Payload[]) {
 
     elements.push({
       action: getAction(payload),
-      userIds: getUserIds(payload)
+      userIds: getUserIds(settings, payload)
     })
   })
 
@@ -188,17 +165,17 @@ function getAction(payload: Payload) {
   }
 }
 
-function getUserIds(payload: Payload): Record<string, string>[] {
+function getUserIds(settings: Settings, payload: Payload): Record<string, string>[] {
   const users = []
 
-  if (payload.email) {
+  if (payload.email && settings.send_email === true) {
     users.push({
       idType: 'SHA256_EMAIL',
       idValue: createHash('sha256').update(payload.email).digest('hex')
     })
   }
 
-  if (payload.google_advertising_id) {
+  if (payload.google_advertising_id && settings.send_google_advertising_id === true) {
     users.push({
       idType: 'GOOGLE_AID',
       idValue: payload.google_advertising_id

@@ -23,6 +23,7 @@ export const manifest: Record<MetadataId, ManifestEntry> = {}
  * in production and sync them into staging via `sprout`.
  */
 register('60f64ae3eaebd66d17d28e9f', './1plusx')
+register('6388fddea33fcc69c0f8d9ce', './actable-predictive')
 register('61aa712b857e8c85c3b5a849', './adobe-target')
 register('5f7dd6d21ad74f3842b1fc47', './amplitude')
 register('60f9d0d048950c356be2e4da', './braze')
@@ -51,6 +52,7 @@ register('62df16e45ba0058c864a75d1', './actions-pardot')
 register('5f7dd8191ad74f868ab1fc48', './pipedrive')
 register('62e17e6f687e4a3d32d0f875', './qualtrics')
 register('61957755c4d820be968457de', './salesforce')
+register('62e30bad99f1bfb98ee8ce08', './salesforce-marketing-cloud')
 register('5f7dd8e302173ff732db5cc4', './slack')
 register('6261a8b6cb4caa70e19116e8', './snap-conversions-api')
 register('6234b137d3b6404a64f2a0f0', './talon-one')
@@ -61,6 +63,12 @@ register('61dc4e96894a6d7954cc6e45', './voyage')
 register('62ded0cf5753c743883ca0f3', './intercom')
 register('631a6f32946dd8197e9cab66', './sendgrid')
 register('632b1116e0cb83902f3fd717', './hubspot')
+register('636d38db78d7834347d76c44', './1plusx-asset-api')
+register('6371eee1ae5e324869aa8b1b', './segment')
+register('63936c37dbc54a052e34e30e', './google-sheets-dev')
+register('63872c01c0c112b9b4d75412', './braze-cohorts')
+register('639c2dbb1309fdcad13951b6', './segment-profiles')
+register('63bedc136a8484a53739e013', './vwo')
 
 function register(id: MetadataId, destinationPath: string) {
   // eslint-disable-next-line @typescript-eslint/no-var-requires

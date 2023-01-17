@@ -329,8 +329,8 @@ describe('Amplitude', () => {
               "event_properties": Object {},
               "event_type": "Test Event",
               "library": "segment",
-              "os_name": "Chrome",
-              "os_version": "53",
+              "os_name": "Mac OS",
+              "os_version": "10.11.6",
               "time": 1629213675449,
               "use_batch_endpoint": false,
               "user_id": "user1234",
@@ -348,7 +348,7 @@ describe('Amplitude', () => {
         event: 'Test Event',
         anonymousId: 'julio',
         integrations: {
-          // @ts-expect-error integrations should accept complext objects;
+          // @ts-expect-error integrations should accept complex objects;
           'Actions Amplitude': {
             session_id: '1234567890'
           }
@@ -380,10 +380,10 @@ describe('Amplitude', () => {
               "library": "segment",
               "location_lat": 40.2964197,
               "location_lng": -76.9411617,
-              "os_name": "Mobile Safari",
-              "os_version": "9",
+              "os_name": "iOS",
+              "os_version": "9.1",
               "platform": "Web",
-              "session_id": -23074351200000,
+              "session_id": 1234567890,
               "time": 1629213675449,
               "use_batch_endpoint": false,
               "user_id": "user1234",
@@ -393,6 +393,59 @@ describe('Amplitude', () => {
           "options": undefined,
         }
       `)
+    })
+
+    it('supports session_id from `integrations.Actions Amplitude.session_id` in number format', async () => {
+      const event = createTestEvent({
+        timestamp,
+        event: 'Test Event',
+        anonymousId: 'julio',
+        integrations: {
+          // @ts-expect-error integrations should accept complex objects;
+          'Actions Amplitude': {
+            session_id: 1234567890
+          }
+        }
+      })
+
+      nock('https://api2.amplitude.com/2').post('/httpapi').reply(200, {})
+
+      const responses = await testDestination.testAction('logPurchase', { event, useDefaultMappings: true })
+
+      expect(responses.length).toBe(1)
+      expect(responses[0].status).toBe(200)
+      expect(responses[0].data).toMatchObject({})
+
+      expect(responses[0].options.json).toMatchInlineSnapshot(`
+          Object {
+            "api_key": undefined,
+            "events": Array [
+              Object {
+                "city": "San Francisco",
+                "country": "United States",
+                "device_id": "julio",
+                "device_model": "iPhone",
+                "device_type": "mobile",
+                "event_properties": Object {},
+                "event_type": "Test Event",
+                "ip": "8.8.8.8",
+                "language": "en-US",
+                "library": "segment",
+                "location_lat": 40.2964197,
+                "location_lng": -76.9411617,
+                "os_name": "iOS",
+                "os_version": "9.1",
+                "platform": "Web",
+                "session_id": 1234567890,
+                "time": 1629213675449,
+                "use_batch_endpoint": false,
+                "user_id": "user1234",
+                "user_properties": Object {},
+              },
+            ],
+            "options": undefined,
+          }
+        `)
     })
 
     it('should send data to the EU endpoint', async () => {
@@ -452,6 +505,209 @@ describe('Amplitude', () => {
             event_type: 'Test Event',
             city: 'San Francisco',
             country: 'United States'
+          })
+        ])
+      })
+    })
+
+    it('should give precedence to OS properties over userAgent properties', async () => {
+      const event = createTestEvent({
+        anonymousId: '6fd32a7e-3c56-44c2-bd32-62bbec44c53d',
+        timestamp,
+        event: 'Test Event',
+        context: {
+          os: {
+            name: 'iPhone OS',
+            version: '8.1.3'
+          },
+          userAgent:
+            'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_11_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/53.0.2785.143 Safari/537.36'
+        }
+      })
+      const mapping = {
+        userAgentParsing: true
+      }
+      nock('https://api2.amplitude.com/2').post('/httpapi').reply(200, {})
+      const responses = await testDestination.testAction('logPurchase', { event, mapping, useDefaultMappings: true })
+      expect(responses.length).toBe(1)
+      expect(responses[0].status).toBe(200)
+      expect(responses[0].data).toMatchObject({})
+      expect(responses[0].options.json).toMatchInlineSnapshot(`
+          Object {
+            "api_key": undefined,
+            "events": Array [
+              Object {
+                "device_id": "6fd32a7e-3c56-44c2-bd32-62bbec44c53d",
+                "device_model": "Mac OS",
+                "device_type": undefined,
+                "event_properties": Object {},
+                "event_type": "Test Event",
+                "library": "segment",
+                "os_name": "iPhone OS",
+                "os_version": "8.1.3",
+                "time": 1629213675449,
+                "use_batch_endpoint": false,
+                "user_id": "user1234",
+                "user_properties": Object {},
+              },
+            ],
+            "options": undefined,
+          }
+        `)
+    })
+
+    it('should calculate revenue based on price and quantity', async () => {
+      const event = createTestEvent({
+        event: 'Order Completed',
+        timestamp,
+        properties: {
+          revenue: 3_998,
+          products: [
+            {
+              quantity: 2,
+              productId: 'Bowflex Treadmill 10',
+              price: 1_999
+            }
+          ]
+        }
+      })
+
+      const mapping = {
+        trackRevenuePerProduct: true
+      }
+
+      nock('https://api2.amplitude.com/2').post('/httpapi').reply(200, {})
+
+      const responses = await testDestination.testAction('logPurchase', { event, mapping, useDefaultMappings: true })
+      expect(responses.length).toBe(1)
+      expect(responses[0].status).toBe(200)
+      expect(responses[0].options.json).toMatchObject({
+        api_key: undefined,
+        events: expect.arrayContaining([
+          expect.objectContaining({
+            event_type: 'Order Completed',
+            event_properties: event.properties,
+            library: 'segment'
+          }),
+          expect.objectContaining({
+            event_type: 'Product Purchased',
+            revenue: 3_998,
+            price: 1_999,
+            quantity: 2,
+            // @ts-ignore i know what i'm doing
+            event_properties: event.properties.products[0],
+            library: 'segment'
+          })
+        ])
+      })
+    })
+
+    it('should ignore products with no revenue or quantity/price value', async () => {
+      const event = createTestEvent({
+        event: 'Order Completed',
+        timestamp,
+        properties: {
+          products: [
+            {
+              quantity: 2,
+              productId: 'Bowflex Treadmill 10',
+              price: 1_999
+            },
+            {
+              revenue: 1_999,
+              productId: 'Bowflex Treadmill 8',
+            },
+            {
+              productId: 'Bowflex Treadmill 4',
+              price: 1_999
+            },
+            {
+              quantity: 2,
+              productId: 'Bowflex Treadmill 2',
+            }
+          ]
+        }
+      })
+
+      const mapping = {
+        trackRevenuePerProduct: true
+      }
+
+      nock('https://api2.amplitude.com/2').post('/httpapi').reply(200, {})
+
+      const responses = await testDestination.testAction('logPurchase', { event, mapping, useDefaultMappings: true })
+      expect(responses.length).toBe(1)
+      expect(responses[0].status).toBe(200)
+      expect(responses[0].options.json).toMatchObject({
+        api_key: undefined,
+        events: expect.arrayContaining([
+          expect.objectContaining({
+            event_type: 'Order Completed',
+            event_properties: event.properties,
+            library: 'segment'
+          }),
+          expect.objectContaining({
+            event_type: 'Product Purchased',
+            revenue: 3_998,
+            price: 1_999,
+            quantity: 2,
+            // @ts-ignore i know what i'm doing
+            event_properties: event.properties.products[0],
+            library: 'segment'
+          }),
+          expect.objectContaining({
+            event_type: 'Product Purchased',
+            revenue: 1_999,
+            // @ts-ignore i know what i'm doing
+            event_properties: event.properties.products[1],
+            library: 'segment'
+          })
+        ])
+      })
+    })
+
+    it('should prioritize price*quantity over revenue value', async () => {
+      const event = createTestEvent({
+        event: 'Order Completed',
+        timestamp,
+        properties: {
+          revenue: 3_998,
+          products: [
+            {
+              quantity: 2,
+              productId: 'Bowflex Treadmill 10',
+              price: 1_999,
+              revenue: 4_000
+            }
+          ]
+        }
+      })
+
+      const mapping = {
+        trackRevenuePerProduct: true
+      }
+
+      nock('https://api2.amplitude.com/2').post('/httpapi').reply(200, {})
+
+      const responses = await testDestination.testAction('logPurchase', { event, mapping, useDefaultMappings: true })
+      expect(responses.length).toBe(1)
+      expect(responses[0].status).toBe(200)
+      expect(responses[0].options.json).toMatchObject({
+        api_key: undefined,
+        events: expect.arrayContaining([
+          expect.objectContaining({
+            event_type: 'Order Completed',
+            event_properties: event.properties,
+            library: 'segment'
+          }),
+          expect.objectContaining({
+            event_type: 'Product Purchased',
+            revenue: 3_998,
+            price: 1_999,
+            quantity: 2,
+            // @ts-ignore i know what i'm doing
+            event_properties: event.properties.products[0],
+            library: 'segment'
           })
         ])
       })
@@ -782,27 +1038,27 @@ describe('Amplitude', () => {
       expect(responses[0].status).toBe(200)
       expect(responses[0].data).toMatchObject({})
       expect(responses[0].options.json).toMatchInlineSnapshot(`
-        Object {
-          "api_key": undefined,
-          "events": Array [
-            Object {
-              "device_id": "6fd32a7e-3c56-44c2-bd32-62bbec44c53d",
-              "device_model": "Mac OS",
-              "device_type": undefined,
-              "event_properties": Object {},
-              "event_type": "Test Event",
-              "library": "segment",
-              "os_name": "Chrome",
-              "os_version": "53",
-              "time": 1629213675449,
-              "use_batch_endpoint": false,
-              "user_id": "user1234",
-              "user_properties": Object {},
-            },
-          ],
-          "options": undefined,
-        }
-      `)
+          Object {
+            "api_key": undefined,
+            "events": Array [
+              Object {
+                "device_id": "6fd32a7e-3c56-44c2-bd32-62bbec44c53d",
+                "device_model": "Mac OS",
+                "device_type": undefined,
+                "event_properties": Object {},
+                "event_type": "Test Event",
+                "library": "segment",
+                "os_name": "Mac OS",
+                "os_version": "10.11.6",
+                "time": 1629213675449,
+                "use_batch_endpoint": false,
+                "user_id": "user1234",
+                "user_properties": Object {},
+              },
+            ],
+            "options": undefined,
+          }
+        `)
     })
 
     it('should support session_id from `integrations.Actions Amplitude.session_id`', async () => {
@@ -811,7 +1067,7 @@ describe('Amplitude', () => {
         event: 'Test Event',
         anonymousId: 'julio',
         integrations: {
-          // @ts-expect-error integrations should accept complext objects;
+          // @ts-expect-error integrations should accept complex objects;
           'Actions Amplitude': {
             session_id: '1234567890'
           }
@@ -827,35 +1083,88 @@ describe('Amplitude', () => {
       expect(responses[0].data).toMatchObject({})
 
       expect(responses[0].options.json).toMatchInlineSnapshot(`
-        Object {
-          "api_key": undefined,
-          "events": Array [
-            Object {
-              "city": "San Francisco",
-              "country": "United States",
-              "device_id": "julio",
-              "device_model": "iPhone",
-              "device_type": "mobile",
-              "event_properties": Object {},
-              "event_type": "Test Event",
-              "ip": "8.8.8.8",
-              "language": "en-US",
-              "library": "segment",
-              "location_lat": 40.2964197,
-              "location_lng": -76.9411617,
-              "os_name": "Mobile Safari",
-              "os_version": "9",
-              "platform": "Web",
-              "session_id": -23074351200000,
-              "time": 1629213675449,
-              "use_batch_endpoint": false,
-              "user_id": "user1234",
-              "user_properties": Object {},
-            },
-          ],
-          "options": undefined,
+          Object {
+            "api_key": undefined,
+            "events": Array [
+              Object {
+                "city": "San Francisco",
+                "country": "United States",
+                "device_id": "julio",
+                "device_model": "iPhone",
+                "device_type": "mobile",
+                "event_properties": Object {},
+                "event_type": "Test Event",
+                "ip": "8.8.8.8",
+                "language": "en-US",
+                "library": "segment",
+                "location_lat": 40.2964197,
+                "location_lng": -76.9411617,
+                "os_name": "iOS",
+                "os_version": "9.1",
+                "platform": "Web",
+                "session_id": 1234567890,
+                "time": 1629213675449,
+                "use_batch_endpoint": false,
+                "user_id": "user1234",
+                "user_properties": Object {},
+              },
+            ],
+            "options": undefined,
+          }
+        `)
+    })
+
+    it('supports session_id from `integrations.Actions Amplitude.session_id` in number format', async () => {
+      const event = createTestEvent({
+        timestamp,
+        event: 'Test Event',
+        anonymousId: 'julio',
+        integrations: {
+          // @ts-expect-error integrations should accept complex objects;
+          'Actions Amplitude': {
+            session_id: 1234567890
+          }
         }
-      `)
+      })
+
+      nock('https://api2.amplitude.com/2').post('/httpapi').reply(200, {})
+
+      const responses = await testDestination.testAction('logEvent', { event, useDefaultMappings: true })
+
+      expect(responses.length).toBe(1)
+      expect(responses[0].status).toBe(200)
+      expect(responses[0].data).toMatchObject({})
+
+      expect(responses[0].options.json).toMatchInlineSnapshot(`
+          Object {
+            "api_key": undefined,
+            "events": Array [
+              Object {
+                "city": "San Francisco",
+                "country": "United States",
+                "device_id": "julio",
+                "device_model": "iPhone",
+                "device_type": "mobile",
+                "event_properties": Object {},
+                "event_type": "Test Event",
+                "ip": "8.8.8.8",
+                "language": "en-US",
+                "library": "segment",
+                "location_lat": 40.2964197,
+                "location_lng": -76.9411617,
+                "os_name": "iOS",
+                "os_version": "9.1",
+                "platform": "Web",
+                "session_id": 1234567890,
+                "time": 1629213675449,
+                "use_batch_endpoint": false,
+                "user_id": "user1234",
+                "user_properties": Object {},
+              },
+            ],
+            "options": undefined,
+          }
+        `)
     })
 
     it('should send data to the EU endpoint', async () => {
@@ -919,9 +1228,652 @@ describe('Amplitude', () => {
         ])
       })
     })
+
+    it('should give precedence to OS properties over userAgent properties', async () => {
+      const event = createTestEvent({
+        anonymousId: '6fd32a7e-3c56-44c2-bd32-62bbec44c53d',
+        timestamp,
+        event: 'Test Event',
+        context: {
+          os: {
+            name: 'iPhone OS',
+            version: '8.1.3'
+          },
+          userAgent:
+            'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_11_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/53.0.2785.143 Safari/537.36'
+        }
+      })
+      const mapping = {
+        userAgentParsing: true
+      }
+      nock('https://api2.amplitude.com/2').post('/httpapi').reply(200, {})
+      const responses = await testDestination.testAction('logEvent', { event, mapping, useDefaultMappings: true })
+      expect(responses.length).toBe(1)
+      expect(responses[0].status).toBe(200)
+      expect(responses[0].data).toMatchObject({})
+      expect(responses[0].options.json).toMatchInlineSnapshot(`
+          Object {
+            "api_key": undefined,
+            "events": Array [
+              Object {
+                "device_id": "6fd32a7e-3c56-44c2-bd32-62bbec44c53d",
+                "device_model": "Mac OS",
+                "device_type": undefined,
+                "event_properties": Object {},
+                "event_type": "Test Event",
+                "library": "segment",
+                "os_name": "iPhone OS",
+                "os_version": "8.1.3",
+                "time": 1629213675449,
+                "use_batch_endpoint": false,
+                "user_id": "user1234",
+                "user_properties": Object {},
+              },
+            ],
+            "options": undefined,
+          }
+        `)
+    })
   })
 
-  it('should not send parsed user agent properties when setting is false', async () => {
+  describe('logEvent V2', () => {
+    it('works with default mappings', async () => {
+      const event = createTestEvent({ timestamp, event: 'Test Event' })
+
+      nock('https://api2.amplitude.com/2').post('/httpapi').reply(200, {})
+
+      const responses = await testDestination.testAction('logEventV2', { event, useDefaultMappings: true })
+      expect(responses.length).toBe(1)
+      expect(responses[0].status).toBe(200)
+      expect(responses[0].data).toMatchObject({})
+      expect(responses[0].options.json).toMatchObject({
+        api_key: undefined,
+        events: expect.arrayContaining([
+          expect.objectContaining({
+            event_type: 'Test Event',
+            city: 'San Francisco',
+            country: 'United States'
+          })
+        ])
+      })
+    })
+
+    it('changes casing for device type when value is ios', async () => {
+      const event = createTestEvent({
+        event: 'Test Event',
+        context: {
+          device: {
+            id: 'foo',
+            type: 'ios'
+          }
+        }
+      })
+
+      nock('https://api2.amplitude.com/2').post('/httpapi').reply(200, {})
+
+      const responses = await testDestination.testAction('logEventV2', { event, useDefaultMappings: true })
+      expect(responses[0].options.json).toMatchObject({
+        api_key: undefined,
+        events: expect.arrayContaining([
+          expect.objectContaining({
+            device_id: 'foo',
+            platform: 'iOS'
+          })
+        ])
+      })
+    })
+
+    it('changes casing for device type when value is android', async () => {
+      const event = createTestEvent({
+        event: 'Test Event',
+        context: {
+          device: {
+            id: 'foo',
+            type: 'android'
+          }
+        }
+      })
+
+      nock('https://api2.amplitude.com/2').post('/httpapi').reply(200, {})
+
+      const responses = await testDestination.testAction('logEventV2', { event, useDefaultMappings: true })
+      expect(responses[0].options.json).toMatchObject({
+        api_key: undefined,
+        events: expect.arrayContaining([
+          expect.objectContaining({
+            device_id: 'foo',
+            platform: 'Android'
+          })
+        ])
+      })
+    })
+
+    it('accepts null for user_id', async () => {
+      const event = createTestEvent({ timestamp, userId: null, event: 'Null User' })
+
+      nock('https://api2.amplitude.com/2').post('/httpapi').reply(200, {})
+
+      const responses = await testDestination.testAction('logEventV2', { event, useDefaultMappings: true })
+      expect(responses.length).toBe(1)
+      expect(responses[0].status).toBe(200)
+      expect(responses[0].data).toMatchObject({})
+      expect(responses[0].options.json).toMatchObject({
+        api_key: undefined,
+        events: expect.arrayContaining([
+          expect.objectContaining({
+            event_type: 'Null User',
+            user_id: null
+          })
+        ])
+      })
+    })
+
+    it('works with default mappings without generating additional events from products array', async () => {
+      const event = createTestEvent({
+        event: 'Order Completed',
+        timestamp,
+        properties: {
+          revenue: 1_999,
+          products: [
+            {
+              quantity: 1,
+              productId: 'Bowflex Treadmill 10',
+              price: 1_999
+            }
+          ]
+        }
+      })
+
+      nock('https://api2.amplitude.com/2').post('/httpapi').reply(200, {})
+
+      const responses = await testDestination.testAction('logEventV2', { event, useDefaultMappings: true })
+      expect(responses.length).toBe(1)
+      expect(responses[0].status).toBe(200)
+      expect(responses[0].options.json).toMatchObject({
+        api_key: undefined,
+        events: expect.arrayContaining([
+          expect.objectContaining({
+            event_type: 'Order Completed',
+            event_properties: event.properties,
+            library: 'segment'
+          })
+        ])
+      })
+    })
+
+    it('allows alternate revenue names at the root level', async () => {
+      //understand that this is basically just testing mapping kit which is already tested
+      nock('https://api2.amplitude.com/2').post('/httpapi').reply(200, {})
+
+      const event = createTestEvent({
+        event: 'Order Completed',
+        timestamp,
+        properties: {
+          revenue: 1_999,
+          bitcoin_rev: 9_999
+        }
+      })
+
+      const mapping = {
+        revenue: {
+          '@path': '$.properties.bitcoin_rev'
+        }
+      }
+
+      const responses = await testDestination.testAction('logEventV2', { event, mapping, useDefaultMappings: true })
+      expect(responses.length).toBe(1)
+      expect(responses[0].status).toBe(200)
+      expect(responses[0].options.json).toMatchObject({
+        api_key: undefined,
+        events: expect.arrayContaining([
+          expect.objectContaining({
+            event_type: 'Order Completed',
+            event_properties: event.properties
+          })
+        ])
+      })
+    })
+
+    it('does not inject userData if the default mapping is not satisfied and utm / referrer are not provided', async () => {
+      const event = createTestEvent({
+        timestamp,
+        event: 'Test Event',
+        traits: {
+          'some-trait-key': 'some-trait-value'
+        },
+        context: {
+          'some-context': 'yep'
+        }
+      })
+      nock('https://api2.amplitude.com/2').post('/httpapi').reply(200, {})
+      const responses = await testDestination.testAction('logEventV2', { event, useDefaultMappings: true })
+      expect(responses.length).toBe(1)
+      expect(responses[0].status).toBe(200)
+      expect(responses[0].data).toMatchObject({})
+
+      expect(responses[0].options.json).toMatchObject({
+        events: expect.arrayContaining([
+          expect.objectContaining({
+            event_type: 'Test Event',
+            event_properties: {},
+            user_properties: {
+              'some-trait-key': 'some-trait-value'
+            },
+            use_batch_endpoint: false
+          })
+        ])
+      })
+    })
+
+    it('supports referrer and utm properties in logEvent call to amplitude', async () => {
+      const event = createTestEvent({
+        timestamp,
+        event: 'Test Event',
+        traits: {
+          'some-trait-key': 'some-trait-value'
+        },
+        context: {
+          page: {
+            referrer: 'some-referrer'
+          },
+          campaign: {
+            name: 'TPS Innovation Newsletter',
+            source: 'Newsletter',
+            medium: 'email',
+            term: 'tps reports',
+            content: 'image link'
+          }
+        }
+      })
+      nock('https://api2.amplitude.com/2').post('/httpapi').reply(200, {})
+      const responses = await testDestination.testAction('logEventV2', { event, useDefaultMappings: true })
+      expect(responses.length).toBe(1)
+      expect(responses[0].status).toBe(200)
+      expect(responses[0].data).toMatchObject({})
+      expect(responses[0].options.json).toMatchObject({
+        api_key: undefined,
+        events: expect.arrayContaining([
+          expect.objectContaining({
+            event_type: 'Test Event',
+            user_properties: expect.objectContaining({
+              'some-trait-key': 'some-trait-value',
+              $set: {
+                utm_source: 'Newsletter',
+                utm_medium: 'email',
+                utm_campaign: 'TPS Innovation Newsletter',
+                utm_term: 'tps reports',
+                utm_content: 'image link',
+                referrer: 'some-referrer'
+              },
+              $setOnce: {
+                initial_utm_source: 'Newsletter',
+                initial_utm_medium: 'email',
+                initial_utm_campaign: 'TPS Innovation Newsletter',
+                initial_utm_term: 'tps reports',
+                initial_utm_content: 'image link',
+                initial_referrer: 'some-referrer'
+              }
+            })
+          })
+        ])
+      })
+    })
+
+    it('supports parsing userAgent when the setting is true', async () => {
+      const event = createTestEvent({
+        anonymousId: '6fd32a7e-3c56-44c2-bd32-62bbec44c53d',
+        timestamp,
+        event: 'Test Event',
+        context: {
+          userAgent:
+            'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_11_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/53.0.2785.143 Safari/537.36'
+        }
+      })
+      const mapping = {
+        userAgentParsing: true
+      }
+      nock('https://api2.amplitude.com/2').post('/httpapi').reply(200, {})
+      const responses = await testDestination.testAction('logEventV2', { event, mapping, useDefaultMappings: true })
+      expect(responses.length).toBe(1)
+      expect(responses[0].status).toBe(200)
+      expect(responses[0].data).toMatchObject({})
+      expect(responses[0].options.json).toMatchInlineSnapshot(`
+          Object {
+            "api_key": undefined,
+            "events": Array [
+              Object {
+                "device_id": "6fd32a7e-3c56-44c2-bd32-62bbec44c53d",
+                "device_model": "Mac OS",
+                "device_type": undefined,
+                "event_properties": Object {},
+                "event_type": "Test Event",
+                "library": "segment",
+                "os_name": "Mac OS",
+                "os_version": "10.11.6",
+                "time": 1629213675449,
+                "use_batch_endpoint": false,
+                "user_id": "user1234",
+                "user_properties": Object {},
+              },
+            ],
+            "options": undefined,
+          }
+        `)
+    })
+
+    it('supports session_id from `integrations.Actions Amplitude.session_id`', async () => {
+      const event = createTestEvent({
+        timestamp,
+        event: 'Test Event',
+        anonymousId: 'julio',
+        integrations: {
+          // @ts-expect-error integrations should accept complex objects;
+          'Actions Amplitude': {
+            session_id: '1234567890'
+          }
+        }
+      })
+
+      nock('https://api2.amplitude.com/2').post('/httpapi').reply(200, {})
+
+      const responses = await testDestination.testAction('logEventV2', { event, useDefaultMappings: true })
+
+      expect(responses.length).toBe(1)
+      expect(responses[0].status).toBe(200)
+      expect(responses[0].data).toMatchObject({})
+
+      expect(responses[0].options.json).toMatchInlineSnapshot(`
+          Object {
+            "api_key": undefined,
+            "events": Array [
+              Object {
+                "city": "San Francisco",
+                "country": "United States",
+                "device_id": "julio",
+                "device_model": "iPhone",
+                "device_type": "mobile",
+                "event_properties": Object {},
+                "event_type": "Test Event",
+                "ip": "8.8.8.8",
+                "language": "en-US",
+                "library": "segment",
+                "location_lat": 40.2964197,
+                "location_lng": -76.9411617,
+                "os_name": "iOS",
+                "os_version": "9.1",
+                "platform": "Web",
+                "session_id": 1234567890,
+                "time": 1629213675449,
+                "use_batch_endpoint": false,
+                "user_id": "user1234",
+                "user_properties": Object {},
+              },
+            ],
+            "options": undefined,
+          }
+        `)
+    })
+
+    it('supports session_id from `integrations.Actions Amplitude.session_id` in number format', async () => {
+      const event = createTestEvent({
+        timestamp,
+        event: 'Test Event',
+        anonymousId: 'julio',
+        integrations: {
+          // @ts-expect-error integrations should accept complex objects;
+          'Actions Amplitude': {
+            session_id: 1234567890
+          }
+        }
+      })
+
+      nock('https://api2.amplitude.com/2').post('/httpapi').reply(200, {})
+
+      const responses = await testDestination.testAction('logEventV2', { event, useDefaultMappings: true })
+
+      expect(responses.length).toBe(1)
+      expect(responses[0].status).toBe(200)
+      expect(responses[0].data).toMatchObject({})
+
+      expect(responses[0].options.json).toMatchInlineSnapshot(`
+          Object {
+            "api_key": undefined,
+            "events": Array [
+              Object {
+                "city": "San Francisco",
+                "country": "United States",
+                "device_id": "julio",
+                "device_model": "iPhone",
+                "device_type": "mobile",
+                "event_properties": Object {},
+                "event_type": "Test Event",
+                "ip": "8.8.8.8",
+                "language": "en-US",
+                "library": "segment",
+                "location_lat": 40.2964197,
+                "location_lng": -76.9411617,
+                "os_name": "iOS",
+                "os_version": "9.1",
+                "platform": "Web",
+                "session_id": 1234567890,
+                "time": 1629213675449,
+                "use_batch_endpoint": false,
+                "user_id": "user1234",
+                "user_properties": Object {},
+              },
+            ],
+            "options": undefined,
+          }
+        `)
+    })
+
+    it('sends data to the EU endpoint', async () => {
+      const event = createTestEvent({ timestamp, event: 'Test Event' })
+
+      nock('https://api.eu.amplitude.com/2').post('/httpapi').reply(200, {})
+      const responses = await testDestination.testAction('logEventV2', {
+        event,
+        useDefaultMappings: true,
+        settings: {
+          apiKey: '',
+          secretKey: '',
+          endpoint: 'europe'
+        }
+      })
+      expect(responses.length).toBe(1)
+      expect(responses[0].status).toBe(200)
+      expect(responses[0].data).toMatchObject({})
+      expect(responses[0].options.json).toMatchObject({
+        api_key: '',
+        events: expect.arrayContaining([
+          expect.objectContaining({
+            event_type: 'Test Event',
+            city: 'San Francisco',
+            country: 'United States'
+          })
+        ])
+      })
+    })
+
+    it('sends data to the batch EU endpoint when specified in settings', async () => {
+      const event = createTestEvent({
+        timestamp,
+        event: 'Test Event'
+      })
+
+      nock('https://api.eu.amplitude.com').post('/batch').reply(200, {})
+      const responses = await testDestination.testAction('logEventV2', {
+        event,
+        useDefaultMappings: true,
+        settings: {
+          apiKey: '',
+          secretKey: '',
+          endpoint: 'europe'
+        },
+        mapping: {
+          use_batch_endpoint: true
+        }
+      })
+      expect(responses.length).toBe(1)
+      expect(responses[0].status).toBe(200)
+      expect(responses[0].data).toMatchObject({})
+      expect(responses[0].options.json).toMatchObject({
+        api_key: '',
+        events: expect.arrayContaining([
+          expect.objectContaining({
+            event_type: 'Test Event',
+            city: 'San Francisco',
+            country: 'United States'
+          })
+        ])
+      })
+    })
+
+    it('correctly handles the default mappings for setOnce, setAlways, and add', async () => {
+      nock('https://api2.amplitude.com/2').post('/httpapi').reply(200, {})
+
+      const event = createTestEvent({
+        timestamp,
+        event: 'Test Event',
+        traits: {
+          'some-trait-key': 'some-trait-value'
+        },
+        context: {
+          page: {
+            referrer: 'some-referrer'
+          },
+          campaign: {
+            name: 'TPS Innovation Newsletter',
+            source: 'Newsletter',
+            medium: 'email',
+            term: 'tps reports',
+            content: 'image link'
+          }
+        }
+      })
+
+      const responses = await testDestination.testAction('logEventV2', { event, useDefaultMappings: true })
+      expect(responses.length).toBe(1)
+      expect(responses[0].status).toBe(200)
+      expect(responses[0].options.json).toMatchObject({
+        api_key: undefined,
+        events: expect.arrayContaining([
+          expect.objectContaining({
+            user_properties: expect.objectContaining({
+              $set: {
+                referrer: 'some-referrer',
+                utm_campaign: 'TPS Innovation Newsletter',
+                utm_content: 'image link',
+                utm_medium: 'email',
+                utm_source: 'Newsletter',
+                utm_term: 'tps reports'
+              },
+              $setOnce: {
+                initial_referrer: 'some-referrer',
+                initial_utm_campaign: 'TPS Innovation Newsletter',
+                initial_utm_content: 'image link',
+                initial_utm_medium: 'email',
+                initial_utm_source: 'Newsletter',
+                initial_utm_term: 'tps reports'
+              }
+            })
+          })
+        ])
+      })
+    })
+
+    it('works when setOnce, setAlways, and add are empty', async () => {
+      nock('https://api2.amplitude.com/2').post('/httpapi').reply(200, {})
+
+      const event = createTestEvent({
+        timestamp,
+        event: 'Test Event',
+        traits: {
+          'some-trait-key': 'some-trait-value'
+        },
+        context: {
+          page: {
+            referrer: 'some-referrer'
+          },
+          campaign: {
+            name: 'TPS Innovation Newsletter',
+            source: 'Newsletter',
+            medium: 'email',
+            term: 'tps reports',
+            content: 'image link'
+          }
+        }
+      })
+
+      const mapping = {
+        setOnce: {},
+        setAlways: {},
+        add: {}
+      }
+
+      const responses = await testDestination.testAction('logEventV2', { event, mapping, useDefaultMappings: true })
+      expect(responses.length).toBe(1)
+      expect(responses[0].status).toBe(200)
+      expect(responses[0].options.json).toMatchObject({
+        api_key: undefined,
+        events: expect.arrayContaining([
+          expect.objectContaining({
+            user_properties: expect.objectContaining({
+              'some-trait-key': 'some-trait-value'
+            })
+          })
+        ])
+      })
+    })
+
+    it('should give precedence to OS properties over userAgent properties', async () => {
+      const event = createTestEvent({
+        anonymousId: '6fd32a7e-3c56-44c2-bd32-62bbec44c53d',
+        timestamp,
+        event: 'Test Event',
+        context: {
+          os: {
+            name: 'iPhone OS',
+            version: '8.1.3'
+          },
+          userAgent:
+            'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_11_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/53.0.2785.143 Safari/537.36'
+        }
+      })
+      const mapping = {
+        userAgentParsing: true
+      }
+      nock('https://api2.amplitude.com/2').post('/httpapi').reply(200, {})
+      const responses = await testDestination.testAction('logEventV2', { event, mapping, useDefaultMappings: true })
+      expect(responses.length).toBe(1)
+      expect(responses[0].status).toBe(200)
+      expect(responses[0].data).toMatchObject({})
+      expect(responses[0].options.json).toMatchInlineSnapshot(`
+        Object {
+          "api_key": undefined,
+          "events": Array [
+            Object {
+              "device_id": "6fd32a7e-3c56-44c2-bd32-62bbec44c53d",
+              "device_model": "Mac OS",
+              "device_type": undefined,
+              "event_properties": Object {},
+              "event_type": "Test Event",
+              "library": "segment",
+              "os_name": "iPhone OS",
+              "os_version": "8.1.3",
+              "time": 1629213675449,
+              "use_batch_endpoint": false,
+              "user_id": "user1234",
+              "user_properties": Object {},
+            },
+          ],
+          "options": undefined,
+        }
+      `)
+    })
+  })
+
+  it('does not send parsed user agent properties when setting is false', async () => {
     const event = createTestEvent({
       timestamp: '2021-04-12T16:32:37.710Z',
       event: 'Test Event',
@@ -942,24 +1894,24 @@ describe('Amplitude', () => {
     expect(responses[0].status).toBe(200)
     expect(responses[0].data).toMatchObject({})
     expect(responses[0].options.json).toMatchInlineSnapshot(`
-      Object {
-        "api_key": undefined,
-        "events": Array [
-          Object {
-            "device_id": "foo",
-            "event_properties": Object {},
-            "event_type": "Test Event",
-            "idfv": "foo",
-            "library": "segment",
-            "time": 1618245157710,
-            "use_batch_endpoint": false,
-            "user_id": "user1234",
-            "user_properties": Object {},
-          },
-        ],
-        "options": undefined,
-      }
-    `)
+        Object {
+          "api_key": undefined,
+          "events": Array [
+            Object {
+              "device_id": "foo",
+              "event_properties": Object {},
+              "event_type": "Test Event",
+              "idfv": "foo",
+              "library": "segment",
+              "time": 1618245157710,
+              "use_batch_endpoint": false,
+              "user_id": "user1234",
+              "user_properties": Object {},
+            },
+          ],
+          "options": undefined,
+        }
+      `)
   })
 
   describe('identifyUser', () => {
@@ -985,7 +1937,7 @@ describe('Amplitude', () => {
             "api_key",
             "undefined",
             "identification",
-            "{\\"os_name\\":\\"Mobile Safari\\",\\"os_version\\":\\"9\\",\\"device_model\\":\\"iPhone\\",\\"device_type\\":\\"mobile\\",\\"user_id\\":\\"some-user-id\\",\\"device_id\\":\\"some-anonymous-id\\",\\"user_properties\\":{\\"some-trait-key\\":\\"some-trait-value\\"},\\"country\\":\\"United States\\",\\"city\\":\\"San Francisco\\",\\"language\\":\\"en-US\\",\\"platform\\":\\"Web\\",\\"library\\":\\"segment\\"}",
+            "{\\"os_name\\":\\"iOS\\",\\"os_version\\":\\"9.1\\",\\"device_model\\":\\"iPhone\\",\\"device_type\\":\\"mobile\\",\\"user_id\\":\\"some-user-id\\",\\"device_id\\":\\"some-anonymous-id\\",\\"user_properties\\":{\\"some-trait-key\\":\\"some-trait-value\\"},\\"country\\":\\"United States\\",\\"city\\":\\"San Francisco\\",\\"language\\":\\"en-US\\",\\"platform\\":\\"Web\\",\\"library\\":\\"segment\\"}",
             "options",
             "undefined",
           ],
@@ -1059,7 +2011,7 @@ describe('Amplitude', () => {
             "api_key",
             "undefined",
             "identification",
-            "{\\"os_name\\":\\"Mobile Safari\\",\\"os_version\\":\\"9\\",\\"device_model\\":\\"iPhone\\",\\"device_type\\":\\"mobile\\",\\"user_id\\":\\"some-user-id\\",\\"device_id\\":\\"some-anonymous-id\\",\\"user_properties\\":{\\"some-trait-key\\":\\"some-trait-value\\"},\\"country\\":\\"United States\\",\\"city\\":\\"San Francisco\\",\\"language\\":\\"en-US\\",\\"platform\\":\\"Web\\",\\"library\\":\\"segment\\"}",
+            "{\\"os_name\\":\\"iOS\\",\\"os_version\\":\\"9.1\\",\\"device_model\\":\\"iPhone\\",\\"device_type\\":\\"mobile\\",\\"user_id\\":\\"some-user-id\\",\\"device_id\\":\\"some-anonymous-id\\",\\"user_properties\\":{\\"some-trait-key\\":\\"some-trait-value\\"},\\"country\\":\\"United States\\",\\"city\\":\\"San Francisco\\",\\"language\\":\\"en-US\\",\\"platform\\":\\"Web\\",\\"library\\":\\"segment\\"}",
             "options",
             "undefined",
           ],
@@ -1102,7 +2054,7 @@ describe('Amplitude', () => {
             "api_key",
             "undefined",
             "identification",
-            "{\\"os_name\\":\\"Chrome\\",\\"os_version\\":\\"53\\",\\"device_model\\":\\"Mac OS\\",\\"user_id\\":\\"some-user-id\\",\\"device_id\\":\\"foo\\",\\"user_properties\\":{\\"some-trait-key\\":\\"some-trait-value\\"},\\"library\\":\\"segment\\"}",
+            "{\\"os_name\\":\\"Mac OS\\",\\"os_version\\":\\"10.11.6\\",\\"device_model\\":\\"Mac OS\\",\\"user_id\\":\\"some-user-id\\",\\"device_id\\":\\"foo\\",\\"user_properties\\":{\\"some-trait-key\\":\\"some-trait-value\\"},\\"library\\":\\"segment\\"}",
             "options",
             "undefined",
           ],
@@ -1246,7 +2198,54 @@ describe('Amplitude', () => {
             "api_key",
             "",
             "identification",
-            "{\\"os_name\\":\\"Mobile Safari\\",\\"os_version\\":\\"9\\",\\"device_model\\":\\"iPhone\\",\\"device_type\\":\\"mobile\\",\\"user_id\\":\\"some-user-id\\",\\"device_id\\":\\"some-anonymous-id\\",\\"user_properties\\":{\\"some-trait-key\\":\\"some-trait-value\\"},\\"country\\":\\"United States\\",\\"city\\":\\"San Francisco\\",\\"language\\":\\"en-US\\",\\"platform\\":\\"Web\\",\\"library\\":\\"segment\\"}",
+            "{\\"os_name\\":\\"iOS\\",\\"os_version\\":\\"9.1\\",\\"device_model\\":\\"iPhone\\",\\"device_type\\":\\"mobile\\",\\"user_id\\":\\"some-user-id\\",\\"device_id\\":\\"some-anonymous-id\\",\\"user_properties\\":{\\"some-trait-key\\":\\"some-trait-value\\"},\\"country\\":\\"United States\\",\\"city\\":\\"San Francisco\\",\\"language\\":\\"en-US\\",\\"platform\\":\\"Web\\",\\"library\\":\\"segment\\"}",
+            "options",
+            "undefined",
+          ],
+          Symbol(context): null,
+        }
+      `)
+    })
+
+    it('should give precedence to OS properties over userAgent properties', async () => {
+      const event = createTestEvent({
+        anonymousId: 'some-anonymous-id',
+        timestamp: '2021-04-12T16:32:37.710Z',
+        type: 'group',
+        userId: 'some-user-id',
+        event: 'Test Event',
+        traits: {
+          'some-trait-key': 'some-trait-value'
+        },
+        context: {
+          os: {
+            name: 'iPhone OS',
+            version: '8.1.3'
+          },
+          device: {
+            id: 'foo'
+          },
+          userAgent:
+            'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_11_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/53.0.2785.143 Safari/537.36'
+        }
+      })
+
+      const mapping = {
+        userAgentParsing: true
+      }
+
+      nock('https://api2.amplitude.com').post('/identify').reply(200, {})
+      const responses = await testDestination.testAction('identifyUser', { event, mapping, useDefaultMappings: true })
+      expect(responses.length).toBe(1)
+      expect(responses[0].status).toBe(200)
+      expect(responses[0].data).toMatchObject({})
+      expect(responses[0].options.body).toMatchInlineSnapshot(`
+        URLSearchParams {
+          Symbol(query): Array [
+            "api_key",
+            "undefined",
+            "identification",
+            "{\\"os_name\\":\\"iPhone OS\\",\\"os_version\\":\\"8.1.3\\",\\"device_model\\":\\"Mac OS\\",\\"user_id\\":\\"some-user-id\\",\\"device_id\\":\\"foo\\",\\"user_properties\\":{\\"some-trait-key\\":\\"some-trait-value\\"},\\"library\\":\\"segment\\"}",
             "options",
             "undefined",
           ],

@@ -5,14 +5,14 @@ import { Hubspot } from '../types'
 import { flatten } from '../utils/flatten'
 
 const action: BrowserActionDefinition<Settings, Hubspot, Payload> = {
-  title: 'Update an Existing Contact or Create a New One',
-  description: 'Use this action to identify website contacts.',
+  title: 'Upsert Contact',
+  description: 'Create or update a contact in HubSpot.',
   defaultSubscription: 'type = "identify"',
   platform: 'web',
   fields: {
     email: {
       description:
-        'Identify a contacts by email address when you want to update an existing contact or create a new one.',
+        'The contact’s email. Email is used to uniquely identify contact records in HubSpot and create or update the contact accordingly.',
       label: 'Email Address',
       type: 'string',
       required: true,
@@ -22,7 +22,7 @@ const action: BrowserActionDefinition<Settings, Hubspot, Payload> = {
     },
     id: {
       description: 'A custom external ID that identifies the visitor.',
-      label: 'Unique external ID',
+      label: 'External ID',
       type: 'string',
       required: false,
       default: {
@@ -30,7 +30,7 @@ const action: BrowserActionDefinition<Settings, Hubspot, Payload> = {
       }
     },
     custom_properties: {
-      description: 'A list of key-value pairs, with one key-value pair per property.',
+      description: 'A list of key-value pairs that describe the contact. Please see [HubSpot`s documentation](https://knowledge.hubspot.com/account/prevent-contact-properties-update-through-tracking-code-api) for limitations in updating contact properties.',
       label: 'Custom Properties',
       type: 'object',
       required: false,

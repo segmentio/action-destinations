@@ -1,5 +1,7 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
+exports[`Testing snapshot for actions-linkedin-audiences destination: required fields - invalid combination 1`] = `[IntegrationError: At least one of \`Send Email\` or \`Send Google Advertising ID\` must be set to \`true\`.]`;
+
 exports[`Testing snapshot for actions-linkedin-audiences destination: updateAudience action - all fields 1`] = `""`;
 
 exports[`Testing snapshot for actions-linkedin-audiences destination: updateAudience action - required fields 1`] = `""`;

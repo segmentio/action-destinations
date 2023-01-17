@@ -20,8 +20,6 @@ export type { BaseActionDefinition, ActionDefinition, ExecuteInput, RequestFn }
 export type { MinimalInputField }
 export { fieldsToJsonSchema }
 
-const OAUTH2_SCHEME = 'oauth2'
-
 export interface SubscriptionStats {
   duration: number
   destination: string
@@ -117,7 +115,7 @@ interface RefreshAuthSettings<Settings> {
 
 interface Authentication<Settings> {
   /** The authentication scheme */
-  scheme: 'basic' | 'custom' | 'oauth2'
+  scheme: 'basic' | 'custom' | 'oauth2' | 'oauth-managed'
   /** The fields related to authentication */
   fields: Record<string, GlobalSetting>
   /** A function that validates the user's authentication inputs. It is highly encouraged to define this whenever possible. */
@@ -154,11 +152,25 @@ export interface OAuth2Authentication<Settings> extends Authentication<Settings>
   ) => Promise<RefreshAccessTokenResult>
 }
 
+/**
+ * OAuth2 authentication scheme where the credentials and settings are managed by the partner.
+ */
+export interface OAuthManagedAuthentication<Settings> extends Authentication<Settings> {
+  scheme: 'oauth-managed'
+  /** A function that is used to refresh the access token
+   */
+  refreshAccessToken?: (
+    request: RequestClient,
+    input: RefreshAuthSettings<Settings>
+  ) => Promise<RefreshAccessTokenResult>
+}
+
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export type AuthenticationScheme<Settings = any> =
   | BasicAuthentication<Settings>
   | CustomAuthentication<Settings>
   | OAuth2Authentication<Settings>
+  | OAuthManagedAuthentication<Settings>
 
 interface EventInput<Settings> {
   readonly event: SegmentEvent
@@ -171,6 +183,7 @@ interface EventInput<Settings> {
   readonly statsContext?: StatsContext
   readonly logger?: Logger
   readonly transactionContext?: TransactionContext
+  readonly stateContext?: StateContext
 }
 
 interface BatchEventInput<Settings> {
@@ -184,6 +197,7 @@ interface BatchEventInput<Settings> {
   readonly statsContext?: StatsContext
   readonly logger?: Logger
   readonly transactionContext?: TransactionContext
+  readonly stateContext?: StateContext
 }
 
 export interface DecoratedResponse extends ModifiedResponse {
@@ -198,6 +212,7 @@ interface OnEventOptions {
   statsContext?: StatsContext
   logger?: Logger
   transactionContext?: TransactionContext
+  stateContext?: StateContext
 }
 
 /** Transaction variables and setTransaction method are passed from mono service for few Segment built integrations.
@@ -206,6 +221,14 @@ interface OnEventOptions {
 export interface TransactionContext {
   transaction: Record<string, string>
   setTransaction: (key: string, value: string) => void
+}
+
+export interface StateContext {
+  // getRequestContext reads the `context` field from the request
+  getRequestContext(key: string, cb?: (res?: string) => any): any
+  // setResponseContext sets values in the `setContext` field in the response
+  // values set on the response will be available on subsequent requests
+  setResponseContext(key: string, value: string, ttl: { hour?: number; minute?: number; second?: number }): void
 }
 
 export interface StatsClient {
@@ -303,7 +326,7 @@ export class Destination<Settings = JSONObject> {
     }
 
     const options = this.extendRequest?.(context) ?? {}
-    const requestClient = createRequestClient(options)
+    const requestClient = createRequestClient({ ...options, statsContext: context.statsContext })
 
     try {
       await this.authentication.testAuthentication(requestClient, data)
@@ -317,7 +340,7 @@ export class Destination<Settings = JSONObject> {
     settings: Settings,
     oauthData: OAuth2ClientCredentials
   ): Promise<RefreshAccessTokenResult> | undefined {
-    if (this.authentication?.scheme !== OAUTH2_SCHEME) {
+    if (!(this.authentication?.scheme === 'oauth2' || this.authentication?.scheme === 'oauth-managed')) {
       throw new IntegrationError(
         'refreshAccessToken is only valid with oauth2 authentication scheme',
         'NotImplemented',
@@ -332,7 +355,7 @@ export class Destination<Settings = JSONObject> {
       auth: getAuthData(settings as unknown as JSONObject)
     }
     const options = this.extendRequest?.(context) ?? {}
-    const requestClient = createRequestClient(options)
+    const requestClient = createRequestClient({ ...options, statsContext: context.statsContext })
 
     if (!this.authentication?.refreshAccessToken) {
       return undefined
@@ -357,7 +380,17 @@ export class Destination<Settings = JSONObject> {
 
   protected async executeAction(
     actionSlug: string,
-    { event, mapping, settings, auth, features, statsContext, logger, transactionContext }: EventInput<Settings>
+    {
+      event,
+      mapping,
+      settings,
+      auth,
+      features,
+      statsContext,
+      logger,
+      transactionContext,
+      stateContext
+    }: EventInput<Settings>
   ): Promise<Result[]> {
     const action = this.actions[actionSlug]
     if (!action) {
@@ -372,13 +405,24 @@ export class Destination<Settings = JSONObject> {
       features,
       statsContext,
       logger,
-      transactionContext
+      transactionContext,
+      stateContext
     })
   }
 
   public async executeBatch(
     actionSlug: string,
-    { events, mapping, settings, auth, features, statsContext, logger, transactionContext }: BatchEventInput<Settings>
+    {
+      events,
+      mapping,
+      settings,
+      auth,
+      features,
+      statsContext,
+      logger,
+      transactionContext,
+      stateContext
+    }: BatchEventInput<Settings>
   ) {
     const action = this.actions[actionSlug]
     if (!action) {
@@ -393,7 +437,8 @@ export class Destination<Settings = JSONObject> {
       features,
       statsContext,
       logger,
-      transactionContext
+      transactionContext,
+      stateContext
     })
 
     return [{ output: 'successfully processed batch of events' }]
@@ -428,7 +473,8 @@ export class Destination<Settings = JSONObject> {
       features: options?.features || {},
       statsContext: options?.statsContext || ({} as StatsContext),
       logger: options?.logger,
-      transactionContext: options?.transactionContext
+      transactionContext: options?.transactionContext,
+      stateContext: options?.stateContext
     }
 
     let results: Result[] | null = null
@@ -510,7 +556,7 @@ export class Destination<Settings = JSONObject> {
     const context: ExecuteInput<Settings, any> = { settings: destinationSettings, payload, auth }
 
     const opts = this.extendRequest?.(context) ?? {}
-    const requestClient = createRequestClient(opts)
+    const requestClient = createRequestClient({ ...opts, statsContext: context.statsContext })
 
     const run = async () => {
       const deleteResult = await this.definition.onDelete?.(requestClient, data)
@@ -523,7 +569,12 @@ export class Destination<Settings = JSONObject> {
       const statusCode = error?.status ?? error?.response?.status ?? 500
 
       // Throw original error if it is unrelated to invalid access tokens and not an oauth2 scheme
-      if (!(statusCode === 401 && this.authentication?.scheme === OAUTH2_SCHEME)) {
+      if (
+        !(
+          statusCode === 401 &&
+          (this.authentication?.scheme === 'oauth2' || this.authentication?.scheme === 'oauth-managed')
+        )
+      ) {
         throw error
       }
 
@@ -566,7 +617,12 @@ export class Destination<Settings = JSONObject> {
       const statusCode = error?.status ?? error?.response?.status ?? 500
 
       // Throw original error if it is unrelated to invalid access tokens and not an oauth2 scheme
-      if (!(statusCode === 401 && this.authentication?.scheme === OAUTH2_SCHEME)) {
+      if (
+        !(
+          statusCode === 401 &&
+          (this.authentication?.scheme === 'oauth2' || this.authentication?.scheme === 'oauth-managed')
+        )
+      ) {
         throw error
       }
 

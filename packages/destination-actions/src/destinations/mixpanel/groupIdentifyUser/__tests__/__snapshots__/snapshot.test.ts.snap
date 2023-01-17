@@ -1,8 +1,8 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`Testing snapshot for Mixpanel's groupIdentifyUser destination action: all fields 1`] = `"data=%7B%22%24token%22%3A%22%251srs%22%2C%22%24group_key%22%3A%22company%22%2C%22%24group_id%22%3A%22Mixpanel%22%2C%22%24set%22%3A%7B%22hello%22%3A%22world%22%2C%22company%22%3A%22Mixpanel%22%7D%2C%22segment_source_name%22%3A%22%251srs%22%7D"`;
+exports[`Testing snapshot for Mixpanel's groupIdentifyUser destination action: all fields 1`] = `"data=%7B%22%24token%22%3A%22%251srs%22%2C%22%24group_key%22%3A%22company%22%2C%22%24group_id%22%3A%22Mixpanel%22%2C%22%24set%22%3A%7B%22hello%22%3A%22world%22%2C%22company%22%3A%22Mixpanel%22%7D%7D"`;
 
-exports[`Testing snapshot for Mixpanel's groupIdentifyUser destination action: required fields 1`] = `"data=%7B%22%24token%22%3A%22%251srs%22%2C%22%24group_key%22%3A%22company%22%2C%22%24group_id%22%3A%22Mixpanel%22%2C%22%24set%22%3A%7B%22hello%22%3A%22world%22%2C%22company%22%3A%22Mixpanel%22%7D%2C%22segment_source_name%22%3A%22%251srs%22%7D"`;
+exports[`Testing snapshot for Mixpanel's groupIdentifyUser destination action: required fields 1`] = `"data=%7B%22%24token%22%3A%22%251srs%22%2C%22%24group_key%22%3A%22company%22%2C%22%24group_id%22%3A%22Mixpanel%22%2C%22%24set%22%3A%7B%22hello%22%3A%22world%22%2C%22company%22%3A%22Mixpanel%22%7D%7D"`;
 
 exports[`Testing snapshot for Mixpanel's groupIdentifyUser destination action: required fields 2`] = `
 Headers {

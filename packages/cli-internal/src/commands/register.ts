@@ -7,6 +7,7 @@ import type { CreateDestinationMetadataInput } from '../lib/control-plane-servic
 import { autoPrompt, prompt } from '@segment/actions-cli/lib/prompt'
 import { loadDestination } from '@segment/actions-cli/lib/destinations'
 import { generateSlug } from '@segment/actions-cli/lib/slugs'
+import deprecationWarning from '../lib/warning'
 
 const NOOP_CONTEXT = {}
 
@@ -33,6 +34,7 @@ export default class Register extends Command {
 
   async run() {
     const { flags } = this.parse(Register)
+    await deprecationWarning(this.warn)
 
     let destinationPath = flags.path
     if (!destinationPath) {

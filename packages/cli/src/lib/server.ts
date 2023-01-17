@@ -15,7 +15,6 @@ import {
 import asyncHandler from './async-handler'
 import getExchanges from './summarize-http'
 import { AggregateAjvError } from '../../../ajv-human-errors/src/aggregate-ajv-error'
-import { DynamicFieldResponse } from '@segment/actions-core'
 interface ResponseError extends Error {
   status?: number
 }
@@ -259,8 +258,8 @@ function setupRoutes(def: DestinationDefinition | null): void {
               const action = destination.actions[actionSlug]
               const result = await action.executeDynamicField(field, data)
 
-              if ((result as DynamicFieldResponse).error) {
-                throw (result as DynamicFieldResponse).error
+              if (result.error) {
+                throw result.error
               }
 
               return res.status(200).json(result)

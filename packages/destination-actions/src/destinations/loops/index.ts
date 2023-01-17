@@ -1,7 +1,7 @@
 import type { DestinationDefinition } from '@segment/actions-core'
 import type { Settings } from './generated-types'
 
-import createContact from './createContact'
+import createOrUpdateContact from './createOrUpdateContact'
 
 const destination: DestinationDefinition<Settings> = {
   name: 'Loops (Actions)',
@@ -30,7 +30,7 @@ const destination: DestinationDefinition<Settings> = {
   },
 
   actions: {
-    createContact
+    createOrUpdateContact
   }
 }
 

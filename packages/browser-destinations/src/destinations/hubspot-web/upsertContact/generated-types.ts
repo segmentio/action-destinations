@@ -2,7 +2,7 @@
 
 export interface Payload {
   /**
-   * Identify a contacts by email address when you want to update an existing contact or create a new one.
+   * The contact’s email. Email is used to uniquely identify contact records in HubSpot and create or update the contact accordingly.
    */
   email: string
   /**
@@ -10,7 +10,7 @@ export interface Payload {
    */
   id?: string
   /**
-   * A list of key-value pairs, with one key-value pair per property.
+   * A list of key-value pairs that describe the contact. Please see [HubSpot`s documentation](https://knowledge.hubspot.com/account/prevent-contact-properties-update-through-tracking-code-api) for limitations in updating contact properties.
    */
   custom_properties?: {
     [k: string]: unknown

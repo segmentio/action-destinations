@@ -2,23 +2,23 @@
 
 export interface Settings {
   /**
-   * The Hub ID of your Hubspot account.
+   * The Hub ID of your HubSpot account.
    */
   portalId: string
   /**
-   * Enable the European Data Center.
+   * Enable this option if you would like Segment to load the HubSpot SDK for EU data residency.
    */
   enableEuropeanDataCenter?: boolean
   /**
-   * Fire a Page View immediately after an Identify to send the data to Hubspot.
+   * Enable this option to fire a `trackPageView` HubSpot event immediately after each Segment `identify` call to flush the data to HubSpot immediately.
    */
   flushIdentifyImmediately?: boolean
   /**
-   * Format the event names for custom behavioral event automatically to standard Hubspot format (pe<HubID>_event_name).
+   * Format the event names for custom behavioral event automatically to standard HubSpot format (`pe<HubID>_event_name`).
    */
   formatCustomBehavioralEventNames?: boolean
   /**
-   * Load the Hubspot Forms SDK.
+   * Enable this option if you would like Segment to automatically load the HubSpot Forms SDK onto your site.
    */
   loadFormsSDK?: boolean
 }
