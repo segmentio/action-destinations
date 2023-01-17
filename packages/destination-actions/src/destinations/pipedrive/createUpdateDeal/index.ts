@@ -210,18 +210,10 @@ const action: ActionDefinition<Settings, Payload> = {
         400
       )
     }
-
-    const custom_fields = {}
-
-    if (payload.organization_match_field)
-      Object.assign(custom_fields, { [payload.organization_match_field]: payload.organization_match_value }) // write the organization external id to the custom_fields obj in deal payload
-
-    if (payload.person_match_field)
-      Object.assign(custom_fields, { [payload.person_match_field]: payload.person_match_value }) // write the person external id to the custom_fields obj in deal payload
-
-    if (payload.deal_match_field) Object.assign(deal, { [payload.deal_match_field]: payload.deal_match_value })
-
-    deal.custom_fields = custom_fields
+    if (!deal.id)
+      if (payload.deal_match_field && payload.deal_match_value)
+        // if there's no deal.id then we're doing a create operation, so we should include the deal_match field info so it's recorded on the new entity
+        Object.assign(deal, { [payload.deal_match_field]: payload.deal_match_value })
 
     addCustomFieldsFromPayloadToEntity(payload, deal)
 

@@ -82,7 +82,10 @@ const action: ActionDefinition<Settings, Payload> = {
       visible_to: payload.visible_to
     }
 
-    if (payload.match_field) Object.assign(organization, { [payload.match_field]: payload.match_value }) // write the organization external id to the root of the payload
+    if (!organizationId)
+      if (payload.match_field && payload.match_value)
+        // if doing a create, write the match_field and match_value data to the new Organization object's custom field
+        Object.assign(organization, { [payload.match_field]: payload.match_value })
 
     addCustomFieldsFromPayloadToEntity(payload, organization)
 

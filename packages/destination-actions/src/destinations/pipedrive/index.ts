@@ -81,20 +81,20 @@ const destination: DestinationDefinition<Settings> = {
   },
   presets: [
     {
-      name: 'Create or Update a Person',
+      name: 'Upsert a Person',
       subscribe: 'type = "identify"',
       partnerAction: 'createUpdatePerson',
       mapping: defaultValues(createUpdatePerson.fields)
     },
     {
-      name: 'Create or Update an Organization',
+      name: 'Upsert an Organization',
       subscribe: 'type = "group"',
       partnerAction: 'createUpdateOrganization',
       mapping: defaultValues(createUpdateOrganization.fields)
     },
     {
-      name: 'Create or Update an Activity',
-      subscribe: 'type = "track"',
+      name: 'Upsert an Activity',
+      subscribe: 'type = "track" and event == "Upsert Activity"',
       partnerAction: 'createUpdateActivity',
       mapping: defaultValues(createUpdateActivity.fields)
     }

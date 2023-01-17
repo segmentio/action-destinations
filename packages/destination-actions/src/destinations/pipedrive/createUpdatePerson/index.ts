@@ -104,7 +104,10 @@ const action: ActionDefinition<Settings, Payload> = {
       visible_to: payload.visible_to
     }
 
-    if (payload.match_field) Object.assign(person, { custom_fields: { [payload.match_field]: payload.match_value } }) // write the person external id to the custom_fields object in the payload
+    if (!personId)
+      if (payload.match_field)
+        // if doing a create, include the match_field and match_value data so that it gets written to the new object
+        Object.assign(person, { [payload.match_field]: payload.match_value })
 
     addCustomFieldsFromPayloadToEntity(payload, person)
 
