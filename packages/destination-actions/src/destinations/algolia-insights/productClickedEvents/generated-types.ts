@@ -25,4 +25,8 @@ export interface Payload {
    * The ID associated with the user
    */
   userID?: string
+  /**
+   * The timestamp of the event.
+   */
+  timestamp?: string
 }

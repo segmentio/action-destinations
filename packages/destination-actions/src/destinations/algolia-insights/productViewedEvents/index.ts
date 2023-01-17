@@ -47,6 +47,13 @@ const action: ActionDefinition<Settings, Payload> = {
       description: 'The ID associated with the user',
       label: 'User ID',
       default: { '@path': '$.userId' }
+    },
+    timestamp: {
+      type: 'string',
+      required: false,
+      description: 'The timestamp of the event.',
+      label: 'timestamp',
+      default: { '@path': '$.timestamp' }
     }
   },
   defaultSubscription: 'type = "track" and event = "Product Viewed"',
@@ -56,7 +63,8 @@ const action: ActionDefinition<Settings, Payload> = {
       eventName: 'Product Viewed',
       eventType: 'view',
       objectIDs: [data.payload.objectID],
-      userToken: data.payload.userID || data.payload.anonymousID
+      userToken: data.payload.userID || data.payload.anonymousID,
+      timestamp: data.payload.timestamp ? new Date(data.payload.timestamp).valueOf() : undefined
     }
     const insightPayload = { events: [insightEvent] }
 
