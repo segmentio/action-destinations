@@ -6,11 +6,11 @@ export interface Payload {
    */
   messageType?: string
   /**
-   * Content SID for whatsApp
+   * If you are sending whatsApp messages, The template you sending for whatsApp
    */
   contentSid?: string
   /**
-   * Content personalization variables for WhatsApp
+   * Content personalization variables/merge tags for your whatsApp message
    */
   contentVariables?: string
   /**
