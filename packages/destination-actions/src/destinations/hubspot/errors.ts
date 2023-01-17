@@ -12,7 +12,7 @@ export class HubSpotError extends HTTPError {
   }
 }
 export const MissingIdentityCallThrowableError = new IntegrationError(
-  'Identify (Upsert Contact) must be called before Group (Upsert Company) for the HubSpot Cloud (Actions) destination.',
+  'Identify (Upsert Contact) must be called before Group (Upsert Company) for the HubSpot Cloud (Actions) destination if ’Associate Contact with Company’ property is set to Yes (true).',
   'Missing Identity Call',
   400
 )

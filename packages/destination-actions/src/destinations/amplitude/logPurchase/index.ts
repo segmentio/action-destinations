@@ -31,12 +31,17 @@ interface EventRevenue {
 }
 
 function getRevenueProperties(payload: EventRevenue): EventRevenue {
-  if (typeof payload.revenue !== 'number') {
+  let revenue = payload.revenue
+  if (typeof payload.quantity === 'number' && typeof payload.price === 'number') {
+    revenue = payload.quantity * payload.price
+  }
+
+  if (!revenue) {
     return {}
   }
 
   return {
-    revenue: payload.revenue,
+    revenue,
     revenueType: payload.revenueType ?? 'Purchase',
     quantity: typeof payload.quantity === 'number' ? Math.round(payload.quantity) : undefined,
     price: payload.price,

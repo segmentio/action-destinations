@@ -112,4 +112,8 @@ export interface Payload {
   traits?: {
     [k: string]: unknown
   }
+  /**
+   * Time of when the actual event happened.
+   */
+  eventOccurredTS?: string
 }

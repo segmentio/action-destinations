@@ -8,7 +8,8 @@ import {
   operation,
   traits,
   validateLookup,
-  enable_batching
+  enable_batching,
+  recordMatcherOperator
 } from '../sf-properties'
 import type { Payload } from './generated-types'
 
@@ -19,6 +20,7 @@ const action: ActionDefinition<Settings, Payload> = {
   description: 'Create, update, or upsert opportunities in Salesforce.',
   fields: {
     operation: operation,
+    recordMatcherOperator: recordMatcherOperator,
     enable_batching: enable_batching,
     traits: traits,
     bulkUpsertExternalId: bulkUpsertExternalId,

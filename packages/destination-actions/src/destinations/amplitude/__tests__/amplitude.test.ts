@@ -555,6 +555,163 @@ describe('Amplitude', () => {
           }
         `)
     })
+
+    it('should calculate revenue based on price and quantity', async () => {
+      const event = createTestEvent({
+        event: 'Order Completed',
+        timestamp,
+        properties: {
+          revenue: 3_998,
+          products: [
+            {
+              quantity: 2,
+              productId: 'Bowflex Treadmill 10',
+              price: 1_999
+            }
+          ]
+        }
+      })
+
+      const mapping = {
+        trackRevenuePerProduct: true
+      }
+
+      nock('https://api2.amplitude.com/2').post('/httpapi').reply(200, {})
+
+      const responses = await testDestination.testAction('logPurchase', { event, mapping, useDefaultMappings: true })
+      expect(responses.length).toBe(1)
+      expect(responses[0].status).toBe(200)
+      expect(responses[0].options.json).toMatchObject({
+        api_key: undefined,
+        events: expect.arrayContaining([
+          expect.objectContaining({
+            event_type: 'Order Completed',
+            event_properties: event.properties,
+            library: 'segment'
+          }),
+          expect.objectContaining({
+            event_type: 'Product Purchased',
+            revenue: 3_998,
+            price: 1_999,
+            quantity: 2,
+            // @ts-ignore i know what i'm doing
+            event_properties: event.properties.products[0],
+            library: 'segment'
+          })
+        ])
+      })
+    })
+
+    it('should ignore products with no revenue or quantity/price value', async () => {
+      const event = createTestEvent({
+        event: 'Order Completed',
+        timestamp,
+        properties: {
+          products: [
+            {
+              quantity: 2,
+              productId: 'Bowflex Treadmill 10',
+              price: 1_999
+            },
+            {
+              revenue: 1_999,
+              productId: 'Bowflex Treadmill 8',
+            },
+            {
+              productId: 'Bowflex Treadmill 4',
+              price: 1_999
+            },
+            {
+              quantity: 2,
+              productId: 'Bowflex Treadmill 2',
+            }
+          ]
+        }
+      })
+
+      const mapping = {
+        trackRevenuePerProduct: true
+      }
+
+      nock('https://api2.amplitude.com/2').post('/httpapi').reply(200, {})
+
+      const responses = await testDestination.testAction('logPurchase', { event, mapping, useDefaultMappings: true })
+      expect(responses.length).toBe(1)
+      expect(responses[0].status).toBe(200)
+      expect(responses[0].options.json).toMatchObject({
+        api_key: undefined,
+        events: expect.arrayContaining([
+          expect.objectContaining({
+            event_type: 'Order Completed',
+            event_properties: event.properties,
+            library: 'segment'
+          }),
+          expect.objectContaining({
+            event_type: 'Product Purchased',
+            revenue: 3_998,
+            price: 1_999,
+            quantity: 2,
+            // @ts-ignore i know what i'm doing
+            event_properties: event.properties.products[0],
+            library: 'segment'
+          }),
+          expect.objectContaining({
+            event_type: 'Product Purchased',
+            revenue: 1_999,
+            // @ts-ignore i know what i'm doing
+            event_properties: event.properties.products[1],
+            library: 'segment'
+          })
+        ])
+      })
+    })
+
+    it('should prioritize price*quantity over revenue value', async () => {
+      const event = createTestEvent({
+        event: 'Order Completed',
+        timestamp,
+        properties: {
+          revenue: 3_998,
+          products: [
+            {
+              quantity: 2,
+              productId: 'Bowflex Treadmill 10',
+              price: 1_999,
+              revenue: 4_000
+            }
+          ]
+        }
+      })
+
+      const mapping = {
+        trackRevenuePerProduct: true
+      }
+
+      nock('https://api2.amplitude.com/2').post('/httpapi').reply(200, {})
+
+      const responses = await testDestination.testAction('logPurchase', { event, mapping, useDefaultMappings: true })
+      expect(responses.length).toBe(1)
+      expect(responses[0].status).toBe(200)
+      expect(responses[0].options.json).toMatchObject({
+        api_key: undefined,
+        events: expect.arrayContaining([
+          expect.objectContaining({
+            event_type: 'Order Completed',
+            event_properties: event.properties,
+            library: 'segment'
+          }),
+          expect.objectContaining({
+            event_type: 'Product Purchased',
+            revenue: 3_998,
+            price: 1_999,
+            quantity: 2,
+            // @ts-ignore i know what i'm doing
+            event_properties: event.properties.products[0],
+            library: 'segment'
+          })
+        ])
+      })
+    })
   })
 
   describe('mapUser', () => {

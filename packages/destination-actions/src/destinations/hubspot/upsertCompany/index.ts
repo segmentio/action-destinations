@@ -83,8 +83,8 @@ type UpsertCompanyFunction = () => Promise<ModifiedResponse<UpsertCompanyRespons
 
 /**
  * Upsert Company Action works as follows:
- * 1. Check if contact_id is available in transactionContext,
- *    if not available throw error, else continue to step 2
+ * 1. Check if associateContact flag is set to true AND contact_id is not defined in transactionContext,
+ *    if the above condition is true then throw error, else continue to step 2
  * 2. Check if internal property SEGMENT_UNIQUE_IDENTIFIER is re-defined in other properties,
  *    if defined throw error, else continue to step 3
  * 3. Try to update the company using SEGMENT_UNIQUE_IDENTIFIER
@@ -96,27 +96,34 @@ type UpsertCompanyFunction = () => Promise<ModifiedResponse<UpsertCompanyRespons
  * 4. If Company Search Fields are defined, attempt to search for a Company
  *    Case a: If company is not found, move to Step 5
  *    Case b: If a company is found, move to Step 6
- * 5. An existing company was not found, create a new company
- *    case a: If company is created, move to Step 7
- *    case b: If company is not created due to missing SEGMENT_UNIQUE_IDENTIFIER
+ * 5. An existing company was not found, try creating a company
+ *    Case a: If createNewCompany flag is set to false, exit the flow without creating a company
+ *    Case b: If company is created, move to Step 7
+ *    Case c: If company is not created due to missing SEGMENT_UNIQUE_IDENTIFIER
  *            create the property and retry creation of company, move to Step 7 if it succeeds
- *    Case c: If any other error occurs in the flow, throw the error
+ *    Case d: If any other error occurs in the flow, throw the error
  * 6. Existing company is found, update the company with new properties
- *    case a: If company is updated, move to Step 7
- *    case b: If company is not updated due to missing SEGMENT_UNIQUE_IDENTIFIER
+ *    Case a: If company is updated, move to Step 7
+ *    Case b: If company is not updated due to missing SEGMENT_UNIQUE_IDENTIFIER
  *            create the property and retry to update of company, move to Step 7 if it succeeds
  *    Case c: If any other error occurs in the flow, throw the error
- * 7. Associate company with Contact ID from transactionContext, throw error if any
+ * 7. Check if associateContact flag is set to true
+ *    Case a: If true, associate company with Contact ID from transactionContext, throw error if any
+ *    Case b: If false, skip association of contact with company
  */
+
+// Note: Some of the action fields are not in Camel Case to maintain parity with HubSpot API
+
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Upsert Company',
   description: 'Create or update a company in HubSpot.',
   defaultSubscription: 'type = "group"',
   fields: {
     groupid: {
-      label: 'Group ID',
-      description: `Used for constructing the unique ${SEGMENT_UNIQUE_IDENTIFIER} for HubSpot.`,
-      type: 'hidden',
+      label: 'Unique Company Identifier',
+      description:
+        'A unique identifier you assign to a company. Segment creates a custom property in HubSpot to store this value for each company so it can be used as a unique search field. Segment recommends not changing this value once set to avoid creating duplicate companies.',
+      type: 'string',
       required: true,
       default: {
         '@if': {
@@ -126,19 +133,33 @@ const action: ActionDefinition<Settings, Payload> = {
         }
       }
     },
+    createNewCompany: {
+      label: 'Create Company if Not Found',
+      description:
+        'If true, Segment will attempt to update an existing company in HubSpot and if no company is found, Segment will create a new company. If false, Segment will only attempt to update an existing company and never create a new company. This is set to true by default.',
+      type: 'boolean',
+      required: true,
+      default: true
+    },
+    associateContact: {
+      label: 'Associate Contact with Company',
+      description:
+        'If true, Segment will associate the company with the user identified in your payload. If no contact is found in HubSpot, an error is thrown and the company is not created/updated. If false, Segment will not attempt to associate a contact with the company and companies can be created/updated without requiring a contact association. This is set to true by default.',
+      type: 'boolean',
+      required: true,
+      default: true
+    },
     companysearchfields: {
       label: 'Company Search Fields',
       description:
         'The unique field(s) used to search for an existing company in HubSpot to update. By default, Segment creates a custom property to store groupId for each company and uses this property to search for companies. If a company is not found, the fields provided here are then used to search. If a company is still not found, a new one is created.',
       type: 'object',
-      required: true,
       defaultObjectUI: 'keyvalue:only'
     },
     name: {
       label: 'Company Name',
       description: 'The name of the company.',
       type: 'string',
-      required: true,
       default: {
         '@path': '$.traits.name'
       }
@@ -239,8 +260,8 @@ const action: ActionDefinition<Settings, Payload> = {
       throw RestrictedPropertyThrowableError
     }
 
-    // Check if transactionContext is defined and contact_id is present in TransactionContext
-    if (!transactionContext?.transaction?.contact_id) {
+    // If associateContact field is set to true, check if transactionContext is defined and contact_id is present in TransactionContext
+    if (payload.associateContact && !transactionContext?.transaction?.contact_id) {
       throw MissingIdentityCallThrowableError
     }
 
@@ -318,6 +339,11 @@ const action: ActionDefinition<Settings, Payload> = {
       if (!searchCompanyResponse || searchCompanyResponse.data.total === 0) {
         // No existing company found with search criteria, attempt to create a new company
 
+        // If Create New Company flag is set to false, skip creation
+        if (!payload.createNewCompany) {
+          return
+        }
+
         // Create a wrapper function which calls createCompany and returns the response
         const createCompanyWrapper = function () {
           return createCompany(request, companyProperties)
@@ -342,13 +368,10 @@ const action: ActionDefinition<Settings, Payload> = {
       }
     }
 
-    // If upsert company is successful, associate company with contact
-    await associateCompanyToContact(
-      request,
-      companyId,
-      transactionContext?.transaction?.['contact_id'],
-      ASSOCIATION_TYPE
-    )
+    // Associate company with contact if Associate Contact flag is set to true
+    if (payload.associateContact && transactionContext?.transaction?.contact_id) {
+      await associateCompanyToContact(request, companyId, transactionContext.transaction.contact_id, ASSOCIATION_TYPE)
+    }
   }
 }
 
