@@ -1,11 +1,11 @@
 import type { ActionDefinition } from '@segment/actions-core'
-import { ConversionEvent } from '../algolia-insight-api'
+import { AlgoliaBehaviourURL, AlgoliaConversionEvent } from '../algolia-insight-api'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Conversion Events',
-  description: '',
+  description: 'Successful product purcahses which can be tied back to an Algolia Search, Recommend or Predict result',
   fields: {
     products: {
       label: 'Product Details',
@@ -47,25 +47,33 @@ const action: ActionDefinition<Settings, Payload> = {
     userID: {
       type: 'string',
       required: false,
-      description: 'The ID associated with the user',
+      description: 'The ID associated with the user.',
       label: 'User ID',
       default: { '@path': '$.userId' }
+    },
+    timestamp: {
+      type: 'string',
+      required: false,
+      description: 'The timestamp of the event.',
+      label: 'timestamp',
+      default: { '@path': '$.timestamp' }
     }
   },
   defaultSubscription: 'type = "track" and event = "Order Completed"',
   perform: (request, data) => {
-    const insightEvent: ConversionEvent = {
+    const insightEvent: AlgoliaConversionEvent = {
       ...data.payload,
       eventName: 'Conversion Event',
       eventType: 'conversion',
       objectIDs: data.payload.products.map((product) => product.product_id),
-      userToken: data.payload.userID || data.payload.anonymousID
+      userToken: data.payload.userID || data.payload.anonymousID,
+      timestamp: data.payload.timestamp ? new Date(data.payload.timestamp).valueOf() : undefined
     }
     const insightPayload = { events: [insightEvent] }
 
-    return request('https://insights.algolia.io/1/events', {
+    return request(AlgoliaBehaviourURL, {
       method: 'post',
-      json: { insightPayload, eventName: 'Conversion Event', eventType: 'conversion' }
+      json: insightPayload
     })
   }
 }

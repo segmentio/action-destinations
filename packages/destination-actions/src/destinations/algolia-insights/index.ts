@@ -7,7 +7,7 @@ import conversionEvents from './conversionEvents'
 
 import productViewedEvents from './productViewedEvents'
 
-const USER_AGENT = 'algolia-segment-action-destination: 0.1'
+export const ALGOLIA_INSIGHTS_USER_AGENT = 'algolia-segment-action-destination: 0.1'
 
 const destination: DestinationDefinition<Settings> = {
   name: 'Algolia Insights',
@@ -37,7 +37,7 @@ const destination: DestinationDefinition<Settings> = {
       headers: {
         'X-Algolia-Application-Id': settings.appId,
         'X-Algolia-API-Key': settings.apiKey,
-        'X-Algolia-Agent': USER_AGENT
+        'X-Algolia-Agent': ALGOLIA_INSIGHTS_USER_AGENT
       }
     }
   },

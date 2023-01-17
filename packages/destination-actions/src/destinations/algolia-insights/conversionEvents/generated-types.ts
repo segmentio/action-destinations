@@ -20,7 +20,11 @@ export interface Payload {
    */
   anonymousID: string
   /**
-   * The ID associated with the user
+   * The ID associated with the user.
    */
   userID?: string
+  /**
+   * The timestamp of the event.
+   */
+  timestamp?: number
 }

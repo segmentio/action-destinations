@@ -1,11 +1,11 @@
 import type { ActionDefinition } from '@segment/actions-core'
-import { ProductClickedEvent } from '../algolia-insight-api'
+import { AlgoliaBehaviourURL, AlgoliaProductClickedEvent } from '../algolia-insight-api'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Product Clicked Events',
-  description: '',
+  description: 'When a product is clicked within an Algolia Search, Recommend or Predict result',
   fields: {
     objectID: {
       label: 'Product ID',
@@ -60,7 +60,7 @@ const action: ActionDefinition<Settings, Payload> = {
   },
   defaultSubscription: 'type = "track" and event = "Product Clicked"',
   perform: (request, data) => {
-    const insightEvent: ProductClickedEvent = {
+    const insightEvent: AlgoliaProductClickedEvent = {
       ...data.payload,
       eventName: 'Product Clicked',
       eventType: 'click',
@@ -70,7 +70,7 @@ const action: ActionDefinition<Settings, Payload> = {
     }
     const insightPayload = { events: [insightEvent] }
 
-    return request('https://insights.algolia.io/1/events', {
+    return request(AlgoliaBehaviourURL, {
       method: 'post',
       json: insightPayload
     })

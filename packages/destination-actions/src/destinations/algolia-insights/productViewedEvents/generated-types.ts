@@ -14,10 +14,6 @@ export interface Payload {
    */
   queryID: string
   /**
-   * Position of the click in the list of Algolia search results.
-   */
-  position: number
-  /**
    * The user's anonymous id.
    */
   anonymousID: string
