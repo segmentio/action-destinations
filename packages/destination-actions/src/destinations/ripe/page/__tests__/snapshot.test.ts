@@ -25,7 +25,8 @@ describe(`Testing snapshot for ${destinationSlug}'s ${actionSlug} destination ac
       event: event,
       mapping: event.properties,
       settings: settingsData,
-      auth: undefined
+      auth: undefined,
+      useDefaultMappings: true
     })
 
     const request = responses[0].request
@@ -33,7 +34,9 @@ describe(`Testing snapshot for ${destinationSlug}'s ${actionSlug} destination ac
 
     try {
       const json = JSON.parse(rawBody)
-      expect(json).toMatchSnapshot()
+      expect(json).toMatchSnapshot({
+        timestamp: expect.any(String)
+      })
       return
     } catch (err) {
       expect(rawBody).toMatchSnapshot()
@@ -58,7 +61,8 @@ describe(`Testing snapshot for ${destinationSlug}'s ${actionSlug} destination ac
       event: event,
       mapping: event.properties,
       settings: settingsData,
-      auth: undefined
+      auth: undefined,
+      useDefaultMappings: true
     })
 
     const request = responses[0].request
@@ -66,7 +70,9 @@ describe(`Testing snapshot for ${destinationSlug}'s ${actionSlug} destination ac
 
     try {
       const json = JSON.parse(rawBody)
-      expect(json).toMatchSnapshot()
+      expect(json).toMatchSnapshot({
+        timestamp: expect.any(String)
+      })
       return
     } catch (err) {
       expect(rawBody).toMatchSnapshot()

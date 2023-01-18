@@ -2,8 +2,6 @@ import type { ActionDefinition } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 
-import { randomUUID } from 'crypto'
-
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Page',
   description: 'Register page view in Ripe',
@@ -113,11 +111,20 @@ const action: ActionDefinition<Settings, Payload> = {
       }
     },
     timestamp: {
-      type: 'datetime',
+      type: 'string',
+      format: 'date-time',
       required: false,
       description: 'The timestamp of the event',
       label: 'Timestamp',
       default: { '@path': '$.timestamp' }
+    },
+    messageId: {
+      type: 'string',
+      format: 'uuid',
+      required: false,
+      description: 'The Segment messageId',
+      label: 'MessageId',
+      default: { '@path': '$messageId' }
     }
   },
   perform: (request, { payload, settings }) => {
@@ -138,7 +145,7 @@ const action: ActionDefinition<Settings, Payload> = {
         },
         properties: payload.properties,
         name: payload.name,
-        messageId: randomUUID(),
+        messageId: payload.messageId,
         timestamp: payload.timestamp ?? new Date()
       }
     })

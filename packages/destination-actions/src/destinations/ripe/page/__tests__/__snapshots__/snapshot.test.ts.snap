@@ -13,12 +13,12 @@ Object {
       "url": "http://fujav.cx/ef",
     },
   },
-  "messageId": "eb294288-a6c9-4251-bb5d-7641d5a3942c",
+  "messageId": "22c96ec8-da18-5ccf-90bb-f92dfd44a98e",
   "name": "Gm^2vj@raF9m",
   "properties": Object {
     "testType": "Gm^2vj@raF9m",
   },
-  "timestamp": "2021-02-01T00:00:00.000Z",
+  "timestamp": Any<String>,
   "userId": "Gm^2vj@raF9m",
 }
 `;
@@ -28,7 +28,6 @@ Object {
   "context": Object {
     "page": Object {},
   },
-  "messageId": "59c73602-1049-4d47-ae52-390e357c4671",
-  "timestamp": "2023-01-12T12:09:02.663Z",
+  "timestamp": Any<String>,
 }
 `;
