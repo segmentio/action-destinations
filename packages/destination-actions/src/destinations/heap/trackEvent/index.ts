@@ -53,9 +53,9 @@ const action: ActionDefinition<Settings, Payload> = {
       }
     },
     event: {
-      label: 'Event Type',
+      label: 'Track Event Type',
       type: 'string',
-      description: 'The name of the event. Limited to 1024 characters.',
+      description: 'Name of the user action. This only exists on track events. Limited to 1024 characters.',
       default: {
         '@path': '$.event'
       }
@@ -95,9 +95,9 @@ const action: ActionDefinition<Settings, Payload> = {
       }
     },
     name: {
-      label: 'Name',
+      label: 'Page or Screen Name',
       type: 'string',
-      description: 'Name of the event',
+      description: 'The name of the page or screen being viewed. This only exists for page and screen events.',
       default: {
         '@path': '$.name'
       }
