@@ -25,9 +25,16 @@ Object {
 
 exports[`Testing snapshot for Ripe's page destination action: required fields 1`] = `
 Object {
+  "anonymousId": "anonId1234",
   "context": Object {
-    "page": Object {},
+    "page": Object {
+      "path": "/academy/",
+      "title": "Analytics Academy",
+      "url": "https://segment.com/academy/",
+    },
   },
+  "properties": Object {},
   "timestamp": Any<String>,
+  "userId": "user1234",
 }
 `;

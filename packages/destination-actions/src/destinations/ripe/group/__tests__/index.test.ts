@@ -11,7 +11,6 @@ describe('Ripe', () => {
           settings: { apiKey: 'api-key' }
         })
       } catch (err) {
-        expect(err.message).toContain("missing the required field 'anonymousId'.")
         expect(err.message).toContain("missing the required field 'groupId'.")
       }
     })
