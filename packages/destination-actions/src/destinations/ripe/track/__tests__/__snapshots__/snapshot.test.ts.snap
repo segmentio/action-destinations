@@ -7,22 +7,26 @@ Object {
     "groupId": "f6t8rQsKdU^N",
   },
   "event": "f6t8rQsKdU^N",
-  "messageId": "49f47ad3-36fa-465d-ace2-84c2ff82c788",
+  "messageId": "2b7e8d4e-2a59-53b3-b51a-8830d6a1ceea",
   "name": "f6t8rQsKdU^N",
   "properties": Object {
     "testType": "f6t8rQsKdU^N",
   },
-  "timestamp": "2021-02-01T00:00:00.000Z",
+  "timestamp": Any<String>,
   "userId": "f6t8rQsKdU^N",
 }
 `;
 
 exports[`Testing snapshot for Ripe's track destination action: required fields 1`] = `
 Object {
+  "anonymousId": "anonId1234",
   "context": Object {},
   "event": "f6t8rQsKdU^N",
-  "messageId": "51d38587-7401-40f7-9672-80830c28cb13",
   "name": "f6t8rQsKdU^N",
-  "timestamp": "2023-01-12T12:08:21.517Z",
+  "properties": Object {
+    "event": "f6t8rQsKdU^N",
+  },
+  "timestamp": Any<String>,
+  "userId": "user1234",
 }
 `;
