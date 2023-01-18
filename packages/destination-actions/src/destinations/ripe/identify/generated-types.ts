@@ -22,5 +22,9 @@ export interface Payload {
   /**
    * The timestamp of the event
    */
-  timestamp?: string | number
+  timestamp?: string
+  /**
+   * The Segment messageId
+   */
+  messageId?: string
 }
