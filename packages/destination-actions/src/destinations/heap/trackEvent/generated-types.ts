@@ -32,7 +32,7 @@ export interface Payload {
    */
   library_name?: string
   /**
-   * The type of event
+   * The type of call. Can be track, page, or screen.
    */
   type: string
   /**
