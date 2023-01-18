@@ -29,7 +29,8 @@ export const traits: InputField = {
 
 export const engage_space: InputField = {
   label: 'Engage Space',
-  description: 'The engage space to use for creating a record.',
+  description:
+    'The Engage Space to use for creating a record. *Note: This field shows list of internal sources associated with your Engaged Spaces. Changes made to the Engage Space name in **Settings** will not reflect in this list unless the source associated with the Engage Space is renamed explicitly.*',
   type: 'string',
   required: true,
   dynamic: true
