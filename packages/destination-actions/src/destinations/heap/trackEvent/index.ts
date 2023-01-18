@@ -88,7 +88,7 @@ const action: ActionDefinition<Settings, Payload> = {
     type: {
       label: 'Type',
       type: 'string',
-      description: 'The type of event',
+      description: 'The type of call. Can be track, page, or screen.',
       required: true,
       default: {
         '@path': '$.type'
