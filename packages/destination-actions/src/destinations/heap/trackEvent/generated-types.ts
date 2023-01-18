@@ -14,7 +14,7 @@ export interface Payload {
    */
   anonymous_id?: string | null
   /**
-   * The name of the event. Limited to 1024 characters.
+   * Name of the user action. This only exists on track events. Limited to 1024 characters.
    */
   event?: string
   /**
@@ -36,7 +36,7 @@ export interface Payload {
    */
   type: string
   /**
-   * Name of the event
+   * The name of the page or screen being viewed. This only exists for page and screen events.
    */
   name?: string
 }
