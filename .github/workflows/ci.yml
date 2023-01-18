@@ -103,6 +103,12 @@ jobs:
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
 
+      - name: Install Browser Dependencies
+        run: npx playwright install-deps
+
+      - name: Build
+        run: NODE_ENV=production yarn build
+
       - name: Browser Test
         run: yarn test-browser
 
