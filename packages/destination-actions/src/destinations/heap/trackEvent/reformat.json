@@ -1,0 +1,14 @@
+{
+  "app_id": "487686589",
+  "events": [
+    {
+      "event": "Segment Test Event Name",
+      "custom_properties": { "property1": "1", "property2": "test", "property3": "true" },
+      "properties": { "segment_library": "analytics.js" },
+      "idempotency_key": "test-message-b8u6u237yt",
+      "user_identifier": { "anonymous_id": "rfvg230ek9e" },
+      "timestamp": "2023-01-18T21:10:47.503Z"
+    }
+  ],
+  "library": "segment-cloud"
+}

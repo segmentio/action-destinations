@@ -14,7 +14,7 @@ type HeapEvent = {
   properties?: {
     [k: string]: unknown
   }
-  custom_roperties?: {
+  custom_properties?: {
     [k: string]: unknown
   }
   user_identifier?: {
@@ -47,10 +47,7 @@ const action: ActionDefinition<Settings, Payload> = {
       type: 'string',
       allowNull: true,
       description:
-        'An identity, typically corresponding to an existing user. If no such identity exists, then a new user will be created with that identity. Case-sensitive string, limited to 255 characters.',
-      default: {
-        '@path': '$.userId'
-      }
+        'An identity, typically corresponding to an existing user. If no such identity exists, we will set the anonymous id property on the user.'
     },
     anonymous_id: {
       label: 'Anonymous ID',
@@ -109,7 +106,7 @@ const action: ActionDefinition<Settings, Payload> = {
     const flattenedProperties = flat(payload.properties || {})
     const event: HeapEvent = {
       event: payload.event,
-      custom_roperties: flattenedProperties,
+      custom_properties: flattenedProperties,
       properties: standardProperties,
       idempotency_key: payload.message_id
     }
