@@ -65,7 +65,6 @@ export class WhatsAppMessageSender extends MessageSender<Payload> {
     const variables = JSON.parse(this.payload.contentVariables)
     const profile = {
       profile: {
-        user_id: this.payload.userId,
         traits: this.payload.traits
       }
     }
