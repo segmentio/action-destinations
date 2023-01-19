@@ -1,0 +1,59 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Google Sheets Testing snapshots for googleapis library: append 1`] = `
+Array [
+  "https://sheets.googleapis.com/v4/spreadsheets/myId/values/myName!B:B:append?valueInputOption=myFormat&insertDataOption=INSERT_ROWS",
+  Object {
+    "json": Object {
+      "values": Array [
+        Array [
+          "col1b",
+          "col2b",
+        ],
+      ],
+    },
+    "method": "post",
+  },
+]
+`;
+
+exports[`Google Sheets Testing snapshots for googleapis library: batchUpdate 1`] = `
+Array [
+  "https://sheets.googleapis.com/v4/spreadsheets/myId/values:batchUpdate",
+  Object {
+    "json": Object {
+      "data": Array [
+        Object {
+          "range": "C:C",
+          "values": Array [
+            Array [
+              "col1c",
+              "col2c",
+            ],
+          ],
+        },
+        Object {
+          "range": "D:D",
+          "values": Array [
+            Array [
+              "col1d, col2d",
+            ],
+          ],
+        },
+      ],
+      "valueInputOption": "myFormat",
+    },
+    "method": "post",
+  },
+]
+`;
+
+exports[`Google Sheets Testing snapshots for googleapis library: get 1`] = `
+Array [
+  "https://sheets.googleapis.com/v4/spreadsheets/myId/values/myName!A:A",
+  Object {
+    "method": "get",
+    "skipResponseCloning": true,
+  },
+]
+`;

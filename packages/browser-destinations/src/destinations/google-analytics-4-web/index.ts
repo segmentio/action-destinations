@@ -4,8 +4,44 @@ import { browserDestination } from '../../runtime/shim'
 
 import addPaymentInfo from './addPaymentInfo'
 
+
 import setConfigurationFields from './setConfigurationFields'
 import { DestinationDefinition } from '@segment/actions-core'
+
+import login from './login'
+
+import signUp from './signUp'
+
+import search from './search'
+
+import addToCart from './addToCart'
+
+import addToWishlist from './addToWishlist'
+
+import removeFromCart from './removeFromCart'
+
+import selectItem from './selectItem'
+
+import selectPromotion from './selectPromotion'
+
+import viewItem from './viewItem'
+
+import viewPromotion from './viewPromotion'
+
+import beginCheckout from './beginCheckout'
+
+import purchase from './purchase'
+
+import refund from './refund'
+
+import viewCart from './viewCart'
+
+import viewItemList from './viewItemList'
+
+import generateLead from './generateLead'
+
+import customEvent from './customEvent'
+
 
 declare global {
   interface Window {
@@ -34,7 +70,7 @@ export const destination: BrowserDestinationDefinition<Settings, Function> = {
         'The measurement ID associated with the web stream. Found in the Google Analytics UI under: Admin > Data Streams > Web > Measurement ID.',
       label: 'Measurement ID',
       type: 'string',
-      required: true
+      required: false
     },
     pageView: {
       description: 'Set to false to prevent the default snippet from sending page views. Enabled by default.',
@@ -138,10 +174,11 @@ export const destination: BrowserDestinationDefinition<Settings, Function> = {
       allow_google_signals: settings.allowGoogleSignals,
     }
 
+
     window.dataLayer = window.dataLayer || []
-    window.gtag = function () {
-      window.dataLayer.push(arguments)
-    }
+    // window.gtag = function () {
+    //   window.dataLayer.push(arguments)
+    // }
     window.gtag('js', new Date())
     //Easier for testing actions
     //window.gtag('config', settings.measurementID)
@@ -161,6 +198,23 @@ export const destination: BrowserDestinationDefinition<Settings, Function> = {
   actions: {
     addPaymentInfo,
     setConfigurationFields,
+    login,
+    signUp,
+    search,
+    addToCart,
+    addToWishlist,
+    removeFromCart,
+    selectItem,
+    selectPromotion,
+    viewItem,
+    viewPromotion,
+    beginCheckout,
+    purchase,
+    refund,
+    viewCart,
+    viewItemList,
+    generateLead,
+    customEvent
   }
 }
 

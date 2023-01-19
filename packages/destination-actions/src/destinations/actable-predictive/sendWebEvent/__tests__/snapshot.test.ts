@@ -4,8 +4,8 @@ import destination from '../../index'
 import nock from 'nock'
 
 const testDestination = createTestIntegration(destination)
-const actionSlug = 'addPaymentInfo'
-const destinationSlug = 'GoogleAnalytics4Web'
+const actionSlug = 'sendWebEvent'
+const destinationSlug = 'ActablePredictive'
 const seedName = `${destinationSlug}#${actionSlug}`
 
 describe(`Testing snapshot for ${destinationSlug}'s ${actionSlug} destination action:`, () => {

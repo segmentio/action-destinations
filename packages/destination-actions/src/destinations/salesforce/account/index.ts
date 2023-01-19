@@ -8,7 +8,8 @@ import {
   operation,
   traits,
   validateLookup,
-  enable_batching
+  enable_batching,
+  recordMatcherOperator
 } from '../sf-properties'
 import type { Payload } from './generated-types'
 
@@ -21,6 +22,7 @@ const action: ActionDefinition<Settings, Payload> = {
   fields: {
     operation: operation,
     enable_batching: enable_batching,
+    recordMatcherOperator: recordMatcherOperator,
     traits: traits,
     bulkUpsertExternalId: bulkUpsertExternalId,
     bulkUpdateRecordId: bulkUpdateRecordId,

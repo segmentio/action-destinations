@@ -4,7 +4,7 @@ import destination from '../index'
 import nock from 'nock'
 
 const testDestination = createTestIntegration(destination)
-const destinationSlug = 'actions-google-analytics-4-web'
+const destinationSlug = 'actions-braze-cohorts'
 
 describe(`Testing snapshot for ${destinationSlug} destination:`, () => {
   for (const actionSlug in destination.actions) {
@@ -20,12 +20,21 @@ describe(`Testing snapshot for ${destinationSlug} destination:`, () => {
       const event = createTestEvent({
         properties: eventData
       })
+      const stateContext = {
+        getRequestContext: (_key: string): any => {},
+        setResponseContext: (
+          _key: string,
+          _value: string,
+          _ttl: { hour?: number; minute?: number; second?: number }
+        ): void => {}
+      }
 
       const responses = await testDestination.testAction(actionSlug, {
         event: event,
         mapping: event.properties,
         settings: settingsData,
-        auth: undefined
+        auth: undefined,
+        stateContext
       })
 
       const request = responses[0].request
@@ -54,12 +63,21 @@ describe(`Testing snapshot for ${destinationSlug} destination:`, () => {
       const event = createTestEvent({
         properties: eventData
       })
+      const stateContext = {
+        getRequestContext: (_key: string): any => {},
+        setResponseContext: (
+          _key: string,
+          _value: string,
+          _ttl: { hour?: number; minute?: number; second?: number }
+        ): void => {}
+      }
 
       const responses = await testDestination.testAction(actionSlug, {
         event: event,
         mapping: event.properties,
         settings: settingsData,
-        auth: undefined
+        auth: undefined,
+        stateContext
       })
 
       const request = responses[0].request
