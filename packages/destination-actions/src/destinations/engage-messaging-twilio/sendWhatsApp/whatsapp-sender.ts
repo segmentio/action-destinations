@@ -58,24 +58,25 @@ export class WhatsAppMessageSender extends MessageSender<Payload> {
     return new URLSearchParams(params)
   }
 
-  /**
-   * This method takes a JSON string of  {[key: number]: liquidJs} and parses the liquidJs to contain the trait value
-   */
-  getVariables = async (): Promise<string | null> => {
+  getTwilioBase64Token = () =>  Buffer.from(`${this.settings.twilioAccountSID}:${this.settings.twilioApiKeySecret}`).toString(
+    'base64'
+  )
+
+  private getVariables = async (): Promise<string | null> => {
     if (!this.payload.contentVariables || !this.payload.traits) return null
 
-    const variables = JSON.parse(this.payload.contentVariables)
-    const profile = {
-      profile: {
-        traits: this.payload.traits
-      }
-    }
-
-    const mapping: Record<string, string> = {}
     try {
-      for (const [key, val] of Object.entries(variables)) {
+      const profile = {
+        profile: {
+          traits: this.payload.traits
+        }
+      }
+
+      const mapping: Record<string, string> = {}
+      for (const [key, val] of Object.entries(this.payload.contentVariables)) {
         mapping[key] = await Liquid.parseAndRender(val as string, profile)
       }
+
       return JSON.stringify(mapping)
     } catch (error: unknown) {
       throw new IntegrationError(

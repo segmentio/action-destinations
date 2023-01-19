@@ -4,11 +4,13 @@ export interface Payload {
   /**
    * The template you sending through WhatsApp
    */
-  contentSid?: string
+  contentSid: string
   /**
    * Content personalization variables/merge tags for your WhatsApp message
    */
-  contentVariables?: string
+  contentVariables?: {
+    [k: string]: unknown
+  }
   /**
    * Number to send WhatsApp to when testing
    */

@@ -13,12 +13,12 @@ const action: ActionDefinition<Settings, Payload> = {
       label: 'WhatsApp template content Sid',
       description: 'The template you sending through WhatsApp',
       type: 'string',
-      required: false
+      required: true
     },
     contentVariables: {
       label: 'WhatsApp template variables',
       description: 'Content personalization variables/merge tags for your WhatsApp message',
-      type: 'string',
+      type: 'object',
       required: false
     },
     toNumber: {
@@ -116,6 +116,7 @@ const action: ActionDefinition<Settings, Payload> = {
     }
   },
   perform: async (request, { settings, payload, statsContext }) => {
+    console.error(payload)
     const statsClient = statsContext?.statsClient
     const tags = statsContext?.tags
     tags?.push(`space_id:${settings.spaceId}`, `projectid:${settings.sourceId}`)
