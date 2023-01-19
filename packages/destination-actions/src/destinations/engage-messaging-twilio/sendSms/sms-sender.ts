@@ -52,6 +52,9 @@ export class SmsMessageSender extends MessageSender<Payload> {
     return body
   }
 
+  getTwilioBase64Token = () =>
+    Buffer.from(`${this.settings.twilioApiKeySID}:${this.settings.twilioApiKeySecret}`).toString('base64')
+
   private getProfileTraits = async () => {
     try {
       const endpoint = `https://profiles.segment.${
