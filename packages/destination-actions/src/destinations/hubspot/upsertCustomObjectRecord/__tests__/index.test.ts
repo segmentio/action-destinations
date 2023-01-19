@@ -4,8 +4,17 @@ import Destination from '../../index'
 import { DynamicFieldResponse } from '@segment/actions-core'
 import { HUBSPOT_BASE_URL } from '../../properties'
 
-const testDestination = createTestIntegration(Destination)
 const endpoint = `${HUBSPOT_BASE_URL}/crm/v3/objects`
+
+let testDestination = createTestIntegration(Destination)
+
+beforeEach((done) => {
+  // Re-Initialize the destination before each test
+  // This is done to mitigate a bug where action responses persist into other tests
+  testDestination = createTestIntegration(Destination)
+  nock.cleanAll()
+  done()
+})
 
 describe('HubSpot.upsertCustomObjectRecord', () => {
   // Validate creation of custom object with fullyQualifiedName of a HubSpot Schema
@@ -182,5 +191,58 @@ describe('HubSpot.upsertCustomObjectRecord', () => {
     expect(responses.choices.length).toBe(0)
     expect(responses.error?.message).toEqual(errorResponse.message)
     expect(responses.error?.code).toEqual(errorResponse.category)
+  })
+
+  it('should handle flattening of objects', async () => {
+    nock(endpoint).post(/.*/).reply(201, {})
+
+    const event = createTestEvent({
+      type: 'track',
+      event: 'Apply Discount',
+      properties: {
+        couponCode: 'TEST1234',
+        discountPercentage: '10%',
+        customPropertyOne: [1, 2, 3, 4, 5],
+        customPropertyTwo: {
+          a: 1,
+          b: 2,
+          c: 3
+        },
+        customPropertyThree: [1, 'two', true, { four: 4 }]
+      }
+    })
+
+    const responses = await testDestination.testAction('upsertCustomObjectRecord', {
+      event,
+      mapping: {
+        objectType: 'p11223344_discount',
+        properties: {
+          coupon_code: {
+            '@path': '$.properties.couponCode'
+          },
+          discount_percent: {
+            '@path': '$.properties.couponCode'
+          },
+          custom_property_1: {
+            '@path': '$.properties.customPropertyOne'
+          },
+          custom_property_2: {
+            '@path': '$.properties.customPropertyTwo'
+          },
+          custom_property_3: {
+            '@path': '$.properties.customPropertyThree'
+          }
+        }
+      }
+    })
+
+    expect(responses).toHaveLength(1)
+    expect(responses[0].options.json).toMatchObject({
+      properties: {
+        custom_property_1: '1;2;3;4;5',
+        custom_property_2: '{"a":1,"b":2,"c":3}',
+        custom_property_3: '1;two;true;{"four":4}'
+      }
+    })
   })
 })

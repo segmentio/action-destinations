@@ -8,7 +8,7 @@ import identifyUser from './identifyUser'
 const presets: DestinationDefinition['presets'] = [
   {
     name: 'Track Calls',
-    subscribe: 'type = "track"',
+    subscribe: 'type = "track" or type = "page" or type = "screen"',
     partnerAction: 'trackEvent',
     mapping: defaultValues(trackEvent.fields)
   },
