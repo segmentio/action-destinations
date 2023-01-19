@@ -4,6 +4,10 @@ import { browserDestination } from '../../runtime/shim'
 
 import addPaymentInfo from './addPaymentInfo'
 
+
+import setConfigurationFields from './setConfigurationFields'
+import { DestinationDefinition } from '@segment/actions-core'
+
 import login from './login'
 
 import signUp from './signUp'
@@ -38,12 +42,21 @@ import generateLead from './generateLead'
 
 import customEvent from './customEvent'
 
+
 declare global {
   interface Window {
     gtag: Function
     dataLayer: any
   }
 }
+
+const presets: DestinationDefinition['presets'] = [
+  {
+    name: `Set Configuration Fields`,
+    subscribe: 'type = "page" or type = "identify',
+    partnerAction: 'setConfigurationFields'
+  }
+]
 
 // Switch from unknown to the partner SDK client types
 export const destination: BrowserDestinationDefinition<Settings, Function> = {
@@ -150,37 +163,41 @@ export const destination: BrowserDestinationDefinition<Settings, Function> = {
   },
 
   initialize: async ({ settings }, deps) => {
-    // const config = {
-    //   send_page_view: settings.pageView,
-    //   cookie_update: settings.cookieUpdate,
-    //   cookie_domain: settings.cookieDomain,
-    //   cookie_prefix: settings.cookiePrefix,
-    //   cookie_expires: settings.cookieExpirationInSeconds,
-    //   cookie_path: settings.cookiePath,
-    //   allow_ad_personalization_signals: settings.allowAdPersonalizationSignals,
-    //   allow_google_signals: settings.allowGoogleSignals
-    // }
-    //TODO
-    // const consent = {
+    const config = {
+      send_page_view: settings.pageView,
+      cookie_update: settings.cookieUpdate,
+      cookie_domain: settings.cookieDomain,
+      cookie_prefix: settings.cookiePrefix,
+      cookie_expires: settings.cookieExpirationInSeconds,
+      cookie_path: settings.cookiePath,
+      allow_ad_personalization_signals: settings.allowAdPersonalizationSignals,
+      allow_google_signals: settings.allowGoogleSignals,
+    }
 
-    // }
+
     window.dataLayer = window.dataLayer || []
     // window.gtag = function () {
     //   window.dataLayer.push(arguments)
     // }
     window.gtag('js', new Date())
     //Easier for testing actions
-    window.gtag('config', settings.measurementID)
-    //window.gtag('config', settings.measurementID, { config })
-    const script = `https://www.googletagmanager.com/gtag/js?id=G-P8JMEEJC9G`
+    //window.gtag('config', settings.measurementID)
+    window.gtag('config', settings.measurementID, { config })
+    if (settings.enableConsentMode) {
+      window.gtag('consent', 'default', {
+        ad_storage: settings.defaultAdsStorageConsentState,
+        analytics_storage: settings.defaultAnalyticsStorageConsentState,
+        wait_for_update: settings.waitTimeToUpdateConsentStage
+      })
+    }
+    const script = `https://www.googletagmanager.com/gtag/js?id=${settings.measurementID}`
     await deps.loadScript(script)
-    console.log('loaded')
-    //add ResolveWhen
     return window.gtag
   },
-
+  presets,
   actions: {
     addPaymentInfo,
+    setConfigurationFields,
     login,
     signUp,
     search,
