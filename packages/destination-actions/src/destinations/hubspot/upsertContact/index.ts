@@ -3,6 +3,7 @@ import { ActionDefinition, RequestClient } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 import { HUBSPOT_BASE_URL } from '../properties'
+import { flattenObject } from '../helperFunctions'
 
 interface ContactResponse {
   id: string
@@ -145,7 +146,7 @@ const action: ActionDefinition<Settings, Payload> = {
       email: payload.email,
       website: payload.website,
       lifecyclestage: payload.lifecyclestage?.toLowerCase(),
-      ...payload.properties
+      ...flattenObject(payload.properties)
     }
 
     /**
@@ -191,9 +192,7 @@ async function createContact(request: RequestClient, contactProperties: { [key: 
   return request<ContactResponse>(`${HUBSPOT_BASE_URL}/crm/v3/objects/contacts`, {
     method: 'POST',
     json: {
-      properties: {
-        ...contactProperties
-      }
+      properties: contactProperties
     }
   })
 }
@@ -202,9 +201,7 @@ async function updateContact(request: RequestClient, email: string, properties: 
   return request<ContactResponse>(`${HUBSPOT_BASE_URL}/crm/v3/objects/contacts/${email}?idProperty=email`, {
     method: 'PATCH',
     json: {
-      properties: {
-        ...properties
-      }
+      properties: properties
     }
   })
 }

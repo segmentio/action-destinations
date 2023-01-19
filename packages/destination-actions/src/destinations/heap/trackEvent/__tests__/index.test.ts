@@ -125,4 +125,29 @@ describe('Heap.trackEvent', () => {
     expect(responses[0].status).toBe(200)
     expect(responses[0].data).toMatchObject({})
   })
+
+  it('should get event field for different event type', async () => {
+    const event: Partial<SegmentEvent> = createTestEvent({
+      timestamp,
+      event: undefined,
+      userId,
+      messageId,
+      name: 'Home Page',
+      type: 'page'
+    })
+    body.identity = userId
+    body.event = 'Home Page'
+    nock('https://heapanalytics.com').post('/api/track', body).reply(200, body)
+
+    const responses = await testDestination.testAction('trackEvent', {
+      event,
+      useDefaultMappings: true,
+      settings: {
+        appId: HEAP_TEST_APP_ID
+      }
+    })
+    expect(responses.length).toBe(1)
+    expect(responses[0].status).toBe(200)
+    expect(responses[0].data).toEqual(expect.objectContaining({ event: 'Home Page' }))
+  })
 })
