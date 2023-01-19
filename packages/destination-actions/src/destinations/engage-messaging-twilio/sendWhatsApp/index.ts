@@ -2,35 +2,34 @@
 import type { ActionDefinition } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
-import { SmsMessageSender } from './sms-sender'
+import { WhatsAppMessageSender } from './whatsapp-sender'
 
 const action: ActionDefinition<Settings, Payload> = {
-  title: 'Send SMS',
-  description: 'Send SMS using Twilio',
+  title: 'Send WhatsApp',
+  description: 'Send WhatsApp using Twilio',
   defaultSubscription: 'type = "track" and event = "Audience Entered"',
   fields: {
-    userId: {
-      label: 'User ID',
-      description: 'User ID in Segment',
+    contentSid: {
+      label: 'WhatsApp template content Sid',
+      description: 'The template you sending through WhatsApp',
       type: 'string',
-      required: true,
-      default: { '@path': '$.userId' }
+      required: true
+    },
+    contentVariables: {
+      label: 'WhatsApp template variables',
+      description: 'Content personalization variables/merge tags for your WhatsApp message',
+      type: 'object',
+      required: false
     },
     toNumber: {
       label: 'Test Number',
-      description: 'Number to send SMS to when testing',
+      description: 'Number to send WhatsApp to when testing',
       type: 'string'
     },
     from: {
       label: 'From',
-      description: 'The Twilio Phone Number, Short Code, or Messaging Service to send SMS from.',
+      description: 'The Twilio Phone Number, Short Code, or Messaging Service to send WhatsApp from.',
       type: 'string',
-      required: true
-    },
-    body: {
-      label: 'Message',
-      description: 'Message to send',
-      type: 'text',
       required: true
     },
     customArgs: {
@@ -121,7 +120,7 @@ const action: ActionDefinition<Settings, Payload> = {
     const tags = statsContext?.tags
     tags?.push(`space_id:${settings.spaceId}`, `projectid:${settings.sourceId}`)
 
-    return new SmsMessageSender(request, payload, settings, statsClient, tags).send()
+    return new WhatsAppMessageSender(request, payload, settings, statsClient, tags).send()
   }
 }
 
