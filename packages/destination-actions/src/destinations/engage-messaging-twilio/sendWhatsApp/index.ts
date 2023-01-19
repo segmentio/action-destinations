@@ -104,6 +104,15 @@ const action: ActionDefinition<Settings, Payload> = {
       type: 'object',
       required: false,
       default: { '@path': '$.properties' }
+    },
+    eventOccurredTS: {
+      label: 'Event Timestamp',
+      description: 'Time of when the actual event happened.',
+      type: 'string',
+      required: false,
+      default: {
+        '@path': '$.timestamp'
+      }
     }
   },
   perform: async (request, { settings, payload, statsContext }) => {

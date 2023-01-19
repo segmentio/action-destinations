@@ -17,7 +17,10 @@ type SendabilityPayload = { sendabilityStatus: SendabilityStatus; phone: string 
 
 export type RequestFn = (url: string, options?: RequestOptions) => Promise<Response>
 
-type MinimalPayload = Pick<Payload, 'from' | 'toNumber' | 'customArgs' | 'externalIds' | 'traits' | 'send'>
+type MinimalPayload = Pick<
+  Payload,
+  'from' | 'toNumber' | 'customArgs' | 'externalIds' | 'traits' | 'send' | 'eventOccurredTS'
+>
 
 export abstract class MessageSender<SmsPayload extends MinimalPayload> {
   private readonly EXTERNAL_ID_KEY = 'phone'
@@ -70,6 +73,14 @@ export abstract class MessageSender<SmsPayload extends MinimalPayload> {
     )
     this.tags?.push(`twilio_status_code:${response.status}`)
     this.statsClient?.incr('actions-personas-messaging-twilio.response', 1, this.tags)
+
+    if (this.payload.eventOccurredTS != undefined) {
+      this.statsClient?.histogram(
+        'actions-personas-messaging-twilio.eventDeliveryTS',
+        Date.now() - new Date(this.payload.eventOccurredTS).getTime(),
+        this.tags
+      )
+    }
     return response
   }
 
