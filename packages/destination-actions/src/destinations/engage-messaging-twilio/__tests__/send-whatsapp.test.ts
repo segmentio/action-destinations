@@ -327,7 +327,7 @@ describe.each(['stage', 'production'])('%s environment', (environment) => {
         }),
         settings,
         mapping: getDefaultMapping({
-          contentVariables: '{"1": "{{profile.traits.firstName}}", "2": "{{profile.traits.address.street}}"}',
+          contentVariables: { '1': '{{profile.traits.firstName}}', '2': '{{profile.traits.address.street}}' },
           traits: {
             firstName: 'Soap',
             address: {
