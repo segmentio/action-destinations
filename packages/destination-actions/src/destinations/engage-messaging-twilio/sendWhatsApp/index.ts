@@ -21,13 +21,6 @@ const action: ActionDefinition<Settings, Payload> = {
       type: 'string',
       required: false
     },
-    userId: {
-      label: 'User ID',
-      description: 'User ID in Segment',
-      type: 'string',
-      required: true,
-      default: { '@path': '$.userId' }
-    },
     toNumber: {
       label: 'Test Number',
       description: 'Number to send WhatsApp to when testing',

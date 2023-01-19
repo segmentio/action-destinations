@@ -17,7 +17,7 @@ type SendabilityPayload = { sendabilityStatus: SendabilityStatus; phone: string 
 
 export type RequestFn = (url: string, options?: RequestOptions) => Promise<Response>
 
-type MinimalPayload = Pick<Payload, 'from' | 'toNumber' | 'customArgs' | 'externalIds' | 'traits' | 'userId' | 'send'>
+type MinimalPayload = Pick<Payload, 'from' | 'toNumber' | 'customArgs' | 'externalIds' | 'traits' | 'send'>
 
 export abstract class MessageSender<SmsPayload extends MinimalPayload> {
   private readonly EXTERNAL_ID_KEY = 'phone'

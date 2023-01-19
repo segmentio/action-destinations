@@ -10,10 +10,6 @@ export interface Payload {
    */
   contentVariables?: string
   /**
-   * User ID in Segment
-   */
-  userId: string
-  /**
    * Number to send WhatsApp to when testing
    */
   toNumber?: string
