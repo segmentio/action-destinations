@@ -6,9 +6,9 @@ export interface Payload {
    */
   note_id?: number
   /**
-   * ID of Lead in Pipedrive to link to.  One of Lead, Person, Organization or Deal must be linked!
+   * ID of Lead in Pipedrive to link to. One of Lead, Person, Organization or Deal must be linked!
    */
-  lead_id?: number
+  lead_id?: string
   /**
    * If present, used instead of field in settings to find existing person in Pipedrive.
    */
@@ -34,7 +34,7 @@ export interface Payload {
    */
   deal_match_value?: string
   /**
-   * Content of the note in HTML format. Subject to sanitization on the back-end.
+   * Content of the note in text or HTML format. Subject to sanitization on the back-end.
    */
   content: string
 }
