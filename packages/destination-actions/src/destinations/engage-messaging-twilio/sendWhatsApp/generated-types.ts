@@ -2,21 +2,25 @@
 
 export interface Payload {
   /**
+   * The template you sending through WhatsApp
+   */
+  contentSid?: string
+  /**
+   * Content personalization variables/merge tags for your WhatsApp message
+   */
+  contentVariables?: string
+  /**
    * User ID in Segment
    */
   userId: string
   /**
-   * Number to send SMS to when testing
+   * Number to send WhatsApp to when testing
    */
   toNumber?: string
   /**
-   * The Twilio Phone Number, Short Code, or Messaging Service to send SMS from.
+   * The Twilio Phone Number, Short Code, or Messaging Service to send WhatsApp from.
    */
   from: string
-  /**
-   * Message to send
-   */
-  body: string
   /**
    * Additional custom arguments that will be opaquely sent back on webhook events
    */
@@ -58,8 +62,4 @@ export interface Payload {
   traits?: {
     [k: string]: unknown
   }
-  /**
-   * Time of when the actual event happened.
-   */
-  eventOccurredTS?: string
 }

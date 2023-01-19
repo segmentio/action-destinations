@@ -2,13 +2,25 @@
 import type { ActionDefinition } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
-import { SmsMessageSender } from './sms-sender'
+import { WhatsAppMessageSender } from './whatsapp-sender'
 
 const action: ActionDefinition<Settings, Payload> = {
-  title: 'Send SMS',
-  description: 'Send SMS using Twilio',
+  title: 'Send WhatsApp',
+  description: 'Send WhatsApp using Twilio',
   defaultSubscription: 'type = "track" and event = "Audience Entered"',
   fields: {
+    contentSid: {
+      label: 'WhatsApp template content Sid',
+      description: 'The template you sending through WhatsApp',
+      type: 'string',
+      required: false
+    },
+    contentVariables: {
+      label: 'WhatsApp template variables',
+      description: 'Content personalization variables/merge tags for your WhatsApp message',
+      type: 'string',
+      required: false
+    },
     userId: {
       label: 'User ID',
       description: 'User ID in Segment',
@@ -18,19 +30,13 @@ const action: ActionDefinition<Settings, Payload> = {
     },
     toNumber: {
       label: 'Test Number',
-      description: 'Number to send SMS to when testing',
+      description: 'Number to send WhatsApp to when testing',
       type: 'string'
     },
     from: {
       label: 'From',
-      description: 'The Twilio Phone Number, Short Code, or Messaging Service to send SMS from.',
+      description: 'The Twilio Phone Number, Short Code, or Messaging Service to send WhatsApp from.',
       type: 'string',
-      required: true
-    },
-    body: {
-      label: 'Message',
-      description: 'Message to send',
-      type: 'text',
       required: true
     },
     customArgs: {
@@ -105,15 +111,6 @@ const action: ActionDefinition<Settings, Payload> = {
       type: 'object',
       required: false,
       default: { '@path': '$.properties' }
-    },
-    eventOccurredTS: {
-      label: 'Event Timestamp',
-      description: 'Time of when the actual event happened.',
-      type: 'string',
-      required: false,
-      default: {
-        '@path': '$.timestamp'
-      }
     }
   },
   perform: async (request, { settings, payload, statsContext }) => {
@@ -121,7 +118,7 @@ const action: ActionDefinition<Settings, Payload> = {
     const tags = statsContext?.tags
     tags?.push(`space_id:${settings.spaceId}`, `projectid:${settings.sourceId}`)
 
-    return new SmsMessageSender(request, payload, settings, statsClient, tags).send()
+    return new WhatsAppMessageSender(request, payload, settings, statsClient, tags).send()
   }
 }
 

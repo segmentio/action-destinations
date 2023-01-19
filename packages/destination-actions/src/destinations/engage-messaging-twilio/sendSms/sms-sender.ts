@@ -4,11 +4,11 @@ import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 import { IntegrationError } from '@segment/actions-core'
 import { StatsClient, StatsContext } from '@segment/actions-core/src/destination-kit'
-import { BaseMessageSender, RequestFn } from './base-sender'
+import { MessageSender, RequestFn } from '../utils/message-sender'
 
 const Liquid = new LiquidJs()
 
-export class SmsMessageSender extends BaseMessageSender {
+export class SmsMessageSender extends MessageSender<Payload> {
   constructor(
     readonly request: RequestFn,
     readonly payload: Payload,
@@ -50,6 +50,10 @@ export class SmsMessageSender extends BaseMessageSender {
     })
 
     return body
+  }
+
+  getVariables = () => {
+    return Promise.resolve(null)
   }
 
   private getProfileTraits = async () => {

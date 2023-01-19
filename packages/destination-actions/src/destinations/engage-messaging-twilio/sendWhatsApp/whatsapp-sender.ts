@@ -1,14 +1,16 @@
 /* eslint-disable @typescript-eslint/no-unsafe-call */
+import { Liquid as LiquidJs } from 'liquidjs'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 import { IntegrationError } from '@segment/actions-core'
-import { RequestFn, BaseMessageSender } from './base-sender'
+import { RequestFn, MessageSender } from '../utils/message-sender'
 import { PhoneNumberUtil, PhoneNumberFormat } from 'google-libphonenumber'
 import { StatsClient, StatsContext } from '@segment/actions-core/src/destination-kit'
 
 const phoneUtil = PhoneNumberUtil.getInstance()
+const Liquid = new LiquidJs()
 
-export class WhatsAppMessageSender extends BaseMessageSender {
+export class WhatsAppMessageSender extends MessageSender<Payload> {
   constructor(
     readonly request: RequestFn,
     readonly payload: Payload,
@@ -50,10 +52,29 @@ export class WhatsAppMessageSender extends BaseMessageSender {
       To: parsedPhone
     }
 
-    if (this.payload.contentVariables) {
-      params['ContentVariables'] = this.payload.contentVariables
+    return new URLSearchParams(params)
+  }
+
+  /**
+   * This method takes a JSON string of  {[key: number]: liquidJs} and parses the liquidJs to contain the trait value
+   * @returns
+   */
+  getVariables = async () => {
+    if (!this.payload.contentVariables || !this.payload.traits) return null
+
+    const variables = JSON.parse(this.payload.contentVariables)
+    const profile = {
+      profile: {
+        user_id: this.payload.userId,
+        traits: this.payload.traits
+      }
     }
 
-    return new URLSearchParams(params)
+    const mapping: Record<string, string> = {}
+    for (const [key, val] of Object.entries(variables)) {
+      mapping[key] = await Liquid.parseAndRender(val as string, profile)
+    }
+
+    return mapping
   }
 }

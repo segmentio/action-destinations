@@ -1,11 +1,9 @@
 /* eslint-disable @typescript-eslint/no-unsafe-call */
 import type { RequestOptions } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
-import type { Payload } from './generated-types'
+import type { Payload } from '../sendSms/generated-types'
 import { IntegrationError } from '@segment/actions-core'
 import { StatsClient, StatsContext } from '@segment/actions-core/src/destination-kit'
-
-export type RequestFn = (url: string, options?: RequestOptions) => Promise<Response>
 
 enum SendabilityStatus {
   NoSenderPhone = 'no_sender_phone',
@@ -17,14 +15,18 @@ enum SendabilityStatus {
 
 type SendabilityPayload = { sendabilityStatus: SendabilityStatus; phone: string | undefined }
 
-export abstract class BaseMessageSender {
+export type RequestFn = (url: string, options?: RequestOptions) => Promise<Response>
+
+type MinimalPayload = Pick<Payload, 'from' | 'toNumber' | 'customArgs' | 'externalIds' | 'traits' | 'userId' | 'send'>
+
+export abstract class MessageSender<SmsPayload extends MinimalPayload> {
   private readonly EXTERNAL_ID_KEY = 'phone'
   private readonly DEFAULT_HOSTNAME = 'api.twilio.com'
   private readonly DEFAULT_CONNECTION_OVERRIDES = 'rp=all&rc=5'
 
   constructor(
     readonly request: RequestFn,
-    readonly payload: Payload,
+    readonly payload: SmsPayload,
     readonly settings: Settings,
     readonly statsClient: StatsClient | undefined,
     readonly tags: StatsContext['tags'] | undefined
@@ -38,11 +40,19 @@ export abstract class BaseMessageSender {
     }
 
     const body = await this.getBody(phone)
+    const contentVariables = await this.getVariables()
+
+    try {
+      if (contentVariables) body.append('ContentVariables', JSON.stringify(contentVariables))
+    } catch (error: unknown) {
+      // TODO: GET appropriate error for this case
+      this.statsClient?.incr('actions-personas-messaging-twilio.twilio-error', 1, this.tags)
+      throw new IntegrationError(`Failed to convert content variables to json`, 'Invalid contententVariables', 400)
+    }
+
     const webhookUrlWithParams = this.getWebhookUrlWithParams(phone)
 
-    if (webhookUrlWithParams) {
-      body.append('StatusCallback', webhookUrlWithParams)
-    }
+    if (webhookUrlWithParams) body.append('StatusCallback', webhookUrlWithParams)
 
     const twilioHostname = this.settings.twilioHostname ?? this.DEFAULT_HOSTNAME
     const twilioToken = Buffer.from(`${this.settings.twilioApiKeySID}:${this.settings.twilioApiKeySecret}`).toString(
@@ -62,6 +72,10 @@ export abstract class BaseMessageSender {
     this.statsClient?.incr('actions-personas-messaging-twilio.response', 1, this.tags)
     return response
   }
+
+  abstract getBody: (phone: string) => Promise<URLSearchParams>
+
+  abstract getVariables: () => Promise<Record<string, string> | null>
 
   private getSendabilityPayload = (): SendabilityPayload => {
     const nonSendableStatuses = ['unsubscribed', 'did not subscribed', 'false']
@@ -97,8 +111,6 @@ export abstract class BaseMessageSender {
 
     return { sendabilityStatus: status, phone }
   }
-
-  abstract getBody: (phone: string) => Promise<URLSearchParams>
 
   private getWebhookUrlWithParams = (phone: string): string | null => {
     const webhookUrl = this.settings.webhookUrl
