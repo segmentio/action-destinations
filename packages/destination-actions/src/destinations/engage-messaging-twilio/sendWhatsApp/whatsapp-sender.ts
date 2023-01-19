@@ -51,15 +51,17 @@ export class WhatsAppMessageSender extends MessageSender<Payload> {
       From: this.payload.from,
       To: parsedPhone
     }
+    const contentVariables = await this.getVariables()
+
+    if (contentVariables) params['ContentVariables'] = contentVariables
 
     return new URLSearchParams(params)
   }
 
   /**
    * This method takes a JSON string of  {[key: number]: liquidJs} and parses the liquidJs to contain the trait value
-   * @returns
    */
-  getVariables = async () => {
+  getVariables = async (): Promise<string | null> => {
     if (!this.payload.contentVariables || !this.payload.traits) return null
 
     const variables = JSON.parse(this.payload.contentVariables)
@@ -70,10 +72,17 @@ export class WhatsAppMessageSender extends MessageSender<Payload> {
     }
 
     const mapping: Record<string, string> = {}
-    for (const [key, val] of Object.entries(variables)) {
-      mapping[key] = await Liquid.parseAndRender(val as string, profile)
+    try {
+      for (const [key, val] of Object.entries(variables)) {
+        mapping[key] = await Liquid.parseAndRender(val as string, profile)
+      }
+      return JSON.stringify(mapping)
+    } catch (error: unknown) {
+      throw new IntegrationError(
+        `Unable to parse templating in content variables`,
+        `Content variables templating parse failure`,
+        400
+      )
     }
-
-    return mapping
   }
 }

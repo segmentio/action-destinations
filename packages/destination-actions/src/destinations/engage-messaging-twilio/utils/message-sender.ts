@@ -43,15 +43,6 @@ export abstract class MessageSender<SmsPayload extends MinimalPayload> {
     }
 
     const body = await this.getBody(phone)
-    const contentVariables = await this.getVariables()
-
-    try {
-      if (contentVariables) body.append('ContentVariables', JSON.stringify(contentVariables))
-    } catch (error: unknown) {
-      // TODO: GET appropriate error for this case
-      this.statsClient?.incr('actions-personas-messaging-twilio.twilio-error', 1, this.tags)
-      throw new IntegrationError(`Failed to convert content variables to json`, 'Invalid contententVariables', 400)
-    }
 
     const webhookUrlWithParams = this.getWebhookUrlWithParams(phone)
 
@@ -85,8 +76,6 @@ export abstract class MessageSender<SmsPayload extends MinimalPayload> {
   }
 
   abstract getBody: (phone: string) => Promise<URLSearchParams>
-
-  abstract getVariables: () => Promise<Record<string, string> | null>
 
   private getSendabilityPayload = (): SendabilityPayload => {
     const nonSendableStatuses = ['unsubscribed', 'did not subscribed', 'false']

@@ -52,10 +52,6 @@ export class SmsMessageSender extends MessageSender<Payload> {
     return body
   }
 
-  getVariables = () => {
-    return Promise.resolve(null)
-  }
-
   private getProfileTraits = async () => {
     try {
       const endpoint = `https://profiles.segment.${
