@@ -6,7 +6,7 @@ The core runtime engine for actions, including mapping-kit transforms.
 
 MIT License
 
-Copyright (c) 2022 Segment
+Copyright (c) 2023 Segment
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal

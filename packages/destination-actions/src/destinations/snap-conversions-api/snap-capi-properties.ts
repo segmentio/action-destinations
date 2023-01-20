@@ -352,7 +352,7 @@ export const formatPayload = (payload: Payload): Object => {
     event_tag: payload?.event_tag,
     timestamp: Date.parse(payload?.timestamp),
     hashed_email: hash(payload?.email),
-    mobile_ad_id: hash(payload?.mobile_ad_id),
+    hashed_mobile_ad_id: hash(payload?.mobile_ad_id),
     uuid_c1: payload?.uuid_c1,
     hashed_idfv: hash(payload?.idfv),
     hashed_phone_number: hash(payload?.phone_number),
