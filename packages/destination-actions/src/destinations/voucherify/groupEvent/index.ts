@@ -1,12 +1,11 @@
 import { ActionDefinition } from '@segment/actions-core'
 import { Settings } from '../generated-types'
 import { Payload } from './generated-types'
-import { setVoucherifyRequestURL } from '../url-provider'
+import { getVoucherifyEndpointURL } from '../url-provider'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Group Event',
   description: 'Assign individual traits to user, such as company, organization and much more.',
-  defaultSubscription: 'type = "group"',
   fields: {
     group_id: {
       label: 'Group ID',
@@ -59,7 +58,7 @@ const action: ActionDefinition<Settings, Payload> = {
     }
   },
   perform: (request, { settings, payload }) => {
-    const voucherifyRequestURL = setVoucherifyRequestURL(settings, 'group')
+    const voucherifyRequestURL = getVoucherifyEndpointURL(settings, 'group')
     return request(voucherifyRequestURL, {
       method: 'post',
       json: payload

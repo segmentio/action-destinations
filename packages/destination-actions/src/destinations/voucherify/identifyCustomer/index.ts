@@ -6,7 +6,6 @@ import { Payload } from './generated-types'
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Identify Customer',
   description: 'Track an event for known or anonymous person',
-  defaultSubscription: 'type = "identify"',
   fields: {
     source_id: {
       label: 'Customer ID',
