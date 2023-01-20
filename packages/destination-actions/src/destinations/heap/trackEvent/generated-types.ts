@@ -6,7 +6,7 @@ export interface Payload {
    */
   message_id: string
   /**
-   * An identity, typically corresponding to an existing user. If no such identity exists, then a new user will be created with that identity. Case-sensitive string, limited to 255 characters.
+   * An identity, typically corresponding to an existing user. If no such identity exists, we will set the anonymous id property on the user.
    */
   identity?: string | null
   /**
