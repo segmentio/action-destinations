@@ -1,7 +1,7 @@
 {
   "name": "@segment/action-destinations",
   "description": "Destination Actions engine and definitions.",
-  "version": "3.125.1-staging.122+b364eddb",
+  "version": "3.125.1-pipedrive-pe-20.124+bfced0a0",
   "repository": {
     "type": "git",
     "url": "https://github.com/segmentio/action-destinations",
