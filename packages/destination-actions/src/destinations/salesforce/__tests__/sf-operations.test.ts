@@ -141,6 +141,48 @@ describe('Salesforce', () => {
       )
     })
 
+    it('should support the AND soql operator', async () => {
+      const query = encodeURIComponent(
+        `SELECT Id FROM Lead WHERE email = 'sponge@seamail.com' AND isDeleted = false AND NumberOfEmployees = 3`
+      )
+      nock(`${settings.instanceUrl}services/data/${API_VERSION}/query`)
+        .get(`/?q=${query}`)
+        .reply(201, {
+          Id: 'abc123',
+          totalSize: 1,
+          records: [{ Id: '123456' }]
+        })
+
+      nock(`${settings.instanceUrl}services/data/${API_VERSION}/sobjects`).patch('/Lead/123456').reply(201, {})
+
+      await sf.updateRecord(
+        {
+          recordMatcherOperator: 'AND',
+          traits: {
+            email: 'sponge@seamail.com',
+            isDeleted: false,
+            NumberOfEmployees: 3
+          }
+        },
+        'Lead'
+      )
+    })
+
+    it('should fail when the soql operator is not OR and not AND', async () => {
+      await expect(
+        sf.updateRecord(
+          {
+            recordMatcherOperator: 'NOR',
+            traits: {
+              email: { key: 'sponge@seamail.com' },
+              NoOfEmployees: [1, 2]
+            }
+          },
+          'Lead'
+        )
+      ).rejects.toThrowError('Invalid SOQL operator - NOR')
+    })
+
     it('should fail when trait value is of an unsupported datatype - object or arrays', async () => {
       await expect(
         sf.updateRecord(
@@ -530,6 +572,50 @@ describe('Salesforce', () => {
         .reply(201, {})
 
       await sf.bulkHandler(bulkUpdatePayloads, 'Account')
+    })
+
+    it('should pass NO_VALUE when a bulk record ID is missing', async () => {
+      const missingRecordPayload = {
+        operation: 'update',
+        enable_batching: true,
+        bulkUpdateRecordId: undefined,
+        name: 'Plankton',
+        phone: '123-evil',
+        description: 'Proprietor of the 1 star restaurant, The Chum Bucket'
+      }
+
+      //create bulk job
+      nock(`${settings.instanceUrl}services/data/${API_VERSION}/jobs/ingest`)
+        .post('', {
+          object: 'Account',
+          externalIdFieldName: 'Id',
+          operation: 'update',
+          contentType: 'CSV'
+        })
+        .reply(201, {
+          id: 'abc123'
+        })
+
+      const CSV = `Name,Phone,Description,Id\n"SpongeBob Squarepants","1234567890","Krusty Krab","ab"\n"Squidward Tentacles","1234567891","Krusty Krab","cd"\n"Plankton","123-evil","Proprietor of the 1 star restaurant, The Chum Bucket","#N/A"\n`
+
+      //upload csv
+      nock(`${settings.instanceUrl}services/data/${API_VERSION}/jobs/ingest/abc123/batches`, {
+        reqheaders: {
+          'Content-Type': 'text/csv',
+          Accept: 'application/json'
+        }
+      })
+        .put('', CSV)
+        .reply(201, {})
+
+      //close bulk job
+      nock(`${settings.instanceUrl}services/data/${API_VERSION}/jobs/ingest/abc123`)
+        .patch('', {
+          state: 'UploadComplete'
+        })
+        .reply(201, {})
+
+      await sf.bulkHandler([...bulkUpdatePayloads, missingRecordPayload], 'Account')
     })
 
     it('should fail if the bulkHandler is triggered but enable_batching is not true', async () => {

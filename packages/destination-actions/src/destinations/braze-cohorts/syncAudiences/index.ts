@@ -2,10 +2,9 @@ import { ActionDefinition, RequestClient, IntegrationError } from '@segment/acti
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 import { SyncAudiences } from '../api'
-import { CohortChanges } from '../cohortChanges'
-import { Logger, StateContext } from '@segment/actions-core/src/destination-kit'
-// import {isEmpty} from "lodash";
-// const _cacheContext={context:{},setContext:(key: string, value: string) => ({ [key]: value })}
+import { CohortChanges } from '../braze-cohorts-types'
+import { StateContext } from '@segment/actions-core/src/destination-kit'
+import isEmpty from 'lodash/isEmpty'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Sync Audience',
@@ -37,18 +36,12 @@ const action: ActionDefinition<Settings, Payload> = {
           type: 'string',
           required: true
         }
-      },
-      default: {
-        '@path': '$.userAlias'
       }
     },
     device_id: {
       label: 'Device ID',
       description: 'The unique device Identifier',
-      type: 'string',
-      default: {
-        '@path': '$.deviceId'
-      }
+      type: 'string'
     },
     cohort_id: {
       label: 'Cohort ID',
@@ -56,7 +49,7 @@ const action: ActionDefinition<Settings, Payload> = {
       type: 'hidden',
       required: true,
       default: {
-        '@path': '$.personas.computation_id'
+        '@path': '$.context.personas.computation_id'
       }
     },
     cohort_name: {
@@ -65,7 +58,7 @@ const action: ActionDefinition<Settings, Payload> = {
       type: 'hidden',
       required: true,
       default: {
-        '@path': '$.personas.computation_key'
+        '@path': '$.context.personas.computation_key'
       }
     },
     enable_batching: {
@@ -77,7 +70,7 @@ const action: ActionDefinition<Settings, Payload> = {
     personas_audience_key: {
       label: 'Segment Engage Audience Key',
       description:
-        'The `audience_key` of the Engage audience you want to sync to LinkedIn. This value must be a hard-coded string variable, e.g. `personas_test_audience`, in order for batching to work properly.',
+        'The `audience_key` of the Engage audience you want to sync to Braze Cohorts. This value must be a hard-coded string variable, e.g. `personas_test_audience`, in order for batching to work properly.',
       type: 'string',
       required: true
     },
@@ -100,57 +93,53 @@ const action: ActionDefinition<Settings, Payload> = {
       type: 'hidden',
       required: true,
       default: {
-        '@path': '$.receivedAt'
+        '@path': '$.timestamp'
       }
     }
   },
-  perform: async (request, { settings, payload, logger, stateContext }) => {
-    return processPayload(request, settings, [payload], logger, stateContext)
+  perform: async (request, { settings, payload, stateContext }) => {
+    return processPayload(request, settings, [payload], stateContext)
   },
-  performBatch: async (request, { settings, payload, logger, stateContext }) => {
-    return processPayload(request, settings, payload, logger, stateContext)
+  performBatch: async (request, { settings, payload, stateContext }) => {
+    return processPayload(request, settings, payload, stateContext)
   }
 }
 async function processPayload(
   request: RequestClient,
   settings: Settings,
   payloads: Payload[],
-  logger?: Logger,
   stateContext?: StateContext
 ) {
   validate(payloads)
-  const syncAudiencesApiClient: SyncAudiences = new SyncAudiences(request)
-  const { cohort_name, cohort_id, time } = payloads[0]
-
-  logger?.info?.('Testing State Context', stateContext?.getRequestContext?.('test_context'))
-  logger?.info?.('Braze Cohorts', stateContext?.getRequestContext?.('cohort_name'))
-  logger?.info?.(`Testing internal variable EU:-${process?.env?.BRAZE_COHORTS_PARTNER_API_KEY_EU}`)
-  logger?.info?.(`Testing internal variable US:-${process?.env?.BRAZE_COHORTS_PARTNER_API_KEY_US}`)
-  stateContext?.setResponseContext?.('test_context', time, { minute: 5 })
+  const syncAudiencesApiClient: SyncAudiences = new SyncAudiences(request, settings)
+  const { cohort_name, cohort_id } = payloads[0]
+  const cohortChanges: Array<CohortChanges> = []
 
   if (stateContext?.getRequestContext?.('cohort_name') != cohort_name) {
     await syncAudiencesApiClient.createCohort(settings, payloads[0])
-    stateContext?.setResponseContext?.(`cohort_name`, cohort_name, { minute: 2 })
+    //setting cohort_name in cache context with ttl 0 so that it can keep the value as long as possible.
+    stateContext?.setResponseContext?.(`cohort_name`, cohort_name, {})
   }
   const { addUsers, removeUsers } = extractUsers(payloads)
-  const users = {
-    addUsers,
-    removeUsers,
-    hasAddUsers: hasUsersToAddOrRemove(addUsers),
-    hasRemoveUsers: hasUsersToAddOrRemove(removeUsers)
-  }
+  const hasAddUsers = hasUsersToAddOrRemove(addUsers)
+  const hasRemoveUsers = hasUsersToAddOrRemove(removeUsers)
 
   // We should never hit this condition because at least an user_id or device_id
   // or user_alias is required in each payload, but if we do, returning early
   // rather than hitting Cohort's API (with no data) is more efficient.
   // The monoservice will interpret this early return as a 200.
 
-  if (!users.hasAddUsers && !users.hasRemoveUsers) {
+  if (!hasAddUsers && !hasRemoveUsers) {
     return
   }
+  if (hasAddUsers) {
+    cohortChanges.push(addUsers)
+  }
+  if (hasRemoveUsers) {
+    cohortChanges.push(removeUsers)
+  }
 
-  const res = await syncAudiencesApiClient.batchUpdate(settings, cohort_id, users)
-  return res
+  return await syncAudiencesApiClient.batchUpdate(settings, cohort_id, cohortChanges)
 }
 
 function validate(payloads: Payload[]): void {
@@ -168,20 +157,16 @@ function extractUsers(payloads: Payload[]) {
   const removeUsers: CohortChanges = { user_ids: [], device_ids: [], aliases: [], should_remove: true }
 
   payloads.forEach((payload: Payload) => {
-    const { event_properties, external_id, device_id, user_alias } = payload
-    const userEnteredOrRemoved: boolean = (
-      event_properties?.audience_key
-        ? event_properties[`${event_properties?.audience_key}`]
-        : Object.values(event_properties)[0]
-    ) as boolean
+    const { event_properties, external_id, device_id, user_alias, personas_audience_key } = payload
+    const userEnteredOrRemoved: boolean = event_properties[`${personas_audience_key}`] as boolean
     const user = userEnteredOrRemoved ? addUsers : removeUsers
 
     if (external_id) {
-      user?.user_ids.push(external_id)
+      user?.user_ids?.push(external_id)
     } else if (device_id) {
-      user?.device_ids.push(device_id)
+      user?.device_ids?.push(device_id)
     } else if (user_alias) {
-      user?.aliases.push(user_alias)
+      user?.aliases?.push(user_alias)
     }
   })
 
@@ -192,14 +177,7 @@ function extractUsers(payloads: Payload[]) {
 }
 
 function hasUsersToAddOrRemove(user: CohortChanges): boolean {
-  if (
-    user &&
-    typeof user === 'object' &&
-    (user?.user_ids?.length || user?.device_ids?.length || user?.aliases?.length)
-  ) {
-    return true
-  }
-  return false
+  return !(isEmpty(user?.user_ids) && isEmpty(user?.device_ids) && isEmpty(user?.aliases))
 }
 
 export default action

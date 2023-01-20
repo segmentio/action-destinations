@@ -1,0 +1,19 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Testing snapshot for actions-braze-cohorts destination: syncAudiences action - all fields 1`] = `
+Object {
+  "client_secret": "f[XBoj@QfnIWlYY",
+  "cohort_id": "f[XBoj@QfnIWlYY",
+  "created_at": "f[XBoj@QfnIWlYY",
+  "name": "f[XBoj@QfnIWlYY",
+}
+`;
+
+exports[`Testing snapshot for actions-braze-cohorts destination: syncAudiences action - required fields 1`] = `
+Object {
+  "client_secret": "f[XBoj@QfnIWlYY",
+  "cohort_id": "f[XBoj@QfnIWlYY",
+  "created_at": "f[XBoj@QfnIWlYY",
+  "name": "f[XBoj@QfnIWlYY",
+}
+`;

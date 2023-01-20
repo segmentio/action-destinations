@@ -98,6 +98,36 @@ describe(Braze.name, () => {
         `"One of \\"external_id\\" or \\"user_alias\\" or \\"braze_id\\" is required."`
       )
     })
+
+    it('should allow email address with unicode local part to be sent to Braze', async () => {
+      nock('https://rest.iad-01.braze.com').post('/users/track').reply(200, {})
+
+      const event = createTestEvent({
+        type: 'identify',
+        traits: {
+          email: 'ünîcòde_émail_locał_part@segment.com'
+        },
+        event: undefined,
+        receivedAt
+      })
+
+      const responses = await testDestination.testAction('updateUserProfile', {
+        event,
+        settings,
+        useDefaultMappings: true
+      })
+
+      expect(responses.length).toBe(1)
+      expect(responses[0].status).toBe(200)
+      expect(responses[0].data).toMatchObject({})
+      expect(responses[0].options.json).toMatchObject({
+        attributes: expect.arrayContaining([
+          expect.objectContaining({
+            email: 'ünîcòde_émail_locał_part@segment.com'
+          })
+        ])
+      })
+    })
   })
 
   describe('trackEvent', () => {

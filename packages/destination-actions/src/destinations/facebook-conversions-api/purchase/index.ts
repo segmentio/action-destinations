@@ -128,7 +128,8 @@ const action: ActionDefinition<Settings, Payload> = {
               data_processing_options_country: country_code,
               data_processing_options_state: state_code
             }
-          ]
+          ],
+          ...(settings.testEventCode && { test_event_code: settings.testEventCode })
         }
       }
     )

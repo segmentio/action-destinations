@@ -62,14 +62,15 @@ register('602efa1f249b9a5e2bf8a813', './twilio')
 register('614a3c7d791c91c41bae7599', './webhook')
 register('61dc4e96894a6d7954cc6e45', './voyage')
 register('62ded0cf5753c743883ca0f3', './intercom')
+register('63c874d328bd6bd1aa1f90a0', './ironclad')
 register('631a6f32946dd8197e9cab66', './sendgrid')
 register('632b1116e0cb83902f3fd717', './hubspot')
-register('635fea9131814aa2aa18a640', './google-sheets-partner')
 register('636d38db78d7834347d76c44', './1plusx-asset-api')
 register('6371eee1ae5e324869aa8b1b', './segment')
-register('637c12fa86e32b125be33bca', './actions-bingads')
 register('63936c37dbc54a052e34e30e', './google-sheets-dev')
 register('63872c01c0c112b9b4d75412', './braze-cohorts')
+register('639c2dbb1309fdcad13951b6', './segment-profiles')
+register('63bedc136a8484a53739e013', './vwo')
 
 function register(id: MetadataId, destinationPath: string) {
   // eslint-disable-next-line @typescript-eslint/no-var-requires

@@ -65,7 +65,7 @@ const action: ActionDefinition<Settings, Payload> = {
   },
 
   perform: async (request, { payload, settings }) => {
-    const searchField = payload.match_field || settings.personField || 'id'
+    const searchField = payload.match_field || settings.organizationField || 'id'
 
     const client = new PipedriveClient(settings, request)
 

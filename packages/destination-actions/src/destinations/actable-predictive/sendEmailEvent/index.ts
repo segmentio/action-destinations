@@ -5,7 +5,7 @@ import { API_URL, formatTimestampAsUnixSeconds } from '../index'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Send Email Event',
-  description: '',
+  description: 'Send an email event to Actable for prediction. Use this to supply clicks, opens, and unsubscribes.',
   fields: {
     customer_id: {
       label: 'Customer ID',
