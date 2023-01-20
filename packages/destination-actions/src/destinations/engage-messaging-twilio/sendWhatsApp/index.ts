@@ -10,7 +10,7 @@ const action: ActionDefinition<Settings, Payload> = {
   defaultSubscription: 'type = "track" and event = "Audience Entered"',
   fields: {
     contentSid: {
-      label: 'WhatsApp template content Sid',
+      label: 'WhatsApp template Content Sid',
       description: 'The template you sending through WhatsApp',
       type: 'string',
       required: true
