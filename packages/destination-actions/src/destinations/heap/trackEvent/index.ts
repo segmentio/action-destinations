@@ -120,7 +120,7 @@ const action: ActionDefinition<Settings, Payload> = {
     const payLoad: IntegrationsTrackPayload = {
       app_id: settings.appId,
       events: [event],
-      library: 'segment-cloud'
+      library: 'Segment'
     }
 
     return request('https://heapanalytics.com/api/integrations/track', {
