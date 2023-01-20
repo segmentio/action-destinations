@@ -11,7 +11,7 @@ type HeapEvent = {
   app_id: string
   identity?: string
   user_id?: number
-  event: string | undefined
+  event: string
   properties: {
     [k: string]: unknown
   }
@@ -23,7 +23,7 @@ type HeapEvent = {
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Track Event',
   description: 'Send an event to Heap.',
-  defaultSubscription: 'type = "track" or type = "page" or type = "screen"',
+  defaultSubscription: 'type = "track"',
   fields: {
     message_id: {
       label: 'Message ID',
@@ -54,9 +54,10 @@ const action: ActionDefinition<Settings, Payload> = {
       }
     },
     event: {
-      label: 'Track Event Type',
+      label: 'Event Type',
       type: 'string',
-      description: 'Name of the user action. This only exists on track events. Limited to 1024 characters.',
+      description: 'The name of the event. Limited to 1024 characters.',
+      required: true,
       default: {
         '@path': '$.event'
       }
@@ -86,23 +87,6 @@ const action: ActionDefinition<Settings, Payload> = {
       default: {
         '@path': '$.session_id'
       }
-    },
-    type: {
-      label: 'Type',
-      type: 'string',
-      description: 'The type of call. Can be track, page, or screen.',
-      required: true,
-      default: {
-        '@path': '$.type'
-      }
-    },
-    name: {
-      label: 'Page or Screen Name',
-      type: 'string',
-      description: 'The name of the page or screen being viewed. This only exists for page and screen events.',
-      default: {
-        '@path': '$.name'
-      }
     }
   },
   perform: (request, { payload, settings }) => {
@@ -120,7 +104,7 @@ const action: ActionDefinition<Settings, Payload> = {
 
     const heapPayload: HeapEvent = {
       app_id: settings.appId,
-      event: getEventName(payload),
+      event: payload.event,
       properties: eventProperties,
       idempotency_key: payload.message_id
     }
@@ -145,18 +129,6 @@ const action: ActionDefinition<Settings, Payload> = {
       method: 'post',
       json: heapPayload
     })
-  }
-}
-
-const getEventName = (payload: Payload) => {
-  switch (payload.type) {
-    case 'track':
-      return payload.event
-    case 'page':
-    case 'screen':
-      return payload.name
-    default:
-      return undefined
   }
 }
 
