@@ -42,7 +42,6 @@ export class WhatsAppMessageSender extends MessageSender<Payload> {
     }
 
     if (!this.payload.contentSid) {
-      // TODO: ASK for the appropriate errors to throw
       throw new IntegrationError('A valid whatsApp Content SID was not provided.', `INVALID_CONTENT_SID`, 400)
     }
 
