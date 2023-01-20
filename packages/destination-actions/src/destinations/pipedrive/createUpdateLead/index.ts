@@ -8,9 +8,9 @@ import { IntegrationError } from '@segment/actions-core'
 const fieldHandler = PipedriveClient.fieldHandler
 
 const action: ActionDefinition<Settings, Payload> = {
-  title: 'Upsert Lead',
+  title: 'Create or update Lead',
   description: "Update a Lead in Pipedrive or create it if it doesn't exist yet.",
-  defaultSubscription: '',
+  defaultSubscription: 'type = "identify"',
   fields: {
     lead_id: {
       label: 'Lead ID',

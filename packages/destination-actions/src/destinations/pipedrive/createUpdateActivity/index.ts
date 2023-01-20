@@ -7,9 +7,9 @@ import PipedriveClient from '../pipedriveApi/pipedrive-client'
 const fieldHandler = PipedriveClient.fieldHandler
 
 const action: ActionDefinition<Settings, Payload> = {
-  title: 'Upsert an Activity',
+  title: 'Create or update an Activity',
   description: "Update an Activity in Pipedrive or create one if it doesn't exist.",
-  defaultSubscription: 'type = "track" and event == "Upsert Activity"',
+  defaultSubscription: 'type = "track" and event == "Activity Upserted"',
   fields: {
     activity_id: {
       label: 'Activity ID',
