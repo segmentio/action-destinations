@@ -31,6 +31,7 @@
     "typecheck": "tsc -p tsconfig.build.json --noEmit"
   },
   "devDependencies": {
+    "@types/google-libphonenumber": "^7.4.23",
     "@types/jest": "^27.0.0",
     "jest": "^27.3.1",
     "nock": "^13.1.4"
@@ -43,6 +44,7 @@
     "cheerio": "^1.0.0-rc.10",
     "dayjs": "^1.10.7",
     "escape-goat": "^3",
+    "google-libphonenumber": "^3.2.31",
     "liquidjs": "^9.37.0",
     "lodash": "^4.17.21"
   },
