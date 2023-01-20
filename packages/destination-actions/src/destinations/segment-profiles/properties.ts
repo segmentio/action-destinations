@@ -17,12 +17,6 @@ export const SEGMENT_ENDPOINTS: { [key: string]: SegmentEndpoint } = {
     url: 'https://events.eu1.segmentapis.com/v1',
     cdn: 'https://cdn.segment.com/v1',
     papi: 'https://eu1.api.segmentapis.com'
-  },
-  stage: {
-    label: 'Staging',
-    url: 'https://api.segment.build/v1',
-    cdn: 'https://cdn.segment.build/v1',
-    papi: 'https://api.segmentapis.build'
   }
 }
 

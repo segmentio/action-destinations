@@ -23,7 +23,7 @@ declare global {
 }
 
 export const destination: BrowserDestinationDefinition<Settings, RipeSDK> = {
-  name: 'Ripe',
+  name: 'Ripe Device Mode (Actions)',
   slug: 'actions-ripe',
   mode: 'device',
 
