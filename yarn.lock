@@ -2960,6 +2960,11 @@
     "@types/minimatch" "*"
     "@types/node" "*"
 
+"@types/google-libphonenumber@^7.4.23":
+  version "7.4.23"
+  resolved "https://registry.yarnpkg.com/@types/google-libphonenumber/-/google-libphonenumber-7.4.23.tgz#c44c9125d45f042943694d605fd8d8d796cafc3b"
+  integrity sha512-C3ydakLTQa8HxtYf9ge4q6uT9krDX8smSIxmmW3oACFi5g5vv6T068PRExF7UyWbWpuYiDG8Nm24q2X5XhcZWw==
+
 "@types/graceful-fs@^4.1.2":
   version "4.1.5"
   resolved "https://registry.yarnpkg.com/@types/graceful-fs/-/graceful-fs-4.1.5.tgz#21ffba0d98da4350db64891f92a9e5db3cdb4e15"
@@ -7029,6 +7034,11 @@ globby@^11.0.1, globby@^11.0.2, globby@^11.0.3, globby@^11.0.4:
     ignore "^5.1.4"
     merge2 "^1.3.0"
     slash "^3.0.0"
+
+google-libphonenumber@^3.2.31:
+  version "3.2.31"
+  resolved "https://registry.yarnpkg.com/google-libphonenumber/-/google-libphonenumber-3.2.31.tgz#d2c4d4c8d7385be70b515086e4d28dd20da50600"
+  integrity sha512-l3bzAkfN4ITICKvuqEiY7JN06RxDAviOoKMtD2KfGYjGK3btPO8Xav7k0fgmf1Ud/pEm523yBh1/s/xDtKEvnw==
 
 got@^5.0.0:
   version "5.7.1"
