@@ -12,7 +12,8 @@ describe(`Testing snapshot for ${destinationSlug}'s ${actionSlug} destination ac
   it('required fields', async () => {
     const action = destination.actions[actionSlug]
     const [eventData, settingsData] = generateTestData(seedName, destination, action, true)
-
+    // generateTestData / chance sometimes generates a string that can't be parsed by nock
+    settingsData.domain = 'madeup123'
     Object.keys(eventData)
       .filter((f) => !action.fields[f].required)
       .forEach((f) => {
@@ -51,7 +52,8 @@ describe(`Testing snapshot for ${destinationSlug}'s ${actionSlug} destination ac
   it('required fields, update', async () => {
     const action = destination.actions[actionSlug]
     const [eventData, settingsData] = generateTestData(seedName, destination, action, true)
-
+    // generateTestData / chance sometimes generates a string that can't be parsed by nock
+    settingsData.domain = 'madeup123'
     Object.keys(eventData)
       .filter((f) => !action.fields[f].required)
       .forEach((f) => {
@@ -99,7 +101,8 @@ describe(`Testing snapshot for ${destinationSlug}'s ${actionSlug} destination ac
   it('all fields', async () => {
     const action = destination.actions[actionSlug]
     const [eventData, settingsData] = generateTestData(seedName, destination, action, false)
-
+    // generateTestData / chance sometimes generates a string that can't be parsed by nock
+    settingsData.domain = 'madeup123'
     const basePath = `https://${settingsData.domain}.pipedrive.com`
     nock(basePath)
       .persist()
