@@ -9,8 +9,8 @@ import { IntegrationError } from '@segment/actions-core'
 
 type HeapEvent = {
   event: string
-  timestamp?: string
   idempotency_key: string
+  timestamp?: string
   properties?: {
     [k: string]: unknown
   }
