@@ -40,7 +40,8 @@ const action: ActionDefinition<Settings, Payload> = {
     },
     device_id: {
       label: 'Device ID',
-      description: 'The unique device Identifier',
+      description:
+        'Device IDs can be used to add and remove only anonymous users to/from a cohort. However, users with an assigned User ID cannot use Device ID to sync to a cohort',
       type: 'string'
     },
     cohort_id: {
