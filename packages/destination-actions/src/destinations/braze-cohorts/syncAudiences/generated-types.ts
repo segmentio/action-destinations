@@ -13,7 +13,7 @@ export interface Payload {
     alias_label: string
   }
   /**
-   * The unique device Identifier
+   * Device IDs can be used to add and remove only anonymous users to/from a cohort. However, users with an assigned User ID cannot use Device ID to sync to a cohort
    */
   device_id?: string
   /**
