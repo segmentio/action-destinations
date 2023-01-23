@@ -7,7 +7,6 @@ let arrayRe: RegExp
 
 try {
   arrayRe = new RegExp(`\\[(?="|'|\\d)|\\.|(?<="|'|\\d)]+`, 'g')
-  // arrayRe = /\[(?="|'|\d)|\.|(?<="|'|\d)]+/g
 } catch (e) {
   //safari does not support lookbehind operator so we will default
   //to a simpler approach wherein [bar] will not be a valid key
