@@ -6,7 +6,8 @@
 let arrayRe: RegExp
 
 try {
-  arrayRe = /\[(?="|'|\d)|\.|(?<="|'|\d)]+/g
+  // eslint-disable-next-line no-useless-escape
+  arrayRe = new RegExp(`\[(?="|'|\d)|\.|(?<="|'|\d)]+`, 'g')
 } catch (e) {
   //safari does not support lookbehind operator so we will default
   //to a simpler approach wherein [bar] will not be a valid key
