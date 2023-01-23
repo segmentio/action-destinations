@@ -89,7 +89,6 @@ const action: ActionDefinition<Settings, Payload> = {
       label: 'Type',
       type: 'string',
       description: 'The type of call. Can be track, page, or screen.',
-      required: true,
       default: {
         '@path': '$.type'
       }

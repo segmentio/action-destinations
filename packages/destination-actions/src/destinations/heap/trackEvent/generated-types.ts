@@ -34,7 +34,7 @@ export interface Payload {
   /**
    * The type of call. Can be track, page, or screen.
    */
-  type: string
+  type?: string
   /**
    * The name of the page or screen being viewed. This only exists for page and screen events.
    */
