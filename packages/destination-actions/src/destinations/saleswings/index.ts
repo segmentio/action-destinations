@@ -2,7 +2,10 @@ import { defaultValues, DestinationDefinition } from '@segment/actions-core'
 import { apiBaseUrl } from './api'
 import type { Settings } from './generated-types'
 
-import submitEvent from './submitEvent'
+import submitTrackEvent from './submitTrackEvent'
+import submitIdentifyEvent from './submitIdentifyEvent'
+import submitPageEvent from './submitPageEvent'
+import submitScreenEvent from './submitScreenEvent'
 
 const destination: DestinationDefinition<Settings> = {
   name: 'Saleswings (Actions)',
@@ -29,15 +32,36 @@ const destination: DestinationDefinition<Settings> = {
 
   presets: [
     {
-      name: 'Submit Event',
-      subscribe: 'type = "identify" or type = "track" or type = "screen" or type = "page"',
-      partnerAction: 'submitEvent',
-      mapping: defaultValues(submitEvent.fields)
+      name: 'Submit Track Event',
+      subscribe: 'type = "track"',
+      partnerAction: 'submitTrackEvent',
+      mapping: defaultValues(submitTrackEvent.fields)
+    },
+    {
+      name: 'Submit Identify Event',
+      subscribe: 'type = "identify"',
+      partnerAction: 'submitIdentifyEvent',
+      mapping: defaultValues(submitIdentifyEvent.fields)
+    },
+    {
+      name: 'Submit Page Event',
+      subscribe: 'type = "page"',
+      partnerAction: 'submitPageEvent',
+      mapping: defaultValues(submitPageEvent.fields)
+    },
+    {
+      name: 'Submit Screen Event',
+      subscribe: 'type = "screen"',
+      partnerAction: 'submitScreenEvent',
+      mapping: defaultValues(submitScreenEvent.fields)
     }
   ],
 
   actions: {
-    submitEvent
+    submitTrackEvent,
+    submitIdentifyEvent,
+    submitPageEvent,
+    submitScreenEvent
   }
 }
 

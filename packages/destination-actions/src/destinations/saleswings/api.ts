@@ -40,7 +40,7 @@ export type ValueMap = { [k: string]: Value }
 
 export type LeadRefType = 'email' | 'client-id'
 
-export class LeadRef {
+export type LeadRef = {
   type: LeadRefType
   value: string
 }

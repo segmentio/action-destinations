@@ -4,7 +4,7 @@ import destination from '../../index'
 import nock from 'nock'
 
 const testDestination = createTestIntegration(destination)
-const actionSlug = 'submitEvent'
+const actionSlug = 'submitTrackEvent'
 const destinationSlug = ''
 const seedName = `${destinationSlug}#${actionSlug}`
 
