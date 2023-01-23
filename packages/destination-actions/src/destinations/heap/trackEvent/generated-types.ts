@@ -14,9 +14,9 @@ export interface Payload {
    */
   anonymous_id?: string | null
   /**
-   * Name of the user action. This only exists on track events. Limited to 1024 characters.
+   * The name of the event. Limited to 1024 characters.
    */
-  event?: string
+  event: string
   /**
    * An object with key-value properties you want associated with the event. Each key and property must either be a number or string with fewer than 1024 characters.
    */
@@ -31,12 +31,4 @@ export interface Payload {
    * The name of the SDK used to send events
    */
   library_name?: string
-  /**
-   * The type of call. Can be track, page, or screen.
-   */
-  type: string
-  /**
-   * The name of the page or screen being viewed. This only exists for page and screen events.
-   */
-  name?: string
 }
