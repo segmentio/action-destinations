@@ -2,7 +2,7 @@ import nock from 'nock'
 import { createTestEvent, createTestIntegration, JSONValue, SegmentEvent } from '@segment/actions-core'
 import Destination from '../../index'
 import { flattenObject, embededObject } from '../../__tests__/flat.test'
-import { HEAP_SEGMENT_LIBRARY_NAME } from '../../constants'
+import { HEAP_SEGMENT_CLOUD_LIBRARY_NAME } from '../../constants'
 
 describe('Heap.trackEvent', () => {
   const testDestination = createTestIntegration(Destination)
@@ -28,7 +28,7 @@ describe('Heap.trackEvent', () => {
       event: eventName,
       idempotency_key: messageId,
       properties: {
-        segment_library: HEAP_SEGMENT_LIBRARY_NAME
+        segment_library: HEAP_SEGMENT_CLOUD_LIBRARY_NAME
       },
       timestamp
     }
@@ -108,7 +108,7 @@ describe('Heap.trackEvent', () => {
 
     body.user_id = 8325872782136936
     body.properties = {
-      segment_library: HEAP_SEGMENT_LIBRARY_NAME,
+      segment_library: HEAP_SEGMENT_CLOUD_LIBRARY_NAME,
       ...flattenObject()
     }
     nock('https://heapanalytics.com').post('/api/track', body).reply(200, {})
