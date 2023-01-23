@@ -11,7 +11,7 @@ type HeapEvent = {
   app_id: string
   identity?: string
   user_id?: number
-  event: string
+  event: string | undefined
   properties: {
     [k: string]: unknown
   }
@@ -22,7 +22,7 @@ type HeapEvent = {
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Track Event',
   description: 'Send an event to Heap.',
-  defaultSubscription: 'type = "track"',
+  defaultSubscription: 'type = "track" or type = "page" or type = "screen"',
   fields: {
     message_id: {
       label: 'Message ID',
@@ -53,10 +53,9 @@ const action: ActionDefinition<Settings, Payload> = {
       }
     },
     event: {
-      label: 'Event Type',
+      label: 'Track Event Type',
       type: 'string',
-      description: 'The name of the event. Limited to 1024 characters.',
-      required: true,
+      description: 'Name of the user action. This only exists on track events. Limited to 1024 characters.',
       default: {
         '@path': '$.event'
       }
@@ -85,6 +84,22 @@ const action: ActionDefinition<Settings, Payload> = {
       default: {
         '@path': '$.context.library.name'
       }
+    },
+    type: {
+      label: 'Type',
+      type: 'string',
+      description: 'The type of call. Can be track, page, or screen.',
+      default: {
+        '@path': '$.type'
+      }
+    },
+    name: {
+      label: 'Page or Screen Name',
+      type: 'string',
+      description: 'The name of the page or screen being viewed. This only exists for page and screen events.',
+      default: {
+        '@path': '$.name'
+      }
     }
   },
   perform: (request, { payload, settings }) => {
@@ -101,7 +116,7 @@ const action: ActionDefinition<Settings, Payload> = {
     const eventProperties = Object.assign(defaultEventProperties, flatten)
     const event: HeapEvent = {
       app_id: settings.appId,
-      event: payload.event,
+      event: getEventName(payload),
       properties: eventProperties,
       idempotency_key: payload.message_id
     }
@@ -122,6 +137,18 @@ const action: ActionDefinition<Settings, Payload> = {
       method: 'post',
       json: event
     })
+  }
+}
+
+const getEventName = (payload: Payload) => {
+  switch (payload.type) {
+    case 'track':
+      return payload.event
+    case 'page':
+    case 'screen':
+      return payload.name
+    default:
+      return undefined
   }
 }
 
