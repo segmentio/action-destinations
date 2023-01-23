@@ -4,11 +4,11 @@ import type { Payload } from './generated-types'
 import dayjs from '../../../lib/dayjs'
 import { HEAP_SEGMENT_LIBRARY_NAME } from '../constants'
 import { flat } from '../flat'
-import { getUserIdentifier } from '../heapUtils'
+import { getUserIdentifier, getEventName } from '../heapUtils'
 import { IntegrationError } from '@segment/actions-core'
 
 type HeapEvent = {
-  event: string
+  event: string | undefined
   idempotency_key: string
   timestamp?: string
   properties?: {
@@ -31,7 +31,7 @@ type IntegrationsTrackPayload = {
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Track Event',
   description: 'Send an event to Heap.',
-  defaultSubscription: 'type = "track"',
+  defaultSubscription: 'type = "track" or type = "page" or type = "screen"',
   fields: {
     message_id: {
       label: 'Message ID',
@@ -59,10 +59,9 @@ const action: ActionDefinition<Settings, Payload> = {
       }
     },
     event: {
-      label: 'Event Type',
+      label: 'Track Event Type',
       type: 'string',
-      description: 'The name of the event. Limited to 1024 characters.',
-      required: true,
+      description: 'Name of the user action. This only exists on track events. Limited to 1024 characters.',
       default: {
         '@path': '$.event'
       }
@@ -91,6 +90,22 @@ const action: ActionDefinition<Settings, Payload> = {
       default: {
         '@path': '$.context.library.name'
       }
+    },
+    type: {
+      label: 'Type',
+      type: 'string',
+      description: 'The type of call. Can be track, page, or screen.',
+      default: {
+        '@path': '$.type'
+      }
+    },
+    name: {
+      label: 'Page or Screen Name',
+      type: 'string',
+      description: 'The name of the page or screen being viewed. This only exists for page and screen events.',
+      default: {
+        '@path': '$.name'
+      }
     }
   },
   perform: (request, { payload, settings }) => {
@@ -105,7 +120,7 @@ const action: ActionDefinition<Settings, Payload> = {
     const standardProperties = { segment_library: payload.library_name || HEAP_SEGMENT_LIBRARY_NAME }
     const flattenedProperties = flat(payload.properties || {})
     const event: HeapEvent = {
-      event: payload.event,
+      event: getEventName(payload),
       custom_properties: flattenedProperties,
       properties: standardProperties,
       idempotency_key: payload.message_id

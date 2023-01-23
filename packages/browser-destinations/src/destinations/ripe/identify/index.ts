@@ -12,7 +12,7 @@ const action: BrowserActionDefinition<Settings, RipeSDK, Payload> = {
     anonymousId: {
       type: 'string',
       required: true,
-      description: 'The new user ID, if user ID is not set',
+      description: 'The anonymous id',
       label: 'Anonymous ID',
       default: { '@path': '$.anonymousId' }
     },
@@ -28,7 +28,7 @@ const action: BrowserActionDefinition<Settings, RipeSDK, Payload> = {
       required: false,
       description: 'The ID associated groupId',
       label: 'Group ID',
-      default: { '@path': '$.groupId' }
+      default: { '@path': '$.context.groupId' }
     },
     traits: {
       type: 'object',
@@ -39,8 +39,9 @@ const action: BrowserActionDefinition<Settings, RipeSDK, Payload> = {
     }
   },
   perform: async (ripe, { payload }) => {
+    console.log(JSON.stringify(payload, null, 2))
     await ripe.setIds(payload.anonymousId, payload.userId, payload.groupId)
-    return ripe.identify(payload.userId, payload.traits)
+    return ripe.identify(payload.anonymousId, payload.userId, payload.traits)
   }
 }
 

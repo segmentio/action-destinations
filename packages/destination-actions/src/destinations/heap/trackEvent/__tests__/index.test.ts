@@ -37,11 +37,11 @@ describe('Heap.trackEvent', () => {
       events: [
         {
           event: eventName,
-          idempotency_key: messageId,
+          custom_properties: {},
           properties: {
             segment_library: 'analytics.js'
           },
-          custom_properties: {},
+          idempotency_key: messageId,
           timestamp
         }
       ],
@@ -71,7 +71,6 @@ describe('Heap.trackEvent', () => {
     body.events[0].user_identifier = {
       anonymous_id: anonId
     }
-    console.log(JSON.stringify(body))
     nock(heapURL).post(integrationsTrackURI, body).reply(200, {})
 
     const responses = await testDestination.testAction('trackEvent', {
@@ -149,5 +148,33 @@ describe('Heap.trackEvent', () => {
     expect(responses.length).toBe(1)
     expect(responses[0].status).toBe(200)
     expect(responses[0].data).toMatchObject({})
+  })
+
+  it('should get event field for different event type', async () => {
+    const anonId = '5a41f0df-b69a-4a99-b656-79506a86c3f8'
+    const event: Partial<SegmentEvent> = createTestEvent({
+      timestamp,
+      event: undefined,
+      userId,
+      messageId,
+      name: 'Home Page',
+      type: 'page',
+      anonymousId: anonId
+    })
+    body.events[0].user_identifier = {
+      anonymous_id: anonId
+    }
+    body.events[0].event = 'Home Page'
+    nock(heapURL).post(integrationsTrackURI, body).reply(200, {})
+
+    const responses = await testDestination.testAction('trackEvent', {
+      event,
+      useDefaultMappings: true,
+      settings: {
+        appId: HEAP_TEST_APP_ID
+      }
+    })
+    expect(responses.length).toBe(1)
+    expect(responses[0].status).toBe(200)
   })
 })

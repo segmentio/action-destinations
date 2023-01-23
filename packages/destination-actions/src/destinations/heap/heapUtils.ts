@@ -1,4 +1,5 @@
 import { IntegrationError } from '@segment/actions-core'
+import { Payload } from './trackEvent/generated-types'
 
 export const getUserIdentifier = ({
   identity,
@@ -19,4 +20,16 @@ export const getUserIdentifier = ({
     }
   }
   throw new IntegrationError('Either identity or anonymous id are required.')
+}
+
+export const getEventName = (payload: Payload) => {
+  switch (payload.type) {
+    case 'track':
+      return payload.event
+    case 'page':
+    case 'screen':
+      return payload.name
+    default:
+      return undefined
+  }
 }
