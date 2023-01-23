@@ -8,12 +8,14 @@ const actionSlug = 'createUpdatePerson'
 const destinationSlug = 'Pipedrive'
 const seedName = `${destinationSlug}#${actionSlug}`
 
+const PIPEDRIVE_DOMAIN = 'companydomain'
+
 describe(`Testing snapshot for ${destinationSlug}'s ${actionSlug} destination action:`, () => {
   it('required fields', async () => {
     const action = destination.actions[actionSlug]
     const [eventData, settingsData] = generateTestData(seedName, destination, action, true)
     // generateTestData / chance sometimes generates a string that can't be parsed by nock
-    settingsData.domain = 'madeup123'
+    settingsData.domain = PIPEDRIVE_DOMAIN
     Object.keys(eventData)
       .filter((f) => !action.fields[f].required)
       .forEach((f) => {
@@ -53,7 +55,7 @@ describe(`Testing snapshot for ${destinationSlug}'s ${actionSlug} destination ac
     const action = destination.actions[actionSlug]
     const [eventData, settingsData] = generateTestData(seedName, destination, action, true)
     // generateTestData / chance sometimes generates a string that can't be parsed by nock
-    settingsData.domain = 'madeup123'
+    settingsData.domain = PIPEDRIVE_DOMAIN
     Object.keys(eventData)
       .filter((f) => !action.fields[f].required)
       .forEach((f) => {
@@ -102,7 +104,7 @@ describe(`Testing snapshot for ${destinationSlug}'s ${actionSlug} destination ac
     const action = destination.actions[actionSlug]
     const [eventData, settingsData] = generateTestData(seedName, destination, action, false)
     // generateTestData / chance sometimes generates a string that can't be parsed by nock
-    settingsData.domain = 'madeup123'
+    settingsData.domain = PIPEDRIVE_DOMAIN
     const basePath = `https://${settingsData.domain}.pipedrive.com`
     nock(basePath)
       .persist()
