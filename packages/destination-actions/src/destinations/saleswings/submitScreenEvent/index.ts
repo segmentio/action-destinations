@@ -22,7 +22,7 @@ const convertEvent = (payload: Payload): Event | undefined => {
 }
 
 const action: ActionDefinition<Settings, Payload> = {
-  title: 'Submit Track Event',
+  title: 'Submit Screen Event',
   description:
     'Send your Segment Screen events to SalesWings to use them for tagging, scoring and prioritising your leads.',
   defaultSubscription: 'type = "screen"',

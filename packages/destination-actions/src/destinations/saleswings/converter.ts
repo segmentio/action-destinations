@@ -1,15 +1,9 @@
-import { Event, EventBatch, LeadRef, ValueMap } from './api'
+import { LeadRef, ValueMap } from './api'
 
 type EventPayload = {
   userId?: string
   anonymousId?: string
   email?: string
-}
-
-export function convertEventBatch<T>(payloads: T[], convertEvent: (payload: T) => Event): EventBatch | undefined {
-  const events = payloads.map(convertEvent).filter((evt) => evt)
-  if (events.length == 0) return undefined
-  return { events }
 }
 
 export const convertLeadRefs = (payload: EventPayload): LeadRef[] => {
