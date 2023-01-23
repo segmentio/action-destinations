@@ -11,7 +11,7 @@ const fieldHandler = PipedriveClient.fieldHandler
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Create or update a Deal',
   description: "Update a Deal in Pipedrive or create it if it doesn't exist yet.",
-  defaultSubscription: 'type = "track" and event == "Deal Upserted"',
+  defaultSubscription: 'type = "track" and event = "Deal Upserted"',
   fields: {
     deal_match_field: {
       label: 'Deal match field',
@@ -148,10 +148,7 @@ const action: ActionDefinition<Settings, Payload> = {
         { label: 'Owner & followers (private)', value: 1 },
         { label: 'Entire company (shared)', value: 3 }
       ],
-      required: false,
-      default: {
-        '@path': '$.properties.visible_to'
-      }
+      required: false
     },
     add_time: {
       label: 'Created At',

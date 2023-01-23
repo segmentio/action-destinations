@@ -66,10 +66,7 @@ const action: ActionDefinition<Settings, Payload> = {
         { label: 'Owner & followers (private)', value: 1 },
         { label: 'Entire company (shared)', value: 3 }
       ],
-      required: false,
-      default: {
-        '@path': '$.traits.visible_to'
-      }
+      required: false
     },
     add_time: {
       label: 'Created At',

@@ -9,7 +9,7 @@ const fieldHandler = PipedriveClient.fieldHandler
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Create or update an Activity',
   description: "Update an Activity in Pipedrive or create one if it doesn't exist.",
-  defaultSubscription: 'type = "track" and event == "Activity Upserted"',
+  defaultSubscription: 'type = "track" and event = "Activity Upserted"',
   fields: {
     activity_id: {
       label: 'Activity ID',

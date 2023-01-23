@@ -94,7 +94,7 @@ const destination: DestinationDefinition<Settings> = {
     },
     {
       name: 'Create or Update an Activity',
-      subscribe: 'type = "track" and event == "Activity Upserted"',
+      subscribe: 'type = "track" and event = "Activity Upserted"',
       partnerAction: 'createUpdateActivity',
       mapping: defaultValues(createUpdateActivity.fields)
     }
