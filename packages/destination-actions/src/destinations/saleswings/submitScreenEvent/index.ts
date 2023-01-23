@@ -27,6 +27,8 @@ const action: ActionDefinition<Settings, Payload> = {
     'Send your Segment Screen events to SalesWings to use them for tagging, scoring and prioritising your leads.',
   defaultSubscription: 'type = "screen"',
   fields: {
+    kind: kind('Screen'),
+    data: data({ '@path': '$.name' }),
     userId,
     anonymousId,
     email,
@@ -34,8 +36,6 @@ const action: ActionDefinition<Settings, Payload> = {
     referrerUrl,
     userAgent,
     timestamp,
-    kind: kind('Screen'),
-    data: data({ '@path': '$.name' }),
     values: values({ '@path': '$.properties' })
   },
   perform: perform(convertEvent),

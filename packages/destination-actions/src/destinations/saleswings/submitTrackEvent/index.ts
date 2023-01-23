@@ -27,6 +27,8 @@ const action: ActionDefinition<Settings, Payload> = {
     'Send your Segment Track events to SalesWings to use them for tagging, scoring and prioritising your leads.',
   defaultSubscription: 'type = "track"',
   fields: {
+    kind: kind('Track'),
+    data: data({ '@path': '$.event' }),
     userId,
     anonymousId,
     email,
@@ -34,8 +36,6 @@ const action: ActionDefinition<Settings, Payload> = {
     referrerUrl,
     userAgent,
     timestamp,
-    kind: kind('Track'),
-    data: data({ '@path': '$.event' }),
     values: values({ '@path': '$.properties' })
   },
   perform: perform(convertEvent),

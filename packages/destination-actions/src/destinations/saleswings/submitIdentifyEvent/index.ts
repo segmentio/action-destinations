@@ -25,6 +25,8 @@ const action: ActionDefinition<Settings, Payload> = {
     'Send your Segment Identify events to SalesWings to use them for tagging, scoring and prioritising your leads.',
   defaultSubscription: 'type = "identify"',
   fields: {
+    kind: kind('Identify'),
+    data: data({ '@path': '$.traits.email' }),
     userId,
     anonymousId,
     email: { ...email, required: true },
@@ -32,8 +34,6 @@ const action: ActionDefinition<Settings, Payload> = {
     referrerUrl,
     userAgent,
     timestamp,
-    kind: kind('Identify'),
-    data: data({ '@path': '$.traits.email' }),
     values: values({ '@path': '$.traits' })
   },
   perform: perform(convertEvent),

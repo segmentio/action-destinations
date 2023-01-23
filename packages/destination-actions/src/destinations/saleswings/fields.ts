@@ -69,7 +69,7 @@ export const userAgent: InputField = {
 }
 
 export const timestamp: InputField = {
-  label: 'Event timestamp',
+  label: 'Event Timestamp',
   description: 'When the event was sent.',
   type: 'datetime',
   default: {
@@ -81,7 +81,7 @@ export const kind = (defaultValue: string): InputField => {
   return {
     label: 'Custom Event Kind',
     description:
-      'Type of the SalesWings custom event (event is visualized in SalesWings cockpit / SalesForce Lead Intent View as "[kind] data")',
+      'Type of the SalesWings custom event (a custom event is visualized in SalesWings cockpit and SalesForce Lead Intent View as "[[Kind]] Data").',
     type: 'string',
     default: defaultValue,
     required: true
@@ -92,7 +92,7 @@ export const data = (defaultValue: Directive): InputField => {
   return {
     label: 'Custom Event Data',
     description:
-      'String description of the SalesWings custom event payload (event is visualized in SalesWings cockpit / SalesForce Lead Intent View as "[kind] data")',
+      'String description of the SalesWings custom event payload (a custom event is visualized in SalesWings cockpit and SalesForce Lead Intent View as "[[Kind]] Data").',
     type: 'string',
     default: defaultValue,
     required: true
@@ -102,7 +102,7 @@ export const data = (defaultValue: Directive): InputField => {
 export const values = (defaultValue: Directive): InputField => {
   return {
     label: 'Custom Attribute Values',
-    description: 'Custom attribute properties associated with the SalesWings custom event',
+    description: 'Custom attribute values associated with the SalesWings custom event.',
     type: 'object',
     default: defaultValue
   }
