@@ -61,7 +61,9 @@ export class SmsMessageSender extends MessageSender<Payload> {
         this.settings.profileApiEnvironment === 'production' ? 'com' : 'build'
       }`
       const response = await this.request(
-        `${endpoint}/v1/spaces/${this.settings.spaceId}/collections/users/profiles/user_id:${this.payload.userId}/traits?limit=200`,
+        `${endpoint}/v1/spaces/${this.settings.spaceId}/collections/users/profiles/user_id:${encodeURIComponent(
+          this.payload.userId
+        )}/traits?limit=200`,
         {
           headers: {
             authorization: `Basic ${Buffer.from(this.settings.profileApiAccessToken + ':').toString('base64')}`,
