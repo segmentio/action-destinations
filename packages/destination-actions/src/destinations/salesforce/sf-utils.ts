@@ -172,3 +172,18 @@ const snakeCaseToPascalCase = (key: string): string => {
   const token = camelCase(key)
   return token.charAt(0).toUpperCase() + token.slice(1)
 }
+
+export const validateInstanceURL = (instanceUrl: string): string => {
+  if (instanceUrl === undefined || instanceUrl === '') {
+    throw new IntegrationError('Empty Salesforce instance URL. Please login via OAuth.', 'INVALID_INSTANCE_URL', 400)
+  }
+
+  const salesforceRegex = /^(https?):\/\/[a-z]{2,3}[0-9]{3}\.salesforce\.com/
+  const isValid =  salesforceRegex.test(instanceUrl)
+
+  if (isValid) {
+    return instanceUrl
+  }
+
+  throw new IntegrationError('Invalid Salesforce instance URL. Please login via OAuth again.', 'INVALID_INSTANCE_URL', 400)
+}

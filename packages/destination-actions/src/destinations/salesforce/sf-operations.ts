@@ -1,7 +1,7 @@
 import { IntegrationError, RequestClient } from '@segment/actions-core'
 import type { GenericPayload } from './sf-types'
 import { mapObjectToShape } from './sf-object-to-shape'
-import { buildCSVData } from './sf-utils'
+import { buildCSVData, validateInstanceURL } from './sf-utils'
 import { DynamicFieldResponse } from '@segment/actions-core'
 
 export const API_VERSION = 'v53.0'
@@ -73,6 +73,7 @@ export default class Salesforce {
     // If the instanceUrl does not end with '/' append it to the string.
     // This ensures that all request urls are constructed properly
     this.instanceUrl = instanceUrl.concat(instanceUrl.slice(-1) === '/' ? '' : '/')
+    this.instanceUrl = validateInstanceURL(this.instanceUrl)
     this.request = request
   }
 

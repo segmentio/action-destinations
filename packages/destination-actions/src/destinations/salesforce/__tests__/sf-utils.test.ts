@@ -1,5 +1,9 @@
 import { GenericPayload } from '../sf-types'
 import { buildCSVData } from '../sf-utils'
+import Salesforce from '../sf-operations'
+import createRequestClient from '@segment/actions-core/src/create-request-client'
+
+const requestClient = createRequestClient()
 
 describe('Salesforce Utils', () => {
   describe('CSV', () => {
@@ -244,6 +248,26 @@ describe('Salesforce Utils', () => {
       const csv = buildCSVData(updatePayloads, 'Id')
       const expected = `Name,NumberOfEmployees,sellsKrabbyPatties__c,Id\n"Krusty Krab","2","true","00"\n"Chum Bucket","1","false","01"\n`
       expect(csv).toEqual(expected)
+    })
+  })
+
+  describe('Instance URL', () => {
+    it('should throw an error if the instance URL is not provided', async () => {
+      const instanceUrl = ''
+
+      expect(new Salesforce(instanceUrl, requestClient)).rejects.toThrowError('Empty Salesforce instance URL. Please login via OAuth.')
+    })
+
+    it('should throw an error if the instance URL is not a salesforce domain', async () => {
+      const instanceUrl = 'https://www.google.com'
+
+      expect(new Salesforce(instanceUrl, requestClient)).rejects.toThrowError('Invalid Salesforce instance URL. Please login via OAuth.')
+    })
+
+    it('should accept a valid instance URL', async () => {
+      const instanceUrl = 'https://na123.salesforce.com'
+
+      expect(new Salesforce(instanceUrl, requestClient)).resolves.toBeDefined()
     })
   })
 })
