@@ -5,12 +5,13 @@ import { Payload } from './generated-types'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Identify Customer',
-  description: 'Track an event for known or anonymous person',
+  description:
+    'Send the [identify event](https://segment.com/docs/connections/spec/identify/) to create or update the [customer](https://docs.voucherify.io/reference/the-customer-object)',
   fields: {
     source_id: {
-      label: 'Customer ID',
+      label: 'Source ID',
       description:
-        'The ID necessary to [create or update customer](https://docs.voucherify.io/reference/the-customer-object) in Voucherify.',
+        'The source_id which identifies the [customer](https://docs.voucherify.io/reference/the-customer-object) in Voucherify.',
       type: 'string',
       required: true,
       default: {
@@ -21,27 +22,10 @@ const action: ActionDefinition<Settings, Payload> = {
         }
       }
     },
-    type: {
-      label: 'Event Type',
-      description: 'Type of event',
-      type: 'string',
-      required: true,
-      default: {
-        '@path': '$.type'
-      }
-    },
-    traits: {
-      label: 'Customer Attributes',
-      description:
-        'Optional attributes for the customer. When updating a customer, attributes are added or updated, not removed.',
-      type: 'object',
-      default: {
-        '@path': '$.traits'
-      }
-    },
     email: {
       label: 'Email Address',
-      description: "The customer's email address.",
+      description:
+        'The email that identifies the [customer](https://docs.voucherify.io/reference/the-customer-object) in Voucherify.',
       type: 'string',
       default: {
         '@if': {
@@ -49,6 +33,25 @@ const action: ActionDefinition<Settings, Payload> = {
           then: { '@path': '$.email' },
           else: { '@path': '$.traits.email' }
         }
+      }
+    },
+    traits: {
+      label: 'Customer Attributes',
+      description:
+        'Additional [customer](https://docs.voucherify.io/reference/the-customer-object) attributes, such as name, description, phone, address, birthdate, metadata. When updating a customer, attributes are either added or updated in the customer object.',
+      type: 'object',
+      default: {
+        '@path': '$.traits'
+      }
+    },
+
+    type: {
+      label: 'Event Type',
+      description: 'Type of the event [The Segment Spec](https://segment.com/docs/connections/spec/).',
+      type: 'string',
+      required: true,
+      default: {
+        '@path': '$.type'
       }
     }
   },

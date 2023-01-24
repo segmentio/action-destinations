@@ -5,12 +5,13 @@ import type { Payload } from './generated-types'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Page Event',
-  description: 'Send the page event.',
+  description:
+    'Send the [page event](https://segment.com/docs/connections/spec/page/) that will be saved as a [custom event](https://docs.voucherify.io/reference/the-custom-event-object) in Voucherify.',
   fields: {
     source_id: {
-      label: 'Customer ID',
+      label: 'Source ID',
       description:
-        'The ID necessary to [create or update customer](https://docs.voucherify.io/reference/the-customer-object) and [create custom event](https://docs.voucherify.io/reference/create-custom-event) in Voucherify.',
+        'The source_id which identifies the [customer](https://docs.voucherify.io/reference/the-customer-object) in Voucherify.',
       type: 'string',
       required: true,
       default: {
@@ -24,20 +25,17 @@ const action: ActionDefinition<Settings, Payload> = {
 
     event: {
       label: 'Event Name',
-      description: 'The name of the [custom event](https://docs.voucherify.io/reference/the-custom-event-object).',
+      description:
+        'The name of the page event that will be saved as a [custom event](https://docs.voucherify.io/reference/the-custom-event-object) in Voucherify.',
       type: 'string',
-      required: true,
       default: {
-        '@if': {
-          exists: { '@path': '$.name' },
-          then: { '@path': '$.name' },
-          else: { '@path': '$.event' }
-        }
+        '@path': '$.name'
       }
     },
     metadata: {
       label: 'Page Event Metadata',
-      description: 'Optional data to include with the event.',
+      description:
+        'Additional data that will be stored in the [custom event](https://docs.voucherify.io/reference/the-custom-event-object) metadata in Voucherify.',
       type: 'object',
       default: {
         '@path': '$.properties'
@@ -45,7 +43,7 @@ const action: ActionDefinition<Settings, Payload> = {
     },
     type: {
       label: 'Event Type',
-      description: 'Type of event',
+      description: 'Type of the event [The Segment Spec](https://segment.com/docs/connections/spec/).',
       type: 'string',
       required: true,
       default: {

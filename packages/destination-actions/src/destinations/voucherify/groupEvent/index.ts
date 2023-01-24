@@ -5,21 +5,12 @@ import { getVoucherifyEndpointURL } from '../url-provider'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Group Event',
-  description: 'Assign individual traits to user, such as company, organization and much more.',
+  description: 'Assign a specific group and its traits to the customer.',
   fields: {
-    group_id: {
-      label: 'Group ID',
-      description: 'The ID used to uniquely identify a customer group.',
-      type: 'string',
-      required: true,
-      default: {
-        '@path': '$.groupId'
-      }
-    },
     source_id: {
-      label: 'Customer ID',
+      label: 'Source ID',
       description:
-        'The ID necessary to [create or update customer](https://docs.voucherify.io/reference/the-customer-object) in Voucherify.',
+        'The source_id which identifies the [customer](https://docs.voucherify.io/reference/the-customer-object) in Voucherify.',
       type: 'string',
       required: true,
       default: {
@@ -30,10 +21,29 @@ const action: ActionDefinition<Settings, Payload> = {
         }
       }
     },
-    traits: {
-      label: 'Group metadata',
+    email: {
+      label: 'Email Address',
       description:
-        'The group metadata for each customer. [Learn more](https://www.voucherify.io/glossary/metadata-custom-attributes).',
+        'The email that identifies the [customer](https://docs.voucherify.io/reference/the-customer-object) in Voucherify.',
+      type: 'string',
+      default: {
+        '@path': '$.email'
+      }
+    },
+    group_id: {
+      label: 'Group ID',
+      description: 'The ID used to uniquely identify a group to which customer belongs.',
+      type: 'string',
+      required: true,
+      default: {
+        '@path': '$.groupId'
+      }
+    },
+
+    traits: {
+      label: 'Group traits',
+      description:
+        'Traits of the group that will be created in customer [metadata](https://www.voucherify.io/glossary/metadata-custom-attributes).',
       type: 'object',
       default: {
         '@path': '$.traits'
@@ -41,19 +51,11 @@ const action: ActionDefinition<Settings, Payload> = {
     },
     type: {
       label: 'Event Type',
-      description: 'Type of event',
+      description: 'Type of the event [The Segment Spec](https://segment.com/docs/connections/spec/).',
       type: 'string',
       required: true,
       default: {
         '@path': '$.type'
-      }
-    },
-    email: {
-      label: 'Email Address',
-      description: "The person's email address.",
-      type: 'string',
-      default: {
-        '@path': '$.email'
       }
     }
   },
