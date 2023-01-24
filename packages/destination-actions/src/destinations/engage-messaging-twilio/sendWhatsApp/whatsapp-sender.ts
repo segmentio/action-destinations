@@ -57,9 +57,6 @@ export class WhatsAppMessageSender extends MessageSender<Payload> {
     return new URLSearchParams(params)
   }
 
-  getTwilioBase64Token = () =>
-    Buffer.from(`${this.settings.twilioAccountSID}:${this.settings.twilioApiKeySecret}`).toString('base64')
-
   private getVariables = async (): Promise<string | null> => {
     if (!this.payload.contentVariables || !this.payload.traits) return null
 
