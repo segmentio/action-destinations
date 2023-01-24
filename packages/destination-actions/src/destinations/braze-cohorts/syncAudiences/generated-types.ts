@@ -35,7 +35,9 @@ export interface Payload {
   /**
    * Displays properties of the event to add/remove users to a cohort and the traits of the specific user
    */
-  event_properties: string
+  event_properties: {
+    [k: string]: unknown
+  }
   /**
    * When the event occurred.
    */

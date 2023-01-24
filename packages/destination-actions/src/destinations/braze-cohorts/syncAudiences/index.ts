@@ -79,7 +79,7 @@ const action: ActionDefinition<Settings, Payload> = {
       label: 'Event Properties',
       description:
         'Displays properties of the event to add/remove users to a cohort and the traits of the specific user',
-      type: 'hidden',
+      type: 'object',
       required: true,
       default: {
         '@if': {
@@ -159,9 +159,7 @@ function extractUsers(payloads: Payload[]) {
   const removeUsers: CohortChanges = { user_ids: [], device_ids: [], aliases: [], should_remove: true }
 
   payloads.forEach((payload: Payload) => {
-    const { external_id, device_id, user_alias, personas_audience_key } = payload
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any   -- event_properties is always going to be an object
-    const event_properties: any = payload.event_properties
+    const { event_properties, external_id, device_id, user_alias, personas_audience_key } = payload
     const userEnteredOrRemoved: boolean = event_properties[`${personas_audience_key}`] as boolean
     const user = userEnteredOrRemoved ? addUsers : removeUsers
 
