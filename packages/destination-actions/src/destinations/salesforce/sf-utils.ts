@@ -182,7 +182,7 @@ export const validateInstanceURL = (instanceUrl: string): string => {
     )
   }
 
-  const salesforceRegex = /^(https?):\/\/[a-z]{2,3}[0-9]{3}\.salesforce\.com/
+  const salesforceRegex = /^(https?):\/\/.*\.salesforce\.com/
   const isValid = salesforceRegex.test(instanceUrl)
 
   if (isValid) {

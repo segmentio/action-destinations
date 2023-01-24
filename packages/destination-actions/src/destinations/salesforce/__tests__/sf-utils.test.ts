@@ -252,6 +252,16 @@ describe('Salesforce Utils', () => {
   })
 
   describe('Instance URL', () => {
+    const badInstanceUrls = [
+      'https://www.google.com',
+      'http://how-to-salesforce.com',
+      'http://salesforce-tips.co',
+      'ijoewhnukdsfj,'
+    ]
+
+    // Note: These end in '/' to ensure that the instance URL we input matches the expected output
+    const validInstanceUrls = ['https://na1.salesforce.com/', 'http://krusty-krab.my.salesforce.com/']
+
     it('should throw an error if the instance URL is not provided', async () => {
       const instanceUrl = ''
 
@@ -260,28 +270,19 @@ describe('Salesforce Utils', () => {
       )
     })
 
-    it('should throw an error if the instance URL is not a salesforce domain', async () => {
-      const instanceUrl = 'https://www.google.com'
-
-      expect(() => new Salesforce(instanceUrl, requestClient)).toThrow(
-        'Invalid Salesforce instance URL. Please login through OAuth again.'
-      )
+    it('should reject invalid instance URLs', async () => {
+      badInstanceUrls.forEach((instanceUrl) => {
+        expect(() => new Salesforce(instanceUrl, requestClient)).toThrow(
+          'Invalid Salesforce instance URL. Please login through OAuth again.'
+        )
+      })
     })
 
-    it('should reject a url that includes salesforce but not as the domain', async () => {
-      const instanceUrl = 'http://how-to-salesforce.com'
-
-      expect(() => new Salesforce(instanceUrl, requestClient)).toThrow(
-        'Invalid Salesforce instance URL. Please login through OAuth again.'
-      )
-    })
-
-    it('should accept a valid instance URL', async () => {
-      const instanceUrl = 'https://na123.salesforce.com/'
-
-      const sf = new Salesforce(instanceUrl, requestClient)
-
-      expect(sf.instanceUrl).toEqual(instanceUrl)
+    it('should accept valid instance URLs', async () => {
+      validInstanceUrls.forEach((instanceUrl) => {
+        const sf = new Salesforce(instanceUrl, requestClient)
+        expect(sf.instanceUrl).toEqual(instanceUrl)
+      })
     })
   })
 })
