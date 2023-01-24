@@ -12,7 +12,7 @@ const action: BrowserActionDefinition<Settings, RipeSDK, Payload> = {
     anonymousId: {
       type: 'string',
       required: true,
-      description: 'The new user ID, if user ID is not set',
+      description: 'The anonymous id',
       label: 'Anonymous ID',
       default: { '@path': '$.anonymousId' }
     },
@@ -28,7 +28,7 @@ const action: BrowserActionDefinition<Settings, RipeSDK, Payload> = {
       required: false,
       description: 'The ID associated groupId',
       label: 'Group ID',
-      default: { '@path': '$.groupId' }
+      default: { '@path': '$.context.groupId' }
     },
     event: {
       type: 'string',

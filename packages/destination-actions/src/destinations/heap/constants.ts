@@ -1,1 +1,1 @@
-export const HEAP_SEGMENT_LIBRARY_NAME = 'destinations-actions'
+export const HEAP_SEGMENT_CLOUD_LIBRARY_NAME = 'cloud-mode-destination'
