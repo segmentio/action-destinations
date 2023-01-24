@@ -7,16 +7,19 @@ import {
   operation,
   traits,
   customFields,
-  validateLookup
+  validateLookup,
+  enable_batching,
+  recordMatcherOperator
 } from '../sf-properties'
 import Salesforce from '../sf-operations'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Custom Object',
-  description:
-    "Represents a custom object, which you create to store information that's specific to your company or industry, or a standard object.",
+  description: 'Create, update, or upsert records in any custom or standard object in Salesforce.',
   fields: {
     operation: operation,
+    recordMatcherOperator: recordMatcherOperator,
+    enable_batching: enable_batching,
     traits: traits,
     bulkUpsertExternalId: bulkUpsertExternalId,
     bulkUpdateRecordId: bulkUpdateRecordId,
@@ -25,9 +28,17 @@ const action: ActionDefinition<Settings, Payload> = {
       description:
         'The API name of the Salesforce object that records will be added or updated within. This can be a standard or custom object. Custom objects must be predefined in your Salesforce account and should end with "__c".',
       type: 'string',
-      required: true
+      required: true,
+      dynamic: true
     },
     customFields: { ...customFields, required: true }
+  },
+  dynamicFields: {
+    customObjectName: async (request, data) => {
+      const sf: Salesforce = new Salesforce(data.settings.instanceUrl, request)
+
+      return sf.customObjectName()
+    }
   },
   perform: async (request, { settings, payload }) => {
     const sf: Salesforce = new Salesforce(settings.instanceUrl, request)

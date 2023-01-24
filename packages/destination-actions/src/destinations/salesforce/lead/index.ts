@@ -7,7 +7,9 @@ import {
   customFields,
   operation,
   traits,
-  validateLookup
+  validateLookup,
+  enable_batching,
+  recordMatcherOperator
 } from '../sf-properties'
 import Salesforce from '../sf-operations'
 
@@ -15,10 +17,12 @@ const OBJECT_NAME = 'Lead'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Lead',
-  description: 'Represents a prospect or lead.',
+  description: 'Create, update, or upsert leads in Salesforce.',
   defaultSubscription: 'type = "identify"',
   fields: {
     operation: operation,
+    recordMatcherOperator: recordMatcherOperator,
+    enable_batching: enable_batching,
     traits: traits,
     bulkUpsertExternalId: bulkUpsertExternalId,
     bulkUpdateRecordId: bulkUpdateRecordId,
@@ -136,8 +140,8 @@ const action: ActionDefinition<Settings, Payload> = {
     const sf: Salesforce = new Salesforce(settings.instanceUrl, request)
 
     if (payload.operation === 'create') {
-      if (!payload.company || !payload.last_name) {
-        throw new IntegrationError('Missing company or last_name value', 'Misconfigured required field', 400)
+      if (!payload.last_name) {
+        throw new IntegrationError('Missing last_name value', 'Misconfigured required field', 400)
       }
       return await sf.createRecord(payload, OBJECT_NAME)
     }
@@ -149,8 +153,8 @@ const action: ActionDefinition<Settings, Payload> = {
     }
 
     if (payload.operation === 'upsert') {
-      if (!payload.company || !payload.last_name) {
-        throw new IntegrationError('Missing company or last_name value', 'Misconfigured required field', 400)
+      if (!payload.last_name) {
+        throw new IntegrationError('Missing last_name value', 'Misconfigured required field', 400)
       }
       return await sf.upsertRecord(payload, OBJECT_NAME)
     }
@@ -158,9 +162,9 @@ const action: ActionDefinition<Settings, Payload> = {
   performBatch: async (request, { settings, payload }) => {
     const sf: Salesforce = new Salesforce(settings.instanceUrl, request)
 
-    if (payload[0].operation === 'bulkUpsert') {
-      if (!payload[0].company || !payload[0].last_name) {
-        throw new IntegrationError('Missing company or last_name value', 'Misconfigured required field', 400)
+    if (payload[0].operation === 'upsert') {
+      if (!payload[0].last_name) {
+        throw new IntegrationError('Missing last_name value', 'Misconfigured required field', 400)
       }
     }
 

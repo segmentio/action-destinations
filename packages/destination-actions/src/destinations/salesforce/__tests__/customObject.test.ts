@@ -2,6 +2,7 @@ import nock from 'nock'
 import { createTestEvent, createTestIntegration } from '@segment/actions-core'
 import Destination from '../index'
 import { API_VERSION } from '../sf-operations'
+import { DynamicFieldResponse } from '@segment/actions-core'
 
 const testDestination = createTestIntegration(Destination)
 
@@ -62,6 +63,64 @@ describe('Salesforce', () => {
 
       expect(responses[0].options.body).toMatchInlineSnapshot(
         `"{\\"email\\":\\"sponge@seamail.com\\",\\"company\\":\\"Krusty Krab\\",\\"last_name\\":\\"Squarepants\\"}"`
+      )
+    })
+
+    it('should dynamically fetch customObjectName', async () => {
+      nock(`${settings.instanceUrl}/services/data/${API_VERSION}`)
+        .get('/sobjects')
+        .reply(200, {
+          sobjects: [
+            {
+              label: 'Accounts',
+              name: 'Account',
+              createable: true,
+              queryable: true
+            },
+            {
+              label: 'Contacts',
+              name: 'Contact',
+              createable: true,
+              queryable: true
+            },
+            {
+              label: 'Test Custom Object',
+              name: 'TestCustom__c',
+              createable: true,
+              queryable: true
+            },
+            {
+              label: 'Hidden Object',
+              name: 'HiddenObject__c',
+              createable: false,
+              queryable: false
+            }
+          ]
+        })
+
+      const payload = {}
+      const responses = (await testDestination.testDynamicField('customObject', 'customObjectName', {
+        payload,
+        settings,
+        auth
+      })) as DynamicFieldResponse
+
+      expect(responses.choices.length).toBe(3)
+      expect(responses.choices).toEqual(
+        expect.arrayContaining([
+          expect.objectContaining({
+            label: 'Accounts',
+            value: 'Account'
+          }),
+          expect.objectContaining({
+            label: 'Contacts',
+            value: 'Contact'
+          }),
+          expect.objectContaining({
+            label: 'Test Custom Object',
+            value: 'TestCustom__c'
+          })
+        ])
       )
     })
   })

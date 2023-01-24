@@ -44,13 +44,30 @@ describe('Talon.One - Update Customer Profile', () => {
     nock('https://integration.talon.one')
       .put(`/segment/customer_profile/abc123`, {
         attributes: {
-          testAttribute1: 'testValue'
+          testAttribute1: 'testValue',
+          stringAttribute: 'test',
+          booleanAttribute: 'true',
+          numberAttribute: '12345'
         },
         audiencesChanges: {
           adds: [1, 2, 3],
           deletes: [4, 5, 6]
         },
-        runRuleEngine: true
+        runRuleEngine: true,
+        attributesInfo: [
+          {
+            name: 'stringAttribute',
+            type: 'string'
+          },
+          {
+            name: 'booleanAttribute',
+            type: 'boolean'
+          },
+          {
+            name: 'numberAttribute',
+            type: 'number'
+          }
+        ]
       })
       .matchHeader('Authorization', 'ApiKey-v1 some_api_key')
       .matchHeader('destination-hostname', 'https://something.europe-west1.talon.one')
@@ -64,11 +81,28 @@ describe('Talon.One - Update Customer Profile', () => {
       mapping: {
         customerProfileId: 'abc123',
         attributes: {
-          testAttribute1: 'testValue'
+          testAttribute1: 'testValue',
+          stringAttribute: 'test',
+          booleanAttribute: 'true',
+          numberAttribute: '12345'
         },
         addAudienceIds: [1, 2, 3],
         deleteAudienceIds: [4, 5, 6],
-        runRuleEngine: true
+        runRuleEngine: true,
+        attributesInfo: [
+          {
+            name: 'stringAttribute',
+            type: 'string'
+          },
+          {
+            name: 'booleanAttribute',
+            type: 'boolean'
+          },
+          {
+            name: 'numberAttribute',
+            type: 'number'
+          }
+        ]
       }
     })
   })

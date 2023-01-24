@@ -206,11 +206,23 @@ const parse = (tokens: Token[]): Condition => {
             value: String(getTokenValue(valueToken))
           })
         } else if (conditionType === 'name') {
-          nodes.push({
-            type: 'name',
-            operator: operatorToken.value as Operator,
-            value: String(getTokenValue(valueToken))
-          })
+          if (isExists) {
+            nodes.push({
+              type: 'name',
+              operator: 'exists'
+            })
+          } else if (isNotExists) {
+            nodes.push({
+              type: 'name',
+              operator: 'not_exists'
+            })
+          } else {
+            nodes.push({
+              type: 'name',
+              operator: operatorToken.value as Operator,
+              value: String(getTokenValue(valueToken))
+            })
+          }
         } else if (conditionType === 'userId') {
           if (isExists) {
             nodes.push({

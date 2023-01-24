@@ -4,23 +4,32 @@ import identifyUser from './identifyUser'
 import logEvent from './logEvent'
 import mapUser from './mapUser'
 import groupIdentifyUser from './groupIdentifyUser'
+import logPurchase from './logPurchase'
 import type { Settings } from './generated-types'
 import { getEndpointByRegion } from './regional-endpoints'
+
+import logEventV2 from './logEventV2'
 
 /** used in the quick setup */
 const presets: DestinationDefinition['presets'] = [
   {
     name: 'Track Calls',
-    subscribe: 'type = "track"',
-    partnerAction: 'logEvent',
-    mapping: defaultValues(logEvent.fields)
+    subscribe: 'type = "track" and event != "Order Completed"',
+    partnerAction: 'logEventV2',
+    mapping: defaultValues(logEventV2.fields)
+  },
+  {
+    name: 'Order Completed Calls',
+    subscribe: 'type = "track" and event = "Order Completed"',
+    partnerAction: 'logPurchase',
+    mapping: defaultValues(logPurchase.fields)
   },
   {
     name: 'Page Calls',
     subscribe: 'type = "page"',
-    partnerAction: 'logEvent',
+    partnerAction: 'logEventV2',
     mapping: {
-      ...defaultValues(logEvent.fields),
+      ...defaultValues(logEventV2.fields),
       event_type: {
         '@template': 'Viewed {{name}}'
       }
@@ -29,9 +38,9 @@ const presets: DestinationDefinition['presets'] = [
   {
     name: 'Screen Calls',
     subscribe: 'type = "screen"',
-    partnerAction: 'logEvent',
+    partnerAction: 'logEventV2',
     mapping: {
-      ...defaultValues(logEvent.fields),
+      ...defaultValues(logEventV2.fields),
       event_type: {
         '@template': 'Viewed {{name}}'
       }
@@ -53,6 +62,7 @@ const presets: DestinationDefinition['presets'] = [
 
 const destination: DestinationDefinition<Settings> = {
   name: 'Actions Amplitude',
+  slug: 'actions-amplitude',
   mode: 'cloud',
   authentication: {
     scheme: 'custom',
@@ -114,7 +124,9 @@ const destination: DestinationDefinition<Settings> = {
     logEvent,
     identifyUser,
     mapUser,
-    groupIdentifyUser
+    groupIdentifyUser,
+    logPurchase,
+    logEventV2
   }
 }
 

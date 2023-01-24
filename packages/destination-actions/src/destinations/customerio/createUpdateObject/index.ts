@@ -53,6 +53,7 @@ const action: ActionDefinition<Settings, Payload> = {
         '@path': '$.anonymousId'
       }
     },
+
     object_type_id: {
       label: 'Object Type Id',
       description:

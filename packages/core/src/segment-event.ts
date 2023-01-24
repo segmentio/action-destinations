@@ -63,7 +63,9 @@ interface AnalyticsContext {
    * {@link https://github.com/segmentio/analytics.js-integrations/blob/2d5c637c022d2661c23449aed237d0d546bf062d/integrations/segmentio/lib/index.js#L292-L301}
    */
   traits?: {
-    crossDomainId: string
+    crossDomainId?: string
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    [key: string]: any
   }
 
   /**

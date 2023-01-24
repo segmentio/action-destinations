@@ -24,8 +24,8 @@ interface GoogleError {
 }
 
 const action: ActionDefinition<Settings, Payload> = {
-  title: 'Post Conversion',
-  description: 'Send a conversion event to Google Ads.',
+  title: 'Upload Enhanced Conversion (Legacy)',
+  description: 'Upload a conversion enhancement to the legacy Google Enhanced Conversions API.',
   fields: {
     // Required Fields - These fields are required by Google's EC API to successfully match conversions.
     conversion_label: {
@@ -99,6 +99,13 @@ const action: ActionDefinition<Settings, Payload> = {
     is_app_incrementality: {
       label: 'App Conversion for Incrementality Study',
       description: 'Set to true if this is an app conversion for an incrementality study.',
+      type: 'boolean',
+      default: false
+    },
+    pcc_game: {
+      label: 'PCC Game Flag',
+      description:
+        'Alpha feature offered by Google for gaming industry. When set to true, Segment will send pcc_game = 1 to Google.',
       type: 'boolean',
       default: false
     },
@@ -202,7 +209,17 @@ const action: ActionDefinition<Settings, Payload> = {
     }
   },
 
-  perform: async (request, { payload }) => {
+  perform: async (request, { payload, settings }) => {
+    /* Enforcing this here since Conversion ID is required for the Enhanced Conversions API 
+    but not for the Google Ads API. */
+    if (!settings.conversionTrackingId) {
+      throw new IntegrationError(
+        'Conversion ID is required for this action. Please set it in destination settings.',
+        'Missing required fields.',
+        400
+      )
+    }
+
     const conversionData = cleanData({
       oid: payload.transaction_id,
       user_agent: payload.user_agent,
@@ -210,7 +227,8 @@ const action: ActionDefinition<Settings, Payload> = {
       label: payload.conversion_label,
       value: payload.value,
       currency_code: payload.currency_code,
-      is_app_incrementality: payload.is_app_incrementality ? 1 : 0
+      is_app_incrementality: payload.is_app_incrementality ? 1 : 0,
+      pcc_game: payload.pcc_game ? 1 : 0
     })
 
     const address = cleanData({
@@ -239,6 +257,9 @@ const action: ActionDefinition<Settings, Payload> = {
     try {
       return await request('https://www.google.com/ads/event/api/v1', {
         method: 'post',
+        searchParams: {
+          conversion_tracking_id: settings.conversionTrackingId
+        },
         json: {
           pii_data: { ...pii_data, address: [address] },
           ...conversionData

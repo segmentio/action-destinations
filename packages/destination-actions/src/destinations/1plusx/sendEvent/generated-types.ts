@@ -12,7 +12,7 @@ export interface Payload {
   /**
    * Alternative user ids if there is more than one identifier available, each prefixed with the identifier type and separated by commas
    */
-  ope_alt_user_ids?: string[]
+  ope_alt_user_ids?: string
   /**
    * The website URL of the page
    */

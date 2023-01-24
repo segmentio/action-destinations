@@ -1,0 +1,21 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Testing snapshot for SegmentProfiles's sendIdentify destination action: all fields 1`] = `
+Object {
+  "anonymousId": "mV[ZQcEVgZO$MX",
+  "groupId": "mV[ZQcEVgZO$MX",
+  "traits": Object {
+    "testType": "mV[ZQcEVgZO$MX",
+  },
+  "userId": "mV[ZQcEVgZO$MX",
+}
+`;
+
+exports[`Testing snapshot for SegmentProfiles's sendIdentify destination action: required fields 1`] = `
+Object {
+  "anonymousId": "mV[ZQcEVgZO$MX",
+  "groupId": "mV[ZQcEVgZO$MX",
+  "traits": Object {},
+  "userId": "mV[ZQcEVgZO$MX",
+}
+`;

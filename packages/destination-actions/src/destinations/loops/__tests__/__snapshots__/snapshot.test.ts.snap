@@ -1,0 +1,19 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Testing snapshot for actions-loops destination: createOrUpdateContact action - all fields 1`] = `
+Object {
+  "email": "bivjag@ennaato.st",
+  "firstName": "3dQ7ER]1HKW",
+  "lastName": "3dQ7ER]1HKW",
+  "source": "3dQ7ER]1HKW",
+  "userGroup": "3dQ7ER]1HKW",
+  "userId": "3dQ7ER]1HKW",
+}
+`;
+
+exports[`Testing snapshot for actions-loops destination: createOrUpdateContact action - required fields 1`] = `
+Object {
+  "email": "bivjag@ennaato.st",
+  "userId": "3dQ7ER]1HKW",
+}
+`;

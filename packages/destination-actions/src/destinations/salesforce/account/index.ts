@@ -7,7 +7,9 @@ import {
   customFields,
   operation,
   traits,
-  validateLookup
+  validateLookup,
+  enable_batching,
+  recordMatcherOperator
 } from '../sf-properties'
 import type { Payload } from './generated-types'
 
@@ -15,10 +17,12 @@ const OBJECT_NAME = 'Account'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Account',
-  description: 'Represents an individual account, which is an organization or person involved with your business.',
+  description: 'Create, update, or upsert accounts in Salesforce.',
   defaultSubscription: 'type = "group"',
   fields: {
     operation: operation,
+    enable_batching: enable_batching,
+    recordMatcherOperator: recordMatcherOperator,
     traits: traits,
     bulkUpsertExternalId: bulkUpsertExternalId,
     bulkUpdateRecordId: bulkUpdateRecordId,
@@ -200,7 +204,7 @@ const action: ActionDefinition<Settings, Payload> = {
   performBatch: async (request, { settings, payload }) => {
     const sf: Salesforce = new Salesforce(settings.instanceUrl, request)
 
-    if (payload[0].operation === 'bulkUpsert') {
+    if (payload[0].operation === 'upsert') {
       if (!payload[0].name) {
         throw new IntegrationError('Missing name value', 'Misconfigured required field', 400)
       }

@@ -22,8 +22,8 @@ export const destination: BrowserDestinationDefinition<Settings, Koala> = {
   settings: {
     project_slug: {
       type: 'string',
-      label: 'Koala Project Slug',
-      description: "Please enter your project's slug found in your Koala project settings.",
+      label: 'Koala Slug',
+      description: 'Please enter the slug found in your workspace settings in Koala.',
       required: true
     }
   },

@@ -1,4 +1,5 @@
-export const API_VERSION = '12.0'
+export const API_VERSION = '14.0'
+export const CANARY_API_VERSION = '14.0'
 export const CURRENCY_ISO_CODES = new Set([
   'AED',
   'AFN',

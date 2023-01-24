@@ -79,6 +79,13 @@
         // skip annoying `async_hooks` file for promises
         "<node_internals>/**"
       ]
+    },
+    {
+      "name": "Launch Action Tester Web",
+      "type": "chrome",
+      "request": "launch",
+      "url": "https://app.segment.com/dev-center/actions-tester",
+      "webRoot": "${workspaceFolder}/packages/browser-destinations"
     }
   ]
 }

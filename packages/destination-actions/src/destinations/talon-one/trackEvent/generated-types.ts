@@ -19,4 +19,17 @@ export interface Payload {
   attributes?: {
     [k: string]: unknown
   }
+  /**
+   * Use this field if you want to identify an attribute with a specific type
+   */
+  attributesInfo?: {
+    /**
+     * Attribute name
+     */
+    name: string
+    /**
+     * Attribute type. Can be only `string`, `time`, `number`, `boolean`, `location`
+     */
+    type: string
+  }[]
 }

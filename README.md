@@ -1,4 +1,4 @@
-<img src="https://brand.segment.com/site-assets/03d0de2f/images/brand-guidelines/content/twilio/twilio-segment-color-logo-white-2x.png" style="width:50%; height=50%" alt="Twilio Segment logo" >
+<p align="center"><a href="https://segment.com"><img src="https://brand.segment.com/site-assets/7b19c1a2/images/brand-guidelines/content/twilio/twilio-segment-logo-2x.png" width="300"></a></p>
 
 # Action Destinations
 
@@ -30,6 +30,7 @@ For more detailed instruction, see the following READMEs:
 - [perform function](#the-perform-function)
 - [Batching Requests](#batching-requests)
 - [HTTP Requests](#http-requests)
+- [Support](#support)
 
 ## Get started
 
@@ -67,7 +68,10 @@ yarn bootstrap
 yarn build
 yarn install
 
-# Run unit tests to ensure things are working! All tests should pass :)
+# Run unit tests to ensure things are working! For partners who don't have access to internal packages, you can run:
+yarn test-partners
+
+# For segment employees, you can run:
 yarn test
 ```
 
@@ -321,6 +325,63 @@ const destination = {
 
 In addition to default values for input fields, you can also specify the defaultSubscription for a given action – this is the FQL query that will be automatically populated when a customer configures a new subscription triggering a given action.
 
+## Dynamic Fields
+
+You can setup a field which dynamically fetches inputs from your destination. These dynamic fields can be used to populate a dropdown menu of options for your users to select.
+
+```js
+const destination = {
+  // ...other properties
+  actions: {
+    doSomething: {
+      // ...
+      fields: {
+        objectName: {
+          label: 'Name',
+          description: "The name of the object to update.",
+          type: 'string',
+          required: true,
+          dynamic: true
+        }
+      },
+      dynamicFields: {
+        objectName = async (): Promise<DynamicFieldResponse> => {
+          try {
+            const result = await this.request<ObjectsResponseData>(`http://<destination>/objects`,
+            {
+              method: 'get',
+              skipResponseCloning: true // This is useful if you expect a large response.
+            })
+
+            const fields = result.data.objects.filter((field) => {
+              return field.createable === true
+            })
+
+            const choices = fields.map((field) => {
+              return { value: field.name, label: field.label }
+            })
+
+            return {
+              choices: choices,
+              nextPage: '2'
+            }
+          } catch (err) {
+            return {
+              choices: [],
+              nextPage: '',
+              error: {
+                message: (err as ResponseError).response?.data[0]?.message ?? 'Unknown error',
+                code: (err as ResponseError).response?.data[0]?.errorCode ?? 'Unknown error'
+              }
+            }
+          }
+  }
+      }
+    }
+  }
+}
+```
+
 ## The `perform` function
 
 The `perform` function defines what the action actually does. All logic and request handling happens here. Every action MUST have a `perform` function defined.
@@ -332,7 +393,11 @@ The `perform` method accepts two arguments, (1) the request client instance (ext
 - `payload` - The transformed input data, based on `mapping` + `event` (or `events` if batched). You’ll get compile-time type-safety for how you access anything in the `data.payload`.
 - `settings` - The global destination settings.
 - `auth` - The data needed in OAuth requests. This is useful if fetching an updated OAuth `access_token` using a `refresh_token`. The `refresh_token` is available in `auth.refreshToken`.
-- `features` - The features available in the request based on either customer workspaceID or sourceID. Features can only be enabled and/or used by internal Twilio/Segment employees. Features cannot be used for Partner builds.
+- `features` - The features available in the request based on the customer's sourceID. Features can only be enabled and/or used by internal Twilio/Segment employees. Features cannot be used for Partner builds.
+- `statsContext` - An object, containing a `statsClient` and `tags`. Stats can only be used by internal Twilio/Segment employees. Stats cannot be used for Partner builds.
+- `logger` - Logger can only be used by internal Twilio/Segment employees. Logger cannot be used for Partner builds.
+- `transactionContext` - An object, containing transaction variables and a method to update transaction variables which are required for few segment developed actions. Transaction Context cannot be used for Partner builds.
+- `stateContext` - An object, containing context variables and a method to get and set context variables which are required for few segment developed actions. State Context cannot be used for Partner builds.
 
 A basic example:
 
@@ -352,7 +417,7 @@ const destination = {
       // `perform` takes two arguments:
       // 1. the request client instance (extended with your destination's `extendRequest`
       // 2. the data bundle (destructured below)
-      perform: (request, { payload, settings, auth, features }) => {
+      perform: (request, { payload, settings, auth, features, statsContext }) => {
         return request('https://example.com', {
           headers: { Authorization: `Bearer ${data.settings.api_key}` },
           json: data.payload
@@ -377,6 +442,27 @@ function performBatch(request, { settings, payload }) {
     // `payload` is an array of objects, each matching your action's field definition
     json: payload
   })
+}
+```
+
+All actions where a `performBatch` method is defined will automatically include an `enable_batching` input field for users. This field is a boolean switch that allows users to toggle batching functionality. Builders can override the automatically included field by explicitly defining a field named `enable_batching` with type boolean in the `fields` section of the `ActionDefinition`. This may be useful if the builder wants to specify custom labels or descriptions or set a default value.
+
+```js
+const action: ActionDefinition<Settings, Payload> = {
+  title: 'Account',
+  description: 'Represents an individual account, which is an organization or person involved with your business.',
+  defaultSubscription: 'type = "group"',
+  fields: {
+    enable_batching: {
+      type: 'boolean',
+      label: 'Use Salesforce Bulk API',
+      description:
+        'When enabled, the action will use the Salesforce Bulk API to perform the operation. Not compatible with the insert operation.',
+      required: true,
+      default: false
+    }
+  },
+  performBatch: async (request, { settings, payload }) => { ... }
 }
 ```
 
@@ -459,11 +545,15 @@ There are a few subtle differences from the Fetch API which are meant to limit t
 - some options and behaviors are not applicable to Node.js and will be ignored by `node-fetch`. See this list of [known differences](https://github.com/node-fetch/node-fetch/blob/1780f5ae89107ded4f232f43219ab0e548b0647c/docs/v2-LIMITS.md).
 - `method` will automatically get upcased for consistency.
 
+## Support
+
+For any issues, please contact our support team at partner-support@segment.com.
+
 ## License
 
 MIT License
 
-Copyright (c) 2022 Segment
+Copyright (c) 2023 Segment
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
