@@ -2,25 +2,25 @@
 
 export interface Payload {
   /**
-   * The ID used to uniquely identify a customer group.
-   */
-  group_id: string
-  /**
-   * The ID necessary to [create or update customer](https://docs.voucherify.io/reference/the-customer-object) in Voucherify.
+   * The source_id which identifies the [customer](https://docs.voucherify.io/reference/the-customer-object) in Voucherify.
    */
   source_id: string
   /**
-   * The group metadata for each customer. [Learn more](https://www.voucherify.io/glossary/metadata-custom-attributes).
+   * The email that identifies the [customer](https://docs.voucherify.io/reference/the-customer-object) in Voucherify.
+   */
+  email?: string
+  /**
+   * The ID used to uniquely identify a group to which customer belongs.
+   */
+  group_id: string
+  /**
+   * Traits of the group that will be created in customer [metadata](https://www.voucherify.io/glossary/metadata-custom-attributes).
    */
   traits?: {
     [k: string]: unknown
   }
   /**
-   * Type of event
+   * Type of the event [The Segment Spec](https://segment.com/docs/connections/spec/).
    */
   type: string
-  /**
-   * The person's email address.
-   */
-  email?: string
 }

@@ -2,21 +2,21 @@
 
 export interface Payload {
   /**
-   * The ID necessary to [create or update customer](https://docs.voucherify.io/reference/the-customer-object) in Voucherify.
+   * The source_id which identifies the [customer](https://docs.voucherify.io/reference/the-customer-object) in Voucherify.
    */
   source_id: string
   /**
-   * Type of event
+   * The email that identifies the [customer](https://docs.voucherify.io/reference/the-customer-object) in Voucherify.
    */
-  type: string
+  email?: string
   /**
-   * Optional attributes for the customer. When updating a customer, attributes are added or updated, not removed.
+   * Additional [customer](https://docs.voucherify.io/reference/the-customer-object) attributes, such as name, description, phone, address, birthdate, metadata. When updating a customer, attributes are either added or updated in the customer object.
    */
   traits?: {
     [k: string]: unknown
   }
   /**
-   * The customer's email address.
+   * Type of the event [The Segment Spec](https://segment.com/docs/connections/spec/).
    */
-  email?: string
+  type: string
 }
