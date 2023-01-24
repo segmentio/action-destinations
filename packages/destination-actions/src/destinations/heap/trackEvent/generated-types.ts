@@ -14,9 +14,9 @@ export interface Payload {
    */
   anonymous_id?: string | null
   /**
-   * The name of the event. Limited to 1024 characters.
+   * Name of the user action. This only exists on track events. Limited to 1024 characters.
    */
-  event: string
+  event?: string
   /**
    * An object with key-value properties you want associated with the event. Each key and property must either be a number or string with fewer than 1024 characters.
    */
@@ -28,7 +28,15 @@ export interface Payload {
    */
   timestamp?: string | number
   /**
-   * The name of the SDK used to send events
+   * A Heap session ID. The session ID can be retrived by calling getSessionId() on the heap api. If a session ID is not provided one will be created.
    */
-  library_name?: string
+  session_id?: string
+  /**
+   * The type of call. Can be track, page, or screen.
+   */
+  type?: string
+  /**
+   * The name of the page or screen being viewed. This only exists for page and screen events.
+   */
+  name?: string
 }

@@ -1614,4 +1614,124 @@ describe('HubSpot.upsertCompany', () => {
       })
     ).rejects.toThrowError(SegmentUniqueIdentifierMissingRetryableError)
   })
+
+  it('should handle flattening of objects', async () => {
+    const event = createTestEvent({
+      type: 'group',
+      traits: {
+        name: 'Test Company',
+        website: 'test-company.com',
+        customPropertyOne: [1, 2, 3, 4, 5],
+        customPropertyTwo: {
+          a: 1,
+          b: 2,
+          c: 3
+        },
+        customPropertyThree: [1, 'two', true, { four: 4 }]
+      },
+      groupId: 'test-group-id'
+    })
+
+    const hubspotGeneratedCompanyID = '1000000000'
+
+    // Mock: Failed to search company with SEGMENT_UNIQUE_IDENTIFIER
+    nock(HUBSPOT_BASE_URL)
+      .patch(`/crm/v3/objects/companies/${event.groupId}?idProperty=${SEGMENT_UNIQUE_IDENTIFIER}`)
+      .reply(404, {
+        status: 'error',
+        message: 'resource not found',
+        correlationId: 'aabbcc5b01-c9c7-4000-9191-000000000000'
+      })
+
+    // Mock: Search company with Company Search Fields
+    nock(HUBSPOT_BASE_URL)
+      .post('/crm/v3/objects/companies/search')
+      .reply(200, {
+        total: 1,
+        results: [
+          {
+            id: hubspotGeneratedCompanyID,
+            properties: {
+              createdate: '2022-09-25T19:56:33.914Z',
+              domain: 'test-company.com',
+              hs_lastmodifieddate: '2022-10-14T13:19:08.067Z',
+              hs_object_id: hubspotGeneratedCompanyID,
+              name: 'Test Company',
+              segment_group_id: null
+            },
+            createdAt: '2022-09-25T19:56:33.914Z',
+            updatedAt: '2022-10-14T13:19:08.067Z',
+            archived: false
+          }
+        ]
+      })
+
+    // Mock: Update a company with Company ID
+    nock(HUBSPOT_BASE_URL)
+      .patch(`/crm/v3/objects/companies/${hubspotGeneratedCompanyID}`)
+      .reply(200, {
+        id: 'hubspotGeneratedCompanyID',
+        properties: {
+          createdate: '2022-09-25T19:56:33.914Z',
+          hs_all_owner_ids: '100000000',
+          hs_created_by_user_id: '1000000',
+          hs_lastmodifieddate: '2022-10-14T13:19:08.067Z',
+          hs_object_id: hubspotGeneratedCompanyID,
+          hs_pipeline: 'companies-lifecycle-pipeline',
+          hs_updated_by_user_id: '1000000',
+          hs_user_ids_of_all_owners: '1000000',
+          hubspot_owner_assigneddate: '2022-09-25T19:56:33.914Z',
+          hubspot_owner_id: '1000000',
+          lifecyclestage: 'lead',
+          name: event?.traits?.name,
+          domain: event?.traits?.website,
+          website: event?.traits?.website
+        },
+        createdAt: '2022-09-25T19:56:33.914Z',
+        updatedAt: '2022-10-14T13:19:08.067Z',
+        archived: false
+      })
+
+    const responses = await testDestination.testAction('upsertCompany', {
+      event,
+      mapping: {
+        ...defaultGroupMapping,
+        associateContact: false,
+        companysearchfields: {
+          domain: {
+            '@path': '$.traits.website'
+          },
+          custom_property_1: {
+            '@path': '$.traits.customPropertyOne'
+          },
+          custom_property_2: {
+            '@path': '$.traits.customPropertyTwo'
+          },
+          custom_property_3: {
+            '@path': '$.traits.customPropertyThree'
+          }
+        },
+        properties: {
+          custom_property_1: {
+            '@path': '$.traits.customPropertyOne'
+          },
+          custom_property_2: {
+            '@path': '$.traits.customPropertyTwo'
+          },
+          custom_property_3: {
+            '@path': '$.traits.customPropertyThree'
+          }
+        }
+      }
+    })
+
+    expect(responses).toHaveLength(3)
+    expect(responses[2].options.json).toMatchObject({
+      properties: {
+        custom_property_1: '1;2;3;4;5',
+        custom_property_2: '{"a":1,"b":2,"c":3}',
+        custom_property_3: '1;two;true;{"four":4}'
+      }
+    })
+  })
 })

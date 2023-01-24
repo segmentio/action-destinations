@@ -2,6 +2,7 @@ import type { ActionDefinition } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import { HUBSPOT_BASE_URL } from '../properties'
 import type { Payload } from './generated-types'
+import { flattenObject } from '../helperFunctions'
 
 interface CustomBehavioralEvent {
   eventName: string
@@ -73,7 +74,7 @@ const action: ActionDefinition<Settings, Payload> = {
       utk: payload.utk,
       email: payload.email,
       objectId: payload.objectId,
-      properties: payload.properties
+      properties: flattenObject(payload.properties)
     }
     return request(`${HUBSPOT_BASE_URL}/events/v3/send`, {
       method: 'post',
