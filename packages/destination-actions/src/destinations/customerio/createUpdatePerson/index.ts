@@ -53,7 +53,7 @@ const action: ActionDefinition<Settings, Payload> = {
         'The ID used to uniquely identify an object in Customer.io. [Learn more](https://customer.io/docs/object-relationships).',
       type: 'string',
       default: {
-        '@template': '{{context.groupId}}'
+        '@path': '$.context.groupId'
       }
     },
     custom_attributes: {
