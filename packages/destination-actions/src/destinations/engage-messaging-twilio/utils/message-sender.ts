@@ -35,6 +35,8 @@ export abstract class MessageSender<SmsPayload extends MinimalPayload> {
     readonly tags: StatsContext['tags'] | undefined
   ) {}
 
+  abstract getBody: (phone: string) => Promise<URLSearchParams>
+
   send = async () => {
     const { phone, sendabilityStatus } = this.getSendabilityPayload()
 
@@ -49,7 +51,9 @@ export abstract class MessageSender<SmsPayload extends MinimalPayload> {
     if (webhookUrlWithParams) body.append('StatusCallback', webhookUrlWithParams)
 
     const twilioHostname = this.settings.twilioHostname ?? this.DEFAULT_HOSTNAME
-    const twilioToken = this.getTwilioBase64Token()
+    const twilioToken = Buffer.from(`${this.settings.twilioApiKeySID}:${this.settings.twilioApiKeySecret}`).toString(
+      'base64'
+    )
     const response = await this.request(
       `https://${twilioHostname}/2010-04-01/Accounts/${this.settings.twilioAccountSID}/Messages.json`,
       {
@@ -72,9 +76,6 @@ export abstract class MessageSender<SmsPayload extends MinimalPayload> {
     }
     return response
   }
-
-  abstract getBody: (phone: string) => Promise<URLSearchParams>
-  abstract getTwilioBase64Token: () => string
 
   private getSendabilityPayload = (): SendabilityPayload => {
     const nonSendableStatuses = ['unsubscribed', 'did not subscribed', 'false']
