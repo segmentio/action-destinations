@@ -255,19 +255,33 @@ describe('Salesforce Utils', () => {
     it('should throw an error if the instance URL is not provided', async () => {
       const instanceUrl = ''
 
-      expect(new Salesforce(instanceUrl, requestClient)).rejects.toThrowError('Empty Salesforce instance URL. Please login via OAuth.')
+      expect(() => new Salesforce(instanceUrl, requestClient)).toThrow(
+        'Empty Salesforce instance URL. Please login through OAuth.'
+      )
     })
 
     it('should throw an error if the instance URL is not a salesforce domain', async () => {
       const instanceUrl = 'https://www.google.com'
 
-      expect(new Salesforce(instanceUrl, requestClient)).rejects.toThrowError('Invalid Salesforce instance URL. Please login via OAuth.')
+      expect(() => new Salesforce(instanceUrl, requestClient)).toThrow(
+        'Invalid Salesforce instance URL. Please login through OAuth again.'
+      )
+    })
+
+    it('should reject a url that includes salesforce but not as the domain', async () => {
+      const instanceUrl = 'http://how-to-salesforce.com'
+
+      expect(() => new Salesforce(instanceUrl, requestClient)).toThrow(
+        'Invalid Salesforce instance URL. Please login through OAuth again.'
+      )
     })
 
     it('should accept a valid instance URL', async () => {
-      const instanceUrl = 'https://na123.salesforce.com'
+      const instanceUrl = 'https://na123.salesforce.com/'
 
-      expect(new Salesforce(instanceUrl, requestClient)).resolves.toBeDefined()
+      const sf = new Salesforce(instanceUrl, requestClient)
+
+      expect(sf.instanceUrl).toEqual(instanceUrl)
     })
   })
 })
