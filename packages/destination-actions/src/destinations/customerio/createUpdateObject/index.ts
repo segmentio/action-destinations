@@ -93,7 +93,7 @@ const action: ActionDefinition<Settings, Payload> = {
       body.created_at = createdAt
     }
     body.type = 'object'
-    body.identifiers = { type_id: objectTypeID ?? '1', id: objectID }
+    body.identifiers = { object_type_id: objectTypeID ?? '1', object_id: objectID }
 
     if (userID) {
       body.action = 'identify'
