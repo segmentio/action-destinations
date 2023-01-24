@@ -36,7 +36,6 @@ const FILTER_BODY = {
 describe('upsertContactTransaction', () => {
   it('should send a valid action when a contact id is supplied', async () => {
     nock(`https://${SETTINGS.datacenter}.qualtrics.com`)
-      .persist()
       .post(`/API/v3/directories/${DIRECTORY_ID}/transactions`)
       .matchHeader('x-api-token', SETTINGS.apiToken)
       .reply(200, {})
@@ -84,13 +83,11 @@ describe('upsertContactTransaction', () => {
   })
   it('should send a valid action when a contact id is not supplied and the contact search succeeds', async () => {
     nock(`https://${SETTINGS.datacenter}.qualtrics.com`)
-      .persist()
       .post(`/API/v3/directories/${DIRECTORY_ID}/contacts/search`)
       .matchHeader('x-api-token', SETTINGS.apiToken)
       .reply(200, { result: { elements: [{ id: 'CID_FOUND' }] } })
 
     nock(`https://${SETTINGS.datacenter}.qualtrics.com`)
-      .persist()
       .post(`/API/v3/directories/${DIRECTORY_ID}/transactions`)
       .matchHeader('x-api-token', SETTINGS.apiToken)
       .reply(200, {})
@@ -149,19 +146,16 @@ describe('upsertContactTransaction', () => {
   })
   it('should send a valid action when a contact id is not supplied, search fails to find and a new contact is created', async () => {
     nock(`https://${SETTINGS.datacenter}.qualtrics.com`)
-      .persist()
       .post(`/API/v3/directories/${DIRECTORY_ID}/contacts/search`)
       .matchHeader('x-api-token', SETTINGS.apiToken)
       .reply(200, { result: { elements: [] } })
 
     nock(`https://${SETTINGS.datacenter}.qualtrics.com`)
-      .persist()
       .post(`/API/v3/directories/${DIRECTORY_ID}/contacts`)
       .matchHeader('x-api-token', SETTINGS.apiToken)
       .reply(200, { result: { id: 'CID_CREATED' } })
 
     nock(`https://${SETTINGS.datacenter}.qualtrics.com`)
-      .persist()
       .post(`/API/v3/directories/${DIRECTORY_ID}/transactions`)
       .matchHeader('x-api-token', SETTINGS.apiToken)
       .reply(200, {})

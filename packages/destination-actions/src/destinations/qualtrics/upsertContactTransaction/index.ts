@@ -8,6 +8,7 @@ import QualtricsApiClient, {
 } from '../qualtricsApiClient'
 import { generateRandomId, parsedEmbeddedData, parsedTransactionDate } from '../utils'
 import type { Payload } from './generated-types'
+import { getDirectoryIds } from '../dynamicFields'
 
 async function searchOrCreateContact(payload: Payload, apiClient: QualtricsApiClient): Promise<string> {
   const contacts = await searchContact(payload, apiClient)
@@ -31,7 +32,7 @@ async function searchContact(
 ): Promise<SearchDirectoryContactResponse[]> {
   if (!payload.email && !payload.extRef && !payload.phone) {
     throw new IntegrationError(
-      'Unable to lookup contact. At least 1 field is required: contactId, extRef, email or phone',
+      'Unable to lookup contact. At least 1 field is required: contactId, external data reference, email or phone',
       'directory_lookup_error',
       400
     )
@@ -42,6 +43,7 @@ async function searchContact(
     phone: payload?.phone
   })
 }
+
 async function createContact(payload: Payload, apiClient: QualtricsApiClient): Promise<CreateDirectoryContactResponse> {
   const requestPayload: CreateDirectoryContactRequest = {
     firstName: payload.firstName,
@@ -58,22 +60,22 @@ async function createContact(payload: Payload, apiClient: QualtricsApiClient): P
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Upsert contact transaction',
-  description: 'Upsert a contact transaction.',
-  defaultSubscription: 'type = "track", event = "transaction"',
+  description:
+    'Add a transaction to a contact in Qualtrics directory. If the contact already exists, add the transaction. If the contact does not exist, create the contact first, then add the transaction record.',
+  defaultSubscription: 'type = "track", event = "Transaction Created"',
   fields: {
     directoryId: {
       label: 'Directory ID',
       type: 'string',
       description: 'Directory id. Also known as the Pool ID. POOL_XXX',
       required: true,
-      default: {
-        '@path': '$.traits.directoryId'
-      }
+      dynamic: true
     },
     mailingListId: {
       label: 'Mailing list ID',
       type: 'string',
-      description: 'ID of the mailing list the contact belongs too',
+      description:
+        'ID of the mailing list the contact belongs too. If not part of the event payload, create / use an existing mailing list from Qualtrics. Will have the form CG_xxx',
       required: true,
       default: {
         '@path': '$.traits.qualtricsMailingListId'
@@ -83,7 +85,7 @@ const action: ActionDefinition<Settings, Payload> = {
       label: 'Contact ID',
       type: 'string',
       description:
-        'The id of the contact to add the transaction. if this field is not supplied, you must supply an extRef, email and/or phone so a look can be performed. If the lookup does not find a contact, one will be created with these fields and including the optionally supplied firstName, lastName, language, subscribed and embeddedData',
+        'The id of the contact to add the transaction. if this field is not supplied, you must supply an external data reference, email and/or phone so a look can be performed. If the lookup does not find a contact, one will be created with these fields and including the optionally supplied firstName, lastName, language, subscribed and embeddedData',
       default: {
         '@path': '$.traits.qualtricsContactId'
       }
@@ -91,20 +93,22 @@ const action: ActionDefinition<Settings, Payload> = {
     extRef: {
       label: 'External Data Reference',
       type: 'string',
-      description: 'The external data reference which is a unique identifier for the user',
+      description:
+        'The external data reference which is a unique identifier for the user. This is only used to search for the contact and if a new contact needs to be created, it is not added to the transaction data.',
       required: true,
       default: {
         '@if': {
-          exists: { '@path': '$.traits.extRef' },
-          then: { '@path': '$.traits.extRef' },
-          else: { '@path': '$.userId' }
+          exists: { '@path': '$.userId' },
+          then: { '@path': '$.userId' },
+          else: { '@path': '$.anonymousId' }
         }
       }
     },
     email: {
       label: 'Email',
       type: 'string',
-      description: 'Email of contact',
+      description:
+        'Email of contact. This is only used to search for the contact and if a new contact needs to be created, it is not added to the transaction data.',
       default: {
         '@if': {
           exists: { '@path': '$.email' },
@@ -116,7 +120,8 @@ const action: ActionDefinition<Settings, Payload> = {
     phone: {
       label: 'Phone number',
       type: 'string',
-      description: 'Phone number of contact',
+      description:
+        'Phone number of contact. This is only used to search for the contact and if a new contact needs to be created, it is not added to the transaction data.',
       default: {
         '@path': '$.traits.phone'
       }
@@ -124,7 +129,8 @@ const action: ActionDefinition<Settings, Payload> = {
     firstName: {
       label: 'First name',
       type: 'string',
-      description: 'First name of contact',
+      description:
+        'First name of contact. This is only used if a new contact needs to be created and is not added to the transaction data.',
       default: {
         '@path': '$.traits.firstName'
       }
@@ -132,7 +138,8 @@ const action: ActionDefinition<Settings, Payload> = {
     lastName: {
       label: 'Last name',
       type: 'string',
-      description: 'Last name of contact',
+      description:
+        'Last name of contact. This is only used if a new contact needs to be created and is not added to the transaction data.',
       default: {
         '@path': '$.traits.lastName'
       }
@@ -140,7 +147,8 @@ const action: ActionDefinition<Settings, Payload> = {
     language: {
       label: 'Language',
       type: 'string',
-      description: 'Language code of the contact',
+      description:
+        'Language code of the contact. This is only used if a new contact needs to be created and is not added to the transaction data.',
       default: {
         '@if': {
           exists: { '@path': '$.traits.language' },
@@ -152,13 +160,15 @@ const action: ActionDefinition<Settings, Payload> = {
     unsubscribed: {
       label: 'Contact is unsubscribed',
       type: 'boolean',
-      description: 'Should the contact be unsubscribed from correspondence',
+      description:
+        'Should the contact be unsubscribed from correspondence. This is only used if a new contact needs to be created and is not added to the transaction.',
       default: false
     },
     embeddedData: {
       label: 'Contact embedded data',
       type: 'object',
-      description: 'Contact embedded data (properties of the contact)',
+      description:
+        'Contact embedded data (properties of the contact). These are added to the contact only if a new contact needs to be created not added to the transaction.',
       defaultObjectUI: 'keyvalue'
     },
     transactionDate: {
@@ -175,6 +185,9 @@ const action: ActionDefinition<Settings, Payload> = {
       description: 'Properties of the transaction too add to the users record',
       defaultObjectUI: 'keyvalue'
     }
+  },
+  dynamicFields: {
+    directoryId: getDirectoryIds
   },
   perform: async (request, data) => {
     let contactId = data.payload.contactId
