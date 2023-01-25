@@ -4,7 +4,7 @@ export interface Settings {
   /**
    * The measurement ID associated with the web stream. Found in the Google Analytics UI under: Admin > Data Streams > Web > Measurement ID.
    */
-  measurementID?: string
+  measurementID: string
   /**
    * Set to false to prevent the default snippet from sending page views. Enabled by default.
    */
