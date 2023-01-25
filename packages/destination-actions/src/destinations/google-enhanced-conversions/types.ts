@@ -1,3 +1,5 @@
+import { Features } from '@segment/actions-core/src/mapping-kit'
+
 export interface CartItem {
   productId?: string
   quantity?: number
@@ -24,4 +26,9 @@ export interface PartialErrorResponse {
   results: {}[]
 }
 
-export const GoogleAdsAPI = 'https://googleads.googleapis.com/v11/customers'
+export function getUrlByVersion(features: Features | undefined): string {
+  if (features && features['google-enhanced-conversions-v12']) {
+    return 'https://googleads.googleapis.com/v12/customers'
+  }
+  return 'https://googleads.googleapis.com/v11/customers'
+}
