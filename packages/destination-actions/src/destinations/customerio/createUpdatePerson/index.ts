@@ -53,7 +53,7 @@ const action: ActionDefinition<Settings, Payload> = {
         'The ID used to uniquely identify an object in Customer.io. [Learn more](https://customer.io/docs/object-relationships).',
       type: 'string',
       default: {
-        '@template': '{{context.groupId}}'
+        '@path': '$.context.groupId'
       }
     },
     custom_attributes: {
@@ -112,7 +112,7 @@ const action: ActionDefinition<Settings, Payload> = {
     if (objectId) {
       body.cio_relationships = {
         action: 'add_relationships',
-        relationships: [{ identifiers: { type_id: objectTypeId ?? '1', id: objectId } }]
+        relationships: [{ identifiers: { object_type_id: objectTypeId ?? '1', object_id: objectId } }]
       }
     }
 

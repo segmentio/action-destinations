@@ -25,14 +25,17 @@ const action: ActionDefinition<Settings, Payload> = {
       type: 'string',
       required: true,
       default: {
-        '@path': '$.userId'
+        '@path': '$.groupId'
       }
     },
     name: {
       label: 'Organization Name',
       description: 'Name of the organization',
       type: 'string',
-      required: false
+      required: false,
+      default: {
+        '@path': '$.traits.name'
+      }
     },
     visible_to: {
       label: 'Visible To',
@@ -51,7 +54,6 @@ const action: ActionDefinition<Settings, Payload> = {
         'If the organization is created, use this timestamp as the creation timestamp. Format: YYY-MM-DD HH:MM:SS',
       type: 'datetime'
     },
-
     custom_fields: {
       label: 'Custom fields',
       description: 'New values for custom fields.',
@@ -76,6 +78,11 @@ const action: ActionDefinition<Settings, Payload> = {
       add_time: payload.add_time ? `${payload.add_time}` : undefined,
       visible_to: payload.visible_to
     }
+
+    if (!organizationId)
+      if (payload.match_field && payload.match_value)
+        // if doing a create, write the match_field and match_value data to the new Organization object's custom field
+        Object.assign(organization, { [payload.match_field]: payload.match_value })
 
     addCustomFieldsFromPayloadToEntity(payload, organization)
 

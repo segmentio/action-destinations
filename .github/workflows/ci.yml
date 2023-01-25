@@ -10,7 +10,7 @@ jobs:
   test-and-build:
     runs-on: ubuntu-20.04
 
-    timeout-minutes: 10
+    timeout-minutes: 15
 
     strategy:
       matrix:
@@ -68,7 +68,7 @@ jobs:
   browser-tests:
     runs-on: ubuntu-20.04
 
-    timeout-minutes: 5
+    timeout-minutes: 10
 
     strategy:
       matrix:
