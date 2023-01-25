@@ -1,12 +1,12 @@
 import { ActionDefinition } from '@segment/actions-core'
 import { Settings } from '../generated-types'
-import { getVoucherifyEndpointURL } from '../url-provider'
 import { Payload } from './generated-types'
+import { getVoucherifyEndpointURL } from '../url-provider'
 
 const action: ActionDefinition<Settings, Payload> = {
-  title: 'Identify Customer',
-  description:
-    'Send the [identify event](https://segment.com/docs/connections/spec/identify/) to create or update the [customer](https://docs.voucherify.io/reference/the-customer-object)',
+  title: 'Assign customer to group',
+  description: 'Assign a specific group and its traits to the customer.',
+  defaultSubscription: 'type = "group"',
   fields: {
     source_id: {
       label: 'Source ID',
@@ -28,23 +28,28 @@ const action: ActionDefinition<Settings, Payload> = {
         'The email that identifies the [customer](https://docs.voucherify.io/reference/the-customer-object) in Voucherify.',
       type: 'string',
       default: {
-        '@if': {
-          exists: { '@path': '$.email' },
-          then: { '@path': '$.email' },
-          else: { '@path': '$.traits.email' }
-        }
+        '@path': '$.email'
       }
     },
+    group_id: {
+      label: 'Group ID',
+      description: 'The ID used to uniquely identify a group to which customer belongs.',
+      type: 'string',
+      required: true,
+      default: {
+        '@path': '$.groupId'
+      }
+    },
+
     traits: {
-      label: 'Customer Attributes',
+      label: 'Group traits',
       description:
-        'Additional [customer](https://docs.voucherify.io/reference/the-customer-object) attributes, such as name, description, phone, address, birthdate, metadata. When updating a customer, attributes are either added or updated in the customer object.',
+        'Traits of the group that will be created in customer [metadata](https://www.voucherify.io/glossary/metadata-custom-attributes).',
       type: 'object',
       default: {
         '@path': '$.traits'
       }
     },
-
     type: {
       label: 'Event Type',
       description: 'Type of the event [The Segment Spec](https://segment.com/docs/connections/spec/).',
@@ -56,7 +61,7 @@ const action: ActionDefinition<Settings, Payload> = {
     }
   },
   perform: (request, { settings, payload }) => {
-    const voucherifyRequestURL = getVoucherifyEndpointURL(settings, 'customer')
+    const voucherifyRequestURL = getVoucherifyEndpointURL(settings, 'group')
     return request(voucherifyRequestURL, {
       method: 'post',
       json: payload

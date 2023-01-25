@@ -8,7 +8,11 @@ export interface Payload {
   /**
    * The name of the track event that will be saved as a [custom event](https://docs.voucherify.io/reference/the-custom-event-object) in Voucherify.
    */
-  event: string
+  event?: string
+  /**
+   * The name of the screen or page event that will be saved as a [custom event](https://docs.voucherify.io/reference/the-custom-event-object) in Voucherify.
+   */
+  name?: string
   /**
    * Additional data that will be stored in the [custom event](https://docs.voucherify.io/reference/the-custom-event-object) metadata in Voucherify.
    */
@@ -16,7 +20,7 @@ export interface Payload {
     [k: string]: unknown
   }
   /**
-   * Type of the event [The Segment Spec](https://segment.com/docs/connections/spec/).
+   * Type of the event. It can be track, page or screen.
    */
   type: string
 }

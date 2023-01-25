@@ -1,12 +1,13 @@
-import type { ActionDefinition } from '@segment/actions-core'
+import { ActionDefinition } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import { getVoucherifyEndpointURL } from '../url-provider'
 import type { Payload } from './generated-types'
 
 const action: ActionDefinition<Settings, Payload> = {
-  title: 'Screen Event',
+  title: 'Add custom event',
   description:
-    'Send the [screen event](https://segment.com/docs/connections/spec/screen/) that will be saved as a [custom event](https://docs.voucherify.io/reference/the-custom-event-object) in Voucherify.',
+    'Send the Track, Page or Screen event that will be saved as a [custom event](https://docs.voucherify.io/reference/the-custom-event-object) in Voucherify.',
+  defaultSubscription: 'type = "track" or type = "page" or type = "screen"',
   fields: {
     source_id: {
       label: 'Source ID',
@@ -22,18 +23,26 @@ const action: ActionDefinition<Settings, Payload> = {
         }
       }
     },
-
     event: {
       label: 'Event Name',
       description:
-        'The name of the screen event that will be saved as a [custom event](https://docs.voucherify.io/reference/the-custom-event-object) in Voucherify.',
+        'The name of the track event that will be saved as a [custom event](https://docs.voucherify.io/reference/the-custom-event-object) in Voucherify.',
       type: 'string',
+      default: {
+        '@path': '$.event'
+      }
+    },
+    name: {
+      label: 'Page or Screen Name',
+      type: 'string',
+      description:
+        'The name of the screen or page event that will be saved as a [custom event](https://docs.voucherify.io/reference/the-custom-event-object) in Voucherify.',
       default: {
         '@path': '$.name'
       }
     },
     metadata: {
-      label: 'Screen Event Metadata',
+      label: 'Track Event Metadata',
       description:
         'Additional data that will be stored in the [custom event](https://docs.voucherify.io/reference/the-custom-event-object) metadata in Voucherify.',
       type: 'object',
@@ -43,7 +52,7 @@ const action: ActionDefinition<Settings, Payload> = {
     },
     type: {
       label: 'Event Type',
-      description: 'Type of the event [The Segment Spec](https://segment.com/docs/connections/spec/).',
+      description: 'Type of the event. It can be track, page or screen.',
       type: 'string',
       required: true,
       default: {

@@ -1,11 +1,10 @@
 /* eslint-disable no-useless-escape */
 import { DestinationDefinition } from '@segment/actions-core'
 import { Settings } from './generated-types'
-import identifyCustomer from './identifyCustomer'
-import trackEvent from './trackEvent'
-import pageEvent from './pageEvent'
-import screenEvent from './screenEvent'
-import groupEvent from './groupEvent'
+import upsertCustomer from './upsertCustomer'
+import { defaultValues } from '@segment/actions-core'
+import addCustomEvent from './addCustomEvent'
+import assignCustomerToGroup from './assignCustomerToGroup'
 import { validateURL } from './url-validator'
 
 const destination: DestinationDefinition<Settings> = {
@@ -53,12 +52,30 @@ const destination: DestinationDefinition<Settings> = {
     }
   },
   actions: {
-    identifyCustomer,
-    trackEvent,
-    pageEvent,
-    screenEvent,
-    groupEvent
-  }
+    upsertCustomer,
+    addCustomEvent,
+    assignCustomerToGroup
+  },
+  presets: [
+    {
+      name: 'Track Custom Event',
+      subscribe: 'type = "track" or type = "page" or type = "screen"',
+      partnerAction: 'addCustomEvent',
+      mapping: defaultValues(addCustomEvent.fields)
+    },
+    {
+      name: 'Identify Customer',
+      subscribe: 'type = "identify"',
+      partnerAction: 'upsertCustomer',
+      mapping: defaultValues(upsertCustomer.fields)
+    },
+    {
+      name: 'Add Group To Customer Metadata',
+      subscribe: 'type = "group"',
+      partnerAction: 'assignCustomerToGroup',
+      mapping: defaultValues(assignCustomerToGroup.fields)
+    }
+  ]
 }
 
 export default destination
