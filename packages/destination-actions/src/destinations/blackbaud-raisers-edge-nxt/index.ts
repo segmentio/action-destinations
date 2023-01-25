@@ -1,7 +1,12 @@
 import type { DestinationDefinition } from '@segment/actions-core'
 import type { Settings } from './generated-types'
+import { SKY_OAUTH2_TOKEN_URL } from './constants'
 
 import createOrUpdateIndividualConstituent from './createOrUpdateIndividualConstituent'
+
+interface RefreshTokenResponse {
+  access_token: string
+}
 
 const destination: DestinationDefinition<Settings> = {
   name: "Blackbaud Raiser's Edge NXT",
@@ -19,23 +24,24 @@ const destination: DestinationDefinition<Settings> = {
     },
     refreshAccessToken: async (request, { auth }) => {
       // Return a request that refreshes the access_token if the API supports it
-      const res = await request('https://oauth2.sky.blackbaud.com/token', {
+      const res = await request<RefreshTokenResponse>(SKY_OAUTH2_TOKEN_URL, {
         method: 'POST',
         body: new URLSearchParams({
+          grant_type: 'refresh_token',
           refresh_token: auth.refreshToken,
           client_id: auth.clientId,
-          client_secret: auth.clientSecret,
-          grant_type: 'refresh_token'
+          client_secret: auth.clientSecret
         })
       })
 
-      return { accessToken: res.body.access_token }
+      return { accessToken: res.data.access_token }
     }
   },
   extendRequest({ auth }) {
     return {
       headers: {
-        authorization: `Bearer ${auth?.accessToken}`
+        authorization: `Bearer ${auth?.accessToken}`,
+        'Bb-Api-Subscription-Key': `${auth?.bb_api_subscription_key}`
       }
     }
   },
