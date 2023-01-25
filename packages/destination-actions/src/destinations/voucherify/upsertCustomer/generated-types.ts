@@ -13,7 +13,17 @@ export interface Payload {
    * Additional [customer](https://docs.voucherify.io/reference/the-customer-object) attributes, such as name, description, phone, address, birthdate, metadata. When updating a customer, attributes are either added or updated in the customer object.
    */
   traits?: {
-    [k: string]: unknown
+    name?: string
+    email?: string
+    description?: string
+    address?: {
+      [k: string]: unknown
+    }
+    phone?: string
+    birthdate?: string
+    metadata?: {
+      [k: string]: unknown
+    }
   }
   /**
    * Type of the event [The Segment Spec](https://segment.com/docs/connections/spec/).
