@@ -2,6 +2,7 @@ import nock from 'nock'
 import { createTestEvent, createTestIntegration, JSONValue, SegmentEvent } from '@segment/actions-core'
 import Destination from '../../index'
 import { flattenObject, embededObject } from '../../__tests__/flat.test'
+import { HEAP_SEGMENT_CLOUD_LIBRARY_NAME } from '../../constants'
 
 describe('Heap.trackEvent', () => {
   const testDestination = createTestIntegration(Destination)
@@ -39,7 +40,7 @@ describe('Heap.trackEvent', () => {
           event: eventName,
           custom_properties: {},
           properties: {
-            segment_library: 'analytics.js'
+            segment_library: HEAP_SEGMENT_CLOUD_LIBRARY_NAME
           },
           idempotency_key: messageId,
           timestamp

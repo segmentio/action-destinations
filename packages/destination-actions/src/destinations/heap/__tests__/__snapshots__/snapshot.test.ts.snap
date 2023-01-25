@@ -19,17 +19,16 @@ Object {
 exports[`Testing snapshot for actions-heap destination: trackEvent action - all fields 1`] = `
 Object {
   "app_id": "kFJwrNh$DP38FB",
-<<<<<<< HEAD
   "events": Array [
     Object {
       "custom_properties": Object {
         "testType": "kFJwrNh$DP38FB",
       },
-      "event": "kFJwrNh$DP38FB",
       "idempotency_key": "kFJwrNh$DP38FB",
       "properties": Object {
-        "segment_library": "kFJwrNh$DP38FB",
+        "segment_library": "cloud-mode-destination",
       },
+      "session_id": "kFJwrNh$DP38FB",
       "timestamp": "2021-02-01T00:00:00.000Z",
       "user_identifier": Object {
         "identity": "kFJwrNh$DP38FB",
@@ -37,42 +36,25 @@ Object {
     },
   ],
   "library": "Segment",
-=======
-  "idempotency_key": "kFJwrNh$DP38FB",
-  "identity": "kFJwrNh$DP38FB",
-  "properties": Object {
-    "segment_library": "kFJwrNh$DP38FB",
-    "testType": "kFJwrNh$DP38FB",
-  },
-  "timestamp": "2021-02-01T00:00:00.000Z",
->>>>>>> 2879de3fa3d77bc77ece7ddb37cf31a75a1d98b5
 }
 `;
 
 exports[`Testing snapshot for actions-heap destination: trackEvent action - required fields 1`] = `
 Object {
   "app_id": "kFJwrNh$DP38FB",
-<<<<<<< HEAD
   "events": Array [
     Object {
       "custom_properties": Object {},
-      "event": "kFJwrNh$DP38FB",
       "idempotency_key": "kFJwrNh$DP38FB",
       "properties": Object {
-        "segment_library": "destinations-actions",
+        "segment_library": "cloud-mode-destination",
       },
+      "session_id": "kFJwrNh$DP38FB",
       "user_identifier": Object {
         "identity": "kFJwrNh$DP38FB",
       },
     },
   ],
   "library": "Segment",
-=======
-  "idempotency_key": "kFJwrNh$DP38FB",
-  "identity": "kFJwrNh$DP38FB",
-  "properties": Object {
-    "segment_library": "destinations-actions",
-  },
->>>>>>> 2879de3fa3d77bc77ece7ddb37cf31a75a1d98b5
 }
 `;
