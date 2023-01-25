@@ -2,7 +2,7 @@ import type { ActionDefinition } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 import dayjs from '../../../lib/dayjs'
-import { HEAP_SEGMENT_LIBRARY_NAME } from '../constants'
+import { HEAP_SEGMENT_CLOUD_LIBRARY_NAME } from '../constants'
 import { getHeapUserId } from '../userIdHash'
 import { flat } from '../flat'
 import { IntegrationError } from '@segment/actions-core'
@@ -17,6 +17,7 @@ type HeapEvent = {
   }
   idempotency_key: string
   timestamp?: string
+  session_id?: string
 }
 
 const action: ActionDefinition<Settings, Payload> = {
@@ -77,12 +78,13 @@ const action: ActionDefinition<Settings, Payload> = {
         '@path': '$.timestamp'
       }
     },
-    library_name: {
-      label: 'Library Name',
+    session_id: {
+      label: 'Session ID',
       type: 'string',
-      description: 'The name of the SDK used to send events',
+      description:
+        'A Heap session ID. The session ID can be retrived by calling getSessionId() on the heap api. If a session ID is not provided one will be created.',
       default: {
-        '@path': '$.context.library.name'
+        '@path': '$.session_id'
       }
     },
     type: {
@@ -111,10 +113,11 @@ const action: ActionDefinition<Settings, Payload> = {
       throw new IntegrationError('Either anonymous user id or identity should be specified.')
     }
 
-    const defaultEventProperties = { segment_library: payload.library_name || HEAP_SEGMENT_LIBRARY_NAME }
+    const defaultEventProperties = { segment_library: HEAP_SEGMENT_CLOUD_LIBRARY_NAME }
     const flatten = flat(payload.properties || {})
     const eventProperties = Object.assign(defaultEventProperties, flatten)
-    const event: HeapEvent = {
+
+    const heapPayload: HeapEvent = {
       app_id: settings.appId,
       event: getEventName(payload),
       properties: eventProperties,
@@ -122,20 +125,24 @@ const action: ActionDefinition<Settings, Payload> = {
     }
 
     if (payload.anonymous_id && !payload.identity) {
-      event.user_id = getHeapUserId(payload.anonymous_id)
+      heapPayload.user_id = getHeapUserId(payload.anonymous_id)
     }
 
     if (payload.identity) {
-      event.identity = payload.identity
+      heapPayload.identity = payload.identity
     }
 
     if (payload.timestamp && dayjs.utc(payload.timestamp).isValid()) {
-      event.timestamp = dayjs.utc(payload.timestamp).toISOString()
+      heapPayload.timestamp = dayjs.utc(payload.timestamp).toISOString()
+    }
+
+    if (payload.session_id) {
+      heapPayload.session_id = payload.session_id
     }
 
     return request('https://heapanalytics.com/api/track', {
       method: 'post',
-      json: event
+      json: heapPayload
     })
   }
 }

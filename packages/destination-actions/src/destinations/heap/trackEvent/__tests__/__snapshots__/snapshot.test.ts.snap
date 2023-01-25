@@ -6,9 +6,10 @@ Object {
   "idempotency_key": "xqYHVWXiU0In",
   "identity": "xqYHVWXiU0In",
   "properties": Object {
-    "segment_library": "xqYHVWXiU0In",
+    "segment_library": "cloud-mode-destination",
     "testType": "xqYHVWXiU0In",
   },
+  "session_id": "xqYHVWXiU0In",
   "timestamp": "2021-02-01T00:00:00.000Z",
 }
 `;
@@ -19,7 +20,8 @@ Object {
   "idempotency_key": "xqYHVWXiU0In",
   "identity": "xqYHVWXiU0In",
   "properties": Object {
-    "segment_library": "destinations-actions",
+    "segment_library": "cloud-mode-destination",
   },
+  "session_id": "xqYHVWXiU0In",
 }
 `;

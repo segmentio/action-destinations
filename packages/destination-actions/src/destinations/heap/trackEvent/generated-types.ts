@@ -28,9 +28,9 @@ export interface Payload {
    */
   timestamp?: string | number
   /**
-   * The name of the SDK used to send events
+   * A Heap session ID. The session ID can be retrived by calling getSessionId() on the heap api. If a session ID is not provided one will be created.
    */
-  library_name?: string
+  session_id?: string
   /**
    * The type of call. Can be track, page, or screen.
    */
