@@ -3,9 +3,25 @@ import type { BrowserDestinationDefinition } from '../../lib/browser-destination
 import { browserDestination } from '../../runtime/shim'
 
 import addPaymentInfo from './addPaymentInfo'
-
+import addToCart from './addToCart'
+import addToWishlist from './addToWishlist'
+import beginCheckout from './beginCheckout'
+import customEvent from './customEvent'
+import login from './login'
+import generateLead from './generateLead'
+import purchase from './purchase'
+import refund from './refund'
+import removeFromCart from './removeFromCart'
+import search from './search'
+import selectItem from './selectItem'
+import selectPromotion from './selectPromotion'
+import signUp from './signUp'
+import viewCart from './viewCart'
+import viewItem from './viewItem'
+import viewItemList from './viewItemList'
+import viewPromotion from './viewPromotion'
 import setConfigurationFields from './setConfigurationFields'
-import { DestinationDefinition } from '@segment/actions-core'
+import { defaultValues, DestinationDefinition } from '@segment/actions-core'
 
 declare global {
   interface Window {
@@ -18,11 +34,11 @@ const presets: DestinationDefinition['presets'] = [
   {
     name: `Set Configuration Fields`,
     subscribe: 'type = "page" or type = "identify',
-    partnerAction: 'setConfigurationFields'
+    partnerAction: 'setConfigurationFields',
+    mapping: defaultValues(setConfigurationFields.fields)
   }
 ]
 
-// Switch from unknown to the partner SDK client types
 export const destination: BrowserDestinationDefinition<Settings, Function> = {
   name: 'Google Analytics 4 Web',
   slug: 'actions-google-analytics-4-web',
@@ -34,7 +50,7 @@ export const destination: BrowserDestinationDefinition<Settings, Function> = {
         'The measurement ID associated with the web stream. Found in the Google Analytics UI under: Admin > Data Streams > Web > Measurement ID.',
       label: 'Measurement ID',
       type: 'string',
-      required: false
+      required: true
     },
     pageView: {
       description: 'Set to false to prevent the default snippet from sending page views. Enabled by default.',
@@ -139,12 +155,7 @@ export const destination: BrowserDestinationDefinition<Settings, Function> = {
     }
 
     window.dataLayer = window.dataLayer || []
-    // window.gtag = function () {
-    //   window.dataLayer.push(arguments)
-    // }
     window.gtag('js', new Date())
-    //Easier for testing actions
-    //window.gtag('config', settings.measurementID)
     window.gtag('config', settings.measurementID, { config })
     if (settings.enableConsentMode) {
       window.gtag('consent', 'default', {
@@ -160,6 +171,23 @@ export const destination: BrowserDestinationDefinition<Settings, Function> = {
   presets,
   actions: {
     addPaymentInfo,
+    login,
+    signUp,
+    search,
+    addToCart,
+    addToWishlist,
+    removeFromCart,
+    selectItem,
+    selectPromotion,
+    viewItem,
+    viewPromotion,
+    beginCheckout,
+    purchase,
+    refund,
+    viewCart,
+    viewItemList,
+    generateLead,
+    customEvent,
     setConfigurationFields
   }
 }
