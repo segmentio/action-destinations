@@ -255,6 +255,7 @@ describe('Salesforce Utils', () => {
     const badInstanceUrls = [
       'https://www.google.com',
       'http://how-to-salesforce.com',
+      'http://thisisnotsalesforce.com',
       'http://salesforce-tips.co',
       'ijoewhnukdsfj,'
     ]
