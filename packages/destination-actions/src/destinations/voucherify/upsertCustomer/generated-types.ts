@@ -6,7 +6,7 @@ export interface Payload {
    */
   source_id: string
   /**
-   * Additional [customer](https://docs.voucherify.io/reference/the-customer-object) attributes, such as name, description, phone, address, birthdate, metadata. When updating a customer, attributes are either added or updated in the customer object.
+   * Additional [customer](https://docs.voucherify.io/reference/the-customer-object) attributes, such as email, name, description, phone, address, birthdate, metadata. When updating a customer, attributes are either added or updated in the customer object.
    */
   traits?: {
     firstName?: string

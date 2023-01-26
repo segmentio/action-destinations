@@ -26,7 +26,7 @@ const action: ActionDefinition<Settings, Payload> = {
     traits: {
       label: 'Customer Attributes',
       description:
-        'Additional [customer](https://docs.voucherify.io/reference/the-customer-object) attributes, such as name, description, phone, address, birthdate, metadata. When updating a customer, attributes are either added or updated in the customer object.',
+        'Additional [customer](https://docs.voucherify.io/reference/the-customer-object) attributes, such as email, name, description, phone, address, birthdate, metadata. When updating a customer, attributes are either added or updated in the customer object.',
       type: 'object',
       properties: {
         firstName: {
