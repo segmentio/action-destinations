@@ -23,6 +23,15 @@ const action: ActionDefinition<Settings, Payload> = {
         }
       }
     },
+    email: {
+      label: 'Email Address',
+      description:
+        'The email that identifies the [customer](https://docs.voucherify.io/reference/the-customer-object) in Voucherify.',
+      type: 'string',
+      default: {
+        '@path': '$.email'
+      }
+    },
     event: {
       label: 'Event Name',
       description:

@@ -6,6 +6,10 @@ export interface Payload {
    */
   source_id: string
   /**
+   * The email that identifies the [customer](https://docs.voucherify.io/reference/the-customer-object) in Voucherify.
+   */
+  email?: string
+  /**
    * The name of the track event that will be saved as a [custom event](https://docs.voucherify.io/reference/the-custom-event-object) in Voucherify.
    */
   event?: string
