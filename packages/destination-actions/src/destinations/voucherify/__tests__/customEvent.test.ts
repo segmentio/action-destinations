@@ -12,7 +12,7 @@ const settings: Settings = {
 }
 
 describe('Voucherify', () => {
-  describe('trackEvent', () => {
+  describe('addCustomEvent', () => {
     it('should throw error if the custom URL is invalid.', async () => {
       const wrongSettings: Settings = {
         apiKey: 'voucherifyApiKey',
@@ -30,7 +30,7 @@ describe('Voucherify', () => {
       })
 
       await expect(
-        testDestination.testAction('trackEvent', {
+        testDestination.testAction('addCustomEvent', {
           event: testEvent,
           settings: wrongSettings,
           mapping: {
@@ -62,7 +62,7 @@ describe('Voucherify', () => {
       })
 
       await expect(
-        testDestination.testAction('trackEvent', {
+        testDestination.testAction('addCustomEvent', {
           event: testEvent,
           settings,
           useDefaultMappings: true
@@ -82,7 +82,7 @@ describe('Voucherify', () => {
       })
 
       await expect(
-        testDestination.testAction('trackEvent', {
+        testDestination.testAction('addCustomEvent', {
           event: testEvent,
           settings,
           mapping: {
@@ -107,7 +107,7 @@ describe('Voucherify', () => {
         }
       })
       await expect(
-        testDestination.testAction('trackEvent', {
+        testDestination.testAction('addCustomEvent', {
           event: testEvent,
           settings,
           mapping: {
@@ -133,7 +133,7 @@ describe('Voucherify', () => {
         }
       })
       await expect(
-        testDestination.testAction('trackEvent', {
+        testDestination.testAction('addCustomEvent', {
           event: testEvent,
           settings,
           mapping: {

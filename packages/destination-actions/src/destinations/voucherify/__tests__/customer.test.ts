@@ -12,7 +12,7 @@ const settings: Settings = {
 }
 
 describe('Voucherify', () => {
-  describe('identifyCustomer', () => {
+  describe('upsertCustomer', () => {
     it('should throw error when source_id is not specified', async () => {
       nock(settings.customURL).post('/customer-processing').reply(200)
       const testEvent = createTestEvent({
@@ -23,7 +23,7 @@ describe('Voucherify', () => {
       })
 
       await expect(
-        testDestination.testAction('identifyCustomer', {
+        testDestination.testAction('upsertCustomer', {
           event: testEvent,
           settings
         })
@@ -31,7 +31,7 @@ describe('Voucherify', () => {
     })
   })
 
-  describe('groupEvent', () => {
+  describe('assignCustomerToGroup', () => {
     it('should throw error when group_id is not specified', async () => {
       nock(settings.customURL).post('/group-processing').reply(200)
       const testEvent = createTestEvent({
@@ -45,7 +45,7 @@ describe('Voucherify', () => {
       })
 
       await expect(
-        testDestination.testAction('groupEvent', {
+        testDestination.testAction('assignCustomerToGroup', {
           event: testEvent,
           settings
         })
