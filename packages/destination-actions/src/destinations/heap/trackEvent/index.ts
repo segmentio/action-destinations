@@ -119,7 +119,7 @@ const action: ActionDefinition<Settings, Payload> = {
 
     const heapPayload: HeapEvent = {
       app_id: settings.appId,
-      event: payload.type ? payload.type : 'track',
+      event: getEventName(payload),
       properties: eventProperties,
       idempotency_key: payload.message_id
     }
@@ -145,6 +145,27 @@ const action: ActionDefinition<Settings, Payload> = {
       json: heapPayload
     })
   }
+}
+
+const getEventName = (payload: Payload) => {
+  let eventName: string | undefined
+  switch (payload.type) {
+    case 'track':
+      eventName = payload.event
+      break
+    case 'page':
+    case 'screen':
+      eventName = payload.name ? payload.name : 'Screen Viewed'
+      break
+    default:
+      eventName = 'track'
+      break
+  }
+
+  if (!eventName) {
+    return 'track'
+  }
+  return eventName
 }
 
 export default action
