@@ -343,5 +343,37 @@ describe.each(['stage', 'production'])('%s environment', (environment) => {
       ])
       expect(twilioRequest.isDone()).toEqual(true)
     })
+
+    it('sends content variables as is when traits are not enriched', async () => {
+      const expectedTwilioRequest = new URLSearchParams({
+        ContentSid: defaultTemplateSid,
+        From: 'MG1111222233334444',
+        To: defaultTo,
+        ContentVariables: JSON.stringify({ '1': 'Soap', '2': '360 Scope St' })
+      })
+
+      const twilioRequest = nock('https://api.twilio.com/2010-04-01/Accounts/a')
+        .post('/Messages.json', expectedTwilioRequest.toString())
+        .reply(201, {})
+
+      const actionInputData = {
+        event: createMessagingTestEvent({
+          timestamp,
+          event: 'Audience Entered',
+          userId: 'jane'
+        }),
+        settings,
+        mapping: getDefaultMapping({
+          contentVariables: { '1': 'Soap', '2': '360 Scope St' },
+          traitEnrichment: false
+        })
+      }
+
+      const responses = await twilio.testAction('sendWhatsApp', actionInputData)
+      expect(responses.map((response) => response.url)).toStrictEqual([
+        'https://api.twilio.com/2010-04-01/Accounts/a/Messages.json'
+      ])
+      expect(twilioRequest.isDone()).toEqual(true)
+    })
   })
 })
