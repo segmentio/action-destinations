@@ -31,7 +31,7 @@ const action: ActionDefinition<Settings, Payload> = {
     },
     group_id: {
       label: 'Clickwrap Group Id',
-      description: 'The ID of the Clickwrap Group associated with the acceptance event.',
+      description: 'The ID of the Clickwrap Group associated with the acceptance event. Needs to be an integer',
       type: 'integer',
       required: true
     },
