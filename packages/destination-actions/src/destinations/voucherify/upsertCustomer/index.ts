@@ -23,19 +23,6 @@ const action: ActionDefinition<Settings, Payload> = {
         }
       }
     },
-    email: {
-      label: 'Email Address',
-      description:
-        'The email that identifies the [customer](https://docs.voucherify.io/reference/the-customer-object) in Voucherify.',
-      type: 'string',
-      default: {
-        '@if': {
-          exists: { '@path': '$.email' },
-          then: { '@path': '$.email' },
-          else: { '@path': '$.traits.email' }
-        }
-      }
-    },
     traits: {
       label: 'Customer Attributes',
       description:
