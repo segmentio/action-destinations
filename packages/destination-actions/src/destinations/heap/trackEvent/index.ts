@@ -119,7 +119,7 @@ const action: ActionDefinition<Settings, Payload> = {
 
     const heapPayload: HeapEvent = {
       app_id: settings.appId,
-      event: getEventName(payload),
+      event: payload.type ? payload.type : 'track',
       properties: eventProperties,
       idempotency_key: payload.message_id
     }
@@ -144,18 +144,6 @@ const action: ActionDefinition<Settings, Payload> = {
       method: 'post',
       json: heapPayload
     })
-  }
-}
-
-const getEventName = (payload: Payload) => {
-  switch (payload.type) {
-    case 'track':
-      return payload.event
-    case 'page':
-    case 'screen':
-      return payload.name
-    default:
-      return undefined
   }
 }
 
