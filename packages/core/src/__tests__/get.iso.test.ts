@@ -17,28 +17,42 @@ const obj = {
   }
 }
 
-const fixtures: Record<string, unknown> = {
-  '': obj,
-  a: obj.a,
-  'a.b': obj.a.b,
-  'a.b.c': obj.a.b.c,
-  'a.b.d': obj.a.b.d,
-  'a.b.e': obj.a.b.e,
-  'a.b.f[0]': obj.a.b.f[0],
-  'a.b.f[0].g': obj.a.b.f[0].g,
-  'a.h': obj.a.h,
-  'a.b.x': undefined,
-  u: undefined
-}
+// webkit does not support look behind ATM
+const supportsLookBehind = (() => {
+  try {
+    new RegExp(`(?<=Y)`)
+    return true
+  } catch (e) {
+    return false
+  }
+})()
 
-/** note that this test is basically a duplicate of the get.test.ts file,
- * only with the tests that safari can't handle due to its lack of lookbehind (ES2018)
- * grouping removed so it passes in webkit */
+const fixtures = new Map<any, any>([
+  [undefined, undefined],
+  [null, undefined],
+  [['a', 'b'], obj.a.b],
+  ['', obj],
+  ['.', obj],
+  ['a', obj.a],
+  ['a.b', obj.a.b],
+  ["['a'].b", obj.a.b],
+  ['["a"].b', obj.a.b],
+  ['a.b.c', obj.a.b.c],
+  ['a.b.d', obj.a.b.d],
+  ['a.b.e', obj.a.b.e],
+  ['a.b.f[0]', obj.a.b.f[0]],
+  ['a.b.f[0].g', obj.a.b.f[0].g],
+  ['a.h', obj.a.h],
+  ['a.b.x', undefined],
+  ['u', undefined],
+  ['[txt] non', supportsLookBehind ? true : undefined],
+  ['[txt] nest.inner', supportsLookBehind ? true : undefined]
+])
 
 describe('get', () => {
-  for (const path of Object.keys(fixtures)) {
+  fixtures.forEach((expected, path) => {
     test(`"${path}"`, () => {
-      expect(get(obj, path)).toEqual(fixtures[path])
+      expect(get(obj, path)).toEqual(expected)
     })
-  }
+  })
 })
