@@ -58,9 +58,14 @@ export class WhatsAppMessageSender extends MessageSender<Payload> {
   }
 
   private getVariables = async (): Promise<string | null> => {
-    if (!this.payload.contentVariables || !this.payload.traits) return null
-
     try {
+      // contentVariables can be rendered to their respective values in the upstream actor
+      // before they send it to this action.
+      // to signify this behavior, traitsEnrichment will be passed as false by the upstream actor
+      if (!this.payload.traitEnrichment && this.payload.contentVariables)
+        return JSON.stringify(this.payload.contentVariables) ?? null
+      if (!this.payload.contentVariables || !this.payload.traits) return null
+
       const profile = {
         profile: {
           traits: this.payload.traits
