@@ -35,6 +35,15 @@ const destination: DestinationDefinition<Settings> = {
         type: 'string',
         required: true
       }
+    },
+    testAuthentication: (request, { settings }) => {
+      const endpoint = `${settings.customURL}/test-authentication`
+      return request(endpoint, {
+        headers: {
+          authorization: `Basic ${Buffer.from(settings.apiKey).toString('base64')}`,
+          'secret-key': Buffer.from(settings.secretKey).toString('base64')
+        }
+      })
     }
   },
   extendRequest({ settings }) {
