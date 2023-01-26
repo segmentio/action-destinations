@@ -18,7 +18,7 @@ const settingsProd = {
 
 const payload = {
   sig: 'test-user-njs1haohmb',
-  group_id: '1335'
+  group_id: 1335
 }
 
 describe('Ironclad.recordAction', () => {
