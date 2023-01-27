@@ -5,9 +5,9 @@ import type { Payload } from './generated-types'
 import { getDirectoryIds } from '../dynamicFields'
 
 const action: ActionDefinition<Settings, Payload> = {
-  title: 'Add / Update Contact in XMD',
+  title: 'Create and/or update contact in XM Directory',
   description:
-    'Add or update contact in XMD. Updating is handled by contact deduplication in your [directory settings](https://www.qualtrics.com/support/iq-directory/directory-settings-tab/automatic-deduplication/). If deduplication is setup correctly this action will perform UPSERT operations on contacts',
+    'Create and/or update contact in XM Directory. Updating is handled by contact deduplication in your [directory settings](https://www.qualtrics.com/support/iq-directory/directory-settings-tab/automatic-deduplication/). If deduplication is setup correctly this action will perform UPSERT operations on contacts',
   defaultSubscription: 'type = "identify"',
   fields: {
     directoryId: {
