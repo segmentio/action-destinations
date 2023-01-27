@@ -15,7 +15,14 @@ const destination: DestinationDefinition<Settings> = {
 
   authentication: {
     scheme: 'oauth-managed',
-    fields: {},
+    fields: {
+      bbApiSubscriptionKey: {
+        label: 'Blackbaud API Subscription Key',
+        description: 'The access key found on your Blackbaud "My subscriptions" page.',
+        type: 'string',
+        required: true
+      }
+    },
     //testAuthentication: (request) => {
     testAuthentication: () => {
       // Return a request that tests/validates the user's credentials.
@@ -37,11 +44,11 @@ const destination: DestinationDefinition<Settings> = {
       return { accessToken: res.data.access_token }
     }
   },
-  extendRequest({ auth }) {
+  extendRequest({ auth, settings }) {
     return {
       headers: {
         authorization: `Bearer ${auth?.accessToken}`,
-        'Bb-Api-Subscription-Key': `${auth?.bb_api_subscription_key}`
+        'Bb-Api-Subscription-Key': `${settings.bbApiSubscriptionKey}`
       }
     }
   },

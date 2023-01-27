@@ -10,10 +10,11 @@ describe("Blackbaud Raiser's Edge NXT", () => {
     it('should validate authentication inputs', async () => {
       nock('https://your.destination.endpoint').get('*').reply(200, {})
 
-      // This should match your authentication.fields
-      const authData = {}
+      const settings = {
+        bbApiSubscriptionKey: 'subscription_key'
+      }
 
-      await expect(testDestination.testAuthentication(authData)).resolves.not.toThrowError()
+      await expect(testDestination.testAuthentication(settings)).resolves.not.toThrowError()
     })
   })
 })
