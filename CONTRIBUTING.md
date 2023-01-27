@@ -137,7 +137,7 @@ Please observe the dos and dont's listed below:
 
 2. Do not change your perform() or batchPerform() functions so that they now depend on a value from a field in order for the outbound API call to be successful. Doing so may cause pre-exsiting Integrations to fail.
 
-3. Do not raise a PR containing changes for more than 1 Integration at a time. For example if you need to make changes to a Cloud Mode and Device Mode Integration you should raise separate PRs.
+3. Do not raise a PR containing changes for more than 1 Integration. For example if you need to make changes to a Cloud Mode and Device Mode Integration you should raise separate PRs.
 
 4. Do not change the name of your Integration after the Integration has been deployed. If you do want to change the name of your Integration please email partner-support@segment.com.
 
