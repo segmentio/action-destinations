@@ -14,7 +14,7 @@ interface RefreshTokenResponse {
 
 const destination: DestinationDefinition<Settings> = {
   name: 'Salesforce (Actions)',
-  slug: 'actions-salesforce',
+  slug: 'muhahahaha-actions-salesforce',
   mode: 'cloud',
 
   authentication: {
