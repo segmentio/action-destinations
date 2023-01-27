@@ -467,7 +467,6 @@ const action: ActionDefinition<Settings, Payload> = {
       // existing constituent
       // aggregate all errors
       const integrationErrors = []
-      const retryableErrors = []
       if (Object.keys(constituentData).length > 0) {
         // request has at least one constituent field to update
         // update constituent
@@ -482,7 +481,7 @@ const action: ActionDefinition<Settings, Payload> = {
             ? `${statusCode} error occurred when updating constituent`
             : 'Error occurred when updating constituent'
           if (isRequestErrorRetryable(statusCode)) {
-            retryableErrors.push(errorMessage)
+            throw new RetryableError(errorMessage)
           } else {
             integrationErrors.push(errorMessage)
           }
@@ -554,7 +553,7 @@ const action: ActionDefinition<Settings, Payload> = {
             ? `${statusCode} error occurred when updating constituent address`
             : 'Error occurred when updating constituent address'
           if (isRequestErrorRetryable(statusCode)) {
-            retryableErrors.push(errorMessage)
+            throw new RetryableError(errorMessage)
           } else {
             integrationErrors.push(errorMessage)
           }
@@ -620,7 +619,7 @@ const action: ActionDefinition<Settings, Payload> = {
             ? `${statusCode} error occurred when updating constituent email`
             : 'Error occurred when updating constituent email'
           if (isRequestErrorRetryable(statusCode)) {
-            retryableErrors.push(errorMessage)
+            throw new RetryableError(errorMessage)
           } else {
             integrationErrors.push(errorMessage)
           }
@@ -685,7 +684,7 @@ const action: ActionDefinition<Settings, Payload> = {
             ? `${statusCode} error occurred when updating constituent online presence`
             : 'Error occurred when updating constituent online presence'
           if (isRequestErrorRetryable(statusCode)) {
-            retryableErrors.push(errorMessage)
+            throw new RetryableError(errorMessage)
           } else {
             integrationErrors.push(errorMessage)
           }
@@ -751,7 +750,7 @@ const action: ActionDefinition<Settings, Payload> = {
             ? `${statusCode} error occurred when updating constituent phone`
             : 'Error occurred when updating constituent phone'
           if (isRequestErrorRetryable(statusCode)) {
-            retryableErrors.push(errorMessage)
+            throw new RetryableError(errorMessage)
           } else {
             integrationErrors.push(errorMessage)
           }
@@ -760,14 +759,9 @@ const action: ActionDefinition<Settings, Payload> = {
 
       if (integrationErrors.length > 0) {
         throw new IntegrationError(
-          'One or more errors occurred when updating existing constituent: ' +
-            integrationErrors.concat(retryableErrors).join(', '),
+          'One or more errors occurred when updating existing constituent: ' + integrationErrors,
           'UPDATE_CONSTITUENT_ERROR',
           500
-        )
-      } else if (retryableErrors.length > 0) {
-        throw new RetryableError(
-          'One or more errors occurred when updating existing constituent: ' + retryableErrors.join(', ')
         )
       }
 

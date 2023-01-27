@@ -552,7 +552,7 @@ describe('BlackbaudRaisersEdgeNxt.createOrUpdateIndividualConstituent', () => {
     )
   })
 
-  test('should throw a RetryableError if one or more request returns a 429 when updating an existing constituent', async () => {
+  test('should throw a RetryableError if a request returns a 429 when updating an existing constituent', async () => {
     const event = createTestEvent(identifyEventDataUpdated)
 
     nock(SKY_API_BASE_URL)
@@ -604,20 +604,12 @@ describe('BlackbaudRaisersEdgeNxt.createOrUpdateIndividualConstituent', () => {
 
     nock(SKY_API_BASE_URL).get('/constituents/123/emailaddresses?include_inactive=true').reply(429)
 
-    nock(SKY_API_BASE_URL).get('/constituents/123/onlinepresences?include_inactive=true').reply(429)
-
-    nock(SKY_API_BASE_URL).get('/constituents/123/phones?include_inactive=true').reply(429)
-
     await expect(
       testDestination.testAction('createOrUpdateIndividualConstituent', {
         event,
         mapping,
         useDefaultMappings: true
       })
-    ).rejects.toThrowError(
-      new RetryableError(
-        'One or more errors occurred when updating existing constituent: 429 error occurred when updating constituent email, 429 error occurred when updating constituent online presence, 429 error occurred when updating constituent phone'
-      )
-    )
+    ).rejects.toThrowError(new RetryableError('429 error occurred when updating constituent email'))
   })
 })
