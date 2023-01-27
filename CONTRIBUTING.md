@@ -127,9 +127,9 @@ Please find the below info for _Name of integration_ Catalog entry.
 
 ## Submitting changes after your Integration is already live
 
-After your Integration is live and in use by customers you will still be able to make changes to the code. However, an extra level of governance and oversight is required in order to avoid causing issues for customers who are already using your Integration.
+After your Integration is live and in use by customers you will still be able to make changes to your Integration code. However, an extra level of governance and oversight is required in order to avoid causing issues for customers who are already using your Integration.
 
-Please observe the do's and dont's listed below:
+Please observe the dos and dont's listed below:
 
 **Please do not:**
 
