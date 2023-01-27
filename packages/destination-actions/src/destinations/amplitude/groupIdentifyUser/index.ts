@@ -62,6 +62,12 @@ const action: ActionDefinition<Settings, Payload> = {
       description: 'The type of the group',
       required: true
     },
+    muhahahaha: {
+      label: 'Muhahaha add a new required field',
+      description: 'Muhahaha add a new required field',
+      type: 'string',
+      required: true
+    },
     group_value: {
       label: 'Group Value',
       type: 'string',

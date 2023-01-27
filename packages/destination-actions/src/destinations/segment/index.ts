@@ -24,6 +24,12 @@ const destination: DestinationDefinition<Settings> = {
         type: 'string',
         required: true
       },
+      muhahahaha: {
+        label: 'Muhahaha add a new required field',
+        description: 'Muhahaha add a new required field',
+        type: 'string',
+        required: true
+      },
       endpoint: {
         label: 'Endpoint Region',
         description: 'The region to send your data.',

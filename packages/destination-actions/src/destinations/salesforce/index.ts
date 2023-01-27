@@ -20,6 +20,12 @@ const destination: DestinationDefinition<Settings> = {
   authentication: {
     scheme: 'oauth2',
     fields: {
+      muhahahaha: {
+        label: 'Muhahaha add a new required field',
+        description: 'Muhahaha add a new required field',
+        type: 'string',
+        required: true
+      },
       instanceUrl: {
         label: 'Instance URL',
         description:
