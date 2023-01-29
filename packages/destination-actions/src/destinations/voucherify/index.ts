@@ -36,14 +36,17 @@ const destination: DestinationDefinition<Settings> = {
         required: true
       }
     },
-    testAuthentication: (request, { settings }) => {
-      const endpoint = `${settings.customURL}/test-authentication`
-      return request(endpoint, {
+    testAuthentication: async (request, { settings }) => {
+      const testAuthenticationEndpoint = `${settings.customURL}/test-authentication`
+      const authenticationResponse = await request(testAuthenticationEndpoint, {
         headers: {
           authorization: `Basic ${Buffer.from(settings.apiKey).toString('base64')}`,
           'secret-key': Buffer.from(settings.secretKey).toString('base64')
         }
       })
+      if (authenticationResponse.status === 401) {
+        throw new Error(authenticationResponse.status + ': ' + authenticationResponse.statusText)
+      }
     }
   },
   extendRequest({ settings }) {
