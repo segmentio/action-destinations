@@ -16,5 +16,5 @@ export const dateStringToFuzzyDate = (dateString: string) => {
 }
 
 export const isRequestErrorRetryable = (statusCode: number) => {
-  return statusCode === 401 || statusCode === 429 || statusCode >= 500
+  return statusCode === 429 || statusCode >= 500
 }
