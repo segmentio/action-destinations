@@ -657,7 +657,7 @@ const action: ActionDefinition<Settings, Payload> = {
 
       if (integrationErrors.length > 0) {
         throw new IntegrationError(
-          'One or more errors occurred when updating existing constituent: ' + integrationErrors,
+          'One or more errors occurred when updating existing constituent: ' + integrationErrors.join(', '),
           'UPDATE_CONSTITUENT_ERROR',
           500
         )
