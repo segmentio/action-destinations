@@ -336,30 +336,18 @@ const action: ActionDefinition<Settings, Payload> = {
         searchText = payload.lookup_id
       }
 
-      try {
-        const constituentSearchResponse = await blackbaudSkyApiClient.getExistingConstituents(searchField, searchText)
-        const constituentSearchResults = await constituentSearchResponse.json()
+      const constituentSearchResponse = await blackbaudSkyApiClient.getExistingConstituents(searchField, searchText)
+      const constituentSearchResults = await constituentSearchResponse.json()
 
-        if (constituentSearchResults.count > 1) {
-          // multiple existing constituents, throw an error
-          throw new IntegrationError('Multiple records returned for given traits', 'MULTIPLE_EXISTING_RECORDS', 400)
-        } else if (constituentSearchResults.count === 1) {
-          // existing constituent
-          constituentId = constituentSearchResults.value[0].id
-        } else if (constituentSearchResults.count !== 0) {
-          // if constituent count is not >= 0, something went wrong
-          throw new IntegrationError('Unexpected record count for given traits', 'UNEXPECTED_RECORD_COUNT', 500)
-        }
-      } catch (error) {
-        const statusCode = error?.response?.status
-        const errorMessage = statusCode
-          ? `${statusCode} error occurred when searching for constituent`
-          : 'Error occurred when searching for constituent'
-        if (isRequestErrorRetryable(statusCode)) {
-          throw new RetryableError(errorMessage)
-        } else {
-          throw new IntegrationError(errorMessage, 'CONSTITUENT_SEARCH_ERROR', statusCode || 500)
-        }
+      if (constituentSearchResults.count > 1) {
+        // multiple existing constituents, throw an error
+        throw new IntegrationError('Multiple records returned for given traits', 'MULTIPLE_EXISTING_RECORDS', 400)
+      } else if (constituentSearchResults.count === 1) {
+        // existing constituent
+        constituentId = constituentSearchResults.value[0].id
+      } else if (constituentSearchResults.count !== 0) {
+        // if constituent count is not >= 0, something went wrong
+        throw new IntegrationError('Unexpected record count for given traits', 'UNEXPECTED_RECORD_COUNT', 500)
       }
     }
 
@@ -435,19 +423,7 @@ const action: ActionDefinition<Settings, Payload> = {
         }
 
         // create constituent
-        try {
-          await blackbaudSkyApiClient.createConstituent(constituentData)
-        } catch (error) {
-          const statusCode = error?.response?.status
-          const errorMessage = statusCode
-            ? `${statusCode} error occurred when creating constituent`
-            : 'Error occurred when creating constituent'
-          if (isRequestErrorRetryable(statusCode)) {
-            throw new RetryableError(errorMessage)
-          } else {
-            throw new IntegrationError(errorMessage, 'CREATE_CONSTITUENT_ERROR', statusCode || 500)
-          }
-        }
+        await blackbaudSkyApiClient.createConstituent(constituentData)
       }
 
       return

@@ -361,22 +361,6 @@ describe('BlackbaudRaisersEdgeNxt.createOrUpdateIndividualConstituent', () => {
     )
   })
 
-  test('should throw a RetryableError if constituent search returns a 429', async () => {
-    const event = createTestEvent(identifyEventData)
-
-    nock(SKY_API_BASE_URL)
-      .get('/constituents/search?search_field=email_address&search_text=john@example.biz')
-      .reply(429)
-
-    await expect(
-      testDestination.testAction('createOrUpdateIndividualConstituent', {
-        event,
-        mapping,
-        useDefaultMappings: true
-      })
-    ).rejects.toThrowError(new RetryableError('429 error returned when searching for constituent'))
-  })
-
   test('should throw an IntegrationError if new constituent has no last name', async () => {
     const event = createTestEvent(identifyEventDataNoLastName)
 
@@ -394,27 +378,6 @@ describe('BlackbaudRaisersEdgeNxt.createOrUpdateIndividualConstituent', () => {
         useDefaultMappings: true
       })
     ).rejects.toThrowError(new IntegrationError('Missing last name value', 'MISSING_REQUIRED_FIELD', 400))
-  })
-
-  test('should throw a RetryableError if creating new constituent returns a 429', async () => {
-    const event = createTestEvent(identifyEventData)
-
-    nock(SKY_API_BASE_URL)
-      .get('/constituents/search?search_field=email_address&search_text=john@example.biz')
-      .reply(200, {
-        count: 0,
-        value: []
-      })
-
-    nock(SKY_API_BASE_URL).post('/constituents', constituentPayload).reply(429)
-
-    await expect(
-      testDestination.testAction('createOrUpdateIndividualConstituent', {
-        event,
-        mapping,
-        useDefaultMappings: true
-      })
-    ).rejects.toThrowError(new RetryableError('429 error occurred when creating constituent'))
   })
 
   test('should throw an IntegrationError if one or more request returns a 400 when updating an existing constituent', async () => {
