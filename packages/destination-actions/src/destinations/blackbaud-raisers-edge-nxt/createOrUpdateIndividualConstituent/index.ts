@@ -242,7 +242,7 @@ const action: ActionDefinition<Settings, Payload> = {
       type: 'string'
     },
     online_presence: {
-      label: 'Phone',
+      label: 'Online Presence',
       description: "The constituent's online presence.",
       type: 'object',
       properties: {
