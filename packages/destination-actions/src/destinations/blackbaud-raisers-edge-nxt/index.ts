@@ -1,12 +1,8 @@
 import type { DestinationDefinition } from '@segment/actions-core'
 import type { Settings } from './generated-types'
 import { SKY_OAUTH2_TOKEN_URL } from './constants'
-
+import { RefreshTokenResponse } from './types'
 import createOrUpdateIndividualConstituent from './createOrUpdateIndividualConstituent'
-
-interface RefreshTokenResponse {
-  access_token: string
-}
 
 const destination: DestinationDefinition<Settings> = {
   name: "Blackbaud Raiser's Edge NXT",
