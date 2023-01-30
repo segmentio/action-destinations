@@ -2,7 +2,7 @@ import { ActionDefinition, IntegrationError, RetryableError } from '@segment/act
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 import { BlackbaudSkyApi } from '../api'
-import { isRequestErrorRetryable } from '../utils'
+import { dateStringToFuzzyDate, isRequestErrorRetryable } from '../utils'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Create or Update Individual Constituent',
@@ -371,16 +371,9 @@ const action: ActionDefinition<Settings, Payload> = {
       }
     })
     if (payload.birthdate) {
-      const birthdateDate = new Date(payload.birthdate)
-      if (!isNaN(birthdateDate)) {
-        // valid date object
-        // convert birthdate to a "Fuzzy date"
-        // https://developer.blackbaud.com/skyapi/renxt/constituent/entities#FuzzyDate
-        constituentData.birthdate = {
-          d: birthdateDate.getDate().toString(),
-          m: (birthdateDate.getMonth() + 1).toString(),
-          y: birthdateDate.getFullYear().toString()
-        }
+      const birthdateFuzzyDate = dateStringToFuzzyDate(payload.birthdate)
+      if (birthdateFuzzyDate) {
+        constituentData.birthdate = birthdateFuzzyDate
       }
     }
 
