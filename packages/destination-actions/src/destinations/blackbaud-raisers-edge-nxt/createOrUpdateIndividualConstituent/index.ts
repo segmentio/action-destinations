@@ -2,6 +2,7 @@ import { ActionDefinition, IntegrationError, RetryableError } from '@segment/act
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 import { BlackbaudSkyApi } from '../api'
+import { Address, Constituent, Email, OnlinePresence, Phone } from '../types'
 import { dateStringToFuzzyDate, isRequestErrorRetryable } from '../utils'
 
 const action: ActionDefinition<Settings, Payload> = {
@@ -327,7 +328,7 @@ const action: ActionDefinition<Settings, Payload> = {
     if (payload.email?.address || payload.lookup_id) {
       // default to searching by email
       let searchField = 'email_address'
-      let searchText = payload.email.address
+      let searchText = payload.email?.address || ''
 
       if (payload.lookup_id) {
         // search by lookup_id if one is provided
@@ -363,7 +364,7 @@ const action: ActionDefinition<Settings, Payload> = {
     }
 
     // data for constituent call
-    const constituentData = {}
+    const constituentData: Constituent = {}
     const simpleConstituentFields = ['first', 'gender', 'income', 'last', 'lookup_id']
     simpleConstituentFields.forEach((key) => {
       if (payload[key] !== undefined) {
@@ -378,7 +379,7 @@ const action: ActionDefinition<Settings, Payload> = {
     }
 
     // data for address call
-    let constituentAddressData = undefined
+    let constituentAddressData: Address = {}
     if (
       payload.address &&
       (payload.address.address_lines ||
@@ -392,19 +393,19 @@ const action: ActionDefinition<Settings, Payload> = {
     }
 
     // data for email call
-    let constituentEmailData = undefined
+    let constituentEmailData: Email = {}
     if (payload.email && payload.email.address && payload.email.type) {
       constituentEmailData = payload.email
     }
 
     // data for online presence call
-    let constituentOnlinePresenceData = undefined
+    let constituentOnlinePresenceData: OnlinePresence = {}
     if (payload.online_presence && payload.online_presence.address && payload.online_presence.type) {
       constituentOnlinePresenceData = payload.online_presence
     }
 
     // data for phone call
-    let constituentPhoneData = undefined
+    let constituentPhoneData: Phone = {}
     if (payload.phone && payload.phone.number && payload.phone.type) {
       constituentPhoneData = payload.phone
     }
@@ -420,16 +421,16 @@ const action: ActionDefinition<Settings, Payload> = {
       } else {
         // request has last name
         // append other data objects to constituent
-        if (constituentAddressData) {
+        if (Object.keys(constituentAddressData).length > 0) {
           constituentData.address = constituentAddressData
         }
-        if (constituentEmailData) {
+        if (Object.keys(constituentEmailData).length > 0) {
           constituentData.email = constituentEmailData
         }
-        if (constituentOnlinePresenceData) {
+        if (Object.keys(constituentOnlinePresenceData).length > 0) {
           constituentData.online_presence = constituentOnlinePresenceData
         }
-        if (constituentPhoneData) {
+        if (Object.keys(constituentPhoneData).length > 0) {
           constituentData.phone = constituentPhoneData
         }
 
@@ -472,7 +473,7 @@ const action: ActionDefinition<Settings, Payload> = {
         }
       }
 
-      if (constituentAddressData) {
+      if (Object.keys(constituentAddressData).length > 0) {
         // request has address data
         // get existing addresses
         try {
@@ -482,7 +483,7 @@ const action: ActionDefinition<Settings, Payload> = {
           // check address list for one that matches request
           let existingAddress = undefined
           if (constituentAddressListResults.count > 0) {
-            existingAddress = constituentAddressListResults.value.filter((result) => {
+            existingAddress = constituentAddressListResults.value.filter((result: Address) => {
               return (
                 result.address_lines.toLowerCase() === constituentAddressData.address_lines.toLowerCase() &&
                 result.city.toLowerCase() === constituentAddressData.city.toLowerCase() &&
@@ -527,7 +528,7 @@ const action: ActionDefinition<Settings, Payload> = {
         }
       }
 
-      if (constituentEmailData) {
+      if (Object.keys(constituentEmailData).length > 0) {
         // request has email data
         // get existing addresses
         try {
@@ -537,7 +538,7 @@ const action: ActionDefinition<Settings, Payload> = {
           // check email list for one that matches request
           let existingEmail = undefined
           if (constituentEmailListResults.count > 0) {
-            existingEmail = constituentEmailListResults.value.filter((result) => {
+            existingEmail = constituentEmailListResults.value.filter((result: Email) => {
               return result.address.toLowerCase() === constituentEmailData.address.toLowerCase()
             })
           }
@@ -576,7 +577,7 @@ const action: ActionDefinition<Settings, Payload> = {
         }
       }
 
-      if (constituentOnlinePresenceData) {
+      if (Object.keys(constituentOnlinePresenceData).length > 0) {
         // request has online presence data
         // get existing online presences
         try {
@@ -588,7 +589,7 @@ const action: ActionDefinition<Settings, Payload> = {
           // check online presence list for one that matches request
           let existingOnlinePresence = undefined
           if (constituentOnlinePresenceListResults.count > 0) {
-            existingOnlinePresence = constituentOnlinePresenceListResults.value.filter((result) => {
+            existingOnlinePresence = constituentOnlinePresenceListResults.value.filter((result: OnlinePresence) => {
               return result.address.toLowerCase() === constituentOnlinePresenceData.address.toLowerCase()
             })
           }
@@ -629,7 +630,7 @@ const action: ActionDefinition<Settings, Payload> = {
         }
       }
 
-      if (constituentPhoneData) {
+      if (Object.keys(constituentPhoneData).length > 0) {
         // request has phone data
         // get existing phones
         try {
@@ -639,7 +640,7 @@ const action: ActionDefinition<Settings, Payload> = {
           // check phone list for one that matches request
           let existingPhone = undefined
           if (constituentPhoneListResults.count > 0) {
-            existingPhone = constituentPhoneListResults.value.filter((result) => {
+            existingPhone = constituentPhoneListResults.value.filter((result: Phone) => {
               return result.number === constituentPhoneData.number
             })
           }
