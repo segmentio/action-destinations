@@ -1,7 +1,7 @@
 import { ActionDefinition, IntegrationError, RetryableError } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
-import { SKY_API_BASE_URL } from '../constants'
+import { BlackbaudSkyApi } from '../api'
 import { isRequestErrorRetryable } from '../utils'
 
 const action: ActionDefinition<Settings, Payload> = {
@@ -320,12 +320,14 @@ const action: ActionDefinition<Settings, Payload> = {
     }
   },
   perform: async (request, { payload }) => {
+    const blackbaudSkyApiClient: BlackbaudSkyApi = new BlackbaudSkyApi(request)
+
     // search for existing constituent
     let constituentId = undefined
     if (payload.email?.address || payload.lookup_id) {
       // default to searching by email
       let searchField = 'email_address'
-      let searchText = payload.email?.address
+      let searchText = payload.email.address
 
       if (payload.lookup_id) {
         // search by lookup_id if one is provided
@@ -334,12 +336,7 @@ const action: ActionDefinition<Settings, Payload> = {
       }
 
       try {
-        const constituentSearchResponse = await request(
-          `${SKY_API_BASE_URL}/constituents/search?search_field=${searchField}&search_text=${searchText}`,
-          {
-            method: 'get'
-          }
-        )
+        const constituentSearchResponse = await blackbaudSkyApiClient.getExistingConstituents(searchField, searchText)
         const constituentSearchResults = await constituentSearchResponse.json()
 
         if (constituentSearchResults.count > 1) {
@@ -445,10 +442,7 @@ const action: ActionDefinition<Settings, Payload> = {
 
         // create constituent
         try {
-          await request(`${SKY_API_BASE_URL}/constituents`, {
-            method: 'post',
-            json: constituentData
-          })
+          await blackbaudSkyApiClient.createConstituent(constituentData)
         } catch (error) {
           const statusCode = error?.response?.status
           const errorMessage = statusCode
@@ -471,10 +465,7 @@ const action: ActionDefinition<Settings, Payload> = {
         // request has at least one constituent field to update
         // update constituent
         try {
-          await request(`${SKY_API_BASE_URL}/constituents/${constituentId}`, {
-            method: 'patch',
-            json: constituentData
-          })
+          await blackbaudSkyApiClient.updateConstituent(constituentData)
         } catch (error) {
           const statusCode = error?.response?.status
           const errorMessage = statusCode
@@ -492,12 +483,7 @@ const action: ActionDefinition<Settings, Payload> = {
         // request has address data
         // get existing addresses
         try {
-          const constituentAddressListResponse = await request(
-            `${SKY_API_BASE_URL}/constituents/${constituentId}/addresses?include_inactive=true`,
-            {
-              method: 'get'
-            }
-          )
+          const constituentAddressListResponse = await blackbaudSkyApiClient.getConstituentAddressList(constituentId)
           const constituentAddressListResults = await constituentAddressListResponse.json()
 
           // check address list for one that matches request
@@ -516,18 +502,12 @@ const action: ActionDefinition<Settings, Payload> = {
 
           if (!existingAddress) {
             // new address
+            // if this is the only address, make it primary
+            if (constituentAddressData.primary !== false && constituentAddressListResults.count === 0) {
+              constituentAddressData.primary = true
+            }
             // create address
-            await request(`${SKY_API_BASE_URL}/addresses`, {
-              method: 'post',
-              json: {
-                ...constituentAddressData,
-                constituent_id: constituentId,
-                // if this is the only address, make it primary
-                primary:
-                  constituentAddressData.primary ||
-                  (constituentAddressData.primary !== false && constituentAddressListResults.count === 0)
-              }
-            })
+            await blackbaudSkyApiClient.createConstituentAddress(constituentId, constituentAddressData)
           } else {
             // existing address
             if (
@@ -538,13 +518,7 @@ const action: ActionDefinition<Settings, Payload> = {
             ) {
               // request has at least one address field to update
               // update address
-              await request(`${SKY_API_BASE_URL}/addresses/${existingAddress.id}`, {
-                method: 'patch',
-                json: {
-                  ...constituentAddressData,
-                  inactive: false
-                }
-              })
+              await blackbaudSkyApiClient.updateConstituentAddressById(existingAddress.id, constituentAddressData)
             }
           }
         } catch (error) {
@@ -564,12 +538,7 @@ const action: ActionDefinition<Settings, Payload> = {
         // request has email data
         // get existing addresses
         try {
-          const constituentEmailListResponse = await request(
-            `${SKY_API_BASE_URL}/constituents/${constituentId}/emailaddresses?include_inactive=true`,
-            {
-              method: 'get'
-            }
-          )
+          const constituentEmailListResponse = await blackbaudSkyApiClient.getConstituentEmailList(constituentId)
           const constituentEmailListResults = await constituentEmailListResponse.json()
 
           // check email list for one that matches request
@@ -582,18 +551,12 @@ const action: ActionDefinition<Settings, Payload> = {
 
           if (!existingEmail) {
             // new email
+            // if this is the only email, make it primary
+            if (constituentEmailData.primary !== false && constituentEmailListResults.count === 0) {
+              constituentEmailData.primary = true
+            }
             // create email
-            await request(`${SKY_API_BASE_URL}/emailaddresses`, {
-              method: 'post',
-              json: {
-                ...constituentEmailData,
-                constituent_id: constituentId,
-                // if this is the only email, make it primary
-                primary:
-                  constituentEmailData.primary ||
-                  (constituentEmailData.primary !== false && constituentEmailListResults.count === 0)
-              }
-            })
+            await blackbaudSkyApiClient.createConstituentEmail(constituentId, constituentEmailData)
           } else {
             // existing email
             if (
@@ -604,13 +567,7 @@ const action: ActionDefinition<Settings, Payload> = {
             ) {
               // request has at least one email field to update
               // update email
-              await request(`${SKY_API_BASE_URL}/emailaddresses/${existingEmail.id}`, {
-                method: 'patch',
-                json: {
-                  ...constituentEmailData,
-                  inactive: false
-                }
-              })
+              await blackbaudSkyApiClient.updateConstituentEmailById(existingEmail.id, constituentEmailData)
             }
           }
         } catch (error) {
@@ -630,11 +587,8 @@ const action: ActionDefinition<Settings, Payload> = {
         // request has online presence data
         // get existing online presences
         try {
-          const constituentOnlinePresenceListResponse = await request(
-            `${SKY_API_BASE_URL}/constituents/${constituentId}/onlinepresences?include_inactive=true`,
-            {
-              method: 'get'
-            }
+          const constituentOnlinePresenceListResponse = await blackbaudSkyApiClient.getConstituentOnlinePresenceList(
+            constituentId
           )
           const constituentOnlinePresenceListResults = await constituentOnlinePresenceListResponse.json()
 
@@ -648,18 +602,12 @@ const action: ActionDefinition<Settings, Payload> = {
 
           if (!existingOnlinePresence) {
             // new online presence
+            // if this is the only online presence, make it primary
+            if (constituentOnlinePresenceData.primary !== false && constituentOnlinePresenceListResults.count === 0) {
+              constituentOnlinePresenceData.primary = true
+            }
             // create online presence
-            await request(`${SKY_API_BASE_URL}/onlinepresences`, {
-              method: 'post',
-              json: {
-                ...constituentOnlinePresenceData,
-                constituent_id: constituentId,
-                // if this is the only online presence, make it primary
-                primary:
-                  constituentOnlinePresenceData.primary ||
-                  (constituentOnlinePresenceData.primary !== false && constituentOnlinePresenceListResults.count === 0)
-              }
-            })
+            await blackbaudSkyApiClient.createConstituentOnlinePresence(constituentId, constituentOnlinePresenceData)
           } else {
             // existing online presence
             if (
@@ -669,13 +617,10 @@ const action: ActionDefinition<Settings, Payload> = {
             ) {
               // request has at least one online presence field to update
               // update online presence
-              await request(`${SKY_API_BASE_URL}/onlinepresences/${existingOnlinePresence.id}`, {
-                method: 'patch',
-                json: {
-                  ...constituentOnlinePresenceData,
-                  inactive: false
-                }
-              })
+              await blackbaudSkyApiClient.updateConstituentOnlinePresenceById(
+                existingOnlinePresence.id,
+                constituentOnlinePresenceData
+              )
             }
           }
         } catch (error) {
@@ -695,12 +640,7 @@ const action: ActionDefinition<Settings, Payload> = {
         // request has phone data
         // get existing phones
         try {
-          const constituentPhoneListResponse = await request(
-            `${SKY_API_BASE_URL}/constituents/${constituentId}/phones?include_inactive=true`,
-            {
-              method: 'get'
-            }
-          )
+          const constituentPhoneListResponse = await blackbaudSkyApiClient.getConstituentPhoneList(constituentId)
           const constituentPhoneListResults = await constituentPhoneListResponse.json()
 
           // check phone list for one that matches request
@@ -713,18 +653,12 @@ const action: ActionDefinition<Settings, Payload> = {
 
           if (!existingPhone) {
             // new phone
+            // if this is the only phone, make it primary
+            if (constituentPhoneData.primary !== false && constituentPhoneListResults.count === 0) {
+              constituentPhoneData.primary = true
+            }
             // create phone
-            await request(`${SKY_API_BASE_URL}/phones`, {
-              method: 'post',
-              json: {
-                ...constituentPhoneData,
-                constituent_id: constituentId,
-                // if this is the only phone, make it primary
-                primary:
-                  constituentPhoneData.primary ||
-                  (constituentPhoneData.primary !== false && constituentPhoneListResults.count === 0)
-              }
-            })
+            await blackbaudSkyApiClient.createConstituentPhone(constituentId, constituentPhoneData)
           } else {
             // existing phone
             if (
@@ -735,13 +669,7 @@ const action: ActionDefinition<Settings, Payload> = {
             ) {
               // request has at least one phone field to update
               // update phone
-              await request(`${SKY_API_BASE_URL}/phones/${existingPhone.id}`, {
-                method: 'patch',
-                json: {
-                  ...constituentPhoneData,
-                  inactive: false
-                }
-              })
+              await blackbaudSkyApiClient.updateConstituentPhoneById(existingPhone.id, constituentPhoneData)
             }
           }
         } catch (error) {
