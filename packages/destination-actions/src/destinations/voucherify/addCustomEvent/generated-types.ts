@@ -10,13 +10,9 @@ export interface Payload {
    */
   email?: string
   /**
-   * The name of the track event that will be saved as a [custom event](https://docs.voucherify.io/reference/the-custom-event-object) in Voucherify.
+   * The name of the event that will be saved as a [custom event](https://docs.voucherify.io/reference/the-custom-event-object) in Voucherify.
    */
   event?: string
-  /**
-   * The name of the screen or page event that will be saved as a [custom event](https://docs.voucherify.io/reference/the-custom-event-object) in Voucherify.
-   */
-  name?: string
   /**
    * Additional data that will be stored in the [custom event](https://docs.voucherify.io/reference/the-custom-event-object) metadata in Voucherify.
    */

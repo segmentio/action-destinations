@@ -35,19 +35,14 @@ const action: ActionDefinition<Settings, Payload> = {
     event: {
       label: 'Event Name',
       description:
-        'The name of the track event that will be saved as a [custom event](https://docs.voucherify.io/reference/the-custom-event-object) in Voucherify.',
+        'The name of the event that will be saved as a [custom event](https://docs.voucherify.io/reference/the-custom-event-object) in Voucherify.',
       type: 'string',
       default: {
-        '@path': '$.event'
-      }
-    },
-    name: {
-      label: 'Page or Screen Name',
-      type: 'string',
-      description:
-        'The name of the screen or page event that will be saved as a [custom event](https://docs.voucherify.io/reference/the-custom-event-object) in Voucherify.',
-      default: {
-        '@path': '$.name'
+        '@if': {
+          exists: { '@path': '$.event' },
+          then: { '@path': '$.event' },
+          else: { '@path': '$.name' }
+        }
       }
     },
     metadata: {
