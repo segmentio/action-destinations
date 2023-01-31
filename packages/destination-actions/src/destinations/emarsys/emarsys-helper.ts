@@ -4,7 +4,7 @@ import type { RequestClient } from '@segment/actions-core'
 import { DynamicFieldResponse } from '@segment/actions-core'
 import { randomBytes, createHash } from 'node:crypto'
 
-export const API_HOST = 'https://trunk-int.s.emarsys.com'
+export const API_HOST = 'https://api.emarsys.net'
 export const API_PATH = '/api/v2/'
 export const API_BASE = `${API_HOST}${API_PATH}`
 
