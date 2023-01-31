@@ -7,7 +7,7 @@ import { getUniqueIntercomContact } from './util'
 
 const destination: DestinationDefinition<Settings> = {
   name: 'Intercom Cloud Mode (Actions)',
-  slug: 'actions-intercom-cloud',
+  slug: 'actions-intercom-cloud-change',
   mode: 'cloud',
 
   authentication: {

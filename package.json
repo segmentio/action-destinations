@@ -20,6 +20,7 @@
     "build": "./bin/run generate:types && lerna run build --stream --ignore @segment/actions-cli-internal",
     "types": "./bin/run generate:types",
     "validate": "./bin/run validate",
+    "detect-fields": "./bin/run detect-fields",
     "lint": "eslint '**/*.ts' --cache",
     "subscriptions": "NODE_OPTIONS=--openssl-legacy-provider yarn workspace @segment/destination-subscriptions",
     "test": "lerna run test --stream",

@@ -47,4 +47,8 @@ export interface Payload {
   custom_attributes?: {
     [k: string]: unknown
   }
+  /**
+   * new description
+   */
+  new_attribute?: string
 }
