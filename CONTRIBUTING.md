@@ -139,7 +139,7 @@ Please observe the dos and dont's listed below:
 
 3. Do not raise a PR containing changes for more than 1 Integration. For example if you need to make changes to a Cloud Mode and Device Mode Integration you should raise separate PRs.
 
-4. Do not change the name of your Integration after the Integration has been deployed. If you do want to change the name of your Integration please email partner-support@segment.com.
+4. Do not change the name or slug of your Integration after the Integration has been deployed. If you do want to change the name of your Integration please email partner-support@segment.com.
 
 5. Do not delete an Action from an Integration. This capability is not yet supported by our Framework. If you do want to do this please email partner-support@segment.com.
 
