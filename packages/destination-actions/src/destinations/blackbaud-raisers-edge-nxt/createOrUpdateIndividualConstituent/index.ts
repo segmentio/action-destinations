@@ -437,10 +437,9 @@ const action: ActionDefinition<Settings, Payload> = {
       if (Object.keys(constituentData).length > 0) {
         // request has at least one constituent field to update
         // update constituent
-        try {
-          await blackbaudSkyApiClient.updateConstituent(constituentId, constituentData)
-        } catch (error) {
-          const statusCode = error?.response?.status
+        const updateConstituentResponse = await blackbaudSkyApiClient.updateConstituent(constituentId, constituentData)
+        if (updateConstituentResponse.status !== 200) {
+          const statusCode = updateConstituentResponse.status
           const errorMessage = statusCode
             ? `${statusCode} error occurred when updating constituent`
             : 'Error occurred when updating constituent'
@@ -455,9 +454,12 @@ const action: ActionDefinition<Settings, Payload> = {
       if (Object.keys(constituentAddressData).length > 0) {
         // request has address data
         // get existing addresses
-        try {
-          const constituentAddressListResponse = await blackbaudSkyApiClient.getConstituentAddressList(constituentId)
-          const constituentAddressListResults = await constituentAddressListResponse.json()
+        const getConstituentAddressListResponse = await blackbaudSkyApiClient.getConstituentAddressList(constituentId)
+        let updateAddressErrorCode = undefined
+        if (getConstituentAddressListResponse.status !== 200) {
+          updateAddressErrorCode = getConstituentAddressListResponse.status
+        } else {
+          const constituentAddressListResults = await getConstituentAddressListResponse.json()
 
           // check address list for one that matches request
           let existingAddress = undefined
@@ -480,7 +482,13 @@ const action: ActionDefinition<Settings, Payload> = {
               constituentAddressData.primary = true
             }
             // create address
-            await blackbaudSkyApiClient.createConstituentAddress(constituentId, constituentAddressData)
+            const createConstituentAddressResponse = await blackbaudSkyApiClient.createConstituentAddress(
+              constituentId,
+              constituentAddressData
+            )
+            if (createConstituentAddressResponse.status !== 200) {
+              updateAddressErrorCode = createConstituentAddressResponse.status
+            }
           } else {
             // existing address
             if (
@@ -491,15 +499,22 @@ const action: ActionDefinition<Settings, Payload> = {
             ) {
               // request has at least one address field to update
               // update address
-              await blackbaudSkyApiClient.updateConstituentAddressById(existingAddress.id, constituentAddressData)
+              const updateConstituentAddressByIdResponse = await blackbaudSkyApiClient.updateConstituentAddressById(
+                existingAddress.id,
+                constituentAddressData
+              )
+              if (updateConstituentAddressByIdResponse.status !== 200) {
+                updateAddressErrorCode = updateConstituentAddressByIdResponse.status
+              }
             }
           }
-        } catch (error) {
-          const statusCode = error?.response?.status
-          const errorMessage = statusCode
-            ? `${statusCode} error occurred when updating constituent address`
+        }
+
+        if (updateAddressErrorCode) {
+          const errorMessage = updateAddressErrorCode
+            ? `${updateAddressErrorCode} error occurred when updating constituent address`
             : 'Error occurred when updating constituent address'
-          if (isRequestErrorRetryable(statusCode)) {
+          if (isRequestErrorRetryable(updateAddressErrorCode)) {
             throw new RetryableError(errorMessage)
           } else {
             integrationErrors.push(errorMessage)
@@ -510,9 +525,12 @@ const action: ActionDefinition<Settings, Payload> = {
       if (Object.keys(constituentEmailData).length > 0) {
         // request has email data
         // get existing addresses
-        try {
-          const constituentEmailListResponse = await blackbaudSkyApiClient.getConstituentEmailList(constituentId)
-          const constituentEmailListResults = await constituentEmailListResponse.json()
+        const getConstituentEmailListResponse = await blackbaudSkyApiClient.getConstituentEmailList(constituentId)
+        let updateEmailErrorCode = undefined
+        if (getConstituentEmailListResponse.status !== 200) {
+          updateEmailErrorCode = getConstituentEmailListResponse.status
+        } else {
+          const constituentEmailListResults = await getConstituentEmailListResponse.json()
 
           // check email list for one that matches request
           let existingEmail = undefined
@@ -529,7 +547,13 @@ const action: ActionDefinition<Settings, Payload> = {
               constituentEmailData.primary = true
             }
             // create email
-            await blackbaudSkyApiClient.createConstituentEmail(constituentId, constituentEmailData)
+            const createConstituentEmailResponse = await blackbaudSkyApiClient.createConstituentEmail(
+              constituentId,
+              constituentEmailData
+            )
+            if (createConstituentEmailResponse.status !== 200) {
+              updateEmailErrorCode = createConstituentEmailResponse.status
+            }
           } else {
             // existing email
             if (
@@ -540,15 +564,22 @@ const action: ActionDefinition<Settings, Payload> = {
             ) {
               // request has at least one email field to update
               // update email
-              await blackbaudSkyApiClient.updateConstituentEmailById(existingEmail.id, constituentEmailData)
+              const updateConstituentEmailByIdResponse = await blackbaudSkyApiClient.updateConstituentEmailById(
+                existingEmail.id,
+                constituentEmailData
+              )
+              if (updateConstituentEmailByIdResponse.status !== 200) {
+                updateEmailErrorCode = updateConstituentEmailByIdResponse.status
+              }
             }
           }
-        } catch (error) {
-          const statusCode = error?.response?.status
-          const errorMessage = statusCode
-            ? `${statusCode} error occurred when updating constituent email`
+        }
+
+        if (updateEmailErrorCode) {
+          const errorMessage = updateEmailErrorCode
+            ? `${updateEmailErrorCode} error occurred when updating constituent email`
             : 'Error occurred when updating constituent email'
-          if (isRequestErrorRetryable(statusCode)) {
+          if (isRequestErrorRetryable(updateEmailErrorCode)) {
             throw new RetryableError(errorMessage)
           } else {
             integrationErrors.push(errorMessage)
@@ -559,11 +590,14 @@ const action: ActionDefinition<Settings, Payload> = {
       if (Object.keys(constituentOnlinePresenceData).length > 0) {
         // request has online presence data
         // get existing online presences
-        try {
-          const constituentOnlinePresenceListResponse = await blackbaudSkyApiClient.getConstituentOnlinePresenceList(
-            constituentId
-          )
-          const constituentOnlinePresenceListResults = await constituentOnlinePresenceListResponse.json()
+        const getConstituentOnlinePresenceListResponse = await blackbaudSkyApiClient.getConstituentOnlinePresenceList(
+          constituentId
+        )
+        let updateOnlinePresenceErrorCode = undefined
+        if (getConstituentOnlinePresenceListResponse.status !== 200) {
+          updateOnlinePresenceErrorCode = getConstituentOnlinePresenceListResponse.status
+        } else {
+          const constituentOnlinePresenceListResults = await getConstituentOnlinePresenceListResponse.json()
 
           // check online presence list for one that matches request
           let existingOnlinePresence = undefined
@@ -580,7 +614,13 @@ const action: ActionDefinition<Settings, Payload> = {
               constituentOnlinePresenceData.primary = true
             }
             // create online presence
-            await blackbaudSkyApiClient.createConstituentOnlinePresence(constituentId, constituentOnlinePresenceData)
+            const createConstituentOnlinePresenceResponse = await blackbaudSkyApiClient.createConstituentOnlinePresence(
+              constituentId,
+              constituentOnlinePresenceData
+            )
+            if (createConstituentOnlinePresenceResponse.status !== 200) {
+              updateOnlinePresenceErrorCode = createConstituentOnlinePresenceResponse.status
+            }
           } else {
             // existing online presence
             if (
@@ -590,18 +630,23 @@ const action: ActionDefinition<Settings, Payload> = {
             ) {
               // request has at least one online presence field to update
               // update online presence
-              await blackbaudSkyApiClient.updateConstituentOnlinePresenceById(
-                existingOnlinePresence.id,
-                constituentOnlinePresenceData
-              )
+              const updateConstituentOnlinePresenceByIdResponse =
+                await blackbaudSkyApiClient.updateConstituentOnlinePresenceById(
+                  existingOnlinePresence.id,
+                  constituentOnlinePresenceData
+                )
+              if (updateConstituentOnlinePresenceByIdResponse.status !== 200) {
+                updateOnlinePresenceErrorCode = updateConstituentOnlinePresenceByIdResponse.status
+              }
             }
           }
-        } catch (error) {
-          const statusCode = error?.response?.status
-          const errorMessage = statusCode
-            ? `${statusCode} error occurred when updating constituent online presence`
+        }
+
+        if (updateOnlinePresenceErrorCode) {
+          const errorMessage = updateOnlinePresenceErrorCode
+            ? `${updateOnlinePresenceErrorCode} error occurred when updating constituent online presence`
             : 'Error occurred when updating constituent online presence'
-          if (isRequestErrorRetryable(statusCode)) {
+          if (isRequestErrorRetryable(updateOnlinePresenceErrorCode)) {
             throw new RetryableError(errorMessage)
           } else {
             integrationErrors.push(errorMessage)
@@ -612,9 +657,12 @@ const action: ActionDefinition<Settings, Payload> = {
       if (Object.keys(constituentPhoneData).length > 0) {
         // request has phone data
         // get existing phones
-        try {
-          const constituentPhoneListResponse = await blackbaudSkyApiClient.getConstituentPhoneList(constituentId)
-          const constituentPhoneListResults = await constituentPhoneListResponse.json()
+        const getConstituentPhoneListResponse = await blackbaudSkyApiClient.getConstituentPhoneList(constituentId)
+        let updatePhoneErrorCode = undefined
+        if (getConstituentPhoneListResponse.status !== 200) {
+          updatePhoneErrorCode = getConstituentPhoneListResponse.status
+        } else {
+          const constituentPhoneListResults = await getConstituentPhoneListResponse.json()
 
           // check phone list for one that matches request
           let existingPhone = undefined
@@ -631,7 +679,13 @@ const action: ActionDefinition<Settings, Payload> = {
               constituentPhoneData.primary = true
             }
             // create phone
-            await blackbaudSkyApiClient.createConstituentPhone(constituentId, constituentPhoneData)
+            const createConstituentPhoneResponse = await blackbaudSkyApiClient.createConstituentPhone(
+              constituentId,
+              constituentPhoneData
+            )
+            if (createConstituentPhoneResponse.status !== 200) {
+              updatePhoneErrorCode = createConstituentPhoneResponse.status
+            }
           } else {
             // existing phone
             if (
@@ -642,15 +696,22 @@ const action: ActionDefinition<Settings, Payload> = {
             ) {
               // request has at least one phone field to update
               // update phone
-              await blackbaudSkyApiClient.updateConstituentPhoneById(existingPhone.id, constituentPhoneData)
+              const updateConstituentPhoneByIdResponse = await blackbaudSkyApiClient.updateConstituentPhoneById(
+                existingPhone.id,
+                constituentPhoneData
+              )
+              if (updateConstituentPhoneByIdResponse.status !== 200) {
+                updatePhoneErrorCode = updateConstituentPhoneByIdResponse.status
+              }
             }
           }
-        } catch (error) {
-          const statusCode = error?.response?.status
-          const errorMessage = statusCode
-            ? `${statusCode} error occurred when updating constituent phone`
-            : 'Error occurred when updating constituent phone'
-          if (isRequestErrorRetryable(statusCode)) {
+        }
+
+        if (updatePhoneErrorCode) {
+          const errorMessage = updatePhoneErrorCode
+            ? `${updatePhoneErrorCode} error occurred when updating constituent online presence`
+            : 'Error occurred when updating constituent online presence'
+          if (isRequestErrorRetryable(updatePhoneErrorCode)) {
             throw new RetryableError(errorMessage)
           } else {
             integrationErrors.push(errorMessage)
