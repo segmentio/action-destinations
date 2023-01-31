@@ -257,11 +257,16 @@ describe('Salesforce Utils', () => {
       'http://how-to-salesforce.com',
       'http://thisisnotsalesforce.com',
       'http://salesforce-tips.co',
+      'www.website.com',
       'ijoewhnukdsfj,'
     ]
 
     // Note: These end in '/' to ensure that the instance URL we input matches the expected output
-    const validInstanceUrls = ['https://na1.salesforce.com/', 'http://krusty-krab.my.salesforce.com/']
+    const validInstanceUrls = [
+      'https://na1.salesforce.com/',
+      'http://krusty-krab.my.salesforce.com/',
+      'https://sometesting-instanceurl-93244--staging.sandbox.my.salesforce.com/'
+    ]
 
     it('should throw an error if the instance URL is not provided', async () => {
       const instanceUrl = ''
