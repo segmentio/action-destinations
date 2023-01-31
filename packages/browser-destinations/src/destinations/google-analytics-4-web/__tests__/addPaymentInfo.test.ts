@@ -42,25 +42,6 @@ const subscriptions: Subscription[] = [
     }
   }
 ]
-// const payload = {
-//   event: 'Payment Info Entered',
-//   userId: '1234abc',
-//   timestamp: '2022-06-22T22:20:58.905Z',
-//   type: 'track',
-//   properties: {
-//     currency: 'USD',
-//     value: 10,
-//     coupon: 'SUMMER_FUN',
-//     payment_method: 'Credit Card',
-//     products: [
-//       {
-//         product_id: '12345',
-//         name: 'Monopoly: 3rd Edition',
-//         currency: 'USD'
-//       }
-//     ]
-//   }
-// }
 describe('GoogleAnalytics4Web.addPaymentInfo', () => {
   test('Basic Event with Default Mappings', async () => {
     const [event] = await googleAnalytics4Web({

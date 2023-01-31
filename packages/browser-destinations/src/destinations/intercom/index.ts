@@ -86,13 +86,11 @@ export const destination: BrowserDestinationDefinition<Settings, Intercom> = {
 
   initialize: async ({ settings }, deps) => {
     //initialize Intercom
-    console.log("start")
     initScript({ appId: settings.appId })
     const preloadedIntercom = window.Intercom
     initialBoot(settings.appId, { api_base: settings.apiBase })
 
     await deps.resolveWhen(() => window.Intercom !== preloadedIntercom, 100)
-    console.log("loaded")
     window.Intercom.richLinkProperties = settings.richLinkProperties
     window.Intercom.appId = settings.appId
     window.Intercom.activator = settings.activator
