@@ -240,7 +240,10 @@ const action: ActionDefinition<Settings, Payload> = {
     lookup_id: {
       label: 'Lookup ID',
       description: 'The organization-defined identifier for the constituent.',
-      type: 'string'
+      type: 'string',
+      default: {
+        '@path': '$.userId'
+      }
     },
     online_presence: {
       label: 'Online Presence',
