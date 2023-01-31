@@ -27,13 +27,15 @@ export class BlackbaudSkyApi {
   async updateConstituent(constituentData: object): Promise<ModifiedResponse> {
     return this.request(`${SKY_API_BASE_URL}/constituents/${constituentId}`, {
       method: 'patch',
-      json: constituentData
+      json: constituentData,
+      throwHttpErrors: false
     })
   }
 
   async getConstituentAddressList(constituentId: string): Promise<ModifiedResponse> {
     return this.request(`${SKY_API_BASE_URL}/constituents/${constituentId}/addresses?include_inactive=true`, {
-      method: 'get'
+      method: 'get',
+      throwHttpErrors: false
     })
   }
 
@@ -43,7 +45,8 @@ export class BlackbaudSkyApi {
       json: {
         ...constituentAddressData,
         constituent_id: constituentId
-      }
+      },
+      throwHttpErrors: false
     })
   }
 
@@ -53,13 +56,15 @@ export class BlackbaudSkyApi {
       json: {
         ...constituentAddressData,
         inactive: false
-      }
+      },
+      throwHttpErrors: false
     })
   }
 
   async getConstituentEmailList(constituentId: string): Promise<ModifiedResponse> {
     return this.request(`${SKY_API_BASE_URL}/constituents/${constituentId}/emailaddresses?include_inactive=true`, {
-      method: 'get'
+      method: 'get',
+      throwHttpErrors: false
     })
   }
 
@@ -69,7 +74,8 @@ export class BlackbaudSkyApi {
       json: {
         ...constituentEmailData,
         constituent_id: constituentId
-      }
+      },
+      throwHttpErrors: false
     })
   }
 
@@ -79,13 +85,15 @@ export class BlackbaudSkyApi {
       json: {
         ...constituentEmailData,
         inactive: false
-      }
+      },
+      throwHttpErrors: false
     })
   }
 
   async getConstituentOnlinePresenceList(constituentId: string): Promise<ModifiedResponse> {
     return this.request(`${SKY_API_BASE_URL}/constituents/${constituentId}/onlinepresences?include_inactive=true`, {
-      method: 'get'
+      method: 'get',
+      throwHttpErrors: false
     })
   }
 
@@ -98,7 +106,8 @@ export class BlackbaudSkyApi {
       json: {
         ...constituentOnlinePresenceData,
         constituent_id: constituentId
-      }
+      },
+      throwHttpErrors: false
     })
   }
 
@@ -111,13 +120,15 @@ export class BlackbaudSkyApi {
       json: {
         ...constituentOnlinePresenceData,
         inactive: false
-      }
+      },
+      throwHttpErrors: false
     })
   }
 
   async getConstituentPhoneList(constituentId: string): Promise<ModifiedResponse> {
     return this.request(`${SKY_API_BASE_URL}/constituents/${constituentId}/phones?include_inactive=true`, {
-      method: 'get'
+      method: 'get',
+      throwHttpErrors: false
     })
   }
 
@@ -127,7 +138,8 @@ export class BlackbaudSkyApi {
       json: {
         ...constituentPhoneData,
         constituent_id: constituentId
-      }
+      },
+      throwHttpErrors: false
     })
   }
 
@@ -137,7 +149,8 @@ export class BlackbaudSkyApi {
       json: {
         ...constituentPhoneData,
         inactive: false
-      }
+      },
+      throwHttpErrors: false
     })
   }
 }
