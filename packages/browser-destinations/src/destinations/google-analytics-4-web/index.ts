@@ -33,7 +33,7 @@ declare global {
 const presets: DestinationDefinition['presets'] = [
   {
     name: `Set Configuration Fields`,
-    subscribe: 'type = "page" or type = "identify',
+    subscribe: 'type = "page" or type = "identify"',
     partnerAction: 'setConfigurationFields',
     mapping: defaultValues(setConfigurationFields.fields)
   }
