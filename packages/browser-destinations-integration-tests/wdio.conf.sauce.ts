@@ -6,7 +6,6 @@ export const config: Options.Testrunner = {
   user: process.env.SAUCE_USERNAME,
   key: process.env.SAUCE_ACCESS_KEY,
   region: 'us',
-  maxInstancesPerCapability: 1,
   capabilities: [
     // @ts-ignore - actually has an iterator
     ...base.capabilities,
