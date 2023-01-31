@@ -54,7 +54,7 @@
   },
   "dependencies": {
     "@lukeed/uuid": "^2.0.0",
-    "@types/node": "^18.11.15",
+    "@types/node": "^18.11.15",    
     "@segment/ajv-human-errors": "^2.2.0",
     "@segment/destination-subscriptions": "^3.14.0",
     "abort-controller": "^3.0.0",
