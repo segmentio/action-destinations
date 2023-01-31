@@ -28,7 +28,6 @@ Object {
       "properties": Object {
         "segment_library": "cloud-mode-destination",
       },
-      "session_id": "kFJwrNh$DP38FB",
       "timestamp": "2021-02-01T00:00:00.000Z",
       "user_identifier": Object {
         "identity": "kFJwrNh$DP38FB",
@@ -49,7 +48,6 @@ Object {
       "properties": Object {
         "segment_library": "cloud-mode-destination",
       },
-      "session_id": "kFJwrNh$DP38FB",
       "user_identifier": Object {
         "identity": "kFJwrNh$DP38FB",
       },

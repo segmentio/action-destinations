@@ -13,7 +13,6 @@ type HeapEvent = {
   timestamp?: string
   properties: {
     [k: string]: unknown
-    session_id?: string
   }
   custom_properties?: {
     [k: string]: unknown
@@ -84,15 +83,6 @@ const action: ActionDefinition<Settings, Payload> = {
         '@path': '$.timestamp'
       }
     },
-    session_id: {
-      label: 'Session ID',
-      type: 'string',
-      description:
-        'A Heap session ID. The session ID can be retrived by calling getSessionId() on the heap api. If a session ID is not provided one will be created.',
-      default: {
-        '@path': '$.session_id'
-      }
-    },
     type: {
       label: 'Type',
       type: 'string',
@@ -133,10 +123,6 @@ const action: ActionDefinition<Settings, Payload> = {
 
     if (payload.timestamp && dayjs.utc(payload.timestamp).isValid()) {
       event.timestamp = dayjs.utc(payload.timestamp).toISOString()
-    }
-
-    if (payload.session_id) {
-      event.properties.session_id = payload.session_id
     }
 
     const payLoad: IntegrationsTrackPayload = {
