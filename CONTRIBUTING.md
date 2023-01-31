@@ -135,7 +135,7 @@ Please observe the dos and dont's listed below:
 
 1. Do not add a **required** field to an Integration which is already in use by customers. Doing so will prevent existing instances of your Integration from working, and will lead to an incident.
 
-2. Do not change your perform() or batchPerform() functions so that they now depend on a value from a field in order for the outbound API call to be successful. Doing so may cause pre-exsiting Integrations to fail.
+2. Do not change your perform() or batchPerform() functions so that they now depend on a value from a field in order for the outbound API call to be successful. Doing so may cause pre-existing Integrations to fail.
 
 3. Do not raise a PR containing changes for more than 1 Integration. For example if you need to make changes to a Cloud Mode and Device Mode Integration you should raise separate PRs.
 
