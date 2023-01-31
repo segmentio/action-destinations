@@ -45,7 +45,7 @@ export const flattenObject = () => ({
   'car.revisions.1.changes.0.price': '123.45',
   'car.revisions.1.changes.1.type': 'mechanic',
   'car.revisions.1.changes.1.desc': 'Engine pressure regulator',
-  'car.revisions.1.changes.1.engineer': '',
+  'car.revisions.1.changes.1.engineer': 'null',
   'visits.0.date': '2015-01-01',
   'visits.0.dealer': 'DEAL-001',
   'visits.0.useCoupon': 'true',
@@ -56,11 +56,11 @@ export const flattenObject = () => ({
 describe('flattenObj for ', () => {
   describe('a flat kvp where the value is a ', () => {
     it('undefined', () => {
-      expect(flat({ myUndefined: undefined } as Properties)).toEqual({ myUndefined: '' })
+      expect(flat({ myUndefined: undefined } as Properties)).toEqual({ myUndefined: undefined })
     })
 
     it('null', () => {
-      expect(flat({ myNull: null })).toEqual({ myNull: '' })
+      expect(flat({ myNull: null })).toEqual({ myNull: 'null' })
     })
 
     it('number', () => {
@@ -79,9 +79,9 @@ describe('flattenObj for ', () => {
   describe('array of ', () => {
     it('nulls:', () => {
       expect(flat({ myNulls: [null, 1, null, 3] })).toEqual({
-        'myNulls.0': '',
+        'myNulls.0': 'null',
         'myNulls.1': '1',
-        'myNulls.2': '',
+        'myNulls.2': 'null',
         'myNulls.3': '3'
       })
     })

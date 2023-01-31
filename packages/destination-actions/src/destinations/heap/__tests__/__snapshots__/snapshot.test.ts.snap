@@ -24,6 +24,7 @@ Object {
       "custom_properties": Object {
         "testType": "kFJwrNh$DP38FB",
       },
+      "event": "track",
       "idempotency_key": "kFJwrNh$DP38FB",
       "properties": Object {
         "segment_library": "cloud-mode-destination",
@@ -44,6 +45,7 @@ Object {
   "events": Array [
     Object {
       "custom_properties": Object {},
+      "event": "track",
       "idempotency_key": "kFJwrNh$DP38FB",
       "properties": Object {
         "segment_library": "cloud-mode-destination",

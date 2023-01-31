@@ -8,6 +8,7 @@ Object {
       "custom_properties": Object {
         "testType": "xqYHVWXiU0In",
       },
+      "event": "track",
       "idempotency_key": "xqYHVWXiU0In",
       "properties": Object {
         "segment_library": "cloud-mode-destination",
@@ -28,6 +29,7 @@ Object {
   "events": Array [
     Object {
       "custom_properties": Object {},
+      "event": "track",
       "idempotency_key": "xqYHVWXiU0In",
       "properties": Object {
         "segment_library": "cloud-mode-destination",

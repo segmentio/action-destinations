@@ -27,7 +27,5 @@ function stringify(value: unknown): string {
   if (typeof value === 'number' || typeof value === 'boolean') {
     return value.toString()
   }
-  // if we get here it's likely a null type or undefined. If
-  // it's something else we don't want to fail.
-  return ''
+  return JSON.stringify(value)
 }

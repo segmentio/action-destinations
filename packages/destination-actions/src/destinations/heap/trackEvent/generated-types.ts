@@ -28,10 +28,6 @@ export interface Payload {
    */
   timestamp?: string | number
   /**
-   * A Heap session ID. The session ID can be retrived by calling getSessionId() on the heap api. If a session ID is not provided one will be created.
-   */
-  session_id?: string
-  /**
    * The type of call. Can be track, page, or screen.
    */
   type?: string
