@@ -14,7 +14,7 @@
     "package.json"
   ],
   "engines": {
-    "node": "^14.16"
+    "node": "^18.12"
   },
   "engineStrict": true,
   "license": "MIT",
@@ -39,6 +39,7 @@
   "dependencies": {
     "@amplitude/ua-parser-js": "^0.7.25",
     "@segment/a1-notation": "^2.1.4",
+    "@types/node": "^18.11.15",
     "@segment/actions-core": "^3.50.0",
     "@segment/actions-shared": "^1.32.0",
     "cheerio": "^1.0.0-rc.10",
