@@ -24,7 +24,7 @@ export class BlackbaudSkyApi {
     })
   }
 
-  async updateConstituent(constituentData: object): Promise<ModifiedResponse> {
+  async updateConstituent(constituentId: string, constituentData: object): Promise<ModifiedResponse> {
     return this.request(`${SKY_API_BASE_URL}/constituents/${constituentId}`, {
       method: 'patch',
       json: constituentData,

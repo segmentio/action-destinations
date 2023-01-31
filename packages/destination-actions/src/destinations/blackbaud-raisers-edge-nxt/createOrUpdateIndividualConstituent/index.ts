@@ -438,7 +438,7 @@ const action: ActionDefinition<Settings, Payload> = {
         // request has at least one constituent field to update
         // update constituent
         try {
-          await blackbaudSkyApiClient.updateConstituent(constituentData)
+          await blackbaudSkyApiClient.updateConstituent(constituentId, constituentData)
         } catch (error) {
           const statusCode = error?.response?.status
           const errorMessage = statusCode
