@@ -2,7 +2,7 @@ import type { BrowserActionDefinition } from '../../../lib/browser-destinations'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 import { HeapApi } from '../types'
-import { HEAP_SEGMENT_LIBRARY_NAME } from '../constants'
+import { HEAP_SEGMENT_BROWSER_LIBRARY_NAME } from '../constants'
 
 const action: BrowserActionDefinition<Settings, HeapApi, Payload> = {
   title: 'Track Event',
@@ -27,12 +27,24 @@ const action: BrowserActionDefinition<Settings, HeapApi, Payload> = {
       default: {
         '@path': '$.properties'
       }
+    },
+    anonymousId: {
+      type: 'string',
+      required: false,
+      description: 'The segment anonymous identifier for the user',
+      label: 'Anonymous ID',
+      default: {
+        '@path': '$.anonymousId'
+      }
     }
   },
   perform: (heap, event) => {
-    const defaultEventProperties = { segment_library: HEAP_SEGMENT_LIBRARY_NAME }
-    const eventProperties = Object.assign(defaultEventProperties, event.payload.properties ?? {})
+    const eventProperties = Object.assign({}, event.payload.properties ?? {})
+    eventProperties.segment_library = HEAP_SEGMENT_BROWSER_LIBRARY_NAME
     heap.track(event.payload.name, eventProperties)
+    if (event.payload.anonymousId) {
+      heap.addUserProperties({ anonymous_id: event.payload.anonymousId })
+    }
   }
 }
 

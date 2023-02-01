@@ -12,7 +12,7 @@ const action: BrowserActionDefinition<Settings, RipeSDK, Payload> = {
     anonymousId: {
       type: 'string',
       required: true,
-      description: 'The new user ID, if user ID is not set',
+      description: 'The anonymous id',
       label: 'Anonymous ID',
       default: { '@path': '$.anonymousId' }
     },
@@ -28,21 +28,33 @@ const action: BrowserActionDefinition<Settings, RipeSDK, Payload> = {
       required: false,
       description: 'The ID associated groupId',
       label: 'Group ID',
-      default: { '@path': '$.groupId' }
+      default: { '@path': '$.context.groupId' }
     },
     category: {
       type: 'string',
       required: false,
       description: 'The category of the page',
       label: 'Category',
-      default: { '@path': '$.category' }
+      default: {
+        '@if': {
+          exists: { '@path': '$.category' },
+          then: { '@path': '$.category' },
+          else: { '@path': '$.context.category' }
+        }
+      }
     },
     name: {
       type: 'string',
       required: false,
       description: 'The name of the page',
       label: 'Name',
-      default: { '@path': '$.name' }
+      default: {
+        '@if': {
+          exists: { '@path': '$.name' },
+          then: { '@path': '$.name' },
+          else: { '@path': '$.context.name' }
+        }
+      }
     },
     properties: {
       type: 'object',
