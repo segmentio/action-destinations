@@ -15,6 +15,20 @@ export const dateStringToFuzzyDate = (dateString: string) => {
   }
 }
 
+export const filterObjectListByMatchFields = (list: object[], data: object, matchFields: string[]) => {
+  return list.find((item: object) => {
+    let isMatch = undefined
+    matchFields.forEach((field) => {
+      if (isMatch !== false) {
+        const itemValue = item[field] ? item[field].toLowerCase() : ''
+        const dataValue = data[field] ? data[field].toLowerCase() : ''
+        isMatch = itemValue === dataValue
+      }
+    })
+    return isMatch
+  })
+}
+
 export const isRequestErrorRetryable = (statusCode: number) => {
   return statusCode === 429 || statusCode >= 500
 }

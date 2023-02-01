@@ -3,7 +3,7 @@ import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 import { BlackbaudSkyApi } from '../api'
 import { Address, Constituent, Email, OnlinePresence, Phone } from '../types'
-import { dateStringToFuzzyDate, isRequestErrorRetryable } from '../utils'
+import { dateStringToFuzzyDate, filterObjectListByMatchFields, isRequestErrorRetryable } from '../utils'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Create or Update Individual Constituent',
@@ -464,15 +464,11 @@ const action: ActionDefinition<Settings, Payload> = {
           // check address list for one that matches request
           let existingAddress = undefined
           if (constituentAddressListResults.count > 0) {
-            existingAddress = constituentAddressListResults.value.filter((result: Address) => {
-              return (
-                result.address_lines.toLowerCase() === constituentAddressData.address_lines.toLowerCase() &&
-                result.city.toLowerCase() === constituentAddressData.city.toLowerCase() &&
-                result.country.toLowerCase() === constituentAddressData.country.toLowerCase() &&
-                result.postal_code.toLowerCase() === constituentAddressData.postal_code.toLowerCase() &&
-                result.state.toLowerCase() === constituentAddressData.state.toLowerCase()
-              )
-            })
+            existingAddress = filterObjectListByMatchFields(
+              constituentAddressListResults.value,
+              constituentAddressData,
+              ['address_lines', 'city', 'country', 'postal_code', 'state']
+            )
           }
 
           if (!existingAddress) {
@@ -535,9 +531,9 @@ const action: ActionDefinition<Settings, Payload> = {
           // check email list for one that matches request
           let existingEmail = undefined
           if (constituentEmailListResults.count > 0) {
-            existingEmail = constituentEmailListResults.value.filter((result: Email) => {
-              return result.address.toLowerCase() === constituentEmailData.address.toLowerCase()
-            })
+            existingEmail = filterObjectListByMatchFields(constituentEmailListResults.value, constituentEmailData, [
+              'address'
+            ])
           }
 
           if (!existingEmail) {
@@ -602,9 +598,11 @@ const action: ActionDefinition<Settings, Payload> = {
           // check online presence list for one that matches request
           let existingOnlinePresence = undefined
           if (constituentOnlinePresenceListResults.count > 0) {
-            existingOnlinePresence = constituentOnlinePresenceListResults.value.filter((result: OnlinePresence) => {
-              return result.address.toLowerCase() === constituentOnlinePresenceData.address.toLowerCase()
-            })
+            existingOnlinePresence = filterObjectListByMatchFields(
+              constituentOnlinePresenceListResults.value,
+              constituentOnlinePresenceData,
+              ['address']
+            )
           }
 
           if (!existingOnlinePresence) {
@@ -667,9 +665,9 @@ const action: ActionDefinition<Settings, Payload> = {
           // check phone list for one that matches request
           let existingPhone = undefined
           if (constituentPhoneListResults.count > 0) {
-            existingPhone = constituentPhoneListResults.value.filter((result: Phone) => {
-              return result.number === constituentPhoneData.number
-            })
+            existingPhone = filterObjectListByMatchFields(constituentPhoneListResults.value, constituentPhoneData, [
+              'number'
+            ])
           }
 
           if (!existingPhone) {
