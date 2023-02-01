@@ -490,7 +490,7 @@ const action: ActionDefinition<Settings, Payload> = {
             if (
               existingAddress.inactive ||
               constituentAddressData.do_not_mail !== existingAddress.do_not_mail ||
-              constituentAddressData.primary !== existingAddress.primary ||
+              (constituentAddressData.primary && constituentAddressData.primary !== existingAddress.primary) ||
               constituentAddressData.type !== existingAddress.type
             ) {
               // request has at least one address field to update
@@ -555,7 +555,7 @@ const action: ActionDefinition<Settings, Payload> = {
             if (
               existingEmail.inactive ||
               constituentEmailData.do_not_email !== existingEmail.do_not_email ||
-              constituentEmailData.primary !== existingEmail.primary ||
+              (constituentEmailData.primary && constituentEmailData.primary !== existingEmail.primary) ||
               constituentEmailData.type !== existingEmail.type
             ) {
               // request has at least one email field to update
@@ -623,7 +623,8 @@ const action: ActionDefinition<Settings, Payload> = {
             // existing online presence
             if (
               existingOnlinePresence.inactive ||
-              constituentOnlinePresenceData.primary !== existingOnlinePresence.primary ||
+              (constituentOnlinePresenceData.primary !== undefined &&
+                constituentOnlinePresenceData.primary !== existingOnlinePresence.primary) ||
               constituentOnlinePresenceData.type !== existingOnlinePresence.type
             ) {
               // request has at least one online presence field to update
@@ -689,7 +690,7 @@ const action: ActionDefinition<Settings, Payload> = {
             if (
               existingPhone.inactive ||
               constituentPhoneData.do_not_call !== existingPhone.do_not_call ||
-              constituentPhoneData.primary !== existingPhone.primary ||
+              (constituentPhoneData.primary !== undefined && constituentPhoneData.primary !== existingPhone.primary) ||
               constituentPhoneData.type !== existingPhone.type
             ) {
               // request has at least one phone field to update
