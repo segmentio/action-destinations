@@ -1,7 +1,7 @@
 import { GenericPayload } from '../sf-types'
 import { buildCSVData } from '../sf-utils'
 import Salesforce from '../sf-operations'
-import createRequestClient from '@segment/actions-core/src/create-request-client'
+import createRequestClient from '../../../../../core/src/create-request-client'
 
 const requestClient = createRequestClient()
 
