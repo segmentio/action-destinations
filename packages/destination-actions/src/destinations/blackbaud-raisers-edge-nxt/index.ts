@@ -1,6 +1,6 @@
 import type { DestinationDefinition } from '@segment/actions-core'
 import type { Settings } from './generated-types'
-import { SKY_OAUTH2_TOKEN_URL } from './constants'
+import { SKY_API_TEST_AUTHENTICATION, SKY_OAUTH2_TOKEN_URL } from './constants'
 import { RefreshTokenResponse } from './types'
 import createOrUpdateIndividualConstituent from './createOrUpdateIndividualConstituent'
 
@@ -19,11 +19,8 @@ const destination: DestinationDefinition<Settings> = {
         required: true
       }
     },
-    //testAuthentication: (request) => {
-    testAuthentication: () => {
-      // Return a request that tests/validates the user's credentials.
-      // If you do not have a way to validate the authentication fields safely,
-      // you can remove the `testAuthentication` function, though discouraged.
+    testAuthentication: (request) => {
+      return request(SKY_API_TEST_AUTHENTICATION)
     },
     refreshAccessToken: async (request, { auth }) => {
       // Return a request that refreshes the access_token if the API supports it
