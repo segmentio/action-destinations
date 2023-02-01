@@ -257,6 +257,7 @@ describe('Salesforce Utils', () => {
       'http://how-to-salesforce.com',
       'http://thisisnotsalesforce.com',
       'http://salesforce-tips.co',
+      'http://na1.salesforce.com/',
       'www.website.com',
       'ijoewhnukdsfj,'
     ]
@@ -264,7 +265,7 @@ describe('Salesforce Utils', () => {
     // Note: These end in '/' to ensure that the instance URL we input matches the expected output
     const validInstanceUrls = [
       'https://na1.salesforce.com/',
-      'http://krusty-krab.my.salesforce.com/',
+      'https://krusty-krab.my.salesforce.com/',
       'https://sometesting-instanceurl-93244--staging.sandbox.my.salesforce.com/'
     ]
 
