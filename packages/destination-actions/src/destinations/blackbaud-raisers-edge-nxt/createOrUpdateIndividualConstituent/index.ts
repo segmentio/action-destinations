@@ -92,13 +92,13 @@ const action: ActionDefinition<Settings, Payload> = {
         postal_code: {
           '@if': {
             exists: {
-              '@path': '$.traits.address.postal_code'
+              '@path': '$.traits.address.postalCode'
             },
             then: {
-              '@path': '$.traits.address.postal_code'
+              '@path': '$.traits.address.postalCode'
             },
             else: {
-              '@path': '$.properties.address.postal_code'
+              '@path': '$.properties.address.postalCode'
             }
           }
         },
@@ -185,13 +185,13 @@ const action: ActionDefinition<Settings, Payload> = {
       default: {
         '@if': {
           exists: {
-            '@path': '$.traits.first_name'
+            '@path': '$.traits.firstName'
           },
           then: {
-            '@path': '$.traits.first_name'
+            '@path': '$.traits.firstName'
           },
           else: {
-            '@path': '$.properties.first_name'
+            '@path': '$.properties.firstName'
           }
         }
       }
@@ -226,13 +226,13 @@ const action: ActionDefinition<Settings, Payload> = {
       default: {
         '@if': {
           exists: {
-            '@path': '$.traits.last_name'
+            '@path': '$.traits.lastName'
           },
           then: {
-            '@path': '$.traits.last_name'
+            '@path': '$.traits.lastName'
           },
           else: {
-            '@path': '$.properties.last_name'
+            '@path': '$.properties.lastName'
           }
         }
       }
