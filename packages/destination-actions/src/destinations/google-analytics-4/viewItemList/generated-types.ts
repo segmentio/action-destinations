@@ -4,7 +4,7 @@ export interface Payload {
   /**
    * The type of data stream this data belongs in. This can either be a web stream or a mobile app stream (iOS or Android).
    */
-  data_stream_type: string
+  data_stream_type?: string
   /**
    * Uniquely identifies a specific installation of a Firebase app. This value needs to be retrieved through the Firebase SDK. **Required for mobile app streams.**
    */

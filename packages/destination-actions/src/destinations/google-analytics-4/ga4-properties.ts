@@ -357,6 +357,5 @@ export const data_stream_type: InputField = {
   choices: [DataStreamType.Web, DataStreamType.MobileApp],
   description:
     'The type of data stream this data belongs in. This can either be a web stream or a mobile app stream (iOS or Android).',
-  default: DataStreamType.Web,
-  required: true
+  default: DataStreamType.Web
 }

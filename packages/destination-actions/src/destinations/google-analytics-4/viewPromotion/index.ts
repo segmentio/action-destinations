@@ -79,8 +79,9 @@ const action: ActionDefinition<Settings, Payload> = {
   },
 
   perform: (request, { payload, features, settings }) => {
+    const data_stream_type = payload.data_stream_type ?? DataStreamType.Web
     const stream_params: DataStreamParams =
-      payload.data_stream_type === DataStreamType.MobileApp
+      data_stream_type === DataStreamType.MobileApp
         ? getMobileStreamParams(settings.apiSecret, settings.firebaseAppId, payload.app_instance_id)
         : getWebStreamParams(settings.apiSecret, settings.measurementId, payload.client_id)
 

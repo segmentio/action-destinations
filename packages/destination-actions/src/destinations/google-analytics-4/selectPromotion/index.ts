@@ -24,7 +24,7 @@ import {
   app_instance_id,
   data_stream_type
 } from '../ga4-properties'
-import { DataStreamType, PromotionProductItem } from '../ga4-types'
+import { DataStreamParams, DataStreamType, PromotionProductItem } from '../ga4-types'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 
@@ -70,8 +70,9 @@ const action: ActionDefinition<Settings, Payload> = {
     params: params
   },
   perform: (request, { payload, features, settings }) => {
-    const stream_params =
-      payload.data_stream_type === DataStreamType.MobileApp
+    const data_stream_type = payload.data_stream_type ?? DataStreamType.Web
+    const stream_params: DataStreamParams =
+      data_stream_type === DataStreamType.MobileApp
         ? getMobileStreamParams(settings.apiSecret, settings.firebaseAppId, payload.app_instance_id)
         : getWebStreamParams(settings.apiSecret, settings.measurementId, payload.client_id)
 
