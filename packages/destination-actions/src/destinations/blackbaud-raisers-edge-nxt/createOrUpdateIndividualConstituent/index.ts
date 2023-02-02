@@ -489,8 +489,11 @@ const action: ActionDefinition<Settings, Payload> = {
             // existing address
             if (
               existingAddress.inactive ||
-              constituentAddressData.do_not_mail !== existingAddress.do_not_mail ||
-              (constituentAddressData.primary && constituentAddressData.primary !== existingAddress.primary) ||
+              (constituentAddressData.do_not_mail !== undefined &&
+                constituentAddressData.do_not_mail !== existingAddress.do_not_mail) ||
+              (constituentAddressData.primary !== undefined &&
+                constituentAddressData.primary &&
+                constituentAddressData.primary !== existingAddress.primary) ||
               constituentAddressData.type !== existingAddress.type
             ) {
               // request has at least one address field to update
@@ -554,8 +557,11 @@ const action: ActionDefinition<Settings, Payload> = {
             // existing email
             if (
               existingEmail.inactive ||
-              constituentEmailData.do_not_email !== existingEmail.do_not_email ||
-              (constituentEmailData.primary && constituentEmailData.primary !== existingEmail.primary) ||
+              (constituentEmailData.do_not_email !== undefined &&
+                constituentEmailData.do_not_email !== existingEmail.do_not_email) ||
+              (constituentEmailData.primary !== undefined &&
+                constituentEmailData.primary &&
+                constituentEmailData.primary !== existingEmail.primary) ||
               constituentEmailData.type !== existingEmail.type
             ) {
               // request has at least one email field to update
@@ -689,7 +695,8 @@ const action: ActionDefinition<Settings, Payload> = {
             // existing phone
             if (
               existingPhone.inactive ||
-              constituentPhoneData.do_not_call !== existingPhone.do_not_call ||
+              (constituentPhoneData.do_not_call !== undefined &&
+                constituentPhoneData.do_not_call !== existingPhone.do_not_call) ||
               (constituentPhoneData.primary !== undefined && constituentPhoneData.primary !== existingPhone.primary) ||
               constituentPhoneData.type !== existingPhone.type
             ) {
