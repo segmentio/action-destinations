@@ -165,7 +165,7 @@ describe('Heap.trackEvent', () => {
     body.events[0].user_identifier = {
       anonymous_id: anonId
     }
-    body.events[0].event = 'Home Page'
+    body.events[0].event = 'Home Page page viewed'
     nock(heapURL).post(integrationsTrackURI, body).reply(200, {})
 
     const responses = await testDestination.testAction('trackEvent', {

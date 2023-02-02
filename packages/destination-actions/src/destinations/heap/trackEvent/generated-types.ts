@@ -6,7 +6,7 @@ export interface Payload {
    */
   message_id: string
   /**
-   * An identity, typically corresponding to an existing user. If no such identity exists, we will set the anonymous id property on the user.
+   * A unique identity and maintain user histories across sessions and devices under a single profile. If no identity is provided we will add the anonymous_id to the event. More on identify: https://developers.heap.io/docs/using-identify
    */
   identity?: string | null
   /**
