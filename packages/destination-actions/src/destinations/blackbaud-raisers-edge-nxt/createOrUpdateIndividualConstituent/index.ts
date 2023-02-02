@@ -467,7 +467,7 @@ const action: ActionDefinition<Settings, Payload> = {
             existingAddress = filterObjectListByMatchFields(
               constituentAddressListResults.value,
               constituentAddressData,
-              ['address_lines', 'city', 'country', 'postal_code', 'state']
+              ['address_lines', 'city', 'postal_code', 'state']
             )
           }
 
