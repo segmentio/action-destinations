@@ -18,10 +18,12 @@ describe(`Testing snapshot for ${destinationSlug}'s ${actionSlug} destination ac
     nock(/.*/).persist().put(/.*/).reply(200)
 
     const event = createTestEvent({
+      timestamp: new Date('December 17, 2022 03:24:00').toISOString(),
       properties: eventData
     })
 
     const responses = await testDestination.testAction(actionSlug, {
+      useDefaultMappings: true,
       event: event,
       mapping: event.properties,
       settings: settingsData,
@@ -51,10 +53,12 @@ describe(`Testing snapshot for ${destinationSlug}'s ${actionSlug} destination ac
     nock(/.*/).persist().put(/.*/).reply(200)
 
     const event = createTestEvent({
+      timestamp: new Date('December 17, 2022 03:24:00').toISOString(),
       properties: eventData
     })
 
     const responses = await testDestination.testAction(actionSlug, {
+      useDefaultMappings: true,
       event: event,
       mapping: event.properties,
       settings: settingsData,

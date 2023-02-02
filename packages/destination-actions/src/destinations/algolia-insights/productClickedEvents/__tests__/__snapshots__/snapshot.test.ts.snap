@@ -29,7 +29,7 @@ exports[`Testing snapshot for AlgoliaInsights's productClickedEvents destination
 Object {
   "events": Array [
     Object {
-      "anonymousID": "tTO6#",
+      "anonymousID": "anonId1234",
       "eventName": "Product Clicked",
       "eventType": "click",
       "index": "tTO6#",
@@ -42,7 +42,9 @@ Object {
         -8127732168785920,
       ],
       "queryID": "tTO6#",
-      "userToken": "tTO6#",
+      "timestamp": 1671207840000,
+      "userID": "user1234",
+      "userToken": "user1234",
     },
   ],
 }

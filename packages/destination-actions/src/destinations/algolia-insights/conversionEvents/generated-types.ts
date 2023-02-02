@@ -16,11 +16,11 @@ export interface Payload {
    */
   queryID: string
   /**
-   * The user's anonymous id.
+   * The user's anonymous id. Optional if User ID is provided. See Segment [common fields documentation](https://segment.com/docs/connections/spec/common/)
    */
-  anonymousID: string
+  anonymousID?: string
   /**
-   * The ID associated with the user.
+   * The ID associated with the user. Optional if Anonymous ID is provided. See Segment [common fields documentation](https://segment.com/docs/connections/spec/common/)
    */
   userID?: string
   /**

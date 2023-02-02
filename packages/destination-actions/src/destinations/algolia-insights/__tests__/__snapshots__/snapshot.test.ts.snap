@@ -29,7 +29,6 @@ exports[`Testing snapshot for actions-algolia-insights destination: conversionEv
 Object {
   "events": Array [
     Object {
-      "anonymousID": "U[ABpE$k",
       "eventName": "Conversion Event",
       "eventType": "conversion",
       "index": "U[ABpE$k",
@@ -42,7 +41,6 @@ Object {
         },
       ],
       "queryID": "U[ABpE$k",
-      "userToken": "U[ABpE$k",
     },
   ],
 }
@@ -77,7 +75,6 @@ exports[`Testing snapshot for actions-algolia-insights destination: productClick
 Object {
   "events": Array [
     Object {
-      "anonymousID": "LLjxSD^^GnH",
       "eventName": "Product Clicked",
       "eventType": "click",
       "index": "LLjxSD^^GnH",
@@ -90,7 +87,6 @@ Object {
         -1912532923056128,
       ],
       "queryID": "LLjxSD^^GnH",
-      "userToken": "LLjxSD^^GnH",
     },
   ],
 }
@@ -121,7 +117,6 @@ exports[`Testing snapshot for actions-algolia-insights destination: productViewe
 Object {
   "events": Array [
     Object {
-      "anonymousID": "BLFCPcmz",
       "eventName": "Product Viewed",
       "eventType": "view",
       "index": "BLFCPcmz",
@@ -130,7 +125,6 @@ Object {
         "BLFCPcmz",
       ],
       "queryID": "BLFCPcmz",
-      "userToken": "BLFCPcmz",
     },
   ],
 }

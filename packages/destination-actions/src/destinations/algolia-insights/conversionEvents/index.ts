@@ -4,47 +4,7 @@ import { AlgoliaBehaviourURL, AlgoliaConversionEvent } from '../algolia-insight-
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 
-export const conversionPresets: Subscription[] = [
-  // and is $ meant to represent something specific?
-  {
-    name: 'Products',
-    subscribe: 'type = "track" and event = "Order Completed"',
-    partnerAction: 'properties',
-    mapping: defaultValues({ '@path': '$.properties.products' })
-  },
-  {
-    name: 'Index',
-    subscribe: 'type = "track" and event = "Order Completed"',
-    partnerAction: 'properties',
-    mapping: defaultValues({ '@path': '$.properties.search_index' })
-  },
-  {
-    name: 'Query ID',
-    subscribe: 'type = "track" and event = "Order Completed"',
-    partnerAction: 'properties',
-    mapping: defaultValues({ '@path': '$.properties.query_id' })
-  },
-  {
-    name: 'Anonymous ID',
-    subscribe: 'type = "track" and event = "Order Completed"',
-    partnerAction: 'anonymousId',
-    mapping: defaultValues({ '@path': '$.anonymousId' })
-  },
-  {
-    name: 'User ID',
-    subscribe: 'type = "track" and event = "Order Completed"',
-    partnerAction: 'userId',
-    mapping: defaultValues({ '@path': '$.userId' })
-  },
-  {
-    name: 'timestamp',
-    subscribe: 'type = "track" and event = "Order Completed"',
-    partnerAction: 'timestamp',
-    mapping: defaultValues({ '@path': '$.timestamp' })
-  }
-]
-
-const action: ActionDefinition<Settings, Payload> = {
+export const conversionEvents: ActionDefinition<Settings, Payload> = {
   title: 'Conversion Events',
   description: 'Successful product purcahses which can be tied back to an Algolia Search, Recommend or Predict result',
   fields: {
@@ -80,15 +40,17 @@ const action: ActionDefinition<Settings, Payload> = {
     },
     anonymousID: {
       label: 'Anonymous ID',
-      description: "The user's anonymous id.",
+      description:
+        "The user's anonymous id. Optional if User ID is provided. See Segment [common fields documentation](https://segment.com/docs/connections/spec/common/)",
       type: 'string',
-      required: true,
+      required: false,
       default: { '@path': '$.anonymousId' }
     },
     userID: {
       type: 'string',
       required: false,
-      description: 'The ID associated with the user.',
+      description:
+        'The ID associated with the user. Optional if Anonymous ID is provided. See Segment [common fields documentation](https://segment.com/docs/connections/spec/common/)',
       label: 'User ID',
       default: { '@path': '$.userId' }
     },
@@ -107,7 +69,7 @@ const action: ActionDefinition<Settings, Payload> = {
       eventName: 'Conversion Event',
       eventType: 'conversion',
       objectIDs: data.payload.products.map((product) => product.product_id),
-      userToken: data.payload.userID || data.payload.anonymousID,
+      userToken: (data.payload.userID || data.payload.anonymousID) as string,
       timestamp: data.payload.timestamp ? new Date(data.payload.timestamp).valueOf() : undefined
     }
     const insightPayload = { events: [insightEvent] }
@@ -119,4 +81,10 @@ const action: ActionDefinition<Settings, Payload> = {
   }
 }
 
-export default action
+/** used in the quick setup */
+export const conversionPresets: Subscription = {
+  name: 'Send conversion events to Algolia',
+  subscribe: conversionEvents.defaultSubscription as string,
+  partnerAction: 'conversionEvents',
+  mapping: defaultValues(conversionEvents.fields)
+}

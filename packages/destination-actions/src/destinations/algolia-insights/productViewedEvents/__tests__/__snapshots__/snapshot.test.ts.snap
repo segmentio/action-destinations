@@ -25,7 +25,7 @@ exports[`Testing snapshot for AlgoliaInsights's productViewedEvents destination 
 Object {
   "events": Array [
     Object {
-      "anonymousID": "og&DCP)aINw@qxe)",
+      "anonymousID": "anonId1234",
       "eventName": "Product Viewed",
       "eventType": "view",
       "index": "og&DCP)aINw@qxe)",
@@ -34,7 +34,9 @@ Object {
         "og&DCP)aINw@qxe)",
       ],
       "queryID": "og&DCP)aINw@qxe)",
-      "userToken": "og&DCP)aINw@qxe)",
+      "timestamp": 1671207840000,
+      "userID": "user1234",
+      "userToken": "user1234",
     },
   ],
 }

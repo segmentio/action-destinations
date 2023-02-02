@@ -4,54 +4,7 @@ import { AlgoliaBehaviourURL, AlgoliaProductClickedEvent } from '../algolia-insi
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 
-/** used in the quick setup */
-export const productClickPresets: Subscription[] = [
-  // and is $ meant to represent something specific?
-  {
-    name: 'Product ID',
-    subscribe: 'type = "track" and event = "Product Clicked"',
-    partnerAction: 'properties',
-    mapping: defaultValues({ '@path': '$.properties.product_id' })
-  },
-  {
-    name: 'Index',
-    subscribe: 'type = "track" and event = "Product Clicked"',
-    partnerAction: 'properties',
-    mapping: defaultValues({ '@path': '$.properties.search_index' })
-  },
-  {
-    name: 'Query ID',
-    subscribe: 'type = "track" and event = "Product Clicked"',
-    partnerAction: 'properties',
-    mapping: defaultValues({ '@path': '$.properties.query_id' })
-  },
-  {
-    name: 'Position',
-    subscribe: 'type = "track" and event = "Product Clicked"',
-    partnerAction: 'properties',
-    mapping: defaultValues({ '@path': '$.properties.position' })
-  },
-  {
-    name: 'Anonymous ID',
-    subscribe: 'type = "track" and event = "Product Clicked"',
-    partnerAction: 'anonymousId',
-    mapping: defaultValues({ '@path': '$.anonymousId' })
-  },
-  {
-    name: 'User ID',
-    subscribe: 'type = "track" and event = "Product Clicked"',
-    partnerAction: 'userId',
-    mapping: defaultValues({ '@path': '$.userId' })
-  },
-  {
-    name: 'timestamp',
-    subscribe: 'type = "track" and event = "Product Clicked"',
-    partnerAction: 'timestamp',
-    mapping: defaultValues({ '@path': '$.timestamp' })
-  }
-]
-
-const action: ActionDefinition<Settings, Payload> = {
+export const productClickedEvents: ActionDefinition<Settings, Payload> = {
   title: 'Product Clicked Events',
   description: 'When a product is clicked within an Algolia Search, Recommend or Predict result',
   fields: {
@@ -93,7 +46,8 @@ const action: ActionDefinition<Settings, Payload> = {
     },
     anonymousID: {
       label: 'Anonymous ID',
-      description: "The user's anonymous id.",
+      description:
+        "The user's anonymous id. Optional if User ID is provided. See Segment [common fields documentation](https://segment.com/docs/connections/spec/common/)",
       type: 'string',
       required: false,
       default: { '@path': '$.anonymousId' }
@@ -101,7 +55,8 @@ const action: ActionDefinition<Settings, Payload> = {
     userID: {
       type: 'string',
       required: false,
-      description: 'The ID associated with the user',
+      description:
+        'The ID associated with the user. Optional if Anonymous ID is provided. See Segment [common fields documentation](https://segment.com/docs/connections/spec/common/)',
       label: 'User ID',
       default: { '@path': '$.userId' }
     },
@@ -120,7 +75,7 @@ const action: ActionDefinition<Settings, Payload> = {
       eventName: 'Product Clicked',
       eventType: 'click',
       objectIDs: [data.payload.objectID],
-      userToken: data.payload.userID || data.payload.anonymousID,
+      userToken: (data.payload.userID || data.payload.anonymousID) as string,
       positions: [data.payload.position],
       timestamp: data.payload.timestamp ? new Date(data.payload.timestamp).valueOf() : undefined
     }
@@ -133,4 +88,10 @@ const action: ActionDefinition<Settings, Payload> = {
   }
 }
 
-export default action
+/** used in the quick setup */
+export const productClickPresets: Subscription = {
+  name: 'Send product clicked events to Algolia',
+  subscribe: productClickedEvents.defaultSubscription as string,
+  partnerAction: 'productClickedEvents',
+  mapping: defaultValues(productClickedEvents.fields)
+}

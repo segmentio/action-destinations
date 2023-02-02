@@ -1,14 +1,11 @@
 import type { DestinationDefinition } from '@segment/actions-core'
 import type { Settings } from './generated-types'
 
-import { productClickPresets } from './productClickedEvents'
-import productClickedEvents from './productClickedEvents'
+import { productClickedEvents, productClickPresets } from './productClickedEvents'
 
-import { conversionPresets } from './conversionEvents'
-import conversionEvents from './conversionEvents'
+import { conversionEvents, conversionPresets } from './conversionEvents'
 
-import { productViewedPresets } from './productViewedEvents'
-import productViewedEvents from './productViewedEvents'
+import { productViewedEvents, productViewedPresets } from './productViewedEvents'
 
 export const ALGOLIA_INSIGHTS_USER_AGENT = 'algolia-segment-action-destination: 0.1'
 
