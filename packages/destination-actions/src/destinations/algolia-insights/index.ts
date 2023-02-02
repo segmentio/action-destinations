@@ -4,8 +4,10 @@ import type { Settings } from './generated-types'
 import { productClickPresets } from './productClickedEvents'
 import productClickedEvents from './productClickedEvents'
 
+import { conversionPresets } from './conversionEvents'
 import conversionEvents from './conversionEvents'
 
+import { productViewedPresets } from './productViewedEvents'
 import productViewedEvents from './productViewedEvents'
 
 export const ALGOLIA_INSIGHTS_USER_AGENT = 'algolia-segment-action-destination: 0.1'
@@ -42,7 +44,8 @@ const destination: DestinationDefinition<Settings> = {
       }
     }
   },
-  presets: productClickPresets,
+  // TODO: figure out how to pass multiple presets
+  presets: [productClickPresets, conversionPresets, productViewedPresets],
   actions: {
     productClickedEvents,
     conversionEvents,

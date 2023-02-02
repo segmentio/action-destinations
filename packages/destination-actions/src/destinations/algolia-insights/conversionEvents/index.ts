@@ -1,7 +1,48 @@
 import type { ActionDefinition } from '@segment/actions-core'
+import { Subscription, defaultValues } from '@segment/actions-core'
 import { AlgoliaBehaviourURL, AlgoliaConversionEvent } from '../algolia-insight-api'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
+
+export const conversionPresets: Subscription[] = [
+  // and is $ meant to represent something specific?
+  {
+    name: 'Products',
+    subscribe: 'type = "track" and event = "Order Completed"',
+    partnerAction: 'properties',
+    mapping: defaultValues({ '@path': '$.properties.products' })
+  },
+  {
+    name: 'Index',
+    subscribe: 'type = "track" and event = "Order Completed"',
+    partnerAction: 'properties',
+    mapping: defaultValues({ '@path': '$.properties.search_index' })
+  },
+  {
+    name: 'Query ID',
+    subscribe: 'type = "track" and event = "Order Completed"',
+    partnerAction: 'properties',
+    mapping: defaultValues({ '@path': '$.properties.query_id' })
+  },
+  {
+    name: 'Anonymous ID',
+    subscribe: 'type = "track" and event = "Order Completed"',
+    partnerAction: 'anonymousId',
+    mapping: defaultValues({ '@path': '$.anonymousId' })
+  },
+  {
+    name: 'User ID',
+    subscribe: 'type = "track" and event = "Order Completed"',
+    partnerAction: 'userId',
+    mapping: defaultValues({ '@path': '$.userId' })
+  },
+  {
+    name: 'timestamp',
+    subscribe: 'type = "track" and event = "Order Completed"',
+    partnerAction: 'timestamp',
+    mapping: defaultValues({ '@path': '$.timestamp' })
+  }
+]
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Conversion Events',

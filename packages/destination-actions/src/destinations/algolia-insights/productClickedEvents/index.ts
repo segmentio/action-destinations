@@ -1,6 +1,5 @@
 import type { ActionDefinition } from '@segment/actions-core'
-import { Subscription } from '@segment/actions-core'
-import { defaultValues } from '@segment/actions-core'
+import { Subscription, defaultValues } from '@segment/actions-core'
 import { AlgoliaBehaviourURL, AlgoliaProductClickedEvent } from '../algolia-insight-api'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
