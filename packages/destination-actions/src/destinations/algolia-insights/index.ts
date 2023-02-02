@@ -1,6 +1,7 @@
 import type { DestinationDefinition } from '@segment/actions-core'
 import type { Settings } from './generated-types'
 
+import { productClickPresets } from './productClickedEvents'
 import productClickedEvents from './productClickedEvents'
 
 import conversionEvents from './conversionEvents'
@@ -41,7 +42,7 @@ const destination: DestinationDefinition<Settings> = {
       }
     }
   },
-
+  presets: productClickPresets,
   actions: {
     productClickedEvents,
     conversionEvents,
