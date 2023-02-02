@@ -47,7 +47,7 @@ const action: ActionDefinition<Settings, Payload> = {
       type: 'string',
       allowNull: true,
       description:
-        'An identity, typically corresponding to an existing user. If no such identity exists, we will set the anonymous id property on the user.'
+        'A unique identity and maintain user histories across sessions and devices under a single profile. If no identity is provided we will add the anonymous_id to the event. More on identify: https://developers.heap.io/docs/using-identify'
     },
     anonymous_id: {
       label: 'Anonymous ID',
@@ -106,7 +106,7 @@ const action: ActionDefinition<Settings, Payload> = {
     }
 
     if (!payload.anonymous_id && !payload.identity) {
-      throw new IntegrationError('Either anonymous user id or identity should be specified.')
+      throw new IntegrationError('Either Anonymous id or Identity should be specified.')
     }
 
     const standardProperties = { segment_library: HEAP_SEGMENT_CLOUD_LIBRARY_NAME }

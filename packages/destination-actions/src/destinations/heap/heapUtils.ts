@@ -29,10 +29,10 @@ export const getEventName = (payload: Payload) => {
       eventName = payload.event
       break
     case 'page':
-      eventName = payload.name ? payload.name : 'Page Viewed'
+      eventName = payload.name ? `${payload.name} Page viewed` : 'Page viewed'
       break
     case 'screen':
-      eventName = payload.name ? payload.name : 'Screen Viewed'
+      eventName = payload.name ? payload.name : 'Screen viewed'
       break
     default:
       eventName = 'track'
