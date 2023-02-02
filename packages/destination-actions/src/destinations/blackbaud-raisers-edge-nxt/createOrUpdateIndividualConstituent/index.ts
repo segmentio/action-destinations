@@ -122,7 +122,7 @@ const action: ActionDefinition<Settings, Payload> = {
     birthdate: {
       label: 'Birthdate',
       description: "The constituent's birthdate.",
-      type: 'string',
+      type: 'datetime',
       default: {
         '@if': {
           exists: {
