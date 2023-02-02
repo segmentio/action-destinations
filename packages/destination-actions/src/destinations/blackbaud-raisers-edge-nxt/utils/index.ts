@@ -20,8 +20,16 @@ export const filterObjectListByMatchFields = (list: object[], data: object, matc
     let isMatch = undefined
     matchFields.forEach((field) => {
       if (isMatch !== false) {
-        const itemValue = item[field] ? item[field].toLowerCase() : ''
-        const dataValue = data[field] ? data[field].toLowerCase() : ''
+        let fieldName = field
+        if (field.startsWith('int:')) {
+          fieldName = field.split('int:')[1]
+        }
+        let itemValue = item[fieldName] ? item[fieldName].toLowerCase() : ''
+        let dataValue = data[fieldName] ? data[fieldName].toLowerCase() : ''
+        if (field.startsWith('int:')) {
+          itemValue = itemValue.replace(/\D/g,'')
+          dataValue = dataValue.replace(/\D/g,'')
+        }
         isMatch = itemValue === dataValue
       }
     })

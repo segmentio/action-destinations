@@ -667,7 +667,7 @@ const action: ActionDefinition<Settings, Payload> = {
           let existingPhone = undefined
           if (constituentPhoneListResults.count > 0) {
             existingPhone = filterObjectListByMatchFields(constituentPhoneListResults.value, constituentPhoneData, [
-              'number'
+              'int:number'
             ])
           }
 
