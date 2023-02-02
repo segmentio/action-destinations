@@ -166,8 +166,7 @@ describe('GA4', () => {
                 '@path': `$.properties.products.0.category`
               }
             }
-          ],
-          data_stream_type: DataStreamType.Web
+          ]
         },
         useDefaultMappings: false
       })

@@ -61,9 +61,15 @@ describe('GA4', () => {
             a: '1',
             b: '2',
             c: '3'
+          },
+          search_term: {
+            '@path': '$.properties.query'
+          },
+          timestamp_micros: {
+            '@path': '$.timestamp'
           }
         },
-        useDefaultMappings: true
+        useDefaultMappings: false
       })
 
       expect(responses[0].options.body).toMatchInlineSnapshot(

@@ -133,7 +133,6 @@ describe('GA4', () => {
           client_id: {
             '@path': '$.anonymousId'
           },
-          data_stream_type: DataStreamType.Web,
           timestamp_micros: {
             '@path': '$.timestamp'
           },

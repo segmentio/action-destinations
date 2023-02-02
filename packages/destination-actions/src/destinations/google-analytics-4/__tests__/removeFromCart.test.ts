@@ -103,7 +103,6 @@ describe('GA4', () => {
             '@path': '$.anonymousId'
           },
           engagement_time_msec: 2,
-          data_stream_type: DataStreamType.Web,
           items: [
             {
               item_name: {

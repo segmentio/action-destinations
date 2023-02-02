@@ -213,8 +213,7 @@ describe('GA4', () => {
           name: 'this_is_a_test',
           params: {
             '@path': '$.properties.custom_props'
-          },
-          data_stream_type: DataStreamType.Web
+          }
         },
         useDefaultMappings: false
       })

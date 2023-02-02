@@ -77,8 +77,17 @@ describe('GA4', () => {
         },
         features: { 'actions-google-analytics-4-add-timestamp': true },
         mapping: {
-          clientId: {
-            '@path': '$.anonymousId'
+          client_id: {
+            '@path': '$.userId'
+          },
+          creative_slot: {
+            '@path': '$.properties.creative'
+          },
+          promotion_id: {
+            '@path': '$.properties.promotion_id'
+          },
+          promotion_name: {
+            '@path': '$.properties.name'
           },
           timestamp_micros: {
             '@path': '$.timestamp'
@@ -110,7 +119,7 @@ describe('GA4', () => {
             }
           ]
         },
-        useDefaultMappings: true
+        useDefaultMappings: false
       })
 
       expect(responses.length).toBe(1)

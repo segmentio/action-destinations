@@ -113,6 +113,9 @@ describe('GA4', () => {
           value: {
             '@path': '$.properties.price'
           },
+          timestamp_micros: {
+            '@path': '$.timestamp'
+          },
           engagement_time_msec: 2,
           items: [
             {
@@ -142,8 +145,7 @@ describe('GA4', () => {
               }
             }
           ]
-        },
-        useDefaultMappings: true
+        }
       })
 
       expect(responses.length).toBe(1)

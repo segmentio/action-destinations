@@ -136,9 +136,11 @@ describe('GA4', () => {
                 '@path': `$.properties.price`
               }
             }
-          ]
-        },
-        useDefaultMappings: true
+          ],
+          timestamp_micros: {
+            '@path': '$.timestamp'
+          }
+        }
       })
 
       expect(responses.length).toBe(1)

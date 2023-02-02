@@ -100,8 +100,7 @@ describe('GA4', () => {
           engagement_time_msec: 2,
           method: {
             '@path': '$.properties.login_method'
-          },
-          data_stream_type: DataStreamType.Web
+          }
         }
       })
 

@@ -110,11 +110,17 @@ describe('GA4', () => {
           page_location: {
             '@path': '$.properties.custom_url'
           },
+          page_referrer: {
+            '@path': '$.context.page.referrer'
+          },
           page_title: {
             '@path': '$.properties.page_title'
+          },
+          timestamp_micros: {
+            '@path': '$.timestamp'
           }
         },
-        useDefaultMappings: true
+        useDefaultMappings: false
       })
 
       expect(responses.length).toBe(1)

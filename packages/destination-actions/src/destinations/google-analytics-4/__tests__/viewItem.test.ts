@@ -120,9 +120,12 @@ describe('GA4', () => {
                 '@path': `$.properties.name`
               }
             }
-          ]
+          ],
+          timestamp_micros: {
+            '@path': '$.timestamp'
+          }
         },
-        useDefaultMappings: true
+        useDefaultMappings: false
       })
 
       expect(responses.length).toBe(1)

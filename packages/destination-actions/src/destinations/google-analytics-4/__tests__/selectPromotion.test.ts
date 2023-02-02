@@ -103,12 +103,24 @@ describe('GA4', () => {
         },
         features: { 'actions-google-analytics-4-add-timestamp': true },
         mapping: {
-          clientId: {
-            '@path': '$.anonymousId'
+          client_id: {
+            '@path': '$.userId'
           },
           engagement_time_msec: 2,
           location_id: {
             '@path': '$.properties.promotion_id'
+          },
+          promotion_name: {
+            '@path': '$.properties.name'
+          },
+          creative_slot: {
+            '@path': '$.properties.creative'
+          },
+          promotion_id: {
+            '@path': '$.properties.promotion_id'
+          },
+          timestamp_micros: {
+            '@path': '$.timestamp'
           },
           items: {
             item_id: {
@@ -118,8 +130,7 @@ describe('GA4', () => {
               '@path': '$.properties.name'
             }
           }
-        },
-        useDefaultMappings: true
+        }
       })
 
       expect(responses.length).toBe(1)

@@ -109,7 +109,6 @@ describe('GA4', () => {
           transaction_id: {
             '@path': '$.properties.order_number'
           },
-          data_stream_type: DataStreamType.Web,
           items: [
             {
               item_name: {

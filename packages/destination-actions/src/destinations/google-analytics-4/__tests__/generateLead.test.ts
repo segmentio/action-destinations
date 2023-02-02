@@ -105,8 +105,7 @@ describe('GA4', () => {
           },
           value: {
             '@path': '$.properties.value'
-          },
-          data_stream_type: DataStreamType.Web
+          }
         }
       })
 
