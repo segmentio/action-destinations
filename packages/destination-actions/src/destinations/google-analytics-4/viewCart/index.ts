@@ -1,4 +1,4 @@
-import { ActionDefinition, IntegrationError } from '@segment/actions-core'
+import { ActionDefinition, ValidationError } from '@segment/actions-core'
 import { verifyCurrency, verifyParams, verifyUserProps, convertTimestamp } from '../ga4-functions'
 import {
   formatUserProperties,
@@ -40,16 +40,12 @@ const action: ActionDefinition<Settings, Payload> = {
     }
 
     if (payload.value && payload.currency === undefined) {
-      throw new IntegrationError('Currency is required if value is set.', 'Misconfigured required field', 400)
+      throw new ValidationError('Currency is required if value is set.')
     }
 
     //Currency must exist either as a param or in the first item in items.
     if (payload.currency === undefined && (!payload.items || !payload.items[0] || !payload.items[0].currency)) {
-      throw new IntegrationError(
-        'One of item-level currency or top-level currency is required.',
-        'Misconfigured required field',
-        400
-      )
+      throw new ValidationError('One of item-level currency or top-level currency is required.')
     }
 
     let googleItems: ProductItem[] = []
@@ -57,11 +53,7 @@ const action: ActionDefinition<Settings, Payload> = {
     if (payload.items) {
       googleItems = payload.items.map((product) => {
         if (product.item_name === undefined && product.item_id === undefined) {
-          throw new IntegrationError(
-            'One of product name or product id is required for product or impression data.',
-            'Misconfigured required field',
-            400
-          )
+          throw new ValidationError('One of product name or product id is required for product or impression data.')
         }
 
         if (product.currency) {
