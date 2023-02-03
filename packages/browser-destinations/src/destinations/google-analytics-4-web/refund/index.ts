@@ -36,8 +36,7 @@ const action: BrowserActionDefinition<Settings, Function, Payload> = {
     user_properties: user_properties,
     params: params
   },
-  perform: (gtag, event) => {
-    const payload = event.payload
+  perform: (gtag, { payload }) => {
     if (payload.user_id) {
       gtag('set', { user_id: payload.user_id })
     }

@@ -5,13 +5,11 @@ export const formatUserProperties = (userProperties: object | undefined): object
     return undefined
   }
 
-  let properties = {}
-
-  Object.entries(userProperties).forEach(([key, value]) => {
-    properties = { ...properties, ...{ [key]: { value: value } } }
-  })
-
-  return { user_properties: properties }
+ return {
+    user_properties: Object.fromEntries(
+      Object.entries(userProperties).map(([key, value]) => [key, { value }])
+    )
+  }
 }
 
 export const user_properties: InputField = {

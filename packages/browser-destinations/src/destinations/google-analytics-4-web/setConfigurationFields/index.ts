@@ -100,48 +100,18 @@ const action: BrowserActionDefinition<Settings, Function, Payload> = {
         analytics_storage: payload.analytics_storage_consent_state
       })
     }
-    if (payload.screen_resolution) {
-      gtag('set', { screen_resolution: payload.screen_resolution })
-    }
-    if (payload.page_title) {
-      gtag('set', { page_title: payload.page_title })
-    }
-    if (payload.page_referrer) {
-      gtag('set', { page_referrer: payload.page_referrer })
-    }
-    if (payload.page_location) {
-      gtag('set', { page_location: payload.page_location })
-    }
-    if (payload.language) {
-      gtag('set', { language: payload.language })
-    }
-    if (payload.content_group) {
-      gtag('set', { content_group: payload.content_group })
-    }
-    if (payload.campaign_term) {
-      gtag('set', { campaign_term: payload.campaign_term })
-    }
-    if (payload.campaign_source) {
-      gtag('set', { campaign_source: payload.campaign_source })
-    }
-    if (payload.campaign_name) {
-      gtag('set', { campaign_name: payload.campaign_name })
-    }
-    if (payload.campaign_medium) {
-      gtag('set', { campaign_medium: payload.campaign_medium })
-    }
-    if (payload.campaign_id) {
-      gtag('set', { campaign_id: payload.campaign_id })
-    }
-    if (payload.campaign_content) {
-      gtag('set', { campaign_content: payload.campaign_content })
-    }
-    if (payload.user_id) {
-      gtag('set', { user_id: payload.user_id })
-    }
-    if (payload.user_properties) {
-      gtag('set', { user_properties: payload.user_properties })
-    }
+    const properties = [
+      'screen_resolution',
+      'page_title',
+      'page_referrer',
+      '...'
+    ]
+
+    gtag('set', Object.fromEntries(
+      properties
+        .map((key) => [key, payload[key]])
+        .filter(([, value]) => !value)
+    ))
   }
 }
 
