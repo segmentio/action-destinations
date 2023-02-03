@@ -46,6 +46,7 @@ type RetryableStatusCodes =
  */
 export class RetryableError extends CustomError {
   status: RetryableStatusCodes
+  code = ErrorCodes.RETRYABLE_ERROR
 
   constructor(message = '', status: RetryableStatusCodes = 500) {
     super(message)
@@ -62,9 +63,36 @@ export class RetryableError extends CustomError {
  */
 export class InvalidAuthenticationError extends CustomError {
   status = 401
-  code = 'invalid_authentication'
+  code = ErrorCodes.INVALID_AUTHENTICATION
 
   constructor(message = '') {
     super(message)
   }
+}
+
+/**
+ * Error for invalid field values
+ * Should include a user-friendly message.
+ * These errors will not be retried and the user has to fix the incorrect field mapping
+ */
+export class ValidationError extends IntegrationError {
+  /**
+   * @param message - a human-friendly message to display to users
+   * @param code - an optional error code/reason
+   * @param status - an optional http status code (e.g. 400)
+   */
+  constructor(message = '') {
+    super(message, ErrorCodes.MISCONFIGURED_FIELD, 400)
+  }
+}
+
+/**
+ * Standard error codes. Use one from this enum whenever possible
+ */
+export enum ErrorCodes {
+  INVALID_AUTHENTICATION = 'INVALID_AUTHENTICATION',
+  MISCONFIGURED_FIELD = 'MISCONFIGURED_FIELD',
+  RETRYABLE_ERROR = 'RETRYABLE_ERROR',
+  REFRESH_TOKEN_EXPIRED = 'REFRESH_TOKEN_EXPIRED',
+  OAUTH_REFRESH_FAILED = 'OAUTH_REFRESH_FAILED'
 }
