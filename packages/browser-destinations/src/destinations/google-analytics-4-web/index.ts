@@ -156,7 +156,7 @@ export const destination: BrowserDestinationDefinition<Settings, Function> = {
 
     window.dataLayer = window.dataLayer || []
     window.gtag = function () {
-      window.dataLayer.push(arguments)
+      // window.dataLayer.push(deps)
     }
 
     window.gtag('js', new Date())
