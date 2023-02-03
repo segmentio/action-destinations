@@ -8,7 +8,7 @@ export interface Payload {
   /**
    * A distinct ID randomly generated prior to calling identify.
    */
-  anonymousId?: string
+  anonymousId: string
   /**
    * The distinct ID after calling identify.
    */
@@ -20,11 +20,11 @@ export interface Payload {
   /**
    * A random id that is unique to an event. Launchpad uses $insert_id to deduplicate events.
    */
-  messageId?: string
+  messageId: string
   /**
    * The timestamp of the event. Launchpad expects epoch timestamp in millisecond or second. Please note, Launchpad only accepts this field as the timestamp. If the field is empty, it will be set to the time Launchpad servers receive it.
    */
-  timestamp?: string | number
+  timestamp: string | number
   /**
    * An object of key-value pairs that represent additional data to be sent along with the event.
    */
@@ -32,7 +32,7 @@ export interface Payload {
     [k: string]: unknown
   }
   /**
-   * An object of key-value pairs that represent additional data tied to the user.
+   * An object of key-value pairs that represent additional data tied to the user. This is used for segmentation within the platform.
    */
   traits?: {
     [k: string]: unknown

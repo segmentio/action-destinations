@@ -3,33 +3,23 @@ import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 import { LaunchpadEvent, LPBatchEvent } from '../launchpad-types'
 import { getApiServerUrl } from '../utils'
-import dayjs from '../../../lib/dayjs'
 import { LaunchpadEventProperties } from '../launchpad-types'
 import { eventProperties } from './launchpad-properties'
 
-function generateGUID(maxlen?: number) {
-  const guid = Math.random().toString(36).substring(2, 10) + Math.random().toString(36).substring(2, 10)
-  return maxlen ? guid.substring(0, maxlen) : guid
-}
-
 function getEventProperties(payload: Payload, settings: Settings): LaunchpadEventProperties {
-  const datetime = payload.timestamp
-  const time = datetime && dayjs.utc(datetime).isValid() ? dayjs.utc(datetime).valueOf() : Date.now()
-
   const integration = payload.context?.integration as Record<string, string>
   return {
-    time: time,
+    time: payload.timestamp,
     ip: payload.context?.ip,
-    id: payload.event,
     anonymous_id: payload.anonymousId,
     distinct_id: payload.userId ? payload.userId : payload.anonymousId,
     context: payload.context,
     group_id: payload.groupId,
     identified_id: payload.userId,
     properties: payload.properties,
-    traits: payload.traits,
-    messageId: payload.messageId ?? generateGUID(),
-    source: integration?.name == 'Iterable' ? 'Iterable' : 'segment',
+    traits: payload.traits ? payload.traits : payload.context?.traits,
+    messageId: payload.messageId,
+    source: integration?.name != 'Segment' ? integration?.name : 'Segment',
     user_id: payload.userId,
     segment_source_name: settings.sourceName
   }
@@ -81,7 +71,7 @@ const processData = async (request: RequestClient, settings: Settings, payload: 
 
 const trackEvent: ActionDefinition<Settings, Payload> = {
   title: 'Track Event',
-  description: 'Send an event to Launchpad. [Learn more about Events in Launchpad]',
+  description: 'Send an event to Launchpad. [Learn more about Events in Launchpad](https://help.launchpad.pm)',
   defaultSubscription: 'type = "track"',
   fields: {
     event: {

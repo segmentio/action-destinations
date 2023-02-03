@@ -6,6 +6,7 @@ Object {
     "group_id": "$WBBWnR",
     "group_testType": "$WBBWnR",
   },
+  "api_key": "$WBBWnR",
   "distinct_id": "$WBBWnR",
   "event": "$identify",
   "type": "screen",
@@ -16,8 +17,8 @@ exports[`Testing snapshot for Launchpad's groupIdentifyUser destination action: 
 Object {
   "$set": Object {
     "group_id": "$WBBWnR",
-    "group_testType": "$WBBWnR",
   },
+  "api_key": "$WBBWnR",
   "event": "$identify",
   "type": "screen",
 }

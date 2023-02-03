@@ -16,7 +16,7 @@ export type LaunchpadEventProperties = {
   distinct_id: string | undefined // 'test_segment_user'
   id?: string | null // this is just to maintain backwards compatibility  with the classic segment integration, I'm not completely sure what the purpose of this was.
   segment_source_name?: string // 'readme'
-  time?: number
+  time?: string | number | undefined
   properties?: [k: string] | unknown //event props
   traits?: [k: string] | unknown
   context?: [k: string] | unknown

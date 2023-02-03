@@ -1,4 +1,4 @@
-import { ActionDefinition, IntegrationError } from '@segment/actions-core'
+import { ActionDefinition } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import { getApiServerUrl } from '../utils'
 import type { Payload } from './generated-types'
@@ -12,8 +12,9 @@ const groupIdentifyUser: ActionDefinition<Settings, Payload> = {
     groupKey: {
       label: 'Group Key',
       type: 'string',
+      required: false,
       description:
-        'The group key you specified in Launchpad under Project settings. If this is not specified, it will be defaulted to "$group_id".'
+        'The group key you specified in Launchpad under the company corresponding to the group. If this is not specified, it will be defaulted to "$group_id". This is helpful when you have a group of companies that should be joined together as in when you have a multinational.'
     },
     groupId: {
       label: 'Group ID',
@@ -29,7 +30,7 @@ const groupIdentifyUser: ActionDefinition<Settings, Payload> = {
       label: 'Group Properties',
       type: 'object',
       description: 'The properties to set on the group profile.',
-      required: true,
+      required: false,
       default: {
         '@path': '$.traits'
       }
@@ -42,20 +43,28 @@ const groupIdentifyUser: ActionDefinition<Settings, Payload> = {
       default: {
         '@path': '$.userId'
       }
+    },
+    anonymousId: {
+      label: 'Anonymous ID',
+      type: 'string',
+      allowNull: true,
+      description: 'The generated anonymous ID for the user',
+      default: {
+        '@path': '$.anonymousId'
+      }
     }
   },
 
   perform: async (request, { payload, settings }) => {
-    if (!payload.traits || Object.keys(payload.traits).length === 0) {
-      throw new IntegrationError('"traits" is a required field', 'Missing required fields', 400)
-    }
     const groupId = payload.groupId
     const apiServerUrl = getApiServerUrl(settings.apiRegion)
+    let transformed_traits
 
-    const transformed_traits = {
-      ...Object.fromEntries(Object.entries(payload.traits).map(([k, v]) => [`group_${k}`, v]))
+    if (payload.traits) {
+      transformed_traits = {
+        ...Object.fromEntries(Object.entries(payload.traits).map(([k, v]) => [`group_${k}`, v]))
+      }
     }
-
     const groupIdentifyEvent = {
       event: '$identify',
       type: 'screen',
@@ -63,7 +72,7 @@ const groupIdentifyUser: ActionDefinition<Settings, Payload> = {
         group_id: groupId,
         ...transformed_traits
       },
-      distinct_id: payload.userId,
+      distinct_id: payload.userId ? payload.userId : payload.anonymousId,
       api_key: settings.apiSecret
     }
     const groupIdentifyResponse = await request(`${apiServerUrl}capture`, {

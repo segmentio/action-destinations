@@ -6,6 +6,7 @@ Object {
   "$set": Object {
     "testType": "5SpoCjYek1jtNwUC",
   },
+  "api_key": "5SpoCjYek1jtNwUC",
   "distinct_id": "5SpoCjYek1jtNwUC",
   "event": "$identify",
   "type": "screen",
@@ -17,6 +18,7 @@ Object {
   "$set": Object {
     "testType": "5SpoCjYek1jtNwUC",
   },
+  "api_key": "5SpoCjYek1jtNwUC",
   "event": "$identify",
   "type": "screen",
 }
