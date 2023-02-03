@@ -2,6 +2,7 @@ import type { BrowserActionDefinition } from '../../../lib/browser-destinations'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 import { user_id, user_properties } from '../ga4-properties'
+import { updateUser } from '../ga4-functions'
 
 // Change from unknown to the partner SDK types
 const action: BrowserActionDefinition<Settings, Function, Payload> = {
@@ -91,9 +92,7 @@ const action: BrowserActionDefinition<Settings, Function, Payload> = {
       type: 'string'
     }
   },
-  perform: (gtag, event) => {
-    const payload = event.payload
-    const settings = event.settings
+  perform: (gtag, { payload, settings }) => {
     if (settings.enableConsentMode) {
       window.gtag('consent', 'update', {
         ad_storage: payload.ads_storage_consent_state,
@@ -136,12 +135,7 @@ const action: BrowserActionDefinition<Settings, Function, Payload> = {
     if (payload.campaign_content) {
       gtag('set', { campaign_content: payload.campaign_content })
     }
-    if (payload.user_id) {
-      gtag('set', { user_id: payload.user_id })
-    }
-    if (payload.user_properties) {
-      gtag('set', { user_properties: payload.user_properties })
-    }
+    updateUser(payload.user_id, payload.user_properties, gtag)
   }
 }
 

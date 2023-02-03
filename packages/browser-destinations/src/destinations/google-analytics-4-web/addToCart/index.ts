@@ -1,6 +1,7 @@
 import type { BrowserActionDefinition } from '../../../lib/browser-destinations'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
+import { updateUser } from '../ga4-functions'
 
 import { user_properties, params, value, currency, items_single_products, user_id } from '../ga4-properties'
 
@@ -20,14 +21,8 @@ const action: BrowserActionDefinition<Settings, Function, Payload> = {
     user_properties: user_properties,
     params: params
   },
-  perform: (gtag, event) => {
-    const payload = event.payload
-    if (payload.user_id) {
-      gtag('set', { user_id: payload.user_id })
-    }
-    if (payload.user_properties) {
-      gtag('set', { user_properties: payload.user_properties })
-    }
+  perform: (gtag, { payload }) => {
+    updateUser(payload.user_id, payload.user_properties, gtag)
 
     gtag('event', 'add_to_cart', {
       currency: payload.currency,

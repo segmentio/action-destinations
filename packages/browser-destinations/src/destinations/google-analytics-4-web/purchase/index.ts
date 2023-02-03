@@ -15,6 +15,7 @@ import {
   params,
   user_properties
 } from '../ga4-properties'
+import { updateUser } from '../ga4-functions'
 
 const action: BrowserActionDefinition<Settings, Function, Payload> = {
   title: 'Purchase',
@@ -37,14 +38,8 @@ const action: BrowserActionDefinition<Settings, Function, Payload> = {
     user_properties: user_properties,
     params: params
   },
-  perform: (gtag, event) => {
-    const payload = event.payload
-    if (payload.user_id) {
-      gtag('set', { user_id: payload.user_id })
-    }
-    if (payload.user_properties) {
-      gtag('set', { user_properties: payload.user_properties })
-    }
+  perform: (gtag, { payload }) => {
+    updateUser(payload.user_id, payload.user_properties, gtag)
 
     gtag('event', 'purchase', {
       transaction_id: payload.transaction_id,

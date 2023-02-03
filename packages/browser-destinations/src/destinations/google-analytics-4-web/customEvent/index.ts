@@ -2,6 +2,7 @@ import type { BrowserActionDefinition } from '../../../lib/browser-destinations'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 import { user_id, user_properties, params } from '../ga4-properties'
+import { updateUser } from '../ga4-functions'
 
 const normalizeEventName = (name: string, lowercase: boolean | undefined): string => {
   name = name.trim()
@@ -40,15 +41,9 @@ const action: BrowserActionDefinition<Settings, Function, Payload> = {
     user_properties: user_properties,
     params: params
   },
-  perform: (gtag, event) => {
-    const payload = event.payload
+  perform: (gtag, { payload }) => {
+    updateUser(payload.user_id, payload.user_properties, gtag)
     const event_name = normalizeEventName(payload.name, payload.lowercase)
-    if (payload.user_id) {
-      gtag('set', { user_id: payload.user_id })
-    }
-    if (payload.user_properties) {
-      gtag('set', { user_properties: payload.user_properties })
-    }
 
     gtag('event', event_name, {
       ...payload.params

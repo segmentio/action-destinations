@@ -13,6 +13,7 @@ import {
   user_properties,
   location_id
 } from '../ga4-properties'
+import { updateUser } from '../ga4-functions'
 
 const action: BrowserActionDefinition<Settings, Function, Payload> = {
   title: 'View Promotion',
@@ -48,14 +49,8 @@ const action: BrowserActionDefinition<Settings, Function, Payload> = {
     user_properties: user_properties,
     params: params
   },
-  perform: (gtag, event) => {
-    const payload = event.payload
-    if (payload.user_id) {
-      gtag('set', { user_id: payload.user_id })
-    }
-    if (payload.user_properties) {
-      gtag('set', { user_properties: payload.user_properties })
-    }
+  perform: (gtag, { payload }) => {
+    updateUser(payload.user_id, payload.user_properties, gtag)
 
     gtag('event', 'view_promotion', {
       creative_name: payload.creative_name,
