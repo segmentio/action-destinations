@@ -81,7 +81,7 @@ export class ValidationError extends IntegrationError {
    * @param code - an optional error code/reason
    * @param status - an optional http status code (e.g. 400)
    */
-  constructor(message = '') {
+  constructor(message: string) {
     super(message, ErrorCodes.MISCONFIGURED_FIELD, 400)
   }
 }
