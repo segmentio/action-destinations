@@ -8,9 +8,9 @@ export interface Settings {
   /**
    * Turn this ON, to send requests to the staging server, ONLY if Clickwrap support instructs you to do so.
    */
-  staging_endpoint: boolean
+  staging_endpoint?: boolean
   /**
    * Test Mode, whether or not to process the acceptance in test_mode. Defaults to false, Toggle to ON to enable it.
    */
-  test_mode: boolean
+  test_mode?: boolean
 }

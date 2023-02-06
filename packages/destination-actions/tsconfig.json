@@ -9,6 +9,6 @@
       "@segment/actions-shared": ["../actions-shared/src"]
     }
   },
-  "exclude": [],
+  "exclude": ["dist"],
   "include": ["src", "test"]
 }

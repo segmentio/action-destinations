@@ -16,7 +16,7 @@
     "experimentalDecorators": true,
     "skipLibCheck": true
   },
-  "exclude": ["node_modules", "dist", "templates"],
+  "exclude": ["dist", "templates"],
   "references": [
     { "path": "./packages/ajv-human-errors/tsconfig.build.json" },
     { "path": "./packages/browser-destinations/tsconfig.build.json" },

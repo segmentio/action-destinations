@@ -71,6 +71,7 @@ register('63936c37dbc54a052e34e30e', './google-sheets-dev')
 register('63872c01c0c112b9b4d75412', './braze-cohorts')
 register('639c2dbb1309fdcad13951b6', './segment-profiles')
 register('63bedc136a8484a53739e013', './vwo')
+register('63d17a1e6ab3e62212278cd0', './saleswings')
 
 function register(id: MetadataId, destinationPath: string) {
   // eslint-disable-next-line @typescript-eslint/no-var-requires

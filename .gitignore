@@ -9,3 +9,6 @@ package-lock.json
 # JetBrains byproduct
 .idea
 coverage
+
+# playwright
+playwright-report

@@ -7,11 +7,13 @@ const testDestination = createTestIntegration(destination)
 const actionSlug = 'createUpdateLead'
 const destinationSlug = 'Pipedrive'
 const seedName = `${destinationSlug}#${actionSlug}`
+const PIPEDRIVE_DOMAIN = 'companydomain'
 
 describe(`Testing snapshot for ${destinationSlug}'s ${actionSlug} destination action:`, () => {
   it('required fields', async () => {
     const action = destination.actions[actionSlug]
     const [eventData, settingsData] = generateTestData(seedName, destination, action, true)
+    settingsData.domain = PIPEDRIVE_DOMAIN
     Object.keys(eventData)
       .filter((f) => !action.fields[f].required)
       .forEach((f) => {
@@ -60,7 +62,7 @@ describe(`Testing snapshot for ${destinationSlug}'s ${actionSlug} destination ac
   it('all fields', async () => {
     const action = destination.actions[actionSlug]
     const [eventData, settingsData] = generateTestData(seedName, destination, action, false)
-
+    settingsData.domain = PIPEDRIVE_DOMAIN
     const basePath = `https://${settingsData.domain}.pipedrive.com`
     nock(basePath)
       .persist()
@@ -69,7 +71,7 @@ describe(`Testing snapshot for ${destinationSlug}'s ${actionSlug} destination ac
       .reply(200, {
         data: [{ id: 42 }]
       })
-    nock(basePath).persist().put(/.*/).reply(200)
+    nock(basePath).persist().patch(/.*/).reply(200)
 
     const event = createTestEvent({
       properties: eventData
