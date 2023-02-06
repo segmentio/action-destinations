@@ -5,7 +5,7 @@ import type { Settings } from './generated-types'
 import updateAudience from './updateAudience'
 
 const destination: DestinationDefinition<Settings> = {
-  name: 'Tiktok Audiences',
+  name: 'TikTok Audiences',
   slug: 'actions-tiktok-audiences',
   mode: 'cloud',
 
