@@ -78,8 +78,8 @@ const action: ActionDefinition<Settings, Payload> = {
         }
       },
       default: {
-        firstName: { '@path': '$.traits.firstName' },
-        lastName: { '@path': '$.traits.lastName' },
+        firstName: { '@path': '$.traits.first_name' },
+        lastName: { '@path': '$.traits.last_name' },
         name: { '@path': '$.traits.name' },
         email: { '@path': '$.traits.email' },
         description: { '@path': '$.traits.description' },

@@ -26,6 +26,7 @@ export interface Payload {
     metadata?: {
       [k: string]: unknown
     }
+    [k: string]: unknown
   }
   /**
    * Type of the event [The Segment Spec](https://segment.com/docs/connections/spec/).
