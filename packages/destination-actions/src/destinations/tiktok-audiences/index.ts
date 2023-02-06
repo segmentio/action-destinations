@@ -25,11 +25,15 @@ const destination: DestinationDefinition<Settings> = {
     //       'Please authenticate via Oauth before updating other settings and/or enabling the destination.'
     //     )
     //   }
+
     // }
   },
   extendRequest({ auth }) {
     return {
-      headers: { 'Access-Token': `${auth?.accessToken}` }
+      headers: {
+        'Access-Token': `${auth?.accessToken}`,
+        'Content-Type': 'application/json'
+      }
     }
   },
 
