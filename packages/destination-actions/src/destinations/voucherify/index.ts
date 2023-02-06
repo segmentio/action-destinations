@@ -70,19 +70,41 @@ const destination: DestinationDefinition<Settings> = {
   },
   presets: [
     {
-      name: 'Track Custom Event',
-      subscribe: 'type = "track" or type = "page" or type = "screen"',
+      name: 'Add Custom Event (Track Event)',
+      subscribe: 'type = "track"',
       partnerAction: 'addCustomEvent',
       mapping: defaultValues(addCustomEvent.fields)
     },
     {
-      name: 'Identify Customer',
+      name: 'Add Custom Event (Page Event)',
+      subscribe: 'type = "page"',
+      partnerAction: 'addCustomEvent',
+      mapping: {
+        ...defaultValues(addCustomEvent.fields),
+        event: {
+          '@template': 'Viewed {{name}} Page'
+        }
+      }
+    },
+    {
+      name: 'Add Custom Event (Screen Event)',
+      subscribe: 'type = "screen"',
+      partnerAction: 'addCustomEvent',
+      mapping: {
+        ...defaultValues(addCustomEvent.fields),
+        event: {
+          '@template': 'Viewed {{name}} Screen'
+        }
+      }
+    },
+    {
+      name: 'Create Or Update Customer',
       subscribe: 'type = "identify"',
       partnerAction: 'upsertCustomer',
       mapping: defaultValues(upsertCustomer.fields)
     },
     {
-      name: 'Add Group To Customer Metadata',
+      name: 'Assign Customer To Group',
       subscribe: 'type = "group"',
       partnerAction: 'assignCustomerToGroup',
       mapping: defaultValues(assignCustomerToGroup.fields)

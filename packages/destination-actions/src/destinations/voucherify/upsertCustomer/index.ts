@@ -36,6 +36,8 @@ const action: ActionDefinition<Settings, Payload> = {
       label: 'Customer Attributes',
       description:
         'Additional [customer](https://docs.voucherify.io/reference/the-customer-object) attributes, such as email, name, description, phone, address, birthdate, metadata. When updating a customer, attributes are either added or updated in the customer object.',
+      additionalProperties: true,
+      defaultObjectUI: 'keyvalue',
       type: 'object',
       properties: {
         firstName: {
@@ -76,7 +78,15 @@ const action: ActionDefinition<Settings, Payload> = {
         }
       },
       default: {
-        '@path': '$.traits'
+        firstName: { '@path': '$.traits.firstName' },
+        lastName: { '@path': '$.traits.lastName' },
+        name: { '@path': '$.traits.name' },
+        email: { '@path': '$.traits.email' },
+        description: { '@path': '$.traits.description' },
+        address: { '@path': '$.traits.address' },
+        phone: { '@path': '$.traits.phone' },
+        birthdate: { '@path': '$.traits.birthdate' },
+        metadata: { '@path': '$.traits.metadata' }
       }
     },
 
