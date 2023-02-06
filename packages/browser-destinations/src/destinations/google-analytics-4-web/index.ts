@@ -154,10 +154,9 @@ export const destination: BrowserDestinationDefinition<Settings, Function> = {
       allow_google_signals: settings.allowGoogleSignals
     }
 
-    window.dataLayer ??= []
+    window.dataLayer = window.dataLayer || []
     window.gtag = function () {
-      //window.dataLayer.push(arguments)
-      // window.dataLayer.push(deps)
+      window.dataLayer.push(arguments)
     }
 
     window.gtag('js', new Date())
