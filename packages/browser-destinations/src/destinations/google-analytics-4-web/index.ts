@@ -156,6 +156,7 @@ export const destination: BrowserDestinationDefinition<Settings, Function> = {
 
     window.dataLayer = window.dataLayer || []
     window.gtag = function () {
+      // eslint-disable-next-line prefer-rest-params
       window.dataLayer.push(arguments)
     }
 
