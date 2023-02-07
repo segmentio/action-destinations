@@ -1,8 +1,8 @@
 import type { DestinationDefinition } from '@segment/actions-core'
 // import { InvalidAuthenticationError } from '@segment/actions-core'
 import type { Settings } from './generated-types'
-
-import updateAudience from './updateAudience'
+import addUser from './addUser'
+import removeUser from './removeUser'
 
 const destination: DestinationDefinition<Settings> = {
   name: 'TikTok Audiences',
@@ -38,7 +38,8 @@ const destination: DestinationDefinition<Settings> = {
   },
 
   actions: {
-    updateAudience
+    addUser,
+    removeUser
   }
 }
 
