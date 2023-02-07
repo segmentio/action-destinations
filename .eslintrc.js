@@ -76,6 +76,12 @@ module.exports = {
       rules: {
         '@typescript-eslint/no-var-requires': 'off'
       }
+    },
+    {
+      files: ['packages/browser-destinations-integration-tests/**/*.ts'],
+      rules: {
+        '@typescript-eslint/no-unsafe-call': 'off'
+      }
     }
   ]
 }

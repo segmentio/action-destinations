@@ -6,7 +6,7 @@ import { convertAttributeTimestamps, convertValidTimestamp, trackApiEndpoint } f
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Create or Update Object',
   description: 'Create an object in Customer.io or update them if they exist.',
-  defaultSubscription: 'type = "object"',
+  defaultSubscription: 'type = "group"',
   fields: {
     id: {
       label: 'Object ID',
@@ -53,13 +53,14 @@ const action: ActionDefinition<Settings, Payload> = {
         '@path': '$.anonymousId'
       }
     },
-    type_id: {
+
+    object_type_id: {
       label: 'Object Type Id',
       description:
         'The ID used to uniquely identify a custom object type in Customer.io. [Learn more](https://customer.io/docs/object-relationships).',
       type: 'string',
       default: {
-        '@path': '$.typeId'
+        '@path': '$.objectTypeId'
       }
     },
     convert_timestamp: {
@@ -72,7 +73,7 @@ const action: ActionDefinition<Settings, Payload> = {
   perform: (request, { settings, payload }) => {
     let createdAt: string | number | undefined = payload.created_at
     let customAttributes = payload.custom_attributes
-    const typeID = payload.type_id
+    const objectTypeID = payload.object_type_id
     const userID = payload.user_id
     const objectID = payload.id
     const anonymousId = payload.anonymous_id
@@ -92,7 +93,7 @@ const action: ActionDefinition<Settings, Payload> = {
       body.created_at = createdAt
     }
     body.type = 'object'
-    body.identifiers = { type_id: typeID ?? '1', id: objectID }
+    body.identifiers = { object_type_id: objectTypeID ?? '1', object_id: objectID }
 
     if (userID) {
       body.action = 'identify'
