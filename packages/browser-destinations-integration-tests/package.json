@@ -1,0 +1,26 @@
+{
+  "name": "@segment/browser-destinations-integration-tests",
+  "version": "0.1.0",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/segmentio/action-destinations",
+    "directory": "packages/browser-destinations-integration-tests"
+  },
+  "private": true,
+  "scripts": {
+    "test:sauce": "wdio wdio.conf.sauce.ts",
+    "test:local": "wdio wdio.conf.local.ts",
+    "start-destination-server": "yarn ts-node src/server/start-destination-server.ts",
+    "browser-destinations:build": "NODE_ENV=production yarn lerna run build --scope=@segment/browser-destinations --include-dependencies --stream"
+  },
+  "devDependencies": {
+    "@wdio/cli": "^7.26.0",
+    "@wdio/local-runner": "^7.26.0",
+    "@wdio/mocha-framework": "^7.26.0",
+    "@wdio/sauce-service": "^7.26.0",
+    "@wdio/spec-reporter": "^7.26.0",
+    "@wdio/types": "7",
+    "expect": "^29.4.1"
+  }
+}

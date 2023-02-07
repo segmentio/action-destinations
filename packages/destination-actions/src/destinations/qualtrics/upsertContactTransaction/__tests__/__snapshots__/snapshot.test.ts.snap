@@ -1,0 +1,24 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Testing snapshot for Qualtrics's upsertContactTransaction destination action: all fields 1`] = `
+Object {
+  "": Object {
+    "contactId": "8wZoSjxpvhD%EH8xG",
+    "data": Object {
+      "testType": "8wZoSjxpvhD%EH8xG",
+    },
+    "mailingListId": "8wZoSjxpvhD%EH8xG",
+    "transactionDate": "2021-02-01 00:00:00",
+  },
+}
+`;
+
+exports[`Testing snapshot for Qualtrics's upsertContactTransaction destination action: required fields 1`] = `
+Object {
+  "filter": Object {
+    "comparison": "eq",
+    "filterType": "extRef",
+    "value": "8wZoSjxpvhD%EH8xG",
+  },
+}
+`;

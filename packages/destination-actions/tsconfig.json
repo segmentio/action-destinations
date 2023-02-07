@@ -9,6 +9,6 @@
       "@segment/actions-shared": ["../actions-shared/src"]
     }
   },
-  "exclude": [],
-  "include": ["src", "test", "src/destinations/braze-cohorts/.ts"]
+  "exclude": ["dist"],
+  "include": ["src", "test"]
 }
