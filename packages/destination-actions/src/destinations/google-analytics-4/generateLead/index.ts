@@ -1,4 +1,4 @@
-import { ActionDefinition, ValidationError } from '@segment/actions-core'
+import { ActionDefinition, MisconfiguredFieldError } from '@segment/actions-core'
 import { verifyCurrency, verifyParams, verifyUserProps, convertTimestamp } from '../ga4-functions'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
@@ -35,7 +35,7 @@ const action: ActionDefinition<Settings, Payload> = {
 
     // Google requires that currency be included at the event level if value is included.
     if (payload.value && payload.currency === undefined) {
-      throw new ValidationError('Currency is required if value is set.')
+      throw new MisconfiguredFieldError('Currency is required if value is set.')
     }
 
     if (features && features['actions-google-analytics-4-verify-params-feature']) {

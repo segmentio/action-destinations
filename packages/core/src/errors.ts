@@ -75,7 +75,7 @@ export class InvalidAuthenticationError extends CustomError {
  * Should include a user-friendly message.
  * These errors will not be retried and the user has to fix the incorrect field mapping
  */
-export class ValidationError extends IntegrationError {
+export class MisconfiguredFieldError extends IntegrationError {
   /**
    * @param message - a human-friendly message to display to users
    * @param code - an optional error code/reason

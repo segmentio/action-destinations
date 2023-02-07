@@ -1,4 +1,4 @@
-import { HTTPError, ValidationError } from '@segment/actions-core'
+import { HTTPError, MisconfiguredFieldError } from '@segment/actions-core'
 
 export class SegmentPublicAPIError extends HTTPError {
   response: Response & {
@@ -12,10 +12,10 @@ export class SegmentPublicAPIError extends HTTPError {
   }
 }
 
-export const MissingUserOrAnonymousIdThrowableError = new ValidationError(
+export const MissingUserOrAnonymousIdThrowableError = new MisconfiguredFieldError(
   'Either `Anonymous ID` or `User ID` must be defined.'
 )
 
-export const InvalidEndpointSelectedThrowableError = new ValidationError(
+export const InvalidEndpointSelectedThrowableError = new MisconfiguredFieldError(
   'A valid endpoint must be selected. Please check your Segment settings.'
 )

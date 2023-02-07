@@ -1,5 +1,5 @@
 import { InputField } from '@segment/actions-core/src/destination-kit/types'
-import { ValidationError } from '@segment/actions-core'
+import { MisconfiguredFieldError } from '@segment/actions-core'
 
 // Implementation of the facebook pixel object properties.
 // https://developers.facebook.com/docs/facebook-pixel/reference#object-properties
@@ -119,18 +119,20 @@ export const data_processing_options_state: InputField = {
   ]
 }
 
-export const validateContents = (contents: Content[]): ValidationError | false => {
+export const validateContents = (contents: Content[]): MisconfiguredFieldError | false => {
   const valid_delivery_categories = ['in_store', 'curbside', 'home_delivery']
 
   for (let i = 0; i < contents.length; i++) {
     const item = contents[i]
 
     if (!item.id) {
-      return new ValidationError(`contents[${i}] must include an 'id' parameter.`)
+      return new MisconfiguredFieldError(`contents[${i}] must include an 'id' parameter.`)
     }
 
     if (item.delivery_category && !valid_delivery_categories.includes(item.delivery_category)) {
-      return new ValidationError(`contents[${i}].delivery_category must be one of {in_store, home_delivery, curbside}.`)
+      return new MisconfiguredFieldError(
+        `contents[${i}].delivery_category must be one of {in_store, home_delivery, curbside}.`
+      )
     }
   }
 

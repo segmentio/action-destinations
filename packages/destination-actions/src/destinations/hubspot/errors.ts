@@ -1,5 +1,5 @@
 import { IntegrationError, RetryableError, HTTPError } from '@segment/actions-core'
-import { ValidationError } from '@segment/actions-core'
+import { MisconfiguredFieldError } from '@segment/actions-core'
 import { SEGMENT_UNIQUE_IDENTIFIER } from './properties'
 
 export class HubSpotError extends HTTPError {
@@ -24,7 +24,7 @@ export const CompanySearchThrowableError = new IntegrationError(
   400
 )
 
-export const RestrictedPropertyThrowableError = new ValidationError(
+export const RestrictedPropertyThrowableError = new MisconfiguredFieldError(
   `Segment uses ’${SEGMENT_UNIQUE_IDENTIFIER}’ property internally to map Segment Groups to HubSpot Companies. This property shouldn’t be defined explicitly.`
 )
 

@@ -1,4 +1,4 @@
-import { ActionDefinition, ValidationError } from '@segment/actions-core'
+import { ActionDefinition, MisconfiguredFieldError } from '@segment/actions-core'
 import { hash, handleGoogleErrors, convertTimestamp } from '../functions'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
@@ -202,7 +202,9 @@ const action: ActionDefinition<Settings, Payload> = {
     /* Enforcing this here since Customer ID is required for the Google Ads API 
     but not for the Enhanced Conversions API. */
     if (!settings.customerId) {
-      throw new ValidationError('Customer ID is required for this action. Please set it in destination settings.')
+      throw new MisconfiguredFieldError(
+        'Customer ID is required for this action. Please set it in destination settings.'
+      )
     }
 
     settings.customerId = settings.customerId.replace(/-/g, '')

@@ -1,4 +1,4 @@
-import { ActionDefinition, ValidationError } from '@segment/actions-core'
+import { ActionDefinition, MisconfiguredFieldError } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 import { verifyCurrency, verifyParams, verifyUserProps, convertTimestamp } from '../ga4-functions'
@@ -56,7 +56,9 @@ const action: ActionDefinition<Settings, Payload> = {
     if (payload.items) {
       googleItems = payload.items.map((product) => {
         if (product.item_name === undefined && product.item_id === undefined) {
-          throw new ValidationError('One of product name or product id is required for product or impression data.')
+          throw new MisconfiguredFieldError(
+            'One of product name or product id is required for product or impression data.'
+          )
         }
 
         if (product.currency) {
