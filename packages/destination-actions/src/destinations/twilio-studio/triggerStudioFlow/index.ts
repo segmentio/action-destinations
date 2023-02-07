@@ -40,6 +40,12 @@ const action: ActionDefinition<Settings, Payload> = {
       type: 'hidden',
       default: { '@path': '$.userId' }
     },
+    anonymousId: {
+      label: 'Anonymous ID',
+      description: 'A Distinct External ID',
+      type: 'hidden',
+      default: { '@path': '$.anonymousId' }
+    },
     eventType: {
       label: 'Event type',
       type: 'hidden',
@@ -58,16 +64,20 @@ const action: ActionDefinition<Settings, Payload> = {
         400
       )
     }
-    if (!payload.userId) {
+    if (!payload.userId && !payload.anonymousId) {
       throw new IntegrationError(
-        'Unable to trigger Studio Flow. No User ID identifier found for this Segment profile!',
+        'Unable to trigger Studio Flow. No User identifier found for this Segment profile!',
         `No userId found in the Segment Event`,
         400
       )
     }
     if (
       stateContext &&
-      !shouldSendToStudio(`${payload.flowSid}_${payload.userId}`, stateContext, payload.coolingOffPeriod!)
+      !shouldSendToStudio(
+        `${payload.flowSid}_${payload.userId || payload.anonymousId}`,
+        stateContext,
+        payload.coolingOffPeriod!
+      )
     ) {
       throw new IntegrationError(
         `Unable to trigger Studio Flow. Only 1 request allowed per Flow SID - User ID combination in ${

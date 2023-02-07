@@ -18,6 +18,10 @@ export interface Payload {
    */
   userId?: string
   /**
+   * A Distinct External ID
+   */
+  anonymousId?: string
+  /**
    * The type of the event being performed.
    */
   eventType: string

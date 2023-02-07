@@ -30,7 +30,7 @@ export const DEFAULT_COOLING_OFF_PERIOD = 60
 
 // Extracts the latest external Id based on the fetched list of external Ids
 export const getToAddressField = async (request: RequestFn, settings: Settings, payload: Payload) => {
-  const externalIds = await fetchProfileExternalIds(request, settings, payload.userId!)
+  const externalIds = await fetchProfileExternalIds(request, settings, payload.userId!, payload.anonymousId!)
   if (externalIds.length <= 0) {
     return false
   }
@@ -44,15 +44,17 @@ export const getToAddressField = async (request: RequestFn, settings: Settings, 
 export const fetchProfileExternalIds = async (
   request: RequestFn,
   settings: Settings,
-  profileId: string
+  userId: string,
+  anonymousId: string
 ): Promise<ExternalId[]> => {
   try {
     // NOTE: Not falling back to the anonymousId for now as this action is going to use ID Sync Feature in future to
     // directly get the phone external ID in the payload. This API call won't be required anymore.
     // For the private Beta, there is no requirement to fallback to the anonymousId.
     // Not using the region based Profile API call as well for the above mentioned reason.
+    const identifier = userId ? `user_id:${userId}` : `anonymous_id:${anonymousId}`
     const response = await request(
-      `${PROFILE_API_BASE_URL}/v1/spaces/${settings.spaceId}/collections/users/profiles/user_id:${profileId}/external_ids?include=phone`,
+      `${PROFILE_API_BASE_URL}/v1/spaces/${settings.spaceId}/collections/users/profiles/${identifier}/external_ids?include=phone`,
       {
         headers: {
           authorization: `Basic ${Buffer.from(settings.profileApiAccessToken + ':').toString('base64')}`,
