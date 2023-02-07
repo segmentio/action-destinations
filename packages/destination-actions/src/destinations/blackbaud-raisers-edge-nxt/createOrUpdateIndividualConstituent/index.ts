@@ -372,6 +372,11 @@ const action: ActionDefinition<Settings, Payload> = {
       last: payload.last,
       lookup_id: payload.lookup_id
     }
+    Object.keys(constituentData).forEach((key) => {
+      if (!constituentData[key as keyof Constituent]) {
+        delete constituentData[key as keyof Constituent]
+      }
+    })
     if (payload.birthdate) {
       const birthdateFuzzyDate = dateStringToFuzzyDate(payload.birthdate)
       if (birthdateFuzzyDate) {
