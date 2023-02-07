@@ -2,7 +2,7 @@
 
 export interface Payload {
   /**
-   * The new user ID, if user ID is not set
+   * The anonymous id
    */
   anonymousId: string
   /**

@@ -7,11 +7,13 @@ const testDestination = createTestIntegration(destination)
 const actionSlug = 'createUpdateActivity'
 const destinationSlug = 'Pipedrive'
 const seedName = `${destinationSlug}#${actionSlug}`
+const PIPEDRIVE_DOMAIN = 'companydomain'
 
 describe(`Testing snapshot for ${destinationSlug}'s ${actionSlug} destination action:`, () => {
   it('required fields', async () => {
     const action = destination.actions[actionSlug]
     const [eventData, settingsData] = generateTestData(seedName, destination, action, true)
+    settingsData.domain = PIPEDRIVE_DOMAIN
 
     nock(/.*/).persist().get(/.*/).reply(200)
     nock(/.*/).persist().post(/.*/).reply(200)
@@ -45,6 +47,7 @@ describe(`Testing snapshot for ${destinationSlug}'s ${actionSlug} destination ac
   it('all fields', async () => {
     const action = destination.actions[actionSlug]
     const [eventData, settingsData] = generateTestData(seedName, destination, action, false)
+    settingsData.domain = PIPEDRIVE_DOMAIN
 
     nock(/.*/).persist().get(/.*/).reply(200)
     nock(/.*/).persist().post(/.*/).reply(200)
