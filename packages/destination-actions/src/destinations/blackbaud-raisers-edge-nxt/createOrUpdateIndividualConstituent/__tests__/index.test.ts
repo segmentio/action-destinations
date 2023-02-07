@@ -18,7 +18,7 @@ import {
   identifyEventDataUpdated,
   onlinePresencePayloadUpdated,
   phonePayloadUpdated
-} from './fixtures'
+} from '../fixtures'
 
 const testDestination = createTestIntegration(Destination)
 
