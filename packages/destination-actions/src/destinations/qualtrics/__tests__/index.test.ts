@@ -10,11 +10,7 @@ describe('Qualtrics', () => {
       nock('https://testdc.qualtrics.com')
         .get('/API/v3/whoami')
         .matchHeader('x-api-token', 'VALID_API_TOKEN_VALUE')
-        .reply(200, {
-          result: {
-            userName: 'abc'
-          }
-        })
+        .reply(200, {})
       const authData = {
         apiToken: 'VALID_API_TOKEN_VALUE',
         datacenter: 'testdc'

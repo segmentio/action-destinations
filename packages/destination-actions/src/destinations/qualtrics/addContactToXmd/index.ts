@@ -2,12 +2,10 @@ import type { ActionDefinition } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import QualtricsApiClient from '../qualtricsApiClient'
 import type { Payload } from './generated-types'
-import { getDirectoryIds } from '../dynamicFields'
 
 const action: ActionDefinition<Settings, Payload> = {
-  title: 'Create and/or update contact in XM Directory',
-  description:
-    'Create and/or update contact in XM Directory. Updating is handled by contact deduplication in your [directory settings](https://www.qualtrics.com/support/iq-directory/directory-settings-tab/automatic-deduplication/). If deduplication is setup correctly this action will perform UPSERT operations on contacts',
+  title: 'Add / Update Contact in XMD',
+  description: 'Add or update contact in XMD',
   defaultSubscription: 'type = "identify"',
   fields: {
     directoryId: {
@@ -15,7 +13,9 @@ const action: ActionDefinition<Settings, Payload> = {
       type: 'string',
       description: 'Directory id. Also known as the Pool ID. POOL_XXX',
       required: true,
-      dynamic: true
+      default: {
+        '@path': '$.traits.directoryId'
+      }
     },
     extRef: {
       label: 'External Data Reference',
@@ -85,9 +85,6 @@ const action: ActionDefinition<Settings, Payload> = {
       description: 'Contact embedded data (properties of the contact)',
       defaultObjectUI: 'keyvalue'
     }
-  },
-  dynamicFields: {
-    directoryId: getDirectoryIds
   },
   perform: (request, data) => {
     const apiClient = new QualtricsApiClient(data.settings.datacenter, data.settings.apiToken, request)

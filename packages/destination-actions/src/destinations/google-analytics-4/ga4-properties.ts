@@ -1,5 +1,4 @@
 import { InputField } from '@segment/actions-core/src/destination-kit/types'
-import { DataStreamType } from './ga4-types'
 
 export const formatUserProperties = (userProperties: object | undefined): object | undefined => {
   if (!userProperties) {
@@ -100,9 +99,9 @@ export const affiliation: InputField = {
 
 export const client_id: InputField = {
   label: 'Client ID',
-  description: 'Uniquely identifies a user instance of a web client. **Required for web streams.**',
+  description: 'Uniquely identifies a user instance of a web client.',
   type: 'string',
-  required: false,
+  required: true,
   default: {
     '@if': {
       exists: { '@path': '$.userId' },
@@ -110,14 +109,6 @@ export const client_id: InputField = {
       else: { '@path': '$.anonymousId' }
     }
   }
-}
-
-export const app_instance_id: InputField = {
-  label: 'Firebase App Instance ID',
-  description:
-    'Uniquely identifies a specific installation of a Firebase app. This value needs to be retrieved through the Firebase SDK. **Required for mobile app streams.**',
-  type: 'string',
-  required: false
 }
 
 export const currency: InputField = {
@@ -349,13 +340,4 @@ export const timestamp_micros: InputField = {
   default: {
     '@path': '$.timestamp'
   }
-}
-
-export const data_stream_type: InputField = {
-  label: 'Data Stream Type',
-  type: 'string',
-  choices: [DataStreamType.Web, DataStreamType.MobileApp],
-  description:
-    'The type of data stream this data belongs in. This can either be a web stream or a mobile app stream (iOS or Android).',
-  default: DataStreamType.Web
 }

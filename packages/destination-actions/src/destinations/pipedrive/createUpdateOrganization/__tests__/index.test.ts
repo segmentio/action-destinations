@@ -11,25 +11,21 @@ const ORGANIZATION_ID = 33333
 describe('Pipedrive.createUpdateOrganization', () => {
   it('should create organization if none exists', async () => {
     const scope = nock(`https://${PIPEDRIVE_DOMAIN}.pipedrive.com/api/v1`)
-      .post('/organizations', { name: 'Acme Corp', custom_org_id: 'non_existant_custom_org_id_value' })
+      .post('/organizations', { name: 'Acme Corp' })
       .query({ api_token: PIPEDRIVE_API_KEY })
       .reply(200)
 
     scope
       .get(/.*/)
       .query((q) => {
-        return (
-          q.field_key === 'custom_org_id' &&
-          q.field_type === 'organizationField' &&
-          q.term === 'non_existant_custom_org_id_value'
-        )
+        return q.field_key === 'name' && q.field_type === 'organizationField' && q.term === 'Does not exist'
       })
       .reply(200, {
         data: []
       })
 
     await testDestination.testAction('createUpdateOrganization', {
-      mapping: { name: 'Acme Corp', match_field: 'custom_org_id', match_value: 'non_existant_custom_org_id_value' },
+      mapping: { name: 'Acme Corp', match_field: 'name', match_value: 'Does not exist' },
       settings: { apiToken: PIPEDRIVE_API_KEY, domain: PIPEDRIVE_DOMAIN }
     })
 

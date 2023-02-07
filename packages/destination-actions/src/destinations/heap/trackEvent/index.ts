@@ -148,26 +148,15 @@ const action: ActionDefinition<Settings, Payload> = {
 }
 
 const getEventName = (payload: Payload) => {
-  let eventName: string | undefined
   switch (payload.type) {
     case 'track':
-      eventName = payload.event
-      break
+      return payload.event
     case 'page':
-      eventName = payload.name ? payload.name : 'Page Viewed'
-      break
     case 'screen':
-      eventName = payload.name ? payload.name : 'Screen Viewed'
-      break
+      return payload.name
     default:
-      eventName = 'track'
-      break
+      return undefined
   }
-
-  if (!eventName) {
-    return 'track'
-  }
-  return eventName
 }
 
 export default action

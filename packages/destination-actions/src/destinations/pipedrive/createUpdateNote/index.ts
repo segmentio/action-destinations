@@ -8,34 +8,28 @@ import { IntegrationError } from '@segment/actions-core'
 const fieldHandler = PipedriveClient.fieldHandler
 
 const action: ActionDefinition<Settings, Payload> = {
-  title: 'Create or update a Note',
+  title: 'Create or Update a Note',
   description: "Update a Note in Pipedrive or create it if it doesn't exist yet.",
-  defaultSubscription: 'type = "track" and event = "Note Upserted"',
+  defaultSubscription: 'type = "track"',
   fields: {
     note_id: {
       label: 'Note ID',
       description: 'ID of Note in Pipedrive to Update. If left empty, a new one will be created',
       type: 'integer',
-      required: false,
-      default: {
-        '@path': '$.properties.note_id'
-      }
+      required: false
     },
     lead_id: {
       label: 'Lead ID',
-      description: 'ID of Lead in Pipedrive to link to. One of Lead, Person, Organization or Deal must be linked!',
-      type: 'string',
-      required: false,
-      default: {
-        '@path': '$.properties.lead_id'
-      }
+      description: 'ID of Lead in Pipedrive to link to.  One of Lead, Person, Organization or Deal must be linked!',
+      type: 'integer',
+      required: false
     },
     person_match_field: {
       label: 'Person match field',
       description: 'If present, used instead of field in settings to find existing person in Pipedrive.',
       type: 'string',
       required: false,
-      dynamic: true
+      dynamic: true,
     },
     person_match_value: {
       label: 'Person match value',
@@ -46,12 +40,13 @@ const action: ActionDefinition<Settings, Payload> = {
         '@path': '$.userId'
       }
     },
+
     organization_match_field: {
       label: 'Organization match field',
       description: 'If present, used instead of field in settings to find existing organization in Pipedrive.',
       type: 'string',
       required: false,
-      dynamic: true
+      dynamic: true,
     },
     organization_match_value: {
       label: 'Organization match value',
@@ -59,15 +54,16 @@ const action: ActionDefinition<Settings, Payload> = {
       type: 'string',
       required: false,
       default: {
-        '@path': '$.context.groupId'
+        '@path': '$.userId'
       }
     },
+
     deal_match_field: {
       label: 'Deal match field',
       description: 'If present, used instead of field in settings to find existing deal in Pipedrive.',
       type: 'string',
       required: false,
-      dynamic: true
+      dynamic: true,
     },
     deal_match_value: {
       label: 'Deal match value',
@@ -75,17 +71,15 @@ const action: ActionDefinition<Settings, Payload> = {
       type: 'string',
       required: false,
       default: {
-        '@path': '$.properties.deal_id'
+        '@path': '$.userId'
       }
     },
+
     content: {
       label: 'Note Content',
-      description: 'Content of the note in text or HTML format. Subject to sanitization on the back-end.',
+      description: 'Content of the note in HTML format. Subject to sanitization on the back-end.',
       type: 'string',
-      required: true,
-      default: {
-        '@path': '$.properties.content'
-      }
+      required: true
     }
   },
 

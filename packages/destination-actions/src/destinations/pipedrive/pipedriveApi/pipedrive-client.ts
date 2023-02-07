@@ -125,8 +125,7 @@ class PipedriveClient {
     if (item.id) {
       const id = item.id
       delete item['id']
-      if (itemPath == 'leads') return this.patch(`${itemPath}/${id}`, item)
-      else return this.put(`${itemPath}/${id}`, item)
+      return this.put(`${itemPath}/${id}`, item)
     }
     return this.post(itemPath, item)
   }
@@ -139,11 +138,7 @@ class PipedriveClient {
     return this.reqWithPayload(path, payload, 'put')
   }
 
-  async patch(path: string, payload: Record<string, unknown>): Promise<ModifiedResponse> {
-    return this.reqWithPayload(path, payload, 'patch')
-  }
-
-  async reqWithPayload(path: string, payload: Record<string, unknown>, method: 'post' | 'put' | 'patch') {
+  async reqWithPayload(path: string, payload: Record<string, unknown>, method: 'post' | 'put') {
     PipedriveClient.filterPayload(payload)
     const urlBase = `https://${this.settings.domain}.pipedrive.com/api/v1`
     return this._request(`${urlBase}/${path}`, {

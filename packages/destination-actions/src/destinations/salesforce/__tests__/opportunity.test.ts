@@ -6,7 +6,7 @@ import { API_VERSION } from '../sf-operations'
 const testDestination = createTestIntegration(Destination)
 
 const settings = {
-  instanceUrl: 'https://test.salesforce.com/'
+  instanceUrl: 'https://test.com/'
 }
 const auth = {
   refreshToken: 'xyz321',

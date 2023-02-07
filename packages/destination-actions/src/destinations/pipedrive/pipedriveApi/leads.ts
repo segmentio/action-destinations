@@ -7,15 +7,10 @@ export interface Lead extends Record<string, unknown> {
   expected_close_date?: string
   visible_to?: number
 
-  id?: string
+  id?: number
   person_id?: number
   organization_id?: number
   add_time?: string
-}
-
-export type LeadValue = {
-  amount?: number
-  currency?: string
 }
 
 export async function createUpdateLead(client: PipedriveClient, lead: Lead): Promise<ModifiedResponse> {

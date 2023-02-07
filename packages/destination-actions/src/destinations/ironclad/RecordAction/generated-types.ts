@@ -10,9 +10,9 @@ export interface Payload {
    */
   event_name?: string
   /**
-   * The ID of the Clickwrap Group associated with the acceptance event. Needs to be an integer
+   * The ID of the Clickwrap Group associated with the acceptance event.
    */
-  group_id: number
+  group_id: string
   /**
    * The type of event being logged, the available choices are displayed, agreed, and disagreed.
    */

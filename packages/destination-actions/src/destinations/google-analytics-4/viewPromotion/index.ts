@@ -1,12 +1,5 @@
 import { ActionDefinition, IntegrationError } from '@segment/actions-core'
-import {
-  verifyCurrency,
-  verifyParams,
-  verifyUserProps,
-  convertTimestamp,
-  getMobileStreamParams,
-  getWebStreamParams
-} from '../ga4-functions'
+import { verifyCurrency, verifyParams, verifyUserProps, convertTimestamp } from '../ga4-functions'
 import {
   creative_name,
   creative_slot,
@@ -20,11 +13,9 @@ import {
   formatUserProperties,
   user_properties,
   engagement_time_msec,
-  timestamp_micros,
-  app_instance_id,
-  data_stream_type
+  timestamp_micros
 } from '../ga4-properties'
-import { DataStreamParams, DataStreamType, PromotionProductItem } from '../ga4-types'
+import { PromotionProductItem } from '../ga4-types'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 
@@ -37,8 +28,6 @@ const action: ActionDefinition<Settings, Payload> = {
   description: 'Send event when a promotion is shown to a user',
   defaultSubscription: 'type = "track" and event = "Promotion Viewed"',
   fields: {
-    data_stream_type: { ...data_stream_type },
-    app_instance_id: { ...app_instance_id },
     client_id: { ...client_id },
     user_id: { ...user_id },
     timestamp_micros: { ...timestamp_micros },
@@ -78,13 +67,7 @@ const action: ActionDefinition<Settings, Payload> = {
     params: params
   },
 
-  perform: (request, { payload, features, settings }) => {
-    const data_stream_type = payload.data_stream_type ?? DataStreamType.Web
-    const stream_params: DataStreamParams =
-      data_stream_type === DataStreamType.MobileApp
-        ? getMobileStreamParams(settings.apiSecret, settings.firebaseAppId, payload.app_instance_id)
-        : getWebStreamParams(settings.apiSecret, settings.measurementId, payload.client_id)
-
+  perform: (request, { payload, features }) => {
     let googleItems: PromotionProductItem[] = []
 
     if (payload.items) {
@@ -105,8 +88,8 @@ const action: ActionDefinition<Settings, Payload> = {
       verifyParams(payload.params)
       verifyUserProps(payload.user_properties)
     }
-    const request_object: { [key: string]: unknown } = {
-      ...stream_params.identifier,
+    const request_object: { [key: string]: any } = {
+      client_id: payload.client_id,
       user_id: payload.user_id,
       events: [
         {
@@ -130,8 +113,7 @@ const action: ActionDefinition<Settings, Payload> = {
       request_object.timestamp_micros = convertTimestamp(payload.timestamp_micros)
     }
 
-    // Firebase App ID can contain colons(:) and they should not be encoded. Hence, interpolating search params to url string instead of passing them as search_params
-    return request(`https://www.google-analytics.com/mp/collect?${stream_params.search_params}`, {
+    return request('https://www.google-analytics.com/mp/collect', {
       method: 'POST',
       json: request_object
     })

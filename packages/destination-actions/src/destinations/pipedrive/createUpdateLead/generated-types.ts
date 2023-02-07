@@ -4,7 +4,7 @@ export interface Payload {
   /**
    * ID of Lead in Pipedrive to Update. If left empty, a new one will be created
    */
-  lead_id?: string
+  lead_id?: number
   /**
    * If present, used instead of field in settings to find existing person in Pipedrive.
    */
@@ -28,11 +28,13 @@ export interface Payload {
   /**
    * Potential value of the lead
    */
-  amount?: number
-  /**
-   * Three-letter code of the currency, e.g. USD
-   */
-  currency?: string
+  value?: {
+    amount?: number
+    /**
+     * Three-letter code of the currency, e.g. USD
+     */
+    currency?: string
+  }
   /**
    * The date of when the Deal which will be created from the Lead is expected to be closed. In ISO 8601 format: YYYY-MM-DD.
    */
@@ -45,4 +47,10 @@ export interface Payload {
    * If the lead is created, use this timestamp as the creation timestamp. Format: YYY-MM-DD HH:MM:SS
    */
   add_time?: string | number
+  /**
+   * New values for custom fields.
+   */
+  custom_fields?: {
+    [k: string]: unknown
+  }
 }

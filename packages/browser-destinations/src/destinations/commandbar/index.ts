@@ -52,11 +52,13 @@ export const destination: BrowserDestinationDefinition<Settings, CommandBarClien
   ],
 
   initialize: async ({ settings }, deps) => {
-    if (!window.CommandBar) {
-      initScript(settings.orgId)
-    }
+    const preloadedCommandBar = window.CommandBar
 
-    await deps.resolveWhen(() => Object.prototype.hasOwnProperty.call(window, 'CommandBar'), 100)
+    initScript(settings.orgId)
+
+    await deps.resolveWhen(() => {
+      return window.CommandBar !== preloadedCommandBar
+    }, 100)
 
     return window.CommandBar
   },

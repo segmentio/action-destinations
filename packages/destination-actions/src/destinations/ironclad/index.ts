@@ -16,6 +16,7 @@ const destination: DestinationDefinition<Settings> = {
         description:
           'Site Access ID. An ID that’s unique for each site within your account. Information on finding your sid can be found in the authentication section.',
         type: 'string',
+        default: '',
         required: true
       },
       staging_endpoint: {
@@ -23,6 +24,7 @@ const destination: DestinationDefinition<Settings> = {
         description:
           'Turn this ON, to send requests to the staging server, ONLY if Clickwrap support instructs you to do so.',
         type: 'boolean',
+        required: true,
         default: false
       },
       test_mode: {
@@ -30,6 +32,7 @@ const destination: DestinationDefinition<Settings> = {
         description:
           'Test Mode, whether or not to process the acceptance in test_mode. Defaults to false, Toggle to ON to enable it.',
         type: 'boolean',
+        required: true,
         default: false
       }
     }

@@ -9,23 +9,20 @@ const fieldHandler = PipedriveClient.fieldHandler
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Create or update an Activity',
   description: "Update an Activity in Pipedrive or create one if it doesn't exist.",
-  defaultSubscription: 'type = "track" and event = "Activity Upserted"',
+  defaultSubscription: 'type = "track"',
   fields: {
     activity_id: {
       label: 'Activity ID',
       description: 'ID of Activity in Pipedrive to Update. If left empty, a new one will be created',
       type: 'integer',
-      required: false,
-      default: {
-        '@path': '$.properties.activity_id'
-      }
+      required: false
     },
     person_match_field: {
       label: 'Person match field',
       description: 'If present, used instead of field in settings to find existing person in Pipedrive.',
       type: 'string',
       required: false,
-      dynamic: true
+      dynamic: true,
     },
     person_match_value: {
       label: 'Person match value',
@@ -36,12 +33,13 @@ const action: ActionDefinition<Settings, Payload> = {
         '@path': '$.userId'
       }
     },
+
     organization_match_field: {
       label: 'Organization match field',
       description: 'If present, used instead of field in settings to find existing organization in Pipedrive.',
       type: 'string',
       required: false,
-      dynamic: true
+      dynamic: true,
     },
     organization_match_value: {
       label: 'Organization match value',
@@ -49,15 +47,16 @@ const action: ActionDefinition<Settings, Payload> = {
       type: 'string',
       required: false,
       default: {
-        '@path': '$.context.groupId'
+        '@path': '$.userId'
       }
     },
+
     deal_match_field: {
       label: 'Deal match field',
       description: 'If present, used instead of field in settings to find existing deal in Pipedrive.',
       type: 'string',
       required: false,
-      dynamic: true
+      dynamic: true,
     },
     deal_match_value: {
       label: 'Deal match value',
@@ -65,83 +64,60 @@ const action: ActionDefinition<Settings, Payload> = {
       type: 'string',
       required: false,
       default: {
-        '@path': '$.properties.deal_id'
+        '@path': '$.userId'
       }
     },
+
     subject: {
       label: 'Activity Subject',
       description:
         'Subject of the Activity. When value for subject is not set, it will be given a default value `Call`.',
       type: 'string',
-      required: false,
-      default: {
-        '@path': '$.properties.subject'
-      }
+      required: false
     },
     type: {
       label: 'Type',
       description:
         'Type of the Activity. This is in correlation with the key_string parameter of ActivityTypes. When value for type is not set, it will be given a default value `Call`',
       type: 'string',
-      required: false,
-      default: {
-        '@path': '$.properties.type'
-      }
+      required: false
     },
     description: {
       label: 'Description',
       description:
         'Additional details about the Activity that is synced to your external calendar. Unlike the note added to the Activity, the description is publicly visible to any guests added to the Activity.',
       type: 'string',
-      required: false,
-      default: {
-        '@path': '$.properties.description'
-      }
+      required: false
     },
     note: {
       label: 'Note',
-      description: 'Note of the Activity (Accepts plain text and HTML)',
+      description: 'Note of the Activity (HTML format)',
       type: 'string',
-      required: false,
-      default: {
-        '@path': '$.properties.note'
-      }
+      required: false
     },
     due_date: {
       label: 'Due Date',
       description: 'Due date of the Activity. Format: YYYY-MM-DD',
       type: 'string',
-      required: false,
-      default: {
-        '@path': '$.properties.due_date'
-      }
+      required: false
     },
     due_time: {
       label: 'Due Time',
-      description: 'Due time of the Activity. Format: HH:MM',
+      description: 'Due time of the Activity in UTC. Format: HH:MM',
       type: 'string',
-      required: false,
-      default: {
-        '@path': '$.properties.due_time'
-      }
+      required: false
     },
     duration: {
       label: 'Duration',
       description: 'Duration of the Activity. Format: HH:MM',
       type: 'string',
-      required: false,
-      default: {
-        '@path': '$.properties.duration'
-      }
+      required: false
     },
     done: {
       label: 'Done',
       description: 'Whether the Activity is done or not.',
       type: 'boolean',
-      required: false,
-      default: {
-        '@path': '$.properties.done'
-      }
+      required: false
     }
   },
 

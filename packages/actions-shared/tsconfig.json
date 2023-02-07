@@ -9,6 +9,6 @@
       "@segment/destination-subscriptions": ["../destination-subscriptions/src"]
     }
   },
-  "exclude": ["dist"],
+  "exclude": [],
   "include": ["src", "test"]
 }

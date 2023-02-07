@@ -5,7 +5,7 @@ import { API_VERSION } from '../sf-operations'
 import type { GenericPayload } from '../sf-types'
 
 const settings = {
-  instanceUrl: 'https://test.salesforce.com/'
+  instanceUrl: 'https://test.com/'
 }
 
 const requestClient = createRequestClient()

@@ -12,5 +12,6 @@
       "@segment/destination-subscriptions": ["../destination-subscriptions/src"]
     }
   },
-  "exclude": ["webpack.config.js", "dist"]
+  "include": ["src", "test"],
+  "exclude": ["webpack.config.js"]
 }

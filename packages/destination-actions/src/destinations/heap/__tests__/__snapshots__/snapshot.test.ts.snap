@@ -19,7 +19,6 @@ Object {
 exports[`Testing snapshot for actions-heap destination: trackEvent action - all fields 1`] = `
 Object {
   "app_id": "kFJwrNh$DP38FB",
-  "event": "track",
   "idempotency_key": "kFJwrNh$DP38FB",
   "identity": "kFJwrNh$DP38FB",
   "properties": Object {
@@ -34,7 +33,6 @@ Object {
 exports[`Testing snapshot for actions-heap destination: trackEvent action - required fields 1`] = `
 Object {
   "app_id": "kFJwrNh$DP38FB",
-  "event": "track",
   "idempotency_key": "kFJwrNh$DP38FB",
   "identity": "kFJwrNh$DP38FB",
   "properties": Object {
