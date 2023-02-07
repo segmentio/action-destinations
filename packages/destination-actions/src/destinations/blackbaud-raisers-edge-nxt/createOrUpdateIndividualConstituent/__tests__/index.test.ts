@@ -3,49 +3,62 @@ import { createTestEvent, createTestIntegration, IntegrationError, RetryableErro
 import Destination from '../../index'
 import { SKY_API_BASE_URL } from '../../constants'
 import {
-  addressPayloadWithUpdatedStreet,
-  addressPayloadUpdated,
-  constituentPayload,
-  constituentPayloadNoEmail,
-  constituentPayloadWithLookupId,
-  emailPayloadPersonal,
-  emailPayloadUpdated,
   identifyEventData,
   identifyEventDataNoEmail,
   identifyEventDataNoLastName,
   identifyEventDataWithInvalidWebsite,
   identifyEventDataWithLookupId,
-  identifyEventDataUpdated,
-  onlinePresencePayloadUpdated,
-  phonePayloadUpdated
+  identifyEventDataUpdated
 } from '../fixtures'
 
 const testDestination = createTestIntegration(Destination)
 
 const mapping = {
-  properties: {
+  address: {
+    address_lines: {
+      '@path': '$.traits.address.street'
+    },
+    city: {
+      '@path': '$.traits.address.city'
+    },
+    country: {
+      '@path': '$.traits.address.country'
+    },
+    postal_code: {
+      '@path': '$.traits.address.postalCode'
+    },
+    state: {
+      '@path': '$.traits.address.state'
+    },
+    type: {
+      '@path': '$.traits.addressType'
+    }
+  },
+  email: {
     address: {
-      type: {
-        '@path': '$.traits.address_type'
-      }
+      '@path': '$.traits.email'
     },
-    email: {
-      type: {
-        '@path': '$.traits.email_type'
-      }
+    type: {
+      '@path': '$.traits.emailType'
+    }
+  },
+  lookup_id: {
+    '@path': '$.traits.lookup_id'
+  },
+  online_presence: {
+    address: {
+      '@path': '$.traits.website'
     },
-    lookup_id: {
-      '@path': '$.traits.lookup_id'
+    type: {
+      '@path': '$.traits.websiteType'
+    }
+  },
+  phone: {
+    number: {
+      '@path': '$.traits.phone'
     },
-    online_presence: {
-      type: {
-        '@path': '$.traits.website_type'
-      }
-    },
-    phone: {
-      type: {
-        '@path': '$.traits.phone_type'
-      }
+    type: {
+      '@path': '$.traits.phoneType'
     }
   }
 }
@@ -61,7 +74,7 @@ describe('BlackbaudRaisersEdgeNxt.createOrUpdateIndividualConstituent', () => {
         value: []
       })
 
-    nock(SKY_API_BASE_URL).post('/constituents', constituentPayload).reply(200, {
+    nock(SKY_API_BASE_URL).post('/constituents').reply(200, {
       id: '123'
     })
 
@@ -77,7 +90,7 @@ describe('BlackbaudRaisersEdgeNxt.createOrUpdateIndividualConstituent', () => {
   test('should create a new constituent without email or lookup_id successfully', async () => {
     const event = createTestEvent(identifyEventDataNoEmail)
 
-    nock(SKY_API_BASE_URL).post('/constituents', constituentPayloadNoEmail).reply(200, {
+    nock(SKY_API_BASE_URL).post('/constituents').reply(200, {
       id: '456'
     })
 
@@ -108,6 +121,8 @@ describe('BlackbaudRaisersEdgeNxt.createOrUpdateIndividualConstituent', () => {
         ]
       })
 
+    nock(SKY_API_BASE_URL).patch('/constituents/123').reply(200)
+
     nock(SKY_API_BASE_URL)
       .get('/constituents/123/addresses?include_inactive=true')
       .reply(200, {
@@ -131,14 +146,9 @@ describe('BlackbaudRaisersEdgeNxt.createOrUpdateIndividualConstituent', () => {
         ]
       })
 
-    nock(SKY_API_BASE_URL)
-      .post('/addresses', {
-        ...addressPayloadUpdated,
-        constituent_id: '123'
-      })
-      .reply(200, {
-        id: '1001'
-      })
+    nock(SKY_API_BASE_URL).post('/addresses').reply(200, {
+      id: '1001'
+    })
 
     nock(SKY_API_BASE_URL)
       .get('/constituents/123/emailaddresses?include_inactive=true')
@@ -159,7 +169,7 @@ describe('BlackbaudRaisersEdgeNxt.createOrUpdateIndividualConstituent', () => {
         ]
       })
 
-    nock(SKY_API_BASE_URL).patch('/emailaddresses/9876', emailPayloadUpdated).reply(200)
+    nock(SKY_API_BASE_URL).patch('/emailaddresses/2000').reply(200)
 
     nock(SKY_API_BASE_URL)
       .get('/constituents/123/onlinepresences?include_inactive=true')
@@ -177,14 +187,9 @@ describe('BlackbaudRaisersEdgeNxt.createOrUpdateIndividualConstituent', () => {
         ]
       })
 
-    nock(SKY_API_BASE_URL)
-      .post('/onlinepresences', {
-        ...onlinePresencePayloadUpdated,
-        constituent_id: '123'
-      })
-      .reply(200, {
-        id: '3001'
-      })
+    nock(SKY_API_BASE_URL).post('/onlinepresences').reply(200, {
+      id: '3001'
+    })
 
     nock(SKY_API_BASE_URL)
       .get('/constituents/123/phones?include_inactive=true')
@@ -203,14 +208,9 @@ describe('BlackbaudRaisersEdgeNxt.createOrUpdateIndividualConstituent', () => {
         ]
       })
 
-    nock(SKY_API_BASE_URL)
-      .post('/phones', {
-        ...phonePayloadUpdated,
-        constituent_id: '123'
-      })
-      .reply(200, {
-        id: '4001'
-      })
+    nock(SKY_API_BASE_URL).post('/phones').reply(200, {
+      id: '4001'
+    })
 
     await expect(
       testDestination.testAction('createOrUpdateIndividualConstituent', {
@@ -239,7 +239,7 @@ describe('BlackbaudRaisersEdgeNxt.createOrUpdateIndividualConstituent', () => {
         ]
       })
 
-    nock(SKY_API_BASE_URL).patch('/constituents/123', constituentPayloadWithLookupId).reply(200)
+    nock(SKY_API_BASE_URL).patch('/constituents/123').reply(200)
 
     nock(SKY_API_BASE_URL)
       .get('/constituents/123/addresses?include_inactive=true')
@@ -279,14 +279,9 @@ describe('BlackbaudRaisersEdgeNxt.createOrUpdateIndividualConstituent', () => {
         ]
       })
 
-    nock(SKY_API_BASE_URL)
-      .post('/addresses', {
-        ...addressPayloadWithUpdatedStreet,
-        constituent_id: '123'
-      })
-      .reply(200, {
-        id: '1002'
-      })
+    nock(SKY_API_BASE_URL).post('/addresses').reply(200, {
+      id: '1002'
+    })
 
     nock(SKY_API_BASE_URL)
       .get('/constituents/123/emailaddresses?include_inactive=true')
@@ -307,13 +302,41 @@ describe('BlackbaudRaisersEdgeNxt.createOrUpdateIndividualConstituent', () => {
         ]
       })
 
+    nock(SKY_API_BASE_URL).post('/emailaddresses').reply(200, {
+      id: '2001'
+    })
+
     nock(SKY_API_BASE_URL)
-      .post('/emailaddresses', {
-        ...emailPayloadPersonal,
-        constituent_id: '123'
-      })
+      .get('/constituents/123/onlinepresences?include_inactive=true')
       .reply(200, {
-        id: '2001'
+        count: 1,
+        value: [
+          {
+            id: '3001',
+            address: 'https://www.example.biz',
+            constituent_id: '123',
+            inactive: false,
+            primary: true,
+            type: 'Website'
+          }
+        ]
+      })
+
+    nock(SKY_API_BASE_URL)
+      .get('/constituents/123/phones?include_inactive=true')
+      .reply(200, {
+        count: 1,
+        value: [
+          {
+            id: '4001',
+            constituent_id: '123',
+            do_not_call: false,
+            inactive: false,
+            number: '+18774466723',
+            primary: true,
+            type: 'Work'
+          }
+        ]
       })
 
     await expect(
@@ -398,6 +421,8 @@ describe('BlackbaudRaisersEdgeNxt.createOrUpdateIndividualConstituent', () => {
         ]
       })
 
+    nock(SKY_API_BASE_URL).patch('/constituents/123').reply(200)
+
     nock(SKY_API_BASE_URL)
       .get('/constituents/123/addresses?include_inactive=true')
       .reply(200, {
@@ -421,14 +446,9 @@ describe('BlackbaudRaisersEdgeNxt.createOrUpdateIndividualConstituent', () => {
         ]
       })
 
-    nock(SKY_API_BASE_URL)
-      .post('/addresses', {
-        ...addressPayloadUpdated,
-        constituent_id: '123'
-      })
-      .reply(200, {
-        id: '1001'
-      })
+    nock(SKY_API_BASE_URL).post('/addresses').reply(200, {
+      id: '1001'
+    })
 
     nock(SKY_API_BASE_URL)
       .get('/constituents/123/emailaddresses?include_inactive=true')
@@ -449,7 +469,7 @@ describe('BlackbaudRaisersEdgeNxt.createOrUpdateIndividualConstituent', () => {
         ]
       })
 
-    nock(SKY_API_BASE_URL).patch('/emailaddresses/9876', emailPayloadUpdated).reply(200)
+    nock(SKY_API_BASE_URL).patch('/emailaddresses/2000').reply(200)
 
     nock(SKY_API_BASE_URL)
       .get('/constituents/123/onlinepresences?include_inactive=true')
@@ -467,12 +487,7 @@ describe('BlackbaudRaisersEdgeNxt.createOrUpdateIndividualConstituent', () => {
         ]
       })
 
-    nock(SKY_API_BASE_URL)
-      .post('/onlinepresences', {
-        ...onlinePresencePayloadUpdated,
-        constituent_id: '123'
-      })
-      .reply(400)
+    nock(SKY_API_BASE_URL).post('/onlinepresences').reply(400)
 
     nock(SKY_API_BASE_URL)
       .get('/constituents/123/phones?include_inactive=true')
@@ -491,14 +506,9 @@ describe('BlackbaudRaisersEdgeNxt.createOrUpdateIndividualConstituent', () => {
         ]
       })
 
-    nock(SKY_API_BASE_URL)
-      .post('/phones', {
-        ...phonePayloadUpdated,
-        constituent_id: '123'
-      })
-      .reply(200, {
-        id: '4001'
-      })
+    nock(SKY_API_BASE_URL).post('/phones').reply(200, {
+      id: '4001'
+    })
 
     await expect(
       testDestination.testAction('createOrUpdateIndividualConstituent', {
@@ -533,6 +543,24 @@ describe('BlackbaudRaisersEdgeNxt.createOrUpdateIndividualConstituent', () => {
         ]
       })
 
+    nock(SKY_API_BASE_URL).patch('/constituents/123').reply(200)
+
+    nock(SKY_API_BASE_URL)
+      .get('/constituents/123/onlinepresences?include_inactive=true')
+      .reply(200, {
+        count: 1,
+        value: [
+          {
+            id: '3001',
+            address: 'https://www.example.biz',
+            constituent_id: '123',
+            inactive: false,
+            primary: true,
+            type: 'Website'
+          }
+        ]
+      })
+
     nock(SKY_API_BASE_URL)
       .get('/constituents/123/addresses?include_inactive=true')
       .reply(200, {
@@ -556,14 +584,9 @@ describe('BlackbaudRaisersEdgeNxt.createOrUpdateIndividualConstituent', () => {
         ]
       })
 
-    nock(SKY_API_BASE_URL)
-      .post('/addresses', {
-        ...addressPayloadUpdated,
-        constituent_id: '123'
-      })
-      .reply(200, {
-        id: '1001'
-      })
+    nock(SKY_API_BASE_URL).post('/addresses').reply(200, {
+      id: '1001'
+    })
 
     nock(SKY_API_BASE_URL).get('/constituents/123/emailaddresses?include_inactive=true').reply(429)
 

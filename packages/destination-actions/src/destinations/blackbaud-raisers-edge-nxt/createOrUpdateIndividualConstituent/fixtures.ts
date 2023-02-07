@@ -6,29 +6,29 @@ export const identifyEventData: Partial<SegmentEvent> = {
   traits: {
     address: {
       city: 'New York City',
-      postal_code: '10108',
+      postalCode: '10108',
       state: 'NY',
       street: 'PO Box 963'
     },
-    address_type: 'Home',
+    addressType: 'Home',
     email: 'john@example.biz',
-    email_type: 'Personal',
-    first_name: 'John',
-    last_name: 'Doe',
+    emailType: 'Personal',
+    firstName: 'John',
+    lastName: 'Doe',
     phone: '+18774466722',
-    phone_type: 'Home',
+    phoneType: 'Home',
     website: 'https://www.facebook.com/john.doe',
-    website_type: 'Facebook'
+    websiteType: 'Facebook'
   }
 }
 
 export const identifyEventDataNoEmail: Partial<SegmentEvent> = {
   type: 'identify',
   traits: {
-    first_name: 'John',
-    last_name: 'Doe',
+    firstName: 'John',
+    lastName: 'Doe',
     phone: '+18774466722',
-    phone_type: 'Home'
+    phoneType: 'Home'
   }
 }
 
@@ -45,16 +45,16 @@ export const identifyEventDataUpdated: Partial<SegmentEvent> = {
     ...identifyEventData.traits,
     address: {
       city: 'New York',
-      postal_code: '10005',
+      postalCode: '10005',
       state: 'NY',
       street: '11 Wall St'
     },
-    address_type: 'Work',
-    email_type: 'Work',
+    addressType: 'Work',
+    emailType: 'Work',
     phone: '+18774466723',
-    phone_type: 'Work',
+    phoneType: 'Work',
     website: 'https://www.example.biz',
-    website_type: 'Website'
+    websiteType: 'Website'
   }
 }
 
@@ -68,7 +68,7 @@ export const identifyEventDataWithLookupId: Partial<SegmentEvent> = {
     },
     birthday: '2001-01-01T01:01:01-05:00',
     email: 'john.doe@aol.com',
-    email_type: 'Personal',
+    emailType: 'Personal',
     lookup_id: 'abcd1234'
   }
 }
@@ -77,7 +77,7 @@ export const identifyEventDataWithInvalidWebsite: Partial<SegmentEvent> = {
   ...identifyEventDataUpdated,
   traits: {
     ...identifyEventDataUpdated.traits,
-    website_type: 'Invalid'
+    websiteType: 'Invalid'
   }
 }
 
@@ -87,7 +87,7 @@ export const constituentPayload = {
     address_lines: 'PO Box 963',
     city: 'New York City',
     state: 'NY',
-    postal_code: '10108',
+    postalCode: '10108',
     type: 'Home'
   },
   email: {
@@ -133,7 +133,7 @@ export const addressPayloadUpdated = {
   address_lines: '11 Wall St',
   city: 'New York',
   state: 'NY',
-  postal_code: '10005',
+  postalCode: '10005',
   type: 'Work'
 }
 
@@ -141,7 +141,7 @@ export const addressPayloadWithUpdatedStreet = {
   address_lines: '11 Wall Street',
   city: 'New York',
   state: 'NY',
-  postal_code: '10005',
+  postalCode: '10005',
   type: 'Work'
 }
 
