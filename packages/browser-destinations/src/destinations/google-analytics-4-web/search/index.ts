@@ -9,7 +9,7 @@ import { updateUser } from '../ga4-functions'
 const action: BrowserActionDefinition<Settings, Function, Payload> = {
   title: 'Search',
   description: 'The term that was searched for.',
-  defaultSubscription: 'type = "track"',
+  defaultSubscription: 'type = "track" and event = "Products Searched"',
   platform: 'web',
   fields: {
     user_id: user_id,

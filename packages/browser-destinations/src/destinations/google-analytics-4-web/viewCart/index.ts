@@ -8,7 +8,7 @@ import { updateUser } from '../ga4-functions'
 const action: BrowserActionDefinition<Settings, Function, Payload> = {
   title: 'View Cart',
   description: 'This event signifies that a user viewed their cart.',
-  defaultSubscription: 'type = "track"',
+  defaultSubscription: 'type = "track" and event = "Cart Viewed"',
   platform: 'web',
   fields: {
     user_id: user_id,

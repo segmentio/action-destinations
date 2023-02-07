@@ -20,7 +20,7 @@ import { updateUser } from '../ga4-functions'
 const action: BrowserActionDefinition<Settings, Function, Payload> = {
   title: 'Refund',
   description: 'This event signifies when one or more items is refunded to a user.',
-  defaultSubscription: 'type = "track"',
+  defaultSubscription: 'type = "track" and event = "Order Refunded"',
   platform: 'web',
   fields: {
     user_id: user_id,

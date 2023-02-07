@@ -9,7 +9,7 @@ const action: BrowserActionDefinition<Settings, Function, Payload> = {
   title: 'View Item',
   description:
     'This event signifies that some content was shown to the user. Use this event to discover the most popular items viewed.',
-  defaultSubscription: 'type = "track"',
+  defaultSubscription: 'type = "track" and event =  "Product Viewed"',
   platform: 'web',
   fields: {
     user_id: user_id,

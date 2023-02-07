@@ -8,7 +8,7 @@ import { updateUser } from '../ga4-functions'
 const action: BrowserActionDefinition<Settings, Function, Payload> = {
   title: 'Sign Up',
   description: 'The method used for sign up.',
-  defaultSubscription: 'type = "track"',
+  defaultSubscription: 'type = "track" and event = "Signed Up"',
   platform: 'web',
   fields: {
     user_id: user_id,

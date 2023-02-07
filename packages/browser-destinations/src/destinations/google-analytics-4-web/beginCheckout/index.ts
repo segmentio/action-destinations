@@ -8,7 +8,7 @@ import { updateUser } from '../ga4-functions'
 const action: BrowserActionDefinition<Settings, Function, Payload> = {
   title: 'Begin Checkout',
   description: 'This event signifies that a user has begun a checkout.',
-  defaultSubscription: 'type = "track"',
+  defaultSubscription: 'type = "track" and event = "Checkout Started"',
   platform: 'web',
   fields: {
     user_id: user_id,

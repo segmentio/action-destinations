@@ -10,7 +10,7 @@ const action: BrowserActionDefinition<Settings, Function, Payload> = {
   title: 'Remove from Cart',
   description: 'This event signifies that an item was removed from a cart.',
   platform: 'web',
-  defaultSubscription: 'type = "track"',
+  defaultSubscription: 'type = "track" and event = "Product Removed"',
   fields: {
     user_id: user_id,
     currency: currency,

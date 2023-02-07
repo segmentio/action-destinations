@@ -18,7 +18,7 @@ import { updateUser } from '../ga4-functions'
 const action: BrowserActionDefinition<Settings, Function, Payload> = {
   title: 'Purchase',
   description: 'This event signifies when one or more items is purchased by a user.',
-  defaultSubscription: 'type = "track"',
+  defaultSubscription: 'type = "track" and event = "Order Completed"',
   platform: 'web',
   fields: {
     user_id: user_id,

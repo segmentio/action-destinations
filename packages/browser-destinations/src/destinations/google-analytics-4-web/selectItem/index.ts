@@ -15,7 +15,7 @@ import { updateUser } from '../ga4-functions'
 const action: BrowserActionDefinition<Settings, Function, Payload> = {
   title: 'Select Item',
   description: 'This event signifies an item was selected from a list.',
-  defaultSubscription: 'type = "track"',
+  defaultSubscription: 'type = "track" and event = "Product Clicked"',
   platform: 'web',
   fields: {
     user_id: user_id,

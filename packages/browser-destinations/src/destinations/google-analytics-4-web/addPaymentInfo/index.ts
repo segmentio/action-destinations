@@ -17,7 +17,7 @@ import {
 const action: BrowserActionDefinition<Settings, Function, Payload> = {
   title: 'Add Payment Info',
   description: 'Send event when a user submits their payment information',
-  defaultSubscription: 'type = "track"',
+  defaultSubscription: 'type = "track" and event = "Payment Info Entered"',
   platform: 'web',
   fields: {
     user_id: { ...user_id },

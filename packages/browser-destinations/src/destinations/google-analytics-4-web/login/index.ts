@@ -10,7 +10,7 @@ const action: BrowserActionDefinition<Settings, Function, Payload> = {
   title: 'Login',
   description: 'Send event when a user logs in',
   platform: 'web',
-  defaultSubscription: 'type = "track"',
+  defaultSubscription: 'type = "track" and event = "Signed In"',
   fields: {
     user_id: user_id,
     method: method,

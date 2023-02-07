@@ -8,7 +8,7 @@ import { user_properties, params, value, currency, items_single_products, user_i
 const action: BrowserActionDefinition<Settings, Function, Payload> = {
   title: 'Add to Cart',
   description: 'This event signifies that an item was added to a cart for purchase.',
-  defaultSubscription: 'type = "track"',
+  defaultSubscription: 'type = "track" and event = "Product Added"',
   platform: 'web',
   fields: {
     user_id: user_id,

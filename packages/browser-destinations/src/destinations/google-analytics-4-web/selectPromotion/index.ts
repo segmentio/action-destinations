@@ -19,7 +19,7 @@ import { updateUser } from '../ga4-functions'
 const action: BrowserActionDefinition<Settings, Function, Payload> = {
   title: 'Select Promotion',
   description: 'This event signifies a promotion was selected from a list.',
-  defaultSubscription: 'type = "track"',
+  defaultSubscription: 'type = "track" and event = "Promotion Clicked"',
   platform: 'web',
   fields: {
     user_id: user_id,

@@ -11,7 +11,7 @@ const action: BrowserActionDefinition<Settings, Function, Payload> = {
   description:
     'The event signifies that an item was added to a wishlist. Use this event to identify popular gift items in your app.',
   platform: 'web',
-  defaultSubscription: 'type = "track"',
+  defaultSubscription: 'type = "track" and event = "Product Added to Wishlist"',
   fields: {
     user_id: user_id,
     currency: currency,
