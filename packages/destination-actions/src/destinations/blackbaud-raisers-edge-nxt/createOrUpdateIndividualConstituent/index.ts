@@ -2,7 +2,17 @@ import { ActionDefinition, IntegrationError, RetryableError } from '@segment/act
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 import { BlackbaudSkyApi } from '../api'
-import { Address, Constituent, Email, OnlinePresence, Phone } from '../types'
+import {
+  Address,
+  Constituent,
+  Email,
+  ExistingAddress,
+  ExistingEmail,
+  ExistingOnlinePresence,
+  ExistingPhone,
+  OnlinePresence,
+  Phone
+} from '../types'
 import { dateStringToFuzzyDate, filterObjectListByMatchFields, isRequestErrorRetryable } from '../utils'
 
 const action: ActionDefinition<Settings, Payload> = {
@@ -355,13 +365,13 @@ const action: ActionDefinition<Settings, Payload> = {
     }
 
     // data for constituent call
-    const constituentData: Constituent = {}
-    const simpleConstituentFields = ['first', 'gender', 'income', 'last', 'lookup_id']
-    simpleConstituentFields.forEach((key) => {
-      if (payload[key] !== undefined) {
-        constituentData[key] = payload[key]
-      }
-    })
+    const constituentData: Constituent = {
+      first: payload.first,
+      gender: payload.gender,
+      income: payload.income,
+      last: payload.last,
+      lookup_id: payload.lookup_id
+    }
     if (payload.birthdate) {
       const birthdateFuzzyDate = dateStringToFuzzyDate(payload.birthdate)
       if (birthdateFuzzyDate) {
@@ -462,13 +472,13 @@ const action: ActionDefinition<Settings, Payload> = {
           const constituentAddressListResults = await getConstituentAddressListResponse.json()
 
           // check address list for one that matches request
-          let existingAddress = undefined
+          let existingAddress: ExistingAddress | undefined = undefined
           if (constituentAddressListResults.count > 0) {
             existingAddress = filterObjectListByMatchFields(
               constituentAddressListResults.value,
               constituentAddressData,
               ['address_lines', 'city', 'postal_code', 'state']
-            )
+            ) as ExistingAddress | undefined
           }
 
           if (!existingAddress) {
@@ -532,11 +542,11 @@ const action: ActionDefinition<Settings, Payload> = {
           const constituentEmailListResults = await getConstituentEmailListResponse.json()
 
           // check email list for one that matches request
-          let existingEmail = undefined
+          let existingEmail: ExistingEmail | undefined = undefined
           if (constituentEmailListResults.count > 0) {
             existingEmail = filterObjectListByMatchFields(constituentEmailListResults.value, constituentEmailData, [
               'address'
-            ])
+            ]) as ExistingEmail | undefined
           }
 
           if (!existingEmail) {
@@ -602,13 +612,13 @@ const action: ActionDefinition<Settings, Payload> = {
           const constituentOnlinePresenceListResults = await getConstituentOnlinePresenceListResponse.json()
 
           // check online presence list for one that matches request
-          let existingOnlinePresence = undefined
+          let existingOnlinePresence: ExistingOnlinePresence | undefined = undefined
           if (constituentOnlinePresenceListResults.count > 0) {
             existingOnlinePresence = filterObjectListByMatchFields(
               constituentOnlinePresenceListResults.value,
               constituentOnlinePresenceData,
               ['address']
-            )
+            ) as ExistingOnlinePresence | undefined
           }
 
           if (!existingOnlinePresence) {
@@ -670,11 +680,11 @@ const action: ActionDefinition<Settings, Payload> = {
           const constituentPhoneListResults = await getConstituentPhoneListResponse.json()
 
           // check phone list for one that matches request
-          let existingPhone = undefined
+          let existingPhone: ExistingPhone | undefined = undefined
           if (constituentPhoneListResults.count > 0) {
             existingPhone = filterObjectListByMatchFields(constituentPhoneListResults.value, constituentPhoneData, [
               'int:number'
-            ])
+            ]) as ExistingPhone | undefined
           }
 
           if (!existingPhone) {

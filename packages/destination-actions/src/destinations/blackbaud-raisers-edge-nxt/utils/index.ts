@@ -1,6 +1,8 @@
-export const dateStringToFuzzyDate = (dateString: string) => {
+import { StringIndexedObject } from '../types'
+
+export const dateStringToFuzzyDate = (dateString: string | number) => {
   const date = new Date(dateString)
-  if (isNaN(date)) {
+  if (isNaN(date.getTime())) {
     // invalid date object
     return false
   } else {
@@ -15,10 +17,14 @@ export const dateStringToFuzzyDate = (dateString: string) => {
   }
 }
 
-export const filterObjectListByMatchFields = (list: object[], data: object, matchFields: string[]) => {
-  return list.find((item: object) => {
-    let isMatch = undefined
-    matchFields.forEach((field) => {
+export const filterObjectListByMatchFields = (
+  list: StringIndexedObject[],
+  data: StringIndexedObject,
+  matchFields: string[]
+) => {
+  return list.find((item: StringIndexedObject) => {
+    let isMatch: boolean | undefined = undefined
+    matchFields.forEach((field: string) => {
       if (isMatch !== false) {
         let fieldName = field
         if (field.startsWith('int:')) {
@@ -27,8 +33,8 @@ export const filterObjectListByMatchFields = (list: object[], data: object, matc
         let itemValue = item[fieldName] ? item[fieldName].toLowerCase() : ''
         let dataValue = data[fieldName] ? data[fieldName].toLowerCase() : ''
         if (field.startsWith('int:')) {
-          itemValue = itemValue.replace(/\D/g,'')
-          dataValue = dataValue.replace(/\D/g,'')
+          itemValue = itemValue.replace(/\D/g, '')
+          dataValue = dataValue.replace(/\D/g, '')
         }
         isMatch = itemValue === dataValue
       }
