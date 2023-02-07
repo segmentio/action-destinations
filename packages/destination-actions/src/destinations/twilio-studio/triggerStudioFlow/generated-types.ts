@@ -10,7 +10,7 @@ export interface Payload {
    */
   from: string
   /**
-   * The amount of time during which the Flow can only be triggered once per Flow SID - Contact Phone Number combination. Default is 60 seconds.
+   * The amount of time during which the Flow can only be triggered once per Flow SID - User ID combination. Default is 60 seconds.
    */
   coolingOffPeriod?: number
   /**

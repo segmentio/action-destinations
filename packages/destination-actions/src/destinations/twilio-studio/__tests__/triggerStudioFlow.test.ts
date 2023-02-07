@@ -6,8 +6,8 @@ const studio = createTestIntegration(Studio)
 
 describe('Twilio Studio', () => {
   const settings = {
-    accountId: 'a',
-    token: 'b',
+    accountSid: 'a',
+    authToken: 'b',
     spaceId: 'c',
     profileApiAccessToken: 'd'
   }

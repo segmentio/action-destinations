@@ -30,7 +30,7 @@ const action: ActionDefinition<Settings, Payload> = {
     coolingOffPeriod: {
       label: 'Cooling-off Period (in seconds)',
       description:
-        'The amount of time during which the Flow can only be triggered once per Flow SID - Contact Phone Number combination. Default is 60 seconds.',
+        'The amount of time during which the Flow can only be triggered once per Flow SID - User ID combination. Default is 60 seconds.',
       type: 'number',
       default: 60
     },
@@ -65,23 +65,23 @@ const action: ActionDefinition<Settings, Payload> = {
         400
       )
     }
+    if (
+      stateContext &&
+      !shouldSendToStudio(`${payload.flowSid}_${payload.userId}`, stateContext, payload.coolingOffPeriod!)
+    ) {
+      throw new IntegrationError(
+        `Unable to trigger Studio Flow. Only 1 request allowed per Flow SID - User ID combination in ${
+          payload.coolingOffPeriod || DEFAULT_COOLING_OFF_PERIOD
+        } seconds`,
+        'Cooling off Period',
+        400
+      )
+    }
     const toAddress = await getToAddressField(request, settings, payload)
     if (!toAddress) {
       throw new IntegrationError(
         'Unable to trigger Studio Flow. No Contact Address Found!',
         'Trigger Studio Flow no contact address found failure',
-        400
-      )
-    }
-    if (
-      stateContext &&
-      !shouldSendToStudio(`${payload.flowSid}_${toAddress}`, stateContext, payload.coolingOffPeriod!)
-    ) {
-      throw new IntegrationError(
-        `Unable to trigger Studio Flow. Only 1 request allowed per Flow SID - Contact phone number combination in ${
-          payload.coolingOffPeriod || DEFAULT_COOLING_OFF_PERIOD
-        } seconds`,
-        'Cooling off Period',
         400
       )
     }

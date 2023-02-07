@@ -11,14 +11,14 @@ const destination: DestinationDefinition<Settings> = {
   authentication: {
     scheme: 'basic',
     fields: {
-      accountId: {
+      accountSid: {
         label: 'Account SID',
         description:
           'Your Twilio Account SID, starting with AC. You can find this in the Account Info section of your dashboard in the [Twilio Console](https://www.twilio.com/console).',
         type: 'string',
         required: true
       },
-      token: {
+      authToken: {
         label: 'Auth Token',
         description:
           'Your Twilio Auth Token. You can find this in the Account Info section of your dashboard in the [Twilio Console](https://www.twilio.com/console).',
@@ -46,7 +46,7 @@ const destination: DestinationDefinition<Settings> = {
   extendRequest({ settings }) {
     return {
       headers: {
-        authorization: `Basic ${Buffer.from(`${settings.accountId}:${settings.token}`).toString('base64')}`
+        authorization: `Basic ${Buffer.from(`${settings.accountSid}:${settings.authToken}`).toString('base64')}`
       }
     }
   },
