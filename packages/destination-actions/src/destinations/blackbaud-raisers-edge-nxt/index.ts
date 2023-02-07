@@ -1,6 +1,6 @@
 import type { DestinationDefinition } from '@segment/actions-core'
 import type { Settings } from './generated-types'
-import { SKY_API_TEST_AUTHENTICATION, SKY_OAUTH2_TOKEN_URL } from './constants'
+import { SKY_API_BASE_URL, SKY_OAUTH2_TOKEN_URL } from './constants'
 import { RefreshTokenResponse } from './types'
 import createOrUpdateIndividualConstituent from './createOrUpdateIndividualConstituent'
 
@@ -20,7 +20,7 @@ const destination: DestinationDefinition<Settings> = {
       }
     },
     testAuthentication: (request) => {
-      return request(SKY_API_TEST_AUTHENTICATION)
+      return request(`${SKY_API_BASE_URL}/emailaddresstypes`)
     },
     refreshAccessToken: async (request, { auth }) => {
       // Return a request that refreshes the access_token if the API supports it
