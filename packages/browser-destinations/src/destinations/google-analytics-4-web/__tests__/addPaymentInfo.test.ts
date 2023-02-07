@@ -1,9 +1,8 @@
 import { Subscription } from '../../../lib/browser-destinations'
 import { Analytics, Context } from '@segment/analytics-next'
 import googleAnalytics4Web, { destination } from '../index'
-const setting = {
-  measurementID: 'test123'
-}
+import { GA } from '../types'
+
 const subscriptions: Subscription[] = [
   {
     partnerAction: 'addPaymentInfo',
@@ -42,44 +41,60 @@ const subscriptions: Subscription[] = [
     }
   }
 ]
+
 describe('GoogleAnalytics4Web.addPaymentInfo', () => {
-  test('Basic Event with Default Mappings', async () => {
-    const [event] = await googleAnalytics4Web({
-      ...setting,
+  const settings = {
+    measurementID: 'test123'
+  }
+
+  let mockGA4: GA
+  let addPaymentInfoEvent: any
+  beforeEach(async () => {
+    jest.restoreAllMocks()
+
+    const [trackEventPlugin] = await googleAnalytics4Web({
+      ...settings,
       subscriptions
     })
-    jest.spyOn(destination, 'initialize')
-    destination.actions.addPaymentInfo.perform = jest.fn(destination.actions.addPaymentInfo.perform)
-    await event.load(Context.system(), {} as Analytics)
-    expect(destination.initialize).toHaveBeenCalled()
-    await event.track?.(
-      new Context({
-        event: 'Payment Info Entered',
-        type: 'track',
-        properties: {
-          currency: 'USD',
-          value: 10,
-          coupon: 'SUMMER_123',
-          payment_method: 'Credit Card',
-          products: [
-            {
-              product_id: '12345',
-              name: 'Monopoly: 3rd Edition',
-              currency: 'USD'
-            }
-          ]
-        }
-      })
-    )
-    expect(destination.actions.addPaymentInfo.perform).toHaveBeenCalledWith(
+    addPaymentInfoEvent = trackEventPlugin
+
+    jest.spyOn(destination, 'initialize').mockImplementation(() => {
+      mockGA4 = {
+        gtag: jest.fn()
+      }
+      return Promise.resolve(mockGA4.gtag)
+    })
+    await trackEventPlugin.load(Context.system(), {} as Analytics)
+  })
+
+  test('GA4 addPaymentInfo Event', async () => {
+    const context = new Context({
+      event: 'Payment Info Entered',
+      type: 'track',
+      properties: {
+        currency: 'USD',
+        value: 10,
+        coupon: 'SUMMER_123',
+        payment_method: 'Credit Card',
+        products: [
+          {
+            product_id: '12345',
+            name: 'Monopoly: 3rd Edition',
+            currency: 'USD'
+          }
+        ]
+      }
+    })
+    await addPaymentInfoEvent.track?.(context)
+
+    expect(mockGA4.gtag).toHaveBeenCalledWith(
       expect.anything(),
+      expect.stringContaining('add_payment_info'),
       expect.objectContaining({
-        payload: {
-          coupon: 'SUMMER_123',
-          currency: 'USD',
-          items: [{ currency: 'USD', item_id: '12345', item_name: 'Monopoly: 3rd Edition' }],
-          value: 10
-        }
+        coupon: 'SUMMER_123',
+        currency: 'USD',
+        items: [{ currency: 'USD', item_id: '12345', item_name: 'Monopoly: 3rd Edition' }],
+        value: 10
       })
     )
   })

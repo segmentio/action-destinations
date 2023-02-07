@@ -1,14 +1,12 @@
 import type { BrowserActionDefinition } from '../../../lib/browser-destinations'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
-
 import {
   coupon,
   currency,
   transaction_id,
   value,
   user_id,
-  affiliation,
   shipping,
   tax,
   items_multi_products,
@@ -24,7 +22,6 @@ const action: BrowserActionDefinition<Settings, Function, Payload> = {
   platform: 'web',
   fields: {
     user_id: user_id,
-    affiliation: affiliation,
     coupon: { ...coupon, default: { '@path': '$.properties.coupon' } },
     currency: { ...currency, required: true },
     items: {
@@ -42,13 +39,12 @@ const action: BrowserActionDefinition<Settings, Function, Payload> = {
     updateUser(payload.user_id, payload.user_properties, gtag)
 
     gtag('event', 'purchase', {
+      currency: payload.currency,
       transaction_id: payload.transaction_id,
-      affiliation: payload.affiliation,
       value: payload.value,
+      coupon: payload.coupon,
       tax: payload.tax,
       shipping: payload.shipping,
-      currency: payload.currency,
-      coupon: payload.coupon,
       items: payload.items,
       ...payload.params
     })

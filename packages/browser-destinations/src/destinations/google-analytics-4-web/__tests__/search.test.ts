@@ -1,9 +1,8 @@
 import { Subscription } from '../../../lib/browser-destinations'
 import { Analytics, Context } from '@segment/analytics-next'
 import googleAnalytics4Web, { destination } from '../index'
-const setting = {
-  measurementID: 'test123'
-}
+import { GA } from '../types'
+
 const subscriptions: Subscription[] = [
   {
     partnerAction: 'search',
@@ -11,35 +10,54 @@ const subscriptions: Subscription[] = [
     enabled: true,
     subscribe: 'type = "track"',
     mapping: {
-      search_item: {
-        '@path': '$.properties.search_item'
+      search_term: {
+        '@path': '$.properties.search_term'
       }
     }
   }
 ]
+
 describe('GoogleAnalytics4Web.search', () => {
-  test('Basic Event with Default Mappings', async () => {
-    const [event] = await googleAnalytics4Web({
-      ...setting,
+  const settings = {
+    measurementID: 'test123'
+  }
+
+  let mockGA4: GA
+  let searchEvent: any
+  beforeEach(async () => {
+    jest.restoreAllMocks()
+
+    const [trackEventPlugin] = await googleAnalytics4Web({
+      ...settings,
       subscriptions
     })
-    jest.spyOn(destination, 'initialize')
-    destination.actions.search.perform = jest.fn(destination.actions.search.perform)
-    await event.load(Context.system(), {} as Analytics)
-    expect(destination.initialize).toHaveBeenCalled()
-    await event.track?.(
-      new Context({
-        event: 'search',
-        type: 'track',
-        properties: {
-          search_item: 'Monopoly: 3rd Edition'
-        }
-      })
-    )
-    expect(destination.actions.search.perform).toHaveBeenCalledWith(
+    searchEvent = trackEventPlugin
+
+    jest.spyOn(destination, 'initialize').mockImplementation(() => {
+      mockGA4 = {
+        gtag: jest.fn()
+      }
+      return Promise.resolve(mockGA4.gtag)
+    })
+    await trackEventPlugin.load(Context.system(), {} as Analytics)
+  })
+
+  test('GA4 search Event', async () => {
+    const context = new Context({
+      event: 'search',
+      type: 'track',
+      properties: {
+        search_term: 'Monopoly: 3rd Edition'
+      }
+    })
+
+    await searchEvent.track?.(context)
+
+    expect(mockGA4.gtag).toHaveBeenCalledWith(
       expect.anything(),
+      expect.stringContaining('search'),
       expect.objectContaining({
-        payload: { search_item: 'Monopoly: 3rd Edition' }
+        search_term: 'Monopoly: 3rd Edition'
       })
     )
   })

@@ -1,9 +1,8 @@
 import { Subscription } from '../../../lib/browser-destinations'
 import { Analytics, Context } from '@segment/analytics-next'
 import googleAnalytics4Web, { destination } from '../index'
-const setting = {
-  measurementID: 'test123'
-}
+import { GA } from '../types'
+
 const subscriptions: Subscription[] = [
   {
     partnerAction: 'login',
@@ -17,29 +16,47 @@ const subscriptions: Subscription[] = [
     }
   }
 ]
+
 describe('GoogleAnalytics4Web.login', () => {
-  test('Basic Event with Default Mappings', async () => {
-    const [event] = await googleAnalytics4Web({
-      ...setting,
+  const settings = {
+    measurementID: 'test123'
+  }
+
+  let mockGA4: GA
+  let loginEvent: any
+  beforeEach(async () => {
+    jest.restoreAllMocks()
+
+    const [trackEventPlugin] = await googleAnalytics4Web({
+      ...settings,
       subscriptions
     })
-    jest.spyOn(destination, 'initialize')
-    destination.actions.login.perform = jest.fn(destination.actions.login.perform)
-    await event.load(Context.system(), {} as Analytics)
-    expect(destination.initialize).toHaveBeenCalled()
-    await event.track?.(
-      new Context({
-        event: 'Login',
-        type: 'track',
-        properties: {
-          method: 'Google'
-        }
-      })
-    )
-    expect(destination.actions.login.perform).toHaveBeenCalledWith(
+    loginEvent = trackEventPlugin
+
+    jest.spyOn(destination, 'initialize').mockImplementation(() => {
+      mockGA4 = {
+        gtag: jest.fn()
+      }
+      return Promise.resolve(mockGA4.gtag)
+    })
+    await trackEventPlugin.load(Context.system(), {} as Analytics)
+  })
+
+  test('GA4 login Event', async () => {
+    const context = new Context({
+      event: 'Login',
+      type: 'track',
+      properties: {
+        method: 'Google'
+      }
+    })
+    await loginEvent.track?.(context)
+
+    expect(mockGA4.gtag).toHaveBeenCalledWith(
       expect.anything(),
+      expect.stringContaining('login'),
       expect.objectContaining({
-        payload: { method: 'Google' }
+        method: 'Google'
       })
     )
   })

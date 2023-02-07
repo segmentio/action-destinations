@@ -1,9 +1,8 @@
 import { Subscription } from '../../../lib/browser-destinations'
 import { Analytics, Context } from '@segment/analytics-next'
 import googleAnalytics4Web, { destination } from '../index'
-const setting = {
-  measurementID: 'test123'
-}
+import { GA } from '../types'
+
 const subscriptions: Subscription[] = [
   {
     partnerAction: 'viewPromotion',
@@ -48,47 +47,64 @@ const subscriptions: Subscription[] = [
     }
   }
 ]
+
 describe('GoogleAnalytics4Web.viewPromotion', () => {
-  test('Basic Event with Default Mappings', async () => {
-    const [event] = await googleAnalytics4Web({
-      ...setting,
+  const settings = {
+    measurementID: 'test123'
+  }
+
+  let mockGA4: GA
+  let viewPromotionEvent: any
+  beforeEach(async () => {
+    jest.restoreAllMocks()
+
+    const [trackEventPlugin] = await googleAnalytics4Web({
+      ...settings,
       subscriptions
     })
-    jest.spyOn(destination, 'initialize')
-    destination.actions.viewPromotion.perform = jest.fn(destination.actions.viewPromotion.perform)
-    await event.load(Context.system(), {} as Analytics)
-    expect(destination.initialize).toHaveBeenCalled()
-    await event.track?.(
-      new Context({
-        event: 'Select Promotion',
-        type: 'track',
-        properties: {
-          creative_name: 'summer_banner2',
-          creative_slot: 'featured_app_1',
-          location_id: 'ChIJIQBpAG2ahYAR_6128GcTUEo',
-          promotion_id: 'P_12345',
-          promotion_name: 'Summer Sale',
-          products: [
-            {
-              product_id: '12345',
-              name: 'Monopoly: 3rd Edition',
-              currency: 'USD'
-            }
-          ]
-        }
-      })
-    )
-    expect(destination.actions.viewPromotion.perform).toHaveBeenCalledWith(
+    viewPromotionEvent = trackEventPlugin
+
+    jest.spyOn(destination, 'initialize').mockImplementation(() => {
+      mockGA4 = {
+        gtag: jest.fn()
+      }
+      return Promise.resolve(mockGA4.gtag)
+    })
+    await trackEventPlugin.load(Context.system(), {} as Analytics)
+  })
+
+  test('GA4 viewPromotion Event', async () => {
+    const context = new Context({
+      event: 'Select Promotion',
+      type: 'track',
+      properties: {
+        creative_name: 'summer_banner2',
+        creative_slot: 'featured_app_1',
+        location_id: 'ChIJIQBpAG2ahYAR_6128GcTUEo',
+        promotion_id: 'P_12345',
+        promotion_name: 'Summer Sale',
+        products: [
+          {
+            product_id: '12345',
+            name: 'Monopoly: 3rd Edition',
+            currency: 'USD'
+          }
+        ]
+      }
+    })
+
+    await viewPromotionEvent.track?.(context)
+
+    expect(mockGA4.gtag).toHaveBeenCalledWith(
       expect.anything(),
+      expect.stringContaining('view_promotion'),
       expect.objectContaining({
-        payload: {
-          creative_name: 'summer_banner2',
-          creative_slot: 'featured_app_1',
-          location_id: 'ChIJIQBpAG2ahYAR_6128GcTUEo',
-          promotion_id: 'P_12345',
-          promotion_name: 'Summer Sale',
-          items: [{ currency: 'USD', item_id: '12345', item_name: 'Monopoly: 3rd Edition' }]
-        }
+        creative_name: 'summer_banner2',
+        creative_slot: 'featured_app_1',
+        location_id: 'ChIJIQBpAG2ahYAR_6128GcTUEo',
+        promotion_id: 'P_12345',
+        promotion_name: 'Summer Sale',
+        items: [{ currency: 'USD', item_id: '12345', item_name: 'Monopoly: 3rd Edition' }]
       })
     )
   })

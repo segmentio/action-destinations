@@ -45,9 +45,7 @@ const action: BrowserActionDefinition<Settings, Function, Payload> = {
     updateUser(payload.user_id, payload.user_properties, gtag)
     const event_name = normalizeEventName(payload.name, payload.lowercase)
 
-    gtag('event', event_name, {
-      ...payload.params
-    })
+    gtag('event', event_name, payload.params)
   }
 }
 

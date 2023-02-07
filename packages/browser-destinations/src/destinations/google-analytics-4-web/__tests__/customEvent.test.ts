@@ -1,9 +1,8 @@
 import { Subscription } from '../../../lib/browser-destinations'
 import { Analytics, Context } from '@segment/analytics-next'
 import googleAnalytics4Web, { destination } from '../index'
-const setting = {
-  measurementID: 'test123'
-}
+import { GA } from '../types'
+
 const subscriptions: Subscription[] = [
   {
     partnerAction: 'customEvent',
@@ -22,38 +21,50 @@ const subscriptions: Subscription[] = [
 ]
 
 describe('GoogleAnalytics4Web.customEvent', () => {
-  test('Basic Event with Default Mappings', async () => {
-    const [event] = await googleAnalytics4Web({
-      ...setting,
+  const settings = {
+    measurementID: 'test123'
+  }
+
+  let mockGA4: GA
+  let customEvent: any
+  beforeEach(async () => {
+    jest.restoreAllMocks()
+
+    const [trackEventPlugin] = await googleAnalytics4Web({
+      ...settings,
       subscriptions
     })
-    jest.spyOn(destination, 'initialize')
-    destination.actions.customEvent.perform = jest.fn(destination.actions.customEvent.perform)
-    await event.load(Context.system(), {} as Analytics)
-    expect(destination.initialize).toHaveBeenCalled()
-    await event.track?.(
-      new Context({
-        event: 'Custom Event',
-        type: 'track',
-        properties: {
-          params: [
-            {
-              paramOne: 'test123',
-              paramTwo: 'test123',
-              paramThree: 123
-            }
-          ]
-        }
-      })
-    )
-    expect(destination.actions.customEvent.perform).toHaveBeenCalledWith(
+    customEvent = trackEventPlugin
+
+    jest.spyOn(destination, 'initialize').mockImplementation(() => {
+      mockGA4 = {
+        gtag: jest.fn()
+      }
+      return Promise.resolve(mockGA4.gtag)
+    })
+    await trackEventPlugin.load(Context.system(), {} as Analytics)
+  })
+
+  test('GA4 customEvent Event', async () => {
+    const context = new Context({
+      event: 'Custom Event',
+      type: 'track',
+      properties: {
+        params: [
+          {
+            paramOne: 'test123',
+            paramTwo: 'test123',
+            paramThree: 123
+          }
+        ]
+      }
+    })
+    await customEvent.track?.(context)
+
+    expect(mockGA4.gtag).toHaveBeenCalledWith(
       expect.anything(),
-      expect.objectContaining({
-        payload: {
-          name: 'Custom Event',
-          params: [{ paramOne: 'test123', paramThree: 123, paramTwo: 'test123' }]
-        }
-      })
+      expect.stringContaining('Custom_Event'),
+      expect.objectContaining([{ paramOne: 'test123', paramThree: 123, paramTwo: 'test123' }])
     )
   })
 })

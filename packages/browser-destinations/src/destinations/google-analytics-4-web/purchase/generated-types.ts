@@ -6,10 +6,6 @@ export interface Payload {
    */
   user_id?: string
   /**
-   * Store or affiliation from which this transaction occurred (e.g. Google Store).
-   */
-  affiliation?: string
-  /**
    * Coupon code used for a purchase.
    */
   coupon?: string
