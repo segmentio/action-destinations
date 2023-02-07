@@ -1,5 +1,9 @@
 import { GenericPayload } from '../sf-types'
 import { buildCSVData } from '../sf-utils'
+import Salesforce from '../sf-operations'
+import createRequestClient from '../../../../../core/src/create-request-client'
+
+const requestClient = createRequestClient()
 
 describe('Salesforce Utils', () => {
   describe('CSV', () => {
@@ -244,6 +248,48 @@ describe('Salesforce Utils', () => {
       const csv = buildCSVData(updatePayloads, 'Id')
       const expected = `Name,NumberOfEmployees,sellsKrabbyPatties__c,Id\n"Krusty Krab","2","true","00"\n"Chum Bucket","1","false","01"\n`
       expect(csv).toEqual(expected)
+    })
+  })
+
+  describe('Instance URL', () => {
+    const badInstanceUrls = [
+      'https://www.google.com',
+      'http://how-to-salesforce.com',
+      'http://thisisnotsalesforce.com',
+      'http://salesforce-tips.co',
+      'http://na1.salesforce.com/',
+      'www.website.com',
+      'ijoewhnukdsfj,'
+    ]
+
+    // Note: These end in '/' to ensure that the instance URL we input matches the expected output
+    const validInstanceUrls = [
+      'https://na1.salesforce.com/',
+      'https://krusty-krab.my.salesforce.com/',
+      'https://sometesting-instanceurl-93244--staging.sandbox.my.salesforce.com/'
+    ]
+
+    it('should throw an error if the instance URL is not provided', async () => {
+      const instanceUrl = ''
+
+      expect(() => new Salesforce(instanceUrl, requestClient)).toThrow(
+        'Empty Salesforce instance URL. Please login through OAuth.'
+      )
+    })
+
+    it('should reject invalid instance URLs', async () => {
+      badInstanceUrls.forEach((instanceUrl) => {
+        expect(() => new Salesforce(instanceUrl, requestClient)).toThrow(
+          'Invalid Salesforce instance URL. Please login through OAuth again.'
+        )
+      })
+    })
+
+    it('should accept valid instance URLs', async () => {
+      validInstanceUrls.forEach((instanceUrl) => {
+        const sf = new Salesforce(instanceUrl, requestClient)
+        expect(sf.instanceUrl).toEqual(instanceUrl)
+      })
     })
   })
 })

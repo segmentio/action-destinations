@@ -7,7 +7,7 @@ import { DynamicFieldResponse } from '@segment/actions-core'
 const testDestination = createTestIntegration(Destination)
 
 const settings = {
-  instanceUrl: 'https://test.com'
+  instanceUrl: 'https://test.salesforce.com'
 }
 const auth = {
   refreshToken: 'xyz321',
