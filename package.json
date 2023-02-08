@@ -24,7 +24,7 @@
     "subscriptions": "NODE_VERSION=\"$(node --version)\"; if test \"$NODE_VERSION\" = \"v18.12.1\" ; then NODE_OPTIONS=--openssl-legacy-provider yarn workspace @segment/destination-subscriptions; else yarn workspace @segment/destination-subscriptions; fi",
     "test": "lerna run test --stream",
     "test-partners": "lerna run test --stream --ignore @segment/actions-core --ignore @segment/actions-cli --ignore @segment/ajv-human-errors",
-    "test-browser": "NODE_VERSION=\"$(node --version)\"; if test \"$NODE_VERSION\" = \"v18.12.1\" ; then lerna run build:karma --stream && NODE_OPTIONS=--openssl-legacy-provider karma start; else lerna run build:karma --stream && NODE_OPTIONS=--openssl-legacy-provider karma start; fi",
+    "test-browser": "NODE_VERSION=\"$(node --version)\"; if test \"$NODE_VERSION\" = \"v18.12.1\" ; then lerna run build:karma --stream && NODE_OPTIONS=--openssl-legacy-provider karma start; else lerna run build:karma --stream && karma start; fi",
     "typecheck": "lerna run typecheck --stream",
     "alpha": "lerna publish --canary --preid $(git branch --show-current) --include-merged-tags",
     "prepare": "husky install",
