@@ -3,7 +3,7 @@ import type { Settings } from './generated-types'
 
 const destination: DestinationDefinition<Settings> = {
   name: 'Pinterest Conversions Api',
-  slug: 'pinterest-conversions-api',
+  slug: 'actions-pinterest-conversions-api',
   mode: 'cloud',
 
   authentication: {
