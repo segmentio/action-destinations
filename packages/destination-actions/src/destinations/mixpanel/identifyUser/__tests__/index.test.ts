@@ -308,6 +308,7 @@ describe('Mixpanel.identifyUser', () => {
   it('should use anonymous_id as distinct_id if user_id is missing', async () => {
     const event = createTestEvent({ userId: null, traits: { abc: '123' } })
 
+    nock('https://api.mixpanel.com').post('/track').reply(200, {})
     nock('https://api.mixpanel.com').post('/engage').reply(200, {})
 
     const responses = await testDestination.testAction('identifyUser', {
@@ -320,9 +321,9 @@ describe('Mixpanel.identifyUser', () => {
       }
     })
 
-    expect(responses[0].status).toBe(200)
-    expect(responses[0].data).toMatchObject({})
-    expect(responses[0].options.body).toMatchObject(
+    expect(responses[1].status).toBe(200)
+    expect(responses[1].data).toMatchObject({})
+    expect(responses[1].options.body).toMatchObject(
       new URLSearchParams({
         data: JSON.stringify({
           $token: MIXPANEL_PROJECT_TOKEN,
