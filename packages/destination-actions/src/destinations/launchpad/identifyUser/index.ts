@@ -3,6 +3,7 @@ import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 
 import { getApiServerUrl, getConcatenatedName } from '../utils'
+import { IntegrationError } from '@segment/actions-core'
 
 const identifyUser: ActionDefinition<Settings, Payload> = {
   title: 'Identify User',
@@ -21,8 +22,8 @@ const identifyUser: ActionDefinition<Settings, Payload> = {
     userId: {
       label: 'User ID',
       type: 'string',
-      allowNull: true,
-      description: 'The unique user identifier set by you.',
+      description:
+        'A unique ID for a known user. This will be used as the Distinct ID. This field is required if the Anonymous ID field is empty',
       default: {
         '@path': '$.userId'
       }
@@ -30,8 +31,8 @@ const identifyUser: ActionDefinition<Settings, Payload> = {
     anonymousId: {
       label: 'Anonymous ID',
       type: 'string',
-      allowNull: true,
-      description: 'The generated anonymous ID for the user.',
+      description:
+        'A unique ID for an anonymous user. This will be used as the Distinct ID if the User ID field is empty. This field is required if the User ID field is empty',
       default: {
         '@path': '$.anonymousId'
       }
@@ -50,6 +51,8 @@ const identifyUser: ActionDefinition<Settings, Payload> = {
   perform: async (request, { payload, settings }) => {
     const apiServerUrl = getApiServerUrl(settings.apiRegion)
     let traits
+
+    if (!payload.anonymousId || !payload.userId) throw new IntegrationError('User ID or AnonymousId required', '400')
 
     if (payload.traits && Object.keys(payload.traits).length > 0) {
       const concatenatedName = getConcatenatedName(
@@ -73,6 +76,8 @@ const identifyUser: ActionDefinition<Settings, Payload> = {
 
     const data = {
       distinct_id: payload.userId ? payload.userId : payload.anonymousId,
+      user_id: payload.userId,
+      anonymous_id: payload.anonymousId,
       $ip: payload.ip,
       $set: traits ? traits : {},
       event: '$identify',

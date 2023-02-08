@@ -2,6 +2,7 @@ import { ActionDefinition } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import { getApiServerUrl } from '../utils'
 import type { Payload } from './generated-types'
+import { IntegrationError } from '@segment/actions-core'
 
 const groupIdentifyUser: ActionDefinition<Settings, Payload> = {
   title: 'Group Identify User',
@@ -38,8 +39,8 @@ const groupIdentifyUser: ActionDefinition<Settings, Payload> = {
     userId: {
       label: 'User ID',
       type: 'string',
-      allowNull: true,
-      description: 'The unique user identifier set by you',
+      description:
+        'A unique ID for a known user. This will be used as the Distinct ID. This field is required if the Anonymous ID field is empty',
       default: {
         '@path': '$.userId'
       }
@@ -47,8 +48,8 @@ const groupIdentifyUser: ActionDefinition<Settings, Payload> = {
     anonymousId: {
       label: 'Anonymous ID',
       type: 'string',
-      allowNull: true,
-      description: 'The generated anonymous ID for the user',
+      description:
+        'A unique ID for an anonymous user. This will be used as the Distinct ID if the User ID field is empty. This field is required if the User ID field is empty',
       default: {
         '@path': '$.anonymousId'
       }
@@ -59,6 +60,8 @@ const groupIdentifyUser: ActionDefinition<Settings, Payload> = {
     const groupId = payload.groupId
     const apiServerUrl = getApiServerUrl(settings.apiRegion)
     let transformed_traits
+
+    if (!payload.anonymousId || !payload.userId) throw new IntegrationError('User ID or AnonymousId required', '400')
 
     if (payload.traits) {
       transformed_traits = {
@@ -73,6 +76,8 @@ const groupIdentifyUser: ActionDefinition<Settings, Payload> = {
         ...transformed_traits
       },
       distinct_id: payload.userId ? payload.userId : payload.anonymousId,
+      user_id: payload.userId,
+      anonymoud_id: payload.anonymousId,
       api_key: settings.apiSecret
     }
     const groupIdentifyResponse = await request(`${apiServerUrl}capture`, {

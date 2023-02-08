@@ -6,13 +6,13 @@ export interface Payload {
    */
   event: string
   /**
-   * A distinct ID randomly generated prior to calling identify.
-   */
-  anonymousId: string
-  /**
-   * The distinct ID after calling identify.
+   * A unique ID for a known user. This will be used as the Distinct ID. This field is required if the Anonymous ID field is empty
    */
   userId?: string
+  /**
+   * A unique ID for an anonymous user. This will be used as the Distinct ID if the User ID field is empty. This field is required if the User ID field is empty
+   */
+  anonymousId?: string
   /**
    * The unique identifier of the group that performed this event.
    */

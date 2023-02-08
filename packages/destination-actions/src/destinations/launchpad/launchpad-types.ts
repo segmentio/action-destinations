@@ -25,12 +25,5 @@ export type LaunchpadEventProperties = {
 export type LaunchpadEvent = {
   event?: string
   properties?: LaunchpadEventProperties
-  batch?: LPBatchEvent[]
   api_key: string
-}
-
-export type LPBatchEvent = {
-  event: string
-  properties: LaunchpadEventProperties
-  timestamp?: string
 }

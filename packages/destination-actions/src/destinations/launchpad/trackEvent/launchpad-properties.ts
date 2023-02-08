@@ -1,22 +1,22 @@
 import { InputField } from '@segment/actions-core'
 
 export const eventProperties: Record<string, InputField> = {
-  anonymousId: {
-    label: 'Anonymous ID',
-    type: 'string',
-    required: true,
-    description: 'A distinct ID randomly generated prior to calling identify.',
-    default: {
-      '@path': '$.anonymousId'
-    }
-  },
   userId: {
     label: 'User ID',
     type: 'string',
-    required: false,
-    description: 'The distinct ID after calling identify.',
+    description:
+      'A unique ID for a known user. This will be used as the Distinct ID. This field is required if the Anonymous ID field is empty',
     default: {
       '@path': '$.userId'
+    }
+  },
+  anonymousId: {
+    label: 'Anonymous ID',
+    type: 'string',
+    description:
+      'A unique ID for an anonymous user. This will be used as the Distinct ID if the User ID field is empty. This field is required if the User ID field is empty',
+    default: {
+      '@path': '$.anonymousId'
     }
   },
   groupId: {
