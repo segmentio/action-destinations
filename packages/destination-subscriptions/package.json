@@ -17,7 +17,7 @@
     "test": "jest",
     "typecheck": "tsc -p tsconfig.build.json --noEmit",
     "prepare": "yarn build",
-    "size": "size-limit"
+    "size": "bash scripts/size.sh"
   },
   "main": "dist/cjs/index.js",
   "module": "dist/esm/index.js",
