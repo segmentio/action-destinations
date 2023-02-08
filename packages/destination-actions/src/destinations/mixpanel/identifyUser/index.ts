@@ -36,6 +36,18 @@ const action: ActionDefinition<Settings, Payload> = {
         '@path': '$.anonymousId'
       }
     },
+    distinct_id: {
+      label: 'Distinct ID',
+      type: 'string',
+      description: 'Distinct identifier for /engage request',
+      default: {
+        '@if': {
+          exists: { '@path': '$.userId' },
+          then: { '@path': '$.userId' },
+          else: { '@path': '$.anonymousId' }
+        }
+      }
+    },
     traits: {
       label: 'User Properties',
       type: 'object',
@@ -54,7 +66,7 @@ const action: ActionDefinition<Settings, Payload> = {
     const apiServerUrl = getApiServerUrl(settings.apiRegion)
 
     const responses = []
-    if (payload.anonymous_id && payload.user_id) {
+    if (payload.anonymous_id) {
       const identifyEvent = {
         event: '$identify',
         properties: {
@@ -91,7 +103,7 @@ const action: ActionDefinition<Settings, Payload> = {
       }
       const data = {
         $token: settings.projectToken,
-        $distinct_id: payload.user_id ?? payload.anonymous_id,
+        $distinct_id: payload.distinct_id,
         $ip: payload.ip,
         $set: traits
       }
