@@ -161,7 +161,7 @@ export const destination: BrowserDestinationDefinition<Settings, Function> = {
     }
 
     window.gtag('js', new Date())
-    window.gtag('config', settings.measurementID, { config })
+    window.gtag('config', settings.measurementID, config)
     if (settings.enableConsentMode) {
       window.gtag('consent', 'default', {
         ad_storage: settings.defaultAdsStorageConsentState,
