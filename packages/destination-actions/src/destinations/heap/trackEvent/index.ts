@@ -3,21 +3,29 @@ import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 import dayjs from '../../../lib/dayjs'
 import { HEAP_SEGMENT_CLOUD_LIBRARY_NAME } from '../constants'
-import { getHeapUserId } from '../userIdHash'
 import { flat } from '../flat'
+import { getUserIdentifier, getEventName } from '../heapUtils'
 import { IntegrationError } from '@segment/actions-core'
 
 type HeapEvent = {
-  app_id: string
-  identity?: string
-  user_id?: number
   event: string | undefined
+  idempotency_key: string
+  timestamp?: string
   properties: {
     [k: string]: unknown
   }
-  idempotency_key: string
-  timestamp?: string
-  session_id?: string
+  custom_properties?: {
+    [k: string]: unknown
+  }
+  user_identifier?: {
+    [k: string]: string
+  }
+}
+
+type IntegrationsTrackPayload = {
+  app_id: string
+  events: Array<HeapEvent>
+  library: string
 }
 
 const action: ActionDefinition<Settings, Payload> = {
@@ -39,10 +47,7 @@ const action: ActionDefinition<Settings, Payload> = {
       type: 'string',
       allowNull: true,
       description:
-        'An identity, typically corresponding to an existing user. If no such identity exists, then a new user will be created with that identity. Case-sensitive string, limited to 255 characters.',
-      default: {
-        '@path': '$.userId'
-      }
+        'A unique identity and maintain user histories across sessions and devices under a single profile. If no identity is provided we will add the anonymous_id to the event. More on identify: https://developers.heap.io/docs/using-identify'
     },
     anonymous_id: {
       label: 'Anonymous ID',
@@ -78,15 +83,6 @@ const action: ActionDefinition<Settings, Payload> = {
         '@path': '$.timestamp'
       }
     },
-    session_id: {
-      label: 'Session ID',
-      type: 'string',
-      description:
-        'A Heap session ID. The session ID can be retrived by calling getSessionId() on the heap api. If a session ID is not provided one will be created.',
-      default: {
-        '@path': '$.session_id'
-      }
-    },
     type: {
       label: 'Type',
       type: 'string',
@@ -110,64 +106,36 @@ const action: ActionDefinition<Settings, Payload> = {
     }
 
     if (!payload.anonymous_id && !payload.identity) {
-      throw new IntegrationError('Either anonymous user id or identity should be specified.')
+      throw new IntegrationError('Either Anonymous id or Identity should be specified.')
     }
 
-    const defaultEventProperties = { segment_library: HEAP_SEGMENT_CLOUD_LIBRARY_NAME }
-    const flatten = flat(payload.properties || {})
-    const eventProperties = Object.assign(defaultEventProperties, flatten)
+    const standardProperties = { segment_library: HEAP_SEGMENT_CLOUD_LIBRARY_NAME }
+    const flattenedProperties = flat(payload.properties || {})
 
-    const heapPayload: HeapEvent = {
-      app_id: settings.appId,
+    const event: HeapEvent = {
       event: getEventName(payload),
-      properties: eventProperties,
+      custom_properties: flattenedProperties,
+      properties: standardProperties,
       idempotency_key: payload.message_id
     }
 
-    if (payload.anonymous_id && !payload.identity) {
-      heapPayload.user_id = getHeapUserId(payload.anonymous_id)
-    }
-
-    if (payload.identity) {
-      heapPayload.identity = payload.identity
-    }
+    event.user_identifier = getUserIdentifier({ identity: payload.identity, anonymous_id: payload.anonymous_id })
 
     if (payload.timestamp && dayjs.utc(payload.timestamp).isValid()) {
-      heapPayload.timestamp = dayjs.utc(payload.timestamp).toISOString()
+      event.timestamp = dayjs.utc(payload.timestamp).toISOString()
     }
 
-    if (payload.session_id) {
-      heapPayload.session_id = payload.session_id
+    const payLoad: IntegrationsTrackPayload = {
+      app_id: settings.appId,
+      events: [event],
+      library: 'Segment'
     }
 
-    return request('https://heapanalytics.com/api/track', {
+    return request('https://heapanalytics.com/api/integrations/track', {
       method: 'post',
-      json: heapPayload
+      json: payLoad
     })
   }
-}
-
-const getEventName = (payload: Payload) => {
-  let eventName: string | undefined
-  switch (payload.type) {
-    case 'track':
-      eventName = payload.event
-      break
-    case 'page':
-      eventName = payload.name ? payload.name : 'Page Viewed'
-      break
-    case 'screen':
-      eventName = payload.name ? payload.name : 'Screen Viewed'
-      break
-    default:
-      eventName = 'track'
-      break
-  }
-
-  if (!eventName) {
-    return 'track'
-  }
-  return eventName
 }
 
 export default action
