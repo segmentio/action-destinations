@@ -1,7 +1,7 @@
 import { ActionDefinition, IntegrationError } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
-import { CartItem, GoogleAdsAPI, PartialErrorResponse } from '../types'
+import { CartItem, getUrlByVersion, PartialErrorResponse } from '../types'
 import { formatCustomVariables, hash, getCustomVariables, handleGoogleErrors, convertTimestamp } from '../functions'
 import { ModifiedResponse } from '@segment/actions-core'
 
@@ -179,8 +179,8 @@ const action: ActionDefinition<Settings, Payload> = {
       defaultObjectUI: 'keyvalue:only'
     }
   },
-  perform: async (request, { auth, settings, payload }) => {
-    /* Enforcing this here since Customer ID is required for the Google Ads API 
+  perform: async (request, { auth, settings, payload, features }) => {
+    /* Enforcing this here since Customer ID is required for the Google Ads API
     but not for the Enhanced Conversions API. */
     if (!settings.customerId) {
       throw new IntegrationError(
@@ -240,7 +240,7 @@ const action: ActionDefinition<Settings, Payload> = {
     }
 
     const response: ModifiedResponse<PartialErrorResponse> = await request(
-      `${GoogleAdsAPI}/${settings.customerId}:uploadClickConversions`,
+      `${getUrlByVersion(features)}/${settings.customerId}:uploadClickConversions`,
       {
         method: 'post',
         headers: {
