@@ -2,7 +2,7 @@ import type { DestinationDefinition } from '@segment/actions-core'
 import type { Settings } from './generated-types'
 
 const destination: DestinationDefinition<Settings> = {
-  name: 'Pinterest Conversions Api',
+  name: 'Pinterest Conversions API',
   slug: 'actions-pinterest-conversions-api',
   mode: 'cloud',
 
