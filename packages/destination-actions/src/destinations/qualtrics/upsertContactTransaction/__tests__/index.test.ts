@@ -1,10 +1,9 @@
 import nock from 'nock'
 import { createTestEvent, createTestIntegration } from '@segment/actions-core'
 import Destination from '../../index'
-import dayjs from 'dayjs'
-import utc from 'dayjs/plugin/utc'
+import dayjs from '../../../../lib/dayjs'
 
-dayjs.extend(utc)
+// Create a date object from the current time
 const dateObj = dayjs()
 
 const testDestination = createTestIntegration(Destination)
@@ -16,7 +15,9 @@ const DIRECTORY_ID = 'POOL_XXXX'
 const CONTACT_ID = 'CID_XXXX'
 const MAILING_LIST_ID = 'CG_XXXX'
 const TRANSACTION_DATA = { Key: 'Value' }
+// Convert the date object to formatted string
 const TRANSACTION_DATE = dateObj.format('YYYY-MM-DD HH:mm:ss')
+// Convert the date object to formatted string in UTC
 const TRANSACTION_DATE_UTC = dateObj.utc().format('YYYY-MM-DD HH:mm:ss')
 const CONTACT_INFO = {
   firstName: 'Jane',
