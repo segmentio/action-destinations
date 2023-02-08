@@ -95,7 +95,6 @@ const action: ActionDefinition<Settings, Payload> = {
         customVariableIds.data[0].results
       )
     }
-
     const response: ModifiedResponse<PartialErrorResponse> = await request(
       `${getUrlByVersion(features)}/${settings.customerId}:uploadCallConversions`,
       {
