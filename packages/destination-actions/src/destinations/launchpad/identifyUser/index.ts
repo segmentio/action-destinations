@@ -3,7 +3,6 @@ import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 
 import { getApiServerUrl, getConcatenatedName } from '../utils'
-import { IntegrationError } from '@segment/actions-core'
 
 const identifyUser: ActionDefinition<Settings, Payload> = {
   title: 'Identify User',
@@ -22,6 +21,7 @@ const identifyUser: ActionDefinition<Settings, Payload> = {
     userId: {
       label: 'User ID',
       type: 'string',
+      required: true,
       description:
         'A unique ID for a known user. This will be used as the Distinct ID. This field is required if the Anonymous ID field is empty',
       default: {
@@ -51,8 +51,6 @@ const identifyUser: ActionDefinition<Settings, Payload> = {
   perform: async (request, { payload, settings }) => {
     const apiServerUrl = getApiServerUrl(settings.apiRegion)
     let traits
-
-    if (!payload.anonymousId || !payload.userId) throw new IntegrationError('User ID or AnonymousId required', '400')
 
     if (payload.traits && Object.keys(payload.traits).length > 0) {
       const concatenatedName = getConcatenatedName(

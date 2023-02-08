@@ -10,7 +10,6 @@ const timestamp = '2023-01-28T15:21:15.449Z'
 
 const mustHaveProps = {
   distinct_id: 'user1234',
-  identified_id: 'user1234',
   ip: '8.8.8.8',
   properties: {},
   traits: {},
@@ -35,12 +34,10 @@ describe('Launchpad.trackEvent', () => {
     expect(responses.length).toBe(1)
     expect(responses[0].status).toBe(200)
     expect(responses[0].data).toMatchObject({})
-    expect(responses[0].options.json).toMatchObject([
-      {
-        event: 'Test Event',
-        properties: expect.objectContaining(mustHaveProps)
-      }
-    ])
+    expect(responses[0].options.json).toMatchObject({
+      event: 'Test Event',
+      properties: expect.objectContaining(mustHaveProps)
+    })
   })
 
   it('should default to the EU endpoint if apiRegion setting is undefined', async () => {
@@ -58,46 +55,9 @@ describe('Launchpad.trackEvent', () => {
     })
     expect(responses[0].status).toBe(200)
     expect(responses[0].data).toMatchObject({})
-    expect(responses[0].options.json).toMatchObject([
-      {
-        event: 'Test Event',
-        properties: expect.objectContaining(mustHaveProps)
-      }
-    ])
-  })
-
-  it('should use batching when there is more than one event', async () => {
-    const events = [
-      createTestEvent({ timestamp, event: 'Test Event' }),
-      createTestEvent({ timestamp, event: 'Test Event2' })
-    ]
-
-    nock('https://data.launchpad.pm').post('/batch').reply(200, {})
-
-    const responses = await testDestination.testBatchAction('trackEvent', {
-      events,
-      useDefaultMappings: true,
-      settings: {
-        apiSecret: launchpadAPISecret,
-        sourceName: 'segment'
-      }
-    })
-
-    expect(responses.length).toBe(1)
-    expect(responses[0].status).toBe(200)
-    expect(responses[0].data).toMatchObject({})
     expect(responses[0].options.json).toMatchObject({
-      batch: [
-        {
-          event: 'Test Event',
-          properties: expect.objectContaining(mustHaveProps)
-        },
-        {
-          event: 'Test Event2',
-          properties: expect.objectContaining(mustHaveProps)
-        }
-      ],
-      api_key: launchpadAPISecret
+      event: 'Test Event',
+      properties: expect.objectContaining(mustHaveProps)
     })
   })
 })

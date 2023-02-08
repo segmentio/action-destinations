@@ -20,6 +20,7 @@ describe(`Testing snapshot for ${destinationSlug}'s ${actionSlug} destination ac
     const event = createTestEvent({
       properties: eventData
     })
+    event.properties.userId = 'user1234'
 
     const responses = await testDestination.testAction(actionSlug, {
       event: event,

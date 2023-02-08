@@ -5,7 +5,6 @@ import { LaunchpadEvent } from '../launchpad-types'
 import { getApiServerUrl } from '../utils'
 import { LaunchpadEventProperties } from '../launchpad-types'
 import { eventProperties } from './launchpad-properties'
-import { IntegrationError } from '@segment/actions-core'
 
 function getEventProperties(payload: Payload, settings: Settings): LaunchpadEventProperties {
   const integration = payload.context?.integration as Record<string, string>
@@ -26,8 +25,6 @@ function getEventProperties(payload: Payload, settings: Settings): LaunchpadEven
 }
 
 const getEventFromPayload = (payload: Payload, settings: Settings): LaunchpadEvent => {
-  if (!payload.anonymousId || !payload.userId) throw new IntegrationError('User ID or AnonymousId required', '400')
-
   const event: LaunchpadEvent = {
     event: payload.event,
     properties: {

@@ -6,11 +6,24 @@ Object {
   "$set": Object {
     "testType": "5SpoCjYek1jtNwUC",
   },
-  "anonymoudId": "5SpoCjYek1jtNwUC",
+  "anonymous_id": "5SpoCjYek1jtNwUC",
   "api_key": "5SpoCjYek1jtNwUC",
   "distinct_id": "5SpoCjYek1jtNwUC",
   "event": "$identify",
   "type": "screen",
-  "userId": "5SpoCjYek1jtNwUC",
+  "user_id": "5SpoCjYek1jtNwUC",
+}
+`;
+
+exports[`Testing snapshot for Launchpad's identifyUser destination action: required fields 1`] = `
+Object {
+  "$set": Object {
+    "testType": "5SpoCjYek1jtNwUC",
+  },
+  "api_key": "5SpoCjYek1jtNwUC",
+  "distinct_id": "user1234",
+  "event": "$identify",
+  "type": "screen",
+  "user_id": "user1234",
 }
 `;

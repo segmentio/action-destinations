@@ -2,7 +2,6 @@ import { ActionDefinition } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import { getApiServerUrl } from '../utils'
 import type { Payload } from './generated-types'
-import { IntegrationError } from '@segment/actions-core'
 
 const groupIdentifyUser: ActionDefinition<Settings, Payload> = {
   title: 'Group Identify User',
@@ -60,8 +59,6 @@ const groupIdentifyUser: ActionDefinition<Settings, Payload> = {
     const groupId = payload.groupId
     const apiServerUrl = getApiServerUrl(settings.apiRegion)
     let transformed_traits
-
-    if (!payload.anonymousId || !payload.userId) throw new IntegrationError('User ID or AnonymousId required', '400')
 
     if (payload.traits) {
       transformed_traits = {
