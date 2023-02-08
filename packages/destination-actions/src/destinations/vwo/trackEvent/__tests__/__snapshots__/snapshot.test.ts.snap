@@ -4,7 +4,7 @@ exports[`Testing snapshot for actions-vwo-cloud's trackEvent destination action:
 Object {
   "d": Object {
     "event": Object {
-      "name": "segment_yw0zltLcbQ",
+      "name": "segment.yw0zltLcbQ",
       "props": Object {
         "isCustomEvent": true,
         "page": Object {
@@ -30,7 +30,7 @@ exports[`Testing snapshot for actions-vwo-cloud's trackEvent destination action:
 Object {
   "d": Object {
     "event": Object {
-      "name": "segment_yw0zltLcbQ",
+      "name": "segment.yw0zltLcbQ",
       "props": Object {
         "isCustomEvent": true,
         "page": Object {
