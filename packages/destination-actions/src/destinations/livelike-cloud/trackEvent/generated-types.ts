@@ -14,7 +14,7 @@ export interface Payload {
    */
   action_description?: string
   /**
-   * A unique identifier for a user. Atleast one of `User ID` or `LiveLike User Profile ID` is mandatory.
+   * A unique identifier for a user. At least one of `User ID` or `LiveLike User Profile ID` is mandatory.
    */
   user_id?: string
   /**
