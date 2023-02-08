@@ -1,5 +1,8 @@
+import type { Settings } from './generated-types'
 export const BaseAlgoliaInsightsURL = 'https://insights.algolia.io'
 export const AlgoliaBehaviourURL = BaseAlgoliaInsightsURL + '/1/events'
+export const algoliaApiPermissionsUrl = (settings: Settings) =>
+  `https://${settings.appId}.algolia.net/1/keys/${settings.apiKey}`
 
 type EventCommon = {
   eventName: string
@@ -22,3 +25,5 @@ export type AlgoliaProductClickedEvent = EventCommon & {
 export type AlgoliaConversionEvent = EventCommon & {
   eventType: 'conversion'
 }
+
+export type AlgoliaApiPermissions = { acl: string[] }

@@ -6,6 +6,7 @@ import { productClickedEvents, productClickPresets } from './productClickedEvent
 import { conversionEvents, conversionPresets } from './conversionEvents'
 
 import { productViewedEvents, productViewedPresets } from './productViewedEvents'
+import { AlgoliaApiPermissions, algoliaApiPermissionsUrl } from './algolia-insight-api'
 
 export const ALGOLIA_INSIGHTS_USER_AGENT = 'algolia-segment-action-destination: 0.1'
 
@@ -29,6 +30,16 @@ const destination: DestinationDefinition<Settings> = {
         type: 'string',
         required: true
       }
+    },
+    testAuthentication: async (request, { settings }) => {
+      console.log(`algolia authentication check`)
+      const response = await request<AlgoliaApiPermissions>(algoliaApiPermissionsUrl(settings))
+
+      if (response.data.acl.indexOf('search') === -1) {
+        return Promise.reject('Invalid acl permissions.')
+      }
+
+      return response
     }
   },
 
