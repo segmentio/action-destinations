@@ -4,8 +4,6 @@ import { AlgoliaBehaviourURL, AlgoliaProductViewedEvent } from '../algolia-insig
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 
-const userIdOrAnonId = (user: string | undefined, anon: string | undefined): string => (user || anon) as string
-
 export const productViewedEvents: ActionDefinition<Settings, Payload> = {
   title: 'Product Viewed Events',
   description: 'Product views which can be tied back to an Algolia Search, Recommend or Predict result',
@@ -37,21 +35,18 @@ export const productViewedEvents: ActionDefinition<Settings, Payload> = {
         '@path': '$.properties.query_id'
       }
     },
-    anonymousID: {
-      label: 'Anonymous ID',
-      description:
-        "The user's anonymous id. Optional if User ID is provided. See Segment [common fields documentation](https://segment.com/docs/connections/spec/common/)",
+    userToken: {
       type: 'string',
-      required: false,
-      default: { '@path': '$.anonymousId' }
-    },
-    userID: {
-      type: 'string',
-      required: false,
-      description:
-        'The ID associated with the user. Optional if Anonymous ID is provided. See Segment [common fields documentation](https://segment.com/docs/connections/spec/common/)',
-      label: 'User ID',
-      default: { '@path': '$.userId' }
+      required: true,
+      description: 'The ID associated with the user.',
+      label: 'userToken',
+      default: {
+        '@if': {
+          exists: { '@path': '$.userId' },
+          then: { '@path': '$.userId' },
+          else: { '@path': '$.anonymousId' }
+        }
+      }
     },
     timestamp: {
       type: 'string',
@@ -69,7 +64,7 @@ export const productViewedEvents: ActionDefinition<Settings, Payload> = {
       eventType: 'view',
       objectIDs: [data.payload.objectID],
       timestamp: data.payload.timestamp ? new Date(data.payload.timestamp).valueOf() : undefined,
-      userToken: userIdOrAnonId(data.payload.userID, data.payload.anonymousID)
+      userToken: data.payload.userToken
     }
     const insightPayload = { events: [insightEvent] }
 

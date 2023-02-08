@@ -32,7 +32,6 @@ const destination: DestinationDefinition<Settings> = {
       }
     },
     testAuthentication: async (request, { settings }) => {
-      console.log(`algolia authentication check`)
       const response = await request<AlgoliaApiPermissions>(algoliaApiPermissionsUrl(settings))
 
       if (response.data.acl.indexOf('search') === -1) {

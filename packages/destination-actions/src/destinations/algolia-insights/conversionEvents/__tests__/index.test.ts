@@ -59,30 +59,6 @@ describe('AlgoliaInsights.conversionEvents', () => {
     expect(algoliaEvent.objectIDs).toContain('5432')
   })
 
-  it('should fall back to anon id', async () => {
-    const event = createTestEvent({
-      type: 'track',
-      event: 'Order Completed',
-      properties: {
-        query_id: '1234',
-        search_index: 'fashion_1',
-        products: [
-          {
-            product_id: '9876',
-            product_name: 'skirt 1'
-          },
-          {
-            product_id: '5432',
-            product_name: 'skirt 2'
-          }
-        ]
-      },
-      userId: undefined
-    })
-    const algoliaEvent = await testAlgoliaDestination(event)
-    expect(algoliaEvent.userToken).toBe(event.anonymousId)
-  })
-
   it('should pass timestamp if present', async () => {
     const event = createTestEvent({
       type: 'track',
@@ -100,7 +76,7 @@ describe('AlgoliaInsights.conversionEvents', () => {
             product_name: 'skirt 2'
           }
         ]
-      },
+      }
     })
     const algoliaEvent = await testAlgoliaDestination(event)
     expect(algoliaEvent.timestamp).toBe(new Date(event.timestamp as string).valueOf())

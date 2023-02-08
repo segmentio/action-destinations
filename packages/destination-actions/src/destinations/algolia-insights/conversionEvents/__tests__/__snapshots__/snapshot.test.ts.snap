@@ -4,7 +4,6 @@ exports[`Testing snapshot for AlgoliaInsights's conversionEvents destination act
 Object {
   "events": Array [
     Object {
-      "anonymousID": ")j)vR5%1AP*epuo8A%R",
       "eventName": "Conversion Event",
       "eventType": "conversion",
       "index": ")j)vR5%1AP*epuo8A%R",
@@ -18,7 +17,6 @@ Object {
       ],
       "queryID": ")j)vR5%1AP*epuo8A%R",
       "timestamp": null,
-      "userID": ")j)vR5%1AP*epuo8A%R",
       "userToken": ")j)vR5%1AP*epuo8A%R",
     },
   ],
@@ -29,7 +27,6 @@ exports[`Testing snapshot for AlgoliaInsights's conversionEvents destination act
 Object {
   "events": Array [
     Object {
-      "anonymousID": "anonId1234",
       "eventName": "Conversion Event",
       "eventType": "conversion",
       "index": ")j)vR5%1AP*epuo8A%R",
@@ -42,9 +39,8 @@ Object {
         },
       ],
       "queryID": ")j)vR5%1AP*epuo8A%R",
-      "timestamp": 1671207840000,
-      "userID": "user1234",
-      "userToken": "user1234",
+      "timestamp": 1671227640000,
+      "userToken": ")j)vR5%1AP*epuo8A%R",
     },
   ],
 }

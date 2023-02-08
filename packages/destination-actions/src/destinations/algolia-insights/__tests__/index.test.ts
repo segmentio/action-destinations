@@ -14,7 +14,6 @@ describe('Algolia Insights', () => {
       }
       const authenticateUrl = algoliaApiPermissionsUrl(settings)
 
-      console.log(authenticateUrl.slice(0, authenticateUrl.indexOf('/1/')))
       nock(authenticateUrl.slice(0, authenticateUrl.indexOf('/1/')))
         .get('/1/keys/algolia-api-key')
         .reply(200, { acl: ['search'] })
@@ -30,7 +29,6 @@ describe('Algolia Insights', () => {
       }
       const authenticateUrl = algoliaApiPermissionsUrl(settings)
 
-      console.log(authenticateUrl.slice(0, authenticateUrl.indexOf('/1/')))
       nock(authenticateUrl.slice(0, authenticateUrl.indexOf('/1/')))
         .get('/1/keys/algolia-api-key')
         .reply(403, {
@@ -49,7 +47,6 @@ describe('Algolia Insights', () => {
       }
       const authenticateUrl = algoliaApiPermissionsUrl(settings)
 
-      console.log(authenticateUrl.slice(0, authenticateUrl.indexOf('/1/')))
       nock(authenticateUrl.slice(0, authenticateUrl.indexOf('/1/')))
         .get('/1/keys/algolia-api-key')
         .reply(200, { acl: ['listIndexes'] })

@@ -4,7 +4,6 @@ exports[`Testing snapshot for AlgoliaInsights's productViewedEvents destination 
 Object {
   "events": Array [
     Object {
-      "anonymousID": "og&DCP)aINw@qxe)",
       "eventName": "Product Viewed",
       "eventType": "view",
       "index": "og&DCP)aINw@qxe)",
@@ -14,7 +13,6 @@ Object {
       ],
       "queryID": "og&DCP)aINw@qxe)",
       "timestamp": null,
-      "userID": "og&DCP)aINw@qxe)",
       "userToken": "og&DCP)aINw@qxe)",
     },
   ],
@@ -25,7 +23,6 @@ exports[`Testing snapshot for AlgoliaInsights's productViewedEvents destination 
 Object {
   "events": Array [
     Object {
-      "anonymousID": "anonId1234",
       "eventName": "Product Viewed",
       "eventType": "view",
       "index": "og&DCP)aINw@qxe)",
@@ -34,9 +31,8 @@ Object {
         "og&DCP)aINw@qxe)",
       ],
       "queryID": "og&DCP)aINw@qxe)",
-      "timestamp": 1671207840000,
-      "userID": "user1234",
-      "userToken": "user1234",
+      "timestamp": 1671227640000,
+      "userToken": "og&DCP)aINw@qxe)",
     },
   ],
 }

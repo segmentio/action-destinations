@@ -18,13 +18,9 @@ export interface Payload {
    */
   position: number
   /**
-   * The user's anonymous id. Optional if User ID is provided. See Segment [common fields documentation](https://segment.com/docs/connections/spec/common/)
+   * The ID associated with the user.
    */
-  anonymousID?: string
-  /**
-   * The ID associated with the user. Optional if Anonymous ID is provided. See Segment [common fields documentation](https://segment.com/docs/connections/spec/common/)
-   */
-  userID?: string
+  userToken: string
   /**
    * The timestamp of the event.
    */

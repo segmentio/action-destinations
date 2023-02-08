@@ -38,21 +38,18 @@ export const conversionEvents: ActionDefinition<Settings, Payload> = {
         '@path': '$.properties.query_id'
       }
     },
-    anonymousID: {
-      label: 'Anonymous ID',
-      description:
-        "The user's anonymous id. Optional if User ID is provided. See Segment [common fields documentation](https://segment.com/docs/connections/spec/common/)",
+    userToken: {
       type: 'string',
-      required: false,
-      default: { '@path': '$.anonymousId' }
-    },
-    userID: {
-      type: 'string',
-      required: false,
-      description:
-        'The ID associated with the user. Optional if Anonymous ID is provided. See Segment [common fields documentation](https://segment.com/docs/connections/spec/common/)',
-      label: 'User ID',
-      default: { '@path': '$.userId' }
+      required: true,
+      description: 'The ID associated with the user.',
+      label: 'userToken',
+      default: {
+        '@if': {
+          exists: { '@path': '$.userId' },
+          then: { '@path': '$.userId' },
+          else: { '@path': '$.anonymousId' }
+        }
+      }
     },
     timestamp: {
       type: 'string',
@@ -69,7 +66,7 @@ export const conversionEvents: ActionDefinition<Settings, Payload> = {
       eventName: 'Conversion Event',
       eventType: 'conversion',
       objectIDs: data.payload.products.map((product) => product.product_id),
-      userToken: (data.payload.userID || data.payload.anonymousID) as string,
+      userToken: data.payload.userToken,
       timestamp: data.payload.timestamp ? new Date(data.payload.timestamp).valueOf() : undefined
     }
     const insightPayload = { events: [insightEvent] }

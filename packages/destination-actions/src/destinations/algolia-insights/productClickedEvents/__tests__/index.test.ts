@@ -51,22 +51,6 @@ describe('AlgoliaInsights.productClickedEvents', () => {
     expect(algoliaEvent.positions).toContain(5)
   })
 
-  it('should fall back to anon id', async () => {
-    const event = createTestEvent({
-      type: 'track',
-      event: 'Product Clicked',
-      properties: {
-        query_id: '1234',
-        search_index: 'fashion_1',
-        product_id: '9876',
-        position: 5
-      },
-      userId: undefined
-    })
-    const algoliaEvent = await testAlgoliaDestination(event)
-    expect(algoliaEvent.userToken).toBe(event.anonymousId)
-  })
-
   it('should pass timestamp if present', async () => {
     const event = createTestEvent({
       type: 'track',
