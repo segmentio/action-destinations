@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 NODE_VERSION="$(node --version)";
 NODE_VERSION_MAJOR="${NODE_VERSION:1}"; # strip the "v"  prefix
 NODE_VERSION_MAJOR="${NODE_VERSION_MAJOR%%.*}"; #get everything before the first dot
