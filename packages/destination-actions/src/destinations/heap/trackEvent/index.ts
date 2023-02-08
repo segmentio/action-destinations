@@ -119,8 +119,7 @@ const action: ActionDefinition<Settings, Payload> = {
       idempotency_key: payload.message_id
     }
 
-    const identity = getUserIdentifier({ identity: payload.identity, anonymous_id: payload.anonymous_id })
-    event.user_identifier = identity
+    event.user_identifier = getUserIdentifier({ identity: payload.identity, anonymous_id: payload.anonymous_id })
 
     if (payload.timestamp && dayjs.utc(payload.timestamp).isValid()) {
       event.timestamp = dayjs.utc(payload.timestamp).toISOString()
@@ -132,30 +131,10 @@ const action: ActionDefinition<Settings, Payload> = {
       library: 'Segment'
     }
 
-    const responses = []
-    const trackCall = request('https://heapanalytics.com/api/integrations/track', {
+    return request('https://heapanalytics.com/api/integrations/track', {
       method: 'post',
       json: payLoad
     })
-
-    responses.push(trackCall)
-
-    if (payload.identity && payload.anonymous_id) {
-      const addUserPropertiesPayload = {
-        app_id: settings.appId,
-        identity,
-        properties: {
-          anonymous_id: payload.anonymous_id
-        }
-      }
-      const addUserPropertiesRequest = request('https://heapanalytics.com/api/add_user_properties', {
-        method: 'post',
-        json: addUserPropertiesPayload
-      })
-      responses.push(addUserPropertiesRequest)
-    }
-
-    return Promise.all(responses)
   }
 }
 
