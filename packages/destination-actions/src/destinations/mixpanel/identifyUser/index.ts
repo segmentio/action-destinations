@@ -54,7 +54,7 @@ const action: ActionDefinition<Settings, Payload> = {
     const apiServerUrl = getApiServerUrl(settings.apiRegion)
 
     const responses = []
-    if (payload.anonymous_id) {
+    if (payload.anonymous_id && payload.user_id) {
       const identifyEvent = {
         event: '$identify',
         properties: {
@@ -65,7 +65,7 @@ const action: ActionDefinition<Settings, Payload> = {
         }
       }
 
-      const identifyResponse = await request(`${ apiServerUrl }/track`, {
+      const identifyResponse = await request(`${apiServerUrl}/track`, {
         method: 'post',
         body: new URLSearchParams({ data: JSON.stringify(identifyEvent) })
       })
@@ -91,12 +91,12 @@ const action: ActionDefinition<Settings, Payload> = {
       }
       const data = {
         $token: settings.projectToken,
-        $distinct_id: payload.user_id,
+        $distinct_id: payload.user_id ?? payload.anonymous_id,
         $ip: payload.ip,
         $set: traits
       }
 
-      const engageResponse = request(`${ apiServerUrl }/engage`, {
+      const engageResponse = request(`${apiServerUrl}/engage`, {
         method: 'post',
         body: new URLSearchParams({ data: JSON.stringify(data) })
       })
