@@ -51,11 +51,7 @@ export async function getAudienceID(
   // More than 1 audience returned matches name
   // TODO: add field so the user can add the audienceID so we can choose based on that
   if (audienceExists.length > 1) {
-    throw new IntegrationError(
-      'The value of `custom_audience_name` and `personas_audience_key` must match.',
-      'INVALID_SETTINGS',
-      400
-    )
+    throw new IntegrationError('Multiple audiences found with the same name', 'INVALID_SETTINGS', 400)
   }
 
   if (audienceExists.length == 1) {
