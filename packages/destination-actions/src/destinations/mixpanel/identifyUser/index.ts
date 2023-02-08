@@ -77,7 +77,7 @@ const action: ActionDefinition<Settings, Payload> = {
         }
       }
 
-      const identifyResponse = await request(`${apiServerUrl}/track`, {
+      const identifyResponse = await request(`${ apiServerUrl }/track`, {
         method: 'post',
         body: new URLSearchParams({ data: JSON.stringify(identifyEvent) })
       })
@@ -108,7 +108,7 @@ const action: ActionDefinition<Settings, Payload> = {
         $set: traits
       }
 
-      const engageResponse = request(`${apiServerUrl}/engage`, {
+      const engageResponse = request(`${ apiServerUrl }/engage`, {
         method: 'post',
         body: new URLSearchParams({ data: JSON.stringify(data) })
       })
