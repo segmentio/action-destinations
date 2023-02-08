@@ -1,6 +1,6 @@
 import type { RequestClient, ModifiedResponse } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
-import type { Payload } from '../updateAudience/generated-types'
+import type { Payload } from '../addUser/generated-types'
 import { BASE_URL, TIKTOK_API_VERSION } from '../constants'
 import type { GetAudienceAPIResponse, CreateAudienceAPIResponse } from '../types'
 
