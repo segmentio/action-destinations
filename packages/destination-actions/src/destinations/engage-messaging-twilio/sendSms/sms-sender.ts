@@ -26,13 +26,6 @@ export class SmsMessageSender extends MessageSender<Payload> {
     if (this.payload.traitEnrichment) {
       traits = this.payload?.traits ? this.payload?.traits : {}
     } else {
-      if (!this.payload.userId) {
-        throw new IntegrationError(
-          'Unable to process sms, no userId provided and no traits provided',
-          'Invalid parameters',
-          400
-        )
-      }
       traits = await this.getProfileTraits()
     }
 
@@ -61,6 +54,13 @@ export class SmsMessageSender extends MessageSender<Payload> {
 
   private getProfileTraits = async () => {
     try {
+      if (!this.payload.userId) {
+        throw new IntegrationError(
+          'Unable to process sms, no userId provided and no traits provided',
+          'Invalid parameters',
+          400
+        )
+      }
       const endpoint = `https://profiles.segment.${
         this.settings.profileApiEnvironment === 'production' ? 'com' : 'build'
       }`

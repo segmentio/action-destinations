@@ -356,7 +356,7 @@ const action: ActionDefinition<Settings, Payload> = {
       } else {
         if (!payload.userId) {
           throw new IntegrationError(
-            'Unable to process email, no userId provided and no traits provided',
+            'Unable to process email, no userId provided and trait enrichment disabled',
             'Invalid parameters',
             400
           )
