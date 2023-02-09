@@ -10,7 +10,7 @@ export interface Settings {
    */
   secretKey: string
   /**
-   * Enter your [Voucherify URL](https://docs.voucherify.io/docs/api-endpoints).
+   * Check your API region in [Voucherify dashboard](https://app.voucherify.io/#/login) -> Project settings -> API endpoint. Example: `https://us1.api.voucherify.io` > `https://us1.segmentio.voucherify.io`. It also works for dedicated urls.
    */
   customURL: string
 }
