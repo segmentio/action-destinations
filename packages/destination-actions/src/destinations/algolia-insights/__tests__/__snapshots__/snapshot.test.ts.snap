@@ -1,0 +1,128 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Testing snapshot for actions-algolia-insights destination: conversionEvents action - all fields 1`] = `
+Object {
+  "events": Array [
+    Object {
+      "eventName": "Conversion Event",
+      "eventType": "conversion",
+      "index": "U[ABpE$k",
+      "objectIDs": Array [
+        "U[ABpE$k",
+      ],
+      "products": Array [
+        Object {
+          "product_id": "U[ABpE$k",
+        },
+      ],
+      "queryID": "U[ABpE$k",
+      "timestamp": null,
+      "userToken": "U[ABpE$k",
+    },
+  ],
+}
+`;
+
+exports[`Testing snapshot for actions-algolia-insights destination: conversionEvents action - required fields 1`] = `
+Object {
+  "events": Array [
+    Object {
+      "eventName": "Conversion Event",
+      "eventType": "conversion",
+      "index": "U[ABpE$k",
+      "objectIDs": Array [
+        "U[ABpE$k",
+      ],
+      "products": Array [
+        Object {
+          "product_id": "U[ABpE$k",
+        },
+      ],
+      "queryID": "U[ABpE$k",
+      "userToken": "U[ABpE$k",
+    },
+  ],
+}
+`;
+
+exports[`Testing snapshot for actions-algolia-insights destination: productClickedEvents action - all fields 1`] = `
+Object {
+  "events": Array [
+    Object {
+      "eventName": "Product Clicked",
+      "eventType": "click",
+      "index": "LLjxSD^^GnH",
+      "objectID": "LLjxSD^^GnH",
+      "objectIDs": Array [
+        "LLjxSD^^GnH",
+      ],
+      "position": -1912532923056128,
+      "positions": Array [
+        -1912532923056128,
+      ],
+      "queryID": "LLjxSD^^GnH",
+      "timestamp": null,
+      "userToken": "LLjxSD^^GnH",
+    },
+  ],
+}
+`;
+
+exports[`Testing snapshot for actions-algolia-insights destination: productClickedEvents action - required fields 1`] = `
+Object {
+  "events": Array [
+    Object {
+      "eventName": "Product Clicked",
+      "eventType": "click",
+      "index": "LLjxSD^^GnH",
+      "objectID": "LLjxSD^^GnH",
+      "objectIDs": Array [
+        "LLjxSD^^GnH",
+      ],
+      "position": -1912532923056128,
+      "positions": Array [
+        -1912532923056128,
+      ],
+      "queryID": "LLjxSD^^GnH",
+      "userToken": "LLjxSD^^GnH",
+    },
+  ],
+}
+`;
+
+exports[`Testing snapshot for actions-algolia-insights destination: productViewedEvents action - all fields 1`] = `
+Object {
+  "events": Array [
+    Object {
+      "eventName": "Product Viewed",
+      "eventType": "view",
+      "index": "BLFCPcmz",
+      "objectID": "BLFCPcmz",
+      "objectIDs": Array [
+        "BLFCPcmz",
+      ],
+      "queryID": "BLFCPcmz",
+      "timestamp": null,
+      "userToken": "BLFCPcmz",
+    },
+  ],
+}
+`;
+
+exports[`Testing snapshot for actions-algolia-insights destination: productViewedEvents action - required fields 1`] = `
+Object {
+  "events": Array [
+    Object {
+      "eventName": "Product Viewed",
+      "eventType": "view",
+      "index": "BLFCPcmz",
+      "objectID": "BLFCPcmz",
+      "objectIDs": Array [
+        "BLFCPcmz",
+      ],
+      "queryID": "BLFCPcmz",
+      "userToken": "BLFCPcmz",
+    },
+  ],
+}
+`;
