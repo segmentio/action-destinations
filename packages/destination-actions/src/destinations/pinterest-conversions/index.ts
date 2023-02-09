@@ -1,6 +1,8 @@
 import type { DestinationDefinition } from '@segment/actions-core'
 import type { Settings } from './generated-types'
 
+import reportConversionEvent from './reportConversionEvent'
+
 const destination: DestinationDefinition<Settings> = {
   name: 'Pinterest Conversions API',
   slug: 'actions-pinterest-conversions-api',
@@ -31,7 +33,9 @@ const destination: DestinationDefinition<Settings> = {
     }
   },
 
-  actions: {}
+  actions: {
+    reportConversionEvent
+  }
 }
 
 export default destination
