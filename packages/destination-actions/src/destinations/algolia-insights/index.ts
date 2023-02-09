@@ -11,7 +11,7 @@ import { AlgoliaApiPermissions, algoliaApiPermissionsUrl } from './algolia-insig
 export const ALGOLIA_INSIGHTS_USER_AGENT = 'algolia-segment-action-destination: 0.1'
 
 const destination: DestinationDefinition<Settings> = {
-  name: 'Algolia Insights',
+  name: 'Algolia Insights (Actions)',
   slug: 'actions-algolia-insights',
   mode: 'cloud',
 
