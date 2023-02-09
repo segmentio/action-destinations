@@ -16,7 +16,6 @@ export interface Payload {
     firstName?: string
     lastName?: string
     name?: string
-    email?: string
     description?: string
     address?: {
       [k: string]: unknown
