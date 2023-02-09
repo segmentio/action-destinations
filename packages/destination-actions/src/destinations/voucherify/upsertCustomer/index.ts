@@ -52,10 +52,6 @@ const action: ActionDefinition<Settings, Payload> = {
           label: 'Name',
           type: 'string'
         },
-        email: {
-          label: 'Email',
-          type: 'string'
-        },
         description: {
           label: 'Description',
           type: 'string'

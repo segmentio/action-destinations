@@ -29,7 +29,11 @@ const action: ActionDefinition<Settings, Payload> = {
         'The email that identifies the [customer](https://docs.voucherify.io/reference/the-customer-object) in Voucherify.',
       type: 'string',
       default: {
-        '@path': '$.email'
+        '@if': {
+          exists: { '@path': '$.properties.email' },
+          then: { '@path': '$.properties.email' },
+          else: { '@path': '$.context.traits' }
+        }
       }
     },
     event: {
