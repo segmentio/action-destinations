@@ -5,7 +5,7 @@ import nock from 'nock'
 
 const testDestination = createTestIntegration(destination)
 const actionSlug = 'submitIdentifyEvent'
-const destinationSlug = ''
+const destinationSlug = 'saleswings'
 const seedName = `${destinationSlug}#${actionSlug}`
 
 describe(`Testing snapshot for ${destinationSlug}'s ${actionSlug} destination action:`, () => {
@@ -28,7 +28,7 @@ describe(`Testing snapshot for ${destinationSlug}'s ${actionSlug} destination ac
 
     const responses = await testDestination.testAction(actionSlug, {
       event: event,
-      settings: settingsData,
+      settings: { ...settingsData, environment: 'helium' },
       useDefaultMappings: true
     })
 
@@ -65,7 +65,7 @@ describe(`Testing snapshot for ${destinationSlug}'s ${actionSlug} destination ac
 
     const responses = await testDestination.testAction(actionSlug, {
       event: event,
-      settings: settingsData,
+      settings: { ...settingsData, environment: 'helium' },
       useDefaultMappings: true
     })
 

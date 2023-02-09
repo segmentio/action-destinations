@@ -1,25 +1,8 @@
 import type { ActionDefinition } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
-import { Event, TrackingEvent } from '../api'
-import { userId, anonymousId, email, url, referrerUrl, userAgent, timestamp, kind, data, values } from '../fields'
-import { convertLeadRefs, convertValues, convertTimestamp } from '../converter'
+import { userID, anonymousID, email, url, referrerUrl, userAgent, timestamp, kind, data, values } from '../fields'
 import { perform, performBatch } from '../common'
-
-const convertEvent = (payload: Payload): Event | undefined => {
-  const leadRefs = convertLeadRefs(payload)
-  if (leadRefs.length == 0) return undefined
-  return new TrackingEvent({
-    leadRefs,
-    kind: payload.kind,
-    data: payload.data,
-    url: payload.url,
-    referrerUrl: payload.referrerUrl,
-    userAgent: payload.userAgent,
-    timestamp: convertTimestamp(payload.timestamp),
-    values: convertValues(payload.values)
-  })
-}
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Submit Track Event',
@@ -29,8 +12,8 @@ const action: ActionDefinition<Settings, Payload> = {
   fields: {
     kind: kind('Track'),
     data: data({ '@path': '$.event' }),
-    userId,
-    anonymousId,
+    userID,
+    anonymousID,
     email,
     url,
     referrerUrl,
@@ -38,8 +21,8 @@ const action: ActionDefinition<Settings, Payload> = {
     timestamp,
     values: values({ '@path': '$.properties' })
   },
-  perform: perform(convertEvent),
-  performBatch: performBatch(convertEvent)
+  perform: perform('track'),
+  performBatch: performBatch('track')
 }
 
 export default action
