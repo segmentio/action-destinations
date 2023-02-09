@@ -45,13 +45,13 @@ export function formatPayload(name: string, payload: commonPayload, isCustomEven
 }
 
 export function sanitiseEventName(name: string) {
-  return 'segment_' + name
+  return 'segment.' + name
 }
 
 export function formatAttributes(attributes: { [k: string]: unknown } | undefined) {
   const formattedAttributes: { [k: string]: unknown } = {}
   for (const key in attributes) {
-    formattedAttributes[`segment_${key}`] = attributes[key]
+    formattedAttributes[`segment.${key}`] = attributes[key]
   }
   return formattedAttributes
 }

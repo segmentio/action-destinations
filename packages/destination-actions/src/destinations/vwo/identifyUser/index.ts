@@ -5,11 +5,11 @@ import { formatPayload, formatAttributes } from '../utility'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Identify User',
-  description: "Maps segment's visitor traits to VWO visitors' attributes",
+  description: "Maps Segment's visitor traits to the visitor attributes in VWO",
   defaultSubscription: 'type = "identify"',
   fields: {
     attributes: {
-      description: 'A JSON object containing additional attributes that will be associated with the event.',
+      description: `Visitor's attributes to be mapped`,
       label: 'attributes',
       required: true,
       type: 'object',
@@ -27,7 +27,7 @@ const action: ActionDefinition<Settings, Payload> = {
       }
     },
     page: {
-      description: 'Page Context',
+      description: 'Contains context information regarding a webpage',
       label: 'Page',
       required: true,
       type: 'object',
@@ -36,7 +36,7 @@ const action: ActionDefinition<Settings, Payload> = {
       }
     },
     ip: {
-      description: 'IP Address',
+      description: 'IP address of the user',
       label: 'IP Address',
       required: false,
       type: 'string',
@@ -45,7 +45,7 @@ const action: ActionDefinition<Settings, Payload> = {
       }
     },
     userAgent: {
-      description: 'User Agent',
+      description: 'User-Agent of the user',
       label: 'User Agent',
       required: true,
       type: 'string',
@@ -54,7 +54,7 @@ const action: ActionDefinition<Settings, Payload> = {
       }
     },
     timestamp: {
-      description: 'Timestamp',
+      description: 'Timestamp on the event',
       label: 'Timestamp',
       required: true,
       type: 'string',

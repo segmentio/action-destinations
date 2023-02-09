@@ -34,7 +34,7 @@ const destination: DestinationDefinition<Settings> = {
     scheme: 'custom',
     fields: {
       vwoAccountId: {
-        label: 'Your VWO account ID, used for fetching your VWO async smart code. ',
+        label: 'Your VWO account ID',
         description: 'Enter your VWO Account ID',
         type: 'number',
         required: true
