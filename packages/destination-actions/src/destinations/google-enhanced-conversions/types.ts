@@ -27,7 +27,7 @@ export interface PartialErrorResponse {
 }
 
 export function getUrlByVersion(features: Features | undefined): string {
-  if (features && features['google-enhanced-conversions-v12']) {
+  if (features && features['google-enhanced-v12']) {
     return 'https://googleads.googleapis.com/v12/customers'
   }
   return 'https://googleads.googleapis.com/v11/customers'
