@@ -26,11 +26,18 @@ export class SmsMessageSender extends MessageSender<Payload> {
     if (this.payload.traitEnrichment) {
       traits = this.payload?.traits ? this.payload?.traits : {}
     } else {
+      if (!this.payload.userId) {
+        throw new IntegrationError(
+          'Unable to process sms, no userId provided and no traits provided',
+          'Invalid parameters',
+          400
+        )
+      }
       traits = await this.getProfileTraits()
     }
 
     const profile = {
-      user_id: this.payload.userId,
+      user_id: this.payload.userId || undefined,
       phone,
       traits
     }
