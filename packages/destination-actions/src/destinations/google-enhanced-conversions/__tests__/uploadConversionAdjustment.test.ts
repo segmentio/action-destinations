@@ -203,7 +203,7 @@ describe('GoogleEnhancedConversions', () => {
 
       const responses = await testDestination.testAction('uploadConversionAdjustment', {
         event,
-        features: { 'google-enhanced-conversions-v12': true },
+        features: { 'google-enhanced-v12': true },
         mapping: {
           gclid: {
             '@path': '$.properties.gclid'
@@ -252,7 +252,7 @@ describe('GoogleEnhancedConversions', () => {
       try {
         await testDestination.testAction('uploadConversionAdjustment', {
           event,
-          features: { 'google-enhanced-conversions-v12': true },
+          features: { 'google-enhanced-v12': true },
           mapping: { gclid: '123a', conversion_action: '12345', adjustment_type: 'ENHANCEMENT' },
           useDefaultMappings: true,
           settings: {}
@@ -281,7 +281,7 @@ describe('GoogleEnhancedConversions', () => {
 
       const responses = await testDestination.testAction('uploadConversionAdjustment', {
         event,
-        features: { 'google-enhanced-conversions-v12': true },
+        features: { 'google-enhanced-v12': true },
         mapping: {
           gclid: '123a',
           conversion_action: '12345',
@@ -326,7 +326,7 @@ describe('GoogleEnhancedConversions', () => {
 
       const responses = await testDestination.testAction('uploadConversionAdjustment', {
         event,
-        features: { 'google-enhanced-conversions-v12': true },
+        features: { 'google-enhanced-v12': true },
         mapping: {
           gclid: '123a',
           conversion_action: '12345',
