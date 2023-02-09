@@ -74,7 +74,7 @@ register('63bedc136a8484a53739e013', './vwo')
 register('63d17a1e6ab3e62212278cd0', './saleswings')
 register('63e42aa0ed203bc54eaabbee', './launchpad')
 register('63e42b47479274407b671071', './livelike-cloud')
-register('63e42bc78efe98bc2a8451c1', 'twilio-studio')
+register('63e42bc78efe98bc2a8451c1', './twilio-studio')
 register('63e42d44b0a59908dc4cacc6', './blackbaud-raisers-edge-nxt')
 register('63e42e512566ad7c7ca6ba9b', './pinterest-conversions')
 
