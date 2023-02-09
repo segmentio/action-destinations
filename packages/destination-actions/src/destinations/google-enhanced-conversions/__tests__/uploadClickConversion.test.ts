@@ -187,7 +187,7 @@ describe('GoogleEnhancedConversions', () => {
 
       const responses = await testDestination.testAction('uploadClickConversion', {
         event,
-        features: { 'google-enhanced-conversions-v12': true },
+        features: { 'google-enhanced-v12': true },
         mapping: { conversion_action: '12345', custom_variables: { username: 'spongebob' } },
         useDefaultMappings: true,
         settings: {
@@ -265,7 +265,7 @@ describe('GoogleEnhancedConversions', () => {
 
       const responses = await testDestination.testAction('uploadClickConversion', {
         event,
-        features: { 'google-enhanced-conversions-v12': true },
+        features: { 'google-enhanced-v12': true },
         mapping: { conversion_action: '12345' },
         useDefaultMappings: true,
         settings: {
@@ -308,7 +308,7 @@ describe('GoogleEnhancedConversions', () => {
 
       const responses = await testDestination.testAction('uploadClickConversion', {
         event,
-        features: { 'google-enhanced-conversions-v12': true },
+        features: { 'google-enhanced-v12': true },
         mapping: { conversion_action: '12345' },
         useDefaultMappings: true,
         settings: {
@@ -350,7 +350,7 @@ describe('GoogleEnhancedConversions', () => {
       try {
         await testDestination.testAction('uploadClickConversion', {
           event,
-          features: { 'google-enhanced-conversions-v12': true },
+          features: { 'google-enhanced-v12': true },
           mapping: { conversion_action: '12345' },
           useDefaultMappings: true,
           settings: {}

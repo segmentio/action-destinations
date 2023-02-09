@@ -129,7 +129,7 @@ describe('GoogleEnhancedConversions', () => {
 
       const responses = await testDestination.testAction('uploadCallConversion', {
         event,
-        features: { 'google-enhanced-conversions-v12': true },
+        features: { 'google-enhanced-v12': true },
         mapping: {
           conversion_action: '12345',
           caller_id: '+1234567890',
@@ -196,7 +196,7 @@ describe('GoogleEnhancedConversions', () => {
 
       const responses = await testDestination.testAction('uploadCallConversion', {
         event,
-        features: { 'google-enhanced-conversions-v12': true },
+        features: { 'google-enhanced-v12': true },
         mapping: { conversion_action: '12345', caller_id: '+1234567890', call_timestamp: timestamp },
         useDefaultMappings: true,
         settings: {
@@ -230,7 +230,7 @@ describe('GoogleEnhancedConversions', () => {
       try {
         await testDestination.testAction('uploadCallConversion', {
           event,
-          features: { 'google-enhanced-conversions-v12': true },
+          features: { 'google-enhanced-v12': true },
           mapping: { conversion_action: '12345', caller_id: '+1234567890', call_timestamp: timestamp },
           useDefaultMappings: true,
           settings: {}
