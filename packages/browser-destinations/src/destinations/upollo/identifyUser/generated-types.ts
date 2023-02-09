@@ -1,0 +1,34 @@
+// Generated file. DO NOT MODIFY IT BY HAND.
+
+export interface Payload {
+  /**
+   * The name of the event.
+   */
+  event_name?: string
+  /**
+   * The ID of the user
+   */
+  user_id?: string
+  /**
+   * The user's name.
+   */
+  name?: string
+  /**
+   * The user's email address.
+   */
+  email?: string
+  /**
+   * The user's phone number.
+   */
+  phone?: string
+  /**
+   * The URL for the user's avatar/profile image.
+   */
+  avatar_image_url?: string
+  /**
+   * The user's custom attributes.
+   */
+  custom_traits?: {
+    [k: string]: unknown
+  }
+}
