@@ -31,7 +31,8 @@ const destination: DestinationDefinition<Settings> = {
       },
       customURL: {
         label: 'Custom Voucherify URL',
-        description: 'Enter your [Voucherify URL](https://docs.voucherify.io/docs/api-endpoints).',
+        description:
+          'Check your API region in [Voucherify dashboard](https://app.voucherify.io/#/login) -> Project settings -> API endpoint. Example: `https://us1.api.voucherify.io` > `https://us1.segmentio.voucherify.io`. It also works for dedicated urls.',
         type: 'string',
         required: true
       }
