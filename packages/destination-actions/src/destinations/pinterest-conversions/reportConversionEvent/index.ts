@@ -4,7 +4,7 @@ import type { Payload } from './generated-types'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Report Conversion Event',
-  description: '',
+  description: 'TODO',
   fields: {},
   perform: () => {
     // Make your partner api request here!
