@@ -13,7 +13,7 @@ Object {
       "url": "http://fujav.cx/ef",
     },
   },
-  "messageId": "22c96ec8-da18-5ccf-90bb-f92dfd44a98e",
+  "messageId": Any<String>,
   "name": "Gm^2vj@raF9m",
   "properties": Object {
     "testType": "Gm^2vj@raF9m",
@@ -33,6 +33,7 @@ Object {
       "url": "https://segment.com/academy/",
     },
   },
+  "messageId": Any<String>,
   "properties": Object {},
   "timestamp": Any<String>,
   "userId": "user1234",
