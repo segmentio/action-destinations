@@ -1,10 +1,10 @@
-import { PayloadValidationError } from '@segment/actions-core'
+import { IntegrationError, PayloadValidationError } from '@segment/actions-core'
 import { CURRENCY_ISO_CODES } from './constants'
 
 // Google expects currency to be a 3-letter ISO 4217 format
 export function verifyCurrency(currency: string): void {
   if (!CURRENCY_ISO_CODES.includes(currency.toUpperCase())) {
-    throw new PayloadValidationError(`${currency} is not a valid currency code.`)
+    throw new IntegrationError(`${currency} is not a valid currency code.`, 'Incorrect currency code', 400)
   }
 }
 

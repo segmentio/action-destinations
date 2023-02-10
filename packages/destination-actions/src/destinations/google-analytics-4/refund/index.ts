@@ -1,4 +1,4 @@
-import { ActionDefinition, PayloadValidationError } from '@segment/actions-core'
+import { ActionDefinition, ErrorCodes, IntegrationError, PayloadValidationError } from '@segment/actions-core'
 import { verifyCurrency, verifyParams, verifyUserProps, convertTimestamp } from '../ga4-functions'
 import {
   coupon,
@@ -53,7 +53,7 @@ const action: ActionDefinition<Settings, Payload> = {
 
     // Google requires that currency be included at the event level if value is included.
     if (payload.value && payload.currency === undefined) {
-      throw new PayloadValidationError('Currency is required if value is set.')
+      throw new IntegrationError('Currency is required if value is set.', ErrorCodes.INVALID_CURRENCY_CODE, 400)
     }
 
     /**

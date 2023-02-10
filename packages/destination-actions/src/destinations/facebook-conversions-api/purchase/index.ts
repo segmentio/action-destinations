@@ -1,4 +1,4 @@
-import { ActionDefinition, PayloadValidationError } from '@segment/actions-core'
+import { ActionDefinition, ErrorCodes, IntegrationError, PayloadValidationError } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 import { CURRENCY_ISO_CODES } from '../constants'
@@ -71,7 +71,11 @@ const action: ActionDefinition<Settings, Payload> = {
   },
   perform: (request, { payload, settings, features, statsContext }) => {
     if (!CURRENCY_ISO_CODES.has(payload.currency)) {
-      throw new PayloadValidationError(`${payload.currency} is not a valid currency code.`)
+      throw new IntegrationError(
+        `${payload.currency} is not a valid currency code.`,
+        ErrorCodes.INVALID_CURRENCY_CODE,
+        400
+      )
     }
 
     if (!payload.user_data) {

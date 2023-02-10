@@ -1,4 +1,4 @@
-import { ActionDefinition, PayloadValidationError } from '@segment/actions-core'
+import { ActionDefinition, ErrorCodes, IntegrationError, PayloadValidationError } from '@segment/actions-core'
 import { verifyCurrency, verifyParams, verifyUserProps, convertTimestamp } from '../ga4-functions'
 import {
   formatUserProperties,
@@ -40,7 +40,7 @@ const action: ActionDefinition<Settings, Payload> = {
     }
 
     if (payload.value && payload.currency === undefined) {
-      throw new PayloadValidationError('Currency is required if value is set.')
+      throw new IntegrationError('Currency is required if value is set.', ErrorCodes.INVALID_CURRENCY_CODE, 400)
     }
 
     //Currency must exist either as a param or in the first item in items.
