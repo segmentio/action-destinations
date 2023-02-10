@@ -8,7 +8,7 @@ export {
   IntegrationError,
   InvalidAuthenticationError,
   RetryableError,
-  MisconfiguredFieldError,
+  PayloadValidationError,
   ErrorCodes
 } from './errors'
 export { get } from './get'

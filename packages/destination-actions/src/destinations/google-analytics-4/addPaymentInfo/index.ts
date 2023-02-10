@@ -1,4 +1,4 @@
-import { ActionDefinition, MisconfiguredFieldError } from '@segment/actions-core'
+import { ActionDefinition, PayloadValidationError } from '@segment/actions-core'
 import { ProductItem } from '../ga4-types'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
@@ -42,7 +42,7 @@ const action: ActionDefinition<Settings, Payload> = {
     // Google requires that `add_payment_info` events include an array of products: https://developers.google.com/analytics/devguides/collection/ga4/reference/events
     // This differs from the Segment spec, which doesn't require a products array: https://segment.com/docs/connections/spec/ecommerce/v2/#payment-info-entered
     if (payload.items && !payload.items.length) {
-      throw new MisconfiguredFieldError('Google requires one or more products in add_payment_info events.')
+      throw new PayloadValidationError('Google requires one or more products in add_payment_info events.')
     }
 
     if (payload.currency) {
@@ -51,7 +51,7 @@ const action: ActionDefinition<Settings, Payload> = {
 
     // Google requires that currency be included at the event level if value is included.
     if (payload.value && payload.currency === undefined) {
-      throw new MisconfiguredFieldError('Currency is required if value is set.')
+      throw new PayloadValidationError('Currency is required if value is set.')
     }
 
     /**
@@ -60,7 +60,7 @@ const action: ActionDefinition<Settings, Payload> = {
      * currency from the first item in items is used.
      */
     if (payload.currency === undefined && payload.items[0].currency === undefined) {
-      throw new MisconfiguredFieldError('One of item-level currency or top-level currency is required.')
+      throw new PayloadValidationError('One of item-level currency or top-level currency is required.')
     }
 
     let googleItems: ProductItem[] = []
@@ -68,7 +68,7 @@ const action: ActionDefinition<Settings, Payload> = {
     if (payload.items) {
       googleItems = payload.items.map((product) => {
         if (product.item_name === undefined && product.item_id === undefined) {
-          throw new MisconfiguredFieldError(
+          throw new PayloadValidationError(
             'One of product name or product id is required for product or impression data.'
           )
         }

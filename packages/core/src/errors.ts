@@ -71,16 +71,16 @@ export class InvalidAuthenticationError extends CustomError {
 }
 
 /**
- * Error for invalid field values.
+ * Error to indicate the payload is missing fields that are required.
  * Should include a user-friendly message.
- * These errors will not be retried and the user has to fix the incorrect field mapping
+ * These errors will not be retried and the user has to fix the payload or .
  */
-export class MisconfiguredFieldError extends IntegrationError {
+export class PayloadValidationError extends IntegrationError {
   /**
    * @param message - a human-friendly message to display to users
    */
   constructor(message: string) {
-    super(message, ErrorCodes.MISCONFIGURED_FIELD, 400)
+    super(message, ErrorCodes.PAYLOAD_VALIDATION_FAILED, 400)
   }
 }
 
@@ -89,7 +89,7 @@ export class MisconfiguredFieldError extends IntegrationError {
  */
 export enum ErrorCodes {
   INVALID_AUTHENTICATION = 'INVALID_AUTHENTICATION',
-  MISCONFIGURED_FIELD = 'MISCONFIGURED_FIELD',
+  PAYLOAD_VALIDATION_FAILED = 'PAYLOAD_VALIDATION_FAILED',
   RETRYABLE_ERROR = 'RETRYABLE_ERROR',
   REFRESH_TOKEN_EXPIRED = 'REFRESH_TOKEN_EXPIRED',
   OAUTH_REFRESH_FAILED = 'OAUTH_REFRESH_FAILED'
