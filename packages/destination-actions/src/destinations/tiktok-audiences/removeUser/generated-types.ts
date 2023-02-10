@@ -10,11 +10,11 @@ export interface Payload {
    */
   id_type?: string
   /**
-   * The user's email address to send to LinkedIn.
+   * The user's email address to send to TikTok.
    */
   email?: string
   /**
-   * The user's Google Advertising ID to send to LinkedIn.
+   * The user's Google Advertising ID to send to TikTok.
    */
   google_advertising_id?: string
   /**
