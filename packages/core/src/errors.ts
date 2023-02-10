@@ -71,15 +71,13 @@ export class InvalidAuthenticationError extends CustomError {
 }
 
 /**
- * Error for invalid field values
+ * Error for invalid field values.
  * Should include a user-friendly message.
  * These errors will not be retried and the user has to fix the incorrect field mapping
  */
 export class MisconfiguredFieldError extends IntegrationError {
   /**
    * @param message - a human-friendly message to display to users
-   * @param code - an optional error code/reason
-   * @param status - an optional http status code (e.g. 400)
    */
   constructor(message: string) {
     super(message, ErrorCodes.MISCONFIGURED_FIELD, 400)
