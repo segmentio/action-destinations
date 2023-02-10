@@ -1,3 +1,4 @@
+import { RequestClient } from '@segment/actions-core'
 import { IntegrationError } from '@segment/actions-core'
 import { CURRENCY_ISO_CODES } from './constants'
 import { DataStreamParams } from './ga4-types'
@@ -107,4 +108,12 @@ export function getWebStreamParams(api_secret: string, measurement_id?: string, 
       client_id
     }
   }
+}
+
+export async function sendData(request: RequestClient, search_params: string, payload: { [k: string]: unknown }) {
+  // Firebase App ID can contain colons(:) and they should not be encoded. Hence, interpolating search params to url string instead of passing them as search_params
+  return request(`https://www.google-analytics.com/mp/collect?${search_params}`, {
+    method: 'POST',
+    json: payload
+  })
 }
