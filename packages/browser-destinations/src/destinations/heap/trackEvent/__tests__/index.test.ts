@@ -6,7 +6,7 @@ import {
   mockHeapJsHttpRequest,
   trackEventSubscription
 } from '../../test-utilities'
-import { HEAP_SEGMENT_LIBRARY_NAME } from '../../constants'
+import { HEAP_SEGMENT_BROWSER_LIBRARY_NAME } from '../../constants'
 
 describe('#trackEvent', () => {
   const createHeapDestinationAndSpy = async (): Promise<[Plugin, jest.SpyInstance]> => {
@@ -34,7 +34,7 @@ describe('#trackEvent', () => {
 
     expect(heapTrackSpy).toHaveBeenCalledWith('hello!', {
       banana: '📞',
-      segment_library: HEAP_SEGMENT_LIBRARY_NAME
+      segment_library: HEAP_SEGMENT_BROWSER_LIBRARY_NAME
     })
   })
 
@@ -48,7 +48,7 @@ describe('#trackEvent', () => {
     )
 
     expect(heapTrackSpy).toHaveBeenCalledWith('hello!', {
-      segment_library: HEAP_SEGMENT_LIBRARY_NAME
+      segment_library: HEAP_SEGMENT_BROWSER_LIBRARY_NAME
     })
   })
 
@@ -66,7 +66,7 @@ describe('#trackEvent', () => {
     )
 
     expect(heapTrackSpy).toHaveBeenCalledWith('hello!', {
-      segment_library: segmentLibraryValue
+      segment_library: HEAP_SEGMENT_BROWSER_LIBRARY_NAME
     })
   })
 })

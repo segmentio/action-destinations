@@ -22,9 +22,10 @@ Object {
   "idempotency_key": "kFJwrNh$DP38FB",
   "identity": "kFJwrNh$DP38FB",
   "properties": Object {
-    "segment_library": "kFJwrNh$DP38FB",
+    "segment_library": "cloud-mode-destination",
     "testType": "kFJwrNh$DP38FB",
   },
+  "session_id": "kFJwrNh$DP38FB",
   "timestamp": "2021-02-01T00:00:00.000Z",
 }
 `;
@@ -35,7 +36,8 @@ Object {
   "idempotency_key": "kFJwrNh$DP38FB",
   "identity": "kFJwrNh$DP38FB",
   "properties": Object {
-    "segment_library": "destinations-actions",
+    "segment_library": "cloud-mode-destination",
   },
+  "session_id": "kFJwrNh$DP38FB",
 }
 `;
