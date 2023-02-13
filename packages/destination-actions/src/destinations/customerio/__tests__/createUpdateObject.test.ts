@@ -60,8 +60,8 @@ describe('CustomerIO', () => {
         type: 'object',
         action: 'identify',
         identifiers: {
-          type_id: traits.object_type_id,
-          id: groupId
+          object_type_id: traits.object_type_id,
+          object_id: groupId
         },
         cio_relationships: [{ identifiers: { id: userId } }]
       })
@@ -117,8 +117,8 @@ describe('CustomerIO', () => {
         type: 'object',
         action: 'identify',
         identifiers: {
-          type_id: traits.object_type_id,
-          id: groupId
+          object_type_id: traits.object_type_id,
+          object_id: groupId
         },
         cio_relationships: [{ identifiers: { id: userId } }]
       })
@@ -172,8 +172,8 @@ describe('CustomerIO', () => {
         type: 'object',
         action: 'identify',
         identifiers: {
-          type_id: traits.object_type_id,
-          id: groupId
+          object_type_id: traits.object_type_id,
+          object_id: groupId
         },
         cio_relationships: [{ identifiers: { id: userId } }]
       })
@@ -226,8 +226,8 @@ describe('CustomerIO', () => {
         type: 'object',
         action: 'identify_anonymous',
         identifiers: {
-          type_id: traits.object_type_id,
-          id: groupId
+          object_type_id: traits.object_type_id,
+          object_id: groupId
         },
         cio_relationships: [{ identifiers: { anonymous_id: anonymousId } }]
       })
@@ -279,8 +279,8 @@ describe('CustomerIO', () => {
         type: 'object',
         action: 'identify',
         identifiers: {
-          type_id: '1',
-          id: groupId
+          object_type_id: '1',
+          object_id: groupId
         },
         cio_relationships: [{ identifiers: { id: userId } }]
       })
@@ -327,8 +327,8 @@ describe('CustomerIO', () => {
         type: 'object',
         action: 'identify',
         identifiers: {
-          type_id: typeId,
-          id: groupId
+          object_type_id: typeId,
+          object_id: groupId
         },
         cio_relationships: [{ identifiers: { id: userId } }]
       })

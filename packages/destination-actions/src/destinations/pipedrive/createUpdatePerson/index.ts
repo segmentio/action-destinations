@@ -32,21 +32,30 @@ const action: ActionDefinition<Settings, Payload> = {
       label: 'Person Name',
       description: 'Name of the person',
       type: 'string',
-      required: false
+      required: false,
+      default: {
+        '@path': '$.traits.name'
+      }
     },
     email: {
       label: 'Email Address',
       description: 'Email addresses for this person.',
       type: 'string',
       required: false,
-      multiple: true
+      multiple: true,
+      default: {
+        '@path': '$.traits.email'
+      }
     },
     phone: {
       label: 'Phone Number',
       description: 'Phone numbers for the person.',
       type: 'string',
       required: false,
-      multiple: true
+      multiple: true,
+      default: {
+        '@path': '$.traits.phone'
+      }
     },
     visible_to: {
       label: 'Visible To',
@@ -91,6 +100,11 @@ const action: ActionDefinition<Settings, Payload> = {
       add_time: payload.add_time ? `${payload.add_time}` : undefined,
       visible_to: payload.visible_to
     }
+
+    if (!personId)
+      if (payload.match_field)
+        // if doing a create, include the match_field and match_value data so that it gets written to the new object
+        Object.assign(person, { [payload.match_field]: payload.match_value })
 
     addCustomFieldsFromPayloadToEntity(payload, person)
 

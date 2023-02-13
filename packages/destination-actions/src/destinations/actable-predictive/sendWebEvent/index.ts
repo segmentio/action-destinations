@@ -5,7 +5,7 @@ import { API_URL, formatTimestampAsUnixSeconds } from '../index'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Send Web Activity Event',
-  description: '',
+  description: 'Send a Web (or app) event to Actable for prediction. Use this to supply events like page views, link clicks, etc.',
   fields: {
     customer_id: {
       label: 'Customer ID',

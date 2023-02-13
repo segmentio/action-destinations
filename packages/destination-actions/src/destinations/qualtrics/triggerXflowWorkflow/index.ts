@@ -3,8 +3,8 @@ import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 
 const action: ActionDefinition<Settings, Payload> = {
-  title: 'Trigger workflow in xflow',
-  description: 'This action triggers a workflow in Qualtrics xflow',
+  title: 'Start a workflow in Qualtrics',
+  description: 'This action is used to kick off a workflow in Qualtrics',
   fields: {
     workflowUrl: {
       label: 'Workflow URL',
