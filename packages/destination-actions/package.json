@@ -1,7 +1,7 @@
 {
   "name": "@segment/action-destinations",
   "description": "Destination Actions engine and definitions.",
-  "version": "3.127.3-HGI-368-webhook.170",
+  "version": "3.127.3-HGI-368-webhook.174",
   "repository": {
     "type": "git",
     "url": "https://github.com/segmentio/action-destinations",
@@ -66,5 +66,6 @@
     "coverageReporters": [
       "lcov"
     ]
-  }
+  },
+  "gitHead": "be7d16236fe182cc8398a7f55b77eee9faa89ff4"
 }
