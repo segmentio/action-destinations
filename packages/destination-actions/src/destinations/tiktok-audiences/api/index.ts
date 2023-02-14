@@ -61,6 +61,15 @@ export class TikTokAudiences {
   }
 
   fetchAdvertisers = async (advertiser_ids: string[]): Promise<DynamicFieldResponse> => {
+    if (!advertiser_ids.length) {
+      return {
+        choices: [],
+        error: {
+          message: 'Sign in via OAuth on the settings page to load advertisers.',
+          code: 'NOT_LOGGED_IN'
+        }
+      }
+    }
     try {
       const result = await this.request<AdvertiserInfoResponse>(`${BASE_URL}${TIKTOK_API_VERSION}/advertiser/info/`, {
         method: 'GET',
