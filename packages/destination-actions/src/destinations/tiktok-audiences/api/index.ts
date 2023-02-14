@@ -1,37 +1,52 @@
 import type { RequestClient, ModifiedResponse } from '@segment/actions-core'
-import type { Settings } from '../generated-types'
 import type { Payload } from '../addUser/generated-types'
 import { BASE_URL, TIKTOK_API_VERSION } from '../constants'
 import type { GetAudienceAPIResponse, CreateAudienceAPIResponse } from '../types'
+import { DynamicFieldResponse } from '@segment/actions-core'
+
+interface AdvertiserInfoItem {
+  advertiser_id: string
+  name: string
+}
+interface AdvertiserInfoResponse {
+  code: number
+  message: string
+  data: {
+    list: AdvertiserInfoItem[]
+  }
+}
+
+interface AdvertiserInfoError {
+  code: number
+  message: string
+}
 
 export class TikTokAudiences {
   request: RequestClient
+  selectedAdvertiserID?: string
 
-  constructor(request: RequestClient) {
+  constructor(request: RequestClient, selectedAdvertiserID?: string) {
     this.request = request
+    this.selectedAdvertiserID = selectedAdvertiserID
   }
 
-  async getAudiences(
-    settings: Settings,
-    page_number: number,
-    page_size: number
-  ): Promise<ModifiedResponse<GetAudienceAPIResponse>> {
+  async getAudiences(page_number: number, page_size: number): Promise<ModifiedResponse<GetAudienceAPIResponse>> {
     return this.request(`${BASE_URL}${TIKTOK_API_VERSION}/dmp/custom_audience/list/`, {
       method: 'GET',
       searchParams: {
-        advertiser_id: settings.advertiser_id,
+        advertiser_id: this.selectedAdvertiserID ?? '',
         page: page_number,
         page_size: page_size
       }
     })
   }
 
-  async createAudience(settings: Settings, payload: Payload): Promise<ModifiedResponse<CreateAudienceAPIResponse>> {
+  async createAudience(payload: Payload): Promise<ModifiedResponse<CreateAudienceAPIResponse>> {
     return this.request(`${BASE_URL}${TIKTOK_API_VERSION}/segment/audience/`, {
       method: 'POST',
       json: {
         custom_audience_name: payload.custom_audience_name,
-        advertiser_id: settings.advertiser_id,
+        advertiser_id: this.selectedAdvertiserID,
         id_type: payload.id_type,
         action: 'create'
       }
@@ -43,5 +58,52 @@ export class TikTokAudiences {
       method: 'POST',
       json: elements
     })
+  }
+
+  fetchAdvertisers = async (advertiser_ids: string[]): Promise<DynamicFieldResponse> => {
+    try {
+      const result = await this.request<AdvertiserInfoResponse>(`${BASE_URL}${TIKTOK_API_VERSION}/advertiser/info/`, {
+        method: 'GET',
+        searchParams: {
+          advertiser_ids: JSON.stringify(advertiser_ids)
+        }
+      })
+
+      console.log('result', result.data.data)
+
+      if (result.data.code !== 0) {
+        throw {
+          message: result.data.message,
+          code: result.data.code
+        } as AdvertiserInfoError
+      }
+
+      const choices = result.data.data.list.map((item) => {
+        return {
+          label: item.name,
+          value: item.advertiser_id
+        }
+      })
+
+      return {
+        choices: choices
+      }
+    } catch (err) {
+      console.log(err)
+      const choices = advertiser_ids.map((id) => {
+        return {
+          label: id,
+          value: id
+        }
+      })
+
+      return {
+        choices: choices,
+        error: {
+          message: (err as AdvertiserInfoError).message ?? 'An error occurred while fetching advertisers.',
+          code: (err as AdvertiserInfoError).code.toString() ?? 'FETCH_ADVERTISERS_ERROR'
+        }
+      }
+    }
   }
 }

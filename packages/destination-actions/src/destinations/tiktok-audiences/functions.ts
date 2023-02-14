@@ -2,10 +2,12 @@ import { IntegrationError } from '@segment/actions-core'
 import { Audiences } from './types'
 import { createHash } from 'crypto'
 import { TikTokAudiences } from './api'
-import type { Settings } from './generated-types'
-import { Payload } from './addUser/generated-types'
+import { Payload as AddUserPayload } from './addUser/generated-types'
+import { Payload as RemoveUserPayload } from './removeUser/generated-types'
 
-export function validate(payloads: Payload[]): void {
+type GenericPayload = AddUserPayload | RemoveUserPayload
+
+export function validate(payloads: GenericPayload[]): void {
   if (payloads[0].custom_audience_name !== payloads[0].personas_audience_key) {
     throw new IntegrationError(
       'The value of `custom_audience_name` and `personas_audience_key` must match.',
@@ -20,14 +22,14 @@ export function validate(payloads: Payload[]): void {
 // We may have to make up to 4 requests to get all audiences.
 // The first request will return the total_number of audiences associated with
 // the advertiser account.
-export async function getAllAudiences(TikTokApiClient: TikTokAudiences, settings: Settings) {
-  let response = await TikTokApiClient.getAudiences(settings, 1, 100)
+export async function getAllAudiences(TikTokApiClient: TikTokAudiences) {
+  let response = await TikTokApiClient.getAudiences(1, 100)
   let audiences: Audiences[] = response.data.data.list
   const total_number_audiences = response.data.data.page_info.total_number
   let recieved_audiences = 100
   let page_number = 2
   while (recieved_audiences < total_number_audiences) {
-    response = await TikTokApiClient.getAudiences(settings, page_number, 100)
+    response = await TikTokApiClient.getAudiences(page_number, 100)
     audiences = audiences.concat(response.data.data.list)
     page_number += 1
     recieved_audiences += 100
@@ -37,8 +39,7 @@ export async function getAllAudiences(TikTokApiClient: TikTokAudiences, settings
 
 export async function getAudienceID(
   TikTokApiClient: TikTokAudiences,
-  settings: Settings,
-  payload: Payload,
+  payload: GenericPayload,
   audiences: Audiences[]
 ): Promise<string> {
   let audienceID
@@ -57,17 +58,17 @@ export async function getAudienceID(
   if (audienceExists.length == 1) {
     audienceID = audienceExists[0].audience_id
   } else {
-    const response = await TikTokApiClient.createAudience(settings, payload)
+    const response = await TikTokApiClient.createAudience(payload as AddUserPayload)
     audienceID = response.data.data.audience_id
   }
 
   return audienceID
 }
 
-export function extractUsers(payloads: Payload[], audienceID: string): {}[] {
+export function extractUsers(payloads: GenericPayload[], audienceID: string): {}[] {
   const data: {}[] = []
 
-  payloads.forEach((payload: Payload) => {
+  payloads.forEach((payload: GenericPayload) => {
     if (!payload.email && !payload.google_advertising_id) {
       return
     }

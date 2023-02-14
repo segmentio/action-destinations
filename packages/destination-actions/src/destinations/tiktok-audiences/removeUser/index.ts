@@ -75,18 +75,18 @@ const action: ActionDefinition<Settings, Payload> = {
 
 async function processPayload(request: RequestClient, settings: Settings, payloads: Payload[]) {
   validate(payloads)
-  const TikTokApiClient: TikTokAudiences = new TikTokAudiences(request)
+  const TikTokApiClient: TikTokAudiences = new TikTokAudiences(request, 'placeholder')
 
-  const audiences = await getAllAudiences(TikTokApiClient, settings)
+  const audiences = await getAllAudiences(TikTokApiClient)
 
-  const audience_id = await getAudienceID(TikTokApiClient, settings, payloads[0], audiences)
+  const audience_id = await getAudienceID(TikTokApiClient, payloads[0], audiences)
 
   const users = extractUsers(payloads, audience_id)
 
   let res
   if (users.length > 0) {
     const elements = {
-      advertiser_ids: [settings.advertiser_id],
+      advertiser_ids: [settings.advertiser_ids],
       action: 'delete',
       data: users
     }

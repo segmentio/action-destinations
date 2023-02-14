@@ -10,6 +10,13 @@ const action: ActionDefinition<Settings, Payload> = {
   description: 'Sync contacts from an Engage Audience to a TikTok Audience Segment.',
   defaultSubscription: 'event = "Audience Entered"',
   fields: {
+    selected_advertiser_id: {
+      label: 'Advertiser ID',
+      description: 'The advertiser ID to use when syncing audiences.',
+      type: 'string',
+      dynamic: true,
+      required: true
+    },
     custom_audience_name: {
       label: 'Custom Audience Name',
       description:
@@ -65,6 +72,22 @@ const action: ActionDefinition<Settings, Payload> = {
       type: 'string'
     }
   },
+  dynamicFields: {
+    selected_advertiser_id: async (request, { settings }) => {
+      console.log('selected_advertiser_id')
+
+      try {
+        const tiktok = new TikTokAudiences(request)
+
+        return tiktok.fetchAdvertisers(settings.advertiser_ids)
+      } catch (err) {
+        console.log(err)
+        return {
+          choices: []
+        }
+      }
+    }
+  },
   perform: async (request, { settings, payload }) => {
     return processPayload(request, settings, [payload])
   },
@@ -75,18 +98,18 @@ const action: ActionDefinition<Settings, Payload> = {
 
 async function processPayload(request: RequestClient, settings: Settings, payloads: Payload[]) {
   validate(payloads)
-  const TikTokApiClient: TikTokAudiences = new TikTokAudiences(request)
+  const TikTokApiClient: TikTokAudiences = new TikTokAudiences(request, payloads[0].selected_advertiser_id)
 
-  const audiences = await getAllAudiences(TikTokApiClient, settings)
+  const audiences = await getAllAudiences(TikTokApiClient)
 
-  const audience_id = await getAudienceID(TikTokApiClient, settings, payloads[0], audiences)
+  const audience_id = await getAudienceID(TikTokApiClient, payloads[0], audiences)
 
   const users = extractUsers(payloads, audience_id)
 
   let res
   if (users.length > 0) {
     const elements = {
-      advertiser_ids: [settings.advertiser_id],
+      advertiser_ids: settings.advertiser_ids,
       action: 'add',
       data: users
     }
