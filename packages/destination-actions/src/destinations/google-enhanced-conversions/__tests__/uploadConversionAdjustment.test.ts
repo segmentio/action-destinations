@@ -175,7 +175,7 @@ describe('GoogleEnhancedConversions', () => {
       expect(responses.length).toBe(1)
       expect(responses[0].status).toBe(201)
     })
-    it('sends an event with default mappings', async () => {
+    it('uses v12 when google-enhanced-v12 flag is enabled', async () => {
       const event = createTestEvent({
         timestamp,
         event: 'Test Event',

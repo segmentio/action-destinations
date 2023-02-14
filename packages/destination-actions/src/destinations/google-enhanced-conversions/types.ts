@@ -25,7 +25,7 @@ export interface PartialErrorResponse {
   }
   results: {}[]
 }
-
+//https://segment.atlassian.net/browse/STRATCONN-1953
 export function getUrlByVersion(features: Features | undefined): string {
   if (features && features['google-enhanced-v12']) {
     return 'https://googleads.googleapis.com/v12/customers'

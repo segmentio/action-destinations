@@ -146,7 +146,7 @@ describe('GoogleEnhancedConversions', () => {
       expect(responses.length).toBe(2)
       expect(responses[1].status).toBe(201)
     })
-    it('correctly maps custom variables', async () => {
+    it('uses v12 when google-enhanced-v12 flag is enabled', async () => {
       const event = createTestEvent({
         timestamp,
         event: 'Test Event',
