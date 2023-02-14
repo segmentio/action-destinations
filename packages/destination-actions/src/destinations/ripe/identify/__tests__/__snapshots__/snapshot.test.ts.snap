@@ -6,7 +6,7 @@ Object {
   "context": Object {
     "groupId": "ojywl7GMKZU*opR%8",
   },
-  "messageId": "7dbfec72-3264-59dd-8983-99027cd3e162",
+  "messageId": Any<String>,
   "timestamp": Any<String>,
   "traits": Object {
     "testType": "ojywl7GMKZU*opR%8",
@@ -19,6 +19,7 @@ exports[`Testing snapshot for Ripe's identify destination action: required field
 Object {
   "anonymousId": "anonId1234",
   "context": Object {},
+  "messageId": Any<String>,
   "timestamp": Any<String>,
   "traits": Object {},
   "userId": "user1234",
