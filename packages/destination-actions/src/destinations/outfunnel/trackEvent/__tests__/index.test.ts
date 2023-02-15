@@ -7,7 +7,7 @@ const endpoint = 'https://sink.outfunnel.com'
 const userId = '63d1535e64583e42bbc60662'
 const apiToken = '5aef3rafgasfdsafadsfsdadasd'
 
-describe('Outfunnel.identifyContact', () => {
+describe('Outfunnel.trackEvent', () => {
   it('should update a user if the user already exists', async () => {
     const event = createTestEvent({ groupId: 'abc', traits: { name: 'example user', email: 'user@example.com' } })
 
