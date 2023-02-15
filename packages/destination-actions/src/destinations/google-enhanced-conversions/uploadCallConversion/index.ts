@@ -1,8 +1,14 @@
 import { ActionDefinition, IntegrationError } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
-import { convertTimestamp, formatCustomVariables, getCustomVariables, handleGoogleErrors } from '../functions'
-import { GoogleAdsAPI, PartialErrorResponse } from '../types'
+import {
+  convertTimestamp,
+  formatCustomVariables,
+  getCustomVariables,
+  getUrlByVersion,
+  handleGoogleErrors
+} from '../functions'
+import { PartialErrorResponse } from '../types'
 import { ModifiedResponse } from '@segment/actions-core'
 
 const action: ActionDefinition<Settings, Payload> = {
@@ -65,8 +71,8 @@ const action: ActionDefinition<Settings, Payload> = {
       defaultObjectUI: 'keyvalue:only'
     }
   },
-  perform: async (request, { auth, settings, payload }) => {
-    /* Enforcing this here since Customer ID is required for the Google Ads API 
+  perform: async (request, { auth, settings, payload, features, statsContext }) => {
+    /* Enforcing this here since Customer ID is required for the Google Ads API
     but not for the Enhanced Conversions API. */
     if (!settings.customerId) {
       throw new IntegrationError(
@@ -89,15 +95,14 @@ const action: ActionDefinition<Settings, Payload> = {
 
     // Retrieves all of the custom variables that the customer has created in their Google Ads account
     if (payload.custom_variables) {
-      const customVariableIds = await getCustomVariables(settings.customerId, auth, request)
+      const customVariableIds = await getCustomVariables(settings.customerId, auth, request, features, statsContext)
       request_object.customVariables = formatCustomVariables(
         payload.custom_variables,
         customVariableIds.data[0].results
       )
     }
-
     const response: ModifiedResponse<PartialErrorResponse> = await request(
-      `${GoogleAdsAPI}/${settings.customerId}:uploadCallConversions`,
+      `${getUrlByVersion(features, statsContext)}/${settings.customerId}:uploadCallConversions`,
       {
         method: 'post',
         headers: {
