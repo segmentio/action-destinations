@@ -14,10 +14,6 @@ export interface Payload {
    */
   anonymous_id?: string | null
   /**
-   * Distinct identifier for /engage request
-   */
-  distinct_id?: string
-  /**
    * Properties to set on the user profile
    */
   traits?: {

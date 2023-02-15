@@ -36,18 +36,6 @@ const action: ActionDefinition<Settings, Payload> = {
         '@path': '$.anonymousId'
       }
     },
-    distinct_id: {
-      label: 'Distinct ID',
-      type: 'string',
-      description: 'Distinct identifier for /engage request',
-      default: {
-        '@if': {
-          exists: { '@path': '$.userId' },
-          then: { '@path': '$.userId' },
-          else: { '@path': '$.anonymousId' }
-        }
-      }
-    },
     traits: {
       label: 'User Properties',
       type: 'object',
@@ -77,7 +65,7 @@ const action: ActionDefinition<Settings, Payload> = {
         }
       }
 
-      const identifyResponse = await request(`${ apiServerUrl }/track`, {
+      const identifyResponse = await request(`${apiServerUrl}/track`, {
         method: 'post',
         body: new URLSearchParams({ data: JSON.stringify(identifyEvent) })
       })
@@ -103,12 +91,12 @@ const action: ActionDefinition<Settings, Payload> = {
       }
       const data = {
         $token: settings.projectToken,
-        $distinct_id: payload.distinct_id,
+        $distinct_id: payload.user_id ?? payload.anonymous_id,
         $ip: payload.ip,
         $set: traits
       }
 
-      const engageResponse = request(`${ apiServerUrl }/engage`, {
+      const engageResponse = request(`${apiServerUrl}/engage`, {
         method: 'post',
         body: new URLSearchParams({ data: JSON.stringify(data) })
       })
