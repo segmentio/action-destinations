@@ -1,8 +1,7 @@
-import { ActionDefinition, IntegrationError } from '@segment/actions-core';
+import { ActionDefinition } from '@segment/actions-core';
 import type { Settings } from '../generated-types';
 import type { Payload } from './generated-types';
-
-const getEndpoint = (userId: string) => `https://sink.outfunnel.com/events/segment/${encodeURIComponent(userId)}`;
+import { getEndpoint } from '../utils';
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Track Event',
@@ -81,8 +80,8 @@ const action: ActionDefinition<Settings, Payload> = {
       }
     }
   },
-  perform: async (request, { payload }) => {
-    const endpoint = getEndpoint(payload.user_id);
+  perform: async (request, { settings, payload }) => {
+    const endpoint = getEndpoint(settings.userId);
 
     return request(endpoint, {
       method: 'POST',

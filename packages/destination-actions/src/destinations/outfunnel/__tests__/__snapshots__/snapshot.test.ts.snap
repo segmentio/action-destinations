@@ -1,0 +1,92 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Testing snapshot for actions-outfunnel destination: groupIdentifyContact action - all fields 1`] = `
+Object {
+  "anonymous_id": "x7ju8)x7c!)S",
+  "context": Object {
+    "testType": "x7ju8)x7c!)S",
+  },
+  "email": "sivle@kil.za",
+  "timestamp": "2021-02-01T00:00:00.000Z",
+  "traits": Object {
+    "testType": "x7ju8)x7c!)S",
+  },
+  "type": "x7ju8)x7c!)S",
+  "user_id": "x7ju8)x7c!)S",
+}
+`;
+
+exports[`Testing snapshot for actions-outfunnel destination: groupIdentifyContact action - required fields 1`] = `
+Object {
+  "anonymous_id": "x7ju8)x7c!)S",
+  "context": Object {
+    "testType": "x7ju8)x7c!)S",
+  },
+  "timestamp": "2021-02-01T00:00:00.000Z",
+  "traits": Object {
+    "testType": "x7ju8)x7c!)S",
+  },
+  "type": "x7ju8)x7c!)S",
+  "user_id": "x7ju8)x7c!)S",
+}
+`;
+
+exports[`Testing snapshot for actions-outfunnel destination: identifyContact action - all fields 1`] = `
+Object {
+  "anonymous_id": "V^(ZOtxGERrYecH%3u2C",
+  "context": Object {
+    "testType": "V^(ZOtxGERrYecH%3u2C",
+  },
+  "email": "fe@gefbaz.ci",
+  "timestamp": "2021-02-01T00:00:00.000Z",
+  "traits": Object {
+    "testType": "V^(ZOtxGERrYecH%3u2C",
+  },
+  "type": "V^(ZOtxGERrYecH%3u2C",
+  "user_id": "V^(ZOtxGERrYecH%3u2C",
+}
+`;
+
+exports[`Testing snapshot for actions-outfunnel destination: identifyContact action - required fields 1`] = `
+Object {
+  "anonymous_id": "V^(ZOtxGERrYecH%3u2C",
+  "context": Object {
+    "testType": "V^(ZOtxGERrYecH%3u2C",
+  },
+  "email": "fe@gefbaz.ci",
+  "timestamp": "2021-02-01T00:00:00.000Z",
+  "type": "V^(ZOtxGERrYecH%3u2C",
+  "user_id": "V^(ZOtxGERrYecH%3u2C",
+}
+`;
+
+exports[`Testing snapshot for actions-outfunnel destination: trackEvent action - all fields 1`] = `
+Object {
+  "context": Object {
+    "testType": "fK&]2G%QLt8rxkJDQzyS",
+  },
+  "email": "hediw@nu.mc",
+  "event_name": "fK&]2G%QLt8rxkJDQzyS",
+  "group_id": "fK&]2G%QLt8rxkJDQzyS",
+  "properties": Object {
+    "testType": "fK&]2G%QLt8rxkJDQzyS",
+  },
+  "timestamp": "2021-02-01T00:00:00.000Z",
+  "type": "fK&]2G%QLt8rxkJDQzyS",
+  "user_id": "fK&]2G%QLt8rxkJDQzyS",
+}
+`;
+
+exports[`Testing snapshot for actions-outfunnel destination: trackEvent action - required fields 1`] = `
+Object {
+  "context": Object {
+    "testType": "fK&]2G%QLt8rxkJDQzyS",
+  },
+  "email": "hediw@nu.mc",
+  "event_name": "fK&]2G%QLt8rxkJDQzyS",
+  "group_id": "fK&]2G%QLt8rxkJDQzyS",
+  "timestamp": "2021-02-01T00:00:00.000Z",
+  "type": "fK&]2G%QLt8rxkJDQzyS",
+  "user_id": "fK&]2G%QLt8rxkJDQzyS",
+}
+`;
