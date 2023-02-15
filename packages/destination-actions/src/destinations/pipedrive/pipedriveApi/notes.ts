@@ -5,7 +5,7 @@ export interface Note extends Record<string, unknown> {
   content: string
   add_time?: string
   deal_id?: number
-  lead_id?: number
+  lead_id?: string
   person_id?: number
   org_id?: number
 }

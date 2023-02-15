@@ -26,14 +26,13 @@ const action: ActionDefinition<Settings, Payload> = {
       description:
         'The name of the event coming from the source, this is an additional information field before the call goes to Ironclad.',
       type: 'string',
-      default: { '@path': 'event' },
+      default: { '@path': '$.event' },
       required: false
     },
     group_id: {
       label: 'Clickwrap Group Id',
-      description: 'The ID of the Clickwrap Group associated with the acceptance event.',
-      type: 'string',
-      default: '',
+      description: 'The ID of the Clickwrap Group associated with the acceptance event. Needs to be an integer',
+      type: 'integer',
       required: true
     },
     event_type: {

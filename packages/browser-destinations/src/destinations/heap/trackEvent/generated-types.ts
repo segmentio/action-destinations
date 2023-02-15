@@ -11,4 +11,8 @@ export interface Payload {
   properties?: {
     [k: string]: unknown
   }
+  /**
+   * The segment anonymous identifier for the user
+   */
+  anonymousId?: string
 }

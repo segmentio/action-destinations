@@ -1,0 +1,16 @@
+{
+  "compilerOptions": {
+    "moduleResolution": "node",
+    "module": "CommonJS",
+    "target": "es6",
+    "esModuleInterop": true,
+    "types": ["node", "webdriverio/async", "@wdio/mocha-framework", "expect-webdriverio", "@wdio/sauce-service"]
+  },
+  "ts-node": {
+    "transpileOnly": true,
+    "files": true,
+    "compilerOptions": {
+      "module": "commonjs" // get rid of "Cannot use import statement outside a module" for local scripts
+    }
+  }
+}
