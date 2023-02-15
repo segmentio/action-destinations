@@ -1,5 +1,8 @@
 import type { DestinationDefinition } from '@segment/actions-core'
 import type { Settings } from './generated-types'
+import identifyContact from './identifyContact'
+import groupIdentifyContact from './groupIdentifyContact';
+import trackEvent from './trackEvent'
 
 const destination: DestinationDefinition<Settings> = {
   name: 'Outfunnel',
@@ -8,7 +11,14 @@ const destination: DestinationDefinition<Settings> = {
 
   authentication: {
     scheme: 'custom',
-    fields: {},
+    fields: {
+      apiToken: {
+        label: 'API Token',
+        description: 'Outfunnel API Token. This is found under Account',
+        type: 'string',
+        required: true
+      }
+    },
     testAuthentication: (request) => {
       // Return a request that tests/validates the user's credentials.
       // If you do not have a way to validate the authentication fields safely,
@@ -16,13 +26,11 @@ const destination: DestinationDefinition<Settings> = {
     }
   },
 
-  onDelete: async (request, { settings, payload }) => {
-    // Return a request that performs a GDPR delete for the provided Segment userId or anonymousId
-    // provided in the payload. If your destination does not support GDPR deletion you should not
-    // implement this function and should remove it completely.
-  },
-
-  actions: {}
+  actions: {
+    trackEvent,
+    groupIdentifyContact,
+    identifyContact
+  }
 }
 
 export default destination
