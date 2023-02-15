@@ -40,7 +40,7 @@ const action: BrowserActionDefinition<Settings, RipeSDK, Payload> = {
   },
   perform: async (ripe, { payload }) => {
     await ripe.setIds(payload.anonymousId, payload.userId, payload.groupId)
-    return ripe.identify(payload.anonymousId, payload.userId, payload.traits)
+    return ripe.identify(payload.userId, payload.traits)
   }
 }
 

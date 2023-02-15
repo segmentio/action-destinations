@@ -72,7 +72,6 @@ describe('Ripe.identify', () => {
     )
 
     expect(window.Ripe.identify).toHaveBeenCalledWith(
-      expect.stringMatching('anonymousId'),
       expect.stringMatching('userId'),
       expect.objectContaining({ name: 'Simon' })
     )
