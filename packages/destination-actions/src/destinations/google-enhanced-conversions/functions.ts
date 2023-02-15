@@ -75,7 +75,7 @@ export function convertTimestamp(timestamp: string | undefined): string | undefi
 }
 
 // Ticket to remove flagon - https://segment.atlassian.net/browse/STRATCONN-1953
-export function getUrlByVersion(features: Features | undefined, statsContext: StatsContext | undefined): string {
+export function getUrlByVersion(features?: Features, statsContext?: StatsContext): string {
   const statsClient = statsContext?.statsClient
   const tags = statsContext?.tags
 
