@@ -41,7 +41,8 @@ export class TikTokAudiences {
   async batchUpdate(elements: {}): Promise<ModifiedResponse> {
     return this.request(`${BASE_URL}${TIKTOK_API_VERSION}/segment/mapping/`, {
       method: 'POST',
-      json: elements
+      json: elements,
+      throwHttpErrors: false
     })
   }
 }
