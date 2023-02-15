@@ -10,7 +10,7 @@ it('should init', async () => {
         enabled: true,
         name: 'Identify',
         subscribe: 'type = "identify"',
-        partnerAction: 'identify',
+        partnerAction: 'identifyUser',
         mapping: {}
       }
     ]

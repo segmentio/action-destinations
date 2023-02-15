@@ -23,8 +23,6 @@ describe('StackAdapt', () => {
       ]
     })
 
-    console.log('stack event', event)
-
     destination.actions.trackEvent.perform = jest.fn()
     jest.spyOn(destination.actions.trackEvent, 'perform')
     jest.spyOn(destination, 'initialize')

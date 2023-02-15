@@ -33,15 +33,12 @@ it('should identify', async () => {
     } as Payload
   })
 
-  expect(client.track).toHaveBeenCalledWith(
-    {
-      userId: 'u1',
-      userEmail: 'foo@bar.com',
-      userPhone: '+611231234',
-      userName: 'Mr Foo',
-      userImage: 'http://smile',
-      customerSuppliedValues: { DOB: '1990-01-01', Plan: 'Bronze' }
-    },
-    19 // signed up
-  )
+  expect(client.track).toHaveBeenCalledWith({
+    userId: 'u1',
+    userEmail: 'foo@bar.com',
+    userPhone: '+611231234',
+    userName: 'Mr Foo',
+    userImage: 'http://smile',
+    customerSuppliedValues: { DOB: '1990-01-01', Plan: 'Bronze' }
+  })
 })

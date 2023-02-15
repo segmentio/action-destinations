@@ -2,7 +2,6 @@ import { BrowserActionDefinition } from 'src/lib/browser-destinations'
 import { UpolloClient } from '../types'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
-import { Context } from '@segment/analytics-next'
 
 const identifyUser: BrowserActionDefinition<Settings, UpolloClient, Payload> = {
   title: 'Identify user',
@@ -10,15 +9,6 @@ const identifyUser: BrowserActionDefinition<Settings, UpolloClient, Payload> = {
   defaultSubscription: 'type = "identify"',
   platform: 'web',
   fields: {
-    event_name: {
-      description: 'The name of the event.',
-      label: 'Event Name',
-      type: 'string',
-      required: false,
-      default: {
-        '@path': '$.event'
-      }
-    },
     user_id: {
       type: 'string',
       required: false,
@@ -70,8 +60,7 @@ const identifyUser: BrowserActionDefinition<Settings, UpolloClient, Payload> = {
       defaultObjectUI: 'keyvalue'
     }
   },
-  perform: (UpClient, { context, payload }) => {
-    console.log('perform identify', context, payload)
+  perform: (UpClient, { payload }) => {
     const userInfo = {
       userId: payload.user_id,
       userEmail: payload.email,
@@ -80,31 +69,12 @@ const identifyUser: BrowserActionDefinition<Settings, UpolloClient, Payload> = {
       userImage: payload.avatar_image_url,
       customerSuppliedValues: payload.custom_traits ? toCustomValues(payload.custom_traits) : undefined
     }
-    const e = segmentEventToUw(context)
-    console.log('calling up.track', UpClient, userInfo, e)
-    try {
-      void UpClient.track(userInfo, e)
-    } catch (e) {
-      console.error('error calling track', e)
-    }
+
+    void UpClient.track(userInfo)
   }
 }
 
 export default identifyUser
-
-const eventMapping = new Map<String, number>([
-  ['Signed Up', 19],
-  ['Signed In', 18],
-  ['Signed Up', 19],
-  ['Signed In', 18],
-  ['Account Added User', 9],
-  ['Trial Started', 14],
-  ['Trial Ended', 15]
-])
-
-function segmentEventToUw(ctx: Context): number | undefined {
-  return ctx.event.event ? eventMapping.get(ctx.event.event) : undefined
-}
 
 function toCustomValues(values: Record<string, unknown>): Record<string, string> {
   const xs = Object.entries(values)

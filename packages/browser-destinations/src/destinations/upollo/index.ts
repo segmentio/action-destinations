@@ -40,8 +40,7 @@ export const destination: BrowserDestinationDefinition<Settings, UpolloClient> =
 
   initialize: async ({ settings }, deps) => {
     try {
-      console.log('starting lib ', settings)
-      await deps.loadScript(getScript())
+      await deps.loadScript('https://cdn.upollo.ai/web/0.2/bundle.min.js')
 
       await deps.resolveWhen(
         () => Object.prototype.hasOwnProperty.call(window, 'upollo'),
@@ -60,18 +59,3 @@ export const destination: BrowserDestinationDefinition<Settings, UpolloClient> =
 }
 
 export default browserDestination(destination)
-
-const scriptLocation = 'https://cdn.upollo.ai/web/0.2/bundle.min.js'
-
-function getScript(): string {
-  try {
-    // allow overriding the script for development.
-    if (window?.location?.search) {
-      const search = new URLSearchParams(window.location.search)
-      return search.get('upollo-script') || scriptLocation
-    }
-  } catch (e) {
-    return scriptLocation
-  }
-  return scriptLocation
-}
