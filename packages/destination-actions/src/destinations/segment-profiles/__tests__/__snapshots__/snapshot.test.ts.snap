@@ -4,6 +4,9 @@ exports[`Testing snapshot for actions-segment-profiles destination: sendGroup ac
 Object {
   "anonymousId": "cZE8HyAL0!BF#)WQb^",
   "groupId": "cZE8HyAL0!BF#)WQb^",
+  "integrations": Object {
+    "All": false,
+  },
   "traits": Object {
     "testType": "cZE8HyAL0!BF#)WQb^",
   },
@@ -15,6 +18,9 @@ exports[`Testing snapshot for actions-segment-profiles destination: sendGroup ac
 Object {
   "anonymousId": "cZE8HyAL0!BF#)WQb^",
   "groupId": "cZE8HyAL0!BF#)WQb^",
+  "integrations": Object {
+    "All": false,
+  },
   "traits": Object {},
   "userId": "cZE8HyAL0!BF#)WQb^",
 }
@@ -24,6 +30,9 @@ exports[`Testing snapshot for actions-segment-profiles destination: sendIdentify
 Object {
   "anonymousId": "hIC1OAmWa[Q!&d%o",
   "groupId": "hIC1OAmWa[Q!&d%o",
+  "integrations": Object {
+    "All": false,
+  },
   "traits": Object {
     "testType": "hIC1OAmWa[Q!&d%o",
   },
@@ -35,6 +44,9 @@ exports[`Testing snapshot for actions-segment-profiles destination: sendIdentify
 Object {
   "anonymousId": "hIC1OAmWa[Q!&d%o",
   "groupId": "hIC1OAmWa[Q!&d%o",
+  "integrations": Object {
+    "All": false,
+  },
   "traits": Object {},
   "userId": "hIC1OAmWa[Q!&d%o",
 }
