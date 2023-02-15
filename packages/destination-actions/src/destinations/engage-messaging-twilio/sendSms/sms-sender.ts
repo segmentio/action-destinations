@@ -30,7 +30,7 @@ export class SmsMessageSender extends MessageSender<Payload> {
     }
 
     const profile = {
-      user_id: this.payload.userId || undefined,
+      user_id: this.payload.userId ?? undefined,
       phone,
       traits
     }
