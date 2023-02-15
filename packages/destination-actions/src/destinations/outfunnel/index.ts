@@ -1,28 +1,52 @@
 import type { DestinationDefinition } from '@segment/actions-core'
 import type { Settings } from './generated-types'
+import identifyContact from './identifyContact'
+import groupIdentifyContact from './groupIdentifyContact';
+import trackEvent from './trackEvent'
 
 const destination: DestinationDefinition<Settings> = {
   name: 'Outfunnel',
-  slug: 'actions-outfunnel',
+  slug: 'outfunnel',
   mode: 'cloud',
 
   authentication: {
     scheme: 'custom',
-    fields: {},
-    testAuthentication: (request) => {
-      // Return a request that tests/validates the user's credentials.
-      // If you do not have a way to validate the authentication fields safely,
-      // you can remove the `testAuthentication` function, though discouraged.
+    fields: {
+      userId: {
+        label: 'Outfunnel User Id',
+        description: 'Outfunnel User ID. This is found under Account',
+        type: 'string',
+        required: true
+      },
+      apiToken: {
+        label: 'API Token',
+        description: 'Outfunnel API Token. This is found under Account',
+        type: 'string',
+        required: true
+      }
+    },
+    testAuthentication: async (request) => {
+      try {
+        return await request('https://api-pls.outfunnel.com/v1/user')
+      } catch (error) {
+        throw new Error('Test authentication failed')
+      }
     }
   },
 
-  onDelete: async (request, { settings, payload }) => {
-    // Return a request that performs a GDPR delete for the provided Segment userId or anonymousId
-    // provided in the payload. If your destination does not support GDPR deletion you should not
-    // implement this function and should remove it completely.
+  extendRequest({ settings }) {
+    return {
+      searchParams: {
+        api_token: settings.apiToken
+      }
+    }
   },
 
-  actions: {}
+  actions: {
+    trackEvent,
+    groupIdentifyContact,
+    identifyContact
+  }
 }
 
 export default destination
