@@ -9,9 +9,7 @@ export enum StrictMode {
 }
 
 export function getConcatenatedName(firstName: unknown, lastName: unknown, name: unknown): unknown {
-  return (
-    name ?? (firstName && lastName ? `${ firstName } ${ lastName }` : undefined)
-  )
+  return name ?? (firstName && lastName ? `${firstName} ${lastName}` : undefined)
 }
 
 export function getApiServerUrl(apiRegion: string | undefined) {
@@ -47,10 +45,7 @@ export function getBrowser(userAgent: string): string {
   } else if (userAgent.includes('FxiOS')) {
     return 'Firefox iOS'
   } else if (userAgent.includes('Safari')) {
-    if (userAgent.includes('Macintosh')) {
-      return 'Safari'
-    }
-    return 'Mobile Safari'
+    return 'Safari'
   } else if (userAgent.includes('Android')) {
     return 'Android Mobile'
   } else if (userAgent.includes('Konqueror')) {
