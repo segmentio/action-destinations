@@ -7,7 +7,7 @@ const endpoint = 'https://sink.outfunnel.com'
 const userId = '63d1535e64583e42bbc60662'
 const apiToken = '5aef3rafgasfdsafadsfsdadasd'
 
-describe('Outfunnel.identifyContact', () => {
+describe('Outfunnel.groupIdentifyContact', () => {
   it('should create or update an organization', async () => {
     const event = createTestEvent({ type: 'group', traits: { name: 'example user', email: 'user@example.com' } })
 
