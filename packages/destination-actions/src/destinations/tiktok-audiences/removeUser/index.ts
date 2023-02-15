@@ -6,7 +6,8 @@ import {
   custom_audience_name,
   id_type,
   email,
-  google_advertising_id,
+  phone,
+  advertising_id,
   event_name,
   enable_batching,
   personas_audience_key
@@ -20,7 +21,8 @@ const action: ActionDefinition<Settings, Payload> = {
     custom_audience_name: { ...custom_audience_name },
     id_type: { ...id_type },
     email: { ...email },
-    google_advertising_id: { ...google_advertising_id },
+    phone: { ...phone },
+    advertising_id: { ...advertising_id },
     event_name: { ...event_name },
     enable_batching: { ...enable_batching },
     personas_audience_key: { ...personas_audience_key }

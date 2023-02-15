@@ -16,7 +16,10 @@ export const id_type: InputField = {
   type: 'string',
   choices: [
     { label: 'Email', value: 'EMAIL_SHA256' },
-    { label: 'Google Advertising ID', value: 'GAID_SHA256' }
+    { label: 'Phone', value: 'PHONE_SHA256' },
+    { label: 'Google Advertising ID', value: 'GAID_SHA256' },
+    { label: 'Android Advertising ID', value: 'AAID_SHA256' },
+    { label: 'iOS Advertising ID', value: 'IDFA_SHA256' }
   ]
 }
 
@@ -29,9 +32,18 @@ export const email: InputField = {
   }
 }
 
-export const google_advertising_id: InputField = {
-  label: 'User Google Advertising ID',
-  description: "The user's Google Advertising ID to send to TikTok.",
+export const phone: InputField = {
+  label: 'User Phone',
+  description: "The user's phone number to send to TikTok.",
+  type: 'hidden', // This field is hidden from customers because the desired value always appears at path '$.context.traits.phone' in Personas events.
+  default: {
+    '@path': '$.context.traits.phone'
+  }
+}
+
+export const advertising_id: InputField = {
+  label: 'User Advertising ID',
+  description: "The user's Advertising ID to send to TikTok. This could be a GAID, IDFA, or AAID",
   type: 'hidden', // This field is hidden from customers because the desired value always appears at path '$.context.device.advertisingId' in Personas events.
   default: {
     '@path': '$.context.device.advertisingId'

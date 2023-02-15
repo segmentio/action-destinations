@@ -80,7 +80,6 @@ export async function getAudienceID(
   })
 
   // More than 1 audience returned matches name
-  // TODO: add field so the user can add the audienceID so we can choose based on that
   if (audienceExists.length > 1) {
     throw new IntegrationError('Multiple audiences found with the same name', 'INVALID_SETTINGS', 400)
   }
@@ -99,27 +98,26 @@ export function extractUsers(payloads: Payload[], audienceID: string): {}[] {
   const data: {}[] = []
 
   payloads.forEach((payload: Payload) => {
-    if (!payload.email && !payload.google_advertising_id) {
+    if (!payload.email && !payload.advertising_id && !payload.phone) {
       return
     }
 
+    let id
     if (payload.id_type == 'EMAIL_SHA256' && payload.email) {
       // Email specific normalization
       payload.email = payload.email.replace(/\+.*@/, '@').replace(/\./g, '').toLowerCase()
-      data.push({
-        id_type: 'EMAIL_SHA256',
-        id: createHash('sha256').update(payload.email).digest('hex'),
-        audience_ids: [audienceID]
-      })
+      id = createHash('sha256').update(payload.email).digest('hex')
+    } else if (payload.id_type == ('AAID_SHA256' || 'GAID_SHA256' || 'IDFA_SHA256') && payload.advertising_id) {
+      id = createHash('sha256').update(payload.advertising_id).digest('hex')
+    } else if (payload.id_type == 'PHONE_SHA256' && payload.phone) {
+      id = createHash('sha256').update(payload.phone).digest('hex')
     }
 
-    if (payload.id_type == 'GAID_SHA256' && payload.google_advertising_id) {
-      data.push({
-        id_type: 'GAID_SHA256',
-        id: createHash('sha256').update(payload.google_advertising_id).digest('hex'),
-        audience_ids: [audienceID]
-      })
-    }
+    data.push({
+      id_type: payload.id_type,
+      id: id,
+      audience_ids: [audienceID]
+    })
   })
   return data
 }
