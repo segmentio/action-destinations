@@ -35,7 +35,7 @@ describe('VWO.identifyUser', () => {
           props: {
             $visitor: {
               props: {
-                segment_textProperty: 'Hello'
+                'segment.textProperty': 'Hello'
               }
             },
             vwoMeta: {
@@ -50,7 +50,7 @@ describe('VWO.identifyUser', () => {
         sessionId,
         visitor: {
           props: {
-            segment_textProperty: 'Hello'
+            'segment.textProperty': 'Hello'
           }
         }
       }

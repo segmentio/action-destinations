@@ -21,7 +21,7 @@ cli/ @segmentio/build-experience-team
 core/ @segmentio/build-experience-team
 
 # Destination definitions and their actions
-destination-actions/ @segmentio/build-experience-team @segmentio/strategic-connections-team
+destination-actions/ @segmentio/strategic-connections-team
 
 # Utilities for event payload validation against an action's subscription AST.
 destination-subscriptions/ @segmentio/build-experience-team

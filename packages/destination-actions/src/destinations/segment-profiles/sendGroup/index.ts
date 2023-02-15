@@ -35,6 +35,11 @@ const action: ActionDefinition<Settings, Payload> = {
       groupId: payload?.group_id,
       traits: {
         ...payload?.traits
+      },
+      integrations: {
+        // Setting 'integrations.All' to false will ensure that we don't send events
+        // to any destinations which is connected to the Segment Profiles space.
+        All: false
       }
     }
 
