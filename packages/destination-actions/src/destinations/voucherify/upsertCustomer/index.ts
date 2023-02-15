@@ -77,7 +77,6 @@ const action: ActionDefinition<Settings, Payload> = {
         firstName: { '@path': '$.traits.first_name' },
         lastName: { '@path': '$.traits.last_name' },
         name: { '@path': '$.traits.name' },
-        email: { '@path': '$.traits.email' },
         description: { '@path': '$.traits.description' },
         address: { '@path': '$.traits.address' },
         phone: { '@path': '$.traits.phone' },

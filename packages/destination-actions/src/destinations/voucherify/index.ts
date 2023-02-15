@@ -26,7 +26,7 @@ const destination: DestinationDefinition<Settings> = {
         label: 'Secret Key',
         description:
           'Secret Key can be found in [Voucherify dashboard](https://docs.voucherify.io/docs/authentication).',
-        type: 'string',
+        type: 'password',
         required: true
       },
       customURL: {

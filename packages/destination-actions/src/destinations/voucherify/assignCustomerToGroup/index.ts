@@ -28,7 +28,7 @@ const action: ActionDefinition<Settings, Payload> = {
         'The email that identifies the [customer](https://docs.voucherify.io/reference/the-customer-object) in Voucherify.',
       type: 'string',
       default: {
-        '@path': '$.email'
+        '@path': '$.traits.email'
       }
     },
     group_id: {
