@@ -5,7 +5,7 @@ import { getEndpoint } from '../utils';
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Identify Contact',
-  description: 'Create or update contact in Outfunnel',
+  description: 'Create or update a contact in Outfunnel',
   defaultSubscription: 'type = "identify"',
   fields: {
     type: {

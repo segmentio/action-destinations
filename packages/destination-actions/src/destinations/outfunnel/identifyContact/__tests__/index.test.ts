@@ -8,7 +8,7 @@ const userId = '63d1535e64583e42bbc60662'
 const apiToken = '5aef3rafgasfdsafadsfsdadasd'
 
 describe('Outfunnel.identifyContact', () => {
-  it('should create or update user in Outfunnel', async () => {
+  it('should create or update a contact in Outfunnel', async () => {
     const event = createTestEvent({ type: 'identify', traits: { name: 'example user', email: 'user@example.com' } })
 
 
