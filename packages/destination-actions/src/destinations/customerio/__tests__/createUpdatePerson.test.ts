@@ -463,7 +463,7 @@ describe('CustomerIO', () => {
         },
         cio_relationships: {
           action: 'add_relationships',
-          relationships: [{ identifiers: { type_id: '1', id: groupId } }]
+          relationships: [{ identifiers: { object_type_id: '1', object_id: groupId } }]
         }
       })
     })

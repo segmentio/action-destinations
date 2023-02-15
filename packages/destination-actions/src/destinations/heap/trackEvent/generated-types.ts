@@ -6,7 +6,7 @@ export interface Payload {
    */
   message_id: string
   /**
-   * An identity, typically corresponding to an existing user. If no such identity exists, then a new user will be created with that identity. Case-sensitive string, limited to 255 characters.
+   * A unique identity and maintain user histories across sessions and devices under a single profile. If no identity is provided we will add the anonymous_id to the event. More on identify: https://developers.heap.io/docs/using-identify
    */
   identity?: string | null
   /**
@@ -27,10 +27,6 @@ export interface Payload {
    * Defaults to the current time if not provided.
    */
   timestamp?: string | number
-  /**
-   * A Heap session ID. The session ID can be retrived by calling getSessionId() on the heap api. If a session ID is not provided one will be created.
-   */
-  session_id?: string
   /**
    * The type of call. Can be track, page, or screen.
    */

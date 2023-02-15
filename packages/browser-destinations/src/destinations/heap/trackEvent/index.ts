@@ -27,12 +27,24 @@ const action: BrowserActionDefinition<Settings, HeapApi, Payload> = {
       default: {
         '@path': '$.properties'
       }
+    },
+    anonymousId: {
+      type: 'string',
+      required: false,
+      description: 'The segment anonymous identifier for the user',
+      label: 'Anonymous ID',
+      default: {
+        '@path': '$.anonymousId'
+      }
     }
   },
   perform: (heap, event) => {
     const eventProperties = Object.assign({}, event.payload.properties ?? {})
     eventProperties.segment_library = HEAP_SEGMENT_BROWSER_LIBRARY_NAME
     heap.track(event.payload.name, eventProperties)
+    if (event.payload.anonymousId) {
+      heap.addUserProperties({ anonymous_id: event.payload.anonymousId })
+    }
   }
 }
 
