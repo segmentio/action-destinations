@@ -1,7 +1,8 @@
 import { createHash } from 'crypto'
 import { ConversionCustomVariable, PartialErrorResponse, QueryResponse } from './types'
 import { ModifiedResponse, RequestClient, IntegrationError } from '@segment/actions-core'
-import { GoogleAdsAPI } from './types'
+import { getUrlByVersion } from './types'
+import { Features } from '@segment/actions-core/src/mapping-kit'
 
 export function formatCustomVariables(
   customVariables: object,
@@ -41,9 +42,10 @@ export const hash = (value: string | undefined): string | undefined => {
 export async function getCustomVariables(
   customerId: string,
   auth: any,
-  request: RequestClient
+  request: RequestClient,
+  features: Features | undefined
 ): Promise<ModifiedResponse<QueryResponse[]>> {
-  return await request(`${GoogleAdsAPI}/${customerId}/googleAds:searchStream`, {
+  return await request(`${getUrlByVersion(features)}/${customerId}/googleAds:searchStream`, {
     method: 'post',
     headers: {
       authorization: `Bearer ${auth?.accessToken}`,

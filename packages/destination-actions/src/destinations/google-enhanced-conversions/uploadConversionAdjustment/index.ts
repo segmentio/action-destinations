@@ -2,7 +2,7 @@ import { ActionDefinition, IntegrationError } from '@segment/actions-core'
 import { hash, handleGoogleErrors, convertTimestamp } from '../functions'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
-import { GoogleAdsAPI, PartialErrorResponse } from '../types'
+import { getUrlByVersion, PartialErrorResponse } from '../types'
 import { ModifiedResponse } from '@segment/actions-core'
 
 const action: ActionDefinition<Settings, Payload> = {
@@ -198,8 +198,8 @@ const action: ActionDefinition<Settings, Payload> = {
       }
     }
   },
-  perform: async (request, { settings, payload }) => {
-    /* Enforcing this here since Customer ID is required for the Google Ads API 
+  perform: async (request, { settings, payload, features }) => {
+    /* Enforcing this here since Customer ID is required for the Google Ads API
     but not for the Enhanced Conversions API. */
     if (!settings.customerId) {
       throw new IntegrationError(
@@ -268,7 +268,7 @@ const action: ActionDefinition<Settings, Payload> = {
     }
 
     const response: ModifiedResponse<PartialErrorResponse> = await request(
-      `${GoogleAdsAPI}/${settings.customerId}:uploadConversionAdjustments`,
+      `${getUrlByVersion(features)}/${settings.customerId}:uploadConversionAdjustments`,
       {
         method: 'post',
         headers: {
