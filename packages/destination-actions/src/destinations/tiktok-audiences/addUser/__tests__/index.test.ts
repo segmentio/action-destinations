@@ -38,33 +38,28 @@ const urlParams = {
 }
 
 const updateUsersRequestBody = {
-  advertiser_ids: ['1234567'],
+  advertiser_ids: ['123'],
   action: 'add',
   data: [
     {
       id_type: 'EMAIL_SHA256',
-      id: '584c4423c421df49955759498a71495aba49b8780eb9387dff333b6f0982c777',
-      audience_ids: ['1234564']
-    },
-    {
-      id_type: 'EMAIL_SHA256',
-      id: '584c4423c421df49955759498a71495aba49b8780eb9387dff333b6f0982c777',
-      audience_ids: ['1234564']
+      id: '44d206f60172cd898051a9fb2174750aee1eca00f6f63f12801b90644321e342',
+      audience_ids: ['1234345']
     }
   ]
 }
 
 const createAudienceRequestBody = {
   custom_audience_name: 'personas_test_audience',
-  advertiser_id: 123,
+  advertiser_id: '123',
   id_type: 'EMAIL_SHA256',
   action: 'create'
 }
 
-describe('TiktokAudiences.updateAudience', () => {
+describe('TiktokAudiences.addUser', () => {
   it('should fail if `personas_audience_key` field does not match the `custom_audience_name` field', async () => {
     await expect(
-      testDestination.testAction('updateAudience', {
+      testDestination.testAction('addUser', {
         event,
         settings: {
           advertiser_id: '123'
@@ -90,7 +85,7 @@ describe('TiktokAudiences.updateAudience', () => {
     nock(`${BASE_URL}${TIKTOK_API_VERSION}/segment/mapping/`).post(/.*/, updateUsersRequestBody).reply(200)
 
     await expect(
-      testDestination.testAction('updateAudience', {
+      testDestination.testAction('addUser', {
         event,
         settings: {
           advertiser_id: '123'
@@ -117,11 +112,11 @@ describe('TiktokAudiences.updateAudience', () => {
 
     nock(`${BASE_URL}${TIKTOK_API_VERSION}/segment/audience/`)
       .post(/.*/, createAudienceRequestBody)
-      .reply(200, { data: { audience_id: '1234' } })
+      .reply(200, { data: { audience_id: '1234345' } })
     nock(`${BASE_URL}${TIKTOK_API_VERSION}/segment/mapping/`).post(/.*/, updateUsersRequestBody).reply(200)
 
     await expect(
-      testDestination.testAction('updateAudience', {
+      testDestination.testAction('addUser', {
         event,
         settings: {
           advertiser_id: '123'
