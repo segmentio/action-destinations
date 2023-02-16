@@ -12,6 +12,7 @@ import {
   enable_batching,
   personas_audience_key
 } from '../properties'
+import { TikTokAudiences } from '../api'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Remove Users',

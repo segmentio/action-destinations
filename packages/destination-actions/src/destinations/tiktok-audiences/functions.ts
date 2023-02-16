@@ -4,23 +4,29 @@ import { createHash } from 'crypto'
 import { TikTokAudiences } from './api'
 import { Payload as AddUserPayload } from './addUser/generated-types'
 import { Payload as RemoveUserPayload } from './removeUser/generated-types'
+import { Settings } from './generated-types'
 
 type GenericPayload = AddUserPayload | RemoveUserPayload
 
-export async function processPayload(request: RequestClient, settings: Settings, payloads: Payload[], action: string) {
+export async function processPayload(
+  request: RequestClient,
+  settings: Settings,
+  payloads: GenericPayload[],
+  action: string
+) {
   validate(payloads)
   const TikTokApiClient: TikTokAudiences = new TikTokAudiences(request)
 
-  const audiences = await getAllAudiences(TikTokApiClient, settings)
+  const audiences = await getAllAudiences(TikTokApiClient)
 
-  const audience_id = await getAudienceID(TikTokApiClient, settings, payloads[0], audiences)
+  const audience_id = await getAudienceID(TikTokApiClient, payloads[0], audiences)
 
   const users = extractUsers(payloads, audience_id)
 
   let res
   if (users.length > 0) {
     const elements = {
-      advertiser_ids: [settings.advertiser_id],
+      advertiser_ids: settings.advertiser_ids,
       action: action,
       data: users
     }
@@ -38,7 +44,7 @@ export async function processPayload(request: RequestClient, settings: Settings,
   return res
 }
 
-export function validate(payloads: Payload[]): void {
+export function validate(payloads: GenericPayload[]): void {
   if (payloads[0].custom_audience_name !== payloads[0].personas_audience_key) {
     throw new IntegrationError(
       'The value of `custom_audience_name` and `personas_audience_key` must match.',
@@ -98,7 +104,7 @@ export async function getAudienceID(
 export function extractUsers(payloads: GenericPayload[], audienceID: string): {}[] {
   const data: {}[] = []
 
-  payloads.forEach((payload: Payload) => {
+  payloads.forEach((payload: GenericPayload) => {
     if (!payload.email && !payload.advertising_id && !payload.phone) {
       return
     }
