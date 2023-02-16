@@ -20,10 +20,9 @@ const destination: DestinationDefinition<Settings> = {
     }
   },
   extendRequest: ({ settings, payload }) => {
-    if (settings.sharedSecret && payload?.data) {
-      const digest = createHmac('sha1', settings.sharedSecret)
-        .update(JSON.stringify(payload.data), 'utf8')
-        .digest('hex')
+    const payloadData = payload.length ? payload[0]['data'] : payload['data']
+    if (settings.sharedSecret && payloadData) {
+      const digest = createHmac('sha1', settings.sharedSecret).update(JSON.stringify(payloadData), 'utf8').digest('hex')
       return { headers: { 'X-Signature': digest } }
     }
     return {}
