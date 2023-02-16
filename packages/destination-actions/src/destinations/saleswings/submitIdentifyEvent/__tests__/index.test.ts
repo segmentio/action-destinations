@@ -1,5 +1,5 @@
 import { createTestEvent } from '@segment/actions-core'
-import { expectedTs, testAction, testBatchAction, userAgent } from '../../testing'
+import { testAction, testBatchAction, userAgent } from '../../testing'
 
 const actionName = 'submitIdentifyEvent'
 
@@ -24,20 +24,18 @@ describe('SalesWings', () => {
       })
       const request = await testAction(actionName, event)
       expect(request).toMatchObject({
-        type: 'tracking',
-        leadRefs: [
-          { type: 'client-id', value: event.userId },
-          { type: 'client-id', value: event.anonymousId },
-          { type: 'email', value: event.traits?.email }
-        ],
+        userID: event.userId,
+        anonymousID: event.anonymousId,
+        email: event.traits?.email,
         kind: 'Identify',
         data: 'peter@example.com',
         url: 'https://example.com',
         referrerUrl: 'https://example.com/other',
         userAgent,
-        timestamp: expectedTs(event.timestamp),
+        timestamp: event.timestamp,
         values: {
           name: 'Peter Gibbons',
+          email: 'peter@example.com',
           plan: 'premium',
           logins: 5
         }
@@ -53,35 +51,12 @@ describe('SalesWings', () => {
       })
       const request = await testAction(actionName, event)
       expect(request).toMatchObject({
-        type: 'tracking',
-        leadRefs: [
-          { type: 'client-id', value: event.userId },
-          { type: 'client-id', value: event.anonymousId },
-          { type: 'email', value: event.traits?.email }
-        ],
+        userID: event.userId,
+        anonymousID: event.anonymousId,
+        email: event.traits?.email,
         kind: 'Identify',
         data: 'peter@example.com',
-        timestamp: expectedTs(event.timestamp),
-        values: {}
-      })
-    })
-
-    it('should not skip an event without ids', async () => {
-      const event = createTestEvent({
-        type: 'identify',
-        traits: {
-          email: 'peter@example.com'
-        },
-        userId: undefined,
-        anonymousId: undefined
-      })
-      const request = await testAction(actionName, event)
-      expect(request).toMatchObject({
-        type: 'tracking',
-        leadRefs: [{ type: 'email', value: event.traits?.email }],
-        kind: 'Identify',
-        data: 'peter@example.com',
-        timestamp: expectedTs(event.timestamp),
+        timestamp: event.timestamp,
         values: {}
       })
     })
@@ -102,34 +77,24 @@ describe('SalesWings', () => {
         })
       ]
       const request = await testBatchAction(actionName, events)
-      expect(request).toMatchObject({
-        events: [
-          {
-            type: 'tracking',
-            leadRefs: [
-              { type: 'client-id', value: events[0].userId },
-              { type: 'client-id', value: events[0].anonymousId },
-              { type: 'email', value: events[0].traits?.email }
-            ],
-            kind: 'Identify',
-            data: 'peter@example.com',
-            timestamp: expectedTs(events[0].timestamp),
-            values: {}
-          },
-          {
-            type: 'tracking',
-            leadRefs: [
-              { type: 'client-id', value: events[1].userId },
-              { type: 'client-id', value: events[1].anonymousId },
-              { type: 'email', value: events[1].traits?.email }
-            ],
-            kind: 'Identify',
-            data: 'frank@example.com',
-            timestamp: expectedTs(events[1].timestamp),
-            values: {}
-          }
-        ]
-      })
+      expect(request).toMatchObject([
+        {
+          userID: events[0].userId,
+          anonymousID: events[0].anonymousId,
+          email: events[0].traits?.email,
+          kind: 'Identify',
+          data: 'peter@example.com',
+          timestamp: events[0].timestamp
+        },
+        {
+          userID: events[1].userId,
+          anonymousID: events[1].anonymousId,
+          email: events[1].traits?.email,
+          kind: 'Identify',
+          data: 'frank@example.com',
+          timestamp: events[1].timestamp
+        }
+      ])
     })
   })
 })
