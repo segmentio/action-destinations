@@ -17,8 +17,12 @@ interface AdvertiserInfoResponse {
 }
 
 interface AdvertiserInfoError {
-  code: number
-  message: string
+  response: {
+    data: {
+      code: number
+      message: string
+    }
+  }
 }
 
 export class TikTokAudiences {
@@ -78,13 +82,11 @@ export class TikTokAudiences {
         }
       })
 
-      console.log('result', result.data.data)
-
       if (result.data.code !== 0) {
         throw {
           message: result.data.message,
           code: result.data.code
-        } as AdvertiserInfoError
+        }
       }
 
       const choices = result.data.data.list.map((item) => {
@@ -98,7 +100,6 @@ export class TikTokAudiences {
         choices: choices
       }
     } catch (err) {
-      console.log(err)
       const choices = advertiser_ids.map((id) => {
         return {
           label: id,
@@ -109,8 +110,9 @@ export class TikTokAudiences {
       return {
         choices: choices,
         error: {
-          message: (err as AdvertiserInfoError).message ?? 'An error occurred while fetching advertisers.',
-          code: (err as AdvertiserInfoError).code.toString() ?? 'FETCH_ADVERTISERS_ERROR'
+          message:
+            (err as AdvertiserInfoError).response.data.message ?? 'An error occurred while fetching advertisers.',
+          code: (err as AdvertiserInfoError).response.data.code.toString() ?? 'FETCH_ADVERTISERS_ERROR'
         }
       }
     }

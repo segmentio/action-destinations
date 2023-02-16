@@ -74,16 +74,17 @@ const action: ActionDefinition<Settings, Payload> = {
   },
   dynamicFields: {
     selected_advertiser_id: async (request, { settings }) => {
-      console.log('selected_advertiser_id')
-
       try {
         const tiktok = new TikTokAudiences(request)
 
         return tiktok.fetchAdvertisers(settings.advertiser_ids)
       } catch (err) {
-        console.log(err)
         return {
-          choices: []
+          choices: [],
+          error: {
+            message: JSON.stringify(err),
+            code: '500'
+          }
         }
       }
     }
