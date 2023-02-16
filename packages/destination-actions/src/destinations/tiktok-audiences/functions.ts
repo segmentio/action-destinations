@@ -1,4 +1,4 @@
-import { IntegrationError } from '@segment/actions-core'
+import { IntegrationError, RequestClient, RetryableError } from '@segment/actions-core'
 import { Audiences } from './types'
 import { createHash } from 'crypto'
 import { TikTokAudiences } from './api'
@@ -7,7 +7,38 @@ import { Payload as RemoveUserPayload } from './removeUser/generated-types'
 
 type GenericPayload = AddUserPayload | RemoveUserPayload
 
-export function validate(payloads: GenericPayload[]): void {
+export async function processPayload(request: RequestClient, settings: Settings, payloads: Payload[], action: string) {
+  validate(payloads)
+  const TikTokApiClient: TikTokAudiences = new TikTokAudiences(request)
+
+  const audiences = await getAllAudiences(TikTokApiClient, settings)
+
+  const audience_id = await getAudienceID(TikTokApiClient, settings, payloads[0], audiences)
+
+  const users = extractUsers(payloads, audience_id)
+
+  let res
+  if (users.length > 0) {
+    const elements = {
+      advertiser_ids: [settings.advertiser_id],
+      action: action,
+      data: users
+    }
+    res = await TikTokApiClient.batchUpdate(elements)
+
+    // At this point, if TikTok's API returns a 400 error, it's because the audience
+    // Segment just created isn't available yet for updates via this endpoint.
+    // Audiences are usually available to accept batches of data 1 - 2 minutes after
+    // they're created. Here, we'll throw an error and let Centrifuge handle the retry.
+    if (res.status !== 200) {
+      throw new RetryableError('Error while attempting to update TikTok Audience. This batch will be retried.')
+    }
+  }
+
+  return res
+}
+
+export function validate(payloads: Payload[]): void {
   if (payloads[0].custom_audience_name !== payloads[0].personas_audience_key) {
     throw new IntegrationError(
       'The value of `custom_audience_name` and `personas_audience_key` must match.',
@@ -50,7 +81,6 @@ export async function getAudienceID(
   })
 
   // More than 1 audience returned matches name
-  // TODO: add field so the user can add the audienceID so we can choose based on that
   if (audienceExists.length > 1) {
     throw new IntegrationError('Multiple audiences found with the same name', 'INVALID_SETTINGS', 400)
   }
@@ -68,28 +98,27 @@ export async function getAudienceID(
 export function extractUsers(payloads: GenericPayload[], audienceID: string): {}[] {
   const data: {}[] = []
 
-  payloads.forEach((payload: GenericPayload) => {
-    if (!payload.email && !payload.google_advertising_id) {
+  payloads.forEach((payload: Payload) => {
+    if (!payload.email && !payload.advertising_id && !payload.phone) {
       return
     }
 
+    let id
     if (payload.id_type == 'EMAIL_SHA256' && payload.email) {
       // Email specific normalization
       payload.email = payload.email.replace(/\+.*@/, '@').replace(/\./g, '').toLowerCase()
-      data.push({
-        id_type: 'EMAIL_SHA256',
-        id: createHash('sha256').update(payload.email).digest('hex'),
-        audience_ids: [audienceID]
-      })
+      id = createHash('sha256').update(payload.email).digest('hex')
+    } else if (payload.id_type == ('AAID_SHA256' || 'GAID_SHA256' || 'IDFA_SHA256') && payload.advertising_id) {
+      id = createHash('sha256').update(payload.advertising_id).digest('hex')
+    } else if (payload.id_type == 'PHONE_SHA256' && payload.phone) {
+      id = createHash('sha256').update(payload.phone).digest('hex')
     }
 
-    if (payload.id_type == 'GAID_SHA256' && payload.google_advertising_id) {
-      data.push({
-        id_type: 'GAID_SHA256',
-        id: createHash('sha256').update(payload.google_advertising_id).digest('hex'),
-        audience_ids: [audienceID]
-      })
-    }
+    data.push({
+      id_type: payload.id_type,
+      id: id,
+      audience_ids: [audienceID]
+    })
   })
   return data
 }
