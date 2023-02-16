@@ -28,6 +28,15 @@ bin/run generate:types
 
 You can use our Action Tester environment to test your browser actions:
 
+First start webpack in destinations.
+
+```
+cd packages/browser-destinations
+yarn dev
+```
+
+Then start the Action Test environment
+
 ```
 ./bin/run serve --directory ./packages/browser-destinations/src/destinations --browser
 ```
