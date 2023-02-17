@@ -2,7 +2,7 @@
 
 export interface Payload {
   /**
-   * A JSON object containing additional attributes that will be associated with the event.
+   * Visitor's attributes to be mapped
    */
   attributes: {
     [k: string]: unknown
@@ -12,21 +12,21 @@ export interface Payload {
    */
   vwoUuid: string
   /**
-   * Page Context
+   * Contains context information regarding a webpage
    */
   page: {
     [k: string]: unknown
   }
   /**
-   * IP Address
+   * IP address of the user
    */
   ip?: string
   /**
-   * User Agent
+   * User-Agent of the user
    */
   userAgent: string
   /**
-   * Timestamp
+   * Timestamp on the event
    */
   timestamp: string
 }

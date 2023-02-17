@@ -1,23 +1,8 @@
 import type { ActionDefinition } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
-import { Event, TrackingEvent } from '../api'
-import { userId, anonymousId, email, url, referrerUrl, userAgent, timestamp, kind, data, values } from '../fields'
-import { convertLeadRefs, convertValues, convertTimestamp } from '../converter'
+import { userID, anonymousID, email, url, referrerUrl, userAgent, timestamp, kind, data, values } from '../fields'
 import { perform, performBatch } from '../common'
-
-const convertEvent = (payload: Payload): Event | undefined => {
-  return new TrackingEvent({
-    leadRefs: convertLeadRefs(payload),
-    kind: payload.kind,
-    data: payload.data,
-    url: payload.url,
-    referrerUrl: payload.referrerUrl,
-    userAgent: payload.userAgent,
-    timestamp: convertTimestamp(payload.timestamp),
-    values: convertValues(payload.values)
-  })
-}
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Submit Identify Event',
@@ -27,8 +12,8 @@ const action: ActionDefinition<Settings, Payload> = {
   fields: {
     kind: kind('Identify'),
     data: data({ '@path': '$.traits.email' }),
-    userId,
-    anonymousId,
+    userID,
+    anonymousID,
     email: { ...email, required: true },
     url,
     referrerUrl,
@@ -36,8 +21,8 @@ const action: ActionDefinition<Settings, Payload> = {
     timestamp,
     values: values({ '@path': '$.traits' })
   },
-  perform: perform(convertEvent),
-  performBatch: performBatch(convertEvent)
+  perform: perform('identify'),
+  performBatch: performBatch('identify')
 }
 
 export default action

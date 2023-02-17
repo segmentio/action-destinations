@@ -23,5 +23,3 @@ export interface PartialErrorResponse {
   }
   results: {}[]
 }
-
-export const GoogleAdsAPI = 'https://googleads.googleapis.com/v11/customers'

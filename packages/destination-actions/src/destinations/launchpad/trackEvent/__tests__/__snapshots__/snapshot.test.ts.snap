@@ -1,0 +1,38 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Testing snapshot for Launchpad's trackEvent destination action: all fields 1`] = `
+Object {
+  "api_key": "8I03tIp&]#vR",
+  "event": "8I03tIp&]#vR",
+  "properties": Object {
+    "anonymous_id": "8I03tIp&]#vR",
+    "context": Object {
+      "testType": "8I03tIp&]#vR",
+    },
+    "distinct_id": "8I03tIp&]#vR",
+    "group_id": "8I03tIp&]#vR",
+    "messageId": "8I03tIp&]#vR",
+    "properties": Object {
+      "testType": "8I03tIp&]#vR",
+    },
+    "segment_source_name": "8I03tIp&]#vR",
+    "time": "2021-02-01T00:00:00.000Z",
+    "traits": Object {
+      "testType": "8I03tIp&]#vR",
+    },
+    "user_id": "8I03tIp&]#vR",
+  },
+}
+`;
+
+exports[`Testing snapshot for Launchpad's trackEvent destination action: required fields 1`] = `
+Object {
+  "api_key": "8I03tIp&]#vR",
+  "event": "8I03tIp&]#vR",
+  "properties": Object {
+    "messageId": "8I03tIp&]#vR",
+    "segment_source_name": "8I03tIp&]#vR",
+    "time": "2021-02-01T00:00:00.000Z",
+  },
+}
+`;

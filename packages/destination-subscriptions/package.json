@@ -1,6 +1,6 @@
 {
   "name": "@segment/destination-subscriptions",
-  "version": "3.15.0",
+  "version": "3.16.0",
   "description": "Validate event payload using subscription AST",
   "license": "MIT",
   "repository": {
@@ -17,7 +17,7 @@
     "test": "jest",
     "typecheck": "tsc -p tsconfig.build.json --noEmit",
     "prepare": "yarn build",
-    "size": "size-limit"
+    "size": "bash scripts/size.sh"
   },
   "main": "dist/cjs/index.js",
   "module": "dist/esm/index.js",
