@@ -150,54 +150,55 @@ describe('LiveLike.trackEvent', () => {
     })
   })
 
-  it('should invoke performBatch for batches', async () => {
-    const events = [
-      createTestEvent({
-        timestamp,
-        properties: {
-          action_key: 'test-event',
-          livelike_profile_id: livelike_profile_id
-        }
-      }),
-      createTestEvent({
-        timestamp,
-        properties: {
-          action_key: 'test-event',
-          livelike_profile_id: livelike_profile_id
-        }
-      })
-    ]
+  // Commented batching tests until the segment team supports rejecting a single event in a batch
+  // it('should invoke performBatch for batches', async () => {
+  //   const events = [
+  //     createTestEvent({
+  //       timestamp,
+  //       properties: {
+  //         action_key: 'test-event',
+  //         livelike_profile_id: livelike_profile_id
+  //       }
+  //     }),
+  //     createTestEvent({
+  //       timestamp,
+  //       properties: {
+  //         action_key: 'test-event',
+  //         livelike_profile_id: livelike_profile_id
+  //       }
+  //     })
+  //   ]
 
-    nock(apiBaseUrl)
-      .post(`/applications/${LIVELIKE_CLIENT_ID}/segment-events/`)
-      .matchHeader('authorization', `Bearer ${LIVELIKE_PRODUCER_TOKEN}`)
-      .reply(202, {})
+  //   nock(apiBaseUrl)
+  //     .post(`/applications/${LIVELIKE_CLIENT_ID}/segment-events/`)
+  //     .matchHeader('authorization', `Bearer ${LIVELIKE_PRODUCER_TOKEN}`)
+  //     .reply(202, {})
 
-    const responses = await testDestination.testBatchAction('trackEvent', {
-      events,
-      useDefaultMappings: true,
-      settings: {
-        clientId: LIVELIKE_CLIENT_ID,
-        producerToken: LIVELIKE_PRODUCER_TOKEN
-      }
-    })
+  //   const responses = await testDestination.testBatchAction('trackEvent', {
+  //     events,
+  //     useDefaultMappings: true,
+  //     settings: {
+  //       clientId: LIVELIKE_CLIENT_ID,
+  //       producerToken: LIVELIKE_PRODUCER_TOKEN
+  //     }
+  //   })
 
-    expect(responses.length).toBe(1)
-    expect(responses[0].status).toBe(202)
-    expect(responses[0].data).toMatchObject({})
-    expect(responses[0].options.json).toMatchObject({
-      events: [
-        {
-          ...expectedEvent,
-          livelike_profile_id: livelike_profile_id
-        },
-        {
-          ...expectedEvent,
-          livelike_profile_id: livelike_profile_id
-        }
-      ]
-    })
-  })
+  //   expect(responses.length).toBe(1)
+  //   expect(responses[0].status).toBe(202)
+  //   expect(responses[0].data).toMatchObject({})
+  //   expect(responses[0].options.json).toMatchObject({
+  //     events: [
+  //       {
+  //         ...expectedEvent,
+  //         livelike_profile_id: livelike_profile_id
+  //       },
+  //       {
+  //         ...expectedEvent,
+  //         livelike_profile_id: livelike_profile_id
+  //       }
+  //     ]
+  //   })
+  // })
 
   it('should validate action fields when event type is page or screen(presets) ', async () => {
     const event = createTestEvent({
