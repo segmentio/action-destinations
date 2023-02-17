@@ -85,6 +85,14 @@ export interface Payload {
      * The ID issued by Facebook when a person first logs into an instance of an app.
      */
     fbLoginID?: number
+    /**
+     * The facebook partner ID
+     */
+    partner_id?: string
+    /**
+     * The facebook partner name
+     */
+    partner_name?: string
   }
   /**
    * The category of the content associated with the event.
