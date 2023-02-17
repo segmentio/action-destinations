@@ -7,7 +7,7 @@ Object {
     "groupId": "f6t8rQsKdU^N",
   },
   "event": "f6t8rQsKdU^N",
-  "messageId": "2b7e8d4e-2a59-53b3-b51a-8830d6a1ceea",
+  "messageId": Any<String>,
   "name": "f6t8rQsKdU^N",
   "properties": Object {
     "testType": "f6t8rQsKdU^N",
@@ -22,6 +22,7 @@ Object {
   "anonymousId": "anonId1234",
   "context": Object {},
   "event": "f6t8rQsKdU^N",
+  "messageId": Any<String>,
   "name": "f6t8rQsKdU^N",
   "properties": Object {
     "event": "f6t8rQsKdU^N",

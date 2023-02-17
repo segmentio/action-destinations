@@ -5,10 +5,10 @@ import { formatPayload } from '../utility'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Page Visit',
-  description: 'Sends page visit information to VWO',
+  description: `Sends Segment's page event to VWO`,
   fields: {
     url: {
-      description: 'The URL of the page',
+      description: 'URL of the webpage',
       label: 'Page URL',
       required: true,
       type: 'string',
@@ -26,7 +26,7 @@ const action: ActionDefinition<Settings, Payload> = {
       }
     },
     page: {
-      description: 'Page Context',
+      description: 'Contains context information regarding a webpage',
       label: 'Page',
       required: true,
       type: 'object',
@@ -35,7 +35,7 @@ const action: ActionDefinition<Settings, Payload> = {
       }
     },
     ip: {
-      description: 'IP Address',
+      description: 'IP address of the user',
       label: 'IP Address',
       required: false,
       type: 'string',
@@ -44,7 +44,7 @@ const action: ActionDefinition<Settings, Payload> = {
       }
     },
     userAgent: {
-      description: 'User Agent',
+      description: 'User-Agent of the user',
       label: 'User Agent',
       required: true,
       type: 'string',
@@ -53,7 +53,7 @@ const action: ActionDefinition<Settings, Payload> = {
       }
     },
     timestamp: {
-      description: 'Timestamp',
+      description: 'Timestamp on the event',
       label: 'Timestamp',
       required: true,
       type: 'string',

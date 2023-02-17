@@ -49,7 +49,7 @@ const action: ActionDefinition<Settings, Payload> = {
       required: false,
       description: 'The Segment messageId',
       label: 'MessageId',
-      default: { '@path': '$messageId' }
+      default: { '@path': '$.messageId' }
     }
   },
   perform: (request, { payload, settings }) => {

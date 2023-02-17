@@ -8,7 +8,7 @@ Object {
       "props": Object {
         "$visitor": Object {
           "props": Object {
-            "segment_testType": "sl#5^du3V5b#Q5V",
+            "segment.testType": "sl#5^du3V5b#Q5V",
           },
         },
         "isCustomEvent": true,
@@ -27,7 +27,7 @@ Object {
     "visId": "sl#5^du3V5b#Q5V",
     "visitor": Object {
       "props": Object {
-        "segment_testType": "sl#5^du3V5b#Q5V",
+        "segment.testType": "sl#5^du3V5b#Q5V",
       },
     },
   },
@@ -42,7 +42,7 @@ Object {
       "props": Object {
         "$visitor": Object {
           "props": Object {
-            "segment_testType": "sl#5^du3V5b#Q5V",
+            "segment.testType": "sl#5^du3V5b#Q5V",
           },
         },
         "isCustomEvent": true,
@@ -61,7 +61,7 @@ Object {
     "visId": "sl#5^du3V5b#Q5V",
     "visitor": Object {
       "props": Object {
-        "segment_testType": "sl#5^du3V5b#Q5V",
+        "segment.testType": "sl#5^du3V5b#Q5V",
       },
     },
   },

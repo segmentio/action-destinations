@@ -5,11 +5,11 @@ import { formatPayload, sanitiseEventName } from '../utility'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Track Event',
-  description: 'Sends track events to VWO',
+  description: `Sends Segment's track event to VWO`,
   defaultSubscription: 'type = "track"',
   fields: {
     name: {
-      description: 'The name of the event.',
+      description: 'Name of the event',
       label: 'Name',
       required: true,
       type: 'string',
@@ -18,7 +18,7 @@ const action: ActionDefinition<Settings, Payload> = {
       }
     },
     properties: {
-      description: 'A JSON object containing additional properties that will be associated with the event.',
+      description: 'JSON object containing additional properties that will be associated with the event.',
       label: 'Properties',
       required: false,
       type: 'object',
@@ -36,7 +36,7 @@ const action: ActionDefinition<Settings, Payload> = {
       }
     },
     page: {
-      description: 'Page Context',
+      description: 'Contains context information regarding a webpage',
       label: 'Page',
       required: true,
       type: 'object',
@@ -45,7 +45,7 @@ const action: ActionDefinition<Settings, Payload> = {
       }
     },
     ip: {
-      description: 'IP Address',
+      description: 'IP address of the user',
       label: 'IP Address',
       required: false,
       type: 'string',
@@ -54,7 +54,7 @@ const action: ActionDefinition<Settings, Payload> = {
       }
     },
     userAgent: {
-      description: 'User Agent',
+      description: 'User-Agent of the user',
       label: 'User Agent',
       required: true,
       type: 'string',
@@ -63,7 +63,7 @@ const action: ActionDefinition<Settings, Payload> = {
       }
     },
     timestamp: {
-      description: 'Timestamp',
+      description: 'Timestamp on the event',
       label: 'Timestamp',
       required: true,
       type: 'string',

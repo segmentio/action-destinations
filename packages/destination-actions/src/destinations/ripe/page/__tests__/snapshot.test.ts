@@ -35,6 +35,7 @@ describe(`Testing snapshot for ${destinationSlug}'s ${actionSlug} destination ac
     try {
       const json = JSON.parse(rawBody)
       expect(json).toMatchSnapshot({
+        messageId: expect.any(String),
         timestamp: expect.any(String)
       })
       return
@@ -71,6 +72,7 @@ describe(`Testing snapshot for ${destinationSlug}'s ${actionSlug} destination ac
     try {
       const json = JSON.parse(rawBody)
       expect(json).toMatchSnapshot({
+        messageId: expect.any(String),
         timestamp: expect.any(String)
       })
       return

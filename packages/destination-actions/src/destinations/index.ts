@@ -72,6 +72,12 @@ register('63872c01c0c112b9b4d75412', './braze-cohorts')
 register('639c2dbb1309fdcad13951b6', './segment-profiles')
 register('63bedc136a8484a53739e013', './vwo')
 register('63d17a1e6ab3e62212278cd0', './saleswings')
+register('63e42aa0ed203bc54eaabbee', './launchpad')
+register('63e42b47479274407b671071', './livelike-cloud')
+register('63e42bc78efe98bc2a8451c1', './twilio-studio')
+register('63e42d44b0a59908dc4cacc6', './blackbaud-raisers-edge-nxt')
+register('63e42e512566ad7c7ca6ba9b', './pinterest-conversions')
+register('63e52bea7747fbc311d5b872', './algolia-insights')
 
 function register(id: MetadataId, destinationPath: string) {
   // eslint-disable-next-line @typescript-eslint/no-var-requires
