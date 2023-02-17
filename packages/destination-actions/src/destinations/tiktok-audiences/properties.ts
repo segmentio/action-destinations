@@ -7,12 +7,14 @@ export const custom_audience_name: InputField = {
   type: 'string',
   default: {
     '@path': '$.properties.audience_key'
-  }
+  },
+  required: true
 }
 
 export const id_type: InputField = {
   label: 'ID Type',
-  description: 'Encryption type to be used for populating the audience.',
+  description:
+    'Encryption type to be used for populating the audience. This field is set only when Segment creates a new audience.',
   type: 'string',
   choices: [
     { label: 'Email', value: 'EMAIL_SHA256' },
@@ -20,7 +22,8 @@ export const id_type: InputField = {
     { label: 'Google Advertising ID', value: 'GAID_SHA256' },
     { label: 'Android Advertising ID', value: 'AAID_SHA256' },
     { label: 'iOS Advertising ID', value: 'IDFA_SHA256' }
-  ]
+  ],
+  required: true
 }
 
 export const email: InputField = {
@@ -32,6 +35,13 @@ export const email: InputField = {
   }
 }
 
+export const send_email: InputField = {
+  label: 'Send Email',
+  description: 'Send email to TikTok. Segment will hash this value before sending',
+  type: 'boolean',
+  default: true
+}
+
 export const phone: InputField = {
   label: 'User Phone',
   description: "The user's phone number to send to TikTok.",
@@ -41,13 +51,28 @@ export const phone: InputField = {
   }
 }
 
+export const send_phone: InputField = {
+  label: 'Send Phone Number',
+  description: 'Send phone number to TikTok. Segment will hash this value before sending.',
+  type: 'boolean',
+  default: true
+}
+
 export const advertising_id: InputField = {
   label: 'User Advertising ID',
-  description: "The user's Advertising ID to send to TikTok. This could be a GAID, IDFA, or AAID",
+  description: "The user's mobile dvertising ID to send to TikTok. This could be a GAID, IDFA, or AAID",
   type: 'hidden', // This field is hidden from customers because the desired value always appears at path '$.context.device.advertisingId' in Personas events.
   default: {
     '@path': '$.context.device.advertisingId'
   }
+}
+
+export const send_advertising_id: InputField = {
+  label: 'Send Mobile Advertising ID',
+  description:
+    'Send mobile advertising ID (IDFA, AAID or GAID) to TikTok. Segment will hash this value before sending.',
+  type: 'boolean',
+  default: true
 }
 
 export const event_name: InputField = {

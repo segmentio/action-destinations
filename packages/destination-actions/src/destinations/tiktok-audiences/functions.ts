@@ -13,6 +13,8 @@ export async function processPayload(request: RequestClient, settings: Settings,
 
   const audience_id = await getAudienceID(TikTokApiClient, settings, payloads[0], audiences)
 
+  const id_schema = getIDSchema(payloads[0])
+
   const users = extractUsers(payloads, audience_id)
 
   let res
@@ -20,7 +22,8 @@ export async function processPayload(request: RequestClient, settings: Settings,
     const elements = {
       advertiser_ids: [settings.advertiser_id],
       action: action,
-      data: users
+      id_schema: id_schema,
+      batch_data: users
     }
     res = await TikTokApiClient.batchUpdate(elements)
 
@@ -40,6 +43,18 @@ export function validate(payloads: Payload[]): void {
   if (payloads[0].custom_audience_name !== payloads[0].personas_audience_key) {
     throw new IntegrationError(
       'The value of `custom_audience_name` and `personas_audience_key` must match.',
+      'INVALID_SETTINGS',
+      400
+    )
+  }
+
+  if (
+    payloads[0].send_email === false &&
+    payloads[0].send_phone === false &&
+    payloads[0].send_advertising_id === false
+  ) {
+    throw new IntegrationError(
+      'At least one of `Send Email`, `Send Phone`, or `Send Advertising ID` must be set to `true`.',
       'INVALID_SETTINGS',
       400
     )
@@ -94,30 +109,60 @@ export async function getAudienceID(
   return audienceID
 }
 
-export function extractUsers(payloads: Payload[], audienceID: string): {}[] {
-  const data: {}[] = []
+export function getIDSchema(payload: Payload): string[] {
+  const id_schema = []
+  if (payload.send_email === true) {
+    id_schema.push('EMAIL_SHA256')
+  }
+  if (payload.send_phone === true) {
+    id_schema.push('PHONE_SHA256')
+  }
+  if (payload.send_advertising_id === true) {
+    id_schema.push('IDFA_SHA256')
+  }
+
+  return id_schema
+}
+
+export function extractUsers(payloads: Payload[], audienceID: string): {}[][] {
+  const batch_data: {}[][] = []
 
   payloads.forEach((payload: Payload) => {
     if (!payload.email && !payload.advertising_id && !payload.phone) {
       return
     }
 
-    let id
-    if (payload.id_type == 'EMAIL_SHA256' && payload.email) {
-      // Email specific normalization
-      payload.email = payload.email.replace(/\+.*@/, '@').replace(/\./g, '').toLowerCase()
-      id = createHash('sha256').update(payload.email).digest('hex')
-    } else if (payload.id_type == ('AAID_SHA256' || 'GAID_SHA256' || 'IDFA_SHA256') && payload.advertising_id) {
-      id = createHash('sha256').update(payload.advertising_id).digest('hex')
-    } else if (payload.id_type == 'PHONE_SHA256' && payload.phone) {
-      id = createHash('sha256').update(payload.phone).digest('hex')
+    const user_ids: {}[] = []
+
+    if (payload.send_email === true) {
+      let email_id = {}
+      if (payload.email) {
+        payload.email = payload.email.replace(/\+.*@/, '@').replace(/\./g, '').toLowerCase()
+        email_id = { id: createHash('sha256').update(payload.email).digest('hex'), audience_ids: [audienceID] }
+      }
+      user_ids.push(email_id)
     }
 
-    data.push({
-      id_type: payload.id_type,
-      id: id,
-      audience_ids: [audienceID]
-    })
+    if (payload.send_phone === true) {
+      let phone_id = {}
+      if (payload.phone) {
+        phone_id = { id: createHash('sha256').update(payload.phone).digest('hex'), audience_ids: [audienceID] }
+      }
+      user_ids.push(phone_id)
+    }
+
+    if (payload.send_advertising_id === true) {
+      let advertising_id = {}
+      if (payload.advertising_id) {
+        advertising_id = {
+          id: createHash('sha256').update(payload.advertising_id).digest('hex'),
+          audience_ids: [audienceID]
+        }
+      }
+      user_ids.push(advertising_id)
+    }
+
+    batch_data.push(user_ids)
   })
-  return data
+  return batch_data
 }
