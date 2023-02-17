@@ -55,7 +55,6 @@ export class SmsMessageSender extends MessageSender<Payload> {
   private getProfileTraits = async () => {
     try {
       if (!this.payload.userId) {
-        console.log('no user id found')
         throw new IntegrationError(
           'Unable to process sms, no userId provided and no traits provided',
           'Invalid parameters',
@@ -82,6 +81,9 @@ export class SmsMessageSender extends MessageSender<Payload> {
       return body.traits
     } catch (error: unknown) {
       this.statsClient?.incr('actions-personas-messaging-twilio.profile_error', 1, this.tags)
+      if (typeof error === typeof IntegrationError) {
+        throw error
+      }
       throw new IntegrationError('Unable to get profile traits for SMS message', 'SMS trait fetch failure', 500)
     }
   }
