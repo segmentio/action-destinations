@@ -13,7 +13,7 @@ import {
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Remove from Contact List',
-  description: '',
+  description: 'Remove a contact from a contact list.',
   fields: {
     contactlistid: {
       label: 'Id of the contact list',
@@ -106,29 +106,25 @@ const action: ActionDefinition<Settings, Payload> = {
         batches[`${payload.contactlistid}-${payload.key_field}`].external_ids.push(payload.key_value)
       })
 
+      const requests = []
       for (const key in batches) {
         const batch: BufferBatchContactListItem = batches[key]
         const payload: ContactListApiPayload = {
           key_id: batch.key_id,
           external_ids: batch.external_ids
         }
-        const response = await request(`${API_BASE}contactlist/${batch.contactlistid}/delete`, {
+        const response = request(`${API_BASE}contactlist/${batch.contactlistid}/delete`, {
           method: 'post',
           json: payload,
           throwHttpErrors: false
         })
-
-        if (response && response.status && response.status == 200) {
-          // proceed with sending the next API batch
-        } else if (response && response.status && response.status == 400) {
-          // proceed with the next API-batch-request even there is a problem with the sent data of the current API-batch-request
-        } else if (response && response.status && response.status == 429) {
-          throw new RetryableError('Rate limit reached.')
-        } else {
-          throw new RetryableError('There seems to be an API issue.')
-        }
+        requests.push(response)
+      }
+      if (requests.length > 0) {
+        return Promise.all(requests)
       }
     }
+    return 0
   }
 }
 

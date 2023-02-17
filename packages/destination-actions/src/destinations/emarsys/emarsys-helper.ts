@@ -1,8 +1,8 @@
-import { IntegrationError, RetryableError } from '@segment/actions-core'
+import { IntegrationError } from '@segment/actions-core'
 import type { Settings } from './generated-types'
 import type { RequestClient } from '@segment/actions-core'
 import { DynamicFieldResponse } from '@segment/actions-core'
-import { randomBytes, createHash } from 'node:crypto'
+import { randomBytes, createHash } from 'crypto'
 
 export const API_HOST = 'https://api.emarsys.net'
 export const API_PATH = '/api/v2/'
@@ -109,14 +109,8 @@ export const getEvents = async (request: RequestClient): Promise<DynamicFieldRes
             value: api_data.data[a].id
           })
         }
-      } else {
-        throw new IntegrationError('Invalid response data while retrieving events.')
       }
-    } else {
-      throw new IntegrationError('Invalid response.')
     }
-  } else {
-    throw new RetryableError('No content was received while retrieving events')
   }
   const events = {
     choices: choices
@@ -138,14 +132,8 @@ export const getFields = async (request: RequestClient): Promise<DynamicFieldRes
             value: api_data.data[a].id
           })
         }
-      } else {
-        throw new IntegrationError('Invalid response data while retrieving fields.')
       }
-    } else {
-      throw new IntegrationError('Invalid response.')
     }
-  } else {
-    throw new RetryableError('No content was received while retrieving fields')
   }
   const fields = {
     choices: choices
@@ -166,14 +154,8 @@ export const getContactLists = async (request: RequestClient): Promise<DynamicFi
             value: api_data.data[a].id
           })
         }
-      } else {
-        throw new IntegrationError('Invalid response data while retrieving events.')
       }
-    } else {
-      throw new IntegrationError('Invalid response.')
     }
-  } else {
-    throw new RetryableError('No content was received while retrieving events')
   }
   const lists = {
     choices: choices
