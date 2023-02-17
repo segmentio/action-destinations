@@ -55,6 +55,7 @@ export class SmsMessageSender extends MessageSender<Payload> {
   private getProfileTraits = async () => {
     try {
       if (!this.payload.userId) {
+        console.log('no user id found')
         throw new IntegrationError(
           'Unable to process sms, no userId provided and no traits provided',
           'Invalid parameters',
