@@ -81,7 +81,7 @@ export class SmsMessageSender extends MessageSender<Payload> {
       return body.traits
     } catch (error: unknown) {
       this.statsClient?.incr('actions-personas-messaging-twilio.profile_error', 1, this.tags)
-      if (typeof error === typeof IntegrationError) {
+      if (error instanceof IntegrationError) {
         throw error
       }
       throw new IntegrationError('Unable to get profile traits for SMS message', 'SMS trait fetch failure', 500)
