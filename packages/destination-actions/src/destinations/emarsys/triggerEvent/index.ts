@@ -16,7 +16,7 @@ import { RetryableError } from '@segment/actions-core'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Trigger Event',
-  description: '',
+  description: 'Trigger an external event on the Emarsys platform to launch automation programs',
   fields: {
     eventid: {
       label: 'Id of the external event',
@@ -118,29 +118,25 @@ const action: ActionDefinition<Settings, Payload> = {
         })
       })
 
+      const requests = []
       for (const key in batches) {
         const batch: BufferBatchTriggerEventItem = batches[key]
         const payload: TriggerEventsApiPayload = {
           key_id: batch.key_id,
           contacts: batch.keys
         }
-        const response = await request(`${API_BASE}event/${batch.event_id}/trigger`, {
+        const response = request(`${API_BASE}event/${batch.event_id}/trigger`, {
           method: 'post',
           json: payload,
           throwHttpErrors: false
         })
-
-        if (response && response.status && response.status == 200) {
-          // proceed with sending the next API batch
-        } else if (response && response.status && response.status == 400) {
-          // proceed with the next API-batch-request even there is a problem with the sent data of the current API-batch-request
-        } else if (response && response.status && response.status == 429) {
-          throw new RetryableError('Rate limit reached.')
-        } else {
-          throw new RetryableError('There seems to be an API issue.')
-        }
+        requests.push(response)
+      }
+      if (requests.length > 0) {
+        return Promise.all(requests)
       }
     }
+    return 0
   }
 }
 

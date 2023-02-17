@@ -18,15 +18,13 @@ const destination: DestinationDefinition<Settings> = {
         label: 'API username',
         description: 'Your Emarsys API username',
         type: 'string',
-        required: true,
-        default: ''
+        required: true
       },
       api_password: {
         label: 'API password',
         description: 'Your Emarsys API password.',
-        type: 'string',
-        required: true,
-        default: ''
+        type: 'password',
+        required: true
       }
     },
     testAuthentication: async (request) => {
@@ -54,7 +52,6 @@ const destination: DestinationDefinition<Settings> = {
 
   extendRequest: ({ settings }) => {
     return {
-      // prefixUrl: 'https://api.emarsys.net/api/v2/',
       headers: { 'X-WSSE': createWsseHeader(settings) },
       responseType: 'json'
     }

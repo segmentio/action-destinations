@@ -60,8 +60,10 @@ exports[`Testing snapshot for actions-emarsys destination: upsertContact action 
 Object {
   "contacts": Array [
     Object {
+      "1": "ADOas@%XS83LqVu9",
+      "2": "ADOas@%XS83LqVu9",
+      "3": "ADOas@%XS83LqVu9",
       "ADOas@%XS83LqVu9": "ADOas@%XS83LqVu9",
-      "testType": "ADOas@%XS83LqVu9",
     },
   ],
   "key_id": "ADOas@%XS83LqVu9",
@@ -73,7 +75,6 @@ Object {
   "contacts": Array [
     Object {
       "ADOas@%XS83LqVu9": "ADOas@%XS83LqVu9",
-      "testType": "ADOas@%XS83LqVu9",
     },
   ],
   "key_id": "ADOas@%XS83LqVu9",

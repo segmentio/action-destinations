@@ -14,7 +14,7 @@ import { RetryableError } from '@segment/actions-core'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Upsert Contact',
-  description: '',
+  description: 'Insert or update a contact on the Emarsys platform',
   fields: {
     key_field: {
       label: 'Key field',
@@ -35,7 +35,26 @@ const action: ActionDefinition<Settings, Payload> = {
       description:
         'Use the emarsys field id (number) as key and set a value (string) (static, function or event variable)',
       type: 'object',
-      required: true
+      required: true,
+      properties: {
+        1: {
+          label: 'Given name',
+          type: 'string'
+        },
+        2: {
+          label: 'Last name',
+          type: 'string'
+        },
+        3: {
+          label: 'Email',
+          type: 'string'
+        }
+      },
+      default: {
+        1: { '@path': '$.traits.firstName' },
+        2: { '@path': '$.traits.lastName' },
+        3: { '@path': '$.traits.email' }
+      }
     }
   },
   dynamicFields: {
@@ -103,31 +122,28 @@ const action: ActionDefinition<Settings, Payload> = {
         contact[payload.key_field] = payload.key_value
         contact = Object.assign(contact, payload.write_field)
         batches[`${payload.key_field}`].contacts.push(contact)
+        console.log(payload)
       })
 
+      const requests = []
       for (const key in batches) {
         const batch: BufferBatchContactItem = batches[key]
         const payload: ContactsApiPayload = {
           key_id: batch.key_id,
           contacts: batch.contacts
         }
-        const response = await request(`${API_BASE}contact/?create_if_not_exists=1`, {
+        const response = request(`${API_BASE}contact/?create_if_not_exists=1`, {
           method: 'put',
           json: payload,
           throwHttpErrors: false
         })
-
-        if (response && response.status && response.status == 200) {
-          // proceed with sending the next API batch
-        } else if (response && response.status && response.status == 400) {
-          // proceed with the next API-batch-request even there is a problem with the sent data of the current API-batch-request
-        } else if (response && response.status && response.status == 429) {
-          throw new RetryableError('Rate limit reached.')
-        } else {
-          throw new RetryableError('There seems to be an API issue.')
-        }
+        requests.push(response)
+      }
+      if (requests.length > 0) {
+        return Promise.all(requests)
       }
     }
+    return 0
   }
 }
 
