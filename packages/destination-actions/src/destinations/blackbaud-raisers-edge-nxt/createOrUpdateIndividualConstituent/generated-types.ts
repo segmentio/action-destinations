@@ -19,6 +19,10 @@ export interface Payload {
    */
   birthdate?: string | number
   /**
+   * The ID of the constituent.
+   */
+  constituent_id?: string
+  /**
    * The constituent's email address.
    */
   email?: {
