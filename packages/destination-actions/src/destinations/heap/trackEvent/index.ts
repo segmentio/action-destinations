@@ -122,11 +122,7 @@ const action: ActionDefinition<Settings, Payload> = {
     event.user_identifier = getUserIdentifier({ identity: payload.identity, anonymous_id: payload.anonymous_id })
 
     if (payload.timestamp && dayjs.utc(payload.timestamp).isValid()) {
-      heapPayload.timestamp = dayjs.utc(payload.timestamp).toISOString()
-    }
-
-    if (payload.session_id) {
-      heapPayload.session_id = payload.session_id
+      event.timestamp = dayjs.utc(payload.timestamp).toISOString()
     }
 
     const payLoad: IntegrationsTrackPayload = {
@@ -140,29 +136,6 @@ const action: ActionDefinition<Settings, Payload> = {
       json: payLoad
     })
   }
-}
-
-const getEventName = (payload: Payload) => {
-  let eventName: string | undefined
-  switch (payload.type) {
-    case 'track':
-      eventName = payload.event
-      break
-    case 'page':
-      eventName = payload.name ? payload.name : 'Page Viewed'
-      break
-    case 'screen':
-      eventName = payload.name ? payload.name : 'Screen Viewed'
-      break
-    default:
-      eventName = 'track'
-      break
-  }
-
-  if (!eventName) {
-    return 'track'
-  }
-  return eventName
 }
 
 export default action
