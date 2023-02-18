@@ -7,12 +7,12 @@ import { sanitiseEventName } from '../utility'
 // Change from unknown to the partner SDK types
 const action: BrowserActionDefinition<Settings, VWO, Payload> = {
   title: 'Track Event',
-  description: 'Forwards track events to VWO Data360',
+  description: `Sends Segment's track event to VWO`,
   platform: 'web',
   defaultSubscription: 'type = "track"',
   fields: {
     eventName: {
-      description: 'The name of the event.',
+      description: 'Name of the event.',
       label: 'Name',
       required: true,
       type: 'string',
@@ -21,7 +21,7 @@ const action: BrowserActionDefinition<Settings, VWO, Payload> = {
       }
     },
     properties: {
-      description: 'A JSON object containing additional properties that will be associated with the event.',
+      description: 'JSON object containing additional properties that will be associated with the event.',
       label: 'Properties',
       required: false,
       type: 'object',
