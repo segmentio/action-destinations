@@ -63,49 +63,38 @@ const action: ActionDefinition<Settings, Payload> = {
     }
   },
   perform: async (request, data) => {
-    let contact: ContactData = {}
-    if (
-      data.payload.key_field &&
-      data.payload.key_field != '' &&
-      data.payload.key_value &&
-      data.payload.key_value != ''
-    ) {
-      contact[data.payload.key_field] = data.payload.key_value
-      contact = Object.assign(contact, data.payload.write_field)
-      const payload: ContactsApiPayload = {
-        key_id: data.payload.key_field,
-        contacts: [contact]
-      }
-      const response = await request(`${API_BASE}contact/?create_if_not_exists=1`, {
-        method: 'put',
-        json: payload,
-        throwHttpErrors: false
-      })
+    const contact: ContactData = {}
+    if (!data?.payload?.key_field) throw new IntegrationError('Missing key field')
 
-      if (response && response.status && response.status == 200) {
+    if (!data?.payload?.key_value) throw new IntegrationError('Missing key value')
+
+    contact[data.payload.key_field] = data.payload.key_value
+    Object.assign(contact, data.payload.write_field)
+    const payload: ContactsApiPayload = {
+      key_id: data.payload.key_field,
+      contacts: [contact]
+    }
+    const response = await request(`${API_BASE}contact/?create_if_not_exists=1`, {
+      method: 'put',
+      json: payload,
+      throwHttpErrors: false
+    })
+
+    switch (response?.status) {
+      case 200:
         try {
-          if (response.content != '') {
-            const body = await response.json()
-            if (body.replyCode !== undefined && body.replyCode == 0) {
-              return response
-            } else {
-              throw new IntegrationError('Something went wront while triggering the event')
-            }
-          } else {
-            return response // required to return the empty response for snapshot testing.
-          }
+          const body = await response.json()
+          if (body.replyCode === 0) return response
+          else throw new IntegrationError('Something went wrong while upserting the contact')
         } catch (err) {
           throw new IntegrationError('Invalid JSON response')
         }
-      } else if (response.status == 400) {
+      case 400:
         throw new IntegrationError('Contact could not be upserted')
-      } else if (response.status == 429) {
+      case 429:
         throw new RetryableError('Rate limit reached.')
-      } else {
+      default:
         throw new RetryableError('There seems to be an API issue.')
-      }
-    } else {
-      throw new IntegrationError('Missing key values')
     }
   },
   performBatch: async (request, data) => {
@@ -122,7 +111,6 @@ const action: ActionDefinition<Settings, Payload> = {
         contact[payload.key_field] = payload.key_value
         contact = Object.assign(contact, payload.write_field)
         batches[`${payload.key_field}`].contacts.push(contact)
-        console.log(payload)
       })
 
       const requests = []

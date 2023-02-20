@@ -57,48 +57,43 @@ const action: ActionDefinition<Settings, Payload> = {
     }
   },
   perform: async (request, data) => {
-    if (data.payload.key_value && data.payload.key_value != '') {
-      data.payload.eventid = parseInt(data.payload.eventid.toString().replace(/[^0-9]/g, ''))
+    if (!data?.payload?.key_field) throw new IntegrationError('Missing key field')
 
-      if (data.payload.eventid > 0) {
-        const payload: TriggerEventApiPayload = {
-          key_id: data.payload.key_field,
-          external_id: data.payload.key_value,
-          data: <TriggerEventData>data.payload.event_payload ?? null
-        }
+    if (!data?.payload?.key_value) throw new IntegrationError('Missing key value')
 
-        const response = await request(`${API_BASE}event/${data.payload.eventid}/trigger`, {
-          method: 'post',
-          json: payload,
-          throwHttpErrors: false
-        })
-        if (response && response.status && response.status == 200) {
+    data.payload.eventid = parseInt(data.payload.eventid.toString().replace(/[^0-9]/g, ''))
+
+    if (data.payload.eventid > 0) {
+      const payload: TriggerEventApiPayload = {
+        key_id: data.payload.key_field,
+        external_id: data.payload.key_value,
+        data: <TriggerEventData>data.payload.event_payload ?? null
+      }
+
+      const response = await request(`${API_BASE}event/${data.payload.eventid}/trigger`, {
+        method: 'post',
+        json: payload,
+        throwHttpErrors: false
+      })
+
+      switch (response?.status) {
+        case 200:
           try {
-            if (response.content != '') {
-              const body = await response.json()
-              if (body.replyCode !== undefined && body.replyCode == 0) {
-                return response
-              } else {
-                throw new IntegrationError('Something went wront while triggering the event')
-              }
-            } else {
-              return response // required to return the empty response for snapshot testing.
-            }
+            const body = await response.json()
+            if (body.replyCode === 0) return response
+            else throw new IntegrationError('Something went wrong while triggering the event')
           } catch (err) {
             throw new IntegrationError('Invalid JSON response')
           }
-        } else if (response.status == 400) {
+        case 400:
           throw new IntegrationError('The event could not be triggered')
-        } else if (response.status == 429) {
+        case 429:
           throw new RetryableError('Rate limit reached.')
-        } else {
+        default:
           throw new RetryableError('There seems to be an API issue.')
-        }
-      } else {
-        throw new IntegrationError('eventid must be >0')
       }
     } else {
-      throw new IntegrationError('A key value is required')
+      throw new IntegrationError('eventid must be >0')
     }
   },
   performBatch: async (request, data) => {

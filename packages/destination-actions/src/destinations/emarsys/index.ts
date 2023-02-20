@@ -39,7 +39,7 @@ const destination: DestinationDefinition<Settings> = {
           }
         }
       }
-      return false
+      throw new Error('Authentication failed')
     }
   },
 
