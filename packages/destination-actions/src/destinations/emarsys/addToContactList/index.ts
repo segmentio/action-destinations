@@ -46,43 +46,41 @@ const action: ActionDefinition<Settings, Payload> = {
     }
   },
   perform: async (request, data) => {
-    if (data.payload.key_value && data.payload.key_value != '') {
-      data.payload.contactlistid = parseInt(data.payload.contactlistid.toString().replace(/[^0-9]/g, ''))
+    if (!data?.payload?.key_field) throw new IntegrationError('Missing key field')
 
-      if (data.payload.contactlistid > 0) {
-        const payload: ContactListApiPayload = {
-          key_id: data.payload.key_field,
-          external_ids: [data.payload.key_value]
-        }
-        const response = await request(`${API_BASE}contactlist/${data.payload.contactlistid}/add`, {
-          method: 'post',
-          json: payload,
-          throwHttpErrors: false
-        })
+    if (!data?.payload?.key_value) throw new IntegrationError('Missing key value')
 
-        if (response && response.status && response.status == 200) {
-          if (response.content != '') {
+    data.payload.contactlistid = parseInt(data.payload.contactlistid.toString().replace(/[^0-9]/g, ''))
+
+    if (data.payload.contactlistid > 0) {
+      const payload: ContactListApiPayload = {
+        key_id: data.payload.key_field,
+        external_ids: [data.payload.key_value]
+      }
+      const response = await request(`${API_BASE}contactlist/${data.payload.contactlistid}/add`, {
+        method: 'post',
+        json: payload,
+        throwHttpErrors: false
+      })
+
+      switch (response?.status) {
+        case 200:
+          try {
             const body = await response.json()
-            if (body.replyCode !== undefined && body.replyCode == 0) {
-              return response
-            } else {
-              throw new IntegrationError('Something went wront while adding the contact to a contact list')
-            }
-          } else {
-            return response // required to return the empty response for snapshot testing.
+            if (body.replyCode === 0) return response
+            else throw new IntegrationError('Something went wrong while adding to contact list')
+          } catch (err) {
+            throw new IntegrationError('Invalid JSON response')
           }
-        } else if (response.status == 400) {
-          throw new IntegrationError('The user could not be added to the contact list')
-        } else if (response.status == 429) {
+        case 400:
+          throw new IntegrationError('The contact could not be removed from the contact list')
+        case 429:
           throw new RetryableError('Rate limit reached.')
-        } else {
+        default:
           throw new RetryableError('There seems to be an API issue.')
-        }
-      } else {
-        throw new IntegrationError('ContactlistId must be >0')
       }
     } else {
-      throw new IntegrationError('A key value is required')
+      throw new IntegrationError('ContactlistId must be >0')
     }
   },
   performBatch: async (request, data) => {
