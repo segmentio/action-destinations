@@ -14,8 +14,8 @@ const destination: DestinationDefinition<Settings> = {
     scheme: 'oauth2',
     fields: {},
     testAuthentication: async (request) => {
-      // /me returns details of the currently authorized admin
-      // https://developers.intercom.com/intercom-api-reference/reference/identifyadmin
+      // The me endpoint idenfies the logged in user.
+      // https://developers.intercom.com/intercom-api-reference/reference/identifyadmin.
       try {
         return await request('https://api.intercom.io/me')
       } catch (error) {
