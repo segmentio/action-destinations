@@ -1,5 +1,5 @@
 import { createTestEvent } from '@segment/actions-core'
-import { expectedTs, testAction, testActionWithSkippedEvent, testBatchAction, userAgent } from '../../testing'
+import { testAction, testBatchAction, userAgent } from '../../testing'
 
 const actionName = 'submitPageEvent'
 
@@ -18,15 +18,12 @@ describe('SalesWings', () => {
       })
       const request = await testAction(actionName, event)
       expect(request).toMatchObject({
-        type: 'page-visit',
-        leadRefs: [
-          { type: 'client-id', value: event.userId },
-          { type: 'client-id', value: event.anonymousId }
-        ],
+        userID: event.userId,
+        anonymousID: event.anonymousId,
         url: 'https://example.com',
         referrerUrl: 'https://example.com/other',
         userAgent,
-        timestamp: expectedTs(event.timestamp)
+        timestamp: event.timestamp
       })
     })
 
@@ -39,13 +36,10 @@ describe('SalesWings', () => {
       })
       const request = await testAction(actionName, event)
       expect(request).toMatchObject({
-        type: 'page-visit',
-        leadRefs: [
-          { type: 'client-id', value: event.userId },
-          { type: 'client-id', value: event.anonymousId }
-        ],
+        userID: event.userId,
+        anonymousID: event.anonymousId,
         url: 'https://example.com',
-        timestamp: expectedTs(event.timestamp)
+        timestamp: event.timestamp
       })
     })
 
@@ -59,10 +53,9 @@ describe('SalesWings', () => {
       })
       const request = await testAction(actionName, event)
       expect(request).toMatchObject({
-        type: 'page-visit',
-        leadRefs: [{ type: 'client-id', value: event.userId }],
+        userID: event.userId,
         url: 'https://example.com',
-        timestamp: expectedTs(event.timestamp)
+        timestamp: event.timestamp
       })
     })
 
@@ -76,23 +69,10 @@ describe('SalesWings', () => {
       })
       const request = await testAction(actionName, event)
       expect(request).toMatchObject({
-        type: 'page-visit',
-        leadRefs: [{ type: 'client-id', value: event.anonymousId }],
+        anonymousID: event.anonymousId,
         url: 'https://example.com',
-        timestamp: expectedTs(event.timestamp)
+        timestamp: event.timestamp
       })
-    })
-
-    it('should skip an event without any ids', async () => {
-      const event = createTestEvent({
-        type: 'page',
-        properties: {
-          url: 'https://example.com'
-        },
-        anonymousId: undefined,
-        userId: undefined
-      })
-      await testActionWithSkippedEvent(actionName, event)
     })
 
     it('should submit event batch', async () => {
@@ -111,28 +91,20 @@ describe('SalesWings', () => {
         })
       ]
       const request = await testBatchAction(actionName, events)
-      expect(request).toMatchObject({
-        events: [
-          {
-            type: 'page-visit',
-            leadRefs: [
-              { type: 'client-id', value: events[0].userId },
-              { type: 'client-id', value: events[0].anonymousId }
-            ],
-            url: 'https://example.com/01',
-            timestamp: expectedTs(events[0].timestamp)
-          },
-          {
-            type: 'page-visit',
-            leadRefs: [
-              { type: 'client-id', value: events[0].userId },
-              { type: 'client-id', value: events[0].anonymousId }
-            ],
-            url: 'https://example.com/02',
-            timestamp: expectedTs(events[1].timestamp)
-          }
-        ]
-      })
+      expect(request).toMatchObject([
+        {
+          userID: events[0].userId,
+          anonymousID: events[0].anonymousId,
+          url: 'https://example.com/01',
+          timestamp: events[0].timestamp
+        },
+        {
+          userID: events[1].userId,
+          anonymousID: events[1].anonymousId,
+          url: 'https://example.com/02',
+          timestamp: events[1].timestamp
+        }
+      ])
     })
   })
 })

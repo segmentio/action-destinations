@@ -14,8 +14,8 @@ export function getEventProperties(payload: Payload, settings: Settings): Mixpan
     const utm = payload.utm_properties || {}
     let browser, browserVersion
     if (payload.userAgent) {
-        browser = getBrowser(payload.userAgent, payload.device_manufacturer)
-        browserVersion = getBrowserVersion(payload.userAgent, payload.device_manufacturer)
+        browser = getBrowser(payload.userAgent)
+        browserVersion = getBrowserVersion(payload.userAgent)
     }
     const integration = payload.context?.integration as Record<string, string>
     return {

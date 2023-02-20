@@ -1,38 +1,23 @@
 import { RequestFn } from '@segment/actions-core'
-import { apiBaseUrl, Event, EventBatch } from './api'
+import { submitEventUrl, submitEventBatchUrl, EventType } from './api'
 import { Settings } from './generated-types'
 
-export function perform<Payload>(convertEvent: (payload: Payload) => Event | undefined): RequestFn<Settings, Payload> {
+export function perform<Payload>(eventType: EventType): RequestFn<Settings, Payload> {
   return (request, data) => {
-    const event = convertEvent(data.payload)
-    if (!event) return
-    return request(`${apiBaseUrl}/events`, {
+    return request(submitEventUrl(data.settings.environment, eventType), {
       method: 'post',
-      json: event,
+      json: data.payload,
       headers: { Authorization: `Bearer ${data.settings.apiKey}` }
     })
   }
 }
 
-export function performBatch<Payload>(
-  convertEvent: (payload: Payload) => Event | undefined
-): RequestFn<Settings, Payload[]> {
+export function performBatch<Payload>(eventType: EventType): RequestFn<Settings, Payload[]> {
   return (request, data) => {
-    const batch = convertEventBatch(data.payload, convertEvent)
-    if (!batch) return
-    return request(`${apiBaseUrl}/events/batches`, {
+    return request(submitEventBatchUrl(data.settings.environment, eventType), {
       method: 'post',
-      json: batch,
+      json: data.payload,
       headers: { Authorization: `Bearer ${data.settings.apiKey}` }
     })
   }
-}
-
-function convertEventBatch<Payload>(
-  payloads: Payload[],
-  convertEvent: (payload: Payload) => Event | undefined
-): EventBatch | undefined {
-  const events = payloads.map(convertEvent).filter((evt) => evt) as Event[]
-  if (events.length == 0) return undefined
-  return { events }
 }

@@ -54,7 +54,7 @@ describe('VWO.trackEvent', () => {
     await trackEvent.track?.(context)
 
     expect(mockVWO.event).toHaveBeenCalledWith(
-      'segment_ctaClick',
+      'segment.ctaClick',
       {},
       {
         source: 'segment.web',
@@ -74,7 +74,7 @@ describe('VWO.trackEvent', () => {
     await trackEvent.track?.(context)
 
     expect(mockVWO.event).toHaveBeenCalledWith(
-      'segment_buyButtonClick',
+      'segment.buyButtonClick',
       {
         amount: 1000
       },
