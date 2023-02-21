@@ -96,7 +96,6 @@ export const createWsseHeader = (settings: Settings): string => {
 }
 
 export const getEvents = async (request: RequestClient): Promise<DynamicFieldResponse> => {
-  console.log('getEvents')
   const data = await request(`${API_BASE}event`)
   const choices = []
   if (data && data.content) {
@@ -119,7 +118,6 @@ export const getEvents = async (request: RequestClient): Promise<DynamicFieldRes
 }
 
 export const getFields = async (request: RequestClient): Promise<DynamicFieldResponse> => {
-  // console.log('getFields');
   const data = await request(`${API_BASE}field/translate/en`)
   const choices = []
   if (data && data.content) {
