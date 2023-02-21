@@ -76,6 +76,8 @@ const action: ActionDefinition<Settings, Payload> = {
         throwHttpErrors: false
       })
 
+      console.log(response)
+
       switch (response?.status) {
         case 200:
           try {
