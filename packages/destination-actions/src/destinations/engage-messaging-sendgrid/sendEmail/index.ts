@@ -151,6 +151,7 @@ const action: ActionDefinition<Settings, Payload> = {
       label: 'User ID',
       description: 'User ID in Segment',
       type: 'string',
+      required: false,
       default: { '@path': '$.userId' }
     },
     toEmail: {
