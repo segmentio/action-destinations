@@ -2,15 +2,15 @@
 
 export interface Payload {
   /**
-   * Segment User ID value
+   * New Segment User ID value
    */
   segmentId?: string
   /**
-   * Segment Anonymous ID value
+   * New Segment Anonymous ID value
    */
   anonymousId?: string
   /**
-   * Segment Anonymous ID value
+   * Previous Segment User or Anonymous ID value
    */
-  previousId?: string
+  previousId: string
 }

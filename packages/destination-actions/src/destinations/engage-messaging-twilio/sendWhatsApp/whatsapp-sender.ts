@@ -21,6 +21,11 @@ export class WhatsAppMessageSender extends MessageSender<Payload> {
     super(request, payload, settings, statsClient, tags)
   }
 
+  getExternalId = () =>
+    this.payload.externalIds?.find(
+      ({ type, channelType }) => channelType?.toLowerCase() === 'whatsapp' && type === 'phone'
+    )
+
   getBody = async (phone: string) => {
     let parsedPhone
 
