@@ -12,11 +12,12 @@ const destination: DestinationDefinition<Settings> = {
   authentication: {
     scheme: 'oauth2',
     fields: {
-      advertiser_id: {
-        label: 'TikTok Advertiser ID',
-        description: 'The Advertiser ID where audiences should be synced.',
+      advertiser_ids: {
+        label: 'TikTok Advertiser IDs',
+        description: 'The Advertiser IDs where audiences should be synced.',
         type: 'string',
-        required: true
+        required: true,
+        multiple: true
       }
     }
     // testAuthentication: (request, { auth }) => {

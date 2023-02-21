@@ -62,11 +62,12 @@ describe('TiktokAudiences.removeUser', () => {
       testDestination.testAction('removeUser', {
         event,
         settings: {
-          advertiser_id: '123'
+          advertiser_ids: ['123']
         },
         useDefaultMappings: true,
         auth,
         mapping: {
+          selected_advertiser_id: '123',
           personas_audience_key: 'mismatched_audience'
         }
       })
@@ -88,11 +89,12 @@ describe('TiktokAudiences.removeUser', () => {
       testDestination.testAction('removeUser', {
         event,
         settings: {
-          advertiser_id: '123'
+          advertiser_ids: ['123']
         },
         useDefaultMappings: true,
         auth,
         mapping: {
+          selected_advertiser_id: '123',
           personas_audience_key: 'personas_test_audience',
           id_type: 'EMAIL_SHA256'
         }
@@ -119,11 +121,12 @@ describe('TiktokAudiences.removeUser', () => {
       testDestination.testAction('removeUser', {
         event,
         settings: {
-          advertiser_id: '123'
+          advertiser_ids: ['123']
         },
         useDefaultMappings: true,
         auth,
         mapping: {
+          selected_advertiser_id: '123',
           personas_audience_key: 'personas_test_audience',
           id_type: 'EMAIL_SHA256'
         }
