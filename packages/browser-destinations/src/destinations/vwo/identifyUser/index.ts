@@ -7,12 +7,12 @@ import { formatAttributes } from '../utility'
 // Change from unknown to the partner SDK types
 const action: BrowserActionDefinition<Settings, VWO, Payload> = {
   title: 'Identify User',
-  description: 'Forwards user traits to VWO Data360 attributes',
+  description: `Sends Segment's page event to VWO`,
   defaultSubscription: 'type = "identify"',
   platform: 'web',
   fields: {
     attributes: {
-      description: 'A JSON object containing additional attributes that will be associated with the user.',
+      description: 'JSON object containing additional attributes that will be associated with the user.',
       label: 'Attributes',
       required: true,
       type: 'object',
