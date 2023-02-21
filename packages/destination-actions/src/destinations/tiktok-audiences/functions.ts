@@ -15,7 +15,9 @@ export async function processPayload(
   action: string
 ) {
   validate(payloads)
-  const TikTokApiClient: TikTokAudiences = new TikTokAudiences(request)
+
+  const selected_advertiser_id = payloads[0].selected_advertiser_id ?? undefined
+  const TikTokApiClient: TikTokAudiences = new TikTokAudiences(request, selected_advertiser_id)
 
   const audiences = await getAllAudiences(TikTokApiClient)
 
