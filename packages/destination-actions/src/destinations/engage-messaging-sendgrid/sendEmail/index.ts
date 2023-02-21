@@ -436,7 +436,7 @@ const action: ActionDefinition<Settings, Payload> = {
                 ...payload.customArgs,
                 source_id: settings.sourceId,
                 space_id: settings.spaceId,
-                user_id: payload.userId ?? 'test-fake-userid',
+                user_id: payload.userId ?? undefined,
                 // This is to help disambiguate in the case it's email or email_address.
                 __segment_internal_external_id_key__: EXTERNAL_ID_KEY,
                 __segment_internal_external_id_value__: profile[EXTERNAL_ID_KEY]
