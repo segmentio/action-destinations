@@ -34,7 +34,7 @@ const destination: DestinationDefinition<Settings> = {
       }
     },
     testAuthentication: async (request, { settings }) => {
-      return request(getAccountUrl('helium'), {
+      return request(getAccountUrl(settings.environment), {
         headers: { Authorization: `Bearer ${settings.apiKey}` }
       })
     }
