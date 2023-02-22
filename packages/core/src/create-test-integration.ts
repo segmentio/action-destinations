@@ -41,6 +41,7 @@ interface InputData<Settings> {
   logger?: Logger
   transactionContext?: TransactionContext
   stateContext?: StateContext
+  createRequestClientFn: any
 }
 
 class TestDestination<T> extends Destination<T> {
@@ -67,7 +68,8 @@ class TestDestination<T> extends Destination<T> {
       statsContext,
       logger,
       transactionContext,
-      stateContext
+      stateContext,
+      createRequestClientFn
     }: InputData<T>
   ): Promise<Destination['responses']> {
     mapping = mapping ?? {}
@@ -76,6 +78,10 @@ class TestDestination<T> extends Destination<T> {
       const fields = this.definition.actions[action].fields
       const defaultMappings = mapValues(fields, 'default')
       mapping = { ...defaultMappings, ...mapping } as JSONObject
+    }
+
+    if (createRequestClientFn) {
+      this.actions[action].createRequestClient = createRequestClientFn
     }
 
     await super.executeAction(action, {

@@ -236,7 +236,7 @@ export class Action<Settings, Payload extends JSONLikeObject> extends EventEmitt
   }
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  private createRequestClient(data: ExecuteInput<Settings, any>): RequestClient {
+  public createRequestClient(data: ExecuteInput<Settings, any>): RequestClient {
     // TODO turn `extendRequest` into a beforeRequest hook
     const options = this.extendRequest?.(data) ?? {}
     return createRequestClient(options, {
