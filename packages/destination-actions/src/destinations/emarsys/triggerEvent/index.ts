@@ -16,7 +16,8 @@ import { RetryableError } from '@segment/actions-core'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Trigger Event',
-  description: 'Trigger an external event on the Emarsys platform to launch automation programs',
+  description:
+    'Trigger an external event on the Emarsys platform to launch automation programs. Note: You can only pass objects to event_payload (no literals, no arrays).',
   fields: {
     eventid: {
       label: 'Id of the external event',
