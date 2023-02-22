@@ -12,7 +12,10 @@ describe('Cordial.removeProductFromCart', () => {
     nock.cleanAll()
   })
   it('should work with default mappings', async () => {
-    nock(/api.cordial.io/).post('/api/segment/removeProductFromCart').once().reply(202, {success: 'success'})
+    nock(/api.cordial.io/)
+      .post('/api/segment/removeProductFromCart')
+      .once()
+      .reply(202, { success: 'success' })
 
     const event = createTestEvent({
       event: 'Product Removed',
@@ -25,12 +28,13 @@ describe('Cordial.removeProductFromCart', () => {
     })
 
     const mapping = {
-      userIdentities: {'channels.email.address': 'contact@example.com'}
+      userIdentities: { 'channels.email.address': 'contact@example.com' }
     }
 
     const settings = {
       apiKey: 'cordialApiKey',
-      endpoint: 'https://api.cordial.io' as const
+      endpoint: 'https://api.cordial.io' as const,
+      segmentIdKey: 'segment_id'
     }
 
     const responses = await testDestination.testAction('removeProductFromCart', {
@@ -40,14 +44,14 @@ describe('Cordial.removeProductFromCart', () => {
       useDefaultMappings: true
     })
 
-    expect(responses[0].status).toBe(202);
-    expect(responses[0].data).toMatchObject({success: 'success'});
+    expect(responses[0].status).toBe(202)
+    expect(responses[0].data).toMatchObject({ success: 'success' })
     expect(responses[0].options.json).toMatchObject({
       productID: '51easf12',
       qty: 2,
       userIdentities: {
         'channels.email.address': 'contact@example.com'
-      },
+      }
     })
   })
 })

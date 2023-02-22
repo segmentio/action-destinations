@@ -19,6 +19,8 @@ export class SmsMessageSender extends MessageSender<Payload> {
     super(request, payload, settings, statsClient, tags)
   }
 
+  getExternalId = () => this.payload.externalIds?.find(({ type }) => type === 'phone')
+
   getBody = async (phone: string) => {
     // TODO: GROW-259 remove this when we can extend the request
     // and we no longer need to call the profiles API first

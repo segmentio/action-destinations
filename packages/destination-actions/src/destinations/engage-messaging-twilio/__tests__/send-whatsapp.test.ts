@@ -27,7 +27,7 @@ describe.each(['stage', 'production'])('%s environment', (environment) => {
       traitEnrichment: true,
       externalIds: [
         { type: 'email', id: 'test@twilio.com', subscriptionStatus: 'subscribed' },
-        { type: 'phone', id: '+1234567891', subscriptionStatus: 'subscribed' }
+        { type: 'phone', id: '+1234567891', subscriptionStatus: 'subscribed', channelType: 'whatsapp' }
       ],
       ...overrides
     }
@@ -49,6 +49,22 @@ describe.each(['stage', 'production'])('%s environment', (environment) => {
         settings,
         mapping: getDefaultMapping({
           externalIds: [{ type: 'email', id: 'test@twilio.com', subscriptionStatus: 'subscribed' }]
+        })
+      })
+
+      expect(responses.length).toEqual(0)
+    })
+
+    it('should abort when there is no `channelType` in the external ID payload', async () => {
+      const responses = await twilio.testAction('sendWhatsApp', {
+        event: createMessagingTestEvent({
+          timestamp,
+          event: 'Audience Entered',
+          userId: 'jane'
+        }),
+        settings,
+        mapping: getDefaultMapping({
+          externalIds: [{ type: 'phone', id: '+1234567891', subscriptionStatus: 'subscribed' }]
         })
       })
 
@@ -185,7 +201,9 @@ describe.each(['stage', 'production'])('%s environment', (environment) => {
           userId: 'jane'
         }),
         settings,
-        mapping: getDefaultMapping({ externalIds: [{ type: 'phone', id: '+1234567891', subscriptionStatus }] })
+        mapping: getDefaultMapping({
+          externalIds: [{ type: 'phone', id: '+1234567891', subscriptionStatus, channelType: 'whatsapp' }]
+        })
       }
 
       const responses = await twilio.testAction('sendWhatsApp', actionInputData)
@@ -215,7 +233,9 @@ describe.each(['stage', 'production'])('%s environment', (environment) => {
             userId: 'jane'
           }),
           settings,
-          mapping: getDefaultMapping({ externalIds: [{ type: 'phone', id: '+1234567891', subscriptionStatus }] })
+          mapping: getDefaultMapping({
+            externalIds: [{ type: 'phone', id: '+1234567891', subscriptionStatus, channelType: 'whatsapp' }]
+          })
         }
 
         const responses = await twilio.testAction('sendWhatsApp', actionInputData)
@@ -245,7 +265,14 @@ describe.each(['stage', 'production'])('%s environment', (environment) => {
         }),
         settings,
         mapping: getDefaultMapping({
-          externalIds: [{ type: 'phone', id: '+1234567891', subscriptionStatus: randomSubscriptionStatusPhrase }]
+          externalIds: [
+            {
+              type: 'phone',
+              id: '+1234567891',
+              subscriptionStatus: randomSubscriptionStatusPhrase,
+              channelType: 'whatsapp'
+            }
+          ]
         })
       }
 
@@ -277,7 +304,7 @@ describe.each(['stage', 'production'])('%s environment', (environment) => {
         mapping: getDefaultMapping({
           from: from,
           contentSid: defaultTemplateSid,
-          externalIds: [{ type: 'phone', id: '(919) 555 1234', subscriptionStatus: true }]
+          externalIds: [{ type: 'phone', id: '(919) 555 1234', subscriptionStatus: true, channelType: 'whatsapp' }]
         })
       }
 
@@ -297,7 +324,7 @@ describe.each(['stage', 'production'])('%s environment', (environment) => {
         }),
         settings,
         mapping: getDefaultMapping({
-          externalIds: [{ type: 'phone', id: 'abcd', subscriptionStatus: true }]
+          externalIds: [{ type: 'phone', id: 'abcd', subscriptionStatus: true, channelType: 'whatsapp' }]
         })
       }
 

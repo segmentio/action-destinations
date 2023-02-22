@@ -14,6 +14,7 @@ Before continuing, please make sure to read our [Code of Conduct](./CODE_OF_COND
 6. [Provide catalog metadata](#provide-integration-metadata-for-the-catalog)
 7. [Release to Private Beta](#release-to-private-beta-for-customer-testing)
 8. [Release to Public](#release-to-public-in-the-segment-catalog)
+9. [Submitting subsequent changes](#submitting-changes-after-your-integration-is-already-live)
 
 ## Become a Segment Partner
 
@@ -62,27 +63,28 @@ Before continuing, please make sure to read our [Code of Conduct](./CODE_OF_COND
 
 2. Your PR is merged!
    - Congratulations! Once your PR is merged by a Segment developer, they will deploy your changes and notify you when it’s publicly available. If the destination is in private beta, our folks at Segment will provide a link to access your destination. Once the destination is ready for general availability and has been approved, the destination will be visible from the catalog itself.
-   - *Note*: we currently do weekly deploys on Wednesdays for all non-emergency changes. Changes should be approved and merged by Tuesday EOD to make the Wednesday release. Thank you!
+   - _Note_: we currently do weekly deploys on Wednesdays for all non-emergency changes. Changes should be approved and merged by Tuesday EOD to make the Wednesday release. Thank you!
 
 ## Write documentation
 
 Documentation ensures users of your destination can enable and configure the destination, and understand how it interacts with your platform.
 
-1. Write your integration’s documentation. Segment provides two templates: [doc-template-new.md](./docs/doc-template-new.md) for new destinations, and [doc-template-update.md](./docs/doc-template-update.md) for updates to existing destinations. 
+1. Write your integration’s documentation. Segment provides two templates: [doc-template-new.md](./docs/doc-template-new.md) for new destinations, and [doc-template-update.md](./docs/doc-template-update.md) for updates to existing destinations.
 
 These templates contain content that automatically pulls in information. Do not edit this content.
-  - The table at the top is the yaml front matter, and it is not rendered in the final documentation. 
-  - The snippet `{% include content/plan-grid.md name="actions" %}` indicates which Segment account tiers have access to Destination Actions; all account tiers have access.
-  - The snippet `{% include content/ajs-upgrade.md %}` is a note to encourage customers to upgrade to Analytics.js 2.0. 
-  - The snippet `{% include components/actions-fields.html %}` will automatically populate information about your destination’s Settings, Mappings, Actions, and Action fields, using Segment's Public API. This information will be populated as soon as your destination reaches the Public Beta phase. This means you don't need to include any of this information in your documentation. 
+
+- The table at the top is the yaml front matter, and it is not rendered in the final documentation.
+- The snippet `{% include content/plan-grid.md name="actions" %}` indicates which Segment account tiers have access to Destination Actions; all account tiers have access.
+- The snippet `{% include content/ajs-upgrade.md %}` is a note to encourage customers to upgrade to Analytics.js 2.0.
+- The snippet `{% include components/actions-fields.html %}` will automatically populate information about your destination’s Settings, Mappings, Actions, and Action fields, using Segment's Public API. This information will be populated as soon as your destination reaches the Public Beta phase. This means you don't need to include any of this information in your documentation.
 
 These templates contain sections that you should edit to explain the following:
 
-   - The purpose of the destination
-   - Benefits / features of the destination
-   - Steps to add and configure the destination within Segment (replace the destination name with your destination)
-   - Breaking changes compared to a classic version of the destination (if applicable)
-   - Migration steps (if applicable)
+- The purpose of the destination
+- Benefits / features of the destination
+- Steps to add and configure the destination within Segment (replace the destination name with your destination)
+- Breaking changes compared to a classic version of the destination (if applicable)
+- Migration steps (if applicable)
 
 To help you write your documentation, see examples of documentation for other destinations: [Slack (Actions) Destination](https://segment.com/docs/connections/destinations/catalog/actions-slack/), [TikTok Conversions Destination](https://segment.com/docs/connections/destinations/catalog/tiktok-conversions/).
 
@@ -122,3 +124,25 @@ Please find the below info for _Name of integration_ Catalog entry.
 2. Write a blog post for your company’s blog, write a [recipe](https://segment.com/recipes/) to help customers solve a specific problem using your Integration, and/or work with our Marketing team to be featured in the Segment blog.
 
 3. Maintain your integration. Fix bugs, update it if your APIs change, add functionality as requested by customers.
+
+## Submitting changes after your Integration is already live
+
+After your Integration is live and in use by customers you will still be able to make changes to your Integration code. However, an extra level of governance and oversight is required in order to avoid causing issues for customers who are already using your Integration.
+
+Please observe the dos and dont's listed below:
+
+**Please do not:**
+
+1. Do not add a **required** field to an Integration which is already in use by customers. Doing so will prevent existing instances of your Integration from working, and will lead to an incident.
+
+2. Do not change your perform() or batchPerform() functions so that they now depend on a value from a field in order for the outbound API call to be successful. Doing so may cause pre-existing Integrations to fail.
+
+3. Do not raise a PR containing changes for more than 1 Integration. For example if you need to make changes to a Cloud Mode and Device Mode Integration you should raise separate PRs.
+
+4. Do not change the name or slug of your Integration after the Integration has been deployed. If you do want to change the name of your Integration please email partner-support@segment.com.
+
+5. Do not delete an Action from an Integration. This capability is not yet supported by our Framework. If you do want to do this please email partner-support@segment.com.
+
+**Please do the following:**
+
+1. If adding a new field or amending the configuration of an existing field, please attach a video to the PR of you testing the change using the [Action Tester](./docs/testing.md). Try to use realistic Segment API payloads as inputs, and if possible show how the payloads are reflected in your Destination platform.

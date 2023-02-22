@@ -1,0 +1,32 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Testing snapshot for LivelikeCloud's trackEvent destination action: all fields 1`] = `
+Object {
+  "events": Array [
+    Object {
+      "action_description": "&Lu]rW[@yx2%6aWnTgQ",
+      "action_key": "&Lu]rW[@yx2%6aWnTgQ",
+      "action_name": "&Lu]rW[@yx2%6aWnTgQ",
+      "livelike_profile_id": "&Lu]rW[@yx2%6aWnTgQ",
+      "properties": Object {
+        "testType": "&Lu]rW[@yx2%6aWnTgQ",
+      },
+      "timestamp": "&Lu]rW[@yx2%6aWnTgQ",
+      "user_id": "&Lu]rW[@yx2%6aWnTgQ",
+    },
+  ],
+}
+`;
+
+exports[`Testing snapshot for LivelikeCloud's trackEvent destination action: required fields 1`] = `
+Object {
+  "events": Array [
+    Object {
+      "action_key": "&Lu]rW[@yx2%6aWnTgQ",
+      "livelike_profile_id": "&Lu]rW[@yx2%6aWnTgQ",
+      "timestamp": "&Lu]rW[@yx2%6aWnTgQ",
+      "user_id": "&Lu]rW[@yx2%6aWnTgQ",
+    },
+  ],
+}
+`;
