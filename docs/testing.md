@@ -50,7 +50,7 @@ For example if you wanted to test the the Emarsys Destination's upsertContact Ac
 
 ### Example request to invoke perform()
 
-The following is an example of a cURL command which will invoke `emarsys`'s `upsertContact` Action. Data for 3 objects is included in the data/body: `payload`, `mapping` and `settings`.
+The following is an example of a cURL command which will invoke the Emarsys Destination's `upsertContact` Action (Emarsys is an email tool popular with some Segment customers). Data for 3 objects is included in the data/body: `payload`, `mapping` and `settings`.
 
 #### Example oauth object
 
@@ -95,7 +95,7 @@ curl --location --request POST 'http://localhost:3000/upsertContact' \
 
 ### Example request to invoke performBatch()
 
-Invoking an Action's performBatch() is nearly identical to [invoking the perform()](#example-request-to-test-perform) function except that the`payload` object will be an array of events rather than a single event object. In the example below a batch of 2 events is sent to the Emarsys performBatch() function.
+Invoking an Action's performBatch() is nearly identical to [invoking the perform()](#example-request-to-invoke-perform) function except that the`payload` object will be an array of events rather than a single event object. In the example below a batch of 2 events is sent to the Emarsys performBatch() function.
 
 ```sh
 curl --location --request POST 'http://localhost:3000/upsertContact' \
