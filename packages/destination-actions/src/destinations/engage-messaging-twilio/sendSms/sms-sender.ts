@@ -53,14 +53,14 @@ export class SmsMessageSender extends MessageSender<Payload> {
   }
 
   private getProfileTraits = async () => {
+    if (!this.payload.userId) {
+      throw new IntegrationError(
+        'Unable to process sms, no userId provided and no traits provided',
+        'Invalid parameters',
+        400
+      )
+    }
     try {
-      if (!this.payload.userId) {
-        throw new IntegrationError(
-          'Unable to process sms, no userId provided and no traits provided',
-          'Invalid parameters',
-          400
-        )
-      }
       const endpoint = `https://profiles.segment.${
         this.settings.profileApiEnvironment === 'production' ? 'com' : 'build'
       }`
@@ -81,9 +81,6 @@ export class SmsMessageSender extends MessageSender<Payload> {
       return body.traits
     } catch (error: unknown) {
       this.statsClient?.incr('actions-personas-messaging-twilio.profile_error', 1, this.tags)
-      if (error instanceof IntegrationError) {
-        throw error
-      }
       throw new IntegrationError('Unable to get profile traits for SMS message', 'SMS trait fetch failure', 500)
     }
   }
