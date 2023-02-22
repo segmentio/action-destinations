@@ -1,5 +1,13 @@
 import { InputField } from '@segment/actions-core/src/destination-kit/types'
 
+export const selected_advertiser_id: InputField = {
+  label: 'Advertiser ID',
+  description: 'The advertiser ID to use when syncing audiences.',
+  type: 'string',
+  dynamic: true,
+  required: true
+}
+
 export const custom_audience_name: InputField = {
   label: 'Custom Audience Name',
   description:
@@ -38,22 +46,6 @@ export const email: InputField = {
 export const send_email: InputField = {
   label: 'Send Email',
   description: 'Send email to TikTok. Segment will hash this value before sending',
-  type: 'boolean',
-  default: true
-}
-
-export const phone: InputField = {
-  label: 'User Phone',
-  description: "The user's phone number to send to TikTok.",
-  type: 'hidden', // This field is hidden from customers because the desired value always appears at path '$.context.traits.phone' in Personas events.
-  default: {
-    '@path': '$.context.traits.phone'
-  }
-}
-
-export const send_phone: InputField = {
-  label: 'Send Phone Number',
-  description: 'Send phone number to TikTok. Segment will hash this value before sending.',
   type: 'boolean',
   default: true
 }

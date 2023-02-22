@@ -40,14 +40,13 @@ const urlParams = {
 const updateUsersRequestBody = {
   advertiser_ids: ['123'],
   action: 'add',
-  id_schema: ['EMAIL_SHA256', 'PHONE_SHA256', 'IDFA_SHA256'],
+  id_schema: ['EMAIL_SHA256', 'IDFA_SHA256'],
   batch_data: [
     [
       {
         id: '44d206f60172cd898051a9fb2174750aee1eca00f6f63f12801b90644321e342',
         audience_ids: ['1234345']
       },
-      {},
       {
         id: 'a665a45920422f9d417e4867efdc4fb8a04a1f3fff1fa07e998e86f7f7a27ae3',
         audience_ids: ['1234345']
@@ -69,13 +68,14 @@ describe('TiktokAudiences.addUser', () => {
       testDestination.testAction('addUser', {
         event,
         settings: {
-          advertiser_id: '123'
+          advertiser_ids: ['123']
         },
         useDefaultMappings: true,
         auth,
         mapping: {
           personas_audience_key: 'mismatched_audience',
-          id_type: 'EMAIL_SHA256'
+          id_type: 'EMAIL_SHA256',
+          selected_advertiser_id: '123'
         }
       })
     ).rejects.toThrow('The value of `custom_audience_name` and `personas_audience_key` must match.')
@@ -96,11 +96,12 @@ describe('TiktokAudiences.addUser', () => {
       testDestination.testAction('addUser', {
         event,
         settings: {
-          advertiser_id: '123'
+          advertiser_ids: ['123']
         },
         useDefaultMappings: true,
         auth,
         mapping: {
+          selected_advertiser_id: '123',
           personas_audience_key: 'personas_test_audience',
           id_type: 'EMAIL_SHA256'
         }
@@ -127,11 +128,12 @@ describe('TiktokAudiences.addUser', () => {
       testDestination.testAction('addUser', {
         event,
         settings: {
-          advertiser_id: '123'
+          advertiser_ids: ['123']
         },
         useDefaultMappings: true,
         auth,
         mapping: {
+          selected_advertiser_id: '123',
           personas_audience_key: 'personas_test_audience',
           id_type: 'EMAIL_SHA256'
         }
@@ -158,18 +160,18 @@ describe('TiktokAudiences.addUser', () => {
       testDestination.testAction('addUser', {
         event,
         settings: {
-          advertiser_id: '123'
+          advertiser_ids: ['123']
         },
         useDefaultMappings: true,
         auth,
         mapping: {
+          selected_advertiser_id: '123',
           personas_audience_key: 'personas_test_audience',
           id_type: 'EMAIL_SHA256',
           send_email: false,
-          send_phone: false,
           send_advertising_id: false
         }
       })
-    ).rejects.toThrow('At least one of `Send Email`, `Send Phone`, or `Send Advertising ID` must be set to `true`.')
+    ).rejects.toThrow('At least one of `Send Email`, or `Send Advertising ID` must be set to `true`.')
   })
 })

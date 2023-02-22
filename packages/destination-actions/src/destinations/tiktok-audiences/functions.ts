@@ -2,16 +2,26 @@ import { IntegrationError, RequestClient, RetryableError } from '@segment/action
 import { Audiences } from './types'
 import { createHash } from 'crypto'
 import { TikTokAudiences } from './api'
-import type { Settings } from './generated-types'
-import { Payload } from './addUser/generated-types'
+import { Payload as AddUserPayload } from './addUser/generated-types'
+import { Payload as RemoveUserPayload } from './removeUser/generated-types'
+import { Settings } from './generated-types'
 
-export async function processPayload(request: RequestClient, settings: Settings, payloads: Payload[], action: string) {
+type GenericPayload = AddUserPayload | RemoveUserPayload
+
+export async function processPayload(
+  request: RequestClient,
+  settings: Settings,
+  payloads: GenericPayload[],
+  action: string
+) {
   validate(payloads)
-  const TikTokApiClient: TikTokAudiences = new TikTokAudiences(request)
 
-  const audiences = await getAllAudiences(TikTokApiClient, settings)
+  const selected_advertiser_id = payloads[0].selected_advertiser_id ?? undefined
+  const TikTokApiClient: TikTokAudiences = new TikTokAudiences(request, selected_advertiser_id)
 
-  const audience_id = await getAudienceID(TikTokApiClient, settings, payloads[0], audiences)
+  const audiences = await getAllAudiences(TikTokApiClient)
+
+  const audience_id = await getAudienceID(TikTokApiClient, payloads[0], audiences)
 
   const id_schema = getIDSchema(payloads[0])
 
@@ -20,7 +30,7 @@ export async function processPayload(request: RequestClient, settings: Settings,
   let res
   if (users.length > 0) {
     const elements = {
-      advertiser_ids: [settings.advertiser_id],
+      advertiser_ids: settings.advertiser_ids,
       action: action,
       id_schema: id_schema,
       batch_data: users
@@ -39,7 +49,7 @@ export async function processPayload(request: RequestClient, settings: Settings,
   return res
 }
 
-export function validate(payloads: Payload[]): void {
+export function validate(payloads: GenericPayload[]): void {
   if (payloads[0].custom_audience_name !== payloads[0].personas_audience_key) {
     throw new IntegrationError(
       'The value of `custom_audience_name` and `personas_audience_key` must match.',
@@ -48,13 +58,9 @@ export function validate(payloads: Payload[]): void {
     )
   }
 
-  if (
-    payloads[0].send_email === false &&
-    payloads[0].send_phone === false &&
-    payloads[0].send_advertising_id === false
-  ) {
+  if (payloads[0].send_email === false && payloads[0].send_advertising_id === false) {
     throw new IntegrationError(
-      'At least one of `Send Email`, `Send Phone`, or `Send Advertising ID` must be set to `true`.',
+      'At least one of `Send Email`, or `Send Advertising ID` must be set to `true`.',
       'INVALID_SETTINGS',
       400
     )
@@ -66,14 +72,14 @@ export function validate(payloads: Payload[]): void {
 // We may have to make up to 4 requests to get all audiences.
 // The first request will return the total_number of audiences associated with
 // the advertiser account.
-export async function getAllAudiences(TikTokApiClient: TikTokAudiences, settings: Settings) {
-  let response = await TikTokApiClient.getAudiences(settings, 1, 100)
+export async function getAllAudiences(TikTokApiClient: TikTokAudiences) {
+  let response = await TikTokApiClient.getAudiences(1, 100)
   let audiences: Audiences[] = response.data.data.list
   const total_number_audiences = response.data.data.page_info.total_number
   let recieved_audiences = 100
   let page_number = 2
   while (recieved_audiences < total_number_audiences) {
-    response = await TikTokApiClient.getAudiences(settings, page_number, 100)
+    response = await TikTokApiClient.getAudiences(page_number, 100)
     audiences = audiences.concat(response.data.data.list)
     page_number += 1
     recieved_audiences += 100
@@ -83,8 +89,7 @@ export async function getAllAudiences(TikTokApiClient: TikTokAudiences, settings
 
 export async function getAudienceID(
   TikTokApiClient: TikTokAudiences,
-  settings: Settings,
-  payload: Payload,
+  payload: GenericPayload,
   audiences: Audiences[]
 ): Promise<string> {
   let audienceID
@@ -102,20 +107,17 @@ export async function getAudienceID(
   if (audienceExists.length == 1) {
     audienceID = audienceExists[0].audience_id
   } else {
-    const response = await TikTokApiClient.createAudience(settings, payload)
+    const response = await TikTokApiClient.createAudience(payload as AddUserPayload)
     audienceID = response.data.data.audience_id
   }
 
   return audienceID
 }
 
-export function getIDSchema(payload: Payload): string[] {
+export function getIDSchema(payload: GenericPayload): string[] {
   const id_schema = []
   if (payload.send_email === true) {
     id_schema.push('EMAIL_SHA256')
-  }
-  if (payload.send_phone === true) {
-    id_schema.push('PHONE_SHA256')
   }
   if (payload.send_advertising_id === true) {
     id_schema.push('IDFA_SHA256')
@@ -124,11 +126,11 @@ export function getIDSchema(payload: Payload): string[] {
   return id_schema
 }
 
-export function extractUsers(payloads: Payload[], audienceID: string): {}[][] {
+export function extractUsers(payloads: GenericPayload[], audienceID: string): {}[][] {
   const batch_data: {}[][] = []
 
-  payloads.forEach((payload: Payload) => {
-    if (!payload.email && !payload.advertising_id && !payload.phone) {
+  payloads.forEach((payload: GenericPayload) => {
+    if (!payload.email && !payload.advertising_id) {
       return
     }
 
@@ -141,14 +143,6 @@ export function extractUsers(payloads: Payload[], audienceID: string): {}[][] {
         email_id = { id: createHash('sha256').update(payload.email).digest('hex'), audience_ids: [audienceID] }
       }
       user_ids.push(email_id)
-    }
-
-    if (payload.send_phone === true) {
-      let phone_id = {}
-      if (payload.phone) {
-        phone_id = { id: createHash('sha256').update(payload.phone).digest('hex'), audience_ids: [audienceID] }
-      }
-      user_ids.push(phone_id)
     }
 
     if (payload.send_advertising_id === true) {

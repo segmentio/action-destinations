@@ -2,7 +2,7 @@
 
 export interface Settings {
   /**
-   * The Advertiser ID where audiences should be synced.
+   * The Advertiser IDs where audiences should be synced.
    */
-  advertiser_id: string
+  advertiser_ids: string[]
 }

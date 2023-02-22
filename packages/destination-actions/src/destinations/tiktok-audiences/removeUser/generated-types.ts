@@ -2,6 +2,10 @@
 
 export interface Payload {
   /**
+   * The advertiser ID to use when syncing audiences.
+   */
+  selected_advertiser_id: string
+  /**
    * Custom audience name of audience to be created. Please note that names over 70 characters will be truncated to 67 characters with "..." appended. This field is set only when Segment creates a new audience. Updating this field after Segment has created an audience will not update the audience name in TikTok.
    */
   custom_audience_name: string
@@ -14,10 +18,6 @@ export interface Payload {
    */
   email?: string
   /**
-   * The user's phone number to send to TikTok.
-   */
-  phone?: string
-  /**
    * The user's mobile dvertising ID to send to TikTok. This could be a GAID, IDFA, or AAID
    */
   advertising_id?: string
@@ -25,10 +25,6 @@ export interface Payload {
    * Send email to TikTok. Segment will hash this value before sending
    */
   send_email?: boolean
-  /**
-   * Send phone number to TikTok. Segment will hash this value before sending.
-   */
-  send_phone?: boolean
   /**
    * Send mobile advertising ID (IDFA, AAID or GAID) to TikTok. Segment will hash this value before sending.
    */
