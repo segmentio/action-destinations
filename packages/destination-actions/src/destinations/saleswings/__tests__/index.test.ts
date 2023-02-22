@@ -15,6 +15,14 @@ describe('Saleswings', () => {
       ).resolves.not.toThrowError()
     })
 
+    it('should support non-default environment', async () => {
+      const otherEnv = 'ozone'
+      nock(getAccountUrl(otherEnv)).get('').matchHeader('authorization', 'Bearer myApiKey').reply(200, {})
+      await expect(
+        testDestination.testAuthentication({ apiKey: 'myApiKey', environment: otherEnv })
+      ).resolves.not.toThrowError()
+    })
+
     it('should reject invalid API key', async () => {
       nock(getAccountUrl(env)).get('').matchHeader('authorization', 'Bearer myApiKey').reply(200, {})
       nock(getAccountUrl(env)).get('').reply(401, {})
