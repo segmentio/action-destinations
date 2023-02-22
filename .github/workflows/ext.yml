@@ -8,13 +8,13 @@ on:
 
 jobs:
   install-and-test:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-20.04
 
     timeout-minutes: 10
 
     strategy:
       matrix:
-        node-version: [14.x]
+        node-version: [18.x]
 
     steps:
       - uses: actions/checkout@v2

@@ -76,13 +76,13 @@ const validateValue = (actual: unknown, operator: Operator, expected?: string | 
     case '!=':
       return actual !== String(expected)
     case '<':
-      return Number(actual) < Number(expected)
+      return typeof actual === 'number' && Number(actual) < Number(expected)
     case '<=':
-      return Number(actual) <= Number(expected)
+      return typeof actual === 'number' && Number(actual) <= Number(expected)
     case '>':
-      return Number(actual) > Number(expected)
+      return typeof actual === 'number' && Number(actual) > Number(expected)
     case '>=':
-      return Number(actual) >= Number(expected)
+      return typeof actual === 'number' && Number(actual) >= Number(expected)
     case 'contains':
       return typeof actual === 'string' && actual.includes(String(expected))
     case 'not_contains':

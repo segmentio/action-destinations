@@ -14,6 +14,7 @@ import {
   updateRemotePlugin
 } from '../lib/control-plane-client'
 import { build, webBundles } from '@segment/actions-cli/lib/web-bundles'
+import deprecationWarning from '../lib/warning'
 
 export default class PushBrowserDestinations extends Command {
   private spinner: ora.Ora = ora()
@@ -36,6 +37,8 @@ export default class PushBrowserDestinations extends Command {
 
   async run() {
     const { flags } = this.parse(PushBrowserDestinations)
+    await deprecationWarning(this.warn)
+
     const { destinationIds } = await prompt<{ destinationIds: string[] }>({
       type: 'multiselect',
       name: 'destinationIds',
@@ -171,10 +174,10 @@ export default class PushBrowserDestinations extends Command {
 
 async function syncToS3(env: string): Promise<string> {
   if (env === 'production') {
-    return execa.commandSync(`lerna run deploy-prod`).stdout
+    return execa.commandSync(`yarn lerna run deploy-prod`).stdout
   }
 
-  return execa.commandSync(`lerna run deploy-stage`).stdout
+  return execa.commandSync(`yarn lerna run deploy-stage`).stdout
 }
 
 function asJson(obj: unknown) {

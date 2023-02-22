@@ -1,8 +1,8 @@
 import { ActionDefinition, IntegrationError } from '@segment/actions-core'
-import { hash, handleGoogleErrors, convertTimestamp } from '../functions'
+import { hash, handleGoogleErrors, convertTimestamp, getUrlByVersion } from '../functions'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
-import { GoogleAdsAPI, PartialErrorResponse } from '../types'
+import { PartialErrorResponse } from '../types'
 import { ModifiedResponse } from '@segment/actions-core'
 
 const action: ActionDefinition<Settings, Payload> = {
@@ -40,7 +40,7 @@ const action: ActionDefinition<Settings, Payload> = {
     order_id: {
       label: 'Order ID',
       description:
-        'The order ID of the conversion to be adjusted. If the conversion was reported with an order ID specified, that order ID must be used as the identifier here. Required for ENHANCEMENT adjustments.',
+        'The order ID of the conversion to be adjusted. If the conversion was reported with an order ID specified, that order ID must be used as the identifier here.',
       type: 'string',
       default: {
         '@if': {
@@ -53,13 +53,13 @@ const action: ActionDefinition<Settings, Payload> = {
     gclid: {
       label: 'GCLID',
       description:
-        'Google click ID associated with the original conversion for this adjustment. This is used for the GCLID Date Time Pair. Required for non-ENHANCEMENT adjustments. If adjustment is ENHANCEMENT, this value is optional but may be set in addition to the order ID.',
+        'Google click ID associated with the original conversion for this adjustment. This is used for the GCLID Date Time Pair.',
       type: 'string'
     },
     conversion_timestamp: {
       label: 'Conversion Timestamp',
       description:
-        'The date time at which the original conversion for this adjustment occurred. The timezone must be specified. The format is "yyyy-mm-dd hh:mm:ss+|-hh:mm", e.g. "2019-01-01 12:32:45-08:00". This is used for the GCLID Date Time Pair. Required for non-ENHANCEMENT adjustments. If adjustment is ENHANCEMENT, this value is optional but may be set in addition to the order ID.',
+        'The date time at which the original conversion for this adjustment occurred. The timezone must be specified. The format is "yyyy-mm-dd hh:mm:ss+|-hh:mm", e.g. "2019-01-01 12:32:45-08:00". This is used for the GCLID Date Time Pair.',
       type: 'string'
     },
     restatement_value: {
@@ -198,8 +198,8 @@ const action: ActionDefinition<Settings, Payload> = {
       }
     }
   },
-  perform: async (request, { settings, payload }) => {
-    /* Enforcing this here since Customer ID is required for the Google Ads API 
+  perform: async (request, { settings, payload, features, statsContext }) => {
+    /* Enforcing this here since Customer ID is required for the Google Ads API
     but not for the Enhanced Conversions API. */
     if (!settings.customerId) {
       throw new IntegrationError(
@@ -268,7 +268,7 @@ const action: ActionDefinition<Settings, Payload> = {
     }
 
     const response: ModifiedResponse<PartialErrorResponse> = await request(
-      `${GoogleAdsAPI}/${settings.customerId}:uploadConversionAdjustments`,
+      `${getUrlByVersion(features, statsContext)}/${settings.customerId}:uploadConversionAdjustments`,
       {
         method: 'post',
         headers: {

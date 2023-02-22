@@ -10,6 +10,7 @@
     - [Examples](#examples)
   - [Snapshot Testing](#snapshot-testing)
   - [Code Coverage](#code-coverage)
+- [Post Deployment Change Testing](#post-deployment-change-testing)
 
 ## Actions Tester
 
@@ -195,3 +196,7 @@ yarn jest --testPathPattern='./packages/destination-actions/src/destinations/<DE
 ## Code Coverage
 
 Code coverage is automatically collected upon completion of `yarn test`. Results may be inspected by examining the HTML report found at `coverage/lcov-report/index.html`, or directly in your IDE if _lcov_ is supported.
+
+## Post Deployment Change Testing
+
+An extra level of governance and oversight is required when making changes to an Integration which is already in use by customers. See [Submitting subsequent changes](../contributing.md) instructions for additional details.

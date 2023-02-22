@@ -2,6 +2,7 @@ import type { ActionDefinition } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import { HUBSPOT_BASE_URL } from '../properties'
 import type { Payload } from './generated-types'
+import { flattenObject } from '../helperFunctions'
 
 interface CustomBehavioralEvent {
   eventName: string
@@ -20,7 +21,7 @@ const action: ActionDefinition<Settings, Payload> = {
     eventName: {
       label: 'Event Name',
       description:
-        'The internal event name assigned by HubSpot. This can be found in your HubSpot account. Events must be predefined in HubSpot. Learn how to find the internal name in [HubSpot’s documentation](https://knowledge.hubspot.com/analytics-tools/create-custom-behavioral-events).',
+        'The internal event name assigned by HubSpot. This can be found in your HubSpot account. Events must be predefined in HubSpot. Please input the full internal event name including the `pe` prefix (i.e. `pe<HubID>_event_name`). Learn how to find the internal name in [HubSpot’s documentation](https://knowledge.hubspot.com/analytics-tools/create-custom-behavioral-events).',
       type: 'string',
       required: true
     },
@@ -73,7 +74,7 @@ const action: ActionDefinition<Settings, Payload> = {
       utk: payload.utk,
       email: payload.email,
       objectId: payload.objectId,
-      properties: payload.properties
+      properties: flattenObject(payload.properties)
     }
     return request(`${HUBSPOT_BASE_URL}/events/v3/send`, {
       method: 'post',

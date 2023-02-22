@@ -13,6 +13,22 @@ export const eventProperties: Record<string, InputField> = {
       }
     }
   },
+  anonymous_id: {
+    label: 'Anonymous ID',
+    type: 'string',
+    description: 'A distinct ID randomly generated prior to calling identify.',
+    default: {
+      '@path': '$.anonymousId'
+    }
+  },
+  user_id: {
+    label: 'User ID',
+    type: 'string',
+    description: 'The distinct ID after calling identify.',
+    default: {
+      '@path': '$.userId'
+    }
+  },
   group_id: {
     label: 'Group ID',
     type: 'string',
@@ -282,6 +298,15 @@ export const eventProperties: Record<string, InputField> = {
     description: 'An object of key-value pairs that represent additional data tied to the user.',
     default: {
       '@path': '$.traits'
+    }
+  },
+  context: {
+    label: 'Event context',
+    description:
+      'An object of key-value pairs that provides useful context about the event.',
+    type: 'object',
+    default: {
+      '@path': '$.context'
     }
   },
   utm_properties: {
