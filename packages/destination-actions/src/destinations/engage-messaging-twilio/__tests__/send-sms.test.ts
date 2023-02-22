@@ -75,7 +75,7 @@ describe.each(['stage', 'production'])('%s environment', (environment) => {
           settings,
           mapping
         })
-      ).rejects.toThrowError('Unable to get profile traits for SMS message')
+      ).rejects.toThrowError('Unable to process sms, no userId provided and no traits provided')
     })
 
     it('should send SMS', async () => {
