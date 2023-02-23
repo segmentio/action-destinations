@@ -11,7 +11,6 @@ describe('Outfunnel.identifyContact', () => {
   it('should create or update a contact in Outfunnel', async () => {
     const event = createTestEvent({ type: 'identify', traits: { name: 'example user', email: 'user@example.com' } })
 
-
     nock(endpoint)
       .post(`/events/segment/${userId}`)
       .query(true)

@@ -4,21 +4,19 @@ import type { Payload } from './generated-types';
 import { getEndpoint } from '../utils';
 
 const action: ActionDefinition<Settings, Payload> = {
-  title: 'Track Event',
-  description: 'Submit an event to Outfunnel',
+  title: 'Forward track event',
+  description: 'Forward track event to outfunnel',
   defaultSubscription: 'type = "track"',
   fields: {
-    type: {
-      type: 'string',
+    action: {
+      type: 'hidden',
       required: true,
-      description: 'Type of the event',
-      label: 'Event type',
-      default: {
-        '@path': '$.type'
-      }
+      description: 'Indicates which action was triggered',
+      label: 'Action name',
+      default: 'track'
     },
     event_name: {
-      type: 'string',
+      type: 'hidden',
       required: true,
       description: 'The name of the event that occured',
       label: 'Event name',
@@ -27,17 +25,23 @@ const action: ActionDefinition<Settings, Payload> = {
       }
     },
     user_id: {
-      type: 'string',
-      required: true,
-      description: 'The identifier of the user who performed the event.',
+      type: 'hidden',
+      description: 'The identifier of the user who performed the event',
       label: 'User ID',
       default: {
         '@path': '$.userId'
       }
     },
+    anonymous_id: {
+      type: 'hidden',
+      description: 'Anonymous ID of the user',
+      label: 'Anonymous ID',
+      default: {
+        '@path': '$.anonymousId'
+      }
+    },
     group_id: {
       type: 'string',
-      required: true,
       description: 'The identifier of the group where user belongs to',
       label: 'Group ID',
       default: {
@@ -50,20 +54,24 @@ const action: ActionDefinition<Settings, Payload> = {
       description: 'Email address of the user who performed the event',
       label: 'Email Address',
       default: {
-        '@path': '$.email'
+        '@if': {
+          exists: { '@path': '$.context.traits.email' },
+          then: { '@path': '$.context.traits.email' },
+          else: { '@path': '$.properties.email' }
+        }
       }
     },
     timestamp: {
-      type: 'datetime',
+      type: 'hidden',
       required: true,
-      description: 'The time the event occured as UTC unix timestamp',
+      description: 'The time the event occured in UTC',
       label: 'Event timestamp',
       default: {
         '@path': '$.timestamp'
       }
     },
     properties: {
-      type: 'object',
+      type: 'hidden',
       description: 'Optional metadata describing the event',
       label: 'Event properties',
       default: {
@@ -71,7 +79,7 @@ const action: ActionDefinition<Settings, Payload> = {
       }
     },
     context: {
-      type: 'object',
+      type: 'hidden',
       description: 'Event context',
       label: 'Event context',
       required: true,

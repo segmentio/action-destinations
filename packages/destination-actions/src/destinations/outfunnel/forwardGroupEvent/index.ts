@@ -4,21 +4,19 @@ import type { Payload } from './generated-types';
 import { getEndpoint } from '../utils';
 
 const action: ActionDefinition<Settings, Payload> = {
-  title: 'Identify Contact',
-  description: 'Create or update a contact in Outfunnel',
-  defaultSubscription: 'type = "identify"',
+  title: 'Forward group event',
+  description: 'Forward group event to Outfunnel',
+  defaultSubscription: 'type = "group"',
   fields: {
-    type: {
-      type: 'string',
+    action: {
+      type: 'hidden',
       required: true,
-      description: 'Type of the event',
-      label: 'Event type',
-      default: {
-        '@path': '$.type'
-      }
+      description: 'Indicates which action was triggered',
+      label: 'Action name',
+      default: 'group'
     },
     user_id: {
-      type: 'string',
+      type: 'hidden',
       required: true,
       description: 'The identifier of the user',
       label: 'User ID',
@@ -27,41 +25,49 @@ const action: ActionDefinition<Settings, Payload> = {
       }
     },
     anonymous_id: {
-      type: 'string',
+      type: 'hidden',
       description: 'Anonymous ID of the user',
       label: 'Anonymous ID',
       default: {
         '@path': '$.anonymousId'
       }
     },
-    email: {
-      type: 'string',
-      required: true,
-      description: 'Email address of the user who performed the event',
-      label: 'Email Address',
+    group_id: {
+      type: 'hidden',
+      description: 'ID of the group',
+      label: 'Group ID',
       default: {
-        '@path': '$.email'
+        '@path': '$.groupId'
+      }
+    },
+    group_name: {
+      type: 'string',
+      description: 'Name of the group where user belongs to',
+      label: 'Group name',
+      default: {
+        '@path': '$.traits.name'
       }
     },
     timestamp: {
-      type: 'datetime',
+      type: 'hidden',
       required: true,
-      description: 'The time the event occured as UTC unix timestamp',
+      description: 'The time the event occured in UTC',
       label: 'Event timestamp',
       default: {
         '@path': '$.timestamp'
       }
     },
     traits: {
-      type: 'object',
-      description: 'Optional metadata describing the user',
-      label: 'User traits',
+      type: 'hidden',
+      required: true,
+      description: 'Group traits',
+      label: 'Group traits',
       default: {
         '@path': '$.traits'
       }
     },
     context: {
-      type: 'object',
+      type: 'hidden',
       description: 'Event context',
       label: 'Event context',
       required: true,

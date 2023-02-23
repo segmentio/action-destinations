@@ -1,8 +1,8 @@
-import type { DestinationDefinition } from '@segment/actions-core'
-import type { Settings } from './generated-types'
-import identifyContact from './identifyContact'
-import groupIdentifyContact from './groupIdentifyContact';
-import trackEvent from './trackEvent'
+import type { DestinationDefinition } from '@segment/actions-core';
+import type { Settings } from './generated-types';
+import forwardIdentifyEvent from './forwardIdentifyEvent';
+import forwardGroupEvent from './forwardGroupEvent';
+import forwardTrackEvent from './forwardTrackEvent';
 
 const destination: DestinationDefinition<Settings> = {
   name: 'Outfunnel',
@@ -27,9 +27,9 @@ const destination: DestinationDefinition<Settings> = {
     },
     testAuthentication: async (request) => {
       try {
-        return await request('https://api-pls.outfunnel.com/v1/user')
+        return await request('https://api-pls.outfunnel.com/v1/user');
       } catch (error) {
-        throw new Error('Test authentication failed')
+        throw new Error('Test authentication failed');
       }
     }
   },
@@ -43,10 +43,10 @@ const destination: DestinationDefinition<Settings> = {
   },
 
   actions: {
-    trackEvent,
-    groupIdentifyContact,
-    identifyContact
+    forwardTrackEvent,
+    forwardIdentifyEvent,
+    forwardGroupEvent
   }
-}
+};
 
-export default destination
+export default destination;
