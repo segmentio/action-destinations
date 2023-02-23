@@ -17,7 +17,7 @@ describe('Toplyne.sendEvents', () => {
     })
 
     nock(baseUrl)
-      .post('/events')
+      .post('/upload/events')
       .reply(202, {
         status: 'SUCCESS',
         data: {

@@ -56,7 +56,7 @@ const action: ActionDefinition<Settings, Payload> = {
   },
   perform: (request, data) => {
     // Send a single event
-    return request(`${baseUrl}/events`, {
+    return request(`${baseUrl}/upload/events`, {
       json: {
         events: [
           {
@@ -75,7 +75,7 @@ const action: ActionDefinition<Settings, Payload> = {
     const eventChunks = chunk(data.payload, 500)
     return Promise.all(
       eventChunks.map((events) => {
-        return request(`${baseUrl}/events`, {
+        return request(`${baseUrl}/upload/events`, {
           json: {
             events: events.map((event) => ({
               ...event,

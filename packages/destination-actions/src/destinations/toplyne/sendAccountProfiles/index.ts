@@ -37,7 +37,7 @@ const action: ActionDefinition<Settings, Payload> = {
 
   perform: (request, data) => {
     // Send a single account profile
-    return request(`${baseUrl}/accounts/profiles`, {
+    return request(`${baseUrl}/upload/accounts/profiles`, {
       json: {
         accounts: [
           {
@@ -57,7 +57,7 @@ const action: ActionDefinition<Settings, Payload> = {
     const accountChunks = chunk(data.payload, 100)
     return Promise.all(
       accountChunks.map((accounts) => {
-        return request(`${baseUrl}/accounts/profiles`, {
+        return request(`${baseUrl}/upload/accounts/profiles`, {
           json: {
             profiles: accounts.map((account) => ({
               ...account,

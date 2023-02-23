@@ -42,7 +42,7 @@ const action: ActionDefinition<Settings, Payload> = {
   },
   perform: (request, data) => {
     // Send a single user profile
-    return request(`${baseUrl}/users/profiles`, {
+    return request(`${baseUrl}/upload/users/profiles`, {
       json: {
         profiles: [
           {
@@ -61,7 +61,7 @@ const action: ActionDefinition<Settings, Payload> = {
     const profileChunks = chunk(data.payload, 100)
     return Promise.all(
       profileChunks.map((profileChunk) =>
-        request(`${baseUrl}/users/profiles`, {
+        request(`${baseUrl}/upload/users/profiles`, {
           json: {
             profiles: profileChunk.map((payload) => ({
               ...payload,

@@ -17,7 +17,7 @@ describe('Toplyne.sendAccountProfiles', () => {
     })
 
     nock(baseUrl)
-      .post('/accounts/profiles')
+      .post('/upload/accounts/profiles')
       .reply(202, {
         status: 'SUCCESS',
         data: {

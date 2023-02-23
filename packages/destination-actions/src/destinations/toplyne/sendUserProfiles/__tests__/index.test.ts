@@ -7,7 +7,7 @@ const testDestination = createTestIntegration(Destination)
 const timestamp = '2023-02-22T15:21:15.449Z'
 
 describe('Toplyne.sendUserProfiles', () => {
-  it('Sends a event succesfully', async () => {
+  it('Sends a user profile succesfully succesfully', async () => {
     const event = createTestEvent({
       timestamp,
       type: 'identify',
@@ -16,7 +16,7 @@ describe('Toplyne.sendUserProfiles', () => {
     })
 
     nock(baseUrl)
-      .post('/events')
+      .post('/upload/users/profiles')
       .reply(202, {
         status: 'SUCCESS',
         data: {
