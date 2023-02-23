@@ -1,7 +1,7 @@
 import { InputField } from '@segment/actions-core'
 import { Directive } from '@segment/actions-core/src/destination-kit/types'
 
-export const userId: InputField = {
+export const userID: InputField = {
   label: 'Segment User ID',
   description: 'Permanent identifier of a Segment user the event is attributed to.',
   type: 'string',
@@ -11,7 +11,7 @@ export const userId: InputField = {
   }
 }
 
-export const anonymousId: InputField = {
+export const anonymousID: InputField = {
   label: 'Segment Anonymous User ID',
   description: 'A pseudo-unique substitute for a Segment user ID the event is attributed to.',
   type: 'string',

@@ -1,5 +1,5 @@
 import { defaultValues, DestinationDefinition } from '@segment/actions-core'
-import { apiBaseUrl } from './api'
+import { getAccountUrl } from './api'
 import type { Settings } from './generated-types'
 
 import submitTrackEvent from './submitTrackEvent'
@@ -20,13 +20,23 @@ const destination: DestinationDefinition<Settings> = {
         description: 'Segment.io API key for your SalesWings project.',
         type: 'password',
         required: true
+      },
+      environment: {
+        label: 'Environment',
+        description: 'SalesWings environment this destination is connected with.',
+        type: 'string',
+        choices: [
+          { value: 'helium', label: 'Helium (live environment)' },
+          { value: 'ozone', label: 'Ozone (test environment)' }
+        ],
+        required: true,
+        default: 'helium'
       }
     },
     testAuthentication: async (request, { settings }) => {
-      const resp = await request(`${apiBaseUrl}/project/account`, {
+      return request(getAccountUrl(settings.environment), {
         headers: { Authorization: `Bearer ${settings.apiKey}` }
       })
-      return resp.status == 200
     }
   },
 
