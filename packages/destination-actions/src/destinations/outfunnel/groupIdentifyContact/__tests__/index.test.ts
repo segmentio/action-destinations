@@ -23,8 +23,6 @@ describe('Outfunnel.groupIdentifyContact', () => {
       useDefaultMappings: true
     })
 
-    console.log(responses[0].options.body)
-
     expect(responses.length).toBe(1)
     expect(responses[0].status).toBe(200)
     expect(responses[0].options.body).toContain(
