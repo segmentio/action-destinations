@@ -3,6 +3,7 @@ import type { Payload } from '../addUser/generated-types'
 import { BASE_URL, TIKTOK_API_VERSION } from '../constants'
 import type { GetAudienceAPIResponse, CreateAudienceAPIResponse } from '../types'
 import { DynamicFieldResponse } from '@segment/actions-core'
+import { stringifyAdvertiserID } from '../functions'
 
 interface AdvertiserInfoItem {
   advertiser_id: string
@@ -93,7 +94,7 @@ export class TikTokAudiences {
       const choices = result.data.data.list.map((item) => {
         return {
           label: item.name,
-          value: item.advertiser_id
+          value: stringifyAdvertiserID(item.advertiser_id)
         }
       })
 
@@ -104,7 +105,7 @@ export class TikTokAudiences {
       const choices = advertiser_ids.map((id) => {
         return {
           label: id,
-          value: id
+          value: stringifyAdvertiserID(id)
         }
       })
 

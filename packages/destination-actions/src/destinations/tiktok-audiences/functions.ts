@@ -8,6 +8,22 @@ import { Settings } from './generated-types'
 
 type GenericPayload = AddUserPayload | RemoveUserPayload
 
+/**
+ * TikTok advertiser IDs are strings consisting only of numbers, which are quite long. IE: 71821544512608809000.
+ * Our front end validation will automatically convert purely numeric strings to numbers, however since these IDs
+ * are so long, they exceed the max safe integer value. This results in a validation error.
+ * Therefore we ensure that the advertiser ID is NOT converted to a number by appending "id_" here.
+ * @param advertiser_id The advertiser ID returned from TikTok's API. This will be a string but contain only numbers.
+ * @returns "id_<advertiser_id>" - a string
+ */
+export function stringifyAdvertiserID(advertiser_id: string): string {
+  return advertiser_id.replace(/^/, 'id_')
+}
+
+export function parseAdvertiserID(advertiser_id: string): string {
+  return advertiser_id.replace(/^id_/, '')
+}
+
 export async function processPayload(
   request: RequestClient,
   settings: Settings,

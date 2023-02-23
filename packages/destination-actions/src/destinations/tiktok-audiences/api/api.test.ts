@@ -71,15 +71,15 @@ describe('TikTok', () => {
         choices: [
           {
             label: 'TestAccount1',
-            value: '1234567890'
+            value: 'id_1234567890'
           },
           {
             label: 'TestAccount2',
-            value: '0987654321'
+            value: 'id_0987654321'
           },
           {
             label: 'TestAccount3',
-            value: '2345675643'
+            value: 'id_2345675643'
           }
         ]
       })
@@ -100,15 +100,15 @@ describe('TikTok', () => {
         choices: [
           {
             label: '1234567890',
-            value: '1234567890'
+            value: 'id_1234567890'
           },
           {
             label: '0987654321',
-            value: '0987654321'
+            value: 'id_0987654321'
           },
           {
             label: '2345675643',
-            value: '2345675643'
+            value: 'id_2345675643'
           }
         ],
         error: {
