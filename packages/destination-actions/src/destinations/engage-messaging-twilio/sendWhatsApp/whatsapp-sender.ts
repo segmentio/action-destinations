@@ -79,7 +79,10 @@ export class WhatsAppMessageSender extends MessageSender<Payload> {
 
       const mapping: Record<string, string> = {}
       for (const [key, val] of Object.entries(this.payload.contentVariables)) {
-        mapping[key] = await Liquid.parseAndRender(val as string, profile)
+        const parsed = await Liquid.parseAndRender(val as string, profile)
+        if (parsed?.length) {
+          mapping[key] = await Liquid.parseAndRender(val as string, profile)
+        }
       }
 
       return JSON.stringify(mapping)
