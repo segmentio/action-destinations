@@ -3,7 +3,7 @@ import { InputField } from '@segment/actions-core/src/destination-kit/types'
 export const selected_advertiser_id: InputField = {
   label: 'Advertiser ID',
   description: 'The advertiser ID to use when syncing audiences.',
-  type: 'string',
+  type: 'number',
   dynamic: true,
   required: true
 }

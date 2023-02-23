@@ -29,9 +29,9 @@ export class TikTokAudiences {
   request: RequestClient
   selectedAdvertiserID?: string
 
-  constructor(request: RequestClient, selectedAdvertiserID?: string) {
+  constructor(request: RequestClient, selectedAdvertiserID?: number) {
     this.request = request
-    this.selectedAdvertiserID = selectedAdvertiserID
+    this.selectedAdvertiserID = selectedAdvertiserID?.toString()
   }
 
   async getAudiences(page_number: number, page_size: number): Promise<ModifiedResponse<GetAudienceAPIResponse>> {
