@@ -4,7 +4,7 @@ exports[`Testing snapshot for Toplyne's sendUserProfiles destination action: all
 Object {
   "profiles": Array [
     Object {
-      "creationTime": null,
+      "creationTime": 1612137600,
       "enable_batching": true,
       "userId": "*W*AP",
       "userProperties": Object {
@@ -19,7 +19,7 @@ exports[`Testing snapshot for Toplyne's sendUserProfiles destination action: req
 Object {
   "profiles": Array [
     Object {
-      "creationTime": null,
+      "creationTime": 1612137600,
       "userId": "*W*AP",
     },
   ],

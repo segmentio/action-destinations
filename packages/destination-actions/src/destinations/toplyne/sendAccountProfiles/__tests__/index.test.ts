@@ -42,4 +42,49 @@ describe('Toplyne.sendAccountProfiles', () => {
     })
     expect(response.length).toBe(1)
   })
+
+  it('Send multiple account profiles succesfully', async () => {
+    const events = [
+      createTestEvent({
+        timestamp,
+        type: 'group',
+        groupId: 'test-group-id',
+        userId: 'test-user-id',
+        traits: { 'test-property': 'test-value', 'test-property-2': 'test-value-2' }
+      }),
+      createTestEvent({
+        timestamp,
+        type: 'group',
+        groupId: 'test-group-id-2',
+        userId: 'test-user-id-2',
+        traits: { 'test-property': 'test-value', 'test-property-2': 'test-value-2' }
+      })
+    ]
+
+    nock(baseUrl)
+      .post('/upload/accounts/profiles')
+      .reply(202, {
+        status: 'SUCCESS',
+        data: {
+          message: 'Account profiles uploaded.'
+        }
+      })
+
+    const response = await testDestination.testBatchAction('sendAccountProfiles', {
+      events,
+      useDefaultMappings: true,
+      settings: {
+        apiKey: 'test-api-key'
+      }
+    })
+
+    expect(response[0].status).toBe(202)
+    expect(response[0].data).toMatchObject({
+      status: 'SUCCESS',
+      data: {
+        message: 'Account profiles uploaded.'
+      }
+    })
+    expect(response.length).toBe(1)
+  })
 })

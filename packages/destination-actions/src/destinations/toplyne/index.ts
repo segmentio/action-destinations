@@ -24,7 +24,7 @@ const destination: DestinationDefinition<Settings> = {
       }
     },
     testAuthentication: async (request) => {
-      return await request(`${baseUrl}/auth/verify`, {
+      return await request(`${baseUrl}/auth/me`, {
         method: 'GET'
       })
     }

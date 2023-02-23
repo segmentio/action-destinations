@@ -8,9 +8,9 @@ const testDestination = createTestIntegration(Definition)
 describe('Toplyne', () => {
   describe('testAuthentication', () => {
     it('should validate api key', async () => {
-      nock(baseUrl).get('/auth/verify').reply(200, {
+      nock(baseUrl).get('/auth/me').reply(200, {
         status: 'SUCCESS',
-        data: 'OK'
+        data: 'Test client'
       })
 
       // This should match your authentication.fields

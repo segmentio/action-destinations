@@ -42,4 +42,49 @@ describe('Toplyne.sendEvents', () => {
     })
     expect(response.length).toBe(1)
   })
+
+  it('Send multiple events succesfully', async () => {
+    const events = [
+      createTestEvent({
+        timestamp,
+        type: 'track',
+        event: 'test-event',
+        userId: 'test-user-id',
+        properties: { 'test-property': 'test-value', 'test-property-2': 'test-value-2' }
+      }),
+      createTestEvent({
+        timestamp,
+        type: 'track',
+        event: 'test-event-2',
+        userId: 'test-user-id-2',
+        properties: { 'test-property': 'test-value', 'test-property-2': 'test-value-2' }
+      })
+    ]
+
+    nock(baseUrl)
+      .post('/upload/events')
+      .reply(202, {
+        status: 'SUCCESS',
+        data: {
+          message: 'Events uploaded.'
+        }
+      })
+
+    const response = await testDestination.testBatchAction('sendEvents', {
+      events,
+      useDefaultMappings: true,
+      settings: {
+        apiKey: 'test-api-key'
+      }
+    })
+
+    expect(response[0].status).toBe(202)
+    expect(response[0].data).toMatchObject({
+      status: 'SUCCESS',
+      data: {
+        message: 'Events uploaded.'
+      }
+    })
+    expect(response.length).toBe(1)
+  })
 })

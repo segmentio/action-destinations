@@ -25,7 +25,7 @@ const action: ActionDefinition<Settings, Payload> = {
       }
     },
     creationTime: {
-      type: 'string',
+      type: 'datetime',
       label: 'Creation time',
       description: 'Creation time, for segment the event timestamp',
       required: true,

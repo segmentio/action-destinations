@@ -8,7 +8,7 @@ export interface Payload {
   /**
    * Creation time, for segment the event timestamp
    */
-  creationTime: string
+  creationTime: string | number
   /**
    * The properties of the user
    */
