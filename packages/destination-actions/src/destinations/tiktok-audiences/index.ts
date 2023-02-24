@@ -1,8 +1,8 @@
 import type { DestinationDefinition } from '@segment/actions-core'
 // import { InvalidAuthenticationError } from '@segment/actions-core'
 import type { Settings } from './generated-types'
-
-import updateAudience from './updateAudience'
+import addUser from './addUser'
+import removeUser from './removeUser'
 
 const destination: DestinationDefinition<Settings> = {
   name: 'TikTok Audiences',
@@ -12,11 +12,12 @@ const destination: DestinationDefinition<Settings> = {
   authentication: {
     scheme: 'oauth2',
     fields: {
-      advertiser_id: {
-        label: 'TikTok Advertiser ID',
-        description: 'The Advertiser ID where audiences should be synced.',
+      advertiser_ids: {
+        label: 'TikTok Advertiser IDs',
+        description: 'The Advertiser IDs where audiences should be synced.',
         type: 'string',
-        required: true
+        required: true,
+        multiple: true
       }
     }
     // testAuthentication: (request, { auth }) => {
@@ -38,7 +39,8 @@ const destination: DestinationDefinition<Settings> = {
   },
 
   actions: {
-    updateAudience
+    addUser,
+    removeUser
   }
 }
 
