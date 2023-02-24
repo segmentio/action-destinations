@@ -29,9 +29,9 @@ export class TikTokAudiences {
   request: RequestClient
   selectedAdvertiserID?: string
 
-  constructor(request: RequestClient, selectedAdvertiserID?: number) {
+  constructor(request: RequestClient, selectedAdvertiserID?: string) {
     this.request = request
-    this.selectedAdvertiserID = selectedAdvertiserID?.toString()
+    this.selectedAdvertiserID = selectedAdvertiserID
   }
 
   async getAudiences(page_number: number, page_size: number): Promise<ModifiedResponse<GetAudienceAPIResponse>> {
@@ -66,6 +66,14 @@ export class TikTokAudiences {
   }
 
   fetchAdvertisers = async (advertiser_ids: string[]): Promise<DynamicFieldResponse> => {
+    if (!advertiser_ids.length) {
+      throw {
+        error: {
+          message: 'Sign in via OAuth on the settings page to load advertisers.',
+          code: 'NOT_LOGGED_IN'
+        }
+      }
+    }
     try {
       const result = await this.request<AdvertiserInfoResponse>(`${BASE_URL}${TIKTOK_API_VERSION}/advertiser/info/`, {
         method: 'GET',
@@ -73,6 +81,7 @@ export class TikTokAudiences {
           advertiser_ids: JSON.stringify(advertiser_ids)
         }
       })
+      console.log(result)
 
       if (result.data.code !== 0) {
         throw {
