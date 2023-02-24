@@ -39,22 +39,6 @@ const destination: DestinationDefinition<Settings> = {
       headers: { 'X-PARTNER-NAME': settings.account_name, 'X-REQUEST-TOKEN': settings.ucd_key }
     }
   },
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  onDelete: async (request, { settings, payload }) => {
-    // Return a request that performs a GDPR delete for the provided Segment userId or anonymousId
-    // provided in the payload. If your destination does not support GDPR deletion you should not
-    // implement this function and should remove it completely.
-
-    const { userId, anonymousId } = payload
-    return request('https://example.com/delete', {
-      method: 'POST',
-      json: {
-        userId,
-        anonymousId,
-        settings
-      }
-    })
-  },
 
   actions: {}
 }
