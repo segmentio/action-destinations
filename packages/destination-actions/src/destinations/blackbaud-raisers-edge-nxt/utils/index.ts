@@ -106,7 +106,9 @@ export const buildConstituentPayloadFromPayload = (payload: StringIndexedObject)
 export const buildGiftDataFromPayload = (constituentId: string, payload: CreateGiftPayload) => {
   // data for gift call
   const giftData: Partial<Gift> = {
-    amount: payload.amount,
+    amount: {
+      value: payload.amount
+    },
     constituent_id: constituentId,
     date: payload.date,
     gift_status: payload.gift_status,
@@ -146,7 +148,9 @@ export const buildGiftDataFromPayload = (constituentId: string, payload: CreateG
   // create gift splits array
   giftData.gift_splits = [
     {
-      amount: payload.amount,
+      amount: {
+        value: payload.amount
+      },
       fund_id: payload.fund_id
     }
   ]
@@ -195,7 +199,7 @@ export const buildGiftDataFromPayload = (constituentId: string, payload: CreateG
       }
     }
   } else if (giftData.type === 'RecurringGiftPayment' && payload.linked_gifts) {
-    giftData.linked_gifts = payload.linked_gifts.split(',')
+    giftData.linked_gifts = payload.linked_gifts
   }
 
   return giftData

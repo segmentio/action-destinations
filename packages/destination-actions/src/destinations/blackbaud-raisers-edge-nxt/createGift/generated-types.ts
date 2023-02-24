@@ -5,21 +5,25 @@ export interface Payload {
    * The gift acknowledgement.
    */
   acknowledgement?: {
+    /**
+     * The date associated with the acknowledgement in ISO-8601 format.
+     */
     date?: string | number
+    /**
+     * The status of the acknowledgement. Available values are: ACKNOWLEDGED, NEEDSACKNOWLEDGEMENT, and DONOTACKNOWLEDGE.
+     */
     status?: string
   }
   /**
-   * The monetary amount of the gift.
+   * The monetary amount of the gift in number format, e.g. 12.34
    */
-  amount: {
-    value: number
-  }
+  amount: number
   /**
    * The check date in ISO-8601 format.
    */
   check_date?: string | number
   /**
-   * The check number.
+   * The check number in string format, e.g. "12345"
    */
   check_number?: string
   /**
@@ -41,7 +45,7 @@ export interface Payload {
   /**
    * The recurring gift associated with the payment being added.
    */
-  linked_gifts?: string
+  linked_gifts?: string[]
   /**
    * The organization-defined identifier for the gift.
    */
@@ -62,15 +66,30 @@ export interface Payload {
    * The gift receipt.
    */
   receipt?: {
+    /**
+     * The date that the gift was receipted. Includes an offset from UTC in ISO-8601 format: 1969-11-21T10:29:43.
+     */
     date?: string | number
+    /**
+     * The receipt status of the gift. Available values are RECEIPTED, NEEDSRECEIPT, and DONOTRECEIPT.
+     */
     status?: string
   }
   /**
    * The recurring gift schedule. When adding a recurring gift, a schedule is required.
    */
   recurring_gift_schedule?: {
+    /**
+     * Date the recurring gift should end in ISO-8601 format.
+     */
     end_date?: string | number
+    /**
+     * Installment frequency of the recurring gift to add.
+     */
     frequency?: string
+    /**
+     * Date the recurring gift should start in ISO-8601 format.
+     */
     start_date?: string | number
   }
   /**

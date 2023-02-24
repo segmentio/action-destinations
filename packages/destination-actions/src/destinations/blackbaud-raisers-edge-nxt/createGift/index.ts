@@ -14,14 +14,24 @@ const fields: Record<string, InputField> = {
     label: 'Acknowledgement',
     description: 'The gift acknowledgement.',
     type: 'object',
+    defaultObjectUI: 'keyvalue:only',
+    additionalProperties: false,
     properties: {
       date: {
         label: 'Date',
-        type: 'datetime'
+        type: 'datetime',
+        description: 'The date associated with the acknowledgement in ISO-8601 format.'
       },
       status: {
         label: 'Status',
-        type: 'string'
+        type: 'string',
+        description:
+          'The status of the acknowledgement. Available values are: ACKNOWLEDGED, NEEDSACKNOWLEDGEMENT, and DONOTACKNOWLEDGE.',
+        choices: [
+          { label: 'Acknowledged', value: 'ACKNOWLEDGED' },
+          { label: 'Needs Acknowledgement', value: 'NEEDSACKNOWLEDGEMENT' },
+          { label: 'Do Not Acknowledge', value: 'DONOTACKNOWLEDGE' }
+        ]
       }
     },
     default: {
@@ -35,20 +45,11 @@ const fields: Record<string, InputField> = {
   },
   amount: {
     label: 'Gift Amount',
-    description: 'The monetary amount of the gift.',
-    type: 'object',
+    description: 'The monetary amount of the gift in number format, e.g. 12.34',
+    type: 'number',
     required: true,
-    properties: {
-      value: {
-        label: 'Value',
-        type: 'number',
-        required: true
-      }
-    },
     default: {
-      value: {
-        '@path': '$.properties.revenue'
-      }
+      '@path': '$.properties.revenue'
     }
   },
   check_date: {
@@ -58,7 +59,7 @@ const fields: Record<string, InputField> = {
   },
   check_number: {
     label: 'Check Number',
-    description: 'The check number.',
+    description: 'The check number in string format, e.g. "12345"',
     type: 'string'
   },
   date: {
@@ -76,7 +77,14 @@ const fields: Record<string, InputField> = {
     label: 'Gift Status',
     description:
       'The status of the gift. Available values are "Active", "Held", "Terminated", "Completed", and "Cancelled".',
-    type: 'string'
+    type: 'string',
+    choices: [
+      { label: 'Active', value: 'Active' },
+      { label: 'Held', value: 'Held' },
+      { label: 'Terminated', value: 'Terminated' },
+      { label: 'Completed', value: 'Completed' },
+      { label: 'Cancelled', value: 'Cancelled' }
+    ]
   },
   is_anonymous: {
     label: 'Is Anonymous',
@@ -86,7 +94,8 @@ const fields: Record<string, InputField> = {
   linked_gifts: {
     label: 'Linked Gifts',
     description: 'The recurring gift associated with the payment being added.',
-    type: 'string'
+    type: 'string',
+    multiple: true
   },
   lookup_id: {
     label: 'Lookup ID',
@@ -98,7 +107,16 @@ const fields: Record<string, InputField> = {
     description:
       'The payment method. Available values are "Cash", "CreditCard", "PersonalCheck", "DirectDebit", "Other", "PayPal", or "Venmo".',
     type: 'string',
-    required: true
+    required: true,
+    choices: [
+      { label: 'Cash', value: 'Cash' },
+      { label: 'Credit Card', value: 'CreditCard' },
+      { label: 'Personal Check', value: 'PersonalCheck' },
+      { label: 'Direct Debit', value: 'DirectDebit' },
+      { label: 'Other', value: 'Other' },
+      { label: 'PayPal', value: 'PayPal' },
+      { label: 'Venmo', value: 'Venmo' }
+    ]
   },
   post_date: {
     label: 'Post Date',
@@ -110,20 +128,35 @@ const fields: Record<string, InputField> = {
     description:
       'The general ledger post status of the gift. Available values are "Posted", "NotPosted", and "DoNotPost".',
     type: 'string',
-    default: 'NotPosted'
+    default: 'NotPosted',
+    choices: [
+      { label: 'Posted', value: 'Posted' },
+      { label: 'Not Posted', value: 'NotPosted' },
+      { label: 'Do Not Post', value: 'DoNotPost' }
+    ]
   },
   receipt: {
     label: 'Receipt',
     description: 'The gift receipt.',
     type: 'object',
+    defaultObjectUI: 'keyvalue:only',
+    additionalProperties: false,
     properties: {
       date: {
         label: 'Date',
-        type: 'datetime'
+        type: 'datetime',
+        description:
+          'The date that the gift was receipted. Includes an offset from UTC in ISO-8601 format: 1969-11-21T10:29:43.'
       },
       status: {
         label: 'Status',
-        type: 'string'
+        type: 'string',
+        description: 'The receipt status of the gift. Available values are RECEIPTED, NEEDSRECEIPT, and DONOTRECEIPT.',
+        choices: [
+          { label: 'Receipted', value: 'RECEIPTED' },
+          { label: 'Needs Receipt', value: 'NEEDSRECEIPT' },
+          { label: 'Do Not Receipt', value: 'DONOTRECEIPT' }
+        ]
       }
     },
     default: {
@@ -139,18 +172,31 @@ const fields: Record<string, InputField> = {
     label: 'Recurring Gift Schedule',
     description: 'The recurring gift schedule. When adding a recurring gift, a schedule is required.',
     type: 'object',
+    defaultObjectUI: 'keyvalue:only',
+    additionalProperties: false,
     properties: {
       end_date: {
         label: 'End Date',
-        type: 'datetime'
+        type: 'datetime',
+        description: 'Date the recurring gift should end in ISO-8601 format.'
       },
       frequency: {
         label: 'Frequency',
-        type: 'string'
+        type: 'string',
+        description: 'Installment frequency of the recurring gift to add.',
+        choices: [
+          { label: 'Weekly', value: 'WEEKLY' },
+          { label: 'Every Two Weeks', value: 'EVERY_TWO_WEEKS' },
+          { label: 'Every Four Weeks', value: 'EVERY_FOUR_WEEKS' },
+          { label: 'Monthly', value: 'MONTHLY' },
+          { label: 'Quarterly', value: 'QUARTERLY' },
+          { label: 'Annual', value: 'ANNUALLY' }
+        ]
       },
       start_date: {
         label: 'Start Date',
-        type: 'datetime'
+        type: 'datetime',
+        description: 'Date the recurring gift should start in ISO-8601 format.'
       }
     },
     default: {
@@ -175,7 +221,14 @@ const fields: Record<string, InputField> = {
     description:
       'The gift type. Available values are "Donation", "Other", "GiftInKind", "RecurringGift", and "RecurringGiftPayment".',
     type: 'string',
-    default: 'Donation'
+    default: 'Donation',
+    choices: [
+      { label: 'Donation', value: 'Donation' },
+      { label: 'Other', value: 'Other' },
+      { label: 'GiftInKind', value: 'GiftInKind' },
+      { label: 'RecurringGift', value: 'RecurringGift' },
+      { label: 'RecurringGiftPayment', value: 'RecurringGiftPayment' }
+    ]
   }
 }
 
