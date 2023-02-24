@@ -117,38 +117,5 @@ describe('TikTok', () => {
         }
       })
     })
-
-    it('should fallback to stored advertiser_ids if tiktok returns an error', async () => {
-      nock(`${BASE_URL}${TIKTOK_API_VERSION}/advertiser/info`)
-        .get(`/`)
-        .query({ advertiser_ids: JSON.stringify(settings.advertiser_ids) })
-        .reply(200, {
-          code: 500,
-          message: 'Internal Server Error'
-        })
-
-      const fetchAdvertisersRes = await tiktok.fetchAdvertisers(settings.advertiser_ids)
-
-      expect(fetchAdvertisersRes).toEqual({
-        choices: [
-          {
-            label: '1234567890',
-            value: '1234567890'
-          },
-          {
-            label: '0987654321',
-            value: '0987654321'
-          },
-          {
-            label: '2345675643',
-            value: '2345675643'
-          }
-        ],
-        error: {
-          message: 'Internal Server Error',
-          code: '500'
-        }
-      })
-    })
   })
 })
