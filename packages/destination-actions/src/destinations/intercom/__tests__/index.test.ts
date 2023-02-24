@@ -8,14 +8,14 @@ const endpoint = 'https://api.intercom.io'
 describe('Intercom (actions)', () => {
   describe('testAuthentication', () => {
     it('should validate authentication inputs', async () => {
-      nock(endpoint).get('/admins').reply(200, {})
+      nock(endpoint).get('/me').reply(200, {})
       const authData = {}
 
       await expect(testDestination.testAuthentication(authData)).resolves.not.toThrowError()
     })
 
     it('should fail on authentication failure', async () => {
-      nock(endpoint).get('/admins').reply(404, {})
+      nock(endpoint).get('/me').reply(404, {})
       const authData = {}
 
       await expect(testDestination.testAuthentication(authData)).rejects.toThrowError(

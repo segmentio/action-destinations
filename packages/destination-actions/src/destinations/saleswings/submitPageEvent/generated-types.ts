@@ -4,11 +4,11 @@ export interface Payload {
   /**
    * Permanent identifier of a Segment user the event is attributed to.
    */
-  userId?: string
+  userID?: string
   /**
    * A pseudo-unique substitute for a Segment user ID the event is attributed to.
    */
-  anonymousId?: string
+  anonymousID?: string
   /**
    * URL associated with the event.
    */

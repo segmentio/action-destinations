@@ -1,62 +1,44 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`Testing snapshot for 's submitTrackEvent destination action: all fields 1`] = `
+exports[`Testing snapshot for saleswings's submitTrackEvent destination action: all fields 1`] = `
 Object {
+  "anonymousID": "anonId1234",
   "data": "Test Event",
+  "email": "acorob@komma.net",
   "kind": "Track",
-  "leadRefs": Array [
-    Object {
-      "type": "client-id",
-      "value": "user1234",
-    },
-    Object {
-      "type": "client-id",
-      "value": "anonId1234",
-    },
-    Object {
-      "type": "email",
-      "value": "tukifvus@domemci.li",
-    },
-  ],
-  "timestamp": 1671371213652,
-  "type": "tracking",
-  "url": "K[uAM",
+  "timestamp": "2022-12-18T13:46:53.652Z",
+  "url": "HL3Gau",
   "userAgent": "Mozilla/5.0 (iPhone; CPU iPhone OS 9_1 like Mac OS X) AppleWebKit/601.1.46 (KHTML, like Gecko) Version/9.0 Mobile/13B143 Safari/601.1",
+  "userID": "user1234",
   "values": Object {
-    "anonymousId": "K[uAM",
-    "data": "K[uAM",
-    "email": "tukifvus@domemci.li",
-    "kind": "K[uAM",
-    "referrerUrl": "K[uAM",
+    "anonymousID": "HL3Gau",
+    "data": "HL3Gau",
+    "email": "acorob@komma.net",
+    "kind": "HL3Gau",
+    "referrerUrl": "HL3Gau",
     "timestamp": "2021-02-01T00:00:00.000Z",
-    "url": "K[uAM",
-    "userAgent": "K[uAM",
-    "userId": "K[uAM",
+    "url": "HL3Gau",
+    "userAgent": "HL3Gau",
+    "userID": "HL3Gau",
+    "values": Object {
+      "testType": "HL3Gau",
+    },
   },
 }
 `;
 
-exports[`Testing snapshot for 's submitTrackEvent destination action: required fields 1`] = `
+exports[`Testing snapshot for saleswings's submitTrackEvent destination action: required fields 1`] = `
 Object {
+  "anonymousID": "anonId1234",
   "data": "Test Event",
   "kind": "Track",
-  "leadRefs": Array [
-    Object {
-      "type": "client-id",
-      "value": "user1234",
-    },
-    Object {
-      "type": "client-id",
-      "value": "anonId1234",
-    },
-  ],
-  "timestamp": 1671371213632,
-  "type": "tracking",
+  "timestamp": "2022-12-18T13:46:53.632Z",
   "url": "https://segment.com/academy/",
   "userAgent": "Mozilla/5.0 (iPhone; CPU iPhone OS 9_1 like Mac OS X) AppleWebKit/601.1.46 (KHTML, like Gecko) Version/9.0 Mobile/13B143 Safari/601.1",
+  "userID": "user1234",
   "values": Object {
-    "data": "K[uAM",
-    "kind": "K[uAM",
+    "data": "HL3Gau",
+    "kind": "HL3Gau",
   },
 }
 `;
