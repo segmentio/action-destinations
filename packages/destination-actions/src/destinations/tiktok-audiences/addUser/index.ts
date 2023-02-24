@@ -35,8 +35,15 @@ const action: ActionDefinition<Settings, Payload> = {
   dynamicFields: {
     selected_advertiser_id: async (request, { settings }) => {
       try {
+        if (!settings.advertiser_ids.length) {
+          throw {
+            error: {
+              message: 'Sign in via OAuth on the settings page to load advertisers.',
+              code: 'NOT_LOGGED_IN'
+            }
+          }
+        }
         const tiktok = new TikTokAudiences(request)
-
         return tiktok.fetchAdvertisers(settings.advertiser_ids)
       } catch (err) {
         return {
