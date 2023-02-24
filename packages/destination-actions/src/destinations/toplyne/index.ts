@@ -23,9 +23,12 @@ const destination: DestinationDefinition<Settings> = {
         required: true
       }
     },
-    testAuthentication: async (request) => {
+    testAuthentication: async (request, { settings }) => {
       return await request(`${baseUrl}/auth/me`, {
-        method: 'GET'
+        method: 'GET',
+        headers: {
+          Authorization: `Bearer ${settings.apiKey}`
+        }
       })
     }
   },

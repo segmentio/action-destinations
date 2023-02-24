@@ -2,7 +2,6 @@ import type { ActionDefinition } from '@segment/actions-core'
 import dayjs from 'dayjs'
 import chunk from 'lodash/chunk'
 import { baseUrl } from '../constants'
-import { enable_batching } from '../fields'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 
@@ -38,7 +37,13 @@ const action: ActionDefinition<Settings, Payload> = {
       required: false,
       default: { '@path': '$.traits' }
     },
-    enable_batching: enable_batching
+    enable_batching: {
+      type: 'boolean',
+      label: 'Send multiple profiles in a single request',
+      description:
+        'When enabled, the action will send upto 100 profiles in a single request. When disabled, the action will send 1 profile per request.',
+      default: true
+    }
   },
   perform: (request, data) => {
     // Send a single user profile
