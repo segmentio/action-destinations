@@ -27,9 +27,6 @@ export async function processPayload(
 
   const users = extractUsers(payloads, audience_id)
 
-  const advertising_ids = await TikTokApiClient.fetchAdvertisers(settings.advertiser_ids)
-  console.log(advertising_ids)
-
   let res
   if (users.length > 0) {
     const elements = {
