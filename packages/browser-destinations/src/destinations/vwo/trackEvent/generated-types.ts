@@ -2,11 +2,11 @@
 
 export interface Payload {
   /**
-   * The name of the event.
+   * Name of the event.
    */
   eventName: string
   /**
-   * A JSON object containing additional properties that will be associated with the event.
+   * JSON object containing additional properties that will be associated with the event.
    */
   properties?: {
     [k: string]: unknown
