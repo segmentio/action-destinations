@@ -34,7 +34,7 @@ export function getEventProperties(payload: Payload, settings: Settings): Mixpan
     $carrier: payload.carrier,
     $current_url: payload.url,
     $device: payload.device_name,
-    $device_id: payload.device_id,
+    $device_id: payload.anonymous_id,
     $device_type: payload.device_type,
     $device_name: payload.device_name,
     $group_id: payload.group_id,

@@ -7,7 +7,7 @@ import upsertContact from './upsertContact'
 import { createWsseHeader, API_BASE } from './emarsys-helper'
 
 const destination: DestinationDefinition<Settings> = {
-  name: 'Emarsys',
+  name: 'Emarsys (Actions)',
   slug: 'actions-emarsys',
   mode: 'cloud',
 
