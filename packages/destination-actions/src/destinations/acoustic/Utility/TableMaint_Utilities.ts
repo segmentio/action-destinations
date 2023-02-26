@@ -68,6 +68,7 @@ export async function preChecksAndMaint(request: RequestClient, payload: Payload
   }
   //For testing: uncomment to delete the Audiences Table
   //const dtabs = await deleteRTs(request, settings, auth)
+
   //For long-term Maintenance - check each month to delete data older than 1 years
   const checkPurge = new Date()
   if (
@@ -84,8 +85,10 @@ export async function preChecksAndMaint(request: RequestClient, payload: Payload
   }
   //Worst case we're calling checkPurge for a full 10 seconds repeatedly or missing the time
   //  altogether but we'll get it next month - long-term we're still in good shape
+
   //For Testing -
   // await purgeOldAudience(request, settings, auth, "02/11/2023 11:20:00")
+
   //check for table, if not exist create it
   //if (!auth.tableListId || auth.tableListId === "") {
   //Pull the list and parse it to see if Audience Table is on it,
@@ -180,7 +183,7 @@ export const createEventsTable = async (
 
   // console.log("CreateEventsTable RequestBody: \n" + createEventsXML + "\n")
 
-  const createEventsTable = await request(getxmlAPIUrl(settings), {
+  const createSegmentEventsTable = await request(getxmlAPIUrl(settings), {
     method: 'POST',
     body: createEventsXML,
     headers: {
@@ -204,7 +207,7 @@ export const createEventsTable = async (
 
   console.log('\nCreate Audience Table Response (ListId: ' + auth.tableListId + ')\nResp: ' + respText)
 
-  return createEventsTable
+  return createSegmentEventsTable
 }
 
 export const deleteRTs = async (request: RequestClient, settings: Settings, auth: acousticAuth): Promise<String> => {

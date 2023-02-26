@@ -1,7 +1,8 @@
-//import { get } from 'lodash';
-//import get from 'lodash'
+import { RequestClient } from '@segment/actions-core'
 import get from 'lodash/get'
-//import _ from "lodash"
+import { Settings } from '../generated-types'
+import { Payload } from '../receiveEvents/generated-types'
+import { acousticAuth, getxmlAPIUrl } from './TableMaint_Utilities'
 
 export function parseSections(section: { [key: string]: string }, parseResults: { [key: string]: string }) {
   //context {}
@@ -42,23 +43,80 @@ export function parseSections(section: { [key: string]: string }, parseResults: 
   return parseResults
 }
 
-export function OLD_getProperties(obj: {}, lookup: string) {
-  if (!lookup)
-    //return Object.entries(obj)
-    return 'Null'
+// export function OLD_getProperties(obj: {}, lookup: string) {
+//   if (!lookup)
+//     //return Object.entries(obj)
+//     return 'Null'
 
-  const properties = lookup.split('.')
-  let prop = ''
-  let i,
-    itLen = 0
-  for (i = 0, itLen = properties.length - 1; i < itLen; i++) {
-    prop = properties[i]
-    const item = obj[prop as keyof typeof obj]
-    if (item !== undefined) {
-      obj = item
-    } else {
-      break
-    }
+//   const properties = lookup.split('.')
+//   let prop = ''
+//   let i,
+//     itLen = 0
+//   for (i = 0, itLen = properties.length - 1; i < itLen; i++) {
+//     prop = properties[i]
+//     const item = obj[prop as keyof typeof obj]
+//     if (item !== undefined) {
+//       obj = item
+//     } else {
+//       break
+//     }
+//   }
+
+export const addUpdateEvents = async (
+  request: RequestClient,
+  payload: Payload,
+  settings: Settings,
+  email: string,
+  auth: acousticAuth
+): Promise<Response> => {
+  //capture some events for testing offline - only when debugging locally
+  // try {
+  //   writeFileSync(`SegmentEventsLog_${new Date().toISOString()}.txt`, JSON.stringify(payload), {
+  //     flag: 'w',
+  //   });
+  // }
+  // catch (e) {
+  //   console.log(e)
+  // }
+
+  // console.log("\nIn addUpdateEvents - Payload: " +
+  //   "\nEvent Type:  " + payload.type +
+  //   "\nEmail:       " + payload.email +
+  //   "\nTimestamp:   " + getProperties(payload, "timestamp") +
+  //   "\n")
+
+  let eventName = ''
+  let eventValue = ''
+  let xmlRows = ''
+
+  //Event Source
+  const eventSource = get(payload, 'type', 'Null') + ' Event'
+
+  //Timestamp
+  // const t = `"timestamp": "2023-02-07T02:19:23.469Z"`
+  const timestamp = get(payload, 'timestamp', 'Null')
+
+  //Audience
+  if (get(payload, 'context.personas.computation_class', 'Null') === 'audience') {
+    const ak = get(payload, 'context.personas.computation_key', 'Null')
+
+    //const av = `traits.${ak}`
+    const av = `properties.${ak}`
+
+    //const audiStatus = getProperties(payload, av)
+    const audiStatus = get(payload, av, 'Null')
+    if (audiStatus) eventValue = 'Audience Entered'
+    if (!audiStatus) eventValue = 'Audience Exited'
+    eventName = ak
+
+    xmlRows += `  
+      <ROW>
+      <COLUMN name="EMAIL">           <![CDATA[${email}]]></COLUMN>
+      <COLUMN name="EventSource">     <![CDATA[${eventSource}]]></COLUMN>  
+      <COLUMN name="EventName">       <![CDATA[${eventName}]]></COLUMN>
+      <COLUMN name="EventValue">      <![CDATA[${eventValue}]]></COLUMN>
+      <COLUMN name="Event Timestamp"> <![CDATA[${timestamp}]]></COLUMN>
+      </ROW>`
   }
 
   let propertiesTraitsKV: { [key: string]: string } = {}
