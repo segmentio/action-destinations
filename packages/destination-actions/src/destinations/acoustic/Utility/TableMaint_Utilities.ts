@@ -1,5 +1,7 @@
+/* eslint-disable no-debugger */
 import { IntegrationError } from '@segment/actions-core'
 import { RequestClient } from '@segment/actions-core'
+import get from 'lodash/get'
 import { Settings } from '../generated-types'
 //import { ModifiedResponse } from "@segment/actions-core"
 import { Payload } from '../receiveEvents/generated-types'
@@ -50,6 +52,7 @@ export async function preChecksAndMaint(request: RequestClient, payload: Payload
   //Ok, lets process what is coming in,
   //First reach out to the Acoustic environment to confirm connectivity and
   //    might as well get an OAuth2 while we're at it
+
   if (!auth.accessToken) {
     await getAccessToken(request, settings, auth)
     //auth.accessToken = at.data
@@ -108,7 +111,7 @@ export const getAccessToken = async (
   request: RequestClient,
   settings: Settings,
   auth: acousticAuth
-): Promise<Response> => {
+): Promise<string> => {
   const res = await request(`https://api-campaign-${settings.a_region}-${settings.a_pod}.goacoustic.com/oauth/token`, {
     //await request(`https://api-campaign-US-2.goacoustic.com/oauth/token`, {
     method: 'POST',
@@ -129,7 +132,8 @@ export const getAccessToken = async (
   })
 
   //return res
-  return res.json() //.access_token
+  auth.accessToken = get(res.data, 'access_token', '')
+  return get(res.data, 'access_token', '')
   //return { accessToken: res.data().access_token }
   //return res.body?.access_token
 }
