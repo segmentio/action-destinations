@@ -5,5 +5,13 @@
     "**/.git": true,
     "**/.DS_Store": true
   },
-  "typescript.tsdk": "node_modules/typescript/lib"
+  "typescript.tsdk": "node_modules/typescript/lib",
+  "gitConfigUser.profiles": [
+    {
+      "label": "kwlandry",
+      "email": "38734665+KWLandry@users.noreply.github.com",
+      "userName": "kwlandry",
+      "selected": true
+    }
+  ]
 }

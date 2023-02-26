@@ -1,15 +1,8 @@
-<<<<<<< HEAD
 import { IntegrationError } from '@segment/actions-core'
 import { RequestClient } from '@segment/actions-core'
 import { Settings } from '../generated-types'
 //import { ModifiedResponse } from "@segment/actions-core"
 import { Payload } from '../receiveEvents/generated-types'
-=======
-import { IntegrationError } from "@segment/actions-core"
-import { RequestClient } from "@segment/actions-core"
-import { Settings } from "../generated-types"
-
->>>>>>> aec59bef485677c607582f67b54a7958578b41a9
 
 export interface acousticAuth {
   clientId: string
@@ -26,7 +19,6 @@ export const getxmlAPIUrl = (settings: Settings) => {
   return xmlapi
 }
 
-<<<<<<< HEAD
 export async function preChecksAndMaint(request: RequestClient, payload: Payload, settings: Settings) {
   // Argument of type 'Request' is not assignable to parameter of type '<Data = unknown>(url: string, options?: RequestOptions) => Promise<ModifiedResponse<Data>>'.
   // Type 'Request' provides no match for the signature '<Data = unknown>(url: string, options?: RequestOptions | undefined): Promise<ModifiedResponse<Data>>'.ts(2345)
@@ -41,9 +33,6 @@ export async function preChecksAndMaint(request: RequestClient, payload: Payload
 
   //Get a line-out of the object
   //Object Keys: messageId,timestamp,type,email,properties,userId,event,anonymousId,context,receivedAt,sentAt,version
-=======
-export const getAccessToken = async (request: RequestClient, settings: Settings, auth: acousticAuth): Promise<Response> => {
->>>>>>> aec59bef485677c607582f67b54a7958578b41a9
 
   console.log(`Keep an eye on the object --> 
      \nObject Keys:    ${Object.keys(payload)}
@@ -136,14 +125,10 @@ export const getAccessToken = async (
     }
   })
 
-<<<<<<< HEAD
   //return res
   return res.json() //.access_token
   //return { accessToken: res.data().access_token }
   //return res.body?.access_token
-=======
-  return res.json()  //.access_token
->>>>>>> aec59bef485677c607582f67b54a7958578b41a9
 }
 
 export const createEventsTable = async (
@@ -193,14 +178,9 @@ export const createEventsTable = async (
            </Body> 
          </Envelope>`
 
-<<<<<<< HEAD
   // console.log("CreateEventsTable RequestBody: \n" + createEventsXML + "\n")
 
   const createEventsTable = await request(getxmlAPIUrl(settings), {
-=======
-
-  const createSegmentEventsTable = await request(getxmlAPIUrl(settings), {
->>>>>>> aec59bef485677c607582f67b54a7958578b41a9
     method: 'POST',
     body: createEventsXML,
     headers: {
@@ -222,23 +202,13 @@ export const createEventsTable = async (
 
   auth.tableListId = tid
 
-<<<<<<< HEAD
   console.log('\nCreate Audience Table Response (ListId: ' + auth.tableListId + ')\nResp: ' + respText)
-=======
-  //console.log("\nCreate Audience Table Response (ListId: " + auth.tableListId + ")\nResp: " + respText)
->>>>>>> aec59bef485677c607582f67b54a7958578b41a9
 
   return createEventsTable
 }
 
 export const deleteRTs = async (request: RequestClient, settings: Settings, auth: acousticAuth): Promise<String> => {
-<<<<<<< HEAD
   console.log('Delete Audience Table: ')
-=======
-
-  console.log("Delete Segment Events Table: ")
-
->>>>>>> aec59bef485677c607582f67b54a7958578b41a9
 
   const deleteSET = await request(getxmlAPIUrl(settings), {
     method: 'POST',
@@ -274,18 +244,11 @@ export const checkRTExist = async (
 ): Promise<Boolean> => {
   console.log('Check Whether Audiences Table Exists: ')
 
-<<<<<<< HEAD
   //Use a defined listid and check---What's the difference?
   //Need to make a call in either case,
   //This way eliminates the need to manage the listid when it's not defined correctly and
   // confirms correct operation whereas otherwise would have to make two additional calls to
   // get to the same point, so, not as bad as first thought
-=======
-
-export const checkRTExist = async (request: RequestClient, settings: Settings, auth: acousticAuth): Promise<Boolean> => {
-
-  console.log("Check Whether Segment Events Table Exists: ")
->>>>>>> aec59bef485677c607582f67b54a7958578b41a9
 
   const checkRT = await request(getxmlAPIUrl(settings), {
     method: 'POST',
@@ -375,10 +338,7 @@ export const purgeSegmentEventTable = async (
     return purgeOldData
   }
 
-<<<<<<< HEAD
   //return { await checkRT.text() }
   //return checkRT.text()
   //return true
-=======
->>>>>>> aec59bef485677c607582f67b54a7958578b41a9
 }

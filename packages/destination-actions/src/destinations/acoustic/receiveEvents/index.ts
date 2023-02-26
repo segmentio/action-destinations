@@ -3,7 +3,6 @@ import type { ActionDefinition } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import { Payload } from './generated-types'
 import { IntegrationError } from '@segment/actions-core'
-<<<<<<< HEAD
 import { acousticAuth, getxmlAPIUrl, preChecksAndMaint } from '../Utility/TableMaint_Utilities'
 import { parseSections } from '../Utility/EventProcessing'
 import get from 'lodash/get'
@@ -178,10 +177,6 @@ export const addUpdateEvents = async (
     </Envelope>`
   })
 }
-=======
-//import { acousticAuth, checkRTExist, createEventsTable, deleteRTs, getAccessToken, purgeSegmentEventTable, getxmlAPIUrl } from '../Utility/TableMaint_Utilities'
-import { getProperties, parseSections } from '../Utility/EventProcessing'
->>>>>>> aec59bef485677c607582f67b54a7958578b41a9
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Receive Track and Identify Events',
@@ -206,11 +201,7 @@ const action: ActionDefinition<Settings, Payload> = {
       description: 'Email Field',
       type: 'string',
       format: 'email',
-<<<<<<< HEAD
       required: true,
-=======
-      require: true,
->>>>>>> aec59bef485677c607582f67b54a7958578b41a9
       default: {
         '@if': {
           exists: { '@path': '$.context.traits.email' },
@@ -268,7 +259,6 @@ const action: ActionDefinition<Settings, Payload> = {
     }
   },
 
-<<<<<<< HEAD
   /*
   The `perform` method accepts two arguments, 
   (1) the request client instance (extended with your destination's `extendRequest`, and 
@@ -305,90 +295,10 @@ const action: ActionDefinition<Settings, Payload> = {
     if (email == undefined) email = get(payload, 'traits.email', 'Null')
     if (email == undefined)
       throw new IntegrationError('Email not provided, cannot process Audience Events without included Email')
-=======
-  perform: async (request, { payload, settings }) => {
-    console.log("In Perform Action --> ")
-
-    // //Get a line-out of the object
-    // //Object Keys: messageId,timestamp,type,email,properties,userId,event,anonymousId,context,receivedAt,sentAt,version
-    // console.log(`Keep an eye on the object --> 
-    //   \nObject Keys:    ${Object.keys(payload)}
-    //   \nObject Values:  ${Object.values(payload)}
-    //   \nObject Entries: ${Object.entries(payload)}\n`)
-
-    const auth: acousticAuth = {
-      clientId: settings.a_client_id,
-      clientSecret: settings.a_client_secret,
-      refreshToken: settings.a_refresh_token,
-      accessToken: "",
-      tableListId: ""
-    }
-
-    // //Only needed when curl testing
-    // if (Object.entries(payload).length < 1) throw new IntegrationError(`Empty Payload - Cannot process ->  ${Object.keys(payload)}   <- `)
-
-    let email = get(payload, "context.traits.email")
-    if (email == undefined) email = get(payload, "traits.email")
-    if (email == undefined) throw new IntegrationError("Email not provided, cannot process Audience Events without included Email")
->>>>>>> aec59bef485677c607582f67b54a7958578b41a9
 
     const auth: acousticAuth = await preChecksAndMaint(request, payload, settings)
 
-<<<<<<< HEAD
     //Ok, email, prechecks and Maint are all accomplished, let's see what needs to be processed,
-=======
-    //First reach out to the Acoustic environment to confirm connectivity and 
-    //    might as well get an OAuth2 while we're at it
-    if (!auth.accessToken) {
-      const at = await getAccessToken(request, settings, auth)
-      auth.accessToken = parseResponse(at)
-    }
-    if (!auth.accessToken) throw new IntegrationError("Could not acquire an Access Token, check configuration parameters are correct and credentials have not expired. ")
-
-
-    //Long-term Maintenacne
-    //For Support to easily reset a Customers Acoustic "Segment Events Table"
-    if (!settings.a_deleteCode) settings.a_deleteCode = 0
-    if (settings.a_deleteCode > 99999 && settings.a_deleteCode < 100000) {
-      const _dtabs = await deleteRTs(request, settings, auth)
-      _dtabs.length
-    }
-    //For testing: uncomment to delete the Audiences Table
-    //const dtabs = await deleteRTs(request, settings, auth)
-
-
-    //For long-term Maintenance - check each month to delete data older than 1 years 
-    const checkPurge = new Date()
-    if (checkPurge.getDate() == 1 &&    //First of the Month
-      checkPurge.getHours() == 12 &&    //At Noon 
-      checkPurge.getMinutes() == 30 &&  //At half-past Noon
-      checkPurge.getSeconds() > 50) {   //to almost 31 past Noon 
-
-      const purgeDate = new Date()
-      purgeDate.setFullYear(purgeDate.getFullYear() - 1);
-      await purgeSegmentEventTable(request, settings, auth, purgeDate)
-    }
-    //Worst case we're calling checkPurge for a full 10 seconds repeatedly or missing the time 
-    //  altogether but we'll get it next month - long-term we're still in good shape
-    //For Testing - 
-    // await purgeOldAudience(request, settings, auth, "02/11/2023 11:20:00")
-
-
-    //check for table, if not exist create it  
-    //if (!auth.tableListId || auth.tableListId === "") {
-    //Pull the list and parse it to see if Audience Table is on it, 
-    const chkExist = await checkRTExist(request, settings, auth)
-    if (!chkExist) {
-      console.log("Acoustic Audiences Table did not exist, creating new ....")
-      const crt = await createEventsTable(request, settings, auth)
-      if (!crt) {
-        console.log("Error attempting to create an Acoustic Audiences Table")
-        throw new IntegrationError("Error attempting to create an Acoustic Audiences Table")
-      }
-    }
-
-    //Ok, prechecks and Maint are all attended to, let's see what needs to be processed, 
->>>>>>> aec59bef485677c607582f67b54a7958578b41a9
     return await addUpdateEvents(request, payload, settings, email, auth)
   },
 
@@ -402,17 +312,10 @@ const action: ActionDefinition<Settings, Payload> = {
     for (const e of payload) {
       i++
 
-<<<<<<< HEAD
       let email = get(e, 'context.traits.email', 'Null')
       if (email == undefined) email = get(e, 'traits.email', 'Null')
       if (email == undefined)
         throw new IntegrationError('Email not provided, cannot process Audience Events without included Email')
-=======
-      //Do not proceed if nothing we can work with,
-      let email = get(e, "event.context.traits.email")
-      if (email == undefined) email = get(e, "event.traits.email")
-      if (email == undefined) throw new IntegrationError("Email not provided, cannot process Events without Email")
->>>>>>> aec59bef485677c607582f67b54a7958578b41a9
 
       return await addUpdateEvents(request, e, settings, email, auth)
     }
