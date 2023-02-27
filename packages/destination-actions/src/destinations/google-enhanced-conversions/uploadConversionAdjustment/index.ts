@@ -1,4 +1,4 @@
-import { ActionDefinition, IntegrationError, PayloadValidationError } from '@segment/actions-core'
+import { ActionDefinition, PayloadValidationError } from '@segment/actions-core'
 import { hash, handleGoogleErrors, convertTimestamp, getUrlByVersion } from '../functions'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
