@@ -1,6 +1,10 @@
 import nock from 'nock'
 import { createTestEvent, createTestIntegration } from '@segment/actions-core'
 import Destination from '../../index'
+import dayjs from '../../../../lib/dayjs'
+
+// Create a date object from the current time
+const dateObj = dayjs()
 
 const testDestination = createTestIntegration(Destination)
 const SETTINGS = {
@@ -11,7 +15,10 @@ const DIRECTORY_ID = 'POOL_XXXX'
 const CONTACT_ID = 'CID_XXXX'
 const MAILING_LIST_ID = 'CG_XXXX'
 const TRANSACTION_DATA = { Key: 'Value' }
-const TRANSACTION_DATE = '2000-01-01 00:00:00'
+// Convert the date object to formatted string
+const TRANSACTION_DATE = dateObj.format('YYYY-MM-DD HH:mm:ss')
+// Convert the date object to formatted string in UTC
+const TRANSACTION_DATE_UTC = dateObj.utc().format('YYYY-MM-DD HH:mm:ss')
 const CONTACT_INFO = {
   firstName: 'Jane',
   lastName: 'Doe',
@@ -77,7 +84,7 @@ describe('upsertContactTransaction', () => {
     expect(actualRequest[Object.keys(actualRequest)[0]]).toMatchObject({
       contactId: CONTACT_ID,
       data: TRANSACTION_DATA,
-      transactionDate: TRANSACTION_DATE,
+      transactionDate: TRANSACTION_DATE_UTC,
       mailingListId: MAILING_LIST_ID
     })
   })
@@ -140,7 +147,7 @@ describe('upsertContactTransaction', () => {
     expect(actualCreateTransactionRequest[Object.keys(actualCreateTransactionRequest)[0]]).toMatchObject({
       contactId: 'CID_FOUND',
       data: TRANSACTION_DATA,
-      transactionDate: TRANSACTION_DATE,
+      transactionDate: TRANSACTION_DATE_UTC,
       mailingListId: MAILING_LIST_ID
     })
   })
@@ -232,7 +239,7 @@ describe('upsertContactTransaction', () => {
     expect(actualCreateTransactionRequest[Object.keys(actualCreateTransactionRequest)[0]]).toMatchObject({
       contactId: 'CID_CREATED',
       data: TRANSACTION_DATA,
-      transactionDate: TRANSACTION_DATE,
+      transactionDate: TRANSACTION_DATE_UTC,
       mailingListId: MAILING_LIST_ID
     })
   })
