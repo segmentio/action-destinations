@@ -7,26 +7,26 @@ const endpoint = 'https://sink.outfunnel.com'
 const userId = '63d1535e64583e42bbc60662'
 const apiToken = '5aef3rafgasfdsafadsfsdadasd'
 
-describe('Outfunnel.groupIdentifyContact', () => {
-  it('should create or update an organization', async () => {
-    const event = createTestEvent({ type: 'group', traits: { name: 'example user', email: 'user@example.com' } })
+describe('Outfunnel.forwardGroupEvent', () => {
+  it('should forward group event to Outfunnel', async () => {
+    const event = createTestEvent({ type: 'group', traits: { name: 'example company' } })
 
     nock(endpoint)
       .post(`/events/segment/${userId}`)
       .query(true)
       .reply(200, { success: true })
 
-    const responses = await testDestination.testAction('groupIdentifyContact', {
+    const responses = await testDestination.testAction('forwardGroupEvent', {
       settings: { userId, apiToken },
       event,
-      mapping: { role: { '@path': '$.traits.role' }, email: { '@path': '$.traits.email' } },
+      mapping: { name: { '@path': '$.traits.name' } },
       useDefaultMappings: true
     })
 
     expect(responses.length).toBe(1)
     expect(responses[0].status).toBe(200)
     expect(responses[0].options.body).toContain(
-      `{"type":"group","user_id":"user1234","anonymous_id":"anonId1234","email":"user@example.com"`
+      `{"action":"group","user_id":"user1234","anonymous_id":"anonId1234","group_name":"example company"`
     )
   })
 })
