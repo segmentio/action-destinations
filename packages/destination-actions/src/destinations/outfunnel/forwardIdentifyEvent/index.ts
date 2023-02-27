@@ -38,7 +38,7 @@ const action: ActionDefinition<Settings, Payload> = {
       description: 'Email address of the user who performed the event',
       label: 'Email Address',
       default: {
-        '@path': '$.email'
+        '@path': '$.traits.email'
       }
     },
     timestamp: {
@@ -51,7 +51,7 @@ const action: ActionDefinition<Settings, Payload> = {
       }
     },
     traits: {
-      type: 'hidden',
+      type: 'object',
       description: 'Optional metadata describing the user',
       label: 'User traits',
       default: {
@@ -59,7 +59,7 @@ const action: ActionDefinition<Settings, Payload> = {
       }
     },
     context: {
-      type: 'hidden',
+      type: 'object',
       description: 'Event context',
       label: 'Event context',
       required: true,

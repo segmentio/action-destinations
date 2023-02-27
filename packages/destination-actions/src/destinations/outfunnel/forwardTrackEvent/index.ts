@@ -71,7 +71,7 @@ const action: ActionDefinition<Settings, Payload> = {
       }
     },
     properties: {
-      type: 'hidden',
+      type: 'object',
       description: 'Optional metadata describing the event',
       label: 'Event properties',
       default: {
@@ -79,7 +79,7 @@ const action: ActionDefinition<Settings, Payload> = {
       }
     },
     context: {
-      type: 'hidden',
+      type: 'object',
       description: 'Event context',
       label: 'Event context',
       required: true,

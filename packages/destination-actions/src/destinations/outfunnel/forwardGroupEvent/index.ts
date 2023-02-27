@@ -58,7 +58,7 @@ const action: ActionDefinition<Settings, Payload> = {
       }
     },
     traits: {
-      type: 'hidden',
+      type: 'object',
       required: true,
       description: 'Group traits',
       label: 'Group traits',
@@ -67,7 +67,7 @@ const action: ActionDefinition<Settings, Payload> = {
       }
     },
     context: {
-      type: 'hidden',
+      type: 'object',
       description: 'Event context',
       label: 'Event context',
       required: true,

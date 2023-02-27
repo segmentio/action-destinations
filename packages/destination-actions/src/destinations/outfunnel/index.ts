@@ -3,6 +3,7 @@ import type { Settings } from './generated-types';
 import forwardIdentifyEvent from './forwardIdentifyEvent';
 import forwardGroupEvent from './forwardGroupEvent';
 import forwardTrackEvent from './forwardTrackEvent';
+import { presets } from './presets';
 
 const destination: DestinationDefinition<Settings> = {
   name: 'Outfunnel',
@@ -25,6 +26,7 @@ const destination: DestinationDefinition<Settings> = {
         required: true
       }
     },
+
     testAuthentication: async (request) => {
       try {
         return await request('https://api-pls.outfunnel.com/v1/user');
@@ -46,7 +48,9 @@ const destination: DestinationDefinition<Settings> = {
     forwardTrackEvent,
     forwardIdentifyEvent,
     forwardGroupEvent
-  }
+  },
+
+  presets
 };
 
 export default destination;
