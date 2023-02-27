@@ -54,7 +54,7 @@ const destination: DestinationDefinition<Settings> = {
         type: 'number',
         required: false
       },
-
+      // Pending
       // a_audi_list_id: {
       //   label: 'Events Table List Id',
       //   description: '"Segment Events Table" List Id from Acoustic Databases Dialog ',

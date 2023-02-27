@@ -1,8 +1,14 @@
 import { RequestClient } from '@segment/actions-core'
+import flatten from 'lodash/flatten'
 import get from 'lodash/get'
 import { Settings } from '../generated-types'
 import { Payload } from '../receiveEvents/generated-types'
 import { acousticAuth, getxmlAPIUrl } from './TableMaint_Utilities'
+
+export function parseProperties(section: string[]) {
+  console.log(flatten(section))
+  return flatten(section)
+}
 
 export function parseSections(section: { [key: string]: string }, parseResults: { [key: string]: string }) {
   //context {}
@@ -19,19 +25,19 @@ export function parseSections(section: { [key: string]: string }, parseResults: 
   try {
     for (a of Object.keys(section)) {
       if (typeof get(section, `${a}`, 'Null') !== 'object') {
-        parseResults[a] = get(section, `${a}`, 'Null')
+        parseResults[`${a}`] = get(section, `${a}`, 'Null')
       } else
         for (b of Object.keys(get(section, `${a}`, 'Null'))) {
           if (typeof get(section, `${a}.${b}`, 'Null') !== 'object') {
-            parseResults[b] = get(section, `${a}.${b}`, 'Null')
+            parseResults[`${a}.${b}`] = get(section, `${a}.${b}`, 'Null')
           } else
             for (c of Object.keys(get(section, `${a}${b}`, 'Null'))) {
               if (typeof get(section, `${a}.${b}.${c}`, 'Null') !== 'object') {
-                parseResults[c] = get(section, `${a}.${b}.${c}`, 'Null')
+                parseResults[`${a}.${b}.${c}`] = get(section, `${a}.${b}.${c}`, 'Null')
               } else
                 for (d of Object.keys(get(section, `${a}${b}${c}`, 'Null'))) {
                   if (typeof get(section, `${a}.${b}.${c}.${d}`, 'Null') !== 'object') {
-                    parseResults[d] = get(section, `${a}.${b}.${c}.${d}`, 'Null')
+                    parseResults[`${a}.${b}.${c}.${d}`] = get(section, `${a}.${b}.${c}.${d}`, 'Null')
                   }
                 }
             }
@@ -118,6 +124,13 @@ export const addUpdateEvents = async (
       <COLUMN name="Event Timestamp"> <![CDATA[${timestamp}]]></COLUMN>
       </ROW>`
   }
+
+  const _flattenedArray = [].concat(...payload.traits)
+
+  const t = flatten(payload.traits)
+  const p = parseProperties(payload.properties)
+  const c = parseProperties(payload.context)
+  console.log(t, p, c)
 
   let propertiesTraitsKV: { [key: string]: string } = {}
 

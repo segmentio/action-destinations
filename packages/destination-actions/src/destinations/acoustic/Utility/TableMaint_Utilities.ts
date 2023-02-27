@@ -14,7 +14,7 @@ export interface acousticAuth {
   tableListId: string
 }
 
-export const getxmlAPIUrl = (settings: Settings) => {
+export function getxmlAPIUrl(settings: Settings) {
   const zz = String(settings.a_xmlAPIURL)
   const xx: string = zz.replace('XX', settings.a_region)
   const xmlapi = xx.replace('X', settings.a_pod)
