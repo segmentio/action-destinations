@@ -5,6 +5,7 @@ import createUpdatePerson from './createUpdatePerson'
 import trackEvent from './trackEvent'
 import trackPageView from './trackPageView'
 import trackScreenView from './trackScreenView'
+import createUpdateObject from './createUpdateObject'
 import type { DestinationDefinition } from '@segment/actions-core'
 import type { Settings } from './generated-types'
 import { AccountRegion, trackApiEndpoint } from './utils'
@@ -56,7 +57,8 @@ const destination: DestinationDefinition<Settings> = {
     createUpdatePerson,
     trackEvent,
     trackPageView,
-    trackScreenView
+    trackScreenView,
+    createUpdateObject
   },
 
   presets: [
@@ -95,6 +97,12 @@ const destination: DestinationDefinition<Settings> = {
       subscribe: 'type = "screen"',
       partnerAction: 'trackScreenView',
       mapping: defaultValues(trackScreenView.fields)
+    },
+    {
+      name: 'Create or Update Object',
+      subscribe: 'type = "group"',
+      partnerAction: 'createUpdateObject',
+      mapping: defaultValues(createUpdateObject.fields)
     }
   ],
 

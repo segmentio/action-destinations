@@ -75,14 +75,6 @@ const action: ActionDefinition<Settings, Payload> = {
           verifyCurrency(product.currency)
         }
 
-        if (product.promotion_id === undefined && product.promotion_name === undefined) {
-          throw new IntegrationError(
-            'One of promotion name or promotion id is required.',
-            'Misconfigured required field',
-            400
-          )
-        }
-
         return product as PromotionProductItem
       })
     }

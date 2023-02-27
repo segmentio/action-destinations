@@ -30,6 +30,7 @@ For more detailed instruction, see the following READMEs:
 - [perform function](#the-perform-function)
 - [Batching Requests](#batching-requests)
 - [HTTP Requests](#http-requests)
+- [Support](#support)
 
 ## Get started
 
@@ -49,7 +50,7 @@ This is a monorepo with multiple packages leveraging [`lerna`](https://github.co
 You'll need to have some tools installed locally to build and test action destinations.
 
 - Yarn 1.x
-- Node 14.17 (latest LTS, we recommand using [`nvm`](https://github.com/nvm-sh/nvm) for managing Node versions)
+- Node 18.12 (latest LTS, we recommand using [`nvm`](https://github.com/nvm-sh/nvm) for managing Node versions)
 
 If you are a Segment employee you can directly `git clone` the repository locally. Otherwise you'll want to fork this repository for your organization to submit Pull Requests against the main Segment repository. Once you've got a fork, you can `git clone` that locally.
 
@@ -61,7 +62,7 @@ cd action-destinations
 npm login
 yarn login
 
-# Requires node 14.17, optionally: nvm use 14.17
+# Requires node 18.12.1, optionally: nvm use 18.12.1
 yarn --ignore-optional
 yarn bootstrap
 yarn build
@@ -396,6 +397,7 @@ The `perform` method accepts two arguments, (1) the request client instance (ext
 - `statsContext` - An object, containing a `statsClient` and `tags`. Stats can only be used by internal Twilio/Segment employees. Stats cannot be used for Partner builds.
 - `logger` - Logger can only be used by internal Twilio/Segment employees. Logger cannot be used for Partner builds.
 - `transactionContext` - An object, containing transaction variables and a method to update transaction variables which are required for few segment developed actions. Transaction Context cannot be used for Partner builds.
+- `stateContext` - An object, containing context variables and a method to get and set context variables which are required for few segment developed actions. State Context cannot be used for Partner builds.
 
 A basic example:
 
@@ -543,11 +545,15 @@ There are a few subtle differences from the Fetch API which are meant to limit t
 - some options and behaviors are not applicable to Node.js and will be ignored by `node-fetch`. See this list of [known differences](https://github.com/node-fetch/node-fetch/blob/1780f5ae89107ded4f232f43219ab0e548b0647c/docs/v2-LIMITS.md).
 - `method` will automatically get upcased for consistency.
 
+## Support
+
+For any issues, please contact our support team at partner-support@segment.com.
+
 ## License
 
 MIT License
 
-Copyright (c) 2022 Segment
+Copyright (c) 2023 Segment
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal

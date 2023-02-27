@@ -1,7 +1,8 @@
 import { createHash } from 'crypto'
 import { ConversionCustomVariable, PartialErrorResponse, QueryResponse } from './types'
 import { ModifiedResponse, RequestClient, IntegrationError } from '@segment/actions-core'
-import { GoogleAdsAPI } from './types'
+import { Features } from '@segment/actions-core/src/mapping-kit'
+import { StatsContext } from '@segment/actions-core/src/destination-kit'
 
 export function formatCustomVariables(
   customVariables: object,
@@ -41,9 +42,11 @@ export const hash = (value: string | undefined): string | undefined => {
 export async function getCustomVariables(
   customerId: string,
   auth: any,
-  request: RequestClient
+  request: RequestClient,
+  features?: Features,
+  statsContext?: StatsContext
 ): Promise<ModifiedResponse<QueryResponse[]>> {
-  return await request(`${GoogleAdsAPI}/${customerId}/googleAds:searchStream`, {
+  return await request(`${getUrlByVersion(features, statsContext)}/${customerId}/googleAds:searchStream`, {
     method: 'post',
     headers: {
       authorization: `Bearer ${auth?.accessToken}`,
@@ -69,4 +72,15 @@ export function convertTimestamp(timestamp: string | undefined): string | undefi
     return undefined
   }
   return timestamp.replace(/T/, ' ').replace(/\..+/, '+00:00')
+}
+
+// Ticket to remove flagon - https://segment.atlassian.net/browse/STRATCONN-1953
+export function getUrlByVersion(features?: Features, statsContext?: StatsContext): string {
+  const statsClient = statsContext?.statsClient
+  const tags = statsContext?.tags
+
+  const API_VERSION = features && features['google-enhanced-v12'] ? 'v12' : 'v11'
+  tags?.push(`version:${API_VERSION}`)
+  statsClient?.incr(`google_enhanced_conversions`, 1, tags)
+  return `https://googleads.googleapis.com/${API_VERSION}/customers`
 }

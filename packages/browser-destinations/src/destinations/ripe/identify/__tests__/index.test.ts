@@ -17,6 +17,9 @@ const subscriptions: Subscription[] = [
     enabled: true,
     subscribe: 'type = "identify"',
     mapping: {
+      anonymousId: {
+        '@path': '$.anonymousId'
+      },
       userId: {
         '@path': '$.userId'
       },
@@ -47,6 +50,7 @@ describe('Ripe.identify', () => {
     await event.identify?.(
       new Context({
         type: 'identify',
+        anonymousId: 'anonymousId',
         userId: 'userId',
         traits: {
           name: 'Simon'
@@ -58,6 +62,7 @@ describe('Ripe.identify', () => {
       expect.anything(),
       expect.objectContaining({
         payload: {
+          anonymousId: 'anonymousId',
           userId: 'userId',
           traits: {
             name: 'Simon'
@@ -67,6 +72,7 @@ describe('Ripe.identify', () => {
     )
 
     expect(window.Ripe.identify).toHaveBeenCalledWith(
+      expect.stringMatching('anonymousId'),
       expect.stringMatching('userId'),
       expect.objectContaining({ name: 'Simon' })
     )

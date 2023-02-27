@@ -1,0 +1,29 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Segment.sendIdentify Should send an identify event to Segment 1`] = `
+Headers {
+  Symbol(map): Object {
+    "authorization": Array [
+      "Basic ZW5nYWdlLXNwYWNlLXdyaXRla2V5Og==",
+    ],
+    "user-agent": Array [
+      "Segment (Actions)",
+    ],
+  },
+}
+`;
+
+exports[`Segment.sendIdentify Should send an identify event to Segment 2`] = `
+Object {
+  "anonymousId": "arky4h2sh7k",
+  "groupId": undefined,
+  "integrations": Object {
+    "All": false,
+  },
+  "traits": Object {
+    "email": "test-user@test-company.com",
+    "name": "Test User",
+  },
+  "userId": "test-user-ufi5bgkko5",
+}
+`;
