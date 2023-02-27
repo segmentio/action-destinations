@@ -1,7 +1,7 @@
 {
   "name": "@segment/actions-cli-internal",
   "description": "CLI to interact with Segment integrations",
-  "version": "3.129.0",
+  "version": "3.130.0",
   "license": "MIT",
   "repository": {
     "type": "git",
@@ -53,7 +53,7 @@
     "@oclif/config": "^1",
     "@oclif/errors": "^1",
     "@oclif/plugin-help": "^3.3",
-    "@segment/action-destinations": "^3.133.0",
+    "@segment/action-destinations": "^3.134.0",
     "@segment/actions-core": "^3.52.0",
     "@types/node": "^18.11.15",
     "chalk": "^4.1.1",
