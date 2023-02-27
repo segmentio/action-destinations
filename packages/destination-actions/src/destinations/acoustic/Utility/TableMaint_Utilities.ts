@@ -85,7 +85,7 @@ export async function preChecksAndMaint(request: RequestClient, settings: Settin
   const chkExist = await checkRTExist(request, settings, auth)
   if (!chkExist) {
     console.log('Acoustic Audiences Table did not exist, creating new ....')
-    const crt = await createEventsTable(request, settings, auth)
+    const crt = await createSegmentEventsTable(request, settings, auth)
     if (!crt) {
       console.log('Error attempting to create an Acoustic Audiences Table')
       throw new IntegrationError('Error attempting to create an Acoustic Audiences Table')
@@ -109,29 +109,20 @@ export const getAccessToken = async (
       grant_type: 'refresh_token'
     }),
     headers: {
-      Connection: 'keep-alive',
-      'Accept-Encoding': 'gzip, deflate, br',
-      Accept: '*/*',
-      charset: 'UTF-8',
-      'user-agent': 'Segment (AddUpdateEvents)',
-      'Content-Type': 'application/x-www-form-urlencoded'
+      'user-agent': 'Segment (AddUpdateEvents)'
     }
   })
 
   //return res
   auth.accessToken = get(res.data, 'access_token', '')
   return get(res.data, 'access_token', '')
-  //return { accessToken: res.data().access_token }
-  //return res.body?.access_token
 }
 
-export const createEventsTable = async (
+export const createSegmentEventsTable = async (
   request: RequestClient,
   settings: Settings,
   auth: acousticAuth
 ): Promise<Response> => {
-  console.log('In createEventsTable: ')
-
   const createEventsXML = `<Envelope>
     <Body>
       <CreateTable>
@@ -172,17 +163,13 @@ export const createEventsTable = async (
            </Body> 
          </Envelope>`
 
-  // console.log("CreateEventsTable RequestBody: \n" + createEventsXML + "\n")
+  // console.log("Segment RequestBody: \n" + createEventsXML + "\n")
 
   const createSegmentEventsTable = await request(getxmlAPIUrl(settings), {
     method: 'POST',
     body: createEventsXML,
     headers: {
-      'Accept-Encoding': 'gzip, deflate, br',
-      Accept: '*/*',
-      'Content-Type': 'text/xml',
-      authorization: `Bearer ${auth.accessToken.toString()}`,
-      Connection: 'keep-alive'
+      authorization: `Bearer ${auth.accessToken.toString()}`
     }
   })
 
@@ -216,11 +203,7 @@ export const deleteRTs = async (request: RequestClient, settings: Settings, auth
     </Body>
 </Envelope>`,
     headers: {
-      'Accept-Encoding': 'gzip, deflate, br',
-      Accept: '*/*',
-      'Content-Type': 'text/xml',
-      authorization: `Bearer ${auth.accessToken.toString()}`,
-      Connection: 'keep-alive'
+      authorization: `Bearer ${auth.accessToken.toString()}`
     }
   })
 
@@ -238,20 +221,10 @@ export const checkRTExist = async (
 ): Promise<Boolean> => {
   console.log('Check Whether Audiences Table Exists: ')
 
-  //Use a defined listid and check---What's the difference?
-  //Need to make a call in either case,
-  //This way eliminates the need to manage the listid when it's not defined correctly and
-  // confirms correct operation whereas otherwise would have to make two additional calls to
-  // get to the same point, so, not as bad as first thought
-
   const checkRT = await request(getxmlAPIUrl(settings), {
     method: 'POST',
     headers: {
-      'Accept-Encoding': 'gzip, deflate, br',
-      Accept: '*/*',
-      'Content-Type': 'text/xml',
-      authorization: `Bearer ${auth.accessToken.toString()}`,
-      Connection: 'keep-alive'
+      authorization: `Bearer ${auth.accessToken.toString()}`
     },
     body: `<Envelope>
       <Body>
@@ -300,11 +273,7 @@ export const purgeSegmentEventTable = async (
   const purgeOldData = await request(getxmlAPIUrl(settings), {
     method: 'POST',
     headers: {
-      'Accept-Encoding': 'gzip, deflate, br',
-      Accept: '*/*',
-      'Content-Type': 'text/xml',
-      authorization: `Bearer ${auth.accessToken.toString()}`,
-      Connection: 'keep-alive'
+      authorization: `Bearer ${auth.accessToken.toString()}`
     },
     body: `<Envelope> 
       <Body>
@@ -331,8 +300,4 @@ export const purgeSegmentEventTable = async (
     console.log('Could Not Purge Old Audiences from Audiences Table.....')
     return purgeOldData
   }
-
-  //return { await checkRT.text() }
-  //return checkRT.text()
-  //return true
 }
