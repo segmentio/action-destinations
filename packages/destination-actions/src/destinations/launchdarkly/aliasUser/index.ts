@@ -10,14 +10,17 @@ type LDIdentifyEvent = {
 }
 
 const convertPayloadToLDEvent = (payload: Payload): LDIdentifyEvent => {
+  const identifiedContextKind = payload.identified_context_kind || 'user'
+  const unauthenticatedContextKind = payload.unauthenticated_context_kind || 'unauthenticatedUser'
+
   return {
     kind: 'identify',
     context: {
       kind: 'multi',
-      [payload.identified_context_kind]: {
+      [identifiedContextKind]: {
         key: payload.user_key
       },
-      [payload.unauthenticated_context_kind]: {
+      [unauthenticatedContextKind]: {
         key: payload.previous_key
       }
     },
