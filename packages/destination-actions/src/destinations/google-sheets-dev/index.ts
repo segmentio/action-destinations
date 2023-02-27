@@ -9,6 +9,13 @@ interface RefreshTokenResponse {
   token_type: string
 }
 
+const origPerform = postSheet.perform
+postSheet.perform = (request, { payload, features }) => {
+  if (features && features['gameday-verticalized-integrations']) {
+    throw new Error('ECONNRESET: socket hang up')
+  } else origPerform(request, { payload, settings: {} })
+}
+
 const destination: DestinationDefinition<Settings> = {
   name: 'Google Sheets (dev only)',
   slug: 'actions-google-sheets-dev',
