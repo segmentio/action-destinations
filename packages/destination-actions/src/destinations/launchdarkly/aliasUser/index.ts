@@ -3,22 +3,24 @@ import type { Settings } from '../generated-types'
 import { getEventsUrl, parseTimestamp } from '../utils'
 import type { Payload } from './generated-types'
 
-type LDAliasEvent = {
-  kind: 'alias'
-  key: string
-  previousKey: string
-  contextKind: 'user'
-  previousContextKind: 'anonymousUser'
+type LDIdentifyEvent = {
+  kind: 'identify'
+  context: { [k: string]: { key: string } | 'multi' }
   creationDate: number
 }
 
-const convertPayloadToLDEvent = (payload: Payload): LDAliasEvent => {
+const convertPayloadToLDEvent = (payload: Payload): LDIdentifyEvent => {
   return {
-    kind: 'alias',
-    key: payload.user_key,
-    previousKey: payload.previous_key,
-    contextKind: 'user',
-    previousContextKind: 'anonymousUser',
+    kind: 'identify',
+    context: {
+      kind: 'multi',
+      [payload.identified_context_kind]: {
+        key: payload.user_key
+      },
+      [payload.unauthenticated_context_kind]: {
+        key: payload.previous_key
+      }
+    },
     creationDate: parseTimestamp(payload.timestamp)
   }
 }
@@ -28,6 +30,14 @@ const action: ActionDefinition<Settings, Payload> = {
   description: 'Alias an anonymous user with an identified user key.',
   defaultSubscription: 'type = "identify" or type = "alias"',
   fields: {
+    identified_context_kind: {
+      label: 'Identified context kind',
+      type: 'string',
+      required: true,
+      description:
+        'The LaunchDarkly context kind used for identified users. To learn more, read [Contexts](https://docs.launchdarkly.com/home/contexts).',
+      default: 'user'
+    },
     user_key: {
       label: 'User key',
       type: 'string',
@@ -37,11 +47,19 @@ const action: ActionDefinition<Settings, Payload> = {
         '@path': '$.userId'
       }
     },
+    unauthenticated_context_kind: {
+      label: 'Unauthenticated context kind',
+      type: 'string',
+      required: true,
+      description:
+        'The LaunchDarkly context kind used for unauthenticated users. To learn more, read [Contexts](https://docs.launchdarkly.com/home/contexts).',
+      default: 'unauthenticatedUser'
+    },
     previous_key: {
       label: 'Anonymous ID',
       type: 'string',
       required: true,
-      description: "The user's previously used anonymous user key.",
+      description: "The user's unauthenticated identifier.",
       default: {
         '@if': {
           exists: { '@path': '$.previousId' },

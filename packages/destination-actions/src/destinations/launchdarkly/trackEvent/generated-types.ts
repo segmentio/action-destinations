@@ -2,15 +2,15 @@
 
 export interface Payload {
   /**
-   * The context kind. Specifying values other than the default of "user" is only available to customers in the LaunchDarkly contexts Early Access Program (EAP). If you want access to this feature, [join the EAP](https://launchdarkly.com/eap).
+   * The event's context kind. To learn more, read [Contexts](https://docs.launchdarkly.com/home/contexts).
    */
   context_kind: string
   /**
-   * The unique LaunchDarkly context key. This is equivalent to the "User Key" for customers who are not participating in the LaunchDarkly contexts Early Access Program (EAP). If you want access to this feature, [join the EAP](https://launchdarkly.com/eap).
+   * The unique LaunchDarkly context key.
    */
   user_key: string
   /**
-   * A mapping of additional context kinds to context keys. This mapping will only apply to customers in the LaunchDarkly contexts Early Access Program (EAP). If you want access to this feature, [join the EAP](https://launchdarkly.com/eap).
+   * A mapping of additional context kinds to context keys. To learn more, read [Contexts](https://docs.launchdarkly.com/home/contexts).
    */
   additional_context_keys?: {
     [k: string]: unknown
@@ -30,7 +30,7 @@ export interface Payload {
     [k: string]: unknown
   }
   /**
-   * The time when the event happened. Defaults to the current time
+   * The time when the event happened. Defaults to the current time.
    */
   timestamp?: string | number
 }
