@@ -1,10 +1,8 @@
-/* eslint-disable no-debugger */
 import { IntegrationError } from '@segment/actions-core'
 import { RequestClient } from '@segment/actions-core'
 import get from 'lodash/get'
 import { Settings } from '../generated-types'
 //import { ModifiedResponse } from "@segment/actions-core"
-import { Payload } from '../receiveEvents/generated-types'
 
 export interface acousticAuth {
   clientId: string
@@ -21,25 +19,14 @@ export function getxmlAPIUrl(settings: Settings) {
   return xmlapi
 }
 
-export async function preChecksAndMaint(request: RequestClient, payload: Payload, settings: Settings) {
-  // Argument of type 'Request' is not assignable to parameter of type '<Data = unknown>(url: string, options?: RequestOptions) => Promise<ModifiedResponse<Data>>'.
-  // Type 'Request' provides no match for the signature '<Data = unknown>(url: string, options?: RequestOptions | undefined): Promise<ModifiedResponse<Data>>'.ts(2345)
-
-  // console.log("Payload: " +
-  //   "\nEvent Name: " + payload.type +
-  //   "\nEmail: " + payload.email +
-  //   "\nAudience Key: " + payload.properties?.audience_key +
-  //   "\nTraits: " + payload.traits +
-  //   "\nAudience List Id: " + auth.tableListId
-  // )
-
+export async function preChecksAndMaint(request: RequestClient, settings: Settings) {
   //Get a line-out of the object
   //Object Keys: messageId,timestamp,type,email,properties,userId,event,anonymousId,context,receivedAt,sentAt,version
 
-  console.log(`Keep an eye on the object --> 
-     \nObject Keys:    ${Object.keys(payload)}
-     \nObject Values:  ${Object.values(payload)}
-     \nObject Entries: ${Object.entries(payload)}\n`)
+  // console.log(`Keep an eye on the object -->
+  //    \nObject Keys:    ${Object.keys(payload)}
+  //    \nObject Values:  ${Object.values(payload)}
+  //    \nObject Entries: ${Object.entries(payload)}\n`)
 
   const auth: acousticAuth = {
     clientId: settings.a_client_id,
@@ -62,7 +49,7 @@ export async function preChecksAndMaint(request: RequestClient, payload: Payload
       'Could not acquire an Access Token, check configuration parameters are correct and credenntials have not expired. '
     )
 
-  //Long-term Maintenacne
+  //Long-term Maintenance
   //For Support to easily reset a Customers Acoustic "Segment Events Table"
   if (!settings.a_deleteCode) settings.a_deleteCode = 0
   if (settings.a_deleteCode > 99999 && settings.a_deleteCode < 100000) {

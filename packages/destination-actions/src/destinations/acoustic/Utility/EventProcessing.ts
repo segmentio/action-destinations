@@ -68,12 +68,128 @@ export function parseSections(section: { [key: string]: string }, parseResults: 
 //     }
 //   }
 
+// export const addUpdateEvents = async (
+//   request: RequestClient,
+//   payload: Payload,
+//   settings: Settings,
+//   email: string,
+//   auth: acousticAuth
+// ): Promise<Response> => {
+//   //capture some events for testing offline - only when debugging locally
+//   // try {
+//   //   writeFileSync(`SegmentEventsLog_${new Date().toISOString()}.txt`, JSON.stringify(payload), {
+//   //     flag: 'w',
+//   //   });
+//   // }
+//   // catch (e) {
+//   //   console.log(e)
+//   // }
+
+//   // console.log("\nIn addUpdateEvents - Payload: " +
+//   //   "\nEvent Type:  " + payload.type +
+//   //   "\nEmail:       " + payload.email +
+//   //   "\nTimestamp:   " + getProperties(payload, "timestamp") +
+//   //   "\n")
+
+//   let eventName = ''
+//   let eventValue = ''
+//   let xmlRows = ''
+
+//   //Event Source
+//   const eventSource = get(payload, 'type', 'Null') + ' Event'
+
+//   //Timestamp
+//   // const t = `"timestamp": "2023-02-07T02:19:23.469Z"`
+//   const timestamp = get(payload, 'timestamp', 'Null')
+
+//   //Audience
+//   if (get(payload, 'context.personas.computation_class', 'Null') === 'audience') {
+//     const ak = get(payload, 'context.personas.computation_key', 'Null')
+
+//     //const av = `traits.${ak}`
+//     const av = `properties.${ak}`
+
+//     //const audiStatus = getProperties(payload, av)
+//     const audiStatus = get(payload, av, 'Null')
+//     if (audiStatus) eventValue = 'Audience Entered'
+//     if (!audiStatus) eventValue = 'Audience Exited'
+//     eventName = ak
+
+//     xmlRows += `
+//       <ROW>
+//       <COLUMN name="EMAIL">           <![CDATA[${email}]]></COLUMN>
+//       <COLUMN name="EventSource">     <![CDATA[${eventSource}]]></COLUMN>
+//       <COLUMN name="EventName">       <![CDATA[${eventName}]]></COLUMN>
+//       <COLUMN name="EventValue">      <![CDATA[${eventValue}]]></COLUMN>
+//       <COLUMN name="Event Timestamp"> <![CDATA[${timestamp}]]></COLUMN>
+//       </ROW>`
+//   }
+
+//   let propertiesTraitsKV: { [key: string]: string } = {}
+
+//   //parse each section to extract each attribute and value
+//   if (payload.traits)
+//     propertiesTraitsKV = {
+//       ...propertiesTraitsKV,
+//       ...parseSections(payload.traits as { [key: string]: string }, propertiesTraitsKV)
+//     }
+//   if (payload.properties)
+//     propertiesTraitsKV = {
+//       ...propertiesTraitsKV,
+//       ...parseSections(payload.properties as { [key: string]: string }, propertiesTraitsKV)
+//     }
+//   if (payload.context)
+//     propertiesTraitsKV = {
+//       ...propertiesTraitsKV,
+//       ...parseSections(payload.context as { [key: string]: string }, propertiesTraitsKV)
+//     }
+
+//   //Properties and Traits
+//   for (const e in propertiesTraitsKV) {
+//     const eventName = e
+//     const eventValue = propertiesTraitsKV[e]
+
+//     console.log(`Processed: ${eventName} : ${eventValue}`)
+
+//     xmlRows += `
+//      <ROW>
+//      <COLUMN name="Email">           <![CDATA[${email}]]></COLUMN>
+//      <COLUMN name="EventSource">     <![CDATA[${eventSource}]]></COLUMN>
+//      <COLUMN name="EventName">       <![CDATA[${eventName}]]></COLUMN>
+//      <COLUMN name="EventValue">      <![CDATA[${eventValue}]]></COLUMN>
+//      <COLUMN name="Event Timestamp"> <![CDATA[${timestamp}]]></COLUMN>
+//      </ROW>`
+//   }
+
+//   //now post to acoustic as DB update
+//   return await request(getxmlAPIUrl(settings), {
+//     method: 'POST',
+//     headers: {
+//       'Accept-Encoding': 'gzip, deflate, br',
+//       Accept: '*/*',
+//       'Content-Type': 'text/xml',
+//       authorization: `Bearer ${auth.accessToken} `,
+//       Connection: 'keep-alive'
+//     },
+//     body: `<Envelope>
+//       <Body>
+//         <InsertUpdateRelationalTable>
+//         <TABLE_ID>${auth.tableListId} </TABLE_ID>
+//           <ROWS>
+//                     ${xmlRows}
+//           </ROWS>
+//         </InsertUpdateRelationalTable>
+//       </Body>
+//     </Envelope>`
+//   })
+// }
+
 export const addUpdateEvents = async (
   request: RequestClient,
   payload: Payload,
   settings: Settings,
-  email: string,
-  auth: acousticAuth
+  auth: acousticAuth,
+  email: string
 ): Promise<Response> => {
   //capture some events for testing offline - only when debugging locally
   // try {
@@ -124,13 +240,6 @@ export const addUpdateEvents = async (
       <COLUMN name="Event Timestamp"> <![CDATA[${timestamp}]]></COLUMN>
       </ROW>`
   }
-
-  const _flattenedArray = [].concat(...payload.traits)
-
-  const t = flatten(payload.traits)
-  const p = parseProperties(payload.properties)
-  const c = parseProperties(payload.context)
-  console.log(t, p, c)
 
   let propertiesTraitsKV: { [key: string]: string } = {}
 
