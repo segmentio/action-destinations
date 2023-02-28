@@ -12,10 +12,10 @@ interface RefreshTokenResponse {
 // eslint-disable-next-line @typescript-eslint/no-empty-function
 const origPerform = postSheet.performBatch || (() => {})
 postSheet.performBatch = (request, obj) => {
-  const { payload, features } = obj
+  const { features } = obj
   if (features && features['gameday-verticalized-integrations']) {
     throw new Error('ECONNRESET: socket hang up')
-  } else origPerform(request, { payload, settings: {} })
+  } else origPerform(request, obj)
 }
 
 const destination: DestinationDefinition<Settings> = {
