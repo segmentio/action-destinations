@@ -13,7 +13,9 @@ describe(`Testing snapshot for ${destinationSlug} destination:`, () => {
       const action = destination.actions[actionSlug]
       const [eventData, settingsData] = generateTestData(seedName, destination, action, true)
 
-      eventData.last = 'Smith'
+      if (actionSlug === 'createOrUpdateIndividualConstituent') {
+        eventData.last = 'Smith'
+      }
 
       nock(/.*/).persist().get(/.*/).reply(200, {})
       nock(/.*/).persist().patch(/.*/).reply(200, {})
