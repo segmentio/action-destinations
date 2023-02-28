@@ -11,16 +11,15 @@ const destination: DestinationDefinition<Settings> = {
     scheme: 'custom',
     fields: {
       account_name: {
-        label: 'Insider Account Name',
+        label: 'Account Name',
         description:
-          'Insider Account Name is your account name which you can find under Account Preferences at InOne Settings.',
+          'You can get your Account Name via Insider Inone Panel > Settings > Inone Settings > Account Preferences.',
         type: 'string',
         required: true
       },
       ucd_key: {
-        label: 'UCD Upsert Key',
-        description:
-          'UCD Upsert Key is your unique Upsert Key which you can find under Account Preferences at InOne Settings.',
+        label: 'API Key',
+        description: 'You can get your API Key via Insider Inone Panel > Settings > Preferences > Integration Settings',
         type: 'password',
         required: true
       }
