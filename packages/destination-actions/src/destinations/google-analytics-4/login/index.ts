@@ -1,7 +1,14 @@
 import type { ActionDefinition } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
-import { verifyParams, verifyUserProps, convertTimestamp } from '../ga4-functions'
+import {
+  verifyParams,
+  verifyUserProps,
+  convertTimestamp,
+  getMobileStreamParams,
+  getWebStreamParams,
+  sendData
+} from '../ga4-functions'
 import {
   formatUserProperties,
   user_properties,
@@ -9,14 +16,19 @@ import {
   user_id,
   client_id,
   engagement_time_msec,
-  timestamp_micros
+  timestamp_micros,
+  data_stream_type,
+  app_instance_id
 } from '../ga4-properties'
+import { DataStreamParams, DataStreamType } from '../ga4-types'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Login',
   description: 'Send event when a user logs in',
   defaultSubscription: 'type = "track" and event = "Signed In"',
   fields: {
+    data_stream_type: { ...data_stream_type },
+    app_instance_id: { ...app_instance_id },
     client_id: { ...client_id },
     user_id: { ...user_id },
     timestamp_micros: { ...timestamp_micros },
@@ -30,14 +42,20 @@ const action: ActionDefinition<Settings, Payload> = {
     params: params
   },
 
-  perform: (request, { payload, features }) => {
+  perform: (request, { payload, features, settings }) => {
+    const data_stream_type = payload.data_stream_type ?? DataStreamType.Web
+    const stream_params: DataStreamParams =
+      data_stream_type === DataStreamType.MobileApp
+        ? getMobileStreamParams(settings.apiSecret, settings.firebaseAppId, payload.app_instance_id)
+        : getWebStreamParams(settings.apiSecret, settings.measurementId, payload.client_id)
+
     if (features && features['actions-google-analytics-4-verify-params-feature']) {
       verifyParams(payload.params)
       verifyUserProps(payload.user_properties)
     }
 
-    const request_object: { [key: string]: any } = {
-      client_id: payload.client_id,
+    const request_object: { [key: string]: unknown } = {
+      ...stream_params.identifier,
       user_id: payload.user_id,
       events: [
         {
@@ -56,10 +74,7 @@ const action: ActionDefinition<Settings, Payload> = {
       request_object.timestamp_micros = convertTimestamp(payload.timestamp_micros)
     }
 
-    return request('https://www.google-analytics.com/mp/collect', {
-      method: 'POST',
-      json: request_object
-    })
+    return sendData(request, stream_params.search_params, request_object)
   }
 }
 

@@ -37,6 +37,8 @@ export abstract class MessageSender<SmsPayload extends MinimalPayload> {
 
   abstract getBody: (phone: string) => Promise<URLSearchParams>
 
+  abstract getExternalId: () => NonNullable<MinimalPayload['externalIds']>[number] | undefined
+
   send = async () => {
     const { phone, sendabilityStatus } = this.getSendabilityPayload()
 
@@ -80,7 +82,7 @@ export abstract class MessageSender<SmsPayload extends MinimalPayload> {
   private getSendabilityPayload = (): SendabilityPayload => {
     const nonSendableStatuses = ['unsubscribed', 'did not subscribed', 'false']
     const sendableStatuses = ['subscribed', 'true']
-    const externalId = this.payload.externalIds?.find(({ type }) => type === 'phone')
+    const externalId = this.getExternalId()
 
     let status: SendabilityStatus
 

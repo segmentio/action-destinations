@@ -1,4 +1,3 @@
-
 import { omit } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
@@ -14,8 +13,8 @@ export function getEventProperties(payload: Payload, settings: Settings): Mixpan
     const utm = payload.utm_properties || {}
     let browser, browserVersion
     if (payload.userAgent) {
-        browser = getBrowser(payload.userAgent, payload.device_manufacturer)
-        browserVersion = getBrowserVersion(payload.userAgent, payload.device_manufacturer)
+        browser = getBrowser(payload.userAgent)
+        browserVersion = getBrowserVersion(payload.userAgent)
     }
     const integration = payload.context?.integration as Record<string, string>
     return {
@@ -35,7 +34,7 @@ export function getEventProperties(payload: Payload, settings: Settings): Mixpan
         $carrier: payload.carrier,
         $current_url: payload.url,
         $device: payload.device_name,
-        $device_id: payload.device_id,
+        $device_id: payload.anonymous_id,
         $device_type: payload.device_type,
         $device_name: payload.device_name,
         $group_id: payload.group_id,

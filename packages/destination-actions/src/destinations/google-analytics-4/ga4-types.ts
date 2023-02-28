@@ -26,3 +26,14 @@ export interface PromotionProductItem extends ProductItem {
   promotion_id?: string
   promotion_name?: string
 }
+
+export enum DataStreamType {
+  'Web' = 'Web',
+  'MobileApp' = 'Mobile App'
+}
+
+export interface DataStreamParams {
+  search_params: string
+  // only one of app_instance_id or client_id is allowed
+  identifier: { app_instance_id: string; client_id?: never } | { client_id: string; app_instance_id?: never }
+}

@@ -21,6 +21,11 @@ export class WhatsAppMessageSender extends MessageSender<Payload> {
     super(request, payload, settings, statsClient, tags)
   }
 
+  getExternalId = () =>
+    this.payload.externalIds?.find(
+      ({ type, channelType }) => channelType?.toLowerCase() === 'whatsapp' && type === 'phone'
+    )
+
   getBody = async (phone: string) => {
     let parsedPhone
 
@@ -74,7 +79,10 @@ export class WhatsAppMessageSender extends MessageSender<Payload> {
 
       const mapping: Record<string, string> = {}
       for (const [key, val] of Object.entries(this.payload.contentVariables)) {
-        mapping[key] = await Liquid.parseAndRender(val as string, profile)
+        const parsed = await Liquid.parseAndRender(val as string, profile)
+        if (parsed?.length) {
+          mapping[key] = parsed
+        }
       }
 
       return JSON.stringify(mapping)
