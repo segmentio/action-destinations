@@ -148,6 +148,12 @@ export interface Payload {
     [k: string]: unknown
   }
   /**
+   * An object of key-value pairs that provides useful context about the event.
+   */
+  context?: {
+    [k: string]: unknown
+  }
+  /**
    * UTM Tracking Properties
    */
   utm_properties?: {

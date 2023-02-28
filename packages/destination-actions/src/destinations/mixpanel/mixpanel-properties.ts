@@ -291,6 +291,14 @@ export const eventProperties: Record<string, InputField> = {
       '@path': '$.properties'
     }
   },
+  context: {
+    label: 'Event context',
+    description: 'An object of key-value pairs that provides useful context about the event.',
+    type: 'object',
+    default: {
+      '@path': '$.context'
+    }
+  },
   utm_properties: {
     label: 'UTM Properties',
     type: 'object',
