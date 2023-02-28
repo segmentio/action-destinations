@@ -58,7 +58,6 @@ const action: ActionDefinition<Settings, Payload> = {
     },
     traits: {
       type: 'object',
-      required: true,
       description: 'Group traits',
       label: 'Group traits',
       default: {
@@ -69,7 +68,6 @@ const action: ActionDefinition<Settings, Payload> = {
       type: 'object',
       description: 'Event context',
       label: 'Event context',
-      required: true,
       default: {
         '@path': '$.context'
       }
