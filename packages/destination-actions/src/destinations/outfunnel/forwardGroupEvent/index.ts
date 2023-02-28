@@ -17,7 +17,6 @@ const action: ActionDefinition<Settings, Payload> = {
     },
     user_id: {
       type: 'hidden',
-      required: true,
       description: 'The identifier of the user',
       label: 'User ID',
       default: {
