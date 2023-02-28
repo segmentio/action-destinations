@@ -151,7 +151,7 @@ const action: ActionDefinition<Settings, Payload> = {
       label: 'User ID',
       description: 'User ID in Segment',
       type: 'string',
-      required: true,
+      required: false,
       default: { '@path': '$.userId' }
     },
     toEmail: {
@@ -355,6 +355,13 @@ const action: ActionDefinition<Settings, Payload> = {
       if (payload.traitEnrichment) {
         traits = payload?.traits ? payload?.traits : JSON.parse('{}')
       } else {
+        if (!payload.userId) {
+          throw new IntegrationError(
+            'Unable to process email, no userId provided and trait enrichment disabled',
+            'Invalid parameters',
+            400
+          )
+        }
         traits = await fetchProfileTraits(request, settings, payload.userId, statsClient, tags)
       }
 
@@ -430,7 +437,7 @@ const action: ActionDefinition<Settings, Payload> = {
                 ...payload.customArgs,
                 source_id: settings.sourceId,
                 space_id: settings.spaceId,
-                user_id: payload.userId,
+                user_id: payload.userId ?? undefined,
                 // This is to help disambiguate in the case it's email or email_address.
                 __segment_internal_external_id_key__: EXTERNAL_ID_KEY,
                 __segment_internal_external_id_value__: profile[EXTERNAL_ID_KEY]

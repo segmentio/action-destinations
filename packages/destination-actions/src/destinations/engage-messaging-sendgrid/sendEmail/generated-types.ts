@@ -12,7 +12,7 @@ export interface Payload {
   /**
    * User ID in Segment
    */
-  userId: string
+  userId?: string
   /**
    * Email to send to when testing
    */
