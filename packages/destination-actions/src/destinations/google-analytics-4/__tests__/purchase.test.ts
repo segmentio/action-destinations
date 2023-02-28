@@ -1,11 +1,43 @@
 import nock from 'nock'
 import { createTestEvent, createTestIntegration } from '@segment/actions-core'
 import ga4 from '../index'
+import { DataStreamType } from '../ga4-types'
 
 const testDestination = createTestIntegration(ga4)
 const apiSecret = 'b287432uhkjHIUEL'
 const measurementId = 'G-TESTTOKEN'
+const firebaseAppId = '2:925731738562:android:a9c393108115c5581abc5b'
 
+const testEvent = createTestEvent({
+  event: 'Order Completed',
+  userId: 'abc123',
+  timestamp: '2022-06-22T22:20:58.905Z',
+  anonymousId: 'anon-2134',
+  type: 'track',
+  properties: {
+    affiliation: 'TI Online Store',
+    order_number: '5678dd9087-78',
+    coupon: 'SUMMER_FEST',
+    currency: 'EUR',
+    products: [
+      {
+        product_id: 'pid-123456',
+        sku: 'SKU-123456',
+        name: 'Tour t-shirt',
+        quantity: 2,
+        coupon: 'MOUNTAIN',
+        brand: 'Canvas',
+        category: 'T-Shirt',
+        variant: 'Black',
+        price: 19.98
+      }
+    ],
+    revenue: 5.99,
+    shipping: 1.5,
+    tax: 3.0,
+    total: 24.48
+  }
+})
 describe('GA4', () => {
   describe('Purchase', () => {
     it('should append user_properties correctly', async () => {
@@ -292,7 +324,8 @@ describe('GA4', () => {
                 '@path': `$.properties.products.0.price`
               }
             }
-          ]
+          ],
+          data_stream_type: DataStreamType.Web
         },
         useDefaultMappings: false
       })
@@ -357,13 +390,14 @@ describe('GA4', () => {
               item_name: {
                 '@path': '$.properties.name'
               }
-            }
+            },
+            data_stream_type: DataStreamType.Web
           },
           useDefaultMappings: true
         })
         fail('the test should have thrown an error')
       } catch (e) {
-        expect(e.message).toBe('1234 is not a valid currency code.')
+        expect((e as Error).message).toBe('1234 is not a valid currency code.')
       }
     })
 
@@ -448,13 +482,16 @@ describe('GA4', () => {
                   '@path': `$.properties.products.0.price`
                 }
               }
-            ]
+            ],
+            data_stream_type: DataStreamType.Web
           },
           useDefaultMappings: false
         })
         fail('the test should have thrown an error')
       } catch (e) {
-        expect(e.message).toBe('One of product name or product id is required for product or impression data.')
+        expect((e as Error).message).toBe(
+          'One of product name or product id is required for product or impression data.'
+        )
       }
     })
 
@@ -608,7 +645,7 @@ describe('GA4', () => {
         })
         fail('the test should have thrown an error')
       } catch (e) {
-        expect(e.message).toBe(
+        expect((e as Error).message).toBe(
           'Param [test_value] has unsupported value of type [NULL]. GA4 does not accept null, array, or object values for event parameters and item parameters.'
         )
       }
@@ -702,10 +739,143 @@ describe('GA4', () => {
         })
         fail('the test should have thrown an error')
       } catch (e) {
-        expect(e.message).toBe(
+        expect((e as Error).message).toBe(
           'Param [hello] has unsupported value of type [Array]. GA4 does not accept array or object values for user properties.'
         )
       }
+    })
+
+    it('should use mobile stream params when datastream is mobile app', async () => {
+      nock('https://www.google-analytics.com/mp/collect')
+        .post(`?api_secret=${apiSecret}&firebase_app_id=${firebaseAppId}`, {
+          app_instance_id: 'anon-2134',
+          events: [
+            {
+              name: 'purchase',
+              params: {
+                affiliation: 'TI Online Store',
+                coupon: 'SUMMER_FEST',
+                currency: 'EUR',
+                items: [
+                  {
+                    item_id: 'pid-123456',
+                    item_name: 'Tour t-shirt',
+                    coupon: 'MOUNTAIN',
+                    item_brand: 'Canvas',
+                    item_category: 'T-Shirt',
+                    item_variant: 'Black',
+                    price: 19.98,
+                    quantity: 2
+                  }
+                ],
+                transaction_id: '5678dd9087-78',
+                shipping: 1.5,
+                value: 24.48,
+                tax: 3,
+                engagement_time_msec: 1
+              }
+            }
+          ]
+        })
+        .reply(201, {})
+
+      await expect(
+        testDestination.testAction('purchase', {
+          event: testEvent,
+          settings: {
+            apiSecret,
+            firebaseAppId
+          },
+          mapping: {
+            data_stream_type: DataStreamType.MobileApp,
+            app_instance_id: {
+              '@path': '$.anonymousId'
+            },
+            transaction_id: {
+              '@path': '$.properties.order_number'
+            }
+          },
+          useDefaultMappings: true
+        })
+      ).resolves.not.toThrowError()
+    })
+
+    it('should throw error when data stream type is mobile app and firebase_app_id is not provided', async () => {
+      await expect(
+        testDestination.testAction('purchase', {
+          event: testEvent,
+          settings: {
+            apiSecret
+          },
+          mapping: {
+            data_stream_type: DataStreamType.MobileApp,
+            app_instance_id: {
+              '@path': '$.anonymousId'
+            },
+            transaction_id: {
+              '@path': '$.properties.order_number'
+            }
+          },
+          useDefaultMappings: true
+        })
+      ).rejects.toThrowError('Firebase App ID is required for mobile app streams')
+    })
+
+    it('should throw error when data stream type is mobile app and app_instance_id is not provided', async () => {
+      await expect(
+        testDestination.testAction('purchase', {
+          event: testEvent,
+          settings: {
+            apiSecret,
+            firebaseAppId
+          },
+          mapping: {
+            data_stream_type: DataStreamType.MobileApp,
+            transaction_id: {
+              '@path': '$.properties.order_number'
+            }
+          },
+          useDefaultMappings: true
+        })
+      ).rejects.toThrowError('Firebase App Instance ID is required for mobile app streams')
+    })
+
+    it('should throw error when data stream type is web and measurement_id is not provided', async () => {
+      await expect(
+        testDestination.testAction('purchase', {
+          event: testEvent,
+          settings: {
+            apiSecret
+          },
+          mapping: {
+            transaction_id: {
+              '@path': '$.properties.order_number'
+            }
+          },
+          useDefaultMappings: true
+        })
+      ).rejects.toThrowError('Measurement ID is required for web streams')
+    })
+
+    it('should throw error when data stream type is web and client_id is not provided', async () => {
+      await expect(
+        testDestination.testAction('purchase', {
+          event: testEvent,
+          settings: {
+            apiSecret,
+            measurementId
+          },
+          mapping: {
+            client_id: {
+              '@path': '$.traits.dummy'
+            },
+            transaction_id: {
+              '@path': '$.properties.order_number'
+            }
+          },
+          useDefaultMappings: true
+        })
+      ).rejects.toThrowError('Client ID is required for web streams')
     })
   })
 })

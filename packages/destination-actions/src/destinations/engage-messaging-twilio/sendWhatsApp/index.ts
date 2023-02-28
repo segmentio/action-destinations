@@ -75,6 +75,11 @@ const action: ActionDefinition<Settings, Payload> = {
           description: 'The external ID contact type.',
           type: 'string'
         },
+        channelType: {
+          label: 'type',
+          description: 'The external ID contact channel type (SMS, WHATSAPP, etc).',
+          type: 'string'
+        },
         subscriptionStatus: {
           label: 'ID',
           description: 'The subscription status for the identity.',
@@ -90,6 +95,9 @@ const action: ActionDefinition<Settings, Payload> = {
             },
             type: {
               '@path': '$.type'
+            },
+            channelType: {
+              '@path': '$.channelType'
             },
             subscriptionStatus: {
               '@path': '$.isSubscribed'

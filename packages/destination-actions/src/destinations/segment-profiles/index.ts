@@ -17,7 +17,7 @@ const destination: DestinationDefinition<Settings> = {
         label: 'Segment Public API Token',
         description:
           'The Segment Public API requires that you have an authentication token before you send requests. [This document](https://docs.segmentapis.com/tag/Getting-Started#section/Get-an-API-token) explains how to setup a token.',
-        type: 'string',
+        type: 'password',
         required: true
       },
       endpoint: {

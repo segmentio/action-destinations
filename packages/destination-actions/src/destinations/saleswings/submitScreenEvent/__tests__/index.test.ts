@@ -1,5 +1,5 @@
 import { createTestEvent } from '@segment/actions-core'
-import { expectedTs, testAction, testBatchAction, userAgent } from '../../testing'
+import { testAction, testBatchAction, userAgent } from '../../testing'
 
 const actionName = 'submitScreenEvent'
 
@@ -22,17 +22,14 @@ describe('SalesWings', () => {
       })
       const request = await testAction(actionName, event)
       expect(request).toMatchObject({
-        type: 'tracking',
-        leadRefs: [
-          { type: 'client-id', value: event.userId },
-          { type: 'client-id', value: event.anonymousId }
-        ],
+        userID: event.userId,
+        anonymousID: event.anonymousId,
         kind: 'Screen',
         data: 'Home',
         url: 'https://example.com',
         referrerUrl: 'https://example.com/other',
         userAgent,
-        timestamp: expectedTs(event.timestamp),
+        timestamp: event.timestamp,
         values: {
           'Feed Type': 'private'
         }
@@ -46,15 +43,11 @@ describe('SalesWings', () => {
       })
       const request = await testAction(actionName, event)
       expect(request).toMatchObject({
-        type: 'tracking',
-        leadRefs: [
-          { type: 'client-id', value: event.userId },
-          { type: 'client-id', value: event.anonymousId }
-        ],
+        userID: event.userId,
+        anonymousID: event.anonymousId,
         kind: 'Screen',
         data: 'Home',
-        timestamp: expectedTs(event.timestamp),
-        values: {}
+        timestamp: event.timestamp
       })
     })
 
@@ -66,11 +59,10 @@ describe('SalesWings', () => {
       })
       const request = await testAction(actionName, event)
       expect(request).toMatchObject({
-        type: 'tracking',
-        leadRefs: [{ type: 'client-id', value: event.userId }],
+        userID: event.userId,
         kind: 'Screen',
         data: 'Home',
-        timestamp: expectedTs(event.timestamp),
+        timestamp: event.timestamp,
         values: {}
       })
     })
@@ -83,11 +75,10 @@ describe('SalesWings', () => {
       })
       const request = await testAction(actionName, event)
       expect(request).toMatchObject({
-        type: 'tracking',
-        leadRefs: [{ type: 'client-id', value: event.anonymousId }],
+        anonymousID: event.anonymousId,
         kind: 'Screen',
         data: 'Home',
-        timestamp: expectedTs(event.timestamp),
+        timestamp: event.timestamp,
         values: {}
       })
     })
@@ -104,32 +95,24 @@ describe('SalesWings', () => {
         })
       ]
       const request = await testBatchAction(actionName, events)
-      expect(request).toMatchObject({
-        events: [
-          {
-            type: 'tracking',
-            leadRefs: [
-              { type: 'client-id', value: events[0].userId },
-              { type: 'client-id', value: events[0].anonymousId }
-            ],
-            kind: 'Screen',
-            data: 'Home',
-            timestamp: expectedTs(events[0].timestamp),
-            values: {}
-          },
-          {
-            type: 'tracking',
-            leadRefs: [
-              { type: 'client-id', value: events[1].userId },
-              { type: 'client-id', value: events[1].anonymousId }
-            ],
-            kind: 'Screen',
-            data: 'Orders',
-            timestamp: expectedTs(events[1].timestamp),
-            values: {}
-          }
-        ]
-      })
+      expect(request).toMatchObject([
+        {
+          userID: events[0].userId,
+          anonymousID: events[0].anonymousId,
+          kind: 'Screen',
+          data: 'Home',
+          timestamp: events[0].timestamp,
+          values: {}
+        },
+        {
+          userID: events[1].userId,
+          anonymousID: events[1].anonymousId,
+          kind: 'Screen',
+          data: 'Orders',
+          timestamp: events[1].timestamp,
+          values: {}
+        }
+      ])
     })
   })
 })

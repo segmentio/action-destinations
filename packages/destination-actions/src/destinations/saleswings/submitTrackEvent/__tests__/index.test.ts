@@ -1,12 +1,5 @@
 import { createTestEvent } from '@segment/actions-core'
-import {
-  expectedTs,
-  testAction,
-  testActionWithSkippedEvent,
-  testBatchAction,
-  testBatchActionSkippedEvents,
-  userAgent
-} from '../../testing'
+import { testAction, testBatchAction, userAgent } from '../../testing'
 
 const actionName = 'submitTrackEvent'
 
@@ -30,17 +23,14 @@ describe('SalesWings', () => {
       })
       const request = await testAction(actionName, event)
       expect(request).toMatchObject({
-        type: 'tracking',
-        leadRefs: [
-          { type: 'client-id', value: event.userId },
-          { type: 'client-id', value: event.anonymousId }
-        ],
+        userID: event.userId,
+        anonymousID: event.anonymousId,
         kind: 'Track',
         data: 'User Registered',
         url: 'https://example.com',
         referrerUrl: 'https://example.com/other',
         userAgent,
-        timestamp: expectedTs(event.timestamp),
+        timestamp: event.timestamp,
         values: {
           plan: 'Pro Annual',
           accountType: 'Facebook'
@@ -55,26 +45,12 @@ describe('SalesWings', () => {
       })
       const request = await testAction(actionName, event)
       expect(request).toMatchObject({
-        type: 'tracking',
-        leadRefs: [
-          { type: 'client-id', value: event.userId },
-          { type: 'client-id', value: event.anonymousId }
-        ],
+        userID: event.userId,
+        anonymousID: event.anonymousId,
         kind: 'Track',
         data: 'User Registered',
-        timestamp: expectedTs(event.timestamp),
-        values: {}
+        timestamp: event.timestamp
       })
-    })
-
-    it('should skip event without any id', async () => {
-      const event = createTestEvent({
-        type: 'track',
-        event: 'User Registered',
-        userId: undefined,
-        anonymousId: undefined
-      })
-      await testActionWithSkippedEvent(actionName, event)
     })
 
     it('should submit event on Track event with email in properties', async () => {
@@ -87,15 +63,12 @@ describe('SalesWings', () => {
       })
       const request = await testAction(actionName, event)
       expect(request).toMatchObject({
-        type: 'tracking',
-        leadRefs: [
-          { type: 'client-id', value: event.userId },
-          { type: 'client-id', value: event.anonymousId },
-          { type: 'email', value: 'peter@example.com' }
-        ],
+        userID: event.userId,
+        anonymousID: event.anonymousId,
+        email: 'peter@example.com',
         kind: 'Track',
         data: 'User Registered',
-        timestamp: expectedTs(event.timestamp),
+        timestamp: event.timestamp,
         values: {}
       })
     })
@@ -112,11 +85,10 @@ describe('SalesWings', () => {
       })
       const request = await testAction(actionName, event)
       expect(request).toMatchObject({
-        type: 'tracking',
-        leadRefs: [{ type: 'email', value: 'peter@example.com' }],
+        email: 'peter@example.com',
         kind: 'Track',
         data: 'User Registered',
-        timestamp: expectedTs(event.timestamp),
+        timestamp: event.timestamp,
         values: {}
       })
     })
@@ -129,11 +101,10 @@ describe('SalesWings', () => {
       })
       const request = await testAction(actionName, event)
       expect(request).toMatchObject({
-        type: 'tracking',
-        leadRefs: [{ type: 'client-id', value: event.userId }],
+        userID: event.userId,
         kind: 'Track',
         data: 'User Registered',
-        timestamp: expectedTs(event.timestamp),
+        timestamp: event.timestamp,
         values: {}
       })
     })
@@ -146,11 +117,10 @@ describe('SalesWings', () => {
       })
       const request = await testAction(actionName, event)
       expect(request).toMatchObject({
-        type: 'tracking',
-        leadRefs: [{ type: 'client-id', value: event.anonymousId }],
+        anonymousID: event.anonymousId,
         kind: 'Track',
         data: 'User Registered',
-        timestamp: expectedTs(event.timestamp),
+        timestamp: event.timestamp,
         values: {}
       })
     })
@@ -167,102 +137,22 @@ describe('SalesWings', () => {
         })
       ]
       const request = await testBatchAction(actionName, events)
-      expect(request).toMatchObject({
-        events: [
-          {
-            type: 'tracking',
-            leadRefs: [
-              { type: 'client-id', value: events[0].userId },
-              { type: 'client-id', value: events[0].anonymousId }
-            ],
-            kind: 'Track',
-            data: 'User Registered',
-            timestamp: expectedTs(events[0].timestamp),
-            values: {}
-          },
-          {
-            type: 'tracking',
-            leadRefs: [
-              { type: 'client-id', value: events[1].userId },
-              { type: 'client-id', value: events[1].anonymousId }
-            ],
-            kind: 'Track',
-            data: 'Order Completed',
-            timestamp: expectedTs(events[0].timestamp),
-            values: {}
-          }
-        ]
-      })
-    })
-
-    it('should not include skippable events into a batch', async () => {
-      const events = [
-        createTestEvent({
-          type: 'track',
-          event: 'User Registered'
-        }),
-        createTestEvent({
-          type: 'track',
-          event: 'Order Purchased'
-        }),
-        createTestEvent({
-          type: 'track',
-          event: 'Cart Abandonned',
-          userId: undefined,
-          anonymousId: undefined
-        })
-      ]
-      const request = await testBatchAction(actionName, events)
-      expect(request).toMatchObject({
-        events: [
-          {
-            type: 'tracking',
-            leadRefs: [
-              { type: 'client-id', value: events[0].userId },
-              { type: 'client-id', value: events[0].anonymousId }
-            ],
-            kind: 'Track',
-            data: 'User Registered',
-            timestamp: expectedTs(events[0].timestamp),
-            values: {}
-          },
-          {
-            type: 'tracking',
-            leadRefs: [
-              { type: 'client-id', value: events[1].userId },
-              { type: 'client-id', value: events[1].anonymousId }
-            ],
-            kind: 'Track',
-            data: 'Order Purchased',
-            timestamp: expectedTs(events[0].timestamp),
-            values: {}
-          }
-        ]
-      })
-    })
-
-    it('should not submit a batch if all the events are skippable', async () => {
-      const events = [
-        createTestEvent({
-          type: 'track',
-          event: 'User Registered',
-          userId: undefined,
-          anonymousId: undefined
-        }),
-        createTestEvent({
-          type: 'track',
-          event: 'Order Purchased',
-          userId: undefined,
-          anonymousId: undefined
-        }),
-        createTestEvent({
-          type: 'track',
-          event: 'Cart Abandonned',
-          userId: undefined,
-          anonymousId: undefined
-        })
-      ]
-      await testBatchActionSkippedEvents(actionName, events)
+      expect(request).toMatchObject([
+        {
+          userID: events[0].userId,
+          anonymousID: events[0].anonymousId,
+          kind: 'Track',
+          data: 'User Registered',
+          timestamp: events[0].timestamp
+        },
+        {
+          userID: events[1].userId,
+          anonymousID: events[1].anonymousId,
+          kind: 'Track',
+          data: 'Order Completed',
+          timestamp: events[1].timestamp
+        }
+      ])
     })
   })
 })

@@ -4,6 +4,9 @@ exports[`Testing snapshot for SegmentProfiles's sendGroup destination action: al
 Object {
   "anonymousId": "tKaa(2A",
   "groupId": "tKaa(2A",
+  "integrations": Object {
+    "All": false,
+  },
   "traits": Object {
     "testType": "tKaa(2A",
   },
@@ -15,6 +18,9 @@ exports[`Testing snapshot for SegmentProfiles's sendGroup destination action: re
 Object {
   "anonymousId": "tKaa(2A",
   "groupId": "tKaa(2A",
+  "integrations": Object {
+    "All": false,
+  },
   "traits": Object {},
   "userId": "tKaa(2A",
 }
