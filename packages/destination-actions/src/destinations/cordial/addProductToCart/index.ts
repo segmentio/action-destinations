@@ -1,8 +1,8 @@
 import type { ActionDefinition } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
-import CordialClient from '../cordial-client'
-import userIdentityFields from '../identities-fields'
+import CordialClient from "../cordial-client";
+import userIdentityFields from "../identities-fields";
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Add Product to Cart',
@@ -99,7 +99,7 @@ const action: ActionDefinition<Settings, Payload> = {
         coupon: { '@path': '$.properties.coupon' }
       },
       defaultObjectUI: 'keyvalue:only'
-    }
+    },
   },
   perform: (request, { settings, payload }) => {
     const client = new CordialClient(settings, request)
