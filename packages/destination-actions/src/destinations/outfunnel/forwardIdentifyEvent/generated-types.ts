@@ -2,13 +2,13 @@
 
 export interface Payload {
   /**
-   * Type of the event
+   * Indicates which action was triggered
    */
-  type: string
+  action: string
   /**
    * The identifier of the user
    */
-  user_id: string
+  user_id?: string
   /**
    * Anonymous ID of the user
    */
@@ -18,9 +18,9 @@ export interface Payload {
    */
   email: string
   /**
-   * The time the event occured as UTC unix timestamp
+   * The time the event occured in UTC
    */
-  timestamp: string | number
+  timestamp: string
   /**
    * Optional metadata describing the user
    */
@@ -30,7 +30,7 @@ export interface Payload {
   /**
    * Event context
    */
-  context: {
+  context?: {
     [k: string]: unknown
   }
 }

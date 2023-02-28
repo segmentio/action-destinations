@@ -21,14 +21,8 @@ exports[`Testing snapshot for actions-outfunnel destination: forwardGroupEvent a
 Object {
   "action": "]!J07fe",
   "anonymous_id": "]!J07fe",
-  "context": Object {
-    "testType": "]!J07fe",
-  },
   "group_id": "]!J07fe",
   "timestamp": "]!J07fe",
-  "traits": Object {
-    "testType": "]!J07fe",
-  },
   "user_id": "]!J07fe",
 }
 `;
@@ -53,9 +47,6 @@ exports[`Testing snapshot for actions-outfunnel destination: forwardIdentifyEven
 Object {
   "action": "8(3Tr1xZW13v*c@F1J",
   "anonymous_id": "8(3Tr1xZW13v*c@F1J",
-  "context": Object {
-    "testType": "8(3Tr1xZW13v*c@F1J",
-  },
   "email": "lesluj@uv.su",
   "timestamp": "8(3Tr1xZW13v*c@F1J",
   "user_id": "8(3Tr1xZW13v*c@F1J",
@@ -84,104 +75,10 @@ exports[`Testing snapshot for actions-outfunnel destination: forwardTrackEvent a
 Object {
   "action": "@PZgcUszl",
   "anonymous_id": "@PZgcUszl",
-  "context": Object {
-    "testType": "@PZgcUszl",
-  },
   "email": "ve@kamzucu.lu",
   "event_name": "@PZgcUszl",
   "group_id": "@PZgcUszl",
   "timestamp": "@PZgcUszl",
   "user_id": "@PZgcUszl",
-}
-`;
-
-exports[`Testing snapshot for actions-outfunnel destination: groupIdentifyContact action - all fields 1`] = `
-Object {
-  "anonymous_id": "x7ju8)x7c!)S",
-  "context": Object {
-    "testType": "x7ju8)x7c!)S",
-  },
-  "email": "sivle@kil.za",
-  "timestamp": "2021-02-01T00:00:00.000Z",
-  "traits": Object {
-    "testType": "x7ju8)x7c!)S",
-  },
-  "type": "x7ju8)x7c!)S",
-  "user_id": "x7ju8)x7c!)S",
-}
-`;
-
-exports[`Testing snapshot for actions-outfunnel destination: groupIdentifyContact action - required fields 1`] = `
-Object {
-  "anonymous_id": "x7ju8)x7c!)S",
-  "context": Object {
-    "testType": "x7ju8)x7c!)S",
-  },
-  "timestamp": "2021-02-01T00:00:00.000Z",
-  "traits": Object {
-    "testType": "x7ju8)x7c!)S",
-  },
-  "type": "x7ju8)x7c!)S",
-  "user_id": "x7ju8)x7c!)S",
-}
-`;
-
-exports[`Testing snapshot for actions-outfunnel destination: identifyContact action - all fields 1`] = `
-Object {
-  "anonymous_id": "V^(ZOtxGERrYecH%3u2C",
-  "context": Object {
-    "testType": "V^(ZOtxGERrYecH%3u2C",
-  },
-  "email": "fe@gefbaz.ci",
-  "timestamp": "2021-02-01T00:00:00.000Z",
-  "traits": Object {
-    "testType": "V^(ZOtxGERrYecH%3u2C",
-  },
-  "type": "V^(ZOtxGERrYecH%3u2C",
-  "user_id": "V^(ZOtxGERrYecH%3u2C",
-}
-`;
-
-exports[`Testing snapshot for actions-outfunnel destination: identifyContact action - required fields 1`] = `
-Object {
-  "anonymous_id": "V^(ZOtxGERrYecH%3u2C",
-  "context": Object {
-    "testType": "V^(ZOtxGERrYecH%3u2C",
-  },
-  "email": "fe@gefbaz.ci",
-  "timestamp": "2021-02-01T00:00:00.000Z",
-  "type": "V^(ZOtxGERrYecH%3u2C",
-  "user_id": "V^(ZOtxGERrYecH%3u2C",
-}
-`;
-
-exports[`Testing snapshot for actions-outfunnel destination: trackEvent action - all fields 1`] = `
-Object {
-  "context": Object {
-    "testType": "fK&]2G%QLt8rxkJDQzyS",
-  },
-  "email": "hediw@nu.mc",
-  "event_name": "fK&]2G%QLt8rxkJDQzyS",
-  "group_id": "fK&]2G%QLt8rxkJDQzyS",
-  "properties": Object {
-    "testType": "fK&]2G%QLt8rxkJDQzyS",
-  },
-  "timestamp": "2021-02-01T00:00:00.000Z",
-  "type": "fK&]2G%QLt8rxkJDQzyS",
-  "user_id": "fK&]2G%QLt8rxkJDQzyS",
-}
-`;
-
-exports[`Testing snapshot for actions-outfunnel destination: trackEvent action - required fields 1`] = `
-Object {
-  "context": Object {
-    "testType": "fK&]2G%QLt8rxkJDQzyS",
-  },
-  "email": "hediw@nu.mc",
-  "event_name": "fK&]2G%QLt8rxkJDQzyS",
-  "group_id": "fK&]2G%QLt8rxkJDQzyS",
-  "timestamp": "2021-02-01T00:00:00.000Z",
-  "type": "fK&]2G%QLt8rxkJDQzyS",
-  "user_id": "fK&]2G%QLt8rxkJDQzyS",
 }
 `;

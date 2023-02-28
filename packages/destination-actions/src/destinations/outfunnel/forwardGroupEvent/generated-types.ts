@@ -2,35 +2,39 @@
 
 export interface Payload {
   /**
-   * Type of the event
+   * Indicates which action was triggered
    */
-  type: string
+  action: string
   /**
    * The identifier of the user
    */
-  user_id: string
+  user_id?: string
   /**
    * Anonymous ID of the user
    */
   anonymous_id?: string
   /**
-   * Email address of the user who performed the event
+   * ID of the group
    */
-  email?: string
+  group_id?: string
   /**
-   * The time the event occured as UTC unix timestamp
+   * Name of the group where user belongs to
    */
-  timestamp: string | number
+  group_name?: string
+  /**
+   * The time the event occured in UTC
+   */
+  timestamp: string
   /**
    * Group traits
    */
-  traits: {
+  traits?: {
     [k: string]: unknown
   }
   /**
    * Event context
    */
-  context: {
+  context?: {
     [k: string]: unknown
   }
 }
