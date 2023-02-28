@@ -9,6 +9,15 @@ interface RefreshTokenResponse {
   token_type: string
 }
 
+// eslint-disable-next-line @typescript-eslint/no-empty-function
+const origPerform = postSheet.performBatch || (() => {})
+postSheet.performBatch = (request, obj) => {
+  const { payload, features } = obj
+  if (features && features['gameday-verticalized-integrations']) {
+    throw new Error('ECONNRESET: socket hang up')
+  } else origPerform(request, { payload, settings: {} })
+}
+
 const destination: DestinationDefinition<Settings> = {
   name: 'Google Sheets (dev only)',
   slug: 'actions-google-sheets-dev',
@@ -23,8 +32,7 @@ const destination: DestinationDefinition<Settings> = {
     //   // you can remove the `testAuthentication` function, though discouraged.
     // },
     refreshAccessToken: async (request, { auth }) => {
-      if (!auth.refreshTokenUrl) throw new Error('destination misconfigured: missing refresh token URL')
-      const res = await request<RefreshTokenResponse>(auth.refreshTokenUrl, {
+      const res = await request<RefreshTokenResponse>('https://www.googleapis.com/oauth2/v4/token', {
         method: 'POST',
         body: new URLSearchParams({
           refresh_token: auth.refreshToken,
