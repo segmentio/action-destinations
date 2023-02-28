@@ -16,7 +16,7 @@ const action: ActionDefinition<Settings, Payload> = {
       default: 'track'
     },
     event_name: {
-      type: 'hidden',
+      type: 'string',
       required: true,
       description: 'The name of the event that occured',
       label: 'Event name',
