@@ -43,7 +43,7 @@ export interface Payload {
    */
   is_anonymous?: boolean
   /**
-   * The recurring gift associated with the payment being added.
+   * The recurring gift associated with the payment being added. When adding a recurring gift payment, a linked_gifts field must be included as an array of strings with the ID of the recurring gift to which the payment is linked.
    */
   linked_gifts?: string[]
   /**
@@ -84,7 +84,7 @@ export interface Payload {
      */
     end_date?: string | number
     /**
-     * Installment frequency of the recurring gift to add.
+     * Installment frequency of the recurring gift to add. Available values are WEEKLY, EVERY_TWO_WEEKS, EVERY_FOUR_WEEKS, MONTHLY, QUARTERLY, ANNUALLY.
      */
     frequency?: string
     /**

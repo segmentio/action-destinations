@@ -26,12 +26,7 @@ const fields: Record<string, InputField> = {
         label: 'Status',
         type: 'string',
         description:
-          'The status of the acknowledgement. Available values are: ACKNOWLEDGED, NEEDSACKNOWLEDGEMENT, and DONOTACKNOWLEDGE.',
-        choices: [
-          { label: 'Acknowledged', value: 'ACKNOWLEDGED' },
-          { label: 'Needs Acknowledgement', value: 'NEEDSACKNOWLEDGEMENT' },
-          { label: 'Do Not Acknowledge', value: 'DONOTACKNOWLEDGE' }
-        ]
+          'The status of the acknowledgement. Available values are: ACKNOWLEDGED, NEEDSACKNOWLEDGEMENT, and DONOTACKNOWLEDGE.'
       }
     },
     default: {
@@ -93,7 +88,8 @@ const fields: Record<string, InputField> = {
   },
   linked_gifts: {
     label: 'Linked Gifts',
-    description: 'The recurring gift associated with the payment being added.',
+    description:
+      'The recurring gift associated with the payment being added. When adding a recurring gift payment, a linked_gifts field must be included as an array of strings with the ID of the recurring gift to which the payment is linked.',
     type: 'string',
     multiple: true
   },
@@ -151,12 +147,7 @@ const fields: Record<string, InputField> = {
       status: {
         label: 'Status',
         type: 'string',
-        description: 'The receipt status of the gift. Available values are RECEIPTED, NEEDSRECEIPT, and DONOTRECEIPT.',
-        choices: [
-          { label: 'Receipted', value: 'RECEIPTED' },
-          { label: 'Needs Receipt', value: 'NEEDSRECEIPT' },
-          { label: 'Do Not Receipt', value: 'DONOTRECEIPT' }
-        ]
+        description: 'The receipt status of the gift. Available values are RECEIPTED, NEEDSRECEIPT, and DONOTRECEIPT.'
       }
     },
     default: {
@@ -183,15 +174,8 @@ const fields: Record<string, InputField> = {
       frequency: {
         label: 'Frequency',
         type: 'string',
-        description: 'Installment frequency of the recurring gift to add.',
-        choices: [
-          { label: 'Weekly', value: 'WEEKLY' },
-          { label: 'Every Two Weeks', value: 'EVERY_TWO_WEEKS' },
-          { label: 'Every Four Weeks', value: 'EVERY_FOUR_WEEKS' },
-          { label: 'Monthly', value: 'MONTHLY' },
-          { label: 'Quarterly', value: 'QUARTERLY' },
-          { label: 'Annual', value: 'ANNUALLY' }
-        ]
+        description:
+          'Installment frequency of the recurring gift to add. Available values are WEEKLY, EVERY_TWO_WEEKS, EVERY_FOUR_WEEKS, MONTHLY, QUARTERLY, ANNUALLY.'
       },
       start_date: {
         label: 'Start Date',
