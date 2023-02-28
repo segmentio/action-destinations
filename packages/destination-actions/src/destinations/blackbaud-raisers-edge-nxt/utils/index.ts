@@ -13,7 +13,8 @@ import { Payload as CreateOrUpdateIndividualConstituentPayload } from '../create
 import { Payload as CreateGiftPayload } from '../createGift/generated-types'
 
 export const dateStringToFuzzyDate = (dateString: string | number) => {
-  const date = new Date(dateString)
+  // Ignore timezone
+  const date = new Date((dateString + '').split('T')[0])
   if (isNaN(date.getTime())) {
     // invalid date object
     return false
