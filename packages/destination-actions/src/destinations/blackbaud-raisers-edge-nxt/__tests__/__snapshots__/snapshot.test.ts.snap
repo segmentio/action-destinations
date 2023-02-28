@@ -3,8 +3,8 @@
 exports[`Testing snapshot for actions-blackbaud-raisers-edge-nxt destination: createGift action - all fields 1`] = `
 Object {
   "birthdate": Object {
-    "d": "31",
-    "m": "1",
+    "d": "1",
+    "m": "2",
     "y": "2021",
   },
   "first": "D0dEn",
@@ -24,8 +24,8 @@ Object {
 exports[`Testing snapshot for actions-blackbaud-raisers-edge-nxt destination: createOrUpdateIndividualConstituent action - all fields 1`] = `
 Object {
   "birthdate": Object {
-    "d": "31",
-    "m": "1",
+    "d": "1",
+    "m": "2",
     "y": "2021",
   },
   "first": "hUXnkT]ixm7mm*HX",

@@ -13,11 +13,7 @@ describe(`Testing snapshot for ${destinationSlug} destination:`, () => {
       const action = destination.actions[actionSlug]
       const [eventData, settingsData] = generateTestData(seedName, destination, action, true)
 
-      if (actionSlug === 'createOrUpdateIndividualConstituent') {
-        eventData.last = 'Smith'
-      } else if (actionSlug === 'createGift') {
-        eventData.date = '2023-01-01T01:00:00Z'
-      }
+      eventData.last = 'Smith'
 
       nock(/.*/).persist().get(/.*/).reply(200, {})
       nock(/.*/).persist().patch(/.*/).reply(200, {})

@@ -22,9 +22,9 @@ export const dateStringToFuzzyDate = (dateString: string | number) => {
     // convert date to a "Fuzzy date"
     // https://developer.blackbaud.com/skyapi/renxt/constituent/entities#FuzzyDate
     return {
-      d: date.getDate().toString(),
-      m: (date.getMonth() + 1).toString(),
-      y: date.getFullYear().toString()
+      d: date.getUTCDate().toString(),
+      m: (date.getUTCMonth() + 1).toString(),
+      y: date.getUTCFullYear().toString()
     }
   }
 }
