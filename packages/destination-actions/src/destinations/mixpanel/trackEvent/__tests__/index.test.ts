@@ -12,6 +12,7 @@ const expectedProperties = {
   ip: '8.8.8.8',
   distinct_id: 'user1234',
   $anon_id: 'anonId1234',
+  $device_id: 'anonId1234',
   $identified_id: 'user1234',
   $current_url: 'https://segment.com/academy/',
   $locale: 'en-US',
