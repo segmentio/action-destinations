@@ -32,8 +32,8 @@ The inbuilt error handling should help you with most of the error scenarios you 
 - DO NOT throw Javascript `Error` objects. Any error thrown from an action MUST contain a `message` describing the error, an `error code` indicating the type of error and a `status code` indicating the http status of the action. You MUST use predefined error classes defined in [error.ts](../packages/core/src/errors.ts). These classes help in capturing the necessary information in appropriate format. For example, assume that your action needs one of product id or product name. This kind of validation is not currently supported in `Action Definition`. Instead of `throw new Error('One of product id or name is required')`, use `throw new PayloadValidationError('One of product id or name is required'). 
 
   - Use `PayloadValidationError` for any custom validations. These errors won't be retried.
-  - Use `InvalidAuthenticationError` for any authentication related errors. These rrors won't be retried.
-  - Use `RetryableError` in case you want to signal Segment to retry the events. Use this error only for transient errors
+  - Use `InvalidAuthenticationError` for any authentication related errors. These errors won't be retried.
+  - Use `RetryableError` in case you want to signal Segment to retry the events. Use this error only for transient errors.
   - For all other scenarios, use the `IntegrationError`.
 
 
