@@ -1,15 +1,14 @@
 # Error handling
 
-The Action Destinations framework has few in-built error handling capabilities that will help in capturing and displaying issues related to events. In addition to these errors, you can choose to throw your own errors in case they feel the in-built error handling is not sufficient. This guide will help you decide when you can leverage in-built errors and if you would prefer to hand roll your own errors, how do we do it so that your customers can understand and rectify their issues.
+The built-in error handling features of the Action Destinations framework will assist in capturing and showing issues linked to events. If you feel that the built-in error handling is insufficient, you can also choose to roll your own errors in addition to these. This article will assist you in determining when to take advantage of built-in errors and, if you want, how to manually roll your own errors so that your customers can comprehend and resolve their problems.
 
-## In-built error handling
+## Built-In error handling
 
 The Action Destinations framework can capture and display following types of errors
 
 ### Payload validation errors
 
-Payload Validation Errors are errors due to the event payload not conforming to `ActionDefinition` defined. These errors are captured and the execution is halted before
-the control reaches the `perform` and `performBatch` handlers in `ActionDefintion`. These type of errors are not **retried**.
+Payload Validation Errors are errors due to the event payload not conforming to `ActionDefinition` defined. These errors are captured and the execution is halted before the `perform` and `performBatch` handlers in `ActionDefintion` are invoked. Payload validation errors are not **retried**.
 
 Couple of examples are
 
