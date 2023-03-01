@@ -1,0 +1,22 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Testing snapshot for BlackbaudRaisersEdgeNxt's createGift destination action: all fields 1`] = `
+Object {
+  "birthdate": Object {
+    "d": "1",
+    "m": "2",
+    "y": "2021",
+  },
+  "first": "O#lbz",
+  "gender": "O#lbz",
+  "income": "O#lbz",
+  "last": "O#lbz",
+  "lookup_id": "O#lbz",
+}
+`;
+
+exports[`Testing snapshot for BlackbaudRaisersEdgeNxt's createGift destination action: required fields 1`] = `
+Object {
+  "lookup_id": "O#lbz",
+}
+`;
