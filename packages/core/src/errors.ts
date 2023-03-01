@@ -63,17 +63,17 @@ export class RetryableError extends CustomError {
  */
 export class InvalidAuthenticationError extends CustomError {
   status = 401
-  code = ErrorCodes.INVALID_AUTHENTICATION
-
-  constructor(message = '') {
+  code: string
+  constructor(message = '', code = ErrorCodes.INVALID_AUTHENTICATION) {
     super(message)
+    this.code = code
   }
 }
 
 /**
  * Error to indicate the payload is missing fields that are required.
  * Should include a user-friendly message.
- * These errors will not be retried and the user has to fix the payload or .
+ * These errors will not be retried and the user has to fix the payload.
  */
 export class PayloadValidationError extends IntegrationError {
   /**

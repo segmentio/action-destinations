@@ -581,7 +581,7 @@ export class Destination<Settings = JSONObject> {
       const oauthSettings = getOAuth2Data(settings)
       const newTokens = await this.refreshAccessToken(destinationSettings, oauthSettings)
       if (!newTokens) {
-        throw new IntegrationError('Failed to refresh access token', ErrorCodes.OAUTH_REFRESH_FAILED)
+        throw new InvalidAuthenticationError('Failed to refresh access token', ErrorCodes.OAUTH_REFRESH_FAILED)
       }
 
       // Update `settings` with new tokens
@@ -629,7 +629,7 @@ export class Destination<Settings = JSONObject> {
       const oauthSettings = getOAuth2Data(settings)
       const newTokens = await this.refreshAccessToken(destinationSettings, oauthSettings)
       if (!newTokens) {
-        throw new InvalidAuthenticationError('Failed to refresh access token')
+        throw new InvalidAuthenticationError('Failed to refresh access token', ErrorCodes.OAUTH_REFRESH_FAILED)
       }
 
       // Update `settings` with new tokens
