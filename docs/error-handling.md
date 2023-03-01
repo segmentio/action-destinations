@@ -1,0 +1,41 @@
+# Error handling
+
+The Action Destinations framework has few in-built error handling capabilities that will help in capturing and displaying issues related to events. In addition to these errors, you can choose to throw your own errors in case they feel the in-built error handling is not sufficient. This guide will help you decide when you can leverage in-built errors and if you would prefer to hand roll your own errors, how do we do it so that your customers can understand and rectify their issues.
+
+## In-built error handling
+
+The Action Destinations framework can capture and display following types of errors
+
+### Payload validation errors
+
+Payload Validation Errors are errors due to the event payload not conforming to `ActionDefinition` defined. These errors are captured and the execution is halted before
+the control reaches the `perform` and `performBatch` handlers in `ActionDefintion`. These type of errors are not **retried**.
+
+Couple of examples are
+
+- A field is marked as `required` in the `ActionDefinition` and the event payload doesn't contain the field.
+- A field's type is marked as `datetime` in the `ActionDefinition` but the field has a value of different type in the event payload.
+
+### Http errors
+
+All Http Errors resulting from API calls are automatically captured by the framework. The `request` object used for making HTTP API calls has an option called `throwHttpErrors`. In its default state of `true`, the `request` object throws an `HttpError` which are captured and handled automatically by the framework. Http Errors are retried depending on the status code. Refer [error.ts](../packages/core/src/errors.ts) for retryable status codes.
+
+In case you wish to override this behavior, you can set `throwHttpErrors` explicitly to `false`. The `request` object would then not throw HttpError and return the `response` along with status code. You can then chose to throw your own version of the error or proceed with your open implementation
+
+### Authentication errors
+
+Errors due to invalid access tokens, referesh tokens or api keys are captured as `InvalidAuthenticationError`. If the API you are integrating with returns the standard Authentication error codes, they are handled as defined in [Http Errors](error-handling.md#http-errors) section.
+
+## Custom error handling
+
+The inbuilt error handling should help you with most of the error scenarios you face. In cases where the validation capabilities provided by the framework is not sufficient or the error messages returned by the API you are interacting with are not helpful, you can chose to capture and throw your own custom errors. It is important to follow the following guidelines to ensure your errors are structured properly and displayed to your destination users for appropriate action.
+
+- DO NOT throw Javascript `Error` objects. You MUST use the predefined error classes in [error.ts](../packages/core/src/errors.ts). These predefined error classes will help capture necessary information for Segment to process and display error information to your destination customers for action.
+
+- Use appropriate Error Codes. Error Codes are short representation of the error type and they are shown in [Event Delivery](error-handling.md/#where-are-the-errors-from-destinations-displayed) pane. It is RECOMMENDED to use the predefined error codes as Segment adds additional contexual information for debugging in Event Delivery for these error cdoes.
+
+- Provide clear actionable error messages for your destination customers.
+
+## Where are the Errors from destinations displayed?
+
+The errors thrown from Action Destinations are displayed in Event Delivery pane of the destinations. The Event Delivery pane helps you understand if data is reaching your destinations, and also helps you to see if Segment encountered any issues delivering your source data. See [here](https://segment.com/docs/connections/event-delivery/) to learn more about Event Delivery pane in Segment.

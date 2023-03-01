@@ -88,10 +88,16 @@ export class PayloadValidationError extends IntegrationError {
  * Standard error codes. Use one from this enum whenever possible.
  */
 export enum ErrorCodes {
+  // Invalid API Key or Access Token
   INVALID_AUTHENTICATION = 'INVALID_AUTHENTICATION',
+  // Payload is missing a field or has invalid value
   PAYLOAD_VALIDATION_FAILED = 'PAYLOAD_VALIDATION_FAILED',
+  // The currency code is not in valid ISO format
   INVALID_CURRENCY_CODE = 'INVALID_CURRENCY_CODE',
+  // Generic retryable error
   RETRYABLE_ERROR = 'RETRYABLE_ERROR',
+  // Refresh token has expired
   REFRESH_TOKEN_EXPIRED = 'REFRESH_TOKEN_EXPIRED',
+  // OAuth refresh failed
   OAUTH_REFRESH_FAILED = 'OAUTH_REFRESH_FAILED'
 }
