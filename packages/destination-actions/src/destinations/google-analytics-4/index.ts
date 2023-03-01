@@ -21,7 +21,7 @@ import refund from './refund'
 import removeFromCart from './removeFromCart'
 
 const destination: DestinationDefinition<Settings> = {
-  name: 'Google Analytics 4 Cloud Mode',
+  name: 'Google Analytics 4 Cloud',
   slug: 'actions-google-analytics-4',
   mode: 'cloud',
   authentication: {
