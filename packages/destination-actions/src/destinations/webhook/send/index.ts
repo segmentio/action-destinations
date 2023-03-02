@@ -29,7 +29,7 @@ const action: ActionDefinition<Settings, Payload> = {
     },
     headers: {
       label: 'Headers',
-      description: 'HTTP headers to send with each request.',
+      description: 'HTTP headers to send with each request. value change',
       type: 'object',
       defaultObjectUI: 'keyvalue:only'
     },
