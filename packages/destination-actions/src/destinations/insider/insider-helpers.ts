@@ -13,7 +13,7 @@ export interface insiderEvent extends Object {
 
 export interface upsertUserPayload extends Object {
   identifiers: {
-    uuid: string
+    uuid?: string
     custom?: object
   }
   attributes: {
@@ -121,34 +121,37 @@ export function sendTrackEvent(data: EventPayload) {
   ]
 
   const name = events[data.name as keyof Object]
-    ? events[data.name as keyof Object]
-    : data.name.toLowerCase().trim().split(' ').join('_')
+    ? events[data.name as keyof Object].toString()
+    : data.name.toString().toLowerCase().trim().split(' ').join('_')
+  const attributes = data.attributes || {}
 
-  ;(Object.keys(data.attributes) as (keyof typeof data.attributes)[]).forEach((key) => {
-    const attributeName = key.toString().toLowerCase().trim().split(' ').join('_')
+  ;(Object.keys(attributes) as (keyof typeof attributes)[]).forEach((key) => {
+    const attributeName: string = key.toString().toLowerCase().trim().split(' ').join('_').toString()
 
     if (defaultAttributes.indexOf(attributeName) > -1) {
-      payload.attributes[attributeName as keyof Object] = data.attributes[attributeName]
+      payload.attributes[attributeName as keyof Object] = attributes[attributeName]
     } else {
-      payload.attributes.custom[attributeName as keyof Object] = data.attributes[attributeName]
+      payload.attributes.custom[attributeName as keyof Object] = attributes[attributeName]
     }
   })
 
   const event: insiderEvent = {
     event_name: name,
-    timestamp: data.timestamp,
+    timestamp: data.timestamp.toString(),
     event_params: {
       custom: {}
     }
   }
 
-  ;(Object.keys(data.parameters) as (keyof typeof data.parameters)[]).forEach((key) => {
+  const parameters = data.parameters || {}
+
+  ;(Object.keys(parameters) as (keyof typeof parameters)[]).forEach((key) => {
     const parameterName = key.toString().toLowerCase().trim().split(' ').join('_')
 
-    if (defaultEvents.indexOf(parameterName) > -1) {
-      event.event_params[parameterName as keyof Object] = data.parameters[parameterName]
+    if (defaultEvents.indexOf(parameterName) > -1 && parameterName) {
+      event.event_params[parameterName as keyof Object] = parameters[parameterName]
     } else {
-      event.event_params.custom[parameterName as keyof Object] = data.parameters[parameterName]
+      event.event_params.custom[parameterName as keyof Object] = parameters[parameterName]
     }
   })
 
