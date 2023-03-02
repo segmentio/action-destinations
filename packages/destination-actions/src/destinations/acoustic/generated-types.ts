@@ -26,6 +26,10 @@ export interface Settings {
    */
   a_attributesMax?: number
   /**
+   * "Segment Events Table" List Id from Acoustic Databases Dialog
+   */
+  a_audi_list_id?: string
+  /**
    * Do not change unless directed by Support
    */
   a_authAPIURL?: string
