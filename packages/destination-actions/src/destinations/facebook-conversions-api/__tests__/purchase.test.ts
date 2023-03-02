@@ -269,4 +269,85 @@ describe('purchase', () => {
       `"{\\"data\\":[{\\"event_name\\":\\"Purchase\\",\\"event_time\\":\\"1631210063\\",\\"action_source\\":\\"email\\",\\"user_data\\":{\\"em\\":\\"eeaf810ee0e3cef3307089f22c3804f54c79eed19ef29bf70df864b43862c380\\"},\\"custom_data\\":{\\"currency\\":\\"USD\\",\\"value\\":12.12,\\"content_ids\\":[\\"ABC123\\",\\"XYZ789\\"],\\"content_name\\":\\"Shoes\\",\\"content_type\\":\\"product\\",\\"contents\\":[{\\"id\\":\\"ABC123\\",\\"quantity\\":2},{\\"id\\":\\"XYZ789\\",\\"quantity\\":3}],\\"num_items\\":2}}],\\"test_event_code\\":\\"1234567890\\"}"`
     )
   })
+
+  it('should send partner_id and partner_name if fb-capi-enable-partner-fields is enabled', async () => {
+    nock(`https://graph.facebook.com/v${API_VERSION}/${settings.pixelId}`).post(`/events`).reply(201, {})
+
+    const event = createTestEvent({
+      event: 'Order Completed',
+      userId: 'abc123',
+      timestamp: '1631210063',
+      properties: {
+        action_source: 'email',
+        currency: 'USD',
+        value: 12.12,
+        email: 'nicholas.aguilar@segment.com',
+        content_name: 'Shoes',
+        content_type: 'product',
+        contents: [
+          { id: 'ABC123', quantity: 2 },
+          { id: 'XYZ789', quantity: 3 }
+        ],
+        content_ids: ['ABC123', 'XYZ789'],
+        num_items: 2,
+        partner_name: 'liveramp',
+        partner_id: 'faf12efasdfasdf1edasdasdfadf='
+      }
+    })
+
+    const responses = await testDestination.testAction('purchase', {
+      event,
+      settings,
+      mapping: {
+        currency: {
+          '@path': '$.properties.currency'
+        },
+        value: {
+          '@path': '$.properties.value'
+        },
+        user_data: {
+          email: {
+            '@path': '$.properties.email'
+          },
+          partner_id: {
+            '@path': '$.properties.partner_id'
+          },
+          partner_name: {
+            '@path': '$.properties.partner_name'
+          }
+        },
+        action_source: {
+          '@path': '$.properties.action_source'
+        },
+        event_time: {
+          '@path': '$.timestamp'
+        },
+        contents: {
+          '@path': '$.properties.contents'
+        },
+        num_items: {
+          '@path': '$.properties.num_items'
+        },
+        content_name: {
+          '@path': '$.properties.content_name'
+        },
+        content_type: {
+          '@path': '$.properties.content_type'
+        },
+        content_ids: {
+          '@path': '$.properties.content_ids'
+        }
+      },
+      features: {
+        'fb-capi-enable-partner-fields': true
+      }
+    })
+
+    expect(responses.length).toBe(1)
+    expect(responses[0].status).toBe(201)
+
+    expect(responses[0].options.body).toMatchInlineSnapshot(
+      `"{\\"data\\":[{\\"event_name\\":\\"Purchase\\",\\"event_time\\":\\"1631210063\\",\\"action_source\\":\\"email\\",\\"user_data\\":{\\"em\\":\\"eeaf810ee0e3cef3307089f22c3804f54c79eed19ef29bf70df864b43862c380\\",\\"partner_id\\":\\"faf12efasdfasdf1edasdasdfadf=\\",\\"partner_name\\":\\"liveramp\\"},\\"custom_data\\":{\\"currency\\":\\"USD\\",\\"value\\":12.12,\\"content_ids\\":[\\"ABC123\\",\\"XYZ789\\"],\\"content_name\\":\\"Shoes\\",\\"content_type\\":\\"product\\",\\"contents\\":[{\\"id\\":\\"ABC123\\",\\"quantity\\":2},{\\"id\\":\\"XYZ789\\",\\"quantity\\":3}],\\"num_items\\":2}}]}"`
+    )
+  })
 })
