@@ -3,22 +3,18 @@ import { Payload as EventPayload } from './trackEvent/generated-types'
 export const API_BASE = 'https://unification.useinsider.com/api/'
 export const UPSERT_ENDPOINT = 'user/v1/upsert'
 
-export interface insiderEvent extends Object {
+export interface insiderEvent {
   event_name: string
   timestamp: string
-  event_params: {
-    custom: object
-  }
+  event_params: { [key: string]: any }
 }
 
-export interface upsertUserPayload extends Object {
+export interface upsertUserPayload {
   identifiers: {
-    uuid?: string
+    uuid?: string | null | undefined
     custom?: object
   }
-  attributes: {
-    custom: object
-  }
+  attributes: { [key: string]: any }
   events: insiderEvent[]
 }
 
@@ -123,15 +119,14 @@ export function sendTrackEvent(data: EventPayload) {
   const name = events[data.name as keyof Object]
     ? events[data.name as keyof Object].toString()
     : data.name.toString().toLowerCase().trim().split(' ').join('_')
-  const attributes = data.attributes || {}
 
-  ;(Object.keys(attributes) as (keyof typeof attributes)[]).forEach((key) => {
+  ;(Object.keys(data.attributes || {}) as (keyof typeof data.attributes)[]).forEach((key: string) => {
     const attributeName: string = key.toString().toLowerCase().trim().split(' ').join('_').toString()
 
-    if (defaultAttributes.indexOf(attributeName) > -1) {
-      payload.attributes[attributeName as keyof Object] = attributes[attributeName]
-    } else {
-      payload.attributes.custom[attributeName as keyof Object] = attributes[attributeName]
+    if (defaultAttributes.indexOf(attributeName) > -1 && data.attributes) {
+      payload.attributes[attributeName as keyof Object] = data.attributes[attributeName]
+    } else if (data.attributes) {
+      payload.attributes.custom[attributeName as keyof Object] = data.attributes[attributeName]
     }
   })
 
@@ -143,15 +138,13 @@ export function sendTrackEvent(data: EventPayload) {
     }
   }
 
-  const parameters = data.parameters || {}
-
-  ;(Object.keys(parameters) as (keyof typeof parameters)[]).forEach((key) => {
+  ;(Object.keys(data.parameters || {}) as (keyof typeof data.parameters)[]).forEach((key: string) => {
     const parameterName = key.toString().toLowerCase().trim().split(' ').join('_')
 
-    if (defaultEvents.indexOf(parameterName) > -1 && parameterName) {
-      event.event_params[parameterName as keyof Object] = parameters[parameterName]
-    } else {
-      event.event_params.custom[parameterName as keyof Object] = parameters[parameterName]
+    if (defaultEvents.indexOf(parameterName) > -1 && data.parameters) {
+      event.event_params[parameterName] = data.parameters[parameterName]
+    } else if (data.parameters) {
+      event.event_params.custom[parameterName] = data.parameters[parameterName]
     }
   })
 
