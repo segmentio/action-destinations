@@ -19,7 +19,7 @@ Couple of examples are
 
 All Http Errors resulting from API calls are automatically captured by the framework. The `request` object used for making HTTP API calls has an option called `throwHttpErrors`. In its default state of `true`, the `request` object throws an `HttpError` which are captured and handled automatically by the framework. Http Errors are retried depending on the status code. Refer [error.ts](../packages/core/src/errors.ts) for retryable status codes.
 
-In case you wish to override this behavior, you can set `throwHttpErrors` explicitly to `false`. The `request` object would then not throw HttpError and return the `response` along with status code. You can then chose to throw your own version of the error or proceed with your open implementation
+In case you wish to override this behavior, you can set `throwHttpErrors` explicitly to `false`. The `request` object would then not throw HttpError and return the `response` along with status code. You can then choose to throw your own version of the error or proceed with your open implementation.
 
 ### Authentication errors
 
@@ -27,9 +27,9 @@ Errors due to invalid access tokens, refresh tokens or api keys are captured as 
 
 ## Custom error handling
 
-The inbuilt error handling should help you with most of the error scenarios you face. In cases where the validation capabilities provided by the framework is not sufficient or the error messages returned by the API you are interacting with are not helpful, you can chose to capture and throw your own custom errors. It is important to follow the following guidelines to ensure your errors are structured properly and displayed to your destination users for appropriate action.
+The inbuilt error handling should help you with most of the error scenarios you face. In cases where the validation capabilities provided by the framework are not sufficient or the error messages returned by the API you are interacting with are not helpful, you can chose to capture and throw your own custom errors. It is important to adhere to the following guidelines to ensure your errors are structured properly and displayed to your destination users for appropriate action.
 
-- DO NOT throw Javascript `Error` objects. Any error thrown from an action MUST contain a `message` describing the error, an `error code` indicating the type of error and a `status code` indicating the http status of the action. You MUST use predefined error classes defined in [error.ts](../packages/core/src/errors.ts). These classes help in capturing the necessary information in appropriate format. For example, assume that your action needs one of product id or product name. This kind of validation is not currently supported in `Action Definition`. Instead of `throw new Error('One of product id or name is required')`, use `throw new PayloadValidationError('One of product id or name is required'). 
+- DO NOT throw Javascript `Error` objects. Any error thrown from an action MUST contain a `message` describing the error, an `error code` indicating the type of error and a `status code` indicating the http status of the action. You MUST use predefined error classes defined in [error.ts](../packages/core/src/errors.ts). These classes help in capturing the necessary information in appropriate format. For example, assume that your action needs one of product id or product name. This kind of validation is not currently supported in `Action Definition`. Instead of `throw new Error('One of product id or name is required')`, use `throw new PayloadValidationError('One of product id or name is required')`. 
 
   - Use `PayloadValidationError` for any custom validations. These errors won't be retried.
   - Use `InvalidAuthenticationError` for any authentication related errors. These errors won't be retried.
