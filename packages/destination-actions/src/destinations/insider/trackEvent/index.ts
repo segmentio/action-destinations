@@ -306,17 +306,17 @@ const action: ActionDefinition<Settings, Payload> = {
         name: { '@path': '$.firstName' },
         gender: { '@path': '$.gender' },
         surname: { '@path': '$.lastName' },
-        app_version: { '@path': '$.context.version' },
-        idfa: { '@path': '$.device.advertisingId' },
-        model: { '@path': '$.device.model' },
-        last_ip: { '@path': '$.ip' },
-        city: { '@path': '$.location.city' },
-        country: { '@path': '$.location.country' },
-        carrier: { '@path': '$.network.carrier' },
+        app_version: { '@path': '$.context.app.version' },
+        idfa: { '@path': '$.context.device.advertisingId' },
+        model: { '@path': '$.context.device.model' },
+        last_ip: { '@path': '$.context.ip' },
+        city: { '@path': '$.context.location.city' },
+        country: { '@path': '$.context.location.country' },
+        carrier: { '@path': '$.context.network.carrier' },
         os_version: { '@path': '$.os.version' },
-        platform: { '@path': '$.os.name' },
-        timezone: { '@path': '$.timezone' },
-        locale: { '@path': '$.locale' }
+        platform: { '@path': '$.context.os.name' },
+        timezone: { '@path': '$.context.timezone' },
+        locale: { '@path': '$.context.locale' }
       }
     }
   },

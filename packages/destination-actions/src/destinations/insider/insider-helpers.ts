@@ -63,6 +63,7 @@ export function sendTrackEvent(data: EventPayload) {
   }
 
   const events: Object = {
+    Unsubscribed: 'email_unsubscribe',
     'Product List Viewed': 'listing_page_view',
     'Product Viewed': 'product_detail_page_view',
     'Product Added': 'item_added_to_cart',
@@ -72,7 +73,6 @@ export function sendTrackEvent(data: EventPayload) {
     'Email Link Clicked': 'email_click',
     'Email Marked as Spam': 'email_spamreport',
     'Email Opened': 'email_open',
-    Unsubscribed: 'email_unsubscribe',
     'Application Opened': 'session_start',
     'Push Notification Received': 'push_delivered',
     'Push Notification Tapped': 'push_session',
@@ -116,19 +116,20 @@ export function sendTrackEvent(data: EventPayload) {
     'referrer'
   ]
 
-  const name = events[data.name as keyof Object]
-    ? events[data.name as keyof Object].toString()
-    : data.name.toString().toLowerCase().trim().split(' ').join('_')
-
-  ;(Object.keys(data.attributes || {}) as (keyof typeof data.attributes)[]).forEach((key: string) => {
+  for (const key of Object.keys(data.attributes || {})) {
     const attributeName: string = key.toString().toLowerCase().trim().split(' ').join('_').toString()
 
     if (defaultAttributes.indexOf(attributeName) > -1 && data.attributes) {
-      payload.attributes[attributeName as keyof Object] = data.attributes[attributeName]
+      payload.attributes[attributeName as keyof typeof payload.attributes] = data.attributes[attributeName]
     } else if (data.attributes) {
-      payload.attributes.custom[attributeName as keyof Object] = data.attributes[attributeName]
+      payload.attributes.custom[attributeName as keyof typeof payload.attributes.custom] =
+        data.attributes[attributeName]
     }
-  })
+  }
+
+  const name = events[data.name as keyof Object]
+    ? events[data.name as keyof Object].toString()
+    : data.name.toString().toLowerCase().trim().split(' ').join('_')
 
   const event: insiderEvent = {
     event_name: name,
@@ -138,7 +139,7 @@ export function sendTrackEvent(data: EventPayload) {
     }
   }
 
-  ;(Object.keys(data.parameters || {}) as (keyof typeof data.parameters)[]).forEach((key: string) => {
+  for (const key of Object.keys(data.parameters || {})) {
     const parameterName = key.toString().toLowerCase().trim().split(' ').join('_')
 
     if (defaultEvents.indexOf(parameterName) > -1 && data.parameters) {
@@ -146,7 +147,7 @@ export function sendTrackEvent(data: EventPayload) {
     } else if (data.parameters) {
       event.event_params.custom[parameterName] = data.parameters[parameterName]
     }
-  })
+  }
 
   payload.events.push(event)
 
