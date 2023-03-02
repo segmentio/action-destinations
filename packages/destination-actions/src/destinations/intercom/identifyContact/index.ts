@@ -81,15 +81,22 @@ const action: ActionDefinition<Settings, Payload> = {
     },
     unsubscribed_from_emails: {
       label: 'Unsubscribed From Emails',
+      // required: true,
       type: 'boolean',
       description: "The contact's email unsubscribe status."
     },
     custom_attributes: {
       label: 'Custom Attributes',
+      // required: true,
       description:
         'The custom attributes which are set for the contact. You can only write to custom attributes that already exist in your Intercom workspace. Please ensure custom attributes are created in Intercom first. See [Intercom documentation](https://developers.intercom.com/intercom-api-reference/reference/create-data-attributes) for more information on creating attributes.',
       type: 'object',
       defaultObjectUI: 'keyvalue'
+    },
+    new_attribute: {
+      label: 'new attribute',
+      description: 'new description',
+      type: 'string'
     }
   },
   perform: async (request, { payload }) => {
@@ -102,6 +109,7 @@ const action: ActionDefinition<Settings, Payload> = {
      *
      * Note: When creating a lead, Intercom doesn't accept an external_id; Intercom only accepts email.
      */
+    console.log('hello')
     payload.signed_up_at = convertValidTimestamp(payload.signed_up_at)
     payload.last_seen_at = convertValidTimestamp(payload.last_seen_at)
     try {

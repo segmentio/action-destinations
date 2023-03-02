@@ -17,7 +17,7 @@ jobs:
         node-version: [18.x]
 
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
         with:
           persist-credentials: false
 
@@ -55,6 +55,15 @@ jobs:
 
       - name: Validate
         run: yarn validate
+
+      - name: Get Diff Action
+        uses: technote-space/get-diff-action@v4.0.1
+        with:
+          PATTERNS: '*.ts'
+          FORMAT: json
+
+      - name: Detect Fields
+        run: yarn detect-fields -d ${{ env.GIT_DIFF }}
 
       - name: Test
         run: yarn test
