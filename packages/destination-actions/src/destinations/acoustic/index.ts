@@ -2,8 +2,6 @@ import type { DestinationDefinition } from '@segment/actions-core'
 import type { Settings } from './generated-types'
 import receiveEvents from './receiveEvents'
 
-//process.env.NODE_DEBUG = "https";
-
 const destination: DestinationDefinition<Settings> = {
   name: 'Acoustic Segment Connector',
   slug: 'actions-acoustic-segment-connector',
@@ -54,14 +52,13 @@ const destination: DestinationDefinition<Settings> = {
         type: 'number',
         required: false
       },
-      // Pending
-      // a_audi_list_id: {
-      //   label: 'Events Table List Id',
-      //   description: '"Segment Events Table" List Id from Acoustic Databases Dialog ',
-      //   default: '',
-      //   type: 'string',
-      //   required: false
-      // },
+      a_audi_list_id: {
+        label: 'Events Table List Id',
+        description: '"Segment Events Table" List Id from Acoustic Databases Dialog ',
+        default: '',
+        type: 'string',
+        required: false
+      },
       a_authAPIURL: {
         label: 'Auth Endpoint',
         description: 'Do not change unless directed by Support',
@@ -80,19 +77,12 @@ const destination: DestinationDefinition<Settings> = {
         label: 'Support Only (Delete Code)',
         description:
           'Reserved for Support, code to delete and recreate the Acoustic "Segment Audience Table" effectively resetting all Segment Audience data in Acoustic',
-        default: 0, //TBD: See if can maxlimit this here in the definition?
+        default: 0,
         type: 'number',
         required: false
       }
     },
     testAuthentication: async (request, { settings }) => {
-      // Return a request that tests/validates the user's credentials.
-      // If you do not have a way to validate the authentication fields safely,
-      // you can remove the `testAuthentication` function, though discouraged.
-      // *** Used to validate the credentials entered via the setup interface,
-      // Use this to check the correct values entered by each Customer when using this Destination
-
-      //Test Auth looks for 401 already, so don't need to test for success and return true/false
       return await request(`https://api-campaign-${settings.a_region}-${settings.a_pod}.goacoustic.com/oauth/token`, {
         method: 'POST',
         body: new URLSearchParams({
@@ -120,8 +110,6 @@ const destination: DestinationDefinition<Settings> = {
         }
       )
 
-      //auth.accessToken = await at.data.access_token
-      //return { accessToken: at.data().access_token }
       return at.json()
     }
   },
@@ -129,7 +117,6 @@ const destination: DestinationDefinition<Settings> = {
     settings
     return {
       headers: {
-        //authorization: `Bearer ${a_auth.accessToken}`,
         Connection: 'keep-alive',
         'Accept-Encoding': 'gzip, deflate, br',
         Accept: '*/*',

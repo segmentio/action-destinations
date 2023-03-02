@@ -9,12 +9,6 @@ import { addUpdateEvents } from '../Utility/EventProcessing'
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Receive Track and Identify Events',
   description: 'Provide Segment Track and Identify Event Data to Acoustic Campaign',
-  //defaultSubscription: 'context.personas.computation_class" =  "audience" or "context.personas.computation_class" =  "computed trait"',
-  //   Does context.personas.computation_class = "computed trait"
-  //defaultSubscription: 'event = "Audience Entered" or event = "Audience Exited"',
-  // defaultSubscription: 'context.personas.computation_key = "audience" or context.personas.computation_key = "trait"',
-  //Only accept track or identify with context.personas.computaiton_key = audience or trait -else- throw error to inform
-
   fields: {
     email: {
       label: 'Email',
@@ -80,12 +74,6 @@ const action: ActionDefinition<Settings, Payload> = {
   },
 
   perform: async (request, { payload, settings }) => {
-    //console.log('In Perform Action --> ')
-
-    // //Use with Curl testing
-    // if (Object.entries(payload).length < 1)
-    //   throw new IntegrationError(`Empty Payload - Cannot process ->  ${Object.keys(payload)}   <- `)
-
     let email = get(payload, 'context.traits.email', 'Null')
     if (email == undefined) email = get(payload, 'traits.email', 'Null')
     if (email == undefined || email === 'Null')
@@ -93,13 +81,11 @@ const action: ActionDefinition<Settings, Payload> = {
 
     const auth: acousticAuth = await preChecksAndMaint(request, settings)
 
-    //Ok, email, prechecks and Maint are all accomplished, let's see what needs to be processed,
+    //Ok, prechecks and Maint are all accomplished, let's see what needs to be processed,
     return await addUpdateEvents(request, payload, settings, auth, email)
   },
 
   performBatch: async (request, { payload, settings }) => {
-    console.log('In Perform Batch Action -> ')
-
     const auth: acousticAuth = await preChecksAndMaint(request, settings)
 
     //Ok, prechecks and Maint are all attended to, let's see what needs to be processed,

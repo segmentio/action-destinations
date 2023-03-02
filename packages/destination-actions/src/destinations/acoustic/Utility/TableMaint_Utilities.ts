@@ -2,7 +2,6 @@ import { IntegrationError } from '@segment/actions-core'
 import { RequestClient } from '@segment/actions-core'
 import get from 'lodash/get'
 import { Settings } from '../generated-types'
-//import { ModifiedResponse } from "@segment/actions-core"
 
 export interface acousticAuth {
   clientId: string
@@ -20,14 +19,6 @@ export function getxmlAPIUrl(settings: Settings) {
 }
 
 export async function preChecksAndMaint(request: RequestClient, settings: Settings) {
-  //Get a line-out of the object
-  //Object Keys: messageId,timestamp,type,email,properties,userId,event,anonymousId,context,receivedAt,sentAt,version
-
-  // console.log(`Keep an eye on the object -->
-  //    \nObject Keys:    ${Object.keys(payload)}
-  //    \nObject Values:  ${Object.values(payload)}
-  //    \nObject Entries: ${Object.entries(payload)}\n`)
-
   const auth: acousticAuth = {
     clientId: settings.a_client_id,
     clientSecret: settings.a_client_secret,
@@ -56,10 +47,11 @@ export async function preChecksAndMaint(request: RequestClient, settings: Settin
     const _dtabs = await deleteRTs(request, settings, auth)
     _dtabs.length
   }
+
   //For testing: uncomment to delete the Audiences Table
   //const dtabs = await deleteRTs(request, settings, auth)
 
-  //For long-term Maintenance - check each month to delete data older than 1 years
+  //Long-term Maintenance - check each month to delete data older than 1 years
   const checkPurge = new Date()
   if (
     checkPurge.getDate() == 1 && //First of the Month
@@ -68,27 +60,25 @@ export async function preChecksAndMaint(request: RequestClient, settings: Settin
     checkPurge.getSeconds() > 50
   ) {
     //to almost 31 past Noon
-
+    //Worst case we're calling checkPurge for a full 10 seconds repeatedly or missing the time
+    //  altogether but we'll get it next month - long-term we're still in good shape
     const purgeDate = new Date()
     purgeDate.setFullYear(purgeDate.getFullYear() - 1)
     await purgeSegmentEventTable(request, settings, auth, purgeDate)
   }
-  //Worst case we're calling checkPurge for a full 10 seconds repeatedly or missing the time
-  //  altogether but we'll get it next month - long-term we're still in good shape
 
   //For Testing -
   // await purgeOldAudience(request, settings, auth, "02/11/2023 11:20:00")
 
-  //check for table, if not exist create it
-  //if (!auth.tableListId || auth.tableListId === "") {
-  //Pull the list and parse it to see if Audience Table is on it,
+  //check for Segment Events table, if not exist create it
   const chkExist = await checkRTExist(request, settings, auth)
   if (!chkExist) {
+    //Need audit trail of this - what's Segment equivalent of Logging
     console.log('Acoustic Audiences Table did not exist, creating new ....')
+
     const crt = await createSegmentEventsTable(request, settings, auth)
     if (!crt) {
-      console.log('Error attempting to create an Acoustic Audiences Table')
-      throw new IntegrationError('Error attempting to create an Acoustic Audiences Table')
+      throw new IntegrationError('Error attempting to create the Acoustic Segment Events Table')
     }
   }
   return auth
@@ -100,7 +90,6 @@ export const getAccessToken = async (
   auth: acousticAuth
 ): Promise<string> => {
   const res = await request(`https://api-campaign-${settings.a_region}-${settings.a_pod}.goacoustic.com/oauth/token`, {
-    //await request(`https://api-campaign-US-2.goacoustic.com/oauth/token`, {
     method: 'POST',
     body: new URLSearchParams({
       client_id: auth.clientId,
@@ -113,7 +102,6 @@ export const getAccessToken = async (
     }
   })
 
-  //return res
   auth.accessToken = get(res.data, 'access_token', '')
   return get(res.data, 'access_token', '')
 }
@@ -163,8 +151,6 @@ export const createSegmentEventsTable = async (
            </Body> 
          </Envelope>`
 
-  // console.log("Segment RequestBody: \n" + createEventsXML + "\n")
-
   const createSegmentEventsTable = await request(getxmlAPIUrl(settings), {
     method: 'POST',
     body: createEventsXML,
@@ -182,13 +168,11 @@ export const createSegmentEventsTable = async (
   }
 
   auth.tableListId = tid
-
-  console.log('\nCreate Audience Table Response (ListId: ' + auth.tableListId + ')\nResp: ' + respText)
-
   return createSegmentEventsTable
 }
 
 export const deleteRTs = async (request: RequestClient, settings: Settings, auth: acousticAuth): Promise<String> => {
+  //Need Audit Trail here - what's Segment equivalent for Audit log?
   console.log('Delete Audience Table: ')
 
   const deleteSET = await request(getxmlAPIUrl(settings), {
@@ -209,6 +193,7 @@ export const deleteRTs = async (request: RequestClient, settings: Settings, auth
 
   const d_SET = await deleteSET.text()
 
+  //Need an Audit Trail of this - what's the Segment equivalent of Logging? Throwing IntegrationError kills
   console.log('Deleting Audience Table: \n' + d_SET + '\nStatus: Complete ')
 
   return ''
@@ -219,8 +204,6 @@ export const checkRTExist = async (
   settings: Settings,
   auth: acousticAuth
 ): Promise<Boolean> => {
-  console.log('Check Whether Audiences Table Exists: ')
-
   const checkRT = await request(getxmlAPIUrl(settings), {
     method: 'POST',
     headers: {
@@ -248,13 +231,10 @@ export const checkRTExist = async (
     const setListId = rx.exec(simplify) ?? '999999999'
 
     auth.tableListId = setListId[1]
-
-    console.log('CheckRT - Segment Events Table Exists: ' + auth.tableListId)
-
     return true
   } else {
-    auth.tableListId = '999999999' //Just in case - during debugging should not be 999999999
-    console.log('Cannot determine Segment Event Table, Does not appear to Exist.')
+    auth.tableListId = '999999999' //Just in case - should not be 999999999
+
     throw new IntegrationError(
       `Cannot determine the Segmennt Events Table in the defined Acoustic environment. Please check the documentation and confirm the configuration`
     )
@@ -268,8 +248,6 @@ export const purgeSegmentEventTable = async (
   auth: acousticAuth,
   purgeDate: Date
 ): Promise<Response> => {
-  console.log('Purge Old Eevnts from Segment Event Table...')
-
   const purgeOldData = await request(getxmlAPIUrl(settings), {
     method: 'POST',
     headers: {
@@ -294,9 +272,11 @@ export const purgeSegmentEventTable = async (
     const rx = /<JOB_ID>(.*)<\/JOB_ID>/gm
     const purgeJob = rx.exec(simplify) ?? ''
 
+    //Need Audit trail of this - what is Segment equivalent of logging?
     console.log('Purge Old Audiences Data Job Created: ' + purgeJob)
     return purgeOldData
   } else {
+    //Need Audit trail of this - what is Segment equivalent of logging?
     console.log('Could Not Purge Old Audiences from Audiences Table.....')
     return purgeOldData
   }
