@@ -19,6 +19,8 @@ export class SmsMessageSender extends MessageSender<Payload> {
     super(request, payload, settings, statsClient, tags)
   }
 
+  getExternalId = () => this.payload.externalIds?.find(({ type }) => type === 'phone')
+
   getBody = async (phone: string) => {
     // TODO: GROW-259 remove this when we can extend the request
     // and we no longer need to call the profiles API first
@@ -30,7 +32,7 @@ export class SmsMessageSender extends MessageSender<Payload> {
     }
 
     const profile = {
-      user_id: this.payload.userId,
+      user_id: this.payload.userId ?? undefined,
       phone,
       traits
     }
@@ -53,6 +55,13 @@ export class SmsMessageSender extends MessageSender<Payload> {
   }
 
   private getProfileTraits = async () => {
+    if (!this.payload.userId) {
+      throw new IntegrationError(
+        'Unable to process sms, no userId provided and no traits provided',
+        'Invalid parameters',
+        400
+      )
+    }
     try {
       const endpoint = `https://profiles.segment.${
         this.settings.profileApiEnvironment === 'production' ? 'com' : 'build'

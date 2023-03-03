@@ -38,7 +38,7 @@ const destination: DestinationDefinition<Settings> = {
       }
     },
     testAuthentication: async (request, { settings }) => {
-      const testAuthenticationEndpoint = `${settings.customURL}/test-authentication`
+      const testAuthenticationEndpoint = `${settings.customURL}/segmentio/test-authentication`
       const authenticationResponse = await request(testAuthenticationEndpoint, {
         headers: {
           authorization: `Basic ${Buffer.from(settings.apiKey).toString('base64')}`,

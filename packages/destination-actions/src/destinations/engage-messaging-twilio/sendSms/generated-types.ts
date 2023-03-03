@@ -4,7 +4,7 @@ export interface Payload {
   /**
    * User ID in Segment
    */
-  userId: string
+  userId?: string
   /**
    * Number to send SMS to when testing
    */

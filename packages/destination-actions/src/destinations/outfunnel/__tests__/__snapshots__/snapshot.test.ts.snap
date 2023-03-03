@@ -1,0 +1,84 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Testing snapshot for actions-outfunnel destination: forwardGroupEvent action - all fields 1`] = `
+Object {
+  "action": "]!J07fe",
+  "anonymous_id": "]!J07fe",
+  "context": Object {
+    "testType": "]!J07fe",
+  },
+  "group_id": "]!J07fe",
+  "group_name": "]!J07fe",
+  "timestamp": "]!J07fe",
+  "traits": Object {
+    "testType": "]!J07fe",
+  },
+  "user_id": "]!J07fe",
+}
+`;
+
+exports[`Testing snapshot for actions-outfunnel destination: forwardGroupEvent action - required fields 1`] = `
+Object {
+  "action": "]!J07fe",
+  "anonymous_id": "]!J07fe",
+  "group_id": "]!J07fe",
+  "timestamp": "]!J07fe",
+  "user_id": "]!J07fe",
+}
+`;
+
+exports[`Testing snapshot for actions-outfunnel destination: forwardIdentifyEvent action - all fields 1`] = `
+Object {
+  "action": "8(3Tr1xZW13v*c@F1J",
+  "anonymous_id": "8(3Tr1xZW13v*c@F1J",
+  "context": Object {
+    "testType": "8(3Tr1xZW13v*c@F1J",
+  },
+  "email": "lesluj@uv.su",
+  "timestamp": "8(3Tr1xZW13v*c@F1J",
+  "traits": Object {
+    "testType": "8(3Tr1xZW13v*c@F1J",
+  },
+  "user_id": "8(3Tr1xZW13v*c@F1J",
+}
+`;
+
+exports[`Testing snapshot for actions-outfunnel destination: forwardIdentifyEvent action - required fields 1`] = `
+Object {
+  "action": "8(3Tr1xZW13v*c@F1J",
+  "anonymous_id": "8(3Tr1xZW13v*c@F1J",
+  "email": "lesluj@uv.su",
+  "timestamp": "8(3Tr1xZW13v*c@F1J",
+  "user_id": "8(3Tr1xZW13v*c@F1J",
+}
+`;
+
+exports[`Testing snapshot for actions-outfunnel destination: forwardTrackEvent action - all fields 1`] = `
+Object {
+  "action": "@PZgcUszl",
+  "anonymous_id": "@PZgcUszl",
+  "context": Object {
+    "testType": "@PZgcUszl",
+  },
+  "email": "ve@kamzucu.lu",
+  "event_name": "@PZgcUszl",
+  "group_id": "@PZgcUszl",
+  "properties": Object {
+    "testType": "@PZgcUszl",
+  },
+  "timestamp": "@PZgcUszl",
+  "user_id": "@PZgcUszl",
+}
+`;
+
+exports[`Testing snapshot for actions-outfunnel destination: forwardTrackEvent action - required fields 1`] = `
+Object {
+  "action": "@PZgcUszl",
+  "anonymous_id": "@PZgcUszl",
+  "email": "ve@kamzucu.lu",
+  "event_name": "@PZgcUszl",
+  "group_id": "@PZgcUszl",
+  "timestamp": "@PZgcUszl",
+  "user_id": "@PZgcUszl",
+}
+`;
