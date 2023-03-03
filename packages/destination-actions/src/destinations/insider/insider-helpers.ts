@@ -105,14 +105,14 @@ export function sendTrackEvent(data: EventPayload) {
     'url',
     'product_id',
     'user_agent',
-    'ta',
-    'na',
+    'taxonomy',
+    'name',
     'variant_id',
-    'usp',
-    'up',
-    'qu',
-    'piu',
-    'e_quid',
+    'unit_sales_price',
+    'unit_price',
+    'quantity',
+    'product_image_url',
+    'event_group_id',
     'referrer'
   ]
 
@@ -142,7 +142,9 @@ export function sendTrackEvent(data: EventPayload) {
   for (const key of Object.keys(data.parameters || {})) {
     const parameterName = key.toString().toLowerCase().trim().split(' ').join('_')
 
-    if (defaultEvents.indexOf(parameterName) > -1 && data.parameters) {
+    if (parameterName === 'taxonomy' && data.parameters) {
+      event.event_params[parameterName] = [data.parameters[parameterName]]
+    } else if (defaultEvents.indexOf(parameterName) > -1 && data.parameters) {
       event.event_params[parameterName] = data.parameters[parameterName]
     } else if (data.parameters) {
       event.event_params.custom[parameterName] = data.parameters[parameterName]

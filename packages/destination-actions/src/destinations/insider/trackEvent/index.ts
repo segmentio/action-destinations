@@ -74,12 +74,12 @@ const action: ActionDefinition<Settings, Payload> = {
           type: 'string',
           description: 'Product id displayed on the list'
         },
-        ta: {
+        taxonomy: {
           label: 'Product Category',
           type: 'string',
           description: 'Product category being viewed'
         },
-        na: {
+        name: {
           label: 'Product Name',
           type: 'string',
           description: 'Name of the product being viewed'
@@ -89,26 +89,26 @@ const action: ActionDefinition<Settings, Payload> = {
           type: 'string',
           description: 'Variant of the product'
         },
-        usp: {
+        unit_sales_price: {
           label: 'Unit Sale Price',
           type: 'number',
           description: 'Sale Price ($) of the product being viewed'
         },
-        up: {
+        unit_price: {
           label: 'Unit Price',
           type: 'number',
           description: 'Price ($) of the product being viewed'
         },
-        qu: {
+        quantity: {
           label: 'Quantity',
           type: 'integer',
           description: 'Quantity of a product'
         },
-        piu: {
+        product_image_url: {
           label: 'Product Image Url',
           type: 'string'
         },
-        e_quid: {
+        event_group_id: {
           label: 'Event Group ID',
           type: 'string',
           description: 'Order or Basket Id'
@@ -134,14 +134,14 @@ const action: ActionDefinition<Settings, Payload> = {
           }
         },
         product_id: { '@path': '$.properties.product_id' },
-        ta: { '@path': '$.properties.category' },
-        na: { '@path': '$.properties.name' },
+        taxonomy: { '@path': '$.properties.category' },
+        name: { '@path': '$.properties.name' },
         variant_id: { '@path': '$.properties.variant' },
-        usp: { '@path': '$.properties.price' },
-        up: { '@path': '$.properties.price' },
-        qu: { '@path': '$.properties.quantity' },
-        piu: { '@path': '$.properties.image_url' },
-        e_quid: { '@path': '$.properties.cart_id' },
+        unit_sales_price: { '@path': '$.properties.price' },
+        unit_price: { '@path': '$.properties.price' },
+        quantity: { '@path': '$.properties.quantity' },
+        product_image_url: { '@path': '$.properties.image_url' },
+        event_group_id: { '@path': '$.properties.cart_id' },
         referrer: { '@path': '$.properties.referrer' },
         user_agent: { '@path': '$.userAgent' }
       }
@@ -158,27 +158,27 @@ const action: ActionDefinition<Settings, Payload> = {
           type: 'string',
           description: 'Product ID'
         },
-        ta: {
+        taxonomy: {
           label: 'Taxonomy',
           type: 'string',
           description: 'Taxonomy'
         },
-        na: {
+        name: {
           label: 'Name',
           type: 'string',
           description: 'Name'
         },
-        usp: {
+        unit_sales_price: {
           label: 'Unit Sale Price',
           type: 'number',
           description: 'Price'
         },
-        up: {
+        unit_price: {
           label: 'Unit Price',
           type: 'number',
           description: 'Price'
         },
-        qu: {
+        quantity: {
           label: 'Quantity',
           type: 'integer',
           description: 'Quantity'
@@ -188,7 +188,7 @@ const action: ActionDefinition<Settings, Payload> = {
           type: 'string',
           description: 'Product Url'
         },
-        piu: {
+        product_image_url: {
           label: 'Product Image Url',
           type: 'string',
           description: 'Product Image Url'
@@ -199,14 +199,14 @@ const action: ActionDefinition<Settings, Payload> = {
           '$.properties.products',
           {
             product_id: { '@path': 'productId' },
-            ta: { '@path': 'category' },
-            na: { '@path': 'name' },
+            taxonomy: { '@path': 'category' },
+            name: { '@path': 'name' },
             variant_id: { '@path': 'variant' },
-            usp: { '@path': 'price' },
-            up: { '@path': 'price' },
-            qu: { '@path': 'quantity' },
+            unit_sales_price: { '@path': 'price' },
+            unit_price: { '@path': 'price' },
+            quantity: { '@path': 'quantity' },
             url: { '@path': 'url' },
-            piu: { '@path': 'image_url' }
+            product_image_url: { '@path': 'image_url' }
           }
         ]
       }
