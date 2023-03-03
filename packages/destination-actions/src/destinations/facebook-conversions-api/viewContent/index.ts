@@ -97,8 +97,6 @@ const action: ActionDefinition<Settings, Payload> = {
       payload.data_processing_options_state
     )
 
-    const shouldSendPartnerData = features && features['fb-capi-enable-partner-fields']
-
     return request(
       `https://graph.facebook.com/v${get_api_version(features, statsContext)}/${settings.pixelId}/events`,
       {
@@ -111,7 +109,7 @@ const action: ActionDefinition<Settings, Payload> = {
               action_source: payload.action_source,
               event_id: payload.event_id,
               event_source_url: payload.event_source_url,
-              user_data: hash_user_data({ user_data: payload.user_data }, shouldSendPartnerData),
+              user_data: hash_user_data({ user_data: payload.user_data }),
               custom_data: {
                 ...payload.custom_data,
                 currency: payload.currency,

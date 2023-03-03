@@ -235,7 +235,7 @@ export const normalize_user_data = (payload: UserData) => {
   }
 }
 
-export const hash_user_data = (payload: UserData, sendPartnerFields: Boolean = false): Object => {
+export const hash_user_data = (payload: UserData): Object => {
   normalize_user_data(payload)
 
   return {
@@ -257,9 +257,7 @@ export const hash_user_data = (payload: UserData, sendPartnerFields: Boolean = f
     subscription_id: payload.user_data?.subscriptionID,
     lead_id: payload.user_data?.leadID,
     fb_login_id: payload.user_data?.fbLoginID,
-    ...(sendPartnerFields && {
-      partner_id: payload.user_data?.partner_id,
-      partner_name: payload.user_data?.partner_name
-    })
+    partner_id: payload.user_data?.partner_id,
+    partner_name: payload.user_data?.partner_name
   }
 }
