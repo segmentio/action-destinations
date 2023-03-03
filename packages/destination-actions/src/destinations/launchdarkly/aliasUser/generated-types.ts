@@ -2,7 +2,7 @@
 
 export interface Payload {
   /**
-   * The LaunchDarkly context kind used for identified users. To learn more, read [Contexts](https://docs.launchdarkly.com/home/contexts).
+   * The LaunchDarkly context kind used for identified users. To learn more, read [Contexts and segments](https://docs.launchdarkly.com/home/contexts).
    */
   identified_context_kind: string
   /**
@@ -10,7 +10,7 @@ export interface Payload {
    */
   user_key: string
   /**
-   * The LaunchDarkly context kind used for unauthenticated users. To learn more, read [Contexts](https://docs.launchdarkly.com/home/contexts).
+   * The LaunchDarkly context kind used for unauthenticated users. To learn more, read [Contexts and segments](https://docs.launchdarkly.com/home/contexts).
    */
   unauthenticated_context_kind: string
   /**

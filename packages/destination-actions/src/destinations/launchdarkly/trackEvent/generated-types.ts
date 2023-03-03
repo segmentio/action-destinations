@@ -2,7 +2,7 @@
 
 export interface Payload {
   /**
-   * The event's context kind. To learn more, read [Contexts](https://docs.launchdarkly.com/home/contexts).
+   * The event's context kind. To learn more, read [Contexts and segments](https://docs.launchdarkly.com/home/contexts).
    */
   context_kind: string
   /**
@@ -10,7 +10,7 @@ export interface Payload {
    */
   user_key: string
   /**
-   * A mapping of additional context kinds to context keys. To learn more, read [Contexts](https://docs.launchdarkly.com/home/contexts).
+   * A mapping of additional context kinds to context keys. To learn more, read [Contexts and segments](https://docs.launchdarkly.com/home/contexts).
    */
   additional_context_keys?: {
     [k: string]: unknown
