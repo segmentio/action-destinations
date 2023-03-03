@@ -3,7 +3,7 @@ import { Liquid as LiquidJs } from 'liquidjs'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 import { IntegrationError } from '@segment/actions-core'
-import { StatsClient, StatsContext } from '@segment/actions-core/src/destination-kit'
+import { Logger, StatsClient, StatsContext } from '@segment/actions-core/src/destination-kit'
 import { MessageSender, RequestFn } from '../utils/message-sender'
 
 const Liquid = new LiquidJs()
@@ -14,7 +14,8 @@ export class SmsMessageSender extends MessageSender<Payload> {
     readonly payload: Payload,
     readonly settings: Settings,
     readonly statsClient: StatsClient | undefined,
-    readonly tags: StatsContext['tags'] | undefined
+    readonly tags: StatsContext['tags'] | undefined,
+    readonly logger: Logger | undefined
   ) {
     super(request, payload, settings, statsClient, tags)
   }
@@ -42,6 +43,7 @@ export class SmsMessageSender extends MessageSender<Payload> {
     try {
       parsedBody = await Liquid.parseAndRender(this.payload.body, { profile })
     } catch (error: unknown) {
+      this.logger?.error('TE Messaging: SMS templating parse failure')
       throw new IntegrationError(`Unable to parse templating in SMS`, `SMS templating parse failure`, 400)
     }
 
@@ -82,6 +84,7 @@ export class SmsMessageSender extends MessageSender<Payload> {
       const body = await response.json()
       return body.traits
     } catch (error: unknown) {
+      this.logger?.error('TE Messaging: SMS profile traits request failure')
       this.statsClient?.incr('actions-personas-messaging-twilio.profile_error', 1, this.tags)
       throw new IntegrationError('Unable to get profile traits for SMS message', 'SMS trait fetch failure', 500)
     }
