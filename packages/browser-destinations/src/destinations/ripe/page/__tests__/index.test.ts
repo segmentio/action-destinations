@@ -23,6 +23,12 @@ const subscriptions: Subscription[] = [
       anonymousId: {
         '@path': '$.anonymousId'
       },
+      userId: {
+        '@path': '$.userId'
+      },
+      groupId: {
+        '@path': '$.groupId'
+      },
       category: {
         '@path': '$.category'
       },
@@ -72,6 +78,8 @@ describe('Ripe.page', () => {
         payload: {
           messageId: 'ajs-71f386523ee5dfa90c7d0fda28b6b5c6',
           anonymousId: 'anonymousId',
+          userId: undefined,
+          groupId: undefined,
           category: 'main',
           name: 'page2',
           properties: {
@@ -83,10 +91,12 @@ describe('Ripe.page', () => {
 
     expect(window.Ripe.page).toHaveBeenCalledWith({
       messageId: 'ajs-71f386523ee5dfa90c7d0fda28b6b5c6',
+      userId: undefined,
+      groupId: undefined,
+      anonymousId: 'anonymousId',
       category: 'main',
       name: 'page2',
       properties: expect.objectContaining({ previous: 'page1' })
     })
-    expect(window.Ripe.setIds).toHaveBeenCalledWith('anonymousId', undefined, undefined)
   })
 })

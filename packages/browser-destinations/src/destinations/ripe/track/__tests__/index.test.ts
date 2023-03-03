@@ -23,6 +23,12 @@ const subscriptions: Subscription[] = [
       anonymousId: {
         '@path': '$.anonymousId'
       },
+      userId: {
+        '@path': '$.userId'
+      },
+      groupId: {
+        '@path': '$.groupId'
+      },
       event: {
         '@path': '$.event'
       },
@@ -68,6 +74,8 @@ describe('Ripe.track', () => {
         payload: {
           messageId: 'ajs-71f386523ee5dfa90c7d0fda28b6b5c6',
           anonymousId: 'anonymousId',
+          userId: undefined,
+          groupId: undefined,
           event: 'Form Submitted',
           properties: {
             is_new_lead: true
@@ -78,9 +86,11 @@ describe('Ripe.track', () => {
 
     expect(window.Ripe.track).toHaveBeenCalledWith({
       messageId: 'ajs-71f386523ee5dfa90c7d0fda28b6b5c6',
+      anonymousId: 'anonymousId',
+      userId: undefined,
+      groupId: undefined,
       event: 'Form Submitted',
       properties: expect.objectContaining({ is_new_lead: true })
     })
-    expect(window.Ripe.setIds).toHaveBeenCalledWith('anonymousId', undefined, undefined)
   })
 })

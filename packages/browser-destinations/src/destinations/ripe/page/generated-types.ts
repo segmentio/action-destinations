@@ -8,11 +8,11 @@ export interface Payload {
   /**
    * The ID associated with the user
    */
-  userId?: string
+  userId?: string | null
   /**
    * The ID associated groupId
    */
-  groupId?: string
+  groupId?: string | null
   /**
    * The category of the page
    */

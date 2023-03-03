@@ -26,6 +26,9 @@ const subscriptions: Subscription[] = [
       userId: {
         '@path': '$.userId'
       },
+      groupId: {
+        '@path': '$.groupId'
+      },
       traits: {
         '@path': '$.traits'
       }
@@ -69,6 +72,7 @@ describe('Ripe.identify', () => {
           messageId: 'ajs-71f386523ee5dfa90c7d0fda28b6b5c6',
           anonymousId: 'anonymousId',
           userId: 'userId',
+          groupId: undefined,
           traits: {
             name: 'Simon'
           }
@@ -79,6 +83,8 @@ describe('Ripe.identify', () => {
     expect(window.Ripe.identify).toHaveBeenCalledWith({
       messageId: 'ajs-71f386523ee5dfa90c7d0fda28b6b5c6',
       userId: expect.stringMatching('userId'),
+      anonymousId: 'anonymousId',
+      groupId: undefined,
       traits: expect.objectContaining({ name: 'Simon' })
     })
   })

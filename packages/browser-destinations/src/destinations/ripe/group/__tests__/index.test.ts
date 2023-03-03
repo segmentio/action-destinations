@@ -20,6 +20,12 @@ const subscriptions: Subscription[] = [
       messageId: {
         '@path': '$.messageId'
       },
+      anonymousId: {
+        '@path': '$.anonymousId'
+      },
+      userId: {
+        '@path': '$.userId'
+      },
       groupId: {
         '@path': '$.groupId'
       },
@@ -50,6 +56,7 @@ describe('Ripe.group', () => {
     await event.group?.(
       new Context({
         messageId: 'ajs-71f386523ee5dfa90c7d0fda28b6b5c6',
+        anonymousId: 'anonId1',
         type: 'group',
         groupId: 'groupId1',
         traits: {
@@ -63,6 +70,8 @@ describe('Ripe.group', () => {
       expect.objectContaining({
         payload: {
           messageId: 'ajs-71f386523ee5dfa90c7d0fda28b6b5c6',
+          anonymousId: 'anonId1',
+          userId: undefined,
           groupId: 'groupId1',
           traits: {
             is_new_group: true
@@ -73,6 +82,8 @@ describe('Ripe.group', () => {
 
     expect(window.Ripe.group).toHaveBeenCalledWith({
       messageId: 'ajs-71f386523ee5dfa90c7d0fda28b6b5c6',
+      anonymousId: 'anonId1',
+      userId: undefined,
       groupId: 'groupId1',
       traits: expect.objectContaining({ is_new_group: true })
     })

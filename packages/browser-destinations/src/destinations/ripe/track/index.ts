@@ -19,6 +19,7 @@ const action: BrowserActionDefinition<Settings, RipeSDK, Payload> = {
     userId: {
       type: 'string',
       required: false,
+      allowNull: true,
       description: 'The ID associated with the user',
       label: 'User ID',
       default: { '@path': '$.userId' }
@@ -26,6 +27,7 @@ const action: BrowserActionDefinition<Settings, RipeSDK, Payload> = {
     groupId: {
       type: 'string',
       required: false,
+      allowNull: true,
       description: 'The ID associated groupId',
       label: 'Group ID',
       default: { '@path': '$.context.groupId' }
@@ -53,9 +55,15 @@ const action: BrowserActionDefinition<Settings, RipeSDK, Payload> = {
     }
   },
   perform: async (ripe, { payload }) => {
-    await ripe.setIds(payload.anonymousId, payload.userId, payload.groupId)
     if (payload?.event) {
-      return ripe.track({ messageId: payload.messageId, event: payload.event, properties: payload.properties })
+      return ripe.track({
+        messageId: payload.messageId,
+        anonymousId: payload.anonymousId,
+        userId: payload.userId,
+        groupId: payload.groupId,
+        event: payload.event,
+        properties: payload.properties
+      })
     }
   }
 }
