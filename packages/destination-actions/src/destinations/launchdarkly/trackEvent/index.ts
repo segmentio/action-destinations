@@ -49,7 +49,7 @@ const action: ActionDefinition<Settings, Payload> = {
       type: 'string',
       required: true,
       description:
-        "The event's context kind. To learn more, read [Contexts](https://docs.launchdarkly.com/home/contexts).",
+        "The event's context kind. To learn more, read [Contexts and segments](https://docs.launchdarkly.com/home/contexts).",
       default: 'user'
     },
     user_key: {
@@ -69,7 +69,7 @@ const action: ActionDefinition<Settings, Payload> = {
       label: 'Additional Context Keys',
       type: 'object',
       description:
-        'A mapping of additional context kinds to context keys. To learn more, read [Contexts](https://docs.launchdarkly.com/home/contexts).',
+        'A mapping of additional context kinds to context keys. To learn more, read [Contexts and segments](https://docs.launchdarkly.com/home/contexts).',
       default: {
         unauthenticatedUser: { '@path': '$.anonymousId' }
       }

@@ -38,7 +38,7 @@ const action: ActionDefinition<Settings, Payload> = {
       type: 'string',
       required: true,
       description:
-        'The LaunchDarkly context kind used for identified users. To learn more, read [Contexts](https://docs.launchdarkly.com/home/contexts).',
+        'The LaunchDarkly context kind used for identified users. To learn more, read [Contexts and segments](https://docs.launchdarkly.com/home/contexts).',
       default: 'user'
     },
     user_key: {
@@ -55,7 +55,7 @@ const action: ActionDefinition<Settings, Payload> = {
       type: 'string',
       required: true,
       description:
-        'The LaunchDarkly context kind used for unauthenticated users. To learn more, read [Contexts](https://docs.launchdarkly.com/home/contexts).',
+        'The LaunchDarkly context kind used for unauthenticated users. To learn more, read [Contexts and segments](https://docs.launchdarkly.com/home/contexts).',
       default: 'unauthenticatedUser'
     },
     previous_key: {
