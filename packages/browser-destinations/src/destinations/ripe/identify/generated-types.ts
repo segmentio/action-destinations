@@ -19,4 +19,8 @@ export interface Payload {
   traits?: {
     [k: string]: unknown
   }
+  /**
+   * The Segment messageId
+   */
+  messageId?: string
 }

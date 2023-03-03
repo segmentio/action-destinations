@@ -17,6 +17,9 @@ const subscriptions: Subscription[] = [
     enabled: true,
     subscribe: 'type = "track"',
     mapping: {
+      messageId: {
+        '@path': '$.messageId'
+      },
       anonymousId: {
         '@path': '$.anonymousId'
       },
@@ -49,6 +52,7 @@ describe('Ripe.track', () => {
 
     await event.track?.(
       new Context({
+        messageId: 'ajs-71f386523ee5dfa90c7d0fda28b6b5c6',
         type: 'track',
         anonymousId: 'anonymousId',
         event: 'Form Submitted',
@@ -62,6 +66,7 @@ describe('Ripe.track', () => {
       expect.anything(),
       expect.objectContaining({
         payload: {
+          messageId: 'ajs-71f386523ee5dfa90c7d0fda28b6b5c6',
           anonymousId: 'anonymousId',
           event: 'Form Submitted',
           properties: {
@@ -71,7 +76,11 @@ describe('Ripe.track', () => {
       })
     )
 
-    expect(window.Ripe.track).toHaveBeenCalledWith('Form Submitted', expect.objectContaining({ is_new_lead: true }))
+    expect(window.Ripe.track).toHaveBeenCalledWith({
+      messageId: 'ajs-71f386523ee5dfa90c7d0fda28b6b5c6',
+      event: 'Form Submitted',
+      properties: expect.objectContaining({ is_new_lead: true })
+    })
     expect(window.Ripe.setIds).toHaveBeenCalledWith('anonymousId', undefined, undefined)
   })
 })

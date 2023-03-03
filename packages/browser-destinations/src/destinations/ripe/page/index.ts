@@ -62,11 +62,23 @@ const action: BrowserActionDefinition<Settings, RipeSDK, Payload> = {
       description: 'Page properties',
       label: 'Properties',
       default: { '@path': '$.properties' }
+    },
+    messageId: {
+      type: 'string',
+      required: false,
+      description: 'The Segment messageId',
+      label: 'MessageId',
+      default: { '@path': '$.messageId' }
     }
   },
   perform: async (ripe, { payload }) => {
     await ripe.setIds(payload.anonymousId, payload.userId, payload.groupId)
-    return ripe.page(payload.category, payload.name, payload.properties)
+    return ripe.page({
+      messageId: payload.messageId,
+      category: payload.category,
+      name: payload.name,
+      properties: payload.properties
+    })
   }
 }
 

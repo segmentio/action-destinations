@@ -36,11 +36,18 @@ const action: BrowserActionDefinition<Settings, RipeSDK, Payload> = {
       description: 'Traits to associate with the user',
       required: false,
       default: { '@path': '$.traits' }
+    },
+    messageId: {
+      type: 'string',
+      required: false,
+      description: 'The Segment messageId',
+      label: 'MessageId',
+      default: { '@path': '$.messageId' }
     }
   },
   perform: async (ripe, { payload }) => {
     await ripe.setIds(payload.anonymousId, payload.userId, payload.groupId)
-    return ripe.identify(payload.userId, payload.traits)
+    return ripe.identify({ messageId: payload.messageId, userId: payload.userId, traits: payload.traits })
   }
 }
 

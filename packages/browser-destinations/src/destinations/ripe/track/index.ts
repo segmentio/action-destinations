@@ -43,12 +43,19 @@ const action: BrowserActionDefinition<Settings, RipeSDK, Payload> = {
       description: 'Properties to send with the event',
       label: 'Event properties',
       default: { '@path': '$.properties' }
+    },
+    messageId: {
+      type: 'string',
+      required: false,
+      description: 'The Segment messageId',
+      label: 'MessageId',
+      default: { '@path': '$.messageId' }
     }
   },
   perform: async (ripe, { payload }) => {
     await ripe.setIds(payload.anonymousId, payload.userId, payload.groupId)
     if (payload?.event) {
-      return ripe.track(payload.event, payload.properties)
+      return ripe.track({ messageId: payload.messageId, event: payload.event, properties: payload.properties })
     }
   }
 }
