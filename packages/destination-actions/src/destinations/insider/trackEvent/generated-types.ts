@@ -26,11 +26,11 @@ export interface Payload {
     /**
      * Product category being viewed
      */
-    ta?: string
+    taxonomy?: string
     /**
      * Name of the product being viewed
      */
-    na?: string
+    name?: string
     /**
      * Variant of the product
      */
@@ -38,20 +38,20 @@ export interface Payload {
     /**
      * Sale Price ($) of the product being viewed
      */
-    usp?: number
+    unit_sales_price?: number
     /**
      * Price ($) of the product being viewed
      */
-    up?: number
+    unit_price?: number
     /**
      * Quantity of a product
      */
-    qu?: number
-    piu?: string
+    quantity?: number
+    product_image_url?: string
     /**
      * Order or Basket Id
      */
-    e_quid?: string
+    event_group_id?: string
     referrer?: string
     user_agent?: string
     [k: string]: unknown
@@ -67,23 +67,23 @@ export interface Payload {
     /**
      * Taxonomy
      */
-    ta?: string
+    taxonomy?: string
     /**
      * Name
      */
-    na?: string
+    name?: string
     /**
      * Price
      */
-    usp?: number
+    unit_sales_price?: number
     /**
      * Price
      */
-    up?: number
+    unit_price?: number
     /**
      * Quantity
      */
-    qu?: number
+    quantity?: number
     /**
      * Product Url
      */
@@ -91,7 +91,7 @@ export interface Payload {
     /**
      * Product Image Url
      */
-    piu?: string
+    product_image_url?: string
     [k: string]: unknown
   }[]
   attributes?: {
