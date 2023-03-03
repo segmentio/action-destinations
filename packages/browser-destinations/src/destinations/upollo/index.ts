@@ -14,7 +14,7 @@ declare global {
 }
 
 export const destination: BrowserDestinationDefinition<Settings, UpolloClient> = {
-  name: 'Upollo',
+  name: 'Upollo Web (Actions)',
   slug: 'actions-upollo',
   mode: 'device',
 
