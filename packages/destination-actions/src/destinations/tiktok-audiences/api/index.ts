@@ -1,13 +1,14 @@
 import type { RequestClient, ModifiedResponse } from '@segment/actions-core'
 import type { Payload } from '../addUser/generated-types'
 import { BASE_URL, TIKTOK_API_VERSION } from '../constants'
-import type { GetAudienceAPIResponse, CreateAudienceAPIResponse } from '../types'
+import type { GetAudienceAPIResponse, CreateAudienceAPIResponse, APIResponse } from '../types'
 import { DynamicFieldResponse } from '@segment/actions-core'
 
 interface AdvertiserInfoItem {
   advertiser_id: string
   name: string
 }
+
 interface AdvertiserInfoResponse {
   code: number
   message: string
@@ -34,15 +35,26 @@ export class TikTokAudiences {
     this.selectedAdvertiserID = selectedAdvertiserID
   }
 
-  async getAudiences(page_number: number, page_size: number): Promise<ModifiedResponse<GetAudienceAPIResponse>> {
-    return this.request(`${BASE_URL}${TIKTOK_API_VERSION}/dmp/custom_audience/list/`, {
-      method: 'GET',
-      searchParams: {
-        advertiser_id: this.selectedAdvertiserID ?? '',
-        page: page_number,
-        page_size: page_size
-      }
+  async getUserInfo(): Promise<ModifiedResponse<APIResponse>> {
+    return this.request(`${BASE_URL}${TIKTOK_API_VERSION}/user/info/`, {
+      method: 'GET'
     })
+  }
+
+  async getAudiences(page_number: number, page_size: number): Promise<GetAudienceAPIResponse> {
+    const response: ModifiedResponse<GetAudienceAPIResponse> = await this.request(
+      `${BASE_URL}${TIKTOK_API_VERSION}/dmp/custom_audience/list/`,
+      {
+        method: 'GET',
+        searchParams: {
+          advertiser_id: this.selectedAdvertiserID ?? '',
+          page: page_number,
+          page_size: page_size
+        }
+      }
+    )
+
+    return response.data
   }
 
   async createAudience(payload: Payload): Promise<ModifiedResponse<CreateAudienceAPIResponse>> {

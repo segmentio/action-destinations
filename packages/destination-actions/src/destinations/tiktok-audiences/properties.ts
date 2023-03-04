@@ -11,7 +11,7 @@ export const selected_advertiser_id: InputField = {
 export const custom_audience_name: InputField = {
   label: 'Custom Audience Name',
   description:
-    'Custom audience name of audience to be created. Please note that names over 70 characters will be truncated to 67 characters with "..." appended. This field is set only when Segment creates a new audience. Updating this field after Segment has created an audience will not update the audience name in TikTok.',
+    'Custom audience name of audience to be created. Please note that names over 70 characters will be truncated to 67 characters with "..." appended. This field is set only when Segment creates a new audience. Updating this field after Segment has created an audience will not update the audience name in TikTok.Instead, updating the audience name here will create a separate audience in TikTok with the new audience name.',
   type: 'string',
   default: {
     '@path': '$.properties.audience_key'
@@ -52,7 +52,7 @@ export const send_email: InputField = {
 
 export const advertising_id: InputField = {
   label: 'User Advertising ID',
-  description: "The user's mobile dvertising ID to send to TikTok. This could be a GAID, IDFA, or AAID",
+  description: "The user's mobile advertising ID to send to TikTok. This could be a GAID, IDFA, or AAID",
   type: 'hidden', // This field is hidden from customers because the desired value always appears at path '$.context.device.advertisingId' in Personas events.
   default: {
     '@path': '$.context.device.advertisingId'

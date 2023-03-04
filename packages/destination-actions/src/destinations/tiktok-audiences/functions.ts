@@ -74,15 +74,15 @@ export function validate(payloads: GenericPayload[]): void {
 // the advertiser account.
 export async function getAllAudiences(TikTokApiClient: TikTokAudiences) {
   let response = await TikTokApiClient.getAudiences(1, 100)
-  let audiences: Audiences[] = response.data.data.list
-  const total_number_audiences = response.data.data.page_info.total_number
-  let recieved_audiences = 100
+  let audiences: Audiences[] = response.data.list
+  const total_number_audiences = response.data.page_info.total_number
+  let recieved_audiences = response.data.page_info.page_size
   let page_number = 2
   while (recieved_audiences < total_number_audiences) {
     response = await TikTokApiClient.getAudiences(page_number, 100)
-    audiences = audiences.concat(response.data.data.list)
+    audiences = audiences.concat(response.data.list)
     page_number += 1
-    recieved_audiences += 100
+    recieved_audiences += response.data.page_info.page_size
   }
   return audiences
 }
