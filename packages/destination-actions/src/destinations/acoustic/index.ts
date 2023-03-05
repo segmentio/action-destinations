@@ -96,22 +96,6 @@ const destination: DestinationDefinition<Settings> = {
       }
     },
 
-    //testAuthentication?: (request: RequestClient, input: AuthSettings<Settings>) => Promise<unknown> | unknown
-    // interface AuthSettings<Settings> {
-    //   settings: Settings
-    //   auth: AuthTokens
-    // }
-
-    // export interface AuthTokens {
-    //   /** OAuth2 access token */
-    //   accessToken: string
-    //   /** OAuth2 refresh token */
-    //   refreshToken: string
-    //   /** The refresh token url used to get an updated access token. This value is configured in the developer portal. **/
-    //   refreshTokenUrl?: string
-    // }
-    //
-
     testAuthentication: async (request, auth) => {
       console.log('\n\n\nIn Test Authentication...\n\n\n')
       return await request(
@@ -130,17 +114,6 @@ const destination: DestinationDefinition<Settings> = {
         }
       )
     },
-
-    //   refreshAccessToken?: (
-    //     request: RequestClient,
-    //     input: RefreshAuthSettings<Settings>
-    //   ) => Promise<RefreshAccessTokenResult>
-    // }
-
-    // interface RefreshAuthSettings<Settings> {
-    //   settings: Settings
-    //   auth: OAuth2ClientCredentials
-    // }
 
     refreshAccessToken: async (request, { settings, auth }) => {
       // Return a request that refreshes the access_token if the API supports it

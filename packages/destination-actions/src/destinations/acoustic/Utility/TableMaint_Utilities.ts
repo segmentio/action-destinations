@@ -9,28 +9,14 @@ export function getxmlAPIUrl(settings: Settings) {
   const xmlapi = xx.replace('X', settings.a_pod)
   return xmlapi
 }
-// export function getAuthUrl(settings: Settings) {
-//   const zz = String(settings.a_authAPIURL)
-//   const xx: string = zz.replace('XX', settings.a_region)
-//   const authURL = xx.replace('X', settings.a_pod)
-//   return authURL
-// }
 
 export async function getAccessToken(request: RequestClient, settings: Settings) {
-  //authSettings: {settings: Settings, auth: {"accessToken": string, "refreshToken": string, "refreshTokenUrl"?: string}}
-
-  // const authMgd: OAuth2ClientCredentials = getOAuth2Data({
-  //   'clientID': authSettings.a_client_id,
-  //   'clientSecret': authSettings.a_client_secret,
-  //   'refreshToken': authSettings.a_refresh_token
-  // })
-
   const res = await request(`https://api-campaign-${settings.a_region}-${settings.a_pod}.goacoustic.com/oauth/token`, {
     method: 'POST',
     body: new URLSearchParams({
-      client_id: a_settings.a_client_id,
-      client_secret: a_settings.a_client_secret,
-      refresh_token: a_settings.a_refresh_token,
+      client_id: settings.a_client_id,
+      client_secret: settings.a_client_secret,
+      refresh_token: settings.a_refresh_token,
       grant_type: 'refresh_token'
     }),
     headers: {
@@ -46,7 +32,7 @@ export async function getAccessToken(request: RequestClient, settings: Settings)
 
 export async function preChecksAndMaint(request: RequestClient, settings: Settings) {
   const aw = await getAccessToken(request, settings)
-  const at = aw.access_token
+  const at = aw.accessToken
 
   //Long-term Maintenance
   //For Support to easily reset a Customers Acoustic "Segment Events Table"
