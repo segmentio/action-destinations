@@ -78,11 +78,7 @@ export async function preChecksAndMaint(request: RequestClient, settings: Settin
   return at
 }
 
-export const createSegmentEventsTable = async (
-  request: RequestClient,
-  settings: Settings,
-  accessToken: string
-): Promise<Response> => {
+export async function createSegmentEventsTable(request: RequestClient, settings: Settings, accessToken: string) {
   const createEventsXML = `<Envelope>
     <Body>
       <CreateTable>
@@ -144,7 +140,7 @@ export const createSegmentEventsTable = async (
   return createSegmentEventsTable
 }
 
-export const deleteRTs = async (request: RequestClient, settings: Settings, accessToken: string): Promise<String> => {
+export async function deleteRTs(request: RequestClient, settings: Settings, accessToken: string) {
   //Need Audit Trail here - what's Segment equivalent for Audit log?
   console.log('Delete Audience Table: ')
 

@@ -1,10 +1,10 @@
 import { ActionDefinition } from '@segment/actions-core'
-import type { Settings } from '../generated-types'
+import { Settings } from '../generated-types'
 import { Payload } from './generated-types'
 import { IntegrationError } from '@segment/actions-core'
 import { preChecksAndMaint } from '../Utility/TableMaint_Utilities'
 import get from 'lodash/get'
-import { addUpdateEvents } from '../Utility/EventProcessing'
+import { addUpdateEvents, postUpdates } from '../Utility/EventProcessing'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Receive Track and Identify Events',
@@ -82,7 +82,9 @@ const action: ActionDefinition<Settings, Payload> = {
     const at = await preChecksAndMaint(request, settings)
 
     //Ok, prechecks and Maint are all accomplished, let's see what needs to be processed,
-    return await addUpdateEvents(request, payload, settings, at, email)
+    const rows = addUpdateEvents(payload, email)
+
+    return await postUpdates(request, settings, at, rows, 1)
   },
 
   performBatch: async (request, { settings, payload }) => {
@@ -90,17 +92,17 @@ const action: ActionDefinition<Settings, Payload> = {
 
     //Ok, prechecks and Maint are all attended to, let's see what needs to be processed,
     let i = 0
+    let rows = ''
     for (const e of payload) {
       i++
-
       let email = get(e, 'context.traits.email', 'Null')
       if (email == undefined) email = get(e, 'traits.email', 'Null')
       if (email == undefined)
         throw new IntegrationError('Email not provided, cannot process Events without included Email')
 
-      return await addUpdateEvents(request, e, settings, at, email)
+      rows = addUpdateEvents(e, email)
     }
-    return i
+    return await postUpdates(request, settings, at, rows, i)
   }
 }
 

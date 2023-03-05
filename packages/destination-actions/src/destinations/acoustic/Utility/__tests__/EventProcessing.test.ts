@@ -4,7 +4,7 @@
 // import { Settings } from '../../generated-types'
 // import { Payload } from '../../receiveEvents/generated-types'
 // import { acousticAuth, getxmlAPIUrl } from '../TableMaint_Utilities'
-import { parseProperties, parseSections, addUpdateEvents } from '../EventProcessing'
+import { parseSections, addUpdateEvents } from '../EventProcessing'
 
 jest.mock('@segment/actions-core')
 jest.mock('lodash/flatten')
@@ -15,7 +15,7 @@ jest.mock('../TableMaint_Utilities')
 
 describe('parseProperties', () => {
   it('should expose a function', () => {
-    expect(parseProperties).toBeDefined()
+    expect(parseSections).toBeDefined()
   })
 
   it('parseProperties should return expected output', () => {

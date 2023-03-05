@@ -4,47 +4,50 @@ import { Settings } from '../generated-types'
 import { Payload } from '../receiveEvents/generated-types'
 import { getxmlAPIUrl } from './TableMaint_Utilities'
 
+// export function OldparseSections(section: { [key: string]: string }, parseResults: { [key: string]: string }) {
+//   let a,
+//     b,
+//     c,
+//     d = {} as keyof typeof section
+//   get(section, 'messageid')
+//   try {
+//     for (a of Object.keys(section)) {
+//       if (typeof get(section, `${a}`, 'Null') !== 'object') {
+//         parseResults[`${a}`] = get(section, `${a}`, 'Null')
+//       } else
+//         for (b of Object.keys(get(section, `${a}`, 'Null'))) {
+//           if (typeof get(section, `${a}.${b}`, 'Null') !== 'object') {
+//             parseResults[`${a}.${b}`] = get(section, `${a}.${b}`, 'Null')
+//           } else
+//             for (c of Object.keys(get(section, `${a}${b}`, 'Null'))) {
+//               if (typeof get(section, `${a}.${b}.${c}`, 'Null') !== 'object') {
+//                 parseResults[`${a}.${b}.${c}`] = get(section, `${a}.${b}.${c}`, 'Null')
+//               } else
+//                 for (d of Object.keys(get(section, `${a}${b}${c}`, 'Null'))) {
+//                   if (typeof get(section, `${a}.${b}.${c}.${d}`, 'Null') !== 'object') {
+//                     parseResults[`${a}.${b}.${c}.${d}`] = get(section, `${a}.${b}.${c}.${d}`, 'Null')
+//                   }
+//                 }
+//             }
+//         }
+//     }
+//   } catch (e) {
+//     //Need an Audit trail here - core data should not fail silently
+//     console.log(`Section Parsing Exception: \n + \n${a} + \n${b} + \n${c} + \n${d} + \n ${e}`)
+//   }
+//   return parseResults
+// }
+
 export function parseSections(section: { [key: string]: string }, parseResults: { [key: string]: string }) {
-  let a,
-    b,
-    c,
-    d = {} as keyof typeof section
   get(section, 'messageid')
-  try {
-    for (a of Object.keys(section)) {
-      if (typeof get(section, `${a}`, 'Null') !== 'object') {
-        parseResults[`${a}`] = get(section, `${a}`, 'Null')
-      } else
-        for (b of Object.keys(get(section, `${a}`, 'Null'))) {
-          if (typeof get(section, `${a}.${b}`, 'Null') !== 'object') {
-            parseResults[`${a}.${b}`] = get(section, `${a}.${b}`, 'Null')
-          } else
-            for (c of Object.keys(get(section, `${a}${b}`, 'Null'))) {
-              if (typeof get(section, `${a}.${b}.${c}`, 'Null') !== 'object') {
-                parseResults[`${a}.${b}.${c}`] = get(section, `${a}.${b}.${c}`, 'Null')
-              } else
-                for (d of Object.keys(get(section, `${a}${b}${c}`, 'Null'))) {
-                  if (typeof get(section, `${a}.${b}.${c}.${d}`, 'Null') !== 'object') {
-                    parseResults[`${a}.${b}.${c}.${d}`] = get(section, `${a}.${b}.${c}.${d}`, 'Null')
-                  }
-                }
-            }
-        }
-    }
-  } catch (e) {
-    //Need an Audit trail here - core data should not fail silently
-    console.log(`Section Parsing Exception: \n + \n${a} + \n${b} + \n${c} + \n${d} + \n ${e}`)
+  for (const k of Object.keys(section)) {
+    parseResults[k] = get(section, k, 'Null')
   }
+
   return parseResults
 }
 
-export const addUpdateEvents = async (
-  request: RequestClient,
-  payload: Payload,
-  settings: Settings,
-  accessToken: string,
-  email: string
-): Promise<Response> => {
+export function addUpdateEvents(payload: Payload, email: string) {
   let eventName = ''
   let eventValue = ''
   let xmlRows = ''
@@ -107,25 +110,32 @@ export const addUpdateEvents = async (
      <COLUMN name="Event Timestamp"> <![CDATA[${timestamp}]]></COLUMN>
      </ROW>`
   }
+  return xmlRows
+}
 
+export const postUpdates = async (
+  request: RequestClient,
+  settings: Settings,
+  accessToken: string,
+  xmlRows: string,
+  i: number
+): Promise<Response> => {
   return await request(getxmlAPIUrl(settings), {
     method: 'POST',
     headers: {
-      'Accept-Encoding': 'gzip, deflate, br',
-      Accept: '*/*',
       'Content-Type': 'text/xml',
       authorization: `Bearer ${accessToken} `,
-      Connection: 'keep-alive'
+      'User-Agent': `Silverpop Updates Sent(${i}`
     },
     body: `<Envelope>
-      <Body>
-        <InsertUpdateRelationalTable>
-        <TABLE_ID>${settings.a_events_table_list_id} </TABLE_ID>
-          <ROWS>
-                    ${xmlRows}
-          </ROWS>
-        </InsertUpdateRelationalTable>
-      </Body>
-    </Envelope>`
+    <Body>
+      <InsertUpdateRelationalTable>
+      <TABLE_ID>${settings.a_events_table_list_id} </TABLE_ID>
+        <ROWS>
+                  ${xmlRows}
+        </ROWS>
+      </InsertUpdateRelationalTable>
+    </Body>
+  </Envelope>`
   })
 }
