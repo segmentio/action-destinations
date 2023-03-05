@@ -124,7 +124,9 @@ const destination: DestinationDefinition<Settings> = {
             refresh_token: auth.settings.a_refresh_token,
             grant_type: 'refresh_token'
           }),
-          headers: {}
+          headers: {
+            'Content-Type': 'application/x-www-form-urlencoded'
+          }
         }
       )
     },
@@ -155,7 +157,9 @@ const destination: DestinationDefinition<Settings> = {
             refresh_token: auth.refreshToken,
             grant_type: 'refresh_token'
           }),
-          headers: {}
+          headers: {
+            'Content-Type': 'application/x-www-form-urlencoded'
+          }
         }
       )
       return { accessToken: at.data.access_token }
