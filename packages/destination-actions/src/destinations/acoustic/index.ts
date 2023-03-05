@@ -2,12 +2,19 @@ import type { DestinationDefinition } from '@segment/actions-core'
 import type { Settings } from './generated-types'
 import receiveEvents from './receiveEvents'
 
+interface RefreshTokenResponse {
+  access_token: string
+  scope: string
+  expires_in: number
+  token_type: string
+}
+
 const destination: DestinationDefinition<Settings> = {
-  name: 'Acoustic Segment Connector',
-  slug: 'actions-acoustic-segment-connector',
+  name: 'Acoustic Campaign Cloud',
+  slug: 'actions-acoustic-campaign-cloud',
   mode: 'cloud',
   authentication: {
-    scheme: 'oauth2',
+    scheme: 'oauth-managed',
     fields: {
       a_pod: {
         label: 'Pod',
@@ -19,28 +26,34 @@ const destination: DestinationDefinition<Settings> = {
       a_region: {
         label: 'Region',
         description: 'Region where Pod is hosted, either US, EU, AP, or CA',
+        choices: [
+          { label: 'US', value: 'US' },
+          { label: 'EU', value: 'EU' },
+          { label: 'AP', value: 'AP' },
+          { label: 'CA', value: 'CA' }
+        ],
         default: 'US',
         type: 'string',
         required: true
       },
       a_client_id: {
         label: 'Client Id',
-        description: 'Client Id provided with Definition of Audience Application in Acoustic',
-        default: '1d99f8d8-0897-4090-983a-c517cc54032e',
+        description: 'Client Id provided with Definition of Segment Events Application in Acoustic',
+        default: '',
         type: 'string',
         required: true
       },
       a_client_secret: {
         label: 'Client Secret',
-        description: 'Client Secret provided with Definition of Audience Application in Acoustic',
-        default: '124bd238-0987-40a2-b8fb-879ddd4d3241',
+        description: 'Client Secret provided with Definition of Segment Events in Acoustic',
+        default: '',
         type: 'password',
         required: true
       },
       a_refresh_token: {
         label: 'Client Refresh Token',
-        description: 'Refresh Token provided with Defnition of Audience Application Access in Acoustic',
-        default: 'rD-7E2r8BynGDaapr13oJV9BxQr20lsYGN9RPkbrtPtAS1',
+        description: 'Refresh Token provided with Definition of Segment Events Application Access in Acoustic',
+        default: '',
         type: 'password',
         required: true
       },
@@ -52,7 +65,7 @@ const destination: DestinationDefinition<Settings> = {
         type: 'number',
         required: false
       },
-      a_audi_list_id: {
+      a_events_table_list_id: {
         label: 'Events Table List Id',
         description: '"Segment Events Table" List Id from Acoustic Databases Dialog ',
         default: '',
@@ -76,41 +89,76 @@ const destination: DestinationDefinition<Settings> = {
       a_deleteCode: {
         label: 'Support Only (Delete Code)',
         description:
-          'Reserved for Support, code to delete and recreate the Acoustic "Segment Audience Table" effectively resetting all Segment Audience data in Acoustic',
+          'Reserved for Support, code to delete and recreate the Acoustic "Segment Events Table" effectively resetting all Segment Events data in Acoustic',
         default: 0,
         type: 'number',
         required: false
       }
     },
-    testAuthentication: async (request, { settings }) => {
-      return await request(`https://api-campaign-${settings.a_region}-${settings.a_pod}.goacoustic.com/oauth/token`, {
-        method: 'POST',
-        body: new URLSearchParams({
-          client_id: settings.a_client_id,
-          client_secret: settings.a_client_secret,
-          refresh_token: settings.a_refresh_token,
-          grant_type: 'refresh_token'
-        }),
-        headers: {}
-      })
-    },
-    refreshAccessToken: async (request, { settings }) => {
-      // Return a request that refreshes the access_token if the API supports it
-      const at = await request(
-        `https://api-campaign-${settings.a_region}-${settings.a_pod}.goacoustic.com/oauth/token`,
+
+    //testAuthentication?: (request: RequestClient, input: AuthSettings<Settings>) => Promise<unknown> | unknown
+    // interface AuthSettings<Settings> {
+    //   settings: Settings
+    //   auth: AuthTokens
+    // }
+
+    // export interface AuthTokens {
+    //   /** OAuth2 access token */
+    //   accessToken: string
+    //   /** OAuth2 refresh token */
+    //   refreshToken: string
+    //   /** The refresh token url used to get an updated access token. This value is configured in the developer portal. **/
+    //   refreshTokenUrl?: string
+    // }
+    //
+
+    testAuthentication: async (request, auth) => {
+      console.log('\n\n\nIn Test Authentication...\n\n\n')
+      return await request(
+        `https://api-campaign-${auth.settings.a_region}-${auth.settings.a_pod}.goacoustic.com/oauth/token`,
         {
           method: 'POST',
           body: new URLSearchParams({
-            client_id: settings.a_client_id,
-            client_secret: settings.a_client_secret,
-            refresh_token: settings.a_refresh_token,
+            client_id: auth.settings.a_client_id,
+            client_secret: auth.settings.a_client_secret,
+            refresh_token: auth.settings.a_refresh_token,
             grant_type: 'refresh_token'
           }),
           headers: {}
         }
       )
+    },
 
-      return at.json()
+    //   refreshAccessToken?: (
+    //     request: RequestClient,
+    //     input: RefreshAuthSettings<Settings>
+    //   ) => Promise<RefreshAccessTokenResult>
+    // }
+
+    // interface RefreshAuthSettings<Settings> {
+    //   settings: Settings
+    //   auth: OAuth2ClientCredentials
+    // }
+
+    refreshAccessToken: async (request, { settings, auth }) => {
+      // Return a request that refreshes the access_token if the API supports it
+      console.log('\n\n\nIn Refresh Auth Token...\n\n\n')
+      //const res = await getAccessToken(request, auth)
+
+      const at = await request<RefreshTokenResponse>(
+        `https://api-campaign-${settings.a_region}-${settings.a_pod}.goacoustic.com/oauth/token`,
+        {
+          method: 'POST',
+          body: new URLSearchParams({
+            client_id: auth.clientId,
+            client_secret: auth.clientSecret,
+            refresh_token: auth.refreshToken,
+            grant_type: 'refresh_token'
+          }),
+          headers: {}
+        }
+      )
+      return { accessToken: at.data.access_token }
     }
   },
   extendRequest({ settings }) {
@@ -119,27 +167,9 @@ const destination: DestinationDefinition<Settings> = {
       headers: {
         Connection: 'keep-alive',
         'Accept-Encoding': 'gzip, deflate, br',
-        Accept: '*/*',
-        'Content-Type': 'application/x-www-form-urlencoded'
+        Accept: '*/*'
       }
     }
-  },
-  onDelete: async (request, { settings, payload }) => {
-    // Return a request that performs a GDPR delete for the provided Segment userId or anonymousId
-    // provided in the payload. If your destination does not support GDPR deletion you should not
-    // implement this function and should remove it completely.
-
-    //Adding GDPR Call Here,
-    //GDPR per EMail,
-    // Segment API to resolve to email from Userid - Segment Profile API Request
-    // to get identifiers and resolve to email
-    //    https://segment.com/docs/profiles/profile-api/
-    //
-
-    request.length
-    settings.a_pod
-    payload.userId
-    return true
   },
   actions: {
     receiveEvents
