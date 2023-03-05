@@ -9,6 +9,7 @@ import { addUpdateEvents, postUpdates } from '../Utility/EventProcessing'
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Receive Track and Identify Events',
   description: 'Provide Segment Track and Identify Event Data to Acoustic Campaign',
+  defaultSubscription: 'type = "track" or type = "identify"',
   fields: {
     email: {
       label: 'Email',
