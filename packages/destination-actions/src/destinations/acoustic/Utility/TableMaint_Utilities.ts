@@ -1,15 +1,7 @@
 import { IntegrationError } from '@segment/actions-core'
 import { RequestClient } from '@segment/actions-core'
-import get from 'lodash/get'
 import { Settings } from '../generated-types'
-
-export interface acousticAuth {
-  clientId: string
-  clientSecret: string
-  refreshToken: string
-  accessToken: string
-  tableListId: string
-}
+import { RefreshAccessTokenResult } from '@segment/actions-core'
 
 export function getxmlAPIUrl(settings: Settings) {
   const zz = String(settings.a_xmlAPIURL)
@@ -17,34 +9,50 @@ export function getxmlAPIUrl(settings: Settings) {
   const xmlapi = xx.replace('X', settings.a_pod)
   return xmlapi
 }
+// export function getAuthUrl(settings: Settings) {
+//   const zz = String(settings.a_authAPIURL)
+//   const xx: string = zz.replace('XX', settings.a_region)
+//   const authURL = xx.replace('X', settings.a_pod)
+//   return authURL
+// }
+
+export async function getAccessToken(request: RequestClient, settings: Settings) {
+  //authSettings: {settings: Settings, auth: {"accessToken": string, "refreshToken": string, "refreshTokenUrl"?: string}}
+
+  // const authMgd: OAuth2ClientCredentials = getOAuth2Data({
+  //   'clientID': authSettings.a_client_id,
+  //   'clientSecret': authSettings.a_client_secret,
+  //   'refreshToken': authSettings.a_refresh_token
+  // })
+
+  const res = await request(`https://api-campaign-${settings.a_region}-${settings.a_pod}.goacoustic.com/oauth/token`, {
+    method: 'POST',
+    body: new URLSearchParams({
+      client_id: a_settings.a_client_id,
+      client_secret: a_settings.a_client_secret,
+      refresh_token: a_settings.a_refresh_token,
+      grant_type: 'refresh_token'
+    }),
+    headers: {
+      'user-agent': 'Segment (refreshtoken)',
+      'Content-Type': 'application/x-www-form-urlencoded'
+    }
+  })
+
+  await res.data
+  const refreshAuth: RefreshAccessTokenResult = res.data as RefreshAccessTokenResult
+  return refreshAuth
+}
 
 export async function preChecksAndMaint(request: RequestClient, settings: Settings) {
-  const auth: acousticAuth = {
-    clientId: settings.a_client_id,
-    clientSecret: settings.a_client_secret,
-    refreshToken: settings.a_refresh_token,
-    accessToken: '',
-    tableListId: ''
-  }
-
-  //Ok, lets process what is coming in,
-  //First reach out to the Acoustic environment to confirm connectivity and
-  //    might as well get an OAuth2 while we're at it
-
-  if (!auth.accessToken) {
-    await getAccessToken(request, settings, auth)
-    //auth.accessToken = at.data
-  }
-  if (!auth.accessToken)
-    throw new IntegrationError(
-      'Could not acquire an Access Token, check configuration parameters are correct and credenntials have not expired. '
-    )
+  const aw = await getAccessToken(request, settings)
+  const at = aw.access_token
 
   //Long-term Maintenance
   //For Support to easily reset a Customers Acoustic "Segment Events Table"
   if (!settings.a_deleteCode) settings.a_deleteCode = 0
   if (settings.a_deleteCode > 99999 && settings.a_deleteCode < 100000) {
-    const _dtabs = await deleteRTs(request, settings, auth)
+    const _dtabs = await deleteRTs(request, settings, at)
     _dtabs.length
   }
 
@@ -64,52 +72,30 @@ export async function preChecksAndMaint(request: RequestClient, settings: Settin
     //  altogether but we'll get it next month - long-term we're still in good shape
     const purgeDate = new Date()
     purgeDate.setFullYear(purgeDate.getFullYear() - 1)
-    await purgeSegmentEventTable(request, settings, auth, purgeDate)
+    await purgeSegmentEventTable(request, settings, at, purgeDate)
   }
 
   //For Testing -
   // await purgeOldAudience(request, settings, auth, "02/11/2023 11:20:00")
 
   //check for Segment Events table, if not exist create it
-  const chkExist = await checkRTExist(request, settings, auth)
+  const chkExist = await checkRTExist(request, settings, at)
   if (!chkExist) {
     //Need audit trail of this - what's Segment equivalent of Logging
     console.log('Acoustic Audiences Table did not exist, creating new ....')
 
-    const crt = await createSegmentEventsTable(request, settings, auth)
+    const crt = await createSegmentEventsTable(request, settings, at)
     if (!crt) {
       throw new IntegrationError('Error attempting to create the Acoustic Segment Events Table')
     }
   }
-  return auth
-}
-
-export const getAccessToken = async (
-  request: RequestClient,
-  settings: Settings,
-  auth: acousticAuth
-): Promise<string> => {
-  const res = await request(`https://api-campaign-${settings.a_region}-${settings.a_pod}.goacoustic.com/oauth/token`, {
-    method: 'POST',
-    body: new URLSearchParams({
-      client_id: auth.clientId,
-      client_secret: auth.clientSecret,
-      refresh_token: auth.refreshToken,
-      grant_type: 'refresh_token'
-    }),
-    headers: {
-      'user-agent': 'Segment (AddUpdateEvents)'
-    }
-  })
-
-  auth.accessToken = get(res.data, 'access_token', '')
-  return get(res.data, 'access_token', '')
+  return at
 }
 
 export const createSegmentEventsTable = async (
   request: RequestClient,
   settings: Settings,
-  auth: acousticAuth
+  accessToken: string
 ): Promise<Response> => {
   const createEventsXML = `<Envelope>
     <Body>
@@ -155,7 +141,8 @@ export const createSegmentEventsTable = async (
     method: 'POST',
     body: createEventsXML,
     headers: {
-      authorization: `Bearer ${auth.accessToken.toString()}`
+      authorization: `Bearer ${accessToken}`,
+      'Content-Type': 'text/xml'
     }
   })
 
@@ -167,11 +154,11 @@ export const createSegmentEventsTable = async (
     if (r) tid = r[1]
   }
 
-  auth.tableListId = tid
+  settings.a_events_table_list_id = tid
   return createSegmentEventsTable
 }
 
-export const deleteRTs = async (request: RequestClient, settings: Settings, auth: acousticAuth): Promise<String> => {
+export const deleteRTs = async (request: RequestClient, settings: Settings, accessToken: string): Promise<String> => {
   //Need Audit Trail here - what's Segment equivalent for Audit log?
   console.log('Delete Audience Table: ')
 
@@ -187,7 +174,8 @@ export const deleteRTs = async (request: RequestClient, settings: Settings, auth
     </Body>
 </Envelope>`,
     headers: {
-      authorization: `Bearer ${auth.accessToken.toString()}`
+      authorization: `Bearer ${accessToken}`,
+      'Content-Type': 'text/xml'
     }
   })
 
@@ -199,25 +187,22 @@ export const deleteRTs = async (request: RequestClient, settings: Settings, auth
   return ''
 }
 
-export const checkRTExist = async (
-  request: RequestClient,
-  settings: Settings,
-  auth: acousticAuth
-): Promise<Boolean> => {
+export async function checkRTExist(request: RequestClient, settings: Settings, accessToken: string) {
   const checkRT = await request(getxmlAPIUrl(settings), {
     method: 'POST',
     headers: {
-      authorization: `Bearer ${auth.accessToken.toString()}`
+      authorization: `Bearer ${accessToken}`,
+      'Content-Type': 'text/xml'
     },
     body: `<Envelope>
-      <Body>
-        <GetLists>
-          <VISIBILITY>1</VISIBILITY>
-          <LIST_TYPE>15</LIST_TYPE>
-          <INCLUDE_ALL_LISTS>True</INCLUDE_ALL_LISTS>
-        </GetLists>
-      </Body>
-    </Envelope>`
+  <Body>
+  <GetLists>
+  <VISIBILITY>1 </VISIBILITY>
+  <LIST_TYPE> 15 </LIST_TYPE>
+  <INCLUDE_ALL_LISTS> True </INCLUDE_ALL_LISTS>
+  </GetLists>
+  </Body>
+  </Envelope>`
   })
 
   const lists = await checkRT.text()
@@ -230,28 +215,29 @@ export const checkRTExist = async (
     const rx = /<ID>(.*)<\/ID>/gm
     const setListId = rx.exec(simplify) ?? '999999999'
 
-    auth.tableListId = setListId[1]
+    settings.a_events_table_list_id = setListId[1]
     return true
   } else {
-    auth.tableListId = '999999999' //Just in case - should not be 999999999
+    settings.a_events_table_list_id = '999999999' //Just in case - should not be 999999999
 
     throw new IntegrationError(
-      `Cannot determine the Segmennt Events Table in the defined Acoustic environment. Please check the documentation and confirm the configuration`
+      `Cannot determine the Segment Events Table in the defined Acoustic environment. Please check the documentation and confirm the configuration`
     )
     return false
   }
 }
 
-export const purgeSegmentEventTable = async (
+export async function purgeSegmentEventTable(
   request: RequestClient,
   settings: Settings,
-  auth: acousticAuth,
+  accessToken: string,
   purgeDate: Date
-): Promise<Response> => {
+) {
   const purgeOldData = await request(getxmlAPIUrl(settings), {
     method: 'POST',
     headers: {
-      authorization: `Bearer ${auth.accessToken.toString()}`
+      authorization: `Bearer ${accessToken}`,
+      'Content-Type': 'text/xml'
     },
     body: `<Envelope> 
       <Body>

@@ -2,7 +2,7 @@ import { RequestClient } from '@segment/actions-core'
 import get from 'lodash/get'
 import { Settings } from '../generated-types'
 import { Payload } from '../receiveEvents/generated-types'
-import { acousticAuth, getxmlAPIUrl } from './TableMaint_Utilities'
+import { getxmlAPIUrl } from './TableMaint_Utilities'
 
 export function parseSections(section: { [key: string]: string }, parseResults: { [key: string]: string }) {
   let a,
@@ -42,7 +42,7 @@ export const addUpdateEvents = async (
   request: RequestClient,
   payload: Payload,
   settings: Settings,
-  auth: acousticAuth,
+  accessToken: string,
   email: string
 ): Promise<Response> => {
   let eventName = ''
@@ -114,13 +114,13 @@ export const addUpdateEvents = async (
       'Accept-Encoding': 'gzip, deflate, br',
       Accept: '*/*',
       'Content-Type': 'text/xml',
-      authorization: `Bearer ${auth.accessToken} `,
+      authorization: `Bearer ${accessToken} `,
       Connection: 'keep-alive'
     },
     body: `<Envelope>
       <Body>
         <InsertUpdateRelationalTable>
-        <TABLE_ID>${auth.tableListId} </TABLE_ID>
+        <TABLE_ID>${settings.a_events_table_list_id} </TABLE_ID>
           <ROWS>
                     ${xmlRows}
           </ROWS>

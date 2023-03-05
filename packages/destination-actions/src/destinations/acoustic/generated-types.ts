@@ -10,15 +10,15 @@ export interface Settings {
    */
   a_region: string
   /**
-   * Client Id provided with Definition of Audience Application in Acoustic
+   * Client Id provided with Definition of Segment Events Application in Acoustic
    */
   a_client_id: string
   /**
-   * Client Secret provided with Definition of Audience Application in Acoustic
+   * Client Secret provided with Definition of Segment Events in Acoustic
    */
   a_client_secret: string
   /**
-   * Refresh Token provided with Defnition of Audience Application Access in Acoustic
+   * Refresh Token provided with Definition of Segment Events Application Access in Acoustic
    */
   a_refresh_token: string
   /**
@@ -28,7 +28,7 @@ export interface Settings {
   /**
    * "Segment Events Table" List Id from Acoustic Databases Dialog
    */
-  a_audi_list_id?: string
+  a_events_table_list_id?: string
   /**
    * Do not change unless directed by Support
    */
@@ -38,7 +38,7 @@ export interface Settings {
    */
   a_xmlAPIURL?: string
   /**
-   * Reserved for Support, code to delete and recreate the Acoustic "Segment Audience Table" effectively resetting all Segment Audience data in Acoustic
+   * Reserved for Support, code to delete and recreate the Acoustic "Segment Events Table" effectively resetting all Segment Events data in Acoustic
    */
   a_deleteCode?: number
 }
