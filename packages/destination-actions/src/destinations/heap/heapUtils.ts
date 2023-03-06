@@ -8,18 +8,22 @@ export const getUserIdentifier = ({
   identity?: string | null
   anonymous_id?: string | null
 }): { [k: string]: string } => {
-  if (identity) {
+  if (identity && isDefined(identity)) {
     return {
       identity
     }
   }
 
-  if (anonymous_id) {
+  if (anonymous_id && isDefined(anonymous_id)) {
     return {
       anonymous_id
     }
   }
   throw new IntegrationError('Either identity or anonymous id are required.')
+}
+
+export const isDefined = (value: string | undefined | null | number) => {
+  return !(value === undefined || value === null || value === '' || value === 0)
 }
 
 export const getEventName = (payload: Payload) => {
@@ -29,10 +33,10 @@ export const getEventName = (payload: Payload) => {
       eventName = payload.event
       break
     case 'page':
-      eventName = payload.name ? `${payload.name} page viewed` : 'Page viewed'
+      eventName = 'Page viewed'
       break
     case 'screen':
-      eventName = payload.name ? `${payload.name} screen viewed` : 'Screen viewed'
+      eventName = 'Screen viewed'
       break
     default:
       eventName = 'track'

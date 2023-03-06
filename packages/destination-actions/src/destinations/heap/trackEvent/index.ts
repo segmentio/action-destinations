@@ -4,7 +4,7 @@ import type { Payload } from './generated-types'
 import dayjs from '../../../lib/dayjs'
 import { HEAP_SEGMENT_CLOUD_LIBRARY_NAME } from '../constants'
 import { flat } from '../flat'
-import { getUserIdentifier, getEventName } from '../heapUtils'
+import { getUserIdentifier, getEventName, isDefined } from '../heapUtils'
 import { IntegrationError } from '@segment/actions-core'
 
 type HeapEvent = {
@@ -111,11 +111,15 @@ const action: ActionDefinition<Settings, Payload> = {
 
     const standardProperties = { segment_library: HEAP_SEGMENT_CLOUD_LIBRARY_NAME }
     const flattenedProperties = flat(payload.properties || {})
+    // flattenedProperties.name = payload.name;
 
     const event: HeapEvent = {
       event: getEventName(payload),
-      custom_properties: flattenedProperties,
-      properties: standardProperties,
+      properties: {
+        ...standardProperties,
+        ...flattenedProperties,
+        ...(isDefined(payload.name) && { name: payload.name })
+      },
       idempotency_key: payload.message_id
     }
 
