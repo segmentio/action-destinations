@@ -36,6 +36,7 @@ const action: ActionDefinition<Settings, Payload> = {
         'Use the emarsys field id (number) as key and set a value (string) (static, function or event variable)',
       type: 'object',
       required: true,
+      additionalProperties: true,
       properties: {
         1: {
           label: 'Given name',
