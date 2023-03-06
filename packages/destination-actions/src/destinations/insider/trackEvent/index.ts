@@ -74,7 +74,7 @@ const action: ActionDefinition<Settings, Payload> = {
         },
         variant_id: {
           label: 'Variant Id',
-          type: 'string',
+          type: 'number',
           description: 'Variant of the product'
         },
         unit_sales_price: {
