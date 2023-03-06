@@ -15,9 +15,6 @@ export interface Payload {
    */
   timestamp: string | number
   parameters?: {
-    email_subject?: string
-    campaign_id?: string
-    campaign_name?: string
     url?: string
     /**
      * Product id displayed on the list

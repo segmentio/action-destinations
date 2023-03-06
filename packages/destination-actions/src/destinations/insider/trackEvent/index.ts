@@ -53,18 +53,6 @@ const action: ActionDefinition<Settings, Payload> = {
       type: 'object',
       additionalProperties: true,
       properties: {
-        email_subject: {
-          label: 'Email Subject',
-          type: 'string'
-        },
-        campaign_id: {
-          label: 'Campaign Id',
-          type: 'string'
-        },
-        campaign_name: {
-          label: 'Campaign Name',
-          type: 'string'
-        },
         url: {
           label: 'Link Url',
           type: 'string'
@@ -123,9 +111,6 @@ const action: ActionDefinition<Settings, Payload> = {
         }
       },
       default: {
-        email_subject: { '@path': '$.properties.email_subject' },
-        campaign_id: { '@path': '$.properties.campaign_id' },
-        campaign_name: { '@path': '$.properties.campaign_name' },
         url: {
           '@if': {
             exists: { '@path': '$.properties.url' },

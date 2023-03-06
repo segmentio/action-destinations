@@ -99,7 +99,6 @@ export function sendTrackEvent(data: EventPayload) {
     'locale'
   ]
   const defaultEvents = [
-    'email_subject',
     'campaign_id',
     'campaign_name',
     'url',
@@ -119,7 +118,11 @@ export function sendTrackEvent(data: EventPayload) {
   for (const key of Object.keys(data.attributes || {})) {
     const attributeName: string = key.toString().toLowerCase().trim().split(' ').join('_').toString()
 
-    if (defaultAttributes.indexOf(attributeName) > -1 && data.attributes) {
+    if (attributeName === 'locale' && data.attributes) {
+      payload.attributes[attributeName as keyof typeof payload.attributes] = data.attributes[attributeName]
+        ?.split('-')
+        .join('_')
+    } else if (defaultAttributes.indexOf(attributeName) > -1 && data.attributes) {
       payload.attributes[attributeName as keyof typeof payload.attributes] = data.attributes[attributeName]
     } else if (data.attributes) {
       payload.attributes.custom[attributeName as keyof typeof payload.attributes.custom] =
