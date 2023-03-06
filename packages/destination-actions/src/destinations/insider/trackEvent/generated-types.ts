@@ -31,7 +31,7 @@ export interface Payload {
     /**
      * Variant of the product
      */
-    variant_id?: string
+    variant_id?: number
     /**
      * Sale Price ($) of the product being viewed
      */
