@@ -32,7 +32,8 @@ const destination: DestinationDefinition<Settings> = {
     //   // you can remove the `testAuthentication` function, though discouraged.
     // },
     refreshAccessToken: async (request, { auth }) => {
-      const res = await request<RefreshTokenResponse>('https://www.googleapis.com/oauth2/v4/token', {
+      if (!auth.refreshTokenUrl) throw new Error('destination misconfigured: missing refresh token URL')
+      const res = await request<RefreshTokenResponse>(auth.refreshTokenUrl, {
         method: 'POST',
         body: new URLSearchParams({
           refresh_token: auth.refreshToken,
