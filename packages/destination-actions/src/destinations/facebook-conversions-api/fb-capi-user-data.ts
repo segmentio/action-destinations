@@ -107,12 +107,12 @@ export const user_data_field: InputField = {
     },
     partner_id: {
       label: 'Partner ID',
-      description: 'The facebook partner ID',
+      description: 'The ID issued by Facebook identity partner',
       type: 'string'
     },
     partner_name: {
-      label: 'Partner name',
-      description: 'The facebook partner name',
+      label: 'Partner Name',
+      description: 'The name of the Facebook identity partner',
       type: 'string'
     }
   },

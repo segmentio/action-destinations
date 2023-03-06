@@ -86,11 +86,11 @@ export interface Payload {
      */
     fbLoginID?: number
     /**
-     * The facebook partner ID
+     * The ID issued by Facebook identity partner
      */
     partner_id?: string
     /**
-     * The facebook partner name
+     * The name of the Facebook identity partner
      */
     partner_name?: string
   }
