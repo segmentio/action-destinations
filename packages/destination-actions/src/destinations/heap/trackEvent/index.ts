@@ -98,9 +98,19 @@ const action: ActionDefinition<Settings, Payload> = {
       default: {
         '@path': '$.name'
       }
+    },
+    traits: {
+      label: 'User Properties',
+      type: 'object',
+      description:
+        'An object with key-value properties you want associated with the user. Each property must either be a number or string with fewer than 1024 characters.',
+      default: {
+        '@path': '$.traits'
+      }
     }
   },
   perform: (request, { payload, settings }) => {
+    const requests = []
     if (!settings.appId) {
       throw new IntegrationError('Missing app ID')
     }
@@ -135,10 +145,30 @@ const action: ActionDefinition<Settings, Payload> = {
       library: 'Segment'
     }
 
-    return request('https://heapanalytics.com/api/integrations/track', {
-      method: 'post',
-      json: payLoad
-    })
+    if (isDefined(payload.identity)) {
+      const userPropertiesPayload = {
+        app_id: settings.appId,
+        identity: payload.identity,
+        properties: {
+          anonymous_id: payload.anonymous_id,
+          ...flat(payload.traits)
+        }
+      }
+      const addUserPropertiesRequest = request('https://heapanalytics.com/api/add_user_properties', {
+        method: 'post',
+        json: userPropertiesPayload
+      })
+      requests.push(addUserPropertiesRequest)
+    }
+
+    requests.push(
+      request('https://heapanalytics.com/api/integrations/track', {
+        method: 'post',
+        json: payLoad
+      })
+    )
+
+    return Promise.all(requests)
   }
 }
 

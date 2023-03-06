@@ -23,7 +23,7 @@ export const getUserIdentifier = ({
 }
 
 export const isDefined = (value: string | undefined | null | number) => {
-  return !(value === undefined || value === null || value === '' || value === 0)
+  return !(value === undefined || value === null || value === '' || value === 0 || value === '0')
 }
 
 export const getEventName = (payload: Payload) => {

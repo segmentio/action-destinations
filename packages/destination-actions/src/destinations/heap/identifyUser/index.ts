@@ -2,20 +2,20 @@ import type { ActionDefinition } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 import { IntegrationError } from '@segment/actions-core'
-import { getHeapUserId } from '../userIdHash'
 import { flat } from '../flat'
+import { isDefined } from '../heapUtils'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Identify User',
   description: 'Set the user ID for a particular device ID or update user properties.',
   defaultSubscription: 'type = "identify"',
   fields: {
-    user_id: {
-      label: 'User ID',
+    identity: {
+      label: 'Identity',
       type: 'string',
       allowNull: true,
       description:
-        'An identity, typically corresponding to an existing user. If no such identity exists, then a new user will be created with that identity. Case-sensitive string, limited to 255 characters.',
+        'A unique identity and maintain user histories across sessions and devices under a single profile. If no identity is provided we will add the anonymous_id to the event. More on identify: https://developers.heap.io/docs/using-identify',
       default: {
         '@path': '$.userId'
       }
@@ -46,11 +46,11 @@ const action: ActionDefinition<Settings, Payload> = {
 
     const responses = []
 
-    if (payload.anonymous_id) {
+    if (isDefined(payload.identity)) {
       const data = {
         app_id: settings.appId,
-        identity: payload.user_id,
-        user_id: getHeapUserId(payload.anonymous_id)
+        identity: payload.identity,
+        anonymous_id: payload.anonymous_id
       }
       const identifyResponse = await request('https://heapanalytics.com/api/v1/identify', {
         method: 'post',
@@ -62,7 +62,7 @@ const action: ActionDefinition<Settings, Payload> = {
       const flatten = flat(payload.traits)
       const data = {
         app_id: settings.appId,
-        identity: payload.user_id,
+        identity: payload.identity,
         properties: flatten
       }
 
