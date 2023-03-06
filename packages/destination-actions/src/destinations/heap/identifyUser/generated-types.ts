@@ -2,9 +2,9 @@
 
 export interface Payload {
   /**
-   * An identity, typically corresponding to an existing user. If no such identity exists, then a new user will be created with that identity. Case-sensitive string, limited to 255 characters.
+   * A unique identity and maintain user histories across sessions and devices under a single profile. If no identity is provided we will add the anonymous_id to the event. More on identify: https://developers.heap.io/docs/using-identify
    */
-  user_id?: string | null
+  identity?: string | null
   /**
    * The generated anonymous ID for the user.
    */

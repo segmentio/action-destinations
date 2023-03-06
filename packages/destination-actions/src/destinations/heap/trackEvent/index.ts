@@ -151,7 +151,7 @@ const action: ActionDefinition<Settings, Payload> = {
         identity: payload.identity,
         properties: {
           anonymous_id: payload.anonymous_id,
-          ...flat(payload.traits)
+          ...(payload.traits && flat(payload.traits))
         }
       }
       const addUserPropertiesRequest = request('https://heapanalytics.com/api/add_user_properties', {

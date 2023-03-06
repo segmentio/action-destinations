@@ -35,4 +35,10 @@ export interface Payload {
    * The name of the page or screen being viewed. This only exists for page and screen events.
    */
   name?: string
+  /**
+   * An object with key-value properties you want associated with the user. Each property must either be a number or string with fewer than 1024 characters.
+   */
+  traits?: {
+    [k: string]: unknown
+  }
 }
