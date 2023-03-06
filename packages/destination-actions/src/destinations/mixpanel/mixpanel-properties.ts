@@ -291,14 +291,6 @@ export const eventProperties: Record<string, InputField> = {
       '@path': '$.properties'
     }
   },
-  user_properties: {
-    label: 'User Properties',
-    type: 'object',
-    description: 'An object of key-value pairs that represent additional data tied to the user.',
-    default: {
-      '@path': '$.traits'
-    }
-  },
   context: {
     label: 'Event context',
     description: 'An object of key-value pairs that provides useful context about the event.',
