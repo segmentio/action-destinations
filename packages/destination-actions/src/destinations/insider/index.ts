@@ -3,6 +3,7 @@ import type { Settings } from './generated-types'
 import { API_BASE, UPSERT_ENDPOINT } from './insider-helpers'
 
 import updateUserProfile from './updateUserProfile'
+import trackEvent from './trackEvent'
 
 const destination: DestinationDefinition<Settings> = {
   name: 'Insider',
@@ -43,7 +44,8 @@ const destination: DestinationDefinition<Settings> = {
   },
 
   actions: {
-    updateUserProfile
+    updateUserProfile,
+    trackEvent
   }
 }
 
