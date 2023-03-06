@@ -16,13 +16,14 @@ const action: ActionDefinition<Settings, Payload> = {
       description: 'Email Field',
       type: 'string',
       format: 'email',
-      required: true,
+      // required: false,
       default: {
-        '@if': {
-          exists: { '@path': '$.properties.email' },
-          then: { '@path': '$.properties.email' },
-          else: { '@path': '$.traits.email' }
-        }
+        '@path': '$.properties.email'
+        // '@if': {
+        //   exists: { '@path': '$.properties.email' },
+        //   then: { '@path': '$.properties.email' },
+        //   else: { '@path': '$.traits.email' }
+        // }
       }
     },
     type: {
@@ -76,9 +77,9 @@ const action: ActionDefinition<Settings, Payload> = {
 
   perform: async (request, { settings, payload }) => {
     let email = get(payload, 'context.traits.email', 'Null')
-    if (email == undefined || email === 'Null') email = get(payload, 'traits.email', 'Null')
-    if (email == undefined || email === 'Null')
-      throw new IntegrationError('Email not provided, cannot process Events without included Email')
+    if (email == 'Null') email = get(payload, 'properties.email', 'Null')
+    if (email == 'Null') email = get(payload, 'traits.email', 'Null')
+    if (email == 'Null') throw new IntegrationError('Email not provided, cannot process Events without included Email')
 
     const at = await preChecksAndMaint(request, settings)
 

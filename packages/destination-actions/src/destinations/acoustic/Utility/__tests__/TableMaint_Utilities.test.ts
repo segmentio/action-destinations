@@ -2,6 +2,7 @@
 // import { RequestClient } from '@segment/actions-core'
 // import get from 'lodash/get'
 // import { Settings } from '../../generated-types'
+import nock from 'nock'
 import {
   getxmlAPIUrl,
   preChecksAndMaint,
@@ -17,14 +18,18 @@ jest.mock('@segment/actions-core')
 jest.mock('lodash/get')
 jest.mock('../../generated-types')
 
+const ap = nock('https://api-campaign-us-2.goacoustic.com').post('/xmlapi').reply(200)
+ap.isDone
+
 describe('getxmlAPIUrl', () => {
   it('should expose a function', () => {
     expect(getxmlAPIUrl).toBeDefined()
+    expect(getxmlAPIUrl).toMatchSnapshot()
   })
 
   it('getxmlAPIUrl should return expected output', () => {
     // const retValue = getxmlAPIUrl(settings);
-    expect(true).toBeTruthy()
+    expect(getxmlAPIUrl).toContain('https://api-campaign-us-2.goacoustic.com')
   })
 })
 describe('preChecksAndMaint', () => {
@@ -34,7 +39,7 @@ describe('preChecksAndMaint', () => {
 
   it('preChecksAndMaint should return expected output', async () => {
     // const retValue = await preChecksAndMaint(request,settings);
-    expect(true).toBeTruthy()
+    expect(preChecksAndMaint).toMatchSnapshot()
   })
 })
 describe('getAccessToken', () => {
@@ -44,7 +49,7 @@ describe('getAccessToken', () => {
 
   it('getAccessToken should return expected output', async () => {
     // const retValue = await getAccessToken(request,settings,auth);
-    expect(true).toBeTruthy()
+    expect(getAccessToken).toMatchSnapshot()
   })
 })
 describe('createSegmentEventsTable', () => {
@@ -54,7 +59,7 @@ describe('createSegmentEventsTable', () => {
 
   it('createSegmentEventsTable should return expected output', async () => {
     // const retValue = await createSegmentEventsTable(request,settings,auth);
-    expect(true).toBeTruthy()
+    expect(createSegmentEventsTable).toMatchSnapshot()
   })
 })
 describe('deleteRTs', () => {
@@ -64,7 +69,7 @@ describe('deleteRTs', () => {
 
   it('deleteRTs should return expected output', async () => {
     // const retValue = await deleteRTs(request,settings,auth);
-    expect(true).toBeTruthy()
+    expect(deleteRTs).toMatchSnapshot()
   })
 })
 describe('checkRTExist', () => {
@@ -74,7 +79,7 @@ describe('checkRTExist', () => {
 
   it('checkRTExist should return expected output', async () => {
     // const retValue = await checkRTExist(request,settings,auth);
-    expect(true).toBeTruthy()
+    expect(checkRTExist).toMatchSnapshot()
   })
 })
 describe('purgeSegmentEventTable', () => {
@@ -83,7 +88,8 @@ describe('purgeSegmentEventTable', () => {
   })
 
   it('purgeSegmentEventTable should return expected output', async () => {
-    // const retValue = await purgeSegmentEventTable(request,settings,auth,purgeDate);
-    expect(true).toBeTruthy()
+    //const pst = await purgeSegmentEventTable(request, settings, auth, purgeDate);
+
+    expect(purgeSegmentEventTable).toMatchSnapshot()
   })
 })

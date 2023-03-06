@@ -4,40 +4,6 @@ import { Settings } from '../generated-types'
 import { Payload } from '../receiveEvents/generated-types'
 import { getxmlAPIUrl } from './TableMaint_Utilities'
 
-// export function OldparseSections(section: { [key: string]: string }, parseResults: { [key: string]: string }) {
-//   let a,
-//     b,
-//     c,
-//     d = {} as keyof typeof section
-//   get(section, 'messageid')
-//   try {
-//     for (a of Object.keys(section)) {
-//       if (typeof get(section, `${a}`, 'Null') !== 'object') {
-//         parseResults[`${a}`] = get(section, `${a}`, 'Null')
-//       } else
-//         for (b of Object.keys(get(section, `${a}`, 'Null'))) {
-//           if (typeof get(section, `${a}.${b}`, 'Null') !== 'object') {
-//             parseResults[`${a}.${b}`] = get(section, `${a}.${b}`, 'Null')
-//           } else
-//             for (c of Object.keys(get(section, `${a}${b}`, 'Null'))) {
-//               if (typeof get(section, `${a}.${b}.${c}`, 'Null') !== 'object') {
-//                 parseResults[`${a}.${b}.${c}`] = get(section, `${a}.${b}.${c}`, 'Null')
-//               } else
-//                 for (d of Object.keys(get(section, `${a}${b}${c}`, 'Null'))) {
-//                   if (typeof get(section, `${a}.${b}.${c}.${d}`, 'Null') !== 'object') {
-//                     parseResults[`${a}.${b}.${c}.${d}`] = get(section, `${a}.${b}.${c}.${d}`, 'Null')
-//                   }
-//                 }
-//             }
-//         }
-//     }
-//   } catch (e) {
-//     //Need an Audit trail here - core data should not fail silently
-//     console.log(`Section Parsing Exception: \n + \n${a} + \n${b} + \n${c} + \n${d} + \n ${e}`)
-//   }
-//   return parseResults
-// }
-
 export function parseSections(section: { [key: string]: string }, parseResults: { [key: string]: string }) {
   get(section, 'messageid')
   for (const k of Object.keys(section)) {

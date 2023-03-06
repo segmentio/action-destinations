@@ -4,7 +4,7 @@ export interface Payload {
   /**
    * Email Field
    */
-  email: string
+  email?: string
   /**
    * Event Type
    */

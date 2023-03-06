@@ -1,7 +1,7 @@
 import { IntegrationError } from '@segment/actions-core'
 import { RequestClient } from '@segment/actions-core'
 import { Settings } from '../generated-types'
-import { RefreshAccessTokenResult } from '@segment/actions-core'
+import { JSONLikeObject } from '@segment/actions-core'
 
 export function getxmlAPIUrl(settings: Settings) {
   const zz = String(settings.a_xmlAPIURL)
@@ -26,13 +26,15 @@ export async function getAccessToken(request: RequestClient, settings: Settings)
   })
 
   await res.data
-  const refreshAuth: RefreshAccessTokenResult = res.data as RefreshAccessTokenResult
-  return refreshAuth
+  // const refreshAuth: RefreshAccessTokenResult = res.data as RefreshAccessTokenResult
+  // return refreshAuth
+  //return res.data.access_token as string
+  return res.data as JSONLikeObject //{ accessToken: res.data.access_token}
 }
 
 export async function preChecksAndMaint(request: RequestClient, settings: Settings) {
   const aw = await getAccessToken(request, settings)
-  const at = aw.accessToken
+  const at = aw.access_token as string
 
   //Long-term Maintenance
   //For Support to easily reset a Customers Acoustic "Segment Events Table"
@@ -142,7 +144,7 @@ export async function createSegmentEventsTable(request: RequestClient, settings:
 
 export async function deleteRTs(request: RequestClient, settings: Settings, accessToken: string) {
   //Need Audit Trail here - what's Segment equivalent for Audit log?
-  console.log('Delete Audience Table: ')
+  //console.log('Delete Audience Table: ')
 
   const deleteSET = await request(getxmlAPIUrl(settings), {
     method: 'POST',
@@ -164,9 +166,9 @@ export async function deleteRTs(request: RequestClient, settings: Settings, acce
   const d_SET = await deleteSET.text()
 
   //Need an Audit Trail of this - what's the Segment equivalent of Logging? Throwing IntegrationError kills
-  console.log('Deleting Audience Table: \n' + d_SET + '\nStatus: Complete ')
+  //console.log('Deleting Audience Table: \n' + d_SET + '\nStatus: Complete ')
 
-  return ''
+  return d_SET
 }
 
 export async function checkRTExist(request: RequestClient, settings: Settings, accessToken: string) {
