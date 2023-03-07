@@ -13,12 +13,12 @@ const action: ActionDefinition<Settings, Payload> = {
   fields: {
     email: {
       label: 'Email',
-      description: 'Email Field',
+      description: 'At a minimum Email is required, see mapping presets for more info.',
       type: 'string',
       format: 'email',
-      // required: false,
+      required: true,
       default: {
-        '@path': '$.properties.email'
+        '@path': '$.email'
         // '@if': {
         //   exists: { '@path': '$.properties.email' },
         //   then: { '@path': '$.properties.email' },
@@ -28,7 +28,7 @@ const action: ActionDefinition<Settings, Payload> = {
     },
     type: {
       label: 'Type',
-      description: 'Event Type',
+      description: 'The Event Type, will be either Track or Identify',
       type: 'string',
       default: {
         '@path': '$.type'
@@ -36,7 +36,7 @@ const action: ActionDefinition<Settings, Payload> = {
     },
     timestamp: {
       label: 'Timestamp',
-      description: 'Timestamp',
+      description: 'The Timestamp of the Event',
       type: 'datetime',
       default: {
         '@path': '$.timestamp'
@@ -44,7 +44,7 @@ const action: ActionDefinition<Settings, Payload> = {
     },
     context: {
       label: 'Context',
-      description: 'Context Section',
+      description: 'Parses all properties provided via a Context Section ',
       type: 'object',
       default: {
         '@path': '$.context'
@@ -52,7 +52,7 @@ const action: ActionDefinition<Settings, Payload> = {
     },
     properties: {
       label: 'Properties',
-      description: 'Properties Section',
+      description: 'Parses all properties provided via a Properties Section',
       type: 'object',
       default: {
         '@path': '$.properties'
@@ -60,18 +60,11 @@ const action: ActionDefinition<Settings, Payload> = {
     },
     traits: {
       label: 'Traits',
-      description: 'Traits Section',
+      description: 'Parses all properties provided via a Traits Section',
       type: 'object',
       default: {
         '@path': '$.traits'
       }
-    },
-
-    enable_batching: {
-      label: 'Enable Batching',
-      description: 'Enable batching of Segment Events through to Acoustic Tables',
-      type: 'boolean',
-      default: true
     }
   },
 
@@ -87,24 +80,6 @@ const action: ActionDefinition<Settings, Payload> = {
     const rows = addUpdateEvents(payload, email)
 
     return await postUpdates(request, settings, at, rows, 1)
-  },
-
-  performBatch: async (request, { settings, payload }) => {
-    const at = await preChecksAndMaint(request, settings)
-
-    //Ok, prechecks and Maint are all attended to, let's see what needs to be processed,
-    let i = 0
-    let rows = ''
-    for (const e of payload) {
-      i++
-      let email = get(e, 'context.traits.email', 'Null')
-      if (email == undefined) email = get(e, 'traits.email', 'Null')
-      if (email == undefined)
-        throw new IntegrationError('Email not provided, cannot process Events without included Email')
-
-      rows = addUpdateEvents(e, email)
-    }
-    return await postUpdates(request, settings, at, rows, i)
   }
 }
 

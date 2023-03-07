@@ -1,4 +1,4 @@
-import type { DestinationDefinition } from '@segment/actions-core'
+import { DestinationDefinition } from '@segment/actions-core'
 import type { Settings } from './generated-types'
 import receiveEvents from './receiveEvents'
 
@@ -8,6 +8,42 @@ interface RefreshTokenResponse {
   expires_in: number
   token_type: string
 }
+
+/** used in the quick setup */
+const presets: DestinationDefinition['presets'] = [
+  {
+    name: 'Track Calls',
+    subscribe: 'type = "track"',
+    partnerAction: 'trackEvent',
+    mapping: {
+      email: {
+        default: {
+          '@if': {
+            exists: { '@path': '$.properties.email' },
+            then: { '@path': '$.properties.email' },
+            else: { '@path': '$.context.traits.email' }
+          }
+        }
+      }
+    }
+  },
+  {
+    name: 'Identify Calls',
+    subscribe: 'type = "identify"',
+    partnerAction: 'identifyUser',
+    mapping: {
+      email: {
+        default: {
+          '@if': {
+            exists: { '@path': '$.traits.email' },
+            then: { '@path': '$.traits.email' },
+            else: { '@path': '$.context.traits.email' }
+          }
+        }
+      }
+    }
+  }
+]
 
 const destination: DestinationDefinition<Settings> = {
   name: 'Acoustic Campaign Cloud',
@@ -45,7 +81,7 @@ const destination: DestinationDefinition<Settings> = {
       },
       a_client_secret: {
         label: 'Client Secret',
-        description: 'Client Secret provided with Definition of Segment Events in Acoustic',
+        description: 'Client Secret provided with Definition of Segment Events Application in Acoustic',
         default: '',
         type: 'password',
         required: true
@@ -59,38 +95,8 @@ const destination: DestinationDefinition<Settings> = {
       },
       a_attributesMax: {
         label: 'Properties Max',
-        description:
-          'Note to Implementation Staff: "Max" definitions translate to the Maximum Number of rows written per API call and then to the number of rows written per unique email to the Acoustic table. See documentation to determine the Max allowed per data item.',
-        default: 100,
-        type: 'number',
-        required: false
-      },
-      a_events_table_list_id: {
-        label: 'Events Table List Id',
-        description: '"Segment Events Table" List Id from Acoustic Databases Dialog ',
-        default: '',
-        type: 'string',
-        required: false
-      },
-      a_authAPIURL: {
-        label: 'Auth Endpoint',
-        description: 'Do not change unless directed by Support',
-        default: 'https://api-campaign-XX-X.goacoustic.com/oauth/token',
-        type: 'string',
-        required: false
-      },
-      a_xmlAPIURL: {
-        label: 'API Endpoint',
-        description: 'Do not change unless directed by Support',
-        default: 'https://api-campaign-XX-X.goacoustic.com/XMLAPI',
-        type: 'string',
-        required: false
-      },
-      a_deleteCode: {
-        label: 'Support Only (Delete Code)',
-        description:
-          'Reserved for Support, code to delete and recreate the Acoustic "Segment Events Table" effectively resetting all Segment Events data in Acoustic',
-        default: 0,
+        description: 'Note: Before increasing the default max number, consult the Acoustic Destination documentation.',
+        default: 30,
         type: 'number',
         required: false
       }
@@ -148,6 +154,7 @@ const destination: DestinationDefinition<Settings> = {
       }
     }
   },
+  presets,
   actions: {
     receiveEvents
   }

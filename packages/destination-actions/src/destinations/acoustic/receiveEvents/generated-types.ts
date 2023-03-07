@@ -2,37 +2,33 @@
 
 export interface Payload {
   /**
-   * Email Field
+   * At a minimum Email is required, see mapping presets for more info.
    */
-  email?: string
+  email: string
   /**
-   * Event Type
+   * The Event Type, will be either Track or Identify
    */
   type?: string
   /**
-   * Timestamp
+   * The Timestamp of the Event
    */
   timestamp?: string | number
   /**
-   * Context Section
+   * Parses all properties provided via a Context Section
    */
   context?: {
     [k: string]: unknown
   }
   /**
-   * Properties Section
+   * Parses all properties provided via a Properties Section
    */
   properties?: {
     [k: string]: unknown
   }
   /**
-   * Traits Section
+   * Parses all properties provided via a Traits Section
    */
   traits?: {
     [k: string]: unknown
   }
-  /**
-   * Enable batching of Segment Events through to Acoustic Tables
-   */
-  enable_batching?: boolean
 }

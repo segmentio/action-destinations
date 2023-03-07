@@ -14,7 +14,7 @@ export interface Settings {
    */
   a_client_id: string
   /**
-   * Client Secret provided with Definition of Segment Events in Acoustic
+   * Client Secret provided with Definition of Segment Events Application in Acoustic
    */
   a_client_secret: string
   /**
@@ -22,23 +22,7 @@ export interface Settings {
    */
   a_refresh_token: string
   /**
-   * Note to Implementation Staff: "Max" definitions translate to the Maximum Number of rows written per API call and then to the number of rows written per unique email to the Acoustic table. See documentation to determine the Max allowed per data item.
+   * Note: Before increasing the default max number, consult the Acoustic Destination documentation.
    */
   a_attributesMax?: number
-  /**
-   * "Segment Events Table" List Id from Acoustic Databases Dialog
-   */
-  a_events_table_list_id?: string
-  /**
-   * Do not change unless directed by Support
-   */
-  a_authAPIURL?: string
-  /**
-   * Do not change unless directed by Support
-   */
-  a_xmlAPIURL?: string
-  /**
-   * Reserved for Support, code to delete and recreate the Acoustic "Segment Events Table" effectively resetting all Segment Events data in Acoustic
-   */
-  a_deleteCode?: number
 }
