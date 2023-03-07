@@ -119,14 +119,12 @@ const action: ActionDefinition<Settings, Payload> = {
       throw new IntegrationError('Either Anonymous id or Identity should be specified.')
     }
 
-    const standardProperties = { segment_library: HEAP_SEGMENT_CLOUD_LIBRARY_NAME }
     const flattenedProperties = flat(payload.properties || {})
-    // flattenedProperties.name = payload.name;
 
     const event: HeapEvent = {
       event: getEventName(payload),
       properties: {
-        ...standardProperties,
+        segment_library: HEAP_SEGMENT_CLOUD_LIBRARY_NAME,
         ...flattenedProperties,
         ...(isDefined(payload.name) && { name: payload.name })
       },
@@ -139,7 +137,7 @@ const action: ActionDefinition<Settings, Payload> = {
       event.timestamp = dayjs.utc(payload.timestamp).toISOString()
     }
 
-    const payLoad: IntegrationsTrackPayload = {
+    const trackPayload: IntegrationsTrackPayload = {
       app_id: settings.appId,
       events: [event],
       library: 'Segment'
@@ -151,20 +149,21 @@ const action: ActionDefinition<Settings, Payload> = {
         identity: payload.identity,
         properties: {
           anonymous_id: payload.anonymous_id,
-          ...(payload.traits && flat(payload.traits))
+          ...(payload.traits && Object.keys(payload.traits).length !== 0 && flat(payload.traits))
         }
       }
       const addUserPropertiesRequest = request('https://heapanalytics.com/api/add_user_properties', {
         method: 'post',
         json: userPropertiesPayload
       })
+
       requests.push(addUserPropertiesRequest)
     }
 
     requests.push(
       request('https://heapanalytics.com/api/integrations/track', {
         method: 'post',
-        json: payLoad
+        json: trackPayload
       })
     )
 
