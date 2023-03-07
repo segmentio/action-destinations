@@ -9,8 +9,8 @@ import { baseUrl } from './constants'
 import sendEvents from './sendEvents'
 
 const destination: DestinationDefinition<Settings> = {
-  name: 'Toplyne',
-  slug: 'toplyne',
+  name: 'Toplyne Cloud Mode (Actions)',
+  slug: 'actions-toplyne-cloud',
   mode: 'cloud',
 
   authentication: {
