@@ -48,7 +48,7 @@ const destination: DestinationDefinition<Settings> = {
 
   extendRequest({ settings }) {
     return {
-      headers: { 'x-api-key': `${settings.apiKey}`, Accept: 'application/json' }
+      headers: { 'x-api-key': `${settings.apiKey}`, 'Accept': 'application/json'}
     }
   },
 

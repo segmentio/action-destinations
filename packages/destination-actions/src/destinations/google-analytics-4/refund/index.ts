@@ -1,5 +1,13 @@
 import { ActionDefinition, IntegrationError } from '@segment/actions-core'
-import { verifyCurrency, verifyParams, verifyUserProps, convertTimestamp } from '../ga4-functions'
+import {
+  verifyCurrency,
+  verifyParams,
+  verifyUserProps,
+  convertTimestamp,
+  getMobileStreamParams,
+  getWebStreamParams,
+  sendData
+} from '../ga4-functions'
 import {
   coupon,
   transaction_id,
@@ -14,9 +22,11 @@ import {
   formatUserProperties,
   user_properties,
   engagement_time_msec,
-  timestamp_micros
+  timestamp_micros,
+  app_instance_id,
+  data_stream_type
 } from '../ga4-properties'
-import { ProductItem } from '../ga4-types'
+import { DataStreamParams, DataStreamType, ProductItem } from '../ga4-types'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 
@@ -25,6 +35,8 @@ const action: ActionDefinition<Settings, Payload> = {
   description: 'Send event when a refund is issued',
   defaultSubscription: 'type = "track" and event = "Order Refunded"',
   fields: {
+    data_stream_type: { ...data_stream_type },
+    app_instance_id: { ...app_instance_id },
     client_id: { ...client_id },
     user_id: { ...user_id },
     timestamp_micros: { ...timestamp_micros },
@@ -46,7 +58,13 @@ const action: ActionDefinition<Settings, Payload> = {
     engagement_time_msec: engagement_time_msec,
     params: params
   },
-  perform: (request, { payload, features }) => {
+  perform: (request, { payload, features, settings }) => {
+    const data_stream_type = payload.data_stream_type ?? DataStreamType.Web
+    const stream_params: DataStreamParams =
+      data_stream_type === DataStreamType.MobileApp
+        ? getMobileStreamParams(settings.apiSecret, settings.firebaseAppId, payload.app_instance_id)
+        : getWebStreamParams(settings.apiSecret, settings.measurementId, payload.client_id)
+
     if (payload.currency) {
       verifyCurrency(payload.currency)
     }
@@ -93,8 +111,8 @@ const action: ActionDefinition<Settings, Payload> = {
       verifyParams(payload.params)
       verifyUserProps(payload.user_properties)
     }
-    const request_object: { [key: string]: any } = {
-      client_id: payload.client_id,
+    const request_object: { [key: string]: unknown } = {
+      ...stream_params.identifier,
       user_id: payload.user_id,
       events: [
         {
@@ -120,10 +138,7 @@ const action: ActionDefinition<Settings, Payload> = {
       request_object.timestamp_micros = convertTimestamp(payload.timestamp_micros)
     }
 
-    return request('https://www.google-analytics.com/mp/collect', {
-      method: 'POST',
-      json: request_object
-    })
+    return sendData(request, stream_params.search_params, request_object)
   }
 }
 

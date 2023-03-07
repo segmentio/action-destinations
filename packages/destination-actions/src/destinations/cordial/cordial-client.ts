@@ -10,8 +10,8 @@ import { Payload as UpsertOrder } from './upsertOrder/generated-types'
 import { Payload as MergeContacts } from './mergeContacts/generated-types'
 
 export interface IdentifiableRequest {
-  segmentId?: string | null
-  anonymousId?: string | null
+  segmentId?: string | null,
+  anonymousId?: string | null,
   userIdentities?: {
     [k: string]: unknown
   }
@@ -26,7 +26,7 @@ class CordialClient {
     this.apiUrl = `${settings.endpoint}/api/segment`
     this.request = request
     this.identityKeys = {
-      segmentIdKey: settings.segmentIdKey
+      segmentIdKey: settings.segmentIdKey,
     }
   }
 
@@ -34,7 +34,7 @@ class CordialClient {
     return {
       segmentId: payload.segmentId,
       anonymousId: payload.anonymousId,
-      userIdentities: payload.userIdentities
+      userIdentities: payload.userIdentities,
     }
   }
 

@@ -1,5 +1,7 @@
+import { RequestClient } from '@segment/actions-core'
 import { IntegrationError } from '@segment/actions-core'
 import { CURRENCY_ISO_CODES } from './constants'
+import { DataStreamParams } from './ga4-types'
 
 // Google expects currency to be a 3-letter ISO 4217 format
 export function verifyCurrency(currency: string): void {
@@ -72,4 +74,46 @@ export function convertTimestamp(timestamp: string | undefined): number | undefi
 
   // converts non-unix timestamp to unix microseconds
   return Date.parse(timestamp) * 1000
+}
+
+export function getMobileStreamParams(
+  api_secret: string,
+  firebase_app_id?: string,
+  app_instance_id?: string
+): DataStreamParams {
+  if (!firebase_app_id) {
+    throw new IntegrationError(`Firebase App ID is required for mobile app streams`, 'Invalid value', 400)
+  }
+  if (!app_instance_id) {
+    throw new IntegrationError(`Firebase App Instance ID is required for mobile app streams`, 'Invalid value', 400)
+  }
+  return {
+    search_params: `api_secret=${api_secret}&firebase_app_id=${firebase_app_id}`,
+    identifier: {
+      app_instance_id
+    }
+  }
+}
+
+export function getWebStreamParams(api_secret: string, measurement_id?: string, client_id?: string): DataStreamParams {
+  if (!measurement_id) {
+    throw new IntegrationError(`Measurement ID is required for web streams`, 'Invalid value', 400)
+  }
+  if (!client_id) {
+    throw new IntegrationError(`Client ID is required for web streams`, 'Invalid value', 400)
+  }
+  return {
+    search_params: `api_secret=${api_secret}&measurement_id=${measurement_id}`,
+    identifier: {
+      client_id
+    }
+  }
+}
+
+export async function sendData(request: RequestClient, search_params: string, payload: { [k: string]: unknown }) {
+  // Firebase App ID can contain colons(:) and they should not be encoded. Hence, interpolating search params to url string instead of passing them as search_params
+  return request(`https://www.google-analytics.com/mp/collect?${search_params}`, {
+    method: 'POST',
+    json: payload
+  })
 }

@@ -6,14 +6,12 @@ const testDestination = createTestIntegration(Destination)
 
 describe('Cordial.upsertContact', () => {
   it('should work with default mappings', async () => {
-    nock(/api.cordial.io/)
-      .post('/api/segment/upsertContact')
-      .reply(200, {})
+    nock(/api.cordial.io/).post('/api/segment/upsertContact').reply(200, {})
 
     const event = createTestEvent()
 
     const mapping = {
-      userIdentities: { 'channels.email.address': 'contact@example.com' }
+      userIdentities: {'channels.email.address': 'contact@example.com'}
     }
 
     const settings = {

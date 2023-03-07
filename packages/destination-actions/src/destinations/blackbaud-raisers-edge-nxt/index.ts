@@ -2,6 +2,8 @@ import type { DestinationDefinition } from '@segment/actions-core'
 import type { Settings } from './generated-types'
 import { SKY_API_BASE_URL, SKY_OAUTH2_TOKEN_URL } from './constants'
 import { RefreshTokenResponse } from './types'
+import createConstituentAction from './createConstituentAction'
+import createGift from './createGift'
 import createOrUpdateIndividualConstituent from './createOrUpdateIndividualConstituent'
 
 const destination: DestinationDefinition<Settings> = {
@@ -54,6 +56,8 @@ const destination: DestinationDefinition<Settings> = {
   },
 
   actions: {
+    createConstituentAction,
+    createGift,
     createOrUpdateIndividualConstituent
   }
 }

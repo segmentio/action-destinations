@@ -1,6 +1,6 @@
-import { InputField } from '@segment/actions-core'
+import {InputField} from "@segment/actions-core";
 
-export const userIdentityFields: Record<string, InputField> = {
+export const userIdentityFields : Record<string, InputField> = {
   segmentId: {
     label: 'Segment User ID',
     description: 'Segment User ID value',
@@ -22,7 +22,7 @@ export const userIdentityFields: Record<string, InputField> = {
     type: 'object',
     required: false,
     defaultObjectUI: 'keyvalue:only'
-  }
+  },
 }
 
-export default userIdentityFields
+export default userIdentityFields;

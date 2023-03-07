@@ -6,7 +6,7 @@ export function initScript() {
   }
 
   window.Ripe = []
-  ;['group', 'identify', 'init', 'page', 'setIds', 'track'].forEach(function (method) {
+  ;['group', 'identify', 'init', 'page', 'track'].forEach(function (method) {
     window.Ripe[method] = function () {
       let args = Array.from(arguments)
       args.unshift(method)
