@@ -13,15 +13,16 @@ const action: ActionDefinition<Settings, Payload> = {
     userId: {
       type: 'string',
       label: 'User ID',
-      description: 'The ID of the user to send events for',
-      required: true,
-      default: {
-        '@if': {
-          exists: { '@path': '$.userId' },
-          then: { '@path': '$.userId' },
-          else: { '@path': '$.anonymousId' }
-        }
-      }
+      description: 'The ID of the user to send events for. Required if anonymousId is not provided',
+      required: false,
+      default: { '@path': '$.userId' }
+    },
+    anonymousId: {
+      type: 'string',
+      label: 'Anonymous ID',
+      description: 'The anonymous ID of the user to send events for. Required if userId is not provided',
+      required: false,
+      default: { '@path': '$.anonymousId' }
     },
     accountId: {
       type: 'string',

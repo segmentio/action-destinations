@@ -2,11 +2,15 @@
 
 export interface Payload {
   /**
-   * The ID of the user to send properties for
+   * The ID of the user to send properties for. Required if anonymousId is not provided
    */
-  userId: string
+  userId?: string
   /**
-   * Creation time, for segment the event timestamp
+   * The anonymous ID of the user to send properties for. Required if userId is not provided
+   */
+  anonymousId?: string
+  /**
+   * Toplyne calculates the creation time of the user using the timestamp of the first track or identify call
    */
   creationTime: string | number
   /**

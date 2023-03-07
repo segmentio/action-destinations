@@ -6,7 +6,7 @@ export interface Payload {
    */
   accountId: string
   /**
-   * Creation time, for segment the event timestamp
+   * Toplyne calculates the creation time using the timestamp of the first event or group call
    */
   creationTime: string | number
   /**

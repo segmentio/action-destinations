@@ -12,6 +12,7 @@ describe('Toplyne.sendUserProfiles', () => {
       timestamp,
       type: 'identify',
       userId: 'test-user-id',
+      anonymousId: 'test-anonymous-id',
       traits: { 'test-property': 'test-value', 'test-property-2': 'test-value-2' }
     })
 
@@ -48,12 +49,14 @@ describe('Toplyne.sendUserProfiles', () => {
         timestamp,
         type: 'identify',
         userId: 'test-user-id',
+        anonymousId: 'test-anonymous-id',
         traits: { 'test-property': 'test-value', 'test-property-2': 'test-value-2' }
       }),
       createTestEvent({
         timestamp,
         type: 'identify',
         userId: 'test-user-id-2',
+        anonymousId: 'test-anonymous-id-2',
         traits: { 'test-property': 'test-value', 'test-property-2': 'test-value-2' }
       })
     ]

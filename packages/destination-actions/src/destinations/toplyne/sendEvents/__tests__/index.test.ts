@@ -13,6 +13,7 @@ describe('Toplyne.sendEvents', () => {
       type: 'track',
       event: 'test-event',
       userId: 'test-user-id',
+      anonymousId: 'test-anonymous-id',
       properties: { 'test-property': 'test-value', 'test-property-2': 'test-value-2' }
     })
 
@@ -50,6 +51,7 @@ describe('Toplyne.sendEvents', () => {
         type: 'track',
         event: 'test-event',
         userId: 'test-user-id',
+        anonymousId: 'test-anonymous-id',
         properties: { 'test-property': 'test-value', 'test-property-2': 'test-value-2' }
       }),
       createTestEvent({
@@ -57,6 +59,7 @@ describe('Toplyne.sendEvents', () => {
         type: 'track',
         event: 'test-event-2',
         userId: 'test-user-id-2',
+        anonymousId: 'test-anonymous-id-2',
         properties: { 'test-property': 'test-value', 'test-property-2': 'test-value-2' }
       })
     ]

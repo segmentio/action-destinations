@@ -5,6 +5,7 @@ Object {
   "events": Array [
     Object {
       "accountId": "dekONxVwkjBx]^XboxH",
+      "anonymousId": "dekONxVwkjBx]^XboxH",
       "enable_batching": false,
       "eventName": "dekONxVwkjBx]^XboxH",
       "eventProperties": Object {
@@ -23,7 +24,6 @@ Object {
     Object {
       "eventName": "dekONxVwkjBx]^XboxH",
       "timestamp": 1612137600,
-      "userId": "dekONxVwkjBx]^XboxH",
     },
   ],
 }

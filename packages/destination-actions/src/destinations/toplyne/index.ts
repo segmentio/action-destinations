@@ -1,4 +1,4 @@
-import type { DestinationDefinition } from '@segment/actions-core'
+import { defaultValues, DestinationDefinition } from '@segment/actions-core'
 import type { Settings } from './generated-types'
 
 import sendUserProfiles from './sendUserProfiles'
@@ -32,6 +32,27 @@ const destination: DestinationDefinition<Settings> = {
       })
     }
   },
+
+  presets: [
+    {
+      name: 'Send User Profiles',
+      subscribe: 'type = "identify"',
+      partnerAction: 'sendUserProfiles',
+      mapping: defaultValues(sendUserProfiles.fields)
+    },
+    {
+      name: 'Send Account Profiles',
+      subscribe: 'type = "group"',
+      partnerAction: 'sendAccountProfiles',
+      mapping: defaultValues(sendAccountProfiles.fields)
+    },
+    {
+      name: 'Send Events',
+      subscribe: 'type = "track"',
+      partnerAction: 'sendEvents',
+      mapping: defaultValues(sendEvents.fields)
+    }
+  ],
 
   extendRequest: ({ settings }) => {
     return {

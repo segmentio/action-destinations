@@ -2,9 +2,13 @@
 
 export interface Payload {
   /**
-   * The ID of the user to send events for
+   * The ID of the user to send events for. Required if anonymousId is not provided
    */
-  userId: string
+  userId?: string
+  /**
+   * The anonymous ID of the user to send events for. Required if userId is not provided
+   */
+  anonymousId?: string
   /**
    * The ID of the account to send events for
    */

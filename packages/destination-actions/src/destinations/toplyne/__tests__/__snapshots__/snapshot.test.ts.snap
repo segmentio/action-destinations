@@ -31,6 +31,7 @@ Object {
   "events": Array [
     Object {
       "accountId": "(iRWTeAl",
+      "anonymousId": "(iRWTeAl",
       "enable_batching": true,
       "eventName": "(iRWTeAl",
       "eventProperties": Object {
@@ -49,7 +50,6 @@ Object {
     Object {
       "eventName": "(iRWTeAl",
       "timestamp": 1612137600,
-      "userId": "(iRWTeAl",
     },
   ],
 }
@@ -59,6 +59,7 @@ exports[`Testing snapshot for toplyne destination: sendUserProfiles action - all
 Object {
   "profiles": Array [
     Object {
+      "anonymousId": "UdCNQTigkp",
       "creationTime": 1612137600,
       "enable_batching": true,
       "userId": "UdCNQTigkp",
@@ -75,7 +76,6 @@ Object {
   "profiles": Array [
     Object {
       "creationTime": 1612137600,
-      "userId": "UdCNQTigkp",
     },
   ],
 }

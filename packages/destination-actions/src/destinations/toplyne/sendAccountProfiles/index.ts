@@ -20,7 +20,7 @@ const action: ActionDefinition<Settings, Payload> = {
     creationTime: {
       type: 'datetime',
       label: 'Creation time',
-      description: 'Creation time, for segment the event timestamp',
+      description: 'Toplyne calculates the creation time using the timestamp of the first event or group call',
       required: true,
       default: { '@path': '$.timestamp' }
     },

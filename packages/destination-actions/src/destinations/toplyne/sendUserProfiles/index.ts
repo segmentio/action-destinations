@@ -13,20 +13,22 @@ const action: ActionDefinition<Settings, Payload> = {
     userId: {
       type: 'string',
       label: 'User ID',
-      description: 'The ID of the user to send properties for',
-      required: true,
-      default: {
-        '@if': {
-          exists: { '@path': '$.userId' },
-          then: { '@path': '$.userId' },
-          else: { '@path': '$.anonymousId' }
-        }
-      }
+      description: 'The ID of the user to send properties for. Required if anonymousId is not provided',
+      required: false,
+      default: { '@path': '$.userId' }
+    },
+    anonymousId: {
+      type: 'string',
+      label: 'Anonymous ID',
+      description: 'The anonymous ID of the user to send properties for. Required if userId is not provided',
+      required: false,
+      default: { '@path': '$.anonymousId' }
     },
     creationTime: {
       type: 'datetime',
       label: 'Creation time',
-      description: 'Creation time, for segment the event timestamp',
+      description:
+        'Toplyne calculates the creation time of the user using the timestamp of the first track or identify call',
       required: true,
       default: { '@path': '$.timestamp' }
     },
