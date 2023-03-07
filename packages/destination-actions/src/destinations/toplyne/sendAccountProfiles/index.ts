@@ -1,6 +1,5 @@
 import type { ActionDefinition } from '@segment/actions-core'
 import dayjs from 'dayjs'
-import chunk from 'lodash/chunk'
 import { baseUrl } from '../constants'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
@@ -30,13 +29,6 @@ const action: ActionDefinition<Settings, Payload> = {
       description: 'The properties of the account',
       required: false,
       default: { '@path': '$.traits' }
-    },
-    enable_batching: {
-      type: 'boolean',
-      label: 'Send multiple accounts in a single request',
-      description:
-        'When enabled, the action will send upto 100 accounts in a single request. When disabled, the action will send 1 account per request.',
-      default: true
     }
   },
 
@@ -55,26 +47,6 @@ const action: ActionDefinition<Settings, Payload> = {
         ]
       }
     })
-  },
-
-  performBatch: (request, data) => {
-    // Send multiple account profiles
-    const accountChunks = chunk(data.payload, 100)
-    return Promise.all(
-      accountChunks.map((accounts) => {
-        return request(`${baseUrl}/upload/accounts/profiles`, {
-          json: {
-            profiles: accounts.map((account) => ({
-              ...account,
-              /**
-               * Toplyne API expects a creationTime in Unix time (seconds since epoch)
-               */
-              creationTime: dayjs(account.creationTime).unix()
-            }))
-          }
-        })
-      })
-    )
   }
 }
 

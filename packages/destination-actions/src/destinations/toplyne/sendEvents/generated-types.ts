@@ -27,8 +27,4 @@ export interface Payload {
   eventProperties?: {
     [k: string]: unknown
   }
-  /**
-   * When enabled, the action will send upto 500 events in a single request. When disabled, the action will send 1 event per request.
-   */
-  enable_batching?: boolean
 }

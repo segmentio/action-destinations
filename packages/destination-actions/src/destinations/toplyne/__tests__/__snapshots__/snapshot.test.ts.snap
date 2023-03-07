@@ -9,7 +9,6 @@ Object {
         "testType": "7wblbEGA$r74g8(LKHUU",
       },
       "creationTime": 1612137600,
-      "enable_batching": false,
     },
   ],
 }
@@ -32,7 +31,6 @@ Object {
     Object {
       "accountId": "(iRWTeAl",
       "anonymousId": "(iRWTeAl",
-      "enable_batching": true,
       "eventName": "(iRWTeAl",
       "eventProperties": Object {
         "testType": "(iRWTeAl",
@@ -61,7 +59,6 @@ Object {
     Object {
       "anonymousId": "UdCNQTigkp",
       "creationTime": 1612137600,
-      "enable_batching": true,
       "userId": "UdCNQTigkp",
       "userProperties": Object {
         "testType": "UdCNQTigkp",

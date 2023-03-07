@@ -6,7 +6,6 @@ Object {
     Object {
       "anonymousId": "*W*AP",
       "creationTime": 1612137600,
-      "enable_batching": true,
       "userId": "*W*AP",
       "userProperties": Object {
         "testType": "*W*AP",

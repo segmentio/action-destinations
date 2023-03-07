@@ -1,6 +1,5 @@
 import type { ActionDefinition } from '@segment/actions-core'
 import dayjs from 'dayjs'
-import chunk from 'lodash/chunk'
 import { baseUrl } from '../constants'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
@@ -51,13 +50,6 @@ const action: ActionDefinition<Settings, Payload> = {
       description: 'The properties of the event',
       required: false,
       default: { '@path': '$.properties' }
-    },
-    enable_batching: {
-      type: 'boolean',
-      label: 'Send multiple events in a single request',
-      description:
-        'When enabled, the action will send upto 500 events in a single request. When disabled, the action will send 1 event per request.',
-      default: true
     }
   },
   perform: (request, data) => {
@@ -75,25 +67,6 @@ const action: ActionDefinition<Settings, Payload> = {
         ]
       }
     })
-  },
-  performBatch: (request, data) => {
-    // Send multiple events in batches of 500
-    const eventChunks = chunk(data.payload, 500)
-    return Promise.all(
-      eventChunks.map((events) => {
-        return request(`${baseUrl}/upload/events`, {
-          json: {
-            events: events.map((event) => ({
-              ...event,
-              /**
-               * Toplyne API expects a timestamp in Unix time (seconds since epoch)
-               */
-              timestamp: dayjs(event.timestamp).unix()
-            }))
-          }
-        })
-      })
-    )
   }
 }
 

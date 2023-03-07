@@ -19,8 +19,4 @@ export interface Payload {
   userProperties?: {
     [k: string]: unknown
   }
-  /**
-   * When enabled, the action will send upto 100 profiles in a single request. When disabled, the action will send 1 profile per request.
-   */
-  enable_batching?: boolean
 }
