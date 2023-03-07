@@ -25,14 +25,18 @@ const destination: DestinationDefinition<Settings> = {
         type: 'password',
         required: true
       }
-    },
-    testAuthentication: (_request) => {
-      // Return a request that tests/validates the user's credentials.
-      // If you do not have a way to validate the authentication fields safely,
-      // you can remove the `testAuthentication` function, though discouraged.
+    }
+    // testAuthentication: (_request) => {
+    //   // Return a request that tests/validates the user's credentials.
+    //   // If you do not have a way to validate the authentication fields safely,
+    //   // you can remove the `testAuthentication` function, though discouraged.
+    // }
+  },
+  extendRequest({ settings }) {
+    return {
+      headers: { access_token: settings.conversion_token }
     }
   },
-
   actions: {
     reportConversionEvent
   }
