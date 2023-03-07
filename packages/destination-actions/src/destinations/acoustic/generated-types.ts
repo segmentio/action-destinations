@@ -25,4 +25,8 @@ export interface Settings {
    * Note: Before increasing the default max number, consult the Acoustic Destination documentation.
    */
   a_attributesMax?: number
+  /**
+   * The Segment Events Table List Id from the Database dialog in Acoustic Campaign
+   */
+  a_events_table_list_id?: string
 }

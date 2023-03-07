@@ -2,7 +2,6 @@ import { RequestClient } from '@segment/actions-core'
 import get from 'lodash/get'
 import { Settings } from '../generated-types'
 import { Payload } from '../receiveEvents/generated-types'
-import { getxmlAPIUrl } from './TableMaint_Utilities'
 
 export function parseSections(section: { [key: string]: string }, parseResults: { [key: string]: string }) {
   get(section, 'messageid')
@@ -86,12 +85,15 @@ export const postUpdates = async (
   xmlRows: string,
   i: number
 ): Promise<Response> => {
-  return await request(getxmlAPIUrl(settings), {
+  const pup = await request(`https://api-campaign-${settings.a_region}-${settings.a_pod}.goacoustic.com/XMLAPI`, {
     method: 'POST',
     headers: {
+      Authorization: `Bearer ${accessToken} `,
+      'User-Agent': `Acoustic Segment Events(${i}`,
       'Content-Type': 'text/xml',
-      authorization: `Bearer ${accessToken} `,
-      'User-Agent': `Silverpop Updates Sent(${i}`
+      Connection: 'keep-alive',
+      'Accept-Encoding': 'gzip, deflate, br',
+      Accept: '*/*'
     },
     body: `<Envelope>
     <Body>
@@ -104,4 +106,6 @@ export const postUpdates = async (
     </Body>
   </Envelope>`
   })
+
+  return pup
 }

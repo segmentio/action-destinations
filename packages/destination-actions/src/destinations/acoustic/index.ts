@@ -99,6 +99,13 @@ const destination: DestinationDefinition<Settings> = {
         default: 30,
         type: 'number',
         required: false
+      },
+      a_events_table_list_id: {
+        label: 'Acoustic Segment Events Table List Id',
+        description: 'The Segment Events Table List Id from the Database dialog in Acoustic Campaign',
+        default: '',
+        type: 'string',
+        required: false
       }
     },
 

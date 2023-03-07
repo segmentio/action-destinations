@@ -3,32 +3,15 @@ import { RequestClient } from '@segment/actions-core'
 import { Settings } from '../generated-types'
 import { JSONLikeObject } from '@segment/actions-core'
 
-export async function getAccessToken(request: RequestClient, settings: Settings) {
-  const res = await request(`https://api-campaign-${settings.a_region}-${settings.a_pod}.goacoustic.com/oauth/token`, {
-    method: 'POST',
-    body: new URLSearchParams({
-      client_id: settings.a_client_id,
-      client_secret: settings.a_client_secret,
-      refresh_token: settings.a_refresh_token,
-      grant_type: 'refresh_token'
-    }),
-    headers: {
-      'user-agent': 'Segment (refreshtoken)',
-      'Content-Type': 'application/x-www-form-urlencoded'
-    }
-  })
-
-  await res.data
-  return res.data as JSONLikeObject //{ accessToken: res.data.access_token}
-}
-
 export async function preChecksAndMaint(request: RequestClient, settings: Settings) {
   const aw = await getAccessToken(request, settings)
   const at = aw.access_token as string
 
   //check for Segment Events table, if not exist create it
-  const chkExist = await checkRTExist(request, settings, at)
-  if (!chkExist) {
+  //const chkExist =
+  await checkRTExist(request, settings, at)
+
+  if (settings.a_events_table_list_id === '') {
     //Need audit trail of this - what's Segment equivalent of Logging
     //console.log('Acoustic Audiences Table did not exist, creating new ....')
 
@@ -105,12 +88,17 @@ export async function createSegmentEventsTable(request: RequestClient, settings:
   return createSegmentEventsTable
 }
 
+//export const checkRTExist = async (request: RequestClient, settings: Settings, accessToken: string) => {
 export async function checkRTExist(request: RequestClient, settings: Settings, accessToken: string) {
-  const checkRT = await request(`https://api-campaign-${settings.a_region}-${settings.a_pod}.goacoustic.com/xmlapi`, {
+  const chkExist = await request(`https://api-campaign-${settings.a_region}-${settings.a_pod}.goacoustic.com/XMLAPI`, {
     method: 'POST',
     headers: {
-      authorization: `Bearer ${accessToken}`,
-      'Content-Type': 'text/xml'
+      Authorization: `Bearer ${accessToken}`,
+      'Content-Type': 'text/xml',
+      'user-agent': 'Segment (checkforRT)',
+      Connection: 'keep-alive',
+      'Accept-Encoding': 'gzip, deflate, br',
+      Accept: '*/*'
     },
     body: `<Envelope>
   <Body>
@@ -123,7 +111,8 @@ export async function checkRTExist(request: RequestClient, settings: Settings, a
   </Envelope>`
   })
 
-  const lists = await checkRT.text()
+  await chkExist.data
+  const lists = chkExist.content
 
   if (lists.indexOf('Segment Events Table') > 0) {
     const simplify = lists.substring(
@@ -134,13 +123,30 @@ export async function checkRTExist(request: RequestClient, settings: Settings, a
     const setListId = rx.exec(simplify) ?? '999999999'
 
     settings.a_events_table_list_id = setListId[1]
-    return true
   } else {
     settings.a_events_table_list_id = '999999999' //Just in case - should not be 999999999
 
     throw new IntegrationError(
       `Cannot determine the Segment Events Table in the defined Acoustic environment. Please check the documentation and confirm the configuration`
     )
-    return false
   }
+}
+
+export async function getAccessToken(request: RequestClient, settings: Settings) {
+  const res = await request(`https://api-campaign-${settings.a_region}-${settings.a_pod}.goacoustic.com/oauth/token`, {
+    method: 'POST',
+    body: new URLSearchParams({
+      client_id: settings.a_client_id,
+      client_secret: settings.a_client_secret,
+      refresh_token: settings.a_refresh_token,
+      grant_type: 'refresh_token'
+    }),
+    headers: {
+      'user-agent': 'Segment (refreshtoken)',
+      'Content-Type': 'application/x-www-form-urlencoded'
+    }
+  })
+
+  await res.data
+  return res.data as JSONLikeObject //{ accessToken: res.data.access_token}
 }

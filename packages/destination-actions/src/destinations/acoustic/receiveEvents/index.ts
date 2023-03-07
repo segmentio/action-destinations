@@ -1,7 +1,6 @@
 import { ActionDefinition } from '@segment/actions-core'
 import { Settings } from '../generated-types'
 import { Payload } from './generated-types'
-import { IntegrationError } from '@segment/actions-core'
 import { preChecksAndMaint } from '../Utility/TableMaint_Utilities'
 import get from 'lodash/get'
 import { addUpdateEvents, postUpdates } from '../Utility/EventProcessing'
@@ -69,16 +68,19 @@ const action: ActionDefinition<Settings, Payload> = {
   },
 
   perform: async (request, { settings, payload }) => {
-    let email = get(payload, 'context.traits.email', 'Null')
-    if (email == 'Null') email = get(payload, 'properties.email', 'Null')
-    if (email == 'Null') email = get(payload, 'traits.email', 'Null')
-    if (email == 'Null') throw new IntegrationError('Email not provided, cannot process Events without included Email')
+    const email = get(payload, 'email', 'Null')
+    // let email = get(payload, 'context.traits.email', 'Null')
+    // if (email == 'Null') email = get(payload, 'properties.email', 'Null')
+    // if (email == 'Null') email = get(payload, 'traits.email', 'Null')
+    // if (email == 'Null') throw new IntegrationError('Email not provided, cannot process Events without included Email')
 
     const at = await preChecksAndMaint(request, settings)
 
     //Ok, prechecks and Maint are all accomplished, let's see what needs to be processed,
     const rows = addUpdateEvents(payload, email)
 
+    // const up = await postUpdates(request, settings, at, rows, 1)
+    // return up.text()
     return await postUpdates(request, settings, at, rows, 1)
   }
 }
