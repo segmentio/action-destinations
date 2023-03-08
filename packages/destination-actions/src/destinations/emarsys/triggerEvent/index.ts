@@ -45,6 +45,7 @@ const action: ActionDefinition<Settings, Payload> = {
       description:
         'A JSON object that will be passed to the Emarsys template engine and can be used for personalization',
       type: 'object',
+      additionalProperties: true,
       required: false,
       allowNull: true
     }

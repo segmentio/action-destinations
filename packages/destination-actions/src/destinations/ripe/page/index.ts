@@ -120,7 +120,6 @@ const action: ActionDefinition<Settings, Payload> = {
     },
     messageId: {
       type: 'string',
-      format: 'uuid',
       required: false,
       description: 'The Segment messageId',
       label: 'MessageId',

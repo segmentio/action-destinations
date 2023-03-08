@@ -13,4 +13,8 @@ export interface Payload {
    * The user's email
    */
   email?: string
+  /**
+   * Hash emails before sending them to Criteo (may lower your audience's match rate). If deactivated, emails will be sent unhashed to Criteo's API and will be hashed upon reception at Criteo's server.
+   */
+  hash_emails?: boolean
 }
