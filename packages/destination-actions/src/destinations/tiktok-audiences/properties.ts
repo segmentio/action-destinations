@@ -26,7 +26,6 @@ export const id_type: InputField = {
   type: 'string',
   choices: [
     { label: 'Email', value: 'EMAIL_SHA256' },
-    { label: 'Phone', value: 'PHONE_SHA256' },
     { label: 'Google Advertising ID', value: 'GAID_SHA256' },
     { label: 'Android Advertising ID', value: 'AAID_SHA256' },
     { label: 'iOS Advertising ID', value: 'IDFA_SHA256' }
