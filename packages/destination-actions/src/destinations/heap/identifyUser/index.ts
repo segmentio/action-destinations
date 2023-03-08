@@ -23,7 +23,7 @@ const action: ActionDefinition<Settings, Payload> = {
       type: 'string',
       allowNull: true,
       description:
-        'A unique identity and maintain user histories across sessions and devices under a single profile. If no identity is provided we will add the anonymous_id to the event. More on identify: https://developers.heap.io/docs/using-identify',
+        'A unique identity that will maintain user histories across sessions and devices under a single profile. More on identify: https://developers.heap.io/docs/using-identify',
       default: {
         '@path': '$.userId'
       }
