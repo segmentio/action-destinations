@@ -1,4 +1,4 @@
-import { ActionDefinition, IntegrationError } from '@segment/actions-core'
+import { ActionDefinition, PayloadValidationError } from '@segment/actions-core'
 import {
   verifyCurrency,
   verifyParams,
@@ -91,7 +91,7 @@ const action: ActionDefinition<Settings, Payload> = {
     if (payload.items) {
       googleItems = payload.items.map((product) => {
         if (product.item_name === undefined && product.item_id === undefined) {
-          throw new IntegrationError('One of item id or item name is required.', 'Misconfigured required field', 400)
+          throw new PayloadValidationError('One of item id or item name is required.')
         }
 
         if (product.currency) {
