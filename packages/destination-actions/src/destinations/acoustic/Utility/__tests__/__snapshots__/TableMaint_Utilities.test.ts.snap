@@ -2,9 +2,13 @@
 
 exports[`checkRTExist checkRTExist should return expected output 1`] = `[Function]`;
 
+exports[`checkRTExist checkRTExist should return expected output 2`] = `[Function]`;
+
 exports[`createSegmentEventsTable createSegmentEventsTable should return expected output 1`] = `[Function]`;
 
 exports[`deleteRTs deleteRTs should return expected output 1`] = `[Function]`;
+
+exports[`getAccessToken getAccessToken should match snapshot 1`] = `[Function]`;
 
 exports[`getAccessToken getAccessToken should return expected output 1`] = `[Function]`;
 

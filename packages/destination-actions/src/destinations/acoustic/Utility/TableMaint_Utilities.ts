@@ -8,13 +8,9 @@ export async function preChecksAndMaint(request: RequestClient, settings: Settin
   const at = aw.access_token as string
 
   //check for Segment Events table, if not exist create it
-  //const chkExist =
   await checkRTExist(request, settings, at)
 
   if (settings.a_events_table_list_id === '') {
-    //Need audit trail of this - what's Segment equivalent of Logging
-    //console.log('Acoustic Audiences Table did not exist, creating new ....')
-
     const crt = await createSegmentEventsTable(request, settings, at)
     if (!crt) {
       throw new IntegrationError('Error attempting to create the Acoustic Segment Events Table')
@@ -88,7 +84,6 @@ export async function createSegmentEventsTable(request: RequestClient, settings:
   return createSegmentEventsTable
 }
 
-//export const checkRTExist = async (request: RequestClient, settings: Settings, accessToken: string) => {
 export async function checkRTExist(request: RequestClient, settings: Settings, accessToken: string) {
   const chkExist = await request(`https://api-campaign-${settings.a_region}-${settings.a_pod}.goacoustic.com/XMLAPI`, {
     method: 'POST',
