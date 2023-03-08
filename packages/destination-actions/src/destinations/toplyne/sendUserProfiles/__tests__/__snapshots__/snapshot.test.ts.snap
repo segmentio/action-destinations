@@ -1,0 +1,26 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Testing snapshot for Toplyne's sendUserProfiles destination action: all fields 1`] = `
+Object {
+  "profiles": Array [
+    Object {
+      "anonymousId": "*W*AP",
+      "creationTime": 1612137600,
+      "userId": "*W*AP",
+      "userProperties": Object {
+        "testType": "*W*AP",
+      },
+    },
+  ],
+}
+`;
+
+exports[`Testing snapshot for Toplyne's sendUserProfiles destination action: required fields 1`] = `
+Object {
+  "profiles": Array [
+    Object {
+      "creationTime": 1612137600,
+    },
+  ],
+}
+`;

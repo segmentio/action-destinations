@@ -8,15 +8,19 @@ export interface Payload {
   /**
    * The ID associated with the user
    */
-  userId?: string
+  userId?: string | null
   /**
    * The ID associated groupId
    */
-  groupId: string
+  groupId: string | null
   /**
    * Traits to associate with the group
    */
   traits?: {
     [k: string]: unknown
   }
+  /**
+   * The Segment messageId
+   */
+  messageId?: string
 }

@@ -2,9 +2,17 @@
 
 export interface Payload {
   /**
-   * Uniquely identifies a user instance of a web client.
+   * The type of data stream this data belongs in. This can either be a web stream or a mobile app stream (iOS or Android).
    */
-  client_id: string
+  data_stream_type?: string
+  /**
+   * Uniquely identifies a specific installation of a Firebase app. This value needs to be retrieved through the Firebase SDK. **Required for mobile app streams.**
+   */
+  app_instance_id?: string
+  /**
+   * Uniquely identifies a user instance of a web client. **Required for web streams.**
+   */
+  client_id?: string
   /**
    * A unique identifier for a user. See Google's [User-ID for cross-platform analysis](https://support.google.com/analytics/answer/9213390) and [Reporting: deduplicate user counts](https://support.google.com/analytics/answer/9355949?hl=en) documentation for more information on this identifier.
    */

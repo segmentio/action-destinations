@@ -8,7 +8,7 @@ import { Payload } from './addToCart/generated-types'
 export const user_data_field: InputField = {
   label: 'User Data',
   description:
-  'These parameters are a set of identifiers Facebook can use for targeted attribution. You must provide at least one of the following parameters in your request. More information on recommended User Data parameters in Facebook’s [Best Practices for Conversions API](https://www.facebook.com/business/help/308855623839366).',
+    'These parameters are a set of identifiers Facebook can use for targeted attribution. You must provide at least one of the following parameters in your request. More information on recommended User Data parameters in Facebook’s [Best Practices for Conversions API](https://www.facebook.com/business/help/308855623839366).',
   type: 'object',
   required: true,
   properties: {
@@ -61,8 +61,7 @@ export const user_data_field: InputField = {
     },
     zip: {
       label: 'Zip Code',
-      description:
-        'A five-digit zip code for United States. For other locations, follow each country`s standards.',
+      description: 'A five-digit zip code for United States. For other locations, follow each country`s standards.',
       type: 'string'
     },
     country: {
@@ -105,6 +104,16 @@ export const user_data_field: InputField = {
       label: 'Facebook Login ID',
       description: 'The ID issued by Facebook when a person first logs into an instance of an app.',
       type: 'integer'
+    },
+    partner_id: {
+      label: 'Partner ID',
+      description: 'The ID issued by Facebook identity partner.',
+      type: 'string'
+    },
+    partner_name: {
+      label: 'Partner Name',
+      description: 'The name of the Facebook identity partner.',
+      type: 'string'
     }
   },
   default: {
@@ -247,6 +256,8 @@ export const hash_user_data = (payload: UserData): Object => {
     fbp: payload.user_data?.fbp,
     subscription_id: payload.user_data?.subscriptionID,
     lead_id: payload.user_data?.leadID,
-    fb_login_id: payload.user_data?.fbLoginID
+    fb_login_id: payload.user_data?.fbLoginID,
+    partner_id: payload.user_data?.partner_id,
+    partner_name: payload.user_data?.partner_name
   }
 }
