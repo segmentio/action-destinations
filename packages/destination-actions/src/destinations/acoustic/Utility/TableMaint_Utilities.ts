@@ -119,7 +119,7 @@ export async function checkRTExist(request: RequestClient, settings: Settings, a
 
     settings.a_events_table_list_id = setListId[1]
   } else {
-    settings.a_events_table_list_id = '999999999' //Just in case - should not be 999999999
+    settings.a_events_table_list_id = '999999999' //Make it obvious - should not be 999999999
 
     throw new IntegrationError(
       `Cannot determine the Segment Events Table in the defined Acoustic environment. Please check the documentation and confirm the configuration`
@@ -143,5 +143,5 @@ export async function getAccessToken(request: RequestClient, settings: Settings)
   })
 
   await res.data
-  return res.data as JSONLikeObject //{ accessToken: res.data.access_token}
+  return res.data as JSONLikeObject
 }

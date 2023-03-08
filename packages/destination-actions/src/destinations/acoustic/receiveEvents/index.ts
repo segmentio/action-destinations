@@ -8,7 +8,6 @@ import { addUpdateEvents, postUpdates } from '../Utility/EventProcessing'
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Receive Track and Identify Events',
   description: 'Provide Segment Track and Identify Event Data to Acoustic Campaign',
-  defaultSubscription: 'type = "track" or type = "identify"',
   fields: {
     email: {
       label: 'Email',
@@ -18,11 +17,6 @@ const action: ActionDefinition<Settings, Payload> = {
       required: true,
       default: {
         '@path': '$.email'
-        // '@if': {
-        //   exists: { '@path': '$.properties.email' },
-        //   then: { '@path': '$.properties.email' },
-        //   else: { '@path': '$.traits.email' }
-        // }
       }
     },
     type: {
@@ -69,18 +63,12 @@ const action: ActionDefinition<Settings, Payload> = {
 
   perform: async (request, { settings, payload }) => {
     const email = get(payload, 'email', 'Null')
-    // let email = get(payload, 'context.traits.email', 'Null')
-    // if (email == 'Null') email = get(payload, 'properties.email', 'Null')
-    // if (email == 'Null') email = get(payload, 'traits.email', 'Null')
-    // if (email == 'Null') throw new IntegrationError('Email not provided, cannot process Events without included Email')
 
     const at = await preChecksAndMaint(request, settings)
 
     //Ok, prechecks and Maint are all accomplished, let's see what needs to be processed,
     const rows = addUpdateEvents(payload, email)
 
-    // const up = await postUpdates(request, settings, at, rows, 1)
-    // return up.text()
     return await postUpdates(request, settings, at, rows, 1)
   }
 }

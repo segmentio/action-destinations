@@ -10,18 +10,6 @@ export interface Settings {
    */
   a_region: string
   /**
-   * Client Id provided with Definition of Segment Events Application in Acoustic
-   */
-  a_client_id: string
-  /**
-   * Client Secret provided with Definition of Segment Events Application in Acoustic
-   */
-  a_client_secret: string
-  /**
-   * Refresh Token provided with Definition of Segment Events Application Access in Acoustic
-   */
-  a_refresh_token: string
-  /**
    * Note: Before increasing the default max number, consult the Acoustic Destination documentation.
    */
   a_attributesMax?: number

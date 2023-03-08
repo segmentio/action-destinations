@@ -3,33 +3,11 @@ import get from 'lodash/get'
 import { Settings } from '../generated-types'
 import { Payload } from '../receiveEvents/generated-types'
 
-// export function parseSections(section: { [key: string]: string }, parseResults: { [key: string]: string }) {
-
-//   const _t = get(section, 'products.brand', "Null")
-
-//   const sa: string[] = Object.keys(section)
-
-//   sa.length
-
-//   for (const k of Object.keys(section)) {
-//     if (typeof section[k] === "object")
-
-//       //   for(const ko of Object.keys(section[k])){
-
-//       // }
-//       parseResults[k] = get(section, k, 'Null')
-
-//   }
-
-//   return parseResults
-// }
-
 export function parseSections(section: { [key: string]: string }) {
   const parseResults: { [key: string]: string } = {}
-  //const s: { [key: string]: string } = section as { [key: string]: string }
+
   for (const key of Object.keys(section)) {
     if (typeof section[key] === 'object') {
-      //const n = section as { [key: string]: string }
       const nested: { [key: string]: string } = parseSections(section[key] as {} as { [key: string]: string })
       for (const nestedKey of Object.keys(nested)) {
         parseResults[`${key}.${nestedKey}`] = nested[nestedKey]
@@ -50,7 +28,7 @@ export function addUpdateEvents(payload: Payload, email: string) {
   const eventSource = get(payload, 'type', 'Null') + ' Event'
 
   //Timestamp
-  // const t = `"timestamp": "2023-02-07T02:19:23.469Z"`
+  // "timestamp": "2023-02-07T02:19:23.469Z"`
   const timestamp = get(payload, 'timestamp', 'Null')
 
   //Audience
@@ -90,7 +68,7 @@ export function addUpdateEvents(payload: Payload, email: string) {
       ...parseSections(payload.context as { [key: string]: string })
     }
 
-  //Properties and Traits
+  //Wrap Properties and Traits into XML
   for (const e in propertiesTraitsKV) {
     const eventName = e
     const eventValue = propertiesTraitsKV[e]

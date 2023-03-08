@@ -18,6 +18,8 @@ const settings = {
   a_refresh_token: ''
 }
 
+const accessToken = ''
+
 const payloadExample = {
   email: 'jhaltiw99@gmail.com',
   type: 'track',
@@ -110,8 +112,6 @@ describe(`Testing snapshot for ${destinationSlug}'s ${actionSlug} destination ac
     // nock(/.*/).persist().post(/.*/).reply(200)
     // nock(/.*/).persist().put(/.*/).reply(200)
 
-    const accessToken = ''
-
     nock.recorder.rec()
     nock.back.setMode('record')
 
@@ -127,7 +127,6 @@ describe(`Testing snapshot for ${destinationSlug}'s ${actionSlug} destination ac
     })
       .persist()
       .post('/XMLAPI') //, body => body.username && body.password
-      // body(payload)
       .reply(200, {})
 
     xmlAPICalls.isDone
@@ -135,6 +134,8 @@ describe(`Testing snapshot for ${destinationSlug}'s ${actionSlug} destination ac
     const request = createInstance()
 
     expect(actions.perform(request, { settings, payload })).toMatchSnapshot()
+
+    expect(actions.perform).toHaveBeenCalled()
 
     expect(destination.actions.receiveEvents.perform).toHaveBeenCalled()
 
@@ -157,10 +158,14 @@ describe(`Testing snapshot for ${destinationSlug}'s ${actionSlug} destination ac
   })
 
   it('all fields', async () => {
+    const actions = destination.actions[actionSlug]
+
+    //const [eventData, settingsData] = generateTestData(seedName, destination, action, true)
+
     const action = destination.actions[actionSlug]
     const [eventData, settingsData] = generateTestData(seedName, destination, action, false)
 
-    eventData
+    console.log('Required Fields test\n' + eventData)
 
     //nock(/.*/).persist().get(/.*/).reply(200)
     //nock(/.*/).persist().post(/.*/).reply(200)
@@ -169,6 +174,33 @@ describe(`Testing snapshot for ${destinationSlug}'s ${actionSlug} destination ac
     // const event = createTestEvent({
     //   properties: eventData
     // })
+
+    nock.recorder.rec()
+    nock.back.setMode('record')
+
+    const xmlAPICalls = nock(`https://api-campaign-${settings.a_region}-${settings.a_pod}.goacoustic.com`, {
+      reqheaders: {
+        Authorization: `Bearer ${accessToken}`,
+        'Content-Type': 'text/xml',
+        'user-agent': 'Segment (checkforRT)',
+        Connection: 'keep-alive',
+        'Accept-Encoding': 'gzip, deflate, br',
+        Accept: '*/*'
+      }
+    })
+      .persist()
+      .post('/XMLAPI') //, body => body.username && body.password
+      .reply(200, {})
+
+    xmlAPICalls.isDone
+
+    const request = createInstance()
+
+    expect(actions.perform(request, { settings, payload })).toMatchSnapshot()
+
+    expect(actions.perform).toHaveBeenCalled()
+
+    expect(destination.actions.receiveEvents.perform).toHaveBeenCalled()
 
     const responses = await testDestination.testAction(actionSlug, {
       //event: event,
@@ -181,7 +213,11 @@ describe(`Testing snapshot for ${destinationSlug}'s ${actionSlug} destination ac
     const req = responses[0].request
     const rawBody = await req.text()
 
-    const json = JSON.parse(rawBody)
-    expect(json).toMatchSnapshot()
+    // const json = JSON.parse(rawBody)
+    // expect(json).toMatchSnapshot()
+
+    expect(rawBody).toContain('<SUCCESS>true</SUCCESS>')
+    expect(req.headers).toMatchSnapshot()
+    expect(rawBody).toMatchSnapshot()
   })
 })
