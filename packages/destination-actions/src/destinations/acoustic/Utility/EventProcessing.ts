@@ -3,12 +3,41 @@ import get from 'lodash/get'
 import { Settings } from '../generated-types'
 import { Payload } from '../receiveEvents/generated-types'
 
-export function parseSections(section: { [key: string]: string }, parseResults: { [key: string]: string }) {
-  get(section, 'messageid')
-  for (const k of Object.keys(section)) {
-    parseResults[k] = get(section, k, 'Null')
-  }
+// export function parseSections(section: { [key: string]: string }, parseResults: { [key: string]: string }) {
 
+//   const _t = get(section, 'products.brand', "Null")
+
+//   const sa: string[] = Object.keys(section)
+
+//   sa.length
+
+//   for (const k of Object.keys(section)) {
+//     if (typeof section[k] === "object")
+
+//       //   for(const ko of Object.keys(section[k])){
+
+//       // }
+//       parseResults[k] = get(section, k, 'Null')
+
+//   }
+
+//   return parseResults
+// }
+
+export function parseSections(section: { [key: string]: string }) {
+  const parseResults: { [key: string]: string } = {}
+  //const s: { [key: string]: string } = section as { [key: string]: string }
+  for (const key of Object.keys(section)) {
+    if (typeof section[key] === 'object') {
+      //const n = section as { [key: string]: string }
+      const nested: { [key: string]: string } = parseSections(section[key] as {} as { [key: string]: string })
+      for (const nestedKey of Object.keys(nested)) {
+        parseResults[`${key}.${nestedKey}`] = nested[nestedKey]
+      }
+    } else {
+      parseResults[key] = section[key]
+    }
+  }
   return parseResults
 }
 
@@ -48,17 +77,17 @@ export function addUpdateEvents(payload: Payload, email: string) {
   if (payload.traits)
     propertiesTraitsKV = {
       ...propertiesTraitsKV,
-      ...parseSections(payload.traits as { [key: string]: string }, propertiesTraitsKV)
+      ...parseSections(payload.traits as { [key: string]: string })
     }
   if (payload.properties)
     propertiesTraitsKV = {
       ...propertiesTraitsKV,
-      ...parseSections(payload.properties as { [key: string]: string }, propertiesTraitsKV)
+      ...parseSections(payload.properties as { [key: string]: string })
     }
   if (payload.context)
     propertiesTraitsKV = {
       ...propertiesTraitsKV,
-      ...parseSections(payload.context as { [key: string]: string }, propertiesTraitsKV)
+      ...parseSections(payload.context as { [key: string]: string })
     }
 
   //Properties and Traits

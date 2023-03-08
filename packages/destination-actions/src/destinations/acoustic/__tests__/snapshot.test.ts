@@ -172,17 +172,18 @@ describe(`Testing snapshot for ${destinationSlug}'s ${actionSlug} destination ac
     // nock(/.*/).persist().post(/.*/).reply(200)
     // nock(/.*/).persist().put(/.*/).reply(200)
 
-    const params = new URLSearchParams({
-      grant_type: 'refresh_token',
-      client_id: '1d99f8d8-0897-4090-983a-c517cc54032e',
-      client_secret: '124bd238-0987-40a2-b8fb-879ddd4d3241',
-      'refresh-token': 'rD-7E2r8BynGDaapr13oJV9BxQr20lsYGN9RPkbrtPtAS1'
-    })
+    // const params = new URLSearchParams({
+    //   grant_type: 'refresh_token',
+    //   client_id: '1d99f8d8-0897-4090-983a-c517cc54032e',
+    //   client_secret: '124bd238-0987-40a2-b8fb-879ddd4d3241',
+    //   'refresh-token': 'rD-7E2r8BynGDaapr13oJV9BxQr20lsYGN9RPkbrtPtAS1'
+    // })
 
-    const aa = nock('https://api-campaign-us-2.goacoustic.com').post('/oauth/token').query(params).reply(200)
-    const ap = nock('https://api-campaign-us-2.goacoustic.com').post('/xmlapi').reply(200)
+    // const aa = nock('https://api-campaign-us-2.goacoustic.com').post('/oauth/token').query(params).reply(200)
+    //  aa.isDone
 
-    aa.isDone
+    const ap = nock('https://api-campaign-us-2.goacoustic.com').post('/XMLAPI').reply(200)
+
     ap.isDone
 
     const responses = await testDestination.testAction(actionSlug, {
