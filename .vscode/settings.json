@@ -1,9 +1,0 @@
-{
-  "editor.formatOnSave": true,
-  "eslint.validate": ["javascript", "typescript"],
-  "files.exclude": {
-    "**/.git": true,
-    "**/.DS_Store": true
-  },
-  "typescript.tsdk": "node_modules/typescript/lib"
-}

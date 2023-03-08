@@ -12,3 +12,9 @@ coverage
 
 # playwright
 playwright-report
+
+#vscode
+.vscode
+.vscode/settings.json
+.vscode.zip
+

@@ -51,6 +51,7 @@
   },
   "jest": {
     "preset": "ts-jest",
+    "silent": false,
     "testEnvironment": "node",
     "modulePathIgnorePatterns": [
       "<rootDir>/dist/"
