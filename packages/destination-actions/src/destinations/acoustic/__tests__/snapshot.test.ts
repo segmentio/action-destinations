@@ -3,6 +3,7 @@ import { generateTestData } from '../../../lib/test-data'
 import destination from '../index'
 import nock from 'nock'
 import { SegmentEvent } from '@segment/actions-core'
+import createInstance from '@segment/actions-core/src/request-client'
 
 const testDestination = createTestIntegration(destination)
 const actionSlug = 'receiveEvents'
@@ -99,17 +100,15 @@ const payload = createTestEvent(payloadExample)
 
 describe(`Testing snapshot for ${destinationSlug}'s ${actionSlug} destination action:`, () => {
   it('required fields', async () => {
-    const action = destination.actions[actionSlug]
+    const actions = destination.actions[actionSlug]
 
     //const [eventData, settingsData] = generateTestData(seedName, destination, action, true)
-    const [eventData, settingsData] = generateTestData(seedName, destination, action, true)
+    const [eventData, settingsData] = generateTestData(seedName, destination, actions, true)
     console.log('Required Fields test\n' + eventData)
 
     // nock(/.*/).persist().get(/.*/).reply(200)
     // nock(/.*/).persist().post(/.*/).reply(200)
     // nock(/.*/).persist().put(/.*/).reply(200)
-
-    nock.recorder.rec()
 
     const accessToken = ''
 
@@ -133,7 +132,11 @@ describe(`Testing snapshot for ${destinationSlug}'s ${actionSlug} destination ac
 
     xmlAPICalls.isDone
 
-    expect(action).toMatchSnapshot()
+    const request = createInstance()
+
+    expect(actions.perform(request, { settings, payload })).toMatchSnapshot()
+
+    expect(destination.actions.receiveEvents.perform).toHaveBeenCalled()
 
     const responses = await testDestination.testAction(actionSlug, {
       //event: event,
@@ -143,13 +146,13 @@ describe(`Testing snapshot for ${destinationSlug}'s ${actionSlug} destination ac
       useDefaultMappings: true
     })
 
-    const request = responses[0].request
-    const rawBody = await request.text()
+    const req = responses[0].request
+    const rawBody = await req.text()
 
     //const json = JSON.parse(rawBody)
 
     expect(rawBody).toContain('<SUCCESS>true</SUCCESS>')
-    expect(request.headers).toMatchSnapshot()
+    expect(req.headers).toMatchSnapshot()
     expect(rawBody).toMatchSnapshot()
   })
 
@@ -175,8 +178,8 @@ describe(`Testing snapshot for ${destinationSlug}'s ${actionSlug} destination ac
       auth: undefined
     })
 
-    const request = responses[0].request
-    const rawBody = await request.text()
+    const req = responses[0].request
+    const rawBody = await req.text()
 
     const json = JSON.parse(rawBody)
     expect(json).toMatchSnapshot()

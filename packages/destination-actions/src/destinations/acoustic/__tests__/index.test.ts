@@ -127,21 +127,32 @@ describe('Destination ', () => {
       } catch (err) {
         expect(err).toBeDefined()
       }
-    })
 
-    it('receiveEvents should match correct, complete output', async () => {
-      nock('https://api.getripe.com/core-backend').post('/identify').reply(200, {})
+      const spy = jest.spyOn(destination.actions.testAction, 'perform')
 
-      const responses = await testDestination.testAction('recieveEvents', {
-        mapping: { anonymousId: 'my-id', traits: {} },
-        settings: { ...settings }
+      expect(spy).not.toHaveBeenCalled()
+      expect(spy).toHaveBeenCalledTimes(1)
+      expect(spy).toHaveBeenCalledWith(
+        expect.anything(),
+        expect.objectContaining({
+          payload: expect.arrayContaining([{ email: 'jhaltiw99@gmail.com' }])
+        })
+      )
+
+      it('receiveEvents should match correct, complete output', async () => {
+        nock('https://api.getripe.com/core-backend').post('/identify').reply(200, {})
+
+        const responses = await testDestination.testAction('recieveEvents', {
+          mapping: { anonymousId: 'my-id', traits: {} },
+          settings: { ...settings }
+        })
+
+        expect(responses.length).toBe(1)
+        expect(responses[0].status).toBe(200)
+        expect(responses[0].data).toMatchObject({})
+        expect(responses[0].options.body).toContain('my-id')
+        expect(responses[0].options.body).toContain('traits')
       })
-
-      expect(responses.length).toBe(1)
-      expect(responses[0].status).toBe(200)
-      expect(responses[0].data).toMatchObject({})
-      expect(responses[0].options.body).toContain('my-id')
-      expect(responses[0].options.body).toContain('traits')
     })
   })
 })

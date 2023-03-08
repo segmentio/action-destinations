@@ -93,7 +93,7 @@ describe('checkRTExist', () => {
 
     const accessToken = ''
 
-    nock.recorder.rec()
+    // nock.recorder.rec()
     nock.back.setMode('record')
 
     const checkResult = nock(`https://api-campaign-${settings.a_region}-${settings.a_pod}.goacoustic.com`, {
