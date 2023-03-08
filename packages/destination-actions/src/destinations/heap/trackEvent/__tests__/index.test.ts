@@ -1,7 +1,7 @@
 import nock from 'nock'
 import { createTestEvent, createTestIntegration, JSONValue, SegmentEvent } from '@segment/actions-core'
 import Destination from '../../index'
-import { flattenObject, embededObject } from '../../__tests__/flat.test'
+import { getFlatObject, embededObject } from '../../__tests__/flat.test'
 import { HEAP_SEGMENT_CLOUD_LIBRARY_NAME } from '../../constants'
 
 describe('Heap.trackEvent', () => {
@@ -160,7 +160,7 @@ describe('Heap.trackEvent', () => {
     }
     body.events[0].properties = {
       segment_library: HEAP_SEGMENT_CLOUD_LIBRARY_NAME,
-      ...flattenObject()
+      ...getFlatObject()
     }
 
     nock(heapURL).post(integrationsTrackURI, body).reply(200, {})
@@ -207,6 +207,40 @@ describe('Heap.trackEvent', () => {
         appId: HEAP_TEST_APP_ID
       }
     })
+    expect(responses.length).toBe(1)
+    expect(responses[0].status).toBe(200)
+  })
+
+  it('should not fail when identity is 0', async () => {
+    const anonId = '5a41f0df-b69a-4a99-b656-79506a86c3f8'
+    const event: Partial<SegmentEvent> = createTestEvent({
+      timestamp,
+      event: undefined,
+      userId: '0',
+      messageId,
+      name: 'Home Page',
+      type: 'screen',
+      anonymousId: anonId
+    })
+    body.events[0].user_identifier = {
+      anonymous_id: anonId
+    }
+    body.events[0].event = 'Screen viewed'
+    body.events[0].properties = {
+      name: 'Home Page',
+      ...body.events[0].properties
+    }
+
+    nock(heapURL).post(integrationsTrackURI, body).reply(200, {})
+
+    const responses = await testDestination.testAction('trackEvent', {
+      event,
+      useDefaultMappings: true,
+      settings: {
+        appId: HEAP_TEST_APP_ID
+      }
+    })
+
     expect(responses.length).toBe(1)
     expect(responses[0].status).toBe(200)
   })

@@ -5,6 +5,14 @@ import { IntegrationError } from '@segment/actions-core'
 import { flat } from '../flat'
 import { isDefined } from '../heapUtils'
 
+type AddUserPropertiesPayload = {
+  app_id: string
+  identity: string
+  properties: {
+    [k: string]: string
+  }
+}
+
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Identify User',
   description: 'Set the user ID for a particular device ID or update user properties.',
@@ -44,35 +52,34 @@ const action: ActionDefinition<Settings, Payload> = {
       throw new IntegrationError('Missing Heap app ID.', 'Missing required field', 400)
     }
 
-    const responses = []
-
-    if (isDefined(payload.identity)) {
-      const data = {
-        app_id: settings.appId,
-        identity: payload.identity,
-        anonymous_id: payload.anonymous_id
-      }
-      const identifyResponse = await request('https://heapanalytics.com/api/v1/identify', {
-        method: 'post',
-        json: data
-      })
-      responses.push(identifyResponse)
+    if (!payload.identity || !isDefined(payload.identity)) {
+      throw new IntegrationError(
+        'Missing identity, cannot add user properties without identity',
+        'Missing required field',
+        400
+      )
     }
+
+    const addUserPropertiesPayload: AddUserPropertiesPayload = {
+      identity: payload.identity,
+      app_id: settings.appId,
+      properties: {
+        ...(payload.anonymous_id && { anonymous_id: payload.anonymous_id })
+      }
+    }
+
     if (payload.traits && Object.keys(payload.traits).length > 0) {
       const flatten = flat(payload.traits)
-      const data = {
-        app_id: settings.appId,
-        identity: payload.identity,
-        properties: flatten
+      addUserPropertiesPayload.properties = {
+        ...addUserPropertiesPayload.properties,
+        ...flatten
       }
-
-      const addUserPropertiesEndpoint = request('https://heapanalytics.com/api/add_user_properties', {
-        method: 'post',
-        json: data
-      })
-      responses.push(addUserPropertiesEndpoint)
     }
-    return Promise.all(responses)
+
+    return request('https://heapanalytics.com/api/add_user_properties', {
+      method: 'post',
+      json: addUserPropertiesPayload
+    })
   }
 }
 
