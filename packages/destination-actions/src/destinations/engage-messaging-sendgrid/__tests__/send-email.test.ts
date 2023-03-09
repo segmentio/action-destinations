@@ -92,6 +92,7 @@ describe.each(['stage', 'production'])('%s environment', (environment) => {
       bodyHtml: 'Hi {{profile.traits.firstName}}, Welcome to segment',
       send: true,
       traitEnrichment: true,
+      groupId: '',
       toEmail: '',
       externalIds: {
         '@arrayPath': [
@@ -113,6 +114,7 @@ describe.each(['stage', 'production'])('%s environment', (environment) => {
         ]
       },
       traits: { '@path': '$.properties' },
+      eventOccurredTS: { '@path': '$.timestamp' },
       ...overrides
     }
   }
@@ -160,7 +162,10 @@ describe.each(['stage', 'production'])('%s environment', (environment) => {
     })
 
     it('should not send email when send = false', async () => {
-      const mapping = getDefaultMapping({ send: false })
+      const mapping = getDefaultMapping({
+        groupId: 'any_group',
+        send: false
+      })
       await sendgrid.testAction('sendEmail', {
         event: createMessagingTestEvent({
           timestamp,
@@ -172,6 +177,26 @@ describe.each(['stage', 'production'])('%s environment', (environment) => {
       })
       const sendGridRequest = nock('https://api.sendgrid.com').post('/v3/mail/send', sendgridRequestBody).reply(200, {})
 
+      expect(sendGridRequest.isDone()).toEqual(false)
+    })
+    it('should throw error and not send email with no trait enrichment and no user id', async () => {
+      const mapping = getDefaultMapping({
+        userId: undefined,
+        traitEnrichment: false
+      })
+      await expect(
+        sendgrid.testAction('sendEmail', {
+          event: createMessagingTestEvent({
+            timestamp,
+            event: 'Audience Entered',
+            userId: undefined
+          }),
+          settings,
+          mapping
+        })
+      ).rejects.toThrow('Unable to process email, no userId provided and trait enrichment disabled')
+
+      const sendGridRequest = nock('https://api.sendgrid.com').post('/v3/mail/send', sendgridRequestBody).reply(200, {})
       expect(sendGridRequest.isDone()).toEqual(false)
     })
 
@@ -280,7 +305,8 @@ describe.each(['stage', 'production'])('%s environment', (environment) => {
             { id: userData.email, type: 'email', subscriptionStatus: 'subscribed' },
             { id: userData.phone, type: 'phone', subscriptionStatus: 'subscribed' }
           ],
-          traits: { '@path': '$.properties' }
+          traits: { '@path': '$.properties' },
+          eventOccurredTS: { '@path': '$.timestamp' }
         }
       })
 
@@ -768,10 +794,38 @@ describe.each(['stage', 'production'])('%s environment', (environment) => {
           ]
         }),
         settings: {
-          ...settings,
-          groupId: 'grp_1'
+          ...settings
         },
-        mapping: getDefaultMapping()
+        mapping: getDefaultMapping({ groupId: 'grp_1' })
+      })
+
+      expect(responses.length).toBeGreaterThan(0)
+      expect(sendGridRequest.isDone()).toEqual(true)
+    })
+
+    it('should send email to group when group id is empty string', async () => {
+      const sendGridRequest = nock('https://api.sendgrid.com').post('/v3/mail/send').reply(200, {})
+
+      const responses = await sendgrid.testAction('sendEmail', {
+        event: createMessagingTestEvent({
+          timestamp,
+          event: 'Audience Entered',
+          userId: userData.userId,
+          external_ids: [
+            {
+              id: userData.email,
+              type: 'email',
+              isSubscribed: true,
+              collection: 'users',
+              encoding: 'none',
+              groups: [{ id: 'grp_1', isSubscribed: true }]
+            }
+          ]
+        }),
+        settings: {
+          ...settings
+        },
+        mapping: getDefaultMapping({ groupId: '', toEmail: 'asdad@asd.com' })
       })
 
       expect(responses.length).toBeGreaterThan(0)
@@ -799,10 +853,9 @@ describe.each(['stage', 'production'])('%s environment', (environment) => {
             ]
           }),
           settings: {
-            groupId: 'grp_1',
             ...settings
           },
-          mapping: getDefaultMapping()
+          mapping: getDefaultMapping({ groupId: 'grp_1' })
         })
         const sendGridRequest = nock('https://api.sendgrid.com')
           .post('/v3/mail/send', sendgridRequestBody)
@@ -835,10 +888,9 @@ describe.each(['stage', 'production'])('%s environment', (environment) => {
           ]
         }),
         settings: {
-          groupId: 'grp_2',
           ...settings
         },
-        mapping: getDefaultMapping()
+        mapping: getDefaultMapping({ groupId: 'grp_2' })
       })
 
       const sendGridRequest = nock('https://api.sendgrid.com').post('/v3/mail/send', sendgridRequestBody).reply(200, {})
@@ -855,10 +907,9 @@ describe.each(['stage', 'production'])('%s environment', (environment) => {
           external_ids: undefined
         }),
         settings: {
-          groupId: 'grp_2',
           ...settings
         },
-        mapping: getDefaultMapping()
+        mapping: getDefaultMapping({ groupId: 'grp_2' })
       })
 
       const sendGridRequest = nock('https://api.sendgrid.com').post('/v3/mail/send', sendgridRequestBody).reply(200, {})

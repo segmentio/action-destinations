@@ -2,7 +2,7 @@
 
 export interface Payload {
   /**
-   * The internal event name assigned by HubSpot. This can be found in your HubSpot account. Events must be predefined in HubSpot. Learn how to find the internal name in [HubSpot’s documentation](https://knowledge.hubspot.com/analytics-tools/create-custom-behavioral-events).
+   * The internal event name assigned by HubSpot. This can be found in your HubSpot account. Events must be predefined in HubSpot. Please input the full internal event name including the `pe` prefix (i.e. `pe<HubID>_event_name`). Learn how to find the internal name in [HubSpot’s documentation](https://knowledge.hubspot.com/analytics-tools/create-custom-behavioral-events).
    */
   eventName: string
   /**
@@ -22,7 +22,7 @@ export interface Payload {
    */
   objectId?: string
   /**
-   * Default or custom properties that describe the event. See more information in [HubSpot’s documentation](https://knowledge.hubspot.com/analytics-tools/create-custom-behavioral-events#add-and-manage-event-properties).
+   * Default or custom properties that describe the event. On the left-hand side, input the internal name of the property as seen in your HubSpot account. On the right-hand side, map the Segment field that contains the value. See more information in [HubSpot’s documentation](https://knowledge.hubspot.com/analytics-tools/create-custom-behavioral-events#add-and-manage-event-properties).
    */
   properties?: {
     [k: string]: unknown

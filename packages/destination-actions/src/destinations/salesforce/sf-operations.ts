@@ -1,7 +1,7 @@
 import { IntegrationError, RequestClient } from '@segment/actions-core'
 import type { GenericPayload } from './sf-types'
 import { mapObjectToShape } from './sf-object-to-shape'
-import { buildCSVData } from './sf-utils'
+import { buildCSVData, validateInstanceURL } from './sf-utils'
 import { DynamicFieldResponse } from '@segment/actions-core'
 
 export const API_VERSION = 'v53.0'
@@ -12,6 +12,19 @@ export const API_VERSION = 'v53.0'
 const throwBulkMismatchError = () => {
   const errorMsg = 'Bulk operation triggered where enable_batching is false.'
   throw new IntegrationError(errorMsg, errorMsg, 400)
+}
+
+const validateSOQLOperator = (operator: string | undefined): SOQLOperator => {
+  if (operator !== undefined && operator !== 'OR' && operator !== 'AND') {
+    throw new IntegrationError(`Invalid SOQL operator - ${operator}`, 'Invalid SOQL operator', 400)
+  }
+
+  // 'OR' is the default operator. Therefore, when we encounter 'undefined' we will return 'OR'.
+  if (operator === undefined) {
+    return 'OR'
+  }
+
+  return operator
 }
 
 interface Records {
@@ -50,14 +63,18 @@ interface SalesforceError {
   }
 }
 
+type SOQLOperator = 'OR' | 'AND'
+
 export default class Salesforce {
   instanceUrl: string
   request: RequestClient
 
   constructor(instanceUrl: string, request: RequestClient) {
+    this.instanceUrl = validateInstanceURL(instanceUrl)
+
     // If the instanceUrl does not end with '/' append it to the string.
     // This ensures that all request urls are constructed properly
-    this.instanceUrl = instanceUrl.concat(instanceUrl.slice(-1) === '/' ? '' : '/')
+    this.instanceUrl = this.instanceUrl.concat(instanceUrl.slice(-1) === '/' ? '' : '/')
     this.request = request
   }
 
@@ -79,7 +96,8 @@ export default class Salesforce {
       return await this.baseUpdate(payload.traits['Id'] as string, sobject, payload)
     }
 
-    const [recordId, err] = await this.lookupTraits(payload.traits, sobject)
+    const soqlOperator: SOQLOperator = validateSOQLOperator(payload.recordMatcherOperator)
+    const [recordId, err] = await this.lookupTraits(payload.traits, sobject, soqlOperator)
 
     if (err) {
       throw err
@@ -93,7 +111,8 @@ export default class Salesforce {
       throw new IntegrationError('Undefined Traits when using upsert operation', 'Undefined Traits', 400)
     }
 
-    const [recordId, err] = await this.lookupTraits(payload.traits, sobject)
+    const soqlOperator: SOQLOperator = validateSOQLOperator(payload.recordMatcherOperator)
+    const [recordId, err] = await this.lookupTraits(payload.traits, sobject, soqlOperator)
 
     if (err) {
       if (err.status === 404) {
@@ -283,7 +302,7 @@ export default class Salesforce {
     }
   }
 
-  private buildQuery = (traits: object, sobject: string) => {
+  private buildQuery = (traits: object, sobject: string, soqlOperator: SOQLOperator) => {
     let soql = `SELECT Id FROM ${sobject} WHERE `
 
     const entries = Object.entries(traits)
@@ -292,17 +311,22 @@ export default class Salesforce {
       let token = `${this.removeInvalidChars(key)} = ${this.typecast(value)}`
 
       if (i < entries.length - 1) {
-        token += ' OR '
+        token += ' ' + soqlOperator + ' '
       }
 
       soql += token
       i += 1
     }
+
     return soql
   }
 
-  private lookupTraits = async (traits: object, sobject: string): Promise<[string, IntegrationError | undefined]> => {
-    const SOQLQuery = encodeURIComponent(this.buildQuery(traits, sobject))
+  private lookupTraits = async (
+    traits: object,
+    sobject: string,
+    soqlOperator: SOQLOperator
+  ): Promise<[string, IntegrationError | undefined]> => {
+    const SOQLQuery = encodeURIComponent(this.buildQuery(traits, sobject, soqlOperator))
 
     const res = await this.request<LookupResponseData>(
       `${this.instanceUrl}services/data/${API_VERSION}/query/?q=${SOQLQuery}`,

@@ -22,6 +22,10 @@ export interface Settings {
    */
   allowUserSuppliedJavascript?: boolean
   /**
+   * If enabled, this setting delays initialization of the Braze SDK until the user has been identified. When enabled, events for anonymous users will no longer be sent to Braze.
+   */
+  deferUntilIdentified?: boolean
+  /**
    * Version to which user events sent to Braze will be associated with. [See more details](https://js.appboycdn.com/web-sdk/latest/doc/modules/appboy.html#initializationoptions)
    */
   appVersion?: string

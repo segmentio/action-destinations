@@ -1,8 +1,16 @@
-import { ActionDefinition, IntegrationError } from '@segment/actions-core'
-import { ProductItem } from '../ga4-types'
+import { ActionDefinition, PayloadValidationError } from '@segment/actions-core'
+import { DataStreamParams, DataStreamType, ProductItem } from '../ga4-types'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
-import { verifyCurrency, verifyParams, verifyUserProps, convertTimestamp } from '../ga4-functions'
+import {
+  verifyCurrency,
+  verifyParams,
+  verifyUserProps,
+  convertTimestamp,
+  getMobileStreamParams,
+  getWebStreamParams,
+  sendData
+} from '../ga4-functions'
 import {
   user_id,
   formatUserProperties,
@@ -15,7 +23,9 @@ import {
   items_multi_products,
   engagement_time_msec,
   timestamp_micros,
-  params
+  params,
+  data_stream_type,
+  app_instance_id
 } from '../ga4-properties'
 
 const action: ActionDefinition<Settings, Payload> = {
@@ -23,6 +33,8 @@ const action: ActionDefinition<Settings, Payload> = {
   description: 'Send event when a user submits their payment information',
   defaultSubscription: 'type = "track" and event = "Payment Info Entered"',
   fields: {
+    data_stream_type: { ...data_stream_type },
+    app_instance_id: { ...app_instance_id },
     client_id: { ...client_id },
     user_id: { ...user_id },
     timestamp_micros: { ...timestamp_micros },
@@ -38,15 +50,17 @@ const action: ActionDefinition<Settings, Payload> = {
     engagement_time_msec: engagement_time_msec,
     params: params
   },
-  perform: (request, { payload, features }) => {
+  perform: (request, { payload, features, settings }) => {
+    const data_stream_type = payload.data_stream_type ?? DataStreamType.Web
+    const stream_params: DataStreamParams =
+      data_stream_type === DataStreamType.MobileApp
+        ? getMobileStreamParams(settings.apiSecret, settings.firebaseAppId, payload.app_instance_id)
+        : getWebStreamParams(settings.apiSecret, settings.measurementId, payload.client_id)
+
     // Google requires that `add_payment_info` events include an array of products: https://developers.google.com/analytics/devguides/collection/ga4/reference/events
     // This differs from the Segment spec, which doesn't require a products array: https://segment.com/docs/connections/spec/ecommerce/v2/#payment-info-entered
     if (payload.items && !payload.items.length) {
-      throw new IntegrationError(
-        'Google requires one or more products in add_payment_info events.',
-        'Misconfigured required field',
-        400
-      )
+      throw new PayloadValidationError('Google requires one or more products in add_payment_info events.')
     }
 
     if (payload.currency) {
@@ -55,7 +69,7 @@ const action: ActionDefinition<Settings, Payload> = {
 
     // Google requires that currency be included at the event level if value is included.
     if (payload.value && payload.currency === undefined) {
-      throw new IntegrationError('Currency is required if value is set.', 'Misconfigured required field', 400)
+      throw new PayloadValidationError('Currency is required if value is set.')
     }
 
     /**
@@ -64,11 +78,7 @@ const action: ActionDefinition<Settings, Payload> = {
      * currency from the first item in items is used.
      */
     if (payload.currency === undefined && payload.items[0].currency === undefined) {
-      throw new IntegrationError(
-        'One of item-level currency or top-level currency is required.',
-        'Misconfigured required field',
-        400
-      )
+      throw new PayloadValidationError('One of item-level currency or top-level currency is required.')
     }
 
     let googleItems: ProductItem[] = []
@@ -76,10 +86,8 @@ const action: ActionDefinition<Settings, Payload> = {
     if (payload.items) {
       googleItems = payload.items.map((product) => {
         if (product.item_name === undefined && product.item_id === undefined) {
-          throw new IntegrationError(
-            'One of product name or product id is required for product or impression data.',
-            'Misconfigured required field',
-            400
+          throw new PayloadValidationError(
+            'One of product name or product id is required for product or impression data.'
           )
         }
 
@@ -96,8 +104,8 @@ const action: ActionDefinition<Settings, Payload> = {
       verifyUserProps(payload.user_properties)
     }
 
-    const request_object: { [key: string]: any } = {
-      client_id: payload.client_id,
+    const request_object: { [key: string]: unknown } = {
+      ...stream_params.identifier,
       user_id: payload.user_id,
       events: [
         {
@@ -120,10 +128,7 @@ const action: ActionDefinition<Settings, Payload> = {
       request_object.timestamp_micros = convertTimestamp(payload.timestamp_micros)
     }
 
-    return request('https://www.google-analytics.com/mp/collect', {
-      method: 'POST',
-      json: request_object
-    })
+    return sendData(request, stream_params.search_params, request_object)
   }
 }
 

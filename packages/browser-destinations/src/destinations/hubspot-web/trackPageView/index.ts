@@ -5,7 +5,7 @@ import type { Payload } from './generated-types'
 
 const action: BrowserActionDefinition<Settings, Hubspot, Payload> = {
   title: 'Track Page View',
-  description: 'Track the page view for the current page.',
+  description: 'Track the page view for the current page in HubSpot.',
   defaultSubscription: 'type = "page"',
   platform: 'web',
   fields: {

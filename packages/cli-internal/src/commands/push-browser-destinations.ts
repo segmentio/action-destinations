@@ -14,6 +14,7 @@ import {
   updateRemotePlugin
 } from '../lib/control-plane-client'
 import { build, webBundles } from '@segment/actions-cli/lib/web-bundles'
+import deprecationWarning from '../lib/warning'
 
 export default class PushBrowserDestinations extends Command {
   private spinner: ora.Ora = ora()
@@ -36,6 +37,8 @@ export default class PushBrowserDestinations extends Command {
 
   async run() {
     const { flags } = this.parse(PushBrowserDestinations)
+    await deprecationWarning(this.warn)
+
     const { destinationIds } = await prompt<{ destinationIds: string[] }>({
       type: 'multiselect',
       name: 'destinationIds',
@@ -81,6 +84,10 @@ export default class PushBrowserDestinations extends Command {
     const pluginsToCreate = []
     const pluginsToUpdate = []
 
+    // These destinations differ from their creation name but were published before we added that check.
+    // These are exempted from the creation name check for backwards-compabitibility reasons.
+    const definitionCreationNameExceptions = new Set(['Amplitude (Actions)', 'Fullstory (Actions)'])
+
     for (const metadata of metadatas) {
       this.spinner.start(`Saving remote plugin for ${metadata.name}`)
       const entry = manifest[metadata.id]
@@ -89,7 +96,9 @@ export default class PushBrowserDestinations extends Command {
         metadataId: metadata.id,
         // The name of the remote plugin should match the creationName for consistency with our other systems,
         // as users might rely on the name of the name of the remote plugin in the integrations object.
-        name: metadata.creationName,
+        name: definitionCreationNameExceptions.has(entry.definition.name)
+          ? entry.definition.name
+          : metadata.creationName,
         // This MUST match the way webpack exports the libraryName in the umd bundle
         // TODO make this more automatic for consistency
         libraryName: `${entry.directory}Destination`,
@@ -100,7 +109,10 @@ export default class PushBrowserDestinations extends Command {
       // `metadataId` is guaranteed to be unique
       const existingPlugin = remotePlugins.find((p) => p.metadataId === metadata.id)
 
-      if (metadata.creationName !== entry.definition.name) {
+      if (
+        metadata.creationName !== entry.definition.name &&
+        !definitionCreationNameExceptions.has(entry.definition.name)
+      ) {
         this.spinner.fail()
         throw new Error(
           `The definition name '${entry.definition.name}' should always match the control plane creationName '${metadata.creationName}'.`
@@ -162,10 +174,10 @@ export default class PushBrowserDestinations extends Command {
 
 async function syncToS3(env: string): Promise<string> {
   if (env === 'production') {
-    return execa.commandSync(`lerna run deploy-prod`).stdout
+    return execa.commandSync(`yarn lerna run deploy-prod`).stdout
   }
 
-  return execa.commandSync(`lerna run deploy-stage`).stdout
+  return execa.commandSync(`yarn lerna run deploy-stage`).stdout
 }
 
 function asJson(obj: unknown) {

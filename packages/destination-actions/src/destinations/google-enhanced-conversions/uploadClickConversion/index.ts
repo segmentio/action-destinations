@@ -1,8 +1,15 @@
-import { ActionDefinition, IntegrationError } from '@segment/actions-core'
+import { ActionDefinition, PayloadValidationError } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
-import { CartItem, GoogleAdsAPI, PartialErrorResponse } from '../types'
-import { formatCustomVariables, hash, getCustomVariables, handleGoogleErrors } from '../functions'
+import { CartItem, PartialErrorResponse } from '../types'
+import {
+  formatCustomVariables,
+  hash,
+  getCustomVariables,
+  handleGoogleErrors,
+  convertTimestamp,
+  getUrlByVersion
+} from '../functions'
 import { ModifiedResponse } from '@segment/actions-core'
 
 const action: ActionDefinition<Settings, Payload> = {
@@ -13,7 +20,7 @@ const action: ActionDefinition<Settings, Payload> = {
       label: 'Conversion Action ID',
       description:
         'The ID of the conversion action associated with this conversion. To find the Conversion Action ID, click on your conversion in Google Ads and get the value for `ctId` in the URL. For example, if the URL is `https://ads.google.com/aw/conversions/detail?ocid=00000000&ctId=570000000`, your Conversion Action ID is `570000000`.',
-      type: 'string',
+      type: 'number',
       required: true
     },
     gclid: {
@@ -101,7 +108,8 @@ const action: ActionDefinition<Settings, Payload> = {
     },
     conversion_environment: {
       label: 'Conversion Environment',
-      description: 'The environment this conversion was recorded on, e.g. APP or WEB.',
+      description:
+        'The environment this conversion was recorded on, e.g. APP or WEB. Sending the environment field requires an allowlist in your Google Ads account. Leave this field blank if your account has not been allowlisted.',
       type: 'string',
       choices: [
         { label: 'APP', value: 'APP' },
@@ -178,14 +186,12 @@ const action: ActionDefinition<Settings, Payload> = {
       defaultObjectUI: 'keyvalue:only'
     }
   },
-  perform: async (request, { auth, settings, payload }) => {
-    /* Enforcing this here since Customer ID is required for the Google Ads API 
+  perform: async (request, { auth, settings, payload, features, statsContext }) => {
+    /* Enforcing this here since Customer ID is required for the Google Ads API
     but not for the Enhanced Conversions API. */
     if (!settings.customerId) {
-      throw new IntegrationError(
-        'Customer ID is required for this action. Please set it in destination settings.',
-        'Missing required fields.',
-        400
+      throw new PayloadValidationError(
+        'Customer ID is required for this action. Please set it in destination settings.'
       )
     }
     settings.customerId = settings.customerId.replace(/-/g, '')
@@ -203,7 +209,7 @@ const action: ActionDefinition<Settings, Payload> = {
 
     const request_object: { [key: string]: any } = {
       conversionAction: `customers/${settings.customerId}/conversionActions/${payload.conversion_action}`,
-      conversionDateTime: payload.conversion_timestamp.replace(/T/, ' ').replace(/\..+/, '+00:00'),
+      conversionDateTime: convertTimestamp(payload.conversion_timestamp),
       gclid: payload.gclid,
       gbraid: payload.gbraid,
       wbraid: payload.wbraid,
@@ -223,7 +229,7 @@ const action: ActionDefinition<Settings, Payload> = {
 
     // Retrieves all of the custom variables that the customer has created in their Google Ads account
     if (payload.custom_variables) {
-      const customVariableIds = await getCustomVariables(settings.customerId, auth, request)
+      const customVariableIds = await getCustomVariables(settings.customerId, auth, request, features, statsContext)
       request_object.customVariables = formatCustomVariables(
         payload.custom_variables,
         customVariableIds.data[0].results
@@ -239,7 +245,7 @@ const action: ActionDefinition<Settings, Payload> = {
     }
 
     const response: ModifiedResponse<PartialErrorResponse> = await request(
-      `${GoogleAdsAPI}/${settings.customerId}:uploadClickConversions`,
+      `${getUrlByVersion(features, statsContext)}/${settings.customerId}:uploadClickConversions`,
       {
         method: 'post',
         headers: {

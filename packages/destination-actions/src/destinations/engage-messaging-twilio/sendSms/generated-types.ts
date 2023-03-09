@@ -4,7 +4,7 @@ export interface Payload {
   /**
    * User ID in Segment
    */
-  userId: string
+  userId?: string
   /**
    * Number to send SMS to when testing
    */
@@ -58,4 +58,8 @@ export interface Payload {
   traits?: {
     [k: string]: unknown
   }
+  /**
+   * Time of when the actual event happened.
+   */
+  eventOccurredTS?: string
 }

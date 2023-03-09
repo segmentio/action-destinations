@@ -146,7 +146,6 @@ const action: ActionDefinition<Settings, Payload> = {
       label: 'Email',
       description: "The user's email",
       type: 'string',
-      format: 'email',
       allowNull: true,
       default: {
         '@path': '$.traits.email'

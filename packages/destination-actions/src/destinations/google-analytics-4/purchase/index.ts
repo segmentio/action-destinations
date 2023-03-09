@@ -1,8 +1,16 @@
-import { ActionDefinition, IntegrationError } from '@segment/actions-core'
+import { ActionDefinition, PayloadValidationError } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
-import { verifyCurrency, verifyParams, verifyUserProps, convertTimestamp } from '../ga4-functions'
-import { ProductItem } from '../ga4-types'
+import {
+  verifyCurrency,
+  verifyParams,
+  verifyUserProps,
+  convertTimestamp,
+  getWebStreamParams,
+  getMobileStreamParams,
+  sendData
+} from '../ga4-functions'
+import { DataStreamParams, DataStreamType, ProductItem } from '../ga4-types'
 import {
   coupon,
   currency,
@@ -18,7 +26,9 @@ import {
   formatUserProperties,
   user_properties,
   engagement_time_msec,
-  timestamp_micros
+  timestamp_micros,
+  app_instance_id,
+  data_stream_type
 } from '../ga4-properties'
 
 // https://segment.com/docs/connections/spec/ecommerce/v2/#order-completed
@@ -28,6 +38,8 @@ const action: ActionDefinition<Settings, Payload> = {
   description: 'Send event when a user completes a purchase',
   defaultSubscription: 'type = "track" and event = "Order Completed"',
   fields: {
+    data_stream_type: { ...data_stream_type },
+    app_instance_id: { ...app_instance_id },
     client_id: { ...client_id },
     user_id: { ...user_id },
     timestamp_micros: { ...timestamp_micros },
@@ -48,7 +60,13 @@ const action: ActionDefinition<Settings, Payload> = {
     engagement_time_msec: engagement_time_msec,
     params: params
   },
-  perform: (request, { payload, features }) => {
+  perform: (request, { payload, features, settings }) => {
+    const data_stream_type = payload.data_stream_type ?? DataStreamType.Web
+    const stream_params: DataStreamParams =
+      data_stream_type === DataStreamType.MobileApp
+        ? getMobileStreamParams(settings.apiSecret, settings.firebaseAppId, payload.app_instance_id)
+        : getWebStreamParams(settings.apiSecret, settings.measurementId, payload.client_id)
+
     verifyCurrency(payload.currency)
 
     let googleItems: ProductItem[] = []
@@ -56,10 +74,8 @@ const action: ActionDefinition<Settings, Payload> = {
     if (payload.items) {
       googleItems = payload.items.map((product) => {
         if (product.item_name === undefined && product.item_id === undefined) {
-          throw new IntegrationError(
-            'One of product name or product id is required for product or impression data.',
-            'Misconfigured required field',
-            400
+          throw new PayloadValidationError(
+            'One of product name or product id is required for product or impression data.'
           )
         }
 
@@ -75,8 +91,8 @@ const action: ActionDefinition<Settings, Payload> = {
       verifyParams(payload.params)
       verifyUserProps(payload.user_properties)
     }
-    const request_object: { [key: string]: any } = {
-      client_id: payload.client_id,
+    const request_object: { [key: string]: unknown } = {
+      ...stream_params.identifier,
       user_id: payload.user_id,
       events: [
         {
@@ -102,10 +118,7 @@ const action: ActionDefinition<Settings, Payload> = {
       request_object.timestamp_micros = convertTimestamp(payload.timestamp_micros)
     }
 
-    return request('https://www.google-analytics.com/mp/collect', {
-      method: 'POST',
-      json: request_object
-    })
+    return sendData(request, stream_params.search_params, request_object)
   }
 }
 

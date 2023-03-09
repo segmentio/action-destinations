@@ -6,6 +6,7 @@ interface OAuthSettings {
   refresh_token: string
   clientId: string
   clientSecret: string
+  refresh_token_url: string
 }
 
 export interface AuthTokens {
@@ -13,6 +14,8 @@ export interface AuthTokens {
   accessToken: string
   /** OAuth2 refresh token */
   refreshToken: string
+  /** The refresh token url used to get an updated access token. This value is configured in the developer portal. **/
+  refreshTokenUrl?: string
 }
 
 /**
@@ -23,7 +26,11 @@ export interface AuthTokens {
  */
 export function getAuthData(settings: JSONObject): AuthTokens {
   const oauthData = getOAuth2Data(settings)
-  return { accessToken: oauthData.accessToken, refreshToken: oauthData.refreshToken }
+  return {
+    accessToken: oauthData.accessToken,
+    refreshToken: oauthData.refreshToken,
+    refreshTokenUrl: oauthData.refreshTokenUrl
+  }
 }
 
 /**
@@ -37,7 +44,8 @@ export function getOAuth2Data(settings: JSONObject): OAuth2ClientCredentials {
     accessToken: (oauth as unknown as OAuthSettings)?.access_token,
     refreshToken: (oauth as unknown as OAuthSettings)?.refresh_token,
     clientId: (oauth as unknown as OAuthSettings)?.clientId,
-    clientSecret: (oauth as unknown as OAuthSettings)?.clientSecret
+    clientSecret: (oauth as unknown as OAuthSettings)?.clientSecret,
+    refreshTokenUrl: (oauth as unknown as OAuthSettings)?.refresh_token_url
   } as OAuth2ClientCredentials
 }
 

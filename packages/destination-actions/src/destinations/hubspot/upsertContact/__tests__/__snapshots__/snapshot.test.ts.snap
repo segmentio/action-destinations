@@ -1,56 +1,58 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`Testing snapshot for Hubspot's upsertContact destination action: all fields - create contact 1`] = `
+exports[`Testing snapshot for HubSpot's upsertContact destination action: all fields - create contact 1`] = `
 Object {
   "properties": Object {
-    "address": "VEF)ihejcy1f",
-    "city": "VEF)ihejcy1f",
-    "company": "VEF)ihejcy1f",
-    "country": "VEF)ihejcy1f",
-    "email": "wifeji@zizin.hk",
-    "firstname": "VEF)ihejcy1f",
-    "lastname": "VEF)ihejcy1f",
-    "lifecyclestage": "vef)ihejcy1f",
-    "phone": "VEF)ihejcy1f",
-    "state": "VEF)ihejcy1f",
-    "testType": "VEF)ihejcy1f",
-    "zip": "VEF)ihejcy1f",
+    "address": "krPYlcrzuw6LiDv[wVO",
+    "city": "krPYlcrzuw6LiDv[wVO",
+    "company": "krPYlcrzuw6LiDv[wVO",
+    "country": "krPYlcrzuw6LiDv[wVO",
+    "email": "av@haruw.ug",
+    "firstname": "krPYlcrzuw6LiDv[wVO",
+    "lastname": "krPYlcrzuw6LiDv[wVO",
+    "lifecyclestage": "krpylcrzuw6lidv[wvo",
+    "phone": "krPYlcrzuw6LiDv[wVO",
+    "state": "krPYlcrzuw6LiDv[wVO",
+    "testType": "krPYlcrzuw6LiDv[wVO",
+    "website": "krPYlcrzuw6LiDv[wVO",
+    "zip": "krPYlcrzuw6LiDv[wVO",
   },
 }
 `;
 
-exports[`Testing snapshot for Hubspot's upsertContact destination action: all fields - create contact 2`] = `"https://api.hubapi.com/crm/v3/objects/contacts"`;
+exports[`Testing snapshot for HubSpot's upsertContact destination action: all fields - create contact 2`] = `"https://api.hubapi.com/crm/v3/objects/contacts"`;
 
-exports[`Testing snapshot for Hubspot's upsertContact destination action: all fields - update contact 1`] = `
+exports[`Testing snapshot for HubSpot's upsertContact destination action: all fields - update contact 1`] = `
 Object {
   "properties": Object {
-    "address": "VEF)ihejcy1f",
-    "city": "VEF)ihejcy1f",
-    "company": "VEF)ihejcy1f",
-    "country": "VEF)ihejcy1f",
-    "email": "wifeji@zizin.hk",
-    "firstname": "VEF)ihejcy1f",
-    "lastname": "VEF)ihejcy1f",
-    "lifecyclestage": "vef)ihejcy1f",
-    "phone": "VEF)ihejcy1f",
-    "state": "VEF)ihejcy1f",
-    "testType": "VEF)ihejcy1f",
-    "zip": "VEF)ihejcy1f",
+    "address": "krPYlcrzuw6LiDv[wVO",
+    "city": "krPYlcrzuw6LiDv[wVO",
+    "company": "krPYlcrzuw6LiDv[wVO",
+    "country": "krPYlcrzuw6LiDv[wVO",
+    "email": "av@haruw.ug",
+    "firstname": "krPYlcrzuw6LiDv[wVO",
+    "lastname": "krPYlcrzuw6LiDv[wVO",
+    "lifecyclestage": "krpylcrzuw6lidv[wvo",
+    "phone": "krPYlcrzuw6LiDv[wVO",
+    "state": "krPYlcrzuw6LiDv[wVO",
+    "testType": "krPYlcrzuw6LiDv[wVO",
+    "website": "krPYlcrzuw6LiDv[wVO",
+    "zip": "krPYlcrzuw6LiDv[wVO",
   },
 }
 `;
 
-exports[`Testing snapshot for Hubspot's upsertContact destination action: all fields - update contact 2`] = `"https://api.hubapi.com/crm/v3/objects/contacts/wifeji@zizin.hk?idProperty=email"`;
+exports[`Testing snapshot for HubSpot's upsertContact destination action: all fields - update contact 2`] = `"https://api.hubapi.com/crm/v3/objects/contacts/av@haruw.ug?idProperty=email"`;
 
-exports[`Testing snapshot for Hubspot's upsertContact destination action: required fields - create contact 1`] = `
+exports[`Testing snapshot for HubSpot's upsertContact destination action: required fields - create contact 1`] = `
 Object {
   "properties": Object {
-    "email": "wifeji@zizin.hk",
+    "email": "av@haruw.ug",
   },
 }
 `;
 
-exports[`Testing snapshot for Hubspot's upsertContact destination action: required fields - create contact 2`] = `
+exports[`Testing snapshot for HubSpot's upsertContact destination action: required fields - create contact 2`] = `
 Headers {
   Symbol(map): Object {
     "authorization": Array [
@@ -66,17 +68,17 @@ Headers {
 }
 `;
 
-exports[`Testing snapshot for Hubspot's upsertContact destination action: required fields - create contact 3`] = `"https://api.hubapi.com/crm/v3/objects/contacts"`;
+exports[`Testing snapshot for HubSpot's upsertContact destination action: required fields - create contact 3`] = `"https://api.hubapi.com/crm/v3/objects/contacts"`;
 
-exports[`Testing snapshot for Hubspot's upsertContact destination action: required fields - update contact 1`] = `
+exports[`Testing snapshot for HubSpot's upsertContact destination action: required fields - update contact 1`] = `
 Object {
   "properties": Object {
-    "email": "wifeji@zizin.hk",
+    "email": "av@haruw.ug",
   },
 }
 `;
 
-exports[`Testing snapshot for Hubspot's upsertContact destination action: required fields - update contact 2`] = `
+exports[`Testing snapshot for HubSpot's upsertContact destination action: required fields - update contact 2`] = `
 Headers {
   Symbol(map): Object {
     "authorization": Array [
@@ -92,4 +94,4 @@ Headers {
 }
 `;
 
-exports[`Testing snapshot for Hubspot's upsertContact destination action: required fields - update contact 3`] = `"https://api.hubapi.com/crm/v3/objects/contacts/wifeji@zizin.hk?idProperty=email"`;
+exports[`Testing snapshot for HubSpot's upsertContact destination action: required fields - update contact 3`] = `"https://api.hubapi.com/crm/v3/objects/contacts/av@haruw.ug?idProperty=email"`;

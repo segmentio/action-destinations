@@ -1,0 +1,52 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Testing snapshot for actions-vwo-cloud's trackEvent destination action: all fields 1`] = `
+Object {
+  "d": Object {
+    "event": Object {
+      "name": "segment.yw0zltLcbQ",
+      "props": Object {
+        "isCustomEvent": true,
+        "page": Object {
+          "testType": "yw0zltLcbQ",
+        },
+        "testType": "yw0zltLcbQ",
+        "vwoMeta": Object {
+          "metric": Object {},
+          "ogName": "yw0zltLcbQ",
+          "source": "segment.cloud",
+        },
+      },
+      "time": null,
+    },
+    "msgId": "yw0zltLcbQ-NaN",
+    "sessionId": null,
+    "visId": "yw0zltLcbQ",
+  },
+}
+`;
+
+exports[`Testing snapshot for actions-vwo-cloud's trackEvent destination action: required fields 1`] = `
+Object {
+  "d": Object {
+    "event": Object {
+      "name": "segment.yw0zltLcbQ",
+      "props": Object {
+        "isCustomEvent": true,
+        "page": Object {
+          "testType": "yw0zltLcbQ",
+        },
+        "vwoMeta": Object {
+          "metric": Object {},
+          "ogName": "yw0zltLcbQ",
+          "source": "segment.cloud",
+        },
+      },
+      "time": null,
+    },
+    "msgId": "yw0zltLcbQ-NaN",
+    "sessionId": null,
+    "visId": "yw0zltLcbQ",
+  },
+}
+`;

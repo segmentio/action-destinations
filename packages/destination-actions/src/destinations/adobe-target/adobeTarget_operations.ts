@@ -1,4 +1,5 @@
 import { RequestClient, IntegrationError } from '@segment/actions-core'
+import { StatsContext } from '@segment/actions-core/src/destination-kit'
 
 function getNestedObjects(obj: { [x: string]: any }, objectPath = '', attributes: { [x: string]: string } = {}) {
   // Do not run on null or undefined
@@ -33,8 +34,8 @@ export default class AdobeTarget {
     this.request = request
   }
 
-  updateProfile = async () => {
-    const err = await this.lookupProfile(this.userId, this.clientCode)
+  updateProfile = async (statsContext: StatsContext | undefined) => {
+    const err = await this.lookupProfile(this.userId, this.clientCode, statsContext)
     if (err) {
       throw err
     } else {
@@ -51,7 +52,11 @@ export default class AdobeTarget {
     }
   }
 
-  private lookupProfile = async (userId: string, clientCode: string): Promise<IntegrationError | undefined> => {
+  private lookupProfile = async (
+    userId: string,
+    clientCode: string,
+    statsContext: StatsContext | undefined
+  ): Promise<IntegrationError | undefined> => {
     try {
       await this.request(
         `https://${clientCode}.tt.omtrdc.net/rest/v1/profiles/thirdPartyId/${userId}?client=${clientCode}`,
@@ -59,7 +64,18 @@ export default class AdobeTarget {
       )
     } catch (error) {
       if (error instanceof Error) {
-        return new IntegrationError(error.message, error.stack, error.message == 'Forbidden' ? 403 : 400)
+        // We are changing the error code here because Adobe Target's platform takes up to an hour to create/update a profile.
+        // If we throw a 404, Centrifuge will discard the job and it will never be retried. Thereforce, we are throwing a 500.
+        // Unless the API is failing, errors from this endpoint will reference that the user profile does not exist.
+        // The 500 error code also works in Centrifuge in the scenario where the API is down. Hence, its choice as a trigger for a retry.
+        const errorCode = error.message == 'Forbidden' ? '403' : '500'
+
+        if (errorCode == '500') {
+          // For now, we will keep track of the number of times we run this flow.
+          statsContext?.statsClient.incr('actions-adobe-target.profile-not-found', 1, statsContext.tags)
+        }
+
+        throw new IntegrationError(error.message, errorCode)
       }
     }
 

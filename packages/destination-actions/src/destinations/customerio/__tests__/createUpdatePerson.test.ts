@@ -406,5 +406,66 @@ describe('CustomerIO', () => {
         anonymous_id: anonymousId
       })
     })
+
+    it('should work with default mappings when userId and groupId are supplied', async () => {
+      const settings: Settings = {
+        siteId: '12345',
+        apiKey: 'abcde',
+        accountRegion: AccountRegion.US
+      }
+      const userId = 'abc123'
+      const anonymousId = 'unknown_123'
+      const timestamp = dayjs.utc().toISOString()
+      const birthdate = dayjs.utc('1990-01-01T00:00:00Z').toISOString()
+      const groupId = 'g12345'
+      const traits = {
+        full_name: 'Test User',
+        email: 'test@example.com',
+        created_at: timestamp,
+        person: {
+          over18: true,
+          identification: 'valid',
+          birthdate
+        }
+      }
+      const context = {
+        groupId: groupId
+      }
+      trackDeviceService.put(`/customers/${userId}`).reply(200, {}, { 'x-customerio-region': 'US' })
+      const event = createTestEvent({
+        userId,
+        anonymousId,
+        timestamp,
+        traits,
+        context
+      })
+      const responses = await testDestination.testAction('createUpdatePerson', {
+        event,
+        settings,
+        useDefaultMappings: true
+      })
+
+      expect(responses.length).toBe(1)
+      expect(responses[0].status).toBe(200)
+      expect(responses[0].headers.toJSON()).toMatchObject({
+        'x-customerio-region': 'US',
+        'content-type': 'application/json'
+      })
+      expect(responses[0].data).toMatchObject({})
+      expect(responses[0].options.json).toMatchObject({
+        ...traits,
+        email: traits.email,
+        created_at: dayjs.utc(timestamp).unix(),
+        anonymous_id: anonymousId,
+        person: {
+          ...traits.person,
+          birthdate: dayjs.utc(birthdate).unix()
+        },
+        cio_relationships: {
+          action: 'add_relationships',
+          relationships: [{ identifiers: { object_type_id: '1', object_id: groupId } }]
+        }
+      })
+    })
   })
 })

@@ -3,6 +3,15 @@ export enum ApiRegions {
   EU = 'EU 🇪🇺'
 }
 
+export enum StrictMode {
+  ON = '1',
+  OFF = '0'
+}
+
+export function getConcatenatedName(firstName: unknown, lastName: unknown, name: unknown): unknown {
+  return name ?? (firstName && lastName ? `${firstName} ${lastName}` : undefined)
+}
+
 export function getApiServerUrl(apiRegion: string | undefined) {
   if (apiRegion == ApiRegions.EU) {
     return 'https://api-eu.mixpanel.com'
@@ -10,8 +19,7 @@ export function getApiServerUrl(apiRegion: string | undefined) {
   return 'https://api.mixpanel.com'
 }
 
-export function getBrowser(userAgent: string, vendor: string | undefined): string {
-  vendor = vendor || '' // vendor is undefined for at least IE9
+export function getBrowser(userAgent: string): string {
   if (userAgent.includes(' OPR/')) {
     if (userAgent.includes('Mini')) {
       return 'Opera Mini'
@@ -36,10 +44,7 @@ export function getBrowser(userAgent: string, vendor: string | undefined): strin
     return 'UC Browser'
   } else if (userAgent.includes('FxiOS')) {
     return 'Firefox iOS'
-  } else if (vendor.includes('Apple')) {
-    if (userAgent.includes('Mobile')) {
-      return 'Mobile Safari'
-    }
+  } else if (userAgent.includes('Safari')) {
     return 'Safari'
   } else if (userAgent.includes('Android')) {
     return 'Android Mobile'
@@ -56,8 +61,8 @@ export function getBrowser(userAgent: string, vendor: string | undefined): strin
   }
 }
 
-export function getBrowserVersion(userAgent: string, vendor: string | undefined) {
-  const browser = getBrowser(userAgent, vendor)
+export function getBrowserVersion(userAgent: string) {
+  const browser = getBrowser(userAgent)
   const versionRegexs: { [browser: string]: RegExp } = {
     'Internet Explorer Mobile': /rv:(\d+(\.\d+)?)/,
     'Microsoft Edge': /Edge?\/(\d+(\.\d+)?)/,

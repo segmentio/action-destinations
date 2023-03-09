@@ -6,13 +6,13 @@ import { fieldsToJsonSchema } from './fields-to-jsonschema'
 import { Response } from '../fetch'
 import type { ModifiedResponse } from '../types'
 import type { DynamicFieldResponse, InputField, RequestExtension, ExecuteInput, Result } from './types'
-import type { NormalizedOptions } from '../request-client'
+import { NormalizedOptions } from '../request-client'
 import type { JSONSchema4 } from 'json-schema'
 import { validateSchema } from '../schema-validation'
 import { AuthTokens } from './parse-settings'
 import { IntegrationError } from '../errors'
 import { removeEmptyValues } from '../remove-empty-values'
-import { Logger, StatsContext, TransactionContext } from './index'
+import { Logger, StatsContext, TransactionContext, StateContext } from './index'
 
 type MaybePromise<T> = T | Promise<T>
 type RequestClient = ReturnType<typeof createRequestClient>
@@ -83,6 +83,7 @@ interface ExecuteBundle<T = unknown, Data = unknown> {
   statsContext?: StatsContext | undefined
   logger?: Logger | undefined
   transactionContext?: TransactionContext
+  stateContext?: StateContext
 }
 
 /**
@@ -122,7 +123,7 @@ export class Action<Settings, Payload extends JSONLikeObject> extends EventEmitt
     const results: Result[] = []
 
     // Resolve/transform the mapping with the input data
-    let payload = transform(bundle.mapping, bundle.data, bundle.features) as Payload
+    let payload = transform(bundle.mapping, bundle.data) as Payload
     results.push({ output: 'Mappings resolved' })
 
     // Remove empty values (`null`, `undefined`, `''`) when not explicitly accepted
@@ -145,7 +146,8 @@ export class Action<Settings, Payload extends JSONLikeObject> extends EventEmitt
       features: bundle.features,
       statsContext: bundle.statsContext,
       logger: bundle.logger,
-      transactionContext: bundle.transactionContext
+      transactionContext: bundle.transactionContext,
+      stateContext: bundle.stateContext
     }
 
     // Construct the request client and perform the action
@@ -192,26 +194,31 @@ export class Action<Settings, Payload extends JSONLikeObject> extends EventEmitt
         features: bundle.features,
         statsContext: bundle.statsContext,
         logger: bundle.logger,
-        transactionContext: bundle.transactionContext
+        transactionContext: bundle.transactionContext,
+        stateContext: bundle.stateContext
       }
       await this.performRequest(this.definition.performBatch, data)
     }
   }
 
-  executeDynamicField(field: string, data: ExecuteDynamicFieldInput<Settings, Payload>): unknown {
+  async executeDynamicField(
+    field: string,
+    data: ExecuteDynamicFieldInput<Settings, Payload>
+  ): Promise<DynamicFieldResponse> {
     const fn = this.definition.dynamicFields?.[field]
     if (typeof fn !== 'function') {
-      return {
+      return Promise.resolve({
         choices: [],
         nextPage: '',
         error: {
           message: `No dynamic field named ${field} found.`,
           code: '404'
         }
-      }
+      })
     }
 
-    return this.performRequest(fn, data)
+    // fn will always be a dynamic field function, so we can safely cast it to DynamicFieldResponse
+    return (await this.performRequest(fn, data)) as DynamicFieldResponse
   }
 
   /**
@@ -233,7 +240,8 @@ export class Action<Settings, Payload extends JSONLikeObject> extends EventEmitt
     // TODO turn `extendRequest` into a beforeRequest hook
     const options = this.extendRequest?.(data) ?? {}
     return createRequestClient(options, {
-      afterResponse: [this.afterResponse.bind(this)]
+      afterResponse: [this.afterResponse.bind(this)],
+      statsContext: data.statsContext
     })
   }
 

@@ -10,7 +10,18 @@ const timestamp = '2021-08-17T15:21:15.449Z'
 
 describe('Mixpanel.identifyUser', () => {
   it('should validate action fields', async () => {
-    const event = createTestEvent({ timestamp, traits: { abc: '123' } })
+    const event = createTestEvent({
+      timestamp, traits: {
+        abc: '123',
+        created: '2022-10-12T00:00:00.000Z',
+        email: 'joe@mixpanel.com',
+        firstName: 'Joe',
+        lastName: 'Doe',
+        username: 'Joe Doe',
+        phone: '12345678',
+        name: 'Joe',
+      }
+    })
 
     nock('https://api.mixpanel.com').post('/engage').reply(200, {})
     nock('https://api.mixpanel.com').post('/track').reply(200, {})
@@ -46,8 +57,110 @@ describe('Mixpanel.identifyUser', () => {
         data: JSON.stringify({
           $token: MIXPANEL_PROJECT_TOKEN,
           $distinct_id: 'user1234',
+          $ip: '8.8.8.8',
           $set: {
-            abc: '123'
+            abc: '123',
+            $created: '2022-10-12T00:00:00.000Z',
+            $email: 'joe@mixpanel.com',
+            $first_name: 'Joe',
+            $last_name: 'Doe',
+            $name: 'Joe',
+            $username: 'Joe Doe',
+            $phone: '12345678'
+          }
+        })
+      })
+    )
+  })
+
+  it('name should automatically be derived from the firstName and lastName traits if they are defined.', async () => {
+    const event = createTestEvent({
+      timestamp, traits: {
+        firstName: 'Joe',
+        lastName: 'Doe'
+      }
+    })
+
+    const event2 = createTestEvent({
+      timestamp, traits: {
+        firstName: 'Joe'
+      }
+    })
+
+    const event3 = createTestEvent({
+      timestamp, traits: {
+        lastName: 'Doe'
+      }
+    })
+
+    nock('https://api.mixpanel.com').post('/engage').reply(200, {})
+    nock('https://api.mixpanel.com').post('/track').reply(200, {})
+
+    const responses = await testDestination.testAction('identifyUser', {
+      event,
+      useDefaultMappings: true,
+      settings: {
+        projectToken: MIXPANEL_PROJECT_TOKEN,
+        apiSecret: MIXPANEL_API_SECRET,
+        apiRegion: ApiRegions.US
+      }
+    })
+    expect(responses[1].options.body).toMatchObject(
+      new URLSearchParams({
+        data: JSON.stringify({
+          $token: MIXPANEL_PROJECT_TOKEN,
+          $distinct_id: 'user1234',
+          $ip: '8.8.8.8',
+          $set: {
+            $first_name: 'Joe',
+            $last_name: 'Doe',
+            $name: 'Joe Doe'
+          }
+        })
+      })
+    )
+    nock('https://api.mixpanel.com').post('/engage').reply(200, {})
+    nock('https://api.mixpanel.com').post('/track').reply(200, {})
+    const responses2 = await testDestination.testAction('identifyUser', {
+      event: event2,
+      useDefaultMappings: true,
+      settings: {
+        projectToken: MIXPANEL_PROJECT_TOKEN,
+        apiSecret: MIXPANEL_API_SECRET,
+        apiRegion: ApiRegions.US
+      }
+    })
+    expect(responses2[1].options.body).toMatchObject(
+      new URLSearchParams({
+        data: JSON.stringify({
+          $token: MIXPANEL_PROJECT_TOKEN,
+          $distinct_id: 'user1234',
+          $ip: '8.8.8.8',
+          $set: {
+            $first_name: 'Joe'
+          }
+        })
+      })
+    )
+    nock('https://api.mixpanel.com').post('/engage').reply(200, {})
+    nock('https://api.mixpanel.com').post('/track').reply(200, {})
+    const responses3 = await testDestination.testAction('identifyUser', {
+      event: event3,
+      useDefaultMappings: true,
+      settings: {
+        projectToken: MIXPANEL_PROJECT_TOKEN,
+        apiSecret: MIXPANEL_API_SECRET,
+        apiRegion: ApiRegions.US
+      }
+    })
+    expect(responses3[1].options.body).toMatchObject(
+      new URLSearchParams({
+        data: JSON.stringify({
+          $token: MIXPANEL_PROJECT_TOKEN,
+          $distinct_id: 'user1234',
+          $ip: '8.8.8.8',
+          $set: {
+            $last_name: 'Doe'
           }
         })
       })
@@ -91,6 +204,7 @@ describe('Mixpanel.identifyUser', () => {
         data: JSON.stringify({
           $token: MIXPANEL_PROJECT_TOKEN,
           $distinct_id: 'user1234',
+          $ip: '8.8.8.8',
           $set: {
             abc: '123'
           }
@@ -135,6 +249,7 @@ describe('Mixpanel.identifyUser', () => {
         data: JSON.stringify({
           $token: MIXPANEL_PROJECT_TOKEN,
           $distinct_id: 'user1234',
+          $ip: '8.8.8.8',
           $set: {
             abc: '123'
           }
@@ -181,10 +296,42 @@ describe('Mixpanel.identifyUser', () => {
         data: JSON.stringify({
           $token: MIXPANEL_PROJECT_TOKEN,
           $distinct_id: 'user1234',
+          $ip: '8.8.8.8',
           $set: {
             abc: '123'
-          },
-          segment_source_name: 'example segment source name'
+          }
+        })
+      })
+    )
+  })
+
+  it('should use anonymous_id as distinct_id if user_id is missing', async () => {
+    const event = createTestEvent({ userId: null, traits: { abc: '123' } })
+
+    nock('https://api.mixpanel.com').post('/track').reply(200, {})
+    nock('https://api.mixpanel.com').post('/engage').reply(200, {})
+
+    const responses = await testDestination.testAction('identifyUser', {
+      event,
+      useDefaultMappings: true,
+      settings: {
+        projectToken: MIXPANEL_PROJECT_TOKEN,
+        apiSecret: MIXPANEL_API_SECRET,
+        sourceName: 'example segment source name'
+      }
+    })
+
+    expect(responses[1].status).toBe(200)
+    expect(responses[1].data).toMatchObject({})
+    expect(responses[1].options.body).toMatchObject(
+      new URLSearchParams({
+        data: JSON.stringify({
+          $token: MIXPANEL_PROJECT_TOKEN,
+          $distinct_id: event.anonymousId,
+          $ip: '8.8.8.8',
+          $set: {
+            abc: '123'
+          }
         })
       })
     )

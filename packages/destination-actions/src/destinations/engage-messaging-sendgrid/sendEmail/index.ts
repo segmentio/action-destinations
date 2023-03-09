@@ -151,7 +151,7 @@ const action: ActionDefinition<Settings, Payload> = {
       label: 'User ID',
       description: 'User ID in Segment',
       type: 'string',
-      required: true,
+      required: false,
       default: { '@path': '$.userId' }
     },
     toEmail: {
@@ -232,6 +232,11 @@ const action: ActionDefinition<Settings, Payload> = {
       description: 'The HTML content of the body',
       type: 'string'
     },
+    groupId: {
+      label: 'Group ID',
+      description: 'Subscription group ID',
+      type: 'string'
+    },
     externalIds: {
       label: 'External IDs',
       description: 'An array of user profile identity information.',
@@ -304,6 +309,15 @@ const action: ActionDefinition<Settings, Payload> = {
       type: 'object',
       required: false,
       default: { '@path': '$.properties' }
+    },
+    eventOccurredTS: {
+      label: 'Event Timestamp',
+      description: 'Time of when the actual event happened.',
+      type: 'string',
+      required: false,
+      default: {
+        '@path': '$.timestamp'
+      }
     }
   },
   perform: async (request, { settings, payload, statsContext }) => {
@@ -323,10 +337,10 @@ const action: ActionDefinition<Settings, Payload> = {
       return
     } else if (['subscribed', 'true'].includes(emailProfile?.subscriptionStatus)) {
       statsClient?.incr('actions-personas-messaging-sendgrid.subscribed', 1, tags)
-      if (settings.groupId) {
+      if (payload.groupId && payload.groupId.length !== 0) {
         const group = (payload.externalIds ?? [])
           .flatMap((externalId) => externalId.groups)
-          .find((group) => group?.id === settings.groupId)
+          .find((group) => group?.id === payload.groupId)
         if (!group) {
           statsClient?.incr('actions-personas-messaging-sendgrid.group_notfound', 1, tags)
           return
@@ -341,6 +355,13 @@ const action: ActionDefinition<Settings, Payload> = {
       if (payload.traitEnrichment) {
         traits = payload?.traits ? payload?.traits : JSON.parse('{}')
       } else {
+        if (!payload.userId) {
+          throw new IntegrationError(
+            'Unable to process email, no userId provided and trait enrichment disabled',
+            'Invalid parameters',
+            400
+          )
+        }
         traits = await fetchProfileTraits(request, settings, payload.userId, statsClient, tags)
       }
 
@@ -416,7 +437,7 @@ const action: ActionDefinition<Settings, Payload> = {
                 ...payload.customArgs,
                 source_id: settings.sourceId,
                 space_id: settings.spaceId,
-                user_id: payload.userId,
+                user_id: payload.userId ?? undefined,
                 // This is to help disambiguate in the case it's email or email_address.
                 __segment_internal_external_id_key__: EXTERNAL_ID_KEY,
                 __segment_internal_external_id_value__: profile[EXTERNAL_ID_KEY]
@@ -448,6 +469,13 @@ const action: ActionDefinition<Settings, Payload> = {
       })
       tags?.push(`sendgrid_status_code:${response.status}`)
       statsClient?.incr('actions-personas-messaging-sendgrid.response', 1, tags)
+      if (payload?.eventOccurredTS != undefined) {
+        statsClient?.histogram(
+          'actions-personas-messaging-sendgrid.eventDeliveryTS',
+          Date.now() - new Date(payload?.eventOccurredTS).getTime(),
+          tags
+        )
+      }
       return response
     } else {
       statsClient?.incr('actions-personas-messaging-sendgrid.sendgrid-error', 1, tags)

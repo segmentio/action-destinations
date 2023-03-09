@@ -1,0 +1,44 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Testing snapshot for actions-blackbaud-raisers-edge-nxt destination: createGift action - all fields 1`] = `
+Object {
+  "birthdate": Object {
+    "d": "1",
+    "m": "2",
+    "y": "2021",
+  },
+  "first": "D0dEn",
+  "gender": "D0dEn",
+  "income": "D0dEn",
+  "last": "D0dEn",
+  "lookup_id": "D0dEn",
+}
+`;
+
+exports[`Testing snapshot for actions-blackbaud-raisers-edge-nxt destination: createGift action - required fields 1`] = `
+Object {
+  "lookup_id": "D0dEn",
+}
+`;
+
+exports[`Testing snapshot for actions-blackbaud-raisers-edge-nxt destination: createOrUpdateIndividualConstituent action - all fields 1`] = `
+Object {
+  "birthdate": Object {
+    "d": "1",
+    "m": "2",
+    "y": "2021",
+  },
+  "first": "hUXnkT]ixm7mm*HX",
+  "gender": "hUXnkT]ixm7mm*HX",
+  "income": "hUXnkT]ixm7mm*HX",
+  "last": "hUXnkT]ixm7mm*HX",
+  "lookup_id": "hUXnkT]ixm7mm*HX",
+}
+`;
+
+exports[`Testing snapshot for actions-blackbaud-raisers-edge-nxt destination: createOrUpdateIndividualConstituent action - required fields 1`] = `
+Object {
+  "last": "Smith",
+  "lookup_id": "hUXnkT]ixm7mm*HX",
+}
+`;

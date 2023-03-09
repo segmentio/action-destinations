@@ -1,9 +1,5 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`Testing snapshot for actions-hubspot-cloud destination: createCustomObjectRecord action - all fields 1`] = `[IntegrationError: Custom Object is not in valid format. Please make sure that you are using either a valid format of object’s fullyQualifiedName (eg: p11223344_myobject) or a supported HubSpot defined object (i.e.: deals, tickets).]`;
-
-exports[`Testing snapshot for actions-hubspot-cloud destination: createCustomObjectRecord action - required fields 1`] = `[IntegrationError: Custom Object is not in valid format. Please make sure that you are using either a valid format of object’s fullyQualifiedName (eg: p11223344_myobject) or a supported HubSpot defined object (i.e.: deals, tickets).]`;
-
 exports[`Testing snapshot for actions-hubspot-cloud destination: sendCustomBehavioralEvent action - all fields 1`] = `
 Object {
   "email": "geoli@sekuki.mg",
@@ -23,6 +19,34 @@ Object {
 }
 `;
 
+exports[`Testing snapshot for actions-hubspot-cloud destination: upsertCompany action - all fields 1`] = `
+Object {
+  "properties": Object {
+    "address": "xz1CFcz1FfyLPZgppeg",
+    "city": "xz1CFcz1FfyLPZgppeg",
+    "description": "xz1CFcz1FfyLPZgppeg",
+    "domain": "xz1CFcz1FfyLPZgppeg",
+    "industry": "xz1CFcz1FfyLPZgppeg",
+    "lifecyclestage": "xz1cfcz1ffylpzgppeg",
+    "name": "xz1CFcz1FfyLPZgppeg",
+    "numberofemployees": 6931055592341504,
+    "phone": "xz1CFcz1FfyLPZgppeg",
+    "segment_group_id": "xz1CFcz1FfyLPZgppeg",
+    "state": "xz1CFcz1FfyLPZgppeg",
+    "testType": "xz1CFcz1FfyLPZgppeg",
+    "zip": "xz1CFcz1FfyLPZgppeg",
+  },
+}
+`;
+
+exports[`Testing snapshot for actions-hubspot-cloud destination: upsertCompany action - required fields 1`] = `
+Object {
+  "properties": Object {
+    "segment_group_id": "xz1CFcz1FfyLPZgppeg",
+  },
+}
+`;
+
 exports[`Testing snapshot for actions-hubspot-cloud destination: upsertContact action - all fields 1`] = `
 Object {
   "properties": Object {
@@ -37,6 +61,7 @@ Object {
     "phone": "fL&&$lZA!6gsh",
     "state": "fL&&$lZA!6gsh",
     "testType": "fL&&$lZA!6gsh",
+    "website": "fL&&$lZA!6gsh",
     "zip": "fL&&$lZA!6gsh",
   },
 }
@@ -50,20 +75,18 @@ Object {
 }
 `;
 
-exports[`Testing snapshot for testHelper: should generate a valid hash with a seed value 1`] = `
+exports[`Testing snapshot for actions-hubspot-cloud destination: upsertCustomObjectRecord action - all fields 1`] = `
 Object {
-  "objectType": "p692776144_Obj692776144",
   "properties": Object {
-    "testProperty": "testValue-692776144",
+    "testType": "jf(2@y*W9WT2r)SLk(*",
   },
 }
 `;
 
-exports[`Testing snapshot for testHelper: should generate a valid hash with empty seed value 1`] = `
+exports[`Testing snapshot for actions-hubspot-cloud destination: upsertCustomObjectRecord action - required fields 1`] = `
 Object {
-  "objectType": "p0_Obj0",
   "properties": Object {
-    "testProperty": "testValue-0",
+    "testType": "jf(2@y*W9WT2r)SLk(*",
   },
 }
 `;

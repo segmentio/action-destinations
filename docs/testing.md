@@ -1,79 +1,167 @@
 # Build & Test Cloud Destinations
 
 - [Build & Test Cloud Destinations](#build--test-cloud-destinations)
-  - [Actions Tester](#actions-tester)
-  - [Local End-to-end Testing](#local-end-to-end-testing)
-    - [Example](#example)
-    - [Testing Batches](#testing-batches)
+  - [Approaches to local testing](#approaches-to-local-testing)
+  - [Local testing with the Actions Tester](#local-testing-with-the-actions-tester)
+  - [Local testing with cURL or Postman](#local-testing-with-curl-or-postman)
+    - [Testing an Action's perform() or performBatch() function](#testing-an-actions-perform-or-performbatch-function)
+    - [Example request to invoke perform()](#example-request-to-invoke-perform)
+    - [Example request to invoke performBatch()](#example-request-to-invoke-performbatch)
+    - [Example request to invoke testAuthentication()](#example-request-to-invoke-testauthentication)
   - [Unit Testing](#unit-testing)
     - [Mocking HTTP Requests](#mocking-http-requests)
     - [Examples](#examples)
   - [Snapshot Testing](#snapshot-testing)
   - [Code Coverage](#code-coverage)
+- [Post Deployment Change Testing](#post-deployment-change-testing)
 
-## Actions Tester
+## Approaches to local testing
+
+There are 2 ways in which you can do local testing. Both require running a local server - which is explained below.
+
+Approach 1: Use the [Actions Tester](#local-testing-with-the-actions-tester): The Actions Tester provides a UI which allows you to specify an inbound Segment API call payload - such as a track() or identify() payload - and route that payload to an Action's perform() function in your Destination. The Destination's Settings Fields and Action Fields are rendered in the UI and provide an approximation of what the customer will see when configuring the Destination. The perform() function will then send data to your Platform.
+
+Approach 2: [Local testing with cURL or Postman](#local-testing-with-curl-or-postman): You can use an API testing tool such as cURL or Postman to test not only an Action's perform() function, but also the performBatch(), delete() and testAuthentication() functions. With this approach there is no UI so you'll need to provide not only the payload from an inbound Segment API call - such as a track() or identify() payload, but potentially other objects such as settings or mapping objects in your HTTP request.
+
+Note: there is no 'Staging' platform available, so the testing you'll be doing will all be local until your Integration has been deployed to Segment's Production environment. When your Integration has been deployed to Production it will initially be set to 'Private Beta' mode and will not be findable by customers in the Catalog. However you will be able to set up and configure your Integration via a URL so that you can do further testing.
+
+## Local testing with the Actions Tester
 
 In order to see a visual representation of the settings/mappings fields we provide a tool to preview and execute simulated actions mappings against your in development destination. For more information on how to use actions tester [click here](./actions_tester.md).
 
-## Local End-to-end Testing
+## Local testing with cURL or Postman
 
-To test a destination action locally, you can spin up a local HTTP server through the Actions CLI.
+To test a destination action locally you can spin up a local HTTP server through the Actions CLI.
 
 ```sh
 # For more information, add the --help flag
 ./bin/run serve
 ```
 
-The default port is set to `3000`. To use a different port, you can specify the `PORT` environment variable (e.g. `PORT=3001 ./bin/run serve`).
+The default port is set to `3000`. To use a different port, you can specify the `PORT` environment variable (e.g. `PORT=3001 ./bin/run serve`). The examples in this documenation will assume `PORT` is set to `3000`.
 
-After running the `serve` command, select the destination you want to test locally. Once a destination is selected, the server should start up.
+After running the `serve` command, select the destination you want to test locally. Once a destination is selected the server should start up.
 
-To test a specific destination action, you can send a Postman or cURL request with the following URL format: `https://localhost:<PORT>/<ACTION>`. A list of eligible URLs will also be provided by the CLI command when the server is spun up.
+### Testing an Action's perform() or performBatch() function
 
-### Example
+To test a specific destination action's perform() or performBatch() function you can send a Postman or cURL request with the following URL format: `https://localhost:<PORT>/<ACTION>`. A list of eligible URLs will also be provided by the CLI command when the server is spun up.
 
-The following is an example of a cURL command for `google-analytics-4`'s `search` action. Note that `payload`, `settings`, `auth`, and `features` values are all optional in the request body. However, you must still pass in all required fields for the specific destination action under `payload`. `features` is for internal Twilio/Segment use only.
+For example if you wanted to test the the Emarsys Destination's upsertContact Action the URL you would POST to would be: `http://localhost:3000/upsertContact`.
+
+### Example request to invoke perform()
+
+The following is an example of a cURL command which will invoke the Emarsys Destination's `upsertContact` Action (Emarsys is an email tool popular with some Segment customers). Data for 3 objects is included in the data/body: `payload`, `mapping` and `settings`.
+
+#### Example oauth object
+
+Emarsys doesn't use OAuth so you can leave out the `auth` object; however you if your Integration is using OAuth then you'll need to include an `oauth` object in the HTTP request.
 
 ```sh
-curl --location --request POST 'http://localhost:3000/search' \
+  "oauth": {
+    "access_token": "<OAUTH-ACCESS-TOKEN>"
+  }
+```
+
+`payload` - this should contain the payload coming in to your Integration. It could be a track() or identify() or other payload. In the example below only the fields needed by the Emarsys upsertContact Action are included.
+`mapping` - this should include mappings to be applied to the payload in order to extract out the field data you want to pass to the perform() function.
+`settings` - this should include the Settings fields data to be passed to the perform() function. In the case of Emarsys there are only 2 Settings fields, the api_user and api_password fields.
+
+```sh
+curl --location --request POST 'http://localhost:3000/upsertContact' \
 --header 'Content-Type: application/json' \
 --data '{
-    "payload": {
-        "client_id": "<CLIENT_ID>",
-        "search_term": "<SEARCH_TERM>"
-    },
-    "settings": {
-        "measurementId": "<MEASUREMENT_ID>",
-        "apiSecret": "<API_SECRET>"
-    },
-    "auth": {
-        "accessToken": "<ACCESS_TOKEN>",
-        "refreshToken": "<REFRESH_TOKEN>"
-    }
-    "features": {
-        "test_feature": true,
+  "mapping": {
+    "key_field": { "@path": "$.properties.key_field" },
+    "key_value": { "@path": "$.properties.key_value" },
+    "write_field": { "@path": "$.traits" }
+  },
+  "settings": {
+    "api_user": "<EMARSYS-API-USER>",
+    "api_password": "<EMARSYS-API-PASSWORD>"
+  },
+  "payload":
+    {
+      "properties": {
+        "key_field": "3",
+        "key_value": "tester@emarsys.com"
+      },
+      "traits": {
+        "1": "Hans",
+        "2": "Müller"
+      }
     }
 }'
 ```
 
-### Testing Batches
+### Example request to invoke performBatch()
 
-Actions destinations that support batching, i.e. that have a `performBatch` handler implemented, can also be tested locally. Test events should be formatted similarly to the example above, with the exception that `payload` will be an array. Here is an example of `webhook`'s `send` action, with a batch `payload`.
+Invoking an Action's performBatch() is nearly identical to [invoking the perform()](#example-request-to-invoke-perform) function except that the`payload` object will be an array of events rather than a single event object. In the example below a batch of 2 events is sent to the Emarsys performBatch() function.
 
 ```sh
-curl --location --request POST 'http://localhost:3000/send' \
+curl --location --request POST 'http://localhost:3000/upsertContact' \
 --header 'Content-Type: application/json' \
 --data '{
-    "payload": [{
-        "url": "https://www.example.com",
-        "method": "PUT",
-        "data": {
-            "cool": true
-        }
-    }],
-    "settings": {},
-    "auth": {},
-    "features": {}
+  "mapping": {
+    "key_field": { "@path": "$.properties.key_field" },
+    "key_value": { "@path": "$.properties.key_value" },
+    "write_field": { "@path": "$.traits" }
+  },
+  "settings": {
+    "api_user": "<EMARSYS-API-USER>",
+    "api_password": "<EMARSYS-API-PASSWORD>"
+  },
+  "payload":[
+    {
+      "properties": {
+        "key_field": "3",
+        "key_value": "tester@emarsys.com"
+      },
+      "traits": {
+        "1": "Hans",
+        "2": "Müller"
+      }
+    },
+    {
+      "properties": {
+        "key_field": "3",
+        "key_value": "another_tester@emarsys.com"
+      },
+      "traits": {
+        "1": "James",
+        "2": "Mills"
+      }
+    }]
+}'
+```
+
+### Example request to invoke testAuthentication()
+
+The testAuthentication() function is a function which is called in the Segment UI after a user provides Settings information in a Destination's Settings tab. The purpose of the testAuthentication() function is to verify that the authentication credentials provided by the customer are valid.
+
+If the credentials are invalid the testAuthentication() function should throw an Error which will be displayed to the customer in the Segment UI.
+
+The example below shows the HTTP POST request you would use to invoke the testAuthentication() function for the Emarsys Destination. This particular Destination doesn't use OAuth and instead has authentication fields in the `settings` object. The POST request should be sent to `http://localhost:3000/authentication`.
+
+```sh
+curl --location --request POST 'http://localhost:3000/authentication' \
+--header 'Content-Type: application/json' \
+--data '{
+  "settings": {
+    "api_user": "<EMARSYS-API-USER>",
+    "api_password": "<EMARSYS-API-PASSWORD>"
+  }
+}'
+```
+
+If your Integration instead uses OAuth you will need to pass in an `oauth` object in the HTTP request:
+
+```sh
+curl --location --request POST 'http://localhost:3000/authentication' \
+--header 'Content-Type: application/json' \
+--data '{
+  "oauth": {
+    "access_token": "<OAUTH-ACCESS-TOKEN>"
+  }
 }'
 ```
 
@@ -195,3 +283,7 @@ yarn jest --testPathPattern='./packages/destination-actions/src/destinations/<DE
 ## Code Coverage
 
 Code coverage is automatically collected upon completion of `yarn test`. Results may be inspected by examining the HTML report found at `coverage/lcov-report/index.html`, or directly in your IDE if _lcov_ is supported.
+
+## Post Deployment Change Testing
+
+An extra level of governance and oversight is required when making changes to an Integration which is already in use by customers. See [Submitting subsequent changes](../contributing.md) instructions for additional details.

@@ -1,4 +1,4 @@
-import { ActionDefinition, IntegrationError, HTTPError } from '@segment/actions-core'
+import { ActionDefinition, IntegrationError, HTTPError, PayloadValidationError } from '@segment/actions-core'
 import type { ModifiedResponse } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
@@ -24,8 +24,8 @@ interface GoogleError {
 }
 
 const action: ActionDefinition<Settings, Payload> = {
-  title: 'Post Conversion',
-  description: 'Send a conversion event to Google Ads.',
+  title: 'Upload Enhanced Conversion (Legacy)',
+  description: 'Upload a conversion enhancement to the legacy Google Enhanced Conversions API.',
   fields: {
     // Required Fields - These fields are required by Google's EC API to successfully match conversions.
     conversion_label: {
@@ -213,10 +213,8 @@ const action: ActionDefinition<Settings, Payload> = {
     /* Enforcing this here since Conversion ID is required for the Enhanced Conversions API 
     but not for the Google Ads API. */
     if (!settings.conversionTrackingId) {
-      throw new IntegrationError(
-        'Conversion ID is required for this action. Please set it in destination settings.',
-        'Missing required fields.',
-        400
+      throw new PayloadValidationError(
+        'Conversion ID is required for this action. Please set it in destination settings.'
       )
     }
 
@@ -242,10 +240,8 @@ const action: ActionDefinition<Settings, Payload> = {
     })
 
     if (!payload.email && !Object.keys(address).length) {
-      throw new IntegrationError(
-        'Either a valid email address or at least one address property (firstName, lastName, street, city, region, postalCode, or country) is required to send a valid conversion.',
-        'Missing required fields.',
-        400
+      throw new PayloadValidationError(
+        'Either a valid email address or at least one address property (firstName, lastName, street, city, region, postalCode, or country) is required to send a valid conversion.'
       )
     }
 

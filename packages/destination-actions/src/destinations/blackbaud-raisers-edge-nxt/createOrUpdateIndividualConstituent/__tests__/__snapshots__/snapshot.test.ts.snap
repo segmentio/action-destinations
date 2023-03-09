@@ -1,0 +1,23 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Testing snapshot for BlackbaudRaisersEdgeNxt's createOrUpdateIndividualConstituent destination action: all fields 1`] = `
+Object {
+  "birthdate": Object {
+    "d": "1",
+    "m": "2",
+    "y": "2021",
+  },
+  "first": "H*Z39ROa",
+  "gender": "H*Z39ROa",
+  "income": "H*Z39ROa",
+  "last": "H*Z39ROa",
+  "lookup_id": "H*Z39ROa",
+}
+`;
+
+exports[`Testing snapshot for BlackbaudRaisersEdgeNxt's createOrUpdateIndividualConstituent destination action: required fields 1`] = `
+Object {
+  "last": "Smith",
+  "lookup_id": "H*Z39ROa",
+}
+`;

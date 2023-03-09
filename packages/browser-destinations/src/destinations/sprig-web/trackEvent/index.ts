@@ -35,6 +35,15 @@ const action: BrowserActionDefinition<Settings, Sprig, Payload> = {
       default: {
         '@path': '$.anonymousId'
       }
+    },
+    properties: {
+      type: 'object',
+      required: false,
+      description: 'Object containing the properties of the event',
+      label: 'Event Properties',
+      default: {
+        '@path': '$.properties'
+      }
     }
   },
   perform: (Sprig, event) => {
@@ -44,7 +53,12 @@ const action: BrowserActionDefinition<Settings, Sprig, Payload> = {
       return
     }
 
-    const sprigIdentifyAndTrackPayload: { eventName: string; userId?: string; anonymousId?: string } = {
+    const sprigIdentifyAndTrackPayload: {
+      eventName: string
+      userId?: string
+      anonymousId?: string
+      properties?: { [key: string]: unknown }
+    } = {
       eventName: payload.name
     }
     if (payload.userId) {
@@ -53,6 +67,10 @@ const action: BrowserActionDefinition<Settings, Sprig, Payload> = {
 
     if (payload.anonymousId) {
       sprigIdentifyAndTrackPayload.anonymousId = payload.anonymousId
+    }
+
+    if (payload.properties) {
+      sprigIdentifyAndTrackPayload.properties = payload.properties
     }
 
     Sprig('identifyAndTrack', sprigIdentifyAndTrackPayload)

@@ -1,7 +1,8 @@
 import type { ActionDefinition } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
-import { hubSpotBaseURL } from '../properties'
+import { HUBSPOT_BASE_URL } from '../properties'
 import type { Payload } from './generated-types'
+import { flattenObject } from '../helperFunctions'
 
 interface CustomBehavioralEvent {
   eventName: string
@@ -20,7 +21,7 @@ const action: ActionDefinition<Settings, Payload> = {
     eventName: {
       label: 'Event Name',
       description:
-        'The internal event name assigned by HubSpot. This can be found in your HubSpot account. Events must be predefined in HubSpot. Learn how to find the internal name in [HubSpot’s documentation](https://knowledge.hubspot.com/analytics-tools/create-custom-behavioral-events).',
+        'The internal event name assigned by HubSpot. This can be found in your HubSpot account. Events must be predefined in HubSpot. Please input the full internal event name including the `pe` prefix (i.e. `pe<HubID>_event_name`). Learn how to find the internal name in [HubSpot’s documentation](https://knowledge.hubspot.com/analytics-tools/create-custom-behavioral-events).',
       type: 'string',
       required: true
     },
@@ -61,7 +62,7 @@ const action: ActionDefinition<Settings, Payload> = {
     properties: {
       label: 'Event Properties',
       description:
-        'Default or custom properties that describe the event. See more information in [HubSpot’s documentation](https://knowledge.hubspot.com/analytics-tools/create-custom-behavioral-events#add-and-manage-event-properties).',
+        'Default or custom properties that describe the event. On the left-hand side, input the internal name of the property as seen in your HubSpot account. On the right-hand side, map the Segment field that contains the value. See more information in [HubSpot’s documentation](https://knowledge.hubspot.com/analytics-tools/create-custom-behavioral-events#add-and-manage-event-properties).',
       type: 'object',
       defaultObjectUI: 'keyvalue:only'
     }
@@ -73,9 +74,9 @@ const action: ActionDefinition<Settings, Payload> = {
       utk: payload.utk,
       email: payload.email,
       objectId: payload.objectId,
-      properties: payload.properties
+      properties: flattenObject(payload.properties)
     }
-    return request(`${hubSpotBaseURL}/events/v3/send`, {
+    return request(`${HUBSPOT_BASE_URL}/events/v3/send`, {
       method: 'post',
       json: event
     })

@@ -1,0 +1,53 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Testing snapshot for actions-segment-profiles destination: sendGroup action - all fields 1`] = `
+Object {
+  "anonymousId": "cZE8HyAL0!BF#)WQb^",
+  "groupId": "cZE8HyAL0!BF#)WQb^",
+  "integrations": Object {
+    "All": false,
+  },
+  "traits": Object {
+    "testType": "cZE8HyAL0!BF#)WQb^",
+  },
+  "userId": "cZE8HyAL0!BF#)WQb^",
+}
+`;
+
+exports[`Testing snapshot for actions-segment-profiles destination: sendGroup action - required fields 1`] = `
+Object {
+  "anonymousId": "cZE8HyAL0!BF#)WQb^",
+  "groupId": "cZE8HyAL0!BF#)WQb^",
+  "integrations": Object {
+    "All": false,
+  },
+  "traits": Object {},
+  "userId": "cZE8HyAL0!BF#)WQb^",
+}
+`;
+
+exports[`Testing snapshot for actions-segment-profiles destination: sendIdentify action - all fields 1`] = `
+Object {
+  "anonymousId": "hIC1OAmWa[Q!&d%o",
+  "groupId": "hIC1OAmWa[Q!&d%o",
+  "integrations": Object {
+    "All": false,
+  },
+  "traits": Object {
+    "testType": "hIC1OAmWa[Q!&d%o",
+  },
+  "userId": "hIC1OAmWa[Q!&d%o",
+}
+`;
+
+exports[`Testing snapshot for actions-segment-profiles destination: sendIdentify action - required fields 1`] = `
+Object {
+  "anonymousId": "hIC1OAmWa[Q!&d%o",
+  "groupId": "hIC1OAmWa[Q!&d%o",
+  "integrations": Object {
+    "All": false,
+  },
+  "traits": Object {},
+  "userId": "hIC1OAmWa[Q!&d%o",
+}
+`;

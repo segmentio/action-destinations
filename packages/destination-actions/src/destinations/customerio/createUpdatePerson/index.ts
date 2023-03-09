@@ -47,6 +47,15 @@ const action: ActionDefinition<Settings, Payload> = {
         '@template': '{{traits.created_at}}'
       }
     },
+    group_id: {
+      label: 'Object ID',
+      description:
+        'The ID used to uniquely identify an object in Customer.io. [Learn more](https://customer.io/docs/object-relationships).',
+      type: 'string',
+      default: {
+        '@path': '$.context.groupId'
+      }
+    },
     custom_attributes: {
       label: 'Person Attributes',
       description:
@@ -61,12 +70,23 @@ const action: ActionDefinition<Settings, Payload> = {
       description: 'Convert dates to Unix timestamps (seconds since Epoch).',
       type: 'boolean',
       default: true
+    },
+    object_type_id: {
+      label: 'Object Type Id',
+      description:
+        'The ID used to uniquely identify a custom object type in Customer.io. [Learn more](https://customer.io/docs/object-relationships).',
+      type: 'string',
+      default: {
+        '@path': '$.objectTypeId'
+      }
     }
   },
 
   perform: (request, { settings, payload }) => {
     let createdAt: string | number | undefined = payload.created_at
     let customAttributes = payload.custom_attributes
+    const objectId = payload.group_id
+    const objectTypeId = payload.object_type_id
 
     if (payload.convert_timestamp !== false) {
       if (createdAt) {
@@ -86,6 +106,14 @@ const action: ActionDefinition<Settings, Payload> = {
 
     if (createdAt) {
       body.created_at = createdAt
+    }
+
+    // Adding Object Person relationship if group_id exists in the call. If the object_type_id is not given, default it to "1"
+    if (objectId) {
+      body.cio_relationships = {
+        action: 'add_relationships',
+        relationships: [{ identifiers: { object_type_id: objectTypeId ?? '1', object_id: objectId } }]
+      }
     }
 
     return request(`${trackApiEndpoint(settings.accountRegion)}/api/v1/customers/${payload.id}`, {
