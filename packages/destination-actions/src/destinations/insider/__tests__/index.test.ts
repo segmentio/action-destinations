@@ -4,7 +4,7 @@ import Definition from '../index'
 import { API_BASE, UPSERT_ENDPOINT } from '../insider-helpers'
 const testDestination = createTestIntegration(Definition)
 
-describe('Insider', () => {
+describe('Insider Cloud Mode (Actions)', () => {
   describe('testAuthentication', () => {
     it('should validate authentication', async () => {
       nock(API_BASE).get(UPSERT_ENDPOINT).reply(200, { status: 'success' })
