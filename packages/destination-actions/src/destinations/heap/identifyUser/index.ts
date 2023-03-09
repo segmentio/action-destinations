@@ -23,7 +23,7 @@ const action: ActionDefinition<Settings, Payload> = {
       type: 'string',
       allowNull: true,
       description:
-        'A unique identity that will maintain user histories across sessions and devices under a single profile. More on identify: https://developers.heap.io/docs/using-identify',
+        'a string that uniquely identifies a user, such as an email, handle, or username. This means no two users in one environment may share the same identity. More on identify: https://developers.heap.io/docs/using-identify',
       default: {
         '@path': '$.userId'
       }

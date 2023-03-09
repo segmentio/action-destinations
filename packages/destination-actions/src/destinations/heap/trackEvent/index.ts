@@ -47,7 +47,7 @@ const action: ActionDefinition<Settings, Payload> = {
       type: 'string',
       allowNull: true,
       description:
-        'A unique identity and maintain user histories across sessions and devices under a single profile. If no identity is provided we will add the anonymous_id to the event. More on identify: https://developers.heap.io/docs/using-identify'
+        'a string that uniquely identifies a user, such as an email, handle, or username. This means no two users in one environment may share the same identity. More on identify: https://developers.heap.io/docs/using-identify'
     },
     anonymous_id: {
       label: 'Anonymous ID',
@@ -143,12 +143,12 @@ const action: ActionDefinition<Settings, Payload> = {
       library: 'Segment'
     }
 
-    if (isDefined(payload.identity)) {
+    if (isDefined(payload.identity) && (isDefined(payload.anonymous_id) || isDefined(payload.traits))) {
       const userPropertiesPayload = {
         app_id: settings.appId,
         identity: payload.identity,
         properties: {
-          anonymous_id: payload.anonymous_id,
+          ...(isDefined(payload.anonymous_id) && { anonymous_id: payload.anonymous_id }),
           ...(payload.traits && Object.keys(payload.traits).length !== 0 && flat(payload.traits))
         }
       }
