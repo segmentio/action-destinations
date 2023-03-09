@@ -11,7 +11,6 @@ const action: ActionDefinition<Settings, Payload> = {
     age: {
       label: 'Age',
       type: 'number',
-      allowNull: true,
       description: 'Age of a user.',
       default: {
         '@path': '$.traits.age'
@@ -20,7 +19,6 @@ const action: ActionDefinition<Settings, Payload> = {
     birthday: {
       label: 'Birthday',
       type: 'string',
-      allowNull: true,
       description: 'User’s birthday',
       default: {
         '@path': '$.traits.birthday'
@@ -29,7 +27,6 @@ const action: ActionDefinition<Settings, Payload> = {
     email: {
       label: 'Email',
       type: 'string',
-      allowNull: true,
       description: 'Email address of a user.',
       default: {
         '@path': '$.traits.email'
@@ -39,16 +36,14 @@ const action: ActionDefinition<Settings, Payload> = {
       label: 'First Name',
       description: 'First name of a user.',
       type: 'string',
-      allowNull: true,
       default: {
-        '@path': '$.traits.firstName'
+        '@path': '$.traits.first_name'
       }
     },
     gender: {
       label: 'Gender',
       description: 'Gender of a user.',
       type: 'string',
-      allowNull: true,
       default: {
         '@path': '$.traits.gender'
       }
@@ -57,16 +52,14 @@ const action: ActionDefinition<Settings, Payload> = {
       label: 'Last Name',
       description: 'Last name of a user.',
       type: 'string',
-      allowNull: true,
       default: {
-        '@path': '$.traits.lastName'
+        '@path': '$.traits.last_name'
       }
     },
     phone: {
       label: 'Phone Number',
       description: 'Phone number of a user.',
       type: 'string',
-      allowNull: true,
       default: {
         '@path': '$.traits.phone'
       }
@@ -74,7 +67,6 @@ const action: ActionDefinition<Settings, Payload> = {
     uuid: {
       label: 'UUID',
       type: 'string',
-      allowNull: false,
       description: 'User unique id.',
       default: {
         '@path': '$.userId'
@@ -83,7 +75,6 @@ const action: ActionDefinition<Settings, Payload> = {
     segment_anonymous_id: {
       label: 'Anonymous Id',
       type: 'string',
-      allowNull: false,
       description: 'Anonymous user id.',
       default: {
         '@path': '$.anonymousId'
@@ -92,7 +83,6 @@ const action: ActionDefinition<Settings, Payload> = {
     city: {
       label: 'City',
       type: 'string',
-      allowNull: true,
       description: 'City',
       default: {
         '@path': '$.traits.address.city'
@@ -101,7 +91,6 @@ const action: ActionDefinition<Settings, Payload> = {
     country: {
       label: 'Country',
       type: 'string',
-      allowNull: true,
       description: 'Country',
       default: {
         '@path': '$.traits.address.country'
@@ -110,26 +99,22 @@ const action: ActionDefinition<Settings, Payload> = {
     emailOptin: {
       label: 'Email Optin',
       type: 'string',
-      allowNull: true,
       description: 'Email optin.'
     },
     smsOptin: {
       label: 'SMS Optin',
       type: 'string',
-      allowNull: true,
       description: 'SMS optin.'
     },
     whatsappOptin: {
       label: 'Whatsapp Optin',
       type: 'string',
-      allowNull: true,
       description: 'Whatsapp optin.'
     },
     language: {
       label: 'Language',
       description: "The user's preferred language.",
-      type: 'string',
-      allowNull: true
+      type: 'string'
     }
   },
   perform: (request, data) => {

@@ -12,7 +12,6 @@ const action: ActionDefinition<Settings, Payload> = {
     uuid: {
       label: 'User ID',
       type: 'string',
-      allowNull: true,
       description: '',
       default: {
         '@path': '$.userId'
@@ -21,7 +20,6 @@ const action: ActionDefinition<Settings, Payload> = {
     segment_anonymous_id: {
       label: 'Anonymous Id',
       type: 'string',
-      allowNull: false,
       description: 'Anonymous user id.',
       default: {
         '@path': '$.anonymousId'
@@ -32,7 +30,6 @@ const action: ActionDefinition<Settings, Payload> = {
       description: 'The event name',
       type: 'string',
       required: true,
-      allowNull: false,
       default: {
         '@path': '$.event'
       }
@@ -42,7 +39,6 @@ const action: ActionDefinition<Settings, Payload> = {
       description: 'When the event occurred',
       type: 'datetime',
       required: true,
-      allowNull: false,
       default: {
         '@path': '$.timestamp'
       }
@@ -115,7 +111,7 @@ const action: ActionDefinition<Settings, Payload> = {
           '@if': {
             exists: { '@path': '$.properties.url' },
             then: { '@path': '$.properties.url' },
-            else: { '@path': '$.properties.link_url' }
+            else: { '@path': '$.context.page.url' }
           }
         },
         product_id: { '@path': '$.properties.product_id' },
@@ -127,8 +123,14 @@ const action: ActionDefinition<Settings, Payload> = {
         quantity: { '@path': '$.properties.quantity' },
         product_image_url: { '@path': '$.properties.image_url' },
         event_group_id: { '@path': '$.properties.cart_id' },
-        referrer: { '@path': '$.properties.referrer' },
-        user_agent: { '@path': '$.userAgent' }
+        referrer: {
+          '@if': {
+            exists: { '@path': '$.properties.referrer' },
+            then: { '@path': '$.properties.referrer' },
+            else: { '@path': '$.context.page.referrer' }
+          }
+        },
+        user_agent: { '@path': '$.context.userAgent' }
       }
     },
     products: {
@@ -284,19 +286,73 @@ const action: ActionDefinition<Settings, Payload> = {
         }
       },
       default: {
-        email: { '@path': '$.email' },
-        phone: { '@path': '$.phone' },
-        age: { '@path': '$.age' },
-        birthday: { '@path': '$.birthday' },
-        name: { '@path': '$.firstName' },
-        gender: { '@path': '$.gender' },
-        surname: { '@path': '$.lastName' },
+        email: {
+          '@if': {
+            exists: { '@path': '$.context.traits.email' },
+            then: { '@path': '$.context.traits.email' },
+            else: { '@path': '$.properties.email' }
+          }
+        },
+        phone: {
+          '@if': {
+            exists: { '@path': '$.context.traits.phone' },
+            then: { '@path': '$.context.traits.phone' },
+            else: { '@path': '$.properties.phone' }
+          }
+        },
+        age: {
+          '@if': {
+            exists: { '@path': '$.context.traits.age' },
+            then: { '@path': '$.context.traits.age' },
+            else: { '@path': '$.properties.age' }
+          }
+        },
+        birthday: {
+          '@if': {
+            exists: { '@path': '$.context.traits.birthday' },
+            then: { '@path': '$.context.traits.birthday' },
+            else: { '@path': '$.properties.birthday' }
+          }
+        },
+        name: {
+          '@if': {
+            exists: { '@path': '$.context.traits.first_name' },
+            then: { '@path': '$.context.traits.first_name' },
+            else: { '@path': '$.properties.first_name' }
+          }
+        },
+        gender: {
+          '@if': {
+            exists: { '@path': '$.context.traits.gender' },
+            then: { '@path': '$.context.traits.gender' },
+            else: { '@path': '$.properties.gender' }
+          }
+        },
+        surname: {
+          '@if': {
+            exists: { '@path': '$.context.traits.last_name' },
+            then: { '@path': '$.context.traits.last_name' },
+            else: { '@path': '$.properties.last_name' }
+          }
+        },
         app_version: { '@path': '$.context.app.version' },
         idfa: { '@path': '$.context.device.advertisingId' },
         model: { '@path': '$.context.device.model' },
         last_ip: { '@path': '$.context.ip' },
-        city: { '@path': '$.context.location.city' },
-        country: { '@path': '$.context.location.country' },
+        city: {
+          '@if': {
+            exists: { '@path': '$.context.location.city' },
+            then: { '@path': '$.context.location.city' },
+            else: { '@path': '$.properties.address.city' }
+          }
+        },
+        country: {
+          '@if': {
+            exists: { '@path': '$.context.location.country' },
+            then: { '@path': '$.context.location.country' },
+            else: { '@path': '$.properties.address.country' }
+          }
+        },
         carrier: { '@path': '$.context.network.carrier' },
         os_version: { '@path': '$.os.version' },
         platform: { '@path': '$.context.os.name' },

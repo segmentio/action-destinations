@@ -1,4 +1,3 @@
-
 import { Payload as UserPayload } from './updateUserProfile/generated-types'
 import { Payload as EventPayload } from './trackEvent/generated-types'
 export const API_BASE = 'https://unification.useinsider.com/api/'
@@ -25,6 +24,8 @@ export function userProfilePayload(data: UserPayload) {
       {
         identifiers: {
           uuid: data.uuid,
+          email: data.email,
+          phone_number: data.phone,
           custom: {
             segment_anonymous_id: data.segment_anonymous_id
           }
@@ -42,7 +43,7 @@ export function userProfilePayload(data: UserPayload) {
           email_optin: data.emailOptin,
           sms_optin: data.smsOptin,
           whatsapp_optin: data.whatsappOptin,
-          language: data.language
+          language: data.language?.replace('-', '_')
         }
       }
     ]

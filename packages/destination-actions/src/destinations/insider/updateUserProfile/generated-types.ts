@@ -4,31 +4,31 @@ export interface Payload {
   /**
    * Age of a user.
    */
-  age?: number | null
+  age?: number
   /**
    * User’s birthday
    */
-  birthday?: string | null
+  birthday?: string
   /**
    * Email address of a user.
    */
-  email?: string | null
+  email?: string
   /**
    * First name of a user.
    */
-  firstName?: string | null
+  firstName?: string
   /**
    * Gender of a user.
    */
-  gender?: string | null
+  gender?: string
   /**
    * Last name of a user.
    */
-  lastName?: string | null
+  lastName?: string
   /**
    * Phone number of a user.
    */
-  phone?: string | null
+  phone?: string
   /**
    * User unique id.
    */
@@ -40,25 +40,25 @@ export interface Payload {
   /**
    * City
    */
-  city?: string | null
+  city?: string
   /**
    * Country
    */
-  country?: string | null
+  country?: string
   /**
    * Email optin.
    */
-  emailOptin?: string | null
+  emailOptin?: string
   /**
    * SMS optin.
    */
-  smsOptin?: string | null
+  smsOptin?: string
   /**
    * Whatsapp optin.
    */
-  whatsappOptin?: string | null
+  whatsappOptin?: string
   /**
    * The user's preferred language.
    */
-  language?: string | null
+  language?: string
 }

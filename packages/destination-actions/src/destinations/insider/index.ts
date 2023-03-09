@@ -4,10 +4,28 @@ import { API_BASE, UPSERT_ENDPOINT } from './insider-helpers'
 
 import updateUserProfile from './updateUserProfile'
 import trackEvent from './trackEvent'
+import { defaultValues } from '@segment/actions-core'
+
+/** used in the quick setup */
+const presets: DestinationDefinition['presets'] = [
+  {
+    name: 'Identify Calls',
+    subscribe: 'type = "identify"',
+    partnerAction: 'updateUserProfile',
+    mapping: defaultValues(updateUserProfile.fields)
+  },
+  {
+    name: 'Track Calls',
+    subscribe:
+      'type = "track" and event != "Order Completed" and event != "Cart Viewed" and event != "Checkout Viewed"',
+    partnerAction: 'trackEvent',
+    mapping: defaultValues(trackEvent.fields)
+  }
+]
 
 const destination: DestinationDefinition<Settings> = {
-  name: 'Insider',
-  slug: 'actions-insider',
+  name: 'Insider Cloud Mode (Actions)',
+  slug: 'actions-insider-cloud',
   mode: 'cloud',
 
   authentication: {
@@ -42,6 +60,7 @@ const destination: DestinationDefinition<Settings> = {
     }
   },
 
+  presets,
   actions: {
     updateUserProfile,
     trackEvent

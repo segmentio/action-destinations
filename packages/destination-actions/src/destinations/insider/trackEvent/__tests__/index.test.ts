@@ -1,6 +1,7 @@
 import nock from 'nock'
-import { createTestEvent, createTestIntegration } from '@segment/actions-core'
+
 import Destination from '../../index'
+import { createTestEvent, createTestIntegration } from '@segment/actions-core'
 
 const testDestination = createTestIntegration(Destination)
 const timestamp = '2021-08-17T15:21:15.449Z'

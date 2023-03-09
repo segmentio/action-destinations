@@ -1,7 +1,7 @@
 // Generated file. DO NOT MODIFY IT BY HAND.
 
 export interface Payload {
-  uuid?: string | null
+  uuid?: string
   /**
    * Anonymous user id.
    */
