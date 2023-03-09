@@ -32,7 +32,6 @@ export function sendTrackEvent(request: RequestClient, settings: Settings, paylo
 
   return request(`${settings.endpoint}/users/track`, {
     method: 'post',
-    headers: { 'X-Braze-Batch': 'true' },
     json: {
       events: [
         {

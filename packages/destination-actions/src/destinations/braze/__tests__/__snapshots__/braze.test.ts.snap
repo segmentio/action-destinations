@@ -40,9 +40,6 @@ Headers {
     "user-agent": Array [
       "Segment (Actions)",
     ],
-    "x-braze-batch": Array [
-      "true",
-    ],
   },
 }
 `;
