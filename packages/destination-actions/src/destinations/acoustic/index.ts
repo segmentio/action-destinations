@@ -46,8 +46,8 @@ const presets: DestinationDefinition['presets'] = [
 ]
 
 const destination: DestinationDefinition<Settings> = {
-  name: 'Acoustic Campaign Cloud',
-  slug: 'actions-acoustic-campaign-cloud',
+  name: 'Acoustic Campaign',
+  slug: 'actions-acoustic-campaign',
   mode: 'cloud',
   authentication: {
     scheme: 'oauth-managed',
