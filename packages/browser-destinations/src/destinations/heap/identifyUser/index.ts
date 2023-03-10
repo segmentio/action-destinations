@@ -24,7 +24,7 @@ const action: BrowserActionDefinition<Settings, HeapApi, Payload> = {
       description: 'The Segment traits to be forwarded to Heap',
       label: 'Traits',
       default: {
-        '@path': '$.context.traits'
+        '@path': '$.traits'
       }
     }
   },

@@ -18,7 +18,7 @@ const action: ActionDefinition<Settings, Payload> = {
   description: 'Set the user ID for a particular device ID or update user properties.',
   defaultSubscription: 'type = "identify"',
   fields: {
-    identity: {
+    user_id: {
       label: 'Identity',
       type: 'string',
       allowNull: true,
