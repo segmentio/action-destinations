@@ -49,7 +49,7 @@ const action: ActionDefinition<Settings, Payload> = {
       type: 'string',
       required: false,
       description:
-        "The event's context kind. If not specified, the context kind will default to `user`. To learn more, read [Contexts and segments](https://docs.launchdarkly.com/home/contexts).",
+        "The event's context kind. If not specified, the context kind will default to `user`. To learn more about context kinds and where you can find a list of context kinds LaunchDarkly has observed, read [Context kinds](https://docs.launchdarkly.com/home/contexts/context-kinds).",
       default: 'user'
     },
     user_key: {
