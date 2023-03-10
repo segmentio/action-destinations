@@ -2,11 +2,11 @@
 
 export interface Payload {
   /**
-   * The event's context kind. To learn more, read [Contexts and segments](https://docs.launchdarkly.com/home/contexts).
+   * The event's context kind. If not specified, the context kind will default to `user`. To learn more, read [Contexts and segments](https://docs.launchdarkly.com/home/contexts).
    */
-  context_kind: string
+  context_kind?: string
   /**
-   * The unique LaunchDarkly context key.
+   * The unique LaunchDarkly context key. In most cases the Segment `userId` should be used.
    */
   user_key: string
   /**

@@ -47,16 +47,16 @@ const action: ActionDefinition<Settings, Payload> = {
     context_kind: {
       label: 'Context Kind',
       type: 'string',
-      required: true,
+      required: false,
       description:
-        "The event's context kind. To learn more, read [Contexts and segments](https://docs.launchdarkly.com/home/contexts).",
+        "The event's context kind. If not specified, the context kind will default to `user`. To learn more, read [Contexts and segments](https://docs.launchdarkly.com/home/contexts).",
       default: 'user'
     },
     user_key: {
       label: 'Context Key',
       type: 'string',
       required: true,
-      description: 'The unique LaunchDarkly context key.',
+      description: 'The unique LaunchDarkly context key. In most cases the Segment `userId` should be used.',
       default: {
         '@if': {
           exists: { '@path': '$.userId' },
@@ -68,6 +68,7 @@ const action: ActionDefinition<Settings, Payload> = {
     additional_context_keys: {
       label: 'Additional Context Keys',
       type: 'object',
+      required: false,
       description:
         'A mapping of additional context kinds to context keys. To learn more, read [Contexts and segments](https://docs.launchdarkly.com/home/contexts).',
       default: {

@@ -2,17 +2,17 @@
 
 export interface Payload {
   /**
-   * The LaunchDarkly context kind used for identified users. To learn more, read [Contexts and segments](https://docs.launchdarkly.com/home/contexts).
+   * The LaunchDarkly context kind used for identified users. If not specified, the context kind will default to `user`. To learn more about context kinds and where you can find a list of context kinds LaunchDarkly has observed, read [Context kinds](https://docs.launchdarkly.com/home/contexts/context-kinds).
    */
-  identified_context_kind: string
+  identified_context_kind?: string
   /**
    * The user's unique key.
    */
   user_key: string
   /**
-   * The LaunchDarkly context kind used for unauthenticated users. To learn more, read [Contexts and segments](https://docs.launchdarkly.com/home/contexts).
+   * The LaunchDarkly context kind used for unauthenticated users. If not specified, the context kind will default to `unauthenticatedUser`. To learn more about context kinds and where you can find a list of context kinds LaunchDarkly has observed, read [Context kinds](https://docs.launchdarkly.com/home/contexts/context-kinds).
    */
-  unauthenticated_context_kind: string
+  unauthenticated_context_kind?: string
   /**
    * The user's unauthenticated identifier.
    */
