@@ -105,7 +105,7 @@ const action: ActionDefinition<Settings, Payload> = {
       description:
         'An object with key-value properties you want associated with the user. Each property must either be a number or string with fewer than 1024 characters.',
       default: {
-        '@path': '$.traits'
+        '@path': '$.context.traits'
       }
     }
   },
