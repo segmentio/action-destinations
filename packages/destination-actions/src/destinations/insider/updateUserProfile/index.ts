@@ -5,9 +5,21 @@ import { userProfilePayload, API_BASE, UPSERT_ENDPOINT } from '../insider-helper
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Update User Profile',
-  description: '',
+  description: "Action used to update a User's attribute in Insider InOne.",
   defaultSubscription: 'type = "identify"',
   fields: {
+    email_as_identifier: {
+      label: 'Treat Email as Identifier',
+      type: 'boolean',
+      description: 'If true, Email will be treated as an identifier when sent to Insider. Defaults to true',
+      default: true
+    },
+    phone_number_as_identifier: {
+      label: 'Treat Phone Number as Identifier',
+      type: 'boolean',
+      description: 'If true, Phone Number will be treated as an identifier when sent to Insider. Defaults to true',
+      default: true
+    },
     age: {
       label: 'Age',
       type: 'number',
@@ -58,7 +70,7 @@ const action: ActionDefinition<Settings, Payload> = {
     },
     phone: {
       label: 'Phone Number',
-      description: 'Phone number of a user.',
+      description: "User's phone number in E.164 format (e.g. +6598765432), can be used as an identifier.",
       type: 'string',
       default: {
         '@path': '$.traits.phone'
@@ -67,7 +79,8 @@ const action: ActionDefinition<Settings, Payload> = {
     uuid: {
       label: 'UUID',
       type: 'string',
-      description: 'User unique id.',
+      description:
+        "User's unique user ID. UUID should be string and it is used as identifier when sending data to Insider. Either Anonymous ID or UUID is mandatory to send data.",
       default: {
         '@path': '$.userId'
       }
@@ -75,7 +88,8 @@ const action: ActionDefinition<Settings, Payload> = {
     segment_anonymous_id: {
       label: 'Anonymous Id',
       type: 'string',
-      description: 'Anonymous user id.',
+      description:
+        'Segment Anonymous ID. It is used as identifier when sending data to Insider. Either Anonymous ID or UUID is mandatory to send data.',
       default: {
         '@path': '$.anonymousId'
       }

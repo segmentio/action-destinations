@@ -2,6 +2,14 @@
 
 export interface Payload {
   /**
+   * If true, Email will be treated as an identifier when sent to Insider. Defaults to true
+   */
+  email_as_identifier?: boolean
+  /**
+   * If true, Phone Number will be treated as an identifier when sent to Insider. Defaults to true
+   */
+  phone_number_as_identifier?: boolean
+  /**
    * Age of a user.
    */
   age?: number
@@ -26,15 +34,15 @@ export interface Payload {
    */
   lastName?: string
   /**
-   * Phone number of a user.
+   * User's phone number in E.164 format (e.g. +6598765432), can be used as an identifier.
    */
   phone?: string
   /**
-   * User unique id.
+   * User's unique user ID. UUID should be string and it is used as identifier when sending data to Insider. Either Anonymous ID or UUID is mandatory to send data.
    */
   uuid?: string
   /**
-   * Anonymous user id.
+   * Segment Anonymous ID. It is used as identifier when sending data to Insider. Either Anonymous ID or UUID is mandatory to send data.
    */
   segment_anonymous_id?: string
   /**

@@ -1,9 +1,12 @@
 // Generated file. DO NOT MODIFY IT BY HAND.
 
 export interface Payload {
+  /**
+   * User's unique user ID. UserID should be string and it is used as identifier when sending data to Insider. Either Anonymous ID or UUID is mandatory to send data
+   */
   uuid?: string
   /**
-   * Anonymous user id.
+   * Segment Anonymous ID. It is used as identifier when sending data to Insider. Either Anonymous ID or UUID is mandatory to send data
    */
   segment_anonymous_id?: string
   /**
@@ -14,6 +17,9 @@ export interface Payload {
    * When the event occurred
    */
   timestamp: string | number
+  /**
+   * Event Parameters store the information about an Event.
+   */
   parameters?: {
     url?: string
     /**
@@ -54,7 +60,7 @@ export interface Payload {
     [k: string]: unknown
   }
   /**
-   * The list of products purchased.
+   * Product details for the given event.
    */
   products?: {
     /**
@@ -62,7 +68,7 @@ export interface Payload {
      */
     product_id?: string
     /**
-     * Taxonomy
+     * Category
      */
     taxonomy?: string
     /**
@@ -70,7 +76,7 @@ export interface Payload {
      */
     name?: string
     /**
-     * Price
+     * Unit sale price of the product.
      */
     unit_sales_price?: number
     /**
@@ -91,13 +97,16 @@ export interface Payload {
     product_image_url?: string
     [k: string]: unknown
   }[]
+  /**
+   * User Properties defines all the details about a user.
+   */
   attributes?: {
     /**
      * Email address of a user
      */
     email?: string
     /**
-     * Phone number of a user
+     * User's phone number in E.164 format (e.g. +6598765432), can be used as an identifier.
      */
     phone?: string
     /**

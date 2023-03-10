@@ -1,6 +1,5 @@
 import type { DestinationDefinition } from '@segment/actions-core'
 import type { Settings } from './generated-types'
-import { API_BASE, UPSERT_ENDPOINT } from './insider-helpers'
 
 import updateUserProfile from './updateUserProfile'
 import trackEvent from './trackEvent'
@@ -44,14 +43,6 @@ const destination: DestinationDefinition<Settings> = {
         type: 'password',
         required: true
       }
-    },
-    testAuthentication: async (request) => {
-      const data = await request(`${API_BASE}${UPSERT_ENDPOINT}`)
-      if (data.status === 200) {
-        return true
-      }
-
-      throw new Error('Authentication failed')
     }
   },
   extendRequest: ({ settings }) => {

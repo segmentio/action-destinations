@@ -6,7 +6,7 @@ export const UPSERT_ENDPOINT = 'user/v1/upsert'
 export interface insiderEvent {
   event_name: string
   timestamp: string
-  event_params: { [key: string]: any }
+  event_params: { [key: string]: string | number | boolean }
 }
 
 export interface upsertUserPayload {
@@ -14,22 +14,34 @@ export interface upsertUserPayload {
     uuid?: string | null | undefined
     custom?: object
   }
-  attributes: { [key: string]: any }
+  attributes: { [key: string]: never }
   events: insiderEvent[]
 }
 
 export function userProfilePayload(data: UserPayload) {
+  const identifiers = {
+    uuid: data.uuid,
+    custom: {
+      segment_anonymous_id: data.segment_anonymous_id
+    }
+  }
+
+  if (data.email_as_identifier) {
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore
+    identifiers['email'] = data.email
+  }
+
+  if (data.phone_number_as_identifier) {
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore
+    identifiers['phone_number'] = data.phone
+  }
+
   return {
     users: [
       {
-        identifiers: {
-          uuid: data.uuid,
-          email: data.email,
-          phone_number: data.phone,
-          custom: {
-            segment_anonymous_id: data.segment_anonymous_id
-          }
-        },
+        identifiers,
         attributes: {
           age: data.age,
           birthday: data.birthday,
@@ -59,6 +71,8 @@ export function sendTrackEvent(data: EventPayload) {
       }
     },
     attributes: {
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore
       custom: {}
     },
     events: []
@@ -121,12 +135,18 @@ export function sendTrackEvent(data: EventPayload) {
     const attributeName: string = key.toString().toLowerCase().trim().split(' ').join('_').toString()
 
     if (attributeName === 'locale' && data.attributes) {
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore
       payload.attributes[attributeName as keyof typeof payload.attributes] = data.attributes[attributeName]
         ?.split('-')
         .join('_')
     } else if (defaultAttributes.indexOf(attributeName) > -1 && data.attributes) {
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore
       payload.attributes[attributeName as keyof typeof payload.attributes] = data.attributes[attributeName]
     } else if (data.attributes) {
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore
       payload.attributes.custom[attributeName as keyof typeof payload.attributes.custom] =
         data.attributes[attributeName]
     }
@@ -140,6 +160,8 @@ export function sendTrackEvent(data: EventPayload) {
     event_name: name,
     timestamp: data.timestamp.toString(),
     event_params: {
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore
       custom: {}
     }
   }
@@ -148,10 +170,16 @@ export function sendTrackEvent(data: EventPayload) {
     const parameterName = key.toString().toLowerCase().trim().split(' ').join('_')
 
     if (parameterName === 'taxonomy' && data.parameters) {
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore
       event.event_params[parameterName] = [data.parameters[parameterName]]
     } else if (defaultEvents.indexOf(parameterName) > -1 && data.parameters) {
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore
       event.event_params[parameterName] = data.parameters[parameterName]
     } else if (data.parameters) {
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore
       event.event_params.custom[parameterName] = data.parameters[parameterName]
     }
   }

@@ -12,7 +12,8 @@ const action: ActionDefinition<Settings, Payload> = {
     uuid: {
       label: 'User ID',
       type: 'string',
-      description: '',
+      description:
+        "User's unique user ID. UserID should be string and it is used as identifier when sending data to Insider. Either Anonymous ID or UUID is mandatory to send data",
       default: {
         '@path': '$.userId'
       }
@@ -20,7 +21,8 @@ const action: ActionDefinition<Settings, Payload> = {
     segment_anonymous_id: {
       label: 'Anonymous Id',
       type: 'string',
-      description: 'Anonymous user id.',
+      description:
+        'Segment Anonymous ID. It is used as identifier when sending data to Insider. Either Anonymous ID or UUID is mandatory to send data',
       default: {
         '@path': '$.anonymousId'
       }
@@ -45,7 +47,7 @@ const action: ActionDefinition<Settings, Payload> = {
     },
     parameters: {
       label: 'Event Parameters',
-      description: '',
+      description: 'Event Parameters store the information about an Event.',
       type: 'object',
       additionalProperties: true,
       properties: {
@@ -135,7 +137,7 @@ const action: ActionDefinition<Settings, Payload> = {
     },
     products: {
       label: 'Products',
-      description: 'The list of products purchased.',
+      description: 'Product details for the given event.',
       type: 'object',
       multiple: true,
       additionalProperties: true,
@@ -148,7 +150,7 @@ const action: ActionDefinition<Settings, Payload> = {
         taxonomy: {
           label: 'Taxonomy',
           type: 'string',
-          description: 'Taxonomy'
+          description: 'Category'
         },
         name: {
           label: 'Name',
@@ -158,7 +160,7 @@ const action: ActionDefinition<Settings, Payload> = {
         unit_sales_price: {
           label: 'Unit Sale Price',
           type: 'number',
-          description: 'Price'
+          description: 'Unit sale price of the product.'
         },
         unit_price: {
           label: 'Unit Price',
@@ -200,7 +202,7 @@ const action: ActionDefinition<Settings, Payload> = {
     },
     attributes: {
       label: 'User Properties',
-      description: '',
+      description: 'User Properties defines all the details about a user.',
       type: 'object',
       additionalProperties: true,
       properties: {
@@ -212,7 +214,7 @@ const action: ActionDefinition<Settings, Payload> = {
         phone: {
           label: 'Phone Number',
           type: 'string',
-          description: 'Phone number of a user'
+          description: "User's phone number in E.164 format (e.g. +6598765432), can be used as an identifier."
         },
         age: {
           label: 'Age',
