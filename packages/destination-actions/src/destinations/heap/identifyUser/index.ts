@@ -52,7 +52,7 @@ const action: ActionDefinition<Settings, Payload> = {
       throw new IntegrationError('Missing Heap app ID.', 'Missing required field', 400)
     }
 
-    if (!payload.identity || !isDefined(payload.identity)) {
+    if (!payload.user_id || !isDefined(payload.user_id)) {
       throw new IntegrationError(
         'Missing identity, cannot add user properties without identity',
         'Missing required field',
@@ -61,7 +61,7 @@ const action: ActionDefinition<Settings, Payload> = {
     }
 
     const addUserPropertiesPayload: AddUserPropertiesPayload = {
-      identity: payload.identity,
+      identity: payload.user_id,
       app_id: settings.appId,
       properties: {
         ...(payload.anonymous_id && { anonymous_id: payload.anonymous_id })
