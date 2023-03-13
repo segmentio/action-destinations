@@ -2,11 +2,11 @@ import { DestinationDefinition } from '@segment/actions-core'
 import type { Settings } from './generated-types'
 import receiveEvents from './receiveEvents'
 
-interface RefreshTokenResponse {
+export interface refreshTokenResult {
   access_token: string
-  scope: string
-  expires_in: number
   token_type: string
+  refresh_token: string
+  expires_in: number
 }
 
 /** used in the quick setup dialog for Mapping */
@@ -44,7 +44,6 @@ const presets: DestinationDefinition['presets'] = [
     }
   }
 ]
-
 
 const destination: DestinationDefinition<Settings> = {
   name: 'Acoustic Campaign',
@@ -92,14 +91,14 @@ const destination: DestinationDefinition<Settings> = {
     refreshAccessToken: async (request, { settings, auth }) => {
       // Return a request that refreshes the access_token if the API supports it
 
-      const at = await request<RefreshTokenResponse>(
+      const at = await request<refreshTokenResult>(
         `https://api-campaign-${settings.a_region}-${settings.a_pod}.goacoustic.com/oauth/token`,
         {
           method: 'POST',
           body: new URLSearchParams({
+            refresh_token: auth.refreshToken,
             client_id: auth.clientId,
             client_secret: auth.clientSecret,
-            refresh_token: auth.refreshToken,
             grant_type: 'refresh_token'
           }),
           headers: {
@@ -110,10 +109,13 @@ const destination: DestinationDefinition<Settings> = {
       return { accessToken: at.data.access_token }
     }
   },
-  extendRequest({ settings }) {
+  extendRequest({ settings, auth }) {
     settings
     return {
       headers: {
+        Authorization: `Bearer ${auth?.accessToken}`,
+        'Content-Type': 'text/xml',
+        'user-agent': 'Segment (checkforRT)',
         Connection: 'keep-alive',
         'Accept-Encoding': 'gzip, deflate, br',
         Accept: '*/*'
