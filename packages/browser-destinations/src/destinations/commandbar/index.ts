@@ -58,6 +58,11 @@ export const destination: BrowserDestinationDefinition<Settings, CommandBarClien
 
     await deps.resolveWhen(() => Object.prototype.hasOwnProperty.call(window, 'CommandBar'), 100)
 
+    // Older CommandBar snippets initialize a proxy that traps all field access including `then`
+    // `then` is called implicitly on the return value of an async function on await
+    // So, we need to remove that behavior for the promise to resolve
+    Object.assign(window.CommandBar, { then: undefined })
+
     return window.CommandBar
   },
 

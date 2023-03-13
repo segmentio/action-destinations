@@ -1,0 +1,79 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Testing snapshot for toplyne destination: sendAccountProfiles action - all fields 1`] = `
+Object {
+  "accounts": Array [
+    Object {
+      "accountId": "7wblbEGA$r74g8(LKHUU",
+      "accountProperties": Object {
+        "testType": "7wblbEGA$r74g8(LKHUU",
+      },
+      "creationTime": 1612137600,
+    },
+  ],
+}
+`;
+
+exports[`Testing snapshot for toplyne destination: sendAccountProfiles action - required fields 1`] = `
+Object {
+  "accounts": Array [
+    Object {
+      "accountId": "7wblbEGA$r74g8(LKHUU",
+      "creationTime": 1612137600,
+    },
+  ],
+}
+`;
+
+exports[`Testing snapshot for toplyne destination: sendEvents action - all fields 1`] = `
+Object {
+  "events": Array [
+    Object {
+      "accountId": "(iRWTeAl",
+      "anonymousId": "(iRWTeAl",
+      "eventName": "(iRWTeAl",
+      "eventProperties": Object {
+        "testType": "(iRWTeAl",
+      },
+      "timestamp": 1612137600,
+      "userId": "(iRWTeAl",
+    },
+  ],
+}
+`;
+
+exports[`Testing snapshot for toplyne destination: sendEvents action - required fields 1`] = `
+Object {
+  "events": Array [
+    Object {
+      "eventName": "(iRWTeAl",
+      "timestamp": 1612137600,
+    },
+  ],
+}
+`;
+
+exports[`Testing snapshot for toplyne destination: sendUserProfiles action - all fields 1`] = `
+Object {
+  "profiles": Array [
+    Object {
+      "anonymousId": "UdCNQTigkp",
+      "creationTime": 1612137600,
+      "userId": "UdCNQTigkp",
+      "userProperties": Object {
+        "testType": "UdCNQTigkp",
+      },
+    },
+  ],
+}
+`;
+
+exports[`Testing snapshot for toplyne destination: sendUserProfiles action - required fields 1`] = `
+Object {
+  "profiles": Array [
+    Object {
+      "creationTime": 1612137600,
+    },
+  ],
+}
+`;

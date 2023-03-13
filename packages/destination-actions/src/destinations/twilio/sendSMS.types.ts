@@ -9,4 +9,8 @@ export interface Payload {
    * The message body
    */
   Body: string
+  /**
+   * The URL of the media to send with the message.
+   */
+  MediaUrl?: string
 }

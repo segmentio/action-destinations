@@ -179,6 +179,26 @@ describe.each(['stage', 'production'])('%s environment', (environment) => {
 
       expect(sendGridRequest.isDone()).toEqual(false)
     })
+    it('should throw error and not send email with no trait enrichment and no user id', async () => {
+      const mapping = getDefaultMapping({
+        userId: undefined,
+        traitEnrichment: false
+      })
+      await expect(
+        sendgrid.testAction('sendEmail', {
+          event: createMessagingTestEvent({
+            timestamp,
+            event: 'Audience Entered',
+            userId: undefined
+          }),
+          settings,
+          mapping
+        })
+      ).rejects.toThrow('Unable to process email, no userId provided and trait enrichment disabled')
+
+      const sendGridRequest = nock('https://api.sendgrid.com').post('/v3/mail/send', sendgridRequestBody).reply(200, {})
+      expect(sendGridRequest.isDone()).toEqual(false)
+    })
 
     it('should not send an email when send field not in payload', async () => {
       const responses = await sendgrid.testAction('sendEmail', {

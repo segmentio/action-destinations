@@ -90,7 +90,10 @@ describe('FacebookConversionsApi', () => {
         messageId: 'test',
         properties: {
           userId: 'testuser1234',
-          action_source: 'email'
+          action_source: 'email',
+          partner_name: 'liveramp',
+          partner_id: 'faf12efasdfasdf1edasdasdfadf=',
+          email: 'nicholas.aguilar@segment.com'
         }
       })
 
@@ -98,14 +101,27 @@ describe('FacebookConversionsApi', () => {
         event,
         settings,
         useDefaultMappings: true,
-        mapping: { action_source: { '@path': '$.properties.action_source' } }
+        mapping: {
+          action_source: { '@path': '$.properties.action_source' },
+          user_data: {
+            email: {
+              '@path': '$.properties.email'
+            },
+            partner_id: {
+              '@path': '$.properties.partner_id'
+            },
+            partner_name: {
+              '@path': '$.properties.partner_name'
+            }
+          }
+        }
       })
 
       expect(responses.length).toBe(1)
       expect(responses[0].status).toBe(201)
 
       expect(responses[0].options.body).toMatchInlineSnapshot(
-        `"{\\"data\\":[{\\"event_name\\":\\"PageView\\",\\"event_time\\":\\"1631210020\\",\\"action_source\\":\\"email\\",\\"event_source_url\\":\\"https://segment.com/academy/\\",\\"event_id\\":\\"test\\",\\"user_data\\":{\\"external_id\\":\\"831c237928e6212bedaa4451a514ace3174562f6761f6a157a2fe5082b36e2fb\\",\\"client_ip_address\\":\\"8.8.8.8\\",\\"client_user_agent\\":\\"Mozilla/5.0 (iPhone; CPU iPhone OS 9_1 like Mac OS X) AppleWebKit/601.1.46 (KHTML, like Gecko) Version/9.0 Mobile/13B143 Safari/601.1\\"}}]}"`
+        `"{\\"data\\":[{\\"event_name\\":\\"PageView\\",\\"event_time\\":\\"1631210020\\",\\"action_source\\":\\"email\\",\\"event_source_url\\":\\"https://segment.com/academy/\\",\\"event_id\\":\\"test\\",\\"user_data\\":{\\"em\\":\\"eeaf810ee0e3cef3307089f22c3804f54c79eed19ef29bf70df864b43862c380\\",\\"partner_id\\":\\"faf12efasdfasdf1edasdasdfadf=\\",\\"partner_name\\":\\"liveramp\\"}}]}"`
       )
     })
 

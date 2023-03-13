@@ -60,6 +60,23 @@ describe.each(['stage', 'production'])('%s environment', (environment) => {
 
       expect(responses.length).toEqual(0)
     })
+    it('should throw error with no userId and no trait enrichment', async () => {
+      const mapping = getDefaultMapping({
+        userId: undefined,
+        traitEnrichment: false
+      })
+      await expect(
+        twilio.testAction('sendSms', {
+          event: createMessagingTestEvent({
+            timestamp,
+            event: 'Audience Entered',
+            userId: 'jane'
+          }),
+          settings,
+          mapping
+        })
+      ).rejects.toThrowError('Unable to process sms, no userId provided and no traits provided')
+    })
 
     it('should send SMS', async () => {
       const expectedTwilioRequest = new URLSearchParams({

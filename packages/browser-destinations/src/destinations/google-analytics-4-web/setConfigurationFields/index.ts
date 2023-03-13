@@ -93,6 +93,7 @@ const action: BrowserActionDefinition<Settings, Function, Payload> = {
     }
   },
   perform: (gtag, { payload, settings }) => {
+    updateUser(payload.user_id, payload.user_properties, gtag)
     if (settings.enableConsentMode) {
       window.gtag('consent', 'update', {
         ad_storage: payload.ads_storage_consent_state,
@@ -135,7 +136,7 @@ const action: BrowserActionDefinition<Settings, Function, Payload> = {
     if (payload.campaign_content) {
       gtag('set', { campaign_content: payload.campaign_content })
     }
-    updateUser(payload.user_id, payload.user_properties, gtag)
+    gtag('event', 'page_view')
   }
 }
 
