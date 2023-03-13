@@ -1,5 +1,5 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
-
+//
 exports[`addUpdateEvents addUpdateEvents should return expected output 1`] = `
 "
      <ROW>
