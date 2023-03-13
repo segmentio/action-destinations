@@ -1,5 +1,5 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
-
+//
 exports[`Testing snapshot for actions-acoustic-campaign-cloud's receiveEvents destination action: all fields 1`] = `Promise {}`;
 
 exports[`Testing snapshot for actions-acoustic-campaign-cloud's receiveEvents destination action: required fields 1`] = `

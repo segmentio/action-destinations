@@ -3,7 +3,6 @@
 // import receiveEvents from '../receiveEvents'
 
 import { createTestIntegration } from '@segment/actions-core'
-// import acoustic from '../index'
 import { SegmentEvent } from '@segment/actions-core'
 
 jest.mock('@segment/actions-core')

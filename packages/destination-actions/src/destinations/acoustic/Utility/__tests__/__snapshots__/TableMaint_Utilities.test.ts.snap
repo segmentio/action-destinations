@@ -1,5 +1,5 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
-
+//
 exports[`checkRTExist checkRTExist should return expected output 1`] = `[Function]`;
 
 exports[`checkRTExist checkRTExist should return expected output 2`] = `[Function]`;
