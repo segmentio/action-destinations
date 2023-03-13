@@ -4,7 +4,7 @@ export interface Payload {
   /**
    * a string that uniquely identifies a user, such as an email, handle, or username. This means no two users in one environment may share the same identity. More on identify: https://developers.heap.io/docs/using-identify
    */
-  identity?: string | null
+  user_id?: string | null
   /**
    * The generated anonymous ID for the user.
    */
