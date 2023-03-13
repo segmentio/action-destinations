@@ -10,7 +10,7 @@ const testSettings: Settings = {
 }
 
 describe('LaunchDarkly.aliasUser', () => {
-  it('should send an identify event to LaunchDarkly for identify events with default mapping', async () => {
+  it('should send an alias event to LaunchDarkly for identify events with default mapping', async () => {
     nock('https://events.launchdarkly.com').post(`/events/bulk/${testSettings.client_id}`).reply(202)
 
     const event = createTestEvent({
@@ -29,16 +29,11 @@ describe('LaunchDarkly.aliasUser', () => {
     expect(responses[0].status).toBe(202)
     expect(responses[0].options.json).toMatchObject([
       {
-        kind: 'identify',
-        context: {
-          kind: 'multi',
-          user: {
-            key: 'user1234'
-          },
-          unauthenticatedUser: {
-            key: '701a9c00-aabe-4074-80b7-0fd6cab41c08'
-          }
-        },
+        kind: 'alias',
+        key: 'user1234',
+        previousKey: '701a9c00-aabe-4074-80b7-0fd6cab41c08',
+        contextKind: 'user',
+        previousContextKind: 'anonymousUser',
         creationDate: 1648661098000
       }
     ])
@@ -63,55 +58,11 @@ describe('LaunchDarkly.aliasUser', () => {
     expect(responses[0].status).toBe(202)
     expect(responses[0].options.json).toMatchObject([
       {
-        kind: 'identify',
-        context: {
-          kind: 'multi',
-          user: {
-            key: 'user1234'
-          },
-          unauthenticatedUser: {
-            key: '701a9c00-aabe-4074-80b7-0fd6cab41c08'
-          }
-        },
-        creationDate: 1648661098000
-      }
-    ])
-  })
-
-  it('should use user defined context kinds if provided', async () => {
-    nock('https://events.launchdarkly.com').post(`/events/bulk/${testSettings.client_id}`).reply(202)
-
-    const event = createTestEvent({
-      type: 'identify',
-      userId: 'user1234',
-      anonymousId: '701a9c00-aabe-4074-80b7-0fd6cab41c08',
-      timestamp: '2022-03-30T17:24:58Z'
-    })
-
-    const responses = await testDestination.testAction(actionSlug, {
-      event,
-      settings: testSettings,
-      mapping: {
-        identified_context_kind: 'identifiedUser',
-        unauthenticated_context_kind: 'anonymousId'
-      },
-      useDefaultMappings: true
-    })
-
-    expect(responses.length).toBe(1)
-    expect(responses[0].status).toBe(202)
-    expect(responses[0].options.json).toMatchObject([
-      {
-        kind: 'identify',
-        context: {
-          kind: 'multi',
-          identifiedUser: {
-            key: 'user1234'
-          },
-          anonymousId: {
-            key: '701a9c00-aabe-4074-80b7-0fd6cab41c08'
-          }
-        },
+        kind: 'alias',
+        key: 'user1234',
+        previousKey: '701a9c00-aabe-4074-80b7-0fd6cab41c08',
+        contextKind: 'user',
+        previousContextKind: 'anonymousUser',
         creationDate: 1648661098000
       }
     ])

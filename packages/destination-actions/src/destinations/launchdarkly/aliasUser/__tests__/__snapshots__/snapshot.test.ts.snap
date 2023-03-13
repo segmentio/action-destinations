@@ -3,14 +3,12 @@
 exports[`Testing snapshot for Launchdarkly's aliasUser destination action: all fields 1`] = `
 Array [
   Object {
-    "context": Object {
-      "kind": "multi",
-      "qkWpQ2NP*4": Object {
-        "key": "qkWpQ2NP*4",
-      },
-    },
+    "contextKind": "user",
     "creationDate": 1612137600000,
-    "kind": "identify",
+    "key": "qkWpQ2NP*4",
+    "kind": "alias",
+    "previousContextKind": "anonymousUser",
+    "previousKey": "qkWpQ2NP*4",
   },
 ]
 `;
@@ -18,14 +16,12 @@ Array [
 exports[`Testing snapshot for Launchdarkly's aliasUser destination action: required fields 1`] = `
 Array [
   Object {
-    "context": Object {
-      "kind": "multi",
-      "qkWpQ2NP*4": Object {
-        "key": "qkWpQ2NP*4",
-      },
-    },
+    "contextKind": "user",
     "creationDate": Any<Number>,
-    "kind": "identify",
+    "key": "qkWpQ2NP*4",
+    "kind": "alias",
+    "previousContextKind": "anonymousUser",
+    "previousKey": "qkWpQ2NP*4",
   },
 ]
 `;

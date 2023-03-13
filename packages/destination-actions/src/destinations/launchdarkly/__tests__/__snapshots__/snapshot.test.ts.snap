@@ -3,14 +3,12 @@
 exports[`Testing snapshot for actions-launchdarkly destination: aliasUser action - all fields 1`] = `
 Array [
   Object {
-    "context": Object {
-      "ejK#0yc)je6nnS#S": Object {
-        "key": "ejK#0yc)je6nnS#S",
-      },
-      "kind": "multi",
-    },
+    "contextKind": "user",
     "creationDate": 1612137600000,
-    "kind": "identify",
+    "key": "ejK#0yc)je6nnS#S",
+    "kind": "alias",
+    "previousContextKind": "anonymousUser",
+    "previousKey": "ejK#0yc)je6nnS#S",
   },
 ]
 `;
@@ -18,14 +16,12 @@ Array [
 exports[`Testing snapshot for actions-launchdarkly destination: aliasUser action - required fields 1`] = `
 Array [
   Object {
-    "context": Object {
-      "ejK#0yc)je6nnS#S": Object {
-        "key": "ejK#0yc)je6nnS#S",
-      },
-      "kind": "multi",
-    },
+    "contextKind": "user",
     "creationDate": Any<Number>,
-    "kind": "identify",
+    "key": "ejK#0yc)je6nnS#S",
+    "kind": "alias",
+    "previousContextKind": "anonymousUser",
+    "previousKey": "ejK#0yc)je6nnS#S",
   },
 ]
 `;
@@ -52,7 +48,7 @@ exports[`Testing snapshot for actions-launchdarkly destination: trackEvent actio
 Array [
   Object {
     "contextKeys": Object {
-      "8&tx*8iz0@V]qDguvfK": "8&tx*8iz0@V]qDguvfK",
+      "user": "8&tx*8iz0@V]qDguvfK",
     },
     "creationDate": Any<Number>,
     "data": Object {},

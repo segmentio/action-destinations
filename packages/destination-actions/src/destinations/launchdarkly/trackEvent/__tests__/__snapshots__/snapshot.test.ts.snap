@@ -22,7 +22,7 @@ exports[`Testing snapshot for Launchdarkly's trackEvent destination action: requ
 Array [
   Object {
     "contextKeys": Object {
-      "52YDr": "52YDr",
+      "user": "52YDr",
     },
     "creationDate": Any<Number>,
     "data": Object {},
