@@ -71,9 +71,11 @@ describe('Heap.trackEvent', () => {
       userId,
       messageId,
       anonymousId: anonId,
-      traits: {
-        name: 'Katherine Johnson',
-        email: 'kjohnson@example.com'
+      context: {
+        traits: {
+          name: 'Katherine Johnson',
+          email: 'kjohnson@example.com'
+        }
       }
     })
     body.events[0].user_identifier = {
