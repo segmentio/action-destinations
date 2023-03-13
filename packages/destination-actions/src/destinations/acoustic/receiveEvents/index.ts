@@ -64,11 +64,12 @@ const action: ActionDefinition<Settings, Payload> = {
   perform: async (request, { settings, payload }) => {
     const email = get(payload, 'email', 'Null')
 
-    await preChecksAndMaint(request, settings)
+    const at = await preChecksAndMaint(request, settings)
 
     //Ok, prechecks and Maint are all accomplished, let's see what needs to be processed,
     const rows = addUpdateEvents(payload, email)
-    return await postUpdates(request, settings, rows, 1)
+
+    return await postUpdates(request, settings, at, rows, 1)
   }
 }
 

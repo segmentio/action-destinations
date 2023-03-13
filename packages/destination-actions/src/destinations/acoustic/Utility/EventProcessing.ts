@@ -88,13 +88,19 @@ export function addUpdateEvents(payload: Payload, email: string) {
 export const postUpdates = async (
   request: RequestClient,
   settings: Settings,
+  accessToken: string,
   xmlRows: string,
   i: number
 ): Promise<Response> => {
   const pup = await request(`https://api-campaign-${settings.a_region}-${settings.a_pod}.goacoustic.com/XMLAPI`, {
     method: 'POST',
     headers: {
-      'user-agent': `Segment Event Table processing ${i}`
+      Authorization: `Bearer ${accessToken} `,
+      'User-Agent': `Acoustic Segment Events(${i}`,
+      'Content-Type': 'text/xml',
+      Connection: 'keep-alive',
+      'Accept-Encoding': 'gzip, deflate, br',
+      Accept: '*/*'
     },
     body: `<Envelope>
     <Body>
