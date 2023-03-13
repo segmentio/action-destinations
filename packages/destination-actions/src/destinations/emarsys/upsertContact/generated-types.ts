@@ -16,6 +16,5 @@ export interface Payload {
     '1'?: string
     '2'?: string
     '3'?: string
-    [k: string]: unknown
   }
 }
