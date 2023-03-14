@@ -1,9 +1,9 @@
 import type { Subscription } from '../../../../lib/browser-destinations'
 import { Analytics, Context } from '@segment/analytics-next'
 import RipeDestination, { destination } from '../../index'
-import { RipeSDK } from '../../types'
 
 import { loadScript } from '../../../../runtime/load-script'
+import { RipeSDK } from '../../types'
 
 jest.mock('../../../../runtime/load-script')
 beforeEach(async () => {
@@ -12,10 +12,10 @@ beforeEach(async () => {
 
 const subscriptions: Subscription[] = [
   {
-    partnerAction: 'identify',
-    name: 'Identify user',
+    partnerAction: 'group',
+    name: 'Group user',
     enabled: true,
-    subscribe: 'type = "identify"',
+    subscribe: 'type = "group"',
     mapping: {
       messageId: {
         '@path': '$.messageId'
@@ -36,11 +36,11 @@ const subscriptions: Subscription[] = [
   }
 ]
 
-describe('Ripe.identify', () => {
-  test('it maps userId and traits and passes them into RipeSDK.identify', async () => {
+describe('Ripe.group', () => {
+  test('it maps the event name and properties and passes them into RipeSDK.track', async () => {
     window.Ripe = {
       init: jest.fn().mockResolvedValueOnce('123'),
-      identify: jest.fn().mockResolvedValueOnce(undefined),
+      group: jest.fn().mockResolvedValueOnce(undefined),
       setIds: jest.fn().mockResolvedValueOnce(undefined)
     } as unknown as RipeSDK
 
@@ -51,41 +51,41 @@ describe('Ripe.identify', () => {
 
     const ajs = new Analytics({ writeKey: '123' })
     await event.load(Context.system(), ajs)
-    jest.spyOn(destination.actions.identify, 'perform')
+    jest.spyOn(destination.actions.group, 'perform')
 
-    await event.identify?.(
+    await event.group?.(
       new Context({
-        type: 'identify',
         messageId: 'ajs-71f386523ee5dfa90c7d0fda28b6b5c6',
-        anonymousId: 'anonymousId',
-        userId: 'userId',
+        anonymousId: 'anonId1',
+        type: 'group',
+        groupId: 'groupId1',
         traits: {
-          name: 'Simon'
+          is_new_group: true
         }
       })
     )
 
-    expect(destination.actions.identify.perform).toHaveBeenCalledWith(
+    expect(destination.actions.group.perform).toHaveBeenCalledWith(
       expect.anything(),
       expect.objectContaining({
         payload: {
           messageId: 'ajs-71f386523ee5dfa90c7d0fda28b6b5c6',
-          anonymousId: 'anonymousId',
-          userId: 'userId',
-          groupId: undefined,
+          anonymousId: 'anonId1',
+          userId: undefined,
+          groupId: 'groupId1',
           traits: {
-            name: 'Simon'
+            is_new_group: true
           }
         }
       })
     )
 
-    expect(window.Ripe.identify).toHaveBeenCalledWith({
+    expect(window.Ripe.group).toHaveBeenCalledWith({
       messageId: 'ajs-71f386523ee5dfa90c7d0fda28b6b5c6',
-      userId: expect.stringMatching('userId'),
-      anonymousId: 'anonymousId',
-      groupId: undefined,
-      traits: expect.objectContaining({ name: 'Simon' })
+      anonymousId: 'anonId1',
+      userId: undefined,
+      groupId: 'groupId1',
+      traits: expect.objectContaining({ is_new_group: true })
     })
   })
 })

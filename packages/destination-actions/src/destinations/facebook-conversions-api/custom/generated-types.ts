@@ -89,6 +89,14 @@ export interface Payload {
      * The ID issued by Facebook when a person first logs into an instance of an app.
      */
     fbLoginID?: number
+    /**
+     * The ID issued by Facebook identity partner.
+     */
+    partner_id?: string
+    /**
+     * The name of the Facebook identity partner.
+     */
+    partner_name?: string
   }
   /**
    * The custom data object can be used to pass custom properties. See [Facebook documentation](https://developers.facebook.com/docs/marketing-api/conversions-api/parameters/custom-data#custom-properties) for more information.

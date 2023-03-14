@@ -12,10 +12,10 @@ beforeEach(async () => {
 
 const subscriptions: Subscription[] = [
   {
-    partnerAction: 'identify',
-    name: 'Identify user',
+    partnerAction: 'page',
+    name: 'Page view',
     enabled: true,
-    subscribe: 'type = "identify"',
+    subscribe: 'type = "page"',
     mapping: {
       messageId: {
         '@path': '$.messageId'
@@ -29,18 +29,24 @@ const subscriptions: Subscription[] = [
       groupId: {
         '@path': '$.groupId'
       },
-      traits: {
-        '@path': '$.traits'
+      category: {
+        '@path': '$.category'
+      },
+      name: {
+        '@path': '$.name'
+      },
+      properties: {
+        '@path': '$.properties'
       }
     }
   }
 ]
 
-describe('Ripe.identify', () => {
-  test('it maps userId and traits and passes them into RipeSDK.identify', async () => {
+describe('Ripe.page', () => {
+  test('it maps pageview properties and passes them into RipeSDK.page', async () => {
     window.Ripe = {
       init: jest.fn().mockResolvedValueOnce('123'),
-      identify: jest.fn().mockResolvedValueOnce(undefined),
+      page: jest.fn().mockResolvedValueOnce(undefined),
       setIds: jest.fn().mockResolvedValueOnce(undefined)
     } as unknown as RipeSDK
 
@@ -51,41 +57,46 @@ describe('Ripe.identify', () => {
 
     const ajs = new Analytics({ writeKey: '123' })
     await event.load(Context.system(), ajs)
-    jest.spyOn(destination.actions.identify, 'perform')
+    jest.spyOn(destination.actions.page, 'perform')
 
-    await event.identify?.(
+    await event.page?.(
       new Context({
-        type: 'identify',
         messageId: 'ajs-71f386523ee5dfa90c7d0fda28b6b5c6',
         anonymousId: 'anonymousId',
-        userId: 'userId',
-        traits: {
-          name: 'Simon'
+        type: 'page',
+        category: 'main',
+        name: 'page2',
+        properties: {
+          previous: 'page1'
         }
       })
     )
 
-    expect(destination.actions.identify.perform).toHaveBeenCalledWith(
+    expect(destination.actions.page.perform).toHaveBeenCalledWith(
       expect.anything(),
       expect.objectContaining({
         payload: {
           messageId: 'ajs-71f386523ee5dfa90c7d0fda28b6b5c6',
           anonymousId: 'anonymousId',
-          userId: 'userId',
+          userId: undefined,
           groupId: undefined,
-          traits: {
-            name: 'Simon'
+          category: 'main',
+          name: 'page2',
+          properties: {
+            previous: 'page1'
           }
         }
       })
     )
 
-    expect(window.Ripe.identify).toHaveBeenCalledWith({
+    expect(window.Ripe.page).toHaveBeenCalledWith({
       messageId: 'ajs-71f386523ee5dfa90c7d0fda28b6b5c6',
-      userId: expect.stringMatching('userId'),
-      anonymousId: 'anonymousId',
+      userId: undefined,
       groupId: undefined,
-      traits: expect.objectContaining({ name: 'Simon' })
+      anonymousId: 'anonymousId',
+      category: 'main',
+      name: 'page2',
+      properties: expect.objectContaining({ previous: 'page1' })
     })
   })
 })

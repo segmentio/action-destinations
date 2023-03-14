@@ -12,10 +12,10 @@ beforeEach(async () => {
 
 const subscriptions: Subscription[] = [
   {
-    partnerAction: 'identify',
-    name: 'Identify user',
+    partnerAction: 'track',
+    name: 'Track user',
     enabled: true,
-    subscribe: 'type = "identify"',
+    subscribe: 'type = "track"',
     mapping: {
       messageId: {
         '@path': '$.messageId'
@@ -29,19 +29,22 @@ const subscriptions: Subscription[] = [
       groupId: {
         '@path': '$.groupId'
       },
-      traits: {
-        '@path': '$.traits'
+      event: {
+        '@path': '$.event'
+      },
+      properties: {
+        '@path': '$.properties'
       }
     }
   }
 ]
 
-describe('Ripe.identify', () => {
-  test('it maps userId and traits and passes them into RipeSDK.identify', async () => {
+describe('Ripe.track', () => {
+  test('it maps the event name and properties and passes them into RipeSDK.track', async () => {
     window.Ripe = {
       init: jest.fn().mockResolvedValueOnce('123'),
-      identify: jest.fn().mockResolvedValueOnce(undefined),
-      setIds: jest.fn().mockResolvedValueOnce(undefined)
+      setIds: jest.fn().mockResolvedValueOnce(undefined),
+      track: jest.fn().mockResolvedValueOnce(undefined)
     } as unknown as RipeSDK
 
     const [event] = await RipeDestination({
@@ -51,41 +54,43 @@ describe('Ripe.identify', () => {
 
     const ajs = new Analytics({ writeKey: '123' })
     await event.load(Context.system(), ajs)
-    jest.spyOn(destination.actions.identify, 'perform')
+    jest.spyOn(destination.actions.track, 'perform')
 
-    await event.identify?.(
+    await event.track?.(
       new Context({
-        type: 'identify',
         messageId: 'ajs-71f386523ee5dfa90c7d0fda28b6b5c6',
+        type: 'track',
         anonymousId: 'anonymousId',
-        userId: 'userId',
-        traits: {
-          name: 'Simon'
+        event: 'Form Submitted',
+        properties: {
+          is_new_lead: true
         }
       })
     )
 
-    expect(destination.actions.identify.perform).toHaveBeenCalledWith(
+    expect(destination.actions.track.perform).toHaveBeenCalledWith(
       expect.anything(),
       expect.objectContaining({
         payload: {
           messageId: 'ajs-71f386523ee5dfa90c7d0fda28b6b5c6',
           anonymousId: 'anonymousId',
-          userId: 'userId',
+          userId: undefined,
           groupId: undefined,
-          traits: {
-            name: 'Simon'
+          event: 'Form Submitted',
+          properties: {
+            is_new_lead: true
           }
         }
       })
     )
 
-    expect(window.Ripe.identify).toHaveBeenCalledWith({
+    expect(window.Ripe.track).toHaveBeenCalledWith({
       messageId: 'ajs-71f386523ee5dfa90c7d0fda28b6b5c6',
-      userId: expect.stringMatching('userId'),
       anonymousId: 'anonymousId',
+      userId: undefined,
       groupId: undefined,
-      traits: expect.objectContaining({ name: 'Simon' })
+      event: 'Form Submitted',
+      properties: expect.objectContaining({ is_new_lead: true })
     })
   })
 })
