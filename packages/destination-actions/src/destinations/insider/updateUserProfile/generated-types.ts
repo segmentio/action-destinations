@@ -38,11 +38,11 @@ export interface Payload {
    */
   phone?: string
   /**
-   * User's unique user ID. UUID should be string and it is used as identifier when sending data to Insider. Either Anonymous ID or UUID is mandatory to send data.
+   * User's unique identifier. The UUID string is used as identifier when sending data to Insider. UUID is required if the Anonymous Id field is empty.
    */
   uuid?: string
   /**
-   * Segment Anonymous ID. It is used as identifier when sending data to Insider. Either Anonymous ID or UUID is mandatory to send data.
+   * An Anonymous Identifier. The Anonymous Id string is used as identifier when sending data to Insider. Anonymous Id is required if the UUID field is empty.
    */
   segment_anonymous_id?: string
   /**
@@ -56,15 +56,15 @@ export interface Payload {
   /**
    * Email optin.
    */
-  emailOptin?: string
+  emailOptin?: boolean
   /**
    * SMS optin.
    */
-  smsOptin?: string
+  smsOptin?: boolean
   /**
    * Whatsapp optin.
    */
-  whatsappOptin?: string
+  whatsappOptin?: boolean
   /**
    * The user's preferred language.
    */

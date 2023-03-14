@@ -4,7 +4,7 @@ import type { Payload } from './generated-types'
 import { userProfilePayload, API_BASE, UPSERT_ENDPOINT } from '../insider-helpers'
 
 const action: ActionDefinition<Settings, Payload> = {
-  title: 'Update User Profile',
+  title: 'Create or Update a User Profile',
   description: "Action used to update a User's attribute in Insider InOne.",
   defaultSubscription: 'type = "identify"',
   fields: {
@@ -80,7 +80,7 @@ const action: ActionDefinition<Settings, Payload> = {
       label: 'UUID',
       type: 'string',
       description:
-        "User's unique user ID. UUID should be string and it is used as identifier when sending data to Insider. Either Anonymous ID or UUID is mandatory to send data.",
+        "User's unique identifier. The UUID string is used as identifier when sending data to Insider. UUID is required if the Anonymous Id field is empty.",
       default: {
         '@path': '$.userId'
       }
@@ -89,7 +89,7 @@ const action: ActionDefinition<Settings, Payload> = {
       label: 'Anonymous Id',
       type: 'string',
       description:
-        'Segment Anonymous ID. It is used as identifier when sending data to Insider. Either Anonymous ID or UUID is mandatory to send data.',
+        'An Anonymous Identifier. The Anonymous Id string is used as identifier when sending data to Insider. Anonymous Id is required if the UUID field is empty.',
       default: {
         '@path': '$.anonymousId'
       }
@@ -112,17 +112,17 @@ const action: ActionDefinition<Settings, Payload> = {
     },
     emailOptin: {
       label: 'Email Optin',
-      type: 'string',
+      type: 'boolean',
       description: 'Email optin.'
     },
     smsOptin: {
       label: 'SMS Optin',
-      type: 'string',
+      type: 'boolean',
       description: 'SMS optin.'
     },
     whatsappOptin: {
       label: 'Whatsapp Optin',
-      type: 'string',
+      type: 'boolean',
       description: 'Whatsapp optin.'
     },
     language: {

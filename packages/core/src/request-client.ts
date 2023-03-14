@@ -105,7 +105,7 @@ function mergeHeaders(source1: RequestInit['headers'], source2: RequestInit['hea
   const result = new Headers(source1 || {})
   const source = new Headers(source2 || {})
 
-  source.forEach((value: never, key: never) => {
+  source.forEach((value, key) => {
     // `value` may be the string `undefined` when the source is a Headers object
     if (value === 'undefined') {
       result.delete(key)

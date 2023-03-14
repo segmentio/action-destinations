@@ -2,11 +2,11 @@
 
 export interface Payload {
   /**
-   * User's unique user ID. UserID should be string and it is used as identifier when sending data to Insider. Either Anonymous ID or UUID is mandatory to send data
+   * User's unique identifier. The UUID string is used as identifier when sending data to Insider. UUID is required if the Anonymous Id field is empty.
    */
   uuid?: string
   /**
-   * Segment Anonymous ID. It is used as identifier when sending data to Insider. Either Anonymous ID or UUID is mandatory to send data
+   * An Anonymous Identifier. The Anonymous Id string is used as identifier when sending data to Insider. Anonymous Id is required if the UUID field is empty.
    */
   segment_anonymous_id?: string
   /**
@@ -18,12 +18,12 @@ export interface Payload {
    */
   timestamp: string | number
   /**
-   * Event Parameters store the information about an Event.
+   * Event Parameters store information about an event.
    */
   parameters?: {
     url?: string
     /**
-     * Product id displayed on the list
+     * The product id associated with the product.
      */
     product_id?: string
     /**
@@ -39,11 +39,11 @@ export interface Payload {
      */
     variant_id?: number
     /**
-     * Sale Price ($) of the product being viewed
+     * Sale Price ($) of the product being viewed. This is a numeric field. e.g. 9.90 for $9.90c.
      */
     unit_sale_price?: number
     /**
-     * Price ($) of the product being viewed
+     * Price ($) of the product being viewed. This is a numeric field. e.g. 9.90 for $9.90c.
      */
     unit_price?: number
     /**
