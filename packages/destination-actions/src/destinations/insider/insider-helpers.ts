@@ -72,7 +72,7 @@ export function sendTrackEvent(data: EventPayload) {
           taxonomy?: string
           name?: string
           variant_id?: number
-          unit_sales_price?: number
+          unit_sale_price?: number
           unit_price?: number
           quantity?: number
           product_image_url?: string

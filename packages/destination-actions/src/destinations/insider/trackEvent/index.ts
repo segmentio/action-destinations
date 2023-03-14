@@ -120,7 +120,7 @@ const action: ActionDefinition<Settings, Payload> = {
         taxonomy: { '@path': '$.properties.category' },
         name: { '@path': '$.properties.name' },
         variant_id: { '@path': '$.properties.variant' },
-        unit_sales_price: { '@path': '$.properties.price' },
+        unit_sale_price: { '@path': '$.properties.price' },
         unit_price: { '@path': '$.properties.price' },
         quantity: { '@path': '$.properties.quantity' },
         product_image_url: { '@path': '$.properties.image_url' },
@@ -163,7 +163,7 @@ const action: ActionDefinition<Settings, Payload> = {
           type: 'string',
           description: 'Name'
         },
-        unit_sales_price: {
+        unit_sale_price: {
           label: 'Unit Sale Price',
           type: 'number',
           description: 'Unit sale price of the product.'
@@ -197,7 +197,7 @@ const action: ActionDefinition<Settings, Payload> = {
             taxonomy: { '@path': 'category' },
             name: { '@path': 'name' },
             variant_id: { '@path': 'variant' },
-            unit_sales_price: { '@path': 'price' },
+            unit_sale_price: { '@path': 'price' },
             unit_price: { '@path': 'price' },
             quantity: { '@path': 'quantity' },
             url: { '@path': 'url' },
