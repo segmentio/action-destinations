@@ -1,8 +1,9 @@
 import { InputField } from '@segment/actions-core/src/destination-kit/types'
 import { createHash } from 'crypto'
-import { US_STATE_CODES, COUNTRY_CODES } from '../facebook-conversions-api/constants'
+// import { US_STATE_CODES, COUNTRY_CODES } from '../facebook-conversions-api/constants'
 import { Payload } from './reportConversionEvent/generated-types'
 // import { InputField } from "@segment/actions-core";
+import isEmpty from 'lodash/isEmpty'
 
 // Implementation of Pinterest user data object
 // https://developers.facebook.com/docs/marketing-api/conversions-api/parameters/customer-information-parameters
@@ -117,25 +118,33 @@ const hash = (value: string | undefined): string | undefined => {
   return hash.digest('hex')
 }
 
+// export const normalisedAndHashed_1 = (data: string[] | undefined) => {
+
+//   return data?.map((el: string) =>
+//     hash(el.replace(/\s/g, '').toLowerCase())
+//   ) as string[]
+
+// }
+
 // Normalization of user data properties according to Pinterest conversion event
 // https://developers.pinterest.com/docs/conversions/conversion-management/#Authenticating%20for%20the%20Conversion%20Tracking%20endpoint%23Authenticating%20for%20the%20send%20conversion%20events%20endpoint#The%20%2Cuser_data%2C%20and%20%2Ccustom_data%2C%20objects
 
 export const normalisedAndHashed = (payload: UserData) => {
-  if (payload.user_data.email?.length) {
+  if (!isEmpty(payload.user_data?.email)) {
     // Regex removes all whitespace in the string.
     payload.user_data.email = payload.user_data?.email?.map((el: string) =>
       hash(el.replace(/\s/g, '').toLowerCase())
     ) as string[]
   }
 
-  if (payload.user_data.phone?.length) {
+  if (!isEmpty(payload.user_data?.phone)) {
     // Regex removes all non-numeric characters from the string.
     payload.user_data.phone = payload.user_data.phone?.map((el: string) =>
       hash(el.replace(/\D/g, '').toLowerCase())
     ) as string[]
   }
 
-  if (payload.user_data.gender?.length) {
+  if (!isEmpty(payload.user_data?.gender)) {
     payload.user_data.gender = payload.user_data.gender?.map((el: string) => {
       el = el.replace(/\s/g, '').toLowerCase()
       switch (el) {
@@ -145,61 +154,64 @@ export const normalisedAndHashed = (payload: UserData) => {
         case 'female':
           el = 'f'
           break
+        case 'non-binary':
+          el = 'n'
+          break
       }
       return hash(el)
     }) as string[]
   }
 
-  if (payload.user_data.last_name?.length) {
+  if (!isEmpty(payload.user_data?.last_name)) {
     payload.user_data.last_name = payload.user_data.last_name?.map((el: string) =>
       hash(el.replace(/\s/g, '').toLowerCase())
     ) as string[]
   }
 
-  if (payload.user_data.first_name?.length) {
+  if (!isEmpty(payload.user_data?.first_name)) {
     payload.user_data.first_name = payload.user_data.first_name?.map((el: string) =>
       hash(el.replace(/\s/g, '').toLowerCase())
     ) as string[]
   }
 
-  if (payload.user_data.city?.length) {
+  if (!isEmpty(payload.user_data?.city)) {
     payload.user_data.city = payload.user_data.city?.map((el: string) =>
       hash(el.replace(/\s/g, '').toLowerCase())
     ) as string[]
   }
 
-  if (payload.user_data.state?.length) {
+  if (!isEmpty(payload.user_data?.state)) {
     payload.user_data.state = payload.user_data.state?.map((el: string) => {
       el = el.replace(/\s/g, '').toLowerCase()
-      if (US_STATE_CODES.has(el)) {
-        el = US_STATE_CODES.get(el) as string
-      }
+      // if (US_STATE_CODES.has(el)) {
+      //   el = US_STATE_CODES.get(el) as string
+      // }
       return hash(el)
     }) as string[]
   }
 
-  if (payload.user_data.zip?.length) {
+  if (!isEmpty(payload.user_data?.zip)) {
     payload.user_data.zip = payload.user_data.zip?.map((el: string) =>
       hash(el.replace(/\s/g, '').toLowerCase())
     ) as string[]
   }
 
-  if (payload.user_data.country?.length) {
+  if (!isEmpty(payload.user_data?.country)) {
     payload.user_data.country = payload.user_data.country?.map((el: string) => {
       el = el.replace(/\s/g, '').toLowerCase()
-      if (COUNTRY_CODES.has(el)) {
-        el = COUNTRY_CODES.get(el) as string
-      }
+      // if (COUNTRY_CODES.has(el)) {
+      //   el = COUNTRY_CODES.get(el) as string
+      // }
       return hash(el)
     }) as string[]
   }
 
-  if (payload.user_data?.external_id?.length) {
+  if (!isEmpty(payload.user_data?.external_id)) {
     payload.user_data.external_id = payload.user_data.external_id?.map((el: string) =>
       hash(el.replace(/\s/g, '').toLowerCase())
     ) as string[]
   }
-  if (payload.user_data?.hashed_maids?.length) {
+  if (!isEmpty(payload.user_data?.hashed_maids)) {
     payload.user_data.hashed_maids = payload.user_data.hashed_maids?.map((el: string) =>
       hash(el.replace(/\s/g, '').toLowerCase())
     ) as string[]
@@ -208,7 +220,6 @@ export const normalisedAndHashed = (payload: UserData) => {
 
 export const hash_user_data = (payload: UserData): Object => {
   normalisedAndHashed(payload)
-
   return {
     em: payload.user_data?.email,
     ph: payload.user_data?.phone,

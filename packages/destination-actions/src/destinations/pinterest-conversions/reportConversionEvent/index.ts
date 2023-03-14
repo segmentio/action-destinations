@@ -1,6 +1,6 @@
 import type { ActionDefinition, RequestClient } from '@segment/actions-core'
-import { IntegrationError } from '@segment/actions-core'
-import { ACTION_SOURCE, API_VERSION, EVENT_NAME } from '../constants'
+// import { IntegrationError } from '@segment/actions-core'
+import { API_VERSION } from '../constants'
 import type { Settings } from '../generated-types'
 import { custom_data_field } from '../pinterest-capi-custom-data'
 import { user_data_field, hash_user_data } from '../pinterset-capi-user-data'
@@ -15,14 +15,30 @@ const action: ActionDefinition<Settings, Payload> = {
       description:
         'The conversion event type. For custom events, you must use one of the predefined event name (custom). Please refer to the possible event types in [Pinterest API docs](https://developers.pinterest.com/docs/api/v5/#operation/events/create).',
       type: 'string',
-      required: true
+      required: true,
+      choices: [
+        { label: 'Add to Cart', value: 'add_to_cart' },
+        { label: 'Checkout', value: 'checkout' },
+        { label: 'Lead', value: 'lead' },
+        { label: 'Page Visit', value: 'page_visit' },
+        { label: 'Search', value: 'search' },
+        { label: 'Sign Up', value: 'sign_up' },
+        { label: 'View Category', value: 'view_category' },
+        { label: 'Watch Video', value: 'watch_video' }
+      ]
     },
     action_source: {
       label: 'Action Source',
       description:
         'The source indicating where the conversion event occurred. This must be app_android, app_ios , web or offline.',
       type: 'string',
-      required: true
+      required: true,
+      choices: [
+        { label: 'App Android', value: 'app_android' },
+        { label: 'App IOS', value: 'app_ios' },
+        { label: 'Web', value: 'web' },
+        { label: 'Offline', value: 'offline' }
+      ]
     },
     event_time: {
       label: 'Event Timestamp',
@@ -149,13 +165,15 @@ const action: ActionDefinition<Settings, Payload> = {
 }
 async function processPayload(request: RequestClient, settings: Settings, payloads: Payload[]) {
   try {
-    console.log('>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>', request, '<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<')
-    payloads = validateUserData(payloads)
-    validateEventNameAndSource(payloads)
+    payloads = validateUserData(payloads) // need to discuss about
+    // validateEventNameAndSource(payloads)
     const data = createPinterestPayload(payloads)
-    return request(`https://api.pinterest.com/${API_VERSION}/${settings.ad_account_id}/events`, {
+
+    if (!data.length) return
+
+    // console.log('value of data is ', data);
+    return request(`https://api.pinterest.com/${API_VERSION}/ad_accounts/${settings.ad_account_id}/events`, {
       method: 'POST',
-      headers: { access_token: settings.conversion_token },
       json: {
         data: data
       }
@@ -176,23 +194,26 @@ function validateUserData(payloads: Payload[]) {
   })
 }
 
-function validateEventNameAndSource(payloads: Payload[]) {
-  for (const payload of payloads) {
-    // Need to ask whether we should throw error or skip that payload if it doesn't satisfy the condition
-    if (!Object.prototype.hasOwnProperty.call(EVENT_NAME, `${payload.event_name?.toUpperCase()}`)) {
-      throw new IntegrationError(`${payload.event_name} is not a valid event name.`, 'Incorrect Event Name', 400)
-    }
+// function validateEventNameAndSource(payloads: Payload[]) {
 
-    if (!ACTION_SOURCE.includes(`${payload.action_source}`)) {
-      throw new IntegrationError(
-        `${payload.action_source} is not a valid source of event.`,
-        'Invalid Event Source',
-        400
-      )
-    }
-  }
-}
+//   // choices or dropdown
+//   for (const payload of payloads) {
+//     // Need to ask whether we should throw error or skip that payload if it doesn't satisfy the condition
+//     if (!Object.prototype.hasOwnProperty.call(EVENT_NAME, `${payload.event_name?.toUpperCase()}`)) {
+//       throw new IntegrationError(`${payload.event_name} is not a valid event name.`, 'Incorrect Event Name', 400)
+//     }
 
+//     if (!ACTION_SOURCE.includes(`${payload.action_source}`)) {
+//       throw new IntegrationError(
+//         `${payload.action_source} is not a valid source of event.`,
+//         'Invalid Event Source',
+//         400
+//       )
+//     }
+//   }
+// }
+
+//action-tester array
 function createPinterestPayload(payloads: Payload[]) {
   return payloads.map((payload) => {
     return {
@@ -204,7 +225,14 @@ function createPinterestPayload(payloads: Payload[]) {
       opt_out: payload.opt_out,
       user_data: hash_user_data({ user_data: payload.user_data }),
       custom_data: {
-        ...payload.custom_data
+        currency: payload?.custom_data?.currency,
+        value: payload?.custom_data?.value,
+        content_ids: payload.custom_data?.content_ids,
+        contents: payload.custom_data?.contents,
+        num_items: payload.custom_data?.num_items,
+        order_id: payload.custom_data?.order_id,
+        search_string: payload.custom_data?.search_string,
+        opt_out_type: payload.custom_data?.opt_out_type
       },
       app_id: payload.app_id,
       app_name: payload.app_name,
