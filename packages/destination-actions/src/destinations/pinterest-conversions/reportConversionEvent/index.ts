@@ -185,7 +185,6 @@ async function processPayload(request: RequestClient, settings: Settings, payloa
 
 function validateUserData(payloads: Payload[]) {
   return payloads.filter((payload: Payload) => {
-    console.log(payload.user_data)
     return (
       payload.user_data?.email?.length ||
       payload.user_data?.hashed_maids?.length ||
