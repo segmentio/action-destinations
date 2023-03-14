@@ -133,7 +133,9 @@ export function sendTrackEvent(data: EventPayload) {
     'Push Notification Tapped': 'push_session',
     'User Registered': 'sign_up_confirmation',
     'Order Completed': 'purchase',
-    'Cart Viewed': 'cart_page_view'
+    'Cart Viewed': 'cart_page_view',
+    'Checkout Started': 'checkout_page_view',
+    'Checkout Viewed': 'checkout_page_view'
   }
   const defaultAttributes = [
     'email',
@@ -211,7 +213,7 @@ export function sendTrackEvent(data: EventPayload) {
     event = addEventParameters(event, data.parameters, key)
   }
 
-  if (data.products && ['cart_page_view', 'purchase'].indexOf(name) > -1) {
+  if (data.products && ['cart_page_view', 'checkout_page_view', 'purchase'].indexOf(name) > -1) {
     for (const product of data.products) {
       let productEvent = event
 
