@@ -1,4 +1,4 @@
-import { ActionDefinition, IntegrationError } from '@segment/actions-core'
+import { ActionDefinition, ErrorCodes, IntegrationError, PayloadValidationError } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 import { CURRENCY_ISO_CODES } from '../constants'
@@ -73,21 +73,17 @@ const action: ActionDefinition<Settings, Payload> = {
     if (!CURRENCY_ISO_CODES.has(payload.currency)) {
       throw new IntegrationError(
         `${payload.currency} is not a valid currency code.`,
-        'Misconfigured required field',
+        ErrorCodes.INVALID_CURRENCY_CODE,
         400
       )
     }
 
     if (!payload.user_data) {
-      throw new IntegrationError('Must include at least one user data property', 'Misconfigured required field', 400)
+      throw new PayloadValidationError('Must include at least one user data property')
     }
 
     if (payload.action_source === 'website' && payload.user_data.client_user_agent === undefined) {
-      throw new IntegrationError(
-        'If action source is "Website" then client_user_agent must be defined',
-        'Misconfigured required field',
-        400
-      )
+      throw new PayloadValidationError('If action source is "Website" then client_user_agent must be defined')
     }
 
     if (payload.contents) {

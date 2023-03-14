@@ -4,7 +4,7 @@ import type { Payload } from './generated-types'
 import dayjs from '../../../lib/dayjs'
 import { HEAP_SEGMENT_CLOUD_LIBRARY_NAME } from '../constants'
 import { flat } from '../flat'
-import { getUserIdentifier, getEventName } from '../heapUtils'
+import { getUserIdentifier, getEventName, isDefined } from '../heapUtils'
 import { IntegrationError } from '@segment/actions-core'
 
 type HeapEvent = {
@@ -47,7 +47,7 @@ const action: ActionDefinition<Settings, Payload> = {
       type: 'string',
       allowNull: true,
       description:
-        'A unique identity and maintain user histories across sessions and devices under a single profile. If no identity is provided we will add the anonymous_id to the event. More on identify: https://developers.heap.io/docs/using-identify'
+        'a string that uniquely identifies a user, such as an email, handle, or username. This means no two users in one environment may share the same identity. More on identify: https://developers.heap.io/docs/using-identify'
     },
     anonymous_id: {
       label: 'Anonymous ID',
@@ -98,9 +98,19 @@ const action: ActionDefinition<Settings, Payload> = {
       default: {
         '@path': '$.name'
       }
+    },
+    traits: {
+      label: 'User Properties',
+      type: 'object',
+      description:
+        'An object with key-value properties you want associated with the user. Each property must either be a number or string with fewer than 1024 characters.',
+      default: {
+        '@path': '$.context.traits'
+      }
     }
   },
   perform: (request, { payload, settings }) => {
+    const requests = []
     if (!settings.appId) {
       throw new IntegrationError('Missing app ID')
     }
@@ -109,13 +119,15 @@ const action: ActionDefinition<Settings, Payload> = {
       throw new IntegrationError('Either Anonymous id or Identity should be specified.')
     }
 
-    const standardProperties = { segment_library: HEAP_SEGMENT_CLOUD_LIBRARY_NAME }
     const flattenedProperties = flat(payload.properties || {})
 
     const event: HeapEvent = {
       event: getEventName(payload),
-      custom_properties: flattenedProperties,
-      properties: standardProperties,
+      properties: {
+        segment_library: HEAP_SEGMENT_CLOUD_LIBRARY_NAME,
+        ...flattenedProperties,
+        ...(isDefined(payload.name) && { name: payload.name })
+      },
       idempotency_key: payload.message_id
     }
 
@@ -125,16 +137,37 @@ const action: ActionDefinition<Settings, Payload> = {
       event.timestamp = dayjs.utc(payload.timestamp).toISOString()
     }
 
-    const payLoad: IntegrationsTrackPayload = {
+    const trackPayload: IntegrationsTrackPayload = {
       app_id: settings.appId,
       events: [event],
       library: 'Segment'
     }
 
-    return request('https://heapanalytics.com/api/integrations/track', {
-      method: 'post',
-      json: payLoad
-    })
+    if (isDefined(payload.identity) && (isDefined(payload.anonymous_id) || isDefined(payload.traits))) {
+      const userPropertiesPayload = {
+        app_id: settings.appId,
+        identity: payload.identity,
+        properties: {
+          ...(isDefined(payload.anonymous_id) && { anonymous_id: payload.anonymous_id }),
+          ...(payload.traits && Object.keys(payload.traits).length !== 0 && flat(payload.traits))
+        }
+      }
+      const addUserPropertiesRequest = request('https://heapanalytics.com/api/add_user_properties', {
+        method: 'post',
+        json: userPropertiesPayload
+      })
+
+      requests.push(addUserPropertiesRequest)
+    }
+
+    requests.push(
+      request('https://heapanalytics.com/api/integrations/track', {
+        method: 'post',
+        json: trackPayload
+      })
+    )
+
+    return Promise.all(requests)
   }
 }
 

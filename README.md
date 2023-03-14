@@ -19,6 +19,7 @@ For more detailed instruction, see the following READMEs:
 - [Authentication](./docs/authentication.md)
 - [Mapping Kit](./packages/core/src/mapping-kit/README.md)
 - [Destination Kit](./packages/core/src/destination-kit/README.md)
+- [Error Handling](./docs/error-handling.md)
 
 ## Table of Contents:
 

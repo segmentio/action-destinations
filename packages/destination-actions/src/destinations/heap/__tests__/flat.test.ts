@@ -27,7 +27,7 @@ export const embededObject = () => ({
   ]
 })
 
-export const flattenObject = () => ({
+export const getFlatObject = () => ({
   firstName: 'John',
   middleName: '',
   lastName: 'Green',
@@ -117,7 +117,7 @@ describe('flattenObj for ', () => {
   it('Embedded object', () => {
     const props = embededObject()
     delete props.car.year
-    expect(flat(props)).toEqual(flattenObject())
+    expect(flat(props)).toEqual(getFlatObject())
   })
 
   it('primitive', () => {

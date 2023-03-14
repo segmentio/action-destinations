@@ -1,4 +1,4 @@
-import { ActionDefinition, IntegrationError } from '@segment/actions-core'
+import { ActionDefinition, ErrorCodes, IntegrationError } from '@segment/actions-core'
 import {
   verifyCurrency,
   verifyParams,
@@ -54,7 +54,7 @@ const action: ActionDefinition<Settings, Payload> = {
 
     // Google requires that currency be included at the event level if value is included.
     if (payload.value && payload.currency === undefined) {
-      throw new IntegrationError('Currency is required if value is set.', 'Misconfigured required field', 400)
+      throw new IntegrationError('Currency is required if value is set.', ErrorCodes.INVALID_CURRENCY_CODE, 400)
     }
 
     if (features && features['actions-google-analytics-4-verify-params-feature']) {

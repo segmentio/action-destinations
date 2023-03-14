@@ -50,7 +50,6 @@ const action: ActionDefinition<Settings, Payload> = {
     },
     email: {
       type: 'string',
-      required: true,
       description: 'Email address of the user who performed the event',
       label: 'Email Address',
       default: {
