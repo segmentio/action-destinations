@@ -1,6 +1,8 @@
+import { InputField } from '@segment/actions-core'
 import {
   Address,
   Constituent,
+  ConstituentAction,
   Email,
   Gift,
   GiftAcknowledgement,
@@ -9,8 +11,10 @@ import {
   Phone,
   StringIndexedObject
 } from '../types'
-import { Payload as CreateOrUpdateIndividualConstituentPayload } from '../createOrUpdateIndividualConstituent/generated-types'
+import { Payload as CreateConstituentAction } from '../createConstituentAction/generated-types'
 import { Payload as CreateGiftPayload } from '../createGift/generated-types'
+import { Payload as CreateOrUpdateIndividualConstituentPayload } from '../createOrUpdateIndividualConstituent/generated-types'
+import { fields as createOrUpdateIndividualConstituentFields } from '../createOrUpdateIndividualConstituent'
 
 export const dateStringToFuzzyDate = (dateString: string | number) => {
   // Ignore timezone
@@ -28,6 +32,22 @@ export const dateStringToFuzzyDate = (dateString: string | number) => {
       y: date.getUTCFullYear().toString()
     }
   }
+}
+
+export const augmentFieldsWithConstituentFields = (fields: Record<string, InputField>) => {
+  Object.keys(createOrUpdateIndividualConstituentFields).forEach((key: string) => {
+    let fieldKey = 'constituent_' + key
+    let fieldLabel = 'Constituent ' + createOrUpdateIndividualConstituentFields[key].label
+    if (key === 'constituent_id') {
+      fieldKey = key
+      fieldLabel = createOrUpdateIndividualConstituentFields[key].label
+    }
+    fields[fieldKey] = {
+      ...createOrUpdateIndividualConstituentFields[key],
+      label: fieldLabel
+    }
+  })
+  return fields
 }
 
 export const splitConstituentPayload = (payload: CreateOrUpdateIndividualConstituentPayload) => {
@@ -204,6 +224,37 @@ export const buildGiftDataFromPayload = (constituentId: string, payload: CreateG
   }
 
   return giftData
+}
+
+export const buildConstituentActionDataFromPayload = (constituentId: string, payload: CreateConstituentAction) => {
+  // data for constituent action call
+  const constituentActionData: Partial<ConstituentAction> = {
+    constituent_id: constituentId,
+    date: payload.date,
+    category: payload.category,
+    completed: payload.completed,
+    completed_date: payload.completed_date,
+    description: payload.description,
+    direction: payload.direction,
+    end_time: payload.end_time,
+    fundraisers: payload.fundraisers,
+    location: payload.location,
+    opportunity_id: payload.opportunity_id,
+    outcome: payload.outcome,
+    priority: payload.priority,
+    start_time: payload.start_time,
+    status: payload.status,
+    summary: payload.summary,
+    type: payload.type,
+    author: payload.author
+  }
+  Object.keys(constituentActionData).forEach((key) => {
+    if (!constituentActionData[key as keyof ConstituentAction]) {
+      delete constituentActionData[key as keyof ConstituentAction]
+    }
+  })
+
+  return constituentActionData
 }
 
 export const filterObjectListByMatchFields = (
