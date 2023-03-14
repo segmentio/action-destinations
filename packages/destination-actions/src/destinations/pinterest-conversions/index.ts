@@ -1,6 +1,6 @@
-import type { DestinationDefinition } from '@segment/actions-core'
+import { defaultValues, DestinationDefinition } from '@segment/actions-core'
+import { API_VERSION } from './constants'
 import type { Settings } from './generated-types'
-
 import reportConversionEvent from './reportConversionEvent'
 
 const destination: DestinationDefinition<Settings> = {
@@ -25,18 +25,85 @@ const destination: DestinationDefinition<Settings> = {
         type: 'password',
         required: true
       }
+    },
+    testAuthentication: (request, { settings }) => {
+      // Return a request that tests/validates the user's credentials.
+      return request(
+        `https://api.pinterest.com/${API_VERSION}/ad_accounts/${settings.ad_account_id}/events?test=true`,
+        {
+          method: 'POST',
+          json: {
+            data: [
+              {
+                event_name: 'checkout',
+                action_source: 'app_ios',
+                event_time: 1678203524,
+                event_id: 'test_eventId',
+                user_data: {
+                  em: ['411e44ce1261728ffd2c0686e44e3fffe413c0e2c5adc498bc7da883d476b9c8']
+                }
+              }
+            ]
+          }
+        }
+      )
     }
-    // testAuthentication: (_request) => {
-    //   // Return a request that tests/validates the user's credentials.
-    //   // If you do not have a way to validate the authentication fields safely,
-    //   // you can remove the `testAuthentication` function, though discouraged.
-    // }
   },
   extendRequest({ settings }) {
     return {
-      headers: { access_token: settings.conversion_token }
+      headers: { Authorization: `Bearer ${settings.conversion_token}` }
     }
   },
+  presets: [
+    {
+      name: 'Add to Cart',
+      subscribe: 'type = "track" AND name = "Product Added"',
+      partnerAction: 'reportConversionEvent',
+      mapping: { ...defaultValues(reportConversionEvent.fields), event_name: 'add_to_cart' }
+    },
+    {
+      name: 'Checkout',
+      subscribe: 'type = "track" AND name = "Checkout"',
+      partnerAction: 'reportConversionEvent',
+      mapping: { ...defaultValues(reportConversionEvent.fields), event_name: 'checkout' }
+    },
+    {
+      name: 'Lead',
+      subscribe: 'type = "track" AND name = "Generate Lead"',
+      partnerAction: 'reportConversionEvent',
+      mapping: { ...defaultValues(reportConversionEvent.fields), event_name: 'lead' }
+    },
+    {
+      name: 'Page Visit',
+      subscribe: 'type = "page"',
+      partnerAction: 'reportConversionEvent',
+      mapping: { ...defaultValues(reportConversionEvent.fields), event_name: 'page_visit' }
+    },
+    {
+      name: 'Search',
+      subscribe: 'type = "track" AND name = "Products Searched"',
+      partnerAction: 'reportConversionEvent',
+      mapping: { ...defaultValues(reportConversionEvent.fields), event_name: 'search' }
+    },
+    {
+      name: 'Sign Up',
+      subscribe: 'type = "track" AND name = "Signed Up',
+      partnerAction: 'reportConversionEvent',
+      mapping: { ...defaultValues(reportConversionEvent.fields), event_name: 'sign_up' }
+    },
+    {
+      name: 'View Category',
+      subscribe: 'type = "page" AND name = "Product Category Viewed"',
+      partnerAction: 'reportConversionEvent',
+      mapping: { ...defaultValues(reportConversionEvent.fields), event_name: 'view_category' }
+    },
+    {
+      name: 'Watch Video',
+      subscribe: 'type = "track" AND name = "Product Video Watched"',
+      partnerAction: 'reportConversionEvent',
+      mapping: { ...defaultValues(reportConversionEvent.fields), event_name: 'watch_video' }
+    }
+  ],
   actions: {
     reportConversionEvent
   }
