@@ -19,6 +19,18 @@ const presets: DestinationDefinition['presets'] = [
       'type = "track" and event != "Order Completed" and event != "Cart Viewed" and event != "Checkout Viewed"',
     partnerAction: 'trackEvent',
     mapping: defaultValues(trackEvent.fields)
+  },
+  {
+    name: 'Track Purchase',
+    subscribe: 'type = "track" and event = "Order Completed"',
+    partnerAction: 'trackEvent',
+    mapping: defaultValues(trackEvent.fields)
+  },
+  {
+    name: 'Track Cart Events',
+    subscribe: 'type = "track" and event = "Cart Viewed"',
+    partnerAction: 'trackEvent',
+    mapping: defaultValues(trackEvent.fields)
   }
 ]
 

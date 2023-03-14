@@ -75,7 +75,7 @@ const action: ActionDefinition<Settings, Payload> = {
           type: 'number',
           description: 'Variant of the product'
         },
-        unit_sales_price: {
+        unit_sale_price: {
           label: 'Unit Sale Price',
           type: 'number',
           description: 'Sale Price ($) of the product being viewed'
@@ -124,7 +124,13 @@ const action: ActionDefinition<Settings, Payload> = {
         unit_price: { '@path': '$.properties.price' },
         quantity: { '@path': '$.properties.quantity' },
         product_image_url: { '@path': '$.properties.image_url' },
-        event_group_id: { '@path': '$.properties.cart_id' },
+        event_group_id: {
+          '@if': {
+            exists: { '@path': '$.properties.order_id' },
+            then: { '@path': '$.properties.order_id' },
+            else: { '@path': '$.properties.cart_id' }
+          }
+        },
         referrer: {
           '@if': {
             exists: { '@path': '$.properties.referrer' },

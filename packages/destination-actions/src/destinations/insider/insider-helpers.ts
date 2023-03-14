@@ -63,6 +63,46 @@ export function userProfilePayload(data: UserPayload) {
 }
 
 export function sendTrackEvent(data: EventPayload) {
+  const addEventParameters = function (
+    event: insiderEvent,
+    data:
+      | {
+          url?: string
+          product_id?: string
+          taxonomy?: string
+          name?: string
+          variant_id?: number
+          unit_sales_price?: number
+          unit_price?: number
+          quantity?: number
+          product_image_url?: string
+          event_group_id?: string
+          referrer?: string
+          user_agent?: string
+          [p: string]: unknown
+        }
+      | undefined,
+    parameter: string
+  ) {
+    parameter = parameter.toString().toLowerCase().trim().split(' ').join('_')
+
+    if (parameter === 'taxonomy') {
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore
+      event.event_params[parameter] = [data[parameter]]
+    } else if (defaultEvents.indexOf(parameter) > -1) {
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore
+      event.event_params[parameter] = data[parameter]
+    } else if (data) {
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore
+      event.event_params.custom[parameter] = data[parameter]
+    }
+    console.log(event)
+    return event
+  }
+
   const payload: upsertUserPayload = {
     identifiers: {
       uuid: data.uuid,
@@ -77,7 +117,6 @@ export function sendTrackEvent(data: EventPayload) {
     },
     events: []
   }
-
   const events: Object = {
     Unsubscribed: 'email_unsubscribe',
     'Product List Viewed': 'listing_page_view',
@@ -92,7 +131,10 @@ export function sendTrackEvent(data: EventPayload) {
     'Application Opened': 'session_start',
     'Push Notification Received': 'push_delivered',
     'Push Notification Tapped': 'push_session',
-    'User Registered': 'sign_up_confirmation'
+    'User Registered': 'sign_up_confirmation',
+    'Order Completed': 'purchase',
+    'Cart Viewed': 'cart_page_view',
+    'Checkout Viewed': 'checkout_page_view'
   }
   const defaultAttributes = [
     'email',
@@ -123,7 +165,7 @@ export function sendTrackEvent(data: EventPayload) {
     'taxonomy',
     'name',
     'variant_id',
-    'unit_sales_price',
+    'unit_sale_price',
     'unit_price',
     'quantity',
     'product_image_url',
@@ -156,7 +198,7 @@ export function sendTrackEvent(data: EventPayload) {
     ? events[data.name as keyof Object].toString()
     : data.name.toString().toLowerCase().trim().split(' ').join('_')
 
-  const event: insiderEvent = {
+  let event: insiderEvent = {
     event_name: name,
     timestamp: data.timestamp.toString(),
     event_params: {
@@ -167,24 +209,22 @@ export function sendTrackEvent(data: EventPayload) {
   }
 
   for (const key of Object.keys(data.parameters || {})) {
-    const parameterName = key.toString().toLowerCase().trim().split(' ').join('_')
-
-    if (parameterName === 'taxonomy' && data.parameters) {
-      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-      // @ts-ignore
-      event.event_params[parameterName] = [data.parameters[parameterName]]
-    } else if (defaultEvents.indexOf(parameterName) > -1 && data.parameters) {
-      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-      // @ts-ignore
-      event.event_params[parameterName] = data.parameters[parameterName]
-    } else if (data.parameters) {
-      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-      // @ts-ignore
-      event.event_params.custom[parameterName] = data.parameters[parameterName]
-    }
+    event = addEventParameters(event, data.parameters, key)
   }
 
-  payload.events.push(event)
+  if (data.products && ['cart_page_view', 'checkout_page_view', 'purchase'].indexOf(name) > -1) {
+    for (const product of data.products) {
+      let productEvent = event
+
+      for (const key of Object.keys(product || {})) {
+        productEvent = addEventParameters(productEvent, product, key)
+      }
+
+      payload.events.push(productEvent)
+    }
+  } else {
+    payload.events.push(event)
+  }
 
   return { users: [payload] }
 }
