@@ -9,6 +9,18 @@ const action: ActionDefinition<Settings, Payload> = {
   defaultSubscription:
     'type = "track" and event != "Order Completed" and event != "Cart Viewed" and event != "Checkout Viewed"',
   fields: {
+    email_as_identifier: {
+      label: 'Treat Email as Identifier',
+      type: 'boolean',
+      description: 'If true, Email will be treated as an identifier when sent to Insider. Defaults to true',
+      default: true
+    },
+    phone_number_as_identifier: {
+      label: 'Treat Phone Number as Identifier',
+      type: 'boolean',
+      description: 'If true, Phone Number will be treated as an identifier when sent to Insider. Defaults to true',
+      default: true
+    },
     uuid: {
       label: 'UUID',
       type: 'string',

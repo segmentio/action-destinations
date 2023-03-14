@@ -103,13 +103,27 @@ export function sendTrackEvent(data: EventPayload) {
     return event
   }
 
+  const identifiers = {
+    uuid: data.uuid,
+    custom: {
+      segment_anonymous_id: data.segment_anonymous_id
+    }
+  }
+
+  if (data.email_as_identifier) {
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore
+    identifiers['email'] = data.attributes.email
+  }
+
+  if (data.phone_number_as_identifier) {
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore
+    identifiers['phone_number'] = data.attributes.phone
+  }
+
   const payload: upsertUserPayload = {
-    identifiers: {
-      uuid: data.uuid,
-      custom: {
-        segment_anonymous_id: data.segment_anonymous_id
-      }
-    },
+    identifiers,
     attributes: {
       // eslint-disable-next-line @typescript-eslint/ban-ts-comment
       // @ts-ignore
@@ -117,6 +131,8 @@ export function sendTrackEvent(data: EventPayload) {
     },
     events: []
   }
+
+  console.log(identifiers)
   const events: Object = {
     Unsubscribed: 'email_unsubscribe',
     'Product List Viewed': 'listing_page_view',
