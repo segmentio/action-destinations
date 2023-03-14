@@ -9,7 +9,7 @@ describe('June.track', () => {
     nock('https://api.june.so/api').post('/track').reply(200, {})
 
     const responses = await testDestination.testAction('track', {
-      mapping: { anonymousId: 'my-id', event: 'event-name' },
+      mapping: { anonymousId: 'my-id', event: 'event-name', userId: 'abcdef-ghilf' },
       settings: { apiKey: 'api-key' }
     })
 
@@ -18,5 +18,6 @@ describe('June.track', () => {
     expect(responses[0].data).toMatchObject({})
     expect(responses[0].options.body).toContain('my-id')
     expect(responses[0].options.body).toContain('event-name')
+    expect(responses[0].options.body).toContain('abcdef-ghilf')
   })
 })

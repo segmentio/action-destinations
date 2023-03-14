@@ -29,6 +29,13 @@ const action: ActionDefinition<Settings, Payload> = {
       label: 'Timestamp',
       default: { '@path': '$.timestamp' }
     },
+    anonymousId: {
+      type: 'string',
+      required: false,
+      description: 'The anonymous ID associated with the user',
+      label: 'Anonymous ID',
+      default: { '@path': '$.anonymousId' }
+    },
     userId: {
       type: 'string',
       required: false,
@@ -59,6 +66,7 @@ const action: ActionDefinition<Settings, Payload> = {
         properties: payload.properties,
         timestamp: payload.timestamp,
         userId: payload.userId,
+        anonymousId: payload.anonymousId,
         context: payload.context,
         messageId: payload.messageId
       }
