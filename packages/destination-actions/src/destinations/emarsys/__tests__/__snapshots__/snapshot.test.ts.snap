@@ -1,0 +1,82 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Testing snapshot for actions-emarsys destination: addToContactList action - all fields 1`] = `
+Object {
+  "external_ids": Array [
+    "zyGH7gfpUUt]",
+  ],
+  "key_id": "zyGH7gfpUUt]",
+}
+`;
+
+exports[`Testing snapshot for actions-emarsys destination: addToContactList action - required fields 1`] = `
+Object {
+  "external_ids": Array [
+    "zyGH7gfpUUt]",
+  ],
+  "key_id": "zyGH7gfpUUt]",
+}
+`;
+
+exports[`Testing snapshot for actions-emarsys destination: removeFromContactList action - all fields 1`] = `
+Object {
+  "contactlistid": 3610279552221184,
+  "external_ids": Array [
+    "U9Unco8X2",
+  ],
+  "key_id": "U9Unco8X2",
+}
+`;
+
+exports[`Testing snapshot for actions-emarsys destination: removeFromContactList action - required fields 1`] = `
+Object {
+  "contactlistid": 3610279552221184,
+  "external_ids": Array [
+    "U9Unco8X2",
+  ],
+  "key_id": "U9Unco8X2",
+}
+`;
+
+exports[`Testing snapshot for actions-emarsys destination: triggerEvent action - all fields 1`] = `
+Object {
+  "data": Object {
+    "testType": "#aJ$iIS6R7kOcAtf3F([",
+  },
+  "external_id": "#aJ$iIS6R7kOcAtf3F([",
+  "key_id": "#aJ$iIS6R7kOcAtf3F([",
+}
+`;
+
+exports[`Testing snapshot for actions-emarsys destination: triggerEvent action - required fields 1`] = `
+Object {
+  "data": null,
+  "external_id": "#aJ$iIS6R7kOcAtf3F([",
+  "key_id": "#aJ$iIS6R7kOcAtf3F([",
+}
+`;
+
+exports[`Testing snapshot for actions-emarsys destination: upsertContact action - all fields 1`] = `
+Object {
+  "contacts": Array [
+    Object {
+      "1": "ADOas@%XS83LqVu9",
+      "2": "ADOas@%XS83LqVu9",
+      "3": "ADOas@%XS83LqVu9",
+      "ADOas@%XS83LqVu9": "ADOas@%XS83LqVu9",
+    },
+  ],
+  "key_id": "ADOas@%XS83LqVu9",
+}
+`;
+
+exports[`Testing snapshot for actions-emarsys destination: upsertContact action - required fields 1`] = `
+Object {
+  "contacts": Array [
+    Object {
+      "ADOas@%XS83LqVu9": "ADOas@%XS83LqVu9",
+    },
+  ],
+  "key_id": "ADOas@%XS83LqVu9",
+}
+`;

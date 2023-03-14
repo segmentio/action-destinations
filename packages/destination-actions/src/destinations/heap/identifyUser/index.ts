@@ -2,8 +2,16 @@ import type { ActionDefinition } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 import { IntegrationError } from '@segment/actions-core'
-import { getHeapUserId } from '../userIdHash'
 import { flat } from '../flat'
+import { isDefined } from '../heapUtils'
+
+type AddUserPropertiesPayload = {
+  app_id: string
+  identity: string
+  properties: {
+    [k: string]: string
+  }
+}
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Identify User',
@@ -11,11 +19,11 @@ const action: ActionDefinition<Settings, Payload> = {
   defaultSubscription: 'type = "identify"',
   fields: {
     user_id: {
-      label: 'User ID',
+      label: 'Identity',
       type: 'string',
       allowNull: true,
       description:
-        'An identity, typically corresponding to an existing user. If no such identity exists, then a new user will be created with that identity. Case-sensitive string, limited to 255 characters.',
+        'REQUIRED: A string that uniquely identifies a user, such as an email, handle, or username. This means no two users in one environment may share the same identity. More on identify: https://developers.heap.io/docs/using-identify',
       default: {
         '@path': '$.userId'
       }
@@ -44,35 +52,34 @@ const action: ActionDefinition<Settings, Payload> = {
       throw new IntegrationError('Missing Heap app ID.', 'Missing required field', 400)
     }
 
-    const responses = []
-
-    if (payload.anonymous_id) {
-      const data = {
-        app_id: settings.appId,
-        identity: payload.user_id,
-        user_id: getHeapUserId(payload.anonymous_id)
-      }
-      const identifyResponse = await request('https://heapanalytics.com/api/v1/identify', {
-        method: 'post',
-        json: data
-      })
-      responses.push(identifyResponse)
+    if (!payload.user_id || !isDefined(payload.user_id)) {
+      throw new IntegrationError(
+        'Missing identity, cannot add user properties without identity',
+        'Missing required field',
+        400
+      )
     }
+
+    const addUserPropertiesPayload: AddUserPropertiesPayload = {
+      identity: payload.user_id,
+      app_id: settings.appId,
+      properties: {
+        ...(payload.anonymous_id && { anonymous_id: payload.anonymous_id })
+      }
+    }
+
     if (payload.traits && Object.keys(payload.traits).length > 0) {
       const flatten = flat(payload.traits)
-      const data = {
-        app_id: settings.appId,
-        identity: payload.user_id,
-        properties: flatten
+      addUserPropertiesPayload.properties = {
+        ...addUserPropertiesPayload.properties,
+        ...flatten
       }
-
-      const addUserPropertiesEndpoint = request('https://heapanalytics.com/api/add_user_properties', {
-        method: 'post',
-        json: data
-      })
-      responses.push(addUserPropertiesEndpoint)
     }
-    return Promise.all(responses)
+
+    return request('https://heapanalytics.com/api/add_user_properties', {
+      method: 'post',
+      json: addUserPropertiesPayload
+    })
   }
 }
 

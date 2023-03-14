@@ -10,7 +10,7 @@ import { validateSchema } from '../schema-validation'
 import type { ModifiedResponse } from '../types'
 import type { GlobalSetting, RequestExtension, ExecuteInput, Result, Deletion, DeletionPayload } from './types'
 import type { AllRequestOptions } from '../request-client'
-import { IntegrationError, InvalidAuthenticationError } from '../errors'
+import { ErrorCodes, IntegrationError, InvalidAuthenticationError } from '../errors'
 import { AuthTokens, getAuthData, getOAuth2Data, updateOAuthSettings } from './parse-settings'
 import { InputData, Features } from '../mapping-kit'
 import { retry } from '../retry'
@@ -581,7 +581,7 @@ export class Destination<Settings = JSONObject> {
       const oauthSettings = getOAuth2Data(settings)
       const newTokens = await this.refreshAccessToken(destinationSettings, oauthSettings)
       if (!newTokens) {
-        throw new InvalidAuthenticationError('Failed to refresh access token')
+        throw new InvalidAuthenticationError('Failed to refresh access token', ErrorCodes.OAUTH_REFRESH_FAILED)
       }
 
       // Update `settings` with new tokens
@@ -629,7 +629,7 @@ export class Destination<Settings = JSONObject> {
       const oauthSettings = getOAuth2Data(settings)
       const newTokens = await this.refreshAccessToken(destinationSettings, oauthSettings)
       if (!newTokens) {
-        throw new InvalidAuthenticationError('Failed to refresh access token')
+        throw new InvalidAuthenticationError('Failed to refresh access token', ErrorCodes.OAUTH_REFRESH_FAILED)
       }
 
       // Update `settings` with new tokens
