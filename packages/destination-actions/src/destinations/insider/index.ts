@@ -8,13 +8,13 @@ import { defaultValues } from '@segment/actions-core'
 /** used in the quick setup */
 const presets: DestinationDefinition['presets'] = [
   {
-    name: 'Identify Calls',
+    name: 'Create or Update a User Profile',
     subscribe: 'type = "identify"',
     partnerAction: 'updateUserProfile',
     mapping: defaultValues(updateUserProfile.fields)
   },
   {
-    name: 'Track Calls',
+    name: 'Record User Event to Insider',
     subscribe:
       'type = "track" and event != "Order Completed" and event != "Cart Viewed" and event != "Checkout Viewed"',
     partnerAction: 'trackEvent',

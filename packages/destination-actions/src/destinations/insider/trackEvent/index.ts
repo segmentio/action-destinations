@@ -5,15 +5,15 @@ import { API_BASE, UPSERT_ENDPOINT, sendTrackEvent } from '../insider-helpers'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Track Event',
-  description: 'Records events in Insider',
+  description: 'Record user event to Insider',
   defaultSubscription:
     'type = "track" and event != "Order Completed" and event != "Cart Viewed" and event != "Checkout Viewed"',
   fields: {
     uuid: {
-      label: 'User ID',
+      label: 'UUID',
       type: 'string',
       description:
-        "User's unique user ID. UserID should be string and it is used as identifier when sending data to Insider. Either Anonymous ID or UUID is mandatory to send data",
+        "User's unique identifier. The UUID string is used as identifier when sending data to Insider. UUID is required if the Anonymous Id field is empty.",
       default: {
         '@path': '$.userId'
       }
@@ -22,7 +22,7 @@ const action: ActionDefinition<Settings, Payload> = {
       label: 'Anonymous Id',
       type: 'string',
       description:
-        'Segment Anonymous ID. It is used as identifier when sending data to Insider. Either Anonymous ID or UUID is mandatory to send data',
+        'An Anonymous Identifier. The Anonymous Id string is used as identifier when sending data to Insider. Anonymous Id is required if the UUID field is empty.',
       default: {
         '@path': '$.anonymousId'
       }
@@ -47,7 +47,7 @@ const action: ActionDefinition<Settings, Payload> = {
     },
     parameters: {
       label: 'Event Parameters',
-      description: 'Event Parameters store the information about an Event.',
+      description: 'Event Parameters store information about an event.',
       type: 'object',
       additionalProperties: true,
       properties: {
@@ -58,7 +58,7 @@ const action: ActionDefinition<Settings, Payload> = {
         product_id: {
           label: 'Product Id',
           type: 'string',
-          description: 'Product id displayed on the list'
+          description: 'The product id associated with the product.'
         },
         taxonomy: {
           label: 'Product Category',
@@ -78,12 +78,12 @@ const action: ActionDefinition<Settings, Payload> = {
         unit_sales_price: {
           label: 'Unit Sale Price',
           type: 'number',
-          description: 'Sale Price ($) of the product being viewed'
+          description: 'Sale Price ($) of the product being viewed. This is a numeric field. e.g. 9.90 for $9.90c.'
         },
         unit_price: {
           label: 'Unit Price',
           type: 'number',
-          description: 'Price ($) of the product being viewed'
+          description: 'Price ($) of the product being viewed. This is a numeric field. e.g. 9.90 for $9.90c.'
         },
         quantity: {
           label: 'Quantity',
@@ -356,7 +356,7 @@ const action: ActionDefinition<Settings, Payload> = {
           }
         },
         carrier: { '@path': '$.context.network.carrier' },
-        os_version: { '@path': '$.os.version' },
+        os_version: { '@path': '$.context.os.version' },
         platform: { '@path': '$.context.os.name' },
         timezone: { '@path': '$.context.timezone' },
         locale: { '@path': '$.context.locale' }
