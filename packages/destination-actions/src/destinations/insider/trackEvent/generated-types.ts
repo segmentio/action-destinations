@@ -41,7 +41,7 @@ export interface Payload {
     /**
      * Sale Price ($) of the product being viewed
      */
-    unit_sales_price?: number
+    unit_sale_price?: number
     /**
      * Price ($) of the product being viewed
      */
