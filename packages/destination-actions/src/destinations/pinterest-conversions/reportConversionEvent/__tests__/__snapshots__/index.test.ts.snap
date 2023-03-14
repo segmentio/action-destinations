@@ -1,0 +1,54 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`PinterestConversionApi ReportConversionEvent Should filter the payload from batch that doesn't have required user_data 1`] = `
+Object {
+  "data": Array [
+    Object {
+      "action_source": "web",
+      "app_id": undefined,
+      "app_name": "InitechGlobal",
+      "app_version": "545",
+      "custom_data": Object {
+        "content_ids": undefined,
+        "contents": undefined,
+        "currency": undefined,
+        "num_items": undefined,
+        "opt_out_type": undefined,
+        "order_id": undefined,
+        "search_string": undefined,
+        "value": undefined,
+      },
+      "device_brand": undefined,
+      "device_carrier": undefined,
+      "device_model": "iPhone7,2",
+      "device_type": "ios",
+      "event_id": "test-message-1234567",
+      "event_name": "checkout",
+      "event_source_url": "https://segment.com/academy/",
+      "event_time": 1678203524,
+      "language": undefined,
+      "opt_out": true,
+      "os_version": "8.1.3",
+      "user_data": Object {
+        "client_ip_address": undefined,
+        "client_user_agent": undefined,
+        "country": undefined,
+        "ct": undefined,
+        "db": undefined,
+        "em": Array [
+          "87924606b4131a8aceeeae8868531fbb9712aaa07a5d3a756b26ce0f5d6ca674",
+        ],
+        "external_id": undefined,
+        "fn": undefined,
+        "ge": undefined,
+        "hashed_maids": undefined,
+        "ln": undefined,
+        "ph": undefined,
+        "st": undefined,
+        "zp": undefined,
+      },
+      "wifi": undefined,
+    },
+  ],
+}
+`;
