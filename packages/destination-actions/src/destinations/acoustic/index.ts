@@ -16,6 +16,7 @@ const presets: DestinationDefinition['presets'] = [
     subscribe: 'type = "track"',
     partnerAction: 'trackEvent',
     mapping: {
+      ...defaultValues(receiveEvents.fields),
       email: {
         default: {
           '@if': {
