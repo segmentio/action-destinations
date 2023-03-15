@@ -82,10 +82,37 @@ export async function createSegmentEventsTable(request: RequestClient, settings:
 }
 
 export async function checkRTExist(request: RequestClient, settings: Settings) {
-  const chkExist = await request(`https://api-campaign-${settings.a_region}-${settings.a_pod}.goacoustic.com/XMLAPI`, {
-    method: 'POST',
-    headers: {},
-    body: `<Envelope>
+  if (settings.a_events_table_list_id != '') {
+    const chkListId = await request(
+      `https://api-campaign-${settings.a_region}-${settings.a_pod}.goacoustic.com/XMLAPI`,
+      {
+        method: 'POST',
+        headers: {},
+        body: `
+    <Envelope> <Body>
+    <GetListMetaData> <LIST_ID>59294</LIST_ID>
+    </GetListMetaData> </Body>
+    </Envelope>`
+      }
+    )
+
+    const respText = await chkListId.text()
+    const rx = /<SUCCESS>TRUE<\/SUCCESS>(?:\s)*<ID>(.*)<\/ID/gm
+    if (respText != null) {
+      const r = rx.exec(respText)
+      if (r) eventTableListId = r[1]
+      else
+        throw new IntegrationError(
+          'Defined Events Table List Id is invalid, please refer to documentation to configure the Segment Events Table in Acoustic'
+        )
+    }
+  } else {
+    const chkExist = await request(
+      `https://api-campaign-${settings.a_region}-${settings.a_pod}.goacoustic.com/XMLAPI`,
+      {
+        method: 'POST',
+        headers: {},
+        body: `<Envelope>
   <Body>
   <GetLists>
   <VISIBILITY>1 </VISIBILITY>
@@ -94,26 +121,28 @@ export async function checkRTExist(request: RequestClient, settings: Settings) {
   </GetLists>
   </Body>
   </Envelope>`
-  })
-
-  await chkExist.data
-  const lists = chkExist.content
-
-  if (lists.indexOf('Segment Events Table') > 0) {
-    const simplify = lists.substring(
-      lists.indexOf('Segment Events Table') - 40,
-      lists.indexOf('Segment Events Table') + 40
+      }
     )
-    const rx = /<ID>(.*)<\/ID>/gm
-    const setListId = rx.exec(simplify) ?? '999999999'
 
-    eventTableListId = setListId[1]
-  } else {
-    eventTableListId = '999999999' //Make it obvious - should not be 999999999
+    await chkExist.data
+    const lists = chkExist.content
 
-    throw new IntegrationError(
-      `Cannot determine the Segment Events Table in the defined Acoustic environment. Please check the documentation and confirm the configuration`
-    )
+    if (lists.indexOf('Segment Events Table') > 0) {
+      const simplify = lists.substring(
+        lists.indexOf('Segment Events Table') - 40,
+        lists.indexOf('Segment Events Table') + 40
+      )
+      const rx = /<ID>(.*)<\/ID>/gm
+      const setListId = rx.exec(simplify) ?? '999999999'
+
+      eventTableListId = setListId[1]
+    } else {
+      eventTableListId = '999999999' //Make it obvious - should not be 999999999
+
+      throw new IntegrationError(
+        `Cannot determine the Segment Events Table in the defined Acoustic environment. Please check the documentation and confirm the configuration`
+      )
+    }
   }
   return eventTableListId
 }
