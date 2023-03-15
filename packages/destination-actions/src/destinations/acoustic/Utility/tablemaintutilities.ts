@@ -1,20 +1,21 @@
-import { IntegrationError, OAuth2ClientCredentials } from '@segment/actions-core'
+import { IntegrationError } from '@segment/actions-core'
 import { RequestClient } from '@segment/actions-core'
-import { refreshTokenResult } from '..'
 import { Settings } from '../generated-types'
+
+export let eventTableListId = ''
 
 export async function preChecksAndMaint(request: RequestClient, settings: Settings) {
   //const at = await getAccessToken(request, settings, auth)
   //check for Segment Events table, if not exist create it
-  await checkRTExist(request, settings)
+  eventTableListId = await checkRTExist(request, settings)
 
-  if (settings.a_events_table_list_id === '') {
+  if (eventTableListId === '') {
     const crt = await createSegmentEventsTable(request, settings)
     if (!crt) {
       throw new IntegrationError('Error attempting to create the Acoustic Segment Events Table')
     }
   }
-  return 'true'
+  return eventTableListId
 }
 
 export async function createSegmentEventsTable(request: RequestClient, settings: Settings) {
@@ -75,7 +76,8 @@ export async function createSegmentEventsTable(request: RequestClient, settings:
     if (r) tid = r[1]
   }
 
-  settings.a_events_table_list_id = tid
+  eventTableListId = tid
+
   return createSegmentEventsTable
 }
 
@@ -105,33 +107,13 @@ export async function checkRTExist(request: RequestClient, settings: Settings) {
     const rx = /<ID>(.*)<\/ID>/gm
     const setListId = rx.exec(simplify) ?? '999999999'
 
-    settings.a_events_table_list_id = setListId[1]
+    eventTableListId = setListId[1]
   } else {
-    settings.a_events_table_list_id = '999999999' //Make it obvious - should not be 999999999
+    eventTableListId = '999999999' //Make it obvious - should not be 999999999
 
     throw new IntegrationError(
       `Cannot determine the Segment Events Table in the defined Acoustic environment. Please check the documentation and confirm the configuration`
     )
   }
-}
-
-export async function getAccessToken(request: RequestClient, settings: Settings, auth: OAuth2ClientCredentials) {
-  const res = await request<refreshTokenResult>(
-    `https://api-campaign-${settings.a_region}-${settings.a_pod}.goacoustic.com/oauth/token`,
-    {
-      method: 'POST',
-      body: new URLSearchParams({
-        refresh_token: auth.refreshToken,
-        client_id: auth.clientId,
-        client_secret: auth.clientSecret,
-        grant_type: 'refresh_token'
-      }),
-      headers: {
-        'user-agent': 'Segment (refreshtoken)',
-        'Content-Type': 'application/x-www-form-urlencoded'
-      }
-    }
-  )
-
-  return { accessToken: res.data.access_token }
+  return eventTableListId
 }
