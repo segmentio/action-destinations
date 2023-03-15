@@ -45,19 +45,6 @@ describe('Gwen.identifyUser', () => {
     expect(t[0].options.body).toEqual(JSON.stringify(query))
   })
 
-  it('IP must be a valid IP address', async () => {
-    let event = createTestEvent({ userId: '2d947e75-de80-4776-8e0e-4d645977d3df' })
-    event = createTestEvent({ ...event, context: { ...event.context, ip: '127.0.0.256' } })
-
-    await expect(
-      testDestination.testAction('identifyUser', {
-        event,
-        useDefaultMappings: true,
-        settings: { apiKey: 'my-api-key' }
-      })
-    ).rejects.toThrow('User IP Address must be a valid IPv4 address string but it was not.')
-  })
-
   it('User ID must be a UUID', async () => {
     await expect(
       testDestination.testAction('identifyUser', {

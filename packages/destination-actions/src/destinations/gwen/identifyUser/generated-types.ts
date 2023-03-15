@@ -2,7 +2,7 @@
 
 export interface Payload {
   /**
-   * The user's id
+   * The user's id. (Format: xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx)
    */
   userId: string
   /**

@@ -10,7 +10,7 @@ const action: ActionDefinition<Settings, Payload> = {
   fields: {
     userId: {
       label: 'User ID',
-      description: "The user's id",
+      description: "The user's id. (Format: xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx)",
       type: 'string',
       format: 'uuid',
       required: true,
@@ -22,7 +22,6 @@ const action: ActionDefinition<Settings, Payload> = {
       label: 'User IP Address',
       description: 'The IP address of the user',
       type: 'string',
-      format: 'ipv4',
       required: false,
       default: {
         '@path': '$.context.ip'
@@ -39,7 +38,6 @@ const action: ActionDefinition<Settings, Payload> = {
     }
   },
   perform: async (request, { payload }) => {
-    // Make your partner api request here!
     const { userId, ip, userAgent } = payload
 
     await request(baseURL, {

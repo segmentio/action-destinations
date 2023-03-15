@@ -1,4 +1,4 @@
-import type { DestinationDefinition } from '@segment/actions-core'
+import { defaultValues, DestinationDefinition } from '@segment/actions-core'
 import type { Settings } from './generated-types'
 import sendEvent from './sendEvent'
 
@@ -7,8 +7,8 @@ import { baseURL, defaultRequestParams } from './request-params'
 import identifyUser from './identifyUser'
 
 const destination: DestinationDefinition<Settings> = {
-  name: 'Gwen',
-  slug: 'actions-gwen',
+  name: 'GWEN (Actions)',
+  slug: 'actions-cloud-gwen',
   mode: 'cloud',
 
   authentication: {
@@ -46,17 +46,24 @@ const destination: DestinationDefinition<Settings> = {
       }
     }
   },
-
-  // onDelete: async (request, { settings, payload }) => {
-  //   // Return a request that performs a GDPR delete for the provided Segment userId or anonymousId
-  //   // provided in the payload. If your destination does not support GDPR deletion you should not
-  //   // implement this function and should remove it completely.
-  // },
-
   actions: {
     sendEvent,
     identifyUser
-  }
+  },
+  presets: [
+    {
+      name: 'Send an event to GWEN',
+      subscribe: 'type = "track"',
+      partnerAction: 'sendEvent',
+      mapping: defaultValues(sendEvent.fields)
+    },
+    {
+      name: 'Identify a user',
+      subscribe: 'type = "identify"',
+      partnerAction: 'identifyUser',
+      mapping: defaultValues(identifyUser.fields)
+    }
+  ]
 }
 
 export default destination

@@ -12,7 +12,7 @@ const action: ActionDefinition<Settings, Payload> = {
       type: 'string',
       format: 'uuid',
       required: true,
-      description: "The user's id",
+      description: "The user's id. (Format: xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx)",
       label: 'User ID',
       default: {
         '@path': '$.userId'
@@ -31,7 +31,10 @@ const action: ActionDefinition<Settings, Payload> = {
       label: 'Data',
       type: 'object',
       required: false,
-      description: 'The data to be sent to GWEN'
+      description: 'The data to be sent to GWEN',
+      default: {
+        '@path': '$.properties'
+      }
     }
   },
   perform: async (request, { payload }) => {
