@@ -99,7 +99,7 @@ export function sendTrackEvent(data: EventPayload) {
       // @ts-ignore
       event.event_params.custom[parameter] = data[parameter]
     }
-    console.log(event)
+
     return event
   }
 
@@ -132,7 +132,6 @@ export function sendTrackEvent(data: EventPayload) {
     events: []
   }
 
-  console.log(identifiers)
   const events: Object = {
     Unsubscribed: 'email_unsubscribe',
     'Product List Viewed': 'listing_page_view',
