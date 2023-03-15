@@ -31,8 +31,9 @@ const presets: DestinationDefinition['presets'] = [
   {
     name: 'Identify Calls',
     subscribe: 'type = "identify"',
-    partnerAction: 'identifyUser',
+    partnerAction: 'trackEvent',
     mapping: {
+      ...defaultValues(receiveEvents.fields),
       email: {
         default: {
           '@if': {
