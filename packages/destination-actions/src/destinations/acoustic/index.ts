@@ -110,13 +110,11 @@ const destination: DestinationDefinition<Settings> = {
     }
   },
   extendRequest({ settings, auth }) {
-    settings
-
     return {
       headers: {
         Authorization: `Bearer ${auth?.accessToken}`,
         'Content-Type': 'text/xml',
-        'user-agent': 'Segment (checkforRT)',
+        'user-agent': `Segment (checkforRT on Pod ${settings.a_pod})`,
         Connection: 'keep-alive',
         'Accept-Encoding': 'gzip, deflate, br',
         Accept: '*/*'

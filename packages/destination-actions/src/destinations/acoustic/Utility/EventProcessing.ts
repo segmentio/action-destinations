@@ -2,6 +2,7 @@ import { RequestClient } from '@segment/actions-core'
 import get from 'lodash/get'
 import { Settings } from '../generated-types'
 import { Payload } from '../receiveEvents/generated-types'
+import { eventTableListId } from './tablemaintutilities'
 
 export function parseSections(section: { [key: string]: string }) {
   const parseResults: { [key: string]: string } = {}
@@ -99,7 +100,7 @@ export const postUpdates = async (
     body: `<Envelope>
     <Body>
       <InsertUpdateRelationalTable>
-      <TABLE_ID>${settings.a_events_table_list_id} </TABLE_ID>
+      <TABLE_ID>${eventTableListId} </TABLE_ID>
         <ROWS>
                   ${xmlRows}
         </ROWS>
