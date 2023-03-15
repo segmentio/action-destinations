@@ -11,13 +11,13 @@ const action: ActionDefinition<Settings, Payload> = {
     email_as_identifier: {
       label: 'Treat Email as Identifier',
       type: 'boolean',
-      description: 'If true, Email will be treated as an identifier when sent to Insider. Defaults to true',
+      description: 'If true, Email will be sent as identifier to Insider.',
       default: true
     },
     phone_number_as_identifier: {
       label: 'Treat Phone Number as Identifier',
       type: 'boolean',
-      description: 'If true, Phone Number will be treated as an identifier when sent to Insider. Defaults to true',
+      description: 'If true, Phone Number will be sent as identifier to Insider',
       default: true
     },
     age: {

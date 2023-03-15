@@ -2,6 +2,14 @@
 
 export interface Payload {
   /**
+   * If true, Email will be sent as identifier to Insider.
+   */
+  email_as_identifier?: boolean
+  /**
+   * If true, Phone Number will be sent as identifier to Insider
+   */
+  phone_number_as_identifier?: boolean
+  /**
    * User's unique identifier. The UUID string is used as identifier when sending data to Insider. UUID is required if the Anonymous Id field is empty.
    */
   uuid?: string
