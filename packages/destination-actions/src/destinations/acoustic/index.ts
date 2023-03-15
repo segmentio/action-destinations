@@ -16,6 +16,7 @@ const presets: DestinationDefinition['presets'] = [
     subscribe: 'type = "track"',
     partnerAction: 'trackEvent',
     mapping: {
+      ...defaultValues(receiveEvents.fields),
       email: {
         default: {
           '@if': {
@@ -30,8 +31,9 @@ const presets: DestinationDefinition['presets'] = [
   {
     name: 'Identify Calls',
     subscribe: 'type = "identify"',
-    partnerAction: 'identifyUser',
+    partnerAction: 'trackEvent',
     mapping: {
+      ...defaultValues(receiveEvents.fields),
       email: {
         default: {
           '@if': {
@@ -46,7 +48,7 @@ const presets: DestinationDefinition['presets'] = [
 ]
 
 const destination: DestinationDefinition<Settings> = {
-  name: 'Acoustic Campaign',
+  name: 'Acoustic Campaign (Actions)',
   slug: 'actions-acoustic-campaign',
   mode: 'cloud',
   authentication: {
