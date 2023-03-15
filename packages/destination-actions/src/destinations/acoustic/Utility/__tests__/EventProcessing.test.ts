@@ -1,9 +1,3 @@
-// import { RequestClient } from '@segment/actions-core'
-// import flatten from 'lodash/flatten'
-// import get from 'lodash/get'
-// import { Settings } from '../../generated-types'
-// import { Payload } from '../../receiveEvents/generated-types'
-// import { acousticAuth, getxmlAPIUrl } from '../TableMaint_Utilities'
 import { parseSections, addUpdateEvents } from '../eventprocessing'
 
 jest.mock('@segment/actions-core')
@@ -11,7 +5,7 @@ jest.mock('lodash/flatten')
 jest.mock('lodash/get')
 jest.mock('../../generated-types')
 jest.mock('../../receiveEvents/generated-types')
-jest.mock('../TableMaint_Utilities')
+jest.mock('../tablemaintutilities')
 
 describe('parseSections', () => {
   it('parseSections should be present', () => {
