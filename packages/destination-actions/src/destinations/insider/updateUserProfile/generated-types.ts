@@ -2,11 +2,11 @@
 
 export interface Payload {
   /**
-   * If true, Email will be treated as an identifier when sent to Insider. Defaults to true
+   * If true, Email will be sent as identifier to Insider.
    */
   email_as_identifier?: boolean
   /**
-   * If true, Phone Number will be treated as an identifier when sent to Insider. Defaults to true
+   * If true, Phone Number will be sent as identifier to Insider
    */
   phone_number_as_identifier?: boolean
   /**
