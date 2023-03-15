@@ -1,5 +1,6 @@
-import { IntegrationError } from '@segment/actions-core'
+import { IntegrationError, OAuth2ClientCredentials } from '@segment/actions-core'
 import { RequestClient } from '@segment/actions-core'
+import { refreshTokenResult } from '..'
 import { Settings } from '../generated-types'
 
 export async function preChecksAndMaint(request: RequestClient, settings: Settings) {
@@ -114,21 +115,23 @@ export async function checkRTExist(request: RequestClient, settings: Settings) {
   }
 }
 
-// export async function getAccessToken(request: RequestClient, settings: Settings, ) {
+export async function getAccessToken(request: RequestClient, settings: Settings, auth: OAuth2ClientCredentials) {
+  const res = await request<refreshTokenResult>(
+    `https://api-campaign-${settings.a_region}-${settings.a_pod}.goacoustic.com/oauth/token`,
+    {
+      method: 'POST',
+      body: new URLSearchParams({
+        refresh_token: auth.refreshToken,
+        client_id: auth.clientId,
+        client_secret: auth.clientSecret,
+        grant_type: 'refresh_token'
+      }),
+      headers: {
+        'user-agent': 'Segment (refreshtoken)',
+        'Content-Type': 'application/x-www-form-urlencoded'
+      }
+    }
+  )
 
-//   const res = await request<refreshTokenResult>(`https://api-campaign-${settings.a_region}-${settings.a_pod}.goacoustic.com/oauth/token`, {
-//     method: 'POST',
-//     body: new URLSearchParams({
-//       client_id: auth.clientid,
-//       client_secret: auth.client_secret,
-//       refresh_token: auth.refresh_token,
-//       grant_type: 'refresh_token'
-//     }),
-//     headers: {
-//       'user-agent': 'Segment (refreshtoken)',
-//       'Content-Type': 'application/x-www-form-urlencoded'
-//     }
-//   })
-
-//   return { accessToken: res.data.access_token }
-// }
+  return { accessToken: res.data.access_token }
+}
