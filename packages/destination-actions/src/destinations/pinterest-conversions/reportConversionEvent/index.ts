@@ -1,10 +1,11 @@
 import type { ActionDefinition, RequestClient } from '@segment/actions-core'
-// import { IntegrationError } from '@segment/actions-core'
+import { IntegrationError } from '@segment/actions-core'
 import { API_VERSION } from '../constants'
 import type { Settings } from '../generated-types'
 import { custom_data_field } from '../pinterest-capi-custom-data'
 import { user_data_field, hash_user_data } from '../pinterset-capi-user-data'
 import type { Payload } from './generated-types'
+import isEmpty from 'lodash/isEmpty'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Report Conversion Event',
@@ -164,30 +165,30 @@ const action: ActionDefinition<Settings, Payload> = {
   }
 }
 async function processPayload(request: RequestClient, settings: Settings, payloads: Payload[]) {
-  try {
-    payloads = validateUserData(payloads) // need to discuss about
-    // validateEventNameAndSource(payloads)
-    const data = createPinterestPayload(payloads)
+  payloads = validateUserData(payloads)
 
-    if (!data.length) return
-
-    // console.log('value of data is ', data);
-    return request(`https://api.pinterest.com/${API_VERSION}/ad_accounts/${settings.ad_account_id}/events`, {
-      method: 'POST',
-      json: {
-        data: data
-      }
-    })
-  } catch (err) {
-    console.log(err)
+  if (!payloads.length) {
+    throw new IntegrationError(
+      `user_data is required at least one of email,hashed_maids and both client_ip_address and client_user_agent.`,
+      'Bad Request',
+      400
+    )
   }
+
+  const data = createPinterestPayload(payloads)
+  return request(`https://api.pinterest.com/${API_VERSION}/ad_accounts/${settings.ad_account_id}/events`, {
+    method: 'POST',
+    json: {
+      data: data
+    }
+  })
 }
 
 function validateUserData(payloads: Payload[]) {
   return payloads.filter((payload: Payload) => {
     return (
-      payload.user_data?.email?.length ||
-      payload.user_data?.hashed_maids?.length ||
+      !isEmpty(payload.user_data?.email) ||
+      !isEmpty(payload.user_data?.hashed_maids) ||
       (payload.user_data.client_ip_address && payload.user_data.client_user_agent)
     )
   })

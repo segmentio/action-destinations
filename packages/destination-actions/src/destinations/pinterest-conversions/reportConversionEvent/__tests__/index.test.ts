@@ -94,7 +94,7 @@ describe('PinterestConversionApi', () => {
       ).rejects.toThrowError()
     })
 
-    it("Should filter the payload from batch that doesn't have required user_data", async () => {
+    it("Should filter the payload from batch that doesn't have required user_data, will proceed further when it has even single paylaod to process ", async () => {
       nock(`https://api.pinterest.com`)
         .post(`/${API_VERSION}/ad_accounts/${authData.ad_account_id}/events`)
         .reply(200, {})
@@ -126,6 +126,33 @@ describe('PinterestConversionApi', () => {
       console.log(responses[0]?.options?.body)
       expect(JSON.parse(responses[0]?.options?.body as string)?.data?.length).toBe(1)
       expect(responses[0].options.json).toMatchSnapshot()
+    })
+
+    it('Should throw an error if nothing to process after validating user_data', async () => {
+      const events: SegmentEvent[] = [
+        event,
+        {
+          ...event,
+          messageId: 'test-message-1234567'
+        }
+      ]
+
+      await expect(
+        testDestination.testBatchAction('reportConversionEvent', {
+          events,
+          settings: authData,
+          useDefaultMappings: true,
+          mapping: {
+            event_name: 'checkout',
+            action_source: 'web',
+            user_data: {
+              email: { '@path': '$.properties.email' }
+            }
+          }
+        })
+      ).rejects.toThrowError(
+        'user_data is required at least one of email,hashed_maids and both client_ip_address and client_user_agent.'
+      )
     })
   })
 })
