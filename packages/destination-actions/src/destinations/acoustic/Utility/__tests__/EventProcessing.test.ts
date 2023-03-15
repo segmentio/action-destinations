@@ -116,7 +116,7 @@ describe('parseSections', () => {
       step: 2
     }
 
-    expect(parseSections(section)).toEqual(outcome)
+    expect(parseSections(section, 0)).toEqual(outcome)
   })
 
   it('parseSections should match correct outcome', () => {
@@ -174,7 +174,7 @@ describe('parseSections', () => {
       step: 2
     } as object as { [key: string]: string }
 
-    expect(parseSections(section)).toMatchSnapshot()
+    expect(parseSections(section, 0)).toMatchSnapshot()
   })
 })
 

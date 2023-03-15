@@ -1,4 +1,4 @@
-import { DestinationDefinition } from '@segment/actions-core'
+import { defaultValues, DestinationDefinition } from '@segment/actions-core'
 import type { Settings } from './generated-types'
 import receiveEvents from './receiveEvents'
 
@@ -111,12 +111,12 @@ const destination: DestinationDefinition<Settings> = {
       return { accessToken: at.data.access_token }
     }
   },
-  extendRequest({ settings, auth }) {
+  extendRequest: ({ settings, auth }) => {
     return {
       headers: {
-        Authorization: `Bearer ${auth?.accessToken}`,
+        // Authorization: `Bearer ${auth?.accessToken}`,
         'Content-Type': 'text/xml',
-        'user-agent': `Segment (checkforRT on Pod ${settings.a_pod})`,
+        'user-agent': `Segment (checkforRT on Pod ${settings.a_pod}_${auth?.accessToken})`,
         Connection: 'keep-alive',
         'Accept-Encoding': 'gzip, deflate, br',
         Accept: '*/*'

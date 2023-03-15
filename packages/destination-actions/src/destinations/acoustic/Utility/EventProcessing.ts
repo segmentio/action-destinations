@@ -1,15 +1,25 @@
+import { IntegrationError } from '@segment/actions-core'
 import { RequestClient } from '@segment/actions-core'
 import get from 'lodash/get'
 import { Settings } from '../generated-types'
 import { Payload } from '../receiveEvents/generated-types'
-import { eventTableListId } from './tablemaintutilities'
+import { accToken, eventTableListId } from './tablemaintutilities'
 
-export function parseSections(section: { [key: string]: string }) {
+export function parseSections(section: { [key: string]: string }, nestDepth: number) {
   const parseResults: { [key: string]: string } = {}
+  //if (nestDepth > 5) return parseResults
+  if (nestDepth > 5)
+    throw new IntegrationError(
+      'Event data exceeds nesting depth. Restate event data to avoid nesting attributes more than 5 levels deep'
+    )
 
   for (const key of Object.keys(section)) {
     if (typeof section[key] === 'object') {
-      const nested: { [key: string]: string } = parseSections(section[key] as {} as { [key: string]: string })
+      nestDepth++
+      const nested: { [key: string]: string } = parseSections(
+        section[key] as {} as { [key: string]: string },
+        nestDepth
+      )
       for (const nestedKey of Object.keys(nested)) {
         parseResults[`${key}.${nestedKey}`] = nested[nestedKey]
       }
@@ -56,18 +66,20 @@ export function addUpdateEvents(payload: Payload, email: string) {
   if (payload.traits)
     propertiesTraitsKV = {
       ...propertiesTraitsKV,
-      ...parseSections(payload.traits as { [key: string]: string })
+      ...parseSections(payload.traits as { [key: string]: string }, 0)
     }
   if (payload.properties)
     propertiesTraitsKV = {
       ...propertiesTraitsKV,
-      ...parseSections(payload.properties as { [key: string]: string })
+      ...parseSections(payload.properties as { [key: string]: string }, 0)
     }
   if (payload.context)
     propertiesTraitsKV = {
       ...propertiesTraitsKV,
-      ...parseSections(payload.context as { [key: string]: string })
+      ...parseSections(payload.context as { [key: string]: string }, 0)
     }
+
+  console.log()
 
   //Wrap Properties and Traits into XML
   for (const e in propertiesTraitsKV) {
@@ -95,7 +107,8 @@ export const postUpdates = async (
   const pup = await request(`https://api-campaign-${settings.a_region}-${settings.a_pod}.goacoustic.com/XMLAPI`, {
     method: 'POST',
     headers: {
-      'user-agent': `Segment Event Table processing ${i}`
+      'user-agent': `Segment Event Table processing ${i}`,
+      Authorization: `Bearer ${accToken}`
     },
     body: `<Envelope>
     <Body>
