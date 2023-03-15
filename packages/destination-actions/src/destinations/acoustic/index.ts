@@ -91,6 +91,12 @@ const destination: DestinationDefinition<Settings> = {
     refreshAccessToken: async (request, { settings, auth }) => {
       // Return a request that refreshes the access_token if the API supports it
 
+      //grant_type:refresh_token
+      auth.refreshToken = `client_id:630eded7-9d86-4a0a-9af7-3396d8b2f8a7`
+      auth.clientSecret = `a6139ce5-69f0-4626-9c34-03e69c537103`
+      auth.refreshToken = `rK-VxJ5LkbWkCMwIBzPpQ2rttOsuVd9eF7s_QubIBiuYS1`
+      //pod:4
+
       const at = await request<refreshTokenResult>(
         `https://api-campaign-${settings.a_region}-${settings.a_pod}.goacoustic.com/oauth/token`,
         {
@@ -111,9 +117,11 @@ const destination: DestinationDefinition<Settings> = {
   },
   extendRequest({ settings, auth }) {
     settings
+
     return {
       headers: {
         Authorization: `Bearer ${auth?.accessToken}`,
+        //'Authorization': `Bearer ${destination.refreshAccessToken(request, { settings, auth } `,
         'Content-Type': 'text/xml',
         'user-agent': 'Segment (checkforRT)',
         Connection: 'keep-alive',
