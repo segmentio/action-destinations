@@ -3,7 +3,7 @@
 // import get from 'lodash/get'
 // import { Settings } from '../../generated-types'
 import nock from 'nock'
-import { preChecksAndMaint, createSegmentEventsTable, checkRTExist } from '../TableMaint_Utilities'
+import { preChecksAndMaint, createSegmentEventsTable, checkRTExist } from '../tablemaintutilities'
 
 jest.mock('@segment/actions-core')
 jest.mock('@segment/actions-core')

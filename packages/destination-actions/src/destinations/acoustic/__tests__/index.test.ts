@@ -3,20 +3,16 @@
 // import receiveEvents from '../receiveEvents'
 import { createTestIntegration } from '@segment/actions-core'
 import { SegmentEvent } from '@segment/actions-core'
-import Destination from '../index'
+import destination from '../index'
 import nock from 'nock'
 
-jest.mock('@segment/actions-core')
-jest.mock('../generated-types')
-jest.mock('../receiveEvents')
+console.log(destination.slug + '   -   ' + destination.actions)
 
-console.log(Destination.slug + '   -   ' + Destination.actions)
-
-const testDestination = createTestIntegration(Destination)
+const testDestination = createTestIntegration(destination)
 const actionSlug = 'receiveEvents'
-const destinationSlug = Destination.slug
+const destinationSlug = destination.slug
 const seedName = `${destinationSlug}#${actionSlug}`
-const action = Destination.actions[actionSlug]
+const action = destination.actions[actionSlug]
 seedName.length
 action
 
@@ -110,7 +106,7 @@ payload.anonymousId
 describe('destination', () => {
   it('extendRequest should be present', () => {
     // const retValue = testDestination.extendRequest();
-    expect(Destination.extendRequest).toBeDefined()
+    expect(destination.extendRequest).toBeDefined()
   })
 })
 
@@ -126,7 +122,7 @@ describe('Destination ', () => {
         expect(err).toBeDefined()
       }
 
-      const spy = jest.spyOn(Destination.actions.receiveEvents, 'perform')
+      const spy = jest.spyOn(destination.actions.receiveEvents, 'perform')
 
       expect(spy).not.toHaveBeenCalled()
       //expect(spy).toHaveBeenCalledTimes(1)

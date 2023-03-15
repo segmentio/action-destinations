@@ -1,9 +1,9 @@
 import { ActionDefinition } from '@segment/actions-core'
 import { Settings } from '../generated-types'
 import { Payload } from './generated-types'
-import { preChecksAndMaint } from '../Utility/TableMaint_Utilities'
+import { preChecksAndMaint } from '../Utility/tablemaintutilities'
 import get from 'lodash/get'
-import { addUpdateEvents, postUpdates } from '../Utility/EventProcessing'
+import { addUpdateEvents, postUpdates } from '../Utility/eventprocessing'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Receive Track and Identify Events',

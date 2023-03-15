@@ -165,7 +165,7 @@ describe(`Testing snapshot for ${destinationSlug}'s ${actionSlug} destination ac
     const action = destination.actions[actionSlug]
     const [eventData, settingsData] = generateTestData(seedName, destination, action, false)
 
-    console.log('Required Fields test\n' + eventData)
+    console.log('All Fields test\n' + eventData)
 
     //nock(/.*/).persist().get(/.*/).reply(200)
     //nock(/.*/).persist().post(/.*/).reply(200)

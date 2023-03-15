@@ -4,7 +4,7 @@
 // import { Settings } from '../../generated-types'
 // import { Payload } from '../../receiveEvents/generated-types'
 // import { acousticAuth, getxmlAPIUrl } from '../TableMaint_Utilities'
-import { parseSections, addUpdateEvents } from '../EventProcessing'
+import { parseSections, addUpdateEvents } from '../eventprocessing'
 
 jest.mock('@segment/actions-core')
 jest.mock('lodash/flatten')
