@@ -1,6 +1,6 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`PinterestConversionApi ReportConversionEvent Should filter the payload from batch that doesn't have required user_data 1`] = `
+exports[`PinterestConversionApi ReportConversionEvent Should filter the payload from batch that doesn't have required user_data, will proceed further when it has even single paylaod to process  1`] = `
 Object {
   "data": Array [
     Object {
