@@ -3,7 +3,7 @@ import { Settings } from '../generated-types'
 import { Payload } from './generated-types'
 import { preChecksAndMaint } from '../Utility/tablemaintutilities'
 import get from 'lodash/get'
-import { addUpdateEvents, postUpdates } from '../Utility/event_processing'
+import { addUpdateEvents, postUpdates } from '../Utility/eventprocessing'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Receive Track and Identify Events',
