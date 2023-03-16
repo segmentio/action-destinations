@@ -4,7 +4,6 @@ import type { Settings } from '../generated-types'
 import Pardot from '../pa-operations'
 import { customFields } from '../pa-properties'
 import type { Payload } from './generated-types'
-import logger from '../../../lib/logger'
 
 interface PardotError {
   code: number
@@ -190,8 +189,7 @@ const action: ActionDefinition<Settings, Payload> = {
     } catch (err) {
       const error = err as HTTPError
       if (!error.response) {
-        logger.error(`Pardot error: `, error)
-        throw new IntegrationError(`Something went wrong.`, 'PARDOT_ERROR', 500)
+        throw error
       }
       const statusCode = error.response.status
       //Pardot error response is a mix of json and xml.
