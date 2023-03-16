@@ -39,7 +39,7 @@ export class WhatsAppMessageSender extends MessageSender<Payload> {
       parsedPhone = `whatsapp:${parsedPhone}`
     } catch (error: unknown) {
       this.tags?.push('type:invalid_phone_e164')
-      this.logger?.error('TE Messaging: WhatsApp invalid phone number')
+      this.logger?.error?.('TE Messaging: WhatsApp invalid phone number')
       this.statsClient?.incr('actions-personas-messaging-twilio.error', 1, this.tags)
       throw new IntegrationError(
         'The string supplied did not seem to be a phone number. Phone number must be able to be formatted to e164 for whatsapp.',
@@ -89,7 +89,7 @@ export class WhatsAppMessageSender extends MessageSender<Payload> {
 
       return JSON.stringify(mapping)
     } catch (error: unknown) {
-      this.logger?.error('TE Messaging: WhatsApp templating parse failure')
+      this.logger?.error?.('TE Messaging: WhatsApp templating parse failure')
       throw new IntegrationError(
         `Unable to parse templating in content variables`,
         `Content variables templating parse failure`,

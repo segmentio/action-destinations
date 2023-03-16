@@ -51,13 +51,13 @@ const fetchProfileTraits = async (
       }
     )
     tags?.push(`profile_status_code:${response.status}`)
-    logger?.info('TE Messaging: Email profile traits response received')
+    logger?.info?.('TE Messaging: Email profile traits response received')
     statsClient?.incr('actions-personas-messaging-sendgrid.profile_invoked', 1, tags)
 
     const body = await response.json()
     return body.traits
   } catch (error) {
-    logger?.error('TE Messaging: Email profile traits request failure')
+    logger?.error?.('TE Messaging: Email profile traits request failure')
     statsClient?.incr('actions-personas-messaging-sendgrid.profile_error', 1, tags)
     throw new IntegrationError('Unable to get profile traits for email message', 'Email trait fetch failure', 500)
   }
@@ -110,7 +110,7 @@ const generateEmailHtml = async (
     const body = await response.json()
     return (body as UnlayerResponse).data.html
   } catch (error) {
-    logger?.error('TE Messaging: Email export request failure')
+    logger?.error?.('TE Messaging: Email export request failure')
     throw new IntegrationError('Unable to export email as HTML', 'Export HTML failure', 400)
   }
 }
@@ -127,7 +127,7 @@ const parseTemplating = async (content: string, profile: Profile, contentType: s
     const parsedContent = await Liquid.parseAndRender(content, { profile })
     return parsedContent
   } catch (error) {
-    logger?.error('TE Messaging: Email templating parse failure')
+    logger?.error?.('TE Messaging: Email templating parse failure')
     throw new IntegrationError(
       `Unable to parse templating in email ${contentType}`,
       `${contentType} templating parse failure`,
@@ -335,7 +335,7 @@ const action: ActionDefinition<Settings, Payload> = {
     const tags = statsContext?.tags
     tags?.push(`space_id:${settings.spaceId}`, `projectid:${settings.sourceId}`)
     if (!payload.send) {
-      logger?.error('TE Messaging: Email send disabled')
+      logger?.error?.('TE Messaging: Email send disabled')
       statsClient?.incr('actions-personas-messaging-sendgrid.send-disabled', 1, tags)
       return
     }
@@ -344,11 +344,11 @@ const action: ActionDefinition<Settings, Payload> = {
       !emailProfile?.subscriptionStatus ||
       ['unsubscribed', 'did not subscribed', 'false'].includes(emailProfile.subscriptionStatus)
     ) {
-      logger?.info('TE Messaging: Email recipient not subscribed')
+      logger?.info?.('TE Messaging: Email recipient not subscribed')
       statsClient?.incr('actions-personas-messaging-sendgrid.notsubscribed', 1, tags)
       return
     } else if (['subscribed', 'true'].includes(emailProfile?.subscriptionStatus)) {
-      logger?.info('TE Messaging: Email recipient subscribed')
+      logger?.info?.('TE Messaging: Email recipient subscribed')
       statsClient?.incr('actions-personas-messaging-sendgrid.subscribed', 1, tags)
       if (payload.groupId && payload.groupId.length !== 0) {
         const group = (payload.externalIds ?? [])
@@ -482,7 +482,7 @@ const action: ActionDefinition<Settings, Payload> = {
           }
         })
         tags?.push(`sendgrid_status_code:${response.status}`)
-        logger?.info('TE Messaging: Email message response received')
+        logger?.info?.('TE Messaging: Email message response received')
         statsClient?.incr('actions-personas-messaging-sendgrid.response', 1, tags)
         if (payload?.eventOccurredTS != undefined) {
           statsClient?.histogram(
@@ -493,11 +493,11 @@ const action: ActionDefinition<Settings, Payload> = {
         }
         return response
       } catch (error: unknown) {
-        logger?.error('TE Messaging: Email message request failure')
+        logger?.error?.('TE Messaging: Email message request failure')
         statsClient?.incr('actions-personas-messaging-sendgrid.request-failure', 1, tags)
       }
     } else {
-      logger?.error(`TE Messaging: Email subscription status invalid "${emailProfile.subscriptionStatus}"`)
+      logger?.error?.(`TE Messaging: Email subscription status invalid "${emailProfile.subscriptionStatus}"`)
       statsClient?.incr('actions-personas-messaging-sendgrid.sendgrid-error', 1, tags)
       throw new IntegrationError(
         `Failed to process the subscription state: "${emailProfile.subscriptionStatus}"`,
