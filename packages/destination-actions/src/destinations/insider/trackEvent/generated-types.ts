@@ -31,6 +31,10 @@ export interface Payload {
   parameters?: {
     url?: string
     /**
+     * Event. Currency used for product pricing, in ISO 4217 format (e.g. USD). Required field for Purchase and Cart Page Events.
+     */
+    currency?: string
+    /**
      * The product id associated with the product.
      */
     product_id?: string
@@ -60,7 +64,7 @@ export interface Payload {
     quantity?: number
     product_image_url?: string
     /**
-     * Order or Basket Id
+     * Event group ID. Required field for Purchase and Cart Page Events.
      */
     event_group_id?: string
     referrer?: string
@@ -84,7 +88,7 @@ export interface Payload {
      */
     name?: string
     /**
-     * Unit sale price of the product.
+     * Unit price of the product. Required field for Purchase and Cart Page Events.
      */
     unit_sale_price?: number
     /**
