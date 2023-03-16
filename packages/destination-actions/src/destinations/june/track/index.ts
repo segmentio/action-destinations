@@ -24,7 +24,7 @@ const action: ActionDefinition<Settings, Payload> = {
     timestamp: {
       type: 'string',
       format: 'date-time',
-      required: false,
+      required: true,
       description: 'The timestamp of the event',
       label: 'Timestamp',
       default: { '@path': '$.timestamp' }
@@ -52,7 +52,7 @@ const action: ActionDefinition<Settings, Payload> = {
     },
     messageId: {
       type: 'string',
-      required: false,
+      required: true,
       description: 'The Segment messageId',
       label: 'MessageId',
       default: { '@path': '$.messageId' }

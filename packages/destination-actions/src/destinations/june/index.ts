@@ -1,12 +1,9 @@
 import type { DestinationDefinition } from '@segment/actions-core'
 import type { Settings } from './generated-types'
 import track from './track'
-
-import identify from './identify'
-
-import group from './group'
-
 import page from './page'
+import identify from './identify'
+import group from './group'
 
 const presets: DestinationDefinition['presets'] = [
   {
@@ -32,8 +29,8 @@ const presets: DestinationDefinition['presets'] = [
 ]
 
 const destination: DestinationDefinition<Settings> = {
-  name: 'June',
-  slug: 'june',
+  name: 'June (Actions)',
+  slug: 'june-actions',
   mode: 'cloud',
 
   extendRequest: ({ settings }) => {
@@ -63,12 +60,6 @@ const destination: DestinationDefinition<Settings> = {
     group,
     page
   }
-
-  // onDelete: async (request, { settings, payload }) => {
-  // Return a request that performs a GDPR delete for the provided Segment userId or anonymousId
-  // provided in the payload. If your destination does not support GDPR deletion you should not
-  // implement this function and should remove it completely.
-  // },
 }
 
 export default destination

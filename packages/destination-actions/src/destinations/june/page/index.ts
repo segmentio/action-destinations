@@ -9,14 +9,12 @@ const action: ActionDefinition<Settings, Payload> = {
   fields: {
     anonymousId: {
       type: 'string',
-      allowNull: true,
       description: 'An anonymous identifier',
       label: 'Anonymous ID',
       default: { '@path': '$.anonymousId' }
     },
     userId: {
       type: 'string',
-      allowNull: true,
       description: 'The ID associated with the user',
       label: 'User ID',
       default: { '@path': '$.userId' }
@@ -24,7 +22,6 @@ const action: ActionDefinition<Settings, Payload> = {
     properties: {
       type: 'object',
       required: false,
-      allowNull: false,
       description: 'Page properties',
       label: 'Properties',
       default: { '@path': '$.properties' }
@@ -32,7 +29,6 @@ const action: ActionDefinition<Settings, Payload> = {
     name: {
       type: 'string',
       required: false,
-      allowNull: false,
       description: 'The name of the page',
       label: 'Page Name',
       default: { '@path': '$.properties.name' }
@@ -47,7 +43,7 @@ const action: ActionDefinition<Settings, Payload> = {
     timestamp: {
       type: 'string',
       format: 'date-time',
-      required: false,
+      required: true,
       description: 'The timestamp of the event',
       label: 'Timestamp',
       default: { '@path': '$.timestamp' }

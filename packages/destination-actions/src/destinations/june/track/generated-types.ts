@@ -14,7 +14,7 @@ export interface Payload {
   /**
    * The timestamp of the event
    */
-  timestamp?: string
+  timestamp: string
   /**
    * The anonymous ID associated with the user
    */
@@ -32,5 +32,5 @@ export interface Payload {
   /**
    * The Segment messageId
    */
-  messageId?: string
+  messageId: string
 }

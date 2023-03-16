@@ -12,4 +12,9 @@ Object {
 }
 `;
 
-exports[`Testing snapshot for June's identify destination action: required fields 1`] = `Object {}`;
+exports[`Testing snapshot for June's identify destination action: required fields 1`] = `
+Object {
+  "messageId": "F*^o9S3d7ov35",
+  "timestamp": "2065-07-30T19:11:50.607Z",
+}
+`;

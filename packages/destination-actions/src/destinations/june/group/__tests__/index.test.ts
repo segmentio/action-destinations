@@ -1,6 +1,6 @@
-import nock from 'nock';
-import { createTestIntegration } from '@segment/actions-core';
-import Destination from '../../index';
+import nock from 'nock'
+import { createTestIntegration } from '@segment/actions-core'
+import Destination from '../../index'
 
 const testDestination = createTestIntegration(Destination)
 
@@ -9,7 +9,12 @@ describe('June.group', () => {
     nock('https://api.june.so/api').post('/group').reply(200, {})
 
     const responses = await testDestination.testAction('group', {
-      mapping: { anonymousId: 'my-anonymous-id', groupId: 'my-group-id' },
+      mapping: {
+        anonymousId: 'my-anonymous-id',
+        groupId: 'my-group-id',
+        timestamp: '2021-01-01T00:00:00.000Z',
+        messageId: 'message-id'
+      },
       settings: { apiKey: 'api-key' }
     })
 

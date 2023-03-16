@@ -16,5 +16,7 @@ Object {
 exports[`Testing snapshot for June's group destination action: required fields 1`] = `
 Object {
   "groupId": "N1BSeZxxSGh^3D$",
+  "messageId": "N1BSeZxxSGh^3D$",
+  "timestamp": "2076-08-23T06:36:03.699Z",
 }
 `;

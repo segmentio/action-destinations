@@ -15,4 +15,8 @@ Object {
 }
 `;
 
-exports[`Testing snapshot for June's page destination action: required fields 1`] = `Object {}`;
+exports[`Testing snapshot for June's page destination action: required fields 1`] = `
+Object {
+  "timestamp": "2066-10-06T05:47:07.168Z",
+}
+`;

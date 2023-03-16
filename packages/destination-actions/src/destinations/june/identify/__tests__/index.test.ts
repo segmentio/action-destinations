@@ -1,6 +1,6 @@
-import nock from 'nock';
-import { createTestIntegration } from '@segment/actions-core';
-import Destination from '../../index';
+import nock from 'nock'
+import { createTestIntegration } from '@segment/actions-core'
+import Destination from '../../index'
 
 const testDestination = createTestIntegration(Destination)
 
@@ -9,7 +9,7 @@ describe('June.identify', () => {
     nock('https://api.june.so/api').post('/identify').reply(200, {})
 
     const responses = await testDestination.testAction('identify', {
-      mapping: { anonymousId: 'my-id', traits: {} },
+      mapping: { anonymousId: 'my-id', traits: {}, timestamp: '2021-01-01T00:00:00.000Z', messageId: 'message-id' },
       settings: { apiKey: 'api-key' }
     })
 

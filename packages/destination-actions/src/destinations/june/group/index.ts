@@ -9,43 +9,40 @@ const action: ActionDefinition<Settings, Payload> = {
   fields: {
     anonymousId: {
       type: 'string',
-      allowNull: true,
       description: 'Anonymous id',
       label: 'Anonymous ID',
       default: { '@path': '$.anonymousId' }
     },
     userId: {
       type: 'string',
-      allowNull: true,
       description: 'The ID associated with the user',
       label: 'User ID',
       default: { '@path': '$.userId' }
     },
     groupId: {
       type: 'string',
-      required: true,
       description: 'The group id',
       label: 'Group ID',
+      required: true,
       default: { '@path': '$.groupId' }
     },
     traits: {
       type: 'object',
       label: 'Traits',
       description: 'Traits to associate with the group',
-      allowNull: true,
       default: { '@path': '$.traits' }
     },
     timestamp: {
       type: 'string',
       format: 'date-time',
-      required: false,
+      required: true,
       description: 'The timestamp of the event',
       label: 'Timestamp',
       default: { '@path': '$.timestamp' }
     },
     messageId: {
       type: 'string',
-      required: false,
+      required: true,
       description: 'The Segment messageId',
       label: 'MessageId',
       default: { '@path': '$.messageId' }

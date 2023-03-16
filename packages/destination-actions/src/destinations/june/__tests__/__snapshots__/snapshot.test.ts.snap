@@ -16,6 +16,8 @@ Object {
 exports[`Testing snapshot for june destination: group action - required fields 1`] = `
 Object {
   "groupId": "5OAAQiSx!Ahn",
+  "messageId": "5OAAQiSx!Ahn",
+  "timestamp": "2101-06-17T06:21:34.109Z",
 }
 `;
 
@@ -31,7 +33,12 @@ Object {
 }
 `;
 
-exports[`Testing snapshot for june destination: identify action - required fields 1`] = `Object {}`;
+exports[`Testing snapshot for june destination: identify action - required fields 1`] = `
+Object {
+  "messageId": "eespaKLiAN@",
+  "timestamp": "2029-06-02T03:12:00.487Z",
+}
+`;
 
 exports[`Testing snapshot for june destination: page action - all fields 1`] = `
 Object {
@@ -48,7 +55,11 @@ Object {
 }
 `;
 
-exports[`Testing snapshot for june destination: page action - required fields 1`] = `Object {}`;
+exports[`Testing snapshot for june destination: page action - required fields 1`] = `
+Object {
+  "timestamp": "2042-05-07T02:42:23.750Z",
+}
+`;
 
 exports[`Testing snapshot for june destination: track action - all fields 1`] = `
 Object {
@@ -69,5 +80,7 @@ Object {
 exports[`Testing snapshot for june destination: track action - required fields 1`] = `
 Object {
   "event": "c7O)AqkYJ1SvNcq$fZcw",
+  "messageId": "c7O)AqkYJ1SvNcq$fZcw",
+  "timestamp": "2025-12-25T12:58:21.217Z",
 }
 `;

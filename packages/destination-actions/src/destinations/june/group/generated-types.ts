@@ -4,11 +4,11 @@ export interface Payload {
   /**
    * Anonymous id
    */
-  anonymousId?: string | null
+  anonymousId?: string
   /**
    * The ID associated with the user
    */
-  userId?: string | null
+  userId?: string
   /**
    * The group id
    */
@@ -18,13 +18,13 @@ export interface Payload {
    */
   traits?: {
     [k: string]: unknown
-  } | null
+  }
   /**
    * The timestamp of the event
    */
-  timestamp?: string
+  timestamp: string
   /**
    * The Segment messageId
    */
-  messageId?: string
+  messageId: string
 }

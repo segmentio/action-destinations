@@ -9,14 +9,12 @@ const action: ActionDefinition<Settings, Payload> = {
   fields: {
     anonymousId: {
       type: 'string',
-      allowNull: true,
       description: 'An anonymous identifier',
       label: 'Anonymous ID',
       default: { '@path': '$.anonymousId' }
     },
     userId: {
       type: 'string',
-      allowNull: true,
       description: 'The ID associated with the user',
       label: 'User ID',
       default: { '@path': '$.userId' }
@@ -31,14 +29,14 @@ const action: ActionDefinition<Settings, Payload> = {
     timestamp: {
       type: 'string',
       format: 'date-time',
-      required: false,
+      required: true,
       description: 'The timestamp of the event',
       label: 'Timestamp',
       default: { '@path': '$.timestamp' }
     },
     messageId: {
       type: 'string',
-      required: false,
+      required: true,
       description: 'The Segment messageId',
       label: 'MessageId',
       default: { '@path': '$.messageId' }
