@@ -57,7 +57,7 @@ const fetchProfileTraits = async (
     const body = await response.json()
     return body.traits
   } catch (error) {
-    logger?.error?.('TE Messaging: Email profile traits request failure')
+    logger?.error?.(`TE Messaging: Email profile traits request failure: ${error}`)
     statsClient?.incr('actions-personas-messaging-sendgrid.profile_error', 1, tags)
     throw new IntegrationError('Unable to get profile traits for email message', 'Email trait fetch failure', 500)
   }
@@ -110,7 +110,7 @@ const generateEmailHtml = async (
     const body = await response.json()
     return (body as UnlayerResponse).data.html
   } catch (error) {
-    logger?.error?.('TE Messaging: Email export request failure')
+    logger?.error?.(`TE Messaging: Email export request failure: ${error}`)
     throw new IntegrationError('Unable to export email as HTML', 'Export HTML failure', 400)
   }
 }
@@ -127,7 +127,7 @@ const parseTemplating = async (content: string, profile: Profile, contentType: s
     const parsedContent = await Liquid.parseAndRender(content, { profile })
     return parsedContent
   } catch (error) {
-    logger?.error?.('TE Messaging: Email templating parse failure')
+    logger?.error?.(`TE Messaging: Email templating parse failure: ${error}`)
     throw new IntegrationError(
       `Unable to parse templating in email ${contentType}`,
       `${contentType} templating parse failure`,
@@ -493,7 +493,7 @@ const action: ActionDefinition<Settings, Payload> = {
         }
         return response
       } catch (error: unknown) {
-        logger?.error?.('TE Messaging: Email message request failure')
+        logger?.error?.(`TE Messaging: Email message request failure: ${error}`)
         statsClient?.incr('actions-personas-messaging-sendgrid.request-failure', 1, tags)
       }
     } else {

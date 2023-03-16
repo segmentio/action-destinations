@@ -44,7 +44,7 @@ export class SmsMessageSender extends MessageSender<Payload> {
       parsedBody = await Liquid.parseAndRender(this.payload.body, { profile })
       this.logger?.info?.('TE Messaging: SMS templating parse success')
     } catch (error: unknown) {
-      this.logger?.error?.('TE Messaging: SMS templating parse failure')
+      this.logger?.error?.(`TE Messaging: SMS templating parse failure: ${error}`)
       throw new IntegrationError(`Unable to parse templating in SMS`, `SMS templating parse failure`, 400)
     }
 
@@ -87,7 +87,7 @@ export class SmsMessageSender extends MessageSender<Payload> {
       return body.traits
     } catch (error: unknown) {
       this.statsClient?.incr('actions-personas-messaging-twilio.profile_error', 1, this.tags)
-      this.logger?.error?.('TE Messaging: SMS profile traits request failure')
+      this.logger?.error?.(`TE Messaging: SMS profile traits request failure: ${error}`)
       throw new IntegrationError('Unable to get profile traits for SMS message', 'SMS trait fetch failure', 500)
     }
   }
