@@ -67,6 +67,12 @@ const action: ActionDefinition<Settings, Payload> = {
           label: 'Link Url',
           type: 'string'
         },
+        currency: {
+          label: 'Currency',
+          type: 'string',
+          description:
+            'Event. Currency used for product pricing, in ISO 4217 format (e.g. USD). Required field for Purchase and Cart Page Events.'
+        },
         product_id: {
           label: 'Product Id',
           type: 'string',
@@ -109,7 +115,7 @@ const action: ActionDefinition<Settings, Payload> = {
         event_group_id: {
           label: 'Event Group ID',
           type: 'string',
-          description: 'Order or Basket Id'
+          description: 'Event group ID. Required field for Purchase and Cart Page Events.'
         },
         referrer: {
           label: 'Referrer',
@@ -178,7 +184,7 @@ const action: ActionDefinition<Settings, Payload> = {
         unit_sale_price: {
           label: 'Unit Sale Price',
           type: 'number',
-          description: 'Unit sale price of the product.'
+          description: 'Unit price of the product. Required field for Purchase and Cart Page Events.'
         },
         unit_price: {
           label: 'Unit Price',

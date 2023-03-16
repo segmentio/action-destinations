@@ -186,7 +186,8 @@ export function sendTrackEvent(data: EventPayload) {
     'quantity',
     'product_image_url',
     'event_group_id',
-    'referrer'
+    'referrer',
+    'currency'
   ]
 
   for (const key of Object.keys(data.attributes || {})) {
