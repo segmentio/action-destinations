@@ -1,4 +1,4 @@
-import { parseSections, addUpdateEvents } from '../eventprocessing'
+import { parseSections, addUpdateEvents } from '../event_processing'
 
 jest.mock('@segment/actions-core')
 jest.mock('lodash/flatten')
