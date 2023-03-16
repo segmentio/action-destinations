@@ -12,6 +12,10 @@ export interface Payload {
     [k: string]: unknown
   }
   /**
+   * a string that uniquely identifies a user, such as an email, handle, or username. This means no two users in one environment may share the same identity. More on identify: https://developers.heap.io/docs/using-identify
+   */
+  identity?: string
+  /**
    * The segment anonymous identifier for the user
    */
   anonymousId?: string

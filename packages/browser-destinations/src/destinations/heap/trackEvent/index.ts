@@ -28,6 +28,13 @@ const action: BrowserActionDefinition<Settings, HeapApi, Payload> = {
         '@path': '$.properties'
       }
     },
+    identity: {
+      type: 'string',
+      required: false,
+      label: 'Identity',
+      description:
+        'a string that uniquely identifies a user, such as an email, handle, or username. This means no two users in one environment may share the same identity. More on identify: https://developers.heap.io/docs/using-identify'
+    },
     anonymousId: {
       type: 'string',
       required: false,
@@ -41,10 +48,13 @@ const action: BrowserActionDefinition<Settings, HeapApi, Payload> = {
   perform: (heap, event) => {
     const eventProperties = Object.assign({}, event.payload.properties ?? {})
     eventProperties.segment_library = HEAP_SEGMENT_BROWSER_LIBRARY_NAME
-    heap.track(event.payload.name, eventProperties)
     if (event.payload.anonymousId) {
       heap.addUserProperties({ anonymous_id: event.payload.anonymousId })
     }
+    if (event.payload?.identity) {
+      heap.identify(event.payload.identity)
+    }
+    heap.track(event.payload.name, eventProperties)
   }
 }
 
