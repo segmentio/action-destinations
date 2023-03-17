@@ -116,14 +116,6 @@ const hash = (value: string | undefined): string | undefined => {
   return hash.digest('hex')
 }
 
-// export const normalisedAndHashed_1 = (data: string[] | undefined) => {
-
-//   return data?.map((el: string) =>
-//     hash(el.replace(/\s/g, '').toLowerCase())
-//   ) as string[]
-
-// }
-
 // Normalization of user data properties according to Pinterest conversion event
 // https://developers.pinterest.com/docs/conversions/conversion-management/#Authenticating%20for%20the%20Conversion%20Tracking%20endpoint%23Authenticating%20for%20the%20send%20conversion%20events%20endpoint#The%20%2Cuser_data%2C%20and%20%2Ccustom_data%2C%20objects
 
@@ -179,13 +171,9 @@ export const normalisedAndHashed = (payload: UserData) => {
   }
 
   if (!isEmpty(payload.user_data?.state)) {
-    payload.user_data.state = payload.user_data.state?.map((el: string) => {
-      el = el.replace(/\s/g, '').toLowerCase()
-      // if (US_STATE_CODES.has(el)) {
-      //   el = US_STATE_CODES.get(el) as string
-      // }
-      return hash(el)
-    }) as string[]
+    payload.user_data.state = payload.user_data.state?.map((el: string) =>
+      hash(el.replace(/\s/g, '').toLowerCase())
+    ) as string[]
   }
 
   if (!isEmpty(payload.user_data?.zip)) {
@@ -195,13 +183,9 @@ export const normalisedAndHashed = (payload: UserData) => {
   }
 
   if (!isEmpty(payload.user_data?.country)) {
-    payload.user_data.country = payload.user_data.country?.map((el: string) => {
-      el = el.replace(/\s/g, '').toLowerCase()
-      // if (COUNTRY_CODES.has(el)) {
-      //   el = COUNTRY_CODES.get(el) as string
-      // }
-      return hash(el)
-    }) as string[]
+    payload.user_data.country = payload.user_data.country?.map((el: string) =>
+      hash(el.replace(/\s/g, '').toLowerCase())
+    ) as string[]
   }
 
   if (!isEmpty(payload.user_data?.external_id)) {

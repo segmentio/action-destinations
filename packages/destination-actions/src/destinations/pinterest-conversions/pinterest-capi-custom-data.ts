@@ -1,8 +1,5 @@
 import { InputField } from '@segment/actions-core/src/destination-kit/types'
-// import { Payload } from './reportConversionEvent/generated-types'
 
-// Implementation of Facebook user data object
-// https://developers.facebook.com/docs/marketing-api/conversions-api/parameters/customer-information-parameters
 export const custom_data_field: InputField = {
   label: 'Custom Data',
   description: 'Object containing customer information data.',
