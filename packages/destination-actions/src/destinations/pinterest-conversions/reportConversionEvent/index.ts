@@ -194,26 +194,6 @@ function validateUserData(payloads: Payload[]) {
   })
 }
 
-// function validateEventNameAndSource(payloads: Payload[]) {
-
-//   // choices or dropdown
-//   for (const payload of payloads) {
-//     // Need to ask whether we should throw error or skip that payload if it doesn't satisfy the condition
-//     if (!Object.prototype.hasOwnProperty.call(EVENT_NAME, `${payload.event_name?.toUpperCase()}`)) {
-//       throw new IntegrationError(`${payload.event_name} is not a valid event name.`, 'Incorrect Event Name', 400)
-//     }
-
-//     if (!ACTION_SOURCE.includes(`${payload.action_source}`)) {
-//       throw new IntegrationError(
-//         `${payload.action_source} is not a valid source of event.`,
-//         'Invalid Event Source',
-//         400
-//       )
-//     }
-//   }
-// }
-
-//action-tester array
 function createPinterestPayload(payloads: Payload[]) {
   return payloads.map((payload) => {
     return {

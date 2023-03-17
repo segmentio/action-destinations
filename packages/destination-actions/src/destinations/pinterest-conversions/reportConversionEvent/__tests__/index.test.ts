@@ -1,11 +1,9 @@
 import nock from 'nock'
 import { createTestEvent, createTestIntegration } from '@segment/actions-core'
-// import { eventNames } from 'process'
 import Destination from '../../index'
 import { API_VERSION } from '../../constants'
 import { Settings } from '../../generated-types'
 import { SegmentEvent } from '@segment/actions-core'
-// import { response } from 'express'
 
 const testDestination = createTestIntegration(Destination)
 const event = createTestEvent({
