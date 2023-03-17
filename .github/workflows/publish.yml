@@ -59,14 +59,9 @@ jobs:
 
       - name: Publish
         run: |
-          RESPONSE=$(lerna publish prerelease \
+          lerna publish \
             --canary \
             --preid \
             $(git branch --show-current) \
             --yes \
-            2>&1 | tee)
-          RESPONSE="${RESPONSE//$'\n'/'\r\n'}"
-          echo 'LERNA_RESPONSE<<EOF' >> $GITHUB_ENV
-          echo $RESPONSE >> $GITHUB_ENV
-          echo 'EOF' >> $GITHUB_ENV
-          echo $RESPONSE
+            2>&1
