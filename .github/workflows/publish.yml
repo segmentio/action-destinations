@@ -61,4 +61,5 @@ jobs:
         run: |
           lerna publish minor \
             --allowBranch=npmautopublish \
+            --yes \
             2>&1
