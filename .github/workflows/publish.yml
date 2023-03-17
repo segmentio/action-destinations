@@ -6,7 +6,7 @@ name: Node.js Package
 on:
   push:
     branches:
-      - npm_auto_publish
+      - npmautopublish
 
 jobs:
   build-and-publish:
