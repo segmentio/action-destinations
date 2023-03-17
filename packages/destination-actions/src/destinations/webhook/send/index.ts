@@ -1,6 +1,7 @@
 import { ActionDefinition } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
+import { encodeHeader } from '../utils'
 
 type RequestMethod = 'POST' | 'PUT' | 'PATCH'
 
@@ -41,15 +42,23 @@ const action: ActionDefinition<Settings, Payload> = {
     }
   },
   perform: (request, { payload }) => {
+    let { headers } = payload
+    if (headers) {
+      headers = encodeHeader(headers as Record<string, string>)
+    }
     return request(payload.url, {
       method: payload.method as RequestMethod,
-      headers: payload.headers as Record<string, string>,
+      headers: headers as Record<string, string>,
       json: payload.data
     })
   },
   performBatch: (request, { payload }) => {
     // Expect these to be the same across the payloads
-    const { url, method, headers } = payload[0]
+    const { url, method } = payload[0]
+    let { headers } = payload[0]
+    if (headers) {
+      headers = encodeHeader(headers as Record<string, string>)
+    }
 
     return request(url, {
       method: method as RequestMethod,
