@@ -63,8 +63,6 @@ jobs:
             --canary \
             --preid \
             $(git branch --show-current) \
-            --pre-dist-tag canary \
-            --no-verify-access \
             --yes \
             2>&1 | tee)
           RESPONSE="${RESPONSE//$'\n'/'\r\n'}"
