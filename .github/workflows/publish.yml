@@ -58,4 +58,4 @@ jobs:
           npm whoami
 
       - name: Publish
-        run: yarn alpha --no-verify-access --yes
+        run: yarn alpha
