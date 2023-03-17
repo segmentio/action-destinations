@@ -151,7 +151,7 @@ describe('PinterestConversionApi', () => {
           }
         })
       ).rejects.toThrowError(
-        'user_data is required at least one of email,hashed_maids and both client_ip_address and client_user_agent.'
+        'User data is required at least one of email,hashed_maids and both client_ip_address and client_user_agent.'
       )
     })
   })

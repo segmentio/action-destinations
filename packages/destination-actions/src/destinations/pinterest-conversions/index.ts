@@ -57,51 +57,83 @@ const destination: DestinationDefinition<Settings> = {
   presets: [
     {
       name: 'Add to Cart',
-      subscribe: 'type = "track" AND name = "Product Added"',
+      subscribe: 'type = "track" AND event= "Product Added"',
       partnerAction: 'reportConversionEvent',
-      mapping: { ...defaultValues(reportConversionEvent.fields), event_name: 'add_to_cart' }
+      mapping: {
+        ...defaultValues(reportConversionEvent.fields),
+        event_name: 'add_to_cart',
+        user_data: { email: ['test@gmail.com'] }
+      }
     },
     {
       name: 'Checkout',
-      subscribe: 'type = "track" AND name = "Checkout"',
+      subscribe: 'type = "track" AND event= "Checkout"',
       partnerAction: 'reportConversionEvent',
-      mapping: { ...defaultValues(reportConversionEvent.fields), event_name: 'checkout' }
+      mapping: {
+        ...defaultValues(reportConversionEvent.fields),
+        event_name: 'checkout',
+        user_data: { email: ['test@gmail.com'] }
+      }
     },
     {
       name: 'Lead',
-      subscribe: 'type = "track" AND name = "Generate Lead"',
+      subscribe: 'type = "track" AND event= "Generate Lead"',
       partnerAction: 'reportConversionEvent',
-      mapping: { ...defaultValues(reportConversionEvent.fields), event_name: 'lead' }
+      mapping: {
+        ...defaultValues(reportConversionEvent.fields),
+        event_name: 'lead',
+        user_data: { email: ['test@gmail.com'] }
+      }
     },
     {
       name: 'Page Visit',
       subscribe: 'type = "page"',
       partnerAction: 'reportConversionEvent',
-      mapping: { ...defaultValues(reportConversionEvent.fields), event_name: 'page_visit' }
+      mapping: {
+        ...defaultValues(reportConversionEvent.fields),
+        event_name: 'page_visit',
+        user_data: { email: ['test@gmail.com'] }
+      }
     },
     {
       name: 'Search',
-      subscribe: 'type = "track" AND name = "Products Searched"',
+      subscribe: 'type = "track" AND event= "Products Searched"',
       partnerAction: 'reportConversionEvent',
-      mapping: { ...defaultValues(reportConversionEvent.fields), event_name: 'search' }
+      mapping: {
+        ...defaultValues(reportConversionEvent.fields),
+        event_name: 'search',
+        user_data: { email: ['test@gmail.com'] }
+      }
     },
     {
       name: 'Sign Up',
-      subscribe: 'type = "track" AND name = "Signed Up',
+      subscribe: 'type = "track" AND event= "Signed Up',
       partnerAction: 'reportConversionEvent',
-      mapping: { ...defaultValues(reportConversionEvent.fields), event_name: 'sign_up' }
+      mapping: {
+        ...defaultValues(reportConversionEvent.fields),
+        event_name: 'sign_up',
+        user_data: { email: ['test@gmail.com'] }
+      }
     },
     {
       name: 'View Category',
-      subscribe: 'type = "page" AND name = "Product Category Viewed"',
+      subscribe: 'type = "track" AND event= "Product Category Viewed"',
       partnerAction: 'reportConversionEvent',
-      mapping: { ...defaultValues(reportConversionEvent.fields), event_name: 'view_category' }
+      mapping: {
+        ...defaultValues(reportConversionEvent.fields),
+        event_name: 'view_category',
+        user_data: { email: ['test@gmail.com'] }
+      }
     },
     {
       name: 'Watch Video',
-      subscribe: 'type = "track" AND name = "Product Video Watched"',
+      subscribe: 'type = "track" AND event= "Product Video Watched"',
       partnerAction: 'reportConversionEvent',
-      mapping: { ...defaultValues(reportConversionEvent.fields), event_name: 'watch_video' }
+      mapping: {
+        ...defaultValues(reportConversionEvent.fields),
+        event_name: 'watch_video',
+        user_data: { email: ['test@gmail.com'] }
+      }
     }
   ],
   actions: {

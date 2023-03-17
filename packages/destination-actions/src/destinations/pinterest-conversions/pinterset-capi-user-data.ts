@@ -1,8 +1,6 @@
 import { InputField } from '@segment/actions-core/src/destination-kit/types'
 import { createHash } from 'crypto'
-// import { US_STATE_CODES, COUNTRY_CODES } from '../facebook-conversions-api/constants'
 import { Payload } from './reportConversionEvent/generated-types'
-// import { InputField } from "@segment/actions-core";
 import isEmpty from 'lodash/isEmpty'
 
 // Implementation of Pinterest user data object
