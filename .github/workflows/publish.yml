@@ -6,7 +6,7 @@ name: Node.js Package
 on:
   push:
     branches:
-      - main
+      - npmautopublish
 
 jobs:
   build-and-publish:
@@ -19,9 +19,9 @@ jobs:
         node-version: [18.x]
 
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
         with:
-          persist-credentials: false
+          token: ${{ secrets.GH_PAT }}
 
       - name: Use Node.js ${{ matrix.node-version }}
         uses: actions/setup-node@v2
@@ -67,8 +67,10 @@ jobs:
           npm whoami
 
       - name: Publish
+        env:
+          HUSKY: 0
         run: |
           lerna publish minor \
-            --allowBranch=main \
+            --allowBranch=npmautopublish \
             --yes \
             2>&1
