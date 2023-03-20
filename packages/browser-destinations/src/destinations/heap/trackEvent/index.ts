@@ -3,6 +3,8 @@ import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 import { HeapApi } from '../types'
 import { HEAP_SEGMENT_BROWSER_LIBRARY_NAME } from '../constants'
+import { isDefined } from '../utils'
+import { flat } from '@segment/action-destinations/dist/destinations/heap/flat'
 
 const action: BrowserActionDefinition<Settings, HeapApi, Payload> = {
   title: 'Track Event',
@@ -43,15 +45,28 @@ const action: BrowserActionDefinition<Settings, HeapApi, Payload> = {
       default: {
         '@path': '$.anonymousId'
       }
+    },
+    traits: {
+      label: 'User Properties',
+      type: 'object',
+      description:
+        'An object with key-value properties you want associated with the user. Each property must either be a number or string with fewer than 1024 characters.',
+      default: {
+        '@path': '$.context.traits'
+      }
     }
   },
   perform: (heap, event) => {
     const eventProperties = Object.assign({}, event.payload.properties ?? {})
     eventProperties.segment_library = HEAP_SEGMENT_BROWSER_LIBRARY_NAME
-    if (event.payload.anonymousId) {
-      heap.addUserProperties({ anonymous_id: event.payload.anonymousId })
+    if (event.payload.anonymousId || isDefined(event.payload?.traits)) {
+      const traits = flat(event.payload?.traits)
+      heap.addUserProperties({
+        ...(isDefined(event.payload.anonymousId) && { anonymous_id: event.payload.anonymousId }),
+        ...(isDefined(traits) && traits)
+      })
     }
-    if (event.payload?.identity) {
+    if (event.payload?.identity && isDefined(event.payload?.identity)) {
       heap.identify(event.payload.identity)
     }
     heap.track(event.payload.name, eventProperties)

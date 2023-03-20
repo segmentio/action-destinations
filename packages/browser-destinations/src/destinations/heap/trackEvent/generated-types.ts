@@ -19,4 +19,10 @@ export interface Payload {
    * The segment anonymous identifier for the user
    */
   anonymousId?: string
+  /**
+   * An object with key-value properties you want associated with the user. Each property must either be a number or string with fewer than 1024 characters.
+   */
+  traits?: {
+    [k: string]: unknown
+  }
 }

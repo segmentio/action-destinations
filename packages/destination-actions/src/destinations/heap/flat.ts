@@ -1,3 +1,5 @@
+import { isDefined } from './heapUtils'
+
 export type Properties = {
   [k: string]: unknown
 }
@@ -6,7 +8,10 @@ type FlattenProperties = object & {
   [k: string]: string
 }
 
-export function flat(data: Properties, prefix = ''): FlattenProperties {
+export function flat(data?: Properties, prefix = ''): FlattenProperties | undefined {
+  if (!isDefined(data)) {
+    return undefined
+  }
   let result: FlattenProperties = {}
   for (const key in data) {
     if (typeof data[key] == 'object' && data[key] !== null) {
