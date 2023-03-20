@@ -72,4 +72,6 @@ jobs:
         run: |
           lerna publish minor \
             --yes \
-            --skip-git
+            ---no-git-tag-version \
+            --no-push \
+            --allowBranch=npmautopublish
