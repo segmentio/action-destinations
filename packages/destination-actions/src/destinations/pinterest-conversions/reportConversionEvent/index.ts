@@ -39,7 +39,8 @@ const action: ActionDefinition<Settings, Payload> = {
         { label: 'App IOS', value: 'app_ios' },
         { label: 'Web', value: 'web' },
         { label: 'Offline', value: 'offline' }
-      ]
+      ],
+      default: 'web'
     },
     event_time: {
       label: 'Event Timestamp',
@@ -169,7 +170,7 @@ async function processPayload(request: RequestClient, settings: Settings, payloa
 
   if (!payloads.length) {
     throw new IntegrationError(
-      `user_data is required at least one of email,hashed_maids and both client_ip_address and client_user_agent.`,
+      `User data is required at least one of email,hashed_maids and both client_ip_address and client_user_agent.`,
       'Bad Request',
       400
     )
