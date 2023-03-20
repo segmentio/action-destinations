@@ -57,7 +57,7 @@ const destination: DestinationDefinition<Settings> = {
   presets: [
     {
       name: 'Add to Cart',
-      subscribe: 'type = "track" AND event= "Product Added"',
+      subscribe: 'type = "track" AND event = "Product Added"',
       partnerAction: 'reportConversionEvent',
       mapping: {
         ...defaultValues(reportConversionEvent.fields),
@@ -67,7 +67,7 @@ const destination: DestinationDefinition<Settings> = {
     },
     {
       name: 'Checkout',
-      subscribe: 'type = "track" AND event= "Checkout"',
+      subscribe: 'type = "track" AND event = "Checkout"',
       partnerAction: 'reportConversionEvent',
       mapping: {
         ...defaultValues(reportConversionEvent.fields),
@@ -77,7 +77,7 @@ const destination: DestinationDefinition<Settings> = {
     },
     {
       name: 'Lead',
-      subscribe: 'type = "track" AND event= "Generate Lead"',
+      subscribe: 'type = "track" AND event = "Generate Lead"',
       partnerAction: 'reportConversionEvent',
       mapping: {
         ...defaultValues(reportConversionEvent.fields),
@@ -97,7 +97,7 @@ const destination: DestinationDefinition<Settings> = {
     },
     {
       name: 'Search',
-      subscribe: 'type = "track" AND event= "Products Searched"',
+      subscribe: 'type = "track" AND event = "Products Searched"',
       partnerAction: 'reportConversionEvent',
       mapping: {
         ...defaultValues(reportConversionEvent.fields),
@@ -107,7 +107,7 @@ const destination: DestinationDefinition<Settings> = {
     },
     {
       name: 'Sign Up',
-      subscribe: 'type = "track" AND event= "Signed Up',
+      subscribe: 'type = "track" AND event = "Signed Up',
       partnerAction: 'reportConversionEvent',
       mapping: {
         ...defaultValues(reportConversionEvent.fields),
@@ -117,7 +117,7 @@ const destination: DestinationDefinition<Settings> = {
     },
     {
       name: 'View Category',
-      subscribe: 'type = "track" AND event= "Product Category Viewed"',
+      subscribe: 'type = "track" AND event = "Product Category Viewed"',
       partnerAction: 'reportConversionEvent',
       mapping: {
         ...defaultValues(reportConversionEvent.fields),
@@ -127,7 +127,7 @@ const destination: DestinationDefinition<Settings> = {
     },
     {
       name: 'Watch Video',
-      subscribe: 'type = "track" AND event= "Product Video Watched"',
+      subscribe: 'type = "track" AND event = "Product Video Watched"',
       partnerAction: 'reportConversionEvent',
       mapping: {
         ...defaultValues(reportConversionEvent.fields),
