@@ -51,6 +51,29 @@ describe('Webhook', () => {
       expect(responses[0].status).toBe(200)
     })
 
+    it('supports unicode characters in header value', async () => {
+      const url = 'https://example.build'
+      const event = createTestEvent()
+      const headerField = 'Custom-Header'
+      const headerValue = 'عبدالله'
+      const data = { cool: true }
+
+      nock(url).put('/', data).matchHeader(headerField, '%D8%B9%D8%A8%D8%AF%D8%A7%D9%84%D9%84%D9%87').reply(200)
+
+      const responses = await testDestination.testAction('send', {
+        event,
+        mapping: {
+          url,
+          method: 'PUT',
+          headers: { [headerField]: headerValue },
+          data
+        }
+      })
+
+      expect(responses.length).toBe(1)
+      expect(responses[0].status).toBe(200)
+    })
+
     it('supports request signing', async () => {
       const url = 'https://example.com'
       const event = createTestEvent({
