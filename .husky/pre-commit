@@ -1,10 +1,5 @@
 #!/usr/bin/env bash
 
-if [ "$CI" = "true" ]; then
-    echo "Skipping precommit hook because we're in the CI"
-    exit 0
-fi
-
 . "$(dirname "$0")/_/husky.sh"
 set -ex
 
