@@ -6,7 +6,7 @@ name: Node.js Package
 on:
   push:
     branches:
-      - npmautopublish
+      - main
 
 jobs:
   build-and-publish:
@@ -73,4 +73,4 @@ jobs:
           lerna publish minor \
             --yes \
             --amend \
-            --allowBranch=npmautopublish
+            --allowBranch=main
