@@ -105,16 +105,16 @@ const destination: DestinationDefinition<Settings> = {
         user_data: { email: ['test@gmail.com'] }
       }
     },
-    {
-      name: 'Sign Up',
-      subscribe: 'type = "track" AND event = "Signed Up',
-      partnerAction: 'reportConversionEvent',
-      mapping: {
-        ...defaultValues(reportConversionEvent.fields),
-        event_name: 'sign_up',
-        user_data: { email: ['test@gmail.com'] }
-      }
-    },
+    // {
+    //   name: 'Sign Up',
+    //   subscribe: 'type = "track" AND event = "Signed Up',
+    //   partnerAction: 'reportConversionEvent',
+    //   mapping: {
+    //     ...defaultValues(reportConversionEvent.fields),
+    //     event_name: 'sign_up',
+    //     user_data: { email: ['test@gmail.com'] }
+    //   }
+    // },
     {
       name: 'View Category',
       subscribe: 'type = "track" AND event = "Product Category Viewed"',
