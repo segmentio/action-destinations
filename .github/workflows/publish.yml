@@ -72,7 +72,5 @@ jobs:
         run: |
           lerna publish minor \
             --yes \
-            ---no-git-tag-version \
-            --no-push \
+            --amend \
             --allowBranch=npmautopublish
-          git show-ref --tags | grep -v -F "$(git ls-remote --tags <remote name> | grep -v '\^{}' | cut -f 2)"
