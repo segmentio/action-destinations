@@ -6,8 +6,7 @@ import { API_BASE, UPSERT_ENDPOINT, sendTrackEvent } from '../insider-helpers'
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Track Event',
   description: 'Record user event to Insider',
-  defaultSubscription:
-    'type = "track" and event != "Order Completed" and event != "Cart Viewed" and event != "Checkout Viewed"',
+  defaultSubscription: 'type = "track"',
   fields: {
     email_as_identifier: {
       label: 'Treat Email as Identifier',
@@ -134,6 +133,7 @@ const action: ActionDefinition<Settings, Payload> = {
             else: { '@path': '$.context.page.url' }
           }
         },
+        currency: { '@path': '$.properties.currency' },
         product_id: { '@path': '$.properties.product_id' },
         taxonomy: { '@path': '$.properties.category' },
         name: { '@path': '$.properties.name' },
