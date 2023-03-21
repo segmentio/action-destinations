@@ -1,5 +1,5 @@
 import type { RequestClient, ModifiedResponse } from '@segment/actions-core'
-import type { Payload } from '../addUser/generated-types'
+import type { Payload as CreateAudiencePayload } from '../createAudience/generated-types'
 import { BASE_URL, TIKTOK_API_VERSION } from '../constants'
 import type { GetAudienceAPIResponse, CreateAudienceAPIResponse, APIResponse } from '../types'
 import { DynamicFieldResponse } from '@segment/actions-core'
@@ -57,7 +57,7 @@ export class TikTokAudiences {
     return response.data
   }
 
-  async createAudience(payload: Payload): Promise<ModifiedResponse<CreateAudienceAPIResponse>> {
+  async createAudience(payload: CreateAudiencePayload): Promise<ModifiedResponse<CreateAudienceAPIResponse>> {
     return this.request(`${BASE_URL}${TIKTOK_API_VERSION}/segment/audience/`, {
       method: 'POST',
       json: {

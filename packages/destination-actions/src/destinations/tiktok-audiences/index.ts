@@ -2,6 +2,7 @@ import type { DestinationDefinition } from '@segment/actions-core'
 import { InvalidAuthenticationError } from '@segment/actions-core'
 import type { Settings } from './generated-types'
 import addUser from './addUser'
+import createAudience from './createAudience'
 import removeUser from './removeUser'
 import { TikTokAudiences } from './api'
 import { ModifiedResponse } from '@segment/actions-core'
@@ -55,7 +56,8 @@ const destination: DestinationDefinition<Settings> = {
 
   actions: {
     addUser,
-    removeUser
+    removeUser,
+    createAudience
   }
 }
 

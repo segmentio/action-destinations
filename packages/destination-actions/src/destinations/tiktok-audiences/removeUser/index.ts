@@ -4,15 +4,13 @@ import type { Payload } from './generated-types'
 import { processPayload } from '../functions'
 import {
   selected_advertiser_id,
-  custom_audience_name,
-  id_type,
+  custom_audience_id,
   email,
   send_email,
   send_advertising_id,
   advertising_id,
   event_name,
-  enable_batching,
-  personas_audience_key
+  enable_batching
 } from '../properties'
 import { TikTokAudiences } from '../api'
 
@@ -22,15 +20,13 @@ const action: ActionDefinition<Settings, Payload> = {
   defaultSubscription: 'event = "Audience Exited"',
   fields: {
     selected_advertiser_id: { ...selected_advertiser_id },
-    custom_audience_name: { ...custom_audience_name },
-    id_type: { ...id_type },
+    custom_audience_id: { ...custom_audience_id },
     email: { ...email },
     advertising_id: { ...advertising_id },
     send_email: { ...send_email },
     send_advertising_id: { ...send_advertising_id },
     event_name: { ...event_name },
-    enable_batching: { ...enable_batching },
-    personas_audience_key: { ...personas_audience_key }
+    enable_batching: { ...enable_batching }
   },
   dynamicFields: {
     selected_advertiser_id: async (request, { settings }) => {
