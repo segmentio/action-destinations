@@ -99,7 +99,19 @@ describe('PinterestConversionApi', () => {
         settings: authData,
         useDefaultMappings: true,
         mapping: {
-          event_name: 'checkout'
+          event_name: 'checkout',
+          user_data: {
+            first_name: ['Gaurav'],
+            last_name: ['test'],
+            external_id: ['test_external_id'],
+            phone: ['123456789'],
+            gender: ['male'],
+            city: ['asd'],
+            state: ['CA'],
+            zip: ['123456'],
+            country: ['US'],
+            hashed_maids: ['test123123']
+          }
         }
       })
       expect(responses.length).toBe(1)
