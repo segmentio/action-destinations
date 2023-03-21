@@ -14,7 +14,7 @@ const presets: DestinationDefinition['presets'] = [
   {
     name: 'Track Calls',
     subscribe: 'type = "track"',
-    partnerAction: 'trackEvent',
+    partnerAction: 'receiveEvents',
     mapping: {
       ...defaultValues(receiveEvents.fields),
       email: {
@@ -31,7 +31,7 @@ const presets: DestinationDefinition['presets'] = [
   {
     name: 'Identify Calls',
     subscribe: 'type = "identify"',
-    partnerAction: 'trackEvent',
+    partnerAction: 'receiveEvents',
     mapping: {
       ...defaultValues(receiveEvents.fields),
       email: {
