@@ -3,6 +3,7 @@ import { SKY_API_CONSTITUENT_URL, SKY_API_GIFTS_URL } from '../constants'
 import {
   Address,
   Constituent,
+  ConstituentAction,
   CreateConstituentResult,
   Email,
   ExistingAddress,
@@ -551,6 +552,13 @@ export class BlackbaudSkyApi {
     return this.request(`${SKY_API_GIFTS_URL}/gifts`, {
       method: 'post',
       json: giftData
+    })
+  }
+
+  async createConstituentAction(constituentActionData: ConstituentAction): Promise<ModifiedResponse> {
+    return this.request(`${SKY_API_CONSTITUENT_URL}/actions`, {
+      method: 'post',
+      json: constituentActionData
     })
   }
 }
