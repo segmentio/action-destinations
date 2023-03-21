@@ -28,7 +28,7 @@ export interface Payload {
   /**
    * Object containing customer information data. Note, It is required at least one of 1) em, 2) hashed_maids or 3) pair client_ip_address + client_user_agent..
    */
-  user_data: {
+  user_data?: {
     /**
      * An email address in lowercase.
      */
