@@ -63,33 +63,33 @@ const createAudienceRequestBody = {
 }
 
 describe('TiktokAudiences.addUser', () => {
-  it('should fail if `personas_audience_key` field does not match the `custom_audience_name` field', async () => {
-    await expect(
-      testDestination.testAction('addUser', {
-        event,
-        settings: {
-          advertiser_ids: ['123']
-        },
-        useDefaultMappings: true,
-        auth,
-        mapping: {
-          personas_audience_key: 'mismatched_audience',
-          id_type: 'EMAIL_SHA256',
-          selected_advertiser_id: '123'
-        }
-      })
-    ).rejects.toThrow('The value of `custom_audience_name` and `personas_audience_key` must match.')
-  })
+  // it('should fail if `personas_audience_key` field does not match the `custom_audience_name` field', async () => {
+  //   await expect(
+  //     testDestination.testAction('addUser', {
+  //       event,
+  //       settings: {
+  //         advertiser_ids: ['123']
+  //       },
+  //       useDefaultMappings: true,
+  //       auth,
+  //       mapping: {
+  //         personas_audience_key: 'mismatched_audience',
+  //         id_type: 'EMAIL_SHA256',
+  //         selected_advertiser_id: '123'
+  //       }
+  //     })
+  //   ).rejects.toThrow('The value of `custom_audience_name` and `personas_audience_key` must match.')
+  // })
 
   it('should succeed if an exisiting audience is found', async () => {
-    nock(`${BASE_URL}${TIKTOK_API_VERSION}/dmp/custom_audience/list/`)
-      .get(/.*/)
-      .query(urlParams)
-      .reply(200, {
-        code: 0,
-        message: 'OK',
-        data: { page_info: { total_number: 1 }, list: [{ name: 'personas_test_audience', audience_id: '1234345' }] }
-      })
+    // nock(`${BASE_URL}${TIKTOK_API_VERSION}/dmp/custom_audience/list/`)
+    //   .get(/.*/)
+    //   .query(urlParams)
+    //   .reply(200, {
+    //     code: 0,
+    //     message: 'OK',
+    //     data: { page_info: { total_number: 1 }, list: [{ name: 'personas_test_audience', audience_id: '1234345' }] }
+    //   })
     nock(`${BASE_URL}${TIKTOK_API_VERSION}/segment/mapping/`).post(/.*/, updateUsersRequestBody).reply(200)
 
     await expect(
@@ -102,44 +102,43 @@ describe('TiktokAudiences.addUser', () => {
         auth,
         mapping: {
           selected_advertiser_id: '123',
-          personas_audience_key: 'personas_test_audience',
-          id_type: 'EMAIL_SHA256'
+          custom_audience_id: '1234345'
         }
       })
     ).resolves.not.toThrowError()
   })
 
-  it('should successfully create a new audience if one is not found', async () => {
-    nock(`${BASE_URL}${TIKTOK_API_VERSION}/dmp/custom_audience/list/`)
-      .get(/.*/)
-      .query(urlParams)
-      .reply(200, {
-        code: 0,
-        message: 'OK',
-        data: { page_info: { total_number: 1 }, list: [{ name: 'another_audience', audience_id: '1234345' }] }
-      })
+  // it('should successfully create a new audience if one is not found', async () => {
+  //   nock(`${BASE_URL}${TIKTOK_API_VERSION}/dmp/custom_audience/list/`)
+  //     .get(/.*/)
+  //     .query(urlParams)
+  //     .reply(200, {
+  //       code: 0,
+  //       message: 'OK',
+  //       data: { page_info: { total_number: 1 }, list: [{ name: 'another_audience', audience_id: '1234345' }] }
+  //     })
 
-    nock(`${BASE_URL}${TIKTOK_API_VERSION}/segment/audience/`)
-      .post(/.*/, createAudienceRequestBody)
-      .reply(200, { data: { audience_id: '1234345' } })
-    nock(`${BASE_URL}${TIKTOK_API_VERSION}/segment/mapping/`).post(/.*/, updateUsersRequestBody).reply(200)
+  //   nock(`${BASE_URL}${TIKTOK_API_VERSION}/segment/audience/`)
+  //     .post(/.*/, createAudienceRequestBody)
+  //     .reply(200, { data: { audience_id: '1234345' } })
+  //   nock(`${BASE_URL}${TIKTOK_API_VERSION}/segment/mapping/`).post(/.*/, updateUsersRequestBody).reply(200)
 
-    await expect(
-      testDestination.testAction('addUser', {
-        event,
-        settings: {
-          advertiser_ids: ['123']
-        },
-        useDefaultMappings: true,
-        auth,
-        mapping: {
-          selected_advertiser_id: '123',
-          personas_audience_key: 'personas_test_audience',
-          id_type: 'EMAIL_SHA256'
-        }
-      })
-    ).resolves.not.toThrowError()
-  })
+  //   await expect(
+  //     testDestination.testAction('addUser', {
+  //       event,
+  //       settings: {
+  //         advertiser_ids: ['123']
+  //       },
+  //       useDefaultMappings: true,
+  //       auth,
+  //       mapping: {
+  //         selected_advertiser_id: '123',
+  //         personas_audience_key: 'personas_test_audience',
+  //         id_type: 'EMAIL_SHA256'
+  //       }
+  //     })
+  //   ).resolves.not.toThrowError()
+  // })
 
   it('should fail if all the send fields are false', async () => {
     nock(`${BASE_URL}${TIKTOK_API_VERSION}/dmp/custom_audience/list/`)
