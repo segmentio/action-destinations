@@ -155,7 +155,8 @@ export class Action<Settings, Payload extends JSONLikeObject> extends EventEmitt
       const output = await this.performRequest(this.definition.perform, dataBundle)
       results.push({ output: output as JSONObject })
     } catch (error) {
-      throw new PayloadValidationError(`${error}`)
+      if (error instanceof TypeError) throw new PayloadValidationError(error.message)
+      throw error
     }
 
     return results
