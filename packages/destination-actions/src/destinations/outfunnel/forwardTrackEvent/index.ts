@@ -1,7 +1,7 @@
-import { ActionDefinition } from '@segment/actions-core';
-import type { Settings } from '../generated-types';
-import type { Payload } from './generated-types';
-import { getEndpoint } from '../utils';
+import { ActionDefinition } from '@segment/actions-core'
+import type { Settings } from '../generated-types'
+import type { Payload } from './generated-types'
+import { getEndpoint } from '../utils'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Forward track event',
@@ -50,7 +50,6 @@ const action: ActionDefinition<Settings, Payload> = {
     },
     email: {
       type: 'string',
-      required: true,
       description: 'Email address of the user who performed the event',
       label: 'Email Address',
       default: {
@@ -88,7 +87,7 @@ const action: ActionDefinition<Settings, Payload> = {
     }
   },
   perform: async (request, { settings, payload }) => {
-    const endpoint = getEndpoint(settings.userId);
+    const endpoint = getEndpoint(settings.userId)
 
     return request(endpoint, {
       method: 'POST',
@@ -97,4 +96,4 @@ const action: ActionDefinition<Settings, Payload> = {
   }
 }
 
-export default action;
+export default action

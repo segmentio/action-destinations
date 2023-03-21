@@ -1,7 +1,7 @@
 import type { ActionDefinition } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
-import { sendTrackEvent } from '../utils'
+import { sendTrackEvent, sendBatchedTrackEvent } from '../utils'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Track Event',
@@ -83,10 +83,10 @@ const action: ActionDefinition<Settings, Payload> = {
     }
   },
   perform: (request, { settings, payload }) => {
-    return sendTrackEvent(request, settings, [payload])
+    return sendTrackEvent(request, settings, payload)
   },
   performBatch: (request, { settings, payload }) => {
-    return sendTrackEvent(request, settings, payload)
+    return sendBatchedTrackEvent(request, settings, payload)
   }
 }
 

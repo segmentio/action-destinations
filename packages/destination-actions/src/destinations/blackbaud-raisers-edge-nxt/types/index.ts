@@ -1,5 +1,6 @@
 export interface RefreshTokenResponse {
   access_token: string
+  refresh_token: string
 }
 
 export interface StringIndexedObject {
@@ -138,4 +139,25 @@ export interface RecurringGiftSchedule {
   end_date?: string | number
   frequency: string
   start_date: string | number
+}
+
+export interface ConstituentAction {
+  constituent_id: string
+  date: string | number
+  category: string
+  completed?: boolean
+  completed_date?: string | number
+  description?: string
+  direction?: string
+  end_time?: string
+  fundraisers?: string[]
+  location?: string
+  opportunity_id?: string
+  outcome?: string
+  priority?: string
+  start_time?: string
+  status?: string
+  summary?: string
+  type?: string
+  author?: string
 }

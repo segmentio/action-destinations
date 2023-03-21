@@ -22,8 +22,8 @@ export const destination: BrowserDestinationDefinition<Settings, Koala> = {
   settings: {
     project_slug: {
       type: 'string',
-      label: 'Koala Slug',
-      description: 'Please enter the slug found in your workspace settings in Koala.',
+      label: 'Public API Key',
+      description: 'Please enter your Public API Key found in your Koala workspace settings.',
       required: true
     }
   },
