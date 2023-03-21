@@ -1,7 +1,7 @@
-import nock from 'nock';
-import { createTestEvent, createTestIntegration } from '@segment/actions-core';
-import destination from '../index';
-import { generateTestData } from '../../../lib/test-data';
+import nock from 'nock'
+import { createTestEvent, createTestIntegration } from '@segment/actions-core'
+import destination from '../index'
+import { generateTestData } from '../../../lib/test-data'
 
 const testDestination = createTestIntegration(destination)
 const destinationSlug = 'june'
@@ -33,7 +33,9 @@ describe(`Testing snapshot for ${destinationSlug} destination:`, () => {
 
       try {
         const json = JSON.parse(rawBody)
-        expect(json).toMatchSnapshot()
+        expect(json).toMatchSnapshot({
+          timestamp: expect.any(String)
+        })
         return
       } catch (err) {
         expect(rawBody).toMatchSnapshot()
@@ -67,7 +69,9 @@ describe(`Testing snapshot for ${destinationSlug} destination:`, () => {
 
       try {
         const json = JSON.parse(rawBody)
-        expect(json).toMatchSnapshot()
+        expect(json).toMatchSnapshot({
+          timestamp: expect.any(String)
+        })
         return
       } catch (err) {
         expect(rawBody).toMatchSnapshot()

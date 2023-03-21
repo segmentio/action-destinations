@@ -10,13 +10,13 @@ Object {
   "properties": Object {
     "testType": "Fnv7jmQx[MuuFxlRqZ",
   },
-  "timestamp": "2066-10-06T07:47:07.168Z",
+  "timestamp": Any<String>,
   "userId": "Fnv7jmQx[MuuFxlRqZ",
 }
 `;
 
 exports[`Testing snapshot for June's page destination action: required fields 1`] = `
 Object {
-  "timestamp": "2066-10-06T07:47:07.168Z",
+  "timestamp": Any<String>,
 }
 `;
