@@ -61,8 +61,7 @@ const destination: DestinationDefinition<Settings> = {
       partnerAction: 'reportConversionEvent',
       mapping: {
         ...defaultValues(reportConversionEvent.fields),
-        event_name: 'add_to_cart',
-        user_data: { email: ['test@gmail.com'] }
+        event_name: 'add_to_cart'
       }
     },
     {
@@ -71,8 +70,7 @@ const destination: DestinationDefinition<Settings> = {
       partnerAction: 'reportConversionEvent',
       mapping: {
         ...defaultValues(reportConversionEvent.fields),
-        event_name: 'checkout',
-        user_data: { email: ['test@gmail.com'] }
+        event_name: 'checkout'
       }
     },
     {
@@ -81,8 +79,7 @@ const destination: DestinationDefinition<Settings> = {
       partnerAction: 'reportConversionEvent',
       mapping: {
         ...defaultValues(reportConversionEvent.fields),
-        event_name: 'lead',
-        user_data: { email: ['test@gmail.com'] }
+        event_name: 'lead'
       }
     },
     {
@@ -91,8 +88,7 @@ const destination: DestinationDefinition<Settings> = {
       partnerAction: 'reportConversionEvent',
       mapping: {
         ...defaultValues(reportConversionEvent.fields),
-        event_name: 'page_visit',
-        user_data: { email: ['test@gmail.com'] }
+        event_name: 'page_visit'
       }
     },
     {
@@ -101,8 +97,7 @@ const destination: DestinationDefinition<Settings> = {
       partnerAction: 'reportConversionEvent',
       mapping: {
         ...defaultValues(reportConversionEvent.fields),
-        event_name: 'search',
-        user_data: { email: ['test@gmail.com'] }
+        event_name: 'search'
       }
     },
     {
@@ -111,8 +106,7 @@ const destination: DestinationDefinition<Settings> = {
       partnerAction: 'reportConversionEvent',
       mapping: {
         ...defaultValues(reportConversionEvent.fields),
-        event_name: 'sign_up',
-        user_data: { email: ['test@gmail.com'] }
+        event_name: 'sign_up'
       }
     },
     {
@@ -121,8 +115,7 @@ const destination: DestinationDefinition<Settings> = {
       partnerAction: 'reportConversionEvent',
       mapping: {
         ...defaultValues(reportConversionEvent.fields),
-        event_name: 'view_category',
-        user_data: { email: ['test@gmail.com'] }
+        event_name: 'view_category'
       }
     },
     {
@@ -131,8 +124,7 @@ const destination: DestinationDefinition<Settings> = {
       partnerAction: 'reportConversionEvent',
       mapping: {
         ...defaultValues(reportConversionEvent.fields),
-        event_name: 'watch_video',
-        user_data: { email: ['test@gmail.com'] }
+        event_name: 'watch_video'
       }
     }
   ],

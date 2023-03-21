@@ -11,7 +11,6 @@ export const user_data_field: InputField = {
   description:
     'Object containing customer information data. Note, It is required at least one of 1) em, 2) hashed_maids or 3) pair client_ip_address + client_user_agent..',
   type: 'object',
-  required: true,
   properties: {
     email: {
       label: 'Email',
@@ -28,18 +27,12 @@ export const user_data_field: InputField = {
     client_ip_address: {
       label: 'Client IP Address',
       description: 'The IP address of the browser corresponding to the event.',
-      type: 'string',
-      default: {
-        '@path': '$.context.ip'
-      }
+      type: 'string'
     },
     client_user_agent: {
       label: 'Client User Agent',
       description: 'User agent of the device the API call originated from.',
-      type: 'string',
-      default: {
-        '@path': '$.context.userAgent'
-      }
+      type: 'string'
     },
     phone: {
       label: 'Phone Number',
@@ -102,6 +95,21 @@ export const user_data_field: InputField = {
       description: 'A two-letter country code in lowercase.',
       type: 'string',
       multiple: true
+    }
+  },
+  default: {
+    email: {
+      '@if': {
+        exists: { '@path': '$.properties.email' },
+        then: { '@path': '$.properties.email' },
+        else: { '@path': '$.traits.email' }
+      }
+    },
+    client_ip_address: {
+      '@path': '$.context.ip'
+    },
+    client_user_agent: {
+      '@path': '$.context.userAgent'
     }
   }
 }
