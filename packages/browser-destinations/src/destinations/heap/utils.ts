@@ -4,6 +4,7 @@ export function isDefined(value: string | undefined | null | number | object): b
   }
   return !(value === undefined || value === null || value === '' || value === 0 || value === '0')
 }
+
 export type Properties = {
   [k: string]: unknown
 }
