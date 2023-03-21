@@ -51,27 +51,29 @@ describe('Webhook', () => {
       expect(responses[0].status).toBe(200)
     })
 
-    it('supports unicode characters in header value', async () => {
+    it('should throw an error when header value is invalid', async () => {
       const url = 'https://example.build'
       const event = createTestEvent()
       const headerField = 'Custom-Header'
       const headerValue = 'عبدالله'
       const data = { cool: true }
 
-      nock(url).put('/', data).matchHeader(headerField, '%D8%B9%D8%A8%D8%AF%D8%A7%D9%84%D9%84%D9%87').reply(200)
+      nock(url)
+        .put('/', data)
+        .matchHeader(headerField, headerValue)
+        .replyWithError('TypeError: عبدالله is not a legal HTTP header value')
 
-      const responses = await testDestination.testAction('send', {
-        event,
-        mapping: {
-          url,
-          method: 'PUT',
-          headers: { [headerField]: headerValue },
-          data
-        }
-      })
-
-      expect(responses.length).toBe(1)
-      expect(responses[0].status).toBe(200)
+      await expect(
+        testDestination.testAction('send', {
+          event,
+          mapping: {
+            url,
+            method: 'PUT',
+            headers: { [headerField]: headerValue },
+            data
+          }
+        })
+      ).rejects.toThrow(TypeError)
     })
 
     it('supports request signing', async () => {

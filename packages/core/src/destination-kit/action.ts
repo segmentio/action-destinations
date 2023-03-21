@@ -10,7 +10,7 @@ import { NormalizedOptions } from '../request-client'
 import type { JSONSchema4 } from 'json-schema'
 import { validateSchema } from '../schema-validation'
 import { AuthTokens } from './parse-settings'
-import { IntegrationError } from '../errors'
+import { IntegrationError, PayloadValidationError } from '../errors'
 import { removeEmptyValues } from '../remove-empty-values'
 import { Logger, StatsContext, TransactionContext, StateContext } from './index'
 
@@ -151,8 +151,12 @@ export class Action<Settings, Payload extends JSONLikeObject> extends EventEmitt
     }
 
     // Construct the request client and perform the action
-    const output = await this.performRequest(this.definition.perform, dataBundle)
-    results.push({ output: output as JSONObject })
+    try {
+      const output = await this.performRequest(this.definition.perform, dataBundle)
+      results.push({ output: output as JSONObject })
+    } catch (error) {
+      throw new PayloadValidationError(`${error}`)
+    }
 
     return results
   }
