@@ -3,7 +3,6 @@ import { createTestEvent, createTestIntegration } from '@segment/actions-core'
 import Destination from '../../index'
 import { API_VERSION } from '../../constants'
 import { Settings } from '../../generated-types'
-import { SegmentEvent } from '@segment/actions-core'
 
 const testDestination = createTestIntegration(Destination)
 const event = createTestEvent({
@@ -65,11 +64,7 @@ describe('PinterestConversionApi', () => {
           settings: authData,
           useDefaultMappings: true,
           mapping: {
-            event_name: 'invalid_event_name',
-            action_source: 'web',
-            user_data: {
-              em: ['test@gmail.com']
-            }
+            event_name: 'invalid_event_name'
           }
         })
       ).rejects.toThrowError()
@@ -83,69 +78,44 @@ describe('PinterestConversionApi', () => {
           useDefaultMappings: true,
           mapping: {
             event_name: 'checkout',
-            action_source: 'invalid_action_source',
-            user_data: {
-              email: ['test@gmail.com']
-            }
+            action_source: 'invalid_action_source'
           }
         })
       ).rejects.toThrowError()
     })
 
-    it("Should filter the payload from batch that doesn't have required user_data, will proceed further when it has even single paylaod to process ", async () => {
+    it('Should send an event to pinterest successfully,if user data have either of email,hashed_maids or both client_ip_address and client_user_agent', async () => {
       nock(`https://api.pinterest.com`)
         .post(`/${API_VERSION}/ad_accounts/${authData.ad_account_id}/events`)
         .reply(200, {})
-      const events: SegmentEvent[] = [
-        event,
-        {
+
+      const responses = await testDestination.testAction('reportConversionEvent', {
+        event: {
           ...event,
-          messageId: 'test-message-1234567',
           properties: {
             email: ['test@gmail.com']
           }
-        }
-      ]
-
-      const responses = await testDestination.testBatchAction('reportConversionEvent', {
-        events,
+        },
         settings: authData,
         useDefaultMappings: true,
         mapping: {
-          event_name: 'checkout',
-          action_source: 'web',
-          user_data: {
-            email: { '@path': '$.properties.email' }
-          }
+          event_name: 'checkout'
         }
       })
       expect(responses.length).toBe(1)
       expect(responses[0].status).toBe(200)
-      console.log(responses[0]?.options?.body)
       expect(JSON.parse(responses[0]?.options?.body as string)?.data?.length).toBe(1)
       expect(responses[0].options.json).toMatchSnapshot()
     })
 
-    it('Should throw an error if nothing to process after validating user_data', async () => {
-      const events: SegmentEvent[] = [
-        event,
-        {
-          ...event,
-          messageId: 'test-message-1234567'
-        }
-      ]
-
+    it("Should throw an error when user data doesn't have either of email,hashed_maids or both client_ip_address and client_user_agent", async () => {
       await expect(
-        testDestination.testBatchAction('reportConversionEvent', {
-          events,
+        testDestination.testAction('reportConversionEvent', {
+          event,
           settings: authData,
           useDefaultMappings: true,
           mapping: {
-            event_name: 'checkout',
-            action_source: 'web',
-            user_data: {
-              email: { '@path': '$.properties.email' }
-            }
+            event_name: 'checkout'
           }
         })
       ).rejects.toThrowError(

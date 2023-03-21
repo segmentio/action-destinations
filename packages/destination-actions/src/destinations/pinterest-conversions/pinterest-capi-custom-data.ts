@@ -8,23 +8,13 @@ export const custom_data_field: InputField = {
     currency: {
       label: 'Currency',
       description: 'ISO-4217 currency code. If not provided, it will default to the currency set for the ad account.',
-      type: 'string',
-      default: {
-        '@path': '$.properties.currency'
-      }
+      type: 'string'
     },
     value: {
       label: 'Value',
       description:
         'Total value of the event. E.g. if there are multiple items in a checkout event, value should be the total price of all items',
-      type: 'number',
-      default: {
-        '@if': {
-          exists: { '@path': '$.properties.price' },
-          then: { '@path': '$.properties.price' },
-          else: { '@path': '$.properties.value' }
-        }
-      }
+      type: 'number'
     },
     content_ids: {
       label: 'Content IDs',
@@ -58,24 +48,36 @@ export const custom_data_field: InputField = {
     order_id: {
       label: 'Order ID',
       description: 'Order ID',
-      type: 'string',
-      default: {
-        '@path': '$.properties.order_id'
-      }
+      type: 'string'
     },
     search_string: {
       label: 'Search string',
       description: 'Search string related to the conversion event.',
-      type: 'string',
-      default: {
-        '@path': '$.properties.query'
-      }
+      type: 'string'
     },
     opt_out_type: {
       label: 'Opt Out Type',
       description:
         'opt_out_type is the field where we accept opt outs for your users’ privacy preference.  It can handle multiple values with commas separated.',
       type: 'string'
+    }
+  },
+  default: {
+    value: {
+      '@if': {
+        exists: { '@path': '$.properties.price' },
+        then: { '@path': '$.properties.price' },
+        else: { '@path': '$.properties.value' }
+      }
+    },
+    search_string: {
+      '@path': '$.properties.query'
+    },
+    order_id: {
+      '@path': '$.properties.order_id'
+    },
+    currency: {
+      '@path': '$.properties.currency'
     }
   }
 }

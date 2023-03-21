@@ -39,7 +39,8 @@ const action: ActionDefinition<Settings, Payload> = {
         { label: 'App IOS', value: 'app_ios' },
         { label: 'Web', value: 'web' },
         { label: 'Offline', value: 'offline' }
-      ]
+      ],
+      default: 'web'
     },
     event_time: {
       label: 'Event Timestamp',
@@ -158,24 +159,23 @@ const action: ActionDefinition<Settings, Payload> = {
     }
   },
   perform: async (request, { settings, payload }) => {
-    return processPayload(request, settings, [payload])
-  },
-  performBatch: async (request, { settings, payload }) => {
     return processPayload(request, settings, payload)
   }
 }
-async function processPayload(request: RequestClient, settings: Settings, payloads: Payload[]) {
-  payloads = validateUserData(payloads)
-
-  if (!payloads.length) {
+async function processPayload(request: RequestClient, settings: Settings, payload: Payload) {
+  if (
+    isEmpty(payload.user_data?.email) &&
+    isEmpty(payload.user_data?.hashed_maids) &&
+    !(payload.user_data?.client_ip_address && payload.user_data?.client_user_agent)
+  ) {
     throw new IntegrationError(
-      `user_data is required at least one of email,hashed_maids and both client_ip_address and client_user_agent.`,
+      `User data is required at least one of email,hashed_maids and both client_ip_address and client_user_agent.`,
       'Bad Request',
       400
     )
   }
 
-  const data = createPinterestPayload(payloads)
+  const data = createPinterestPayload(payload)
   return request(`https://api.pinterest.com/${API_VERSION}/ad_accounts/${settings.ad_account_id}/events`, {
     method: 'POST',
     json: {
@@ -184,19 +184,9 @@ async function processPayload(request: RequestClient, settings: Settings, payloa
   })
 }
 
-function validateUserData(payloads: Payload[]) {
-  return payloads.filter((payload: Payload) => {
-    return (
-      !isEmpty(payload.user_data?.email) ||
-      !isEmpty(payload.user_data?.hashed_maids) ||
-      (payload.user_data.client_ip_address && payload.user_data.client_user_agent)
-    )
-  })
-}
-
-function createPinterestPayload(payloads: Payload[]) {
-  return payloads.map((payload) => {
-    return {
+function createPinterestPayload(payload: Payload) {
+  return [
+    {
       event_name: payload.event_name,
       action_source: payload.action_source,
       event_time: payload.event_time,
@@ -225,7 +215,7 @@ function createPinterestPayload(payloads: Payload[]) {
       wifi: payload.wifi,
       language: payload.language
     }
-  })
+  ]
 }
 
 export default action
