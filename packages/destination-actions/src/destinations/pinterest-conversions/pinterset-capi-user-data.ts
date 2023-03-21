@@ -120,83 +120,90 @@ const hash = (value: string | undefined): string | undefined => {
 // https://developers.pinterest.com/docs/conversions/conversion-management/#Authenticating%20for%20the%20Conversion%20Tracking%20endpoint%23Authenticating%20for%20the%20send%20conversion%20events%20endpoint#The%20%2Cuser_data%2C%20and%20%2Ccustom_data%2C%20objects
 
 export const normalisedAndHashed = (payload: UserData) => {
-  if (!isEmpty(payload.user_data?.email)) {
-    // Regex removes all whitespace in the string.
-    payload.user_data.email = payload.user_data?.email?.map((el: string) =>
-      hash(el.replace(/\s/g, '').toLowerCase())
-    ) as string[]
-  }
+  if (payload.user_data) {
+    if (!isEmpty(payload.user_data?.email)) {
+      // Regex removes all whitespace in the string.
+      payload.user_data.email = payload.user_data?.email?.map((el: string) =>
+        hash(el.replace(/\s/g, '').toLowerCase())
+      ) as string[]
+    }
 
-  if (!isEmpty(payload.user_data?.phone)) {
-    // Regex removes all non-numeric characters from the string.
-    payload.user_data.phone = payload.user_data.phone?.map((el: string) =>
-      hash(el.replace(/\D/g, '').toLowerCase())
-    ) as string[]
-  }
+    if (!isEmpty(payload.user_data?.phone)) {
+      // Regex removes all non-numeric characters from the string.
+      payload.user_data.phone = payload.user_data?.phone?.map((el: string) =>
+        hash(el.replace(/\D/g, '').toLowerCase())
+      ) as string[]
+    }
 
-  if (!isEmpty(payload.user_data?.gender)) {
-    payload.user_data.gender = payload.user_data.gender?.map((el: string) => {
-      el = el.replace(/\s/g, '').toLowerCase()
-      switch (el) {
-        case 'male':
-          el = 'm'
-          break
-        case 'female':
-          el = 'f'
-          break
-        case 'non-binary':
-          el = 'n'
-          break
-      }
-      return hash(el)
-    }) as string[]
-  }
+    if (!isEmpty(payload.user_data?.gender)) {
+      payload.user_data.gender = payload.user_data?.gender?.map((el: string) => {
+        el = el.replace(/\s/g, '').toLowerCase()
+        switch (el) {
+          case 'male':
+            el = 'm'
+            break
+          case 'female':
+            el = 'f'
+            break
+          case 'non-binary':
+            el = 'n'
+            break
+        }
+        return hash(el)
+      }) as string[]
+    }
 
-  if (!isEmpty(payload.user_data?.last_name)) {
-    payload.user_data.last_name = payload.user_data.last_name?.map((el: string) =>
-      hash(el.replace(/\s/g, '').toLowerCase())
-    ) as string[]
-  }
+    if (!isEmpty(payload.user_data?.last_name)) {
+      payload.user_data.last_name = payload.user_data?.last_name?.map((el: string) =>
+        hash(el.replace(/\s/g, '').toLowerCase())
+      ) as string[]
+    }
 
-  if (!isEmpty(payload.user_data?.first_name)) {
-    payload.user_data.first_name = payload.user_data.first_name?.map((el: string) =>
-      hash(el.replace(/\s/g, '').toLowerCase())
-    ) as string[]
-  }
+    if (!isEmpty(payload.user_data?.first_name)) {
+      payload.user_data.first_name = payload.user_data?.first_name?.map((el: string) =>
+        hash(el.replace(/\s/g, '').toLowerCase())
+      ) as string[]
+    }
 
-  if (!isEmpty(payload.user_data?.city)) {
-    payload.user_data.city = payload.user_data.city?.map((el: string) =>
-      hash(el.replace(/\s/g, '').toLowerCase())
-    ) as string[]
-  }
+    if (!isEmpty(payload.user_data?.city)) {
+      payload.user_data.city = payload.user_data?.city?.map((el: string) =>
+        hash(el.replace(/\s/g, '').toLowerCase())
+      ) as string[]
+    }
 
-  if (!isEmpty(payload.user_data?.state)) {
-    payload.user_data.state = payload.user_data.state?.map((el: string) =>
-      hash(el.replace(/\s/g, '').toLowerCase())
-    ) as string[]
-  }
+    if (!isEmpty(payload.user_data?.state)) {
+      payload.user_data.state = payload.user_data?.state?.map((el: string) =>
+        hash(el.replace(/\s/g, '').toLowerCase())
+      ) as string[]
+    }
 
-  if (!isEmpty(payload.user_data?.zip)) {
-    payload.user_data.zip = payload.user_data.zip?.map((el: string) =>
-      hash(el.replace(/\s/g, '').toLowerCase())
-    ) as string[]
-  }
+    if (!isEmpty(payload.user_data?.zip)) {
+      payload.user_data.zip = payload.user_data?.zip?.map((el: string) =>
+        hash(el.replace(/\s/g, '').toLowerCase())
+      ) as string[]
+    }
 
-  if (!isEmpty(payload.user_data?.country)) {
-    payload.user_data.country = payload.user_data.country?.map((el: string) =>
-      hash(el.replace(/\s/g, '').toLowerCase())
-    ) as string[]
-  }
+    if (!isEmpty(payload.user_data?.country)) {
+      payload.user_data.country = payload.user_data?.country?.map((el: string) =>
+        hash(el.replace(/\s/g, '').toLowerCase())
+      ) as string[]
+    }
 
-  if (!isEmpty(payload.user_data?.external_id)) {
-    payload.user_data.external_id = payload.user_data.external_id?.map((el: string) =>
-      hash(el.replace(/\s/g, '').toLowerCase())
-    ) as string[]
-  }
-  if (!isEmpty(payload.user_data?.hashed_maids)) {
-    payload.user_data.hashed_maids = payload.user_data.hashed_maids?.map((el: string) =>
-      hash(el.replace(/\s/g, '').toLowerCase())
-    ) as string[]
+    if (!isEmpty(payload.user_data?.external_id)) {
+      payload.user_data.external_id = payload.user_data?.external_id?.map((el: string) =>
+        hash(el.replace(/\s/g, '').toLowerCase())
+      ) as string[]
+    }
+    if (!isEmpty(payload.user_data?.hashed_maids)) {
+      payload.user_data.hashed_maids = payload.user_data?.hashed_maids?.map((el: string) =>
+        hash(el.replace(/\s/g, '').toLowerCase())
+      ) as string[]
+    }
+    if (!isEmpty(payload.user_data?.date_of_birth)) {
+      payload.user_data.date_of_birth = payload.user_data?.date_of_birth?.map((el: string) =>
+        hash(el.replace(/\s/g, '').toLowerCase())
+      ) as string[]
+    }
   }
 }
 
