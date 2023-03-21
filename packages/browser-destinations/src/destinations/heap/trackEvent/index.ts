@@ -3,8 +3,7 @@ import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 import { HeapApi } from '../types'
 import { HEAP_SEGMENT_BROWSER_LIBRARY_NAME } from '../constants'
-import { isDefined } from '../utils'
-import { flat } from '@segment/action-destinations/dist/destinations/heap/flat'
+import { isDefined, flat } from '../utils'
 
 const action: BrowserActionDefinition<Settings, HeapApi, Payload> = {
   title: 'Track Event',
@@ -57,12 +56,7 @@ const action: BrowserActionDefinition<Settings, HeapApi, Payload> = {
     }
   },
   perform: (heap, event) => {
-    const eventProperties = Object.assign(
-      {
-        ...(isDefined(event.payload.anonymousId) && { anonymous_id: event.payload.anonymousId })
-      },
-      event.payload.properties ?? {}
-    )
+    const eventProperties = Object.assign({}, event.payload.properties)
     eventProperties.segment_library = HEAP_SEGMENT_BROWSER_LIBRARY_NAME
     if (event.payload.anonymousId || isDefined(event.payload?.traits)) {
       const traits = flat(event.payload?.traits)
