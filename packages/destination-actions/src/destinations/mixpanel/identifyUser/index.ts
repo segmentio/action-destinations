@@ -3,7 +3,7 @@ import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 
 import { getApiServerUrl, getConcatenatedName } from '../utils'
-import { MixpanelEngageSet } from '../mixpanel-types'
+import { MixpanelEngageProperties, MixpanelEngageSet } from '../mixpanel-types'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Identify User',
@@ -100,7 +100,8 @@ const action: ActionDefinition<Settings, Payload> = {
         $username: payload.traits.username,
         $phone: payload.traits.phone
       }
-      const data = {
+
+      const data: MixpanelEngageProperties = {
         $token: settings.projectToken,
         $distinct_id: payload.user_id ?? payload.anonymous_id,
         $ip: payload.ip,
