@@ -24,7 +24,7 @@ export interface Payload {
   /**
    * Email address of the user who performed the event
    */
-  email: string
+  email?: string
   /**
    * The time the event occured in UTC
    */

@@ -62,7 +62,7 @@ const destination: DestinationDefinition<Settings> = {
       name: 'Group user',
       subscribe: 'type = "group"',
       partnerAction: 'group',
-      mapping: defaultValues(identify.fields)
+      mapping: defaultValues(group.fields)
     },
     {
       name: 'Identify user',
