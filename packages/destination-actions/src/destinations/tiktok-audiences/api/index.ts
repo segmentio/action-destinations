@@ -63,7 +63,6 @@ export class TikTokAudiences {
       json: {
         custom_audience_name: payload.custom_audience_name,
         advertiser_id: this.selectedAdvertiserID,
-        id_type: payload.id_type,
         action: 'create'
       }
     })

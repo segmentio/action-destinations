@@ -5,7 +5,6 @@ import { processPayload } from '../functions'
 import {
   selected_advertiser_id,
   custom_audience_name,
-  id_type,
   email,
   send_email,
   send_advertising_id,
@@ -23,7 +22,6 @@ const action: ActionDefinition<Settings, Payload> = {
   fields: {
     selected_advertiser_id: { ...selected_advertiser_id },
     custom_audience_name: { ...custom_audience_name },
-    id_type: { ...id_type },
     email: { ...email },
     advertising_id: { ...advertising_id },
     send_email: { ...send_email },

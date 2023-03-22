@@ -11,25 +11,11 @@ export const selected_advertiser_id: InputField = {
 export const custom_audience_name: InputField = {
   label: 'Custom Audience Name',
   description:
-    'Custom audience name of audience to be created. Please note that names over 70 characters will be truncated to 67 characters with "..." appended. This field is set only when Segment creates a new audience. Updating this field after Segment has created an audience will not update the audience name in TikTok.Instead, updating the audience name here will create a separate audience in TikTok with the new audience name.',
+    'Custom audience name of audience to be synced. This audience must already exist in your TikTok Advertising account',
   type: 'string',
   default: {
     '@path': '$.properties.audience_key'
   },
-  required: true
-}
-
-export const id_type: InputField = {
-  label: 'ID Type',
-  description:
-    'Encryption type to be used for populating the audience. This field is set only when Segment creates a new audience.',
-  type: 'string',
-  choices: [
-    { label: 'Email', value: 'EMAIL_SHA256' },
-    { label: 'Google Advertising ID', value: 'GAID_SHA256' },
-    { label: 'Android Advertising ID', value: 'AAID_SHA256' },
-    { label: 'iOS Advertising ID', value: 'IDFA_SHA256' }
-  ],
   required: true
 }
 

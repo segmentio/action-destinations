@@ -55,13 +55,6 @@ const updateUsersRequestBody = {
   ]
 }
 
-const createAudienceRequestBody = {
-  custom_audience_name: 'personas_test_audience',
-  advertiser_id: '123',
-  id_type: 'EMAIL_SHA256',
-  action: 'create'
-}
-
 describe('TiktokAudiences.addUser', () => {
   it('should fail if `personas_audience_key` field does not match the `custom_audience_name` field', async () => {
     await expect(
@@ -74,7 +67,6 @@ describe('TiktokAudiences.addUser', () => {
         auth,
         mapping: {
           personas_audience_key: 'mismatched_audience',
-          id_type: 'EMAIL_SHA256',
           selected_advertiser_id: '123'
         }
       })
@@ -102,14 +94,13 @@ describe('TiktokAudiences.addUser', () => {
         auth,
         mapping: {
           selected_advertiser_id: '123',
-          personas_audience_key: 'personas_test_audience',
-          id_type: 'EMAIL_SHA256'
+          personas_audience_key: 'personas_test_audience'
         }
       })
     ).resolves.not.toThrowError()
   })
 
-  it('should successfully create a new audience if one is not found', async () => {
+  it('should fail if an audience is not found', async () => {
     nock(`${BASE_URL}${TIKTOK_API_VERSION}/dmp/custom_audience/list/`)
       .get(/.*/)
       .query(urlParams)
@@ -118,11 +109,6 @@ describe('TiktokAudiences.addUser', () => {
         message: 'OK',
         data: { page_info: { total_number: 1 }, list: [{ name: 'another_audience', audience_id: '1234345' }] }
       })
-
-    nock(`${BASE_URL}${TIKTOK_API_VERSION}/segment/audience/`)
-      .post(/.*/, createAudienceRequestBody)
-      .reply(200, { data: { audience_id: '1234345' } })
-    nock(`${BASE_URL}${TIKTOK_API_VERSION}/segment/mapping/`).post(/.*/, updateUsersRequestBody).reply(200)
 
     await expect(
       testDestination.testAction('addUser', {
@@ -134,11 +120,12 @@ describe('TiktokAudiences.addUser', () => {
         auth,
         mapping: {
           selected_advertiser_id: '123',
-          personas_audience_key: 'personas_test_audience',
-          id_type: 'EMAIL_SHA256'
+          personas_audience_key: 'personas_test_audience'
         }
       })
-    ).resolves.not.toThrowError()
+    ).rejects.toThrow(
+      'No audience with name personas_test_audience found. Please ensure that you create the audience before syncing.'
+    )
   })
 
   it('should fail if all the send fields are false', async () => {
@@ -151,9 +138,6 @@ describe('TiktokAudiences.addUser', () => {
         data: { page_info: { total_number: 1 }, list: [{ name: 'another_audience', audience_id: '1234345' }] }
       })
 
-    nock(`${BASE_URL}${TIKTOK_API_VERSION}/segment/audience/`)
-      .post(/.*/, createAudienceRequestBody)
-      .reply(200, { data: { audience_id: '1234345' } })
     nock(`${BASE_URL}${TIKTOK_API_VERSION}/segment/mapping/`).post(/.*/, updateUsersRequestBody).reply(200)
 
     await expect(
@@ -167,7 +151,6 @@ describe('TiktokAudiences.addUser', () => {
         mapping: {
           selected_advertiser_id: '123',
           personas_audience_key: 'personas_test_audience',
-          id_type: 'EMAIL_SHA256',
           send_email: false,
           send_advertising_id: false
         }

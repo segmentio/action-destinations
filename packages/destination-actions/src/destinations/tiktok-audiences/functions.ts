@@ -21,7 +21,7 @@ export async function processPayload(
 
   const audiences = await getAllAudiences(TikTokApiClient)
 
-  const audience_id = await getAudienceID(TikTokApiClient, payloads[0], audiences)
+  const audience_id = await getAudienceID(payloads[0], audiences)
 
   const id_schema = getIDSchema(payloads[0])
 
@@ -87,11 +87,7 @@ export async function getAllAudiences(TikTokApiClient: TikTokAudiences) {
   return audiences
 }
 
-export async function getAudienceID(
-  TikTokApiClient: TikTokAudiences,
-  payload: GenericPayload,
-  audiences: Audiences[]
-): Promise<string> {
+export async function getAudienceID(payload: GenericPayload, audiences: Audiences[]): Promise<string> {
   let audienceID
   const audienceExists = audiences.filter(function (audience) {
     if (audience.name === payload.custom_audience_name) {
@@ -107,8 +103,11 @@ export async function getAudienceID(
   if (audienceExists.length == 1) {
     audienceID = audienceExists[0].audience_id
   } else {
-    const response = await TikTokApiClient.createAudience(payload as AddUserPayload)
-    audienceID = response.data.data.audience_id
+    throw new IntegrationError(
+      `No audience with name ${payload.custom_audience_name} found. Please ensure that you create the audience before syncing.`,
+      'INVALID_SETTINGS',
+      400
+    )
   }
 
   return audienceID
