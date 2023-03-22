@@ -10,7 +10,9 @@ export function parseSections(section: { [key: string]: string }, nestDepth: num
   //if (nestDepth > 5) return parseResults
   if (nestDepth > 5)
     throw new IntegrationError(
-      'Event data exceeds nesting depth. Restate event data to avoid nesting attributes more than 5 levels deep'
+      'Event data exceeds nesting depth. Restate event data to avoid nesting attributes more than 5 levels deep',
+      'NESTING_DEPTH_EXCEEDED',
+      400
     )
 
   for (const key of Object.keys(section)) {
