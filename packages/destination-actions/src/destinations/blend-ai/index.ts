@@ -22,8 +22,13 @@ const destination: DestinationDefinition<Settings> = {
       return request(baseUrl + 'authenticate')
     }
   },
-  onDelete: async (request) => {
-    return request(baseUrl + 'delete')
+  onDelete: async (request, { payload }) => {
+    return request(baseUrl + 'delete', {
+      method: 'post',
+      json: {
+        external_ids: [payload.userId]
+      }
+    })
   },
   extendRequest: ({ settings }) => {
     return {
