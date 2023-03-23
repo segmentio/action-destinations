@@ -19,7 +19,7 @@ export const getUserIdentifier = ({
       anonymous_id
     }
   }
-  throw new IntegrationError('Either identity or anonymous id are required.')
+  throw new IntegrationError('Either identity or anonymous id are required.', 'MISSING_REQUIRED_FIELD', 400)
 }
 
 export const isDefined = (value: string | undefined | null | number | object): boolean => {

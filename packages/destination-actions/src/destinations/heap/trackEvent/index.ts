@@ -116,7 +116,7 @@ const action: ActionDefinition<Settings, Payload> = {
     }
 
     if (!payload.anonymous_id && !payload.identity) {
-      throw new IntegrationError('Either Anonymous id or Identity should be specified.')
+      throw new IntegrationError('Either Anonymous id or Identity should be specified.', 'MISSING_REQUIRED_FIELD', 400)
     }
 
     const flattenedProperties = flat(payload.properties || {})
