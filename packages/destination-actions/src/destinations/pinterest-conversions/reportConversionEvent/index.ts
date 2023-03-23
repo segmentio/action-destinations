@@ -6,6 +6,7 @@ import { custom_data_field } from '../pinterest-capi-custom-data'
 import { user_data_field, hash_user_data } from '../pinterset-capi-user-data'
 import type { Payload } from './generated-types'
 import isEmpty from 'lodash/isEmpty'
+import dayjs from '../../../lib/dayjs'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Report Conversion Event',
@@ -46,7 +47,7 @@ const action: ActionDefinition<Settings, Payload> = {
       label: 'Event Timestamp',
       description:
         'Device IDs can be used to add and remove only anonymous users to/from a cohort. However, users with an assigned User ID cannot use Device ID to sync to a cohort.',
-      type: 'integer',
+      type: 'string',
       required: true,
       default: {
         '@path': '$.timestamp'
@@ -189,7 +190,7 @@ function createPinterestPayload(payload: Payload) {
     {
       event_name: payload.event_name,
       action_source: payload.action_source,
-      event_time: payload.event_time,
+      event_time: dayjs.utc(payload.event_time).unix(),
       event_id: payload.event_id,
       event_source_url: payload.event_source_url,
       opt_out: payload.opt_out,

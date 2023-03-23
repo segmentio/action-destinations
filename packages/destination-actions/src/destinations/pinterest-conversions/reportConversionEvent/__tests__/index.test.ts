@@ -7,7 +7,7 @@ import { Settings } from '../../generated-types'
 const testDestination = createTestIntegration(Destination)
 const event = createTestEvent({
   messageId: 'test-message-rocnz07d5e8',
-  timestamp: '1678203524',
+  timestamp: '2023-03-13T07:56:23.846Z',
   type: 'track',
   userId: 'test-user-fon3evajtr',
   event: 'Segment Test Event Name',
@@ -90,12 +90,7 @@ describe('PinterestConversionApi', () => {
         .reply(200, {})
 
       const responses = await testDestination.testAction('reportConversionEvent', {
-        event: {
-          ...event,
-          properties: {
-            email: ['test@gmail.com']
-          }
-        },
+        event,
         settings: authData,
         useDefaultMappings: true,
         mapping: {
@@ -110,7 +105,12 @@ describe('PinterestConversionApi', () => {
             state: ['CA'],
             zip: ['123456'],
             country: ['US'],
-            hashed_maids: ['test123123']
+            hashed_maids: ['test123123'],
+            date_of_birth: ['1996-02-01'],
+            email: ['test@gmail.com'],
+            client_user_agent: '5.5.5.5',
+            client_ip_address:
+              'Mozilla/5.0 (iPhone; CPU iPhone OS 9_1 like Mac OS X) AppleWebKit/601.1.46 (KHTML, like Gecko) Version/9.0 Mobile/13B143 Safari/601.1'
           }
         }
       })
