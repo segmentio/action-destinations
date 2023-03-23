@@ -10,7 +10,7 @@ export interface Payload {
    */
   method: string
   /**
-   * The target number of events to batch together in a single request, max size 4000.
+   * Maximum number of events to include in each batch. Actual batch sizes may be lower.
    */
   batch_size?: number
   /**
