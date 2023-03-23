@@ -12,7 +12,7 @@ export interface Payload {
   /**
    * Device IDs can be used to add and remove only anonymous users to/from a cohort. However, users with an assigned User ID cannot use Device ID to sync to a cohort.
    */
-  event_time: number
+  event_time: string
   /**
    * A unique id string that identifies this event and can be used for deduping between events ingested via both the conversion API and Pinterest tracking.
    */
