@@ -29,7 +29,7 @@ const action: ActionDefinition<Settings, Payload> = {
     },
     batch_size: {
       label: 'Batch Size',
-      description: 'The target number of events to batch together in a single request, max size 4000.',
+      description: 'Maximum number of events to include in each batch. Actual batch sizes may be lower.',
       type: 'number',
       required: false,
       default: 0
