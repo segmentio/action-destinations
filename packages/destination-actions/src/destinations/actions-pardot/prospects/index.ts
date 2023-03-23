@@ -189,7 +189,7 @@ const action: ActionDefinition<Settings, Payload> = {
     } catch (err) {
       const error = err as HTTPError
       if (!error.response) {
-        throw error
+        throw err
       }
       const statusCode = error.response.status
       //Pardot error response is a mix of json and xml.
