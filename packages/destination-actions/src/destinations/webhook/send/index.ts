@@ -27,6 +27,13 @@ const action: ActionDefinition<Settings, Payload> = {
       default: 'POST',
       required: true
     },
+    batch_size: {
+      label: 'Batch Size',
+      description: 'The target number of events to batch together in a single request, max size 4000.',
+      type: 'number',
+      required: false,
+      default: 0
+    },
     headers: {
       label: 'Headers',
       description: 'HTTP headers to send with each request.',
