@@ -8,6 +8,7 @@ import { createAudience } from '../functions'
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Create Audience',
   description: 'Creates a TikTok Audience Segment.',
+  defaultSubscription: 'event = "Audience Entered"',
   fields: {
     custom_audience_name: { ...custom_audience_name },
     selected_advertiser_id: { ...selected_advertiser_id },

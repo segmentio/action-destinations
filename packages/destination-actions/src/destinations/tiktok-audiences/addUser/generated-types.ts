@@ -6,9 +6,9 @@ export interface Payload {
    */
   selected_advertiser_id: string
   /**
-   * Custom audience name of audience to be synced. This audience must already exist in your TikTok Advertising account
+   * Audience ID for the TikTok Audience you want to sync your Engage audience to. This is returned after you create an audience and can also be found in the TikTok Audiences dashboard.
    */
-  custom_audience_name: string
+  custom_audience_id: string
   /**
    * The user's email address to send to TikTok.
    */
@@ -33,8 +33,4 @@ export interface Payload {
    * Enable batching of requests to the TikTok Audiences.
    */
   enable_batching?: boolean
-  /**
-   * The `audience_key` of the Engage audience you want to sync to TikTok. This value must be a hard-coded string variable, e.g. `personas_test_audience`, in order for batching to work properly.
-   */
-  personas_audience_key?: string
 }

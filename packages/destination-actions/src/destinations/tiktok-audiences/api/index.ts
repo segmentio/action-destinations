@@ -1,5 +1,5 @@
 import type { RequestClient, ModifiedResponse } from '@segment/actions-core'
-import type { Payload } from '../addUser/generated-types'
+import type { Payload } from '../createAudience/generated-types'
 import { BASE_URL, TIKTOK_API_VERSION } from '../constants'
 import type { GetAudienceAPIResponse, CreateAudienceAPIResponse, APIResponse } from '../types'
 import { DynamicFieldResponse } from '@segment/actions-core'
@@ -63,6 +63,7 @@ export class TikTokAudiences {
       json: {
         custom_audience_name: payload.custom_audience_name,
         advertiser_id: this.selectedAdvertiserID,
+        id_type: payload.id_type,
         action: 'create'
       }
     })

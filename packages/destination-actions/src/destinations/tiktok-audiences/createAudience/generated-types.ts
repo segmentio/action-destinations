@@ -2,7 +2,7 @@
 
 export interface Payload {
   /**
-   * Custom audience name of audience to be synced. This audience must already exist in your TikTok Advertising account
+   * Custom audience name of audience to be created. Please note that names over 70 characters will be truncated to 67 characters with "..." appended.
    */
   custom_audience_name: string
   /**
