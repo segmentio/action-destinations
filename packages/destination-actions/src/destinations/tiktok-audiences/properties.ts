@@ -27,9 +27,6 @@ export const custom_audience_id: InputField = {
   description:
     'Audience ID for the TikTok Audience you want to sync your Engage audience to. This is returned after you create an audience and can also be found in the TikTok Audiences dashboard.',
   type: 'string',
-  default: {
-    '@path': '$.properties.audience_key'
-  },
   required: true
 }
 
@@ -38,9 +35,6 @@ export const custom_audience_name: InputField = {
   description:
     'Custom audience name of audience to be created. Please note that names over 70 characters will be truncated to 67 characters with "..." appended.',
   type: 'string',
-  default: {
-    '@path': '$.properties.audience_key'
-  },
   required: true
 }
 
