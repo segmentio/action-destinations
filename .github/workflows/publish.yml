@@ -50,14 +50,6 @@ jobs:
       - name: Build
         run: NODE_ENV=production yarn build
 
-      # set to the author of the most recent commit
-      - name: Set author
-        run: |
-          git config --global user.email "`git log --format='%ae' HEAD^!`"
-          git config --global user.name "`git log --format='%an' HEAD^!`"
-          git config user.email
-          git config user.name
-
       - name: Fetch Latest Tags
         run: |
           git fetch --tags
