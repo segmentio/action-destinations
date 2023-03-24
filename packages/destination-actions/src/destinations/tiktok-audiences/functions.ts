@@ -84,7 +84,7 @@ export function extractUsers(payloads: GenericPayload[]): {}[][] {
         payload.email = payload.email.replace(/\+.*@/, '@').replace(/\./g, '').toLowerCase()
         email_id = {
           id: createHash('sha256').update(payload.email).digest('hex'),
-          audience_ids: [payload.custom_audience_id]
+          audience_ids: [payload.audience_id]
         }
       }
       user_ids.push(email_id)
@@ -95,7 +95,7 @@ export function extractUsers(payloads: GenericPayload[]): {}[][] {
       if (payload.advertising_id) {
         advertising_id = {
           id: createHash('sha256').update(payload.advertising_id).digest('hex'),
-          audience_ids: [payload.custom_audience_id]
+          audience_ids: [payload.audience_id]
         }
       }
       user_ids.push(advertising_id)

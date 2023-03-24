@@ -4,7 +4,7 @@ import type { Payload } from './generated-types'
 import { processPayload } from '../functions'
 import {
   selected_advertiser_id,
-  custom_audience_id,
+  audience_id,
   email,
   send_email,
   send_advertising_id,
@@ -20,7 +20,7 @@ const action: ActionDefinition<Settings, Payload> = {
   defaultSubscription: 'event = "Audience Exited"',
   fields: {
     selected_advertiser_id: { ...selected_advertiser_id },
-    custom_audience_id: { ...custom_audience_id },
+    audience_id: { ...audience_id },
     email: { ...email },
     advertising_id: { ...advertising_id },
     send_email: { ...send_email },

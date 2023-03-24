@@ -63,7 +63,7 @@ describe('TiktokAudiences.removeUser', () => {
         auth,
         mapping: {
           selected_advertiser_id: '123',
-          custom_audience_id: '1234345'
+          audience_id: '1234345'
         }
       })
     ).resolves.not.toThrowError()
@@ -101,7 +101,7 @@ describe('TiktokAudiences.removeUser', () => {
         auth,
         mapping: {
           selected_advertiser_id: '123',
-          custom_audience_id: '123456',
+          audience_id: '123456',
           send_email: false,
           send_advertising_id: false
         }

@@ -62,7 +62,7 @@ describe('TiktokAudiences.addUser', () => {
         auth,
         mapping: {
           selected_advertiser_id: '123',
-          custom_audience_id: '1234345'
+          audience_id: '1234345'
         }
       })
     ).resolves.not.toThrowError()

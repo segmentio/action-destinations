@@ -8,7 +8,7 @@ export interface Payload {
   /**
    * Audience ID for the TikTok Audience you want to sync your Engage audience to. This is returned after you create an audience and can also be found in the TikTok Audiences dashboard.
    */
-  custom_audience_id: string
+  audience_id: string
   /**
    * The user's email address to send to TikTok.
    */

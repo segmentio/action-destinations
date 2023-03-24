@@ -22,8 +22,8 @@ export const id_type: InputField = {
   required: true
 }
 
-export const custom_audience_id: InputField = {
-  label: 'Custom Audience ID',
+export const audience_id: InputField = {
+  label: 'Audience ID',
   description:
     'Audience ID for the TikTok Audience you want to sync your Engage audience to. This is returned after you create an audience and can also be found in the TikTok Audiences dashboard.',
   type: 'string',
