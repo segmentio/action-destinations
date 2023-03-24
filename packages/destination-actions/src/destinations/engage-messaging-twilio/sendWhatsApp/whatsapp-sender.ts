@@ -19,7 +19,7 @@ export class WhatsAppMessageSender extends MessageSender<Payload> {
     readonly tags: StatsContext['tags'] | undefined,
     readonly logger: Logger | undefined
   ) {
-    super(request, payload, settings, statsClient, tags)
+    super(request, payload, settings, statsClient, tags, logger)
   }
 
   getExternalId = () =>
@@ -49,6 +49,7 @@ export class WhatsAppMessageSender extends MessageSender<Payload> {
     }
 
     if (!this.payload.contentSid) {
+      this.logger?.error?.(`TE Messaging: A valid WhatsApp Content SID was not provided`)
       throw new IntegrationError('A valid whatsApp Content SID was not provided.', `INVALID_CONTENT_SID`, 400)
     }
 
@@ -89,7 +90,7 @@ export class WhatsAppMessageSender extends MessageSender<Payload> {
 
       return JSON.stringify(mapping)
     } catch (error: unknown) {
-      this.logger?.error?.(`TE Messaging: WhatsApp templating parse failure: ${error}`)
+      this.logger?.error?.(`TE Messaging: Failed to parse WhatsApp template with content variables: ${error}`)
       throw new IntegrationError(
         `Unable to parse templating in content variables`,
         `Content variables templating parse failure`,

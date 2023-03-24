@@ -17,7 +17,7 @@ export class SmsMessageSender extends MessageSender<Payload> {
     readonly tags: StatsContext['tags'] | undefined,
     readonly logger: Logger | undefined
   ) {
-    super(request, payload, settings, statsClient, tags)
+    super(request, payload, settings, statsClient, tags, logger)
   }
 
   getExternalId = () => this.payload.externalIds?.find(({ type }) => type === 'phone')
@@ -42,7 +42,6 @@ export class SmsMessageSender extends MessageSender<Payload> {
 
     try {
       parsedBody = await Liquid.parseAndRender(this.payload.body, { profile })
-      this.logger?.info?.('TE Messaging: SMS templating parse success')
     } catch (error: unknown) {
       this.logger?.error?.(`TE Messaging: SMS templating parse failure: ${error}`)
       throw new IntegrationError(`Unable to parse templating in SMS`, `SMS templating parse failure`, 400)
@@ -59,6 +58,7 @@ export class SmsMessageSender extends MessageSender<Payload> {
 
   private getProfileTraits = async () => {
     if (!this.payload.userId) {
+      this.logger?.error?.('TE Messaging: Unable to process SMS, no userId provided and no traits provided')
       throw new IntegrationError(
         'Unable to process sms, no userId provided and no traits provided',
         'Invalid parameters',
@@ -82,7 +82,6 @@ export class SmsMessageSender extends MessageSender<Payload> {
       )
       this.tags?.push(`profile_status_code:${response.status}`)
       this.statsClient?.incr('actions-personas-messaging-twilio.profile_invoked', 1, this.tags)
-      this.logger?.info?.('TE Messaging: SMS profile traits request success')
       const body = await response.json()
       return body.traits
     } catch (error: unknown) {

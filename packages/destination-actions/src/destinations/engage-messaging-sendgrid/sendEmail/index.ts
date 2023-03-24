@@ -51,7 +51,6 @@ const fetchProfileTraits = async (
       }
     )
     tags?.push(`profile_status_code:${response.status}`)
-    logger?.info?.('TE Messaging: Email profile traits response received')
     statsClient?.incr('actions-personas-messaging-sendgrid.profile_invoked', 1, tags)
 
     const body = await response.json()
@@ -348,7 +347,6 @@ const action: ActionDefinition<Settings, Payload> = {
       statsClient?.incr('actions-personas-messaging-sendgrid.notsubscribed', 1, tags)
       return
     } else if (['subscribed', 'true'].includes(emailProfile?.subscriptionStatus)) {
-      logger?.info?.('TE Messaging: Email recipient subscribed')
       statsClient?.incr('actions-personas-messaging-sendgrid.subscribed', 1, tags)
       if (payload.groupId && payload.groupId.length !== 0) {
         const group = (payload.externalIds ?? [])
@@ -369,6 +367,7 @@ const action: ActionDefinition<Settings, Payload> = {
         traits = payload?.traits ? payload?.traits : JSON.parse('{}')
       } else {
         if (!payload.userId) {
+          logger?.error?.('TE Messaging: Unable to process email, no userId provided and no traits provided')
           throw new IntegrationError(
             'Unable to process email, no userId provided and trait enrichment disabled',
             'Invalid parameters',
@@ -391,6 +390,9 @@ const action: ActionDefinition<Settings, Payload> = {
 
       if (isRestrictedDomain(toEmail)) {
         statsClient?.incr('actions-personas-messaging-sendgrid.restricted-domain', 1, tags)
+        logger?.error?.(
+          'TE Messaging: Emails with gmailx.com, yahoox.com, aolx.com, and hotmailx.com domains are blocked'
+        )
         throw new IntegrationError(
           'Emails with gmailx.com, yahoox.com, aolx.com, and hotmailx.com domains are blocked.',
           'Invalid input',
@@ -482,7 +484,6 @@ const action: ActionDefinition<Settings, Payload> = {
           }
         })
         tags?.push(`sendgrid_status_code:${response.status}`)
-        logger?.info?.('TE Messaging: Email message response received')
         statsClient?.incr('actions-personas-messaging-sendgrid.response', 1, tags)
         if (payload?.eventOccurredTS != undefined) {
           statsClient?.histogram(
