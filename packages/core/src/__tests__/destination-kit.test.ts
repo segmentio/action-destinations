@@ -5,7 +5,8 @@ import {
   Logger,
   StatsClient,
   StatsContext,
-  TransactionContext
+  TransactionContext,
+  LruCache
 } from '../destination-kit'
 import { JSONObject } from '../json-object'
 import { SegmentEvent } from '../segment-event'
@@ -104,8 +105,8 @@ const destinationWithOptions: DestinationDefinition<JSONObject> = {
       description: 'Send events to a custom event in API',
       defaultSubscription: 'type = "track"',
       fields: {},
-      perform: (_request, { features, statsContext, logger, transactionContext, stateContext }) => {
-        return { features, statsContext, logger, transactionContext, stateContext }
+      perform: (_request, { features, statsContext, logger, transactionContext, stateContext, lruCache }) => {
+        return { features, statsContext, logger, transactionContext, stateContext, lruCache }
       }
     }
   }
@@ -532,5 +533,62 @@ describe('destination kit', () => {
         }
       ])
     })
-  })
+  }),
+    describe('lruCache', () => {
+      test('should not crash when lruCache is passed to the perform handler', async () => {
+        const destinationTest = new Destination(destinationWithOptions)
+        const testEvent: SegmentEvent = {
+          properties: { field_one: 'test input' },
+          userId: '3456fff',
+          type: 'track'
+        }
+        const testSettings = {
+          apiSecret: 'test_key',
+          subscription: {
+            subscribe: 'type = "track"',
+            partnerAction: 'customEvent',
+            mapping: {
+              clientId: '23455343467',
+              name: 'fancy_event',
+              parameters: { field_one: 'rogue one' }
+            }
+          }
+        }
+        const eventOptions = {
+          features: {},
+          statsContext: {} as StatsContext,
+          logger: { name: 'test-integration', level: 'debug' } as Logger,
+          transactionContext: {
+            transaction: { contact_id: '801' },
+            setTransaction: (key: string, value: string) => ({ [key]: value })
+          } as TransactionContext,
+          stateContext: {
+            getRequestContext: (_key: string, _cb?: (res?: string) => any): any => {},
+            setResponseContext: (
+              _key: string,
+              _value: string,
+              _ttl: { hour?: number; minute?: number; second?: number }
+            ): void => {}
+          } as StateContext,
+          lruCache: {
+            getCache: (_key: string): any => {},
+            setCache: (_key: string, _value: object): void => {}
+          } as LruCache
+        }
+        const res = await destinationTest.onEvent(testEvent, testSettings, eventOptions)
+        expect(res).toEqual([
+          { output: 'Mappings resolved' },
+          {
+            output: {
+              features: {},
+              statsContext: {},
+              logger: eventOptions.logger,
+              transactionContext: eventOptions.transactionContext,
+              stateContext: eventOptions.stateContext,
+              lruCache: eventOptions.lruCache
+            }
+          }
+        ])
+      })
+    })
 })

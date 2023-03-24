@@ -2,7 +2,7 @@ import { RequestClient } from '@segment/actions-core'
 import { ProjectConfig, CacheFields } from '../types'
 import { CacheEntryStates } from '../utils'
 import type { Settings } from '../generated-types'
-import LRU from 'lru-cache'
+import type { LruCache } from '@segment/actions-core/src/destination-kit'
 
 export async function getDatafileFieldsToCache(dataFile: ProjectConfig) {
   return {
@@ -14,17 +14,14 @@ export async function getDatafileFieldsToCache(dataFile: ProjectConfig) {
   }
 }
 
-export async function getDatafile(settings: Settings, request: RequestClient) {
-  const cache = new LRU({
-    max: 256 // entry count
-  })
+export async function getDatafile(settings: Settings, request: RequestClient, lruCache?: LruCache) {
   let dataFileJSON
   const { dataFileUrl } = settings
 
   const exp = (settings.cacheExp || 300) * 1000 // seconds to milliseconds
 
   const cacheKey = dataFileUrl
-  let cacheEntry = <CacheFields>cache.get(cacheKey)
+  let cacheEntry = <CacheFields>lruCache?.getCache(cacheKey)
 
   if (!isCacheReady(cacheEntry, exp)) {
     if (!cacheEntry) {
@@ -40,7 +37,7 @@ export async function getDatafile(settings: Settings, request: RequestClient) {
       throw e
     }
 
-    cache.set(cacheKey, cacheEntry)
+    lruCache?.setCache(cacheKey, cacheEntry)
   }
 
   try {

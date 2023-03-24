@@ -103,8 +103,8 @@ const action: ActionDefinition<Settings, Payload> = {
       }
     }
   },
-  perform: async (request, { settings, payload }) => {
-    const dataFile = <dataFile>await getDatafile(settings, request)
+  perform: async (request, { settings, payload, lruCache }) => {
+    const dataFile = <dataFile>await getDatafile(settings, request, lruCache)
     const eventId = getEventId(dataFile, payload.eventKey)
 
     if (!eventId) {
