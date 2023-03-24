@@ -6,7 +6,7 @@ name: Node.js Package
 on:
   push:
     branches:
-      - npmautopublish
+      - main
 
 jobs:
   build-and-publish:
@@ -57,6 +57,10 @@ jobs:
           git config user.email
           git config user.name
 
+      - name: Fetch Latest Tags
+        run: |
+          git fetch --tags
+
       - name: Set NPM Token
         run: |
           npm set '//registry.npmjs.org/:_authToken' ${{ secrets.NPM_PUBLISH_TOKEN }}
@@ -66,4 +70,4 @@ jobs:
         env:
           HUSKY: 0
         run: |
-          lerna publish from-git --yes --allowBranch=npmautopublish
+          lerna publish from-git --yes --allowBranch=main

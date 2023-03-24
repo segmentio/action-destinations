@@ -27,6 +27,7 @@
     "test-browser": "bash scripts/test-browser.sh",
     "typecheck": "lerna run typecheck --stream",
     "alpha": "lerna version prerelease --allow-branch $(git branch --show-current) --preid $(git branch --show-current) --no-push --no-git-tag-version",
+    "release": "lerna version minor",
     "prepare": "husky install",
     "clean": "sh scripts/clean.sh"
   },
