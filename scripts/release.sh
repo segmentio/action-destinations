@@ -7,5 +7,6 @@ then
 fi;
 
 
+git pull --ff-only
 echo "Running lerna version minor..."
-lerna version minor -y
+lerna version minor --no-private -y

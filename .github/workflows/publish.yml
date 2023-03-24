@@ -10,6 +10,7 @@ on:
 
 jobs:
   build-and-publish:
+    if: startsWith(github.event.head_commit.message, 'Publish') == true
     runs-on: ubuntu-20.04
 
     timeout-minutes: 15
@@ -20,24 +21,20 @@ jobs:
 
     steps:
       - uses: actions/checkout@v3
-        if: startsWith(github.event.head_commit.message, 'Publish') == true
         with:
           token: ${{ secrets.GH_PAT }}
 
       - name: Use Node.js ${{ matrix.node-version }}
-        if: startsWith(github.event.head_commit.message, 'Publish') == true
         uses: actions/setup-node@v2
         with:
           node-version: ${{ matrix.node-version }}
           registry-url: 'https://registry.npmjs.org'
 
       - name: Get yarn cache directory path
-        if: startsWith(github.event.head_commit.message, 'Publish') == true
         id: yarn-cache-dir-path
         run: echo "::set-output name=dir::$(yarn cache dir)"
 
       - uses: actions/cache@v2
-        if: startsWith(github.event.head_commit.message, 'Publish') == true
         id: yarn-cache # use this to check for `cache-hit` (`steps.yarn-cache.outputs.cache-hit != 'true'`)
         with:
           path: ${{ steps.yarn-cache-dir-path.outputs.dir }}
@@ -46,18 +43,15 @@ jobs:
             ${{ runner.os }}-yarn-
 
       - name: Install Dependencies
-        if: startsWith(github.event.head_commit.message, 'Publish') == true
         run: yarn install --frozen-lockfile
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
 
       - name: Build
-        if: startsWith(github.event.head_commit.message, 'Publish') == true
         run: NODE_ENV=production yarn build
 
       # set to the author of the most recent commit
       - name: Set author
-        if: startsWith(github.event.head_commit.message, 'Publish') == true
         run: |
           git config --global user.email "`git log --format='%ae' HEAD^!`"
           git config --global user.name "`git log --format='%an' HEAD^!`"
@@ -65,18 +59,15 @@ jobs:
           git config user.name
 
       - name: Fetch Latest Tags
-        if: startsWith(github.event.head_commit.message, 'Publish') == true
         run: |
           git fetch --tags
 
       - name: Set NPM Token
-        if: startsWith(github.event.head_commit.message, 'Publish') == true
         run: |
           npm set '//registry.npmjs.org/:_authToken' ${{ secrets.NPM_PUBLISH_TOKEN }}
           npm whoami
 
       - name: Publish
-        if: startsWith(github.event.head_commit.message, 'Publish') == true
         env:
           HUSKY: 0
         run: |
