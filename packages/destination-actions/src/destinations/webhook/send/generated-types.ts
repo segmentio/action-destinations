@@ -10,6 +10,10 @@ export interface Payload {
    */
   method: string
   /**
+   * Maximum number of events to include in each batch. Actual batch sizes may be lower.
+   */
+  batch_size?: number
+  /**
    * HTTP headers to send with each request.
    */
   headers?: {

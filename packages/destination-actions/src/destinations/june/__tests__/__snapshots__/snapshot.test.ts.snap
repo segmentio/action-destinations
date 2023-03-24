@@ -1,0 +1,86 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Testing snapshot for june destination: group action - all fields 1`] = `
+Object {
+  "anonymousId": "5OAAQiSx!Ahn",
+  "groupId": "5OAAQiSx!Ahn",
+  "messageId": "5OAAQiSx!Ahn",
+  "timestamp": Any<String>,
+  "traits": Object {
+    "testType": "5OAAQiSx!Ahn",
+  },
+  "userId": "5OAAQiSx!Ahn",
+}
+`;
+
+exports[`Testing snapshot for june destination: group action - required fields 1`] = `
+Object {
+  "groupId": "5OAAQiSx!Ahn",
+  "messageId": "5OAAQiSx!Ahn",
+  "timestamp": Any<String>,
+}
+`;
+
+exports[`Testing snapshot for june destination: identify action - all fields 1`] = `
+Object {
+  "anonymousId": "eespaKLiAN@",
+  "messageId": "eespaKLiAN@",
+  "timestamp": Any<String>,
+  "traits": Object {
+    "testType": "eespaKLiAN@",
+  },
+  "userId": "eespaKLiAN@",
+}
+`;
+
+exports[`Testing snapshot for june destination: identify action - required fields 1`] = `
+Object {
+  "messageId": "eespaKLiAN@",
+  "timestamp": Any<String>,
+}
+`;
+
+exports[`Testing snapshot for june destination: page action - all fields 1`] = `
+Object {
+  "anonymousId": "oom0C3%rMQ",
+  "context": Object {
+    "testType": "oom0C3%rMQ",
+  },
+  "name": "oom0C3%rMQ",
+  "properties": Object {
+    "testType": "oom0C3%rMQ",
+  },
+  "timestamp": Any<String>,
+  "userId": "oom0C3%rMQ",
+}
+`;
+
+exports[`Testing snapshot for june destination: page action - required fields 1`] = `
+Object {
+  "timestamp": Any<String>,
+}
+`;
+
+exports[`Testing snapshot for june destination: track action - all fields 1`] = `
+Object {
+  "anonymousId": "c7O)AqkYJ1SvNcq$fZcw",
+  "context": Object {
+    "testType": "c7O)AqkYJ1SvNcq$fZcw",
+  },
+  "event": "c7O)AqkYJ1SvNcq$fZcw",
+  "messageId": "c7O)AqkYJ1SvNcq$fZcw",
+  "properties": Object {
+    "testType": "c7O)AqkYJ1SvNcq$fZcw",
+  },
+  "timestamp": Any<String>,
+  "userId": "c7O)AqkYJ1SvNcq$fZcw",
+}
+`;
+
+exports[`Testing snapshot for june destination: track action - required fields 1`] = `
+Object {
+  "event": "c7O)AqkYJ1SvNcq$fZcw",
+  "messageId": "c7O)AqkYJ1SvNcq$fZcw",
+  "timestamp": Any<String>,
+}
+`;
