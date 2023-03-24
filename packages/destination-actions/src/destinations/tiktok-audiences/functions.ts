@@ -1,9 +1,10 @@
-import { IntegrationError, RequestClient, RetryableError } from '@segment/actions-core'
-import { Audiences } from './types'
+import { IntegrationError, RequestClient, RetryableError, ModifiedResponse } from '@segment/actions-core'
+import { Audiences, CreateAudienceAPIResponse } from './types'
 import { createHash } from 'crypto'
 import { TikTokAudiences } from './api'
 import { Payload as AddUserPayload } from './addUser/generated-types'
 import { Payload as RemoveUserPayload } from './removeUser/generated-types'
+import { Payload as CreateAudiencePayload } from './createAudience/generated-types'
 import { Settings } from './generated-types'
 
 type GenericPayload = AddUserPayload | RemoveUserPayload
@@ -158,4 +159,13 @@ export function extractUsers(payloads: GenericPayload[], audienceID: string): {}
     batch_data.push(user_ids)
   })
   return batch_data
+}
+
+export async function createAudience(
+  request: RequestClient,
+  payload: CreateAudiencePayload
+): Promise<ModifiedResponse<CreateAudienceAPIResponse>> {
+  const TikTokApiClient: TikTokAudiences = new TikTokAudiences(request, payload.selected_advertiser_id)
+
+  return TikTokApiClient.createAudience(payload)
 }

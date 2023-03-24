@@ -6,6 +6,7 @@ import removeUser from './removeUser'
 import { TikTokAudiences } from './api'
 import { ModifiedResponse } from '@segment/actions-core'
 import { APIResponse } from './types'
+import createAudience from './createAudience'
 
 const destination: DestinationDefinition<Settings> = {
   name: 'TikTok Audiences',
@@ -55,7 +56,8 @@ const destination: DestinationDefinition<Settings> = {
 
   actions: {
     addUser,
-    removeUser
+    removeUser,
+    createAudience
   }
 }
 
