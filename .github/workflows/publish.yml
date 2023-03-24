@@ -10,6 +10,8 @@ on:
 
 jobs:
   build-and-publish:
+    env:
+      HUSKY: 0
     if: startsWith(github.event.head_commit.message, 'Publish') == true
     runs-on: ubuntu-20.04
 
@@ -49,7 +51,5 @@ jobs:
           npm whoami
 
       - name: Publish
-        env:
-          HUSKY: 0
         run: |
           lerna publish from-git --yes --allowBranch=main
