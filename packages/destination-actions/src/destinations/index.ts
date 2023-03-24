@@ -82,6 +82,7 @@ register('63e42e512566ad7c7ca6ba9b', './pinterest-conversions')
 register('63e52bea7747fbc311d5b872', './algolia-insights')
 register('63ff8bae963d5cb4fc79f097', './outfunnel')
 register('6408ac6c144a7d5ac55cf414', './toplyne')
+register('641d5acea88fa531b9068608', './optimizely-feature-experimentation-actions')
 
 function register(id: MetadataId, destinationPath: string) {
   // eslint-disable-next-line @typescript-eslint/no-var-requires
