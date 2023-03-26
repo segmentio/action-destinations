@@ -2,9 +2,9 @@
 
 export interface Payload {
   /**
-   * The type of Object to create or update.
+   * The type of Encharge object to create or update.
    */
-  object: string
+  objectType: string
   /**
    * An ID from your app/database that is used to uniquely identify the object in Encharge.
    */

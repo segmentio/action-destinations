@@ -12,7 +12,7 @@ const action: ActionDefinition<Settings, Payload> = {
   description: 'Track an event in Encharge for a known or anonymous person.',
   defaultSubscription: 'type = "track"',
   fields: {
-    name: {
+    event: {
       type: 'string',
       required: true,
       description: 'The name of the event.',
@@ -26,13 +26,12 @@ const action: ActionDefinition<Settings, Payload> = {
   platform: 'cloud',
   perform: (request, data) => {
     const payload = {
-      ...omit(data.payload, ['ip', 'userAgent', 'campaign', 'page', 'location', 'user']),
-      context: pick(data.payload, ['ip', 'userAgent', 'campaign', 'page', 'location']),
+      ...omit(data.payload, ['ip', 'userAgent', 'campaign', 'page', 'location', 'user', 'groupId']),
+      context: pick(data.payload, ['ip', 'userAgent', 'campaign', 'page', 'location', 'groupId']),
       user: {
         email: data.payload.email,
         userId: data.payload.userId,
         segmentAnonymousId: data.payload.segmentAnonymousId,
-        groupId: data.payload.groupId,
         ...(data.payload.userFields || {}) // traits
       }
     }

@@ -59,7 +59,6 @@ describe('Encharge.trackPageView', () => {
         "type": "page",
         "user": Object {
           "email": undefined,
-          "groupId": undefined,
           "segmentAnonymousId": "anonId1234",
           "userId": "user1234",
         },

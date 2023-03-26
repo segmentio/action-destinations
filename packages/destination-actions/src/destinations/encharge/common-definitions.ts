@@ -34,7 +34,7 @@ export const commonFields: ActionDefinition<Settings>['fields'] = {
   groupId: {
     type: 'string',
     allowNull: true,
-    description: 'An ID associating the user with a group.',
+    description: 'An ID associating the event with a group.',
     label: 'Group ID',
     default: { '@path': '$.context.groupId' }
   },

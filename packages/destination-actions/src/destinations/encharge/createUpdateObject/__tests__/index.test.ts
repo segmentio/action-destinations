@@ -37,8 +37,8 @@ describe('Encharge.createUpdateObject', () => {
 
     expect(responses[0].options.json).toMatchInlineSnapshot(`
       Object {
-        "object": "company",
-        "objectData": Object {
+        "objectType": "company",
+        "properties": Object {
           "externalId": "group1234",
           "id": undefined,
           "name": "test",

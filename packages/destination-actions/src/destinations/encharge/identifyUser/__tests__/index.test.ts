@@ -56,7 +56,6 @@ describe('Encharge.identifyUser', () => {
         "type": "identify",
         "user": Object {
           "email": undefined,
-          "groupId": undefined,
           "name": "Johny Bravo",
           "segmentAnonymousId": "anonId1234",
           "userId": "user1234",

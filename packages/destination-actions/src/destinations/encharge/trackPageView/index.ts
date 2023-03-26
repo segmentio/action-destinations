@@ -23,13 +23,12 @@ const action: ActionDefinition<Settings, Payload> = {
   platform: 'cloud',
   perform: (request, data) => {
     const payload = {
-      ...omit(data.payload, ['ip', 'userAgent', 'campaign', 'page', 'location', 'user']),
-      context: pick(data.payload, ['ip', 'userAgent', 'campaign', 'page', 'location']),
+      ...omit(data.payload, ['ip', 'userAgent', 'campaign', 'page', 'location', 'user', 'groupId']),
+      context: pick(data.payload, ['ip', 'userAgent', 'campaign', 'page', 'location', 'groupId']),
       user: {
         email: data.payload.email,
         userId: data.payload.userId,
         segmentAnonymousId: data.payload.segmentAnonymousId,
-        groupId: data.payload.groupId,
         ...(data.payload.userFields || {}) // traits
       }
     }

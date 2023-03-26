@@ -4,7 +4,7 @@ export interface Payload {
   /**
    * The name of the event.
    */
-  name: string
+  event: string
   /**
    * The properties of the event.
    */
@@ -34,7 +34,7 @@ export interface Payload {
    */
   userId?: string | null
   /**
-   * An ID associating the user with a group.
+   * An ID associating the event with a group.
    */
   groupId?: string | null
   /**

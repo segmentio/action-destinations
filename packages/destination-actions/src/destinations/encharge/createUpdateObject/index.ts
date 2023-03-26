@@ -10,9 +10,9 @@ const action: ActionDefinition<Settings, Payload> = {
     'Create or Update a Custom Object (including Companies) in Encharge. If email or user ID are provided, the user will be associated with the object. A new user will be created if the email or user ID do not exist in Encharge.',
   defaultSubscription: 'type = "group"',
   fields: {
-    object: {
-      label: 'Object',
-      description: 'The type of Object to create or update.',
+    objectType: {
+      label: 'Object Type',
+      description: 'The type of Encharge object to create or update.',
       type: 'string',
       required: true,
       dynamic: true,
@@ -21,7 +21,7 @@ const action: ActionDefinition<Settings, Payload> = {
     externalId: {
       type: 'string',
       required: false,
-      label: 'External ID',
+      label: 'External Object ID',
       description: 'An ID from your app/database that is used to uniquely identify the object in Encharge.',
       default: { '@path': '$.groupId' }
     },
@@ -57,14 +57,14 @@ const action: ActionDefinition<Settings, Payload> = {
     }
   },
   dynamicFields: {
-    object: getCustomObjects
+    objectType: getCustomObjects
   },
   platform: 'cloud',
   perform: (request, data) => {
     const payload = {
       type: 'group',
-      object: data.payload.object,
-      objectData: {
+      objectType: data.payload.objectType,
+      properties: {
         ...(data.payload.objectData || {}),
         externalId: data.payload.externalId,
         id: data.payload.id

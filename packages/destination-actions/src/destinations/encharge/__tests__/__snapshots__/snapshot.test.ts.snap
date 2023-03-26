@@ -37,8 +37,8 @@ Object {
 
 exports[`Testing snapshot for encharge destination: createUpdateObject action - all fields 1`] = `
 Object {
-  "object": "UOSf$(7b2NNWdC^fasOq",
-  "objectData": Object {
+  "objectType": "UOSf$(7b2NNWdC^fasOq",
+  "properties": Object {
     "externalId": "UOSf$(7b2NNWdC^fasOq",
     "id": "UOSf$(7b2NNWdC^fasOq",
     "testType": "UOSf$(7b2NNWdC^fasOq",
@@ -53,8 +53,8 @@ Object {
 
 exports[`Testing snapshot for encharge destination: createUpdateObject action - required fields 1`] = `
 Object {
-  "object": "UOSf$(7b2NNWdC^fasOq",
-  "objectData": Object {
+  "objectType": "UOSf$(7b2NNWdC^fasOq",
+  "properties": Object {
     "id": "UOSf$(7b2NNWdC^fasOq",
   },
   "type": "group",
@@ -72,6 +72,7 @@ Object {
       "source": "0$uor",
       "term": "0$uor",
     },
+    "groupId": "0$uor",
     "ip": "0$uor",
     "location": Object {
       "city": "0$uor",
@@ -88,14 +89,12 @@ Object {
     "userAgent": "0$uor",
   },
   "email": "utico@iboko.my",
-  "groupId": "0$uor",
   "messageId": "0$uor",
   "segmentAnonymousId": "0$uor",
   "timestamp": "2094-01-28T04:11:14.541Z",
   "type": "0$uor",
   "user": Object {
     "email": "utico@iboko.my",
-    "groupId": "0$uor",
     "segmentAnonymousId": "0$uor",
     "testType": "0$uor",
     "userId": "0$uor",
@@ -139,6 +138,7 @@ Object {
       "source": "u@9wkfSVEfyjtDD&A",
       "term": "u@9wkfSVEfyjtDD&A",
     },
+    "groupId": "u@9wkfSVEfyjtDD&A",
     "ip": "u@9wkfSVEfyjtDD&A",
     "location": Object {
       "city": "u@9wkfSVEfyjtDD&A",
@@ -155,9 +155,8 @@ Object {
     "userAgent": "u@9wkfSVEfyjtDD&A",
   },
   "email": "sa@dadnot.pg",
-  "groupId": "u@9wkfSVEfyjtDD&A",
+  "event": "u@9wkfSVEfyjtDD&A",
   "messageId": "u@9wkfSVEfyjtDD&A",
-  "name": "u@9wkfSVEfyjtDD&A",
   "properties": Object {
     "testType": "u@9wkfSVEfyjtDD&A",
   },
@@ -166,7 +165,6 @@ Object {
   "type": "u@9wkfSVEfyjtDD&A",
   "user": Object {
     "email": "sa@dadnot.pg",
-    "groupId": "u@9wkfSVEfyjtDD&A",
     "segmentAnonymousId": "u@9wkfSVEfyjtDD&A",
     "testType": "u@9wkfSVEfyjtDD&A",
     "userId": "u@9wkfSVEfyjtDD&A",
@@ -181,7 +179,7 @@ Object {
 exports[`Testing snapshot for encharge destination: trackEvent action - required fields 1`] = `
 Object {
   "context": Object {},
-  "name": "u@9wkfSVEfyjtDD&A",
+  "event": "u@9wkfSVEfyjtDD&A",
   "type": "u@9wkfSVEfyjtDD&A",
   "user": Object {},
 }
@@ -197,6 +195,7 @@ Object {
       "source": "TdR(O(r",
       "term": "TdR(O(r",
     },
+    "groupId": "TdR(O(r",
     "ip": "TdR(O(r",
     "location": Object {
       "city": "TdR(O(r",
@@ -213,7 +212,6 @@ Object {
     "userAgent": "TdR(O(r",
   },
   "email": "giwlejnam@obiefpej.dj",
-  "groupId": "TdR(O(r",
   "messageId": "TdR(O(r",
   "properties": Object {
     "testType": "TdR(O(r",
@@ -223,7 +221,6 @@ Object {
   "type": "TdR(O(r",
   "user": Object {
     "email": "giwlejnam@obiefpej.dj",
-    "groupId": "TdR(O(r",
     "segmentAnonymousId": "TdR(O(r",
     "testType": "TdR(O(r",
     "userId": "TdR(O(r",

@@ -10,6 +10,7 @@ Object {
       "source": "9VJnjlkf",
       "term": "9VJnjlkf",
     },
+    "groupId": "9VJnjlkf",
     "ip": "9VJnjlkf",
     "location": Object {
       "city": "9VJnjlkf",
@@ -26,7 +27,6 @@ Object {
     "userAgent": "9VJnjlkf",
   },
   "email": "fadwu@isa.sz",
-  "groupId": "9VJnjlkf",
   "messageId": "9VJnjlkf",
   "properties": Object {
     "testType": "9VJnjlkf",
@@ -36,7 +36,6 @@ Object {
   "type": "9VJnjlkf",
   "user": Object {
     "email": "fadwu@isa.sz",
-    "groupId": "9VJnjlkf",
     "segmentAnonymousId": "9VJnjlkf",
     "testType": "9VJnjlkf",
     "userId": "9VJnjlkf",

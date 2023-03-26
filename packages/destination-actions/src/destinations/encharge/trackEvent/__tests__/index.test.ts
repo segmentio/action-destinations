@@ -49,8 +49,8 @@ describe('Encharge.trackEvent', () => {
           },
           "userAgent": "Mozilla/5.0 (iPhone; CPU iPhone OS 9_1 like Mac OS X) AppleWebKit/601.1.46 (KHTML, like Gecko) Version/9.0 Mobile/13B143 Safari/601.1",
         },
+        "event": "Test Event",
         "messageId": "1234",
-        "name": "Test Event",
         "properties": Object {
           "value": "success",
         },
@@ -59,7 +59,6 @@ describe('Encharge.trackEvent', () => {
         "type": "track",
         "user": Object {
           "email": undefined,
-          "groupId": undefined,
           "segmentAnonymousId": "anonId1234",
           "userId": "user1234",
         },

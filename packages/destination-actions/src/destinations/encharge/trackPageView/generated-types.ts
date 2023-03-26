@@ -30,7 +30,7 @@ export interface Payload {
    */
   userId?: string | null
   /**
-   * An ID associating the user with a group.
+   * An ID associating the event with a group.
    */
   groupId?: string | null
   /**
