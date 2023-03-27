@@ -100,7 +100,7 @@ describe('TiktokAudiences.addUser', () => {
         auth,
         mapping: {
           selected_advertiser_id: '123',
-          personas_audience_key: 'personas_test_audience',
+          audience_id: '123456',
           send_email: false,
           send_advertising_id: false
         }

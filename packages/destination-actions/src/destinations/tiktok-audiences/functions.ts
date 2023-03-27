@@ -106,7 +106,7 @@ export function extractUsers(payloads: GenericPayload[]): {}[][] {
   return batch_data
 }
 
-export async function createAudience(
+export function createAudience(
   request: RequestClient,
   payload: CreateAudiencePayload
 ): Promise<ModifiedResponse<CreateAudienceAPIResponse>> {
