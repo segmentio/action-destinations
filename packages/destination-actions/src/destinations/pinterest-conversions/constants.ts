@@ -11,3 +11,4 @@ export const EVENT_NAME = {
   WATCH_VIDEO: 'watch_video'
 }
 export const ACTION_SOURCE = ['app_android', 'app_ios', 'web', 'offline']
+export const PARTNER_NAME = 'ss-segment'

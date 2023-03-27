@@ -1,6 +1,6 @@
 import type { ActionDefinition, RequestClient } from '@segment/actions-core'
 import { IntegrationError } from '@segment/actions-core'
-import { API_VERSION } from '../constants'
+import { API_VERSION, PARTNER_NAME } from '../constants'
 import type { Settings } from '../generated-types'
 import { custom_data_field } from '../pinterest-capi-custom-data'
 import { user_data_field, hash_user_data } from '../pinterset-capi-user-data'
@@ -193,6 +193,7 @@ function createPinterestPayload(payload: Payload) {
       event_time: dayjs.utc(payload.event_time).unix(),
       event_id: payload.event_id,
       event_source_url: payload.event_source_url,
+      partner_name: PARTNER_NAME,
       opt_out: payload.opt_out,
       user_data: hash_user_data({ user_data: payload.user_data }),
       custom_data: {
