@@ -82,7 +82,7 @@ describe('TiktokAudiences.removeUser', () => {
         auth,
         mapping: {
           selected_advertiser_id: '123',
-          personas_audience_key: 'personas_test_audience'
+          audience_id: 'personas_test_audience'
         }
       })
     ).rejects.toThrowError()
