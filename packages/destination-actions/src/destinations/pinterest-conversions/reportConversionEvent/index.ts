@@ -15,7 +15,7 @@ const action: ActionDefinition<Settings, Payload> = {
     event_name: {
       label: 'Event Name',
       description:
-        'The conversion event type. For custom events, you must use one of the predefined event name (custom). Please refer to the possible event types in [Pinterest API docs](https://developers.pinterest.com/docs/api/v5/#operation/events/create).',
+        'The conversion event type. For custom events, you must use the predefined event name "custom". Please refer to the possible event types in [Pinterest API docs](https://developers.pinterest.com/docs/api/v5/#operation/events/create).',
       type: 'string',
       required: true,
       choices: [
@@ -138,7 +138,7 @@ const action: ActionDefinition<Settings, Payload> = {
       }
     },
     os_version: {
-      label: 'Os Version',
+      label: 'OS Version',
       description: 'Version of the device operating system.',
       type: 'string',
       default: {
@@ -170,8 +170,8 @@ async function processPayload(request: RequestClient, settings: Settings, payloa
     !(payload.user_data?.client_ip_address && payload.user_data?.client_user_agent)
   ) {
     throw new IntegrationError(
-      `User data is required at least one of email,hashed_maids and both client_ip_address and client_user_agent.`,
-      'Bad Request',
+      `User data must contain values for Email or Phone Number or Mobile Ad Identifier or both IP Address and User Agent fields`,
+      'Misconfigured required field',
       400
     )
   }

@@ -131,7 +131,7 @@ describe('PinterestConversionApi', () => {
           }
         })
       ).rejects.toThrowError(
-        'User data is required at least one of email,hashed_maids and both client_ip_address and client_user_agent.'
+        'User data must contain values for Email or Phone Number or Mobile Ad Identifier or both IP Address and User Agent fields'
       )
     })
   })
