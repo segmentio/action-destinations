@@ -41,7 +41,7 @@ const action: ActionDefinition<Settings, Payload> = {
       label: 'Anonymous ID',
       type: 'string',
       required: true,
-      description: "The user's previously used anonymous user key.",
+      description: "The user's unauthenticated identifier.",
       default: {
         '@if': {
           exists: { '@path': '$.previousId' },
