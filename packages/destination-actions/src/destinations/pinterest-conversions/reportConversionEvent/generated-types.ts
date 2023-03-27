@@ -2,7 +2,7 @@
 
 export interface Payload {
   /**
-   * The conversion event type. For custom events, you must use one of the predefined event name (custom). Please refer to the possible event types in [Pinterest API docs](https://developers.pinterest.com/docs/api/v5/#operation/events/create).
+   * The conversion event type. For custom events, you must use the predefined event name "custom". Please refer to the possible event types in [Pinterest API docs](https://developers.pinterest.com/docs/api/v5/#operation/events/create).
    */
   event_name: string
   /**
