@@ -30,14 +30,6 @@ export const audience_id: InputField = {
   required: true
 }
 
-export const custom_audience_name: InputField = {
-  label: 'Custom Audience Name',
-  description:
-    'Custom audience name of audience to be created. Please note that names over 70 characters will be truncated to 67 characters with "..." appended.',
-  type: 'string',
-  required: true
-}
-
 export const email: InputField = {
   label: 'User Email',
   description: "The user's email address to send to TikTok.",
