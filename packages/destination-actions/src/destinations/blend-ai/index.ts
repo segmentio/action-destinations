@@ -1,6 +1,7 @@
 import type { DestinationDefinition } from '@segment/actions-core'
 import type { Settings } from './generated-types'
 import sendData from './sendData'
+import { defaultValues } from '@segment/actions-core'
 
 const baseUrl = 'https://segment-api.blnd.ai/'
 
@@ -40,7 +41,8 @@ const destination: DestinationDefinition<Settings> = {
     {
       name: 'Send Data to Blend',
       subscribe: 'type = "identify" or type = "page" or type = "screen" or type = "track"',
-      partnerAction: 'sendData'
+      partnerAction: 'sendData',
+      mapping: defaultValues(sendData.fields)
     }
   ],
   actions: {
