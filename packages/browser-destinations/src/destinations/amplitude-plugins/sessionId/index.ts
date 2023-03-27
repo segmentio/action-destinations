@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unsafe-call */
 import { UniversalStorage } from '@segment/analytics-next'
 import type { BrowserActionDefinition } from '../../../lib/browser-destinations'
 import type { Settings } from '../generated-types'
@@ -56,7 +57,8 @@ const action: BrowserActionDefinition<Settings, {}, Payload> = {
 
     const newSession = newSessionId()
     const storage = analytics.storage
-      ? (analytics.storage as UniversalStorage<Record<string, number>>)
+      ? // eslint-disable-next-line @typescript-eslint/no-unnecessary-type-assertion
+        (analytics.storage as UniversalStorage<Record<string, number>>)
       : storageFallback
 
     const raw = storage.get('analytics_session_id')
