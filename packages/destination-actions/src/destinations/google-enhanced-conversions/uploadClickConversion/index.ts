@@ -186,7 +186,7 @@ const action: ActionDefinition<Settings, Payload> = {
       defaultObjectUI: 'keyvalue:only'
     }
   },
-  perform: async (request, { auth, settings, payload, features, statsContext }) => {
+  perform: async (request, { auth, settings, payload, features, statsContext, logger }) => {
     /* Enforcing this here since Customer ID is required for the Google Ads API
     but not for the Enhanced Conversions API. */
     if (!settings.customerId) {
@@ -230,9 +230,9 @@ const action: ActionDefinition<Settings, Payload> = {
     // Retrieves all of the custom variables that the customer has created in their Google Ads account
     if (payload.custom_variables) {
       const customVariableIds = await getCustomVariables(settings.customerId, auth, request, features, statsContext)
-      console.log(
-        'custom variables google: ',
-        customVariableIds,
+      logger?.info(
+        `custom variables google: `,
+        customVariableIds?.toString(),
         ' endpoints: ',
         getUrlByVersion(features, statsContext)
       )
