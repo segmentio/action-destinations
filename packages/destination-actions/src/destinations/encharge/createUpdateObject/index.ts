@@ -41,7 +41,6 @@ const action: ActionDefinition<Settings, Payload> = {
     },
     userId: {
       type: 'string',
-      allowNull: true,
       description:
         'The User ID of the user to associate with the object. If no email or user ID is provided, no user will be created and associated.',
       label: 'User ID',
@@ -49,7 +48,6 @@ const action: ActionDefinition<Settings, Payload> = {
     },
     email: {
       type: 'string',
-      allowNull: true,
       description:
         'The email of the user to associate with the object. If no email or user ID is provided, no user will be created and associated.',
       label: 'Email',
@@ -59,7 +57,6 @@ const action: ActionDefinition<Settings, Payload> = {
   dynamicFields: {
     objectType: getCustomObjects
   },
-  platform: 'cloud',
   perform: (request, data) => {
     const payload = {
       type: 'group',

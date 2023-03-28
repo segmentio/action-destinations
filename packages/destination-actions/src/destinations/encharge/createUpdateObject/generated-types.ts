@@ -22,9 +22,9 @@ export interface Payload {
   /**
    * The User ID of the user to associate with the object. If no email or user ID is provided, no user will be created and associated.
    */
-  userId?: string | null
+  userId?: string
   /**
    * The email of the user to associate with the object. If no email or user ID is provided, no user will be created and associated.
    */
-  email?: string | null
+  email?: string
 }

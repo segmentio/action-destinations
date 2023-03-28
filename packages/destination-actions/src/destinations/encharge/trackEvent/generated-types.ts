@@ -24,19 +24,19 @@ export interface Payload {
   /**
    * The email address of the user.
    */
-  email?: string | null
+  email?: string
   /**
    * An anonymous identifier for this user.
    */
-  segmentAnonymousId?: string | null
+  segmentAnonymousId?: string
   /**
    * The User ID associated with the user in Encharge.
    */
-  userId?: string | null
+  userId?: string
   /**
    * An ID associating the event with a group.
    */
-  groupId?: string | null
+  groupId?: string
   /**
    * The timestamp of the event
    */

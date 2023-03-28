@@ -4,7 +4,6 @@ exports[`Testing snapshot for Encharge's aliasUser destination action: all field
 Object {
   "messageId": "$NytfaD73IuN43lZ",
   "previousUserId": "$NytfaD73IuN43lZ",
-  "timestamp": "2111-09-17T05:15:04.005Z",
   "type": "alias",
   "userId": "$NytfaD73IuN43lZ",
 }
@@ -15,5 +14,20 @@ Object {
   "previousUserId": "$NytfaD73IuN43lZ",
   "type": "alias",
   "userId": "$NytfaD73IuN43lZ",
+}
+`;
+
+exports[`Testing snapshot for Encharge's aliasUser destination action: required fields 2`] = `"{\\"userId\\":\\"$NytfaD73IuN43lZ\\",\\"previousUserId\\":\\"$NytfaD73IuN43lZ\\",\\"type\\":\\"alias\\"}"`;
+
+exports[`Testing snapshot for Encharge's aliasUser destination action: required fields 3`] = `
+Headers {
+  Symbol(map): Object {
+    "content-type": Array [
+      "application/json",
+    ],
+    "user-agent": Array [
+      "Segment (Actions)",
+    ],
+  },
 }
 `;

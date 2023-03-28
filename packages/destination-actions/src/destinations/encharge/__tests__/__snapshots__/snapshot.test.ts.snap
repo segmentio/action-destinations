@@ -9,6 +9,8 @@ Object {
 }
 `;
 
+exports[`Testing snapshot for encharge destination: addTag action - all fields 2`] = `"{\\"tag\\":\\"$A[On!8K\\",\\"email\\":\\"vij@muz.ro\\",\\"userId\\":\\"$A[On!8K\\",\\"segmentAnonymousId\\":\\"$A[On!8K\\"}"`;
+
 exports[`Testing snapshot for encharge destination: addTag action - required fields 1`] = `
 Object {
   "segmentAnonymousId": "anonId1234",
@@ -17,11 +19,25 @@ Object {
 }
 `;
 
+exports[`Testing snapshot for encharge destination: addTag action - required fields 2`] = `"{\\"tag\\":\\"$A[On!8K\\",\\"userId\\":\\"user1234\\",\\"segmentAnonymousId\\":\\"anonId1234\\"}"`;
+
+exports[`Testing snapshot for encharge destination: addTag action - required fields 3`] = `
+Headers {
+  Symbol(map): Object {
+    "content-type": Array [
+      "application/json",
+    ],
+    "user-agent": Array [
+      "Segment (Actions)",
+    ],
+  },
+}
+`;
+
 exports[`Testing snapshot for encharge destination: aliasUser action - all fields 1`] = `
 Object {
   "messageId": "BifsxPBCb8aS&*",
   "previousUserId": "BifsxPBCb8aS&*",
-  "timestamp": "2060-08-03T22:15:18.566Z",
   "type": "alias",
   "userId": "BifsxPBCb8aS&*",
 }
@@ -32,6 +48,21 @@ Object {
   "previousUserId": "BifsxPBCb8aS&*",
   "type": "alias",
   "userId": "BifsxPBCb8aS&*",
+}
+`;
+
+exports[`Testing snapshot for encharge destination: aliasUser action - required fields 2`] = `"{\\"userId\\":\\"BifsxPBCb8aS&*\\",\\"previousUserId\\":\\"BifsxPBCb8aS&*\\",\\"type\\":\\"alias\\"}"`;
+
+exports[`Testing snapshot for encharge destination: aliasUser action - required fields 3`] = `
+Headers {
+  Symbol(map): Object {
+    "content-type": Array [
+      "application/json",
+    ],
+    "user-agent": Array [
+      "Segment (Actions)",
+    ],
+  },
 }
 `;
 
@@ -51,6 +82,8 @@ Object {
 }
 `;
 
+exports[`Testing snapshot for encharge destination: createUpdateObject action - all fields 2`] = `"{\\"type\\":\\"group\\",\\"objectType\\":\\"UOSf$(7b2NNWdC^fasOq\\",\\"properties\\":{\\"testType\\":\\"UOSf$(7b2NNWdC^fasOq\\",\\"externalId\\":\\"UOSf$(7b2NNWdC^fasOq\\",\\"id\\":\\"UOSf$(7b2NNWdC^fasOq\\"},\\"user\\":{\\"email\\":\\"ubcife@mat.it\\",\\"userId\\":\\"UOSf$(7b2NNWdC^fasOq\\"}}"`;
+
 exports[`Testing snapshot for encharge destination: createUpdateObject action - required fields 1`] = `
 Object {
   "objectType": "UOSf$(7b2NNWdC^fasOq",
@@ -59,6 +92,21 @@ Object {
   },
   "type": "group",
   "user": Object {},
+}
+`;
+
+exports[`Testing snapshot for encharge destination: createUpdateObject action - required fields 2`] = `"{\\"type\\":\\"group\\",\\"objectType\\":\\"UOSf$(7b2NNWdC^fasOq\\",\\"properties\\":{\\"id\\":\\"UOSf$(7b2NNWdC^fasOq\\"},\\"user\\":{}}"`;
+
+exports[`Testing snapshot for encharge destination: createUpdateObject action - required fields 3`] = `
+Headers {
+  Symbol(map): Object {
+    "content-type": Array [
+      "application/json",
+    ],
+    "user-agent": Array [
+      "Segment (Actions)",
+    ],
+  },
 }
 `;
 
@@ -91,7 +139,6 @@ Object {
   "email": "utico@iboko.my",
   "messageId": "0$uor",
   "segmentAnonymousId": "0$uor",
-  "timestamp": "2094-01-28T04:11:14.541Z",
   "type": "0$uor",
   "user": Object {
     "email": "utico@iboko.my",
@@ -111,6 +158,21 @@ Object {
 }
 `;
 
+exports[`Testing snapshot for encharge destination: identifyUser action - required fields 2`] = `"{\\"type\\":\\"0$uor\\",\\"context\\":{},\\"user\\":{}}"`;
+
+exports[`Testing snapshot for encharge destination: identifyUser action - required fields 3`] = `
+Headers {
+  Symbol(map): Object {
+    "content-type": Array [
+      "application/json",
+    ],
+    "user-agent": Array [
+      "Segment (Actions)",
+    ],
+  },
+}
+`;
+
 exports[`Testing snapshot for encharge destination: removeTag action - all fields 1`] = `
 Object {
   "email": "diclujob@cag.br",
@@ -120,11 +182,28 @@ Object {
 }
 `;
 
+exports[`Testing snapshot for encharge destination: removeTag action - all fields 2`] = `"{\\"tag\\":\\"8HMtY74gvX1\\",\\"email\\":\\"diclujob@cag.br\\",\\"userId\\":\\"8HMtY74gvX1\\",\\"segmentAnonymousId\\":\\"8HMtY74gvX1\\"}"`;
+
 exports[`Testing snapshot for encharge destination: removeTag action - required fields 1`] = `
 Object {
   "segmentAnonymousId": "anonId1234",
   "tag": "8HMtY74gvX1",
   "userId": "user1234",
+}
+`;
+
+exports[`Testing snapshot for encharge destination: removeTag action - required fields 2`] = `"{\\"tag\\":\\"8HMtY74gvX1\\",\\"userId\\":\\"user1234\\",\\"segmentAnonymousId\\":\\"anonId1234\\"}"`;
+
+exports[`Testing snapshot for encharge destination: removeTag action - required fields 3`] = `
+Headers {
+  Symbol(map): Object {
+    "content-type": Array [
+      "application/json",
+    ],
+    "user-agent": Array [
+      "Segment (Actions)",
+    ],
+  },
 }
 `;
 
@@ -161,7 +240,6 @@ Object {
     "testType": "u@9wkfSVEfyjtDD&A",
   },
   "segmentAnonymousId": "u@9wkfSVEfyjtDD&A",
-  "timestamp": "2050-10-27T16:17:08.080Z",
   "type": "u@9wkfSVEfyjtDD&A",
   "user": Object {
     "email": "sa@dadnot.pg",
@@ -182,6 +260,21 @@ Object {
   "event": "u@9wkfSVEfyjtDD&A",
   "type": "u@9wkfSVEfyjtDD&A",
   "user": Object {},
+}
+`;
+
+exports[`Testing snapshot for encharge destination: trackEvent action - required fields 2`] = `"{\\"event\\":\\"u@9wkfSVEfyjtDD&A\\",\\"type\\":\\"u@9wkfSVEfyjtDD&A\\",\\"context\\":{},\\"user\\":{}}"`;
+
+exports[`Testing snapshot for encharge destination: trackEvent action - required fields 3`] = `
+Headers {
+  Symbol(map): Object {
+    "content-type": Array [
+      "application/json",
+    ],
+    "user-agent": Array [
+      "Segment (Actions)",
+    ],
+  },
 }
 `;
 
@@ -217,7 +310,6 @@ Object {
     "testType": "TdR(O(r",
   },
   "segmentAnonymousId": "TdR(O(r",
-  "timestamp": "2085-02-02T12:57:32.952Z",
   "type": "TdR(O(r",
   "user": Object {
     "email": "giwlejnam@obiefpej.dj",
@@ -237,5 +329,20 @@ Object {
   "context": Object {},
   "type": "TdR(O(r",
   "user": Object {},
+}
+`;
+
+exports[`Testing snapshot for encharge destination: trackPageView action - required fields 2`] = `"{\\"type\\":\\"TdR(O(r\\",\\"context\\":{},\\"user\\":{}}"`;
+
+exports[`Testing snapshot for encharge destination: trackPageView action - required fields 3`] = `
+Headers {
+  Symbol(map): Object {
+    "content-type": Array [
+      "application/json",
+    ],
+    "user-agent": Array [
+      "Segment (Actions)",
+    ],
+  },
 }
 `;

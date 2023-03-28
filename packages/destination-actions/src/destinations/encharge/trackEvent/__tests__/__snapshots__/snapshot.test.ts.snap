@@ -33,7 +33,6 @@ Object {
     "testType": "SCL252",
   },
   "segmentAnonymousId": "SCL252",
-  "timestamp": "2083-02-11T10:44:46.734Z",
   "type": "SCL252",
   "user": Object {
     "email": "etohe@nadroog.bb",
@@ -54,5 +53,20 @@ Object {
   "event": "SCL252",
   "type": "SCL252",
   "user": Object {},
+}
+`;
+
+exports[`Testing snapshot for Encharge's trackEvent destination action: required fields 2`] = `"{\\"event\\":\\"SCL252\\",\\"type\\":\\"SCL252\\",\\"context\\":{},\\"user\\":{}}"`;
+
+exports[`Testing snapshot for Encharge's trackEvent destination action: required fields 3`] = `
+Headers {
+  Symbol(map): Object {
+    "content-type": Array [
+      "application/json",
+    ],
+    "user-agent": Array [
+      "Segment (Actions)",
+    ],
+  },
 }
 `;

@@ -8,13 +8,13 @@ export interface Payload {
   /**
    * The email address of the user.
    */
-  email?: string | null
+  email?: string
   /**
    * The User ID associated with the user in Encharge.
    */
-  userId?: string | null
+  userId?: string
   /**
    * An anonymous identifier for this user.
    */
-  segmentAnonymousId?: string | null
+  segmentAnonymousId?: string
 }

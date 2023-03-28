@@ -23,7 +23,6 @@ const action: ActionDefinition<Settings, Payload> = {
     ...userFieldsDefinition,
     ...commonFields
   },
-  platform: 'cloud',
   perform: (request, data) => {
     const payload = {
       ...omit(data.payload, ['ip', 'userAgent', 'campaign', 'page', 'location', 'user', 'groupId']),

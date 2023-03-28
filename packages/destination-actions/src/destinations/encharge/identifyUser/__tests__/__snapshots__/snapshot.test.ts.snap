@@ -29,7 +29,6 @@ Object {
   "email": "wajifodis@tic.sl",
   "messageId": "!zPu!rE#Y@H[7(",
   "segmentAnonymousId": "!zPu!rE#Y@H[7(",
-  "timestamp": "2108-08-11T10:16:50.239Z",
   "type": "!zPu!rE#Y@H[7(",
   "user": Object {
     "email": "wajifodis@tic.sl",
@@ -46,5 +45,20 @@ Object {
   "context": Object {},
   "type": "!zPu!rE#Y@H[7(",
   "user": Object {},
+}
+`;
+
+exports[`Testing snapshot for Encharge's identifyUser destination action: required fields 2`] = `"{\\"type\\":\\"!zPu!rE#Y@H[7(\\",\\"context\\":{},\\"user\\":{}}"`;
+
+exports[`Testing snapshot for Encharge's identifyUser destination action: required fields 3`] = `
+Headers {
+  Symbol(map): Object {
+    "content-type": Array [
+      "application/json",
+    ],
+    "user-agent": Array [
+      "Segment (Actions)",
+    ],
+  },
 }
 `;

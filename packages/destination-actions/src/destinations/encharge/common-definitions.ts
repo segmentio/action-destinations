@@ -12,28 +12,24 @@ export const commonFields: ActionDefinition<Settings>['fields'] = {
   email: {
     type: 'string',
     required: false,
-    allowNull: true,
     description: 'The email address of the user.',
     label: 'Email',
     default: { '@path': '$.email' }
   },
   segmentAnonymousId: {
     type: 'string',
-    allowNull: true,
     description: 'An anonymous identifier for this user.',
     label: 'Anonymous ID',
     default: { '@path': '$.anonymousId' }
   },
   userId: {
     type: 'string',
-    allowNull: true,
     description: 'The User ID associated with the user in Encharge.',
     label: 'User ID',
     default: { '@path': '$.userId' }
   },
   groupId: {
     type: 'string',
-    allowNull: true,
     description: 'An ID associating the event with a group.',
     label: 'Group ID',
     default: { '@path': '$.context.groupId' }
@@ -84,36 +80,31 @@ export const commonFields: ActionDefinition<Settings>['fields'] = {
         type: 'string',
         required: false,
         description: 'The name of the campaign.',
-        label: 'Name',
-        default: { '@path': '$.context.campaign.name' }
+        label: 'Name'
       },
       source: {
         type: 'string',
         required: false,
         description: 'The source of the campaign.',
-        label: 'Source',
-        default: { '@path': '$.context.campaign.source' }
+        label: 'Source'
       },
       medium: {
         type: 'string',
         required: false,
         description: 'The medium of the campaign.',
-        label: 'Medium',
-        default: { '@path': '$.context.campaign.medium' }
+        label: 'Medium'
       },
       term: {
         type: 'string',
         required: false,
         description: 'The term of the campaign.',
-        label: 'Term',
-        default: { '@path': '$.context.campaign.term' }
+        label: 'Term'
       },
       content: {
         type: 'string',
         required: false,
         description: 'The content of the campaign.',
-        label: 'Content',
-        default: { '@path': '$.context.campaign.content' }
+        label: 'Content'
       }
     }
   },
@@ -134,36 +125,31 @@ export const commonFields: ActionDefinition<Settings>['fields'] = {
         type: 'string',
         required: false,
         description: 'The URL of the page where the event occurred.',
-        label: 'URL',
-        default: { '@path': '$.context.page.url' }
+        label: 'URL'
       },
       title: {
         type: 'string',
         required: false,
         description: 'The title of the page where the event occurred.',
-        label: 'Title',
-        default: { '@path': '$.context.page.title' }
+        label: 'Title'
       },
       referrer: {
         type: 'string',
         required: false,
         description: 'The referrer of the page where the event occurred.',
-        label: 'Referrer',
-        default: { '@path': '$.context.page.referrer' }
+        label: 'Referrer'
       },
       path: {
         type: 'string',
         required: false,
         description: 'The path of the page where the event occurred.',
-        label: 'Path',
-        default: { '@path': '$.context.page.path' }
+        label: 'Path'
       },
       search: {
         type: 'string',
         required: false,
         description: 'The search query of the page where the event occurred.',
-        label: 'Search',
-        default: { '@path': '$.context.page.search' }
+        label: 'Search'
       }
     }
   },
@@ -182,22 +168,19 @@ export const commonFields: ActionDefinition<Settings>['fields'] = {
         type: 'string',
         required: false,
         description: 'The city of the user.',
-        label: 'City',
-        default: { '@path': '$.context.location.city' }
+        label: 'City'
       },
       region: {
         type: 'string',
         required: false,
         description: 'The region of the user.',
-        label: 'Region',
-        default: { '@path': '$.context.location.region' }
+        label: 'Region'
       },
       country: {
         type: 'string',
         required: false,
         description: 'The country of the user.',
-        label: 'Country',
-        default: { '@path': '$.context.location.country' }
+        label: 'Country'
       }
     }
   }
@@ -209,7 +192,8 @@ export const userFieldsDefinition: ActionDefinition<Settings>['fields'] = {
     description: `Any default or custom field of the user. On the left-hand side, input the API name of the field as seen in your Encharge account. On the right-hand side, map the Segment field that contains the value. Any properties that don't exist will be created automatically. See more information in [Encharge's documentation](https://help.encharge.io/article/206-create-and-manage-custom-fields).`,
     type: 'object',
     defaultObjectUI: 'keyvalue',
-    allowNull: false
+    allowNull: false,
+    default: { '@path': '$.context.traits' }
   }
 }
 

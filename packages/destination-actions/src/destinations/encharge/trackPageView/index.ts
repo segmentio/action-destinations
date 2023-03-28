@@ -8,7 +8,7 @@ import { commonFields, propertiesDefinition, userFieldsDefinition } from '../com
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Track Page View',
-  description: '',
+  description: 'Track a website page visit.',
   defaultSubscription: 'type = "page"',
   fields: {
     properties: {
@@ -20,7 +20,6 @@ const action: ActionDefinition<Settings, Payload> = {
     ...userFieldsDefinition,
     ...commonFields
   },
-  platform: 'cloud',
   perform: (request, data) => {
     const payload = {
       ...omit(data.payload, ['ip', 'userAgent', 'campaign', 'page', 'location', 'user', 'groupId']),

@@ -14,12 +14,11 @@ const action: ActionDefinition<Settings, Payload> = {
       type: 'string',
       required: true,
       description: 'The tags to add, separated by commas.',
-      label: 'Event Name',
+      label: 'Tag',
       default: { '@path': '$.traits.tag' }
     },
     ...pick(commonFields, ['email', 'userId', 'segmentAnonymousId'])
   },
-  platform: 'cloud',
   perform: (request, data) => {
     if (!data.payload.email && !data.payload.userId && !data.payload.segmentAnonymousId) {
       throw new PayloadValidationError('No user ID, email, or anonymous ID provided.')

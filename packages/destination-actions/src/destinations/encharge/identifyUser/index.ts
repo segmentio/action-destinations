@@ -21,7 +21,6 @@ const action: ActionDefinition<Settings, Payload> = {
     ...commonFields
   },
   defaultSubscription: 'type = "identify"',
-  platform: 'cloud',
   perform: (request, data) => {
     const payload = {
       ...omit(data.payload, ['ip', 'userAgent', 'campaign', 'page', 'location', 'user', 'groupId']),

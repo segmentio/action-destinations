@@ -26,7 +26,6 @@ const action: ActionDefinition<Settings, Payload> = {
     },
     ...pick(commonFields, ['timestamp', 'messageId'])
   },
-  platform: 'cloud',
   perform: (request, data) => {
     const payload = {
       ...data.payload,

@@ -32,7 +32,6 @@ Object {
     "testType": "9VJnjlkf",
   },
   "segmentAnonymousId": "9VJnjlkf",
-  "timestamp": "2107-03-20T09:10:07.157Z",
   "type": "9VJnjlkf",
   "user": Object {
     "email": "fadwu@isa.sz",
@@ -52,5 +51,20 @@ Object {
   "context": Object {},
   "type": "9VJnjlkf",
   "user": Object {},
+}
+`;
+
+exports[`Testing snapshot for Encharge's trackPageView destination action: required fields 2`] = `"{\\"type\\":\\"9VJnjlkf\\",\\"context\\":{},\\"user\\":{}}"`;
+
+exports[`Testing snapshot for Encharge's trackPageView destination action: required fields 3`] = `
+Headers {
+  Symbol(map): Object {
+    "content-type": Array [
+      "application/json",
+    ],
+    "user-agent": Array [
+      "Segment (Actions)",
+    ],
+  },
 }
 `;

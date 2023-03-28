@@ -15,8 +15,8 @@ import addTag from './addTag'
 import removeTag from './removeTag'
 
 const destination: DestinationDefinition<Settings> = {
-  name: 'Encharge',
-  slug: 'encharge',
+  name: 'Encharge Cloud (Actions)',
+  slug: 'encharge-cloud-actions',
   mode: 'cloud',
 
   authentication: {
