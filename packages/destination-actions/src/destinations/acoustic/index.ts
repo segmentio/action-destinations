@@ -14,16 +14,14 @@ const presets: DestinationDefinition['presets'] = [
   {
     name: 'Track Calls',
     subscribe: 'type = "track"',
-    partnerAction: 'trackEvent',
+    partnerAction: 'receiveEvents',
     mapping: {
       ...defaultValues(receiveEvents.fields),
       email: {
-        default: {
-          '@if': {
-            exists: { '@path': '$.properties.email' },
-            then: { '@path': '$.properties.email' },
-            else: { '@path': '$.context.traits.email' }
-          }
+        '@if': {
+          exists: { '@path': '$.properties.email' },
+          then: { '@path': '$.properties.email' },
+          else: { '@path': '$.context.traits.email' }
         }
       }
     }
@@ -31,16 +29,14 @@ const presets: DestinationDefinition['presets'] = [
   {
     name: 'Identify Calls',
     subscribe: 'type = "identify"',
-    partnerAction: 'trackEvent',
+    partnerAction: 'receiveEvents',
     mapping: {
       ...defaultValues(receiveEvents.fields),
       email: {
-        default: {
-          '@if': {
-            exists: { '@path': '$.traits.email' },
-            then: { '@path': '$.traits.email' },
-            else: { '@path': '$.context.traits.email' }
-          }
+        '@if': {
+          exists: { '@path': '$.traits.email' },
+          then: { '@path': '$.traits.email' },
+          else: { '@path': '$.context.traits.email' }
         }
       }
     }

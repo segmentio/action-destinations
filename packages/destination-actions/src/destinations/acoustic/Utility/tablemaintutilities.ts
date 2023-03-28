@@ -43,7 +43,11 @@ export async function preChecksAndMaint(request: RequestClient, settings: Settin
   if (eventTableListId === '') {
     const crt = await createSegmentEventsTable(request, settings)
     if (!crt) {
-      throw new IntegrationError('Error attempting to create the Acoustic Segment Events Table')
+      throw new IntegrationError(
+        'Error attempting to create the Acoustic Segment Events Table',
+        'CANNOT_CREATE_EVENTS_TABLE',
+        400
+      )
     }
   }
   return eventTableListId
@@ -73,7 +77,9 @@ export async function checkRTExist(request: RequestClient, settings: Settings) {
       if (r) eventTableListId = r[1]
       else
         throw new IntegrationError(
-          'Defined Events Table List Id is invalid, please refer to documentation to configure the Segment Events Table in Acoustic'
+          'Defined Events Table List Id is invalid, please refer to documentation to configure the Segment Events Table in Acoustic',
+          'INVALID_LIST_ID',
+          400
         )
     }
   } else {
@@ -112,7 +118,9 @@ export async function checkRTExist(request: RequestClient, settings: Settings) {
       eventTableListId = '999999999' //Make it obvious - should not be 999999999
 
       throw new IntegrationError(
-        `Cannot determine the Segment Events Table in the defined Acoustic environment. Please check the documentation and confirm the configuration`
+        `Cannot determine the Segment Events Table in the defined Acoustic environment. Please check the documentation and confirm the configuration`,
+        'CANNOT_DETERMINE_EVENTS_TABLE',
+        400
       )
     }
   }

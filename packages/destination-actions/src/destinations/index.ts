@@ -59,6 +59,7 @@ register('5f7dd8e302173ff732db5cc4', './slack')
 register('6261a8b6cb4caa70e19116e8', './snap-conversions-api')
 register('6234b137d3b6404a64f2a0f0', './talon-one')
 register('615cae349d109d6b7496a131', './tiktok-conversions')
+register('63d2e550fb90f1632ed8820a', './tiktok-audiences')
 register('602efa1f249b9a5e2bf8a813', './twilio')
 register('614a3c7d791c91c41bae7599', './webhook')
 register('61dc4e96894a6d7954cc6e45', './voyage')
@@ -83,6 +84,9 @@ register('63e52bea7747fbc311d5b872', './algolia-insights')
 register('63ff8bae963d5cb4fc79f097', './outfunnel')
 register('6408ac6c144a7d5ac55cf414', './toplyne')
 register('6411f979382d3759292d739f', './gwen')
+register('6419fbec071f03f0e4887a7f', './acoustic')
+register('6419fc9da58e84c112de12c3', './revend')
+register('6419fce5b6e12cf44efbd34c', './june')
 
 function register(id: MetadataId, destinationPath: string) {
   // eslint-disable-next-line @typescript-eslint/no-var-requires
