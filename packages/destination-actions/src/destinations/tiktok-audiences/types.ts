@@ -16,12 +16,6 @@ export interface GetAudienceAPIResponse extends APIResponse {
   }
 }
 
-export interface CreateAudienceAPIResponse extends APIResponse {
-  data: {
-    audience_id: string
-  }
-}
-
 export interface Audiences {
   is_expiring: boolean
   cover_num: number

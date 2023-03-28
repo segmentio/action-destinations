@@ -8,14 +8,25 @@ export const selected_advertiser_id: InputField = {
   required: true
 }
 
-export const custom_audience_name: InputField = {
-  label: 'Custom Audience Name',
+export const id_type: InputField = {
+  label: 'ID Type',
   description:
-    'Custom audience name of audience to be synced. This audience must already exist in your TikTok Advertising account',
+    'Encryption type to be used for populating the audience. This field is set only when Segment creates a new audience.',
   type: 'string',
-  default: {
-    '@path': '$.properties.audience_key'
-  },
+  choices: [
+    { label: 'Email', value: 'EMAIL_SHA256' },
+    { label: 'Google Advertising ID', value: 'GAID_SHA256' },
+    { label: 'Android Advertising ID', value: 'AAID_SHA256' },
+    { label: 'iOS Advertising ID', value: 'IDFA_SHA256' }
+  ],
+  required: true
+}
+
+export const audience_id: InputField = {
+  label: 'Audience ID',
+  description:
+    'Audience ID for the TikTok Audience you want to sync your Engage audience to. This is returned after you create an audience and can also be found in the TikTok Audiences dashboard.',
+  type: 'string',
   required: true
 }
 
@@ -66,11 +77,4 @@ export const enable_batching: InputField = {
   description: 'Enable batching of requests to the TikTok Audiences.',
   type: 'boolean',
   default: true
-}
-
-export const personas_audience_key: InputField = {
-  label: 'Segment Engage Audience Key',
-  description:
-    'The `audience_key` of the Engage audience you want to sync to TikTok. This value must be a hard-coded string variable, e.g. `personas_test_audience`, in order for batching to work properly.',
-  type: 'string'
 }
