@@ -58,7 +58,7 @@ const action: ActionDefinition<Settings, Payload> = {
     engagement_time_msec: engagement_time_msec,
     params: params
   },
-  perform: (request, { payload, features, settings }) => {
+  perform: (request, { payload, settings }) => {
     const data_stream_type = payload.data_stream_type ?? DataStreamType.Web
     const stream_params: DataStreamParams =
       data_stream_type === DataStreamType.MobileApp
@@ -101,10 +101,9 @@ const action: ActionDefinition<Settings, Payload> = {
       })
     }
 
-    if (features && features['actions-google-analytics-4-verify-params-feature']) {
-      verifyParams(payload.params)
-      verifyUserProps(payload.user_properties)
-    }
+    verifyParams(payload.params)
+    verifyUserProps(payload.user_properties)
+
     const request_object: { [key: string]: unknown } = {
       ...stream_params.identifier,
       user_id: payload.user_id,

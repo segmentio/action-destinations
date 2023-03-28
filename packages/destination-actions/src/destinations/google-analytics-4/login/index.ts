@@ -42,17 +42,15 @@ const action: ActionDefinition<Settings, Payload> = {
     params: params
   },
 
-  perform: (request, { payload, features, settings }) => {
+  perform: (request, { payload, settings }) => {
     const data_stream_type = payload.data_stream_type ?? DataStreamType.Web
     const stream_params: DataStreamParams =
       data_stream_type === DataStreamType.MobileApp
         ? getMobileStreamParams(settings.apiSecret, settings.firebaseAppId, payload.app_instance_id)
         : getWebStreamParams(settings.apiSecret, settings.measurementId, payload.client_id)
 
-    if (features && features['actions-google-analytics-4-verify-params-feature']) {
-      verifyParams(payload.params)
-      verifyUserProps(payload.user_properties)
-    }
+    verifyParams(payload.params)
+    verifyUserProps(payload.user_properties)
 
     const request_object: { [key: string]: unknown } = {
       ...stream_params.identifier,
