@@ -3,6 +3,7 @@ import { createTestEvent, createTestIntegration } from '@segment/actions-core'
 import Webhook from '../index'
 import { createHmac, timingSafeEqual } from 'crypto'
 import { SegmentEvent } from '@segment/actions-core'
+import { PayloadValidationError } from '@segment/actions-core'
 
 const testDestination = createTestIntegration(Webhook)
 
@@ -73,7 +74,7 @@ describe('Webhook', () => {
             data
           }
         })
-      ).rejects.toThrow(TypeError)
+      ).rejects.toThrow(PayloadValidationError)
     })
 
     it('supports request signing', async () => {
