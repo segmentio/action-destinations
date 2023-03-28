@@ -54,3 +54,20 @@ export type MixpanelEvent = {
   event: string
   properties: MixpanelEventProperties
 }
+
+export type MixpanelEngageSet = {
+  $created?: unknown
+  $email?: unknown
+  $first_name?: unknown
+  $last_name?: unknown
+  $name?: unknown
+  $username?: unknown
+  $phone?: unknown
+} & { [key: string]: unknown }
+
+export type MixpanelEngageProperties = {
+  $token: string
+  $distinct_id?: string | null
+  $ip?: string
+  $set?: MixpanelEngageSet
+}
