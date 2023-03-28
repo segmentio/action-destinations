@@ -49,7 +49,6 @@ describe('GA4', () => {
           apiSecret,
           measurementId
         },
-        features: { 'actions-google-analytics-4-add-timestamp': true },
         mapping: {
           client_id: {
             '@path': '$.anonymousId'
@@ -100,7 +99,6 @@ describe('GA4', () => {
           apiSecret,
           measurementId
         },
-        features: { 'actions-google-analytics-4-add-timestamp': true },
         mapping: {
           client_id: {
             '@path': '$.anonymousId'
@@ -196,7 +194,6 @@ describe('GA4', () => {
           apiSecret,
           measurementId
         },
-        features: { 'actions-google-analytics-4-add-timestamp': true },
         mapping: {
           client_id: {
             '@path': '$.anonymousId'
@@ -292,7 +289,6 @@ describe('GA4', () => {
           apiSecret,
           measurementId
         },
-        features: { 'actions-google-analytics-4-add-timestamp': true },
         useDefaultMappings: true
       })
 
@@ -475,7 +471,8 @@ describe('GA4', () => {
                 engagement_time_msec: 1
               }
             }
-          ]
+          ],
+          timestamp_micros: 1655936458905000
         })
         .reply(201, {})
 

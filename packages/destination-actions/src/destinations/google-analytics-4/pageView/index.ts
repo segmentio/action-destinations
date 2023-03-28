@@ -86,12 +86,10 @@ const action: ActionDefinition<Settings, Payload> = {
           }
         }
       ],
-      ...formatUserProperties(payload.user_properties)
+      ...formatUserProperties(payload.user_properties),
+      timestamp_micros: convertTimestamp(payload.timestamp_micros)
     }
 
-    if (features && features['actions-google-analytics-4-add-timestamp']) {
-      request_object.timestamp_micros = convertTimestamp(payload.timestamp_micros)
-    }
     return sendData(request, stream_params.search_params, request_object)
   }
 }
