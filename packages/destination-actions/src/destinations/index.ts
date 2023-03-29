@@ -87,6 +87,8 @@ register('6411f979382d3759292d739f', './gwen')
 register('6419fbec071f03f0e4887a7f', './acoustic')
 register('6419fc9da58e84c112de12c3', './revend')
 register('6419fce5b6e12cf44efbd34c', './june')
+register('642440d46b66b3eeac42b581', './encharge')
+register('64244158b33d1380a79dc85c', './blend-ai')
 
 function register(id: MetadataId, destinationPath: string) {
   // eslint-disable-next-line @typescript-eslint/no-var-requires
