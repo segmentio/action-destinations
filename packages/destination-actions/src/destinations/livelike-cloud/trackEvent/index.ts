@@ -1,4 +1,4 @@
-import { ActionDefinition, IntegrationError, RequestClient } from '@segment/actions-core'
+import { ActionDefinition, ErrorCodes, IntegrationError, RequestClient } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import { apiBaseUrl } from '../properties'
 import type { Payload } from './generated-types'
@@ -94,7 +94,7 @@ const action: ActionDefinition<Settings, Payload> = {
   },
   perform: (request, { payload, settings }) => {
     if (!settings.clientId || !settings.producerToken) {
-      throw new IntegrationError('Missing client ID or producer token.')
+      throw new IntegrationError('Missing client ID or producer token.', ErrorCodes.INVALID_SETTINGS)
     }
     return processData(request, settings, [payload])
   }

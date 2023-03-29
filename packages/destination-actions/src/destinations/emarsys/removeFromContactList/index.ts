@@ -10,6 +10,7 @@ import {
   BufferBatchContactList,
   BufferBatchContactListItem
 } from '../emarsys-helper'
+import { PayloadValidationError } from '@segment/actions-core'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Remove from Contact List',
@@ -46,9 +47,9 @@ const action: ActionDefinition<Settings, Payload> = {
     }
   },
   perform: async (request, data) => {
-    if (!data?.payload?.key_field) throw new IntegrationError('Missing key field')
+    if (!data?.payload?.key_field) throw new PayloadValidationError('Missing key field')
 
-    if (!data?.payload?.key_value) throw new IntegrationError('Missing key value')
+    if (!data?.payload?.key_value) throw new PayloadValidationError('Missing key value')
 
     data.payload.contactlistid = parseInt(data.payload.contactlistid.toString().replace(/[^0-9]/g, ''))
 
@@ -70,19 +71,23 @@ const action: ActionDefinition<Settings, Payload> = {
           try {
             const body = await response.json()
             if (body.replyCode === 0) return response
-            else throw new IntegrationError('Something went wrong while removing from contact list')
+            else
+              throw new IntegrationError(
+                'Something went wrong while removing from contact list',
+                'CONTACT_REMOVE_FAILED'
+              )
           } catch (err) {
-            throw new IntegrationError('Invalid JSON response')
+            throw new IntegrationError('Invalid JSON response', 'CONTACT_REMOVE_FAILED')
           }
         case 400:
-          throw new IntegrationError('The contact could not be removed from the contact list')
+          throw new IntegrationError('The contact could not be removed from the contact list', 'CONTACT_REMOVE_FAILED')
         case 429:
           throw new RetryableError('Rate limit reached.')
         default:
           throw new RetryableError('There seems to be an API issue.')
       }
     } else {
-      throw new IntegrationError('ContactlistId must be >0')
+      throw new PayloadValidationError('ContactlistId must be >0')
     }
   },
   performBatch: async (request, data) => {

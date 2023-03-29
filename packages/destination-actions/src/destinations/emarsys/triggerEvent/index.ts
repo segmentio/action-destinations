@@ -13,6 +13,7 @@ import {
 } from '../emarsys-helper'
 import { IntegrationError } from '@segment/actions-core'
 import { RetryableError } from '@segment/actions-core'
+import { PayloadValidationError } from '@segment/actions-core'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Trigger Event',
@@ -59,9 +60,9 @@ const action: ActionDefinition<Settings, Payload> = {
     }
   },
   perform: async (request, data) => {
-    if (!data?.payload?.key_field) throw new IntegrationError('Missing key field')
+    if (!data?.payload?.key_field) throw new PayloadValidationError('Missing key field')
 
-    if (!data?.payload?.key_value) throw new IntegrationError('Missing key value')
+    if (!data?.payload?.key_value) throw new PayloadValidationError('Missing key value')
 
     data.payload.eventid = parseInt(data.payload.eventid.toString().replace(/[^0-9]/g, ''))
 
@@ -83,19 +84,19 @@ const action: ActionDefinition<Settings, Payload> = {
           try {
             const body = await response.json()
             if (body.replyCode === 0) return response
-            else throw new IntegrationError('Something went wrong while triggering the event')
+            else throw new IntegrationError('Something went wrong while triggering the event', 'TRIGGER_EVENT_FAILED')
           } catch (err) {
-            throw new IntegrationError('Invalid JSON response')
+            throw new IntegrationError('Invalid JSON response', 'TRIGGER_EVENT_FAILED')
           }
         case 400:
-          throw new IntegrationError('The event could not be triggered')
+          throw new IntegrationError('The event could not be triggered', 'TRIGGER_EVENT_FAILED')
         case 429:
           throw new RetryableError('Rate limit reached.')
         default:
           throw new RetryableError('There seems to be an API issue.')
       }
     } else {
-      throw new IntegrationError('eventid must be >0')
+      throw new PayloadValidationError('eventid must be >0')
     }
   },
   performBatch: async (request, data) => {

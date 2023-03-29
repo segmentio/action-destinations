@@ -1,5 +1,5 @@
 import nock from 'nock'
-import { createTestEvent, createTestIntegration, IntegrationError } from '@segment/actions-core'
+import { createTestEvent, createTestIntegration, ErrorCodes, IntegrationError } from '@segment/actions-core'
 import Destination from '../../index'
 import { Payload } from '../generated-types'
 import { apiBaseUrl } from '../../properties'
@@ -31,7 +31,7 @@ describe('LiveLike.trackEvent', () => {
         event,
         useDefaultMappings: true
       })
-    ).rejects.toThrowError(new IntegrationError('Missing client ID or producer token.'))
+    ).rejects.toThrowError(new IntegrationError('Missing client ID or producer token.', ErrorCodes.INVALID_SETTINGS))
   })
 
   it('should throw integration error when livelike_profile_id or user_id is not found or null', async () => {
@@ -75,7 +75,9 @@ describe('LiveLike.trackEvent', () => {
           producerToken: LIVELIKE_PRODUCER_TOKEN
         }
       })
-    ).rejects.toThrowError(new IntegrationError("The root value is missing the required field 'action_key'."))
+    ).rejects.toThrowError(
+      new IntegrationError("The root value is missing the required field 'action_key'.", ErrorCodes.INVALID_SETTINGS)
+    )
   })
 
   it('should validate action fields when userId is found and not livelike_profile_id ', async () => {

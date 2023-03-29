@@ -11,6 +11,7 @@ import {
 } from '../emarsys-helper'
 import { IntegrationError } from '@segment/actions-core'
 import { RetryableError } from '@segment/actions-core'
+import { PayloadValidationError } from '@segment/actions-core'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Upsert Contact',
@@ -65,9 +66,9 @@ const action: ActionDefinition<Settings, Payload> = {
   },
   perform: async (request, data) => {
     const contact: ContactData = {}
-    if (!data?.payload?.key_field) throw new IntegrationError('Missing key field')
+    if (!data?.payload?.key_field) throw new PayloadValidationError('Missing key field')
 
-    if (!data?.payload?.key_value) throw new IntegrationError('Missing key value')
+    if (!data?.payload?.key_value) throw new PayloadValidationError('Missing key value')
 
     contact[data.payload.key_field] = data.payload.key_value
     Object.assign(contact, data.payload.write_field)
@@ -86,12 +87,12 @@ const action: ActionDefinition<Settings, Payload> = {
         try {
           const body = await response.json()
           if (body.replyCode === 0) return response
-          else throw new IntegrationError('Something went wrong while upserting the contact')
+          else throw new IntegrationError('Something went wrong while upserting the contact', 'CONTACT_UPSERT_FAILED')
         } catch (err) {
-          throw new IntegrationError('Invalid JSON response')
+          throw new IntegrationError('Invalid JSON response', 'CONTACT_UPSERT_FAILED')
         }
       case 400:
-        throw new IntegrationError('Contact could not be upserted')
+        throw new IntegrationError('Contact could not be upserted', 'CONTACT_UPSERT_FAILED')
       case 429:
         throw new RetryableError('Rate limit reached.')
       default:

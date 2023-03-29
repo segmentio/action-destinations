@@ -15,7 +15,7 @@ export const hash = (value: string | undefined): string | undefined => {
 class CriteoAPIError extends IntegrationError {
   readonly error?: Record<string, string>
 
-  constructor(message: string, code?: string, status?: number, error?: Record<string, string>) {
+  constructor(message: string, code: string, status?: number, error?: Record<string, string>) {
     super(message, code, status)
     this.error = error
   }

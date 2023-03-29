@@ -1,4 +1,4 @@
-import { IntegrationError } from '@segment/actions-core'
+import { ErrorCodes, IntegrationError } from '@segment/actions-core'
 import type { Settings } from './generated-types'
 import type { RequestClient } from '@segment/actions-core'
 import { DynamicFieldResponse } from '@segment/actions-core'
@@ -84,7 +84,7 @@ export interface ContactsApiPayload {
 
 export const createWsseHeader = (settings: Settings): string => {
   if (!settings.api_user || !settings.api_password) {
-    throw new IntegrationError('Username and password must be specified.')
+    throw new IntegrationError('Username and password must be specified.', ErrorCodes.INVALID_SETTINGS)
   }
   const nonce = randomBytes(16).toString('hex')
   const hash = createHash('sha1')

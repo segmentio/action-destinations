@@ -1,4 +1,4 @@
-import type { ActionDefinition } from '@segment/actions-core'
+import { ActionDefinition, ErrorCodes } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 import dayjs from '../../../lib/dayjs'
@@ -112,7 +112,7 @@ const action: ActionDefinition<Settings, Payload> = {
   perform: (request, { payload, settings }) => {
     const requests = []
     if (!settings.appId) {
-      throw new IntegrationError('Missing app ID')
+      throw new IntegrationError('Missing app ID', ErrorCodes.INVALID_SETTINGS)
     }
 
     if (!payload.anonymous_id && !payload.identity) {
