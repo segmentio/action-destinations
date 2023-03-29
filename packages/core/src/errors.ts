@@ -7,15 +7,15 @@ import { CustomError } from 'ts-custom-error'
  * - 5xx are automatically retried, except for 501
  */
 export class IntegrationError extends CustomError {
-  code: string | undefined
-  status: number | undefined
+  code: string
+  status: number
 
   /**
    * @param message - a human-friendly message to display to users
-   * @param code - an optional error code/reason
-   * @param status - an optional http status code (e.g. 400)
+   * @param code - an error code/reason.
+   * @param status - the http status code (e.g. 400). Default value is 400
    */
-  constructor(message = '', code?: string, status?: number) {
+  constructor(message: string, code: string, status = 400) {
     super(message)
     this.status = status
     this.code = code
@@ -88,6 +88,8 @@ export class PayloadValidationError extends IntegrationError {
  * Standard error codes. Use one from this enum whenever possible.
  */
 export enum ErrorCodes {
+  // Invalid Settings
+  INVALID_SETTINGS = 'INVALID_SETTINGS',
   // Invalid API Key or Access Token
   INVALID_AUTHENTICATION = 'INVALID_AUTHENTICATION',
   // Payload is missing a field or has invalid value
