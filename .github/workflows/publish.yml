@@ -6,13 +6,13 @@ name: Publish Packages
 on:
   push:
     branches:
-      - FIX_PUBLISH_WORKFLOW
+      - main
 
 jobs:
   build-and-publish:
     env:
       HUSKY: 0
-    #if: startsWith(github.event.head_commit.message, 'Publish') == true
+    if: startsWith(github.event.head_commit.message, 'Publish') == true
     runs-on: ubuntu-20.04
 
     timeout-minutes: 15
@@ -53,6 +53,6 @@ jobs:
           npm set '//registry.npmjs.org/:_authToken' ${{ secrets.NPM_PUBLISH_TOKEN }}
           npm whoami
 
-#      - name: Publish
-#        run: |
-#          lerna publish from-git --yes --allowBranch=main
+      - name: Publish
+        run: |
+          lerna publish from-git --yes --allowBranch=main
