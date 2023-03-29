@@ -1,11 +1,10 @@
 import { ActionDefinition, omit } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
-import { VisitorAttribute, Event, dataFile } from '../types'
-import reduceRight from 'lodash/reduceRight'
+import { ProjectConfig } from '../types'
+import { buildVisitorAttributes, getEventId } from './functions'
 import { IntegrationError } from '@segment/actions-core'
 import dayjs from '../../../lib/dayjs'
-import { getDatafile } from './functions'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Track Event',
@@ -104,7 +103,8 @@ const action: ActionDefinition<Settings, Payload> = {
     }
   },
   perform: async (request, { settings, payload }) => {
-    const dataFile = <dataFile>await getDatafile(settings, request)
+    const result = await request<ProjectConfig>(settings.dataFileUrl)
+    const dataFile = result.data
     const eventId = getEventId(dataFile, payload.eventKey)
 
     if (!eventId) {
@@ -156,51 +156,6 @@ const action: ActionDefinition<Settings, Payload> = {
       }
     })
   }
-}
-
-function buildVisitorAttributes(configObj: dataFile, userAttributes?: { [key: string]: unknown }): VisitorAttribute[] {
-  if (!userAttributes) return []
-  const attributeKeyMap: Record<string, { id: string; key: string }> = reduceRight(
-    configObj.attributes,
-    (prev, curr) => {
-      return Object.assign(prev, {
-        [curr.key]: curr
-      })
-    },
-    {}
-  )
-
-  return (
-    Object.keys(userAttributes)
-      .filter((key) => Object.prototype.hasOwnProperty.call(attributeKeyMap, key))
-      // filter out keys with values of type 'object'
-      .filter((key) => isValidValue(userAttributes[key]))
-      .map((key) => ({
-        entity_id: attributeKeyMap[key].id,
-        key: key,
-        value: userAttributes[key] as string | number | boolean,
-        type: 'custom'
-      }))
-  )
-}
-
-function getEventId(configObj: dataFile, eventKey: string) {
-  const eventMap: Record<string, Event> = reduceRight(
-    configObj.events,
-    (prev, curr) => {
-      return Object.assign(prev, {
-        [curr.key]: curr
-      })
-    },
-    {}
-  )
-  if (eventMap[eventKey]) {
-    return eventMap[eventKey].id
-  }
-}
-
-function isValidValue(value: unknown) {
-  return ['string', 'number', 'boolean'].includes(typeof value)
 }
 
 export default action
