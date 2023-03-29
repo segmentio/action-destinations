@@ -2,7 +2,7 @@ import type { DestinationDefinition } from '@segment/actions-core'
 import type { Settings } from './generated-types'
 import { createHmac } from 'crypto'
 
-import send from './send'
+import sendNew from './send'
 
 const destination: DestinationDefinition<Settings> = {
   name: 'Webhook',
@@ -28,7 +28,7 @@ const destination: DestinationDefinition<Settings> = {
     return {}
   },
   actions: {
-    send
+    sendNew
   }
 }
 
