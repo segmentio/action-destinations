@@ -280,6 +280,12 @@ Once the actions under a new destination are complete, developers can run the fo
 yarn jest --testPathPattern='./packages/destination-actions/src/destinations/<DESTINATION SLUG>' --updateSnapshot
 ```
 
+Ensure your NODE_ENV environment variable is set to test.
+
+```
+export NODE_ENV=test
+```
+
 ## Code Coverage
 
 Code coverage is automatically collected upon completion of `yarn test`. Results may be inspected by examining the HTML report found at `coverage/lcov-report/index.html`, or directly in your IDE if _lcov_ is supported.
