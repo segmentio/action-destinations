@@ -548,6 +548,89 @@ describe('@template', () => {
   })
 })
 
+describe('@replace', () => {
+  test('replace on empty string', () => {
+    const payload = {
+      a: ''
+    }
+    const output = transform(
+      {
+        '@replace': {
+          pattern: '_',
+          replacement: 'rrrrr',
+          value: { '@path': '$.a' }
+        }
+      },
+      payload
+    )
+    expect(output).toStrictEqual('')
+  })
+  test('replace with empty string', () => {
+    const payload = {
+      a: 'nomore_underscore'
+    }
+    const output = transform(
+      {
+        '@replace': {
+          pattern: '_',
+          replacement: '',
+          value: { '@path': '$.a' }
+        }
+      },
+      payload
+    )
+    expect(output).toStrictEqual('nomoreunderscore')
+  })
+  test('replace with non-empty string', () => {
+    const payload = {
+      a: 'nomore_underscore'
+    }
+    const output = transform(
+      {
+        '@replace': {
+          pattern: '_',
+          replacement: 'weird',
+          value: { '@path': '$.a' }
+        }
+      },
+      payload
+    )
+    expect(output).toStrictEqual('nomoreweirdunderscore')
+  })
+  test('replace multi-char pattern with non-empty string', () => {
+    const payload = {
+      a: 'Well Hello there LOL'
+    }
+    const output = transform(
+      {
+        '@replace': {
+          pattern: 'LOL',
+          replacement: 'YAY',
+          value: { '@path': '$.a' }
+        }
+      },
+      payload
+    )
+    expect(output).toStrictEqual('Well Hello there YAY')
+  })
+  test('replace multiple occurrences', () => {
+    const payload = {
+      a: 'many+different+things'
+    }
+    const output = transform(
+      {
+        '@replace': {
+          pattern: '+',
+          replacement: '_',
+          value: { '@path': '$.a' }
+        }
+      },
+      payload
+    )
+    expect(output).toStrictEqual('many_different_things')
+  })
+})
+
 describe('remove undefined values in objects', () => {
   test('simple', () => {
     expect(transform({ x: undefined }, {})).toEqual({})

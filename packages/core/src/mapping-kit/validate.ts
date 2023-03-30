@@ -229,6 +229,18 @@ directive('@case', (v, stack) => {
   )
 })
 
+directive('@replace', (v, stack) => {
+  validateObjectWithFields(
+    v,
+    {
+      pattern: { optional: validateString },
+      replacement: { optional: validateString },
+      value: { optional: validateDirectiveOrString }
+    },
+    stack
+  )
+})
+
 directive('@arrayPath', (v, stack) => {
   const data = v as [unknown, unknown]
   validateArray(data, stack)

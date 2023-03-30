@@ -100,6 +100,33 @@ registerDirective('@case', (opts, payload) => {
   }
 })
 
+registerDirective('@replace', (opts, payload) => {
+  if (!isObject(opts)) {
+    throw new Error('@replace requires an object with a "operator" key')
+  }
+
+  if (!opts.pattern) {
+    throw new Error('@replace requires a "pattern" key')
+  }
+
+  // Empty replacement string is ok
+  if (opts.replacement == null) {
+    throw new Error('@replace requires a "replacement" key')
+  }
+
+  let pattern = opts.pattern
+  const replacement = opts.replacement
+  if (opts.value) {
+    const value = resolve(opts.value, payload)
+    if (typeof value === 'string' && typeof pattern === 'string' && typeof replacement === 'string') {
+      // We don't want users providing regular expressions for the pattern (for now)
+      // https://stackoverflow.com/questions/F3115150/how-to-escape-regular-expression-special-characters-using-javascript
+      pattern = pattern.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, '\\$&')
+      return value.replace(new RegExp(pattern, 'g'), replacement)
+    }
+  }
+})
+
 registerDirective('@arrayPath', (data, payload) => {
   if (!Array.isArray(data)) {
     throw new Error(`@arrayPath expected array, got ${realTypeOf(data)}`)
