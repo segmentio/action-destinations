@@ -26,11 +26,9 @@ const action: ActionDefinition<Settings, Payload> = {
     attributes: { ...user_attributes }
   },
   perform: (request, data) => {
-    data.payload.event_name = 'listing_page_view'
-
     return request(`${API_BASE}${UPSERT_ENDPOINT}`, {
       method: 'post',
-      json: sendTrackEvent(data.payload)
+      json: sendTrackEvent(data.payload, 'listing_page_view')
     })
   }
 }

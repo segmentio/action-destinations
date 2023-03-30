@@ -24,11 +24,9 @@ const action: ActionDefinition<Settings, Payload> = {
     attributes: { ...user_attributes }
   },
   perform: (request, data) => {
-    data.payload.event_name = 'sign_up_confirmation'
-
     return request(`${API_BASE}${UPSERT_ENDPOINT}`, {
       method: 'post',
-      json: sendTrackEvent(data.payload)
+      json: sendTrackEvent(data.payload, 'sign_up_confirmation')
     })
   }
 }

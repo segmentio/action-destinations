@@ -1,5 +1,14 @@
 import { Payload as UserPayload } from './updateUserProfile/generated-types'
-import { Payload as EventPayload } from './trackEvent/generated-types'
+import { Payload as TrackEventPayload } from './trackEvent/generated-types'
+import { Payload as CartViewedEventPayload } from './cartViewedEvent/generated-types'
+import { Payload as CheckoutEventPayload } from './checkoutEvent/generated-types'
+import { Payload as OrderCompletedEventPayload } from './orderCompletedEvent/generated-types'
+import { Payload as ProductAddedEventPayload } from './productAddedEvent/generated-types'
+import { Payload as ProductListViewedEventPayload } from './productListViewedEvent/generated-types'
+import { Payload as productRemovedEventPayload } from './productRemovedEvent/generated-types'
+import { Payload as productViewedEventPayload } from './productViewedEvent/generated-types'
+import { Payload as userRegisteredEventPayload } from './userRegisteredEvent/generated-types'
+
 export const API_BASE = 'https://unification.useinsider.com/api/'
 export const UPSERT_ENDPOINT = 'user/v1/upsert'
 
@@ -62,7 +71,19 @@ export function userProfilePayload(data: UserPayload) {
   }
 }
 
-export function sendTrackEvent(data: EventPayload) {
+export function sendTrackEvent(
+  data:
+    | TrackEventPayload
+    | CartViewedEventPayload
+    | CheckoutEventPayload
+    | OrderCompletedEventPayload
+    | ProductAddedEventPayload
+    | ProductListViewedEventPayload
+    | productRemovedEventPayload
+    | productViewedEventPayload
+    | userRegisteredEventPayload,
+  event_name: string
+) {
   const addEventParameters = function (
     event: insiderEvent,
     data:
@@ -193,7 +214,7 @@ export function sendTrackEvent(data: EventPayload) {
   }
 
   let event: insiderEvent = {
-    event_name: data.event_name,
+    event_name,
     timestamp: data.timestamp.toString(),
     event_params: {
       // eslint-disable-next-line @typescript-eslint/ban-ts-comment
@@ -206,7 +227,7 @@ export function sendTrackEvent(data: EventPayload) {
     event = addEventParameters(event, data.parameters, key)
   }
 
-  if (data.products && ['cart_page_view', 'checkout_page_view', 'purchase'].indexOf(name) > -1) {
+  if (data.products) {
     for (const product of data.products) {
       let productEvent = event
 

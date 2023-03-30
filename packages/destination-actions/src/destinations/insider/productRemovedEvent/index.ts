@@ -39,11 +39,9 @@ const action: ActionDefinition<Settings, Payload> = {
     attributes: { ...user_attributes }
   },
   perform: (request, data) => {
-    data.payload.event_name = 'item_removed_from_cart'
-
     return request(`${API_BASE}${UPSERT_ENDPOINT}`, {
       method: 'post',
-      json: sendTrackEvent(data.payload)
+      json: sendTrackEvent(data.payload, 'item_removed_from_cart')
     })
   }
 }
