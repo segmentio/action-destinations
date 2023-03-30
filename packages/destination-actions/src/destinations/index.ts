@@ -89,6 +89,7 @@ register('6419fc9da58e84c112de12c3', './revend')
 register('6419fce5b6e12cf44efbd34c', './june')
 register('642440d46b66b3eeac42b581', './encharge')
 register('64244158b33d1380a79dc85c', './blend-ai')
+register('641d5acea88fa531b9068608', './optimizely-feature-experimentation-actions')
 
 function register(id: MetadataId, destinationPath: string) {
   // eslint-disable-next-line @typescript-eslint/no-var-requires
