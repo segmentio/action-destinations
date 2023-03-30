@@ -1,5 +1,4 @@
 import { Settings } from 'http2'
-import { RequestClient } from 'src'
 import { InvalidAuthenticationError, ErrorCodes } from '../errors'
 import {
   StateContext,
@@ -326,7 +325,7 @@ describe('destination kit', () => {
         ...destinationOAuth2,
         authentication: {
           ...destinationOAuth2.authentication,
-          refreshAccessToken: (_request: RequestClient) => {
+          refreshAccessToken: () => {
             return new Promise((_resolve, reject) => {
               reject(new Error('Invalid Refresh Token'))
             })
