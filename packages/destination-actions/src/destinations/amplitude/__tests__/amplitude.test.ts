@@ -21,7 +21,7 @@ describe('Amplitude', () => {
         api_key: undefined,
         events: expect.arrayContaining([
           expect.objectContaining({
-            event_type: 'Test Event',
+            event_type: 'asdasdasda Event',
             city: 'San Francisco',
             country: 'United States'
           })
@@ -615,7 +615,7 @@ describe('Amplitude', () => {
             },
             {
               revenue: 1_999,
-              productId: 'Bowflex Treadmill 8',
+              productId: 'Bowflex Treadmill 8'
             },
             {
               productId: 'Bowflex Treadmill 4',
@@ -623,7 +623,7 @@ describe('Amplitude', () => {
             },
             {
               quantity: 2,
-              productId: 'Bowflex Treadmill 2',
+              productId: 'Bowflex Treadmill 2'
             }
           ]
         }
