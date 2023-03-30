@@ -1,4 +1,4 @@
-import { IntegrationError, PayloadValidationError, RetryableError } from '@segment/actions-core'
+import { ErrorCodes, IntegrationError, PayloadValidationError, RetryableError } from '@segment/actions-core'
 import type { ActionDefinition } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
@@ -68,12 +68,16 @@ const action: ActionDefinition<Settings, Payload> = {
           try {
             const body = await response.json()
             if (body.replyCode === 0) return response
-            else throw new IntegrationError('Something went wrong while adding to contact list.', 'CONTACT_ADD_FAILED')
+            else
+              throw new IntegrationError(
+                'Something went wrong while adding to contact list.',
+                ErrorCodes.API_CALL_FAILED
+              )
           } catch (err) {
-            throw new IntegrationError('Invalid JSON response', 'CONTACT_ADD_FAILED')
+            throw new IntegrationError('Invalid JSON response', ErrorCodes.API_CALL_FAILED)
           }
         case 400:
-          throw new IntegrationError('The contact could not be added to the contact list', 'CONTACT_REMOVE_FAILED')
+          throw new IntegrationError('The contact could not be added to the contact list', ErrorCodes.API_CALL_FAILED)
         case 429:
           throw new RetryableError('Rate limit reached.')
         default:

@@ -7,7 +7,7 @@ import { CustomError } from 'ts-custom-error'
  * - 5xx are automatically retried, except for 501
  */
 export class IntegrationError extends CustomError {
-  code: string
+  code: string | undefined
   status: number
 
   /**
@@ -15,7 +15,7 @@ export class IntegrationError extends CustomError {
    * @param code - an error code/reason.
    * @param status - the http status code (e.g. 400). Default value is 400
    */
-  constructor(message: string, code: string, status = 400) {
+  constructor(message: string, code?: string, status = 400) {
     super(message)
     this.status = status
     this.code = code
@@ -101,5 +101,7 @@ export enum ErrorCodes {
   // Refresh token has expired
   REFRESH_TOKEN_EXPIRED = 'REFRESH_TOKEN_EXPIRED',
   // OAuth refresh failed
-  OAUTH_REFRESH_FAILED = 'OAUTH_REFRESH_FAILED'
+  OAUTH_REFRESH_FAILED = 'OAUTH_REFRESH_FAILED',
+  // Integration API call failed
+  API_CALL_FAILED = 'API_CALL_FAILED'
 }

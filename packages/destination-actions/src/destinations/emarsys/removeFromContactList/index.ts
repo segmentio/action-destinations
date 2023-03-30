@@ -10,7 +10,7 @@ import {
   BufferBatchContactList,
   BufferBatchContactListItem
 } from '../emarsys-helper'
-import { PayloadValidationError } from '@segment/actions-core'
+import { PayloadValidationError, ErrorCodes } from '@segment/actions-core'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Remove from Contact List',
@@ -74,13 +74,16 @@ const action: ActionDefinition<Settings, Payload> = {
             else
               throw new IntegrationError(
                 'Something went wrong while removing from contact list',
-                'CONTACT_REMOVE_FAILED'
+                ErrorCodes.API_CALL_FAILED
               )
           } catch (err) {
-            throw new IntegrationError('Invalid JSON response', 'CONTACT_REMOVE_FAILED')
+            throw new IntegrationError('Invalid JSON response', ErrorCodes.API_CALL_FAILED)
           }
         case 400:
-          throw new IntegrationError('The contact could not be removed from the contact list', 'CONTACT_REMOVE_FAILED')
+          throw new IntegrationError(
+            'The contact could not be removed from the contact list',
+            ErrorCodes.API_CALL_FAILED
+          )
         case 429:
           throw new RetryableError('Rate limit reached.')
         default:
