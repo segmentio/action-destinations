@@ -230,10 +230,12 @@ const action: ActionDefinition<Settings, Payload> = {
     // Retrieves all of the custom variables that the customer has created in their Google Ads account
     if (payload.custom_variables) {
       const customVariableIds = await getCustomVariables(settings.customerId, auth, request, features, statsContext)
-      request_object.customVariables = formatCustomVariables(
-        payload.custom_variables,
-        customVariableIds.data[0].results
-      )
+      if (customVariableIds?.data?.length) {
+        request_object.customVariables = formatCustomVariables(
+          payload.custom_variables,
+          customVariableIds.data[0].results
+        )
+      }
     }
 
     if (payload.email_address) {
