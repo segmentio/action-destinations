@@ -64,6 +64,7 @@ Output:
   - [@literal](#literal)
   - [@arrayPath](#array-path)
   - [@case](#case)
+  - [@replace](#replace)
 
 <!-- tocstop -->
 
@@ -544,3 +545,45 @@ Result:
 ```json
 "this is a string in all caps"
 ```
+
+### @replace
+
+The @replace directive replaces to the given pattern value with a replacement string. Both "pattern" and "replacement"
+fields are required but replacement can be an empty string.
+
+````json
+Input:
+
+{
+  "a": "cool-story",
+}
+
+Mappings:
+
+{
+  "@replace": {
+    "pattern": "-",
+    "replacement": ""
+  }
+}
+=>
+"coolstory"
+
+```json
+Input:
+
+{
+  "a": "cool-story",
+}
+
+Mappings:
+
+{
+  "@replace": {
+    "pattern": "-",
+    "replacement": "nice"
+  }
+}
+=>
+"coolnicestory"
+````
