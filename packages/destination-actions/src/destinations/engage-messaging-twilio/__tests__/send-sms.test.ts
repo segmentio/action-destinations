@@ -2,6 +2,7 @@ import nock from 'nock'
 import { createTestIntegration } from '@segment/actions-core'
 import { createMessagingTestEvent } from '../../../lib/engage-test-data/create-messaging-test-event'
 import Twilio from '..'
+import { Logger } from '@segment/actions-core/src/destination-kit'
 
 const twilio = createTestIntegration(Twilio)
 const timestamp = new Date().toISOString()
@@ -64,6 +65,8 @@ describe.each(['stage', 'production'])('%s environment', (environment) => {
       expect(responses.length).toEqual(0)
     })
     it('should throw error with no userId and no trait enrichment', async () => {
+      const logErrorSpy = jest.fn() as Logger['error']
+
       const mapping = getDefaultMapping({
         userId: undefined,
         traitEnrichment: false
@@ -76,12 +79,18 @@ describe.each(['stage', 'production'])('%s environment', (environment) => {
             userId: 'jane'
           }),
           settings,
-          mapping
+          mapping,
+          logger: { level: 'error', name: 'test', error: logErrorSpy } as Logger
         })
       ).rejects.toThrowError('Unable to process sms, no userId provided and no traits provided')
+      expect(logErrorSpy).toHaveBeenCalledWith(
+        'TE Messaging: Unable to process SMS, no userId provided and no traits provided'
+      )
     })
 
     it('should throw error if unable to parse liquid template', async () => {
+      const logErrorSpy = jest.fn() as Logger['error']
+
       const actionInputData = {
         event: createMessagingTestEvent({
           timestamp,
@@ -91,15 +100,19 @@ describe.each(['stage', 'production'])('%s environment', (environment) => {
         settings,
         mapping: getDefaultMapping({
           body: 'Hello world, {{profile.user_id$}}!!'
-        })
+        }),
+        logger: { level: 'error', name: 'test', error: logErrorSpy } as Logger
       }
 
       await expect(twilio.testAction('sendSms', actionInputData)).rejects.toThrowError(
         'Unable to parse templating in SMS'
       )
+      expect(logErrorSpy).toHaveBeenCalledWith(expect.stringMatching(/TE Messaging: SMS templating parse failure/))
     })
 
     it('should throw error if Twilio API request fails', async () => {
+      const logErrorSpy = jest.fn() as Logger['error']
+
       nock('https://api.twilio.com/2010-04-01/Accounts/a')
         .post('/Messages.json')
         .reply(400, {
@@ -120,10 +133,12 @@ describe.each(['stage', 'production'])('%s environment', (environment) => {
           userId: 'jane'
         }),
         settings,
-        mapping: getDefaultMapping()
+        mapping: getDefaultMapping(),
+        logger: { level: 'error', name: 'test', error: logErrorSpy } as Logger
       }
 
       await expect(twilio.testAction('sendSms', actionInputData)).rejects.toThrowError()
+      expect(logErrorSpy).toHaveBeenCalledWith(expect.stringMatching(/TE Messaging: Twilio Programmable API error/))
     })
 
     it('should send SMS', async () => {
@@ -343,6 +358,8 @@ describe.each(['stage', 'production'])('%s environment', (environment) => {
     })
 
     it('should throw error if unable to request profile traits', async () => {
+      const logErrorSpy = jest.fn() as Logger['error']
+
       nock(`${endpoint}/v1/spaces/d/collections/users/profiles/user_id:jane`).get('/traits?limit=200').reply(500)
 
       const actionInputData = {
@@ -354,11 +371,15 @@ describe.each(['stage', 'production'])('%s environment', (environment) => {
         settings,
         mapping: getDefaultMapping({
           traitEnrichment: false
-        })
+        }),
+        logger: { level: 'error', name: 'test', error: logErrorSpy } as Logger
       }
 
       await expect(twilio.testAction('sendSms', actionInputData)).rejects.toThrowError(
         'Unable to get profile traits for SMS message'
+      )
+      expect(logErrorSpy).toHaveBeenCalledWith(
+        expect.stringMatching(/TE Messaging: SMS profile traits request failure/)
       )
     })
 
