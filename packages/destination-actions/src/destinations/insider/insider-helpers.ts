@@ -133,26 +133,6 @@ export function sendTrackEvent(data: EventPayload) {
     events: []
   }
 
-  const events: Object = {
-    Unsubscribed: 'email_unsubscribe',
-    'Product List Viewed': 'listing_page_view',
-    'Product Viewed': 'product_detail_page_view',
-    'Product Added': 'item_added_to_cart',
-    'Product Removed': 'item_removed_from_cart',
-    'Email Bounced': 'email_bounce',
-    'Email Delivered': 'email_delivered',
-    'Email Link Clicked': 'email_click',
-    'Email Marked as Spam': 'email_spamreport',
-    'Email Opened': 'email_open',
-    'Application Opened': 'session_start',
-    'Push Notification Received': 'push_delivered',
-    'Push Notification Tapped': 'push_session',
-    'User Registered': 'sign_up_confirmation',
-    'Order Completed': 'purchase',
-    'Cart Viewed': 'cart_page_view',
-    'Checkout Started': 'checkout_page_view',
-    'Checkout Viewed': 'checkout_page_view'
-  }
   const defaultAttributes = [
     'email',
     'phone',
@@ -212,12 +192,8 @@ export function sendTrackEvent(data: EventPayload) {
     }
   }
 
-  const name = events[data.name as keyof Object]
-    ? events[data.name as keyof Object].toString()
-    : data.name.toString().toLowerCase().trim().split(' ').join('_')
-
   let event: insiderEvent = {
-    event_name: name,
+    event_name: data.event_name,
     timestamp: data.timestamp.toString(),
     event_params: {
       // eslint-disable-next-line @typescript-eslint/ban-ts-comment
