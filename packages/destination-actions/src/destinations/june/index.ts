@@ -1,5 +1,6 @@
 import type { DestinationDefinition } from '@segment/actions-core'
 import type { Settings } from './generated-types'
+import { defaultValues } from '@segment/actions-core'
 import track from './track'
 import page from './page'
 import identify from './identify'
@@ -9,22 +10,26 @@ const presets: DestinationDefinition['presets'] = [
   {
     name: 'Track Calls',
     subscribe: 'type = "track"',
-    partnerAction: 'track'
+    partnerAction: 'track',
+    mapping: defaultValues(track.fields)
   },
   {
     name: 'Page Calls',
     subscribe: 'type = "page"',
-    partnerAction: 'page'
+    partnerAction: 'page',
+    mapping: defaultValues(page.fields)
   },
   {
     name: 'Identify Calls',
     subscribe: 'type = "identify"',
-    partnerAction: 'identify'
+    partnerAction: 'identify',
+    mapping: defaultValues(identify.fields)
   },
   {
     name: 'Group Calls',
     subscribe: 'type = "group"',
-    partnerAction: 'group'
+    partnerAction: 'group',
+    mapping: defaultValues(group.fields)
   }
 ]
 
