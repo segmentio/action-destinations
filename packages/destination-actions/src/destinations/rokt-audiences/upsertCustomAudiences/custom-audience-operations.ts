@@ -3,7 +3,7 @@ import type { Payload } from './generated-types'
 
 import { CONSTANTS } from '../constants'
 /**
- * CustomAudienceOperation is a custom type to encapsulates the request body params
+ * CustomAudienceOperation is a custom type to encapsulate the request body params
  * for inserting/updating custom audience list in rokt data platform
  * @action [include, exclude]
  * @list custom audience name ( or list ) in rokt data platform
