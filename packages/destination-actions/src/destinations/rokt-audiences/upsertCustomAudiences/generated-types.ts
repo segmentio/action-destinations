@@ -6,7 +6,7 @@ export interface Payload {
    */
   custom_audience_name: string
   /**
-   * Segment computation class used to determine if action is 'Engage-Aduience'
+   * Segment computation class used to determine if action is an 'Engage-Audience'
    */
   segment_computation_action: string
   /**
@@ -20,7 +20,7 @@ export interface Payload {
     [k: string]: unknown
   }
   /**
-   * Set as true to ensure Segment infrastructure uses batching when required.
+   * Set as true to ensure Segment infrastructure uses batching when possible.
    */
   enable_batching?: boolean
 }
