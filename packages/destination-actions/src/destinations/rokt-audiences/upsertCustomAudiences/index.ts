@@ -6,7 +6,7 @@ import { processPayload } from './custom-audience-operations'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'ROKT build custom audience',
-  description: 'Add/Remove users from ROKT custom audience list by consuming Segment Events and invoking ROKT API',
+  description: 'Add/Remove users from ROKT custom audience list. Both identify() and track() calls are supported',
   defaultSubscription: 'type = "track" or type = "identify"',
   fields: {
     custom_audience_name: {
