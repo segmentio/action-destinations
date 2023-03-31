@@ -46,7 +46,7 @@ const badEvent = createTestEvent({
 
 describe('RoktAudiences.upsertCustomAudiences', () => {
   it('should not throw an error if the audience creation succeed', async () => {
-    nock(CONSTANTS.ROKT_API_BASE_URL).persist().post(CONSTANTS.ROKT_API_CUSTOM_AUDIENCE_ENDPOINT).reply(201)
+    nock(CONSTANTS.ROKT_API_BASE_URL).post(CONSTANTS.ROKT_API_CUSTOM_AUDIENCE_ENDPOINT).reply(201)
 
     await expect(
       testDestination.testAction('upsertCustomAudiences', {
@@ -57,7 +57,7 @@ describe('RoktAudiences.upsertCustomAudiences', () => {
   })
 
   it('should throw an error if the audience creation failed, bad body', async () => {
-    nock(CONSTANTS.ROKT_API_BASE_URL).persist().post(CONSTANTS.ROKT_API_CUSTOM_AUDIENCE_ENDPOINT).reply(400)
+    nock(CONSTANTS.ROKT_API_BASE_URL).post(CONSTANTS.ROKT_API_CUSTOM_AUDIENCE_ENDPOINT).reply(400)
 
     await expect(
       testDestination.testAction('upsertCustomAudiences', {
@@ -68,7 +68,7 @@ describe('RoktAudiences.upsertCustomAudiences', () => {
   })
 
   it('should throw an error if the audience creation failed, wrong api key auth', async () => {
-    nock(CONSTANTS.ROKT_API_BASE_URL).persist().post(CONSTANTS.ROKT_API_CUSTOM_AUDIENCE_ENDPOINT).reply(401)
+    nock(CONSTANTS.ROKT_API_BASE_URL).post(CONSTANTS.ROKT_API_CUSTOM_AUDIENCE_ENDPOINT).reply(401)
 
     await expect(
       testDestination.testAction('upsertCustomAudiences', {

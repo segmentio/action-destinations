@@ -1,4 +1,4 @@
-import { RetryableError } from '@segment/actions-core'
+import { InvalidAuthenticationError } from '@segment/actions-core'
 import type { DestinationDefinition } from '@segment/actions-core'
 import type { Settings } from './generated-types'
 
@@ -33,7 +33,7 @@ const destination: DestinationDefinition<Settings> = {
         }
       })
 
-      if (res.status !== 200) throw new RetryableError(`Rokt API key authentication check failed`)
+      if (res.status !== 200) throw new InvalidAuthenticationError('Authentication using Rokt ApiKey failed')
     }
   },
 

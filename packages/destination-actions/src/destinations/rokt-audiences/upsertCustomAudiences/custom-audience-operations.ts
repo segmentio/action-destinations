@@ -21,48 +21,52 @@ type CustomAudienceOperation = {
  */
 
 const getCustomAudienceOperations = (payload: Payload[]): CustomAudienceOperation[] => {
-  let custom_audience_list = ''
-  const action_map = new Map<string, string[]>([
-    [CONSTANTS.INCLUDE, []],
-    [CONSTANTS.EXCLUDE, []]
-  ])
-
+  // map to handle different audiences in the batch
+  // this will contain audience_name=>[action=>emails]
+  const audience_map = new Map<string, Map<string, string[]>>([])
   for (const p of payload) {
     if (p.segment_computation_action != CONSTANTS.SUPPORTED_SEGMENT_COMPUTATION_ACTION) {
       // ignore event
       continue
     }
-    if (!custom_audience_list) {
-      // set audience name to be processed for sending to rokt
-      custom_audience_list = p.custom_audience_name
-    }
-    if (p.custom_audience_name != custom_audience_list) {
-      // this is edge case where a batch contains more than 1 audiences
-      // for the 1st iteration we don't to handle the case of multiple audiences in same batch
-      // so we have decided to ignore other audience name in the batch, once we have picked one to process
-      continue
+
+    let action_map = new Map<string, string[]>([
+      [CONSTANTS.INCLUDE, []],
+      [CONSTANTS.EXCLUDE, []]
+    ])
+
+    // check if we have already saved this audience in map
+    const existing_action_map_for_audience = audience_map.get(p.custom_audience_name)
+    if (existing_action_map_for_audience !== undefined) {
+      // use existing map for audience, to include/exclude new email
+      action_map = existing_action_map_for_audience
+    } else {
+      // if audience is not in map, add it to the map
+      audience_map.set(p.custom_audience_name, action_map)
     }
 
-    if (p.traits_or_props[custom_audience_list]) {
-      // audience entered true, include email to list
+    if (p.traits_or_props[p.custom_audience_name] === true) {
+      // audience entered 'true', include email to list
       action_map.get(CONSTANTS.INCLUDE)?.push(p.email)
-    } else {
-      // exclude email from list
+    } else if (p.traits_or_props[p.custom_audience_name] === false) {
+      // audience entered 'false', exclude email from list
       action_map.get(CONSTANTS.EXCLUDE)?.push(p.email)
     }
   }
 
   // build operation request to be sent to rokt api
   const custom_audience_ops: CustomAudienceOperation[] = []
-  action_map.forEach((value: string[], key: string) => {
-    // key will include or exclude
-    // vaulue will be emails to be included or excluded
-    const custom_audience_op: CustomAudienceOperation = {
-      list: custom_audience_list,
-      action: key,
-      emails: value
-    }
-    custom_audience_ops.push(custom_audience_op)
+  audience_map.forEach((action_map_values: Map<string, string[]>, list: string) => {
+    // key will be audience list
+    // value will map of action=>email_list
+    action_map_values.forEach((emails: string[], action: string) => {
+      const custom_audience_op: CustomAudienceOperation = {
+        list: list,
+        action: action,
+        emails: emails
+      }
+      custom_audience_ops.push(custom_audience_op)
+    })
   })
   return custom_audience_ops
 }
