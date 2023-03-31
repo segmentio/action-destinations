@@ -4,7 +4,7 @@
 
 //const testDestination = createTestIntegration(Destination)
 
-describe('TiktokOfflineConversions.trackOfflineConversion', () => {
+describe('TiktokOfflineConversions.trackPaymentOfflineConversion', () => {
   // TODO: Test your action. code below is just to allow Linter to pass
 
   expect('testId123').toBe('testId123')

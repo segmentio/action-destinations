@@ -2,23 +2,15 @@
 
 export interface Payload {
   /**
-   * URL to deliver data to.
+   * User email address
    */
-  url: string
+  email: string
   /**
-   * HTTP method to use.
+   * Audience name
    */
-  method: string
+  audience_name: string
   /**
-   * HTTP headers to send with each request.
+   * Traits or properties object
    */
-  headers?: {
-    [k: string]: unknown
-  }
-  /**
-   * Payload to deliver to webhook URL (JSON-encoded).
-   */
-  data?: {
-    [k: string]: unknown
-  }
+  traits_or_properties: string
 }

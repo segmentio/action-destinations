@@ -155,13 +155,23 @@ const action: ActionDefinition<Settings, Payload> = {
           label: 'Content ID',
           description: 'ID of the product item.',
           type: 'string'
+        },
+        content_category: {
+          label: 'Content Category',
+          description: 'Category of the page/product. Example: "apparel".',
+          type: 'string'
+        },
+        content_name: {
+          label: 'Content Name',
+          description: 'Name of the page/product. Example: "shirt".',
+          type: 'string'
         }
       }
     },
     currency: {
       label: 'Currency',
       type: 'string',
-      description: 'Currency for the value specified as ISO 4217 code.',
+      description: 'Currency for the value specified as ISO 4217 code. Example: "USD".',
       default: {
         '@path': '$.properties.currency'
       }
@@ -169,7 +179,7 @@ const action: ActionDefinition<Settings, Payload> = {
     value: {
       label: 'Value',
       type: 'number',
-      description: 'Value of the order or items sold.',
+      description: 'Value of the order or items sold. Example: 100',
       default: {
         '@if': {
           exists: { '@path': '$.properties.value' },

@@ -69,13 +69,21 @@ export interface Payload {
      * ID of the product item.
      */
     content_id?: string
+    /**
+     * Category of the page/product. Example: "apparel".
+     */
+    content_category?: string
+    /**
+     * Name of the page/product. Example: "shirt".
+     */
+    content_name?: string
   }[]
   /**
-   * Currency for the value specified as ISO 4217 code.
+   * Currency for the value specified as ISO 4217 code. Example: "USD".
    */
   currency?: string
   /**
-   * Value of the order or items sold.
+   * Value of the order or items sold. Example: 100
    */
   value?: number
   /**

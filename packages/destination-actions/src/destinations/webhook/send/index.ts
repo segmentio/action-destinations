@@ -8,36 +8,38 @@ const action: ActionDefinition<Settings, Payload> = {
   title: 'Send',
   description: 'Send an HTTP request.',
   fields: {
-    url: {
-      label: 'URL',
-      description: 'URL to deliver data to.',
+    email: {
+      label: 'Email address',
+      description: 'User email address',
       type: 'string',
       required: true,
-      format: 'uri'
+      default: {
+        '@if': {
+          exists: { '@path': '$.context.traits.email' },
+          then: { '@path': '$.context.traits.email' },
+          else: { '@path': '$.traits.email' }
+        }
+      }
     },
-    method: {
-      label: 'Method',
-      description: 'HTTP method to use.',
+    audience_name: {
+      label: 'Audience Name',
+      description: 'Audience name',
       type: 'string',
-      choices: [
-        { label: 'POST', value: 'POST' },
-        { label: 'PUT', value: 'PUT' },
-        { label: 'PATCH', value: 'PATCH' }
-      ],
-      default: 'POST',
-      required: true
+      required: true,
+      default: { '@path': '$.context.personas.computation_key' }
     },
-    headers: {
-      label: 'Headers',
-      description: 'HTTP headers to send with each request.',
-      type: 'object',
-      defaultObjectUI: 'keyvalue:only'
-    },
-    data: {
-      label: 'Data',
-      description: 'Payload to deliver to webhook URL (JSON-encoded).',
-      type: 'object',
-      default: { '@path': '$.' }
+    traits_or_properties: {
+      label: 'Traits or properties object',
+      description: 'Traits or properties object',
+      type: 'string',
+      required: true,
+      default: {
+        '@if': {
+          exists: { '@path': '$.properties' },
+          then: { '@path': '$.properties' },
+          else: { '@path': '$.traits' }
+        }
+      }
     }
   },
   perform: (request, { payload }) => {

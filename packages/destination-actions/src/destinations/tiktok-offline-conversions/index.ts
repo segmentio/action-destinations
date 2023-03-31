@@ -1,89 +1,10 @@
-import type { DestinationDefinition } from '@segment/actions-core'
+import { defaultValues, DestinationDefinition } from '@segment/actions-core'
 import type { Settings } from './generated-types'
-import { defaultValues } from '@segment/actions-core'
-
-import trackOfflineConversion from './trackOfflineConversion'
-
-const productProperties = {
-  price: {
-    '@path': '$.price'
-  },
-  quantity: {
-    '@path': '$.quantity'
-  },
-  content_type: {
-    '@path': '$.category'
-  },
-  content_id: {
-    '@path': '$.product_id'
-  }
-}
-
-const singleProductContents = {
-  ...defaultValues(trackOfflineConversion.fields),
-  contents: {
-    '@arrayPath': [
-      '$.properties',
-      {
-        ...productProperties
-      }
-    ]
-  }
-}
-
-const multiProductContents = {
-  ...defaultValues(trackOfflineConversion.fields),
-  contents: {
-    '@arrayPath': [
-      '$.properties.products',
-      {
-        ...productProperties
-      }
-    ]
-  }
-}
-
-const presets: DestinationDefinition['presets'] = [
-  {
-    name: 'Complete Payment',
-    subscribe: 'event = "Complete Payment"',
-    partnerAction: 'trackOfflineConversion',
-    mapping: {
-      ...singleProductContents,
-      event: 'CompletePayment'
-    }
-  },
-  {
-    name: 'Contact',
-    subscribe: 'event = "Contact"',
-    partnerAction: 'trackOfflineConversion',
-    mapping: {
-      ...singleProductContents,
-      event: 'Contact'
-    }
-  },
-  {
-    name: 'Subscribe',
-    subscribe: 'event = "Subscribe"',
-    partnerAction: 'trackOfflineConversion',
-    mapping: {
-      ...singleProductContents,
-      event: 'Subscribe'
-    }
-  },
-  {
-    name: 'Submit Form',
-    subscribe: 'event = "Submit Form"',
-    partnerAction: 'trackOfflineConversion',
-    mapping: {
-      ...singleProductContents,
-      event: 'SubmitForm'
-    }
-  }
-]
+import trackPaymentOfflineConversion from './trackPaymentOfflineConversion'
+import trackNonPaymentOfflineConversion from './trackNonPaymentOfflineConversion'
 
 const destination: DestinationDefinition<Settings> = {
-  name: 'Tiktok Offline Conversions',
+  name: 'Tiktok Offline Conversions (Actions)',
   slug: 'actions-tiktok-offline-conversions',
   mode: 'cloud',
 
@@ -104,17 +25,6 @@ const destination: DestinationDefinition<Settings> = {
           'Your TikTok Offline Event Set ID. Please see TikTok’s [Events API documentation](https://ads.tiktok.com/marketing_api/docs?rid=mcxl4tclmfa&id=1758051319816193) for information on how to find this value.',
         required: true
       }
-    },
-    testAuthentication: (request, { settings }) => {
-      return request('https://business-api.tiktok.com/open_api/v1.3/offline/track/', {
-        method: 'post',
-        json: {
-          event_set_id: settings.eventSetID,
-          event: 'Test Event',
-          timestamp: '',
-          context: {}
-        }
-      })
     }
   },
   extendRequest({ settings }) {
@@ -122,9 +32,47 @@ const destination: DestinationDefinition<Settings> = {
       headers: { 'Access-Token': settings.accessToken }
     }
   },
-  presets,
+  presets: [
+    {
+      name: 'Complete Payment',
+      subscribe: 'type = "track" and event = "Order Completed"',
+      partnerAction: 'trackOfflinePaymentConversion',
+      mapping: {
+        ...defaultValues(trackPaymentOfflineConversion.fields),
+        event: 'CompletePayment'
+      }
+    },
+    {
+      name: 'Contact',
+      subscribe: 'type = "track" and event = "User Contacted Call Center"',
+      partnerAction: 'trackNonPaymentOfflineConversion',
+      mapping: {
+        ...defaultValues(trackNonPaymentOfflineConversion.fields),
+        event: 'Contact'
+      }
+    },
+    {
+      name: 'Subscribe',
+      subscribe: 'type = "track" and event = "User Subscribed In Store"',
+      partnerAction: 'trackNonPaymentOfflineConversion',
+      mapping: {
+        ...defaultValues(trackNonPaymentOfflineConversion.fields),
+        event: 'Subscribe'
+      }
+    },
+    {
+      name: 'SubmitForm',
+      subscribe: 'type = "track" and event = "Form Submitted"',
+      partnerAction: 'trackNonPaymentOfflineConversion',
+      mapping: {
+        ...defaultValues(trackNonPaymentOfflineConversion.fields),
+        event: 'SubmitForm'
+      }
+    }
+  ],
   actions: {
-    trackOfflineConversion
+    trackPaymentOfflineConversion,
+    trackNonPaymentOfflineConversion
   }
 }
 
