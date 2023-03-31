@@ -6,7 +6,7 @@ import { CONSTANTS } from '../constants'
  * CustomAudienceOperation is a custom type to encapsulates the request body params
  * for inserting/updating custom audience list in rokt data platform
  * @action [include, exclude]
- * @list custome audience name ( or list ) in rokt data platform
+ * @list custom audience name ( or list ) in rokt data platform
  * @emails list of user emails to be included/excluded from custom audience list
  */
 type CustomAudienceOperation = {
