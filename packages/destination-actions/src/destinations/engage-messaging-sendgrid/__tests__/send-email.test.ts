@@ -2,6 +2,7 @@ import nock from 'nock'
 import { createTestIntegration, omit } from '@segment/actions-core'
 import { createMessagingTestEvent } from '../../../lib/engage-test-data/create-messaging-test-event'
 import Sendgrid from '..'
+import { Logger } from '@segment/actions-core/src/destination-kit'
 
 const sendgrid = createTestIntegration(Sendgrid)
 const timestamp = new Date().toISOString()
@@ -162,6 +163,8 @@ describe.each(['stage', 'production'])('%s environment', (environment) => {
     })
 
     it('should not send email when send = false', async () => {
+      const logInfoSpy = jest.fn() as Logger['info']
+
       const mapping = getDefaultMapping({
         groupId: 'any_group',
         send: false
@@ -173,13 +176,18 @@ describe.each(['stage', 'production'])('%s environment', (environment) => {
           userId: userData.userId
         }),
         settings,
-        mapping: mapping
+        mapping,
+        logger: { level: 'error', name: 'test', info: logInfoSpy } as Logger
       })
       const sendGridRequest = nock('https://api.sendgrid.com').post('/v3/mail/send', sendgridRequestBody).reply(200, {})
 
       expect(sendGridRequest.isDone()).toEqual(false)
+      expect(logInfoSpy).toHaveBeenCalledWith('TE Messaging: Email send disabled')
     })
+
     it('should throw error and not send email with no trait enrichment and no user id', async () => {
+      const logErrorSpy = jest.fn() as Logger['error']
+
       const mapping = getDefaultMapping({
         userId: undefined,
         traitEnrichment: false
@@ -192,15 +200,41 @@ describe.each(['stage', 'production'])('%s environment', (environment) => {
             userId: undefined
           }),
           settings,
-          mapping
+          mapping,
+          logger: { level: 'error', name: 'test', error: logErrorSpy } as Logger
         })
       ).rejects.toThrow('Unable to process email, no userId provided and trait enrichment disabled')
 
       const sendGridRequest = nock('https://api.sendgrid.com').post('/v3/mail/send', sendgridRequestBody).reply(200, {})
       expect(sendGridRequest.isDone()).toEqual(false)
+      expect(logErrorSpy).toHaveBeenCalledWith(
+        'TE Messaging: Unable to process email, no userId provided and trait enrichment disabled'
+      )
+    })
+
+    it('should throw an error when SendGrid API request fails', async () => {
+      const logErrorSpy = jest.fn() as Logger['error']
+
+      const response = sendgrid.testAction('sendEmail', {
+        event: createMessagingTestEvent({
+          timestamp,
+          event: 'Audience Entered',
+          userId: undefined
+        }),
+        settings,
+        mapping: getDefaultMapping(),
+        logger: { level: 'error', name: 'test', error: logErrorSpy } as Logger
+      })
+
+      nock('https://api.sendgrid.com').post('/v3/mail/send', sendgridRequestBody).reply(500, {})
+
+      await expect(response).rejects.toThrowError('Unable to send email message')
+      expect(logErrorSpy).toHaveBeenCalledWith(expect.stringMatching(/TE Messaging: Email message request failure/))
     })
 
     it('should not send an email when send field not in payload', async () => {
+      const logInfoSpy = jest.fn() as Logger['info']
+
       const responses = await sendgrid.testAction('sendEmail', {
         event: createMessagingTestEvent({
           timestamp,
@@ -208,12 +242,14 @@ describe.each(['stage', 'production'])('%s environment', (environment) => {
           userId: userData.userId
         }),
         settings,
-        mapping: omit(getDefaultMapping(), ['send'])
+        mapping: omit(getDefaultMapping(), ['send']),
+        logger: { level: 'error', name: 'test', info: logInfoSpy } as Logger
       })
       const sendGridRequest = nock('https://api.sendgrid.com').post('/v3/mail/send', sendgridRequestBody).reply(200, {})
 
       expect(responses.length).toEqual(0)
       expect(sendGridRequest.isDone()).toEqual(false)
+      expect(logInfoSpy).toHaveBeenCalledWith('TE Messaging: Email send disabled')
     })
 
     it('should send email with journey metadata', async () => {
@@ -317,6 +353,8 @@ describe.each(['stage', 'production'])('%s environment', (environment) => {
     it.each(['gmailx.com', 'yahoox.com', 'aolx.com', 'hotmailx.com'])(
       `should return an error when given a restricted domain "%s"`,
       async (domain) => {
+        const logErrorSpy = jest.fn() as Logger['error']
+
         try {
           await sendgrid.testAction('sendEmail', {
             event: createMessagingTestEvent({
@@ -325,12 +363,16 @@ describe.each(['stage', 'production'])('%s environment', (environment) => {
               userId: userData.userId
             }),
             settings,
-            mapping: getDefaultMapping({ toEmail: `lauren@${domain}` })
+            mapping: getDefaultMapping({ toEmail: `lauren@${domain}` }),
+            logger: { level: 'error', name: 'test', error: logErrorSpy } as Logger
           })
           fail('Test should throw an error')
         } catch (e) {
           expect((e as unknown as any).message).toBe(
             'Emails with gmailx.com, yahoox.com, aolx.com, and hotmailx.com domains are blocked.'
+          )
+          expect(logErrorSpy).toHaveBeenCalledWith(
+            'TE Messaging: Emails with gmailx.com, yahoox.com, aolx.com, and hotmailx.com domains are blocked'
           )
         }
       }
@@ -736,6 +778,8 @@ describe.each(['stage', 'production'])('%s environment', (environment) => {
     it.each([null, false])(
       'does NOT send the email when subscriptionStatus = "%s"',
       async (isSubscribed: boolean | null) => {
+        const logInfoSpy = jest.fn() as Logger['info']
+
         await sendgrid.testAction('sendEmail', {
           event: createMessagingTestEvent({
             timestamp,
@@ -747,13 +791,45 @@ describe.each(['stage', 'production'])('%s environment', (environment) => {
             ]
           }),
           settings,
-          mapping: getDefaultMapping()
+          mapping: getDefaultMapping(),
+          logger: { level: 'error', name: 'test', info: logInfoSpy } as Logger
         })
         const sendGridRequest = nock('https://api.sendgrid.com')
           .post('/v3/mail/send', sendgridRequestBody)
           .reply(200, {})
 
         expect(sendGridRequest.isDone()).toBe(false)
+        expect(logInfoSpy).toHaveBeenCalledWith(
+          'TE Messaging: Email recipient not subscribed or external ids were omitted from request'
+        )
+      }
+    )
+
+    it.each(['unsubscribed', 'did not subscribed'])(
+      'does NOT send the email when subscriptionStatus = "%s"',
+      async (subscriptionStatus: string) => {
+        const logInfoSpy = jest.fn() as Logger['info']
+
+        await sendgrid.testAction('sendEmail', {
+          event: createMessagingTestEvent({
+            timestamp,
+            event: 'Audience Entered',
+            userId: userData.userId
+          }),
+          settings,
+          mapping: getDefaultMapping({
+            externalIds: [{ type: 'email', id: userData.email, subscriptionStatus }]
+          }),
+          logger: { level: 'error', name: 'test', info: logInfoSpy } as Logger
+        })
+        const sendGridRequest = nock('https://api.sendgrid.com')
+          .post('/v3/mail/send', sendgridRequestBody)
+          .reply(200, {})
+
+        expect(sendGridRequest.isDone()).toEqual(false)
+        expect(logInfoSpy).toHaveBeenCalledWith(
+          'TE Messaging: Email recipient not subscribed or external ids were omitted from request'
+        )
       }
     )
   })
@@ -899,6 +975,8 @@ describe.each(['stage', 'production'])('%s environment', (environment) => {
     })
 
     it('does NOT send email to group when external ids are not present', async () => {
+      const logInfoSpy = jest.fn() as Logger['info']
+
       await sendgrid.testAction('sendEmail', {
         event: createMessagingTestEvent({
           timestamp,
@@ -909,12 +987,48 @@ describe.each(['stage', 'production'])('%s environment', (environment) => {
         settings: {
           ...settings
         },
-        mapping: getDefaultMapping({ groupId: 'grp_2' })
+        mapping: getDefaultMapping({ groupId: 'grp_2' }),
+        logger: { level: 'error', name: 'test', info: logInfoSpy } as Logger
       })
 
       const sendGridRequest = nock('https://api.sendgrid.com').post('/v3/mail/send', sendgridRequestBody).reply(200, {})
 
       expect(sendGridRequest.isDone()).toBe(false)
+      expect(logInfoSpy).toHaveBeenCalledWith(
+        'TE Messaging: Email recipient not subscribed or external ids were omitted from request'
+      )
+    })
+  })
+
+  describe('get profile traits', () => {
+    afterEach(() => {
+      nock.cleanAll()
+    })
+
+    it('should throw error if unable to request profile traits', async () => {
+      const logErrorSpy = jest.fn() as Logger['error']
+
+      nock(`${endpoint}/v1/spaces/spaceId/collections/users/profiles/user_id:${userData.userId}`)
+        .get('/traits?limit=200')
+        .reply(500)
+
+      const response = sendgrid.testAction('sendEmail', {
+        event: createMessagingTestEvent({
+          timestamp,
+          event: 'Audience Entered',
+          userId: userData.userId
+        }),
+        settings,
+        mapping: getDefaultMapping({
+          traitEnrichment: false
+        }),
+        logger: { level: 'error', name: 'test', error: logErrorSpy } as Logger
+      })
+
+      await expect(response).rejects.toThrowError('Unable to get profile traits for email message')
+      expect(logErrorSpy).toHaveBeenCalledWith(
+        expect.stringMatching(/TE Messaging: Email profile traits request failure/)
+      )
     })
   })
 })
