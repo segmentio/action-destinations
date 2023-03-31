@@ -4,8 +4,12 @@ import type { Payload } from './generated-types'
 import {
   API_BASE,
   UPSERT_ENDPOINT,
+  DELETE_ATTRIBUTE_ENDPOINT,
   computedTraitsPayloadForIdentifyCall,
-  computedTraitsPayloadForTrackCall
+  computedAudiencesPayloadForIdentifyCall,
+  computedTraitsPayloadForTrackCall,
+  computedAudiencePayloadForTrackCall,
+  deleteAttributePartial
 } from '../insider-helpers'
 
 const action: ActionDefinition<Settings, Payload> = {
@@ -22,6 +26,19 @@ const action: ActionDefinition<Settings, Payload> = {
       ucdPayload = computedTraitsPayloadForIdentifyCall(data.rawData)
     } else if (computationClassName === 'trait' && type === 'track') {
       ucdPayload = computedTraitsPayloadForTrackCall(data.rawData)
+    } else if (computationClassName === 'audience' && type === 'track') {
+      ucdPayload = computedAudiencePayloadForTrackCall(data.rawData)
+    } else if (computationClassName === 'audience' && type === 'identify') {
+      const computationKey = data.rawData.context.personas.computation_key
+      const traitValue = data.rawData.traits[computationKey]
+
+      if (!traitValue) {
+        const partialDeletePayload = deleteAttributePartial(data.rawData)
+
+        return request(`${API_BASE}${DELETE_ATTRIBUTE_ENDPOINT}`, { method: 'post', json: partialDeletePayload })
+      }
+
+      ucdPayload = computedAudiencesPayloadForIdentifyCall(data.rawData)
     } else {
       throw new Error('This integration only supports identify and track calls from Segment Engage')
     }
