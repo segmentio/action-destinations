@@ -112,19 +112,14 @@ describe.each(['stage', 'production'])('%s environment', (environment) => {
 
     it('should throw error if Twilio API request fails', async () => {
       const logErrorSpy = jest.fn() as Logger['error']
+      const expectedErrorResponse = {
+        code: 21211,
+        message: "The 'To' number is not a valid phone number.",
+        more_info: 'https://www.twilio.com/docs/errors/21211',
+        status: 400
+      }
 
-      nock('https://api.twilio.com/2010-04-01/Accounts/a')
-        .post('/Messages.json')
-        .reply(400, {
-          response: {
-            data: {
-              code: 21211,
-              message: "The 'to' number is not a valid phone number.",
-              more_info: 'https://www.twilio.com/docs/errors/21211',
-              status: 400
-            }
-          }
-        })
+      nock('https://api.twilio.com/2010-04-01/Accounts/a').post('/Messages.json').reply(400, expectedErrorResponse)
 
       const actionInputData = {
         event: createMessagingTestEvent({
@@ -138,7 +133,9 @@ describe.each(['stage', 'production'])('%s environment', (environment) => {
       }
 
       await expect(twilio.testAction('sendSms', actionInputData)).rejects.toThrowError()
-      expect(logErrorSpy).toHaveBeenCalledWith(expect.stringMatching(/TE Messaging: Twilio Programmable API error/))
+      expect(logErrorSpy).toHaveBeenCalledWith(
+        `TE Messaging: Twilio Programmable API error: ${JSON.stringify(expectedErrorResponse)}`
+      )
     })
 
     it('should send SMS', async () => {
