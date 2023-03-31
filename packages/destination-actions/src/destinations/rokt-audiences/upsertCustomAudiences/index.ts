@@ -57,7 +57,7 @@ const action: ActionDefinition<Settings, Payload> = {
     enable_batching: {
       type: 'boolean',
       label: 'enable batching to rokt api',
-      description: 'Set as true to ensure Segment infrastructure uses batching when required.',
+      description: 'Set as true to ensure Segment infrastructure uses batching when possible.',
       default: true
     }
   },
