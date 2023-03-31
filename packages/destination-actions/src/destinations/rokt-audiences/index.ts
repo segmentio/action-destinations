@@ -6,7 +6,7 @@ import upsertCustomAudiences from './upsertCustomAudiences'
 import { CONSTANTS } from './constants'
 
 const destination: DestinationDefinition<Settings> = {
-  name: 'Rokt Audiences',
+  name: 'Rokt Audiences (Actions)',
   slug: 'actions-rokt-audiences',
   mode: 'cloud',
   description: `
