@@ -20,7 +20,7 @@ const action: ActionDefinition<Settings, Payload> = {
     },
     segment_computation_action: {
       label: 'Segment Computation Action',
-      description: "Segment computation class used to determine if action is 'Engage-Aduience'",
+      description: "Segment computation class used to determine if action is an 'Engage-Audience'",
       type: 'string',
       required: true,
       default: {
