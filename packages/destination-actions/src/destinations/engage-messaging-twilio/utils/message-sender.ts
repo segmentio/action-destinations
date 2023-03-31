@@ -96,6 +96,11 @@ export abstract class MessageSender<SmsPayload extends MinimalPayload> {
         this.logger?.error?.(
           `TE Messaging: Twilio Programmable API error: ${JSON.stringify(twilioApiError.response.data)}`
         )
+        const errorCode = twilioApiError.response.data.code
+        if (errorCode === 63018) {
+          // Exceeded WhatsApp rate limit
+          this.statsClient?.incr('actions-personas-messaging-twilio.rate-limited', 1, this.tags)
+        }
       }
       // Bubble the error to integrations
       throw error
