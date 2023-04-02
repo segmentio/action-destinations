@@ -1,5 +1,5 @@
 import { InvalidAuthenticationError } from '@segment/actions-core'
-import type { DestinationDefinition } from '@segment/actions-core'
+import { defaultValues, DestinationDefinition } from '@segment/actions-core'
 import type { Settings } from './generated-types'
 
 import upsertCustomAudiences from './upsertCustomAudiences'
@@ -44,7 +44,15 @@ const destination: DestinationDefinition<Settings> = {
   },
   actions: {
     upsertCustomAudiences
-  }
+  },
+  presets: [
+    {
+      name: 'Sync Engage Audience to Rokt',
+      subscribe: 'type = "track" or type = "identify"',
+      partnerAction: 'upsertCustomAudiences',
+      mapping: defaultValues(upsertCustomAudiences.fields)
+    }
+  ]
 }
 
 export default destination
