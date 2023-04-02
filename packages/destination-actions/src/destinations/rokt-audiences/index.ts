@@ -11,7 +11,7 @@ const destination: DestinationDefinition<Settings> = {
   mode: 'cloud',
   description: `
   This destination allows user to engage audiences using Rokt public API.
-  User can select actions-rokt-audiences as destination when creating engage->audience in segment,
+  User can connect Rokt Audiences (Actions) as a destination to their Engage Audience in segment,
   if they intend to create/update custom audiences in Rokt data platform.  
   `,
   authentication: {
