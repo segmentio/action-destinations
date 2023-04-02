@@ -12,7 +12,7 @@ const destination: DestinationDefinition<Settings> = {
   description: `
   This destination allows user to engage audiences using Rokt public API.
   User can connect Rokt Audiences (Actions) as a destination to their Engage Audience in segment,
-  if they intend to create/update custom audiences in Rokt data platform.  
+  which will create/update custom audiences in the Rokt data platform.  
   `,
   authentication: {
     scheme: 'custom',
