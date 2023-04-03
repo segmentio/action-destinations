@@ -110,8 +110,7 @@ const destination: DestinationDefinition<Settings> = {
         required: true
       }
     },
-    testAuthentication: (request) => {
-      request
+    testAuthentication: (_request) => {
       return true
       // return request(`https://api-campaign-${settings.a_region}-${settings.a_pod}.goacoustic.com/oauth/token`, {
       //   method: 'POST',
