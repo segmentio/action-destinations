@@ -62,6 +62,7 @@ const action: ActionDefinition<Settings, Payload> = {
   },
 
   perform: async (request, { settings, payload }) => {
+    //Defintion will not allow event without Email so no Null check needed,
     const email = get(payload, 'email', 'Null')
 
     await preChecksAndMaint(request, settings)

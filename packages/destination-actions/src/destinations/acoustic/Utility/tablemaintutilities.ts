@@ -7,7 +7,7 @@ export let eventTableListId = ''
 export let accToken = ''
 
 export async function getAccessToken(request: RequestClient, settings: Settings) {
-  //grant_type:refresh_token
+  //Reset Auth Scheme
   const clientId = settings?.a_clientId ?? ''
   const clientSecret = settings?.a_clientSecret ?? ''
   const refreshToken = settings?.a_refreshToken ?? ''

@@ -112,19 +112,6 @@ const destination: DestinationDefinition<Settings> = {
     },
     testAuthentication: (_request) => {
       return true
-      // return request(`https://api-campaign-${settings.a_region}-${settings.a_pod}.goacoustic.com/oauth/token`, {
-      //   method: 'POST',
-      // body: new URLSearchParams({
-      //   refresh_token: settings.a_refreshToken,
-      //   client_id: settings.a_clientId,
-      //   client_secret: a_clientSecret,
-      //   grant_type: 'refresh_token'
-      // }),
-      // headers: {
-      //   'user-agent': `Segment (refreshtoken)`,
-      //   'Content-Type': 'application/x-www-form-urlencoded'
-      // }
-      // })
     }
   },
   extendRequest: ({ settings, auth }) => {
