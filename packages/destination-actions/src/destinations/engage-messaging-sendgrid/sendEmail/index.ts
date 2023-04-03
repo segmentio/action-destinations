@@ -56,7 +56,7 @@ const fetchProfileTraits = async (
     const body = await response.json()
     return body.traits
   } catch (error) {
-    logger?.error(`TE Messaging: Email profile traits request failure: ${error}`)
+    logger?.error(`TE Messaging: Email profile traits request failure - ${settings.spaceId} - [${error}]`)
     statsClient?.incr('actions-personas-messaging-sendgrid.profile_error', 1, tags)
     throw new IntegrationError('Unable to get profile traits for email message', 'Email trait fetch failure', 500)
   }
@@ -89,7 +89,7 @@ interface UnlayerResponse {
 
 const generateEmailHtml = async (
   request: RequestFn,
-  apiKey: string,
+  settings: Settings,
   design: string,
   logger?: Logger | undefined
 ): Promise<string> => {
@@ -97,7 +97,7 @@ const generateEmailHtml = async (
     const response = await request('https://api.unlayer.com/v2/export/html', {
       method: 'POST',
       headers: {
-        authorization: `Basic ${Buffer.from(`${apiKey}:`).toString('base64')}`,
+        authorization: `Basic ${Buffer.from(`${settings.unlayerApiKey}:`).toString('base64')}`,
         'content-type': 'application/json'
       },
       body: JSON.stringify({
@@ -109,7 +109,7 @@ const generateEmailHtml = async (
     const body = await response.json()
     return (body as UnlayerResponse).data.html
   } catch (error) {
-    logger?.error(`TE Messaging: Email export request failure: ${error}`)
+    logger?.error(`TE Messaging: Email export request failure - ${settings.spaceId} - [${error}]`)
     throw new IntegrationError('Unable to export email as HTML', 'Export HTML failure', 400)
   }
 }
@@ -121,12 +121,18 @@ interface Profile {
   traits: Record<string, string>
 }
 
-const parseTemplating = async (content: string, profile: Profile, contentType: string, logger?: Logger | undefined) => {
+const parseTemplating = async (
+  content: string,
+  profile: Profile,
+  contentType: string,
+  settings: Settings,
+  logger?: Logger | undefined
+) => {
   try {
     const parsedContent = await Liquid.parseAndRender(content, { profile })
     return parsedContent
   } catch (error) {
-    logger?.error(`TE Messaging: Email templating parse failure: ${error}`)
+    logger?.error(`TE Messaging: Email templating parse failure - ${settings.spaceId} - [${error}]`)
     throw new IntegrationError(
       `Unable to parse templating in email ${contentType}`,
       `${contentType} templating parse failure`,
@@ -334,7 +340,7 @@ const action: ActionDefinition<Settings, Payload> = {
     const tags = statsContext?.tags
     tags?.push(`space_id:${settings.spaceId}`, `projectid:${settings.sourceId}`)
     if (!payload.send) {
-      logger?.info('TE Messaging: Email send disabled')
+      logger?.info(`TE Messaging: Email send disabled - ${settings.spaceId}`)
       statsClient?.incr('actions-personas-messaging-sendgrid.send-disabled', 1, tags)
       return
     }
@@ -343,7 +349,9 @@ const action: ActionDefinition<Settings, Payload> = {
       !emailProfile?.subscriptionStatus ||
       ['unsubscribed', 'did not subscribed', 'false'].includes(emailProfile.subscriptionStatus)
     ) {
-      logger?.info('TE Messaging: Email recipient not subscribed or external ids were omitted from request')
+      logger?.info(
+        `TE Messaging: Email recipient not subscribed or external ids were omitted from request - ${settings.spaceId}`
+      )
       statsClient?.incr('actions-personas-messaging-sendgrid.notsubscribed', 1, tags)
       return
     } else if (['subscribed', 'true'].includes(emailProfile?.subscriptionStatus)) {
@@ -367,7 +375,9 @@ const action: ActionDefinition<Settings, Payload> = {
         traits = payload?.traits ? payload?.traits : JSON.parse('{}')
       } else {
         if (!payload.userId) {
-          logger?.error('TE Messaging: Unable to process email, no userId provided and trait enrichment disabled')
+          logger?.error(
+            `TE Messaging: Unable to process email, no userId provided and trait enrichment disabled - ${settings.spaceId}`
+          )
           throw new IntegrationError(
             'Unable to process email, no userId provided and trait enrichment disabled',
             'Invalid parameters',
@@ -391,7 +401,7 @@ const action: ActionDefinition<Settings, Payload> = {
       if (isRestrictedDomain(toEmail)) {
         statsClient?.incr('actions-personas-messaging-sendgrid.restricted-domain', 1, tags)
         logger?.error(
-          'TE Messaging: Emails with gmailx.com, yahoox.com, aolx.com, and hotmailx.com domains are blocked'
+          `TE Messaging: Emails with gmailx.com, yahoox.com, aolx.com, and hotmailx.com domains are blocked - ${settings.spaceId}`
         )
         throw new IntegrationError(
           'Emails with gmailx.com, yahoox.com, aolx.com, and hotmailx.com domains are blocked.',
@@ -413,23 +423,22 @@ const action: ActionDefinition<Settings, Payload> = {
       }
 
       const bcc = JSON.parse(payload.bcc ?? '[]')
-      const parsedSubject = await parseTemplating(payload.subject, profile, 'Subject')
+      const parsedSubject = await parseTemplating(payload.subject, profile, 'Subject', settings, logger)
       let parsedBodyHtml
 
       if (payload.bodyUrl && settings.unlayerApiKey) {
         const response = await request(payload.bodyUrl)
         const body = await response.text()
 
-        const bodyHtml =
-          payload.bodyType === 'html' ? body : await generateEmailHtml(request, settings.unlayerApiKey, body)
-        parsedBodyHtml = await parseTemplating(bodyHtml, profile, 'Body')
+        const bodyHtml = payload.bodyType === 'html' ? body : await generateEmailHtml(request, settings, body)
+        parsedBodyHtml = await parseTemplating(bodyHtml, profile, 'Body', settings, logger)
       } else {
-        parsedBodyHtml = await parseTemplating(payload.bodyHtml ?? '', profile, 'Body HTML')
+        parsedBodyHtml = await parseTemplating(payload.bodyHtml ?? '', profile, 'Body HTML', settings, logger)
       }
 
       // only include preview text in design editor templates
       if (payload.bodyType === 'design' && payload.previewText) {
-        const parsedPreviewText = await parseTemplating(payload.previewText, profile, 'Preview text')
+        const parsedPreviewText = await parseTemplating(payload.previewText, profile, 'Preview text', settings, logger)
         parsedBodyHtml = insertEmailPreviewText(parsedBodyHtml, parsedPreviewText)
       }
 
@@ -494,12 +503,14 @@ const action: ActionDefinition<Settings, Payload> = {
         }
         return response
       } catch (error: unknown) {
-        logger?.error(`TE Messaging: Email message request failure: ${error}`)
+        logger?.error(`TE Messaging: Email message request failure - ${settings.spaceId} - [${error}]`)
         statsClient?.incr('actions-personas-messaging-sendgrid.request-failure', 1, tags)
         throw new IntegrationError('Unable to send email message', 'SendGrid API request failure', 500)
       }
     } else {
-      logger?.error(`TE Messaging: Email subscription status invalid "${emailProfile.subscriptionStatus}"`)
+      logger?.error(
+        `TE Messaging: Email subscription status invalid "${emailProfile.subscriptionStatus}" - ${settings.spaceId}`
+      )
       statsClient?.incr('actions-personas-messaging-sendgrid.sendgrid-error', 1, tags)
       throw new IntegrationError(
         `Failed to process the subscription state: "${emailProfile.subscriptionStatus}"`,

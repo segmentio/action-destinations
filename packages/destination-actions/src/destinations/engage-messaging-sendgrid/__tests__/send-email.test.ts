@@ -8,12 +8,13 @@ const sendgrid = createTestIntegration(Sendgrid)
 const timestamp = new Date().toISOString()
 
 describe.each(['stage', 'production'])('%s environment', (environment) => {
+  const spaceId = 'spaceId'
   const settings = {
     unlayerApiKey: 'unlayerApiKey',
     sendGridApiKey: 'sendGridApiKey',
     profileApiEnvironment: environment,
     profileApiAccessToken: 'c',
-    spaceId: 'spaceId',
+    spaceId,
     sourceId: 'sourceId'
   }
 
@@ -182,7 +183,7 @@ describe.each(['stage', 'production'])('%s environment', (environment) => {
       const sendGridRequest = nock('https://api.sendgrid.com').post('/v3/mail/send', sendgridRequestBody).reply(200, {})
 
       expect(sendGridRequest.isDone()).toEqual(false)
-      expect(logInfoSpy).toHaveBeenCalledWith('TE Messaging: Email send disabled')
+      expect(logInfoSpy).toHaveBeenCalledWith(`TE Messaging: Email send disabled - ${spaceId}`)
     })
 
     it('should throw error and not send email with no trait enrichment and no user id', async () => {
@@ -208,7 +209,7 @@ describe.each(['stage', 'production'])('%s environment', (environment) => {
       const sendGridRequest = nock('https://api.sendgrid.com').post('/v3/mail/send', sendgridRequestBody).reply(200, {})
       expect(sendGridRequest.isDone()).toEqual(false)
       expect(logErrorSpy).toHaveBeenCalledWith(
-        'TE Messaging: Unable to process email, no userId provided and trait enrichment disabled'
+        `TE Messaging: Unable to process email, no userId provided and trait enrichment disabled - ${spaceId}`
       )
     })
 
@@ -229,7 +230,9 @@ describe.each(['stage', 'production'])('%s environment', (environment) => {
       nock('https://api.sendgrid.com').post('/v3/mail/send', sendgridRequestBody).reply(500, {})
 
       await expect(response).rejects.toThrowError('Unable to send email message')
-      expect(logErrorSpy).toHaveBeenCalledWith(expect.stringMatching(/TE Messaging: Email message request failure/))
+      expect(logErrorSpy).toHaveBeenCalledWith(
+        expect.stringMatching(new RegExp(`^TE Messaging: Email message request failure - ${spaceId}`))
+      )
     })
 
     it('should not send an email when send field not in payload', async () => {
@@ -249,7 +252,7 @@ describe.each(['stage', 'production'])('%s environment', (environment) => {
 
       expect(responses.length).toEqual(0)
       expect(sendGridRequest.isDone()).toEqual(false)
-      expect(logInfoSpy).toHaveBeenCalledWith('TE Messaging: Email send disabled')
+      expect(logInfoSpy).toHaveBeenCalledWith(`TE Messaging: Email send disabled - ${spaceId}`)
     })
 
     it('should send email with journey metadata', async () => {
@@ -372,7 +375,7 @@ describe.each(['stage', 'production'])('%s environment', (environment) => {
             'Emails with gmailx.com, yahoox.com, aolx.com, and hotmailx.com domains are blocked.'
           )
           expect(logErrorSpy).toHaveBeenCalledWith(
-            'TE Messaging: Emails with gmailx.com, yahoox.com, aolx.com, and hotmailx.com domains are blocked'
+            `TE Messaging: Emails with gmailx.com, yahoox.com, aolx.com, and hotmailx.com domains are blocked - ${settings.spaceId}`
           )
         }
       }
@@ -800,7 +803,7 @@ describe.each(['stage', 'production'])('%s environment', (environment) => {
 
         expect(sendGridRequest.isDone()).toBe(false)
         expect(logInfoSpy).toHaveBeenCalledWith(
-          'TE Messaging: Email recipient not subscribed or external ids were omitted from request'
+          `TE Messaging: Email recipient not subscribed or external ids were omitted from request - ${spaceId}`
         )
       }
     )
@@ -828,7 +831,7 @@ describe.each(['stage', 'production'])('%s environment', (environment) => {
 
         expect(sendGridRequest.isDone()).toEqual(false)
         expect(logInfoSpy).toHaveBeenCalledWith(
-          'TE Messaging: Email recipient not subscribed or external ids were omitted from request'
+          `TE Messaging: Email recipient not subscribed or external ids were omitted from request - ${spaceId}`
         )
       }
     )
@@ -995,7 +998,7 @@ describe.each(['stage', 'production'])('%s environment', (environment) => {
 
       expect(sendGridRequest.isDone()).toBe(false)
       expect(logInfoSpy).toHaveBeenCalledWith(
-        'TE Messaging: Email recipient not subscribed or external ids were omitted from request'
+        `TE Messaging: Email recipient not subscribed or external ids were omitted from request - ${spaceId}`
       )
     })
   })
@@ -1027,7 +1030,7 @@ describe.each(['stage', 'production'])('%s environment', (environment) => {
 
       await expect(response).rejects.toThrowError('Unable to get profile traits for email message')
       expect(logErrorSpy).toHaveBeenCalledWith(
-        expect.stringMatching(/TE Messaging: Email profile traits request failure/)
+        expect.stringMatching(new RegExp(`^TE Messaging: Email profile traits request failure - ${spaceId}`))
       )
     })
   })

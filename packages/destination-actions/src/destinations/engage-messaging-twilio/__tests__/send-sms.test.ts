@@ -8,13 +8,14 @@ const twilio = createTestIntegration(Twilio)
 const timestamp = new Date().toISOString()
 
 describe.each(['stage', 'production'])('%s environment', (environment) => {
+  const spaceId = 'd'
   const settings = {
     twilioAccountSID: 'a',
     twilioApiKeySID: 'f',
     twilioApiKeySecret: 'b',
     profileApiEnvironment: environment,
     profileApiAccessToken: 'c',
-    spaceId: 'd',
+    spaceId,
     sourceId: 'e'
   }
   const getDefaultMapping = (overrides?: any) => {
@@ -84,7 +85,7 @@ describe.each(['stage', 'production'])('%s environment', (environment) => {
         })
       ).rejects.toThrowError('Unable to process sms, no userId provided and no traits provided')
       expect(logErrorSpy).toHaveBeenCalledWith(
-        'TE Messaging: Unable to process SMS, no userId provided and no traits provided'
+        `TE Messaging: Unable to process SMS, no userId provided and no traits provided - ${spaceId}`
       )
     })
 
@@ -107,7 +108,9 @@ describe.each(['stage', 'production'])('%s environment', (environment) => {
       await expect(twilio.testAction('sendSms', actionInputData)).rejects.toThrowError(
         'Unable to parse templating in SMS'
       )
-      expect(logErrorSpy).toHaveBeenCalledWith(expect.stringMatching(/TE Messaging: SMS templating parse failure/))
+      expect(logErrorSpy).toHaveBeenCalledWith(
+        expect.stringMatching(new RegExp(`^TE Messaging: SMS templating parse failure - ${spaceId}`))
+      )
     })
 
     it('should throw error if Twilio API request fails', async () => {
@@ -134,7 +137,7 @@ describe.each(['stage', 'production'])('%s environment', (environment) => {
 
       await expect(twilio.testAction('sendSms', actionInputData)).rejects.toThrowError()
       expect(logErrorSpy).toHaveBeenCalledWith(
-        `TE Messaging: Twilio Programmable API error: ${JSON.stringify(expectedErrorResponse)}`
+        `TE Messaging: Twilio Programmable API error - ${spaceId} - [${JSON.stringify(expectedErrorResponse)}]`
       )
     })
 
@@ -376,7 +379,7 @@ describe.each(['stage', 'production'])('%s environment', (environment) => {
         'Unable to get profile traits for SMS message'
       )
       expect(logErrorSpy).toHaveBeenCalledWith(
-        expect.stringMatching(/TE Messaging: SMS profile traits request failure/)
+        expect.stringMatching(new RegExp(`^TE Messaging: SMS profile traits request failure - ${spaceId}`))
       )
     })
 

@@ -10,13 +10,14 @@ const defaultTemplateSid = 'my_template'
 const defaultTo = 'whatsapp:+1234567891'
 
 describe.each(['stage', 'production'])('%s environment', (environment) => {
+  const spaceId = 'd'
   const settings = {
     twilioAccountSID: 'a',
     twilioApiKeySID: 'f',
     twilioApiKeySecret: 'b',
     profileApiEnvironment: environment,
     profileApiAccessToken: 'c',
-    spaceId: 'd',
+    spaceId,
     sourceId: 'e'
   }
   const getDefaultMapping = (overrides?: any) => {
@@ -336,7 +337,9 @@ describe.each(['stage', 'production'])('%s environment', (environment) => {
       await expect(response).rejects.toThrowError(
         'The string supplied did not seem to be a phone number. Phone number must be able to be formatted to e164 for whatsapp.'
       )
-      expect(logErrorSpy).toHaveBeenCalledWith(expect.stringMatching(/TE Messaging: WhatsApp invalid phone number/))
+      expect(logErrorSpy).toHaveBeenCalledWith(
+        expect.stringMatching(new RegExp(`^TE Messaging: WhatsApp invalid phone number - ${spaceId}`))
+      )
     })
 
     it('throws an error when liquid template parsing fails', async () => {
@@ -364,7 +367,9 @@ describe.each(['stage', 'production'])('%s environment', (environment) => {
       const response = twilio.testAction('sendWhatsApp', actionInputData)
       await expect(response).rejects.toThrowError('Unable to parse templating in content variables')
       expect(logErrorSpy).toHaveBeenCalledWith(
-        expect.stringMatching(/TE Messaging: Failed to parse WhatsApp template with content variables/)
+        expect.stringMatching(
+          new RegExp(`^TE Messaging: Failed to parse WhatsApp template with content variables - ${spaceId}`)
+        )
       )
     })
 
@@ -393,7 +398,7 @@ describe.each(['stage', 'production'])('%s environment', (environment) => {
       const response = twilio.testAction('sendWhatsApp', actionInputData)
       await expect(response).rejects.toThrowError()
       expect(logErrorSpy).toHaveBeenCalledWith(
-        `TE Messaging: Twilio Programmable API error: ${JSON.stringify(expectedErrorResponse)}`
+        `TE Messaging: Twilio Programmable API error - ${spaceId} - [${JSON.stringify(expectedErrorResponse)}]`
       )
     })
 
