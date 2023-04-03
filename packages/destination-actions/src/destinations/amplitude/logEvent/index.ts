@@ -10,6 +10,7 @@ import { mergeUserProperties } from '../merge-user-properties'
 import { parseUserAgentProperties } from '../user-agent'
 import { getEndpointByRegion } from '../regional-endpoints'
 import { formatSessionId } from '../convert-timestamp'
+import { PARTNER_ID } from '../constants'
 
 export interface AmplitudeEvent extends Omit<Payload, 'products' | 'time' | 'session_id'> {
   library?: string
@@ -18,6 +19,7 @@ export interface AmplitudeEvent extends Omit<Payload, 'products' | 'time' | 'ses
   options?: {
     min_id_length: number
   }
+  partner_id: typeof PARTNER_ID
 }
 
 const revenueKeys = ['revenue', 'price', 'productId', 'quantity', 'revenueType']
@@ -201,7 +203,8 @@ const action: ActionDefinition<Settings, Payload> = {
         ...(userAgentParsing && parseUserAgentProperties(userAgent)),
         // Make sure any top-level properties take precedence over user-agent properties
         ...removeUndefined(properties),
-        library: 'segment'
+        library: payload.library ?? undefined,
+        partner_id: PARTNER_ID
       }
     ]
 

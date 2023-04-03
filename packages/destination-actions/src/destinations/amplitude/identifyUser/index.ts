@@ -7,6 +7,7 @@ import { parseUserAgentProperties } from '../user-agent'
 import { mergeUserProperties } from '../merge-user-properties'
 import { AmplitudeEvent } from '../logEvent'
 import { getEndpointByRegion } from '../regional-endpoints'
+import { PARTNER_ID } from '../constants'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Identify User',
@@ -275,7 +276,8 @@ const action: ActionDefinition<Settings, Payload> = {
       ...(userAgentParsing && parseUserAgentProperties(userAgent)),
       // Make sure any top-level properties take precedence over user-agent properties
       ...removeUndefined(properties),
-      library: 'segment'
+      library: payload.library,
+      partner_id: PARTNER_ID
     })
 
     return request(getEndpointByRegion('identify', settings.endpoint), {

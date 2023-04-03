@@ -10,6 +10,7 @@ import { mergeUserProperties } from '../merge-user-properties'
 import { parseUserAgentProperties } from '../user-agent'
 import { getEndpointByRegion } from '../regional-endpoints'
 import { formatSessionId } from '../convert-timestamp'
+import { PARTNER_ID } from '../constants'
 
 export interface AmplitudeEvent extends Omit<Payload, 'products' | 'trackRevenuePerProduct' | 'time' | 'session_id'> {
   library?: string
@@ -18,6 +19,7 @@ export interface AmplitudeEvent extends Omit<Payload, 'products' | 'trackRevenue
   options?: {
     min_id_length: number
   }
+  partner_id: typeof PARTNER_ID
 }
 
 const revenueKeys = ['revenue', 'price', 'productId', 'quantity', 'revenueType']
@@ -249,7 +251,8 @@ const action: ActionDefinition<Settings, Payload> = {
         ...removeUndefined(properties),
         // Conditionally track revenue with main event
         ...(products.length && trackRevenuePerProduct ? {} : getRevenueProperties(payload)),
-        library: 'segment'
+        library: payload.library ?? undefined,
+        partner_id: PARTNER_ID
       }
     ]
 
@@ -261,7 +264,8 @@ const action: ActionDefinition<Settings, Payload> = {
         event_properties: product,
         event_type: 'Product Purchased',
         insert_id: properties.insert_id ? `${properties.insert_id}-${events.length + 1}` : undefined,
-        library: 'segment'
+        library: payload.library ?? undefined,
+        partner_id: PARTNER_ID
       })
     }
 
