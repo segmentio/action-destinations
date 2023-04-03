@@ -17,4 +17,16 @@ export interface Settings {
    * The Segment Events Table List Id from the Database dialog in Acoustic Campaign
    */
   a_events_table_list_id?: string
+  /**
+   * The Client Id from the App definition dialog in Acoustic Campaign
+   */
+  a_clientId: string
+  /**
+   * The Client Secret from the App definition dialog in Acoustic Campaign
+   */
+  a_clientSecret: string
+  /**
+   * The Refresh Token from the App Account dialog in Acoustic Campaign
+   */
+  a_refreshToken: string
 }

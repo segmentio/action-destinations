@@ -52,7 +52,7 @@ const destination: DestinationDefinition<Settings> = {
   slug: 'actions-acoustic-campaign',
   mode: 'cloud',
   authentication: {
-    scheme: 'oauth-managed',
+    scheme: 'custom',
     fields: {
       a_pod: {
         label: 'Pod',
@@ -87,28 +87,45 @@ const destination: DestinationDefinition<Settings> = {
         default: '',
         type: 'string',
         required: false
+      },
+      a_clientId: {
+        label: 'Acoustic App Client Id',
+        description: 'The Client Id from the App definition dialog in Acoustic Campaign',
+        default: '',
+        type: 'string',
+        required: true
+      },
+      a_clientSecret: {
+        label: 'Acoustic App Client Secret',
+        description: 'The Client Secret from the App definition dialog in Acoustic Campaign',
+        default: '',
+        type: 'password',
+        required: true
+      },
+      a_refreshToken: {
+        label: 'Acoustic App Refresh Token',
+        description: 'The Refresh Token from the App Account dialog in Acoustic Campaign',
+        default: '',
+        type: 'password',
+        required: true
       }
     },
-
-    refreshAccessToken: async (request, { settings, auth }) => {
-      // Return a request that refreshes the access_token if the API supports it
-
-      const at = await request<refreshTokenResult>(
-        `https://api-campaign-${settings.a_region}-${settings.a_pod}.goacoustic.com/oauth/token`,
-        {
-          method: 'POST',
-          body: new URLSearchParams({
-            refresh_token: auth.refreshToken,
-            client_id: auth.clientId,
-            client_secret: auth.clientSecret,
-            grant_type: 'refresh_token'
-          }),
-          headers: {
-            'Content-Type': 'application/x-www-form-urlencoded'
-          }
-        }
-      )
-      return { accessToken: at.data.access_token }
+    testAuthentication: (request) => {
+      request
+      return true
+      // return request(`https://api-campaign-${settings.a_region}-${settings.a_pod}.goacoustic.com/oauth/token`, {
+      //   method: 'POST',
+      // body: new URLSearchParams({
+      //   refresh_token: settings.a_refreshToken,
+      //   client_id: settings.a_clientId,
+      //   client_secret: a_clientSecret,
+      //   grant_type: 'refresh_token'
+      // }),
+      // headers: {
+      //   'user-agent': `Segment (refreshtoken)`,
+      //   'Content-Type': 'application/x-www-form-urlencoded'
+      // }
+      // })
     }
   },
   extendRequest: ({ settings, auth }) => {
