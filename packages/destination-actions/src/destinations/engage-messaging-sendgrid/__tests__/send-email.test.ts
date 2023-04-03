@@ -178,7 +178,7 @@ describe.each(['stage', 'production'])('%s environment', (environment) => {
         }),
         settings,
         mapping,
-        logger: { level: 'error', name: 'test', info: logInfoSpy } as Logger
+        logger: { level: 'info', name: 'test', info: logInfoSpy } as Logger
       })
       const sendGridRequest = nock('https://api.sendgrid.com').post('/v3/mail/send', sendgridRequestBody).reply(200, {})
 
@@ -246,7 +246,7 @@ describe.each(['stage', 'production'])('%s environment', (environment) => {
         }),
         settings,
         mapping: omit(getDefaultMapping(), ['send']),
-        logger: { level: 'error', name: 'test', info: logInfoSpy } as Logger
+        logger: { level: 'info', name: 'test', info: logInfoSpy } as Logger
       })
       const sendGridRequest = nock('https://api.sendgrid.com').post('/v3/mail/send', sendgridRequestBody).reply(200, {})
 
@@ -795,7 +795,7 @@ describe.each(['stage', 'production'])('%s environment', (environment) => {
           }),
           settings,
           mapping: getDefaultMapping(),
-          logger: { level: 'error', name: 'test', info: logInfoSpy } as Logger
+          logger: { level: 'info', name: 'test', info: logInfoSpy } as Logger
         })
         const sendGridRequest = nock('https://api.sendgrid.com')
           .post('/v3/mail/send', sendgridRequestBody)
@@ -823,7 +823,7 @@ describe.each(['stage', 'production'])('%s environment', (environment) => {
           mapping: getDefaultMapping({
             externalIds: [{ type: 'email', id: userData.email, subscriptionStatus }]
           }),
-          logger: { level: 'error', name: 'test', info: logInfoSpy } as Logger
+          logger: { level: 'info', name: 'test', info: logInfoSpy } as Logger
         })
         const sendGridRequest = nock('https://api.sendgrid.com')
           .post('/v3/mail/send', sendgridRequestBody)
@@ -991,7 +991,7 @@ describe.each(['stage', 'production'])('%s environment', (environment) => {
           ...settings
         },
         mapping: getDefaultMapping({ groupId: 'grp_2' }),
-        logger: { level: 'error', name: 'test', info: logInfoSpy } as Logger
+        logger: { level: 'info', name: 'test', info: logInfoSpy } as Logger
       })
 
       const sendGridRequest = nock('https://api.sendgrid.com').post('/v3/mail/send', sendgridRequestBody).reply(200, {})

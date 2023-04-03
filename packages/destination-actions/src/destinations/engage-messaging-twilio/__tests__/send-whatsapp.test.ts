@@ -373,8 +373,9 @@ describe.each(['stage', 'production'])('%s environment', (environment) => {
       )
     })
 
-    it('throws an error when when Twilio API request fails', async () => {
+    it('throws an error when Twilio API request fails', async () => {
       const logErrorSpy = jest.fn() as Logger['error']
+
       const expectedErrorResponse = {
         code: 21211,
         message: "The 'To' number is not a valid phone number.",
