@@ -220,7 +220,11 @@ const handleComputationData = async function (
     return computedTraitsPayloadForIdentifyCall(data, request)
   }
 
-  return computedTraitsPayloadForTrackCall(data, request)
+  if (data.event_type === TRACK) {
+    return computedTraitsPayloadForTrackCall(data, request)
+  }
+
+  throw new PayloadValidationError('API call must be a track() or identify() call')
 }
 
 // It will process the payload and call the respective functions
