@@ -18,10 +18,6 @@ export interface Payload {
    */
   segment_anonymous_id?: string
   /**
-   * The event name
-   */
-  event_name: string
-  /**
    * When the event occurred
    */
   timestamp: string | number
@@ -29,46 +25,14 @@ export interface Payload {
    * Event Parameters store information about an event.
    */
   parameters?: {
-    url?: string
     /**
      * Event. Currency used for product pricing, in ISO 4217 format (e.g. USD). Required field for Purchase and Cart Page Events.
      */
     currency?: string
     /**
-     * The product id associated with the product.
-     */
-    product_id?: string
-    /**
-     * Product category being viewed
-     */
-    taxonomy?: string
-    /**
-     * Name of the product being viewed
-     */
-    name?: string
-    /**
-     * Variant of the product
-     */
-    variant_id?: number
-    /**
-     * Sale Price ($) of the product being viewed. This is a numeric field. e.g. 9.90 for $9.90c.
-     */
-    unit_sale_price?: number
-    /**
-     * Price ($) of the product being viewed. This is a numeric field. e.g. 9.90 for $9.90c.
-     */
-    unit_price?: number
-    /**
-     * Quantity of a product
-     */
-    quantity?: number
-    product_image_url?: string
-    /**
      * Event group ID. Required field for Purchase and Cart Page Events.
      */
     event_group_id?: string
-    referrer?: string
-    user_agent?: string
     [k: string]: unknown
   }
   /**
