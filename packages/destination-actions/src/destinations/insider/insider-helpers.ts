@@ -1,14 +1,5 @@
 import { Payload as UserPayload } from './updateUserProfile/generated-types'
-import { Payload as TrackEventPayload } from './trackEvent/generated-types'
-import { Payload as CartViewedEventPayload } from './cartViewedEvent/generated-types'
-import { Payload as CheckoutEventPayload } from './checkoutEvent/generated-types'
-import { Payload as OrderCompletedEventPayload } from './orderCompletedEvent/generated-types'
-import { Payload as ProductAddedEventPayload } from './productAddedEvent/generated-types'
-import { Payload as ProductListViewedEventPayload } from './productListViewedEvent/generated-types'
-import { Payload as productRemovedEventPayload } from './productRemovedEvent/generated-types'
-import { Payload as productViewedEventPayload } from './productViewedEvent/generated-types'
-import { Payload as userRegisteredEventPayload } from './userRegisteredEvent/generated-types'
-
+import { Payload as EventPayload } from './trackEvent/generated-types'
 export const API_BASE = 'https://unification.useinsider.com/api/'
 export const UPSERT_ENDPOINT = 'user/v1/upsert'
 
@@ -71,19 +62,7 @@ export function userProfilePayload(data: UserPayload) {
   }
 }
 
-export function sendTrackEvent(
-  data:
-    | TrackEventPayload
-    | CartViewedEventPayload
-    | CheckoutEventPayload
-    | OrderCompletedEventPayload
-    | ProductAddedEventPayload
-    | ProductListViewedEventPayload
-    | productRemovedEventPayload
-    | productViewedEventPayload
-    | userRegisteredEventPayload,
-  event_name: string
-) {
+export function sendTrackEvent(data: EventPayload) {
   const addEventParameters = function (
     event: insiderEvent,
     data:
@@ -154,6 +133,26 @@ export function sendTrackEvent(
     events: []
   }
 
+  const events: Object = {
+    Unsubscribed: 'email_unsubscribe',
+    'Product List Viewed': 'listing_page_view',
+    'Product Viewed': 'product_detail_page_view',
+    'Product Added': 'item_added_to_cart',
+    'Product Removed': 'item_removed_from_cart',
+    'Email Bounced': 'email_bounce',
+    'Email Delivered': 'email_delivered',
+    'Email Link Clicked': 'email_click',
+    'Email Marked as Spam': 'email_spamreport',
+    'Email Opened': 'email_open',
+    'Application Opened': 'session_start',
+    'Push Notification Received': 'push_delivered',
+    'Push Notification Tapped': 'push_session',
+    'User Registered': 'sign_up_confirmation',
+    'Order Completed': 'purchase',
+    'Cart Viewed': 'cart_page_view',
+    'Checkout Started': 'checkout_page_view',
+    'Checkout Viewed': 'checkout_page_view'
+  }
   const defaultAttributes = [
     'email',
     'phone',
@@ -213,8 +212,12 @@ export function sendTrackEvent(
     }
   }
 
+  const name = events[data.name as keyof Object]
+    ? events[data.name as keyof Object].toString()
+    : data.name.toString().toLowerCase().trim().split(' ').join('_')
+
   let event: insiderEvent = {
-    event_name,
+    event_name: name,
     timestamp: data.timestamp.toString(),
     event_params: {
       // eslint-disable-next-line @typescript-eslint/ban-ts-comment
@@ -227,7 +230,7 @@ export function sendTrackEvent(
     event = addEventParameters(event, data.parameters, key)
   }
 
-  if (data.products) {
+  if (data.products && ['cart_page_view', 'checkout_page_view', 'purchase'].indexOf(name) > -1) {
     for (const product of data.products) {
       let productEvent = event
 

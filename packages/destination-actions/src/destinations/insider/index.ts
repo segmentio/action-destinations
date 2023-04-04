@@ -1,14 +1,7 @@
 import type { DestinationDefinition } from '@segment/actions-core'
 import type { Settings } from './generated-types'
-import productListViewedEvent from './productListViewedEvent'
-import productViewedEvent from './productViewedEvent'
+
 import updateUserProfile from './updateUserProfile'
-import productAddedEvent from './productAddedEvent'
-import productRemovedEvent from './productRemovedEvent'
-import userRegisteredEvent from './userRegisteredEvent'
-import cartViewedEvent from './cartViewedEvent'
-import checkoutEvent from './checkoutEvent'
-import orderCompletedEvent from './orderCompletedEvent'
 import trackEvent from './trackEvent'
 import { defaultValues } from '@segment/actions-core'
 
@@ -19,6 +12,25 @@ const presets: DestinationDefinition['presets'] = [
     subscribe: 'type = "identify"',
     partnerAction: 'updateUserProfile',
     mapping: defaultValues(updateUserProfile.fields)
+  },
+  {
+    name: 'Record User Event to Insider',
+    subscribe:
+      'type = "track" and event != "Order Completed" and event != "Cart Viewed" and event != "Checkout Viewed"',
+    partnerAction: 'trackEvent',
+    mapping: defaultValues(trackEvent.fields)
+  },
+  {
+    name: 'Track Purchase',
+    subscribe: 'type = "track" and event = "Order Completed"',
+    partnerAction: 'trackEvent',
+    mapping: defaultValues(trackEvent.fields)
+  },
+  {
+    name: 'Track Cart Events',
+    subscribe: 'type = "track" and event = "Cart Viewed"',
+    partnerAction: 'trackEvent',
+    mapping: defaultValues(trackEvent.fields)
   }
 ]
 
@@ -54,15 +66,7 @@ const destination: DestinationDefinition<Settings> = {
   presets,
   actions: {
     updateUserProfile,
-    trackEvent,
-    productListViewedEvent,
-    productViewedEvent,
-    productAddedEvent,
-    productRemovedEvent,
-    userRegisteredEvent,
-    cartViewedEvent,
-    checkoutEvent,
-    orderCompletedEvent
+    trackEvent
   }
 }
 

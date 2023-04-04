@@ -20,7 +20,7 @@ export interface Payload {
   /**
    * The event name
    */
-  event_name: string
+  name: string
   /**
    * When the event occurred
    */
