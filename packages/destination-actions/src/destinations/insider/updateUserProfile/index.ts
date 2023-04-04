@@ -113,16 +113,19 @@ const action: ActionDefinition<Settings, Payload> = {
     emailOptin: {
       label: 'Email Optin',
       type: 'boolean',
+      default: undefined,
       description: 'Email optin.'
     },
     smsOptin: {
       label: 'SMS Optin',
       type: 'boolean',
+      default: undefined,
       description: 'SMS optin.'
     },
     whatsappOptin: {
       label: 'Whatsapp Optin',
       type: 'boolean',
+      default: undefined,
       description: 'Whatsapp optin.'
     },
     language: {
