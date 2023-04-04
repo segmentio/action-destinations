@@ -10,7 +10,8 @@ export const operation: InputField = {
   choices: [
     { label: 'Create new record', value: 'create' },
     { label: 'Update existing record', value: 'update' },
-    { label: `Update or create a record if one doesn't exist`, value: 'upsert' }
+    { label: `Update or create a record if one doesn't exist`, value: 'upsert' },
+    { label: 'Delete existing record', value: 'delete' }
   ]
 }
 
@@ -97,7 +98,7 @@ interface Payload {
 }
 
 export const validateLookup = (payload: Payload) => {
-  if (payload.operation === 'update' || payload.operation === 'upsert') {
+  if (payload.operation === 'update' || payload.operation === 'upsert' || payload.operation === 'delete') {
     if (!payload.traits) {
       throw new IntegrationError(
         'Undefined lookup traits for update or upsert operation',

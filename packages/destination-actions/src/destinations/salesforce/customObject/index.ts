@@ -56,6 +56,10 @@ const action: ActionDefinition<Settings, Payload> = {
     if (payload.operation === 'upsert') {
       return await sf.upsertRecord(payload, payload.customObjectName)
     }
+
+    if (payload.operation === 'delete') {
+      return await sf.deleteRecord(payload, payload.customObjectName)
+    }
   },
   performBatch: async (request, { settings, payload }) => {
     const sf: Salesforce = new Salesforce(settings.instanceUrl, request)
