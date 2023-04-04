@@ -41,6 +41,7 @@ export abstract class MessageSender<SmsPayload extends MinimalPayload> {
 
   send = async () => {
     const { phone, sendabilityStatus } = this.getSendabilityPayload()
+
     if (sendabilityStatus !== SendabilityStatus.ShouldSend || !phone) {
       return
     }
@@ -48,6 +49,7 @@ export abstract class MessageSender<SmsPayload extends MinimalPayload> {
     const body = await this.getBody(phone)
     body.append('ShortenUrls', 'true')
     const webhookUrlWithParams = this.getWebhookUrlWithParams(phone)
+
     if (webhookUrlWithParams) body.append('StatusCallback', webhookUrlWithParams)
 
     const twilioHostname = this.settings.twilioHostname ?? this.DEFAULT_HOSTNAME
