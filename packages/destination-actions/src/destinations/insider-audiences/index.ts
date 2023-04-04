@@ -1,4 +1,4 @@
-import type { DestinationDefinition } from '@segment/actions-core'
+import { DestinationDefinition, defaultValues } from '@segment/actions-core'
 import type { Settings } from './generated-types'
 
 import insiderAudiences from './insiderAudiences'
@@ -34,7 +34,15 @@ const destination: DestinationDefinition<Settings> = {
 
   actions: {
     insiderAudiences
-  }
+  },
+  presets: [
+    {
+      name: 'Sync Engage Audience to Insider',
+      subscribe: 'type = "track" or type = "identify"',
+      partnerAction: 'insiderAudiences',
+      mapping: defaultValues(insiderAudiences.fields)
+    }
+  ]
 }
 
 export default destination
