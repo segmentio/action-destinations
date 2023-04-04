@@ -21,11 +21,10 @@ const pretterOptions = prettier.resolveConfig.sync(process.cwd())
 export default class Init extends Command {
   private spinner: ora.Ora = ora()
 
-  static description = `Scaffolds a new integration with a template. This does not register or deploy the integration.`
+  static description = `Scaffolds a new integration given a JSON configuration`
 
   static examples = [
-    `$ ./bin/run init my-integration`,
-    `$ ./bin/run init my-integration --directory packages/destination-actions --template basic-auth`
+    `$ ./bin/run lowcode`
   ]
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -136,7 +135,7 @@ export default class Init extends Command {
             httpMethod: action.httpMethod,
             performJSON: action.mappings
           },
-          flags.force
+          true
         )
         this.spinner.succeed(chalk`Scaffold action {magenta ${action.name}}`)
       } catch (err) {
