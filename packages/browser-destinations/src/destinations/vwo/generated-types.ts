@@ -17,4 +17,8 @@ export interface Settings {
    * If your page already includes JQuery, you can set this to “true”. Otherwise, VWO will include JQuery onto the page for you. VWO needs JQuery on the page to function correctly.
    */
   useExistingJquery?: boolean
+  /**
+   * Adds VWO Smartcode to the page
+   */
+  addSmartcode: boolean
 }
