@@ -136,7 +136,9 @@ const deleteAttributePartial = function (data: Payload) {
 
 // It will return the identifiers for the user
 const getIdentifiers = function (data: Payload) {
-  const identifiers: { [x: string]: string | object } = {}
+  const identifiers: { [x: string]: string | object } = {
+    email: data.email
+  }
 
   if (data.user_id) {
     identifiers['uuid'] = data.user_id
@@ -146,10 +148,6 @@ const getIdentifiers = function (data: Payload) {
     identifiers['custom'] = {
       segment_anonymous_id: data.anonymous_id
     }
-  }
-
-  if (data.email) {
-    identifiers['email'] = data.email
   }
 
   if (data.phone) {
