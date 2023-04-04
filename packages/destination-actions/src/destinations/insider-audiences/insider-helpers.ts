@@ -6,6 +6,15 @@ export const UPSERT_ENDPOINT = 'user/v1/upsert'
 export const DELETE_ATTRIBUTE_ENDPOINT = 'user/v1/attribute/delete'
 const AUDIENCE_TYPE = 'audience'
 const IDENTIFY = 'identify'
+const TRACK = 'track'
+const COMPUTED_TRAIT_TYPE = 'trait'
+
+class PayloadValidationError extends Error {
+  constructor(message: string) {
+    super(message)
+    this.name = 'PayloadValidationError'
+  }
+}
 
 // It will handle the payload for computed traits in identify call
 const computedTraitsPayloadForIdentifyCall = function (
@@ -58,7 +67,7 @@ const computedAudiencesPayloadForIdentifyCall = function (
   data: Payload,
   request: <Data = unknown>(url: string, options?: RequestOptions | undefined) => Promise<ModifiedResponse<Data>>
 ) {
-  if (!data.traits_or_props[data.custom_audience_name]) {
+  if (data.traits_or_props[data.custom_audience_name] === false) {
     return request(API_BASE + DELETE_ATTRIBUTE_ENDPOINT, {
       method: 'POST',
       json: deleteAttributePartial(data)
@@ -195,7 +204,11 @@ const handleAudienceData = async function (
     return computedAudiencesPayloadForIdentifyCall(data, request)
   }
 
-  return computedAudiencePayloadForTrackCall(data, request)
+  if (data.event_type === TRACK) {
+    return computedAudiencePayloadForTrackCall(data, request)
+  }
+
+  throw new PayloadValidationError('API call must be a track() or identify() call')
 }
 
 // It will handle the payload for computed traits
@@ -220,7 +233,11 @@ export const processPayload = async function (
       return handleAudienceData(data, request)
     }
 
-    return handleComputationData(data, request)
+    if (data.segment_computation_action === COMPUTED_TRAIT_TYPE) {
+      return handleComputationData(data, request)
+    }
+
+    throw new PayloadValidationError('API call must be an Audience or Computed Trait track() or identify() call')
   })
 
   return Promise.all(promises)
