@@ -223,11 +223,19 @@ export function sendTrackEvent(
     }
   }
 
+  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+  // @ts-ignore
   for (const key of Object.keys(data.parameters || {})) {
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore
     event = addEventParameters(event, data.parameters, key)
   }
 
+  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+  // @ts-ignore
   if (data.products) {
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore
     for (const product of data.products) {
       let productEvent = event
 
