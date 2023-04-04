@@ -18,7 +18,11 @@ const action: ActionDefinition<Settings, Payload> = {
   perform: (request, { payload }) => {
     return request('{{{apiEndpoint}}}', {
       method: '{{httpMethod}}',
-      json: '{{ performJSON }}'
+      json: {
+        {{ #fields }}
+        {{name}}: {{mapping}},
+        {{/fields}}
+      }
     })
   }
 }

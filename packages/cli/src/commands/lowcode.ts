@@ -5,10 +5,18 @@ import path from 'path'
 import { autoPrompt } from '../lib/prompt'
 import globby from 'globby'
 import { renderTemplates } from '../lib/templates'
-import GenerateTypes from './generate/types'
 import fs from 'fs-extra'
 import { camelCase, startCase } from 'lodash'
-import { addKeyToExport } from '../lib/codemods'
+import { fieldsToJsonSchema } from '@segment/actions-core'
+import type { InputField, DestinationDefinition as CloudDestinationDefinition } from '@segment/actions-core'
+import type { BrowserDestinationDefinition } from '@segment/browser-destinations'
+import { JSONSchema4 } from 'json-schema'
+import { compile } from 'json-schema-to-typescript'
+import prettier from 'prettier'
+import { loadDestination, hasOauthAuthentication } from '../lib/destinations'
+import { RESERVED_FIELD_NAMES } from '../constants'
+
+const pretterOptions = prettier.resolveConfig.sync(process.cwd())
 
 export default class Init extends Command {
   private spinner: ora.Ora = ora()
@@ -28,12 +36,10 @@ export default class Init extends Command {
       description: 'target directory to scaffold the integration',
       default: './packages/destination-actions/src/destinations'
     }),
-    name: flags.string({ char: 'n', description: 'name of the integration' }),
-    slug: flags.string({ char: 's', description: 'url-friendly slug of the integration' }),
-    template: flags.enum({
-      char: 't',
-      options: ['basic-auth', 'custom-auth', 'oauth2-auth', 'minimal'],
-      description: 'the template to use to scaffold your integration'
+    path: flags.string({
+      char: 'p',
+      description: 'file path for the integration(s). Accepts glob patterns.',
+      multiple: true
     })
   }
 
@@ -74,14 +80,12 @@ export default class Init extends Command {
     const slug = answers.json.slug
     const authenticationScheme = answers.json.authenticationScheme
     const actions = answers.json.actions
-
-    console.log('actions: ', actions)
-
     const directory = answers.directory
 
     // For now, include the slug in the path, but when we support external repos, we'll have to change this
     const slugWithoutActions = String(slug).replace('actions-', '')
-    const relativePath = path.join(directory, args.path || slugWithoutActions)
+    const folderName = args.path || slugWithoutActions
+    const relativePath = path.join(directory, folderName)
     const targetDirectory = path.join(process.cwd(), relativePath)
     const templatePath = path.join(__dirname, '../../templates/destinations/lowcode', authenticationScheme)
     const snapshotPath = path.join(__dirname, '../../templates/actions/snapshot')
@@ -89,8 +93,7 @@ export default class Init extends Command {
     const destinationFolder = path.parse(directory).base
     const destination = startCase(camelCase(destinationFolder)).replace(/ /g, '')
     const actionsSnapshotPath = path.join(__dirname, '../../templates/actions/action-snapshot')
-
-    let actionsTemplatePath = path.join(__dirname, '../../templates/actions/empty-action-lowcode')
+    const actionsTemplatePath = path.join(__dirname, '../../templates/actions/empty-action-lowcode')
 
     try {
       this.spinner.start(`Creating ${chalk.bold(name)}`)
@@ -102,38 +105,23 @@ export default class Init extends Command {
     }
 
     try {
-      this.spinner.start(chalk`Generating types for {magenta ${slug}} destination`)
-      await GenerateTypes.run(['--path', `${relativePath}/index.ts`])
-      this.spinner.succeed()
-    } catch (err) {
-      this.spinner.fail(chalk`Generating types for {magenta ${slug}} destination: ${err.message}`)
-    }
-
-    try {
-      this.spinner.start(`Creating snapshot tests for ${chalk.bold(slug)} destination`)
       renderTemplates(
         snapshotPath,
         targetDirectory,
         {
-          destination: slug,
-          // json: JSON.parse(answers.json)
+          destination: slug
         },
         true
       )
-      this.spinner.succeed(`Created snapshot tests for ${slug} destination`)
+      this.spinner.succeed(chalk`Created snapshot tests for {magenta ${slug}} destination`)
     } catch (err) {
       this.spinner.fail(`Snapshot test creation failed: ${chalk.red(err.message)}`)
       this.exit()
     }
 
     for (let action of actions) {
-
-      console.log('action: ', action)
       const actionsTargetDirectory = `${targetDirectory}/${action.name}`
-      console.log('actionsTargetDirectory: ', targetDirectory)
 
-
-      
       try {
         renderTemplates(
           actionsTemplatePath,
@@ -145,13 +133,14 @@ export default class Init extends Command {
             destination,
             fields: action.fields,
             apiEndpoint: action.apiEndpoint,
-            httpMethod: action.httpMethod
+            httpMethod: action.httpMethod,
+            performJSON: action.mappings
           },
           flags.force
         )
-        this.spinner.succeed(`Scaffold action`)
+        this.spinner.succeed(chalk`Scaffold action {magenta ${action.name}}`)
       } catch (err) {
-        this.spinner.fail(`Scaffold action: ${chalk.red(err.message)}`)
+        this.spinner.fail(chalk`Scaffold action {magenta ${action.name}}: ${chalk.red(err.message)}`)
         this.exit()
       }
       
@@ -166,38 +155,65 @@ export default class Init extends Command {
           },
           true
         )
-        this.spinner.succeed(`Creating snapshot tests for ${chalk.bold(`${destination}'s ${slug}`)} destination action`)
+        this.spinner.succeed(chalk`Creating snapshot tests for action {magenta ${action.name}}`)
       } catch (err) {
-        this.spinner.fail(`Snapshot test creation failed: ${chalk.red(err.message)}`)
-        this.exit()
-      }
-  
-      // Update destination with action
-      const entryFile = require.resolve(path.relative(__dirname, path.join(process.cwd(), actionsTargetDirectory)))
-      try {
-        this.spinner.start(chalk`Updating destination definition`)
-        const destinationStr = fs.readFileSync(entryFile, 'utf8')
-        const exportName = 'default'
-        const updatedCode = addKeyToExport(destinationStr, exportName, 'actions', slug)
-        fs.writeFileSync(entryFile, updatedCode, 'utf8')
-        this.spinner.succeed()
-      } catch (err) {
-        this.spinner.fail(chalk`Failed to update your destination imports: ${err.message}`)
-        this.exit()
-      }
-  
-      try {
-        this.spinner.start(chalk`Generating types for {magenta ${slug}} action`)
-        await GenerateTypes.run(['--path', entryFile])
-        this.spinner.succeed()
-      } catch (err) {
-        this.spinner.fail(chalk`Generating types for {magenta ${slug}} action: ${err.message}`)
+        this.spinner.fail(chalk`Snapshot test creation failed {magenta ${action.name}}: ${chalk.red(err.message)}`)
         this.exit()
       }
     }
 
+    const glob = `${relativePath}/index.ts`
+    const files = await globby(glob, {
+      expandDirectories: false,
+      gitignore: true,
+      ignore: ['node_modules']
+    })
+
+    for (const file of files) {
+      await this.handleFile(file)
+    }
+
     this.log(chalk.green(`Done creating "${name}" 🎉`))
-    this.log(chalk.green(`Start coding! cd ${actionsTargetDirectory}`))
+  }
+
+  async handleFile(file: string): Promise<void> {
+    const destination = await loadDestination(file).catch((error) => {
+      this.debug(`Couldn't load ${file}: ${error.message}`)
+      return null
+    })
+
+    if (!destination) {
+      return
+    }
+
+    const stats = fs.statSync(file)
+    const parentDir = stats.isDirectory() ? file : path.dirname(file)
+
+    const settings = {
+      ...(destination as BrowserDestinationDefinition).settings,
+      ...(destination as CloudDestinationDefinition).authentication?.fields
+    }
+
+    if (settings && hasOauthAuthentication(destination)) {
+      for (const key in settings) {
+        if (RESERVED_FIELD_NAMES.includes(key.toLowerCase())) {
+          throw new Error(`Field definition in destination ${destination.name} is using a reserved name: ${key}`)
+        }
+      }
+    }
+
+    const types = await generateTypes(settings, 'Settings')
+    fs.writeFileSync(path.join(parentDir, './generated-types.ts'), types)
+
+    // TODO how to load directory structure consistently?
+    for (const [slug, action] of Object.entries(destination.actions)) {
+      const types = await generateTypes(action.fields, 'Payload')
+      if (fs.pathExistsSync(path.join(parentDir, `${slug}`))) {
+        fs.writeFileSync(path.join(parentDir, slug, 'generated-types.ts'), types)
+      } else {
+        fs.writeFileSync(path.join(parentDir, `./${slug}.types.ts`), types)
+      }
+    }
   }
 
   async catch(error: unknown) {
@@ -208,10 +224,35 @@ export default class Init extends Command {
   }
 }
 
+async function generateTypes(fields: Record<string, InputField> = {}, name: string) {
+  const schema = prepareSchema(fields)
 
+  return compile(schema, name, {
+    bannerComment: '// Generated file. DO NOT MODIFY IT BY HAND.',
+    style: pretterOptions ?? undefined
+  })
+}
 
+function prepareSchema(fields: Record<string, InputField>): JSONSchema4 {
+  let schema = fieldsToJsonSchema(fields, { tsType: true })
+  // Remove extra properties so it produces cleaner output
+  schema = removeExtra(schema)
+  return schema
+}
 
+function removeExtra(schema: JSONSchema4) {
+  const copy = { ...schema }
 
+  delete copy.title
+  delete copy.enum
 
+  if (copy.type === 'object' && copy.properties) {
+    for (const [key, property] of Object.entries(copy.properties)) {
+      copy.properties[key] = removeExtra(property)
+    }
+  } else if (copy.type === 'array' && copy.items) {
+    copy.items = removeExtra(copy.items)
+  }
 
-
+  return copy
+}
