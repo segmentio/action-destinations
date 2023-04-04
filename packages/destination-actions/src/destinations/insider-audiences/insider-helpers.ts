@@ -13,7 +13,7 @@ const computedTraitsPayloadForIdentifyCall = function (
   request: <Data = unknown>(url: string, options?: RequestOptions | undefined) => Promise<ModifiedResponse<Data>>
 ) {
   const identifiers = getIdentifiers(data)
-  const attributes = getAttributes(data)
+  const attributes = getTraitAttributes(data)
 
   const payload = {
     users: [
@@ -161,11 +161,21 @@ const getAttributes = function (data: Payload) {
   return attributes
 }
 
+const getTraitAttributes = function (data: Payload) {
+  const computationKey = 'segment_io_' + data.custom_audience_name
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const attributes: any = { custom: {} }
+
+  attributes.custom[computationKey] = data.traits_or_props[data.custom_audience_name]
+
+  return attributes
+}
+
 // It will return the events for the user
 const getEvents = function (data: Payload) {
   return [
     {
-      event_name: data.event_name.toLowerCase().replace(/ /g, '_'),
+      event_name: data.event_name?.toLowerCase().replace(/ /g, '_'),
       timestamp: data.timestamp,
       event_params: {
         custom: {
