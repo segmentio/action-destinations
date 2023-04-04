@@ -1,7 +1,7 @@
 {
   "name": "@segment/actions-core",
   "description": "Core runtime for Destinations Actions.",
-  "version": "3.58.0",
+  "version": "3.59.0",
   "repository": {
     "type": "git",
     "url": "https://github.com/segmentio/fab-5-engine",
@@ -54,8 +54,8 @@
   },
   "dependencies": {
     "@lukeed/uuid": "^2.0.0",
-    "@segment/ajv-human-errors": "^2.6.0",
-    "@segment/destination-subscriptions": "^3.21.0",
+    "@segment/ajv-human-errors": "^2.7.0",
+    "@segment/destination-subscriptions": "^3.22.0",
     "@types/node": "^18.11.15",
     "abort-controller": "^3.0.0",
     "aggregate-error": "^3.1.0",
