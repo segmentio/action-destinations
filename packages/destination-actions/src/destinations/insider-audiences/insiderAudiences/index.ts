@@ -5,7 +5,7 @@ import { processPayload } from '../insider-helpers'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Insider Audiences',
-  description: '',
+  description: 'Sync Audiences and Computed Traits from Segment to Insider InOne',
   defaultSubscription: 'type = "track" or type = "identify"',
   fields: {
     custom_audience_name: {
