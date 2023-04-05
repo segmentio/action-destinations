@@ -254,7 +254,7 @@ const action: ActionDefinition<Settings, Payload> = {
       properties.platform = properties.platform.replace(/ios/i, 'iOS').replace(/android/i, 'Android')
     }
 
-    if (library === 'analytics.js') {
+    if (library === 'analytics.js' && !properties.platform) {
       properties.platform = 'Web'
     }
 

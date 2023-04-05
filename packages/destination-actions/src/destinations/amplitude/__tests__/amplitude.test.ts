@@ -79,6 +79,62 @@ describe('Amplitude', () => {
       })
     })
 
+    it('should set Platform field to "Web" when Library field = "analytics.js" and Platform field = null or undefined', async () => {
+      const event = createTestEvent({
+        event: 'Test Event',
+        context: {
+          device: {
+            id: 'foo',
+            type: null
+          },
+          library: {
+            name: 'analytics.js',
+            version: '2.11.1'
+          }
+        }
+      })
+
+      nock('https://api2.amplitude.com/2').post('/httpapi').reply(200, {})
+
+      const responses = await testDestination.testAction('logPurchase', { event, useDefaultMappings: true })
+      expect(responses[0].options.json).toMatchObject({
+        api_key: undefined,
+        events: expect.arrayContaining([
+          expect.objectContaining({
+            platform: 'Web'
+          })
+        ])
+      })
+    })
+
+    it('should set Platform field to value passed by customer when Library field = "analytics.js" and Platform field is not null or undefined', async () => {
+      const event = createTestEvent({
+        event: 'Test Event',
+        context: {
+          device: {
+            id: 'foo',
+            type: 'Some_Custom_Platform_Value'
+          },
+          library: {
+            name: 'analytics.js',
+            version: '2.11.1'
+          }
+        }
+      })
+
+      nock('https://api2.amplitude.com/2').post('/httpapi').reply(200, {})
+
+      const responses = await testDestination.testAction('logPurchase', { event, useDefaultMappings: true })
+      expect(responses[0].options.json).toMatchObject({
+        api_key: undefined,
+        events: expect.arrayContaining([
+          expect.objectContaining({
+            platform: 'Some_Custom_Platform_Value'
+          })
+        ])
+      })
+    })
+
     it('should accept null for user_id', async () => {
       const event = createTestEvent({ timestamp, userId: null, event: 'Null User' })
 
@@ -615,7 +671,7 @@ describe('Amplitude', () => {
             },
             {
               revenue: 1_999,
-              productId: 'Bowflex Treadmill 8',
+              productId: 'Bowflex Treadmill 8'
             },
             {
               productId: 'Bowflex Treadmill 4',
@@ -623,7 +679,7 @@ describe('Amplitude', () => {
             },
             {
               quantity: 2,
-              productId: 'Bowflex Treadmill 2',
+              productId: 'Bowflex Treadmill 2'
             }
           ]
         }
