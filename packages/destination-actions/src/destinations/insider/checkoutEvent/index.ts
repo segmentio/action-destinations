@@ -16,7 +16,7 @@ import { API_BASE, sendTrackEvent, UPSERT_ENDPOINT } from '../insider-helpers'
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Checkout Event',
   description: 'Record Checkout Events to Insider',
-  defaultSubscription: 'type = "track" and (event = "Checkout Started" or event = "Checkout Step Viewed ")',
+  defaultSubscription: 'type = "track" and (event = "Checkout Started" or event = "Checkout Step Viewed")',
   fields: {
     email_as_identifier: { ...email_as_identifier },
     phone_number_as_identifier: { ...phone_number_as_identifier },
