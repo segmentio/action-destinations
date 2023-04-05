@@ -217,7 +217,7 @@ export const products: InputField = {
     '@arrayPath': [
       '$.properties.products',
       {
-        product_id: { '@path': 'productId' },
+        product_id: { '@path': 'product_id' },
         taxonomy: { '@path': 'category' },
         name: { '@path': 'name' },
         variant_id: { '@path': 'variant' },
