@@ -2,6 +2,7 @@ import { defaultValues, DestinationDefinition } from '@segment/actions-core'
 import type { Settings } from './generated-types'
 import receiveEvents from './receiveEvents'
 
+//Apr 05, 2023 reset
 export interface refreshTokenResult {
   access_token: string
   token_type: string
@@ -9,7 +10,7 @@ export interface refreshTokenResult {
   expires_in: number
 }
 
-/** used in the quick setup dialog for Mapping */
+/** Used in the quick setup dialog for Mapping */
 const presets: DestinationDefinition['presets'] = [
   {
     name: 'Track Calls',
