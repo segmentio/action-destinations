@@ -132,16 +132,16 @@ export function sendTrackEvent(
     }
   }
 
-  if (data.email_as_identifier) {
+  if (data.email_as_identifier && data?.attributes?.email) {
     // eslint-disable-next-line @typescript-eslint/ban-ts-comment
     // @ts-ignore
-    identifiers['email'] = data.attributes.email
+    identifiers['email'] = data?.attributes?.email
   }
 
-  if (data.phone_number_as_identifier) {
+  if (data.phone_number_as_identifier && data?.attributes?.phone) {
     // eslint-disable-next-line @typescript-eslint/ban-ts-comment
     // @ts-ignore
-    identifiers['phone_number'] = data.attributes.phone
+    identifiers['phone_number'] = data?.attributes?.phone
   }
 
   const payload: upsertUserPayload = {
