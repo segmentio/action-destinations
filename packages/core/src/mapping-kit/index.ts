@@ -102,7 +102,7 @@ registerDirective('@case', (opts, payload) => {
 
 registerDirective('@replace', (opts, payload) => {
   if (!isObject(opts)) {
-    throw new Error('@replace requires an object with a "operator" key')
+    throw new Error('@replace requires an object with a "pattern" key')
   }
 
   if (!opts.pattern) {

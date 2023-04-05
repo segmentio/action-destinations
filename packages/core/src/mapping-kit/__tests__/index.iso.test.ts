@@ -629,6 +629,22 @@ describe('@replace', () => {
     )
     expect(output).toStrictEqual('many_different_things')
   })
+  test('replace entire value', () => {
+    const payload = {
+      a: 'many+different+things'
+    }
+    const output = transform(
+      {
+        '@replace': {
+          pattern: 'many+different+things',
+          replacement: '',
+          value: { '@path': '$.a' }
+        }
+      },
+      payload
+    )
+    expect(output).toStrictEqual('')
+  })
 })
 
 describe('remove undefined values in objects', () => {
