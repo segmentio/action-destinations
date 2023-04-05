@@ -1,0 +1,85 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Testing snapshot for Insider's productAddedEvent destination action: all fields 1`] = `
+Object {
+  "users": Array [
+    Object {
+      "attributes": Object {
+        "age": 82679710131159.05,
+        "app_version": "G!)xRN2DwZB33yYCIUOK",
+        "birthday": "G!)xRN2DwZB33yYCIUOK",
+        "carrier": "G!)xRN2DwZB33yYCIUOK",
+        "city": "G!)xRN2DwZB33yYCIUOK",
+        "country": "G!)xRN2DwZB33yYCIUOK",
+        "custom": Object {},
+        "email": "wufwosad@gekper.mc",
+        "gender": "G!)xRN2DwZB33yYCIUOK",
+        "idfa": "G!)xRN2DwZB33yYCIUOK",
+        "last_ip": "G!)xRN2DwZB33yYCIUOK",
+        "locale": "G!)xRN2DwZB33yYCIUOK",
+        "model": "G!)xRN2DwZB33yYCIUOK",
+        "name": "G!)xRN2DwZB33yYCIUOK",
+        "os_version": "G!)xRN2DwZB33yYCIUOK",
+        "phone": "G!)xRN2DwZB33yYCIUOK",
+        "platform": "G!)xRN2DwZB33yYCIUOK",
+        "surname": "G!)xRN2DwZB33yYCIUOK",
+        "timezone": "G!)xRN2DwZB33yYCIUOK",
+      },
+      "events": Array [
+        Object {
+          "event_name": "item_added_to_cart",
+          "event_params": Object {
+            "currency": "UYU",
+            "custom": Object {},
+            "name": "G!)xRN2DwZB33yYCIUOK",
+            "product_id": "G!)xRN2DwZB33yYCIUOK",
+            "product_image_url": "G!)xRN2DwZB33yYCIUOK",
+            "quantity": 8267971013115904,
+            "referrer": "G!)xRN2DwZB33yYCIUOK",
+            "taxonomy": Array [
+              "G!)xRN2DwZB33yYCIUOK",
+            ],
+            "unit_price": 82679710131159.05,
+            "unit_sale_price": 82679710131159.05,
+            "url": "G!)xRN2DwZB33yYCIUOK",
+          },
+          "timestamp": "2021-02-01T00:00:00.000Z",
+        },
+      ],
+      "identifiers": Object {
+        "custom": Object {
+          "segment_anonymous_id": "G!)xRN2DwZB33yYCIUOK",
+        },
+        "uuid": "G!)xRN2DwZB33yYCIUOK",
+      },
+    },
+  ],
+}
+`;
+
+exports[`Testing snapshot for Insider's productAddedEvent destination action: required fields 1`] = `
+Object {
+  "users": Array [
+    Object {
+      "attributes": Object {
+        "custom": Object {},
+      },
+      "events": Array [
+        Object {
+          "event_name": "item_added_to_cart",
+          "event_params": Object {
+            "custom": Object {},
+          },
+          "timestamp": "2021-02-01T00:00:00.000Z",
+        },
+      ],
+      "identifiers": Object {
+        "custom": Object {
+          "segment_anonymous_id": "G!)xRN2DwZB33yYCIUOK",
+        },
+        "uuid": "G!)xRN2DwZB33yYCIUOK",
+      },
+    },
+  ],
+}
+`;

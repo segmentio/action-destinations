@@ -1,0 +1,795 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Testing snapshot for actions-insider-cloud destination: cartViewedEvent action - all fields 1`] = `
+Object {
+  "users": Array [
+    Object {
+      "attributes": Object {
+        "age": 51741517571686.4,
+        "app_version": "0xlI!lem[5]2MJvda",
+        "birthday": "0xlI!lem[5]2MJvda",
+        "carrier": "0xlI!lem[5]2MJvda",
+        "city": "0xlI!lem[5]2MJvda",
+        "country": "0xlI!lem[5]2MJvda",
+        "custom": Object {},
+        "email": "zuh@novcukaw.bo",
+        "gender": "0xlI!lem[5]2MJvda",
+        "idfa": "0xlI!lem[5]2MJvda",
+        "last_ip": "0xlI!lem[5]2MJvda",
+        "locale": "0xlI!lem[5]2MJvda",
+        "model": "0xlI!lem[5]2MJvda",
+        "name": "0xlI!lem[5]2MJvda",
+        "os_version": "0xlI!lem[5]2MJvda",
+        "phone": "0xlI!lem[5]2MJvda",
+        "platform": "0xlI!lem[5]2MJvda",
+        "surname": "0xlI!lem[5]2MJvda",
+        "timezone": "0xlI!lem[5]2MJvda",
+      },
+      "events": Array [
+        Object {
+          "event_name": "cart_page_view",
+          "event_params": Object {
+            "currency": "ETB",
+            "custom": Object {},
+            "event_group_id": "0xlI!lem[5]2MJvda",
+            "name": "0xlI!lem[5]2MJvda",
+            "product_id": "0xlI!lem[5]2MJvda",
+            "product_image_url": "0xlI!lem[5]2MJvda",
+            "quantity": 5174151757168640,
+            "taxonomy": Array [
+              "0xlI!lem[5]2MJvda",
+            ],
+            "unit_price": 51741517571686.4,
+            "unit_sale_price": 51741517571686.4,
+            "url": "0xlI!lem[5]2MJvda",
+          },
+          "timestamp": "2021-02-01T00:00:00.000Z",
+        },
+      ],
+      "identifiers": Object {
+        "custom": Object {
+          "segment_anonymous_id": "0xlI!lem[5]2MJvda",
+        },
+        "uuid": "0xlI!lem[5]2MJvda",
+      },
+    },
+  ],
+}
+`;
+
+exports[`Testing snapshot for actions-insider-cloud destination: cartViewedEvent action - required fields 1`] = `
+Object {
+  "users": Array [
+    Object {
+      "attributes": Object {
+        "custom": Object {},
+      },
+      "events": Array [
+        Object {
+          "event_name": "cart_page_view",
+          "event_params": Object {
+            "custom": Object {},
+          },
+          "timestamp": "2021-02-01T00:00:00.000Z",
+        },
+      ],
+      "identifiers": Object {
+        "custom": Object {
+          "segment_anonymous_id": "0xlI!lem[5]2MJvda",
+        },
+        "uuid": "0xlI!lem[5]2MJvda",
+      },
+    },
+  ],
+}
+`;
+
+exports[`Testing snapshot for actions-insider-cloud destination: checkoutEvent action - all fields 1`] = `
+Object {
+  "users": Array [
+    Object {
+      "attributes": Object {
+        "age": 70010818254602.24,
+        "app_version": "i2DYKi53!byOli1^))*",
+        "birthday": "i2DYKi53!byOli1^))*",
+        "carrier": "i2DYKi53!byOli1^))*",
+        "city": "i2DYKi53!byOli1^))*",
+        "country": "i2DYKi53!byOli1^))*",
+        "custom": Object {},
+        "email": "cu@ub.ge",
+        "gender": "i2DYKi53!byOli1^))*",
+        "idfa": "i2DYKi53!byOli1^))*",
+        "last_ip": "i2DYKi53!byOli1^))*",
+        "locale": "i2DYKi53!byOli1^))*",
+        "model": "i2DYKi53!byOli1^))*",
+        "name": "i2DYKi53!byOli1^))*",
+        "os_version": "i2DYKi53!byOli1^))*",
+        "phone": "i2DYKi53!byOli1^))*",
+        "platform": "i2DYKi53!byOli1^))*",
+        "surname": "i2DYKi53!byOli1^))*",
+        "timezone": "i2DYKi53!byOli1^))*",
+      },
+      "events": Array [
+        Object {
+          "event_name": "checkout_page_view",
+          "event_params": Object {
+            "currency": "BHD",
+            "custom": Object {},
+            "event_group_id": "i2DYKi53!byOli1^))*",
+            "name": "i2DYKi53!byOli1^))*",
+            "product_id": "i2DYKi53!byOli1^))*",
+            "product_image_url": "i2DYKi53!byOli1^))*",
+            "quantity": 7001081825460224,
+            "taxonomy": Array [
+              "i2DYKi53!byOli1^))*",
+            ],
+            "unit_price": 70010818254602.24,
+            "unit_sale_price": 70010818254602.24,
+            "url": "i2DYKi53!byOli1^))*",
+          },
+          "timestamp": "2021-02-01T00:00:00.000Z",
+        },
+      ],
+      "identifiers": Object {
+        "custom": Object {
+          "segment_anonymous_id": "i2DYKi53!byOli1^))*",
+        },
+        "uuid": "i2DYKi53!byOli1^))*",
+      },
+    },
+  ],
+}
+`;
+
+exports[`Testing snapshot for actions-insider-cloud destination: checkoutEvent action - required fields 1`] = `
+Object {
+  "users": Array [
+    Object {
+      "attributes": Object {
+        "custom": Object {},
+      },
+      "events": Array [
+        Object {
+          "event_name": "checkout_page_view",
+          "event_params": Object {
+            "custom": Object {},
+          },
+          "timestamp": "2021-02-01T00:00:00.000Z",
+        },
+      ],
+      "identifiers": Object {
+        "custom": Object {
+          "segment_anonymous_id": "i2DYKi53!byOli1^))*",
+        },
+        "uuid": "i2DYKi53!byOli1^))*",
+      },
+    },
+  ],
+}
+`;
+
+exports[`Testing snapshot for actions-insider-cloud destination: orderCompletedEvent action - all fields 1`] = `
+Object {
+  "users": Array [
+    Object {
+      "attributes": Object {
+        "age": 55811422247976.96,
+        "app_version": "%detmPE)QcMI3#y0Y",
+        "birthday": "%detmPE)QcMI3#y0Y",
+        "carrier": "%detmPE)QcMI3#y0Y",
+        "city": "%detmPE)QcMI3#y0Y",
+        "country": "%detmPE)QcMI3#y0Y",
+        "custom": Object {},
+        "email": "wudan@ru.ca",
+        "gender": "%detmPE)QcMI3#y0Y",
+        "idfa": "%detmPE)QcMI3#y0Y",
+        "last_ip": "%detmPE)QcMI3#y0Y",
+        "locale": "%detmPE)QcMI3#y0Y",
+        "model": "%detmPE)QcMI3#y0Y",
+        "name": "%detmPE)QcMI3#y0Y",
+        "os_version": "%detmPE)QcMI3#y0Y",
+        "phone": "%detmPE)QcMI3#y0Y",
+        "platform": "%detmPE)QcMI3#y0Y",
+        "surname": "%detmPE)QcMI3#y0Y",
+        "timezone": "%detmPE)QcMI3#y0Y",
+      },
+      "events": Array [
+        Object {
+          "event_name": "confirmation_page_view",
+          "event_params": Object {
+            "currency": "MAD",
+            "custom": Object {},
+            "event_group_id": "%detmPE)QcMI3#y0Y",
+            "name": "%detmPE)QcMI3#y0Y",
+            "product_id": "%detmPE)QcMI3#y0Y",
+            "product_image_url": "%detmPE)QcMI3#y0Y",
+            "quantity": 5581142224797696,
+            "taxonomy": Array [
+              "%detmPE)QcMI3#y0Y",
+            ],
+            "unit_price": 55811422247976.96,
+            "unit_sale_price": 55811422247976.96,
+            "url": "%detmPE)QcMI3#y0Y",
+          },
+          "timestamp": "2021-02-01T00:00:00.000Z",
+        },
+      ],
+      "identifiers": Object {
+        "custom": Object {
+          "segment_anonymous_id": "%detmPE)QcMI3#y0Y",
+        },
+        "uuid": "%detmPE)QcMI3#y0Y",
+      },
+    },
+  ],
+}
+`;
+
+exports[`Testing snapshot for actions-insider-cloud destination: orderCompletedEvent action - required fields 1`] = `
+Object {
+  "users": Array [
+    Object {
+      "attributes": Object {
+        "custom": Object {},
+      },
+      "events": Array [
+        Object {
+          "event_name": "confirmation_page_view",
+          "event_params": Object {
+            "custom": Object {},
+          },
+          "timestamp": "2021-02-01T00:00:00.000Z",
+        },
+      ],
+      "identifiers": Object {
+        "custom": Object {
+          "segment_anonymous_id": "%detmPE)QcMI3#y0Y",
+        },
+        "uuid": "%detmPE)QcMI3#y0Y",
+      },
+    },
+  ],
+}
+`;
+
+exports[`Testing snapshot for actions-insider-cloud destination: productAddedEvent action - all fields 1`] = `
+Object {
+  "users": Array [
+    Object {
+      "attributes": Object {
+        "age": 47874035291258.88,
+        "app_version": "pVmlekeqp9EloEHBS",
+        "birthday": "pVmlekeqp9EloEHBS",
+        "carrier": "pVmlekeqp9EloEHBS",
+        "city": "pVmlekeqp9EloEHBS",
+        "country": "pVmlekeqp9EloEHBS",
+        "custom": Object {},
+        "email": "siclug@bif.at",
+        "gender": "pVmlekeqp9EloEHBS",
+        "idfa": "pVmlekeqp9EloEHBS",
+        "last_ip": "pVmlekeqp9EloEHBS",
+        "locale": "pVmlekeqp9EloEHBS",
+        "model": "pVmlekeqp9EloEHBS",
+        "name": "pVmlekeqp9EloEHBS",
+        "os_version": "pVmlekeqp9EloEHBS",
+        "phone": "pVmlekeqp9EloEHBS",
+        "platform": "pVmlekeqp9EloEHBS",
+        "surname": "pVmlekeqp9EloEHBS",
+        "timezone": "pVmlekeqp9EloEHBS",
+      },
+      "events": Array [
+        Object {
+          "event_name": "item_added_to_cart",
+          "event_params": Object {
+            "currency": "KPW",
+            "custom": Object {},
+            "name": "pVmlekeqp9EloEHBS",
+            "product_id": "pVmlekeqp9EloEHBS",
+            "product_image_url": "pVmlekeqp9EloEHBS",
+            "quantity": 4787403529125888,
+            "referrer": "pVmlekeqp9EloEHBS",
+            "taxonomy": Array [
+              "pVmlekeqp9EloEHBS",
+            ],
+            "unit_price": 47874035291258.88,
+            "unit_sale_price": 47874035291258.88,
+            "url": "pVmlekeqp9EloEHBS",
+          },
+          "timestamp": "2021-02-01T00:00:00.000Z",
+        },
+      ],
+      "identifiers": Object {
+        "custom": Object {
+          "segment_anonymous_id": "pVmlekeqp9EloEHBS",
+        },
+        "uuid": "pVmlekeqp9EloEHBS",
+      },
+    },
+  ],
+}
+`;
+
+exports[`Testing snapshot for actions-insider-cloud destination: productAddedEvent action - required fields 1`] = `
+Object {
+  "users": Array [
+    Object {
+      "attributes": Object {
+        "custom": Object {},
+      },
+      "events": Array [
+        Object {
+          "event_name": "item_added_to_cart",
+          "event_params": Object {
+            "custom": Object {},
+          },
+          "timestamp": "2021-02-01T00:00:00.000Z",
+        },
+      ],
+      "identifiers": Object {
+        "custom": Object {
+          "segment_anonymous_id": "pVmlekeqp9EloEHBS",
+        },
+        "uuid": "pVmlekeqp9EloEHBS",
+      },
+    },
+  ],
+}
+`;
+
+exports[`Testing snapshot for actions-insider-cloud destination: productListViewedEvent action - all fields 1`] = `
+Object {
+  "users": Array [
+    Object {
+      "attributes": Object {
+        "age": 12774033472880.64,
+        "app_version": "SFVk3AFZB*U7Pg",
+        "birthday": "SFVk3AFZB*U7Pg",
+        "carrier": "SFVk3AFZB*U7Pg",
+        "city": "SFVk3AFZB*U7Pg",
+        "country": "SFVk3AFZB*U7Pg",
+        "custom": Object {},
+        "email": "do@jubzacap.nc",
+        "gender": "SFVk3AFZB*U7Pg",
+        "idfa": "SFVk3AFZB*U7Pg",
+        "last_ip": "SFVk3AFZB*U7Pg",
+        "locale": "SFVk3AFZB*U7Pg",
+        "model": "SFVk3AFZB*U7Pg",
+        "name": "SFVk3AFZB*U7Pg",
+        "os_version": "SFVk3AFZB*U7Pg",
+        "phone": "SFVk3AFZB*U7Pg",
+        "platform": "SFVk3AFZB*U7Pg",
+        "surname": "SFVk3AFZB*U7Pg",
+        "timezone": "SFVk3AFZB*U7Pg",
+      },
+      "events": Array [
+        Object {
+          "event_name": "listing_page_view",
+          "event_params": Object {
+            "custom": Object {},
+            "referrer": "SFVk3AFZB*U7Pg",
+            "taxonomy": Array [
+              "SFVk3AFZB*U7Pg",
+            ],
+            "url": "SFVk3AFZB*U7Pg",
+          },
+          "timestamp": "2021-02-01T00:00:00.000Z",
+        },
+      ],
+      "identifiers": Object {
+        "custom": Object {
+          "segment_anonymous_id": "SFVk3AFZB*U7Pg",
+        },
+        "uuid": "SFVk3AFZB*U7Pg",
+      },
+    },
+  ],
+}
+`;
+
+exports[`Testing snapshot for actions-insider-cloud destination: productListViewedEvent action - required fields 1`] = `
+Object {
+  "users": Array [
+    Object {
+      "attributes": Object {
+        "custom": Object {},
+      },
+      "events": Array [
+        Object {
+          "event_name": "listing_page_view",
+          "event_params": Object {
+            "custom": Object {},
+          },
+          "timestamp": "2021-02-01T00:00:00.000Z",
+        },
+      ],
+      "identifiers": Object {
+        "custom": Object {
+          "segment_anonymous_id": "SFVk3AFZB*U7Pg",
+        },
+        "uuid": "SFVk3AFZB*U7Pg",
+      },
+    },
+  ],
+}
+`;
+
+exports[`Testing snapshot for actions-insider-cloud destination: productRemovedEvent action - all fields 1`] = `
+Object {
+  "users": Array [
+    Object {
+      "attributes": Object {
+        "age": -70619664555704.31,
+        "app_version": "!Ivq)L",
+        "birthday": "!Ivq)L",
+        "carrier": "!Ivq)L",
+        "city": "!Ivq)L",
+        "country": "!Ivq)L",
+        "custom": Object {},
+        "email": "hafogro@nonak.bm",
+        "gender": "!Ivq)L",
+        "idfa": "!Ivq)L",
+        "last_ip": "!Ivq)L",
+        "locale": "!Ivq)L",
+        "model": "!Ivq)L",
+        "name": "!Ivq)L",
+        "os_version": "!Ivq)L",
+        "phone": "!Ivq)L",
+        "platform": "!Ivq)L",
+        "surname": "!Ivq)L",
+        "timezone": "!Ivq)L",
+      },
+      "events": Array [
+        Object {
+          "event_name": "item_removed_from_cart",
+          "event_params": Object {
+            "currency": "UGX",
+            "custom": Object {},
+            "name": "!Ivq)L",
+            "product_id": "!Ivq)L",
+            "product_image_url": "!Ivq)L",
+            "quantity": -7061966455570432,
+            "referrer": "!Ivq)L",
+            "taxonomy": Array [
+              "!Ivq)L",
+            ],
+            "unit_price": -70619664555704.31,
+            "unit_sale_price": -70619664555704.31,
+            "url": "!Ivq)L",
+          },
+          "timestamp": "2021-02-01T00:00:00.000Z",
+        },
+      ],
+      "identifiers": Object {
+        "custom": Object {
+          "segment_anonymous_id": "!Ivq)L",
+        },
+        "email": "hafogro@nonak.bm",
+        "phone_number": "!Ivq)L",
+        "uuid": "!Ivq)L",
+      },
+    },
+  ],
+}
+`;
+
+exports[`Testing snapshot for actions-insider-cloud destination: productRemovedEvent action - required fields 1`] = `
+Object {
+  "users": Array [
+    Object {
+      "attributes": Object {
+        "custom": Object {},
+      },
+      "events": Array [
+        Object {
+          "event_name": "item_removed_from_cart",
+          "event_params": Object {
+            "custom": Object {},
+          },
+          "timestamp": "2021-02-01T00:00:00.000Z",
+        },
+      ],
+      "identifiers": Object {
+        "custom": Object {
+          "segment_anonymous_id": "!Ivq)L",
+        },
+        "uuid": "!Ivq)L",
+      },
+    },
+  ],
+}
+`;
+
+exports[`Testing snapshot for actions-insider-cloud destination: productViewedEvent action - all fields 1`] = `
+Object {
+  "users": Array [
+    Object {
+      "attributes": Object {
+        "age": -45816917293793.28,
+        "app_version": "jjiPS4iz",
+        "birthday": "jjiPS4iz",
+        "carrier": "jjiPS4iz",
+        "city": "jjiPS4iz",
+        "country": "jjiPS4iz",
+        "custom": Object {},
+        "email": "dicnuzo@dik.ae",
+        "gender": "jjiPS4iz",
+        "idfa": "jjiPS4iz",
+        "last_ip": "jjiPS4iz",
+        "locale": "jjiPS4iz",
+        "model": "jjiPS4iz",
+        "name": "jjiPS4iz",
+        "os_version": "jjiPS4iz",
+        "phone": "jjiPS4iz",
+        "platform": "jjiPS4iz",
+        "surname": "jjiPS4iz",
+        "timezone": "jjiPS4iz",
+      },
+      "events": Array [
+        Object {
+          "event_name": "product_detail_page_view",
+          "event_params": Object {
+            "currency": "WST",
+            "custom": Object {},
+            "name": "jjiPS4iz",
+            "product_id": "jjiPS4iz",
+            "product_image_url": "jjiPS4iz",
+            "quantity": -4581691729379328,
+            "referrer": "jjiPS4iz",
+            "taxonomy": Array [
+              "jjiPS4iz",
+            ],
+            "unit_price": -45816917293793.28,
+            "unit_sale_price": -45816917293793.28,
+            "url": "jjiPS4iz",
+          },
+          "timestamp": "2021-02-01T00:00:00.000Z",
+        },
+      ],
+      "identifiers": Object {
+        "custom": Object {
+          "segment_anonymous_id": "jjiPS4iz",
+        },
+        "email": "dicnuzo@dik.ae",
+        "phone_number": "jjiPS4iz",
+        "uuid": "jjiPS4iz",
+      },
+    },
+  ],
+}
+`;
+
+exports[`Testing snapshot for actions-insider-cloud destination: productViewedEvent action - required fields 1`] = `
+Object {
+  "users": Array [
+    Object {
+      "attributes": Object {
+        "custom": Object {},
+      },
+      "events": Array [
+        Object {
+          "event_name": "product_detail_page_view",
+          "event_params": Object {
+            "custom": Object {},
+          },
+          "timestamp": "2021-02-01T00:00:00.000Z",
+        },
+      ],
+      "identifiers": Object {
+        "custom": Object {
+          "segment_anonymous_id": "jjiPS4iz",
+        },
+        "uuid": "jjiPS4iz",
+      },
+    },
+  ],
+}
+`;
+
+exports[`Testing snapshot for actions-insider-cloud destination: trackEvent action - all fields 1`] = `
+Object {
+  "users": Array [
+    Object {
+      "attributes": Object {
+        "age": 42278870245703.68,
+        "app_version": "74Eoa(TEWXz$1Kje",
+        "birthday": "74Eoa(TEWXz$1Kje",
+        "carrier": "74Eoa(TEWXz$1Kje",
+        "city": "74Eoa(TEWXz$1Kje",
+        "country": "74Eoa(TEWXz$1Kje",
+        "custom": Object {},
+        "email": "sokakzec@feg.ni",
+        "gender": "74Eoa(TEWXz$1Kje",
+        "idfa": "74Eoa(TEWXz$1Kje",
+        "last_ip": "74Eoa(TEWXz$1Kje",
+        "locale": "74Eoa(TEWXz$1Kje",
+        "model": "74Eoa(TEWXz$1Kje",
+        "name": "74Eoa(TEWXz$1Kje",
+        "os_version": "74Eoa(TEWXz$1Kje",
+        "phone": "74Eoa(TEWXz$1Kje",
+        "platform": "74Eoa(TEWXz$1Kje",
+        "surname": "74Eoa(TEWXz$1Kje",
+        "timezone": "74Eoa(TEWXz$1Kje",
+      },
+      "events": Array [
+        Object {
+          "event_name": "74Eoa(TEWXz$1Kje",
+          "event_params": Object {
+            "currency": "TJS",
+            "custom": Object {},
+            "event_group_id": "74Eoa(TEWXz$1Kje",
+            "name": "74Eoa(TEWXz$1Kje",
+            "product_id": "74Eoa(TEWXz$1Kje",
+            "product_image_url": "74Eoa(TEWXz$1Kje",
+            "quantity": 4227887024570368,
+            "referrer": "74Eoa(TEWXz$1Kje",
+            "taxonomy": Array [
+              "74Eoa(TEWXz$1Kje",
+            ],
+            "unit_price": 42278870245703.68,
+            "unit_sale_price": 42278870245703.68,
+            "url": "74Eoa(TEWXz$1Kje",
+            "user_agent": "74Eoa(TEWXz$1Kje",
+            "variant_id": 42278870245703.68,
+          },
+          "timestamp": "2021-02-01T00:00:00.000Z",
+        },
+      ],
+      "identifiers": Object {
+        "custom": Object {
+          "segment_anonymous_id": "74Eoa(TEWXz$1Kje",
+        },
+        "uuid": "74Eoa(TEWXz$1Kje",
+      },
+    },
+  ],
+}
+`;
+
+exports[`Testing snapshot for actions-insider-cloud destination: trackEvent action - required fields 1`] = `
+Object {
+  "users": Array [
+    Object {
+      "attributes": Object {
+        "custom": Object {},
+      },
+      "events": Array [
+        Object {
+          "event_name": "74Eoa(TEWXz$1Kje",
+          "event_params": Object {
+            "custom": Object {},
+          },
+          "timestamp": "2021-02-01T00:00:00.000Z",
+        },
+      ],
+      "identifiers": Object {
+        "custom": Object {
+          "segment_anonymous_id": "74Eoa(TEWXz$1Kje",
+        },
+        "uuid": "74Eoa(TEWXz$1Kje",
+      },
+    },
+  ],
+}
+`;
+
+exports[`Testing snapshot for actions-insider-cloud destination: updateUserProfile action - all fields 1`] = `
+Object {
+  "users": Array [
+    Object {
+      "attributes": Object {
+        "age": -47457093833195.52,
+        "birthday": "CA9^h[(o",
+        "city": "CA9^h[(o",
+        "country": "CA9^h[(o",
+        "email": "tofzammi@paremu.ru",
+        "email_optin": true,
+        "gender": "CA9^h[(o",
+        "language": "CA9^h[(o",
+        "name": "CA9^h[(o",
+        "phone_number": "CA9^h[(o",
+        "sms_optin": true,
+        "surname": "CA9^h[(o",
+        "whatsapp_optin": true,
+      },
+      "identifiers": Object {
+        "custom": Object {
+          "segment_anonymous_id": "CA9^h[(o",
+        },
+        "email": "tofzammi@paremu.ru",
+        "phone_number": "CA9^h[(o",
+        "uuid": "CA9^h[(o",
+      },
+    },
+  ],
+}
+`;
+
+exports[`Testing snapshot for actions-insider-cloud destination: updateUserProfile action - required fields 1`] = `
+Object {
+  "users": Array [
+    Object {
+      "attributes": Object {},
+      "identifiers": Object {
+        "custom": Object {
+          "segment_anonymous_id": "CA9^h[(o",
+        },
+        "uuid": "CA9^h[(o",
+      },
+    },
+  ],
+}
+`;
+
+exports[`Testing snapshot for actions-insider-cloud destination: userRegisteredEvent action - all fields 1`] = `
+Object {
+  "users": Array [
+    Object {
+      "attributes": Object {
+        "age": -87005362619678.72,
+        "app_version": "xt]Bf",
+        "birthday": "xt]Bf",
+        "carrier": "xt]Bf",
+        "city": "xt]Bf",
+        "country": "xt]Bf",
+        "custom": Object {},
+        "email": "gihehena@vidrow.tc",
+        "gender": "xt]Bf",
+        "idfa": "xt]Bf",
+        "last_ip": "xt]Bf",
+        "locale": "xt]Bf",
+        "model": "xt]Bf",
+        "name": "xt]Bf",
+        "os_version": "xt]Bf",
+        "phone": "xt]Bf",
+        "platform": "xt]Bf",
+        "surname": "xt]Bf",
+        "timezone": "xt]Bf",
+      },
+      "events": Array [
+        Object {
+          "event_name": "sign_up_confirmation",
+          "event_params": Object {
+            "custom": Object {},
+          },
+          "timestamp": "2021-02-01T00:00:00.000Z",
+        },
+      ],
+      "identifiers": Object {
+        "custom": Object {
+          "segment_anonymous_id": "xt]Bf",
+        },
+        "email": "gihehena@vidrow.tc",
+        "phone_number": "xt]Bf",
+        "uuid": "xt]Bf",
+      },
+    },
+  ],
+}
+`;
+
+exports[`Testing snapshot for actions-insider-cloud destination: userRegisteredEvent action - required fields 1`] = `
+Object {
+  "users": Array [
+    Object {
+      "attributes": Object {
+        "custom": Object {},
+      },
+      "events": Array [
+        Object {
+          "event_name": "sign_up_confirmation",
+          "event_params": Object {
+            "custom": Object {},
+          },
+          "timestamp": "2021-02-01T00:00:00.000Z",
+        },
+      ],
+      "identifiers": Object {
+        "custom": Object {
+          "segment_anonymous_id": "xt]Bf",
+        },
+        "uuid": "xt]Bf",
+      },
+    },
+  ],
+}
+`;
