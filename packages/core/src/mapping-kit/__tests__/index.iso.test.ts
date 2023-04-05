@@ -645,6 +645,21 @@ describe('@replace', () => {
     )
     expect(output).toStrictEqual('')
   })
+  test('should still work without replacement key', () => {
+    const payload = {
+      a: 'many+different+things'
+    }
+    const output = transform(
+      {
+        '@replace': {
+          pattern: 'many+',
+          value: { '@path': '$.a' }
+        }
+      },
+      payload
+    )
+    expect(output).toStrictEqual('different+things')
+  })
 })
 
 describe('remove undefined values in objects', () => {

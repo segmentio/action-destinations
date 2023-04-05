@@ -233,9 +233,9 @@ directive('@replace', (v, stack) => {
   validateObjectWithFields(
     v,
     {
-      pattern: { optional: validateString },
+      pattern: { required: validateString },
       replacement: { optional: validateString },
-      value: { optional: validateDirectiveOrString }
+      value: { required: validateDirectiveOrString }
     },
     stack
   )

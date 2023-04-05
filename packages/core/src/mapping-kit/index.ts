@@ -109,9 +109,10 @@ registerDirective('@replace', (opts, payload) => {
     throw new Error('@replace requires a "pattern" key')
   }
 
-  // Empty replacement string is ok
+  // Assume null/missing replacement means empty
   if (opts.replacement == null) {
-    throw new Error('@replace requires a "replacement" key')
+    // Empty replacement string is ok
+    opts.replacement = ''
   }
 
   let pattern = opts.pattern
