@@ -5,8 +5,12 @@ import type { Payload } from './generated-types'
 
 const processData = async (request: RequestClient, settings: Settings, payloads: Payload[]) => {
   const events = payloads.map((payload) => {
-    if (!payload.livelike_profile_id && !payload.user_id) {
-      throw new IntegrationError('`livelike_profile_id` or `user_id` is required.', 'Missing required fields', 400)
+    if (!payload.livelike_profile_id && !payload.custom_id && !payload.segment_user_id) {
+      throw new IntegrationError(
+        '`livelike_profile_id` or `custom_id` or `user_id` is required.',
+        'Missing required fields',
+        400
+      )
     }
     return payload
   })
@@ -24,38 +28,57 @@ const action: ActionDefinition<Settings, Payload> = {
   description: 'Send an event to LiveLike.',
   defaultSubscription: 'type = "track"',
   fields: {
-    action_key: {
-      label: 'Action Key',
-      description:
-        'The unique key of Action. LiveLike will uniquely identify any event by this key. For example, `user-registration` could be a key for the action `USER REGISTRATION`.',
+    // action_key: {
+    //   label: 'Action Key',
+    //   description:
+    //     'The unique key of Action. LiveLike will uniquely identify any event by this key. For example, `user-registration` could be a key for the action `USER REGISTRATION`.',
+    //   type: 'string',
+    //   required: false,
+    //   default: {
+    //     '@path': '$.properties.action_key'
+    //   }
+    // },
+    // action_name: {
+    //   label: 'Action Name',
+    //   description:
+    //     'The name of the action being performed. For example, `User Registration` could be an action_name referring the event that is being sent to LiveLike.',
+    //   type: 'string',
+    //   default: {
+    //     '@if': {
+    //       exists: { '@path': '$.properties.action_name' },
+    //       then: { '@path': '$.properties.action_name' },
+    //       else: { '@path': '$.event' }
+    //     }
+    //   }
+    // },
+    // action_description: {
+    //   label: 'Action Description',
+    //   description: 'The description of the Action.',
+    //   type: 'string',
+    //   default: {
+    //     '@path': '$.properties.action_description'
+    //   }
+    // },
+    event_name: {
+      label: 'Event Name',
       type: 'string',
       required: true,
-      default: {
-        '@path': '$.properties.action_key'
-      }
-    },
-    action_name: {
-      label: 'Action Name',
       description:
-        'The name of the action being performed. For example, `User Registration` could be an action_name referring the event that is being sent to LiveLike.',
-      type: 'string',
+        'The name of the event being performed. For example, `User Registration` could be an event_name referring the event that is being sent to LiveLike.',
       default: {
-        '@if': {
-          exists: { '@path': '$.properties.action_name' },
-          then: { '@path': '$.properties.action_name' },
-          else: { '@path': '$.event' }
-        }
+        '@path': '$.event'
       }
     },
-    action_description: {
-      label: 'Action Description',
-      description: 'The description of the Action.',
+    event_type: {
+      label: 'Event Type',
       type: 'string',
+      required: true,
+      description: 'The type of event (track/screen/page)',
       default: {
-        '@path': '$.properties.action_description'
+        '@path': '$.type'
       }
     },
-    user_id: {
+    segment_user_id: {
       label: 'User ID',
       type: 'string',
       description:
@@ -73,6 +96,26 @@ const action: ActionDefinition<Settings, Payload> = {
         '@path': '$.properties.livelike_profile_id'
       }
     },
+    anonymous_id: {
+      label: 'Segment Anonymous ID',
+      description: 'Segment Anonymous ID.',
+      required: false,
+      type: 'hidden',
+      default: {
+        '@path': '$.anonymousId'
+      }
+    },
+    custom_id: {
+      label: 'Livelike Custom ID',
+      description:
+        'A custom identifier which will be sent alongside the Livelike User Profile ID. This can either be the userId or anonymousId value, but defaults to anonymousId. It will only be used if you decide to send events from Livelike back into Segment. Only the first custom_id you send will be used. All other ones will be ignored...',
+      required: false,
+      type: 'string',
+      default: {
+        '@path': '$.properties.custom_id'
+      }
+    },
+
     timestamp: {
       label: 'Timestamp',
       description:
