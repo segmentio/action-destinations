@@ -18,12 +18,10 @@ const presets: DestinationDefinition['presets'] = [
     mapping: {
       ...defaultValues(receiveEvents.fields),
       email: {
-        default: {
-          '@if': {
-            exists: { '@path': '$.properties.email' },
-            then: { '@path': '$.properties.email' },
-            else: { '@path': '$.context.traits.email' }
-          }
+        '@if': {
+          exists: { '@path': '$.properties.email' },
+          then: { '@path': '$.properties.email' },
+          else: { '@path': '$.context.traits.email' }
         }
       }
     }
@@ -35,12 +33,10 @@ const presets: DestinationDefinition['presets'] = [
     mapping: {
       ...defaultValues(receiveEvents.fields),
       email: {
-        default: {
-          '@if': {
-            exists: { '@path': '$.traits.email' },
-            then: { '@path': '$.traits.email' },
-            else: { '@path': '$.context.traits.email' }
-          }
+        '@if': {
+          exists: { '@path': '$.traits.email' },
+          then: { '@path': '$.traits.email' },
+          else: { '@path': '$.context.traits.email' }
         }
       }
     }

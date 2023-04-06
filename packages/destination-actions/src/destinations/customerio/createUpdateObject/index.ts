@@ -73,6 +73,7 @@ const action: ActionDefinition<Settings, Payload> = {
   perform: (request, { settings, payload }) => {
     let createdAt: string | number | undefined = payload.created_at
     let customAttributes = payload.custom_attributes
+    let objectTypeIDInTraits = null
     const objectTypeID = payload.object_type_id
     const userID = payload.user_id
     const objectID = payload.id
@@ -84,6 +85,10 @@ const action: ActionDefinition<Settings, Payload> = {
 
       if (customAttributes) {
         customAttributes = convertAttributeTimestamps(customAttributes)
+        if (customAttributes.object_type_id) {
+          objectTypeIDInTraits = customAttributes.object_type_id
+          delete customAttributes.object_type_id
+        }
       }
     }
 
@@ -93,7 +98,7 @@ const action: ActionDefinition<Settings, Payload> = {
       body.created_at = createdAt
     }
     body.type = 'object'
-    body.identifiers = { object_type_id: objectTypeID ?? '1', object_id: objectID }
+    body.identifiers = { object_type_id: objectTypeIDInTraits ?? objectTypeID ?? '1', object_id: objectID }
 
     if (userID) {
       body.action = 'identify'
