@@ -13,6 +13,8 @@ import {
 } from '../sf-properties'
 import Salesforce from '../sf-operations'
 
+const OPERATIONS_WITH_CUSTOM_FIELDS = ['create', 'update', 'upsert']
+
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Custom Object',
   description: 'Create, update, or upsert records in any custom or standard object in Salesforce.',
@@ -31,7 +33,7 @@ const action: ActionDefinition<Settings, Payload> = {
       required: true,
       dynamic: true
     },
-    customFields: { ...customFields, required: true }
+    customFields: customFields
   },
   dynamicFields: {
     customObjectName: async (request, data) => {
@@ -41,6 +43,10 @@ const action: ActionDefinition<Settings, Payload> = {
     }
   },
   perform: async (request, { settings, payload }) => {
+    if (OPERATIONS_WITH_CUSTOM_FIELDS.includes(payload.operation) && !payload.customFields) {
+      throw new Error('Custom fields are required for this operation.')
+    }
+
     const sf: Salesforce = new Salesforce(settings.instanceUrl, request)
 
     if (payload.operation === 'create') {
@@ -62,6 +68,10 @@ const action: ActionDefinition<Settings, Payload> = {
     }
   },
   performBatch: async (request, { settings, payload }) => {
+    if (OPERATIONS_WITH_CUSTOM_FIELDS.includes(payload[0].operation) && !payload[0].customFields) {
+      throw new Error('Custom fields are required for this operation.')
+    }
+
     const sf: Salesforce = new Salesforce(settings.instanceUrl, request)
 
     return sf.bulkHandler(payload, payload[0].customObjectName)
