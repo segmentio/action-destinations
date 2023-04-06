@@ -1,9 +1,8 @@
-import { ActionDefinition, omit } from '@segment/actions-core'
+import { ActionDefinition, omit, PayloadValidationError } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 import { ProjectConfig } from '../types'
 import { buildVisitorAttributes, getEventId } from './functions'
-import { IntegrationError } from '@segment/actions-core'
 import dayjs from '../../../lib/dayjs'
 
 const action: ActionDefinition<Settings, Payload> = {
@@ -108,7 +107,7 @@ const action: ActionDefinition<Settings, Payload> = {
     const eventId = getEventId(dataFile, payload.eventKey)
 
     if (!eventId) {
-      throw new IntegrationError(`Event with name ${payload.eventKey} is not defined`)
+      throw new PayloadValidationError(`Event with name ${payload.eventKey} is not defined`)
     }
     // omit revenue and value from eventTags
     const eventTags = omit(payload.eventTags, ['revenue', 'value'])
@@ -150,7 +149,6 @@ const action: ActionDefinition<Settings, Payload> = {
         account_id: dataFile.accountId,
         anonymize_ip: dataFile.anonymizeIP,
         client_name: 'Segment',
-        client_version: '1.0.01',
         enrich_decisions: true,
         visitors: [...visitors]
       }
