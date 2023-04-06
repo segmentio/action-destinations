@@ -49,7 +49,7 @@ const destination: DestinationDefinition<Settings> = {
   slug: 'actions-acoustic-campaign',
   mode: 'cloud',
   authentication: {
-    scheme: 'oauth-managed',
+    scheme: 'oauth2',
     fields: {
       a_pod: {
         label: 'Pod',
@@ -71,18 +71,39 @@ const destination: DestinationDefinition<Settings> = {
         type: 'string',
         required: true
       },
-      a_attributesMax: {
-        label: 'Properties Max',
-        description: 'Note: Before increasing the default max number, consult the Acoustic Destination documentation.',
-        default: 30,
-        type: 'number',
-        required: false
-      },
       a_events_table_list_id: {
         label: 'Acoustic Segment Events Table List Id',
         description: 'The Segment Events Table List Id from the Database dialog in Acoustic Campaign',
         default: '',
         type: 'string',
+        required: false
+      },
+      a_clientId: {
+        label: 'Acoustic app definition ClientId',
+        description: 'The Client Id from the App definition dialog in Acoustic Campaign',
+        default: '',
+        type: 'string',
+        required: true
+      },
+      a_clientSecret: {
+        label: 'Acoustic App definition ClientSecret',
+        description: 'The Client Secret from the App definition dialog in Acoustic Campaign',
+        default: '',
+        type: 'password',
+        required: true
+      },
+      a_refreshToken: {
+        label: 'Acoustic App Access defintionn RefreshToken',
+        description: 'The RefreshToken provided when defining access for the App in Acoustic Campaign',
+        default: '',
+        type: 'password',
+        required: true
+      },
+      a_attributesMax: {
+        label: 'Properties Max',
+        description: 'Note: Before increasing the default max number, consult the Acoustic Destination documentation.',
+        default: 30,
+        type: 'number',
         required: false
       }
     },
@@ -109,14 +130,16 @@ const destination: DestinationDefinition<Settings> = {
     }
   },
   extendRequest: ({ settings, auth }) => {
+    settings.a_pod
+    auth?.accessToken
     return {
       headers: {
         // Authorization: `Bearer ${auth?.accessToken}`,
         'Content-Type': 'text/xml',
-        'user-agent': `Segment (checkforRT on Pod ${settings.a_pod}_${auth?.accessToken})`,
-        Connection: 'keep-alive',
+        'user-agent': `Segment Action (Acoustic Destination)`,
+        'Connection': 'keep-alive',
         'Accept-Encoding': 'gzip, deflate, br',
-        Accept: '*/*'
+        'Accept': '*/*'
       }
     }
   },
