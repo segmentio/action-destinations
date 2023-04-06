@@ -15,7 +15,7 @@ export class IntegrationError extends CustomError {
    * @param code - an error code/reason.
    * @param status - the http status code (e.g. 400). Default value is 400
    */
-  constructor(message: string, code?: string, status = 400) {
+  constructor(message: string, code: string | ErrorCodes, status = 400) {
     super(message)
     this.status = status
     this.code = code
@@ -81,6 +81,21 @@ export class PayloadValidationError extends IntegrationError {
    */
   constructor(message: string) {
     super(message, ErrorCodes.PAYLOAD_VALIDATION_FAILED, 400)
+  }
+}
+
+/**
+ * Error to indicate that an API call to the destination failed with non-retryable error.
+ * Most of the HTTP API Errors are handled automatically by the framework. It is recommended to use this error class
+ * for cases where the destination has to capture HTTPErrors and rethrow them for better error message or for handling special scenarios.
+ * Should include a user-friendly message. These errors will not be retried.
+ */
+export class APIError extends IntegrationError {
+  /**
+   * @param message - a human-friendly message to display to users
+   */
+  constructor(message: string) {
+    super(message, ErrorCodes.API_CALL_FAILED, 400)
   }
 }
 

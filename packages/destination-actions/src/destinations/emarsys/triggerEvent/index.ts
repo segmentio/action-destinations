@@ -11,9 +11,8 @@ import {
   TriggerEventApiPayload,
   TriggerEventsApiPayload
 } from '../emarsys-helper'
-import { IntegrationError } from '@segment/actions-core'
 import { RetryableError } from '@segment/actions-core'
-import { PayloadValidationError, ErrorCodes } from '@segment/actions-core'
+import { PayloadValidationError, APIError } from '@segment/actions-core'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Trigger Event',
@@ -84,13 +83,12 @@ const action: ActionDefinition<Settings, Payload> = {
           try {
             const body = await response.json()
             if (body.replyCode === 0) return response
-            else
-              throw new IntegrationError('Something went wrong while triggering the event', ErrorCodes.API_CALL_FAILED)
+            else throw new APIError('Something went wrong while triggering the event')
           } catch (err) {
-            throw new IntegrationError('Invalid JSON response', ErrorCodes.API_CALL_FAILED)
+            throw new APIError('Invalid JSON response')
           }
         case 400:
-          throw new IntegrationError('The event could not be triggered', ErrorCodes.API_CALL_FAILED)
+          throw new APIError('The event could not be triggered')
         case 429:
           throw new RetryableError('Rate limit reached.')
         default:

@@ -1,4 +1,4 @@
-import { IntegrationError, RetryableError } from '@segment/actions-core'
+import { APIError, RetryableError, PayloadValidationError } from '@segment/actions-core'
 import type { ActionDefinition } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
@@ -10,7 +10,6 @@ import {
   BufferBatchContactList,
   BufferBatchContactListItem
 } from '../emarsys-helper'
-import { PayloadValidationError, ErrorCodes } from '@segment/actions-core'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Remove from Contact List',
@@ -71,19 +70,12 @@ const action: ActionDefinition<Settings, Payload> = {
           try {
             const body = await response.json()
             if (body.replyCode === 0) return response
-            else
-              throw new IntegrationError(
-                'Something went wrong while removing from contact list',
-                ErrorCodes.API_CALL_FAILED
-              )
+            else throw new APIError('Something went wrong while removing from contact list')
           } catch (err) {
-            throw new IntegrationError('Invalid JSON response', ErrorCodes.API_CALL_FAILED)
+            throw new APIError('Invalid JSON response')
           }
         case 400:
-          throw new IntegrationError(
-            'The contact could not be removed from the contact list',
-            ErrorCodes.API_CALL_FAILED
-          )
+          throw new APIError('The contact could not be removed from the contact list')
         case 429:
           throw new RetryableError('Rate limit reached.')
         default:

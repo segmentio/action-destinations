@@ -1,4 +1,4 @@
-import { ActionDefinition, ErrorCodes } from '@segment/actions-core'
+import { APIError, ActionDefinition, PayloadValidationError, RetryableError } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 import {
@@ -9,9 +9,6 @@ import {
   BufferBatchContacts,
   BufferBatchContactItem
 } from '../emarsys-helper'
-import { IntegrationError } from '@segment/actions-core'
-import { RetryableError } from '@segment/actions-core'
-import { PayloadValidationError } from '@segment/actions-core'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Upsert Contact',
@@ -87,13 +84,12 @@ const action: ActionDefinition<Settings, Payload> = {
         try {
           const body = await response.json()
           if (body.replyCode === 0) return response
-          else
-            throw new IntegrationError('Something went wrong while upserting the contact', ErrorCodes.API_CALL_FAILED)
+          else throw new APIError('Something went wrong while upserting the contact')
         } catch (err) {
-          throw new IntegrationError('Invalid JSON response', ErrorCodes.API_CALL_FAILED)
+          throw new APIError('Invalid JSON response')
         }
       case 400:
-        throw new IntegrationError('Contact could not be upserted', ErrorCodes.API_CALL_FAILED)
+        throw new APIError('Contact could not be upserted')
       case 429:
         throw new RetryableError('Rate limit reached.')
       default:

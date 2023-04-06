@@ -9,6 +9,7 @@ export {
   InvalidAuthenticationError,
   RetryableError,
   PayloadValidationError,
+  APIError,
   ErrorCodes
 } from './errors'
 export { get } from './get'
