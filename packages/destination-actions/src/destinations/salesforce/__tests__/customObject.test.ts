@@ -66,6 +66,35 @@ describe('Salesforce', () => {
       )
     })
 
+    it('should delete a custom record given an Id', async () => {
+      nock(`${settings.instanceUrl}/services/data/${API_VERSION}/sobjects`).delete('/TestCustom__c/123').reply(201, {})
+
+      const event = createTestEvent({
+        type: 'track',
+        event: 'Delete',
+        userId: '123'
+      })
+
+      const responses = await testDestination.testAction('customObject', {
+        event,
+        settings,
+        auth,
+        mapping: {
+          operation: 'delete',
+          customObjectName: 'TestCustom__c',
+          traits: {
+            Id: { '@path': '$.userId' }
+          },
+          customFields: {
+            '@path': '$.properties'
+          }
+        }
+      })
+
+      expect(responses.length).toBe(1)
+      expect(responses[0].status).toBe(201)
+    })
+
     it('should dynamically fetch customObjectName', async () => {
       nock(`${settings.instanceUrl}/services/data/${API_VERSION}`)
         .get('/sobjects')
