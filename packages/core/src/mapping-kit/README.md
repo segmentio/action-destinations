@@ -587,3 +587,43 @@ Mappings:
 =>
 "coolnicestory"
 ````
+
+```json
+Input:
+
+{
+  "a": "cWWl-story-ww",
+}
+
+Mappings:
+
+{
+  "@replace": {
+    "pattern": "WW",
+    "replacement": "oo",
+    "ignorecase": false
+  }
+}
+=>
+"cool-story-ww"
+```
+
+```json
+Input:
+
+{
+  "a": "just-the-first",
+}
+
+Mappings:
+
+{
+  "@replace": {
+    "pattern": "-",
+    "replacement": "@",
+    "global": false
+  }
+}
+=>
+"just@the-first"
+```

@@ -115,15 +115,40 @@ registerDirective('@replace', (opts, payload) => {
     opts.replacement = ''
   }
 
+  // case sensitive by default if this key is missing
+  if (opts.ignorecase == null) {
+    opts.ignorecase = false
+  }
+
+  // global by default if this key is missing
+  if (opts.global == null) {
+    opts.global = true
+  }
+
   let pattern = opts.pattern
   const replacement = opts.replacement
+  const ignorecase = opts.ignorecase
+  const isGlobal = opts.global
   if (opts.value) {
     const value = resolve(opts.value, payload)
-    if (typeof value === 'string' && typeof pattern === 'string' && typeof replacement === 'string') {
+    if (
+      typeof value === 'string' &&
+      typeof pattern === 'string' &&
+      typeof replacement === 'string' &&
+      typeof ignorecase === 'boolean' &&
+      typeof isGlobal === 'boolean'
+    ) {
       // We don't want users providing regular expressions for the pattern (for now)
       // https://stackoverflow.com/questions/F3115150/how-to-escape-regular-expression-special-characters-using-javascript
       pattern = pattern.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, '\\$&')
-      return value.replace(new RegExp(pattern, 'g'), replacement)
+      let flags = ''
+      if (isGlobal) {
+        flags += 'g'
+      }
+      if (ignorecase) {
+        flags += 'i'
+      }
+      return value.replace(new RegExp(pattern, flags), replacement)
     }
   }
 })

@@ -565,6 +565,40 @@ describe('@replace', () => {
     )
     expect(output).toStrictEqual('')
   })
+  test('replace on case sensitive string', () => {
+    const payload = {
+      a: 'cWWl-story-ww'
+    }
+    const output = transform(
+      {
+        '@replace': {
+          pattern: 'WW',
+          replacement: 'oo',
+          value: { '@path': '$.a' },
+          ignorecase: false // true by default but just showing here
+        }
+      },
+      payload
+    )
+    expect(output).toStrictEqual('cool-story-ww')
+  })
+  test('replace on case insensitive string', () => {
+    const payload = {
+      a: 'aab-----AaB---aab'
+    }
+    const output = transform(
+      {
+        '@replace': {
+          pattern: 'AaB',
+          replacement: 'nice',
+          value: { '@path': '$.a' },
+          ignorecase: true
+        }
+      },
+      payload
+    )
+    expect(output).toStrictEqual('nice-----nice---nice')
+  })
   test('replace with empty string', () => {
     const payload = {
       a: 'nomore_underscore'
@@ -574,7 +608,8 @@ describe('@replace', () => {
         '@replace': {
           pattern: '_',
           replacement: '',
-          value: { '@path': '$.a' }
+          value: { '@path': '$.a' },
+          ignorecase: false
         }
       },
       payload
@@ -622,12 +657,30 @@ describe('@replace', () => {
         '@replace': {
           pattern: '+',
           replacement: '_',
-          value: { '@path': '$.a' }
+          value: { '@path': '$.a' },
+          global: true // true by default but just to demo
         }
       },
       payload
     )
     expect(output).toStrictEqual('many_different_things')
+  })
+  test('replace first occurrence', () => {
+    const payload = {
+      a: 'many+different+things'
+    }
+    const output = transform(
+      {
+        '@replace': {
+          pattern: '+',
+          replacement: '_',
+          value: { '@path': '$.a' },
+          global: false // true by default but just to demo
+        }
+      },
+      payload
+    )
+    expect(output).toStrictEqual('many_different+things')
   })
   test('replace entire value', () => {
     const payload = {
