@@ -29,7 +29,10 @@ const destination: DestinationDefinition<Settings> = {
   },
   extendRequest({ settings }) {
     return {
-      headers: { 'Access-Token': settings.accessToken }
+      headers: { 
+        'Access-Token': settings.accessToken,
+        'Content-Type': 'application/json'
+      }
     }
   },
   presets: [

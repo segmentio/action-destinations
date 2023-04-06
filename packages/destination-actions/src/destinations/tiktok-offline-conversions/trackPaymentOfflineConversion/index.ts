@@ -2,6 +2,7 @@ import type { ActionDefinition } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 import { commonFields } from '../common_fields'
+import { formatEmails, formatPhones } from '../formatter'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Track Payment Offline Conversion',
@@ -88,8 +89,8 @@ const action: ActionDefinition<Settings, Payload> = {
         timestamp: payload.timestamp,
         context: {
           user: {
-            phone_numbers: [], //userData.hashedPhoneNumbers,
-            emails: [] //userData.hashedEmails
+            phone_numbers: formatPhones(payload.phone_numbers), //userData.hashedPhoneNumbers,
+            emails: formatEmails(payload.email_addresses) //userData.hashedEmails
           }
         },
         properties: {
