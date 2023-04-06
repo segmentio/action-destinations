@@ -207,6 +207,7 @@ const action: ActionDefinition<Settings, Payload> = {
       })
     }
 
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const request_object: { [key: string]: any } = {
       conversionAction: `customers/${settings.customerId}/conversionActions/${payload.conversion_action}`,
       conversionDateTime: convertTimestamp(payload.conversion_timestamp),
@@ -239,11 +240,13 @@ const action: ActionDefinition<Settings, Payload> = {
     }
 
     if (payload.email_address) {
-      request_object.userIdentifiers.push({ hashedEmail: hash(payload.email_address) })
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-call
+      request_object.userIdentifiers.push({ hashedEmail: hash(payload.email_address, features) })
     }
 
     if (payload.phone_number) {
-      request_object.userIdentifiers.push({ hashedPhoneNumber: hash(payload.phone_number) })
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-call
+      request_object.userIdentifiers.push({ hashedPhoneNumber: hash(payload.phone_number, features) })
     }
 
     const response: ModifiedResponse<PartialErrorResponse> = await request(

@@ -29,14 +29,15 @@ export function formatCustomVariables(
   return variables
 }
 
-export const hash = (value: string | undefined): string | undefined => {
+export const hash = (value: string | undefined, features?: Features): string | undefined => {
   if (value === undefined) {
     return
   }
 
   const hash = createHash('sha256')
   hash.update(value)
-  return hash.digest('hex')
+  const encoding = features && features['google-ads-base64-hashing'] ? 'base64' : 'hex'
+  return hash.digest(encoding)
 }
 
 export async function getCustomVariables(
