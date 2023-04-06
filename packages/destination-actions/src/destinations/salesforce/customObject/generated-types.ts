@@ -58,7 +58,7 @@ export interface Payload {
    *
    *
    */
-  customFields: {
+  customFields?: {
     [k: string]: unknown
   }
 }
