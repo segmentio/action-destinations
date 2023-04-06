@@ -10,11 +10,11 @@ export interface Payload {
    */
   event_type: string
   /**
-   * A unique identifier for a user. At least one of `User ID` or `LiveLike User Profile ID` is mandatory. In case you are not able to store `livelike_profile_id`, LiveLike provides a way to create your own access tokens which helps us to map your user_id to a unique `livelike_profile_id`. Please refer [LiveLike Docs](https://docs.livelike.com/docs/client-generated-access-tokens) for more info.
+   * A unique identifier for a user.
    */
   segment_user_id?: string
   /**
-   * The unique LiveLike user identifier. At least one of `LiveLike User Profile ID` or `User ID` is mandatory.
+   * The unique LiveLike user identifier.
    */
   livelike_profile_id?: string
   /**
@@ -22,7 +22,7 @@ export interface Payload {
    */
   anonymous_id?: string
   /**
-   * A custom identifier which will be sent alongside the Livelike User Profile ID. This can either be the userId or anonymousId value, but defaults to anonymousId. It will only be used if you decide to send events from Livelike back into Segment. Only the first custom_id you send will be used. All other ones will be ignored...
+   * In case you are not able to store `livelike_profile_id`, LiveLike provides a way to create your own access tokens which helps us to map your user_id to a unique `livelike_profile_id`. Please refer [LiveLike Docs](https://docs.livelike.com/docs/client-generated-access-tokens) for more info.
    */
   custom_id?: string
   /**
