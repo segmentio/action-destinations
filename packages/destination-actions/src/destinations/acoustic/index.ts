@@ -108,17 +108,20 @@ const destination: DestinationDefinition<Settings> = {
       }
     },
 
-    refreshAccessToken: async (request, { settings }) => {
+    refreshAccessToken: async (request, { settings, auth }) => {
       // Return a request that refreshes the access_token if the API supports it
+      auth.clientId = settings.a_clientId
+      auth.clientSecret = settings.a_clientSecret
+      auth.refreshToken = settings.a_refreshToken
 
       const at = await request<refreshTokenResult>(
         `https://api-campaign-${settings.a_region}-${settings.a_pod}.goacoustic.com/oauth/token`,
         {
           method: 'POST',
           body: new URLSearchParams({
-            refresh_token: settings.a_refreshToken,
-            client_id: settings.a_clientId,
-            client_secret: settings.a_clientSecret,
+            refresh_token: auth.refreshToken,
+            client_id: auth.clientId,
+            client_secret: auth.clientSecret,
             grant_type: 'refresh_token'
           }),
           headers: {
@@ -126,6 +129,7 @@ const destination: DestinationDefinition<Settings> = {
           }
         }
       )
+
       return { accessToken: at.data.access_token }
     }
   },
