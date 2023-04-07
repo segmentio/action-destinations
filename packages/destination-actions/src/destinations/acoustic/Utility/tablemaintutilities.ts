@@ -1,4 +1,3 @@
-import { OAuth2ClientCredentials } from '@segment/actions-core'
 import { IntegrationError } from '@segment/actions-core'
 import { RequestClient } from '@segment/actions-core'
 import { refreshTokenResult } from '..'
@@ -7,11 +6,11 @@ import { Settings } from '../generated-types'
 export let eventTableListId = ''
 export let accToken = ''
 
-export async function getAccessToken(request: RequestClient, settings: Settings, auth?: OAuth2ClientCredentials) {
+export async function getAccessToken(request: RequestClient, settings: Settings) {
   //grant_type:refresh_token
-  const clientId = auth?.clientId ?? ''
-  const clientSecret = auth?.clientSecret ?? ''
-  const refreshToken = auth?.refreshToken ?? ''
+  const clientId = settings?.a_clientId ?? ''
+  const clientSecret = settings?.a_clientSecret ?? ''
+  const refreshToken = settings?.a_refreshToken ?? ''
   //pod:4
 
   const res = await request<refreshTokenResult>(

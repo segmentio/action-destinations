@@ -108,7 +108,7 @@ const destination: DestinationDefinition<Settings> = {
       }
     },
 
-    refreshAccessToken: async (request, { settings, auth }) => {
+    refreshAccessToken: async (request, { settings }) => {
       // Return a request that refreshes the access_token if the API supports it
 
       const at = await request<refreshTokenResult>(
@@ -116,9 +116,9 @@ const destination: DestinationDefinition<Settings> = {
         {
           method: 'POST',
           body: new URLSearchParams({
-            refresh_token: auth.refreshToken,
-            client_id: auth.clientId,
-            client_secret: auth.clientSecret,
+            refresh_token: settings.a_refreshToken,
+            client_id: settings.a_clientId,
+            client_secret: settings.a_clientSecret,
             grant_type: 'refresh_token'
           }),
           headers: {
