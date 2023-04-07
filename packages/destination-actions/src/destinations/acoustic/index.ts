@@ -93,7 +93,7 @@ const destination: DestinationDefinition<Settings> = {
         required: true
       },
       a_refreshToken: {
-        label: 'Acoustic App Access defintionn RefreshToken',
+        label: 'Acoustic App Access Definition RefreshToken',
         description: 'The RefreshToken provided when defining access for the App in Acoustic Campaign',
         default: '',
         type: 'password',
@@ -137,9 +137,9 @@ const destination: DestinationDefinition<Settings> = {
         // Authorization: `Bearer ${auth?.accessToken}`,
         'Content-Type': 'text/xml',
         'user-agent': `Segment Action (Acoustic Destination)`,
-        'Connection': 'keep-alive',
+        Connection: 'keep-alive',
         'Accept-Encoding': 'gzip, deflate, br',
-        'Accept': '*/*'
+        Accept: '*/*'
       }
     }
   },
