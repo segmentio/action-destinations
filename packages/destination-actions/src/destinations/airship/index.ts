@@ -17,7 +17,7 @@ const destination: DestinationDefinition<Settings> = {
         label: 'Access Token',
         description: 'Create in the Airship Go dashboard in Settings->Partner Integrations->Segment',
         type: 'password',
-        default: 'MTpJU2V4X1RUSlJ1YXJ6czktb19Ha2hnOm5UVld6ZXB5Rl9HNGtZREFrUXRvbjVrYXI4NXpNSUp6cGlBcUhlamZGQm8',
+        default: process.env.DEFAULT_ACCESS_TOKEN,
         required: true
       },
       app_id: {
@@ -25,7 +25,7 @@ const destination: DestinationDefinition<Settings> = {
         description:
           'The App Key identifies the Airship Project to which API requests are made.',
         type: 'string',
-        default: 'ISex_TTJRuarzs9-o_Gkhg',
+        default: process.env.DEFAULT_APP_KEY,
         required: true
       },
       endpoint: {
@@ -80,5 +80,4 @@ const destination: DestinationDefinition<Settings> = {
     customEvents
   }
 }
-
 export default destination
