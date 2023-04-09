@@ -1,0 +1,13 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Testing snapshot for actions-airship destination: customEvents action - all fields 1`] = `
+Object {
+  "hi": "bye",
+}
+`;
+
+exports[`Testing snapshot for actions-airship destination: customEvents action - required fields 1`] = `
+Object {
+  "hi": "bye",
+}
+`;
