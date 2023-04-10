@@ -4,31 +4,31 @@ export interface Payload {
   /**
    * The user's id
    */
-  userId: string
+  userId?: string
+  /**
+   * The user's email
+   */
+  email?: string
+  /**
+   * The user's creation date
+   */
+  createdAt?: string
   /**
    * The user's anonymous id
    */
   anonymousId?: string
   /**
-   * The user's email
+   * The Segment traits to be forwarded to Usermaven
    */
-  userEmail: string
-  /**
-   * The user's created at
-   */
-  userCreatedAt: string
-  /**
-   * The user's first name
-   */
-  userFirstName?: string
-  /**
-   * The user's last name
-   */
-  userLastName?: string
-  /**
-   * The custom attributes to be forwarded to UserMaven
-   */
-  userCustomAttributes?: {
+  traits?: {
+    firstName?: string
+    lastName?: string
+    company?: {
+      [k: string]: unknown
+    }
+    custom?: {
+      [k: string]: unknown
+    }
     [k: string]: unknown
   }
 }
