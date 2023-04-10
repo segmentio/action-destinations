@@ -3,7 +3,7 @@ import type { Settings } from './generated-types'
 
 import customEvents from './customEvents'
 
-// import registerAndAssociate from './registerAndAssociate'
+import setAttributes from './setAttributes'
 
 const destination: DestinationDefinition<Settings> = {
   name: 'Airship',
@@ -22,8 +22,7 @@ const destination: DestinationDefinition<Settings> = {
       },
       app_id: {
         label: 'App Key',
-        description:
-          'The App Key identifies the Airship Project to which API requests are made.',
+        description: 'The App Key identifies the Airship Project to which API requests are made.',
         type: 'string',
         default: process.env.DEFAULT_APP_KEY,
         required: true
@@ -42,28 +41,25 @@ const destination: DestinationDefinition<Settings> = {
       }
     },
     testAuthentication: (request, { settings }) => {
-      return request(
-        `${settings.endpoint}/api/custom-events/`, 
-        {
-          method: 'post',
-          json:     {
-            "body": {
-                "name": "test_segment_auth",
-            },
-            "user": {
-                "named_user_id": "549ce761-56c9-4899-9026-816d0c3bffd1"
-            }
+      return request(`${settings.endpoint}/api/custom-events/`, {
+        method: 'post',
+        json: {
+          body: {
+            name: 'test_segment_auth'
+          },
+          user: {
+            named_user_id: '549ce761-56c9-4899-9026-816d0c3bffd1'
+          }
         }
-      }
-    )
-  }
+      })
+    }
   },
 
   onDelete: async (request, { settings, payload }) => {
     return request(`${settings.endpoint}/api/named_users/uninstall`, {
       method: 'post',
       json: {
-        "named_user_id": [payload.userId]
+        named_user_id: [payload.userId]
       }
     })
   },
@@ -72,12 +68,14 @@ const destination: DestinationDefinition<Settings> = {
       headers: {
         Authorization: `Bearer ${settings.api_key}`,
         'X-UA-Appkey': `${settings.app_id}`,
-        'Accept': 'application/vnd.urbanairship+json; version=3'
+        Accept: 'application/vnd.urbanairship+json; version=3',
+        'Content-Type': 'application/json'
       }
     }
   },
   actions: {
-    customEvents
+    customEvents,
+    setAttributes
   }
 }
 export default destination
