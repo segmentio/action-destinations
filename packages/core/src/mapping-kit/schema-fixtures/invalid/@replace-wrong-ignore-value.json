@@ -1,0 +1,11 @@
+{
+  "mapping": {
+    "@replace": {
+      "pattern": "+",
+      "replacement": "-",
+      "value": { "@path": "$.a" },
+      "ignorecase": "bla"
+    }
+  },
+  "expectError": "/@replace/ignorecase should be a boolean but it is a string."
+}
