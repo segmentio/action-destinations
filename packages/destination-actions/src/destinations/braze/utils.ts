@@ -1,4 +1,4 @@
-import { omit } from '@segment/actions-core'
+// import { omit } from '@segment/actions-core'
 import { IntegrationError, RequestClient } from '@segment/actions-core'
 import dayjs from 'dayjs'
 import { Settings } from './generated-types'
@@ -6,6 +6,7 @@ import action from './trackPurchase'
 import { Payload as TrackEventPayload } from './trackEvent/generated-types'
 import { Payload as TrackPurchasePayload } from './trackPurchase/generated-types'
 import { getUserAlias } from './userAlias'
+import { Product } from './Product.type'
 type DateInput = string | Date | number | null | undefined
 type DateOutput = string | undefined | null
 
@@ -104,28 +105,35 @@ export function sendTrackPurchase(request: RequestClient, settings: Settings, pa
   }
 
   const reservedKeys = Object.keys(action.fields.products.properties ?? {})
-  const properties = omit(payload.properties, reservedKeys)
+  const event_properties = Object.assign({}, payload.properties)
+  delete event_properties.products
   const base = {
     braze_id,
     external_id,
     user_alias,
     app_id: settings.app_id,
     time: toISO8601(payload.time),
-    properties,
     _update_existing_only: payload._update_existing_only
   }
+  const products: Array<Product> = payload.properties?.products as Array<Product>
 
   return request(`${settings.endpoint}/users/track`, {
     method: 'post',
     ...(payload.products.length > 1 ? { headers: { 'X-Braze-Batch': 'true' } } : undefined),
     json: {
-      purchases: payload.products.map((product) => ({
-        ...base,
-        product_id: product.product_id,
-        currency: product.currency ?? 'USD',
-        price: product.price,
-        quantity: product.quantity
-      }))
+      purchases: products?.map(function (product) {
+        return {
+          ...base,
+          product_id: product.product_id,
+          currency: product.currency ?? 'USD',
+          price: product.price,
+          quantity: product.quantity,
+          properties: {
+            ...Object.fromEntries(Object.entries(product).filter(([key]) => !reservedKeys.includes(key))),
+            ...event_properties
+          }
+        }
+      })
     }
   })
 }
