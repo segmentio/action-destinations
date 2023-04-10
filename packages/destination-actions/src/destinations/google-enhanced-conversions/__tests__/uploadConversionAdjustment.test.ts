@@ -30,7 +30,7 @@ describe('GoogleEnhancedConversions', () => {
         }
       })
 
-      nock(`https://googleads.googleapis.com/v11/customers/${customerId}:uploadConversionAdjustments`)
+      nock(`https://googleads.googleapis.com/v12/customers/${customerId}:uploadConversionAdjustments`)
         .post('')
         .reply(201, { results: [{}] })
 
@@ -77,7 +77,7 @@ describe('GoogleEnhancedConversions', () => {
         }
       })
 
-      nock(`https://googleads.googleapis.com/v11/customers/${customerId}:uploadConversionAdjustments`)
+      nock(`https://googleads.googleapis.com/v12/customers/${customerId}:uploadConversionAdjustments`)
         .post('')
         .reply(201, { results: [{}] })
 
@@ -106,7 +106,7 @@ describe('GoogleEnhancedConversions', () => {
         }
       })
 
-      nock(`https://googleads.googleapis.com/v11/customers/${customerId}:uploadConversionAdjustments`)
+      nock(`https://googleads.googleapis.com/v12/customers/${customerId}:uploadConversionAdjustments`)
         .post('')
         .reply(201, { results: [{}] })
 
@@ -150,7 +150,7 @@ describe('GoogleEnhancedConversions', () => {
         }
       })
 
-      nock(`https://googleads.googleapis.com/v11/customers/${customerId}:uploadConversionAdjustments`)
+      nock(`https://googleads.googleapis.com/v12/customers/${customerId}:uploadConversionAdjustments`)
         .post('')
         .reply(201, { results: [{}] })
 

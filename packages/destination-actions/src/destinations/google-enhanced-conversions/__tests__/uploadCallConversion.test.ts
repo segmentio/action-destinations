@@ -7,7 +7,7 @@ const timestamp = new Date('Thu Jun 10 2021 11:08:04 GMT-0700 (Pacific Daylight 
 const customerId = '1234'
 
 describe('GoogleEnhancedConversions', () => {
-  describe('uploadCallConversion', () => {
+  describe('uploadCallConversion ******', () => {
     it('sends an event with default mappings', async () => {
       const event = createTestEvent({
         timestamp,
@@ -20,7 +20,7 @@ describe('GoogleEnhancedConversions', () => {
         }
       })
 
-      nock(`https://googleads.googleapis.com/v11/customers/${customerId}:uploadCallConversions`)
+      nock(`https://googleads.googleapis.com/v12/customers/${customerId}:uploadCallConversions`)
         .post('')
         .reply(201, { results: [{}] })
 
@@ -53,7 +53,7 @@ describe('GoogleEnhancedConversions', () => {
         }
       })
 
-      nock(`https://googleads.googleapis.com/v11/customers/${customerId}/googleAds:searchStream`)
+      nock(`https://googleads.googleapis.com/v12/customers/${customerId}/googleAds:searchStream`)
         .post('')
         .reply(200, [
           {
@@ -69,7 +69,7 @@ describe('GoogleEnhancedConversions', () => {
           }
         ])
 
-      nock(`https://googleads.googleapis.com/v11/customers/${customerId}:uploadCallConversions`)
+      nock(`https://googleads.googleapis.com/v12/customers/${customerId}:uploadCallConversions`)
         .post('')
         .reply(201, { results: [{}] })
 
@@ -162,7 +162,7 @@ describe('GoogleEnhancedConversions', () => {
         }
       })
 
-      nock(`https://googleads.googleapis.com/v11/customers/${customerId}:uploadCallConversions`)
+      nock(`https://googleads.googleapis.com/v12/customers/${customerId}:uploadCallConversions`)
         .post('')
         .reply(201, { results: [{}] })
 
