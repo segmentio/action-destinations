@@ -23,9 +23,7 @@ export default class Init extends Command {
 
   static description = `Scaffolds a new integration given a JSON configuration`
 
-  static examples = [
-    `$ ./bin/run lowcode`
-  ]
+  static examples = [`$ ./bin/run lowcode`]
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   static flags: flags.Input<any> = {
@@ -118,7 +116,7 @@ export default class Init extends Command {
       this.exit()
     }
 
-    for (let action of actions) {
+    for (const action of actions) {
       const actionsTargetDirectory = `${targetDirectory}/${action.name}`
 
       try {
@@ -142,7 +140,7 @@ export default class Init extends Command {
         this.spinner.fail(chalk`Scaffold action {magenta ${action.name}}: ${chalk.red(err.message)}`)
         this.exit()
       }
-      
+
       try {
         this.spinner.start(`Creating snapshot tests for ${chalk.bold(`${destination}'s ${slug}`)} destination action`)
         renderTemplates(
