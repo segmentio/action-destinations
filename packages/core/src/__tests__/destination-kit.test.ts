@@ -1,4 +1,3 @@
-import { Settings } from 'http2'
 import { InvalidAuthenticationError, ErrorCodes } from '../errors'
 import {
   StateContext,
@@ -330,7 +329,7 @@ describe('destination kit', () => {
               reject(new Error('Invalid Refresh Token'))
             })
           }
-        } as OAuth2Authentication<Settings>
+        } as OAuth2Authentication<any>
       }
       const destinationTest = new Destination(destination)
       const testSettings = {
