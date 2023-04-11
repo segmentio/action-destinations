@@ -1,4 +1,3 @@
-// import { omit } from '@segment/actions-core'
 import { IntegrationError, RequestClient } from '@segment/actions-core'
 import dayjs from 'dayjs'
 import { Settings } from './generated-types'
