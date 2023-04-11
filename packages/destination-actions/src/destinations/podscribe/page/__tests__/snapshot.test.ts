@@ -29,16 +29,7 @@ describe(`Testing snapshot for ${destinationSlug}'s ${actionSlug} destination ac
     })
 
     const request = responses[0].request
-    const rawBody = await request.text()
-
-    try {
-      const json = JSON.parse(rawBody)
-      expect(json).toMatchSnapshot()
-      return
-    } catch (err) {
-      expect(rawBody).toMatchSnapshot()
-    }
-
+    expect(request.url).toMatchSnapshot()
     expect(request.headers).toMatchSnapshot()
   })
 
@@ -62,14 +53,6 @@ describe(`Testing snapshot for ${destinationSlug}'s ${actionSlug} destination ac
     })
 
     const request = responses[0].request
-    const rawBody = await request.text()
-
-    try {
-      const json = JSON.parse(rawBody)
-      expect(json).toMatchSnapshot()
-      return
-    } catch (err) {
-      expect(rawBody).toMatchSnapshot()
-    }
+    expect(request.url).toMatchSnapshot()
   })
 })
