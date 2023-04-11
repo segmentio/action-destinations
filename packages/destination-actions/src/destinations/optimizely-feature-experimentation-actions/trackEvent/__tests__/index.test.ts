@@ -1,7 +1,7 @@
 import nock from 'nock'
 import { createTestEvent, createTestIntegration } from '@segment/actions-core'
 import Destination from '../../index'
-import { dataFile } from '../dataFile'
+import { dataFile } from '../mock-dataFile'
 
 const testDestination = createTestIntegration(Destination)
 
