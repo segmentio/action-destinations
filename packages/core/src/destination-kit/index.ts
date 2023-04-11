@@ -236,9 +236,9 @@ export interface StateContext {
 
 export interface LruCache {
   // getCache reads the cache corresponding to the key
-  getCache(key: string): any
+  get(key: string): any
   // setCache sets values in the cache corresponding to the key
-  setCache(key: string, value: object): void
+  set(key: string, value: object): void
 }
 
 export interface StatsClient {

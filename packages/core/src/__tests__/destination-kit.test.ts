@@ -572,8 +572,8 @@ describe('destination kit', () => {
             ): void => {}
           } as StateContext,
           lruCache: {
-            getCache: (_key: string): any => {},
-            setCache: (_key: string, _value: object): void => {}
+            get: (_key: string): any => {},
+            set: (_key: string, _value: object): void => {}
           } as LruCache
         }
         const res = await destinationTest.onEvent(testEvent, testSettings, eventOptions)

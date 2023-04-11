@@ -70,7 +70,7 @@ export async function getDatafile(settings: Settings, request: RequestClient, lr
   const exp = (settings.cacheExp || 300) * 1000 // seconds to milliseconds
 
   const cacheKey = dataFileUrl
-  let cacheEntry = <CacheFields>lruCache?.getCache(cacheKey)
+  let cacheEntry = <CacheFields>lruCache?.get(cacheKey)
 
   if (!isCacheReady(cacheEntry, exp)) {
     if (!cacheEntry) {
@@ -86,8 +86,10 @@ export async function getDatafile(settings: Settings, request: RequestClient, lr
       throw e
     }
 
-    lruCache?.setCache(cacheKey, cacheEntry)
+    lruCache?.set(cacheKey, cacheEntry)
   }
+
+  dataFileJSON = cacheEntry?.dataFile
 
   try {
     if (typeof dataFileJSON === 'string') {
