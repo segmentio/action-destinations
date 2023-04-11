@@ -93,7 +93,7 @@ export abstract class MessageSender<SmsPayload extends MinimalPayload> {
     } catch (error: unknown) {
       if (error instanceof Object) {
         const twilioApiError = error as TwilioApiError
-        this.logger?.error?.(
+        this.logger?.error(
           `TE Messaging: Twilio Programmable API error - ${this.settings.spaceId} - [${JSON.stringify(
             twilioApiError.response.data
           )}]`
