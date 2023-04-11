@@ -44,6 +44,12 @@ const destination: DestinationDefinition<Settings> = {
         description: 'Source ID',
         type: 'string',
         required: true
+      },
+      region: {
+        label: 'Region',
+        description: 'The region where the email is originating from',
+        type: 'string',
+        required: false
       }
     },
     testAuthentication: (request) => {

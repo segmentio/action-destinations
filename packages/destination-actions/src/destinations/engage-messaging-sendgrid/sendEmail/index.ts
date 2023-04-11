@@ -7,6 +7,8 @@ import { htmlEscape } from 'escape-goat'
 import { StatsClient } from '@segment/actions-core/src/destination-kit'
 const Liquid = new LiquidJs()
 
+type Region = 'us-west-2' | 'eu-west-1'
+
 const insertEmailPreviewText = (html: string, previewText: string): string => {
   const $ = cheerio.load(html)
 
@@ -25,8 +27,10 @@ const insertEmailPreviewText = (html: string, previewText: string): string => {
 }
 
 // These profile calls will be removed when Profile sync can fetch external_id
-const getProfileApiEndpoint = (environment: string): string => {
-  return `https://profiles.segment.${environment === 'production' ? 'com' : 'build'}`
+const getProfileApiEndpoint = (environment: string, region?: Region): string => {
+  const domainName = region === 'eu-west-1' ? 'profiles.euw1.segment' : 'profiles.segment'
+  const topLevelName = environment === 'production' ? 'com' : 'build'
+  return `https://${domainName}.${topLevelName}`
 }
 
 type RequestFn = (url: string, options?: RequestOptions) => Promise<Response>
@@ -39,7 +43,7 @@ const fetchProfileTraits = async (
   tags?: string[] | undefined
 ): Promise<Record<string, string>> => {
   try {
-    const endpoint = getProfileApiEndpoint(settings.profileApiEnvironment)
+    const endpoint = getProfileApiEndpoint(settings.profileApiEnvironment, settings.region as Region)
     const response = await request(
       `${endpoint}/v1/spaces/${settings.spaceId}/collections/users/profiles/user_id:${profileId}/traits?limit=200`,
       {
