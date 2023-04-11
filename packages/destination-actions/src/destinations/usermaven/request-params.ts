@@ -107,8 +107,7 @@ export const trackEventRequestParams = (
         event_type: eventType,
         ids: {},
         user: {
-          id: userId,
-          anonymous_id: generateId()
+          id: userId
         },
         screen_resolution: '0',
         src: 'usermaven-segment',

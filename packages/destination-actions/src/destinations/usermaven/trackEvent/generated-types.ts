@@ -8,7 +8,7 @@ export interface Payload {
   /**
    * The event type.
    */
-  eventType: string
+  event: string
   /**
    * The event attributes.
    */

@@ -16,7 +16,7 @@ const action: ActionDefinition<Settings, Payload> = {
         '@path': '$.userId'
       }
     },
-    eventType: {
+    event: {
       label: 'Event Type',
       description: 'The event type.',
       type: 'string',
@@ -36,12 +36,7 @@ const action: ActionDefinition<Settings, Payload> = {
     }
   },
   perform: (request, { payload, settings }) => {
-    const { url, options } = trackEventRequestParams(
-      settings,
-      payload.userId,
-      payload.eventType,
-      payload.eventAttributes
-    )
+    const { url, options } = trackEventRequestParams(settings, payload.userId, payload.event, payload.eventAttributes)
     return request(url, options)
   }
 }
