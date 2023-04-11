@@ -131,7 +131,7 @@ describe('Salesforce', () => {
       )
     })
 
-    it('should delete an opprotunity record given an Id', async () => {
+    it('should delete an opportunity record given an Id', async () => {
       nock(`${settings.instanceUrl}services/data/${API_VERSION}/sobjects`).delete('/Opportunity/123').reply(204, {})
 
       const event = createTestEvent({
@@ -156,7 +156,7 @@ describe('Salesforce', () => {
       expect(responses[0].status).toBe(204)
     })
 
-    it('should delete an opprotunity record given some lookup traits', async () => {
+    it('should delete an opportunity record given some lookup traits', async () => {
       const query = encodeURIComponent(`SELECT Id FROM Opportunity WHERE Email = 'bob@bobsburgers.net'`)
       nock(`${settings.instanceUrl}services/data/${API_VERSION}/query`)
         .get(`/?q=${query}`)

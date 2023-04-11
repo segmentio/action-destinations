@@ -12,7 +12,7 @@ import {
   recordMatcherOperator
 } from '../sf-properties'
 import Salesforce from '../sf-operations'
-
+import { IntegrationError } from '@segment/actions-core'
 const OPERATIONS_WITH_CUSTOM_FIELDS = ['create', 'update', 'upsert']
 
 const action: ActionDefinition<Settings, Payload> = {
@@ -44,7 +44,7 @@ const action: ActionDefinition<Settings, Payload> = {
   },
   perform: async (request, { settings, payload }) => {
     if (OPERATIONS_WITH_CUSTOM_FIELDS.includes(payload.operation) && !payload.customFields) {
-      throw new Error('Custom fields are required for this operation.')
+      throw new IntegrationError('Custom fields are required for this operation.')
     }
 
     const sf: Salesforce = new Salesforce(settings.instanceUrl, request)
@@ -69,7 +69,7 @@ const action: ActionDefinition<Settings, Payload> = {
   },
   performBatch: async (request, { settings, payload }) => {
     if (OPERATIONS_WITH_CUSTOM_FIELDS.includes(payload[0].operation) && !payload[0].customFields) {
-      throw new Error('Custom fields are required for this operation.')
+      throw new IntegrationError('Custom fields are required for this operation.')
     }
 
     const sf: Salesforce = new Salesforce(settings.instanceUrl, request)
