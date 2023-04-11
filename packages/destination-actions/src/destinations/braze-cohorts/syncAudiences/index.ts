@@ -1,4 +1,4 @@
-import { ActionDefinition, RequestClient, IntegrationError } from '@segment/actions-core'
+import { ActionDefinition, RequestClient, PayloadValidationError } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 import { SyncAudiences } from '../api'
@@ -146,11 +146,7 @@ async function processPayload(
 
 function validate(payloads: Payload[]): void {
   if (payloads[0].cohort_name !== payloads[0].personas_audience_key) {
-    throw new IntegrationError(
-      'The value of `personas computation key` and `personas_audience_key` must match.',
-      'INVALID_SETTINGS',
-      400
-    )
+    throw new PayloadValidationError('The value of `personas computation key` and `personas_audience_key` must match.')
   }
 }
 
