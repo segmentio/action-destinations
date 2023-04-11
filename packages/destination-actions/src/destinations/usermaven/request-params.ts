@@ -48,6 +48,8 @@ export const identifyUserRequestParams = (
   },
   additionalProperties?: Record<string, unknown>
 ): RequestParams => {
+  const defaultRequest = defaultRequestParams(settings, 'api/v1/s2s/event')
+
   let userPayload: any = {
     anonymous_id: userProperties.anonymousId || generateId(),
     id: userProperties.userId,
@@ -64,9 +66,9 @@ export const identifyUserRequestParams = (
   }
 
   return {
-    ...defaultRequestParams(settings, 'api/v1/s2s/event'),
+    ...defaultRequest,
     options: {
-      ...defaultRequestParams(settings, 'api/v1/s2s/event').options,
+      ...defaultRequest.options,
       json: {
         api_key: settings.apiKey,
         event_id: '',
@@ -75,6 +77,42 @@ export const identifyUserRequestParams = (
         user: userPayload,
         screen_resolution: '0',
         src: 'usermaven-segment'
+      }
+    }
+  }
+}
+
+/**
+ * Returns {@link RequestParams} for tracking an event.
+ * @param settings Settings configured for the cloud mode destination.
+ * @param userId The user ID.
+ * @param eventType The event type.
+ * @param eventAttributes The event attributes.
+ */
+export const trackEventRequestParams = (
+  settings: Settings,
+  userId: string,
+  eventType: string,
+  eventAttributes: Record<string, unknown> = {}
+): RequestParams => {
+  const defaultRequest = defaultRequestParams(settings, 'api/v1/s2s/event')
+
+  return {
+    ...defaultRequest,
+    options: {
+      ...defaultRequest.options,
+      json: {
+        api_key: settings.apiKey,
+        event_id: '',
+        event_type: eventType,
+        ids: {},
+        user: {
+          id: userId,
+          anonymous_id: generateId()
+        },
+        screen_resolution: '0',
+        src: 'usermaven-segment',
+        event_attributes: eventAttributes
       }
     }
   }

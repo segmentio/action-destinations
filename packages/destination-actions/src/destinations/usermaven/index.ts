@@ -4,6 +4,8 @@ import { IntegrationError } from '@segment/actions-core'
 
 import identifyUser from './identifyUser'
 
+import trackEvent from './trackEvent'
+
 const destination: DestinationDefinition<Settings> = {
   name: 'Usermaven',
   slug: 'actions-usermaven',
@@ -47,7 +49,8 @@ const destination: DestinationDefinition<Settings> = {
   // },
 
   actions: {
-    identifyUser
+    identifyUser,
+    trackEvent
   }
 }
 
