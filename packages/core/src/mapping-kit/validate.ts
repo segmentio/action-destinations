@@ -265,7 +265,7 @@ directive('@replace', (v, stack) => {
     v,
     {
       pattern: { required: chain(validateString, validateStringLength(1, MAX_PATTERN_LENGTH)) },
-      replacement: { optional: chain(validateString, validateStringLength(1, MAX_REPLACEMENT_LENGTH)) },
+      replacement: { optional: chain(validateString, validateStringLength(0, MAX_REPLACEMENT_LENGTH)) },
       value: { required: validateDirectiveOrString },
       ignorecase: { optional: validateBoolean },
       global: { optional: validateBoolean }
