@@ -49,6 +49,10 @@ const destination: DestinationDefinition<Settings> = {
         label: 'Region',
         description: 'The region where the email is originating from',
         type: 'string',
+        choices: [
+          { value: 'us-west-2', label: 'US West 2' },
+          { value: 'eu-west-1', label: 'EU West 1' }
+        ],
         required: false
       }
     },
