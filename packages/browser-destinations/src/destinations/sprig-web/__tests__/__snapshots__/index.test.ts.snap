@@ -11,11 +11,6 @@ exports[`Sprig initialization can load Sprig:
         </script>,
      1`] = `
 NodeList [
-  <script
-    src="https://cdn.sprig.com/shim.js?id=testEnvId"
-    status="loaded"
-    type="text/javascript"
-  />,
   <script>
     // the emptiness
   </script>,
