@@ -70,6 +70,11 @@ export const resolveRequestPayload = (settings: Settings, payload: Record<string
     ...payload
   }
 
+  // Checking if email is present in the payload, then try to get from the traits
+  if (!payload.user.email && payload?.traits?.email) {
+    properties.user.email = payload.traits.email
+  }
+
   // Resolve doc_host property, we can get doc_host from the payload url
   if (payload.url) {
     const url = new URL(payload.url as string)

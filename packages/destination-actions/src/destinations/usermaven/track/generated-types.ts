@@ -8,7 +8,9 @@ export interface Payload {
   /**
    * The event name
    */
-  event_attributes?: string
+  event_attributes?: {
+    [k: string]: unknown
+  }
   /**
    * The path of the document.
    */

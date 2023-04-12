@@ -16,7 +16,7 @@ const action: ActionDefinition<Settings, Payload> = {
       default: { '@path': '$.event' }
     },
     event_attributes: {
-      type: 'string',
+      type: 'object',
       required: false,
       description: 'The event name',
       label: 'Event Name',

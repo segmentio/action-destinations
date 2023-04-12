@@ -38,8 +38,8 @@ const action: ActionDefinition<Settings, Payload> = {
       },
       default: {
         id: { '@path': '$.groupId' },
-        name: { '@path': '$.traits.name' },
-        created_at: { '@path': '$.traits.company_created_at' }
+        name: { '@path': '$.properties.name' },
+        created_at: { '@path': '$.properties.created_at' }
       }
     },
     ...commonFields
