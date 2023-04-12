@@ -373,7 +373,8 @@ describe('Braze Cloud Mode (Actions)', () => {
               currency: 'USD',
               price: 99.99,
               quantity: 1,
-              number_of_items: 2
+              number_of_items: 2,
+              property_5: 45
             }
           ],
           property2_: 'test',
@@ -397,7 +398,7 @@ describe('Braze Cloud Mode (Actions)', () => {
             external_id: 'user1234',
             app_id: 'my-app-id',
             time: '2021-08-03T17:40:04.055Z',
-            properties: { number_of_items: 2, property2_: 'test', property_3: true },
+            properties: { number_of_items: 2, property2_: 'test', property_3: true, property_5: 45 },
             _update_existing_only: false,
             product_id: 'test-product-id',
             currency: 'USD',

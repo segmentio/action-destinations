@@ -1,3 +1,4 @@
+import { omit } from '@segment/actions-core'
 import { IntegrationError, RequestClient } from '@segment/actions-core'
 import dayjs from 'dayjs'
 import { Settings } from './generated-types'
@@ -104,8 +105,7 @@ export function sendTrackPurchase(request: RequestClient, settings: Settings, pa
   }
 
   const reservedKeys = Object.keys(action.fields.products.properties ?? {})
-  const event_properties = Object.assign({}, payload.properties)
-  delete event_properties.products
+  const event_properties = omit(payload.properties, ['products'])
   const base = {
     braze_id,
     external_id,
@@ -128,7 +128,7 @@ export function sendTrackPurchase(request: RequestClient, settings: Settings, pa
           price: product.price,
           quantity: product.quantity,
           properties: {
-            ...Object.fromEntries(Object.entries(product).filter(([key]) => !reservedKeys.includes(key))),
+            ...omit(product, reservedKeys),
             ...event_properties
           }
         }
