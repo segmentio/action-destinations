@@ -4,9 +4,5 @@ export interface Settings {
   /**
    * Found on your settings page.
    */
-  apiKey: string
-  /**
-   * Found on your settings page.
-   */
-  serverToken: string
+  api_key: string
 }
