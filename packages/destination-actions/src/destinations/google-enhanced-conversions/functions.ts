@@ -69,14 +69,3 @@ export function convertTimestamp(timestamp: string | undefined): string | undefi
   }
   return timestamp.replace(/T/, ' ').replace(/\..+/, '+00:00')
 }
-
-// Ticket to remove flagon - https://segment.atlassian.net/browse/STRATCONN-1953
-// export function getUrlByVersion(features?: Features, statsContext?: StatsContext): string {
-//   const statsClient = statsContext?.statsClient
-//   const tags = statsContext?.tags
-
-//   const API_VERSION = features && features['google-enhanced-v12'] ? 'v12' : 'v11'
-//   tags?.push(`version:${API_VERSION}`)
-//   statsClient?.incr(`google_enhanced_conversions`, 1, tags)
-//   return `https://googleads.googleapis.com/${API_VERSION}/customers`
-// }
