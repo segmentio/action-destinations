@@ -128,9 +128,7 @@ const destination: DestinationDefinition<Settings> = {
       return { accessToken: at.data.access_token }
     }
   },
-  extendRequest: ({ settings, auth }) => {
-    settings.a_pod
-    auth?.accessToken
+  extendRequest: ({ auth }) => {
     return {
       headers: {
         Authorization: `Bearer ${auth?.accessToken}`,
