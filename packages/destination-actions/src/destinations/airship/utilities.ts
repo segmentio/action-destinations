@@ -77,13 +77,13 @@ function add_attribute(attribute_key: string, attribute_value: any, occurred: st
   }
 }
 
-function is_type_dict(trait: any) {
-  if (trait.constructor != 'Object') {
-    return false
-  } else {
-    return true
-  }
-}
+// function is_type_dict(trait: any) {
+//   if (trait.constructor != 'Object') {
+//     return false
+//   } else {
+//     return true
+//   }
+// }
 
 function trait_to_attribute_map(attribute_key: string): string {
   const TRAIT_TO_ATTRIBUTE_ID_MAP = new Map<string, string>([
