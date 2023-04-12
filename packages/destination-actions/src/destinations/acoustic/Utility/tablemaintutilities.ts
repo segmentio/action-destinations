@@ -1,41 +1,10 @@
 import { IntegrationError } from '@segment/actions-core'
 import { RequestClient } from '@segment/actions-core'
-import { refreshTokenResult } from '..'
 import { Settings } from '../generated-types'
 
 export let eventTableListId = ''
-export let accToken = ''
-
-export async function getAccessToken(request: RequestClient, settings: Settings) {
-  //grant_type:refresh_token
-  const clientId = settings?.a_clientId ?? ''
-  const clientSecret = settings?.a_clientSecret ?? ''
-  const refreshToken = settings?.a_refreshToken ?? ''
-  //pod:4
-
-  const res = await request<refreshTokenResult>(
-    `https://api-campaign-${settings.a_region}-${settings.a_pod}.goacoustic.com/oauth/token`,
-    {
-      method: 'POST',
-      body: new URLSearchParams({
-        refresh_token: refreshToken,
-        client_id: clientId,
-        client_secret: clientSecret,
-        grant_type: 'refresh_token'
-      }),
-      headers: {
-        'user-agent': `Segment (refreshtoken)`,
-        'Content-Type': 'application/x-www-form-urlencoded'
-      }
-    }
-  )
-
-  return { accessToken: res.data.access_token }.accessToken
-}
 
 export async function preChecksAndMaint(request: RequestClient, settings: Settings) {
-  accToken = await getAccessToken(request, settings)
-
   //check for Segment Events table, if not exist create it
   eventTableListId = await checkRTExist(request, settings)
 
@@ -58,9 +27,6 @@ export async function checkRTExist(request: RequestClient, settings: Settings) {
       `https://api-campaign-${settings.a_region}-${settings.a_pod}.goacoustic.com/XMLAPI`,
       {
         method: 'POST',
-        headers: {
-          Authorization: `Bearer ${accToken}`
-        },
         body: `
     <Envelope> <Body>
     <GetListMetaData> <LIST_ID>59294</LIST_ID>
@@ -86,9 +52,6 @@ export async function checkRTExist(request: RequestClient, settings: Settings) {
       `https://api-campaign-${settings.a_region}-${settings.a_pod}.goacoustic.com/XMLAPI`,
       {
         method: 'POST',
-        headers: {
-          Authorization: `Bearer ${accToken}`
-        },
         body: `<Envelope>
   <Body>
   <GetLists>
@@ -171,10 +134,7 @@ export async function createSegmentEventsTable(request: RequestClient, settings:
     `https://api-campaign-${settings.a_region}-${settings.a_pod}.goacoustic.com/xmlapi`,
     {
       method: 'POST',
-      body: createEventsXML,
-      headers: {
-        Authorization: `Bearer ${accToken}`
-      }
+      body: createEventsXML
     }
   )
 
