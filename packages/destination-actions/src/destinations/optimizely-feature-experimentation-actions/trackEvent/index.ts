@@ -31,7 +31,6 @@ const action: ActionDefinition<Settings, Payload> = {
           exists: {
             '@path': '$.userId'
           },
-
           then: {
             '@path': '$.userId'
           },
@@ -45,7 +44,7 @@ const action: ActionDefinition<Settings, Payload> = {
       label: 'Event Attributes',
       type: 'object',
       description:
-        'A map of custom key-value string pairs specifying attributes for the user that are used for results segmentation. Non-string values are only supported in the 3.0 SDK and above.',
+        'A map of custom key-value string pairs specifying attributes for the user that are used for results segmentation.',
       required: false,
       default: {
         '@path': '$.context.traits'
