@@ -17,6 +17,11 @@ const subscriptions: Subscription[] = [
 ]
 
 describe('Sprig initialization', () => {
+  beforeAll(() => {
+    jest.mock('../../../runtime/load-script', () => ({
+      loadScript: (_src: any, _attributes: any) => {}
+    }))
+  })
   test('can load Sprig', async () => {
     const [event] = await sprigWebDestination({
       envId: 'testEnvId',
