@@ -1,6 +1,7 @@
 import nock from 'nock'
-import { createTestEvent, createTestIntegration } from '@segment/actions-core'
+import { createTestEvent, createTestIntegration, defaultValues } from '@segment/actions-core'
 import Destination from '../../index'
+import track from '../../track'
 
 const testDestination = createTestIntegration(Destination)
 
@@ -8,16 +9,19 @@ describe('Podscribe.track', () => {
   const TEST_ADVERTISER = 'test-advertiser'
 
   it('should send signup event', async () => {
-    const params = new URLSearchParams({ advertiser: TEST_ADVERTISER, action: 'signup' })
-    nock('https://verifi.podscribe.com').get('/tag').query(params).reply(204, {})
+    nock('https://verifi.podscribe.com').get('/tag').query(true).reply(204, {})
 
     const event = createTestEvent({
-      event: 'Signed Up'
+      event: 'Signed Up',
+      type: 'track'
     })
 
     const responses = await testDestination.testAction('track', {
       event,
-      mapping: { event: 'Signed Up' },
+      mapping: {
+        ...defaultValues(track.fields),
+        event_type: 'signup'
+      },
       settings: { advertiser: TEST_ADVERTISER }
     })
 
@@ -25,16 +29,19 @@ describe('Podscribe.track', () => {
   })
 
   it('should send purchase event', async () => {
-    const params = new URLSearchParams({ advertiser: TEST_ADVERTISER, action: 'purchase' })
-    nock('https://verifi.podscribe.com').get('/tag').query(params).reply(204, {})
+    nock('https://verifi.podscribe.com').get('/tag').query(true).reply(204, {})
 
     const event = createTestEvent({
-      event: 'Order Completed'
+      event: 'Order Completed',
+      type: 'track'
     })
 
     const responses = await testDestination.testAction('track', {
       event,
-      mapping: { event: 'Order Completed' },
+      mapping: {
+        ...defaultValues(track.fields),
+        event_type: 'purchase'
+      },
       settings: { advertiser: TEST_ADVERTISER }
     })
 

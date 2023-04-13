@@ -18,7 +18,7 @@ export interface Payload {
    */
   url?: string | null
   /**
-   * The if of the device sending the event.
+   * The IP address of the device sending the event.
    */
   ip?: string
   /**

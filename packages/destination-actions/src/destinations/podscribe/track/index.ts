@@ -53,7 +53,7 @@ const action: ActionDefinition<Settings, Payload> = {
     ip: {
       label: 'Ip',
       type: 'string',
-      description: 'The if of the device sending the event.',
+      description: 'The IP address of the device sending the event.',
       default: {
         '@path': '$.context.ip'
       }
@@ -79,21 +79,18 @@ const action: ActionDefinition<Settings, Payload> = {
       description: 'Properties to send with the event',
       label: 'Event properties',
       default: { '@path': '$.properties' }
+    },
+    event_type: {
+      type: 'string',
+      required: true,
+      description: 'Type of event to send',
+      label: 'Event type',
+      default: { '@path': '$.event_type' }
     }
   },
   perform: (request, { settings, payload }) => {
-    let action = 'view'
-
-    if (payload.event === 'Order Completed') {
-      action = 'purchase'
-    }
-
-    if (payload.event === 'Signed Up') {
-      action = 'signup'
-    }
-
     const params = serializeParams({
-      action,
+      action: payload.event_type,
       advertiser: settings.advertiser,
       timestamp: payload.timestamp,
       device_id: payload.userId,

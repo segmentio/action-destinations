@@ -53,7 +53,7 @@ const action: ActionDefinition<Settings, Payload> = {
     ip: {
       label: 'Ip',
       type: 'string',
-      description: 'The if of the device sending the event.',
+      description: 'The IP address of the device sending the event.',
       default: {
         '@path': '$.context.ip'
       }
