@@ -134,5 +134,41 @@ describe('PinterestConversionApi', () => {
         'User data must contain values for Email or Phone Number or Mobile Ad Identifier or both IP Address and User Agent fields'
       )
     })
+
+    it('Should send an signup event to pinterest successfully,if user data have either of email,hashed_maids or both client_ip_address and client_user_agent', async () => {
+      nock(`https://api.pinterest.com`)
+        .post(`/${API_VERSION}/ad_accounts/${authData.ad_account_id}/events`)
+        .reply(200, {})
+
+      const responses = await testDestination.testAction('reportConversionEvent', {
+        event,
+        settings: authData,
+        useDefaultMappings: true,
+        mapping: {
+          event_name: 'signup',
+          user_data: {
+            first_name: ['Gaurav'],
+            last_name: ['test'],
+            external_id: ['test_external_id'],
+            phone: ['123456789'],
+            gender: ['male'],
+            city: ['asd'],
+            state: ['CA'],
+            zip: ['123456'],
+            country: ['US'],
+            hashed_maids: ['test123123'],
+            date_of_birth: ['1996-02-01'],
+            email: ['test@gmail.com'],
+            client_user_agent: '5.5.5.5',
+            client_ip_address:
+              'Mozilla/5.0 (iPhone; CPU iPhone OS 9_1 like Mac OS X) AppleWebKit/601.1.46 (KHTML, like Gecko) Version/9.0 Mobile/13B143 Safari/601.1'
+          }
+        }
+      })
+      expect(responses.length).toBe(1)
+      expect(responses[0].status).toBe(200)
+      expect(JSON.parse(responses[0]?.options?.body as string)?.data?.length).toBe(1)
+      expect(responses[0].options.json).toMatchSnapshot()
+    })
   })
 })
