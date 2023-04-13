@@ -6,6 +6,11 @@ import { IntegrationError } from '@segment/actions-core'
 import { StatsClient, StatsContext } from '@segment/actions-core/src/destination-kit'
 import { MessageSender, RequestFn } from '../utils/message-sender'
 
+export enum Region {
+  usWest2 = 'us-west-2',
+  euWest1 = 'eu-west-1'
+}
+
 const Liquid = new LiquidJs()
 
 export class SmsMessageSender extends MessageSender<Payload> {
@@ -63,9 +68,9 @@ export class SmsMessageSender extends MessageSender<Payload> {
       )
     }
     try {
-      const endpoint = `https://profiles.segment.${
-        this.settings.profileApiEnvironment === 'production' ? 'com' : 'build'
-      }`
+      const baseEndpoint =
+        this.payload.region === Region.euWest1 ? 'https://profiles.euw1.segment' : 'https://profiles.segment'
+      const endpoint = `${baseEndpoint}.${this.settings.profileApiEnvironment === 'production' ? 'com' : 'build'}`
       const response = await this.request(
         `${endpoint}/v1/spaces/${this.settings.spaceId}/collections/users/profiles/user_id:${encodeURIComponent(
           this.payload.userId

@@ -2,6 +2,7 @@ import nock from 'nock'
 import { createTestIntegration } from '@segment/actions-core'
 import { createMessagingTestEvent } from '../../../lib/engage-test-data/create-messaging-test-event'
 import Twilio from '..'
+import { Region } from '../sendSms/sms-sender'
 
 const twilio = createTestIntegration(Twilio)
 const timestamp = new Date().toISOString()
@@ -31,12 +32,18 @@ describe.each(['stage', 'production'])('%s environment', (environment) => {
     }
   }
 
-  const endpoint = `https://profiles.segment.${environment === 'production' ? 'com' : 'build'}`
+  const getProfilesEndpoint = (environment: string, region: Region = Region.usWest2) => {
+    const baseEndpoint = region === Region.euWest1 ? 'https://profiles.euw1.segment' : 'https://profiles.segment'
+
+    return `${baseEndpoint}.${environment === 'production' ? 'com' : 'build'}`
+  }
 
   beforeEach(() => {
-    nock(`${endpoint}/v1/spaces/d/collections/users/profiles/user_id:jane`).get('/traits?limit=200').reply(200, {
-      traits: {}
-    })
+    nock(`${getProfilesEndpoint(environment)}/v1/spaces/d/collections/users/profiles/user_id:jane`)
+      .get('/traits?limit=200')
+      .reply(200, {
+        traits: {}
+      })
   })
 
   afterEach(() => {
@@ -60,6 +67,7 @@ describe.each(['stage', 'production'])('%s environment', (environment) => {
 
       expect(responses.length).toEqual(0)
     })
+
     it('should throw error with no userId and no trait enrichment', async () => {
       const mapping = getDefaultMapping({
         userId: undefined,
@@ -188,7 +196,58 @@ describe.each(['stage', 'production'])('%s environment', (environment) => {
       }
       await expect(twilio.testAction('sendSms', actionInputData)).rejects.toHaveProperty('code', 'ERR_INVALID_URL')
     })
+
+    it.each([Region.euWest1, Region.usWest2])(
+      'should retrieve profiles from expected endpoint based upon region',
+      async (region) => {
+        nock.cleanAll()
+        // mock the correct endpoint
+        const usProfilesApiMock = nock(
+          `${getProfilesEndpoint(environment, Region.usWest2)}/v1/spaces/d/collections/users/profiles/user_id:jane`
+        )
+          .get('/traits?limit=200')
+          .optionally(region === Region.usWest2)
+          .reply(200, { traits: {} })
+
+        const euProfilesApiMock = nock(
+          `${getProfilesEndpoint(environment, Region.euWest1)}/v1/spaces/d/collections/users/profiles/user_id:jane`
+        )
+          .get('/traits?limit=200')
+          .optionally(region === Region.euWest1)
+          .reply(200, { traits: {} })
+
+        const expectedTwilioRequest = new URLSearchParams({
+          Body: 'Hello world, jane!',
+          From: 'MG1111222233334444',
+          To: '+1234567891'
+        })
+
+        const twilioRequest = nock('https://api.twilio.com/2010-04-01/Accounts/a')
+          .post('/Messages.json', expectedTwilioRequest.toString())
+          .reply(201, {})
+
+        const actionInputData = {
+          event: createMessagingTestEvent({
+            timestamp,
+            event: 'Audience Entered',
+            userId: 'jane'
+          }),
+          settings,
+          mapping: { ...getDefaultMapping(), region }
+        }
+
+        const responses = await twilio.testAction('sendSms', actionInputData)
+
+        expect(responses.map((response) => response.url)).toStrictEqual([
+          'https://api.twilio.com/2010-04-01/Accounts/a/Messages.json'
+        ])
+        expect(twilioRequest.isDone()).toBe(true)
+        expect(euProfilesApiMock.isDone()).toBe(region === Region.euWest1)
+        expect(usProfilesApiMock.isDone()).toBe(region === Region.usWest2)
+      }
+    )
   })
+
   describe('subscription handling', () => {
     it.each(['subscribed', true])('sends an SMS when subscriptonStatus ="%s"', async (subscriptionStatus) => {
       const expectedTwilioRequest = new URLSearchParams({

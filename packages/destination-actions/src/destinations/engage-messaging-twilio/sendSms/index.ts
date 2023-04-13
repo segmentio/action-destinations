@@ -113,6 +113,16 @@ const action: ActionDefinition<Settings, Payload> = {
       default: {
         '@path': '$.timestamp'
       }
+    },
+    region: {
+      label: 'Region',
+      description: 'The region where the message is originating from',
+      type: 'string',
+      choices: [
+        { value: 'us-west-2', label: 'US West 2' },
+        { value: 'eu-west-1', label: 'EU West 1' }
+      ],
+      required: false
     }
   },
   perform: async (request, { settings, payload, statsContext }) => {
