@@ -2,7 +2,7 @@ import { ActionDefinition, omit, PayloadValidationError } from '@segment/actions
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 import { ProjectConfig } from '../types'
-import { buildVisitorAttributes, getEventId } from './functions'
+import { buildVisitorAttributes, getEventId, getEventKeys } from './functions'
 import dayjs from '../../../lib/dayjs'
 
 const action: ActionDefinition<Settings, Payload> = {
@@ -16,6 +16,7 @@ const action: ActionDefinition<Settings, Payload> = {
       description:
         'The key of the event to be tracked. This key must match the event key provided when the event was created in the Optimizely app.',
       required: true,
+      dynamic: true,
       default: {
         '@path': '$.event'
       }
@@ -98,6 +99,11 @@ const action: ActionDefinition<Settings, Payload> = {
       default: {
         '@path': '$.messageId'
       }
+    }
+  },
+  dynamicFields: {
+    eventKey: async (request, { settings }) => {
+      return getEventKeys(request, settings)
     }
   },
   perform: async (request, { settings, payload }) => {
