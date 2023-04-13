@@ -1,7 +1,7 @@
 import { IntegrationError, RequestClient } from '@segment/actions-core'
 import type { GenericPayload } from './sf-types'
 import { mapObjectToShape } from './sf-object-to-shape'
-import { buildCSVData } from './sf-utils'
+import { buildCSVData, validateInstanceURL } from './sf-utils'
 import { DynamicFieldResponse } from '@segment/actions-core'
 
 export const API_VERSION = 'v53.0'
@@ -70,9 +70,11 @@ export default class Salesforce {
   request: RequestClient
 
   constructor(instanceUrl: string, request: RequestClient) {
+    this.instanceUrl = validateInstanceURL(instanceUrl)
+
     // If the instanceUrl does not end with '/' append it to the string.
     // This ensures that all request urls are constructed properly
-    this.instanceUrl = instanceUrl.concat(instanceUrl.slice(-1) === '/' ? '' : '/')
+    this.instanceUrl = this.instanceUrl.concat(instanceUrl.slice(-1) === '/' ? '' : '/')
     this.request = request
   }
 
@@ -121,6 +123,25 @@ export default class Salesforce {
     return await this.baseUpdate(recordId, sobject, payload)
   }
 
+  deleteRecord = async (payload: GenericPayload, sobject: string) => {
+    if (!payload.traits || Object.keys(payload.traits).length === 0) {
+      throw new IntegrationError('Undefined Traits when using delete operation', 'Undefined Traits', 400)
+    }
+
+    if (Object.keys(payload.traits).includes('Id') && payload.traits['Id']) {
+      return await this.baseDelete(payload.traits['Id'] as string, sobject)
+    }
+
+    const soqlOperator: SOQLOperator = validateSOQLOperator(payload.recordMatcherOperator)
+    const [recordId, err] = await this.lookupTraits(payload.traits, sobject, soqlOperator)
+
+    if (err) {
+      throw err
+    }
+
+    return await this.baseDelete(recordId, sobject)
+  }
+
   bulkHandler = async (payloads: GenericPayload[], sobject: string) => {
     if (!payloads[0].enable_batching) {
       throwBulkMismatchError()
@@ -130,6 +151,14 @@ export default class Salesforce {
       return await this.bulkUpsert(payloads, sobject)
     } else if (payloads[0].operation === 'update') {
       return await this.bulkUpdate(payloads, sobject)
+    }
+
+    if (payloads[0].operation === 'delete') {
+      throw new IntegrationError(
+        `Unsupported operation: Bulk API does not support the delete operation`,
+        'Unsupported operation',
+        400
+      )
     }
 
     throw new IntegrationError(
@@ -258,6 +287,12 @@ export default class Salesforce {
     return this.request(`${this.instanceUrl}services/data/${API_VERSION}/sobjects/${sobject}/${recordId}`, {
       method: 'patch',
       json: json
+    })
+  }
+
+  private baseDelete = async (recordId: string, sobject: string) => {
+    return this.request(`${this.instanceUrl}services/data/${API_VERSION}/sobjects/${sobject}/${recordId}`, {
+      method: 'delete'
     })
   }
 

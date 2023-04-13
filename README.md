@@ -19,6 +19,7 @@ For more detailed instruction, see the following READMEs:
 - [Authentication](./docs/authentication.md)
 - [Mapping Kit](./packages/core/src/mapping-kit/README.md)
 - [Destination Kit](./packages/core/src/destination-kit/README.md)
+- [Error Handling](./docs/error-handling.md)
 
 ## Table of Contents:
 
@@ -50,7 +51,7 @@ This is a monorepo with multiple packages leveraging [`lerna`](https://github.co
 You'll need to have some tools installed locally to build and test action destinations.
 
 - Yarn 1.x
-- Node 14.17 (latest LTS, we recommand using [`nvm`](https://github.com/nvm-sh/nvm) for managing Node versions)
+- Node 18.12 (latest LTS, we recommand using [`nvm`](https://github.com/nvm-sh/nvm) for managing Node versions)
 
 If you are a Segment employee you can directly `git clone` the repository locally. Otherwise you'll want to fork this repository for your organization to submit Pull Requests against the main Segment repository. Once you've got a fork, you can `git clone` that locally.
 
@@ -62,7 +63,7 @@ cd action-destinations
 npm login
 yarn login
 
-# Requires node 14.17, optionally: nvm use 14.17
+# Requires node 18.12.1, optionally: nvm use 18.12.1
 yarn --ignore-optional
 yarn bootstrap
 yarn build

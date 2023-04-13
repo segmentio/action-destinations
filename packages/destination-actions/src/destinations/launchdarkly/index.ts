@@ -45,9 +45,9 @@ const destination: DestinationDefinition<Settings> = {
   extendRequest: () => {
     return {
       headers: {
-        'User-Agent': 'SegmentDestination/2.0.1',
+        'User-Agent': 'SegmentDestination/2.1.0',
         'Content-Type': 'application/json',
-        'X-LaunchDarkly-Event-Schema': '3'
+        'X-LaunchDarkly-Event-Schema': '4'
       }
     }
   },

@@ -46,6 +46,7 @@ type RetryableStatusCodes =
  */
 export class RetryableError extends CustomError {
   status: RetryableStatusCodes
+  code = ErrorCodes.RETRYABLE_ERROR
 
   constructor(message = '', status: RetryableStatusCodes = 500) {
     super(message)
@@ -62,9 +63,41 @@ export class RetryableError extends CustomError {
  */
 export class InvalidAuthenticationError extends CustomError {
   status = 401
-  code = 'invalid_authentication'
-
-  constructor(message = '') {
+  code: string
+  constructor(message = '', code = ErrorCodes.INVALID_AUTHENTICATION) {
     super(message)
+    this.code = code
   }
+}
+
+/**
+ * Error to indicate the payload is missing fields that are required.
+ * Should include a user-friendly message.
+ * These errors will not be retried and the user has to fix the payload.
+ */
+export class PayloadValidationError extends IntegrationError {
+  /**
+   * @param message - a human-friendly message to display to users
+   */
+  constructor(message: string) {
+    super(message, ErrorCodes.PAYLOAD_VALIDATION_FAILED, 400)
+  }
+}
+
+/**
+ * Standard error codes. Use one from this enum whenever possible.
+ */
+export enum ErrorCodes {
+  // Invalid API Key or Access Token
+  INVALID_AUTHENTICATION = 'INVALID_AUTHENTICATION',
+  // Payload is missing a field or has invalid value
+  PAYLOAD_VALIDATION_FAILED = 'PAYLOAD_VALIDATION_FAILED',
+  // The currency code is not in valid ISO format
+  INVALID_CURRENCY_CODE = 'INVALID_CURRENCY_CODE',
+  // Generic retryable error
+  RETRYABLE_ERROR = 'RETRYABLE_ERROR',
+  // Refresh token has expired
+  REFRESH_TOKEN_EXPIRED = 'REFRESH_TOKEN_EXPIRED',
+  // OAuth refresh failed
+  OAUTH_REFRESH_FAILED = 'OAUTH_REFRESH_FAILED'
 }

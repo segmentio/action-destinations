@@ -12,13 +12,14 @@ const action: BrowserActionDefinition<Settings, RipeSDK, Payload> = {
     anonymousId: {
       type: 'string',
       required: true,
-      description: 'The new user ID, if user ID is not set',
+      description: 'The anonymous id',
       label: 'Anonymous ID',
       default: { '@path': '$.anonymousId' }
     },
     userId: {
       type: 'string',
       required: false,
+      allowNull: true,
       description: 'The ID associated with the user',
       label: 'User ID',
       default: { '@path': '$.userId' }
@@ -26,9 +27,10 @@ const action: BrowserActionDefinition<Settings, RipeSDK, Payload> = {
     groupId: {
       type: 'string',
       required: false,
+      allowNull: true,
       description: 'The ID associated groupId',
       label: 'Group ID',
-      default: { '@path': '$.groupId' }
+      default: { '@path': '$.context.groupId' }
     },
     traits: {
       type: 'object',
@@ -36,11 +38,23 @@ const action: BrowserActionDefinition<Settings, RipeSDK, Payload> = {
       description: 'Traits to associate with the user',
       required: false,
       default: { '@path': '$.traits' }
+    },
+    messageId: {
+      type: 'string',
+      required: false,
+      description: 'The Segment messageId',
+      label: 'MessageId',
+      default: { '@path': '$.messageId' }
     }
   },
   perform: async (ripe, { payload }) => {
-    await ripe.setIds(payload.anonymousId, payload.userId, payload.groupId)
-    return ripe.identify(payload.userId, payload.traits)
+    return ripe.identify({
+      messageId: payload.messageId,
+      anonymousId: payload.anonymousId,
+      userId: payload.userId,
+      groupId: payload.groupId,
+      traits: payload.traits
+    })
   }
 }
 

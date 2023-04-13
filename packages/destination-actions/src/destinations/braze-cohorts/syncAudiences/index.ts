@@ -1,4 +1,4 @@
-import { ActionDefinition, RequestClient, IntegrationError } from '@segment/actions-core'
+import { ActionDefinition, RequestClient, PayloadValidationError } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 import { SyncAudiences } from '../api'
@@ -23,7 +23,7 @@ const action: ActionDefinition<Settings, Payload> = {
     user_alias: {
       label: 'User Alias Object',
       description:
-        'A user alias object. See [the docs](https://www.braze.com/docs/api/objects_filters/user_alias_object/).',
+        'Alternate unique user identifier, this is required if External User ID or Device ID is not set. Refer [Braze Documentation](https://www.braze.com/docs/api/objects_filters/user_alias_object) for more details.',
       type: 'object',
       properties: {
         alias_name: {
@@ -40,7 +40,8 @@ const action: ActionDefinition<Settings, Payload> = {
     },
     device_id: {
       label: 'Device ID',
-      description: 'The unique device Identifier',
+      description:
+        'Device IDs can be used to add and remove only anonymous users to/from a cohort. However, users with an assigned User ID cannot use Device ID to sync to a cohort.',
       type: 'string'
     },
     cohort_id: {
@@ -76,7 +77,8 @@ const action: ActionDefinition<Settings, Payload> = {
     },
     event_properties: {
       label: 'Event Properties',
-      description: 'Properties of the event',
+      description:
+        'Displays properties of the event to add/remove users to a cohort and the traits of the specific user',
       type: 'object',
       required: true,
       default: {
@@ -144,11 +146,7 @@ async function processPayload(
 
 function validate(payloads: Payload[]): void {
   if (payloads[0].cohort_name !== payloads[0].personas_audience_key) {
-    throw new IntegrationError(
-      'The value of `personas computation key` and `personas_audience_key` must match.',
-      'INVALID_SETTINGS',
-      400
-    )
+    throw new PayloadValidationError('The value of `personas computation key` and `personas_audience_key` must match.')
   }
 }
 

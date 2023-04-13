@@ -2,7 +2,7 @@
 
 export interface Payload {
   /**
-   * The Salesforce operation performed. The available operations are Create, Update or Upsert records in Salesforce.
+   * The Salesforce operation performed. The available operations are Create, Delete, Update or Upsert records in Salesforce.
    */
   operation: string
   /**
@@ -14,11 +14,11 @@ export interface Payload {
    */
   recordMatcherOperator?: string
   /**
-   * The fields used to find Salesforce records for updates. **This is required if the operation is Update or Upsert.**
+   * The fields used to find Salesforce records for updates. **This is required if the operation is Delete, Update or Upsert.**
    *
    *   Any field can function as a matcher, including Record ID, External IDs, standard fields and custom fields. On the left-hand side, input the Salesforce field API name. On the right-hand side, map the Segment field that contains the value.
    *
-   *   If multiple records are found, no updates will be made. **Please use fields that result in unique records.**
+   *   If multiple records are found, no changes will be made. **Please use fields that result in unique records.**
    *
    *   ---
    *

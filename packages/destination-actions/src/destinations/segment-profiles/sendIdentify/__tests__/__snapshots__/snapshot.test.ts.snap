@@ -4,6 +4,9 @@ exports[`Testing snapshot for SegmentProfiles's sendIdentify destination action:
 Object {
   "anonymousId": "mV[ZQcEVgZO$MX",
   "groupId": "mV[ZQcEVgZO$MX",
+  "integrations": Object {
+    "All": false,
+  },
   "traits": Object {
     "testType": "mV[ZQcEVgZO$MX",
   },
@@ -15,6 +18,9 @@ exports[`Testing snapshot for SegmentProfiles's sendIdentify destination action:
 Object {
   "anonymousId": "mV[ZQcEVgZO$MX",
   "groupId": "mV[ZQcEVgZO$MX",
+  "integrations": Object {
+    "All": false,
+  },
   "traits": Object {},
   "userId": "mV[ZQcEVgZO$MX",
 }

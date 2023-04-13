@@ -7,7 +7,7 @@ import { DynamicFieldResponse } from '@segment/actions-core'
 const testDestination = createTestIntegration(Destination)
 
 const settings = {
-  instanceUrl: 'https://test.com'
+  instanceUrl: 'https://test.salesforce.com'
 }
 const auth = {
   refreshToken: 'xyz321',
@@ -64,6 +64,113 @@ describe('Salesforce', () => {
       expect(responses[0].options.body).toMatchInlineSnapshot(
         `"{\\"email\\":\\"sponge@seamail.com\\",\\"company\\":\\"Krusty Krab\\",\\"last_name\\":\\"Squarepants\\"}"`
       )
+    })
+
+    it('should error out when custom fields are not passed for create operation', async () => {
+      const event = createTestEvent({
+        type: 'track',
+        event: 'Create Custom Object',
+        properties: {
+          email: 'sponge@seamail.com',
+          company: 'Krusty Krab',
+          last_name: 'Squarepants'
+        }
+      })
+
+      await expect(
+        testDestination.testAction('customObject', {
+          event,
+          settings,
+          auth,
+          mapping: {
+            operation: 'create',
+            customObjectName: 'TestCustom__c',
+            traits: {
+              Id: { '@path': '$.userId' }
+            }
+          }
+        })
+      ).rejects.toThrow('Custom fields are required for this operation.')
+    })
+
+    it('should error out when custom fields are not passed for update operation', async () => {
+      const event = createTestEvent({
+        type: 'track',
+        event: 'Create Custom Object',
+        properties: {
+          email: 'sponge@seamail.com',
+          company: 'Krusty Krab',
+          last_name: 'Squarepants'
+        }
+      })
+
+      await expect(
+        testDestination.testAction('customObject', {
+          event,
+          settings,
+          auth,
+          mapping: {
+            operation: 'update',
+            customObjectName: 'TestCustom__c',
+            traits: {
+              Id: { '@path': '$.userId' }
+            }
+          }
+        })
+      ).rejects.toThrow('Custom fields are required for this operation.')
+    })
+
+    it('should error out when custom fields are not passed for upsert operation', async () => {
+      const event = createTestEvent({
+        type: 'track',
+        event: 'Create Custom Object',
+        properties: {
+          email: 'sponge@seamail.com',
+          company: 'Krusty Krab',
+          last_name: 'Squarepants'
+        }
+      })
+
+      await expect(
+        testDestination.testAction('customObject', {
+          event,
+          settings,
+          auth,
+          mapping: {
+            operation: 'upsert',
+            customObjectName: 'TestCustom__c',
+            traits: {
+              Id: { '@path': '$.userId' }
+            }
+          }
+        })
+      ).rejects.toThrow('Custom fields are required for this operation.')
+    })
+
+    it('should delete a custom record given an Id', async () => {
+      nock(`${settings.instanceUrl}/services/data/${API_VERSION}/sobjects`).delete('/TestCustom__c/123').reply(201, {})
+
+      const event = createTestEvent({
+        type: 'track',
+        event: 'Delete',
+        userId: '123'
+      })
+
+      const responses = await testDestination.testAction('customObject', {
+        event,
+        settings,
+        auth,
+        mapping: {
+          operation: 'delete',
+          customObjectName: 'TestCustom__c',
+          traits: {
+            Id: { '@path': '$.userId' }
+          }
+        }
+      })
+
+      expect(responses.length).toBe(1)
+      expect(responses[0].status).toBe(201)
     })
 
     it('should dynamically fetch customObjectName', async () => {

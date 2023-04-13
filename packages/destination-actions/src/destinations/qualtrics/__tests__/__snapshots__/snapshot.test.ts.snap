@@ -40,3 +40,26 @@ Headers {
   },
 }
 `;
+
+exports[`Testing snapshot for actions-qualtrics destination: upsertContactTransaction action - all fields 1`] = `
+Object {
+  "": Object {
+    "contactId": "Z8AxKOF",
+    "data": Object {
+      "testType": "Z8AxKOF",
+    },
+    "mailingListId": "Z8AxKOF",
+    "transactionDate": "2021-02-01 00:00:00",
+  },
+}
+`;
+
+exports[`Testing snapshot for actions-qualtrics destination: upsertContactTransaction action - required fields 1`] = `
+Object {
+  "filter": Object {
+    "comparison": "eq",
+    "filterType": "extRef",
+    "value": "Z8AxKOF",
+  },
+}
+`;

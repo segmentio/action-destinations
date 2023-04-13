@@ -17,6 +17,9 @@ exports[`Segment.sendIdentify Should send an identify event to Segment 2`] = `
 Object {
   "anonymousId": "arky4h2sh7k",
   "groupId": undefined,
+  "integrations": Object {
+    "All": false,
+  },
   "traits": Object {
     "email": "test-user@test-company.com",
     "name": "Test User",

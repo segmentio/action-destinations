@@ -11,21 +11,25 @@ const PERSON_ID = 33333
 describe('Pipedrive.createUpdatePerson', () => {
   it('should create person if none exists', async () => {
     const scope = nock(`https://${PIPEDRIVE_DOMAIN}.pipedrive.com/api/v1`)
-      .post('/persons', { name: 'Acme Corp' })
+      .post('/persons', { name: 'Acme Corp', person_external_id: 'test_person_external_id_value' })
       .query({ api_token: PIPEDRIVE_API_KEY })
       .reply(200)
 
     scope
       .get(/.*/)
       .query((q) => {
-        return q.field_key === 'name' && q.field_type === 'personField' && q.term === 'Does not exist'
+        return (
+          q.field_key === 'person_external_id' &&
+          q.field_type === 'personField' &&
+          q.term === 'test_person_external_id_value'
+        )
       })
       .reply(200, {
         data: []
       })
 
     await testDestination.testAction('createUpdatePerson', {
-      mapping: { name: 'Acme Corp', match_field: 'name', match_value: 'Does not exist' },
+      mapping: { name: 'Acme Corp', match_field: 'person_external_id', match_value: 'test_person_external_id_value' },
       settings: { apiToken: PIPEDRIVE_API_KEY, domain: PIPEDRIVE_DOMAIN }
     })
 

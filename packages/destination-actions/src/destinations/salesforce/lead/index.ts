@@ -140,8 +140,8 @@ const action: ActionDefinition<Settings, Payload> = {
     const sf: Salesforce = new Salesforce(settings.instanceUrl, request)
 
     if (payload.operation === 'create') {
-      if (!payload.company || !payload.last_name) {
-        throw new IntegrationError('Missing company or last_name value', 'Misconfigured required field', 400)
+      if (!payload.last_name) {
+        throw new IntegrationError('Missing last_name value', 'Misconfigured required field', 400)
       }
       return await sf.createRecord(payload, OBJECT_NAME)
     }
@@ -153,18 +153,22 @@ const action: ActionDefinition<Settings, Payload> = {
     }
 
     if (payload.operation === 'upsert') {
-      if (!payload.company || !payload.last_name) {
-        throw new IntegrationError('Missing company or last_name value', 'Misconfigured required field', 400)
+      if (!payload.last_name) {
+        throw new IntegrationError('Missing last_name value', 'Misconfigured required field', 400)
       }
       return await sf.upsertRecord(payload, OBJECT_NAME)
+    }
+
+    if (payload.operation === 'delete') {
+      return await sf.deleteRecord(payload, OBJECT_NAME)
     }
   },
   performBatch: async (request, { settings, payload }) => {
     const sf: Salesforce = new Salesforce(settings.instanceUrl, request)
 
     if (payload[0].operation === 'upsert') {
-      if (!payload[0].company || !payload[0].last_name) {
-        throw new IntegrationError('Missing company or last_name value', 'Misconfigured required field', 400)
+      if (!payload[0].last_name) {
+        throw new IntegrationError('Missing last_name value', 'Misconfigured required field', 400)
       }
     }
 

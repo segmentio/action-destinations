@@ -2,11 +2,11 @@
 
 export interface Payload {
   /**
-   * The name of the event.
+   * Name of the event
    */
   name: string
   /**
-   * A JSON object containing additional properties that will be associated with the event.
+   * JSON object containing additional properties that will be associated with the event.
    */
   properties?: {
     [k: string]: unknown
@@ -16,21 +16,21 @@ export interface Payload {
    */
   vwoUuid: string
   /**
-   * Page Context
+   * Contains context information regarding a webpage
    */
   page: {
     [k: string]: unknown
   }
   /**
-   * IP Address
+   * IP address of the user
    */
   ip?: string
   /**
-   * User Agent
+   * User-Agent of the user
    */
   userAgent: string
   /**
-   * Timestamp
+   * Timestamp on the event
    */
   timestamp: string
 }

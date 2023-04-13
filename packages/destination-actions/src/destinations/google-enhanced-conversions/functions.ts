@@ -1,7 +1,6 @@
 import { createHash } from 'crypto'
 import { ConversionCustomVariable, PartialErrorResponse, QueryResponse } from './types'
 import { ModifiedResponse, RequestClient, IntegrationError } from '@segment/actions-core'
-import { GoogleAdsAPI } from './types'
 
 export function formatCustomVariables(
   customVariables: object,
@@ -43,7 +42,7 @@ export async function getCustomVariables(
   auth: any,
   request: RequestClient
 ): Promise<ModifiedResponse<QueryResponse[]>> {
-  return await request(`${GoogleAdsAPI}/${customerId}/googleAds:searchStream`, {
+  return await request(`https://googleads.googleapis.com/v12/customers/${customerId}/googleAds:searchStream`, {
     method: 'post',
     headers: {
       authorization: `Bearer ${auth?.accessToken}`,

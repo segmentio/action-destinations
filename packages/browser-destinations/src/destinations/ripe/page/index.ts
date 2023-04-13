@@ -12,13 +12,14 @@ const action: BrowserActionDefinition<Settings, RipeSDK, Payload> = {
     anonymousId: {
       type: 'string',
       required: true,
-      description: 'The new user ID, if user ID is not set',
+      description: 'The anonymous id',
       label: 'Anonymous ID',
       default: { '@path': '$.anonymousId' }
     },
     userId: {
       type: 'string',
       required: false,
+      allowNull: true,
       description: 'The ID associated with the user',
       label: 'User ID',
       default: { '@path': '$.userId' }
@@ -26,23 +27,36 @@ const action: BrowserActionDefinition<Settings, RipeSDK, Payload> = {
     groupId: {
       type: 'string',
       required: false,
+      allowNull: true,
       description: 'The ID associated groupId',
       label: 'Group ID',
-      default: { '@path': '$.groupId' }
+      default: { '@path': '$.context.groupId' }
     },
     category: {
       type: 'string',
       required: false,
       description: 'The category of the page',
       label: 'Category',
-      default: { '@path': '$.category' }
+      default: {
+        '@if': {
+          exists: { '@path': '$.category' },
+          then: { '@path': '$.category' },
+          else: { '@path': '$.context.category' }
+        }
+      }
     },
     name: {
       type: 'string',
       required: false,
       description: 'The name of the page',
       label: 'Name',
-      default: { '@path': '$.name' }
+      default: {
+        '@if': {
+          exists: { '@path': '$.name' },
+          then: { '@path': '$.name' },
+          else: { '@path': '$.context.name' }
+        }
+      }
     },
     properties: {
       type: 'object',
@@ -50,11 +64,25 @@ const action: BrowserActionDefinition<Settings, RipeSDK, Payload> = {
       description: 'Page properties',
       label: 'Properties',
       default: { '@path': '$.properties' }
+    },
+    messageId: {
+      type: 'string',
+      required: false,
+      description: 'The Segment messageId',
+      label: 'MessageId',
+      default: { '@path': '$.messageId' }
     }
   },
   perform: async (ripe, { payload }) => {
-    await ripe.setIds(payload.anonymousId, payload.userId, payload.groupId)
-    return ripe.page(payload.category, payload.name, payload.properties)
+    return ripe.page({
+      messageId: payload.messageId,
+      anonymousId: payload.anonymousId,
+      userId: payload.userId,
+      groupId: payload.groupId,
+      category: payload.category,
+      name: payload.name,
+      properties: payload.properties
+    })
   }
 }
 

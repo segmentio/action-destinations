@@ -2,27 +2,36 @@ import type { ActionDefinition } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 import dayjs from '../../../lib/dayjs'
-import { HEAP_SEGMENT_LIBRARY_NAME } from '../constants'
-import { getHeapUserId } from '../userIdHash'
+import { HEAP_SEGMENT_CLOUD_LIBRARY_NAME } from '../constants'
 import { flat } from '../flat'
+import { getUserIdentifier, getEventName, isDefined } from '../heapUtils'
 import { IntegrationError } from '@segment/actions-core'
 
 type HeapEvent = {
-  app_id: string
-  identity?: string
-  user_id?: number
-  event: string
+  event: string | undefined
+  idempotency_key: string
+  timestamp?: string
   properties: {
     [k: string]: unknown
   }
-  idempotency_key: string
-  timestamp?: string
+  custom_properties?: {
+    [k: string]: unknown
+  }
+  user_identifier?: {
+    [k: string]: string
+  }
+}
+
+type IntegrationsTrackPayload = {
+  app_id: string
+  events: Array<HeapEvent>
+  library: string
 }
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Track Event',
   description: 'Send an event to Heap.',
-  defaultSubscription: 'type = "track"',
+  defaultSubscription: 'type = "track" or type = "page" or type = "screen"',
   fields: {
     message_id: {
       label: 'Message ID',
@@ -38,10 +47,7 @@ const action: ActionDefinition<Settings, Payload> = {
       type: 'string',
       allowNull: true,
       description:
-        'An identity, typically corresponding to an existing user. If no such identity exists, then a new user will be created with that identity. Case-sensitive string, limited to 255 characters.',
-      default: {
-        '@path': '$.userId'
-      }
+        'a string that uniquely identifies a user, such as an email, handle, or username. This means no two users in one environment may share the same identity. More on identify: https://developers.heap.io/docs/using-identify'
     },
     anonymous_id: {
       label: 'Anonymous ID',
@@ -53,10 +59,9 @@ const action: ActionDefinition<Settings, Payload> = {
       }
     },
     event: {
-      label: 'Event Type',
+      label: 'Track Event Type',
       type: 'string',
-      description: 'The name of the event. Limited to 1024 characters.',
-      required: true,
+      description: 'Name of the user action. This only exists on track events. Limited to 1024 characters.',
       default: {
         '@path': '$.event'
       }
@@ -78,50 +83,91 @@ const action: ActionDefinition<Settings, Payload> = {
         '@path': '$.timestamp'
       }
     },
-    library_name: {
-      label: 'Library Name',
+    type: {
+      label: 'Type',
       type: 'string',
-      description: 'The name of the SDK used to send events',
+      description: 'The type of call. Can be track, page, or screen.',
       default: {
-        '@path': '$.context.library.name'
+        '@path': '$.type'
+      }
+    },
+    name: {
+      label: 'Page or Screen Name',
+      type: 'string',
+      description: 'The name of the page or screen being viewed. This only exists for page and screen events.',
+      default: {
+        '@path': '$.name'
+      }
+    },
+    traits: {
+      label: 'User Properties',
+      type: 'object',
+      description:
+        'An object with key-value properties you want associated with the user. Each property must either be a number or string with fewer than 1024 characters.',
+      default: {
+        '@path': '$.context.traits'
       }
     }
   },
   perform: (request, { payload, settings }) => {
+    const requests = []
     if (!settings.appId) {
       throw new IntegrationError('Missing app ID')
     }
 
     if (!payload.anonymous_id && !payload.identity) {
-      throw new IntegrationError('Either anonymous user id or identity should be specified.')
+      throw new IntegrationError('Either Anonymous id or Identity should be specified.', 'MISSING_REQUIRED_FIELD', 400)
     }
 
-    const defaultEventProperties = { segment_library: payload.library_name || HEAP_SEGMENT_LIBRARY_NAME }
-    const flatten = flat(payload.properties || {})
-    const eventProperties = Object.assign(defaultEventProperties, flatten)
+    const flattenedProperties = flat(payload.properties || {})
+
     const event: HeapEvent = {
-      app_id: settings.appId,
-      event: payload.event,
-      properties: eventProperties,
+      event: getEventName(payload),
+      properties: {
+        segment_library: HEAP_SEGMENT_CLOUD_LIBRARY_NAME,
+        ...flattenedProperties,
+        ...(isDefined(payload.name) && { name: payload.name })
+      },
       idempotency_key: payload.message_id
     }
 
-    if (payload.anonymous_id && !payload.identity) {
-      event.user_id = getHeapUserId(payload.anonymous_id)
-    }
-
-    if (payload.identity) {
-      event.identity = payload.identity
-    }
+    event.user_identifier = getUserIdentifier({ identity: payload.identity, anonymous_id: payload.anonymous_id })
 
     if (payload.timestamp && dayjs.utc(payload.timestamp).isValid()) {
       event.timestamp = dayjs.utc(payload.timestamp).toISOString()
     }
 
-    return request('https://heapanalytics.com/api/track', {
-      method: 'post',
-      json: event
-    })
+    const trackPayload: IntegrationsTrackPayload = {
+      app_id: settings.appId,
+      events: [event],
+      library: 'Segment'
+    }
+
+    if (isDefined(payload.identity) && (isDefined(payload.anonymous_id) || isDefined(payload.traits))) {
+      const userPropertiesPayload = {
+        app_id: settings.appId,
+        identity: payload.identity,
+        properties: {
+          ...(isDefined(payload.anonymous_id) && { anonymous_id: payload.anonymous_id }),
+          ...(payload.traits && Object.keys(payload.traits).length !== 0 && flat(payload.traits))
+        }
+      }
+      const addUserPropertiesRequest = request('https://heapanalytics.com/api/add_user_properties', {
+        method: 'post',
+        json: userPropertiesPayload
+      })
+
+      requests.push(addUserPropertiesRequest)
+    }
+
+    requests.push(
+      request('https://heapanalytics.com/api/integrations/track', {
+        method: 'post',
+        json: trackPayload
+      })
+    )
+
+    return Promise.all(requests)
   }
 }
 

@@ -113,6 +113,14 @@ function validateString(v: unknown, stack: string[] = []) {
   return
 }
 
+function validateBoolean(v: unknown, stack: string[] = []) {
+  const type = realTypeOrDirective(v)
+  if (type !== 'boolean') {
+    throw new ValidationError(`should be a boolean but it is ${indefiniteArticle(type)} ${type}`, stack)
+  }
+  return
+}
+
 function validateObject(value: unknown, stack: string[] = []) {
   const type = realTypeOrDirective(value)
   if (type !== 'object') {
@@ -224,6 +232,20 @@ directive('@case', (v, stack) => {
     {
       operator: { optional: validateString },
       value: { optional: validateDirectiveOrString }
+    },
+    stack
+  )
+})
+
+directive('@replace', (v, stack) => {
+  validateObjectWithFields(
+    v,
+    {
+      pattern: { required: validateString },
+      replacement: { optional: validateString },
+      value: { required: validateDirectiveOrString },
+      ignorecase: { optional: validateBoolean },
+      global: { optional: validateBoolean }
     },
     stack
   )

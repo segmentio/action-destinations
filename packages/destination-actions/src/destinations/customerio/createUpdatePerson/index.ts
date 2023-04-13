@@ -53,7 +53,7 @@ const action: ActionDefinition<Settings, Payload> = {
         'The ID used to uniquely identify an object in Customer.io. [Learn more](https://customer.io/docs/object-relationships).',
       type: 'string',
       default: {
-        '@template': '{{context.groupId}}'
+        '@path': '$.context.groupId'
       }
     },
     custom_attributes: {
@@ -85,6 +85,7 @@ const action: ActionDefinition<Settings, Payload> = {
   perform: (request, { settings, payload }) => {
     let createdAt: string | number | undefined = payload.created_at
     let customAttributes = payload.custom_attributes
+    let objectTypeIDInTraits = null
     const objectId = payload.group_id
     const objectTypeId = payload.object_type_id
 
@@ -95,6 +96,10 @@ const action: ActionDefinition<Settings, Payload> = {
 
       if (customAttributes) {
         customAttributes = convertAttributeTimestamps(customAttributes)
+        if (customAttributes.object_type_id && objectId) {
+          objectTypeIDInTraits = customAttributes.object_type_id
+          delete customAttributes.object_type_id
+        }
       }
     }
 
@@ -112,7 +117,9 @@ const action: ActionDefinition<Settings, Payload> = {
     if (objectId) {
       body.cio_relationships = {
         action: 'add_relationships',
-        relationships: [{ identifiers: { type_id: objectTypeId ?? '1', id: objectId } }]
+        relationships: [
+          { identifiers: { object_type_id: objectTypeIDInTraits ?? objectTypeId ?? '1', object_id: objectId } }
+        ]
       }
     }
 

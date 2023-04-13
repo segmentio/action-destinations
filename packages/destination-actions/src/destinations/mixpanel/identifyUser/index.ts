@@ -3,6 +3,7 @@ import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 
 import { getApiServerUrl, getConcatenatedName } from '../utils'
+import { MixpanelEngageProperties, MixpanelEngageSet } from '../mixpanel-types'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Identify User',
@@ -65,7 +66,7 @@ const action: ActionDefinition<Settings, Payload> = {
         }
       }
 
-      const identifyResponse = await request(`${ apiServerUrl }/track`, {
+      const identifyResponse = await request(`${apiServerUrl}/track`, {
         method: 'post',
         body: new URLSearchParams({ data: JSON.stringify(identifyEvent) })
       })
@@ -78,10 +79,20 @@ const action: ActionDefinition<Settings, Payload> = {
         payload.traits.lastName,
         payload.traits.name
       )
-      const traits = {
-        ...omit(payload.traits, ['created', 'email', 'firstName', 'lastName', 'name', 'username', 'phone']),
+      const traits: MixpanelEngageSet = {
+        ...omit(payload.traits, [
+          'created',
+          'createdAt',
+          'created_at',
+          'email',
+          'firstName',
+          'lastName',
+          'name',
+          'username',
+          'phone'
+        ]),
         // to fit the Mixpanel expectations, transform the special traits to Mixpanel reserved property
-        $created: payload.traits.created,
+        $created: payload.traits.created ?? payload.traits.createdAt ?? payload.traits.created_at,
         $email: payload.traits.email,
         $first_name: payload.traits.firstName,
         $last_name: payload.traits.lastName,
@@ -89,14 +100,15 @@ const action: ActionDefinition<Settings, Payload> = {
         $username: payload.traits.username,
         $phone: payload.traits.phone
       }
-      const data = {
+
+      const data: MixpanelEngageProperties = {
         $token: settings.projectToken,
-        $distinct_id: payload.user_id,
+        $distinct_id: payload.user_id ?? payload.anonymous_id,
         $ip: payload.ip,
         $set: traits
       }
 
-      const engageResponse = request(`${ apiServerUrl }/engage`, {
+      const engageResponse = request(`${apiServerUrl}/engage`, {
         method: 'post',
         body: new URLSearchParams({ data: JSON.stringify(data) })
       })

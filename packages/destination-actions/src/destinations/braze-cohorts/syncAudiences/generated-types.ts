@@ -6,14 +6,14 @@ export interface Payload {
    */
   external_id?: string
   /**
-   * A user alias object. See [the docs](https://www.braze.com/docs/api/objects_filters/user_alias_object/).
+   * Alternate unique user identifier, this is required if External User ID or Device ID is not set. Refer [Braze Documentation](https://www.braze.com/docs/api/objects_filters/user_alias_object) for more details.
    */
   user_alias?: {
     alias_name: string
     alias_label: string
   }
   /**
-   * The unique device Identifier
+   * Device IDs can be used to add and remove only anonymous users to/from a cohort. However, users with an assigned User ID cannot use Device ID to sync to a cohort.
    */
   device_id?: string
   /**
@@ -33,7 +33,7 @@ export interface Payload {
    */
   personas_audience_key: string
   /**
-   * Properties of the event
+   * Displays properties of the event to add/remove users to a cohort and the traits of the specific user
    */
   event_properties: {
     [k: string]: unknown

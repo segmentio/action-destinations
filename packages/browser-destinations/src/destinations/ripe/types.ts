@@ -1,9 +1,61 @@
 export interface RipeSDK {
-  alias: (userId: string) => Promise<void>
-  group: (groupId: string, traits?: Record<string, unknown>) => Promise<void>
-  identify: (userId?: string | undefined | null, traits?: Record<string, unknown>) => Promise<void>
+  group: ({
+    anonymousId,
+    userId,
+    messageId,
+    groupId,
+    traits
+  }: {
+    messageId?: string
+    anonymousId: string
+    userId?: string | null
+    groupId: string | null
+    traits?: Record<string, unknown>
+  }) => Promise<void>
+  identify: ({
+    messageId,
+    anonymousId,
+    userId,
+    groupId,
+    traits
+  }: {
+    messageId?: string
+    anonymousId: string
+    userId?: string | null
+    groupId?: string | null
+    traits?: Record<string, unknown>
+  }) => Promise<void>
   init: (apiKey: string) => Promise<void>
-  page: (category?: string, name?: string, properties?: Record<string, unknown>) => Promise<void>
-  setIds: (anonymousId: string, userId?: string, groupId?: string) => Promise<void>
-  track: (event: string, properties?: Record<string, unknown>) => Promise<void>
+  page: ({
+    messageId,
+    anonymousId,
+    userId,
+    groupId,
+    category,
+    name,
+    properties
+  }: {
+    messageId?: string
+    anonymousId: string
+    userId?: string | null
+    groupId?: string | null
+    category?: string
+    name?: string
+    properties?: Record<string, unknown>
+  }) => Promise<void>
+  track: ({
+    messageId,
+    anonymousId,
+    userId,
+    groupId,
+    event,
+    properties
+  }: {
+    messageId?: string
+    anonymousId: string
+    userId?: string | null
+    groupId?: string | null
+    event: string
+    properties?: Record<string, unknown>
+  }) => Promise<void>
 }

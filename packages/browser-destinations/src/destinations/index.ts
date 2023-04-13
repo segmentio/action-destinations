@@ -47,5 +47,5 @@ register('6372e1e36d9c2181f3900834', './wisepops')
 register('637c192eba61b944e08ee158', './vwo')
 register('638f843c4520d424f63c9e51', './commandbar')
 register('63913b2bf906ea939f153851', './ripe')
-
-
+register('63ed446fe60a1b56c5e6f130', './google-analytics-4-web')
+register('640267d74c13708d74062dcd', './upollo')

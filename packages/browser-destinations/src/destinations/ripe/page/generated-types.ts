@@ -2,17 +2,17 @@
 
 export interface Payload {
   /**
-   * The new user ID, if user ID is not set
+   * The anonymous id
    */
   anonymousId: string
   /**
    * The ID associated with the user
    */
-  userId?: string
+  userId?: string | null
   /**
    * The ID associated groupId
    */
-  groupId?: string
+  groupId?: string | null
   /**
    * The category of the page
    */
@@ -27,4 +27,8 @@ export interface Payload {
   properties?: {
     [k: string]: unknown
   }
+  /**
+   * The Segment messageId
+   */
+  messageId?: string
 }

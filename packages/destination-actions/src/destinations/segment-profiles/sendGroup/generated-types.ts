@@ -2,7 +2,7 @@
 
 export interface Payload {
   /**
-   * The engage space to use for creating a record.
+   * The Profile Space to use for creating a record. *Note: This field shows list of internal sources associated with the Profile Space. Changes made to the Profile Space name in **Settings** will not reflect in this list unless the source associated with the Profile Space is renamed explicitly.*
    */
   engage_space: string
   /**
