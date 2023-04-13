@@ -5,8 +5,12 @@ import type { Payload } from './generated-types'
 
 const processData = async (request: RequestClient, settings: Settings, payloads: Payload[]) => {
   const events = payloads.map((payload) => {
-    if (!payload.livelike_profile_id && !payload.user_id) {
-      throw new IntegrationError('`livelike_profile_id` or `user_id` is required.', 'Missing required fields', 400)
+    if (!payload.livelike_profile_id && !payload.custom_id && !payload.segment_user_id) {
+      throw new IntegrationError(
+        '`livelike_profile_id` or `custom_id` or `user_id` is required.',
+        'Missing required fields',
+        400
+      )
     }
     return payload
   })
@@ -24,55 +28,61 @@ const action: ActionDefinition<Settings, Payload> = {
   description: 'Send an event to LiveLike.',
   defaultSubscription: 'type = "track"',
   fields: {
-    action_key: {
-      label: 'Action Key',
-      description:
-        'The unique key of Action. LiveLike will uniquely identify any event by this key. For example, `user-registration` could be a key for the action `USER REGISTRATION`.',
+    event_name: {
+      label: 'Event Name',
       type: 'string',
       required: true,
-      default: {
-        '@path': '$.properties.action_key'
-      }
-    },
-    action_name: {
-      label: 'Action Name',
       description:
-        'The name of the action being performed. For example, `User Registration` could be an action_name referring the event that is being sent to LiveLike.',
-      type: 'string',
+        'The name of the event being performed. For example, `User Registration` could be an event_name referring the event that is being sent to LiveLike.',
       default: {
-        '@if': {
-          exists: { '@path': '$.properties.action_name' },
-          then: { '@path': '$.properties.action_name' },
-          else: { '@path': '$.event' }
-        }
+        '@path': '$.event'
       }
     },
-    action_description: {
-      label: 'Action Description',
-      description: 'The description of the Action.',
+    event_type: {
+      label: 'Event Type',
       type: 'string',
+      required: true,
+      description: 'The type of event (track/screen/page)',
       default: {
-        '@path': '$.properties.action_description'
+        '@path': '$.type'
       }
     },
-    user_id: {
+    segment_user_id: {
       label: 'User ID',
       type: 'string',
-      description:
-        'A unique identifier for a user. At least one of `User ID` or `LiveLike User Profile ID` is mandatory. In case you are not able to store `livelike_profile_id`, LiveLike provides a way to create your own access tokens which helps us to map your user_id to a unique `livelike_profile_id`. Please refer [LiveLike Docs](https://docs.livelike.com/docs/client-generated-access-tokens) for more info.',
+      description: 'A unique identifier for a user.',
       default: {
         '@path': '$.userId'
       }
     },
     livelike_profile_id: {
       label: 'LiveLike User Profile ID',
-      description:
-        'The unique LiveLike user identifier. At least one of `LiveLike User Profile ID` or `User ID` is mandatory.',
+      description: 'The unique LiveLike user identifier.',
       type: 'string',
       default: {
         '@path': '$.properties.livelike_profile_id'
       }
     },
+    anonymous_id: {
+      label: 'Segment Anonymous ID',
+      description: 'Segment Anonymous ID.',
+      required: false,
+      type: 'hidden',
+      default: {
+        '@path': '$.anonymousId'
+      }
+    },
+    custom_id: {
+      label: 'Custom ID',
+      description:
+        'In case you are not able to store `livelike_profile_id`, LiveLike provides a way to create your own access tokens which helps us to map your user_id to a unique `livelike_profile_id`. Please refer [LiveLike Docs](https://docs.livelike.com/docs/client-generated-access-tokens) for more info.',
+      required: false,
+      type: 'string',
+      default: {
+        '@path': '$.properties.custom_id'
+      }
+    },
+
     timestamp: {
       label: 'Timestamp',
       description:
