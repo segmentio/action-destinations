@@ -1,0 +1,85 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Testing snapshot for Insider's productRemovedEvent destination action: all fields 1`] = `
+Object {
+  "users": Array [
+    Object {
+      "attributes": Object {
+        "age": 13571791561687.04,
+        "app_version": "Lu!Xj33sF(%SQN",
+        "birthday": "Lu!Xj33sF(%SQN",
+        "carrier": "Lu!Xj33sF(%SQN",
+        "city": "Lu!Xj33sF(%SQN",
+        "country": "Lu!Xj33sF(%SQN",
+        "custom": Object {},
+        "email": "ogewna@ih.gy",
+        "gender": "Lu!Xj33sF(%SQN",
+        "idfa": "Lu!Xj33sF(%SQN",
+        "last_ip": "Lu!Xj33sF(%SQN",
+        "locale": "Lu!Xj33sF(%SQN",
+        "model": "Lu!Xj33sF(%SQN",
+        "name": "Lu!Xj33sF(%SQN",
+        "os_version": "Lu!Xj33sF(%SQN",
+        "phone": "Lu!Xj33sF(%SQN",
+        "platform": "Lu!Xj33sF(%SQN",
+        "surname": "Lu!Xj33sF(%SQN",
+        "timezone": "Lu!Xj33sF(%SQN",
+      },
+      "events": Array [
+        Object {
+          "event_name": "item_removed_from_cart",
+          "event_params": Object {
+            "currency": "RWF",
+            "custom": Object {},
+            "name": "Lu!Xj33sF(%SQN",
+            "product_id": "Lu!Xj33sF(%SQN",
+            "product_image_url": "Lu!Xj33sF(%SQN",
+            "quantity": 1357179156168704,
+            "referrer": "Lu!Xj33sF(%SQN",
+            "taxonomy": Array [
+              "Lu!Xj33sF(%SQN",
+            ],
+            "unit_price": 13571791561687.04,
+            "unit_sale_price": 13571791561687.04,
+            "url": "Lu!Xj33sF(%SQN",
+          },
+          "timestamp": "2021-02-01T00:00:00.000Z",
+        },
+      ],
+      "identifiers": Object {
+        "custom": Object {
+          "segment_anonymous_id": "Lu!Xj33sF(%SQN",
+        },
+        "uuid": "Lu!Xj33sF(%SQN",
+      },
+    },
+  ],
+}
+`;
+
+exports[`Testing snapshot for Insider's productRemovedEvent destination action: required fields 1`] = `
+Object {
+  "users": Array [
+    Object {
+      "attributes": Object {
+        "custom": Object {},
+      },
+      "events": Array [
+        Object {
+          "event_name": "item_removed_from_cart",
+          "event_params": Object {
+            "custom": Object {},
+          },
+          "timestamp": "2021-02-01T00:00:00.000Z",
+        },
+      ],
+      "identifiers": Object {
+        "custom": Object {
+          "segment_anonymous_id": "Lu!Xj33sF(%SQN",
+        },
+        "uuid": "Lu!Xj33sF(%SQN",
+      },
+    },
+  ],
+}
+`;

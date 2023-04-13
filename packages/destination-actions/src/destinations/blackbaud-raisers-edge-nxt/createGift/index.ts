@@ -1,15 +1,16 @@
 import { ActionDefinition, ExecuteInput, InputField, IntegrationError, RequestFn } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
-import {
-  fields as createOrUpdateIndividualConstituentFields,
-  perform as performCreateOrUpdateIndividualConstituent
-} from '../createOrUpdateIndividualConstituent'
+import { perform as performCreateOrUpdateIndividualConstituent } from '../createOrUpdateIndividualConstituent'
 import { BlackbaudSkyApi } from '../api'
 import { Gift, StringIndexedObject } from '../types'
-import { buildConstituentPayloadFromPayload, buildGiftDataFromPayload } from '../utils'
+import {
+  augmentFieldsWithConstituentFields,
+  buildConstituentPayloadFromPayload,
+  buildGiftDataFromPayload
+} from '../utils'
 
-const fields: Record<string, InputField> = {
+const fields: Record<string, InputField> = augmentFieldsWithConstituentFields({
   acknowledgement: {
     label: 'Acknowledgement',
     description: 'The gift acknowledgement.',
@@ -213,19 +214,6 @@ const fields: Record<string, InputField> = {
       { label: 'RecurringGift', value: 'RecurringGift' },
       { label: 'RecurringGiftPayment', value: 'RecurringGiftPayment' }
     ]
-  }
-}
-
-Object.keys(createOrUpdateIndividualConstituentFields).forEach((key: string) => {
-  let fieldKey = 'constituent_' + key
-  let fieldLabel = 'Constituent ' + createOrUpdateIndividualConstituentFields[key].label
-  if (key === 'constituent_id') {
-    fieldKey = key
-    fieldLabel = createOrUpdateIndividualConstituentFields[key].label
-  }
-  fields[fieldKey] = {
-    ...createOrUpdateIndividualConstituentFields[key],
-    label: fieldLabel
   }
 })
 

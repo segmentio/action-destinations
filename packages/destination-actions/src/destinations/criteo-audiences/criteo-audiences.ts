@@ -1,7 +1,16 @@
+import { createHash } from 'crypto'
 import { IntegrationError, RetryableError } from '@segment/actions-core'
 import type { RequestClient } from '@segment/actions-core'
 
-const BASE_API_URL = 'https://api.criteo.com/2022-01'
+const BASE_API_URL = 'https://api.criteo.com/2023-01'
+
+export const hash = (value: string | undefined): string | undefined => {
+  if (value === undefined) return
+
+  const hash = createHash('sha256')
+  hash.update(value)
+  return hash.digest('hex')
+}
 
 class CriteoAPIError extends IntegrationError {
   readonly error?: Record<string, string>

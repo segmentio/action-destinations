@@ -2,7 +2,7 @@
 
 export interface Settings {
   /**
-   * Please enter the slug found in your workspace settings in Koala.
+   * Please enter your Public API Key found in your Koala workspace settings.
    */
   project_slug: string
 }

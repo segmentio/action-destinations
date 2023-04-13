@@ -75,7 +75,6 @@ exports[`Testing snapshot for actions-outfunnel destination: forwardTrackEvent a
 Object {
   "action": "@PZgcUszl",
   "anonymous_id": "@PZgcUszl",
-  "email": "ve@kamzucu.lu",
   "event_name": "@PZgcUszl",
   "group_id": "@PZgcUszl",
   "timestamp": "@PZgcUszl",

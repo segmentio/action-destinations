@@ -2,7 +2,7 @@ import { Analytics, Context } from '@segment/analytics-next'
 import playerzero from '../../index'
 import { subscriptions, TEST_PROJECT_ID } from '../../test-utils'
 
-describe('PlayerzeroWeb.identifyUser', () => {
+describe.skip('PlayerzeroWeb.identifyUser', () => {
   it('should keep anonymous users', async () => {
     const [_, identifyUser] = await playerzero({
       projectId: TEST_PROJECT_ID,

@@ -1,5 +1,5 @@
-import { ActionDefinition, IntegrationError } from '@segment/actions-core'
-import { hash, handleGoogleErrors, convertTimestamp, getUrlByVersion } from '../functions'
+import { ActionDefinition, PayloadValidationError } from '@segment/actions-core'
+import { hash, handleGoogleErrors, convertTimestamp } from '../functions'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 import { PartialErrorResponse } from '../types'
@@ -198,14 +198,12 @@ const action: ActionDefinition<Settings, Payload> = {
       }
     }
   },
-  perform: async (request, { settings, payload, features, statsContext }) => {
+  perform: async (request, { settings, payload }) => {
     /* Enforcing this here since Customer ID is required for the Google Ads API
     but not for the Enhanced Conversions API. */
     if (!settings.customerId) {
-      throw new IntegrationError(
-        'Customer ID is required for this action. Please set it in destination settings.',
-        'Missing required fields.',
-        400
+      throw new PayloadValidationError(
+        'Customer ID is required for this action. Please set it in destination settings.'
       )
     }
 
@@ -268,7 +266,7 @@ const action: ActionDefinition<Settings, Payload> = {
     }
 
     const response: ModifiedResponse<PartialErrorResponse> = await request(
-      `${getUrlByVersion(features, statsContext)}/${settings.customerId}:uploadConversionAdjustments`,
+      `https://googleads.googleapis.com/v12/customers/${settings.customerId}:uploadConversionAdjustments`,
       {
         method: 'post',
         headers: {
