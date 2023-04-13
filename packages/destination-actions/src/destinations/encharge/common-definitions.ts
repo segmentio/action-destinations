@@ -14,7 +14,13 @@ export const commonFields: ActionDefinition<Settings>['fields'] = {
     required: false,
     description: 'The email address of the user.',
     label: 'Email',
-    default: { '@path': '$.email' }
+    default: {
+      '@if': {
+        exists: { '@path': '$.context.traits.email' },
+        then: { '@path': '$.context.traits.email' },
+        else: { '@path': '$.properties.email' }
+      }
+    }
   },
   segmentAnonymousId: {
     type: 'string',
