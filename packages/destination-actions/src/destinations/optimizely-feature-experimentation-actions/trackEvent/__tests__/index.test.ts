@@ -2,6 +2,7 @@ import nock from 'nock'
 import { createTestEvent, createTestIntegration } from '@segment/actions-core'
 import Destination from '../../index'
 import { dataFile } from '../mock-dataFile'
+import { getEventId, buildVisitorAttributes } from '../functions'
 
 const testDestination = createTestIntegration(Destination)
 
@@ -72,5 +73,17 @@ describe('OptimizelyFeatureExperimentation.trackEvent', () => {
     await expect(
       testDestination.testAction('trackEvent', { event, settings, useDefaultMappings: true })
     ).resolves.not.toThrowError()
+  })
+})
+
+describe('.getEventId', () => {
+  it('should return eventId for eventKey', async () => {
+    expect(getEventId(dataFile, 'Product List Clicked')).toBe('22020998834')
+  })
+})
+
+describe('.buildVisitorAttributes', () => {
+  it('should return visitor attributes for payload', async () => {
+    expect(buildVisitorAttributes(dataFile, { id: '18531090301', key: 'test' })).toStrictEqual([])
   })
 })
