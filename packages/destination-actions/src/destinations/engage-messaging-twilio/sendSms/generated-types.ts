@@ -62,8 +62,4 @@ export interface Payload {
    * Time of when the actual event happened.
    */
   eventOccurredTS?: string
-  /**
-   * The region where the message is originating from
-   */
-  region?: string
 }

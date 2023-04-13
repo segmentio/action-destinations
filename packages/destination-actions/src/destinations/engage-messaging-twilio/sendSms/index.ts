@@ -113,23 +113,15 @@ const action: ActionDefinition<Settings, Payload> = {
       default: {
         '@path': '$.timestamp'
       }
-    },
-    region: {
-      label: 'Region',
-      description: 'The region where the message is originating from',
-      type: 'string',
-      choices: [
-        { value: 'us-west-2', label: 'US West 2' },
-        { value: 'eu-west-1', label: 'EU West 1' }
-      ],
-      required: false
     }
   },
   perform: async (request, { settings, payload, statsContext }) => {
     const statsClient = statsContext?.statsClient
     const tags = statsContext?.tags
-    tags?.push(`space_id:${settings.spaceId}`, `projectid:${settings.sourceId}`)
-
+    if (!settings.region) {
+      settings.region = 'us-west-1'
+    }
+    tags?.push(`space_id:${settings.spaceId}`, `projectid:${settings.sourceId}`, `region:${settings.region}`)
     return new SmsMessageSender(request, payload, settings, statsClient, tags).send()
   }
 }

@@ -327,7 +327,10 @@ const action: ActionDefinition<Settings, Payload> = {
   perform: async (request, { settings, payload, statsContext }) => {
     const statsClient = statsContext?.statsClient
     const tags = statsContext?.tags
-    tags?.push(`space_id:${settings.spaceId}`, `projectid:${settings.sourceId}`)
+    if (!settings.region) {
+      settings.region = 'us-west-2'
+    }
+    tags?.push(`space_id:${settings.spaceId}`, `projectid:${settings.sourceId}`, `region:${settings.region}`)
     if (!payload.send) {
       statsClient?.incr('actions-personas-messaging-sendgrid.send-disabled', 1, tags)
       return
