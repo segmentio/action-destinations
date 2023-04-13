@@ -2,7 +2,7 @@ import { createTestEvent, createTestIntegration } from '@segment/actions-core'
 import { generateTestData } from '../../../lib/test-data'
 import destination from '../index'
 import nock from 'nock'
-import { dataFile } from '../trackEvent/__tests__/dataFile'
+import { dataFile } from '../trackEvent/mock-dataFile'
 
 const testDestination = createTestIntegration(destination)
 const destinationSlug = 'actions-optimizely-full-stack'

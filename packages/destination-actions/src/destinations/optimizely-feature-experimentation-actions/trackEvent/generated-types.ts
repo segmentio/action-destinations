@@ -10,7 +10,7 @@ export interface Payload {
    */
   userId: string
   /**
-   * A map of custom key-value string pairs specifying attributes for the user that are used for results segmentation. Non-string values are only supported in the 3.0 SDK and above.
+   * A map of custom key-value string pairs specifying attributes for the user that are used for results segmentation.
    */
   attributes?: {
     [k: string]: unknown

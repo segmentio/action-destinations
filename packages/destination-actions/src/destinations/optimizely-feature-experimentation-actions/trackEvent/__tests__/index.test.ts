@@ -1,11 +1,12 @@
 import nock from 'nock'
 import { createTestEvent, createTestIntegration } from '@segment/actions-core'
 import Destination from '../../index'
-import { dataFile } from './dataFile'
+import { dataFile } from '../mock-dataFile'
+import { getEventId, buildVisitorAttributes } from '../functions'
 
 const testDestination = createTestIntegration(Destination)
 
-describe('OptimizelyFullStack.trackEvent', () => {
+describe('OptimizelyFeatureExperimentation.trackEvent', () => {
   it('should send event successfully', async () => {
     const settings = {
       accountId: '12345566',
@@ -50,4 +51,39 @@ describe('OptimizelyFullStack.trackEvent', () => {
         testDestination.testAction('trackEvent', { event, settings, useDefaultMappings: true })
       ).rejects.toThrowError(`Event with name ${event.event} is not defined`)
     })
+  it('should be able to send a basic track with bot filtering enabled', async () => {
+    const settings = {
+      accountId: '12345566',
+      dataFileUrl: 'https://cdn.example.com/dataFile.json'
+    }
+    nock(settings.dataFileUrl).get('').reply(200, dataFile)
+    dataFile.botFiltering = true
+    nock('https://logx.optimizely.com/v1/events').post('').reply(200)
+    const event = createTestEvent({
+      event: 'Product List Clicked',
+      properties: {
+        revenue: 1000
+      },
+      context: {
+        traits: {
+          test: 'test'
+        }
+      }
+    })
+    await expect(
+      testDestination.testAction('trackEvent', { event, settings, useDefaultMappings: true })
+    ).resolves.not.toThrowError()
+  })
+})
+
+describe('.getEventId', () => {
+  it('should return eventId for eventKey', async () => {
+    expect(getEventId(dataFile, 'Product List Clicked')).toBe('22020998834')
+  })
+})
+
+describe('.buildVisitorAttributes', () => {
+  it('should return visitor attributes for payload', async () => {
+    expect(buildVisitorAttributes(dataFile, { id: '18531090301', key: 'test' })).toStrictEqual([])
+  })
 })

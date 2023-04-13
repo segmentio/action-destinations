@@ -1,4 +1,6 @@
+import { RequestClient } from '@segment/actions-core'
 import { VisitorAttribute, Event, ProjectConfig } from '../types'
+import type { Settings } from '../generated-types'
 import reduceRight from 'lodash/reduceRight'
 
 export function buildVisitorAttributes(
@@ -47,4 +49,25 @@ export function getEventId(configObj: ProjectConfig, eventKey: string) {
 
 function isValidValue(value: unknown) {
   return ['string', 'number', 'boolean'].includes(typeof value)
+}
+
+export async function getEventKeys(request: RequestClient, settings: Settings) {
+  try {
+    const response = await request<ProjectConfig>(settings.dataFileUrl)
+    const choices = response.data.events.map((event) => ({
+      label: event.key,
+      value: event.key
+    }))
+    return {
+      choices: [...choices]
+    }
+  } catch (err) {
+    return {
+      choices: [],
+      error: {
+        message: err?.response?.statusText ?? 'Unknown error',
+        code: err?.response?.status ?? 'Unknown code'
+      }
+    }
+  }
 }
