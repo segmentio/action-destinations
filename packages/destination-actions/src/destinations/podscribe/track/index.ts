@@ -92,7 +92,8 @@ const action: ActionDefinition<Settings, Payload> = {
       type: 'string',
       required: true,
       description: 'Podscribe type of event to send',
-      label: 'Podscribe event type'
+      label: 'Podscribe event type',
+      default: { '@path': '$.properties.podscribeEvent' }
     }
   },
   perform: (request, { settings, payload }) => {
