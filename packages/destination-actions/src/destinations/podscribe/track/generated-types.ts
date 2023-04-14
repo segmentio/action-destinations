@@ -2,9 +2,9 @@
 
 export interface Payload {
   /**
-   * The ID associated with the user
+   * The anonymous ID associated with the user
    */
-  userId?: string | null
+  anonymousId?: string | null
   /**
    * The timestamp of the event
    */
@@ -20,15 +20,15 @@ export interface Payload {
   /**
    * The IP address of the device sending the event.
    */
-  ip?: string
+  ip: string
   /**
    * The user agent of the device sending the event.
    */
   userAgent?: string
   /**
-   * The event name
+   * Email address of the user
    */
-  event: string
+  email?: string | null
   /**
    * Properties to send with the event
    */
@@ -36,7 +36,7 @@ export interface Payload {
     [k: string]: unknown
   }
   /**
-   * Type of event to send
+   * Podscribe type of event to send
    */
-  event_type: string
+  podscribeEvent: string
 }

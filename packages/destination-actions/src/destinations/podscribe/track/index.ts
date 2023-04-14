@@ -8,12 +8,12 @@ const action: ActionDefinition<Settings, Payload> = {
   description: 'Send user events to Podscribe',
   defaultSubscription: 'type = "track"',
   fields: {
-    userId: {
+    anonymousId: {
       type: 'string',
       allowNull: true,
-      description: 'The ID associated with the user',
-      label: 'User ID',
-      default: { '@path': '$.userId' }
+      description: 'The anonymous ID associated with the user',
+      label: 'Anonymous ID',
+      default: { '@path': '$.anonymousId' }
     },
     timestamp: {
       type: 'string',
@@ -53,6 +53,7 @@ const action: ActionDefinition<Settings, Payload> = {
     ip: {
       label: 'Ip',
       type: 'string',
+      required: true,
       description: 'The IP address of the device sending the event.',
       default: {
         '@path': '$.context.ip'
@@ -66,12 +67,19 @@ const action: ActionDefinition<Settings, Payload> = {
         '@path': '$.context.userAgent'
       }
     },
-    event: {
+    email: {
       type: 'string',
-      required: true,
-      description: 'The event name',
-      label: 'Event Name',
-      default: { '@path': '$.event' }
+      format: 'email',
+      allowNull: true,
+      description: 'Email address of the user',
+      label: 'Email address',
+      default: {
+        '@if': {
+          exists: { '@path': '$.context.traits.email' },
+          then: { '@path': '$.context.traits.email' },
+          else: { '@path': '$.properties.email' }
+        }
+      }
     },
     properties: {
       type: 'object',
@@ -80,20 +88,20 @@ const action: ActionDefinition<Settings, Payload> = {
       label: 'Event properties',
       default: { '@path': '$.properties' }
     },
-    event_type: {
+    podscribeEvent: {
       type: 'string',
       required: true,
-      description: 'Type of event to send',
-      label: 'Event type',
-      default: { '@path': '$.event_type' }
+      description: 'Podscribe type of event to send',
+      label: 'Podscribe event type',
+      default: { '@path': '$.podscribeEvent' }
     }
   },
   perform: (request, { settings, payload }) => {
     const params = serializeParams({
-      action: payload.event_type,
+      action: payload.podscribeEvent,
       advertiser: settings.advertiser,
       timestamp: payload.timestamp,
-      device_id: payload.userId,
+      device_id: payload.anonymousId,
       referrer: payload.referrer,
       url: payload.url,
       ip: payload.ip,
@@ -102,7 +110,7 @@ const action: ActionDefinition<Settings, Payload> = {
       order_number: payload.properties?.order_id,
       currency: payload.properties?.currency,
       discount_code: payload.properties?.coupon,
-      hashed_email: payload.properties?.email,
+      hashed_email: payload?.email,
       num_items_purchased: payload.properties?.num_items_purchased,
       is_new_customer: payload.properties?.is_new_customer,
       is_subscription: payload.properties?.is_subscription

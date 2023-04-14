@@ -2,9 +2,9 @@
 
 export interface Payload {
   /**
-   * The ID associated with the user
+   * The anonymous ID associated with the user
    */
-  userId?: string | null
+  anonymousId?: string | null
   /**
    * The timestamp of the event
    */

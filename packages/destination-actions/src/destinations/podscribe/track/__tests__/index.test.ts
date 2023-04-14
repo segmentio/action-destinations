@@ -20,7 +20,7 @@ describe('Podscribe.track', () => {
       event,
       mapping: {
         ...defaultValues(track.fields),
-        event_type: 'signup'
+        podscribeEvent: 'signup'
       },
       settings: { advertiser: TEST_ADVERTISER }
     })
@@ -40,7 +40,7 @@ describe('Podscribe.track', () => {
       event,
       mapping: {
         ...defaultValues(track.fields),
-        event_type: 'purchase'
+        podscribeEvent: 'purchase'
       },
       settings: { advertiser: TEST_ADVERTISER }
     })

@@ -8,12 +8,12 @@ const action: ActionDefinition<Settings, Payload> = {
   description: 'Register page view in Podscribe',
   defaultSubscription: 'type = "page"',
   fields: {
-    userId: {
+    anonymousId: {
       type: 'string',
       allowNull: true,
-      description: 'The ID associated with the user',
-      label: 'User ID',
-      default: { '@path': '$.userId' }
+      description: 'The anonymous ID associated with the user',
+      label: 'Anonymous ID',
+      default: { '@path': '$.anonymousId' }
     },
     timestamp: {
       type: 'string',
@@ -72,7 +72,7 @@ const action: ActionDefinition<Settings, Payload> = {
       action: 'view',
       advertiser: settings.advertiser,
       timestamp: payload.timestamp,
-      device_id: payload.userId,
+      device_id: payload.anonymousId,
       referrer: payload.referrer,
       url: payload.url,
       ip: payload.ip,

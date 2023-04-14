@@ -11,7 +11,7 @@ const presets: DestinationDefinition['presets'] = [
     partnerAction: 'track',
     mapping: {
       ...defaultValues(track.fields),
-      event_type: 'purchase'
+      podscribeEvent: 'purchase'
     }
   },
   {
@@ -20,7 +20,7 @@ const presets: DestinationDefinition['presets'] = [
     partnerAction: 'track',
     mapping: {
       ...defaultValues(track.fields),
-      event_type: 'signup'
+      podscribeEvent: 'signup'
     }
   }
 ]
