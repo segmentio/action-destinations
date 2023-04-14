@@ -114,7 +114,7 @@ export function sendTrackPurchase(request: RequestClient, settings: Settings, pa
     time: toISO8601(payload.time),
     _update_existing_only: payload._update_existing_only
   }
-  const products: Array<Product> = payload.properties?.products as Array<Product>
+  const products: Array<Product> = payload?.products as Array<Product>
 
   return request(`${settings.endpoint}/users/track`, {
     method: 'post',
