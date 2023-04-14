@@ -6,7 +6,6 @@ import action from './trackPurchase'
 import { Payload as TrackEventPayload } from './trackEvent/generated-types'
 import { Payload as TrackPurchasePayload } from './trackPurchase/generated-types'
 import { getUserAlias } from './userAlias'
-import { Product } from './Product.type'
 type DateInput = string | Date | number | null | undefined
 type DateOutput = string | undefined | null
 
@@ -114,7 +113,7 @@ export function sendTrackPurchase(request: RequestClient, settings: Settings, pa
     time: toISO8601(payload.time),
     _update_existing_only: payload._update_existing_only
   }
-  const products: Array<Product> = payload?.products as Array<Product>
+  const products = payload?.products
 
   return request(`${settings.endpoint}/users/track`, {
     method: 'post',
