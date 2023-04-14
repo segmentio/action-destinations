@@ -107,7 +107,6 @@ const destination: DestinationDefinition<Settings> = {
         required: false
       }
     },
-
     refreshAccessToken: async (request, { settings }) => {
       const at = await request<refreshTokenResult>(
         `https://api-campaign-${settings.a_region}-${settings.a_pod}.goacoustic.com/oauth/token`,

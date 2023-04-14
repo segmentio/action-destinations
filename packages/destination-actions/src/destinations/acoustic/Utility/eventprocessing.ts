@@ -107,7 +107,12 @@ export const postUpdates = async (
   const pup = await request(`https://api-campaign-${settings.a_region}-${settings.a_pod}.goacoustic.com/XMLAPI`, {
     method: 'POST',
     headers: {
-      'user-agent': `Segment Event Table processing ${i}`
+      // 'Authorization': `Bearer ${auth?.accessToken}`,
+      'Content-Type': 'text/xml',
+      'user-agent': `Segment Action (Acoustic Destination) ${i}`,
+      Connection: 'keep-alive',
+      'Accept-Encoding': 'gzip, deflate, br',
+      Accept: '*/*'
     },
     body: `<Envelope>
     <Body>
