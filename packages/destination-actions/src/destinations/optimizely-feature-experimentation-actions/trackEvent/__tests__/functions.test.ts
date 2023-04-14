@@ -14,7 +14,15 @@ describe('.getEventId', () => {
 
 describe('.buildVisitorAttributes', () => {
   it('should return visitor attributes for payload', async () => {
-    expect(buildVisitorAttributes(dataFile, { id: '18531090301', key: 'test' })).toStrictEqual([])
+    const response = buildVisitorAttributes(dataFile, { test: 'test' })
+    expect(response).toStrictEqual([
+      {
+        entity_id: '18531090301',
+        key: 'test',
+        value: 'test',
+        type: 'custom'
+      }
+    ])
   })
 })
 
