@@ -1,0 +1,45 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`OptimizelyFeatureExperimentation.trackEvent should send event successfully 1`] = `
+Object {
+  "account_id": "18269245474",
+  "anonymize_ip": true,
+  "client_name": "Segment",
+  "enrich_decisions": true,
+  "visitors": Array [
+    Object {
+      "attributes": Array [
+        Object {
+          "entity_id": "18531090301",
+          "key": "test",
+          "type": "custom",
+          "value": "test",
+        },
+        Object {
+          "entity_id": "$opt_bot_filtering",
+          "key": "$opt_bot_filtering",
+          "type": "custom",
+          "value": false,
+        },
+      ],
+      "snapshots": Array [
+        Object {
+          "decisions": Array [],
+          "events": Array [
+            Object {
+              "entity_id": "22020998834",
+              "key": "Product List Clicked",
+              "revenue": 1000,
+              "tags": Object {},
+              "timestamp": 1681463990653,
+              "uuid": "f3da139f-3a95-4746-b4b9-d458dca516ee",
+              "value": undefined,
+            },
+          ],
+        },
+      ],
+      "visitor_id": "user1234",
+    },
+  ],
+}
+`;

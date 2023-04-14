@@ -12,8 +12,6 @@ export const payload = {
           events: [
             {
               entity_id: '22020998834',
-              timestamp: 1681386912136,
-              uuid: 'ee4b4f2c-06cc-4f2b-9334-bdd29fe4d63d',
               key: 'Product List Clicked',
               revenue: 1000,
               tags: {}

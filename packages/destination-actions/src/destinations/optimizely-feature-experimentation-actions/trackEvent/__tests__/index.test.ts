@@ -1,5 +1,4 @@
 import nock from 'nock'
-import got from 'got'
 import { createTestEvent, createTestIntegration } from '@segment/actions-core'
 import Destination from '../../index'
 import { dataFile } from '../mock-dataFile'
@@ -14,10 +13,21 @@ describe('OptimizelyFeatureExperimentation.trackEvent', () => {
       dataFileUrl: 'https://cdn.example.com/dataFile.json'
     }
     nock(settings.dataFileUrl).get('').reply(200, dataFile)
-    nock('https://logx.optimizely.com/v1/events').post('', payload).reply(200)
-
-    const res = await got.post('https://logx.optimizely.com/v1/events', { json: payload })
-    expect(res.statusCode).toBe(200)
+    nock('https://logx.optimizely.com/v1/events').post('').reply(200)
+    const event = createTestEvent({
+      event: 'Product List Clicked',
+      properties: {
+        revenue: 1000
+      },
+      context: {
+        traits: {
+          test: 'test'
+        }
+      }
+    })
+    const responses = await testDestination.testAction('trackEvent', { event, settings, useDefaultMappings: true })
+    expect(responses[1].options.json).toMatchObject(payload)
+    expect(responses[1].options.json).toMatchSnapshot()
   }),
     it('should throw error if event sent is not in datafile', async () => {
       const settings = {
