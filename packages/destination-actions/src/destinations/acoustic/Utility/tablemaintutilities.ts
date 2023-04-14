@@ -27,9 +27,17 @@ export async function checkRTExist(request: RequestClient, settings: Settings) {
       `https://api-campaign-${settings.a_region}-${settings.a_pod}.goacoustic.com/XMLAPI`,
       {
         method: 'POST',
+        headers: {
+          // 'Authorization': `Bearer ${auth?.accessToken}`,
+          'Content-Type': 'text/xml',
+          'user-agent': `Segment Action (Acoustic Destination)`,
+          Connection: 'keep-alive',
+          'Accept-Encoding': 'gzip, deflate, br',
+          Accept: '*/*'
+        },
         body: `
     <Envelope> <Body>
-    <GetListMetaData> <LIST_ID>59294</LIST_ID>
+    <GetListMetaData> <LIST_ID>${settings.a_events_table_list_id}</LIST_ID>
     </GetListMetaData> </Body>
     </Envelope>`
       }
@@ -52,6 +60,14 @@ export async function checkRTExist(request: RequestClient, settings: Settings) {
       `https://api-campaign-${settings.a_region}-${settings.a_pod}.goacoustic.com/XMLAPI`,
       {
         method: 'POST',
+        headers: {
+          // 'Authorization': `Bearer ${auth?.accessToken}`,
+          'Content-Type': 'text/xml',
+          'user-agent': `Segment Action (Acoustic Destination)`,
+          Connection: 'keep-alive',
+          'Accept-Encoding': 'gzip, deflate, br',
+          Accept: '*/*'
+        },
         body: `<Envelope>
   <Body>
   <GetLists>
@@ -134,6 +150,14 @@ export async function createSegmentEventsTable(request: RequestClient, settings:
     `https://api-campaign-${settings.a_region}-${settings.a_pod}.goacoustic.com/xmlapi`,
     {
       method: 'POST',
+      headers: {
+        // 'Authorization': `Bearer ${auth?.accessToken}`,
+        'Content-Type': 'text/xml',
+        'user-agent': `Segment Action (Acoustic Destination)`,
+        Connection: 'keep-alive',
+        'Accept-Encoding': 'gzip, deflate, br',
+        Accept: '*/*'
+      },
       body: createEventsXML
     }
   )
