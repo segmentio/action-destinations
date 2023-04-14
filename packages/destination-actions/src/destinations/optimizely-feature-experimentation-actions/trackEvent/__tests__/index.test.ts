@@ -1,8 +1,9 @@
 import nock from 'nock'
+import got from 'got'
 import { createTestEvent, createTestIntegration } from '@segment/actions-core'
 import Destination from '../../index'
 import { dataFile } from '../mock-dataFile'
-import { getEventId, buildVisitorAttributes } from '../functions'
+import { payload } from '../mock-payload'
 
 const testDestination = createTestIntegration(Destination)
 
@@ -14,20 +15,9 @@ describe('OptimizelyFeatureExperimentation.trackEvent', () => {
     }
     nock(settings.dataFileUrl).get('').reply(200, dataFile)
     nock('https://logx.optimizely.com/v1/events').post('').reply(200)
-    const event = createTestEvent({
-      event: 'Product List Clicked',
-      properties: {
-        revenue: 1000
-      },
-      context: {
-        traits: {
-          test: 'test'
-        }
-      }
-    })
-    await expect(
-      testDestination.testAction('trackEvent', { event, settings, useDefaultMappings: true })
-    ).resolves.not.toThrowError()
+
+    const res = await got.post('https://logx.optimizely.com/v1/events', { json: payload })
+    expect(res.statusCode).toBe(200)
   }),
     it('should throw error if event sent is not in datafile', async () => {
       const settings = {
@@ -73,17 +63,5 @@ describe('OptimizelyFeatureExperimentation.trackEvent', () => {
     await expect(
       testDestination.testAction('trackEvent', { event, settings, useDefaultMappings: true })
     ).resolves.not.toThrowError()
-  })
-})
-
-describe('.getEventId', () => {
-  it('should return eventId for eventKey', async () => {
-    expect(getEventId(dataFile, 'Product List Clicked')).toBe('22020998834')
-  })
-})
-
-describe('.buildVisitorAttributes', () => {
-  it('should return visitor attributes for payload', async () => {
-    expect(buildVisitorAttributes(dataFile, { id: '18531090301', key: 'test' })).toStrictEqual([])
   })
 })

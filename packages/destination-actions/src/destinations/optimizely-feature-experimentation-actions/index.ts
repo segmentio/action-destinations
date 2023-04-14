@@ -1,5 +1,5 @@
 import type { DestinationDefinition } from '@segment/actions-core'
-import { IntegrationError } from '@segment/actions-core'
+import { InvalidAuthenticationError } from '@segment/actions-core'
 import type { Settings } from './generated-types'
 
 import trackEvent from './trackEvent'
@@ -42,7 +42,7 @@ const destination: DestinationDefinition<Settings> = {
   },
   onDelete: async (request, { settings }) => {
     if (!settings.accessToken) {
-      throw new IntegrationError('Access Token is required for user deletion.', 'REQUIRED_ACCESS_TOKEN', 400)
+      throw new InvalidAuthenticationError('Access Token is required for user deletion.')
     }
 
     return request('https://api.optimizely.com/v2/subject-access-requests', {
