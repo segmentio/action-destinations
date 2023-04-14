@@ -51,7 +51,6 @@ describe('GA4', () => {
         settings: {
           apiSecret
         },
-        features: { 'actions-google-analytics-4-add-timestamp': true },
         mapping: {
           transaction_id: {
             '@path': '$.properties.order_number'
@@ -521,7 +520,6 @@ describe('GA4', () => {
         settings: {
           apiSecret
         },
-        features: { 'actions-google-analytics-4-add-timestamp': true },
         useDefaultMappings: true
       })
 
@@ -593,7 +591,6 @@ describe('GA4', () => {
           settings: {
             apiSecret
           },
-          features: { 'actions-google-analytics-4-verify-params-feature': true },
           mapping: {
             transaction_id: {
               '@path': '$.properties.order_number'
@@ -687,7 +684,6 @@ describe('GA4', () => {
           settings: {
             apiSecret
           },
-          features: { 'actions-google-analytics-4-verify-params-feature': true },
           mapping: {
             transaction_id: {
               '@path': '$.properties.order_number'
