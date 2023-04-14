@@ -23,6 +23,11 @@ const subscriptions: Subscription[] = [
 ]
 
 describe('identifyUser', () => {
+  beforeAll(() => {
+    jest.mock('../../../../runtime/load-script', () => ({
+      loadScript: (_src: any, _attributes: any) => {}
+    }))
+  })
   test('it maps event parameters correctly to identify function ', async () => {
     const [identifyEvent] = await sprigWebDestination({
       envId: 'testEnvId',
