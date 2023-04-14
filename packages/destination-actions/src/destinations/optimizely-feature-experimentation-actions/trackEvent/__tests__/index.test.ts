@@ -14,7 +14,7 @@ describe('OptimizelyFeatureExperimentation.trackEvent', () => {
       dataFileUrl: 'https://cdn.example.com/dataFile.json'
     }
     nock(settings.dataFileUrl).get('').reply(200, dataFile)
-    nock('https://logx.optimizely.com/v1/events').post('').reply(200)
+    nock('https://logx.optimizely.com/v1/events').post('', payload).reply(200)
 
     const res = await got.post('https://logx.optimizely.com/v1/events', { json: payload })
     expect(res.statusCode).toBe(200)
