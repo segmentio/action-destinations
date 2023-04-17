@@ -11,23 +11,6 @@ const settings: Settings = {
 }
 
 describe('Tiktok Offline Conversions', () => {
-  describe('testAuthentication', () => {
-    it('should validate authentication inputs', async () => {
-      // TODO: Test your action. code below is just to allow Linter to pass
-      const event = createTestEvent({
-        userId: 'testId123'
-      })
-      expect(event.userId).toBe('testId123')
-
-      nock('https://your.destination.endpoint').get('*').reply(200, {})
-
-      // This should match your authentication.fields
-      const authData = {}
-
-      await expect(testDestination.testAuthentication(authData)).resolves.not.toThrowError()
-    })
-  })
-
   describe('testTrackNonPaymentOfflineConversion', () => {
     it('should send a successful \'Contact\' event to \'trackNonPaymentOfflineConversion\'', async () => {
       const event = createTestEvent({
