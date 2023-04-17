@@ -18,7 +18,7 @@ const action: ActionDefinition<Settings, Payload> = {
     timestamp: {
       type: 'string',
       format: 'date-time',
-      required: false,
+      required: true,
       description: 'The timestamp of the event',
       label: 'Timestamp',
       default: { '@path': '$.timestamp' }
@@ -51,7 +51,7 @@ const action: ActionDefinition<Settings, Payload> = {
       }
     },
     ip: {
-      label: 'Ip',
+      label: 'User IP address',
       type: 'string',
       required: true,
       description: 'The IP address of the device sending the event.',
@@ -82,11 +82,56 @@ const action: ActionDefinition<Settings, Payload> = {
       }
     },
     properties: {
-      type: 'object',
-      required: false,
-      description: 'Properties to send with the event',
       label: 'Event properties',
-      default: { '@path': '$.properties' }
+      description: 'Properties to send with the event',
+      type: 'object',
+      additionalProperties: true,
+      properties: {
+        total: {
+          label: 'Total Value',
+          type: 'number',
+          description: 'The total value of the order'
+        },
+        order_id: {
+          label: 'Order id',
+          type: 'string',
+          description: 'The order ID. A unique identifier for the order'
+        },
+        currency: {
+          label: 'Currency',
+          type: 'string',
+          description: 'Currency code. e.g. USD for US dollar, EUR for Euro'
+        },
+        coupon: {
+          label: 'Coupon',
+          type: 'string',
+          description: 'Coupon Code. A Discount code for the purchase'
+        },
+        num_items_purchased: {
+          label: 'Number of Items Purchased',
+          type: 'integer',
+          description: 'The number of items purchased in this order'
+        },
+        is_new_customer: {
+          label: 'Is New Customer',
+          type: 'boolean',
+          description: 'true value Indicates if the user is a new customer'
+        },
+        is_subscription: {
+          label: 'Is Subscription',
+          type: 'boolean',
+          description: 'true value Indicates a subscription'
+        }
+      },
+      default: {
+        total: { '@path': '$.properties.total' },
+        order_id: { '@path': '$.properties.order_id' },
+        currency: { '@path': '$.properties.currency' },
+        coupon: { '@path': '$.properties.coupon' },
+        num_items_purchased: { '@path': '$.properties.num_items_purchased' },
+        is_new_customer: { '@path': '$.properties.is_new_customer' },
+        is_subscription: { '@path': '$.properties.is_subscription' }
+      }
     },
     podscribeEvent: {
       type: 'string',

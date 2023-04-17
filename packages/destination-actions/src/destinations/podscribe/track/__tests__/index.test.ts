@@ -7,6 +7,8 @@ const testDestination = createTestIntegration(Destination)
 
 describe('Podscribe.track', () => {
   const TEST_ADVERTISER = 'test-advertiser'
+  const TEST_IP = '11.111.11.11'
+  const TEST_TIMESTAMP = '2021-07-12T23:02:40.563Z'
 
   it('should send signup event', async () => {
     nock('https://verifi.podscribe.com').get('/tag').query(true).reply(204, {})
@@ -20,7 +22,9 @@ describe('Podscribe.track', () => {
       event,
       mapping: {
         ...defaultValues(track.fields),
-        podscribeEvent: 'signup'
+        podscribeEvent: 'signup',
+        ip: TEST_IP,
+        timestamp: TEST_TIMESTAMP
       },
       settings: { advertiser: TEST_ADVERTISER }
     })

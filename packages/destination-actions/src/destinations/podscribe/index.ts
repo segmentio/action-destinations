@@ -22,6 +22,12 @@ const presets: DestinationDefinition['presets'] = [
       ...defaultValues(track.fields),
       podscribeEvent: 'signup'
     }
+  },
+  {
+    name: 'Page Calls',
+    subscribe: 'type = "page"',
+    partnerAction: 'page',
+    mapping: defaultValues(page.fields)
   }
 ]
 
