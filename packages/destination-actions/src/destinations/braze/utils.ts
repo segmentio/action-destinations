@@ -113,13 +113,12 @@ export function sendTrackPurchase(request: RequestClient, settings: Settings, pa
     time: toISO8601(payload.time),
     _update_existing_only: payload._update_existing_only
   }
-  const products = payload?.products
 
   return request(`${settings.endpoint}/users/track`, {
     method: 'post',
     ...(payload.products.length > 1 ? { headers: { 'X-Braze-Batch': 'true' } } : undefined),
     json: {
-      purchases: products?.map(function (product) {
+      purchases: payload.products.map(function (product) {
         return {
           ...base,
           product_id: product.product_id,
