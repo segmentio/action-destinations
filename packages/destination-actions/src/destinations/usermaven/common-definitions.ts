@@ -57,29 +57,29 @@ export const commonFields: ActionDefinition<Settings>['fields'] = {
         required: true
       },
       email: {
-        label: 'Email',
+        label: 'User email',
         type: 'string',
         required: true
       },
       anonymous_id: {
-        label: 'Anonymous ID',
+        label: 'User anonymous ID',
         type: 'string'
       },
       first_name: {
-        label: 'First Name',
+        label: 'User first name',
         type: 'string'
       },
       last_name: {
-        label: 'Last Name',
+        label: 'User last name',
         type: 'string'
       },
       created_at: {
-        label: 'Created At',
+        label: 'User created At',
         type: 'string',
-        required: true
+        required: false
       },
       custom: {
-        label: 'Custom Attributes',
+        label: 'User custom attributes',
         type: 'object',
         required: false
       }
@@ -165,7 +165,7 @@ export const commonFields: ActionDefinition<Settings>['fields'] = {
       },
       density: {
         label: 'Density',
-        type: 'integer'
+        type: 'number'
       }
     },
     default: {
@@ -179,7 +179,13 @@ export const commonFields: ActionDefinition<Settings>['fields'] = {
     required: false,
     description: 'The timezone of the browser.',
     label: 'Timezone',
-    default: { '@path': '$.context.timezone' }
+    default: {
+      '@if': {
+        exists: { '@path': '$.properties.timezone' },
+        then: { '@path': '$.properties.timezone' },
+        else: { '@path': '$.traits.timezone' }
+      }
+    }
   },
   ip: {
     type: 'string',

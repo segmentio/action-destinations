@@ -1,4 +1,4 @@
-import type { DestinationDefinition } from '@segment/actions-core'
+import { defaultValues, DestinationDefinition } from '@segment/actions-core'
 import type { Settings } from './generated-types'
 import { IntegrationError } from '@segment/actions-core'
 
@@ -8,7 +8,7 @@ import track from './track'
 import group from './group'
 
 const destination: DestinationDefinition<Settings> = {
-  name: 'Usermaven',
+  name: 'Usermaven (Actions)',
   slug: 'actions-usermaven',
   mode: 'cloud',
 
@@ -31,7 +31,26 @@ const destination: DestinationDefinition<Settings> = {
       }
     }
   },
-
+  presets: [
+    {
+      name: 'Track Event',
+      subscribe: 'type = "track"',
+      partnerAction: 'track',
+      mapping: defaultValues(track.fields)
+    },
+    {
+      name: 'Identify User',
+      subscribe: 'type = "identify"',
+      partnerAction: 'identify',
+      mapping: defaultValues(identify.fields)
+    },
+    {
+      name: 'Group',
+      subscribe: 'type = "group"',
+      partnerAction: 'group',
+      mapping: defaultValues(group.fields)
+    }
+  ],
   actions: {
     identify,
     track,

@@ -9,6 +9,13 @@ const action: ActionDefinition<Settings, Payload> = {
   description: 'Sets user identity variables',
   platform: 'cloud',
   fields: {
+    email: {
+      type: 'string',
+      required: true,
+      description: 'The user email address',
+      label: 'Email address',
+      default: { '@path': '$.traits.email' }
+    },
     ...commonFields
   },
   perform: (request, { payload, settings }) => {

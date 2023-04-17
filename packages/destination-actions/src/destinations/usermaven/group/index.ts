@@ -16,22 +16,22 @@ const action: ActionDefinition<Settings, Payload> = {
       defaultObjectUI: 'keyvalue',
       properties: {
         id: {
-          label: 'Company ID',
+          label: 'Company id',
           type: 'string',
           required: true
         },
         name: {
-          label: 'Company Name',
+          label: 'Company name',
           type: 'string',
           required: true
         },
         created_at: {
-          label: 'Company Created At',
+          label: 'Company created at',
           type: 'string',
           required: true
         },
         custom: {
-          label: 'Custom Attributes',
+          label: 'Company custom attributes',
           type: 'object',
           required: false
         }
