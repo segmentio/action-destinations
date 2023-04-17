@@ -89,8 +89,8 @@ const action: ActionDefinition<Settings, Payload> = {
         timestamp: payload.timestamp,
         context: {
           user: {
-            phone_numbers: formatPhones(payload.phone_numbers), //userData.hashedPhoneNumbers,
-            emails: formatEmails(payload.email_addresses) //userData.hashedEmails
+            phone_numbers: formatPhones(payload.phone_numbers),
+            emails: formatEmails(payload.email_addresses)
           }
         },
         properties: {

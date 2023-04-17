@@ -4,13 +4,13 @@ import { createHash } from 'crypto'
  * Convert emails to lower case, and hash in SHA256.
  */
 export const formatEmails = (email_addresses: string[] | undefined): string[] => {
-  const result: string[] = [];
+  const result: string[] = []
   if (email_addresses) {
     email_addresses.forEach((email: string) => {
-      result.push(hashAndEncode(email.toLowerCase()));
+      result.push(hashAndEncode(email.toLowerCase()))
     })
   }
-  return result;
+  return result
 }
 
 /**
@@ -19,21 +19,21 @@ export const formatEmails = (email_addresses: string[] | undefined): string[] =>
  * This function assumes the input is a correctly formatted phone number maximum of 14 characters long with country code included in the input.
  */
 export const formatPhones = (phone_numbers: string[] | undefined): string[] => {
-  const result: string[] = [];
-  if (!phone_numbers) return result;
-  
+  const result: string[] = []
+  if (!phone_numbers) return result
+
   phone_numbers.forEach((phone: string) => {
     const validatedPhone = phone.match(/[0-9]{0,14}/g)
     if (validatedPhone === null) {
-      throw new Error(`${phone} is not a valid E.164 phone number.`);
+      throw new Error(`${phone} is not a valid E.164 phone number.`)
     }
     // Remove spaces and non-digits; append + to the beginning
-    let formattedPhone = `+${phone.replace(/[^0-9]/g, '')}`;
+    const formattedPhone = `+${phone.replace(/[^0-9]/g, '')}`
     // Limit length to 15 characters
-    result.push(formattedPhone.substring(0, 15));
-  });
+    result.push(formattedPhone.substring(0, 15))
+  })
 
-  return result;
+  return result
 }
 
 function hashAndEncode(property: string) {
