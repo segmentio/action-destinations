@@ -8,7 +8,7 @@ export interface Payload {
   /**
    * The timestamp of the event
    */
-  timestamp?: string
+  timestamp: string
   /**
    * The page referrer
    */
@@ -20,7 +20,7 @@ export interface Payload {
   /**
    * The IP address of the device sending the event.
    */
-  ip?: string
+  ip: string
   /**
    * The user agent of the device sending the event.
    */
