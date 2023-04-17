@@ -2,6 +2,20 @@ import { ActionDefinition } from '@segment/actions-core'
 import { Settings } from '../encharge/generated-types'
 
 export const commonFields: ActionDefinition<Settings>['fields'] = {
+  user_id: {
+    type: 'string',
+    required: true,
+    description: 'The user id, to uniquely identify the user',
+    label: 'User id',
+    default: { '@path': '$.userId' }
+  },
+  event_id: {
+    type: 'string',
+    required: false,
+    description: 'The ID of the event.',
+    label: 'Event ID',
+    default: { '@path': '$.messageId' }
+  },
   doc_path: {
     type: 'string',
     required: false,
@@ -44,55 +58,6 @@ export const commonFields: ActionDefinition<Settings>['fields'] = {
     label: 'URL',
     default: { '@path': '$.context.page.url' }
   },
-  user: {
-    type: 'object',
-    required: true,
-    description: 'Information about the user.',
-    label: 'User',
-    defaultObjectUI: 'keyvalue',
-    properties: {
-      id: {
-        label: 'User ID',
-        type: 'string',
-        required: true
-      },
-      email: {
-        label: 'User email',
-        type: 'string',
-        required: true
-      },
-      anonymous_id: {
-        label: 'User anonymous ID',
-        type: 'string'
-      },
-      first_name: {
-        label: 'User first name',
-        type: 'string'
-      },
-      last_name: {
-        label: 'User last name',
-        type: 'string'
-      },
-      created_at: {
-        label: 'User created At',
-        type: 'string',
-        required: false
-      },
-      custom: {
-        label: 'User custom attributes',
-        type: 'object',
-        required: false
-      }
-    },
-    default: {
-      id: { '@path': '$.userId' },
-      email: { '@path': '$.email' },
-      anonymous_id: { '@path': '$.anonymousId' },
-      first_name: { '@path': '$.traits.firstName' },
-      last_name: { '@path': '$.traits.lastName' },
-      created_at: { '@path': '$.traits.created_at' }
-    }
-  },
   user_agent: {
     type: 'string',
     required: false,
@@ -122,22 +87,27 @@ export const commonFields: ActionDefinition<Settings>['fields'] = {
     properties: {
       source: {
         label: 'Source',
+        description: 'The source of the campaign.',
         type: 'string'
       },
       medium: {
         label: 'Medium',
+        description: 'The medium of the campaign.',
         type: 'string'
       },
       name: {
         label: 'Name',
+        description: 'The name of the campaign.',
         type: 'string'
       },
       term: {
         label: 'Term',
+        description: 'The term of the campaign.',
         type: 'string'
       },
       content: {
         label: 'Content',
+        description: 'The content of the campaign.',
         type: 'string'
       }
     },
@@ -157,14 +127,17 @@ export const commonFields: ActionDefinition<Settings>['fields'] = {
     properties: {
       height: {
         label: 'Height',
+        description: 'The height of the screen.',
         type: 'integer'
       },
       width: {
         label: 'Width',
+        description: 'The width of the screen.',
         type: 'integer'
       },
       density: {
         label: 'Density',
+        description: 'The density of the screen.',
         type: 'number'
       }
     },

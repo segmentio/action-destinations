@@ -6,7 +6,7 @@ import { commonFields } from '../common-definitions'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Track Event',
-  description: 'Send event track calls to Usermaven.',
+  description: 'Sends a track event to Usermaven.',
   fields: {
     event: {
       type: 'string',
@@ -22,7 +22,7 @@ const action: ActionDefinition<Settings, Payload> = {
       label: 'Event Name',
       default: { '@path': '$.properties' }
     },
-    email: {
+    user_email: {
       type: 'string',
       required: false,
       description: 'The user email address',
@@ -32,6 +32,19 @@ const action: ActionDefinition<Settings, Payload> = {
           exists: { '@path': '$.properties.email' },
           then: { '@path': '$.properties.email' },
           else: { '@path': '$.context.traits.email' }
+        }
+      }
+    },
+    user_created_at: {
+      type: 'string',
+      required: true,
+      description: 'The timestamp when the user was created',
+      label: 'Created at',
+      default: {
+        '@if': {
+          exists: { '@path': '$.properties.created_at' },
+          then: { '@path': '$.properties.created_at' },
+          else: { '@path': '$.context.traits.created_at' }
         }
       }
     },

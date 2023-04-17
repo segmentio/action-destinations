@@ -6,15 +6,67 @@ import { commonFields } from '../common-definitions'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Identify User',
-  description: 'Sets user identity variables',
+  description: 'Sets a user data.',
   platform: 'cloud',
   fields: {
-    email: {
+    user_email: {
       type: 'string',
       required: true,
       description: 'The user email address',
       label: 'Email address',
-      default: { '@path': '$.traits.email' }
+      default: {
+        '@if': {
+          exists: { '@path': '$.traits.user_email' },
+          then: { '@path': '$.traits.user_email' },
+          else: { '@path': '$.properties.user_email' }
+        }
+      }
+    },
+    user_created_at: {
+      type: 'string',
+      required: true,
+      description: 'The timestamp when the user was created',
+      label: 'Created at',
+      default: { '@path': '$.traits.user_created_at' }
+    },
+    user_anonymous_id: {
+      type: 'string',
+      required: false,
+      description: 'The user anonymous id',
+      label: 'Anonymous id',
+      default: { '@path': '$.anonymousId' }
+    },
+    user_first_name: {
+      type: 'string',
+      required: false,
+      description: 'The user first name',
+      label: 'First name',
+      default: {
+        '@if': {
+          exists: { '@path': '$.traits.user_first_name' },
+          then: { '@path': '$.traits.user_first_name' },
+          else: { '@path': '$.properties.user_first_name' }
+        }
+      }
+    },
+    user_last_name: {
+      type: 'string',
+      required: false,
+      description: 'The user last name',
+      label: 'Last name',
+      default: {
+        '@if': {
+          exists: { '@path': '$.traits.user_last_name' },
+          then: { '@path': '$.traits.user_last_name' },
+          else: { '@path': '$.properties.user_last_name' }
+        }
+      }
+    },
+    user_custom_attributes: {
+      type: 'object',
+      required: false,
+      description: 'The user custom attributes',
+      label: 'Custom attributes'
     },
     ...commonFields
   },

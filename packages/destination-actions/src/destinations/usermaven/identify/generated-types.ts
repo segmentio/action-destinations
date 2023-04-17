@@ -2,6 +2,40 @@
 
 export interface Payload {
   /**
+   * The user email address
+   */
+  user_email: string
+  /**
+   * The timestamp when the user was created
+   */
+  user_created_at: string
+  /**
+   * The user anonymous id
+   */
+  user_anonymous_id?: string
+  /**
+   * The user first name
+   */
+  user_first_name?: string
+  /**
+   * The user last name
+   */
+  user_last_name?: string
+  /**
+   * The user custom attributes
+   */
+  user_custom_attributes?: {
+    [k: string]: unknown
+  }
+  /**
+   * The user id, to uniquely identify the user
+   */
+  user_id: string
+  /**
+   * The ID of the event.
+   */
+  event_id?: string
+  /**
    * The path of the document.
    */
   doc_path?: string
@@ -26,20 +60,6 @@ export interface Payload {
    */
   url?: string
   /**
-   * Information about the user.
-   */
-  user: {
-    id: string
-    email: string
-    anonymous_id?: string
-    first_name?: string
-    last_name?: string
-    created_at: string
-    custom?: {
-      [k: string]: unknown
-    }
-  }
-  /**
    * The user agent of the browser.
    */
   user_agent?: string
@@ -55,18 +75,42 @@ export interface Payload {
    * Information about the UTM parameters.
    */
   utm?: {
+    /**
+     * The source of the campaign.
+     */
     source?: string
+    /**
+     * The medium of the campaign.
+     */
     medium?: string
+    /**
+     * The name of the campaign.
+     */
     name?: string
+    /**
+     * The term of the campaign.
+     */
     term?: string
+    /**
+     * The content of the campaign.
+     */
     content?: string
   }
   /**
    * Information about the screen.
    */
   screen?: {
+    /**
+     * The height of the screen.
+     */
     height?: number
+    /**
+     * The width of the screen.
+     */
     width?: number
+    /**
+     * The density of the screen.
+     */
     density?: number
   }
   /**

@@ -63,16 +63,10 @@ export const eventRequestParams = (
 export const resolveRequestPayload = (settings: Settings, payload: Record<string, any>): any => {
   const properties: any = {
     api_key: settings.api_key,
-    event_id: '',
     ids: {},
     doc_encoding: 'utf-8',
     src: 'usermaven-segment',
     ...payload
-  }
-
-  // Checking if email is present in the payload, then try to get from the traits
-  if (!payload.user.email && payload?.traits?.email) {
-    properties.user.email = payload.traits.email
   }
 
   // Resolve doc_host property, we can get doc_host from the payload url
@@ -81,44 +75,63 @@ export const resolveRequestPayload = (settings: Settings, payload: Record<string
     properties.doc_host = url.host
   }
 
-  // Resolve screen_resolution property, we can get screen_resolution from the payload context.screen
-  if (payload?.context?.screen) {
-    const { width, height } = payload.context.screen
-    properties.screen_resolution = `${width}x${height}`
-  }
+  // Resolve screen_resolution and vp_size properties, we can get from the payloadscreen
+  if (payload?.screen) {
+    const { width, height } = payload.screen
+    properties.screen_resolution = `${width || 0}x${height || 0}`
+    properties.vp_size = `${width || 0}x${height || 0}`
 
-  // Resolve vp_size property, we can get vp_size from the payload context.screen
-  if (payload?.context?.screen) {
-    const { width, height } = payload.context.screen
-    properties.vp_size = `${width}x${height}`
+    delete properties.screen
   }
 
   // Resolve local_tz_offset property, we can get local_tz_offset from the payload context.timezone
   // And we need to convert the timezone (e.g: Europe/Amsterdam) to the offset (e.g: +0200)
-  if (payload?.context?.timezone) {
-    const timezone = payload.context.timezone
+  if (payload?.timezone) {
+    const timezone = payload.timezone
     const date = new Date()
     const offset = date.toLocaleString('en-US', { timeZone: timezone, timeZoneName: 'short' }).split(' ')[2]
     properties.local_tz_offset = offset
-  }
 
-  // Check if annonymousId is not present, we need to generate a random annonymous Id
-  if (!payload?.user?.anonymous_id) {
-    properties.user = {
-      ...payload.user,
-      anonymous_id: generateId()
-    }
+    delete properties.timezone
   }
 
   // Check if event property is present, we will use it as event_type
   if (payload?.event) {
     properties.event_type = payload.event
+    delete properties.event
   }
 
-  // Remove unnecessary properties from the payload
-  delete properties.screen
-  delete properties.timezone
-  delete properties.event
+  // Resolve user properties
+  properties.user = {
+    id: payload?.user_id,
+    anonymous_id: payload?.user_anonymous_id || generateId(),
+    email: payload?.user_email,
+    first_name: payload?.user_first_name,
+    last_name: payload?.user_last_name,
+    custom: payload?.user_custom_attributes
+  }
+
+  // Delete unnecessary user properties
+  delete properties.user_id
+  delete properties.user_anonymous_id
+  delete properties.user_email
+  delete properties.user_first_name
+  delete properties.user_last_name
+  delete properties.user_custom_attributes
+
+  // Resolve company properties
+  properties.company = {
+    id: payload?.company_id,
+    name: payload?.company_name,
+    created_at: payload?.company_created_at,
+    custom: payload?.company_custom_attributes
+  }
+
+  // Delete unnecessary company properties
+  delete properties.company_id
+  delete properties.company_name
+  delete properties.company_created_at
+  delete properties.company_custom_attributes
 
   return properties
 }
