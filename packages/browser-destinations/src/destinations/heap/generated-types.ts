@@ -18,7 +18,7 @@ export interface Settings {
    */
   trackingServer?: string
   /**
-   * This is an optional setting used to set the host that loads heap-js. This setting is used when heapJS is self-hosted. In most cased this should be left unset. The hostname should not contain https or app id it will be populated like so: https://${hostname}/js/heap-${appId}.js. For more information visit the heap [docs page](https://developers.heap.io/docs/heap-js#hostname).
+   * This is an optional setting used to set the host that loads heap-js. This setting is used when heapJS is self-hosted. In most cased this should be left unset. The hostname should not contain https or app id it will be populated like so: https://${hostname}/js/heap-${appId}.js. For more information visit the heap [docs page](https://developers.heap.io/docs/self-hosting-heapjs).
    */
   hostname?: string
 }
