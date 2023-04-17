@@ -102,7 +102,7 @@ const destination: DestinationDefinition<Settings> = {
       a_attributesMax: {
         label: 'Properties Max',
         description: 'Note: Before increasing the default max number, consult the Acoustic Destination documentation.',
-        default: 30,
+        default: 10,
         type: 'number',
         required: false
       }
@@ -127,7 +127,6 @@ const destination: DestinationDefinition<Settings> = {
           }
         }
       )
-
       return { accessToken: at.data.access_token }
     }
   },
