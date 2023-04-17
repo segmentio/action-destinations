@@ -54,11 +54,11 @@ export interface Payload {
      */
     num_items_purchased?: number
     /**
-     * true value Indicates if the user is a new customer
+     * true value indicates if the user is a new customer
      */
     is_new_customer?: boolean
     /**
-     * true value Indicates a subscription
+     * true value indicates a subscription
      */
     is_subscription?: boolean
     [k: string]: unknown

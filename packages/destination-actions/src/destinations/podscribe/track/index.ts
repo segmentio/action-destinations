@@ -115,12 +115,12 @@ const action: ActionDefinition<Settings, Payload> = {
         is_new_customer: {
           label: 'Is New Customer',
           type: 'boolean',
-          description: 'true value Indicates if the user is a new customer'
+          description: 'true value indicates if the user is a new customer'
         },
         is_subscription: {
           label: 'Is Subscription',
           type: 'boolean',
-          description: 'true value Indicates a subscription'
+          description: 'true value indicates a subscription'
         }
       },
       default: {
