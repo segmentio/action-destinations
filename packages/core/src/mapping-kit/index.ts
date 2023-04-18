@@ -100,6 +100,8 @@ registerDirective('@case', (opts, payload) => {
   }
 })
 
+export const MAX_PATTERN_LENGTH = 10
+export const MAX_REPLACEMENT_LENGTH = 10
 registerDirective('@replace', (opts, payload) => {
   if (!isObject(opts)) {
     throw new Error('@replace requires an object with a "pattern" key')
@@ -138,6 +140,14 @@ registerDirective('@replace', (opts, payload) => {
       typeof ignorecase === 'boolean' &&
       typeof isGlobal === 'boolean'
     ) {
+      if (pattern.length > MAX_PATTERN_LENGTH) {
+        throw new Error(`@replace requires a "pattern" less than ${MAX_PATTERN_LENGTH} characters`)
+      }
+
+      if (replacement.length > MAX_REPLACEMENT_LENGTH) {
+        throw new Error(`@replace requires a "replacement" less than ${MAX_REPLACEMENT_LENGTH} characters`)
+      }
+
       // We don't want users providing regular expressions for the pattern (for now)
       // https://stackoverflow.com/questions/F3115150/how-to-escape-regular-expression-special-characters-using-javascript
       pattern = pattern.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, '\\$&')
