@@ -1,5 +1,5 @@
 import type { DestinationDefinition } from '@segment/actions-core'
-import { IntegrationError } from '@segment/actions-core'
+import { InvalidAuthenticationError } from '@segment/actions-core'
 import type { Settings } from './generated-types'
 
 import trackEvent from './trackEvent'
@@ -14,7 +14,8 @@ const destination: DestinationDefinition<Settings> = {
     fields: {
       accessToken: {
         label: 'Personal Access Token',
-        description: 'Personal Access Token which client generated manually.',
+        description:
+          'The personal access token will be used to submit a GDPR delete request to Optimizely. To generate a personal access token, navigate to Profile->API Access and generate a new token.',
         type: 'password',
         required: false
       },
@@ -31,7 +32,7 @@ const destination: DestinationDefinition<Settings> = {
         required: true,
         format: 'uri',
         description:
-          'In order to use Optimizely Feature Experimentation (Actions) server side, you must enter the entire URL for your datafile. It should look something like https://cdn.optimizely.com/json/9218021209.json'
+          'The datafile is a JSON representation of the current state of flags and experiments for an environment in your Full Stack project. It should look something like https://cdn.optimizely.com/json/9218021209.json'
       },
       cacheExp: {
         label: 'Cach Exp',
@@ -49,7 +50,7 @@ const destination: DestinationDefinition<Settings> = {
   },
   onDelete: async (request, { settings }) => {
     if (!settings.accessToken) {
-      throw new IntegrationError('Access Token is required for user deletion.', 'REQUIRED_ACCESS_TOKEN', 400)
+      throw new InvalidAuthenticationError('Access Token is required for user deletion.')
     }
 
     return request('https://api.optimizely.com/v2/subject-access-requests', {

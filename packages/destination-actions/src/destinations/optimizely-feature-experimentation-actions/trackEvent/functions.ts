@@ -135,3 +135,24 @@ function isCacheReady(cacheEntry: CacheFields, ttl: number) {
   // state is either STATE_VALIDATING, STATE_UPDATING
   return true
 }
+
+export async function getEventKeys(request: RequestClient, settings: Settings) {
+  try {
+    const response = await request<ProjectConfig>(settings.dataFileUrl)
+    const choices = response.data.events.map((event) => ({
+      label: event.key,
+      value: event.key
+    }))
+    return {
+      choices: [...choices]
+    }
+  } catch (err) {
+    return {
+      choices: [],
+      error: {
+        message: err?.response?.statusText ?? 'Unknown error',
+        code: err?.response?.status ?? 'Unknown code'
+      }
+    }
+  }
+}

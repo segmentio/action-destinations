@@ -11,13 +11,12 @@ export interface ProjectConfig {
   accountId: string
   publicKeyForOdp?: string
   hostForOdp?: string
-  allSegments: Set<string>
 }
 
 export interface Event {
   key: string
   id: string
-  experimentsIds: string[]
+  experimentIds: string[]
 }
 
 export interface VisitorAttribute {

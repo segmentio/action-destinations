@@ -1,9 +1,8 @@
 import { ActionDefinition, omit, PayloadValidationError } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
-import { buildVisitorAttributes, getEventId } from './functions'
+import { buildVisitorAttributes, getEventId, getEventKeys, getDatafile } from './functions'
 import { dataFile } from '../types'
-import { getDatafile } from './functions'
 import dayjs from '../../../lib/dayjs'
 
 const action: ActionDefinition<Settings, Payload> = {
@@ -17,6 +16,7 @@ const action: ActionDefinition<Settings, Payload> = {
       description:
         'The key of the event to be tracked. This key must match the event key provided when the event was created in the Optimizely app.',
       required: true,
+      dynamic: true,
       default: {
         '@path': '$.event'
       }
@@ -32,7 +32,6 @@ const action: ActionDefinition<Settings, Payload> = {
           exists: {
             '@path': '$.userId'
           },
-
           then: {
             '@path': '$.userId'
           },
@@ -46,7 +45,7 @@ const action: ActionDefinition<Settings, Payload> = {
       label: 'Event Attributes',
       type: 'object',
       description:
-        'A map of custom key-value string pairs specifying attributes for the user that are used for results segmentation. Non-string values are only supported in the 3.0 SDK and above.',
+        'A map of custom key-value string pairs specifying attributes for the user that are used for results segmentation.',
       required: false,
       default: {
         '@path': '$.context.traits'
@@ -100,6 +99,11 @@ const action: ActionDefinition<Settings, Payload> = {
       default: {
         '@path': '$.messageId'
       }
+    }
+  },
+  dynamicFields: {
+    eventKey: async (request, { settings }) => {
+      return getEventKeys(request, settings)
     }
   },
   perform: async (request, { settings, payload, lruCache }) => {

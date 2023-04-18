@@ -112,7 +112,6 @@ export const dataFile = {
     { id: '18531090301', key: 'test' },
     { id: '22344715353', key: 'opendoor_test_audience' }
   ],
-  botFiltering: false,
   accountId: '18269245474',
   events: [
     { experimentIds: [], id: '21235440822', key: 'Test' },

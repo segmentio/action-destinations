@@ -7,7 +7,7 @@ import {
   StatsClient,
   StatsContext,
   TransactionContext,
-  LruCache
+  LruCache,
   OAuth2Authentication
 } from '../destination-kit'
 import { JSONObject } from '../json-object'
