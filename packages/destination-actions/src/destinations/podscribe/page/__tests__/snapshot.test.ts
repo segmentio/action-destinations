@@ -29,7 +29,8 @@ describe(`Testing snapshot for ${destinationSlug}'s ${actionSlug} destination ac
     })
 
     const request = responses[0].request
-    expect(request.url).toMatchSnapshot()
+    const request_url_fixed_timestamp = request.url.replace(/timestamp=[^&]*/g, 'timestamp=FIXED_TIMESTAMP')
+    expect(request_url_fixed_timestamp).toMatchSnapshot()
     expect(request.headers).toMatchSnapshot()
   })
 
@@ -53,6 +54,7 @@ describe(`Testing snapshot for ${destinationSlug}'s ${actionSlug} destination ac
     })
 
     const request = responses[0].request
-    expect(request.url).toMatchSnapshot()
+    const request_url_fixed_timestamp = request.url.replace(/timestamp=[^&]*/g, 'timestamp=FIXED_TIMESTAMP')
+    expect(request_url_fixed_timestamp).toMatchSnapshot()
   })
 })
