@@ -4,12 +4,11 @@ import get from 'lodash/get'
 import { Settings } from '../generated-types'
 import { Payload } from '../receiveEvents/generated-types'
 import { eventTableListId } from './tablemaintutilities'
-import { AuthTokens } from '@segment/actions-core/src/destination-kit/parse-settings'
 
 export function parseSections(section: { [key: string]: string }, nestDepth: number) {
   const parseResults: { [key: string]: string } = {}
   //if (nestDepth > 5) return parseResults
-  if (nestDepth > 10)
+  if (nestDepth > 5)
     throw new IntegrationError(
       'Event data exceeds nesting depth. Restate event data to avoid nesting attributes more than 5 levels deep',
       'NESTING_DEPTH_EXCEEDED',
@@ -33,7 +32,7 @@ export function parseSections(section: { [key: string]: string }, nestDepth: num
   return parseResults
 }
 
-export function addUpdateEvents(payload: Payload, email: string, limit: number) {
+export function addUpdateEvents(payload: Payload, email: string) {
   let eventName = ''
   let eventValue = ''
   let xmlRows = ''
@@ -82,15 +81,6 @@ export function addUpdateEvents(payload: Payload, email: string, limit: number) 
       ...parseSections(payload.context as { [key: string]: string }, 0)
     }
 
-  if (Object.keys(propertiesTraitsKV).length > limit) {
-    throw new IntegrationError(
-      'Properties Exceed Max. Use Mapping to limit the number of Attributes (Properties, Traits) present and thereby reduce the Campaign Relational Table Rows consumed.',
-      'EXCEEDS_MAX_PROPERTIES_MAX',
-      400
-    )
-    return
-  }
-
   //Wrap Properties and Traits into XML
   for (const e in propertiesTraitsKV) {
     const eventName = e
@@ -111,19 +101,13 @@ export function addUpdateEvents(payload: Payload, email: string, limit: number) 
 export const postUpdates = async (
   request: RequestClient,
   settings: Settings,
-  auth: AuthTokens,
   xmlRows: string,
   i: number
 ): Promise<Response> => {
   const pup = await request(`https://api-campaign-${settings.a_region}-${settings.a_pod}.goacoustic.com/XMLAPI`, {
     method: 'POST',
     headers: {
-      Authorization: `Bearer ${auth?.accessToken}`,
-      'Content-Type': 'text/xml',
-      'user-agent': `Segment Action (Acoustic Destination) ${i}`,
-      Connection: 'keep-alive',
-      'Accept-Encoding': 'gzip, deflate, br',
-      Accept: '*/*'
+      'user-agent': `Segment Event Table processing ${i}`
     },
     body: `<Envelope>
     <Body>
