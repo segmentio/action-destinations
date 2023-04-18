@@ -1,13 +1,7 @@
 import { ActionDefinition, PayloadValidationError } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
-import {
-  convertTimestamp,
-  formatCustomVariables,
-  getCustomVariables,
-  getUrlByVersion,
-  handleGoogleErrors
-} from '../functions'
+import { convertTimestamp, formatCustomVariables, getCustomVariables, handleGoogleErrors } from '../functions'
 import { PartialErrorResponse } from '../types'
 import { ModifiedResponse } from '@segment/actions-core'
 
@@ -71,7 +65,7 @@ const action: ActionDefinition<Settings, Payload> = {
       defaultObjectUI: 'keyvalue:only'
     }
   },
-  perform: async (request, { auth, settings, payload, features, statsContext }) => {
+  perform: async (request, { auth, settings, payload }) => {
     /* Enforcing this here since Customer ID is required for the Google Ads API
     but not for the Enhanced Conversions API. */
     if (!settings.customerId) {
@@ -93,14 +87,14 @@ const action: ActionDefinition<Settings, Payload> = {
 
     // Retrieves all of the custom variables that the customer has created in their Google Ads account
     if (payload.custom_variables) {
-      const customVariableIds = await getCustomVariables(settings.customerId, auth, request, features, statsContext)
+      const customVariableIds = await getCustomVariables(settings.customerId, auth, request)
       request_object.customVariables = formatCustomVariables(
         payload.custom_variables,
         customVariableIds.data[0].results
       )
     }
     const response: ModifiedResponse<PartialErrorResponse> = await request(
-      `${getUrlByVersion(features, statsContext)}/${settings.customerId}:uploadCallConversions`,
+      `https://googleads.googleapis.com/v12/customers/${settings.customerId}:uploadCallConversions`,
       {
         method: 'post',
         headers: {

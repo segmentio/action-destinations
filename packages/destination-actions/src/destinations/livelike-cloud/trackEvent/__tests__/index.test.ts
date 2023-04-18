@@ -8,10 +8,11 @@ const testDestination = createTestIntegration(Destination)
 const LIVELIKE_CLIENT_ID = 'test-client-id'
 const LIVELIKE_PRODUCER_TOKEN = 'test-producer-token'
 const timestamp = '2021-08-17T15:21:15.449Z'
-const livelike_profile_id = 'user123'
+const profile_id = 'test123'
 
 const expectedEvent: Payload = {
-  action_key: 'test-event',
+  event_name: 'Test Event',
+  event_type: 'track',
   properties: {},
   timestamp: timestamp
 }
@@ -21,8 +22,7 @@ describe('LiveLike.trackEvent', () => {
     const event = createTestEvent({
       timestamp,
       properties: {
-        action_key: 'test-event',
-        livelike_profile_id: livelike_profile_id
+        livelike_profile_id: profile_id
       }
     })
 
@@ -34,14 +34,11 @@ describe('LiveLike.trackEvent', () => {
     ).rejects.toThrowError(new IntegrationError('Missing client ID or producer token.'))
   })
 
-  it('should throw integration error when livelike_profile_id or user_id is not found or null', async () => {
+  it('should throw integration error when livelike_profile_id or user_id or custom_id is not found or null', async () => {
     const event = createTestEvent({
       //Need to set userId as null because `createTestEvent` and `testAction` adds a default userId which will fail the test everytime.
       userId: null,
-      timestamp,
-      properties: {
-        action_key: 'test-event'
-      }
+      timestamp
     })
 
     await expect(
@@ -54,37 +51,20 @@ describe('LiveLike.trackEvent', () => {
         }
       })
     ).rejects.toThrowError(
-      new IntegrationError('`livelike_profile_id` or `user_id` is required.', 'Missing required fields', 400)
+      new IntegrationError(
+        '`livelike_profile_id` or `custom_id` or `user_id` is required.',
+        'Missing required fields',
+        400
+      )
     )
   })
 
-  it('should throw integration error when action_key is not found', async () => {
+  it('21', async () => {
     const event = createTestEvent({
+      //Need to set userId as null because `createTestEvent` and `testAction` adds a default userId which will fail the test everytime.
+      userId: profile_id,
       timestamp,
-      properties: {
-        livelike_profile_id: livelike_profile_id
-      }
-    })
-
-    await expect(
-      testDestination.testAction('trackEvent', {
-        event,
-        useDefaultMappings: true,
-        settings: {
-          clientId: LIVELIKE_CLIENT_ID,
-          producerToken: LIVELIKE_PRODUCER_TOKEN
-        }
-      })
-    ).rejects.toThrowError(new IntegrationError("The root value is missing the required field 'action_key'."))
-  })
-
-  it('should validate action fields when userId is found and not livelike_profile_id ', async () => {
-    const event = createTestEvent({
-      userId: livelike_profile_id,
-      timestamp,
-      properties: {
-        action_key: 'test-event'
-      }
+      properties: {}
     })
 
     nock(apiBaseUrl)
@@ -108,19 +88,19 @@ describe('LiveLike.trackEvent', () => {
       events: [
         {
           ...expectedEvent,
-          user_id: livelike_profile_id
+          segment_user_id: profile_id
         }
       ]
     })
   })
 
-  it('should validate action fields when livelike_profile_id is found and not user_id ', async () => {
+  it('2121', async () => {
     const event = createTestEvent({
-      timestamp,
+      //Need to set userId as null because `createTestEvent` and `testAction` adds a default userId which will fail the test everytime.
       properties: {
-        action_key: 'test-event',
-        livelike_profile_id: livelike_profile_id
-      }
+        custom_id: profile_id
+      },
+      timestamp
     })
 
     nock(apiBaseUrl)
@@ -144,11 +124,114 @@ describe('LiveLike.trackEvent', () => {
       events: [
         {
           ...expectedEvent,
-          livelike_profile_id: livelike_profile_id
+          custom_id: profile_id
         }
       ]
     })
   })
+
+  it('332121321', async () => {
+    const event = createTestEvent({
+      properties: {
+        livelike_profile_id: profile_id
+      },
+      timestamp
+    })
+
+    nock(apiBaseUrl)
+      .post(`/applications/${LIVELIKE_CLIENT_ID}/segment-events/`)
+      .matchHeader('authorization', `Bearer ${LIVELIKE_PRODUCER_TOKEN}`)
+      .reply(202, {})
+
+    const responses = await testDestination.testAction('trackEvent', {
+      event,
+      useDefaultMappings: true,
+      settings: {
+        clientId: LIVELIKE_CLIENT_ID,
+        producerToken: LIVELIKE_PRODUCER_TOKEN
+      }
+    })
+
+    expect(responses.length).toBe(1)
+    expect(responses[0].status).toBe(202)
+    expect(responses[0].data).toMatchObject({})
+    expect(responses[0].options.json).toMatchObject({
+      events: [
+        {
+          ...expectedEvent,
+          livelike_profile_id: profile_id
+        }
+      ]
+    })
+  })
+
+  // it('should validate action fields when userId is found and not livelike_profile_id ', async () => {
+  //   const event = createTestEvent({
+  //     userId: livelike_profile_id,
+  //     timestamp
+  //   })
+
+  //   nock(apiBaseUrl)
+  //     .post(`/applications/${LIVELIKE_CLIENT_ID}/segment-events/`)
+  //     .matchHeader('authorization', `Bearer ${LIVELIKE_PRODUCER_TOKEN}`)
+  //     .reply(202, {})
+
+  //   const responses = await testDestination.testAction('trackEvent', {
+  //     event,
+  //     useDefaultMappings: true,
+  //     settings: {
+  //       clientId: LIVELIKE_CLIENT_ID,
+  //       producerToken: LIVELIKE_PRODUCER_TOKEN
+  //     }
+  //   })
+
+  //   expect(responses.length).toBe(1)
+  //   expect(responses[0].status).toBe(202)
+  //   expect(responses[0].data).toMatchObject({})
+  //   expect(responses[0].options.json).toMatchObject({
+  //     events: [
+  //       {
+  //         ...expectedEvent,
+  //         user_id: livelike_profile_id
+  //       }
+  //     ]
+  //   })
+  // })
+
+  // it('should validate action fields when livelike_profile_id is found and not user_id ', async () => {
+  //   const event = createTestEvent({
+  //     timestamp,
+  //     properties: {
+  //       livelike_profile_id: livelike_profile_id
+  //     }
+  //   })
+
+  //   nock(apiBaseUrl)
+  //     .post(`/applications/${LIVELIKE_CLIENT_ID}/segment-events/`)
+  //     .matchHeader('authorization', `Bearer ${LIVELIKE_PRODUCER_TOKEN}`)
+  //     .reply(202, {})
+
+  //   const responses = await testDestination.testAction('trackEvent', {
+  //     event,
+  //     useDefaultMappings: true,
+  //     settings: {
+  //       clientId: LIVELIKE_CLIENT_ID,
+  //       producerToken: LIVELIKE_PRODUCER_TOKEN
+  //     }
+  //   })
+
+  //   expect(responses.length).toBe(1)
+  //   expect(responses[0].status).toBe(202)
+  //   expect(responses[0].data).toMatchObject({})
+  //   expect(responses[0].options.json).toMatchObject({
+  //     events: [
+  //       {
+  //         ...expectedEvent,
+  //         livelike_profile_id: livelike_profile_id
+  //       }
+  //     ]
+  //   })
+  // })
 
   // Commented batching tests until the segment team supports rejecting a single event in a batch
   // it('should invoke performBatch for batches', async () => {
@@ -204,10 +287,9 @@ describe('LiveLike.trackEvent', () => {
     const event = createTestEvent({
       type: 'page',
       timestamp,
+      name: 'Home Page',
       properties: {
-        name: 'Home Page',
-        action_key: 'test-event',
-        livelike_profile_id: livelike_profile_id
+        livelike_profile_id: profile_id
       }
     })
 
@@ -220,11 +302,11 @@ describe('LiveLike.trackEvent', () => {
       event,
       // Using the mapping of presets with event type 'page' and 'screen'
       mapping: {
-        action_name: {
+        event_name: {
           '@if': {
-            exists: { '@path': '$.properties.action_name' },
-            then: { '@path': '$.properties.action_name' },
-            else: { '@path': '$.properties.name' }
+            exists: { '@path': '$.name' },
+            then: { '@path': '$.name' },
+            else: { '@path': '$.properties.title' }
           }
         }
       },
@@ -242,8 +324,9 @@ describe('LiveLike.trackEvent', () => {
       events: [
         {
           ...expectedEvent,
-          livelike_profile_id: livelike_profile_id,
-          action_name: 'Home Page'
+          event_type: 'page',
+          livelike_profile_id: profile_id,
+          event_name: 'Home Page'
         }
       ]
     })

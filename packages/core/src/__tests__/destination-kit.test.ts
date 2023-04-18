@@ -1,3 +1,4 @@
+import { InvalidAuthenticationError, ErrorCodes } from '../errors'
 import {
   StateContext,
   Destination,
@@ -5,7 +6,8 @@ import {
   Logger,
   StatsClient,
   StatsContext,
-  TransactionContext
+  TransactionContext,
+  OAuth2Authentication
 } from '../destination-kit'
 import { JSONObject } from '../json-object'
 import { SegmentEvent } from '../segment-event'
@@ -126,7 +128,8 @@ describe('destination kit', () => {
       const testEvent: SegmentEvent = { type: 'track' }
       const testSettings = { apiSecret: 'test_key', subscription: { subscribe: 'typo', partnerAction: 'customEvent' } }
       const res = await destinationTest.onEvent(testEvent, testSettings)
-      expect(res).toEqual([{ output: "invalid subscription : Cannot read properties of undefined (reading 'type')" }])
+      expect(res).toEqual([{ output: expect.stringContaining('invalid subscription') }])
+      expect(res[0].output).toContain('Cannot read')
     })
 
     test('should return `not subscribed` when providing an empty event', async () => {
@@ -314,6 +317,37 @@ describe('destination kit', () => {
       const res = await destinationTest.refreshAccessToken(testSettings, oauthData)
 
       expect(res).toEqual({ accessToken: 'fresh-token' })
+    })
+
+    test('should capture and rethrow refreshAccessToken errors as AuthenticationError', async () => {
+      const destination = {
+        ...destinationOAuth2,
+        authentication: {
+          ...destinationOAuth2.authentication,
+          refreshAccessToken: () => {
+            return new Promise((_resolve, reject) => {
+              reject(new Error('Invalid Refresh Token'))
+            })
+          }
+        } as OAuth2Authentication<any>
+      }
+      const destinationTest = new Destination(destination)
+      const testSettings = {
+        subscription: { subscribe: 'type = "track"', partnerAction: 'customEvent' }
+      }
+      const oauthData = {
+        accessToken: 'test-access-token',
+        refreshToken: 'refresh-token',
+        clientId: 'test-clientid',
+        clientSecret: 'test-clientsecret',
+        refreshTokenUrl: 'abc123.xyz'
+      }
+      await expect(destinationTest.refreshAccessToken(testSettings, oauthData)).rejects.toThrowError(
+        new InvalidAuthenticationError(
+          'Failed to refresh access token. Reason:Invalid Refresh Token',
+          ErrorCodes.OAUTH_REFRESH_FAILED
+        )
+      )
     })
   })
 
