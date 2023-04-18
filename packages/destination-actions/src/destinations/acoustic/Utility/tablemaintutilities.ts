@@ -6,35 +6,6 @@ import { AuthTokens } from '@segment/actions-core/src/destination-kit/parse-sett
 export let eventTableListId = ''
 
 export async function preChecksAndMaint(request: RequestClient, settings: Settings, auth: AuthTokens) {
-  if (!auth.accessToken) {
-    const at = await request(`https://api-campaign-${settings.a_region}-${settings.a_pod}.goacoustic.com/oauth/token`, {
-      method: 'POST',
-      body: new URLSearchParams({
-        refresh_token: settings.a_refreshToken,
-        client_id: settings.a_clientId,
-        client_secret: settings.a_clientSecret,
-        grant_type: 'refresh_token'
-      }),
-      headers: {
-        'Content-Type': 'application/x-www-form-urlencoded',
-        'User-Agent': 'Segment Action (Acoustic Destination)',
-        Connection: 'keep-alive',
-        'Accept-Encoding': 'gzip, deflate, br',
-        Accept: '*/*'
-      }
-    })
-
-    type accessResp = {
-      access_token: string
-      token_type: string
-      refresh_token: string
-      expires_in: number
-    }
-
-    const ad: accessResp = at.data as accessResp
-    auth.accessToken = ad.access_token
-  }
-
   //check for Segment Events table, if not exist create it
   eventTableListId = await checkRTExist(request, settings, auth)
 
