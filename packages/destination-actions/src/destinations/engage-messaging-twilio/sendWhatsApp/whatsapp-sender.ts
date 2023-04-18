@@ -16,7 +16,7 @@ export class WhatsAppMessageSender extends MessageSender<Payload> {
     readonly payload: Payload,
     readonly settings: Settings,
     readonly statsClient: StatsClient | undefined,
-    readonly tags: StatsContext['tags'] | undefined
+    readonly tags: StatsContext['tags']
   ) {
     super(request, payload, settings, statsClient, tags)
   }
@@ -37,7 +37,7 @@ export class WhatsAppMessageSender extends MessageSender<Payload> {
       parsedPhone = phoneUtil.format(parsedPhone, PhoneNumberFormat.E164)
       parsedPhone = `whatsapp:${parsedPhone}`
     } catch (error: unknown) {
-      this.tags?.push('type:invalid_phone_e164')
+      this.tags.push('type:invalid_phone_e164')
       this.statsClient?.incr('actions-personas-messaging-twilio.error', 1, this.tags)
       throw new IntegrationError(
         'The string supplied did not seem to be a phone number. Phone number must be able to be formatted to e164 for whatsapp.',
