@@ -97,7 +97,7 @@
     },
     "hooks": {
       "init": "./src/hooks/init.ts",
-      "lowcode": "./src/hooks/lowcode.ts"
+      "scaffold": "./src/hooks/scaffold.ts"
     }
   },
   "jest": {

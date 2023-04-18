@@ -23,7 +23,7 @@ export default class Init extends Command {
 
   static description = `Scaffolds a new integration given a JSON configuration`
 
-  static examples = [`$ ./bin/run lowcode`]
+  static examples = [`$ ./bin/run scaffold`]
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   static flags: flags.Input<any> = {
