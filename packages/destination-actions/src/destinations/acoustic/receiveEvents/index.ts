@@ -68,7 +68,7 @@ const action: ActionDefinition<Settings, Payload> = {
     await preChecksAndMaint(request, settings, auth as AuthTokens)
 
     //Ok, prechecks and Maint are all accomplished, let's see what needs to be processed,
-    const rows = addUpdateEvents(payload, email, settings.a_attributesMax as number)
+    const rows = addUpdateEvents(payload, email, settings.a_attributesMax as number) as string
     return await postUpdates(request, settings, auth as AuthTokens, rows, 1)
   }
 }
