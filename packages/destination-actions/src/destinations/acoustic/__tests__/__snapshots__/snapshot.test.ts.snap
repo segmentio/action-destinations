@@ -1,0 +1,46 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Testing snapshot for actions-acoustic-campaign destination: receiveEvents action - all fields 1`] = `
+"<Envelope>
+  <Body>
+  <GetLists>
+  <VISIBILITY>1 </VISIBILITY>
+  <LIST_TYPE> 15 </LIST_TYPE>
+  <INCLUDE_ALL_LISTS> True </INCLUDE_ALL_LISTS>
+  </GetLists>
+  </Body>
+  </Envelope>"
+`;
+
+exports[`Testing snapshot for actions-acoustic-campaign destination: receiveEvents action - required fields 1`] = `
+"
+    <Envelope> <Body>
+    <GetListMetaData> <LIST_ID>lLhce#$[oZh</LIST_ID>
+    </GetListMetaData> </Body>
+    </Envelope>"
+`;
+
+exports[`Testing snapshot for actions-acoustic-campaign destination: receiveEvents action - required fields 2`] = `
+Headers {
+  Symbol(map): Object {
+    "accept": Array [
+      "*/*",
+    ],
+    "accept-encoding": Array [
+      "gzip, deflate, br",
+    ],
+    "authorization": Array [
+      "Bearer undefined",
+    ],
+    "connection": Array [
+      "keep-alive",
+    ],
+    "content-type": Array [
+      "text/xml",
+    ],
+    "user-agent": Array [
+      "Segment Action (Acoustic Destination)",
+    ],
+  },
+}
+`;
