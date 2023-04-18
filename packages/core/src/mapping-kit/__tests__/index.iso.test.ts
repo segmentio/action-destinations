@@ -684,12 +684,12 @@ describe('@replace', () => {
   })
   test('replace entire value', () => {
     const payload = {
-      a: 'many+different+things'
+      a: 'aaabbbcccd'
     }
     const output = transform(
       {
         '@replace': {
-          pattern: 'many+different+things',
+          pattern: 'aaabbbcccd',
           replacement: '',
           value: { '@path': '$.a' }
         }
