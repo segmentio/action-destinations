@@ -22,6 +22,13 @@ const action: ActionDefinition<Settings, Payload> = {
       label: 'Event Name',
       default: { '@path': '$.properties' }
     },
+    user_id: {
+      type: 'string',
+      required: false,
+      description: 'The user id, to uniquely identify the user',
+      label: 'User id',
+      default: { '@path': '$.userId' }
+    },
     user_email: {
       type: 'string',
       required: false,
@@ -37,7 +44,7 @@ const action: ActionDefinition<Settings, Payload> = {
     },
     user_created_at: {
       type: 'string',
-      required: true,
+      required: false,
       description: 'The timestamp when the user was created',
       label: 'Created at',
       default: {

@@ -87,11 +87,9 @@ export const resolveRequestPayload = (settings: Settings, payload: Record<string
   // Resolve local_tz_offset property, we can get local_tz_offset from the payload context.timezone
   // And we need to convert the timezone (e.g: Europe/Amsterdam) to the offset (e.g: +0200)
   if (payload?.timezone) {
-    const timezone = payload.timezone
-    const date = new Date()
-    const offset = date.toLocaleString('en-US', { timeZone: timezone, timeZoneName: 'short' }).split(' ')[2]
-    properties.local_tz_offset = offset
-
+    properties.local_tz_offset = new Date()
+      .toLocaleString('en-US', { timeZone: payload.timezone, timeZoneName: 'short' })
+      .split(' ')[2]
     delete properties.timezone
   }
 
@@ -132,6 +130,27 @@ export const resolveRequestPayload = (settings: Settings, payload: Record<string
   delete properties.company_name
   delete properties.company_created_at
   delete properties.company_custom_attributes
+
+  // Resolve user_custom_attributes properties
+  if (payload?.user_custom_attributes) {
+    // omit the first_name, last_name, email, and created_at properties, as these props are already handled
+    const { first_name, last_name, email, created_at, ...customAttributes } = payload.user_custom_attributes
+    properties.user.custom = customAttributes
+  }
+
+  // Resolve event_attributes properties
+  if (payload?.event_attributes) {
+    // omit the event_type property, as email and created_at are already handled
+    const { email, created_at, ...eventAttributes } = payload.event_attributes
+    properties.event_attributes = eventAttributes
+  }
+
+  // Resolve company_custom_attributes properties
+  if (payload?.company_custom_attributes) {
+    // omit the company_name, company_created_at, and company_id properties, as these props are already handled
+    const { name, created_at, ...customAttributes } = payload.company_custom_attributes
+    properties.company.custom = customAttributes
+  }
 
   return properties
 }

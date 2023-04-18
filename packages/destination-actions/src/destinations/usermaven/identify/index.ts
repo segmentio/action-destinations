@@ -9,6 +9,13 @@ const action: ActionDefinition<Settings, Payload> = {
   description: 'Sets a user data.',
   platform: 'cloud',
   fields: {
+    user_id: {
+      type: 'string',
+      required: true,
+      description: 'The user id, to uniquely identify the user',
+      label: 'User id',
+      default: { '@path': '$.userId' }
+    },
     user_email: {
       type: 'string',
       required: true,
@@ -16,25 +23,18 @@ const action: ActionDefinition<Settings, Payload> = {
       label: 'Email address',
       default: {
         '@if': {
-          exists: { '@path': '$.traits.user_email' },
-          then: { '@path': '$.traits.user_email' },
-          else: { '@path': '$.properties.user_email' }
+          exists: { '@path': '$.traits.email' },
+          then: { '@path': '$.traits.email' },
+          else: { '@path': '$.properties.email' }
         }
       }
     },
     user_created_at: {
       type: 'string',
-      required: true,
+      required: false,
       description: 'The timestamp when the user was created',
       label: 'Created at',
-      default: { '@path': '$.traits.user_created_at' }
-    },
-    user_anonymous_id: {
-      type: 'string',
-      required: false,
-      description: 'The user anonymous id',
-      label: 'Anonymous id',
-      default: { '@path': '$.anonymousId' }
+      default: { '@path': '$.traits.created_at' }
     },
     user_first_name: {
       type: 'string',
@@ -43,9 +43,9 @@ const action: ActionDefinition<Settings, Payload> = {
       label: 'First name',
       default: {
         '@if': {
-          exists: { '@path': '$.traits.user_first_name' },
-          then: { '@path': '$.traits.user_first_name' },
-          else: { '@path': '$.properties.user_first_name' }
+          exists: { '@path': '$.traits.first_name' },
+          then: { '@path': '$.traits.first_name' },
+          else: { '@path': '$.properties.first_name' }
         }
       }
     },
@@ -56,9 +56,9 @@ const action: ActionDefinition<Settings, Payload> = {
       label: 'Last name',
       default: {
         '@if': {
-          exists: { '@path': '$.traits.user_last_name' },
-          then: { '@path': '$.traits.user_last_name' },
-          else: { '@path': '$.properties.user_last_name' }
+          exists: { '@path': '$.traits.last_name' },
+          then: { '@path': '$.traits.last_name' },
+          else: { '@path': '$.properties.last_name' }
         }
       }
     },
@@ -66,7 +66,10 @@ const action: ActionDefinition<Settings, Payload> = {
       type: 'object',
       required: false,
       description: 'The user custom attributes',
-      label: 'Custom attributes'
+      label: 'Custom attributes',
+      default: {
+        '@path': '$.traits'
+      }
     },
     ...commonFields
   },

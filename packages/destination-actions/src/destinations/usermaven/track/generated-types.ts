@@ -12,17 +12,21 @@ export interface Payload {
     [k: string]: unknown
   }
   /**
+   * The user id, to uniquely identify the user
+   */
+  user_id?: string
+  /**
    * The user email address
    */
   user_email?: string
   /**
    * The timestamp when the user was created
    */
-  user_created_at: string
+  user_created_at?: string
   /**
-   * The user id, to uniquely identify the user
+   * Anonymous id
    */
-  user_id: string
+  user_anonymous_Id?: string | null
   /**
    * The ID of the event.
    */

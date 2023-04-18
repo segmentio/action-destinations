@@ -2,12 +2,13 @@ import { ActionDefinition } from '@segment/actions-core'
 import { Settings } from '../encharge/generated-types'
 
 export const commonFields: ActionDefinition<Settings>['fields'] = {
-  user_id: {
+  user_anonymous_Id: {
     type: 'string',
-    required: true,
-    description: 'The user id, to uniquely identify the user',
-    label: 'User id',
-    default: { '@path': '$.userId' }
+    allowNull: true,
+    required: false,
+    description: 'Anonymous id',
+    label: 'Anonymous ID',
+    default: { '@path': '$.anonymousId' }
   },
   event_id: {
     type: 'string',

@@ -6,13 +6,17 @@ export interface Payload {
    */
   company_id: string
   /**
+   * The user id, to uniquely identify the user
+   */
+  user_id: string
+  /**
    * The company name
    */
-  company_name: string
+  company_name?: string
   /**
    * The timestamp when the company was created
    */
-  company_created_at: string
+  company_created_at?: string
   /**
    * The company custom attributes
    */
@@ -20,17 +24,9 @@ export interface Payload {
     [k: string]: unknown
   }
   /**
-   * The user email address
+   * Anonymous id
    */
-  user_email?: string
-  /**
-   * The timestamp when the user was created
-   */
-  user_created_at: string
-  /**
-   * The user id, to uniquely identify the user
-   */
-  user_id: string
+  user_anonymous_Id?: string | null
   /**
    * The ID of the event.
    */

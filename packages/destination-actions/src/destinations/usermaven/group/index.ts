@@ -15,51 +15,33 @@ const action: ActionDefinition<Settings, Payload> = {
       label: 'Company id',
       default: { '@path': '$.groupId' }
     },
-    company_name: {
+    user_id: {
       type: 'string',
       required: true,
+      description: 'The user id, to uniquely identify the user',
+      label: 'User id',
+      default: { '@path': '$.userId' }
+    },
+    company_name: {
+      type: 'string',
+      required: false,
       description: 'The company name',
       label: 'Company name',
-      default: { '@path': '$.traits.company_name' }
+      default: { '@path': '$.traits.name' }
     },
     company_created_at: {
       type: 'string',
-      required: true,
+      required: false,
       description: 'The timestamp when the company was created',
       label: 'Company created at',
-      default: { '@path': '$.traits.company_created_at' }
+      default: { '@path': '$.traits.created_at' }
     },
     company_custom_attributes: {
       type: 'object',
       required: false,
       description: 'The company custom attributes',
-      label: 'Company custom attributes'
-    },
-    user_email: {
-      type: 'string',
-      required: false,
-      description: 'The user email address',
-      label: 'Email address',
-      default: {
-        '@if': {
-          exists: { '@path': '$.traits.user_email' },
-          then: { '@path': '$.traits.user_email' },
-          else: { '@path': '$.properties.user_email' }
-        }
-      }
-    },
-    user_created_at: {
-      type: 'string',
-      required: true,
-      description: 'The timestamp when the user was created',
-      label: 'User created at',
-      default: {
-        '@if': {
-          exists: { '@path': '$.traits.user_created_at' },
-          then: { '@path': '$.traits.user_created_at' },
-          else: { '@path': '$.properties.user_created_at' }
-        }
-      }
+      label: 'Company custom attributes',
+      default: { '@path': '$.traits' }
     },
     ...commonFields
   },
