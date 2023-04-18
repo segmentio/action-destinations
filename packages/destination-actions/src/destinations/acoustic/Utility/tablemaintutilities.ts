@@ -23,7 +23,16 @@ export async function preChecksAndMaint(request: RequestClient, settings: Settin
         Accept: '*/*'
       }
     })
-    auth.accessToken = at.data['access_token'] as unknown as string
+
+    type accessResp = {
+      access_token: string
+      token_type: string
+      refresh_token: string
+      expires_in: number
+    }
+
+    const ad: accessResp = at.data as accessResp
+    auth.accessToken = ad.access_token
   }
 
   //check for Segment Events table, if not exist create it
