@@ -20,6 +20,11 @@ const subscriptions: Subscription[] = [
 ]
 
 describe('updateUserId', () => {
+  beforeAll(() => {
+    jest.mock('../../../../runtime/load-script', () => ({
+      loadScript: (_src: any, _attributes: any) => {}
+    }))
+  })
   test('it maps event parameters correctly to alias function with user id', async () => {
     const [aliasEvent] = await sprigWebDestination({
       envId: 'testEnvId',

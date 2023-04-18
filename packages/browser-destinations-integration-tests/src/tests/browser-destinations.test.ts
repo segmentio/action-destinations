@@ -2,7 +2,10 @@ import page from '../pageobjects/page'
 import { expect } from 'expect'
 import { listDestinations } from '../server/utils'
 
-const allDestinations = listDestinations().map((el) => el.dirPath)
+// '688' is actions-core, we don't want to test it as a destination here
+const allDestinations = listDestinations()
+  .map((el) => el.dirPath)
+  .filter((el) => el !== '688')
 
 describe('Bundles are capable of being parsed and loaded without errors', () => {
   for (const destination of allDestinations) {

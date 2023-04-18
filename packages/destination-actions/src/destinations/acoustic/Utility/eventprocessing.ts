@@ -3,7 +3,7 @@ import { RequestClient } from '@segment/actions-core'
 import get from 'lodash/get'
 import { Settings } from '../generated-types'
 import { Payload } from '../receiveEvents/generated-types'
-import { accToken, eventTableListId } from './tablemaintutilities'
+import { eventTableListId } from './tablemaintutilities'
 
 export function parseSections(section: { [key: string]: string }, nestDepth: number) {
   const parseResults: { [key: string]: string } = {}
@@ -81,8 +81,6 @@ export function addUpdateEvents(payload: Payload, email: string) {
       ...parseSections(payload.context as { [key: string]: string }, 0)
     }
 
-  console.log()
-
   //Wrap Properties and Traits into XML
   for (const e in propertiesTraitsKV) {
     const eventName = e
@@ -109,8 +107,7 @@ export const postUpdates = async (
   const pup = await request(`https://api-campaign-${settings.a_region}-${settings.a_pod}.goacoustic.com/XMLAPI`, {
     method: 'POST',
     headers: {
-      'user-agent': `Segment Event Table processing ${i}`,
-      Authorization: `Bearer ${accToken}`
+      'user-agent': `Segment Event Table processing ${i}`
     },
     body: `<Envelope>
     <Body>
