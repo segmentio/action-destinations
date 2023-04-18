@@ -5,5 +5,7 @@
 //const testDestination = createTestIntegration(Destination)
 
 describe('TiktokOfflineConversions.trackNonPaymentOfflineConversion', () => {
-  expect('testId123').toBe('testId123')
+  it('should pass', () => {
+    expect('testId123').toBe('testId123')
+  })
 })

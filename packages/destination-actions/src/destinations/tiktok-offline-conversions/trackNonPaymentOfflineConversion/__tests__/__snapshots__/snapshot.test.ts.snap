@@ -1,0 +1,46 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Testing snapshot for TiktokOfflineConversions's trackNonPaymentOfflineConversion destination action: all fields 1`] = `
+Object {
+  "context": Object {
+    "user": Object {
+      "emails": Array [
+        "80cc3aed38f218d9e02446a09d25e0258cdc73560bf6b3034456db31b9926f9d",
+      ],
+      "phone_numbers": Array [
+        "0162989280f818b8e56a63fa300fb752cd5a0cd2797594d01fa265f160dd7c07",
+      ],
+    },
+  },
+  "event": "xE2ArZr1OI7Ib(",
+  "event_id": "xE2ArZr1OI7Ib(",
+  "event_set_id": "xE2ArZr1OI7Ib(",
+  "partner_name": "Segment",
+  "properties": Object {
+    "event_channel": "xE2ArZr1OI7Ib(",
+    "order_id": "xE2ArZr1OI7Ib(",
+    "shop_id": "xE2ArZr1OI7Ib(",
+  },
+  "timestamp": "xE2ArZr1OI7Ib(",
+}
+`;
+
+exports[`Testing snapshot for TiktokOfflineConversions's trackNonPaymentOfflineConversion destination action: required fields 1`] = `
+Object {
+  "context": Object {
+    "user": Object {
+      "emails": Array [],
+      "phone_numbers": Array [],
+    },
+  },
+  "event": "xE2ArZr1OI7Ib(",
+  "event_id": "xE2ArZr1OI7Ib(",
+  "event_set_id": "xE2ArZr1OI7Ib(",
+  "partner_name": "Segment",
+  "properties": Object {
+    "order_id": "xE2ArZr1OI7Ib(",
+    "shop_id": "xE2ArZr1OI7Ib(",
+  },
+  "timestamp": "xE2ArZr1OI7Ib(",
+}
+`;

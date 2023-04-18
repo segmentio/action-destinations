@@ -1,0 +1,59 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Testing snapshot for TiktokOfflineConversions's trackPaymentOfflineConversion destination action: all fields 1`] = `
+Object {
+  "context": Object {
+    "user": Object {
+      "emails": Array [
+        "478df9498b656ddcf3007842fe2afd13945d2ea94be41ee3fad76eac1906c906",
+      ],
+      "phone_numbers": Array [
+        "31171179540ec3202f5e189f82298f6f2b41ceaa8fd339f57e0ea0e63977411b",
+      ],
+    },
+  },
+  "event": "@eSSuOM&Ax2&MlJ",
+  "event_id": "@eSSuOM&Ax2&MlJ",
+  "event_set_id": "@eSSuOM&Ax2&MlJ",
+  "partner_name": "Segment",
+  "properties": Object {
+    "contents": Array [
+      Object {
+        "content_category": "@eSSuOM&Ax2&MlJ",
+        "content_id": "@eSSuOM&Ax2&MlJ",
+        "content_name": "@eSSuOM&Ax2&MlJ",
+        "content_type": "@eSSuOM&Ax2&MlJ",
+        "price": 32631515712061.44,
+        "quantity": 32631515712061.44,
+      },
+    ],
+    "currency": "STD",
+    "event_channel": "@eSSuOM&Ax2&MlJ",
+    "order_id": "@eSSuOM&Ax2&MlJ",
+    "shop_id": "@eSSuOM&Ax2&MlJ",
+    "value": 32631515712061.44,
+  },
+  "timestamp": "@eSSuOM&Ax2&MlJ",
+}
+`;
+
+exports[`Testing snapshot for TiktokOfflineConversions's trackPaymentOfflineConversion destination action: required fields 1`] = `
+Object {
+  "context": Object {
+    "user": Object {
+      "emails": Array [],
+      "phone_numbers": Array [],
+    },
+  },
+  "event": "@eSSuOM&Ax2&MlJ",
+  "event_id": "@eSSuOM&Ax2&MlJ",
+  "event_set_id": "@eSSuOM&Ax2&MlJ",
+  "partner_name": "Segment",
+  "properties": Object {
+    "currency": "STD",
+    "order_id": "@eSSuOM&Ax2&MlJ",
+    "shop_id": "@eSSuOM&Ax2&MlJ",
+    "value": 32631515712061.44,
+  },
+}
+`;
