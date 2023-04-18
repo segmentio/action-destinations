@@ -30,7 +30,7 @@ export const formatPhones = (phone_numbers: string[] | undefined): string[] => {
     // Remove spaces and non-digits; append + to the beginning
     const formattedPhone = `+${phone.replace(/[^0-9]/g, '')}`
     // Limit length to 15 characters
-    result.push(formattedPhone.substring(0, 15))
+    result.push(hashAndEncode(formattedPhone.substring(0, 15)))
   })
 
   return result
