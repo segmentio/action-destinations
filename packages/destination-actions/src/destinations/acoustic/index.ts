@@ -102,7 +102,7 @@ const destination: DestinationDefinition<Settings> = {
       a_attributesMax: {
         label: 'Properties Max',
         description: 'Note: Before increasing the default max number, consult the Acoustic Destination documentation.',
-        default: 10,
+        default: 30,
         type: 'number',
         required: false
       }

@@ -82,18 +82,17 @@ export function addUpdateEvents(payload: Payload, email: string, limit: number) 
       ...parseSections(payload.context as { [key: string]: string }, 0)
     }
 
+  if (Object.keys(propertiesTraitsKV).length > limit) {
+    throw new IntegrationError(
+      'Properties Exceed Max. Use Mapping to limit the number of Attributes (Properties, Traits) present and thereby reduce the Campaign Relational Table Rows consumed.',
+      'EXCEEDS_MAX_PROPERTIES_MAX',
+      400
+    )
+    return
+  }
+
   //Wrap Properties and Traits into XML
-  let i = 0
   for (const e in propertiesTraitsKV) {
-    if (i > limit) {
-      throw new IntegrationError(
-        'Properties Exceed Max. Use Mapping to limit the number of Attributes (Properties, Traits) present and thereby reduce the Campaign Relational Table Rows consumed.',
-        'EXCEEDS_MAX_PROPERTIES_MAX',
-        400
-      )
-      break
-    }
-    i++
     const eventName = e
     const eventValue = propertiesTraitsKV[e]
 
