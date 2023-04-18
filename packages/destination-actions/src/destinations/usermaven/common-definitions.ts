@@ -6,7 +6,7 @@ export const commonFields: ActionDefinition<Settings>['fields'] = {
     type: 'string',
     allowNull: true,
     required: false,
-    description: 'Anonymous id',
+    description: 'User Anonymous id',
     label: 'Anonymous ID',
     default: { '@path': '$.anonymousId' }
   },

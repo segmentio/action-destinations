@@ -6,7 +6,7 @@ export interface Payload {
    */
   event: string
   /**
-   * The event name
+   * Attributes associated with the event
    */
   event_attributes?: {
     [k: string]: unknown
@@ -24,7 +24,7 @@ export interface Payload {
    */
   user_created_at?: string
   /**
-   * Anonymous id
+   * User Anonymous id
    */
   user_anonymous_Id?: string | null
   /**

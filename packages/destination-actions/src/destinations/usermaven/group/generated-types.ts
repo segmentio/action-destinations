@@ -24,7 +24,7 @@ export interface Payload {
     [k: string]: unknown
   }
   /**
-   * Anonymous id
+   * User Anonymous id
    */
   user_anonymous_Id?: string | null
   /**
