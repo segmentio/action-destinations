@@ -49,7 +49,7 @@ export const commonFields: ActionDefinition<Settings>['fields'] = {
     type: 'string',
     required: false,
     description: 'The referrer of the page where the event occurred.',
-    label: 'Referer',
+    label: 'Referrer',
     default: { '@path': '$.context.page.referrer' }
   },
   url: {

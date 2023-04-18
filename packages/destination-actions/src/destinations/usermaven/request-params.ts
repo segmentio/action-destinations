@@ -76,7 +76,7 @@ export const resolveRequestPayload = (settings: Settings, payload: Record<string
   }
 
   // Resolve screen_resolution and vp_size properties, we can get from the payloadscreen
-  if (payload?.screen) {
+  if (payload?.screen && payload.screen.width && payload.screen.height) {
     const { width, height } = payload.screen
     properties.screen_resolution = `${width || 0}x${height || 0}`
     properties.vp_size = `${width || 0}x${height || 0}`

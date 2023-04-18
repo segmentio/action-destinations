@@ -18,8 +18,8 @@ const action: ActionDefinition<Settings, Payload> = {
     event_attributes: {
       type: 'object',
       required: false,
-      description: 'The event name',
-      label: 'Event Name',
+      description: 'Attributes associated with the event',
+      label: 'Event Attributes',
       default: { '@path': '$.properties' }
     },
     user_id: {
