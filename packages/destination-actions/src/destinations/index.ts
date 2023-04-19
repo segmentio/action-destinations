@@ -95,6 +95,7 @@ register('643697f531f98a978f414453', './insider')
 register('643698ffee21b544f6aa756a', './insider-audiences')
 register('643fdecd5675b7a6780d0d67', './podscribe')
 register('643fdf094cfdbcf1bcccbc42', './usermaven')
+register('6440068936c4fb9f699b0645', './the-trade-desk-crm')
 
 function register(id: MetadataId, destinationPath: string) {
   // eslint-disable-next-line @typescript-eslint/no-var-requires
