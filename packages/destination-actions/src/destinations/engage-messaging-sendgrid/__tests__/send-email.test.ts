@@ -1048,7 +1048,7 @@ describe.each([
         logger: { level: 'error', name: 'test', error: logErrorSpy } as Logger
       })
 
-      await expect(response).rejects.toThrowError('Unable to get profile traits for email message')
+      await expect(response).rejects.toThrowError('Unable to get profile traits for the email message')
       expect(logErrorSpy).toHaveBeenCalledWith(
         expect.stringMatching(new RegExp(`^TE Messaging: Email profile traits request failure - ${spaceId}`))
       )

@@ -38,7 +38,7 @@ export class WhatsAppMessageSender extends MessageSender<Payload> {
       parsedPhone = phoneUtil.format(parsedPhone, PhoneNumberFormat.E164)
       parsedPhone = `whatsapp:${parsedPhone}`
     } catch (error: unknown) {
-      this.tags?.push('type:invalid_phone_e164')
+      this.tags.push('type:invalid_phone_e164')
       this.logger?.error(`TE Messaging: WhatsApp invalid phone number - ${this.settings.spaceId} - [${error}]`)
       this.statsClient?.incr('actions-personas-messaging-twilio.error', 1, this.tags)
       throw new IntegrationError(
