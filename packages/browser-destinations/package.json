@@ -9,6 +9,10 @@
     "url": "https://github.com/segmentio/action-destinations",
     "directory": "packages/browser-destinations"
   },
+  "publishConfig": {
+    "access": "public",
+    "registry": "https://registry.npmjs.org"
+  },
   "exports": {
     "import": "./dist/index.js",
     "require": "./dist/cjs/index.js"
