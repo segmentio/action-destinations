@@ -1,0 +1,32 @@
+// Generated file. DO NOT MODIFY IT BY HAND.
+
+export interface Payload {
+  /**
+   * The name of The Trade Desk Segment you want to sync.
+   */
+  segment_name: string
+  /**
+   * The geographical region of the CRM data segment based on the origin of PII.
+   */
+  region: string
+  /**
+   * The type of personally identifiable data (PII) sent by the advertiser.
+   */
+  pii_type: string
+  /**
+   * The way the newly uploaded personally identifiable information (PII) is to be merged with the existing data.
+   */
+  merge_mode: string
+  /**
+   * The user's email address to send to The Trade Desk.
+   */
+  email?: string
+  /**
+   * Enable batching of requests to The Trade Desk CRM Segment.
+   */
+  enable_batching?: boolean
+  /**
+   * The name of the current Segment event.
+   */
+  event_name?: string
+}
