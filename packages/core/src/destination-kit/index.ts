@@ -206,13 +206,15 @@ export interface DecoratedResponse extends ModifiedResponse {
 }
 
 interface OnEventOptions {
-  onTokenRefresh?: (tokens: RefreshAccessTokenResult) => void
+  onTokenRefresh?: (tokens: RefreshAccessTokenResult) => Promise<void>
   onComplete?: (stats: SubscriptionStats) => void
   features?: Features
   statsContext?: StatsContext
   logger?: Logger
   transactionContext?: TransactionContext
   stateContext?: StateContext
+  /**If set, refreshAccessToken execution will be synchronized*/
+  lockStore?: LockStore
 }
 
 /** Transaction variables and setTransaction method are passed from mono service for few Segment built integrations.
@@ -221,6 +223,14 @@ interface OnEventOptions {
 export interface TransactionContext {
   transaction: Record<string, string>
   setTransaction: (key: string, value: string) => void
+}
+
+/**
+ * LockStore passes handlers to achieve synchronization for token generartion.
+ */
+export interface LockStore {
+  acquireLock(): Promise<void>
+  releaseLock(): Promise<void>
 }
 
 export interface StateContext {
@@ -336,10 +346,11 @@ export class Destination<Settings = JSONObject> {
     }
   }
 
-  refreshAccessToken(
+  async refreshAccessToken(
     settings: Settings,
-    oauthData: OAuth2ClientCredentials
-  ): Promise<RefreshAccessTokenResult> | undefined {
+    oauthData: OAuth2ClientCredentials,
+    lockStore?: LockStore
+  ): Promise<RefreshAccessTokenResult | undefined> {
     if (!(this.authentication?.scheme === 'oauth2' || this.authentication?.scheme === 'oauth-managed')) {
       throw new IntegrationError(
         'refreshAccessToken is only valid with oauth2 authentication scheme',
@@ -361,13 +372,30 @@ export class Destination<Settings = JSONObject> {
       return undefined
     }
 
-    return this.authentication.refreshAccessToken(requestClient, { settings, auth: oauthData }).catch((err) => {
-      const message = (err as Error).message ?? 'UNKNOWN'
-      throw new InvalidAuthenticationError(
-        `Failed to refresh access token. Reason:${message}`,
-        ErrorCodes.OAUTH_REFRESH_FAILED
-      )
-    })
+    const performRefresh = this.authentication
+      .refreshAccessToken(requestClient, { settings, auth: oauthData })
+      .catch((err) => {
+        const message = (err as Error).message ?? 'UNKNOWN'
+        throw new InvalidAuthenticationError(
+          `Failed to refresh access token. Reason:${message}`,
+          ErrorCodes.OAUTH_REFRESH_FAILED
+        )
+      })
+
+    // If lockStore is defined, it is assumed that the destination needs synchronization
+    return lockStore ? this.performRefreshTokenWithLock(() => performRefresh, lockStore) : await performRefresh
+  }
+
+  private async performRefreshTokenWithLock(
+    refreshToken: () => Promise<RefreshAccessTokenResult>,
+    lockStore: LockStore
+  ) {
+    try {
+      await lockStore.acquireLock()
+      return await refreshToken()
+    } finally {
+      await lockStore.releaseLock()
+    }
   }
 
   private partnerAction(slug: string, definition: ActionDefinition<Settings>): Destination<Settings> {
@@ -585,14 +613,14 @@ export class Destination<Settings = JSONObject> {
       }
 
       const oauthSettings = getOAuth2Data(settings)
-      const newTokens = await this.refreshAccessToken(destinationSettings, oauthSettings)
+      const newTokens = await this.refreshAccessToken(destinationSettings, oauthSettings, options?.lockStore)
       if (!newTokens) {
         throw new InvalidAuthenticationError('Failed to refresh access token', ErrorCodes.OAUTH_REFRESH_FAILED)
       }
 
       // Update `settings` with new tokens
       settings = updateOAuthSettings(settings, newTokens)
-      options?.onTokenRefresh?.(newTokens)
+      await options?.onTokenRefresh?.(newTokens)
     }
 
     return await retry(run, { retries: 2, onFailedAttempt })
@@ -633,14 +661,14 @@ export class Destination<Settings = JSONObject> {
       }
 
       const oauthSettings = getOAuth2Data(settings)
-      const newTokens = await this.refreshAccessToken(destinationSettings, oauthSettings)
+      const newTokens = await this.refreshAccessToken(destinationSettings, oauthSettings, options?.lockStore)
       if (!newTokens) {
         throw new InvalidAuthenticationError('Failed to refresh access token', ErrorCodes.OAUTH_REFRESH_FAILED)
       }
 
       // Update `settings` with new tokens
       settings = updateOAuthSettings(settings, newTokens)
-      options?.onTokenRefresh?.(newTokens)
+      await options?.onTokenRefresh?.(newTokens)
     }
 
     return await retry(run, { retries: 2, onFailedAttempt })
