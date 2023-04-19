@@ -7,7 +7,28 @@ import { Logger } from '@segment/actions-core/src/destination-kit'
 const sendgrid = createTestIntegration(Sendgrid)
 const timestamp = new Date().toISOString()
 
-describe.each(['stage', 'production'])('%s environment', (environment) => {
+describe.each([
+  {
+    environment: 'production',
+    region: 'us-west-2',
+    endpoint: 'https://profiles.segment.com'
+  },
+  {
+    environment: 'staging',
+    region: 'us-west-2',
+    endpoint: 'https://profiles.segment.build'
+  },
+  {
+    environment: 'production',
+    region: 'eu-west-1',
+    endpoint: 'https://profiles.euw1.segment.com'
+  },
+  {
+    environment: 'staging',
+    region: 'eu-west-1',
+    endpoint: 'https://profiles.euw1.segment.build'
+  }
+])('%s', ({ environment, region, endpoint }) => {
   const spaceId = 'spaceId'
   const settings = {
     unlayerApiKey: 'unlayerApiKey',
@@ -15,7 +36,8 @@ describe.each(['stage', 'production'])('%s environment', (environment) => {
     profileApiEnvironment: environment,
     profileApiAccessToken: 'c',
     spaceId,
-    sourceId: 'sourceId'
+    sourceId: 'sourceId',
+    region
   }
 
   const userData = {
@@ -25,8 +47,6 @@ describe.each(['stage', 'production'])('%s environment', (environment) => {
     phone: '+11235554657',
     email: 'test@example.com'
   }
-
-  const endpoint = `https://profiles.segment.${environment === 'production' ? 'com' : 'build'}`
 
   const sendgridRequestBody = {
     personalizations: [

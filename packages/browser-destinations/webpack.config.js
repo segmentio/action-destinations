@@ -2,6 +2,7 @@ const path = require('path')
 const globby = require('globby')
 const TerserPlugin = require('terser-webpack-plugin')
 const CompressionPlugin = require('compression-webpack-plugin')
+const { WebpackManifestPlugin } = require('webpack-manifest-plugin')
 const BundleAnalyzerPlugin = require('webpack-bundle-analyzer').BundleAnalyzerPlugin
 const webpack = require('webpack')
 
@@ -16,7 +17,29 @@ const entries = files.reduce((acc, current) => {
   }
 }, {})
 
-const plugins = [new webpack.DefinePlugin({ 'process.env.ASSET_ENV': JSON.stringify(process.env.ASSET_ENV) })]
+const filemap = (file) => {
+  file.path = file.path.split('/').pop() // get the content hash (filename)
+  return file
+}
+
+const sha = require('child_process').execSync('git rev-parse --short HEAD').toString().trim()
+
+const plugins = [
+  new webpack.DefinePlugin({ 'process.env.ASSET_ENV': JSON.stringify(process.env.ASSET_ENV) }),
+  new WebpackManifestPlugin({
+    fileName: `manifest-${sha}.json`,
+    useEntryKeys: true,
+    filter: ({name}) => Object.keys(entries).includes(name),
+    map: filemap
+  }),
+  new WebpackManifestPlugin({
+    fileName: `manifest-latest.json`,
+    useEntryKeys: true,
+    filter: ({name}) => Object.keys(entries).includes(name),
+    map: filemap
+  }),
+]
+
 if (isProd) {
   plugins.push(new CompressionPlugin())
 }
@@ -40,6 +63,7 @@ const unobfuscatedOutput = {
   mode: process.env.NODE_ENV || 'development',
   devtool: 'source-map',
   output: {
+    chunkFilename: '[name]/[contenthash].js',
     filename: (file) =>
       process.env.NODE_ENV === 'development' ? `${file.chunk.name}.js` : `${file.chunk.name}/[contenthash].js`,
     path: path.resolve(__dirname, 'dist/web'),

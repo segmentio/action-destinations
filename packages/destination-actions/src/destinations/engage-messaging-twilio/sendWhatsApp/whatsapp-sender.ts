@@ -16,7 +16,7 @@ export class WhatsAppMessageSender extends MessageSender<Payload> {
     readonly payload: Payload,
     readonly settings: Settings,
     readonly statsClient: StatsClient | undefined,
-    readonly tags: StatsContext['tags'] | undefined,
+    readonly tags: StatsContext['tags'],
     readonly logger: Logger | undefined
   ) {
     super(request, payload, settings, statsClient, tags, logger)

@@ -1,0 +1,15 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Testing snapshot for Podscribe's page destination action: all fields 1`] = `"https://verifi.podscribe.com/tag?action=view&advertiser=JyC801Hwa%5DRTOeags&timestamp=FIXED_TIMESTAMP&device_id=JyC801Hwa%5DRTOeags&referrer=JyC801Hwa%5DRTOeags&url=http%3A%2F%2Fkewolbu.mm%2Fcacpo&ip=JyC801Hwa%5DRTOeags&user_agent=JyC801Hwa%5DRTOeags"`;
+
+exports[`Testing snapshot for Podscribe's page destination action: required fields 1`] = `"https://verifi.podscribe.com/tag?action=view&advertiser=JyC801Hwa%5DRTOeags&timestamp=FIXED_TIMESTAMP&ip=JyC801Hwa%5DRTOeags"`;
+
+exports[`Testing snapshot for Podscribe's page destination action: required fields 2`] = `
+Headers {
+  Symbol(map): Object {
+    "user-agent": Array [
+      "Segment (Actions)",
+    ],
+  },
+}
+`;

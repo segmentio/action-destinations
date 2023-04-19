@@ -107,7 +107,6 @@ const destination: DestinationDefinition<Settings> = {
         required: false
       }
     },
-
     refreshAccessToken: async (request, { settings }) => {
       const at = await request<refreshTokenResult>(
         `https://api-campaign-${settings.a_region}-${settings.a_pod}.goacoustic.com/oauth/token`,
@@ -120,24 +119,15 @@ const destination: DestinationDefinition<Settings> = {
             grant_type: 'refresh_token'
           }),
           headers: {
-            'Content-Type': 'application/x-www-form-urlencoded'
+            'Content-Type': 'application/x-www-form-urlencoded',
+            'user-agent': `Segment Action (Acoustic Destination)`,
+            Connection: 'keep-alive',
+            'Accept-Encoding': 'gzip, deflate, br',
+            Accept: '*/*'
           }
         }
       )
-
       return { accessToken: at.data.access_token }
-    }
-  },
-  extendRequest: ({ auth }) => {
-    return {
-      headers: {
-        Authorization: `Bearer ${auth?.accessToken}`,
-        'Content-Type': 'text/xml',
-        'user-agent': `Segment Action (Acoustic Destination)`,
-        Connection: 'keep-alive',
-        'Accept-Encoding': 'gzip, deflate, br',
-        Accept: '*/*'
-      }
     }
   },
   presets,
