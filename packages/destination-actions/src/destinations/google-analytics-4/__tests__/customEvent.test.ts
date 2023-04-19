@@ -366,6 +366,63 @@ describe('GA4', () => {
       }
     })
 
+    it('should not throw an error when param value is array but key is items', async () => {
+      nock('https://www.google-analytics.com/mp/collect')
+        .post(`?measurement_id=${measurementId}&api_secret=${apiSecret}`)
+        .reply(201, {})
+
+      const event = createTestEvent({
+        event: 'Some Event Here',
+        userId: 'abc123',
+        timestamp: '2022-06-22T22:20:58.905Z',
+        anonymousId: 'anon-2134',
+        type: 'track',
+        properties: {
+          product_id: '12345abcde',
+          name: 'Quadruple Stack Oreos, 52 ct',
+          currency: 'USD',
+          price: 12.99,
+          quantity: 1
+        }
+      })
+
+      const responses = await testDestination.testAction('customEvent', {
+        event,
+        settings: {
+          apiSecret,
+          measurementId
+        },
+        mapping: {
+          client_id: {
+            '@path': '$.anonymousId'
+          },
+          params: {
+            items: ['1', 'test']
+          }
+        },
+        useDefaultMappings: true
+      })
+
+      expect(responses.length).toBe(1)
+      expect(responses[0].status).toBe(201)
+
+      expect(responses[0].request.headers).toMatchInlineSnapshot(`
+        Headers {
+          Symbol(map): Object {
+            "content-type": Array [
+              "application/json",
+            ],
+            "user-agent": Array [
+              "Segment (Actions)",
+            ],
+          },
+        }
+      `)
+      expect(responses[0].options.body).toMatchInlineSnapshot(
+        `"{\\"client_id\\":\\"abc123\\",\\"events\\":[{\\"name\\":\\"Some_Event_Here\\",\\"params\\":{\\"engagement_time_msec\\":1,\\"items\\":[\\"1\\",\\"test\\"]}}],\\"timestamp_micros\\":1655936458905000}"`
+      )
+    })
+
     it('should throw an error when user_properties value is array', async () => {
       nock('https://www.google-analytics.com/mp/collect')
         .post(`?measurement_id=${measurementId}&api_secret=${apiSecret}`)

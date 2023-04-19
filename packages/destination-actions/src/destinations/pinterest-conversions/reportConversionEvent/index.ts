@@ -24,7 +24,7 @@ const action: ActionDefinition<Settings, Payload> = {
         { label: 'Lead', value: 'lead' },
         { label: 'Page Visit', value: 'page_visit' },
         { label: 'Search', value: 'search' },
-        { label: 'Sign Up', value: 'sign_up' },
+        { label: 'Sign Up', value: 'signup' },
         { label: 'View Category', value: 'view_category' },
         { label: 'Watch Video', value: 'watch_video' }
       ]

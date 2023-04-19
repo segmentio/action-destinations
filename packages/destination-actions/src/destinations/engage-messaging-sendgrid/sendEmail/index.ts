@@ -7,6 +7,8 @@ import { htmlEscape } from 'escape-goat'
 import { StatsClient } from '@segment/actions-core/src/destination-kit'
 const Liquid = new LiquidJs()
 
+type Region = 'us-west-2' | 'eu-west-1'
+
 const insertEmailPreviewText = (html: string, previewText: string): string => {
   const $ = cheerio.load(html)
 
@@ -25,8 +27,10 @@ const insertEmailPreviewText = (html: string, previewText: string): string => {
 }
 
 // These profile calls will be removed when Profile sync can fetch external_id
-const getProfileApiEndpoint = (environment: string): string => {
-  return `https://profiles.segment.${environment === 'production' ? 'com' : 'build'}`
+const getProfileApiEndpoint = (environment: string, region?: Region): string => {
+  const domainName = region === 'eu-west-1' ? 'profiles.euw1.segment' : 'profiles.segment'
+  const topLevelName = environment === 'production' ? 'com' : 'build'
+  return `https://${domainName}.${topLevelName}`
 }
 
 type RequestFn = (url: string, options?: RequestOptions) => Promise<Response>
@@ -35,11 +39,11 @@ const fetchProfileTraits = async (
   request: RequestFn,
   settings: Settings,
   profileId: string,
-  statsClient?: StatsClient | undefined,
-  tags?: string[] | undefined
+  statsClient: StatsClient | undefined,
+  tags: string[]
 ): Promise<Record<string, string>> => {
   try {
-    const endpoint = getProfileApiEndpoint(settings.profileApiEnvironment)
+    const endpoint = getProfileApiEndpoint(settings.profileApiEnvironment, settings.region as Region)
     const response = await request(
       `${endpoint}/v1/spaces/${settings.spaceId}/collections/users/profiles/user_id:${profileId}/traits?limit=200`,
       {
@@ -49,14 +53,15 @@ const fetchProfileTraits = async (
         }
       }
     )
-    tags?.push(`profile_status_code:${response.status}`)
+    tags.push(`profile_status_code:${response.status}`)
     statsClient?.incr('actions-personas-messaging-sendgrid.profile_invoked', 1, tags)
 
     const body = await response.json()
     return body.traits
   } catch (error) {
-    statsClient?.incr('actions-personas-messaging-sendgrid.profile_error', 1, tags)
-    throw new IntegrationError('Unable to get profile traits for email message', 'Email trait fetch failure', 500)
+    tags.push('reason:profile_error')
+    statsClient?.incr('actions-personas-messaging-sendgrid.error', 1, tags)
+    throw new IntegrationError('Unable to get profile traits for the email message', 'Email trait fetch failure', 500)
   }
 }
 
@@ -85,7 +90,13 @@ interface UnlayerResponse {
   }
 }
 
-const generateEmailHtml = async (request: RequestFn, apiKey: string, design: string): Promise<string> => {
+const generateEmailHtml = async (
+  request: RequestFn,
+  apiKey: string,
+  design: string,
+  statsClient: StatsClient | undefined,
+  tags: string[]
+): Promise<string> => {
   try {
     const response = await request('https://api.unlayer.com/v2/export/html', {
       method: 'POST',
@@ -102,6 +113,8 @@ const generateEmailHtml = async (request: RequestFn, apiKey: string, design: str
     const body = await response.json()
     return (body as UnlayerResponse).data.html
   } catch (error) {
+    tags.push('reason:generate_email_html')
+    statsClient?.incr('actions-personas-messaging-sendgrid.error', 1, tags)
     throw new IntegrationError('Unable to export email as HTML', 'Export HTML failure', 400)
   }
 }
@@ -113,11 +126,19 @@ interface Profile {
   traits: Record<string, string>
 }
 
-const parseTemplating = async (content: string, profile: Profile, contentType: string) => {
+const parseTemplating = async (
+  content: string,
+  profile: Profile,
+  contentType: string,
+  statsClient: StatsClient | undefined,
+  tags: string[]
+) => {
   try {
     const parsedContent = await Liquid.parseAndRender(content, { profile })
     return parsedContent
   } catch (error) {
+    tags.push('reason:parse_templating')
+    statsClient?.incr('actions-personas-messaging-sendgrid.error', 1, tags)
     throw new IntegrationError(
       `Unable to parse templating in email ${contentType}`,
       `${contentType} templating parse failure`,
@@ -322,8 +343,11 @@ const action: ActionDefinition<Settings, Payload> = {
   },
   perform: async (request, { settings, payload, statsContext }) => {
     const statsClient = statsContext?.statsClient
-    const tags = statsContext?.tags
-    tags?.push(`space_id:${settings.spaceId}`, `projectid:${settings.sourceId}`)
+    const tags = statsContext?.tags ?? []
+    if (!settings.region) {
+      settings.region = 'us-west-2'
+    }
+    tags.push(`space_id:${settings.spaceId}`, `projectid:${settings.sourceId}`, `region:${settings.region}`)
     if (!payload.send) {
       statsClient?.incr('actions-personas-messaging-sendgrid.send-disabled', 1, tags)
       return
@@ -356,6 +380,8 @@ const action: ActionDefinition<Settings, Payload> = {
         traits = payload?.traits ? payload?.traits : JSON.parse('{}')
       } else {
         if (!payload.userId) {
+          tags.push('reason:missing_user_id')
+          statsClient?.incr('actions-personas-messaging-sendgrid.error', 1, tags)
           throw new IntegrationError(
             'Unable to process email, no userId provided and trait enrichment disabled',
             'Invalid parameters',
@@ -377,7 +403,8 @@ const action: ActionDefinition<Settings, Payload> = {
       }
 
       if (isRestrictedDomain(toEmail)) {
-        statsClient?.incr('actions-personas-messaging-sendgrid.restricted-domain', 1, tags)
+        tags.push('reason:restricted_domain')
+        statsClient?.incr('actions-personas-messaging-sendgrid.error', 1, tags)
         throw new IntegrationError(
           'Emails with gmailx.com, yahoox.com, aolx.com, and hotmailx.com domains are blocked.',
           'Invalid input',
@@ -398,7 +425,7 @@ const action: ActionDefinition<Settings, Payload> = {
       }
 
       const bcc = JSON.parse(payload.bcc ?? '[]')
-      const parsedSubject = await parseTemplating(payload.subject, profile, 'Subject')
+      const parsedSubject = await parseTemplating(payload.subject, profile, 'Subject', statsClient, tags)
       let parsedBodyHtml
 
       if (payload.bodyUrl && settings.unlayerApiKey) {
@@ -406,15 +433,17 @@ const action: ActionDefinition<Settings, Payload> = {
         const body = await response.text()
 
         const bodyHtml =
-          payload.bodyType === 'html' ? body : await generateEmailHtml(request, settings.unlayerApiKey, body)
-        parsedBodyHtml = await parseTemplating(bodyHtml, profile, 'Body')
+          payload.bodyType === 'html'
+            ? body
+            : await generateEmailHtml(request, settings.unlayerApiKey, body, statsClient, tags)
+        parsedBodyHtml = await parseTemplating(bodyHtml, profile, 'Body', statsClient, tags)
       } else {
-        parsedBodyHtml = await parseTemplating(payload.bodyHtml ?? '', profile, 'Body HTML')
+        parsedBodyHtml = await parseTemplating(payload.bodyHtml ?? '', profile, 'Body HTML', statsClient, tags)
       }
 
       // only include preview text in design editor templates
       if (payload.bodyType === 'design' && payload.previewText) {
-        const parsedPreviewText = await parseTemplating(payload.previewText, profile, 'Preview text')
+        const parsedPreviewText = await parseTemplating(payload.previewText, profile, 'Preview text', statsClient, tags)
         parsedBodyHtml = insertEmailPreviewText(parsedBodyHtml, parsedPreviewText)
       }
 
@@ -467,7 +496,7 @@ const action: ActionDefinition<Settings, Payload> = {
           }
         }
       })
-      tags?.push(`sendgrid_status_code:${response.status}`)
+      tags.push(`sendgrid_status_code:${response.status}`)
       statsClient?.incr('actions-personas-messaging-sendgrid.response', 1, tags)
       if (payload?.eventOccurredTS != undefined) {
         statsClient?.histogram(
