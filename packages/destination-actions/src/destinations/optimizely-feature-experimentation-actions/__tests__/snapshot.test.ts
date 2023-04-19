@@ -26,11 +26,17 @@ describe(`Testing snapshot for ${destinationSlug} destination:`, () => {
         properties: eventData
       })
 
+      const lruCache = {
+        get: (_key: string): any => {},
+        set: (_key: string, _value: object): void => {}
+      }
+
       const responses = await testDestination.testAction(actionSlug, {
         event: event,
         mapping: event.properties,
         settings: settingsData,
-        auth: undefined
+        auth: undefined,
+        lruCache
       })
 
       const request = responses[0].request
@@ -64,11 +70,17 @@ describe(`Testing snapshot for ${destinationSlug} destination:`, () => {
         properties: eventData
       })
 
+      const lruCache = {
+        get: (_key: string): any => {},
+        set: (_key: string, _value: object): void => {}
+      }
+
       const responses = await testDestination.testAction(actionSlug, {
         event: event,
         mapping: event.properties,
         settings: settingsData,
-        auth: undefined
+        auth: undefined,
+        lruCache
       })
 
       const request = responses[0].request

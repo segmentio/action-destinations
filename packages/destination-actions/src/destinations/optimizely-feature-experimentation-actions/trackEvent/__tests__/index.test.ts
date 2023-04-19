@@ -5,6 +5,10 @@ import { dataFile } from '../mock-dataFile'
 import { payload, botFilteringPayload } from '../mock-payload'
 
 const testDestination = createTestIntegration(Destination)
+const lruCache = {
+  get: (_key: string): any => {},
+  set: (_key: string, _value: object): void => {}
+}
 
 describe('OptimizelyFeatureExperimentation.trackEvent', () => {
   it('should send event successfully', async () => {
@@ -25,7 +29,12 @@ describe('OptimizelyFeatureExperimentation.trackEvent', () => {
         }
       }
     })
-    const responses = await testDestination.testAction('trackEvent', { event, settings, useDefaultMappings: true })
+    const responses = await testDestination.testAction('trackEvent', {
+      event,
+      settings,
+      useDefaultMappings: true,
+      lruCache
+    })
     expect(responses[1].options.json).toMatchObject(payload)
   }),
     it('should throw error if event sent is not in datafile', async () => {
@@ -47,7 +56,7 @@ describe('OptimizelyFeatureExperimentation.trackEvent', () => {
         }
       })
       await expect(
-        testDestination.testAction('trackEvent', { event, settings, useDefaultMappings: true })
+        testDestination.testAction('trackEvent', { event, settings, useDefaultMappings: true, lruCache })
       ).rejects.toThrowError(`Event with name ${event.event} is not defined`)
     })
   it('should be able to send a basic track with bot filtering', async () => {
@@ -69,7 +78,12 @@ describe('OptimizelyFeatureExperimentation.trackEvent', () => {
         }
       }
     })
-    const responses = await testDestination.testAction('trackEvent', { event, settings, useDefaultMappings: true })
+    const responses = await testDestination.testAction('trackEvent', {
+      event,
+      settings,
+      useDefaultMappings: true,
+      lruCache
+    })
     expect(responses[2].options.json).toMatchObject(botFilteringPayload)
   })
 })
