@@ -13,4 +13,8 @@ export interface Settings {
    * The datafile is a JSON representation of the current state of flags and experiments for an environment in your Full Stack project. It should look something like https://cdn.optimizely.com/json/9218021209.json
    */
   dataFileUrl: string
+  /**
+   * To optimize the server side integration, we will cache the fetched Datafile that you have provided for this amount of time (in seconds) in Redis. Since the datafile should not change unless you modified the conditions or variation rules of your experiments, it is advised to have a minimum floor of 300 seconds (5 minutes).
+   */
+  cacheExp?: number
 }

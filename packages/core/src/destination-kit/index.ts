@@ -184,6 +184,7 @@ interface EventInput<Settings> {
   readonly logger?: Logger
   readonly transactionContext?: TransactionContext
   readonly stateContext?: StateContext
+  readonly lruCache?: LruCache
 }
 
 interface BatchEventInput<Settings> {
@@ -198,6 +199,7 @@ interface BatchEventInput<Settings> {
   readonly logger?: Logger
   readonly transactionContext?: TransactionContext
   readonly stateContext?: StateContext
+  readonly lruCache?: LruCache
 }
 
 export interface DecoratedResponse extends ModifiedResponse {
@@ -213,6 +215,7 @@ interface OnEventOptions {
   logger?: Logger
   transactionContext?: TransactionContext
   stateContext?: StateContext
+  lruCache?: LruCache
 }
 
 /** Transaction variables and setTransaction method are passed from mono service for few Segment built integrations.
@@ -229,6 +232,13 @@ export interface StateContext {
   // setResponseContext sets values in the `setContext` field in the response
   // values set on the response will be available on subsequent requests
   setResponseContext(key: string, value: string, ttl: { hour?: number; minute?: number; second?: number }): void
+}
+
+export interface LruCache {
+  // getCache reads the cache corresponding to the key
+  get(key: string): any
+  // setCache sets values in the cache corresponding to the key
+  set(key: string, value: object): void
 }
 
 export interface StatsClient {
@@ -395,7 +405,8 @@ export class Destination<Settings = JSONObject> {
       statsContext,
       logger,
       transactionContext,
-      stateContext
+      stateContext,
+      lruCache
     }: EventInput<Settings>
   ): Promise<Result[]> {
     const action = this.actions[actionSlug]
@@ -412,7 +423,8 @@ export class Destination<Settings = JSONObject> {
       statsContext,
       logger,
       transactionContext,
-      stateContext
+      stateContext,
+      lruCache
     })
   }
 
@@ -427,7 +439,8 @@ export class Destination<Settings = JSONObject> {
       statsContext,
       logger,
       transactionContext,
-      stateContext
+      stateContext,
+      lruCache
     }: BatchEventInput<Settings>
   ) {
     const action = this.actions[actionSlug]
@@ -444,7 +457,8 @@ export class Destination<Settings = JSONObject> {
       statsContext,
       logger,
       transactionContext,
-      stateContext
+      stateContext,
+      lruCache
     })
 
     return [{ output: 'successfully processed batch of events' }]
@@ -480,7 +494,8 @@ export class Destination<Settings = JSONObject> {
       statsContext: options?.statsContext || ({} as StatsContext),
       logger: options?.logger,
       transactionContext: options?.transactionContext,
-      stateContext: options?.stateContext
+      stateContext: options?.stateContext,
+      lruCache: options?.lruCache
     }
 
     let results: Result[] | null = null

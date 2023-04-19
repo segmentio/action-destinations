@@ -26,6 +26,12 @@ export interface VisitorAttribute {
   value: string | number | boolean
 }
 
+export interface CacheFields {
+  state: string
+  date?: Date
+  dataFile?: dataFile
+}
+
 export interface dataFile {
   events: Event[]
   attributes: Array<{ id: string; key: string }>

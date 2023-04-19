@@ -1,8 +1,8 @@
 import { ActionDefinition, omit, PayloadValidationError } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
-import { ProjectConfig } from '../types'
-import { buildVisitorAttributes, getEventId, getEventKeys } from './functions'
+import { buildVisitorAttributes, getEventId, getEventKeys, getDatafile } from './functions'
+import { dataFile } from '../types'
 import dayjs from '../../../lib/dayjs'
 
 const action: ActionDefinition<Settings, Payload> = {
@@ -106,9 +106,8 @@ const action: ActionDefinition<Settings, Payload> = {
       return getEventKeys(request, settings)
     }
   },
-  perform: async (request, { settings, payload }) => {
-    const result = await request<ProjectConfig>(settings.dataFileUrl)
-    const dataFile = result.data
+  perform: async (request, { settings, payload, lruCache }) => {
+    const dataFile = <dataFile>await getDatafile(settings, request, lruCache)
     const eventId = getEventId(dataFile, payload.eventKey)
 
     if (!eventId) {
