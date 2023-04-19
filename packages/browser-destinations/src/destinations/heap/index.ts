@@ -1,10 +1,11 @@
 import type { Settings } from './generated-types'
 import type { BrowserDestinationDefinition } from '../../lib/browser-destinations'
 import { browserDestination } from '../../runtime/shim'
-import { HeapApi } from './types'
+import { HeapApi, UserConfig } from './types'
 import { defaultValues } from '@segment/actions-core'
 import trackEvent from './trackEvent'
 import identifyUser from './identifyUser'
+import { isDefined } from './utils'
 
 declare global {
   interface Window {
@@ -53,6 +54,20 @@ export const destination: BrowserDestinationDefinition<Settings, HeapApi> = {
         'This option is turned off by default to accommodate websites not served over HTTPS. If your application uses HTTPS, we recommend enabling secure cookies to prevent Heap cookies from being observed by unauthorized parties. For more information visit the heap [docs page](https://developers.heap.io/docs/web#securecookie).',
       type: 'boolean',
       required: false
+    },
+    trackingServer: {
+      label: 'Tracking Server',
+      description:
+        'This is an optional setting. This is used to set up first-party data collection. For most cased this should not be set. For more information visit the heap [docs page](https://developers.heap.io/docs/set-up-first-party-data-collection-in-heap).',
+      type: 'string',
+      required: false
+    },
+    hostname: {
+      label: 'Hostname',
+      description:
+        'This is an optional setting used to set the host that loads heap-js. This setting is used when heapJS is self-hosted. In most cased this should be left unset. The hostname should not contain https or app id it will be populated like so: https://${hostname}/js/heap-${appId}.js. For more information visit the heap [docs page](https://developers.heap.io/docs/self-hosting-heapjs).',
+      type: 'string',
+      required: false
     }
   },
 
@@ -61,9 +76,13 @@ export const destination: BrowserDestinationDefinition<Settings, HeapApi> = {
       return window.heap
     }
 
-    const config = {
+    const config: UserConfig = {
       disableTextCapture: settings.disableTextCapture || false,
       secureCookie: settings.secureCookie || false
+    }
+
+    if (settings.trackingServer) {
+      config.trackingServer = settings.trackingServer
     }
 
     // heap.appid and heap.config must be set before loading heap.js.
@@ -71,7 +90,12 @@ export const destination: BrowserDestinationDefinition<Settings, HeapApi> = {
     window.heap.appid = settings.appId
     window.heap.config = config
 
-    await deps.loadScript(`https://cdn.heapanalytics.com/js/heap-${settings.appId}.js`)
+    if (isDefined(settings.hostname)) {
+      await deps.loadScript(`https://${settings.hostname}/js/heap-${settings.appId}.js`)
+    } else {
+      await deps.loadScript(`https://cdn.heapanalytics.com/js/heap-${settings.appId}.js`)
+    }
+
     // Explained here: https://stackoverflow.com/questions/14859058/why-does-the-segment-io-loader-script-push-method-names-args-onto-a-queue-which
     await deps.resolveWhen(() => Object.prototype.hasOwnProperty.call(window, 'heap'), 100)
 

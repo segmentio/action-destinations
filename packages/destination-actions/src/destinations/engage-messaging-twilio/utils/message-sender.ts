@@ -32,7 +32,7 @@ export abstract class MessageSender<SmsPayload extends MinimalPayload> {
     readonly payload: SmsPayload,
     readonly settings: Settings,
     readonly statsClient: StatsClient | undefined,
-    readonly tags: StatsContext['tags'] | undefined
+    readonly tags: StatsContext['tags']
   ) {}
 
   abstract getBody: (phone: string) => Promise<URLSearchParams>
@@ -66,7 +66,7 @@ export abstract class MessageSender<SmsPayload extends MinimalPayload> {
         body
       }
     )
-    this.tags?.push(`twilio_status_code:${response.status}`)
+    this.tags.push(`twilio_status_code:${response.status}`)
     this.statsClient?.incr('actions-personas-messaging-twilio.response', 1, this.tags)
 
     if (this.payload.eventOccurredTS != undefined) {

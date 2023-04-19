@@ -1,0 +1,15 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Testing snapshot for Podscribe's track destination action: all fields 1`] = `"https://verifi.podscribe.com/tag?action=a%40LzYSjmA%5D5%5B%298qPK%5E&advertiser=a%40LzYSjmA%5D5%5B%298qPK%5E&timestamp=FIXED_TIMESTAMP&device_id=a%40LzYSjmA%5D5%5B%298qPK%5E&referrer=a%40LzYSjmA%5D5%5B%298qPK%5E&url=http%3A%2F%2Femvofe.za%2Futeputre&ip=a%40LzYSjmA%5D5%5B%298qPK%5E&user_agent=a%40LzYSjmA%5D5%5B%298qPK%5E&order_value=59632032384286.72&order_number=a%40LzYSjmA%5D5%5B%298qPK%5E&currency=SLL&discount_code=a%40LzYSjmA%5D5%5B%298qPK%5E&hashed_email=ditcem%40im.pm&num_items_purchased=5963203238428672"`;
+
+exports[`Testing snapshot for Podscribe's track destination action: required fields 1`] = `"https://verifi.podscribe.com/tag?action=a%40LzYSjmA%5D5%5B%298qPK%5E&advertiser=a%40LzYSjmA%5D5%5B%298qPK%5E&timestamp=FIXED_TIMESTAMP&ip=a%40LzYSjmA%5D5%5B%298qPK%5E"`;
+
+exports[`Testing snapshot for Podscribe's track destination action: required fields 2`] = `
+Headers {
+  Symbol(map): Object {
+    "user-agent": Array [
+      "Segment (Actions)",
+    ],
+  },
+}
+`;

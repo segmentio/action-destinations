@@ -14,7 +14,7 @@ export class SmsMessageSender extends MessageSender<Payload> {
     readonly payload: Payload,
     readonly settings: Settings,
     readonly statsClient: StatsClient | undefined,
-    readonly tags: StatsContext['tags'] | undefined
+    readonly tags: StatsContext['tags']
   ) {
     super(request, payload, settings, statsClient, tags)
   }
@@ -64,21 +64,21 @@ export class SmsMessageSender extends MessageSender<Payload> {
       )
     }
     try {
-      const endpoint = `https://profiles.segment.${
-        this.settings.profileApiEnvironment === 'production' ? 'com' : 'build'
-      }`
+      const { region, profileApiEnvironment, spaceId, profileApiAccessToken } = this.settings
+      const domainName = region === 'eu-west-1' ? 'profiles.euw1.segment' : 'profiles.segment'
+      const topLevelName = profileApiEnvironment === 'production' ? 'com' : 'build'
       const response = await this.request(
-        `${endpoint}/v1/spaces/${this.settings.spaceId}/collections/users/profiles/user_id:${encodeURIComponent(
+        `https://${domainName}.${topLevelName}/v1/spaces/${spaceId}/collections/users/profiles/user_id:${encodeURIComponent(
           this.payload.userId
         )}/traits?limit=200`,
         {
           headers: {
-            authorization: `Basic ${Buffer.from(this.settings.profileApiAccessToken + ':').toString('base64')}`,
+            authorization: `Basic ${Buffer.from(profileApiAccessToken + ':').toString('base64')}`,
             'content-type': 'application/json'
           }
         }
       )
-      this.tags?.push(`profile_status_code:${response.status}`)
+      this.tags.push(`profile_status_code:${response.status}`)
       this.statsClient?.incr('actions-personas-messaging-twilio.profile_invoked', 1, this.tags)
       const body = await response.json()
       return body.traits

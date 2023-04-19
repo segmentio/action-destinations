@@ -1,4 +1,3 @@
-import { InvalidAuthenticationError } from '@segment/actions-core'
 import { defaultValues, DestinationDefinition } from '@segment/actions-core'
 import type { Settings } from './generated-types'
 
@@ -26,14 +25,12 @@ const destination: DestinationDefinition<Settings> = {
     },
 
     testAuthentication: async (request, { settings }) => {
-      const res = await request(CONSTANTS.ROKT_API_BASE_URL + CONSTANTS.ROKT_API_AUTH_ENDPOINT, {
+      return request(CONSTANTS.ROKT_API_BASE_URL + CONSTANTS.ROKT_API_AUTH_ENDPOINT, {
         method: 'GET',
         headers: {
           Authorization: `${settings.apiKey}`
         }
       })
-
-      if (res.status !== 200) throw new InvalidAuthenticationError('Authentication using Rokt ApiKey failed')
     }
   },
 
