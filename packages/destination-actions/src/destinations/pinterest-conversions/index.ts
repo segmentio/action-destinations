@@ -106,7 +106,7 @@ const destination: DestinationDefinition<Settings> = {
       partnerAction: 'reportConversionEvent',
       mapping: {
         ...defaultValues(reportConversionEvent.fields),
-        event_name: 'sign_up'
+        event_name: 'signup'
       }
     },
     {
