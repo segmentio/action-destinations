@@ -47,7 +47,7 @@ export abstract class MessageSender<SmsPayload extends MinimalPayload> {
     }
 
     const body = await this.getBody(phone)
-    body.append('ShortenUrls', 'true')
+
     const webhookUrlWithParams = this.getWebhookUrlWithParams(phone)
 
     if (webhookUrlWithParams) body.append('StatusCallback', webhookUrlWithParams)

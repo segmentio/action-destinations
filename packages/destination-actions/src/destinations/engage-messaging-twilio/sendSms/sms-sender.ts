@@ -48,7 +48,8 @@ export class SmsMessageSender extends MessageSender<Payload> {
     const body = new URLSearchParams({
       Body: parsedBody,
       From: this.payload.from,
-      To: phone
+      To: phone,
+      ShortenUrls: 'true'
     })
 
     return body
