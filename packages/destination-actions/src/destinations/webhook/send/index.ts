@@ -8,22 +8,16 @@ const action: ActionDefinition<Settings, Payload> = {
   title: 'Send',
   description: 'Send an HTTP request.',
   fields: {
-    email: {
-      label: 'Email address',
-      description: 'User email address',
+    url: {
+      label: 'URL',
+      description: 'URL to deliver data to.',
       type: 'string',
       required: true,
-      default: {
-        '@if': {
-          exists: { '@path': '$.context.traits.email' },
-          then: { '@path': '$.context.traits.email' },
-          else: { '@path': '$.traits.email' }
-        }
-      }
+      format: 'uri'
     },
-    audience_name: {
-      label: 'Audience Name',
-      description: 'Audience name',
+    method: {
+      label: 'Method',
+      description: 'HTTP method to use.',
       type: 'string',
       choices: [
         { label: 'POST', value: 'POST' },
@@ -46,18 +40,11 @@ const action: ActionDefinition<Settings, Payload> = {
       type: 'object',
       defaultObjectUI: 'keyvalue:only'
     },
-    traits_or_properties: {
-      label: 'Traits or properties object',
-      description: 'Traits or properties object',
-      type: 'string',
-      required: true,
-      default: {
-        '@if': {
-          exists: { '@path': '$.properties' },
-          then: { '@path': '$.properties' },
-          else: { '@path': '$.traits' }
-        }
-      }
+    data: {
+      label: 'Data',
+      description: 'Payload to deliver to webhook URL (JSON-encoded).',
+      type: 'object',
+      default: { '@path': '$.' }
     }
   },
   perform: (request, { payload }) => {

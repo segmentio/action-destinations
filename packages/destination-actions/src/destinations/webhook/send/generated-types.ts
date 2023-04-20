@@ -2,13 +2,13 @@
 
 export interface Payload {
   /**
-   * User email address
+   * URL to deliver data to.
    */
-  email: string
+  url: string
   /**
-   * Audience name
+   * HTTP method to use.
    */
-  audience_name: string
+  method: string
   /**
    * Maximum number of events to include in each batch. Actual batch sizes may be lower.
    */
@@ -16,5 +16,13 @@ export interface Payload {
   /**
    * HTTP headers to send with each request.
    */
-  traits_or_properties: string
+  headers?: {
+    [k: string]: unknown
+  }
+  /**
+   * Payload to deliver to webhook URL (JSON-encoded).
+   */
+  data?: {
+    [k: string]: unknown
+  }
 }
