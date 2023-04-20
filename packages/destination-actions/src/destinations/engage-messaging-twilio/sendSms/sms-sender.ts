@@ -3,7 +3,7 @@ import { Liquid as LiquidJs } from 'liquidjs'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 import { IntegrationError } from '@segment/actions-core'
-import { StatsClient, StatsContext } from '@segment/actions-core/src/destination-kit'
+import { Logger, StatsClient, StatsContext } from '@segment/actions-core/src/destination-kit'
 import { MessageSender, RequestFn } from '../utils/message-sender'
 
 const Liquid = new LiquidJs()
@@ -14,9 +14,10 @@ export class SmsMessageSender extends MessageSender<Payload> {
     readonly payload: Payload,
     readonly settings: Settings,
     readonly statsClient: StatsClient | undefined,
-    readonly tags: StatsContext['tags']
+    readonly tags: StatsContext['tags'],
+    readonly logger: Logger | undefined
   ) {
-    super(request, payload, settings, statsClient, tags)
+    super(request, payload, settings, statsClient, tags, logger)
   }
 
   getExternalId = () => this.payload.externalIds?.find(({ type }) => type === 'phone')
@@ -42,6 +43,7 @@ export class SmsMessageSender extends MessageSender<Payload> {
     try {
       parsedBody = await Liquid.parseAndRender(this.payload.body, { profile })
     } catch (error: unknown) {
+      this.logger?.error(`TE Messaging: SMS templating parse failure - ${this.settings.spaceId} - [${error}]`)
       throw new IntegrationError(`Unable to parse templating in SMS`, `SMS templating parse failure`, 400)
     }
 
@@ -56,6 +58,9 @@ export class SmsMessageSender extends MessageSender<Payload> {
 
   private getProfileTraits = async () => {
     if (!this.payload.userId) {
+      this.logger?.error(
+        `TE Messaging: Unable to process SMS, no userId provided and no traits provided - ${this.settings.spaceId}`
+      )
       throw new IntegrationError(
         'Unable to process sms, no userId provided and no traits provided',
         'Invalid parameters',
@@ -83,6 +88,7 @@ export class SmsMessageSender extends MessageSender<Payload> {
       return body.traits
     } catch (error: unknown) {
       this.statsClient?.incr('actions-personas-messaging-twilio.profile_error', 1, this.tags)
+      this.logger?.error(`TE Messaging: SMS profile traits request failure - ${this.settings.spaceId} - [${error}]`)
       throw new IntegrationError('Unable to get profile traits for SMS message', 'SMS trait fetch failure', 500)
     }
   }
