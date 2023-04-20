@@ -36,6 +36,7 @@ export class SmsMessageSender extends MessageSender<Payload> {
       phone,
       traits
     }
+
     let parsedBody
 
     try {
@@ -50,6 +51,7 @@ export class SmsMessageSender extends MessageSender<Payload> {
       To: phone,
       ShortenUrls: 'true'
     })
+
     return body
   }
 
