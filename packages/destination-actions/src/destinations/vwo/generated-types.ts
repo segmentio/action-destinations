@@ -5,4 +5,8 @@ export interface Settings {
    * Enter your VWO Account ID
    */
   vwoAccountId: number
+  /**
+   * VWO API Key
+   */
+  apikey?: string
 }

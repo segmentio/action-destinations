@@ -6,6 +6,11 @@ Object {
     "event": Object {
       "name": "segment.yw0zltLcbQ",
       "props": Object {
+        "$visitor": Object {
+          "props": Object {
+            "vwo_fs_environment": "yw0zltLcbQ",
+          },
+        },
         "isCustomEvent": true,
         "page": Object {
           "testType": "yw0zltLcbQ",
@@ -22,6 +27,11 @@ Object {
     "msgId": "yw0zltLcbQ-NaN",
     "sessionId": null,
     "visId": "yw0zltLcbQ",
+    "visitor": Object {
+      "props": Object {
+        "vwo_fs_environment": "yw0zltLcbQ",
+      },
+    },
   },
 }
 `;
@@ -32,21 +42,29 @@ Object {
     "event": Object {
       "name": "segment.yw0zltLcbQ",
       "props": Object {
-        "isCustomEvent": true,
-        "page": Object {
-          "testType": "yw0zltLcbQ",
+        "$visitor": Object {
+          "props": Object {
+            "vwo_fs_environment": "yw0zltLcbQ",
+          },
         },
+        "isCustomEvent": true,
+        "page": Object {},
         "vwoMeta": Object {
           "metric": Object {},
           "ogName": "yw0zltLcbQ",
           "source": "segment.cloud",
         },
       },
-      "time": null,
+      "time": 1681990265864,
     },
-    "msgId": "yw0zltLcbQ-NaN",
-    "sessionId": null,
+    "msgId": "yw0zltLcbQ-1681990265",
+    "sessionId": 1681990265,
     "visId": "yw0zltLcbQ",
+    "visitor": Object {
+      "props": Object {
+        "vwo_fs_environment": "yw0zltLcbQ",
+      },
+    },
   },
 }
 `;

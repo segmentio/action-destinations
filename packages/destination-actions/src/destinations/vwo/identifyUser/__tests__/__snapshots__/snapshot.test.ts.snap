@@ -9,6 +9,7 @@ Object {
         "$visitor": Object {
           "props": Object {
             "segment.testType": "sl#5^du3V5b#Q5V",
+            "vwo_fs_environment": "sl#5^du3V5b#Q5V",
           },
         },
         "isCustomEvent": true,
@@ -28,6 +29,7 @@ Object {
     "visitor": Object {
       "props": Object {
         "segment.testType": "sl#5^du3V5b#Q5V",
+        "vwo_fs_environment": "sl#5^du3V5b#Q5V",
       },
     },
   },
@@ -43,25 +45,25 @@ Object {
         "$visitor": Object {
           "props": Object {
             "segment.testType": "sl#5^du3V5b#Q5V",
+            "vwo_fs_environment": "sl#5^du3V5b#Q5V",
           },
         },
         "isCustomEvent": true,
-        "page": Object {
-          "testType": "sl#5^du3V5b#Q5V",
-        },
+        "page": Object {},
         "vwoMeta": Object {
           "metric": Object {},
           "source": "segment.cloud",
         },
       },
-      "time": null,
+      "time": 1681990265811,
     },
-    "msgId": "sl#5^du3V5b#Q5V-NaN",
-    "sessionId": null,
+    "msgId": "sl#5^du3V5b#Q5V-1681990265",
+    "sessionId": 1681990265,
     "visId": "sl#5^du3V5b#Q5V",
     "visitor": Object {
       "props": Object {
         "segment.testType": "sl#5^du3V5b#Q5V",
+        "vwo_fs_environment": "sl#5^du3V5b#Q5V",
       },
     },
   },

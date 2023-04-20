@@ -38,6 +38,12 @@ const destination: DestinationDefinition<Settings> = {
         description: 'Enter your VWO Account ID',
         type: 'number',
         required: true
+      },
+      apikey: {
+        label: 'VWO API Key',
+        description: 'VWO API Key',
+        type: 'string',
+        required: false
       }
     },
     testAuthentication: (_request, { settings }) => {
