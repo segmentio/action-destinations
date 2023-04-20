@@ -1,4 +1,5 @@
 export type UserConfig = {
+  trackingServer?: string
   disableTextCapture: boolean
   secureCookie: boolean
 }
