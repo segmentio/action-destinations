@@ -265,6 +265,6 @@ describe('addUpdateEvents', () => {
       }
     }
 
-    expect(addUpdateEvents(payload, 'jhaltiw@gmail.com')).toMatchSnapshot()
+    expect(addUpdateEvents(payload, 'jhaltiw@gmail.com', 100)).toMatchSnapshot()
   })
 })
