@@ -24,7 +24,7 @@ describe('Tiktok Offline Conversions', () => {
           ttclid: 'test-ttclid-contact',
           order_id: 'test-order-id-contact',
           shop_id: 'test-shop-id-contact',
-          event_channel: 'email'
+          event_channel: 'in_store'
         },
         userId: 'testId123-contact'
       })
@@ -63,7 +63,7 @@ describe('Tiktok Offline Conversions', () => {
         properties: {
           order_id: 'test-order-id-contact',
           shop_id: 'test-shop-id-contact',
-          event_channel: 'email'
+          event_channel: 'in_store'
         }
       })
     })
@@ -80,7 +80,7 @@ describe('Tiktok Offline Conversions', () => {
           ttclid: 'test-ttclid-subscribe',
           order_id: 'test-order-id-subscribe',
           shop_id: 'test-shop-id-subscribe',
-          event_channel: 'email'
+          event_channel: 'in_store'
         },
         userId: 'testId123-subscribe'
       })
@@ -119,7 +119,7 @@ describe('Tiktok Offline Conversions', () => {
         properties: {
           order_id: 'test-order-id-subscribe',
           shop_id: 'test-shop-id-subscribe',
-          event_channel: 'email'
+          event_channel: 'in_store'
         }
       })
     })
@@ -135,7 +135,7 @@ describe('Tiktok Offline Conversions', () => {
           phone: ['+1555-555-5555', '+1555-555-5556'],
           order_id: 'test-order-id-submit-form',
           shop_id: 'test-shop-id-submit-form',
-          event_channel: 'email'
+          event_channel: 'in_store'
         },
         userId: 'testId123-submit-form'
       })
@@ -174,7 +174,7 @@ describe('Tiktok Offline Conversions', () => {
         properties: {
           order_id: 'test-order-id-submit-form',
           shop_id: 'test-shop-id-submit-form',
-          event_channel: 'email'
+          event_channel: 'in_store'
         }
       })
     })
@@ -192,7 +192,7 @@ describe('Tiktok Offline Conversions', () => {
           phone: ['+1555-555-5555', '+1555-555-5556'],
           order_id: 'test-order-id-complete-payment',
           shop_id: 'test-shop-id-complete-payment',
-          event_channel: 'email',
+          event_channel: 'in_store',
           currency: 'USD',
           value: 100,
           query: 'shoes',
@@ -254,7 +254,7 @@ describe('Tiktok Offline Conversions', () => {
         properties: {
           order_id: 'test-order-id-complete-payment',
           shop_id: 'test-shop-id-complete-payment',
-          event_channel: 'email',
+          event_channel: 'in_store',
           contents: [
             {
               price: 100,

@@ -2,7 +2,7 @@
 
 export interface Payload {
   /**
-   * Conversion event name. Please refer to the "Supported Web Events" section on in TikTok’s [Offline Events API documentation](https://ads.tiktok.com/marketing_api/docs?id=1701890979375106) for accepted event names.
+   * Conversion event name. Please refer to the "Supported Offline Events" section on in TikTok’s [Offline Events API documentation](https://ads.tiktok.com/marketing_api/docs?id=1758053486938113) for accepted event names.
    */
   event: string
   /**
@@ -10,7 +10,7 @@ export interface Payload {
    */
   event_id?: string
   /**
-   * Timestamp that the event took place, in ISO 8601 format.
+   * Timestamp that the event took place, in ISO 8601 format. e.g. 2019-06-12T19:11:01.152Z
    */
   timestamp: string
   /**
@@ -22,15 +22,15 @@ export interface Payload {
    */
   email_addresses?: string[]
   /**
-   * A string description of the web event.
+   * The order id
    */
   order_id?: string
   /**
-   * The text string that was searched for.
+   * The shop id
    */
   shop_id?: string
   /**
-   * Event channel of the offline conversion event. Accepted values are: email, website, phone_call, in_store, crm, other
+   * Event channel of the offline conversion event. Accepted values are: email, website, phone_call, in_store, crm, other. Any other value will be rejected
    */
   event_channel?: string
 }

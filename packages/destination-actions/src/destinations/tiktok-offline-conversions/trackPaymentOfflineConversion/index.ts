@@ -6,13 +6,13 @@ import { formatEmails, formatPhones } from '../formatter'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Track Payment Offline Conversion',
-  description: 'Send details of an in-store purchase or console purchase to the Tiktok Offline Conversions API',
+  description: 'Send details of an in-store purchase or console purchase to the Tiktok Offline Events API',
   fields: {
     ...commonFields,
     timestamp: {
       label: 'Event Timestamp',
       type: 'string',
-      description: 'Timestamp that the event took place. Timestamp with ISO-8601 format.',
+      description: 'Timestamp that the event took place, in ISO 8601 format. e.g. 2019-06-12T19:11:01.152Z',
       default: {
         '@path': '$.timestamp'
       }
@@ -21,38 +21,65 @@ const action: ActionDefinition<Settings, Payload> = {
       label: 'Contents',
       type: 'object',
       multiple: true,
-      description: 'Related items in a web event.',
+      description: 'Array of product or content items for the offline event.',
       properties: {
         price: {
           label: 'Price',
-          description: 'Price of the product or content. Price is a required field for all content items.',
+          description: 'Price of the product or content item. Price is a required field for all content items.',
           type: 'number'
         },
         quantity: {
           label: 'Quantity',
-          description: 'Number of item. Quantity is a required field for all content items.',
+          description:
+            'Quantity of this product ot item in the offline event. Quantity is a required field for all content items.',
           type: 'number'
         },
         content_type: {
           label: 'Content Type',
-          description: 'Type of the product item.',
+          description: 'Product type',
           type: 'string'
         },
         content_id: {
           label: 'Content ID',
-          description: 'Product or content identifier. Content ID is a required field for all content items.',
+          description:
+            'Product or content item identifier. Content ID is a required field for all product or content items.',
           type: 'string'
         },
         content_name: {
           label: 'Content Name',
-          description: 'Name of the product item.',
+          description: 'Name of the product or content item.',
           type: 'string'
         },
         content_category: {
           label: 'Content Category',
-          description: 'Category of the product item.',
+          description: 'Category of the product or content item.',
           type: 'string'
         }
+      },
+      default: {
+        '@arrayPath': [
+          '$.properties.products',
+          {
+            price: {
+              '@path': 'price'
+            },
+            quantity: {
+              '@path': 'quantity'
+            },
+            content_type: {
+              '@path': 'type'
+            },
+            content_id: {
+              '@path': 'product_id'
+            },
+            content_name: {
+              '@path': 'name'
+            },
+            content_category: {
+              '@path': 'category'
+            }
+          }
+        ]
       }
     },
     currency: {
@@ -69,7 +96,8 @@ const action: ActionDefinition<Settings, Payload> = {
       label: 'Value',
       type: 'number',
       required: true,
-      description: 'Revenue of total contents. Required for revenue reporting.',
+      description:
+        'Revenue of total products or content items. Required for revenue reporting. Must be a number. e.g. 101.99 and not "101.99 USD"',
       default: {
         '@if': {
           exists: { '@path': '$.properties.value' },

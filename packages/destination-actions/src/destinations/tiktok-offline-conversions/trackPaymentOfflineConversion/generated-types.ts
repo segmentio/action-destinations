@@ -2,7 +2,7 @@
 
 export interface Payload {
   /**
-   * Conversion event name. Please refer to the "Supported Web Events" section on in TikTok’s [Offline Events API documentation](https://ads.tiktok.com/marketing_api/docs?id=1701890979375106) for accepted event names.
+   * Conversion event name. Please refer to the "Supported Offline Events" section on in TikTok’s [Offline Events API documentation](https://ads.tiktok.com/marketing_api/docs?id=1758053486938113) for accepted event names.
    */
   event: string
   /**
@@ -10,7 +10,7 @@ export interface Payload {
    */
   event_id?: string
   /**
-   * Timestamp that the event took place. Timestamp with ISO-8601 format.
+   * Timestamp that the event took place, in ISO 8601 format. e.g. 2019-06-12T19:11:01.152Z
    */
   timestamp?: string
   /**
@@ -22,43 +22,43 @@ export interface Payload {
    */
   email_addresses?: string[]
   /**
-   * A string description of the web event.
+   * The order id
    */
   order_id?: string
   /**
-   * The text string that was searched for.
+   * The shop id
    */
   shop_id?: string
   /**
-   * Event channel of the offline conversion event. Accepted values are: email, website, phone_call, in_store, crm, other
+   * Event channel of the offline conversion event. Accepted values are: email, website, phone_call, in_store, crm, other. Any other value will be rejected
    */
   event_channel?: string
   /**
-   * Related items in a web event.
+   * Array of product or content items for the offline event.
    */
   contents?: {
     /**
-     * Price of the product or content. Price is a required field for all content items.
+     * Price of the product or content item. Price is a required field for all content items.
      */
     price?: number
     /**
-     * Number of item. Quantity is a required field for all content items.
+     * Quantity of this product ot item in the offline event. Quantity is a required field for all content items.
      */
     quantity?: number
     /**
-     * Type of the product item.
+     * Product type
      */
     content_type?: string
     /**
-     * Product or content identifier. Content ID is a required field for all content items.
+     * Product or content item identifier. Content ID is a required field for all product or content items.
      */
     content_id?: string
     /**
-     * Name of the product item.
+     * Name of the product or content item.
      */
     content_name?: string
     /**
-     * Category of the product item.
+     * Category of the product or content item.
      */
     content_category?: string
   }[]
@@ -67,7 +67,7 @@ export interface Payload {
    */
   currency: string
   /**
-   * Revenue of total contents. Required for revenue reporting.
+   * Revenue of total products or content items. Required for revenue reporting. Must be a number. e.g. 101.99 and not "101.99 USD"
    */
   value: number
 }

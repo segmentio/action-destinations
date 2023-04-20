@@ -17,7 +17,7 @@ Object {
   "event_set_id": "fQ92^RLkQyhJ8TU3nYnh",
   "partner_name": "Segment",
   "properties": Object {
-    "event_channel": "fQ92^RLkQyhJ8TU3nYnh",
+    "event_channel": "other",
     "order_id": "fQ92^RLkQyhJ8TU3nYnh",
     "shop_id": "fQ92^RLkQyhJ8TU3nYnh",
   },
@@ -73,7 +73,7 @@ Object {
       },
     ],
     "currency": "DZD",
-    "event_channel": "BkRZ5",
+    "event_channel": "email",
     "order_id": "BkRZ5",
     "shop_id": "BkRZ5",
     "value": -79287355210465.28,
