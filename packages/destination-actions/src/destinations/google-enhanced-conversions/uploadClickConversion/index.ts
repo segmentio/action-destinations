@@ -2,7 +2,14 @@ import { ActionDefinition, PayloadValidationError } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 import { CartItem, PartialErrorResponse } from '../types'
-import { formatCustomVariables, hash, getCustomVariables, handleGoogleErrors, convertTimestamp } from '../functions'
+import {
+  formatCustomVariables,
+  hash,
+  getCustomVariables,
+  handleGoogleErrors,
+  convertTimestamp,
+  get_api_version
+} from '../functions'
 import { ModifiedResponse } from '@segment/actions-core'
 
 const action: ActionDefinition<Settings, Payload> = {
@@ -179,7 +186,7 @@ const action: ActionDefinition<Settings, Payload> = {
       defaultObjectUI: 'keyvalue:only'
     }
   },
-  perform: async (request, { auth, settings, payload }) => {
+  perform: async (request, { auth, settings, payload, features, statsContext }) => {
     /* Enforcing this here since Customer ID is required for the Google Ads API
     but not for the Enhanced Conversions API. */
     if (!settings.customerId) {
@@ -222,7 +229,7 @@ const action: ActionDefinition<Settings, Payload> = {
 
     // Retrieves all of the custom variables that the customer has created in their Google Ads account
     if (payload.custom_variables) {
-      const customVariableIds = await getCustomVariables(settings.customerId, auth, request)
+      const customVariableIds = await getCustomVariables(settings.customerId, auth, request, features, statsContext)
       if (customVariableIds?.data?.length) {
         request_object.customVariables = formatCustomVariables(
           payload.custom_variables,
@@ -240,7 +247,9 @@ const action: ActionDefinition<Settings, Payload> = {
     }
 
     const response: ModifiedResponse<PartialErrorResponse> = await request(
-      `https://googleads.googleapis.com/v12/customers/${settings.customerId}:uploadClickConversions`,
+      `https://googleads.googleapis.com/${get_api_version(features, statsContext)}/customers/${
+        settings.customerId
+      }:uploadClickConversions`,
       {
         method: 'post',
         headers: {

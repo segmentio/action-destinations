@@ -1,6 +1,7 @@
 import nock from 'nock'
 import { createTestEvent, createTestIntegration } from '@segment/actions-core'
 import GoogleEnhancedConversions from '../index'
+import { API_VERSION } from '../functions'
 
 const testDestination = createTestIntegration(GoogleEnhancedConversions)
 const timestamp = new Date('Thu Jun 10 2021 11:08:04 GMT-0700 (Pacific Daylight Time)').toISOString()
@@ -28,7 +29,7 @@ describe('GoogleEnhancedConversions', () => {
         }
       })
 
-      nock(`https://googleads.googleapis.com/v12/customers/${customerId}:uploadClickConversions`)
+      nock(`https://googleads.googleapis.com/${API_VERSION}/customers/${customerId}:uploadClickConversions`)
         .post('')
         .reply(201, { results: [{}] })
 
@@ -70,7 +71,7 @@ describe('GoogleEnhancedConversions', () => {
         }
       })
 
-      nock(`https://googleads.googleapis.com/v12/customers/${customerId}:uploadClickConversions`)
+      nock(`https://googleads.googleapis.com/${API_VERSION}/customers/${customerId}:uploadClickConversions`)
         .post('')
         .reply(201, { results: [{}] })
 
@@ -110,7 +111,7 @@ describe('GoogleEnhancedConversions', () => {
         }
       })
 
-      nock(`https://googleads.googleapis.com/v12/customers/${customerId}/googleAds:searchStream`)
+      nock(`https://googleads.googleapis.com/${API_VERSION}/customers/${customerId}/googleAds:searchStream`)
         .post('')
         .reply(200, [
           {
@@ -126,7 +127,7 @@ describe('GoogleEnhancedConversions', () => {
           }
         ])
 
-      nock(`https://googleads.googleapis.com/v12/customers/${customerId}:uploadClickConversions`)
+      nock(`https://googleads.googleapis.com/${API_VERSION}/customers/${customerId}:uploadClickConversions`)
         .post('')
         .reply(201, { results: [{}] })
 
@@ -167,7 +168,7 @@ describe('GoogleEnhancedConversions', () => {
         }
       })
 
-      nock(`https://googleads.googleapis.com/v12/customers/${customerId}:uploadClickConversions`)
+      nock(`https://googleads.googleapis.com/${API_VERSION}/customers/${customerId}:uploadClickConversions`)
         .post('')
         .reply(201, {})
 
@@ -203,7 +204,7 @@ describe('GoogleEnhancedConversions', () => {
         }
       })
 
-      nock(`https://googleads.googleapis.com/v12/customers/${customerId}:uploadClickConversions`)
+      nock(`https://googleads.googleapis.com/${API_VERSION}/customers/${customerId}:uploadClickConversions`)
         .post('')
         .reply(201, { results: [{}] })
 
@@ -246,7 +247,7 @@ describe('GoogleEnhancedConversions', () => {
         }
       })
 
-      nock(`https://googleads.googleapis.com/v12/customers/${customerId}:uploadClickConversions`)
+      nock(`https://googleads.googleapis.com/${API_VERSION}/customers/${customerId}:uploadClickConversions`)
         .post('')
         .reply(201, { results: [{}] })
 
@@ -287,7 +288,7 @@ describe('GoogleEnhancedConversions', () => {
         }
       })
 
-      nock(`https://googleads.googleapis.com/v12/customers/${customerId}:uploadClickConversions`)
+      nock(`https://googleads.googleapis.com/${API_VERSION}/customers/${customerId}:uploadClickConversions`)
         .post('')
         .reply(201, {})
 
