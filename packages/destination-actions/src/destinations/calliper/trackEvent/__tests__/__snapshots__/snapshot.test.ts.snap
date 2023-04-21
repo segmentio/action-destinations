@@ -1,0 +1,59 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Testing snapshot for Calliper's trackEvent destination action: all fields 1`] = `
+Object {
+  "company_id": "DKT34JTKcHq6*0",
+  "events": Array [
+    Object {
+      "anonymous_id": "DKT34JTKcHq6*0",
+      "app_version": "DKT34JTKcHq6*0",
+      "carrier": "DKT34JTKcHq6*0",
+      "cellular": false,
+      "city": "DKT34JTKcHq6*0",
+      "country": "DKT34JTKcHq6*0",
+      "device_id": "DKT34JTKcHq6*0",
+      "device_manufacturer": "DKT34JTKcHq6*0",
+      "device_model": "DKT34JTKcHq6*0",
+      "event": "DKT34JTKcHq6*0",
+      "event_unique_id": "DKT34JTKcHq6*0",
+      "group_id": "DKT34JTKcHq6*0",
+      "ip": "DKT34JTKcHq6*0",
+      "language": "DKT34JTKcHq6*0",
+      "library_name": "Segment: DKT34JTKcHq6*0",
+      "library_version": "DKT34JTKcHq6*0",
+      "os_name": "DKT34JTKcHq6*0",
+      "page_title": "DKT34JTKcHq6*0",
+      "path": "DKT34JTKcHq6*0",
+      "platform": "DKT34JTKcHq6*0",
+      "properties": Object {
+        "testType": "DKT34JTKcHq6*0",
+      },
+      "region": "DKT34JTKcHq6*0",
+      "time": 1612137600000,
+      "url": "DKT34JTKcHq6*0",
+      "user_agent": "DKT34JTKcHq6*0",
+      "user_id": "DKT34JTKcHq6*0",
+    },
+  ],
+  "key": "DKT34JTKcHq6*0",
+}
+`;
+
+exports[`Testing snapshot for Calliper's trackEvent destination action: required fields 1`] = `
+Object {
+  "company_id": "DKT34JTKcHq6*0",
+  "events": Array [
+    Object {
+      "anonymous_id": "DKT34JTKcHq6*0",
+      "device_id": "DKT34JTKcHq6*0",
+      "event": "DKT34JTKcHq6*0",
+      "event_unique_id": "DKT34JTKcHq6*0",
+      "group_id": "DKT34JTKcHq6*0",
+      "library_name": "Segment: undefined",
+      "time": 1612137600000,
+      "user_id": "DKT34JTKcHq6*0",
+    },
+  ],
+  "key": "DKT34JTKcHq6*0",
+}
+`;
