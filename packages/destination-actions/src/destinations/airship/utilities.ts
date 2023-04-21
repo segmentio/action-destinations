@@ -3,7 +3,6 @@ import type { Settings } from './generated-types'
 import { Payload as CustomEventsPayload } from './customEvents/generated-types'
 import { Payload as AttributesPayload } from './setAttributes/generated-types'
 // import { Dictionary } from 'lodash'
-// import { Dictionary } from 'lodash'
 
 export function sendCustomEvent(request: RequestClient, settings: Settings, payload: CustomEventsPayload) {
   if (payload.properties) {
@@ -13,10 +12,11 @@ export function sendCustomEvent(request: RequestClient, settings: Settings, payl
       source: 'Segment'
     }
   }
+  // validate/repair payload types
   const airship_payload = {
     occurred: validate_timestamp(payload.occurred),
     user: {
-      named_user_id: payload.user
+      named_user_id: payload.named_user_id
     },
     body: {
       name: payload.name.toLowerCase(),
@@ -43,12 +43,12 @@ export function setAttribute(request: RequestClient, settings: Settings, payload
   */
   for (const [key, value] of Object.entries(payload.traits)) {
     if (key == 'address') {
-      if (is_type_dict(value)) {
-        for (const [k, v] of Object.entries(value)) {
-          const new_attribute_key: string = trait_to_attribute_map(k)
-          attributes.push(add_attribute(new_attribute_key, v, payload.occurred))
-        }
+      // if (is_type_dict(value)) {
+      for (const [k, v] of Object.entries(value)) {
+        const new_attribute_key: string = trait_to_attribute_map(k)
+        attributes.push(add_attribute(new_attribute_key, v, payload.occurred))
       }
+      // }
     }
     attributes.push(add_attribute(key, value, payload.occurred))
   }

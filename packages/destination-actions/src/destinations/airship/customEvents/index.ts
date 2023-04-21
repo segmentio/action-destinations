@@ -1,13 +1,13 @@
 import type { ActionDefinition } from '@segment/actions-core'
 import type { Payload } from './generated-types'
 import type { Settings } from '../generated-types'
-import {sendCustomEvent} from '../utilities'
+import { sendCustomEvent } from '../utilities'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Custom Events',
   description: '',
   fields: {
-    user: {
+    named_user_id: {
       label: 'Airship Named User ID',
       description: 'The identifier assigned in Airship as the Named User',
       type: 'string',
@@ -17,10 +17,10 @@ const action: ActionDefinition<Settings, Payload> = {
       }
     },
     name: {
-      label:'Name',
+      label: 'Name',
       description: 'Event Name',
       type: 'string',
-      required:true,
+      required: true,
       default: {
         '@path': '$.event'
       }
@@ -42,9 +42,10 @@ const action: ActionDefinition<Settings, Payload> = {
         '@path': '$.properties'
       }
     }
-   },
+  },
   perform: (request, { settings, payload }) => {
-    return sendCustomEvent(request, settings,payload)
-}}
+    return sendCustomEvent(request, settings, payload)
+  }
+}
 
 export default action
