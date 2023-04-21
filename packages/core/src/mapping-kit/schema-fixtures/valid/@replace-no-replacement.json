@@ -1,0 +1,8 @@
+{
+  "mapping": {
+    "@replace": {
+      "pattern": "+",
+      "value": { "@path": "$.a" }
+    }
+  }
+}

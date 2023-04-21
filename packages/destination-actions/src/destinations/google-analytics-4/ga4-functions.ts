@@ -16,6 +16,8 @@ export function verifyParams(params: object | undefined): void {
   }
 
   Object.entries(params).forEach(([key, value]) => {
+    // Google will allow array objects for an items list
+    if (key == 'items' && value instanceof Array) return
     if (value instanceof Array) {
       throw new PayloadValidationError(
         `Param [${key}] has unsupported value of type [Array]. GA4 does not accept null, array, or object values for event parameters and item parameters.`

@@ -1,0 +1,39 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Testing snapshot for Encharge's aliasUser destination action: all fields 1`] = `
+Object {
+  "messageId": "$NytfaD73IuN43lZ",
+  "previousUserId": "$NytfaD73IuN43lZ",
+  "type": "alias",
+  "userId": "$NytfaD73IuN43lZ",
+}
+`;
+
+exports[`Testing snapshot for Encharge's aliasUser destination action: required fields 1`] = `
+Object {
+  "previousUserId": "$NytfaD73IuN43lZ",
+  "type": "alias",
+  "userId": "$NytfaD73IuN43lZ",
+}
+`;
+
+exports[`Testing snapshot for Encharge's aliasUser destination action: required fields 2`] = `"{\\"userId\\":\\"$NytfaD73IuN43lZ\\",\\"previousUserId\\":\\"$NytfaD73IuN43lZ\\",\\"type\\":\\"alias\\"}"`;
+
+exports[`Testing snapshot for Encharge's aliasUser destination action: required fields 3`] = `
+Headers {
+  Symbol(map): Object {
+    "content-type": Array [
+      "application/json",
+    ],
+    "user-agent": Array [
+      "Segment (Actions)",
+    ],
+    "x-encharge-token": Array [
+      "$NytfaD73IuN43lZ",
+    ],
+    "x-segment-actions": Array [
+      "1",
+    ],
+  },
+}
+`;

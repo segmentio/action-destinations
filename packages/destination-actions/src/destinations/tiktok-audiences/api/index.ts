@@ -1,7 +1,6 @@
 import type { RequestClient, ModifiedResponse } from '@segment/actions-core'
-import type { Payload } from '../addUser/generated-types'
 import { BASE_URL, TIKTOK_API_VERSION } from '../constants'
-import type { GetAudienceAPIResponse, CreateAudienceAPIResponse, APIResponse } from '../types'
+import type { GetAudienceAPIResponse, APIResponse } from '../types'
 import { DynamicFieldResponse } from '@segment/actions-core'
 
 interface AdvertiserInfoItem {
@@ -55,17 +54,6 @@ export class TikTokAudiences {
     )
 
     return response.data
-  }
-
-  async createAudience(payload: Payload): Promise<ModifiedResponse<CreateAudienceAPIResponse>> {
-    return this.request(`${BASE_URL}${TIKTOK_API_VERSION}/segment/audience/`, {
-      method: 'POST',
-      json: {
-        custom_audience_name: payload.custom_audience_name,
-        advertiser_id: this.selectedAdvertiserID,
-        action: 'create'
-      }
-    })
   }
 
   async batchUpdate(elements: {}): Promise<ModifiedResponse> {
