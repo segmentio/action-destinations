@@ -49,17 +49,17 @@ export class SmsMessageSender extends MessageSender<Payload> {
       traits
     }
 
-    let contentBody
+    let unparsedBody
     if (this.payload.contentSid) {
-      contentBody = await this.getContentTemplate()
+      unparsedBody = await this.getContentTemplate()
     } else {
-      contentBody = this.payload.body
+      unparsedBody = this.payload.body
     }
 
     let parsedBody
 
     try {
-      parsedBody = await Liquid.parseAndRender(contentBody, { profile })
+      parsedBody = await Liquid.parseAndRender(unparsedBody, { profile })
     } catch (error: unknown) {
       this.logger?.error(`TE Messaging: SMS templating parse failure - ${this.settings.spaceId} - [${error}]`)
       throw new IntegrationError(`Unable to parse templating in SMS`, `SMS templating parse failure`, 400)
