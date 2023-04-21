@@ -2,7 +2,6 @@ import { RequestClient } from '@segment/actions-core'
 import type { Settings } from './generated-types'
 import { Payload as CustomEventsPayload } from './customEvents/generated-types'
 import { Payload as AttributesPayload } from './setAttributes/generated-types'
-// import { Dictionary } from 'lodash'
 
 export function sendCustomEvent(request: RequestClient, settings: Settings, payload: CustomEventsPayload) {
   if (payload.properties) {
@@ -43,12 +42,21 @@ export function setAttribute(request: RequestClient, settings: Settings, payload
   */
   for (const [key, value] of Object.entries(payload.traits)) {
     if (key == 'address') {
-      // if (is_type_dict(value)) {
-      for (const [k, v] of Object.entries(value)) {
-        const new_attribute_key: string = trait_to_attribute_map(k)
-        attributes.push(add_attribute(new_attribute_key, v, payload.occurred))
+      if (typeof value == 'object') {
+        for (const [k, v] of Object.entries(value)) {
+          const new_attribute_key: string = trait_to_attribute_map(k)
+          attributes.push(add_attribute(new_attribute_key, v, payload.occurred))
+        }
+        continue
       }
-      // }
+    }
+    if (key == 'company') {
+      if (typeof value == 'object') {
+        if (value.name) {
+          attributes.push(add_attribute(key, value.name, payload.occurred))
+        }
+      }
+      continue
     }
     attributes.push(add_attribute(key, value, payload.occurred))
   }
@@ -58,7 +66,7 @@ export function setAttribute(request: RequestClient, settings: Settings, payload
       named_user_id: `${payload.user}`
     }
   }
-  console.log(JSON.stringify(airship_payload, null, 2))
+  // console.log(JSON.stringify(airship_payload,null,2))
   console.log(uri)
   // uri = 'https://webhook.site/ffa14153-f2af-44f8-a115-65628dbe6797'
 
