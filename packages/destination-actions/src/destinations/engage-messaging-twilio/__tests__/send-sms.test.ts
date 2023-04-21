@@ -1,5 +1,5 @@
 import nock from 'nock'
-import { createTestIntegration } from '@segment/actions-core'
+import { createTestIntegration, omit } from '@segment/actions-core'
 import { createMessagingTestEvent } from '../../../lib/engage-test-data/create-messaging-test-event'
 import Twilio from '..'
 import { Logger } from '@segment/actions-core/src/destination-kit'
@@ -8,6 +8,7 @@ const twilio = createTestIntegration(Twilio)
 const timestamp = new Date().toISOString()
 
 describe.each(['stage', 'production'])('%s environment', (environment) => {
+  const contentSid = 'g'
   const spaceId = 'd'
   const settings = {
     twilioAccountSID: 'a',
@@ -115,7 +116,69 @@ describe.each(['stage', 'production'])('%s environment', (environment) => {
       )
     })
 
-    it('should throw error if Twilio API request fails', async () => {
+    it('should thow error if no body provided and no contentSid provided', async () => {
+      const logErrorSpy = jest.fn() as Logger['error']
+
+      const actionInputData = {
+        event: createMessagingTestEvent({
+          timestamp,
+          event: 'Audience Entered',
+          userId: 'jane'
+        }),
+        settings,
+        mapping: omit(getDefaultMapping(), ['body']),
+        logger: { level: 'error', name: 'test', error: logErrorSpy } as Logger
+      }
+
+      await expect(twilio.testAction('sendSms', actionInputData)).rejects.toThrowError(
+        'Unable to process sms, no body provided and no content sid provided'
+      )
+      expect(logErrorSpy).toHaveBeenCalledWith(
+        expect.stringMatching(
+          new RegExp(`^TE Messaging: Unable to process SMS, no body provided and no content sid provided - ${spaceId}`)
+        )
+      )
+    })
+
+    it('should throw error if Twilio Content API request fails', async () => {
+      const logErrorSpy = jest.fn() as Logger['error']
+
+      const expectedErrorResponse = {
+        code: 20404,
+        message: 'The requested resource was not found',
+        more_info: 'https://www.twilio.com/docs/errors/20404',
+        status: 404
+      }
+
+      nock('https://content.twilio.com').get(`/v1/Content/${contentSid}`).reply(404, expectedErrorResponse)
+
+      const actionInputData = {
+        event: createMessagingTestEvent({
+          timestamp,
+          event: 'Audience Entered',
+          userId: 'jane'
+        }),
+        settings,
+        mapping: omit(
+          getDefaultMapping({
+            contentSid
+          }),
+          ['body']
+        ),
+        logger: { level: 'error', name: 'test', error: logErrorSpy } as Logger
+      }
+
+      await expect(twilio.testAction('sendSms', actionInputData)).rejects.toThrowError(
+        'Unable to fetch content template'
+      )
+      expect(logErrorSpy).toHaveBeenCalledWith(
+        expect.stringMatching(
+          new RegExp(`^TE Messaging: SMS failed Twilio Content API request to fetch content template - ${spaceId}`)
+        )
+      )
+    })
+
+    it('should throw error if Twilio Programmable Messaging API request fails', async () => {
       const logErrorSpy = jest.fn() as Logger['error']
       const expectedErrorResponse = {
         code: 21211,
@@ -169,6 +232,43 @@ describe.each(['stage', 'production'])('%s environment', (environment) => {
         'https://api.twilio.com/2010-04-01/Accounts/a/Messages.json'
       ])
       expect(twilioRequest.isDone()).toEqual(true)
+    })
+
+    it('should send SMS with content sid', async () => {
+      const twilioMessagingRequest = nock('https://api.twilio.com/2010-04-01/Accounts/a')
+        .post('/Messages.json')
+        .reply(201, {})
+
+      const twilioContentResponse = {
+        types: {
+          'twilio/text': {
+            body: 'Hello world, {{profile.user_id}}!'
+          }
+        }
+      }
+
+      const twilioContentRequest = nock('https://content.twilio.com')
+        .get(`/v1/Content/${contentSid}`)
+        .reply(200, twilioContentResponse)
+
+      const actionInputData = {
+        event: createMessagingTestEvent({
+          timestamp,
+          event: 'Audience Entered',
+          userId: 'jane'
+        }),
+        settings,
+        mapping: omit(
+          getDefaultMapping({
+            contentSid
+          }),
+          ['body']
+        )
+      }
+
+      await twilio.testAction('sendSms', actionInputData)
+      expect(twilioMessagingRequest.isDone()).toEqual(true)
+      expect(twilioContentRequest.isDone()).toEqual(true)
     })
 
     it('should send SMS for custom hostname', async () => {
