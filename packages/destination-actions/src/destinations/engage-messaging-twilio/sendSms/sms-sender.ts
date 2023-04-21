@@ -23,6 +23,17 @@ export class SmsMessageSender extends MessageSender<Payload> {
   getExternalId = () => this.payload.externalIds?.find(({ type }) => type === 'phone')
 
   getBody = async (phone: string) => {
+    // if (!this.payload.body && !this.payload.contentSid) {
+    //   this.logger?.error(
+    //     `TE Messaging: Unable to process SMS, no body provided and no content sid provided - ${this.settings.spaceId}`
+    //   )
+    //   throw new IntegrationError(
+    //     'Unable to process sms, no body provided and no content sid provided',
+    //     'Invalid parameters',
+    //     400
+    //   )
+    // }
+
     // TODO: GROW-259 remove this when we can extend the request
     // and we no longer need to call the profiles API first
     let traits
@@ -37,6 +48,13 @@ export class SmsMessageSender extends MessageSender<Payload> {
       phone,
       traits
     }
+
+    // let contentBody
+    // if (this.payload.contentSid) {
+    //   contentBody = await this.getContentTemplate()
+    // } else {
+    //   contentBody = this.payload.body
+    // }
 
     let parsedBody
 
@@ -92,4 +110,29 @@ export class SmsMessageSender extends MessageSender<Payload> {
       throw new IntegrationError('Unable to get profile traits for SMS message', 'SMS trait fetch failure', 500)
     }
   }
+
+  // private getContentTemplate = async () => {
+  //   const twilioToken = Buffer.from(`${this.settings.twilioApiKeySID}:${this.settings.twilioApiKeySecret}`).toString(
+  //     'base64'
+  //   )
+
+  //   try {
+  //     const response = await this.request(`https://content.twilio.com/v1/Content/${this.payload.contentSid}`, {
+  //       method: 'GET',
+  //       headers: {
+  //         authorization: `Basic ${twilioToken}`
+  //       }
+  //     })
+  //     const data = await response.json()
+  //     const type = Object.keys(data.types)[0] // eg 'twilio/text', 'twilio/media', etc
+  //     return data.types[type].body
+  //   } catch (error) {
+  //     this.tags.push('reason:get_content_template')
+  //     this.statsClient?.incr('actions-personas-messaging-twilio.error', 1, this.tags)
+  //     this.logger?.error(
+  //       `TE Messaging: SMS failed Twilio Content API request to fetch content template - ${this.settings.spaceId} - [${error}]`
+  //     )
+  //     throw new IntegrationError('Unable to fetch content template', 'Twilio Content API request failure', 500)
+  //   }
+  // }
 }
