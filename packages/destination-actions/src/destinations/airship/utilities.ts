@@ -2,6 +2,7 @@ import { RequestClient } from '@segment/actions-core'
 import type { Settings } from './generated-types'
 import { Payload as CustomEventsPayload } from './customEvents/generated-types'
 import { Payload as AttributesPayload } from './setAttributes/generated-types'
+import { Payload as TagsPayload } from './manageTags/generated-types'
 
 export function sendCustomEvent(request: RequestClient, settings: Settings, payload: CustomEventsPayload) {
   if (payload.properties) {
@@ -34,7 +35,6 @@ export function setAttribute(request: RequestClient, settings: Settings, payload
   const attributes = []
   /*
     Iterate over traits
-    * if trait key is address, assign all properties to pre-established airship attributes
     * Traits that contain nested objects are flattened using underscores then added to attributes
     * replace spaces in keys with _
     * for number attributes, remove any non-numeric characters and parse string to int
@@ -66,11 +66,43 @@ export function setAttribute(request: RequestClient, settings: Settings, payload
       named_user_id: `${payload.user}`
     }
   }
-  // console.log(JSON.stringify(airship_payload,null,2))
   console.log(uri)
-  // uri = 'https://webhook.site/ffa14153-f2af-44f8-a115-65628dbe6797'
 
   return request(uri, {
+    method: 'POST',
+    json: airship_payload
+  })
+}
+
+export function manageTags(request: RequestClient, settings: Settings, payload: TagsPayload) {
+  const tags_to_add: string[] = []
+  const tags_to_remove: string[] = []
+  for (const [k, v] of Object.entries(payload.properties)) {
+    if (typeof v == 'boolean') {
+      if (v) {
+        tags_to_add.push(k)
+      } else {
+        tags_to_remove.push(k)
+      }
+    }
+  }
+  const airship_payload = { audience: {}, add: {}, remove: {} }
+  airship_payload.audience = {
+    named_user_id: payload.named_user_id
+  }
+  if (tags_to_add.length > 0) {
+    airship_payload.add = { 'segment-integration': tags_to_add }
+  } else {
+    delete airship_payload.add
+  }
+
+  if (tags_to_remove.length > 0) {
+    airship_payload.remove = { 'segment-integration': tags_to_remove }
+  } else {
+    delete airship_payload.remove
+  }
+  console.log(JSON.stringify(airship_payload))
+  return request(`${settings.endpoint}/api/named_users/tags`, {
     method: 'POST',
     json: airship_payload
   })
@@ -84,14 +116,6 @@ function add_attribute(attribute_key: string, attribute_value: any, occurred: st
     timestamp: validate_timestamp(occurred)
   }
 }
-
-// function is_type_dict(trait: any) {
-//   if (trait.constructor != 'Object') {
-//     return false
-//   } else {
-//     return true
-//   }
-// }
 
 function trait_to_attribute_map(attribute_key: string): string {
   const TRAIT_TO_ATTRIBUTE_ID_MAP = new Map<string, string>([
@@ -125,3 +149,6 @@ function validate_timestamp(timestamp: string | number | Date) {
     return payload_time_stamp.toISOString().split('.')[0]
   }
 }
+// function let(tags_to_add: any,tags_to_remove: any) {
+//   throw new Error('Function not implemented.')
+// }

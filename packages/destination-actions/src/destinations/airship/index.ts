@@ -5,6 +5,8 @@ import customEvents from './customEvents'
 
 import setAttributes from './setAttributes'
 
+import manageTags from './manageTags'
+
 const destination: DestinationDefinition<Settings> = {
   name: 'Airship',
   slug: 'actions-airship',
@@ -75,7 +77,8 @@ const destination: DestinationDefinition<Settings> = {
   },
   actions: {
     customEvents,
-    setAttributes
+    setAttributes,
+    manageTags
   }
 }
 export default destination

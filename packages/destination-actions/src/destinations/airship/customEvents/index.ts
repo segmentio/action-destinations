@@ -5,7 +5,7 @@ import { sendCustomEvent } from '../utilities'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Custom Events',
-  description: '',
+  description: 'Set Custom Events on Users',
   fields: {
     named_user_id: {
       label: 'Airship Named User ID',
