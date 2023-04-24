@@ -26,6 +26,11 @@ const subscriptions: Subscription[] = [
 ]
 
 describe('trackEvent', () => {
+  beforeAll(() => {
+    jest.mock('../../../../runtime/load-script', () => ({
+      loadScript: (_src: any, _attributes: any) => {}
+    }))
+  })
   test('it maps event parameters correctly to track function ', async () => {
     const [trackEvent] = await sprigWebDestination({
       envId: 'testEnvId',

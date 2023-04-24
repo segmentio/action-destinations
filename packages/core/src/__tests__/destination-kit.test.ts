@@ -126,7 +126,8 @@ describe('destination kit', () => {
       const testEvent: SegmentEvent = { type: 'track' }
       const testSettings = { apiSecret: 'test_key', subscription: { subscribe: 'typo', partnerAction: 'customEvent' } }
       const res = await destinationTest.onEvent(testEvent, testSettings)
-      expect(res).toEqual([{ output: "invalid subscription : Cannot read properties of undefined (reading 'type')" }])
+      expect(res).toEqual([{ output: expect.stringContaining('invalid subscription') }])
+      expect(res[0].output).toContain('Cannot read')
     })
 
     test('should return `not subscribed` when providing an empty event', async () => {

@@ -1,6 +1,6 @@
 {
   "name": "@segment/browser-destinations",
-  "version": "3.78.0",
+  "version": "3.87.0",
   "description": "Action based browser destinations",
   "author": "Netto Farah",
   "license": "MIT",
@@ -8,6 +8,10 @@
     "type": "git",
     "url": "https://github.com/segmentio/action-destinations",
     "directory": "packages/browser-destinations"
+  },
+  "publishConfig": {
+    "access": "public",
+    "registry": "https://registry.npmjs.org"
   },
   "exports": {
     "import": "./dist/index.js",
@@ -34,9 +38,9 @@
     "@braze/web-sdk": "npm:@braze/web-sdk@^4.1.0",
     "@braze/web-sdk-v3": "npm:@braze/web-sdk@^3.5.1",
     "@fullstory/browser": "^1.4.9",
-    "@segment/actions-shared": "^1.35.0",
-    "@segment/analytics-next": "^1.29.3",
-    "@segment/destination-subscriptions": "^3.16.0",
+    "@segment/actions-shared": "^1.43.0",
+    "@segment/analytics-next": "^1.51.3",
+    "@segment/destination-subscriptions": "^3.22.0",
     "dayjs": "^1.10.7",
     "logrocket": "^3.0.1",
     "tslib": "^2.3.1",
@@ -48,21 +52,24 @@
     "@babel/plugin-transform-modules-commonjs": "^7.13.8",
     "@babel/preset-env": "^7.13.10",
     "@babel/preset-typescript": "^7.13.0",
-    "@segment/actions-core": "^3.53.0",
+    "@segment/actions-core": "^3.61.0",
     "@types/amplitude-js": "^7.0.1",
     "@types/jest": "^27.0.0",
+    "@types/js-cookie": "^3.0.0",
     "babel-jest": "^27.3.1",
     "compression-webpack-plugin": "^7.1.2",
     "concurrently": "^6.3.0",
     "globby": "^11.0.2",
     "jest": "^27.3.1",
+    "js-cookie": "^3.0.1",
     "serve": "^12.0.1",
     "terser-webpack-plugin": "^5.1.1",
     "ts-loader": "^9.2.6",
     "webpack": "^5.36.1",
     "webpack-bundle-analyzer": "^4.4.1",
     "webpack-cli": "^4.4.0",
-    "webpack-dev-server": "^4.2.0"
+    "webpack-dev-server": "^4.2.0",
+    "webpack-manifest-plugin": "^5.0.0"
   },
   "jest": {
     "testEnvironment": "jsdom",

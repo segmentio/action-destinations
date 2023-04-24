@@ -104,14 +104,13 @@ export function sendTrackPurchase(request: RequestClient, settings: Settings, pa
   }
 
   const reservedKeys = Object.keys(action.fields.products.properties ?? {})
-  const properties = omit(payload.properties, reservedKeys)
+  const event_properties = omit(payload.properties, ['products'])
   const base = {
     braze_id,
     external_id,
     user_alias,
     app_id: settings.app_id,
     time: toISO8601(payload.time),
-    properties,
     _update_existing_only: payload._update_existing_only
   }
 
@@ -119,13 +118,19 @@ export function sendTrackPurchase(request: RequestClient, settings: Settings, pa
     method: 'post',
     ...(payload.products.length > 1 ? { headers: { 'X-Braze-Batch': 'true' } } : undefined),
     json: {
-      purchases: payload.products.map((product) => ({
-        ...base,
-        product_id: product.product_id,
-        currency: product.currency ?? 'USD',
-        price: product.price,
-        quantity: product.quantity
-      }))
+      purchases: payload.products.map(function (product) {
+        return {
+          ...base,
+          product_id: product.product_id,
+          currency: product.currency ?? 'USD',
+          price: product.price,
+          quantity: product.quantity,
+          properties: {
+            ...omit(product, reservedKeys),
+            ...event_properties
+          }
+        }
+      })
     }
   })
 }
