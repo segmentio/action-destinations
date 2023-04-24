@@ -117,7 +117,7 @@ export default class Init extends Command {
     }
 
     for (const action of actions) {
-      const actionsTargetDirectory = `${targetDirectory}/${action.name}`
+      const actionsTargetDirectory = `${targetDirectory}/${action.key}`
 
       try {
         renderTemplates(

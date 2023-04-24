@@ -7,11 +7,14 @@ const action: ActionDefinition<Settings, Payload> = {
   description: '{{description}}',
   fields: {
     {{#fields}}
-   {{name}}: {
+   {{key}}: {
      label: '{{label}}',
      description: '{{description}}',
      type: '{{type}}',
-     required: {{required}}
+     required: {{required}},
+     {{#default}}
+     default: {{{value}}}
+     {{/default}}
    },
    {{/fields}}
   },
@@ -20,7 +23,7 @@ const action: ActionDefinition<Settings, Payload> = {
       method: '{{httpMethod}}',
       json: {
         {{ #fields }}
-        {{name}}: {{mapping}},
+        {{key}}: {{mapping}},
         {{/fields}}
       }
     })
