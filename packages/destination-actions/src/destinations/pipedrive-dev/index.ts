@@ -2,6 +2,7 @@ import createUpdateOrganization from './createUpdateOrganization'
 import createUpdatePerson from './createUpdatePerson'
 import { defaultValues, DestinationDefinition } from '@segment/actions-core'
 import type { Settings } from './generated-types'
+import { RefreshTokenResponse } from './pipedriveApi/oauth2'
 
 import createUpdateActivity from './createUpdateActivity'
 
@@ -24,7 +25,7 @@ const destination: DestinationDefinition<Settings> = {
         type: 'string',
         default: 'https://api.pipedrive.com',
         // minLength: 1,
-        required: false
+        required: true
       },
       apiToken: {
         label: 'API Token',
@@ -67,7 +68,7 @@ const destination: DestinationDefinition<Settings> = {
       const basicAuth = Buffer.from(`${auth.clientId}:${auth.clientSecret}`).toString('base64')
 
       // Return a request that refreshes the access_token if the API supports it
-      const res = await request('https://oauth.pipedrive.com/oauth/token', {
+      const res = await request<RefreshTokenResponse>('https://oauth.pipedrive.com/oauth/token', {
         method: 'POST',
         headers: {
           Authorization: `Basic ${basicAuth}`
