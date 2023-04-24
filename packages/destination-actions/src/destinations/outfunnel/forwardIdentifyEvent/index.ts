@@ -1,7 +1,7 @@
-import { ActionDefinition } from '@segment/actions-core'
-import type { Settings } from '../generated-types'
-import type { Payload } from './generated-types'
-import { getEndpoint } from '../utils'
+import { ActionDefinition } from '@segment/actions-core';
+import type { Settings } from '../generated-types';
+import type { Payload } from './generated-types';
+import { getEndpoint } from '../utils';
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Forward identify event',
@@ -68,12 +68,12 @@ const action: ActionDefinition<Settings, Payload> = {
   },
 
   perform: async (request, { settings, payload }) => {
-    const endpoint = getEndpoint(settings.userId)
+    const endpoint = getEndpoint(settings.userId);
 
     return request(endpoint, {
       method: 'POST',
       json: payload
-    })
+    });
   }
 }
 

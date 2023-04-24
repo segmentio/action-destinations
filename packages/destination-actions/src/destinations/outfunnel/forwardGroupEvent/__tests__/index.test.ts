@@ -11,7 +11,10 @@ describe('Outfunnel.forwardGroupEvent', () => {
   it('should forward group event to Outfunnel', async () => {
     const event = createTestEvent({ type: 'group', traits: { name: 'example company' } })
 
-    nock(endpoint).post(`/events/segment/${userId}`).query(true).reply(200, { success: true })
+    nock(endpoint)
+      .post(`/events/segment/${userId}`)
+      .query(true)
+      .reply(200, { success: true })
 
     const responses = await testDestination.testAction('forwardGroupEvent', {
       settings: { userId, apiToken },
