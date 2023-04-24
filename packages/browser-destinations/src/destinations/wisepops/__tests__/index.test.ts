@@ -15,7 +15,7 @@ const subscriptions: Subscription[] = [
 
 describe('Wisepops', () => {
   test('initialize Wisepops with a website hash', async () => {
-    const startTime = Date.now()
+    const startTime = Date.now();
     jest.spyOn(destination, 'initialize')
     nock('https://loader.wisepops.com').get('/get-loader.js?plugin=segment&v=1&site=1234567890').reply(200, {})
 
@@ -27,9 +27,9 @@ describe('Wisepops', () => {
     await event.load(Context.system(), {} as Analytics)
     expect(destination.initialize).toHaveBeenCalled()
 
-    expect(window.wisepops.q).toEqual([['options', { autoPageview: false }]])
-    expect(window.wisepops.l).toBeGreaterThanOrEqual(startTime)
-    expect(window.wisepops.l).toBeLessThanOrEqual(Date.now())
+    expect(window.wisepops.q).toEqual([['options', {autoPageview: false}]]);
+    expect(window.wisepops.l).toBeGreaterThanOrEqual(startTime);
+    expect(window.wisepops.l).toBeLessThanOrEqual(Date.now());
 
     const scripts = window.document.querySelectorAll('script')
     expect(scripts).toMatchInlineSnapshot(`

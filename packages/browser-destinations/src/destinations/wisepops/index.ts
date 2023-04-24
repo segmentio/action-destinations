@@ -37,7 +37,7 @@ export const destination: BrowserDestinationDefinition<Settings, Wisepops> = {
         traits: { '@path': '$.traits' },
         id: { '@path': '$.groupId' },
         idProperty: 'groupId',
-        prefix: 'group'
+        prefix: 'group',
       }
     },
     {
@@ -88,7 +88,7 @@ export const destination: BrowserDestinationDefinition<Settings, Wisepops> = {
     setCustomProperties,
     trackEvent,
     trackGoal,
-    trackPage
+    trackPage,
   }
 }
 

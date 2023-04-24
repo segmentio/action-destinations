@@ -36,6 +36,7 @@ The inbuilt error handling should help you with most of the error scenarios you 
   - Use `RetryableError` in case you want to signal Segment to retry the events. Use this error only for transient errors.
   - For all other scenarios, use the `IntegrationError`.
 
+
 - Use appropriate Error Codes. Error Codes are short representation of the error type and they are shown in [Event Delivery](error-handling.md/#where-are-the-errors-from-destinations-displayed) pane. It is RECOMMENDED to use the predefined error codes as Segment adds additional contexual information for debugging in Event Delivery for these error cdoes.
 
 - Provide clear actionable error messages for your destination customers.
