@@ -5,15 +5,12 @@ import Destination from '../../index'
 const testDestination = createTestIntegration(Destination)
 
 const PIPEDRIVE_API_KEY = 'random string'
-const PIPEDRIVE_DOMAIN = 'companydomain'
+const PIPEDRIVE_DOMAIN = 'https://companydomain.pipedrive.com'
 const DEAL_ID = 1337
 
 describe('Pipedrive.createUpdateDeal', () => {
   it('should create deal', async () => {
-    const scope = nock(`https://${PIPEDRIVE_DOMAIN}.pipedrive.com/api/v1`)
-      .post('/deals', { title: 'Some Name', person_id: 420 })
-      .query({ api_token: PIPEDRIVE_API_KEY })
-      .reply(200)
+    const scope = nock(`${PIPEDRIVE_DOMAIN}/api/v1`).post('/deals', { title: 'Some Name', person_id: 420 }).reply(200)
 
     scope
       .get(/.*/)
@@ -26,16 +23,16 @@ describe('Pipedrive.createUpdateDeal', () => {
 
     await testDestination.testAction('createUpdateDeal', {
       mapping: { title: 'Some Name', person_match_field: 'name', person_match_value: 'John Doe' },
-      settings: { apiToken: PIPEDRIVE_API_KEY, domain: PIPEDRIVE_DOMAIN }
+      settings: { apiToken: PIPEDRIVE_API_KEY, domain: PIPEDRIVE_DOMAIN },
+      auth: { accessToken: 'fake-access-token', refreshToken: 'fake-refresh-token' }
     })
 
     expect(scope.isDone()).toBe(true)
   })
 
   it('should update deal', async () => {
-    const scope = nock(`https://${PIPEDRIVE_DOMAIN}.pipedrive.com/api/v1`)
+    const scope = nock(`${PIPEDRIVE_DOMAIN}/api/v1`)
       .put(`/deals/${DEAL_ID}`, { title: 'New Title', person_id: 420 })
-      .query({ api_token: PIPEDRIVE_API_KEY })
       .reply(200)
 
     scope
@@ -64,7 +61,8 @@ describe('Pipedrive.createUpdateDeal', () => {
         deal_match_field: 'title',
         deal_match_value: 'Old Title'
       },
-      settings: { apiToken: PIPEDRIVE_API_KEY, domain: PIPEDRIVE_DOMAIN }
+      settings: { apiToken: PIPEDRIVE_API_KEY, domain: PIPEDRIVE_DOMAIN },
+      auth: { accessToken: 'fake-access-token', refreshToken: 'fake-refresh-token' }
     })
 
     expect(scope.isDone()).toBe(true)

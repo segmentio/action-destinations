@@ -5,10 +5,11 @@ import nock from 'nock'
 
 const testDestination = createTestIntegration(destination)
 const actionSlug = 'createUpdatePerson'
-const destinationSlug = 'Pipedrive'
+const destinationSlug = 'Pipedrive (Dev)'
 const seedName = `${destinationSlug}#${actionSlug}`
 
-const PIPEDRIVE_DOMAIN = 'companydomain'
+const PIPEDRIVE_DOMAIN = 'https://companydomain.pipedrive.com'
+const auth = { accessToken: 'fake-access-token', refreshToken: 'fake-refresh-token' }
 
 describe(`Testing snapshot for ${destinationSlug}'s ${actionSlug} destination action:`, () => {
   it('required fields', async () => {
@@ -22,9 +23,7 @@ describe(`Testing snapshot for ${destinationSlug}'s ${actionSlug} destination ac
         delete eventData[f]
       })
 
-    const basePath = `https://${settingsData.domain}.pipedrive.com`
-
-    nock(basePath).persist().post(/.*/).reply(200)
+    nock(PIPEDRIVE_DOMAIN).persist().post(/.*/).reply(200)
 
     const event = createTestEvent({
       properties: eventData
@@ -34,7 +33,7 @@ describe(`Testing snapshot for ${destinationSlug}'s ${actionSlug} destination ac
       event: event,
       mapping: event.properties,
       settings: settingsData,
-      auth: undefined
+      auth
     })
 
     const request = responses[0].request
@@ -62,8 +61,7 @@ describe(`Testing snapshot for ${destinationSlug}'s ${actionSlug} destination ac
         delete eventData[f]
       })
 
-    const basePath = `https://${settingsData.domain}.pipedrive.com`
-    nock(basePath)
+    nock(PIPEDRIVE_DOMAIN)
       .persist()
       .get(/.*/)
       .query((q) => {
@@ -72,7 +70,7 @@ describe(`Testing snapshot for ${destinationSlug}'s ${actionSlug} destination ac
       .reply(200, {
         data: [{ id: 42 }]
       })
-    nock(basePath).persist().put(/.*/).reply(200)
+    nock(PIPEDRIVE_DOMAIN).persist().put(/.*/).reply(200)
     eventData['match_value'] = 42
 
     const event = createTestEvent({
@@ -83,7 +81,7 @@ describe(`Testing snapshot for ${destinationSlug}'s ${actionSlug} destination ac
       event: event,
       mapping: event.properties,
       settings: settingsData,
-      auth: undefined
+      auth
     })
 
     const request = responses[0].request
@@ -105,15 +103,14 @@ describe(`Testing snapshot for ${destinationSlug}'s ${actionSlug} destination ac
     const [eventData, settingsData] = generateTestData(seedName, destination, action, false)
     // generateTestData / chance sometimes generates a string that can't be parsed by nock
     settingsData.domain = PIPEDRIVE_DOMAIN
-    const basePath = `https://${settingsData.domain}.pipedrive.com`
-    nock(basePath)
+    nock(PIPEDRIVE_DOMAIN)
       .persist()
       .get(/.*/)
       .twice()
       .reply(200, {
         data: [{ id: 42 }]
       })
-    nock(basePath).persist().put(/.*/).reply(200)
+    nock(PIPEDRIVE_DOMAIN).persist().put(/.*/).reply(200)
 
     const event = createTestEvent({
       properties: eventData
@@ -123,7 +120,7 @@ describe(`Testing snapshot for ${destinationSlug}'s ${actionSlug} destination ac
       event: event,
       mapping: event.properties,
       settings: settingsData,
-      auth: undefined
+      auth
     })
 
     const request = responses[0].request

@@ -5,9 +5,10 @@ import nock from 'nock'
 
 const testDestination = createTestIntegration(destination)
 const actionSlug = 'createUpdateActivity'
-const destinationSlug = 'Pipedrive'
+const destinationSlug = 'Pipedrive (Dev)'
 const seedName = `${destinationSlug}#${actionSlug}`
-const PIPEDRIVE_DOMAIN = 'companydomain'
+const PIPEDRIVE_DOMAIN = 'https://companydomain.pipedrive.com'
+const auth = { accessToken: 'fake-access-token', refreshToken: 'fake-refresh-token' }
 
 describe(`Testing snapshot for ${destinationSlug}'s ${actionSlug} destination action:`, () => {
   it('required fields', async () => {
@@ -27,7 +28,7 @@ describe(`Testing snapshot for ${destinationSlug}'s ${actionSlug} destination ac
       event: event,
       mapping: event.properties,
       settings: settingsData,
-      auth: undefined
+      auth
     })
 
     const request = responses[0].request
@@ -61,7 +62,7 @@ describe(`Testing snapshot for ${destinationSlug}'s ${actionSlug} destination ac
       event: event,
       mapping: event.properties,
       settings: settingsData,
-      auth: undefined
+      auth
     })
 
     const request = responses[0].request

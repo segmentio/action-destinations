@@ -5,15 +5,12 @@ import Destination from '../../index'
 const testDestination = createTestIntegration(Destination)
 
 const PIPEDRIVE_API_KEY = 'random string'
-const PIPEDRIVE_DOMAIN = 'companydomain'
+const PIPEDRIVE_DOMAIN = 'https://companydomain.pipedrive.com'
 const LEAD_ID = '31337'
 
 describe('Pipedrive.createUpdateLead', () => {
   it('should create lead', async () => {
-    const scope = nock(`https://${PIPEDRIVE_DOMAIN}.pipedrive.com/api/v1`)
-      .post('/leads', { title: 'Some Name', person_id: 420 })
-      .query({ api_token: PIPEDRIVE_API_KEY })
-      .reply(200)
+    const scope = nock(`${PIPEDRIVE_DOMAIN}/api/v1`).post('/leads', { title: 'Some Name', person_id: 420 }).reply(200)
 
     scope
       .get(/.*/)
@@ -26,14 +23,15 @@ describe('Pipedrive.createUpdateLead', () => {
 
     await testDestination.testAction('createUpdateLead', {
       mapping: { title: 'Some Name', person_match_field: 'name', person_match_value: 'John Doe' },
-      settings: { apiToken: PIPEDRIVE_API_KEY, domain: PIPEDRIVE_DOMAIN }
+      settings: { apiToken: PIPEDRIVE_API_KEY, domain: PIPEDRIVE_DOMAIN },
+      auth: { accessToken: 'fake-access-token', refreshToken: 'fake-refresh-token' }
     })
 
     expect(scope.isDone()).toBe(true)
   })
 
   it('should update lead', async () => {
-    const scope = nock(`https://${PIPEDRIVE_DOMAIN}.pipedrive.com/api/v1`)
+    const scope = nock(`${PIPEDRIVE_DOMAIN}/api/v1`)
       .patch(`/leads/${LEAD_ID}`, {
         title: 'New Title',
         organization_id: 520,
@@ -42,7 +40,6 @@ describe('Pipedrive.createUpdateLead', () => {
           currency: 'EUR'
         }
       })
-      .query({ api_token: PIPEDRIVE_API_KEY })
       .reply(200)
 
     scope
@@ -63,7 +60,8 @@ describe('Pipedrive.createUpdateLead', () => {
         currency: 'EUR',
         lead_id: LEAD_ID
       },
-      settings: { apiToken: PIPEDRIVE_API_KEY, domain: PIPEDRIVE_DOMAIN }
+      settings: { apiToken: PIPEDRIVE_API_KEY, domain: PIPEDRIVE_DOMAIN },
+      auth: { accessToken: 'fake-access-token', refreshToken: 'fake-refresh-token' }
     })
 
     expect(scope.isDone()).toBe(true)
