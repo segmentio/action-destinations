@@ -12,10 +12,7 @@ describe('Cordial.addProductToCart', () => {
     nock.cleanAll()
   })
   it('should work with default mappings', async () => {
-    nock(/api.cordial.io/)
-      .post('/api/segment/addProductToCart')
-      .once()
-      .reply(202, { success: 'success' })
+    nock(/api.cordial.io/).post('/api/segment/addProductToCart').once().reply(202, {success: 'success'})
 
     const event = createTestEvent({
       event: 'Product Added',
@@ -32,12 +29,12 @@ describe('Cordial.addProductToCart', () => {
         image_url: 'https://cdn.example.com/product.jpg',
         brand: 'Test brand',
         variant: 'black',
-        coupon: 'APPLY50%'
+        coupon: 'APPLY50%',
       }
     })
 
     const mapping = {
-      userIdentities: { 'channels.email.address': 'contact@example.com' }
+      userIdentities: {'channels.email.address': 'contact@example.com'}
     }
 
     const settings = {
@@ -53,8 +50,8 @@ describe('Cordial.addProductToCart', () => {
       useDefaultMappings: true
     })
 
-    expect(responses[0].status).toBe(202)
-    expect(responses[0].data).toMatchObject({ success: 'success' })
+    expect(responses[0].status).toBe(202);
+    expect(responses[0].data).toMatchObject({success: 'success'});
     expect(responses[0].options.json).toMatchObject({
       category: '51easf12',
       description: undefined,
@@ -66,19 +63,17 @@ describe('Cordial.addProductToCart', () => {
         brand: 'Test brand',
         coupon: 'APPLY50%',
         variant: 'black'
-      },
+       },
       qty: 2,
       sku: 'TEST-SKU',
       url: 'https://example.com/product1',
       userIdentities: {
-        'channels.email.address': 'contact@example.com'
-      }
+       'channels.email.address': 'contact@example.com'
+      },
     })
   })
   it('should work with required only', async () => {
-    nock(/api.cordial.io/)
-      .post('/api/segment/addProductToCart')
-      .reply(202, { success: 'success' })
+    nock(/api.cordial.io/).post('/api/segment/addProductToCart').reply(202, {success: 'success'})
 
     const event = createTestEvent({
       event: 'Product Added',
@@ -100,12 +95,12 @@ describe('Cordial.addProductToCart', () => {
     })
 
     const mapping = {
-      userIdentities: { 'channels.email.address': 'contact@example.com' },
-      productID: { '@path': '$.properties.product_id' },
-      sku: { '@path': '$.properties.sku' },
-      qty: { '@path': '$.properties.quantity' },
-      category: { '@path': '$.properties.category' },
-      name: { '@path': '$.properties.name' }
+      userIdentities: {'channels.email.address': 'contact@example.com'},
+      productID: {'@path': '$.properties.product_id'},
+      sku: {'@path': '$.properties.sku'},
+      qty: {'@path': '$.properties.quantity'},
+      category: {'@path': '$.properties.category'},
+      name: {'@path': '$.properties.name'}
     }
 
     const settings = {
@@ -120,8 +115,8 @@ describe('Cordial.addProductToCart', () => {
       useDefaultMappings: false
     })
 
-    expect(responses[0].status).toBe(202)
-    expect(responses[0].data).toMatchObject({ success: 'success' })
+    expect(responses[0].status).toBe(202);
+    expect(responses[0].data).toMatchObject({success: 'success'});
     expect(responses[0].options.json).toMatchObject({
       category: '51easf12',
       description: undefined,
