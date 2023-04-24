@@ -5,8 +5,8 @@ import { StatsContext } from '@segment/actions-core/src/destination-kit'
 import { Features } from '@segment/actions-core/src/mapping-kit'
 
 export const API_VERSION = 'v12'
-const CANARY_API_VERSION = 'v13'
-const FLAGON_NAME = 'google-enhanced-canary-version'
+export const CANARY_API_VERSION = 'v13'
+export const FLAGON_NAME = 'google-enhanced-canary-version'
 
 export function formatCustomVariables(
   customVariables: object,
@@ -51,7 +51,7 @@ export async function getCustomVariables(
   statsContext: StatsContext | undefined
 ): Promise<ModifiedResponse<QueryResponse[]>> {
   return await request(
-    `https://googleads.googleapis.com/${get_api_version(
+    `https://googleads.googleapis.com/${getApiVersion(
       features,
       statsContext
     )}/customers/${customerId}/googleAds:searchStream`,
@@ -84,17 +84,12 @@ export function convertTimestamp(timestamp: string | undefined): string | undefi
   return timestamp.replace(/T/, ' ').replace(/\..+/, '+00:00')
 }
 
-export function get_api_version(features: Features | undefined, statsContext: StatsContext | undefined): string {
+export function getApiVersion(features?: Features, statsContext?: StatsContext): string {
   const statsClient = statsContext?.statsClient
   const tags = statsContext?.tags
 
-  if (features && features[FLAGON_NAME]) {
-    tags?.push(`version:${CANARY_API_VERSION}`)
-    statsClient?.incr(`google_api_version`, 1, tags)
-    return CANARY_API_VERSION
-  }
-
-  tags?.push(`version:${API_VERSION}`)
+  const version = features && features[FLAGON_NAME] ? CANARY_API_VERSION : API_VERSION
+  tags?.push(`version:${version}`)
   statsClient?.incr(`google_api_version`, 1, tags)
-  return API_VERSION
+  return version
 }
