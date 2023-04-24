@@ -118,6 +118,10 @@ export interface Payload {
    */
   constituent_birthdate?: string | number
   /**
+   * The birthplace of the constituent.
+   */
+  constituent_birthplace?: string
+  /**
    * The ID of the constituent.
    */
   constituent_id?: string
@@ -131,17 +135,33 @@ export interface Payload {
     type?: string
   }
   /**
+   * The ethnicity of the constituent.
+   */
+  constituent_ethnicity?: string
+  /**
    * The constituent's first name up to 50 characters.
    */
   constituent_first?: string
+  /**
+   * The constituent's former name up to 100 characters.
+   */
+  constituent_former_name?: string
   /**
    * The constituent's gender.
    */
   constituent_gender?: string
   /**
+   * Indicates whether the constituent gives anonymously.
+   */
+  constituent_gives_anonymously?: boolean
+  /**
    * The constituent's income.
    */
   constituent_income?: string
+  /**
+   * The constituent's industry.
+   */
+  constituent_industry?: string
   /**
    * The constituent's last name up to 100 characters. This is required to create a constituent.
    */
@@ -150,6 +170,10 @@ export interface Payload {
    * The organization-defined identifier for the constituent.
    */
   constituent_lookup_id?: string
+  /**
+   * The constituent's marital status. Available values are the entries in the Marital Status table.
+   */
+  constituent_marital_status?: string
   /**
    * The constituent's online presence.
    */
@@ -167,4 +191,28 @@ export interface Payload {
     primary?: boolean
     type?: string
   }
+  /**
+   * The constituent's preferred name up to 50 characters.
+   */
+  constituent_preferred_name?: string
+  /**
+   * The religion of the constituent.
+   */
+  constituent_religion?: string
+  /**
+   * The constituent's primary suffix. Available values are the entries in the Suffixes table.
+   */
+  constituent_suffix?: string
+  /**
+   * The constituent's secondary suffix. Available values are the entries in the Suffixes table.
+   */
+  constituent_suffix_2?: string
+  /**
+   * The constituent's primary title. Available values are the entries in the Titles table.
+   */
+  constituent_title?: string
+  /**
+   * The constituent's secondary title. Available values are the entries in the Titles table.
+   */
+  constituent_title_2?: string
 }

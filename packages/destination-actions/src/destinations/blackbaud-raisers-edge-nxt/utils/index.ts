@@ -52,11 +52,23 @@ export const augmentFieldsWithConstituentFields = (fields: Record<string, InputF
 
 export const splitConstituentPayload = (payload: CreateOrUpdateIndividualConstituentPayload) => {
   const constituentData: Partial<Constituent> = {
+    birthplace: payload.birthplace,
+    ethnicity: payload.ethnicity,
     first: payload.first,
+    former_name: payload.former_name,
     gender: payload.gender,
+    gives_anonymously: payload.gives_anonymously,
     income: payload.income,
+    industry: payload.industry,
     last: payload.last,
-    lookup_id: payload.lookup_id
+    lookup_id: payload.lookup_id,
+    marital_status: payload.marital_status,
+    preferred_name: payload.preferred_name,
+    religion: payload.religion,
+    suffix: payload.suffix,
+    suffix_2: payload.suffix_2,
+    title: payload.title,
+    title_2: payload.title_2
   }
   Object.keys(constituentData).forEach((key) => {
     if (!constituentData[key as keyof Constituent]) {

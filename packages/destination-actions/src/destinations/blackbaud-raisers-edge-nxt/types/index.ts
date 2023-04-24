@@ -28,14 +28,26 @@ export interface FuzzyDate {
 export interface Constituent {
   address?: Address
   birthdate?: FuzzyDate
+  birthplace?: string
   email?: Email
+  ethnicity?: string
   first?: string
+  former_name?: string
   gender?: string
+  gives_anonymously?: boolean
   income?: string
+  industry?: string
   last: string
   lookup_id?: string
+  marital_status?: string
   online_presence?: OnlinePresence
   phone?: Phone
+  preferred_name?: string
+  religion?: string
+  suffix?: string
+  suffix_2?: string
+  title?: string
+  title_2?: string
   type?: string
 }
 
