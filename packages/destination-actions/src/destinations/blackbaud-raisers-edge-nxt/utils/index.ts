@@ -142,8 +142,12 @@ export const buildGiftDataFromPayload = (constituentId: string, payload: CreateG
     amount: {
       value: payload.amount
     },
+    constituency: payload.constituency,
     constituent_id: constituentId,
     date: payload.date,
+    default_fundraiser_credits: payload.default_fundraiser_credits,
+    default_soft_credits: payload.default_soft_credits,
+    gift_code: payload.gift_code,
     gift_status: payload.gift_status,
     is_anonymous: payload.is_anonymous,
     // hardcode is_manual
@@ -151,6 +155,7 @@ export const buildGiftDataFromPayload = (constituentId: string, payload: CreateG
     lookup_id: payload.lookup_id,
     post_date: payload.post_date,
     post_status: payload.post_status,
+    reference: payload.reference,
     subtype: payload.subtype,
     type: payload.type
   }
@@ -159,6 +164,12 @@ export const buildGiftDataFromPayload = (constituentId: string, payload: CreateG
       delete giftData[key as keyof Gift]
     }
   })
+
+  // batch number
+  if (payload.batch_number) {
+    giftData.batch_number = payload.batch_number
+    giftData.batch_prefix = payload.batch_prefix || 'API'
+  }
 
   // default date
   giftData.date = giftData.date || new Date().toISOString()

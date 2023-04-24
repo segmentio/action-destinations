@@ -105,8 +105,14 @@ export interface ExistingPhone extends Phone {
 export interface Gift {
   acknowledgements?: GiftAcknowledgement[]
   amount: GiftAmount
+  batch_number?: string
+  batch_prefix?: string
+  constituency?: string
   constituent_id: string
   date: string | number
+  default_fundraiser_credits?: boolean
+  default_soft_credits?: boolean
+  gift_code?: string
   gift_splits: GiftSplit[]
   gift_status?: string
   is_anonymous?: boolean
@@ -118,6 +124,7 @@ export interface Gift {
   post_status?: string
   receipts?: GiftReceipt[]
   recurring_gift_schedule?: RecurringGiftSchedule
+  reference?: string
   subtype?: string
   type: string
 }

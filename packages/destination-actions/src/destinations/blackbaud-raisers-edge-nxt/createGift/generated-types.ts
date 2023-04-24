@@ -19,6 +19,14 @@ export interface Payload {
    */
   amount: number
   /**
+   * The batch number of the gift up to 50 characters (including the batch prefix).
+   */
+  batch_number?: string
+  /**
+   * The batch prefix of the gift. If provided, must include at least one letter. Required when Batch Number has a value, and defaults to "API" if no value is provided.
+   */
+  batch_prefix?: string
+  /**
    * The check date in ISO-8601 format.
    */
   check_date?: string | number
@@ -27,13 +35,29 @@ export interface Payload {
    */
   check_number?: string
   /**
+   * The constituency value of the gift. If no value is provided, the default constituency of the donor will be used.
+   */
+  constituency?: string
+  /**
    * The gift date in ISO-8601 format.
    */
   date?: string | number
   /**
+   * Indicates whether to use default fundraiser credits.
+   */
+  default_fundraiser_credits?: boolean
+  /**
+   * Indicates whether to use default soft credits.
+   */
+  default_soft_credits?: boolean
+  /**
    * The ID of the fund associated with the gift.
    */
   fund_id: string
+  /**
+   * The gift code. Available values are the entries in the Gift Code table.
+   */
+  gift_code?: string
   /**
    * The status of the gift. Available values are "Active", "Held", "Terminated", "Completed", and "Cancelled".
    */
@@ -92,6 +116,10 @@ export interface Payload {
      */
     start_date?: string | number
   }
+  /**
+   * Notes to track special details about a gift such as the motivation behind it or a detailed description of a gift-in-kind. Limited to 255 characters.
+   */
+  reference?: string
   /**
    * The subtype of the gift.
    */
