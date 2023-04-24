@@ -92,6 +92,8 @@ export default class Init extends Command {
     const actionsSnapshotPath = path.join(__dirname, '../../templates/actions/action-snapshot')
     const actionsTemplatePath = path.join(__dirname, '../../templates/actions/empty-action-lowcode')
 
+    const overwriteExisting = true
+
     try {
       this.spinner.start(`Creating ${chalk.bold(name)}`)
       renderTemplates(templatePath, targetDirectory, answers)
@@ -108,7 +110,7 @@ export default class Init extends Command {
         {
           destination: slug
         },
-        true
+        overwriteExisting
       )
       this.spinner.succeed(chalk`Created snapshot tests for {magenta ${slug}} destination`)
     } catch (err) {
@@ -133,7 +135,7 @@ export default class Init extends Command {
             httpMethod: action.httpMethod,
             performJSON: action.mappings
           },
-          true
+          overwriteExisting
         )
         this.spinner.succeed(chalk`Scaffold action {magenta ${action.name}}`)
       } catch (err) {
@@ -150,7 +152,7 @@ export default class Init extends Command {
             destination: destination,
             actionSlug: slug
           },
-          true
+          overwriteExisting
         )
         this.spinner.succeed(chalk`Creating snapshot tests for action {magenta ${action.name}}`)
       } catch (err) {
