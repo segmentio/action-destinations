@@ -22,7 +22,7 @@ export interface Payload {
    */
   description?: string
   /**
-   * The direction of the action. Available values are "Inbound" and "Outbound". The default is Inbound.
+   * The direction of the action. Available values are "Inbound" and "Outbound".
    */
   direction?: string
   /**
@@ -46,7 +46,7 @@ export interface Payload {
    */
   outcome?: string
   /**
-   * The priority of the action. Available values are Normal, High, and Low. The default is Normal.
+   * The priority of the action. Available values are Normal, High, and Low.
    */
   priority?: string
   /**
@@ -58,7 +58,7 @@ export interface Payload {
    */
   status?: string
   /**
-   * The short description of the action that appears at the top of the record. Character limit: 255.
+   * The short description of the action that appears at the top of the record. Limited to 255 characters.
    */
   summary?: string
   /**
@@ -66,7 +66,7 @@ export interface Payload {
    */
   type?: string
   /**
-   * The author of the action's summary and description. If not supplied, will have a default set based on the user's account. Character limit: 50.
+   * The author of the action's summary and description. If not supplied, will have a default set based on the user's account. Limited to 50 characters.
    */
   author?: string
   /**
