@@ -147,7 +147,8 @@ describe.each(['stage', 'production'])('%s environment', (environment) => {
       const expectedTwilioRequest = new URLSearchParams({
         Body: 'Hello world, jane!',
         From: 'MG1111222233334444',
-        To: '+1234567891'
+        To: '+1234567891',
+        ShortenUrls: 'true'
       })
 
       const twilioRequest = nock('https://api.twilio.com/2010-04-01/Accounts/a')
@@ -175,7 +176,8 @@ describe.each(['stage', 'production'])('%s environment', (environment) => {
       const expectedTwilioRequest = new URLSearchParams({
         Body: 'Hello world, jane!',
         From: 'MG1111222233334444',
-        To: '+1234567891'
+        To: '+1234567891',
+        ShortenUrls: 'true'
       })
 
       const twilioHostname = 'api.nottwilio.com'
@@ -209,6 +211,7 @@ describe.each(['stage', 'production'])('%s environment', (environment) => {
         Body: 'Hello world, jane!',
         From: 'MG1111222233334444',
         To: '+1234567891',
+        ShortenUrls: 'true',
         StatusCallback:
           'http://localhost/?foo=bar&space_id=d&__segment_internal_external_id_key__=phone&__segment_internal_external_id_value__=%2B1234567891#rp=all&rc=5'
       })
@@ -273,7 +276,8 @@ describe.each(['stage', 'production'])('%s environment', (environment) => {
       const expectedTwilioRequest = new URLSearchParams({
         Body: 'Hello world, jane!',
         From: 'MG1111222233334444',
-        To: '+1234567891'
+        To: '+1234567891',
+        ShortenUrls: 'true'
       })
 
       const twilioRequest = nock('https://api.twilio.com/2010-04-01/Accounts/a')
@@ -321,7 +325,8 @@ describe.each(['stage', 'production'])('%s environment', (environment) => {
       const expectedTwilioRequest = new URLSearchParams({
         Body: 'Hello world, jane!',
         From: 'MG1111222233334444',
-        To: '+1234567891'
+        To: '+1234567891',
+        ShortenUrls: 'true'
       })
 
       const twilioRequest = nock('https://api.twilio.com/2010-04-01/Accounts/a')
@@ -351,7 +356,8 @@ describe.each(['stage', 'production'])('%s environment', (environment) => {
         const expectedTwilioRequest = new URLSearchParams({
           Body: 'Hello world, jane!',
           From: 'MG1111222233334444',
-          To: '+1234567891'
+          To: '+1234567891',
+          ShortenUrls: 'true'
         })
 
         const twilioRequest = nock('https://api.twilio.com/2010-04-01/Accounts/a')
@@ -380,7 +386,8 @@ describe.each(['stage', 'production'])('%s environment', (environment) => {
       const expectedTwilioRequest = new URLSearchParams({
         Body: 'Hello world, jane!',
         From: 'MG1111222233334444',
-        To: '+1234567891'
+        To: '+1234567891',
+        ShortenUrls: 'true'
       })
 
       nock('https://api.twilio.com/2010-04-01/Accounts/a')
