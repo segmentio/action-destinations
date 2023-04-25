@@ -16,7 +16,7 @@ const destination: DestinationDefinition<Settings> = {
     fields: {
       apiKey: {
         label: 'API Key',
-        description: 'GWEN API key. Can be found [here](http://gwen.insertcoin.se/iam/api-token)',
+        description: 'GWEN API key. Can be found [here](http://gwen.insertcoin.se/iam/api-token) (login required)',
         type: 'password',
         required: true
       }
@@ -31,9 +31,11 @@ const destination: DestinationDefinition<Settings> = {
               }`
         }
       }).then(async (response) => {
-        const { errors } = (await response.json()).data
+        const { errors } = await response.json()
         if (errors && errors.length > 0) {
-          throw new Error('Invalid API key')
+          throw new Error(
+            'Invalid API key. Make sure you have the correct API key. If the problem persists please contant support@gwenplatform.com.'
+          )
         }
       })
     }
