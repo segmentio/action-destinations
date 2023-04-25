@@ -8,6 +8,18 @@ import { MessageSender, RequestFn } from '../utils/message-sender'
 
 const Liquid = new LiquidJs()
 
+enum ContentType {
+  Text = 'twilio/text'
+}
+
+interface ContentTemplateDto {
+  types: {
+    [type: string]: {
+      body: string
+    }
+  }
+}
+
 export class SmsMessageSender extends MessageSender<Payload> {
   constructor(
     readonly request: RequestFn,
@@ -51,9 +63,10 @@ export class SmsMessageSender extends MessageSender<Payload> {
 
     let unparsedBody
     if (this.payload.contentSid) {
-      unparsedBody = await this.getContentTemplate()
+      const data = await this.getContentTemplate()
+      unparsedBody = this.getUnparsedContentBody(data)
     } else {
-      unparsedBody = this.payload.body
+      unparsedBody = this.payload.body ?? ''
     }
 
     let parsedBody
@@ -124,8 +137,7 @@ export class SmsMessageSender extends MessageSender<Payload> {
         }
       })
       const data = await response.json()
-      const type = Object.keys(data.types)[0] // eg 'twilio/text', 'twilio/media', etc
-      return data.types[type].body
+      return data as ContentTemplateDto
     } catch (error) {
       this.tags.push('reason:get_content_template')
       this.statsClient?.incr('actions-personas-messaging-twilio.error', 1, this.tags)
@@ -133,6 +145,20 @@ export class SmsMessageSender extends MessageSender<Payload> {
         `TE Messaging: SMS failed Twilio Content API request to fetch content template - ${this.settings.spaceId} - [${error}]`
       )
       throw new IntegrationError('Unable to fetch content template', 'Twilio Content API request failure', 500)
+    }
+  }
+
+  private getUnparsedContentBody = (data: ContentTemplateDto): string => {
+    const type = Object.keys(data.types)[0] // eg 'twilio/text', 'twilio/media', etc
+    if (type === ContentType.Text) {
+      return data.types[type].body
+    } else {
+      this.logger?.error(`TE Messaging: SMS unsupported content template type '${type}' - ${this.settings.spaceId}`)
+      throw new IntegrationError(
+        'Unsupported content type',
+        `Sending templates with '${type}' content type is not supported by SMS`,
+        400
+      )
     }
   }
 }

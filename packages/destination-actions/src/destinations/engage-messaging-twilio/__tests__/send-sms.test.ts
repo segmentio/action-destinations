@@ -140,6 +140,42 @@ describe.each(['stage', 'production'])('%s environment', (environment) => {
       )
     })
 
+    it('should throw error if template content type is not "twilio/text"', async () => {
+      const logErrorSpy = jest.fn() as Logger['error']
+
+      const twilioContentResponse = {
+        types: {
+          'twilio/media': {
+            body: 'Hello world, {{profile.user_id}}!',
+            media: 'https://images.com/photos/cute-kitty-cat'
+          }
+        }
+      }
+
+      nock('https://content.twilio.com').get(`/v1/Content/${contentSid}`).reply(200, twilioContentResponse)
+
+      const actionInputData = {
+        event: createMessagingTestEvent({
+          timestamp,
+          event: 'Audience Entered',
+          userId: 'jane'
+        }),
+        settings,
+        mapping: omit(
+          getDefaultMapping({
+            contentSid
+          }),
+          ['body']
+        ),
+        logger: { level: 'error', name: 'test', error: logErrorSpy } as Logger
+      }
+
+      await expect(twilio.testAction('sendSms', actionInputData)).rejects.toThrowError('Unsupported content type')
+      expect(logErrorSpy).toHaveBeenCalledWith(
+        `TE Messaging: SMS unsupported content template type 'twilio/media' - ${spaceId}`
+      )
+    })
+
     it('should throw error if Twilio Content API request fails', async () => {
       const logErrorSpy = jest.fn() as Logger['error']
 
