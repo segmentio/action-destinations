@@ -12,7 +12,7 @@ enum ContentType {
   Text = 'twilio/text'
 }
 
-interface ContentTemplateDto {
+interface ContentTemplateResponse {
   types: {
     [type: string]: {
       body: string
@@ -138,18 +138,18 @@ export class SmsMessageSender extends MessageSender<Payload> {
         }
       })
       const data = await response.json()
-      return data as ContentTemplateDto
+      return data as ContentTemplateResponse
     } catch (error) {
       this.tags.push('reason:get_content_template')
       this.statsClient?.incr('actions-personas-messaging-twilio.error', 1, this.tags)
       this.logger?.error(
-        `TE Messaging: SMS failed Twilio Content API request to fetch content template - ${this.settings.spaceId} - [${error}]`
+        `TE Messaging: SMS failed request to fetch content template from Twilio Content API - ${this.settings.spaceId} - [${error}]`
       )
       throw new IntegrationError('Unable to fetch content template', 'Twilio Content API request failure', 500)
     }
   }
 
-  private getUnparsedContentBody = (data: ContentTemplateDto): string => {
+  private getUnparsedContentBody = (data: ContentTemplateResponse): string => {
     const type = Object.keys(data.types)[0] // eg 'twilio/text', 'twilio/media', etc
     if (type === ContentType.Text) {
       return data.types[type].body
