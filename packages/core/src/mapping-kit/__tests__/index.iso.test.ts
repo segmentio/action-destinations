@@ -506,6 +506,50 @@ describe('@path', () => {
     }).toThrowError()
   })
 
+  test('accepts path value as an array', () => {
+    const output = transform(
+      { neat: { '@path': ['integrations', 'Company.Billing', 'chicken'] } },
+      {
+        integrations: {
+          'Company.Billing': {
+            chicken: 'noodle'
+          }
+        }
+      }
+    )
+    expect(output).toStrictEqual({ neat: 'noodle' })
+  })
+
+  test('throws an error for invalid path value: boolean', () => {
+    expect(() =>
+      transform(
+        { neat: { '@path': false } },
+        {
+          integrations: {
+            'Company.Billing': {
+              chicken: 'noodle'
+            }
+          }
+        }
+      )
+    ).toThrowError()
+  })
+
+  test('throws an error for invalid path value: number', () => {
+    expect(() =>
+      transform(
+        { neat: { '@path': 123 } },
+        {
+          integrations: {
+            'Company.Billing': {
+              chicken: 'noodle'
+            }
+          }
+        }
+      )
+    ).toThrowError()
+  })
+
   test('spaced nested value', () => {
     const output = transform(
       { neat: { '@path': '$.integrations.Actions Amplitude.session_id' } },

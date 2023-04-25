@@ -11,6 +11,7 @@ export type InputData = { [key: string]: unknown }
 export type Features = { [key: string]: boolean }
 type Directive = (options: JSONValue, payload: JSONObject) => JSONLike
 type StringDirective = (value: string, payload: JSONObject) => JSONLike
+type StringOrArrayDirective = (value: string | JSONLike[], payload: JSONObject) => JSONLike
 
 interface Directives {
   [directive: string]: Directive | undefined
@@ -32,6 +33,17 @@ function registerStringDirective(name: string, fn: StringDirective): void {
     const str = resolve(value, payload)
     if (typeof str !== 'string') {
       throw new Error(`${name}: expected string, got ${realTypeOf(str)}`)
+    }
+
+    return fn(str, payload)
+  })
+}
+
+function registerStringOrArrayDirective(name: string, fn: StringOrArrayDirective): void {
+  registerDirective(name, (value, payload) => {
+    const str = resolve(value, payload)
+    if (typeof str !== 'string' && !Array.isArray(str)) {
+      throw new Error(`${name}: expected string or array, got ${realTypeOf(str)}`)
     }
 
     return fn(str, payload)
@@ -183,8 +195,8 @@ registerDirective('@arrayPath', (data, payload) => {
   return root
 })
 
-registerStringDirective('@path', (path, payload) => {
-  return get(payload, path.replace('$.', ''))
+registerStringOrArrayDirective('@path', (path, payload) => {
+  return get(payload, typeof path == 'string' ? path.replace('$.', '') : (path as Array<string>))
 })
 
 registerStringDirective('@template', (template: string, payload) => {

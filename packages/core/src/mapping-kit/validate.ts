@@ -107,11 +107,29 @@ function validateDirectiveOrString(v: unknown, stack: string[] = []) {
 }
 
 type validator = (v: unknown, stack: string[]) => void
-function chain(...validators: validator[]) {
+function allOf(...validators: validator[]) {
   return (v: unknown, stack: string[] = []) => {
     validators.forEach((validate) => {
       validate(v, stack)
     })
+  }
+}
+
+function oneOf(...validators: validator[]) {
+  return (v: unknown, stack: string[] = []) => {
+    const errors: Error[] = []
+    validators.forEach((validate) => {
+      try {
+        validate(v, stack)
+      } catch (e) {
+        errors.push(e)
+      }
+    })
+    if (errors.length < validators.length) {
+      return
+    } else {
+      throw new AggregateError(flatAggregate(errors))
+    }
   }
 }
 
@@ -264,8 +282,8 @@ directive('@replace', (v, stack) => {
   validateObjectWithFields(
     v,
     {
-      pattern: { required: chain(validateString, validateStringLength(1, MAX_PATTERN_LENGTH)) },
-      replacement: { optional: chain(validateString, validateStringLength(0, MAX_REPLACEMENT_LENGTH)) },
+      pattern: { required: allOf(validateString, validateStringLength(1, MAX_PATTERN_LENGTH)) },
+      replacement: { optional: allOf(validateString, validateStringLength(0, MAX_REPLACEMENT_LENGTH)) },
       value: { required: validateDirectiveOrString },
       ignorecase: { optional: validateBoolean },
       global: { optional: validateBoolean }
@@ -282,7 +300,8 @@ directive('@arrayPath', (v, stack) => {
 })
 
 directive('@path', (v, stack) => {
-  validateDirectiveOrString(v, stack)
+  const validatePath = oneOf(validateDirectiveOrString, validateArray)
+  validatePath(v, stack)
 })
 
 directive('@template', (v, stack) => {
