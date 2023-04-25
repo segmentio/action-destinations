@@ -209,7 +209,7 @@ describe.each(['stage', 'production'])('%s environment', (environment) => {
       )
       expect(logErrorSpy).toHaveBeenCalledWith(
         expect.stringMatching(
-          new RegExp(`^TE Messaging: SMS failed Twilio Content API request to fetch content template - ${spaceId}`)
+          new RegExp(`^TE Messaging: SMS failed request to fetch content template from Twilio Content API - ${spaceId}`)
         )
       )
     })
