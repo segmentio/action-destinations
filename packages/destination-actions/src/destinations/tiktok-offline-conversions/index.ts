@@ -50,7 +50,7 @@ const destination: DestinationDefinition<Settings> = {
     {
       name: 'Complete Payment',
       subscribe: 'type = "track" and event = "Order Completed"',
-      partnerAction: 'trackOfflinePaymentConversion',
+      partnerAction: 'trackPaymentOfflineConversion',
       mapping: {
         ...defaultValues(trackPaymentOfflineConversion.fields),
         event: 'CompletePayment'
