@@ -2,15 +2,11 @@
 import { Liquid as LiquidJs } from 'liquidjs'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
-import { IntegrationError } from '@segment/actions-core'
+import { IntegrationError, PayloadValidationError } from '@segment/actions-core'
 import { Logger, StatsClient, StatsContext } from '@segment/actions-core/src/destination-kit'
 import { MessageSender, RequestFn } from '../utils/message-sender'
 
 const Liquid = new LiquidJs()
-
-enum ContentType {
-  Text = 'twilio/text'
-}
 
 interface ContentTemplateResponse {
   types: {
@@ -39,11 +35,7 @@ export class SmsMessageSender extends MessageSender<Payload> {
       this.logger?.error(
         `TE Messaging: Unable to process SMS, no body provided and no content sid provided - ${this.settings.spaceId}`
       )
-      throw new IntegrationError(
-        'Unable to process sms, no body provided and no content sid provided',
-        'Invalid parameters',
-        400
-      )
+      throw new PayloadValidationError('Unable to process sms, no body provided and no content sid provided')
     }
 
     // TODO: GROW-259 remove this when we can extend the request
@@ -150,8 +142,20 @@ export class SmsMessageSender extends MessageSender<Payload> {
   }
 
   private getUnparsedContentBody = (data: ContentTemplateResponse): string => {
+    if (!data.types) {
+      this.logger?.error(
+        `TE Messaging: SMS template from Twilio Content API does not contain a template type - ${
+          this.settings.spaceId
+        } - [${JSON.stringify(data)}]`
+      )
+      throw new IntegrationError(
+        'Unexpected response from Twilio Content API',
+        `SMS template does not contain a template type`,
+        500
+      )
+    }
     const type = Object.keys(data.types)[0] // eg 'twilio/text', 'twilio/media', etc
-    if (type === ContentType.Text) {
+    if (type === 'twilio/text') {
       return data.types[type].body
     } else {
       this.logger?.error(`TE Messaging: SMS unsupported content template type '${type}' - ${this.settings.spaceId}`)

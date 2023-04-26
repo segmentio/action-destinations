@@ -176,6 +176,43 @@ describe.each(['stage', 'production'])('%s environment', (environment) => {
       )
     })
 
+    it('should throw error if template does not include a "types" key', async () => {
+      const logErrorSpy = jest.fn() as Logger['error']
+
+      const twilioContentResponse = {
+        langugage: 'en',
+        friendly_name: 'my_template',
+        sid: contentSid
+      }
+
+      nock('https://content.twilio.com').get(`/v1/Content/${contentSid}`).reply(200, twilioContentResponse)
+
+      const actionInputData = {
+        event: createMessagingTestEvent({
+          timestamp,
+          event: 'Audience Entered',
+          userId: 'jane'
+        }),
+        settings,
+        mapping: omit(
+          getDefaultMapping({
+            contentSid
+          }),
+          ['body']
+        ),
+        logger: { level: 'error', name: 'test', error: logErrorSpy } as Logger
+      }
+
+      await expect(twilio.testAction('sendSms', actionInputData)).rejects.toThrowError(
+        'Unexpected response from Twilio Content API'
+      )
+      expect(logErrorSpy).toHaveBeenCalledWith(
+        `TE Messaging: SMS template from Twilio Content API does not contain a template type - ${spaceId} - [${JSON.stringify(
+          twilioContentResponse
+        )}]`
+      )
+    })
+
     it('should throw error if Twilio Content API request fails', async () => {
       const logErrorSpy = jest.fn() as Logger['error']
 
