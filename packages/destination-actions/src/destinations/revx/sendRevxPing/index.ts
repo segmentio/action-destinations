@@ -266,7 +266,7 @@ const action: ActionDefinition<Settings, Payload> = {
     }
   },
   perform: (request, data) => {
-    return request('https://event.atomex.net/data/1x1.gif', {
+    return request('https://data.atomex.net/data/1x1.gif', {
       method: 'post',
       json: data.payload
     })
