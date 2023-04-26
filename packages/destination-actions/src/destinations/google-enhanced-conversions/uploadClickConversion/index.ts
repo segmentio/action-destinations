@@ -8,7 +8,7 @@ import {
   getCustomVariables,
   handleGoogleErrors,
   convertTimestamp,
-  getUrlByVersion
+  getApiVersion
 } from '../functions'
 import { ModifiedResponse } from '@segment/actions-core'
 
@@ -247,7 +247,9 @@ const action: ActionDefinition<Settings, Payload> = {
     }
 
     const response: ModifiedResponse<PartialErrorResponse> = await request(
-      `${getUrlByVersion(features, statsContext)}/${settings.customerId}:uploadClickConversions`,
+      `https://googleads.googleapis.com/${getApiVersion(features, statsContext)}/customers/${
+        settings.customerId
+      }:uploadClickConversions`,
       {
         method: 'post',
         headers: {

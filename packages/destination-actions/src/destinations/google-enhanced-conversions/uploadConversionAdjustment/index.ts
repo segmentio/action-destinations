@@ -1,5 +1,5 @@
 import { ActionDefinition, PayloadValidationError } from '@segment/actions-core'
-import { hash, handleGoogleErrors, convertTimestamp, getUrlByVersion } from '../functions'
+import { hash, handleGoogleErrors, convertTimestamp, getApiVersion } from '../functions'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 import { PartialErrorResponse } from '../types'
@@ -266,7 +266,9 @@ const action: ActionDefinition<Settings, Payload> = {
     }
 
     const response: ModifiedResponse<PartialErrorResponse> = await request(
-      `${getUrlByVersion(features, statsContext)}/${settings.customerId}:uploadConversionAdjustments`,
+      `https://googleads.googleapis.com/${getApiVersion(features, statsContext)}/customers/${
+        settings.customerId
+      }:uploadConversionAdjustments`,
       {
         method: 'post',
         headers: {

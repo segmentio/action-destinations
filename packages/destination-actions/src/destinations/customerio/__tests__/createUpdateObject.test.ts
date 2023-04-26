@@ -30,8 +30,7 @@ describe('CustomerIO', () => {
       const attributes = {
         name: 'Sales',
         industry: 'Technology',
-        created_at: dayjs.utc(timestamp).unix(),
-        object_type_id: '1'
+        created_at: dayjs.utc(timestamp).unix()
       }
       trackObjectService.post(`/api/v2/entity`).reply(200, {}, { 'x-customerio-region': 'US' })
       const event = createTestEvent({
@@ -87,8 +86,7 @@ describe('CustomerIO', () => {
       const attributes = {
         name: 'Sales',
         industry: 'Technology',
-        created_at: dayjs.utc(timestamp).unix(),
-        object_type_id: '1'
+        created_at: dayjs.utc(timestamp).unix()
       }
       trackEUObjectService.post(`/api/v2/entity`).reply(200, {}, { 'x-customerio-region': 'EU' })
       const event = createTestEvent({
@@ -142,8 +140,7 @@ describe('CustomerIO', () => {
       const attributes = {
         name: 'Sales',
         industry: 'Technology',
-        created_at: dayjs.utc(timestamp).unix(),
-        object_type_id: '1'
+        created_at: dayjs.utc(timestamp).unix()
       }
       trackObjectService.post(`/api/v2/entity`).reply(200, {}, { 'x-customerio-region': 'US-fallback' })
       const event = createTestEvent({
@@ -196,8 +193,7 @@ describe('CustomerIO', () => {
 
       const attributes = {
         name: 'Sales',
-        created_at: dayjs.utc(timestamp).unix(),
-        object_type_id: '1'
+        created_at: dayjs.utc(timestamp).unix()
       }
       trackObjectService.post(`/api/v2/entity`).reply(200, {}, { 'x-customerio-region': 'US' })
       const event = createTestEvent({
@@ -230,6 +226,60 @@ describe('CustomerIO', () => {
           object_id: groupId
         },
         cio_relationships: [{ identifiers: { anonymous_id: anonymousId } }]
+      })
+    })
+
+    it('should work with object_type_id given in the traits', async () => {
+      const settings: Settings = {
+        siteId: '12345',
+        apiKey: 'abcde',
+        accountRegion: AccountRegion.US
+      }
+      const userId = 'abc123'
+      const anonymousId = 'unknown_123'
+      const timestamp = dayjs.utc().toISOString()
+      const groupId = 'grp123'
+      const traits = {
+        name: 'Sales',
+        created_at: timestamp,
+        object_type_id: '2'
+      }
+
+      const attributes = {
+        name: 'Sales',
+        created_at: dayjs.utc(timestamp).unix()
+      }
+      trackObjectService.post(`/api/v2/entity`).reply(200, {}, { 'x-customerio-region': 'US' })
+      const event = createTestEvent({
+        userId,
+        anonymousId,
+        timestamp,
+        traits,
+        groupId
+      })
+      const responses = await testDestination.testAction('createUpdateObject', {
+        event,
+        settings,
+        useDefaultMappings: true
+      })
+
+      expect(responses.length).toBe(1)
+      expect(responses[0].status).toBe(200)
+      expect(responses[0].headers.toJSON()).toMatchObject({
+        'x-customerio-region': 'US',
+        'content-type': 'application/json'
+      })
+      expect(responses[0].data).toMatchObject({})
+      expect(responses[0].options.json).toMatchObject({
+        attributes: attributes,
+        created_at: dayjs.utc(timestamp).unix(),
+        type: 'object',
+        action: 'identify',
+        identifiers: {
+          object_type_id: '2',
+          object_id: groupId
+        },
+        cio_relationships: [{ identifiers: { id: userId } }]
       })
     })
 
@@ -301,6 +351,10 @@ describe('CustomerIO', () => {
         name: 'Sales',
         object_type_id: '1'
       }
+
+      const attributes = {
+        name: 'Sales'
+      }
       trackObjectService.post(`/api/v2/entity`).reply(200, {}, { 'x-customerio-region': 'US' })
       const event = createTestEvent({
         userId,
@@ -323,7 +377,7 @@ describe('CustomerIO', () => {
       })
       expect(responses[0].data).toMatchObject({})
       expect(responses[0].options.json).toMatchObject({
-        attributes: traits,
+        attributes: attributes,
         type: 'object',
         action: 'identify',
         identifiers: {
