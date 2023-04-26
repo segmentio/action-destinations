@@ -2,7 +2,7 @@ import { ActionDefinition } from '@segment/actions-core'
 import { Settings } from '../encharge/generated-types'
 
 export const commonFields: ActionDefinition<Settings>['fields'] = {
-  user_anonymous_Id: {
+  user_anonymous_id: {
     type: 'string',
     allowNull: true,
     required: false,

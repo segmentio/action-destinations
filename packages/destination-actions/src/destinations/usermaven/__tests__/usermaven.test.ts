@@ -131,4 +131,34 @@ describe('Usermaven', () => {
       expect(response.options.body).toContain('fake-group-id')
     })
   })
+
+  describe('usermaven.page', () => {
+    it('should work', async () => {
+      nock(baseUrl).post(`/api/v1/event?token=${settings.api_key}`).reply(200, {})
+
+      const event = createTestEvent({
+        properties: {
+          user_created_at: createdAt,
+          user_email: email
+        }
+      })
+
+      const [response] = await testDestination.testAction('page', {
+        event,
+        useDefaultMappings: true,
+        mapping: {
+          user_email: {
+            '@path': '$.properties.user_email'
+          },
+          user_created_at: {
+            '@path': '$.properties.user_created_at'
+          }
+        },
+        settings
+      })
+
+      expect(response.status).toBe(200)
+      expect(response.options.body).toContain(email)
+    })
+  })
 })
