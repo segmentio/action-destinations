@@ -2,10 +2,6 @@
 
 export interface Payload {
   /**
-   * Revx client id which you will get it from RevX support team
-   */
-  client_id: string
-  /**
    * Platform of the device.
    */
   os: string
@@ -18,21 +14,13 @@ export interface Payload {
    */
   event_name?: string
   /**
-   * A unique identifier for your event.
-   */
-  event?: string
-  /**
    * A unique identifier for your request type.
    */
   type?: string
   /**
-   * Identifier for Vendor. _(iOS)_
+   * Identifier for Device Id for IOS and Android
    */
   idfv?: string
-  /**
-   * A device-specific identifier, such as the Identifier for Vendor on iOS. Required unless user ID is present. If a device ID is not sent with the event, it will be set to a hashed version of the user ID.
-   */
-  device_id?: string
   /**
    * The timestamp of the event. If time is not sent with the event, it will be set to the request upload time.
    */
@@ -98,25 +86,41 @@ export interface Payload {
    */
   language?: string
   /**
-   * The price of the item purchased. Required for revenue data if the revenue field is not sent.
+   * The single product viewed or Added to cart.
    */
-  price?: number
+  product?: {
+    /**
+     * The price of the item purchased. Required for revenue data if the revenue field is not sent. You can use negative values to indicate refunds.
+     */
+    price?: number
+    /**
+     * The quantity of the item purchased. Defaults to 1 if not specified.
+     */
+    quantity?: number
+    /**
+     * An identifier for the item purchased. You must send a price and quantity or revenue with this field.
+     */
+    productId?: string
+    [k: string]: unknown
+  }
   /**
-   * The quantity of the item purchased. Defaults to 1 if not specified.
+   * The list of products purchased.
    */
-  quantity?: number
-  /**
-   * Revenue = price * quantity. If you send all 3 fields of price, quantity, and revenue, then (price * quantity) will be used as the revenue value.
-   */
-  revenue?: number
-  /**
-   * An identifier for the item purchased. You must send a price and quantity or revenue with this field.
-   */
-  productId?: string
-  /**
-   * The type of revenue for the item purchased. You must send a price and quantity or revenue with this field.
-   */
-  revenueType?: string
+  products?: {
+    /**
+     * The price of the item purchased. Required for revenue data if the revenue field is not sent. You can use negative values to indicate refunds.
+     */
+    price?: number
+    /**
+     * The quantity of the item purchased. Defaults to 1 if not specified.
+     */
+    quantity?: number
+    /**
+     * An identifier for the item purchased. You must send a price and quantity or revenue with this field.
+     */
+    productId?: string
+    [k: string]: unknown
+  }[]
   /**
    * The current Latitude of the user.
    */
@@ -126,13 +130,7 @@ export interface Payload {
    */
   location_lng?: number
   /**
-   * The IP address of the user. Use "$remote" to use the IP address on the upload request. Amplitude will use the IP address to reverse lookup a user's location (city, country, region, and DMA). Amplitude has the ability to drop the location and IP address from events once it reaches our servers. You can submit a request to Amplitude's platform specialist team here to configure this for you.
+   * The IP address of the user. Use "$remote" to use the IP address on the upload request.
    */
   ip?: string
-  /**
-   * Payload data.
-   */
-  data?: {
-    [k: string]: unknown
-  }
 }

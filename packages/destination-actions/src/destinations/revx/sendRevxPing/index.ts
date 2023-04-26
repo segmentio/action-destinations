@@ -5,13 +5,8 @@ import type { Payload } from './generated-types'
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Send Revx Ping',
   description: 'Send event to revx',
+  defaultSubscription: 'type = "track" or type ="screen"',
   fields: {
-    client_id: {
-      label: 'Revx specific client id',
-      description: 'Revx client id which you will get it from RevX support team',
-      type: 'string',
-      required: true
-    },
     os: {
       label: 'Platform',
       type: 'string',
@@ -25,25 +20,19 @@ const action: ActionDefinition<Settings, Payload> = {
       label: 'Identifier For Advertiser (IDFA/GAID)',
       type: 'string',
       description: 'Identifier For Advertiser (IDFA/GAID)',
-      default: {
-        '@if': {
-          exists: { '@path': '$.context.device.advertisingId' },
-          then: { '@path': '$.context.device.advertisingId' },
-          else: { '@path': '$.context.device.idfa' }
-        }
-      }
+      default: { '@path': '$.context.device.advertisingId' }
     },
     event_name: {
       label: 'Event name',
       description: 'A unique identifier for your event.',
       type: 'string',
-      default: { '@path': '$.name' }
-    },
-    event: {
-      label: 'Event name',
-      description: 'A unique identifier for your event.',
-      type: 'string',
-      default: { '@path': '$.event' }
+      default: {
+        '@if': {
+          exists: { '@path': '$.name' },
+          then: { '@path': '$.name' },
+          else: { '@path': '$.event' }
+        }
+      }
     },
     type: {
       label: 'Request type',
@@ -54,22 +43,9 @@ const action: ActionDefinition<Settings, Payload> = {
     idfv: {
       label: 'Identifier For Vendor (IDFV)',
       type: 'string',
-      description: 'Identifier for Vendor. _(iOS)_',
+      description: 'Identifier for Device Id for IOS and Android',
       default: {
         '@path': '$.context.device.id'
-      }
-    },
-    device_id: {
-      label: 'Device ID',
-      type: 'string',
-      description:
-        'A device-specific identifier, such as the Identifier for Vendor on iOS. Required unless user ID is present. If a device ID is not sent with the event, it will be set to a hashed version of the user ID.',
-      default: {
-        '@if': {
-          exists: { '@path': '$.context.device.id' },
-          then: { '@path': '$.context.device.id' },
-          else: { '@path': '$.anonymousId' }
-        }
       }
     },
     time: {
@@ -94,7 +70,7 @@ const action: ActionDefinition<Settings, Payload> = {
       type: 'object',
       description: 'An object of key-value pairs that represent additional data tied to the user',
       default: {
-        '@path': '$.traits'
+        '@path': '$.context.traits'
       }
     },
     app_version: {
@@ -190,47 +166,76 @@ const action: ActionDefinition<Settings, Payload> = {
         '@path': '$.context.locale'
       }
     },
-    price: {
-      label: 'Price',
-      type: 'number',
-      description: 'The price of the item purchased. Required for revenue data if the revenue field is not sent.',
+    product: {
+      label: 'Product',
+      description: 'The single product viewed or Added to cart.',
+      type: 'object',
+      additionalProperties: true,
+      properties: {
+        price: {
+          label: 'Price',
+          type: 'number',
+          description:
+            'The price of the item purchased. Required for revenue data if the revenue field is not sent. You can use negative values to indicate refunds.'
+        },
+        quantity: {
+          label: 'Quantity',
+          type: 'integer',
+          description: 'The quantity of the item purchased. Defaults to 1 if not specified.'
+        },
+        productId: {
+          label: 'Product ID',
+          type: 'string',
+          description:
+            'An identifier for the item purchased. You must send a price and quantity or revenue with this field.'
+        }
+      },
       default: {
-        '@path': '$.properties.price'
+        price: { '@path': '$.properties.price' },
+        quantity: { '@path': '$.properties.quantity' },
+        productId: { '@path': '$.properties.productId' }
       }
     },
-    quantity: {
-      label: 'Quantity',
-      type: 'integer',
-      description: 'The quantity of the item purchased. Defaults to 1 if not specified.',
+    products: {
+      label: 'Products',
+      description: 'The list of products purchased.',
+      type: 'object',
+      multiple: true,
+      additionalProperties: true,
+      properties: {
+        price: {
+          label: 'Price',
+          type: 'number',
+          description:
+            'The price of the item purchased. Required for revenue data if the revenue field is not sent. You can use negative values to indicate refunds.'
+        },
+        quantity: {
+          label: 'Quantity',
+          type: 'integer',
+          description: 'The quantity of the item purchased. Defaults to 1 if not specified.'
+        },
+        productId: {
+          label: 'Product ID',
+          type: 'string',
+          description:
+            'An identifier for the item purchased. You must send a price and quantity or revenue with this field.'
+        }
+      },
       default: {
-        '@path': '$.properties.quantity'
-      }
-    },
-    revenue: {
-      label: 'Revenue',
-      type: 'number',
-      description:
-        'Revenue = price * quantity. If you send all 3 fields of price, quantity, and revenue, then (price * quantity) will be used as the revenue value.',
-      default: {
-        '@path': '$.properties.revenue'
-      }
-    },
-    productId: {
-      label: 'Product ID',
-      type: 'string',
-      description:
-        'An identifier for the item purchased. You must send a price and quantity or revenue with this field.',
-      default: {
-        '@path': '$.properties.productId'
-      }
-    },
-    revenueType: {
-      label: 'Revenue Type',
-      type: 'string',
-      description:
-        'The type of revenue for the item purchased. You must send a price and quantity or revenue with this field.',
-      default: {
-        '@path': '$.properties.revenueType'
+        '@arrayPath': [
+          '$.properties.products',
+          {
+            price: {
+              '@path': 'price'
+            },
+            quantity: {
+              '@path': 'quantity'
+            },
+            productId: {
+              '@path': 'productId'
+            }
+          }
+        ]
       }
     },
     location_lat: {
@@ -252,23 +257,17 @@ const action: ActionDefinition<Settings, Payload> = {
     ip: {
       label: 'IP Address',
       type: 'string',
-      description:
-        'The IP address of the user. Use "$remote" to use the IP address on the upload request. Amplitude will use the IP address to reverse lookup a user\'s location (city, country, region, and DMA). Amplitude has the ability to drop the location and IP address from events once it reaches our servers. You can submit a request to Amplitude\'s platform specialist team here to configure this for you.',
+      description: 'The IP address of the user. Use "$remote" to use the IP address on the upload request. ',
       default: {
         '@path': '$.context.ip'
       }
-    },
-    data: {
-      label: 'Data',
-      description: 'Payload data.',
-      type: 'object',
-      default: { '@path': '$.' }
     }
   },
-  perform: (request, data) => {
-    return request('https://data.atomex.net/data/1x1.gif', {
+  perform: (request, { settings, payload }) => {
+    const body = { ...settings, ...payload }
+    return request('https://segmentdata.atomex.net/data/1x1.gif', {
       method: 'post',
-      json: data.payload
+      json: body
     })
   }
 }
