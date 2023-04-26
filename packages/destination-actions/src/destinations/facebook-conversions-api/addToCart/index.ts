@@ -57,7 +57,7 @@ const action: ActionDefinition<Settings, Payload> = {
     currency: currency,
     event_id: event_id,
     event_source_url: event_source_url,
-    value: { ...value, default: { '@path': '$.properties.price' } },
+    value: { ...value, default: { '@path': '$.properties.cost' } },
     custom_data: custom_data,
     data_processing_options: data_processing_options,
     data_processing_options_country: data_processing_options_country,
@@ -99,7 +99,7 @@ const action: ActionDefinition<Settings, Payload> = {
     return request(
       `https://graph.facebook.com/v${get_api_version(features, statsContext)}/${settings.pixelId}/events`,
       {
-        method: 'POST',
+        method: 'get',
         json: {
           data: [
             {
