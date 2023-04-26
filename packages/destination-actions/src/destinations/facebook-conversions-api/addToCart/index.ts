@@ -74,7 +74,7 @@ const action: ActionDefinition<Settings, Payload> = {
     }
 
     if (!payload.user_data) {
-      throw new IntegrationError('Must include at least one user data property', 'Misconfigured required field', 400)
+      throw new IntegrationError('Must include at least two user data property', 'Misconfigured required field', 400)
     }
 
     if (payload.action_source === 'website' && payload.user_data.client_user_agent === undefined) {
