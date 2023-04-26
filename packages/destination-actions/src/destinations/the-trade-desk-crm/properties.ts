@@ -1,8 +1,9 @@
 import { InputField } from '@segment/actions-core/src/destination-kit/types'
 
-export const segment_name: InputField = {
+export const name: InputField = {
   label: 'Segment Name',
-  description: 'The name of The Trade Desk Segment you want to sync.',
+  description:
+    'The name of The Trade Desk CRM Data Segment you want to sync. If the audience name does not exist Segment will create one.',
   type: 'string',
   required: true
 }

@@ -27,7 +27,6 @@ const destination: DestinationDefinition<Settings> = {
       }
     }
   },
-
   actions: {
     syncAudience
   }

@@ -2,9 +2,9 @@
 
 export interface Payload {
   /**
-   * The name of The Trade Desk Segment you want to sync.
+   * The name of The Trade Desk CRM Data Segment you want to sync. If the audience name does not exist Segment will create one.
    */
-  segment_name: string
+  name: string
   /**
    * The geographical region of the CRM data segment based on the origin of PII.
    */
