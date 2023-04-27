@@ -79,50 +79,6 @@ const isRestrictedDomain = (email: string): boolean => {
   return restricted.includes(domain)
 }
 
-interface UnlayerResponse {
-  success: boolean
-  data: {
-    html: string
-    chunks: {
-      css: string
-      js: string
-      fonts: string[]
-      body: string
-    }
-  }
-}
-
-const generateEmailHtml = async (
-  request: RequestFn,
-  settings: Settings,
-  design: string,
-  statsClient: StatsClient | undefined,
-  tags: string[],
-  logger?: Logger | undefined
-): Promise<string> => {
-  try {
-    const response = await request('https://api.unlayer.com/v2/export/html', {
-      method: 'POST',
-      headers: {
-        authorization: `Basic ${Buffer.from(`${settings.unlayerApiKey}:`).toString('base64')}`,
-        'content-type': 'application/json'
-      },
-      body: JSON.stringify({
-        displayMode: 'email',
-        design: JSON.parse(design)
-      })
-    })
-
-    const body = await response.json()
-    return (body as UnlayerResponse).data.html
-  } catch (error) {
-    logger?.error(`TE Messaging: Email export request failure - ${settings.spaceId} - [${error}]`)
-    tags.push('reason:generate_email_html')
-    statsClient?.incr('actions-personas-messaging-sendgrid.error', 1, tags)
-    throw new IntegrationError('Unable to export email as HTML', 'Export HTML failure', 400)
-  }
-}
-
 interface Profile {
   user_id?: string
   anonymous_id?: string
@@ -453,15 +409,19 @@ const action: ActionDefinition<Settings, Payload> = {
       )
       let parsedBodyHtml
 
-      if (payload.bodyUrl && settings.unlayerApiKey) {
+      if (payload.bodyUrl) {
         const response = await request(payload.bodyUrl)
         const body = await response.text()
-
-        const bodyHtml =
-          payload.bodyType === 'html'
-            ? body
-            : await generateEmailHtml(request, settings, body, statsClient, tags, logger)
-        parsedBodyHtml = await parseTemplating(bodyHtml, profile, 'Body', statsClient, tags, settings, logger)
+        if (payload.bodyType === 'design') {
+          tags.push('reason:design_body_type_with_bodyUrl')
+          statsClient?.incr('actions-personas-messaging-sendgrid.bodyUrl_failure', 1, tags)
+          throw new IntegrationError(
+            `Unable to request bodyurl for design template, no longer supported`,
+            'Deprecated bodyUrl format',
+            400
+          )
+        }
+        parsedBodyHtml = await parseTemplating(body, profile, 'Body', statsClient, tags, settings, logger)
       } else {
         parsedBodyHtml = await parseTemplating(
           payload.bodyHtml ?? '',
