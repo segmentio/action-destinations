@@ -495,6 +495,11 @@ describe('@path', () => {
     expect(output).toStrictEqual('baz')
   })
 
+  test('super nested directive', () => {
+    const output = transform({ '@path': { '@path': { '@path': '$.foo' } } }, { foo: 'bar', bar: 'baz', baz: 'wow' })
+    expect(output).toStrictEqual('wow')
+  })
+
   test('invalid path', () => {
     const output = transform({ neat: { '@path': '$.oops' } }, { foo: 'bar' })
     expect(output).toStrictEqual({})
@@ -576,6 +581,22 @@ describe('@template', () => {
     expect(output).toStrictEqual('Hello, World!')
   })
 
+  test('basic with array', () => {
+    const output = transform(
+      { '@template': [{ '@literal': 'Hello, ' }, { '@path': 'who' }, { '@literal': '!' }] },
+      { who: 'World' }
+    )
+    expect(output).toStrictEqual('Hello, World!')
+  })
+
+  test('multiple paths with array', () => {
+    const output = transform(
+      { '@template': [{ '@path': 'what' }, { '@path': 'who' }, { '@literal': '!' }] },
+      { what: 'Hello, ', who: 'World' }
+    )
+    expect(output).toStrictEqual('Hello, World!')
+  })
+
   test('nested fields', () => {
     const output = transform({ '@template': 'Hello, {{who.name}}!' }, { who: { name: 'World' } })
     expect(output).toStrictEqual('Hello, World!')
@@ -589,6 +610,18 @@ describe('@template', () => {
   test('missing fields', () => {
     const output = transform({ '@template': '{{oops.yo}}' }, {})
     expect(output).toStrictEqual('')
+  })
+
+  test('paths with special characters', () => {
+    const output = transform(
+      { '@template': [{ '@path': ['{wow}'] }, { '@path': ['0.1'] }, { '@path': ['[yo]'] }] },
+      {
+        '{wow}': 'Hello, ',
+        '0.1': 'World ',
+        '[yo]': 'Again!'
+      }
+    )
+    expect(output).toStrictEqual('Hello, World Again!')
   })
 })
 

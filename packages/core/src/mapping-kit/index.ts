@@ -10,8 +10,6 @@ import { arrify } from '../arrify'
 export type InputData = { [key: string]: unknown }
 export type Features = { [key: string]: boolean }
 type Directive = (options: JSONValue, payload: JSONObject) => JSONLike
-type StringDirective = (value: string, payload: JSONObject) => JSONLike
-type StringOrArrayDirective = (value: string | JSONLike[], payload: JSONObject) => JSONLike
 
 interface Directives {
   [directive: string]: Directive | undefined
@@ -26,28 +24,6 @@ function registerDirective(name: string, fn: Directive): void {
   }
 
   directives[name] = fn
-}
-
-function registerStringDirective(name: string, fn: StringDirective): void {
-  registerDirective(name, (value, payload) => {
-    const str = resolve(value, payload)
-    if (typeof str !== 'string') {
-      throw new Error(`${name}: expected string, got ${realTypeOf(str)}`)
-    }
-
-    return fn(str, payload)
-  })
-}
-
-function registerStringOrArrayDirective(name: string, fn: StringOrArrayDirective): void {
-  registerDirective(name, (value, payload) => {
-    const str = resolve(value, payload)
-    if (typeof str !== 'string' && !Array.isArray(str)) {
-      throw new Error(`${name}: expected string or array, got ${realTypeOf(str)}`)
-    }
-
-    return fn(str, payload)
-  })
 }
 
 function runDirective(obj: JSONObject, payload: JSONObject): JSONLike {
@@ -195,12 +171,41 @@ registerDirective('@arrayPath', (data, payload) => {
   return root
 })
 
-registerStringOrArrayDirective('@path', (path, payload) => {
-  return get(payload, typeof path == 'string' ? path.replace('$.', '') : (path as Array<string>))
+registerDirective('@path', (value: JSONValue, payload: JSONObject): JSONLike => {
+  const realType = realTypeOf(value)
+  if (!['object', 'array', 'string'].includes(realTypeOf(value))) {
+    throw new Error(`${name}: expected string, array or object but got ${realTypeOf(value)}`)
+  }
+
+  const getAsStringPath = (obj: JSONObject, strPath: string) => get(obj, strPath.replace('$.', ''))
+
+  switch (realType) {
+    case 'string':
+      return getAsStringPath(payload, value as string) as JSONLike
+    case 'array':
+      return get(payload, value as string[])
+    case 'object': {
+      const str = resolve(value, payload)
+      if (typeof str !== 'string') {
+        throw new Error(`${name}: expected string to resolve but got ${realTypeOf(value)}`)
+      }
+      return getAsStringPath(payload, str) as JSONLike
+    }
+  }
 })
 
-registerStringDirective('@template', (template: string, payload) => {
-  return render(template, payload)
+registerDirective('@template', (value: string | JSONValue, payload) => {
+  const realType = realTypeOf(value)
+  if (!['array', 'string'].includes(realTypeOf(value))) {
+    throw new Error(`${name}: expected string, array or object but got ${realTypeOf(value)}`)
+  }
+
+  switch (realType) {
+    case 'string':
+      return render(value as string, payload)
+    case 'array':
+      return (value as JSONLike[]).map((v) => resolve(v, payload)).join('')
+  }
 })
 
 // Literal should be used in place of 'empty' template strings as they will not resolve correctly

@@ -305,7 +305,8 @@ directive('@path', (v, stack) => {
 })
 
 directive('@template', (v, stack) => {
-  validateDirectiveOrString(v, stack)
+  const validateTemplate = oneOf(validateDirectiveOrString, validateArray)
+  validateTemplate(v, stack)
 })
 
 directive('@literal', (v, stack) => {
