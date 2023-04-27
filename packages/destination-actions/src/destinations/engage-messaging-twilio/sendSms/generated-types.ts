@@ -16,7 +16,11 @@ export interface Payload {
   /**
    * Message to send
    */
-  body: string
+  body?: string
+  /**
+   * Content template SID for Twilio Content API
+   */
+  contentSid?: string
   /**
    * Additional custom arguments that will be opaquely sent back on webhook events
    */
