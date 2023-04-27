@@ -2,29 +2,10 @@ import { ActionDefinition, IntegrationError, RequestOptions } from '@segment/act
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 import { Liquid as LiquidJs } from 'liquidjs'
-import cheerio from 'cheerio'
-import { htmlEscape } from 'escape-goat'
 import { Logger, StatsClient } from '@segment/actions-core/src/destination-kit'
 const Liquid = new LiquidJs()
 
 type Region = 'us-west-2' | 'eu-west-1'
-
-const insertEmailPreviewText = (html: string, previewText: string): string => {
-  const $ = cheerio.load(html)
-
-  // See https://www.litmus.com/blog/the-little-known-preview-text-hack-you-may-want-to-use-in-every-email/
-  $('body').prepend(`
-    <div style='display: none; max-height: 0px; overflow: hidden;'>
-      ${htmlEscape(previewText)}
-    </div>
-
-    <div style='display: none; max-height: 0px; overflow: hidden;'>
-      ${'&nbsp;&zwnj;'.repeat(13)}&nbsp;
-    </div>
-  `)
-
-  return $.html()
-}
 
 // These profile calls will be removed when Profile sync can fetch external_id
 const getProfileApiEndpoint = (environment: string, region?: Region): string => {
@@ -195,11 +176,6 @@ const action: ActionDefinition<Settings, Payload> = {
       type: 'string',
       required: true
     },
-    body: {
-      label: 'Body',
-      description: 'The message body',
-      type: 'text'
-    },
     bodyUrl: {
       label: 'Body URL',
       description: 'URL to the message body',
@@ -342,6 +318,16 @@ const action: ActionDefinition<Settings, Payload> = {
         statsClient?.incr('actions-personas-messaging-sendgrid.group_subscribed', 1, tags)
       }
 
+      if (payload.bodyType === 'design') {
+        tags.push('reason:design_body_type')
+        statsClient?.incr('actions-personas-messaging-sendgrid.error', 1, tags)
+        throw new IntegrationError(
+          'Cannot parse design email, must be sent in html format',
+          'Deprecated input format',
+          400
+        )
+      }
+
       let traits
       if (payload.traitEnrichment) {
         traits = payload?.traits ? payload?.traits : JSON.parse('{}')
@@ -412,16 +398,6 @@ const action: ActionDefinition<Settings, Payload> = {
       if (payload.bodyUrl) {
         const response = await request(payload.bodyUrl)
         const body = await response.text()
-        if (payload.bodyType === 'design') {
-          // TODO Should we just be failing request for design emails outright?
-          tags.push('reason:design_body_type')
-          statsClient?.incr('actions-personas-messaging-sendgrid.error', 1, tags)
-          throw new IntegrationError(
-            'Cannot parse design email, must be sent in html format',
-            'Deprecated input format',
-            400
-          )
-        }
         parsedBodyHtml = await parseTemplating(body, profile, 'Body', statsClient, tags, settings, logger)
       } else {
         parsedBodyHtml = await parseTemplating(
@@ -433,21 +409,6 @@ const action: ActionDefinition<Settings, Payload> = {
           settings,
           logger
         )
-      }
-
-      // TODO is this needed anymore?
-      // only include preview text in design editor templates
-      if (payload.bodyType === 'design' && payload.previewText) {
-        const parsedPreviewText = await parseTemplating(
-          payload.previewText,
-          profile,
-          'Preview text',
-          statsClient,
-          tags,
-          settings,
-          logger
-        )
-        parsedBodyHtml = insertEmailPreviewText(parsedBodyHtml, parsedPreviewText)
       }
 
       try {
