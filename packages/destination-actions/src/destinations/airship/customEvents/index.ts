@@ -1,11 +1,12 @@
 import type { ActionDefinition } from '@segment/actions-core'
 import type { Payload } from './generated-types'
 import type { Settings } from '../generated-types'
-import { sendCustomEvent } from '../utilities'
+import { setCustomEvent } from '../utilities'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Custom Events',
   description: 'Set Custom Events on Users',
+  defaultSubscription: 'type = "track"',
   fields: {
     named_user_id: {
       label: 'Airship Named User ID',
@@ -44,7 +45,7 @@ const action: ActionDefinition<Settings, Payload> = {
     }
   },
   perform: (request, { settings, payload }) => {
-    return sendCustomEvent(request, settings, payload)
+    return setCustomEvent(request, settings, payload)
   }
 }
 

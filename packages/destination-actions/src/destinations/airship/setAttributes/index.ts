@@ -5,6 +5,7 @@ import { setAttribute } from '../utilities'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Set Attributes',
+  defaultSubscription: 'type = "identify"',
   description: '',
   fields: {
     user: {

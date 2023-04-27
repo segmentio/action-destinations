@@ -4,7 +4,7 @@ import { Payload as CustomEventsPayload } from './customEvents/generated-types'
 import { Payload as AttributesPayload } from './setAttributes/generated-types'
 import { Payload as TagsPayload } from './manageTags/generated-types'
 
-export function sendCustomEvent(request: RequestClient, settings: Settings, payload: CustomEventsPayload) {
+export function setCustomEvent(request: RequestClient, settings: Settings, payload: CustomEventsPayload) {
   if (payload.properties) {
     payload.properties.source = 'segment'
   } else {
@@ -12,7 +12,6 @@ export function sendCustomEvent(request: RequestClient, settings: Settings, payl
       source: 'Segment'
     }
   }
-  // validate/repair payload types
   const airship_payload = {
     occurred: validate_timestamp(payload.occurred),
     user: {
@@ -33,32 +32,29 @@ export function sendCustomEvent(request: RequestClient, settings: Settings, payl
 export function setAttribute(request: RequestClient, settings: Settings, payload: AttributesPayload) {
   const uri = `${settings.endpoint}/api/channels/attributes`
   const attributes = []
-  /*
-    Iterate over traits
-    * Traits that contain nested objects are flattened using underscores then added to attributes
-    * replace spaces in keys with _
-    * for number attributes, remove any non-numeric characters and parse string to int
-    * format attribute as date for date type attributes
-  */
-  for (const [key, value] of Object.entries(payload.traits)) {
+  const traits = payload.traits || {}
+  for (const key in traits) {
     if (key == 'address') {
-      if (typeof value == 'object') {
-        for (const [k, v] of Object.entries(value)) {
+      if (typeof traits[key] == 'object') {
+        const current_object: any = traits[key]
+        for (const k in current_object) {
           const new_attribute_key: string = trait_to_attribute_map(k)
-          attributes.push(add_attribute(new_attribute_key, v, payload.occurred))
+          attributes.push(add_attribute(new_attribute_key, current_object[k], payload.occurred))
         }
         continue
       }
     }
     if (key == 'company') {
-      if (typeof value == 'object') {
-        if (value.name) {
-          attributes.push(add_attribute(key, value.name, payload.occurred))
+      if (typeof traits[key] == 'object') {
+        const current_object: any = traits[key]
+        if (current_object.name) {
+          attributes.push(add_attribute(key, current_object.name, payload.occurred))
         }
       }
       continue
     }
-    attributes.push(add_attribute(key, value, payload.occurred))
+
+    attributes.push(add_attribute(key, traits[key], payload.occurred))
   }
   const airship_payload = {
     attributes: attributes,
@@ -66,7 +62,6 @@ export function setAttribute(request: RequestClient, settings: Settings, payload
       named_user_id: `${payload.user}`
     }
   }
-  console.log(uri)
 
   return request(uri, {
     method: 'POST',
@@ -77,7 +72,8 @@ export function setAttribute(request: RequestClient, settings: Settings, payload
 export function manageTags(request: RequestClient, settings: Settings, payload: TagsPayload) {
   const tags_to_add: string[] = []
   const tags_to_remove: string[] = []
-  for (const [k, v] of Object.entries(payload.properties)) {
+  const properties = payload.properties || {}
+  for (const [k, v] of Object.entries(properties)) {
     if (typeof v == 'boolean') {
       if (v) {
         tags_to_add.push(k)
@@ -86,7 +82,7 @@ export function manageTags(request: RequestClient, settings: Settings, payload: 
       }
     }
   }
-  const airship_payload = { audience: {}, add: {}, remove: {} }
+  const airship_payload: { audience: {}; add?: {}; remove?: {} } = { audience: {}, add: {}, remove: {} }
   airship_payload.audience = {
     named_user_id: payload.named_user_id
   }
@@ -101,7 +97,7 @@ export function manageTags(request: RequestClient, settings: Settings, payload: 
   } else {
     delete airship_payload.remove
   }
-  console.log(JSON.stringify(airship_payload))
+
   return request(`${settings.endpoint}/api/named_users/tags`, {
     method: 'POST',
     json: airship_payload
@@ -145,10 +141,6 @@ function validate_timestamp(timestamp: string | number | Date) {
   if (three_months_ago > payload_time_stamp) {
     return false
   } else {
-    console.log("yup it's true")
     return payload_time_stamp.toISOString().split('.')[0]
   }
 }
-// function let(tags_to_add: any,tags_to_remove: any) {
-//   throw new Error('Function not implemented.')
-// }
