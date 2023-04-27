@@ -372,29 +372,16 @@ export class Destination<Settings = JSONObject> {
       return undefined
     }
 
-    const performRefresh = this.authentication
-      .refreshAccessToken(requestClient, { settings, auth: oauthData })
-      .catch((err) => {
-        const message = (err as Error).message ?? 'UNKNOWN'
-        throw new InvalidAuthenticationError(
-          `Failed to refresh access token. Reason:${message}`,
-          ErrorCodes.OAUTH_REFRESH_FAILED
-        )
-      })
-
-    // If lockStore is defined, it is assumed that the destination needs synchronization
-    return lockStore ? this.performRefreshTokenWithLock(() => performRefresh, lockStore) : await performRefresh
-  }
-
-  private async performRefreshTokenWithLock(
-    refreshToken: () => Promise<RefreshAccessTokenResult>,
-    lockStore: LockStore
-  ) {
-    try {
-      await lockStore.acquireLock()
-      return await refreshToken()
-    } finally {
-      await lockStore.releaseLock()
+    // If lockstore is defined, synchronize refreshAccessToken. Else just execute refreshAccessToken
+    if (lockStore) {
+      try {
+        await lockStore.acquireLock()
+        return this.authentication.refreshAccessToken(requestClient, { settings, auth: oauthData })
+      } finally {
+        await lockStore.releaseLock()
+      }
+    } else {
+      return this.authentication.refreshAccessToken(requestClient, { settings, auth: oauthData })
     }
   }
 
