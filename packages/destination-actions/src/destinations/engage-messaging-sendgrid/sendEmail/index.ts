@@ -410,8 +410,6 @@ const action: ActionDefinition<Settings, Payload> = {
       let parsedBodyHtml
 
       if (payload.bodyUrl) {
-        const response = await request(payload.bodyUrl)
-        const body = await response.text()
         if (payload.bodyType === 'design') {
           tags.push('reason:design_body_type_with_bodyUrl')
           statsClient?.incr('actions-personas-messaging-sendgrid.bodyUrl_failure', 1, tags)
@@ -421,6 +419,9 @@ const action: ActionDefinition<Settings, Payload> = {
             400
           )
         }
+        const response = await request(payload.bodyUrl)
+        const body = await response.text()
+
         parsedBodyHtml = await parseTemplating(body, profile, 'Body', statsClient, tags, settings, logger)
       } else {
         parsedBodyHtml = await parseTemplating(
