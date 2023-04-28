@@ -18,7 +18,7 @@ export interface Settings {
    */
   useExistingJquery?: boolean
   /**
-   * Adds VWO Smartcode to the page
+   * Load VWO Async SmartCode along with Segment Code (Not recommended). It is recommended to add SmartCode directly on the webpage.
    */
   addSmartcode: boolean
 }
