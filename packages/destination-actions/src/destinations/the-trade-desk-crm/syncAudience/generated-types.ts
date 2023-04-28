@@ -14,10 +14,6 @@ export interface Payload {
    */
   pii_type: string
   /**
-   * The way the newly uploaded personally identifiable information (PII) is to be merged with the existing data.
-   */
-  merge_mode: string
-  /**
    * The user's email address to send to The Trade Desk.
    */
   email?: string

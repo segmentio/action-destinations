@@ -27,18 +27,6 @@ export const pii_type: InputField = {
   required: true
 }
 
-export const merge_mode: InputField = {
-  label: 'Merge Mode',
-  description:
-    'The way the newly uploaded personally identifiable information (PII) is to be merged with the existing data.',
-  type: 'string',
-  choices: [
-    { label: 'Add (Data is merged by adding new PII on top of the existing PII)', value: 'Add' },
-    { label: 'Replace (New PII data replaces the existing PII)', value: 'Replace' }
-  ],
-  required: true
-}
-
 export const email: InputField = {
   label: 'User Email',
   description: "The user's email address to send to The Trade Desk.",

@@ -99,7 +99,7 @@ async function getDropEndpoint(request: RequestClient, settings: Settings, paylo
       },
       json: {
         PiiType: payload.pii_type,
-        MergeMode: payload.merge_mode
+        MergeMode: 'Replace'
       }
     }
   )
