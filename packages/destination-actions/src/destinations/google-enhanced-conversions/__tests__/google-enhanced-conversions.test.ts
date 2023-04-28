@@ -1,5 +1,5 @@
 import nock from 'nock'
-import { HTTPError, createTestEvent, createTestIntegration } from '@segment/actions-core'
+import { createTestEvent, createTestIntegration } from '@segment/actions-core'
 import GoogleEnhancedConversions from '../index'
 
 const testDestination = createTestIntegration(GoogleEnhancedConversions)
@@ -224,21 +224,9 @@ describe('GoogleEnhancedConversions', () => {
         }
       })
 
-      const error = new HTTPError(
-        {
-          url: 'https://www.google.com/ads/event/api/v1?conversion_tracking_id=699373583',
-          status: 400,
-          statusText: 'Unauthorized',
-          // @ts-ignore Headers don't matter for this test. Only need status 400 and type to be HTTPError
-          headers: []
-        },
-        {},
-        {}
-      )
-
       nock('https://www.google.com/ads/event/api/v1')
         .post(`?conversion_tracking_id=${conversionTrackingId}`)
-        .reply(400, error)
+        .reply(400, {})
 
       await expect(
         testDestination.testAction('postConversion', {
