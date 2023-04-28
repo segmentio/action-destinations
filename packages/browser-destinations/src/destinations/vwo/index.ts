@@ -63,10 +63,11 @@ export const destination: BrowserDestinationDefinition<Settings, VWO> = {
       default: false
     },
     addSmartcode: {
-      description: 'Adds VWO Smartcode to the page',
-      label: 'Add VWO Smartcode',
+      description:
+        'Load VWO Async SmartCode along with Segment Code (Not recommended). It is recommended to add SmartCode directly on the webpage.',
+      label: 'Add VWO Async Smartcode',
       type: 'boolean',
-      default: false,
+      default: true,
       required: true
     }
   },
