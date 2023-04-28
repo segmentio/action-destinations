@@ -4,11 +4,11 @@ export interface Settings {
   /**
    * Create in the Airship Go dashboard in Settings->Partner Integrations->Segment
    */
-  api_key: string
+  access_token: string
   /**
    * The App Key identifies the Airship Project to which API requests are made.
    */
-  app_id: string
+  app_key: string
   /**
    * US or EU
    */

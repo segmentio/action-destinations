@@ -15,14 +15,14 @@ const destination: DestinationDefinition<Settings> = {
   authentication: {
     scheme: 'custom',
     fields: {
-      api_key: {
+      access_token: {
         label: 'Access Token',
         description: 'Create in the Airship Go dashboard in Settings->Partner Integrations->Segment',
         type: 'password',
         default: process.env.DEFAULT_ACCESS_TOKEN,
         required: true
       },
-      app_id: {
+      app_key: {
         label: 'App Key',
         description: 'The App Key identifies the Airship Project to which API requests are made.',
         type: 'string',
@@ -68,8 +68,8 @@ const destination: DestinationDefinition<Settings> = {
   extendRequest({ settings }) {
     return {
       headers: {
-        Authorization: `Bearer ${settings.api_key}`,
-        'X-UA-Appkey': `${settings.app_id}`,
+        Authorization: `Bearer ${settings.access_token}`,
+        'X-UA-Appkey': `${settings.app_key}`,
         Accept: 'application/vnd.urbanairship+json; version=3',
         'Content-Type': 'application/json'
       }

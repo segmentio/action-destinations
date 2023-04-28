@@ -12,7 +12,6 @@ describe(`Testing snapshot for ${destinationSlug} destination:`, () => {
       const seedName = `${destinationSlug}#${actionSlug}`
       const action = destination.actions[actionSlug]
       const [eventData, settingsData] = generateTestData(seedName, destination, action, true)
-
       nock(/.*/).persist().get(/.*/).reply(200)
       nock(/.*/).persist().post(/.*/).reply(200)
       nock(/.*/).persist().put(/.*/).reply(200)

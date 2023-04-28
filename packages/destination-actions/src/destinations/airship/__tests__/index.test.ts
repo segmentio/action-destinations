@@ -1,5 +1,5 @@
 import nock from 'nock'
-import { createTestEvent, createTestIntegration } from '@segment/actions-core'
+import { createTestIntegration } from '@segment/actions-core'
 import Definition from '../index'
 
 const testDestination = createTestIntegration(Definition)
@@ -7,12 +7,31 @@ const testDestination = createTestIntegration(Definition)
 describe('Airship', () => {
   describe('testAuthentication', () => {
     it('should validate authentication inputs', async () => {
-      nock('https://your.destination.endpoint').get('*').reply(200, {})
+      nock('https://go.urbanairship.com/').post('/api/custom-events/').reply(200, {})
 
       // This should match your authentication.fields
-      const authData = {}
+      const authData = {
+        settings: {
+          app_key: 'valid-app-key',
+          access_token: 'valid-access-token',
+          endpoint: 'https://go.urbanairship.com'
+        }
+      }
 
-      await expect(testDestination.testAuthentication(authData)).resolves.not.toThrowError()
+      await expect(testDestination.testAuthentication(authData.settings)).resolves.not.toThrowError()
     })
+  })
+  it('should fail authentication with bad creds', async () => {
+    nock('https://go.urbanairship.com/').post('/api/custom-events/').reply(401, {})
+
+    const authData = {
+      settings: {
+        app_key: 'valid-app-key',
+        access_token: 'invalid-access-token',
+        endpoint: 'https://go.urbanairship.com'
+      }
+    }
+
+    await expect(testDestination.testAuthentication(authData.settings)).rejects.toThrowError()
   })
 })

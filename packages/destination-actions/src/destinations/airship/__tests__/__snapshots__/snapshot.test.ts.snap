@@ -1,13 +1,79 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`Testing snapshot for actions-airship destination: customEvents action - all fields 1`] = `
-Object {
-  "hi": "bye",
-}
+Array [
+  Object {
+    "body": Object {
+      "interaction_type": "cdp",
+      "name": "z8pnki8*ygwa",
+      "properties": Object {
+        "source": "segment",
+        "testType": "Z8PnKI8*YgWA",
+      },
+    },
+    "occurred": false,
+    "user": Object {
+      "named_user_id": "Z8PnKI8*YgWA",
+    },
+  },
+]
 `;
 
 exports[`Testing snapshot for actions-airship destination: customEvents action - required fields 1`] = `
+Array [
+  Object {
+    "body": Object {
+      "interaction_type": "cdp",
+      "name": "z8pnki8*ygwa",
+      "properties": Object {
+        "source": "Segment",
+      },
+    },
+    "occurred": false,
+    "user": Object {
+      "named_user_id": "Z8PnKI8*YgWA",
+    },
+  },
+]
+`;
+
+exports[`Testing snapshot for actions-airship destination: manageTags action - all fields 1`] = `
 Object {
-  "hi": "bye",
+  "audience": Object {
+    "named_user_id": "XvmIpuaw",
+  },
+}
+`;
+
+exports[`Testing snapshot for actions-airship destination: manageTags action - required fields 1`] = `
+Object {
+  "audience": Object {
+    "named_user_id": "XvmIpuaw",
+  },
+}
+`;
+
+exports[`Testing snapshot for actions-airship destination: setAttributes action - all fields 1`] = `
+Object {
+  "attributes": Array [
+    Object {
+      "action": "set",
+      "key": "testType",
+      "timestamp": false,
+      "value": "*N75*",
+    },
+  ],
+  "audience": Object {
+    "named_user_id": "*N75*",
+  },
+}
+`;
+
+exports[`Testing snapshot for actions-airship destination: setAttributes action - required fields 1`] = `
+Object {
+  "attributes": Array [],
+  "audience": Object {
+    "named_user_id": "undefined",
+  },
 }
 `;
