@@ -210,7 +210,11 @@ registerDirective('@template', (value: string | JSONValue, payload) => {
       for (let i = 0; i < vals.length; i++) {
         const v = vals[i]
         if (realTypeOf(v) == 'object') {
-          if (Object.keys(v as object).every((k) => ['@path', '@literal'].indexOf(k))) {
+          const templateObjKeys = Object.keys(v as object)
+          // Each template object can only be @path or @literal
+          // This is to prevent nesting of another template
+          // but we can enhance this in the future
+          if (!templateObjKeys.every((k) => ['@path', '@literal'].indexOf(k) > -1)) {
             throw new Error(`${name}: path object at index ${i} was not @path or @literal`)
           }
         }
