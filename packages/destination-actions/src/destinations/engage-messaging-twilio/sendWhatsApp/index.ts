@@ -123,7 +123,7 @@ const action: ActionDefinition<Settings, Payload> = {
       }
     }
   },
-  perform: async (request, { settings, payload, statsContext }) => {
+  perform: async (request, { settings, payload, statsContext, logger }) => {
     const statsClient = statsContext?.statsClient
     const tags = statsContext?.tags || []
     if (!settings.region) {
@@ -131,7 +131,7 @@ const action: ActionDefinition<Settings, Payload> = {
     }
     tags.push(`space_id:${settings.spaceId}`, `projectid:${settings.sourceId}`, `region:${settings.region}`)
 
-    return new WhatsAppMessageSender(request, payload, settings, statsClient, tags).send()
+    return new WhatsAppMessageSender(request, payload, settings, statsClient, tags, logger).send()
   }
 }
 
