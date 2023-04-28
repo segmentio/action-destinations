@@ -229,6 +229,7 @@ describe('GoogleEnhancedConversions', () => {
           url: 'https://www.google.com/ads/event/api/v1?conversion_tracking_id=699373583',
           status: 400,
           statusText: 'Unauthorized',
+          // @ts-ignore Headers don't matter for this test. Only need status 400 and type to be HTTPError
           headers: []
         },
         {},
