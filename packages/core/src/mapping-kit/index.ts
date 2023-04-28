@@ -172,6 +172,7 @@ registerDirective('@arrayPath', (data, payload) => {
 })
 
 registerDirective('@path', (value: JSONValue, payload: JSONObject): JSONLike => {
+  const name = '@path'
   const realType = realTypeOf(value)
   if (!['object', 'array', 'string'].includes(realTypeOf(value))) {
     throw new Error(`${name}: expected string, array or object but got ${realTypeOf(value)}`)
@@ -195,6 +196,7 @@ registerDirective('@path', (value: JSONValue, payload: JSONObject): JSONLike => 
 })
 
 registerDirective('@template', (value: string | JSONValue, payload) => {
+  const name = '@template'
   const realType = realTypeOf(value)
   if (!['array', 'string'].includes(realTypeOf(value))) {
     throw new Error(`${name}: expected string, array or object but got ${realTypeOf(value)}`)
@@ -203,8 +205,18 @@ registerDirective('@template', (value: string | JSONValue, payload) => {
   switch (realType) {
     case 'string':
       return render(value as string, payload)
-    case 'array':
-      return (value as JSONLike[]).map((v) => resolve(v, payload)).join('')
+    case 'array': {
+      const vals = value as JSONLike[]
+      for (let i = 0; i < vals.length; i++) {
+        const v = vals[i]
+        if (realTypeOf(v) == 'object') {
+          if (Object.keys(v as object).every((k) => ['@path', '@literal'].indexOf(k))) {
+            throw new Error(`${name}: path object at index ${i} was not @path or @literal`)
+          }
+        }
+      }
+      return vals.map((v) => resolve(v, payload)).join('')
+    }
   }
 })
 
