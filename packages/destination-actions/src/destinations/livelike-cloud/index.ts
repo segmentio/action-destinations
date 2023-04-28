@@ -17,10 +17,10 @@ const presets: DestinationDefinition['presets'] = [
     partnerAction: 'trackEvent',
     mapping: {
       ...defaultValues(trackEvent.fields),
-      action_name: {
+      event_name: {
         '@if': {
-          exists: { '@path': '$.properties.action_name' },
-          then: { '@path': '$.properties.action_name' },
+          exists: { '@path': '$.name' },
+          then: { '@path': '$.name' },
           else: { '@path': '$.properties.title' }
         }
       }
@@ -32,10 +32,10 @@ const presets: DestinationDefinition['presets'] = [
     partnerAction: 'trackEvent',
     mapping: {
       ...defaultValues(trackEvent.fields),
-      action_name: {
+      event_name: {
         '@if': {
-          exists: { '@path': '$.properties.action_name' },
-          then: { '@path': '$.properties.action_name' },
+          exists: { '@path': '$.name' },
+          then: { '@path': '$.name' },
           else: { '@path': '$.properties.title' }
         }
       }

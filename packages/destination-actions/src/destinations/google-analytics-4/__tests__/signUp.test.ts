@@ -45,7 +45,6 @@ describe('GA4', () => {
           apiSecret,
           measurementId
         },
-        features: { 'actions-google-analytics-4-add-timestamp': true },
         mapping: {
           client_id: {
             '@path': '$.anonymousId'
@@ -85,7 +84,6 @@ describe('GA4', () => {
           apiSecret,
           measurementId
         },
-        features: { 'actions-google-analytics-4-add-timestamp': true },
         useDefaultMappings: true
       })
 
@@ -186,7 +184,6 @@ describe('GA4', () => {
             apiSecret,
             measurementId
           },
-          features: { 'actions-google-analytics-4-verify-params-feature': true },
           mapping: {
             client_id: {
               '@path': '$.anonymousId'
@@ -230,7 +227,6 @@ describe('GA4', () => {
             apiSecret,
             measurementId
           },
-          features: { 'actions-google-analytics-4-verify-params-feature': true },
           mapping: {
             client_id: {
               '@path': '$.anonymousId'
@@ -256,7 +252,8 @@ describe('GA4', () => {
       nock('https://www.google-analytics.com/mp/collect')
         .post(`?api_secret=${apiSecret}&firebase_app_id=${firebaseAppId}`, {
           app_instance_id: 'anonId1234',
-          events: [{ name: 'sign_up', params: { method: 'Google', engagement_time_msec: 1 } }]
+          events: [{ name: 'sign_up', params: { method: 'Google', engagement_time_msec: 1 } }],
+          timestamp_micros: 1655936458905000
         })
         .reply(201, {})
 

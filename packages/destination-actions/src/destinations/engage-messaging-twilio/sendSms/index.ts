@@ -30,7 +30,13 @@ const action: ActionDefinition<Settings, Payload> = {
       label: 'Message',
       description: 'Message to send',
       type: 'text',
-      required: true
+      required: false
+    },
+    contentSid: {
+      label: 'SMS content template SID',
+      description: 'Content template SID for Twilio Content API',
+      type: 'string',
+      required: false
     },
     customArgs: {
       label: 'Custom Arguments',
@@ -115,12 +121,14 @@ const action: ActionDefinition<Settings, Payload> = {
       }
     }
   },
-  perform: async (request, { settings, payload, statsContext }) => {
+  perform: async (request, { settings, payload, statsContext, logger }) => {
     const statsClient = statsContext?.statsClient
-    const tags = statsContext?.tags
-    tags?.push(`space_id:${settings.spaceId}`, `projectid:${settings.sourceId}`)
-
-    return new SmsMessageSender(request, payload, settings, statsClient, tags).send()
+    const tags = statsContext?.tags || []
+    if (!settings.region) {
+      settings.region = 'us-west-1'
+    }
+    tags.push(`space_id:${settings.spaceId}`, `projectid:${settings.sourceId}`, `region:${settings.region}`)
+    return new SmsMessageSender(request, payload, settings, statsClient, tags, logger).send()
   }
 }
 

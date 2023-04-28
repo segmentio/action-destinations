@@ -67,6 +67,12 @@ Headers {
     "user-agent": Array [
       "Segment (Actions)",
     ],
+    "x-encharge-token": Array [
+      "SCL252",
+    ],
+    "x-segment-actions": Array [
+      "1",
+    ],
   },
 }
 `;

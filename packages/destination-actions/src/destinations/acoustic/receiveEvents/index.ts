@@ -4,6 +4,7 @@ import { Payload } from './generated-types'
 import { preChecksAndMaint } from '../Utility/tablemaintutilities'
 import get from 'lodash/get'
 import { addUpdateEvents, postUpdates } from '../Utility/eventprocessing'
+import { AuthTokens } from '@segment/actions-core/src/destination-kit/parse-settings'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Receive Track and Identify Events',
@@ -61,14 +62,14 @@ const action: ActionDefinition<Settings, Payload> = {
     }
   },
 
-  perform: async (request, { settings, payload }) => {
+  perform: async (request, { settings, payload, auth }) => {
     const email = get(payload, 'email', 'Null')
 
-    await preChecksAndMaint(request, settings)
+    await preChecksAndMaint(request, settings, auth as AuthTokens)
 
     //Ok, prechecks and Maint are all accomplished, let's see what needs to be processed,
-    const rows = addUpdateEvents(payload, email)
-    return await postUpdates(request, settings, rows, 1)
+    const rows = addUpdateEvents(payload, email, settings.a_attributesMax as number) as string
+    return await postUpdates(request, settings, auth as AuthTokens, rows, 1)
   }
 }
 
