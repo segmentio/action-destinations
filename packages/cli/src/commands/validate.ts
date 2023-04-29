@@ -13,7 +13,7 @@ export default class Validate extends Command {
   private spinner: ora.Ora = ora()
   private isInvalid = false
 
-  static description = `Validate an integration by statically analyzing the integration’s definition files.`
+  static description = `Validate an integration by statically analyzing the integration's definition files.`
 
   static examples = [`$ ./bin/run validate`]
 

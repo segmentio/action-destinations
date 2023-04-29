@@ -13,6 +13,7 @@ export interface ManifestEntry {
 
 export const destinations: Record<string, DestinationDefinition> = {}
 export const manifest: Record<MetadataId, ManifestEntry> = {}
+export const pathToMetadataId: Record<string, MetadataId> = {}
 
 /**
  * Register destinations below to make it available in this package's
@@ -112,6 +113,8 @@ function register(id: MetadataId, destinationPath: string) {
   // add to `destinations` export as well (for backwards compatibility)
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   destinations[directory] = definition as DestinationDefinition<any>
+
+  pathToMetadataId[destinationPath] = id
 }
 
 /** Attempts to load a destination definition from a given file path */
@@ -135,6 +138,10 @@ async function getDestinationByPathKey(key: string): Promise<Destination | null>
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   return new Destination(destination as DestinationDefinition<any>)
+}
+
+export function getDestinationIdByPathKey(destinationPath: string): string {
+  return pathToMetadataId[destinationPath]
 }
 
 export function getDestinationById(id: string): Destination | null {

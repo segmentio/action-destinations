@@ -4,76 +4,88 @@ import { fieldsToJsonSchema } from '@segment/actions-core'
 import { BrowserDestinationDefinition } from '@segment/browser-destinations'
 import chalk from 'chalk'
 import { pick, omit, sortBy } from 'lodash'
-import { diffString, diff } from 'json-diff'
-import ora from 'ora'
+import { diff } from 'json-diff'
 import type {
-  ClientRequestError,
   DestinationMetadataActionCreateInput,
   DestinationMetadataActionFieldCreateInput,
   DestinationMetadataActionsUpdateInput,
   DestinationMetadataOption,
-  DestinationMetadataOptions,
-  DestinationSubscriptionPresetFields,
-  DestinationSubscriptionPresetInput
+  DestinationMetadataOptions
 } from '../lib/control-plane-service'
-import { prompt } from '@segment/actions-cli/lib/prompt'
 import { OAUTH_OPTIONS } from '../constants'
 import { RESERVED_FIELD_NAMES } from '@segment/actions-cli/constants'
 import {
   getDestinationMetadatas,
   getDestinationMetadataActions,
-  updateDestinationMetadata,
-  updateDestinationMetadataActions,
-  createDestinationMetadataActions,
-  setSubscriptionPresets,
   getSubscriptionPresets
 } from '../lib/control-plane-client'
 import { DestinationDefinition, getManifest, hasOauthAuthentication } from '@segment/actions-cli/lib/destinations'
 import type { JSONSchema4 } from 'json-schema'
-import deprecationWarning from '../lib/warning'
+
+import util from 'util'
+import { exec } from 'child_process'
+import { getDestinationIdByPathKey } from '../../../../packages/destination-actions/src/destinations'
+const execAwait = util.promisify(exec)
 
 type BaseActionInput = Omit<DestinationMetadataActionCreateInput, 'metadataId'>
 
-export default class Push extends Command {
-  private spinner: ora.Ora = ora()
-
+/**
+  1. get a list of modified files
+  2. extra action-destination name from the files
+  3. grab the metadataId from the manifest
+  4. run the push command to see if there are any different fields
+  5. if so print them
+    Adding a new field to an existing mapping
+  6. Error out if any new required fields are added
+    Adding a new required field to an existing mapping
+      With default
+      Without default
+    Turning an existing field into a required field
+  7. Detect a slug change and throw an error
+*/
+export default class DetectFields extends Command {
   static description = `Introspects your integration definition to build and upload your integration to Segment. Requires \`robo stage.ssh\` or \`robo prod.ssh\`.`
 
-  static examples = [`$ ./bin/run push`]
+  static examples = [`$ ./bin/run detect-fields`]
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   static flags: flags.Input<any> = {
     help: flags.help({ char: 'h' }),
-    force: flags.boolean({ char: 'f' })
+    force: flags.boolean({ char: 'f' }),
+    diff: flags.string({ char: 'd' })
   }
 
   static args = []
 
   async run() {
-    const { flags } = this.parse(Push)
+    const { flags } = this.parse(DetectFields)
     const manifest = getManifest()
-    await deprecationWarning(this.warn)
+    // await deprecationWarning(this.warn)
+    const metadataIds = []
 
-    const { metadataIds } = await prompt<{ metadataIds: string[] }>({
-      type: 'autocompleteMultiselect',
-      name: 'metadataIds',
-      message: 'Pick the definitions you would like to push to Segment:',
-      choices: sortBy(Object.entries(manifest), '[1].definition.name').map(([metadataId, entry]) => ({
-        title: entry.definition.name,
-        value: metadataId
-      }))
-    })
+    console.log('flags.diff', flags.diff)
+
+    if (!flags.diff) {
+      const { stdout } = await execAwait('git diff --name-only main 2>/dev/null || git diff --name-only HEAD~1')
+      console.log({ stdout })
+      const changedFilesArr = stdout.trim().split('\n')
+      const changedDestinations = new Set<string>()
+      for (const filePath of changedFilesArr) {
+        if (filePath.startsWith('packages/destination-actions/src/destinations/')) {
+          changedDestinations.add(filePath.split('/')[4])
+        }
+      }
+      changedDestinations.delete('index.ts')
+      for (const changedDestination of changedDestinations) {
+        metadataIds.push(getDestinationIdByPathKey('./' + changedDestination))
+      }
+    }
+    console.log({ metadataIds })
 
     if (!metadataIds.length) {
       this.warn(`You must select at least one destination. Exiting.`)
       this.exit()
     }
-
-    this.spinner.start(
-      `Fetching existing definitions for ${metadataIds
-        .map((id) => chalk.greenBright(manifest[id].definition.name))
-        .join(', ')}...`
-    )
 
     const [metadatas, actions, allPresets] = await Promise.all([
       getDestinationMetadatas(metadataIds),
@@ -82,11 +94,8 @@ export default class Push extends Command {
     ])
 
     if (metadatas.length !== Object.keys(metadataIds).length) {
-      this.spinner.fail()
       throw new Error('Number of metadatas must match number of schemas')
     }
-
-    this.spinner.stop()
 
     for (const metadata of metadatas) {
       const entry = manifest[metadata.id]
@@ -95,7 +104,6 @@ export default class Push extends Command {
 
       this.log('')
       this.log(`${chalk.bold.whiteBright(slug)}`)
-      this.spinner.start(`Generating diff for ${chalk.bold(slug)}...`)
 
       const actionsToUpdate: DestinationMetadataActionsUpdateInput[] = []
       const actionsToCreate: DestinationMetadataActionCreateInput[] = []
@@ -243,73 +251,64 @@ export default class Push extends Command {
         ),
         presets: sortBy(definition.presets ?? [], 'name')
       })
-      const difference = diffString(string1, string2)
+      // const colorDifference = diffString(string1, string2)
 
-      if (difference) {
-        this.spinner.warn(`Detected changes for ${chalk.bold(slug)}, please review:`)
-        this.log(`\n${difference}`)
-      } else if (flags.force) {
-        const newDefinition = definitionToJson(definition)
-        this.spinner.warn(`No change detected for ${chalk.bold(slug)}. Using force, please review:`)
-        this.log(`\n${JSON.stringify(newDefinition, null, 2)}`)
-      } else {
-        this.spinner.info(`No change for ${chalk.bold(slug)}. Skipping.`)
-        continue
+      // if (colorDifference) {
+      //   this.spinner.warn(`Detected changes for ${chalk.bold(slug)}, please review:`)
+      //   this.log(`\n${colorDifference}`)
+      // } else if (flags.force) {
+      //   const newDefinition = definitionToJson(definition)
+      //   this.spinner.warn(`No change detected for ${chalk.bold(slug)}. Using force, please review:`)
+      //   this.log(`\n${JSON.stringify(newDefinition, null, 2)}`)
+      // } else {
+      //   this.spinner.info(`No change for ${chalk.bold(slug)}. Skipping.`)
+      //   continue
+      // }
+
+      const parseableDiff = diff(string1, string2, { full: true })
+
+      console.log(JSON.stringify(parseableDiff, undefined, 2))
+
+      if (parseableDiff.slug && parseableDiff.slug.__old && parseableDiff.slug.__new) {
+        this.log(`The slug name is currently immutable. If this is a required operation, please reach out to support`)
       }
 
-      console.log('regular diff')
-      console.log(JSON.stringify(diff(string1, string2), 2, 2))
-
-      const { shouldContinue } = await prompt({
-        type: 'confirm',
-        name: 'shouldContinue',
-        message: `Publish change for ${slug}?`,
-        initial: false
-      })
-
-      if (!shouldContinue) {
-        continue
-      }
-
-      try {
-        await Promise.all([
-          updateDestinationMetadata(metadata.id, {
-            ...(name !== definition.name && { name }),
-            ...(description !== definition.description && { description }),
-            advancedOptions: [], // make sure this gets cleared out since we don't use advancedOptions in Actions
-            basicOptions,
-            options,
-            platforms,
-            supportedRegions: ['us-west-2', 'eu-west-1'] // always default to US until regional action destinations are supported
-          }),
-          updateDestinationMetadataActions(actionsToUpdate),
-          createDestinationMetadataActions(actionsToCreate)
-        ])
-      } catch (e) {
-        const error = e as ClientRequestError
-        this.log(chalk.red(error.message))
-        if (error.isMultiError) {
-          error.errors.map((error) => error.message).forEach((error) => this.log(chalk.red(error)))
+      // find changed actions / mappings
+      // can currently find new fields, deleted fields, and changed required fields, but not changed regular fields
+      for (const actionDiff of parseableDiff.actions) {
+        if (isUnchangedField(actionDiff)) {
+          continue
+        }
+        const change = actionDiff[0]
+        const action = actionDiff[1]
+        switch (change) {
+          case '+':
+            this.log('new action', action.slug)
+            break
+          case '~':
+            this.log('changed action', action.slug)
+            for (const fieldDiff of action.fields) {
+              const fieldChange = fieldDiff[0]
+              const field = fieldDiff[1]
+              switch (fieldChange) {
+                case '+':
+                  this.log('new field', field.fieldKey)
+                  break
+                case '~':
+                  // check if it changed to required?j
+                  this.log('changed field', field.fieldKey)
+                  break
+                case '-':
+                  this.log('deleted field', field.fieldKey)
+                  break
+              }
+            }
+            break
+          case '-':
+            this.log('deleted action', action.slug)
+            break
         }
       }
-
-      const allActions = await getDestinationMetadataActions([metadata.id])
-      const presets: DestinationSubscriptionPresetInput[] = []
-
-      for (const preset of definition.presets ?? []) {
-        const associatedAction = allActions.find((a) => a.slug === preset.partnerAction)
-        if (!associatedAction) continue
-
-        presets.push({
-          actionId: associatedAction.id,
-          name: preset.name ?? associatedAction.name,
-          trigger: preset.subscribe,
-          fields: (preset.mapping as DestinationSubscriptionPresetFields) ?? {}
-        })
-      }
-
-      // We have to wait to do this until after the associated actions are created (otherwise it may fail)
-      await setSubscriptionPresets(metadata.id, presets)
     }
   }
 
@@ -324,6 +323,10 @@ export default class Push extends Command {
       )
     }
   }
+}
+
+function isUnchangedField(action: string[]) {
+  return action.length === 1 && action[0] === ' '
 }
 
 function getFieldPropertySchema(fieldKey: string, field: MinimalInputField): JSONSchema4 {
@@ -345,18 +348,6 @@ function filterOAuth(optionList: string[]) {
 
 function asJson(obj: unknown) {
   return JSON.parse(JSON.stringify(obj))
-}
-
-function definitionToJson(definition: DestinationDefinition) {
-  // Create a copy that only includes serializable properties
-  const copy = JSON.parse(JSON.stringify(definition))
-
-  for (const action of Object.keys(copy.actions)) {
-    delete copy.actions[action].dynamicFields
-    copy.actions[action].hidden = copy.actions[action].hidden ?? false
-  }
-
-  return copy
 }
 
 function getBasicOptions(options: DestinationMetadataOptions): string[] {

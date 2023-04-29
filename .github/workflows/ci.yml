@@ -17,9 +17,18 @@ jobs:
         node-version: [14.x, 18.x]
 
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
         with:
+          fetch-depth: 2
           persist-credentials: false
+
+      # - name: checkout
+      #   run: |
+      #     commits=${{ github.event.pull_request.commits }}
+      #     if [[ -n "$commits" ]]; then
+      #       # Prepare enough depth for diffs with master
+      #       git fetch --depth="$(( commits + 1 ))"
+      #     fi
 
       - name: Use Node.js ${{ matrix.node-version }}
         uses: actions/setup-node@v2
@@ -49,6 +58,9 @@ jobs:
 
       - name: Build
         run: NODE_ENV=production yarn build
+
+      - name: Detect Fields
+        run: yarn detect-fields
 
       - name: Lint
         run: yarn lint
