@@ -348,7 +348,57 @@ describe('Braze Cloud Mode (Actions)', () => {
             external_id: 'user1234',
             app_id: 'my-app-id',
             time: '2021-08-03T17:40:04.055Z',
-            properties: { products: [{ product_id: 'test-product-id', currency: 'USD', price: 99.99, quantity: 1 }] },
+            properties: {},
+            _update_existing_only: false,
+            product_id: 'test-product-id',
+            currency: 'USD',
+            price: 99.99,
+            quantity: 1
+          }
+        ]
+      })
+    })
+
+    it('should combine custom product properties with event properties', async () => {
+      nock('https://rest.iad-01.braze.com').post('/users/track').reply(200, {})
+
+      const event = createTestEvent({
+        event: 'Order Completed',
+        type: 'track',
+        receivedAt,
+        properties: {
+          products: [
+            {
+              product_id: 'test-product-id',
+              currency: 'USD',
+              price: 99.99,
+              quantity: 1,
+              number_of_items: 2,
+              property_5: 45
+            }
+          ],
+          property2_: 'test',
+          property_3: true
+        }
+      })
+
+      const responses = await testDestination.testAction('trackPurchase', {
+        event,
+        settings,
+        useDefaultMappings: true
+      })
+
+      expect(responses.length).toBe(1)
+      expect(responses[0].status).toBe(200)
+      expect(responses[0].data).toMatchObject({})
+      expect(responses[0].options.headers).toMatchSnapshot()
+      expect(responses[0].options.json).toMatchObject({
+        purchases: [
+          {
+            external_id: 'user1234',
+            app_id: 'my-app-id',
+            time: '2021-08-03T17:40:04.055Z',
+            properties: { number_of_items: 2, property2_: 'test', property_3: true, property_5: 45 },
             _update_existing_only: false,
             product_id: 'test-product-id',
             currency: 'USD',
