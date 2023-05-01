@@ -69,7 +69,14 @@ const action: ActionDefinition<Settings, Payload> = {
     delete attributes['vwo_uuid']
     const formattedAttributes = formatAttributes(attributes)
     const visitor = { props: formattedAttributes }
-    const { headers, structuredPayload } = formatPayload(eventName, payload, true, false, settings.apikey)
+    const { headers, structuredPayload } = formatPayload(
+      eventName,
+      payload,
+      true,
+      false,
+      settings.apikey,
+      settings.vwoAccountId
+    )
     if (structuredPayload.d.visitor && structuredPayload.d.event.props.$visitor) {
       structuredPayload.d.visitor.props = {
         ...structuredPayload.d.visitor.props,

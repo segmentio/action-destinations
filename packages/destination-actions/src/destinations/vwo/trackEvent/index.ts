@@ -74,7 +74,14 @@ const action: ActionDefinition<Settings, Payload> = {
   },
   perform: (request, { settings, payload }) => {
     const sanitisedEventName = sanitiseEventName(payload.name)
-    const { headers, structuredPayload } = formatPayload(sanitisedEventName, payload, true, true, settings.apikey)
+    const { headers, structuredPayload } = formatPayload(
+      sanitisedEventName,
+      payload,
+      true,
+      true,
+      settings.apikey,
+      settings.vwoAccountId
+    )
     structuredPayload.d.event.props.vwoMeta['ogName'] = payload.name
     const endpoint = `https://dev.visualwebsiteoptimizer.com/events/t?en=${sanitisedEventName}&a=${settings.vwoAccountId}`
     return request(endpoint, {

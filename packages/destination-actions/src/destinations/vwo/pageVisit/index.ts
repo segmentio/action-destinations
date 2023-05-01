@@ -65,7 +65,14 @@ const action: ActionDefinition<Settings, Payload> = {
   defaultSubscription: 'type = "page"',
   perform: (request, { settings, payload }) => {
     const eventName = 'vwo_pageView'
-    const { headers, structuredPayload } = formatPayload(eventName, payload, false, false, settings.apikey)
+    const { headers, structuredPayload } = formatPayload(
+      eventName,
+      payload,
+      false,
+      false,
+      settings.apikey,
+      settings.vwoAccountId
+    )
     structuredPayload.d.event.props['url'] = payload.url
     const endpoint = `https://dev.visualwebsiteoptimizer.com/events/t?en=${eventName}&a=${settings.vwoAccountId}`
     return request(endpoint, {
