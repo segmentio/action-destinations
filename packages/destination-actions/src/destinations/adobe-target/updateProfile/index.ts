@@ -33,6 +33,7 @@ const action: ActionDefinition<Settings, Payload> = {
   },
 
   perform: async (request, { settings, payload, statsContext }) => {
+    console.log('A new log for something important')
     const at: AdobeTarget = new AdobeTarget(payload.user_id, settings.client_code, payload.traits, request)
     return await at.updateProfile(statsContext)
   }
