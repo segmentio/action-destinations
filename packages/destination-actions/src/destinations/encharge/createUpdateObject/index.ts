@@ -7,7 +7,7 @@ import { getCustomObjects } from './getCustomObjects'
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Create or Update Object',
   description:
-    'Create or Update a Custom Object (including Companies) in Encharge. If email or user ID are provided, the user will be associated with the object. A new user will be created if the email or user ID do not exist in Encharge.',
+    'Create or Update a Custom Object (including Companies) in Encharge. If an email or a user ID is provided, an Encharge user will be associated with the object. A new user will be created if the email or user ID does not exist in Encharge.',
   defaultSubscription: 'type = "group"',
   fields: {
     objectType: {
@@ -35,7 +35,7 @@ const action: ActionDefinition<Settings, Payload> = {
       type: 'object',
       label: 'Object Fields',
       description:
-        'Data for the Object fields to associate with the user in Encharge. Any unexisting fields will be ignored.',
+        'Data for the Object fields to associate with the object in Encharge. Any unexisting fields will be ignored.',
       required: false,
       default: { '@path': '$.traits' }
     },
