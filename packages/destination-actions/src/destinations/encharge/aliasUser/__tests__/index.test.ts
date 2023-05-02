@@ -43,8 +43,17 @@ describe('Encharge.aliasUser', () => {
     expect(responses[0].options.headers).toMatchInlineSnapshot(`
       Headers {
         Symbol(map): Object {
+          "content-type": Array [
+            "application/json",
+          ],
           "user-agent": Array [
             "Segment (Actions)",
+          ],
+          "x-encharge-token": Array [
+            "test_api_key",
+          ],
+          "x-segment-actions": Array [
+            "1",
           ],
         },
       }

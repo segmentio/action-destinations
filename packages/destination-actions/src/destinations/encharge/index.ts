@@ -33,18 +33,17 @@ const destination: DestinationDefinition<Settings> = {
     },
     testAuthentication: (request) => {
       return request(`${enchargeRestAPIBase}/v1/accounts/info`)
-    },
-    extendRequest: ({ settings }: { settings: Settings }) => {
-      return {
-        headers: {
-          'X-Encharge-Token': settings.apiKey,
-          'Content-Type': 'application/json',
-          'X-Segment-Actions': '1'
-        }
+    }
+  },
+  extendRequest: ({ settings }: { settings: Settings }) => {
+    return {
+      headers: {
+        'X-Encharge-Token': settings.apiKey,
+        'Content-Type': 'application/json',
+        'X-Segment-Actions': '1'
       }
     }
   },
-
   onDelete: deleteUser,
   description:
     'Encharge is a marketing automation platform that enables B2B SaaS companies to automate their marketing processes to increase customer engagement, retention, and revenue.',

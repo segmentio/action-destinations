@@ -61,6 +61,19 @@ Object {
 }
 `;
 
+exports[`Braze Cloud Mode (Actions) trackPurchase should combine custom product properties with event properties 1`] = `
+Headers {
+  Symbol(map): Object {
+    "authorization": Array [
+      "Bearer my-api-key",
+    ],
+    "user-agent": Array [
+      "Segment (Actions)",
+    ],
+  },
+}
+`;
+
 exports[`Braze Cloud Mode (Actions) trackPurchase should require one of braze_id, user_alias, or external_id 1`] = `"One of \\"external_id\\" or \\"user_alias\\" or \\"braze_id\\" is required."`;
 
 exports[`Braze Cloud Mode (Actions) trackPurchase should work with default mappings 1`] = `
