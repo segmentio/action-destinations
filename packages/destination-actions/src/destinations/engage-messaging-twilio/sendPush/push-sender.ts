@@ -175,7 +175,7 @@ export class PushSender {
   }
 
   private async parseContent(content: Content): Promise<Content> {
-    const profile = { profile: this.payload.traits }
+    const profile = { profile: { traits: this.payload.traits } }
     try {
       return {
         title: await Liquid.parseAndRender(content.title || '', profile),
