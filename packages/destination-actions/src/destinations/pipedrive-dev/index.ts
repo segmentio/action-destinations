@@ -1,16 +1,15 @@
-import createUpdateOrganization from './createUpdateOrganization'
-import createUpdatePerson from './createUpdatePerson'
 import { defaultValues, DestinationDefinition } from '@segment/actions-core'
 import type { Settings } from './generated-types'
 import { RefreshTokenResponse } from './pipedriveApi/oauth2'
 
 import createUpdateActivity from './createUpdateActivity'
-
 import createUpdateDeal from './createUpdateDeal'
-
 import createUpdateLead from './createUpdateLead'
-
+import createUpdateOrganization from './createUpdateOrganization'
+import createUpdatePerson from './createUpdatePerson'
 import createUpdateNote from './createUpdateNote'
+
+const DEFAULT_DOMAIN = 'https://api.pipedrive.com'
 
 const destination: DestinationDefinition<Settings> = {
   name: 'Actions Pipedrive (Dev)',
@@ -23,7 +22,7 @@ const destination: DestinationDefinition<Settings> = {
         label: 'Domain',
         description: 'Pipedrive domain. This is found in Pipedrive in Settings > Company settings > Company domain.',
         type: 'string',
-        default: 'https://api.pipedrive.com',
+        default: DEFAULT_DOMAIN,
         // minLength: 1,
         required: true
       },
@@ -61,25 +60,37 @@ const destination: DestinationDefinition<Settings> = {
       }
     },
     testAuthentication: async (request, { settings }) => {
+      const pipedriveDomain = /^https:\/\/.*\.pipedrive\.(com$|xyz$)/
+      if (!pipedriveDomain.test(settings.domain)) {
+        throw new Error('Domain does not belong to the Pipedrive')
+      }
+
       return request(`${settings.domain}/api/v1/users/me`)
     },
 
-    refreshAccessToken: async (request, { auth }) => {
+    refreshAccessToken: async (request, { auth, settings }) => {
       const basicAuth = Buffer.from(`${auth.clientId}:${auth.clientSecret}`).toString('base64')
 
-      // Return a request that refreshes the access_token if the API supports it
-      const res = await request<RefreshTokenResponse>('https://oauth.pipedrive.com/oauth/token', {
+      // decide if this request for OAuth tokens refresh or exchange the API token to OAuth access/refresh pair
+      const body =
+        settings.apiToken && !auth.refreshToken
+          ? new URLSearchParams({ grant_type: 'exchange_api_token', api_token: settings.apiToken })
+          : new URLSearchParams({ grant_type: 'refresh_token', refresh_token: auth.refreshToken })
+
+      const tokens = await request<RefreshTokenResponse>('https://oauth.pipedrive.com/oauth/token', {
         method: 'POST',
         headers: {
           Authorization: `Basic ${basicAuth}`
         },
-        body: new URLSearchParams({
-          grant_type: 'refresh_token',
-          refresh_token: auth.refreshToken
-        })
+        body
       })
 
-      return { accessToken: res.data.access_token, refreshToken: res.data.refresh_token }
+      // update domain by company domain, if previously the default value was used
+      if (settings.domain === DEFAULT_DOMAIN) {
+        settings.domain = tokens.data.api_domain
+      }
+
+      return { accessToken: tokens.data.access_token, refreshToken: tokens.data.refresh_token }
     }
   },
 
