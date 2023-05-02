@@ -10,12 +10,12 @@ import dayjs from '../../../lib/dayjs'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Report Conversion Event',
-  description: 'TODO',
+  description: 'Report events directly to Pinterest. Data shared can power Pinterest solutions that will help evaluate ads effectiveness and improve content, targeting, and placement of future ads.',
   fields: {
     event_name: {
       label: 'Event Name',
       description:
-        'Report events directly Pinterest. Data shared can power Pinterest solutions that will help evaluate ads effectiveness and improve content, targeting, and placement of future ads.',
+        'The conversion event type. For custom events, you must use the predefined event name "custom". Please refer to the possible event types in [Pinterest API docs](https://developers.pinterest.com/docs/api/v5/#operation/events/create).',
       type: 'string',
       required: true,
       choices: [
