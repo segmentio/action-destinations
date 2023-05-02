@@ -74,19 +74,10 @@ const action: ActionDefinition<Settings, Payload> = {
       'image_url'
     ]
 
-    function hasRequiredFields(items: Payload['items']) {
-      const requiredItemKeys = ['id', 'name', 'price', 'quantity']
-      return items.every((item) => requiredItemKeys.every((field) => Object.prototype.hasOwnProperty.call(item, field)))
-    }
-
     /**
      * Transforms an array of product items by removing reserved keys from dataFields and converting categories to string arrays.
      */
     function transformItems(items: Payload['items']): CartItem[] {
-      if (!items || !hasRequiredFields(items)) {
-        throw new PayloadValidationError('Product items must include item id, name, price, and quanity.')
-      }
-
       return items.map(({ dataFields, categories, ...rest }) => ({
         ...rest,
         dataFields: omit(dataFields, reservedItemKeys),
