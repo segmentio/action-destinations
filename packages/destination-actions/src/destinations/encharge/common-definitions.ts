@@ -1,6 +1,36 @@
 import type { ActionDefinition } from '@segment/actions-core'
 import type { Settings } from './generated-types'
 
+export const emailFieldDefinition: ActionDefinition<Settings>['fields'] = {
+  email: {
+    type: 'string',
+    required: false,
+    description: 'The email address of the user.',
+    label: 'Email',
+    default: {
+      // Check the possible paths for the email, starting from the
+      // most specific to the least specific.
+      '@if': {
+        exists: { '@path': '$.email' },
+        then: { '@path': '$.email' },
+        else: {
+          '@if': {
+            exists: { '@path': '$.traits.email' },
+            then: { '@path': '$.traits.email' },
+            else: {
+              '@if': {
+                exists: { '@path': '$.context.traits.email' },
+                then: { '@path': '$.context.traits.email' },
+                else: { '@path': '$.properties.email' }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}
+
 export const commonFields: ActionDefinition<Settings>['fields'] = {
   type: {
     type: 'string',
@@ -9,19 +39,7 @@ export const commonFields: ActionDefinition<Settings>['fields'] = {
     label: 'Type',
     default: { '@path': '$.type' }
   },
-  email: {
-    type: 'string',
-    required: false,
-    description: 'The email address of the user.',
-    label: 'Email',
-    default: {
-      '@if': {
-        exists: { '@path': '$.context.traits.email' },
-        then: { '@path': '$.context.traits.email' },
-        else: { '@path': '$.properties.email' }
-      }
-    }
-  },
+  ...emailFieldDefinition,
   segmentAnonymousId: {
     type: 'string',
     description: 'An anonymous identifier for this user.',

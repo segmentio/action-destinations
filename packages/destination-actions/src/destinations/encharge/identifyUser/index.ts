@@ -18,20 +18,7 @@ const action: ActionDefinition<Settings, Payload> = {
       required: false,
       default: { '@path': '$.traits' }
     },
-    email: {
-      type: 'string',
-      required: false,
-      description: 'The email address of the user.',
-      label: 'Email',
-      default: {
-        '@if': {
-          exists: { '@path': '$.traits.email' },
-          then: { '@path': '$.traits.email' },
-          else: { '@path': '$.context.traits.email' }
-        }
-      }
-    },
-    ...omit(commonFields, 'email')
+    ...commonFields
   },
   defaultSubscription: 'type = "identify"',
   perform: (request, data) => {
