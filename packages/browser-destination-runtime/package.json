@@ -1,0 +1,60 @@
+{
+  "name": "@segment/browser-destination-runtime",
+  "version": "0.0.0",
+  "scripts": {
+    "dev": "tsc -w",
+    "build": "tsc"
+  },
+  "type": "module",
+  "exports": {
+    ".": {
+      "default": "./dist/index.js"
+    },
+    "./load-script": {
+      "default": "./dist/load-script.js"
+    },
+    "./plugin": {
+      "default": "./dist/plugin.js"
+    },
+    "./resolve-when": {
+      "default": "./dist/resolve-when.js"
+    },
+    "./shim": {
+      "default": "./dist/shim.js"
+    },
+    "./types": {
+      "default": "./dist/types.js"
+    }
+  },
+  "typesVersions": {
+    "*": {
+      "*": [
+        "dist/index.d.ts"
+      ],
+      "load-script": [
+        "dist/load-script.d.ts"
+      ],
+      "plugin": [
+        "dist/plugin.d.ts"
+      ],
+      "resolve-when": [
+        "dist/resolve-when.d.ts"
+      ],
+      "shim": [
+        "dist/shim.d.ts"
+      ],
+      "types": [
+        "dist/types.d.ts"
+      ]
+    }
+  },
+  "dependencies": {
+    "@segment/actions-core": "^3.62.0"
+  },
+  "peerDependencies": {
+    "@segment/analytics-next": "*"
+  },
+  "devDependencies": {
+    "typescript": "^5.0.4"
+  }
+}

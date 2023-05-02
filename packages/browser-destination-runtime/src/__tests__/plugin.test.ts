@@ -1,4 +1,4 @@
-import { BrowserDestinationDefinition } from 'src/lib/browser-destinations'
+import { BrowserDestinationDefinition } from '../types'
 import { generatePlugins } from '../plugin'
 
 describe('generatePlugins', () => {

@@ -19,7 +19,16 @@
       "default": "./dist/esm/mapping-kit/index.js"
     }
   },
-  "types": "dist/esm/index.d.ts",
+  "typesVersions": {
+    "*": {
+      "*": [
+        "dist/esm/index.d.ts"
+      ],
+      "mapping-kit": [
+        "dist/esm/mapping-kit/index.d.ts"
+      ]
+    }
+  },
   "files": [
     "dist",
     "package.json"
