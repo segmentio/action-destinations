@@ -1,6 +1,6 @@
-import type { BrowserDestinationDefinition } from '../../../lib/browser-destinations'
+import type { BrowserDestinationDefinition } from '@segment/browser-destination-runtime/types'
 import type { DestinationDefinition } from '@segment/actions-core'
-import { browserDestination } from '../../../runtime/shim'
+import { browserDestination } from '@segment/browser-destination-runtime/shim'
 import { defaultValues } from '@segment/actions-core'
 
 import type { Settings } from './generated-types'

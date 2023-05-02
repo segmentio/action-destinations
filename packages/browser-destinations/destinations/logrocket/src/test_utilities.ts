@@ -1,4 +1,4 @@
-import { Subscription } from '../../../../lib/browser-destinations'
+import { Subscription } from '@segment/browser-destination-runtime/types'
 
 class WorkerStub {
   url: string

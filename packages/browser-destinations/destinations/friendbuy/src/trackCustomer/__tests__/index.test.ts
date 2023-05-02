@@ -3,8 +3,8 @@ import friendbuyDestination from '../../index'
 import trackCustomerObject, { trackCustomerDefaultSubscription } from '../index'
 import { trackCustomerFields } from '@segment/actions-shared'
 
-import { loadScript } from '../../../../runtime/load-script'
-jest.mock('../../../../runtime/load-script')
+import { loadScript } from '@segment/browser-destination-runtime/load-script'
+jest.mock('@segment/browser-destination-runtime/load-script')
 beforeEach(async () => {
   // Prevent friendbuy.js and campaigns.js from being loaded.
   ;(loadScript as jest.Mock).mockResolvedValue(true)

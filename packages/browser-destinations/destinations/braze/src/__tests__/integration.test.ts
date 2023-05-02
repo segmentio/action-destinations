@@ -1,6 +1,6 @@
 import { Analytics, Context } from '@segment/analytics-next'
 import braze, { destination } from '..'
-import type { Subscription } from '../../../../lib/browser-destinations'
+import type { Subscription } from '@segment/browser-destination-runtime/types'
 
 const example: Subscription[] = [
   {

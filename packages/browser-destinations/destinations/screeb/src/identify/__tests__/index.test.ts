@@ -1,6 +1,6 @@
 import { Analytics, Context } from '@segment/analytics-next'
 import screebDestination, { destination } from '../../index'
-import { Subscription } from '../../../../lib/browser-destinations'
+import { Subscription } from '@segment/browser-destination-runtime/types'
 
 const subscriptions: Subscription[] = [
   {
@@ -24,10 +24,10 @@ const subscriptions: Subscription[] = [
 
 describe('identify', () => {
   beforeAll(() => {
-    jest.mock('../../../../runtime/load-script', () => ({
+    jest.mock('@segment/browser-destination-runtime/load-script', () => ({
       loadScript: (_src: any, _attributes: any) => {}
     }))
-    jest.mock('../../../../runtime/resolve-when', () => ({
+    jest.mock('@segment/browser-destination-runtime/resolve-when', () => ({
       resolveWhen: (_fn: any, _timeout: any) => {}
     }))
   })

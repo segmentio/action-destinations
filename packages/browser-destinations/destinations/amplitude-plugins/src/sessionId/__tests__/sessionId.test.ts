@@ -1,6 +1,6 @@
 import { Analytics, Context, Plugin } from '@segment/analytics-next'
 import browserPluginsDestination from '../..'
-import { Subscription } from '../../../../lib/browser-destinations'
+import { Subscription } from '@segment/browser-destination-runtime/types'
 import jar from 'js-cookie'
 
 expect.extend({

@@ -1,10 +1,10 @@
 import { Analytics, Context } from '@segment/analytics-next'
 import trackGoalObject from '../index'
 import wisepopsDestination from '../../index'
-import { Subscription } from '../../../../lib/browser-destinations'
+import { Subscription } from '@segment/browser-destination-runtime/types'
 
-import { loadScript } from '../../../../runtime/load-script'
-jest.mock('../../../../runtime/load-script')
+import { loadScript } from '@segment/browser-destination-runtime/load-script'
+jest.mock('@segment/browser-destination-runtime/load-script')
 beforeEach(async () => {
   // Prevent Wisepops SDK from being loaded.
   ;(loadScript as jest.Mock).mockResolvedValue(true)

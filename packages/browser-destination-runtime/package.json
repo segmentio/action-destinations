@@ -49,12 +49,12 @@
     }
   },
   "dependencies": {
-    "@segment/actions-core": "^3.62.0"
+    "@segment/actions-core": "^3.69.0"
+  },
+  "devDependencies": {
+    "@segment/analytics-next": "*"
   },
   "peerDependencies": {
     "@segment/analytics-next": "*"
-  },
-  "devDependencies": {
-    "typescript": "^5.0.4"
   }
 }

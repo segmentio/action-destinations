@@ -1,4 +1,7 @@
 {
   "name": "@segmentio/actions-braze-cloud-plugins",
-  "version": "1.0.0"
+  "version": "1.0.0",
+  "dependencies": {
+    "@segment/browser-destination-runtime": "^0.0.0"
+  }
 }

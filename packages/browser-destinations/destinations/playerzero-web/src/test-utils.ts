@@ -1,4 +1,4 @@
-import { Subscription } from '../../../../lib/browser-destinations'
+import { Subscription } from '@segment/browser-destination-runtime/types'
 
 export const TEST_PROJECT_ID = '634947ab6e8b1d18374ed00c'
 

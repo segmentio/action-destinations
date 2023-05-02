@@ -1,8 +1,8 @@
-import type { BrowserActionDefinition } from '../../../../lib/browser-destinations'
+import type { BrowserActionDefinition } from '@segment/browser-destination-runtime/types'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 import * as braze from '@braze/web-sdk'
-import dayjs from '../../../../lib/dayjs'
+import dayjs from 'dayjs'
 import { BrazeDestinationClient } from '../braze-types'
 
 const action: BrowserActionDefinition<Settings, BrazeDestinationClient, Payload> = {

@@ -1,6 +1,6 @@
 import type { Settings } from './generated-types'
-import type { BrowserDestinationDefinition } from '../../../lib/browser-destinations'
-import { browserDestination } from '../../../runtime/shim'
+import type { BrowserDestinationDefinition } from '@segment/browser-destination-runtime/types'
+import { browserDestination } from '@segment/browser-destination-runtime/shim'
 import { initialBoot, initScript } from './init-script'
 
 import { Intercom } from './api'

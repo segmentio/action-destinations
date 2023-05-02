@@ -1,6 +1,6 @@
 import { Analytics, Context } from '@segment/analytics-next'
 import adobeTarget, { destination } from '../../index'
-import { Subscription } from '../../../../lib/browser-destinations'
+import { Subscription } from '@segment/browser-destination-runtime/types'
 
 describe('Adobe Target Web', () => {
   describe('#identify', () => {

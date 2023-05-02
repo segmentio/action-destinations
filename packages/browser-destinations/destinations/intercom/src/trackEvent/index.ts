@@ -1,4 +1,4 @@
-import type { BrowserActionDefinition } from '../../../../lib/browser-destinations'
+import type { BrowserActionDefinition } from '@segment/browser-destination-runtime/types'
 import { Intercom } from '../api'
 import type { Settings } from '../generated-types'
 import { filterCustomTraits, isEmpty } from '../utils'

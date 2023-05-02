@@ -1,6 +1,6 @@
 import { Analytics, Context } from '@segment/analytics-next'
 import sprigWebDestination, { destination } from '../../index'
-import { Subscription } from '../../../../lib/browser-destinations'
+import { Subscription } from '@segment/browser-destination-runtime/types'
 
 const subscriptions: Subscription[] = [
   {
@@ -27,7 +27,7 @@ const subscriptions: Subscription[] = [
 
 describe('trackEvent', () => {
   beforeAll(() => {
-    jest.mock('../../../../runtime/load-script', () => ({
+    jest.mock('@segment/browser-destination-runtime/load-script', () => ({
       loadScript: (_src: any, _attributes: any) => {}
     }))
   })

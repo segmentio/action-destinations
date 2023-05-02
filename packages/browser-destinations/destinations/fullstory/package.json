@@ -1,4 +1,9 @@
 {
   "name": "@segmentio/actions-fullstory",
-  "version": "1.0.0"
+  "version": "1.0.0",
+  "dependencies": {
+    "@fullstory/browser": "^1.4.9",
+    "@segment/actions-core": "^3.69.0",
+    "@segment/browser-destination-runtime": "^0.0.0"
+  }
 }
