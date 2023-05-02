@@ -67,15 +67,10 @@ const action: ActionDefinition<Settings, Payload> = {
       templateId?: number
     }
 
-    const trackEventRequest: TrackEventRequest = Object.entries(payload).reduce(
-      (json, [key, value]) => {
-        if (key === 'createdAt') {
-          value = dayjs(value).unix()
-        }
-        return value ? { ...json, [key]: value } : json
-      },
-      { eventName: payload.eventName }
-    )
+    const trackEventRequest: TrackEventRequest =  {
+     ...payload,
+     createdAt: dayjs(payload.createdAt).unix()
+    }
 
     return request('https://api.iterable.com/api/events/track', {
       method: 'post',
