@@ -46,7 +46,6 @@ const action: ActionDefinition<Settings, Payload> = {
       }
       preferUserId?: boolean
       mergeNestedObjects?: boolean
-      createNewFields?: boolean
     }
 
     if (dataFields?.phone) {
@@ -54,10 +53,9 @@ const action: ActionDefinition<Settings, Payload> = {
       delete dataFields.phone
     }
 
-    const userUpdateRequest: UserUpdateRequest = Object.entries(payload).reduce(
-      (json, [key, value]) => (value ? { ...json, [key]: value } : json),
-      {}
-    )
+    const userUpdateRequest: UserUpdateRequest = {
+      ...payload
+    }
 
     return request('https://api.iterable.com/api/users/update', {
       method: 'post',
