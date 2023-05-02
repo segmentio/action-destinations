@@ -4,17 +4,11 @@ import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 import { IntegrationError, PayloadValidationError } from '@segment/actions-core'
 import { Logger, StatsClient, StatsContext } from '@segment/actions-core/src/destination-kit'
-import { MessageSender, RequestFn } from '../utils/message-sender'
+import { MessageSender } from '../utils/message-sender'
+import { ContentTemplateResponse, RequestFn } from '../utils/types'
+import { getTwilioContentTemplate } from '../utils/content'
 
 const Liquid = new LiquidJs()
-
-interface ContentTemplateResponse {
-  types: {
-    [type: string]: {
-      body: string
-    }
-  }
-}
 
 export class SmsMessageSender extends MessageSender<Payload> {
   constructor(
@@ -118,19 +112,16 @@ export class SmsMessageSender extends MessageSender<Payload> {
   }
 
   private getContentTemplate = async () => {
-    const twilioToken = Buffer.from(`${this.settings.twilioApiKeySID}:${this.settings.twilioApiKeySecret}`).toString(
-      'base64'
-    )
-
     try {
-      const response = await this.request(`https://content.twilio.com/v1/Content/${this.payload.contentSid}`, {
-        method: 'GET',
-        headers: {
-          authorization: `Basic ${twilioToken}`
-        }
-      })
-      const data = await response.json()
-      return data as ContentTemplateResponse
+      if (!this.payload.contentSid) {
+        throw new Error('missing sid')
+      }
+      return getTwilioContentTemplate(
+        this.payload.contentSid,
+        this.settings.twilioApiKeySID,
+        this.settings.twilioApiKeySecret,
+        this.request
+      )
     } catch (error) {
       this.tags.push('reason:get_content_template')
       this.statsClient?.incr('actions-personas-messaging-twilio.error', 1, this.tags)
