@@ -2,7 +2,7 @@ import type { Analytics, Context, Plugin } from '@segment/analytics-next'
 import type { JSONObject } from '@segment/actions-core'
 import { transform } from '@segment/actions-core/mapping-kit'
 import { parseFql, validate } from '@segment/destination-subscriptions'
-import { ActionInput, BrowserDestinationDefinition, Subscription } from '../lib/browser-destinations'
+import { ActionInput, BrowserDestinationDefinition, Subscription } from './types'
 import { loadScript } from './load-script'
 import { resolveWhen } from './resolve-when'
 

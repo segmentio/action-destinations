@@ -1,4 +1,4 @@
-import type { BrowserDestinationDefinition, Subscription } from '../lib/browser-destinations'
+import type { BrowserDestinationDefinition, Subscription } from './types'
 
 export function browserDestination<S, C>(definition: BrowserDestinationDefinition<S, C>) {
   return async (settings: S & { subscriptions?: Subscription[] }) => {
