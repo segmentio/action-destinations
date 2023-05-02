@@ -26,7 +26,8 @@ const action: ActionDefinition<Settings, Payload> = {
         { label: 'Search', value: 'search' },
         { label: 'Sign Up', value: 'signup' },
         { label: 'View Category', value: 'view_category' },
-        { label: 'Watch Video', value: 'watch_video' }
+        { label: 'Watch Video', value: 'watch_video' },
+        { label: 'Custom', value: 'custom' }
       ]
     },
     action_source: {
