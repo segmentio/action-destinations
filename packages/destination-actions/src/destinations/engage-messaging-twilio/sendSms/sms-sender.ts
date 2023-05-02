@@ -82,7 +82,6 @@ export class SmsMessageSender extends MessageSender<Payload> {
     parsedMedia?.forEach((media) => {
       body.append('MediaUrl', media)
     })
-
     return body
   }
 
