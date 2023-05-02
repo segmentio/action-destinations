@@ -36,7 +36,7 @@ const action: ActionDefinition<Settings, Payload> = {
     },
     headers: {
       label: 'Headers',
-      description: 'HTTP headers to send with each request.',
+      description: 'HTTP headers to send with each request. Only ASCII characters are supported.',
       type: 'object',
       defaultObjectUI: 'keyvalue:only'
     },
