@@ -69,7 +69,7 @@ export const destination: BrowserDestinationDefinition<Settings, VWO> = {
       vwoAccountId: settings.vwoAccountId,
       settingsTolerance: settings.settingsTolerance,
       libraryTolerance: settings.libraryTolerance,
-      useExistingJquery: false // temporarily ignore this because of bug that caused window.VWO from ever being present.
+      useExistingJquery: false // temporarily ignore this because of bug that presented window.VWO from ever being present, causing analytics to completely fail.
     })
     await deps.resolveWhen(() => Object.prototype.hasOwnProperty.call(window, 'VWO'), 100)
     return window.VWO
