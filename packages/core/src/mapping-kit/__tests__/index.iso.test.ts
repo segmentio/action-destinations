@@ -201,6 +201,32 @@ describe('@if', () => {
     )
     expect(output).toStrictEqual(2)
   })
+
+  test('nested', () => {
+    const output = transform(
+      {
+        '@if': {
+          exists: { '@path': '$.e' },
+          then: {
+            '@if': {
+              exists: { '@path': '$.x' },
+              then: 1,
+              else: {
+                '@if': {
+                  exists: { '@path': '$.a' },
+                  then: 2,
+                  else: 3
+                }
+              }
+            }
+          },
+          else: 4
+        }
+      },
+      payload
+    )
+    expect(output).toStrictEqual(2)
+  })
 })
 
 describe('@case', () => {
