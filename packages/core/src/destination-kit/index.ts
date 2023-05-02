@@ -361,13 +361,7 @@ export class Destination<Settings = JSONObject> {
       return undefined
     }
 
-    return this.authentication.refreshAccessToken(requestClient, { settings, auth: oauthData }).catch((err) => {
-      const message = (err as Error).message ?? 'UNKNOWN'
-      throw new InvalidAuthenticationError(
-        `Failed to refresh access token. Reason:${message}`,
-        ErrorCodes.OAUTH_REFRESH_FAILED
-      )
-    })
+    return this.authentication.refreshAccessToken(requestClient, { settings, auth: oauthData })
   }
 
   private partnerAction(slug: string, definition: ActionDefinition<Settings>): Destination<Settings> {

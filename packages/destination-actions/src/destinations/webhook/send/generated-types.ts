@@ -14,7 +14,7 @@ export interface Payload {
    */
   batch_size?: number
   /**
-   * HTTP headers to send with each request.
+   * HTTP headers to send with each request. Only ASCII characters are supported.
    */
   headers?: {
     [k: string]: unknown
