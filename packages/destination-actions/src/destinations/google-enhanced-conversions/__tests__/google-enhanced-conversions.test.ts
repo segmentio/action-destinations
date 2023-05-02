@@ -237,7 +237,7 @@ describe('GoogleEnhancedConversions', () => {
             conversionTrackingId
           }
         })
-      ).rejects.toThrow()
+      ).rejects.toHaveProperty('response.status', 400)
     })
   })
 })
