@@ -1,5 +1,5 @@
 import { Analytics, Context } from '@segment/analytics-next'
-import { Subscription } from '../../../lib/browser-destinations'
+import { Subscription } from '@segment/browser-destination-runtime/types'
 import userpilot, { destination } from '../index'
 
 const example: Subscription[] = [

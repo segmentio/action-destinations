@@ -1,4 +1,9 @@
 {
   "name": "@segmentio/actions-intercom-web",
-  "version": "1.0.0"
+  "version": "1.0.0",
+  "dependencies": {
+    "@segment/actions-shared": "^1.50.0",
+    "@segment/actions-core": "^3.69.0",
+    "@segment/browser-destination-runtime": "^0.0.0"
+  }
 }

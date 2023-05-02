@@ -1,4 +1,4 @@
-import { Subscription } from '../../../../lib/browser-destinations'
+import { Subscription } from '@segment/browser-destination-runtime/types'
 import { Analytics, Context } from '@segment/analytics-next'
 import intercomDestination, { destination } from '../index'
 

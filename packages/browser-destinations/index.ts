@@ -1,7 +1,7 @@
 import path from 'path'
-import type { BrowserDestinationDefinition } from './lib/browser-destinations'
+import type { BrowserDestinationDefinition } from '@segment/browser-destination-runtime/types'
 
-export { BrowserDestinationDefinition } from './lib/browser-destinations'
+export { BrowserDestinationDefinition } from '@segment/browser-destination-runtime/types'
 
 type MetadataId = string
 

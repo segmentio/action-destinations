@@ -1,6 +1,6 @@
 import { Analytics, Context } from '@segment/analytics-next'
 import iterateDestination, { destination } from '../index'
-import { Subscription } from '../../../../lib/browser-destinations'
+import { Subscription } from '@segment/browser-destination-runtime/types'
 
 const subscriptions: Subscription[] = [
   {

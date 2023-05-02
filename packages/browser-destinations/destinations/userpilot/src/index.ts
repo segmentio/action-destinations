@@ -1,8 +1,8 @@
 import type { Settings } from './generated-types'
-import type { BrowserDestinationDefinition } from '../../lib/browser-destinations'
+import type { BrowserDestinationDefinition } from '@segment/browser-destination-runtime/types'
 import type { Userpilot } from './types'
 
-import { browserDestination } from '../../runtime/shim'
+import { browserDestination } from '@segment/browser-destination-runtime/shim'
 import { defaultValues } from '@segment/actions-core'
 
 import identifyUser from './identifyUser'

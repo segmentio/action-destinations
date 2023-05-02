@@ -1,4 +1,4 @@
-import { BrowserActionDefinition } from 'src/lib/browser-destinations'
+import { BrowserActionDefinition } from '@segment/browser-destination-runtime/types'
 import { UpolloClient } from '../types'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'

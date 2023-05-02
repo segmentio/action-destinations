@@ -1,5 +1,5 @@
 import { Analytics, Context } from '@segment/analytics-next'
-import { Subscription } from 'src/lib/browser-destinations'
+import { Subscription } from '@segment/browser-destination-runtime'
 import commandBarDestination, { destination } from '../../index'
 
 const subscriptions: Subscription[] = [

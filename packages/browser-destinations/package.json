@@ -35,11 +35,8 @@
     "dev": "NODE_ENV=development NODE_OPTIONS=--openssl-legacy-provider concurrently \"webpack serve\" \"webpack -c webpack.config.js --watch\""
   },
   "dependencies": {
-    "@braze/web-sdk": "npm:@braze/web-sdk@^4.1.0",
-    "@braze/web-sdk-v3": "npm:@braze/web-sdk@^3.5.1",
-    "@fullstory/browser": "^1.4.9",
-    "@segment/actions-shared": "^1.52.0",
     "@segment/analytics-next": "^1.51.3",
+    "@segment/browser-destination-runtime": "^0.0.0",
     "@segment/destination-subscriptions": "^3.23.0",
     "dayjs": "^1.10.7",
     "logrocket": "^3.0.1",

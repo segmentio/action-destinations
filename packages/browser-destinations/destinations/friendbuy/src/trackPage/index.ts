@@ -1,5 +1,5 @@
 import type { InputField } from '@segment/actions-core'
-import type { BrowserActionDefinition } from '../../../../lib/browser-destinations'
+import type { BrowserActionDefinition } from '@segment/browser-destination-runtime/types'
 
 import type { FriendbuyAPI } from '../types'
 import type { Settings } from '../generated-types'

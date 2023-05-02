@@ -2,8 +2,8 @@ import { Analytics, Context } from '@segment/analytics-next'
 import friendbuyDestination from '../../index'
 import trackPageObject, { trackPageDefaultSubscription, trackPageFields } from '../index'
 
-import { loadScript } from '../../../../runtime/load-script'
-jest.mock('../../../../runtime/load-script')
+import { loadScript } from '@segment/browser-destination-runtime/load-script'
+jest.mock('@segment/browser-destination-runtime/load-script')
 beforeEach(async () => {
   // Prevent friendbuy.js and campaigns.js from being loaded.
   ;(loadScript as jest.Mock).mockResolvedValue(true)

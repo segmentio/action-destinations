@@ -1,5 +1,5 @@
 import { HeapApi } from './types'
-import { Subscription } from '../../../lib/browser-destinations'
+import { Subscription } from '@segment/browser-destination-runtime/types'
 import nock from 'nock'
 
 export const HEAP_TEST_ENV_ID = '1'

@@ -1,5 +1,5 @@
-import type { BrowserDestinationDefinition } from '../../../lib/browser-destinations'
-import { browserDestination } from '../../../runtime/shim'
+import type { BrowserDestinationDefinition } from '@segment/browser-destination-runtime/types'
+import { browserDestination } from '@segment/browser-destination-runtime/shim'
 import type { Settings } from './generated-types'
 import { Iterate, IterateApi, IterateSettings } from './types'
 import { defaultValues } from '@segment/actions-core'

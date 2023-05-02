@@ -1,6 +1,6 @@
 import { BrazeDestinationClient } from '../braze-types'
 import type { ID, SegmentEvent, User } from '@segment/analytics-next'
-import type { BrowserActionDefinition } from '../../../../lib/browser-destinations'
+import type { BrowserActionDefinition } from '@segment/browser-destination-runtime/types'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 

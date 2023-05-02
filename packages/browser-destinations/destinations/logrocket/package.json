@@ -1,4 +1,12 @@
 {
   "name": "@segmentio/actions-logrocket",
-  "version": "1.0.0"
+  "version": "1.0.0",
+  "dependencies": {
+    "@segment/actions-core": "^3.69.0",
+    "@segment/browser-destination-runtime": "^0.0.0",
+    "logrocket": "^3.0.1"
+  },
+  "peerDependencies": {
+    "@segment/analytics-next": "*"
+  }
 }

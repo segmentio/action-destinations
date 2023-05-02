@@ -1,6 +1,6 @@
 import { Analytics, Context } from '@segment/analytics-next'
 import wisepopsDestination, { destination } from '../index'
-import { Subscription } from '../../../../lib/browser-destinations'
+import { Subscription } from '@segment/browser-destination-runtime/types'
 import nock from 'nock'
 
 const subscriptions: Subscription[] = [

@@ -1,5 +1,5 @@
 import { InputField } from '@segment/actions-core'
-import type { BrowserActionDefinition } from '../../../../lib/browser-destinations'
+import type { BrowserActionDefinition } from '@segment/browser-destination-runtime/types'
 import { Intercom } from '../api'
 import type { Settings } from '../generated-types'
 import { getCompanyProperties } from '../sharedCompanyProperties'

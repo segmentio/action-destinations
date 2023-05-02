@@ -1,5 +1,5 @@
 import { Analytics, Context } from '@segment/analytics-next'
-import { Subscription } from 'src/lib/browser-destinations'
+import { Subscription } from '@segment/browser-destination-runtime'
 import hubspotDestination, { destination } from '../../index'
 import { Hubspot } from '../../types'
 
