@@ -91,7 +91,7 @@ const action: ActionDefinition<Settings, Payload> = {
     }
   },
   perform: (request, { payload }) => {
-    const { id, user, items, createdAt, total, campaignId, templateId, dataFields } = payload
+    const { user, dataFields } = payload
 
     if (!user.email && !user.userId) {
       throw new PayloadValidationError('Must include email or userId.')
@@ -110,19 +110,10 @@ const action: ActionDefinition<Settings, Payload> = {
       'image_url'
     ]
 
-    function hasRequiredFields(items: Payload['items']) {
-      const requiredItemKeys = ['id', 'name', 'price', 'quantity']
-      return items.every((item) => requiredItemKeys.every((field) => Object.prototype.hasOwnProperty.call(item, field)))
-    }
-
     /**
      * Transforms an array of product items by removing reserved keys from dataFields and converting categories to string arrays.
      */
     function transformItems(items: Payload['items']): CartItem[] {
-      if (!items || !hasRequiredFields(items)) {
-        throw new PayloadValidationError('Product items must include item product_id, name, sku, and quanity.')
-      }
-
       return items.map(({ dataFields, categories, ...rest }) => ({
         ...rest,
         dataFields: omit(dataFields, reservedItemKeys),
@@ -172,14 +163,9 @@ const action: ActionDefinition<Settings, Payload> = {
     }
 
     const trackPurchaseRequest: TrackPurchaseRequest = {
-      ...(id && { id }),
-      user,
-      items: transformItems(items),
-      createdAt: dayjs(createdAt).unix(),
-      total,
-      ...(campaignId && { campaignId }),
-      ...(templateId && { templateId }),
-      ...(dataFields && { dataFields })
+      ...payload,
+      items: transformItems(payload.items),
+      createdAt: dayjs(payload.createdAt).unix()
     }
 
     return request('https://api.iterable.com/api/commerce/trackPurchase', {
