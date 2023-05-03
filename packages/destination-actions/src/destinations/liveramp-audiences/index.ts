@@ -2,6 +2,8 @@
 import type { DestinationDefinition } from '@segment/actions-core'
 import type { Settings } from './generated-types'
 
+import audienceEntered from './audienceEntered'
+
 const destination: DestinationDefinition<Settings> = {
   name: 'Liveramp Audiences',
   slug: 'actions-liveramp-audiences',
@@ -9,7 +11,42 @@ const destination: DestinationDefinition<Settings> = {
 
   authentication: {
     scheme: 'custom',
-    fields: {},
+    fields: {
+      upload_mode: {
+        label: 'Upload Mode',
+        description: 'Choose delivery route for the files',
+        type: 'string',
+        choices: [
+          { value: 'S3', label: 'S3' },
+          { value: 'SFTP', label: 'SFTP' }
+        ]
+      },
+      s3_aws_access_key: {
+        label: 'AWS Access Key (S3 only)',
+        description: '',
+        type: 'string'
+      },
+      s3_aws_secret_key: {
+        label: 'AWS Secret Key (S3 only)',
+        description: '',
+        type: 'password'
+      },
+      s3_aws_bucket_name: {
+        label: 'AWS Bucket Name (S3 only)',
+        description: '',
+        type: 'string'
+      },
+      sftp_username: {
+        label: 'Username (SFTP only)',
+        description: '',
+        type: 'string'
+      },
+      sftp_password: {
+        label: 'Password (SFTP only)',
+        description: '',
+        type: 'password'
+      }
+    },
     testAuthentication: (_) => {
       // Return a request that tests/validates the user's credentials.
       // If you do not have a way to validate the authentication fields safely,
@@ -23,7 +60,9 @@ const destination: DestinationDefinition<Settings> = {
     // implement this function and should remove it completely.
   },
 
-  actions: {}
+  actions: {
+    audienceEntered
+  }
 }
 
 export default destination
