@@ -347,7 +347,7 @@ describe.each(['stage', 'production'])('%s environment', (environment) => {
       expect(twilioContentRequest.isDone()).toEqual(true)
     })
 
-    it('should send MMS with payload in media', async () => {
+    it('should send MMS with media in payload', async () => {
       const expectedTwilioRequest = new URLSearchParams({
         Body: 'Hello world, jane!',
         From: 'MG1111222233334444',
