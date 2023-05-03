@@ -69,7 +69,12 @@ export class SmsMessageSender extends MessageSender<Payload> {
       parsedBody = parsed.body
       parsedMedia = parsed.media
     } else {
-      parsedBody = (await this.parseContent({ body: this.payload.body ?? '' }, profile)).body
+      const parsed = await this.parseContent(
+        { body: this.payload.body ?? '', media: this.payload.media ?? [] },
+        profile
+      )
+      parsedBody = parsed.body
+      parsedMedia = parsed.media
     }
 
     const body = new URLSearchParams({

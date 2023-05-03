@@ -32,6 +32,13 @@ const action: ActionDefinition<Settings, Payload> = {
       type: 'text',
       required: false
     },
+    media: {
+      label: 'Media Urls',
+      description: 'Media to attach to message',
+      type: 'text',
+      required: false,
+      multiple: true
+    },
     contentSid: {
       label: 'SMS content template SID',
       description: 'Content template SID for Twilio Content API',
