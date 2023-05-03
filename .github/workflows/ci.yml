@@ -40,7 +40,7 @@ jobs:
         run: NODE_ENV=production yarn build
 
       - name: Lint
-        run: yarn lint --cache-location=node_modules/.cache/eslint
+        run: yarn lint --cache-location=.yarn/.cache/eslint
 
       - name: Validate
         run: yarn validate
