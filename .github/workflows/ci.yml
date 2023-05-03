@@ -27,8 +27,10 @@ jobs:
           node-version: ${{ matrix.node-version }}
           registry-url: 'https://registry.npmjs.org'
           always-auth: true
-          scope: '@segment'
           cache: yarn
+          
+     - name: Authenticate with private NPM package
+       run: echo "//registry.npmjs.org/:_authToken=${{ secrets.NPM_TOKEN }}" > ~/.npmrc
 
       - name: Use Github Personal Access Token
         run: git config --global url."https://${{ secrets.GH_PAT }}@github.com/".insteadOf ssh://git@github.com/
