@@ -27,7 +27,7 @@ jobs:
           registry-url: 'https://registry.npmjs.org'
           cache: yarn
           always-auth: true
-          token: ${{ secrets.GH_PAT }}
+          token: ${{ secrets.NPM_TOKEN }}
           
           
       - name: Authenticate with private NPM package
@@ -38,8 +38,6 @@ jobs:
 
       - name: Install Dependencies
         run: yarn install --immutable
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
 
       - name: Build
         run: NODE_ENV=production yarn build
