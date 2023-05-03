@@ -24,7 +24,7 @@ jobs:
           cache: yarn
 
       - name: Install
-        run: yarn install --immutable --ignore-optional
+        run: yarn install --immutable
 
       - name: Bootstrap
         run: yarn bootstrap --no-ci
