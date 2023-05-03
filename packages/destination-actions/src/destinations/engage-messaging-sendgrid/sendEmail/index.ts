@@ -455,8 +455,7 @@ const action: ActionDefinition<Settings, Payload> = {
       let parsedBodyHtml
 
       if (payload.bodyUrl && settings.unlayerApiKey) {
-        const response = await request(payload.bodyUrl, { method: 'GET', skipResponseCloning: true })
-        const body = await response.text()
+        const { content: body } = await request(payload.bodyUrl, { method: 'GET', skipResponseCloning: true })
 
         const bodyHtml =
           payload.bodyType === 'html'
