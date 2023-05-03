@@ -5,7 +5,8 @@ import {
   Logger,
   StatsClient,
   StatsContext,
-  TransactionContext
+  TransactionContext,
+  OAuth2Authentication
 } from '../destination-kit'
 import { JSONObject } from '../json-object'
 import { SegmentEvent } from '../segment-event'
@@ -348,6 +349,50 @@ describe('destination kit', () => {
           lockStore
         )
       ).resolves.not.toThrowError()
+      expect(acquireLockMock).toHaveBeenCalledTimes(1)
+      expect(releaseLockMock).toHaveBeenCalledTimes(1)
+    })
+
+    test('should release lock if refreshAccessToken throws exception', async () => {
+      const destination = {
+        ...destinationOAuth2,
+        authentication: {
+          ...destinationOAuth2.authentication,
+          refreshAccessToken: (_request) => {
+            throw new Error('Failed to refresh access token')
+          }
+        } as OAuth2Authentication<any>
+      }
+      const destinationTest = new Destination(destination)
+
+      const testSettings = {
+        apiSecret: 'test_key',
+        subscription: {
+          subscribe: 'type = "track"',
+          partnerAction: 'customEvent',
+          mapping: {
+            clientId: '23455343467',
+            name: 'fancy_event',
+            parameters: { field_one: 'rogue one' }
+          }
+        }
+      }
+
+      const acquireLockMock = jest.fn(() => Promise.resolve())
+      const releaseLockMock = jest.fn(() => Promise.resolve())
+
+      const lockStore = {
+        acquireLock: acquireLockMock,
+        releaseLock: releaseLockMock
+      }
+
+      await expect(
+        destinationTest.refreshAccessToken(
+          testSettings,
+          { clientId: '', clientSecret: '', accessToken: '', refreshToken: '' },
+          lockStore
+        )
+      ).rejects.toThrow('Failed to refresh access token')
       expect(acquireLockMock).toHaveBeenCalledTimes(1)
       expect(releaseLockMock).toHaveBeenCalledTimes(1)
     })
