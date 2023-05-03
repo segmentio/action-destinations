@@ -32,7 +32,9 @@ describe('Pinterest Conversions Api', () => {
           code: 29,
           message: 'You are not permitted to access that resource.'
         })
-      await expect(testDestination.testAuthentication(authData)).rejects.toThrowError()
+      await expect(testDestination.testAuthentication(authData)).rejects.toThrowError(
+        'Credentials are invalid:  Invalid Ad Account ID, please verify you have entered the correct Ad Account ID.'
+      )
     })
 
     it('should throw 401 Unauthorized in case of invalid_conversion_token', async () => {
@@ -48,7 +50,9 @@ describe('Pinterest Conversions Api', () => {
           message: 'Authentication failed.',
           status: 'failure'
         })
-      await expect(testDestination.testAuthentication(authData)).rejects.toThrowError()
+      await expect(testDestination.testAuthentication(authData)).rejects.toThrowError(
+        'Credentials are invalid:  Invalid Conversion Token, please verify you have entered the correct Conversion Token.'
+      )
     })
   })
 })

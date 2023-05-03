@@ -433,7 +433,7 @@ export function getOptions(
       default: schema.default ?? defaultValues[schema.type],
       description: schema.description,
       encrypt: schema.type === 'password',
-      hidden: false,
+      hidden: existing['hidden'] ?? false,
       label: schema.label,
       private: isPrivateSetting,
       scope: 'event_destination',
