@@ -101,6 +101,7 @@ const generateEmailHtml = async (
   logger?: Logger | undefined
 ): Promise<string> => {
   try {
+    statsClient?.incr('actions-personas-messaging-sendgrid.unlayer_export', 1, tags)
     const response = await request('https://api.unlayer.com/v2/export/html', {
       method: 'POST',
       headers: {
@@ -140,6 +141,7 @@ const parseTemplating = async (
   logger?: Logger | undefined
 ) => {
   try {
+    statsClient?.incr('actions-personas-messaging-sendgrid.parse_liquid', 1, tags)
     const parsedContent = await Liquid.parseAndRender(content, { profile })
     return parsedContent
   } catch (error) {
@@ -489,6 +491,11 @@ const action: ActionDefinition<Settings, Payload> = {
       }
 
       try {
+        if (typeof parsedBodyHtml === 'string') {
+          tags.push(`body_size_bytes:${parsedBodyHtml.length * 2}`) // estimating size as 2 bytes/char
+        }
+        statsClient?.incr('actions-personas-messaging-sendgrid.request', 1, tags)
+
         const response = await request('https://api.sendgrid.com/v3/mail/send', {
           method: 'post',
           headers: {
@@ -540,6 +547,7 @@ const action: ActionDefinition<Settings, Payload> = {
         })
         tags.push(`sendgrid_status_code:${response.status}`)
         statsClient?.incr('actions-personas-messaging-sendgrid.response', 1, tags)
+        logger?.info(`TE Messaging: X-Message-ID - ${response.headers.get('X-Message-ID')}`)
         if (payload?.eventOccurredTS != undefined) {
           statsClient?.histogram(
             'actions-personas-messaging-sendgrid.eventDeliveryTS',
