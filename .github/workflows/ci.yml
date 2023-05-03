@@ -17,7 +17,7 @@ jobs:
         node-version: [14.x, 18.x]
 
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
         with:
           persist-credentials: false
 
@@ -27,6 +27,7 @@ jobs:
           node-version: ${{ matrix.node-version }}
           registry-url: 'https://registry.npmjs.org'
           always-auth: true
+          scope: '@segment'
           cache: yarn
 
       - name: Use Github Personal Access Token
