@@ -23,7 +23,7 @@ const destination: DestinationDefinition<Settings> = {
         required: true
       },
       testEventCode: {
-        label: 'Test Event Code',
+        label: 'Test: Test Event Code',
         type: 'string',
         description:
           'Use this field to specify that events should be test events rather than actual traffic. You can find your Test Event Code in your Facebook Events Manager under the "Test events" tab. You\'ll want to remove your Test Event Code when sending real traffic through this integration.',
