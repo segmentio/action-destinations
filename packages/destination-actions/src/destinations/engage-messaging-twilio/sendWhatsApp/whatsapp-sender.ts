@@ -3,9 +3,10 @@ import { Liquid as LiquidJs } from 'liquidjs'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 import { IntegrationError } from '@segment/actions-core'
-import { RequestFn, MessageSender } from '../utils/message-sender'
+import { MessageSender } from '../utils/message-sender'
 import { PhoneNumberUtil, PhoneNumberFormat } from 'google-libphonenumber'
 import { Logger, StatsClient, StatsContext } from '@segment/actions-core/src/destination-kit'
+import { RequestFn } from '../utils/types'
 
 const phoneUtil = PhoneNumberUtil.getInstance()
 const Liquid = new LiquidJs()

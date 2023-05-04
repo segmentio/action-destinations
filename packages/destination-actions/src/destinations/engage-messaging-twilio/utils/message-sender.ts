@@ -1,9 +1,9 @@
 /* eslint-disable @typescript-eslint/no-unsafe-call */
-import type { RequestOptions } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from '../sendSms/generated-types'
 import { IntegrationError } from '@segment/actions-core'
 import { Logger, StatsClient, StatsContext } from '@segment/actions-core/src/destination-kit'
+import { RequestFn } from './types'
 
 enum SendabilityStatus {
   NoSenderPhone = 'no_sender_phone',
@@ -25,8 +25,6 @@ interface TwilioApiError {
 }
 
 type SendabilityPayload = { sendabilityStatus: SendabilityStatus; phone: string | undefined }
-
-export type RequestFn = (url: string, options?: RequestOptions) => Promise<Response>
 
 type MinimalPayload = Pick<
   Payload,
