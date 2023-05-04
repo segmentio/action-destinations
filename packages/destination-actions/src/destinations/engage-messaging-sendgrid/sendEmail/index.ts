@@ -541,7 +541,6 @@ const action: ActionDefinition<Settings, Payload> = {
         }
         statsClient?.set('actions-personas-messaging-sendgrid.request_body_size', JSON.stringify(req).length, tags)
         const response = await request('https://api.sendgrid.com/v3/mail/send', req)
-        logger?.info(`X-Message-ID: ${response.headers.toJSON()['X-Message-ID']}`)
         tags.push(`sendgrid_status_code:${response.status}`)
         statsClient?.incr('actions-personas-messaging-sendgrid.response', 1, tags)
         if (payload?.eventOccurredTS != undefined) {
