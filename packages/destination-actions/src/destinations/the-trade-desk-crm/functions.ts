@@ -11,6 +11,12 @@ export interface DROP_ENDPOINT_API_RESPONSE {
   Url: string
 }
 
+export interface Segments {
+  CrmDataId: string
+  SegmentName: string
+  Region: string
+  FirstPartyDataId: number
+}
 export interface GET_CRMS_API_RESPONSE {
   Segments: [
     {
@@ -20,6 +26,7 @@ export interface GET_CRMS_API_RESPONSE {
       FirstPartyDataId: number
     }
   ]
+  PagingToken: string
 }
 
 export interface CREATE_API_RESPONSE {
@@ -40,8 +47,10 @@ export async function processPayload(request: RequestClient, settings: Settings,
   return sendCRMData(request, dataDropEndpoint, users)
 }
 
-async function getCRMID(request: RequestClient, settings: Settings, payload: Payload) {
-  const response: ModifiedResponse<GET_CRMS_API_RESPONSE> = await request(
+async function getAllDataSegments(request: RequestClient, settings: Settings) {
+  const allDataSegments: Segments[] = []
+  // initial call to get first page
+  let response: ModifiedResponse<GET_CRMS_API_RESPONSE> = await request(
     `${BASE_URL}/crmdata/segment/${settings.advertiser_id}`,
     {
       method: 'GET',
@@ -51,9 +60,29 @@ async function getCRMID(request: RequestClient, settings: Settings, payload: Pay
       }
     }
   )
+  let segments = response.data.Segments
+  // pagingToken leads you to the next page
+  let pagingToken = response.data.PagingToken
+  // keep iterating through pages until the last empty page
+  while (segments.length > 0) {
+    allDataSegments.push(...segments)
+    response = await request(`${BASE_URL}/crmdata/segment/${settings.advertiser_id}?pagingToken=${pagingToken}`, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+        'TTD-Auth': settings.auth_token
+      }
+    })
 
+    segments = response.data.Segments
+    pagingToken = response.data.PagingToken
+  }
+  return allDataSegments
+}
+
+async function getCRMID(request: RequestClient, settings: Settings, payload: Payload) {
   let segmentId
-  const segments = response.data.Segments
+  const segments = await getAllDataSegments(request, settings)
   const segmentExists = segments.filter(function (segment) {
     if (segment.SegmentName == payload.name) {
       return segment
