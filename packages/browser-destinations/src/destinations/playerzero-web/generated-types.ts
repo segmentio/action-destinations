@@ -2,7 +2,7 @@
 
 export interface Settings {
   /**
-   * The Project ID where you want to send data. You can find this ID on the [Project Data Collection](https://go.playerzero.app/setting/data) page.
+   * The Project Token for the PlayerZero project you want to send data to. You can find this token on the [Segment (web) Connector](https://go.playerzero.app/connector/segment-web) page.
    */
-  projectId: string
+  projectToken: string
 }
