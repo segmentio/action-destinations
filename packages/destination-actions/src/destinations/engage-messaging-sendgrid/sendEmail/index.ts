@@ -101,6 +101,7 @@ const generateEmailHtml = async (
   logger?: Logger | undefined
 ): Promise<string> => {
   try {
+    statsClient?.incr('actions-personas-messaging-sendgrid.unlayer_request', 1, tags)
     const response = await request('https://api.unlayer.com/v2/export/html', {
       method: 'POST',
       headers: {
@@ -454,8 +455,7 @@ const action: ActionDefinition<Settings, Payload> = {
       let parsedBodyHtml
 
       if (payload.bodyUrl && settings.unlayerApiKey) {
-        const response = await request(payload.bodyUrl)
-        const body = await response.text()
+        const { content: body } = await request(payload.bodyUrl, { method: 'GET', skipResponseCloning: true })
 
         const bodyHtml =
           payload.bodyType === 'html'
@@ -489,7 +489,8 @@ const action: ActionDefinition<Settings, Payload> = {
       }
 
       try {
-        const response = await request('https://api.sendgrid.com/v3/mail/send', {
+        statsClient?.incr('actions-personas-messaging-sendgrid.request', 1, tags)
+        const req: RequestOptions = {
           method: 'post',
           headers: {
             authorization: `Bearer ${settings.sendGridApiKey}`
@@ -537,7 +538,10 @@ const action: ActionDefinition<Settings, Payload> = {
               }
             }
           }
-        })
+        }
+        statsClient?.set('actions-personas-messaging-sendgrid.request_body_size', JSON.stringify(req).length, tags)
+        const response = await request('https://api.sendgrid.com/v3/mail/send', req)
+        logger?.info(`X-Message-ID: ${response.headers.toJSON()['X-Message-ID']}`)
         tags.push(`sendgrid_status_code:${response.status}`)
         statsClient?.incr('actions-personas-messaging-sendgrid.response', 1, tags)
         if (payload?.eventOccurredTS != undefined) {

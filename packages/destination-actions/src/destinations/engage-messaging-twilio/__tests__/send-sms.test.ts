@@ -140,41 +140,43 @@ describe.each(['stage', 'production'])('%s environment', (environment) => {
       )
     })
 
-    it('should throw error if template content type is not "twilio/text"', async () => {
-      const logErrorSpy = jest.fn() as Logger['error']
+    it.each(['twilio/call-to-action', 'twilio/card', 'twilio/quick-reply', 'twilio/list-picker'])(
+      'should throw error if template content type is not "twilio/text" or "twilio/media"',
+      async (contentType) => {
+        const logErrorSpy = jest.fn() as Logger['error']
 
-      const twilioContentResponse = {
-        types: {
-          'twilio/media': {
-            body: 'Hello world, {{profile.user_id}}!',
-            media: 'https://images.com/photos/cute-kitty-cat'
+        const twilioContentResponse = {
+          types: {
+            [contentType]: {
+              body: 'Hello world, {{profile.user_id}}!'
+            }
           }
         }
-      }
 
-      nock('https://content.twilio.com').get(`/v1/Content/${contentSid}`).reply(200, twilioContentResponse)
+        nock('https://content.twilio.com').get(`/v1/Content/${contentSid}`).reply(200, twilioContentResponse)
 
-      const actionInputData = {
-        event: createMessagingTestEvent({
-          timestamp,
-          event: 'Audience Entered',
-          userId: 'jane'
-        }),
-        settings,
-        mapping: omit(
-          getDefaultMapping({
-            contentSid
+        const actionInputData = {
+          event: createMessagingTestEvent({
+            timestamp,
+            event: 'Audience Entered',
+            userId: 'jane'
           }),
-          ['body']
-        ),
-        logger: { level: 'error', name: 'test', error: logErrorSpy } as Logger
-      }
+          settings,
+          mapping: omit(
+            getDefaultMapping({
+              contentSid
+            }),
+            ['body']
+          ),
+          logger: { level: 'error', name: 'test', error: logErrorSpy } as Logger
+        }
 
-      await expect(twilio.testAction('sendSms', actionInputData)).rejects.toThrowError('Unsupported content type')
-      expect(logErrorSpy).toHaveBeenCalledWith(
-        `TE Messaging: SMS unsupported content template type 'twilio/media' - ${spaceId}`
-      )
-    })
+        await expect(twilio.testAction('sendSms', actionInputData)).rejects.toThrowError('Unsupported content type')
+        expect(logErrorSpy).toHaveBeenCalledWith(
+          `TE Messaging: SMS unsupported content template type '${contentType}' - ${spaceId}`
+        )
+      }
+    )
 
     it('should throw error if template does not include a "types" key', async () => {
       const logErrorSpy = jest.fn() as Logger['error']
@@ -342,6 +344,59 @@ describe.each(['stage', 'production'])('%s environment', (environment) => {
 
       await twilio.testAction('sendSms', actionInputData)
       expect(twilioMessagingRequest.isDone()).toEqual(true)
+      expect(twilioContentRequest.isDone()).toEqual(true)
+    })
+
+    it('should send MMS', async () => {
+      const twilioContentResponse = {
+        types: {
+          'twilio/media': {
+            body: 'Hello world, {{profile.user_id}}!',
+            media: ['https://catpic.com/fluffy']
+          }
+        }
+      }
+
+      const expectedTwilioRequest = new URLSearchParams({
+        Body: 'Hello world, jane!',
+        From: 'MG1111222233334444',
+        To: '+1234567891',
+        ShortenUrls: 'true'
+      })
+
+      twilioContentResponse.types['twilio/media'].media.forEach((media) => {
+        expectedTwilioRequest.append('MediaUrl', media)
+      })
+
+      const twilioContentRequest = nock('https://content.twilio.com')
+        .get(`/v1/Content/${contentSid}`)
+        .reply(200, twilioContentResponse)
+
+      const twilioRequest = nock('https://api.twilio.com/2010-04-01/Accounts/a')
+        .post('/Messages.json', expectedTwilioRequest.toString())
+        .reply(201, {})
+
+      const actionInputData = {
+        event: createMessagingTestEvent({
+          timestamp,
+          event: 'Audience Entered',
+          userId: 'jane'
+        }),
+        settings,
+        mapping: omit(
+          getDefaultMapping({
+            contentSid
+          }),
+          ['body']
+        )
+      }
+
+      const responses = await twilio.testAction('sendSms', actionInputData)
+      expect(responses.map((response) => response.url)).toStrictEqual([
+        'https://content.twilio.com/v1/Content/g',
+        'https://api.twilio.com/2010-04-01/Accounts/a/Messages.json'
+      ])
+      expect(twilioRequest.isDone()).toEqual(true)
       expect(twilioContentRequest.isDone()).toEqual(true)
     })
 
