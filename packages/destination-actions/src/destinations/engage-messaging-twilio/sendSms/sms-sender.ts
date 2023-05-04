@@ -10,6 +10,11 @@ import { getTwilioContentTemplate } from '../utils/content'
 
 const Liquid = new LiquidJs()
 
+type Profile = {
+  user_id: string | undefined
+  phone: string
+  traits: Payload['traits']
+}
 export class SmsMessageSender extends MessageSender<Payload> {
   constructor(
     readonly request: RequestFn,
@@ -120,12 +125,13 @@ export class SmsMessageSender extends MessageSender<Payload> {
       if (!this.payload.contentSid) {
         throw new Error('missing sid')
       }
-      return getTwilioContentTemplate(
+      const content = await getTwilioContentTemplate(
         this.payload.contentSid,
         this.settings.twilioApiKeySID,
         this.settings.twilioApiKeySecret,
         this.request
       )
+      return content
     } catch (error) {
       this.tags.push('reason:get_content_template')
       this.statsClient?.incr('actions-personas-messaging-twilio.error', 1, this.tags)
