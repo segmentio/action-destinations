@@ -1,5 +1,5 @@
 import nock from 'nock'
-import { createTestEvent, createTestIntegration } from '@segment/actions-core'
+import { PayloadValidationError, createTestEvent, createTestIntegration } from '@segment/actions-core'
 import Webhook from '../index'
 import { createHmac, timingSafeEqual } from 'crypto'
 import { SegmentEvent } from '@segment/actions-core'
@@ -146,6 +146,31 @@ describe('Webhook', () => {
       })
       expect(responses.length).toBe(1)
       expect(responses[0].status).toBe(200)
+    })
+
+    it('should throw an error when header value is invalid', async () => {
+      const url = 'https://example.build'
+      const event = createTestEvent()
+      const headerField = 'Custom-Header'
+      const headerValue = 'هيثم'
+      const data = { cool: true }
+
+      nock(url)
+        .put('/', data)
+        .matchHeader(headerField, headerValue)
+        .replyWithError('TypeError: هيثم is not a legal HTTP header value')
+
+      await expect(
+        testDestination.testAction('send', {
+          event,
+          mapping: {
+            url,
+            method: 'PUT',
+            headers: { [headerField]: headerValue },
+            data
+          }
+        })
+      ).rejects.toThrow(PayloadValidationError)
     })
   })
 })
