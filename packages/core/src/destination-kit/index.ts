@@ -373,15 +373,11 @@ export class Destination<Settings = JSONObject> {
     }
 
     // If lockstore is defined, synchronize refreshAccessToken. Else just execute refreshAccessToken
-    if (lockStore) {
-      try {
-        await lockStore.acquireLock()
-        return await this.authentication.refreshAccessToken(requestClient, { settings, auth: oauthData })
-      } finally {
-        await lockStore.releaseLock()
-      }
-    } else {
+    await lockStore?.acquireLock()
+    try {
       return await this.authentication.refreshAccessToken(requestClient, { settings, auth: oauthData })
+    } finally {
+      await lockStore?.releaseLock()
     }
   }
 
