@@ -376,12 +376,12 @@ export class Destination<Settings = JSONObject> {
     if (lockStore) {
       try {
         await lockStore.acquireLock()
-        return this.authentication.refreshAccessToken(requestClient, { settings, auth: oauthData })
+        return await this.authentication.refreshAccessToken(requestClient, { settings, auth: oauthData })
       } finally {
         await lockStore.releaseLock()
       }
     } else {
-      return this.authentication.refreshAccessToken(requestClient, { settings, auth: oauthData })
+      return await this.authentication.refreshAccessToken(requestClient, { settings, auth: oauthData })
     }
   }
 
