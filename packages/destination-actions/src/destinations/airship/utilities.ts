@@ -5,6 +5,7 @@ import { Payload as AttributesPayload } from './setAttributes/generated-types'
 import { Payload as TagsPayload } from './manageTags/generated-types'
 
 export function setCustomEvent(request: RequestClient, settings: Settings, payload: CustomEventsPayload) {
+  const uri = `${settings.endpoint}/api/custom-events`
   if (payload.properties) {
     payload.properties.source = 'segment'
   } else {
@@ -23,10 +24,7 @@ export function setCustomEvent(request: RequestClient, settings: Settings, paylo
       properties: payload.properties
     }
   }
-  return request(`${settings.endpoint}/api/custom-events`, {
-    method: 'POST',
-    json: [airship_payload]
-  })
+  return do_request(request, uri, [airship_payload])
 }
 
 export function setAttribute(request: RequestClient, settings: Settings, payload: AttributesPayload) {
@@ -63,13 +61,11 @@ export function setAttribute(request: RequestClient, settings: Settings, payload
     }
   }
 
-  return request(uri, {
-    method: 'POST',
-    json: airship_payload
-  })
+  return do_request(request, uri, airship_payload)
 }
 
 export function manageTags(request: RequestClient, settings: Settings, payload: TagsPayload) {
+  const uri = `${settings.endpoint}/api/named_users/tags`
   const tags_to_add: string[] = []
   const tags_to_remove: string[] = []
   const properties = payload.properties || {}
@@ -82,25 +78,25 @@ export function manageTags(request: RequestClient, settings: Settings, payload: 
       }
     }
   }
-  const airship_payload: { audience: {}; add?: {}; remove?: {} } = { audience: {}, add: {}, remove: {} }
+  const airship_payload: { audience: {}; add?: {}; remove?: {} } = { audience: {} }
   airship_payload.audience = {
     named_user_id: payload.named_user_id
   }
   if (tags_to_add.length > 0) {
     airship_payload.add = { 'segment-integration': tags_to_add }
-  } else {
-    delete airship_payload.add
   }
 
   if (tags_to_remove.length > 0) {
     airship_payload.remove = { 'segment-integration': tags_to_remove }
-  } else {
-    delete airship_payload.remove
   }
 
-  return request(`${settings.endpoint}/api/named_users/tags`, {
+  return do_request(request, uri, airship_payload)
+}
+
+function do_request(request: RequestClient, uri: string, payload: object) {
+  return request(uri, {
     method: 'POST',
-    json: airship_payload
+    json: payload
   })
 }
 
